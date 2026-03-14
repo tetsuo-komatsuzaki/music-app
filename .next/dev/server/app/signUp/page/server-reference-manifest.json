@@ -1,0 +1,20 @@
+{
+  "node": {
+    "40d8bb8b9fa3ec147cfbd8ff01d2fef45b8d429534": {
+      "workers": {
+        "app/signUp/page": {
+          "moduleId": "[project]/OneDrive/Desktop/shiftB/music-app/music-app/.next-internal/server/app/signUp/page/actions.js { ACTIONS_MODULE0 => \"[project]/OneDrive/Desktop/shiftB/music-app/music-app/app/actions/signUpAction.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": true,
+          "exportedName": "signUpAction",
+          "filename": "OneDrive/Desktop/shiftB/music-app/music-app/app/actions/signUpAction.ts"
+        }
+      },
+      "layer": {
+        "app/signUp/page": "action-browser"
+      },
+      "exportedName": "signUpAction",
+      "filename": "OneDrive/Desktop/shiftB/music-app/music-app/app/actions/signUpAction.ts"
+    }
+  },
+  "edge": {}
+}

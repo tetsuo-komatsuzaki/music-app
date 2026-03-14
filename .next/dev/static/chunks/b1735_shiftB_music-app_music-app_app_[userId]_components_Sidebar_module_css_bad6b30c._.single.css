@@ -1,0 +1,30 @@
+/* [project]/OneDrive/Desktop/shiftB/music-app/music-app/app/[userId]/components/Sidebar.module.css [app-client] (css) */
+.Sidebar-module__AVarua__sidebar {
+  color: #fff;
+  background: #0b1e3a;
+  flex-direction: column;
+  gap: 16px;
+  width: 220px;
+  padding: 20px;
+  display: flex;
+}
+
+.Sidebar-module__AVarua__navItem {
+  cursor: pointer;
+  border-radius: 8px;
+  gap: 10px;
+  padding: 10px;
+  transition: all .2s;
+  display: flex;
+}
+
+.Sidebar-module__AVarua__navItem:hover {
+  background: #1e40af;
+}
+
+.Sidebar-module__AVarua__navItemActive {
+  background: #1e40af;
+  border-left: 4px solid #3b82f6;
+}
+
+/*# sourceMappingURL=b1735_shiftB_music-app_music-app_app_%5BuserId%5D_components_Sidebar_module_css_bad6b30c._.single.css.map*/

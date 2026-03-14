@@ -1,0 +1,19 @@
+
+.header {
+  background: #1E3A8A;
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.appName {
+  font-weight: 600;
+}
+

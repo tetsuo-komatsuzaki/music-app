@@ -1,0 +1,49 @@
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.pageTitle { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
+.sectionTitle { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+
+/* おすすめ */
+.recommendSection { margin-bottom: 32px; }
+.recommendCard { background: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 12px; border-left: 4px solid #4a90d9; }
+.recommendLabel { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.recommendReason { font-size: 13px; color: #666; margin-bottom: 8px; }
+.recommendItems { display: flex; gap: 8px; flex-wrap: wrap; }
+.recommendChip { display: inline-block; background: #4a90d9; color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 13px; text-decoration: none; transition: background 0.2s; }
+.recommendChip:hover { background: #3a7bc8; }
+
+/* カテゴリカード */
+.categorySection { margin-top: 8px; }
+.categoryGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.categoryCard { display: flex; flex-direction: column; align-items: center; padding: 32px 16px; background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; text-decoration: none; color: inherit; transition: box-shadow 0.2s, transform 0.2s; }
+.categoryCard:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
+.categoryIcon { font-size: 36px; margin-bottom: 8px; }
+.categoryName { font-size: 16px; font-weight: 600; }
+.categoryCount { font-size: 13px; color: #888; margin-top: 4px; }
+
+/* 一覧ページ */
+.listHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.filterSelect { padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
+.itemList { display: flex; flex-direction: column; gap: 8px; }
+.itemCard { display: block; padding: 16px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; text-decoration: none; color: inherit; transition: box-shadow 0.2s; }
+.itemCard:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.itemTitle { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.itemMeta { font-size: 12px; color: #888; }
+.itemHistory { font-size: 12px; color: #4a90d9; margin-top: 4px; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+.badgeBeginner { background: #e8f5e9; color: #2e7d32; }
+.badgeIntermediate { background: #fff3e0; color: #e65100; }
+.badgeAdvanced { background: #fce4ec; color: #c62828; }
+
+/* 詳細ページ補足 */
+.detailHeader { margin-bottom: 16px; }
+.detailTitle { font-size: 20px; font-weight: 700; }
+.detailMeta { font-size: 13px; color: #888; margin-top: 4px; }
+.detailDescription { font-size: 14px; color: #555; margin-top: 8px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
+.historyPanel { margin-top: 16px; }
+.historyItem { padding: 8px 12px; border-bottom: 1px solid #eee; cursor: pointer; }
+.historyItem:hover { background: #f5f5f5; }
+.historyActive { background: #e3f2fd; }
+.historyDate { font-size: 13px; font-weight: 500; }
+.historyScore { font-size: 12px; color: #4a90d9; }
+.emptyState { text-align: center; padding: 40px; color: #999; font-size: 14px; }

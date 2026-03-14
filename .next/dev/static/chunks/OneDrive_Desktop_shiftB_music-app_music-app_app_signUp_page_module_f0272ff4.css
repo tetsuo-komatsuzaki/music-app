@@ -1,0 +1,184 @@
+/* [project]/OneDrive/Desktop/shiftB/music-app/music-app/app/signUp/page.module.css [app-client] (css) */
+.page-module__T3m2Pq__logoContainer, .page-module__T3m2Pq__heroImageWrapper {
+  justify-content: center;
+  margin-bottom: 2rem;
+  display: flex;
+}
+
+.page-module__T3m2Pq__heroImage {
+  border-radius: 16px;
+  max-width: 100%;
+  height: auto;
+}
+
+.page-module__T3m2Pq__title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.page-module__T3m2Pq__subtitle {
+  text-align: center;
+  color: #6b7280;
+  margin-bottom: 2rem;
+  font-size: .875rem;
+}
+
+.page-module__T3m2Pq__wrapper {
+  justify-content: center;
+  margin-top: 2rem;
+  display: flex;
+}
+
+.page-module__T3m2Pq__oauthContainer {
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  display: flex;
+}
+
+.page-module__T3m2Pq__divider {
+  text-align: center;
+  color: #9ca3af;
+  margin: 0 0 1.5rem;
+  font-size: 13px;
+  position: relative;
+}
+
+.page-module__T3m2Pq__divider:before, .page-module__T3m2Pq__divider:after {
+  content: "";
+  background: #e5e7eb;
+  width: 35%;
+  height: 1px;
+  position: absolute;
+  top: 50%;
+}
+
+.page-module__T3m2Pq__divider:before {
+  left: 0;
+}
+
+.page-module__T3m2Pq__divider:after {
+  right: 0;
+}
+
+.page-module__T3m2Pq__googleButton {
+  color: #333;
+  cursor: pointer;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 320px;
+  height: 48px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all .2s;
+  display: flex;
+  box-shadow: 0 2px 6px #0000000d;
+}
+
+.page-module__T3m2Pq__googleIcon {
+  background: linear-gradient(45deg, #4285f4, #34a853, #fbbc05, #ea4335);
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.page-module__T3m2Pq__googleButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px #0000001f;
+}
+
+.page-module__T3m2Pq__googleButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px #00000014;
+}
+
+.page-module__T3m2Pq__form {
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+}
+
+.page-module__T3m2Pq__field {
+  flex-direction: column;
+  display: flex;
+}
+
+.page-module__T3m2Pq__label {
+  color: #111827;
+  margin-bottom: .5rem;
+  font-size: .875rem;
+  font-weight: 500;
+  display: block;
+}
+
+.page-module__T3m2Pq__input {
+  color: #111827;
+  background-color: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: .5rem;
+  width: 100%;
+  padding: .625rem;
+  font-size: .875rem;
+  transition: all .2s;
+}
+
+.page-module__T3m2Pq__input:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px #3b82f64d;
+}
+
+.page-module__T3m2Pq__button {
+  color: #fff;
+  cursor: pointer;
+  background-color: #1d4ed8;
+  border: none;
+  border-radius: .5rem;
+  width: 100%;
+  padding: .625rem 1.25rem;
+  font-size: .875rem;
+  font-weight: 500;
+  transition: background-color .2s;
+}
+
+.page-module__T3m2Pq__button:hover {
+  background-color: #1e40af;
+}
+
+.page-module__T3m2Pq__button:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px #93c5fd80;
+}
+
+.page-module__T3m2Pq__button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.page-module__T3m2Pq__link {
+  color: #2563eb;
+  font-weight: 500;
+  text-decoration: underline;
+  transition: color .2s;
+}
+
+.page-module__T3m2Pq__link:hover {
+  color: #1e40af;
+}
+
+.page-module__T3m2Pq__checkboxField {
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  display: flex;
+}
+
+/*# sourceMappingURL=OneDrive_Desktop_shiftB_music-app_music-app_app_signUp_page_module_f0272ff4.css.map*/

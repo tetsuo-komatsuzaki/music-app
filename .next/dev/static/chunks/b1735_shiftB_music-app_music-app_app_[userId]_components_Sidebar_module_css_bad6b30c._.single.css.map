@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/OneDrive/Desktop/shiftB/music-app/music-app/app/[userId]/components/Sidebar.module.css"],"sourcesContent":["\r\n.sidebar {\r\n  width: 220px;\r\n  background: #0B1E3A;\r\n  color: white;\r\n  padding: 20px;\r\n  display: flex;\r\n  flex-direction: column;\r\n  gap: 16px;\r\n}\r\n\r\n.navItem {\r\n  display: flex;\r\n  gap: 10px;\r\n  padding: 10px;\r\n  cursor: pointer;\r\n  border-radius: 8px;\r\n  transition: 0.2s;\r\n}\r\n\r\n.navItem:hover {\r\n  background: #1E40AF;\r\n}\r\n\r\n.navItemActive {\r\n  background: #1E40AF;\r\n  border-left: 4px solid #3B82F6;\r\n}"],"names":[],"mappings":"AACA;;;;;;;;;;AAUA;;;;;;;;;AASA;;;;AAIA"}}]
+}

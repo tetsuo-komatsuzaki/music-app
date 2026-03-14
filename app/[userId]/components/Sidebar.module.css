@@ -1,0 +1,28 @@
+
+.sidebar {
+  width: 220px;
+  background: #0B1E3A;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.navItem {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+.navItem:hover {
+  background: #1E40AF;
+}
+
+.navItemActive {
+  background: #1E40AF;
+  border-left: 4px solid #3B82F6;
+}

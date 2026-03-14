@@ -1,0 +1,20 @@
+/* [project]/OneDrive/Desktop/shiftB/music-app/music-app/app/[userId]/components/Header.module.css [app-client] (css) */
+.Header-module__FGRQHq__header {
+  color: #fff;
+  background: #1e3a8a;
+  justify-content: flex-end;
+  padding: 12px 20px;
+  display: flex;
+}
+
+.Header-module__FGRQHq__headerRight {
+  align-items: center;
+  gap: 10px;
+  display: flex;
+}
+
+.Header-module__FGRQHq__appName {
+  font-weight: 600;
+}
+
+/*# sourceMappingURL=b1735_shiftB_music-app_music-app_app_%5BuserId%5D_components_Header_module_css_bad6b30c._.single.css.map*/

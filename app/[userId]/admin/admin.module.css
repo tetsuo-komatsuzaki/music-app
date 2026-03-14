@@ -1,0 +1,55 @@
+.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.pageTitle { font-size: 24px; font-weight: 700; }
+.sectionTitle { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+.message { padding: 12px; margin-bottom: 16px; background: #e3f2fd; border-radius: 8px; font-size: 14px; }
+
+/* ボタン */
+.primaryBtn { padding: 8px 20px; background: #4a90d9; color: #fff; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; }
+.primaryBtn:hover { background: #3a7bc8; }
+.primaryBtn:disabled { background: #aaa; cursor: not-allowed; }
+
+/* フォーム */
+.formCard { background: #f8f9fa; border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid #e0e0e0; }
+.formTitle { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+.formGrid { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+.field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #333; }
+.field input, .field select, .field textarea { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+.field textarea { resize: vertical; }
+.fieldRow { display: flex; gap: 24px; }
+.fieldRow .field { flex: 1; }
+.inlineGroup { display: flex; gap: 8px; align-items: center; }
+.inlineGroup select, .inlineGroup input { width: auto; }
+.hint { font-size: 12px; color: #888; margin-top: 4px; }
+
+/* ラジオ・チェック */
+.radioGroup, .checkboxGroup { display: flex; gap: 16px; flex-wrap: wrap; }
+.radioLabel, .checkboxLabel { display: flex; align-items: center; gap: 4px; font-size: 14px; cursor: pointer; }
+
+/* 星評価 */
+.stars { font-size: 20px; letter-spacing: 2px; }
+.starFilled { color: #f5a623; }
+.starEmpty { color: #ddd; }
+
+/* 技法タグ */
+.tagSection { max-height: 300px; overflow-y: auto; }
+.tagCategory { margin-bottom: 8px; }
+.tagCategoryName { font-size: 12px; font-weight: 600; color: #666; margin-bottom: 4px; }
+.tagList { display: flex; flex-wrap: wrap; gap: 4px; }
+.tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; background: #eee; color: #555; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; user-select: none; }
+.tag:hover { background: #ddd; }
+.tagSelected { background: #4a90d9; color: #fff; border-color: #4a90d9; }
+.tagPrimary { background: #e65100; color: #fff; border-color: #e65100; }
+.tagSmall { display: inline-block; padding: 1px 6px; border-radius: 8px; font-size: 11px; background: #e8f0fe; color: #1967d2; margin: 1px 2px; }
+.tagSmall.tagPrimary { background: #fce4ec; color: #c62828; }
+
+/* テーブル */
+.listSection { margin-top: 24px; }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th { text-align: left; padding: 8px 12px; border-bottom: 2px solid #e0e0e0; font-weight: 600; color: #555; }
+.table td { padding: 8px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+.table tr:hover { background: #f5f5f5; }
+.itemTitle { font-weight: 500; }
+.itemSub { font-size: 11px; color: #888; }
+.statusDone { color: #2e7d32; font-size: 12px; }
+.statusProcessing { color: #e65100; font-size: 12px; }

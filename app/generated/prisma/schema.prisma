@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum JobStatus {
+  processing
+  done
+  error
+}
+
+model User {
+  id             String        @id @default(cuid())
+  supabaseUserId String        @unique
+  name           String
+  role           String
+  plan           String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  performances   Performance[]
+  scores         Score[]
+
+  // ▼ 練習メニュー追加分
+  practicePerformances PracticePerformance[]
+  weaknesses           UserWeakness[]
+
+  @@index([role])
+}
+
+model Score {
+  id               String        @id @default(cuid())
+  createdById      String
+  title            String
+  composer         String?
+  arranger         String?
+  originalXmlPath  String
+  generatedXmlPath String?
+  analysisStatus   JobStatus     @default(processing)
+  buildStatus      JobStatus     @default(processing)
+  keyTonic         String?
+  keyMode          String?
+  timeNumerator    Int?
+  timeDenominator  Int?
+  defaultTempo     Int?
+  createdAt        DateTime      @default(now())
+  performances     Performance[]
+  createdBy        User          @relation(fields: [createdById], references: [id])
+
+  @@index([createdById])
+}
+
+model Performance {
+  id                   String            @id @default(cuid())
+  performanceType      PerformanceType
+  performanceStatus    PerformanceStatus @default(uploaded)
+  userId               String
+  scoreId              String
+  audioPath            String
+  audioFeaturesPath    String?
+  comparisonResultPath String?
+  pseudoXmlPath        String?
+  performanceDuration  Float?
+  performanceDate      DateTime?
+  uploadedAt           DateTime          @default(now())
+  createdAt            DateTime          @default(now())
+  score                Score             @relation(fields: [scoreId], references: [id])
+  user                 User              @relation(fields: [userId], references: [id])
+
+  @@index([scoreId])
+  @@index([userId, uploadedAt])
+}
+
+enum Role {
+  student
+  teacher
+}
+
+enum PerformanceType {
+  user
+  pro
+}
+
+enum PerformanceStatus {
+  uploaded
+  invalid
+  deleted
+}
+
+// =============================================
+// ▼ 練習メニュー機能
+// =============================================
+
+enum PracticeCategory {
+  scale
+  arpeggio
+  etude
+}
+
+// ▼ 変更: Difficulty enum を削除 → difficulty は Int(1〜5) に変更
+
+model PracticeItem {
+  id               String           @id @default(cuid())
+  category         PracticeCategory
+  title            String
+  composer         String? // ▼ 追加
+  description      String?
+  descriptionShort String? // ▼ 追加
+  difficulty       Int              @default(1) // ▼ 変更: enum → Int（星1〜5）
+
+  keyTonic   String
+  keyMode    String
+  tempoMin   Int?
+  tempoMax   Int?
+  positions  String[]
+  instrument String   @default("violin")
+
+  originalXmlPath  String
+  generatedXmlPath String?
+  analysisPath     String?
+  analysisStatus   JobStatus @default(processing)
+  buildStatus      JobStatus @default(processing)
+
+  source      String?
+  sortOrder   Int      @default(0)
+  isPublished Boolean  @default(true)
+  metadata    Json? // ▼ 追加
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  techniques           PracticeItemTechnique[]
+  practicePerformances PracticePerformance[]
+
+  @@index([category, keyTonic, keyMode])
+  @@index([category, difficulty])
+  @@index([category, isPublished, sortOrder])
+}
+
+model TechniqueTag {
+  id              String   @id @default(cuid())
+  category        String
+  name            String
+  nameEn          String?
+  description     String?
+  xmlTags         String[]
+  isAnalyzable    String
+  implementStatus String
+
+  practiceItems PracticeItemTechnique[]
+  weaknesses    UserWeakness[]
+
+  @@unique([category, name])
+  @@index([category])
+}
+
+model PracticeItemTechnique {
+  practiceItemId String
+  techniqueTagId String
+  isPrimary      Boolean @default(false)
+
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id])
+  techniqueTag TechniqueTag @relation(fields: [techniqueTagId], references: [id])
+
+  @@id([practiceItemId, techniqueTagId])
+}
+
+model PracticePerformance {
+  id                   String   @id @default(cuid())
+  userId               String
+  practiceItemId       String
+  audioPath            String
+  comparisonResultPath String?
+  performanceDuration  Float?
+  uploadedAt           DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id])
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id])
+
+  @@index([userId, practiceItemId, uploadedAt])
+  @@index([practiceItemId])
+}
+
+model UserWeakness {
+  id             String   @id @default(cuid())
+  userId         String
+  weaknessType   String
+  weaknessKey    String
+  techniqueTagId String?
+  severity       Float
+  sampleCount    Int
+  lastUpdated    DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id])
+  techniqueTag TechniqueTag? @relation(fields: [techniqueTagId], references: [id])
+
+  @@unique([userId, weaknessType, weaknessKey])
+  @@index([userId, severity])
+}

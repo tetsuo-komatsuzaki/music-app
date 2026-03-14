@@ -1,65 +1,180 @@
-import Image from "next/image";
+"use client"
+import { useEffect, useRef } from "react"
+import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
 
-export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+type ComparisonNote = {
+  note_index: number
+  detected_start_sec: number | null
+  pitch_cents_error: number | null
+  start_diff_sec: number | null
+}
+
+const PITCH_TOLERANCE = 10
+const NULL_CONSECUTIVE = 3
+const RECOVERY_DIFF_THRESHOLD = 0.15 // 150ms以上なら本当にずれたと判定
+
+export default function ScoreViewer() {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  function getPitchSymbol(error: number | null) {
+    if (error === null) return ""
+    if (Math.abs(error) <= PITCH_TOLERANCE) return ""
+    if (error >= 100) return "↑↑"
+    if (error > 0) return "↑"
+    if (error <= -100) return "↓↓"
+    if (error < 0) return "↓"
+    return ""
+  }
+
+  function getPitchColor(error: number | null) {
+    if (error === null) return "gray"
+    if (Math.abs(error) >= 100) return "red"
+    return "orange"
+  }
+
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const container = containerRef.current
+    container.style.position = "relative"
+
+    const osmd = new OpenSheetMusicDisplay(container)
+
+    Promise.all([
+      osmd.load("/test/output/pseudo_score.musicxml"),
+      fetch("/test/output/comparison_result.json").then(res => res.json())
+    ])
+      .then(([_, comparisonData]: [unknown, ComparisonNote[]]) => {
+
+        osmd.render()
+
+        setTimeout(() => {
+
+          const noteheads = container.querySelectorAll("g.vf-notehead")
+          const containerRect = container.getBoundingClientRect()
+
+          // -----------------------------
+          // null連続ブロック検出＋復帰判定
+          // -----------------------------
+          type NullBlock = {
+            startIndex: number
+            isRealShift: boolean
+          }
+
+          const nullBlocks: NullBlock[] = []
+
+          let i = 0
+          while (i < comparisonData.length) {
+
+            if (comparisonData[i].detected_start_sec !== null) {
+              i++
+              continue
+            }
+
+            // null開始
+            const start = i
+            let count = 0
+
+            while (
+              i < comparisonData.length &&
+              comparisonData[i].detected_start_sec === null
+            ) {
+              count++
+              i++
+            }
+
+            if (count >= NULL_CONSECUTIVE) {
+              // 復帰位置を確認
+              const recoveryIndex = i
+              let isRealShift = false
+
+              if (
+                recoveryIndex < comparisonData.length &&
+                comparisonData[recoveryIndex].start_diff_sec !== null
+              ) {
+                const diff = Math.abs(
+                  comparisonData[recoveryIndex].start_diff_sec as number
+                )
+
+                if (diff >= RECOVERY_DIFF_THRESHOLD) {
+                  isRealShift = true
+                }
+              }
+
+              nullBlocks.push({
+                startIndex: start,
+                isRealShift
+              })
+            }
+          }
+
+          console.log("nullBlocks:", nullBlocks)
+
+          // -----------------------------
+          // 描画
+          // -----------------------------
+          comparisonData.forEach((comp, index) => {
+
+            if (comp.note_index == null) return
+            if (comp.note_index >= noteheads.length) return
+
+            const notehead = noteheads[comp.note_index] as HTMLElement
+            const rect = notehead.getBoundingClientRect()
+
+            const x = rect.left - containerRect.left + rect.width / 2
+            const y = rect.top - containerRect.top - 10
+
+            const marker = document.createElement("div")
+            marker.style.position = "absolute"
+            marker.style.left = `${x}px`
+            marker.style.top = `${y}px`
+            marker.style.pointerEvents = "none"
+            marker.style.fontWeight = "bold"
+
+            // nullブロック開始位置チェック
+            const block = nullBlocks.find(b => b.startIndex === index)
+
+            if (block) {
+              if (block.isRealShift) {
+                marker.innerText = "⚠ ここから演奏がずれています"
+                marker.style.color = "blue"
+              } else {
+                marker.innerText = "ℹ 一時的に検出できませんでした"
+                marker.style.color = "purple"
+              }
+              marker.style.fontSize = "14px"
+              container.appendChild(marker)
+              return
+            }
+
+            // null音
+            if (comp.detected_start_sec === null) {
+              marker.innerText = "×"
+              marker.style.color = "green"
+              marker.style.fontSize = "18px"
+              container.appendChild(marker)
+              return
+            }
+
+            // ピッチ表示
+            const symbol = getPitchSymbol(comp.pitch_cents_error)
+            if (!symbol) return
+
+            marker.innerText = symbol
+            marker.style.color = getPitchColor(comp.pitch_cents_error)
+            marker.style.fontSize = "18px"
+
+            container.appendChild(marker)
+          })
+
+        }, 200)
+
+      })
+      .catch(err => {
+        console.error("OSMD error:", err)
+      })
+
+  }, [])
+
+  return <div ref={containerRef} />
 }

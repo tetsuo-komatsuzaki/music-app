@@ -1,0 +1,234 @@
+/* [project]/OneDrive/Desktop/shiftB/music-app/music-app/app/[userId]/top/[scoreId]/scoreDetail.module.css [app-client] (css) */
+.scoreDetail-module__SEH1Iq__container {
+  color: #1a1a1a;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 40px;
+  font-family: Helvetica Neue, sans-serif;
+}
+
+.scoreDetail-module__SEH1Iq__header {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  display: flex;
+}
+
+.scoreDetail-module__SEH1Iq__title {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.scoreDetail-module__SEH1Iq__grid {
+  gap: 32px;
+  display: flex;
+}
+
+.scoreDetail-module__SEH1Iq__leftColumn {
+  flex-direction: column;
+  flex: 0 0 320px;
+  gap: 16px;
+  display: flex;
+}
+
+.scoreDetail-module__SEH1Iq__rightColumn {
+  flex: 1;
+  min-width: 0;
+}
+
+.scoreDetail-module__SEH1Iq__card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 4px #00000014;
+}
+
+.scoreDetail-module__SEH1Iq__card h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.scoreDetail-module__SEH1Iq__recordBtn {
+  color: #fff;
+  cursor: pointer;
+  background: #2e7dff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+}
+
+.scoreDetail-module__SEH1Iq__recordBtn:hover {
+  background: #1a6ae0;
+}
+
+.scoreDetail-module__SEH1Iq__playBtn {
+  cursor: pointer;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.scoreDetail-module__SEH1Iq__playBtn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.scoreDetail-module__SEH1Iq__audioMock {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.scoreDetail-module__SEH1Iq__scoreMock {
+  min-height: 300px;
+  padding: 10px 0;
+}
+
+.scoreDetail-module__SEH1Iq__osmdContainer {
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  overflow: auto hidden;
+}
+
+.scoreDetail-module__SEH1Iq__osmdContainer svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.scoreDetail-module__SEH1Iq__scoreNav {
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+  display: flex;
+}
+
+.scoreDetail-module__SEH1Iq__scoreNav button {
+  cursor: pointer;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.scoreDetail-module__SEH1Iq__scoreNav button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.scoreDetail-module__SEH1Iq__evalSummary {
+  flex-direction: column;
+  gap: 8px;
+  display: flex;
+}
+
+.scoreDetail-module__SEH1Iq__evalRow {
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  display: flex;
+}
+
+.scoreDetail-module__SEH1Iq__evalLabel {
+  color: #555;
+}
+
+.scoreDetail-module__SEH1Iq__evalValue {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.scoreDetail-module__SEH1Iq__evalLegend {
+  color: #888;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 12px;
+  display: flex;
+}
+
+.scoreDetail-module__SEH1Iq__legendItem {
+  align-items: center;
+  gap: 4px;
+  display: flex;
+}
+
+.scoreDetail-module__SEH1Iq__legendDot {
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+}
+
+.scoreDetail-module__SEH1Iq__evalWarnings {
+  background: #fff8e1;
+  border-left: 3px solid #ffa000;
+  border-radius: 4px;
+  margin-top: 10px;
+  padding: 8px 12px;
+}
+
+.scoreDetail-module__SEH1Iq__evalWarning {
+  color: #795548;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.scoreDetail-module__SEH1Iq__historyItem {
+  cursor: pointer;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  padding: 10px 12px;
+  font-size: 13px;
+  transition: background .15s;
+}
+
+.scoreDetail-module__SEH1Iq__historyItem:hover {
+  background: #f5f7ff;
+}
+
+.scoreDetail-module__SEH1Iq__historyActive {
+  background: #eef2ff;
+  border-color: #b4c4ff;
+}
+
+.scoreDetail-module__SEH1Iq__historyMeta {
+  color: #999;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 11px;
+  display: flex;
+}
+
+.scoreDetail-module__SEH1Iq__historyBadge {
+  color: #388e3c;
+  background: #e8f5e9;
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .scoreDetail-module__SEH1Iq__container {
+    padding: 20px;
+  }
+
+  .scoreDetail-module__SEH1Iq__grid {
+    flex-direction: column;
+  }
+
+  .scoreDetail-module__SEH1Iq__leftColumn {
+    flex: none;
+    width: 100%;
+  }
+}
+
+/*# sourceMappingURL=5207e_music-app_music-app_app_%5BuserId%5D_top_%5BscoreId%5D_scoreDetail_module_css_bad6b30c._.single.css.map*/
