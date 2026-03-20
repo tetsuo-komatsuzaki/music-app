@@ -25,15 +25,40 @@
 .filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
 .filterSelect { padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
 .itemList { display: flex; flex-direction: column; gap: 8px; }
-.itemCard { display: block; padding: 16px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; text-decoration: none; color: inherit; transition: box-shadow 0.2s; }
+.itemCard { display: block; padding: 14px 16px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; text-decoration: none; color: inherit; transition: box-shadow 0.2s; }
 .itemCard:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 .itemTitle { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.itemComposer { font-size: 12px; color: #888; margin-bottom: 2px; }
 .itemMeta { font-size: 12px; color: #888; }
+.itemDescription { font-size: 12px; color: #666; margin-top: 4px; }
 .itemHistory { font-size: 12px; color: #4a90d9; margin-top: 4px; }
 .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
 .badgeBeginner { background: #e8f5e9; color: #2e7d32; }
 .badgeIntermediate { background: #fff3e0; color: #e65100; }
 .badgeAdvanced { background: #fce4ec; color: #c62828; }
+
+/* カード内レイアウト */
+.cardHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
+.cardTitle { font-size: 15px; font-weight: 600; color: #222; }
+.cardSubtitle { font-size: 11px; color: #aaa; margin-bottom: 8px; letter-spacing: 0.02em; }
+.cardStars { display: flex; gap: 1px; flex-shrink: 0; margin-left: 8px; }
+.starFilled { color: #f59e0b; font-size: 13px; line-height: 1; }
+.starEmpty  { color: #e5e7eb; font-size: 13px; line-height: 1; }
+
+/* チップ */
+.chipRow { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+.chipBlue   { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; background: #eff6ff; color: #1e40af; }
+.chipGreen  { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; background: #f0fdf4; color: #166534; }
+.chipGray   { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; background: #f3f4f6; color: #4b5563; }
+.chipPurple { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; background: #faf5ff; color: #6b21a8; }
+
+/* カードフッター */
+.cardFooter { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f0f0; padding-top: 8px; margin-top: 4px; }
+.cardFooterLeft {}
+.cardFooterLabel { font-size: 11px; color: #bbb; }
+.cardFooterValue { font-size: 12px; color: #555; margin-top: 1px; }
+.cardFooterEmpty { font-size: 12px; color: #bbb; }
+.scoreBadge { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 11px; font-weight: 500; background: #dcfce7; color: #166534; }
 
 /* 詳細ページ補足 */
 .detailHeader { margin-bottom: 16px; }
@@ -47,3 +72,178 @@
 .historyDate { font-size: 13px; font-weight: 500; }
 .historyScore { font-size: 12px; color: #4a90d9; }
 .emptyState { text-align: center; padding: 40px; color: #999; font-size: 14px; }
+
+/* ==============================
+   3-view tabs
+   ============================== */
+.tabRow { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; }
+.tab { padding: 8px 18px; font-size: 13px; font-weight: 500; border: none; background: transparent; cursor: pointer; color: #888; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.15s, border-color 0.15s; }
+.tab:hover { color: #4a90d9; }
+.tabActive { color: #4a90d9; border-bottom-color: #4a90d9; }
+
+/* section wrapper */
+.viewSection { margin-bottom: 28px; }
+.sectionCount { font-size: 13px; font-weight: 400; color: #999; }
+
+/* search */
+.searchInput { width: 100%; max-width: 360px; padding: 7px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; margin-bottom: 12px; outline: none; }
+.searchInput:focus { border-color: #4a90d9; }
+
+/* stats row */
+.statsRow { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+.statCard { flex: 1; min-width: 100px; background: #f8f9fa; border-radius: 10px; padding: 14px 16px; }
+.statValue { font-size: 22px; font-weight: 700; color: #222; line-height: 1; }
+.statUnit { font-size: 13px; font-weight: 400; color: #888; }
+.statLabel { font-size: 11px; color: #aaa; margin-top: 4px; }
+.statBar { height: 4px; background: #e5e7eb; border-radius: 2px; margin-top: 8px; }
+.statBarFill { height: 100%; background: #4a90d9; border-radius: 2px; }
+
+/* recommendation horizontal scroll */
+.recScroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.recScroll::-webkit-scrollbar { display: none; }
+.recCard { display: block; flex-shrink: 0; width: 140px; text-decoration: none; color: inherit; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; transition: box-shadow 0.2s; }
+.recCard:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.09); }
+.recCardInner { padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+.recReason { display: inline-block; padding: 2px 7px; border-radius: 8px; font-size: 10px; font-weight: 600; margin-bottom: 2px; }
+.reasonWeakness { background: #fce4ec; color: #c62828; }
+.reasonContinue { background: #e8f5e9; color: #2e7d32; }
+.reasonUntried  { background: #e8eaf6; color: #3949ab; }
+.reasonSameKey  { background: #fff3e0; color: #e65100; }
+.recTitle { font-size: 14px; font-weight: 600; color: #222; }
+.recSubtitle { font-size: 10px; color: #aaa; }
+.recLast { font-size: 10px; color: #4a90d9; margin-top: 2px; }
+
+/* group view: key grid (scale: 4×3) */
+.keyGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.keyCell { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 14px 8px; cursor: pointer; text-align: center; transition: box-shadow 0.15s, transform 0.15s; }
+.keyCell:hover { box-shadow: 0 3px 8px rgba(0,0,0,0.08); transform: translateY(-1px); }
+
+/* group view: chord/composer grid */
+.groupGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.groupCell { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; cursor: pointer; text-align: left; transition: box-shadow 0.15s; }
+.groupCell:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+.groupCellKey { font-size: 15px; font-weight: 600; color: #222; margin-bottom: 4px; }
+.groupCellCount { font-size: 12px; color: #888; }
+
+/* group back button */
+.groupBack { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #4a90d9; background: none; border: none; cursor: pointer; margin-bottom: 16px; padding: 0; }
+.groupBack:hover { text-decoration: underline; }
+
+/* ==============================
+   詳細ページ: 左パネル型レイアウト
+   ============================== */
+.infoPanel {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+}
+
+/* カテゴリバッジ */
+.infoPanelCategory {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.infoPanelCategoryScale { background: #e1f5ee; color: #085041; }
+.infoPanelCategoryArpeggio { background: #e6f1fb; color: #0c447c; }
+.infoPanelCategoryEtude { background: #eeedfe; color: #3c3489; }
+
+.infoPanelTitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin: 8px 0 4px;
+}
+
+.infoPanelComposer {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.infoPanelStars {
+  color: #f5a623;
+  font-size: 14px;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+.infoPanelStarEmpty { color: #ddd; }
+
+.infoPanelDivider {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 12px 0;
+}
+
+.infoPanelMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.infoPanelMetaRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.infoPanelMetaLabel { color: #999; }
+
+.infoPanelMetaValue {
+  color: #333;
+  font-weight: 500;
+}
+
+.infoPanelTagSection { margin-top: 2px; }
+
+.infoPanelTagLabel {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 6px;
+}
+
+.infoPanelTag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  margin: 2px;
+}
+.infoPanelTagPrimary { background: #fce4ec; color: #c62828; }
+.infoPanelTagNormal { background: #f0f0f0; color: #666; }
+
+.infoPanelDescription {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.infoPanelHistory { font-size: 13px; }
+
+.infoPanelHistoryItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.infoPanelHistoryDate {
+  color: #666;
+  font-size: 12px;
+}
+
+.infoPanelHistoryScore {
+  color: #4a90d9;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.infoPanelEmpty {
+  font-size: 12px;
+  color: #999;
+  padding: 8px 0;
+}

@@ -2,6 +2,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import ScoreDetail from "@/app/[userId]/top/[scoreId]/scoreDetail"
 import { uploadPracticeRecord } from "@/app/actions/uploadPracticeRecord"
+import styles from "../../practice.module.css"
 
 export default async function PracticeDetailPage({
   params,
@@ -14,7 +15,6 @@ export default async function PracticeDetailPage({
     where: { id: itemId },
     include: {
       techniques: {
-        where: { isPrimary: true },
         include: { techniqueTag: { select: { name: true } } },
       },
     },
@@ -22,8 +22,13 @@ export default async function PracticeDetailPage({
 
   if (!item) return <div>練習メニューが見つかりません</div>
 
+  // アクセス制御: 他ユーザーの個人アイテムは閲覧不可
+  if (item.ownerUserId && item.ownerUserId !== userId) {
+    return <div>このアイテムへのアクセス権がありません</div>
+  }
+
   // =========================
-  // 🎼 buildUrl
+  // buildUrl
   // =========================
   let buildUrl: string | null = null
   if (item.buildStatus === "done" && item.generatedXmlPath) {
@@ -34,7 +39,7 @@ export default async function PracticeDetailPage({
   }
 
   // =========================
-  // 📄 analysis
+  // analysis
   // =========================
   let analysisData = null
   if (item.analysisStatus === "done" && item.analysisPath) {
@@ -48,7 +53,7 @@ export default async function PracticeDetailPage({
   }
 
   // =========================
-  // 🎧 performances（+ comparison_result）
+  // performances
   // =========================
   const practicePerformances = await prisma.practicePerformance.findMany({
     where: { userId, practiceItemId: itemId },
@@ -95,34 +100,137 @@ export default async function PracticeDetailPage({
     })
   )
 
-  // =========================
-  // 練習メニュー固有ヘッダー + ScoreDetail再利用
-  // =========================
   const categoryLabels: Record<string, string> = {
     scale: "音階", scales: "音階",
     arpeggio: "アルペジオ", arpeggios: "アルペジオ",
     etude: "エチュード", etudes: "エチュード",
   }
 
-  return (
-    <div>
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "16px 24px 0" }}>
-        <div style={{ fontSize: 13, color: "#888", marginBottom: 4 }}>
-          <a href={`/${userId}/practice/${category}`} style={{ color: "#4a90d9" }}>
-            ← {categoryLabels[category] || category}
-          </a>
+  const infoPanel = (
+    <div className={styles.infoPanel}>
+      {/* カテゴリバッジ */}
+      <span className={`${styles.infoPanelCategory} ${
+        item.category === "scale" ? styles.infoPanelCategoryScale :
+        item.category === "arpeggio" ? styles.infoPanelCategoryArpeggio :
+        styles.infoPanelCategoryEtude
+      }`}>
+        {categoryLabels[item.category] || item.category}
+      </span>
+
+      {/* タイトル */}
+      <div className={styles.infoPanelTitle}>{item.title}</div>
+
+      {/* 作曲者 */}
+      {item.composer && (
+        <div className={styles.infoPanelComposer}>{item.composer}</div>
+      )}
+
+      {/* 難易度 */}
+      <div className={styles.infoPanelStars}>
+        {[1,2,3,4,5].map(i => (
+          <span key={i} className={i > item.difficulty ? styles.infoPanelStarEmpty : undefined}>
+            ★
+          </span>
+        ))}
+      </div>
+
+      <hr className={styles.infoPanelDivider} />
+
+      {/* メタ情報 */}
+      <div className={styles.infoPanelMeta}>
+        <div className={styles.infoPanelMetaRow}>
+          <span className={styles.infoPanelMetaLabel}>調</span>
+          <span className={styles.infoPanelMetaValue}>
+            {item.keyTonic} {item.keyMode === "major" ? "長調" : "短調"}
+          </span>
         </div>
-        {item.description && (
-          <div style={{ fontSize: 14, color: "#555", padding: "8px 12px", background: "#f8f9fa", borderRadius: 8, marginBottom: 8 }}>
-            {item.description}
+        {item.tempoMin && item.tempoMax && (
+          <div className={styles.infoPanelMetaRow}>
+            <span className={styles.infoPanelMetaLabel}>テンポ</span>
+            <span className={styles.infoPanelMetaValue}>
+              ♩= {item.tempoMin}-{item.tempoMax}
+            </span>
           </div>
         )}
-        <div style={{ fontSize: 12, color: "#888", marginBottom: 8 }}>
-          {item.keyTonic} {item.keyMode === "major" ? "長調" : "短調"}
-          {item.tempoMin && item.tempoMax && ` · 推奨テンポ: ${item.tempoMin}-${item.tempoMax}`}
-          {item.positions.length > 0 && ` · ${item.positions.join(", ")}`}
-          {item.techniques.length > 0 && ` · ${item.techniques.map(t => t.techniqueTag.name).join(", ")}`}
-        </div>
+        {item.positions.length > 0 && (
+          <div className={styles.infoPanelMetaRow}>
+            <span className={styles.infoPanelMetaLabel}>ポジション</span>
+            <span className={styles.infoPanelMetaValue}>
+              {item.positions.join(", ")}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* 技法タグ */}
+      {item.techniques.length > 0 && (
+        <>
+          <hr className={styles.infoPanelDivider} />
+          <div className={styles.infoPanelTagSection}>
+            <div className={styles.infoPanelTagLabel}>技法</div>
+            {item.techniques.map(t => (
+              <span key={t.techniqueTag.name}
+                className={`${styles.infoPanelTag} ${
+                  t.isPrimary ? styles.infoPanelTagPrimary : styles.infoPanelTagNormal
+                }`}>
+                {t.techniqueTag.name}
+              </span>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* 説明 */}
+      {(item.description || item.descriptionShort) && (
+        <>
+          <hr className={styles.infoPanelDivider} />
+          <div className={styles.infoPanelDescription}>
+            {item.description || item.descriptionShort}
+          </div>
+        </>
+      )}
+
+      {/* 練習履歴 */}
+      <hr className={styles.infoPanelDivider} />
+      <div className={styles.infoPanelHistory}>
+        <div className={styles.infoPanelTagLabel}>練習履歴</div>
+        {performances.length === 0 && (
+          <div className={styles.infoPanelEmpty}>まだ練習していません</div>
+        )}
+        {performances.slice(0, 5).map(p => (
+          <div key={p.id} className={styles.infoPanelHistoryItem}>
+            <span className={styles.infoPanelHistoryDate}>
+              {new Date(p.uploadedAt).toLocaleDateString("ja-JP", {
+                month: "numeric", day: "numeric"
+              })}
+            </span>
+            <span className={styles.infoPanelHistoryScore}>
+              {p.comparisonResult
+                ? (() => {
+                    const evaluated = p.comparisonResult.filter(
+                      (n: any) => n.evaluation_status === "evaluated" || n.evaluation_status === "pitch_only"
+                    )
+                    if (evaluated.length === 0) return "解析中"
+                    const ok = evaluated.filter((n: any) => n.pitch_ok === true).length
+                    return `${Math.round((ok / evaluated.length) * 100)}%`
+                  })()
+                : "解析中"
+              }
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+
+  return (
+    <div>
+      {/* パンくず */}
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 24px 0" }}>
+        <a href={`/${userId}/practice/${category}`}
+           style={{ fontSize: 13, color: "#4a90d9", textDecoration: "none" }}>
+          ← {categoryLabels[category] || category}
+        </a>
       </div>
 
       <ScoreDetail
@@ -131,6 +239,8 @@ export default async function PracticeDetailPage({
         analysis={analysisData}
         uploadAction={uploadPracticeRecord}
         buildUrl={buildUrl}
+        infoSlot={infoPanel}
+        singleStaffLine={item.category === "scale" || item.category === "arpeggio"}
       />
     </div>
   )

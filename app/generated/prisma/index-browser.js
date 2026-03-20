@@ -145,6 +145,7 @@ exports.Prisma.ScoreScalarFieldEnum = {
   timeNumerator: 'timeNumerator',
   timeDenominator: 'timeDenominator',
   defaultTempo: 'defaultTempo',
+  isShared: 'isShared',
   createdAt: 'createdAt'
 };
 
@@ -183,6 +184,7 @@ exports.Prisma.PracticeItemScalarFieldEnum = {
   analysisPath: 'analysisPath',
   analysisStatus: 'analysisStatus',
   buildStatus: 'buildStatus',
+  ownerUserId: 'ownerUserId',
   source: 'source',
   sortOrder: 'sortOrder',
   isPublished: 'isPublished',

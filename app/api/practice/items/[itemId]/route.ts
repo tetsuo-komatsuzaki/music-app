@@ -7,6 +7,8 @@ export async function GET(
   { params }: { params: Promise<{ itemId: string }> }
 ) {
   const { itemId } = await params
+  const { searchParams } = new URL(request.url)
+  const userId = searchParams.get("userId")
 
   const item = await prisma.practiceItem.findUnique({
     where: { id: itemId },
@@ -23,6 +25,11 @@ export async function GET(
 
   if (!item) {
     return NextResponse.json({ error: "Not found" }, { status: 404 })
+  }
+
+  // アクセス制御: ownerUserIdがある場合、本人のみ閲覧可
+  if (item.ownerUserId && item.ownerUserId !== userId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
   return NextResponse.json(item)

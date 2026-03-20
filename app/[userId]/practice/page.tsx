@@ -10,11 +10,12 @@ export default async function PracticePage({
 }) {
   const { userId } = await params
 
-  // カテゴリごとの件数
+  // カテゴリごとの件数（運営サンプル + 自分のアイテムのみ）
+  const ownerFilter = { OR: [{ ownerUserId: null }, { ownerUserId: userId }] }
   const [scaleCount, arpeggioCount, etudeCount] = await Promise.all([
-    prisma.practiceItem.count({ where: { category: "scale", isPublished: true } }),
-    prisma.practiceItem.count({ where: { category: "arpeggio", isPublished: true } }),
-    prisma.practiceItem.count({ where: { category: "etude", isPublished: true } }),
+    prisma.practiceItem.count({ where: { category: "scale", isPublished: true, ...ownerFilter } }),
+    prisma.practiceItem.count({ where: { category: "arpeggio", isPublished: true, ...ownerFilter } }),
+    prisma.practiceItem.count({ where: { category: "etude", isPublished: true, ...ownerFilter } }),
   ])
 
   // ユーザーの楽曲（レコメンド用）
@@ -35,6 +36,7 @@ export default async function PracticePage({
         keyMode: score.keyMode ?? "major",
         category: { in: ["scale", "arpeggio"] },
         isPublished: true,
+        OR: [{ ownerUserId: null }, { ownerUserId: userId }],
       },
       take: 3,
       orderBy: { difficulty: "asc" },
@@ -66,7 +68,7 @@ export default async function PracticePage({
     if (w.weaknessType === "key_area") {
       const [tonic, mode] = w.weaknessKey.split("_")
       items = await prisma.practiceItem.findMany({
-        where: { keyTonic: tonic, keyMode: mode, category: { in: ["scale", "arpeggio"] }, isPublished: true },
+        where: { keyTonic: tonic, keyMode: mode, category: { in: ["scale", "arpeggio"] }, isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: userId }] },
         take: 3, select: { id: true, title: true, category: true, difficulty: true },
       })
       const modeName = mode === "major" ? "長調" : "短調"
@@ -75,6 +77,7 @@ export default async function PracticePage({
       items = await prisma.practiceItem.findMany({
         where: {
           category: "etude", isPublished: true,
+          OR: [{ ownerUserId: null }, { ownerUserId: userId }],
           techniques: { some: { techniqueTag: { name: { in: ["デタシェ", "マルテレ", "スタッカート"] } } } },
         },
         take: 3, select: { id: true, title: true, category: true, difficulty: true },
@@ -85,6 +88,7 @@ export default async function PracticePage({
       items = await prisma.practiceItem.findMany({
         where: {
           category: { in: ["scale", "etude"] }, isPublished: true,
+          OR: [{ ownerUserId: null }, { ownerUserId: userId }],
           positions: { hasSome: ["3rd", "5th", "7th"] },
         },
         take: 3, select: { id: true, title: true, category: true, difficulty: true },
@@ -94,6 +98,7 @@ export default async function PracticePage({
       items = await prisma.practiceItem.findMany({
         where: {
           isPublished: true,
+          OR: [{ ownerUserId: null }, { ownerUserId: userId }],
           techniques: { some: { techniqueTagId: w.techniqueTagId! } },
         },
         take: 3, select: { id: true, title: true, category: true, difficulty: true },

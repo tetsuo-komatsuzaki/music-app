@@ -1569,6 +1569,7 @@ export namespace Prisma {
   export type UserCountOutputType = {
     performances: number
     scores: number
+    practiceItems: number
     practicePerformances: number
     weaknesses: number
   }
@@ -1576,6 +1577,7 @@ export namespace Prisma {
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     performances?: boolean | UserCountOutputTypeCountPerformancesArgs
     scores?: boolean | UserCountOutputTypeCountScoresArgs
+    practiceItems?: boolean | UserCountOutputTypeCountPracticeItemsArgs
     practicePerformances?: boolean | UserCountOutputTypeCountPracticePerformancesArgs
     weaknesses?: boolean | UserCountOutputTypeCountWeaknessesArgs
   }
@@ -1603,6 +1605,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountScoresArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ScoreWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountPracticeItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PracticeItemWhereInput
   }
 
   /**
@@ -1917,6 +1926,7 @@ export namespace Prisma {
     updatedAt?: boolean
     performances?: boolean | User$performancesArgs<ExtArgs>
     scores?: boolean | User$scoresArgs<ExtArgs>
+    practiceItems?: boolean | User$practiceItemsArgs<ExtArgs>
     practicePerformances?: boolean | User$practicePerformancesArgs<ExtArgs>
     weaknesses?: boolean | User$weaknessesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1956,6 +1966,7 @@ export namespace Prisma {
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     performances?: boolean | User$performancesArgs<ExtArgs>
     scores?: boolean | User$scoresArgs<ExtArgs>
+    practiceItems?: boolean | User$practiceItemsArgs<ExtArgs>
     practicePerformances?: boolean | User$practicePerformancesArgs<ExtArgs>
     weaknesses?: boolean | User$weaknessesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1968,6 +1979,7 @@ export namespace Prisma {
     objects: {
       performances: Prisma.$PerformancePayload<ExtArgs>[]
       scores: Prisma.$ScorePayload<ExtArgs>[]
+      practiceItems: Prisma.$PracticeItemPayload<ExtArgs>[]
       practicePerformances: Prisma.$PracticePerformancePayload<ExtArgs>[]
       weaknesses: Prisma.$UserWeaknessPayload<ExtArgs>[]
     }
@@ -2375,6 +2387,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     performances<T extends User$performancesArgs<ExtArgs> = {}>(args?: Subset<T, User$performancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PerformancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     scores<T extends User$scoresArgs<ExtArgs> = {}>(args?: Subset<T, User$scoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    practiceItems<T extends User$practiceItemsArgs<ExtArgs> = {}>(args?: Subset<T, User$practiceItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PracticeItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     practicePerformances<T extends User$practicePerformancesArgs<ExtArgs> = {}>(args?: Subset<T, User$practicePerformancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PracticePerformancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     weaknesses<T extends User$weaknessesArgs<ExtArgs> = {}>(args?: Subset<T, User$weaknessesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserWeaknessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -2849,6 +2862,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.practiceItems
+   */
+  export type User$practiceItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItem
+     */
+    select?: PracticeItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItem
+     */
+    omit?: PracticeItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemInclude<ExtArgs> | null
+    where?: PracticeItemWhereInput
+    orderBy?: PracticeItemOrderByWithRelationInput | PracticeItemOrderByWithRelationInput[]
+    cursor?: PracticeItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PracticeItemScalarFieldEnum | PracticeItemScalarFieldEnum[]
+  }
+
+  /**
    * User.practicePerformances
    */
   export type User$practicePerformancesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2954,6 +2991,7 @@ export namespace Prisma {
     timeNumerator: number | null
     timeDenominator: number | null
     defaultTempo: number | null
+    isShared: boolean | null
     createdAt: Date | null
   }
 
@@ -2972,6 +3010,7 @@ export namespace Prisma {
     timeNumerator: number | null
     timeDenominator: number | null
     defaultTempo: number | null
+    isShared: boolean | null
     createdAt: Date | null
   }
 
@@ -2990,6 +3029,7 @@ export namespace Prisma {
     timeNumerator: number
     timeDenominator: number
     defaultTempo: number
+    isShared: number
     createdAt: number
     _all: number
   }
@@ -3022,6 +3062,7 @@ export namespace Prisma {
     timeNumerator?: true
     timeDenominator?: true
     defaultTempo?: true
+    isShared?: true
     createdAt?: true
   }
 
@@ -3040,6 +3081,7 @@ export namespace Prisma {
     timeNumerator?: true
     timeDenominator?: true
     defaultTempo?: true
+    isShared?: true
     createdAt?: true
   }
 
@@ -3058,6 +3100,7 @@ export namespace Prisma {
     timeNumerator?: true
     timeDenominator?: true
     defaultTempo?: true
+    isShared?: true
     createdAt?: true
     _all?: true
   }
@@ -3163,6 +3206,7 @@ export namespace Prisma {
     timeNumerator: number | null
     timeDenominator: number | null
     defaultTempo: number | null
+    isShared: boolean
     createdAt: Date
     _count: ScoreCountAggregateOutputType | null
     _avg: ScoreAvgAggregateOutputType | null
@@ -3200,6 +3244,7 @@ export namespace Prisma {
     timeNumerator?: boolean
     timeDenominator?: boolean
     defaultTempo?: boolean
+    isShared?: boolean
     createdAt?: boolean
     performances?: boolean | Score$performancesArgs<ExtArgs>
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
@@ -3221,6 +3266,7 @@ export namespace Prisma {
     timeNumerator?: boolean
     timeDenominator?: boolean
     defaultTempo?: boolean
+    isShared?: boolean
     createdAt?: boolean
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["score"]>
@@ -3240,6 +3286,7 @@ export namespace Prisma {
     timeNumerator?: boolean
     timeDenominator?: boolean
     defaultTempo?: boolean
+    isShared?: boolean
     createdAt?: boolean
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["score"]>
@@ -3259,10 +3306,11 @@ export namespace Prisma {
     timeNumerator?: boolean
     timeDenominator?: boolean
     defaultTempo?: boolean
+    isShared?: boolean
     createdAt?: boolean
   }
 
-  export type ScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdById" | "title" | "composer" | "arranger" | "originalXmlPath" | "generatedXmlPath" | "analysisStatus" | "buildStatus" | "keyTonic" | "keyMode" | "timeNumerator" | "timeDenominator" | "defaultTempo" | "createdAt", ExtArgs["result"]["score"]>
+  export type ScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdById" | "title" | "composer" | "arranger" | "originalXmlPath" | "generatedXmlPath" | "analysisStatus" | "buildStatus" | "keyTonic" | "keyMode" | "timeNumerator" | "timeDenominator" | "defaultTempo" | "isShared" | "createdAt", ExtArgs["result"]["score"]>
   export type ScoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     performances?: boolean | Score$performancesArgs<ExtArgs>
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
@@ -3296,6 +3344,7 @@ export namespace Prisma {
       timeNumerator: number | null
       timeDenominator: number | null
       defaultTempo: number | null
+      isShared: boolean
       createdAt: Date
     }, ExtArgs["result"]["score"]>
     composites: {}
@@ -3736,6 +3785,7 @@ export namespace Prisma {
     readonly timeNumerator: FieldRef<"Score", 'Int'>
     readonly timeDenominator: FieldRef<"Score", 'Int'>
     readonly defaultTempo: FieldRef<"Score", 'Int'>
+    readonly isShared: FieldRef<"Score", 'Boolean'>
     readonly createdAt: FieldRef<"Score", 'DateTime'>
   }
     
@@ -5423,6 +5473,7 @@ export namespace Prisma {
     analysisPath: string | null
     analysisStatus: $Enums.JobStatus | null
     buildStatus: $Enums.JobStatus | null
+    ownerUserId: string | null
     source: string | null
     sortOrder: number | null
     isPublished: boolean | null
@@ -5448,6 +5499,7 @@ export namespace Prisma {
     analysisPath: string | null
     analysisStatus: $Enums.JobStatus | null
     buildStatus: $Enums.JobStatus | null
+    ownerUserId: string | null
     source: string | null
     sortOrder: number | null
     isPublished: boolean | null
@@ -5474,6 +5526,7 @@ export namespace Prisma {
     analysisPath: number
     analysisStatus: number
     buildStatus: number
+    ownerUserId: number
     source: number
     sortOrder: number
     isPublished: number
@@ -5516,6 +5569,7 @@ export namespace Prisma {
     analysisPath?: true
     analysisStatus?: true
     buildStatus?: true
+    ownerUserId?: true
     source?: true
     sortOrder?: true
     isPublished?: true
@@ -5541,6 +5595,7 @@ export namespace Prisma {
     analysisPath?: true
     analysisStatus?: true
     buildStatus?: true
+    ownerUserId?: true
     source?: true
     sortOrder?: true
     isPublished?: true
@@ -5567,6 +5622,7 @@ export namespace Prisma {
     analysisPath?: true
     analysisStatus?: true
     buildStatus?: true
+    ownerUserId?: true
     source?: true
     sortOrder?: true
     isPublished?: true
@@ -5681,6 +5737,7 @@ export namespace Prisma {
     analysisPath: string | null
     analysisStatus: $Enums.JobStatus
     buildStatus: $Enums.JobStatus
+    ownerUserId: string | null
     source: string | null
     sortOrder: number
     isPublished: boolean
@@ -5727,12 +5784,14 @@ export namespace Prisma {
     analysisPath?: boolean
     analysisStatus?: boolean
     buildStatus?: boolean
+    ownerUserId?: boolean
     source?: boolean
     sortOrder?: boolean
     isPublished?: boolean
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
     techniques?: boolean | PracticeItem$techniquesArgs<ExtArgs>
     practicePerformances?: boolean | PracticeItem$practicePerformancesArgs<ExtArgs>
     _count?: boolean | PracticeItemCountOutputTypeDefaultArgs<ExtArgs>
@@ -5757,12 +5816,14 @@ export namespace Prisma {
     analysisPath?: boolean
     analysisStatus?: boolean
     buildStatus?: boolean
+    ownerUserId?: boolean
     source?: boolean
     sortOrder?: boolean
     isPublished?: boolean
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
   }, ExtArgs["result"]["practiceItem"]>
 
   export type PracticeItemSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5784,12 +5845,14 @@ export namespace Prisma {
     analysisPath?: boolean
     analysisStatus?: boolean
     buildStatus?: boolean
+    ownerUserId?: boolean
     source?: boolean
     sortOrder?: boolean
     isPublished?: boolean
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
   }, ExtArgs["result"]["practiceItem"]>
 
   export type PracticeItemSelectScalar = {
@@ -5811,6 +5874,7 @@ export namespace Prisma {
     analysisPath?: boolean
     analysisStatus?: boolean
     buildStatus?: boolean
+    ownerUserId?: boolean
     source?: boolean
     sortOrder?: boolean
     isPublished?: boolean
@@ -5819,18 +5883,24 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PracticeItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "category" | "title" | "composer" | "description" | "descriptionShort" | "difficulty" | "keyTonic" | "keyMode" | "tempoMin" | "tempoMax" | "positions" | "instrument" | "originalXmlPath" | "generatedXmlPath" | "analysisPath" | "analysisStatus" | "buildStatus" | "source" | "sortOrder" | "isPublished" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["practiceItem"]>
+  export type PracticeItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "category" | "title" | "composer" | "description" | "descriptionShort" | "difficulty" | "keyTonic" | "keyMode" | "tempoMin" | "tempoMax" | "positions" | "instrument" | "originalXmlPath" | "generatedXmlPath" | "analysisPath" | "analysisStatus" | "buildStatus" | "ownerUserId" | "source" | "sortOrder" | "isPublished" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["practiceItem"]>
   export type PracticeItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
     techniques?: boolean | PracticeItem$techniquesArgs<ExtArgs>
     practicePerformances?: boolean | PracticeItem$practicePerformancesArgs<ExtArgs>
     _count?: boolean | PracticeItemCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type PracticeItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type PracticeItemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type PracticeItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
+  }
+  export type PracticeItemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
+  }
 
   export type $PracticeItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "PracticeItem"
     objects: {
+      owner: Prisma.$UserPayload<ExtArgs> | null
       techniques: Prisma.$PracticeItemTechniquePayload<ExtArgs>[]
       practicePerformances: Prisma.$PracticePerformancePayload<ExtArgs>[]
     }
@@ -5853,6 +5923,7 @@ export namespace Prisma {
       analysisPath: string | null
       analysisStatus: $Enums.JobStatus
       buildStatus: $Enums.JobStatus
+      ownerUserId: string | null
       source: string | null
       sortOrder: number
       isPublished: boolean
@@ -6253,6 +6324,7 @@ export namespace Prisma {
    */
   export interface Prisma__PracticeItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    owner<T extends PracticeItem$ownerArgs<ExtArgs> = {}>(args?: Subset<T, PracticeItem$ownerArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     techniques<T extends PracticeItem$techniquesArgs<ExtArgs> = {}>(args?: Subset<T, PracticeItem$techniquesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PracticeItemTechniquePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     practicePerformances<T extends PracticeItem$practicePerformancesArgs<ExtArgs> = {}>(args?: Subset<T, PracticeItem$practicePerformancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PracticePerformancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -6302,6 +6374,7 @@ export namespace Prisma {
     readonly analysisPath: FieldRef<"PracticeItem", 'String'>
     readonly analysisStatus: FieldRef<"PracticeItem", 'JobStatus'>
     readonly buildStatus: FieldRef<"PracticeItem", 'JobStatus'>
+    readonly ownerUserId: FieldRef<"PracticeItem", 'String'>
     readonly source: FieldRef<"PracticeItem", 'String'>
     readonly sortOrder: FieldRef<"PracticeItem", 'Int'>
     readonly isPublished: FieldRef<"PracticeItem", 'Boolean'>
@@ -6557,6 +6630,10 @@ export namespace Prisma {
      */
     data: PracticeItemCreateManyInput | PracticeItemCreateManyInput[]
     skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -6627,6 +6704,10 @@ export namespace Prisma {
      * Limit how many PracticeItems to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -6693,6 +6774,25 @@ export namespace Prisma {
      * Limit how many PracticeItems to delete.
      */
     limit?: number
+  }
+
+  /**
+   * PracticeItem.owner
+   */
+  export type PracticeItem$ownerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -11265,6 +11365,7 @@ export namespace Prisma {
     timeNumerator: 'timeNumerator',
     timeDenominator: 'timeDenominator',
     defaultTempo: 'defaultTempo',
+    isShared: 'isShared',
     createdAt: 'createdAt'
   };
 
@@ -11309,6 +11410,7 @@ export namespace Prisma {
     analysisPath: 'analysisPath',
     analysisStatus: 'analysisStatus',
     buildStatus: 'buildStatus',
+    ownerUserId: 'ownerUserId',
     source: 'source',
     sortOrder: 'sortOrder',
     isPublished: 'isPublished',
@@ -11473,6 +11575,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'PerformanceType'
    */
   export type EnumPerformanceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PerformanceType'>
@@ -11529,13 +11638,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-  /**
    * Reference to a field of type 'Json'
    */
   export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
@@ -11565,6 +11667,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     performances?: PerformanceListRelationFilter
     scores?: ScoreListRelationFilter
+    practiceItems?: PracticeItemListRelationFilter
     practicePerformances?: PracticePerformanceListRelationFilter
     weaknesses?: UserWeaknessListRelationFilter
   }
@@ -11579,6 +11682,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     performances?: PerformanceOrderByRelationAggregateInput
     scores?: ScoreOrderByRelationAggregateInput
+    practiceItems?: PracticeItemOrderByRelationAggregateInput
     practicePerformances?: PracticePerformanceOrderByRelationAggregateInput
     weaknesses?: UserWeaknessOrderByRelationAggregateInput
   }
@@ -11596,6 +11700,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     performances?: PerformanceListRelationFilter
     scores?: ScoreListRelationFilter
+    practiceItems?: PracticeItemListRelationFilter
     practicePerformances?: PracticePerformanceListRelationFilter
     weaknesses?: UserWeaknessListRelationFilter
   }, "id" | "supabaseUserId">
@@ -11644,6 +11749,7 @@ export namespace Prisma {
     timeNumerator?: IntNullableFilter<"Score"> | number | null
     timeDenominator?: IntNullableFilter<"Score"> | number | null
     defaultTempo?: IntNullableFilter<"Score"> | number | null
+    isShared?: BoolFilter<"Score"> | boolean
     createdAt?: DateTimeFilter<"Score"> | Date | string
     performances?: PerformanceListRelationFilter
     createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -11664,6 +11770,7 @@ export namespace Prisma {
     timeNumerator?: SortOrderInput | SortOrder
     timeDenominator?: SortOrderInput | SortOrder
     defaultTempo?: SortOrderInput | SortOrder
+    isShared?: SortOrder
     createdAt?: SortOrder
     performances?: PerformanceOrderByRelationAggregateInput
     createdBy?: UserOrderByWithRelationInput
@@ -11687,6 +11794,7 @@ export namespace Prisma {
     timeNumerator?: IntNullableFilter<"Score"> | number | null
     timeDenominator?: IntNullableFilter<"Score"> | number | null
     defaultTempo?: IntNullableFilter<"Score"> | number | null
+    isShared?: BoolFilter<"Score"> | boolean
     createdAt?: DateTimeFilter<"Score"> | Date | string
     performances?: PerformanceListRelationFilter
     createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -11707,6 +11815,7 @@ export namespace Prisma {
     timeNumerator?: SortOrderInput | SortOrder
     timeDenominator?: SortOrderInput | SortOrder
     defaultTempo?: SortOrderInput | SortOrder
+    isShared?: SortOrder
     createdAt?: SortOrder
     _count?: ScoreCountOrderByAggregateInput
     _avg?: ScoreAvgOrderByAggregateInput
@@ -11733,6 +11842,7 @@ export namespace Prisma {
     timeNumerator?: IntNullableWithAggregatesFilter<"Score"> | number | null
     timeDenominator?: IntNullableWithAggregatesFilter<"Score"> | number | null
     defaultTempo?: IntNullableWithAggregatesFilter<"Score"> | number | null
+    isShared?: BoolWithAggregatesFilter<"Score"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Score"> | Date | string
   }
 
@@ -11858,12 +11968,14 @@ export namespace Prisma {
     analysisPath?: StringNullableFilter<"PracticeItem"> | string | null
     analysisStatus?: EnumJobStatusFilter<"PracticeItem"> | $Enums.JobStatus
     buildStatus?: EnumJobStatusFilter<"PracticeItem"> | $Enums.JobStatus
+    ownerUserId?: StringNullableFilter<"PracticeItem"> | string | null
     source?: StringNullableFilter<"PracticeItem"> | string | null
     sortOrder?: IntFilter<"PracticeItem"> | number
     isPublished?: BoolFilter<"PracticeItem"> | boolean
     metadata?: JsonNullableFilter<"PracticeItem">
     createdAt?: DateTimeFilter<"PracticeItem"> | Date | string
     updatedAt?: DateTimeFilter<"PracticeItem"> | Date | string
+    owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     techniques?: PracticeItemTechniqueListRelationFilter
     practicePerformances?: PracticePerformanceListRelationFilter
   }
@@ -11887,12 +11999,14 @@ export namespace Prisma {
     analysisPath?: SortOrderInput | SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    ownerUserId?: SortOrderInput | SortOrder
     source?: SortOrderInput | SortOrder
     sortOrder?: SortOrder
     isPublished?: SortOrder
     metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    owner?: UserOrderByWithRelationInput
     techniques?: PracticeItemTechniqueOrderByRelationAggregateInput
     practicePerformances?: PracticePerformanceOrderByRelationAggregateInput
   }
@@ -11919,12 +12033,14 @@ export namespace Prisma {
     analysisPath?: StringNullableFilter<"PracticeItem"> | string | null
     analysisStatus?: EnumJobStatusFilter<"PracticeItem"> | $Enums.JobStatus
     buildStatus?: EnumJobStatusFilter<"PracticeItem"> | $Enums.JobStatus
+    ownerUserId?: StringNullableFilter<"PracticeItem"> | string | null
     source?: StringNullableFilter<"PracticeItem"> | string | null
     sortOrder?: IntFilter<"PracticeItem"> | number
     isPublished?: BoolFilter<"PracticeItem"> | boolean
     metadata?: JsonNullableFilter<"PracticeItem">
     createdAt?: DateTimeFilter<"PracticeItem"> | Date | string
     updatedAt?: DateTimeFilter<"PracticeItem"> | Date | string
+    owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     techniques?: PracticeItemTechniqueListRelationFilter
     practicePerformances?: PracticePerformanceListRelationFilter
   }, "id">
@@ -11948,6 +12064,7 @@ export namespace Prisma {
     analysisPath?: SortOrderInput | SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    ownerUserId?: SortOrderInput | SortOrder
     source?: SortOrderInput | SortOrder
     sortOrder?: SortOrder
     isPublished?: SortOrder
@@ -11983,6 +12100,7 @@ export namespace Prisma {
     analysisPath?: StringNullableWithAggregatesFilter<"PracticeItem"> | string | null
     analysisStatus?: EnumJobStatusWithAggregatesFilter<"PracticeItem"> | $Enums.JobStatus
     buildStatus?: EnumJobStatusWithAggregatesFilter<"PracticeItem"> | $Enums.JobStatus
+    ownerUserId?: StringNullableWithAggregatesFilter<"PracticeItem"> | string | null
     source?: StringNullableWithAggregatesFilter<"PracticeItem"> | string | null
     sortOrder?: IntWithAggregatesFilter<"PracticeItem"> | number
     isPublished?: BoolWithAggregatesFilter<"PracticeItem"> | boolean
@@ -12270,6 +12388,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     performances?: PerformanceCreateNestedManyWithoutUserInput
     scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
   }
@@ -12284,6 +12403,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
     scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
   }
@@ -12298,6 +12418,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     performances?: PerformanceUpdateManyWithoutUserNestedInput
     scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
   }
@@ -12312,6 +12433,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
     scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -12360,6 +12482,7 @@ export namespace Prisma {
     timeNumerator?: number | null
     timeDenominator?: number | null
     defaultTempo?: number | null
+    isShared?: boolean
     createdAt?: Date | string
     performances?: PerformanceCreateNestedManyWithoutScoreInput
     createdBy: UserCreateNestedOneWithoutScoresInput
@@ -12380,6 +12503,7 @@ export namespace Prisma {
     timeNumerator?: number | null
     timeDenominator?: number | null
     defaultTempo?: number | null
+    isShared?: boolean
     createdAt?: Date | string
     performances?: PerformanceUncheckedCreateNestedManyWithoutScoreInput
   }
@@ -12398,6 +12522,7 @@ export namespace Prisma {
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     performances?: PerformanceUpdateManyWithoutScoreNestedInput
     createdBy?: UserUpdateOneRequiredWithoutScoresNestedInput
@@ -12418,6 +12543,7 @@ export namespace Prisma {
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     performances?: PerformanceUncheckedUpdateManyWithoutScoreNestedInput
   }
@@ -12437,6 +12563,7 @@ export namespace Prisma {
     timeNumerator?: number | null
     timeDenominator?: number | null
     defaultTempo?: number | null
+    isShared?: boolean
     createdAt?: Date | string
   }
 
@@ -12454,6 +12581,7 @@ export namespace Prisma {
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -12472,6 +12600,7 @@ export namespace Prisma {
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -12610,6 +12739,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    owner?: UserCreateNestedOneWithoutPracticeItemsInput
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
   }
@@ -12633,6 +12763,7 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    ownerUserId?: string | null
     source?: string | null
     sortOrder?: number
     isPublished?: boolean
@@ -12668,6 +12799,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
   }
@@ -12691,6 +12823,7 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -12720,6 +12853,7 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    ownerUserId?: string | null
     source?: string | null
     sortOrder?: number
     isPublished?: boolean
@@ -12774,6 +12908,7 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -13103,6 +13238,12 @@ export namespace Prisma {
     none?: ScoreWhereInput
   }
 
+  export type PracticeItemListRelationFilter = {
+    every?: PracticeItemWhereInput
+    some?: PracticeItemWhereInput
+    none?: PracticeItemWhereInput
+  }
+
   export type PracticePerformanceListRelationFilter = {
     every?: PracticePerformanceWhereInput
     some?: PracticePerformanceWhereInput
@@ -13125,6 +13266,10 @@ export namespace Prisma {
   }
 
   export type ScoreOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PracticeItemOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -13234,6 +13379,11 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -13254,6 +13404,7 @@ export namespace Prisma {
     timeNumerator?: SortOrder
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
+    isShared?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -13278,6 +13429,7 @@ export namespace Prisma {
     timeNumerator?: SortOrder
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
+    isShared?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -13296,6 +13448,7 @@ export namespace Prisma {
     timeNumerator?: SortOrder
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
+    isShared?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -13329,6 +13482,14 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type EnumPerformanceTypeFilter<$PrismaModel = never> = {
@@ -13503,11 +13664,6 @@ export namespace Prisma {
     hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
     isEmpty?: boolean
   }
-
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -13530,6 +13686,11 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
   }
 
   export type PracticeItemTechniqueListRelationFilter = {
@@ -13561,6 +13722,7 @@ export namespace Prisma {
     analysisPath?: SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    ownerUserId?: SortOrder
     source?: SortOrder
     sortOrder?: SortOrder
     isPublished?: SortOrder
@@ -13594,6 +13756,7 @@ export namespace Prisma {
     analysisPath?: SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    ownerUserId?: SortOrder
     source?: SortOrder
     sortOrder?: SortOrder
     isPublished?: SortOrder
@@ -13619,6 +13782,7 @@ export namespace Prisma {
     analysisPath?: SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    ownerUserId?: SortOrder
     source?: SortOrder
     sortOrder?: SortOrder
     isPublished?: SortOrder
@@ -13657,14 +13821,6 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -13895,6 +14051,13 @@ export namespace Prisma {
     connect?: ScoreWhereUniqueInput | ScoreWhereUniqueInput[]
   }
 
+  export type PracticeItemCreateNestedManyWithoutOwnerInput = {
+    create?: XOR<PracticeItemCreateWithoutOwnerInput, PracticeItemUncheckedCreateWithoutOwnerInput> | PracticeItemCreateWithoutOwnerInput[] | PracticeItemUncheckedCreateWithoutOwnerInput[]
+    connectOrCreate?: PracticeItemCreateOrConnectWithoutOwnerInput | PracticeItemCreateOrConnectWithoutOwnerInput[]
+    createMany?: PracticeItemCreateManyOwnerInputEnvelope
+    connect?: PracticeItemWhereUniqueInput | PracticeItemWhereUniqueInput[]
+  }
+
   export type PracticePerformanceCreateNestedManyWithoutUserInput = {
     create?: XOR<PracticePerformanceCreateWithoutUserInput, PracticePerformanceUncheckedCreateWithoutUserInput> | PracticePerformanceCreateWithoutUserInput[] | PracticePerformanceUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PracticePerformanceCreateOrConnectWithoutUserInput | PracticePerformanceCreateOrConnectWithoutUserInput[]
@@ -13921,6 +14084,13 @@ export namespace Prisma {
     connectOrCreate?: ScoreCreateOrConnectWithoutCreatedByInput | ScoreCreateOrConnectWithoutCreatedByInput[]
     createMany?: ScoreCreateManyCreatedByInputEnvelope
     connect?: ScoreWhereUniqueInput | ScoreWhereUniqueInput[]
+  }
+
+  export type PracticeItemUncheckedCreateNestedManyWithoutOwnerInput = {
+    create?: XOR<PracticeItemCreateWithoutOwnerInput, PracticeItemUncheckedCreateWithoutOwnerInput> | PracticeItemCreateWithoutOwnerInput[] | PracticeItemUncheckedCreateWithoutOwnerInput[]
+    connectOrCreate?: PracticeItemCreateOrConnectWithoutOwnerInput | PracticeItemCreateOrConnectWithoutOwnerInput[]
+    createMany?: PracticeItemCreateManyOwnerInputEnvelope
+    connect?: PracticeItemWhereUniqueInput | PracticeItemWhereUniqueInput[]
   }
 
   export type PracticePerformanceUncheckedCreateNestedManyWithoutUserInput = {
@@ -13977,6 +14147,20 @@ export namespace Prisma {
     deleteMany?: ScoreScalarWhereInput | ScoreScalarWhereInput[]
   }
 
+  export type PracticeItemUpdateManyWithoutOwnerNestedInput = {
+    create?: XOR<PracticeItemCreateWithoutOwnerInput, PracticeItemUncheckedCreateWithoutOwnerInput> | PracticeItemCreateWithoutOwnerInput[] | PracticeItemUncheckedCreateWithoutOwnerInput[]
+    connectOrCreate?: PracticeItemCreateOrConnectWithoutOwnerInput | PracticeItemCreateOrConnectWithoutOwnerInput[]
+    upsert?: PracticeItemUpsertWithWhereUniqueWithoutOwnerInput | PracticeItemUpsertWithWhereUniqueWithoutOwnerInput[]
+    createMany?: PracticeItemCreateManyOwnerInputEnvelope
+    set?: PracticeItemWhereUniqueInput | PracticeItemWhereUniqueInput[]
+    disconnect?: PracticeItemWhereUniqueInput | PracticeItemWhereUniqueInput[]
+    delete?: PracticeItemWhereUniqueInput | PracticeItemWhereUniqueInput[]
+    connect?: PracticeItemWhereUniqueInput | PracticeItemWhereUniqueInput[]
+    update?: PracticeItemUpdateWithWhereUniqueWithoutOwnerInput | PracticeItemUpdateWithWhereUniqueWithoutOwnerInput[]
+    updateMany?: PracticeItemUpdateManyWithWhereWithoutOwnerInput | PracticeItemUpdateManyWithWhereWithoutOwnerInput[]
+    deleteMany?: PracticeItemScalarWhereInput | PracticeItemScalarWhereInput[]
+  }
+
   export type PracticePerformanceUpdateManyWithoutUserNestedInput = {
     create?: XOR<PracticePerformanceCreateWithoutUserInput, PracticePerformanceUncheckedCreateWithoutUserInput> | PracticePerformanceCreateWithoutUserInput[] | PracticePerformanceUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PracticePerformanceCreateOrConnectWithoutUserInput | PracticePerformanceCreateOrConnectWithoutUserInput[]
@@ -14031,6 +14215,20 @@ export namespace Prisma {
     update?: ScoreUpdateWithWhereUniqueWithoutCreatedByInput | ScoreUpdateWithWhereUniqueWithoutCreatedByInput[]
     updateMany?: ScoreUpdateManyWithWhereWithoutCreatedByInput | ScoreUpdateManyWithWhereWithoutCreatedByInput[]
     deleteMany?: ScoreScalarWhereInput | ScoreScalarWhereInput[]
+  }
+
+  export type PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput = {
+    create?: XOR<PracticeItemCreateWithoutOwnerInput, PracticeItemUncheckedCreateWithoutOwnerInput> | PracticeItemCreateWithoutOwnerInput[] | PracticeItemUncheckedCreateWithoutOwnerInput[]
+    connectOrCreate?: PracticeItemCreateOrConnectWithoutOwnerInput | PracticeItemCreateOrConnectWithoutOwnerInput[]
+    upsert?: PracticeItemUpsertWithWhereUniqueWithoutOwnerInput | PracticeItemUpsertWithWhereUniqueWithoutOwnerInput[]
+    createMany?: PracticeItemCreateManyOwnerInputEnvelope
+    set?: PracticeItemWhereUniqueInput | PracticeItemWhereUniqueInput[]
+    disconnect?: PracticeItemWhereUniqueInput | PracticeItemWhereUniqueInput[]
+    delete?: PracticeItemWhereUniqueInput | PracticeItemWhereUniqueInput[]
+    connect?: PracticeItemWhereUniqueInput | PracticeItemWhereUniqueInput[]
+    update?: PracticeItemUpdateWithWhereUniqueWithoutOwnerInput | PracticeItemUpdateWithWhereUniqueWithoutOwnerInput[]
+    updateMany?: PracticeItemUpdateManyWithWhereWithoutOwnerInput | PracticeItemUpdateManyWithWhereWithoutOwnerInput[]
+    deleteMany?: PracticeItemScalarWhereInput | PracticeItemScalarWhereInput[]
   }
 
   export type PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput = {
@@ -14091,6 +14289,10 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type PerformanceUpdateManyWithoutScoreNestedInput = {
@@ -14181,6 +14383,12 @@ export namespace Prisma {
     set: string[]
   }
 
+  export type UserCreateNestedOneWithoutPracticeItemsInput = {
+    create?: XOR<UserCreateWithoutPracticeItemsInput, UserUncheckedCreateWithoutPracticeItemsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPracticeItemsInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput = {
     create?: XOR<PracticeItemTechniqueCreateWithoutPracticeItemInput, PracticeItemTechniqueUncheckedCreateWithoutPracticeItemInput> | PracticeItemTechniqueCreateWithoutPracticeItemInput[] | PracticeItemTechniqueUncheckedCreateWithoutPracticeItemInput[]
     connectOrCreate?: PracticeItemTechniqueCreateOrConnectWithoutPracticeItemInput | PracticeItemTechniqueCreateOrConnectWithoutPracticeItemInput[]
@@ -14226,8 +14434,14 @@ export namespace Prisma {
     push?: string | string[]
   }
 
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
+  export type UserUpdateOneWithoutPracticeItemsNestedInput = {
+    create?: XOR<UserCreateWithoutPracticeItemsInput, UserUncheckedCreateWithoutPracticeItemsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPracticeItemsInput
+    upsert?: UserUpsertWithoutPracticeItemsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPracticeItemsInput, UserUpdateWithoutPracticeItemsInput>, UserUncheckedUpdateWithoutPracticeItemsInput>
   }
 
   export type PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput = {
@@ -14589,6 +14803,11 @@ export namespace Prisma {
     not?: NestedEnumJobStatusFilter<$PrismaModel> | $Enums.JobStatus
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type NestedEnumJobStatusWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.JobStatus | EnumJobStatusFieldRefInput<$PrismaModel>
     in?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
@@ -14624,6 +14843,14 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedEnumPerformanceTypeFilter<$PrismaModel = never> = {
@@ -14708,11 +14935,6 @@ export namespace Prisma {
     not?: NestedEnumPracticeCategoryFilter<$PrismaModel> | $Enums.PracticeCategory
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type NestedEnumPracticeCategoryWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.PracticeCategory | EnumPracticeCategoryFieldRefInput<$PrismaModel>
     in?: $Enums.PracticeCategory[] | ListEnumPracticeCategoryFieldRefInput<$PrismaModel>
@@ -14748,14 +14970,6 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
   export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -14851,6 +15065,7 @@ export namespace Prisma {
     timeNumerator?: number | null
     timeDenominator?: number | null
     defaultTempo?: number | null
+    isShared?: boolean
     createdAt?: Date | string
     performances?: PerformanceCreateNestedManyWithoutScoreInput
   }
@@ -14869,6 +15084,7 @@ export namespace Prisma {
     timeNumerator?: number | null
     timeDenominator?: number | null
     defaultTempo?: number | null
+    isShared?: boolean
     createdAt?: Date | string
     performances?: PerformanceUncheckedCreateNestedManyWithoutScoreInput
   }
@@ -14880,6 +15096,74 @@ export namespace Prisma {
 
   export type ScoreCreateManyCreatedByInputEnvelope = {
     data: ScoreCreateManyCreatedByInput | ScoreCreateManyCreatedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PracticeItemCreateWithoutOwnerInput = {
+    id?: string
+    category: $Enums.PracticeCategory
+    title: string
+    composer?: string | null
+    description?: string | null
+    descriptionShort?: string | null
+    difficulty?: number
+    keyTonic: string
+    keyMode: string
+    tempoMin?: number | null
+    tempoMax?: number | null
+    positions?: PracticeItemCreatepositionsInput | string[]
+    instrument?: string
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    source?: string | null
+    sortOrder?: number
+    isPublished?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
+  }
+
+  export type PracticeItemUncheckedCreateWithoutOwnerInput = {
+    id?: string
+    category: $Enums.PracticeCategory
+    title: string
+    composer?: string | null
+    description?: string | null
+    descriptionShort?: string | null
+    difficulty?: number
+    keyTonic: string
+    keyMode: string
+    tempoMin?: number | null
+    tempoMax?: number | null
+    positions?: PracticeItemCreatepositionsInput | string[]
+    instrument?: string
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    source?: string | null
+    sortOrder?: number
+    isPublished?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
+  }
+
+  export type PracticeItemCreateOrConnectWithoutOwnerInput = {
+    where: PracticeItemWhereUniqueInput
+    create: XOR<PracticeItemCreateWithoutOwnerInput, PracticeItemUncheckedCreateWithoutOwnerInput>
+  }
+
+  export type PracticeItemCreateManyOwnerInputEnvelope = {
+    data: PracticeItemCreateManyOwnerInput | PracticeItemCreateManyOwnerInput[]
     skipDuplicates?: boolean
   }
 
@@ -15010,7 +15294,55 @@ export namespace Prisma {
     timeNumerator?: IntNullableFilter<"Score"> | number | null
     timeDenominator?: IntNullableFilter<"Score"> | number | null
     defaultTempo?: IntNullableFilter<"Score"> | number | null
+    isShared?: BoolFilter<"Score"> | boolean
     createdAt?: DateTimeFilter<"Score"> | Date | string
+  }
+
+  export type PracticeItemUpsertWithWhereUniqueWithoutOwnerInput = {
+    where: PracticeItemWhereUniqueInput
+    update: XOR<PracticeItemUpdateWithoutOwnerInput, PracticeItemUncheckedUpdateWithoutOwnerInput>
+    create: XOR<PracticeItemCreateWithoutOwnerInput, PracticeItemUncheckedCreateWithoutOwnerInput>
+  }
+
+  export type PracticeItemUpdateWithWhereUniqueWithoutOwnerInput = {
+    where: PracticeItemWhereUniqueInput
+    data: XOR<PracticeItemUpdateWithoutOwnerInput, PracticeItemUncheckedUpdateWithoutOwnerInput>
+  }
+
+  export type PracticeItemUpdateManyWithWhereWithoutOwnerInput = {
+    where: PracticeItemScalarWhereInput
+    data: XOR<PracticeItemUpdateManyMutationInput, PracticeItemUncheckedUpdateManyWithoutOwnerInput>
+  }
+
+  export type PracticeItemScalarWhereInput = {
+    AND?: PracticeItemScalarWhereInput | PracticeItemScalarWhereInput[]
+    OR?: PracticeItemScalarWhereInput[]
+    NOT?: PracticeItemScalarWhereInput | PracticeItemScalarWhereInput[]
+    id?: StringFilter<"PracticeItem"> | string
+    category?: EnumPracticeCategoryFilter<"PracticeItem"> | $Enums.PracticeCategory
+    title?: StringFilter<"PracticeItem"> | string
+    composer?: StringNullableFilter<"PracticeItem"> | string | null
+    description?: StringNullableFilter<"PracticeItem"> | string | null
+    descriptionShort?: StringNullableFilter<"PracticeItem"> | string | null
+    difficulty?: IntFilter<"PracticeItem"> | number
+    keyTonic?: StringFilter<"PracticeItem"> | string
+    keyMode?: StringFilter<"PracticeItem"> | string
+    tempoMin?: IntNullableFilter<"PracticeItem"> | number | null
+    tempoMax?: IntNullableFilter<"PracticeItem"> | number | null
+    positions?: StringNullableListFilter<"PracticeItem">
+    instrument?: StringFilter<"PracticeItem"> | string
+    originalXmlPath?: StringFilter<"PracticeItem"> | string
+    generatedXmlPath?: StringNullableFilter<"PracticeItem"> | string | null
+    analysisPath?: StringNullableFilter<"PracticeItem"> | string | null
+    analysisStatus?: EnumJobStatusFilter<"PracticeItem"> | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFilter<"PracticeItem"> | $Enums.JobStatus
+    ownerUserId?: StringNullableFilter<"PracticeItem"> | string | null
+    source?: StringNullableFilter<"PracticeItem"> | string | null
+    sortOrder?: IntFilter<"PracticeItem"> | number
+    isPublished?: BoolFilter<"PracticeItem"> | boolean
+    metadata?: JsonNullableFilter<"PracticeItem">
+    createdAt?: DateTimeFilter<"PracticeItem"> | Date | string
+    updatedAt?: DateTimeFilter<"PracticeItem"> | Date | string
   }
 
   export type PracticePerformanceUpsertWithWhereUniqueWithoutUserInput = {
@@ -15121,6 +15453,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     performances?: PerformanceCreateNestedManyWithoutUserInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
   }
@@ -15134,6 +15467,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
   }
@@ -15179,6 +15513,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     performances?: PerformanceUpdateManyWithoutUserNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
   }
@@ -15192,6 +15527,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -15210,6 +15546,7 @@ export namespace Prisma {
     timeNumerator?: number | null
     timeDenominator?: number | null
     defaultTempo?: number | null
+    isShared?: boolean
     createdAt?: Date | string
     createdBy: UserCreateNestedOneWithoutScoresInput
   }
@@ -15229,6 +15566,7 @@ export namespace Prisma {
     timeNumerator?: number | null
     timeDenominator?: number | null
     defaultTempo?: number | null
+    isShared?: boolean
     createdAt?: Date | string
   }
 
@@ -15246,6 +15584,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
   }
@@ -15259,6 +15598,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
   }
@@ -15293,6 +15633,7 @@ export namespace Prisma {
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdBy?: UserUpdateOneRequiredWithoutScoresNestedInput
   }
@@ -15312,6 +15653,7 @@ export namespace Prisma {
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -15335,6 +15677,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
   }
@@ -15348,8 +15691,42 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutPracticeItemsInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role: string
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    performances?: PerformanceCreateNestedManyWithoutUserInput
+    scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutPracticeItemsInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role: string
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutPracticeItemsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutPracticeItemsInput, UserUncheckedCreateWithoutPracticeItemsInput>
   }
 
   export type PracticeItemTechniqueCreateWithoutPracticeItemInput = {
@@ -15398,6 +15775,45 @@ export namespace Prisma {
   export type PracticePerformanceCreateManyPracticeItemInputEnvelope = {
     data: PracticePerformanceCreateManyPracticeItemInput | PracticePerformanceCreateManyPracticeItemInput[]
     skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutPracticeItemsInput = {
+    update: XOR<UserUpdateWithoutPracticeItemsInput, UserUncheckedUpdateWithoutPracticeItemsInput>
+    create: XOR<UserCreateWithoutPracticeItemsInput, UserUncheckedCreateWithoutPracticeItemsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutPracticeItemsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutPracticeItemsInput, UserUncheckedUpdateWithoutPracticeItemsInput>
+  }
+
+  export type UserUpdateWithoutPracticeItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    performances?: PerformanceUpdateManyWithoutUserNestedInput
+    scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutPracticeItemsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PracticeItemTechniqueUpsertWithWhereUniqueWithoutPracticeItemInput = {
@@ -15548,6 +15964,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    owner?: UserCreateNestedOneWithoutPracticeItemsInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
   }
 
@@ -15570,6 +15987,7 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    ownerUserId?: string | null
     source?: string | null
     sortOrder?: number
     isPublished?: boolean
@@ -15649,6 +16067,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
   }
 
@@ -15671,6 +16090,7 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -15725,6 +16145,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     performances?: PerformanceCreateNestedManyWithoutUserInput
     scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
   }
 
@@ -15738,6 +16159,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
     scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -15771,6 +16193,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    owner?: UserCreateNestedOneWithoutPracticeItemsInput
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
   }
 
@@ -15793,6 +16216,7 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    ownerUserId?: string | null
     source?: string | null
     sortOrder?: number
     isPublished?: boolean
@@ -15828,6 +16252,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     performances?: PerformanceUpdateManyWithoutUserNestedInput
     scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
   }
 
@@ -15841,6 +16266,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
     scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -15880,6 +16306,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
   }
 
@@ -15902,6 +16329,7 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -15921,6 +16349,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     performances?: PerformanceCreateNestedManyWithoutUserInput
     scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
   }
 
@@ -15934,6 +16363,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
     scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -15992,6 +16422,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     performances?: PerformanceUpdateManyWithoutUserNestedInput
     scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
   }
 
@@ -16005,6 +16436,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
     scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -16072,7 +16504,35 @@ export namespace Prisma {
     timeNumerator?: number | null
     timeDenominator?: number | null
     defaultTempo?: number | null
+    isShared?: boolean
     createdAt?: Date | string
+  }
+
+  export type PracticeItemCreateManyOwnerInput = {
+    id?: string
+    category: $Enums.PracticeCategory
+    title: string
+    composer?: string | null
+    description?: string | null
+    descriptionShort?: string | null
+    difficulty?: number
+    keyTonic: string
+    keyMode: string
+    tempoMin?: number | null
+    tempoMax?: number | null
+    positions?: PracticeItemCreatepositionsInput | string[]
+    instrument?: string
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    source?: string | null
+    sortOrder?: number
+    isPublished?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type PracticePerformanceCreateManyUserInput = {
@@ -16153,6 +16613,7 @@ export namespace Prisma {
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     performances?: PerformanceUpdateManyWithoutScoreNestedInput
   }
@@ -16171,6 +16632,7 @@ export namespace Prisma {
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     performances?: PerformanceUncheckedUpdateManyWithoutScoreNestedInput
   }
@@ -16189,7 +16651,93 @@ export namespace Prisma {
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PracticeItemUpdateWithoutOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: EnumPracticeCategoryFieldUpdateOperationsInput | $Enums.PracticeCategory
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
+    difficulty?: IntFieldUpdateOperationsInput | number
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
+    tempoMax?: NullableIntFieldUpdateOperationsInput | number | null
+    positions?: PracticeItemUpdatepositionsInput | string[]
+    instrument?: StringFieldUpdateOperationsInput | string
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
+  }
+
+  export type PracticeItemUncheckedUpdateWithoutOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: EnumPracticeCategoryFieldUpdateOperationsInput | $Enums.PracticeCategory
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
+    difficulty?: IntFieldUpdateOperationsInput | number
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
+    tempoMax?: NullableIntFieldUpdateOperationsInput | number | null
+    positions?: PracticeItemUpdatepositionsInput | string[]
+    instrument?: StringFieldUpdateOperationsInput | string
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
+  }
+
+  export type PracticeItemUncheckedUpdateManyWithoutOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: EnumPracticeCategoryFieldUpdateOperationsInput | $Enums.PracticeCategory
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
+    difficulty?: IntFieldUpdateOperationsInput | number
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
+    tempoMax?: NullableIntFieldUpdateOperationsInput | number | null
+    positions?: PracticeItemUpdatepositionsInput | string[]
+    instrument?: StringFieldUpdateOperationsInput | string
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PracticePerformanceUpdateWithoutUserInput = {

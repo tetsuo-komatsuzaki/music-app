@@ -26,6 +26,7 @@ model User {
   scores         Score[]
 
   // ▼ 練習メニュー追加分
+  practiceItems        PracticeItem[]
   practicePerformances PracticePerformance[]
   weaknesses           UserWeakness[]
 
@@ -47,11 +48,13 @@ model Score {
   timeNumerator    Int?
   timeDenominator  Int?
   defaultTempo     Int?
+  isShared         Boolean       @default(false) // true=全ユーザー閲覧可のサンプル
   createdAt        DateTime      @default(now())
   performances     Performance[]
   createdBy        User          @relation(fields: [createdById], references: [id])
 
   @@index([createdById])
+  @@index([isShared])
 }
 
 model Performance {
@@ -125,6 +128,9 @@ model PracticeItem {
   analysisStatus   JobStatus         @default(processing)
   buildStatus      JobStatus         @default(processing)
 
+  ownerUserId      String?           // null=運営サンプル（全員閲覧可）, 値あり=そのユーザーのみ
+  owner            User?             @relation(fields: [ownerUserId], references: [id])
+
   source           String?
   sortOrder        Int               @default(0)
   isPublished      Boolean           @default(true)
@@ -138,6 +144,7 @@ model PracticeItem {
   @@index([category, keyTonic, keyMode])
   @@index([category, difficulty])
   @@index([category, isPublished, sortOrder])
+  @@index([ownerUserId])
 }
 
 model TechniqueTag {

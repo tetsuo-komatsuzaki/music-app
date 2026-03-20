@@ -18,8 +18,7 @@ export default async function AdminPracticePage({
   const dbUser = await prisma.user.findUnique({
     where: { supabaseUserId: user.id },
   })
-    const ADMIN_IDS = ["85555ce4-6822-4efb-8af6-c2a8eda145f0"]
-  if (!dbUser || !ADMIN_IDS.includes(user.id))  {
+  if (!dbUser || dbUser.role !== "admin")  {
     return <div style={{ padding: 40, textAlign: "center" }}>管理者権限が必要です</div>
   }
 

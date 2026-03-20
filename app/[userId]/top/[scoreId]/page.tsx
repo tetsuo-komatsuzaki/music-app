@@ -6,9 +6,9 @@ import { uploadRecord } from "@/app/actions/uploadRecord"
 export default async function Page({
   params
 }: {
-  params: Promise<{ scoreId: string }>
+  params: Promise<{ userId: string; scoreId: string }>
 }) {
-  const { scoreId } = await params
+  const { userId, scoreId } = await params
 
   const score = await prisma.score.findUnique({
     where: { id: scoreId },
@@ -20,6 +20,11 @@ export default async function Page({
   })
 
   if (!score) return <div>スコアが見つかりません</div>
+
+  // アクセス制御: 自分のスコアまたは共有スコアのみ閲覧可
+  if (score.createdById !== userId && !score.isShared) {
+    return <div>このスコアへのアクセス権がありません</div>
+  }
 
   // =========================
   // 🎼 buildUrl

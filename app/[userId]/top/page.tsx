@@ -20,7 +20,12 @@ export default async function Page({ params }: PageProps) {
   }
 
   const rawScores = await prisma.score.findMany({
-    where: { createdById: user.id },
+    where: {
+      OR: [
+        { createdById: user.id },
+        { isShared: true },
+      ],
+    },
     orderBy: { createdAt: "desc" }
   })
 

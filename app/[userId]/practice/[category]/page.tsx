@@ -1,5 +1,7 @@
 import { prisma } from "@/app/_libs/prisma"
 import PracticeList from "./practiceLIst"
+import { getRecommendations } from "@/app/lib/practice/getRecommendations"
+import { getPracticeStats } from "@/app/lib/practice/getPracticeStats"
 
 const categoryTitles: Record<string, string> = {
   scale: "音階", scales: "音階",
@@ -7,12 +9,11 @@ const categoryTitles: Record<string, string> = {
   etude: "エチュード", etudes: "エチュード",
 }
 
-// URL上は scales/arpeggios/etudes でも、DB上は scale/arpeggio/etude
-const normalizeCat = (c: string): string => {
+const normalizeCat = (c: string): "scale" | "arpeggio" | "etude" => {
   if (c === "scales") return "scale"
   if (c === "arpeggios") return "arpeggio"
   if (c === "etudes") return "etude"
-  return c
+  return c as "scale" | "arpeggio" | "etude"
 }
 
 export default async function CategoryPage({
@@ -30,6 +31,7 @@ export default async function CategoryPage({
   const where: any = {
     category: dbCategory as any,
     isPublished: true,
+    OR: [{ ownerUserId: null }, { ownerUserId: userId }],
   }
   if (sp.key) {
     const [tonic, mode] = sp.key.split("_")
@@ -39,55 +41,79 @@ export default async function CategoryPage({
   if (sp.difficulty) where.difficulty = parseInt(sp.difficulty)
   if (sp.position) where.positions = { has: sp.position }
 
-  const items = await prisma.practiceItem.findMany({
-    where,
-    orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
-    include: {
-      techniques: {
-        where: { isPrimary: true },
-        include: { techniqueTag: { select: { name: true } } },
+  const [items, allItemsForFilter, [recommendations, stats]] = await Promise.all([
+    prisma.practiceItem.findMany({
+      where,
+      orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+      include: {
+        techniques: {
+          where: { isPrimary: true },
+          include: { techniqueTag: { select: { name: true } } },
+        },
       },
-    },
-  })
+    }),
+    prisma.practiceItem.findMany({
+      where: {
+        category: dbCategory as any,
+        isPublished: true,
+        OR: [{ ownerUserId: null }, { ownerUserId: userId }],
+      },
+      select: { keyTonic: true, keyMode: true, difficulty: true, positions: true },
+    }),
+    Promise.all([
+      getRecommendations(userId, dbCategory, 5),
+      getPracticeStats(userId, dbCategory),
+    ]),
+  ])
 
-  // 各アイテムのユーザー練習履歴（最新 + ベストスコア）
-  const itemsWithHistory = await Promise.all(
-    items.map(async (item) => {
-      const latest = await prisma.practicePerformance.findFirst({
-        where: { userId, practiceItemId: item.id, comparisonResultPath: { not: null } },
+  const itemIds = items.map((i) => i.id)
+
+  const allPerformances = itemIds.length > 0
+    ? await prisma.practicePerformance.findMany({
+        where: { userId, practiceItemId: { in: itemIds } },
+        select: { practiceItemId: true, uploadedAt: true, comparisonResultPath: true },
         orderBy: { uploadedAt: "desc" },
-        select: { uploadedAt: true },
       })
+    : []
 
-      const totalPractices = await prisma.practicePerformance.count({
-        where: { userId, practiceItemId: item.id },
+  // アイテムIDごとに集計
+  const perfByItem = new Map<string, { latest: Date | null; total: number }>()
+  for (const p of allPerformances) {
+    const cur = perfByItem.get(p.practiceItemId)
+    if (!cur) {
+      perfByItem.set(p.practiceItemId, {
+        latest: p.comparisonResultPath ? p.uploadedAt : null,
+        total: 1,
       })
-
-      return {
-        id: item.id,
-        title: item.title,
-        composer: item.composer,
-        category: item.category,
-        difficulty: item.difficulty,
-        keyTonic: item.keyTonic,
-        keyMode: item.keyMode,
-        positions: item.positions,
-        techniques: item.techniques.map((t) => t.techniqueTag.name),
-        descriptionShort: item.descriptionShort,
-        lastPracticed: latest?.uploadedAt?.toISOString() ?? null,
-        totalPractices,
+    } else {
+      if (p.comparisonResultPath && (!cur.latest || p.uploadedAt > cur.latest)) {
+        cur.latest = p.uploadedAt
       }
-    })
-  )
+      cur.total += 1
+    }
+  }
 
-  // フィルター用の選択肢を収集
-  const allItems = await prisma.practiceItem.findMany({
-    where: { category: dbCategory as any, isPublished: true },
-    select: { keyTonic: true, keyMode: true, difficulty: true, positions: true },
+  const itemsWithHistory = items.map((item) => {
+    const perf = perfByItem.get(item.id)
+    return {
+      id: item.id,
+      title: item.title,
+      composer: item.composer,
+      category: item.category,
+      difficulty: item.difficulty,
+      keyTonic: item.keyTonic,
+      keyMode: item.keyMode,
+      positions: item.positions,
+      techniques: item.techniques.map((t) => t.techniqueTag.name),
+      descriptionShort: item.descriptionShort,
+      lastPracticed: perf?.latest?.toISOString() ?? null,
+      totalPractices: perf?.total ?? 0,
+    }
   })
-  const keys = [...new Set(allItems.map((i) => `${i.keyTonic}_${i.keyMode}`))]
-  const difficulties = [...new Set(allItems.map((i) => i.difficulty))]
-  const positions = [...new Set(allItems.flatMap((i) => i.positions))]
+
+  const keys = [...new Set(allItemsForFilter.map((i) => `${i.keyTonic}_${i.keyMode}`))]
+  const difficulties = [...new Set(allItemsForFilter.map((i) => i.difficulty))]
+  const positions = [...new Set(allItemsForFilter.flatMap((i) => i.positions))]
 
   return (
     <PracticeList
@@ -97,6 +123,8 @@ export default async function CategoryPage({
       items={itemsWithHistory}
       filterOptions={{ keys, difficulties, positions }}
       currentFilters={sp}
+      recommendations={recommendations}
+      stats={stats}
     />
   )
 }

@@ -10,8 +10,12 @@ export async function GET(request: NextRequest) {
   const difficulty = searchParams.get("difficulty")
   const position = searchParams.get("position")
   const technique = searchParams.get("technique") // TechniqueTag.nameEn
+  const userId = searchParams.get("userId")
 
-  const where: any = { isPublished: true }
+  const where: any = {
+    isPublished: true,
+    OR: [{ ownerUserId: null }, ...(userId ? [{ ownerUserId: userId }] : [])],
+  }
 
   if (category) where.category = category
   if (keyTonic) where.keyTonic = keyTonic

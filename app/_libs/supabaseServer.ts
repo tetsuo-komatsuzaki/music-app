@@ -15,10 +15,18 @@ export async function createServerSupabaseClient() {
           return cookieStore.get(name)?.value
         },
         set(name: string, value: string, options : any) {
-          cookieStore.set({ name, value, ...options })
+          try {
+            cookieStore.set({ name, value, ...options })
+          } catch {
+            // Server Component からの呼び出し時は無視（middlewareで処理される）
+          }
         },
         remove(name: string, options) {
-          cookieStore.set({ name, value: "", ...options })
+          try {
+            cookieStore.set({ name, value: "", ...options })
+          } catch {
+            // Server Component からの呼び出し時は無視（middlewareで処理される）
+          }
         },
       },
     }
