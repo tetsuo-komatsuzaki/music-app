@@ -1,0 +1,316 @@
+{
+  "bpm": 90.0,
+  "total_notes": 121,
+  "note_indices": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    14,
+    15,
+    16,
+    17,
+    18,
+    20,
+    21,
+    23,
+    24,
+    25,
+    26,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    38,
+    39,
+    40,
+    41,
+    42,
+    44,
+    45,
+    47,
+    48,
+    49,
+    50,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    61,
+    62,
+    63,
+    64,
+    65,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    121,
+    122,
+    123,
+    124,
+    125,
+    126,
+    127,
+    128,
+    129,
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140
+  ],
+  "test_cases": {
+    "perfect": {
+      "file": "perfect.wav",
+      "description": "全ノート正確。全て pitch_ok=true, start_ok=true になるべき"
+    },
+    "pitch_error": {
+      "file": "pitch_error.wav",
+      "description": "音程ずれテスト",
+      "errors": [
+        {
+          "note_index": 5,
+          "cents_offset": 82
+        },
+        {
+          "note_index": 10,
+          "cents_offset": -102
+        },
+        {
+          "note_index": 16,
+          "cents_offset": 85
+        },
+        {
+          "note_index": 23,
+          "cents_offset": -120
+        },
+        {
+          "note_index": 29,
+          "cents_offset": 118
+        },
+        {
+          "note_index": 34,
+          "cents_offset": -97
+        },
+        {
+          "note_index": 40,
+          "cents_offset": 85
+        },
+        {
+          "note_index": 47,
+          "cents_offset": -90
+        },
+        {
+          "note_index": 54,
+          "cents_offset": 119
+        },
+        {
+          "note_index": 59,
+          "cents_offset": -140
+        },
+        {
+          "note_index": 65,
+          "cents_offset": 121
+        },
+        {
+          "note_index": 72,
+          "cents_offset": -83
+        },
+        {
+          "note_index": 78,
+          "cents_offset": 93
+        },
+        {
+          "note_index": 84,
+          "cents_offset": -89
+        },
+        {
+          "note_index": 89,
+          "cents_offset": 122
+        },
+        {
+          "note_index": 94,
+          "cents_offset": -109
+        },
+        {
+          "note_index": 100,
+          "cents_offset": 92
+        },
+        {
+          "note_index": 106,
+          "cents_offset": -146
+        },
+        {
+          "note_index": 111,
+          "cents_offset": 108
+        },
+        {
+          "note_index": 117,
+          "cents_offset": -93
+        },
+        {
+          "note_index": 123,
+          "cents_offset": 148
+        },
+        {
+          "note_index": 128,
+          "cents_offset": -87
+        },
+        {
+          "note_index": 133,
+          "cents_offset": 84
+        },
+        {
+          "note_index": 139,
+          "cents_offset": -111
+        }
+      ],
+      "expected": {
+        "pitch_error_indices": [
+          5,
+          10,
+          16,
+          23,
+          29,
+          34,
+          40,
+          47,
+          54,
+          59,
+          65,
+          72,
+          78,
+          84,
+          89,
+          94,
+          100,
+          106,
+          111,
+          117,
+          123,
+          128,
+          133,
+          139
+        ],
+        "all_other_notes": "should be pitch_ok=true"
+      }
+    },
+    "timing_start": {
+      "file": "timing_start.wav",
+      "description": "タイミングずれテスト（演奏開始時点）",
+      "errors": [
+        {
+          "note_index": 4,
+          "delay_sec": 0.20013756360069462
+        },
+        {
+          "note_index": 5,
+          "delay_sec": 0.16841973259733964
+        },
+        {
+          "note_index": 6,
+          "delay_sec": 0.2331435710597711
+        }
+      ],
+      "expected": {
+        "timing_error_indices": [
+          4,
+          5,
+          6
+        ],
+        "all_other_notes": "should be start_ok=true"
+      }
+    },
+    "timing_mid": {
+      "file": "timing_mid.wav",
+      "description": "タイミングずれテスト（演奏途中）",
+      "errors": [
+        {
+          "note_index": 52,
+          "delay_sec": 0.15673103066792915
+        },
+        {
+          "note_index": 53,
+          "delay_sec": 0.16473649415567018
+        },
+        {
+          "note_index": 54,
+          "delay_sec": 0.22496031885030487
+        }
+      ],
+      "expected": {
+        "timing_error_indices": [
+          52,
+          53,
+          54
+        ],
+        "all_other_notes": "should be start_ok=true"
+      }
+    }
+  }
+}
