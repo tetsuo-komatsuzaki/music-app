@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "../top/page.module.css";
+import styles from "../scores/page.module.css";
 
 type Props = {
   isOpen: boolean;

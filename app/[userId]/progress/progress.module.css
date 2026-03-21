@@ -1,0 +1,368 @@
+.page {
+  padding: 24px;
+  max-width: 800px;
+}
+
+/* ───── タブ ───── */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 10px 16px;
+  font-size: 13px;
+  color: #666;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.tab:hover {
+  color: #333;
+}
+
+.tabActive {
+  color: #1a1a1a;
+  border-bottom-color: #1a1a1a;
+  font-weight: 500;
+}
+
+/* ───── カード共通 ───── */
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  background: #fff;
+  border: 0.5px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  animation: cardEnter 0.35s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { animation: none; }
+}
+
+.cardTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+/* ───── ストリークタブ ───── */
+.streakHero {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.streakNumber {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+  color: #1a1a1a;
+}
+
+.streakUnit {
+  font-size: 18px;
+  color: #666;
+}
+
+.streakSub {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 20px;
+}
+
+/* カレンダー */
+.calendarMonth {
+  margin-bottom: 16px;
+}
+
+.calendarMonthLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendarDayHeader {
+  font-size: 10px;
+  color: #aaa;
+  text-align: center;
+  padding: 4px 0;
+}
+
+.calendarDay {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dayDone {
+  background: #1D9E75;
+  color: #fff;
+}
+
+.dayToday {
+  background: #FAEEDA;
+  color: #854F0B;
+  border: 1px solid #EF9F27;
+  font-weight: 600;
+}
+
+.dayMiss {
+  background: #f0f0f0;
+  color: #ccc;
+}
+
+.dayEmpty {
+  background: transparent;
+}
+
+/* ───── 3リングタブ ───── */
+.weekRingGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.weekRingDay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.weekRingLabel {
+  font-size: 10px;
+  color: #999;
+}
+
+.weekRingDate {
+  font-size: 9px;
+  color: #bbb;
+}
+
+.ringLegend {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.ringLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #555;
+}
+
+.ringLegendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* ───── 弱点タブ ───── */
+.weaknessItem {
+  margin-bottom: 14px;
+}
+
+.weaknessHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.weaknessLabel {
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+}
+
+.weaknessPct {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.weaknessBar {
+  height: 12px;
+  background: #f0f0f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+@keyframes barFill {
+  from { width: 0; }
+}
+
+.weaknessBarFill {
+  height: 100%;
+  border-radius: 6px;
+  animation: barFill 0.7s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weaknessBarFill { animation: none; }
+}
+
+/* ───── サマリータブ ───── */
+.summaryMetrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.metricBox {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.metricLabel {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.metricValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.chartTitle {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 10px;
+}
+
+.barChart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 100px;
+}
+
+.barChartCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+@keyframes barGrow {
+  from { height: 0; }
+}
+
+.barChartBar {
+  width: 100%;
+  background: #1D9E75;
+  border-radius: 3px 3px 0 0;
+  min-height: 4px;
+  animation: barGrow 0.6s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .barChartBar { animation: none; }
+}
+
+.barChartLabel {
+  font-size: 10px;
+  color: #bbb;
+}
+
+/* ───── リマインダータブ ───── */
+.reminderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 0.5px solid #f0f0f0;
+}
+
+.reminderRow:last-child {
+  border-bottom: none;
+}
+
+.reminderLabel {
+  font-size: 13px;
+  color: #333;
+}
+
+.toggleOn {
+  background: #1D9E75;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.toggleOff {
+  background: #f0f0f0;
+  color: #999;
+  border: none;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.notificationPreview {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-top: 16px;
+}
+
+.previewTitle {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 10px;
+}
+
+.previewItem {
+  border-left: 3px solid #1D9E75;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background: #fff;
+  border-radius: 0 6px 6px 0;
+}
+
+.previewTime {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 2px;
+}
+
+.previewText {
+  font-size: 13px;
+  color: #333;
+}

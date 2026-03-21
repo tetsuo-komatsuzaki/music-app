@@ -63,24 +63,18 @@ export async function uploadRecord(formData: FormData) {
     data: { audioPath: filePath }
   })
 
-  // 演奏比較を実行
-  try {
-    const { exec } = require("child_process")
-    const { promisify } = require("util")
-    const execAsync = promisify(exec)
+  // 演奏比較をバックグラウンドで実行（awaitしない → すぐに保存完了を返す）
+  const { exec } = require("child_process")
+  const PYTHON_PATH =
+    "C:/Users/tetsu/OneDrive/Desktop/shiftB/music-app/music-analyzer/venv/Scripts/python.exe"
+  exec(
+    `"${PYTHON_PATH}" ../music-analyzer/analyze_performance.py ${dbUser.id} ${scoreId} ${performance.id}`,
+    (err: Error | null) => {
+      if (err) console.error("analyze_performance failed:", err)
+    }
+  )
 
-    const PYTHON_PATH =
-      "C:/Users/tetsu/OneDrive/Desktop/shiftB/music-app/music-analyzer/venv/Scripts/python.exe"
+  revalidatePath(`/${dbUser.id}/scores/${scoreId}`)
 
-    await execAsync(
-      `"${PYTHON_PATH}" ../music-analyzer/analyze_performance.py ${dbUser.id} ${scoreId} ${performance.id}`
-    )
-  } catch (e) {
-    console.error("analyze_performance failed:", e)
-    // 比較失敗してもアップロード自体は成功扱いにする
-  }
-
-  revalidatePath(`/${dbUser.id}/top/${scoreId}`)
-
-  return { success: true }
+  return { success: true, performanceId: performance.id }
 }

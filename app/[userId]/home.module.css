@@ -1,0 +1,322 @@
+.page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 800px;
+}
+
+/* ───── カード共通 ───── */
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  background: #fff;
+  border: 0.5px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  animation: cardEnter 0.4s ease both;
+}
+
+.topRow .card:nth-child(1) { animation-delay: 0ms; }
+.topRow .card:nth-child(2) { animation-delay: 80ms; }
+.topRow .card:nth-child(3) { animation-delay: 160ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .card { animation: none; }
+}
+
+/* ───── 上段3カード ───── */
+.topRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+/* ストリークカード */
+.streakCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.streakMain {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.streakDays {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.streakLabel {
+  font-size: 13px;
+  color: #666;
+}
+
+.streakSub {
+  font-size: 12px;
+  color: #999;
+}
+
+/* 週間カード */
+.weeklyCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.weeklyTitle {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.weeklyCount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.weeklyGoal {
+  font-size: 12px;
+  color: #999;
+}
+
+.weeklyBar {
+  height: 6px;
+  background: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.weeklyBarFill {
+  height: 100%;
+  background: #1D9E75;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* 3リングカード */
+.ringCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ringLabels {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.ringLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #555;
+}
+
+.ringDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ───── Continue バー ───── */
+.continueBar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.15s;
+}
+
+.continueBar:hover {
+  opacity: 0.8;
+}
+
+.continueIcon {
+  width: 36px;
+  height: 36px;
+  background: #1D9E75;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.continueInfo {
+  flex: 1;
+}
+
+.continueTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.continueMeta {
+  font-size: 12px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.continueArrow {
+  color: #ccc;
+  font-size: 18px;
+}
+
+/* ───── デイリーチャレンジ ───── */
+.challengeCard {
+  background: linear-gradient(135deg, #f0faf5 0%, #e8f4ff 100%);
+  border: 0.5px solid #c8e6d8;
+}
+
+.challengeHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.challengeBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0a6640;
+  background: #c2e8d5;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.challengeTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.challengeMeta {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.challengeBtn {
+  display: inline-block;
+  padding: 8px 20px;
+  background: #1D9E75;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.challengeBtn:hover {
+  background: #178a64;
+}
+
+/* ───── おすすめ練習 ───── */
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.recommendList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recommendItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+}
+
+.recommendItem:hover {
+  background: #f0f1f3;
+}
+
+.recommendIcon {
+  font-size: 18px;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.recommendInfo {
+  flex: 1;
+}
+
+.recommendTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.recommendReason {
+  font-size: 11px;
+  color: #999;
+  margin-top: 1px;
+}
+
+.recommendArrow {
+  color: #ccc;
+  font-size: 16px;
+}
+
+/* ───── 直近の履歴 ───── */
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 0.5px solid #f0f0f0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.historyItem:last-child {
+  border-bottom: none;
+}
+
+.historyDate {
+  font-size: 11px;
+  color: #999;
+  min-width: 60px;
+}
+
+.historyTitle {
+  font-size: 13px;
+  color: #333;
+  flex: 1;
+}

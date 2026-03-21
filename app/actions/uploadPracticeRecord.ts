@@ -54,21 +54,16 @@ export async function uploadPracticeRecord(formData: FormData) {
     data: { audioPath: filePath }
   })
 
-  // 比較処理を実行
-  try {
-    const { exec } = require("child_process")
-    const { promisify } = require("util")
-    const execAsync = promisify(exec)
-
-    const PYTHON_PATH =
-      "C:/Users/tetsu/OneDrive/Desktop/shiftB/music-app/music-analyzer/venv/Scripts/python.exe"
-
-    await execAsync(
-      `"${PYTHON_PATH}" ../music-analyzer/analyze_performance.py ${dbUser.id} ${practiceItemId} ${performance.id}`
-    )
-  } catch (e) {
-    console.error("analyze_performance failed:", e)
-  }
+  // 比較処理をバックグラウンドで実行（awaitしない → すぐに保存完了を返す）
+  const { exec } = require("child_process")
+  const PYTHON_PATH =
+    "C:/Users/tetsu/OneDrive/Desktop/shiftB/music-app/music-analyzer/venv/Scripts/python.exe"
+  exec(
+    `"${PYTHON_PATH}" ../music-analyzer/analyze_performance.py ${dbUser.id} ${practiceItemId} ${performance.id}`,
+    (err: Error | null) => {
+      if (err) console.error("analyze_performance failed:", err)
+    }
+  )
 
   revalidatePath(`/${dbUser.id}/practice`)
   return { success: true }

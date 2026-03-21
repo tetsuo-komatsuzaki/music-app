@@ -1,6 +1,6 @@
 import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
-import ScoreDetail from "@/app/[userId]/top/[scoreId]/scoreDetail"
+import ScoreDetail from "@/app/[userId]/scores/[scoreId]/scoreDetail"
 import { uploadPracticeRecord } from "@/app/actions/uploadPracticeRecord"
 import styles from "../../practice.module.css"
 

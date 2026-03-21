@@ -1,0 +1,450 @@
+.actionRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: #1E3A8A;
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.appName {
+  font-weight: 600;
+}
+
+.body {
+  flex: 1;
+  display: flex;
+}
+
+.sidebar {
+  width: 220px;
+  background: #0B1E3A;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.navItem {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+.navItem:hover {
+  background: #1E40AF;
+}
+
+.navItemActive {
+  background: #1E40AF;
+  border-left: 4px solid #3B82F6;
+}
+
+.main {
+  flex: 1;
+  padding: 30px;
+  background: #F8FAFC;
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.newButton {
+  background: linear-gradient(135deg, #2563EB, #3B82F6);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(37,99,235,0.3);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.newButton:hover {
+  background: linear-gradient(135deg, #1E40AF, #2563EB);
+  box-shadow: 0 10px 24px rgba(37,99,235,0.5);
+  transform: translateY(-2px);
+}
+
+.cancelBtn {
+  background: transparent;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid #CBD5E1;
+  color: #475569;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  gap: 20px;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+
+.cardLeft {
+  font-size: 32px;
+  color: #2563EB;
+  display: flex;
+  align-items: center;
+}
+
+.cardIcon {
+  font-size: 32px;
+  margin-right: 20px;
+  color: #2563EB;
+}
+
+/* 情報 */
+.cardContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cardTopRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cardTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0F172A;
+}
+
+.cardComposer {
+  font-size: 14px;
+  color: #64748B;
+}
+
+.cardBottomRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  border: none;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #64748B;
+  transition: 0.2s;
+}
+
+.closeBtn:hover {
+  color: #1E3A8A;
+  transform: scale(1.1);
+}
+
+.dateTag {
+  background: #EFF6FF;
+  color: #2563EB;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.detailLink {
+  color: #2563EB;
+  font-size: 14px;
+}
+
+.editWrapper {
+  position: relative;
+}
+
+.editBtn {
+  background: #E2E8F0;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.editBtn:hover {
+  background: #CBD5E1;
+}
+
+.dropdown {
+  position: absolute;
+  bottom: 10px;
+  right: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 6px;
+}
+
+.dropdown button {
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+
+.dropdown button:hover {
+  background: #F1F5F9;
+}
+
+.deleteBtn {
+  color: #DC2626;
+}
+
+.fileDrop {
+
+  text-align: center;
+  transition: 0.2s;
+  cursor: pointer;
+  outline: none;
+}
+
+
+.fileDrop:focus-within {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.formLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+.hiddenInput {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: grid;        /* ← flexやめる */
+  place-items: center;  /* ← 完全中央 */
+}
+
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+
+.modal {
+  position:relative;
+  width: 560px;
+  max-width: 92%;
+  padding: 36px 40px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.18);
+  animation: slideUp 0.25s ease forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modalTitle {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.pageTitle {
+  font-size: 30px;        /* ← 約5倍級 */
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: #0F172A;
+  margin-bottom: 10px;    /* ← 下と近づける */
+}
+
+.pageSubTitle {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;              /* ← 直下にするため */
+  color: #475569;
+}
+
+/* 練習ボタン */
+.practiceBtn {
+  background: linear-gradient(135deg, #2563EB, #3B82F6);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.practiceBtn:hover {
+  background: linear-gradient(135deg, #1E40AF, #2563EB);
+  box-shadow: 0 6px 18px rgba(37,99,235,0.4);
+}
+
+.primaryBtn {
+  background: linear-gradient(135deg, #2563EB, #3B82F6);
+  color: white;
+  padding: 10px 26px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(37,99,235,0.3);
+  transition: all 0.25s ease;
+}
+
+.primaryBtn:hover {
+  background: linear-gradient(135deg, #1E40AF, #2563EB);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(37,99,235,0.45);
+}
+
+.subHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.textInput {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #CBD5E1;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.textInput:focus {
+  outline: none;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+.uploadForm {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  align-items: stretch;
+}
+
+.uploadButton {
+  align-self: center;
+  background: linear-gradient(135deg, #2563EB, #3B82F6);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+
+.uploadIcon {
+  font-size: 60px;
+  color: #2563EB;
+  margin-bottom: 15px;
+}
+
+.uploadText {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1E3A8A;
+}
+
+
+.emptyState {
+  margin-top: 40px;
+  text-align: center;
+  color: #64748B;
+}
+
+.infoBox {
+  background: #F1F5F9;
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #334155;
+  border-left: 5px solid #3B82F6;
+}
+
+.infoBox h4 {
+  margin-bottom: 10px;
+  color: #1E3A8A;
+}

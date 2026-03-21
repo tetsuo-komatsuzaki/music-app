@@ -97,6 +97,6 @@ export async function uploadScore(formData: FormData) {
     throw e
   }
 
-  revalidatePath(`/${user.id}/top`)
+  revalidatePath(`/${user.id}/scores`)
   return { success: true }
 }
