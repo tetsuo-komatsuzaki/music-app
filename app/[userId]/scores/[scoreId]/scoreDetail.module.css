@@ -262,6 +262,13 @@
   font-weight: 600;
 }
 
+.rankBadgeSmall {
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
 /* ==============================
    再生カーソル
    ============================== */
@@ -356,6 +363,36 @@
 .tempoPresetBtn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+/* ==============================
+   ノートポップオーバー
+   ============================== */
+.notePopover {
+  position: absolute;
+  z-index: 50;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+  padding: 12px 16px;
+  font-size: 13px;
+  min-width: 180px;
+  max-width: 240px;
+  border-left: 4px solid;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  animation: popoverFadeIn 0.15s ease-out;
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 /* ==============================

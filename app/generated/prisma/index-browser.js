@@ -162,7 +162,12 @@ exports.Prisma.PerformanceScalarFieldEnum = {
   performanceDuration: 'performanceDuration',
   performanceDate: 'performanceDate',
   uploadedAt: 'uploadedAt',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  pitchAccuracy: 'pitchAccuracy',
+  timingAccuracy: 'timingAccuracy',
+  overallScore: 'overallScore',
+  evaluatedNotes: 'evaluatedNotes',
+  analysisSummary: 'analysisSummary'
 };
 
 exports.Prisma.PracticeItemScalarFieldEnum = {
@@ -172,7 +177,6 @@ exports.Prisma.PracticeItemScalarFieldEnum = {
   composer: 'composer',
   description: 'description',
   descriptionShort: 'descriptionShort',
-  difficulty: 'difficulty',
   keyTonic: 'keyTonic',
   keyMode: 'keyMode',
   tempoMin: 'tempoMin',
@@ -217,7 +221,12 @@ exports.Prisma.PracticePerformanceScalarFieldEnum = {
   audioPath: 'audioPath',
   comparisonResultPath: 'comparisonResultPath',
   performanceDuration: 'performanceDuration',
-  uploadedAt: 'uploadedAt'
+  uploadedAt: 'uploadedAt',
+  pitchAccuracy: 'pitchAccuracy',
+  timingAccuracy: 'timingAccuracy',
+  overallScore: 'overallScore',
+  evaluatedNotes: 'evaluatedNotes',
+  analysisSummary: 'analysisSummary'
 };
 
 exports.Prisma.UserWeaknessScalarFieldEnum = {

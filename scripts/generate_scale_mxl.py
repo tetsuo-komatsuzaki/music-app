@@ -258,7 +258,24 @@ def parse_tempo(tempo_str):
     return 60, 100
 
 
-def generate_musicxml(notes, tempo, bow, title, pitch_map=None):
+def get_fifths(root, mode_key):
+    """調号のfifths値を返す（シャープ=正、フラット=負）"""
+    MAJOR_FIFTHS = {
+        "C": 0, "G": 1, "D": 2, "A": 3, "E": 4, "B": 5, "F#": 6, "Gb": -6,
+        "Db": -5, "Ab": -4, "Eb": -3, "Bb": -2, "F": -1,
+    }
+    MINOR_FIFTHS = {
+        "A": 0, "E": 1, "B": 2, "F#": 3, "C#": 4, "G#": 5,
+        "Eb": -6, "Bb": -5, "F": -4, "C": -3, "G": -2, "D": -1,
+    }
+    if mode_key == "minor":
+        return MINOR_FIFTHS.get(root, 0)
+    elif mode_key == "chromatic":
+        return 0
+    return MAJOR_FIFTHS.get(root, 0)
+
+
+def generate_musicxml(notes, tempo, bow, title, pitch_map=None, fifths=0):
     """Generate MusicXML string"""
     lines = []
     lines.append('<?xml version="1.0" encoding="UTF-8"?>')
@@ -290,19 +307,21 @@ def generate_musicxml(notes, tempo, bow, title, pitch_map=None):
     in_slur = False
     global_note_idx = 0
 
+    # measure 0: 属性のみ（OSMDのEndlessモードで音符が脱落するのを防ぐ）
+    lines.append('    <measure number="0">')
+    lines.append('      <attributes>')
+    lines.append('        <divisions>1</divisions>')
+    lines.append(f'        <key><fifths>{fifths}</fifths></key>')
+    lines.append('        <time><beats>4</beats><beat-type>4</beat-type></time>')
+    lines.append('        <clef><sign>G</sign><line>2</line></clef>')
+    lines.append('      </attributes>')
+    lines.append(f'      <direction placement="above"><sound tempo="{tempo}"/></direction>')
+    lines.append('    </measure>')
+
     for i in range(0, total_notes, notes_per_measure):
         measure_num += 1
         chunk = notes[i:i + notes_per_measure]
         lines.append(f'    <measure number="{measure_num}">')
-
-        if measure_num == 1:
-            lines.append('      <attributes>')
-            lines.append('        <divisions>1</divisions>')
-            lines.append('        <key><fifths>0</fifths></key>')
-            lines.append('        <time><beats>4</beats><beat-type>4</beat-type></time>')
-            lines.append('        <clef><sign>G</sign><line>2</line></clef>')
-            lines.append('      </attributes>')
-            lines.append(f'      <direction placement="above"><sound tempo="{tempo}"/></direction>')
 
         for note_semi in chunk:
             if pitch_map is not None:
@@ -479,7 +498,8 @@ def main():
                         pitch_map = None
 
                     tempo = 60 if octaves == 3 else 72
-                    xml_content = generate_musicxml(notes, tempo, bow_ja, title, pitch_map)
+                    fifths = get_fifths(tonic, mode_key)
+                    xml_content = generate_musicxml(notes, tempo, bow_ja, title, pitch_map, fifths)
                     save_as_mxl(xml_content, filepath)
                     generated += 1
                 except Exception as e:

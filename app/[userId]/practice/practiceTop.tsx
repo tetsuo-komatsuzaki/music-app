@@ -7,7 +7,6 @@ type RecommendItem = {
   id: string
   title: string
   category: string
-  difficulty: number
 }
 
 type Props = {
@@ -30,11 +29,6 @@ const categoryLabels: Record<string, string> = {
   etude: "エチュード",
 }
 
-const difficultyLabels: Record<string, string> = {
-  beginner: "初級",
-  intermediate: "中級",
-  advanced: "上級",
-}
 
 export default function PracticeTop({
   userId, categoryCounts, scoreRecommendations, weaknessRecommendations,

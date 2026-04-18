@@ -163,7 +163,6 @@ async function main() {
         title: meta.title,
         keyTonic: meta.tonic,
         keyMode: meta.keyMode,
-        difficulty: meta.difficulty,
         originalXmlPath: storagePath,
         generatedXmlPath: storagePath,
         buildStatus: "done",

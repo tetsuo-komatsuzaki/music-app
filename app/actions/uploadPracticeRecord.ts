@@ -59,12 +59,12 @@ export async function uploadPracticeRecord(formData: FormData) {
   const PYTHON_PATH =
     "C:/Users/tetsu/OneDrive/Desktop/shiftB/music-app/music-analyzer/venv/Scripts/python.exe"
   exec(
-    `"${PYTHON_PATH}" ../music-analyzer/analyze_performance.py ${dbUser.id} ${practiceItemId} ${performance.id}`,
+    `"${PYTHON_PATH}" ../music-analyzer/analyze_performance.py ${dbUser.id} ${practiceItemId} ${performance.id} practice`,
     (err: Error | null) => {
       if (err) console.error("analyze_performance failed:", err)
     }
   )
 
-  revalidatePath(`/${dbUser.id}/practice`)
+  revalidatePath(`/${user.id}/practice`)
   return { success: true }
 }

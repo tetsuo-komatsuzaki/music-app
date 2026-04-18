@@ -73,6 +73,29 @@
 .stopBtn:hover { background: #C62828; }
 .stopSquare { width: 12px; height: 12px; border-radius: 2px; background: white; }
 
+/* ② カウントイン */
+.countdownPanel {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 32px; min-width: 300px;
+}
+.countdownNum {
+  font-size: 72px; font-weight: 700; color: #E24B4A;
+  animation: countdownPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  line-height: 1;
+}
+@keyframes countdownPop {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.countdownLabel {
+  font-size: 14px; color: #999; font-weight: 500;
+}
+.cancelBtn {
+  padding: 8px 20px; background: #fff; border: 1px solid #ddd;
+  border-radius: 20px; color: #888; font-size: 13px; cursor: pointer;
+}
+.cancelBtn:hover { background: #f5f5f5; }
+
 /* ③ プレビュー */
 .previewPanel {
   display: flex; flex-direction: column; align-items: center; gap: 14px;
@@ -80,6 +103,35 @@
   border: 0.5px solid #e0e0e0; min-width: 300px;
 }
 .audioPlayer { width: 100%; max-width: 340px; }
+
+/* 品質チェック表示 */
+.qualityOk {
+  font-size: 14px; font-weight: 500; color: #085041;
+  padding: 8px 16px; background: #E1F5EE; border-radius: 12px;
+  width: 100%; text-align: center;
+}
+.qualityClipping {
+  font-size: 14px; font-weight: 500; color: #633806;
+  padding: 8px 16px; background: #FAEEDA; border-radius: 12px;
+  width: 100%; text-align: center;
+}
+.qualitySilent {
+  font-size: 14px; font-weight: 500; color: #791F1F;
+  padding: 8px 16px; background: #FCEBEB; border-radius: 12px;
+  width: 100%; text-align: center;
+}
+
+/* 波形キャンバス */
+.waveformCanvas {
+  width: 100%; max-width: 320px; height: 60px;
+  border-radius: 8px; border: 1px solid #e0e0e0;
+}
+
+/* 録音時間 */
+.previewDuration {
+  font-size: 13px; color: #666;
+}
+
 .previewActions { display: flex; gap: 10px; }
 .retryBtn {
   padding: 10px 20px; background: #fff; border: 1.5px solid #888;
@@ -151,6 +203,80 @@
   to   { opacity: 1; }
 }
 
+/* 総合スコア行 */
+.overallRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+}
+
+.rankBadge {
+  padding: 4px 16px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.overallValue {
+  font-size: 36px;
+  font-weight: 500;
+  color: #333;
+  animation: scoreCountUp 0.6s 0.15s ease both;
+}
+.overallUnit {
+  font-size: 16px;
+  color: #999;
+  margin-left: 2px;
+}
+
+/* サブ指標行 */
+.subScoreRow {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+}
+.subScore {
+  text-align: center;
+}
+.subLabel {
+  font-size: 12px;
+  color: #999;
+  display: block;
+  margin-bottom: 2px;
+}
+.subValue {
+  font-size: 18px;
+  font-weight: 500;
+  color: #555;
+}
+
+/* 課題フィードバックカード */
+.feedbackCard {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border-left: 3px solid #378ADD;
+  width: 100%;
+  max-width: 320px;
+}
+.feedbackBody {
+  flex: 1;
+}
+.feedbackIssue {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+}
+.feedbackAdvice {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+}
+
 .resultActions { display: flex; gap: 10px; margin-top: 4px; }
 .retryBtnStrong {
   flex: 1;
@@ -167,6 +293,7 @@
 
 /* ───── アクセシビリティ ───── */
 @media (prefers-reduced-motion: reduce) {
+  .countdownNum   { animation: none; }
   .mainCta        { animation: none; }
   .toast          { animation: none; opacity: 1; }
   .realtimeHint   { animation: none; }

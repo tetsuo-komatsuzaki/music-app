@@ -5,66 +5,113 @@ import { storageAdmin } from "@/app/_libs/storageAdmin"
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const scoreId = searchParams.get("scoreId")
-  const limit   = Number(searchParams.get("limit") ?? "2")
+  const userId = searchParams.get("userId")
+  const limit = Number(searchParams.get("limit") ?? "50")
 
-  if (!scoreId) return NextResponse.json({ error: "scoreId required" }, { status: 400 })
+  if (!scoreId || !userId) return NextResponse.json({ error: "scoreId and userId required" }, { status: 400 })
 
-  const perfs = await prisma.performance.findMany({
-    where: { scoreId },
+  // Supabase UID → Prisma内部ID変換
+  const dbUser = await prisma.user.findUnique({ where: { supabaseUserId: userId } })
+  if (!dbUser) return NextResponse.json([])
+
+  const performances = await prisma.performance.findMany({
+    where: { scoreId, userId: dbUser.id },
     orderBy: { uploadedAt: "desc" },
     take: limit,
     select: {
       id: true,
-      uploadedAt: true,
+      audioPath: true,
       comparisonResultPath: true,
+      uploadedAt: true,
+      performanceStatus: true,
+      pitchAccuracy: true,
+      timingAccuracy: true,
+      overallScore: true,
+      evaluatedNotes: true,
+      analysisSummary: true,
     },
   })
 
-  const result = await Promise.all(
-    perfs.map(async (p) => {
-      let comparisonResult: any[] | null = null
+  const results = await Promise.all(
+    performances.map(async (p) => {
+      const audioUrl = await storageAdmin.storage
+        .from("performances")
+        .createSignedUrl(p.audioPath, 3600)
+        .then(r => r.data?.signedUrl ?? null)
 
-      if (p.comparisonResultPath) {
-        const { data } = await storageAdmin.storage
-          .from("performances")
-          .createSignedUrl(p.comparisonResultPath, 60)
-
-        if (data?.signedUrl) {
-          try {
-            const res = await fetch(data.signedUrl)
-            if (res.ok) {
-              const json = await res.json()
-              comparisonResult = json.results ?? json
-            }
-          } catch { /* ignore */ }
+      // サマリーがDBにあれば comparison_result.json の fetch は不要
+      if (p.pitchAccuracy != null) {
+        return {
+          id: p.id,
+          uploadedAt: p.uploadedAt,
+          status: p.performanceStatus,
+          audioUrl,
+          pitchAccuracy: p.pitchAccuracy,
+          timingAccuracy: p.timingAccuracy,
+          overallScore: p.overallScore,
+          evaluatedNotes: p.evaluatedNotes,
+          analysisSummary: p.analysisSummary,
+          comparisonResult: null,
+          comparisonWarnings: [],
         }
       }
 
-      // pitchAccuracy を事前計算
+      // DBにサマリーがない場合は従来通り fetch
+      const compJson = p.comparisonResultPath
+        ? await storageAdmin.storage
+            .from("performances")
+            .createSignedUrl(p.comparisonResultPath, 3600)
+            .then(r => r.data?.signedUrl ? fetch(r.data.signedUrl) : null)
+            .then(res => res && res.ok ? res.json() : null)
+            .catch(() => null)
+        : null
+
+      let comparisonResult = null
+      let comparisonWarnings: string[] = []
       let pitchAccuracy: number | null = null
       let timingAccuracy: number | null = null
+      let overallScore: number | null = null
 
-      if (comparisonResult) {
-        const evaluated = comparisonResult.filter(
-          (n: any) => n.evaluation_status === "evaluated" || n.evaluation_status === "pitch_only"
-        )
-        if (evaluated.length > 0) {
-          const pitchOk  = evaluated.filter((n: any) => n.pitch_ok === true).length
-          const timingOk = evaluated.filter((n: any) => n.start_ok === true).length
-          pitchAccuracy  = Math.round((pitchOk  / evaluated.length) * 100)
-          timingAccuracy = Math.round((timingOk / evaluated.length) * 100)
+      if (compJson) {
+        if (compJson.version && compJson.results) {
+          comparisonResult = compJson.results
+          comparisonWarnings = compJson.warnings || []
+        } else if (Array.isArray(compJson)) {
+          comparisonResult = compJson
+        }
+
+        if (comparisonResult) {
+          const totalNotes = comparisonResult.length
+          const evaluated = comparisonResult.filter(
+            (n: any) => n.evaluation_status === "evaluated" || n.evaluation_status === "pitch_only"
+          )
+          if (totalNotes > 0) {
+            const pitchOk = evaluated.filter((n: any) => n.pitch_ok === true).length
+            pitchAccuracy = Math.round((pitchOk / totalNotes) * 100)
+            const timingOk = evaluated.filter((n: any) => n.start_ok === true).length
+            timingAccuracy = Math.round((timingOk / totalNotes) * 100)
+            if (pitchAccuracy != null && timingAccuracy != null) {
+              overallScore = Math.round(pitchAccuracy * 0.6 + timingAccuracy * 0.4)
+            }
+          }
         }
       }
 
       return {
-        id:              p.id,
-        uploadedAt:      p.uploadedAt,
+        id: p.id,
+        uploadedAt: p.uploadedAt,
+        status: p.performanceStatus,
+        audioUrl,
         pitchAccuracy,
         timingAccuracy,
+        overallScore,
+        evaluatedNotes: p.evaluatedNotes,
+        analysisSummary: p.analysisSummary,
         comparisonResult,
+        comparisonWarnings,
       }
     })
   )
 
-  return NextResponse.json(result)
+  return NextResponse.json(results)
 }

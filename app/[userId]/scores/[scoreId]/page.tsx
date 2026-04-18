@@ -10,115 +10,77 @@ export default async function Page({
 }) {
   const { userId, scoreId } = await params
 
-  const score = await prisma.score.findUnique({
-    where: { id: scoreId },
-    include: {
-      performances: {
-        orderBy: { uploadedAt: "desc" }
-      }
-    }
-  })
+  const perfStart = performance.now()
 
+  // dbUser と score を並列で取得
+  const [dbUser, score] = await Promise.all([
+    prisma.user.findUnique({ where: { supabaseUserId: userId } }),
+    prisma.score.findUnique({ where: { id: scoreId } }),
+  ])
+  console.log(`[PERF] scores/detail step1_dbUser+score: ${(performance.now() - perfStart).toFixed(0)}ms`)
+
+  if (!dbUser) return <div>ユーザーが見つかりません</div>
   if (!score) return <div>スコアが見つかりません</div>
 
-  // アクセス制御: 自分のスコアまたは共有スコアのみ閲覧可
-  if (score.createdById !== userId && !score.isShared) {
+  // アクセス制御
+  if (score.createdById !== dbUser.id && !score.isShared) {
     return <div>このスコアへのアクセス権がありません</div>
   }
 
-  // =========================
-  // 🎼 buildUrl
-  // =========================
+  // 残り全て並列実行
+  const perfStep2 = performance.now()
+  const [buildUrl, analysisData, performanceCount, latestPerf] = await Promise.all([
+    // buildUrl
+    (score.buildStatus === "done" && score.generatedXmlPath)
+      ? storageAdmin.storage
+          .from("musicxml")
+          .createSignedUrl(score.generatedXmlPath, 300)
+          .then(r => r.data?.signedUrl ?? null)
+      : Promise.resolve(null),
 
-  let buildUrl: string | null = null
+    // analysis（signedUrl + fetch を1チェーンで）
+    (score.analysisStatus === "done")
+      ? storageAdmin.storage
+          .from("musicxml")
+          .createSignedUrl(`${score.createdById}/${score.id}/analysis.json`, 60)
+          .then(r => r.data?.signedUrl ? fetch(r.data.signedUrl) : null)
+          .then(res => res?.ok ? res.json() : null)
+          .catch(() => null)
+      : Promise.resolve(null),
 
-  if (score.buildStatus === "done" && score.generatedXmlPath) {
-    const { data } = await storageAdmin.storage
-      .from("musicxml")
-      .createSignedUrl(score.generatedXmlPath, 300)
+    // performanceCount
+    prisma.performance.count({
+      where: { userId: dbUser.id, scoreId },
+    }),
 
-    buildUrl = data?.signedUrl ?? null
-  }
-
-  // =========================
-  // 📄 analysis
-  // =========================
-
-  let analysisData = null
-
-  if (score.analysisStatus === "done") {
-    const analysisPath = `${score.createdById}/${score.id}/analysis.json`
-
-    const { data } = await storageAdmin.storage
-      .from("musicxml")
-      .createSignedUrl(analysisPath, 60)
-
-    if (data?.signedUrl) {
-      const res = await fetch(data.signedUrl)
-      if (res.ok) {
-        analysisData = await res.json()
-      }
-    }
-  }
-
-  // =========================
-  // 🎧 performances（+ comparison_result）
-  // =========================
-
-  const performances = await Promise.all(
-    score.performances.map(async (p) => {
-      const { data: audioData } = await storageAdmin.storage
-        .from("performances")
-        .createSignedUrl(p.audioPath, 60)
-
-      let comparisonResult = null
-      let comparisonWarnings: string[] = []
-      if (p.comparisonResultPath) {
-        const { data: compData } = await storageAdmin.storage
-          .from("performances")
-          .createSignedUrl(p.comparisonResultPath, 60)
-
-        if (compData?.signedUrl) {
-          try {
-            const res = await fetch(compData.signedUrl)
-            if (res.ok) {
-              const json = await res.json()
-              // v2.0: { version, warnings, results }
-              if (json.version && json.results) {
-                comparisonResult = json.results
-                comparisonWarnings = json.warnings || []
-              } else if (Array.isArray(json)) {
-                // v1.0 互換
-                comparisonResult = json
-              }
-            }
-          } catch (_e) {
-            // 取得失敗は無視
-          }
-        }
-      }
-
-      return {
-        id: p.id,
-        uploadedAt: p.uploadedAt.toISOString(),
-        status: p.performanceStatus,
-        audioUrl: audioData?.signedUrl ?? null,
-        comparisonResult: comparisonResult,
-        comparisonWarnings: comparisonWarnings
-      }
-    })
-  )
+    // latestPerf
+    prisma.performance.findFirst({
+      where: { userId: dbUser.id, scoreId },
+      orderBy: { uploadedAt: "desc" },
+      select: {
+        id: true,
+        pitchAccuracy: true,
+        timingAccuracy: true,
+        overallScore: true,
+        analysisSummary: true,
+      },
+    }),
+  ])
+  console.log(`[PERF] scores/detail step2_parallel: ${(performance.now() - perfStep2).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   return (
     <ScoreDetail
       score={{
         id: score.id,
-        title: score.title
+        title: score.title,
       }}
-      performances={performances}
+      userId={userId}
       analysis={analysisData}
       uploadAction={uploadRecord}
       buildUrl={buildUrl}
+      performanceCount={performanceCount}
+      latestPitchAccuracy={latestPerf?.pitchAccuracy ?? null}
+      latestTimingAccuracy={latestPerf?.timingAccuracy ?? null}
     />
   )
 }

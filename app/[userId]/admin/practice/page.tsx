@@ -51,7 +51,6 @@ export default async function AdminPracticePage({
     category: item.category,
     title: item.title,
     composer: item.composer,
-    difficulty: item.difficulty,
     keyTonic: item.keyTonic,
     keyMode: item.keyMode,
     tempoMin: item.tempoMin,

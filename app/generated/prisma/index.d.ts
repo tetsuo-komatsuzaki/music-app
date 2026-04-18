@@ -4239,10 +4239,18 @@ export namespace Prisma {
 
   export type PerformanceAvgAggregateOutputType = {
     performanceDuration: number | null
+    pitchAccuracy: number | null
+    timingAccuracy: number | null
+    overallScore: number | null
+    evaluatedNotes: number | null
   }
 
   export type PerformanceSumAggregateOutputType = {
     performanceDuration: number | null
+    pitchAccuracy: number | null
+    timingAccuracy: number | null
+    overallScore: number | null
+    evaluatedNotes: number | null
   }
 
   export type PerformanceMinAggregateOutputType = {
@@ -4259,6 +4267,10 @@ export namespace Prisma {
     performanceDate: Date | null
     uploadedAt: Date | null
     createdAt: Date | null
+    pitchAccuracy: number | null
+    timingAccuracy: number | null
+    overallScore: number | null
+    evaluatedNotes: number | null
   }
 
   export type PerformanceMaxAggregateOutputType = {
@@ -4275,6 +4287,10 @@ export namespace Prisma {
     performanceDate: Date | null
     uploadedAt: Date | null
     createdAt: Date | null
+    pitchAccuracy: number | null
+    timingAccuracy: number | null
+    overallScore: number | null
+    evaluatedNotes: number | null
   }
 
   export type PerformanceCountAggregateOutputType = {
@@ -4291,16 +4307,29 @@ export namespace Prisma {
     performanceDate: number
     uploadedAt: number
     createdAt: number
+    pitchAccuracy: number
+    timingAccuracy: number
+    overallScore: number
+    evaluatedNotes: number
+    analysisSummary: number
     _all: number
   }
 
 
   export type PerformanceAvgAggregateInputType = {
     performanceDuration?: true
+    pitchAccuracy?: true
+    timingAccuracy?: true
+    overallScore?: true
+    evaluatedNotes?: true
   }
 
   export type PerformanceSumAggregateInputType = {
     performanceDuration?: true
+    pitchAccuracy?: true
+    timingAccuracy?: true
+    overallScore?: true
+    evaluatedNotes?: true
   }
 
   export type PerformanceMinAggregateInputType = {
@@ -4317,6 +4346,10 @@ export namespace Prisma {
     performanceDate?: true
     uploadedAt?: true
     createdAt?: true
+    pitchAccuracy?: true
+    timingAccuracy?: true
+    overallScore?: true
+    evaluatedNotes?: true
   }
 
   export type PerformanceMaxAggregateInputType = {
@@ -4333,6 +4366,10 @@ export namespace Prisma {
     performanceDate?: true
     uploadedAt?: true
     createdAt?: true
+    pitchAccuracy?: true
+    timingAccuracy?: true
+    overallScore?: true
+    evaluatedNotes?: true
   }
 
   export type PerformanceCountAggregateInputType = {
@@ -4349,6 +4386,11 @@ export namespace Prisma {
     performanceDate?: true
     uploadedAt?: true
     createdAt?: true
+    pitchAccuracy?: true
+    timingAccuracy?: true
+    overallScore?: true
+    evaluatedNotes?: true
+    analysisSummary?: true
     _all?: true
   }
 
@@ -4452,6 +4494,11 @@ export namespace Prisma {
     performanceDate: Date | null
     uploadedAt: Date
     createdAt: Date
+    pitchAccuracy: number | null
+    timingAccuracy: number | null
+    overallScore: number | null
+    evaluatedNotes: number | null
+    analysisSummary: JsonValue | null
     _count: PerformanceCountAggregateOutputType | null
     _avg: PerformanceAvgAggregateOutputType | null
     _sum: PerformanceSumAggregateOutputType | null
@@ -4487,6 +4534,11 @@ export namespace Prisma {
     performanceDate?: boolean
     uploadedAt?: boolean
     createdAt?: boolean
+    pitchAccuracy?: boolean
+    timingAccuracy?: boolean
+    overallScore?: boolean
+    evaluatedNotes?: boolean
+    analysisSummary?: boolean
     score?: boolean | ScoreDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["performance"]>
@@ -4505,6 +4557,11 @@ export namespace Prisma {
     performanceDate?: boolean
     uploadedAt?: boolean
     createdAt?: boolean
+    pitchAccuracy?: boolean
+    timingAccuracy?: boolean
+    overallScore?: boolean
+    evaluatedNotes?: boolean
+    analysisSummary?: boolean
     score?: boolean | ScoreDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["performance"]>
@@ -4523,6 +4580,11 @@ export namespace Prisma {
     performanceDate?: boolean
     uploadedAt?: boolean
     createdAt?: boolean
+    pitchAccuracy?: boolean
+    timingAccuracy?: boolean
+    overallScore?: boolean
+    evaluatedNotes?: boolean
+    analysisSummary?: boolean
     score?: boolean | ScoreDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["performance"]>
@@ -4541,9 +4603,14 @@ export namespace Prisma {
     performanceDate?: boolean
     uploadedAt?: boolean
     createdAt?: boolean
+    pitchAccuracy?: boolean
+    timingAccuracy?: boolean
+    overallScore?: boolean
+    evaluatedNotes?: boolean
+    analysisSummary?: boolean
   }
 
-  export type PerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "performanceType" | "performanceStatus" | "userId" | "scoreId" | "audioPath" | "audioFeaturesPath" | "comparisonResultPath" | "pseudoXmlPath" | "performanceDuration" | "performanceDate" | "uploadedAt" | "createdAt", ExtArgs["result"]["performance"]>
+  export type PerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "performanceType" | "performanceStatus" | "userId" | "scoreId" | "audioPath" | "audioFeaturesPath" | "comparisonResultPath" | "pseudoXmlPath" | "performanceDuration" | "performanceDate" | "uploadedAt" | "createdAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary", ExtArgs["result"]["performance"]>
   export type PerformanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     score?: boolean | ScoreDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -4577,6 +4644,11 @@ export namespace Prisma {
       performanceDate: Date | null
       uploadedAt: Date
       createdAt: Date
+      pitchAccuracy: number | null
+      timingAccuracy: number | null
+      overallScore: number | null
+      evaluatedNotes: number | null
+      analysisSummary: Prisma.JsonValue | null
     }, ExtArgs["result"]["performance"]>
     composites: {}
   }
@@ -5015,6 +5087,11 @@ export namespace Prisma {
     readonly performanceDate: FieldRef<"Performance", 'DateTime'>
     readonly uploadedAt: FieldRef<"Performance", 'DateTime'>
     readonly createdAt: FieldRef<"Performance", 'DateTime'>
+    readonly pitchAccuracy: FieldRef<"Performance", 'Float'>
+    readonly timingAccuracy: FieldRef<"Performance", 'Float'>
+    readonly overallScore: FieldRef<"Performance", 'Float'>
+    readonly evaluatedNotes: FieldRef<"Performance", 'Int'>
+    readonly analysisSummary: FieldRef<"Performance", 'Json'>
   }
     
 
@@ -5442,14 +5519,12 @@ export namespace Prisma {
   }
 
   export type PracticeItemAvgAggregateOutputType = {
-    difficulty: number | null
     tempoMin: number | null
     tempoMax: number | null
     sortOrder: number | null
   }
 
   export type PracticeItemSumAggregateOutputType = {
-    difficulty: number | null
     tempoMin: number | null
     tempoMax: number | null
     sortOrder: number | null
@@ -5462,7 +5537,6 @@ export namespace Prisma {
     composer: string | null
     description: string | null
     descriptionShort: string | null
-    difficulty: number | null
     keyTonic: string | null
     keyMode: string | null
     tempoMin: number | null
@@ -5488,7 +5562,6 @@ export namespace Prisma {
     composer: string | null
     description: string | null
     descriptionShort: string | null
-    difficulty: number | null
     keyTonic: string | null
     keyMode: string | null
     tempoMin: number | null
@@ -5514,7 +5587,6 @@ export namespace Prisma {
     composer: number
     description: number
     descriptionShort: number
-    difficulty: number
     keyTonic: number
     keyMode: number
     tempoMin: number
@@ -5538,14 +5610,12 @@ export namespace Prisma {
 
 
   export type PracticeItemAvgAggregateInputType = {
-    difficulty?: true
     tempoMin?: true
     tempoMax?: true
     sortOrder?: true
   }
 
   export type PracticeItemSumAggregateInputType = {
-    difficulty?: true
     tempoMin?: true
     tempoMax?: true
     sortOrder?: true
@@ -5558,7 +5628,6 @@ export namespace Prisma {
     composer?: true
     description?: true
     descriptionShort?: true
-    difficulty?: true
     keyTonic?: true
     keyMode?: true
     tempoMin?: true
@@ -5584,7 +5653,6 @@ export namespace Prisma {
     composer?: true
     description?: true
     descriptionShort?: true
-    difficulty?: true
     keyTonic?: true
     keyMode?: true
     tempoMin?: true
@@ -5610,7 +5678,6 @@ export namespace Prisma {
     composer?: true
     description?: true
     descriptionShort?: true
-    difficulty?: true
     keyTonic?: true
     keyMode?: true
     tempoMin?: true
@@ -5725,7 +5792,6 @@ export namespace Prisma {
     composer: string | null
     description: string | null
     descriptionShort: string | null
-    difficulty: number
     keyTonic: string
     keyMode: string
     tempoMin: number | null
@@ -5772,7 +5838,6 @@ export namespace Prisma {
     composer?: boolean
     description?: boolean
     descriptionShort?: boolean
-    difficulty?: boolean
     keyTonic?: boolean
     keyMode?: boolean
     tempoMin?: boolean
@@ -5804,7 +5869,6 @@ export namespace Prisma {
     composer?: boolean
     description?: boolean
     descriptionShort?: boolean
-    difficulty?: boolean
     keyTonic?: boolean
     keyMode?: boolean
     tempoMin?: boolean
@@ -5833,7 +5897,6 @@ export namespace Prisma {
     composer?: boolean
     description?: boolean
     descriptionShort?: boolean
-    difficulty?: boolean
     keyTonic?: boolean
     keyMode?: boolean
     tempoMin?: boolean
@@ -5862,7 +5925,6 @@ export namespace Prisma {
     composer?: boolean
     description?: boolean
     descriptionShort?: boolean
-    difficulty?: boolean
     keyTonic?: boolean
     keyMode?: boolean
     tempoMin?: boolean
@@ -5883,7 +5945,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PracticeItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "category" | "title" | "composer" | "description" | "descriptionShort" | "difficulty" | "keyTonic" | "keyMode" | "tempoMin" | "tempoMax" | "positions" | "instrument" | "originalXmlPath" | "generatedXmlPath" | "analysisPath" | "analysisStatus" | "buildStatus" | "ownerUserId" | "source" | "sortOrder" | "isPublished" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["practiceItem"]>
+  export type PracticeItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "category" | "title" | "composer" | "description" | "descriptionShort" | "keyTonic" | "keyMode" | "tempoMin" | "tempoMax" | "positions" | "instrument" | "originalXmlPath" | "generatedXmlPath" | "analysisPath" | "analysisStatus" | "buildStatus" | "ownerUserId" | "source" | "sortOrder" | "isPublished" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["practiceItem"]>
   export type PracticeItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
     techniques?: boolean | PracticeItem$techniquesArgs<ExtArgs>
@@ -5911,7 +5973,6 @@ export namespace Prisma {
       composer: string | null
       description: string | null
       descriptionShort: string | null
-      difficulty: number
       keyTonic: string
       keyMode: string
       tempoMin: number | null
@@ -6362,7 +6423,6 @@ export namespace Prisma {
     readonly composer: FieldRef<"PracticeItem", 'String'>
     readonly description: FieldRef<"PracticeItem", 'String'>
     readonly descriptionShort: FieldRef<"PracticeItem", 'String'>
-    readonly difficulty: FieldRef<"PracticeItem", 'Int'>
     readonly keyTonic: FieldRef<"PracticeItem", 'String'>
     readonly keyMode: FieldRef<"PracticeItem", 'String'>
     readonly tempoMin: FieldRef<"PracticeItem", 'Int'>
@@ -9049,10 +9109,18 @@ export namespace Prisma {
 
   export type PracticePerformanceAvgAggregateOutputType = {
     performanceDuration: number | null
+    pitchAccuracy: number | null
+    timingAccuracy: number | null
+    overallScore: number | null
+    evaluatedNotes: number | null
   }
 
   export type PracticePerformanceSumAggregateOutputType = {
     performanceDuration: number | null
+    pitchAccuracy: number | null
+    timingAccuracy: number | null
+    overallScore: number | null
+    evaluatedNotes: number | null
   }
 
   export type PracticePerformanceMinAggregateOutputType = {
@@ -9063,6 +9131,10 @@ export namespace Prisma {
     comparisonResultPath: string | null
     performanceDuration: number | null
     uploadedAt: Date | null
+    pitchAccuracy: number | null
+    timingAccuracy: number | null
+    overallScore: number | null
+    evaluatedNotes: number | null
   }
 
   export type PracticePerformanceMaxAggregateOutputType = {
@@ -9073,6 +9145,10 @@ export namespace Prisma {
     comparisonResultPath: string | null
     performanceDuration: number | null
     uploadedAt: Date | null
+    pitchAccuracy: number | null
+    timingAccuracy: number | null
+    overallScore: number | null
+    evaluatedNotes: number | null
   }
 
   export type PracticePerformanceCountAggregateOutputType = {
@@ -9083,16 +9159,29 @@ export namespace Prisma {
     comparisonResultPath: number
     performanceDuration: number
     uploadedAt: number
+    pitchAccuracy: number
+    timingAccuracy: number
+    overallScore: number
+    evaluatedNotes: number
+    analysisSummary: number
     _all: number
   }
 
 
   export type PracticePerformanceAvgAggregateInputType = {
     performanceDuration?: true
+    pitchAccuracy?: true
+    timingAccuracy?: true
+    overallScore?: true
+    evaluatedNotes?: true
   }
 
   export type PracticePerformanceSumAggregateInputType = {
     performanceDuration?: true
+    pitchAccuracy?: true
+    timingAccuracy?: true
+    overallScore?: true
+    evaluatedNotes?: true
   }
 
   export type PracticePerformanceMinAggregateInputType = {
@@ -9103,6 +9192,10 @@ export namespace Prisma {
     comparisonResultPath?: true
     performanceDuration?: true
     uploadedAt?: true
+    pitchAccuracy?: true
+    timingAccuracy?: true
+    overallScore?: true
+    evaluatedNotes?: true
   }
 
   export type PracticePerformanceMaxAggregateInputType = {
@@ -9113,6 +9206,10 @@ export namespace Prisma {
     comparisonResultPath?: true
     performanceDuration?: true
     uploadedAt?: true
+    pitchAccuracy?: true
+    timingAccuracy?: true
+    overallScore?: true
+    evaluatedNotes?: true
   }
 
   export type PracticePerformanceCountAggregateInputType = {
@@ -9123,6 +9220,11 @@ export namespace Prisma {
     comparisonResultPath?: true
     performanceDuration?: true
     uploadedAt?: true
+    pitchAccuracy?: true
+    timingAccuracy?: true
+    overallScore?: true
+    evaluatedNotes?: true
+    analysisSummary?: true
     _all?: true
   }
 
@@ -9220,6 +9322,11 @@ export namespace Prisma {
     comparisonResultPath: string | null
     performanceDuration: number | null
     uploadedAt: Date
+    pitchAccuracy: number | null
+    timingAccuracy: number | null
+    overallScore: number | null
+    evaluatedNotes: number | null
+    analysisSummary: JsonValue | null
     _count: PracticePerformanceCountAggregateOutputType | null
     _avg: PracticePerformanceAvgAggregateOutputType | null
     _sum: PracticePerformanceSumAggregateOutputType | null
@@ -9249,6 +9356,11 @@ export namespace Prisma {
     comparisonResultPath?: boolean
     performanceDuration?: boolean
     uploadedAt?: boolean
+    pitchAccuracy?: boolean
+    timingAccuracy?: boolean
+    overallScore?: boolean
+    evaluatedNotes?: boolean
+    analysisSummary?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["practicePerformance"]>
@@ -9261,6 +9373,11 @@ export namespace Prisma {
     comparisonResultPath?: boolean
     performanceDuration?: boolean
     uploadedAt?: boolean
+    pitchAccuracy?: boolean
+    timingAccuracy?: boolean
+    overallScore?: boolean
+    evaluatedNotes?: boolean
+    analysisSummary?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["practicePerformance"]>
@@ -9273,6 +9390,11 @@ export namespace Prisma {
     comparisonResultPath?: boolean
     performanceDuration?: boolean
     uploadedAt?: boolean
+    pitchAccuracy?: boolean
+    timingAccuracy?: boolean
+    overallScore?: boolean
+    evaluatedNotes?: boolean
+    analysisSummary?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["practicePerformance"]>
@@ -9285,9 +9407,14 @@ export namespace Prisma {
     comparisonResultPath?: boolean
     performanceDuration?: boolean
     uploadedAt?: boolean
+    pitchAccuracy?: boolean
+    timingAccuracy?: boolean
+    overallScore?: boolean
+    evaluatedNotes?: boolean
+    analysisSummary?: boolean
   }
 
-  export type PracticePerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "practiceItemId" | "audioPath" | "comparisonResultPath" | "performanceDuration" | "uploadedAt", ExtArgs["result"]["practicePerformance"]>
+  export type PracticePerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "practiceItemId" | "audioPath" | "comparisonResultPath" | "performanceDuration" | "uploadedAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary", ExtArgs["result"]["practicePerformance"]>
   export type PracticePerformanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
@@ -9315,6 +9442,11 @@ export namespace Prisma {
       comparisonResultPath: string | null
       performanceDuration: number | null
       uploadedAt: Date
+      pitchAccuracy: number | null
+      timingAccuracy: number | null
+      overallScore: number | null
+      evaluatedNotes: number | null
+      analysisSummary: Prisma.JsonValue | null
     }, ExtArgs["result"]["practicePerformance"]>
     composites: {}
   }
@@ -9747,6 +9879,11 @@ export namespace Prisma {
     readonly comparisonResultPath: FieldRef<"PracticePerformance", 'String'>
     readonly performanceDuration: FieldRef<"PracticePerformance", 'Float'>
     readonly uploadedAt: FieldRef<"PracticePerformance", 'DateTime'>
+    readonly pitchAccuracy: FieldRef<"PracticePerformance", 'Float'>
+    readonly timingAccuracy: FieldRef<"PracticePerformance", 'Float'>
+    readonly overallScore: FieldRef<"PracticePerformance", 'Float'>
+    readonly evaluatedNotes: FieldRef<"PracticePerformance", 'Int'>
+    readonly analysisSummary: FieldRef<"PracticePerformance", 'Json'>
   }
     
 
@@ -11385,7 +11522,12 @@ export namespace Prisma {
     performanceDuration: 'performanceDuration',
     performanceDate: 'performanceDate',
     uploadedAt: 'uploadedAt',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    pitchAccuracy: 'pitchAccuracy',
+    timingAccuracy: 'timingAccuracy',
+    overallScore: 'overallScore',
+    evaluatedNotes: 'evaluatedNotes',
+    analysisSummary: 'analysisSummary'
   };
 
   export type PerformanceScalarFieldEnum = (typeof PerformanceScalarFieldEnum)[keyof typeof PerformanceScalarFieldEnum]
@@ -11398,7 +11540,6 @@ export namespace Prisma {
     composer: 'composer',
     description: 'description',
     descriptionShort: 'descriptionShort',
-    difficulty: 'difficulty',
     keyTonic: 'keyTonic',
     keyMode: 'keyMode',
     tempoMin: 'tempoMin',
@@ -11452,7 +11593,12 @@ export namespace Prisma {
     audioPath: 'audioPath',
     comparisonResultPath: 'comparisonResultPath',
     performanceDuration: 'performanceDuration',
-    uploadedAt: 'uploadedAt'
+    uploadedAt: 'uploadedAt',
+    pitchAccuracy: 'pitchAccuracy',
+    timingAccuracy: 'timingAccuracy',
+    overallScore: 'overallScore',
+    evaluatedNotes: 'evaluatedNotes',
+    analysisSummary: 'analysisSummary'
   };
 
   export type PracticePerformanceScalarFieldEnum = (typeof PracticePerformanceScalarFieldEnum)[keyof typeof PracticePerformanceScalarFieldEnum]
@@ -11624,20 +11770,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'PracticeCategory'
-   */
-  export type EnumPracticeCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PracticeCategory'>
-    
-
-
-  /**
-   * Reference to a field of type 'PracticeCategory[]'
-   */
-  export type ListEnumPracticeCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PracticeCategory[]'>
-    
-
-
-  /**
    * Reference to a field of type 'Json'
    */
   export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
@@ -11648,6 +11780,20 @@ export namespace Prisma {
    * Reference to a field of type 'QueryMode'
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'PracticeCategory'
+   */
+  export type EnumPracticeCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PracticeCategory'>
+    
+
+
+  /**
+   * Reference to a field of type 'PracticeCategory[]'
+   */
+  export type ListEnumPracticeCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PracticeCategory[]'>
     
   /**
    * Deep Input Types
@@ -11863,6 +12009,11 @@ export namespace Prisma {
     performanceDate?: DateTimeNullableFilter<"Performance"> | Date | string | null
     uploadedAt?: DateTimeFilter<"Performance"> | Date | string
     createdAt?: DateTimeFilter<"Performance"> | Date | string
+    pitchAccuracy?: FloatNullableFilter<"Performance"> | number | null
+    timingAccuracy?: FloatNullableFilter<"Performance"> | number | null
+    overallScore?: FloatNullableFilter<"Performance"> | number | null
+    evaluatedNotes?: IntNullableFilter<"Performance"> | number | null
+    analysisSummary?: JsonNullableFilter<"Performance">
     score?: XOR<ScoreScalarRelationFilter, ScoreWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
@@ -11881,6 +12032,11 @@ export namespace Prisma {
     performanceDate?: SortOrderInput | SortOrder
     uploadedAt?: SortOrder
     createdAt?: SortOrder
+    pitchAccuracy?: SortOrderInput | SortOrder
+    timingAccuracy?: SortOrderInput | SortOrder
+    overallScore?: SortOrderInput | SortOrder
+    evaluatedNotes?: SortOrderInput | SortOrder
+    analysisSummary?: SortOrderInput | SortOrder
     score?: ScoreOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
   }
@@ -11902,6 +12058,11 @@ export namespace Prisma {
     performanceDate?: DateTimeNullableFilter<"Performance"> | Date | string | null
     uploadedAt?: DateTimeFilter<"Performance"> | Date | string
     createdAt?: DateTimeFilter<"Performance"> | Date | string
+    pitchAccuracy?: FloatNullableFilter<"Performance"> | number | null
+    timingAccuracy?: FloatNullableFilter<"Performance"> | number | null
+    overallScore?: FloatNullableFilter<"Performance"> | number | null
+    evaluatedNotes?: IntNullableFilter<"Performance"> | number | null
+    analysisSummary?: JsonNullableFilter<"Performance">
     score?: XOR<ScoreScalarRelationFilter, ScoreWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
@@ -11920,6 +12081,11 @@ export namespace Prisma {
     performanceDate?: SortOrderInput | SortOrder
     uploadedAt?: SortOrder
     createdAt?: SortOrder
+    pitchAccuracy?: SortOrderInput | SortOrder
+    timingAccuracy?: SortOrderInput | SortOrder
+    overallScore?: SortOrderInput | SortOrder
+    evaluatedNotes?: SortOrderInput | SortOrder
+    analysisSummary?: SortOrderInput | SortOrder
     _count?: PerformanceCountOrderByAggregateInput
     _avg?: PerformanceAvgOrderByAggregateInput
     _max?: PerformanceMaxOrderByAggregateInput
@@ -11944,6 +12110,11 @@ export namespace Prisma {
     performanceDate?: DateTimeNullableWithAggregatesFilter<"Performance"> | Date | string | null
     uploadedAt?: DateTimeWithAggregatesFilter<"Performance"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"Performance"> | Date | string
+    pitchAccuracy?: FloatNullableWithAggregatesFilter<"Performance"> | number | null
+    timingAccuracy?: FloatNullableWithAggregatesFilter<"Performance"> | number | null
+    overallScore?: FloatNullableWithAggregatesFilter<"Performance"> | number | null
+    evaluatedNotes?: IntNullableWithAggregatesFilter<"Performance"> | number | null
+    analysisSummary?: JsonNullableWithAggregatesFilter<"Performance">
   }
 
   export type PracticeItemWhereInput = {
@@ -11956,7 +12127,6 @@ export namespace Prisma {
     composer?: StringNullableFilter<"PracticeItem"> | string | null
     description?: StringNullableFilter<"PracticeItem"> | string | null
     descriptionShort?: StringNullableFilter<"PracticeItem"> | string | null
-    difficulty?: IntFilter<"PracticeItem"> | number
     keyTonic?: StringFilter<"PracticeItem"> | string
     keyMode?: StringFilter<"PracticeItem"> | string
     tempoMin?: IntNullableFilter<"PracticeItem"> | number | null
@@ -11987,7 +12157,6 @@ export namespace Prisma {
     composer?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     descriptionShort?: SortOrderInput | SortOrder
-    difficulty?: SortOrder
     keyTonic?: SortOrder
     keyMode?: SortOrder
     tempoMin?: SortOrderInput | SortOrder
@@ -12021,7 +12190,6 @@ export namespace Prisma {
     composer?: StringNullableFilter<"PracticeItem"> | string | null
     description?: StringNullableFilter<"PracticeItem"> | string | null
     descriptionShort?: StringNullableFilter<"PracticeItem"> | string | null
-    difficulty?: IntFilter<"PracticeItem"> | number
     keyTonic?: StringFilter<"PracticeItem"> | string
     keyMode?: StringFilter<"PracticeItem"> | string
     tempoMin?: IntNullableFilter<"PracticeItem"> | number | null
@@ -12052,7 +12220,6 @@ export namespace Prisma {
     composer?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
     descriptionShort?: SortOrderInput | SortOrder
-    difficulty?: SortOrder
     keyTonic?: SortOrder
     keyMode?: SortOrder
     tempoMin?: SortOrderInput | SortOrder
@@ -12088,7 +12255,6 @@ export namespace Prisma {
     composer?: StringNullableWithAggregatesFilter<"PracticeItem"> | string | null
     description?: StringNullableWithAggregatesFilter<"PracticeItem"> | string | null
     descriptionShort?: StringNullableWithAggregatesFilter<"PracticeItem"> | string | null
-    difficulty?: IntWithAggregatesFilter<"PracticeItem"> | number
     keyTonic?: StringWithAggregatesFilter<"PracticeItem"> | string
     keyMode?: StringWithAggregatesFilter<"PracticeItem"> | string
     tempoMin?: IntNullableWithAggregatesFilter<"PracticeItem"> | number | null
@@ -12243,6 +12409,11 @@ export namespace Prisma {
     comparisonResultPath?: StringNullableFilter<"PracticePerformance"> | string | null
     performanceDuration?: FloatNullableFilter<"PracticePerformance"> | number | null
     uploadedAt?: DateTimeFilter<"PracticePerformance"> | Date | string
+    pitchAccuracy?: FloatNullableFilter<"PracticePerformance"> | number | null
+    timingAccuracy?: FloatNullableFilter<"PracticePerformance"> | number | null
+    overallScore?: FloatNullableFilter<"PracticePerformance"> | number | null
+    evaluatedNotes?: IntNullableFilter<"PracticePerformance"> | number | null
+    analysisSummary?: JsonNullableFilter<"PracticePerformance">
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     practiceItem?: XOR<PracticeItemScalarRelationFilter, PracticeItemWhereInput>
   }
@@ -12255,6 +12426,11 @@ export namespace Prisma {
     comparisonResultPath?: SortOrderInput | SortOrder
     performanceDuration?: SortOrderInput | SortOrder
     uploadedAt?: SortOrder
+    pitchAccuracy?: SortOrderInput | SortOrder
+    timingAccuracy?: SortOrderInput | SortOrder
+    overallScore?: SortOrderInput | SortOrder
+    evaluatedNotes?: SortOrderInput | SortOrder
+    analysisSummary?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
     practiceItem?: PracticeItemOrderByWithRelationInput
   }
@@ -12270,6 +12446,11 @@ export namespace Prisma {
     comparisonResultPath?: StringNullableFilter<"PracticePerformance"> | string | null
     performanceDuration?: FloatNullableFilter<"PracticePerformance"> | number | null
     uploadedAt?: DateTimeFilter<"PracticePerformance"> | Date | string
+    pitchAccuracy?: FloatNullableFilter<"PracticePerformance"> | number | null
+    timingAccuracy?: FloatNullableFilter<"PracticePerformance"> | number | null
+    overallScore?: FloatNullableFilter<"PracticePerformance"> | number | null
+    evaluatedNotes?: IntNullableFilter<"PracticePerformance"> | number | null
+    analysisSummary?: JsonNullableFilter<"PracticePerformance">
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     practiceItem?: XOR<PracticeItemScalarRelationFilter, PracticeItemWhereInput>
   }, "id">
@@ -12282,6 +12463,11 @@ export namespace Prisma {
     comparisonResultPath?: SortOrderInput | SortOrder
     performanceDuration?: SortOrderInput | SortOrder
     uploadedAt?: SortOrder
+    pitchAccuracy?: SortOrderInput | SortOrder
+    timingAccuracy?: SortOrderInput | SortOrder
+    overallScore?: SortOrderInput | SortOrder
+    evaluatedNotes?: SortOrderInput | SortOrder
+    analysisSummary?: SortOrderInput | SortOrder
     _count?: PracticePerformanceCountOrderByAggregateInput
     _avg?: PracticePerformanceAvgOrderByAggregateInput
     _max?: PracticePerformanceMaxOrderByAggregateInput
@@ -12300,6 +12486,11 @@ export namespace Prisma {
     comparisonResultPath?: StringNullableWithAggregatesFilter<"PracticePerformance"> | string | null
     performanceDuration?: FloatNullableWithAggregatesFilter<"PracticePerformance"> | number | null
     uploadedAt?: DateTimeWithAggregatesFilter<"PracticePerformance"> | Date | string
+    pitchAccuracy?: FloatNullableWithAggregatesFilter<"PracticePerformance"> | number | null
+    timingAccuracy?: FloatNullableWithAggregatesFilter<"PracticePerformance"> | number | null
+    overallScore?: FloatNullableWithAggregatesFilter<"PracticePerformance"> | number | null
+    evaluatedNotes?: IntNullableWithAggregatesFilter<"PracticePerformance"> | number | null
+    analysisSummary?: JsonNullableWithAggregatesFilter<"PracticePerformance">
   }
 
   export type UserWeaknessWhereInput = {
@@ -12616,6 +12807,11 @@ export namespace Prisma {
     performanceDate?: Date | string | null
     uploadedAt?: Date | string
     createdAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
     score: ScoreCreateNestedOneWithoutPerformancesInput
     user: UserCreateNestedOneWithoutPerformancesInput
   }
@@ -12634,6 +12830,11 @@ export namespace Prisma {
     performanceDate?: Date | string | null
     uploadedAt?: Date | string
     createdAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PerformanceUpdateInput = {
@@ -12648,6 +12849,11 @@ export namespace Prisma {
     performanceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
     score?: ScoreUpdateOneRequiredWithoutPerformancesNestedInput
     user?: UserUpdateOneRequiredWithoutPerformancesNestedInput
   }
@@ -12666,6 +12872,11 @@ export namespace Prisma {
     performanceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PerformanceCreateManyInput = {
@@ -12682,6 +12893,11 @@ export namespace Prisma {
     performanceDate?: Date | string | null
     uploadedAt?: Date | string
     createdAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PerformanceUpdateManyMutationInput = {
@@ -12696,6 +12912,11 @@ export namespace Prisma {
     performanceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PerformanceUncheckedUpdateManyInput = {
@@ -12712,6 +12933,11 @@ export namespace Prisma {
     performanceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticeItemCreateInput = {
@@ -12721,7 +12947,6 @@ export namespace Prisma {
     composer?: string | null
     description?: string | null
     descriptionShort?: string | null
-    difficulty?: number
     keyTonic: string
     keyMode: string
     tempoMin?: number | null
@@ -12751,7 +12976,6 @@ export namespace Prisma {
     composer?: string | null
     description?: string | null
     descriptionShort?: string | null
-    difficulty?: number
     keyTonic: string
     keyMode: string
     tempoMin?: number | null
@@ -12781,7 +13005,6 @@ export namespace Prisma {
     composer?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
-    difficulty?: IntFieldUpdateOperationsInput | number
     keyTonic?: StringFieldUpdateOperationsInput | string
     keyMode?: StringFieldUpdateOperationsInput | string
     tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
@@ -12811,7 +13034,6 @@ export namespace Prisma {
     composer?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
-    difficulty?: IntFieldUpdateOperationsInput | number
     keyTonic?: StringFieldUpdateOperationsInput | string
     keyMode?: StringFieldUpdateOperationsInput | string
     tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
@@ -12841,7 +13063,6 @@ export namespace Prisma {
     composer?: string | null
     description?: string | null
     descriptionShort?: string | null
-    difficulty?: number
     keyTonic: string
     keyMode: string
     tempoMin?: number | null
@@ -12869,7 +13090,6 @@ export namespace Prisma {
     composer?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
-    difficulty?: IntFieldUpdateOperationsInput | number
     keyTonic?: StringFieldUpdateOperationsInput | string
     keyMode?: StringFieldUpdateOperationsInput | string
     tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
@@ -12896,7 +13116,6 @@ export namespace Prisma {
     composer?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
-    difficulty?: IntFieldUpdateOperationsInput | number
     keyTonic?: StringFieldUpdateOperationsInput | string
     keyMode?: StringFieldUpdateOperationsInput | string
     tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
@@ -13048,6 +13267,11 @@ export namespace Prisma {
     comparisonResultPath?: string | null
     performanceDuration?: number | null
     uploadedAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutPracticePerformancesInput
     practiceItem: PracticeItemCreateNestedOneWithoutPracticePerformancesInput
   }
@@ -13060,6 +13284,11 @@ export namespace Prisma {
     comparisonResultPath?: string | null
     performanceDuration?: number | null
     uploadedAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticePerformanceUpdateInput = {
@@ -13068,6 +13297,11 @@ export namespace Prisma {
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutPracticePerformancesNestedInput
     practiceItem?: PracticeItemUpdateOneRequiredWithoutPracticePerformancesNestedInput
   }
@@ -13080,6 +13314,11 @@ export namespace Prisma {
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticePerformanceCreateManyInput = {
@@ -13090,6 +13329,11 @@ export namespace Prisma {
     comparisonResultPath?: string | null
     performanceDuration?: number | null
     uploadedAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticePerformanceUpdateManyMutationInput = {
@@ -13098,6 +13342,11 @@ export namespace Prisma {
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticePerformanceUncheckedUpdateManyInput = {
@@ -13108,6 +13357,11 @@ export namespace Prisma {
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserWeaknessCreateInput = {
@@ -13527,6 +13781,29 @@ export namespace Prisma {
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type ScoreScalarRelationFilter = {
     is?: ScoreWhereInput
@@ -13547,10 +13824,19 @@ export namespace Prisma {
     performanceDate?: SortOrder
     uploadedAt?: SortOrder
     createdAt?: SortOrder
+    pitchAccuracy?: SortOrder
+    timingAccuracy?: SortOrder
+    overallScore?: SortOrder
+    evaluatedNotes?: SortOrder
+    analysisSummary?: SortOrder
   }
 
   export type PerformanceAvgOrderByAggregateInput = {
     performanceDuration?: SortOrder
+    pitchAccuracy?: SortOrder
+    timingAccuracy?: SortOrder
+    overallScore?: SortOrder
+    evaluatedNotes?: SortOrder
   }
 
   export type PerformanceMaxOrderByAggregateInput = {
@@ -13567,6 +13853,10 @@ export namespace Prisma {
     performanceDate?: SortOrder
     uploadedAt?: SortOrder
     createdAt?: SortOrder
+    pitchAccuracy?: SortOrder
+    timingAccuracy?: SortOrder
+    overallScore?: SortOrder
+    evaluatedNotes?: SortOrder
   }
 
   export type PerformanceMinOrderByAggregateInput = {
@@ -13583,10 +13873,18 @@ export namespace Prisma {
     performanceDate?: SortOrder
     uploadedAt?: SortOrder
     createdAt?: SortOrder
+    pitchAccuracy?: SortOrder
+    timingAccuracy?: SortOrder
+    overallScore?: SortOrder
+    evaluatedNotes?: SortOrder
   }
 
   export type PerformanceSumOrderByAggregateInput = {
     performanceDuration?: SortOrder
+    pitchAccuracy?: SortOrder
+    timingAccuracy?: SortOrder
+    overallScore?: SortOrder
+    evaluatedNotes?: SortOrder
   }
 
   export type EnumPerformanceTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -13638,40 +13936,14 @@ export namespace Prisma {
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
-
-  export type EnumPracticeCategoryFilter<$PrismaModel = never> = {
-    equals?: $Enums.PracticeCategory | EnumPracticeCategoryFieldRefInput<$PrismaModel>
-    in?: $Enums.PracticeCategory[] | ListEnumPracticeCategoryFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PracticeCategory[] | ListEnumPracticeCategoryFieldRefInput<$PrismaModel>
-    not?: NestedEnumPracticeCategoryFilter<$PrismaModel> | $Enums.PracticeCategory
-  }
-
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
-  export type StringNullableListFilter<$PrismaModel = never> = {
-    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    has?: string | StringFieldRefInput<$PrismaModel> | null
-    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
-    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
-    isEmpty?: boolean
-  }
-  export type JsonNullableFilter<$PrismaModel = never> =
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
       >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
 
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     path?: string[]
     mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
@@ -13686,6 +13958,35 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type EnumPracticeCategoryFilter<$PrismaModel = never> = {
+    equals?: $Enums.PracticeCategory | EnumPracticeCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.PracticeCategory[] | ListEnumPracticeCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.PracticeCategory[] | ListEnumPracticeCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumPracticeCategoryFilter<$PrismaModel> | $Enums.PracticeCategory
+  }
+
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
   }
 
   export type UserNullableScalarRelationFilter = {
@@ -13710,7 +14011,6 @@ export namespace Prisma {
     composer?: SortOrder
     description?: SortOrder
     descriptionShort?: SortOrder
-    difficulty?: SortOrder
     keyTonic?: SortOrder
     keyMode?: SortOrder
     tempoMin?: SortOrder
@@ -13732,7 +14032,6 @@ export namespace Prisma {
   }
 
   export type PracticeItemAvgOrderByAggregateInput = {
-    difficulty?: SortOrder
     tempoMin?: SortOrder
     tempoMax?: SortOrder
     sortOrder?: SortOrder
@@ -13745,7 +14044,6 @@ export namespace Prisma {
     composer?: SortOrder
     description?: SortOrder
     descriptionShort?: SortOrder
-    difficulty?: SortOrder
     keyTonic?: SortOrder
     keyMode?: SortOrder
     tempoMin?: SortOrder
@@ -13771,7 +14069,6 @@ export namespace Prisma {
     composer?: SortOrder
     description?: SortOrder
     descriptionShort?: SortOrder
-    difficulty?: SortOrder
     keyTonic?: SortOrder
     keyMode?: SortOrder
     tempoMin?: SortOrder
@@ -13791,7 +14088,6 @@ export namespace Prisma {
   }
 
   export type PracticeItemSumOrderByAggregateInput = {
-    difficulty?: SortOrder
     tempoMin?: SortOrder
     tempoMax?: SortOrder
     sortOrder?: SortOrder
@@ -13821,32 +14117,6 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type TechniqueTagCategoryNameCompoundUniqueInput = {
@@ -13926,10 +14196,19 @@ export namespace Prisma {
     comparisonResultPath?: SortOrder
     performanceDuration?: SortOrder
     uploadedAt?: SortOrder
+    pitchAccuracy?: SortOrder
+    timingAccuracy?: SortOrder
+    overallScore?: SortOrder
+    evaluatedNotes?: SortOrder
+    analysisSummary?: SortOrder
   }
 
   export type PracticePerformanceAvgOrderByAggregateInput = {
     performanceDuration?: SortOrder
+    pitchAccuracy?: SortOrder
+    timingAccuracy?: SortOrder
+    overallScore?: SortOrder
+    evaluatedNotes?: SortOrder
   }
 
   export type PracticePerformanceMaxOrderByAggregateInput = {
@@ -13940,6 +14219,10 @@ export namespace Prisma {
     comparisonResultPath?: SortOrder
     performanceDuration?: SortOrder
     uploadedAt?: SortOrder
+    pitchAccuracy?: SortOrder
+    timingAccuracy?: SortOrder
+    overallScore?: SortOrder
+    evaluatedNotes?: SortOrder
   }
 
   export type PracticePerformanceMinOrderByAggregateInput = {
@@ -13950,10 +14233,18 @@ export namespace Prisma {
     comparisonResultPath?: SortOrder
     performanceDuration?: SortOrder
     uploadedAt?: SortOrder
+    pitchAccuracy?: SortOrder
+    timingAccuracy?: SortOrder
+    overallScore?: SortOrder
+    evaluatedNotes?: SortOrder
   }
 
   export type PracticePerformanceSumOrderByAggregateInput = {
     performanceDuration?: SortOrder
+    pitchAccuracy?: SortOrder
+    timingAccuracy?: SortOrder
+    overallScore?: SortOrder
+    evaluatedNotes?: SortOrder
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -14421,17 +14712,17 @@ export namespace Prisma {
     set?: $Enums.PracticeCategory
   }
 
+  export type PracticeItemUpdatepositionsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
     decrement?: number
     multiply?: number
     divide?: number
-  }
-
-  export type PracticeItemUpdatepositionsInput = {
-    set?: string[]
-    push?: string | string[]
   }
 
   export type UserUpdateOneWithoutPracticeItemsNestedInput = {
@@ -14927,6 +15218,29 @@ export namespace Prisma {
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedEnumPracticeCategoryFilter<$PrismaModel = never> = {
     equals?: $Enums.PracticeCategory | EnumPracticeCategoryFieldRefInput<$PrismaModel>
@@ -14971,29 +15285,6 @@ export namespace Prisma {
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
   }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
@@ -15023,6 +15314,11 @@ export namespace Prisma {
     performanceDate?: Date | string | null
     uploadedAt?: Date | string
     createdAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
     score: ScoreCreateNestedOneWithoutPerformancesInput
   }
 
@@ -15039,6 +15335,11 @@ export namespace Prisma {
     performanceDate?: Date | string | null
     uploadedAt?: Date | string
     createdAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PerformanceCreateOrConnectWithoutUserInput = {
@@ -15106,7 +15407,6 @@ export namespace Prisma {
     composer?: string | null
     description?: string | null
     descriptionShort?: string | null
-    difficulty?: number
     keyTonic: string
     keyMode: string
     tempoMin?: number | null
@@ -15135,7 +15435,6 @@ export namespace Prisma {
     composer?: string | null
     description?: string | null
     descriptionShort?: string | null
-    difficulty?: number
     keyTonic: string
     keyMode: string
     tempoMin?: number | null
@@ -15173,6 +15472,11 @@ export namespace Prisma {
     comparisonResultPath?: string | null
     performanceDuration?: number | null
     uploadedAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
     practiceItem: PracticeItemCreateNestedOneWithoutPracticePerformancesInput
   }
 
@@ -15183,6 +15487,11 @@ export namespace Prisma {
     comparisonResultPath?: string | null
     performanceDuration?: number | null
     uploadedAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticePerformanceCreateOrConnectWithoutUserInput = {
@@ -15258,6 +15567,11 @@ export namespace Prisma {
     performanceDate?: DateTimeNullableFilter<"Performance"> | Date | string | null
     uploadedAt?: DateTimeFilter<"Performance"> | Date | string
     createdAt?: DateTimeFilter<"Performance"> | Date | string
+    pitchAccuracy?: FloatNullableFilter<"Performance"> | number | null
+    timingAccuracy?: FloatNullableFilter<"Performance"> | number | null
+    overallScore?: FloatNullableFilter<"Performance"> | number | null
+    evaluatedNotes?: IntNullableFilter<"Performance"> | number | null
+    analysisSummary?: JsonNullableFilter<"Performance">
   }
 
   export type ScoreUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -15324,7 +15638,6 @@ export namespace Prisma {
     composer?: StringNullableFilter<"PracticeItem"> | string | null
     description?: StringNullableFilter<"PracticeItem"> | string | null
     descriptionShort?: StringNullableFilter<"PracticeItem"> | string | null
-    difficulty?: IntFilter<"PracticeItem"> | number
     keyTonic?: StringFilter<"PracticeItem"> | string
     keyMode?: StringFilter<"PracticeItem"> | string
     tempoMin?: IntNullableFilter<"PracticeItem"> | number | null
@@ -15372,6 +15685,11 @@ export namespace Prisma {
     comparisonResultPath?: StringNullableFilter<"PracticePerformance"> | string | null
     performanceDuration?: FloatNullableFilter<"PracticePerformance"> | number | null
     uploadedAt?: DateTimeFilter<"PracticePerformance"> | Date | string
+    pitchAccuracy?: FloatNullableFilter<"PracticePerformance"> | number | null
+    timingAccuracy?: FloatNullableFilter<"PracticePerformance"> | number | null
+    overallScore?: FloatNullableFilter<"PracticePerformance"> | number | null
+    evaluatedNotes?: IntNullableFilter<"PracticePerformance"> | number | null
+    analysisSummary?: JsonNullableFilter<"PracticePerformance">
   }
 
   export type UserWeaknessUpsertWithWhereUniqueWithoutUserInput = {
@@ -15416,6 +15734,11 @@ export namespace Prisma {
     performanceDate?: Date | string | null
     uploadedAt?: Date | string
     createdAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutPerformancesInput
   }
 
@@ -15432,6 +15755,11 @@ export namespace Prisma {
     performanceDate?: Date | string | null
     uploadedAt?: Date | string
     createdAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PerformanceCreateOrConnectWithoutScoreInput = {
@@ -15755,6 +16083,11 @@ export namespace Prisma {
     comparisonResultPath?: string | null
     performanceDuration?: number | null
     uploadedAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutPracticePerformancesInput
   }
 
@@ -15765,6 +16098,11 @@ export namespace Prisma {
     comparisonResultPath?: string | null
     performanceDuration?: number | null
     uploadedAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticePerformanceCreateOrConnectWithoutPracticeItemInput = {
@@ -15946,7 +16284,6 @@ export namespace Prisma {
     composer?: string | null
     description?: string | null
     descriptionShort?: string | null
-    difficulty?: number
     keyTonic: string
     keyMode: string
     tempoMin?: number | null
@@ -15975,7 +16312,6 @@ export namespace Prisma {
     composer?: string | null
     description?: string | null
     descriptionShort?: string | null
-    difficulty?: number
     keyTonic: string
     keyMode: string
     tempoMin?: number | null
@@ -16049,7 +16385,6 @@ export namespace Prisma {
     composer?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
-    difficulty?: IntFieldUpdateOperationsInput | number
     keyTonic?: StringFieldUpdateOperationsInput | string
     keyMode?: StringFieldUpdateOperationsInput | string
     tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
@@ -16078,7 +16413,6 @@ export namespace Prisma {
     composer?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
-    difficulty?: IntFieldUpdateOperationsInput | number
     keyTonic?: StringFieldUpdateOperationsInput | string
     keyMode?: StringFieldUpdateOperationsInput | string
     tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
@@ -16175,7 +16509,6 @@ export namespace Prisma {
     composer?: string | null
     description?: string | null
     descriptionShort?: string | null
-    difficulty?: number
     keyTonic: string
     keyMode: string
     tempoMin?: number | null
@@ -16204,7 +16537,6 @@ export namespace Prisma {
     composer?: string | null
     description?: string | null
     descriptionShort?: string | null
-    difficulty?: number
     keyTonic: string
     keyMode: string
     tempoMin?: number | null
@@ -16288,7 +16620,6 @@ export namespace Prisma {
     composer?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
-    difficulty?: IntFieldUpdateOperationsInput | number
     keyTonic?: StringFieldUpdateOperationsInput | string
     keyMode?: StringFieldUpdateOperationsInput | string
     tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
@@ -16317,7 +16648,6 @@ export namespace Prisma {
     composer?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
-    difficulty?: IntFieldUpdateOperationsInput | number
     keyTonic?: StringFieldUpdateOperationsInput | string
     keyMode?: StringFieldUpdateOperationsInput | string
     tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
@@ -16488,6 +16818,11 @@ export namespace Prisma {
     performanceDate?: Date | string | null
     uploadedAt?: Date | string
     createdAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ScoreCreateManyCreatedByInput = {
@@ -16515,7 +16850,6 @@ export namespace Prisma {
     composer?: string | null
     description?: string | null
     descriptionShort?: string | null
-    difficulty?: number
     keyTonic: string
     keyMode: string
     tempoMin?: number | null
@@ -16542,6 +16876,11 @@ export namespace Prisma {
     comparisonResultPath?: string | null
     performanceDuration?: number | null
     uploadedAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserWeaknessCreateManyUserInput = {
@@ -16566,6 +16905,11 @@ export namespace Prisma {
     performanceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
     score?: ScoreUpdateOneRequiredWithoutPerformancesNestedInput
   }
 
@@ -16582,6 +16926,11 @@ export namespace Prisma {
     performanceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PerformanceUncheckedUpdateManyWithoutUserInput = {
@@ -16597,6 +16946,11 @@ export namespace Prisma {
     performanceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type ScoreUpdateWithoutCreatedByInput = {
@@ -16662,7 +17016,6 @@ export namespace Prisma {
     composer?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
-    difficulty?: IntFieldUpdateOperationsInput | number
     keyTonic?: StringFieldUpdateOperationsInput | string
     keyMode?: StringFieldUpdateOperationsInput | string
     tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
@@ -16691,7 +17044,6 @@ export namespace Prisma {
     composer?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
-    difficulty?: IntFieldUpdateOperationsInput | number
     keyTonic?: StringFieldUpdateOperationsInput | string
     keyMode?: StringFieldUpdateOperationsInput | string
     tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
@@ -16720,7 +17072,6 @@ export namespace Prisma {
     composer?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
-    difficulty?: IntFieldUpdateOperationsInput | number
     keyTonic?: StringFieldUpdateOperationsInput | string
     keyMode?: StringFieldUpdateOperationsInput | string
     tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
@@ -16746,6 +17097,11 @@ export namespace Prisma {
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
     practiceItem?: PracticeItemUpdateOneRequiredWithoutPracticePerformancesNestedInput
   }
 
@@ -16756,6 +17112,11 @@ export namespace Prisma {
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticePerformanceUncheckedUpdateManyWithoutUserInput = {
@@ -16765,6 +17126,11 @@ export namespace Prisma {
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserWeaknessUpdateWithoutUserInput = {
@@ -16810,6 +17176,11 @@ export namespace Prisma {
     performanceDate?: Date | string | null
     uploadedAt?: Date | string
     createdAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PerformanceUpdateWithoutScoreInput = {
@@ -16824,6 +17195,11 @@ export namespace Prisma {
     performanceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutPerformancesNestedInput
   }
 
@@ -16840,6 +17216,11 @@ export namespace Prisma {
     performanceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PerformanceUncheckedUpdateManyWithoutScoreInput = {
@@ -16855,6 +17236,11 @@ export namespace Prisma {
     performanceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticeItemTechniqueCreateManyPracticeItemInput = {
@@ -16869,6 +17255,11 @@ export namespace Prisma {
     comparisonResultPath?: string | null
     performanceDuration?: number | null
     uploadedAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticeItemTechniqueUpdateWithoutPracticeItemInput = {
@@ -16892,6 +17283,11 @@ export namespace Prisma {
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutPracticePerformancesNestedInput
   }
 
@@ -16902,6 +17298,11 @@ export namespace Prisma {
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticePerformanceUncheckedUpdateManyWithoutPracticeItemInput = {
@@ -16911,6 +17312,11 @@ export namespace Prisma {
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
     uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticeItemTechniqueCreateManyTechniqueTagInput = {

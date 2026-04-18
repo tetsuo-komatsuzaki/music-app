@@ -11,6 +11,7 @@ export async function uploadRecord(formData: FormData) {
 
   const scoreId = formData.get("scoreId") as string
   const file = formData.get("file") as File
+  const recordingBpm = formData.get("recordingBpm") as string | null
 
   if (!scoreId) return { error: "scoreIdがありません" }
   if (!file) return { error: "ファイルがありません" }
@@ -67,14 +68,16 @@ export async function uploadRecord(formData: FormData) {
   const { exec } = require("child_process")
   const PYTHON_PATH =
     "C:/Users/tetsu/OneDrive/Desktop/shiftB/music-app/music-analyzer/venv/Scripts/python.exe"
+  const bpmNum = recordingBpm ? parseFloat(recordingBpm) : NaN
+  const bpmArg = !isNaN(bpmNum) && bpmNum > 0 && bpmNum < 1000 ? ` --recording-bpm=${bpmNum}` : ""
   exec(
-    `"${PYTHON_PATH}" ../music-analyzer/analyze_performance.py ${dbUser.id} ${scoreId} ${performance.id}`,
+    `"${PYTHON_PATH}" ../music-analyzer/analyze_performance.py ${dbUser.id} ${scoreId} ${performance.id}${bpmArg}`,
     (err: Error | null) => {
       if (err) console.error("analyze_performance failed:", err)
     }
   )
 
-  revalidatePath(`/${dbUser.id}/scores/${scoreId}`)
+  revalidatePath(`/${user.id}/scores/${scoreId}`)
 
   return { success: true, performanceId: performance.id }
 }

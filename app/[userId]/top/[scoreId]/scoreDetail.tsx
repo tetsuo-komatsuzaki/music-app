@@ -394,10 +394,13 @@ function AudioPlayer({
   }, [performanceId])
 
   const handleToggle = () => {
-    if (!audioRef.current) return
-    if (isPlaying) audioRef.current.pause()
-    else audioRef.current.play()
-    setIsPlaying(!isPlaying)
+    if (!audioRef.current || !audioUrl) return
+    if (isPlaying) {
+      audioRef.current.pause()
+      setIsPlaying(false)
+    } else {
+      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
+    }
   }
 
   return (

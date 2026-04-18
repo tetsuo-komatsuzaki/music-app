@@ -3,11 +3,165 @@
 import { useState, useRef, useCallback, useEffect } from "react"
 import styles from "./recorder.module.css"
 
+// =========================================================
+// スコアランク + フィードバック
+// =========================================================
+
+type ScoreRank = "excellent" | "good" | "ok" | "needsPractice"
+
+function getScoreRank(score: number): ScoreRank {
+  if (score >= 90) return "excellent"
+  if (score >= 75) return "good"
+  if (score >= 60) return "ok"
+  return "needsPractice"
+}
+
+const rankLabels: Record<ScoreRank, { label: string; color: string; bg: string }> = {
+  excellent:     { label: "Excellent",      color: "#085041", bg: "#E1F5EE" },
+  good:          { label: "Good",           color: "#0C447C", bg: "#E6F1FB" },
+  ok:            { label: "OK",             color: "#633806", bg: "#FAEEDA" },
+  needsPractice: { label: "Needs Practice", color: "#791F1F", bg: "#FCEBEB" },
+}
+
+type Feedback = {
+  issue: string
+  advice: string
+  actionLabel: string
+}
+
+function generateFeedback(
+  pitchAccuracy: number,
+  timingAccuracy: number,
+  analysisSummary: any,
+): Feedback {
+  if (analysisSummary?.primaryAdvice) {
+    return {
+      issue: analysisSummary.primaryIssue === "pitch_unstable" ? "音程が不安定" :
+             analysisSummary.primaryIssue === "pitch_slight" ? "音程を微調整" :
+             analysisSummary.primaryIssue === "timing_late" ? "リズムが遅れ気味" :
+             analysisSummary.primaryIssue === "timing_early" ? "リズムが走り気味" :
+             analysisSummary.primaryIssue === "none" ? "よく弾けています" :
+             "もう少し練習",
+      advice: analysisSummary.primaryAdvice,
+      actionLabel: analysisSummary.primaryIssue === "none" ? "テンポを上げて挑戦" : "意識してもう一回",
+    }
+  }
+  if (pitchAccuracy < timingAccuracy) {
+    return {
+      issue: "音程を安定させましょう",
+      advice: "チューナーのトーンで、1音ずつ確認しながら弾いてみましょう",
+      actionLabel: "ゆっくり弾いてみる",
+    }
+  } else {
+    return {
+      issue: "リズムを安定させましょう",
+      advice: "メトロノームに合わせて練習しましょう",
+      actionLabel: "メトロノームで弾く",
+    }
+  }
+}
+
+// =========================================================
+// 音声品質チェック
+// =========================================================
+
+type QualityResult = {
+  status: "ok" | "silent" | "clipping"
+  message: string
+}
+
+async function checkAudioQuality(blob: Blob): Promise<{ quality: QualityResult; audioBuffer: AudioBuffer }> {
+  const arrayBuffer = await blob.arrayBuffer()
+  const audioCtx = new AudioContext()
+  const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer)
+  const channelData = audioBuffer.getChannelData(0)
+
+  // 無音チェック: ピークRMS < 0.003
+  let sumSq = 0
+  let clippingCount = 0
+  for (let i = 0; i < channelData.length; i++) {
+    const sample = channelData[i]
+    sumSq += sample * sample
+    if (Math.abs(sample) >= 0.99) clippingCount++
+  }
+  const rms = Math.sqrt(sumSq / channelData.length)
+
+  await audioCtx.close()
+
+  if (rms < 0.003) {
+    return {
+      quality: { status: "silent", message: "音が録れていません。マイクを確認してください。" },
+      audioBuffer,
+    }
+  }
+
+  // クリッピングチェック: 0.99以上のサンプルが1%以上
+  const clippingRatio = clippingCount / channelData.length
+  if (clippingRatio >= 0.01) {
+    return {
+      quality: { status: "clipping", message: "音が割れています。解析精度が下がる場合があります。" },
+      audioBuffer,
+    }
+  }
+
+  return {
+    quality: { status: "ok", message: "録音できました" },
+    audioBuffer,
+  }
+}
+
+// =========================================================
+// 波形描画
+// =========================================================
+
+function drawWaveform(canvas: HTMLCanvasElement, audioBuffer: AudioBuffer) {
+  const ctx = canvas.getContext("2d")
+  if (!ctx) return
+
+  const width = canvas.width
+  const height = canvas.height
+  const data = audioBuffer.getChannelData(0)
+  const step = Math.ceil(data.length / width)
+
+  ctx.clearRect(0, 0, width, height)
+  ctx.fillStyle = "#f0f0f0"
+  ctx.fillRect(0, 0, width, height)
+
+  const mid = height / 2
+  ctx.beginPath()
+  ctx.strokeStyle = "#4a90d9"
+  ctx.lineWidth = 1
+
+  for (let i = 0; i < width; i++) {
+    const start = i * step
+    let min = 1, max = -1
+    for (let j = 0; j < step && start + j < data.length; j++) {
+      const val = data[start + j]
+      if (val < min) min = val
+      if (val > max) max = val
+    }
+    ctx.moveTo(i, mid + min * mid)
+    ctx.lineTo(i, mid + max * mid)
+  }
+  ctx.stroke()
+}
+
+// =========================================================
+// 型定義
+// =========================================================
+
 type PerfResult = {
   pitchAccuracy?: number
   timingAccuracy?: number
+  overallScore?: number
   isPersonalBest?: boolean
   previousScore?: number
+  previousOverall?: number
+  analysisSummary?: {
+    primaryIssue?: string
+    primaryAdvice?: string
+    [key: string]: any
+  }
   ringStatus?: { record: boolean; remaining: number }
 }
 
@@ -19,10 +173,16 @@ type Props = {
   }>
   previousBestScore?: number
   disabled?: boolean
+  bpm?: number
+  onRecordingStart?: () => void
+  onRecordingStop?: () => void
+  onRecordingBpmChange?: (bpm: number) => void
 }
 
-export default function Recorder({ onRecordingComplete, previousBestScore, disabled }: Props) {
-  const [status, setStatus] = useState<"idle" | "recording" | "preview" | "uploading" | "result">("idle")
+type Status = "idle" | "tempo-select" | "countdown" | "recording" | "preview" | "uploading" | "result"
+
+export default function Recorder({ onRecordingComplete, previousBestScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange }: Props) {
+  const [status, setStatus] = useState<Status>("idle")
   const [elapsed, setElapsed] = useState(0)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
   const [blobRef, setBlobRef] = useState<Blob | null>(null)
@@ -31,19 +191,123 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   const [volumeLevel, setVolumeLevel] = useState(0)
   const [realtimeHint, setRealtimeHint] = useState("")
 
+  // カウントイン
+  const [countdownNum, setCountdownNum] = useState(0)
+  const countdownTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // プレビュー品質チェック
+  const [qualityResult, setQualityResult] = useState<QualityResult | null>(null)
+  const waveformCanvasRef = useRef<HTMLCanvasElement | null>(null)
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
   const animFrameRef = useRef<number | null>(null)
+  const audioCtxRef = useRef<AudioContext | null>(null)
 
-  const MAX_DURATION = 300        // 5分
+  const MAX_DURATION = 300
   const RECOMMENDED_DURATION = 15
+  const scoreBpm = bpm ?? 90
+  const [recordingBpm, setRecordingBpm] = useState(scoreBpm)
+  const effectiveBpm = recordingBpm
 
   const showToast = (message: string, type: "success" | "error" | "ring") => {
     setToast({ message, type })
     setTimeout(() => setToast(null), 4000)
   }
+
+  // =========================================================
+  // カウントイン
+  // =========================================================
+
+  const playClick = useCallback(() => {
+    try {
+      if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
+        audioCtxRef.current = new AudioContext()
+      }
+      const ctx = audioCtxRef.current
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.frequency.value = 440
+      osc.type = "sine"
+      gain.gain.value = 0.3
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(ctx.currentTime)
+      osc.stop(ctx.currentTime + 0.02)
+    } catch { /* ignore */ }
+  }, [])
+
+  // マイク許可を先に取得し、準備できたらカウントダウン（4→3→2→1）を開始
+  const streamRef = useRef<MediaStream | null>(null)
+
+  const startCountdown = useCallback(async () => {
+    // 1. マイク許可を先に取得（ブラウザの許可ダイアログはここで出る）
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+          sampleRate: 44100,
+        }
+      })
+      streamRef.current = stream
+    } catch (err: any) {
+      if (err.name === "NotAllowedError") {
+        showToast("マイクの使用が許可されていません", "error")
+      } else if (err.name === "NotFoundError") {
+        showToast("マイクが見つかりません", "error")
+      } else {
+        showToast(`マイクエラー: ${err.message}`, "error")
+      }
+      return
+    }
+
+    // 2. AudioContextをユーザージェスチャー内で初期化
+    if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
+      audioCtxRef.current = new AudioContext()
+    }
+
+    // 3. カウントダウン開始（4→3→2→1）
+    setStatus("countdown")
+    setCountdownNum(4)
+    playClick()
+
+    const interval = 60000 / effectiveBpm
+    let count = 4
+
+    countdownTimerRef.current = setInterval(() => {
+      count--
+      if (count >= 1) {
+        setCountdownNum(count)
+        playClick()
+      } else {
+        if (countdownTimerRef.current) clearInterval(countdownTimerRef.current)
+        countdownTimerRef.current = null
+        actuallyStartRecording()
+      }
+    }, interval)
+  }, [effectiveBpm, playClick])
+
+  const cancelCountdown = useCallback(() => {
+    if (countdownTimerRef.current) {
+      clearInterval(countdownTimerRef.current)
+      countdownTimerRef.current = null
+    }
+    // マイクストリームを解放
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
+    setStatus("idle")
+    setCountdownNum(0)
+  }, [])
+
+  // =========================================================
+  // 録音
+  // =========================================================
 
   const updateVolumeMeter = useCallback(() => {
     if (!analyserRef.current) return
@@ -61,11 +325,11 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     if (level < 0.02) {
       setRealtimeHint("音が小さいです…もう少し近づいてください")
     } else if (level < 0.1) {
-      setRealtimeHint("いい感じです 🎵")
+      setRealtimeHint("いい感じです")
     } else if (level > 0.8) {
       setRealtimeHint("少し強すぎます！少しだけ離して！")
     } else {
-      setRealtimeHint("安定しています 🎵")
+      setRealtimeHint("安定しています")
     }
 
     animFrameRef.current = requestAnimationFrame(updateVolumeMeter)
@@ -76,20 +340,19 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
   }, [])
 
-  const startRecording = useCallback(async () => {
+  const actuallyStartRecording = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false,
-          sampleRate: 44100,
-        }
-      })
+      // マイクはカウントダウン前に取得済み
+      const stream = streamRef.current
+      if (!stream) {
+        showToast("マイクの準備ができていません", "error")
+        setStatus("idle")
+        return
+      }
 
-      const audioCtx = new AudioContext()
-      const source = audioCtx.createMediaStreamSource(stream)
-      const analyser = audioCtx.createAnalyser()
+      const recAudioCtx = new AudioContext()
+      const source = recAudioCtx.createMediaStreamSource(stream)
+      const analyser = recAudioCtx.createAnalyser()
       analyser.fftSize = 256
       source.connect(analyser)
       analyserRef.current = analyser
@@ -110,12 +373,13 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
         if (e.data.size > 0) chunksRef.current.push(e.data)
       }
 
-      recorder.onstop = () => {
+      recorder.onstop = async () => {
         stream.getTracks().forEach(track => track.stop())
-        audioCtx.close()
+        recAudioCtx.close()
         if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
         setVolumeLevel(0)
         setRealtimeHint("")
+        onRecordingStop?.()
 
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" })
         chunksRef.current = []
@@ -124,7 +388,22 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
           const url = URL.createObjectURL(blob)
           setAudioUrl(url)
           setBlobRef(blob)
-          setStatus("preview")
+
+          // 品質チェック
+          try {
+            const { quality, audioBuffer } = await checkAudioQuality(blob)
+            setQualityResult(quality)
+            setStatus("preview")
+            // 波形描画（次フレームでcanvasが存在してから）
+            requestAnimationFrame(() => {
+              if (waveformCanvasRef.current) {
+                drawWaveform(waveformCanvasRef.current, audioBuffer)
+              }
+            })
+          } catch {
+            setQualityResult({ status: "ok", message: "録音できました" })
+            setStatus("preview")
+          }
         } else {
           setStatus("idle")
         }
@@ -135,7 +414,9 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       setStatus("recording")
       setElapsed(0)
       setPerfResult(null)
+      setQualityResult(null)
       animFrameRef.current = requestAnimationFrame(updateVolumeMeter)
+      onRecordingStart?.()
 
       timerRef.current = setInterval(() => {
         setElapsed(prev => {
@@ -161,6 +442,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     setAudioUrl(null)
     setBlobRef(null)
     setPerfResult(null)
+    setQualityResult(null)
     setStatus("idle")
   }, [audioUrl])
 
@@ -177,7 +459,14 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
         setPerfResult(r || null)
         setStatus("result")
 
-        if (r?.pitchAccuracy != null && r?.previousScore != null) {
+        if (r?.overallScore != null && r?.previousOverall != null) {
+          const diff = Math.round(r.overallScore - r.previousOverall)
+          if (diff > 0) {
+            showToast(`総合 +${diff}点 改善しました`, "success")
+          } else {
+            showToast(`総合 ${Math.round(r.overallScore)}点`, "success")
+          }
+        } else if (r?.pitchAccuracy != null && r?.previousScore != null) {
           const diff = r.pitchAccuracy - r.previousScore
           if (diff > 0) {
             showToast(`音程 +${diff}% 改善しました`, "success")
@@ -226,17 +515,20 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     return "少し崩れています。大丈夫です"
   }
 
-  const getDiffText = () => {
-    if (!perfResult?.pitchAccuracy) return null
-    const prev = perfResult.previousScore ?? previousBestScore
-    if (prev == null) return null
-    const diff = perfResult.pitchAccuracy - prev
-    if (diff > 0) return `+${diff}`
-    if (diff < 0) return `${diff}`
-    return "±0"
+  const getOverallDiff = (): number | null => {
+    if (perfResult?.overallScore == null || perfResult?.previousOverall == null) return null
+    return Math.round(perfResult.overallScore - perfResult.previousOverall)
   }
 
   const getRetryLabel = () => {
+    if (perfResult?.pitchAccuracy != null && perfResult?.timingAccuracy != null) {
+      const fb = generateFeedback(
+        perfResult.pitchAccuracy,
+        perfResult.timingAccuracy,
+        perfResult.analysisSummary,
+      )
+      return fb.actionLabel
+    }
     if (!perfResult?.pitchAccuracy) return "もう一回挑戦"
     const gap = 100 - perfResult.pitchAccuracy
     if (gap <= 0) return "完璧！もう一度！"
@@ -248,6 +540,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current)
+      if (countdownTimerRef.current) clearInterval(countdownTimerRef.current)
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
       if (audioUrl) URL.revokeObjectURL(audioUrl)
     }
@@ -269,9 +562,9 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       {/* ① 待機 */}
       {status === "idle" && (
         <div className={styles.idlePanel}>
-          <button className={styles.mainCta} onClick={startRecording} disabled={disabled}>
+          <button className={styles.mainCta} onClick={() => setStatus("tempo-select")} disabled={disabled}>
             <span className={styles.ctaDot} />
-            <span>今すぐ試す（10秒）</span>
+            <span>録音する</span>
           </button>
           <div className={styles.safetyMsg}>何度でもやり直せます</div>
           {previousBestScore != null && (
@@ -280,7 +573,73 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
         </div>
       )}
 
-      {/* ② 録音中 */}
+      {/* ①-b テンポ選択 */}
+      {status === "tempo-select" && (
+        <div className={styles.idlePanel}>
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <span style={{ fontSize: 13, color: "#555" }}>録音テンポ</span>
+              <span style={{ fontSize: 18, fontWeight: 700 }}>{recordingBpm} BPM</span>
+            </div>
+            <input
+              type="range"
+              min={Math.max(Math.round(scoreBpm * 0.25), 20)}
+              max={Math.round(scoreBpm * 2)}
+              value={recordingBpm}
+              onChange={(e) => {
+                const v = Number(e.target.value)
+                setRecordingBpm(v)
+                onRecordingBpmChange?.(v)
+              }}
+              style={{ width: "100%", accentColor: "#2e7dff" }}
+            />
+            <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+              {[0.5, 0.75, 1, 1.25, 1.5].map((ratio) => {
+                const t = Math.round(scoreBpm * ratio)
+                return (
+                  <button
+                    key={ratio}
+                    onClick={() => { setRecordingBpm(t); onRecordingBpmChange?.(t) }}
+                    style={{
+                      flex: 1, padding: "4px 0", fontSize: 12, borderRadius: 6, cursor: "pointer",
+                      border: recordingBpm === t ? "1px solid #2e7dff" : "1px solid #ddd",
+                      background: recordingBpm === t ? "#2e7dff" : "#f5f5f5",
+                      color: recordingBpm === t ? "#fff" : "#333",
+                    }}
+                  >
+                    {ratio === 1 ? `${t}` : `x${ratio}`}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+          <button className={styles.mainCta} onClick={startCountdown}>
+            <span className={styles.ctaDot} />
+            <span>録音開始</span>
+          </button>
+          <button
+            onClick={() => setStatus("idle")}
+            style={{ marginTop: 8, background: "none", border: "none", color: "#999", fontSize: 13, cursor: "pointer" }}
+          >
+            キャンセル
+          </button>
+        </div>
+      )}
+
+      {/* ② カウントイン */}
+      {status === "countdown" && (
+        <div className={styles.countdownPanel}>
+          <div className={styles.countdownNum} key={countdownNum}>{countdownNum}</div>
+          <div className={styles.countdownLabel}>
+            {effectiveBpm} BPM
+          </div>
+          <button className={styles.cancelBtn} onClick={cancelCountdown}>
+            キャンセル
+          </button>
+        </div>
+      )}
+
+      {/* ③ 録音中 */}
       {status === "recording" && (
         <div className={styles.recordingPanel}>
           <div className={styles.recordingTitle}>録音中…</div>
@@ -289,9 +648,6 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
               <div className={styles.meterFill} style={{ width: `${volumeLevel * 100}%` }} />
             </div>
           </div>
-          {realtimeHint && (
-            <div className={styles.realtimeHint}>{realtimeHint}</div>
-          )}
           <div className={styles.timerRow}>
             <span className={styles.recordingDot} />
             <span className={styles.timer}>{formatTime(elapsed)}</span>
@@ -306,23 +662,53 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
         </div>
       )}
 
-      {/* ③ プレビュー */}
+      {/* ④ プレビュー（品質チェック付き） */}
       {status === "preview" && (
         <div className={styles.previewPanel}>
-          <audio controls src={audioUrl!} className={styles.audioPlayer} />
+          {/* 品質チェック結果 */}
+          {qualityResult && (
+            <div className={
+              qualityResult.status === "silent" ? styles.qualitySilent :
+              qualityResult.status === "clipping" ? styles.qualityClipping :
+              styles.qualityOk
+            }>
+              {qualityResult.status === "silent" && "❌ "}
+              {qualityResult.status === "clipping" && "⚠️ "}
+              {qualityResult.status === "ok" && "✅ "}
+              {qualityResult.message}
+            </div>
+          )}
+
+          {/* 波形表示 */}
+          <canvas
+            ref={waveformCanvasRef}
+            width={320}
+            height={60}
+            className={styles.waveformCanvas}
+          />
+
+          {/* 録音時間 */}
+          <div className={styles.previewDuration}>録音時間：{formatTime(elapsed)}</div>
+
+          {/* 再生 */}
+          {audioUrl && <audio controls src={audioUrl} className={styles.audioPlayer} />}
+
+          {/* ボタン */}
           <div className={styles.previewActions}>
             <button className={styles.retryBtn} onClick={retryRecording}>
-              もう一度録音
+              もう一度録音する
             </button>
-            <button className={styles.submitBtn} onClick={submitRecording}>
-              結果を見る
-            </button>
+            {qualityResult?.status !== "silent" && (
+              <button className={styles.submitBtn} onClick={submitRecording}>
+                この録音で解析する
+              </button>
+            )}
           </div>
           <div className={styles.safetyMsg}>何度でもやり直せます</div>
         </div>
       )}
 
-      {/* ④ 解析中 */}
+      {/* ⑤ 解析中 */}
       {status === "uploading" && (
         <div className={styles.uploadingPanel}>
           <span className={styles.spinner} />
@@ -330,37 +716,72 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
         </div>
       )}
 
-      {/* ⑤ 結果表示 */}
+      {/* ⑥ 結果表示 */}
       {status === "result" && (
         <div className={styles.resultPanel}>
           {perfResult?.isPersonalBest && (
             <div className={styles.personalBest}>自己ベスト更新！</div>
           )}
-          <div className={styles.scoreRow}>
-            <div className={styles.scoreItem}>
-              <div className={styles.scoreLabel}>音程</div>
-              <div className={styles.scoreValue}>
-                {perfResult?.pitchAccuracy ?? "-"}%
-                {getDiffText() && (
-                  <span className={
-                    getDiffText()!.startsWith("+") ? styles.scoreDiffUp :
-                    getDiffText()!.startsWith("-") ? styles.scoreDiffDown :
-                    styles.scoreDiffSame
-                  }>
-                    {getDiffText()}
-                  </span>
-                )}
-              </div>
+
+          {perfResult?.overallScore != null && (
+            <div className={styles.overallRow}>
+              <span
+                className={styles.rankBadge}
+                style={{
+                  background: rankLabels[getScoreRank(perfResult.overallScore)].bg,
+                  color: rankLabels[getScoreRank(perfResult.overallScore)].color,
+                }}
+              >
+                {rankLabels[getScoreRank(perfResult.overallScore)].label}
+              </span>
+              <span className={styles.overallValue}>
+                {Math.round(perfResult.overallScore)}
+                <span className={styles.overallUnit}>点</span>
+              </span>
+              {getOverallDiff() != null && (
+                <span className={
+                  getOverallDiff()! > 0 ? styles.scoreDiffUp :
+                  getOverallDiff()! < 0 ? styles.scoreDiffDown :
+                  styles.scoreDiffSame
+                }>
+                  {getOverallDiff()! > 0 ? "+" : ""}{getOverallDiff()}
+                </span>
+              )}
+            </div>
+          )}
+
+          <div className={styles.subScoreRow}>
+            <div className={styles.subScore}>
+              <span className={styles.subLabel}>音程</span>
+              <span className={styles.subValue}>{perfResult?.pitchAccuracy ?? "-"}%</span>
             </div>
             {perfResult?.timingAccuracy != null && (
-              <div className={styles.scoreItem}>
-                <div className={styles.scoreLabel}>リズム</div>
-                <div className={styles.scoreValue}>{perfResult.timingAccuracy}%</div>
+              <div className={styles.subScore}>
+                <span className={styles.subLabel}>リズム</span>
+                <span className={styles.subValue}>{perfResult.timingAccuracy}%</span>
               </div>
             )}
           </div>
 
           <div className={styles.resultMessage}>{getResultMessage()}</div>
+
+          {perfResult?.pitchAccuracy != null && perfResult?.timingAccuracy != null && (
+            (() => {
+              const fb = generateFeedback(
+                perfResult.pitchAccuracy,
+                perfResult.timingAccuracy,
+                perfResult.analysisSummary,
+              )
+              return (
+                <div className={styles.feedbackCard}>
+                  <div className={styles.feedbackBody}>
+                    <div className={styles.feedbackIssue}>{fb.issue}</div>
+                    <div className={styles.feedbackAdvice}>{fb.advice}</div>
+                  </div>
+                </div>
+              )
+            })()
+          )}
 
           {audioUrl && <audio controls src={audioUrl} className={styles.audioPlayer} />}
 

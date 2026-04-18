@@ -7,14 +7,21 @@ import { randomUUID } from "crypto"
 
 const execAsync = promisify(exec)
 
-// ffmpeg-static のパスを動的に解決（require を使用）
+// ffmpeg-static のパスを解決
 function getFfmpegPath(): string {
+  // Turbopack環境ではrequireのパスが壊れるため、process.cwdベースで直接解決
+  const cwdPath = join(process.cwd(), "node_modules", "ffmpeg-static", "ffmpeg.exe")
+  try {
+    const { existsSync } = require("fs")
+    if (existsSync(cwdPath)) return cwdPath
+  } catch { /* ignore */ }
+
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const ffmpegStatic = require("ffmpeg-static")
     return typeof ffmpegStatic === "string" ? ffmpegStatic : (ffmpegStatic.default ?? ffmpegStatic)
   } catch {
-    return "ffmpeg"  // PATH 上の ffmpeg にフォールバック
+    return "ffmpeg"
   }
 }
 
@@ -52,6 +59,7 @@ export async function POST(request: NextRequest) {
       unlink(inputPath).catch(() => {}),
       unlink(outputPath).catch(() => {}),
     ])
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    const detail = err.stderr || err.message || String(err)
+    return NextResponse.json({ error: detail }, { status: 500 })
   }
 }

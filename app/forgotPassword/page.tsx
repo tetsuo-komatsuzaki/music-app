@@ -15,7 +15,7 @@ export default function ForgotPasswordPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    const supabase = createSupabaseClient(window.localStorage)
+    const supabase = createSupabaseClient()
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: "http://localhost:3000/updatePassword"

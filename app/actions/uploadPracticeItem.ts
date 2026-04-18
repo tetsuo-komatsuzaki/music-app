@@ -22,7 +22,6 @@ export async function uploadPracticeItem(formData: FormData) {
   const title = formData.get("title") as string
   const composer = formData.get("composer") as string || null
   const category = formData.get("category") as string
-  const difficulty = parseInt(formData.get("difficulty") as string) || 1
   const keyTonic = formData.get("keyTonic") as string
   const keyMode = formData.get("keyMode") as string
   const tempoMin = parseInt(formData.get("tempoMin") as string) || null
@@ -44,7 +43,6 @@ export async function uploadPracticeItem(formData: FormData) {
       composer,
       description,
       descriptionShort,
-      difficulty,
       keyTonic,
       keyMode,
       tempoMin,

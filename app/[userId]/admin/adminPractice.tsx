@@ -6,7 +6,7 @@ import styles from "./admin.module.css"
 type TechniqueOption = { id: string; category: string; name: string; nameEn: string | null }
 type ItemDTO = {
   id: string; category: string; title: string; composer: string | null
-  difficulty: number; keyTonic: string; keyMode: string
+  keyTonic: string; keyMode: string
   tempoMin: number | null; tempoMax: number | null; positions: string[]
   isPublished: boolean; analysisStatus: string; buildStatus: string
   techniques: { id: string; name: string; isPrimary: boolean }[]
@@ -32,7 +32,6 @@ export default function AdminPractice({ items, tagsByCategory, uploadAction }: P
   const [title, setTitle] = useState("")
   const [composer, setComposer] = useState("")
   const [category, setCategory] = useState<string>("scale")
-  const [difficulty, setDifficulty] = useState(1)
   const [keyTonic, setKeyTonic] = useState("G")
   const [keyMode, setKeyMode] = useState("major")
   const [tempoMin, setTempoMin] = useState("")
@@ -73,7 +72,6 @@ export default function AdminPractice({ items, tagsByCategory, uploadAction }: P
     formData.set("title", title)
     formData.set("composer", composer)
     formData.set("category", category)
-    formData.set("difficulty", String(difficulty))
     formData.set("keyTonic", keyTonic)
     formData.set("keyMode", keyMode)
     formData.set("tempoMin", tempoMin)
@@ -90,7 +88,7 @@ export default function AdminPractice({ items, tagsByCategory, uploadAction }: P
       } else {
         setMessage("登録しました")
         // reset
-        setTitle(""); setComposer(""); setDifficulty(1)
+        setTitle(""); setComposer("")
         setTempoMin(""); setTempoMax(""); setPositions([])
         setSelectedTags([]); setDescription(""); setDescriptionShort("")
         setFile(null); setShowForm(false)
@@ -103,22 +101,6 @@ export default function AdminPractice({ items, tagsByCategory, uploadAction }: P
     }
   }
 
-  const renderStars = (n: number, interactive = false) => {
-    return (
-      <span className={styles.stars}>
-        {[1, 2, 3, 4, 5].map((i) => (
-          <span
-            key={i}
-            className={i <= n ? styles.starFilled : styles.starEmpty}
-            onClick={interactive ? () => setDifficulty(i) : undefined}
-            style={interactive ? { cursor: "pointer" } : undefined}
-          >
-            ★
-          </span>
-        ))}
-      </span>
-    )
-  }
 
   return (
     <div className={styles.container}>
@@ -165,11 +147,6 @@ export default function AdminPractice({ items, tagsByCategory, uploadAction }: P
                   </label>
                 ))}
               </div>
-            </div>
-
-            <div className={styles.field}>
-              <label>難易度 *</label>
-              <div>{renderStars(difficulty, true)} <span className={styles.hint}>({difficulty}/5)</span></div>
             </div>
 
             <div className={styles.fieldRow}>
@@ -282,7 +259,6 @@ export default function AdminPractice({ items, tagsByCategory, uploadAction }: P
                   {item.composer && <div className={styles.itemSub}>{item.composer}</div>}
                 </td>
                 <td>{categoryLabels[item.category] || item.category}</td>
-                <td>{renderStars(item.difficulty)}</td>
                 <td>{item.keyTonic} {modeLabels[item.keyMode] || item.keyMode}</td>
                 <td>{item.tempoMin && item.tempoMax ? `${item.tempoMin}-${item.tempoMax}` : "-"}</td>
                 <td>

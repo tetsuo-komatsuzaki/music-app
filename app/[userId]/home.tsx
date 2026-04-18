@@ -20,7 +20,6 @@ type Props = {
     href: string
     title: string
     category: string
-    difficulty: number
     description: string | null
   } | null
   recommendations: {
@@ -28,7 +27,6 @@ type Props = {
     href: string
     title: string
     category: string
-    difficulty: number
     reason: string
   }[]
   recentHistory: {
@@ -148,7 +146,7 @@ export default function HomeClient({
           </div>
           <div className={styles.challengeTitle}>{dailyChallenge.title}</div>
           <div className={styles.challengeMeta}>
-            {dailyChallenge.category} · 難易度 {dailyChallenge.difficulty}
+            {dailyChallenge.category}
           </div>
           <Link href={dailyChallenge.href} className={styles.challengeBtn}>
             スタート

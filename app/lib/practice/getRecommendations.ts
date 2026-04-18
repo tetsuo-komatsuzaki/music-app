@@ -1,12 +1,11 @@
 import { prisma } from "@/app/_libs/prisma"
 
-export type RecommendReason = "weakness" | "continue" | "untried" | "same_key"
+export type RecommendReason = "weakness" | "continue" | "same_key"
 
 export type ScoredItemDTO = {
   id: string
   title: string
   category: string
-  difficulty: number
   keyTonic: string
   keyMode: string
   positions: string[]
@@ -14,6 +13,7 @@ export type ScoredItemDTO = {
   score: number
   reason: RecommendReason
   lastPracticed?: string // ISO string
+  totalPractices: number
 }
 
 export async function getRecommendations(
@@ -71,54 +71,54 @@ export async function getRecommendations(
   for (const item of items) {
     const lastPracticed = perfByItem.get(item.id)
     const hasPracticed = !!lastPracticed
+    const totalPractices = perfCountByItem.get(item.id) ?? 0
 
-    // weakness_score
+    // weakness_score: 弱点の調・タイミング・技法に該当するか
     let weakness_score = 0
     for (const w of weaknesses) {
       if (w.weaknessType === "pitch_accuracy" && w.weaknessKey === item.keyTonic) {
         weakness_score = Math.max(weakness_score, 1.0)
-      } else if (w.weaknessType === "pitch_range" && item.difficulty >= 3) {
-        weakness_score = Math.max(weakness_score, 0.6)
+      } else if (w.weaknessType === "key_area") {
+        const [tonic, mode] = w.weaknessKey.split("_")
+        if (tonic === item.keyTonic && mode === item.keyMode) {
+          weakness_score = Math.max(weakness_score, w.severity)
+        }
       } else if (w.weaknessType === "timing" && category === "etude") {
         weakness_score = Math.max(weakness_score, 0.8)
       }
     }
 
-    // score_signal (keyTonic match from recent scores)
+    // score_signal: ユーザーの楽曲と同じ調
     const keyMatches = recentKeyTonics.has(item.keyTonic)
     const score_signal = keyMatches ? 0.8 : 0
 
-    // behavior_score
-    let behavior_score = 0
-    if (!hasPracticed) {
-      behavior_score = 0.4
-    } else if (lastPracticed) {
+    // recency_score: 最後に練習してからの経過日数（長いほど復習が必要）
+    let recency_score = 0
+    if (hasPracticed && lastPracticed) {
       const daysSince = (now - lastPracticed.getTime()) / 86400000
-      if (daysSince < 1) behavior_score = 0.0
-      else if (daysSince < 3) behavior_score = 0.3
-      else if (daysSince <= 7) behavior_score = 0.8
-      else behavior_score = 1.0
+      if (daysSince < 1) recency_score = 0.0
+      else if (daysSince < 3) recency_score = 0.3
+      else if (daysSince <= 7) recency_score = 0.7
+      else recency_score = 1.0
     }
+    // 未練習アイテムは recency_score = 0（ボーナスなし）
 
-    const totalScore = weakness_score * 0.5 + score_signal * 0.3 + behavior_score * 0.2
+    const totalScore = weakness_score * 0.5 + score_signal * 0.3 + recency_score * 0.2
 
-    // reason (priority: weakness > same_key > continue > untried)
+    // reason
     let reason: RecommendReason
-    if (weakness_score > 0 && totalScore >= 0.6) {
+    if (weakness_score > 0) {
       reason = "weakness"
     } else if (keyMatches) {
       reason = "same_key"
-    } else if (hasPracticed) {
-      reason = "continue"
     } else {
-      reason = "untried"
+      reason = "continue"
     }
 
     scored.push({
       id: item.id,
       title: item.title,
       category: item.category,
-      difficulty: item.difficulty,
       keyTonic: item.keyTonic ?? "",
       keyMode: item.keyMode ?? "",
       positions: item.positions,
@@ -126,6 +126,7 @@ export async function getRecommendations(
       score: totalScore,
       reason,
       lastPracticed: lastPracticed?.toISOString(),
+      totalPractices,
       _lastMs: lastPracticed?.getTime() ?? 0,
     })
   }

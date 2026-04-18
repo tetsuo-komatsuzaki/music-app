@@ -3,6 +3,7 @@
 import styles from "./page.module.css"
 // import { uploadScore } from "../../actions/uploadScore"
 import { useState, useRef, useEffect, useTransition } from "react"
+import Link from "next/link"
 import UploadModal from "../components/UploadModal"
 import { uploadScore } from "@/app/actions/uploadScore"
 import { ScoreView } from "@/app/types/score"
@@ -107,12 +108,12 @@ export default function ScoresClient({
                     {score.title}
                   </h3>
 
-                  <a
+                  <Link
                     href={`/${userId}/scores/${score.id}`}
                     className={styles.practiceBtn}
                   >
                     ▶ 練習する
-                  </a>
+                  </Link>
                 </div>
 
                 <p className={styles.cardComposer}>

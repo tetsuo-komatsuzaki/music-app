@@ -1,7 +1,5 @@
 import { prisma } from "@/app/_libs/prisma"
 import PracticeTop from "./practiceTop"
-import styles from "./practice.module.css"
-import Link from "next/link"
 
 export default async function PracticePage({
   params,
@@ -39,8 +37,8 @@ export default async function PracticePage({
         OR: [{ ownerUserId: null }, { ownerUserId: userId }],
       },
       take: 3,
-      orderBy: { difficulty: "asc" },
-      select: { id: true, title: true, category: true, difficulty: true },
+      orderBy: { title: "asc" },
+      select: { id: true, title: true, category: true },
     })
     if (items.length > 0) {
       const modeName = score.keyMode === "minor" ? "短調" : "長調"
@@ -69,7 +67,7 @@ export default async function PracticePage({
       const [tonic, mode] = w.weaknessKey.split("_")
       items = await prisma.practiceItem.findMany({
         where: { keyTonic: tonic, keyMode: mode, category: { in: ["scale", "arpeggio"] }, isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: userId }] },
-        take: 3, select: { id: true, title: true, category: true, difficulty: true },
+        take: 3, select: { id: true, title: true, category: true },
       })
       const modeName = mode === "major" ? "長調" : "短調"
       reason = `${tonic}${modeName}でピッチが不安定です（エラー率${Math.round(w.severity * 100)}%）`
@@ -80,7 +78,7 @@ export default async function PracticePage({
           OR: [{ ownerUserId: null }, { ownerUserId: userId }],
           techniques: { some: { techniqueTag: { name: { in: ["デタシェ", "マルテレ", "スタッカート"] } } } },
         },
-        take: 3, select: { id: true, title: true, category: true, difficulty: true },
+        take: 3, select: { id: true, title: true, category: true },
       })
       reason = `タイミングの精度に課題があります（エラー率${Math.round(w.severity * 100)}%）`
     } else if (w.weaknessType === "pitch_range") {
@@ -91,7 +89,7 @@ export default async function PracticePage({
           OR: [{ ownerUserId: null }, { ownerUserId: userId }],
           positions: { hasSome: ["3rd", "5th", "7th"] },
         },
-        take: 3, select: { id: true, title: true, category: true, difficulty: true },
+        take: 3, select: { id: true, title: true, category: true },
       })
       reason = `${rangeLabel[w.weaknessKey] || w.weaknessKey}でピッチが不安定です`
     } else if (w.weaknessType === "technique" && w.techniqueTag) {
@@ -101,7 +99,7 @@ export default async function PracticePage({
           OR: [{ ownerUserId: null }, { ownerUserId: userId }],
           techniques: { some: { techniqueTagId: w.techniqueTagId! } },
         },
-        take: 3, select: { id: true, title: true, category: true, difficulty: true },
+        take: 3, select: { id: true, title: true, category: true },
       })
       reason = `${w.techniqueTag.name}が苦手です（エラー率${Math.round(w.severity * 100)}%）`
     }

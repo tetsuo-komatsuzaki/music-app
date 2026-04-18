@@ -5,3 +5,7 @@ node_modules
 
 /generated/prisma
 tmp/
+__pycache__/
+*.pyc
+prisma/data/mxl/
+prisma/data/mxl_arpeggio/

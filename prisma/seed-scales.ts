@@ -97,7 +97,6 @@ async function main() {
       const minorVariant = row[6] as string || ""
       const octaves = parseInt(row[7]) || 1
       const bow = row[8] as string || "デタシェ"
-      const difficulty = parseInt(row[9]) || 1
       const positionStr = row[10] as string || ""
       const tempoStr = row[11] as string || ""
       const descShort = row[12] as string || null
@@ -136,7 +135,6 @@ async function main() {
             composer,
             description: descDetail,
             descriptionShort: descShort,
-            difficulty,
             keyTonic,
             keyMode,
             tempoMin: tempo.min,

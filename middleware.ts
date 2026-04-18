@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           )
           supabaseResponse = NextResponse.next({ request })
@@ -25,8 +25,30 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // セッションをリフレッシュ（トークン期限切れ時にcookieを更新）
-  await supabase.auth.getUser()
+  // セッションをリフレッシュ
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // ユーザー専用ページへのアクセス制御
+  const pathname = request.nextUrl.pathname
+  const isUserPage = pathname.match(/^\/([a-f0-9-]{36})(\/|$)/)
+
+  if (isUserPage) {
+    // 未ログイン → ログインページへ
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = "/login"
+      return NextResponse.redirect(url)
+    }
+
+    // 別ユーザーのURL → 自分のURLにリダイレクト
+    const urlUserId = isUserPage[1]
+    if (urlUserId !== user.id) {
+      const correctPath = pathname.replace(`/${urlUserId}`, `/${user.id}`)
+      const url = request.nextUrl.clone()
+      url.pathname = correctPath
+      return NextResponse.redirect(url)
+    }
+  }
 
   return supabaseResponse
 }

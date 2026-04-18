@@ -11,6 +11,16 @@ export default async function PracticeDetailPage({
 }) {
   const { userId, category, itemId } = await params
 
+  const perfStart = performance.now()
+
+  // URLのuserIdはSupabase UIDなので、Prisma内部IDに変換
+  const dbUser = await prisma.user.findUnique({
+    where: { supabaseUserId: userId },
+  })
+  if (!dbUser) return <div>ユーザーが見つかりません</div>
+  console.log(`[PERF] practice/item step1_dbUser: ${(performance.now() - perfStart).toFixed(0)}ms`)
+
+  const perfStep2 = performance.now()
   const item = await prisma.practiceItem.findUnique({
     where: { id: itemId },
     include: {
@@ -19,6 +29,7 @@ export default async function PracticeDetailPage({
       },
     },
   })
+  console.log(`[PERF] practice/item step2_item: ${(performance.now() - perfStep2).toFixed(0)}ms`)
 
   if (!item) return <div>練習メニューが見つかりません</div>
 
@@ -28,77 +39,68 @@ export default async function PracticeDetailPage({
   }
 
   // =========================
-  // buildUrl
+  // item確定後の処理を並列化
   // =========================
-  let buildUrl: string | null = null
-  if (item.buildStatus === "done" && item.generatedXmlPath) {
-    const { data } = await storageAdmin.storage
-      .from("musicxml")
-      .createSignedUrl(item.generatedXmlPath, 300)
-    buildUrl = data?.signedUrl ?? null
-  }
-
-  // =========================
-  // analysis
-  // =========================
-  let analysisData = null
-  if (item.analysisStatus === "done" && item.analysisPath) {
-    const { data } = await storageAdmin.storage
-      .from("musicxml")
-      .createSignedUrl(item.analysisPath, 60)
-    if (data?.signedUrl) {
-      const res = await fetch(data.signedUrl)
-      if (res.ok) analysisData = await res.json()
-    }
-  }
-
-  // =========================
-  // performances
-  // =========================
-  const practicePerformances = await prisma.practicePerformance.findMany({
-    where: { userId, practiceItemId: itemId },
-    orderBy: { uploadedAt: "desc" },
-  })
-
-  const performances = await Promise.all(
-    practicePerformances.map(async (p) => {
-      const { data: audioData } = await storageAdmin.storage
-        .from("performances")
-        .createSignedUrl(p.audioPath, 60)
-
-      let comparisonResult = null
-      let comparisonWarnings: string[] = []
-      if (p.comparisonResultPath) {
-        const { data: compData } = await storageAdmin.storage
-          .from("performances")
-          .createSignedUrl(p.comparisonResultPath, 60)
-
-        if (compData?.signedUrl) {
-          try {
-            const res = await fetch(compData.signedUrl)
-            if (res.ok) {
-              const json = await res.json()
-              if (json.version && json.results) {
-                comparisonResult = json.results
-                comparisonWarnings = json.warnings || []
-              } else if (Array.isArray(json)) {
-                comparisonResult = json
-              }
-            }
-          } catch (_e) { /* ignore */ }
+  const perfStep3 = performance.now()
+  const [buildUrl, analysisData, performanceCount, latestPerf, recentPerfs] =
+    await Promise.all([
+      // buildUrl
+      (async (): Promise<string | null> => {
+        if (item.buildStatus === "done" && item.generatedXmlPath) {
+          const { data } = await storageAdmin.storage
+            .from("musicxml")
+            .createSignedUrl(item.generatedXmlPath, 300)
+          return data?.signedUrl ?? null
         }
-      }
+        return null
+      })(),
 
-      return {
-        id: p.id,
-        uploadedAt: p.uploadedAt.toISOString(),
-        status: "uploaded",
-        audioUrl: audioData?.signedUrl ?? null,
-        comparisonResult,
-        comparisonWarnings,
-      }
-    })
-  )
+      // analysisData
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (async (): Promise<any> => {
+        if (item.analysisStatus === "done" && item.analysisPath) {
+          const { data } = await storageAdmin.storage
+            .from("musicxml")
+            .createSignedUrl(item.analysisPath, 60)
+          if (data?.signedUrl) {
+            const res = await fetch(data.signedUrl)
+            if (res.ok) return res.json()
+          }
+        }
+        return null
+      })(),
+
+      // Performance 件数
+      prisma.practicePerformance.count({
+        where: { userId: dbUser.id, practiceItemId: itemId },
+      }),
+
+      // 最新サマリー
+      prisma.practicePerformance.findFirst({
+        where: { userId: dbUser.id, practiceItemId: itemId },
+        orderBy: { uploadedAt: "desc" },
+        select: {
+          id: true,
+          pitchAccuracy: true,
+          timingAccuracy: true,
+          overallScore: true,
+          analysisSummary: true,
+        },
+      }),
+
+      // 練習履歴（最新5件）
+      prisma.practicePerformance.findMany({
+        where: { userId: dbUser.id, practiceItemId: itemId },
+        orderBy: { uploadedAt: "desc" },
+        take: 5,
+        select: {
+          id: true,
+          uploadedAt: true,
+          overallScore: true,
+        },
+      }),
+    ])
+  console.log(`[PERF] practice/item step3_parallel: ${(performance.now() - perfStep3).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   const categoryLabels: Record<string, string> = {
     scale: "音階", scales: "音階",
@@ -125,14 +127,6 @@ export default async function PracticeDetailPage({
         <div className={styles.infoPanelComposer}>{item.composer}</div>
       )}
 
-      {/* 難易度 */}
-      <div className={styles.infoPanelStars}>
-        {[1,2,3,4,5].map(i => (
-          <span key={i} className={i > item.difficulty ? styles.infoPanelStarEmpty : undefined}>
-            ★
-          </span>
-        ))}
-      </div>
 
       <hr className={styles.infoPanelDivider} />
 
@@ -194,10 +188,10 @@ export default async function PracticeDetailPage({
       <hr className={styles.infoPanelDivider} />
       <div className={styles.infoPanelHistory}>
         <div className={styles.infoPanelTagLabel}>練習履歴</div>
-        {performances.length === 0 && (
+        {recentPerfs.length === 0 && (
           <div className={styles.infoPanelEmpty}>まだ練習していません</div>
         )}
-        {performances.slice(0, 5).map(p => (
+        {recentPerfs.map(p => (
           <div key={p.id} className={styles.infoPanelHistoryItem}>
             <span className={styles.infoPanelHistoryDate}>
               {new Date(p.uploadedAt).toLocaleDateString("ja-JP", {
@@ -205,15 +199,8 @@ export default async function PracticeDetailPage({
               })}
             </span>
             <span className={styles.infoPanelHistoryScore}>
-              {p.comparisonResult
-                ? (() => {
-                    const evaluated = p.comparisonResult.filter(
-                      (n: any) => n.evaluation_status === "evaluated" || n.evaluation_status === "pitch_only"
-                    )
-                    if (evaluated.length === 0) return "解析中"
-                    const ok = evaluated.filter((n: any) => n.pitch_ok === true).length
-                    return `${Math.round((ok / evaluated.length) * 100)}%`
-                  })()
+              {p.overallScore != null
+                ? `${Math.round(p.overallScore)}点`
                 : "解析中"
               }
             </span>
@@ -235,12 +222,16 @@ export default async function PracticeDetailPage({
 
       <ScoreDetail
         score={{ id: item.id, title: item.title }}
-        performances={performances}
+        userId={userId}
         analysis={analysisData}
         uploadAction={uploadPracticeRecord}
         buildUrl={buildUrl}
+        performanceCount={performanceCount}
+        latestPitchAccuracy={latestPerf?.pitchAccuracy ?? null}
+        latestTimingAccuracy={latestPerf?.timingAccuracy ?? null}
         infoSlot={infoPanel}
         singleStaffLine={item.category === "scale" || item.category === "arpeggio"}
+        practiceItemId={item.id}
       />
     </div>
   )

@@ -12,7 +12,6 @@ type PracticeItemDTO = {
   title: string
   composer: string | null
   category: string
-  difficulty: number
   keyTonic: string
   keyMode: string
   positions: string[]
@@ -27,39 +26,27 @@ type Props = {
   category: string
   categoryTitle: string
   items: PracticeItemDTO[]
-  filterOptions: { keys: string[]; difficulties: number[]; positions: string[] }
-  currentFilters: { key?: string; difficulty?: string; position?: string }
+  filterOptions: { keys: string[]; positions: string[] }
+  currentFilters: { key?: string; position?: string }
   recommendations: ScoredItemDTO[]
   stats: PracticeStats
 }
 
 type ViewType = "recommend" | "group" | "all"
+type SortType = "recommend" | "practices"
 
 const modeLabels: Record<string, string> = { major: "長調", minor: "短調" }
 
 const REASON_LABELS: Record<RecommendReason, string> = {
   weakness: "苦手克服",
   continue: "継続練習",
-  untried: "未挑戦",
   same_key: "同じ調",
 }
 
 const REASON_COLORS: Record<RecommendReason, string> = {
   weakness: styles.reasonWeakness,
   continue: styles.reasonContinue,
-  untried: styles.reasonUntried,
   same_key: styles.reasonSameKey,
-}
-
-// ★難易度表示
-function DifficultyStars({ value }: { value: number }) {
-  return (
-    <div className={styles.cardStars}>
-      {[1, 2, 3, 4, 5].map((i) => (
-        <span key={i} className={i <= value ? styles.starFilled : styles.starEmpty}>★</span>
-      ))}
-    </div>
-  )
 }
 
 const SCALE_TYPE_EN: Record<string, string> = {
@@ -87,7 +74,6 @@ function extractCardInfo(item: PracticeItemDTO | ScoredItemDTO) {
 
   const keyTonic = "keyTonic" in item ? item.keyTonic : ""
 
-  // エチュードはタイトルをそのまま表示
   const shortTitle = isEtude ? item.title : `${keyTonic} ${typeLabel}`
 
   const subtitle = isEtude
@@ -156,7 +142,6 @@ function RecommendCard({ item, userId, category }: { item: ScoredItemDTO; userId
         </span>
         <div className={styles.recTitle}>{shortTitle}</div>
         {subtitle && <div className={styles.recSubtitle}>{subtitle}</div>}
-        <DifficultyStars value={item.difficulty} />
         {item.lastPracticed && (
           <div className={styles.recLast}>{relativeDate(item.lastPracticed)}</div>
         )}
@@ -171,7 +156,6 @@ function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: s
     <Link href={`/${userId}/practice/${category}/${item.id}`} className={styles.itemCard}>
       <div className={styles.cardHeader}>
         <div className={styles.cardTitle}>{shortTitle}</div>
-        <DifficultyStars value={item.difficulty} />
       </div>
       {subtitle && <div className={styles.cardSubtitle}>{subtitle}</div>}
       <div className={styles.chipRow}>
@@ -217,8 +201,6 @@ function RecommendView({
     .sort((a, b) => new Date(b.lastPracticed!).getTime() - new Date(a.lastPracticed!).getTime())
     .slice(0, 5)
 
-  const beginner = items.filter((i) => i.difficulty <= 2 && !i.lastPracticed).slice(0, 5)
-
   return (
     <div>
       <StatsRow stats={stats} />
@@ -245,18 +227,7 @@ function RecommendView({
         </section>
       )}
 
-      {beginner.length > 0 && (
-        <section className={styles.viewSection}>
-          <h2 className={styles.sectionTitle}>入門曲 (未練習)</h2>
-          <div className={styles.itemList}>
-            {beginner.map((item) => (
-              <ItemCard key={item.id} item={item} userId={userId} category={category} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {recommendations.length === 0 && recent.length === 0 && beginner.length === 0 && (
+      {recommendations.length === 0 && recent.length === 0 && (
         <div className={styles.emptyState}>練習アイテムがありません</div>
       )}
     </div>
@@ -279,11 +250,9 @@ function GroupView({
 }) {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
 
-  // Build groups
   let groups: { key: string; label: string; items: PracticeItemDTO[] }[] = []
 
   if (category === "scale" || category === "scales") {
-    // Group by keyTonic
     const map = new Map<string, PracticeItemDTO[]>()
     for (const item of items) {
       const k = item.keyTonic || "?"
@@ -293,12 +262,10 @@ function GroupView({
     groups = KEY_ORDER
       .filter((k) => map.has(k))
       .map((k) => ({ key: k, label: k, items: map.get(k)! }))
-    // Append any keys not in KEY_ORDER
     for (const [k, v] of map) {
       if (!KEY_ORDER.includes(k)) groups.push({ key: k, label: k, items: v })
     }
   } else if (category === "arpeggio" || category === "arpeggios") {
-    // Group by chord type (2nd word in title)
     const map = new Map<string, PracticeItemDTO[]>()
     for (const item of items) {
       const typeLabel = item.title.split(" ")[1] ?? "その他"
@@ -312,7 +279,6 @@ function GroupView({
       if (!CHORD_ORDER.includes(k)) groups.push({ key: k, label: k, items: v })
     }
   } else {
-    // etude: group by composer
     const map = new Map<string, PracticeItemDTO[]>()
     for (const item of items) {
       const k = item.composer || "不明"
@@ -326,7 +292,6 @@ function GroupView({
   const activeGroup = selectedGroup ? groups.find((g) => g.key === selectedGroup) : null
 
   if (activeGroup) {
-    // Sub-grouped by keyMode or difficulty
     const subGroups: { label: string; items: PracticeItemDTO[] }[] = []
     if (category === "scale" || category === "scales") {
       const byMode = new Map<string, PracticeItemDTO[]>()
@@ -393,7 +358,7 @@ function GroupView({
 }
 
 // ────────────────────────────────────────────────────────────
-// View 3: すべて
+// View 3: すべて（フィルタ + ソート）
 // ────────────────────────────────────────────────────────────
 
 function AllView({
@@ -407,6 +372,7 @@ function AllView({
 }) {
   const router = useRouter()
   const [search, setSearch] = useState("")
+  const [sortBy, setSortBy] = useState<SortType>("recommend")
 
   const handleFilterChange = (key: string, value: string) => {
     const params = new URLSearchParams()
@@ -417,17 +383,14 @@ function AllView({
     router.push(`/${userId}/practice/${category}?${params.toString()}`)
   }
 
-  const filtered = search.trim()
+  let filtered = search.trim()
     ? items.filter((i) => i.title.includes(search) || (i.composer ?? "").includes(search))
     : items
 
-  // Section by difficulty
-  const byDiff = new Map<number, PracticeItemDTO[]>()
-  for (const item of filtered) {
-    if (!byDiff.has(item.difficulty)) byDiff.set(item.difficulty, [])
-    byDiff.get(item.difficulty)!.push(item)
+  // ソート
+  if (sortBy === "practices") {
+    filtered = [...filtered].sort((a, b) => b.totalPractices - a.totalPractices)
   }
-  const diffKeys = [...byDiff.keys()].sort()
 
   return (
     <div>
@@ -439,7 +402,7 @@ function AllView({
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      {/* Filters */}
+      {/* Filters + Sort */}
       <div className={styles.filters}>
         <select
           className={styles.filterSelect}
@@ -451,17 +414,6 @@ function AllView({
             const [tonic, mode] = k.split("_")
             return <option key={k} value={k}>{tonic} {modeLabels[mode] || mode}</option>
           })}
-        </select>
-
-        <select
-          className={styles.filterSelect}
-          value={currentFilters.difficulty || ""}
-          onChange={(e) => handleFilterChange("difficulty", e.target.value)}
-        >
-          <option value="">難易度: 全て</option>
-          {filterOptions.difficulties.sort().map((d) => (
-            <option key={d} value={String(d)}>{"★".repeat(d)}{"☆".repeat(5 - d)}</option>
-          ))}
         </select>
 
         {filterOptions.positions.length > 0 && (
@@ -476,25 +428,26 @@ function AllView({
             ))}
           </select>
         )}
+
+        <select
+          className={styles.filterSelect}
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as SortType)}
+        >
+          <option value="recommend">おすすめ順</option>
+          <option value="practices">演奏回数順</option>
+        </select>
       </div>
 
       {filtered.length === 0 && (
         <div className={styles.emptyState}>該当する練習メニューがありません</div>
       )}
 
-      {diffKeys.map((d) => (
-        <section key={d} className={styles.viewSection}>
-          <h2 className={styles.sectionTitle}>
-            {"★".repeat(d)}{"☆".repeat(5 - d)}
-            <span className={styles.sectionCount}> {byDiff.get(d)!.length}件</span>
-          </h2>
-          <div className={styles.itemList}>
-            {byDiff.get(d)!.map((item) => (
-              <ItemCard key={item.id} item={item} userId={userId} category={category} />
-            ))}
-          </div>
-        </section>
-      ))}
+      <div className={styles.itemList}>
+        {filtered.map((item) => (
+          <ItemCard key={item.id} item={item} userId={userId} category={category} />
+        ))}
+      </div>
     </div>
   )
 }
@@ -523,7 +476,6 @@ export default function PracticeList({
         </Link>
       </div>
 
-      {/* Tabs */}
       <div className={styles.tabRow}>
         {tabs.map((t) => (
           <button

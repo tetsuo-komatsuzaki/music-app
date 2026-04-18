@@ -33,6 +33,11 @@ button:active:not(:disabled) {
   transform: scale(0.95);
 }
 
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   button {
     transition: none;

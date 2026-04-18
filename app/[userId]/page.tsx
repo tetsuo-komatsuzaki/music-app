@@ -45,11 +45,14 @@ function calculateStreak(dates: Date[]): number {
 export default async function HomePage({ params }: PageProps) {
   const { userId } = await params
 
+  const perfStart = performance.now()
+
   const dbUser = await prisma.user.findUnique({
     where: { supabaseUserId: userId },
     select: { id: true, name: true },
   })
   if (!dbUser) return <div>User not found</div>
+  console.log(`[PERF] home step1_dbUser: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   const internalUserId = dbUser.id
 
@@ -64,20 +67,94 @@ export default async function HomePage({ params }: PageProps) {
   const weekStart = new Date(now.getTime() - (dayOfWeek - 1) * 86400000)
   weekStart.setHours(0, 0, 0, 0)
 
-  // --- ストリーク計算 ---
-  const [practiceUploads, scoreUploads] = await Promise.all([
+  // ストリーク用（直近90日のみ取得）
+  const ninetyDaysAgo = new Date(Date.now() - 90 * 86400_000)
+
+  const perfStep2 = performance.now()
+  // ── 全データを並列一括取得 ──
+  const [
+    practiceUploads,
+    scoreUploads,
+    todayPractice,
+    todayScore,
+    latestPracticePerf,
+    latestScorePerf,
+    totalItems,
+    recentScores,
+    recentPracticeHistory,
+    recentScoreHistory,
+  ] = await Promise.all([
+    // ストリーク用（90日以内のみ）
     prisma.practicePerformance.findMany({
-      where: { userId: internalUserId },
+      where: { userId: internalUserId, uploadedAt: { gte: ninetyDaysAgo } },
       select: { uploadedAt: true },
       orderBy: { uploadedAt: "desc" },
     }),
     prisma.performance.findMany({
-      where: { userId: internalUserId },
+      where: { userId: internalUserId, uploadedAt: { gte: ninetyDaysAgo } },
       select: { uploadedAt: true },
       orderBy: { uploadedAt: "desc" },
     }),
+    // 今日のリング用
+    prisma.practicePerformance.findMany({
+      where: { userId: internalUserId, uploadedAt: { gte: todayStart, lte: todayEnd } },
+      select: { performanceDuration: true, comparisonResultPath: true },
+    }),
+    prisma.performance.findMany({
+      where: { userId: internalUserId, uploadedAt: { gte: todayStart, lte: todayEnd } },
+      select: { performanceDuration: true, comparisonResultPath: true },
+    }),
+    // Continue バー用
+    prisma.practicePerformance.findFirst({
+      where: { userId: internalUserId },
+      orderBy: { uploadedAt: "desc" },
+      select: {
+        uploadedAt: true,
+        practiceItemId: true,
+        practiceItem: { select: { id: true, title: true, category: true } },
+      },
+    }),
+    prisma.performance.findFirst({
+      where: { userId: internalUserId },
+      orderBy: { uploadedAt: "desc" },
+      select: {
+        uploadedAt: true,
+        scoreId: true,
+        score: { select: { id: true, title: true, keyTonic: true, keyMode: true } },
+      },
+    }),
+    // デイリーチャレンジ用
+    prisma.practiceItem.count({ where: { isPublished: true } }),
+    // レコメンド用
+    prisma.score.findMany({
+      where: { createdById: internalUserId },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+      select: { keyTonic: true, keyMode: true, title: true },
+    }),
+    // 直近の練習履歴
+    prisma.practicePerformance.findMany({
+      where: { userId: internalUserId },
+      orderBy: { uploadedAt: "desc" },
+      take: 3,
+      select: {
+        uploadedAt: true,
+        practiceItem: { select: { title: true, category: true, id: true } },
+      },
+    }),
+    prisma.performance.findMany({
+      where: { userId: internalUserId },
+      orderBy: { uploadedAt: "desc" },
+      take: 3,
+      select: {
+        uploadedAt: true,
+        score: { select: { title: true, id: true } },
+      },
+    }),
   ])
+  console.log(`[PERF] home step2_parallel10: ${(performance.now() - perfStep2).toFixed(0)}ms`)
 
+  // --- ストリーク ---
   const allUploadDates = [
     ...practiceUploads.map(p => p.uploadedAt),
     ...scoreUploads.map(p => p.uploadedAt),
@@ -96,23 +173,6 @@ export default async function HomePage({ params }: PageProps) {
   ]).size
 
   // --- 3リング（今日の進捗）---
-  const [todayPractice, todayScore] = await Promise.all([
-    prisma.practicePerformance.findMany({
-      where: {
-        userId: internalUserId,
-        uploadedAt: { gte: todayStart, lte: todayEnd },
-      },
-      select: { performanceDuration: true, comparisonResultPath: true },
-    }),
-    prisma.performance.findMany({
-      where: {
-        userId: internalUserId,
-        uploadedAt: { gte: todayStart, lte: todayEnd },
-      },
-      select: { performanceDuration: true, comparisonResultPath: true },
-    }),
-  ])
-
   const PRACTICE_GOAL_SEC = 15 * 60  // 15分
   const RECORD_GOAL       = 1
   const REVIEW_GOAL       = 2
@@ -135,28 +195,7 @@ export default async function HomePage({ params }: PageProps) {
     review:   Math.min(todayReviewCount  / REVIEW_GOAL, 1),
   }
 
-  // --- 直前の曲（Continue バー）---
-  const [latestPracticePerf, latestScorePerf] = await Promise.all([
-    prisma.practicePerformance.findFirst({
-      where: { userId: internalUserId },
-      orderBy: { uploadedAt: "desc" },
-      select: {
-        uploadedAt: true,
-        practiceItemId: true,
-        practiceItem: { select: { id: true, title: true, category: true } },
-      },
-    }),
-    prisma.performance.findFirst({
-      where: { userId: internalUserId },
-      orderBy: { uploadedAt: "desc" },
-      select: {
-        uploadedAt: true,
-        scoreId: true,
-        score: { select: { id: true, title: true, keyTonic: true, keyMode: true } },
-      },
-    }),
-  ])
-
+  // --- Continue バー ---
   type ContinueItem = {
     href: string
     title: string
@@ -190,124 +229,109 @@ export default async function HomePage({ params }: PageProps) {
     }
   }
 
-  // --- デイリーチャレンジ（日付シードで固定）---
-  const totalItems = await prisma.practiceItem.count({ where: { isPublished: true } })
+  // --- デイリーチャレンジ ---
+  const perfStep3 = performance.now()
   const seed = Array.from(todayJSTStr).reduce((a, c) => a + c.charCodeAt(0), 0)
   const dailyChallenge = totalItems > 0
     ? await prisma.practiceItem.findFirst({
         where: { isPublished: true },
         skip:  seed % totalItems,
         take:  1,
-        select: { id: true, title: true, category: true, difficulty: true, description: true },
+        select: { id: true, title: true, category: true, description: true },
       })
     : null
+  console.log(`[PERF] home step3_dailyChallenge: ${(performance.now() - perfStep3).toFixed(0)}ms`)
 
-  // --- おすすめ練習（最大2件・楽譜ベース + 弱点ベース）---
-  const recentScores = await prisma.score.findMany({
-    where: { createdById: internalUserId },
-    orderBy: { createdAt: "desc" },
-    take: 3,
-    select: { keyTonic: true, keyMode: true, title: true },
-  })
-
+  // --- おすすめ練習（レコメンドクエリを並列化）---
   type RecommendItem = {
     id: string
     title: string
     category: string
-    difficulty: number
     href: string
     reason: string
   }
 
   const recommendations: RecommendItem[] = []
 
-  for (const score of recentScores) {
+  // 楽譜ベースのレコメンド候補を並列取得
+  const scoreRecPromises = recentScores
+    .filter(s => s.keyTonic)
+    .map(score =>
+      prisma.practiceItem.findFirst({
+        where: {
+          keyTonic: score.keyTonic!,
+          keyMode: score.keyMode ?? "major",
+          category: { in: ["scale", "arpeggio"] },
+          isPublished: true,
+          OR: [{ ownerUserId: null }, { ownerUserId: internalUserId }],
+        },
+        orderBy: { title: "asc" },
+        select: { id: true, title: true, category: true },
+      }).then(item => item ? { item, scoreTitle: score.title } : null)
+    )
+
+  const scoreRecResults = await Promise.all(scoreRecPromises)
+  for (const r of scoreRecResults) {
     if (recommendations.length >= 2) break
-    if (!score.keyTonic) continue
-    const item = await prisma.practiceItem.findFirst({
-      where: {
-        keyTonic:     score.keyTonic,
-        keyMode:      score.keyMode ?? "major",
-        category:     { in: ["scale", "arpeggio"] },
-        isPublished:  true,
-        OR: [{ ownerUserId: null }, { ownerUserId: internalUserId }],
-      },
-      orderBy: { difficulty: "asc" },
-      select: { id: true, title: true, category: true, difficulty: true },
+    if (!r) continue
+    recommendations.push({
+      ...r.item,
+      href:   `/${userId}/practice/${r.item.category}/${r.item.id}`,
+      reason: `「${r.scoreTitle}」の調性に合わせて`,
     })
-    if (item) {
-      recommendations.push({
-        ...item,
-        href:   `/${userId}/practice/${item.category}/${item.id}`,
-        reason: `「${score.title}」の調性に合わせて`,
-      })
-    }
   }
 
+  const perfStep4 = performance.now()
   if (recommendations.length < 2) {
     const weaknesses = await prisma.userWeakness.findMany({
       where: { userId: internalUserId },
       orderBy: { severity: "desc" },
       take: 2,
     })
-    for (const w of weaknesses) {
-      if (recommendations.length >= 2) break
-      if (w.weaknessType !== "key_area") continue
-      const [tonic, mode] = w.weaknessKey.split("_")
-      const item = await prisma.practiceItem.findFirst({
-        where: {
-          keyTonic: tonic, keyMode: mode,
-          category: { in: ["scale", "arpeggio"] }, isPublished: true,
-          OR: [{ ownerUserId: null }, { ownerUserId: internalUserId }],
-        },
-        select: { id: true, title: true, category: true, difficulty: true },
+
+    // 弱点ベースも並列取得
+    const weakRecPromises = weaknesses
+      .filter(w => w.weaknessType === "key_area")
+      .map(w => {
+        const [tonic, mode] = w.weaknessKey.split("_")
+        return prisma.practiceItem.findFirst({
+          where: {
+            keyTonic: tonic, keyMode: mode,
+            category: { in: ["scale", "arpeggio"] }, isPublished: true,
+            OR: [{ ownerUserId: null }, { ownerUserId: internalUserId }],
+          },
+          select: { id: true, title: true, category: true },
+        }).then(item => item ? { item, tonic, mode } : null)
       })
-      if (item) {
-        recommendations.push({
-          ...item,
-          href:   `/${userId}/practice/${item.category}/${item.id}`,
-          reason: `${tonic}${mode === "minor" ? "短調" : "長調"}の強化に`,
-        })
-      }
+
+    const weakRecResults = await Promise.all(weakRecPromises)
+    for (const r of weakRecResults) {
+      if (recommendations.length >= 2) break
+      if (!r) continue
+      recommendations.push({
+        ...r.item,
+        href:   `/${userId}/practice/${r.item.category}/${r.item.id}`,
+        reason: `${r.tonic}${r.mode === "minor" ? "短調" : "長調"}の強化に`,
+      })
     }
   }
+  console.log(`[PERF] home step4_recommendations: ${(performance.now() - perfStep4).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   // --- 直近の練習履歴（3件）---
-  const [recentPractice, recentScore] = await Promise.all([
-    prisma.practicePerformance.findMany({
-      where: { userId: internalUserId },
-      orderBy: { uploadedAt: "desc" },
-      take: 3,
-      select: {
-        uploadedAt: true,
-        practiceItem: { select: { title: true, category: true, id: true } },
-      },
-    }),
-    prisma.performance.findMany({
-      where: { userId: internalUserId },
-      orderBy: { uploadedAt: "desc" },
-      take: 3,
-      select: {
-        uploadedAt: true,
-        score: { select: { title: true, id: true } },
-      },
-    }),
-  ])
-
   type HistoryItem = {
     title: string
     href: string
     uploadedAt: string
   }
   const recentHistory: HistoryItem[] = [
-    ...recentPractice
+    ...recentPracticeHistory
       .filter(p => p.practiceItem)
       .map(p => ({
         title:      p.practiceItem!.title,
         href:       `/${userId}/practice/${p.practiceItem!.category}/${p.practiceItem!.id}`,
         uploadedAt: p.uploadedAt.toISOString(),
       })),
-    ...recentScore
+    ...recentScoreHistory
       .filter(p => p.score)
       .map(p => ({
         title:      p.score!.title,

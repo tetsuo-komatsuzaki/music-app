@@ -74,6 +74,13 @@ model Performance {
   score                Score             @relation(fields: [scoreId], references: [id])
   user                 User              @relation(fields: [userId], references: [id])
 
+  // ▼ 解析結果サマリー（段階3: ハイブリッド方式）
+  pitchAccuracy    Float?    // 0-100 ピッチ正確率（頻繁表示 → カラム）
+  timingAccuracy   Float?    // 0-100 タイミング正確率（頻繁表示 → カラム）
+  overallScore     Float?    // 0-100 総合スコア（pitch×0.6 + timing×0.4）
+  evaluatedNotes   Int?      // 評価対象ノート数
+  analysisSummary  Json?     // 将来の拡張用（ビブラート・弓使い・音色等）
+
   @@index([scoreId])
   @@index([userId, uploadedAt])
 }
@@ -104,16 +111,13 @@ enum PracticeCategory {
   etude
 }
 
-// ▼ 変更: Difficulty enum を削除 → difficulty は Int(1〜5) に変更
-
 model PracticeItem {
   id               String            @id @default(cuid())
   category         PracticeCategory
   title            String
-  composer         String?           // ▼ 追加
+  composer         String?
   description      String?
-  descriptionShort String?           // ▼ 追加
-  difficulty       Int               @default(1) // ▼ 変更: enum → Int（星1〜5）
+  descriptionShort String?
 
   keyTonic         String
   keyMode          String
@@ -142,7 +146,6 @@ model PracticeItem {
   practicePerformances     PracticePerformance[]
 
   @@index([category, keyTonic, keyMode])
-  @@index([category, difficulty])
   @@index([category, isPublished, sortOrder])
   @@index([ownerUserId])
 }
@@ -186,6 +189,13 @@ model PracticePerformance {
 
   user                 User              @relation(fields: [userId], references: [id])
   practiceItem         PracticeItem      @relation(fields: [practiceItemId], references: [id])
+
+  // ▼ 解析結果サマリー（段階3: ハイブリッド方式）
+  pitchAccuracy    Float?
+  timingAccuracy   Float?
+  overallScore     Float?
+  evaluatedNotes   Int?
+  analysisSummary  Json?
 
   @@index([userId, practiceItemId, uploadedAt])
   @@index([practiceItemId])

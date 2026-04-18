@@ -23,7 +23,7 @@ export default function UpdatePasswordPage() {
 
     setIsSubmitting(true)
 
-    const supabase = createSupabaseClient(window.localStorage)
+    const supabase = createSupabaseClient()
 
     const { error } = await supabase.auth.updateUser({
       password

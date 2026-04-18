@@ -21,7 +21,7 @@ export default async function CategoryPage({
   searchParams,
 }: {
   params: Promise<{ userId: string; category: string }>
-  searchParams: Promise<{ key?: string; difficulty?: string; position?: string }>
+  searchParams: Promise<{ key?: string; position?: string }>
 }) {
   const { userId, category } = await params
   const sp = await searchParams
@@ -38,9 +38,9 @@ export default async function CategoryPage({
     if (tonic) where.keyTonic = tonic
     if (mode) where.keyMode = mode
   }
-  if (sp.difficulty) where.difficulty = parseInt(sp.difficulty)
   if (sp.position) where.positions = { has: sp.position }
 
+  const perfStart = performance.now()
   const [items, allItemsForFilter, [recommendations, stats]] = await Promise.all([
     prisma.practiceItem.findMany({
       where,
@@ -58,16 +58,18 @@ export default async function CategoryPage({
         isPublished: true,
         OR: [{ ownerUserId: null }, { ownerUserId: userId }],
       },
-      select: { keyTonic: true, keyMode: true, difficulty: true, positions: true },
+      select: { keyTonic: true, keyMode: true, positions: true },
     }),
     Promise.all([
       getRecommendations(userId, dbCategory, 5),
       getPracticeStats(userId, dbCategory),
     ]),
   ])
+  console.log(`[PERF] practice/category step1_parallel: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   const itemIds = items.map((i) => i.id)
 
+  const perfStep2 = performance.now()
   const allPerformances = itemIds.length > 0
     ? await prisma.practicePerformance.findMany({
         where: { userId, practiceItemId: { in: itemIds } },
@@ -75,6 +77,7 @@ export default async function CategoryPage({
         orderBy: { uploadedAt: "desc" },
       })
     : []
+  console.log(`[PERF] practice/category step2_performances: ${(performance.now() - perfStep2).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   // アイテムIDごとに集計
   const perfByItem = new Map<string, { latest: Date | null; total: number }>()
@@ -100,7 +103,6 @@ export default async function CategoryPage({
       title: item.title,
       composer: item.composer,
       category: item.category,
-      difficulty: item.difficulty,
       keyTonic: item.keyTonic,
       keyMode: item.keyMode,
       positions: item.positions,
@@ -112,7 +114,6 @@ export default async function CategoryPage({
   })
 
   const keys = [...new Set(allItemsForFilter.map((i) => `${i.keyTonic}_${i.keyMode}`))]
-  const difficulties = [...new Set(allItemsForFilter.map((i) => i.difficulty))]
   const positions = [...new Set(allItemsForFilter.flatMap((i) => i.positions))]
 
   return (
@@ -121,7 +122,7 @@ export default async function CategoryPage({
       category={category}
       categoryTitle={categoryTitles[category] || category}
       items={itemsWithHistory}
-      filterOptions={{ keys, difficulties, positions }}
+      filterOptions={{ keys, positions }}
       currentFilters={sp}
       recommendations={recommendations}
       stats={stats}

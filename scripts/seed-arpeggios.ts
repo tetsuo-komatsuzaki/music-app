@@ -159,7 +159,6 @@ async function main() {
         composer,
         description,
         descriptionShort: descShort,
-        difficulty:       isNaN(difficulty) ? 1 : difficulty,
         keyTonic:         tonic,
         keyMode:          keyMode || "major",
         tempoMin,

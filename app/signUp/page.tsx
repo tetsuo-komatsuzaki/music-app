@@ -48,7 +48,7 @@ export default function loginPage() {
 
 
   const handleGoogleContinue = async () => {
-    const supabase = createSupabaseClient(window.localStorage)
+    const supabase = createSupabaseClient()
 
     await supabase.auth.signInWithOAuth({
       provider: "google",
