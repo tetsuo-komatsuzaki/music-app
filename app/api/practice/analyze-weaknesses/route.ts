@@ -2,15 +2,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
+import { requireAuthApi } from "@/app/_libs/requireAuth"
 
-export async function POST(request: NextRequest) {
-  const body = await request.json()
-  const userId = body.userId
-  if (!userId) return NextResponse.json({ error: "userId required" }, { status: 400 })
+export async function POST(_request: NextRequest) {
+  const auth = await requireAuthApi()
+  if (!auth.ok) return auth.response
+  const dbUserId = auth.user.dbUser.id
 
   // 直近20件の Performance の comparison_result を取得
   const performances = await prisma.performance.findMany({
-    where: { userId, comparisonResultPath: { not: null } },
+    where: { userId: dbUserId, comparisonResultPath: { not: null } },
     orderBy: { uploadedAt: "desc" },
     take: 20,
     include: { score: true },
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
 
   // PracticePerformance もまとめて取得
   const practicePerformances = await prisma.practicePerformance.findMany({
-    where: { userId, comparisonResultPath: { not: null } },
+    where: { userId: dbUserId, comparisonResultPath: { not: null } },
     orderBy: { uploadedAt: "desc" },
     take: 20,
     include: { practiceItem: true },
@@ -151,9 +152,9 @@ export async function POST(request: NextRequest) {
   // --- DBに保存（upsert） ---
   for (const w of weaknesses) {
     await prisma.userWeakness.upsert({
-      where: { userId_weaknessType_weaknessKey: { userId, weaknessType: w.type, weaknessKey: w.key } },
+      where: { userId_weaknessType_weaknessKey: { userId: dbUserId, weaknessType: w.type, weaknessKey: w.key } },
       update: { severity: w.severity, sampleCount: w.sampleCount, lastUpdated: new Date() },
-      create: { userId, weaknessType: w.type, weaknessKey: w.key, severity: w.severity, sampleCount: w.sampleCount },
+      create: { userId: dbUserId, weaknessType: w.type, weaknessKey: w.key, severity: w.severity, sampleCount: w.sampleCount },
     })
   }
 

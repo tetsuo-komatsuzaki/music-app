@@ -22,7 +22,7 @@ export default function Sidebar() {
   const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-    getUserRole(userId).then(role => {
+    getUserRole().then(role => {
       setIsAdmin(role === "admin")
     })
   }, [userId])

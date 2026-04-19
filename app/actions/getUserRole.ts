@@ -1,11 +1,13 @@
 "use server"
 
-import { prisma } from "@/app/_libs/prisma"
+import { requireAuthAction } from "@/app/_libs/requireAuth"
 
-export async function getUserRole(supabaseUserId: string): Promise<string | null> {
-  const user = await prisma.user.findUnique({
-    where: { supabaseUserId },
-    select: { role: true },
-  })
-  return user?.role ?? null
+/**
+ * 認証済みユーザー自身のロールを返す。
+ * 引数は受け取らず、auth.getUser() で確認した本人のロールのみ開示する。
+ */
+export async function getUserRole(): Promise<string | null> {
+  const result = await requireAuthAction()
+  if (!result.ok) return null
+  return result.user.dbUser.role
 }

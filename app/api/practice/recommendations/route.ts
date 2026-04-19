@@ -2,15 +2,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
+import { requireAuthApi } from "@/app/_libs/requireAuth"
 
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
-  const userId = searchParams.get("userId")
-  if (!userId) return NextResponse.json({ error: "userId required" }, { status: 400 })
+export async function GET(_request: NextRequest) {
+  const auth = await requireAuthApi()
+  if (!auth.ok) return auth.response
+  const dbUserId = auth.user.dbUser.id
 
   // --- 楽譜ベースのレコメンド ---
   const scores = await prisma.score.findMany({
-    where: { createdById: userId },
+    where: { createdById: dbUserId },
     orderBy: { createdAt: "desc" },
     take: 5,
     select: { id: true, title: true, keyTonic: true, keyMode: true, defaultTempo: true },
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
         keyMode: score.keyMode ?? "major",
         category: { in: ["scale", "arpeggio"] },
         isPublished: true,
-        OR: [{ ownerUserId: null }, { ownerUserId: userId }],
+        OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
       },
       take: 3,
       orderBy: { title: "asc" },
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
 
     // MusicXMLタグベースのエチュード
     try {
-      const analysisPath = `${userId}/${score.id}/analysis.json`
+      const analysisPath = `${dbUserId}/${score.id}/analysis.json`
       const { data } = await storageAdmin.storage.from("musicxml").createSignedUrl(analysisPath, 30)
       if (data?.signedUrl) {
         const res = await fetch(data.signedUrl)
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
           if (xmlTags.length > 0) {
             const etudeItems = await prisma.practiceItem.findMany({
               where: {
-                category: "etude", isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: userId }],
+                category: "etude", isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
                 techniques: { some: { techniqueTag: { xmlTags: { hasSome: xmlTags }, implementStatus: "実装" } } },
               },
               take: 3,
@@ -75,7 +76,7 @@ export async function GET(request: NextRequest) {
 
   // --- 弱点ベースのレコメンド ---
   const weaknesses = await prisma.userWeakness.findMany({
-    where: { userId },
+    where: { userId: dbUserId },
     orderBy: { severity: "desc" },
     take: 5,
     include: { techniqueTag: true },
@@ -90,7 +91,7 @@ export async function GET(request: NextRequest) {
       case "key_area": {
         const [tonic, mode] = w.weaknessKey.split("_")
         items = await prisma.practiceItem.findMany({
-          where: { keyTonic: tonic, keyMode: mode, category: { in: ["scale", "arpeggio"] }, isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: userId }] },
+          where: { keyTonic: tonic, keyMode: mode, category: { in: ["scale", "arpeggio"] }, isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }] },
           take: 3, select: { id: true, title: true, category: true },
         })
         const modeName = mode === "major" ? "長調" : "短調"
@@ -100,7 +101,7 @@ export async function GET(request: NextRequest) {
       case "pitch_range": {
         const rangeLabel: Record<string, string> = { low: "低音域", mid: "中音域", high: "高音域", very_high: "超高音域" }
         items = await prisma.practiceItem.findMany({
-          where: { category: { in: ["scale", "etude"] }, isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: userId }], positions: { hasSome: ["3rd", "5th", "7th"] } },
+          where: { category: { in: ["scale", "etude"] }, isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }], positions: { hasSome: ["3rd", "5th", "7th"] } },
           take: 3, select: { id: true, title: true, category: true },
         })
         reason = `${rangeLabel[w.weaknessKey] || w.weaknessKey}でピッチが不安定です`
@@ -108,7 +109,7 @@ export async function GET(request: NextRequest) {
       }
       case "timing": {
         items = await prisma.practiceItem.findMany({
-          where: { category: "etude", isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: userId }], techniques: { some: { techniqueTag: { name: { in: ["デタシェ", "マルテレ", "スタッカート"] } } } } },
+          where: { category: "etude", isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }], techniques: { some: { techniqueTag: { name: { in: ["デタシェ", "マルテレ", "スタッカート"] } } } } },
           take: 3, select: { id: true, title: true, category: true },
         })
         reason = `タイミングの精度に課題があります（エラー率${Math.round(w.severity * 100)}%）`
@@ -117,7 +118,7 @@ export async function GET(request: NextRequest) {
       case "technique": {
         if (w.techniqueTagId) {
           items = await prisma.practiceItem.findMany({
-            where: { isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: userId }], techniques: { some: { techniqueTagId: w.techniqueTagId } } },
+            where: { isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }], techniques: { some: { techniqueTagId: w.techniqueTagId } } },
             take: 3, select: { id: true, title: true, category: true },
           })
           reason = `${w.techniqueTag?.name || "特定の技法"}が苦手です（エラー率${Math.round(w.severity * 100)}%）`

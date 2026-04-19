@@ -265,6 +265,12 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+exports.Role = exports.$Enums.Role = {
+  student: 'student',
+  teacher: 'teacher',
+  admin: 'admin'
+};
+
 exports.JobStatus = exports.$Enums.JobStatus = {
   processing: 'processing',
   done: 'done',

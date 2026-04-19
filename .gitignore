@@ -1,6 +1,9 @@
 node_modules
-# Keep environment variables out of version control
-.env
+
+# env files (secrets)
+.env*
+!.env.example
+
 .next
 
 /generated/prisma
@@ -9,3 +12,6 @@ __pycache__/
 *.pyc
 prisma/data/mxl/
 prisma/data/mxl_arpeggio/
+
+# MCP
+.mcp.json

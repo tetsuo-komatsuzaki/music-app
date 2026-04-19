@@ -1,14 +1,17 @@
 // app/api/practice/items/[itemId]/route.ts
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
+import { requireAuthApi } from "@/app/_libs/requireAuth"
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ itemId: string }> }
 ) {
   const { itemId } = await params
-  const { searchParams } = new URL(request.url)
-  const userId = searchParams.get("userId")
+
+  const auth = await requireAuthApi()
+  if (!auth.ok) return auth.response
+  const dbUserId = auth.user.dbUser.id
 
   const item = await prisma.practiceItem.findUnique({
     where: { id: itemId },
@@ -23,13 +26,15 @@ export async function GET(
     },
   })
 
-  if (!item) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 })
-  }
+  // アクセス制御（エンティティ列挙防止のため全て 404 を返す）:
+  // - 存在しない
+  // - 未公開かつ所有者以外（未公開の運営サンプルを含む）
+  // - 他者所有
+  const isOwner = item?.ownerUserId === dbUserId
+  const isPublicPublished = item?.ownerUserId === null && item.isPublished === true
 
-  // アクセス制御: ownerUserIdがある場合、本人のみ閲覧可
-  if (item.ownerUserId && item.ownerUserId !== userId) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  if (!item || (!isOwner && !isPublicPublished)) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
 
   return NextResponse.json(item)

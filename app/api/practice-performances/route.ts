@@ -1,21 +1,23 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
+import { requireAuthApi } from "@/app/_libs/requireAuth"
 
 export async function GET(request: NextRequest) {
+  const auth = await requireAuthApi()
+  if (!auth.ok) return auth.response
+  const dbUserId = auth.user.dbUser.id
+
   const { searchParams } = new URL(request.url)
   const practiceItemId = searchParams.get("practiceItemId")
-  const userId = searchParams.get("userId")
   const limit = Number(searchParams.get("limit") ?? "50")
 
-  if (!practiceItemId || !userId) return NextResponse.json({ error: "practiceItemId and userId required" }, { status: 400 })
-
-  // Supabase UID → Prisma内部ID変換
-  const dbUser = await prisma.user.findUnique({ where: { supabaseUserId: userId } })
-  if (!dbUser) return NextResponse.json([])
+  if (!practiceItemId) {
+    return NextResponse.json({ error: "practiceItemId required" }, { status: 400 })
+  }
 
   const performances = await prisma.practicePerformance.findMany({
-    where: { practiceItemId, userId: dbUser.id },
+    where: { practiceItemId, userId: dbUserId },
     orderBy: { uploadedAt: "desc" },
     take: limit,
     select: {

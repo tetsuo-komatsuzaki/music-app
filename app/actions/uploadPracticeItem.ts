@@ -3,11 +3,13 @@ import { prisma } from "@/app/_libs/prisma"
 import { createClient } from "@supabase/supabase-js"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { revalidatePath } from "next/cache"
+import { runPythonScript } from "@/app/_libs/pythonRunner"
+import type { PracticeCategory } from "@/app/generated/prisma"
 
 export async function uploadPracticeItem(formData: FormData) {
   console.log("▶ uploadPracticeItem START")
 
-  // 管理者チェック
+  // 管理者チェック（Role enum で "student"|"teacher"|"admin" に限定済）
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: "ログインが必要です" }
@@ -18,27 +20,32 @@ export async function uploadPracticeItem(formData: FormData) {
   if (!dbUser || dbUser.role !== "admin") return { error: "管理者権限が必要です" }
 
   // フォームデータ取得
-  const file = formData.get("file") as File
-  const title = formData.get("title") as string
-  const composer = formData.get("composer") as string || null
-  const category = formData.get("category") as string
-  const keyTonic = formData.get("keyTonic") as string
-  const keyMode = formData.get("keyMode") as string
+  // 入力値は trim する（前後空白が create 時のバリデーションや path 組み立てで
+  // 予期しない挙動を招くのを防ぐ）
+  const file = formData.get("file") as File | null
+  const title = (formData.get("title") as string | null)?.trim() ?? ""
+  const composer = (formData.get("composer") as string | null)?.trim() || null
+  const category = (formData.get("category") as string | null)?.trim() ?? ""
+  const keyTonic = (formData.get("keyTonic") as string | null)?.trim() ?? ""
+  const keyMode = (formData.get("keyMode") as string | null)?.trim() ?? ""
   const tempoMin = parseInt(formData.get("tempoMin") as string) || null
   const tempoMax = parseInt(formData.get("tempoMax") as string) || null
   const positions = JSON.parse(formData.get("positions") as string || "[]")
   const techniques = JSON.parse(formData.get("techniques") as string || "[]")
-  const description = formData.get("description") as string || null
-  const descriptionShort = formData.get("descriptionShort") as string || null
+  const description = (formData.get("description") as string | null)?.trim() || null
+  const descriptionShort = (formData.get("descriptionShort") as string | null)?.trim() || null
 
   if (!file || !title || !category || !keyTonic || !keyMode) {
     return { error: "必須項目が不足しています" }
   }
 
-  // PracticeItem レコード作成
+  // TODO(Phase 2): category は現状 `as PracticeCategory` で Prisma にキャスト渡し。
+  //                不正値は Prisma create 時に例外になるが、事前に enum 集合で
+  //                ランタイム検証して 400 を返す方がユーザー体感エラーが親切。
+  //                例: if (!["scale","arpeggio","etude"].includes(category)) ...
   const item = await prisma.practiceItem.create({
     data: {
-      category: category as any,
+      category: category as PracticeCategory,
       title,
       composer,
       description,
@@ -56,6 +63,7 @@ export async function uploadPracticeItem(formData: FormData) {
   })
 
   // Storage にアップロード
+  // item.id は Prisma 生成の cuid なので path に使って安全
   const storagePath = `practice/${item.id}/original.musicxml`
   const buffer = Buffer.from(await file.arrayBuffer())
 
@@ -73,7 +81,6 @@ export async function uploadPracticeItem(formData: FormData) {
     return { error: `アップロード失敗: ${uploadError.message}` }
   }
 
-  // originalXmlPath を更新
   await prisma.practiceItem.update({
     where: { id: item.id },
     data: { originalXmlPath: storagePath },
@@ -90,26 +97,30 @@ export async function uploadPracticeItem(formData: FormData) {
     })
   }
 
-  // analyze_musicxml.py + build_score.py を実行（バックグラウンド）
+  // Python 解析（spawn + 2段階環境変数）
+  // Python無効（本番など）なら analysisStatus="processing" のまま。
+  // エラーマークしない = 後処理インフラでの再解析可能な状態を維持。
   try {
-    const { exec } = require("child_process")
-    const { promisify } = require("util")
-    const execAsync = promisify(exec)
+    const r1 = await runPythonScript("../music-analyzer/analyze_musicxml.py", [
+      "--practice-item",
+      item.id,
+    ])
+    if (r1.status === "skipped") {
+      // TODO(Phase 2): Python 無効環境では analysisStatus="processing" が永続化する。
+      //                バックグラウンドジョブ基盤が整ったら skipped → queued 等の
+      //                専用ステータスへ。現状は手動監査 + 手動再解析で対応想定。
+      console.warn(
+        `[uploadPracticeItem] Python skipped, item ${item.id} remains in "processing" state`
+      )
+      revalidatePath("/admin/practice")
+      return { success: true, itemId: item.id }
+    }
 
-    const PYTHON_PATH =
-      "C:/Users/tetsu/OneDrive/Desktop/shiftB/music-app/music-analyzer/venv/Scripts/python.exe"
+    await runPythonScript("../music-analyzer/build_score.py", [
+      "--practice-item",
+      item.id,
+    ])
 
-    // analysis.json 生成
-    await execAsync(
-      `"${PYTHON_PATH}" ../music-analyzer/analyze_musicxml.py --practice-item ${item.id}`
-    )
-
-    // 表示用 MusicXML 生成
-    await execAsync(
-      `"${PYTHON_PATH}" ../music-analyzer/build_score.py --practice-item ${item.id}`
-    )
-
-    // ステータス更新
     await prisma.practiceItem.update({
       where: { id: item.id },
       data: {

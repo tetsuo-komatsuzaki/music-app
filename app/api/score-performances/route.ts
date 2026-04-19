@@ -1,21 +1,23 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
+import { requireAuthApi } from "@/app/_libs/requireAuth"
 
 export async function GET(request: NextRequest) {
+  const auth = await requireAuthApi()
+  if (!auth.ok) return auth.response
+  const dbUserId = auth.user.dbUser.id
+
   const { searchParams } = new URL(request.url)
   const scoreId = searchParams.get("scoreId")
-  const userId = searchParams.get("userId")
   const limit = Number(searchParams.get("limit") ?? "50")
 
-  if (!scoreId || !userId) return NextResponse.json({ error: "scoreId and userId required" }, { status: 400 })
-
-  // Supabase UID → Prisma内部ID変換
-  const dbUser = await prisma.user.findUnique({ where: { supabaseUserId: userId } })
-  if (!dbUser) return NextResponse.json([])
+  if (!scoreId) {
+    return NextResponse.json({ error: "scoreId required" }, { status: 400 })
+  }
 
   const performances = await prisma.performance.findMany({
-    where: { scoreId, userId: dbUser.id },
+    where: { scoreId, userId: dbUserId },
     orderBy: { uploadedAt: "desc" },
     take: limit,
     select: {
@@ -39,7 +41,6 @@ export async function GET(request: NextRequest) {
         .createSignedUrl(p.audioPath, 3600)
         .then(r => r.data?.signedUrl ?? null)
 
-      // サマリーがDBにあれば comparison_result.json の fetch は不要
       if (p.pitchAccuracy != null) {
         return {
           id: p.id,
@@ -56,7 +57,6 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      // DBにサマリーがない場合は従来通り fetch
       const compJson = p.comparisonResultPath
         ? await storageAdmin.storage
             .from("performances")
