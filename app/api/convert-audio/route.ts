@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { writeFile, unlink, readFile, mkdir } from "fs/promises"
 import { join } from "path"
+import { tmpdir } from "os"
 import { exec } from "child_process"
 import { promisify } from "util"
 import { randomUUID } from "crypto"
@@ -28,19 +29,19 @@ const ALLOWED_CONTENT_TYPES = new Set<string>([
 //   - Vercel の関数実行時間課金への DoS 対策
 
 function getFfmpegPath(): string {
-  const cwdPath = join(process.cwd(), "node_modules", "ffmpeg-static", "ffmpeg.exe")
-  try {
-    const { existsSync } = require("fs")
-    if (existsSync(cwdPath)) return cwdPath
-  } catch { /* ignore */ }
-
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const ffmpegStatic = require("ffmpeg-static")
-    return typeof ffmpegStatic === "string" ? ffmpegStatic : (ffmpegStatic.default ?? ffmpegStatic)
-  } catch {
-    return "ffmpeg"
+  // ffmpeg-static は OS に応じて適切なバイナリパスを返す
+  // (Windows: ffmpeg.exe, Linux/Mac: ffmpeg)
+  // Vercel バンドルに含めるには next.config.ts の outputFileTracingIncludes 設定が必須
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const ffmpegStatic = require("ffmpeg-static")
+  const path =
+    typeof ffmpegStatic === "string"
+      ? ffmpegStatic
+      : (ffmpegStatic?.default ?? ffmpegStatic)
+  if (!path || typeof path !== "string") {
+    throw new Error("ffmpeg-static did not return a valid binary path")
   }
+  return path
 }
 
 export async function POST(request: NextRequest) {
@@ -79,7 +80,9 @@ export async function POST(request: NextRequest) {
 
   const buffer = Buffer.from(await audioEntry.arrayBuffer())
   const tempId = randomUUID()
-  const tempDir = join(process.cwd(), "tmp")
+  // Vercel サーバーレス関数は /tmp のみ書き込み可能
+  // os.tmpdir() は環境ごとに適切な値を返す (Linux: /tmp, Windows: %TEMP%)
+  const tempDir = tmpdir()
   await mkdir(tempDir, { recursive: true })
 
   const inputPath = join(tempDir, `${tempId}.webm`)
