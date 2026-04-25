@@ -375,6 +375,37 @@ ENABLE_PYTHON_ANALYSIS=false
 - 新キー発行は不要（アプリ本体で未使用）
 - `.env` から該当行を削除済
 
+### 2026-04-25: Vercel 初回デプロイで遭遇した4段階の問題
+
+初回 Vercel デプロイ時に、本番環境特有の問題に4段階で遭遇:
+
+1. **Windows 専用 ffmpeg.exe ハードコード**
+   → ffmpeg-static の OS 別パス解決を活用（commit 6eee854）
+
+2. **`process.cwd()/tmp` は Vercel で書き込み不可**
+   → `os.tmpdir()` への切り替え（Vercel: `/tmp`）（commit 6eee854）
+
+3. **Next.js workspace root 誤推定（OneDrive 親 lockfile が原因）**
+   → `outputFileTracingRoot: process.cwd()` で明示固定（commit 5a678b4）
+
+4. **ffmpeg-static の `__dirname` がバンドラーで `/ROOT/...` に書き換え**
+   → `serverExternalPackages: ["ffmpeg-static"]` でバンドル対象から除外
+   → 本コミットで対応、Vercel での動作確認は別途実施予定
+
+**学び**:
+- ローカルで動く ≠ Vercel で動く
+- ネイティブバイナリ依存のパッケージは `serverExternalPackages` を検討
+- 段階的なエラー解決が必要、推測修正は禁物
+- エラー本文を必ず取得してから対応（DevTools Network タブが最速）
+
+**インフラ判断**:
+- Vercel Hobby (50MB 制限) では ffmpeg バイナリ (70-80MB) を含められないため、Pro プラン (250MB 制限) へアップグレード
+- 月次の Vercel 請求を監視、コスト最適化の機会があれば検討
+
+**動作確認状況**:
+- 1, 2, 3 はローカルビルドで効果確認済み
+- 4 は本コミット時点で push 直前。Vercel 動作確認は次デプロイで実施
+
 ### （今後のインシデント記録スペース）
 
 ```

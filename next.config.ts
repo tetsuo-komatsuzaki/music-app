@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
   // 壊れる問題を回避）。process.cwd() は next CLI 起動時のプロジェクトルート。
   outputFileTracingRoot: process.cwd(),
 
+  // ffmpeg-static を Next.js のバンドル対象から除外し、runtime で require する。
+  // これによりパッケージ内 __dirname が正しく解決され、ffmpeg バイナリへのパスが
+  // バンドラーによって /ROOT/... に書き換えられる問題を回避。
+  serverExternalPackages: ["ffmpeg-static"],
+
   // Vercel のサーバーレス関数バンドルに ffmpeg-static のバイナリを含める
   // (デフォルトでは native binary が tracing から外れて含まれない)
   // 注: ** ではなく **/* を使うことでファイルも明示的に対象に含める
