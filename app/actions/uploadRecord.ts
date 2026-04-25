@@ -27,10 +27,11 @@ export async function uploadRecord(formData: FormData) {
   })
   if (!dbUser) return { error: "User未登録" }
 
-  // Score の所有者検証（他者Scoreへの紐付け防止）
-  // 存在しない or 他者所有 → エンティティ列挙防止で同一エラー文言
-  const score = await prisma.score.findUnique({
-    where: { id: scoreId },
+  // Score の所有者検証（他者Scoreへの紐付け防止 + 論理削除済みは拒否）
+  // 存在しない or 他者所有 or 削除済 → エンティティ列挙防止で同一エラー文言
+  // 修正1: findFirst を使用 (findUnique では where に deletedAt 等の非unique条件を入れられないため)
+  const score = await prisma.score.findFirst({
+    where: { id: scoreId, deletedAt: null },
     select: { id: true, createdById: true },
   })
   if (!score || score.createdById !== dbUser.id) {

@@ -42,7 +42,7 @@ export async function getRecommendations(
       orderBy: { uploadedAt: "desc" },
     }),
     prisma.score.findMany({
-      where: { createdById: userId },
+      where: { createdById: userId, deletedAt: null },
       select: { keyTonic: true },
       orderBy: { createdAt: "desc" },
       take: 5,

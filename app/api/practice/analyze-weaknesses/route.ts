@@ -10,8 +10,13 @@ export async function POST(_request: NextRequest) {
   const dbUserId = auth.user.dbUser.id
 
   // 直近20件の Performance の comparison_result を取得
+  // 削除済みスコア (Score.deletedAt != null) の Performance は弱点分析の対象から除外
   const performances = await prisma.performance.findMany({
-    where: { userId: dbUserId, comparisonResultPath: { not: null } },
+    where: {
+      userId: dbUserId,
+      comparisonResultPath: { not: null },
+      score: { deletedAt: null },
+    },
     orderBy: { uploadedAt: "desc" },
     take: 20,
     include: { score: true },

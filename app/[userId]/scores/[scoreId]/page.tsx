@@ -14,9 +14,10 @@ export default async function Page({
   const perfStart = performance.now()
 
   // dbUser と score を並列で取得
+  // 修正1: findFirst を使用 (findUnique では where に deletedAt 等の非unique条件を入れられないため)
   const [dbUser, score] = await Promise.all([
     prisma.user.findUnique({ where: { supabaseUserId: userId } }),
-    prisma.score.findUnique({ where: { id: scoreId } }),
+    prisma.score.findFirst({ where: { id: scoreId, deletedAt: null } }),
   ])
   console.log(`[PERF] scores/detail step1_dbUser+score: ${(performance.now() - perfStart).toFixed(0)}ms`)
 

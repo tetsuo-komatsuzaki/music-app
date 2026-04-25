@@ -18,7 +18,7 @@ export default async function PracticePage({
 
   // ユーザーの楽曲（レコメンド用）
   const scores = await prisma.score.findMany({
-    where: { createdById: userId },
+    where: { createdById: userId, deletedAt: null },
     orderBy: { createdAt: "desc" },
     take: 5,
     select: { id: true, title: true, keyTonic: true, keyMode: true, defaultTempo: true },

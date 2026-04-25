@@ -7,6 +7,7 @@ import Link from "next/link"
 import UploadModal from "../components/UploadModal"
 import { uploadScore } from "@/app/actions/uploadScore"
 import { updateScoreTitle } from "@/app/actions/updateScore"
+import { deleteScore } from "@/app/actions/deleteScore"
 import { ScoreView } from "@/app/types/score"
 
 
@@ -29,6 +30,10 @@ export default function ScoresClient({
   const [renameInput, setRenameInput] = useState("")
   const [renameError, setRenameError] = useState<string | null>(null)
   const [isRenaming, startRenameTransition] = useTransition()
+
+  // 削除処理用 state
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [isDeleting, startDeleteTransition] = useTransition()
 
   const dropdownRef = useRef<HTMLDivElement | null>(null)
 
@@ -97,6 +102,25 @@ export default function ScoresClient({
       e.preventDefault()
       handleCancelRename()
     }
+  }
+
+  // 削除実行 (確認ダイアログ → Server Action → 一覧再取得)
+  const handleDelete = (score: ScoreView) => {
+    if (isDeleting) return
+    const ok = window.confirm(`「${score.title}」を削除します。よろしいですか？`)
+    if (!ok) return
+    setDeletingId(score.id)
+    setEditingId(null)  // dropdown を閉じる
+    startDeleteTransition(async () => {
+      const result = await deleteScore(score.id)
+      if (!result.ok) {
+        window.alert(result.error)
+        setDeletingId(null)
+        return
+      }
+      setDeletingId(null)
+      router.refresh()
+    })
   }
 
 
@@ -224,8 +248,13 @@ export default function ScoresClient({
                       >
                         楽曲名を変更
                       </button>
-                      <button className={styles.deleteBtn}>
-                        削除
+                      <button
+                        type="button"
+                        className={styles.deleteBtn}
+                        onClick={() => handleDelete(score)}
+                        disabled={isDeleting && deletingId === score.id}
+                      >
+                        {isDeleting && deletingId === score.id ? "削除中..." : "削除"}
                       </button>
                     </div>
                   )}

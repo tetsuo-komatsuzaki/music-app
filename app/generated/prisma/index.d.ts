@@ -3003,6 +3003,7 @@ export namespace Prisma {
     defaultTempo: number | null
     isShared: boolean | null
     createdAt: Date | null
+    deletedAt: Date | null
   }
 
   export type ScoreMaxAggregateOutputType = {
@@ -3027,6 +3028,7 @@ export namespace Prisma {
     defaultTempo: number | null
     isShared: boolean | null
     createdAt: Date | null
+    deletedAt: Date | null
   }
 
   export type ScoreCountAggregateOutputType = {
@@ -3051,6 +3053,7 @@ export namespace Prisma {
     defaultTempo: number
     isShared: number
     createdAt: number
+    deletedAt: number
     _all: number
   }
 
@@ -3091,6 +3094,7 @@ export namespace Prisma {
     defaultTempo?: true
     isShared?: true
     createdAt?: true
+    deletedAt?: true
   }
 
   export type ScoreMaxAggregateInputType = {
@@ -3115,6 +3119,7 @@ export namespace Prisma {
     defaultTempo?: true
     isShared?: true
     createdAt?: true
+    deletedAt?: true
   }
 
   export type ScoreCountAggregateInputType = {
@@ -3139,6 +3144,7 @@ export namespace Prisma {
     defaultTempo?: true
     isShared?: true
     createdAt?: true
+    deletedAt?: true
     _all?: true
   }
 
@@ -3250,6 +3256,7 @@ export namespace Prisma {
     defaultTempo: number | null
     isShared: boolean
     createdAt: Date
+    deletedAt: Date | null
     _count: ScoreCountAggregateOutputType | null
     _avg: ScoreAvgAggregateOutputType | null
     _sum: ScoreSumAggregateOutputType | null
@@ -3293,6 +3300,7 @@ export namespace Prisma {
     defaultTempo?: boolean
     isShared?: boolean
     createdAt?: boolean
+    deletedAt?: boolean
     performances?: boolean | Score$performancesArgs<ExtArgs>
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
     _count?: boolean | ScoreCountOutputTypeDefaultArgs<ExtArgs>
@@ -3320,6 +3328,7 @@ export namespace Prisma {
     defaultTempo?: boolean
     isShared?: boolean
     createdAt?: boolean
+    deletedAt?: boolean
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["score"]>
 
@@ -3345,6 +3354,7 @@ export namespace Prisma {
     defaultTempo?: boolean
     isShared?: boolean
     createdAt?: boolean
+    deletedAt?: boolean
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["score"]>
 
@@ -3370,9 +3380,10 @@ export namespace Prisma {
     defaultTempo?: boolean
     isShared?: boolean
     createdAt?: boolean
+    deletedAt?: boolean
   }
 
-  export type ScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdById" | "title" | "composer" | "arranger" | "originalXmlPath" | "generatedXmlPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "keyTonic" | "keyMode" | "timeNumerator" | "timeDenominator" | "defaultTempo" | "isShared" | "createdAt", ExtArgs["result"]["score"]>
+  export type ScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdById" | "title" | "composer" | "arranger" | "originalXmlPath" | "generatedXmlPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "keyTonic" | "keyMode" | "timeNumerator" | "timeDenominator" | "defaultTempo" | "isShared" | "createdAt" | "deletedAt", ExtArgs["result"]["score"]>
   export type ScoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     performances?: boolean | Score$performancesArgs<ExtArgs>
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
@@ -3413,6 +3424,7 @@ export namespace Prisma {
       defaultTempo: number | null
       isShared: boolean
       createdAt: Date
+      deletedAt: Date | null
     }, ExtArgs["result"]["score"]>
     composites: {}
   }
@@ -3859,6 +3871,7 @@ export namespace Prisma {
     readonly defaultTempo: FieldRef<"Score", 'Int'>
     readonly isShared: FieldRef<"Score", 'Boolean'>
     readonly createdAt: FieldRef<"Score", 'DateTime'>
+    readonly deletedAt: FieldRef<"Score", 'DateTime'>
   }
     
 
@@ -11813,7 +11826,8 @@ export namespace Prisma {
     timeDenominator: 'timeDenominator',
     defaultTempo: 'defaultTempo',
     isShared: 'isShared',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    deletedAt: 'deletedAt'
   };
 
   export type ScoreScalarFieldEnum = (typeof ScoreScalarFieldEnum)[keyof typeof ScoreScalarFieldEnum]
@@ -12243,6 +12257,7 @@ export namespace Prisma {
     defaultTempo?: IntNullableFilter<"Score"> | number | null
     isShared?: BoolFilter<"Score"> | boolean
     createdAt?: DateTimeFilter<"Score"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Score"> | Date | string | null
     performances?: PerformanceListRelationFilter
     createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
@@ -12269,6 +12284,7 @@ export namespace Prisma {
     defaultTempo?: SortOrderInput | SortOrder
     isShared?: SortOrder
     createdAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
     performances?: PerformanceOrderByRelationAggregateInput
     createdBy?: UserOrderByWithRelationInput
   }
@@ -12298,6 +12314,7 @@ export namespace Prisma {
     defaultTempo?: IntNullableFilter<"Score"> | number | null
     isShared?: BoolFilter<"Score"> | boolean
     createdAt?: DateTimeFilter<"Score"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Score"> | Date | string | null
     performances?: PerformanceListRelationFilter
     createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id" | "idempotencyKey">
@@ -12324,6 +12341,7 @@ export namespace Prisma {
     defaultTempo?: SortOrderInput | SortOrder
     isShared?: SortOrder
     createdAt?: SortOrder
+    deletedAt?: SortOrderInput | SortOrder
     _count?: ScoreCountOrderByAggregateInput
     _avg?: ScoreAvgOrderByAggregateInput
     _max?: ScoreMaxOrderByAggregateInput
@@ -12356,6 +12374,7 @@ export namespace Prisma {
     defaultTempo?: IntNullableWithAggregatesFilter<"Score"> | number | null
     isShared?: BoolWithAggregatesFilter<"Score"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Score"> | Date | string
+    deletedAt?: DateTimeNullableWithAggregatesFilter<"Score"> | Date | string | null
   }
 
   export type PerformanceWhereInput = {
@@ -13131,6 +13150,7 @@ export namespace Prisma {
     defaultTempo?: number | null
     isShared?: boolean
     createdAt?: Date | string
+    deletedAt?: Date | string | null
     performances?: PerformanceCreateNestedManyWithoutScoreInput
     createdBy: UserCreateNestedOneWithoutScoresInput
   }
@@ -13157,6 +13177,7 @@ export namespace Prisma {
     defaultTempo?: number | null
     isShared?: boolean
     createdAt?: Date | string
+    deletedAt?: Date | string | null
     performances?: PerformanceUncheckedCreateNestedManyWithoutScoreInput
   }
 
@@ -13181,6 +13202,7 @@ export namespace Prisma {
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUpdateManyWithoutScoreNestedInput
     createdBy?: UserUpdateOneRequiredWithoutScoresNestedInput
   }
@@ -13207,6 +13229,7 @@ export namespace Prisma {
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUncheckedUpdateManyWithoutScoreNestedInput
   }
 
@@ -13232,6 +13255,7 @@ export namespace Prisma {
     defaultTempo?: number | null
     isShared?: boolean
     createdAt?: Date | string
+    deletedAt?: Date | string | null
   }
 
   export type ScoreUpdateManyMutationInput = {
@@ -13255,6 +13279,7 @@ export namespace Prisma {
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ScoreUncheckedUpdateManyInput = {
@@ -13279,6 +13304,7 @@ export namespace Prisma {
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type PerformanceCreateInput = {
@@ -14309,6 +14335,7 @@ export namespace Prisma {
     defaultTempo?: SortOrder
     isShared?: SortOrder
     createdAt?: SortOrder
+    deletedAt?: SortOrder
   }
 
   export type ScoreAvgOrderByAggregateInput = {
@@ -14340,6 +14367,7 @@ export namespace Prisma {
     defaultTempo?: SortOrder
     isShared?: SortOrder
     createdAt?: SortOrder
+    deletedAt?: SortOrder
   }
 
   export type ScoreMinOrderByAggregateInput = {
@@ -14364,6 +14392,7 @@ export namespace Prisma {
     defaultTempo?: SortOrder
     isShared?: SortOrder
     createdAt?: SortOrder
+    deletedAt?: SortOrder
   }
 
   export type ScoreSumOrderByAggregateInput = {
@@ -16102,6 +16131,7 @@ export namespace Prisma {
     defaultTempo?: number | null
     isShared?: boolean
     createdAt?: Date | string
+    deletedAt?: Date | string | null
     performances?: PerformanceCreateNestedManyWithoutScoreInput
   }
 
@@ -16126,6 +16156,7 @@ export namespace Prisma {
     defaultTempo?: number | null
     isShared?: boolean
     createdAt?: Date | string
+    deletedAt?: Date | string | null
     performances?: PerformanceUncheckedCreateNestedManyWithoutScoreInput
   }
 
@@ -16382,6 +16413,7 @@ export namespace Prisma {
     defaultTempo?: IntNullableFilter<"Score"> | number | null
     isShared?: BoolFilter<"Score"> | boolean
     createdAt?: DateTimeFilter<"Score"> | Date | string
+    deletedAt?: DateTimeNullableFilter<"Score"> | Date | string | null
   }
 
   export type PracticeItemUpsertWithWhereUniqueWithoutOwnerInput = {
@@ -16676,6 +16708,7 @@ export namespace Prisma {
     defaultTempo?: number | null
     isShared?: boolean
     createdAt?: Date | string
+    deletedAt?: Date | string | null
     createdBy: UserCreateNestedOneWithoutScoresInput
   }
 
@@ -16701,6 +16734,7 @@ export namespace Prisma {
     defaultTempo?: number | null
     isShared?: boolean
     createdAt?: Date | string
+    deletedAt?: Date | string | null
   }
 
   export type ScoreCreateOrConnectWithoutPerformancesInput = {
@@ -16773,6 +16807,7 @@ export namespace Prisma {
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdBy?: UserUpdateOneRequiredWithoutScoresNestedInput
   }
 
@@ -16798,6 +16833,7 @@ export namespace Prisma {
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UserUpsertWithoutPerformancesInput = {
@@ -17719,6 +17755,7 @@ export namespace Prisma {
     defaultTempo?: number | null
     isShared?: boolean
     createdAt?: Date | string
+    deletedAt?: Date | string | null
   }
 
   export type PracticeItemCreateManyOwnerInput = {
@@ -17881,6 +17918,7 @@ export namespace Prisma {
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUpdateManyWithoutScoreNestedInput
   }
 
@@ -17905,6 +17943,7 @@ export namespace Prisma {
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUncheckedUpdateManyWithoutScoreNestedInput
   }
 
@@ -17929,6 +17968,7 @@ export namespace Prisma {
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type PracticeItemUpdateWithoutOwnerInput = {

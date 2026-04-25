@@ -101,7 +101,7 @@ export default async function HomePage({ params }: PageProps) {
       },
     }),
     prisma.performance.findFirst({
-      where: { userId: internalUserId },
+      where: { userId: internalUserId, score: { deletedAt: null } },
       orderBy: { uploadedAt: "desc" },
       select: {
         uploadedAt: true,
@@ -120,7 +120,7 @@ export default async function HomePage({ params }: PageProps) {
     prisma.practiceItem.count({ where: { isPublished: true } }),
     // レコメンド用
     prisma.score.findMany({
-      where: { createdById: internalUserId },
+      where: { createdById: internalUserId, deletedAt: null },
       orderBy: { createdAt: "desc" },
       take: 3,
       select: { keyTonic: true, keyMode: true, title: true },
@@ -136,7 +136,7 @@ export default async function HomePage({ params }: PageProps) {
       },
     }),
     prisma.performance.findMany({
-      where: { userId: internalUserId },
+      where: { userId: internalUserId, score: { deletedAt: null } },
       orderBy: { uploadedAt: "desc" },
       take: 3,
       select: {

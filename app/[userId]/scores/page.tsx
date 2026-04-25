@@ -28,6 +28,7 @@ export default async function Page({ params }: PageProps) {
         { createdById: user.id },
         { isShared: true },
       ],
+      deletedAt: null,   // 修正2: AND として全枝に適用 (OR の中ではなくトップレベル)
     },
     orderBy: { createdAt: "desc" }
   })

@@ -151,7 +151,8 @@ exports.Prisma.ScoreScalarFieldEnum = {
   timeDenominator: 'timeDenominator',
   defaultTempo: 'defaultTempo',
   isShared: 'isShared',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  deletedAt: 'deletedAt'
 };
 
 exports.Prisma.PerformanceScalarFieldEnum = {

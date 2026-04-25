@@ -11,7 +11,7 @@ export async function GET(_request: NextRequest) {
 
   // --- 楽譜ベースのレコメンド ---
   const scores = await prisma.score.findMany({
-    where: { createdById: dbUserId },
+    where: { createdById: dbUserId, deletedAt: null },
     orderBy: { createdAt: "desc" },
     take: 5,
     select: { id: true, title: true, keyTonic: true, keyMode: true, defaultTempo: true },
