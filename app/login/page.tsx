@@ -37,7 +37,6 @@ const supabase = createBrowserSupabaseClient()
     } else {
       const userId = data.user.id
       await supabase.auth.getSession()
-      alert('ログインに成功しました')
       router.push(`/${userId}/scores`)
     }
   }
