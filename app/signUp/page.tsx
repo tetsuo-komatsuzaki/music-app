@@ -17,7 +17,6 @@ export default function loginPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [plan, setPlan] = useState("")
   const [agree, setAgree] = useState(false)
-  const [role, setRole] = useState("")
   const [isSubmitting, setSubmitting] = useState(false)
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -41,7 +40,8 @@ export default function loginPage() {
       return
     }
 
-    alert("登録成功")
+    // メール確認が必要なため、ログイン画面に直接遷移しない
+    alert(result.message ?? "確認メールを送信しました。メールを確認してログインしてください。")
 }
 
 
@@ -155,24 +155,6 @@ export default function loginPage() {
             >
               <option value="">プランを選択してください</option>
               <option value="free">無料プラン</option>
-            </select>
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="role" className={styles.label}>
-              役割
-            </label >
-            <select
-              name="role"
-              id="role"
-              value={role}
-              required
-              onChange={(e) => setRole(e.target.value)}
-              disabled={isSubmitting}
-              className={styles.input}
-            >
-              <option value="">役割を選択してください</option>
-              <option value="student">学生</option>
-              <option value="teacher">先生</option>
             </select>
           </div>
           <div className={styles.field}>

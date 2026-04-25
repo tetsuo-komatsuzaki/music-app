@@ -36,20 +36,30 @@ export async function signUpAction(formData: FormData) {
     return { error: "プラン指定が不正です" }
   }
 
+  // anon key で signUp を呼び、Supabase Dashboard の Email Confirmation
+  // 設定に従ってメール認証フローを起動する。
+  // (admin.createUser はメール認証フローを完全にバイパスするため使用不可)
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const { data, error } = await supabase.auth.admin.createUser({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
+    options: {
+      // user_metadata に追加情報を保存（必要なら後で /auth/callback 等で取り出せる）
+      data: { name, plan },
+      // emailRedirectTo は省略 → Supabase Dashboard の Site URL に従う
+    },
   })
 
   if (error || !data.user) {
-    return { error: "Supabase登録失敗" }
+    return { error: error?.message ?? "Supabase登録失敗" }
   }
 
+  // Prisma User を即座に作成（メール未確認状態でも DB に登録）
+  // role は student 固定。teacher/admin は DB 直接運用。
   try {
     await prisma.user.create({
       data: {
@@ -60,13 +70,22 @@ export async function signUpAction(formData: FormData) {
       },
     })
   } catch (err) {
+    // Prisma 失敗時は Auth User を削除してロールバック
+    // ここだけ service_role が必要（admin.deleteUser のため）
+    const adminSupabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
     try {
-      await supabase.auth.admin.deleteUser(data.user.id)
+      await adminSupabase.auth.admin.deleteUser(data.user.id)
     } catch (cleanupError) {
       console.error("Supabase削除失敗", cleanupError)
     }
     return { error: "データベース登録失敗" }
   }
 
-  return { success: true }
+  return {
+    success: true,
+    message: "確認メールを送信しました。メールを確認してログインしてください。",
+  }
 }
