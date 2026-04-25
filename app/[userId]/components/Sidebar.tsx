@@ -20,6 +20,7 @@ export default function Sidebar() {
   const pathname = usePathname()
   const userId = params.userId as string
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     getUserRole().then(role => {
@@ -30,25 +31,40 @@ export default function Sidebar() {
   const navItems = isAdmin ? [...BASE_NAV_ITEMS, ADMIN_NAV_ITEM] : BASE_NAV_ITEMS
 
   return (
-    <aside className={styles.sidebar}>
-      {navItems.map(item => {
-        const href = item.path === "" ? `/${userId}` : `/${userId}/${item.path}`
-        const isActive =
-          item.path === ""
-            ? pathname === `/${userId}` || pathname === `/${userId}/`
-            : pathname === href || pathname.startsWith(`${href}/`)
+    <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ""}`}>
+      <button
+        type="button"
+        className={styles.toggleButton}
+        onClick={() => setIsOpen(prev => !prev)}
+        aria-label={isOpen ? "メニューを閉じる" : "メニューを開く"}
+        aria-expanded={isOpen}
+      >
+        {isOpen ? "✕" : "☰"}
+      </button>
 
-        return (
-          <Link
-            key={item.path}
-            href={href}
-            className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
-          >
-            <span className={styles.navIcon}>{item.icon}</span>
-            <span>{item.label}</span>
-          </Link>
-        )
-      })}
+      {isOpen && (
+        <nav className={styles.nav}>
+          {navItems.map(item => {
+            const href = item.path === "" ? `/${userId}` : `/${userId}/${item.path}`
+            const isActive =
+              item.path === ""
+                ? pathname === `/${userId}` || pathname === `/${userId}/`
+                : pathname === href || pathname.startsWith(`${href}/`)
+
+            return (
+              <Link
+                key={item.path}
+                href={href}
+                onClick={() => setIsOpen(false)}
+                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+              >
+                <span className={styles.navIcon}>{item.icon}</span>
+                <span>{item.label}</span>
+              </Link>
+            )
+          })}
+        </nav>
+      )}
     </aside>
   )
 }

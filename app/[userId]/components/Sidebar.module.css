@@ -1,9 +1,40 @@
 
 .sidebar {
-  width: 220px;
+  width: 56px;                    /* 折りたたみ時: トグルボタンのみ */
   background: #0B1E3A;
   color: white;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: width 0.2s ease, padding 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sidebarOpen {
+  width: 220px;                   /* 展開時: 元の幅 */
   padding: 20px;
+}
+
+.toggleButton {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  text-align: center;
+  line-height: 1;
+  align-self: flex-start;
+  transition: background 0.2s;
+}
+
+.toggleButton:hover {
+  background: #1E40AF;
+}
+
+.nav {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -16,6 +47,8 @@
   cursor: pointer;
   border-radius: 8px;
   transition: 0.2s;
+  color: white;
+  text-decoration: none;
 }
 
 .navItem:hover {
