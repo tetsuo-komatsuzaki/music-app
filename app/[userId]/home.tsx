@@ -2,33 +2,28 @@
 
 import Link from "next/link"
 import styles from "./home.module.css"
-import AnimatedRings from "@/app/components/AnimatedRings"
+
+type RecommendedItem = {
+  id: string
+  href: string
+  title: string
+  category: string
+  reason: string
+}
 
 type Props = {
   userName: string
   streak: number
   weeklyDays: number
-  rings: { practice: number; record: number; review: number }
+  arcoMessage: { greeting: string; cheer: string }
+  arcoRecommendation: RecommendedItem | null
   continueItem: {
     href: string
     title: string
     subtitle: string
     uploadedAt: string
   } | null
-  dailyChallenge: {
-    id: string
-    href: string
-    title: string
-    category: string
-    description: string | null
-  } | null
-  recommendations: {
-    id: string
-    href: string
-    title: string
-    category: string
-    reason: string
-  }[]
+  recommendations: RecommendedItem[]
   recentHistory: {
     title: string
     href: string
@@ -58,9 +53,9 @@ export default function HomeClient({
   userName,
   streak,
   weeklyDays,
-  rings,
+  arcoMessage,
+  arcoRecommendation,
   continueItem,
-  dailyChallenge,
   recommendations,
   recentHistory,
 }: Props) {
@@ -69,7 +64,36 @@ export default function HomeClient({
   return (
     <div className={styles.page}>
 
-      {/* ───── 上段3カード ───── */}
+      {/* ───── アルコちゃんからの案内 (最上部・主役) ───── */}
+      <div className={`${styles.card} ${styles.arcoCard}`}>
+        <div className={styles.arcoHeader}>
+          <span className={styles.arcoIcon}>🎻</span>
+          <span className={styles.arcoName}>アルコちゃんからの案内</span>
+        </div>
+
+        <div className={styles.arcoGreeting}>{arcoMessage.greeting}</div>
+        <div className={styles.arcoCheer}>{arcoMessage.cheer}</div>
+
+        {arcoRecommendation && (
+          <div className={styles.arcoRecommend}>
+            <div className={styles.arcoRecommendLabel}>今日のおすすめ</div>
+            <div className={styles.arcoRecommendItem}>
+              <span className={styles.arcoRecommendIcon}>
+                {CATEGORY_ICON[arcoRecommendation.category] ?? "🎵"}
+              </span>
+              <div className={styles.arcoRecommendInfo}>
+                <div className={styles.arcoRecommendTitle}>{arcoRecommendation.title}</div>
+                <div className={styles.arcoRecommendReason}>{arcoRecommendation.reason}</div>
+              </div>
+            </div>
+            <Link href={arcoRecommendation.href} className={styles.arcoCta}>
+              スタート →
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* ───── 上段2カード (ストリーク + 今週、3リング削除) ───── */}
       <div className={styles.topRow}>
 
         {/* ストリーク */}
@@ -79,7 +103,7 @@ export default function HomeClient({
             <span className={styles.streakDays}>{streak}</span>
             <span className={styles.streakLabel}>days</span>
           </div>
-          <div className={styles.streakSub}>連続練習ストリーク</div>
+          <div className={styles.streakSub}>連続練習記録</div>
         </div>
 
         {/* 週間 */}
@@ -94,29 +118,6 @@ export default function HomeClient({
               className={styles.weeklyBarFill}
               style={{ width: `${Math.min(weeklyDays / WEEKLY_GOAL, 1) * 100}%` }}
             />
-          </div>
-        </div>
-
-        {/* 3リング */}
-        <div className={`${styles.card} ${styles.ringCard}`}>
-          <AnimatedRings
-            size={100} cx={50} cy={50} strokeWidth={9}
-            rings={[
-              { r: 44, color: "#1D9E75", bg: "#E1F5EE", progress: rings.practice },
-              { r: 32, color: "#378ADD", bg: "#E6F1FB", progress: rings.record },
-              { r: 20, color: "#534AB7", bg: "#EEEDFE", progress: rings.review },
-            ]}
-          />
-          <div className={styles.ringLabels}>
-            <div className={styles.ringLabel}>
-              <span className={styles.ringDot} style={{ background: "#1D9E75" }} />練習
-            </div>
-            <div className={styles.ringLabel}>
-              <span className={styles.ringDot} style={{ background: "#378ADD" }} />録音
-            </div>
-            <div className={styles.ringLabel}>
-              <span className={styles.ringDot} style={{ background: "#534AB7" }} />確認
-            </div>
           </div>
         </div>
 
@@ -138,23 +139,7 @@ export default function HomeClient({
         </div>
       )}
 
-      {/* ───── デイリーチャレンジ ───── */}
-      {dailyChallenge && (
-        <div className={`${styles.card} ${styles.challengeCard}`}>
-          <div className={styles.challengeHeader}>
-            <span className={styles.challengeBadge}>今日のチャレンジ</span>
-          </div>
-          <div className={styles.challengeTitle}>{dailyChallenge.title}</div>
-          <div className={styles.challengeMeta}>
-            {dailyChallenge.category}
-          </div>
-          <Link href={dailyChallenge.href} className={styles.challengeBtn}>
-            スタート
-          </Link>
-        </div>
-      )}
-
-      {/* ───── おすすめ練習 ───── */}
+      {/* ───── おすすめ練習 (AI 案内に出していない代替肢を 1件) ───── */}
       {recommendations.length > 0 && (
         <div className={styles.card}>
           <div className={styles.sectionTitle}>おすすめ練習</div>

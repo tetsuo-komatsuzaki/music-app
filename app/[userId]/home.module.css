@@ -28,11 +28,111 @@
   .card { animation: none; }
 }
 
-/* ───── 上段3カード ───── */
+/* ───── 上段2カード (ストリーク + 今週) ───── */
 .topRow {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+/* ───── アルコちゃんカード (最上部・主役) ───── */
+.arcoCard {
+  background: linear-gradient(135deg, #F0F7FF 0%, #FDF8E7 100%);
+  border: 1px solid #DCE7F5;
+  padding: 20px 24px;
+}
+
+.arcoHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.arcoIcon {
+  font-size: 22px;
+}
+
+.arcoName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4F6B91;
+  letter-spacing: 0.02em;
+}
+
+.arcoGreeting {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.arcoCheer {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.arcoRecommend {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  padding: 14px 16px;
+  border: 0.5px solid #E5EDF7;
+}
+
+.arcoRecommendLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4F6B91;
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+}
+
+.arcoRecommendItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.arcoRecommendIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.arcoRecommendInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.arcoRecommendTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 2px;
+}
+
+.arcoRecommendReason {
+  font-size: 12px;
+  color: #666;
+}
+
+.arcoCta {
+  display: inline-block;
+  background: #1d4ed8;
+  color: #fff;
+  text-decoration: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.arcoCta:hover {
+  background: #1e40af;
 }
 
 /* ストリークカード */
