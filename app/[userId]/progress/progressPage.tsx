@@ -1,42 +1,26 @@
 "use client"
 
-import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { useParams } from "next/navigation"
+import { useState } from "react"
 import styles from "./progress.module.css"
-import AnimatedRings from "@/app/components/AnimatedRings"
 
 // ─── 型 ──────────────────────────────────────────────────────
-type CalendarMonth = {
-  year:  number
-  month: number
-  days:  Record<string, "done" | "today" | "miss">
-}
-
-type DayRings = {
-  dateStr:  string
-  practice: number
-  record:   number
-  review:   number
-}
-
 type WeaknessItem = { label: string; severity: number }
 type WeekStat     = { label: string; sessions: number; pitchAvg: number | null }
 
 type Props = {
-  tab:            string
-  streak:         number
-  calendarMonths: CalendarMonth[]
-  weekRings:      DayRings[]
-  weaknessData:   WeaknessItem[]
-  weeklyStats:    WeekStat[]
+  tab:             string
+  streak:          number
+  dayAchievements: Record<string, number>   // dateStr → 0..3
+  weaknessData:    WeaknessItem[]
+  weeklyStats:     WeekStat[]
 }
 
 // ─── タブ定義 ─────────────────────────────────────────────────
 const TABS = [
-  { key: "streak",   label: "ストリーク" },
-  { key: "rings",    label: "3リング" },
+  { key: "calendar", label: "練習カレンダー" },
   { key: "weakness", label: "弱点" },
   { key: "summary",  label: "サマリー" },
-  { key: "reminder", label: "リマインダー" },
 ]
 
 const DAY_HEADERS = ["月", "火", "水", "木", "金", "土", "日"]
@@ -49,24 +33,57 @@ function weaknessColor(severity: number): string {
   return "#1D9E75"
 }
 
+function pad2(n: number): string { return String(n).padStart(2, "0") }
+
 export default function ProgressPage({
   tab,
   streak,
-  calendarMonths,
-  weekRings,
+  dayAchievements,
   weaknessData,
   weeklyStats,
 }: Props) {
   const params = useParams()
-  const router = useRouter()
   const userId = params.userId as string
+
+  // ── カレンダー表示中の年月（クライアント状態、初期=今日の月）──
+  const today = new Date()
+  const todayY = today.getFullYear()
+  const todayM = today.getMonth() + 1
+  const todayD = today.getDate()
+
+  const [year, setYear] = useState(todayY)
+  const [month, setMonth] = useState(todayM)
+
+  function navigateMonth(delta: number) {
+    const d = new Date(year, month - 1 + delta, 1)
+    setYear(d.getFullYear())
+    setMonth(d.getMonth() + 1)
+  }
+
+  // 未来の月へは行けない
+  const canGoNext = year < todayY || (year === todayY && month < todayM)
 
   function tabHref(key: string) {
     return `/${userId}/progress?tab=${key}`
   }
 
+  // ── 達成レベルから色クラス決定 ──
+  function dayClassName(achievements: number | undefined, isToday: boolean): string {
+    const parts = [styles.calendarDay]
+    if (achievements === 3) parts.push(styles.dayAchievement3)
+    else if (achievements === 2) parts.push(styles.dayAchievement2)
+    else if (achievements === 1) parts.push(styles.dayAchievement1)
+    if (isToday) parts.push(styles.dayToday)
+    return parts.join(" ")
+  }
+
   // ── 週間セッション最大値（サマリー棒グラフ用）──
   const maxSessions = Math.max(...weeklyStats.map(w => w.sessions), 1)
+
+  // ── カレンダー描画用 ──
+  const firstDow = new Date(year, month - 1, 1).getDay()
+  const offset   = firstDow === 0 ? 6 : firstDow - 1
+  const daysInMonth = new Date(year, month, 0).getDate()
 
   return (
     <div className={styles.page}>
@@ -85,101 +102,85 @@ export default function ProgressPage({
       </div>
 
       {/* ═══════════════════════════════════════════════════════
-          ストリークタブ
+          練習カレンダータブ (旧ストリーク + 旧3リング 統合)
       ═══════════════════════════════════════════════════════ */}
-      {tab === "streak" && (
+      {tab === "calendar" && (
         <>
+          {/* 連続練習記録 */}
           <div className={styles.card}>
             <div className={styles.streakHero}>
               <span style={{ fontSize: 36 }}>🔥</span>
               <span className={styles.streakNumber}>{streak}</span>
               <span className={styles.streakUnit}>days</span>
             </div>
-            <div className={styles.streakSub}>連続練習ストリーク</div>
+            <div className={styles.streakSub}>連続練習記録</div>
           </div>
 
-          {calendarMonths.map(({ year, month, days }) => {
-            // 月の1日の曜日（0=日〜6=土 → 月基準に変換）
-            const firstDow = new Date(year, month - 1, 1).getDay()
-            const offset   = firstDow === 0 ? 6 : firstDow - 1
-            const daysInMonth = new Date(year, month, 0).getDate()
-
-            return (
-              <div key={`${year}-${month}`} className={styles.card}>
-                <div className={styles.calendarMonthLabel}>
-                  {year}年{month}月
-                </div>
-                <div className={styles.calendarGrid}>
-                  {DAY_HEADERS.map(h => (
-                    <div key={h} className={styles.calendarDayHeader}>{h}</div>
-                  ))}
-                  {Array.from({ length: offset }).map((_, i) => (
-                    <div key={`empty-${i}`} className={`${styles.calendarDay} ${styles.dayEmpty}`} />
-                  ))}
-                  {Array.from({ length: daysInMonth }).map((_, i) => {
-                    const d       = i + 1
-                    const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`
-                    const state   = days[dateStr]
-                    const cls = state === "done"  ? styles.dayDone
-                              : state === "today" ? styles.dayToday
-                              : state === "miss"  ? styles.dayMiss
-                              : styles.dayEmpty
-                    return (
-                      <div key={d} className={`${styles.calendarDay} ${cls}`}>
-                        {d}
-                      </div>
-                    )
-                  })}
-                </div>
+          {/* カレンダー本体 (月ナビ + 達成レベル色) */}
+          <div className={styles.card}>
+            <div className={styles.calendarHeader}>
+              <button
+                type="button"
+                onClick={() => navigateMonth(-1)}
+                className={styles.calendarNavBtn}
+                aria-label="前の月"
+              >
+                ←
+              </button>
+              <div className={styles.calendarMonthLabel}>
+                {year}年{month}月
               </div>
-            )
-          })}
+              <button
+                type="button"
+                onClick={() => navigateMonth(1)}
+                disabled={!canGoNext}
+                className={styles.calendarNavBtn}
+                aria-label="次の月"
+              >
+                →
+              </button>
+            </div>
+
+            <div className={styles.calendarGrid}>
+              {DAY_HEADERS.map(h => (
+                <div key={h} className={styles.calendarDayHeader}>{h}</div>
+              ))}
+              {Array.from({ length: offset }).map((_, i) => (
+                <div key={`empty-${i}`} className={styles.calendarDay} />
+              ))}
+              {Array.from({ length: daysInMonth }).map((_, i) => {
+                const d       = i + 1
+                const dateStr = `${year}-${pad2(month)}-${pad2(d)}`
+                const isToday = year === todayY && month === todayM && d === todayD
+                const ach     = dayAchievements[dateStr]
+                return (
+                  <div key={d} className={dayClassName(ach, isToday)}>
+                    {d}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* 凡例 */}
+            <div className={styles.calendarLegend}>
+              <div className={styles.legendItem}>
+                <span className={`${styles.legendBox} ${styles.dayAchievement1}`} />
+                1つ達成
+              </div>
+              <div className={styles.legendItem}>
+                <span className={`${styles.legendBox} ${styles.dayAchievement2}`} />
+                2つ達成
+              </div>
+              <div className={styles.legendItem}>
+                <span className={`${styles.legendBox} ${styles.dayAchievement3}`} />
+                3つ達成
+              </div>
+            </div>
+            <div className={styles.legendNote}>
+              達成項目: 練習15分以上 / 録音1回以上 / 確認2回以上
+            </div>
+          </div>
         </>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════
-          3リングタブ
-      ═══════════════════════════════════════════════════════ */}
-      {tab === "rings" && (
-        <div className={styles.card}>
-          <div className={styles.cardTitle}>過去7日間の3リング</div>
-          <div className={styles.weekRingGrid}>
-            {weekRings.map(day => {
-              const d    = new Date(day.dateStr + "T00:00:00")
-              const dow  = ["日", "月", "火", "水", "木", "金", "土"][d.getDay()]
-              const date = `${d.getMonth() + 1}/${d.getDate()}`
-              return (
-                <div key={day.dateStr} className={styles.weekRingDay}>
-                  <div className={styles.weekRingLabel}>{dow}</div>
-                  <AnimatedRings
-                    size={46} cx={23} cy={23} strokeWidth={5}
-                    rings={[
-                      { r: 20, color: "#1D9E75", bg: "#E1F5EE", progress: day.practice },
-                      { r: 14, color: "#378ADD", bg: "#E6F1FB", progress: day.record },
-                      { r:  8, color: "#534AB7", bg: "#EEEDFE", progress: day.review },
-                    ]}
-                  />
-                  <div className={styles.weekRingDate}>{date}</div>
-                </div>
-              )
-            })}
-          </div>
-
-          <div className={styles.ringLegend}>
-            <div className={styles.ringLegendItem}>
-              <span className={styles.ringLegendDot} style={{ background: "#1D9E75" }} />
-              練習 (15分以上)
-            </div>
-            <div className={styles.ringLegendItem}>
-              <span className={styles.ringLegendDot} style={{ background: "#378ADD" }} />
-              録音 (1回以上)
-            </div>
-            <div className={styles.ringLegendItem}>
-              <span className={styles.ringLegendDot} style={{ background: "#534AB7" }} />
-              確認 (2回以上)
-            </div>
-          </div>
-        </div>
       )}
 
       {/* ═══════════════════════════════════════════════════════
@@ -247,46 +248,6 @@ export default function ProgressPage({
                   <div className={styles.barChartLabel}>{w.label}</div>
                 </div>
               ))}
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════
-          リマインダータブ
-      ═══════════════════════════════════════════════════════ */}
-      {tab === "reminder" && (
-        <>
-          <div className={styles.card}>
-            <div className={styles.reminderRow}>
-              <span className={styles.reminderLabel}>リマインダーを有効化</span>
-              <button className={styles.toggleOn}>ON</button>
-            </div>
-            <div className={styles.reminderRow}>
-              <span className={styles.reminderLabel}>AI最適タイミング</span>
-              <button className={styles.toggleOn}>ON</button>
-            </div>
-            <div className={styles.reminderRow}>
-              <span className={styles.reminderLabel}>文脈に合わせたメッセージ</span>
-              <button className={styles.toggleOn}>ON</button>
-            </div>
-          </div>
-
-          <div className={styles.card}>
-            <div className={styles.notificationPreview}>
-              <div className={styles.previewTitle}>通知プレビュー</div>
-              <div className={styles.previewItem}>
-                <div className={styles.previewTime}>平日 18:30</div>
-                <div className={styles.previewText}>
-                  今日も練習しましょう！ストリークを維持するチャンスです。
-                </div>
-              </div>
-              <div className={styles.previewItem} style={{ borderLeftColor: "#EF9F27" }}>
-                <div className={styles.previewTime}>20:00（未練習の場合）</div>
-                <div className={styles.previewText}>
-                  ストリークが途切れそうです。3分でもスケール練習はいかがですか？
-                </div>
-              </div>
             </div>
           </div>
         </>

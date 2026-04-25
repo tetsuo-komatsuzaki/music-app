@@ -6,6 +6,8 @@ type PageProps = {
   searchParams: Promise<{ tab?: string }>
 }
 
+const VALID_TABS = ["calendar", "weakness", "summary"] as const
+
 function toJSTDateStr(date: Date): string {
   const jst = new Date(date.getTime() + 9 * 60 * 60 * 1000)
   return jst.toISOString().split("T")[0]
@@ -35,8 +37,9 @@ function calculateStreak(dates: Date[]): number {
 }
 
 export default async function ProgressServerPage({ params, searchParams }: PageProps) {
-  const { userId }   = await params
-  const { tab = "streak" } = await searchParams
+  const { userId } = await params
+  const { tab: rawTab = "calendar" } = await searchParams
+  const tab = (VALID_TABS as readonly string[]).includes(rawTab) ? rawTab : "calendar"
 
   const perfStart = performance.now()
 
@@ -79,61 +82,31 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
 
   const streak = calculateStreak(allDates)
 
-  // ── カレンダー（過去2ヶ月）──
-  const todayStr = toJSTDateStr(new Date())
-  const practiceDaySet = new Set(allDates.map(toJSTDateStr))
-
-  const calendarMonths: { year: number; month: number; days: Record<string, "done" | "today" | "miss"> }[] = []
-  for (let m = 0; m < 2; m++) {
-    const target = new Date()
-    target.setDate(1)
-    target.setMonth(target.getMonth() - m)
-    const year  = target.getFullYear()
-    const month = target.getMonth() + 1
-    const daysInMonth = new Date(year, month, 0).getDate()
-    const days: Record<string, "done" | "today" | "miss"> = {}
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`
-      if (dateStr > todayStr) continue
-      if (dateStr === todayStr) days[dateStr] = "today"
-      else if (practiceDaySet.has(dateStr)) days[dateStr] = "done"
-      else days[dateStr] = "miss"
-    }
-    calendarMonths.push({ year, month, days })
-  }
-  calendarMonths.reverse()
-
-  // ── 過去7日間の3リング（JSグルーピング — クエリ0回）──
-  // 既に取得済みの practiceAll / scoreAll から日別に集計
-  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000)
-  const recentPractice = practiceAll.filter(p => p.uploadedAt >= sevenDaysAgo)
-  const recentScore = scoreAll.filter(p => p.uploadedAt >= sevenDaysAgo)
-
-  // 日別にグルーピング
+  // ── 全期間の日別達成カウント (0..3) ──
+  // 旧3リング (practice/record/review) を達成数 0..3 に集約。
+  // - practice: 当日の総練習秒数 ≥ 15分
+  // - record:   当日の録音回数 ≥ 1
+  // - review:   当日の comparisonResult 件数 ≥ 2
   type PerfEntry = { performanceDuration: number | null; comparisonResultPath: string | null }
   const dayMap = new Map<string, PerfEntry[]>()
-  for (const p of [...recentPractice, ...recentScore]) {
+  for (const p of [...practiceAll, ...scoreAll]) {
     const dStr = toJSTDateStr(p.uploadedAt)
     if (!dayMap.has(dStr)) dayMap.set(dStr, [])
     dayMap.get(dStr)!.push(p)
   }
 
-  type DayRings = { dateStr: string; practice: number; record: number; review: number }
-  const weekRings: DayRings[] = []
-  for (let i = 6; i >= 0; i--) {
-    const dStr = toJSTDateStr(new Date(Date.now() - i * 86400000))
-    const entries = dayMap.get(dStr) ?? []
+  const dayAchievements: Record<string, number> = {}
+  for (const [dStr, entries] of dayMap.entries()) {
     const totalSec = entries.reduce((a, x) => a + (x.performanceDuration ?? 0), 0)
     const recordCount = entries.length
     const reviewCount = entries.filter(x => x.comparisonResultPath).length
 
-    weekRings.push({
-      dateStr:  dStr,
-      practice: Math.min(totalSec / (15 * 60), 1),
-      record:   Math.min(recordCount / 1, 1),
-      review:   Math.min(reviewCount / 2, 1),
-    })
+    let n = 0
+    if (totalSec >= 15 * 60) n++
+    if (recordCount >= 1) n++
+    if (reviewCount >= 2) n++
+
+    if (n > 0) dayAchievements[dStr] = n
   }
 
   // ── 弱点データ ──
@@ -142,7 +115,7 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
     severity: w.severity,
   }))
 
-  // ── 過去8週間のサマリー（JSグルーピング — クエリ0回）──
+  // ── 過去8週間のサマリー ──
   const weeklyStats: { label: string; sessions: number; pitchAvg: number | null }[] = []
   for (let w = 7; w >= 0; w--) {
     const wStart = new Date(Date.now() - (w + 1) * 7 * 86400000)
@@ -156,13 +129,11 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
     })
   }
 
-
   return (
     <ProgressPage
       tab={tab}
       streak={streak}
-      calendarMonths={calendarMonths}
-      weekRings={weekRings}
+      dayAchievements={dayAchievements}
       weaknessData={weaknessData}
       weeklyStats={weeklyStats}
     />
