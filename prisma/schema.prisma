@@ -57,6 +57,7 @@ model Score {
   defaultTempo     Int?
   isShared         Boolean       @default(false) // true=全ユーザー閲覧可のサンプル
   createdAt        DateTime      @default(now())
+  deletedAt        DateTime?     // 論理削除フラグ (NULL=有効、値あり=削除済み)
   performances     Performance[]
   createdBy        User          @relation(fields: [createdById], references: [id])
 
