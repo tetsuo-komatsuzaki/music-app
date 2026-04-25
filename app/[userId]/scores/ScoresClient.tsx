@@ -1,13 +1,13 @@
 "use client"
 
 import styles from "./page.module.css"
-// import { uploadScore } from "../../actions/uploadScore"
 import { useState, useRef, useEffect, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import UploadModal from "../components/UploadModal"
 import { uploadScore } from "@/app/actions/uploadScore"
+import { updateScoreTitle } from "@/app/actions/updateScore"
 import { ScoreView } from "@/app/types/score"
-
 
 
 type ScoresClientProps = {
@@ -17,20 +17,23 @@ type ScoresClientProps = {
 
 export default function ScoresClient({
   scores,
-  userId
+  userId,
 }: ScoresClientProps) {
 
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  // const [errorMessage, setErrorMessage] = useState("")
-  // const [isPending, startTransition] = useTransition()
+  const [editingId, setEditingId] = useState<string | null>(null)        // dropdown 表示中の score id
+
+  // 楽曲名インライン編集用 state
+  const [renamingId, setRenamingId] = useState<string | null>(null)      // 編集モード中の score id
+  const [renameInput, setRenameInput] = useState("")
+  const [renameError, setRenameError] = useState<string | null>(null)
+  const [isRenaming, startRenameTransition] = useTransition()
 
   const dropdownRef = useRef<HTMLDivElement | null>(null)
 
 
-
-
-  // 外クリックで編集閉じる
+  // 外クリックで dropdown 閉じる (編集モード中は閉じない)
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -48,22 +51,53 @@ export default function ScoresClient({
     }
   }, [])
 
-  // const handleUpload = async (formData: FormData) => {
-  //   setErrorMessage("")
+  // 「楽曲名を変更」ボタンクリック → インライン編集モードへ
+  const handleStartRename = (score: ScoreView) => {
+    setRenamingId(score.id)
+    setRenameInput(score.title)
+    setRenameError(null)
+    setEditingId(null)  // dropdown を閉じる
+  }
 
-  //   startTransition(async () => {
-  //     const result = await uploadScore(formData)
+  const handleCancelRename = () => {
+    setRenamingId(null)
+    setRenameInput("")
+    setRenameError(null)
+  }
 
-  //     if (result?.error) {
-  //       setErrorMessage(result.error)
-  //       return
-  //     }
+  const handleSubmitRename = (scoreId: string) => {
+    const trimmed = renameInput.trim()
+    if (trimmed.length === 0) {
+      setRenameError("曲名を入力してください")
+      return
+    }
+    setRenameError(null)
+    startRenameTransition(async () => {
+      const result = await updateScoreTitle(scoreId, trimmed)
+      if (!result.ok) {
+        setRenameError(result.error)
+        return
+      }
+      // 成功 → 編集モード終了 + 一覧再取得
+      setRenamingId(null)
+      setRenameInput("")
+      setRenameError(null)
+      router.refresh()
+    })
+  }
 
-  //     // 成功時
-  //     setIsOpen(false)
-  //   })
-  // }
-
+  const handleRenameKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    scoreId: string
+  ) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      handleSubmitRename(scoreId)
+    } else if (e.key === "Escape") {
+      e.preventDefault()
+      handleCancelRename()
+    }
+  }
 
 
   return (
@@ -95,72 +129,113 @@ export default function ScoresClient({
 
         {/* ===== SCORE CARDS ===== */}
         <div className={styles.cardGrid}>
-          {scores.map(score => (
-            <div key={score.id} className={styles.card}>
+          {scores.map(score => {
+            const isEditing = renamingId === score.id
+            return (
+              <div key={score.id} className={styles.card}>
 
-              <div className={styles.cardLeft}>
-                🎼
-              </div>
-
-              <div className={styles.cardContent}>
-                <div className={styles.cardTopRow}>
-                  <h3 className={styles.cardTitle}>
-                    {score.title}
-                  </h3>
-
-                  <Link
-                    href={`/${userId}/scores/${score.id}`}
-                    className={styles.practiceBtn}
-                  >
-                    ▶ 練習する
-                  </Link>
+                <div className={styles.cardLeft}>
+                  🎼
                 </div>
 
-                <p className={styles.cardComposer}>
-                  作曲者：{score.composer ?? "未登録"}
-                </p>
+                <div className={styles.cardContent}>
+                  <div className={styles.cardTopRow}>
+                    {isEditing ? (
+                      <div className={styles.renameRow}>
+                        <input
+                          type="text"
+                          value={renameInput}
+                          onChange={e => setRenameInput(e.target.value)}
+                          onKeyDown={e => handleRenameKeyDown(e, score.id)}
+                          autoFocus
+                          disabled={isRenaming}
+                          maxLength={100}
+                          className={styles.renameInput}
+                          aria-label="曲名を入力"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleSubmitRename(score.id)}
+                          disabled={isRenaming}
+                          className={styles.renameSubmitBtn}
+                        >
+                          {isRenaming ? "..." : "保存"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCancelRename}
+                          disabled={isRenaming}
+                          className={styles.renameCancelBtn}
+                        >
+                          キャンセル
+                        </button>
+                      </div>
+                    ) : (
+                      <h3 className={styles.cardTitle}>
+                        {score.title}
+                      </h3>
+                    )}
 
-                <div className={styles.cardBottomRow}>
-                  <span className={styles.dateTag}>
-                    作成日：
-                    {new Date(score.createdAt)
-                      .toLocaleDateString("ja-JP")}
-                  </span>
+                    <Link
+                      href={`/${userId}/scores/${score.id}`}
+                      className={styles.practiceBtn}
+                    >
+                      ▶ 練習する
+                    </Link>
+                  </div>
 
-                  <button
-                    className={styles.editBtn}
-                    onClick={() =>
-                      setEditingId(editingId === score.id ? null : score.id)
-                    }
-                  >
-                    編集
-                  </button>
-                </div>
+                  {isEditing && renameError && (
+                    <div className={styles.renameError}>{renameError}</div>
+                  )}
 
-                {editingId === score.id && (
-                  <div
-                    ref={dropdownRef}
-                    className={styles.dropdown}
-                  >
-                    <button>楽曲名を変更</button>
-                    <button className={styles.deleteBtn}>
-                      削除
+                  <p className={styles.cardComposer}>
+                    作曲者:{score.composer ?? "未登録"}
+                  </p>
+
+                  <div className={styles.cardBottomRow}>
+                    <span className={styles.dateTag}>
+                      作成日:
+                      {new Date(score.createdAt)
+                        .toLocaleDateString("ja-JP")}
+                    </span>
+
+                    <button
+                      className={styles.editBtn}
+                      onClick={() =>
+                        setEditingId(editingId === score.id ? null : score.id)
+                      }
+                    >
+                      編集
                     </button>
                   </div>
-                )}
 
+                  {editingId === score.id && (
+                    <div
+                      ref={dropdownRef}
+                      className={styles.dropdown}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleStartRename(score)}
+                      >
+                        楽曲名を変更
+                      </button>
+                      <button className={styles.deleteBtn}>
+                        削除
+                      </button>
+                    </div>
+                  )}
+
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </main>
       <UploadModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         action={uploadScore}
-        // onSubmit={handleUpload}
-        // isPending={isPending}
-
       />
     </div>
   )

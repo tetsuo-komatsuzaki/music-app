@@ -5,6 +5,80 @@
   margin-top: 20px;
 }
 
+/* ───── 楽曲名インライン編集 ───── */
+.renameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.renameInput {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border: 1px solid #1d4ed8;
+  border-radius: 6px;
+  outline: none;
+  min-width: 120px;
+}
+
+.renameInput:focus {
+  box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.2);
+}
+
+.renameInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.renameSubmitBtn {
+  background: #1d4ed8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.renameSubmitBtn:hover:not(:disabled) {
+  background: #1e40af;
+}
+
+.renameSubmitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.renameCancelBtn {
+  background: transparent;
+  color: #555;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.renameCancelBtn:hover:not(:disabled) {
+  background: #f5f5f5;
+}
+
+.renameCancelBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.renameError {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
 
 .container {
   height: 100vh;
