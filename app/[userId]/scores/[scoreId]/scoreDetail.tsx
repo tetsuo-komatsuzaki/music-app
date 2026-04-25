@@ -733,12 +733,19 @@ export default function ScoreDetail({
     }
   }, [loadComparison])
 
-  // 過去ベストスコア
+  // 過去ベストスコア（ピッチ）— 録音後フィードバックの比較用
   const bestPitchScore = useMemo(() => {
     if (performances.length === 0) return latestPitchAccuracy ?? undefined
     const scores = performances.map(p => p.pitchAccuracy ?? null).filter((s): s is number => s !== null)
     return scores.length > 0 ? Math.max(...scores) : latestPitchAccuracy ?? undefined
   }, [performances, latestPitchAccuracy])
+
+  // 過去ベストスコア（総合）— 録音ボタン下の表示用
+  const bestOverallScore = useMemo(() => {
+    if (performances.length === 0) return undefined
+    const scores = performances.map(p => p.overallScore ?? null).filter((s): s is number => s !== null)
+    return scores.length > 0 ? Math.max(...scores) : undefined
+  }, [performances])
 
   // Recorder の onRecordingComplete ハンドラ
   const handleRecordingComplete = useCallback(async (blob: Blob) => {
@@ -1475,6 +1482,7 @@ export default function ScoreDetail({
           <Recorder
             onRecordingComplete={handleRecordingComplete}
             previousBestScore={bestPitchScore}
+            bestOverallScore={bestOverallScore}
             bpm={analysis?.bpm ?? undefined}
             onRecordingStart={startRecordingGuide}
             onRecordingBpmChange={(v) => { recordingBpmRef.current = v }}
