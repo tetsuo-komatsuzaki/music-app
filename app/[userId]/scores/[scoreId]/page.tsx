@@ -1,6 +1,7 @@
 import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import ScoreDetail from "./scoreDetail"
+import AutoRefresh from "@/app/components/AutoRefresh"
 import { uploadRecord } from "@/app/actions/uploadRecord"
 
 export default async function Page({
@@ -25,6 +26,50 @@ export default async function Page({
   // アクセス制御
   if (score.createdById !== dbUser.id && !score.isShared) {
     return <div>このスコアへのアクセス権がありません</div>
+  }
+
+  // 解析・ビルド未完了なら準備中 / エラー画面 (3 秒ごとに RSC を再取得)
+  if (score.analysisStatus !== "done" || score.buildStatus !== "done") {
+    const isError =
+      score.analysisStatus === "error" || score.buildStatus === "error"
+    return (
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        {!isError && <AutoRefresh intervalMs={3000} />}
+        <h2>{score.title}</h2>
+        {isError ? (
+          <>
+            <p style={{ color: "#c00", marginTop: "1rem" }}>
+              解析に失敗しました
+            </p>
+            {score.errorMessage && (
+              <pre
+                style={{
+                  marginTop: "0.5rem",
+                  fontSize: "0.875rem",
+                  color: "#666",
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {score.errorMessage}
+              </pre>
+            )}
+            <p style={{ marginTop: "1rem", fontSize: "0.875rem", color: "#999" }}>
+              時間をおいて再度お試しください
+            </p>
+          </>
+        ) : (
+          <>
+            <p style={{ marginTop: "1rem" }}>スコア準備中...</p>
+            <p style={{ marginTop: "0.5rem", fontSize: "0.875rem", color: "#666" }}>
+              解析: {score.analysisStatus} / 生成: {score.buildStatus}
+            </p>
+            <p style={{ marginTop: "0.5rem", fontSize: "0.75rem", color: "#999" }}>
+              3 秒ごとに自動更新します
+            </p>
+          </>
+        )}
+      </div>
+    )
   }
 
   // 残り全て並列実行

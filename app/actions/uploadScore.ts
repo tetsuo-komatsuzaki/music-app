@@ -4,7 +4,7 @@ import { prisma } from "../_libs/prisma"
 import { createClient } from "@supabase/supabase-js"
 import { revalidatePath } from "next/cache"
 import { createServerSupabaseClient } from "../_libs/supabaseServer"
-import { runPythonScript } from "../_libs/pythonRunner"
+import { invokeAnalysis } from "../_libs/pythonRunner"
 
 export async function uploadScore(formData: FormData) {
   const title = (formData.get("title") as string | null)?.trim() ?? ""
@@ -38,8 +38,8 @@ export async function uploadScore(formData: FormData) {
       title,
       composer: composer || "",
       originalXmlPath: "",
-      analysisStatus: "processing",
-      buildStatus: "processing",
+      analysisStatus: "queued",
+      buildStatus: "queued",
     },
   })
 
@@ -64,31 +64,29 @@ export async function uploadScore(formData: FormData) {
     data: { originalXmlPath: filePath },
   })
 
-  // Python 解析（spawn + 2段階環境変数）
-  // Python無効（本番など）なら status は processing のまま。
-  // エラーマークはしない = 後処理インフラでの再解析可能な状態を維持。
+  // 解析ジョブ起動 (Cloud Run Jobs 経由・非同期)
   try {
-    const r1 = await runPythonScript("../music-analyzer/analyze_musicxml.py", [
-      dbUser.id,
-      score.id,
-    ])
-    if (r1.status === "skipped") {
-      // TODO(Phase 2): Python 無効環境では analysisStatus="processing" が永続化する。
-      //                バックグラウンドジョブ基盤が整ったら skipped → queued 等の
-      //                専用ステータスへ。現状は手動監査 + 手動再解析で対応想定。
+    const r = await invokeAnalysis({
+      mode: "score_full",
+      idempotencyKey: `score_full:${score.id}`,
+      userId: dbUser.id,
+      scoreId: score.id,
+    })
+    if (r.status === "skipped") {
       console.warn(
-        `[uploadScore] Python skipped, score ${score.id} remains in "processing" state`
+        `[uploadScore] Analysis skipped, score ${score.id} remains in "queued" state`
       )
       revalidatePath(`/${user.id}/scores`)
       return { success: true }
     }
-    await runPythonScript("../music-analyzer/build_score.py", [dbUser.id, score.id])
   } catch (e) {
     await prisma.score.update({
       where: { id: score.id },
       data: {
         analysisStatus: "error",
         buildStatus: "error",
+        errorMessage:
+          e instanceof Error ? e.message.slice(0, 300) : String(e).slice(0, 300),
       },
     })
     throw e

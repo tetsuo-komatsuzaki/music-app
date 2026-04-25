@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { revalidatePath } from "next/cache"
 import { isValidCuid } from "@/app/_libs/validators"
-import { runPythonScriptFireAndForget } from "@/app/_libs/pythonRunner"
+import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 
 export async function uploadRecord(formData: FormData) {
   console.log("① uploadRecord START")
@@ -44,6 +44,7 @@ export async function uploadRecord(formData: FormData) {
       performanceType: "user",
       performanceStatus: "uploaded",
       audioPath: "",
+      analysisStatus: "queued",
     },
   })
 
@@ -71,14 +72,31 @@ export async function uploadRecord(formData: FormData) {
     data: { audioPath: filePath },
   })
 
-  // Python 解析（fire-and-forget・spawn 配列引数）
-  // shell: false で渡すためコマンドインジェクション不可
-  const pythonArgs = [dbUser.id, scoreId, performance.id]
+  // 解析ジョブ起動 (Cloud Run Jobs 経由・非同期)
+  // Relay が Cloud Run Jobs execution を create して即 return する。
+  // Python の結果は Performance の analysisStatus/comparisonResultPath を UPDATE。
   const bpmNum = recordingBpm ? parseFloat(recordingBpm) : NaN
-  if (!isNaN(bpmNum) && bpmNum > 0 && bpmNum < 1000) {
-    pythonArgs.push(`--recording-bpm=${bpmNum}`)
+  const validBpm = !isNaN(bpmNum) && bpmNum > 0 && bpmNum < 1000 ? bpmNum : undefined
+  try {
+    await invokeAnalysis({
+      mode: "analyze_performance",
+      idempotencyKey: `perf:${performance.id}`,
+      userId: dbUser.id,
+      scoreId,
+      performanceId: performance.id,
+      recordingBpm: validBpm,
+    })
+  } catch (e) {
+    console.error("[uploadRecord] invokeAnalysis failed:", e)
+    await prisma.performance.update({
+      where: { id: performance.id },
+      data: {
+        analysisStatus: "error",
+        errorMessage:
+          e instanceof Error ? e.message.slice(0, 300) : String(e).slice(0, 300),
+      },
+    })
   }
-  runPythonScriptFireAndForget("../music-analyzer/analyze_performance.py", pythonArgs)
 
   revalidatePath(`/${user.id}/scores/${scoreId}`)
 

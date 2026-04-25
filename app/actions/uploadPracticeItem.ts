@@ -3,7 +3,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { createClient } from "@supabase/supabase-js"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { revalidatePath } from "next/cache"
-import { runPythonScript } from "@/app/_libs/pythonRunner"
+import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 import type { PracticeCategory } from "@/app/generated/prisma"
 
 export async function uploadPracticeItem(formData: FormData) {
@@ -59,6 +59,8 @@ export async function uploadPracticeItem(formData: FormData) {
       originalXmlPath: "",
       source: "admin",
       isPublished: true,
+      analysisStatus: "queued",
+      buildStatus: "queued",
     },
   })
 
@@ -97,41 +99,24 @@ export async function uploadPracticeItem(formData: FormData) {
     })
   }
 
-  // Python 解析（spawn + 2段階環境変数）
-  // Python無効（本番など）なら analysisStatus="processing" のまま。
-  // エラーマークしない = 後処理インフラでの再解析可能な状態を維持。
+  // 解析ジョブ起動 (Cloud Run Jobs 経由・非同期)
+  // analysis/build のパス更新・status=done 遷移は Python 側 (analyze_musicxml.py /
+  // build_score.py) が DB UPDATE する。ここでは起動だけ。
   try {
-    const r1 = await runPythonScript("../music-analyzer/analyze_musicxml.py", [
-      "--practice-item",
-      item.id,
-    ])
-    if (r1.status === "skipped") {
-      // TODO(Phase 2): Python 無効環境では analysisStatus="processing" が永続化する。
-      //                バックグラウンドジョブ基盤が整ったら skipped → queued 等の
-      //                専用ステータスへ。現状は手動監査 + 手動再解析で対応想定。
+    const r = await invokeAnalysis({
+      mode: "score_full",
+      idempotencyKey: `score_full:${item.id}`,
+      practiceItemId: item.id,
+    })
+    if (r.status === "skipped") {
       console.warn(
-        `[uploadPracticeItem] Python skipped, item ${item.id} remains in "processing" state`
+        `[uploadPracticeItem] Analysis skipped, item ${item.id} remains in "queued" state`
       )
       revalidatePath("/admin/practice")
       return { success: true, itemId: item.id }
     }
-
-    await runPythonScript("../music-analyzer/build_score.py", [
-      "--practice-item",
-      item.id,
-    ])
-
-    await prisma.practiceItem.update({
-      where: { id: item.id },
-      data: {
-        analysisStatus: "done",
-        buildStatus: "done",
-        analysisPath: `practice/${item.id}/analysis.json`,
-        generatedXmlPath: `practice/${item.id}/build_score.musicxml`,
-      },
-    })
   } catch (e) {
-    console.error("Post-processing failed:", e)
+    console.error("[uploadPracticeItem] invokeAnalysis failed:", e)
     // 失敗してもアイテム自体は残す（手動で再実行可能）
   }
 

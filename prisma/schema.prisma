@@ -11,6 +11,8 @@ enum JobStatus {
   processing
   done
   error
+  queued
+  retrying
 }
 
 
@@ -43,6 +45,11 @@ model Score {
   generatedXmlPath String?
   analysisStatus    JobStatus @default(processing)
   buildStatus       JobStatus @default(processing)
+  retryCount        Int       @default(0)
+  errorMessage      String?
+  lastAttemptedAt   DateTime?
+  executionId       String?
+  idempotencyKey    String?   @unique
   keyTonic         String?
   keyMode          String?
   timeNumerator    Int?
@@ -80,6 +87,14 @@ model Performance {
   overallScore     Float?    // 0-100 総合スコア（pitch×0.6 + timing×0.4）
   evaluatedNotes   Int?      // 評価対象ノート数
   analysisSummary  Json?     // 将来の拡張用（ビブラート・弓使い・音色等）
+
+  // ▼ 非同期ジョブライフサイクル（Cloud Run Jobs）
+  analysisStatus   JobStatus @default(done)
+  retryCount       Int       @default(0)
+  errorMessage     String?
+  lastAttemptedAt  DateTime?
+  executionId      String?
+  idempotencyKey   String?   @unique
 
   @@index([scoreId])
   @@index([userId, uploadedAt])
@@ -132,6 +147,11 @@ model PracticeItem {
   analysisPath     String?
   analysisStatus   JobStatus         @default(processing)
   buildStatus      JobStatus         @default(processing)
+  retryCount       Int               @default(0)
+  errorMessage     String?
+  lastAttemptedAt  DateTime?
+  executionId      String?
+  idempotencyKey   String?           @unique
 
   ownerUserId      String?           // null=運営サンプル（全員閲覧可）, 値あり=そのユーザーのみ
   owner            User?             @relation(fields: [ownerUserId], references: [id])
@@ -197,6 +217,14 @@ model PracticePerformance {
   overallScore     Float?
   evaluatedNotes   Int?
   analysisSummary  Json?
+
+  // ▼ 非同期ジョブライフサイクル（Cloud Run Jobs）
+  analysisStatus   JobStatus @default(done)
+  retryCount       Int       @default(0)
+  errorMessage     String?
+  lastAttemptedAt  DateTime?
+  executionId      String?
+  idempotencyKey   String?   @unique
 
   @@index([userId, practiceItemId, uploadedAt])
   @@index([practiceItemId])

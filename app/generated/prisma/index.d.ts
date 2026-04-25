@@ -61,7 +61,9 @@ export namespace $Enums {
   export const JobStatus: {
   processing: 'processing',
   done: 'done',
-  error: 'error'
+  error: 'error',
+  queued: 'queued',
+  retrying: 'retrying'
 };
 
 export type JobStatus = (typeof JobStatus)[keyof typeof JobStatus]
@@ -2966,12 +2968,14 @@ export namespace Prisma {
   }
 
   export type ScoreAvgAggregateOutputType = {
+    retryCount: number | null
     timeNumerator: number | null
     timeDenominator: number | null
     defaultTempo: number | null
   }
 
   export type ScoreSumAggregateOutputType = {
+    retryCount: number | null
     timeNumerator: number | null
     timeDenominator: number | null
     defaultTempo: number | null
@@ -2987,6 +2991,11 @@ export namespace Prisma {
     generatedXmlPath: string | null
     analysisStatus: $Enums.JobStatus | null
     buildStatus: $Enums.JobStatus | null
+    retryCount: number | null
+    errorMessage: string | null
+    lastAttemptedAt: Date | null
+    executionId: string | null
+    idempotencyKey: string | null
     keyTonic: string | null
     keyMode: string | null
     timeNumerator: number | null
@@ -3006,6 +3015,11 @@ export namespace Prisma {
     generatedXmlPath: string | null
     analysisStatus: $Enums.JobStatus | null
     buildStatus: $Enums.JobStatus | null
+    retryCount: number | null
+    errorMessage: string | null
+    lastAttemptedAt: Date | null
+    executionId: string | null
+    idempotencyKey: string | null
     keyTonic: string | null
     keyMode: string | null
     timeNumerator: number | null
@@ -3025,6 +3039,11 @@ export namespace Prisma {
     generatedXmlPath: number
     analysisStatus: number
     buildStatus: number
+    retryCount: number
+    errorMessage: number
+    lastAttemptedAt: number
+    executionId: number
+    idempotencyKey: number
     keyTonic: number
     keyMode: number
     timeNumerator: number
@@ -3037,12 +3056,14 @@ export namespace Prisma {
 
 
   export type ScoreAvgAggregateInputType = {
+    retryCount?: true
     timeNumerator?: true
     timeDenominator?: true
     defaultTempo?: true
   }
 
   export type ScoreSumAggregateInputType = {
+    retryCount?: true
     timeNumerator?: true
     timeDenominator?: true
     defaultTempo?: true
@@ -3058,6 +3079,11 @@ export namespace Prisma {
     generatedXmlPath?: true
     analysisStatus?: true
     buildStatus?: true
+    retryCount?: true
+    errorMessage?: true
+    lastAttemptedAt?: true
+    executionId?: true
+    idempotencyKey?: true
     keyTonic?: true
     keyMode?: true
     timeNumerator?: true
@@ -3077,6 +3103,11 @@ export namespace Prisma {
     generatedXmlPath?: true
     analysisStatus?: true
     buildStatus?: true
+    retryCount?: true
+    errorMessage?: true
+    lastAttemptedAt?: true
+    executionId?: true
+    idempotencyKey?: true
     keyTonic?: true
     keyMode?: true
     timeNumerator?: true
@@ -3096,6 +3127,11 @@ export namespace Prisma {
     generatedXmlPath?: true
     analysisStatus?: true
     buildStatus?: true
+    retryCount?: true
+    errorMessage?: true
+    lastAttemptedAt?: true
+    executionId?: true
+    idempotencyKey?: true
     keyTonic?: true
     keyMode?: true
     timeNumerator?: true
@@ -3202,6 +3238,11 @@ export namespace Prisma {
     generatedXmlPath: string | null
     analysisStatus: $Enums.JobStatus
     buildStatus: $Enums.JobStatus
+    retryCount: number
+    errorMessage: string | null
+    lastAttemptedAt: Date | null
+    executionId: string | null
+    idempotencyKey: string | null
     keyTonic: string | null
     keyMode: string | null
     timeNumerator: number | null
@@ -3240,6 +3281,11 @@ export namespace Prisma {
     generatedXmlPath?: boolean
     analysisStatus?: boolean
     buildStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     keyTonic?: boolean
     keyMode?: boolean
     timeNumerator?: boolean
@@ -3262,6 +3308,11 @@ export namespace Prisma {
     generatedXmlPath?: boolean
     analysisStatus?: boolean
     buildStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     keyTonic?: boolean
     keyMode?: boolean
     timeNumerator?: boolean
@@ -3282,6 +3333,11 @@ export namespace Prisma {
     generatedXmlPath?: boolean
     analysisStatus?: boolean
     buildStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     keyTonic?: boolean
     keyMode?: boolean
     timeNumerator?: boolean
@@ -3302,6 +3358,11 @@ export namespace Prisma {
     generatedXmlPath?: boolean
     analysisStatus?: boolean
     buildStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     keyTonic?: boolean
     keyMode?: boolean
     timeNumerator?: boolean
@@ -3311,7 +3372,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type ScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdById" | "title" | "composer" | "arranger" | "originalXmlPath" | "generatedXmlPath" | "analysisStatus" | "buildStatus" | "keyTonic" | "keyMode" | "timeNumerator" | "timeDenominator" | "defaultTempo" | "isShared" | "createdAt", ExtArgs["result"]["score"]>
+  export type ScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdById" | "title" | "composer" | "arranger" | "originalXmlPath" | "generatedXmlPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "keyTonic" | "keyMode" | "timeNumerator" | "timeDenominator" | "defaultTempo" | "isShared" | "createdAt", ExtArgs["result"]["score"]>
   export type ScoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     performances?: boolean | Score$performancesArgs<ExtArgs>
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
@@ -3340,6 +3401,11 @@ export namespace Prisma {
       generatedXmlPath: string | null
       analysisStatus: $Enums.JobStatus
       buildStatus: $Enums.JobStatus
+      retryCount: number
+      errorMessage: string | null
+      lastAttemptedAt: Date | null
+      executionId: string | null
+      idempotencyKey: string | null
       keyTonic: string | null
       keyMode: string | null
       timeNumerator: number | null
@@ -3781,6 +3847,11 @@ export namespace Prisma {
     readonly generatedXmlPath: FieldRef<"Score", 'String'>
     readonly analysisStatus: FieldRef<"Score", 'JobStatus'>
     readonly buildStatus: FieldRef<"Score", 'JobStatus'>
+    readonly retryCount: FieldRef<"Score", 'Int'>
+    readonly errorMessage: FieldRef<"Score", 'String'>
+    readonly lastAttemptedAt: FieldRef<"Score", 'DateTime'>
+    readonly executionId: FieldRef<"Score", 'String'>
+    readonly idempotencyKey: FieldRef<"Score", 'String'>
     readonly keyTonic: FieldRef<"Score", 'String'>
     readonly keyMode: FieldRef<"Score", 'String'>
     readonly timeNumerator: FieldRef<"Score", 'Int'>
@@ -4244,6 +4315,7 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    retryCount: number | null
   }
 
   export type PerformanceSumAggregateOutputType = {
@@ -4252,6 +4324,7 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    retryCount: number | null
   }
 
   export type PerformanceMinAggregateOutputType = {
@@ -4272,6 +4345,12 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    analysisStatus: $Enums.JobStatus | null
+    retryCount: number | null
+    errorMessage: string | null
+    lastAttemptedAt: Date | null
+    executionId: string | null
+    idempotencyKey: string | null
   }
 
   export type PerformanceMaxAggregateOutputType = {
@@ -4292,6 +4371,12 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    analysisStatus: $Enums.JobStatus | null
+    retryCount: number | null
+    errorMessage: string | null
+    lastAttemptedAt: Date | null
+    executionId: string | null
+    idempotencyKey: string | null
   }
 
   export type PerformanceCountAggregateOutputType = {
@@ -4313,6 +4398,12 @@ export namespace Prisma {
     overallScore: number
     evaluatedNotes: number
     analysisSummary: number
+    analysisStatus: number
+    retryCount: number
+    errorMessage: number
+    lastAttemptedAt: number
+    executionId: number
+    idempotencyKey: number
     _all: number
   }
 
@@ -4323,6 +4414,7 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    retryCount?: true
   }
 
   export type PerformanceSumAggregateInputType = {
@@ -4331,6 +4423,7 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    retryCount?: true
   }
 
   export type PerformanceMinAggregateInputType = {
@@ -4351,6 +4444,12 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    analysisStatus?: true
+    retryCount?: true
+    errorMessage?: true
+    lastAttemptedAt?: true
+    executionId?: true
+    idempotencyKey?: true
   }
 
   export type PerformanceMaxAggregateInputType = {
@@ -4371,6 +4470,12 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    analysisStatus?: true
+    retryCount?: true
+    errorMessage?: true
+    lastAttemptedAt?: true
+    executionId?: true
+    idempotencyKey?: true
   }
 
   export type PerformanceCountAggregateInputType = {
@@ -4392,6 +4497,12 @@ export namespace Prisma {
     overallScore?: true
     evaluatedNotes?: true
     analysisSummary?: true
+    analysisStatus?: true
+    retryCount?: true
+    errorMessage?: true
+    lastAttemptedAt?: true
+    executionId?: true
+    idempotencyKey?: true
     _all?: true
   }
 
@@ -4500,6 +4611,12 @@ export namespace Prisma {
     overallScore: number | null
     evaluatedNotes: number | null
     analysisSummary: JsonValue | null
+    analysisStatus: $Enums.JobStatus
+    retryCount: number
+    errorMessage: string | null
+    lastAttemptedAt: Date | null
+    executionId: string | null
+    idempotencyKey: string | null
     _count: PerformanceCountAggregateOutputType | null
     _avg: PerformanceAvgAggregateOutputType | null
     _sum: PerformanceSumAggregateOutputType | null
@@ -4540,6 +4657,12 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    analysisStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     score?: boolean | ScoreDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["performance"]>
@@ -4563,6 +4686,12 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    analysisStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     score?: boolean | ScoreDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["performance"]>
@@ -4586,6 +4715,12 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    analysisStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     score?: boolean | ScoreDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["performance"]>
@@ -4609,9 +4744,15 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    analysisStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
   }
 
-  export type PerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "performanceType" | "performanceStatus" | "userId" | "scoreId" | "audioPath" | "audioFeaturesPath" | "comparisonResultPath" | "pseudoXmlPath" | "performanceDuration" | "performanceDate" | "uploadedAt" | "createdAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary", ExtArgs["result"]["performance"]>
+  export type PerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "performanceType" | "performanceStatus" | "userId" | "scoreId" | "audioPath" | "audioFeaturesPath" | "comparisonResultPath" | "pseudoXmlPath" | "performanceDuration" | "performanceDate" | "uploadedAt" | "createdAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary" | "analysisStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey", ExtArgs["result"]["performance"]>
   export type PerformanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     score?: boolean | ScoreDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -4650,6 +4791,12 @@ export namespace Prisma {
       overallScore: number | null
       evaluatedNotes: number | null
       analysisSummary: Prisma.JsonValue | null
+      analysisStatus: $Enums.JobStatus
+      retryCount: number
+      errorMessage: string | null
+      lastAttemptedAt: Date | null
+      executionId: string | null
+      idempotencyKey: string | null
     }, ExtArgs["result"]["performance"]>
     composites: {}
   }
@@ -5093,6 +5240,12 @@ export namespace Prisma {
     readonly overallScore: FieldRef<"Performance", 'Float'>
     readonly evaluatedNotes: FieldRef<"Performance", 'Int'>
     readonly analysisSummary: FieldRef<"Performance", 'Json'>
+    readonly analysisStatus: FieldRef<"Performance", 'JobStatus'>
+    readonly retryCount: FieldRef<"Performance", 'Int'>
+    readonly errorMessage: FieldRef<"Performance", 'String'>
+    readonly lastAttemptedAt: FieldRef<"Performance", 'DateTime'>
+    readonly executionId: FieldRef<"Performance", 'String'>
+    readonly idempotencyKey: FieldRef<"Performance", 'String'>
   }
     
 
@@ -5522,12 +5675,14 @@ export namespace Prisma {
   export type PracticeItemAvgAggregateOutputType = {
     tempoMin: number | null
     tempoMax: number | null
+    retryCount: number | null
     sortOrder: number | null
   }
 
   export type PracticeItemSumAggregateOutputType = {
     tempoMin: number | null
     tempoMax: number | null
+    retryCount: number | null
     sortOrder: number | null
   }
 
@@ -5548,6 +5703,11 @@ export namespace Prisma {
     analysisPath: string | null
     analysisStatus: $Enums.JobStatus | null
     buildStatus: $Enums.JobStatus | null
+    retryCount: number | null
+    errorMessage: string | null
+    lastAttemptedAt: Date | null
+    executionId: string | null
+    idempotencyKey: string | null
     ownerUserId: string | null
     source: string | null
     sortOrder: number | null
@@ -5573,6 +5733,11 @@ export namespace Prisma {
     analysisPath: string | null
     analysisStatus: $Enums.JobStatus | null
     buildStatus: $Enums.JobStatus | null
+    retryCount: number | null
+    errorMessage: string | null
+    lastAttemptedAt: Date | null
+    executionId: string | null
+    idempotencyKey: string | null
     ownerUserId: string | null
     source: string | null
     sortOrder: number | null
@@ -5599,6 +5764,11 @@ export namespace Prisma {
     analysisPath: number
     analysisStatus: number
     buildStatus: number
+    retryCount: number
+    errorMessage: number
+    lastAttemptedAt: number
+    executionId: number
+    idempotencyKey: number
     ownerUserId: number
     source: number
     sortOrder: number
@@ -5613,12 +5783,14 @@ export namespace Prisma {
   export type PracticeItemAvgAggregateInputType = {
     tempoMin?: true
     tempoMax?: true
+    retryCount?: true
     sortOrder?: true
   }
 
   export type PracticeItemSumAggregateInputType = {
     tempoMin?: true
     tempoMax?: true
+    retryCount?: true
     sortOrder?: true
   }
 
@@ -5639,6 +5811,11 @@ export namespace Prisma {
     analysisPath?: true
     analysisStatus?: true
     buildStatus?: true
+    retryCount?: true
+    errorMessage?: true
+    lastAttemptedAt?: true
+    executionId?: true
+    idempotencyKey?: true
     ownerUserId?: true
     source?: true
     sortOrder?: true
@@ -5664,6 +5841,11 @@ export namespace Prisma {
     analysisPath?: true
     analysisStatus?: true
     buildStatus?: true
+    retryCount?: true
+    errorMessage?: true
+    lastAttemptedAt?: true
+    executionId?: true
+    idempotencyKey?: true
     ownerUserId?: true
     source?: true
     sortOrder?: true
@@ -5690,6 +5872,11 @@ export namespace Prisma {
     analysisPath?: true
     analysisStatus?: true
     buildStatus?: true
+    retryCount?: true
+    errorMessage?: true
+    lastAttemptedAt?: true
+    executionId?: true
+    idempotencyKey?: true
     ownerUserId?: true
     source?: true
     sortOrder?: true
@@ -5804,6 +5991,11 @@ export namespace Prisma {
     analysisPath: string | null
     analysisStatus: $Enums.JobStatus
     buildStatus: $Enums.JobStatus
+    retryCount: number
+    errorMessage: string | null
+    lastAttemptedAt: Date | null
+    executionId: string | null
+    idempotencyKey: string | null
     ownerUserId: string | null
     source: string | null
     sortOrder: number
@@ -5850,6 +6042,11 @@ export namespace Prisma {
     analysisPath?: boolean
     analysisStatus?: boolean
     buildStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     ownerUserId?: boolean
     source?: boolean
     sortOrder?: boolean
@@ -5881,6 +6078,11 @@ export namespace Prisma {
     analysisPath?: boolean
     analysisStatus?: boolean
     buildStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     ownerUserId?: boolean
     source?: boolean
     sortOrder?: boolean
@@ -5909,6 +6111,11 @@ export namespace Prisma {
     analysisPath?: boolean
     analysisStatus?: boolean
     buildStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     ownerUserId?: boolean
     source?: boolean
     sortOrder?: boolean
@@ -5937,6 +6144,11 @@ export namespace Prisma {
     analysisPath?: boolean
     analysisStatus?: boolean
     buildStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     ownerUserId?: boolean
     source?: boolean
     sortOrder?: boolean
@@ -5946,7 +6158,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PracticeItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "category" | "title" | "composer" | "description" | "descriptionShort" | "keyTonic" | "keyMode" | "tempoMin" | "tempoMax" | "positions" | "instrument" | "originalXmlPath" | "generatedXmlPath" | "analysisPath" | "analysisStatus" | "buildStatus" | "ownerUserId" | "source" | "sortOrder" | "isPublished" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["practiceItem"]>
+  export type PracticeItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "category" | "title" | "composer" | "description" | "descriptionShort" | "keyTonic" | "keyMode" | "tempoMin" | "tempoMax" | "positions" | "instrument" | "originalXmlPath" | "generatedXmlPath" | "analysisPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "ownerUserId" | "source" | "sortOrder" | "isPublished" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["practiceItem"]>
   export type PracticeItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
     techniques?: boolean | PracticeItem$techniquesArgs<ExtArgs>
@@ -5985,6 +6197,11 @@ export namespace Prisma {
       analysisPath: string | null
       analysisStatus: $Enums.JobStatus
       buildStatus: $Enums.JobStatus
+      retryCount: number
+      errorMessage: string | null
+      lastAttemptedAt: Date | null
+      executionId: string | null
+      idempotencyKey: string | null
       ownerUserId: string | null
       source: string | null
       sortOrder: number
@@ -6435,6 +6652,11 @@ export namespace Prisma {
     readonly analysisPath: FieldRef<"PracticeItem", 'String'>
     readonly analysisStatus: FieldRef<"PracticeItem", 'JobStatus'>
     readonly buildStatus: FieldRef<"PracticeItem", 'JobStatus'>
+    readonly retryCount: FieldRef<"PracticeItem", 'Int'>
+    readonly errorMessage: FieldRef<"PracticeItem", 'String'>
+    readonly lastAttemptedAt: FieldRef<"PracticeItem", 'DateTime'>
+    readonly executionId: FieldRef<"PracticeItem", 'String'>
+    readonly idempotencyKey: FieldRef<"PracticeItem", 'String'>
     readonly ownerUserId: FieldRef<"PracticeItem", 'String'>
     readonly source: FieldRef<"PracticeItem", 'String'>
     readonly sortOrder: FieldRef<"PracticeItem", 'Int'>
@@ -9114,6 +9336,7 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    retryCount: number | null
   }
 
   export type PracticePerformanceSumAggregateOutputType = {
@@ -9122,6 +9345,7 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    retryCount: number | null
   }
 
   export type PracticePerformanceMinAggregateOutputType = {
@@ -9136,6 +9360,12 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    analysisStatus: $Enums.JobStatus | null
+    retryCount: number | null
+    errorMessage: string | null
+    lastAttemptedAt: Date | null
+    executionId: string | null
+    idempotencyKey: string | null
   }
 
   export type PracticePerformanceMaxAggregateOutputType = {
@@ -9150,6 +9380,12 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    analysisStatus: $Enums.JobStatus | null
+    retryCount: number | null
+    errorMessage: string | null
+    lastAttemptedAt: Date | null
+    executionId: string | null
+    idempotencyKey: string | null
   }
 
   export type PracticePerformanceCountAggregateOutputType = {
@@ -9165,6 +9401,12 @@ export namespace Prisma {
     overallScore: number
     evaluatedNotes: number
     analysisSummary: number
+    analysisStatus: number
+    retryCount: number
+    errorMessage: number
+    lastAttemptedAt: number
+    executionId: number
+    idempotencyKey: number
     _all: number
   }
 
@@ -9175,6 +9417,7 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    retryCount?: true
   }
 
   export type PracticePerformanceSumAggregateInputType = {
@@ -9183,6 +9426,7 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    retryCount?: true
   }
 
   export type PracticePerformanceMinAggregateInputType = {
@@ -9197,6 +9441,12 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    analysisStatus?: true
+    retryCount?: true
+    errorMessage?: true
+    lastAttemptedAt?: true
+    executionId?: true
+    idempotencyKey?: true
   }
 
   export type PracticePerformanceMaxAggregateInputType = {
@@ -9211,6 +9461,12 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    analysisStatus?: true
+    retryCount?: true
+    errorMessage?: true
+    lastAttemptedAt?: true
+    executionId?: true
+    idempotencyKey?: true
   }
 
   export type PracticePerformanceCountAggregateInputType = {
@@ -9226,6 +9482,12 @@ export namespace Prisma {
     overallScore?: true
     evaluatedNotes?: true
     analysisSummary?: true
+    analysisStatus?: true
+    retryCount?: true
+    errorMessage?: true
+    lastAttemptedAt?: true
+    executionId?: true
+    idempotencyKey?: true
     _all?: true
   }
 
@@ -9328,6 +9590,12 @@ export namespace Prisma {
     overallScore: number | null
     evaluatedNotes: number | null
     analysisSummary: JsonValue | null
+    analysisStatus: $Enums.JobStatus
+    retryCount: number
+    errorMessage: string | null
+    lastAttemptedAt: Date | null
+    executionId: string | null
+    idempotencyKey: string | null
     _count: PracticePerformanceCountAggregateOutputType | null
     _avg: PracticePerformanceAvgAggregateOutputType | null
     _sum: PracticePerformanceSumAggregateOutputType | null
@@ -9362,6 +9630,12 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    analysisStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["practicePerformance"]>
@@ -9379,6 +9653,12 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    analysisStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["practicePerformance"]>
@@ -9396,6 +9676,12 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    analysisStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["practicePerformance"]>
@@ -9413,9 +9699,15 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    analysisStatus?: boolean
+    retryCount?: boolean
+    errorMessage?: boolean
+    lastAttemptedAt?: boolean
+    executionId?: boolean
+    idempotencyKey?: boolean
   }
 
-  export type PracticePerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "practiceItemId" | "audioPath" | "comparisonResultPath" | "performanceDuration" | "uploadedAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary", ExtArgs["result"]["practicePerformance"]>
+  export type PracticePerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "practiceItemId" | "audioPath" | "comparisonResultPath" | "performanceDuration" | "uploadedAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary" | "analysisStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey", ExtArgs["result"]["practicePerformance"]>
   export type PracticePerformanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
@@ -9448,6 +9740,12 @@ export namespace Prisma {
       overallScore: number | null
       evaluatedNotes: number | null
       analysisSummary: Prisma.JsonValue | null
+      analysisStatus: $Enums.JobStatus
+      retryCount: number
+      errorMessage: string | null
+      lastAttemptedAt: Date | null
+      executionId: string | null
+      idempotencyKey: string | null
     }, ExtArgs["result"]["practicePerformance"]>
     composites: {}
   }
@@ -9885,6 +10183,12 @@ export namespace Prisma {
     readonly overallScore: FieldRef<"PracticePerformance", 'Float'>
     readonly evaluatedNotes: FieldRef<"PracticePerformance", 'Int'>
     readonly analysisSummary: FieldRef<"PracticePerformance", 'Json'>
+    readonly analysisStatus: FieldRef<"PracticePerformance", 'JobStatus'>
+    readonly retryCount: FieldRef<"PracticePerformance", 'Int'>
+    readonly errorMessage: FieldRef<"PracticePerformance", 'String'>
+    readonly lastAttemptedAt: FieldRef<"PracticePerformance", 'DateTime'>
+    readonly executionId: FieldRef<"PracticePerformance", 'String'>
+    readonly idempotencyKey: FieldRef<"PracticePerformance", 'String'>
   }
     
 
@@ -11498,6 +11802,11 @@ export namespace Prisma {
     generatedXmlPath: 'generatedXmlPath',
     analysisStatus: 'analysisStatus',
     buildStatus: 'buildStatus',
+    retryCount: 'retryCount',
+    errorMessage: 'errorMessage',
+    lastAttemptedAt: 'lastAttemptedAt',
+    executionId: 'executionId',
+    idempotencyKey: 'idempotencyKey',
     keyTonic: 'keyTonic',
     keyMode: 'keyMode',
     timeNumerator: 'timeNumerator',
@@ -11528,7 +11837,13 @@ export namespace Prisma {
     timingAccuracy: 'timingAccuracy',
     overallScore: 'overallScore',
     evaluatedNotes: 'evaluatedNotes',
-    analysisSummary: 'analysisSummary'
+    analysisSummary: 'analysisSummary',
+    analysisStatus: 'analysisStatus',
+    retryCount: 'retryCount',
+    errorMessage: 'errorMessage',
+    lastAttemptedAt: 'lastAttemptedAt',
+    executionId: 'executionId',
+    idempotencyKey: 'idempotencyKey'
   };
 
   export type PerformanceScalarFieldEnum = (typeof PerformanceScalarFieldEnum)[keyof typeof PerformanceScalarFieldEnum]
@@ -11552,6 +11867,11 @@ export namespace Prisma {
     analysisPath: 'analysisPath',
     analysisStatus: 'analysisStatus',
     buildStatus: 'buildStatus',
+    retryCount: 'retryCount',
+    errorMessage: 'errorMessage',
+    lastAttemptedAt: 'lastAttemptedAt',
+    executionId: 'executionId',
+    idempotencyKey: 'idempotencyKey',
     ownerUserId: 'ownerUserId',
     source: 'source',
     sortOrder: 'sortOrder',
@@ -11599,7 +11919,13 @@ export namespace Prisma {
     timingAccuracy: 'timingAccuracy',
     overallScore: 'overallScore',
     evaluatedNotes: 'evaluatedNotes',
-    analysisSummary: 'analysisSummary'
+    analysisSummary: 'analysisSummary',
+    analysisStatus: 'analysisStatus',
+    retryCount: 'retryCount',
+    errorMessage: 'errorMessage',
+    lastAttemptedAt: 'lastAttemptedAt',
+    executionId: 'executionId',
+    idempotencyKey: 'idempotencyKey'
   };
 
   export type PracticePerformanceScalarFieldEnum = (typeof PracticePerformanceScalarFieldEnum)[keyof typeof PracticePerformanceScalarFieldEnum]
@@ -11905,6 +12231,11 @@ export namespace Prisma {
     generatedXmlPath?: StringNullableFilter<"Score"> | string | null
     analysisStatus?: EnumJobStatusFilter<"Score"> | $Enums.JobStatus
     buildStatus?: EnumJobStatusFilter<"Score"> | $Enums.JobStatus
+    retryCount?: IntFilter<"Score"> | number
+    errorMessage?: StringNullableFilter<"Score"> | string | null
+    lastAttemptedAt?: DateTimeNullableFilter<"Score"> | Date | string | null
+    executionId?: StringNullableFilter<"Score"> | string | null
+    idempotencyKey?: StringNullableFilter<"Score"> | string | null
     keyTonic?: StringNullableFilter<"Score"> | string | null
     keyMode?: StringNullableFilter<"Score"> | string | null
     timeNumerator?: IntNullableFilter<"Score"> | number | null
@@ -11926,6 +12257,11 @@ export namespace Prisma {
     generatedXmlPath?: SortOrderInput | SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    lastAttemptedAt?: SortOrderInput | SortOrder
+    executionId?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
     keyTonic?: SortOrderInput | SortOrder
     keyMode?: SortOrderInput | SortOrder
     timeNumerator?: SortOrderInput | SortOrder
@@ -11939,6 +12275,7 @@ export namespace Prisma {
 
   export type ScoreWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    idempotencyKey?: string
     AND?: ScoreWhereInput | ScoreWhereInput[]
     OR?: ScoreWhereInput[]
     NOT?: ScoreWhereInput | ScoreWhereInput[]
@@ -11950,6 +12287,10 @@ export namespace Prisma {
     generatedXmlPath?: StringNullableFilter<"Score"> | string | null
     analysisStatus?: EnumJobStatusFilter<"Score"> | $Enums.JobStatus
     buildStatus?: EnumJobStatusFilter<"Score"> | $Enums.JobStatus
+    retryCount?: IntFilter<"Score"> | number
+    errorMessage?: StringNullableFilter<"Score"> | string | null
+    lastAttemptedAt?: DateTimeNullableFilter<"Score"> | Date | string | null
+    executionId?: StringNullableFilter<"Score"> | string | null
     keyTonic?: StringNullableFilter<"Score"> | string | null
     keyMode?: StringNullableFilter<"Score"> | string | null
     timeNumerator?: IntNullableFilter<"Score"> | number | null
@@ -11959,7 +12300,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Score"> | Date | string
     performances?: PerformanceListRelationFilter
     createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id">
+  }, "id" | "idempotencyKey">
 
   export type ScoreOrderByWithAggregationInput = {
     id?: SortOrder
@@ -11971,6 +12312,11 @@ export namespace Prisma {
     generatedXmlPath?: SortOrderInput | SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    lastAttemptedAt?: SortOrderInput | SortOrder
+    executionId?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
     keyTonic?: SortOrderInput | SortOrder
     keyMode?: SortOrderInput | SortOrder
     timeNumerator?: SortOrderInput | SortOrder
@@ -11998,6 +12344,11 @@ export namespace Prisma {
     generatedXmlPath?: StringNullableWithAggregatesFilter<"Score"> | string | null
     analysisStatus?: EnumJobStatusWithAggregatesFilter<"Score"> | $Enums.JobStatus
     buildStatus?: EnumJobStatusWithAggregatesFilter<"Score"> | $Enums.JobStatus
+    retryCount?: IntWithAggregatesFilter<"Score"> | number
+    errorMessage?: StringNullableWithAggregatesFilter<"Score"> | string | null
+    lastAttemptedAt?: DateTimeNullableWithAggregatesFilter<"Score"> | Date | string | null
+    executionId?: StringNullableWithAggregatesFilter<"Score"> | string | null
+    idempotencyKey?: StringNullableWithAggregatesFilter<"Score"> | string | null
     keyTonic?: StringNullableWithAggregatesFilter<"Score"> | string | null
     keyMode?: StringNullableWithAggregatesFilter<"Score"> | string | null
     timeNumerator?: IntNullableWithAggregatesFilter<"Score"> | number | null
@@ -12029,6 +12380,12 @@ export namespace Prisma {
     overallScore?: FloatNullableFilter<"Performance"> | number | null
     evaluatedNotes?: IntNullableFilter<"Performance"> | number | null
     analysisSummary?: JsonNullableFilter<"Performance">
+    analysisStatus?: EnumJobStatusFilter<"Performance"> | $Enums.JobStatus
+    retryCount?: IntFilter<"Performance"> | number
+    errorMessage?: StringNullableFilter<"Performance"> | string | null
+    lastAttemptedAt?: DateTimeNullableFilter<"Performance"> | Date | string | null
+    executionId?: StringNullableFilter<"Performance"> | string | null
+    idempotencyKey?: StringNullableFilter<"Performance"> | string | null
     score?: XOR<ScoreScalarRelationFilter, ScoreWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
@@ -12052,12 +12409,19 @@ export namespace Prisma {
     overallScore?: SortOrderInput | SortOrder
     evaluatedNotes?: SortOrderInput | SortOrder
     analysisSummary?: SortOrderInput | SortOrder
+    analysisStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    lastAttemptedAt?: SortOrderInput | SortOrder
+    executionId?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
     score?: ScoreOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
   }
 
   export type PerformanceWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    idempotencyKey?: string
     AND?: PerformanceWhereInput | PerformanceWhereInput[]
     OR?: PerformanceWhereInput[]
     NOT?: PerformanceWhereInput | PerformanceWhereInput[]
@@ -12078,9 +12442,14 @@ export namespace Prisma {
     overallScore?: FloatNullableFilter<"Performance"> | number | null
     evaluatedNotes?: IntNullableFilter<"Performance"> | number | null
     analysisSummary?: JsonNullableFilter<"Performance">
+    analysisStatus?: EnumJobStatusFilter<"Performance"> | $Enums.JobStatus
+    retryCount?: IntFilter<"Performance"> | number
+    errorMessage?: StringNullableFilter<"Performance"> | string | null
+    lastAttemptedAt?: DateTimeNullableFilter<"Performance"> | Date | string | null
+    executionId?: StringNullableFilter<"Performance"> | string | null
     score?: XOR<ScoreScalarRelationFilter, ScoreWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id">
+  }, "id" | "idempotencyKey">
 
   export type PerformanceOrderByWithAggregationInput = {
     id?: SortOrder
@@ -12101,6 +12470,12 @@ export namespace Prisma {
     overallScore?: SortOrderInput | SortOrder
     evaluatedNotes?: SortOrderInput | SortOrder
     analysisSummary?: SortOrderInput | SortOrder
+    analysisStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    lastAttemptedAt?: SortOrderInput | SortOrder
+    executionId?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
     _count?: PerformanceCountOrderByAggregateInput
     _avg?: PerformanceAvgOrderByAggregateInput
     _max?: PerformanceMaxOrderByAggregateInput
@@ -12130,6 +12505,12 @@ export namespace Prisma {
     overallScore?: FloatNullableWithAggregatesFilter<"Performance"> | number | null
     evaluatedNotes?: IntNullableWithAggregatesFilter<"Performance"> | number | null
     analysisSummary?: JsonNullableWithAggregatesFilter<"Performance">
+    analysisStatus?: EnumJobStatusWithAggregatesFilter<"Performance"> | $Enums.JobStatus
+    retryCount?: IntWithAggregatesFilter<"Performance"> | number
+    errorMessage?: StringNullableWithAggregatesFilter<"Performance"> | string | null
+    lastAttemptedAt?: DateTimeNullableWithAggregatesFilter<"Performance"> | Date | string | null
+    executionId?: StringNullableWithAggregatesFilter<"Performance"> | string | null
+    idempotencyKey?: StringNullableWithAggregatesFilter<"Performance"> | string | null
   }
 
   export type PracticeItemWhereInput = {
@@ -12153,6 +12534,11 @@ export namespace Prisma {
     analysisPath?: StringNullableFilter<"PracticeItem"> | string | null
     analysisStatus?: EnumJobStatusFilter<"PracticeItem"> | $Enums.JobStatus
     buildStatus?: EnumJobStatusFilter<"PracticeItem"> | $Enums.JobStatus
+    retryCount?: IntFilter<"PracticeItem"> | number
+    errorMessage?: StringNullableFilter<"PracticeItem"> | string | null
+    lastAttemptedAt?: DateTimeNullableFilter<"PracticeItem"> | Date | string | null
+    executionId?: StringNullableFilter<"PracticeItem"> | string | null
+    idempotencyKey?: StringNullableFilter<"PracticeItem"> | string | null
     ownerUserId?: StringNullableFilter<"PracticeItem"> | string | null
     source?: StringNullableFilter<"PracticeItem"> | string | null
     sortOrder?: IntFilter<"PracticeItem"> | number
@@ -12183,6 +12569,11 @@ export namespace Prisma {
     analysisPath?: SortOrderInput | SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    lastAttemptedAt?: SortOrderInput | SortOrder
+    executionId?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
     ownerUserId?: SortOrderInput | SortOrder
     source?: SortOrderInput | SortOrder
     sortOrder?: SortOrder
@@ -12197,6 +12588,7 @@ export namespace Prisma {
 
   export type PracticeItemWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    idempotencyKey?: string
     AND?: PracticeItemWhereInput | PracticeItemWhereInput[]
     OR?: PracticeItemWhereInput[]
     NOT?: PracticeItemWhereInput | PracticeItemWhereInput[]
@@ -12216,6 +12608,10 @@ export namespace Prisma {
     analysisPath?: StringNullableFilter<"PracticeItem"> | string | null
     analysisStatus?: EnumJobStatusFilter<"PracticeItem"> | $Enums.JobStatus
     buildStatus?: EnumJobStatusFilter<"PracticeItem"> | $Enums.JobStatus
+    retryCount?: IntFilter<"PracticeItem"> | number
+    errorMessage?: StringNullableFilter<"PracticeItem"> | string | null
+    lastAttemptedAt?: DateTimeNullableFilter<"PracticeItem"> | Date | string | null
+    executionId?: StringNullableFilter<"PracticeItem"> | string | null
     ownerUserId?: StringNullableFilter<"PracticeItem"> | string | null
     source?: StringNullableFilter<"PracticeItem"> | string | null
     sortOrder?: IntFilter<"PracticeItem"> | number
@@ -12226,7 +12622,7 @@ export namespace Prisma {
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     techniques?: PracticeItemTechniqueListRelationFilter
     practicePerformances?: PracticePerformanceListRelationFilter
-  }, "id">
+  }, "id" | "idempotencyKey">
 
   export type PracticeItemOrderByWithAggregationInput = {
     id?: SortOrder
@@ -12246,6 +12642,11 @@ export namespace Prisma {
     analysisPath?: SortOrderInput | SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    lastAttemptedAt?: SortOrderInput | SortOrder
+    executionId?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
     ownerUserId?: SortOrderInput | SortOrder
     source?: SortOrderInput | SortOrder
     sortOrder?: SortOrder
@@ -12281,6 +12682,11 @@ export namespace Prisma {
     analysisPath?: StringNullableWithAggregatesFilter<"PracticeItem"> | string | null
     analysisStatus?: EnumJobStatusWithAggregatesFilter<"PracticeItem"> | $Enums.JobStatus
     buildStatus?: EnumJobStatusWithAggregatesFilter<"PracticeItem"> | $Enums.JobStatus
+    retryCount?: IntWithAggregatesFilter<"PracticeItem"> | number
+    errorMessage?: StringNullableWithAggregatesFilter<"PracticeItem"> | string | null
+    lastAttemptedAt?: DateTimeNullableWithAggregatesFilter<"PracticeItem"> | Date | string | null
+    executionId?: StringNullableWithAggregatesFilter<"PracticeItem"> | string | null
+    idempotencyKey?: StringNullableWithAggregatesFilter<"PracticeItem"> | string | null
     ownerUserId?: StringNullableWithAggregatesFilter<"PracticeItem"> | string | null
     source?: StringNullableWithAggregatesFilter<"PracticeItem"> | string | null
     sortOrder?: IntWithAggregatesFilter<"PracticeItem"> | number
@@ -12429,6 +12835,12 @@ export namespace Prisma {
     overallScore?: FloatNullableFilter<"PracticePerformance"> | number | null
     evaluatedNotes?: IntNullableFilter<"PracticePerformance"> | number | null
     analysisSummary?: JsonNullableFilter<"PracticePerformance">
+    analysisStatus?: EnumJobStatusFilter<"PracticePerformance"> | $Enums.JobStatus
+    retryCount?: IntFilter<"PracticePerformance"> | number
+    errorMessage?: StringNullableFilter<"PracticePerformance"> | string | null
+    lastAttemptedAt?: DateTimeNullableFilter<"PracticePerformance"> | Date | string | null
+    executionId?: StringNullableFilter<"PracticePerformance"> | string | null
+    idempotencyKey?: StringNullableFilter<"PracticePerformance"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     practiceItem?: XOR<PracticeItemScalarRelationFilter, PracticeItemWhereInput>
   }
@@ -12446,12 +12858,19 @@ export namespace Prisma {
     overallScore?: SortOrderInput | SortOrder
     evaluatedNotes?: SortOrderInput | SortOrder
     analysisSummary?: SortOrderInput | SortOrder
+    analysisStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    lastAttemptedAt?: SortOrderInput | SortOrder
+    executionId?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
     practiceItem?: PracticeItemOrderByWithRelationInput
   }
 
   export type PracticePerformanceWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    idempotencyKey?: string
     AND?: PracticePerformanceWhereInput | PracticePerformanceWhereInput[]
     OR?: PracticePerformanceWhereInput[]
     NOT?: PracticePerformanceWhereInput | PracticePerformanceWhereInput[]
@@ -12466,9 +12885,14 @@ export namespace Prisma {
     overallScore?: FloatNullableFilter<"PracticePerformance"> | number | null
     evaluatedNotes?: IntNullableFilter<"PracticePerformance"> | number | null
     analysisSummary?: JsonNullableFilter<"PracticePerformance">
+    analysisStatus?: EnumJobStatusFilter<"PracticePerformance"> | $Enums.JobStatus
+    retryCount?: IntFilter<"PracticePerformance"> | number
+    errorMessage?: StringNullableFilter<"PracticePerformance"> | string | null
+    lastAttemptedAt?: DateTimeNullableFilter<"PracticePerformance"> | Date | string | null
+    executionId?: StringNullableFilter<"PracticePerformance"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     practiceItem?: XOR<PracticeItemScalarRelationFilter, PracticeItemWhereInput>
-  }, "id">
+  }, "id" | "idempotencyKey">
 
   export type PracticePerformanceOrderByWithAggregationInput = {
     id?: SortOrder
@@ -12483,6 +12907,12 @@ export namespace Prisma {
     overallScore?: SortOrderInput | SortOrder
     evaluatedNotes?: SortOrderInput | SortOrder
     analysisSummary?: SortOrderInput | SortOrder
+    analysisStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrderInput | SortOrder
+    lastAttemptedAt?: SortOrderInput | SortOrder
+    executionId?: SortOrderInput | SortOrder
+    idempotencyKey?: SortOrderInput | SortOrder
     _count?: PracticePerformanceCountOrderByAggregateInput
     _avg?: PracticePerformanceAvgOrderByAggregateInput
     _max?: PracticePerformanceMaxOrderByAggregateInput
@@ -12506,6 +12936,12 @@ export namespace Prisma {
     overallScore?: FloatNullableWithAggregatesFilter<"PracticePerformance"> | number | null
     evaluatedNotes?: IntNullableWithAggregatesFilter<"PracticePerformance"> | number | null
     analysisSummary?: JsonNullableWithAggregatesFilter<"PracticePerformance">
+    analysisStatus?: EnumJobStatusWithAggregatesFilter<"PracticePerformance"> | $Enums.JobStatus
+    retryCount?: IntWithAggregatesFilter<"PracticePerformance"> | number
+    errorMessage?: StringNullableWithAggregatesFilter<"PracticePerformance"> | string | null
+    lastAttemptedAt?: DateTimeNullableWithAggregatesFilter<"PracticePerformance"> | Date | string | null
+    executionId?: StringNullableWithAggregatesFilter<"PracticePerformance"> | string | null
+    idempotencyKey?: StringNullableWithAggregatesFilter<"PracticePerformance"> | string | null
   }
 
   export type UserWeaknessWhereInput = {
@@ -12683,6 +13119,11 @@ export namespace Prisma {
     generatedXmlPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     keyTonic?: string | null
     keyMode?: string | null
     timeNumerator?: number | null
@@ -12704,6 +13145,11 @@ export namespace Prisma {
     generatedXmlPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     keyTonic?: string | null
     keyMode?: string | null
     timeNumerator?: number | null
@@ -12723,6 +13169,11 @@ export namespace Prisma {
     generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
     keyMode?: NullableStringFieldUpdateOperationsInput | string | null
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
@@ -12744,6 +13195,11 @@ export namespace Prisma {
     generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
     keyMode?: NullableStringFieldUpdateOperationsInput | string | null
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
@@ -12764,6 +13220,11 @@ export namespace Prisma {
     generatedXmlPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     keyTonic?: string | null
     keyMode?: string | null
     timeNumerator?: number | null
@@ -12782,6 +13243,11 @@ export namespace Prisma {
     generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
     keyMode?: NullableStringFieldUpdateOperationsInput | string | null
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
@@ -12801,6 +13267,11 @@ export namespace Prisma {
     generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
     keyMode?: NullableStringFieldUpdateOperationsInput | string | null
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
@@ -12827,6 +13298,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     score: ScoreCreateNestedOneWithoutPerformancesInput
     user: UserCreateNestedOneWithoutPerformancesInput
   }
@@ -12850,6 +13327,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
   }
 
   export type PerformanceUpdateInput = {
@@ -12869,6 +13352,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     score?: ScoreUpdateOneRequiredWithoutPerformancesNestedInput
     user?: UserUpdateOneRequiredWithoutPerformancesNestedInput
   }
@@ -12892,6 +13381,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PerformanceCreateManyInput = {
@@ -12913,6 +13408,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
   }
 
   export type PerformanceUpdateManyMutationInput = {
@@ -12932,6 +13433,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PerformanceUncheckedUpdateManyInput = {
@@ -12953,6 +13460,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PracticeItemCreateInput = {
@@ -12973,6 +13486,11 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     source?: string | null
     sortOrder?: number
     isPublished?: boolean
@@ -13002,6 +13520,11 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     ownerUserId?: string | null
     source?: string | null
     sortOrder?: number
@@ -13031,6 +13554,11 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -13060,6 +13588,11 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
@@ -13089,6 +13622,11 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     ownerUserId?: string | null
     source?: string | null
     sortOrder?: number
@@ -13116,6 +13654,11 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -13142,6 +13685,11 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
@@ -13287,6 +13835,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     user: UserCreateNestedOneWithoutPracticePerformancesInput
     practiceItem: PracticeItemCreateNestedOneWithoutPracticePerformancesInput
   }
@@ -13304,6 +13858,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
   }
 
   export type PracticePerformanceUpdateInput = {
@@ -13317,6 +13877,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutPracticePerformancesNestedInput
     practiceItem?: PracticeItemUpdateOneRequiredWithoutPracticePerformancesNestedInput
   }
@@ -13334,6 +13900,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PracticePerformanceCreateManyInput = {
@@ -13349,6 +13921,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
   }
 
   export type PracticePerformanceUpdateManyMutationInput = {
@@ -13362,6 +13940,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PracticePerformanceUncheckedUpdateManyInput = {
@@ -13377,6 +13961,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserWeaknessCreateInput = {
@@ -13654,6 +14244,28 @@ export namespace Prisma {
     not?: NestedEnumJobStatusFilter<$PrismaModel> | $Enums.JobStatus
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type IntNullableFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -13685,6 +14297,11 @@ export namespace Prisma {
     generatedXmlPath?: SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrder
+    lastAttemptedAt?: SortOrder
+    executionId?: SortOrder
+    idempotencyKey?: SortOrder
     keyTonic?: SortOrder
     keyMode?: SortOrder
     timeNumerator?: SortOrder
@@ -13695,6 +14312,7 @@ export namespace Prisma {
   }
 
   export type ScoreAvgOrderByAggregateInput = {
+    retryCount?: SortOrder
     timeNumerator?: SortOrder
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
@@ -13710,6 +14328,11 @@ export namespace Prisma {
     generatedXmlPath?: SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrder
+    lastAttemptedAt?: SortOrder
+    executionId?: SortOrder
+    idempotencyKey?: SortOrder
     keyTonic?: SortOrder
     keyMode?: SortOrder
     timeNumerator?: SortOrder
@@ -13729,6 +14352,11 @@ export namespace Prisma {
     generatedXmlPath?: SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrder
+    lastAttemptedAt?: SortOrder
+    executionId?: SortOrder
+    idempotencyKey?: SortOrder
     keyTonic?: SortOrder
     keyMode?: SortOrder
     timeNumerator?: SortOrder
@@ -13739,6 +14367,7 @@ export namespace Prisma {
   }
 
   export type ScoreSumOrderByAggregateInput = {
+    retryCount?: SortOrder
     timeNumerator?: SortOrder
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
@@ -13752,6 +14381,36 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumJobStatusFilter<$PrismaModel>
     _max?: NestedEnumJobStatusFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -13802,17 +14461,6 @@ export namespace Prisma {
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -13861,6 +14509,12 @@ export namespace Prisma {
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
     analysisSummary?: SortOrder
+    analysisStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrder
+    lastAttemptedAt?: SortOrder
+    executionId?: SortOrder
+    idempotencyKey?: SortOrder
   }
 
   export type PerformanceAvgOrderByAggregateInput = {
@@ -13869,6 +14523,7 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    retryCount?: SortOrder
   }
 
   export type PerformanceMaxOrderByAggregateInput = {
@@ -13889,6 +14544,12 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    analysisStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrder
+    lastAttemptedAt?: SortOrder
+    executionId?: SortOrder
+    idempotencyKey?: SortOrder
   }
 
   export type PerformanceMinOrderByAggregateInput = {
@@ -13909,6 +14570,12 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    analysisStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrder
+    lastAttemptedAt?: SortOrder
+    executionId?: SortOrder
+    idempotencyKey?: SortOrder
   }
 
   export type PerformanceSumOrderByAggregateInput = {
@@ -13917,6 +14584,7 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    retryCount?: SortOrder
   }
 
   export type EnumPerformanceTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -13953,20 +14621,6 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -14010,17 +14664,6 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
   export type UserNullableScalarRelationFilter = {
     is?: UserWhereInput | null
     isNot?: UserWhereInput | null
@@ -14054,6 +14697,11 @@ export namespace Prisma {
     analysisPath?: SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrder
+    lastAttemptedAt?: SortOrder
+    executionId?: SortOrder
+    idempotencyKey?: SortOrder
     ownerUserId?: SortOrder
     source?: SortOrder
     sortOrder?: SortOrder
@@ -14066,6 +14714,7 @@ export namespace Prisma {
   export type PracticeItemAvgOrderByAggregateInput = {
     tempoMin?: SortOrder
     tempoMax?: SortOrder
+    retryCount?: SortOrder
     sortOrder?: SortOrder
   }
 
@@ -14086,6 +14735,11 @@ export namespace Prisma {
     analysisPath?: SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrder
+    lastAttemptedAt?: SortOrder
+    executionId?: SortOrder
+    idempotencyKey?: SortOrder
     ownerUserId?: SortOrder
     source?: SortOrder
     sortOrder?: SortOrder
@@ -14111,6 +14765,11 @@ export namespace Prisma {
     analysisPath?: SortOrder
     analysisStatus?: SortOrder
     buildStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrder
+    lastAttemptedAt?: SortOrder
+    executionId?: SortOrder
+    idempotencyKey?: SortOrder
     ownerUserId?: SortOrder
     source?: SortOrder
     sortOrder?: SortOrder
@@ -14122,6 +14781,7 @@ export namespace Prisma {
   export type PracticeItemSumOrderByAggregateInput = {
     tempoMin?: SortOrder
     tempoMax?: SortOrder
+    retryCount?: SortOrder
     sortOrder?: SortOrder
   }
 
@@ -14133,22 +14793,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPracticeCategoryFilter<$PrismaModel>
     _max?: NestedEnumPracticeCategoryFilter<$PrismaModel>
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type TechniqueTagCategoryNameCompoundUniqueInput = {
@@ -14233,6 +14877,12 @@ export namespace Prisma {
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
     analysisSummary?: SortOrder
+    analysisStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrder
+    lastAttemptedAt?: SortOrder
+    executionId?: SortOrder
+    idempotencyKey?: SortOrder
   }
 
   export type PracticePerformanceAvgOrderByAggregateInput = {
@@ -14241,6 +14891,7 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    retryCount?: SortOrder
   }
 
   export type PracticePerformanceMaxOrderByAggregateInput = {
@@ -14255,6 +14906,12 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    analysisStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrder
+    lastAttemptedAt?: SortOrder
+    executionId?: SortOrder
+    idempotencyKey?: SortOrder
   }
 
   export type PracticePerformanceMinOrderByAggregateInput = {
@@ -14269,6 +14926,12 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    analysisStatus?: SortOrder
+    retryCount?: SortOrder
+    errorMessage?: SortOrder
+    lastAttemptedAt?: SortOrder
+    executionId?: SortOrder
+    idempotencyKey?: SortOrder
   }
 
   export type PracticePerformanceSumOrderByAggregateInput = {
@@ -14277,6 +14940,7 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    retryCount?: SortOrder
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -14610,6 +15274,18 @@ export namespace Prisma {
     set?: $Enums.JobStatus
   }
 
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type NullableIntFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
@@ -14686,10 +15362,6 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
-  }
-
   export type ScoreUpdateOneRequiredWithoutPerformancesNestedInput = {
     create?: XOR<ScoreCreateWithoutPerformancesInput, ScoreUncheckedCreateWithoutPerformancesInput>
     connectOrCreate?: ScoreCreateOrConnectWithoutPerformancesInput
@@ -14751,14 +15423,6 @@ export namespace Prisma {
   export type PracticeItemUpdatepositionsInput = {
     set?: string[]
     push?: string | string[]
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type UserUpdateOneWithoutPracticeItemsNestedInput = {
@@ -15147,6 +15811,17 @@ export namespace Prisma {
     not?: NestedEnumJobStatusFilter<$PrismaModel> | $Enums.JobStatus
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
@@ -15160,6 +15835,47 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumJobStatusFilter<$PrismaModel>
     _max?: NestedEnumJobStatusFilter<$PrismaModel>
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -15211,17 +15927,6 @@ export namespace Prisma {
     not?: NestedEnumPerformanceStatusFilter<$PrismaModel> | $Enums.PerformanceStatus
   }
 
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
   export type NestedEnumPerformanceTypeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.PerformanceType | EnumPerformanceTypeFieldRefInput<$PrismaModel>
     in?: $Enums.PerformanceType[] | ListEnumPerformanceTypeFieldRefInput<$PrismaModel>
@@ -15256,20 +15961,6 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
   export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -15312,33 +16003,6 @@ export namespace Prisma {
     _max?: NestedEnumPracticeCategoryFilter<$PrismaModel>
   }
 
-  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type NestedFloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
-  }
-
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | FloatFieldRefInput<$PrismaModel>
     in?: number[] | ListFloatFieldRefInput<$PrismaModel>
@@ -15372,6 +16036,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     score: ScoreCreateNestedOneWithoutPerformancesInput
   }
 
@@ -15393,6 +16063,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
   }
 
   export type PerformanceCreateOrConnectWithoutUserInput = {
@@ -15414,6 +16090,11 @@ export namespace Prisma {
     generatedXmlPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     keyTonic?: string | null
     keyMode?: string | null
     timeNumerator?: number | null
@@ -15433,6 +16114,11 @@ export namespace Prisma {
     generatedXmlPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     keyTonic?: string | null
     keyMode?: string | null
     timeNumerator?: number | null
@@ -15471,6 +16157,11 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     source?: string | null
     sortOrder?: number
     isPublished?: boolean
@@ -15499,6 +16190,11 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     source?: string | null
     sortOrder?: number
     isPublished?: boolean
@@ -15530,6 +16226,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     practiceItem: PracticeItemCreateNestedOneWithoutPracticePerformancesInput
   }
 
@@ -15545,6 +16247,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
   }
 
   export type PracticePerformanceCreateOrConnectWithoutUserInput = {
@@ -15625,6 +16333,12 @@ export namespace Prisma {
     overallScore?: FloatNullableFilter<"Performance"> | number | null
     evaluatedNotes?: IntNullableFilter<"Performance"> | number | null
     analysisSummary?: JsonNullableFilter<"Performance">
+    analysisStatus?: EnumJobStatusFilter<"Performance"> | $Enums.JobStatus
+    retryCount?: IntFilter<"Performance"> | number
+    errorMessage?: StringNullableFilter<"Performance"> | string | null
+    lastAttemptedAt?: DateTimeNullableFilter<"Performance"> | Date | string | null
+    executionId?: StringNullableFilter<"Performance"> | string | null
+    idempotencyKey?: StringNullableFilter<"Performance"> | string | null
   }
 
   export type ScoreUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -15656,6 +16370,11 @@ export namespace Prisma {
     generatedXmlPath?: StringNullableFilter<"Score"> | string | null
     analysisStatus?: EnumJobStatusFilter<"Score"> | $Enums.JobStatus
     buildStatus?: EnumJobStatusFilter<"Score"> | $Enums.JobStatus
+    retryCount?: IntFilter<"Score"> | number
+    errorMessage?: StringNullableFilter<"Score"> | string | null
+    lastAttemptedAt?: DateTimeNullableFilter<"Score"> | Date | string | null
+    executionId?: StringNullableFilter<"Score"> | string | null
+    idempotencyKey?: StringNullableFilter<"Score"> | string | null
     keyTonic?: StringNullableFilter<"Score"> | string | null
     keyMode?: StringNullableFilter<"Score"> | string | null
     timeNumerator?: IntNullableFilter<"Score"> | number | null
@@ -15702,6 +16421,11 @@ export namespace Prisma {
     analysisPath?: StringNullableFilter<"PracticeItem"> | string | null
     analysisStatus?: EnumJobStatusFilter<"PracticeItem"> | $Enums.JobStatus
     buildStatus?: EnumJobStatusFilter<"PracticeItem"> | $Enums.JobStatus
+    retryCount?: IntFilter<"PracticeItem"> | number
+    errorMessage?: StringNullableFilter<"PracticeItem"> | string | null
+    lastAttemptedAt?: DateTimeNullableFilter<"PracticeItem"> | Date | string | null
+    executionId?: StringNullableFilter<"PracticeItem"> | string | null
+    idempotencyKey?: StringNullableFilter<"PracticeItem"> | string | null
     ownerUserId?: StringNullableFilter<"PracticeItem"> | string | null
     source?: StringNullableFilter<"PracticeItem"> | string | null
     sortOrder?: IntFilter<"PracticeItem"> | number
@@ -15743,6 +16467,12 @@ export namespace Prisma {
     overallScore?: FloatNullableFilter<"PracticePerformance"> | number | null
     evaluatedNotes?: IntNullableFilter<"PracticePerformance"> | number | null
     analysisSummary?: JsonNullableFilter<"PracticePerformance">
+    analysisStatus?: EnumJobStatusFilter<"PracticePerformance"> | $Enums.JobStatus
+    retryCount?: IntFilter<"PracticePerformance"> | number
+    errorMessage?: StringNullableFilter<"PracticePerformance"> | string | null
+    lastAttemptedAt?: DateTimeNullableFilter<"PracticePerformance"> | Date | string | null
+    executionId?: StringNullableFilter<"PracticePerformance"> | string | null
+    idempotencyKey?: StringNullableFilter<"PracticePerformance"> | string | null
   }
 
   export type UserWeaknessUpsertWithWhereUniqueWithoutUserInput = {
@@ -15792,6 +16522,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     user: UserCreateNestedOneWithoutPerformancesInput
   }
 
@@ -15813,6 +16549,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
   }
 
   export type PerformanceCreateOrConnectWithoutScoreInput = {
@@ -15922,6 +16664,11 @@ export namespace Prisma {
     generatedXmlPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     keyTonic?: string | null
     keyMode?: string | null
     timeNumerator?: number | null
@@ -15942,6 +16689,11 @@ export namespace Prisma {
     generatedXmlPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     keyTonic?: string | null
     keyMode?: string | null
     timeNumerator?: number | null
@@ -16009,6 +16761,11 @@ export namespace Prisma {
     generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
     keyMode?: NullableStringFieldUpdateOperationsInput | string | null
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
@@ -16029,6 +16786,11 @@ export namespace Prisma {
     generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
     keyMode?: NullableStringFieldUpdateOperationsInput | string | null
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
@@ -16141,6 +16903,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     user: UserCreateNestedOneWithoutPracticePerformancesInput
   }
 
@@ -16156,6 +16924,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
   }
 
   export type PracticePerformanceCreateOrConnectWithoutPracticeItemInput = {
@@ -16348,6 +17122,11 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     source?: string | null
     sortOrder?: number
     isPublished?: boolean
@@ -16376,6 +17155,11 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     ownerUserId?: string | null
     source?: string | null
     sortOrder?: number
@@ -16449,6 +17233,11 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -16477,6 +17266,11 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
@@ -16573,6 +17367,11 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     source?: string | null
     sortOrder?: number
     isPublished?: boolean
@@ -16601,6 +17400,11 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     ownerUserId?: string | null
     source?: string | null
     sortOrder?: number
@@ -16684,6 +17488,11 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -16712,6 +17521,11 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
@@ -16876,6 +17690,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
   }
 
   export type ScoreCreateManyCreatedByInput = {
@@ -16887,6 +17707,11 @@ export namespace Prisma {
     generatedXmlPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     keyTonic?: string | null
     keyMode?: string | null
     timeNumerator?: number | null
@@ -16914,6 +17739,11 @@ export namespace Prisma {
     analysisPath?: string | null
     analysisStatus?: $Enums.JobStatus
     buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
     source?: string | null
     sortOrder?: number
     isPublished?: boolean
@@ -16934,6 +17764,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
   }
 
   export type UserWeaknessCreateManyUserInput = {
@@ -16963,6 +17799,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     score?: ScoreUpdateOneRequiredWithoutPerformancesNestedInput
   }
 
@@ -16984,6 +17826,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PerformanceUncheckedUpdateManyWithoutUserInput = {
@@ -17004,6 +17852,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ScoreUpdateWithoutCreatedByInput = {
@@ -17015,6 +17869,11 @@ export namespace Prisma {
     generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
     keyMode?: NullableStringFieldUpdateOperationsInput | string | null
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
@@ -17034,6 +17893,11 @@ export namespace Prisma {
     generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
     keyMode?: NullableStringFieldUpdateOperationsInput | string | null
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
@@ -17053,6 +17917,11 @@ export namespace Prisma {
     generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
     keyMode?: NullableStringFieldUpdateOperationsInput | string | null
     timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
@@ -17080,6 +17949,11 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -17108,6 +17982,11 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -17136,6 +18015,11 @@ export namespace Prisma {
     analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
     sortOrder?: IntFieldUpdateOperationsInput | number
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -17155,6 +18039,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     practiceItem?: PracticeItemUpdateOneRequiredWithoutPracticePerformancesNestedInput
   }
 
@@ -17170,6 +18060,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PracticePerformanceUncheckedUpdateManyWithoutUserInput = {
@@ -17184,6 +18080,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserWeaknessUpdateWithoutUserInput = {
@@ -17234,6 +18136,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
   }
 
   export type PerformanceUpdateWithoutScoreInput = {
@@ -17253,6 +18161,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutPerformancesNestedInput
   }
 
@@ -17274,6 +18188,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PerformanceUncheckedUpdateManyWithoutScoreInput = {
@@ -17294,6 +18214,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PracticeItemTechniqueCreateManyPracticeItemInput = {
@@ -17313,6 +18239,12 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
   }
 
   export type PracticeItemTechniqueUpdateWithoutPracticeItemInput = {
@@ -17341,6 +18273,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutPracticePerformancesNestedInput
   }
 
@@ -17356,6 +18294,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PracticePerformanceUncheckedUpdateManyWithoutPracticeItemInput = {
@@ -17370,6 +18314,12 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PracticeItemTechniqueCreateManyTechniqueTagInput = {

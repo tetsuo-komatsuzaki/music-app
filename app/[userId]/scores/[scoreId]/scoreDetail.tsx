@@ -29,6 +29,8 @@ type PerformanceDTO = {
   id: string
   uploadedAt: string
   status: string
+  analysisStatus?: string | null
+  errorMessage?: string | null
   audioUrl: string | null
   comparisonResult: any[] | null
   comparisonWarnings?: string[]
@@ -392,7 +394,15 @@ function PerformanceHistory({
               )}
             </div>
             <div className={styles.historyMeta}>
-              <span>{p.overallScore != null ? `${Math.round(p.overallScore)}点` : p.status}</span>
+              <span>
+                {p.overallScore != null
+                  ? `${Math.round(p.overallScore)}点`
+                  : p.analysisStatus === "error"
+                    ? "解析失敗"
+                    : p.analysisStatus === "done"
+                      ? "評価あり"
+                      : "解析中..."}
+              </span>
               {(p.comparisonResult || p.pitchAccuracy != null) && <span className={styles.historyBadge}>評価あり</span>}
             </div>
           </div>
@@ -635,6 +645,24 @@ export default function ScoreDetail({
 
   // ▼ 録音テンポ（Recorder から通知される）
   const recordingBpmRef = useRef(analysis?.bpm ?? 90)
+
+  // 解析中の performance を 3 秒ごとに再 fetch
+  useEffect(() => {
+    const hasPending = performances.some(
+      p => p.analysisStatus && p.analysisStatus !== "done" && p.analysisStatus !== "error"
+    )
+    if (!hasPending) return
+    const apiBase = practiceItemId
+      ? `/api/practice-performances?practiceItemId=${practiceItemId}&userId=${userId}`
+      : `/api/score-performances?scoreId=${score.id}&userId=${userId}`
+    const timer = setInterval(() => {
+      fetch(apiBase)
+        .then(res => res.json())
+        .then((data: PerformanceDTO[]) => setPerformances(data))
+        .catch(() => {})
+    }, 3000)
+    return () => clearInterval(timer)
+  }, [performances, score.id, userId, practiceItemId])
 
   // パフォーマンスデータの非同期取得
   useEffect(() => {
@@ -1287,20 +1315,123 @@ export default function ScoreDetail({
   const recGuideAnimRef = useRef<number | null>(null)
   const recGuideStartRef = useRef<number>(0)
 
+  // 録音中のガイドラインを前後ノート間で線形補間して横スライドさせる
+  const updateRecordingCursor = useCallback((currentSec: number) => {
+    const cursor = cursorRef.current
+    if (!cursor) return
+    const times = sortedTimes.current
+    if (times.length === 0) return
+
+    // 前後のノート index を二分探索
+    let lo = 0, hi = times.length - 1
+    while (lo < hi) {
+      const mid = Math.floor((lo + hi) / 2)
+      if (times[mid] < currentSec) lo = mid + 1
+      else hi = mid
+    }
+    const nextIdx = times[lo] >= currentSec ? lo : Math.min(lo + 1, times.length - 1)
+    const prevIdx = Math.max(0, nextIdx - 1)
+    const prevTime = times[prevIdx]
+    const nextTime = times[nextIdx]
+
+    const prevGNotes = timeToGNotesMap.current.get(prevTime)
+    if (!prevGNotes || prevGNotes.length === 0) return
+
+    const container = document.getElementById("osmd-container")
+    if (!container) return
+
+    const svgs = container.querySelectorAll("svg")
+    let activeSvg: SVGSVGElement | null = null
+    for (const svg of svgs) {
+      if (svg.style.display !== "none") { activeSvg = svg as SVGSVGElement; break }
+    }
+    if (!activeSvg) return
+
+    const prevSvg = prevGNotes[0].getSVGGElement?.()
+    if (!prevSvg || !activeSvg.contains(prevSvg)) {
+      cursor.style.display = "none"
+      return
+    }
+
+    const containerRect = container.getBoundingClientRect()
+    const prevRect = prevSvg.getBoundingClientRect()
+    const prevX = prevRect.left + prevRect.width / 2 - containerRect.left
+
+    // 前後ノートが同じ段なら x を線形補間、改段を跨ぐなら prev 位置に固定
+    let x = prevX
+    const nextGNotes = timeToGNotesMap.current.get(nextTime)
+    if (nextGNotes && nextGNotes.length > 0 && nextTime > prevTime) {
+      const nextSvg = nextGNotes[0].getSVGGElement?.()
+      if (nextSvg && activeSvg.contains(nextSvg)) {
+        const nextRect = nextSvg.getBoundingClientRect()
+        const sameRow = Math.abs(prevRect.top - nextRect.top) < 20
+        if (sameRow) {
+          const nextX = nextRect.left + nextRect.width / 2 - containerRect.left
+          const progress = Math.max(0, Math.min(1, (currentSec - prevTime) / (nextTime - prevTime)))
+          x = prevX + (nextX - prevX) * progress
+        }
+      }
+    }
+
+    // 五線の範囲を特定 (updateCursorFromGNotes と同じロジック)
+    const noteMidY = prevRect.top + prevRect.height / 2
+    const staves = activeSvg.querySelectorAll("g.vf-stave")
+    let staffTop = noteMidY - containerRect.top - 30
+    let staffHeight = 60
+
+    let closestStave: Element | null = null
+    let closestDist = Infinity
+    for (const stave of staves) {
+      const sr = stave.getBoundingClientRect()
+      const staveMid = sr.top + sr.height / 2
+      const dist = Math.abs(staveMid - noteMidY)
+      if (dist < closestDist) { closestDist = dist; closestStave = stave }
+    }
+    if (closestStave) {
+      const paths = closestStave.querySelectorAll("path")
+      let lineMinY = Infinity, lineMaxY = -Infinity, foundLines = 0
+      for (const path of paths) {
+        const r = path.getBoundingClientRect()
+        if (r.height <= 2 && r.width > 20) {
+          lineMinY = Math.min(lineMinY, r.top)
+          lineMaxY = Math.max(lineMaxY, r.bottom)
+          foundLines++
+        }
+      }
+      if (foundLines >= 3) {
+        const margin = 8
+        staffTop = lineMinY - containerRect.top - margin
+        staffHeight = (lineMaxY - lineMinY) + margin * 2
+      } else {
+        const sr = closestStave.getBoundingClientRect()
+        staffTop = sr.top - containerRect.top
+        staffHeight = sr.height
+      }
+    }
+
+    cursor.style.display = "block"
+    cursor.style.left = `${x}px`
+    cursor.style.top = `${staffTop}px`
+    cursor.style.height = `${staffHeight}px`
+  }, [])
+
   const startRecordingGuide = useCallback(() => {
     if (!analysis) return
     ensureCursor()
     recGuideStartRef.current = performance.now()
 
     const loop = () => {
-      const elapsedSec = (performance.now() - recGuideStartRef.current) / 1000
-      // 縦線の移動のみ（音符の色は変えない）
-      const gNotes = findNearestGNotes(elapsedSec)
-      updateCursorFromGNotes(gNotes)
+      const elapsedRealSec = (performance.now() - recGuideStartRef.current) / 1000
+      // ユーザー録音テンポで再生位置をスケール:
+      // recordingBpm=60, analysis.bpm=120 なら、実時間 1 秒 = 楽譜時間 0.5 秒
+      // (ゆっくり録音するほど、カーソルもゆっくり進む)
+      const recBpm = recordingBpmRef.current || analysis.bpm
+      const scoreTimeSec = elapsedRealSec * (recBpm / analysis.bpm)
+      updateRecordingCursor(scoreTimeSec)
       recGuideAnimRef.current = requestAnimationFrame(loop)
     }
     recGuideAnimRef.current = requestAnimationFrame(loop)
-  }, [analysis, ensureCursor, findNearestGNotes, updateCursorFromGNotes])
+  }, [analysis, ensureCursor, updateRecordingCursor])
 
   const stopRecordingGuide = useCallback(() => {
     if (recGuideAnimRef.current) {

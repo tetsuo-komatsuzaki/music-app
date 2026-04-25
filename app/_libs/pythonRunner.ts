@@ -1,93 +1,101 @@
 // app/_libs/pythonRunner.ts
 import "server-only"
-import { spawn } from "child_process"
 
 /**
- * Python 解析の実行制御。
+ * 解析ジョブを Cloud Run Jobs 経由で非同期起動する。
  *
- * 環境変数の2段階制御:
- * - ENABLE_PYTHON_ANALYSIS=false  → 明示的スキップ（Vercel 本番想定）
- * - ENABLE_PYTHON_ANALYSIS=true + PYTHON_PATH 未設定 → throw（設定漏れ検知）
- * - ENABLE_PYTHON_ANALYSIS=true + PYTHON_PATH 設定   → spawn 実行
+ * 2段階環境変数:
+ * - ENABLE_PYTHON_ANALYSIS=false → 明示スキップ (Phase 1 互換)
+ * - ENABLE_PYTHON_ANALYSIS=true + RELAY_URL/RELAY_API_KEY 未設定 → throw
+ * - ENABLE_PYTHON_ANALYSIS=true + 両方設定済み → Relay へ POST
  *
- * コード内にフォールバックパスを持たない。誤設定は即エラーで気づく設計。
+ * Relay Service が Cloud Run Jobs を起動するので Server Action は即 return できる。
  */
 
-export type PythonRunResult =
-  | { status: "executed"; code: number | null }
+export type InvokeMode =
+  | "score_full"
+  | "analyze_musicxml"
+  | "build_score"
+  | "analyze_performance"
+
+export type InvokeAnalysisParams = {
+  mode: InvokeMode
+  idempotencyKey: string
+  userId?: string
+  scoreId?: string
+  practiceItemId?: string
+  performanceId?: string
+  isPractice?: boolean
+  recordingBpm?: number
+}
+
+export type InvokeAnalysisResult =
+  | { status: "started" | "exists"; executionId: string; retryCount?: number }
   | { status: "skipped"; reason: string }
 
-export async function runPythonScript(
-  scriptPath: string,
-  args: string[],
-  options: { cwd?: string; timeoutMs?: number } = {}
-): Promise<PythonRunResult> {
+const RELAY_TIMEOUT_MS = 10_000
+
+export async function invokeAnalysis(
+  params: InvokeAnalysisParams
+): Promise<InvokeAnalysisResult> {
   if (process.env.ENABLE_PYTHON_ANALYSIS !== "true") {
     console.log(
-      `[pythonRunner] skipped: ENABLE_PYTHON_ANALYSIS is not "true" (script=${scriptPath})`
+      `[invokeAnalysis] skipped: ENABLE_PYTHON_ANALYSIS is not "true" (mode=${params.mode})`
     )
     return { status: "skipped", reason: "disabled" }
   }
 
-  const pythonPath = process.env.PYTHON_PATH
-  if (!pythonPath) {
+  const relayUrl = process.env.RELAY_URL
+  const apiKey = process.env.RELAY_API_KEY
+  if (!relayUrl || !apiKey) {
     throw new Error(
-      "[pythonRunner] ENABLE_PYTHON_ANALYSIS=true requires PYTHON_PATH env var. " +
-      "Configure PYTHON_PATH in .env.local (dev) or Vercel env (prod)."
+      "[invokeAnalysis] ENABLE_PYTHON_ANALYSIS=true requires RELAY_URL and RELAY_API_KEY"
     )
   }
 
-  return new Promise<PythonRunResult>((resolve, reject) => {
-    const timeoutMs = options.timeoutMs ?? 60_000
-    // shell: false (既定) により、args はシェルメタ文字として解釈されない
-    // → コマンドインジェクション不可
-    const child = spawn(pythonPath, [scriptPath, ...args], {
-      cwd: options.cwd,
-      shell: false,
+  const body = {
+    mode: params.mode,
+    idempotency_key: params.idempotencyKey,
+    user_id: params.userId,
+    score_id: params.scoreId,
+    practice_item_id: params.practiceItemId,
+    performance_id: params.performanceId,
+    is_practice: params.isPractice ?? false,
+    recording_bpm: params.recordingBpm,
+  }
+
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), RELAY_TIMEOUT_MS)
+
+  try {
+    const res = await fetch(`${relayUrl}/invoke`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
     })
 
-    let killed = false
-    const timer = setTimeout(() => {
-      killed = true
-      child.kill("SIGTERM")
-    }, timeoutMs)
+    if (!res.ok) {
+      const text = await res.text().catch(() => "")
+      throw new Error(
+        `[invokeAnalysis] Relay ${res.status}: ${text.slice(0, 300)}`
+      )
+    }
 
-    child.stdout?.on("data", (chunk) => process.stdout.write(chunk))
-    child.stderr?.on("data", (chunk) => process.stderr.write(chunk))
-
-    child.on("error", (err) => {
-      clearTimeout(timer)
-      reject(new Error(`[pythonRunner] spawn failed: ${err.message}`))
-    })
-
-    child.on("close", (code) => {
-      clearTimeout(timer)
-      if (killed) {
-        reject(new Error(`[pythonRunner] timeout after ${timeoutMs}ms (script=${scriptPath})`))
-        return
-      }
-      if (code !== 0) {
-        reject(new Error(`[pythonRunner] exit code ${code} (script=${scriptPath})`))
-        return
-      }
-      resolve({ status: "executed", code })
-    })
-  })
-}
-
-/**
- * Fire-and-forget 実行。バックグラウンド処理用で呼び出し元を block しない。
- * skipped の場合もログのみで resolve する。
- */
-export function runPythonScriptFireAndForget(
-  scriptPath: string,
-  args: string[],
-  options: { cwd?: string; timeoutMs?: number } = {}
-): void {
-  runPythonScript(scriptPath, args, options).catch((err) => {
-    console.error(
-      "[pythonRunner] fire-and-forget failed:",
-      err instanceof Error ? err.message : err
-    )
-  })
+    const data = (await res.json()) as {
+      execution_id: string
+      status: "started" | "exists"
+      retry_count?: number
+    }
+    return {
+      status: data.status,
+      executionId: data.execution_id,
+      retryCount: data.retry_count,
+    }
+  } finally {
+    clearTimeout(timer)
+  }
 }

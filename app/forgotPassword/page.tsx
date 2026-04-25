@@ -17,12 +17,14 @@ export default function ForgotPasswordPage() {
 
     const supabase = createSupabaseClient()
 
+    const redirectTo = `${window.location.origin}/updatePassword`
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "http://localhost:3000/updatePassword"
+      redirectTo,
     })
 
     if (error) {
-      setMessage("送信に失敗しました")
+      console.error("[forgotPassword] resetPasswordForEmail error:", error)
+      setMessage(`送信に失敗しました: ${error.message}`)
     } else {
       setMessage("パスワードリセット用のメールを送信しました。")
       setEmail("")

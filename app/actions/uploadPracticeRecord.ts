@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { revalidatePath } from "next/cache"
 import { isValidCuid } from "@/app/_libs/validators"
-import { runPythonScriptFireAndForget } from "@/app/_libs/pythonRunner"
+import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 
 export async function uploadPracticeRecord(formData: FormData) {
   console.log("▶ uploadPracticeRecord START")
@@ -44,6 +44,7 @@ export async function uploadPracticeRecord(formData: FormData) {
       userId: dbUser.id,
       practiceItemId,
       audioPath: "",
+      analysisStatus: "queued",
     },
   })
 
@@ -71,13 +72,27 @@ export async function uploadPracticeRecord(formData: FormData) {
     data: { audioPath: filePath },
   })
 
-  // Python 解析（fire-and-forget・spawn 配列引数）
-  runPythonScriptFireAndForget("../music-analyzer/analyze_performance.py", [
-    dbUser.id,
-    practiceItemId,
-    performance.id,
-    "practice",
-  ])
+  // 解析ジョブ起動 (Cloud Run Jobs 経由・非同期)
+  try {
+    await invokeAnalysis({
+      mode: "analyze_performance",
+      idempotencyKey: `pperf:${performance.id}`,
+      userId: dbUser.id,
+      scoreId: practiceItemId,
+      performanceId: performance.id,
+      isPractice: true,
+    })
+  } catch (e) {
+    console.error("[uploadPracticeRecord] invokeAnalysis failed:", e)
+    await prisma.practicePerformance.update({
+      where: { id: performance.id },
+      data: {
+        analysisStatus: "error",
+        errorMessage:
+          e instanceof Error ? e.message.slice(0, 300) : String(e).slice(0, 300),
+      },
+    })
+  }
 
   revalidatePath(`/${user.id}/practice`)
   return { success: true }

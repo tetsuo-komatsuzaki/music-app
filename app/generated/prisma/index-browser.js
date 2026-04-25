@@ -140,6 +140,11 @@ exports.Prisma.ScoreScalarFieldEnum = {
   generatedXmlPath: 'generatedXmlPath',
   analysisStatus: 'analysisStatus',
   buildStatus: 'buildStatus',
+  retryCount: 'retryCount',
+  errorMessage: 'errorMessage',
+  lastAttemptedAt: 'lastAttemptedAt',
+  executionId: 'executionId',
+  idempotencyKey: 'idempotencyKey',
   keyTonic: 'keyTonic',
   keyMode: 'keyMode',
   timeNumerator: 'timeNumerator',
@@ -167,7 +172,13 @@ exports.Prisma.PerformanceScalarFieldEnum = {
   timingAccuracy: 'timingAccuracy',
   overallScore: 'overallScore',
   evaluatedNotes: 'evaluatedNotes',
-  analysisSummary: 'analysisSummary'
+  analysisSummary: 'analysisSummary',
+  analysisStatus: 'analysisStatus',
+  retryCount: 'retryCount',
+  errorMessage: 'errorMessage',
+  lastAttemptedAt: 'lastAttemptedAt',
+  executionId: 'executionId',
+  idempotencyKey: 'idempotencyKey'
 };
 
 exports.Prisma.PracticeItemScalarFieldEnum = {
@@ -188,6 +199,11 @@ exports.Prisma.PracticeItemScalarFieldEnum = {
   analysisPath: 'analysisPath',
   analysisStatus: 'analysisStatus',
   buildStatus: 'buildStatus',
+  retryCount: 'retryCount',
+  errorMessage: 'errorMessage',
+  lastAttemptedAt: 'lastAttemptedAt',
+  executionId: 'executionId',
+  idempotencyKey: 'idempotencyKey',
   ownerUserId: 'ownerUserId',
   source: 'source',
   sortOrder: 'sortOrder',
@@ -226,7 +242,13 @@ exports.Prisma.PracticePerformanceScalarFieldEnum = {
   timingAccuracy: 'timingAccuracy',
   overallScore: 'overallScore',
   evaluatedNotes: 'evaluatedNotes',
-  analysisSummary: 'analysisSummary'
+  analysisSummary: 'analysisSummary',
+  analysisStatus: 'analysisStatus',
+  retryCount: 'retryCount',
+  errorMessage: 'errorMessage',
+  lastAttemptedAt: 'lastAttemptedAt',
+  executionId: 'executionId',
+  idempotencyKey: 'idempotencyKey'
 };
 
 exports.Prisma.UserWeaknessScalarFieldEnum = {
@@ -274,7 +296,9 @@ exports.Role = exports.$Enums.Role = {
 exports.JobStatus = exports.$Enums.JobStatus = {
   processing: 'processing',
   done: 'done',
-  error: 'error'
+  error: 'error',
+  queued: 'queued',
+  retrying: 'retrying'
 };
 
 exports.PerformanceType = exports.$Enums.PerformanceType = {

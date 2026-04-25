@@ -210,7 +210,17 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   const RECOMMENDED_DURATION = 15
   const scoreBpm = bpm ?? 90
   const [recordingBpm, setRecordingBpm] = useState(scoreBpm)
+  const userChangedBpmRef = useRef(false)
   const effectiveBpm = recordingBpm
+
+  // bpm prop が後から届いたら (analysis ロード完了時など) recordingBpm を同期。
+  // ただし、ユーザーが既にスライダーを触っていれば尊重する。
+  useEffect(() => {
+    if (!userChangedBpmRef.current && bpm != null) {
+      setRecordingBpm(bpm)
+      onRecordingBpmChange?.(bpm)
+    }
+  }, [bpm, onRecordingBpmChange])
 
   const showToast = (message: string, type: "success" | "error" | "ring") => {
     setToast({ message, type })
@@ -587,6 +597,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
               max={Math.round(scoreBpm * 2)}
               value={recordingBpm}
               onChange={(e) => {
+                userChangedBpmRef.current = true
                 const v = Number(e.target.value)
                 setRecordingBpm(v)
                 onRecordingBpmChange?.(v)
@@ -599,7 +610,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
                 return (
                   <button
                     key={ratio}
-                    onClick={() => { setRecordingBpm(t); onRecordingBpmChange?.(t) }}
+                    onClick={() => { userChangedBpmRef.current = true; setRecordingBpm(t); onRecordingBpmChange?.(t) }}
                     style={{
                       flex: 1, padding: "4px 0", fontSize: 12, borderRadius: 6, cursor: "pointer",
                       border: recordingBpm === t ? "1px solid #2e7dff" : "1px solid #ddd",

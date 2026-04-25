@@ -38,6 +38,50 @@ export default async function PracticeDetailPage({
     return <div>このアイテムへのアクセス権がありません</div>
   }
 
+  // 解析・ビルド未完了なら準備中 / エラー画面 (3 秒ごと自動更新)
+  if (item.analysisStatus !== "done" || item.buildStatus !== "done") {
+    const isError =
+      item.analysisStatus === "error" || item.buildStatus === "error"
+    return (
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        {!isError && <meta httpEquiv="refresh" content="3" />}
+        <h2>{item.title}</h2>
+        {isError ? (
+          <>
+            <p style={{ color: "#c00", marginTop: "1rem" }}>
+              解析に失敗しました
+            </p>
+            {item.errorMessage && (
+              <pre
+                style={{
+                  marginTop: "0.5rem",
+                  fontSize: "0.875rem",
+                  color: "#666",
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {item.errorMessage}
+              </pre>
+            )}
+            <p style={{ marginTop: "1rem", fontSize: "0.875rem", color: "#999" }}>
+              時間をおいて再度お試しください
+            </p>
+          </>
+        ) : (
+          <>
+            <p style={{ marginTop: "1rem" }}>スコア準備中...</p>
+            <p style={{ marginTop: "0.5rem", fontSize: "0.875rem", color: "#666" }}>
+              解析: {item.analysisStatus} / 生成: {item.buildStatus}
+            </p>
+            <p style={{ marginTop: "0.5rem", fontSize: "0.75rem", color: "#999" }}>
+              3 秒ごとに自動更新します
+            </p>
+          </>
+        )}
+      </div>
+    )
+  }
+
   // =========================
   // item確定後の処理を並列化
   // =========================
