@@ -38,7 +38,8 @@
   justify-content: center;
   gap: 10px;
 
-  width: 320px;
+  width: 100%;
+  max-width: 320px;
   height: 48px;
 
   background-color: #ffffff;
@@ -121,6 +122,7 @@
   display: flex;
   justify-content: center;
   margin-top: 2rem;
+  padding: 0 16px; /* スマホで画面端に張り付かないよう左右に余白 */
 }
 
 .form {
