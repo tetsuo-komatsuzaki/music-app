@@ -199,17 +199,21 @@ export default function ScoresClient({
                         .toLocaleDateString("ja-JP")}
                     </span>
 
-                    <button
-                      className={styles.editBtn}
-                      onClick={() =>
-                        setEditingId(editingId === score.id ? null : score.id)
-                      }
-                    >
-                      編集
-                    </button>
+                    {/* 編集ボタンは自分が作成したスコアにのみ表示 */}
+                    {/* 共有スコア (isShared=true、admin作) は触れない */}
+                    {score.isOwn && (
+                      <button
+                        className={styles.editBtn}
+                        onClick={() =>
+                          setEditingId(editingId === score.id ? null : score.id)
+                        }
+                      >
+                        編集
+                      </button>
+                    )}
                   </div>
 
-                  {editingId === score.id && (
+                  {score.isOwn && editingId === score.id && (
                     <div
                       ref={dropdownRef}
                       className={styles.dropdown}

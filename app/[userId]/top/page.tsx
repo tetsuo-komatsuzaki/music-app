@@ -32,7 +32,8 @@ export default async function Page({ params }: PageProps) {
 
   const scores = rawScores.map(score => ({
     ...score,
-    createdAt: score.createdAt.toISOString()
+    createdAt: score.createdAt.toISOString(),
+    isOwn: score.createdById === user.id,
   }))
   return <TopClient scores={scores} userId={userId} />
 }
