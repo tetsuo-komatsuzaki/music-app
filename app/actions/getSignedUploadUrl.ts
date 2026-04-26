@@ -53,11 +53,14 @@ export async function getSignedUploadUrl(
   const dbUserId       = auth.user.dbUser.id
   const supabaseUserId = auth.user.supabaseUser.id
 
-  // === 2. mimeType allowlist ===
-  if (!ALLOWED_MIME.includes(params.mimeType as AllowedMime)) {
-    return { ok: false, error: "対応していないファイル形式です" }
+  // === 2. mimeType allowlist (codec suffix を剥がして正規化) ===
+  // 例: "audio/webm;codecs=opus" → "audio/webm"
+  // 既存の convert-audio/route.ts と同じ正規化パターン
+  const normalizedMime = params.mimeType.toLowerCase().split(";")[0].trim()
+  if (!ALLOWED_MIME.includes(normalizedMime as AllowedMime)) {
+    return { ok: false, error: `対応していないファイル形式です (${params.mimeType})` }
   }
-  const ext = EXT_BY_MIME[params.mimeType as AllowedMime]
+  const ext = EXT_BY_MIME[normalizedMime as AllowedMime]
 
   // === 3. 所有者検証 ===
   if (params.kind === "score") {
