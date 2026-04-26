@@ -207,7 +207,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
   const animFrameRef = useRef<number | null>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
 
-  const MAX_DURATION = 300
+  const MAX_DURATION = 600
   const RECOMMENDED_DURATION = 15
   const scoreBpm = bpm ?? 90
   const [recordingBpm, setRecordingBpm] = useState(scoreBpm)
@@ -376,7 +376,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
 
       const recorder = new MediaRecorder(stream, {
         mimeType: mimeType || undefined,
-        audioBitsPerSecond: 128000,
+        audioBitsPerSecond: 64000,
       })
       chunksRef.current = []
 
