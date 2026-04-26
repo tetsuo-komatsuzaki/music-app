@@ -69,13 +69,11 @@ export async function getSignedUploadUrl(
     }
     const score = await prisma.score.findFirst({
       where: { id: params.scoreId, deletedAt: null },
-      select: { id: true, createdById: true },
+      select: { id: true, createdById: true, isShared: true },
     })
-    // 旧 uploadRecord と同じく作成者のみ録音可。
-    // 共有スコア (isShared=true) への録音は許可しない。
-    // 理由: analyze_performance.py が analysis.json を `{USER_ID}/...` で参照するが、
-    //       USER_ID = 録音者の dbUser.id のため、スコア作成者のフォルダと不一致 → 404。
-    if (!score || score.createdById !== dbUserId) {
+    // 共有スコア (isShared=true) は誰でも録音可、解析データは録音者本人のみ表示。
+    // analyze_performance.py 側で Score.createdById から analysis.json path を解決する。
+    if (!score || (score.createdById !== dbUserId && !score.isShared)) {
       return { ok: false, error: "Score が見つかりません" }
     }
   } else {
