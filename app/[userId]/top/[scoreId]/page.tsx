@@ -161,7 +161,10 @@ export default async function Page({
       }}
       performances={performances}
       analysis={analysisData}
-      uploadAction={uploadRecord}
+      // top/ は dead code (ルーティング外) のため type cast で型エラー回避
+      // 将来的に top/ を削除するか、scoreDetail を統合する想定 (Phase 0 finding)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      uploadAction={uploadRecord as any}
       buildUrl={buildUrl}
     />
   )

@@ -178,11 +178,13 @@ type Props = {
   onRecordingStart?: () => void
   onRecordingStop?: () => void
   onRecordingBpmChange?: (bpm: number) => void
+  /** アップロード進捗 (0-100、null は未開始/完了)。v3.3 spec Commit 3 で追加 */
+  uploadProgress?: number | null
 }
 
 type Status = "idle" | "tempo-select" | "countdown" | "recording" | "preview" | "uploading" | "result"
 
-export default function Recorder({ onRecordingComplete, previousBestScore, bestOverallScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange }: Props) {
+export default function Recorder({ onRecordingComplete, previousBestScore, bestOverallScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, uploadProgress }: Props) {
   const [status, setStatus] = useState<Status>("idle")
   const [elapsed, setElapsed] = useState(0)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
@@ -720,11 +722,28 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
         </div>
       )}
 
-      {/* ⑤ 解析中 */}
+      {/* ⑤ アップロード/解析中 */}
       {status === "uploading" && (
         <div className={styles.uploadingPanel}>
-          <span className={styles.spinner} />
-          <span>どれくらい良くなったか計算中…</span>
+          {uploadProgress != null && uploadProgress < 100 ? (
+            <>
+              <div style={{
+                width: "100%", height: 8, background: "#eee",
+                borderRadius: 4, overflow: "hidden", marginBottom: 8,
+              }}>
+                <div style={{
+                  width: `${uploadProgress}%`, height: "100%",
+                  background: "#2e7dff", transition: "width 0.2s ease",
+                }} />
+              </div>
+              <span>アップロード中... {uploadProgress}%</span>
+            </>
+          ) : (
+            <>
+              <span className={styles.spinner} />
+              <span>どれくらい良くなったか計算中…</span>
+            </>
+          )}
         </div>
       )}
 

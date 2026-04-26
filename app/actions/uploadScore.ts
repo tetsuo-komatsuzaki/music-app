@@ -43,7 +43,8 @@ export async function uploadScore(formData: FormData) {
     },
   })
 
-  const filePath = `${dbUser.id}/${score.id}.${extension}`
+  // Path B 統一 (v3.3 spec): auth.uid() ベースで組み立てる
+  const filePath = `${user.id}/${score.id}.${extension}`
 
   const storageClient = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -70,6 +71,7 @@ export async function uploadScore(formData: FormData) {
       mode: "score_full",
       idempotencyKey: `score_full:${score.id}`,
       userId: dbUser.id,
+      storageUserId: user.id,    // ★ Path B 統一: auth.uid() を Python に渡す
       scoreId: score.id,
     })
     if (r.status === "skipped") {

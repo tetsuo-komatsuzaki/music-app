@@ -85,10 +85,11 @@ export default async function Page({
       : Promise.resolve(null),
 
     // analysis（signedUrl + fetch を1チェーンで）
+    // Path B 統一 (v3.3 spec): auth.uid() (= URL params の userId) ベースで参照
     (score.analysisStatus === "done")
       ? storageAdmin.storage
           .from("musicxml")
-          .createSignedUrl(`${score.createdById}/${score.id}/analysis.json`, 60)
+          .createSignedUrl(`${userId}/${score.id}/analysis.json`, 60)
           .then(r => r.data?.signedUrl ? fetch(r.data.signedUrl) : null)
           .then(res => res?.ok ? res.json() : null)
           .catch(() => null)

@@ -1,23 +1,25 @@
 "use server"
 
 import { prisma } from "@/app/_libs/prisma"
-import { createClient } from "@supabase/supabase-js"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { revalidatePath } from "next/cache"
 import { isValidCuid } from "@/app/_libs/validators"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 
-export async function uploadRecord(formData: FormData) {
-  console.log("① uploadRecord START")
-
-  const scoreId = (formData.get("scoreId") as string | null)?.trim() ?? ""
-  const file = formData.get("file") as File | null
-  const recordingBpm = formData.get("recordingBpm") as string | null
-
-  // cuid 形式検証（早期リターン）
-  if (!isValidCuid(scoreId)) return { error: "scoreId が不正です" }
-  if (!file) return { error: "ファイルがありません" }
-
+/**
+ * 録音アップロード完了通知 + 解析起動 (G-1 + Path B、v3.3 spec Commit 3+4)
+ *
+ * 旧: ファイル本体を FormData で受信 → Storage upload → Performance.create → invokeAnalysis
+ * 新: メタデータ (performanceId, recordingBpm) のみ受信
+ *     - Performance は getSignedUploadUrl で先行作成 + audioPath 確定済み
+ *     - ここでは所有者検証 + invokeAnalysis のみ
+ *     - storageUserId (auth.uid()) を Python に伝達
+ */
+export async function uploadRecord(params: {
+  performanceId: string
+  recordingBpm?: number
+}) {
+  // 1. 認証
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: "ログインが必要です" }
@@ -27,63 +29,33 @@ export async function uploadRecord(formData: FormData) {
   })
   if (!dbUser) return { error: "User未登録" }
 
-  // Score の所有者検証（他者Scoreへの紐付け防止 + 論理削除済みは拒否）
-  // 存在しない or 他者所有 or 削除済 → エンティティ列挙防止で同一エラー文言
-  // 修正1: findFirst を使用 (findUnique では where に deletedAt 等の非unique条件を入れられないため)
-  const score = await prisma.score.findFirst({
-    where: { id: scoreId, deletedAt: null },
-    select: { id: true, createdById: true },
-  })
-  if (!score || score.createdById !== dbUser.id) {
-    return { error: "Score が見つかりません" }
+  // 2. cuid 検証
+  if (!isValidCuid(params.performanceId)) {
+    return { error: "performanceId が不正です" }
   }
 
-  const performance = await prisma.performance.create({
-    data: {
-      userId: dbUser.id,
-      scoreId,
-      performanceType: "user",
-      performanceStatus: "uploaded",
-      audioPath: "",
-      analysisStatus: "queued",
-    },
+  // 3. 所有者検証 + audioPath 確定済みチェック
+  const performance = await prisma.performance.findFirst({
+    where: { id: params.performanceId, userId: dbUser.id },
+    select: { id: true, scoreId: true, audioPath: true },
   })
-
-  // scoreId は所有者確認済み・cuid形式なので path 組み立てに使っても安全
-  const filePath = `${dbUser.id}/${scoreId}/${performance.id}.wav`
-
-  const storage = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-
-  const { error } = await storage.storage
-    .from("performances")
-    .upload(filePath, file, { upsert: false })
-
-  console.log("STORAGE ERROR:", error)
-
-  if (error) {
-    await prisma.performance.delete({ where: { id: performance.id } })
-    return { error: "アップロード失敗" }
+  if (!performance) {
+    return { error: "Performance が見つかりません" }
+  }
+  if (!performance.audioPath || performance.audioPath === "") {
+    return { error: "audioPath が確定していません" }
   }
 
-  await prisma.performance.update({
-    where: { id: performance.id },
-    data: { audioPath: filePath },
-  })
-
-  // 解析ジョブ起動 (Cloud Run Jobs 経由・非同期)
-  // Relay が Cloud Run Jobs execution を create して即 return する。
-  // Python の結果は Performance の analysisStatus/comparisonResultPath を UPDATE。
-  const bpmNum = recordingBpm ? parseFloat(recordingBpm) : NaN
-  const validBpm = !isNaN(bpmNum) && bpmNum > 0 && bpmNum < 1000 ? bpmNum : undefined
+  // 4. invokeAnalysis 起動 (storageUserId = auth.uid() を Python に渡す)
+  const bpm = params.recordingBpm
+  const validBpm = bpm && bpm > 0 && bpm < 1000 ? bpm : undefined
   try {
     await invokeAnalysis({
       mode: "analyze_performance",
       idempotencyKey: `perf:${performance.id}`,
       userId: dbUser.id,
-      scoreId,
+      storageUserId: user.id,
+      scoreId: performance.scoreId,
       performanceId: performance.id,
       recordingBpm: validBpm,
     })
@@ -99,7 +71,6 @@ export async function uploadRecord(formData: FormData) {
     })
   }
 
-  revalidatePath(`/${user.id}/scores/${scoreId}`)
-
+  revalidatePath(`/${user.id}/scores/${performance.scoreId}`)
   return { success: true, performanceId: performance.id }
 }

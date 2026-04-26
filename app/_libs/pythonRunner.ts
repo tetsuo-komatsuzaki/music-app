@@ -22,6 +22,11 @@ export type InvokeAnalysisParams = {
   mode: InvokeMode
   idempotencyKey: string
   userId?: string
+  /**
+   * Storage path 用の auth.uid() (Supabase UUID)。
+   * Path B 統一 (v3.3 spec) で Python 側 STORAGE_USER_ID env var として渡される。
+   */
+  storageUserId?: string
   scoreId?: string
   practiceItemId?: string
   performanceId?: string
@@ -57,6 +62,7 @@ export async function invokeAnalysis(
     mode: params.mode,
     idempotency_key: params.idempotencyKey,
     user_id: params.userId,
+    storage_user_id: params.storageUserId,
     score_id: params.scoreId,
     practice_item_id: params.practiceItemId,
     performance_id: params.performanceId,

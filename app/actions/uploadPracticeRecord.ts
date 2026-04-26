@@ -1,21 +1,25 @@
 "use server"
 
 import { prisma } from "@/app/_libs/prisma"
-import { createClient } from "@supabase/supabase-js"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { revalidatePath } from "next/cache"
 import { isValidCuid } from "@/app/_libs/validators"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 
-export async function uploadPracticeRecord(formData: FormData) {
-  console.log("▶ uploadPracticeRecord START")
-
-  const practiceItemId = (formData.get("practiceItemId") as string | null)?.trim() ?? ""
-  const file = formData.get("file") as File | null
-
-  if (!isValidCuid(practiceItemId)) return { error: "practiceItemId が不正です" }
-  if (!file) return { error: "ファイルがありません" }
-
+/**
+ * 練習録音アップロード完了通知 + 解析起動 (G-1 + Path B、v3.3 spec Commit 3+4)
+ *
+ * 旧: ファイル本体を FormData で受信 → Storage upload → PracticePerformance.create → invokeAnalysis
+ * 新: メタデータ (performanceId, recordingBpm) のみ受信
+ *     - PracticePerformance は getSignedUploadUrl で先行作成 + audioPath 確定済み
+ *     - ここでは所有者検証 + invokeAnalysis のみ
+ *     - storageUserId (auth.uid()) を Python に伝達 (isPractice: true)
+ */
+export async function uploadPracticeRecord(params: {
+  performanceId: string
+  recordingBpm?: number
+}) {
+  // 1. 認証
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: "ログインが必要です" }
@@ -25,62 +29,36 @@ export async function uploadPracticeRecord(formData: FormData) {
   })
   if (!dbUser) return { error: "User未登録" }
 
-  // PracticeItem アクセス制御（B-2 items/[itemId]/route.ts と同一パターン）:
-  // - 自己所有                        → OK
-  // - 運営サンプル(null) かつ 公開      → OK
-  // - それ以外（他者所有・未公開null）  → 404 相当
-  const item = await prisma.practiceItem.findUnique({
-    where: { id: practiceItemId },
-    select: { id: true, ownerUserId: true, isPublished: true },
-  })
-  const isOwner = item?.ownerUserId === dbUser.id
-  const isPublicPublished = item?.ownerUserId === null && item?.isPublished === true
-  if (!item || (!isOwner && !isPublicPublished)) {
-    return { error: "PracticeItem が見つかりません" }
+  // 2. cuid 検証
+  if (!isValidCuid(params.performanceId)) {
+    return { error: "performanceId が不正です" }
   }
 
-  const performance = await prisma.practicePerformance.create({
-    data: {
-      userId: dbUser.id,
-      practiceItemId,
-      audioPath: "",
-      analysisStatus: "queued",
-    },
+  // 3. 所有者検証 + audioPath 確定済みチェック
+  const performance = await prisma.practicePerformance.findFirst({
+    where: { id: params.performanceId, userId: dbUser.id },
+    select: { id: true, practiceItemId: true, audioPath: true },
   })
-
-  // practiceItemId は検証済み・cuid形式
-  const filePath = `practice/${dbUser.id}/${practiceItemId}/${performance.id}.wav`
-
-  const storage = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-
-  const { error } = await storage.storage
-    .from("performances")
-    .upload(filePath, file, { upsert: false })
-
-  console.log("STORAGE ERROR:", error)
-
-  if (error) {
-    await prisma.practicePerformance.delete({ where: { id: performance.id } })
-    return { error: "アップロード失敗" }
+  if (!performance) {
+    return { error: "PracticePerformance が見つかりません" }
+  }
+  if (!performance.audioPath || performance.audioPath === "") {
+    return { error: "audioPath が確定していません" }
   }
 
-  await prisma.practicePerformance.update({
-    where: { id: performance.id },
-    data: { audioPath: filePath },
-  })
-
-  // 解析ジョブ起動 (Cloud Run Jobs 経由・非同期)
+  // 4. invokeAnalysis 起動 (isPractice: true、storageUserId = auth.uid())
+  const bpm = params.recordingBpm
+  const validBpm = bpm && bpm > 0 && bpm < 1000 ? bpm : undefined
   try {
     await invokeAnalysis({
       mode: "analyze_performance",
       idempotencyKey: `pperf:${performance.id}`,
       userId: dbUser.id,
-      scoreId: practiceItemId,
+      storageUserId: user.id,
+      scoreId: performance.practiceItemId,
       performanceId: performance.id,
       isPractice: true,
+      recordingBpm: validBpm,
     })
   } catch (e) {
     console.error("[uploadPracticeRecord] invokeAnalysis failed:", e)
@@ -95,5 +73,5 @@ export async function uploadPracticeRecord(formData: FormData) {
   }
 
   revalidatePath(`/${user.id}/practice`)
-  return { success: true }
+  return { success: true, performanceId: performance.id }
 }

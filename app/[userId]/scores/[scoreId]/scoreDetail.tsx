@@ -7,6 +7,7 @@ import * as Tone from "tone"
 import styles from "./scoreDetail.module.css"
 import Recorder from "@/app/components/Recorder"
 import PerformanceSkeleton from "@/app/components/PerformanceSkeleton"
+import { getSignedUploadUrl } from "@/app/actions/getSignedUploadUrl"
 
 // =========================================================
 // 型定義
@@ -54,7 +55,13 @@ type Props = {
   userId: string
   analysis: { bpm: number; notes: AnalysisNote[] } | null
   buildUrl: string | null
-  uploadAction: (formData: FormData) => Promise<any>
+  /**
+   * 解析起動を通知する Server Action (v3.3 spec Commit 3 で型変更)
+   * Commit 4 で uploadRecord/uploadPracticeRecord 自体が新シグネチャに変わる予定。
+   * 現状は呼び出し側 (page.tsx) でアダプター経由の呼び出しを行う。
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  uploadAction: (params: { performanceId: string; recordingBpm?: number }) => Promise<any>
   performanceCount: number
   latestPitchAccuracy: number | null
   latestTimingAccuracy: number | null
@@ -646,6 +653,9 @@ export default function ScoreDetail({
   // ▼ 録音テンポ（Recorder から通知される）
   const recordingBpmRef = useRef(analysis?.bpm ?? 90)
 
+  // ▼ アップロード進捗 (0-100、未開始時は null)
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null)
+
   // 解析中の performance を 3 秒ごとに再 fetch
   useEffect(() => {
     const hasPending = performances.some(
@@ -747,24 +757,55 @@ export default function ScoreDetail({
     return scores.length > 0 ? Math.max(...scores) : undefined
   }, [performances])
 
-  // Recorder の onRecordingComplete ハンドラ
+  // Recorder の onRecordingComplete ハンドラ (G-1 + Path B、v3.3 spec Commit 3)
+  // 旧: convert-audio → uploadRecord(WAV FormData)
+  // 新: getSignedUploadUrl → XHR PUT 直接 → uploadAction({ performanceId, recordingBpm })
   const handleRecordingComplete = useCallback(async (blob: Blob) => {
-    const convertForm = new FormData()
-    convertForm.set("audio", blob, "recording.webm")
-    const convertRes = await fetch("/api/convert-audio", { method: "POST", body: convertForm })
-    if (!convertRes.ok) {
-      const err = await convertRes.json().catch(() => ({ error: "変換失敗" }))
-      return { error: `変換エラー: ${err.error}` }
+    const mimeType = blob.type || "audio/webm"  // iOS Safari は audio/mp4
+
+    // 1. signed URL 取得 (Performance 行作成 + audioPath 確定済み = Commit 2 Step A-D)
+    const signedRes = practiceItemId
+      ? await getSignedUploadUrl({ kind: "practice", itemId:  practiceItemId, mimeType })
+      : await getSignedUploadUrl({ kind: "score",    scoreId: score.id,        mimeType })
+    if (!signedRes.ok) return { error: signedRes.error }
+
+    // 2. Supabase Storage に直接 PUT (XMLHttpRequest で進捗取得)
+    setUploadProgress(0)
+    const uploadStatus = await new Promise<{ ok: boolean; httpStatus: number }>((resolve) => {
+      const xhr = new XMLHttpRequest()
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          setUploadProgress(Math.round((e.loaded / e.total) * 100))
+        }
+      }
+      xhr.onload  = () => resolve({ ok: xhr.status >= 200 && xhr.status < 300, httpStatus: xhr.status })
+      xhr.onerror = () => resolve({ ok: false, httpStatus: 0 })  // ネットワークエラー
+      xhr.open("PUT", signedRes.signedUrl)
+      xhr.setRequestHeader("Content-Type", mimeType)
+      xhr.send(blob)
+    })
+    setUploadProgress(null)
+
+    // エラー分類 1: ネットワークエラー
+    if (uploadStatus.httpStatus === 0) {
+      return { error: "ネットワーク接続を確認して再試行してください" }
     }
-    const wavBlob = await convertRes.blob()
-    const wavFile = new File([wavBlob], "recording.wav", { type: "audio/wav" })
-    const uploadForm = new FormData()
-    uploadForm.set("scoreId", score.id)
-    uploadForm.set("practiceItemId", score.id)
-    uploadForm.set("file", wavFile)
-    uploadForm.set("recordingBpm", String(recordingBpmRef.current))
-    const uploadResult = await uploadAction(uploadForm)
-    if (uploadResult?.error) return { error: uploadResult.error }
+    // エラー分類 2: アップロード失敗 (HTTP 4xx/5xx)
+    if (!uploadStatus.ok) {
+      return { error: "アップロードに失敗しました。もう一度お試しください" }
+    }
+
+    // 3. 解析起動を通知
+    const notifyResult = await uploadAction({
+      performanceId: signedRes.performanceId,
+      recordingBpm: recordingBpmRef.current,
+    })
+    // エラー分類 3: 解析起動失敗 (録音は Storage に保存済み)
+    if (notifyResult?.error) {
+      return { error: `録音は保存されましたが、解析に失敗しました (${notifyResult.error})` }
+    }
+
+    // 4. 後続処理 (latest perf 取得・comparison ロード・state 更新) - 既存ロジック踏襲
     try {
       const apiUrl = practiceItemId
         ? `/api/practice-performances?practiceItemId=${practiceItemId}&userId=${userId}&limit=2`
@@ -1487,6 +1528,7 @@ export default function ScoreDetail({
             onRecordingStart={startRecordingGuide}
             onRecordingBpmChange={(v) => { recordingBpmRef.current = v }}
             onRecordingStop={stopRecordingGuide}
+            uploadProgress={uploadProgress}
           />
           <div className={styles.card}>
             <h3>楽譜を再生</h3>
