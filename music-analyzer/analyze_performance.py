@@ -769,7 +769,14 @@ try:
             raise Exception(f"PracticeItem {SCORE_ID} has no analysisPath")
         analysis_storage_path = item_row[0]
     else:
-        analysis_storage_path = f"{USER_ID}/{SCORE_ID}/analysis.json"
+        # 共有スコア (isShared=true) を別ユーザーが録音した場合、
+        # analysis.json は score 作成者の folder にある。
+        # USER_ID (録音者の dbUser.id) ではなく Score.createdById を使う。
+        cur.execute('SELECT "createdById" FROM "Score" WHERE id = %s', (SCORE_ID,))
+        score_row = cur.fetchone()
+        if not score_row:
+            raise Exception(f"Score {SCORE_ID} not found")
+        analysis_storage_path = f"{score_row[0]}/{SCORE_ID}/analysis.json"
 
     analysis_bytes = download_from_storage(MUSICXML_BUCKET, analysis_storage_path)
     analysis = json.loads(analysis_bytes)
