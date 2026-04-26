@@ -85,11 +85,14 @@ export default async function Page({
       : Promise.resolve(null),
 
     // analysis（signedUrl + fetch を1チェーンで）
-    // Path B 統一 (v3.3 spec): auth.uid() (= URL params の userId) ベースで参照
+    // analysis.json は Python (analyze_musicxml.py) が書き込む。
+    // Python は USER_ID (dbUser.id, sys.argv[1]) で path を組み立てるため OLD path のまま。
+    // Commit 5 (Python STORAGE_USER_ID 化) + Commit 7 (既存ファイル移行) 完了後に
+    // ここを ${userId} (auth.uid()) に変更する想定 (v3.4 spec で明記)。
     (score.analysisStatus === "done")
       ? storageAdmin.storage
           .from("musicxml")
-          .createSignedUrl(`${userId}/${score.id}/analysis.json`, 60)
+          .createSignedUrl(`${score.createdById}/${score.id}/analysis.json`, 60)
           .then(r => r.data?.signedUrl ? fetch(r.data.signedUrl) : null)
           .then(res => res?.ok ? res.json() : null)
           .catch(() => null)
