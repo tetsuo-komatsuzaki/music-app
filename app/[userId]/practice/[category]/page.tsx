@@ -1,4 +1,5 @@
 import { prisma } from "@/app/_libs/prisma"
+import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import PracticeList from "./practiceLIst"
 import { getRecommendations } from "@/app/lib/practice/getRecommendations"
 import { getPracticeStats } from "@/app/lib/practice/getPracticeStats"
@@ -23,7 +24,9 @@ export default async function CategoryPage({
   params: Promise<{ userId: string; category: string }>
   searchParams: Promise<{ key?: string; position?: string }>
 }) {
-  const { userId, category } = await params
+  const p = await params
+  const { authUserId, dbUserId } = await getUserIdsFromParams(p)
+  const { category } = p
   const sp = await searchParams
   const dbCategory = normalizeCat(category)
 
@@ -31,7 +34,7 @@ export default async function CategoryPage({
   const where: any = {
     category: dbCategory as any,
     isPublished: true,
-    OR: [{ ownerUserId: null }, { ownerUserId: userId }],
+    OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
   }
   if (sp.key) {
     const [tonic, mode] = sp.key.split("_")
@@ -56,13 +59,13 @@ export default async function CategoryPage({
       where: {
         category: dbCategory as any,
         isPublished: true,
-        OR: [{ ownerUserId: null }, { ownerUserId: userId }],
+        OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
       },
       select: { keyTonic: true, keyMode: true, positions: true },
     }),
     Promise.all([
-      getRecommendations(userId, dbCategory, 5),
-      getPracticeStats(userId, dbCategory),
+      getRecommendations(dbUserId, dbCategory, 5),
+      getPracticeStats(dbUserId, dbCategory),
     ]),
   ])
   console.log(`[PERF] practice/category step1_parallel: ${(performance.now() - perfStart).toFixed(0)}ms`)
@@ -72,7 +75,7 @@ export default async function CategoryPage({
   const perfStep2 = performance.now()
   const allPerformances = itemIds.length > 0
     ? await prisma.practicePerformance.findMany({
-        where: { userId, practiceItemId: { in: itemIds } },
+        where: { userId: dbUserId, practiceItemId: { in: itemIds } },
         select: { practiceItemId: true, uploadedAt: true, comparisonResultPath: true },
         orderBy: { uploadedAt: "desc" },
       })
@@ -118,7 +121,7 @@ export default async function CategoryPage({
 
   return (
     <PracticeList
-      userId={userId}
+      userId={authUserId}
       category={category}
       categoryTitle={categoryTitles[category] || category}
       items={itemsWithHistory}

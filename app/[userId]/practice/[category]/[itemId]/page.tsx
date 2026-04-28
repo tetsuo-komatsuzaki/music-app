@@ -1,5 +1,6 @@
 import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
+import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import ScoreDetail from "@/app/[userId]/scores/[scoreId]/scoreDetail"
 import { uploadPracticeRecord } from "@/app/actions/uploadPracticeRecord"
 import styles from "../../practice.module.css"
@@ -9,15 +10,11 @@ export default async function PracticeDetailPage({
 }: {
   params: Promise<{ userId: string; category: string; itemId: string }>
 }) {
-  const { userId, category, itemId } = await params
+  const p = await params
+  const { authUserId, dbUserId } = await getUserIdsFromParams(p)
+  const { category, itemId } = p
 
   const perfStart = performance.now()
-
-  // URLのuserIdはSupabase UIDなので、Prisma内部IDに変換
-  const dbUser = await prisma.user.findUnique({
-    where: { supabaseUserId: userId },
-  })
-  if (!dbUser) return <div>ユーザーが見つかりません</div>
   console.log(`[PERF] practice/item step1_dbUser: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   const perfStep2 = performance.now()
@@ -34,7 +31,7 @@ export default async function PracticeDetailPage({
   if (!item) return <div>練習メニューが見つかりません</div>
 
   // アクセス制御: 他ユーザーの個人アイテムは閲覧不可
-  if (item.ownerUserId && item.ownerUserId !== userId) {
+  if (item.ownerUserId && item.ownerUserId !== dbUserId) {
     return <div>このアイテムへのアクセス権がありません</div>
   }
 
@@ -116,12 +113,12 @@ export default async function PracticeDetailPage({
 
       // Performance 件数
       prisma.practicePerformance.count({
-        where: { userId: dbUser.id, practiceItemId: itemId },
+        where: { userId: dbUserId, practiceItemId: itemId },
       }),
 
       // 最新サマリー
       prisma.practicePerformance.findFirst({
-        where: { userId: dbUser.id, practiceItemId: itemId },
+        where: { userId: dbUserId, practiceItemId: itemId },
         orderBy: { uploadedAt: "desc" },
         select: {
           id: true,
@@ -134,7 +131,7 @@ export default async function PracticeDetailPage({
 
       // 練習履歴（最新5件）
       prisma.practicePerformance.findMany({
-        where: { userId: dbUser.id, practiceItemId: itemId },
+        where: { userId: dbUserId, practiceItemId: itemId },
         orderBy: { uploadedAt: "desc" },
         take: 5,
         select: {
@@ -258,7 +255,7 @@ export default async function PracticeDetailPage({
     <div>
       {/* パンくず */}
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 24px 0" }}>
-        <a href={`/${userId}/practice/${category}`}
+        <a href={`/${authUserId}/practice/${category}`}
            style={{ fontSize: 13, color: "#4a90d9", textDecoration: "none" }}>
           ← {categoryLabels[category] || category}
         </a>
@@ -266,7 +263,7 @@ export default async function PracticeDetailPage({
 
       <ScoreDetail
         score={{ id: item.id, title: item.title }}
-        userId={userId}
+        userId={authUserId}
         analysis={analysisData}
         uploadAction={uploadPracticeRecord}
         buildUrl={buildUrl}

@@ -1,4 +1,5 @@
 import { prisma } from "@/app/_libs/prisma"
+import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import PracticeTop from "./practiceTop"
 
 export default async function PracticePage({
@@ -6,10 +7,11 @@ export default async function PracticePage({
 }: {
   params: Promise<{ userId: string }>
 }) {
-  const { userId } = await params
+  const p = await params
+  const { authUserId, dbUserId } = await getUserIdsFromParams(p)
 
   // カテゴリごとの件数（運営サンプル + 自分のアイテムのみ）
-  const ownerFilter = { OR: [{ ownerUserId: null }, { ownerUserId: userId }] }
+  const ownerFilter = { OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }] }
   const [scaleCount, arpeggioCount, etudeCount] = await Promise.all([
     prisma.practiceItem.count({ where: { category: "scale", isPublished: true, ...ownerFilter } }),
     prisma.practiceItem.count({ where: { category: "arpeggio", isPublished: true, ...ownerFilter } }),
@@ -18,7 +20,7 @@ export default async function PracticePage({
 
   // ユーザーの楽曲（レコメンド用）
   const scores = await prisma.score.findMany({
-    where: { createdById: userId, deletedAt: null },
+    where: { createdById: dbUserId, deletedAt: null },
     orderBy: { createdAt: "desc" },
     take: 5,
     select: { id: true, title: true, keyTonic: true, keyMode: true, defaultTempo: true },
@@ -34,7 +36,7 @@ export default async function PracticePage({
         keyMode: score.keyMode ?? "major",
         category: { in: ["scale", "arpeggio"] },
         isPublished: true,
-        OR: [{ ownerUserId: null }, { ownerUserId: userId }],
+        OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
       },
       take: 3,
       orderBy: { title: "asc" },
@@ -52,7 +54,7 @@ export default async function PracticePage({
 
   // 弱点ベースレコメンド
   const weaknesses = await prisma.userWeakness.findMany({
-    where: { userId },
+    where: { userId: dbUserId },
     orderBy: { severity: "desc" },
     take: 3,
     include: { techniqueTag: true },
@@ -66,7 +68,7 @@ export default async function PracticePage({
     if (w.weaknessType === "key_area") {
       const [tonic, mode] = w.weaknessKey.split("_")
       items = await prisma.practiceItem.findMany({
-        where: { keyTonic: tonic, keyMode: mode, category: { in: ["scale", "arpeggio"] }, isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: userId }] },
+        where: { keyTonic: tonic, keyMode: mode, category: { in: ["scale", "arpeggio"] }, isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }] },
         take: 3, select: { id: true, title: true, category: true },
       })
       const modeName = mode === "major" ? "長調" : "短調"
@@ -75,7 +77,7 @@ export default async function PracticePage({
       items = await prisma.practiceItem.findMany({
         where: {
           category: "etude", isPublished: true,
-          OR: [{ ownerUserId: null }, { ownerUserId: userId }],
+          OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
           techniques: { some: { techniqueTag: { name: { in: ["デタシェ", "マルテレ", "スタッカート"] } } } },
         },
         take: 3, select: { id: true, title: true, category: true },
@@ -86,7 +88,7 @@ export default async function PracticePage({
       items = await prisma.practiceItem.findMany({
         where: {
           category: { in: ["scale", "etude"] }, isPublished: true,
-          OR: [{ ownerUserId: null }, { ownerUserId: userId }],
+          OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
           positions: { hasSome: ["3rd", "5th", "7th"] },
         },
         take: 3, select: { id: true, title: true, category: true },
@@ -96,7 +98,7 @@ export default async function PracticePage({
       items = await prisma.practiceItem.findMany({
         where: {
           isPublished: true,
-          OR: [{ ownerUserId: null }, { ownerUserId: userId }],
+          OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
           techniques: { some: { techniqueTagId: w.techniqueTagId! } },
         },
         take: 3, select: { id: true, title: true, category: true },
@@ -111,7 +113,7 @@ export default async function PracticePage({
 
   return (
     <PracticeTop
-      userId={userId}
+      userId={authUserId}
       categoryCounts={{ scale: scaleCount, arpeggio: arpeggioCount, etude: etudeCount }}
       scoreRecommendations={scoreRecommendations}
       weaknessRecommendations={weaknessRecommendations}
