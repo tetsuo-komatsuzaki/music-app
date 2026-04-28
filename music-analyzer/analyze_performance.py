@@ -702,6 +702,24 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
                 None, None, None, None, None, None, None,
                 0, "not_detected", None))
 
+        # タイ後半 (continuation/stop) のピッチ評価を直前ノートから継承する。
+        # スコア側はタイを 2 ノートに時間分割するが、演奏側は 1 弓の continuous tone。
+        # 後半は held tone の release 領域 (弓圧変化・押弦緩み) を window として捉えるため、
+        # 独立評価では同一音でも pitch ドリフトを拾い NG になりやすく、ユーザー体感と乖離する。
+        # 物理的・楽典的に同一音である以上、評価は前半に揃える。
+        if is_tied and len(results) >= 2:
+            prev = results[-2]
+            cur  = results[-1]
+            if prev.get("pitch_ok") is not None:
+                cur["pitch_ok"]           = prev["pitch_ok"]
+                cur["pitch_cents_error"]  = prev["pitch_cents_error"]
+                # 後半が not_detected の場合: held tone は実際まだ鳴っているはずなので、
+                # 前半の検出ピッチを借りて pitch_only に格上げする。
+                if cur.get("evaluation_status") == "not_detected":
+                    cur["evaluation_status"] = "pitch_only"
+                    if cur.get("detected_pitch_hz") is None:
+                        cur["detected_pitch_hz"] = prev.get("detected_pitch_hz")
+
     return results
 
 
