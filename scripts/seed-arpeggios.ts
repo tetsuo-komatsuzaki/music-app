@@ -130,6 +130,13 @@ async function main() {
       skipped++
       continue
     }
+    // MVP スコープ削減: デタシェのみ keep。スタッカート / スラー4音は除外。
+    // スケール側 (commit 1ec7264, 960→160) と同方針 — 1 弓法に集約して入門ハードルを下げ、
+    // 評価エンジンの検証に集中する。スタッカート/スラー4音は β 後に再導入候補。
+    if (bowKey !== "detache") {
+      skipped++
+      continue
+    }
     if (!MIN_OCTAVES[chordKey]) {
       console.warn(`  Skip (unknown chord): "${chordKey}" - ${title}`)
       skipped++
