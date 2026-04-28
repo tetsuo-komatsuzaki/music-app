@@ -136,6 +136,14 @@ async function main() {
       continue
     }
 
+    // タイトル詐称防止: Excel オクターブが MIN_OCTAVES 未満の行は drop。
+    // 例: "1オクターブ major" は MIN_OCTAVES["major"]=3 で実際は 3oct MXL が再生され、
+    // タイトルと演奏内容が乖離するため除外。実 MXL に一致するオクターブの行のみ残す。
+    if (octExcel < MIN_OCTAVES[chordKey]) {
+      skipped++
+      continue
+    }
+
     const minOct    = MIN_OCTAVES[chordKey]
     const targetOct = Math.max(octExcel, minOct)
 
