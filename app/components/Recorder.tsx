@@ -208,6 +208,8 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
   const analyserRef = useRef<AnalyserNode | null>(null)
   const animFrameRef = useRef<number | null>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
+  const sliderRef = useRef<HTMLInputElement | null>(null)
+  const bpmDisplayRef = useRef<HTMLSpanElement | null>(null)
 
   const MAX_DURATION = 600
   const RECOMMENDED_DURATION = 15
@@ -221,6 +223,8 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
   useEffect(() => {
     if (!userChangedBpmRef.current && bpm != null) {
       setRecordingBpm(bpm)
+      if (sliderRef.current) sliderRef.current.value = String(bpm)
+      if (bpmDisplayRef.current) bpmDisplayRef.current.textContent = `${bpm} BPM`
       onRecordingBpmChange?.(bpm)
     }
   }, [bpm, onRecordingBpmChange])
@@ -592,19 +596,23 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
           <div style={{ marginBottom: 12 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
               <span style={{ fontSize: 13, color: "#555" }}>録音テンポ</span>
-              <span style={{ fontSize: 18, fontWeight: 700 }}>{recordingBpm} BPM</span>
+              <span ref={bpmDisplayRef} style={{ fontSize: 18, fontWeight: 700 }}>{recordingBpm} BPM</span>
             </div>
             <input
+              ref={sliderRef}
               type="range"
               min={Math.max(Math.round(scoreBpm * 0.25), 20)}
               max={Math.round(scoreBpm * 2)}
-              value={recordingBpm}
-              onChange={(e) => {
+              defaultValue={recordingBpm}
+              onInput={(e) => {
                 userChangedBpmRef.current = true
-                const v = Number(e.target.value)
-                setRecordingBpm(v)
+                const v = Number(e.currentTarget.value)
+                if (bpmDisplayRef.current) bpmDisplayRef.current.textContent = `${v} BPM`
                 onRecordingBpmChange?.(v)
               }}
+              onMouseUp={(e) => setRecordingBpm(Number(e.currentTarget.value))}
+              onTouchEnd={(e) => setRecordingBpm(Number(e.currentTarget.value))}
+              onKeyUp={(e) => setRecordingBpm(Number(e.currentTarget.value))}
               style={{ width: "100%", accentColor: "#2e7dff" }}
             />
             <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
@@ -613,7 +621,13 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
                 return (
                   <button
                     key={ratio}
-                    onClick={() => { userChangedBpmRef.current = true; setRecordingBpm(t); onRecordingBpmChange?.(t) }}
+                    onClick={() => {
+                      userChangedBpmRef.current = true
+                      setRecordingBpm(t)
+                      if (sliderRef.current) sliderRef.current.value = String(t)
+                      if (bpmDisplayRef.current) bpmDisplayRef.current.textContent = `${t} BPM`
+                      onRecordingBpmChange?.(t)
+                    }}
                     style={{
                       flex: 1, padding: "4px 0", fontSize: 12, borderRadius: 6, cursor: "pointer",
                       border: recordingBpm === t ? "1px solid #2e7dff" : "1px solid #ddd",
