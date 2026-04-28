@@ -16,7 +16,15 @@ load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
-DATABASE_URL = os.getenv("DATABASE_URL")
+# psycopg2 は Prisma 固有の "pgbouncer=true" パラメータを認識できないため、
+# DIRECT_URL (migrations 用、pgbouncer なし) を優先。なければ DATABASE_URL から
+# pgbouncer 系クエリパラメータを除去して使う。
+DATABASE_URL = os.getenv("DIRECT_URL") or os.getenv("DATABASE_URL")
+if DATABASE_URL and "pgbouncer" in DATABASE_URL:
+    from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
+    parsed = urlparse(DATABASE_URL)
+    cleaned_query = urlencode([(k, v) for k, v in parse_qsl(parsed.query) if k not in ("pgbouncer", "connection_limit")])
+    DATABASE_URL = urlunparse(parsed._replace(query=cleaned_query))
 BUCKET       = "musicxml"
 
 # ローカルMXLディレクトリ
