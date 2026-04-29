@@ -12,92 +12,238 @@
 }
 
 .dialog {
-  background: #fff;
-  border-radius: 16px;
-  max-width: 480px;
+  background: linear-gradient(180deg, #f7faff 0%, #ffffff 25%);
+  border-radius: 20px;
+  max-width: 520px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 20px 60px rgba(20, 40, 80, 0.25);
   max-height: calc(100vh - 32px);
   overflow: hidden;
 }
 
 .body {
-  padding: 28px 24px 16px 24px;
+  padding: 36px 28px 16px 28px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  align-items: center;
+  text-align: center;
   flex: 1;
   overflow-y: auto;
+  min-height: 360px;
+  justify-content: flex-start;
+  animation: slideEnter 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+@keyframes slideEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.visualArea {
+  margin: 4px 0 12px 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ── タイポグラフィ ─────────────────────────────── */
+
 .headline {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: #1a1a1a;
   margin: 0;
   line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+.subhead {
+  font-size: 15px;
+  color: #4a7fa3;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .bodyText {
-  font-size: 15px;
-  color: #444;
+  font-size: 14px;
+  color: #555;
   line-height: 1.7;
   margin: 0;
-  white-space: pre-line;
+  max-width: 420px;
 }
 
-.visualHint {
-  background: #f7f9fc;
-  border: 1px dashed #d0d8e0;
-  border-radius: 8px;
-  padding: 12px 14px;
-  font-size: 12px;
-  color: #888;
-  text-align: center;
-  font-style: italic;
-}
+/* ── Hero ビジュアル (slide 1, 5) ─────────────────── */
 
-/* スライド 4 のマーカー凡例表 */
-.legendTable {
+.heroVisual {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
+  align-items: center;
+  justify-content: center;
+  width: 140px;
+  height: 140px;
 }
 
-.legendRow {
-  display: grid;
-  grid-template-columns: 32px 80px 1fr;
+.heroVisual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(74, 127, 163, 0.18) 0%,
+    rgba(74, 127, 163, 0.08) 40%,
+    transparent 70%
+  );
+}
+
+.heroEmoji {
+  font-size: 80px;
+  position: relative;
+  filter: drop-shadow(0 6px 16px rgba(74, 127, 163, 0.25));
+  line-height: 1;
+}
+
+/* ── Options ビジュアル (slide 2) ──────────────────── */
+
+.optionsVisual {
+  display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 12px;
-  background: #f7f9fc;
-  border-radius: 8px;
-  font-size: 14px;
+  width: 100%;
+  max-width: 380px;
 }
 
-.legendColor {
-  font-size: 18px;
-  text-align: center;
+.optionCard {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #e0e8f0;
+  border-radius: 16px;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(74, 127, 163, 0.08);
 }
 
-.legendName {
+.optionEmoji {
+  font-size: 44px;
+  line-height: 1;
+  filter: drop-shadow(0 3px 8px rgba(74, 127, 163, 0.15));
+}
+
+.optionLabel {
+  font-size: 13px;
   font-weight: 600;
   color: #1a1a1a;
 }
 
-.legendMeaning {
-  color: #555;
+.optionsConnector {
+  font-size: 11px;
+  color: #888;
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-/* プログレスドット */
+/* ── Flow ビジュアル (slide 3) ─────────────────── */
+
+.flowVisual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.flowStep {
+  background: #f7f9fc;
+  border: 1px solid #e0e8f0;
+  border-radius: 12px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 76px;
+}
+
+.flowEmoji {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.flowLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #444;
+  white-space: nowrap;
+}
+
+.flowArrow {
+  color: #4a7fa3;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Color Legend ビジュアル (slide 4) ──────────── */
+
+.legendVisual {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.legendRow {
+  display: grid;
+  grid-template-columns: 36px 90px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 10px;
+}
+
+.legendDot {
+  font-size: 22px;
+  text-align: center;
+  line-height: 1;
+}
+
+.legendName {
+  font-weight: 700;
+  font-size: 14px;
+  color: #1a1a1a;
+}
+
+.legendMeaning {
+  font-size: 13px;
+  color: #555;
+  text-align: left;
+}
+
+/* ── プログレスドット ──────────────────────────── */
+
 .progress {
   display: flex;
   justify-content: center;
   gap: 8px;
-  padding: 12px 0;
+  padding: 8px 0 12px 0;
 }
 
 .progressDot {
@@ -105,18 +251,19 @@
   height: 8px;
   border-radius: 50%;
   background: #d0d8e0;
-  transition: 0.2s;
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .progressDotActive {
   background: #4a7fa3;
-  width: 24px;
+  width: 28px;
   border-radius: 4px;
 }
 
-/* フッター (ナビゲーションボタン) */
+/* ── フッター ──────────────────────────── */
+
 .footer {
-  padding: 16px 24px 20px 24px;
+  padding: 14px 24px 20px 24px;
   border-top: 1px solid #f0f0f0;
   display: flex;
   align-items: center;
@@ -172,46 +319,52 @@
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 10px 22px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: 0.15s;
+  box-shadow: 0 2px 8px rgba(74, 127, 163, 0.25);
 }
 
 .primaryButton:hover:not(:disabled) {
   background: #3d6a8a;
+  box-shadow: 0 4px 12px rgba(74, 127, 163, 0.35);
 }
 
-/* スライド 5 の dual CTA */
+/* ── スライド 5 の dual CTA ──────────────────────── */
+
 .dualCta {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 0 24px 20px 24px;
+  gap: 10px;
+  padding: 0 24px 16px 24px;
 }
 
 .dualCtaPrimary {
   background: #4a7fa3;
   color: #fff;
   border: none;
-  border-radius: 10px;
-  padding: 14px 16px;
+  border-radius: 12px;
+  padding: 16px 16px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: 0.15s;
+  box-shadow: 0 4px 14px rgba(74, 127, 163, 0.35);
 }
 
 .dualCtaPrimary:hover {
   background: #3d6a8a;
+  box-shadow: 0 6px 18px rgba(74, 127, 163, 0.45);
+  transform: translateY(-1px);
 }
 
 .dualCtaSecondary {
   background: #fff;
   color: #4a7fa3;
-  border: 1px solid #4a7fa3;
-  border-radius: 10px;
+  border: 1.5px solid #4a7fa3;
+  border-radius: 12px;
   padding: 14px 16px;
   font-size: 15px;
   font-weight: 600;
@@ -223,12 +376,59 @@
   background: #f0f6fa;
 }
 
+/* ── Reduced Motion ──────────────────────────── */
+
 @media (prefers-reduced-motion: reduce) {
+  .body {
+    animation: none;
+  }
   .progressDot,
   .navButton,
   .primaryButton,
   .dualCtaPrimary,
   .dualCtaSecondary {
     transition: none;
+  }
+  .dualCtaPrimary:hover {
+    transform: none;
+  }
+}
+
+/* ── 狭い画面対応 ──────────────────────────── */
+
+@media (max-width: 380px) {
+  .body {
+    padding: 28px 18px 12px 18px;
+  }
+  .headline {
+    font-size: 20px;
+  }
+  .heroVisual {
+    width: 120px;
+    height: 120px;
+  }
+  .heroEmoji {
+    font-size: 64px;
+  }
+  .flowStep {
+    min-width: 64px;
+    padding: 10px 6px;
+  }
+  .flowEmoji {
+    font-size: 28px;
+  }
+  .flowLabel {
+    font-size: 10px;
+  }
+  .legendRow {
+    grid-template-columns: 28px 70px 1fr;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .legendName {
+    font-size: 13px;
+  }
+  .legendMeaning {
+    font-size: 12px;
   }
 }

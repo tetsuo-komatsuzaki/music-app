@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, ReactNode } from "react"
 import { createPortal } from "react-dom"
 import { useParams, useRouter } from "next/navigation"
-import { SLIDES, Slide } from "./content/slides"
+import { SLIDES, Slide, SlideVisual } from "./content/slides"
 import { useOnboarding } from "./hooks/useOnboarding"
 import styles from "./styles/WelcomeSlides.module.css"
 
@@ -11,6 +11,71 @@ type Props = {
   /** ヘルプモーダルから明示的に再生する場合に true */
   forceOpen?: boolean
   onClose?: () => void
+}
+
+const COLOR_LEGEND_ITEMS = [
+  { emoji: "🟢", name: "緑",       meaning: "OK",                     bg: "#e8f7e9" },
+  { emoji: "🔴", name: "赤",       meaning: "音程ズレ",               bg: "#fdecea" },
+  { emoji: "🟠", name: "オレンジ", meaning: "タイミングズレ",          bg: "#fef4e8" },
+  { emoji: "⚪", name: "灰色",     meaning: "検出できず",              bg: "#f0f0f0" },
+] as const
+
+function renderVisual(visual: SlideVisual): ReactNode {
+  switch (visual.type) {
+    case "hero":
+      return (
+        <div className={styles.heroVisual}>
+          <span className={styles.heroEmoji} aria-hidden>{visual.emoji}</span>
+        </div>
+      )
+    case "options":
+      return (
+        <div className={styles.optionsVisual}>
+          <div className={styles.optionCard}>
+            <span className={styles.optionEmoji} aria-hidden>{visual.left.emoji}</span>
+            <span className={styles.optionLabel}>{visual.left.label}</span>
+          </div>
+          <span className={styles.optionsConnector} aria-hidden>or</span>
+          <div className={styles.optionCard}>
+            <span className={styles.optionEmoji} aria-hidden>{visual.right.emoji}</span>
+            <span className={styles.optionLabel}>{visual.right.label}</span>
+          </div>
+        </div>
+      )
+    case "flow": {
+      const elements: ReactNode[] = []
+      visual.steps.forEach((step, i) => {
+        elements.push(
+          <div key={`step-${i}`} className={styles.flowStep}>
+            <span className={styles.flowEmoji} aria-hidden>{step.emoji}</span>
+            <span className={styles.flowLabel}>{step.label}</span>
+          </div>
+        )
+        if (i < visual.steps.length - 1) {
+          elements.push(
+            <span key={`arrow-${i}`} className={styles.flowArrow} aria-hidden>→</span>
+          )
+        }
+      })
+      return <div className={styles.flowVisual}>{elements}</div>
+    }
+    case "colorLegend":
+      return (
+        <div className={styles.legendVisual}>
+          {COLOR_LEGEND_ITEMS.map(item => (
+            <div
+              key={item.name}
+              className={styles.legendRow}
+              style={{ background: item.bg }}
+            >
+              <span className={styles.legendDot} aria-hidden>{item.emoji}</span>
+              <span className={styles.legendName}>{item.name}</span>
+              <span className={styles.legendMeaning}>{item.meaning}</span>
+            </div>
+          ))}
+        </div>
+      )
+  }
 }
 
 export default function WelcomeSlides({ forceOpen, onClose }: Props) {
@@ -45,8 +110,6 @@ export default function WelcomeSlides({ forceOpen, onClose }: Props) {
   const isFirst = index === 0
 
   const handleClose = () => {
-    // forceOpen 経由でも自動表示でも、welcomeSlidesShown は markWelcomeSlidesShown で必ず立てる
-    // (既に true なら no-op、false なら true に遷移)
     markWelcomeSlidesShown()
     onClose?.()
   }
@@ -69,42 +132,10 @@ export default function WelcomeSlides({ forceOpen, onClose }: Props) {
   }
 
   const handleDualCta = (pathTemplate: string) => {
-    // F1 修正: pathTemplate は相対パス、userId を runtime に付与
     const fullPath = userId ? `/${userId}${pathTemplate}` : pathTemplate
     markWelcomeSlidesShown()
     onClose?.()
     router.push(fullPath)
-  }
-
-  const renderBody = () => {
-    // スライド 4 のマーカー凡例は body 内の絵文字つきテキストで表現済み
-    // visual な表組みも併設すると説明力が上がるため、slide.id === 4 のときは凡例表も追加
-    if (slide.id === 4) {
-      const legend = [
-        { color: "🟢", name: "緑",       meaning: "OK" },
-        { color: "🔴", name: "赤",       meaning: "音程がズレた" },
-        { color: "🟠", name: "オレンジ", meaning: "タイミングがズレた" },
-        { color: "⚪", name: "灰色",     meaning: "音が検出できなかった" },
-      ]
-      return (
-        <>
-          <p className={styles.bodyText}>{slide.body.split("\n\n")[0]}</p>
-          <div className={styles.legendTable}>
-            {legend.map(row => (
-              <div key={row.name} className={styles.legendRow}>
-                <span className={styles.legendColor}>{row.color}</span>
-                <span className={styles.legendName}>{row.name}</span>
-                <span className={styles.legendMeaning}>{row.meaning}</span>
-              </div>
-            ))}
-          </div>
-          {slide.body.split("\n\n")[1] && (
-            <p className={styles.bodyText}>{slide.body.split("\n\n")[1]}</p>
-          )}
-        </>
-      )
-    }
-    return <p className={styles.bodyText}>{slide.body}</p>
   }
 
   return createPortal(
@@ -115,11 +146,17 @@ export default function WelcomeSlides({ forceOpen, onClose }: Props) {
       aria-labelledby="welcome-slide-headline"
     >
       <div className={styles.dialog}>
-        <div className={styles.body}>
+        <div className={styles.body} key={slide.id}>
+          <div className={styles.visualArea}>{renderVisual(slide.visual)}</div>
           <h2 id="welcome-slide-headline" className={styles.headline}>
             {slide.headline}
           </h2>
-          {renderBody()}
+          {slide.subhead && (
+            <p className={styles.subhead}>{slide.subhead}</p>
+          )}
+          {slide.body && (
+            <p className={styles.bodyText}>{slide.body}</p>
+          )}
         </div>
 
         <div className={styles.progress} aria-hidden="true">
