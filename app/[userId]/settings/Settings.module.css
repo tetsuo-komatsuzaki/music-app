@@ -1,0 +1,220 @@
+/* 既存ページ (home.module.css 等) のトーン踏襲: 白カード、#e0e0e0 border、12px radius */
+
+.page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 800px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.card {
+  background: #fff;
+  border: 0.5px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+}
+
+.inputRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.input {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  background: #fff;
+  color: #1a1a1a;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #3B82F6;
+}
+
+.input:disabled {
+  background: #f5f5f5;
+  color: #888;
+}
+
+.readOnlyValue {
+  font-size: 14px;
+  color: #1a1a1a;
+  margin: 0;
+  padding: 8px 0;
+}
+
+.fieldHint {
+  font-size: 12px;
+  color: #888;
+  margin: 0;
+}
+
+.fieldError {
+  font-size: 12px;
+  color: #c62828;
+  margin: 0;
+}
+
+.primaryButton {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: #2563EB;
+}
+
+.primaryButton:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  padding: 8px 16px;
+  font-size: 13px;
+  background: #f5f5f5;
+  color: #555;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+  align-self: flex-start;
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background: #ebebeb;
+}
+
+.secondaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.dangerButton {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+  align-self: flex-start;
+}
+
+.dangerButton:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.dangerButton:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.dangerHint {
+  font-size: 13px;
+  color: #555;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.toggleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.toggleText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toggleLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.toggleHint {
+  font-size: 12px;
+  color: #555;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.toggle {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.messageSuccess {
+  font-size: 13px;
+  color: #14532d;
+  background: #dcfce7;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 0;
+}
+
+.messageError {
+  font-size: 13px;
+  color: #7f1d1d;
+  background: #fee2e2;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin: 0;
+}
