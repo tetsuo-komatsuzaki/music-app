@@ -92,7 +92,7 @@ export default function SettingsClient({
       if (result.success) {
         setEmailMessage({
           type: "success",
-          text: "確認メールを送信しました。現在のメールアドレスと新しいメールアドレスの両方に届く確認リンクをクリックすると変更が完了します。",
+          text: "新しいメールアドレスに確認メールを送信しました。届いた確認リンクをクリックすると変更が完了します。",
         })
         setEmailEditing(false)
         setNewEmail("")
