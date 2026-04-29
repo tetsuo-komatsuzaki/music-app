@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import styles from "../practice.module.css"
 import type { ScoredItemDTO, RecommendReason } from "@/app/lib/practice/getRecommendations"
@@ -444,7 +444,7 @@ function AllView({
         <div className={styles.emptyState}>該当する練習メニューがありません</div>
       )}
 
-      <div className={styles.itemList}>
+      <div className={styles.itemList} data-onboarding="categoryList.itemList">
         {filtered.map((item) => (
           <ItemCard key={item.id} item={item} userId={userId} category={category} />
         ))}
@@ -460,7 +460,21 @@ function AllView({
 export default function PracticeList({
   userId, category, categoryTitle, items, filterOptions, currentFilters, recommendations, stats,
 }: Props) {
-  const [activeView, setActiveView] = useState<ViewType>("recommend")
+  const searchParams = useSearchParams()
+  const initialView: ViewType = (() => {
+    const v = searchParams.get("view")
+    if (v === "recommend" || v === "group" || v === "all") return v
+    return "recommend"
+  })()
+  const [activeView, setActiveView] = useState<ViewType>(initialView)
+
+  // URL の ?view= が変化したら state を同期 (オンボーディングからのナビゲーション用)
+  useEffect(() => {
+    const v = searchParams.get("view")
+    if (v === "recommend" || v === "group" || v === "all") {
+      setActiveView(v)
+    }
+  }, [searchParams])
 
   const tabs: { key: ViewType; label: string }[] = [
     { key: "recommend", label: "おすすめ順" },

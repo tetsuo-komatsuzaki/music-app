@@ -41,7 +41,7 @@ export default function PracticeTop({
       <h1 className={styles.pageTitle}>練習メニュー</h1>
 
       {hasRecommendations && (
-        <section className={styles.recommendSection} data-onboarding="practice.recommendations">
+        <section className={styles.recommendSection}>
           <h2 className={styles.sectionTitle}>おすすめ練習</h2>
 
           {scoreRecommendations.map((rec, i) => (

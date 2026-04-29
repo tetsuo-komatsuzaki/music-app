@@ -15,6 +15,12 @@ export type CoachMarkConfig = {
   body: CoachMarkBody
   trigger: "page" | "first-analysis-complete"
   showDismissAllCheckbox: boolean
+  /**
+   * マーク表示前に navigate する相対 URL (例: "?tab=weakness")。
+   * URL クエリ駆動でタブを切り替えるページ (progress / categoryList) で使う。
+   * 既に同じクエリの場合は no-op。
+   */
+  targetUrl?: string
 }
 
 export type PageCoachMarksConfig = {
@@ -50,7 +56,7 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
       {
         id: "scores.upload",
         targetKey: "scores.uploadButton",
-        headline: "まずは楽譜をアップロード",
+        headline: "好きな楽譜をアップロード",
         body: "楽譜ファイル (.xml / .musicxml / .mxl、5MB以下) を読み込ませると、譜面が表示されて練習を始められます。",
         trigger: "page",
         showDismissAllCheckbox: true,
@@ -69,25 +75,33 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
     pageKey: "scoreDetail",
     marks: [
       {
-        id: "scoreDetail.play",
-        targetKey: "scoreDetail.playControls",
-        headline: "解析を待つ間、ここで再生できます",
-        body: "バイオリン音源で再生し、テンポも変えられます。譜面のどこかをタップしてもその位置から再生開始します。",
+        id: "scoreDetail.score",
+        targetKey: "scoreDetail.scoreOverlay",
+        headline: "ここに楽譜が表示されます",
+        body: "譜面のどこかをタップすると、その位置から再生を始められます。再生中の現在位置はカーソルで示されます。",
         trigger: "page",
         showDismissAllCheckbox: true,
       },
       {
         id: "scoreDetail.record",
         targetKey: "scoreDetail.recordButton",
-        headline: "ここを押して録音",
-        body: "演奏を終えると自動で分析がはじまります。結果が同じ譜面の上に映ります。",
+        headline: "演奏を録音する",
+        body: "ここから録音を始めます。演奏を終えると自動で分析がはじまり、結果が同じ譜面の上に色で表示されます。",
+        trigger: "page",
+        showDismissAllCheckbox: false,
+      },
+      {
+        id: "scoreDetail.play",
+        targetKey: "scoreDetail.playControls",
+        headline: "楽譜を再生して確認",
+        body: "バイオリン音源で楽譜を再生できます。テンポも変えられるので、ゆっくり練習したい時に便利です。",
         trigger: "page",
         showDismissAllCheckbox: false,
       },
       {
         id: "scoreDetail.markers",
         targetKey: "scoreDetail.scoreOverlay",
-        headline: "譜面の上で、答え合わせ",
+        headline: "色で答え合わせ",
         body: {
           rows: [
             { color: "🟢", label: "緑",       meaning: "OK" },
@@ -105,20 +119,12 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
     pageKey: "practice",
     marks: [
       {
-        id: "practice.recommendations",
-        targetKey: "practice.recommendations",
-        headline: "あなた向けのおすすめ",
-        body: "演奏履歴をもとに、次に取り組むと良い練習をArcodaが提案します。最初は基本のおすすめが並びます。",
-        trigger: "page",
-        showDismissAllCheckbox: true,
-      },
-      {
         id: "practice.categoryNav",
         targetKey: "practice.categoryNav",
         headline: "カテゴリから自由に探す",
         body: "音階・アルペジオ・エチュードから、いまの自分に合った練習を選べます。",
         trigger: "page",
-        showDismissAllCheckbox: false,
+        showDismissAllCheckbox: true,
       },
     ],
   },
@@ -126,12 +132,22 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
     pageKey: "categoryList",
     marks: [
       {
-        id: "categoryList.filters",
-        targetKey: "categoryList.filters",
-        headline: "条件で絞り込めます",
-        body: "キー (調)・ポジション・並び順で練習を絞り込めます。",
+        id: "categoryList.cards",
+        targetKey: "categoryList.itemList",
+        headline: "練習したいカードを選択",
+        body: "カードをタップすると、練習画面に遷移します。",
         trigger: "page",
         showDismissAllCheckbox: true,
+        targetUrl: "?view=all",
+      },
+      {
+        id: "categoryList.filters",
+        targetKey: "categoryList.filters",
+        headline: "条件を絞ります",
+        body: "キー (調)・ポジション・並び順で練習を絞り込めます。",
+        trigger: "page",
+        showDismissAllCheckbox: false,
+        targetUrl: "?view=all",
       },
     ],
   },
@@ -166,6 +182,7 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         body: "練習を重ねると、つまずきやすいキーやタイミングをArcodaが自動で見つけます。「弱点」タブで確認できます。",
         trigger: "page",
         showDismissAllCheckbox: false,
+        targetUrl: "?tab=weakness",
       },
     ],
   },

@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useOnboarding } from "./hooks/useOnboarding"
 import CoachMark from "./CoachMark"
 import { CoachMarkConfig } from "./content/coachMarks"
@@ -23,6 +24,10 @@ export default function PageCoachMarks({ pageKey, marks }: Props) {
     markPageGuideSeen,
     dismissAllGuides,
   } = useOnboarding()
+
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   const pageMarks = marks.filter(m => m.trigger === "page")
   const analysisMark = marks.find(m => m.trigger === "first-analysis-complete") ?? null
@@ -65,7 +70,38 @@ export default function PageCoachMarks({ pageKey, marks }: Props) {
     analysisOverlayRenderedAt,
   ])
 
+  // 現在表示すべきマーク
+  const activeMark: CoachMarkConfig | null = (() => {
+    if (shouldShowPageMarks && !pageMarksDone) return pageMarks[pageMarkIndex] ?? null
+    if (showAnalysisMark && analysisMark) return analysisMark
+    return null
+  })()
+
+  // targetUrl が指定されたマークに対する URL ナビゲーション
+  // (タブ切替が必要なマーク: progress.weakness, categoryList.* 等)
+  const urlMatchesTarget = useMemo(() => {
+    if (!activeMark?.targetUrl) return true
+    const targetParams = new URLSearchParams(activeMark.targetUrl)
+    for (const [key, value] of targetParams.entries()) {
+      if (searchParams.get(key) !== value) return false
+    }
+    return true
+  }, [activeMark?.targetUrl, searchParams])
+
+  useEffect(() => {
+    if (!activeMark?.targetUrl) return
+    if (urlMatchesTarget) return
+    const targetParams = new URLSearchParams(activeMark.targetUrl)
+    const currentParams = new URLSearchParams(searchParams.toString())
+    for (const [key, value] of targetParams.entries()) {
+      currentParams.set(key, value)
+    }
+    router.replace(pathname + "?" + currentParams.toString())
+  }, [activeMark?.id, activeMark?.targetUrl, urlMatchesTarget, router, pathname, searchParams])
+
   if (!isHydrated) return null
+  // URL がマークの targetUrl と一致するまでマーク描画を遅延 (タブ切替が完了するまで非表示)
+  if (!urlMatchesTarget) return null
 
   // page-trigger マーク表示
   if (shouldShowPageMarks && !pageMarksDone) {

@@ -54,6 +54,17 @@ export function useTargetRect(targetKey: string | null): TargetRectResult {
     const tryResolve = (): boolean => {
       const el = document.querySelector(selector)
       if (!el) return false
+
+      // ターゲットを画面中央にスムーススクロール (見切れ防止)
+      // smooth scroll の進行に応じて scroll listener が rect を逐次更新するため、
+      // spotlight はスクロールに追従する
+      try {
+        el.scrollIntoView({ behavior: "smooth", block: "center" })
+      } catch {
+        // 旧ブラウザで options が未対応の場合のフォールバック
+        el.scrollIntoView()
+      }
+
       measure(el)
       setResolved(true)
 
