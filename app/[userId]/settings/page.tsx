@@ -14,13 +14,13 @@ export default async function SettingsPage({
   // 認証 + URL ↔ session 一致は helper 内部で完結 (失敗時は redirect 投げる)
   const { dbUserId } = await getUserIdsFromParams(p)
 
-  // helper は ID のみ返すので、email / name / aiTrainingOptIn は別途取得
+  // helper は ID のみ返すので、email / name は別途取得
   const supabase = await createServerSupabaseClient()
   const { data: { user: authUser } } = await supabase.auth.getUser()
 
   const dbUser = await prisma.user.findUnique({
     where: { id: dbUserId },
-    select: { name: true, aiTrainingOptIn: true },
+    select: { name: true },
   })
   // helper を通過していれば dbUser は存在するはず、念のため
   if (!dbUser) redirect("/login")
@@ -30,7 +30,6 @@ export default async function SettingsPage({
       userId={dbUserId}
       initialName={dbUser.name}
       currentEmail={authUser?.email ?? ""}
-      aiTrainingOptIn={dbUser.aiTrainingOptIn}
       accountDeletionEnabled={process.env.ENABLE_ACCOUNT_DELETION === "true"}
     />
   )

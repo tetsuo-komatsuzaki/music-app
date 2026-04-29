@@ -4,7 +4,6 @@ import { useState, useTransition } from "react"
 import { updateUserName } from "@/app/actions/updateUserName"
 import { updateUserEmail } from "@/app/actions/updateUserEmail"
 import { updateUserPassword } from "@/app/actions/updateUserPassword"
-import { updateAiTrainingOptIn } from "@/app/actions/updateAiTrainingOptIn"
 import DeleteAccountModal from "./DeleteAccountModal"
 import styles from "./Settings.module.css"
 
@@ -12,7 +11,6 @@ interface Props {
   userId: string
   initialName: string
   currentEmail: string
-  aiTrainingOptIn: boolean
   accountDeletionEnabled: boolean
 }
 
@@ -20,7 +18,6 @@ export default function SettingsClient({
   userId: _userId,
   initialName,
   currentEmail,
-  aiTrainingOptIn,
   accountDeletionEnabled,
 }: Props) {
   const [name, setName] = useState(initialName)
@@ -79,10 +76,6 @@ export default function SettingsClient({
     setPasswordMessage(null)
   }
 
-  const [aiOptIn, setAiOptIn] = useState(aiTrainingOptIn)
-  const [aiMessage, setAiMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
-  const [isAiPending, startAiTransition] = useTransition()
-
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
 
   const handleEmailSave = () => {
@@ -106,23 +99,6 @@ export default function SettingsClient({
     setEmailEditing(false)
     setNewEmail("")
     setEmailMessage(null)
-  }
-
-  const handleToggleAi = (newValue: boolean) => {
-    setAiMessage(null)
-    setAiOptIn(newValue)  // optimistic UI
-    startAiTransition(async () => {
-      const result = await updateAiTrainingOptIn({ enabled: newValue })
-      if (result.success) {
-        setAiMessage({
-          type: "success",
-          text: newValue ? "AI 学習への利用をオンにしました" : "AI 学習への利用をオフにしました",
-        })
-      } else {
-        setAiOptIn(!newValue)  // ロールバック
-        setAiMessage({ type: "error", text: result.error ?? "更新に失敗しました" })
-      }
-    })
   }
 
   const isDirty = name.trim() !== savedName && name.trim().length > 0
@@ -310,39 +286,6 @@ export default function SettingsClient({
             }
           >
             {message.text}
-          </p>
-        )}
-      </section>
-
-      {/* プライバシー */}
-      <section className={styles.card}>
-        <h2 className={styles.sectionTitle}>プライバシー</h2>
-        <div className={styles.toggleRow}>
-          <div className={styles.toggleText}>
-            <p className={styles.toggleLabel}>AI 学習への利用</p>
-            <p className={styles.toggleHint}>
-              録音データを Arcoda の演奏解析エンジンの精度向上に利用します。
-              <strong>この設定をオンにした以降の新規録音のみ</strong>が対象で、
-              過去のデータは含まれません。匿名化した上で運営内のみで使用し、
-              外部提供は行いません。いつでも OFF にできます。
-            </p>
-          </div>
-          <input
-            type="checkbox"
-            checked={aiOptIn}
-            onChange={(e) => handleToggleAi(e.target.checked)}
-            disabled={isAiPending}
-            className={styles.toggle}
-            aria-label="AI 学習への利用"
-          />
-        </div>
-        {aiMessage && (
-          <p
-            className={
-              aiMessage.type === "success" ? styles.messageSuccess : styles.messageError
-            }
-          >
-            {aiMessage.text}
           </p>
         )}
       </section>
