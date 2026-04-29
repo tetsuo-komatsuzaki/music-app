@@ -53,6 +53,16 @@ export type PracticePerformance = $Result.DefaultSelection<Prisma.$PracticePerfo
  * 
  */
 export type UserWeakness = $Result.DefaultSelection<Prisma.$UserWeaknessPayload>
+/**
+ * Model Feedback
+ * 
+ */
+export type Feedback = $Result.DefaultSelection<Prisma.$FeedbackPayload>
+/**
+ * Model SupportInquiry
+ * 
+ */
+export type SupportInquiry = $Result.DefaultSelection<Prisma.$SupportInquiryPayload>
 
 /**
  * Enums
@@ -321,6 +331,26 @@ export class PrismaClient<
     * ```
     */
   get userWeakness(): Prisma.UserWeaknessDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.feedback`: Exposes CRUD operations for the **Feedback** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Feedbacks
+    * const feedbacks = await prisma.feedback.findMany()
+    * ```
+    */
+  get feedback(): Prisma.FeedbackDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.supportInquiry`: Exposes CRUD operations for the **SupportInquiry** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SupportInquiries
+    * const supportInquiries = await prisma.supportInquiry.findMany()
+    * ```
+    */
+  get supportInquiry(): Prisma.SupportInquiryDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -762,7 +792,9 @@ export namespace Prisma {
     TechniqueTag: 'TechniqueTag',
     PracticeItemTechnique: 'PracticeItemTechnique',
     PracticePerformance: 'PracticePerformance',
-    UserWeakness: 'UserWeakness'
+    UserWeakness: 'UserWeakness',
+    Feedback: 'Feedback',
+    SupportInquiry: 'SupportInquiry'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -778,7 +810,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "score" | "performance" | "practiceItem" | "techniqueTag" | "practiceItemTechnique" | "practicePerformance" | "userWeakness"
+      modelProps: "user" | "score" | "performance" | "practiceItem" | "techniqueTag" | "practiceItemTechnique" | "practicePerformance" | "userWeakness" | "feedback" | "supportInquiry"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1374,6 +1406,154 @@ export namespace Prisma {
           }
         }
       }
+      Feedback: {
+        payload: Prisma.$FeedbackPayload<ExtArgs>
+        fields: Prisma.FeedbackFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FeedbackFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FeedbackFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          findFirst: {
+            args: Prisma.FeedbackFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FeedbackFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          findMany: {
+            args: Prisma.FeedbackFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>[]
+          }
+          create: {
+            args: Prisma.FeedbackCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          createMany: {
+            args: Prisma.FeedbackCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FeedbackCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>[]
+          }
+          delete: {
+            args: Prisma.FeedbackDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          update: {
+            args: Prisma.FeedbackUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          deleteMany: {
+            args: Prisma.FeedbackDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FeedbackUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FeedbackUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>[]
+          }
+          upsert: {
+            args: Prisma.FeedbackUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FeedbackPayload>
+          }
+          aggregate: {
+            args: Prisma.FeedbackAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFeedback>
+          }
+          groupBy: {
+            args: Prisma.FeedbackGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FeedbackGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FeedbackCountArgs<ExtArgs>
+            result: $Utils.Optional<FeedbackCountAggregateOutputType> | number
+          }
+        }
+      }
+      SupportInquiry: {
+        payload: Prisma.$SupportInquiryPayload<ExtArgs>
+        fields: Prisma.SupportInquiryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SupportInquiryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportInquiryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SupportInquiryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportInquiryPayload>
+          }
+          findFirst: {
+            args: Prisma.SupportInquiryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportInquiryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SupportInquiryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportInquiryPayload>
+          }
+          findMany: {
+            args: Prisma.SupportInquiryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportInquiryPayload>[]
+          }
+          create: {
+            args: Prisma.SupportInquiryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportInquiryPayload>
+          }
+          createMany: {
+            args: Prisma.SupportInquiryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SupportInquiryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportInquiryPayload>[]
+          }
+          delete: {
+            args: Prisma.SupportInquiryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportInquiryPayload>
+          }
+          update: {
+            args: Prisma.SupportInquiryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportInquiryPayload>
+          }
+          deleteMany: {
+            args: Prisma.SupportInquiryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SupportInquiryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SupportInquiryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportInquiryPayload>[]
+          }
+          upsert: {
+            args: Prisma.SupportInquiryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SupportInquiryPayload>
+          }
+          aggregate: {
+            args: Prisma.SupportInquiryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSupportInquiry>
+          }
+          groupBy: {
+            args: Prisma.SupportInquiryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SupportInquiryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SupportInquiryCountArgs<ExtArgs>
+            result: $Utils.Optional<SupportInquiryCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1490,6 +1670,8 @@ export namespace Prisma {
     practiceItemTechnique?: PracticeItemTechniqueOmit
     practicePerformance?: PracticePerformanceOmit
     userWeakness?: UserWeaknessOmit
+    feedback?: FeedbackOmit
+    supportInquiry?: SupportInquiryOmit
   }
 
   /* Types for Logging */
@@ -1575,6 +1757,8 @@ export namespace Prisma {
     practiceItems: number
     practicePerformances: number
     weaknesses: number
+    feedbacks: number
+    supportInquiries: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1583,6 +1767,8 @@ export namespace Prisma {
     practiceItems?: boolean | UserCountOutputTypeCountPracticeItemsArgs
     practicePerformances?: boolean | UserCountOutputTypeCountPracticePerformancesArgs
     weaknesses?: boolean | UserCountOutputTypeCountWeaknessesArgs
+    feedbacks?: boolean | UserCountOutputTypeCountFeedbacksArgs
+    supportInquiries?: boolean | UserCountOutputTypeCountSupportInquiriesArgs
   }
 
   // Custom InputTypes
@@ -1629,6 +1815,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountWeaknessesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserWeaknessWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountFeedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeedbackWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountSupportInquiriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportInquiryWhereInput
   }
 
 
@@ -1765,6 +1965,9 @@ export namespace Prisma {
     plan: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    aiTrainingOptIn: boolean | null
+    aiTrainingOptInChangedAt: Date | null
+    deletedAt: Date | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -1775,6 +1978,9 @@ export namespace Prisma {
     plan: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    aiTrainingOptIn: boolean | null
+    aiTrainingOptInChangedAt: Date | null
+    deletedAt: Date | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -1785,6 +1991,9 @@ export namespace Prisma {
     plan: number
     createdAt: number
     updatedAt: number
+    aiTrainingOptIn: number
+    aiTrainingOptInChangedAt: number
+    deletedAt: number
     _all: number
   }
 
@@ -1797,6 +2006,9 @@ export namespace Prisma {
     plan?: true
     createdAt?: true
     updatedAt?: true
+    aiTrainingOptIn?: true
+    aiTrainingOptInChangedAt?: true
+    deletedAt?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -1807,6 +2019,9 @@ export namespace Prisma {
     plan?: true
     createdAt?: true
     updatedAt?: true
+    aiTrainingOptIn?: true
+    aiTrainingOptInChangedAt?: true
+    deletedAt?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -1817,6 +2032,9 @@ export namespace Prisma {
     plan?: true
     createdAt?: true
     updatedAt?: true
+    aiTrainingOptIn?: true
+    aiTrainingOptInChangedAt?: true
+    deletedAt?: true
     _all?: true
   }
 
@@ -1900,6 +2118,9 @@ export namespace Prisma {
     plan: string | null
     createdAt: Date
     updatedAt: Date
+    aiTrainingOptIn: boolean
+    aiTrainingOptInChangedAt: Date | null
+    deletedAt: Date | null
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
@@ -1927,11 +2148,16 @@ export namespace Prisma {
     plan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: boolean
+    deletedAt?: boolean
     performances?: boolean | User$performancesArgs<ExtArgs>
     scores?: boolean | User$scoresArgs<ExtArgs>
     practiceItems?: boolean | User$practiceItemsArgs<ExtArgs>
     practicePerformances?: boolean | User$practicePerformancesArgs<ExtArgs>
     weaknesses?: boolean | User$weaknessesArgs<ExtArgs>
+    feedbacks?: boolean | User$feedbacksArgs<ExtArgs>
+    supportInquiries?: boolean | User$supportInquiriesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1943,6 +2169,9 @@ export namespace Prisma {
     plan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: boolean
+    deletedAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1953,6 +2182,9 @@ export namespace Prisma {
     plan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: boolean
+    deletedAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -1963,15 +2195,20 @@ export namespace Prisma {
     plan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: boolean
+    deletedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "supabaseUserId" | "name" | "role" | "plan" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "supabaseUserId" | "name" | "role" | "plan" | "createdAt" | "updatedAt" | "aiTrainingOptIn" | "aiTrainingOptInChangedAt" | "deletedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     performances?: boolean | User$performancesArgs<ExtArgs>
     scores?: boolean | User$scoresArgs<ExtArgs>
     practiceItems?: boolean | User$practiceItemsArgs<ExtArgs>
     practicePerformances?: boolean | User$practicePerformancesArgs<ExtArgs>
     weaknesses?: boolean | User$weaknessesArgs<ExtArgs>
+    feedbacks?: boolean | User$feedbacksArgs<ExtArgs>
+    supportInquiries?: boolean | User$supportInquiriesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1985,6 +2222,8 @@ export namespace Prisma {
       practiceItems: Prisma.$PracticeItemPayload<ExtArgs>[]
       practicePerformances: Prisma.$PracticePerformancePayload<ExtArgs>[]
       weaknesses: Prisma.$UserWeaknessPayload<ExtArgs>[]
+      feedbacks: Prisma.$FeedbackPayload<ExtArgs>[]
+      supportInquiries: Prisma.$SupportInquiryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -1994,6 +2233,9 @@ export namespace Prisma {
       plan: string | null
       createdAt: Date
       updatedAt: Date
+      aiTrainingOptIn: boolean
+      aiTrainingOptInChangedAt: Date | null
+      deletedAt: Date | null
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -2393,6 +2635,8 @@ export namespace Prisma {
     practiceItems<T extends User$practiceItemsArgs<ExtArgs> = {}>(args?: Subset<T, User$practiceItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PracticeItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     practicePerformances<T extends User$practicePerformancesArgs<ExtArgs> = {}>(args?: Subset<T, User$practicePerformancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PracticePerformancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     weaknesses<T extends User$weaknessesArgs<ExtArgs> = {}>(args?: Subset<T, User$weaknessesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserWeaknessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    feedbacks<T extends User$feedbacksArgs<ExtArgs> = {}>(args?: Subset<T, User$feedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    supportInquiries<T extends User$supportInquiriesArgs<ExtArgs> = {}>(args?: Subset<T, User$supportInquiriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportInquiryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2429,6 +2673,9 @@ export namespace Prisma {
     readonly plan: FieldRef<"User", 'String'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
+    readonly aiTrainingOptIn: FieldRef<"User", 'Boolean'>
+    readonly aiTrainingOptInChangedAt: FieldRef<"User", 'DateTime'>
+    readonly deletedAt: FieldRef<"User", 'DateTime'>
   }
     
 
@@ -2934,6 +3181,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserWeaknessScalarFieldEnum | UserWeaknessScalarFieldEnum[]
+  }
+
+  /**
+   * User.feedbacks
+   */
+  export type User$feedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    where?: FeedbackWhereInput
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    cursor?: FeedbackWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * User.supportInquiries
+   */
+  export type User$supportInquiriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportInquiry
+     */
+    select?: SupportInquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportInquiry
+     */
+    omit?: SupportInquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportInquiryInclude<ExtArgs> | null
+    where?: SupportInquiryWhereInput
+    orderBy?: SupportInquiryOrderByWithRelationInput | SupportInquiryOrderByWithRelationInput[]
+    cursor?: SupportInquiryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SupportInquiryScalarFieldEnum | SupportInquiryScalarFieldEnum[]
   }
 
   /**
@@ -11779,6 +12074,2285 @@ export namespace Prisma {
 
 
   /**
+   * Model Feedback
+   */
+
+  export type AggregateFeedback = {
+    _count: FeedbackCountAggregateOutputType | null
+    _avg: FeedbackAvgAggregateOutputType | null
+    _sum: FeedbackSumAggregateOutputType | null
+    _min: FeedbackMinAggregateOutputType | null
+    _max: FeedbackMaxAggregateOutputType | null
+  }
+
+  export type FeedbackAvgAggregateOutputType = {
+    rating: number | null
+  }
+
+  export type FeedbackSumAggregateOutputType = {
+    rating: number | null
+  }
+
+  export type FeedbackMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    rating: number | null
+    category: string | null
+    message: string | null
+    contactEmail: string | null
+    createdAt: Date | null
+    emailSentAt: Date | null
+  }
+
+  export type FeedbackMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    rating: number | null
+    category: string | null
+    message: string | null
+    contactEmail: string | null
+    createdAt: Date | null
+    emailSentAt: Date | null
+  }
+
+  export type FeedbackCountAggregateOutputType = {
+    id: number
+    userId: number
+    rating: number
+    category: number
+    message: number
+    contactEmail: number
+    createdAt: number
+    emailSentAt: number
+    _all: number
+  }
+
+
+  export type FeedbackAvgAggregateInputType = {
+    rating?: true
+  }
+
+  export type FeedbackSumAggregateInputType = {
+    rating?: true
+  }
+
+  export type FeedbackMinAggregateInputType = {
+    id?: true
+    userId?: true
+    rating?: true
+    category?: true
+    message?: true
+    contactEmail?: true
+    createdAt?: true
+    emailSentAt?: true
+  }
+
+  export type FeedbackMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    rating?: true
+    category?: true
+    message?: true
+    contactEmail?: true
+    createdAt?: true
+    emailSentAt?: true
+  }
+
+  export type FeedbackCountAggregateInputType = {
+    id?: true
+    userId?: true
+    rating?: true
+    category?: true
+    message?: true
+    contactEmail?: true
+    createdAt?: true
+    emailSentAt?: true
+    _all?: true
+  }
+
+  export type FeedbackAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Feedback to aggregate.
+     */
+    where?: FeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Feedbacks to fetch.
+     */
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Feedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Feedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Feedbacks
+    **/
+    _count?: true | FeedbackCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FeedbackAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FeedbackSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FeedbackMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FeedbackMaxAggregateInputType
+  }
+
+  export type GetFeedbackAggregateType<T extends FeedbackAggregateArgs> = {
+        [P in keyof T & keyof AggregateFeedback]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFeedback[P]>
+      : GetScalarType<T[P], AggregateFeedback[P]>
+  }
+
+
+
+
+  export type FeedbackGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FeedbackWhereInput
+    orderBy?: FeedbackOrderByWithAggregationInput | FeedbackOrderByWithAggregationInput[]
+    by: FeedbackScalarFieldEnum[] | FeedbackScalarFieldEnum
+    having?: FeedbackScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FeedbackCountAggregateInputType | true
+    _avg?: FeedbackAvgAggregateInputType
+    _sum?: FeedbackSumAggregateInputType
+    _min?: FeedbackMinAggregateInputType
+    _max?: FeedbackMaxAggregateInputType
+  }
+
+  export type FeedbackGroupByOutputType = {
+    id: string
+    userId: string | null
+    rating: number
+    category: string
+    message: string
+    contactEmail: string | null
+    createdAt: Date
+    emailSentAt: Date | null
+    _count: FeedbackCountAggregateOutputType | null
+    _avg: FeedbackAvgAggregateOutputType | null
+    _sum: FeedbackSumAggregateOutputType | null
+    _min: FeedbackMinAggregateOutputType | null
+    _max: FeedbackMaxAggregateOutputType | null
+  }
+
+  type GetFeedbackGroupByPayload<T extends FeedbackGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FeedbackGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FeedbackGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FeedbackGroupByOutputType[P]>
+            : GetScalarType<T[P], FeedbackGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FeedbackSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    rating?: boolean
+    category?: boolean
+    message?: boolean
+    contactEmail?: boolean
+    createdAt?: boolean
+    emailSentAt?: boolean
+    user?: boolean | Feedback$userArgs<ExtArgs>
+  }, ExtArgs["result"]["feedback"]>
+
+  export type FeedbackSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    rating?: boolean
+    category?: boolean
+    message?: boolean
+    contactEmail?: boolean
+    createdAt?: boolean
+    emailSentAt?: boolean
+    user?: boolean | Feedback$userArgs<ExtArgs>
+  }, ExtArgs["result"]["feedback"]>
+
+  export type FeedbackSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    rating?: boolean
+    category?: boolean
+    message?: boolean
+    contactEmail?: boolean
+    createdAt?: boolean
+    emailSentAt?: boolean
+    user?: boolean | Feedback$userArgs<ExtArgs>
+  }, ExtArgs["result"]["feedback"]>
+
+  export type FeedbackSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    rating?: boolean
+    category?: boolean
+    message?: boolean
+    contactEmail?: boolean
+    createdAt?: boolean
+    emailSentAt?: boolean
+  }
+
+  export type FeedbackOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "rating" | "category" | "message" | "contactEmail" | "createdAt" | "emailSentAt", ExtArgs["result"]["feedback"]>
+  export type FeedbackInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | Feedback$userArgs<ExtArgs>
+  }
+  export type FeedbackIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | Feedback$userArgs<ExtArgs>
+  }
+  export type FeedbackIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | Feedback$userArgs<ExtArgs>
+  }
+
+  export type $FeedbackPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Feedback"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string | null
+      rating: number
+      category: string
+      message: string
+      contactEmail: string | null
+      createdAt: Date
+      emailSentAt: Date | null
+    }, ExtArgs["result"]["feedback"]>
+    composites: {}
+  }
+
+  type FeedbackGetPayload<S extends boolean | null | undefined | FeedbackDefaultArgs> = $Result.GetResult<Prisma.$FeedbackPayload, S>
+
+  type FeedbackCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FeedbackFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FeedbackCountAggregateInputType | true
+    }
+
+  export interface FeedbackDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Feedback'], meta: { name: 'Feedback' } }
+    /**
+     * Find zero or one Feedback that matches the filter.
+     * @param {FeedbackFindUniqueArgs} args - Arguments to find a Feedback
+     * @example
+     * // Get one Feedback
+     * const feedback = await prisma.feedback.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FeedbackFindUniqueArgs>(args: SelectSubset<T, FeedbackFindUniqueArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Feedback that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FeedbackFindUniqueOrThrowArgs} args - Arguments to find a Feedback
+     * @example
+     * // Get one Feedback
+     * const feedback = await prisma.feedback.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FeedbackFindUniqueOrThrowArgs>(args: SelectSubset<T, FeedbackFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Feedback that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackFindFirstArgs} args - Arguments to find a Feedback
+     * @example
+     * // Get one Feedback
+     * const feedback = await prisma.feedback.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FeedbackFindFirstArgs>(args?: SelectSubset<T, FeedbackFindFirstArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Feedback that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackFindFirstOrThrowArgs} args - Arguments to find a Feedback
+     * @example
+     * // Get one Feedback
+     * const feedback = await prisma.feedback.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FeedbackFindFirstOrThrowArgs>(args?: SelectSubset<T, FeedbackFindFirstOrThrowArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Feedbacks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Feedbacks
+     * const feedbacks = await prisma.feedback.findMany()
+     * 
+     * // Get first 10 Feedbacks
+     * const feedbacks = await prisma.feedback.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const feedbackWithIdOnly = await prisma.feedback.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FeedbackFindManyArgs>(args?: SelectSubset<T, FeedbackFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Feedback.
+     * @param {FeedbackCreateArgs} args - Arguments to create a Feedback.
+     * @example
+     * // Create one Feedback
+     * const Feedback = await prisma.feedback.create({
+     *   data: {
+     *     // ... data to create a Feedback
+     *   }
+     * })
+     * 
+     */
+    create<T extends FeedbackCreateArgs>(args: SelectSubset<T, FeedbackCreateArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Feedbacks.
+     * @param {FeedbackCreateManyArgs} args - Arguments to create many Feedbacks.
+     * @example
+     * // Create many Feedbacks
+     * const feedback = await prisma.feedback.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FeedbackCreateManyArgs>(args?: SelectSubset<T, FeedbackCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Feedbacks and returns the data saved in the database.
+     * @param {FeedbackCreateManyAndReturnArgs} args - Arguments to create many Feedbacks.
+     * @example
+     * // Create many Feedbacks
+     * const feedback = await prisma.feedback.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Feedbacks and only return the `id`
+     * const feedbackWithIdOnly = await prisma.feedback.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FeedbackCreateManyAndReturnArgs>(args?: SelectSubset<T, FeedbackCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Feedback.
+     * @param {FeedbackDeleteArgs} args - Arguments to delete one Feedback.
+     * @example
+     * // Delete one Feedback
+     * const Feedback = await prisma.feedback.delete({
+     *   where: {
+     *     // ... filter to delete one Feedback
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FeedbackDeleteArgs>(args: SelectSubset<T, FeedbackDeleteArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Feedback.
+     * @param {FeedbackUpdateArgs} args - Arguments to update one Feedback.
+     * @example
+     * // Update one Feedback
+     * const feedback = await prisma.feedback.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FeedbackUpdateArgs>(args: SelectSubset<T, FeedbackUpdateArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Feedbacks.
+     * @param {FeedbackDeleteManyArgs} args - Arguments to filter Feedbacks to delete.
+     * @example
+     * // Delete a few Feedbacks
+     * const { count } = await prisma.feedback.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FeedbackDeleteManyArgs>(args?: SelectSubset<T, FeedbackDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Feedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Feedbacks
+     * const feedback = await prisma.feedback.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FeedbackUpdateManyArgs>(args: SelectSubset<T, FeedbackUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Feedbacks and returns the data updated in the database.
+     * @param {FeedbackUpdateManyAndReturnArgs} args - Arguments to update many Feedbacks.
+     * @example
+     * // Update many Feedbacks
+     * const feedback = await prisma.feedback.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Feedbacks and only return the `id`
+     * const feedbackWithIdOnly = await prisma.feedback.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FeedbackUpdateManyAndReturnArgs>(args: SelectSubset<T, FeedbackUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Feedback.
+     * @param {FeedbackUpsertArgs} args - Arguments to update or create a Feedback.
+     * @example
+     * // Update or create a Feedback
+     * const feedback = await prisma.feedback.upsert({
+     *   create: {
+     *     // ... data to create a Feedback
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Feedback we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FeedbackUpsertArgs>(args: SelectSubset<T, FeedbackUpsertArgs<ExtArgs>>): Prisma__FeedbackClient<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Feedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackCountArgs} args - Arguments to filter Feedbacks to count.
+     * @example
+     * // Count the number of Feedbacks
+     * const count = await prisma.feedback.count({
+     *   where: {
+     *     // ... the filter for the Feedbacks we want to count
+     *   }
+     * })
+    **/
+    count<T extends FeedbackCountArgs>(
+      args?: Subset<T, FeedbackCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FeedbackCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Feedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FeedbackAggregateArgs>(args: Subset<T, FeedbackAggregateArgs>): Prisma.PrismaPromise<GetFeedbackAggregateType<T>>
+
+    /**
+     * Group by Feedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FeedbackGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FeedbackGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FeedbackGroupByArgs['orderBy'] }
+        : { orderBy?: FeedbackGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FeedbackGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFeedbackGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Feedback model
+   */
+  readonly fields: FeedbackFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Feedback.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FeedbackClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends Feedback$userArgs<ExtArgs> = {}>(args?: Subset<T, Feedback$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Feedback model
+   */
+  interface FeedbackFieldRefs {
+    readonly id: FieldRef<"Feedback", 'String'>
+    readonly userId: FieldRef<"Feedback", 'String'>
+    readonly rating: FieldRef<"Feedback", 'Int'>
+    readonly category: FieldRef<"Feedback", 'String'>
+    readonly message: FieldRef<"Feedback", 'String'>
+    readonly contactEmail: FieldRef<"Feedback", 'String'>
+    readonly createdAt: FieldRef<"Feedback", 'DateTime'>
+    readonly emailSentAt: FieldRef<"Feedback", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Feedback findUnique
+   */
+  export type FeedbackFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedback to fetch.
+     */
+    where: FeedbackWhereUniqueInput
+  }
+
+  /**
+   * Feedback findUniqueOrThrow
+   */
+  export type FeedbackFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedback to fetch.
+     */
+    where: FeedbackWhereUniqueInput
+  }
+
+  /**
+   * Feedback findFirst
+   */
+  export type FeedbackFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedback to fetch.
+     */
+    where?: FeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Feedbacks to fetch.
+     */
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Feedbacks.
+     */
+    cursor?: FeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Feedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Feedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Feedbacks.
+     */
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * Feedback findFirstOrThrow
+   */
+  export type FeedbackFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedback to fetch.
+     */
+    where?: FeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Feedbacks to fetch.
+     */
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Feedbacks.
+     */
+    cursor?: FeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Feedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Feedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Feedbacks.
+     */
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * Feedback findMany
+   */
+  export type FeedbackFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which Feedbacks to fetch.
+     */
+    where?: FeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Feedbacks to fetch.
+     */
+    orderBy?: FeedbackOrderByWithRelationInput | FeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Feedbacks.
+     */
+    cursor?: FeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Feedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Feedbacks.
+     */
+    skip?: number
+    distinct?: FeedbackScalarFieldEnum | FeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * Feedback create
+   */
+  export type FeedbackCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Feedback.
+     */
+    data: XOR<FeedbackCreateInput, FeedbackUncheckedCreateInput>
+  }
+
+  /**
+   * Feedback createMany
+   */
+  export type FeedbackCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Feedbacks.
+     */
+    data: FeedbackCreateManyInput | FeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Feedback createManyAndReturn
+   */
+  export type FeedbackCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * The data used to create many Feedbacks.
+     */
+    data: FeedbackCreateManyInput | FeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Feedback update
+   */
+  export type FeedbackUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Feedback.
+     */
+    data: XOR<FeedbackUpdateInput, FeedbackUncheckedUpdateInput>
+    /**
+     * Choose, which Feedback to update.
+     */
+    where: FeedbackWhereUniqueInput
+  }
+
+  /**
+   * Feedback updateMany
+   */
+  export type FeedbackUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Feedbacks.
+     */
+    data: XOR<FeedbackUpdateManyMutationInput, FeedbackUncheckedUpdateManyInput>
+    /**
+     * Filter which Feedbacks to update
+     */
+    where?: FeedbackWhereInput
+    /**
+     * Limit how many Feedbacks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Feedback updateManyAndReturn
+   */
+  export type FeedbackUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * The data used to update Feedbacks.
+     */
+    data: XOR<FeedbackUpdateManyMutationInput, FeedbackUncheckedUpdateManyInput>
+    /**
+     * Filter which Feedbacks to update
+     */
+    where?: FeedbackWhereInput
+    /**
+     * Limit how many Feedbacks to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Feedback upsert
+   */
+  export type FeedbackUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Feedback to update in case it exists.
+     */
+    where: FeedbackWhereUniqueInput
+    /**
+     * In case the Feedback found by the `where` argument doesn't exist, create a new Feedback with this data.
+     */
+    create: XOR<FeedbackCreateInput, FeedbackUncheckedCreateInput>
+    /**
+     * In case the Feedback was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FeedbackUpdateInput, FeedbackUncheckedUpdateInput>
+  }
+
+  /**
+   * Feedback delete
+   */
+  export type FeedbackDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+    /**
+     * Filter which Feedback to delete.
+     */
+    where: FeedbackWhereUniqueInput
+  }
+
+  /**
+   * Feedback deleteMany
+   */
+  export type FeedbackDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Feedbacks to delete
+     */
+    where?: FeedbackWhereInput
+    /**
+     * Limit how many Feedbacks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Feedback.user
+   */
+  export type Feedback$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * Feedback without action
+   */
+  export type FeedbackDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Feedback
+     */
+    select?: FeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Feedback
+     */
+    omit?: FeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FeedbackInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SupportInquiry
+   */
+
+  export type AggregateSupportInquiry = {
+    _count: SupportInquiryCountAggregateOutputType | null
+    _min: SupportInquiryMinAggregateOutputType | null
+    _max: SupportInquiryMaxAggregateOutputType | null
+  }
+
+  export type SupportInquiryMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    category: string | null
+    subject: string | null
+    message: string | null
+    replyTo: string | null
+    status: string | null
+    createdAt: Date | null
+    emailSentAt: Date | null
+  }
+
+  export type SupportInquiryMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    category: string | null
+    subject: string | null
+    message: string | null
+    replyTo: string | null
+    status: string | null
+    createdAt: Date | null
+    emailSentAt: Date | null
+  }
+
+  export type SupportInquiryCountAggregateOutputType = {
+    id: number
+    userId: number
+    category: number
+    subject: number
+    message: number
+    replyTo: number
+    status: number
+    createdAt: number
+    emailSentAt: number
+    _all: number
+  }
+
+
+  export type SupportInquiryMinAggregateInputType = {
+    id?: true
+    userId?: true
+    category?: true
+    subject?: true
+    message?: true
+    replyTo?: true
+    status?: true
+    createdAt?: true
+    emailSentAt?: true
+  }
+
+  export type SupportInquiryMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    category?: true
+    subject?: true
+    message?: true
+    replyTo?: true
+    status?: true
+    createdAt?: true
+    emailSentAt?: true
+  }
+
+  export type SupportInquiryCountAggregateInputType = {
+    id?: true
+    userId?: true
+    category?: true
+    subject?: true
+    message?: true
+    replyTo?: true
+    status?: true
+    createdAt?: true
+    emailSentAt?: true
+    _all?: true
+  }
+
+  export type SupportInquiryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SupportInquiry to aggregate.
+     */
+    where?: SupportInquiryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportInquiries to fetch.
+     */
+    orderBy?: SupportInquiryOrderByWithRelationInput | SupportInquiryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SupportInquiryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportInquiries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportInquiries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SupportInquiries
+    **/
+    _count?: true | SupportInquiryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SupportInquiryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SupportInquiryMaxAggregateInputType
+  }
+
+  export type GetSupportInquiryAggregateType<T extends SupportInquiryAggregateArgs> = {
+        [P in keyof T & keyof AggregateSupportInquiry]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSupportInquiry[P]>
+      : GetScalarType<T[P], AggregateSupportInquiry[P]>
+  }
+
+
+
+
+  export type SupportInquiryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SupportInquiryWhereInput
+    orderBy?: SupportInquiryOrderByWithAggregationInput | SupportInquiryOrderByWithAggregationInput[]
+    by: SupportInquiryScalarFieldEnum[] | SupportInquiryScalarFieldEnum
+    having?: SupportInquiryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SupportInquiryCountAggregateInputType | true
+    _min?: SupportInquiryMinAggregateInputType
+    _max?: SupportInquiryMaxAggregateInputType
+  }
+
+  export type SupportInquiryGroupByOutputType = {
+    id: string
+    userId: string | null
+    category: string
+    subject: string
+    message: string
+    replyTo: string
+    status: string
+    createdAt: Date
+    emailSentAt: Date | null
+    _count: SupportInquiryCountAggregateOutputType | null
+    _min: SupportInquiryMinAggregateOutputType | null
+    _max: SupportInquiryMaxAggregateOutputType | null
+  }
+
+  type GetSupportInquiryGroupByPayload<T extends SupportInquiryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SupportInquiryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SupportInquiryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SupportInquiryGroupByOutputType[P]>
+            : GetScalarType<T[P], SupportInquiryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SupportInquirySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    category?: boolean
+    subject?: boolean
+    message?: boolean
+    replyTo?: boolean
+    status?: boolean
+    createdAt?: boolean
+    emailSentAt?: boolean
+    user?: boolean | SupportInquiry$userArgs<ExtArgs>
+  }, ExtArgs["result"]["supportInquiry"]>
+
+  export type SupportInquirySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    category?: boolean
+    subject?: boolean
+    message?: boolean
+    replyTo?: boolean
+    status?: boolean
+    createdAt?: boolean
+    emailSentAt?: boolean
+    user?: boolean | SupportInquiry$userArgs<ExtArgs>
+  }, ExtArgs["result"]["supportInquiry"]>
+
+  export type SupportInquirySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    category?: boolean
+    subject?: boolean
+    message?: boolean
+    replyTo?: boolean
+    status?: boolean
+    createdAt?: boolean
+    emailSentAt?: boolean
+    user?: boolean | SupportInquiry$userArgs<ExtArgs>
+  }, ExtArgs["result"]["supportInquiry"]>
+
+  export type SupportInquirySelectScalar = {
+    id?: boolean
+    userId?: boolean
+    category?: boolean
+    subject?: boolean
+    message?: boolean
+    replyTo?: boolean
+    status?: boolean
+    createdAt?: boolean
+    emailSentAt?: boolean
+  }
+
+  export type SupportInquiryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "category" | "subject" | "message" | "replyTo" | "status" | "createdAt" | "emailSentAt", ExtArgs["result"]["supportInquiry"]>
+  export type SupportInquiryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | SupportInquiry$userArgs<ExtArgs>
+  }
+  export type SupportInquiryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | SupportInquiry$userArgs<ExtArgs>
+  }
+  export type SupportInquiryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | SupportInquiry$userArgs<ExtArgs>
+  }
+
+  export type $SupportInquiryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SupportInquiry"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string | null
+      category: string
+      subject: string
+      message: string
+      replyTo: string
+      status: string
+      createdAt: Date
+      emailSentAt: Date | null
+    }, ExtArgs["result"]["supportInquiry"]>
+    composites: {}
+  }
+
+  type SupportInquiryGetPayload<S extends boolean | null | undefined | SupportInquiryDefaultArgs> = $Result.GetResult<Prisma.$SupportInquiryPayload, S>
+
+  type SupportInquiryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SupportInquiryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SupportInquiryCountAggregateInputType | true
+    }
+
+  export interface SupportInquiryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SupportInquiry'], meta: { name: 'SupportInquiry' } }
+    /**
+     * Find zero or one SupportInquiry that matches the filter.
+     * @param {SupportInquiryFindUniqueArgs} args - Arguments to find a SupportInquiry
+     * @example
+     * // Get one SupportInquiry
+     * const supportInquiry = await prisma.supportInquiry.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SupportInquiryFindUniqueArgs>(args: SelectSubset<T, SupportInquiryFindUniqueArgs<ExtArgs>>): Prisma__SupportInquiryClient<$Result.GetResult<Prisma.$SupportInquiryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SupportInquiry that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SupportInquiryFindUniqueOrThrowArgs} args - Arguments to find a SupportInquiry
+     * @example
+     * // Get one SupportInquiry
+     * const supportInquiry = await prisma.supportInquiry.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SupportInquiryFindUniqueOrThrowArgs>(args: SelectSubset<T, SupportInquiryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SupportInquiryClient<$Result.GetResult<Prisma.$SupportInquiryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SupportInquiry that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportInquiryFindFirstArgs} args - Arguments to find a SupportInquiry
+     * @example
+     * // Get one SupportInquiry
+     * const supportInquiry = await prisma.supportInquiry.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SupportInquiryFindFirstArgs>(args?: SelectSubset<T, SupportInquiryFindFirstArgs<ExtArgs>>): Prisma__SupportInquiryClient<$Result.GetResult<Prisma.$SupportInquiryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SupportInquiry that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportInquiryFindFirstOrThrowArgs} args - Arguments to find a SupportInquiry
+     * @example
+     * // Get one SupportInquiry
+     * const supportInquiry = await prisma.supportInquiry.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SupportInquiryFindFirstOrThrowArgs>(args?: SelectSubset<T, SupportInquiryFindFirstOrThrowArgs<ExtArgs>>): Prisma__SupportInquiryClient<$Result.GetResult<Prisma.$SupportInquiryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SupportInquiries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportInquiryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SupportInquiries
+     * const supportInquiries = await prisma.supportInquiry.findMany()
+     * 
+     * // Get first 10 SupportInquiries
+     * const supportInquiries = await prisma.supportInquiry.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const supportInquiryWithIdOnly = await prisma.supportInquiry.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SupportInquiryFindManyArgs>(args?: SelectSubset<T, SupportInquiryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportInquiryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SupportInquiry.
+     * @param {SupportInquiryCreateArgs} args - Arguments to create a SupportInquiry.
+     * @example
+     * // Create one SupportInquiry
+     * const SupportInquiry = await prisma.supportInquiry.create({
+     *   data: {
+     *     // ... data to create a SupportInquiry
+     *   }
+     * })
+     * 
+     */
+    create<T extends SupportInquiryCreateArgs>(args: SelectSubset<T, SupportInquiryCreateArgs<ExtArgs>>): Prisma__SupportInquiryClient<$Result.GetResult<Prisma.$SupportInquiryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SupportInquiries.
+     * @param {SupportInquiryCreateManyArgs} args - Arguments to create many SupportInquiries.
+     * @example
+     * // Create many SupportInquiries
+     * const supportInquiry = await prisma.supportInquiry.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SupportInquiryCreateManyArgs>(args?: SelectSubset<T, SupportInquiryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SupportInquiries and returns the data saved in the database.
+     * @param {SupportInquiryCreateManyAndReturnArgs} args - Arguments to create many SupportInquiries.
+     * @example
+     * // Create many SupportInquiries
+     * const supportInquiry = await prisma.supportInquiry.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SupportInquiries and only return the `id`
+     * const supportInquiryWithIdOnly = await prisma.supportInquiry.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SupportInquiryCreateManyAndReturnArgs>(args?: SelectSubset<T, SupportInquiryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportInquiryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SupportInquiry.
+     * @param {SupportInquiryDeleteArgs} args - Arguments to delete one SupportInquiry.
+     * @example
+     * // Delete one SupportInquiry
+     * const SupportInquiry = await prisma.supportInquiry.delete({
+     *   where: {
+     *     // ... filter to delete one SupportInquiry
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SupportInquiryDeleteArgs>(args: SelectSubset<T, SupportInquiryDeleteArgs<ExtArgs>>): Prisma__SupportInquiryClient<$Result.GetResult<Prisma.$SupportInquiryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SupportInquiry.
+     * @param {SupportInquiryUpdateArgs} args - Arguments to update one SupportInquiry.
+     * @example
+     * // Update one SupportInquiry
+     * const supportInquiry = await prisma.supportInquiry.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SupportInquiryUpdateArgs>(args: SelectSubset<T, SupportInquiryUpdateArgs<ExtArgs>>): Prisma__SupportInquiryClient<$Result.GetResult<Prisma.$SupportInquiryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SupportInquiries.
+     * @param {SupportInquiryDeleteManyArgs} args - Arguments to filter SupportInquiries to delete.
+     * @example
+     * // Delete a few SupportInquiries
+     * const { count } = await prisma.supportInquiry.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SupportInquiryDeleteManyArgs>(args?: SelectSubset<T, SupportInquiryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SupportInquiries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportInquiryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SupportInquiries
+     * const supportInquiry = await prisma.supportInquiry.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SupportInquiryUpdateManyArgs>(args: SelectSubset<T, SupportInquiryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SupportInquiries and returns the data updated in the database.
+     * @param {SupportInquiryUpdateManyAndReturnArgs} args - Arguments to update many SupportInquiries.
+     * @example
+     * // Update many SupportInquiries
+     * const supportInquiry = await prisma.supportInquiry.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SupportInquiries and only return the `id`
+     * const supportInquiryWithIdOnly = await prisma.supportInquiry.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SupportInquiryUpdateManyAndReturnArgs>(args: SelectSubset<T, SupportInquiryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportInquiryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SupportInquiry.
+     * @param {SupportInquiryUpsertArgs} args - Arguments to update or create a SupportInquiry.
+     * @example
+     * // Update or create a SupportInquiry
+     * const supportInquiry = await prisma.supportInquiry.upsert({
+     *   create: {
+     *     // ... data to create a SupportInquiry
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SupportInquiry we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SupportInquiryUpsertArgs>(args: SelectSubset<T, SupportInquiryUpsertArgs<ExtArgs>>): Prisma__SupportInquiryClient<$Result.GetResult<Prisma.$SupportInquiryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SupportInquiries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportInquiryCountArgs} args - Arguments to filter SupportInquiries to count.
+     * @example
+     * // Count the number of SupportInquiries
+     * const count = await prisma.supportInquiry.count({
+     *   where: {
+     *     // ... the filter for the SupportInquiries we want to count
+     *   }
+     * })
+    **/
+    count<T extends SupportInquiryCountArgs>(
+      args?: Subset<T, SupportInquiryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SupportInquiryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SupportInquiry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportInquiryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SupportInquiryAggregateArgs>(args: Subset<T, SupportInquiryAggregateArgs>): Prisma.PrismaPromise<GetSupportInquiryAggregateType<T>>
+
+    /**
+     * Group by SupportInquiry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SupportInquiryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SupportInquiryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SupportInquiryGroupByArgs['orderBy'] }
+        : { orderBy?: SupportInquiryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SupportInquiryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSupportInquiryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SupportInquiry model
+   */
+  readonly fields: SupportInquiryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SupportInquiry.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SupportInquiryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends SupportInquiry$userArgs<ExtArgs> = {}>(args?: Subset<T, SupportInquiry$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SupportInquiry model
+   */
+  interface SupportInquiryFieldRefs {
+    readonly id: FieldRef<"SupportInquiry", 'String'>
+    readonly userId: FieldRef<"SupportInquiry", 'String'>
+    readonly category: FieldRef<"SupportInquiry", 'String'>
+    readonly subject: FieldRef<"SupportInquiry", 'String'>
+    readonly message: FieldRef<"SupportInquiry", 'String'>
+    readonly replyTo: FieldRef<"SupportInquiry", 'String'>
+    readonly status: FieldRef<"SupportInquiry", 'String'>
+    readonly createdAt: FieldRef<"SupportInquiry", 'DateTime'>
+    readonly emailSentAt: FieldRef<"SupportInquiry", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SupportInquiry findUnique
+   */
+  export type SupportInquiryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportInquiry
+     */
+    select?: SupportInquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportInquiry
+     */
+    omit?: SupportInquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportInquiryInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportInquiry to fetch.
+     */
+    where: SupportInquiryWhereUniqueInput
+  }
+
+  /**
+   * SupportInquiry findUniqueOrThrow
+   */
+  export type SupportInquiryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportInquiry
+     */
+    select?: SupportInquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportInquiry
+     */
+    omit?: SupportInquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportInquiryInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportInquiry to fetch.
+     */
+    where: SupportInquiryWhereUniqueInput
+  }
+
+  /**
+   * SupportInquiry findFirst
+   */
+  export type SupportInquiryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportInquiry
+     */
+    select?: SupportInquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportInquiry
+     */
+    omit?: SupportInquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportInquiryInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportInquiry to fetch.
+     */
+    where?: SupportInquiryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportInquiries to fetch.
+     */
+    orderBy?: SupportInquiryOrderByWithRelationInput | SupportInquiryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SupportInquiries.
+     */
+    cursor?: SupportInquiryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportInquiries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportInquiries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportInquiries.
+     */
+    distinct?: SupportInquiryScalarFieldEnum | SupportInquiryScalarFieldEnum[]
+  }
+
+  /**
+   * SupportInquiry findFirstOrThrow
+   */
+  export type SupportInquiryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportInquiry
+     */
+    select?: SupportInquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportInquiry
+     */
+    omit?: SupportInquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportInquiryInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportInquiry to fetch.
+     */
+    where?: SupportInquiryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportInquiries to fetch.
+     */
+    orderBy?: SupportInquiryOrderByWithRelationInput | SupportInquiryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SupportInquiries.
+     */
+    cursor?: SupportInquiryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportInquiries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportInquiries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SupportInquiries.
+     */
+    distinct?: SupportInquiryScalarFieldEnum | SupportInquiryScalarFieldEnum[]
+  }
+
+  /**
+   * SupportInquiry findMany
+   */
+  export type SupportInquiryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportInquiry
+     */
+    select?: SupportInquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportInquiry
+     */
+    omit?: SupportInquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportInquiryInclude<ExtArgs> | null
+    /**
+     * Filter, which SupportInquiries to fetch.
+     */
+    where?: SupportInquiryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SupportInquiries to fetch.
+     */
+    orderBy?: SupportInquiryOrderByWithRelationInput | SupportInquiryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SupportInquiries.
+     */
+    cursor?: SupportInquiryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SupportInquiries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SupportInquiries.
+     */
+    skip?: number
+    distinct?: SupportInquiryScalarFieldEnum | SupportInquiryScalarFieldEnum[]
+  }
+
+  /**
+   * SupportInquiry create
+   */
+  export type SupportInquiryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportInquiry
+     */
+    select?: SupportInquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportInquiry
+     */
+    omit?: SupportInquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportInquiryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SupportInquiry.
+     */
+    data: XOR<SupportInquiryCreateInput, SupportInquiryUncheckedCreateInput>
+  }
+
+  /**
+   * SupportInquiry createMany
+   */
+  export type SupportInquiryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SupportInquiries.
+     */
+    data: SupportInquiryCreateManyInput | SupportInquiryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SupportInquiry createManyAndReturn
+   */
+  export type SupportInquiryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportInquiry
+     */
+    select?: SupportInquirySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportInquiry
+     */
+    omit?: SupportInquiryOmit<ExtArgs> | null
+    /**
+     * The data used to create many SupportInquiries.
+     */
+    data: SupportInquiryCreateManyInput | SupportInquiryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportInquiryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SupportInquiry update
+   */
+  export type SupportInquiryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportInquiry
+     */
+    select?: SupportInquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportInquiry
+     */
+    omit?: SupportInquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportInquiryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SupportInquiry.
+     */
+    data: XOR<SupportInquiryUpdateInput, SupportInquiryUncheckedUpdateInput>
+    /**
+     * Choose, which SupportInquiry to update.
+     */
+    where: SupportInquiryWhereUniqueInput
+  }
+
+  /**
+   * SupportInquiry updateMany
+   */
+  export type SupportInquiryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SupportInquiries.
+     */
+    data: XOR<SupportInquiryUpdateManyMutationInput, SupportInquiryUncheckedUpdateManyInput>
+    /**
+     * Filter which SupportInquiries to update
+     */
+    where?: SupportInquiryWhereInput
+    /**
+     * Limit how many SupportInquiries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SupportInquiry updateManyAndReturn
+   */
+  export type SupportInquiryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportInquiry
+     */
+    select?: SupportInquirySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportInquiry
+     */
+    omit?: SupportInquiryOmit<ExtArgs> | null
+    /**
+     * The data used to update SupportInquiries.
+     */
+    data: XOR<SupportInquiryUpdateManyMutationInput, SupportInquiryUncheckedUpdateManyInput>
+    /**
+     * Filter which SupportInquiries to update
+     */
+    where?: SupportInquiryWhereInput
+    /**
+     * Limit how many SupportInquiries to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportInquiryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SupportInquiry upsert
+   */
+  export type SupportInquiryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportInquiry
+     */
+    select?: SupportInquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportInquiry
+     */
+    omit?: SupportInquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportInquiryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SupportInquiry to update in case it exists.
+     */
+    where: SupportInquiryWhereUniqueInput
+    /**
+     * In case the SupportInquiry found by the `where` argument doesn't exist, create a new SupportInquiry with this data.
+     */
+    create: XOR<SupportInquiryCreateInput, SupportInquiryUncheckedCreateInput>
+    /**
+     * In case the SupportInquiry was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SupportInquiryUpdateInput, SupportInquiryUncheckedUpdateInput>
+  }
+
+  /**
+   * SupportInquiry delete
+   */
+  export type SupportInquiryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportInquiry
+     */
+    select?: SupportInquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportInquiry
+     */
+    omit?: SupportInquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportInquiryInclude<ExtArgs> | null
+    /**
+     * Filter which SupportInquiry to delete.
+     */
+    where: SupportInquiryWhereUniqueInput
+  }
+
+  /**
+   * SupportInquiry deleteMany
+   */
+  export type SupportInquiryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SupportInquiries to delete
+     */
+    where?: SupportInquiryWhereInput
+    /**
+     * Limit how many SupportInquiries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SupportInquiry.user
+   */
+  export type SupportInquiry$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * SupportInquiry without action
+   */
+  export type SupportInquiryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SupportInquiry
+     */
+    select?: SupportInquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SupportInquiry
+     */
+    omit?: SupportInquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SupportInquiryInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -11799,7 +14373,10 @@ export namespace Prisma {
     role: 'role',
     plan: 'plan',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    aiTrainingOptIn: 'aiTrainingOptIn',
+    aiTrainingOptInChangedAt: 'aiTrainingOptInChangedAt',
+    deletedAt: 'deletedAt'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -11959,6 +14536,35 @@ export namespace Prisma {
   export type UserWeaknessScalarFieldEnum = (typeof UserWeaknessScalarFieldEnum)[keyof typeof UserWeaknessScalarFieldEnum]
 
 
+  export const FeedbackScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    rating: 'rating',
+    category: 'category',
+    message: 'message',
+    contactEmail: 'contactEmail',
+    createdAt: 'createdAt',
+    emailSentAt: 'emailSentAt'
+  };
+
+  export type FeedbackScalarFieldEnum = (typeof FeedbackScalarFieldEnum)[keyof typeof FeedbackScalarFieldEnum]
+
+
+  export const SupportInquiryScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    category: 'category',
+    subject: 'subject',
+    message: 'message',
+    replyTo: 'replyTo',
+    status: 'status',
+    createdAt: 'createdAt',
+    emailSentAt: 'emailSentAt'
+  };
+
+  export type SupportInquiryScalarFieldEnum = (typeof SupportInquiryScalarFieldEnum)[keyof typeof SupportInquiryScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -12048,6 +14654,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
    * Reference to a field of type 'JobStatus'
    */
   export type EnumJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobStatus'>
@@ -12072,13 +14685,6 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -12166,11 +14772,16 @@ export namespace Prisma {
     plan?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    aiTrainingOptIn?: BoolFilter<"User"> | boolean
+    aiTrainingOptInChangedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     performances?: PerformanceListRelationFilter
     scores?: ScoreListRelationFilter
     practiceItems?: PracticeItemListRelationFilter
     practicePerformances?: PracticePerformanceListRelationFilter
     weaknesses?: UserWeaknessListRelationFilter
+    feedbacks?: FeedbackListRelationFilter
+    supportInquiries?: SupportInquiryListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -12181,11 +14792,16 @@ export namespace Prisma {
     plan?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiTrainingOptIn?: SortOrder
+    aiTrainingOptInChangedAt?: SortOrderInput | SortOrder
+    deletedAt?: SortOrderInput | SortOrder
     performances?: PerformanceOrderByRelationAggregateInput
     scores?: ScoreOrderByRelationAggregateInput
     practiceItems?: PracticeItemOrderByRelationAggregateInput
     practicePerformances?: PracticePerformanceOrderByRelationAggregateInput
     weaknesses?: UserWeaknessOrderByRelationAggregateInput
+    feedbacks?: FeedbackOrderByRelationAggregateInput
+    supportInquiries?: SupportInquiryOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -12199,11 +14815,16 @@ export namespace Prisma {
     plan?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    aiTrainingOptIn?: BoolFilter<"User"> | boolean
+    aiTrainingOptInChangedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    deletedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     performances?: PerformanceListRelationFilter
     scores?: ScoreListRelationFilter
     practiceItems?: PracticeItemListRelationFilter
     practicePerformances?: PracticePerformanceListRelationFilter
     weaknesses?: UserWeaknessListRelationFilter
+    feedbacks?: FeedbackListRelationFilter
+    supportInquiries?: SupportInquiryListRelationFilter
   }, "id" | "supabaseUserId">
 
   export type UserOrderByWithAggregationInput = {
@@ -12214,6 +14835,9 @@ export namespace Prisma {
     plan?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiTrainingOptIn?: SortOrder
+    aiTrainingOptInChangedAt?: SortOrderInput | SortOrder
+    deletedAt?: SortOrderInput | SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
@@ -12230,6 +14854,9 @@ export namespace Prisma {
     plan?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+    aiTrainingOptIn?: BoolWithAggregatesFilter<"User"> | boolean
+    aiTrainingOptInChangedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    deletedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   }
 
   export type ScoreWhereInput = {
@@ -13039,6 +15666,153 @@ export namespace Prisma {
     lastUpdated?: DateTimeWithAggregatesFilter<"UserWeakness"> | Date | string
   }
 
+  export type FeedbackWhereInput = {
+    AND?: FeedbackWhereInput | FeedbackWhereInput[]
+    OR?: FeedbackWhereInput[]
+    NOT?: FeedbackWhereInput | FeedbackWhereInput[]
+    id?: StringFilter<"Feedback"> | string
+    userId?: StringNullableFilter<"Feedback"> | string | null
+    rating?: IntFilter<"Feedback"> | number
+    category?: StringFilter<"Feedback"> | string
+    message?: StringFilter<"Feedback"> | string
+    contactEmail?: StringNullableFilter<"Feedback"> | string | null
+    createdAt?: DateTimeFilter<"Feedback"> | Date | string
+    emailSentAt?: DateTimeNullableFilter<"Feedback"> | Date | string | null
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type FeedbackOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    rating?: SortOrder
+    category?: SortOrder
+    message?: SortOrder
+    contactEmail?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    emailSentAt?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type FeedbackWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: FeedbackWhereInput | FeedbackWhereInput[]
+    OR?: FeedbackWhereInput[]
+    NOT?: FeedbackWhereInput | FeedbackWhereInput[]
+    userId?: StringNullableFilter<"Feedback"> | string | null
+    rating?: IntFilter<"Feedback"> | number
+    category?: StringFilter<"Feedback"> | string
+    message?: StringFilter<"Feedback"> | string
+    contactEmail?: StringNullableFilter<"Feedback"> | string | null
+    createdAt?: DateTimeFilter<"Feedback"> | Date | string
+    emailSentAt?: DateTimeNullableFilter<"Feedback"> | Date | string | null
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id">
+
+  export type FeedbackOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    rating?: SortOrder
+    category?: SortOrder
+    message?: SortOrder
+    contactEmail?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    emailSentAt?: SortOrderInput | SortOrder
+    _count?: FeedbackCountOrderByAggregateInput
+    _avg?: FeedbackAvgOrderByAggregateInput
+    _max?: FeedbackMaxOrderByAggregateInput
+    _min?: FeedbackMinOrderByAggregateInput
+    _sum?: FeedbackSumOrderByAggregateInput
+  }
+
+  export type FeedbackScalarWhereWithAggregatesInput = {
+    AND?: FeedbackScalarWhereWithAggregatesInput | FeedbackScalarWhereWithAggregatesInput[]
+    OR?: FeedbackScalarWhereWithAggregatesInput[]
+    NOT?: FeedbackScalarWhereWithAggregatesInput | FeedbackScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Feedback"> | string
+    userId?: StringNullableWithAggregatesFilter<"Feedback"> | string | null
+    rating?: IntWithAggregatesFilter<"Feedback"> | number
+    category?: StringWithAggregatesFilter<"Feedback"> | string
+    message?: StringWithAggregatesFilter<"Feedback"> | string
+    contactEmail?: StringNullableWithAggregatesFilter<"Feedback"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Feedback"> | Date | string
+    emailSentAt?: DateTimeNullableWithAggregatesFilter<"Feedback"> | Date | string | null
+  }
+
+  export type SupportInquiryWhereInput = {
+    AND?: SupportInquiryWhereInput | SupportInquiryWhereInput[]
+    OR?: SupportInquiryWhereInput[]
+    NOT?: SupportInquiryWhereInput | SupportInquiryWhereInput[]
+    id?: StringFilter<"SupportInquiry"> | string
+    userId?: StringNullableFilter<"SupportInquiry"> | string | null
+    category?: StringFilter<"SupportInquiry"> | string
+    subject?: StringFilter<"SupportInquiry"> | string
+    message?: StringFilter<"SupportInquiry"> | string
+    replyTo?: StringFilter<"SupportInquiry"> | string
+    status?: StringFilter<"SupportInquiry"> | string
+    createdAt?: DateTimeFilter<"SupportInquiry"> | Date | string
+    emailSentAt?: DateTimeNullableFilter<"SupportInquiry"> | Date | string | null
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type SupportInquiryOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    category?: SortOrder
+    subject?: SortOrder
+    message?: SortOrder
+    replyTo?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    emailSentAt?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type SupportInquiryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SupportInquiryWhereInput | SupportInquiryWhereInput[]
+    OR?: SupportInquiryWhereInput[]
+    NOT?: SupportInquiryWhereInput | SupportInquiryWhereInput[]
+    userId?: StringNullableFilter<"SupportInquiry"> | string | null
+    category?: StringFilter<"SupportInquiry"> | string
+    subject?: StringFilter<"SupportInquiry"> | string
+    message?: StringFilter<"SupportInquiry"> | string
+    replyTo?: StringFilter<"SupportInquiry"> | string
+    status?: StringFilter<"SupportInquiry"> | string
+    createdAt?: DateTimeFilter<"SupportInquiry"> | Date | string
+    emailSentAt?: DateTimeNullableFilter<"SupportInquiry"> | Date | string | null
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id">
+
+  export type SupportInquiryOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    category?: SortOrder
+    subject?: SortOrder
+    message?: SortOrder
+    replyTo?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    emailSentAt?: SortOrderInput | SortOrder
+    _count?: SupportInquiryCountOrderByAggregateInput
+    _max?: SupportInquiryMaxOrderByAggregateInput
+    _min?: SupportInquiryMinOrderByAggregateInput
+  }
+
+  export type SupportInquiryScalarWhereWithAggregatesInput = {
+    AND?: SupportInquiryScalarWhereWithAggregatesInput | SupportInquiryScalarWhereWithAggregatesInput[]
+    OR?: SupportInquiryScalarWhereWithAggregatesInput[]
+    NOT?: SupportInquiryScalarWhereWithAggregatesInput | SupportInquiryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SupportInquiry"> | string
+    userId?: StringNullableWithAggregatesFilter<"SupportInquiry"> | string | null
+    category?: StringWithAggregatesFilter<"SupportInquiry"> | string
+    subject?: StringWithAggregatesFilter<"SupportInquiry"> | string
+    message?: StringWithAggregatesFilter<"SupportInquiry"> | string
+    replyTo?: StringWithAggregatesFilter<"SupportInquiry"> | string
+    status?: StringWithAggregatesFilter<"SupportInquiry"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"SupportInquiry"> | Date | string
+    emailSentAt?: DateTimeNullableWithAggregatesFilter<"SupportInquiry"> | Date | string | null
+  }
+
   export type UserCreateInput = {
     id?: string
     supabaseUserId: string
@@ -13047,11 +15821,16 @@ export namespace Prisma {
     plan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
     performances?: PerformanceCreateNestedManyWithoutUserInput
     scores?: ScoreCreateNestedManyWithoutCreatedByInput
     practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -13062,11 +15841,16 @@ export namespace Prisma {
     plan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
     performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
     scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
     practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -13077,11 +15861,16 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUpdateManyWithoutUserNestedInput
     scores?: ScoreUpdateManyWithoutCreatedByNestedInput
     practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -13092,11 +15881,16 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
     scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
     practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -13107,6 +15901,9 @@ export namespace Prisma {
     plan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
   }
 
   export type UserUpdateManyMutationInput = {
@@ -13117,6 +15914,9 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -13127,6 +15927,9 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ScoreCreateInput = {
@@ -14070,6 +16873,165 @@ export namespace Prisma {
     lastUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type FeedbackCreateInput = {
+    id?: string
+    rating: number
+    category: string
+    message: string
+    contactEmail?: string | null
+    createdAt?: Date | string
+    emailSentAt?: Date | string | null
+    user?: UserCreateNestedOneWithoutFeedbacksInput
+  }
+
+  export type FeedbackUncheckedCreateInput = {
+    id?: string
+    userId?: string | null
+    rating: number
+    category: string
+    message: string
+    contactEmail?: string | null
+    createdAt?: Date | string
+    emailSentAt?: Date | string | null
+  }
+
+  export type FeedbackUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rating?: IntFieldUpdateOperationsInput | number
+    category?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneWithoutFeedbacksNestedInput
+  }
+
+  export type FeedbackUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    rating?: IntFieldUpdateOperationsInput | number
+    category?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type FeedbackCreateManyInput = {
+    id?: string
+    userId?: string | null
+    rating: number
+    category: string
+    message: string
+    contactEmail?: string | null
+    createdAt?: Date | string
+    emailSentAt?: Date | string | null
+  }
+
+  export type FeedbackUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rating?: IntFieldUpdateOperationsInput | number
+    category?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type FeedbackUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    rating?: IntFieldUpdateOperationsInput | number
+    category?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SupportInquiryCreateInput = {
+    id?: string
+    category: string
+    subject: string
+    message: string
+    replyTo: string
+    status?: string
+    createdAt?: Date | string
+    emailSentAt?: Date | string | null
+    user?: UserCreateNestedOneWithoutSupportInquiriesInput
+  }
+
+  export type SupportInquiryUncheckedCreateInput = {
+    id?: string
+    userId?: string | null
+    category: string
+    subject: string
+    message: string
+    replyTo: string
+    status?: string
+    createdAt?: Date | string
+    emailSentAt?: Date | string | null
+  }
+
+  export type SupportInquiryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    replyTo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneWithoutSupportInquiriesNestedInput
+  }
+
+  export type SupportInquiryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    replyTo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SupportInquiryCreateManyInput = {
+    id?: string
+    userId?: string | null
+    category: string
+    subject: string
+    message: string
+    replyTo: string
+    status?: string
+    createdAt?: Date | string
+    emailSentAt?: Date | string | null
+  }
+
+  export type SupportInquiryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    replyTo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SupportInquiryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    replyTo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -14118,6 +17080,22 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type PerformanceListRelationFilter = {
     every?: PerformanceWhereInput
     some?: PerformanceWhereInput
@@ -14148,6 +17126,18 @@ export namespace Prisma {
     none?: UserWeaknessWhereInput
   }
 
+  export type FeedbackListRelationFilter = {
+    every?: FeedbackWhereInput
+    some?: FeedbackWhereInput
+    none?: FeedbackWhereInput
+  }
+
+  export type SupportInquiryListRelationFilter = {
+    every?: SupportInquiryWhereInput
+    some?: SupportInquiryWhereInput
+    none?: SupportInquiryWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -14173,6 +17163,14 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type FeedbackOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SupportInquiryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type UserCountOrderByAggregateInput = {
     id?: SortOrder
     supabaseUserId?: SortOrder
@@ -14181,6 +17179,9 @@ export namespace Prisma {
     plan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiTrainingOptIn?: SortOrder
+    aiTrainingOptInChangedAt?: SortOrder
+    deletedAt?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -14191,6 +17192,9 @@ export namespace Prisma {
     plan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiTrainingOptIn?: SortOrder
+    aiTrainingOptInChangedAt?: SortOrder
+    deletedAt?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -14201,6 +17205,9 @@ export namespace Prisma {
     plan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiTrainingOptIn?: SortOrder
+    aiTrainingOptInChangedAt?: SortOrder
+    deletedAt?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -14263,6 +17270,28 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type EnumJobStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.JobStatus | EnumJobStatusFieldRefInput<$PrismaModel>
     in?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
@@ -14281,17 +17310,6 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
   export type IntNullableFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -14301,11 +17319,6 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type UserScalarRelationFilter = {
@@ -14428,20 +17441,6 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
-  }
-
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -14456,14 +17455,6 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type EnumPerformanceTypeFilter<$PrismaModel = never> = {
@@ -15053,6 +18044,83 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type FeedbackCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    rating?: SortOrder
+    category?: SortOrder
+    message?: SortOrder
+    contactEmail?: SortOrder
+    createdAt?: SortOrder
+    emailSentAt?: SortOrder
+  }
+
+  export type FeedbackAvgOrderByAggregateInput = {
+    rating?: SortOrder
+  }
+
+  export type FeedbackMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    rating?: SortOrder
+    category?: SortOrder
+    message?: SortOrder
+    contactEmail?: SortOrder
+    createdAt?: SortOrder
+    emailSentAt?: SortOrder
+  }
+
+  export type FeedbackMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    rating?: SortOrder
+    category?: SortOrder
+    message?: SortOrder
+    contactEmail?: SortOrder
+    createdAt?: SortOrder
+    emailSentAt?: SortOrder
+  }
+
+  export type FeedbackSumOrderByAggregateInput = {
+    rating?: SortOrder
+  }
+
+  export type SupportInquiryCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    category?: SortOrder
+    subject?: SortOrder
+    message?: SortOrder
+    replyTo?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    emailSentAt?: SortOrder
+  }
+
+  export type SupportInquiryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    category?: SortOrder
+    subject?: SortOrder
+    message?: SortOrder
+    replyTo?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    emailSentAt?: SortOrder
+  }
+
+  export type SupportInquiryMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    category?: SortOrder
+    subject?: SortOrder
+    message?: SortOrder
+    replyTo?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    emailSentAt?: SortOrder
+  }
+
   export type PerformanceCreateNestedManyWithoutUserInput = {
     create?: XOR<PerformanceCreateWithoutUserInput, PerformanceUncheckedCreateWithoutUserInput> | PerformanceCreateWithoutUserInput[] | PerformanceUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PerformanceCreateOrConnectWithoutUserInput | PerformanceCreateOrConnectWithoutUserInput[]
@@ -15086,6 +18154,20 @@ export namespace Prisma {
     connectOrCreate?: UserWeaknessCreateOrConnectWithoutUserInput | UserWeaknessCreateOrConnectWithoutUserInput[]
     createMany?: UserWeaknessCreateManyUserInputEnvelope
     connect?: UserWeaknessWhereUniqueInput | UserWeaknessWhereUniqueInput[]
+  }
+
+  export type FeedbackCreateNestedManyWithoutUserInput = {
+    create?: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput> | FeedbackCreateWithoutUserInput[] | FeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutUserInput | FeedbackCreateOrConnectWithoutUserInput[]
+    createMany?: FeedbackCreateManyUserInputEnvelope
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+  }
+
+  export type SupportInquiryCreateNestedManyWithoutUserInput = {
+    create?: XOR<SupportInquiryCreateWithoutUserInput, SupportInquiryUncheckedCreateWithoutUserInput> | SupportInquiryCreateWithoutUserInput[] | SupportInquiryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SupportInquiryCreateOrConnectWithoutUserInput | SupportInquiryCreateOrConnectWithoutUserInput[]
+    createMany?: SupportInquiryCreateManyUserInputEnvelope
+    connect?: SupportInquiryWhereUniqueInput | SupportInquiryWhereUniqueInput[]
   }
 
   export type PerformanceUncheckedCreateNestedManyWithoutUserInput = {
@@ -15123,6 +18205,20 @@ export namespace Prisma {
     connect?: UserWeaknessWhereUniqueInput | UserWeaknessWhereUniqueInput[]
   }
 
+  export type FeedbackUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput> | FeedbackCreateWithoutUserInput[] | FeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutUserInput | FeedbackCreateOrConnectWithoutUserInput[]
+    createMany?: FeedbackCreateManyUserInputEnvelope
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+  }
+
+  export type SupportInquiryUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<SupportInquiryCreateWithoutUserInput, SupportInquiryUncheckedCreateWithoutUserInput> | SupportInquiryCreateWithoutUserInput[] | SupportInquiryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SupportInquiryCreateOrConnectWithoutUserInput | SupportInquiryCreateOrConnectWithoutUserInput[]
+    createMany?: SupportInquiryCreateManyUserInputEnvelope
+    connect?: SupportInquiryWhereUniqueInput | SupportInquiryWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -15137,6 +18233,14 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type PerformanceUpdateManyWithoutUserNestedInput = {
@@ -15209,6 +18313,34 @@ export namespace Prisma {
     deleteMany?: UserWeaknessScalarWhereInput | UserWeaknessScalarWhereInput[]
   }
 
+  export type FeedbackUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput> | FeedbackCreateWithoutUserInput[] | FeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutUserInput | FeedbackCreateOrConnectWithoutUserInput[]
+    upsert?: FeedbackUpsertWithWhereUniqueWithoutUserInput | FeedbackUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FeedbackCreateManyUserInputEnvelope
+    set?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    disconnect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    delete?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    update?: FeedbackUpdateWithWhereUniqueWithoutUserInput | FeedbackUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FeedbackUpdateManyWithWhereWithoutUserInput | FeedbackUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+  }
+
+  export type SupportInquiryUpdateManyWithoutUserNestedInput = {
+    create?: XOR<SupportInquiryCreateWithoutUserInput, SupportInquiryUncheckedCreateWithoutUserInput> | SupportInquiryCreateWithoutUserInput[] | SupportInquiryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SupportInquiryCreateOrConnectWithoutUserInput | SupportInquiryCreateOrConnectWithoutUserInput[]
+    upsert?: SupportInquiryUpsertWithWhereUniqueWithoutUserInput | SupportInquiryUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: SupportInquiryCreateManyUserInputEnvelope
+    set?: SupportInquiryWhereUniqueInput | SupportInquiryWhereUniqueInput[]
+    disconnect?: SupportInquiryWhereUniqueInput | SupportInquiryWhereUniqueInput[]
+    delete?: SupportInquiryWhereUniqueInput | SupportInquiryWhereUniqueInput[]
+    connect?: SupportInquiryWhereUniqueInput | SupportInquiryWhereUniqueInput[]
+    update?: SupportInquiryUpdateWithWhereUniqueWithoutUserInput | SupportInquiryUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: SupportInquiryUpdateManyWithWhereWithoutUserInput | SupportInquiryUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: SupportInquiryScalarWhereInput | SupportInquiryScalarWhereInput[]
+  }
+
   export type PerformanceUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<PerformanceCreateWithoutUserInput, PerformanceUncheckedCreateWithoutUserInput> | PerformanceCreateWithoutUserInput[] | PerformanceUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PerformanceCreateOrConnectWithoutUserInput | PerformanceCreateOrConnectWithoutUserInput[]
@@ -15279,6 +18411,34 @@ export namespace Prisma {
     deleteMany?: UserWeaknessScalarWhereInput | UserWeaknessScalarWhereInput[]
   }
 
+  export type FeedbackUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput> | FeedbackCreateWithoutUserInput[] | FeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: FeedbackCreateOrConnectWithoutUserInput | FeedbackCreateOrConnectWithoutUserInput[]
+    upsert?: FeedbackUpsertWithWhereUniqueWithoutUserInput | FeedbackUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: FeedbackCreateManyUserInputEnvelope
+    set?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    disconnect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    delete?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    connect?: FeedbackWhereUniqueInput | FeedbackWhereUniqueInput[]
+    update?: FeedbackUpdateWithWhereUniqueWithoutUserInput | FeedbackUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: FeedbackUpdateManyWithWhereWithoutUserInput | FeedbackUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+  }
+
+  export type SupportInquiryUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<SupportInquiryCreateWithoutUserInput, SupportInquiryUncheckedCreateWithoutUserInput> | SupportInquiryCreateWithoutUserInput[] | SupportInquiryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SupportInquiryCreateOrConnectWithoutUserInput | SupportInquiryCreateOrConnectWithoutUserInput[]
+    upsert?: SupportInquiryUpsertWithWhereUniqueWithoutUserInput | SupportInquiryUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: SupportInquiryCreateManyUserInputEnvelope
+    set?: SupportInquiryWhereUniqueInput | SupportInquiryWhereUniqueInput[]
+    disconnect?: SupportInquiryWhereUniqueInput | SupportInquiryWhereUniqueInput[]
+    delete?: SupportInquiryWhereUniqueInput | SupportInquiryWhereUniqueInput[]
+    connect?: SupportInquiryWhereUniqueInput | SupportInquiryWhereUniqueInput[]
+    update?: SupportInquiryUpdateWithWhereUniqueWithoutUserInput | SupportInquiryUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: SupportInquiryUpdateManyWithWhereWithoutUserInput | SupportInquiryUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: SupportInquiryScalarWhereInput | SupportInquiryScalarWhereInput[]
+  }
+
   export type PerformanceCreateNestedManyWithoutScoreInput = {
     create?: XOR<PerformanceCreateWithoutScoreInput, PerformanceUncheckedCreateWithoutScoreInput> | PerformanceCreateWithoutScoreInput[] | PerformanceUncheckedCreateWithoutScoreInput[]
     connectOrCreate?: PerformanceCreateOrConnectWithoutScoreInput | PerformanceCreateOrConnectWithoutScoreInput[]
@@ -15311,20 +18471,12 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
-  }
-
   export type NullableIntFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
     decrement?: number
     multiply?: number
     divide?: number
-  }
-
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
   }
 
   export type PerformanceUpdateManyWithoutScoreNestedInput = {
@@ -15707,6 +18859,38 @@ export namespace Prisma {
     update?: XOR<XOR<TechniqueTagUpdateToOneWithWhereWithoutWeaknessesInput, TechniqueTagUpdateWithoutWeaknessesInput>, TechniqueTagUncheckedUpdateWithoutWeaknessesInput>
   }
 
+  export type UserCreateNestedOneWithoutFeedbacksInput = {
+    create?: XOR<UserCreateWithoutFeedbacksInput, UserUncheckedCreateWithoutFeedbacksInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFeedbacksInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutFeedbacksNestedInput = {
+    create?: XOR<UserCreateWithoutFeedbacksInput, UserUncheckedCreateWithoutFeedbacksInput>
+    connectOrCreate?: UserCreateOrConnectWithoutFeedbacksInput
+    upsert?: UserUpsertWithoutFeedbacksInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFeedbacksInput, UserUpdateWithoutFeedbacksInput>, UserUncheckedUpdateWithoutFeedbacksInput>
+  }
+
+  export type UserCreateNestedOneWithoutSupportInquiriesInput = {
+    create?: XOR<UserCreateWithoutSupportInquiriesInput, UserUncheckedCreateWithoutSupportInquiriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSupportInquiriesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutSupportInquiriesNestedInput = {
+    create?: XOR<UserCreateWithoutSupportInquiriesInput, UserUncheckedCreateWithoutSupportInquiriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSupportInquiriesInput
+    upsert?: UserUpsertWithoutSupportInquiriesInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSupportInquiriesInput, UserUpdateWithoutSupportInquiriesInput>, UserUncheckedUpdateWithoutSupportInquiriesInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -15751,6 +18935,22 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
@@ -15833,14 +19033,15 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type NestedEnumJobStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.JobStatus | EnumJobStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumJobStatusFilter<$PrismaModel> | $Enums.JobStatus
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
     notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -15848,12 +19049,17 @@ export namespace Prisma {
     lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
+  export type NestedEnumJobStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.JobStatus | EnumJobStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.JobStatus[] | ListEnumJobStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumJobStatusFilter<$PrismaModel> | $Enums.JobStatus
   }
 
   export type NestedEnumJobStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -15893,20 +19099,6 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
-  }
-
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -15932,14 +19124,6 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedEnumPerformanceTypeFilter<$PrismaModel = never> = {
@@ -16326,6 +19510,68 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type FeedbackCreateWithoutUserInput = {
+    id?: string
+    rating: number
+    category: string
+    message: string
+    contactEmail?: string | null
+    createdAt?: Date | string
+    emailSentAt?: Date | string | null
+  }
+
+  export type FeedbackUncheckedCreateWithoutUserInput = {
+    id?: string
+    rating: number
+    category: string
+    message: string
+    contactEmail?: string | null
+    createdAt?: Date | string
+    emailSentAt?: Date | string | null
+  }
+
+  export type FeedbackCreateOrConnectWithoutUserInput = {
+    where: FeedbackWhereUniqueInput
+    create: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput>
+  }
+
+  export type FeedbackCreateManyUserInputEnvelope = {
+    data: FeedbackCreateManyUserInput | FeedbackCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SupportInquiryCreateWithoutUserInput = {
+    id?: string
+    category: string
+    subject: string
+    message: string
+    replyTo: string
+    status?: string
+    createdAt?: Date | string
+    emailSentAt?: Date | string | null
+  }
+
+  export type SupportInquiryUncheckedCreateWithoutUserInput = {
+    id?: string
+    category: string
+    subject: string
+    message: string
+    replyTo: string
+    status?: string
+    createdAt?: Date | string
+    emailSentAt?: Date | string | null
+  }
+
+  export type SupportInquiryCreateOrConnectWithoutUserInput = {
+    where: SupportInquiryWhereUniqueInput
+    create: XOR<SupportInquiryCreateWithoutUserInput, SupportInquiryUncheckedCreateWithoutUserInput>
+  }
+
+  export type SupportInquiryCreateManyUserInputEnvelope = {
+    data: SupportInquiryCreateManyUserInput | SupportInquiryCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type PerformanceUpsertWithWhereUniqueWithoutUserInput = {
     where: PerformanceWhereUniqueInput
     update: XOR<PerformanceUpdateWithoutUserInput, PerformanceUncheckedUpdateWithoutUserInput>
@@ -16537,6 +19783,67 @@ export namespace Prisma {
     lastUpdated?: DateTimeFilter<"UserWeakness"> | Date | string
   }
 
+  export type FeedbackUpsertWithWhereUniqueWithoutUserInput = {
+    where: FeedbackWhereUniqueInput
+    update: XOR<FeedbackUpdateWithoutUserInput, FeedbackUncheckedUpdateWithoutUserInput>
+    create: XOR<FeedbackCreateWithoutUserInput, FeedbackUncheckedCreateWithoutUserInput>
+  }
+
+  export type FeedbackUpdateWithWhereUniqueWithoutUserInput = {
+    where: FeedbackWhereUniqueInput
+    data: XOR<FeedbackUpdateWithoutUserInput, FeedbackUncheckedUpdateWithoutUserInput>
+  }
+
+  export type FeedbackUpdateManyWithWhereWithoutUserInput = {
+    where: FeedbackScalarWhereInput
+    data: XOR<FeedbackUpdateManyMutationInput, FeedbackUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type FeedbackScalarWhereInput = {
+    AND?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+    OR?: FeedbackScalarWhereInput[]
+    NOT?: FeedbackScalarWhereInput | FeedbackScalarWhereInput[]
+    id?: StringFilter<"Feedback"> | string
+    userId?: StringNullableFilter<"Feedback"> | string | null
+    rating?: IntFilter<"Feedback"> | number
+    category?: StringFilter<"Feedback"> | string
+    message?: StringFilter<"Feedback"> | string
+    contactEmail?: StringNullableFilter<"Feedback"> | string | null
+    createdAt?: DateTimeFilter<"Feedback"> | Date | string
+    emailSentAt?: DateTimeNullableFilter<"Feedback"> | Date | string | null
+  }
+
+  export type SupportInquiryUpsertWithWhereUniqueWithoutUserInput = {
+    where: SupportInquiryWhereUniqueInput
+    update: XOR<SupportInquiryUpdateWithoutUserInput, SupportInquiryUncheckedUpdateWithoutUserInput>
+    create: XOR<SupportInquiryCreateWithoutUserInput, SupportInquiryUncheckedCreateWithoutUserInput>
+  }
+
+  export type SupportInquiryUpdateWithWhereUniqueWithoutUserInput = {
+    where: SupportInquiryWhereUniqueInput
+    data: XOR<SupportInquiryUpdateWithoutUserInput, SupportInquiryUncheckedUpdateWithoutUserInput>
+  }
+
+  export type SupportInquiryUpdateManyWithWhereWithoutUserInput = {
+    where: SupportInquiryScalarWhereInput
+    data: XOR<SupportInquiryUpdateManyMutationInput, SupportInquiryUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type SupportInquiryScalarWhereInput = {
+    AND?: SupportInquiryScalarWhereInput | SupportInquiryScalarWhereInput[]
+    OR?: SupportInquiryScalarWhereInput[]
+    NOT?: SupportInquiryScalarWhereInput | SupportInquiryScalarWhereInput[]
+    id?: StringFilter<"SupportInquiry"> | string
+    userId?: StringNullableFilter<"SupportInquiry"> | string | null
+    category?: StringFilter<"SupportInquiry"> | string
+    subject?: StringFilter<"SupportInquiry"> | string
+    message?: StringFilter<"SupportInquiry"> | string
+    replyTo?: StringFilter<"SupportInquiry"> | string
+    status?: StringFilter<"SupportInquiry"> | string
+    createdAt?: DateTimeFilter<"SupportInquiry"> | Date | string
+    emailSentAt?: DateTimeNullableFilter<"SupportInquiry"> | Date | string | null
+  }
+
   export type PerformanceCreateWithoutScoreInput = {
     id?: string
     performanceType: $Enums.PerformanceType
@@ -16607,10 +19914,15 @@ export namespace Prisma {
     plan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
     performances?: PerformanceCreateNestedManyWithoutUserInput
     practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutScoresInput = {
@@ -16621,10 +19933,15 @@ export namespace Prisma {
     plan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
     performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
     practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutScoresInput = {
@@ -16667,10 +19984,15 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUpdateManyWithoutUserNestedInput
     practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutScoresInput = {
@@ -16681,10 +20003,15 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
     practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ScoreCreateWithoutPerformancesInput = {
@@ -16750,10 +20077,15 @@ export namespace Prisma {
     plan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
     scores?: ScoreCreateNestedManyWithoutCreatedByInput
     practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPerformancesInput = {
@@ -16764,10 +20096,15 @@ export namespace Prisma {
     plan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
     scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
     practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPerformancesInput = {
@@ -16855,10 +20192,15 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     scores?: ScoreUpdateManyWithoutCreatedByNestedInput
     practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPerformancesInput = {
@@ -16869,10 +20211,15 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
     practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutPracticeItemsInput = {
@@ -16883,10 +20230,15 @@ export namespace Prisma {
     plan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
     performances?: PerformanceCreateNestedManyWithoutUserInput
     scores?: ScoreCreateNestedManyWithoutCreatedByInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPracticeItemsInput = {
@@ -16897,10 +20249,15 @@ export namespace Prisma {
     plan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
     performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
     scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPracticeItemsInput = {
@@ -16997,10 +20354,15 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUpdateManyWithoutUserNestedInput
     scores?: ScoreUpdateManyWithoutCreatedByNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPracticeItemsInput = {
@@ -17011,10 +20373,15 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
     scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PracticeItemTechniqueUpsertWithWhereUniqueWithoutPracticeItemInput = {
@@ -17360,10 +20727,15 @@ export namespace Prisma {
     plan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
     performances?: PerformanceCreateNestedManyWithoutUserInput
     scores?: ScoreCreateNestedManyWithoutCreatedByInput
     practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPracticePerformancesInput = {
@@ -17374,10 +20746,15 @@ export namespace Prisma {
     plan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
     performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
     scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
     practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPracticePerformancesInput = {
@@ -17475,10 +20852,15 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUpdateManyWithoutUserNestedInput
     scores?: ScoreUpdateManyWithoutCreatedByNestedInput
     practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPracticePerformancesInput = {
@@ -17489,10 +20871,15 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
     scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
     practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PracticeItemUpsertWithoutPracticePerformancesInput = {
@@ -17580,10 +20967,15 @@ export namespace Prisma {
     plan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
     performances?: PerformanceCreateNestedManyWithoutUserInput
     scores?: ScoreCreateNestedManyWithoutCreatedByInput
     practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWeaknessesInput = {
@@ -17594,10 +20986,15 @@ export namespace Prisma {
     plan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
     performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
     scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
     practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWeaknessesInput = {
@@ -17653,10 +21050,15 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUpdateManyWithoutUserNestedInput
     scores?: ScoreUpdateManyWithoutCreatedByNestedInput
     practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWeaknessesInput = {
@@ -17667,10 +21069,15 @@ export namespace Prisma {
     plan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
     scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
     practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TechniqueTagUpsertWithoutWeaknessesInput = {
@@ -17706,6 +21113,190 @@ export namespace Prisma {
     isAnalyzable?: StringFieldUpdateOperationsInput | string
     implementStatus?: StringFieldUpdateOperationsInput | string
     practiceItems?: PracticeItemTechniqueUncheckedUpdateManyWithoutTechniqueTagNestedInput
+  }
+
+  export type UserCreateWithoutFeedbacksInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutUserInput
+    scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutFeedbacksInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutFeedbacksInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutFeedbacksInput, UserUncheckedCreateWithoutFeedbacksInput>
+  }
+
+  export type UserUpsertWithoutFeedbacksInput = {
+    update: XOR<UserUpdateWithoutFeedbacksInput, UserUncheckedUpdateWithoutFeedbacksInput>
+    create: XOR<UserCreateWithoutFeedbacksInput, UserUncheckedCreateWithoutFeedbacksInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutFeedbacksInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutFeedbacksInput, UserUncheckedUpdateWithoutFeedbacksInput>
+  }
+
+  export type UserUpdateWithoutFeedbacksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutUserNestedInput
+    scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutFeedbacksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutSupportInquiriesInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutUserInput
+    scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSupportInquiriesInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSupportInquiriesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSupportInquiriesInput, UserUncheckedCreateWithoutSupportInquiriesInput>
+  }
+
+  export type UserUpsertWithoutSupportInquiriesInput = {
+    update: XOR<UserUpdateWithoutSupportInquiriesInput, UserUncheckedUpdateWithoutSupportInquiriesInput>
+    create: XOR<UserCreateWithoutSupportInquiriesInput, UserUncheckedCreateWithoutSupportInquiriesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutSupportInquiriesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSupportInquiriesInput, UserUncheckedUpdateWithoutSupportInquiriesInput>
+  }
+
+  export type UserUpdateWithoutSupportInquiriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutUserNestedInput
+    scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSupportInquiriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PerformanceCreateManyUserInput = {
@@ -17817,6 +21408,27 @@ export namespace Prisma {
     severity: number
     sampleCount: number
     lastUpdated?: Date | string
+  }
+
+  export type FeedbackCreateManyUserInput = {
+    id?: string
+    rating: number
+    category: string
+    message: string
+    contactEmail?: string | null
+    createdAt?: Date | string
+    emailSentAt?: Date | string | null
+  }
+
+  export type SupportInquiryCreateManyUserInput = {
+    id?: string
+    category: string
+    subject: string
+    message: string
+    replyTo: string
+    status?: string
+    createdAt?: Date | string
+    emailSentAt?: Date | string | null
   }
 
   export type PerformanceUpdateWithoutUserInput = {
@@ -18156,6 +21768,69 @@ export namespace Prisma {
     severity?: FloatFieldUpdateOperationsInput | number
     sampleCount?: IntFieldUpdateOperationsInput | number
     lastUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FeedbackUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rating?: IntFieldUpdateOperationsInput | number
+    category?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type FeedbackUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rating?: IntFieldUpdateOperationsInput | number
+    category?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type FeedbackUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    rating?: IntFieldUpdateOperationsInput | number
+    category?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SupportInquiryUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    replyTo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SupportInquiryUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    replyTo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type SupportInquiryUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    subject?: StringFieldUpdateOperationsInput | string
+    message?: StringFieldUpdateOperationsInput | string
+    replyTo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type PerformanceCreateManyScoreInput = {

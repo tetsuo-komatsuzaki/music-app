@@ -32,6 +32,13 @@ model User {
   practicePerformances PracticePerformance[]
   weaknesses           UserWeakness[]
 
+  // ▼ S-1: アカウント設定追加分
+  aiTrainingOptIn          Boolean   @default(false)
+  aiTrainingOptInChangedAt DateTime?
+  deletedAt                DateTime? // 退会受付時刻 (idempotency key 兼用)
+  feedbacks                Feedback[]
+  supportInquiries         SupportInquiry[]
+
   @@index([role])
 }
 
@@ -59,7 +66,7 @@ model Score {
   createdAt        DateTime      @default(now())
   deletedAt        DateTime?     // 論理削除フラグ (NULL=有効、値あり=削除済み)
   performances     Performance[]
-  createdBy        User          @relation(fields: [createdById], references: [id])
+  createdBy        User          @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
   @@index([createdById])
   @@index([isShared])
@@ -79,8 +86,8 @@ model Performance {
   performanceDate      DateTime?
   uploadedAt           DateTime          @default(now())
   createdAt            DateTime          @default(now())
-  score                Score             @relation(fields: [scoreId], references: [id])
-  user                 User              @relation(fields: [userId], references: [id])
+  score                Score             @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+  user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // ▼ 解析結果サマリー（段階3: ハイブリッド方式）
   pitchAccuracy    Float?    // 0-100 ピッチ正確率（頻繁表示 → カラム）
@@ -155,7 +162,7 @@ model PracticeItem {
   idempotencyKey   String?           @unique
 
   ownerUserId      String?           // null=運営サンプル（全員閲覧可）, 値あり=そのユーザーのみ
-  owner            User?             @relation(fields: [ownerUserId], references: [id])
+  owner            User?             @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
 
   source           String?
   sortOrder        Int               @default(0)
@@ -209,8 +216,8 @@ model PracticePerformance {
   performanceDuration  Float?
   uploadedAt           DateTime  @default(now())
 
-  user                 User              @relation(fields: [userId], references: [id])
-  practiceItem         PracticeItem      @relation(fields: [practiceItemId], references: [id])
+  user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  practiceItem         PracticeItem      @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
 
   // ▼ 解析結果サマリー（段階3: ハイブリッド方式）
   pitchAccuracy    Float?
@@ -241,9 +248,47 @@ model UserWeakness {
   sampleCount     Int
   lastUpdated     DateTime @default(now())
 
-  user            User          @relation(fields: [userId], references: [id])
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   techniqueTag    TechniqueTag? @relation(fields: [techniqueTagId], references: [id])
 
   @@unique([userId, weaknessType, weaknessKey])
   @@index([userId, severity])
+}
+
+// =============================================
+// ▼ S-1: フィードバック・お問い合わせ
+// =============================================
+
+model Feedback {
+  id           String    @id @default(cuid())
+  userId       String?   // 退会時 SetNull で匿名化保持
+  rating       Int       // 1-5
+  category     String
+  message      String    @db.Text
+  contactEmail String?
+  createdAt    DateTime  @default(now())
+  emailSentAt  DateTime?
+
+  user         User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([userId])
+}
+
+model SupportInquiry {
+  id          String    @id @default(cuid())
+  userId      String?   // 退会時 SetNull で匿名化保持
+  category    String
+  subject     String
+  message     String    @db.Text
+  replyTo     String
+  status      String    @default("open") // open | replied | closed
+  createdAt   DateTime  @default(now())
+  emailSentAt DateTime?
+
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([userId])
+  @@index([status])
 }

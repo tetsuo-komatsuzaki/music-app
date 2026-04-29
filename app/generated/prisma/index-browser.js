@@ -127,7 +127,10 @@ exports.Prisma.UserScalarFieldEnum = {
   role: 'role',
   plan: 'plan',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  aiTrainingOptIn: 'aiTrainingOptIn',
+  aiTrainingOptInChangedAt: 'aiTrainingOptInChangedAt',
+  deletedAt: 'deletedAt'
 };
 
 exports.Prisma.ScoreScalarFieldEnum = {
@@ -263,6 +266,29 @@ exports.Prisma.UserWeaknessScalarFieldEnum = {
   lastUpdated: 'lastUpdated'
 };
 
+exports.Prisma.FeedbackScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  rating: 'rating',
+  category: 'category',
+  message: 'message',
+  contactEmail: 'contactEmail',
+  createdAt: 'createdAt',
+  emailSentAt: 'emailSentAt'
+};
+
+exports.Prisma.SupportInquiryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  category: 'category',
+  subject: 'subject',
+  message: 'message',
+  replyTo: 'replyTo',
+  status: 'status',
+  createdAt: 'createdAt',
+  emailSentAt: 'emailSentAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -327,7 +353,9 @@ exports.Prisma.ModelName = {
   TechniqueTag: 'TechniqueTag',
   PracticeItemTechnique: 'PracticeItemTechnique',
   PracticePerformance: 'PracticePerformance',
-  UserWeakness: 'UserWeakness'
+  UserWeakness: 'UserWeakness',
+  Feedback: 'Feedback',
+  SupportInquiry: 'SupportInquiry'
 };
 
 /**
