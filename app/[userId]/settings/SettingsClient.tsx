@@ -5,6 +5,7 @@ import { updateUserName } from "@/app/actions/updateUserName"
 import { updateUserEmail } from "@/app/actions/updateUserEmail"
 import { updateUserPassword } from "@/app/actions/updateUserPassword"
 import { updateAiTrainingOptIn } from "@/app/actions/updateAiTrainingOptIn"
+import DeleteAccountModal from "./DeleteAccountModal"
 import styles from "./Settings.module.css"
 
 interface Props {
@@ -81,6 +82,8 @@ export default function SettingsClient({
   const [aiOptIn, setAiOptIn] = useState(aiTrainingOptIn)
   const [aiMessage, setAiMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [isAiPending, startAiTransition] = useTransition()
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
 
   const handleEmailSave = () => {
     setEmailMessage(null)
@@ -344,19 +347,28 @@ export default function SettingsClient({
         )}
       </section>
 
-      {/* アカウント管理 (Commit 7 で機能化) */}
+      {/* アカウント管理 */}
       {accountDeletionEnabled && (
         <section className={styles.card}>
           <h2 className={styles.sectionTitle}>アカウント管理</h2>
           <p className={styles.dangerHint}>
-            退会するとすべてのデータ (録音・楽譜・解析結果) が完全に削除されます。
+            退会するとすべてのデータ (録音・楽譜・解析結果・練習履歴) が完全に削除されます。
             復旧はできません。
           </p>
-          <button type="button" className={styles.dangerButton} disabled>
-            退会する (近日公開)
+          <button
+            type="button"
+            onClick={() => setDeleteModalOpen(true)}
+            className={styles.dangerButton}
+          >
+            退会する
           </button>
         </section>
       )}
+
+      <DeleteAccountModal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+      />
     </div>
   )
 }
