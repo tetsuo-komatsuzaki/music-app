@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import { updateUserName } from "@/app/actions/updateUserName"
 import { updateUserEmail } from "@/app/actions/updateUserEmail"
+import { updateUserPassword } from "@/app/actions/updateUserPassword"
 import { updateAiTrainingOptIn } from "@/app/actions/updateAiTrainingOptIn"
 import styles from "./Settings.module.css"
 
@@ -30,6 +31,52 @@ export default function SettingsClient({
   const [newEmail, setNewEmail] = useState("")
   const [emailMessage, setEmailMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [isEmailPending, startEmailTransition] = useTransition()
+
+  const [passwordEditing, setPasswordEditing] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [isPasswordPending, startPasswordTransition] = useTransition()
+
+  const handlePasswordSave = () => {
+    setPasswordMessage(null)
+
+    // クライアントサイド事前バリデーション (UX 改善のみ、Server Action でも再チェック)
+    if (currentPassword.length === 0) {
+      setPasswordMessage({ type: "error", text: "現在のパスワードを入力してください" })
+      return
+    }
+    if (newPassword.length < 8) {
+      setPasswordMessage({ type: "error", text: "新しいパスワードは8文字以上で入力してください" })
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({ type: "error", text: "新しいパスワード (確認) が一致しません" })
+      return
+    }
+
+    startPasswordTransition(async () => {
+      const result = await updateUserPassword({ currentPassword, newPassword })
+      if (result.success) {
+        setPasswordMessage({ type: "success", text: "パスワードを変更しました" })
+        setPasswordEditing(false)
+        setCurrentPassword("")
+        setNewPassword("")
+        setConfirmPassword("")
+      } else {
+        setPasswordMessage({ type: "error", text: result.error ?? "変更に失敗しました" })
+      }
+    })
+  }
+
+  const handlePasswordCancel = () => {
+    setPasswordEditing(false)
+    setCurrentPassword("")
+    setNewPassword("")
+    setConfirmPassword("")
+    setPasswordMessage(null)
+  }
 
   const [aiOptIn, setAiOptIn] = useState(aiTrainingOptIn)
   const [aiMessage, setAiMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
@@ -180,9 +227,77 @@ export default function SettingsClient({
 
         <div className={styles.field}>
           <label className={styles.label}>パスワード</label>
-          <button type="button" className={styles.secondaryButton} disabled>
-            パスワードを変更 (近日公開)
-          </button>
+          {!passwordEditing ? (
+            <button
+              type="button"
+              onClick={() => setPasswordEditing(true)}
+              className={styles.secondaryButton}
+            >
+              パスワードを変更
+            </button>
+          ) : (
+            <div className={styles.editForm}>
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="現在のパスワード"
+                className={styles.input}
+                disabled={isPasswordPending}
+                autoComplete="current-password"
+              />
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="新しいパスワード (8文字以上)"
+                className={styles.input}
+                disabled={isPasswordPending}
+                autoComplete="new-password"
+              />
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="新しいパスワード (確認)"
+                className={styles.input}
+                disabled={isPasswordPending}
+                autoComplete="new-password"
+              />
+              <div className={styles.formActions}>
+                <button
+                  type="button"
+                  onClick={handlePasswordSave}
+                  disabled={
+                    isPasswordPending
+                    || currentPassword.length === 0
+                    || newPassword.length === 0
+                    || confirmPassword.length === 0
+                  }
+                  className={styles.primaryButton}
+                >
+                  {isPasswordPending ? "変更中..." : "変更する"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePasswordCancel}
+                  disabled={isPasswordPending}
+                  className={styles.secondaryButton}
+                >
+                  キャンセル
+                </button>
+              </div>
+            </div>
+          )}
+          {passwordMessage && (
+            <p
+              className={
+                passwordMessage.type === "success" ? styles.messageSuccess : styles.messageError
+              }
+            >
+              {passwordMessage.text}
+            </p>
+          )}
         </div>
 
         {message && (
