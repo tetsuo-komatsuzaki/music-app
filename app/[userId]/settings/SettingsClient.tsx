@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { updateUserName } from "@/app/actions/updateUserName"
+import { updateUserEmail } from "@/app/actions/updateUserEmail"
 import { updateAiTrainingOptIn } from "@/app/actions/updateAiTrainingOptIn"
 import styles from "./Settings.module.css"
 
@@ -25,9 +26,37 @@ export default function SettingsClient({
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [isPending, startTransition] = useTransition()
 
+  const [emailEditing, setEmailEditing] = useState(false)
+  const [newEmail, setNewEmail] = useState("")
+  const [emailMessage, setEmailMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [isEmailPending, startEmailTransition] = useTransition()
+
   const [aiOptIn, setAiOptIn] = useState(aiTrainingOptIn)
   const [aiMessage, setAiMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [isAiPending, startAiTransition] = useTransition()
+
+  const handleEmailSave = () => {
+    setEmailMessage(null)
+    startEmailTransition(async () => {
+      const result = await updateUserEmail({ newEmail })
+      if (result.success) {
+        setEmailMessage({
+          type: "success",
+          text: "確認メールを送信しました。現在のメールアドレスと新しいメールアドレスの両方に届く確認リンクをクリックすると変更が完了します。",
+        })
+        setEmailEditing(false)
+        setNewEmail("")
+      } else {
+        setEmailMessage({ type: "error", text: result.error ?? "送信に失敗しました" })
+      }
+    })
+  }
+
+  const handleEmailCancel = () => {
+    setEmailEditing(false)
+    setNewEmail("")
+    setEmailMessage(null)
+  }
 
   const handleToggleAi = (newValue: boolean) => {
     setAiMessage(null)
@@ -99,9 +128,54 @@ export default function SettingsClient({
         <div className={styles.field}>
           <label className={styles.label}>メールアドレス</label>
           <p className={styles.readOnlyValue}>{currentEmail}</p>
-          <button type="button" className={styles.secondaryButton} disabled>
-            変更 (近日公開)
-          </button>
+          {!emailEditing ? (
+            <button
+              type="button"
+              onClick={() => setEmailEditing(true)}
+              className={styles.secondaryButton}
+            >
+              変更
+            </button>
+          ) : (
+            <div className={styles.editForm}>
+              <input
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="新しいメールアドレス"
+                className={styles.input}
+                disabled={isEmailPending}
+                autoComplete="email"
+              />
+              <div className={styles.formActions}>
+                <button
+                  type="button"
+                  onClick={handleEmailSave}
+                  disabled={isEmailPending || newEmail.trim().length === 0}
+                  className={styles.primaryButton}
+                >
+                  {isEmailPending ? "送信中..." : "確認メールを送信"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleEmailCancel}
+                  disabled={isEmailPending}
+                  className={styles.secondaryButton}
+                >
+                  キャンセル
+                </button>
+              </div>
+            </div>
+          )}
+          {emailMessage && (
+            <p
+              className={
+                emailMessage.type === "success" ? styles.messageSuccess : styles.messageError
+              }
+            >
+              {emailMessage.text}
+            </p>
+          )}
         </div>
 
         <div className={styles.field}>

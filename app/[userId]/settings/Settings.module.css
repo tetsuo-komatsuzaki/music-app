@@ -52,6 +52,18 @@
   align-items: center;
 }
 
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .input {
   flex: 1;
   padding: 8px 12px;
