@@ -1,0 +1,94 @@
+/* 既存ページ (Support.module.css 等) のトーン踏襲 */
+
+.page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 800px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.intro {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.category {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.categoryTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  padding-bottom: 4px;
+}
+
+.faq {
+  background: #fff;
+  border: 0.5px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  transition: 0.2s;
+}
+
+.faq[open] {
+  background: #f7f9fc;
+  border-color: #d0d8e0;
+}
+
+.faqSummary {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.faqSummary::-webkit-details-marker {
+  display: none;
+}
+
+.faqSummary::before {
+  content: "Q.";
+  font-size: 14px;
+  font-weight: 700;
+  color: #4a7fa3;
+  flex-shrink: 0;
+}
+
+.faqBody {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #e0e0e0;
+  font-size: 13px;
+  color: #444;
+  line-height: 1.7;
+}
+
+.faqBody p {
+  margin: 0 0 8px 0;
+}
+
+.faqBody p:last-child {
+  margin-bottom: 0;
+}
+
+.faqBody strong {
+  color: #1a1a1a;
+}
