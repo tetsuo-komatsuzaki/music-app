@@ -60,15 +60,17 @@
   border-left: 4px solid #3B82F6;
 }
 
-/* S-1: 最下部 (ログアウト) エリア */
+/* S-1: 最下部 (使い方 + ログアウト) エリア */
 .bottomArea {
   margin-top: auto;
   padding-top: 16px;
   border-top: 1px solid #1E40AF;
   display: flex;
   flex-direction: column;
+  gap: 4px;
 }
 
+.helpEntryButton,
 .logoutButton {
   display: flex;
   gap: 10px;
@@ -84,6 +86,7 @@
   font: inherit;
 }
 
+.helpEntryButton:hover,
 .logoutButton:hover {
   background: #1E40AF;
 }

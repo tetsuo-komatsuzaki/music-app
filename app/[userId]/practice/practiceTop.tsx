@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import styles from "./practice.module.css"
+import OnboardingTrigger from "../_onboarding/OnboardingTrigger"
 
 type RecommendItem = {
   id: string
@@ -40,7 +41,7 @@ export default function PracticeTop({
       <h1 className={styles.pageTitle}>練習メニュー</h1>
 
       {hasRecommendations && (
-        <section className={styles.recommendSection}>
+        <section className={styles.recommendSection} data-onboarding="practice.recommendations">
           <h2 className={styles.sectionTitle}>おすすめ練習</h2>
 
           {scoreRecommendations.map((rec, i) => (
@@ -81,7 +82,7 @@ export default function PracticeTop({
         </section>
       )}
 
-      <section className={styles.categorySection}>
+      <section className={styles.categorySection} data-onboarding="practice.categoryNav">
         <div className={styles.categoryGrid}>
           {(["scale", "arpeggio", "etude"] as const).map((cat) => (
             <Link
@@ -100,6 +101,8 @@ export default function PracticeTop({
           ))}
         </div>
       </section>
+
+      <OnboardingTrigger pageKey="practice" />
     </div>
   )
 }

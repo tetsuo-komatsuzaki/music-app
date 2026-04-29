@@ -8,6 +8,8 @@ import styles from "./scoreDetail.module.css"
 import Recorder from "@/app/components/Recorder"
 import PerformanceSkeleton from "@/app/components/PerformanceSkeleton"
 import { getSignedUploadUrl } from "@/app/actions/getSignedUploadUrl"
+import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
+import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 
 // =========================================================
 // 型定義
@@ -972,6 +974,20 @@ export default function ScoreDetail({
   // リサイズ後の再レンダリング検知用（インクリメントで applyComparisonColors を再トリガー）
   const [noteElementsVersion, setNoteElementsVersion] = useState(0)
 
+  // --- オンボーディング: 解析オーバーレイ描画完了を Provider に通知 ---
+  // applyComparisonColors の setTimeout 連鎖 (最大 800ms) を待ってから dispatch
+  const { markAnalysisOverlayRendered } = useOnboarding()
+  useEffect(() => {
+    if (!selected?.comparisonResult) return
+    if (noteElementsRef.current.length === 0) return
+    const id = setTimeout(() => {
+      requestAnimationFrame(() => {
+        markAnalysisOverlayRendered()
+      })
+    }, 900)
+    return () => clearTimeout(id)
+  }, [selected?.comparisonResult, noteElementsVersion, markAnalysisOverlayRendered])
+
   // --- ScoreViewer からノート要素を受け取る（評価オーバーレイ用）---
   const handleNoteElementsReady = useCallback((elements: Element[]) => {
     noteElementsRef.current = elements
@@ -1520,17 +1536,19 @@ export default function ScoreDetail({
       <div className={styles.grid}>
         <div className={styles.leftColumn}>
           {infoSlot}
-          <Recorder
-            onRecordingComplete={handleRecordingComplete}
-            previousBestScore={bestPitchScore}
-            bestOverallScore={bestOverallScore}
-            bpm={analysis?.bpm ?? undefined}
-            onRecordingStart={startRecordingGuide}
-            onRecordingBpmChange={(v) => { recordingBpmRef.current = v }}
-            onRecordingStop={stopRecordingGuide}
-            uploadProgress={uploadProgress}
-          />
-          <div className={styles.card}>
+          <div data-onboarding="scoreDetail.recordButton">
+            <Recorder
+              onRecordingComplete={handleRecordingComplete}
+              previousBestScore={bestPitchScore}
+              bestOverallScore={bestOverallScore}
+              bpm={analysis?.bpm ?? undefined}
+              onRecordingStart={startRecordingGuide}
+              onRecordingBpmChange={(v) => { recordingBpmRef.current = v }}
+              onRecordingStop={stopRecordingGuide}
+              uploadProgress={uploadProgress}
+            />
+          </div>
+          <div className={styles.card} data-onboarding="scoreDetail.playControls">
             <h3>楽譜を再生</h3>
             {analysis && (
               <div className={styles.tempoControl}>
@@ -1609,7 +1627,7 @@ export default function ScoreDetail({
         </div>
 
         <div className={styles.rightColumn}>
-          <div ref={scoreWrapperRef} style={{ position: "relative" }}>
+          <div ref={scoreWrapperRef} style={{ position: "relative" }} data-onboarding="scoreDetail.scoreOverlay">
             <ScoreViewer
               buildUrl={buildUrl}
               onNoteElementsReady={handleNoteElementsReady}
@@ -1634,6 +1652,7 @@ export default function ScoreDetail({
         </div>
       </div>
 
+      <OnboardingTrigger pageKey={practiceItemId ? "practiceItem" : "scoreDetail"} />
     </div>
   )
 }

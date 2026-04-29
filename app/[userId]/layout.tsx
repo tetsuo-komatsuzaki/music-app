@@ -2,9 +2,12 @@
 
 import styles from "./layout.module.css"
 import { ReactNode } from "react"
-import { useParams, usePathname } from "next/navigation"
 import Sidebar from "./components/Sidebar"
 import Header from "./components/Header"
+import OnboardingErrorBoundary from "./_onboarding/OnboardingErrorBoundary"
+import OnboardingProvider from "./_onboarding/OnboardingProvider"
+import WelcomeSlides from "./_onboarding/WelcomeSlides"
+import HelpModalContainer from "./_onboarding/HelpModalContainer"
 
 export default function UserLayout({
   children,
@@ -12,15 +15,22 @@ export default function UserLayout({
   children: ReactNode
 }) {
   return (
-    <div className={styles.container}>
-      <Header />
-      <div className={styles.body}>
-        <Sidebar />
-        {/* ===== PAGE CONTENT ===== */}
-        <main className={styles.main}>
-          {children}
-        </main>
+    <OnboardingProvider>
+      <div className={styles.container}>
+        <Header />
+        <div className={styles.body}>
+          <Sidebar />
+          {/* ===== PAGE CONTENT ===== */}
+          <main className={styles.main}>
+            {children}
+          </main>
         </div>
-     </div>
+      </div>
+      {/* オーバーレイのクラッシュは ErrorBoundary で吸収、既存 UI に波及させない */}
+      <OnboardingErrorBoundary>
+        <WelcomeSlides />
+        <HelpModalContainer />
+      </OnboardingErrorBoundary>
+    </OnboardingProvider>
   )
 }

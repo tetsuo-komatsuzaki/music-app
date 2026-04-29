@@ -1,0 +1,194 @@
+/* z-index 1900 (既存モーダル 1000 より上、WelcomeSlides 2000 より下) */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1900;
+  pointer-events: auto;
+}
+
+.spotlight {
+  position: fixed;
+  border-radius: 6px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 1901;
+  transition: top 0.2s, left 0.2s, width 0.2s, height 0.2s;
+}
+
+.tooltip {
+  position: fixed;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  z-index: 1902;
+  max-width: 320px;
+  width: calc(100vw - 32px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.tooltipCenter {
+  /* 画面中央表示用 (target なし or rect = null) */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  z-index: 1902;
+  max-width: 360px;
+  width: calc(100vw - 32px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.body {
+  padding: 16px 18px 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.headline {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.bodyText {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* 凡例表 (マーク 3 用) */
+.legendTable {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legendRow {
+  display: grid;
+  grid-template-columns: 28px 64px 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  background: #f7f9fc;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.legendColor {
+  font-size: 14px;
+  text-align: center;
+}
+
+.legendName {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.legendMeaning {
+  color: #555;
+}
+
+/* フッター */
+.footer {
+  padding: 10px 14px 12px 14px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.stepIndicator {
+  font-size: 11px;
+  color: #888;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.dismissAllRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 18px 4px 18px;
+  font-size: 12px;
+  color: #666;
+}
+
+.dismissAllRow input {
+  cursor: pointer;
+}
+
+.dismissAllRow label {
+  cursor: pointer;
+}
+
+.skipButton {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 6px 8px;
+}
+
+.skipButton:hover {
+  color: #444;
+}
+
+.navButton {
+  background: transparent;
+  border: 1px solid #d0d8e0;
+  color: #444;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.navButton:hover:not(:disabled) {
+  background: #f7f9fc;
+}
+
+.navButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.primaryButton {
+  background: #4a7fa3;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primaryButton:hover {
+  background: #3d6a8a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spotlight {
+    transition: none;
+  }
+}

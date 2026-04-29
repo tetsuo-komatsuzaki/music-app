@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import styles from "./home.module.css"
+import OnboardingTrigger from "./_onboarding/OnboardingTrigger"
 
 type RecommendedItem = {
   id: string
@@ -65,7 +66,7 @@ export default function HomeClient({
     <div className={styles.page}>
 
       {/* ───── アルコちゃんからの案内 (最上部・主役) ───── */}
-      <div className={`${styles.card} ${styles.arcoCard}`}>
+      <div className={`${styles.card} ${styles.arcoCard}`} data-onboarding="home.arcoCard">
         <div className={styles.arcoHeader}>
           <span className={styles.arcoIcon}>🎻</span>
           <span className={styles.arcoName}>アルコちゃんからの案内</span>
@@ -125,7 +126,7 @@ export default function HomeClient({
 
       {/* ───── Continue バー ───── */}
       {continueItem && (
-        <div className={styles.card}>
+        <div className={styles.card} data-onboarding="home.continueItem">
           <Link href={continueItem.href} className={styles.continueBar}>
             <div className={styles.continueIcon}>▶</div>
             <div className={styles.continueInfo}>
@@ -175,6 +176,7 @@ export default function HomeClient({
         </div>
       )}
 
+      <OnboardingTrigger pageKey="home" />
     </div>
   )
 }

@@ -17,3 +17,23 @@
   font-weight: 600;
 }
 
+.helpButton {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  padding: 0;
+  transition: 0.15s;
+}
+
+.helpButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+

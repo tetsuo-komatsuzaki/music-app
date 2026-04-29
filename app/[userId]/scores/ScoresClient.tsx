@@ -9,6 +9,7 @@ import { uploadScore } from "@/app/actions/uploadScore"
 import { updateScoreTitle } from "@/app/actions/updateScore"
 import { deleteScore } from "@/app/actions/deleteScore"
 import { ScoreView } from "@/app/types/score"
+import OnboardingTrigger from "../_onboarding/OnboardingTrigger"
 
 
 type ScoresClientProps = {
@@ -139,6 +140,7 @@ export default function ScoresClient({
           <button
             className={styles.newButton}
             onClick={() => setIsOpen(true)}
+            data-onboarding="scores.uploadButton"
           >
             ＋ 新規楽曲を登録
           </button>
@@ -152,7 +154,7 @@ export default function ScoresClient({
         )}
 
         {/* ===== SCORE CARDS ===== */}
-        <div className={styles.cardGrid}>
+        <div className={styles.cardGrid} data-onboarding="scores.scoreGrid">
           {scores.map(score => {
             const isEditing = renamingId === score.id
             return (
@@ -270,6 +272,7 @@ export default function ScoresClient({
         onClose={() => setIsOpen(false)}
         action={uploadScore}
       />
+      <OnboardingTrigger pageKey="scores" />
     </div>
   )
 }

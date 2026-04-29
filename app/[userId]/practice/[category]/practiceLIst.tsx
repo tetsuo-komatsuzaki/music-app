@@ -6,6 +6,7 @@ import Link from "next/link"
 import styles from "../practice.module.css"
 import type { ScoredItemDTO, RecommendReason } from "@/app/lib/practice/getRecommendations"
 import type { PracticeStats } from "@/app/lib/practice/getPracticeStats"
+import OnboardingTrigger from "../../_onboarding/OnboardingTrigger"
 
 type PracticeItemDTO = {
   id: string
@@ -403,7 +404,7 @@ function AllView({
       />
 
       {/* Filters + Sort */}
-      <div className={styles.filters}>
+      <div className={styles.filters} data-onboarding="categoryList.filters">
         <select
           className={styles.filterSelect}
           value={currentFilters.key || ""}
@@ -509,6 +510,8 @@ export default function PracticeList({
           category={category}
         />
       )}
+
+      <OnboardingTrigger pageKey="categoryList" />
     </div>
   )
 }

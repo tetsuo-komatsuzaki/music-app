@@ -1,0 +1,234 @@
+/* z-index 2000 (CoachMark 1900 より上、HelpModal 2100 より下) */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 2000;
+}
+
+.dialog {
+  background: #fff;
+  border-radius: 16px;
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  max-height: calc(100vh - 32px);
+  overflow: hidden;
+}
+
+.body {
+  padding: 28px 24px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.headline {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.bodyText {
+  font-size: 15px;
+  color: #444;
+  line-height: 1.7;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.visualHint {
+  background: #f7f9fc;
+  border: 1px dashed #d0d8e0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+  font-style: italic;
+}
+
+/* スライド 4 のマーカー凡例表 */
+.legendTable {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.legendRow {
+  display: grid;
+  grid-template-columns: 32px 80px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: #f7f9fc;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.legendColor {
+  font-size: 18px;
+  text-align: center;
+}
+
+.legendName {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.legendMeaning {
+  color: #555;
+}
+
+/* プログレスドット */
+.progress {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.progressDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d0d8e0;
+  transition: 0.2s;
+}
+
+.progressDotActive {
+  background: #4a7fa3;
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* フッター (ナビゲーションボタン) */
+.footer {
+  padding: 16px 24px 20px 24px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.footerLeft {
+  display: flex;
+  gap: 4px;
+}
+
+.footerRight {
+  display: flex;
+  gap: 8px;
+}
+
+.skipButton {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px 12px;
+}
+
+.skipButton:hover {
+  color: #444;
+}
+
+.navButton {
+  background: transparent;
+  border: 1px solid #d0d8e0;
+  color: #444;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.navButton:hover:not(:disabled) {
+  background: #f7f9fc;
+}
+
+.navButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.primaryButton {
+  background: #4a7fa3;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: #3d6a8a;
+}
+
+/* スライド 5 の dual CTA */
+.dualCta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 24px 20px 24px;
+}
+
+.dualCtaPrimary {
+  background: #4a7fa3;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.dualCtaPrimary:hover {
+  background: #3d6a8a;
+}
+
+.dualCtaSecondary {
+  background: #fff;
+  color: #4a7fa3;
+  border: 1px solid #4a7fa3;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.dualCtaSecondary:hover {
+  background: #f0f6fa;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progressDot,
+  .navButton,
+  .primaryButton,
+  .dualCtaPrimary,
+  .dualCtaSecondary {
+    transition: none;
+  }
+}

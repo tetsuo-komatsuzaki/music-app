@@ -6,6 +6,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { getUserRole } from "@/app/actions/getUserRole"
 import { createBrowserSupabaseClient } from "@/app/_libs/supabaseBrowser"
+import { useOnboarding } from "../_onboarding/hooks/useOnboarding"
 
 const BASE_NAV_ITEMS = [
   { path: "",         icon: "🏠", label: "ホーム" },
@@ -29,6 +30,7 @@ export default function Sidebar() {
   const userId = params.userId as string
   const [isAdmin, setIsAdmin] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const { openHelp } = useOnboarding()
 
   useEffect(() => {
     getUserRole().then(role => {
@@ -91,6 +93,18 @@ export default function Sidebar() {
           </nav>
 
           <div className={styles.bottomArea}>
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false)
+                openHelp()
+              }}
+              className={styles.helpEntryButton}
+              aria-label="使い方"
+            >
+              <span className={styles.navIcon}>📖</span>
+              <span>使い方</span>
+            </button>
             <button
               type="button"
               onClick={handleLogout}

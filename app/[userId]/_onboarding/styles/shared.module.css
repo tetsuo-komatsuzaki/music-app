@@ -1,0 +1,77 @@
+/* オンボーディング共通スタイル */
+
+/* WelcomeSlides / HelpModal の共通 backdrop */
+.fullscreenBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* モーダル汎用コンテナ (既存 DeleteAccountModal の .modalContent パターン踏襲) */
+.modalContainer {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-height: calc(100vh - 32px);
+}
+
+/* オンボーディングのプライマリボタン (既存 .primaryButton 系のトーン踏襲) */
+.primaryButton {
+  background: #4a7fa3;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: #3d6a8a;
+}
+
+.primaryButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* セカンダリボタン */
+.secondaryButton {
+  background: transparent;
+  color: #4a7fa3;
+  border: 1px solid #4a7fa3;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.secondaryButton:hover {
+  background: #f0f6fa;
+}
+
+/* テキストボタン (スキップ等) */
+.textButton {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 8px 12px;
+}
+
+.textButton:hover {
+  color: #1a1a1a;
+}

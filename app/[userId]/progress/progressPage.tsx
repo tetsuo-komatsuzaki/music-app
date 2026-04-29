@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation"
 import { useState } from "react"
 import styles from "./progress.module.css"
+import OnboardingTrigger from "../_onboarding/OnboardingTrigger"
 
 // ─── 型 ──────────────────────────────────────────────────────
 type WeaknessItem = { label: string; severity: number }
@@ -117,7 +118,7 @@ export default function ProgressPage({
           </div>
 
           {/* カレンダー本体 (月ナビ + 達成レベル色) */}
-          <div className={styles.card}>
+          <div className={styles.card} data-onboarding="progress.calendar">
             <div className={styles.calendarHeader}>
               <button
                 type="button"
@@ -187,7 +188,7 @@ export default function ProgressPage({
           弱点タブ
       ═══════════════════════════════════════════════════════ */}
       {tab === "weakness" && (
-        <div className={styles.card}>
+        <div className={styles.card} data-onboarding="progress.weakness">
           <div className={styles.cardTitle}>エラー率（低いほど良い）</div>
           {weaknessData.length === 0 ? (
             <div style={{ color: "#999", fontSize: 13 }}>
@@ -253,6 +254,7 @@ export default function ProgressPage({
         </>
       )}
 
+      <OnboardingTrigger pageKey="progress" />
     </div>
   )
 }
