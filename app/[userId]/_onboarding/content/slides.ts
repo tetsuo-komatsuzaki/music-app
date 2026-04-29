@@ -37,7 +37,7 @@ export const SLIDES: Slide[] = [
     id: 1,
     visual: { type: "hero", emoji: "🎻" },
     headline: "ようこそ、Arcoda へ",
-    subhead: "弾いた音が、譜面の上で見える。",
+    subhead: "あなたの演奏が、譜面に色で映る。",
     body: "バイオリン練習が、もっと楽しく、もっと見える。",
     cta: { type: "next" },
   },
@@ -63,7 +63,7 @@ export const SLIDES: Slide[] = [
       ],
     },
     headline: "録音ボタンを押すだけ",
-    body: "演奏を終えると、自動で分析がはじまります。少し待つと、結果が譜面に映ります。",
+    body: "録音を終えると、自動で分析が始まります。少し待つと、譜面に結果が色で表示されます。",
     cta: { type: "next" },
   },
   {
