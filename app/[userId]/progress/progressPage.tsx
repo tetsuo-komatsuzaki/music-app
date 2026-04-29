@@ -61,9 +61,6 @@ export default function ProgressPage({
     setMonth(d.getMonth() + 1)
   }
 
-  // 未来の月へは行けない
-  const canGoNext = year < todayY || (year === todayY && month < todayM)
-
   function tabHref(key: string) {
     return `/${userId}/progress?tab=${key}`
   }
@@ -134,7 +131,6 @@ export default function ProgressPage({
               <button
                 type="button"
                 onClick={() => navigateMonth(1)}
-                disabled={!canGoNext}
                 className={styles.calendarNavBtn}
                 aria-label="次の月"
               >

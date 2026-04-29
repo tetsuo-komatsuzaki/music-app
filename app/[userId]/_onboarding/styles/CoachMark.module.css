@@ -5,7 +5,14 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
   z-index: 1900;
-  pointer-events: auto;
+  /*
+   * pointer-events: none で背景クリックをページに通す。
+   * これにより spotlight でハイライトされたボタン (例: カレンダーの月送り)
+   * が onboarding 中もクリック可能になる。
+   * tooltip 自体は z-index: 1902 で上に乗っているため、ボタンクリックは
+   * 引き続き有効。
+   */
+  pointer-events: none;
 }
 
 .spotlight {
