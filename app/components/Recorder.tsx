@@ -218,6 +218,16 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
   const userChangedBpmRef = useRef(false)
   const effectiveBpm = recordingBpm
 
+  // S-1: ログアウト時の警告用に録音中フラグをグローバルに公開
+  // Sidebar.handleLogout が参照する。Context 共有を避けた最小実装。
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    ;(window as { __arcodaIsRecording?: boolean }).__arcodaIsRecording = (status === "recording")
+    return () => {
+      ;(window as { __arcodaIsRecording?: boolean }).__arcodaIsRecording = false
+    }
+  }, [status])
+
   // bpm prop が後から届いたら (analysis ロード完了時など) recordingBpm を同期。
   // ただし、ユーザーが既にスライダーを触っていれば尊重する。
   useEffect(() => {
