@@ -3,15 +3,7 @@
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { prisma } from "@/app/_libs/prisma"
 import { Resend } from "resend"
-
-export const FEEDBACK_CATEGORIES = [
-  "機能改善要望",
-  "不具合報告",
-  "使い勝手",
-  "その他",
-] as const
-
-export type FeedbackCategory = typeof FEEDBACK_CATEGORIES[number]
+import { FEEDBACK_CATEGORIES, FeedbackCategory } from "./supportConstants"
 
 export async function submitFeedback(params: {
   rating: number

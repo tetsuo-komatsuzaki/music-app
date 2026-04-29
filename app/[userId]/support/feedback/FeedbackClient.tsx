@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { submitFeedback, FEEDBACK_CATEGORIES } from "@/app/actions/submitFeedback"
+import { submitFeedback } from "@/app/actions/submitFeedback"
+import { FEEDBACK_CATEGORIES } from "@/app/actions/supportConstants"
 import styles from "./Feedback.module.css"
 
 const MAX_MESSAGE_LENGTH = 1000

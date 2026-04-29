@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { submitInquiry, INQUIRY_CATEGORIES } from "@/app/actions/submitInquiry"
+import { submitInquiry } from "@/app/actions/submitInquiry"
+import { INQUIRY_CATEGORIES } from "@/app/actions/supportConstants"
 import styles from "./Inquiry.module.css"
 
 const MAX_SUBJECT_LENGTH = 100

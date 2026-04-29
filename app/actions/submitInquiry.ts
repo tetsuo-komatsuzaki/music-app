@@ -3,16 +3,7 @@
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { prisma } from "@/app/_libs/prisma"
 import { Resend } from "resend"
-
-export const INQUIRY_CATEGORIES = [
-  "アカウントについて",
-  "機能・使い方について",
-  "不具合報告",
-  "料金・支払いについて",
-  "その他",
-] as const
-
-export type InquiryCategory = typeof INQUIRY_CATEGORIES[number]
+import { INQUIRY_CATEGORIES, InquiryCategory } from "./supportConstants"
 
 const sanitizeHeader = (s: string) => s.replace(/[\r\n]/g, "")
 
