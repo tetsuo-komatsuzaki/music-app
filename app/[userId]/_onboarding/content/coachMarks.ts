@@ -99,6 +99,14 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         showDismissAllCheckbox: false,
       },
       {
+        id: "scoreDetail.history",
+        targetKey: "scoreDetail.performanceHistory",
+        headline: "演奏履歴を確認",
+        body: "演奏履歴はここに保存されます。タップすると、その時の分析したフィードバック内容が譜面の上に色で表示されます。",
+        trigger: "page",
+        showDismissAllCheckbox: false,
+      },
+      {
         id: "scoreDetail.markers",
         targetKey: "scoreDetail.scoreOverlay",
         headline: "色で答え合わせ",

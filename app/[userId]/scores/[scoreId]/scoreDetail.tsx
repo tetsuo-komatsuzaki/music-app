@@ -1617,13 +1617,15 @@ export default function ScoreDetail({
             <EvaluationSummaryCard performance={selected} warnings={warnings} />
           )}
 
-          <PerformanceHistory
-            performances={performances}
-            selectedId={selected?.id ?? null}
-            onSelect={handleSelectPerformance}
-            loading={perfLoading}
-            performanceCount={performanceCount}
-          />
+          <div data-onboarding="scoreDetail.performanceHistory">
+            <PerformanceHistory
+              performances={performances}
+              selectedId={selected?.id ?? null}
+              onSelect={handleSelectPerformance}
+              loading={perfLoading}
+              performanceCount={performanceCount}
+            />
+          </div>
         </div>
 
         <div className={styles.rightColumn}>
