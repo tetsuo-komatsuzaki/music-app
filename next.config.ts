@@ -1,6 +1,13 @@
 import type { NextConfig } from "next";
+import packageJson from "./package.json";
 
 const nextConfig: NextConfig = {
+  // S-1 Commit 8: package.json の version を build-time に注入
+  // (runtime import は禁止: クライアントバンドルに依存ツリー全体が混入するリスクあり)
+  env: {
+    NEXT_PUBLIC_APP_VERSION: packageJson.version,
+  },
+
   // workspace root を明示固定（OneDrive 配下等で親ディレクトリに別 lockfile が
   // ある場合、Next.js が workspace root を誤推定してファイル tracing パスが
   // 壊れる問題を回避）。process.cwd() は next CLI 起動時のプロジェクトルート。
