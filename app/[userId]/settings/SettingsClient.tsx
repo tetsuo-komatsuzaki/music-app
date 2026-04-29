@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { updateUserName } from "@/app/actions/updateUserName"
+import { updateAiTrainingOptIn } from "@/app/actions/updateAiTrainingOptIn"
 import styles from "./Settings.module.css"
 
 interface Props {
@@ -23,6 +24,27 @@ export default function SettingsClient({
   const [savedName, setSavedName] = useState(initialName)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [isPending, startTransition] = useTransition()
+
+  const [aiOptIn, setAiOptIn] = useState(aiTrainingOptIn)
+  const [aiMessage, setAiMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [isAiPending, startAiTransition] = useTransition()
+
+  const handleToggleAi = (newValue: boolean) => {
+    setAiMessage(null)
+    setAiOptIn(newValue)  // optimistic UI
+    startAiTransition(async () => {
+      const result = await updateAiTrainingOptIn({ enabled: newValue })
+      if (result.success) {
+        setAiMessage({
+          type: "success",
+          text: newValue ? "AI 学習への利用をオンにしました" : "AI 学習への利用をオフにしました",
+        })
+      } else {
+        setAiOptIn(!newValue)  // ロールバック
+        setAiMessage({ type: "error", text: result.error ?? "更新に失敗しました" })
+      }
+    })
+  }
 
   const isDirty = name.trim() !== savedName && name.trim().length > 0
   const isTooLong = name.length > 30
@@ -100,7 +122,7 @@ export default function SettingsClient({
         )}
       </section>
 
-      {/* プライバシー (Commit 4 で機能化) */}
+      {/* プライバシー */}
       <section className={styles.card}>
         <h2 className={styles.sectionTitle}>プライバシー</h2>
         <div className={styles.toggleRow}>
@@ -108,18 +130,29 @@ export default function SettingsClient({
             <p className={styles.toggleLabel}>AI 学習への利用</p>
             <p className={styles.toggleHint}>
               録音データを Arcoda の演奏解析エンジンの精度向上に利用します。
-              この設定をオンにした以降の新規録音のみが対象です。
+              <strong>この設定をオンにした以降の新規録音のみ</strong>が対象で、
+              過去のデータは含まれません。匿名化した上で運営内のみで使用し、
+              外部提供は行いません。いつでも OFF にできます。
             </p>
           </div>
           <input
             type="checkbox"
-            checked={aiTrainingOptIn}
-            disabled
+            checked={aiOptIn}
+            onChange={(e) => handleToggleAi(e.target.checked)}
+            disabled={isAiPending}
             className={styles.toggle}
             aria-label="AI 学習への利用"
           />
         </div>
-        <p className={styles.fieldHint}>(近日公開)</p>
+        {aiMessage && (
+          <p
+            className={
+              aiMessage.type === "success" ? styles.messageSuccess : styles.messageError
+            }
+          >
+            {aiMessage.text}
+          </p>
+        )}
       </section>
 
       {/* アカウント管理 (Commit 7 で機能化) */}
