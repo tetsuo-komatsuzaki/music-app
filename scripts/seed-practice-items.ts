@@ -26,6 +26,16 @@ const MXL_URLS_JSON = path.join(__dirname, "..", "prisma", "data", "mxl_urls.jso
 //     scale_A_minor_harmonic_2oct_slur4_high.mxl
 //     scale_C_chromatic_chromatic_3oct_legato_full.mxl
 // =========================================================
+// 英字 tonic を日本語音名に変換
+const TONIC_JA: Record<string, string> = {
+  "C":  "ハ",     "C#": "嬰ハ",   "Db": "変ニ",
+  "D":  "ニ",     "D#": "嬰ニ",   "Eb": "変ホ",
+  "E":  "ホ",     "F":  "ヘ",     "F#": "嬰ヘ",
+  "Gb": "変ト",   "G":  "ト",     "G#": "嬰ト",
+  "Ab": "変イ",   "A":  "イ",     "A#": "嬰イ",
+  "Bb": "変ロ",   "B":  "ロ",     "Cb": "変ハ",
+}
+
 function parseFilename(filename: string): {
   tonic: string
   keyMode: string
@@ -43,6 +53,9 @@ function parseFilename(filename: string): {
 
   const [, tonic, mode, variant, octPart, bow, register] = parts
 
+  // detache 限定: それ以外の articulation は seed しない
+  if (bow !== "detache") return null
+
   const octMatch = octPart?.match(/^(\d+)oct$/)
   if (!octMatch) return null
   const octaves = parseInt(octMatch[1])
@@ -55,8 +68,8 @@ function parseFilename(filename: string): {
   } else if (mode === "minor") {
     keyMode = "minor"
     modeLabel =
-      variant === "harmonic" ? "和声的短調" :
-      variant === "melodic"  ? "旋律的短調" : "自然短調"
+      variant === "harmonic" ? "和声的短音階" :
+      variant === "melodic"  ? "旋律的短音階" : "自然短音階"
   } else if (mode === "chromatic") {
     keyMode = "chromatic"
     modeLabel = "半音階"
@@ -64,19 +77,18 @@ function parseFilename(filename: string): {
     return null
   }
 
-  const bowLabels: Record<string, string> = {
-    detache: "デタシェ", staccato: "スタッカート",
-    slur2: "スラー2", slur4: "スラー4", slur8: "スラー8", legato: "レガート",
-  }
   const registerLabels: Record<string, string> = { low: "低", high: "高", full: "全" }
-
-  const bowLabel = bowLabels[bow] || bow
   const registerJa = registerLabels[register] || ""
 
+  // tonic を日本語音名に変換 (例: F# → 嬰ヘ、Bb → 変ロ)
+  const tonicJa = TONIC_JA[tonic] || tonic
+
+  // 日本語タイトル組み立て
+  // 例: 「ハ長調 2オクターブ 低音域」「嬰ヘ和声的短音階 3オクターブ 全音域」「嬰ヘ 半音階 2オクターブ 低音域」
   const title =
     mode === "chromatic"
-      ? `${tonic} 半音階 ${octaves}オクターブ ${bowLabel} (${registerJa}音域)`
-      : `${tonic} ${modeLabel} ${octaves}オクターブ ${bowLabel} (${registerJa}音域)`
+      ? `${tonicJa} 半音階 ${octaves}オクターブ ${registerJa}音域`
+      : `${tonicJa}${modeLabel} ${octaves}オクターブ ${registerJa}音域`
 
   // 難易度: オクターブ数ベース + 短調/半音階 +1 + 高音域/全音域 +1
   let difficulty = octaves

@@ -254,11 +254,16 @@ def generate_musicxml(notes, tempo, bow_ja, title, pitch_map, fifths=0):
             # スラー
             if slur_group_size > 0:
                 notations_parts = []
-                if slur_counter == 0:
-                    notations_parts.append('<slur type="start" number="1"/>')
-                if slur_counter == slur_group_size - 1 or global_note_idx == total_notes - 1:
-                    notations_parts.append('<slur type="stop" number="1"/>')
-                    slur_counter = -1  # will be incremented to 0 below
+                is_last_note = (global_note_idx == total_notes - 1)
+                # 最終音符が新グループ先頭になる場合はスラー無効化 (孤立 1 音 → start/stop 重複防止)
+                if is_last_note and slur_counter == 0:
+                    pass
+                else:
+                    if slur_counter == 0:
+                        notations_parts.append('<slur type="start" number="1"/>')
+                    if slur_counter == slur_group_size - 1 or is_last_note:
+                        notations_parts.append('<slur type="stop" number="1"/>')
+                        slur_counter = -1  # will be incremented to 0 below
                 if notations_parts:
                     lines.append('        <notations>' + ''.join(notations_parts) + '</notations>')
                 slur_counter += 1

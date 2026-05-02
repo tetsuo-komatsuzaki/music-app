@@ -1,5 +1,6 @@
 import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
+import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import ScoreDetail from "./scoreDetail"
 import AutoRefresh from "@/app/components/AutoRefresh"
 import { uploadRecord } from "@/app/actions/uploadRecord"
@@ -81,7 +82,7 @@ export default async function Page({
       ? storageAdmin.storage
           .from("musicxml")
           .createSignedUrl(score.generatedXmlPath, 300)
-          .then(r => r.data?.signedUrl ?? null)
+          .then(r => encodeSignedUrl(r.data?.signedUrl))
       : Promise.resolve(null),
 
     // analysis（signedUrl + fetch を1チェーンで）
@@ -93,7 +94,10 @@ export default async function Page({
       ? storageAdmin.storage
           .from("musicxml")
           .createSignedUrl(`${score.createdById}/${score.id}/analysis.json`, 60)
-          .then(r => r.data?.signedUrl ? fetch(r.data.signedUrl) : null)
+          .then(r => {
+            const u = encodeSignedUrl(r.data?.signedUrl)
+            return u ? fetch(u) : null
+          })
           .then(res => res?.ok ? res.json() : null)
           .catch(() => null)
       : Promise.resolve(null),

@@ -1,6 +1,7 @@
 import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
+import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import ScoreDetail from "@/app/[userId]/scores/[scoreId]/scoreDetail"
 import { uploadPracticeRecord } from "@/app/actions/uploadPracticeRecord"
 import styles from "../../practice.module.css"
@@ -91,7 +92,7 @@ export default async function PracticeDetailPage({
           const { data } = await storageAdmin.storage
             .from("musicxml")
             .createSignedUrl(item.generatedXmlPath, 300)
-          return data?.signedUrl ?? null
+          return encodeSignedUrl(data?.signedUrl)
         }
         return null
       })(),
@@ -103,8 +104,9 @@ export default async function PracticeDetailPage({
           const { data } = await storageAdmin.storage
             .from("musicxml")
             .createSignedUrl(item.analysisPath, 60)
-          if (data?.signedUrl) {
-            const res = await fetch(data.signedUrl)
+          const url = encodeSignedUrl(data?.signedUrl)
+          if (url) {
+            const res = await fetch(url)
             if (res.ok) return res.json()
           }
         }

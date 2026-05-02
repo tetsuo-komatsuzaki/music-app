@@ -344,13 +344,19 @@ def generate_musicxml(notes, tempo, bow, title, pitch_map=None, fifths=0):
             # Slur handling
             if slur_group_size > 0:
                 notations_content = []
-                if slur_counter == 0:
-                    notations_content.append('<slur type="start" number="1"/>')
-                    in_slur = True
-                if slur_counter == slur_group_size - 1 or global_note_idx == total_notes - 1:
-                    notations_content.append('<slur type="stop" number="1"/>')
-                    in_slur = False
-                    slur_counter = -1  # will be incremented to 0
+                is_last_note = (global_note_idx == total_notes - 1)
+                # 最終音符が新グループ先頭になる場合はスラーを emit しない (孤立 1 音にスラー無効)
+                # これがないと start と stop が同一音符に書かれて OSMD が parse 失敗する
+                if is_last_note and slur_counter == 0:
+                    pass  # 孤立した最終 1 音にはスラーを付けない
+                else:
+                    if slur_counter == 0:
+                        notations_content.append('<slur type="start" number="1"/>')
+                        in_slur = True
+                    if slur_counter == slur_group_size - 1 or is_last_note:
+                        notations_content.append('<slur type="stop" number="1"/>')
+                        in_slur = False
+                        slur_counter = -1  # will be incremented to 0
 
                 if notations_content:
                     if bow == "スタッカート":
@@ -440,18 +446,23 @@ def main():
         ("F",  65), ("F#", 66),
     ]
 
-    # 高音域: 2オクターブ (G4〜E5 = MIDI 67〜76 開始)
-    # バイオリン音域の上半分をカバー (top = 67+24=91 〜 76+24=100)
+    # 高音域: 2オクターブ (G4〜F#5 = MIDI 67〜78 開始)
+    # 通常バイオリン音域の上半分をカバー
+    # 注: F (77→top=101=F7) と F# (78→top=102=F#7) は標準音域 E7 を超えるが
+    # 「全 12 調を網羅したい」という UX 要件で含める。上級者向け扱い。
     HIGH_2OCT = [
         ("G",  67), ("Ab", 68), ("A",  69), ("Bb", 70), ("B",  71),
         ("C",  72), ("Db", 73), ("D",  74), ("Eb", 75), ("E",  76),
+        ("F",  77), ("F#", 78),
     ]
 
-    # 全音域: 3オクターブ (G3〜E4 = MIDI 55〜64 開始)
-    # top = 55+36=91 〜 64+36=100 → G3-G6 から E4-E7 まで
+    # 全音域: 3オクターブ (G3〜F#4 = MIDI 55〜66 開始)
+    # 注: F (65→top=101) と F# (66→top=102) は E7 を超えるが、
+    # 12 調網羅のため含める (上級者向け扱い)。
     FULL_3OCT = [
         ("G",  55), ("Ab", 56), ("A",  57), ("Bb", 58), ("B",  59),
         ("C",  60), ("Db", 61), ("D",  62), ("Eb", 63), ("E",  64),
+        ("F",  65), ("F#", 66),
     ]
 
     # 全エントリ: (tonic, octaves, start_midi, register)
