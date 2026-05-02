@@ -4,6 +4,8 @@ import { redirect } from "next/navigation"
 import AdminPractice from "../adminPractice"
 import { uploadPracticeItem } from "@/app/actions/uploadPracticeItem"
 
+export const metadata = { title: "練習メニュー管理" }
+
 export default async function AdminPracticePage({
   params,
 }: {

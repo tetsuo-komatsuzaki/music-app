@@ -2,7 +2,7 @@ import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import InquiryClient from "./InquiryClient"
 
-export const metadata = { title: "お問い合わせ | Arcoda" }
+export const metadata = { title: "お問い合わせ" }
 
 export default async function ContactPage({
   params,

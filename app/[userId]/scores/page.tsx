@@ -1,6 +1,8 @@
 import { prisma } from "@/app/_libs/prisma"
 import ScoresClient from "./ScoresClient"
 
+export const metadata = { title: "スコア一覧" }
+
 type PageProps = {
   params: Promise<{ userId: string }>
 }

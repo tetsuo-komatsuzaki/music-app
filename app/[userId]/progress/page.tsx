@@ -1,6 +1,8 @@
 import { prisma } from "@/app/_libs/prisma"
 import ProgressPage from "./progressPage"
 
+export const metadata = { title: "練習記録" }
+
 type PageProps = {
   params:       Promise<{ userId: string }>
   searchParams: Promise<{ tab?: string }>

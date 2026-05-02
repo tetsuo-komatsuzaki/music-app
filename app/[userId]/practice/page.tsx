@@ -3,6 +3,8 @@ import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { formatKey } from "@/app/_libs/musicNotation"
 import PracticeTop from "./practiceTop"
 
+export const metadata = { title: "練習メニュー" }
+
 export default async function PracticePage({
   params,
 }: {

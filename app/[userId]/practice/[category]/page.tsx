@@ -10,6 +10,15 @@ const categoryTitles: Record<string, string> = {
   etude: "エチュード", etudes: "エチュード",
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string }>
+}) {
+  const { category } = await params
+  return { title: categoryTitles[category] ?? "練習" }
+}
+
 const normalizeCat = (c: string): "scale" | "arpeggio" | "etude" => {
   if (c === "scales") return "scale"
   if (c === "arpeggios") return "arpeggio"

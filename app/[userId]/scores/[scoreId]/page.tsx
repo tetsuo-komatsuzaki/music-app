@@ -5,6 +5,19 @@ import ScoreDetail from "./scoreDetail"
 import AutoRefresh from "@/app/components/AutoRefresh"
 import { uploadRecord } from "@/app/actions/uploadRecord"
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ scoreId: string }>
+}) {
+  const { scoreId } = await params
+  const score = await prisma.score.findFirst({
+    where: { id: scoreId, deletedAt: null },
+    select: { title: true },
+  })
+  return { title: score?.title ?? "楽曲" }
+}
+
 export default async function Page({
   params
 }: {

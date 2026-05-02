@@ -2,7 +2,7 @@ import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { APP_CONFIG } from "@/app/_libs/appConfig"
 import styles from "./Help.module.css"
 
-export const metadata = { title: "ヘルプ・FAQ | Arcoda" }
+export const metadata = { title: "ヘルプ・FAQ" }
 
 const MAX_UPLOAD_MB = APP_CONFIG.upload.maxMusicXmlBytes / (1024 * 1024)
 const ALLOWED_EXT = APP_CONFIG.upload.allowedExtensions.join(" / ")

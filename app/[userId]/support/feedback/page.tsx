@@ -2,7 +2,7 @@ import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import FeedbackClient from "./FeedbackClient"
 
-export const metadata = { title: "フィードバック | Arcoda" }
+export const metadata = { title: "フィードバックを送る" }
 
 export default async function FeedbackPage({
   params,

@@ -4,6 +4,8 @@ import { prisma } from "@/app/_libs/prisma"
 import { redirect } from "next/navigation"
 import SettingsClient from "./SettingsClient"
 
+export const metadata = { title: "設定" }
+
 export default async function SettingsPage({
   params,
 }: {

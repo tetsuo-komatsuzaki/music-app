@@ -4,6 +4,8 @@ import styles from "./Support.module.css"
 
 const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0"
 
+export const metadata = { title: "サポート" }
+
 export default async function SupportPage({
   params,
 }: {

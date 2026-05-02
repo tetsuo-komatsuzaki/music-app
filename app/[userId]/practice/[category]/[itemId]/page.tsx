@@ -7,6 +7,19 @@ import ScoreDetail from "@/app/[userId]/scores/[scoreId]/scoreDetail"
 import { uploadPracticeRecord } from "@/app/actions/uploadPracticeRecord"
 import styles from "../../practice.module.css"
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ itemId: string }>
+}) {
+  const { itemId } = await params
+  const item = await prisma.practiceItem.findUnique({
+    where: { id: itemId },
+    select: { title: true },
+  })
+  return { title: item?.title ?? "練習アイテム" }
+}
+
 export default async function PracticeDetailPage({
   params,
 }: {

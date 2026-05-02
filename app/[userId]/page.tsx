@@ -3,6 +3,8 @@ import { generateArcoMessage } from "@/app/_libs/arcoChan"
 import { formatKey } from "@/app/_libs/musicNotation"
 import HomeClient from "./home"
 
+export const metadata = { title: "ホーム" }
+
 type PageProps = {
   params: Promise<{ userId: string }>
 }
