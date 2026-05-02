@@ -33,3 +33,28 @@ export function formatKey(tonic: string | null | undefined, mode: string | null 
   if (!m) return t
   return `${t} ${m}`
 }
+
+/** 短調 variant ラベル */
+const VARIANT_JA: Record<string, string> = {
+  harmonic: "和声",
+  melodic: "旋律",
+  natural: "自然",
+}
+
+/**
+ * formatKey に variant 情報を含めて表記する。
+ *   Bb minor + harmonic → "Bb 短調(和声)"
+ *   C  major  + null    → "C 長調"
+ *   F# minor + null     → "F# 短調"  (variant 不明時はベースのみ)
+ */
+export function formatKeyWithVariant(
+  tonic: string | null | undefined,
+  mode: string | null | undefined,
+  variant: string | null | undefined,
+): string {
+  const base = formatKey(tonic, mode)
+  if (mode === "minor" && variant && VARIANT_JA[variant]) {
+    return `${base}(${VARIANT_JA[variant]})`
+  }
+  return base
+}

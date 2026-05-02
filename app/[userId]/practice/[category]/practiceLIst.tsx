@@ -16,11 +16,26 @@ type PracticeItemDTO = {
   category: string
   keyTonic: string
   keyMode: string
+  modeVariant?: string | null
   positions: string[]
   techniques: string[]
   descriptionShort: string | null
   lastPracticed: string | null
   totalPractices: number
+}
+
+const VARIANT_LABEL: Record<string, string> = {
+  harmonic: "和声",
+  melodic: "旋律",
+  natural: "自然",
+}
+
+function modeLabelWithVariant(item: { keyMode: string; modeVariant?: string | null }): string {
+  const base = modeLabels[item.keyMode] || item.keyMode || "その他"
+  if (item.keyMode === "minor" && item.modeVariant && VARIANT_LABEL[item.modeVariant]) {
+    return `${base}(${VARIANT_LABEL[item.modeVariant]})`
+  }
+  return base
 }
 
 type Props = {
@@ -298,7 +313,7 @@ function GroupView({
     if (category === "scale" || category === "scales") {
       const byMode = new Map<string, PracticeItemDTO[]>()
       for (const item of activeGroup.items) {
-        const m = modeLabels[item.keyMode] || item.keyMode || "その他"
+        const m = modeLabelWithVariant(item)
         if (!byMode.has(m)) byMode.set(m, [])
         byMode.get(m)!.push(item)
       }

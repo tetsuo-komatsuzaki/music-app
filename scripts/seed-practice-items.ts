@@ -29,6 +29,7 @@ const MXL_URLS_JSON = path.join(__dirname, "..", "prisma", "data", "mxl_urls.jso
 function parseFilename(filename: string): {
   tonic: string
   keyMode: string
+  modeVariant: "harmonic" | "melodic" | "natural" | null
   octaves: number
   bow: string
   register: string
@@ -51,18 +52,16 @@ function parseFilename(filename: string): {
   const octaves = parseInt(octMatch[1])
 
   let keyMode: string
-  let modeLabel: string
+  let modeVariant: "harmonic" | "melodic" | "natural" | null = null
   if (mode === "major") {
     keyMode = "major"
-    modeLabel = "長調"
   } else if (mode === "minor") {
     keyMode = "minor"
-    modeLabel =
-      variant === "harmonic" ? "和声的短音階" :
-      variant === "melodic"  ? "旋律的短音階" : "自然短音階"
+    modeVariant =
+      variant === "harmonic" ? "harmonic" :
+      variant === "melodic"  ? "melodic"  : "natural"
   } else if (mode === "chromatic") {
     keyMode = "chromatic"
-    modeLabel = "半音階"
   } else {
     return null
   }
@@ -70,16 +69,17 @@ function parseFilename(filename: string): {
   const registerLabels: Record<string, string> = { low: "低", high: "高", full: "全" }
   const registerJa = registerLabels[register] || ""
 
-  // タイトル組み立て: tonic は英字 (F#, Bb 等) のまま、mode は日本語ラベルに
-  // 例: 「C 長調 2オクターブ 低音域」「F# 和声的短音階 3オクターブ 全音域」「F# 半音階 2オクターブ 低音域」
-  const title = `${tonic} ${modeLabel} ${octaves}オクターブ ${registerJa}音域`
+  // タイトル: `${tonic}(${octaves}オクターブ・${register})` 形式に統一
+  // mode/variant 情報は keyMode + metadata.modeVariant に保持
+  // 例: "C(2オクターブ・低)" "F#(3オクターブ・全)" "Bb(2オクターブ・高)"
+  const title = `${tonic}(${octaves}オクターブ・${registerJa})`
 
   // 難易度: オクターブ数ベース + 短調/半音階 +1 + 高音域/全音域 +1
   let difficulty = octaves
   if (mode === "minor" || mode === "chromatic") difficulty = Math.min(difficulty + 1, 5)
   if (register === "high" || register === "full") difficulty = Math.min(difficulty + 1, 5)
 
-  return { tonic, keyMode, octaves, bow, register, title, difficulty }
+  return { tonic, keyMode, modeVariant, octaves, bow, register, title, difficulty }
 }
 
 async function main() {
@@ -159,6 +159,7 @@ async function main() {
         title: meta.title,
         keyTonic: meta.tonic,
         keyMode: meta.keyMode,
+        metadata: meta.modeVariant ? { modeVariant: meta.modeVariant } : undefined,
         originalXmlPath: storagePath,
         generatedXmlPath: storagePath,
         buildStatus: "done",

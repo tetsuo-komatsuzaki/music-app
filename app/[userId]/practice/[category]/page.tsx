@@ -110,6 +110,12 @@ export default async function CategoryPage({
 
   const itemsWithHistory = items.map((item) => {
     const perf = perfByItem.get(item.id)
+    const meta =
+      typeof item.metadata === "object" && item.metadata !== null && !Array.isArray(item.metadata)
+        ? (item.metadata as Record<string, unknown>)
+        : {}
+    const modeVariant =
+      typeof meta.modeVariant === "string" ? (meta.modeVariant as string) : null
     return {
       id: item.id,
       title: item.title,
@@ -117,6 +123,7 @@ export default async function CategoryPage({
       category: item.category,
       keyTonic: item.keyTonic,
       keyMode: item.keyMode,
+      modeVariant,
       positions: item.positions,
       techniques: item.techniques.map((t) => t.techniqueTag.name),
       descriptionShort: item.descriptionShort,
