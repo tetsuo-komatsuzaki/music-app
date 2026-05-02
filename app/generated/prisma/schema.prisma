@@ -77,6 +77,7 @@ model Performance {
   performanceStatus    PerformanceStatus @default(uploaded)
   userId               String
   scoreId              String
+  name                 String? // 表示名 (例: "Performance #3")。null = 旧データ
   audioPath            String
   audioFeaturesPath    String?
   comparisonResultPath String?
@@ -210,6 +211,7 @@ model PracticePerformance {
   id                   String   @id @default(cuid())
   userId               String
   practiceItemId       String
+  name                 String? // 表示名 (例: "Performance #3")。null = 旧データ
   audioPath            String
   comparisonResultPath String?
   performanceDuration  Float?

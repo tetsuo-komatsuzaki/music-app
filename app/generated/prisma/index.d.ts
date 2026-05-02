@@ -4641,6 +4641,7 @@ export namespace Prisma {
     performanceStatus: $Enums.PerformanceStatus | null
     userId: string | null
     scoreId: string | null
+    name: string | null
     audioPath: string | null
     audioFeaturesPath: string | null
     comparisonResultPath: string | null
@@ -4667,6 +4668,7 @@ export namespace Prisma {
     performanceStatus: $Enums.PerformanceStatus | null
     userId: string | null
     scoreId: string | null
+    name: string | null
     audioPath: string | null
     audioFeaturesPath: string | null
     comparisonResultPath: string | null
@@ -4693,6 +4695,7 @@ export namespace Prisma {
     performanceStatus: number
     userId: number
     scoreId: number
+    name: number
     audioPath: number
     audioFeaturesPath: number
     comparisonResultPath: number
@@ -4740,6 +4743,7 @@ export namespace Prisma {
     performanceStatus?: true
     userId?: true
     scoreId?: true
+    name?: true
     audioPath?: true
     audioFeaturesPath?: true
     comparisonResultPath?: true
@@ -4766,6 +4770,7 @@ export namespace Prisma {
     performanceStatus?: true
     userId?: true
     scoreId?: true
+    name?: true
     audioPath?: true
     audioFeaturesPath?: true
     comparisonResultPath?: true
@@ -4792,6 +4797,7 @@ export namespace Prisma {
     performanceStatus?: true
     userId?: true
     scoreId?: true
+    name?: true
     audioPath?: true
     audioFeaturesPath?: true
     comparisonResultPath?: true
@@ -4906,6 +4912,7 @@ export namespace Prisma {
     performanceStatus: $Enums.PerformanceStatus
     userId: string
     scoreId: string
+    name: string | null
     audioPath: string
     audioFeaturesPath: string | null
     comparisonResultPath: string | null
@@ -4952,6 +4959,7 @@ export namespace Prisma {
     performanceStatus?: boolean
     userId?: boolean
     scoreId?: boolean
+    name?: boolean
     audioPath?: boolean
     audioFeaturesPath?: boolean
     comparisonResultPath?: boolean
@@ -4981,6 +4989,7 @@ export namespace Prisma {
     performanceStatus?: boolean
     userId?: boolean
     scoreId?: boolean
+    name?: boolean
     audioPath?: boolean
     audioFeaturesPath?: boolean
     comparisonResultPath?: boolean
@@ -5010,6 +5019,7 @@ export namespace Prisma {
     performanceStatus?: boolean
     userId?: boolean
     scoreId?: boolean
+    name?: boolean
     audioPath?: boolean
     audioFeaturesPath?: boolean
     comparisonResultPath?: boolean
@@ -5039,6 +5049,7 @@ export namespace Prisma {
     performanceStatus?: boolean
     userId?: boolean
     scoreId?: boolean
+    name?: boolean
     audioPath?: boolean
     audioFeaturesPath?: boolean
     comparisonResultPath?: boolean
@@ -5060,7 +5071,7 @@ export namespace Prisma {
     idempotencyKey?: boolean
   }
 
-  export type PerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "performanceType" | "performanceStatus" | "userId" | "scoreId" | "audioPath" | "audioFeaturesPath" | "comparisonResultPath" | "pseudoXmlPath" | "performanceDuration" | "performanceDate" | "uploadedAt" | "createdAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary" | "analysisStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey", ExtArgs["result"]["performance"]>
+  export type PerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "performanceType" | "performanceStatus" | "userId" | "scoreId" | "name" | "audioPath" | "audioFeaturesPath" | "comparisonResultPath" | "pseudoXmlPath" | "performanceDuration" | "performanceDate" | "uploadedAt" | "createdAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary" | "analysisStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey", ExtArgs["result"]["performance"]>
   export type PerformanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     score?: boolean | ScoreDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -5086,6 +5097,7 @@ export namespace Prisma {
       performanceStatus: $Enums.PerformanceStatus
       userId: string
       scoreId: string
+      name: string | null
       audioPath: string
       audioFeaturesPath: string | null
       comparisonResultPath: string | null
@@ -5535,6 +5547,7 @@ export namespace Prisma {
     readonly performanceStatus: FieldRef<"Performance", 'PerformanceStatus'>
     readonly userId: FieldRef<"Performance", 'String'>
     readonly scoreId: FieldRef<"Performance", 'String'>
+    readonly name: FieldRef<"Performance", 'String'>
     readonly audioPath: FieldRef<"Performance", 'String'>
     readonly audioFeaturesPath: FieldRef<"Performance", 'String'>
     readonly comparisonResultPath: FieldRef<"Performance", 'String'>
@@ -9660,6 +9673,7 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     practiceItemId: string | null
+    name: string | null
     audioPath: string | null
     comparisonResultPath: string | null
     performanceDuration: number | null
@@ -9680,6 +9694,7 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     practiceItemId: string | null
+    name: string | null
     audioPath: string | null
     comparisonResultPath: string | null
     performanceDuration: number | null
@@ -9700,6 +9715,7 @@ export namespace Prisma {
     id: number
     userId: number
     practiceItemId: number
+    name: number
     audioPath: number
     comparisonResultPath: number
     performanceDuration: number
@@ -9741,6 +9757,7 @@ export namespace Prisma {
     id?: true
     userId?: true
     practiceItemId?: true
+    name?: true
     audioPath?: true
     comparisonResultPath?: true
     performanceDuration?: true
@@ -9761,6 +9778,7 @@ export namespace Prisma {
     id?: true
     userId?: true
     practiceItemId?: true
+    name?: true
     audioPath?: true
     comparisonResultPath?: true
     performanceDuration?: true
@@ -9781,6 +9799,7 @@ export namespace Prisma {
     id?: true
     userId?: true
     practiceItemId?: true
+    name?: true
     audioPath?: true
     comparisonResultPath?: true
     performanceDuration?: true
@@ -9889,6 +9908,7 @@ export namespace Prisma {
     id: string
     userId: string
     practiceItemId: string
+    name: string | null
     audioPath: string
     comparisonResultPath: string | null
     performanceDuration: number | null
@@ -9929,6 +9949,7 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     practiceItemId?: boolean
+    name?: boolean
     audioPath?: boolean
     comparisonResultPath?: boolean
     performanceDuration?: boolean
@@ -9952,6 +9973,7 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     practiceItemId?: boolean
+    name?: boolean
     audioPath?: boolean
     comparisonResultPath?: boolean
     performanceDuration?: boolean
@@ -9975,6 +9997,7 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     practiceItemId?: boolean
+    name?: boolean
     audioPath?: boolean
     comparisonResultPath?: boolean
     performanceDuration?: boolean
@@ -9998,6 +10021,7 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     practiceItemId?: boolean
+    name?: boolean
     audioPath?: boolean
     comparisonResultPath?: boolean
     performanceDuration?: boolean
@@ -10015,7 +10039,7 @@ export namespace Prisma {
     idempotencyKey?: boolean
   }
 
-  export type PracticePerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "practiceItemId" | "audioPath" | "comparisonResultPath" | "performanceDuration" | "uploadedAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary" | "analysisStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey", ExtArgs["result"]["practicePerformance"]>
+  export type PracticePerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "practiceItemId" | "name" | "audioPath" | "comparisonResultPath" | "performanceDuration" | "uploadedAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary" | "analysisStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey", ExtArgs["result"]["practicePerformance"]>
   export type PracticePerformanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
@@ -10039,6 +10063,7 @@ export namespace Prisma {
       id: string
       userId: string
       practiceItemId: string
+      name: string | null
       audioPath: string
       comparisonResultPath: string | null
       performanceDuration: number | null
@@ -10482,6 +10507,7 @@ export namespace Prisma {
     readonly id: FieldRef<"PracticePerformance", 'String'>
     readonly userId: FieldRef<"PracticePerformance", 'String'>
     readonly practiceItemId: FieldRef<"PracticePerformance", 'String'>
+    readonly name: FieldRef<"PracticePerformance", 'String'>
     readonly audioPath: FieldRef<"PracticePerformance", 'String'>
     readonly comparisonResultPath: FieldRef<"PracticePerformance", 'String'>
     readonly performanceDuration: FieldRef<"PracticePerformance", 'Float'>
@@ -14416,6 +14442,7 @@ export namespace Prisma {
     performanceStatus: 'performanceStatus',
     userId: 'userId',
     scoreId: 'scoreId',
+    name: 'name',
     audioPath: 'audioPath',
     audioFeaturesPath: 'audioFeaturesPath',
     comparisonResultPath: 'comparisonResultPath',
@@ -14502,6 +14529,7 @@ export namespace Prisma {
     id: 'id',
     userId: 'userId',
     practiceItemId: 'practiceItemId',
+    name: 'name',
     audioPath: 'audioPath',
     comparisonResultPath: 'comparisonResultPath',
     performanceDuration: 'performanceDuration',
@@ -15013,6 +15041,7 @@ export namespace Prisma {
     performanceStatus?: EnumPerformanceStatusFilter<"Performance"> | $Enums.PerformanceStatus
     userId?: StringFilter<"Performance"> | string
     scoreId?: StringFilter<"Performance"> | string
+    name?: StringNullableFilter<"Performance"> | string | null
     audioPath?: StringFilter<"Performance"> | string
     audioFeaturesPath?: StringNullableFilter<"Performance"> | string | null
     comparisonResultPath?: StringNullableFilter<"Performance"> | string | null
@@ -15042,6 +15071,7 @@ export namespace Prisma {
     performanceStatus?: SortOrder
     userId?: SortOrder
     scoreId?: SortOrder
+    name?: SortOrderInput | SortOrder
     audioPath?: SortOrder
     audioFeaturesPath?: SortOrderInput | SortOrder
     comparisonResultPath?: SortOrderInput | SortOrder
@@ -15075,6 +15105,7 @@ export namespace Prisma {
     performanceStatus?: EnumPerformanceStatusFilter<"Performance"> | $Enums.PerformanceStatus
     userId?: StringFilter<"Performance"> | string
     scoreId?: StringFilter<"Performance"> | string
+    name?: StringNullableFilter<"Performance"> | string | null
     audioPath?: StringFilter<"Performance"> | string
     audioFeaturesPath?: StringNullableFilter<"Performance"> | string | null
     comparisonResultPath?: StringNullableFilter<"Performance"> | string | null
@@ -15103,6 +15134,7 @@ export namespace Prisma {
     performanceStatus?: SortOrder
     userId?: SortOrder
     scoreId?: SortOrder
+    name?: SortOrderInput | SortOrder
     audioPath?: SortOrder
     audioFeaturesPath?: SortOrderInput | SortOrder
     comparisonResultPath?: SortOrderInput | SortOrder
@@ -15138,6 +15170,7 @@ export namespace Prisma {
     performanceStatus?: EnumPerformanceStatusWithAggregatesFilter<"Performance"> | $Enums.PerformanceStatus
     userId?: StringWithAggregatesFilter<"Performance"> | string
     scoreId?: StringWithAggregatesFilter<"Performance"> | string
+    name?: StringNullableWithAggregatesFilter<"Performance"> | string | null
     audioPath?: StringWithAggregatesFilter<"Performance"> | string
     audioFeaturesPath?: StringNullableWithAggregatesFilter<"Performance"> | string | null
     comparisonResultPath?: StringNullableWithAggregatesFilter<"Performance"> | string | null
@@ -15472,6 +15505,7 @@ export namespace Prisma {
     id?: StringFilter<"PracticePerformance"> | string
     userId?: StringFilter<"PracticePerformance"> | string
     practiceItemId?: StringFilter<"PracticePerformance"> | string
+    name?: StringNullableFilter<"PracticePerformance"> | string | null
     audioPath?: StringFilter<"PracticePerformance"> | string
     comparisonResultPath?: StringNullableFilter<"PracticePerformance"> | string | null
     performanceDuration?: FloatNullableFilter<"PracticePerformance"> | number | null
@@ -15495,6 +15529,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     practiceItemId?: SortOrder
+    name?: SortOrderInput | SortOrder
     audioPath?: SortOrder
     comparisonResultPath?: SortOrderInput | SortOrder
     performanceDuration?: SortOrderInput | SortOrder
@@ -15522,6 +15557,7 @@ export namespace Prisma {
     NOT?: PracticePerformanceWhereInput | PracticePerformanceWhereInput[]
     userId?: StringFilter<"PracticePerformance"> | string
     practiceItemId?: StringFilter<"PracticePerformance"> | string
+    name?: StringNullableFilter<"PracticePerformance"> | string | null
     audioPath?: StringFilter<"PracticePerformance"> | string
     comparisonResultPath?: StringNullableFilter<"PracticePerformance"> | string | null
     performanceDuration?: FloatNullableFilter<"PracticePerformance"> | number | null
@@ -15544,6 +15580,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     practiceItemId?: SortOrder
+    name?: SortOrderInput | SortOrder
     audioPath?: SortOrder
     comparisonResultPath?: SortOrderInput | SortOrder
     performanceDuration?: SortOrderInput | SortOrder
@@ -15573,6 +15610,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"PracticePerformance"> | string
     userId?: StringWithAggregatesFilter<"PracticePerformance"> | string
     practiceItemId?: StringWithAggregatesFilter<"PracticePerformance"> | string
+    name?: StringNullableWithAggregatesFilter<"PracticePerformance"> | string | null
     audioPath?: StringWithAggregatesFilter<"PracticePerformance"> | string
     comparisonResultPath?: StringNullableWithAggregatesFilter<"PracticePerformance"> | string | null
     performanceDuration?: FloatNullableWithAggregatesFilter<"PracticePerformance"> | number | null
@@ -16114,6 +16152,7 @@ export namespace Prisma {
     id?: string
     performanceType: $Enums.PerformanceType
     performanceStatus?: $Enums.PerformanceStatus
+    name?: string | null
     audioPath: string
     audioFeaturesPath?: string | null
     comparisonResultPath?: string | null
@@ -16143,6 +16182,7 @@ export namespace Prisma {
     performanceStatus?: $Enums.PerformanceStatus
     userId: string
     scoreId: string
+    name?: string | null
     audioPath: string
     audioFeaturesPath?: string | null
     comparisonResultPath?: string | null
@@ -16168,6 +16208,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     performanceType?: EnumPerformanceTypeFieldUpdateOperationsInput | $Enums.PerformanceType
     performanceStatus?: EnumPerformanceStatusFieldUpdateOperationsInput | $Enums.PerformanceStatus
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     audioFeaturesPath?: NullableStringFieldUpdateOperationsInput | string | null
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16197,6 +16238,7 @@ export namespace Prisma {
     performanceStatus?: EnumPerformanceStatusFieldUpdateOperationsInput | $Enums.PerformanceStatus
     userId?: StringFieldUpdateOperationsInput | string
     scoreId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     audioFeaturesPath?: NullableStringFieldUpdateOperationsInput | string | null
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16224,6 +16266,7 @@ export namespace Prisma {
     performanceStatus?: $Enums.PerformanceStatus
     userId: string
     scoreId: string
+    name?: string | null
     audioPath: string
     audioFeaturesPath?: string | null
     comparisonResultPath?: string | null
@@ -16249,6 +16292,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     performanceType?: EnumPerformanceTypeFieldUpdateOperationsInput | $Enums.PerformanceType
     performanceStatus?: EnumPerformanceStatusFieldUpdateOperationsInput | $Enums.PerformanceStatus
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     audioFeaturesPath?: NullableStringFieldUpdateOperationsInput | string | null
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16276,6 +16320,7 @@ export namespace Prisma {
     performanceStatus?: EnumPerformanceStatusFieldUpdateOperationsInput | $Enums.PerformanceStatus
     userId?: StringFieldUpdateOperationsInput | string
     scoreId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     audioFeaturesPath?: NullableStringFieldUpdateOperationsInput | string | null
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
@@ -16655,6 +16700,7 @@ export namespace Prisma {
 
   export type PracticePerformanceCreateInput = {
     id?: string
+    name?: string | null
     audioPath: string
     comparisonResultPath?: string | null
     performanceDuration?: number | null
@@ -16678,6 +16724,7 @@ export namespace Prisma {
     id?: string
     userId: string
     practiceItemId: string
+    name?: string | null
     audioPath: string
     comparisonResultPath?: string | null
     performanceDuration?: number | null
@@ -16697,6 +16744,7 @@ export namespace Prisma {
 
   export type PracticePerformanceUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -16720,6 +16768,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     practiceItemId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -16741,6 +16790,7 @@ export namespace Prisma {
     id?: string
     userId: string
     practiceItemId: string
+    name?: string | null
     audioPath: string
     comparisonResultPath?: string | null
     performanceDuration?: number | null
@@ -16760,6 +16810,7 @@ export namespace Prisma {
 
   export type PracticePerformanceUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -16781,6 +16832,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     practiceItemId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -17516,6 +17568,7 @@ export namespace Prisma {
     performanceStatus?: SortOrder
     userId?: SortOrder
     scoreId?: SortOrder
+    name?: SortOrder
     audioPath?: SortOrder
     audioFeaturesPath?: SortOrder
     comparisonResultPath?: SortOrder
@@ -17552,6 +17605,7 @@ export namespace Prisma {
     performanceStatus?: SortOrder
     userId?: SortOrder
     scoreId?: SortOrder
+    name?: SortOrder
     audioPath?: SortOrder
     audioFeaturesPath?: SortOrder
     comparisonResultPath?: SortOrder
@@ -17578,6 +17632,7 @@ export namespace Prisma {
     performanceStatus?: SortOrder
     userId?: SortOrder
     scoreId?: SortOrder
+    name?: SortOrder
     audioPath?: SortOrder
     audioFeaturesPath?: SortOrder
     comparisonResultPath?: SortOrder
@@ -17888,6 +17943,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     practiceItemId?: SortOrder
+    name?: SortOrder
     audioPath?: SortOrder
     comparisonResultPath?: SortOrder
     performanceDuration?: SortOrder
@@ -17918,6 +17974,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     practiceItemId?: SortOrder
+    name?: SortOrder
     audioPath?: SortOrder
     comparisonResultPath?: SortOrder
     performanceDuration?: SortOrder
@@ -17938,6 +17995,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     practiceItemId?: SortOrder
+    name?: SortOrder
     audioPath?: SortOrder
     comparisonResultPath?: SortOrder
     performanceDuration?: SortOrder
@@ -19236,6 +19294,7 @@ export namespace Prisma {
     id?: string
     performanceType: $Enums.PerformanceType
     performanceStatus?: $Enums.PerformanceStatus
+    name?: string | null
     audioPath: string
     audioFeaturesPath?: string | null
     comparisonResultPath?: string | null
@@ -19263,6 +19322,7 @@ export namespace Prisma {
     performanceType: $Enums.PerformanceType
     performanceStatus?: $Enums.PerformanceStatus
     scoreId: string
+    name?: string | null
     audioPath: string
     audioFeaturesPath?: string | null
     comparisonResultPath?: string | null
@@ -19432,6 +19492,7 @@ export namespace Prisma {
 
   export type PracticePerformanceCreateWithoutUserInput = {
     id?: string
+    name?: string | null
     audioPath: string
     comparisonResultPath?: string | null
     performanceDuration?: number | null
@@ -19453,6 +19514,7 @@ export namespace Prisma {
   export type PracticePerformanceUncheckedCreateWithoutUserInput = {
     id?: string
     practiceItemId: string
+    name?: string | null
     audioPath: string
     comparisonResultPath?: string | null
     performanceDuration?: number | null
@@ -19597,6 +19659,7 @@ export namespace Prisma {
     performanceStatus?: EnumPerformanceStatusFilter<"Performance"> | $Enums.PerformanceStatus
     userId?: StringFilter<"Performance"> | string
     scoreId?: StringFilter<"Performance"> | string
+    name?: StringNullableFilter<"Performance"> | string | null
     audioPath?: StringFilter<"Performance"> | string
     audioFeaturesPath?: StringNullableFilter<"Performance"> | string | null
     comparisonResultPath?: StringNullableFilter<"Performance"> | string | null
@@ -19736,6 +19799,7 @@ export namespace Prisma {
     id?: StringFilter<"PracticePerformance"> | string
     userId?: StringFilter<"PracticePerformance"> | string
     practiceItemId?: StringFilter<"PracticePerformance"> | string
+    name?: StringNullableFilter<"PracticePerformance"> | string | null
     audioPath?: StringFilter<"PracticePerformance"> | string
     comparisonResultPath?: StringNullableFilter<"PracticePerformance"> | string | null
     performanceDuration?: FloatNullableFilter<"PracticePerformance"> | number | null
@@ -19848,6 +19912,7 @@ export namespace Prisma {
     id?: string
     performanceType: $Enums.PerformanceType
     performanceStatus?: $Enums.PerformanceStatus
+    name?: string | null
     audioPath: string
     audioFeaturesPath?: string | null
     comparisonResultPath?: string | null
@@ -19875,6 +19940,7 @@ export namespace Prisma {
     performanceType: $Enums.PerformanceType
     performanceStatus?: $Enums.PerformanceStatus
     userId: string
+    name?: string | null
     audioPath: string
     audioFeaturesPath?: string | null
     comparisonResultPath?: string | null
@@ -20287,6 +20353,7 @@ export namespace Prisma {
 
   export type PracticePerformanceCreateWithoutPracticeItemInput = {
     id?: string
+    name?: string | null
     audioPath: string
     comparisonResultPath?: string | null
     performanceDuration?: number | null
@@ -20308,6 +20375,7 @@ export namespace Prisma {
   export type PracticePerformanceUncheckedCreateWithoutPracticeItemInput = {
     id?: string
     userId: string
+    name?: string | null
     audioPath: string
     comparisonResultPath?: string | null
     performanceDuration?: number | null
@@ -21304,6 +21372,7 @@ export namespace Prisma {
     performanceType: $Enums.PerformanceType
     performanceStatus?: $Enums.PerformanceStatus
     scoreId: string
+    name?: string | null
     audioPath: string
     audioFeaturesPath?: string | null
     comparisonResultPath?: string | null
@@ -21383,6 +21452,7 @@ export namespace Prisma {
   export type PracticePerformanceCreateManyUserInput = {
     id?: string
     practiceItemId: string
+    name?: string | null
     audioPath: string
     comparisonResultPath?: string | null
     performanceDuration?: number | null
@@ -21435,6 +21505,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     performanceType?: EnumPerformanceTypeFieldUpdateOperationsInput | $Enums.PerformanceType
     performanceStatus?: EnumPerformanceStatusFieldUpdateOperationsInput | $Enums.PerformanceStatus
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     audioFeaturesPath?: NullableStringFieldUpdateOperationsInput | string | null
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21462,6 +21533,7 @@ export namespace Prisma {
     performanceType?: EnumPerformanceTypeFieldUpdateOperationsInput | $Enums.PerformanceType
     performanceStatus?: EnumPerformanceStatusFieldUpdateOperationsInput | $Enums.PerformanceStatus
     scoreId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     audioFeaturesPath?: NullableStringFieldUpdateOperationsInput | string | null
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21488,6 +21560,7 @@ export namespace Prisma {
     performanceType?: EnumPerformanceTypeFieldUpdateOperationsInput | $Enums.PerformanceType
     performanceStatus?: EnumPerformanceStatusFieldUpdateOperationsInput | $Enums.PerformanceStatus
     scoreId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     audioFeaturesPath?: NullableStringFieldUpdateOperationsInput | string | null
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21682,6 +21755,7 @@ export namespace Prisma {
 
   export type PracticePerformanceUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -21703,6 +21777,7 @@ export namespace Prisma {
   export type PracticePerformanceUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     practiceItemId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -21723,6 +21798,7 @@ export namespace Prisma {
   export type PracticePerformanceUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     practiceItemId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -21838,6 +21914,7 @@ export namespace Prisma {
     performanceType: $Enums.PerformanceType
     performanceStatus?: $Enums.PerformanceStatus
     userId: string
+    name?: string | null
     audioPath: string
     audioFeaturesPath?: string | null
     comparisonResultPath?: string | null
@@ -21863,6 +21940,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     performanceType?: EnumPerformanceTypeFieldUpdateOperationsInput | $Enums.PerformanceType
     performanceStatus?: EnumPerformanceStatusFieldUpdateOperationsInput | $Enums.PerformanceStatus
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     audioFeaturesPath?: NullableStringFieldUpdateOperationsInput | string | null
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21890,6 +21968,7 @@ export namespace Prisma {
     performanceType?: EnumPerformanceTypeFieldUpdateOperationsInput | $Enums.PerformanceType
     performanceStatus?: EnumPerformanceStatusFieldUpdateOperationsInput | $Enums.PerformanceStatus
     userId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     audioFeaturesPath?: NullableStringFieldUpdateOperationsInput | string | null
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21916,6 +21995,7 @@ export namespace Prisma {
     performanceType?: EnumPerformanceTypeFieldUpdateOperationsInput | $Enums.PerformanceType
     performanceStatus?: EnumPerformanceStatusFieldUpdateOperationsInput | $Enums.PerformanceStatus
     userId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     audioFeaturesPath?: NullableStringFieldUpdateOperationsInput | string | null
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
@@ -21945,6 +22025,7 @@ export namespace Prisma {
   export type PracticePerformanceCreateManyPracticeItemInput = {
     id?: string
     userId: string
+    name?: string | null
     audioPath: string
     comparisonResultPath?: string | null
     performanceDuration?: number | null
@@ -21979,6 +22060,7 @@ export namespace Prisma {
 
   export type PracticePerformanceUpdateWithoutPracticeItemInput = {
     id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -22000,6 +22082,7 @@ export namespace Prisma {
   export type PracticePerformanceUncheckedUpdateWithoutPracticeItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
@@ -22020,6 +22103,7 @@ export namespace Prisma {
   export type PracticePerformanceUncheckedUpdateManyWithoutPracticeItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
     audioPath?: StringFieldUpdateOperationsInput | string
     comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
     performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
