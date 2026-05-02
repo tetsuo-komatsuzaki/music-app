@@ -1,5 +1,6 @@
 import { prisma } from "@/app/_libs/prisma"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
+import { formatKey } from "@/app/_libs/musicNotation"
 import PracticeTop from "./practiceTop"
 
 export default async function PracticePage({
@@ -43,10 +44,9 @@ export default async function PracticePage({
       select: { id: true, title: true, category: true },
     })
     if (items.length > 0) {
-      const modeName = score.keyMode === "minor" ? "短調" : "長調"
       scoreRecommendations.push({
         scoreTitle: score.title,
-        reason: `「${score.title}」は${score.keyTonic}${modeName}`,
+        reason: `「${score.title}」は${formatKey(score.keyTonic, score.keyMode)}`,
         items,
       })
     }
@@ -71,8 +71,7 @@ export default async function PracticePage({
         where: { keyTonic: tonic, keyMode: mode, category: { in: ["scale", "arpeggio"] }, isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }] },
         take: 3, select: { id: true, title: true, category: true },
       })
-      const modeName = mode === "major" ? "長調" : "短調"
-      reason = `${tonic}${modeName}でピッチが不安定です（エラー率${Math.round(w.severity * 100)}%）`
+      reason = `${formatKey(tonic, mode)}でピッチが不安定です（エラー率${Math.round(w.severity * 100)}%）`
     } else if (w.weaknessType === "timing") {
       items = await prisma.practiceItem.findMany({
         where: {

@@ -1,5 +1,6 @@
 import { prisma } from "@/app/_libs/prisma"
 import { generateArcoMessage } from "@/app/_libs/arcoChan"
+import { formatKey } from "@/app/_libs/musicNotation"
 import HomeClient from "./home"
 
 type PageProps = {
@@ -209,11 +210,10 @@ export default async function HomePage({ params }: PageProps) {
       uploadedAt: latestPracticePerf.uploadedAt,
     }
   } else if (latestDate === latestScorePerf && latestScorePerf?.score) {
-    const key = `${latestScorePerf.score.keyTonic ?? ""} ${latestScorePerf.score.keyMode ?? ""}`.trim()
     continueItem = {
       href:       `/${userId}/scores/${latestScorePerf.score.id}`,
       title:      latestScorePerf.score.title,
-      subtitle:   key,
+      subtitle:   formatKey(latestScorePerf.score.keyTonic, latestScorePerf.score.keyMode),
       uploadedAt: latestScorePerf.uploadedAt,
     }
   }
@@ -300,7 +300,7 @@ export default async function HomePage({ params }: PageProps) {
       personalRecommendations.push({
         ...r.item,
         href:   `/${userId}/practice/${r.item.category}/${r.item.id}`,
-        reason: `${r.tonic}${r.mode === "minor" ? "短調" : "長調"}の強化に`,
+        reason: `${formatKey(r.tonic, r.mode)}の強化に`,
       })
     }
   }

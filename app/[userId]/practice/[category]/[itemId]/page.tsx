@@ -2,6 +2,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
+import { formatKey } from "@/app/_libs/musicNotation"
 import ScoreDetail from "@/app/[userId]/scores/[scoreId]/scoreDetail"
 import { uploadPracticeRecord } from "@/app/actions/uploadPracticeRecord"
 import styles from "../../practice.module.css"
@@ -178,7 +179,7 @@ export default async function PracticeDetailPage({
         <div className={styles.infoPanelMetaRow}>
           <span className={styles.infoPanelMetaLabel}>調</span>
           <span className={styles.infoPanelMetaValue}>
-            {item.keyTonic} {item.keyMode === "major" ? "長調" : "短調"}
+            {formatKey(item.keyTonic, item.keyMode)}
           </span>
         </div>
         {item.tempoMin && item.tempoMax && (

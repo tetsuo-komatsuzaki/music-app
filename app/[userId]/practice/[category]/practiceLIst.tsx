@@ -7,6 +7,7 @@ import styles from "../practice.module.css"
 import type { ScoredItemDTO, RecommendReason } from "@/app/lib/practice/getRecommendations"
 import type { PracticeStats } from "@/app/lib/practice/getPracticeStats"
 import OnboardingTrigger from "../../_onboarding/OnboardingTrigger"
+import { tonicToJa, modeToJa } from "@/app/_libs/musicNotation"
 
 type PracticeItemDTO = {
   id: string
@@ -73,9 +74,9 @@ function extractCardInfo(item: PracticeItemDTO | ScoredItemDTO) {
   const titleParts = item.title.split(" ")
   const typeLabel  = titleParts[1] ?? ""
 
-  const keyTonic = "keyTonic" in item ? item.keyTonic : ""
-
-  const shortTitle = isEtude ? item.title : `${keyTonic} ${typeLabel}`
+  // タイトル先頭セグメント (例: "嬰ヘ長調"、"変ロ長和音") を音階名で表示。
+  // DB title が既に日本語化されているのでそのまま使う。
+  const shortTitle = isEtude ? item.title : (titleParts[0] ?? "")
 
   const subtitle = isEtude
     ? null
@@ -262,9 +263,9 @@ function GroupView({
     }
     groups = KEY_ORDER
       .filter((k) => map.has(k))
-      .map((k) => ({ key: k, label: k, items: map.get(k)! }))
+      .map((k) => ({ key: k, label: tonicToJa(k), items: map.get(k)! }))
     for (const [k, v] of map) {
-      if (!KEY_ORDER.includes(k)) groups.push({ key: k, label: k, items: v })
+      if (!KEY_ORDER.includes(k)) groups.push({ key: k, label: tonicToJa(k), items: v })
     }
   } else if (category === "arpeggio" || category === "arpeggios") {
     const map = new Map<string, PracticeItemDTO[]>()
@@ -310,10 +311,10 @@ function GroupView({
         byKey.get(k)!.push(item)
       }
       KEY_ORDER.forEach((k) => {
-        if (byKey.has(k)) subGroups.push({ label: k, items: byKey.get(k)! })
+        if (byKey.has(k)) subGroups.push({ label: tonicToJa(k), items: byKey.get(k)! })
       })
       for (const [k, v] of byKey) {
-        if (!KEY_ORDER.includes(k)) subGroups.push({ label: k, items: v })
+        if (!KEY_ORDER.includes(k)) subGroups.push({ label: tonicToJa(k), items: v })
       }
     } else {
       subGroups.push({ label: "", items: activeGroup.items })
@@ -413,7 +414,7 @@ function AllView({
           <option value="">調: 全て</option>
           {filterOptions.keys.map((k) => {
             const [tonic, mode] = k.split("_")
-            return <option key={k} value={k}>{tonic} {modeLabels[mode] || mode}</option>
+            return <option key={k} value={k}>{tonicToJa(tonic)}{modeToJa(mode)}</option>
           })}
         </select>
 
