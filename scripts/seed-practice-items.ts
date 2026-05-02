@@ -26,16 +26,6 @@ const MXL_URLS_JSON = path.join(__dirname, "..", "prisma", "data", "mxl_urls.jso
 //     scale_A_minor_harmonic_2oct_slur4_high.mxl
 //     scale_C_chromatic_chromatic_3oct_legato_full.mxl
 // =========================================================
-// 英字 tonic を日本語音名に変換
-const TONIC_JA: Record<string, string> = {
-  "C":  "ハ",     "C#": "嬰ハ",   "Db": "変ニ",
-  "D":  "ニ",     "D#": "嬰ニ",   "Eb": "変ホ",
-  "E":  "ホ",     "F":  "ヘ",     "F#": "嬰ヘ",
-  "Gb": "変ト",   "G":  "ト",     "G#": "嬰ト",
-  "Ab": "変イ",   "A":  "イ",     "A#": "嬰イ",
-  "Bb": "変ロ",   "B":  "ロ",     "Cb": "変ハ",
-}
-
 function parseFilename(filename: string): {
   tonic: string
   keyMode: string
@@ -80,15 +70,9 @@ function parseFilename(filename: string): {
   const registerLabels: Record<string, string> = { low: "低", high: "高", full: "全" }
   const registerJa = registerLabels[register] || ""
 
-  // tonic を日本語音名に変換 (例: F# → 嬰ヘ、Bb → 変ロ)
-  const tonicJa = TONIC_JA[tonic] || tonic
-
-  // 日本語タイトル組み立て
-  // 例: 「ハ長調 2オクターブ 低音域」「嬰ヘ和声的短音階 3オクターブ 全音域」「嬰ヘ 半音階 2オクターブ 低音域」
-  const title =
-    mode === "chromatic"
-      ? `${tonicJa} 半音階 ${octaves}オクターブ ${registerJa}音域`
-      : `${tonicJa}${modeLabel} ${octaves}オクターブ ${registerJa}音域`
+  // タイトル組み立て: tonic は英字 (F#, Bb 等) のまま、mode は日本語ラベルに
+  // 例: 「C 長調 2オクターブ 低音域」「F# 和声的短音階 3オクターブ 全音域」「F# 半音階 2オクターブ 低音域」
+  const title = `${tonic} ${modeLabel} ${octaves}オクターブ ${registerJa}音域`
 
   // 難易度: オクターブ数ベース + 短調/半音階 +1 + 高音域/全音域 +1
   let difficulty = octaves

@@ -1,22 +1,12 @@
 /**
- * 音名を日本語表記に変換するユーティリティ。
- * DB の keyTonic は英字 (C, D#, Bb 等) で保存されているが、UI 表示は
- * 日本語の伝統的音階名 (ハ, 嬰ニ, 変ロ 等) で統一する。
+ * 音名・音階表示を整えるユーティリティ。
+ * 表記方針: tonic は英字 (F#, Bb, C 等) のまま、mode のみ日本語ラベルに変換。
+ *   例: "F# 長調"、"Bb 和声的短音階"、"C 半音階"
  */
 
-const TONIC_JA: Record<string, string> = {
-  "C":  "ハ",     "C#": "嬰ハ",   "Db": "変ニ",
-  "D":  "ニ",     "D#": "嬰ニ",   "Eb": "変ホ",
-  "E":  "ホ",     "F":  "ヘ",     "F#": "嬰ヘ",
-  "Gb": "変ト",   "G":  "ト",     "G#": "嬰ト",
-  "Ab": "変イ",   "A":  "イ",     "A#": "嬰イ",
-  "Bb": "変ロ",   "B":  "ロ",     "Cb": "変ハ",
-}
-
-/** 英字音名 (C, F#, Bb 等) を日本語音名 (ハ, 嬰ヘ, 変ロ 等) に変換。未知の値はそのまま返す。 */
+/** keyTonic はそのまま返す (英字統一)。null/undefined は空文字。 */
 export function tonicToJa(tonic: string | null | undefined): string {
-  if (!tonic) return ""
-  return TONIC_JA[tonic] ?? tonic
+  return tonic ?? ""
 }
 
 /** keyMode を日本語ラベルに変換 */
@@ -30,13 +20,16 @@ export function modeToJa(mode: string | null | undefined): string {
 }
 
 /**
- * 音階の日本語表記を組み立てる (例: F# major → "嬰ヘ長調"、Bb minor → "変ロ短調"、F# chromatic → "嬰ヘ 半音階")
- * 半音階のときだけスペース 1 個入れる (慣例)。
+ * 音階の表記を組み立てる。
+ *   F# major     → "F# 長調"
+ *   Bb minor     → "Bb 短調"
+ *   C  chromatic → "C 半音階"
+ *   tonic だけ / mode だけのときも対応。
  */
 export function formatKey(tonic: string | null | undefined, mode: string | null | undefined): string {
-  const t = tonicToJa(tonic)
+  const t = tonic ?? ""
   const m = modeToJa(mode)
   if (!t) return m
-  if (mode === "chromatic") return `${t} ${m}`
-  return `${t}${m}`
+  if (!m) return t
+  return `${t} ${m}`
 }
