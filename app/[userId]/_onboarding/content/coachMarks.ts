@@ -108,7 +108,10 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
       },
       {
         id: "scoreDetail.markers",
-        targetKey: "scoreDetail.scoreOverlay",
+        // ハイライト不要 (画面中央に tooltip のみ表示)。
+        // 4 色凡例は情報メッセージで特定要素を指す必要がなく、また spotlight が
+        // 視認性を損なう (解析結果を見せたい譜面に被る) ため targetKey を null に。
+        targetKey: null,
         headline: "色で答え合わせ",
         body: {
           rows: [
