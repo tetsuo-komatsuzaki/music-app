@@ -8,6 +8,7 @@ import styles from "./scoreDetail.module.css"
 import Recorder from "@/app/components/Recorder"
 import PerformanceSkeleton from "@/app/components/PerformanceSkeleton"
 import { getSignedUploadUrl } from "@/app/actions/getSignedUploadUrl"
+import { renamePerformance } from "@/app/actions/renamePerformance"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 
@@ -30,6 +31,7 @@ type ComparisonNote = {
 
 type PerformanceDTO = {
   id: string
+  name: string | null
   uploadedAt: string
   status: string
   analysisStatus?: string | null
@@ -361,19 +363,67 @@ function EvaluationSummaryCard({
 // サブコンポーネント: PerformanceHistory
 // =========================================================
 
+const HISTORY_PAGE_SIZE = 10
+const PERFORMANCE_NAME_MAX = 10
+
 function PerformanceHistory({
   performances,
   selectedId,
   onSelect,
   loading,
   performanceCount,
+  kind,
+  onRenamed,
 }: {
   performances: PerformanceDTO[]
   selectedId: string | null
   onSelect: (p: PerformanceDTO) => void
   loading: boolean
   performanceCount: number
+  kind: "score" | "practice"
+  onRenamed: (performanceId: string, newName: string) => void
 }) {
+  const [page, setPage] = useState(0)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [draftName, setDraftName] = useState("")
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  const totalPages = Math.max(1, Math.ceil(performances.length / HISTORY_PAGE_SIZE))
+  const safePage = Math.min(page, totalPages - 1)
+  const pageStart = safePage * HISTORY_PAGE_SIZE
+  const pageItems = performances.slice(pageStart, pageStart + HISTORY_PAGE_SIZE)
+
+  const startEdit = (p: PerformanceDTO, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setEditingId(p.id)
+    setDraftName(p.name ?? "")
+    setSaveError(null)
+  }
+
+  const cancelEdit = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    e?.stopPropagation()
+    setEditingId(null)
+    setDraftName("")
+    setSaveError(null)
+  }
+
+  const submitEdit = async (performanceId: string, e?: React.MouseEvent | React.KeyboardEvent) => {
+    e?.stopPropagation()
+    if (saving) return
+    setSaving(true)
+    setSaveError(null)
+    const res = await renamePerformance({ performanceId, kind, name: draftName })
+    setSaving(false)
+    if (!res.ok) {
+      setSaveError(res.error)
+      return
+    }
+    onRenamed(performanceId, res.name)
+    setEditingId(null)
+    setDraftName("")
+  }
+
   return (
     <div className={styles.card}>
       <h3>演奏履歴</h3>
@@ -382,40 +432,127 @@ function PerformanceHistory({
       ) : performances.length === 0 ? (
         <div style={{ fontSize: 13, color: "#999" }}>まだ演奏がありません</div>
       ) : (
-        performances.map((p) => (
-          <div
-            key={p.id}
-            className={`${styles.historyItem} ${selectedId === p.id ? styles.historyActive : ""}`}
-            onClick={() => onSelect(p)}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span>{new Date(p.uploadedAt).toLocaleDateString("ja-JP")}</span>
-              {p.overallScore != null && (
-                <span
-                  className={styles.rankBadgeSmall}
-                  style={{
-                    background: rankLabels[getScoreRank(p.overallScore)].bg,
-                    color: rankLabels[getScoreRank(p.overallScore)].color,
-                  }}
-                >
-                  {rankLabels[getScoreRank(p.overallScore)].label}
-                </span>
-              )}
-            </div>
-            <div className={styles.historyMeta}>
-              <span>
-                {p.overallScore != null
-                  ? `${Math.round(p.overallScore)}点`
-                  : p.analysisStatus === "error"
-                    ? "解析失敗"
-                    : p.analysisStatus === "done"
-                      ? "評価あり"
-                      : "解析中..."}
+        <>
+          {pageItems.map((p) => {
+            const isEditing = editingId === p.id
+            const dateLabel = new Date(p.uploadedAt).toLocaleDateString("ja-JP")
+            const displayName = p.name ?? "Performance"
+            const statusLabel =
+              p.overallScore != null
+                ? `${Math.round(p.overallScore)}点`
+                : p.analysisStatus === "error"
+                  ? "解析失敗"
+                  : p.analysisStatus === "done"
+                    ? "評価あり"
+                    : "解析中..."
+            const showEvalBadge = p.comparisonResult || p.pitchAccuracy != null
+
+            return (
+              <div
+                key={p.id}
+                className={`${styles.historyItem} ${selectedId === p.id ? styles.historyActive : ""}`}
+                onClick={() => !isEditing && onSelect(p)}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={draftName}
+                      maxLength={PERFORMANCE_NAME_MAX}
+                      autoFocus
+                      onChange={(e) => setDraftName(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") submitEdit(p.id, e)
+                        else if (e.key === "Escape") cancelEdit(e)
+                      }}
+                      className={styles.historyNameInput}
+                      disabled={saving}
+                    />
+                  ) : (
+                    <span className={styles.historyName}>{displayName}</span>
+                  )}
+                  {p.overallScore != null && !isEditing && (
+                    <span
+                      className={styles.rankBadgeSmall}
+                      style={{
+                        background: rankLabels[getScoreRank(p.overallScore)].bg,
+                        color: rankLabels[getScoreRank(p.overallScore)].color,
+                      }}
+                    >
+                      {rankLabels[getScoreRank(p.overallScore)].label}
+                    </span>
+                  )}
+                </div>
+                <div className={styles.historyMeta}>
+                  <span>{statusLabel}</span>
+                  {showEvalBadge && <span className={styles.historyBadge}>評価あり</span>}
+                  <span className={styles.historyDate}>{dateLabel}</span>
+                  <div className={styles.historyActions}>
+                    {isEditing ? (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.historyActionBtn}
+                          onClick={(e) => submitEdit(p.id, e)}
+                          disabled={saving}
+                          aria-label="保存"
+                        >
+                          {saving ? "..." : "保存"}
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.historyActionBtn}
+                          onClick={cancelEdit}
+                          disabled={saving}
+                          aria-label="キャンセル"
+                        >
+                          取消
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        className={styles.historyEditBtn}
+                        onClick={(e) => startEdit(p, e)}
+                        aria-label="名前を編集"
+                        title="名前を編集"
+                      >
+                        ✏
+                      </button>
+                    )}
+                  </div>
+                </div>
+                {isEditing && saveError && (
+                  <div className={styles.historyError}>{saveError}</div>
+                )}
+              </div>
+            )
+          })}
+          {totalPages > 1 && (
+            <div className={styles.historyPager}>
+              <button
+                type="button"
+                className={styles.historyPagerBtn}
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={safePage === 0}
+              >
+                戻る
+              </button>
+              <span className={styles.historyPagerInfo}>
+                {safePage + 1} / {totalPages}
               </span>
-              {(p.comparisonResult || p.pitchAccuracy != null) && <span className={styles.historyBadge}>評価あり</span>}
+              <button
+                type="button"
+                className={styles.historyPagerBtn}
+                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={safePage >= totalPages - 1}
+              >
+                次へ
+              </button>
             </div>
-          </div>
-        ))
+          )}
+        </>
       )}
     </div>
   )
@@ -1624,6 +1761,15 @@ export default function ScoreDetail({
               onSelect={handleSelectPerformance}
               loading={perfLoading}
               performanceCount={performanceCount}
+              kind={practiceItemId ? "practice" : "score"}
+              onRenamed={(performanceId, newName) => {
+                setPerformances((prev) =>
+                  prev.map((p) => (p.id === performanceId ? { ...p, name: newName } : p))
+                )
+                setSelected((prev) =>
+                  prev && prev.id === performanceId ? { ...prev, name: newName } : prev
+                )
+              }}
             />
           </div>
         </div>

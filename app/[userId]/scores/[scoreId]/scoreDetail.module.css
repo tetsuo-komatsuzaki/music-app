@@ -251,6 +251,7 @@
   margin-top: 4px;
   font-size: 11px;
   color: #999;
+  align-items: center;
 }
 
 .historyBadge {
@@ -260,6 +261,116 @@
   border-radius: 4px;
   font-size: 10px;
   font-weight: 600;
+}
+
+.historyName {
+  font-weight: 600;
+  color: #333;
+  font-size: 13px;
+}
+
+.historyNameInput {
+  font-size: 13px;
+  padding: 2px 6px;
+  border: 1px solid #b4c4ff;
+  border-radius: 4px;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.historyNameInput:focus {
+  border-color: #6b7fff;
+}
+
+.historyDate {
+  color: #999;
+  font-size: 11px;
+}
+
+.historyActions {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+
+.historyEditBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #888;
+  line-height: 1;
+}
+
+.historyEditBtn:hover {
+  background: #eef2ff;
+  color: #4257ff;
+}
+
+.historyActionBtn {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 2px 8px;
+  cursor: pointer;
+  color: #444;
+}
+
+.historyActionBtn:hover:not(:disabled) {
+  background: #f5f7ff;
+  border-color: #b4c4ff;
+  color: #4257ff;
+}
+
+.historyActionBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.historyError {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #c62828;
+}
+
+.historyPager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+.historyPagerBtn {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  padding: 4px 12px;
+  cursor: pointer;
+  color: #444;
+}
+
+.historyPagerBtn:hover:not(:disabled) {
+  background: #eef2ff;
+  border-color: #b4c4ff;
+  color: #4257ff;
+}
+
+.historyPagerBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.historyPagerInfo {
+  color: #666;
+  min-width: 40px;
+  text-align: center;
 }
 
 .rankBadgeSmall {

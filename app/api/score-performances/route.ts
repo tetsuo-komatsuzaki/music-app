@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
     take: limit,
     select: {
       id: true,
+      name: true,
       audioPath: true,
       comparisonResultPath: true,
       uploadedAt: true,
@@ -46,6 +47,7 @@ export async function GET(request: NextRequest) {
       if (p.pitchAccuracy != null) {
         return {
           id: p.id,
+          name: p.name,
           uploadedAt: p.uploadedAt,
           status: p.performanceStatus,
         analysisStatus: p.analysisStatus,
@@ -103,6 +105,7 @@ export async function GET(request: NextRequest) {
 
       return {
         id: p.id,
+        name: p.name,
         uploadedAt: p.uploadedAt,
         status: p.performanceStatus,
         analysisStatus: p.analysisStatus,

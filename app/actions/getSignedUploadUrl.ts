@@ -92,24 +92,33 @@ export async function getSignedUploadUrl(
   }
 
   // === Step A: Performance 行作成 (audioPath="" で先行 INSERT) ===
+  // name 自動命名: 既存の演奏数 + 1 を使って "Performance #N" を生成
   let performanceId: string
   if (params.kind === "score") {
+    const existingCount = await prisma.performance.count({
+      where: { userId: dbUserId, scoreId: params.scoreId },
+    })
     const performance = await prisma.performance.create({
       data: {
         userId: dbUserId,
         scoreId: params.scoreId,
         performanceType: "user",
         performanceStatus: "uploaded",
+        name: `Performance #${existingCount + 1}`,
         audioPath: "",
         analysisStatus: "queued",
       },
     })
     performanceId = performance.id
   } else {
+    const existingCount = await prisma.practicePerformance.count({
+      where: { userId: dbUserId, practiceItemId: params.itemId },
+    })
     const performance = await prisma.practicePerformance.create({
       data: {
         userId: dbUserId,
         practiceItemId: params.itemId,
+        name: `Performance #${existingCount + 1}`,
         audioPath: "",
         analysisStatus: "queued",
       },
