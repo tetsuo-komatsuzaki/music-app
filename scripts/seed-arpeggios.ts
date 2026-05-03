@@ -39,6 +39,15 @@ const CHORD_KEY_TO_TYPE: Record<string, string> = {
   diminished7: "diminished7",
 }
 
+// metadata.chordType → 表示用日本語ラベル (title 構築 + UI 表示用)
+const CHORD_TYPE_JA: Record<string, string> = {
+  major_triad: "長和音",
+  minor_triad: "短和音",
+  augmented:   "増和音",
+  dominant7:   "属7和音",
+  diminished7: "減7和音",
+}
+
 const BOW_KEY_MAP: Record<string, string> = {
   "デタシェ":   "detache",
   "スタッカート": "staccato",
@@ -176,10 +185,13 @@ async function main() {
     const positions = parsePositions(posStr)
     const { min: tempoMin, max: tempoMax } = parseTempo(tempoStr)
 
-    // 新形式タイトル: scale と揃えて "Bb(3オクターブ)" 形式
-    // 和音種は metadata.chordType に保存し、UI 側で formatChordKey で表示
-    const newTitle = `${tonic}(${targetOct}オクターブ)`
+    // 新形式タイトル: scale と揃えて "Bb(3オクターブ・長和音)" 形式
+    // 和音種は title (視覚的差別化) + metadata.chordType (programmatic) の双方に保持
     const chordType = CHORD_KEY_TO_TYPE[chordKey] ?? null
+    const chordJa = chordType ? CHORD_TYPE_JA[chordType] : ""
+    const newTitle = chordJa
+      ? `${tonic}(${targetOct}オクターブ・${chordJa})`
+      : `${tonic}(${targetOct}オクターブ)`
 
     const item = await prisma.practiceItem.create({
       data: {
