@@ -275,6 +275,28 @@ def get_fifths(root, mode_key):
     return MAJOR_FIFTHS.get(root, 0)
 
 
+# 調号の幹音順序（fifths > 0: シャープ追加順、fifths < 0: フラット追加順）
+SHARP_ORDER = ['F', 'C', 'G', 'D', 'A', 'E', 'B']
+FLAT_ORDER  = ['B', 'E', 'A', 'D', 'G', 'C', 'F']
+
+ALTER_TO_ACCIDENTAL = {
+    -2: 'flat-flat', -1: 'flat', 0: 'natural', 1: 'sharp', 2: 'double-sharp',
+}
+
+
+def key_sig_default_alter(step, fifths):
+    """調号で当該幹音 step が既定で受ける alter 値を返す。
+
+    例: fifths=3 (A major / F# minor) → F,C,G が +1; 他は 0
+        fifths=-2 (Bb major / G minor) → B,E が -1; 他は 0
+    """
+    if fifths > 0:
+        return 1 if step in SHARP_ORDER[:fifths] else 0
+    if fifths < 0:
+        return -1 if step in FLAT_ORDER[:abs(fifths)] else 0
+    return 0
+
+
 def generate_musicxml(notes, tempo, bow, title, pitch_map=None, fifths=0):
     """Generate MusicXML string"""
     lines = []
@@ -329,11 +351,17 @@ def generate_musicxml(notes, tempo, bow, title, pitch_map=None, fifths=0):
             else:
                 step, alter, octave = semitone_to_musicxml_pitch(note_semi)
 
+            # 冗長除去のみ: alter が「非0かつ調号既定と一致」する場合のみ省略する。
+            # (OLD: alter != 0 → 常に <alter> を出していたのが冗長だった)
+            # alter == 0 のケースは OLD と同じく <alter> を出さない (互換維持)
+            default_alter = key_sig_default_alter(step, fifths)
+            emit_alter = (alter != 0 and alter != default_alter)
+
             lines.append('      <note>')
-            lines.append(f'        <pitch><step>{step}</step>')
-            if alter != 0:
-                lines.append(f'          <alter>{alter}</alter>')
-            lines.append(f'          <octave>{octave}</octave></pitch>')
+            if emit_alter:
+                lines.append(f'        <pitch><step>{step}</step><alter>{alter}</alter><octave>{octave}</octave></pitch>')
+            else:
+                lines.append(f'        <pitch><step>{step}</step><octave>{octave}</octave></pitch>')
             lines.append('        <duration>1</duration>')
             lines.append('        <type>quarter</type>')
 
