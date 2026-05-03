@@ -2,7 +2,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
-import { formatKey, formatKeyWithVariant } from "@/app/_libs/musicNotation"
+import { formatKeyWithVariant, formatChordKey } from "@/app/_libs/musicNotation"
 import ScoreDetail from "@/app/[userId]/scores/[scoreId]/scoreDetail"
 import { uploadPracticeRecord } from "@/app/actions/uploadPracticeRecord"
 import styles from "../../practice.module.css"
@@ -197,6 +197,10 @@ export default async function PracticeDetailPage({
                 typeof item.metadata === "object" && item.metadata !== null && !Array.isArray(item.metadata)
                   ? (item.metadata as Record<string, unknown>)
                   : {}
+              if (item.category === "arpeggio") {
+                const chordType = typeof meta.chordType === "string" ? (meta.chordType as string) : null
+                return formatChordKey(item.keyTonic, chordType)
+              }
               const variant = typeof meta.modeVariant === "string" ? (meta.modeVariant as string) : null
               return formatKeyWithVariant(item.keyTonic, item.keyMode, variant)
             })()}

@@ -17,11 +17,28 @@ type PracticeItemDTO = {
   keyTonic: string
   keyMode: string
   modeVariant?: string | null
+  chordType?: string | null
   positions: string[]
   techniques: string[]
   descriptionShort: string | null
   lastPracticed: string | null
   totalPractices: number
+}
+
+const CHORD_TYPE_LABEL_JA: Record<string, string> = {
+  major_triad: "長和音",
+  minor_triad: "短和音",
+  augmented:   "増和音",
+  dominant7:   "属7和音",
+  diminished7: "減7和音",
+}
+
+const CHORD_TYPE_LABEL_EN: Record<string, string> = {
+  major_triad: "Major Triad",
+  minor_triad: "Minor Triad",
+  augmented:   "Augmented Triad",
+  dominant7:   "Dominant 7th",
+  diminished7: "Diminished 7th",
 }
 
 const VARIANT_LABEL: Record<string, string> = {
@@ -86,25 +103,45 @@ function extractCardInfo(item: PracticeItemDTO | ScoredItemDTO) {
   const isEtude    = category === "etude"
   const isArpeggio = category === "arpeggio"
 
+  // 新形式タイトル: "Bb(2オクターブ・低)" / "A(3オクターブ)"
+  // 旧形式タイトル: "Bb 長調 2オクターブ デタシェ (低音域)" / "A 長調 長和音 3オクターブ デタシェ"
+  // tonic 部分を抽出 (両形式互換)
+  const tonicMatch = item.title.match(/^([A-G][#b]?)/)
   const titleParts = item.title.split(" ")
-  const typeLabel  = titleParts[1] ?? ""
+  const shortTitle = isEtude ? item.title : (tonicMatch?.[1] ?? titleParts[0] ?? "")
 
-  // タイトル先頭セグメント (例: "嬰ヘ長調"、"変ロ長和音") を音階名で表示。
-  // DB title が既に日本語化されているのでそのまま使う。
-  const shortTitle = isEtude ? item.title : (titleParts[0] ?? "")
-
-  const subtitle = isEtude
-    ? null
-    : isArpeggio
-    ? (CHORD_TYPE_EN[typeLabel] ?? "")
-    : (SCALE_TYPE_EN[typeLabel] ?? "")
+  // subtitle: arpeggio は metadata.chordType (新形式) 優先、scale は旧形式 fallback
+  let subtitle: string | null = null
+  if (!isEtude) {
+    if (isArpeggio) {
+      const ct = "chordType" in item ? item.chordType : null
+      if (ct && CHORD_TYPE_LABEL_EN[ct]) {
+        subtitle = CHORD_TYPE_LABEL_EN[ct]
+      } else {
+        // 旧形式 title 第3要素 (互換)
+        subtitle = CHORD_TYPE_EN[titleParts[2] ?? ""] ?? ""
+      }
+    } else {
+      subtitle = SCALE_TYPE_EN[titleParts[1] ?? ""] ?? ""
+    }
+  }
 
   const octMatch = item.title.match(/(\d+)オクターブ/)
   const octaves  = octMatch ? parseInt(octMatch[1]) : null
 
   const techniques = "techniques" in item ? item.techniques : ("techniqueNames" in item ? (item as ScoredItemDTO).techniqueNames : [])
   const bowTech   = techniques[0] ?? null
-  const chordType = isArpeggio ? typeLabel : null
+
+  // chordType chip: arpeggio のみ。metadata.chordType 優先、旧 title 形式 fallback
+  let chordType: string | null = null
+  if (isArpeggio) {
+    const ct = "chordType" in item ? item.chordType : null
+    if (ct && CHORD_TYPE_LABEL_JA[ct]) {
+      chordType = CHORD_TYPE_LABEL_JA[ct]
+    } else {
+      chordType = titleParts[2] ?? null  // 旧形式
+    }
+  }
 
   return { shortTitle, subtitle, octaves, bowTech, chordType }
 }

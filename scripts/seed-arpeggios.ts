@@ -30,6 +30,15 @@ const MIN_OCTAVES: Record<string, number> = {
   diminished7: 2,
 }
 
+// chordKey (Excel G列) → metadata.chordType
+const CHORD_KEY_TO_TYPE: Record<string, string> = {
+  major:       "major_triad",
+  minor:       "minor_triad",
+  augmented:   "augmented",
+  dominant7:   "dominant7",
+  diminished7: "diminished7",
+}
+
 const BOW_KEY_MAP: Record<string, string> = {
   "デタシェ":   "detache",
   "スタッカート": "staccato",
@@ -167,15 +176,21 @@ async function main() {
     const positions = parsePositions(posStr)
     const { min: tempoMin, max: tempoMax } = parseTempo(tempoStr)
 
+    // 新形式タイトル: scale と揃えて "Bb(3オクターブ)" 形式
+    // 和音種は metadata.chordType に保存し、UI 側で formatChordKey で表示
+    const newTitle = `${tonic}(${targetOct}オクターブ)`
+    const chordType = CHORD_KEY_TO_TYPE[chordKey] ?? null
+
     const item = await prisma.practiceItem.create({
       data: {
         category:         "arpeggio",
-        title,
+        title:            newTitle,
         composer,
         description,
         descriptionShort: descShort,
         keyTonic:         tonic,
         keyMode:          keyMode || "major",
+        metadata:         chordType ? { chordType } : undefined,
         tempoMin,
         tempoMax,
         positions,

@@ -58,3 +58,29 @@ export function formatKeyWithVariant(
   }
   return base
 }
+
+/** Arpeggio 和音種ラベル */
+const CHORD_TYPE_JA: Record<string, string> = {
+  major_triad: "長和音",
+  minor_triad: "短和音",
+  augmented:   "増和音",
+  dominant7:   "属7和音",
+  diminished7: "減7和音",
+}
+
+/**
+ * Arpeggio 用の調表記。tonic + 和音種ラベル。
+ *   A   + major_triad → "A 長和音"
+ *   Bb  + diminished7 → "Bb 減7和音"
+ *   C#  + dominant7   → "C# 属7和音"
+ */
+export function formatChordKey(
+  tonic: string | null | undefined,
+  chordType: string | null | undefined,
+): string {
+  const t = tonic ?? ""
+  const c = chordType && CHORD_TYPE_JA[chordType] ? CHORD_TYPE_JA[chordType] : ""
+  if (!t) return c
+  if (!c) return t
+  return `${t} ${c}`
+}

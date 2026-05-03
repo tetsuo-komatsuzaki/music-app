@@ -116,6 +116,8 @@ export default async function CategoryPage({
         : {}
     const modeVariant =
       typeof meta.modeVariant === "string" ? (meta.modeVariant as string) : null
+    const chordType =
+      typeof meta.chordType === "string" ? (meta.chordType as string) : null
     return {
       id: item.id,
       title: item.title,
@@ -124,6 +126,7 @@ export default async function CategoryPage({
       keyTonic: item.keyTonic,
       keyMode: item.keyMode,
       modeVariant,
+      chordType,
       positions: item.positions,
       techniques: item.techniques.map((t) => t.techniqueTag.name),
       descriptionShort: item.descriptionShort,
