@@ -267,6 +267,9 @@ def get_fifths(root, mode_key):
     MINOR_FIFTHS = {
         "A": 0, "E": 1, "B": 2, "F#": 3, "C#": 4, "G#": 5,
         "Eb": -6, "Bb": -5, "F": -4, "C": -3, "G": -2, "D": -1,
+        "Ab": -7,
+        # NOTE: "Db" minor は理論的に -8 となり MusicXML <fifths> で表現不能。
+        # カリキュラムから minor 系の Db は除外している (main 内の SKIP 処理参照)。
     }
     if mode_key == "minor":
         return MINOR_FIFTHS.get(root, 0)
@@ -505,6 +508,11 @@ def main():
 
     for tonic, octaves, start_midi, register in CURRICULUM:
         for scale_type_ja, minor_variant, mode_key, mode_label in SCALE_TYPES:
+            # SKIP: Db minor は理論調号 -8 で MusicXML 表現不能のため生成しない
+            #       (Db major / Db chromatic は維持)
+            if tonic == "Db" and mode_key == "minor":
+                continue
+
             for bow_ja, bow_key in BOW_STYLES:
                 # ファイル名: scale_{tonic}_{mode_key}_{variant}_{N}oct_{bow}_{register}.mxl
                 variant_key = minor_variant  # "harmonic"/"melodic"/"natural"/"chromatic"/""

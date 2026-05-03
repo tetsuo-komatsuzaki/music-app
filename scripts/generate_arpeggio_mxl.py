@@ -191,6 +191,8 @@ def get_fifths_for_chord(root, chord_key):
     MINOR_FIFTHS = {
         "A": 0, "E": 1, "B": 2, "F#": 3, "C#": 4, "G#": 5,
         "Eb": -6, "Bb": -5, "F": -4, "C": -3, "G": -2, "D": -1,
+        "Ab": -7,
+        # NOTE: "Db" minor / dim は理論調号 -8 で表現不能。main 内 SKIP 処理参照。
     }
     if "minor" in chord_key or "dim" in chord_key:
         return MINOR_FIFTHS.get(root, 0)
@@ -388,6 +390,13 @@ def main():
                 continue
 
             bow_key = BOW_KEY_MAP[bow_ja]
+
+            # SKIP: Db minor / Db diminished7 は理論調号 -8 で MusicXML 表現不能のため生成しない
+            #       (Db major / Db augmented / Db dominant7 は維持)
+            if tonic == "Db" and ("minor" in chord_key or "dim" in chord_key):
+                print(f"  Row {i}: SKIP unrepresentable key Db {chord_key}")
+                skipped += 1
+                continue
 
             # 最小オクターブ数を適用
             min_oct    = MIN_OCTAVES[chord_key]
