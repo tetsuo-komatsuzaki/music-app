@@ -796,6 +796,7 @@ export default function ScoreDetail({
   const recordingBpmRef = useRef(analysis?.bpm ?? 90)
   const [recordingBpm, setRecordingBpm] = useState<number | null>(null)
   const handleRecordingBpmChange = useCallback((v: number) => {
+    console.log("[F-1/diag] handleRecordingBpmChange", v)
     recordingBpmRef.current = v
     setRecordingBpm(v)
   }, [])
@@ -1160,6 +1161,7 @@ export default function ScoreDetail({
 
   // --- OSMDインスタンスを受け取り、タイムスタンプマップを構築 ---
   const handleOsmdReady = useCallback((osmd: OpenSheetMusicDisplay) => {
+    console.log("[F-1/diag] handleOsmdReady fired")
     osmdRef.current = osmd
     setIsOsmdReady(true)
     if (analysis) {
@@ -1554,11 +1556,18 @@ export default function ScoreDetail({
   // ▼ F-1 Commit 2: 譜面の行構造とスクロール計画
   const [scrollPlan, setScrollPlan] = useState<ScrollPlan | null>(null)
   useEffect(() => {
+    // [DIAG] 一時診断ログ: 真因切り分けのためどの条件で early-return したか可視化
+    console.log("[F-1/diag] scrollPlan effect tick", {
+      isOsmdReady,
+      hasOsmdRef: !!osmdRef.current,
+      recordingBpm,
+    })
     if (!isOsmdReady || !osmdRef.current || recordingBpm === null) return
     const container = document.getElementById("osmd-container")
     const viewportHeight = container?.clientHeight ?? 600
     const plan = buildScrollPlan(osmdRef.current, recordingBpm, viewportHeight)
     setScrollPlan(plan)
+    console.log("[F-1/diag] scrollPlan generated", plan)
   }, [isOsmdReady, recordingBpm])
 
   // ▼ F-1 Commit 4: 末尾到達自動停止トリガ (Recorder の停止ボタンを click)
