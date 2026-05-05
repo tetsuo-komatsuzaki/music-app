@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
 import * as Tone from "tone"
 import styles from "./scoreDetail.module.css"
-import Recorder from "@/app/components/Recorder"
+import "./ScoreFullscreen.css"
+import Recorder, { type Status as RecorderStatus } from "@/app/components/Recorder"
+import { buildScrollPlan, locateInPlan, type ScrollPlan } from "@/app/_libs/scoreScroll"
 import PerformanceSkeleton from "@/app/components/PerformanceSkeleton"
 import { getSignedUploadUrl } from "@/app/actions/getSignedUploadUrl"
 import { renamePerformance } from "@/app/actions/renamePerformance"
@@ -612,7 +614,7 @@ function ScoreViewer({
       backend: "svg",
       drawTitle: false,
       drawPartNames: false,
-      pageFormat: singleStaffLine ? "Endless" : "A4_P",
+      pageFormat: "Endless",
       newPageFromXML: false,
       renderSingleHorizontalStaffline: false,
       pageBackgroundColor: "#ffffff",
@@ -790,7 +792,30 @@ export default function ScoreDetail({
   const scoreWrapperRef = useRef<HTMLDivElement>(null)
 
   // ▼ 録音テンポ（Recorder から通知される）
+  // ref は startRecordingGuide の rAF tick から同期参照、state は F-1 の useEffect/scrollPlan 再計算に使う
   const recordingBpmRef = useRef(analysis?.bpm ?? 90)
+  const [recordingBpm, setRecordingBpm] = useState<number | null>(null)
+  const handleRecordingBpmChange = useCallback((v: number) => {
+    recordingBpmRef.current = v
+    setRecordingBpm(v)
+  }, [])
+
+  // ▼ 録音状態 (F-1 のフルスクリーン化トリガ用)。Recorder 内の status を最小限ミラー
+  const [recordingState, setRecordingState] = useState<RecorderStatus>("idle")
+
+  // ▼ F-1: 録音中 (countdown / recording) は body に data-fullscreen を付与
+  // 親ページ (practice の breadcrumb 等) も含めて全画面化したいので body 経由
+  const isFullscreen = recordingState === "countdown" || recordingState === "recording"
+  useEffect(() => {
+    if (isFullscreen) {
+      document.body.setAttribute("data-fullscreen", "true")
+    } else {
+      document.body.removeAttribute("data-fullscreen")
+    }
+    return () => {
+      document.body.removeAttribute("data-fullscreen")
+    }
+  }, [isFullscreen])
 
   // ▼ アップロード進捗 (0-100、未開始時は null)
   const [uploadProgress, setUploadProgress] = useState<number | null>(null)
@@ -1006,6 +1031,7 @@ export default function ScoreDetail({
 
   // ▼ OSMDカーソルAPIベースのタイムスタンプマップ
   const osmdRef = useRef<OpenSheetMusicDisplay | null>(null)
+  const [isOsmdReady, setIsOsmdReady] = useState(false)
   const timeToGNotesMap = useRef<Map<number, any[]>>(new Map())
   const sortedTimes = useRef<number[]>([])
   const lastHighlightedTimeRef = useRef<number>(-1)
@@ -1135,12 +1161,19 @@ export default function ScoreDetail({
   // --- OSMDインスタンスを受け取り、タイムスタンプマップを構築 ---
   const handleOsmdReady = useCallback((osmd: OpenSheetMusicDisplay) => {
     osmdRef.current = osmd
+    setIsOsmdReady(true)
     if (analysis) {
       requestAnimationFrame(() => {
         buildTimeToGNotesMap(analysis.bpm)
       })
     }
   }, [analysis, buildTimeToGNotesMap])
+
+  useEffect(() => {
+    return () => {
+      setIsOsmdReady(false)
+    }
+  }, [score.id])
 
   // analysis.notes インデックス → OSMD要素インデックス の変換（評価オーバーレイ用）
   // VexFlow は休符も vf-stavenote として描画するため note_index を直接 OSMD インデックスとして使う
@@ -1279,13 +1312,15 @@ export default function ScoreDetail({
     }
 
     const containerRect = container.getBoundingClientRect()
+    // cursor は position:absolute でコンテナ内配置 → top をコンテンツ座標で算出するため scrollTop を加算
+    const scrollTop = container.scrollTop
     const noteRect = svgEl.getBoundingClientRect()
     const x = noteRect.left + noteRect.width / 2 - containerRect.left
     const noteMidY = noteRect.top + noteRect.height / 2
 
     // 五線の範囲を特定
     const staves = activeSvg.querySelectorAll("g.vf-stave")
-    let staffTop = noteMidY - containerRect.top - 30
+    let staffTop = noteMidY - containerRect.top - 30 + scrollTop
     let staffHeight = 60
 
     let closestStave: Element | null = null
@@ -1309,11 +1344,11 @@ export default function ScoreDetail({
       }
       if (foundLines >= 3) {
         const margin = 8
-        staffTop = lineMinY - containerRect.top - margin
+        staffTop = lineMinY - containerRect.top - margin + scrollTop
         staffHeight = (lineMaxY - lineMinY) + margin * 2
       } else {
         const sr = closestStave.getBoundingClientRect()
-        staffTop = sr.top - containerRect.top
+        staffTop = sr.top - containerRect.top + scrollTop
         staffHeight = sr.height
       }
     }
@@ -1516,6 +1551,138 @@ export default function ScoreDetail({
   const recGuideAnimRef = useRef<number | null>(null)
   const recGuideStartRef = useRef<number>(0)
 
+  // ▼ F-1 Commit 2: 譜面の行構造とスクロール計画
+  const [scrollPlan, setScrollPlan] = useState<ScrollPlan | null>(null)
+  useEffect(() => {
+    if (!isOsmdReady || !osmdRef.current || recordingBpm === null) return
+    const container = document.getElementById("osmd-container")
+    const viewportHeight = container?.clientHeight ?? 600
+    const plan = buildScrollPlan(osmdRef.current, recordingBpm, viewportHeight)
+    setScrollPlan(plan)
+  }, [isOsmdReady, recordingBpm])
+
+  // ▼ F-1 Commit 4: 末尾到達自動停止トリガ (Recorder の停止ボタンを click)
+  const triggerStopRecording = useCallback(() => {
+    const button = document.querySelector(
+      '[data-testid="recorder-stop-button"]',
+    ) as HTMLButtonElement | null
+    if (button) {
+      button.click()
+    } else {
+      console.warn("[F-1] recorder stop button not found")
+    }
+  }, [])
+
+  // ▼ F-1 Commit 6: 戻るボタン制御 (録音中 / countdown 中)
+  useEffect(() => {
+    if (recordingState !== "recording" && recordingState !== "countdown") return
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = "録音中です。中断しますか？"
+      return e.returnValue
+    }
+
+    const handlePopState = () => {
+      const confirmed = window.confirm("録音中です。中断しますか？")
+      if (confirmed) {
+        triggerStopRecording()
+      } else {
+        window.history.pushState(null, "", window.location.href)
+      }
+    }
+
+    window.history.pushState(null, "", window.location.href)
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    window.addEventListener("popstate", handlePopState)
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+      window.removeEventListener("popstate", handlePopState)
+    }
+  }, [recordingState, triggerStopRecording])
+
+  // ▼ F-1 Commit 6: 画面回転 / リサイズで scrollPlan を再計算
+  useEffect(() => {
+    if (recordingState !== "recording") return
+    if (!isOsmdReady || !osmdRef.current || recordingBpm === null) return
+
+    const handleResize = () => {
+      if (!osmdRef.current || recordingBpm === null) return
+      const container = document.getElementById("osmd-container")
+      const viewportHeight = container?.clientHeight ?? 600
+      const newPlan = buildScrollPlan(osmdRef.current, recordingBpm, viewportHeight)
+      setScrollPlan(newPlan)
+    }
+
+    window.addEventListener("resize", handleResize)
+    window.addEventListener("orientationchange", handleResize)
+
+    return () => {
+      window.removeEventListener("resize", handleResize)
+      window.removeEventListener("orientationchange", handleResize)
+    }
+  }, [recordingState, isOsmdReady, recordingBpm])
+
+  // ▼ F-1 Commit 5: 短い譜面の場合は body[data-short-score=true] で上端揃え
+  const isShortScore = scrollPlan?.isShortScore ?? false
+  useEffect(() => {
+    if (isShortScore) {
+      document.body.setAttribute("data-short-score", "true")
+    } else {
+      document.body.removeAttribute("data-short-score")
+    }
+    return () => {
+      document.body.removeAttribute("data-short-score")
+    }
+  }, [isShortScore])
+
+  // ▼ F-1 Commit 3: 録音中の自動スクロール (短い譜面はスキップ、analysis null もスキップ)
+  useEffect(() => {
+    if (recordingState !== "recording") return
+    if (!scrollPlan || scrollPlan.isShortScore) return
+    if (!analysis) return
+
+    const container = document.getElementById("osmd-container")
+    if (!container) return
+
+    let rafId = 0
+    const cursorOffsetRatio = 1 / 3
+    const TAIL_BUFFER_SEC = 1.5
+
+    const tick = () => {
+      if (!recGuideStartRef.current) {
+        rafId = requestAnimationFrame(tick)
+        return
+      }
+      const elapsedSec = (performance.now() - recGuideStartRef.current) / 1000
+
+      // F-1 Commit 4: 末尾到達後 1.5 秒で自動停止
+      if (elapsedSec >= scrollPlan.totalDurationSec + TAIL_BUFFER_SEC) {
+        triggerStopRecording()
+        return
+      }
+
+      const located = locateInPlan(scrollPlan, elapsedSec)
+      if (!located) return
+
+      const viewportHeight = container.clientHeight
+      const targetScrollTop = located.scrollTopPx - viewportHeight * cursorOffsetRatio
+      const clampedScrollTop = Math.max(
+        0,
+        Math.min(targetScrollTop, scrollPlan.totalHeightPx - viewportHeight),
+      )
+      container.scrollTop = clampedScrollTop
+
+      rafId = requestAnimationFrame(tick)
+    }
+
+    rafId = requestAnimationFrame(tick)
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [recordingState, scrollPlan, analysis, triggerStopRecording])
+
   // 録音中のガイドラインを前後ノート間で線形補間して横スライドさせる
   const updateRecordingCursor = useCallback((currentSec: number) => {
     const cursor = cursorRef.current
@@ -1555,6 +1722,9 @@ export default function ScoreDetail({
     }
 
     const containerRect = container.getBoundingClientRect()
+    // cursor は position:absolute でコンテナ内配置 → top/left はコンテンツ座標
+    // viewport 相対の rect を + scrollTop でコンテンツ相対に変換 (横スクロールはこのアプリで発生しないので scrollLeft は使わない)
+    const scrollTop = container.scrollTop
     const prevRect = prevSvg.getBoundingClientRect()
     const prevX = prevRect.left + prevRect.width / 2 - containerRect.left
 
@@ -1577,7 +1747,7 @@ export default function ScoreDetail({
     // 五線の範囲を特定 (updateCursorFromGNotes と同じロジック)
     const noteMidY = prevRect.top + prevRect.height / 2
     const staves = activeSvg.querySelectorAll("g.vf-stave")
-    let staffTop = noteMidY - containerRect.top - 30
+    let staffTop = noteMidY - containerRect.top - 30 + scrollTop
     let staffHeight = 60
 
     let closestStave: Element | null = null
@@ -1601,11 +1771,11 @@ export default function ScoreDetail({
       }
       if (foundLines >= 3) {
         const margin = 8
-        staffTop = lineMinY - containerRect.top - margin
+        staffTop = lineMinY - containerRect.top - margin + scrollTop
         staffHeight = (lineMaxY - lineMinY) + margin * 2
       } else {
         const sr = closestStave.getBoundingClientRect()
-        staffTop = sr.top - containerRect.top
+        staffTop = sr.top - containerRect.top + scrollTop
         staffHeight = sr.height
       }
     }
@@ -1665,13 +1835,19 @@ export default function ScoreDetail({
   }, [stopVisualSync])
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
+    <div className={styles.container} data-section="score-detail-root">
+      {/* F-1: フルスクリーン中の操作ガイドバー (Recorder の停止ボタンは leftColumn 内で非表示のため、戻るボタンを案内) */}
+      {isFullscreen && (
+        <div data-section="fullscreen-bar">
+          演奏停止するには、ブラウザの戻るボタン(←)を押してください
+        </div>
+      )}
+      <div className={styles.header} data-section="header">
         <div><h1 className={styles.title}>{score.title}</h1></div>
       </div>
 
       <div className={styles.grid}>
-        <div className={styles.leftColumn}>
+        <div className={styles.leftColumn} data-section="left-column">
           {infoSlot}
           <div data-onboarding="scoreDetail.recordButton">
             <Recorder
@@ -1679,9 +1855,10 @@ export default function ScoreDetail({
               previousBestScore={bestPitchScore}
               bestOverallScore={bestOverallScore}
               bpm={analysis?.bpm ?? undefined}
-              onRecordingStart={startRecordingGuide}
-              onRecordingBpmChange={(v) => { recordingBpmRef.current = v }}
-              onRecordingStop={stopRecordingGuide}
+              onCountdownStart={() => setRecordingState("countdown")}
+              onRecordingStart={() => { setRecordingState("recording"); startRecordingGuide() }}
+              onRecordingBpmChange={handleRecordingBpmChange}
+              onRecordingStop={() => { setRecordingState("preview"); stopRecordingGuide() }}
               uploadProgress={uploadProgress}
             />
           </div>
@@ -1774,7 +1951,7 @@ export default function ScoreDetail({
           </div>
         </div>
 
-        <div className={styles.rightColumn}>
+        <div className={styles.rightColumn} data-section="right-column">
           <div ref={scoreWrapperRef} style={{ position: "relative" }} data-onboarding="scoreDetail.scoreOverlay">
             <ScoreViewer
               buildUrl={buildUrl}

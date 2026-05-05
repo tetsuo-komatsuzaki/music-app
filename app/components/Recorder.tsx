@@ -178,13 +178,15 @@ type Props = {
   onRecordingStart?: () => void
   onRecordingStop?: () => void
   onRecordingBpmChange?: (bpm: number) => void
+  /** countdown 突入時に1回呼ぶ (F-1 のフルスクリーン化トリガ) */
+  onCountdownStart?: () => void
   /** アップロード進捗 (0-100、null は未開始/完了)。v3.3 spec Commit 3 で追加 */
   uploadProgress?: number | null
 }
 
-type Status = "idle" | "tempo-select" | "countdown" | "recording" | "preview" | "uploading" | "result"
+export type Status = "idle" | "tempo-select" | "countdown" | "recording" | "preview" | "uploading" | "result"
 
-export default function Recorder({ onRecordingComplete, previousBestScore, bestOverallScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, uploadProgress }: Props) {
+export default function Recorder({ onRecordingComplete, previousBestScore, bestOverallScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, uploadProgress }: Props) {
   const [status, setStatus] = useState<Status>("idle")
   const [elapsed, setElapsed] = useState(0)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
@@ -299,6 +301,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
 
     // 3. カウントダウン開始（4→3→2→1）
     setStatus("countdown")
+    onCountdownStart?.()
     setCountdownNum(4)
     playClick()
 
@@ -317,20 +320,6 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
       }
     }, interval)
   }, [effectiveBpm, playClick])
-
-  const cancelCountdown = useCallback(() => {
-    if (countdownTimerRef.current) {
-      clearInterval(countdownTimerRef.current)
-      countdownTimerRef.current = null
-    }
-    // マイクストリームを解放
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop())
-      streamRef.current = null
-    }
-    setStatus("idle")
-    setCountdownNum(0)
-  }, [])
 
   // =========================================================
   // 録音
@@ -664,29 +653,26 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
         </div>
       )}
 
-      {/* ② カウントイン */}
+      {/* ② カウントイン (キャンセル不可) */}
       {status === "countdown" && (
-        <div className={styles.countdownPanel}>
-          <div className={styles.countdownNum} key={countdownNum}>{countdownNum}</div>
+        <div className={styles.countdownPanel} data-recorder-panel="countdown">
+          <div className={styles.countdownNum} key={countdownNum} data-recorder-element="countdown-number">{countdownNum}</div>
           <div className={styles.countdownLabel}>
             {effectiveBpm} BPM
           </div>
-          <button className={styles.cancelBtn} onClick={cancelCountdown}>
-            キャンセル
-          </button>
         </div>
       )}
 
       {/* ③ 録音中 */}
       {status === "recording" && (
-        <div className={styles.recordingPanel}>
-          <div className={styles.recordingTitle}>録音中…</div>
-          <div className={styles.meterContainer}>
+        <div className={styles.recordingPanel} data-recorder-panel="recording">
+          <div className={styles.recordingTitle} data-recorder-element="label">録音中…</div>
+          <div className={styles.meterContainer} data-recorder-element="volume">
             <div className={styles.meterTrack}>
               <div className={styles.meterFill} style={{ width: `${volumeLevel * 100}%` }} />
             </div>
           </div>
-          <div className={styles.timerRow}>
+          <div className={styles.timerRow} data-recorder-element="timer">
             <span className={styles.recordingDot} />
             <span className={styles.timer}>{formatTime(elapsed)}</span>
             <span className={styles.timerMax}>/ {formatTime(MAX_DURATION)}</span>
@@ -694,7 +680,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
           {elapsed < RECOMMENDED_DURATION && (
             <div className={styles.recHint}>推奨: {RECOMMENDED_DURATION}秒以上</div>
           )}
-          <button className={styles.stopBtn} onClick={stopRecording}>
+          <button className={styles.stopBtn} onClick={stopRecording} data-testid="recorder-stop-button">
             <span className={styles.stopSquare} /> 停止
           </button>
         </div>

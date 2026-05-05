@@ -281,7 +281,7 @@ export default async function PracticeDetailPage({
   return (
     <div>
       {/* パンくず */}
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 24px 0" }}>
+      <div data-section="breadcrumb" style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 24px 0" }}>
         <a href={`/${authUserId}/practice/${category}`}
            style={{ fontSize: 13, color: "#4a90d9", textDecoration: "none" }}>
           ← {categoryLabels[category] || category}

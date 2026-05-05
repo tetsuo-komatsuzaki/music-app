@@ -1,0 +1,145 @@
+/* F-1 Fullscreen during recording — body data attribute based, global CSS */
+
+body[data-fullscreen="true"] [data-section="score-detail-root"] {
+  position: fixed !important;
+  inset: 0 !important;
+  background: #FFFFFF !important;
+  z-index: 1000 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  animation: fullscreenFadeIn 200ms ease-out;
+}
+
+@keyframes fullscreenFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* scoreDetail の祖先要素 (breadcrumb 等) と内部の不要セクションを隠す */
+body[data-fullscreen="true"] [data-section="breadcrumb"],
+body[data-fullscreen="true"] [data-section="header"],
+body[data-fullscreen="true"] [data-section="left-column"] {
+  display: none !important;
+}
+
+/* 右カラムを画面いっぱいに */
+body[data-fullscreen="true"] [data-section="right-column"] {
+  width: 100% !important;
+  height: 100% !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+/* 上部ガイドバー (戻るボタン案内) — Recorder UI は leftColumn 内で非表示のため、独立した固定バーで停止操作を案内
+   譜面スクロール中も viewport 上端に固定 */
+[data-section="fullscreen-bar"] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 56px !important;
+  background: #1F3A5F !important;
+  color: #FFFFFF !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  padding: 0 16px !important;
+  border-bottom: 1px solid #163050 !important;
+  z-index: 1002 !important;
+  /* transform/filter/will-change を持たせない (持つと子の position:fixed の含有ブロックが変わる)。
+     親の score-detail-root 側にも transform は付けていないため、本要素は viewport にスティック */
+}
+
+/* 以下 recordingPanel / countdownPanel 系のルールは leftColumn の display:none により
+   現状は適用されない (要素自体がレンダリングされない)。将来 leftColumn を残しつつ
+   Recorder を露出させる構成に変えた際の保険として残置。 */
+/* recordingPanel を上部バー風に */
+body[data-fullscreen="true"] [data-recorder-panel="recording"] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 56px !important;
+  background: #1F3A5F !important;
+  color: #FFFFFF !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  padding: 0 16px !important;
+  border-bottom: 1px solid #163050 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  z-index: 1001 !important;
+  min-width: 0 !important;
+}
+
+/* 録音中…テキスト・音量メーター・推奨ヒントは非表示 */
+body[data-fullscreen="true"] [data-recorder-element="label"],
+body[data-fullscreen="true"] [data-recorder-element="volume"],
+body[data-fullscreen="true"] [data-recorder-panel="recording"] > div:nth-of-type(4) /* recHint */ {
+  display: none !important;
+}
+
+/* タイマー (左寄せ・白文字・Courier New 18px) */
+body[data-fullscreen="true"] [data-recorder-element="timer"] {
+  margin-right: auto !important;
+  font-family: "Courier New", monospace !important;
+  font-size: 18px !important;
+  color: #FFFFFF !important;
+}
+
+body[data-fullscreen="true"] [data-recorder-element="timer"] .timer,
+body[data-fullscreen="true"] [data-recorder-element="timer"] span {
+  color: #FFFFFF !important;
+  font-family: "Courier New", monospace !important;
+  font-size: 18px !important;
+}
+
+/* 停止ボタン (赤背景) */
+body[data-fullscreen="true"] [data-testid="recorder-stop-button"] {
+  background: #D32F2F !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 8px 16px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+
+body[data-fullscreen="true"] [data-testid="recorder-stop-button"]:hover {
+  background: #B71C1C !important;
+}
+
+/* countdownPanel を画面中央に */
+body[data-fullscreen="true"] [data-recorder-panel="countdown"] {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1001 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  padding: 32px 64px !important;
+  border-radius: 8px !important;
+  text-align: center !important;
+}
+
+/* 譜面コンテナを上部バーぶんオフセット + 左右5%パディング */
+body[data-fullscreen="true"] #osmd-container {
+  margin-top: 56px !important;
+  padding: 0 5% !important;
+  height: calc(100vh - 56px) !important;
+  overflow-y: auto !important;
+}
+
+/* 短い譜面の場合は上端揃え */
+body[data-fullscreen="true"][data-short-score="true"] #osmd-container {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+}
