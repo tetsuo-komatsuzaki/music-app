@@ -63,6 +63,31 @@ export type Feedback = $Result.DefaultSelection<Prisma.$FeedbackPayload>
  * 
  */
 export type SupportInquiry = $Result.DefaultSelection<Prisma.$SupportInquiryPayload>
+/**
+ * Model UserSkillScore
+ * 
+ */
+export type UserSkillScore = $Result.DefaultSelection<Prisma.$UserSkillScorePayload>
+/**
+ * Model UserSkillSubScore
+ * 
+ */
+export type UserSkillSubScore = $Result.DefaultSelection<Prisma.$UserSkillSubScorePayload>
+/**
+ * Model UserSkillTaskCard
+ * 
+ */
+export type UserSkillTaskCard = $Result.DefaultSelection<Prisma.$UserSkillTaskCardPayload>
+/**
+ * Model UserGrade
+ * 
+ */
+export type UserGrade = $Result.DefaultSelection<Prisma.$UserGradePayload>
+/**
+ * Model PerformanceSkillFeedback
+ * 
+ */
+export type PerformanceSkillFeedback = $Result.DefaultSelection<Prisma.$PerformanceSkillFeedbackPayload>
 
 /**
  * Enums
@@ -113,6 +138,33 @@ export const PracticeCategory: {
 
 export type PracticeCategory = (typeof PracticeCategory)[keyof typeof PracticeCategory]
 
+
+export const CardType: {
+  task: 'task',
+  sub_task: 'sub_task'
+};
+
+export type CardType = (typeof CardType)[keyof typeof CardType]
+
+
+export const CardStatus: {
+  active: 'active',
+  improving: 'improving',
+  cleared: 'cleared'
+};
+
+export type CardStatus = (typeof CardStatus)[keyof typeof CardStatus]
+
+
+export const GradeLevel: {
+  BEGINNER: 'BEGINNER',
+  INTERMEDIATE: 'INTERMEDIATE',
+  ADVANCED: 'ADVANCED',
+  MASTER: 'MASTER'
+};
+
+export type GradeLevel = (typeof GradeLevel)[keyof typeof GradeLevel]
+
 }
 
 export type JobStatus = $Enums.JobStatus
@@ -134,6 +186,18 @@ export const PerformanceStatus: typeof $Enums.PerformanceStatus
 export type PracticeCategory = $Enums.PracticeCategory
 
 export const PracticeCategory: typeof $Enums.PracticeCategory
+
+export type CardType = $Enums.CardType
+
+export const CardType: typeof $Enums.CardType
+
+export type CardStatus = $Enums.CardStatus
+
+export const CardStatus: typeof $Enums.CardStatus
+
+export type GradeLevel = $Enums.GradeLevel
+
+export const GradeLevel: typeof $Enums.GradeLevel
 
 /**
  * ##  Prisma Client ʲˢ
@@ -351,6 +415,56 @@ export class PrismaClient<
     * ```
     */
   get supportInquiry(): Prisma.SupportInquiryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userSkillScore`: Exposes CRUD operations for the **UserSkillScore** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserSkillScores
+    * const userSkillScores = await prisma.userSkillScore.findMany()
+    * ```
+    */
+  get userSkillScore(): Prisma.UserSkillScoreDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userSkillSubScore`: Exposes CRUD operations for the **UserSkillSubScore** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserSkillSubScores
+    * const userSkillSubScores = await prisma.userSkillSubScore.findMany()
+    * ```
+    */
+  get userSkillSubScore(): Prisma.UserSkillSubScoreDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userSkillTaskCard`: Exposes CRUD operations for the **UserSkillTaskCard** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserSkillTaskCards
+    * const userSkillTaskCards = await prisma.userSkillTaskCard.findMany()
+    * ```
+    */
+  get userSkillTaskCard(): Prisma.UserSkillTaskCardDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userGrade`: Exposes CRUD operations for the **UserGrade** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserGrades
+    * const userGrades = await prisma.userGrade.findMany()
+    * ```
+    */
+  get userGrade(): Prisma.UserGradeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.performanceSkillFeedback`: Exposes CRUD operations for the **PerformanceSkillFeedback** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PerformanceSkillFeedbacks
+    * const performanceSkillFeedbacks = await prisma.performanceSkillFeedback.findMany()
+    * ```
+    */
+  get performanceSkillFeedback(): Prisma.PerformanceSkillFeedbackDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -794,7 +908,12 @@ export namespace Prisma {
     PracticePerformance: 'PracticePerformance',
     UserWeakness: 'UserWeakness',
     Feedback: 'Feedback',
-    SupportInquiry: 'SupportInquiry'
+    SupportInquiry: 'SupportInquiry',
+    UserSkillScore: 'UserSkillScore',
+    UserSkillSubScore: 'UserSkillSubScore',
+    UserSkillTaskCard: 'UserSkillTaskCard',
+    UserGrade: 'UserGrade',
+    PerformanceSkillFeedback: 'PerformanceSkillFeedback'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -810,7 +929,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "score" | "performance" | "practiceItem" | "techniqueTag" | "practiceItemTechnique" | "practicePerformance" | "userWeakness" | "feedback" | "supportInquiry"
+      modelProps: "user" | "score" | "performance" | "practiceItem" | "techniqueTag" | "practiceItemTechnique" | "practicePerformance" | "userWeakness" | "feedback" | "supportInquiry" | "userSkillScore" | "userSkillSubScore" | "userSkillTaskCard" | "userGrade" | "performanceSkillFeedback"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1554,6 +1673,376 @@ export namespace Prisma {
           }
         }
       }
+      UserSkillScore: {
+        payload: Prisma.$UserSkillScorePayload<ExtArgs>
+        fields: Prisma.UserSkillScoreFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserSkillScoreFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillScorePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserSkillScoreFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillScorePayload>
+          }
+          findFirst: {
+            args: Prisma.UserSkillScoreFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillScorePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserSkillScoreFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillScorePayload>
+          }
+          findMany: {
+            args: Prisma.UserSkillScoreFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillScorePayload>[]
+          }
+          create: {
+            args: Prisma.UserSkillScoreCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillScorePayload>
+          }
+          createMany: {
+            args: Prisma.UserSkillScoreCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserSkillScoreCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillScorePayload>[]
+          }
+          delete: {
+            args: Prisma.UserSkillScoreDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillScorePayload>
+          }
+          update: {
+            args: Prisma.UserSkillScoreUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillScorePayload>
+          }
+          deleteMany: {
+            args: Prisma.UserSkillScoreDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserSkillScoreUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserSkillScoreUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillScorePayload>[]
+          }
+          upsert: {
+            args: Prisma.UserSkillScoreUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillScorePayload>
+          }
+          aggregate: {
+            args: Prisma.UserSkillScoreAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserSkillScore>
+          }
+          groupBy: {
+            args: Prisma.UserSkillScoreGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserSkillScoreGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserSkillScoreCountArgs<ExtArgs>
+            result: $Utils.Optional<UserSkillScoreCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserSkillSubScore: {
+        payload: Prisma.$UserSkillSubScorePayload<ExtArgs>
+        fields: Prisma.UserSkillSubScoreFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserSkillSubScoreFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillSubScorePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserSkillSubScoreFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillSubScorePayload>
+          }
+          findFirst: {
+            args: Prisma.UserSkillSubScoreFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillSubScorePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserSkillSubScoreFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillSubScorePayload>
+          }
+          findMany: {
+            args: Prisma.UserSkillSubScoreFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillSubScorePayload>[]
+          }
+          create: {
+            args: Prisma.UserSkillSubScoreCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillSubScorePayload>
+          }
+          createMany: {
+            args: Prisma.UserSkillSubScoreCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserSkillSubScoreCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillSubScorePayload>[]
+          }
+          delete: {
+            args: Prisma.UserSkillSubScoreDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillSubScorePayload>
+          }
+          update: {
+            args: Prisma.UserSkillSubScoreUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillSubScorePayload>
+          }
+          deleteMany: {
+            args: Prisma.UserSkillSubScoreDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserSkillSubScoreUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserSkillSubScoreUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillSubScorePayload>[]
+          }
+          upsert: {
+            args: Prisma.UserSkillSubScoreUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillSubScorePayload>
+          }
+          aggregate: {
+            args: Prisma.UserSkillSubScoreAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserSkillSubScore>
+          }
+          groupBy: {
+            args: Prisma.UserSkillSubScoreGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserSkillSubScoreGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserSkillSubScoreCountArgs<ExtArgs>
+            result: $Utils.Optional<UserSkillSubScoreCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserSkillTaskCard: {
+        payload: Prisma.$UserSkillTaskCardPayload<ExtArgs>
+        fields: Prisma.UserSkillTaskCardFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserSkillTaskCardFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillTaskCardPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserSkillTaskCardFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillTaskCardPayload>
+          }
+          findFirst: {
+            args: Prisma.UserSkillTaskCardFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillTaskCardPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserSkillTaskCardFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillTaskCardPayload>
+          }
+          findMany: {
+            args: Prisma.UserSkillTaskCardFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillTaskCardPayload>[]
+          }
+          create: {
+            args: Prisma.UserSkillTaskCardCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillTaskCardPayload>
+          }
+          createMany: {
+            args: Prisma.UserSkillTaskCardCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserSkillTaskCardCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillTaskCardPayload>[]
+          }
+          delete: {
+            args: Prisma.UserSkillTaskCardDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillTaskCardPayload>
+          }
+          update: {
+            args: Prisma.UserSkillTaskCardUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillTaskCardPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserSkillTaskCardDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserSkillTaskCardUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserSkillTaskCardUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillTaskCardPayload>[]
+          }
+          upsert: {
+            args: Prisma.UserSkillTaskCardUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserSkillTaskCardPayload>
+          }
+          aggregate: {
+            args: Prisma.UserSkillTaskCardAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserSkillTaskCard>
+          }
+          groupBy: {
+            args: Prisma.UserSkillTaskCardGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserSkillTaskCardGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserSkillTaskCardCountArgs<ExtArgs>
+            result: $Utils.Optional<UserSkillTaskCardCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserGrade: {
+        payload: Prisma.$UserGradePayload<ExtArgs>
+        fields: Prisma.UserGradeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserGradeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserGradeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradePayload>
+          }
+          findFirst: {
+            args: Prisma.UserGradeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserGradeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradePayload>
+          }
+          findMany: {
+            args: Prisma.UserGradeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradePayload>[]
+          }
+          create: {
+            args: Prisma.UserGradeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradePayload>
+          }
+          createMany: {
+            args: Prisma.UserGradeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserGradeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradePayload>[]
+          }
+          delete: {
+            args: Prisma.UserGradeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradePayload>
+          }
+          update: {
+            args: Prisma.UserGradeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradePayload>
+          }
+          deleteMany: {
+            args: Prisma.UserGradeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserGradeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserGradeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradePayload>[]
+          }
+          upsert: {
+            args: Prisma.UserGradeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradePayload>
+          }
+          aggregate: {
+            args: Prisma.UserGradeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserGrade>
+          }
+          groupBy: {
+            args: Prisma.UserGradeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserGradeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserGradeCountArgs<ExtArgs>
+            result: $Utils.Optional<UserGradeCountAggregateOutputType> | number
+          }
+        }
+      }
+      PerformanceSkillFeedback: {
+        payload: Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>
+        fields: Prisma.PerformanceSkillFeedbackFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PerformanceSkillFeedbackFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PerformanceSkillFeedbackPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PerformanceSkillFeedbackFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PerformanceSkillFeedbackPayload>
+          }
+          findFirst: {
+            args: Prisma.PerformanceSkillFeedbackFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PerformanceSkillFeedbackPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PerformanceSkillFeedbackFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PerformanceSkillFeedbackPayload>
+          }
+          findMany: {
+            args: Prisma.PerformanceSkillFeedbackFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PerformanceSkillFeedbackPayload>[]
+          }
+          create: {
+            args: Prisma.PerformanceSkillFeedbackCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PerformanceSkillFeedbackPayload>
+          }
+          createMany: {
+            args: Prisma.PerformanceSkillFeedbackCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PerformanceSkillFeedbackCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PerformanceSkillFeedbackPayload>[]
+          }
+          delete: {
+            args: Prisma.PerformanceSkillFeedbackDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PerformanceSkillFeedbackPayload>
+          }
+          update: {
+            args: Prisma.PerformanceSkillFeedbackUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PerformanceSkillFeedbackPayload>
+          }
+          deleteMany: {
+            args: Prisma.PerformanceSkillFeedbackDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PerformanceSkillFeedbackUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PerformanceSkillFeedbackUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PerformanceSkillFeedbackPayload>[]
+          }
+          upsert: {
+            args: Prisma.PerformanceSkillFeedbackUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PerformanceSkillFeedbackPayload>
+          }
+          aggregate: {
+            args: Prisma.PerformanceSkillFeedbackAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePerformanceSkillFeedback>
+          }
+          groupBy: {
+            args: Prisma.PerformanceSkillFeedbackGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PerformanceSkillFeedbackGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PerformanceSkillFeedbackCountArgs<ExtArgs>
+            result: $Utils.Optional<PerformanceSkillFeedbackCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1672,6 +2161,11 @@ export namespace Prisma {
     userWeakness?: UserWeaknessOmit
     feedback?: FeedbackOmit
     supportInquiry?: SupportInquiryOmit
+    userSkillScore?: UserSkillScoreOmit
+    userSkillSubScore?: UserSkillSubScoreOmit
+    userSkillTaskCard?: UserSkillTaskCardOmit
+    userGrade?: UserGradeOmit
+    performanceSkillFeedback?: PerformanceSkillFeedbackOmit
   }
 
   /* Types for Logging */
@@ -1759,6 +2253,10 @@ export namespace Prisma {
     weaknesses: number
     feedbacks: number
     supportInquiries: number
+    userSkillScores: number
+    userSkillSubScores: number
+    userSkillTaskCards: number
+    performanceSkillFeedbacks: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1769,6 +2267,10 @@ export namespace Prisma {
     weaknesses?: boolean | UserCountOutputTypeCountWeaknessesArgs
     feedbacks?: boolean | UserCountOutputTypeCountFeedbacksArgs
     supportInquiries?: boolean | UserCountOutputTypeCountSupportInquiriesArgs
+    userSkillScores?: boolean | UserCountOutputTypeCountUserSkillScoresArgs
+    userSkillSubScores?: boolean | UserCountOutputTypeCountUserSkillSubScoresArgs
+    userSkillTaskCards?: boolean | UserCountOutputTypeCountUserSkillTaskCardsArgs
+    performanceSkillFeedbacks?: boolean | UserCountOutputTypeCountPerformanceSkillFeedbacksArgs
   }
 
   // Custom InputTypes
@@ -1829,6 +2331,34 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountSupportInquiriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SupportInquiryWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountUserSkillScoresArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserSkillScoreWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountUserSkillSubScoresArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserSkillSubScoreWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountUserSkillTaskCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserSkillTaskCardWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountPerformanceSkillFeedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PerformanceSkillFeedbackWhereInput
   }
 
 
@@ -1940,6 +2470,37 @@ export namespace Prisma {
    */
   export type TechniqueTagCountOutputTypeCountWeaknessesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserWeaknessWhereInput
+  }
+
+
+  /**
+   * Count Type PracticePerformanceCountOutputType
+   */
+
+  export type PracticePerformanceCountOutputType = {
+    skillFeedbacks: number
+  }
+
+  export type PracticePerformanceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    skillFeedbacks?: boolean | PracticePerformanceCountOutputTypeCountSkillFeedbacksArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * PracticePerformanceCountOutputType without action
+   */
+  export type PracticePerformanceCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticePerformanceCountOutputType
+     */
+    select?: PracticePerformanceCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * PracticePerformanceCountOutputType without action
+   */
+  export type PracticePerformanceCountOutputTypeCountSkillFeedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PerformanceSkillFeedbackWhereInput
   }
 
 
@@ -2158,6 +2719,11 @@ export namespace Prisma {
     weaknesses?: boolean | User$weaknessesArgs<ExtArgs>
     feedbacks?: boolean | User$feedbacksArgs<ExtArgs>
     supportInquiries?: boolean | User$supportInquiriesArgs<ExtArgs>
+    userSkillScores?: boolean | User$userSkillScoresArgs<ExtArgs>
+    userSkillSubScores?: boolean | User$userSkillSubScoresArgs<ExtArgs>
+    userSkillTaskCards?: boolean | User$userSkillTaskCardsArgs<ExtArgs>
+    userGrade?: boolean | User$userGradeArgs<ExtArgs>
+    performanceSkillFeedbacks?: boolean | User$performanceSkillFeedbacksArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2209,6 +2775,11 @@ export namespace Prisma {
     weaknesses?: boolean | User$weaknessesArgs<ExtArgs>
     feedbacks?: boolean | User$feedbacksArgs<ExtArgs>
     supportInquiries?: boolean | User$supportInquiriesArgs<ExtArgs>
+    userSkillScores?: boolean | User$userSkillScoresArgs<ExtArgs>
+    userSkillSubScores?: boolean | User$userSkillSubScoresArgs<ExtArgs>
+    userSkillTaskCards?: boolean | User$userSkillTaskCardsArgs<ExtArgs>
+    userGrade?: boolean | User$userGradeArgs<ExtArgs>
+    performanceSkillFeedbacks?: boolean | User$performanceSkillFeedbacksArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2224,6 +2795,11 @@ export namespace Prisma {
       weaknesses: Prisma.$UserWeaknessPayload<ExtArgs>[]
       feedbacks: Prisma.$FeedbackPayload<ExtArgs>[]
       supportInquiries: Prisma.$SupportInquiryPayload<ExtArgs>[]
+      userSkillScores: Prisma.$UserSkillScorePayload<ExtArgs>[]
+      userSkillSubScores: Prisma.$UserSkillSubScorePayload<ExtArgs>[]
+      userSkillTaskCards: Prisma.$UserSkillTaskCardPayload<ExtArgs>[]
+      userGrade: Prisma.$UserGradePayload<ExtArgs> | null
+      performanceSkillFeedbacks: Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2637,6 +3213,11 @@ export namespace Prisma {
     weaknesses<T extends User$weaknessesArgs<ExtArgs> = {}>(args?: Subset<T, User$weaknessesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserWeaknessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     feedbacks<T extends User$feedbacksArgs<ExtArgs> = {}>(args?: Subset<T, User$feedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     supportInquiries<T extends User$supportInquiriesArgs<ExtArgs> = {}>(args?: Subset<T, User$supportInquiriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportInquiryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userSkillScores<T extends User$userSkillScoresArgs<ExtArgs> = {}>(args?: Subset<T, User$userSkillScoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSkillScorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userSkillSubScores<T extends User$userSkillSubScoresArgs<ExtArgs> = {}>(args?: Subset<T, User$userSkillSubScoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSkillSubScorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userSkillTaskCards<T extends User$userSkillTaskCardsArgs<ExtArgs> = {}>(args?: Subset<T, User$userSkillTaskCardsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSkillTaskCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userGrade<T extends User$userGradeArgs<ExtArgs> = {}>(args?: Subset<T, User$userGradeArgs<ExtArgs>>): Prisma__UserGradeClient<$Result.GetResult<Prisma.$UserGradePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    performanceSkillFeedbacks<T extends User$performanceSkillFeedbacksArgs<ExtArgs> = {}>(args?: Subset<T, User$performanceSkillFeedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3229,6 +3810,121 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SupportInquiryScalarFieldEnum | SupportInquiryScalarFieldEnum[]
+  }
+
+  /**
+   * User.userSkillScores
+   */
+  export type User$userSkillScoresArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillScore
+     */
+    select?: UserSkillScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillScore
+     */
+    omit?: UserSkillScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillScoreInclude<ExtArgs> | null
+    where?: UserSkillScoreWhereInput
+    orderBy?: UserSkillScoreOrderByWithRelationInput | UserSkillScoreOrderByWithRelationInput[]
+    cursor?: UserSkillScoreWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserSkillScoreScalarFieldEnum | UserSkillScoreScalarFieldEnum[]
+  }
+
+  /**
+   * User.userSkillSubScores
+   */
+  export type User$userSkillSubScoresArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillSubScore
+     */
+    select?: UserSkillSubScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillSubScore
+     */
+    omit?: UserSkillSubScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillSubScoreInclude<ExtArgs> | null
+    where?: UserSkillSubScoreWhereInput
+    orderBy?: UserSkillSubScoreOrderByWithRelationInput | UserSkillSubScoreOrderByWithRelationInput[]
+    cursor?: UserSkillSubScoreWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserSkillSubScoreScalarFieldEnum | UserSkillSubScoreScalarFieldEnum[]
+  }
+
+  /**
+   * User.userSkillTaskCards
+   */
+  export type User$userSkillTaskCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillTaskCard
+     */
+    select?: UserSkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillTaskCard
+     */
+    omit?: UserSkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillTaskCardInclude<ExtArgs> | null
+    where?: UserSkillTaskCardWhereInput
+    orderBy?: UserSkillTaskCardOrderByWithRelationInput | UserSkillTaskCardOrderByWithRelationInput[]
+    cursor?: UserSkillTaskCardWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserSkillTaskCardScalarFieldEnum | UserSkillTaskCardScalarFieldEnum[]
+  }
+
+  /**
+   * User.userGrade
+   */
+  export type User$userGradeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGrade
+     */
+    select?: UserGradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGrade
+     */
+    omit?: UserGradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeInclude<ExtArgs> | null
+    where?: UserGradeWhereInput
+  }
+
+  /**
+   * User.performanceSkillFeedbacks
+   */
+  export type User$performanceSkillFeedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+    where?: PerformanceSkillFeedbackWhereInput
+    orderBy?: PerformanceSkillFeedbackOrderByWithRelationInput | PerformanceSkillFeedbackOrderByWithRelationInput[]
+    cursor?: PerformanceSkillFeedbackWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PerformanceSkillFeedbackScalarFieldEnum | PerformanceSkillFeedbackScalarFieldEnum[]
   }
 
   /**
@@ -5998,6 +6694,7 @@ export namespace Prisma {
     tempoMax: number | null
     retryCount: number | null
     sortOrder: number | null
+    difficulty: number | null
   }
 
   export type PracticeItemSumAggregateOutputType = {
@@ -6005,6 +6702,7 @@ export namespace Prisma {
     tempoMax: number | null
     retryCount: number | null
     sortOrder: number | null
+    difficulty: number | null
   }
 
   export type PracticeItemMinAggregateOutputType = {
@@ -6035,6 +6733,7 @@ export namespace Prisma {
     isPublished: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
+    difficulty: number | null
   }
 
   export type PracticeItemMaxAggregateOutputType = {
@@ -6065,6 +6764,7 @@ export namespace Prisma {
     isPublished: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
+    difficulty: number | null
   }
 
   export type PracticeItemCountAggregateOutputType = {
@@ -6097,6 +6797,8 @@ export namespace Prisma {
     metadata: number
     createdAt: number
     updatedAt: number
+    difficulty: number
+    skillSubTaskTags: number
     _all: number
   }
 
@@ -6106,6 +6808,7 @@ export namespace Prisma {
     tempoMax?: true
     retryCount?: true
     sortOrder?: true
+    difficulty?: true
   }
 
   export type PracticeItemSumAggregateInputType = {
@@ -6113,6 +6816,7 @@ export namespace Prisma {
     tempoMax?: true
     retryCount?: true
     sortOrder?: true
+    difficulty?: true
   }
 
   export type PracticeItemMinAggregateInputType = {
@@ -6143,6 +6847,7 @@ export namespace Prisma {
     isPublished?: true
     createdAt?: true
     updatedAt?: true
+    difficulty?: true
   }
 
   export type PracticeItemMaxAggregateInputType = {
@@ -6173,6 +6878,7 @@ export namespace Prisma {
     isPublished?: true
     createdAt?: true
     updatedAt?: true
+    difficulty?: true
   }
 
   export type PracticeItemCountAggregateInputType = {
@@ -6205,6 +6911,8 @@ export namespace Prisma {
     metadata?: true
     createdAt?: true
     updatedAt?: true
+    difficulty?: true
+    skillSubTaskTags?: true
     _all?: true
   }
 
@@ -6324,6 +7032,8 @@ export namespace Prisma {
     metadata: JsonValue | null
     createdAt: Date
     updatedAt: Date
+    difficulty: number | null
+    skillSubTaskTags: JsonValue | null
     _count: PracticeItemCountAggregateOutputType | null
     _avg: PracticeItemAvgAggregateOutputType | null
     _sum: PracticeItemSumAggregateOutputType | null
@@ -6375,6 +7085,8 @@ export namespace Prisma {
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    difficulty?: boolean
+    skillSubTaskTags?: boolean
     owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
     techniques?: boolean | PracticeItem$techniquesArgs<ExtArgs>
     practicePerformances?: boolean | PracticeItem$practicePerformancesArgs<ExtArgs>
@@ -6411,6 +7123,8 @@ export namespace Prisma {
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    difficulty?: boolean
+    skillSubTaskTags?: boolean
     owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
   }, ExtArgs["result"]["practiceItem"]>
 
@@ -6444,6 +7158,8 @@ export namespace Prisma {
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    difficulty?: boolean
+    skillSubTaskTags?: boolean
     owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
   }, ExtArgs["result"]["practiceItem"]>
 
@@ -6477,9 +7193,11 @@ export namespace Prisma {
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    difficulty?: boolean
+    skillSubTaskTags?: boolean
   }
 
-  export type PracticeItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "category" | "title" | "composer" | "description" | "descriptionShort" | "keyTonic" | "keyMode" | "tempoMin" | "tempoMax" | "positions" | "instrument" | "originalXmlPath" | "generatedXmlPath" | "analysisPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "ownerUserId" | "source" | "sortOrder" | "isPublished" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["practiceItem"]>
+  export type PracticeItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "category" | "title" | "composer" | "description" | "descriptionShort" | "keyTonic" | "keyMode" | "tempoMin" | "tempoMax" | "positions" | "instrument" | "originalXmlPath" | "generatedXmlPath" | "analysisPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "ownerUserId" | "source" | "sortOrder" | "isPublished" | "metadata" | "createdAt" | "updatedAt" | "difficulty" | "skillSubTaskTags", ExtArgs["result"]["practiceItem"]>
   export type PracticeItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
     techniques?: boolean | PracticeItem$techniquesArgs<ExtArgs>
@@ -6530,6 +7248,8 @@ export namespace Prisma {
       metadata: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
+      difficulty: number | null
+      skillSubTaskTags: Prisma.JsonValue | null
     }, ExtArgs["result"]["practiceItem"]>
     composites: {}
   }
@@ -6985,6 +7705,8 @@ export namespace Prisma {
     readonly metadata: FieldRef<"PracticeItem", 'Json'>
     readonly createdAt: FieldRef<"PracticeItem", 'DateTime'>
     readonly updatedAt: FieldRef<"PracticeItem", 'DateTime'>
+    readonly difficulty: FieldRef<"PracticeItem", 'Int'>
+    readonly skillSubTaskTags: FieldRef<"PracticeItem", 'Json'>
   }
     
 
@@ -9658,6 +10380,9 @@ export namespace Prisma {
     overallScore: number | null
     evaluatedNotes: number | null
     retryCount: number | null
+    pitchSkillScore: number | null
+    rhythmSkillScore: number | null
+    bowingSkillScore: number | null
   }
 
   export type PracticePerformanceSumAggregateOutputType = {
@@ -9667,6 +10392,9 @@ export namespace Prisma {
     overallScore: number | null
     evaluatedNotes: number | null
     retryCount: number | null
+    pitchSkillScore: number | null
+    rhythmSkillScore: number | null
+    bowingSkillScore: number | null
   }
 
   export type PracticePerformanceMinAggregateOutputType = {
@@ -9688,6 +10416,9 @@ export namespace Prisma {
     lastAttemptedAt: Date | null
     executionId: string | null
     idempotencyKey: string | null
+    pitchSkillScore: number | null
+    rhythmSkillScore: number | null
+    bowingSkillScore: number | null
   }
 
   export type PracticePerformanceMaxAggregateOutputType = {
@@ -9709,6 +10440,9 @@ export namespace Prisma {
     lastAttemptedAt: Date | null
     executionId: string | null
     idempotencyKey: string | null
+    pitchSkillScore: number | null
+    rhythmSkillScore: number | null
+    bowingSkillScore: number | null
   }
 
   export type PracticePerformanceCountAggregateOutputType = {
@@ -9731,6 +10465,11 @@ export namespace Prisma {
     lastAttemptedAt: number
     executionId: number
     idempotencyKey: number
+    pitchSkillScore: number
+    rhythmSkillScore: number
+    bowingSkillScore: number
+    skillSubScores: number
+    problematicPositions: number
     _all: number
   }
 
@@ -9742,6 +10481,9 @@ export namespace Prisma {
     overallScore?: true
     evaluatedNotes?: true
     retryCount?: true
+    pitchSkillScore?: true
+    rhythmSkillScore?: true
+    bowingSkillScore?: true
   }
 
   export type PracticePerformanceSumAggregateInputType = {
@@ -9751,6 +10493,9 @@ export namespace Prisma {
     overallScore?: true
     evaluatedNotes?: true
     retryCount?: true
+    pitchSkillScore?: true
+    rhythmSkillScore?: true
+    bowingSkillScore?: true
   }
 
   export type PracticePerformanceMinAggregateInputType = {
@@ -9772,6 +10517,9 @@ export namespace Prisma {
     lastAttemptedAt?: true
     executionId?: true
     idempotencyKey?: true
+    pitchSkillScore?: true
+    rhythmSkillScore?: true
+    bowingSkillScore?: true
   }
 
   export type PracticePerformanceMaxAggregateInputType = {
@@ -9793,6 +10541,9 @@ export namespace Prisma {
     lastAttemptedAt?: true
     executionId?: true
     idempotencyKey?: true
+    pitchSkillScore?: true
+    rhythmSkillScore?: true
+    bowingSkillScore?: true
   }
 
   export type PracticePerformanceCountAggregateInputType = {
@@ -9815,6 +10566,11 @@ export namespace Prisma {
     lastAttemptedAt?: true
     executionId?: true
     idempotencyKey?: true
+    pitchSkillScore?: true
+    rhythmSkillScore?: true
+    bowingSkillScore?: true
+    skillSubScores?: true
+    problematicPositions?: true
     _all?: true
   }
 
@@ -9924,6 +10680,11 @@ export namespace Prisma {
     lastAttemptedAt: Date | null
     executionId: string | null
     idempotencyKey: string | null
+    pitchSkillScore: number | null
+    rhythmSkillScore: number | null
+    bowingSkillScore: number | null
+    skillSubScores: JsonValue | null
+    problematicPositions: JsonValue | null
     _count: PracticePerformanceCountAggregateOutputType | null
     _avg: PracticePerformanceAvgAggregateOutputType | null
     _sum: PracticePerformanceSumAggregateOutputType | null
@@ -9965,8 +10726,15 @@ export namespace Prisma {
     lastAttemptedAt?: boolean
     executionId?: boolean
     idempotencyKey?: boolean
+    pitchSkillScore?: boolean
+    rhythmSkillScore?: boolean
+    bowingSkillScore?: boolean
+    skillSubScores?: boolean
+    problematicPositions?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+    skillFeedbacks?: boolean | PracticePerformance$skillFeedbacksArgs<ExtArgs>
+    _count?: boolean | PracticePerformanceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["practicePerformance"]>
 
   export type PracticePerformanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -9989,6 +10757,11 @@ export namespace Prisma {
     lastAttemptedAt?: boolean
     executionId?: boolean
     idempotencyKey?: boolean
+    pitchSkillScore?: boolean
+    rhythmSkillScore?: boolean
+    bowingSkillScore?: boolean
+    skillSubScores?: boolean
+    problematicPositions?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["practicePerformance"]>
@@ -10013,6 +10786,11 @@ export namespace Prisma {
     lastAttemptedAt?: boolean
     executionId?: boolean
     idempotencyKey?: boolean
+    pitchSkillScore?: boolean
+    rhythmSkillScore?: boolean
+    bowingSkillScore?: boolean
+    skillSubScores?: boolean
+    problematicPositions?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["practicePerformance"]>
@@ -10037,12 +10815,19 @@ export namespace Prisma {
     lastAttemptedAt?: boolean
     executionId?: boolean
     idempotencyKey?: boolean
+    pitchSkillScore?: boolean
+    rhythmSkillScore?: boolean
+    bowingSkillScore?: boolean
+    skillSubScores?: boolean
+    problematicPositions?: boolean
   }
 
-  export type PracticePerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "practiceItemId" | "name" | "audioPath" | "comparisonResultPath" | "performanceDuration" | "uploadedAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary" | "analysisStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey", ExtArgs["result"]["practicePerformance"]>
+  export type PracticePerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "practiceItemId" | "name" | "audioPath" | "comparisonResultPath" | "performanceDuration" | "uploadedAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary" | "analysisStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "pitchSkillScore" | "rhythmSkillScore" | "bowingSkillScore" | "skillSubScores" | "problematicPositions", ExtArgs["result"]["practicePerformance"]>
   export type PracticePerformanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+    skillFeedbacks?: boolean | PracticePerformance$skillFeedbacksArgs<ExtArgs>
+    _count?: boolean | PracticePerformanceCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PracticePerformanceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -10058,6 +10843,7 @@ export namespace Prisma {
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
       practiceItem: Prisma.$PracticeItemPayload<ExtArgs>
+      skillFeedbacks: Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -10079,6 +10865,11 @@ export namespace Prisma {
       lastAttemptedAt: Date | null
       executionId: string | null
       idempotencyKey: string | null
+      pitchSkillScore: number | null
+      rhythmSkillScore: number | null
+      bowingSkillScore: number | null
+      skillSubScores: Prisma.JsonValue | null
+      problematicPositions: Prisma.JsonValue | null
     }, ExtArgs["result"]["practicePerformance"]>
     composites: {}
   }
@@ -10475,6 +11266,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     practiceItem<T extends PracticeItemDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PracticeItemDefaultArgs<ExtArgs>>): Prisma__PracticeItemClient<$Result.GetResult<Prisma.$PracticeItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    skillFeedbacks<T extends PracticePerformance$skillFeedbacksArgs<ExtArgs> = {}>(args?: Subset<T, PracticePerformance$skillFeedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10523,6 +11315,11 @@ export namespace Prisma {
     readonly lastAttemptedAt: FieldRef<"PracticePerformance", 'DateTime'>
     readonly executionId: FieldRef<"PracticePerformance", 'String'>
     readonly idempotencyKey: FieldRef<"PracticePerformance", 'String'>
+    readonly pitchSkillScore: FieldRef<"PracticePerformance", 'Float'>
+    readonly rhythmSkillScore: FieldRef<"PracticePerformance", 'Float'>
+    readonly bowingSkillScore: FieldRef<"PracticePerformance", 'Float'>
+    readonly skillSubScores: FieldRef<"PracticePerformance", 'Json'>
+    readonly problematicPositions: FieldRef<"PracticePerformance", 'Json'>
   }
     
 
@@ -10916,6 +11713,30 @@ export namespace Prisma {
      * Limit how many PracticePerformances to delete.
      */
     limit?: number
+  }
+
+  /**
+   * PracticePerformance.skillFeedbacks
+   */
+  export type PracticePerformance$skillFeedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+    where?: PerformanceSkillFeedbackWhereInput
+    orderBy?: PerformanceSkillFeedbackOrderByWithRelationInput | PerformanceSkillFeedbackOrderByWithRelationInput[]
+    cursor?: PerformanceSkillFeedbackWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PerformanceSkillFeedbackScalarFieldEnum | PerformanceSkillFeedbackScalarFieldEnum[]
   }
 
   /**
@@ -14379,6 +15200,5566 @@ export namespace Prisma {
 
 
   /**
+   * Model UserSkillScore
+   */
+
+  export type AggregateUserSkillScore = {
+    _count: UserSkillScoreCountAggregateOutputType | null
+    _avg: UserSkillScoreAvgAggregateOutputType | null
+    _sum: UserSkillScoreSumAggregateOutputType | null
+    _min: UserSkillScoreMinAggregateOutputType | null
+    _max: UserSkillScoreMaxAggregateOutputType | null
+  }
+
+  export type UserSkillScoreAvgAggregateOutputType = {
+    currentScore: number | null
+    sampleCount: number | null
+  }
+
+  export type UserSkillScoreSumAggregateOutputType = {
+    currentScore: number | null
+    sampleCount: number | null
+  }
+
+  export type UserSkillScoreMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    skillTaskId: string | null
+    currentScore: number | null
+    sampleCount: number | null
+    lastUpdatedAt: Date | null
+  }
+
+  export type UserSkillScoreMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    skillTaskId: string | null
+    currentScore: number | null
+    sampleCount: number | null
+    lastUpdatedAt: Date | null
+  }
+
+  export type UserSkillScoreCountAggregateOutputType = {
+    id: number
+    userId: number
+    skillTaskId: number
+    currentScore: number
+    sampleCount: number
+    lastUpdatedAt: number
+    _all: number
+  }
+
+
+  export type UserSkillScoreAvgAggregateInputType = {
+    currentScore?: true
+    sampleCount?: true
+  }
+
+  export type UserSkillScoreSumAggregateInputType = {
+    currentScore?: true
+    sampleCount?: true
+  }
+
+  export type UserSkillScoreMinAggregateInputType = {
+    id?: true
+    userId?: true
+    skillTaskId?: true
+    currentScore?: true
+    sampleCount?: true
+    lastUpdatedAt?: true
+  }
+
+  export type UserSkillScoreMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    skillTaskId?: true
+    currentScore?: true
+    sampleCount?: true
+    lastUpdatedAt?: true
+  }
+
+  export type UserSkillScoreCountAggregateInputType = {
+    id?: true
+    userId?: true
+    skillTaskId?: true
+    currentScore?: true
+    sampleCount?: true
+    lastUpdatedAt?: true
+    _all?: true
+  }
+
+  export type UserSkillScoreAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserSkillScore to aggregate.
+     */
+    where?: UserSkillScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSkillScores to fetch.
+     */
+    orderBy?: UserSkillScoreOrderByWithRelationInput | UserSkillScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserSkillScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSkillScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSkillScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserSkillScores
+    **/
+    _count?: true | UserSkillScoreCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserSkillScoreAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserSkillScoreSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserSkillScoreMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserSkillScoreMaxAggregateInputType
+  }
+
+  export type GetUserSkillScoreAggregateType<T extends UserSkillScoreAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserSkillScore]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserSkillScore[P]>
+      : GetScalarType<T[P], AggregateUserSkillScore[P]>
+  }
+
+
+
+
+  export type UserSkillScoreGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserSkillScoreWhereInput
+    orderBy?: UserSkillScoreOrderByWithAggregationInput | UserSkillScoreOrderByWithAggregationInput[]
+    by: UserSkillScoreScalarFieldEnum[] | UserSkillScoreScalarFieldEnum
+    having?: UserSkillScoreScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserSkillScoreCountAggregateInputType | true
+    _avg?: UserSkillScoreAvgAggregateInputType
+    _sum?: UserSkillScoreSumAggregateInputType
+    _min?: UserSkillScoreMinAggregateInputType
+    _max?: UserSkillScoreMaxAggregateInputType
+  }
+
+  export type UserSkillScoreGroupByOutputType = {
+    id: string
+    userId: string
+    skillTaskId: string
+    currentScore: number
+    sampleCount: number
+    lastUpdatedAt: Date
+    _count: UserSkillScoreCountAggregateOutputType | null
+    _avg: UserSkillScoreAvgAggregateOutputType | null
+    _sum: UserSkillScoreSumAggregateOutputType | null
+    _min: UserSkillScoreMinAggregateOutputType | null
+    _max: UserSkillScoreMaxAggregateOutputType | null
+  }
+
+  type GetUserSkillScoreGroupByPayload<T extends UserSkillScoreGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserSkillScoreGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserSkillScoreGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserSkillScoreGroupByOutputType[P]>
+            : GetScalarType<T[P], UserSkillScoreGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserSkillScoreSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    skillTaskId?: boolean
+    currentScore?: boolean
+    sampleCount?: boolean
+    lastUpdatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userSkillScore"]>
+
+  export type UserSkillScoreSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    skillTaskId?: boolean
+    currentScore?: boolean
+    sampleCount?: boolean
+    lastUpdatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userSkillScore"]>
+
+  export type UserSkillScoreSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    skillTaskId?: boolean
+    currentScore?: boolean
+    sampleCount?: boolean
+    lastUpdatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userSkillScore"]>
+
+  export type UserSkillScoreSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    skillTaskId?: boolean
+    currentScore?: boolean
+    sampleCount?: boolean
+    lastUpdatedAt?: boolean
+  }
+
+  export type UserSkillScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "skillTaskId" | "currentScore" | "sampleCount" | "lastUpdatedAt", ExtArgs["result"]["userSkillScore"]>
+  export type UserSkillScoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserSkillScoreIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserSkillScoreIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $UserSkillScorePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserSkillScore"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      skillTaskId: string
+      currentScore: number
+      sampleCount: number
+      lastUpdatedAt: Date
+    }, ExtArgs["result"]["userSkillScore"]>
+    composites: {}
+  }
+
+  type UserSkillScoreGetPayload<S extends boolean | null | undefined | UserSkillScoreDefaultArgs> = $Result.GetResult<Prisma.$UserSkillScorePayload, S>
+
+  type UserSkillScoreCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserSkillScoreFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserSkillScoreCountAggregateInputType | true
+    }
+
+  export interface UserSkillScoreDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserSkillScore'], meta: { name: 'UserSkillScore' } }
+    /**
+     * Find zero or one UserSkillScore that matches the filter.
+     * @param {UserSkillScoreFindUniqueArgs} args - Arguments to find a UserSkillScore
+     * @example
+     * // Get one UserSkillScore
+     * const userSkillScore = await prisma.userSkillScore.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserSkillScoreFindUniqueArgs>(args: SelectSubset<T, UserSkillScoreFindUniqueArgs<ExtArgs>>): Prisma__UserSkillScoreClient<$Result.GetResult<Prisma.$UserSkillScorePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserSkillScore that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserSkillScoreFindUniqueOrThrowArgs} args - Arguments to find a UserSkillScore
+     * @example
+     * // Get one UserSkillScore
+     * const userSkillScore = await prisma.userSkillScore.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserSkillScoreFindUniqueOrThrowArgs>(args: SelectSubset<T, UserSkillScoreFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserSkillScoreClient<$Result.GetResult<Prisma.$UserSkillScorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserSkillScore that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillScoreFindFirstArgs} args - Arguments to find a UserSkillScore
+     * @example
+     * // Get one UserSkillScore
+     * const userSkillScore = await prisma.userSkillScore.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserSkillScoreFindFirstArgs>(args?: SelectSubset<T, UserSkillScoreFindFirstArgs<ExtArgs>>): Prisma__UserSkillScoreClient<$Result.GetResult<Prisma.$UserSkillScorePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserSkillScore that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillScoreFindFirstOrThrowArgs} args - Arguments to find a UserSkillScore
+     * @example
+     * // Get one UserSkillScore
+     * const userSkillScore = await prisma.userSkillScore.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserSkillScoreFindFirstOrThrowArgs>(args?: SelectSubset<T, UserSkillScoreFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserSkillScoreClient<$Result.GetResult<Prisma.$UserSkillScorePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserSkillScores that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillScoreFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserSkillScores
+     * const userSkillScores = await prisma.userSkillScore.findMany()
+     * 
+     * // Get first 10 UserSkillScores
+     * const userSkillScores = await prisma.userSkillScore.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userSkillScoreWithIdOnly = await prisma.userSkillScore.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserSkillScoreFindManyArgs>(args?: SelectSubset<T, UserSkillScoreFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSkillScorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserSkillScore.
+     * @param {UserSkillScoreCreateArgs} args - Arguments to create a UserSkillScore.
+     * @example
+     * // Create one UserSkillScore
+     * const UserSkillScore = await prisma.userSkillScore.create({
+     *   data: {
+     *     // ... data to create a UserSkillScore
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserSkillScoreCreateArgs>(args: SelectSubset<T, UserSkillScoreCreateArgs<ExtArgs>>): Prisma__UserSkillScoreClient<$Result.GetResult<Prisma.$UserSkillScorePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserSkillScores.
+     * @param {UserSkillScoreCreateManyArgs} args - Arguments to create many UserSkillScores.
+     * @example
+     * // Create many UserSkillScores
+     * const userSkillScore = await prisma.userSkillScore.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserSkillScoreCreateManyArgs>(args?: SelectSubset<T, UserSkillScoreCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserSkillScores and returns the data saved in the database.
+     * @param {UserSkillScoreCreateManyAndReturnArgs} args - Arguments to create many UserSkillScores.
+     * @example
+     * // Create many UserSkillScores
+     * const userSkillScore = await prisma.userSkillScore.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserSkillScores and only return the `id`
+     * const userSkillScoreWithIdOnly = await prisma.userSkillScore.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserSkillScoreCreateManyAndReturnArgs>(args?: SelectSubset<T, UserSkillScoreCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSkillScorePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserSkillScore.
+     * @param {UserSkillScoreDeleteArgs} args - Arguments to delete one UserSkillScore.
+     * @example
+     * // Delete one UserSkillScore
+     * const UserSkillScore = await prisma.userSkillScore.delete({
+     *   where: {
+     *     // ... filter to delete one UserSkillScore
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserSkillScoreDeleteArgs>(args: SelectSubset<T, UserSkillScoreDeleteArgs<ExtArgs>>): Prisma__UserSkillScoreClient<$Result.GetResult<Prisma.$UserSkillScorePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserSkillScore.
+     * @param {UserSkillScoreUpdateArgs} args - Arguments to update one UserSkillScore.
+     * @example
+     * // Update one UserSkillScore
+     * const userSkillScore = await prisma.userSkillScore.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserSkillScoreUpdateArgs>(args: SelectSubset<T, UserSkillScoreUpdateArgs<ExtArgs>>): Prisma__UserSkillScoreClient<$Result.GetResult<Prisma.$UserSkillScorePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserSkillScores.
+     * @param {UserSkillScoreDeleteManyArgs} args - Arguments to filter UserSkillScores to delete.
+     * @example
+     * // Delete a few UserSkillScores
+     * const { count } = await prisma.userSkillScore.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserSkillScoreDeleteManyArgs>(args?: SelectSubset<T, UserSkillScoreDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserSkillScores.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillScoreUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserSkillScores
+     * const userSkillScore = await prisma.userSkillScore.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserSkillScoreUpdateManyArgs>(args: SelectSubset<T, UserSkillScoreUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserSkillScores and returns the data updated in the database.
+     * @param {UserSkillScoreUpdateManyAndReturnArgs} args - Arguments to update many UserSkillScores.
+     * @example
+     * // Update many UserSkillScores
+     * const userSkillScore = await prisma.userSkillScore.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserSkillScores and only return the `id`
+     * const userSkillScoreWithIdOnly = await prisma.userSkillScore.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserSkillScoreUpdateManyAndReturnArgs>(args: SelectSubset<T, UserSkillScoreUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSkillScorePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserSkillScore.
+     * @param {UserSkillScoreUpsertArgs} args - Arguments to update or create a UserSkillScore.
+     * @example
+     * // Update or create a UserSkillScore
+     * const userSkillScore = await prisma.userSkillScore.upsert({
+     *   create: {
+     *     // ... data to create a UserSkillScore
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserSkillScore we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserSkillScoreUpsertArgs>(args: SelectSubset<T, UserSkillScoreUpsertArgs<ExtArgs>>): Prisma__UserSkillScoreClient<$Result.GetResult<Prisma.$UserSkillScorePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserSkillScores.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillScoreCountArgs} args - Arguments to filter UserSkillScores to count.
+     * @example
+     * // Count the number of UserSkillScores
+     * const count = await prisma.userSkillScore.count({
+     *   where: {
+     *     // ... the filter for the UserSkillScores we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserSkillScoreCountArgs>(
+      args?: Subset<T, UserSkillScoreCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserSkillScoreCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserSkillScore.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillScoreAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserSkillScoreAggregateArgs>(args: Subset<T, UserSkillScoreAggregateArgs>): Prisma.PrismaPromise<GetUserSkillScoreAggregateType<T>>
+
+    /**
+     * Group by UserSkillScore.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillScoreGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserSkillScoreGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserSkillScoreGroupByArgs['orderBy'] }
+        : { orderBy?: UserSkillScoreGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserSkillScoreGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserSkillScoreGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserSkillScore model
+   */
+  readonly fields: UserSkillScoreFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserSkillScore.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserSkillScoreClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserSkillScore model
+   */
+  interface UserSkillScoreFieldRefs {
+    readonly id: FieldRef<"UserSkillScore", 'String'>
+    readonly userId: FieldRef<"UserSkillScore", 'String'>
+    readonly skillTaskId: FieldRef<"UserSkillScore", 'String'>
+    readonly currentScore: FieldRef<"UserSkillScore", 'Float'>
+    readonly sampleCount: FieldRef<"UserSkillScore", 'Int'>
+    readonly lastUpdatedAt: FieldRef<"UserSkillScore", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserSkillScore findUnique
+   */
+  export type UserSkillScoreFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillScore
+     */
+    select?: UserSkillScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillScore
+     */
+    omit?: UserSkillScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillScore to fetch.
+     */
+    where: UserSkillScoreWhereUniqueInput
+  }
+
+  /**
+   * UserSkillScore findUniqueOrThrow
+   */
+  export type UserSkillScoreFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillScore
+     */
+    select?: UserSkillScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillScore
+     */
+    omit?: UserSkillScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillScore to fetch.
+     */
+    where: UserSkillScoreWhereUniqueInput
+  }
+
+  /**
+   * UserSkillScore findFirst
+   */
+  export type UserSkillScoreFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillScore
+     */
+    select?: UserSkillScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillScore
+     */
+    omit?: UserSkillScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillScore to fetch.
+     */
+    where?: UserSkillScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSkillScores to fetch.
+     */
+    orderBy?: UserSkillScoreOrderByWithRelationInput | UserSkillScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserSkillScores.
+     */
+    cursor?: UserSkillScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSkillScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSkillScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserSkillScores.
+     */
+    distinct?: UserSkillScoreScalarFieldEnum | UserSkillScoreScalarFieldEnum[]
+  }
+
+  /**
+   * UserSkillScore findFirstOrThrow
+   */
+  export type UserSkillScoreFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillScore
+     */
+    select?: UserSkillScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillScore
+     */
+    omit?: UserSkillScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillScore to fetch.
+     */
+    where?: UserSkillScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSkillScores to fetch.
+     */
+    orderBy?: UserSkillScoreOrderByWithRelationInput | UserSkillScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserSkillScores.
+     */
+    cursor?: UserSkillScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSkillScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSkillScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserSkillScores.
+     */
+    distinct?: UserSkillScoreScalarFieldEnum | UserSkillScoreScalarFieldEnum[]
+  }
+
+  /**
+   * UserSkillScore findMany
+   */
+  export type UserSkillScoreFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillScore
+     */
+    select?: UserSkillScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillScore
+     */
+    omit?: UserSkillScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillScores to fetch.
+     */
+    where?: UserSkillScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSkillScores to fetch.
+     */
+    orderBy?: UserSkillScoreOrderByWithRelationInput | UserSkillScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserSkillScores.
+     */
+    cursor?: UserSkillScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSkillScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSkillScores.
+     */
+    skip?: number
+    distinct?: UserSkillScoreScalarFieldEnum | UserSkillScoreScalarFieldEnum[]
+  }
+
+  /**
+   * UserSkillScore create
+   */
+  export type UserSkillScoreCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillScore
+     */
+    select?: UserSkillScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillScore
+     */
+    omit?: UserSkillScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillScoreInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserSkillScore.
+     */
+    data: XOR<UserSkillScoreCreateInput, UserSkillScoreUncheckedCreateInput>
+  }
+
+  /**
+   * UserSkillScore createMany
+   */
+  export type UserSkillScoreCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserSkillScores.
+     */
+    data: UserSkillScoreCreateManyInput | UserSkillScoreCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UserSkillScore createManyAndReturn
+   */
+  export type UserSkillScoreCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillScore
+     */
+    select?: UserSkillScoreSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillScore
+     */
+    omit?: UserSkillScoreOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserSkillScores.
+     */
+    data: UserSkillScoreCreateManyInput | UserSkillScoreCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillScoreIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserSkillScore update
+   */
+  export type UserSkillScoreUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillScore
+     */
+    select?: UserSkillScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillScore
+     */
+    omit?: UserSkillScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillScoreInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserSkillScore.
+     */
+    data: XOR<UserSkillScoreUpdateInput, UserSkillScoreUncheckedUpdateInput>
+    /**
+     * Choose, which UserSkillScore to update.
+     */
+    where: UserSkillScoreWhereUniqueInput
+  }
+
+  /**
+   * UserSkillScore updateMany
+   */
+  export type UserSkillScoreUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserSkillScores.
+     */
+    data: XOR<UserSkillScoreUpdateManyMutationInput, UserSkillScoreUncheckedUpdateManyInput>
+    /**
+     * Filter which UserSkillScores to update
+     */
+    where?: UserSkillScoreWhereInput
+    /**
+     * Limit how many UserSkillScores to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserSkillScore updateManyAndReturn
+   */
+  export type UserSkillScoreUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillScore
+     */
+    select?: UserSkillScoreSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillScore
+     */
+    omit?: UserSkillScoreOmit<ExtArgs> | null
+    /**
+     * The data used to update UserSkillScores.
+     */
+    data: XOR<UserSkillScoreUpdateManyMutationInput, UserSkillScoreUncheckedUpdateManyInput>
+    /**
+     * Filter which UserSkillScores to update
+     */
+    where?: UserSkillScoreWhereInput
+    /**
+     * Limit how many UserSkillScores to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillScoreIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserSkillScore upsert
+   */
+  export type UserSkillScoreUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillScore
+     */
+    select?: UserSkillScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillScore
+     */
+    omit?: UserSkillScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillScoreInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserSkillScore to update in case it exists.
+     */
+    where: UserSkillScoreWhereUniqueInput
+    /**
+     * In case the UserSkillScore found by the `where` argument doesn't exist, create a new UserSkillScore with this data.
+     */
+    create: XOR<UserSkillScoreCreateInput, UserSkillScoreUncheckedCreateInput>
+    /**
+     * In case the UserSkillScore was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserSkillScoreUpdateInput, UserSkillScoreUncheckedUpdateInput>
+  }
+
+  /**
+   * UserSkillScore delete
+   */
+  export type UserSkillScoreDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillScore
+     */
+    select?: UserSkillScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillScore
+     */
+    omit?: UserSkillScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillScoreInclude<ExtArgs> | null
+    /**
+     * Filter which UserSkillScore to delete.
+     */
+    where: UserSkillScoreWhereUniqueInput
+  }
+
+  /**
+   * UserSkillScore deleteMany
+   */
+  export type UserSkillScoreDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserSkillScores to delete
+     */
+    where?: UserSkillScoreWhereInput
+    /**
+     * Limit how many UserSkillScores to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserSkillScore without action
+   */
+  export type UserSkillScoreDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillScore
+     */
+    select?: UserSkillScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillScore
+     */
+    omit?: UserSkillScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillScoreInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserSkillSubScore
+   */
+
+  export type AggregateUserSkillSubScore = {
+    _count: UserSkillSubScoreCountAggregateOutputType | null
+    _avg: UserSkillSubScoreAvgAggregateOutputType | null
+    _sum: UserSkillSubScoreSumAggregateOutputType | null
+    _min: UserSkillSubScoreMinAggregateOutputType | null
+    _max: UserSkillSubScoreMaxAggregateOutputType | null
+  }
+
+  export type UserSkillSubScoreAvgAggregateOutputType = {
+    matchedCount: number | null
+    totalCount: number | null
+    matchRate: number | null
+    averageScore: number | null
+  }
+
+  export type UserSkillSubScoreSumAggregateOutputType = {
+    matchedCount: number | null
+    totalCount: number | null
+    matchRate: number | null
+    averageScore: number | null
+  }
+
+  export type UserSkillSubScoreMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    skillSubTaskId: string | null
+    matchedCount: number | null
+    totalCount: number | null
+    matchRate: number | null
+    averageScore: number | null
+    lastMatchedAt: Date | null
+    lastUpdatedAt: Date | null
+  }
+
+  export type UserSkillSubScoreMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    skillSubTaskId: string | null
+    matchedCount: number | null
+    totalCount: number | null
+    matchRate: number | null
+    averageScore: number | null
+    lastMatchedAt: Date | null
+    lastUpdatedAt: Date | null
+  }
+
+  export type UserSkillSubScoreCountAggregateOutputType = {
+    id: number
+    userId: number
+    skillSubTaskId: number
+    matchedCount: number
+    totalCount: number
+    matchRate: number
+    averageScore: number
+    lastMatchedAt: number
+    lastUpdatedAt: number
+    _all: number
+  }
+
+
+  export type UserSkillSubScoreAvgAggregateInputType = {
+    matchedCount?: true
+    totalCount?: true
+    matchRate?: true
+    averageScore?: true
+  }
+
+  export type UserSkillSubScoreSumAggregateInputType = {
+    matchedCount?: true
+    totalCount?: true
+    matchRate?: true
+    averageScore?: true
+  }
+
+  export type UserSkillSubScoreMinAggregateInputType = {
+    id?: true
+    userId?: true
+    skillSubTaskId?: true
+    matchedCount?: true
+    totalCount?: true
+    matchRate?: true
+    averageScore?: true
+    lastMatchedAt?: true
+    lastUpdatedAt?: true
+  }
+
+  export type UserSkillSubScoreMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    skillSubTaskId?: true
+    matchedCount?: true
+    totalCount?: true
+    matchRate?: true
+    averageScore?: true
+    lastMatchedAt?: true
+    lastUpdatedAt?: true
+  }
+
+  export type UserSkillSubScoreCountAggregateInputType = {
+    id?: true
+    userId?: true
+    skillSubTaskId?: true
+    matchedCount?: true
+    totalCount?: true
+    matchRate?: true
+    averageScore?: true
+    lastMatchedAt?: true
+    lastUpdatedAt?: true
+    _all?: true
+  }
+
+  export type UserSkillSubScoreAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserSkillSubScore to aggregate.
+     */
+    where?: UserSkillSubScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSkillSubScores to fetch.
+     */
+    orderBy?: UserSkillSubScoreOrderByWithRelationInput | UserSkillSubScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserSkillSubScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSkillSubScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSkillSubScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserSkillSubScores
+    **/
+    _count?: true | UserSkillSubScoreCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserSkillSubScoreAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserSkillSubScoreSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserSkillSubScoreMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserSkillSubScoreMaxAggregateInputType
+  }
+
+  export type GetUserSkillSubScoreAggregateType<T extends UserSkillSubScoreAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserSkillSubScore]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserSkillSubScore[P]>
+      : GetScalarType<T[P], AggregateUserSkillSubScore[P]>
+  }
+
+
+
+
+  export type UserSkillSubScoreGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserSkillSubScoreWhereInput
+    orderBy?: UserSkillSubScoreOrderByWithAggregationInput | UserSkillSubScoreOrderByWithAggregationInput[]
+    by: UserSkillSubScoreScalarFieldEnum[] | UserSkillSubScoreScalarFieldEnum
+    having?: UserSkillSubScoreScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserSkillSubScoreCountAggregateInputType | true
+    _avg?: UserSkillSubScoreAvgAggregateInputType
+    _sum?: UserSkillSubScoreSumAggregateInputType
+    _min?: UserSkillSubScoreMinAggregateInputType
+    _max?: UserSkillSubScoreMaxAggregateInputType
+  }
+
+  export type UserSkillSubScoreGroupByOutputType = {
+    id: string
+    userId: string
+    skillSubTaskId: string
+    matchedCount: number
+    totalCount: number
+    matchRate: number
+    averageScore: number | null
+    lastMatchedAt: Date | null
+    lastUpdatedAt: Date
+    _count: UserSkillSubScoreCountAggregateOutputType | null
+    _avg: UserSkillSubScoreAvgAggregateOutputType | null
+    _sum: UserSkillSubScoreSumAggregateOutputType | null
+    _min: UserSkillSubScoreMinAggregateOutputType | null
+    _max: UserSkillSubScoreMaxAggregateOutputType | null
+  }
+
+  type GetUserSkillSubScoreGroupByPayload<T extends UserSkillSubScoreGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserSkillSubScoreGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserSkillSubScoreGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserSkillSubScoreGroupByOutputType[P]>
+            : GetScalarType<T[P], UserSkillSubScoreGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserSkillSubScoreSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    skillSubTaskId?: boolean
+    matchedCount?: boolean
+    totalCount?: boolean
+    matchRate?: boolean
+    averageScore?: boolean
+    lastMatchedAt?: boolean
+    lastUpdatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userSkillSubScore"]>
+
+  export type UserSkillSubScoreSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    skillSubTaskId?: boolean
+    matchedCount?: boolean
+    totalCount?: boolean
+    matchRate?: boolean
+    averageScore?: boolean
+    lastMatchedAt?: boolean
+    lastUpdatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userSkillSubScore"]>
+
+  export type UserSkillSubScoreSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    skillSubTaskId?: boolean
+    matchedCount?: boolean
+    totalCount?: boolean
+    matchRate?: boolean
+    averageScore?: boolean
+    lastMatchedAt?: boolean
+    lastUpdatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userSkillSubScore"]>
+
+  export type UserSkillSubScoreSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    skillSubTaskId?: boolean
+    matchedCount?: boolean
+    totalCount?: boolean
+    matchRate?: boolean
+    averageScore?: boolean
+    lastMatchedAt?: boolean
+    lastUpdatedAt?: boolean
+  }
+
+  export type UserSkillSubScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "skillSubTaskId" | "matchedCount" | "totalCount" | "matchRate" | "averageScore" | "lastMatchedAt" | "lastUpdatedAt", ExtArgs["result"]["userSkillSubScore"]>
+  export type UserSkillSubScoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserSkillSubScoreIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserSkillSubScoreIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $UserSkillSubScorePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserSkillSubScore"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      skillSubTaskId: string
+      matchedCount: number
+      totalCount: number
+      matchRate: number
+      averageScore: number | null
+      lastMatchedAt: Date | null
+      lastUpdatedAt: Date
+    }, ExtArgs["result"]["userSkillSubScore"]>
+    composites: {}
+  }
+
+  type UserSkillSubScoreGetPayload<S extends boolean | null | undefined | UserSkillSubScoreDefaultArgs> = $Result.GetResult<Prisma.$UserSkillSubScorePayload, S>
+
+  type UserSkillSubScoreCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserSkillSubScoreFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserSkillSubScoreCountAggregateInputType | true
+    }
+
+  export interface UserSkillSubScoreDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserSkillSubScore'], meta: { name: 'UserSkillSubScore' } }
+    /**
+     * Find zero or one UserSkillSubScore that matches the filter.
+     * @param {UserSkillSubScoreFindUniqueArgs} args - Arguments to find a UserSkillSubScore
+     * @example
+     * // Get one UserSkillSubScore
+     * const userSkillSubScore = await prisma.userSkillSubScore.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserSkillSubScoreFindUniqueArgs>(args: SelectSubset<T, UserSkillSubScoreFindUniqueArgs<ExtArgs>>): Prisma__UserSkillSubScoreClient<$Result.GetResult<Prisma.$UserSkillSubScorePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserSkillSubScore that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserSkillSubScoreFindUniqueOrThrowArgs} args - Arguments to find a UserSkillSubScore
+     * @example
+     * // Get one UserSkillSubScore
+     * const userSkillSubScore = await prisma.userSkillSubScore.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserSkillSubScoreFindUniqueOrThrowArgs>(args: SelectSubset<T, UserSkillSubScoreFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserSkillSubScoreClient<$Result.GetResult<Prisma.$UserSkillSubScorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserSkillSubScore that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillSubScoreFindFirstArgs} args - Arguments to find a UserSkillSubScore
+     * @example
+     * // Get one UserSkillSubScore
+     * const userSkillSubScore = await prisma.userSkillSubScore.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserSkillSubScoreFindFirstArgs>(args?: SelectSubset<T, UserSkillSubScoreFindFirstArgs<ExtArgs>>): Prisma__UserSkillSubScoreClient<$Result.GetResult<Prisma.$UserSkillSubScorePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserSkillSubScore that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillSubScoreFindFirstOrThrowArgs} args - Arguments to find a UserSkillSubScore
+     * @example
+     * // Get one UserSkillSubScore
+     * const userSkillSubScore = await prisma.userSkillSubScore.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserSkillSubScoreFindFirstOrThrowArgs>(args?: SelectSubset<T, UserSkillSubScoreFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserSkillSubScoreClient<$Result.GetResult<Prisma.$UserSkillSubScorePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserSkillSubScores that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillSubScoreFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserSkillSubScores
+     * const userSkillSubScores = await prisma.userSkillSubScore.findMany()
+     * 
+     * // Get first 10 UserSkillSubScores
+     * const userSkillSubScores = await prisma.userSkillSubScore.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userSkillSubScoreWithIdOnly = await prisma.userSkillSubScore.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserSkillSubScoreFindManyArgs>(args?: SelectSubset<T, UserSkillSubScoreFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSkillSubScorePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserSkillSubScore.
+     * @param {UserSkillSubScoreCreateArgs} args - Arguments to create a UserSkillSubScore.
+     * @example
+     * // Create one UserSkillSubScore
+     * const UserSkillSubScore = await prisma.userSkillSubScore.create({
+     *   data: {
+     *     // ... data to create a UserSkillSubScore
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserSkillSubScoreCreateArgs>(args: SelectSubset<T, UserSkillSubScoreCreateArgs<ExtArgs>>): Prisma__UserSkillSubScoreClient<$Result.GetResult<Prisma.$UserSkillSubScorePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserSkillSubScores.
+     * @param {UserSkillSubScoreCreateManyArgs} args - Arguments to create many UserSkillSubScores.
+     * @example
+     * // Create many UserSkillSubScores
+     * const userSkillSubScore = await prisma.userSkillSubScore.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserSkillSubScoreCreateManyArgs>(args?: SelectSubset<T, UserSkillSubScoreCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserSkillSubScores and returns the data saved in the database.
+     * @param {UserSkillSubScoreCreateManyAndReturnArgs} args - Arguments to create many UserSkillSubScores.
+     * @example
+     * // Create many UserSkillSubScores
+     * const userSkillSubScore = await prisma.userSkillSubScore.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserSkillSubScores and only return the `id`
+     * const userSkillSubScoreWithIdOnly = await prisma.userSkillSubScore.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserSkillSubScoreCreateManyAndReturnArgs>(args?: SelectSubset<T, UserSkillSubScoreCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSkillSubScorePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserSkillSubScore.
+     * @param {UserSkillSubScoreDeleteArgs} args - Arguments to delete one UserSkillSubScore.
+     * @example
+     * // Delete one UserSkillSubScore
+     * const UserSkillSubScore = await prisma.userSkillSubScore.delete({
+     *   where: {
+     *     // ... filter to delete one UserSkillSubScore
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserSkillSubScoreDeleteArgs>(args: SelectSubset<T, UserSkillSubScoreDeleteArgs<ExtArgs>>): Prisma__UserSkillSubScoreClient<$Result.GetResult<Prisma.$UserSkillSubScorePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserSkillSubScore.
+     * @param {UserSkillSubScoreUpdateArgs} args - Arguments to update one UserSkillSubScore.
+     * @example
+     * // Update one UserSkillSubScore
+     * const userSkillSubScore = await prisma.userSkillSubScore.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserSkillSubScoreUpdateArgs>(args: SelectSubset<T, UserSkillSubScoreUpdateArgs<ExtArgs>>): Prisma__UserSkillSubScoreClient<$Result.GetResult<Prisma.$UserSkillSubScorePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserSkillSubScores.
+     * @param {UserSkillSubScoreDeleteManyArgs} args - Arguments to filter UserSkillSubScores to delete.
+     * @example
+     * // Delete a few UserSkillSubScores
+     * const { count } = await prisma.userSkillSubScore.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserSkillSubScoreDeleteManyArgs>(args?: SelectSubset<T, UserSkillSubScoreDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserSkillSubScores.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillSubScoreUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserSkillSubScores
+     * const userSkillSubScore = await prisma.userSkillSubScore.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserSkillSubScoreUpdateManyArgs>(args: SelectSubset<T, UserSkillSubScoreUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserSkillSubScores and returns the data updated in the database.
+     * @param {UserSkillSubScoreUpdateManyAndReturnArgs} args - Arguments to update many UserSkillSubScores.
+     * @example
+     * // Update many UserSkillSubScores
+     * const userSkillSubScore = await prisma.userSkillSubScore.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserSkillSubScores and only return the `id`
+     * const userSkillSubScoreWithIdOnly = await prisma.userSkillSubScore.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserSkillSubScoreUpdateManyAndReturnArgs>(args: SelectSubset<T, UserSkillSubScoreUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSkillSubScorePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserSkillSubScore.
+     * @param {UserSkillSubScoreUpsertArgs} args - Arguments to update or create a UserSkillSubScore.
+     * @example
+     * // Update or create a UserSkillSubScore
+     * const userSkillSubScore = await prisma.userSkillSubScore.upsert({
+     *   create: {
+     *     // ... data to create a UserSkillSubScore
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserSkillSubScore we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserSkillSubScoreUpsertArgs>(args: SelectSubset<T, UserSkillSubScoreUpsertArgs<ExtArgs>>): Prisma__UserSkillSubScoreClient<$Result.GetResult<Prisma.$UserSkillSubScorePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserSkillSubScores.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillSubScoreCountArgs} args - Arguments to filter UserSkillSubScores to count.
+     * @example
+     * // Count the number of UserSkillSubScores
+     * const count = await prisma.userSkillSubScore.count({
+     *   where: {
+     *     // ... the filter for the UserSkillSubScores we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserSkillSubScoreCountArgs>(
+      args?: Subset<T, UserSkillSubScoreCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserSkillSubScoreCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserSkillSubScore.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillSubScoreAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserSkillSubScoreAggregateArgs>(args: Subset<T, UserSkillSubScoreAggregateArgs>): Prisma.PrismaPromise<GetUserSkillSubScoreAggregateType<T>>
+
+    /**
+     * Group by UserSkillSubScore.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillSubScoreGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserSkillSubScoreGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserSkillSubScoreGroupByArgs['orderBy'] }
+        : { orderBy?: UserSkillSubScoreGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserSkillSubScoreGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserSkillSubScoreGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserSkillSubScore model
+   */
+  readonly fields: UserSkillSubScoreFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserSkillSubScore.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserSkillSubScoreClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserSkillSubScore model
+   */
+  interface UserSkillSubScoreFieldRefs {
+    readonly id: FieldRef<"UserSkillSubScore", 'String'>
+    readonly userId: FieldRef<"UserSkillSubScore", 'String'>
+    readonly skillSubTaskId: FieldRef<"UserSkillSubScore", 'String'>
+    readonly matchedCount: FieldRef<"UserSkillSubScore", 'Int'>
+    readonly totalCount: FieldRef<"UserSkillSubScore", 'Int'>
+    readonly matchRate: FieldRef<"UserSkillSubScore", 'Float'>
+    readonly averageScore: FieldRef<"UserSkillSubScore", 'Float'>
+    readonly lastMatchedAt: FieldRef<"UserSkillSubScore", 'DateTime'>
+    readonly lastUpdatedAt: FieldRef<"UserSkillSubScore", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserSkillSubScore findUnique
+   */
+  export type UserSkillSubScoreFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillSubScore
+     */
+    select?: UserSkillSubScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillSubScore
+     */
+    omit?: UserSkillSubScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillSubScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillSubScore to fetch.
+     */
+    where: UserSkillSubScoreWhereUniqueInput
+  }
+
+  /**
+   * UserSkillSubScore findUniqueOrThrow
+   */
+  export type UserSkillSubScoreFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillSubScore
+     */
+    select?: UserSkillSubScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillSubScore
+     */
+    omit?: UserSkillSubScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillSubScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillSubScore to fetch.
+     */
+    where: UserSkillSubScoreWhereUniqueInput
+  }
+
+  /**
+   * UserSkillSubScore findFirst
+   */
+  export type UserSkillSubScoreFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillSubScore
+     */
+    select?: UserSkillSubScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillSubScore
+     */
+    omit?: UserSkillSubScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillSubScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillSubScore to fetch.
+     */
+    where?: UserSkillSubScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSkillSubScores to fetch.
+     */
+    orderBy?: UserSkillSubScoreOrderByWithRelationInput | UserSkillSubScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserSkillSubScores.
+     */
+    cursor?: UserSkillSubScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSkillSubScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSkillSubScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserSkillSubScores.
+     */
+    distinct?: UserSkillSubScoreScalarFieldEnum | UserSkillSubScoreScalarFieldEnum[]
+  }
+
+  /**
+   * UserSkillSubScore findFirstOrThrow
+   */
+  export type UserSkillSubScoreFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillSubScore
+     */
+    select?: UserSkillSubScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillSubScore
+     */
+    omit?: UserSkillSubScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillSubScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillSubScore to fetch.
+     */
+    where?: UserSkillSubScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSkillSubScores to fetch.
+     */
+    orderBy?: UserSkillSubScoreOrderByWithRelationInput | UserSkillSubScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserSkillSubScores.
+     */
+    cursor?: UserSkillSubScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSkillSubScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSkillSubScores.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserSkillSubScores.
+     */
+    distinct?: UserSkillSubScoreScalarFieldEnum | UserSkillSubScoreScalarFieldEnum[]
+  }
+
+  /**
+   * UserSkillSubScore findMany
+   */
+  export type UserSkillSubScoreFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillSubScore
+     */
+    select?: UserSkillSubScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillSubScore
+     */
+    omit?: UserSkillSubScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillSubScoreInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillSubScores to fetch.
+     */
+    where?: UserSkillSubScoreWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSkillSubScores to fetch.
+     */
+    orderBy?: UserSkillSubScoreOrderByWithRelationInput | UserSkillSubScoreOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserSkillSubScores.
+     */
+    cursor?: UserSkillSubScoreWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSkillSubScores from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSkillSubScores.
+     */
+    skip?: number
+    distinct?: UserSkillSubScoreScalarFieldEnum | UserSkillSubScoreScalarFieldEnum[]
+  }
+
+  /**
+   * UserSkillSubScore create
+   */
+  export type UserSkillSubScoreCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillSubScore
+     */
+    select?: UserSkillSubScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillSubScore
+     */
+    omit?: UserSkillSubScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillSubScoreInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserSkillSubScore.
+     */
+    data: XOR<UserSkillSubScoreCreateInput, UserSkillSubScoreUncheckedCreateInput>
+  }
+
+  /**
+   * UserSkillSubScore createMany
+   */
+  export type UserSkillSubScoreCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserSkillSubScores.
+     */
+    data: UserSkillSubScoreCreateManyInput | UserSkillSubScoreCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UserSkillSubScore createManyAndReturn
+   */
+  export type UserSkillSubScoreCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillSubScore
+     */
+    select?: UserSkillSubScoreSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillSubScore
+     */
+    omit?: UserSkillSubScoreOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserSkillSubScores.
+     */
+    data: UserSkillSubScoreCreateManyInput | UserSkillSubScoreCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillSubScoreIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserSkillSubScore update
+   */
+  export type UserSkillSubScoreUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillSubScore
+     */
+    select?: UserSkillSubScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillSubScore
+     */
+    omit?: UserSkillSubScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillSubScoreInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserSkillSubScore.
+     */
+    data: XOR<UserSkillSubScoreUpdateInput, UserSkillSubScoreUncheckedUpdateInput>
+    /**
+     * Choose, which UserSkillSubScore to update.
+     */
+    where: UserSkillSubScoreWhereUniqueInput
+  }
+
+  /**
+   * UserSkillSubScore updateMany
+   */
+  export type UserSkillSubScoreUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserSkillSubScores.
+     */
+    data: XOR<UserSkillSubScoreUpdateManyMutationInput, UserSkillSubScoreUncheckedUpdateManyInput>
+    /**
+     * Filter which UserSkillSubScores to update
+     */
+    where?: UserSkillSubScoreWhereInput
+    /**
+     * Limit how many UserSkillSubScores to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserSkillSubScore updateManyAndReturn
+   */
+  export type UserSkillSubScoreUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillSubScore
+     */
+    select?: UserSkillSubScoreSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillSubScore
+     */
+    omit?: UserSkillSubScoreOmit<ExtArgs> | null
+    /**
+     * The data used to update UserSkillSubScores.
+     */
+    data: XOR<UserSkillSubScoreUpdateManyMutationInput, UserSkillSubScoreUncheckedUpdateManyInput>
+    /**
+     * Filter which UserSkillSubScores to update
+     */
+    where?: UserSkillSubScoreWhereInput
+    /**
+     * Limit how many UserSkillSubScores to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillSubScoreIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserSkillSubScore upsert
+   */
+  export type UserSkillSubScoreUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillSubScore
+     */
+    select?: UserSkillSubScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillSubScore
+     */
+    omit?: UserSkillSubScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillSubScoreInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserSkillSubScore to update in case it exists.
+     */
+    where: UserSkillSubScoreWhereUniqueInput
+    /**
+     * In case the UserSkillSubScore found by the `where` argument doesn't exist, create a new UserSkillSubScore with this data.
+     */
+    create: XOR<UserSkillSubScoreCreateInput, UserSkillSubScoreUncheckedCreateInput>
+    /**
+     * In case the UserSkillSubScore was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserSkillSubScoreUpdateInput, UserSkillSubScoreUncheckedUpdateInput>
+  }
+
+  /**
+   * UserSkillSubScore delete
+   */
+  export type UserSkillSubScoreDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillSubScore
+     */
+    select?: UserSkillSubScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillSubScore
+     */
+    omit?: UserSkillSubScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillSubScoreInclude<ExtArgs> | null
+    /**
+     * Filter which UserSkillSubScore to delete.
+     */
+    where: UserSkillSubScoreWhereUniqueInput
+  }
+
+  /**
+   * UserSkillSubScore deleteMany
+   */
+  export type UserSkillSubScoreDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserSkillSubScores to delete
+     */
+    where?: UserSkillSubScoreWhereInput
+    /**
+     * Limit how many UserSkillSubScores to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserSkillSubScore without action
+   */
+  export type UserSkillSubScoreDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillSubScore
+     */
+    select?: UserSkillSubScoreSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillSubScore
+     */
+    omit?: UserSkillSubScoreOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillSubScoreInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserSkillTaskCard
+   */
+
+  export type AggregateUserSkillTaskCard = {
+    _count: UserSkillTaskCardCountAggregateOutputType | null
+    _min: UserSkillTaskCardMinAggregateOutputType | null
+    _max: UserSkillTaskCardMaxAggregateOutputType | null
+  }
+
+  export type UserSkillTaskCardMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    cardType: $Enums.CardType | null
+    skillTaskId: string | null
+    skillSubTaskId: string | null
+    status: $Enums.CardStatus | null
+    createdAt: Date | null
+    improvedAt: Date | null
+    clearedAt: Date | null
+    lastMatchedAt: Date | null
+  }
+
+  export type UserSkillTaskCardMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    cardType: $Enums.CardType | null
+    skillTaskId: string | null
+    skillSubTaskId: string | null
+    status: $Enums.CardStatus | null
+    createdAt: Date | null
+    improvedAt: Date | null
+    clearedAt: Date | null
+    lastMatchedAt: Date | null
+  }
+
+  export type UserSkillTaskCardCountAggregateOutputType = {
+    id: number
+    userId: number
+    cardType: number
+    skillTaskId: number
+    skillSubTaskId: number
+    status: number
+    createdAt: number
+    improvedAt: number
+    clearedAt: number
+    lastMatchedAt: number
+    _all: number
+  }
+
+
+  export type UserSkillTaskCardMinAggregateInputType = {
+    id?: true
+    userId?: true
+    cardType?: true
+    skillTaskId?: true
+    skillSubTaskId?: true
+    status?: true
+    createdAt?: true
+    improvedAt?: true
+    clearedAt?: true
+    lastMatchedAt?: true
+  }
+
+  export type UserSkillTaskCardMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    cardType?: true
+    skillTaskId?: true
+    skillSubTaskId?: true
+    status?: true
+    createdAt?: true
+    improvedAt?: true
+    clearedAt?: true
+    lastMatchedAt?: true
+  }
+
+  export type UserSkillTaskCardCountAggregateInputType = {
+    id?: true
+    userId?: true
+    cardType?: true
+    skillTaskId?: true
+    skillSubTaskId?: true
+    status?: true
+    createdAt?: true
+    improvedAt?: true
+    clearedAt?: true
+    lastMatchedAt?: true
+    _all?: true
+  }
+
+  export type UserSkillTaskCardAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserSkillTaskCard to aggregate.
+     */
+    where?: UserSkillTaskCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSkillTaskCards to fetch.
+     */
+    orderBy?: UserSkillTaskCardOrderByWithRelationInput | UserSkillTaskCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserSkillTaskCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSkillTaskCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSkillTaskCards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserSkillTaskCards
+    **/
+    _count?: true | UserSkillTaskCardCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserSkillTaskCardMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserSkillTaskCardMaxAggregateInputType
+  }
+
+  export type GetUserSkillTaskCardAggregateType<T extends UserSkillTaskCardAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserSkillTaskCard]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserSkillTaskCard[P]>
+      : GetScalarType<T[P], AggregateUserSkillTaskCard[P]>
+  }
+
+
+
+
+  export type UserSkillTaskCardGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserSkillTaskCardWhereInput
+    orderBy?: UserSkillTaskCardOrderByWithAggregationInput | UserSkillTaskCardOrderByWithAggregationInput[]
+    by: UserSkillTaskCardScalarFieldEnum[] | UserSkillTaskCardScalarFieldEnum
+    having?: UserSkillTaskCardScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserSkillTaskCardCountAggregateInputType | true
+    _min?: UserSkillTaskCardMinAggregateInputType
+    _max?: UserSkillTaskCardMaxAggregateInputType
+  }
+
+  export type UserSkillTaskCardGroupByOutputType = {
+    id: string
+    userId: string
+    cardType: $Enums.CardType
+    skillTaskId: string | null
+    skillSubTaskId: string | null
+    status: $Enums.CardStatus
+    createdAt: Date
+    improvedAt: Date | null
+    clearedAt: Date | null
+    lastMatchedAt: Date | null
+    _count: UserSkillTaskCardCountAggregateOutputType | null
+    _min: UserSkillTaskCardMinAggregateOutputType | null
+    _max: UserSkillTaskCardMaxAggregateOutputType | null
+  }
+
+  type GetUserSkillTaskCardGroupByPayload<T extends UserSkillTaskCardGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserSkillTaskCardGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserSkillTaskCardGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserSkillTaskCardGroupByOutputType[P]>
+            : GetScalarType<T[P], UserSkillTaskCardGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserSkillTaskCardSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    cardType?: boolean
+    skillTaskId?: boolean
+    skillSubTaskId?: boolean
+    status?: boolean
+    createdAt?: boolean
+    improvedAt?: boolean
+    clearedAt?: boolean
+    lastMatchedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userSkillTaskCard"]>
+
+  export type UserSkillTaskCardSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    cardType?: boolean
+    skillTaskId?: boolean
+    skillSubTaskId?: boolean
+    status?: boolean
+    createdAt?: boolean
+    improvedAt?: boolean
+    clearedAt?: boolean
+    lastMatchedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userSkillTaskCard"]>
+
+  export type UserSkillTaskCardSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    cardType?: boolean
+    skillTaskId?: boolean
+    skillSubTaskId?: boolean
+    status?: boolean
+    createdAt?: boolean
+    improvedAt?: boolean
+    clearedAt?: boolean
+    lastMatchedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userSkillTaskCard"]>
+
+  export type UserSkillTaskCardSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    cardType?: boolean
+    skillTaskId?: boolean
+    skillSubTaskId?: boolean
+    status?: boolean
+    createdAt?: boolean
+    improvedAt?: boolean
+    clearedAt?: boolean
+    lastMatchedAt?: boolean
+  }
+
+  export type UserSkillTaskCardOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "cardType" | "skillTaskId" | "skillSubTaskId" | "status" | "createdAt" | "improvedAt" | "clearedAt" | "lastMatchedAt", ExtArgs["result"]["userSkillTaskCard"]>
+  export type UserSkillTaskCardInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserSkillTaskCardIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserSkillTaskCardIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $UserSkillTaskCardPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserSkillTaskCard"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      cardType: $Enums.CardType
+      skillTaskId: string | null
+      skillSubTaskId: string | null
+      status: $Enums.CardStatus
+      createdAt: Date
+      improvedAt: Date | null
+      clearedAt: Date | null
+      lastMatchedAt: Date | null
+    }, ExtArgs["result"]["userSkillTaskCard"]>
+    composites: {}
+  }
+
+  type UserSkillTaskCardGetPayload<S extends boolean | null | undefined | UserSkillTaskCardDefaultArgs> = $Result.GetResult<Prisma.$UserSkillTaskCardPayload, S>
+
+  type UserSkillTaskCardCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserSkillTaskCardFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserSkillTaskCardCountAggregateInputType | true
+    }
+
+  export interface UserSkillTaskCardDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserSkillTaskCard'], meta: { name: 'UserSkillTaskCard' } }
+    /**
+     * Find zero or one UserSkillTaskCard that matches the filter.
+     * @param {UserSkillTaskCardFindUniqueArgs} args - Arguments to find a UserSkillTaskCard
+     * @example
+     * // Get one UserSkillTaskCard
+     * const userSkillTaskCard = await prisma.userSkillTaskCard.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserSkillTaskCardFindUniqueArgs>(args: SelectSubset<T, UserSkillTaskCardFindUniqueArgs<ExtArgs>>): Prisma__UserSkillTaskCardClient<$Result.GetResult<Prisma.$UserSkillTaskCardPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserSkillTaskCard that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserSkillTaskCardFindUniqueOrThrowArgs} args - Arguments to find a UserSkillTaskCard
+     * @example
+     * // Get one UserSkillTaskCard
+     * const userSkillTaskCard = await prisma.userSkillTaskCard.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserSkillTaskCardFindUniqueOrThrowArgs>(args: SelectSubset<T, UserSkillTaskCardFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserSkillTaskCardClient<$Result.GetResult<Prisma.$UserSkillTaskCardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserSkillTaskCard that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillTaskCardFindFirstArgs} args - Arguments to find a UserSkillTaskCard
+     * @example
+     * // Get one UserSkillTaskCard
+     * const userSkillTaskCard = await prisma.userSkillTaskCard.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserSkillTaskCardFindFirstArgs>(args?: SelectSubset<T, UserSkillTaskCardFindFirstArgs<ExtArgs>>): Prisma__UserSkillTaskCardClient<$Result.GetResult<Prisma.$UserSkillTaskCardPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserSkillTaskCard that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillTaskCardFindFirstOrThrowArgs} args - Arguments to find a UserSkillTaskCard
+     * @example
+     * // Get one UserSkillTaskCard
+     * const userSkillTaskCard = await prisma.userSkillTaskCard.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserSkillTaskCardFindFirstOrThrowArgs>(args?: SelectSubset<T, UserSkillTaskCardFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserSkillTaskCardClient<$Result.GetResult<Prisma.$UserSkillTaskCardPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserSkillTaskCards that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillTaskCardFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserSkillTaskCards
+     * const userSkillTaskCards = await prisma.userSkillTaskCard.findMany()
+     * 
+     * // Get first 10 UserSkillTaskCards
+     * const userSkillTaskCards = await prisma.userSkillTaskCard.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userSkillTaskCardWithIdOnly = await prisma.userSkillTaskCard.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserSkillTaskCardFindManyArgs>(args?: SelectSubset<T, UserSkillTaskCardFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSkillTaskCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserSkillTaskCard.
+     * @param {UserSkillTaskCardCreateArgs} args - Arguments to create a UserSkillTaskCard.
+     * @example
+     * // Create one UserSkillTaskCard
+     * const UserSkillTaskCard = await prisma.userSkillTaskCard.create({
+     *   data: {
+     *     // ... data to create a UserSkillTaskCard
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserSkillTaskCardCreateArgs>(args: SelectSubset<T, UserSkillTaskCardCreateArgs<ExtArgs>>): Prisma__UserSkillTaskCardClient<$Result.GetResult<Prisma.$UserSkillTaskCardPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserSkillTaskCards.
+     * @param {UserSkillTaskCardCreateManyArgs} args - Arguments to create many UserSkillTaskCards.
+     * @example
+     * // Create many UserSkillTaskCards
+     * const userSkillTaskCard = await prisma.userSkillTaskCard.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserSkillTaskCardCreateManyArgs>(args?: SelectSubset<T, UserSkillTaskCardCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserSkillTaskCards and returns the data saved in the database.
+     * @param {UserSkillTaskCardCreateManyAndReturnArgs} args - Arguments to create many UserSkillTaskCards.
+     * @example
+     * // Create many UserSkillTaskCards
+     * const userSkillTaskCard = await prisma.userSkillTaskCard.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserSkillTaskCards and only return the `id`
+     * const userSkillTaskCardWithIdOnly = await prisma.userSkillTaskCard.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserSkillTaskCardCreateManyAndReturnArgs>(args?: SelectSubset<T, UserSkillTaskCardCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSkillTaskCardPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserSkillTaskCard.
+     * @param {UserSkillTaskCardDeleteArgs} args - Arguments to delete one UserSkillTaskCard.
+     * @example
+     * // Delete one UserSkillTaskCard
+     * const UserSkillTaskCard = await prisma.userSkillTaskCard.delete({
+     *   where: {
+     *     // ... filter to delete one UserSkillTaskCard
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserSkillTaskCardDeleteArgs>(args: SelectSubset<T, UserSkillTaskCardDeleteArgs<ExtArgs>>): Prisma__UserSkillTaskCardClient<$Result.GetResult<Prisma.$UserSkillTaskCardPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserSkillTaskCard.
+     * @param {UserSkillTaskCardUpdateArgs} args - Arguments to update one UserSkillTaskCard.
+     * @example
+     * // Update one UserSkillTaskCard
+     * const userSkillTaskCard = await prisma.userSkillTaskCard.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserSkillTaskCardUpdateArgs>(args: SelectSubset<T, UserSkillTaskCardUpdateArgs<ExtArgs>>): Prisma__UserSkillTaskCardClient<$Result.GetResult<Prisma.$UserSkillTaskCardPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserSkillTaskCards.
+     * @param {UserSkillTaskCardDeleteManyArgs} args - Arguments to filter UserSkillTaskCards to delete.
+     * @example
+     * // Delete a few UserSkillTaskCards
+     * const { count } = await prisma.userSkillTaskCard.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserSkillTaskCardDeleteManyArgs>(args?: SelectSubset<T, UserSkillTaskCardDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserSkillTaskCards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillTaskCardUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserSkillTaskCards
+     * const userSkillTaskCard = await prisma.userSkillTaskCard.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserSkillTaskCardUpdateManyArgs>(args: SelectSubset<T, UserSkillTaskCardUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserSkillTaskCards and returns the data updated in the database.
+     * @param {UserSkillTaskCardUpdateManyAndReturnArgs} args - Arguments to update many UserSkillTaskCards.
+     * @example
+     * // Update many UserSkillTaskCards
+     * const userSkillTaskCard = await prisma.userSkillTaskCard.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserSkillTaskCards and only return the `id`
+     * const userSkillTaskCardWithIdOnly = await prisma.userSkillTaskCard.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserSkillTaskCardUpdateManyAndReturnArgs>(args: SelectSubset<T, UserSkillTaskCardUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSkillTaskCardPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserSkillTaskCard.
+     * @param {UserSkillTaskCardUpsertArgs} args - Arguments to update or create a UserSkillTaskCard.
+     * @example
+     * // Update or create a UserSkillTaskCard
+     * const userSkillTaskCard = await prisma.userSkillTaskCard.upsert({
+     *   create: {
+     *     // ... data to create a UserSkillTaskCard
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserSkillTaskCard we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserSkillTaskCardUpsertArgs>(args: SelectSubset<T, UserSkillTaskCardUpsertArgs<ExtArgs>>): Prisma__UserSkillTaskCardClient<$Result.GetResult<Prisma.$UserSkillTaskCardPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserSkillTaskCards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillTaskCardCountArgs} args - Arguments to filter UserSkillTaskCards to count.
+     * @example
+     * // Count the number of UserSkillTaskCards
+     * const count = await prisma.userSkillTaskCard.count({
+     *   where: {
+     *     // ... the filter for the UserSkillTaskCards we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserSkillTaskCardCountArgs>(
+      args?: Subset<T, UserSkillTaskCardCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserSkillTaskCardCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserSkillTaskCard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillTaskCardAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserSkillTaskCardAggregateArgs>(args: Subset<T, UserSkillTaskCardAggregateArgs>): Prisma.PrismaPromise<GetUserSkillTaskCardAggregateType<T>>
+
+    /**
+     * Group by UserSkillTaskCard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillTaskCardGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserSkillTaskCardGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserSkillTaskCardGroupByArgs['orderBy'] }
+        : { orderBy?: UserSkillTaskCardGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserSkillTaskCardGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserSkillTaskCardGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserSkillTaskCard model
+   */
+  readonly fields: UserSkillTaskCardFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserSkillTaskCard.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserSkillTaskCardClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserSkillTaskCard model
+   */
+  interface UserSkillTaskCardFieldRefs {
+    readonly id: FieldRef<"UserSkillTaskCard", 'String'>
+    readonly userId: FieldRef<"UserSkillTaskCard", 'String'>
+    readonly cardType: FieldRef<"UserSkillTaskCard", 'CardType'>
+    readonly skillTaskId: FieldRef<"UserSkillTaskCard", 'String'>
+    readonly skillSubTaskId: FieldRef<"UserSkillTaskCard", 'String'>
+    readonly status: FieldRef<"UserSkillTaskCard", 'CardStatus'>
+    readonly createdAt: FieldRef<"UserSkillTaskCard", 'DateTime'>
+    readonly improvedAt: FieldRef<"UserSkillTaskCard", 'DateTime'>
+    readonly clearedAt: FieldRef<"UserSkillTaskCard", 'DateTime'>
+    readonly lastMatchedAt: FieldRef<"UserSkillTaskCard", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserSkillTaskCard findUnique
+   */
+  export type UserSkillTaskCardFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillTaskCard
+     */
+    select?: UserSkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillTaskCard
+     */
+    omit?: UserSkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillTaskCardInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillTaskCard to fetch.
+     */
+    where: UserSkillTaskCardWhereUniqueInput
+  }
+
+  /**
+   * UserSkillTaskCard findUniqueOrThrow
+   */
+  export type UserSkillTaskCardFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillTaskCard
+     */
+    select?: UserSkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillTaskCard
+     */
+    omit?: UserSkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillTaskCardInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillTaskCard to fetch.
+     */
+    where: UserSkillTaskCardWhereUniqueInput
+  }
+
+  /**
+   * UserSkillTaskCard findFirst
+   */
+  export type UserSkillTaskCardFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillTaskCard
+     */
+    select?: UserSkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillTaskCard
+     */
+    omit?: UserSkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillTaskCardInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillTaskCard to fetch.
+     */
+    where?: UserSkillTaskCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSkillTaskCards to fetch.
+     */
+    orderBy?: UserSkillTaskCardOrderByWithRelationInput | UserSkillTaskCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserSkillTaskCards.
+     */
+    cursor?: UserSkillTaskCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSkillTaskCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSkillTaskCards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserSkillTaskCards.
+     */
+    distinct?: UserSkillTaskCardScalarFieldEnum | UserSkillTaskCardScalarFieldEnum[]
+  }
+
+  /**
+   * UserSkillTaskCard findFirstOrThrow
+   */
+  export type UserSkillTaskCardFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillTaskCard
+     */
+    select?: UserSkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillTaskCard
+     */
+    omit?: UserSkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillTaskCardInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillTaskCard to fetch.
+     */
+    where?: UserSkillTaskCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSkillTaskCards to fetch.
+     */
+    orderBy?: UserSkillTaskCardOrderByWithRelationInput | UserSkillTaskCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserSkillTaskCards.
+     */
+    cursor?: UserSkillTaskCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSkillTaskCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSkillTaskCards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserSkillTaskCards.
+     */
+    distinct?: UserSkillTaskCardScalarFieldEnum | UserSkillTaskCardScalarFieldEnum[]
+  }
+
+  /**
+   * UserSkillTaskCard findMany
+   */
+  export type UserSkillTaskCardFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillTaskCard
+     */
+    select?: UserSkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillTaskCard
+     */
+    omit?: UserSkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillTaskCardInclude<ExtArgs> | null
+    /**
+     * Filter, which UserSkillTaskCards to fetch.
+     */
+    where?: UserSkillTaskCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserSkillTaskCards to fetch.
+     */
+    orderBy?: UserSkillTaskCardOrderByWithRelationInput | UserSkillTaskCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserSkillTaskCards.
+     */
+    cursor?: UserSkillTaskCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserSkillTaskCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserSkillTaskCards.
+     */
+    skip?: number
+    distinct?: UserSkillTaskCardScalarFieldEnum | UserSkillTaskCardScalarFieldEnum[]
+  }
+
+  /**
+   * UserSkillTaskCard create
+   */
+  export type UserSkillTaskCardCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillTaskCard
+     */
+    select?: UserSkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillTaskCard
+     */
+    omit?: UserSkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillTaskCardInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserSkillTaskCard.
+     */
+    data: XOR<UserSkillTaskCardCreateInput, UserSkillTaskCardUncheckedCreateInput>
+  }
+
+  /**
+   * UserSkillTaskCard createMany
+   */
+  export type UserSkillTaskCardCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserSkillTaskCards.
+     */
+    data: UserSkillTaskCardCreateManyInput | UserSkillTaskCardCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UserSkillTaskCard createManyAndReturn
+   */
+  export type UserSkillTaskCardCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillTaskCard
+     */
+    select?: UserSkillTaskCardSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillTaskCard
+     */
+    omit?: UserSkillTaskCardOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserSkillTaskCards.
+     */
+    data: UserSkillTaskCardCreateManyInput | UserSkillTaskCardCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillTaskCardIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserSkillTaskCard update
+   */
+  export type UserSkillTaskCardUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillTaskCard
+     */
+    select?: UserSkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillTaskCard
+     */
+    omit?: UserSkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillTaskCardInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserSkillTaskCard.
+     */
+    data: XOR<UserSkillTaskCardUpdateInput, UserSkillTaskCardUncheckedUpdateInput>
+    /**
+     * Choose, which UserSkillTaskCard to update.
+     */
+    where: UserSkillTaskCardWhereUniqueInput
+  }
+
+  /**
+   * UserSkillTaskCard updateMany
+   */
+  export type UserSkillTaskCardUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserSkillTaskCards.
+     */
+    data: XOR<UserSkillTaskCardUpdateManyMutationInput, UserSkillTaskCardUncheckedUpdateManyInput>
+    /**
+     * Filter which UserSkillTaskCards to update
+     */
+    where?: UserSkillTaskCardWhereInput
+    /**
+     * Limit how many UserSkillTaskCards to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserSkillTaskCard updateManyAndReturn
+   */
+  export type UserSkillTaskCardUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillTaskCard
+     */
+    select?: UserSkillTaskCardSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillTaskCard
+     */
+    omit?: UserSkillTaskCardOmit<ExtArgs> | null
+    /**
+     * The data used to update UserSkillTaskCards.
+     */
+    data: XOR<UserSkillTaskCardUpdateManyMutationInput, UserSkillTaskCardUncheckedUpdateManyInput>
+    /**
+     * Filter which UserSkillTaskCards to update
+     */
+    where?: UserSkillTaskCardWhereInput
+    /**
+     * Limit how many UserSkillTaskCards to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillTaskCardIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserSkillTaskCard upsert
+   */
+  export type UserSkillTaskCardUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillTaskCard
+     */
+    select?: UserSkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillTaskCard
+     */
+    omit?: UserSkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillTaskCardInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserSkillTaskCard to update in case it exists.
+     */
+    where: UserSkillTaskCardWhereUniqueInput
+    /**
+     * In case the UserSkillTaskCard found by the `where` argument doesn't exist, create a new UserSkillTaskCard with this data.
+     */
+    create: XOR<UserSkillTaskCardCreateInput, UserSkillTaskCardUncheckedCreateInput>
+    /**
+     * In case the UserSkillTaskCard was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserSkillTaskCardUpdateInput, UserSkillTaskCardUncheckedUpdateInput>
+  }
+
+  /**
+   * UserSkillTaskCard delete
+   */
+  export type UserSkillTaskCardDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillTaskCard
+     */
+    select?: UserSkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillTaskCard
+     */
+    omit?: UserSkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillTaskCardInclude<ExtArgs> | null
+    /**
+     * Filter which UserSkillTaskCard to delete.
+     */
+    where: UserSkillTaskCardWhereUniqueInput
+  }
+
+  /**
+   * UserSkillTaskCard deleteMany
+   */
+  export type UserSkillTaskCardDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserSkillTaskCards to delete
+     */
+    where?: UserSkillTaskCardWhereInput
+    /**
+     * Limit how many UserSkillTaskCards to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserSkillTaskCard without action
+   */
+  export type UserSkillTaskCardDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserSkillTaskCard
+     */
+    select?: UserSkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserSkillTaskCard
+     */
+    omit?: UserSkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserSkillTaskCardInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserGrade
+   */
+
+  export type AggregateUserGrade = {
+    _count: UserGradeCountAggregateOutputType | null
+    _min: UserGradeMinAggregateOutputType | null
+    _max: UserGradeMaxAggregateOutputType | null
+  }
+
+  export type UserGradeMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    currentGrade: $Enums.GradeLevel | null
+    achievedAt: Date | null
+    lastUpdatedAt: Date | null
+  }
+
+  export type UserGradeMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    currentGrade: $Enums.GradeLevel | null
+    achievedAt: Date | null
+    lastUpdatedAt: Date | null
+  }
+
+  export type UserGradeCountAggregateOutputType = {
+    id: number
+    userId: number
+    currentGrade: number
+    achievedAt: number
+    progressData: number
+    lastUpdatedAt: number
+    _all: number
+  }
+
+
+  export type UserGradeMinAggregateInputType = {
+    id?: true
+    userId?: true
+    currentGrade?: true
+    achievedAt?: true
+    lastUpdatedAt?: true
+  }
+
+  export type UserGradeMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    currentGrade?: true
+    achievedAt?: true
+    lastUpdatedAt?: true
+  }
+
+  export type UserGradeCountAggregateInputType = {
+    id?: true
+    userId?: true
+    currentGrade?: true
+    achievedAt?: true
+    progressData?: true
+    lastUpdatedAt?: true
+    _all?: true
+  }
+
+  export type UserGradeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserGrade to aggregate.
+     */
+    where?: UserGradeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserGrades to fetch.
+     */
+    orderBy?: UserGradeOrderByWithRelationInput | UserGradeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserGradeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserGrades from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserGrades.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserGrades
+    **/
+    _count?: true | UserGradeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserGradeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserGradeMaxAggregateInputType
+  }
+
+  export type GetUserGradeAggregateType<T extends UserGradeAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserGrade]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserGrade[P]>
+      : GetScalarType<T[P], AggregateUserGrade[P]>
+  }
+
+
+
+
+  export type UserGradeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserGradeWhereInput
+    orderBy?: UserGradeOrderByWithAggregationInput | UserGradeOrderByWithAggregationInput[]
+    by: UserGradeScalarFieldEnum[] | UserGradeScalarFieldEnum
+    having?: UserGradeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserGradeCountAggregateInputType | true
+    _min?: UserGradeMinAggregateInputType
+    _max?: UserGradeMaxAggregateInputType
+  }
+
+  export type UserGradeGroupByOutputType = {
+    id: string
+    userId: string
+    currentGrade: $Enums.GradeLevel
+    achievedAt: Date | null
+    progressData: JsonValue
+    lastUpdatedAt: Date
+    _count: UserGradeCountAggregateOutputType | null
+    _min: UserGradeMinAggregateOutputType | null
+    _max: UserGradeMaxAggregateOutputType | null
+  }
+
+  type GetUserGradeGroupByPayload<T extends UserGradeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserGradeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserGradeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserGradeGroupByOutputType[P]>
+            : GetScalarType<T[P], UserGradeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserGradeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    currentGrade?: boolean
+    achievedAt?: boolean
+    progressData?: boolean
+    lastUpdatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userGrade"]>
+
+  export type UserGradeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    currentGrade?: boolean
+    achievedAt?: boolean
+    progressData?: boolean
+    lastUpdatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userGrade"]>
+
+  export type UserGradeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    currentGrade?: boolean
+    achievedAt?: boolean
+    progressData?: boolean
+    lastUpdatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userGrade"]>
+
+  export type UserGradeSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    currentGrade?: boolean
+    achievedAt?: boolean
+    progressData?: boolean
+    lastUpdatedAt?: boolean
+  }
+
+  export type UserGradeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "currentGrade" | "achievedAt" | "progressData" | "lastUpdatedAt", ExtArgs["result"]["userGrade"]>
+  export type UserGradeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserGradeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserGradeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $UserGradePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserGrade"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      currentGrade: $Enums.GradeLevel
+      achievedAt: Date | null
+      progressData: Prisma.JsonValue
+      lastUpdatedAt: Date
+    }, ExtArgs["result"]["userGrade"]>
+    composites: {}
+  }
+
+  type UserGradeGetPayload<S extends boolean | null | undefined | UserGradeDefaultArgs> = $Result.GetResult<Prisma.$UserGradePayload, S>
+
+  type UserGradeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserGradeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserGradeCountAggregateInputType | true
+    }
+
+  export interface UserGradeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserGrade'], meta: { name: 'UserGrade' } }
+    /**
+     * Find zero or one UserGrade that matches the filter.
+     * @param {UserGradeFindUniqueArgs} args - Arguments to find a UserGrade
+     * @example
+     * // Get one UserGrade
+     * const userGrade = await prisma.userGrade.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserGradeFindUniqueArgs>(args: SelectSubset<T, UserGradeFindUniqueArgs<ExtArgs>>): Prisma__UserGradeClient<$Result.GetResult<Prisma.$UserGradePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserGrade that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserGradeFindUniqueOrThrowArgs} args - Arguments to find a UserGrade
+     * @example
+     * // Get one UserGrade
+     * const userGrade = await prisma.userGrade.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserGradeFindUniqueOrThrowArgs>(args: SelectSubset<T, UserGradeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserGradeClient<$Result.GetResult<Prisma.$UserGradePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserGrade that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeFindFirstArgs} args - Arguments to find a UserGrade
+     * @example
+     * // Get one UserGrade
+     * const userGrade = await prisma.userGrade.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserGradeFindFirstArgs>(args?: SelectSubset<T, UserGradeFindFirstArgs<ExtArgs>>): Prisma__UserGradeClient<$Result.GetResult<Prisma.$UserGradePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserGrade that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeFindFirstOrThrowArgs} args - Arguments to find a UserGrade
+     * @example
+     * // Get one UserGrade
+     * const userGrade = await prisma.userGrade.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserGradeFindFirstOrThrowArgs>(args?: SelectSubset<T, UserGradeFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserGradeClient<$Result.GetResult<Prisma.$UserGradePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserGrades that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserGrades
+     * const userGrades = await prisma.userGrade.findMany()
+     * 
+     * // Get first 10 UserGrades
+     * const userGrades = await prisma.userGrade.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userGradeWithIdOnly = await prisma.userGrade.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserGradeFindManyArgs>(args?: SelectSubset<T, UserGradeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserGradePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserGrade.
+     * @param {UserGradeCreateArgs} args - Arguments to create a UserGrade.
+     * @example
+     * // Create one UserGrade
+     * const UserGrade = await prisma.userGrade.create({
+     *   data: {
+     *     // ... data to create a UserGrade
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserGradeCreateArgs>(args: SelectSubset<T, UserGradeCreateArgs<ExtArgs>>): Prisma__UserGradeClient<$Result.GetResult<Prisma.$UserGradePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserGrades.
+     * @param {UserGradeCreateManyArgs} args - Arguments to create many UserGrades.
+     * @example
+     * // Create many UserGrades
+     * const userGrade = await prisma.userGrade.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserGradeCreateManyArgs>(args?: SelectSubset<T, UserGradeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserGrades and returns the data saved in the database.
+     * @param {UserGradeCreateManyAndReturnArgs} args - Arguments to create many UserGrades.
+     * @example
+     * // Create many UserGrades
+     * const userGrade = await prisma.userGrade.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserGrades and only return the `id`
+     * const userGradeWithIdOnly = await prisma.userGrade.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserGradeCreateManyAndReturnArgs>(args?: SelectSubset<T, UserGradeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserGradePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserGrade.
+     * @param {UserGradeDeleteArgs} args - Arguments to delete one UserGrade.
+     * @example
+     * // Delete one UserGrade
+     * const UserGrade = await prisma.userGrade.delete({
+     *   where: {
+     *     // ... filter to delete one UserGrade
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserGradeDeleteArgs>(args: SelectSubset<T, UserGradeDeleteArgs<ExtArgs>>): Prisma__UserGradeClient<$Result.GetResult<Prisma.$UserGradePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserGrade.
+     * @param {UserGradeUpdateArgs} args - Arguments to update one UserGrade.
+     * @example
+     * // Update one UserGrade
+     * const userGrade = await prisma.userGrade.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserGradeUpdateArgs>(args: SelectSubset<T, UserGradeUpdateArgs<ExtArgs>>): Prisma__UserGradeClient<$Result.GetResult<Prisma.$UserGradePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserGrades.
+     * @param {UserGradeDeleteManyArgs} args - Arguments to filter UserGrades to delete.
+     * @example
+     * // Delete a few UserGrades
+     * const { count } = await prisma.userGrade.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserGradeDeleteManyArgs>(args?: SelectSubset<T, UserGradeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserGrades.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserGrades
+     * const userGrade = await prisma.userGrade.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserGradeUpdateManyArgs>(args: SelectSubset<T, UserGradeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserGrades and returns the data updated in the database.
+     * @param {UserGradeUpdateManyAndReturnArgs} args - Arguments to update many UserGrades.
+     * @example
+     * // Update many UserGrades
+     * const userGrade = await prisma.userGrade.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserGrades and only return the `id`
+     * const userGradeWithIdOnly = await prisma.userGrade.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserGradeUpdateManyAndReturnArgs>(args: SelectSubset<T, UserGradeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserGradePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserGrade.
+     * @param {UserGradeUpsertArgs} args - Arguments to update or create a UserGrade.
+     * @example
+     * // Update or create a UserGrade
+     * const userGrade = await prisma.userGrade.upsert({
+     *   create: {
+     *     // ... data to create a UserGrade
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserGrade we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserGradeUpsertArgs>(args: SelectSubset<T, UserGradeUpsertArgs<ExtArgs>>): Prisma__UserGradeClient<$Result.GetResult<Prisma.$UserGradePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserGrades.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeCountArgs} args - Arguments to filter UserGrades to count.
+     * @example
+     * // Count the number of UserGrades
+     * const count = await prisma.userGrade.count({
+     *   where: {
+     *     // ... the filter for the UserGrades we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserGradeCountArgs>(
+      args?: Subset<T, UserGradeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserGradeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserGrade.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserGradeAggregateArgs>(args: Subset<T, UserGradeAggregateArgs>): Prisma.PrismaPromise<GetUserGradeAggregateType<T>>
+
+    /**
+     * Group by UserGrade.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserGradeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserGradeGroupByArgs['orderBy'] }
+        : { orderBy?: UserGradeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserGradeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserGradeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserGrade model
+   */
+  readonly fields: UserGradeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserGrade.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserGradeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserGrade model
+   */
+  interface UserGradeFieldRefs {
+    readonly id: FieldRef<"UserGrade", 'String'>
+    readonly userId: FieldRef<"UserGrade", 'String'>
+    readonly currentGrade: FieldRef<"UserGrade", 'GradeLevel'>
+    readonly achievedAt: FieldRef<"UserGrade", 'DateTime'>
+    readonly progressData: FieldRef<"UserGrade", 'Json'>
+    readonly lastUpdatedAt: FieldRef<"UserGrade", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserGrade findUnique
+   */
+  export type UserGradeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGrade
+     */
+    select?: UserGradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGrade
+     */
+    omit?: UserGradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeInclude<ExtArgs> | null
+    /**
+     * Filter, which UserGrade to fetch.
+     */
+    where: UserGradeWhereUniqueInput
+  }
+
+  /**
+   * UserGrade findUniqueOrThrow
+   */
+  export type UserGradeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGrade
+     */
+    select?: UserGradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGrade
+     */
+    omit?: UserGradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeInclude<ExtArgs> | null
+    /**
+     * Filter, which UserGrade to fetch.
+     */
+    where: UserGradeWhereUniqueInput
+  }
+
+  /**
+   * UserGrade findFirst
+   */
+  export type UserGradeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGrade
+     */
+    select?: UserGradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGrade
+     */
+    omit?: UserGradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeInclude<ExtArgs> | null
+    /**
+     * Filter, which UserGrade to fetch.
+     */
+    where?: UserGradeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserGrades to fetch.
+     */
+    orderBy?: UserGradeOrderByWithRelationInput | UserGradeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserGrades.
+     */
+    cursor?: UserGradeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserGrades from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserGrades.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserGrades.
+     */
+    distinct?: UserGradeScalarFieldEnum | UserGradeScalarFieldEnum[]
+  }
+
+  /**
+   * UserGrade findFirstOrThrow
+   */
+  export type UserGradeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGrade
+     */
+    select?: UserGradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGrade
+     */
+    omit?: UserGradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeInclude<ExtArgs> | null
+    /**
+     * Filter, which UserGrade to fetch.
+     */
+    where?: UserGradeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserGrades to fetch.
+     */
+    orderBy?: UserGradeOrderByWithRelationInput | UserGradeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserGrades.
+     */
+    cursor?: UserGradeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserGrades from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserGrades.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserGrades.
+     */
+    distinct?: UserGradeScalarFieldEnum | UserGradeScalarFieldEnum[]
+  }
+
+  /**
+   * UserGrade findMany
+   */
+  export type UserGradeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGrade
+     */
+    select?: UserGradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGrade
+     */
+    omit?: UserGradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeInclude<ExtArgs> | null
+    /**
+     * Filter, which UserGrades to fetch.
+     */
+    where?: UserGradeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserGrades to fetch.
+     */
+    orderBy?: UserGradeOrderByWithRelationInput | UserGradeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserGrades.
+     */
+    cursor?: UserGradeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserGrades from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserGrades.
+     */
+    skip?: number
+    distinct?: UserGradeScalarFieldEnum | UserGradeScalarFieldEnum[]
+  }
+
+  /**
+   * UserGrade create
+   */
+  export type UserGradeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGrade
+     */
+    select?: UserGradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGrade
+     */
+    omit?: UserGradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserGrade.
+     */
+    data: XOR<UserGradeCreateInput, UserGradeUncheckedCreateInput>
+  }
+
+  /**
+   * UserGrade createMany
+   */
+  export type UserGradeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserGrades.
+     */
+    data: UserGradeCreateManyInput | UserGradeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UserGrade createManyAndReturn
+   */
+  export type UserGradeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGrade
+     */
+    select?: UserGradeSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGrade
+     */
+    omit?: UserGradeOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserGrades.
+     */
+    data: UserGradeCreateManyInput | UserGradeCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserGrade update
+   */
+  export type UserGradeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGrade
+     */
+    select?: UserGradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGrade
+     */
+    omit?: UserGradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserGrade.
+     */
+    data: XOR<UserGradeUpdateInput, UserGradeUncheckedUpdateInput>
+    /**
+     * Choose, which UserGrade to update.
+     */
+    where: UserGradeWhereUniqueInput
+  }
+
+  /**
+   * UserGrade updateMany
+   */
+  export type UserGradeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserGrades.
+     */
+    data: XOR<UserGradeUpdateManyMutationInput, UserGradeUncheckedUpdateManyInput>
+    /**
+     * Filter which UserGrades to update
+     */
+    where?: UserGradeWhereInput
+    /**
+     * Limit how many UserGrades to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserGrade updateManyAndReturn
+   */
+  export type UserGradeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGrade
+     */
+    select?: UserGradeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGrade
+     */
+    omit?: UserGradeOmit<ExtArgs> | null
+    /**
+     * The data used to update UserGrades.
+     */
+    data: XOR<UserGradeUpdateManyMutationInput, UserGradeUncheckedUpdateManyInput>
+    /**
+     * Filter which UserGrades to update
+     */
+    where?: UserGradeWhereInput
+    /**
+     * Limit how many UserGrades to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserGrade upsert
+   */
+  export type UserGradeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGrade
+     */
+    select?: UserGradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGrade
+     */
+    omit?: UserGradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserGrade to update in case it exists.
+     */
+    where: UserGradeWhereUniqueInput
+    /**
+     * In case the UserGrade found by the `where` argument doesn't exist, create a new UserGrade with this data.
+     */
+    create: XOR<UserGradeCreateInput, UserGradeUncheckedCreateInput>
+    /**
+     * In case the UserGrade was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserGradeUpdateInput, UserGradeUncheckedUpdateInput>
+  }
+
+  /**
+   * UserGrade delete
+   */
+  export type UserGradeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGrade
+     */
+    select?: UserGradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGrade
+     */
+    omit?: UserGradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeInclude<ExtArgs> | null
+    /**
+     * Filter which UserGrade to delete.
+     */
+    where: UserGradeWhereUniqueInput
+  }
+
+  /**
+   * UserGrade deleteMany
+   */
+  export type UserGradeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserGrades to delete
+     */
+    where?: UserGradeWhereInput
+    /**
+     * Limit how many UserGrades to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserGrade without action
+   */
+  export type UserGradeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGrade
+     */
+    select?: UserGradeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGrade
+     */
+    omit?: UserGradeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PerformanceSkillFeedback
+   */
+
+  export type AggregatePerformanceSkillFeedback = {
+    _count: PerformanceSkillFeedbackCountAggregateOutputType | null
+    _min: PerformanceSkillFeedbackMinAggregateOutputType | null
+    _max: PerformanceSkillFeedbackMaxAggregateOutputType | null
+  }
+
+  export type PerformanceSkillFeedbackMinAggregateOutputType = {
+    id: string | null
+    practicePerformanceId: string | null
+    userId: string | null
+    positionId: string | null
+    selectedSubTaskId: string | null
+    feedbackType: string | null
+    comment: string | null
+    createdAt: Date | null
+  }
+
+  export type PerformanceSkillFeedbackMaxAggregateOutputType = {
+    id: string | null
+    practicePerformanceId: string | null
+    userId: string | null
+    positionId: string | null
+    selectedSubTaskId: string | null
+    feedbackType: string | null
+    comment: string | null
+    createdAt: Date | null
+  }
+
+  export type PerformanceSkillFeedbackCountAggregateOutputType = {
+    id: number
+    practicePerformanceId: number
+    userId: number
+    positionId: number
+    selectedSubTaskId: number
+    feedbackType: number
+    comment: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type PerformanceSkillFeedbackMinAggregateInputType = {
+    id?: true
+    practicePerformanceId?: true
+    userId?: true
+    positionId?: true
+    selectedSubTaskId?: true
+    feedbackType?: true
+    comment?: true
+    createdAt?: true
+  }
+
+  export type PerformanceSkillFeedbackMaxAggregateInputType = {
+    id?: true
+    practicePerformanceId?: true
+    userId?: true
+    positionId?: true
+    selectedSubTaskId?: true
+    feedbackType?: true
+    comment?: true
+    createdAt?: true
+  }
+
+  export type PerformanceSkillFeedbackCountAggregateInputType = {
+    id?: true
+    practicePerformanceId?: true
+    userId?: true
+    positionId?: true
+    selectedSubTaskId?: true
+    feedbackType?: true
+    comment?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type PerformanceSkillFeedbackAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PerformanceSkillFeedback to aggregate.
+     */
+    where?: PerformanceSkillFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PerformanceSkillFeedbacks to fetch.
+     */
+    orderBy?: PerformanceSkillFeedbackOrderByWithRelationInput | PerformanceSkillFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PerformanceSkillFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PerformanceSkillFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PerformanceSkillFeedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PerformanceSkillFeedbacks
+    **/
+    _count?: true | PerformanceSkillFeedbackCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PerformanceSkillFeedbackMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PerformanceSkillFeedbackMaxAggregateInputType
+  }
+
+  export type GetPerformanceSkillFeedbackAggregateType<T extends PerformanceSkillFeedbackAggregateArgs> = {
+        [P in keyof T & keyof AggregatePerformanceSkillFeedback]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePerformanceSkillFeedback[P]>
+      : GetScalarType<T[P], AggregatePerformanceSkillFeedback[P]>
+  }
+
+
+
+
+  export type PerformanceSkillFeedbackGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PerformanceSkillFeedbackWhereInput
+    orderBy?: PerformanceSkillFeedbackOrderByWithAggregationInput | PerformanceSkillFeedbackOrderByWithAggregationInput[]
+    by: PerformanceSkillFeedbackScalarFieldEnum[] | PerformanceSkillFeedbackScalarFieldEnum
+    having?: PerformanceSkillFeedbackScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PerformanceSkillFeedbackCountAggregateInputType | true
+    _min?: PerformanceSkillFeedbackMinAggregateInputType
+    _max?: PerformanceSkillFeedbackMaxAggregateInputType
+  }
+
+  export type PerformanceSkillFeedbackGroupByOutputType = {
+    id: string
+    practicePerformanceId: string
+    userId: string
+    positionId: string
+    selectedSubTaskId: string | null
+    feedbackType: string
+    comment: string | null
+    createdAt: Date
+    _count: PerformanceSkillFeedbackCountAggregateOutputType | null
+    _min: PerformanceSkillFeedbackMinAggregateOutputType | null
+    _max: PerformanceSkillFeedbackMaxAggregateOutputType | null
+  }
+
+  type GetPerformanceSkillFeedbackGroupByPayload<T extends PerformanceSkillFeedbackGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PerformanceSkillFeedbackGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PerformanceSkillFeedbackGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PerformanceSkillFeedbackGroupByOutputType[P]>
+            : GetScalarType<T[P], PerformanceSkillFeedbackGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PerformanceSkillFeedbackSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    practicePerformanceId?: boolean
+    userId?: boolean
+    positionId?: boolean
+    selectedSubTaskId?: boolean
+    feedbackType?: boolean
+    comment?: boolean
+    createdAt?: boolean
+    practicePerformance?: boolean | PracticePerformanceDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["performanceSkillFeedback"]>
+
+  export type PerformanceSkillFeedbackSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    practicePerformanceId?: boolean
+    userId?: boolean
+    positionId?: boolean
+    selectedSubTaskId?: boolean
+    feedbackType?: boolean
+    comment?: boolean
+    createdAt?: boolean
+    practicePerformance?: boolean | PracticePerformanceDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["performanceSkillFeedback"]>
+
+  export type PerformanceSkillFeedbackSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    practicePerformanceId?: boolean
+    userId?: boolean
+    positionId?: boolean
+    selectedSubTaskId?: boolean
+    feedbackType?: boolean
+    comment?: boolean
+    createdAt?: boolean
+    practicePerformance?: boolean | PracticePerformanceDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["performanceSkillFeedback"]>
+
+  export type PerformanceSkillFeedbackSelectScalar = {
+    id?: boolean
+    practicePerformanceId?: boolean
+    userId?: boolean
+    positionId?: boolean
+    selectedSubTaskId?: boolean
+    feedbackType?: boolean
+    comment?: boolean
+    createdAt?: boolean
+  }
+
+  export type PerformanceSkillFeedbackOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "practicePerformanceId" | "userId" | "positionId" | "selectedSubTaskId" | "feedbackType" | "comment" | "createdAt", ExtArgs["result"]["performanceSkillFeedback"]>
+  export type PerformanceSkillFeedbackInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    practicePerformance?: boolean | PracticePerformanceDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type PerformanceSkillFeedbackIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    practicePerformance?: boolean | PracticePerformanceDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type PerformanceSkillFeedbackIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    practicePerformance?: boolean | PracticePerformanceDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $PerformanceSkillFeedbackPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PerformanceSkillFeedback"
+    objects: {
+      practicePerformance: Prisma.$PracticePerformancePayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      practicePerformanceId: string
+      userId: string
+      positionId: string
+      selectedSubTaskId: string | null
+      feedbackType: string
+      comment: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["performanceSkillFeedback"]>
+    composites: {}
+  }
+
+  type PerformanceSkillFeedbackGetPayload<S extends boolean | null | undefined | PerformanceSkillFeedbackDefaultArgs> = $Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload, S>
+
+  type PerformanceSkillFeedbackCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PerformanceSkillFeedbackFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PerformanceSkillFeedbackCountAggregateInputType | true
+    }
+
+  export interface PerformanceSkillFeedbackDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PerformanceSkillFeedback'], meta: { name: 'PerformanceSkillFeedback' } }
+    /**
+     * Find zero or one PerformanceSkillFeedback that matches the filter.
+     * @param {PerformanceSkillFeedbackFindUniqueArgs} args - Arguments to find a PerformanceSkillFeedback
+     * @example
+     * // Get one PerformanceSkillFeedback
+     * const performanceSkillFeedback = await prisma.performanceSkillFeedback.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PerformanceSkillFeedbackFindUniqueArgs>(args: SelectSubset<T, PerformanceSkillFeedbackFindUniqueArgs<ExtArgs>>): Prisma__PerformanceSkillFeedbackClient<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PerformanceSkillFeedback that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PerformanceSkillFeedbackFindUniqueOrThrowArgs} args - Arguments to find a PerformanceSkillFeedback
+     * @example
+     * // Get one PerformanceSkillFeedback
+     * const performanceSkillFeedback = await prisma.performanceSkillFeedback.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PerformanceSkillFeedbackFindUniqueOrThrowArgs>(args: SelectSubset<T, PerformanceSkillFeedbackFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PerformanceSkillFeedbackClient<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PerformanceSkillFeedback that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PerformanceSkillFeedbackFindFirstArgs} args - Arguments to find a PerformanceSkillFeedback
+     * @example
+     * // Get one PerformanceSkillFeedback
+     * const performanceSkillFeedback = await prisma.performanceSkillFeedback.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PerformanceSkillFeedbackFindFirstArgs>(args?: SelectSubset<T, PerformanceSkillFeedbackFindFirstArgs<ExtArgs>>): Prisma__PerformanceSkillFeedbackClient<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PerformanceSkillFeedback that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PerformanceSkillFeedbackFindFirstOrThrowArgs} args - Arguments to find a PerformanceSkillFeedback
+     * @example
+     * // Get one PerformanceSkillFeedback
+     * const performanceSkillFeedback = await prisma.performanceSkillFeedback.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PerformanceSkillFeedbackFindFirstOrThrowArgs>(args?: SelectSubset<T, PerformanceSkillFeedbackFindFirstOrThrowArgs<ExtArgs>>): Prisma__PerformanceSkillFeedbackClient<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PerformanceSkillFeedbacks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PerformanceSkillFeedbackFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PerformanceSkillFeedbacks
+     * const performanceSkillFeedbacks = await prisma.performanceSkillFeedback.findMany()
+     * 
+     * // Get first 10 PerformanceSkillFeedbacks
+     * const performanceSkillFeedbacks = await prisma.performanceSkillFeedback.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const performanceSkillFeedbackWithIdOnly = await prisma.performanceSkillFeedback.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PerformanceSkillFeedbackFindManyArgs>(args?: SelectSubset<T, PerformanceSkillFeedbackFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PerformanceSkillFeedback.
+     * @param {PerformanceSkillFeedbackCreateArgs} args - Arguments to create a PerformanceSkillFeedback.
+     * @example
+     * // Create one PerformanceSkillFeedback
+     * const PerformanceSkillFeedback = await prisma.performanceSkillFeedback.create({
+     *   data: {
+     *     // ... data to create a PerformanceSkillFeedback
+     *   }
+     * })
+     * 
+     */
+    create<T extends PerformanceSkillFeedbackCreateArgs>(args: SelectSubset<T, PerformanceSkillFeedbackCreateArgs<ExtArgs>>): Prisma__PerformanceSkillFeedbackClient<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PerformanceSkillFeedbacks.
+     * @param {PerformanceSkillFeedbackCreateManyArgs} args - Arguments to create many PerformanceSkillFeedbacks.
+     * @example
+     * // Create many PerformanceSkillFeedbacks
+     * const performanceSkillFeedback = await prisma.performanceSkillFeedback.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PerformanceSkillFeedbackCreateManyArgs>(args?: SelectSubset<T, PerformanceSkillFeedbackCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PerformanceSkillFeedbacks and returns the data saved in the database.
+     * @param {PerformanceSkillFeedbackCreateManyAndReturnArgs} args - Arguments to create many PerformanceSkillFeedbacks.
+     * @example
+     * // Create many PerformanceSkillFeedbacks
+     * const performanceSkillFeedback = await prisma.performanceSkillFeedback.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PerformanceSkillFeedbacks and only return the `id`
+     * const performanceSkillFeedbackWithIdOnly = await prisma.performanceSkillFeedback.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PerformanceSkillFeedbackCreateManyAndReturnArgs>(args?: SelectSubset<T, PerformanceSkillFeedbackCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PerformanceSkillFeedback.
+     * @param {PerformanceSkillFeedbackDeleteArgs} args - Arguments to delete one PerformanceSkillFeedback.
+     * @example
+     * // Delete one PerformanceSkillFeedback
+     * const PerformanceSkillFeedback = await prisma.performanceSkillFeedback.delete({
+     *   where: {
+     *     // ... filter to delete one PerformanceSkillFeedback
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PerformanceSkillFeedbackDeleteArgs>(args: SelectSubset<T, PerformanceSkillFeedbackDeleteArgs<ExtArgs>>): Prisma__PerformanceSkillFeedbackClient<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PerformanceSkillFeedback.
+     * @param {PerformanceSkillFeedbackUpdateArgs} args - Arguments to update one PerformanceSkillFeedback.
+     * @example
+     * // Update one PerformanceSkillFeedback
+     * const performanceSkillFeedback = await prisma.performanceSkillFeedback.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PerformanceSkillFeedbackUpdateArgs>(args: SelectSubset<T, PerformanceSkillFeedbackUpdateArgs<ExtArgs>>): Prisma__PerformanceSkillFeedbackClient<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PerformanceSkillFeedbacks.
+     * @param {PerformanceSkillFeedbackDeleteManyArgs} args - Arguments to filter PerformanceSkillFeedbacks to delete.
+     * @example
+     * // Delete a few PerformanceSkillFeedbacks
+     * const { count } = await prisma.performanceSkillFeedback.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PerformanceSkillFeedbackDeleteManyArgs>(args?: SelectSubset<T, PerformanceSkillFeedbackDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PerformanceSkillFeedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PerformanceSkillFeedbackUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PerformanceSkillFeedbacks
+     * const performanceSkillFeedback = await prisma.performanceSkillFeedback.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PerformanceSkillFeedbackUpdateManyArgs>(args: SelectSubset<T, PerformanceSkillFeedbackUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PerformanceSkillFeedbacks and returns the data updated in the database.
+     * @param {PerformanceSkillFeedbackUpdateManyAndReturnArgs} args - Arguments to update many PerformanceSkillFeedbacks.
+     * @example
+     * // Update many PerformanceSkillFeedbacks
+     * const performanceSkillFeedback = await prisma.performanceSkillFeedback.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PerformanceSkillFeedbacks and only return the `id`
+     * const performanceSkillFeedbackWithIdOnly = await prisma.performanceSkillFeedback.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PerformanceSkillFeedbackUpdateManyAndReturnArgs>(args: SelectSubset<T, PerformanceSkillFeedbackUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PerformanceSkillFeedback.
+     * @param {PerformanceSkillFeedbackUpsertArgs} args - Arguments to update or create a PerformanceSkillFeedback.
+     * @example
+     * // Update or create a PerformanceSkillFeedback
+     * const performanceSkillFeedback = await prisma.performanceSkillFeedback.upsert({
+     *   create: {
+     *     // ... data to create a PerformanceSkillFeedback
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PerformanceSkillFeedback we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PerformanceSkillFeedbackUpsertArgs>(args: SelectSubset<T, PerformanceSkillFeedbackUpsertArgs<ExtArgs>>): Prisma__PerformanceSkillFeedbackClient<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PerformanceSkillFeedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PerformanceSkillFeedbackCountArgs} args - Arguments to filter PerformanceSkillFeedbacks to count.
+     * @example
+     * // Count the number of PerformanceSkillFeedbacks
+     * const count = await prisma.performanceSkillFeedback.count({
+     *   where: {
+     *     // ... the filter for the PerformanceSkillFeedbacks we want to count
+     *   }
+     * })
+    **/
+    count<T extends PerformanceSkillFeedbackCountArgs>(
+      args?: Subset<T, PerformanceSkillFeedbackCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PerformanceSkillFeedbackCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PerformanceSkillFeedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PerformanceSkillFeedbackAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PerformanceSkillFeedbackAggregateArgs>(args: Subset<T, PerformanceSkillFeedbackAggregateArgs>): Prisma.PrismaPromise<GetPerformanceSkillFeedbackAggregateType<T>>
+
+    /**
+     * Group by PerformanceSkillFeedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PerformanceSkillFeedbackGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PerformanceSkillFeedbackGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PerformanceSkillFeedbackGroupByArgs['orderBy'] }
+        : { orderBy?: PerformanceSkillFeedbackGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PerformanceSkillFeedbackGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPerformanceSkillFeedbackGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PerformanceSkillFeedback model
+   */
+  readonly fields: PerformanceSkillFeedbackFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PerformanceSkillFeedback.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PerformanceSkillFeedbackClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    practicePerformance<T extends PracticePerformanceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PracticePerformanceDefaultArgs<ExtArgs>>): Prisma__PracticePerformanceClient<$Result.GetResult<Prisma.$PracticePerformancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PerformanceSkillFeedback model
+   */
+  interface PerformanceSkillFeedbackFieldRefs {
+    readonly id: FieldRef<"PerformanceSkillFeedback", 'String'>
+    readonly practicePerformanceId: FieldRef<"PerformanceSkillFeedback", 'String'>
+    readonly userId: FieldRef<"PerformanceSkillFeedback", 'String'>
+    readonly positionId: FieldRef<"PerformanceSkillFeedback", 'String'>
+    readonly selectedSubTaskId: FieldRef<"PerformanceSkillFeedback", 'String'>
+    readonly feedbackType: FieldRef<"PerformanceSkillFeedback", 'String'>
+    readonly comment: FieldRef<"PerformanceSkillFeedback", 'String'>
+    readonly createdAt: FieldRef<"PerformanceSkillFeedback", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PerformanceSkillFeedback findUnique
+   */
+  export type PerformanceSkillFeedbackFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which PerformanceSkillFeedback to fetch.
+     */
+    where: PerformanceSkillFeedbackWhereUniqueInput
+  }
+
+  /**
+   * PerformanceSkillFeedback findUniqueOrThrow
+   */
+  export type PerformanceSkillFeedbackFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which PerformanceSkillFeedback to fetch.
+     */
+    where: PerformanceSkillFeedbackWhereUniqueInput
+  }
+
+  /**
+   * PerformanceSkillFeedback findFirst
+   */
+  export type PerformanceSkillFeedbackFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which PerformanceSkillFeedback to fetch.
+     */
+    where?: PerformanceSkillFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PerformanceSkillFeedbacks to fetch.
+     */
+    orderBy?: PerformanceSkillFeedbackOrderByWithRelationInput | PerformanceSkillFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PerformanceSkillFeedbacks.
+     */
+    cursor?: PerformanceSkillFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PerformanceSkillFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PerformanceSkillFeedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PerformanceSkillFeedbacks.
+     */
+    distinct?: PerformanceSkillFeedbackScalarFieldEnum | PerformanceSkillFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * PerformanceSkillFeedback findFirstOrThrow
+   */
+  export type PerformanceSkillFeedbackFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which PerformanceSkillFeedback to fetch.
+     */
+    where?: PerformanceSkillFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PerformanceSkillFeedbacks to fetch.
+     */
+    orderBy?: PerformanceSkillFeedbackOrderByWithRelationInput | PerformanceSkillFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PerformanceSkillFeedbacks.
+     */
+    cursor?: PerformanceSkillFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PerformanceSkillFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PerformanceSkillFeedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PerformanceSkillFeedbacks.
+     */
+    distinct?: PerformanceSkillFeedbackScalarFieldEnum | PerformanceSkillFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * PerformanceSkillFeedback findMany
+   */
+  export type PerformanceSkillFeedbackFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which PerformanceSkillFeedbacks to fetch.
+     */
+    where?: PerformanceSkillFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PerformanceSkillFeedbacks to fetch.
+     */
+    orderBy?: PerformanceSkillFeedbackOrderByWithRelationInput | PerformanceSkillFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PerformanceSkillFeedbacks.
+     */
+    cursor?: PerformanceSkillFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PerformanceSkillFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PerformanceSkillFeedbacks.
+     */
+    skip?: number
+    distinct?: PerformanceSkillFeedbackScalarFieldEnum | PerformanceSkillFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * PerformanceSkillFeedback create
+   */
+  export type PerformanceSkillFeedbackCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PerformanceSkillFeedback.
+     */
+    data: XOR<PerformanceSkillFeedbackCreateInput, PerformanceSkillFeedbackUncheckedCreateInput>
+  }
+
+  /**
+   * PerformanceSkillFeedback createMany
+   */
+  export type PerformanceSkillFeedbackCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PerformanceSkillFeedbacks.
+     */
+    data: PerformanceSkillFeedbackCreateManyInput | PerformanceSkillFeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PerformanceSkillFeedback createManyAndReturn
+   */
+  export type PerformanceSkillFeedbackCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * The data used to create many PerformanceSkillFeedbacks.
+     */
+    data: PerformanceSkillFeedbackCreateManyInput | PerformanceSkillFeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PerformanceSkillFeedback update
+   */
+  export type PerformanceSkillFeedbackUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PerformanceSkillFeedback.
+     */
+    data: XOR<PerformanceSkillFeedbackUpdateInput, PerformanceSkillFeedbackUncheckedUpdateInput>
+    /**
+     * Choose, which PerformanceSkillFeedback to update.
+     */
+    where: PerformanceSkillFeedbackWhereUniqueInput
+  }
+
+  /**
+   * PerformanceSkillFeedback updateMany
+   */
+  export type PerformanceSkillFeedbackUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PerformanceSkillFeedbacks.
+     */
+    data: XOR<PerformanceSkillFeedbackUpdateManyMutationInput, PerformanceSkillFeedbackUncheckedUpdateManyInput>
+    /**
+     * Filter which PerformanceSkillFeedbacks to update
+     */
+    where?: PerformanceSkillFeedbackWhereInput
+    /**
+     * Limit how many PerformanceSkillFeedbacks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PerformanceSkillFeedback updateManyAndReturn
+   */
+  export type PerformanceSkillFeedbackUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * The data used to update PerformanceSkillFeedbacks.
+     */
+    data: XOR<PerformanceSkillFeedbackUpdateManyMutationInput, PerformanceSkillFeedbackUncheckedUpdateManyInput>
+    /**
+     * Filter which PerformanceSkillFeedbacks to update
+     */
+    where?: PerformanceSkillFeedbackWhereInput
+    /**
+     * Limit how many PerformanceSkillFeedbacks to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PerformanceSkillFeedback upsert
+   */
+  export type PerformanceSkillFeedbackUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PerformanceSkillFeedback to update in case it exists.
+     */
+    where: PerformanceSkillFeedbackWhereUniqueInput
+    /**
+     * In case the PerformanceSkillFeedback found by the `where` argument doesn't exist, create a new PerformanceSkillFeedback with this data.
+     */
+    create: XOR<PerformanceSkillFeedbackCreateInput, PerformanceSkillFeedbackUncheckedCreateInput>
+    /**
+     * In case the PerformanceSkillFeedback was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PerformanceSkillFeedbackUpdateInput, PerformanceSkillFeedbackUncheckedUpdateInput>
+  }
+
+  /**
+   * PerformanceSkillFeedback delete
+   */
+  export type PerformanceSkillFeedbackDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter which PerformanceSkillFeedback to delete.
+     */
+    where: PerformanceSkillFeedbackWhereUniqueInput
+  }
+
+  /**
+   * PerformanceSkillFeedback deleteMany
+   */
+  export type PerformanceSkillFeedbackDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PerformanceSkillFeedbacks to delete
+     */
+    where?: PerformanceSkillFeedbackWhereInput
+    /**
+     * Limit how many PerformanceSkillFeedbacks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PerformanceSkillFeedback without action
+   */
+  export type PerformanceSkillFeedbackDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -14496,7 +20877,9 @@ export namespace Prisma {
     isPublished: 'isPublished',
     metadata: 'metadata',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    difficulty: 'difficulty',
+    skillSubTaskTags: 'skillSubTaskTags'
   };
 
   export type PracticeItemScalarFieldEnum = (typeof PracticeItemScalarFieldEnum)[keyof typeof PracticeItemScalarFieldEnum]
@@ -14544,7 +20927,12 @@ export namespace Prisma {
     errorMessage: 'errorMessage',
     lastAttemptedAt: 'lastAttemptedAt',
     executionId: 'executionId',
-    idempotencyKey: 'idempotencyKey'
+    idempotencyKey: 'idempotencyKey',
+    pitchSkillScore: 'pitchSkillScore',
+    rhythmSkillScore: 'rhythmSkillScore',
+    bowingSkillScore: 'bowingSkillScore',
+    skillSubScores: 'skillSubScores',
+    problematicPositions: 'problematicPositions'
   };
 
   export type PracticePerformanceScalarFieldEnum = (typeof PracticePerformanceScalarFieldEnum)[keyof typeof PracticePerformanceScalarFieldEnum]
@@ -14593,6 +20981,75 @@ export namespace Prisma {
   export type SupportInquiryScalarFieldEnum = (typeof SupportInquiryScalarFieldEnum)[keyof typeof SupportInquiryScalarFieldEnum]
 
 
+  export const UserSkillScoreScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    skillTaskId: 'skillTaskId',
+    currentScore: 'currentScore',
+    sampleCount: 'sampleCount',
+    lastUpdatedAt: 'lastUpdatedAt'
+  };
+
+  export type UserSkillScoreScalarFieldEnum = (typeof UserSkillScoreScalarFieldEnum)[keyof typeof UserSkillScoreScalarFieldEnum]
+
+
+  export const UserSkillSubScoreScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    skillSubTaskId: 'skillSubTaskId',
+    matchedCount: 'matchedCount',
+    totalCount: 'totalCount',
+    matchRate: 'matchRate',
+    averageScore: 'averageScore',
+    lastMatchedAt: 'lastMatchedAt',
+    lastUpdatedAt: 'lastUpdatedAt'
+  };
+
+  export type UserSkillSubScoreScalarFieldEnum = (typeof UserSkillSubScoreScalarFieldEnum)[keyof typeof UserSkillSubScoreScalarFieldEnum]
+
+
+  export const UserSkillTaskCardScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    cardType: 'cardType',
+    skillTaskId: 'skillTaskId',
+    skillSubTaskId: 'skillSubTaskId',
+    status: 'status',
+    createdAt: 'createdAt',
+    improvedAt: 'improvedAt',
+    clearedAt: 'clearedAt',
+    lastMatchedAt: 'lastMatchedAt'
+  };
+
+  export type UserSkillTaskCardScalarFieldEnum = (typeof UserSkillTaskCardScalarFieldEnum)[keyof typeof UserSkillTaskCardScalarFieldEnum]
+
+
+  export const UserGradeScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    currentGrade: 'currentGrade',
+    achievedAt: 'achievedAt',
+    progressData: 'progressData',
+    lastUpdatedAt: 'lastUpdatedAt'
+  };
+
+  export type UserGradeScalarFieldEnum = (typeof UserGradeScalarFieldEnum)[keyof typeof UserGradeScalarFieldEnum]
+
+
+  export const PerformanceSkillFeedbackScalarFieldEnum: {
+    id: 'id',
+    practicePerformanceId: 'practicePerformanceId',
+    userId: 'userId',
+    positionId: 'positionId',
+    selectedSubTaskId: 'selectedSubTaskId',
+    feedbackType: 'feedbackType',
+    comment: 'comment',
+    createdAt: 'createdAt'
+  };
+
+  export type PerformanceSkillFeedbackScalarFieldEnum = (typeof PerformanceSkillFeedbackScalarFieldEnum)[keyof typeof PerformanceSkillFeedbackScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -14607,6 +21064,13 @@ export namespace Prisma {
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const QueryMode: {
@@ -14784,6 +21248,48 @@ export namespace Prisma {
    */
   export type ListEnumPracticeCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PracticeCategory[]'>
     
+
+
+  /**
+   * Reference to a field of type 'CardType'
+   */
+  export type EnumCardTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CardType'>
+    
+
+
+  /**
+   * Reference to a field of type 'CardType[]'
+   */
+  export type ListEnumCardTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CardType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'CardStatus'
+   */
+  export type EnumCardStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CardStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'CardStatus[]'
+   */
+  export type ListEnumCardStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CardStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'GradeLevel'
+   */
+  export type EnumGradeLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GradeLevel'>
+    
+
+
+  /**
+   * Reference to a field of type 'GradeLevel[]'
+   */
+  export type ListEnumGradeLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GradeLevel[]'>
+    
   /**
    * Deep Input Types
    */
@@ -14810,6 +21316,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessListRelationFilter
     feedbacks?: FeedbackListRelationFilter
     supportInquiries?: SupportInquiryListRelationFilter
+    userSkillScores?: UserSkillScoreListRelationFilter
+    userSkillSubScores?: UserSkillSubScoreListRelationFilter
+    userSkillTaskCards?: UserSkillTaskCardListRelationFilter
+    userGrade?: XOR<UserGradeNullableScalarRelationFilter, UserGradeWhereInput> | null
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -14830,6 +21341,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessOrderByRelationAggregateInput
     feedbacks?: FeedbackOrderByRelationAggregateInput
     supportInquiries?: SupportInquiryOrderByRelationAggregateInput
+    userSkillScores?: UserSkillScoreOrderByRelationAggregateInput
+    userSkillSubScores?: UserSkillSubScoreOrderByRelationAggregateInput
+    userSkillTaskCards?: UserSkillTaskCardOrderByRelationAggregateInput
+    userGrade?: UserGradeOrderByWithRelationInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -14853,6 +21369,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessListRelationFilter
     feedbacks?: FeedbackListRelationFilter
     supportInquiries?: SupportInquiryListRelationFilter
+    userSkillScores?: UserSkillScoreListRelationFilter
+    userSkillSubScores?: UserSkillSubScoreListRelationFilter
+    userSkillTaskCards?: UserSkillTaskCardListRelationFilter
+    userGrade?: XOR<UserGradeNullableScalarRelationFilter, UserGradeWhereInput> | null
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackListRelationFilter
   }, "id" | "supabaseUserId">
 
   export type UserOrderByWithAggregationInput = {
@@ -15225,6 +21746,8 @@ export namespace Prisma {
     metadata?: JsonNullableFilter<"PracticeItem">
     createdAt?: DateTimeFilter<"PracticeItem"> | Date | string
     updatedAt?: DateTimeFilter<"PracticeItem"> | Date | string
+    difficulty?: IntNullableFilter<"PracticeItem"> | number | null
+    skillSubTaskTags?: JsonNullableFilter<"PracticeItem">
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     techniques?: PracticeItemTechniqueListRelationFilter
     practicePerformances?: PracticePerformanceListRelationFilter
@@ -15260,6 +21783,8 @@ export namespace Prisma {
     metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    difficulty?: SortOrderInput | SortOrder
+    skillSubTaskTags?: SortOrderInput | SortOrder
     owner?: UserOrderByWithRelationInput
     techniques?: PracticeItemTechniqueOrderByRelationAggregateInput
     practicePerformances?: PracticePerformanceOrderByRelationAggregateInput
@@ -15298,6 +21823,8 @@ export namespace Prisma {
     metadata?: JsonNullableFilter<"PracticeItem">
     createdAt?: DateTimeFilter<"PracticeItem"> | Date | string
     updatedAt?: DateTimeFilter<"PracticeItem"> | Date | string
+    difficulty?: IntNullableFilter<"PracticeItem"> | number | null
+    skillSubTaskTags?: JsonNullableFilter<"PracticeItem">
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     techniques?: PracticeItemTechniqueListRelationFilter
     practicePerformances?: PracticePerformanceListRelationFilter
@@ -15333,6 +21860,8 @@ export namespace Prisma {
     metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    difficulty?: SortOrderInput | SortOrder
+    skillSubTaskTags?: SortOrderInput | SortOrder
     _count?: PracticeItemCountOrderByAggregateInput
     _avg?: PracticeItemAvgOrderByAggregateInput
     _max?: PracticeItemMaxOrderByAggregateInput
@@ -15373,6 +21902,8 @@ export namespace Prisma {
     metadata?: JsonNullableWithAggregatesFilter<"PracticeItem">
     createdAt?: DateTimeWithAggregatesFilter<"PracticeItem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"PracticeItem"> | Date | string
+    difficulty?: IntNullableWithAggregatesFilter<"PracticeItem"> | number | null
+    skillSubTaskTags?: JsonNullableWithAggregatesFilter<"PracticeItem">
   }
 
   export type TechniqueTagWhereInput = {
@@ -15521,8 +22052,14 @@ export namespace Prisma {
     lastAttemptedAt?: DateTimeNullableFilter<"PracticePerformance"> | Date | string | null
     executionId?: StringNullableFilter<"PracticePerformance"> | string | null
     idempotencyKey?: StringNullableFilter<"PracticePerformance"> | string | null
+    pitchSkillScore?: FloatNullableFilter<"PracticePerformance"> | number | null
+    rhythmSkillScore?: FloatNullableFilter<"PracticePerformance"> | number | null
+    bowingSkillScore?: FloatNullableFilter<"PracticePerformance"> | number | null
+    skillSubScores?: JsonNullableFilter<"PracticePerformance">
+    problematicPositions?: JsonNullableFilter<"PracticePerformance">
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     practiceItem?: XOR<PracticeItemScalarRelationFilter, PracticeItemWhereInput>
+    skillFeedbacks?: PerformanceSkillFeedbackListRelationFilter
   }
 
   export type PracticePerformanceOrderByWithRelationInput = {
@@ -15545,8 +22082,14 @@ export namespace Prisma {
     lastAttemptedAt?: SortOrderInput | SortOrder
     executionId?: SortOrderInput | SortOrder
     idempotencyKey?: SortOrderInput | SortOrder
+    pitchSkillScore?: SortOrderInput | SortOrder
+    rhythmSkillScore?: SortOrderInput | SortOrder
+    bowingSkillScore?: SortOrderInput | SortOrder
+    skillSubScores?: SortOrderInput | SortOrder
+    problematicPositions?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
     practiceItem?: PracticeItemOrderByWithRelationInput
+    skillFeedbacks?: PerformanceSkillFeedbackOrderByRelationAggregateInput
   }
 
   export type PracticePerformanceWhereUniqueInput = Prisma.AtLeast<{
@@ -15572,8 +22115,14 @@ export namespace Prisma {
     errorMessage?: StringNullableFilter<"PracticePerformance"> | string | null
     lastAttemptedAt?: DateTimeNullableFilter<"PracticePerformance"> | Date | string | null
     executionId?: StringNullableFilter<"PracticePerformance"> | string | null
+    pitchSkillScore?: FloatNullableFilter<"PracticePerformance"> | number | null
+    rhythmSkillScore?: FloatNullableFilter<"PracticePerformance"> | number | null
+    bowingSkillScore?: FloatNullableFilter<"PracticePerformance"> | number | null
+    skillSubScores?: JsonNullableFilter<"PracticePerformance">
+    problematicPositions?: JsonNullableFilter<"PracticePerformance">
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     practiceItem?: XOR<PracticeItemScalarRelationFilter, PracticeItemWhereInput>
+    skillFeedbacks?: PerformanceSkillFeedbackListRelationFilter
   }, "id" | "idempotencyKey">
 
   export type PracticePerformanceOrderByWithAggregationInput = {
@@ -15596,6 +22145,11 @@ export namespace Prisma {
     lastAttemptedAt?: SortOrderInput | SortOrder
     executionId?: SortOrderInput | SortOrder
     idempotencyKey?: SortOrderInput | SortOrder
+    pitchSkillScore?: SortOrderInput | SortOrder
+    rhythmSkillScore?: SortOrderInput | SortOrder
+    bowingSkillScore?: SortOrderInput | SortOrder
+    skillSubScores?: SortOrderInput | SortOrder
+    problematicPositions?: SortOrderInput | SortOrder
     _count?: PracticePerformanceCountOrderByAggregateInput
     _avg?: PracticePerformanceAvgOrderByAggregateInput
     _max?: PracticePerformanceMaxOrderByAggregateInput
@@ -15626,6 +22180,11 @@ export namespace Prisma {
     lastAttemptedAt?: DateTimeNullableWithAggregatesFilter<"PracticePerformance"> | Date | string | null
     executionId?: StringNullableWithAggregatesFilter<"PracticePerformance"> | string | null
     idempotencyKey?: StringNullableWithAggregatesFilter<"PracticePerformance"> | string | null
+    pitchSkillScore?: FloatNullableWithAggregatesFilter<"PracticePerformance"> | number | null
+    rhythmSkillScore?: FloatNullableWithAggregatesFilter<"PracticePerformance"> | number | null
+    bowingSkillScore?: FloatNullableWithAggregatesFilter<"PracticePerformance"> | number | null
+    skillSubScores?: JsonNullableWithAggregatesFilter<"PracticePerformance">
+    problematicPositions?: JsonNullableWithAggregatesFilter<"PracticePerformance">
   }
 
   export type UserWeaknessWhereInput = {
@@ -15851,6 +22410,361 @@ export namespace Prisma {
     emailSentAt?: DateTimeNullableWithAggregatesFilter<"SupportInquiry"> | Date | string | null
   }
 
+  export type UserSkillScoreWhereInput = {
+    AND?: UserSkillScoreWhereInput | UserSkillScoreWhereInput[]
+    OR?: UserSkillScoreWhereInput[]
+    NOT?: UserSkillScoreWhereInput | UserSkillScoreWhereInput[]
+    id?: StringFilter<"UserSkillScore"> | string
+    userId?: StringFilter<"UserSkillScore"> | string
+    skillTaskId?: StringFilter<"UserSkillScore"> | string
+    currentScore?: FloatFilter<"UserSkillScore"> | number
+    sampleCount?: IntFilter<"UserSkillScore"> | number
+    lastUpdatedAt?: DateTimeFilter<"UserSkillScore"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type UserSkillScoreOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    skillTaskId?: SortOrder
+    currentScore?: SortOrder
+    sampleCount?: SortOrder
+    lastUpdatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type UserSkillScoreWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_skillTaskId?: UserSkillScoreUserIdSkillTaskIdCompoundUniqueInput
+    AND?: UserSkillScoreWhereInput | UserSkillScoreWhereInput[]
+    OR?: UserSkillScoreWhereInput[]
+    NOT?: UserSkillScoreWhereInput | UserSkillScoreWhereInput[]
+    userId?: StringFilter<"UserSkillScore"> | string
+    skillTaskId?: StringFilter<"UserSkillScore"> | string
+    currentScore?: FloatFilter<"UserSkillScore"> | number
+    sampleCount?: IntFilter<"UserSkillScore"> | number
+    lastUpdatedAt?: DateTimeFilter<"UserSkillScore"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId_skillTaskId">
+
+  export type UserSkillScoreOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    skillTaskId?: SortOrder
+    currentScore?: SortOrder
+    sampleCount?: SortOrder
+    lastUpdatedAt?: SortOrder
+    _count?: UserSkillScoreCountOrderByAggregateInput
+    _avg?: UserSkillScoreAvgOrderByAggregateInput
+    _max?: UserSkillScoreMaxOrderByAggregateInput
+    _min?: UserSkillScoreMinOrderByAggregateInput
+    _sum?: UserSkillScoreSumOrderByAggregateInput
+  }
+
+  export type UserSkillScoreScalarWhereWithAggregatesInput = {
+    AND?: UserSkillScoreScalarWhereWithAggregatesInput | UserSkillScoreScalarWhereWithAggregatesInput[]
+    OR?: UserSkillScoreScalarWhereWithAggregatesInput[]
+    NOT?: UserSkillScoreScalarWhereWithAggregatesInput | UserSkillScoreScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UserSkillScore"> | string
+    userId?: StringWithAggregatesFilter<"UserSkillScore"> | string
+    skillTaskId?: StringWithAggregatesFilter<"UserSkillScore"> | string
+    currentScore?: FloatWithAggregatesFilter<"UserSkillScore"> | number
+    sampleCount?: IntWithAggregatesFilter<"UserSkillScore"> | number
+    lastUpdatedAt?: DateTimeWithAggregatesFilter<"UserSkillScore"> | Date | string
+  }
+
+  export type UserSkillSubScoreWhereInput = {
+    AND?: UserSkillSubScoreWhereInput | UserSkillSubScoreWhereInput[]
+    OR?: UserSkillSubScoreWhereInput[]
+    NOT?: UserSkillSubScoreWhereInput | UserSkillSubScoreWhereInput[]
+    id?: StringFilter<"UserSkillSubScore"> | string
+    userId?: StringFilter<"UserSkillSubScore"> | string
+    skillSubTaskId?: StringFilter<"UserSkillSubScore"> | string
+    matchedCount?: IntFilter<"UserSkillSubScore"> | number
+    totalCount?: IntFilter<"UserSkillSubScore"> | number
+    matchRate?: FloatFilter<"UserSkillSubScore"> | number
+    averageScore?: FloatNullableFilter<"UserSkillSubScore"> | number | null
+    lastMatchedAt?: DateTimeNullableFilter<"UserSkillSubScore"> | Date | string | null
+    lastUpdatedAt?: DateTimeFilter<"UserSkillSubScore"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type UserSkillSubScoreOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    skillSubTaskId?: SortOrder
+    matchedCount?: SortOrder
+    totalCount?: SortOrder
+    matchRate?: SortOrder
+    averageScore?: SortOrderInput | SortOrder
+    lastMatchedAt?: SortOrderInput | SortOrder
+    lastUpdatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type UserSkillSubScoreWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_skillSubTaskId?: UserSkillSubScoreUserIdSkillSubTaskIdCompoundUniqueInput
+    AND?: UserSkillSubScoreWhereInput | UserSkillSubScoreWhereInput[]
+    OR?: UserSkillSubScoreWhereInput[]
+    NOT?: UserSkillSubScoreWhereInput | UserSkillSubScoreWhereInput[]
+    userId?: StringFilter<"UserSkillSubScore"> | string
+    skillSubTaskId?: StringFilter<"UserSkillSubScore"> | string
+    matchedCount?: IntFilter<"UserSkillSubScore"> | number
+    totalCount?: IntFilter<"UserSkillSubScore"> | number
+    matchRate?: FloatFilter<"UserSkillSubScore"> | number
+    averageScore?: FloatNullableFilter<"UserSkillSubScore"> | number | null
+    lastMatchedAt?: DateTimeNullableFilter<"UserSkillSubScore"> | Date | string | null
+    lastUpdatedAt?: DateTimeFilter<"UserSkillSubScore"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId_skillSubTaskId">
+
+  export type UserSkillSubScoreOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    skillSubTaskId?: SortOrder
+    matchedCount?: SortOrder
+    totalCount?: SortOrder
+    matchRate?: SortOrder
+    averageScore?: SortOrderInput | SortOrder
+    lastMatchedAt?: SortOrderInput | SortOrder
+    lastUpdatedAt?: SortOrder
+    _count?: UserSkillSubScoreCountOrderByAggregateInput
+    _avg?: UserSkillSubScoreAvgOrderByAggregateInput
+    _max?: UserSkillSubScoreMaxOrderByAggregateInput
+    _min?: UserSkillSubScoreMinOrderByAggregateInput
+    _sum?: UserSkillSubScoreSumOrderByAggregateInput
+  }
+
+  export type UserSkillSubScoreScalarWhereWithAggregatesInput = {
+    AND?: UserSkillSubScoreScalarWhereWithAggregatesInput | UserSkillSubScoreScalarWhereWithAggregatesInput[]
+    OR?: UserSkillSubScoreScalarWhereWithAggregatesInput[]
+    NOT?: UserSkillSubScoreScalarWhereWithAggregatesInput | UserSkillSubScoreScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UserSkillSubScore"> | string
+    userId?: StringWithAggregatesFilter<"UserSkillSubScore"> | string
+    skillSubTaskId?: StringWithAggregatesFilter<"UserSkillSubScore"> | string
+    matchedCount?: IntWithAggregatesFilter<"UserSkillSubScore"> | number
+    totalCount?: IntWithAggregatesFilter<"UserSkillSubScore"> | number
+    matchRate?: FloatWithAggregatesFilter<"UserSkillSubScore"> | number
+    averageScore?: FloatNullableWithAggregatesFilter<"UserSkillSubScore"> | number | null
+    lastMatchedAt?: DateTimeNullableWithAggregatesFilter<"UserSkillSubScore"> | Date | string | null
+    lastUpdatedAt?: DateTimeWithAggregatesFilter<"UserSkillSubScore"> | Date | string
+  }
+
+  export type UserSkillTaskCardWhereInput = {
+    AND?: UserSkillTaskCardWhereInput | UserSkillTaskCardWhereInput[]
+    OR?: UserSkillTaskCardWhereInput[]
+    NOT?: UserSkillTaskCardWhereInput | UserSkillTaskCardWhereInput[]
+    id?: StringFilter<"UserSkillTaskCard"> | string
+    userId?: StringFilter<"UserSkillTaskCard"> | string
+    cardType?: EnumCardTypeFilter<"UserSkillTaskCard"> | $Enums.CardType
+    skillTaskId?: StringNullableFilter<"UserSkillTaskCard"> | string | null
+    skillSubTaskId?: StringNullableFilter<"UserSkillTaskCard"> | string | null
+    status?: EnumCardStatusFilter<"UserSkillTaskCard"> | $Enums.CardStatus
+    createdAt?: DateTimeFilter<"UserSkillTaskCard"> | Date | string
+    improvedAt?: DateTimeNullableFilter<"UserSkillTaskCard"> | Date | string | null
+    clearedAt?: DateTimeNullableFilter<"UserSkillTaskCard"> | Date | string | null
+    lastMatchedAt?: DateTimeNullableFilter<"UserSkillTaskCard"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type UserSkillTaskCardOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    cardType?: SortOrder
+    skillTaskId?: SortOrderInput | SortOrder
+    skillSubTaskId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    improvedAt?: SortOrderInput | SortOrder
+    clearedAt?: SortOrderInput | SortOrder
+    lastMatchedAt?: SortOrderInput | SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type UserSkillTaskCardWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_cardType_skillTaskId_skillSubTaskId?: UserSkillTaskCardUserIdCardTypeSkillTaskIdSkillSubTaskIdCompoundUniqueInput
+    AND?: UserSkillTaskCardWhereInput | UserSkillTaskCardWhereInput[]
+    OR?: UserSkillTaskCardWhereInput[]
+    NOT?: UserSkillTaskCardWhereInput | UserSkillTaskCardWhereInput[]
+    userId?: StringFilter<"UserSkillTaskCard"> | string
+    cardType?: EnumCardTypeFilter<"UserSkillTaskCard"> | $Enums.CardType
+    skillTaskId?: StringNullableFilter<"UserSkillTaskCard"> | string | null
+    skillSubTaskId?: StringNullableFilter<"UserSkillTaskCard"> | string | null
+    status?: EnumCardStatusFilter<"UserSkillTaskCard"> | $Enums.CardStatus
+    createdAt?: DateTimeFilter<"UserSkillTaskCard"> | Date | string
+    improvedAt?: DateTimeNullableFilter<"UserSkillTaskCard"> | Date | string | null
+    clearedAt?: DateTimeNullableFilter<"UserSkillTaskCard"> | Date | string | null
+    lastMatchedAt?: DateTimeNullableFilter<"UserSkillTaskCard"> | Date | string | null
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId_cardType_skillTaskId_skillSubTaskId">
+
+  export type UserSkillTaskCardOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    cardType?: SortOrder
+    skillTaskId?: SortOrderInput | SortOrder
+    skillSubTaskId?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    improvedAt?: SortOrderInput | SortOrder
+    clearedAt?: SortOrderInput | SortOrder
+    lastMatchedAt?: SortOrderInput | SortOrder
+    _count?: UserSkillTaskCardCountOrderByAggregateInput
+    _max?: UserSkillTaskCardMaxOrderByAggregateInput
+    _min?: UserSkillTaskCardMinOrderByAggregateInput
+  }
+
+  export type UserSkillTaskCardScalarWhereWithAggregatesInput = {
+    AND?: UserSkillTaskCardScalarWhereWithAggregatesInput | UserSkillTaskCardScalarWhereWithAggregatesInput[]
+    OR?: UserSkillTaskCardScalarWhereWithAggregatesInput[]
+    NOT?: UserSkillTaskCardScalarWhereWithAggregatesInput | UserSkillTaskCardScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UserSkillTaskCard"> | string
+    userId?: StringWithAggregatesFilter<"UserSkillTaskCard"> | string
+    cardType?: EnumCardTypeWithAggregatesFilter<"UserSkillTaskCard"> | $Enums.CardType
+    skillTaskId?: StringNullableWithAggregatesFilter<"UserSkillTaskCard"> | string | null
+    skillSubTaskId?: StringNullableWithAggregatesFilter<"UserSkillTaskCard"> | string | null
+    status?: EnumCardStatusWithAggregatesFilter<"UserSkillTaskCard"> | $Enums.CardStatus
+    createdAt?: DateTimeWithAggregatesFilter<"UserSkillTaskCard"> | Date | string
+    improvedAt?: DateTimeNullableWithAggregatesFilter<"UserSkillTaskCard"> | Date | string | null
+    clearedAt?: DateTimeNullableWithAggregatesFilter<"UserSkillTaskCard"> | Date | string | null
+    lastMatchedAt?: DateTimeNullableWithAggregatesFilter<"UserSkillTaskCard"> | Date | string | null
+  }
+
+  export type UserGradeWhereInput = {
+    AND?: UserGradeWhereInput | UserGradeWhereInput[]
+    OR?: UserGradeWhereInput[]
+    NOT?: UserGradeWhereInput | UserGradeWhereInput[]
+    id?: StringFilter<"UserGrade"> | string
+    userId?: StringFilter<"UserGrade"> | string
+    currentGrade?: EnumGradeLevelFilter<"UserGrade"> | $Enums.GradeLevel
+    achievedAt?: DateTimeNullableFilter<"UserGrade"> | Date | string | null
+    progressData?: JsonFilter<"UserGrade">
+    lastUpdatedAt?: DateTimeFilter<"UserGrade"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type UserGradeOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    currentGrade?: SortOrder
+    achievedAt?: SortOrderInput | SortOrder
+    progressData?: SortOrder
+    lastUpdatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type UserGradeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId?: string
+    AND?: UserGradeWhereInput | UserGradeWhereInput[]
+    OR?: UserGradeWhereInput[]
+    NOT?: UserGradeWhereInput | UserGradeWhereInput[]
+    currentGrade?: EnumGradeLevelFilter<"UserGrade"> | $Enums.GradeLevel
+    achievedAt?: DateTimeNullableFilter<"UserGrade"> | Date | string | null
+    progressData?: JsonFilter<"UserGrade">
+    lastUpdatedAt?: DateTimeFilter<"UserGrade"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId">
+
+  export type UserGradeOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    currentGrade?: SortOrder
+    achievedAt?: SortOrderInput | SortOrder
+    progressData?: SortOrder
+    lastUpdatedAt?: SortOrder
+    _count?: UserGradeCountOrderByAggregateInput
+    _max?: UserGradeMaxOrderByAggregateInput
+    _min?: UserGradeMinOrderByAggregateInput
+  }
+
+  export type UserGradeScalarWhereWithAggregatesInput = {
+    AND?: UserGradeScalarWhereWithAggregatesInput | UserGradeScalarWhereWithAggregatesInput[]
+    OR?: UserGradeScalarWhereWithAggregatesInput[]
+    NOT?: UserGradeScalarWhereWithAggregatesInput | UserGradeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UserGrade"> | string
+    userId?: StringWithAggregatesFilter<"UserGrade"> | string
+    currentGrade?: EnumGradeLevelWithAggregatesFilter<"UserGrade"> | $Enums.GradeLevel
+    achievedAt?: DateTimeNullableWithAggregatesFilter<"UserGrade"> | Date | string | null
+    progressData?: JsonWithAggregatesFilter<"UserGrade">
+    lastUpdatedAt?: DateTimeWithAggregatesFilter<"UserGrade"> | Date | string
+  }
+
+  export type PerformanceSkillFeedbackWhereInput = {
+    AND?: PerformanceSkillFeedbackWhereInput | PerformanceSkillFeedbackWhereInput[]
+    OR?: PerformanceSkillFeedbackWhereInput[]
+    NOT?: PerformanceSkillFeedbackWhereInput | PerformanceSkillFeedbackWhereInput[]
+    id?: StringFilter<"PerformanceSkillFeedback"> | string
+    practicePerformanceId?: StringFilter<"PerformanceSkillFeedback"> | string
+    userId?: StringFilter<"PerformanceSkillFeedback"> | string
+    positionId?: StringFilter<"PerformanceSkillFeedback"> | string
+    selectedSubTaskId?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
+    feedbackType?: StringFilter<"PerformanceSkillFeedback"> | string
+    comment?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
+    createdAt?: DateTimeFilter<"PerformanceSkillFeedback"> | Date | string
+    practicePerformance?: XOR<PracticePerformanceScalarRelationFilter, PracticePerformanceWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type PerformanceSkillFeedbackOrderByWithRelationInput = {
+    id?: SortOrder
+    practicePerformanceId?: SortOrder
+    userId?: SortOrder
+    positionId?: SortOrder
+    selectedSubTaskId?: SortOrderInput | SortOrder
+    feedbackType?: SortOrder
+    comment?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    practicePerformance?: PracticePerformanceOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type PerformanceSkillFeedbackWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: PerformanceSkillFeedbackWhereInput | PerformanceSkillFeedbackWhereInput[]
+    OR?: PerformanceSkillFeedbackWhereInput[]
+    NOT?: PerformanceSkillFeedbackWhereInput | PerformanceSkillFeedbackWhereInput[]
+    practicePerformanceId?: StringFilter<"PerformanceSkillFeedback"> | string
+    userId?: StringFilter<"PerformanceSkillFeedback"> | string
+    positionId?: StringFilter<"PerformanceSkillFeedback"> | string
+    selectedSubTaskId?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
+    feedbackType?: StringFilter<"PerformanceSkillFeedback"> | string
+    comment?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
+    createdAt?: DateTimeFilter<"PerformanceSkillFeedback"> | Date | string
+    practicePerformance?: XOR<PracticePerformanceScalarRelationFilter, PracticePerformanceWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type PerformanceSkillFeedbackOrderByWithAggregationInput = {
+    id?: SortOrder
+    practicePerformanceId?: SortOrder
+    userId?: SortOrder
+    positionId?: SortOrder
+    selectedSubTaskId?: SortOrderInput | SortOrder
+    feedbackType?: SortOrder
+    comment?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: PerformanceSkillFeedbackCountOrderByAggregateInput
+    _max?: PerformanceSkillFeedbackMaxOrderByAggregateInput
+    _min?: PerformanceSkillFeedbackMinOrderByAggregateInput
+  }
+
+  export type PerformanceSkillFeedbackScalarWhereWithAggregatesInput = {
+    AND?: PerformanceSkillFeedbackScalarWhereWithAggregatesInput | PerformanceSkillFeedbackScalarWhereWithAggregatesInput[]
+    OR?: PerformanceSkillFeedbackScalarWhereWithAggregatesInput[]
+    NOT?: PerformanceSkillFeedbackScalarWhereWithAggregatesInput | PerformanceSkillFeedbackScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PerformanceSkillFeedback"> | string
+    practicePerformanceId?: StringWithAggregatesFilter<"PerformanceSkillFeedback"> | string
+    userId?: StringWithAggregatesFilter<"PerformanceSkillFeedback"> | string
+    positionId?: StringWithAggregatesFilter<"PerformanceSkillFeedback"> | string
+    selectedSubTaskId?: StringNullableWithAggregatesFilter<"PerformanceSkillFeedback"> | string | null
+    feedbackType?: StringWithAggregatesFilter<"PerformanceSkillFeedback"> | string
+    comment?: StringNullableWithAggregatesFilter<"PerformanceSkillFeedback"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"PerformanceSkillFeedback"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     supabaseUserId: string
@@ -15869,6 +22783,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -15889,6 +22808,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -15909,6 +22833,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -15929,6 +22858,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -16371,6 +23305,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserCreateNestedOneWithoutPracticeItemsInput
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
@@ -16406,6 +23342,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
   }
@@ -16439,6 +23377,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
@@ -16474,6 +23414,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
   }
@@ -16508,6 +23450,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticeItemUpdateManyMutationInput = {
@@ -16539,6 +23483,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticeItemUncheckedUpdateManyInput = {
@@ -16571,6 +23517,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type TechniqueTagCreateInput = {
@@ -16716,8 +23664,14 @@ export namespace Prisma {
     lastAttemptedAt?: Date | string | null
     executionId?: string | null
     idempotencyKey?: string | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutPracticePerformancesInput
     practiceItem: PracticeItemCreateNestedOneWithoutPracticePerformancesInput
+    skillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutPracticePerformanceInput
   }
 
   export type PracticePerformanceUncheckedCreateInput = {
@@ -16740,6 +23694,12 @@ export namespace Prisma {
     lastAttemptedAt?: Date | string | null
     executionId?: string | null
     idempotencyKey?: string | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+    skillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutPracticePerformanceInput
   }
 
   export type PracticePerformanceUpdateInput = {
@@ -16760,8 +23720,14 @@ export namespace Prisma {
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutPracticePerformancesNestedInput
     practiceItem?: PracticeItemUpdateOneRequiredWithoutPracticePerformancesNestedInput
+    skillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutPracticePerformanceNestedInput
   }
 
   export type PracticePerformanceUncheckedUpdateInput = {
@@ -16784,6 +23750,12 @@ export namespace Prisma {
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+    skillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutPracticePerformanceNestedInput
   }
 
   export type PracticePerformanceCreateManyInput = {
@@ -16806,6 +23778,11 @@ export namespace Prisma {
     lastAttemptedAt?: Date | string | null
     executionId?: string | null
     idempotencyKey?: string | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticePerformanceUpdateManyMutationInput = {
@@ -16826,6 +23803,11 @@ export namespace Prisma {
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticePerformanceUncheckedUpdateManyInput = {
@@ -16848,6 +23830,11 @@ export namespace Prisma {
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserWeaknessCreateInput = {
@@ -17084,6 +24071,378 @@ export namespace Prisma {
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type UserSkillScoreCreateInput = {
+    id?: string
+    skillTaskId: string
+    currentScore?: number
+    sampleCount?: number
+    lastUpdatedAt?: Date | string
+    user: UserCreateNestedOneWithoutUserSkillScoresInput
+  }
+
+  export type UserSkillScoreUncheckedCreateInput = {
+    id?: string
+    userId: string
+    skillTaskId: string
+    currentScore?: number
+    sampleCount?: number
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserSkillScoreUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    skillTaskId?: StringFieldUpdateOperationsInput | string
+    currentScore?: FloatFieldUpdateOperationsInput | number
+    sampleCount?: IntFieldUpdateOperationsInput | number
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutUserSkillScoresNestedInput
+  }
+
+  export type UserSkillScoreUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    skillTaskId?: StringFieldUpdateOperationsInput | string
+    currentScore?: FloatFieldUpdateOperationsInput | number
+    sampleCount?: IntFieldUpdateOperationsInput | number
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSkillScoreCreateManyInput = {
+    id?: string
+    userId: string
+    skillTaskId: string
+    currentScore?: number
+    sampleCount?: number
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserSkillScoreUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    skillTaskId?: StringFieldUpdateOperationsInput | string
+    currentScore?: FloatFieldUpdateOperationsInput | number
+    sampleCount?: IntFieldUpdateOperationsInput | number
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSkillScoreUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    skillTaskId?: StringFieldUpdateOperationsInput | string
+    currentScore?: FloatFieldUpdateOperationsInput | number
+    sampleCount?: IntFieldUpdateOperationsInput | number
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSkillSubScoreCreateInput = {
+    id?: string
+    skillSubTaskId: string
+    matchedCount?: number
+    totalCount?: number
+    matchRate?: number
+    averageScore?: number | null
+    lastMatchedAt?: Date | string | null
+    lastUpdatedAt?: Date | string
+    user: UserCreateNestedOneWithoutUserSkillSubScoresInput
+  }
+
+  export type UserSkillSubScoreUncheckedCreateInput = {
+    id?: string
+    userId: string
+    skillSubTaskId: string
+    matchedCount?: number
+    totalCount?: number
+    matchRate?: number
+    averageScore?: number | null
+    lastMatchedAt?: Date | string | null
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserSkillSubScoreUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    skillSubTaskId?: StringFieldUpdateOperationsInput | string
+    matchedCount?: IntFieldUpdateOperationsInput | number
+    totalCount?: IntFieldUpdateOperationsInput | number
+    matchRate?: FloatFieldUpdateOperationsInput | number
+    averageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutUserSkillSubScoresNestedInput
+  }
+
+  export type UserSkillSubScoreUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    skillSubTaskId?: StringFieldUpdateOperationsInput | string
+    matchedCount?: IntFieldUpdateOperationsInput | number
+    totalCount?: IntFieldUpdateOperationsInput | number
+    matchRate?: FloatFieldUpdateOperationsInput | number
+    averageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSkillSubScoreCreateManyInput = {
+    id?: string
+    userId: string
+    skillSubTaskId: string
+    matchedCount?: number
+    totalCount?: number
+    matchRate?: number
+    averageScore?: number | null
+    lastMatchedAt?: Date | string | null
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserSkillSubScoreUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    skillSubTaskId?: StringFieldUpdateOperationsInput | string
+    matchedCount?: IntFieldUpdateOperationsInput | number
+    totalCount?: IntFieldUpdateOperationsInput | number
+    matchRate?: FloatFieldUpdateOperationsInput | number
+    averageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSkillSubScoreUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    skillSubTaskId?: StringFieldUpdateOperationsInput | string
+    matchedCount?: IntFieldUpdateOperationsInput | number
+    totalCount?: IntFieldUpdateOperationsInput | number
+    matchRate?: FloatFieldUpdateOperationsInput | number
+    averageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSkillTaskCardCreateInput = {
+    id?: string
+    cardType: $Enums.CardType
+    skillTaskId?: string | null
+    skillSubTaskId?: string | null
+    status: $Enums.CardStatus
+    createdAt?: Date | string
+    improvedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    lastMatchedAt?: Date | string | null
+    user: UserCreateNestedOneWithoutUserSkillTaskCardsInput
+  }
+
+  export type UserSkillTaskCardUncheckedCreateInput = {
+    id?: string
+    userId: string
+    cardType: $Enums.CardType
+    skillTaskId?: string | null
+    skillSubTaskId?: string | null
+    status: $Enums.CardStatus
+    createdAt?: Date | string
+    improvedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    lastMatchedAt?: Date | string | null
+  }
+
+  export type UserSkillTaskCardUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardType?: EnumCardTypeFieldUpdateOperationsInput | $Enums.CardType
+    skillTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    skillSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumCardStatusFieldUpdateOperationsInput | $Enums.CardStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    improvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutUserSkillTaskCardsNestedInput
+  }
+
+  export type UserSkillTaskCardUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    cardType?: EnumCardTypeFieldUpdateOperationsInput | $Enums.CardType
+    skillTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    skillSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumCardStatusFieldUpdateOperationsInput | $Enums.CardStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    improvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserSkillTaskCardCreateManyInput = {
+    id?: string
+    userId: string
+    cardType: $Enums.CardType
+    skillTaskId?: string | null
+    skillSubTaskId?: string | null
+    status: $Enums.CardStatus
+    createdAt?: Date | string
+    improvedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    lastMatchedAt?: Date | string | null
+  }
+
+  export type UserSkillTaskCardUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardType?: EnumCardTypeFieldUpdateOperationsInput | $Enums.CardType
+    skillTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    skillSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumCardStatusFieldUpdateOperationsInput | $Enums.CardStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    improvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserSkillTaskCardUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    cardType?: EnumCardTypeFieldUpdateOperationsInput | $Enums.CardType
+    skillTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    skillSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumCardStatusFieldUpdateOperationsInput | $Enums.CardStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    improvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserGradeCreateInput = {
+    id?: string
+    currentGrade?: $Enums.GradeLevel
+    achievedAt?: Date | string | null
+    progressData?: JsonNullValueInput | InputJsonValue
+    lastUpdatedAt?: Date | string
+    user: UserCreateNestedOneWithoutUserGradeInput
+  }
+
+  export type UserGradeUncheckedCreateInput = {
+    id?: string
+    userId: string
+    currentGrade?: $Enums.GradeLevel
+    achievedAt?: Date | string | null
+    progressData?: JsonNullValueInput | InputJsonValue
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserGradeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currentGrade?: EnumGradeLevelFieldUpdateOperationsInput | $Enums.GradeLevel
+    achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    progressData?: JsonNullValueInput | InputJsonValue
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutUserGradeNestedInput
+  }
+
+  export type UserGradeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    currentGrade?: EnumGradeLevelFieldUpdateOperationsInput | $Enums.GradeLevel
+    achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    progressData?: JsonNullValueInput | InputJsonValue
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserGradeCreateManyInput = {
+    id?: string
+    userId: string
+    currentGrade?: $Enums.GradeLevel
+    achievedAt?: Date | string | null
+    progressData?: JsonNullValueInput | InputJsonValue
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserGradeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currentGrade?: EnumGradeLevelFieldUpdateOperationsInput | $Enums.GradeLevel
+    achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    progressData?: JsonNullValueInput | InputJsonValue
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserGradeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    currentGrade?: EnumGradeLevelFieldUpdateOperationsInput | $Enums.GradeLevel
+    achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    progressData?: JsonNullValueInput | InputJsonValue
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PerformanceSkillFeedbackCreateInput = {
+    id?: string
+    positionId: string
+    selectedSubTaskId?: string | null
+    feedbackType: string
+    comment?: string | null
+    createdAt?: Date | string
+    practicePerformance: PracticePerformanceCreateNestedOneWithoutSkillFeedbacksInput
+    user: UserCreateNestedOneWithoutPerformanceSkillFeedbacksInput
+  }
+
+  export type PerformanceSkillFeedbackUncheckedCreateInput = {
+    id?: string
+    practicePerformanceId: string
+    userId: string
+    positionId: string
+    selectedSubTaskId?: string | null
+    feedbackType: string
+    comment?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PerformanceSkillFeedbackUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    positionId?: StringFieldUpdateOperationsInput | string
+    selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    feedbackType?: StringFieldUpdateOperationsInput | string
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    practicePerformance?: PracticePerformanceUpdateOneRequiredWithoutSkillFeedbacksNestedInput
+    user?: UserUpdateOneRequiredWithoutPerformanceSkillFeedbacksNestedInput
+  }
+
+  export type PerformanceSkillFeedbackUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    practicePerformanceId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    positionId?: StringFieldUpdateOperationsInput | string
+    selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    feedbackType?: StringFieldUpdateOperationsInput | string
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PerformanceSkillFeedbackCreateManyInput = {
+    id?: string
+    practicePerformanceId: string
+    userId: string
+    positionId: string
+    selectedSubTaskId?: string | null
+    feedbackType: string
+    comment?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PerformanceSkillFeedbackUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    positionId?: StringFieldUpdateOperationsInput | string
+    selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    feedbackType?: StringFieldUpdateOperationsInput | string
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PerformanceSkillFeedbackUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    practicePerformanceId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    positionId?: StringFieldUpdateOperationsInput | string
+    selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    feedbackType?: StringFieldUpdateOperationsInput | string
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -17190,6 +24549,35 @@ export namespace Prisma {
     none?: SupportInquiryWhereInput
   }
 
+  export type UserSkillScoreListRelationFilter = {
+    every?: UserSkillScoreWhereInput
+    some?: UserSkillScoreWhereInput
+    none?: UserSkillScoreWhereInput
+  }
+
+  export type UserSkillSubScoreListRelationFilter = {
+    every?: UserSkillSubScoreWhereInput
+    some?: UserSkillSubScoreWhereInput
+    none?: UserSkillSubScoreWhereInput
+  }
+
+  export type UserSkillTaskCardListRelationFilter = {
+    every?: UserSkillTaskCardWhereInput
+    some?: UserSkillTaskCardWhereInput
+    none?: UserSkillTaskCardWhereInput
+  }
+
+  export type UserGradeNullableScalarRelationFilter = {
+    is?: UserGradeWhereInput | null
+    isNot?: UserGradeWhereInput | null
+  }
+
+  export type PerformanceSkillFeedbackListRelationFilter = {
+    every?: PerformanceSkillFeedbackWhereInput
+    some?: PerformanceSkillFeedbackWhereInput
+    none?: PerformanceSkillFeedbackWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -17220,6 +24608,22 @@ export namespace Prisma {
   }
 
   export type SupportInquiryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type UserSkillScoreOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type UserSkillSubScoreOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type UserSkillTaskCardOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PerformanceSkillFeedbackOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -17784,6 +25188,8 @@ export namespace Prisma {
     metadata?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    difficulty?: SortOrder
+    skillSubTaskTags?: SortOrder
   }
 
   export type PracticeItemAvgOrderByAggregateInput = {
@@ -17791,6 +25197,7 @@ export namespace Prisma {
     tempoMax?: SortOrder
     retryCount?: SortOrder
     sortOrder?: SortOrder
+    difficulty?: SortOrder
   }
 
   export type PracticeItemMaxOrderByAggregateInput = {
@@ -17821,6 +25228,7 @@ export namespace Prisma {
     isPublished?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    difficulty?: SortOrder
   }
 
   export type PracticeItemMinOrderByAggregateInput = {
@@ -17851,6 +25259,7 @@ export namespace Prisma {
     isPublished?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    difficulty?: SortOrder
   }
 
   export type PracticeItemSumOrderByAggregateInput = {
@@ -17858,6 +25267,7 @@ export namespace Prisma {
     tempoMax?: SortOrder
     retryCount?: SortOrder
     sortOrder?: SortOrder
+    difficulty?: SortOrder
   }
 
   export type EnumPracticeCategoryWithAggregatesFilter<$PrismaModel = never> = {
@@ -17959,6 +25369,11 @@ export namespace Prisma {
     lastAttemptedAt?: SortOrder
     executionId?: SortOrder
     idempotencyKey?: SortOrder
+    pitchSkillScore?: SortOrder
+    rhythmSkillScore?: SortOrder
+    bowingSkillScore?: SortOrder
+    skillSubScores?: SortOrder
+    problematicPositions?: SortOrder
   }
 
   export type PracticePerformanceAvgOrderByAggregateInput = {
@@ -17968,6 +25383,9 @@ export namespace Prisma {
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
     retryCount?: SortOrder
+    pitchSkillScore?: SortOrder
+    rhythmSkillScore?: SortOrder
+    bowingSkillScore?: SortOrder
   }
 
   export type PracticePerformanceMaxOrderByAggregateInput = {
@@ -17989,6 +25407,9 @@ export namespace Prisma {
     lastAttemptedAt?: SortOrder
     executionId?: SortOrder
     idempotencyKey?: SortOrder
+    pitchSkillScore?: SortOrder
+    rhythmSkillScore?: SortOrder
+    bowingSkillScore?: SortOrder
   }
 
   export type PracticePerformanceMinOrderByAggregateInput = {
@@ -18010,6 +25431,9 @@ export namespace Prisma {
     lastAttemptedAt?: SortOrder
     executionId?: SortOrder
     idempotencyKey?: SortOrder
+    pitchSkillScore?: SortOrder
+    rhythmSkillScore?: SortOrder
+    bowingSkillScore?: SortOrder
   }
 
   export type PracticePerformanceSumOrderByAggregateInput = {
@@ -18019,6 +25443,9 @@ export namespace Prisma {
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
     retryCount?: SortOrder
+    pitchSkillScore?: SortOrder
+    rhythmSkillScore?: SortOrder
+    bowingSkillScore?: SortOrder
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -18179,6 +25606,312 @@ export namespace Prisma {
     emailSentAt?: SortOrder
   }
 
+  export type UserSkillScoreUserIdSkillTaskIdCompoundUniqueInput = {
+    userId: string
+    skillTaskId: string
+  }
+
+  export type UserSkillScoreCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    skillTaskId?: SortOrder
+    currentScore?: SortOrder
+    sampleCount?: SortOrder
+    lastUpdatedAt?: SortOrder
+  }
+
+  export type UserSkillScoreAvgOrderByAggregateInput = {
+    currentScore?: SortOrder
+    sampleCount?: SortOrder
+  }
+
+  export type UserSkillScoreMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    skillTaskId?: SortOrder
+    currentScore?: SortOrder
+    sampleCount?: SortOrder
+    lastUpdatedAt?: SortOrder
+  }
+
+  export type UserSkillScoreMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    skillTaskId?: SortOrder
+    currentScore?: SortOrder
+    sampleCount?: SortOrder
+    lastUpdatedAt?: SortOrder
+  }
+
+  export type UserSkillScoreSumOrderByAggregateInput = {
+    currentScore?: SortOrder
+    sampleCount?: SortOrder
+  }
+
+  export type UserSkillSubScoreUserIdSkillSubTaskIdCompoundUniqueInput = {
+    userId: string
+    skillSubTaskId: string
+  }
+
+  export type UserSkillSubScoreCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    skillSubTaskId?: SortOrder
+    matchedCount?: SortOrder
+    totalCount?: SortOrder
+    matchRate?: SortOrder
+    averageScore?: SortOrder
+    lastMatchedAt?: SortOrder
+    lastUpdatedAt?: SortOrder
+  }
+
+  export type UserSkillSubScoreAvgOrderByAggregateInput = {
+    matchedCount?: SortOrder
+    totalCount?: SortOrder
+    matchRate?: SortOrder
+    averageScore?: SortOrder
+  }
+
+  export type UserSkillSubScoreMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    skillSubTaskId?: SortOrder
+    matchedCount?: SortOrder
+    totalCount?: SortOrder
+    matchRate?: SortOrder
+    averageScore?: SortOrder
+    lastMatchedAt?: SortOrder
+    lastUpdatedAt?: SortOrder
+  }
+
+  export type UserSkillSubScoreMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    skillSubTaskId?: SortOrder
+    matchedCount?: SortOrder
+    totalCount?: SortOrder
+    matchRate?: SortOrder
+    averageScore?: SortOrder
+    lastMatchedAt?: SortOrder
+    lastUpdatedAt?: SortOrder
+  }
+
+  export type UserSkillSubScoreSumOrderByAggregateInput = {
+    matchedCount?: SortOrder
+    totalCount?: SortOrder
+    matchRate?: SortOrder
+    averageScore?: SortOrder
+  }
+
+  export type EnumCardTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.CardType | EnumCardTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.CardType[] | ListEnumCardTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CardType[] | ListEnumCardTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumCardTypeFilter<$PrismaModel> | $Enums.CardType
+  }
+
+  export type EnumCardStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.CardStatus | EnumCardStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.CardStatus[] | ListEnumCardStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CardStatus[] | ListEnumCardStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumCardStatusFilter<$PrismaModel> | $Enums.CardStatus
+  }
+
+  export type UserSkillTaskCardUserIdCardTypeSkillTaskIdSkillSubTaskIdCompoundUniqueInput = {
+    userId: string
+    cardType: $Enums.CardType
+    skillTaskId: string
+    skillSubTaskId: string
+  }
+
+  export type UserSkillTaskCardCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    cardType?: SortOrder
+    skillTaskId?: SortOrder
+    skillSubTaskId?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    improvedAt?: SortOrder
+    clearedAt?: SortOrder
+    lastMatchedAt?: SortOrder
+  }
+
+  export type UserSkillTaskCardMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    cardType?: SortOrder
+    skillTaskId?: SortOrder
+    skillSubTaskId?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    improvedAt?: SortOrder
+    clearedAt?: SortOrder
+    lastMatchedAt?: SortOrder
+  }
+
+  export type UserSkillTaskCardMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    cardType?: SortOrder
+    skillTaskId?: SortOrder
+    skillSubTaskId?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    improvedAt?: SortOrder
+    clearedAt?: SortOrder
+    lastMatchedAt?: SortOrder
+  }
+
+  export type EnumCardTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CardType | EnumCardTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.CardType[] | ListEnumCardTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CardType[] | ListEnumCardTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumCardTypeWithAggregatesFilter<$PrismaModel> | $Enums.CardType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCardTypeFilter<$PrismaModel>
+    _max?: NestedEnumCardTypeFilter<$PrismaModel>
+  }
+
+  export type EnumCardStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CardStatus | EnumCardStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.CardStatus[] | ListEnumCardStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CardStatus[] | ListEnumCardStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumCardStatusWithAggregatesFilter<$PrismaModel> | $Enums.CardStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCardStatusFilter<$PrismaModel>
+    _max?: NestedEnumCardStatusFilter<$PrismaModel>
+  }
+
+  export type EnumGradeLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.GradeLevel | EnumGradeLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.GradeLevel[] | ListEnumGradeLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GradeLevel[] | ListEnumGradeLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumGradeLevelFilter<$PrismaModel> | $Enums.GradeLevel
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type UserGradeCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    currentGrade?: SortOrder
+    achievedAt?: SortOrder
+    progressData?: SortOrder
+    lastUpdatedAt?: SortOrder
+  }
+
+  export type UserGradeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    currentGrade?: SortOrder
+    achievedAt?: SortOrder
+    lastUpdatedAt?: SortOrder
+  }
+
+  export type UserGradeMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    currentGrade?: SortOrder
+    achievedAt?: SortOrder
+    lastUpdatedAt?: SortOrder
+  }
+
+  export type EnumGradeLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GradeLevel | EnumGradeLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.GradeLevel[] | ListEnumGradeLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GradeLevel[] | ListEnumGradeLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumGradeLevelWithAggregatesFilter<$PrismaModel> | $Enums.GradeLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumGradeLevelFilter<$PrismaModel>
+    _max?: NestedEnumGradeLevelFilter<$PrismaModel>
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type PracticePerformanceScalarRelationFilter = {
+    is?: PracticePerformanceWhereInput
+    isNot?: PracticePerformanceWhereInput
+  }
+
+  export type PerformanceSkillFeedbackCountOrderByAggregateInput = {
+    id?: SortOrder
+    practicePerformanceId?: SortOrder
+    userId?: SortOrder
+    positionId?: SortOrder
+    selectedSubTaskId?: SortOrder
+    feedbackType?: SortOrder
+    comment?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PerformanceSkillFeedbackMaxOrderByAggregateInput = {
+    id?: SortOrder
+    practicePerformanceId?: SortOrder
+    userId?: SortOrder
+    positionId?: SortOrder
+    selectedSubTaskId?: SortOrder
+    feedbackType?: SortOrder
+    comment?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PerformanceSkillFeedbackMinOrderByAggregateInput = {
+    id?: SortOrder
+    practicePerformanceId?: SortOrder
+    userId?: SortOrder
+    positionId?: SortOrder
+    selectedSubTaskId?: SortOrder
+    feedbackType?: SortOrder
+    comment?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type PerformanceCreateNestedManyWithoutUserInput = {
     create?: XOR<PerformanceCreateWithoutUserInput, PerformanceUncheckedCreateWithoutUserInput> | PerformanceCreateWithoutUserInput[] | PerformanceUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PerformanceCreateOrConnectWithoutUserInput | PerformanceCreateOrConnectWithoutUserInput[]
@@ -18228,6 +25961,40 @@ export namespace Prisma {
     connect?: SupportInquiryWhereUniqueInput | SupportInquiryWhereUniqueInput[]
   }
 
+  export type UserSkillScoreCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserSkillScoreCreateWithoutUserInput, UserSkillScoreUncheckedCreateWithoutUserInput> | UserSkillScoreCreateWithoutUserInput[] | UserSkillScoreUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSkillScoreCreateOrConnectWithoutUserInput | UserSkillScoreCreateOrConnectWithoutUserInput[]
+    createMany?: UserSkillScoreCreateManyUserInputEnvelope
+    connect?: UserSkillScoreWhereUniqueInput | UserSkillScoreWhereUniqueInput[]
+  }
+
+  export type UserSkillSubScoreCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserSkillSubScoreCreateWithoutUserInput, UserSkillSubScoreUncheckedCreateWithoutUserInput> | UserSkillSubScoreCreateWithoutUserInput[] | UserSkillSubScoreUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSkillSubScoreCreateOrConnectWithoutUserInput | UserSkillSubScoreCreateOrConnectWithoutUserInput[]
+    createMany?: UserSkillSubScoreCreateManyUserInputEnvelope
+    connect?: UserSkillSubScoreWhereUniqueInput | UserSkillSubScoreWhereUniqueInput[]
+  }
+
+  export type UserSkillTaskCardCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserSkillTaskCardCreateWithoutUserInput, UserSkillTaskCardUncheckedCreateWithoutUserInput> | UserSkillTaskCardCreateWithoutUserInput[] | UserSkillTaskCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSkillTaskCardCreateOrConnectWithoutUserInput | UserSkillTaskCardCreateOrConnectWithoutUserInput[]
+    createMany?: UserSkillTaskCardCreateManyUserInputEnvelope
+    connect?: UserSkillTaskCardWhereUniqueInput | UserSkillTaskCardWhereUniqueInput[]
+  }
+
+  export type UserGradeCreateNestedOneWithoutUserInput = {
+    create?: XOR<UserGradeCreateWithoutUserInput, UserGradeUncheckedCreateWithoutUserInput>
+    connectOrCreate?: UserGradeCreateOrConnectWithoutUserInput
+    connect?: UserGradeWhereUniqueInput
+  }
+
+  export type PerformanceSkillFeedbackCreateNestedManyWithoutUserInput = {
+    create?: XOR<PerformanceSkillFeedbackCreateWithoutUserInput, PerformanceSkillFeedbackUncheckedCreateWithoutUserInput> | PerformanceSkillFeedbackCreateWithoutUserInput[] | PerformanceSkillFeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PerformanceSkillFeedbackCreateOrConnectWithoutUserInput | PerformanceSkillFeedbackCreateOrConnectWithoutUserInput[]
+    createMany?: PerformanceSkillFeedbackCreateManyUserInputEnvelope
+    connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+  }
+
   export type PerformanceUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<PerformanceCreateWithoutUserInput, PerformanceUncheckedCreateWithoutUserInput> | PerformanceCreateWithoutUserInput[] | PerformanceUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PerformanceCreateOrConnectWithoutUserInput | PerformanceCreateOrConnectWithoutUserInput[]
@@ -18275,6 +26042,40 @@ export namespace Prisma {
     connectOrCreate?: SupportInquiryCreateOrConnectWithoutUserInput | SupportInquiryCreateOrConnectWithoutUserInput[]
     createMany?: SupportInquiryCreateManyUserInputEnvelope
     connect?: SupportInquiryWhereUniqueInput | SupportInquiryWhereUniqueInput[]
+  }
+
+  export type UserSkillScoreUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserSkillScoreCreateWithoutUserInput, UserSkillScoreUncheckedCreateWithoutUserInput> | UserSkillScoreCreateWithoutUserInput[] | UserSkillScoreUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSkillScoreCreateOrConnectWithoutUserInput | UserSkillScoreCreateOrConnectWithoutUserInput[]
+    createMany?: UserSkillScoreCreateManyUserInputEnvelope
+    connect?: UserSkillScoreWhereUniqueInput | UserSkillScoreWhereUniqueInput[]
+  }
+
+  export type UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserSkillSubScoreCreateWithoutUserInput, UserSkillSubScoreUncheckedCreateWithoutUserInput> | UserSkillSubScoreCreateWithoutUserInput[] | UserSkillSubScoreUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSkillSubScoreCreateOrConnectWithoutUserInput | UserSkillSubScoreCreateOrConnectWithoutUserInput[]
+    createMany?: UserSkillSubScoreCreateManyUserInputEnvelope
+    connect?: UserSkillSubScoreWhereUniqueInput | UserSkillSubScoreWhereUniqueInput[]
+  }
+
+  export type UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserSkillTaskCardCreateWithoutUserInput, UserSkillTaskCardUncheckedCreateWithoutUserInput> | UserSkillTaskCardCreateWithoutUserInput[] | UserSkillTaskCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSkillTaskCardCreateOrConnectWithoutUserInput | UserSkillTaskCardCreateOrConnectWithoutUserInput[]
+    createMany?: UserSkillTaskCardCreateManyUserInputEnvelope
+    connect?: UserSkillTaskCardWhereUniqueInput | UserSkillTaskCardWhereUniqueInput[]
+  }
+
+  export type UserGradeUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<UserGradeCreateWithoutUserInput, UserGradeUncheckedCreateWithoutUserInput>
+    connectOrCreate?: UserGradeCreateOrConnectWithoutUserInput
+    connect?: UserGradeWhereUniqueInput
+  }
+
+  export type PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<PerformanceSkillFeedbackCreateWithoutUserInput, PerformanceSkillFeedbackUncheckedCreateWithoutUserInput> | PerformanceSkillFeedbackCreateWithoutUserInput[] | PerformanceSkillFeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PerformanceSkillFeedbackCreateOrConnectWithoutUserInput | PerformanceSkillFeedbackCreateOrConnectWithoutUserInput[]
+    createMany?: PerformanceSkillFeedbackCreateManyUserInputEnvelope
+    connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -18399,6 +26200,72 @@ export namespace Prisma {
     deleteMany?: SupportInquiryScalarWhereInput | SupportInquiryScalarWhereInput[]
   }
 
+  export type UserSkillScoreUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserSkillScoreCreateWithoutUserInput, UserSkillScoreUncheckedCreateWithoutUserInput> | UserSkillScoreCreateWithoutUserInput[] | UserSkillScoreUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSkillScoreCreateOrConnectWithoutUserInput | UserSkillScoreCreateOrConnectWithoutUserInput[]
+    upsert?: UserSkillScoreUpsertWithWhereUniqueWithoutUserInput | UserSkillScoreUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserSkillScoreCreateManyUserInputEnvelope
+    set?: UserSkillScoreWhereUniqueInput | UserSkillScoreWhereUniqueInput[]
+    disconnect?: UserSkillScoreWhereUniqueInput | UserSkillScoreWhereUniqueInput[]
+    delete?: UserSkillScoreWhereUniqueInput | UserSkillScoreWhereUniqueInput[]
+    connect?: UserSkillScoreWhereUniqueInput | UserSkillScoreWhereUniqueInput[]
+    update?: UserSkillScoreUpdateWithWhereUniqueWithoutUserInput | UserSkillScoreUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserSkillScoreUpdateManyWithWhereWithoutUserInput | UserSkillScoreUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserSkillScoreScalarWhereInput | UserSkillScoreScalarWhereInput[]
+  }
+
+  export type UserSkillSubScoreUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserSkillSubScoreCreateWithoutUserInput, UserSkillSubScoreUncheckedCreateWithoutUserInput> | UserSkillSubScoreCreateWithoutUserInput[] | UserSkillSubScoreUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSkillSubScoreCreateOrConnectWithoutUserInput | UserSkillSubScoreCreateOrConnectWithoutUserInput[]
+    upsert?: UserSkillSubScoreUpsertWithWhereUniqueWithoutUserInput | UserSkillSubScoreUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserSkillSubScoreCreateManyUserInputEnvelope
+    set?: UserSkillSubScoreWhereUniqueInput | UserSkillSubScoreWhereUniqueInput[]
+    disconnect?: UserSkillSubScoreWhereUniqueInput | UserSkillSubScoreWhereUniqueInput[]
+    delete?: UserSkillSubScoreWhereUniqueInput | UserSkillSubScoreWhereUniqueInput[]
+    connect?: UserSkillSubScoreWhereUniqueInput | UserSkillSubScoreWhereUniqueInput[]
+    update?: UserSkillSubScoreUpdateWithWhereUniqueWithoutUserInput | UserSkillSubScoreUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserSkillSubScoreUpdateManyWithWhereWithoutUserInput | UserSkillSubScoreUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserSkillSubScoreScalarWhereInput | UserSkillSubScoreScalarWhereInput[]
+  }
+
+  export type UserSkillTaskCardUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserSkillTaskCardCreateWithoutUserInput, UserSkillTaskCardUncheckedCreateWithoutUserInput> | UserSkillTaskCardCreateWithoutUserInput[] | UserSkillTaskCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSkillTaskCardCreateOrConnectWithoutUserInput | UserSkillTaskCardCreateOrConnectWithoutUserInput[]
+    upsert?: UserSkillTaskCardUpsertWithWhereUniqueWithoutUserInput | UserSkillTaskCardUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserSkillTaskCardCreateManyUserInputEnvelope
+    set?: UserSkillTaskCardWhereUniqueInput | UserSkillTaskCardWhereUniqueInput[]
+    disconnect?: UserSkillTaskCardWhereUniqueInput | UserSkillTaskCardWhereUniqueInput[]
+    delete?: UserSkillTaskCardWhereUniqueInput | UserSkillTaskCardWhereUniqueInput[]
+    connect?: UserSkillTaskCardWhereUniqueInput | UserSkillTaskCardWhereUniqueInput[]
+    update?: UserSkillTaskCardUpdateWithWhereUniqueWithoutUserInput | UserSkillTaskCardUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserSkillTaskCardUpdateManyWithWhereWithoutUserInput | UserSkillTaskCardUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserSkillTaskCardScalarWhereInput | UserSkillTaskCardScalarWhereInput[]
+  }
+
+  export type UserGradeUpdateOneWithoutUserNestedInput = {
+    create?: XOR<UserGradeCreateWithoutUserInput, UserGradeUncheckedCreateWithoutUserInput>
+    connectOrCreate?: UserGradeCreateOrConnectWithoutUserInput
+    upsert?: UserGradeUpsertWithoutUserInput
+    disconnect?: UserGradeWhereInput | boolean
+    delete?: UserGradeWhereInput | boolean
+    connect?: UserGradeWhereUniqueInput
+    update?: XOR<XOR<UserGradeUpdateToOneWithWhereWithoutUserInput, UserGradeUpdateWithoutUserInput>, UserGradeUncheckedUpdateWithoutUserInput>
+  }
+
+  export type PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput = {
+    create?: XOR<PerformanceSkillFeedbackCreateWithoutUserInput, PerformanceSkillFeedbackUncheckedCreateWithoutUserInput> | PerformanceSkillFeedbackCreateWithoutUserInput[] | PerformanceSkillFeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PerformanceSkillFeedbackCreateOrConnectWithoutUserInput | PerformanceSkillFeedbackCreateOrConnectWithoutUserInput[]
+    upsert?: PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutUserInput | PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: PerformanceSkillFeedbackCreateManyUserInputEnvelope
+    set?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    disconnect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    delete?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    update?: PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutUserInput | PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: PerformanceSkillFeedbackUpdateManyWithWhereWithoutUserInput | PerformanceSkillFeedbackUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: PerformanceSkillFeedbackScalarWhereInput | PerformanceSkillFeedbackScalarWhereInput[]
+  }
+
   export type PerformanceUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<PerformanceCreateWithoutUserInput, PerformanceUncheckedCreateWithoutUserInput> | PerformanceCreateWithoutUserInput[] | PerformanceUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PerformanceCreateOrConnectWithoutUserInput | PerformanceCreateOrConnectWithoutUserInput[]
@@ -18495,6 +26362,72 @@ export namespace Prisma {
     update?: SupportInquiryUpdateWithWhereUniqueWithoutUserInput | SupportInquiryUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: SupportInquiryUpdateManyWithWhereWithoutUserInput | SupportInquiryUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: SupportInquiryScalarWhereInput | SupportInquiryScalarWhereInput[]
+  }
+
+  export type UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserSkillScoreCreateWithoutUserInput, UserSkillScoreUncheckedCreateWithoutUserInput> | UserSkillScoreCreateWithoutUserInput[] | UserSkillScoreUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSkillScoreCreateOrConnectWithoutUserInput | UserSkillScoreCreateOrConnectWithoutUserInput[]
+    upsert?: UserSkillScoreUpsertWithWhereUniqueWithoutUserInput | UserSkillScoreUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserSkillScoreCreateManyUserInputEnvelope
+    set?: UserSkillScoreWhereUniqueInput | UserSkillScoreWhereUniqueInput[]
+    disconnect?: UserSkillScoreWhereUniqueInput | UserSkillScoreWhereUniqueInput[]
+    delete?: UserSkillScoreWhereUniqueInput | UserSkillScoreWhereUniqueInput[]
+    connect?: UserSkillScoreWhereUniqueInput | UserSkillScoreWhereUniqueInput[]
+    update?: UserSkillScoreUpdateWithWhereUniqueWithoutUserInput | UserSkillScoreUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserSkillScoreUpdateManyWithWhereWithoutUserInput | UserSkillScoreUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserSkillScoreScalarWhereInput | UserSkillScoreScalarWhereInput[]
+  }
+
+  export type UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserSkillSubScoreCreateWithoutUserInput, UserSkillSubScoreUncheckedCreateWithoutUserInput> | UserSkillSubScoreCreateWithoutUserInput[] | UserSkillSubScoreUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSkillSubScoreCreateOrConnectWithoutUserInput | UserSkillSubScoreCreateOrConnectWithoutUserInput[]
+    upsert?: UserSkillSubScoreUpsertWithWhereUniqueWithoutUserInput | UserSkillSubScoreUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserSkillSubScoreCreateManyUserInputEnvelope
+    set?: UserSkillSubScoreWhereUniqueInput | UserSkillSubScoreWhereUniqueInput[]
+    disconnect?: UserSkillSubScoreWhereUniqueInput | UserSkillSubScoreWhereUniqueInput[]
+    delete?: UserSkillSubScoreWhereUniqueInput | UserSkillSubScoreWhereUniqueInput[]
+    connect?: UserSkillSubScoreWhereUniqueInput | UserSkillSubScoreWhereUniqueInput[]
+    update?: UserSkillSubScoreUpdateWithWhereUniqueWithoutUserInput | UserSkillSubScoreUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserSkillSubScoreUpdateManyWithWhereWithoutUserInput | UserSkillSubScoreUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserSkillSubScoreScalarWhereInput | UserSkillSubScoreScalarWhereInput[]
+  }
+
+  export type UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserSkillTaskCardCreateWithoutUserInput, UserSkillTaskCardUncheckedCreateWithoutUserInput> | UserSkillTaskCardCreateWithoutUserInput[] | UserSkillTaskCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserSkillTaskCardCreateOrConnectWithoutUserInput | UserSkillTaskCardCreateOrConnectWithoutUserInput[]
+    upsert?: UserSkillTaskCardUpsertWithWhereUniqueWithoutUserInput | UserSkillTaskCardUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserSkillTaskCardCreateManyUserInputEnvelope
+    set?: UserSkillTaskCardWhereUniqueInput | UserSkillTaskCardWhereUniqueInput[]
+    disconnect?: UserSkillTaskCardWhereUniqueInput | UserSkillTaskCardWhereUniqueInput[]
+    delete?: UserSkillTaskCardWhereUniqueInput | UserSkillTaskCardWhereUniqueInput[]
+    connect?: UserSkillTaskCardWhereUniqueInput | UserSkillTaskCardWhereUniqueInput[]
+    update?: UserSkillTaskCardUpdateWithWhereUniqueWithoutUserInput | UserSkillTaskCardUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserSkillTaskCardUpdateManyWithWhereWithoutUserInput | UserSkillTaskCardUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserSkillTaskCardScalarWhereInput | UserSkillTaskCardScalarWhereInput[]
+  }
+
+  export type UserGradeUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<UserGradeCreateWithoutUserInput, UserGradeUncheckedCreateWithoutUserInput>
+    connectOrCreate?: UserGradeCreateOrConnectWithoutUserInput
+    upsert?: UserGradeUpsertWithoutUserInput
+    disconnect?: UserGradeWhereInput | boolean
+    delete?: UserGradeWhereInput | boolean
+    connect?: UserGradeWhereUniqueInput
+    update?: XOR<XOR<UserGradeUpdateToOneWithWhereWithoutUserInput, UserGradeUpdateWithoutUserInput>, UserGradeUncheckedUpdateWithoutUserInput>
+  }
+
+  export type PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<PerformanceSkillFeedbackCreateWithoutUserInput, PerformanceSkillFeedbackUncheckedCreateWithoutUserInput> | PerformanceSkillFeedbackCreateWithoutUserInput[] | PerformanceSkillFeedbackUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PerformanceSkillFeedbackCreateOrConnectWithoutUserInput | PerformanceSkillFeedbackCreateOrConnectWithoutUserInput[]
+    upsert?: PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutUserInput | PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: PerformanceSkillFeedbackCreateManyUserInputEnvelope
+    set?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    disconnect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    delete?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    update?: PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutUserInput | PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: PerformanceSkillFeedbackUpdateManyWithWhereWithoutUserInput | PerformanceSkillFeedbackUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: PerformanceSkillFeedbackScalarWhereInput | PerformanceSkillFeedbackScalarWhereInput[]
   }
 
   export type PerformanceCreateNestedManyWithoutScoreInput = {
@@ -18863,6 +26796,20 @@ export namespace Prisma {
     connect?: PracticeItemWhereUniqueInput
   }
 
+  export type PerformanceSkillFeedbackCreateNestedManyWithoutPracticePerformanceInput = {
+    create?: XOR<PerformanceSkillFeedbackCreateWithoutPracticePerformanceInput, PerformanceSkillFeedbackUncheckedCreateWithoutPracticePerformanceInput> | PerformanceSkillFeedbackCreateWithoutPracticePerformanceInput[] | PerformanceSkillFeedbackUncheckedCreateWithoutPracticePerformanceInput[]
+    connectOrCreate?: PerformanceSkillFeedbackCreateOrConnectWithoutPracticePerformanceInput | PerformanceSkillFeedbackCreateOrConnectWithoutPracticePerformanceInput[]
+    createMany?: PerformanceSkillFeedbackCreateManyPracticePerformanceInputEnvelope
+    connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+  }
+
+  export type PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutPracticePerformanceInput = {
+    create?: XOR<PerformanceSkillFeedbackCreateWithoutPracticePerformanceInput, PerformanceSkillFeedbackUncheckedCreateWithoutPracticePerformanceInput> | PerformanceSkillFeedbackCreateWithoutPracticePerformanceInput[] | PerformanceSkillFeedbackUncheckedCreateWithoutPracticePerformanceInput[]
+    connectOrCreate?: PerformanceSkillFeedbackCreateOrConnectWithoutPracticePerformanceInput | PerformanceSkillFeedbackCreateOrConnectWithoutPracticePerformanceInput[]
+    createMany?: PerformanceSkillFeedbackCreateManyPracticePerformanceInputEnvelope
+    connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+  }
+
   export type UserUpdateOneRequiredWithoutPracticePerformancesNestedInput = {
     create?: XOR<UserCreateWithoutPracticePerformancesInput, UserUncheckedCreateWithoutPracticePerformancesInput>
     connectOrCreate?: UserCreateOrConnectWithoutPracticePerformancesInput
@@ -18877,6 +26824,34 @@ export namespace Prisma {
     upsert?: PracticeItemUpsertWithoutPracticePerformancesInput
     connect?: PracticeItemWhereUniqueInput
     update?: XOR<XOR<PracticeItemUpdateToOneWithWhereWithoutPracticePerformancesInput, PracticeItemUpdateWithoutPracticePerformancesInput>, PracticeItemUncheckedUpdateWithoutPracticePerformancesInput>
+  }
+
+  export type PerformanceSkillFeedbackUpdateManyWithoutPracticePerformanceNestedInput = {
+    create?: XOR<PerformanceSkillFeedbackCreateWithoutPracticePerformanceInput, PerformanceSkillFeedbackUncheckedCreateWithoutPracticePerformanceInput> | PerformanceSkillFeedbackCreateWithoutPracticePerformanceInput[] | PerformanceSkillFeedbackUncheckedCreateWithoutPracticePerformanceInput[]
+    connectOrCreate?: PerformanceSkillFeedbackCreateOrConnectWithoutPracticePerformanceInput | PerformanceSkillFeedbackCreateOrConnectWithoutPracticePerformanceInput[]
+    upsert?: PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutPracticePerformanceInput | PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutPracticePerformanceInput[]
+    createMany?: PerformanceSkillFeedbackCreateManyPracticePerformanceInputEnvelope
+    set?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    disconnect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    delete?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    update?: PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutPracticePerformanceInput | PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutPracticePerformanceInput[]
+    updateMany?: PerformanceSkillFeedbackUpdateManyWithWhereWithoutPracticePerformanceInput | PerformanceSkillFeedbackUpdateManyWithWhereWithoutPracticePerformanceInput[]
+    deleteMany?: PerformanceSkillFeedbackScalarWhereInput | PerformanceSkillFeedbackScalarWhereInput[]
+  }
+
+  export type PerformanceSkillFeedbackUncheckedUpdateManyWithoutPracticePerformanceNestedInput = {
+    create?: XOR<PerformanceSkillFeedbackCreateWithoutPracticePerformanceInput, PerformanceSkillFeedbackUncheckedCreateWithoutPracticePerformanceInput> | PerformanceSkillFeedbackCreateWithoutPracticePerformanceInput[] | PerformanceSkillFeedbackUncheckedCreateWithoutPracticePerformanceInput[]
+    connectOrCreate?: PerformanceSkillFeedbackCreateOrConnectWithoutPracticePerformanceInput | PerformanceSkillFeedbackCreateOrConnectWithoutPracticePerformanceInput[]
+    upsert?: PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutPracticePerformanceInput | PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutPracticePerformanceInput[]
+    createMany?: PerformanceSkillFeedbackCreateManyPracticePerformanceInputEnvelope
+    set?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    disconnect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    delete?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    update?: PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutPracticePerformanceInput | PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutPracticePerformanceInput[]
+    updateMany?: PerformanceSkillFeedbackUpdateManyWithWhereWithoutPracticePerformanceInput | PerformanceSkillFeedbackUpdateManyWithWhereWithoutPracticePerformanceInput[]
+    deleteMany?: PerformanceSkillFeedbackScalarWhereInput | PerformanceSkillFeedbackScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutWeaknessesInput = {
@@ -18947,6 +26922,102 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSupportInquiriesInput, UserUpdateWithoutSupportInquiriesInput>, UserUncheckedUpdateWithoutSupportInquiriesInput>
+  }
+
+  export type UserCreateNestedOneWithoutUserSkillScoresInput = {
+    create?: XOR<UserCreateWithoutUserSkillScoresInput, UserUncheckedCreateWithoutUserSkillScoresInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserSkillScoresInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutUserSkillScoresNestedInput = {
+    create?: XOR<UserCreateWithoutUserSkillScoresInput, UserUncheckedCreateWithoutUserSkillScoresInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserSkillScoresInput
+    upsert?: UserUpsertWithoutUserSkillScoresInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUserSkillScoresInput, UserUpdateWithoutUserSkillScoresInput>, UserUncheckedUpdateWithoutUserSkillScoresInput>
+  }
+
+  export type UserCreateNestedOneWithoutUserSkillSubScoresInput = {
+    create?: XOR<UserCreateWithoutUserSkillSubScoresInput, UserUncheckedCreateWithoutUserSkillSubScoresInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserSkillSubScoresInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutUserSkillSubScoresNestedInput = {
+    create?: XOR<UserCreateWithoutUserSkillSubScoresInput, UserUncheckedCreateWithoutUserSkillSubScoresInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserSkillSubScoresInput
+    upsert?: UserUpsertWithoutUserSkillSubScoresInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUserSkillSubScoresInput, UserUpdateWithoutUserSkillSubScoresInput>, UserUncheckedUpdateWithoutUserSkillSubScoresInput>
+  }
+
+  export type UserCreateNestedOneWithoutUserSkillTaskCardsInput = {
+    create?: XOR<UserCreateWithoutUserSkillTaskCardsInput, UserUncheckedCreateWithoutUserSkillTaskCardsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserSkillTaskCardsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumCardTypeFieldUpdateOperationsInput = {
+    set?: $Enums.CardType
+  }
+
+  export type EnumCardStatusFieldUpdateOperationsInput = {
+    set?: $Enums.CardStatus
+  }
+
+  export type UserUpdateOneRequiredWithoutUserSkillTaskCardsNestedInput = {
+    create?: XOR<UserCreateWithoutUserSkillTaskCardsInput, UserUncheckedCreateWithoutUserSkillTaskCardsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserSkillTaskCardsInput
+    upsert?: UserUpsertWithoutUserSkillTaskCardsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUserSkillTaskCardsInput, UserUpdateWithoutUserSkillTaskCardsInput>, UserUncheckedUpdateWithoutUserSkillTaskCardsInput>
+  }
+
+  export type UserCreateNestedOneWithoutUserGradeInput = {
+    create?: XOR<UserCreateWithoutUserGradeInput, UserUncheckedCreateWithoutUserGradeInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserGradeInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumGradeLevelFieldUpdateOperationsInput = {
+    set?: $Enums.GradeLevel
+  }
+
+  export type UserUpdateOneRequiredWithoutUserGradeNestedInput = {
+    create?: XOR<UserCreateWithoutUserGradeInput, UserUncheckedCreateWithoutUserGradeInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserGradeInput
+    upsert?: UserUpsertWithoutUserGradeInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUserGradeInput, UserUpdateWithoutUserGradeInput>, UserUncheckedUpdateWithoutUserGradeInput>
+  }
+
+  export type PracticePerformanceCreateNestedOneWithoutSkillFeedbacksInput = {
+    create?: XOR<PracticePerformanceCreateWithoutSkillFeedbacksInput, PracticePerformanceUncheckedCreateWithoutSkillFeedbacksInput>
+    connectOrCreate?: PracticePerformanceCreateOrConnectWithoutSkillFeedbacksInput
+    connect?: PracticePerformanceWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutPerformanceSkillFeedbacksInput = {
+    create?: XOR<UserCreateWithoutPerformanceSkillFeedbacksInput, UserUncheckedCreateWithoutPerformanceSkillFeedbacksInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPerformanceSkillFeedbacksInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type PracticePerformanceUpdateOneRequiredWithoutSkillFeedbacksNestedInput = {
+    create?: XOR<PracticePerformanceCreateWithoutSkillFeedbacksInput, PracticePerformanceUncheckedCreateWithoutSkillFeedbacksInput>
+    connectOrCreate?: PracticePerformanceCreateOrConnectWithoutSkillFeedbacksInput
+    upsert?: PracticePerformanceUpsertWithoutSkillFeedbacksInput
+    connect?: PracticePerformanceWhereUniqueInput
+    update?: XOR<XOR<PracticePerformanceUpdateToOneWithWhereWithoutSkillFeedbacksInput, PracticePerformanceUpdateWithoutSkillFeedbacksInput>, PracticePerformanceUncheckedUpdateWithoutSkillFeedbacksInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutPerformanceSkillFeedbacksNestedInput = {
+    create?: XOR<UserCreateWithoutPerformanceSkillFeedbacksInput, UserUncheckedCreateWithoutPerformanceSkillFeedbacksInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPerformanceSkillFeedbacksInput
+    upsert?: UserUpsertWithoutPerformanceSkillFeedbacksInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPerformanceSkillFeedbacksInput, UserUpdateWithoutPerformanceSkillFeedbacksInput>, UserUncheckedUpdateWithoutPerformanceSkillFeedbacksInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -19290,6 +27361,80 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type NestedEnumCardTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.CardType | EnumCardTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.CardType[] | ListEnumCardTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CardType[] | ListEnumCardTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumCardTypeFilter<$PrismaModel> | $Enums.CardType
+  }
+
+  export type NestedEnumCardStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.CardStatus | EnumCardStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.CardStatus[] | ListEnumCardStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CardStatus[] | ListEnumCardStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumCardStatusFilter<$PrismaModel> | $Enums.CardStatus
+  }
+
+  export type NestedEnumCardTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CardType | EnumCardTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.CardType[] | ListEnumCardTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CardType[] | ListEnumCardTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumCardTypeWithAggregatesFilter<$PrismaModel> | $Enums.CardType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCardTypeFilter<$PrismaModel>
+    _max?: NestedEnumCardTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumCardStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CardStatus | EnumCardStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.CardStatus[] | ListEnumCardStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CardStatus[] | ListEnumCardStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumCardStatusWithAggregatesFilter<$PrismaModel> | $Enums.CardStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCardStatusFilter<$PrismaModel>
+    _max?: NestedEnumCardStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumGradeLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.GradeLevel | EnumGradeLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.GradeLevel[] | ListEnumGradeLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GradeLevel[] | ListEnumGradeLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumGradeLevelFilter<$PrismaModel> | $Enums.GradeLevel
+  }
+
+  export type NestedEnumGradeLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GradeLevel | EnumGradeLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.GradeLevel[] | ListEnumGradeLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GradeLevel[] | ListEnumGradeLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumGradeLevelWithAggregatesFilter<$PrismaModel> | $Enums.GradeLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumGradeLevelFilter<$PrismaModel>
+    _max?: NestedEnumGradeLevelFilter<$PrismaModel>
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
   export type PerformanceCreateWithoutUserInput = {
     id?: string
     performanceType: $Enums.PerformanceType
@@ -19443,6 +27588,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
   }
@@ -19476,6 +27623,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
   }
@@ -19508,7 +27657,13 @@ export namespace Prisma {
     lastAttemptedAt?: Date | string | null
     executionId?: string | null
     idempotencyKey?: string | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     practiceItem: PracticeItemCreateNestedOneWithoutPracticePerformancesInput
+    skillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutPracticePerformanceInput
   }
 
   export type PracticePerformanceUncheckedCreateWithoutUserInput = {
@@ -19530,6 +27685,12 @@ export namespace Prisma {
     lastAttemptedAt?: Date | string | null
     executionId?: string | null
     idempotencyKey?: string | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+    skillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutPracticePerformanceInput
   }
 
   export type PracticePerformanceCreateOrConnectWithoutUserInput = {
@@ -19631,6 +27792,149 @@ export namespace Prisma {
 
   export type SupportInquiryCreateManyUserInputEnvelope = {
     data: SupportInquiryCreateManyUserInput | SupportInquiryCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserSkillScoreCreateWithoutUserInput = {
+    id?: string
+    skillTaskId: string
+    currentScore?: number
+    sampleCount?: number
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserSkillScoreUncheckedCreateWithoutUserInput = {
+    id?: string
+    skillTaskId: string
+    currentScore?: number
+    sampleCount?: number
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserSkillScoreCreateOrConnectWithoutUserInput = {
+    where: UserSkillScoreWhereUniqueInput
+    create: XOR<UserSkillScoreCreateWithoutUserInput, UserSkillScoreUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserSkillScoreCreateManyUserInputEnvelope = {
+    data: UserSkillScoreCreateManyUserInput | UserSkillScoreCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserSkillSubScoreCreateWithoutUserInput = {
+    id?: string
+    skillSubTaskId: string
+    matchedCount?: number
+    totalCount?: number
+    matchRate?: number
+    averageScore?: number | null
+    lastMatchedAt?: Date | string | null
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserSkillSubScoreUncheckedCreateWithoutUserInput = {
+    id?: string
+    skillSubTaskId: string
+    matchedCount?: number
+    totalCount?: number
+    matchRate?: number
+    averageScore?: number | null
+    lastMatchedAt?: Date | string | null
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserSkillSubScoreCreateOrConnectWithoutUserInput = {
+    where: UserSkillSubScoreWhereUniqueInput
+    create: XOR<UserSkillSubScoreCreateWithoutUserInput, UserSkillSubScoreUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserSkillSubScoreCreateManyUserInputEnvelope = {
+    data: UserSkillSubScoreCreateManyUserInput | UserSkillSubScoreCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserSkillTaskCardCreateWithoutUserInput = {
+    id?: string
+    cardType: $Enums.CardType
+    skillTaskId?: string | null
+    skillSubTaskId?: string | null
+    status: $Enums.CardStatus
+    createdAt?: Date | string
+    improvedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    lastMatchedAt?: Date | string | null
+  }
+
+  export type UserSkillTaskCardUncheckedCreateWithoutUserInput = {
+    id?: string
+    cardType: $Enums.CardType
+    skillTaskId?: string | null
+    skillSubTaskId?: string | null
+    status: $Enums.CardStatus
+    createdAt?: Date | string
+    improvedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    lastMatchedAt?: Date | string | null
+  }
+
+  export type UserSkillTaskCardCreateOrConnectWithoutUserInput = {
+    where: UserSkillTaskCardWhereUniqueInput
+    create: XOR<UserSkillTaskCardCreateWithoutUserInput, UserSkillTaskCardUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserSkillTaskCardCreateManyUserInputEnvelope = {
+    data: UserSkillTaskCardCreateManyUserInput | UserSkillTaskCardCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserGradeCreateWithoutUserInput = {
+    id?: string
+    currentGrade?: $Enums.GradeLevel
+    achievedAt?: Date | string | null
+    progressData?: JsonNullValueInput | InputJsonValue
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserGradeUncheckedCreateWithoutUserInput = {
+    id?: string
+    currentGrade?: $Enums.GradeLevel
+    achievedAt?: Date | string | null
+    progressData?: JsonNullValueInput | InputJsonValue
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserGradeCreateOrConnectWithoutUserInput = {
+    where: UserGradeWhereUniqueInput
+    create: XOR<UserGradeCreateWithoutUserInput, UserGradeUncheckedCreateWithoutUserInput>
+  }
+
+  export type PerformanceSkillFeedbackCreateWithoutUserInput = {
+    id?: string
+    positionId: string
+    selectedSubTaskId?: string | null
+    feedbackType: string
+    comment?: string | null
+    createdAt?: Date | string
+    practicePerformance: PracticePerformanceCreateNestedOneWithoutSkillFeedbacksInput
+  }
+
+  export type PerformanceSkillFeedbackUncheckedCreateWithoutUserInput = {
+    id?: string
+    practicePerformanceId: string
+    positionId: string
+    selectedSubTaskId?: string | null
+    feedbackType: string
+    comment?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PerformanceSkillFeedbackCreateOrConnectWithoutUserInput = {
+    where: PerformanceSkillFeedbackWhereUniqueInput
+    create: XOR<PerformanceSkillFeedbackCreateWithoutUserInput, PerformanceSkillFeedbackUncheckedCreateWithoutUserInput>
+  }
+
+  export type PerformanceSkillFeedbackCreateManyUserInputEnvelope = {
+    data: PerformanceSkillFeedbackCreateManyUserInput | PerformanceSkillFeedbackCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -19774,6 +28078,8 @@ export namespace Prisma {
     metadata?: JsonNullableFilter<"PracticeItem">
     createdAt?: DateTimeFilter<"PracticeItem"> | Date | string
     updatedAt?: DateTimeFilter<"PracticeItem"> | Date | string
+    difficulty?: IntNullableFilter<"PracticeItem"> | number | null
+    skillSubTaskTags?: JsonNullableFilter<"PracticeItem">
   }
 
   export type PracticePerformanceUpsertWithWhereUniqueWithoutUserInput = {
@@ -19815,6 +28121,11 @@ export namespace Prisma {
     lastAttemptedAt?: DateTimeNullableFilter<"PracticePerformance"> | Date | string | null
     executionId?: StringNullableFilter<"PracticePerformance"> | string | null
     idempotencyKey?: StringNullableFilter<"PracticePerformance"> | string | null
+    pitchSkillScore?: FloatNullableFilter<"PracticePerformance"> | number | null
+    rhythmSkillScore?: FloatNullableFilter<"PracticePerformance"> | number | null
+    bowingSkillScore?: FloatNullableFilter<"PracticePerformance"> | number | null
+    skillSubScores?: JsonNullableFilter<"PracticePerformance">
+    problematicPositions?: JsonNullableFilter<"PracticePerformance">
   }
 
   export type UserWeaknessUpsertWithWhereUniqueWithoutUserInput = {
@@ -19908,6 +28219,154 @@ export namespace Prisma {
     emailSentAt?: DateTimeNullableFilter<"SupportInquiry"> | Date | string | null
   }
 
+  export type UserSkillScoreUpsertWithWhereUniqueWithoutUserInput = {
+    where: UserSkillScoreWhereUniqueInput
+    update: XOR<UserSkillScoreUpdateWithoutUserInput, UserSkillScoreUncheckedUpdateWithoutUserInput>
+    create: XOR<UserSkillScoreCreateWithoutUserInput, UserSkillScoreUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserSkillScoreUpdateWithWhereUniqueWithoutUserInput = {
+    where: UserSkillScoreWhereUniqueInput
+    data: XOR<UserSkillScoreUpdateWithoutUserInput, UserSkillScoreUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserSkillScoreUpdateManyWithWhereWithoutUserInput = {
+    where: UserSkillScoreScalarWhereInput
+    data: XOR<UserSkillScoreUpdateManyMutationInput, UserSkillScoreUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type UserSkillScoreScalarWhereInput = {
+    AND?: UserSkillScoreScalarWhereInput | UserSkillScoreScalarWhereInput[]
+    OR?: UserSkillScoreScalarWhereInput[]
+    NOT?: UserSkillScoreScalarWhereInput | UserSkillScoreScalarWhereInput[]
+    id?: StringFilter<"UserSkillScore"> | string
+    userId?: StringFilter<"UserSkillScore"> | string
+    skillTaskId?: StringFilter<"UserSkillScore"> | string
+    currentScore?: FloatFilter<"UserSkillScore"> | number
+    sampleCount?: IntFilter<"UserSkillScore"> | number
+    lastUpdatedAt?: DateTimeFilter<"UserSkillScore"> | Date | string
+  }
+
+  export type UserSkillSubScoreUpsertWithWhereUniqueWithoutUserInput = {
+    where: UserSkillSubScoreWhereUniqueInput
+    update: XOR<UserSkillSubScoreUpdateWithoutUserInput, UserSkillSubScoreUncheckedUpdateWithoutUserInput>
+    create: XOR<UserSkillSubScoreCreateWithoutUserInput, UserSkillSubScoreUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserSkillSubScoreUpdateWithWhereUniqueWithoutUserInput = {
+    where: UserSkillSubScoreWhereUniqueInput
+    data: XOR<UserSkillSubScoreUpdateWithoutUserInput, UserSkillSubScoreUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserSkillSubScoreUpdateManyWithWhereWithoutUserInput = {
+    where: UserSkillSubScoreScalarWhereInput
+    data: XOR<UserSkillSubScoreUpdateManyMutationInput, UserSkillSubScoreUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type UserSkillSubScoreScalarWhereInput = {
+    AND?: UserSkillSubScoreScalarWhereInput | UserSkillSubScoreScalarWhereInput[]
+    OR?: UserSkillSubScoreScalarWhereInput[]
+    NOT?: UserSkillSubScoreScalarWhereInput | UserSkillSubScoreScalarWhereInput[]
+    id?: StringFilter<"UserSkillSubScore"> | string
+    userId?: StringFilter<"UserSkillSubScore"> | string
+    skillSubTaskId?: StringFilter<"UserSkillSubScore"> | string
+    matchedCount?: IntFilter<"UserSkillSubScore"> | number
+    totalCount?: IntFilter<"UserSkillSubScore"> | number
+    matchRate?: FloatFilter<"UserSkillSubScore"> | number
+    averageScore?: FloatNullableFilter<"UserSkillSubScore"> | number | null
+    lastMatchedAt?: DateTimeNullableFilter<"UserSkillSubScore"> | Date | string | null
+    lastUpdatedAt?: DateTimeFilter<"UserSkillSubScore"> | Date | string
+  }
+
+  export type UserSkillTaskCardUpsertWithWhereUniqueWithoutUserInput = {
+    where: UserSkillTaskCardWhereUniqueInput
+    update: XOR<UserSkillTaskCardUpdateWithoutUserInput, UserSkillTaskCardUncheckedUpdateWithoutUserInput>
+    create: XOR<UserSkillTaskCardCreateWithoutUserInput, UserSkillTaskCardUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserSkillTaskCardUpdateWithWhereUniqueWithoutUserInput = {
+    where: UserSkillTaskCardWhereUniqueInput
+    data: XOR<UserSkillTaskCardUpdateWithoutUserInput, UserSkillTaskCardUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserSkillTaskCardUpdateManyWithWhereWithoutUserInput = {
+    where: UserSkillTaskCardScalarWhereInput
+    data: XOR<UserSkillTaskCardUpdateManyMutationInput, UserSkillTaskCardUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type UserSkillTaskCardScalarWhereInput = {
+    AND?: UserSkillTaskCardScalarWhereInput | UserSkillTaskCardScalarWhereInput[]
+    OR?: UserSkillTaskCardScalarWhereInput[]
+    NOT?: UserSkillTaskCardScalarWhereInput | UserSkillTaskCardScalarWhereInput[]
+    id?: StringFilter<"UserSkillTaskCard"> | string
+    userId?: StringFilter<"UserSkillTaskCard"> | string
+    cardType?: EnumCardTypeFilter<"UserSkillTaskCard"> | $Enums.CardType
+    skillTaskId?: StringNullableFilter<"UserSkillTaskCard"> | string | null
+    skillSubTaskId?: StringNullableFilter<"UserSkillTaskCard"> | string | null
+    status?: EnumCardStatusFilter<"UserSkillTaskCard"> | $Enums.CardStatus
+    createdAt?: DateTimeFilter<"UserSkillTaskCard"> | Date | string
+    improvedAt?: DateTimeNullableFilter<"UserSkillTaskCard"> | Date | string | null
+    clearedAt?: DateTimeNullableFilter<"UserSkillTaskCard"> | Date | string | null
+    lastMatchedAt?: DateTimeNullableFilter<"UserSkillTaskCard"> | Date | string | null
+  }
+
+  export type UserGradeUpsertWithoutUserInput = {
+    update: XOR<UserGradeUpdateWithoutUserInput, UserGradeUncheckedUpdateWithoutUserInput>
+    create: XOR<UserGradeCreateWithoutUserInput, UserGradeUncheckedCreateWithoutUserInput>
+    where?: UserGradeWhereInput
+  }
+
+  export type UserGradeUpdateToOneWithWhereWithoutUserInput = {
+    where?: UserGradeWhereInput
+    data: XOR<UserGradeUpdateWithoutUserInput, UserGradeUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserGradeUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currentGrade?: EnumGradeLevelFieldUpdateOperationsInput | $Enums.GradeLevel
+    achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    progressData?: JsonNullValueInput | InputJsonValue
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserGradeUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currentGrade?: EnumGradeLevelFieldUpdateOperationsInput | $Enums.GradeLevel
+    achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    progressData?: JsonNullValueInput | InputJsonValue
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutUserInput = {
+    where: PerformanceSkillFeedbackWhereUniqueInput
+    update: XOR<PerformanceSkillFeedbackUpdateWithoutUserInput, PerformanceSkillFeedbackUncheckedUpdateWithoutUserInput>
+    create: XOR<PerformanceSkillFeedbackCreateWithoutUserInput, PerformanceSkillFeedbackUncheckedCreateWithoutUserInput>
+  }
+
+  export type PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutUserInput = {
+    where: PerformanceSkillFeedbackWhereUniqueInput
+    data: XOR<PerformanceSkillFeedbackUpdateWithoutUserInput, PerformanceSkillFeedbackUncheckedUpdateWithoutUserInput>
+  }
+
+  export type PerformanceSkillFeedbackUpdateManyWithWhereWithoutUserInput = {
+    where: PerformanceSkillFeedbackScalarWhereInput
+    data: XOR<PerformanceSkillFeedbackUpdateManyMutationInput, PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type PerformanceSkillFeedbackScalarWhereInput = {
+    AND?: PerformanceSkillFeedbackScalarWhereInput | PerformanceSkillFeedbackScalarWhereInput[]
+    OR?: PerformanceSkillFeedbackScalarWhereInput[]
+    NOT?: PerformanceSkillFeedbackScalarWhereInput | PerformanceSkillFeedbackScalarWhereInput[]
+    id?: StringFilter<"PerformanceSkillFeedback"> | string
+    practicePerformanceId?: StringFilter<"PerformanceSkillFeedback"> | string
+    userId?: StringFilter<"PerformanceSkillFeedback"> | string
+    positionId?: StringFilter<"PerformanceSkillFeedback"> | string
+    selectedSubTaskId?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
+    feedbackType?: StringFilter<"PerformanceSkillFeedback"> | string
+    comment?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
+    createdAt?: DateTimeFilter<"PerformanceSkillFeedback"> | Date | string
+  }
+
   export type PerformanceCreateWithoutScoreInput = {
     id?: string
     performanceType: $Enums.PerformanceType
@@ -19989,6 +28448,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutScoresInput = {
@@ -20008,6 +28472,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutScoresInput = {
@@ -20059,6 +28528,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutScoresInput = {
@@ -20078,6 +28552,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ScoreCreateWithoutPerformancesInput = {
@@ -20152,6 +28631,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPerformancesInput = {
@@ -20171,6 +28655,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPerformancesInput = {
@@ -20267,6 +28756,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPerformancesInput = {
@@ -20286,6 +28780,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutPracticeItemsInput = {
@@ -20305,6 +28804,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPracticeItemsInput = {
@@ -20324,6 +28828,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPracticeItemsInput = {
@@ -20369,7 +28878,13 @@ export namespace Prisma {
     lastAttemptedAt?: Date | string | null
     executionId?: string | null
     idempotencyKey?: string | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     user: UserCreateNestedOneWithoutPracticePerformancesInput
+    skillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutPracticePerformanceInput
   }
 
   export type PracticePerformanceUncheckedCreateWithoutPracticeItemInput = {
@@ -20391,6 +28906,12 @@ export namespace Prisma {
     lastAttemptedAt?: Date | string | null
     executionId?: string | null
     idempotencyKey?: string | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+    skillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutPracticePerformanceInput
   }
 
   export type PracticePerformanceCreateOrConnectWithoutPracticeItemInput = {
@@ -20431,6 +28952,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPracticeItemsInput = {
@@ -20450,6 +28976,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PracticeItemTechniqueUpsertWithWhereUniqueWithoutPracticeItemInput = {
@@ -20604,6 +29135,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserCreateNestedOneWithoutPracticeItemsInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
   }
@@ -20638,6 +29171,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
   }
 
@@ -20715,6 +29250,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
   }
@@ -20749,6 +29286,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
   }
 
@@ -20804,6 +29343,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPracticePerformancesInput = {
@@ -20823,6 +29367,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPracticePerformancesInput = {
@@ -20859,6 +29408,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserCreateNestedOneWithoutPracticeItemsInput
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
   }
@@ -20893,12 +29444,44 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
   }
 
   export type PracticeItemCreateOrConnectWithoutPracticePerformancesInput = {
     where: PracticeItemWhereUniqueInput
     create: XOR<PracticeItemCreateWithoutPracticePerformancesInput, PracticeItemUncheckedCreateWithoutPracticePerformancesInput>
+  }
+
+  export type PerformanceSkillFeedbackCreateWithoutPracticePerformanceInput = {
+    id?: string
+    positionId: string
+    selectedSubTaskId?: string | null
+    feedbackType: string
+    comment?: string | null
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutPerformanceSkillFeedbacksInput
+  }
+
+  export type PerformanceSkillFeedbackUncheckedCreateWithoutPracticePerformanceInput = {
+    id?: string
+    userId: string
+    positionId: string
+    selectedSubTaskId?: string | null
+    feedbackType: string
+    comment?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PerformanceSkillFeedbackCreateOrConnectWithoutPracticePerformanceInput = {
+    where: PerformanceSkillFeedbackWhereUniqueInput
+    create: XOR<PerformanceSkillFeedbackCreateWithoutPracticePerformanceInput, PerformanceSkillFeedbackUncheckedCreateWithoutPracticePerformanceInput>
+  }
+
+  export type PerformanceSkillFeedbackCreateManyPracticePerformanceInputEnvelope = {
+    data: PerformanceSkillFeedbackCreateManyPracticePerformanceInput | PerformanceSkillFeedbackCreateManyPracticePerformanceInput[]
+    skipDuplicates?: boolean
   }
 
   export type UserUpsertWithoutPracticePerformancesInput = {
@@ -20929,6 +29512,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPracticePerformancesInput = {
@@ -20948,6 +29536,11 @@ export namespace Prisma {
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PracticeItemUpsertWithoutPracticePerformancesInput = {
@@ -20990,6 +29583,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
   }
@@ -21024,7 +29619,25 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
+  }
+
+  export type PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutPracticePerformanceInput = {
+    where: PerformanceSkillFeedbackWhereUniqueInput
+    update: XOR<PerformanceSkillFeedbackUpdateWithoutPracticePerformanceInput, PerformanceSkillFeedbackUncheckedUpdateWithoutPracticePerformanceInput>
+    create: XOR<PerformanceSkillFeedbackCreateWithoutPracticePerformanceInput, PerformanceSkillFeedbackUncheckedCreateWithoutPracticePerformanceInput>
+  }
+
+  export type PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutPracticePerformanceInput = {
+    where: PerformanceSkillFeedbackWhereUniqueInput
+    data: XOR<PerformanceSkillFeedbackUpdateWithoutPracticePerformanceInput, PerformanceSkillFeedbackUncheckedUpdateWithoutPracticePerformanceInput>
+  }
+
+  export type PerformanceSkillFeedbackUpdateManyWithWhereWithoutPracticePerformanceInput = {
+    where: PerformanceSkillFeedbackScalarWhereInput
+    data: XOR<PerformanceSkillFeedbackUpdateManyMutationInput, PerformanceSkillFeedbackUncheckedUpdateManyWithoutPracticePerformanceInput>
   }
 
   export type UserCreateWithoutWeaknessesInput = {
@@ -21044,6 +29657,11 @@ export namespace Prisma {
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWeaknessesInput = {
@@ -21063,6 +29681,11 @@ export namespace Prisma {
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWeaknessesInput = {
@@ -21127,6 +29750,11 @@ export namespace Prisma {
     practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWeaknessesInput = {
@@ -21146,6 +29774,11 @@ export namespace Prisma {
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TechniqueTagUpsertWithoutWeaknessesInput = {
@@ -21200,6 +29833,11 @@ export namespace Prisma {
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFeedbacksInput = {
@@ -21219,6 +29857,11 @@ export namespace Prisma {
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
     supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFeedbacksInput = {
@@ -21254,6 +29897,11 @@ export namespace Prisma {
     practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFeedbacksInput = {
@@ -21273,6 +29921,11 @@ export namespace Prisma {
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
     supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSupportInquiriesInput = {
@@ -21292,6 +29945,11 @@ export namespace Prisma {
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSupportInquiriesInput = {
@@ -21311,6 +29969,11 @@ export namespace Prisma {
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
     feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSupportInquiriesInput = {
@@ -21346,6 +30009,11 @@ export namespace Prisma {
     practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSupportInquiriesInput = {
@@ -21365,6 +30033,695 @@ export namespace Prisma {
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
     feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutUserSkillScoresInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutUserInput
+    scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutUserSkillScoresInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutUserSkillScoresInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutUserSkillScoresInput, UserUncheckedCreateWithoutUserSkillScoresInput>
+  }
+
+  export type UserUpsertWithoutUserSkillScoresInput = {
+    update: XOR<UserUpdateWithoutUserSkillScoresInput, UserUncheckedUpdateWithoutUserSkillScoresInput>
+    create: XOR<UserCreateWithoutUserSkillScoresInput, UserUncheckedCreateWithoutUserSkillScoresInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutUserSkillScoresInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutUserSkillScoresInput, UserUncheckedUpdateWithoutUserSkillScoresInput>
+  }
+
+  export type UserUpdateWithoutUserSkillScoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutUserNestedInput
+    scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutUserSkillScoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutUserSkillSubScoresInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutUserInput
+    scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutUserSkillSubScoresInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutUserSkillSubScoresInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutUserSkillSubScoresInput, UserUncheckedCreateWithoutUserSkillSubScoresInput>
+  }
+
+  export type UserUpsertWithoutUserSkillSubScoresInput = {
+    update: XOR<UserUpdateWithoutUserSkillSubScoresInput, UserUncheckedUpdateWithoutUserSkillSubScoresInput>
+    create: XOR<UserCreateWithoutUserSkillSubScoresInput, UserUncheckedCreateWithoutUserSkillSubScoresInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutUserSkillSubScoresInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutUserSkillSubScoresInput, UserUncheckedUpdateWithoutUserSkillSubScoresInput>
+  }
+
+  export type UserUpdateWithoutUserSkillSubScoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutUserNestedInput
+    scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutUserSkillSubScoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutUserSkillTaskCardsInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutUserInput
+    scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutUserSkillTaskCardsInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutUserSkillTaskCardsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutUserSkillTaskCardsInput, UserUncheckedCreateWithoutUserSkillTaskCardsInput>
+  }
+
+  export type UserUpsertWithoutUserSkillTaskCardsInput = {
+    update: XOR<UserUpdateWithoutUserSkillTaskCardsInput, UserUncheckedUpdateWithoutUserSkillTaskCardsInput>
+    create: XOR<UserCreateWithoutUserSkillTaskCardsInput, UserUncheckedCreateWithoutUserSkillTaskCardsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutUserSkillTaskCardsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutUserSkillTaskCardsInput, UserUncheckedUpdateWithoutUserSkillTaskCardsInput>
+  }
+
+  export type UserUpdateWithoutUserSkillTaskCardsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutUserNestedInput
+    scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutUserSkillTaskCardsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutUserGradeInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutUserInput
+    scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutUserGradeInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutUserGradeInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutUserGradeInput, UserUncheckedCreateWithoutUserGradeInput>
+  }
+
+  export type UserUpsertWithoutUserGradeInput = {
+    update: XOR<UserUpdateWithoutUserGradeInput, UserUncheckedUpdateWithoutUserGradeInput>
+    create: XOR<UserCreateWithoutUserGradeInput, UserUncheckedCreateWithoutUserGradeInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutUserGradeInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutUserGradeInput, UserUncheckedUpdateWithoutUserGradeInput>
+  }
+
+  export type UserUpdateWithoutUserGradeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutUserNestedInput
+    scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutUserGradeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type PracticePerformanceCreateWithoutSkillFeedbacksInput = {
+    id?: string
+    name?: string | null
+    audioPath: string
+    comparisonResultPath?: string | null
+    performanceDuration?: number | null
+    uploadedAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+    user: UserCreateNestedOneWithoutPracticePerformancesInput
+    practiceItem: PracticeItemCreateNestedOneWithoutPracticePerformancesInput
+  }
+
+  export type PracticePerformanceUncheckedCreateWithoutSkillFeedbacksInput = {
+    id?: string
+    userId: string
+    practiceItemId: string
+    name?: string | null
+    audioPath: string
+    comparisonResultPath?: string | null
+    performanceDuration?: number | null
+    uploadedAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type PracticePerformanceCreateOrConnectWithoutSkillFeedbacksInput = {
+    where: PracticePerformanceWhereUniqueInput
+    create: XOR<PracticePerformanceCreateWithoutSkillFeedbacksInput, PracticePerformanceUncheckedCreateWithoutSkillFeedbacksInput>
+  }
+
+  export type UserCreateWithoutPerformanceSkillFeedbacksInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutUserInput
+    scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutPerformanceSkillFeedbacksInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutPerformanceSkillFeedbacksInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutPerformanceSkillFeedbacksInput, UserUncheckedCreateWithoutPerformanceSkillFeedbacksInput>
+  }
+
+  export type PracticePerformanceUpsertWithoutSkillFeedbacksInput = {
+    update: XOR<PracticePerformanceUpdateWithoutSkillFeedbacksInput, PracticePerformanceUncheckedUpdateWithoutSkillFeedbacksInput>
+    create: XOR<PracticePerformanceCreateWithoutSkillFeedbacksInput, PracticePerformanceUncheckedCreateWithoutSkillFeedbacksInput>
+    where?: PracticePerformanceWhereInput
+  }
+
+  export type PracticePerformanceUpdateToOneWithWhereWithoutSkillFeedbacksInput = {
+    where?: PracticePerformanceWhereInput
+    data: XOR<PracticePerformanceUpdateWithoutSkillFeedbacksInput, PracticePerformanceUncheckedUpdateWithoutSkillFeedbacksInput>
+  }
+
+  export type PracticePerformanceUpdateWithoutSkillFeedbacksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    audioPath?: StringFieldUpdateOperationsInput | string
+    comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
+    performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+    user?: UserUpdateOneRequiredWithoutPracticePerformancesNestedInput
+    practiceItem?: PracticeItemUpdateOneRequiredWithoutPracticePerformancesNestedInput
+  }
+
+  export type PracticePerformanceUncheckedUpdateWithoutSkillFeedbacksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    practiceItemId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    audioPath?: StringFieldUpdateOperationsInput | string
+    comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
+    performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type UserUpsertWithoutPerformanceSkillFeedbacksInput = {
+    update: XOR<UserUpdateWithoutPerformanceSkillFeedbacksInput, UserUncheckedUpdateWithoutPerformanceSkillFeedbacksInput>
+    create: XOR<UserCreateWithoutPerformanceSkillFeedbacksInput, UserUncheckedCreateWithoutPerformanceSkillFeedbacksInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutPerformanceSkillFeedbacksInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutPerformanceSkillFeedbacksInput, UserUncheckedUpdateWithoutPerformanceSkillFeedbacksInput>
+  }
+
+  export type UserUpdateWithoutPerformanceSkillFeedbacksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutUserNestedInput
+    scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutPerformanceSkillFeedbacksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type PerformanceCreateManyUserInput = {
@@ -21447,6 +30804,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticePerformanceCreateManyUserInput = {
@@ -21468,6 +30827,11 @@ export namespace Prisma {
     lastAttemptedAt?: Date | string | null
     executionId?: string | null
     idempotencyKey?: string | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserWeaknessCreateManyUserInput = {
@@ -21499,6 +30863,47 @@ export namespace Prisma {
     status?: string
     createdAt?: Date | string
     emailSentAt?: Date | string | null
+  }
+
+  export type UserSkillScoreCreateManyUserInput = {
+    id?: string
+    skillTaskId: string
+    currentScore?: number
+    sampleCount?: number
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserSkillSubScoreCreateManyUserInput = {
+    id?: string
+    skillSubTaskId: string
+    matchedCount?: number
+    totalCount?: number
+    matchRate?: number
+    averageScore?: number | null
+    lastMatchedAt?: Date | string | null
+    lastUpdatedAt?: Date | string
+  }
+
+  export type UserSkillTaskCardCreateManyUserInput = {
+    id?: string
+    cardType: $Enums.CardType
+    skillTaskId?: string | null
+    skillSubTaskId?: string | null
+    status: $Enums.CardStatus
+    createdAt?: Date | string
+    improvedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    lastMatchedAt?: Date | string | null
+  }
+
+  export type PerformanceSkillFeedbackCreateManyUserInput = {
+    id?: string
+    practicePerformanceId: string
+    positionId: string
+    selectedSubTaskId?: string | null
+    feedbackType: string
+    comment?: string | null
+    createdAt?: Date | string
   }
 
   export type PerformanceUpdateWithoutUserInput = {
@@ -21685,6 +31090,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
   }
@@ -21718,6 +31125,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
   }
@@ -21751,6 +31160,8 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticePerformanceUpdateWithoutUserInput = {
@@ -21771,7 +31182,13 @@ export namespace Prisma {
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     practiceItem?: PracticeItemUpdateOneRequiredWithoutPracticePerformancesNestedInput
+    skillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutPracticePerformanceNestedInput
   }
 
   export type PracticePerformanceUncheckedUpdateWithoutUserInput = {
@@ -21793,6 +31210,12 @@ export namespace Prisma {
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+    skillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutPracticePerformanceNestedInput
   }
 
   export type PracticePerformanceUncheckedUpdateManyWithoutUserInput = {
@@ -21814,6 +31237,11 @@ export namespace Prisma {
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type UserWeaknessUpdateWithoutUserInput = {
@@ -21907,6 +31335,129 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     emailSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserSkillScoreUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    skillTaskId?: StringFieldUpdateOperationsInput | string
+    currentScore?: FloatFieldUpdateOperationsInput | number
+    sampleCount?: IntFieldUpdateOperationsInput | number
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSkillScoreUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    skillTaskId?: StringFieldUpdateOperationsInput | string
+    currentScore?: FloatFieldUpdateOperationsInput | number
+    sampleCount?: IntFieldUpdateOperationsInput | number
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSkillScoreUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    skillTaskId?: StringFieldUpdateOperationsInput | string
+    currentScore?: FloatFieldUpdateOperationsInput | number
+    sampleCount?: IntFieldUpdateOperationsInput | number
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSkillSubScoreUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    skillSubTaskId?: StringFieldUpdateOperationsInput | string
+    matchedCount?: IntFieldUpdateOperationsInput | number
+    totalCount?: IntFieldUpdateOperationsInput | number
+    matchRate?: FloatFieldUpdateOperationsInput | number
+    averageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSkillSubScoreUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    skillSubTaskId?: StringFieldUpdateOperationsInput | string
+    matchedCount?: IntFieldUpdateOperationsInput | number
+    totalCount?: IntFieldUpdateOperationsInput | number
+    matchRate?: FloatFieldUpdateOperationsInput | number
+    averageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSkillSubScoreUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    skillSubTaskId?: StringFieldUpdateOperationsInput | string
+    matchedCount?: IntFieldUpdateOperationsInput | number
+    totalCount?: IntFieldUpdateOperationsInput | number
+    matchRate?: FloatFieldUpdateOperationsInput | number
+    averageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastUpdatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserSkillTaskCardUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardType?: EnumCardTypeFieldUpdateOperationsInput | $Enums.CardType
+    skillTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    skillSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumCardStatusFieldUpdateOperationsInput | $Enums.CardStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    improvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserSkillTaskCardUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardType?: EnumCardTypeFieldUpdateOperationsInput | $Enums.CardType
+    skillTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    skillSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumCardStatusFieldUpdateOperationsInput | $Enums.CardStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    improvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type UserSkillTaskCardUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardType?: EnumCardTypeFieldUpdateOperationsInput | $Enums.CardType
+    skillTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    skillSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumCardStatusFieldUpdateOperationsInput | $Enums.CardStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    improvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type PerformanceSkillFeedbackUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    positionId?: StringFieldUpdateOperationsInput | string
+    selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    feedbackType?: StringFieldUpdateOperationsInput | string
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    practicePerformance?: PracticePerformanceUpdateOneRequiredWithoutSkillFeedbacksNestedInput
+  }
+
+  export type PerformanceSkillFeedbackUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    practicePerformanceId?: StringFieldUpdateOperationsInput | string
+    positionId?: StringFieldUpdateOperationsInput | string
+    selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    feedbackType?: StringFieldUpdateOperationsInput | string
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    practicePerformanceId?: StringFieldUpdateOperationsInput | string
+    positionId?: StringFieldUpdateOperationsInput | string
+    selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    feedbackType?: StringFieldUpdateOperationsInput | string
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PerformanceCreateManyScoreInput = {
@@ -22041,6 +31592,11 @@ export namespace Prisma {
     lastAttemptedAt?: Date | string | null
     executionId?: string | null
     idempotencyKey?: string | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticeItemTechniqueUpdateWithoutPracticeItemInput = {
@@ -22076,7 +31632,13 @@ export namespace Prisma {
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     user?: UserUpdateOneRequiredWithoutPracticePerformancesNestedInput
+    skillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutPracticePerformanceNestedInput
   }
 
   export type PracticePerformanceUncheckedUpdateWithoutPracticeItemInput = {
@@ -22098,6 +31660,12 @@ export namespace Prisma {
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+    skillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutPracticePerformanceNestedInput
   }
 
   export type PracticePerformanceUncheckedUpdateManyWithoutPracticeItemInput = {
@@ -22119,6 +31687,11 @@ export namespace Prisma {
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type PracticeItemTechniqueCreateManyTechniqueTagInput = {
@@ -22179,6 +31752,46 @@ export namespace Prisma {
     severity?: FloatFieldUpdateOperationsInput | number
     sampleCount?: IntFieldUpdateOperationsInput | number
     lastUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PerformanceSkillFeedbackCreateManyPracticePerformanceInput = {
+    id?: string
+    userId: string
+    positionId: string
+    selectedSubTaskId?: string | null
+    feedbackType: string
+    comment?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PerformanceSkillFeedbackUpdateWithoutPracticePerformanceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    positionId?: StringFieldUpdateOperationsInput | string
+    selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    feedbackType?: StringFieldUpdateOperationsInput | string
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutPerformanceSkillFeedbacksNestedInput
+  }
+
+  export type PerformanceSkillFeedbackUncheckedUpdateWithoutPracticePerformanceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    positionId?: StringFieldUpdateOperationsInput | string
+    selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    feedbackType?: StringFieldUpdateOperationsInput | string
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PerformanceSkillFeedbackUncheckedUpdateManyWithoutPracticePerformanceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    positionId?: StringFieldUpdateOperationsInput | string
+    selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    feedbackType?: StringFieldUpdateOperationsInput | string
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
