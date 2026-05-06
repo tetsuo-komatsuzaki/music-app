@@ -1,0 +1,18 @@
+{
+  "performance_id": "cmnka2oac00000ojy19pke52r",
+  "score_id": "cmmremwir0001rsjyun5bfaja",
+  "title": "sample1",
+  "tempo_bpm": 0.0,
+  "created_at": "2026-04-04T11:57:28.308000",
+  "analyzer_version": "unknown",
+  "git_commit": "e563fbb",
+  "analyzer_hash": "2cea3391",
+  "dataset_split": "train",
+  "difficulty": "medium",
+  "params": {},
+  "note_count": 109,
+  "max_pitch": "B-5",
+  "has_rest": true,
+  "has_string_crossing": false,
+  "has_shift": true
+}
