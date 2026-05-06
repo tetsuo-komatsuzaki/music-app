@@ -70,6 +70,12 @@ from .skill_aggregator import (
     aggregate_skill_scores,
     SKILL_TASK_MAP,
 )
+from .problematic_positions import (
+    generate_problematic_positions,
+    calculate_severity,
+    group_problematic_notes,
+    extract_candidate_sub_tasks,
+)
 
 __all__ = [
     # integrated_note
@@ -120,4 +126,9 @@ __all__ = [
     # skill_aggregator
     "aggregate_skill_scores",
     "SKILL_TASK_MAP",
+    # problematic_positions
+    "generate_problematic_positions",
+    "calculate_severity",
+    "group_problematic_notes",
+    "extract_candidate_sub_tasks",
 ]
