@@ -215,7 +215,9 @@ exports.Prisma.PracticeItemScalarFieldEnum = {
   isPublished: 'isPublished',
   metadata: 'metadata',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  difficulty: 'difficulty',
+  skillSubTaskTags: 'skillSubTaskTags'
 };
 
 exports.Prisma.TechniqueTagScalarFieldEnum = {
@@ -254,7 +256,12 @@ exports.Prisma.PracticePerformanceScalarFieldEnum = {
   errorMessage: 'errorMessage',
   lastAttemptedAt: 'lastAttemptedAt',
   executionId: 'executionId',
-  idempotencyKey: 'idempotencyKey'
+  idempotencyKey: 'idempotencyKey',
+  pitchSkillScore: 'pitchSkillScore',
+  rhythmSkillScore: 'rhythmSkillScore',
+  bowingSkillScore: 'bowingSkillScore',
+  skillSubScores: 'skillSubScores',
+  problematicPositions: 'problematicPositions'
 };
 
 exports.Prisma.UserWeaknessScalarFieldEnum = {
@@ -291,6 +298,60 @@ exports.Prisma.SupportInquiryScalarFieldEnum = {
   emailSentAt: 'emailSentAt'
 };
 
+exports.Prisma.UserSkillScoreScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  skillTaskId: 'skillTaskId',
+  currentScore: 'currentScore',
+  sampleCount: 'sampleCount',
+  lastUpdatedAt: 'lastUpdatedAt'
+};
+
+exports.Prisma.UserSkillSubScoreScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  skillSubTaskId: 'skillSubTaskId',
+  matchedCount: 'matchedCount',
+  totalCount: 'totalCount',
+  matchRate: 'matchRate',
+  averageScore: 'averageScore',
+  lastMatchedAt: 'lastMatchedAt',
+  lastUpdatedAt: 'lastUpdatedAt'
+};
+
+exports.Prisma.UserSkillTaskCardScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  cardType: 'cardType',
+  skillTaskId: 'skillTaskId',
+  skillSubTaskId: 'skillSubTaskId',
+  status: 'status',
+  createdAt: 'createdAt',
+  improvedAt: 'improvedAt',
+  clearedAt: 'clearedAt',
+  lastMatchedAt: 'lastMatchedAt'
+};
+
+exports.Prisma.UserGradeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  currentGrade: 'currentGrade',
+  achievedAt: 'achievedAt',
+  progressData: 'progressData',
+  lastUpdatedAt: 'lastUpdatedAt'
+};
+
+exports.Prisma.PerformanceSkillFeedbackScalarFieldEnum = {
+  id: 'id',
+  practicePerformanceId: 'practicePerformanceId',
+  userId: 'userId',
+  positionId: 'positionId',
+  selectedSubTaskId: 'selectedSubTaskId',
+  feedbackType: 'feedbackType',
+  comment: 'comment',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -298,6 +359,10 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -347,6 +412,24 @@ exports.PracticeCategory = exports.$Enums.PracticeCategory = {
   etude: 'etude'
 };
 
+exports.CardType = exports.$Enums.CardType = {
+  task: 'task',
+  sub_task: 'sub_task'
+};
+
+exports.CardStatus = exports.$Enums.CardStatus = {
+  active: 'active',
+  improving: 'improving',
+  cleared: 'cleared'
+};
+
+exports.GradeLevel = exports.$Enums.GradeLevel = {
+  BEGINNER: 'BEGINNER',
+  INTERMEDIATE: 'INTERMEDIATE',
+  ADVANCED: 'ADVANCED',
+  MASTER: 'MASTER'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Score: 'Score',
@@ -357,7 +440,12 @@ exports.Prisma.ModelName = {
   PracticePerformance: 'PracticePerformance',
   UserWeakness: 'UserWeakness',
   Feedback: 'Feedback',
-  SupportInquiry: 'SupportInquiry'
+  SupportInquiry: 'SupportInquiry',
+  UserSkillScore: 'UserSkillScore',
+  UserSkillSubScore: 'UserSkillSubScore',
+  UserSkillTaskCard: 'UserSkillTaskCard',
+  UserGrade: 'UserGrade',
+  PerformanceSkillFeedback: 'PerformanceSkillFeedback'
 };
 
 /**
