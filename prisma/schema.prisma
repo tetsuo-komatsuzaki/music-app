@@ -15,7 +15,6 @@ enum JobStatus {
   retrying
 }
 
-
 model User {
   id             String        @id @default(cuid())
   supabaseUserId String        @unique
@@ -33,11 +32,18 @@ model User {
   weaknesses           UserWeakness[]
 
   // ▼ S-1: アカウント設定追加分
-  aiTrainingOptIn          Boolean   @default(false)
+  aiTrainingOptIn          Boolean          @default(false)
   aiTrainingOptInChangedAt DateTime?
   deletedAt                DateTime? // 退会受付時刻 (idempotency key 兼用)
   feedbacks                Feedback[]
   supportInquiries         SupportInquiry[]
+
+  // ▼ v3.2.2 上達ループエンジン (Commit 1)
+  userSkillScores           UserSkillScore[]
+  userSkillSubScores        UserSkillSubScore[]
+  userSkillTaskCards        UserSkillTaskCard[]
+  userGrade                 UserGrade?
+  performanceSkillFeedbacks PerformanceSkillFeedback[]
 
   @@index([role])
 }
@@ -50,13 +56,13 @@ model Score {
   arranger         String?
   originalXmlPath  String
   generatedXmlPath String?
-  analysisStatus    JobStatus @default(processing)
-  buildStatus       JobStatus @default(processing)
-  retryCount        Int       @default(0)
-  errorMessage      String?
-  lastAttemptedAt   DateTime?
-  executionId       String?
-  idempotencyKey    String?   @unique
+  analysisStatus   JobStatus     @default(processing)
+  buildStatus      JobStatus     @default(processing)
+  retryCount       Int           @default(0)
+  errorMessage     String?
+  lastAttemptedAt  DateTime?
+  executionId      String?
+  idempotencyKey   String?       @unique
   keyTonic         String?
   keyMode          String?
   timeNumerator    Int?
@@ -64,7 +70,7 @@ model Score {
   defaultTempo     Int?
   isShared         Boolean       @default(false) // true=全ユーザー閲覧可のサンプル
   createdAt        DateTime      @default(now())
-  deletedAt        DateTime?     // 論理削除フラグ (NULL=有効、値あり=削除済み)
+  deletedAt        DateTime? // 論理削除フラグ (NULL=有効、値あり=削除済み)
   performances     Performance[]
   createdBy        User          @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
@@ -78,7 +84,7 @@ model Performance {
   performanceStatus    PerformanceStatus @default(uploaded)
   userId               String
   scoreId              String
-  name                 String?           // 表示名 (例: "Performance #3")。null = 旧データ
+  name                 String? // 表示名 (例: "Performance #3")。null = 旧データ
   audioPath            String
   audioFeaturesPath    String?
   comparisonResultPath String?
@@ -91,19 +97,19 @@ model Performance {
   user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // ▼ 解析結果サマリー（段階3: ハイブリッド方式）
-  pitchAccuracy    Float?    // 0-100 ピッチ正確率（頻繁表示 → カラム）
-  timingAccuracy   Float?    // 0-100 タイミング正確率（頻繁表示 → カラム）
-  overallScore     Float?    // 0-100 総合スコア（pitch×0.6 + timing×0.4）
-  evaluatedNotes   Int?      // 評価対象ノート数
-  analysisSummary  Json?     // 将来の拡張用（ビブラート・弓使い・音色等）
+  pitchAccuracy   Float? // 0-100 ピッチ正確率（頻繁表示 → カラム）
+  timingAccuracy  Float? // 0-100 タイミング正確率（頻繁表示 → カラム）
+  overallScore    Float? // 0-100 総合スコア（pitch×0.6 + timing×0.4）
+  evaluatedNotes  Int? // 評価対象ノート数
+  analysisSummary Json? // 将来の拡張用（ビブラート・弓使い・音色等）
 
   // ▼ 非同期ジョブライフサイクル（Cloud Run Jobs）
-  analysisStatus   JobStatus @default(done)
-  retryCount       Int       @default(0)
-  errorMessage     String?
-  lastAttemptedAt  DateTime?
-  executionId      String?
-  idempotencyKey   String?   @unique
+  analysisStatus  JobStatus @default(done)
+  retryCount      Int       @default(0)
+  errorMessage    String?
+  lastAttemptedAt DateTime?
+  executionId     String?
+  idempotencyKey  String?   @unique
 
   @@index([scoreId])
   @@index([userId, uploadedAt])
@@ -137,121 +143,137 @@ enum PracticeCategory {
 }
 
 model PracticeItem {
-  id               String            @id @default(cuid())
+  id               String           @id @default(cuid())
   category         PracticeCategory
   title            String
   composer         String?
   description      String?
   descriptionShort String?
 
-  keyTonic         String
-  keyMode          String
-  tempoMin         Int?
-  tempoMax         Int?
-  positions        String[]
-  instrument       String            @default("violin")
+  keyTonic   String
+  keyMode    String
+  tempoMin   Int?
+  tempoMax   Int?
+  positions  String[]
+  instrument String   @default("violin")
 
   originalXmlPath  String
   generatedXmlPath String?
   analysisPath     String?
-  analysisStatus   JobStatus         @default(processing)
-  buildStatus      JobStatus         @default(processing)
-  retryCount       Int               @default(0)
-  errorMessage     String?
-  lastAttemptedAt  DateTime?
-  executionId      String?
-  idempotencyKey   String?           @unique
-
-  ownerUserId      String?           // null=運営サンプル（全員閲覧可）, 値あり=そのユーザーのみ
-  owner            User?             @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
-
-  source           String?
-  sortOrder        Int               @default(0)
-  isPublished      Boolean           @default(true)
-  metadata         Json?             // ▼ 追加
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-
-  techniques               PracticeItemTechnique[]
-  practicePerformances     PracticePerformance[]
-
-  @@index([category, keyTonic, keyMode])
-  @@index([category, isPublished, sortOrder])
-  @@index([ownerUserId])
-}
-
-model TechniqueTag {
-  id               String   @id @default(cuid())
-  category         String
-  name             String
-  nameEn           String?
-  description      String?
-  xmlTags          String[]
-  isAnalyzable     String
-  implementStatus  String
-
-  practiceItems    PracticeItemTechnique[]
-  weaknesses       UserWeakness[]
-
-  @@unique([category, name])
-  @@index([category])
-}
-
-model PracticeItemTechnique {
-  practiceItemId  String
-  techniqueTagId  String
-  isPrimary       Boolean  @default(false)
-
-  practiceItem    PracticeItem  @relation(fields: [practiceItemId], references: [id])
-  techniqueTag    TechniqueTag  @relation(fields: [techniqueTagId], references: [id])
-
-  @@id([practiceItemId, techniqueTagId])
-}
-
-model PracticePerformance {
-  id                   String    @id @default(cuid())
-  userId               String
-  practiceItemId       String
-  name                 String?   // 表示名 (例: "Performance #3")。null = 旧データ
-  audioPath            String
-  comparisonResultPath String?
-  performanceDuration  Float?
-  uploadedAt           DateTime  @default(now())
-
-  user                 User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  practiceItem         PracticeItem      @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
-
-  // ▼ 解析結果サマリー（段階3: ハイブリッド方式）
-  pitchAccuracy    Float?
-  timingAccuracy   Float?
-  overallScore     Float?
-  evaluatedNotes   Int?
-  analysisSummary  Json?
-
-  // ▼ 非同期ジョブライフサイクル（Cloud Run Jobs）
-  analysisStatus   JobStatus @default(done)
+  analysisStatus   JobStatus @default(processing)
+  buildStatus      JobStatus @default(processing)
   retryCount       Int       @default(0)
   errorMessage     String?
   lastAttemptedAt  DateTime?
   executionId      String?
   idempotencyKey   String?   @unique
 
+  ownerUserId String? // null=運営サンプル（全員閲覧可）, 値あり=そのユーザーのみ
+  owner       User?   @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
+
+  source      String?
+  sortOrder   Int      @default(0)
+  isPublished Boolean  @default(true)
+  metadata    Json? // ▼ 追加
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // ▼ v3.2.2 上達ループエンジン (Commit 1、致命1: difficulty は Commit 1.5 で backfill)
+  difficulty       Int? // 1〜10、Commit 1.5 で backfill 後は NOT NULL 化検討
+  skillSubTaskTags Json? // 9 sub task のタグ配列 (例: ["pitch_overall", "string_change_volume"])
+  // C7: PracticeItemTechnique とは独立した別系統 (Commit 8 で初期付与)
+
+  techniques           PracticeItemTechnique[]
+  practicePerformances PracticePerformance[]
+
+  @@index([category, keyTonic, keyMode])
+  @@index([category, isPublished, sortOrder])
+  @@index([ownerUserId])
+  @@index([category, difficulty]) // v3.2.2: 教材レコメンド用 (Commit 4)
+}
+
+model TechniqueTag {
+  id              String   @id @default(cuid())
+  category        String
+  name            String
+  nameEn          String?
+  description     String?
+  xmlTags         String[]
+  isAnalyzable    String
+  implementStatus String
+
+  practiceItems PracticeItemTechnique[]
+  weaknesses    UserWeakness[]
+
+  @@unique([category, name])
+  @@index([category])
+}
+
+model PracticeItemTechnique {
+  practiceItemId String
+  techniqueTagId String
+  isPrimary      Boolean @default(false)
+
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id])
+  techniqueTag TechniqueTag @relation(fields: [techniqueTagId], references: [id])
+
+  @@id([practiceItemId, techniqueTagId])
+}
+
+model PracticePerformance {
+  id                   String   @id @default(cuid())
+  userId               String
+  practiceItemId       String
+  name                 String? // 表示名 (例: "Performance #3")。null = 旧データ
+  audioPath            String
+  comparisonResultPath String?
+  performanceDuration  Float?
+  uploadedAt           DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
+
+  // ▼ 解析結果サマリー（段階3: ハイブリッド方式）
+  pitchAccuracy   Float?
+  timingAccuracy  Float?
+  overallScore    Float?
+  evaluatedNotes  Int?
+  analysisSummary Json?
+
+  // ▼ 非同期ジョブライフサイクル（Cloud Run Jobs）
+  analysisStatus  JobStatus @default(done)
+  retryCount      Int       @default(0)
+  errorMessage    String?
+  lastAttemptedAt DateTime?
+  executionId     String?
+  idempotencyKey  String?   @unique
+
+  // ▼ v3.2.2 上達ループエンジン (Commit 1、score_full の出力を保存)
+  pitchSkillScore      Float?
+  rhythmSkillScore     Float?
+  bowingSkillScore     Float? // Q5: 弦移動なし曲では null
+  skillSubScores       Json? // 9 sub task の結果 (各 score, target_count, matched 等)
+  problematicPositions Json? // 「気になる箇所」配列 (発見 A: score_full では未生成、別 commit で対応)
+
+  // ▼ v3.2.2 back-reference
+  skillFeedbacks PerformanceSkillFeedback[]
+
   @@index([userId, practiceItemId, uploadedAt])
   @@index([practiceItemId])
 }
 
 model UserWeakness {
-  id              String   @id @default(cuid())
-  userId          String
-  weaknessType    String
-  weaknessKey     String
-  techniqueTagId  String?
-  severity        Float
-  sampleCount     Int
-  lastUpdated     DateTime @default(now())
+  id             String   @id @default(cuid())
+  userId         String
+  weaknessType   String
+  weaknessKey    String
+  techniqueTagId String?
+  severity       Float
+  sampleCount    Int
+  lastUpdated    DateTime @default(now())
 
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  techniqueTag    TechniqueTag? @relation(fields: [techniqueTagId], references: [id])
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  techniqueTag TechniqueTag? @relation(fields: [techniqueTagId], references: [id])
 
   @@unique([userId, weaknessType, weaknessKey])
   @@index([userId, severity])
@@ -263,15 +285,15 @@ model UserWeakness {
 
 model Feedback {
   id           String    @id @default(cuid())
-  userId       String?   // 退会時 SetNull で匿名化保持
-  rating       Int       // 1-5
+  userId       String? // 退会時 SetNull で匿名化保持
+  rating       Int // 1-5
   category     String
   message      String    @db.Text
   contactEmail String?
   createdAt    DateTime  @default(now())
   emailSentAt  DateTime?
 
-  user         User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([createdAt])
   @@index([userId])
@@ -279,7 +301,7 @@ model Feedback {
 
 model SupportInquiry {
   id          String    @id @default(cuid())
-  userId      String?   // 退会時 SetNull で匿名化保持
+  userId      String? // 退会時 SetNull で匿名化保持
   category    String
   subject     String
   message     String    @db.Text
@@ -288,9 +310,122 @@ model SupportInquiry {
   createdAt   DateTime  @default(now())
   emailSentAt DateTime?
 
-  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([createdAt])
   @@index([userId])
   @@index([status])
+}
+
+// =============================================
+// v3.2.2 上達ループエンジン (Commit 1)
+// 設計書 v3.2.2 §4 に基づく
+// JobStatus enum は既存温存 (m1 確定)
+// =============================================
+
+enum CardType {
+  task // 中項目カード (pitch / rhythm / bowing)
+  sub_task // 小項目カード (pitch_overall 等)
+}
+
+enum CardStatus {
+  active // 「気になる箇所」(直近で課題として検出)
+  improving // 「改善傾向」(直近3回中 matched=true 1回以下)
+  cleared // 「達成」(ユーザーが手動でクリア、C5 確定)
+}
+
+enum GradeLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  MASTER
+}
+
+// 中項目スコア累積 (pitch / rhythm / bowing 各 1 行 / user)
+// C2: sampleCount に統一 (totalCount ではない)
+model UserSkillScore {
+  id            String   @id @default(cuid())
+  userId        String
+  skillTaskId   String // "pitch" | "rhythm" | "bowing"
+  currentScore  Float    @default(0) // 0〜100、指数移動平均で更新
+  sampleCount   Int      @default(0) // 累積サンプル数
+  lastUpdatedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillTaskId])
+  @@index([userId, skillTaskId])
+}
+
+// 小項目スコア累積 (9 sub task 各 1 行 / user)
+// C1: matchedCount/totalCount/matchRate/averageScore/lastMatchedAt 5 列
+model UserSkillSubScore {
+  id             String    @id @default(cuid())
+  userId         String
+  skillSubTaskId String // 9 sub task の ID (例: "pitch_overall", "string_change_volume")
+  matchedCount   Int       @default(0) // matched=true だった回数
+  totalCount     Int       @default(0) // この sub task が判定対象になった回数 (Q5: target_count > 0 のみ)
+  matchRate      Float     @default(0) // matchedCount / totalCount (課題ランキング・レコメンド用)
+  averageScore   Float? // 該当時のスコア平均
+  lastMatchedAt  DateTime?
+  lastUpdatedAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillSubTaskId])
+  @@index([userId, matchRate]) // 課題ランキング用
+}
+
+// カード方式の課題管理
+// C3: skillTaskId / skillSubTaskId 別カラム + improvedAt
+// C5: 自動 cleared なし、ユーザー手動操作のみ
+model UserSkillTaskCard {
+  id             String     @id @default(cuid())
+  userId         String
+  cardType       CardType
+  skillTaskId    String? // cardType="task" のとき設定 ("pitch" | "rhythm" | "bowing")
+  skillSubTaskId String? // cardType="sub_task" のとき設定 ("pitch_overall" 等)
+  status         CardStatus
+  createdAt      DateTime   @default(now())
+  improvedAt     DateTime? // improving に遷移した日時
+  clearedAt      DateTime? // cleared に遷移した日時 (C5: ユーザー手動クリア時のみ)
+  lastMatchedAt  DateTime? // 直近 matched=true 日時 (中13: マイページ表示用)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cardType, skillTaskId, skillSubTaskId])
+  @@index([userId, status])
+}
+
+// グレード制度 (4 段階、永久保持)
+// m4: progressData は JSON キャッシュ、オンデマンド更新
+model UserGrade {
+  id            String     @id @default(cuid())
+  userId        String     @unique
+  currentGrade  GradeLevel @default(BEGINNER)
+  achievedAt    DateTime? // currentGrade に到達した日時
+  progressData  Json       @default("{}") // 難易度別の達成済み PracticeItem ID 集合
+  lastUpdatedAt DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// 演奏完了画面のフィードバック保存
+// C4: ユーザー操作の保存 (生成テキストキャッシュではない、A 案採用)
+// MVP では記録のみ、β で自動学習ループの種にする
+model PerformanceSkillFeedback {
+  id                    String   @id @default(cuid())
+  practicePerformanceId String
+  userId                String
+  positionId            String // problematicPositions の position_id
+  selectedSubTaskId     String? // user_selected の場合に設定 (どの sub task が原因か)
+  feedbackType          String // "user_selected" | "user_rejected" | "user_uncertain"
+  comment               String? // MVP では使わない、β で自由記述用
+  createdAt             DateTime @default(now())
+
+  practicePerformance PracticePerformance @relation(fields: [practicePerformanceId], references: [id], onDelete: Cascade)
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([practicePerformanceId])
+  @@index([userId, feedbackType])
 }
