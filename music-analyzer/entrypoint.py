@@ -69,6 +69,18 @@ def main() -> None:
     print(f"[entrypoint] MODE={mode} argv={sys.argv}")
     runpy.run_path(script, run_name="__main__")
 
+    # v3.2.2 Commit 8a: practice モードの analyze_performance 完了後に
+    # score_full (loop engine) を chain。失敗しても analyze_performance の成果は保持。
+    if mode == "analyze_performance" and os.environ.get("IS_PRACTICE") == "true":
+        try:
+            print("[entrypoint] post-analyze: running loop_engine_runner")
+            sys.argv = ["loop_engine_runner.py"]
+            runpy.run_path("loop_engine_runner.py", run_name="__main__")
+        except Exception as e:
+            import traceback
+            print(f"[entrypoint] WARNING: loop_engine_runner failed: {e}")
+            traceback.print_exc()
+
 
 if __name__ == "__main__":
     main()
