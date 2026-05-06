@@ -1,8 +1,8 @@
 """
-audio_volume.py — 弦移動系判定の音響特徴計算ライブラリ（v3.2 §14-2）
+audio_volume.py — 弦移動系判定の音響特徴計算ライブラリ（v3.2.2 §14-2）
 
-設計書 v3.2 §14-2 で確定した音量フィールド計算ロジック。
-music-analyzer/ の analyze_performance.py から呼び出される想定。
+設計書 v3.2.2 §14-2 で確定した音量フィールド計算ロジック。
+music-analyzer サブディレクトリの analyze_performance.py から呼び出される想定。
 
 役割（Q3 確定）：
   「弦移動系判定の音響特徴を計算するライブラリ」
@@ -15,14 +15,17 @@ avg_volume_db / volume_drop_after を計算する。
 
 このモジュールは numpy に依存する（音響解析の通常前提）。
 
-v3.2 修正（致命3）:
+v3.2.2 修正（Phase 0.1 Task 1 結論訂正、2026-05-06）:
+  - comparison_result.json は **{version, warnings, results} ラッパー構造**
+    旧 v3.2 spec：flat array（誤り）
+    新 v3.2.2 spec：{"version", "warnings", "results"} の dict
+  - merge_audio_features_into_comparison_result は dict["results"] を更新する形に修正
+  - calculate_audio_features_per_note の comparison_result 引数も dict に対応
+
+v3.2 修正（維持、致命3）:
   volume_drop_after の計算で next_note の検出時刻（detected_start_sec）を優先。
   期待時刻（expected_start_sec）を使うと、走り/もたりがある演奏で
   前の音の余韻を拾い、誤計測になるバグの修正。
-
-v3.2 修正（Phase 0.1 Task 1）:
-  comparison_result.json は実物では flat array で出力されている。
-  merge_audio_features_into_comparison_result はラッパー構造ではなく flat array を扱う。
 """
 
 from __future__ import annotations
@@ -141,26 +144,28 @@ def calculate_audio_features_per_note(
     audio: Any,
     sample_rate: int,
     note_results_notes: List[dict],
-    comparison_result: Optional[List[dict]] = None,
+    comparison_result: Any = None,  # v3.2.2: dict {results: [...]} or list (旧互換)
     *,
     next_window_sec: float = 0.1,
 ) -> List[dict]:
-    """各音符の音量特徴を計算する（v3.2 §14-2、致命3 修正）。
+    """各音符の音量特徴を計算する（v3.2.2 §14-2、致命3 修正）。
 
-    v3.2 修正（致命3）:
+    v3.2 修正（致命3、維持）:
       next_note の検出時刻（detected_start_sec）を優先する。
       comparison_result から detected_start_sec を取得し、未検出（None）なら
       expected_start_sec にフォールバック。
-      これにより走り/もたりがある演奏での誤計測を回避する。
 
-    v3.2 修正（Phase 0.1 Task 1）:
-      comparison_result は flat array（list[dict]）として渡される。
+    v3.2.2 修正（Phase 0.1 Task 1 訂正）:
+      comparison_result は {version, warnings, results} ラッパー構造として渡される。
+      results キー配列の各要素にアクセス。
+      旧 v3.2 の flat array も互換のため受け入れる。
 
     Args:
         audio: モノラル波形
         sample_rate: サンプリングレート
         note_results_notes: note_results.json の notes 配列
-        comparison_result: comparison_result.json (v3.2: flat array)。
+        comparison_result: v3.2.2: dict {"version", "warnings", "results"}
+                           v3.2 互換: list（flat array）
                            detected_start_sec を取得するために使う。
                            None の場合は expected_start_sec にフォールバック。
         next_window_sec: 直後音量評価のウィンドウ（秒）
@@ -168,6 +173,9 @@ def calculate_audio_features_per_note(
     Returns:
         各音符に対応する {"avg_volume_db", "volume_drop_after"} の辞書のリスト
     """
+    # v3.2.2: comparison_result の results 配列を取り出す（互換維持）
+    eval_notes = _extract_eval_notes(comparison_result)
+    
     features: List[dict] = []
 
     for i, note in enumerate(note_results_notes):
@@ -176,7 +184,6 @@ def calculate_audio_features_per_note(
             continue
 
         # 現在の音符の avg_volume_db
-        # 期待時刻（楽譜時刻）を使う：これは「楽譜上のこの音符の位置で実演奏された音量」を測る
         start_sec = float(note.get("expected_start_sec", note.get("start_time_sec", 0.0)))
         end_sec = float(note.get("expected_end_sec", note.get("end_time_sec", start_sec)))
         avg_db = calc_avg_volume_db(audio, sample_rate, start_sec, end_sec)
@@ -187,9 +194,8 @@ def calculate_audio_features_per_note(
         if i + 1 < len(note_results_notes):
             next_note = note_results_notes[i + 1]
             if next_note.get("type") != "rest" and avg_db is not None:
-                # 次の音符の検出時刻を取得（v3.2 致命3 修正）
                 next_eval_time_sec = _get_next_eval_time(
-                    next_note, comparison_result, i + 1
+                    next_note, eval_notes, i + 1
                 )
                 
                 next_drop = calc_volume_drop_after(
@@ -208,35 +214,55 @@ def calculate_audio_features_per_note(
     return features
 
 
+def _extract_eval_notes(comparison_result: Any) -> Optional[List[dict]]:
+    """comparison_result から results 配列を取り出す（v3.2.2 ラッパー対応）。
+    
+    優先順位:
+      1. dict で "results" キーを持つ → v3.2.2 正規形式
+      2. dict で "evaluatedNotes" キーを持つ → 旧 v3 互換
+      3. list → 旧 v3.2 flat array 互換
+      4. その他 → None
+    """
+    if comparison_result is None:
+        return None
+    if isinstance(comparison_result, dict):
+        if "results" in comparison_result:
+            return comparison_result["results"]
+        if "evaluatedNotes" in comparison_result:
+            return comparison_result["evaluatedNotes"]
+        return None
+    if isinstance(comparison_result, list):
+        return comparison_result
+    return None
+
+
 def _get_next_eval_time(
     next_note: dict,
-    comparison_result: Optional[List[dict]],
+    eval_notes: Optional[List[dict]],
     next_index: int,
 ) -> float:
-    """次の音符の評価時刻を取得する（v3.2 致命3 修正）。
+    """次の音符の評価時刻を取得する（v3.2 致命3 修正、v3.2.2 でもロジック維持）。
 
     優先順位:
-      1. comparison_result から detected_start_sec を取得（実演奏時刻、優先）
+      1. eval_notes から detected_start_sec を取得（実演奏時刻、優先）
       2. note_results.json の expected_start_sec（楽譜時刻、フォールバック）
       3. note_results.json の start_time_sec（最終フォールバック）
 
     Args:
         next_note: note_results.json の next note dict
-        comparison_result: comparison_result.json (flat array)
+        eval_notes: comparison_result の results 配列（_extract_eval_notes 経由）
         next_index: next note のインデックス
 
     Returns:
         評価時刻（秒）
     """
-    # 1. comparison_result から detected_start_sec を取得
-    if comparison_result is not None and next_index < len(comparison_result):
-        eval_note = comparison_result[next_index]
+    if eval_notes is not None and next_index < len(eval_notes):
+        eval_note = eval_notes[next_index]
         if isinstance(eval_note, dict):
             detected = eval_note.get("detected_start_sec")
             if detected is not None:
                 return float(detected)
     
-    # 2-3. note_results からフォールバック
     return float(
         next_note.get("expected_start_sec",
                      next_note.get("start_time_sec", 0.0))
@@ -244,24 +270,42 @@ def _get_next_eval_time(
 
 
 def merge_audio_features_into_comparison_result(
-    comparison_result: List[dict],
+    comparison_result: Any,  # v3.2.2: dict {"version", "warnings", "results"} or list (旧互換)
     audio_features: List[dict],
-) -> List[dict]:
-    """音量特徴を comparison_result.json にマージする（v3.2 §14-2）。
+) -> Any:
+    """音量特徴を comparison_result.json にマージする（v3.2.2 §14-2）。
 
-    v3.2 修正（Phase 0.1 Task 1）:
-      comparison_result は flat array（list[dict]）として渡される。
-      旧 spec の {"evaluatedNotes": [...]} ラッパー構造ではない。
+    v3.2.2 修正（Phase 0.1 Task 1 訂正）:
+      comparison_result は {version, warnings, results} ラッパー構造として渡される。
+      results 配列の各要素に音量フィールドを書き加える。
+      旧 v3.2 の flat array も互換のため受け入れる（その場合は list を返す）。
 
     Args:
-        comparison_result: 既存の comparison_result.json の中身（flat array）
+        comparison_result: v3.2.2: dict {"version", "warnings", "results"}
+                           v3.2 互換: list（flat array）
         audio_features: calculate_audio_features_per_note の出力
 
     Returns:
-        マージ後の comparison_result（インプレース更新版）
+        マージ後の comparison_result（インプレース更新、入力と同じ型を返す）
     """
-    for i, eval_note in enumerate(comparison_result):
+    if isinstance(comparison_result, dict):
+        # v3.2.2 ラッパー構造
+        if "results" in comparison_result:
+            target = comparison_result["results"]
+        elif "evaluatedNotes" in comparison_result:
+            # 旧 v3 互換
+            target = comparison_result["evaluatedNotes"]
+        else:
+            return comparison_result
+    elif isinstance(comparison_result, list):
+        # 旧 v3.2 flat array 互換
+        target = comparison_result
+    else:
+        return comparison_result
+    
+    for i, eval_note in enumerate(target):
         if i < len(audio_features):
             eval_note["avg_volume_db"] = audio_features[i]["avg_volume_db"]
             eval_note["volume_drop_after"] = audio_features[i]["volume_drop_after"]
+    
     return comparison_result
