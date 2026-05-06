@@ -948,6 +948,22 @@ try:
 
     results = evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, onset_times=onset_times, time_scale=time_scale, timing_tolerance=timing_tolerance)
 
+    # v3.2 Commit A (C5 + 致命3): 音量フィールド (avg_volume_db / volume_drop_after) を追加
+    # 設計書 §14-2 参照。bowing 系 sub task (string_change_volume / string_change_slur) が依存。
+    # 致命3: volume_drop_after の計算で次音符の検出時刻 (detected_start_sec) を優先する。
+    from lib.audio_volume import (
+        calculate_audio_features_per_note,
+        merge_audio_features_into_comparison_result,
+    )
+    audio_features = calculate_audio_features_per_note(
+        audio=y,
+        sample_rate=sr,
+        note_results_notes=notes_only,
+        comparison_result=results,
+        next_window_sec=0.1,
+    )
+    results = merge_audio_features_into_comparison_result(results, audio_features)
+
     # サマリー
     detected = [r for r in results if r["evaluation_status"] in ("evaluated", "pitch_only")]
     pitch_ok_count = sum(1 for r in detected if r["pitch_ok"] is True)
