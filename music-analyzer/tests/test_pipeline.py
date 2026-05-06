@@ -14,6 +14,8 @@ v3.2.2 で追加・修正されたテスト:
   - test_integrate_wrapped_structure: Phase 0.1 Task 1 訂正（{version, warnings, results} 構造）
   - test_integrate_flat_array_compat: 旧 v3.2 flat array の互換性確認
   - test_measure_number_from_comparison: measure_number 取り込み（Q2=C）
+  - test_problematic_positions_basic / _severity_sort_and_cap / _all_ok_returns_empty:
+    §8「気になる箇所」生成（発見 A、score_full に組み込み）
   - end 系（detected_end_sec / end_diff_sec / end_ok）テストは削除（フィールド削除のため）
 
 v3.2 で追加されたテスト（維持）:
@@ -38,7 +40,11 @@ from lib import (
     IntegratedScoreData,
     SubTaskResult,
     aggregate_skill_scores,
+    calculate_severity,
     calculate_subtask_score_hybrid,
+    extract_candidate_sub_tasks,
+    generate_problematic_positions,
+    group_problematic_notes,
     hz_to_midi,
     integrate,
     is_performance_analyzable,
@@ -591,6 +597,95 @@ def test_integrate_dict_time_signature():
 
 
 # ---------------------------------------------------------------------------
+# v3.2.2 新規テスト：「気になる箇所」生成（§8、発見 A）
+# ---------------------------------------------------------------------------
+
+
+def test_problematic_positions_basic():
+    """v3.2.2 §8：連続 NG 音符が 1 グループにまとめられ、severity と候補が付く。"""
+    notes = [
+        make_note(note_index=0, measure_number=1, pitch_ok=True, start_ok=True),
+        # 連続 NG (赤2 + 黄1)、すべて高音域 + ピッチエラー → pitch_high 候補
+        make_note(
+            note_index=1, measure_number=1,
+            expected_pitch_hz=659.26,  # E5 (MIDI 76、高音域)
+            pitch_ok=False, start_ok=False,
+        ),
+        make_note(
+            note_index=2, measure_number=2,
+            expected_pitch_hz=783.99,  # G5
+            pitch_ok=False, start_ok=False,
+        ),
+        make_note(
+            note_index=3, measure_number=2,
+            expected_pitch_hz=880.00,  # A5
+            pitch_ok=False, start_ok=True,  # 黄
+        ),
+        make_note(note_index=4, measure_number=3, pitch_ok=True, start_ok=True),
+    ]
+    data = make_data(notes)
+    positions = generate_problematic_positions(data)
+
+    assert len(positions) == 1, f"Expected 1 position, got {len(positions)}"
+    p = positions[0]
+    assert p["measure_start"] == 1
+    assert p["measure_end"] == 2
+    assert p["note_indices"] == [1, 2, 3]
+    assert "pitch_high" in p["candidate_sub_task_ids"]
+    assert 0.0 < p["severity"] <= 1.0
+    assert "high_pitch" in p["features"]
+    print("✅ test_problematic_positions_basic (§8 基本)")
+
+
+def test_problematic_positions_severity_sort_and_cap():
+    """v3.2.2 §8：6 つ以上のグループが severity 降順でソートされ、上位 5 件まで返る。"""
+    notes: list[IntegratedNote] = []
+    # 6 グループを作る：OK 音 1 + NG 音 N + OK 音 1 ... を繰り返す
+    # 各グループの NG 音数で severity に差をつける
+    idx = 0
+    for group_id in range(6):
+        # OK separator
+        notes.append(make_note(note_index=idx, pitch_ok=True, start_ok=True))
+        idx += 1
+        # NG group: 全て赤、サイズは group_id + 1（1〜6 個）
+        for _ in range(group_id + 1):
+            notes.append(make_note(
+                note_index=idx,
+                expected_pitch_hz=440.0,
+                pitch_ok=False, start_ok=False,
+            ))
+            idx += 1
+    notes.append(make_note(note_index=idx, pitch_ok=True, start_ok=True))
+
+    data = make_data(notes)
+    positions = generate_problematic_positions(data)
+
+    assert len(positions) == 5, f"Expected 5 (cap), got {len(positions)}"
+    severities = [p["severity"] for p in positions]
+    assert severities == sorted(severities, reverse=True), f"Not sorted desc: {severities}"
+    print("✅ test_problematic_positions_severity_sort_and_cap (§8 sort + cap)")
+
+
+def test_problematic_positions_all_ok_returns_empty():
+    """v3.2.2 §8：全音符 OK / 休符 / 未検出のみの場合、空配列を返す。"""
+    notes = [
+        make_note(note_index=0, pitch_ok=True, start_ok=True),
+        make_note(note_index=1, is_rest=True),
+        make_note(note_index=2, pitch_ok=True, start_ok=True),
+        make_note(note_index=3, detected_start_sec=None, pitch_ok=None, start_ok=None),
+    ]
+    data = make_data(notes)
+    positions = generate_problematic_positions(data)
+    assert positions == [], f"Expected empty, got {positions}"
+
+    # 内部関数の単体検証
+    assert calculate_severity([]) == 0.0
+    assert group_problematic_notes(notes) == []
+    assert extract_candidate_sub_tasks([]) == []
+    print("✅ test_problematic_positions_all_ok_returns_empty (§8 空ケース)")
+
+
+# ---------------------------------------------------------------------------
 # 全 sub task 実行テスト
 # ---------------------------------------------------------------------------
 
@@ -641,12 +736,17 @@ def main():
     test_integrate_wrapped_structure()
     test_integrate_flat_array_compat()
     test_measure_number_from_comparison()
-    
+
+    # v3.2.2 新規テスト（§8 problematicPositions、発見 A）
+    test_problematic_positions_basic()
+    test_problematic_positions_severity_sort_and_cap()
+    test_problematic_positions_all_ok_returns_empty()
+
     # 全 sub task 実行
     test_run_all_judges()
-    
+
     print("=" * 60)
-    print("✅ All tests passed (15 ケース)")
+    print("✅ All tests passed (18 ケース)")
     print("=" * 60)
 
 

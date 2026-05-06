@@ -38,6 +38,9 @@ Cloud Run Jobs の score_full モードから起動される。
       "pitch_overall": { "score": 75.0, "matched": false, ... },
       ...
     },
+    "problematicPositions": [             # v3.2.2: §8 実装、最大 5 箇所
+      { "position_id": "pos_001", "measure_start": 3, ... }
+    ],
     "detection_rate": 0.85,
     "skipped_reason": null | "low_detection_rate"
   }
@@ -58,6 +61,7 @@ from lib import (
     SubTaskResult,
     aggregate_skill_scores,
     build_integrated_score_data,
+    generate_problematic_positions,
     is_performance_analyzable,
     run_all_judges,
 )
@@ -113,10 +117,10 @@ def run_pipeline(
     2. 解析可能性チェック（A1：検出割合 < 50% フィルタ）
     3. 9 sub task の判定（v3.2 修正済み：問題1 A 解釈等）
     4. 中項目スコア集計（v3.2 Q5：target_count=0 は集計除外）
-    5. 結果を辞書として返す
+    5. 「気になる箇所」生成（v3.2 §8、最大 5 箇所）
+    6. 結果を辞書として返す
 
-    気になる箇所生成（§8）と DB 累積更新（§7-4）は本パイプラインの責務外。
-    score_full の出力を受け取った Next.js 側（または別ジョブ）で実施する。
+    DB 累積更新（§7-4）は本パイプラインの責務外、Next.js 側で実施する。
 
     Returns:
         result 辞書（status="done" or status="skipped"）
@@ -144,6 +148,7 @@ def run_pipeline(
             "rhythmSkillScore": None,
             "bowingSkillScore": None,
             "skillSubScores": {},
+            "problematicPositions": [],
         }
 
     # 3. 9 sub task 判定
@@ -152,7 +157,10 @@ def run_pipeline(
     # 4. 中項目スコア集計（v3.2 Q5：target_count=0 除外、None 許容）
     skill_scores = aggregate_skill_scores(sub_task_results)
 
-    # 5. 結果辞書を構築
+    # 5. 「気になる箇所」生成（§8、最大 5 箇所、severity 降順）
+    problematic_positions = generate_problematic_positions(data, sub_task_results)
+
+    # 6. 結果辞書を構築
     return {
         "performance_id": performance_id,
         "status": "done",
@@ -162,6 +170,7 @@ def run_pipeline(
         "rhythmSkillScore": skill_scores["rhythm"], # float | None
         "bowingSkillScore": skill_scores["bowing"], # float | None（v3.2: 弦移動なし曲では None）
         "skillSubScores": _serialize_sub_task_results(sub_task_results),
+        "problematicPositions": problematic_positions,
     }
 
 
