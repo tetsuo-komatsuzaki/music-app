@@ -244,6 +244,9 @@ async function checkImprovingForUser(tx: Tx, userId: string): Promise<void> {
     select: { skillSubScores: true },
   })
 
+  // 3 件揃わない場合は improving 遷移を保留 (§9-2 は「直近 3 回」前提のため)
+  if (recentPerformances.length < RECENT_PERFORMANCES_FOR_IMPROVING) return
+
   for (const card of activeCards) {
     if (!card.skillSubTaskId) continue
     let matched = 0
