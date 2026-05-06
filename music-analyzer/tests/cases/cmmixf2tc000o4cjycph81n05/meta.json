@@ -1,0 +1,18 @@
+{
+  "performance_id": "cmmixf2tc000o4cjycph81n05",
+  "score_id": "cmmau66jb00014cjy4o18fhbu",
+  "title": "糸",
+  "tempo_bpm": 0.0,
+  "created_at": "2026-03-09T08:35:43.488000",
+  "analyzer_version": "unknown",
+  "git_commit": "unknown",
+  "analyzer_hash": "b3abfe8b",
+  "dataset_split": "train",
+  "difficulty": "hard",
+  "params": {},
+  "note_count": 121,
+  "max_pitch": "G5",
+  "has_rest": true,
+  "has_string_crossing": true,
+  "has_shift": true
+}

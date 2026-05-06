@@ -34,3 +34,56 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Repository Structure (Monorepo)
+
+This repository is a monorepo containing three components:
+
+```
+music-app/                    # Next.js 16 App Router (this directory)
+├── app/                      # Next.js application code
+├── prisma/                   # Prisma schema and migrations
+├── public/                   # Static assets
+├── music-analyzer/           # Python audio analysis pipeline (Cloud Run Jobs)
+│   ├── analyze_performance.py    # Performance analysis (librosa-based)
+│   ├── analyze_musicxml.py       # MusicXML metadata extraction
+│   ├── build_score.py            # Score generation and skill scoring
+│   ├── entrypoint.py             # Cloud Run Jobs entry point
+│   ├── improvement_plan.md       # PDCA improvement notes
+│   ├── data/                     # Sample analysis artifacts
+│   ├── tests/cases/              # PDCA test cases
+│   └── ...
+└── relay-service/            # Cloud Run Service (HTTP relay)
+    ├── main.py                   # FastAPI app that triggers Cloud Run Jobs
+    ├── Dockerfile
+    └── requirements.txt
+```
+
+### Component Roles
+
+| Component | Runtime | Deployment Target |
+|---|---|---|
+| `music-app/` (Next.js) | Vercel | Vercel |
+| `music-analyzer/` (Python) | Cloud Run Jobs | GCP |
+| `relay-service/` (FastAPI) | Cloud Run Service | GCP |
+
+### Data Flow
+
+```
+Browser
+  → uploadRecord.ts (Server Action)
+  → Supabase Storage (audio file upload)
+  → app/_libs/pythonRunner.ts
+  → RELAY_URL (env var)
+  → relay-service/main.py (Cloud Run Service)
+  → Cloud Run Jobs trigger
+  → music-analyzer/analyze_performance.py
+  → comparison_result.json + DB write
+  → Score detail page (overlay rendering via OSMD)
+```
+
+### Migration Note
+
+This monorepo structure was established on 2026-05-06 by importing previously
+Git-untracked sibling directories (`../music-analyzer/`, `../relay-service/`)
+into the existing `music-app.git` repository.

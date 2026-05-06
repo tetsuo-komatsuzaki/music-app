@@ -15,3 +15,25 @@ prisma/data/mxl_arpeggio/
 
 # MCP
 .mcp.json
+
+# === Step A0: モノレポ化に伴う追加除外ルール (v2) ===
+
+# Python virtual env / cache (music-analyzer/, relay-service/)
+**/venv/
+**/.pytest_cache/
+**/.mypy_cache/
+**/*.egg-info/
+*.pyo
+
+# music-analyzer の楽譜サンプル (著作権配慮、prisma/data/mxl は対象外)
+music-analyzer/**/*.mxl
+music-analyzer/**/*.musicxml
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+*.swp
+
+# 一時ファイル
+*.tmp
+*.bak
