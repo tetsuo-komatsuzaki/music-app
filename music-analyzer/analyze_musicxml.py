@@ -123,7 +123,8 @@ try:
         tmp.write(res.content)
 
     score = converter.parse(tmp_path)
-    os.remove(tmp_path)
+    # v3.2 Commit D: tmp_path は musicxml_skill_extractor で後ほど再利用するため、
+    # ここでは削除しない (analysis.json upload 後に削除する)
 
     # =========================
     # BPM
@@ -353,6 +354,62 @@ try:
         )
         if upload_res.status_code not in [200, 201]:
             raise Exception(f"analysis upload failed: {upload_res.text}")
+
+    # =========================
+    # v3.2 Commit D: musicxml_skill_info.json を生成 + Storage upload
+    # 設計書 §14-4 / commit_D_musicxml_skill_info.md 参照
+    # 既存 analysis.json は変更せず、別ファイルとして並列に出力する (Q6 確定)
+    # is_string_change_from_prev は出力しない (Q7、note_integration.py 側で生成)
+    # =========================
+    try:
+        import dataclasses
+        from lib.musicxml_skill_extractor import extract_skill_info
+
+        skill_info_notes = extract_skill_info(tmp_path)
+        skill_info_payload = {
+            "version": 1,
+            "notes": [dataclasses.asdict(n) for n in skill_info_notes],
+        }
+        skill_info_json = json.dumps(skill_info_payload, ensure_ascii=False)
+
+        skill_info_storage_path = upload_storage_path.replace(
+            "analysis.json", "musicxml_skill_info.json"
+        )
+        skill_info_url = f"{SUPABASE_URL}/storage/v1/object/{BUCKET_NAME}/{skill_info_storage_path}"
+
+        skill_info_res = requests.post(
+            skill_info_url,
+            headers={
+                "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+                "Content-Type": "application/json",
+            },
+            data=skill_info_json.encode("utf-8"),
+        )
+        if skill_info_res.status_code not in [200, 201]:
+            skill_info_res = requests.put(
+                skill_info_url,
+                headers={
+                    "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+                    "Content-Type": "application/json",
+                },
+                data=skill_info_json.encode("utf-8"),
+            )
+            if skill_info_res.status_code not in [200, 201]:
+                # skill_info upload 失敗は警告のみ (analysis.json は upload 成功している)
+                print(f"WARNING: musicxml_skill_info.json upload failed: {skill_info_res.text}")
+            else:
+                print(f"Generated musicxml_skill_info.json with {len(skill_info_notes)} notes")
+        else:
+            print(f"Generated musicxml_skill_info.json with {len(skill_info_notes)} notes")
+    except Exception as skill_err:
+        # skill_info 生成失敗は警告のみ (analysis.json は既に upload 成功)
+        print(f"WARNING: musicxml_skill_info generation failed: {skill_err}")
+    finally:
+        # tmp_path を削除 (skill_info 抽出が終わったので不要)
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
 
     # ステータス更新（done）
     if IS_PRACTICE_ITEM:
