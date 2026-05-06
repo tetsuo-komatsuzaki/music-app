@@ -63,7 +63,20 @@ PITCH_TOLERANCE_CENTS = 50    # ±50cents: ピッチ正確 → confidence "high"
 PITCH_SEARCH_CENTS = 200      # ±200cents（±2半音）: ピッチずれ → confidence "medium"
 MIN_VALID_FRAMES = 5
 CENTER_RATIO = 0.80
-TIMING_TOLERANCE = 0.20
+
+# タイミング判定: BPM 連動 (= TIMING_TOLERANCE_BASE × (60 / target_bpm))
+# - BPM 60 で 0.10s, BPM 120 で 0.05s, BPM 180 で 0.033s
+# - 速い tempo ほど許容を厳しく (固定 0.20 では速い曲ほど甘くなる逆転を解消)
+# - target_bpm は recording_bpm 優先 (interval_diff は time_scale で recording_bpm 基準に
+#   補正済のため、許容値も同基準で揃える)
+TIMING_TOLERANCE_BASE = 0.10
+
+
+def get_timing_tolerance(target_bpm: float) -> float:
+    """BPM 連動のタイミング許容値 (秒) を返す。"""
+    if target_bpm is None or target_bpm <= 0:
+        return TIMING_TOLERANCE_BASE
+    return TIMING_TOLERANCE_BASE * (60.0 / target_bpm)
 
 # 区間探索
 SEARCH_DURATION_MULTIPLIER = 3.0  # expected_duration × この倍率
@@ -565,7 +578,7 @@ def _get_rest_duration(all_notes, current_note_end, next_note_start):
     return gap if gap > 0.05 else 0.0
 
 
-def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, onset_times=None, time_scale=1.0):
+def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, onset_times=None, time_scale=1.0, timing_tolerance=TIMING_TOLERANCE_BASE):
     results = []
     cursor = performance_start_time
 
@@ -643,15 +656,15 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
             pitch_cents_error = float(cents_diff(avg_pitch, expected_pitch))
             pitch_ok = abs(pitch_cents_error) <= pitch_tolerance
 
-            # 改善G: 相対タイミング評価
+            # 改善G: 相対タイミング評価 (BPM 連動の許容値)
             if prev_detected_start is not None and prev_score_start is not None:
                 actual_interval = seg_start - prev_detected_start
                 score_interval = (es - prev_score_start) * time_scale
                 interval_diff = actual_interval - score_interval
-                start_ok = abs(interval_diff) <= TIMING_TOLERANCE
+                start_ok = abs(interval_diff) <= timing_tolerance
             else:
                 interval_diff = seg_start - timing_ref
-                start_ok = abs(interval_diff) <= TIMING_TOLERANCE
+                start_ok = abs(interval_diff) <= timing_tolerance
 
             eval_status = "evaluated"
             if is_tied or is_tremolo or is_trill:
@@ -918,6 +931,12 @@ try:
         time_scale = performance_duration / score_duration if score_duration > 0 else 1.0
         print(f"  Time scale: {time_scale:.3f} (score={score_duration:.1f}s, perf={performance_duration:.1f}s) [auto-estimated]")
 
+    # タイミング判定の許容値 (BPM 連動)
+    # interval_diff は time_scale で recording_bpm 基準に補正済 → 許容値も同基準で計算
+    target_bpm = RECORDING_BPM if (RECORDING_BPM is not None and RECORDING_BPM > 0) else BPM
+    timing_tolerance = get_timing_tolerance(target_bpm)
+    print(f"  Timing tolerance: ±{timing_tolerance:.3f}s (target_bpm={target_bpm})")
+
     # Onset 検出（環境変数フラグで有効化）
     onset_times = None
     if USE_ONSET_DETECTION:
@@ -927,7 +946,7 @@ try:
     else:
         print(f"  [Onset] skipped (USE_ONSET_DETECTION=false)")
 
-    results = evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, onset_times=onset_times, time_scale=time_scale)
+    results = evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, onset_times=onset_times, time_scale=time_scale, timing_tolerance=timing_tolerance)
 
     # サマリー
     detected = [r for r in results if r["evaluation_status"] in ("evaluated", "pitch_only")]

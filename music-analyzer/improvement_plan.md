@@ -168,3 +168,22 @@
   3. DTW導入の検討（計算コストと精度のトレードオフ評価）
 
 <!-- 仮説ログはここから下に追記する -->
+
+---
+### [2026-05-06] — timing_tolerance_bpm_linked
+- 仮説: `TIMING_TOLERANCE = 0.20`(固定)では速い tempo ほど相対許容が広くなる逆転現象。
+  例: BPM 60 で 0.20s = 8 分音符相当だが、BPM 180 では 0.20s = 16 分音符 1.5 個分。
+  `interval_diff` は `time_scale` で recording_bpm 基準に補正されているため、
+  許容値も recording_bpm 基準で BPM 連動させるのが自然。
+- 修正内容:
+  - `TIMING_TOLERANCE_BASE = 0.10`(BPM 60 のときの基準値)に変更し固定値を廃止
+  - `get_timing_tolerance(target_bpm)` 関数で `0.10 × (60 / target_bpm)` を返す
+  - `target_bpm = RECORDING_BPM` 優先、未指定なら譜面 `BPM` をフォールバック
+  - `evaluate_notes` の引数に `timing_tolerance` を追加し、ループ前で一度だけ算出
+- BPM 別の許容値:
+  - BPM 60: 0.10s, BPM 80: 0.075s, BPM 120: 0.05s, BPM 180: 0.033s
+- 影響範囲:
+  - 既存の保存済み Performance / PracticePerformance スコアは不変(`start_ok` は保存済み bool)
+  - 新規録音から新閾値が適用される
+  - 結果として `timingAccuracy` / `overallScore` も新規録音から変動
+- 次のアクション: Cloud Run Jobs 再デプロイ後、サンプル録音で BPM 別の挙動を実測検証
