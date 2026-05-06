@@ -106,14 +106,18 @@ export async function GET(
   const skillSubScores = buildSkillSubScores(perf.skillSubScores)
   const improvementGuides = buildImprovementGuides(skillSubScores)
 
-  // gradeUpdate: UserGrade が無ければ null。Commit 7 で recentlyChanged 判定追加予定
+  // gradeUpdate: UserGrade.achievedAt > performance.uploadedAt なら
+  // 「この演奏でグレードアップした」と判定する (Commit 7 連動)
   const userGrade = await prisma.userGrade.findUnique({
     where: { userId: dbUserId },
-    select: { currentGrade: true },
+    select: { currentGrade: true, achievedAt: true },
   })
+  const recentlyChanged = !!(
+    userGrade?.achievedAt && userGrade.achievedAt > perf.uploadedAt
+  )
   const gradeUpdate = userGrade
     ? {
-        recentlyChanged: false,
+        recentlyChanged,
         ...(isGradeLevel(userGrade.currentGrade)
           ? { newGrade: userGrade.currentGrade }
           : {}),

@@ -165,8 +165,8 @@ export async function recalculateUserSkillTaskCards(
     select: { skillSubScores: true },
   })
 
-  if (recentPerformances.length === 0) {
-    // 演奏 0 件 → カード履歴ベース判定なし、現状維持
+  if (recentPerformances.length < RECENT_PERFORMANCES_FOR_CARD) {
+    // 3 件未満 → §12-6 の「直近 3 回」前提が成立しないため判定保留
     return
   }
 
