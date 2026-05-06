@@ -564,6 +564,15 @@ function PerformanceHistory({
 // サブコンポーネント: ScoreViewer（OSMDインスタンスを親に公開）
 // =========================================================
 
+// コンテナ幅に応じた OSMD zoom 値を返す。
+// 狭い画面で1小節しか表示されない問題を回避するため、幅に応じて段階的に縮小する。
+function computeResponsiveZoom(containerWidth: number): number {
+  if (containerWidth < 400) return 0.45
+  if (containerWidth < 700) return 0.6
+  if (containerWidth < 1000) return 0.75
+  return 0.85
+}
+
 function ScoreViewer({
   buildUrl,
   onNoteElementsReady,
@@ -584,6 +593,7 @@ function ScoreViewer({
   const [error, setError] = useState<string | null>(null)
   const onScoreClickRef = useRef(onScoreClick)
   onScoreClickRef.current = onScoreClick
+  const osmdInstanceRef = useRef<OpenSheetMusicDisplay | null>(null)
 
   const showPage = useCallback((container: HTMLElement, pageIndex: number) => {
     // OSMD SVGバックエンドはページごとに直下 <svg> を1つ作る（系列SVGはその内部にネスト）
@@ -643,10 +653,12 @@ function ScoreViewer({
       }, 150)
     })
 
+    osmdInstanceRef.current = osmd
+
     osmd
       .load(buildUrl)
       .then(() => {
-        osmd.zoom = 0.85
+        osmd.zoom = computeResponsiveZoom(container.clientWidth)
         osmd.render()
 
         setCurrentPage(0)
@@ -664,8 +676,35 @@ function ScoreViewer({
     return () => {
       mutationObserver.disconnect()
       if (mutationTimer) clearTimeout(mutationTimer)
+      osmdInstanceRef.current = null
     }
   }, [buildUrl, showPage, singleStaffLine])
+
+  // ウィンドウ幅変化に追従して zoom を再計算する。
+  // 端末回転や PC でのウィンドウリサイズに対応。OSMD の autoResize は描画幅追従のみで
+  // zoom 値は変えないため、ここで明示的に zoom を切り替える。
+  useEffect(() => {
+    let resizeTimer: ReturnType<typeof setTimeout> | null = null
+    const handleResize = () => {
+      if (resizeTimer) clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(() => {
+        const osmd = osmdInstanceRef.current
+        const container = document.getElementById("osmd-container")
+        if (!osmd || !container) return
+        const newZoom = computeResponsiveZoom(container.clientWidth)
+        if (Math.abs(newZoom - osmd.zoom) < 1e-6) return
+        osmd.zoom = newZoom
+        osmd.render()
+      }, 200)
+    }
+    window.addEventListener("resize", handleResize)
+    window.addEventListener("orientationchange", handleResize)
+    return () => {
+      if (resizeTimer) clearTimeout(resizeTimer)
+      window.removeEventListener("resize", handleResize)
+      window.removeEventListener("orientationchange", handleResize)
+    }
+  }, [])
 
   const goToPage = (page: number) => {
     if (page < 0 || page >= totalPages) return
