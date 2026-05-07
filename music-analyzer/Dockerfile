@@ -15,5 +15,8 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
 COPY analyze_musicxml.py build_score.py analyze_performance.py entrypoint.py ./
+# v3.2.2 Commit C / 8a: score_full.py + lib/ + loop_engine_runner.py を追加
+COPY score_full.py loop_engine_runner.py ./
+COPY lib ./lib
 
 CMD ["python", "entrypoint.py"]
