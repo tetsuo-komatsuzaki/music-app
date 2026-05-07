@@ -1,5 +1,5 @@
 """
-loop_engine_runner.py — analyze_performance 後段の score_full 実行 + DB 更新
+loop_engine_runner.py — analyze_performance 後段の score_full 実行 + DB 更新 + 累積処理
 
 呼ばれるタイミング:
   entrypoint.py が MODE=analyze_performance + IS_PRACTICE=true で
@@ -10,7 +10,7 @@ loop_engine_runner.py — analyze_performance 後段の score_full 実行 + DB �
   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, BUCKET_NAME (musicxml), DATABASE_URL
   PERFORMANCE_BUCKET (default: "performances")
 
-処理 (v3.2.2 §14-4 Commit C handoff Step 4):
+処理 (v3.2.2 §14-4 Commit C handoff + v3.2.3 §7-4/§9/§10 累積処理 Python 統合):
   1. Storage から 3 つの JSON をダウンロード:
      - analysis.json (note_results 互換、analyze_musicxml.py が生成済)
      - musicxml_skill_info.json (Commit D で生成済)
@@ -19,16 +19,22 @@ loop_engine_runner.py — analyze_performance 後段の score_full 実行 + DB �
   3. score_full.run_pipeline を import 経由で実行
   4. result.json を Storage にアップロード
      パス: practice/{USER_ID}/{SCORE_ID}/{PERFORMANCE_ID}/result.json
-  5. PracticePerformance に v3.2.2 列を更新:
-     pitchSkillScore / rhythmSkillScore / bowingSkillScore / skillSubScores /
-     problematicPositions
+  5. PracticePerformance に v3.2.2 列を更新
+  6. 累積処理 (v3.2.3 §7-4 / §9-2 / §9-3 / §9-5 / §10-2 / §10-4):
+     - UserSkillScore EMA 増分更新
+     - UserSkillSubScore matched 比率増分更新
+     - UserSkillTaskCard 発生 / improving 遷移
+     - UserGrade.progressData 更新 + grade-up 判定
+     ※ 5 と 6 を 1 トランザクションで atomic に commit
 
-Commit 7 hook (processPerformanceCompletion 呼び出し) は Commit 8b で配線。
-本 commit では DB v3.2.2 列の埋め込みまで。
+Commit 8b (Webhook 案) は採用せず、本 Python 側統合に変更 (v3.2.3 改訂):
+  既存パターン (analyze_performance.py が psycopg2 で直接 DB 書き込み) に整合。
+  HTTP 経路ゼロで race / idempotency / secret 管理問題を回避。
 
 エラー時:
-  例外を上に投げる。entrypoint.py 側で catch してログ出力 (analyze_performance の
-  成果は保持)。
+  conn.rollback() で全ロール バック → 例外を上に投げる。entrypoint.py 側で catch
+  してログ出力 (analyze_performance の成果は保持される、step 5+6 は atomic で
+  どちらかが失敗したら両方ロールバック)。
 """
 
 from __future__ import annotations
@@ -36,6 +42,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import uuid
 from typing import Optional
 
 import psycopg2
@@ -93,6 +100,486 @@ def _upload(
                 f"[loop_engine_runner] upload failed [{bucket}/{path}]: "
                 f"{res.status_code} {res.text[:200]}"
             )
+
+
+# ---------------------------------------------------------------------------
+# 累積処理 (v3.2.3 §7-4 / §9-2 / §9-3 / §9-5 / §10-2 / §10-4)
+# ---------------------------------------------------------------------------
+# 旧 app/_libs/skillProgressUpdater.ts (Commit 7) の Python 翻訳。
+# 既存 analyze_performance.py の psycopg2 直書きパターンに統合。
+# Webhook を使わず、loop_engine_runner.py 内で同一トランザクションで完結。
+
+EMA_ALPHA = 0.3  # §7-4
+SUB_TASK_SCORE_THRESHOLD = 90  # §10-2 達成判定閾値
+TASK_SCORE_TASK_CARD_THRESHOLD = 60  # §9-2 task カード化閾値
+RECENT_PERFORMANCES_FOR_IMPROVING = 3  # §9-2 直近 N 件
+
+TASK_IDS = ("pitch", "rhythm", "bowing")
+SUB_TASK_IDS = (
+    "pitch_overall", "pitch_high", "pitch_chromatic",
+    "rhythm_overall", "rhythm_fast", "rhythm_after_rest",
+    "string_change_volume", "string_change_slur", "string_change_timing",
+)
+GRADE_LEVELS = ("BEGINNER", "INTERMEDIATE", "ADVANCED", "MASTER")
+GRADE_BANDS: dict[str, list[int]] = {
+    "BEGINNER": [1, 2, 3],          # → INTERMEDIATE
+    "INTERMEDIATE": [4, 5, 6, 7],   # → ADVANCED
+    "ADVANCED": [8, 9, 10],         # → MASTER
+    "MASTER": [],
+}
+STRING_CHANGE_SUB_TASKS = (
+    "string_change_volume", "string_change_slur", "string_change_timing",
+)
+
+
+def _new_id() -> str:
+    """cuid 互換 id (Prisma @default(cuid()) を SQL 直 INSERT で代替)。
+    UUIDv4 hex 32 chars を返す。cuid とは形式が違うが文字列 PK として有効。
+    """
+    return uuid.uuid4().hex
+
+
+# § 7-4 -----------------------------------------------------------------------
+
+
+def _update_user_skill_score(
+    conn, user_id: str, task_id: str, new_score: float
+) -> None:
+    """UserSkillScore を EMA で 1 サンプル追加更新。
+
+    丸め: 行わない。skillRecalc.ts (TS 全件再計算) と整合性を保つため
+    full precision で保持。表示時に丸める。
+    """
+    with conn.cursor() as cur:
+        cur.execute(
+            'SELECT "currentScore", "sampleCount" FROM "UserSkillScore" '
+            'WHERE "userId" = %s AND "skillTaskId" = %s',
+            (user_id, task_id),
+        )
+        row = cur.fetchone()
+        if row:
+            prev_score, prev_count = row
+            sample_count = prev_count + 1
+            current_score = (
+                new_score
+                if prev_count == 0
+                else prev_score * (1 - EMA_ALPHA) + new_score * EMA_ALPHA
+            )
+        else:
+            sample_count = 1
+            current_score = new_score
+
+        cur.execute(
+            '''
+            INSERT INTO "UserSkillScore"
+                ("id", "userId", "skillTaskId", "currentScore",
+                 "sampleCount", "lastUpdatedAt")
+            VALUES (%s, %s, %s, %s, %s, NOW())
+            ON CONFLICT ("userId", "skillTaskId") DO UPDATE SET
+                "currentScore" = EXCLUDED."currentScore",
+                "sampleCount"  = EXCLUDED."sampleCount",
+                "lastUpdatedAt" = NOW()
+            ''',
+            (_new_id(), user_id, task_id, current_score, sample_count),
+        )
+
+
+# § 9-5 -----------------------------------------------------------------------
+
+
+def _update_user_skill_sub_score(
+    conn, user_id: str, sub_task_id: str,
+    score: Optional[float], matched: bool, target_count: int,
+) -> None:
+    """UserSkillSubScore の matched 比率と平均スコアを増分更新。
+
+    Q5: target_count == 0 はスキップ (集計対象外)。
+    """
+    if target_count == 0:
+        return
+
+    with conn.cursor() as cur:
+        cur.execute(
+            'SELECT "matchedCount", "totalCount", "averageScore" '
+            'FROM "UserSkillSubScore" '
+            'WHERE "userId" = %s AND "skillSubTaskId" = %s',
+            (user_id, sub_task_id),
+        )
+        row = cur.fetchone()
+        if row:
+            prev_matched, prev_total, prev_avg = row
+        else:
+            prev_matched, prev_total, prev_avg = 0, 0, None
+
+        total_count = prev_total + 1
+        matched_count = prev_matched + (1 if matched else 0)
+        match_rate = (matched_count / total_count) if total_count > 0 else 0.0
+
+        average_score: Optional[float] = prev_avg
+        if matched and score is not None:
+            if average_score is None:
+                average_score = float(score)
+            else:
+                # 単純移動平均 (matched=true の累積平均)
+                average_score = (
+                    average_score * (matched_count - 1) + float(score)
+                ) / matched_count
+
+        last_matched_clause = ", \"lastMatchedAt\" = NOW()" if matched else ""
+
+        cur.execute(
+            f'''
+            INSERT INTO "UserSkillSubScore"
+                ("id", "userId", "skillSubTaskId",
+                 "matchedCount", "totalCount", "matchRate", "averageScore",
+                 "lastMatchedAt", "lastUpdatedAt")
+            VALUES (%s, %s, %s, %s, %s, %s, %s, {("NOW()" if matched else "NULL")}, NOW())
+            ON CONFLICT ("userId", "skillSubTaskId") DO UPDATE SET
+                "matchedCount" = EXCLUDED."matchedCount",
+                "totalCount"   = EXCLUDED."totalCount",
+                "matchRate"    = EXCLUDED."matchRate",
+                "averageScore" = EXCLUDED."averageScore",
+                "lastUpdatedAt" = NOW()
+                {last_matched_clause}
+            ''',
+            (
+                _new_id(), user_id, sub_task_id,
+                matched_count, total_count, match_rate, average_score,
+            ),
+        )
+
+
+# § 9-2 / § 9-3 ---------------------------------------------------------------
+
+
+def _create_or_reactivate_sub_task_card(
+    conn, user_id: str, sub_task_id: str
+) -> None:
+    """sub_task カード: 新規 active / improving→active 復活 / active→ lastMatched 更新 /
+    cleared は維持 (§9-2)。
+    """
+    with conn.cursor() as cur:
+        cur.execute(
+            'SELECT id, status FROM "UserSkillTaskCard" '
+            'WHERE "userId" = %s AND "cardType" = %s '
+            'AND "skillTaskId" IS NULL AND "skillSubTaskId" = %s',
+            (user_id, "sub_task", sub_task_id),
+        )
+        row = cur.fetchone()
+        if not row:
+            cur.execute(
+                '''
+                INSERT INTO "UserSkillTaskCard"
+                    ("id", "userId", "cardType", "skillSubTaskId",
+                     "status", "createdAt", "lastMatchedAt")
+                VALUES (%s, %s, 'sub_task'::"CardType", %s,
+                        'active'::"CardStatus", NOW(), NOW())
+                ''',
+                (_new_id(), user_id, sub_task_id),
+            )
+            return
+        card_id, status = row
+        if status == "improving":
+            cur.execute(
+                'UPDATE "UserSkillTaskCard" SET '
+                '"status" = \'active\'::"CardStatus", '
+                '"lastMatchedAt" = NOW(), "improvedAt" = NULL '
+                'WHERE id = %s',
+                (card_id,),
+            )
+        elif status == "active":
+            cur.execute(
+                'UPDATE "UserSkillTaskCard" SET "lastMatchedAt" = NOW() '
+                'WHERE id = %s',
+                (card_id,),
+            )
+        # cleared: そのまま
+
+
+def _create_or_reactivate_task_card(
+    conn, user_id: str, task_id: str
+) -> None:
+    with conn.cursor() as cur:
+        cur.execute(
+            'SELECT id, status FROM "UserSkillTaskCard" '
+            'WHERE "userId" = %s AND "cardType" = %s '
+            'AND "skillTaskId" = %s AND "skillSubTaskId" IS NULL',
+            (user_id, "task", task_id),
+        )
+        row = cur.fetchone()
+        if not row:
+            cur.execute(
+                '''
+                INSERT INTO "UserSkillTaskCard"
+                    ("id", "userId", "cardType", "skillTaskId",
+                     "status", "createdAt", "lastMatchedAt")
+                VALUES (%s, %s, 'task'::"CardType", %s,
+                        'active'::"CardStatus", NOW(), NOW())
+                ''',
+                (_new_id(), user_id, task_id),
+            )
+            return
+        card_id, status = row
+        if status == "improving":
+            cur.execute(
+                'UPDATE "UserSkillTaskCard" SET '
+                '"status" = \'active\'::"CardStatus", '
+                '"lastMatchedAt" = NOW(), "improvedAt" = NULL '
+                'WHERE id = %s',
+                (card_id,),
+            )
+        elif status == "active":
+            cur.execute(
+                'UPDATE "UserSkillTaskCard" SET "lastMatchedAt" = NOW() '
+                'WHERE id = %s',
+                (card_id,),
+            )
+
+
+def _check_improving_for_user(conn, user_id: str) -> None:
+    """active 状態の sub_task カードを直近 N 件の matched 履歴で improving 評価。
+
+    3 件未満では判定保留 (Commit 7 fix と整合)。
+    """
+    with conn.cursor() as cur:
+        cur.execute(
+            'SELECT id, "skillSubTaskId" FROM "UserSkillTaskCard" '
+            'WHERE "userId" = %s AND "status" = \'active\'::"CardStatus" '
+            'AND "cardType" = \'sub_task\'::"CardType"',
+            (user_id,),
+        )
+        active_cards = cur.fetchall()
+    if not active_cards:
+        return
+
+    with conn.cursor() as cur:
+        cur.execute(
+            'SELECT "skillSubScores" FROM "PracticePerformance" '
+            'WHERE "userId" = %s AND "analysisStatus" = \'done\'::"JobStatus" '
+            'ORDER BY "uploadedAt" DESC LIMIT %s',
+            (user_id, RECENT_PERFORMANCES_FOR_IMPROVING),
+        )
+        recent_perfs = cur.fetchall()
+
+    if len(recent_perfs) < RECENT_PERFORMANCES_FOR_IMPROVING:
+        return
+
+    for card_id, sub_task_id in active_cards:
+        if not sub_task_id:
+            continue
+        matched_count = 0
+        for (sub_scores_raw,) in recent_perfs:
+            sub_scores = sub_scores_raw if isinstance(sub_scores_raw, dict) else {}
+            entry = sub_scores.get(sub_task_id) or {}
+            if entry.get("matched"):
+                matched_count += 1
+        if matched_count <= 1:
+            with conn.cursor() as cur2:
+                cur2.execute(
+                    'UPDATE "UserSkillTaskCard" SET '
+                    '"status" = \'improving\'::"CardStatus", "improvedAt" = NOW() '
+                    'WHERE id = %s',
+                    (card_id,),
+                )
+
+
+def _process_cards_on_performance_complete(
+    conn, user_id: str,
+    sub_task_results: dict[str, dict],
+    skill_scores: dict[str, Optional[float]],
+) -> None:
+    for sub_task_id in SUB_TASK_IDS:
+        r = sub_task_results.get(sub_task_id) or {}
+        if r.get("matched"):
+            _create_or_reactivate_sub_task_card(conn, user_id, sub_task_id)
+    for task_id in TASK_IDS:
+        s = skill_scores.get(task_id)
+        if isinstance(s, (int, float)) and s < TASK_SCORE_TASK_CARD_THRESHOLD:
+            _create_or_reactivate_task_card(conn, user_id, task_id)
+    _check_improving_for_user(conn, user_id)
+
+
+# § 10-2 / § 10-4 -------------------------------------------------------------
+
+
+def _is_eligible_for_grade_progress(
+    pitch: Optional[float], rhythm: Optional[float], bowing: Optional[float]
+) -> bool:
+    """v3.2 簡素化: bowing=None は弦移動なし曲扱いで bowing チェックスキップ."""
+    if pitch is None or pitch < SUB_TASK_SCORE_THRESHOLD:
+        return False
+    if rhythm is None or rhythm < SUB_TASK_SCORE_THRESHOLD:
+        return False
+    if bowing is not None and bowing < SUB_TASK_SCORE_THRESHOLD:
+        return False
+    return True
+
+
+def _check_grade_up(progress: dict, current: str) -> str:
+    """progressData から達成可能な最上位グレードを返す (永久保持原則で下げない)."""
+    achieved = current
+    try:
+        idx = GRADE_LEVELS.index(current)
+    except ValueError:
+        return current
+    for i in range(idx, len(GRADE_LEVELS) - 1):
+        band = GRADE_BANDS[GRADE_LEVELS[i]]
+        if not band:
+            break
+        all_done = all(
+            (progress.get(str(d)) or {}).get("completed", 0) >= 10 for d in band
+        )
+        if not all_done:
+            break
+        achieved = GRADE_LEVELS[i + 1]
+    return achieved
+
+
+def _update_user_grade_progress(
+    conn, user_id: str, practice_item_id: str, difficulty: int,
+    pitch: Optional[float], rhythm: Optional[float], bowing: Optional[float],
+) -> dict:
+    """progressData に PracticeItem を追加 + grade-up 判定。
+
+    Returns: {"changed": bool, "previousGrade"?: str, "newGrade"?: str}
+    """
+    if not _is_eligible_for_grade_progress(pitch, rhythm, bowing):
+        return {"changed": False}
+    if difficulty is None:  # 致命1
+        return {"changed": False}
+
+    # UserGrade 取得 or 作成
+    with conn.cursor() as cur:
+        cur.execute(
+            'SELECT id, "currentGrade", "progressData" '
+            'FROM "UserGrade" WHERE "userId" = %s',
+            (user_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            cur.execute(
+                '''
+                INSERT INTO "UserGrade"
+                    ("id", "userId", "currentGrade", "progressData", "lastUpdatedAt")
+                VALUES (%s, %s, 'BEGINNER'::"GradeLevel", '{}'::jsonb, NOW())
+                RETURNING id, "currentGrade", "progressData"
+                ''',
+                (_new_id(), user_id),
+            )
+            row = cur.fetchone()
+        grade_id, current_grade, progress_raw = row
+
+    progress: dict = progress_raw if isinstance(progress_raw, dict) else {}
+    d_key = str(difficulty)
+    entry = progress.get(d_key) or {
+        "completed": 0, "required": 10, "practiceItemIds": [],
+    }
+    item_ids: list[str] = list(entry.get("practiceItemIds") or [])
+    if practice_item_id in item_ids:
+        # 既達成 — progressData 不変、grade-up 判定不要
+        return {"changed": False}
+    item_ids.append(practice_item_id)
+    entry["practiceItemIds"] = item_ids
+    entry["completed"] = len(item_ids)
+    entry.setdefault("required", 10)
+    progress[d_key] = entry
+
+    new_grade = _check_grade_up(progress, current_grade)
+    grade_changed = new_grade != current_grade
+
+    with conn.cursor() as cur:
+        if grade_changed:
+            cur.execute(
+                'UPDATE "UserGrade" SET '
+                '"progressData" = %s::jsonb, '
+                '"currentGrade" = %s::"GradeLevel", '
+                '"achievedAt" = NOW(), "lastUpdatedAt" = NOW() '
+                'WHERE id = %s',
+                (json.dumps(progress), new_grade, grade_id),
+            )
+        else:
+            cur.execute(
+                'UPDATE "UserGrade" SET '
+                '"progressData" = %s::jsonb, "lastUpdatedAt" = NOW() '
+                'WHERE id = %s',
+                (json.dumps(progress), grade_id),
+            )
+
+    if grade_changed:
+        return {
+            "changed": True,
+            "previousGrade": current_grade,
+            "newGrade": new_grade,
+        }
+    return {"changed": False}
+
+
+# エントリポイント -------------------------------------------------------------
+
+
+def process_performance_completion_py(
+    conn,
+    *,
+    user_id: str,
+    performance_id: str,
+    practice_item_id: str,
+    practice_item_difficulty: int,
+    skill_scores: dict[str, Optional[float]],
+    sub_scores: dict[str, dict],
+) -> dict:
+    """演奏完了時の累積データ更新エントリポイント.
+
+    Args:
+        conn: psycopg2 connection (commit/rollback は呼出側で実施、本関数は
+              cursor を発行するのみ)
+        skill_scores: {"pitch": ..., "rhythm": ..., "bowing": ...} (None 可)
+        sub_scores: 9 sub_task の result (skillSubScores と同形式)
+
+    Returns:
+        {
+          "performanceId": ...,
+          "userId": ...,
+          "gradeUpdate": {"changed": bool, ...}
+        }
+    """
+    # 1. UserSkillScore (3 中項目)
+    for task_id in TASK_IDS:
+        s = skill_scores.get(task_id)
+        if isinstance(s, (int, float)):
+            _update_user_skill_score(conn, user_id, task_id, float(s))
+
+    # 2. UserSkillSubScore (9 sub_task、target=0 はスキップ)
+    sub_task_results: dict[str, dict] = {}
+    for sub_task_id in SUB_TASK_IDS:
+        sub = sub_scores.get(sub_task_id) or {}
+        sub_task_results[sub_task_id] = {"matched": bool(sub.get("matched"))}
+        score = sub.get("score")
+        target_count = int(sub.get("target_count") or 0)
+        if isinstance(score, (int, float)):
+            _update_user_skill_sub_score(
+                conn, user_id, sub_task_id,
+                float(score), bool(sub.get("matched")), target_count,
+            )
+
+    # 3. カード発生 / improving 遷移
+    _process_cards_on_performance_complete(
+        conn, user_id, sub_task_results, skill_scores,
+    )
+
+    # 4. グレード進捗 + grade-up
+    grade_update = _update_user_grade_progress(
+        conn, user_id, practice_item_id,
+        practice_item_difficulty,
+        skill_scores.get("pitch"),
+        skill_scores.get("rhythm"),
+        skill_scores.get("bowing"),
+    )
+
+    return {
+        "performanceId": performance_id,
+        "userId": user_id,
+        "gradeUpdate": grade_update,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -199,7 +686,7 @@ def main() -> None:
         )
         print(f"[loop_engine_runner] uploaded: {result_path}")
 
-        # 5. DB に v3.2.2 列を更新
+        # 5. DB に v3.2.2 列を更新 (commit はまだ — 6 と atomic にする)
         with conn.cursor() as cur:
             cur.execute(
                 """
@@ -220,8 +707,28 @@ def main() -> None:
                     performance_id,
                 ),
             )
-        conn.commit()
-        print(f"[loop_engine_runner] DB v3.2.2 列更新済: perf={performance_id}")
+        print(f"[loop_engine_runner] DB v3.2.2 列更新 (uncommitted): perf={performance_id}")
+
+        # 6. 累積処理 (v3.2.3 §7-4 / §9 / §10) — Step 5 と同 transaction で atomic
+        sub_scores_for_progress = result.get("skillSubScores") or {}
+        completion_summary = process_performance_completion_py(
+            conn,
+            user_id=user_id,
+            performance_id=performance_id,
+            practice_item_id=practice_item_id,
+            practice_item_difficulty=difficulty,
+            skill_scores={
+                "pitch": result.get("pitchSkillScore"),
+                "rhythm": result.get("rhythmSkillScore"),
+                "bowing": result.get("bowingSkillScore"),
+            },
+            sub_scores=sub_scores_for_progress,
+        )
+        conn.commit()  # Step 5 + 6 を atomic に commit
+        print(
+            f"[loop_engine_runner] 累積処理 done: "
+            f"gradeUpdate={completion_summary['gradeUpdate']}"
+        )
 
     except Exception:
         conn.rollback()
