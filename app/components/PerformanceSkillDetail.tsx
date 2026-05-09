@@ -18,6 +18,7 @@ import { useEffect, useState } from "react"
 import SkillScoreCard, { getNullReason } from "./SkillScoreCard"
 import GradeUpModal from "./GradeUpModal"
 import PerformanceMenu from "./PerformanceMenu"
+import ImprovementGuideCard from "./ImprovementGuideCard"
 import styles from "./PerformanceSkillDetail.module.css"
 
 // ---------------------------------------------------------------------------
@@ -239,12 +240,9 @@ export default function PerformanceSkillDetail({ performanceId, onDeleted }: Pro
         </div>
       </section>
 
-      {/* UI-5: 改善アドバイス (placeholder) */}
+      {/* UI-5: 改善アドバイス */}
       <section className={styles.section}>
-        <div className={styles.placeholder}>
-          {/* TODO: UI-5 で ImprovementGuideCard を実装 */}
-          改善アドバイス: {data.improvementGuides.length} 件 (UI-5 で実装)
-        </div>
+        <ImprovementGuideCard guides={data.improvementGuides} />
       </section>
 
       {/* UI-7: グレードアップ通知モーダル (recentlyChanged + 未通知の場合のみ表示) */}
