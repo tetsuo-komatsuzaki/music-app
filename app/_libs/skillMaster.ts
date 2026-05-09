@@ -386,10 +386,11 @@ export const SKILL_SUB_TASKS: Record<SubTaskId, SubTaskDef> = {
 export const GRADE_LEVELS = ["BEGINNER", "INTERMEDIATE", "ADVANCED", "MASTER"] as const
 export type GradeLevel = (typeof GRADE_LEVELS)[number]
 
+// UI 設計書 v3 §10-7 で確定: 人称形に統一 (「マスター」も「人」を表す名詞のため整合)
 export const GRADE_NAMES: Record<GradeLevel, string> = {
-  BEGINNER: "初級",
-  INTERMEDIATE: "中級",
-  ADVANCED: "上級",
+  BEGINNER: "初級者",
+  INTERMEDIATE: "中級者",
+  ADVANCED: "上級者",
   MASTER: "マスター",
 }
 
