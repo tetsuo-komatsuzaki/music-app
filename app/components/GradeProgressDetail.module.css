@@ -1,0 +1,85 @@
+/* GradeProgressDetail.module.css — UI 設計書 v3.1 §7-5 */
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.progress {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* 履歴エリア */
+.historyArea {
+  border-top: 1px dashed #e5e5e5;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.historyToggle {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  color: #5a7fdf;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.15s;
+}
+
+.historyToggle:hover {
+  background: #eef2fb;
+}
+
+.historyToggle:focus-visible {
+  outline: 2px solid #5a7fdf;
+  outline-offset: 2px;
+}
+
+.history {
+  background: #f7f9fc;
+  border: 1px solid #e5e9f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.historyTransition {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d2d2d;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.arrow {
+  color: #5a7fdf;
+  font-weight: 700;
+  margin: 0 2px;
+}
+
+.historyDate {
+  font-size: 12px;
+  color: #5a6473;
+}

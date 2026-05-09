@@ -7,8 +7,7 @@
 
 import Link from "next/link"
 import { useMemo, useRef, useState } from "react"
-import GradeBadge from "@/app/components/GradeBadge"
-import GradeProgressBar from "@/app/components/GradeProgressBar"
+import GradeProgressDetail from "@/app/components/GradeProgressDetail"
 import GradeDetailModal, {
   type GradeDetailData,
 } from "@/app/components/GradeDetailModal"
@@ -172,23 +171,13 @@ export default function MyPage({
         <h1 className={styles.pageTitle}>マイページ</h1>
       </header>
 
-      {/* グレード詳細セクション (UI-11 で GradeProgressDetail に拡張予定) */}
+      {/* UI-11: グレード詳細セクション (GradeProgressDetail) */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>あなたのグレード</h2>
-        <div className={styles.gradeRow}>
-          <GradeBadge
-            grade={gradeData.currentGrade}
-            onTap={() => setGradeModalOpen(true)}
-          />
-          <div className={styles.gradeProgress}>
-            <GradeProgressBar
-              completed={gradeData.totalCompleted}
-              required={gradeData.totalRequired}
-              remainingCount={gradeData.remainingCount}
-              nextGrade={gradeData.nextGrade}
-            />
-          </div>
-        </div>
+        <GradeProgressDetail
+          data={gradeData}
+          onTapBadge={() => setGradeModalOpen(true)}
+        />
       </section>
 
       {/* あなたの課題 */}

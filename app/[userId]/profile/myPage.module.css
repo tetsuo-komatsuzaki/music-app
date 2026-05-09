@@ -34,20 +34,6 @@
   margin: 0 0 12px;
 }
 
-/* グレードセクション */
-.gradeRow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  padding: 4px 0;
-}
-
-.gradeProgress {
-  flex: 1;
-  min-width: 200px;
-}
-
 /* カード一覧 */
 .cardList {
   display: flex;
