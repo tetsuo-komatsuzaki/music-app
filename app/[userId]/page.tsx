@@ -2,6 +2,11 @@ import { prisma } from "@/app/_libs/prisma"
 import { generateArcoMessage } from "@/app/_libs/arcoChan"
 import { formatKey } from "@/app/_libs/musicNotation"
 import {
+  extractSubTaskIdsFromCard,
+  findCandidatePracticeItems,
+  generateRecommendationReason,
+} from "@/app/_libs/recommendations"
+import {
   GRADE_LEVELS,
   type GradeLevel,
 } from "@/app/_libs/skillMaster"
@@ -93,11 +98,10 @@ export default async function HomePage({ params }: PageProps) {
     latestPracticePerf,
     latestScorePerf,
     latestTwoScores,        // アルコちゃん改善検出用 (直近2件の overallScore)
-    totalItems,
-    recentScores,
     recentPracticeHistory,
     recentScoreHistory,
     userGrade,              // UI-8: グレード表示用
+    activeCard,             // UI-9: レコメンド用 active カード (§11-3)
   ] = await Promise.all([
     // ストリーク用（90日以内のみ）
     prisma.practicePerformance.findMany({
@@ -136,15 +140,6 @@ export default async function HomePage({ params }: PageProps) {
       take: 2,
       select: { overallScore: true },
     }),
-    // デイリーチャレンジ用 (アルコちゃんの「今日のおすすめ」候補)
-    prisma.practiceItem.count({ where: { isPublished: true } }),
-    // レコメンド用
-    prisma.score.findMany({
-      where: { createdById: internalUserId, deletedAt: null },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      select: { keyTonic: true, keyMode: true, title: true },
-    }),
     // 直近の練習履歴
     prisma.practicePerformance.findMany({
       where: { userId: internalUserId },
@@ -168,6 +163,17 @@ export default async function HomePage({ params }: PageProps) {
     prisma.userGrade.findUnique({
       where: { userId: internalUserId },
       select: { currentGrade: true, achievedAt: true, progressData: true },
+    }),
+    // UI-9 (§11-3): 最も古い active カード (レコメンド主軸)
+    prisma.userSkillTaskCard.findFirst({
+      where: { userId: internalUserId, status: "active" },
+      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        cardType: true,
+        skillTaskId: true,
+        skillSubTaskId: true,
+      },
     }),
   ])
   console.log(`[PERF] home step2_parallel: ${(performance.now() - perfStep2).toFixed(0)}ms`)
@@ -242,118 +248,7 @@ export default async function HomePage({ params }: PageProps) {
     }
   }
 
-  // --- デイリーチャレンジ (アルコちゃんおすすめの候補1) ---
-  const perfStep3 = performance.now()
-  const todayJSTStr = toJSTDateStr(new Date())
-  const seed = Array.from(todayJSTStr).reduce((a, c) => a + c.charCodeAt(0), 0)
-  const dailyChallenge = totalItems > 0
-    ? await prisma.practiceItem.findFirst({
-        where: { isPublished: true },
-        skip:  seed % totalItems,
-        take:  1,
-        select: { id: true, title: true, category: true, description: true },
-      })
-    : null
-  console.log(`[PERF] home step3_dailyChallenge: ${(performance.now() - perfStep3).toFixed(0)}ms`)
-
-  // --- レコメンド (個別性高: 楽譜の調性 + 弱点ベース) ---
-  type RecommendItem = {
-    id: string
-    title: string
-    category: string
-    href: string
-    reason: string
-  }
-
-  const personalRecommendations: RecommendItem[] = []
-
-  // 楽譜ベースのレコメンド候補を並列取得
-  const scoreRecPromises = recentScores
-    .filter(s => s.keyTonic)
-    .map(score =>
-      prisma.practiceItem.findFirst({
-        where: {
-          keyTonic: score.keyTonic!,
-          keyMode: score.keyMode ?? "major",
-          category: { in: ["scale", "arpeggio"] },
-          isPublished: true,
-          OR: [{ ownerUserId: null }, { ownerUserId: internalUserId }],
-        },
-        orderBy: { title: "asc" },
-        select: { id: true, title: true, category: true },
-      }).then(item => item ? { item, scoreTitle: score.title } : null)
-    )
-
-  const scoreRecResults = await Promise.all(scoreRecPromises)
-  for (const r of scoreRecResults) {
-    if (personalRecommendations.length >= 2) break
-    if (!r) continue
-    personalRecommendations.push({
-      ...r.item,
-      href:   `/${userId}/practice/${r.item.category}/${r.item.id}`,
-      reason: `「${r.scoreTitle}」の調性に合わせて`,
-    })
-  }
-
-  const perfStep4 = performance.now()
-  if (personalRecommendations.length < 2) {
-    const weaknesses = await prisma.userWeakness.findMany({
-      where: { userId: internalUserId },
-      orderBy: { severity: "desc" },
-      take: 2,
-    })
-
-    const weakRecPromises = weaknesses
-      .filter(w => w.weaknessType === "key_area")
-      .map(w => {
-        const [tonic, mode] = w.weaknessKey.split("_")
-        return prisma.practiceItem.findFirst({
-          where: {
-            keyTonic: tonic, keyMode: mode,
-            category: { in: ["scale", "arpeggio"] }, isPublished: true,
-            OR: [{ ownerUserId: null }, { ownerUserId: internalUserId }],
-          },
-          select: { id: true, title: true, category: true },
-        }).then(item => item ? { item, tonic, mode } : null)
-      })
-
-    const weakRecResults = await Promise.all(weakRecPromises)
-    for (const r of weakRecResults) {
-      if (personalRecommendations.length >= 2) break
-      if (!r) continue
-      personalRecommendations.push({
-        ...r.item,
-        href:   `/${userId}/practice/${r.item.category}/${r.item.id}`,
-        reason: `${formatKey(r.tonic, r.mode)}の強化に`,
-      })
-    }
-  }
-  console.log(`[PERF] home step4_recommendations: ${(performance.now() - perfStep4).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
-
-  // --- アルコちゃんに出すおすすめ + 独立カードのおすすめ を振分け ---
-  // 重複しないように、合算リストから上から1件ずつ取る。
-  // 優先順: dailyChallenge → personalRecommendations[0] → [1]
-  const allItems: RecommendItem[] = []
-  if (dailyChallenge) {
-    allItems.push({
-      id:       dailyChallenge.id,
-      title:    dailyChallenge.title,
-      category: dailyChallenge.category,
-      href:     `/${userId}/practice/${dailyChallenge.category}/${dailyChallenge.id}`,
-      reason:   "今日のチャレンジ",
-    })
-  }
-  for (const r of personalRecommendations) {
-    // dailyChallenge と重複しないように id チェック
-    if (allItems.some(x => x.id === r.id)) continue
-    allItems.push(r)
-  }
-
-  // UI-8: 「今日のおすすめ」(arco card 内) を削除し GradeSection に置き換え。
-  // dailyChallenge は「おすすめ練習」セクションに移動 (最大 2 件まで)
-  const independentRecommendations = allItems.slice(0, 2)
-
-  // UI-8: グレード表示用データ。grade API と同じ形でサーバ側で構築。
+  // --- UI-8: グレード表示用データ (grade API と同じ形でサーバ側で構築) ---
   type ProgressEntry = { completed: number; required: number; practiceItemIds: string[] }
   const currentGrade: GradeLevel = isGradeLevel(userGrade?.currentGrade)
     ? userGrade.currentGrade
@@ -388,6 +283,37 @@ export default async function HomePage({ params }: PageProps) {
     totalCompleted,
     totalRequired,
   }
+
+  // --- UI-9 (§11-3): active カード優先のレコメンド ---
+  // 旧ロジック (dailyChallenge / score-key / weakness 由来) は v3.2.2 で
+  // active カードベースに統一されるため削除。findCandidatePracticeItems が
+  // グレード範囲・未達成・skillSubTaskTags を一括フィルタする。
+  const perfStep3 = performance.now()
+  const achievedIds = Object.values(progressData).flatMap(
+    entry => Array.isArray(entry.practiceItemIds) ? entry.practiceItemIds : [],
+  )
+  const subTaskIds = activeCard ? extractSubTaskIdsFromCard(activeCard) : null
+  const candidateItems = await findCandidatePracticeItems(prisma, {
+    userId: internalUserId,
+    subTaskIds,
+    grade: currentGrade,
+    achievedIds,
+    limit: 5,
+  })
+  const recommendationReason = generateRecommendationReason(activeCard)
+  const songRecommendations = candidateItems.map(item => ({
+    practiceItem: {
+      id: item.id,
+      title: item.title,
+      category: item.category,
+      difficulty: item.difficulty ?? null,
+      composer: item.composer ?? null,
+    },
+    reason: recommendationReason,
+    href: `/${userId}/practice/${item.category}/${item.id}`,
+    ...(activeCard ? { triggeredByCardId: activeCard.id } : {}),
+  }))
+  console.log(`[PERF] home step3_recommendations: ${(performance.now() - perfStep3).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   // --- 直近の練習履歴（3件）---
   type HistoryItem = {
@@ -426,7 +352,7 @@ export default async function HomePage({ params }: PageProps) {
           ? { ...continueItem, uploadedAt: continueItem.uploadedAt.toISOString() }
           : null
       }
-      recommendations={independentRecommendations}
+      songRecommendations={songRecommendations}
       recentHistory={recentHistory}
     />
   )

@@ -1,0 +1,51 @@
+/* RecommendationList.module.css — UI 設計書 v3.1 §6-4 */
+
+.scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 4px 12px;
+  /* スクロールバー控えめ */
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+.scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.scroll::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.empty {
+  background: #f5f7fa;
+  border: 1px dashed #c7d0db;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: 14px;
+  color: #5a6473;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.emptyDescription {
+  font-size: 12px;
+  color: #7a8694;
+  line-height: 1.5;
+}
