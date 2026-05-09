@@ -25,16 +25,11 @@ type Props = {
   arcoMessage: { greeting: string; cheer: string }
   /** UI-8: アルコちゃんカード内に表示するグレード情報 */
   gradeData: GradeData
-  continueItem: {
-    href: string
-    title: string
-    subtitle: string
-    uploadedAt: string
-  } | null
   /** UI-9 (§11-3): active カード優先のレコメンド (最大 5 件) */
   songRecommendations: SongRecommendation[]
   recentHistory: {
     title: string
+    subtitle: string
     href: string
     uploadedAt: string
   }[]
@@ -58,7 +53,6 @@ export default function HomeClient({
   weeklyDays,
   arcoMessage,
   gradeData,
-  continueItem,
   songRecommendations,
   recentHistory,
 }: Props) {
@@ -123,37 +117,27 @@ export default function HomeClient({
         data={gradeData}
       />
 
-      {/* ───── Continue バー ───── */}
-      {continueItem && (
-        <div className={styles.card} data-onboarding="home.continueItem">
-          <Link href={continueItem.href} className={styles.continueBar}>
-            <div className={styles.continueIcon}>▶</div>
-            <div className={styles.continueInfo}>
-              <div className={styles.continueTitle}>{continueItem.title}</div>
-              <div className={styles.continueMeta}>
-                {continueItem.subtitle} · {relativeTime(continueItem.uploadedAt)}
-              </div>
-            </div>
-            <span className={styles.continueArrow}>›</span>
-          </Link>
-        </div>
-      )}
-
       {/* ───── UI-9 (§6-4): 次のチャレンジ (横スクロール、画像なし、テキストベース) ───── */}
       <div className={styles.card}>
         <div className={styles.sectionTitle}>次のチャレンジ</div>
         <RecommendationList recommendations={songRecommendations} />
       </div>
 
-      {/* ───── 直近の練習履歴 ───── */}
+      {/* ───── 直近の練習 (Continue バー風レイアウト) ───── */}
       {recentHistory.length > 0 && (
         <div className={styles.card}>
           <div className={styles.sectionTitle}>直近の練習</div>
-          <div className={styles.historyList}>
+          <div className={styles.historyBarList}>
             {recentHistory.map((item, i) => (
-              <Link key={i} href={item.href} className={styles.historyItem}>
-                <span className={styles.historyDate}>{relativeTime(item.uploadedAt)}</span>
-                <span className={styles.historyTitle}>{item.title}</span>
+              <Link key={i} href={item.href} className={styles.continueBar}>
+                <div className={styles.continueIcon}>▶</div>
+                <div className={styles.continueInfo}>
+                  <div className={styles.continueTitle}>{item.title}</div>
+                  <div className={styles.continueMeta}>
+                    {item.subtitle ? `${item.subtitle} · ` : ""}{relativeTime(item.uploadedAt)}
+                  </div>
+                </div>
+                <span className={styles.continueArrow}>›</span>
               </Link>
             ))}
           </div>

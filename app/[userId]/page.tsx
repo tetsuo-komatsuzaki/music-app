@@ -156,7 +156,7 @@ export default async function HomePage({ params }: PageProps) {
       take: 3,
       select: {
         uploadedAt: true,
-        score: { select: { title: true, id: true } },
+        score: { select: { title: true, id: true, keyTonic: true, keyMode: true } },
       },
     }),
     // UI-8: グレード表示
@@ -214,39 +214,6 @@ export default async function HomePage({ params }: PageProps) {
     lastOverallScore: latestTwoScores[0]?.overallScore ?? null,
     previousOverallScore: latestTwoScores[1]?.overallScore ?? null,
   })
-
-  // --- Continue バー ---
-  type ContinueItem = {
-    href: string
-    title: string
-    subtitle: string
-    uploadedAt: Date
-  }
-  let continueItem: ContinueItem | null = null
-
-  const latestDate = (
-    latestPracticePerf?.uploadedAt && latestScorePerf?.uploadedAt
-      ? latestPracticePerf.uploadedAt > latestScorePerf.uploadedAt
-        ? latestPracticePerf
-        : latestScorePerf
-      : latestPracticePerf ?? latestScorePerf
-  )
-
-  if (latestDate === latestPracticePerf && latestPracticePerf?.practiceItem) {
-    continueItem = {
-      href:       `/${userId}/practice/${latestPracticePerf.practiceItem.category}/${latestPracticePerf.practiceItem.id}`,
-      title:      latestPracticePerf.practiceItem.title,
-      subtitle:   latestPracticePerf.practiceItem.category,
-      uploadedAt: latestPracticePerf.uploadedAt,
-    }
-  } else if (latestDate === latestScorePerf && latestScorePerf?.score) {
-    continueItem = {
-      href:       `/${userId}/scores/${latestScorePerf.score.id}`,
-      title:      latestScorePerf.score.title,
-      subtitle:   formatKey(latestScorePerf.score.keyTonic, latestScorePerf.score.keyMode),
-      uploadedAt: latestScorePerf.uploadedAt,
-    }
-  }
 
   // --- UI-8: グレード表示用データ (grade API と同じ形でサーバ側で構築) ---
   type ProgressEntry = { completed: number; required: number; practiceItemIds: string[] }
@@ -323,9 +290,10 @@ export default async function HomePage({ params }: PageProps) {
   })
   console.log(`[PERF] home step3_recommendations: ${(performance.now() - perfStep3).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
-  // --- 直近の練習履歴（3件）---
+  // --- 直近の練習履歴（3件、Continue バー風レイアウトで表示）---
   type HistoryItem = {
     title: string
+    subtitle: string
     href: string
     uploadedAt: string
   }
@@ -334,6 +302,7 @@ export default async function HomePage({ params }: PageProps) {
       .filter(p => p.practiceItem)
       .map(p => ({
         title:      p.practiceItem!.title,
+        subtitle:   p.practiceItem!.category,
         href:       `/${userId}/practice/${p.practiceItem!.category}/${p.practiceItem!.id}`,
         uploadedAt: p.uploadedAt.toISOString(),
       })),
@@ -341,6 +310,7 @@ export default async function HomePage({ params }: PageProps) {
       .filter(p => p.score)
       .map(p => ({
         title:      p.score!.title,
+        subtitle:   formatKey(p.score!.keyTonic, p.score!.keyMode),
         href:       `/${userId}/scores/${p.score!.id}`,
         uploadedAt: p.uploadedAt.toISOString(),
       })),
@@ -355,11 +325,6 @@ export default async function HomePage({ params }: PageProps) {
       weeklyDays={weeklyDays}
       arcoMessage={arcoMessage}
       gradeData={gradeData}
-      continueItem={
-        continueItem
-          ? { ...continueItem, uploadedAt: continueItem.uploadedAt.toISOString() }
-          : null
-      }
       songRecommendations={songRecommendations}
       recentHistory={recentHistory}
     />
