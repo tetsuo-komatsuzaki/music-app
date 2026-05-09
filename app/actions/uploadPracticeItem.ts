@@ -4,7 +4,10 @@ import { createClient } from "@supabase/supabase-js"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { revalidatePath } from "next/cache"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
-import type { PracticeCategory } from "@/app/generated/prisma"
+import { Prisma, type PracticeCategory } from "@/app/generated/prisma"
+import { SUB_TASK_IDS } from "@/app/_libs/skillMaster"
+
+const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
 
 export async function uploadPracticeItem(formData: FormData) {
   console.log("▶ uploadPracticeItem START")
@@ -35,6 +38,29 @@ export async function uploadPracticeItem(formData: FormData) {
   const description = (formData.get("description") as string | null)?.trim() || null
   const descriptionShort = (formData.get("descriptionShort") as string | null)?.trim() || null
 
+  // ループエンジン用フィールド (Phase 1c で追加)
+  const difficultyRaw = (formData.get("difficulty") as string | null)?.trim() ?? ""
+  let difficulty: number | null = null
+  if (difficultyRaw !== "") {
+    const n = Number.parseInt(difficultyRaw, 10)
+    if (!Number.isFinite(n) || n < 1 || n > 10) {
+      return { error: "難易度は 1 〜 10 で指定してください" }
+    }
+    difficulty = n
+  }
+  const skillSubTaskTagsRaw = JSON.parse(
+    (formData.get("skillSubTaskTags") as string | null) || "[]",
+  )
+  const skillSubTaskTags = Array.isArray(skillSubTaskTagsRaw)
+    ? Array.from(
+        new Set(
+          (skillSubTaskTagsRaw as unknown[]).filter(
+            (v): v is string => typeof v === "string" && VALID_SUB_TASK_IDS.has(v),
+          ),
+        ),
+      )
+    : []
+
   if (!file || !title || !category || !keyTonic || !keyMode) {
     return { error: "必須項目が不足しています" }
   }
@@ -61,6 +87,8 @@ export async function uploadPracticeItem(formData: FormData) {
       isPublished: true,
       analysisStatus: "queued",
       buildStatus: "queued",
+      difficulty,
+      skillSubTaskTags: skillSubTaskTags as Prisma.InputJsonValue,
     },
   })
 

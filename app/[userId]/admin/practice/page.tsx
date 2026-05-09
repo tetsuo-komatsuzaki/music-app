@@ -48,25 +48,34 @@ export default async function AdminPracticePage({
     tagsByCategory[tag.category].push(tag)
   }
 
-  const itemDtos = items.map((item) => ({
-    id: item.id,
-    category: item.category,
-    title: item.title,
-    composer: item.composer,
-    keyTonic: item.keyTonic,
-    keyMode: item.keyMode,
-    tempoMin: item.tempoMin,
-    tempoMax: item.tempoMax,
-    positions: item.positions,
-    isPublished: item.isPublished,
-    analysisStatus: item.analysisStatus,
-    buildStatus: item.buildStatus,
-    techniques: item.techniques.map((t) => ({
-      id: t.techniqueTag.id,
-      name: t.techniqueTag.name,
-      isPrimary: t.isPrimary,
-    })),
-  }))
+  const itemDtos = items.map((item) => {
+    // skillSubTaskTags は JSON だが、配列として扱う (空配列 / null を string[] に正規化)
+    const tags = Array.isArray(item.skillSubTaskTags)
+      ? (item.skillSubTaskTags as unknown[]).filter((v): v is string => typeof v === "string")
+      : []
+    return {
+      id: item.id,
+      category: item.category,
+      title: item.title,
+      composer: item.composer,
+      keyTonic: item.keyTonic,
+      keyMode: item.keyMode,
+      tempoMin: item.tempoMin,
+      tempoMax: item.tempoMax,
+      positions: item.positions,
+      isPublished: item.isPublished,
+      analysisStatus: item.analysisStatus,
+      buildStatus: item.buildStatus,
+      // ループエンジン用フィールド (loop engine の動作に直結)
+      difficulty: item.difficulty,
+      skillSubTaskTags: tags,
+      techniques: item.techniques.map((t) => ({
+        id: t.techniqueTag.id,
+        name: t.techniqueTag.name,
+        isPrimary: t.isPrimary,
+      })),
+    }
+  })
 
   return (
     <AdminPractice
