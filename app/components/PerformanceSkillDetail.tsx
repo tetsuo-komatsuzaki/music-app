@@ -17,6 +17,7 @@
 import { useEffect, useState } from "react"
 import SkillScoreCard, { getNullReason } from "./SkillScoreCard"
 import GradeUpModal from "./GradeUpModal"
+import PerformanceMenu from "./PerformanceMenu"
 import styles from "./PerformanceSkillDetail.module.css"
 
 // ---------------------------------------------------------------------------
@@ -98,6 +99,9 @@ export type SkillDetailResponse = {
 
 type Props = {
   performanceId: string
+  /** 削除成功時 (または 404 で既削除を検知した時) に親へ通知する。
+   *  渡されない場合は ⋯ メニューを表示しない。 */
+  onDeleted?: (performanceId: string) => void
 }
 
 type FetchState = {
@@ -109,7 +113,7 @@ type FetchState = {
 
 const INITIAL: FetchState = { data: null, error: null, loaded: false }
 
-export default function PerformanceSkillDetail({ performanceId }: Props) {
+export default function PerformanceSkillDetail({ performanceId, onDeleted }: Props) {
   // performanceId 変更時に key として使われ、コンポーネント自体は再マウントされる前提。
   // (scoreDetail.tsx 側の history で別演奏を選んだ時、parent が key={selected.id} で
   //  この子を再マウントするか、または同じインスタンスで performanceId が変わる)
@@ -150,10 +154,17 @@ export default function PerformanceSkillDetail({ performanceId }: Props) {
   const { data, error, loaded } = state
   const loading = !loaded
 
+  const menuArea = onDeleted ? (
+    <div className={styles.menuArea}>
+      <PerformanceMenu performanceId={performanceId} onDeleted={onDeleted} />
+    </div>
+  ) : null
+
   // --- 状態1: loading ---
   if (loading && !data) {
     return (
       <div className={styles.container}>
+        {menuArea}
         <div className={styles.statusBox}>
           <span className={styles.spinner} />
           読み込み中…
@@ -166,6 +177,7 @@ export default function PerformanceSkillDetail({ performanceId }: Props) {
   if (error && !data) {
     return (
       <div className={styles.container}>
+        {menuArea}
         <div className={`${styles.statusBox} ${styles.statusBoxError}`}>
           スキル詳細の取得に失敗しました ({error})
         </div>
@@ -185,6 +197,7 @@ export default function PerformanceSkillDetail({ performanceId }: Props) {
     }
     return (
       <div className={styles.container}>
+        {menuArea}
         <div
           className={
             data.analysisStatus === "error"
@@ -209,6 +222,8 @@ export default function PerformanceSkillDetail({ performanceId }: Props) {
 
   return (
     <div className={styles.container}>
+      {menuArea}
+
       {/* UI-3: 中項目スコアカード (本 PR で実装) */}
       <section className={styles.section}>
         <SkillScoreCard scores={scores} nullReason={nullReason} />
@@ -231,9 +246,6 @@ export default function PerformanceSkillDetail({ performanceId }: Props) {
           改善アドバイス: {data.improvementGuides.length} 件 (UI-5 で実装)
         </div>
       </section>
-
-      {/* UI-6: 演奏削除メニュー (placeholder) */}
-      {/* TODO: UI-6 で ⋯ メニュー + 削除モーダル + 409 ハンドリング */}
 
       {/* UI-7: グレードアップ通知モーダル (recentlyChanged + 未通知の場合のみ表示) */}
       {data.gradeUpdate?.recentlyChanged && (

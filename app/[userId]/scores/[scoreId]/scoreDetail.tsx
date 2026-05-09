@@ -822,6 +822,38 @@ export default function ScoreDetail({
   const [performances, setPerformances] = useState<PerformanceDTO[]>([])
   const [perfLoading, setPerfLoading] = useState(performanceCount > 0)
   const [selected, setSelected] = useState<PerformanceDTO | null>(null)
+
+  // ▼ UI-6: 削除完了後の状態
+  // - recentlyDeleted: 直前の操作が削除だった = ヒント表示用 (selected が再度選ばれたら解除)
+  // - deleteToast: 「演奏を削除しました」トースト (3 秒で自動消去)
+  const [recentlyDeleted, setRecentlyDeleted] = useState(false)
+  const [deleteToast, setDeleteToast] = useState<string | null>(null)
+  const deleteToastTimerRef = useRef<number | null>(null)
+  useEffect(() => {
+    // 別の演奏を選んだら hint は不要なので解除
+    if (selected) setRecentlyDeleted(false)
+  }, [selected])
+  useEffect(() => {
+    // unmount 時にトースト用タイマーを解放
+    return () => {
+      if (deleteToastTimerRef.current != null) {
+        window.clearTimeout(deleteToastTimerRef.current)
+      }
+    }
+  }, [])
+  const handlePerformanceDeleted = useCallback((performanceId: string) => {
+    setPerformances(prev => prev.filter(p => p.id !== performanceId))
+    setSelected(prev => (prev?.id === performanceId ? null : prev))
+    setRecentlyDeleted(true)
+    setDeleteToast("演奏を削除しました")
+    if (deleteToastTimerRef.current != null) {
+      window.clearTimeout(deleteToastTimerRef.current)
+    }
+    deleteToastTimerRef.current = window.setTimeout(() => {
+      setDeleteToast(null)
+      deleteToastTimerRef.current = null
+    }, 3000)
+  }, [])
   const [playbackState, setPlaybackState] = useState<"stopped" | "playing" | "paused">("stopped")
   const [playbackTempo, setPlaybackTempo] = useState(analysis?.bpm ?? 90)
   const [, setComparisonLoading] = useState(false)
@@ -1891,6 +1923,12 @@ export default function ScoreDetail({
           演奏停止するには、ブラウザの戻るボタン(←)を押してください
         </div>
       )}
+      {/* UI-6: 削除完了トースト (3 秒で自動消去) */}
+      {deleteToast && (
+        <div className={styles.deleteToast} role="status" aria-live="polite">
+          {deleteToast}
+        </div>
+      )}
       <div className={styles.header} data-section="header">
         <div><h1 className={styles.title}>{score.title}</h1></div>
       </div>
@@ -1982,7 +2020,15 @@ export default function ScoreDetail({
 
           {/* v3.2.2 上達ループエンジン: PracticeItem 由来 + 演奏選択時に skill-detail を表示 */}
           {practiceItemId && selected?.id && (
-            <PerformanceSkillDetail performanceId={selected.id} />
+            <PerformanceSkillDetail
+              performanceId={selected.id}
+              onDeleted={handlePerformanceDeleted}
+            />
+          )}
+          {practiceItemId && !selected && recentlyDeleted && (
+            <div className={styles.deleteHint} role="status">
+              演奏を削除しました。履歴から別の演奏を選んでください。
+            </div>
           )}
 
           <div data-onboarding="scoreDetail.performanceHistory">
