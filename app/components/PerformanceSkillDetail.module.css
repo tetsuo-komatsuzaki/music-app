@@ -1,18 +1,15 @@
 /* PerformanceSkillDetail.module.css */
 
 .container {
-  position: relative;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* UI-6: 演奏削除メニュー (⋯) — container の右上に固定配置 */
+/* UI-6: 演奏削除メニュー (⋯) — container 上部の独立行で右寄せ */
 .menuArea {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 5;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .section {
