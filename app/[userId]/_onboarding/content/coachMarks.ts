@@ -40,14 +40,6 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         trigger: "page",
         showDismissAllCheckbox: true,
       },
-      {
-        id: "home.continueItem",
-        targetKey: "home.continueItem",
-        headline: "続きから練習できます",
-        body: "前回の練習を覚えています。タップすればすぐに再開できます。",
-        trigger: "page",
-        showDismissAllCheckbox: false,
-      },
     ],
   },
   {

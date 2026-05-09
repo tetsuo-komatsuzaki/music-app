@@ -451,35 +451,9 @@
   font-size: 16px;
 }
 
-/* ───── 直近の履歴 ───── */
-.historyList {
+/* ───── 直近の練習 (Continue バー風レイアウト、複数バーを縦積み) ───── */
+.historyBarList {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-
-.historyItem {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 0;
-  border-bottom: 0.5px solid #f0f0f0;
-  text-decoration: none;
-  color: inherit;
-}
-
-.historyItem:last-child {
-  border-bottom: none;
-}
-
-.historyDate {
-  font-size: 11px;
-  color: #999;
-  min-width: 60px;
-}
-
-.historyTitle {
-  font-size: 13px;
-  color: #333;
-  flex: 1;
+  gap: 14px;
 }
