@@ -167,7 +167,8 @@
   gap: 8px;
 }
 
-.actions button {
+.actions button,
+.actions a {
   flex: 1 1 auto;
   min-width: 140px;
   min-height: 44px;
@@ -181,6 +182,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
+  text-decoration: none;
   transition: background 0.15s, border-color 0.15s, opacity 0.15s;
 }
 

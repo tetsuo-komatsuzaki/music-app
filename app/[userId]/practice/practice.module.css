@@ -2,6 +2,61 @@
 .pageTitle { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
 .sectionTitle { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
 
+/* UI-12 (§8 D3): カード由来コンテクスト表示 */
+.cardContextSection {
+  background: linear-gradient(180deg, #eef2fb 0%, #f7f9fc 100%);
+  border: 1px solid #c5d0e3;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 24px;
+}
+.cardContextTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: #2d2d2d;
+  margin: 0 0 12px;
+}
+.cardContextList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cardContextItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #fff;
+  border: 1px solid #d4dae3;
+  border-radius: 8px;
+  padding: 12px 14px;
+  text-decoration: none;
+  color: inherit;
+  min-height: 44px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.cardContextItem:hover {
+  border-color: #5a7fdf;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+.cardContextItemTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d2d2d;
+}
+.cardContextItemComposer {
+  font-size: 12px;
+  color: #777;
+}
+.cardContextEmpty {
+  font-size: 13px;
+  color: #5a6473;
+  text-align: center;
+  padding: 20px;
+  background: #fff;
+  border: 1px dashed #c7d0db;
+  border-radius: 8px;
+}
+
 /* おすすめ */
 .recommendSection { margin-bottom: 32px; }
 .recommendCard { background: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 12px; border-left: 4px solid #4a90d9; }

@@ -1,17 +1,101 @@
 import { prisma } from "@/app/_libs/prisma"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { formatKey } from "@/app/_libs/musicNotation"
-import PracticeTop from "./practiceTop"
+import {
+  extractSubTaskIdsFromCard,
+  findCandidatePracticeItems,
+  generateRecommendationReason,
+  getAchievedPracticeItemIds,
+  getCurrentGrade,
+} from "@/app/_libs/recommendations"
+import {
+  SUB_TASK_NAMES,
+  TASK_NAMES,
+  SKILL_TASKS,
+  type SubTaskId,
+  type TaskId,
+} from "@/app/_libs/skillMaster"
+import PracticeTop, { type CardContext } from "./practiceTop"
 
 export const metadata = { title: "練習メニュー" }
 
+const isSubTaskId = (v: unknown): v is SubTaskId =>
+  typeof v === "string" && Object.prototype.hasOwnProperty.call(SUB_TASK_NAMES, v)
+
+const isTaskId = (v: unknown): v is TaskId =>
+  typeof v === "string" && Object.prototype.hasOwnProperty.call(TASK_NAMES, v)
+
+// UI-12 (D3): カード由来の遷移時に画面上部に表示するコンテクスト名を計算。
+// sub_task カード:「{subTaskName}」の教材
+// task カード:「{taskName}」全体の教材
+function buildCardContextLabel(card: {
+  cardType: string
+  skillTaskId: string | null
+  skillSubTaskId: string | null
+}): string {
+  if (card.cardType === "sub_task" && isSubTaskId(card.skillSubTaskId)) {
+    return SUB_TASK_NAMES[card.skillSubTaskId]
+  }
+  if (card.cardType === "task" && isTaskId(card.skillTaskId)) {
+    return `${TASK_NAMES[card.skillTaskId]}全体`
+  }
+  return ""
+}
+
 export default async function PracticePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ userId: string }>
+  searchParams: Promise<{ fromCard?: string; context?: string }>
 }) {
   const p = await params
+  const sp = await searchParams
   const { authUserId, dbUserId } = await getUserIdsFromParams(p)
+
+  // UI-12: マイページ / 演奏完了画面のカード由来遷移を検出
+  let cardContext: CardContext | null = null
+  if (sp.fromCard && sp.context === "etude") {
+    const card = await prisma.userSkillTaskCard.findUnique({
+      where: { id: sp.fromCard },
+      select: {
+        id: true,
+        userId: true,
+        cardType: true,
+        skillTaskId: true,
+        skillSubTaskId: true,
+      },
+    })
+    // 自分のカードのみ受け付け (他者カード ID 推測対策)
+    if (card && card.userId === dbUserId) {
+      const grade = await getCurrentGrade(prisma, dbUserId)
+      const achievedIds = await getAchievedPracticeItemIds(prisma, dbUserId)
+      const subTaskIds = extractSubTaskIdsFromCard(card)
+      const items = await findCandidatePracticeItems(prisma, {
+        userId: dbUserId,
+        subTaskIds,
+        grade,
+        achievedIds,
+        limit: 6,
+      })
+      const reason = generateRecommendationReason(card)
+      cardContext = {
+        cardId: card.id,
+        contextLabel: buildCardContextLabel(card),
+        recommendations: items.map(item => ({
+          id: item.id,
+          title: item.title,
+          category: item.category,
+          difficulty: item.difficulty ?? null,
+          composer: item.composer ?? null,
+          reason,
+          href: `/${authUserId}/practice/${item.category}/${item.id}`,
+        })),
+      }
+    }
+  }
+  // SKILL_TASKS の参照を保ち TS の tree-shake を回避 (将来 task 拡張用)
+  void SKILL_TASKS
 
   // カテゴリごとの件数（運営サンプル + 自分のアイテムのみ）
   const ownerFilter = { OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }] }
@@ -62,9 +146,10 @@ export default async function PracticePage({
     include: { techniqueTag: true },
   })
 
+  type WeaknessRecItem = { id: string; title: string; category: string }
   const weaknessRecommendations = []
   for (const w of weaknesses) {
-    let items: any[] = []
+    let items: WeaknessRecItem[] = []
     let reason = ""
 
     if (w.weaknessType === "key_area") {
@@ -118,6 +203,7 @@ export default async function PracticePage({
       categoryCounts={{ scale: scaleCount, arpeggio: arpeggioCount, etude: etudeCount }}
       scoreRecommendations={scoreRecommendations}
       weaknessRecommendations={weaknessRecommendations}
+      cardContext={cardContext}
     />
   )
 }
