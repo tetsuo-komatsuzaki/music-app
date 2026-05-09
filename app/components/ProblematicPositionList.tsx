@@ -51,6 +51,26 @@ function candidateName(id: string): string {
   return id // 未知 ID はそのまま表示 (skillMaster 拡張時の保険)
 }
 
+// UI-14 (F8): features 配列の値を日本語ラベルに変換。
+// score_full の lib/problematic_positions.py が返す値は 4 種類固定:
+//   "string_change" / "in_slur" / "after_rest" / "high_pitch"
+// 未知の値は表示しない (スキップ) — UI 表示の頑健性を優先。
+const FEATURE_LABELS: Record<string, string> = {
+  string_change: "弦移動",
+  in_slur: "スラー中",
+  after_rest: "休符明け",
+  high_pitch: "高音域",
+}
+
+function formatFeatures(features: string[] | undefined): string | null {
+  if (!features || features.length === 0) return null
+  const labels = features
+    .map(f => FEATURE_LABELS[f])
+    .filter((l): l is string => Boolean(l))
+  if (labels.length === 0) return null
+  return labels.join("、")
+}
+
 function feedbackBadge(feedback: LocalFeedback): { mark: string; label: string; cls: string } {
   if (feedback.type === "user_selected") {
     return {
@@ -166,6 +186,8 @@ export default function ProblematicPositionList({
           const candidateLabels = position.candidate_sub_task_ids
             .map(candidateName)
             .join("、")
+          // UI-14: features を日本語ラベルに変換 (4 値固定)
+          const featureHint = formatFeatures(position.features)
 
           return (
             <article
@@ -192,6 +214,14 @@ export default function ProblematicPositionList({
                 <div className={styles.candidates}>
                   <span className={styles.candidatesLabel}>候補:</span>{" "}
                   {candidateLabels}
+                </div>
+              )}
+
+              {/* UI-14 (F8): features ヒント (控えめ表示) */}
+              {featureHint && (
+                <div className={styles.featureHint}>
+                  <span className={styles.featureHintLabel}>ヒント:</span>{" "}
+                  {featureHint}
                 </div>
               )}
 
