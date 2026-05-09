@@ -1,0 +1,78 @@
+/* SkillScoreCard.module.css — UI 設計書 v3 §5-3 中項目スコアカード */
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.card {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 12px 10px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  min-height: 96px;
+}
+
+.taskName {
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+}
+
+.scoreLine {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.score {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.unit {
+  font-size: 12px;
+  color: #999;
+}
+
+.nullScore {
+  font-size: 22px;
+  font-weight: 700;
+  color: #999;
+}
+
+.message {
+  font-size: 11px;
+  color: #888;
+  line-height: 1.4;
+  margin-top: auto;
+}
+
+/* スコア帯による色分け (90+ / 75-89 / 60-74 / <60 / null) */
+.tierExcellent { color: #1f883d; } /* 90+ */
+.tierGood      { color: #5a7fdf; } /* 75-89 */
+.tierOk        { color: #c98a2b; } /* 60-74 */
+.tierLow       { color: #c44a4a; } /* <60 */
+.tierNull      { color: #999; }    /* null */
+
+/* モバイル: 縦積み */
+@media (max-width: 480px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+  .card {
+    flex-direction: row;
+    align-items: center;
+    min-height: 56px;
+    gap: 12px;
+  }
+  .taskName { flex: 0 0 80px; }
+  .scoreLine { flex: 0 0 auto; }
+  .message { flex: 1; margin-top: 0; text-align: right; }
+}
