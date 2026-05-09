@@ -1,0 +1,122 @@
+/* CandidatePickerModal.module.css — UI 設計書 v3 §5-5 / §5-12 */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 420px;
+  width: calc(100% - 32px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.25s ease forwards;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: #2d2d2d;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 20px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #2d2d2d;
+  transition: background 0.15s, border-color 0.15s;
+  min-height: 44px;
+}
+
+.option:hover {
+  background: #f7f7f7;
+  border-color: #c5c5c5;
+}
+
+.option:has(.radio:checked) {
+  border-color: #5a7fdf;
+  background: #eef2fb;
+  color: #2d2d2d;
+}
+
+.radio {
+  margin: 0;
+  width: 18px;
+  height: 18px;
+  accent-color: #5a7fdf;
+  flex-shrink: 0;
+}
+
+.optionLabel {
+  font-weight: 500;
+}
+
+.buttonRow {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.cancelButton,
+.confirmButton {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  min-width: 100px;
+  min-height: 44px;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.cancelButton {
+  background: #f0f0f0;
+  color: #333;
+}
+.cancelButton:hover {
+  background: #e2e2e2;
+}
+
+.confirmButton {
+  background: #1f883d;
+  color: #fff;
+}
+.confirmButton:hover:not(:disabled) {
+  background: #1a7233;
+}
+.confirmButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

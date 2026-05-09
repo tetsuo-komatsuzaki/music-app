@@ -19,6 +19,7 @@ import SkillScoreCard, { getNullReason } from "./SkillScoreCard"
 import GradeUpModal from "./GradeUpModal"
 import PerformanceMenu from "./PerformanceMenu"
 import ImprovementGuideCard from "./ImprovementGuideCard"
+import ProblematicPositionList from "./ProblematicPositionList"
 import styles from "./PerformanceSkillDetail.module.css"
 
 // ---------------------------------------------------------------------------
@@ -103,6 +104,9 @@ type Props = {
   /** 削除成功時 (または 404 で既削除を検知した時) に親へ通知する。
    *  渡されない場合は ⋯ メニューを表示しない。 */
   onDeleted?: (performanceId: string) => void
+  /** UI-4: 気になる箇所のカードタップ時に譜面ジャンプ + ハイライトを実行する。
+   *  渡されない場合は位置ボタンが disabled になる。 */
+  onJumpToPosition?: (noteIndices: number[]) => void
 }
 
 type FetchState = {
@@ -114,7 +118,11 @@ type FetchState = {
 
 const INITIAL: FetchState = { data: null, error: null, loaded: false }
 
-export default function PerformanceSkillDetail({ performanceId, onDeleted }: Props) {
+export default function PerformanceSkillDetail({
+  performanceId,
+  onDeleted,
+  onJumpToPosition,
+}: Props) {
   // performanceId 変更時に key として使われ、コンポーネント自体は再マウントされる前提。
   // (scoreDetail.tsx 側の history で別演奏を選んだ時、parent が key={selected.id} で
   //  この子を再マウントするか、または同じインスタンスで performanceId が変わる)
@@ -230,14 +238,13 @@ export default function PerformanceSkillDetail({ performanceId, onDeleted }: Pro
         <SkillScoreCard scores={scores} nullReason={nullReason} />
       </section>
 
-      {/* UI-4: 気になる箇所リスト + 候補選択 (placeholder) */}
+      {/* UI-4: 気になる箇所リスト + 候補選択 */}
       <section className={styles.section}>
-        <div className={styles.placeholder}>
-          {/* TODO: UI-4 で ProblematicPositionList + CandidateSelector を実装 */}
-          気になる箇所:{" "}
-          {data.problematicPositions?.length ?? 0} 件
-          {(data.problematicPositions?.length ?? 0) > 0 && " (UI-4 で実装)"}
-        </div>
+        <ProblematicPositionList
+          performanceId={data.performanceId}
+          positions={data.problematicPositions ?? []}
+          onJumpToPosition={onJumpToPosition}
+        />
       </section>
 
       {/* UI-5: 改善アドバイス */}

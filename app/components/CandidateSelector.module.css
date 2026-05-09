@@ -1,0 +1,72 @@
+/* CandidateSelector.module.css — UI 設計書 v3 §5-5 / §5-12 */
+
+.row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.button {
+  flex: 1 1 0;
+  min-width: 96px;
+  min-height: 44px; /* §5-9 タップ領域 44×44px 以上 */
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #444;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.button:hover {
+  background: #f7f7f7;
+}
+
+.icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* 「✓ これだ」 */
+.confirm:hover {
+  border-color: #1f883d;
+  color: #1f883d;
+}
+.confirmActive,
+.confirmActive:hover {
+  background: #e6f5ec;
+  border-color: #1f883d;
+  color: #1f883d;
+}
+
+/* 「× 違う」 */
+.reject:hover {
+  border-color: #888;
+  color: #555;
+}
+.rejectActive,
+.rejectActive:hover {
+  background: #f0f0f0;
+  border-color: #888;
+  color: #555;
+  text-decoration: line-through;
+}
+
+/* 「? 分からない」 */
+.uncertain:hover {
+  border-color: #c98a2b;
+  color: #c98a2b;
+}
+.uncertainActive,
+.uncertainActive:hover {
+  background: #fdf3e0;
+  border-color: #c98a2b;
+  color: #c98a2b;
+}

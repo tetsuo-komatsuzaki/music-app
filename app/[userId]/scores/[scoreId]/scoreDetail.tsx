@@ -1102,6 +1102,12 @@ export default function ScoreDetail({
   const cursorRef = useRef<HTMLDivElement | null>(null)
   const pausedAtRef = useRef<number>(0)
 
+  // UI-4: 気になる箇所ハイライト管理
+  // - 紫 (#8b5cf6) drop-shadow を 3 秒間付与し、別カードタップ or タイマー経過で消す
+  // - 既存の colorizeNote とは衝突しない (filter プロパティを使うため)
+  const problematicHighlightTimerRef = useRef<number | null>(null)
+  const problematicHighlightedElsRef = useRef<Element[]>([])
+
   // ▼ OSMDカーソルAPIベースのタイムスタンプマップ
   const osmdRef = useRef<OpenSheetMusicDisplay | null>(null)
   const [isOsmdReady, setIsOsmdReady] = useState(false)
@@ -1258,6 +1264,68 @@ export default function ScoreDetail({
     }
     return analysisIdx < noteElementsRef.current.length ? analysisIdx : -1
   }, [analysis])
+
+  // UI-4: 気になる箇所のカードタップ → 譜面ジャンプ + ハイライト
+  // - filter プロパティで紫 (#8b5cf6) drop-shadow を 3 秒付与
+  // - 別カードタップで前のハイライトを即解除 (タイマー競合回避)
+  // - 既存 colorizeNote (fill/stroke 操作) と独立
+  const PROBLEMATIC_HIGHLIGHT_FILTER =
+    "drop-shadow(0 0 1px #8b5cf6) drop-shadow(0 0 4px #8b5cf6) drop-shadow(0 0 8px rgba(139, 92, 246, 0.55))"
+  const PROBLEMATIC_HIGHLIGHT_DURATION_MS = 3000
+
+  const clearProblematicHighlight = useCallback(() => {
+    if (problematicHighlightTimerRef.current != null) {
+      window.clearTimeout(problematicHighlightTimerRef.current)
+      problematicHighlightTimerRef.current = null
+    }
+    for (const el of problematicHighlightedElsRef.current) {
+      ;(el as SVGElement).style.removeProperty("filter")
+    }
+    problematicHighlightedElsRef.current = []
+  }, [])
+
+  const handleJumpToProblematicPosition = useCallback(
+    (noteIndices: number[]) => {
+      // 前回のハイライトを即解除 (Q11/設計書 §5-4「別カードタップで切替」)
+      clearProblematicHighlight()
+      if (noteIndices.length === 0) return
+
+      const elements = noteElementsRef.current
+      const highlighted: Element[] = []
+      for (const idx of noteIndices) {
+        const osmdIdx = analysisIdxToOsmdIdx(idx)
+        if (osmdIdx < 0 || osmdIdx >= elements.length) continue
+        const el = elements[osmdIdx]
+        ;(el as SVGElement).style.filter = PROBLEMATIC_HIGHLIGHT_FILTER
+        highlighted.push(el)
+      }
+      problematicHighlightedElsRef.current = highlighted
+
+      // 最初の対象要素まで譜面をスクロール
+      const first = highlighted[0]
+      if (first) {
+        ;(first as Element).scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        })
+      }
+
+      // 3 秒後に自動消去
+      problematicHighlightTimerRef.current = window.setTimeout(() => {
+        clearProblematicHighlight()
+      }, PROBLEMATIC_HIGHLIGHT_DURATION_MS)
+    },
+    [analysisIdxToOsmdIdx, clearProblematicHighlight],
+  )
+
+  // unmount 時にタイマーを解放
+  useEffect(() => {
+    return () => {
+      if (problematicHighlightTimerRef.current != null) {
+        window.clearTimeout(problematicHighlightTimerRef.current)
+      }
+    }
+  }, [])
 
   // --- 色塗りのみ（getBoundingClientRect 不要、即時実行可能）---
   const applyComparisonColors = useCallback(() => {
@@ -2023,6 +2091,7 @@ export default function ScoreDetail({
             <PerformanceSkillDetail
               performanceId={selected.id}
               onDeleted={handlePerformanceDeleted}
+              onJumpToPosition={handleJumpToProblematicPosition}
             />
           )}
           {practiceItemId && !selected && recentlyDeleted && (
