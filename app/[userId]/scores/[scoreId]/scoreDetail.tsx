@@ -2092,6 +2092,7 @@ export default function ScoreDetail({
               performanceId={selected.id}
               onDeleted={handlePerformanceDeleted}
               onJumpToPosition={handleJumpToProblematicPosition}
+              userId={userId}
             />
           )}
           {practiceItemId && !selected && recentlyDeleted && (

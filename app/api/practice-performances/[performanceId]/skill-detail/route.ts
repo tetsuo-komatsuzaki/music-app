@@ -50,6 +50,7 @@ function buildSkillSubScores(raw: unknown): Record<SubTaskId, SubScoreData> | nu
 
 function buildImprovementGuides(
   subScores: Record<SubTaskId, SubScoreData> | null,
+  cardIdBySubTask: Record<string, string>,
 ) {
   if (!subScores) return []
   // matched=true の sub_task のみを抽出（spec §10）
@@ -60,6 +61,9 @@ function buildImprovementGuides(
       subTaskName: SUB_TASK_NAMES[id],
       parentTaskId: def.parentTaskId,
       parentTaskName: TASK_NAMES[def.parentTaskId],
+      // UI-13 (F2): 該当 sub_task の active/improving カード ID。
+      // null の場合はカード未生成 → 教材ボタンは「準備中」表示にフォールバック。
+      cardId: cardIdBySubTask[id] ?? null,
       guide: def.improvementGuide,
     }
   })
@@ -104,7 +108,29 @@ export async function GET(
   }
 
   const skillSubScores = buildSkillSubScores(perf.skillSubScores)
-  const improvementGuides = buildImprovementGuides(skillSubScores)
+
+  // UI-13 (F2): improvementGuides[].cardId 用に
+  // matched sub_task に対応する active/improving カード ID を引く
+  const matchedSubTaskIds = skillSubScores
+    ? SUB_TASK_IDS.filter(id => skillSubScores[id]?.matched)
+    : []
+  const cardIdBySubTask: Record<string, string> = {}
+  if (matchedSubTaskIds.length > 0) {
+    const cards = await prisma.userSkillTaskCard.findMany({
+      where: {
+        userId: dbUserId,
+        cardType: "sub_task",
+        skillSubTaskId: { in: matchedSubTaskIds as string[] },
+        status: { in: ["active", "improving"] },
+      },
+      select: { id: true, skillSubTaskId: true },
+    })
+    for (const c of cards) {
+      if (c.skillSubTaskId) cardIdBySubTask[c.skillSubTaskId] = c.id
+    }
+  }
+
+  const improvementGuides = buildImprovementGuides(skillSubScores, cardIdBySubTask)
 
   // gradeUpdate: 「この演奏 upload から ACHIEVED_WINDOW_MS 以内に昇格」を
   // 「この演奏が引き起こした昇格」とみなす。古い演奏を後で開いた際の

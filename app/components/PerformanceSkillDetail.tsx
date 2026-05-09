@@ -61,6 +61,9 @@ export type ImprovementGuideEntry = {
   subTaskName: string
   parentTaskId: string
   parentTaskName: string
+  /** UI-13 (F2): 該当 sub_task の active/improving カード ID。
+   *  null の場合は「この教材で練習する（準備中）」disabled 表示。 */
+  cardId: string | null
   guide: {
     awareness: ImprovementMethod
     practice: ImprovementMethod
@@ -107,6 +110,10 @@ type Props = {
   /** UI-4: 気になる箇所のカードタップ時に譜面ジャンプ + ハイライトを実行する。
    *  渡されない場合は位置ボタンが disabled になる。 */
   onJumpToPosition?: (noteIndices: number[]) => void
+  /** UI-13: 「この教材で練習する」ボタンから練習画面に遷移するために必要な
+   *  ルーティング用 userId (Supabase ユーザー ID = URL パラメータ)。
+   *  渡されない場合は教材ボタンは disabled。 */
+  userId?: string
 }
 
 type FetchState = {
@@ -122,6 +129,7 @@ export default function PerformanceSkillDetail({
   performanceId,
   onDeleted,
   onJumpToPosition,
+  userId,
 }: Props) {
   // performanceId 変更時に key として使われ、コンポーネント自体は再マウントされる前提。
   // (scoreDetail.tsx 側の history で別演奏を選んだ時、parent が key={selected.id} で
@@ -247,9 +255,9 @@ export default function PerformanceSkillDetail({
         />
       </section>
 
-      {/* UI-5: 改善アドバイス */}
+      {/* UI-5 + UI-13: 改善アドバイス + 教材ボタン */}
       <section className={styles.section}>
-        <ImprovementGuideCard guides={data.improvementGuides} />
+        <ImprovementGuideCard guides={data.improvementGuides} userId={userId} />
       </section>
 
       {/* UI-7: グレードアップ通知モーダル (recentlyChanged + 未通知の場合のみ表示) */}
