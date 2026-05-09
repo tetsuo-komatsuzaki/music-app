@@ -9,6 +9,7 @@ import "./ScoreFullscreen.css"
 import Recorder, { type Status as RecorderStatus } from "@/app/components/Recorder"
 import { buildScrollPlan, locateInPlan, type ScrollPlan } from "@/app/_libs/scoreScroll"
 import PerformanceSkeleton from "@/app/components/PerformanceSkeleton"
+import PerformanceSkillDetail from "@/app/components/PerformanceSkillDetail"
 import { getSignedUploadUrl } from "@/app/actions/getSignedUploadUrl"
 import { renamePerformance } from "@/app/actions/renamePerformance"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
@@ -1977,6 +1978,11 @@ export default function ScoreDetail({
 
           {selected && (selected.pitchAccuracy != null || selected.timingAccuracy != null) && (
             <EvaluationSummaryCard performance={selected} warnings={warnings} />
+          )}
+
+          {/* v3.2.2 上達ループエンジン: PracticeItem 由来 + 演奏選択時に skill-detail を表示 */}
+          {practiceItemId && selected?.id && (
+            <PerformanceSkillDetail performanceId={selected.id} />
           )}
 
           <div data-onboarding="scoreDetail.performanceHistory">
