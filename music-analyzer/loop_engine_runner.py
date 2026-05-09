@@ -103,6 +103,81 @@ def _upload(
 
 
 # ---------------------------------------------------------------------------
+# skill_info セーフティネット (将来の修正経路 + 過去の取りこぼし対策)
+# ---------------------------------------------------------------------------
+
+
+def _download_or_generate_skill_info(
+    supabase_url: str, sr_key: str, bucket: str,
+    practice_item_id: str, dst: str, tmp_dir: str,
+) -> str:
+    """musicxml_skill_info.json を Storage から DL。404 の場合は .mxl から
+    その場で extract_skill_info を実行して生成 + Storage upload + 再使用。
+
+    過去の取りこぼし (Commit D 以前作成 PracticeItem の backfill 漏れ) と、
+    将来の修正経路 (mxl 差し替え時に再生成を呼び忘れる) の両方への保険。
+    """
+    skill_info_storage_path = (
+        f"practice/{practice_item_id}/musicxml_skill_info.json"
+    )
+    try:
+        return _download(
+            supabase_url, sr_key, bucket, skill_info_storage_path, dst,
+        )
+    except RuntimeError as e:
+        msg = str(e).lower()
+        if "404" not in msg and "not_found" not in msg:
+            raise
+
+    # 404 → on-demand 生成
+    print(
+        f"[loop_engine_runner] skill_info NOT FOUND for "
+        f"{practice_item_id}, on-demand 生成を試みる"
+    )
+
+    # .mxl を DL
+    mxl_storage_path = f"practice-items/by-id/{practice_item_id}.mxl"
+    tmp_mxl = os.path.join(tmp_dir, f"{practice_item_id}.mxl")
+    try:
+        _download(supabase_url, sr_key, bucket, mxl_storage_path, tmp_mxl)
+    except RuntimeError:
+        # 別パスを試す: practice/{id}/original.musicxml (uploadPracticeItem.ts 経由)
+        alt_path = f"practice/{practice_item_id}/original.musicxml"
+        print(
+            f"[loop_engine_runner] mxl not at {mxl_storage_path}, "
+            f"trying {alt_path}"
+        )
+        _download(supabase_url, sr_key, bucket, alt_path, tmp_mxl)
+
+    # extract_skill_info で生成
+    import dataclasses
+    from lib.musicxml_skill_extractor import extract_skill_info
+
+    notes = extract_skill_info(tmp_mxl)
+    payload = {
+        "version": 1,
+        "notes": [dataclasses.asdict(n) for n in notes],
+    }
+    json_str = json.dumps(payload, ensure_ascii=False)
+
+    # Storage upload (将来の同 item の解析時は DL で済むよう)
+    _upload(
+        supabase_url, sr_key, bucket,
+        skill_info_storage_path, json_str.encode("utf-8"),
+    )
+
+    # ローカル dst に書き出し (今回の解析でそのまま使用)
+    with open(dst, "wb") as f:
+        f.write(json_str.encode("utf-8"))
+
+    print(
+        f"[loop_engine_runner] skill_info on-demand 生成完了 "
+        f"(notes={len(notes)}) → uploaded to {bucket}/{skill_info_storage_path}"
+    )
+    return dst
+
+
+# ---------------------------------------------------------------------------
 # 累積処理 (v3.2.3 §7-4 / §9-2 / §9-3 / §9-5 / §10-2 / §10-4)
 # ---------------------------------------------------------------------------
 # 旧 app/_libs/skillProgressUpdater.ts (Commit 7) の Python 翻訳。
@@ -611,10 +686,13 @@ def main() -> None:
         f"practice/{practice_item_id}/analysis.json",
         os.path.join(tmp_dir, "analysis.json"),
     )
-    skill_info_path = _download(
+    # skill_info はセーフティネット付き (過去の取りこぼし or 将来の追加修正経路で
+    # 万一 skill_info が無い場合、その場で extract_skill_info を実行して補完する)
+    skill_info_path = _download_or_generate_skill_info(
         supabase_url, sr_key, musicxml_bucket,
-        f"practice/{practice_item_id}/musicxml_skill_info.json",
+        practice_item_id,
         os.path.join(tmp_dir, "musicxml_skill_info.json"),
+        tmp_dir,
     )
     comparison_path = _download(
         supabase_url, sr_key, performance_bucket,
