@@ -16,6 +16,7 @@
 
 import { useEffect, useState } from "react"
 import SkillScoreCard, { getNullReason } from "./SkillScoreCard"
+import GradeUpModal from "./GradeUpModal"
 import styles from "./PerformanceSkillDetail.module.css"
 
 // ---------------------------------------------------------------------------
@@ -234,13 +235,13 @@ export default function PerformanceSkillDetail({ performanceId }: Props) {
       {/* UI-6: 演奏削除メニュー (placeholder) */}
       {/* TODO: UI-6 で ⋯ メニュー + 削除モーダル + 409 ハンドリング */}
 
-      {/* UI-7: グレードアップ通知 (placeholder) */}
+      {/* UI-7: グレードアップ通知モーダル (recentlyChanged + 未通知の場合のみ表示) */}
       {data.gradeUpdate?.recentlyChanged && (
-        <div className={styles.placeholder}>
-          {/* TODO: UI-7 で GradeUpModal を実装 */}
-          グレードアップ検知 (UI-7 で実装):{" "}
-          {data.gradeUpdate.previousGrade} → {data.gradeUpdate.newGrade}
-        </div>
+        <GradeUpModal
+          performanceId={data.performanceId}
+          previousGrade={data.gradeUpdate.previousGrade}
+          newGrade={data.gradeUpdate.newGrade}
+        />
       )}
     </div>
   )
