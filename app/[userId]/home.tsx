@@ -7,16 +7,10 @@ import GradeProgressBar from "@/app/components/GradeProgressBar"
 import GradeDetailModal, {
   type GradeDetailData,
 } from "@/app/components/GradeDetailModal"
+import RecommendationList from "@/app/components/RecommendationList"
+import type { SongRecommendation } from "@/app/components/RecommendationItem"
 import styles from "./home.module.css"
 import OnboardingTrigger from "./_onboarding/OnboardingTrigger"
-
-type RecommendedItem = {
-  id: string
-  href: string
-  title: string
-  category: string
-  reason: string
-}
 
 // UI-8: ホーム画面のグレード表示用 (page.tsx で構築)
 type GradeData = GradeDetailData & {
@@ -37,7 +31,8 @@ type Props = {
     subtitle: string
     uploadedAt: string
   } | null
-  recommendations: RecommendedItem[]
+  /** UI-9 (§11-3): active カード優先のレコメンド (最大 5 件) */
+  songRecommendations: SongRecommendation[]
   recentHistory: {
     title: string
     href: string
@@ -57,12 +52,6 @@ function relativeTime(isoStr: string): string {
   return new Date(isoStr).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })
 }
 
-const CATEGORY_ICON: Record<string, string> = {
-  scale:    "🎵",
-  arpeggio: "🎶",
-  etude:    "📄",
-}
-
 export default function HomeClient({
   userName: _userName,
   streak,
@@ -70,7 +59,7 @@ export default function HomeClient({
   arcoMessage,
   gradeData,
   continueItem,
-  recommendations,
+  songRecommendations,
   recentHistory,
 }: Props) {
   void _userName
@@ -164,26 +153,11 @@ export default function HomeClient({
         </div>
       )}
 
-      {/* ───── おすすめ練習 (AI 案内に出していない代替肢を 1件) ───── */}
-      {recommendations.length > 0 && (
-        <div className={styles.card}>
-          <div className={styles.sectionTitle}>おすすめ練習</div>
-          <div className={styles.recommendList}>
-            {recommendations.map(item => (
-              <Link key={item.id} href={item.href} className={styles.recommendItem}>
-                <span className={styles.recommendIcon}>
-                  {CATEGORY_ICON[item.category] ?? "🎵"}
-                </span>
-                <div className={styles.recommendInfo}>
-                  <div className={styles.recommendTitle}>{item.title}</div>
-                  <div className={styles.recommendReason}>{item.reason}</div>
-                </div>
-                <span className={styles.recommendArrow}>›</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* ───── UI-9 (§6-4): 次のチャレンジ (横スクロール、画像なし、テキストベース) ───── */}
+      <div className={styles.card}>
+        <div className={styles.sectionTitle}>次のチャレンジ</div>
+        <RecommendationList recommendations={songRecommendations} />
+      </div>
 
       {/* ───── 直近の練習履歴 ───── */}
       {recentHistory.length > 0 && (
