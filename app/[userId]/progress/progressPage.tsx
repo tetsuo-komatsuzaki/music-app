@@ -2,49 +2,44 @@
 
 import { useParams } from "next/navigation"
 import { useState } from "react"
+import TasksSection from "@/app/components/TasksSection"
+import type { SkillTaskCardData } from "@/app/components/SkillTaskCardItem"
 import styles from "./progress.module.css"
 import OnboardingTrigger from "../_onboarding/OnboardingTrigger"
 
-// ─── 型 ──────────────────────────────────────────────────────
-type WeaknessItem = { label: string; severity: number }
-type WeekStat     = { label: string; sessions: number; pitchAvg: number | null }
-
 type Props = {
   tab:             string
+  userId:          string
   streak:          number
   dayAchievements: Record<string, number>   // dateStr → 0..3
-  weaknessData:    WeaknessItem[]
-  weeklyStats:     WeekStat[]
+  cards:           SkillTaskCardData[]
+  subScoresMap:    Record<string, number | null>
+  skillScoresMap:  Record<string, number | null>
 }
 
 // ─── タブ定義 ─────────────────────────────────────────────────
+// 旧「弱点」「サマリー」タブは削除し、マイページから「あなたの課題」を移設。
 const TABS = [
   { key: "calendar", label: "練習カレンダー" },
-  { key: "weakness", label: "弱点" },
-  { key: "summary",  label: "サマリー" },
+  { key: "tasks",    label: "あなたの課題" },
 ]
 
 const DAY_HEADERS = ["月", "火", "水", "木", "金", "土", "日"]
-
-
-// ─── 弱点バーの色 ─────────────────────────────────────────────
-function weaknessColor(severity: number): string {
-  if (severity >= 0.3) return "#E24B4A"
-  if (severity >= 0.15) return "#EF9F27"
-  return "#1D9E75"
-}
 
 function pad2(n: number): string { return String(n).padStart(2, "0") }
 
 export default function ProgressPage({
   tab,
+  userId: userIdProp,
   streak,
   dayAchievements,
-  weaknessData,
-  weeklyStats,
+  cards,
+  subScoresMap,
+  skillScoresMap,
 }: Props) {
   const params = useParams()
-  const userId = params.userId as string
+  // route の userId を優先 (props の userId はサーバ側から渡された supabaseUserId)
+  const userId = (params.userId as string) ?? userIdProp
 
   // ── カレンダー表示中の年月（クライアント状態、初期=今日の月）──
   const today = new Date()
@@ -74,9 +69,6 @@ export default function ProgressPage({
     if (isToday) parts.push(styles.dayToday)
     return parts.join(" ")
   }
-
-  // ── 週間セッション最大値（サマリー棒グラフ用）──
-  const maxSessions = Math.max(...weeklyStats.map(w => w.sessions), 1)
 
   // ── カレンダー描画用 ──
   const firstDow = new Date(year, month - 1, 1).getDay()
@@ -181,73 +173,17 @@ export default function ProgressPage({
       )}
 
       {/* ═══════════════════════════════════════════════════════
-          弱点タブ
+          あなたの課題タブ (マイページから移設)
       ═══════════════════════════════════════════════════════ */}
-      {tab === "weakness" && (
-        <div className={styles.card} data-onboarding="progress.weakness">
-          <div className={styles.cardTitle}>エラー率（低いほど良い）</div>
-          {weaknessData.length === 0 ? (
-            <div style={{ color: "#999", fontSize: 13 }}>
-              まだデータがありません。演奏を録音して評価を確認しましょう。
-            </div>
-          ) : (
-            weaknessData.map((w, i) => {
-              const pct   = Math.round(w.severity * 100)
-              const color = weaknessColor(w.severity)
-              return (
-                <div key={i} className={styles.weaknessItem}>
-                  <div className={styles.weaknessHeader}>
-                    <span className={styles.weaknessLabel}>{w.label}</span>
-                    <span className={styles.weaknessPct} style={{ color }}>{pct}%</span>
-                  </div>
-                  <div className={styles.weaknessBar}>
-                    <div
-                      className={styles.weaknessBarFill}
-                      style={{ width: `${pct}%`, background: color }}
-                    />
-                  </div>
-                </div>
-              )
-            })
-          )}
+      {tab === "tasks" && (
+        <div className={styles.card}>
+          <TasksSection
+            userId={userId}
+            initialCards={cards}
+            subScoresMap={subScoresMap}
+            skillScoresMap={skillScoresMap}
+          />
         </div>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════
-          サマリータブ
-      ═══════════════════════════════════════════════════════ */}
-      {tab === "summary" && (
-        <>
-          <div className={styles.card}>
-            <div className={styles.summaryMetrics}>
-              <div className={styles.metricBox}>
-                <div className={styles.metricLabel}>総セッション数</div>
-                <div className={styles.metricValue}>
-                  {weeklyStats.reduce((a, w) => a + w.sessions, 0)}
-                </div>
-              </div>
-              <div className={styles.metricBox}>
-                <div className={styles.metricLabel}>過去8週間</div>
-                <div className={styles.metricValue}>
-                  {weeklyStats.filter(w => w.sessions > 0).length}週
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.chartTitle}>週別セッション数</div>
-            <div className={styles.barChart}>
-              {weeklyStats.map((w, i) => (
-                <div key={i} className={styles.barChartCol}>
-                  <div
-                    className={styles.barChartBar}
-                    style={{ height: `${Math.max((w.sessions / maxSessions) * 80, 4)}px` }}
-                  />
-                  <div className={styles.barChartLabel}>{w.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
       )}
 
       <OnboardingTrigger pageKey="progress" />

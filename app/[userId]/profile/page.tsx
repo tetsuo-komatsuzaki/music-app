@@ -1,26 +1,20 @@
 // app/[userId]/profile/page.tsx
 //
 // UI 設計書 v3.1 §7 — マイページ (Server Component)。
-// グレード詳細 + あなたの課題 (3 タブ) を表示する。
+// グレード詳細セクション + プロフィール / 設定リンク。
 //
-// 既存の空 placeholder を本実装に置き換え (UI-10)。
+// 旧「あなたの課題」カードは 成長記録「あなたの課題」タブに移設。
+// このページは グレード詳細 + フッターリンクのみ。
 
 import { prisma } from "@/app/_libs/prisma"
 import {
   GRADE_LEVELS,
-  SKILL_TASKS,
-  SUB_TASK_NAMES,
-  TASK_NAMES,
   type GradeLevel,
-  type SubTaskId,
-  type TaskId,
 } from "@/app/_libs/skillMaster"
 import MyPage from "./myPage"
-import type { SkillTaskCardData } from "@/app/components/SkillTaskCardItem"
 
 export const metadata = { title: "マイページ" }
 
-// UI-8 と同じグレード境界定義
 const NEXT_GRADE_BAND: Record<
   GradeLevel,
   { next: GradeLevel | null; difficulties: number[] }
@@ -38,31 +32,6 @@ type PageProps = {
   params: Promise<{ userId: string }>
 }
 
-function getDisplayNames(
-  cardType: "task" | "sub_task",
-  skillTaskId: string | null,
-  skillSubTaskId: string | null,
-): { displayName: string; parentTaskName: string } {
-  if (cardType === "sub_task" && skillSubTaskId) {
-    const subId = skillSubTaskId as SubTaskId
-    const displayName = SUB_TASK_NAMES[subId] ?? skillSubTaskId
-    let parentTaskName = ""
-    for (const taskId of Object.keys(SKILL_TASKS) as TaskId[]) {
-      if (SKILL_TASKS[taskId].subTaskIds.includes(subId)) {
-        parentTaskName = TASK_NAMES[taskId]
-        break
-      }
-    }
-    return { displayName, parentTaskName }
-  }
-  if (cardType === "task" && skillTaskId) {
-    const taskId = skillTaskId as TaskId
-    const name = TASK_NAMES[taskId] ?? skillTaskId
-    return { displayName: name, parentTaskName: name }
-  }
-  return { displayName: "", parentTaskName: "" }
-}
-
 export default async function ProfilePage({ params }: PageProps) {
   const { userId } = await params
 
@@ -74,37 +43,10 @@ export default async function ProfilePage({ params }: PageProps) {
 
   const internalUserId = dbUser.id
 
-  // ── 全データを並列フェッチ ──
-  const [userGrade, rawCards, subScores, skillScores] = await Promise.all([
-    prisma.userGrade.findUnique({
-      where: { userId: internalUserId },
-      select: { currentGrade: true, achievedAt: true, progressData: true },
-    }),
-    prisma.userSkillTaskCard.findMany({
-      where: { userId: internalUserId },
-      orderBy: [{ status: "asc" }, { createdAt: "desc" }],
-      take: 100,
-      select: {
-        id: true,
-        cardType: true,
-        skillTaskId: true,
-        skillSubTaskId: true,
-        status: true,
-        createdAt: true,
-        improvedAt: true,
-        clearedAt: true,
-        lastMatchedAt: true,
-      },
-    }),
-    prisma.userSkillSubScore.findMany({
-      where: { userId: internalUserId },
-      select: { skillSubTaskId: true, averageScore: true },
-    }),
-    prisma.userSkillScore.findMany({
-      where: { userId: internalUserId },
-      select: { skillTaskId: true, currentScore: true },
-    }),
-  ])
+  const userGrade = await prisma.userGrade.findUnique({
+    where: { userId: internalUserId },
+    select: { currentGrade: true, achievedAt: true, progressData: true },
+  })
 
   // ── gradeData (UI-8 と同じ形) ──
   type ProgressEntry = {
@@ -156,47 +98,11 @@ export default async function ProfilePage({ params }: PageProps) {
     totalRequired,
   }
 
-  // ── スコアマップ (sub_task / task カード共通参照用) ──
-  const subScoresMap: Record<string, number | null> = {}
-  for (const s of subScores) {
-    if (s.skillSubTaskId) subScoresMap[s.skillSubTaskId] = s.averageScore
-  }
-  const skillScoresMap: Record<string, number | null> = {}
-  for (const s of skillScores) {
-    if (s.skillTaskId) skillScoresMap[s.skillTaskId] = s.currentScore
-  }
-
-  // ── カードデータをクライアント用に整形 (Date → ISO 文字列 + 表示名付与) ──
-  const cards: SkillTaskCardData[] = rawCards.map(c => {
-    const cardType = c.cardType as "task" | "sub_task"
-    const { displayName, parentTaskName } = getDisplayNames(
-      cardType,
-      c.skillTaskId,
-      c.skillSubTaskId,
-    )
-    return {
-      id: c.id,
-      cardType,
-      skillTaskId: c.skillTaskId,
-      skillSubTaskId: c.skillSubTaskId,
-      status: c.status as "active" | "improving" | "cleared",
-      createdAt: c.createdAt.toISOString(),
-      improvedAt: c.improvedAt?.toISOString() ?? null,
-      clearedAt: c.clearedAt?.toISOString() ?? null,
-      lastMatchedAt: c.lastMatchedAt?.toISOString() ?? null,
-      displayName,
-      parentTaskName,
-    }
-  })
-
   return (
     <MyPage
       userId={userId}
       userName={dbUser.name ?? ""}
       gradeData={gradeData}
-      cards={cards}
-      subScoresMap={subScoresMap}
-      skillScoresMap={skillScoresMap}
     />
   )
 }
