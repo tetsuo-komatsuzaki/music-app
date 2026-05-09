@@ -3,7 +3,7 @@ import { generateArcoMessage } from "@/app/_libs/arcoChan"
 import { formatKey } from "@/app/_libs/musicNotation"
 import {
   extractSubTaskIdsFromCard,
-  findCandidatePracticeItems,
+  findCandidateRecommendations,
   generateRecommendationReason,
 } from "@/app/_libs/recommendations"
 import {
@@ -284,16 +284,17 @@ export default async function HomePage({ params }: PageProps) {
     totalRequired,
   }
 
-  // --- UI-9 (§11-3): active カード優先のレコメンド ---
-  // 旧ロジック (dailyChallenge / score-key / weakness 由来) は v3.2.2 で
-  // active カードベースに統一されるため削除。findCandidatePracticeItems が
-  // グレード範囲・未達成・skillSubTaskTags を一括フィルタする。
+  // --- UI-9 + Score 統合 (§11-3): active カード優先のレコメンド ---
+  // findCandidateRecommendations が PracticeItem + Score を統合した候補を返す。
+  // - PracticeItem: difficulty 範囲 + skillSubTaskTags + 未達成 + isPublished
+  // - Score: difficulty 範囲 + skillSubTaskTags + isShared + deletedAt=null
+  //   (Score は achievedIds 適用なし — 進捗管理は PracticeItem のみ)
   const perfStep3 = performance.now()
   const achievedIds = Object.values(progressData).flatMap(
     entry => Array.isArray(entry.practiceItemIds) ? entry.practiceItemIds : [],
   )
   const subTaskIds = activeCard ? extractSubTaskIdsFromCard(activeCard) : null
-  const candidateItems = await findCandidatePracticeItems(prisma, {
+  const candidateItems = await findCandidateRecommendations(prisma, {
     userId: internalUserId,
     subTaskIds,
     grade: currentGrade,
@@ -301,18 +302,25 @@ export default async function HomePage({ params }: PageProps) {
     limit: 5,
   })
   const recommendationReason = generateRecommendationReason(activeCard)
-  const songRecommendations = candidateItems.map(item => ({
-    practiceItem: {
-      id: item.id,
-      title: item.title,
-      category: item.category,
-      difficulty: item.difficulty ?? null,
-      composer: item.composer ?? null,
-    },
-    reason: recommendationReason,
-    href: `/${userId}/practice/${item.category}/${item.id}`,
-    ...(activeCard ? { triggeredByCardId: activeCard.id } : {}),
-  }))
+  const songRecommendations = candidateItems.map(item => {
+    // category="score" は Score ルート、それ以外は PracticeItem ルート
+    const href =
+      item.category === "score"
+        ? `/${userId}/scores/${item.id}`
+        : `/${userId}/practice/${item.category}/${item.id}`
+    return {
+      practiceItem: {
+        id: item.id,
+        title: item.title,
+        category: item.category,
+        difficulty: item.difficulty ?? null,
+        composer: item.composer ?? null,
+      },
+      reason: recommendationReason,
+      href,
+      ...(activeCard ? { triggeredByCardId: activeCard.id } : {}),
+    }
+  })
   console.log(`[PERF] home step3_recommendations: ${(performance.now() - perfStep3).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   // --- 直近の練習履歴（3件）---
