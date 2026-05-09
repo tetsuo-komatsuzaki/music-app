@@ -74,8 +74,24 @@ export default function HomeClient({
       {/* ───── アルコちゃんからの案内 (最上部・主役) ───── */}
       <div className={`${styles.card} ${styles.arcoCard}`} data-onboarding="home.arcoCard">
         <div className={styles.arcoHeader}>
-          <span className={styles.arcoIcon}>🎻</span>
-          <span className={styles.arcoName}>アルコちゃんからの案内</span>
+          <div className={styles.arcoHeaderLeft}>
+            <span className={styles.arcoIcon}>🎻</span>
+            <span className={styles.arcoName}>アルコちゃんからの案内</span>
+          </div>
+          <div className={styles.arcoStats}>
+            <div className={styles.arcoStatItem}>
+              <span className={styles.arcoStatLabel}>今週の練習</span>
+              <span className={styles.arcoStatValue}>
+                {weeklyDays}<span className={styles.arcoStatGoal}>/{WEEKLY_GOAL}日</span>
+              </span>
+            </div>
+            <div className={styles.arcoStatItem}>
+              <span className={styles.arcoStatLabel}>🔥 連続練習記録</span>
+              <span className={styles.arcoStatValue}>
+                {streak}<span className={styles.arcoStatGoal}>日</span>
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className={styles.arcoGreeting}>{arcoMessage.greeting}</div>
@@ -106,36 +122,6 @@ export default function HomeClient({
         onClose={() => setGradeModalOpen(false)}
         data={gradeData}
       />
-
-      {/* ───── 上段2カード (ストリーク + 今週、3リング削除) ───── */}
-      <div className={styles.topRow}>
-
-        {/* ストリーク */}
-        <div className={`${styles.card} ${styles.streakCard}`}>
-          <div className={styles.streakMain}>
-            <span style={{ fontSize: 22 }}>🔥</span>
-            <span className={styles.streakDays}>{streak}</span>
-            <span className={styles.streakLabel}>days</span>
-          </div>
-          <div className={styles.streakSub}>連続練習記録</div>
-        </div>
-
-        {/* 週間 */}
-        <div className={`${styles.card} ${styles.weeklyCard}`}>
-          <div className={styles.weeklyTitle}>今週の練習</div>
-          <div className={styles.weeklyCount}>
-            {weeklyDays}
-            <span style={{ fontSize: 14, fontWeight: 400, color: "#999" }}>/{WEEKLY_GOAL}日</span>
-          </div>
-          <div className={styles.weeklyBar}>
-            <div
-              className={styles.weeklyBarFill}
-              style={{ width: `${Math.min(weeklyDays / WEEKLY_GOAL, 1) * 100}%` }}
-            />
-          </div>
-        </div>
-
-      </div>
 
       {/* ───── Continue バー ───── */}
       {continueItem && (

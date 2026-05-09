@@ -44,9 +44,17 @@
 
 .arcoHeader {
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.arcoHeaderLeft {
+  display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  min-width: 0;
 }
 
 .arcoIcon {
@@ -58,6 +66,41 @@
   font-weight: 600;
   color: #4F6B91;
   letter-spacing: 0.02em;
+}
+
+/* アルコちゃんカード右上の統計バッジ群 (今週の練習 / 連続練習記録) */
+.arcoStats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.arcoStatItem {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.arcoStatLabel {
+  color: #4F6B91;
+  font-weight: 500;
+}
+
+.arcoStatValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.arcoStatGoal {
+  font-size: 11px;
+  font-weight: 400;
+  color: #999;
+  margin-left: 1px;
 }
 
 .arcoGreeting {
