@@ -72,6 +72,21 @@ export type RecommendedPracticeItem = {
   originalXmlPath: string
 }
 
+// 「次のチャレンジ」レコメンド用 (PracticeItem + Score を統合)。
+// Score は keyTonic/keyMode が nullable なので、unified type で nullable に。
+// category は scale/arpeggio/etude/score の 4 値を取りうる。
+export type RecommendedRecommendation = {
+  id: string
+  title: string
+  category: string // scale | arpeggio | etude | score
+  difficulty: number | null
+  keyTonic: string | null
+  keyMode: string | null
+  composer: string | null
+  descriptionShort: string | null
+  originalXmlPath: string
+}
+
 type FindOpts = {
   userId: string
   subTaskIds: readonly string[] | null // null → タグ条件なし (グレード範囲のみ)
@@ -131,6 +146,130 @@ export async function findCandidatePracticeItems(
   }
   const sortedDiffs = [...byDifficulty.keys()].sort((a, b) => a - b)
   const result: RecommendedPracticeItem[] = []
+  for (const d of sortedDiffs) {
+    const group = byDifficulty.get(d)!
+    // Fisher-Yates
+    for (let i = group.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[group[i], group[j]] = [group[j], group[i]]
+    }
+    for (const c of group) {
+      result.push(c)
+      if (result.length >= opts.limit) return result
+    }
+  }
+  return result
+}
+
+// =======================================================================
+// 「次のチャレンジ」レコメンド (PracticeItem + Score 統合)
+// =======================================================================
+//
+// 用途: ホーム画面の「次のチャレンジ」セクション (ユーザーが次に取り組む曲を選ぶ)。
+// findCandidatePracticeItems と異なり、Score (曲) も対象に含める。
+//
+// Score 側のフィルタ条件:
+//   - deletedAt IS NULL (論理削除されていない)
+//   - isShared = true (admin 共有サンプルのみ。ユーザーの自由曲は除外)
+//   - difficulty 範囲 + skillSubTaskTags の重なり
+//
+// achievedIds は PracticeItem 由来の進捗 (UserGrade.progressData) なので、
+// Score には適用しない。
+
+export async function findCandidateRecommendations(
+  tx: Tx,
+  opts: FindOpts,
+): Promise<RecommendedRecommendation[]> {
+  const [diffMin, diffMax] = GRADE_DIFFICULTY_RANGE[opts.grade]
+
+  const tagOR =
+    opts.subTaskIds && opts.subTaskIds.length > 0
+      ? opts.subTaskIds.map(id => ({
+          skillSubTaskTags: { array_contains: id },
+        }))
+      : null
+
+  const practiceWhere: Prisma.PracticeItemWhereInput = {
+    isPublished: true,
+    difficulty: { gte: diffMin, lte: diffMax },
+    ...(opts.achievedIds.length > 0
+      ? { id: { notIn: opts.achievedIds } }
+      : {}),
+    ...(tagOR ? { OR: tagOR } : {}),
+  }
+
+  const scoreWhere: Prisma.ScoreWhereInput = {
+    deletedAt: null,
+    isShared: true,
+    difficulty: { gte: diffMin, lte: diffMax },
+    ...(tagOR ? { OR: tagOR } : {}),
+  }
+
+  const [practiceCandidates, scoreCandidates] = await Promise.all([
+    tx.practiceItem.findMany({
+      where: practiceWhere,
+      orderBy: { difficulty: "asc" },
+      select: {
+        id: true,
+        title: true,
+        category: true,
+        difficulty: true,
+        keyTonic: true,
+        keyMode: true,
+        composer: true,
+        descriptionShort: true,
+        originalXmlPath: true,
+      },
+    }),
+    tx.score.findMany({
+      where: scoreWhere,
+      orderBy: { difficulty: "asc" },
+      select: {
+        id: true,
+        title: true,
+        composer: true,
+        keyTonic: true,
+        keyMode: true,
+        originalXmlPath: true,
+        difficulty: true,
+      },
+    }),
+  ])
+
+  const all: RecommendedRecommendation[] = [
+    ...practiceCandidates.map(p => ({
+      id: p.id,
+      title: p.title,
+      category: p.category as string,
+      difficulty: p.difficulty,
+      keyTonic: p.keyTonic as string | null,
+      keyMode: p.keyMode as string | null,
+      composer: p.composer,
+      descriptionShort: p.descriptionShort,
+      originalXmlPath: p.originalXmlPath,
+    })),
+    ...scoreCandidates.map(s => ({
+      id: s.id,
+      title: s.title,
+      category: "score",
+      difficulty: s.difficulty,
+      keyTonic: s.keyTonic,
+      keyMode: s.keyMode,
+      composer: s.composer,
+      descriptionShort: null,
+      originalXmlPath: s.originalXmlPath,
+    })),
+  ]
+
+  // 同 difficulty 内でシャッフル + limit (findCandidatePracticeItems と同じパターン)
+  const byDifficulty = new Map<number, RecommendedRecommendation[]>()
+  for (const c of all) {
+    const d = c.difficulty ?? 0
+    if (!byDifficulty.has(d)) byDifficulty.set(d, [])
+    byDifficulty.get(d)!.push(c)
+  }
+  const sortedDiffs = [...byDifficulty.keys()].sort((a, b) => a - b)
+  const result: RecommendedRecommendation[] = []
   for (const d of sortedDiffs) {
     const group = byDifficulty.get(d)!
     // Fisher-Yates
