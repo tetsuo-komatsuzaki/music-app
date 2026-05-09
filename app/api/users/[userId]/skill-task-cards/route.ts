@@ -163,13 +163,33 @@ export async function GET(
   const cardType = parseCardType(sp.get("cardType"))
   const limit = parseLimit(sp.get("limit"))
 
+  // F6: status 別に並び順を変える (UI 設計書 v3.1 §7-7 / §15-3)
+  // - active     → createdAt 降順 (severity 列が UserSkillTaskCard に未保持のため代替、§15-3 で β以降 latestSeverity 検討)
+  // - improving  → lastMatchedAt 降順 (近時に matched=true になったものを上位へ)
+  // - cleared    → clearedAt 降順 (最近達成したものを上位へ)
+  // 単一 status 指定でないクエリは status asc → createdAt desc にフォールバック。
+  const isSingleStatus = statuses && statuses.length === 1
+  const orderBy: Prisma.UserSkillTaskCardOrderByWithRelationInput[] = (() => {
+    if (!isSingleStatus) {
+      return [{ status: "asc" }, { createdAt: "desc" }]
+    }
+    switch (statuses[0]) {
+      case "improving":
+        return [{ lastMatchedAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }]
+      case "cleared":
+        return [{ clearedAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }]
+      case "active":
+      default:
+        return [{ createdAt: "desc" }]
+    }
+  })()
   const cards = await prisma.userSkillTaskCard.findMany({
     where: {
       userId: dbUserId,
       ...(statuses ? { status: { in: statuses } } : {}),
       ...(cardType ? { cardType } : {}),
     },
-    orderBy: [{ status: "asc" }, { createdAt: "desc" }],
+    orderBy,
     take: limit,
     select: {
       id: true,

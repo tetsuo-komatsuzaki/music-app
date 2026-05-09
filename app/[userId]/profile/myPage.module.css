@@ -1,0 +1,134 @@
+/* myPage.module.css — UI 設計書 v3.1 §7 マイページ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  margin-bottom: 4px;
+}
+
+.pageTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2d2d2d;
+  margin: 0;
+}
+
+.section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #444;
+  margin: 0 0 12px;
+}
+
+/* グレードセクション */
+.gradeRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 4px 0;
+}
+
+.gradeProgress {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* カード一覧 */
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* 空ケース */
+.empty {
+  background: #f7f9fc;
+  border: 1px dashed #c7d0db;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+.emptyTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #5a6473;
+  margin-bottom: 6px;
+}
+
+.emptyDescription {
+  font-size: 12px;
+  color: #7a8694;
+  line-height: 1.6;
+}
+
+/* フッターナビ */
+.footerNav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+
+.footerLink {
+  flex: 1 1 140px;
+  min-height: 44px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  color: #444;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.footerLink:hover {
+  background: #f7f9fc;
+  border-color: #c7d0db;
+}
+
+/* トースト (画面下中央 / 3 秒自動消去) */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2d2d2d;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1100;
+  max-width: calc(100% - 32px);
+  text-align: center;
+  animation: toastIn 0.2s ease forwards;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}

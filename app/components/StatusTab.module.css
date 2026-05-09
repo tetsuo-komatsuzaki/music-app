@@ -1,0 +1,73 @@
+/* StatusTab.module.css — UI 設計書 v3.1 §7-3 */
+
+.tabBar {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #f0f2f5;
+  border-radius: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabBar::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex: 1;
+  min-height: 44px; /* a11y タップ領域 44×44px 以上 */
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: #5a6473;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tab:hover {
+  color: #2d2d2d;
+}
+
+.tab:focus-visible {
+  outline: 2px solid #5a7fdf;
+  outline-offset: -2px;
+}
+
+.tabActive {
+  background: #fff;
+  color: #2d2d2d;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.label {
+  letter-spacing: 0.02em;
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #d4dae3;
+  color: #5a6473;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.countActive {
+  background: #5a7fdf;
+  color: #fff;
+}
