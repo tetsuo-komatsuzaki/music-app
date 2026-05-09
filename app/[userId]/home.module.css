@@ -82,6 +82,26 @@
   border: 0.5px solid #E5EDF7;
 }
 
+/* UI-8: グレード表示セクション (アルコちゃんカード内、旧「今日のおすすめ」を置き換え) */
+.gradeSection {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  padding: 14px 16px;
+  border: 0.5px solid #E5EDF7;
+}
+
+.gradeRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.gradeProgress {
+  flex: 1;
+  min-width: 180px;
+}
+
 .arcoRecommendLabel {
   font-size: 11px;
   font-weight: 600;

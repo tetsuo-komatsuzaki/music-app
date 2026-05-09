@@ -1,6 +1,12 @@
 "use client"
 
 import Link from "next/link"
+import { useState } from "react"
+import GradeBadge from "@/app/components/GradeBadge"
+import GradeProgressBar from "@/app/components/GradeProgressBar"
+import GradeDetailModal, {
+  type GradeDetailData,
+} from "@/app/components/GradeDetailModal"
 import styles from "./home.module.css"
 import OnboardingTrigger from "./_onboarding/OnboardingTrigger"
 
@@ -12,12 +18,19 @@ type RecommendedItem = {
   reason: string
 }
 
+// UI-8: ホーム画面のグレード表示用 (page.tsx で構築)
+type GradeData = GradeDetailData & {
+  totalCompleted: number
+  totalRequired: number
+}
+
 type Props = {
   userName: string
   streak: number
   weeklyDays: number
   arcoMessage: { greeting: string; cheer: string }
-  arcoRecommendation: RecommendedItem | null
+  /** UI-8: アルコちゃんカード内に表示するグレード情報 */
+  gradeData: GradeData
   continueItem: {
     href: string
     title: string
@@ -51,16 +64,20 @@ const CATEGORY_ICON: Record<string, string> = {
 }
 
 export default function HomeClient({
-  userName,
+  userName: _userName,
   streak,
   weeklyDays,
   arcoMessage,
-  arcoRecommendation,
+  gradeData,
   continueItem,
   recommendations,
   recentHistory,
 }: Props) {
+  void _userName
   const WEEKLY_GOAL = 5
+
+  // UI-8: グレード詳細モーダルの開閉状態
+  const [gradeModalOpen, setGradeModalOpen] = useState(false)
 
   return (
     <div className={styles.page}>
@@ -75,24 +92,31 @@ export default function HomeClient({
         <div className={styles.arcoGreeting}>{arcoMessage.greeting}</div>
         <div className={styles.arcoCheer}>{arcoMessage.cheer}</div>
 
-        {arcoRecommendation && (
-          <div className={styles.arcoRecommend}>
-            <div className={styles.arcoRecommendLabel}>今日のおすすめ</div>
-            <div className={styles.arcoRecommendItem}>
-              <span className={styles.arcoRecommendIcon}>
-                {CATEGORY_ICON[arcoRecommendation.category] ?? "🎵"}
-              </span>
-              <div className={styles.arcoRecommendInfo}>
-                <div className={styles.arcoRecommendTitle}>{arcoRecommendation.title}</div>
-                <div className={styles.arcoRecommendReason}>{arcoRecommendation.reason}</div>
-              </div>
+        {/* UI-8: グレード表示 (旧「今日のおすすめ」を置き換え) */}
+        <div className={styles.gradeSection}>
+          <div className={styles.gradeRow}>
+            <GradeBadge
+              grade={gradeData.currentGrade}
+              onTap={() => setGradeModalOpen(true)}
+            />
+            <div className={styles.gradeProgress}>
+              <GradeProgressBar
+                completed={gradeData.totalCompleted}
+                required={gradeData.totalRequired}
+                remainingCount={gradeData.remainingCount}
+                nextGrade={gradeData.nextGrade}
+              />
             </div>
-            <Link href={arcoRecommendation.href} className={styles.arcoCta}>
-              スタート →
-            </Link>
           </div>
-        )}
+        </div>
       </div>
+
+      {/* UI-8: グレード詳細モーダル */}
+      <GradeDetailModal
+        open={gradeModalOpen}
+        onClose={() => setGradeModalOpen(false)}
+        data={gradeData}
+      />
 
       {/* ───── 上段2カード (ストリーク + 今週、3リング削除) ───── */}
       <div className={styles.topRow}>

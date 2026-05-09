@@ -1,7 +1,23 @@
 import { prisma } from "@/app/_libs/prisma"
 import { generateArcoMessage } from "@/app/_libs/arcoChan"
 import { formatKey } from "@/app/_libs/musicNotation"
+import {
+  GRADE_LEVELS,
+  type GradeLevel,
+} from "@/app/_libs/skillMaster"
 import HomeClient from "./home"
+
+// UI-8: ホーム画面のグレード表示用に、grade API と同じ形でサーバ側で構築。
+// (Server Components で取得 → props 渡し)
+const NEXT_GRADE_BAND: Record<GradeLevel, { next: GradeLevel | null; difficulties: number[] }> = {
+  BEGINNER: { next: "INTERMEDIATE", difficulties: [1, 2, 3] },
+  INTERMEDIATE: { next: "ADVANCED", difficulties: [4, 5, 6, 7] },
+  ADVANCED: { next: "MASTER", difficulties: [8, 9, 10] },
+  MASTER: { next: null, difficulties: [] },
+}
+
+const isGradeLevel = (v: unknown): v is GradeLevel =>
+  typeof v === "string" && (GRADE_LEVELS as readonly string[]).includes(v)
 
 export const metadata = { title: "ホーム" }
 
@@ -81,6 +97,7 @@ export default async function HomePage({ params }: PageProps) {
     recentScores,
     recentPracticeHistory,
     recentScoreHistory,
+    userGrade,              // UI-8: グレード表示用
   ] = await Promise.all([
     // ストリーク用（90日以内のみ）
     prisma.practicePerformance.findMany({
@@ -146,6 +163,11 @@ export default async function HomePage({ params }: PageProps) {
         uploadedAt: true,
         score: { select: { title: true, id: true } },
       },
+    }),
+    // UI-8: グレード表示
+    prisma.userGrade.findUnique({
+      where: { userId: internalUserId },
+      select: { currentGrade: true, achievedAt: true, progressData: true },
     }),
   ])
   console.log(`[PERF] home step2_parallel: ${(performance.now() - perfStep2).toFixed(0)}ms`)
@@ -327,8 +349,45 @@ export default async function HomePage({ params }: PageProps) {
     allItems.push(r)
   }
 
-  const arcoRecommendation = allItems[0] ?? null
-  const independentRecommendations = allItems.slice(1, 2)  // 最大1件
+  // UI-8: 「今日のおすすめ」(arco card 内) を削除し GradeSection に置き換え。
+  // dailyChallenge は「おすすめ練習」セクションに移動 (最大 2 件まで)
+  const independentRecommendations = allItems.slice(0, 2)
+
+  // UI-8: グレード表示用データ。grade API と同じ形でサーバ側で構築。
+  type ProgressEntry = { completed: number; required: number; practiceItemIds: string[] }
+  const currentGrade: GradeLevel = isGradeLevel(userGrade?.currentGrade)
+    ? userGrade.currentGrade
+    : "BEGINNER"
+  const progressData = (userGrade?.progressData ?? {}) as Record<string, ProgressEntry>
+  const band = NEXT_GRADE_BAND[currentGrade]
+  let remainingCount = 0
+  const nextGradeDetails: Record<string, { completed: number; required: number; remaining: number }> = {}
+  for (const d of band.difficulties) {
+    const dKey = String(d)
+    const entry = progressData[dKey] ?? { completed: 0, required: 10, practiceItemIds: [] }
+    const completed = typeof entry.completed === "number" ? entry.completed : 0
+    const required = typeof entry.required === "number" ? entry.required : 10
+    const remaining = Math.max(0, required - completed)
+    nextGradeDetails[dKey] = { completed, required, remaining }
+    remainingCount += remaining
+  }
+  const totalCompleted = Object.values(nextGradeDetails).reduce(
+    (sum, d) => sum + d.completed,
+    0,
+  )
+  const totalRequired = Object.values(nextGradeDetails).reduce(
+    (sum, d) => sum + d.required,
+    0,
+  )
+  const gradeData = {
+    currentGrade,
+    achievedAt: userGrade?.achievedAt?.toISOString() ?? null,
+    nextGrade: band.next,
+    remainingCount,
+    nextGradeDetails,
+    totalCompleted,
+    totalRequired,
+  }
 
   // --- 直近の練習履歴（3件）---
   type HistoryItem = {
@@ -361,7 +420,7 @@ export default async function HomePage({ params }: PageProps) {
       streak={streak}
       weeklyDays={weeklyDays}
       arcoMessage={arcoMessage}
-      arcoRecommendation={arcoRecommendation}
+      gradeData={gradeData}
       continueItem={
         continueItem
           ? { ...continueItem, uploadedAt: continueItem.uploadedAt.toISOString() }
