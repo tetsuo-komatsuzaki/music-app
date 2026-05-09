@@ -13,6 +13,7 @@ const BASE_NAV_ITEMS = [
   { path: "scores",   icon: "🎵", label: "スコア一覧" },
   { path: "practice", icon: "📈", label: "練習メニュー" },
   { path: "progress", icon: "📊", label: "成長記録" },
+  { path: "profile",  icon: "👤", label: "マイページ" }, // UI-10 (§7)
 ]
 
 const ADMIN_NAV_ITEM = { path: "admin/practice", icon: "⚙️", label: "管理" }
