@@ -19,8 +19,7 @@
 
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import Link from "next/link"
 import {
   SKILL_SUB_TASKS,
   type SubTaskId,
@@ -81,10 +80,6 @@ export default function SkillTaskCardItem({
   onToggle,
   onClear,
 }: Props) {
-  const router = useRouter()
-  const [etudeLoading, setEtudeLoading] = useState(false)
-  const [etudeError, setEtudeError] = useState<string | null>(null)
-
   // 改善のヒント (sub_task カードのみ。task カードは null)
   const awareness =
     card.cardType === "sub_task" && isSubTaskId(card.skillSubTaskId)
@@ -93,37 +88,9 @@ export default function SkillTaskCardItem({
 
   const showClearButton = card.status === "active" || card.status === "improving"
 
-  const handleEtudeClick = async () => {
-    if (etudeLoading) return
-    setEtudeLoading(true)
-    setEtudeError(null)
-    try {
-      const res = await fetch(
-        `/api/skill-task-cards/${card.id}/recommendations/etudes?limit=1`,
-      )
-      if (!res.ok) {
-        setEtudeError(`教材を取得できませんでした (HTTP ${res.status})`)
-        return
-      }
-      const data = (await res.json()) as {
-        recommendations: Array<{
-          practiceItem: { id: string; category: string; title: string }
-        }>
-      }
-      if (!data.recommendations || data.recommendations.length === 0) {
-        setEtudeError("おすすめ教材が見つかりませんでした")
-        return
-      }
-      const item = data.recommendations[0].practiceItem
-      router.push(`/${userId}/practice/${item.category}/${item.id}`)
-    } catch (e) {
-      setEtudeError(
-        `教材を取得できませんでした (${e instanceof Error ? e.message : String(e)})`,
-      )
-    } finally {
-      setEtudeLoading(false)
-    }
-  }
+  // UI-12 (§8): /practice?fromCard=&context=etude に遷移して
+  // コンテクスト付きの教材リストを表示する。
+  const etudeHref = `/${userId}/practice?fromCard=${card.id}&context=etude`
 
   return (
     <article
@@ -177,22 +144,13 @@ export default function SkillTaskCardItem({
           )}
 
           <div className={styles.actions}>
-            <button
-              type="button"
+            <Link
+              href={etudeHref}
               className={styles.etudeButton}
-              onClick={handleEtudeClick}
-              disabled={etudeLoading}
-              aria-busy={etudeLoading}
+              title="おすすめ教材ページに移動します"
             >
-              {etudeLoading ? (
-                <>
-                  <span className={styles.spinner} aria-hidden="true" />
-                  読み込み中...
-                </>
-              ) : (
-                "この教材で練習する"
-              )}
-            </button>
+              この教材で練習する
+            </Link>
 
             <button
               type="button"
@@ -214,12 +172,6 @@ export default function SkillTaskCardItem({
               </button>
             )}
           </div>
-
-          {etudeError && (
-            <div className={styles.errorMessage} role="alert">
-              {etudeError}
-            </div>
-          )}
         </div>
       )}
     </article>

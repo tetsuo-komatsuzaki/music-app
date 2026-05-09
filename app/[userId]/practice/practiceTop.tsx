@@ -10,6 +10,22 @@ type RecommendItem = {
   category: string
 }
 
+// UI-12 (§8 D3): カード由来の遷移時に渡されるコンテクスト
+export type CardContext = {
+  cardId: string
+  /** 「{subTaskName} の教材」の {subTaskName} 部分 */
+  contextLabel: string
+  recommendations: Array<{
+    id: string
+    title: string
+    category: string
+    difficulty: number | null
+    composer: string | null
+    reason: string
+    href: string
+  }>
+}
+
 type Props = {
   userId: string
   categoryCounts: { scale: number; arpeggio: number; etude: number }
@@ -22,6 +38,8 @@ type Props = {
     reason: string
     items: RecommendItem[]
   }[]
+  /** UI-12 (§8): /practice?fromCard=&context=etude で遷移してきた場合のコンテクスト */
+  cardContext: CardContext | null
 }
 
 const categoryLabels: Record<string, string> = {
@@ -32,13 +50,44 @@ const categoryLabels: Record<string, string> = {
 
 
 export default function PracticeTop({
-  userId, categoryCounts, scoreRecommendations, weaknessRecommendations,
+  userId, categoryCounts, scoreRecommendations, weaknessRecommendations, cardContext,
 }: Props) {
   const hasRecommendations = scoreRecommendations.length > 0 || weaknessRecommendations.length > 0
 
   return (
     <div className={styles.container}>
       <h1 className={styles.pageTitle}>練習メニュー</h1>
+
+      {/* UI-12 (§8 D3): カード由来コンテクスト表示 */}
+      {cardContext && (
+        <section className={styles.cardContextSection}>
+          <h2 className={styles.cardContextTitle}>
+            「{cardContext.contextLabel}」の教材
+          </h2>
+          {cardContext.recommendations.length === 0 ? (
+            <div className={styles.cardContextEmpty}>
+              該当する教材が見つかりませんでした。
+            </div>
+          ) : (
+            <div className={styles.cardContextList}>
+              {cardContext.recommendations.map(item => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className={styles.cardContextItem}
+                >
+                  <div className={styles.cardContextItemTitle}>{item.title}</div>
+                  {item.composer && (
+                    <div className={styles.cardContextItemComposer}>
+                      {item.composer}
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {hasRecommendations && (
         <section className={styles.recommendSection}>
