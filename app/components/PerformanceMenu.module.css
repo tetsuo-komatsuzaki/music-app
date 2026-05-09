@@ -1,0 +1,68 @@
+/* PerformanceMenu.module.css — UI 設計書 v3 §5-7 ⋯ メニュー */
+
+.menuWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.trigger {
+  background: transparent;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: #555;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.trigger:hover {
+  background: #f5f5f5;
+}
+
+.trigger:focus-visible {
+  outline: 2px solid #5a7fdf;
+  outline-offset: 2px;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 120px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: 4px;
+  z-index: 100;
+}
+
+.deleteOption {
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #c44a4a;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.deleteOption:hover {
+  background: #fdecec;
+}
+
+.deleteOption:focus-visible {
+  background: #fdecec;
+  outline: 2px solid #c44a4a;
+  outline-offset: -2px;
+}

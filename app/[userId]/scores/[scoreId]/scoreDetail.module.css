@@ -523,3 +523,39 @@
     width: 100%;
   }
 }
+
+/* UI-6: 削除後のヒント (selected が null になった枠を埋める) */
+.deleteHint {
+  background: #f5f7fa;
+  border: 1px dashed #c7d0db;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 13px;
+  color: #5a6473;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* UI-6: 削除完了トースト (画面下中央 / 3 秒自動消去) */
+.deleteToast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2d2d2d;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1100;
+  animation: deleteToastIn 0.2s ease forwards;
+  max-width: calc(100% - 32px);
+  text-align: center;
+}
+
+@keyframes deleteToastIn {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
