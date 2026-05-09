@@ -49,30 +49,37 @@ model User {
 }
 
 model Score {
-  id               String        @id @default(cuid())
+  id               String    @id @default(cuid())
   createdById      String
   title            String
   composer         String?
   arranger         String?
   originalXmlPath  String
   generatedXmlPath String?
-  analysisStatus   JobStatus     @default(processing)
-  buildStatus      JobStatus     @default(processing)
-  retryCount       Int           @default(0)
+  analysisStatus   JobStatus @default(processing)
+  buildStatus      JobStatus @default(processing)
+  retryCount       Int       @default(0)
   errorMessage     String?
   lastAttemptedAt  DateTime?
   executionId      String?
-  idempotencyKey   String?       @unique
+  idempotencyKey   String?   @unique
   keyTonic         String?
   keyMode          String?
   timeNumerator    Int?
   timeDenominator  Int?
   defaultTempo     Int?
-  isShared         Boolean       @default(false) // true=全ユーザー閲覧可のサンプル
-  createdAt        DateTime      @default(now())
-  deletedAt        DateTime? // 論理削除フラグ (NULL=有効、値あり=削除済み)
-  performances     Performance[]
-  createdBy        User          @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  isShared         Boolean   @default(false) // true=全ユーザー閲覧可のサンプル
+
+  // ループエンジン用フィールド (2026-05-10 追加)
+  // 「次のチャレンジ」レコメンドで Score も対象とするため、
+  // PracticeItem と同形のメタデータを Score にも持たせる。
+  difficulty       Int? // 1〜10、グレード範囲フィルタ用
+  skillSubTaskTags Json? // sub_task ID 配列、レコメンド対象判定用
+
+  createdAt    DateTime      @default(now())
+  deletedAt    DateTime? // 論理削除フラグ (NULL=有効、値あり=削除済み)
+  performances Performance[]
+  createdBy    User          @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
   @@index([createdById])
   @@index([isShared])

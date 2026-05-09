@@ -191,3 +191,11 @@
   color: #888;
   font-style: italic;
 }
+
+.scoreMarker {
+  display: inline-block;
+  margin-left: 6px;
+  color: #5a7fdf;
+  font-size: 14px;
+  font-weight: 700;
+}

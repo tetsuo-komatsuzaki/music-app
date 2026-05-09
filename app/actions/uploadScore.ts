@@ -1,15 +1,44 @@
 "use server"
 
 import { prisma } from "../_libs/prisma"
+import { Prisma } from "../generated/prisma"
 import { createClient } from "@supabase/supabase-js"
 import { revalidatePath } from "next/cache"
 import { createServerSupabaseClient } from "../_libs/supabaseServer"
 import { invokeAnalysis } from "../_libs/pythonRunner"
+import { SUB_TASK_IDS } from "../_libs/skillMaster"
+
+const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
 
 export async function uploadScore(formData: FormData) {
   const title = (formData.get("title") as string | null)?.trim() ?? ""
   const composer = (formData.get("composer") as string | null)?.trim() ?? null
   const file = formData.get("file") as File | null
+
+  // ループエンジン用フィールド (2026-05-10 追加、admin upload で利用、user upload では空のまま)
+  const difficultyRaw = (formData.get("difficulty") as string | null)?.trim() ?? ""
+  let difficulty: number | null = null
+  if (difficultyRaw !== "") {
+    const n = Number.parseInt(difficultyRaw, 10)
+    if (!Number.isFinite(n) || n < 1 || n > 10) {
+      return { error: "難易度は 1 〜 10 で指定してください" }
+    }
+    difficulty = n
+  }
+  const skillSubTaskTagsRaw = JSON.parse(
+    (formData.get("skillSubTaskTags") as string | null) || "[]",
+  )
+  const skillSubTaskTags = Array.isArray(skillSubTaskTagsRaw)
+    ? Array.from(
+        new Set(
+          (skillSubTaskTagsRaw as unknown[]).filter(
+            (v): v is string => typeof v === "string" && VALID_SUB_TASK_IDS.has(v),
+          ),
+        ),
+      )
+    : []
+  // admin が共有サンプルとしてアップロードする時に true、user upload は false (formData 未設定でデフォルト false)
+  const isShared = formData.get("isShared") === "true"
 
   if (!title) return { error: "曲名が必要です" }
   if (!file) return { error: "ファイルがありません" }
@@ -40,6 +69,9 @@ export async function uploadScore(formData: FormData) {
       originalXmlPath: "",
       analysisStatus: "queued",
       buildStatus: "queued",
+      difficulty,
+      skillSubTaskTags: skillSubTaskTags as Prisma.InputJsonValue,
+      isShared,
     },
   })
 

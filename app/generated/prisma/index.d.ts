@@ -3963,6 +3963,7 @@ export namespace Prisma {
     timeNumerator: number | null
     timeDenominator: number | null
     defaultTempo: number | null
+    difficulty: number | null
   }
 
   export type ScoreSumAggregateOutputType = {
@@ -3970,6 +3971,7 @@ export namespace Prisma {
     timeNumerator: number | null
     timeDenominator: number | null
     defaultTempo: number | null
+    difficulty: number | null
   }
 
   export type ScoreMinAggregateOutputType = {
@@ -3993,6 +3995,7 @@ export namespace Prisma {
     timeDenominator: number | null
     defaultTempo: number | null
     isShared: boolean | null
+    difficulty: number | null
     createdAt: Date | null
     deletedAt: Date | null
   }
@@ -4018,6 +4021,7 @@ export namespace Prisma {
     timeDenominator: number | null
     defaultTempo: number | null
     isShared: boolean | null
+    difficulty: number | null
     createdAt: Date | null
     deletedAt: Date | null
   }
@@ -4043,6 +4047,8 @@ export namespace Prisma {
     timeDenominator: number
     defaultTempo: number
     isShared: number
+    difficulty: number
+    skillSubTaskTags: number
     createdAt: number
     deletedAt: number
     _all: number
@@ -4054,6 +4060,7 @@ export namespace Prisma {
     timeNumerator?: true
     timeDenominator?: true
     defaultTempo?: true
+    difficulty?: true
   }
 
   export type ScoreSumAggregateInputType = {
@@ -4061,6 +4068,7 @@ export namespace Prisma {
     timeNumerator?: true
     timeDenominator?: true
     defaultTempo?: true
+    difficulty?: true
   }
 
   export type ScoreMinAggregateInputType = {
@@ -4084,6 +4092,7 @@ export namespace Prisma {
     timeDenominator?: true
     defaultTempo?: true
     isShared?: true
+    difficulty?: true
     createdAt?: true
     deletedAt?: true
   }
@@ -4109,6 +4118,7 @@ export namespace Prisma {
     timeDenominator?: true
     defaultTempo?: true
     isShared?: true
+    difficulty?: true
     createdAt?: true
     deletedAt?: true
   }
@@ -4134,6 +4144,8 @@ export namespace Prisma {
     timeDenominator?: true
     defaultTempo?: true
     isShared?: true
+    difficulty?: true
+    skillSubTaskTags?: true
     createdAt?: true
     deletedAt?: true
     _all?: true
@@ -4246,6 +4258,8 @@ export namespace Prisma {
     timeDenominator: number | null
     defaultTempo: number | null
     isShared: boolean
+    difficulty: number | null
+    skillSubTaskTags: JsonValue | null
     createdAt: Date
     deletedAt: Date | null
     _count: ScoreCountAggregateOutputType | null
@@ -4290,6 +4304,8 @@ export namespace Prisma {
     timeDenominator?: boolean
     defaultTempo?: boolean
     isShared?: boolean
+    difficulty?: boolean
+    skillSubTaskTags?: boolean
     createdAt?: boolean
     deletedAt?: boolean
     performances?: boolean | Score$performancesArgs<ExtArgs>
@@ -4318,6 +4334,8 @@ export namespace Prisma {
     timeDenominator?: boolean
     defaultTempo?: boolean
     isShared?: boolean
+    difficulty?: boolean
+    skillSubTaskTags?: boolean
     createdAt?: boolean
     deletedAt?: boolean
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
@@ -4344,6 +4362,8 @@ export namespace Prisma {
     timeDenominator?: boolean
     defaultTempo?: boolean
     isShared?: boolean
+    difficulty?: boolean
+    skillSubTaskTags?: boolean
     createdAt?: boolean
     deletedAt?: boolean
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
@@ -4370,11 +4390,13 @@ export namespace Prisma {
     timeDenominator?: boolean
     defaultTempo?: boolean
     isShared?: boolean
+    difficulty?: boolean
+    skillSubTaskTags?: boolean
     createdAt?: boolean
     deletedAt?: boolean
   }
 
-  export type ScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdById" | "title" | "composer" | "arranger" | "originalXmlPath" | "generatedXmlPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "keyTonic" | "keyMode" | "timeNumerator" | "timeDenominator" | "defaultTempo" | "isShared" | "createdAt" | "deletedAt", ExtArgs["result"]["score"]>
+  export type ScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdById" | "title" | "composer" | "arranger" | "originalXmlPath" | "generatedXmlPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "keyTonic" | "keyMode" | "timeNumerator" | "timeDenominator" | "defaultTempo" | "isShared" | "difficulty" | "skillSubTaskTags" | "createdAt" | "deletedAt", ExtArgs["result"]["score"]>
   export type ScoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     performances?: boolean | Score$performancesArgs<ExtArgs>
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
@@ -4414,6 +4436,8 @@ export namespace Prisma {
       timeDenominator: number | null
       defaultTempo: number | null
       isShared: boolean
+      difficulty: number | null
+      skillSubTaskTags: Prisma.JsonValue | null
       createdAt: Date
       deletedAt: Date | null
     }, ExtArgs["result"]["score"]>
@@ -4861,6 +4885,8 @@ export namespace Prisma {
     readonly timeDenominator: FieldRef<"Score", 'Int'>
     readonly defaultTempo: FieldRef<"Score", 'Int'>
     readonly isShared: FieldRef<"Score", 'Boolean'>
+    readonly difficulty: FieldRef<"Score", 'Int'>
+    readonly skillSubTaskTags: FieldRef<"Score", 'Json'>
     readonly createdAt: FieldRef<"Score", 'DateTime'>
     readonly deletedAt: FieldRef<"Score", 'DateTime'>
   }
@@ -20810,6 +20836,8 @@ export namespace Prisma {
     timeDenominator: 'timeDenominator',
     defaultTempo: 'defaultTempo',
     isShared: 'isShared',
+    difficulty: 'difficulty',
+    skillSubTaskTags: 'skillSubTaskTags',
     createdAt: 'createdAt',
     deletedAt: 'deletedAt'
   };
@@ -21181,6 +21209,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
    * Reference to a field of type 'PerformanceType'
    */
   export type EnumPerformanceTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PerformanceType'>
@@ -21219,20 +21261,6 @@ export namespace Prisma {
    * Reference to a field of type 'Float[]'
    */
   export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -21432,6 +21460,8 @@ export namespace Prisma {
     timeDenominator?: IntNullableFilter<"Score"> | number | null
     defaultTempo?: IntNullableFilter<"Score"> | number | null
     isShared?: BoolFilter<"Score"> | boolean
+    difficulty?: IntNullableFilter<"Score"> | number | null
+    skillSubTaskTags?: JsonNullableFilter<"Score">
     createdAt?: DateTimeFilter<"Score"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Score"> | Date | string | null
     performances?: PerformanceListRelationFilter
@@ -21459,6 +21489,8 @@ export namespace Prisma {
     timeDenominator?: SortOrderInput | SortOrder
     defaultTempo?: SortOrderInput | SortOrder
     isShared?: SortOrder
+    difficulty?: SortOrderInput | SortOrder
+    skillSubTaskTags?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
     performances?: PerformanceOrderByRelationAggregateInput
@@ -21489,6 +21521,8 @@ export namespace Prisma {
     timeDenominator?: IntNullableFilter<"Score"> | number | null
     defaultTempo?: IntNullableFilter<"Score"> | number | null
     isShared?: BoolFilter<"Score"> | boolean
+    difficulty?: IntNullableFilter<"Score"> | number | null
+    skillSubTaskTags?: JsonNullableFilter<"Score">
     createdAt?: DateTimeFilter<"Score"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Score"> | Date | string | null
     performances?: PerformanceListRelationFilter
@@ -21516,6 +21550,8 @@ export namespace Prisma {
     timeDenominator?: SortOrderInput | SortOrder
     defaultTempo?: SortOrderInput | SortOrder
     isShared?: SortOrder
+    difficulty?: SortOrderInput | SortOrder
+    skillSubTaskTags?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
     _count?: ScoreCountOrderByAggregateInput
@@ -21549,6 +21585,8 @@ export namespace Prisma {
     timeDenominator?: IntNullableWithAggregatesFilter<"Score"> | number | null
     defaultTempo?: IntNullableWithAggregatesFilter<"Score"> | number | null
     isShared?: BoolWithAggregatesFilter<"Score"> | boolean
+    difficulty?: IntNullableWithAggregatesFilter<"Score"> | number | null
+    skillSubTaskTags?: JsonNullableWithAggregatesFilter<"Score">
     createdAt?: DateTimeWithAggregatesFilter<"Score"> | Date | string
     deletedAt?: DateTimeNullableWithAggregatesFilter<"Score"> | Date | string | null
   }
@@ -22924,6 +22962,8 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     deletedAt?: Date | string | null
     performances?: PerformanceCreateNestedManyWithoutScoreInput
@@ -22951,6 +22991,8 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     deletedAt?: Date | string | null
     performances?: PerformanceUncheckedCreateNestedManyWithoutScoreInput
@@ -22976,6 +23018,8 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUpdateManyWithoutScoreNestedInput
@@ -23003,6 +23047,8 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUncheckedUpdateManyWithoutScoreNestedInput
@@ -23029,6 +23075,8 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     deletedAt?: Date | string | null
   }
@@ -23053,6 +23101,8 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -23078,6 +23128,8 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -24776,6 +24828,29 @@ export namespace Prisma {
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
@@ -24803,6 +24878,8 @@ export namespace Prisma {
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
     isShared?: SortOrder
+    difficulty?: SortOrder
+    skillSubTaskTags?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrder
   }
@@ -24812,6 +24889,7 @@ export namespace Prisma {
     timeNumerator?: SortOrder
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
+    difficulty?: SortOrder
   }
 
   export type ScoreMaxOrderByAggregateInput = {
@@ -24835,6 +24913,7 @@ export namespace Prisma {
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
     isShared?: SortOrder
+    difficulty?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrder
   }
@@ -24860,6 +24939,7 @@ export namespace Prisma {
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
     isShared?: SortOrder
+    difficulty?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrder
   }
@@ -24869,6 +24949,7 @@ export namespace Prisma {
     timeNumerator?: SortOrder
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
+    difficulty?: SortOrder
   }
 
   export type EnumJobStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -24912,6 +24993,32 @@ export namespace Prisma {
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
 
   export type EnumPerformanceTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.PerformanceType | EnumPerformanceTypeFieldRefInput<$PrismaModel>
@@ -24936,29 +25043,6 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
-  }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type ScoreScalarRelationFilter = {
@@ -25100,32 +25184,6 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type EnumPracticeCategoryFilter<$PrismaModel = never> = {
@@ -27254,6 +27312,29 @@ export namespace Prisma {
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedEnumPerformanceTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.PerformanceType | EnumPerformanceTypeFieldRefInput<$PrismaModel>
@@ -27303,29 +27384,6 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
-  }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedEnumPracticeCategoryFilter<$PrismaModel = never> = {
@@ -27519,6 +27577,8 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     deletedAt?: Date | string | null
     performances?: PerformanceCreateNestedManyWithoutScoreInput
@@ -27544,6 +27604,8 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     deletedAt?: Date | string | null
     performances?: PerformanceUncheckedCreateNestedManyWithoutScoreInput
@@ -28025,6 +28087,8 @@ export namespace Prisma {
     timeDenominator?: IntNullableFilter<"Score"> | number | null
     defaultTempo?: IntNullableFilter<"Score"> | number | null
     isShared?: BoolFilter<"Score"> | boolean
+    difficulty?: IntNullableFilter<"Score"> | number | null
+    skillSubTaskTags?: JsonNullableFilter<"Score">
     createdAt?: DateTimeFilter<"Score"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Score"> | Date | string | null
   }
@@ -28579,6 +28643,8 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     deletedAt?: Date | string | null
     createdBy: UserCreateNestedOneWithoutScoresInput
@@ -28605,6 +28671,8 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     deletedAt?: Date | string | null
   }
@@ -28698,6 +28766,8 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdBy?: UserUpdateOneRequiredWithoutScoresNestedInput
@@ -28724,6 +28794,8 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -30771,6 +30843,8 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     deletedAt?: Date | string | null
   }
@@ -31007,6 +31081,8 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUpdateManyWithoutScoreNestedInput
@@ -31032,6 +31108,8 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUncheckedUpdateManyWithoutScoreNestedInput
@@ -31057,6 +31135,8 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }

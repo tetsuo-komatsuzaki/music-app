@@ -10,10 +10,13 @@ import {
   type TaskId,
 } from "@/app/_libs/skillMaster"
 import { updatePracticeItemTags } from "@/app/actions/updatePracticeItemTags"
+import { updateScoreTags } from "@/app/actions/updateScoreTags"
 import styles from "./admin.module.css"
 
 type TechniqueOption = { id: string; category: string; name: string; nameEn: string | null }
+type ItemType = "practice" | "score"
 type ItemDTO = {
+  type: ItemType
   id: string; category: string; title: string; composer: string | null
   keyTonic: string; keyMode: string
   tempoMin: number | null; tempoMax: number | null; positions: string[]
@@ -28,9 +31,16 @@ type Props = {
   tagsByCategory: Record<string, TechniqueOption[]>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   uploadAction: (formData: FormData) => Promise<any>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  uploadScoreAction: (formData: FormData) => Promise<any>
 }
 
-const categoryLabels: Record<string, string> = { scale: "音階", arpeggio: "アルペジオ", etude: "エチュード" }
+const categoryLabels: Record<string, string> = {
+  scale: "音階",
+  arpeggio: "アルペジオ",
+  etude: "エチュード",
+  score: "曲",
+}
 const modeLabels: Record<string, string> = { major: "長調", minor: "短調" }
 const positionOptions = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"]
 const tonicOptions = ["C", "C#", "Db", "D", "Eb", "E", "F", "F#", "Gb", "G", "Ab", "A", "Bb", "B"]
@@ -51,7 +61,12 @@ function tagShortName(tag: string): string {
   return isSubTaskId(tag) ? SUB_TASK_NAMES[tag] : tag
 }
 
-export default function AdminPractice({ items: initialItems, tagsByCategory, uploadAction }: Props) {
+export default function AdminPractice({
+  items: initialItems,
+  tagsByCategory,
+  uploadAction,
+  uploadScoreAction,
+}: Props) {
   const [items, setItems] = useState<ItemDTO[]>(initialItems)
   const [showForm, setShowForm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -77,6 +92,9 @@ export default function AdminPractice({ items: initialItems, tagsByCategory, upl
   // ループエンジン用フィールド (Phase 1c で追加)
   const [difficultyInput, setDifficultyInput] = useState("")
   const [selectedSubTasks, setSelectedSubTasks] = useState<Set<string>>(new Set())
+  // Score 用 (admin が共有サンプルとしてアップロードする場合のフラグ、デフォルト true)
+  const [scoreIsShared, setScoreIsShared] = useState(true)
+  const isScoreCategory = category === "score"
 
   // インライン編集 state
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -134,7 +152,7 @@ export default function AdminPractice({ items: initialItems, tagsByCategory, upl
     setEditError(null)
   }
 
-  const saveEdit = async (itemId: string) => {
+  const saveEdit = async (item: ItemDTO) => {
     setEditError(null)
     let difficulty: number | null = null
     if (editDifficulty.trim() !== "") {
@@ -147,10 +165,15 @@ export default function AdminPractice({ items: initialItems, tagsByCategory, upl
     }
     setEditSaving(true)
     try {
-      const result = await updatePracticeItemTags(itemId, {
+      const payload = {
         difficulty,
         skillSubTaskTags: Array.from(editSubTasks),
-      })
+      }
+      // type に応じて適切な server action を呼ぶ
+      const result =
+        item.type === "score"
+          ? await updateScoreTags(item.id, payload)
+          : await updatePracticeItemTags(item.id, payload)
       if ("error" in result) {
         setEditError(result.error)
         return
@@ -159,7 +182,7 @@ export default function AdminPractice({ items: initialItems, tagsByCategory, upl
       startTransition(() => {
         setItems(prev =>
           prev.map(it =>
-            it.id === itemId
+            it.id === item.id
               ? { ...it, difficulty, skillSubTaskTags: Array.from(editSubTasks) }
               : it,
           ),
@@ -191,20 +214,28 @@ export default function AdminPractice({ items: initialItems, tagsByCategory, upl
     formData.set("file", file)
     formData.set("title", title)
     formData.set("composer", composer)
-    formData.set("category", category)
-    formData.set("keyTonic", keyTonic)
-    formData.set("keyMode", keyMode)
-    formData.set("tempoMin", tempoMin)
-    formData.set("tempoMax", tempoMax)
-    formData.set("positions", JSON.stringify(positions))
-    formData.set("techniques", JSON.stringify(selectedTags))
-    formData.set("description", description)
-    formData.set("descriptionShort", descriptionShort)
     formData.set("difficulty", difficultyInput)
     formData.set("skillSubTaskTags", JSON.stringify(Array.from(selectedSubTasks)))
 
     try {
-      const result = await uploadAction(formData)
+      let result
+      if (isScoreCategory) {
+        // Score upload
+        formData.set("isShared", scoreIsShared ? "true" : "false")
+        result = await uploadScoreAction(formData)
+      } else {
+        // PracticeItem upload (scale / arpeggio / etude)
+        formData.set("category", category)
+        formData.set("keyTonic", keyTonic)
+        formData.set("keyMode", keyMode)
+        formData.set("tempoMin", tempoMin)
+        formData.set("tempoMax", tempoMax)
+        formData.set("positions", JSON.stringify(positions))
+        formData.set("techniques", JSON.stringify(selectedTags))
+        formData.set("description", description)
+        formData.set("descriptionShort", descriptionShort)
+        result = await uploadAction(formData)
+      }
       if (result?.error) {
         setMessage(`エラー: ${result.error}`)
       } else {
@@ -215,6 +246,7 @@ export default function AdminPractice({ items: initialItems, tagsByCategory, upl
         setSelectedTags([]); setDescription(""); setDescriptionShort("")
         setFile(null); setShowForm(false)
         setDifficultyInput(""); setSelectedSubTasks(new Set())
+        setScoreIsShared(true)
         window.location.reload()
       }
     } catch (e) {
@@ -254,7 +286,7 @@ export default function AdminPractice({ items: initialItems, tagsByCategory, upl
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.pageTitle}>練習メニュー管理</h1>
+        <h1 className={styles.pageTitle}>教材管理</h1>
         <button className={styles.primaryBtn} onClick={() => setShowForm(!showForm)}>
           {showForm ? "閉じる" : "新規登録"}
         </button>
@@ -288,7 +320,7 @@ export default function AdminPractice({ items: initialItems, tagsByCategory, upl
             <div className={styles.field}>
               <label>カテゴリ *</label>
               <div className={styles.radioGroup}>
-                {(["scale", "arpeggio", "etude"] as const).map((c) => (
+                {(["scale", "arpeggio", "etude", "score"] as const).map((c) => (
                   <label key={c} className={styles.radioLabel}>
                     <input type="radio" name="category" value={c}
                       checked={category === c} onChange={() => setCategory(c)} />
@@ -296,33 +328,57 @@ export default function AdminPractice({ items: initialItems, tagsByCategory, upl
                   </label>
                 ))}
               </div>
+              {isScoreCategory && (
+                <div className={styles.hint}>
+                  ※ 曲 (Score) は PracticeItem とは別テーブルで保存されます。
+                  調・テンポ・ポジション等は MusicXML から自動取得されるため、
+                  ここでは入力不要です。
+                </div>
+              )}
             </div>
 
-            <div className={styles.fieldRow}>
-              <div className={styles.field}>
-                <label>調 *</label>
-                <div className={styles.inlineGroup}>
-                  <select value={keyTonic} onChange={(e) => setKeyTonic(e.target.value)}>
-                    {tonicOptions.map((t) => <option key={t} value={t}>{t}</option>)}
-                  </select>
-                  <select value={keyMode} onChange={(e) => setKeyMode(e.target.value)}>
-                    <option value="major">長調</option>
-                    <option value="minor">短調</option>
-                  </select>
+            {/* PracticeItem (scale/arpeggio/etude) のみ表示する項目 */}
+            {!isScoreCategory && (
+              <div className={styles.fieldRow}>
+                <div className={styles.field}>
+                  <label>調 *</label>
+                  <div className={styles.inlineGroup}>
+                    <select value={keyTonic} onChange={(e) => setKeyTonic(e.target.value)}>
+                      {tonicOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                    <select value={keyMode} onChange={(e) => setKeyMode(e.target.value)}>
+                      <option value="major">長調</option>
+                      <option value="minor">短調</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
 
-              <div className={styles.field}>
-                <label>推奨テンポ</label>
-                <div className={styles.inlineGroup}>
-                  <input type="number" value={tempoMin} onChange={(e) => setTempoMin(e.target.value)}
-                    placeholder="60" style={{ width: 80 }} />
-                  <span>〜</span>
-                  <input type="number" value={tempoMax} onChange={(e) => setTempoMax(e.target.value)}
-                    placeholder="90" style={{ width: 80 }} />
+                <div className={styles.field}>
+                  <label>推奨テンポ</label>
+                  <div className={styles.inlineGroup}>
+                    <input type="number" value={tempoMin} onChange={(e) => setTempoMin(e.target.value)}
+                      placeholder="60" style={{ width: 80 }} />
+                    <span>〜</span>
+                    <input type="number" value={tempoMax} onChange={(e) => setTempoMax(e.target.value)}
+                      placeholder="90" style={{ width: 80 }} />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* Score 用フィールド: 共有フラグ */}
+            {isScoreCategory && (
+              <div className={styles.field}>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={scoreIsShared}
+                    onChange={(e) => setScoreIsShared(e.target.checked)}
+                  />
+                  全ユーザーに共有 (サンプル曲として公開)
+                </label>
+              </div>
+            )}
 
             <div className={styles.field}>
               <label>難易度 (1〜10) ★ループエンジン必須</label>
@@ -366,58 +422,63 @@ export default function AdminPractice({ items: initialItems, tagsByCategory, upl
               </div>
             </div>
 
-            <div className={styles.field}>
-              <label>ポジション</label>
-              <div className={styles.checkboxGroup}>
-                {positionOptions.map((pos) => (
-                  <label key={pos} className={styles.checkboxLabel}>
-                    <input type="checkbox" checked={positions.includes(pos)}
-                      onChange={() => togglePosition(pos)} />
-                    {pos}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.field}>
-              <label>技法タグ</label>
-              <div className={styles.tagSection}>
-                {Object.entries(tagsByCategory).map(([cat, tags]) => (
-                  <div key={cat} className={styles.tagCategory}>
-                    <div className={styles.tagCategoryName}>{cat}</div>
-                    <div className={styles.tagList}>
-                      {tags.map((tag) => {
-                        const sel = selectedTags.find((t) => t.id === tag.id)
-                        return (
-                          <span key={tag.id}
-                            className={`${styles.tag} ${sel ? styles.tagSelected : ""} ${sel?.isPrimary ? styles.tagPrimary : ""}`}
-                            onClick={() => toggleTag(tag.id)}
-                            onDoubleClick={() => { if (sel) togglePrimary(tag.id) }}
-                            title="クリックで選択、ダブルクリックで主要タグ"
-                          >
-                            {tag.name}
-                            {sel?.isPrimary && " ●"}
-                          </span>
-                        )
-                      })}
-                    </div>
+            {/* PracticeItem (scale/arpeggio/etude) のみ表示する項目群 */}
+            {!isScoreCategory && (
+              <>
+                <div className={styles.field}>
+                  <label>ポジション</label>
+                  <div className={styles.checkboxGroup}>
+                    {positionOptions.map((pos) => (
+                      <label key={pos} className={styles.checkboxLabel}>
+                        <input type="checkbox" checked={positions.includes(pos)}
+                          onChange={() => togglePosition(pos)} />
+                        {pos}
+                      </label>
+                    ))}
                   </div>
-                ))}
-                <div className={styles.hint}>クリック: 選択/解除　ダブルクリック: 主要タグ指定</div>
-              </div>
-            </div>
+                </div>
 
-            <div className={styles.field}>
-              <label>短い説明（一覧表示用）</label>
-              <input value={descriptionShort} onChange={(e) => setDescriptionShort(e.target.value)}
-                placeholder="2の指と3の指の間隔に注意" />
-            </div>
+                <div className={styles.field}>
+                  <label>技法タグ</label>
+                  <div className={styles.tagSection}>
+                    {Object.entries(tagsByCategory).map(([cat, tags]) => (
+                      <div key={cat} className={styles.tagCategory}>
+                        <div className={styles.tagCategoryName}>{cat}</div>
+                        <div className={styles.tagList}>
+                          {tags.map((tag) => {
+                            const sel = selectedTags.find((t) => t.id === tag.id)
+                            return (
+                              <span key={tag.id}
+                                className={`${styles.tag} ${sel ? styles.tagSelected : ""} ${sel?.isPrimary ? styles.tagPrimary : ""}`}
+                                onClick={() => toggleTag(tag.id)}
+                                onDoubleClick={() => { if (sel) togglePrimary(tag.id) }}
+                                title="クリックで選択、ダブルクリックで主要タグ"
+                              >
+                                {tag.name}
+                                {sel?.isPrimary && " ●"}
+                              </span>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                    <div className={styles.hint}>クリック: 選択/解除　ダブルクリック: 主要タグ指定</div>
+                  </div>
+                </div>
 
-            <div className={styles.field}>
-              <label>詳細説明</label>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)}
-                placeholder="練習のポイント、注意事項など" rows={3} />
-            </div>
+                <div className={styles.field}>
+                  <label>短い説明（一覧表示用）</label>
+                  <input value={descriptionShort} onChange={(e) => setDescriptionShort(e.target.value)}
+                    placeholder="2の指と3の指の間隔に注意" />
+                </div>
+
+                <div className={styles.field}>
+                  <label>詳細説明</label>
+                  <textarea value={description} onChange={(e) => setDescription(e.target.value)}
+                    placeholder="練習のポイント、注意事項など" rows={3} />
+                </div>
+              </>
+            )}
           </div>
 
           <button className={styles.primaryBtn} onClick={handleSubmit} disabled={submitting}>
@@ -487,7 +548,12 @@ export default function AdminPractice({ items: initialItems, tagsByCategory, upl
                     <div className={styles.itemTitle}>{item.title}</div>
                     {item.composer && <div className={styles.itemSub}>{item.composer}</div>}
                   </td>
-                  <td>{categoryLabels[item.category] || item.category}</td>
+                  <td>
+                    {categoryLabels[item.category] || item.category}
+                    {item.type === "score" && (
+                      <span className={styles.scoreMarker} title="Score テーブル">♬</span>
+                    )}
+                  </td>
                   <td>
                     {isEditing ? (
                       <input
@@ -533,8 +599,20 @@ export default function AdminPractice({ items: initialItems, tagsByCategory, upl
                       </div>
                     )}
                   </td>
-                  <td>{item.keyTonic} {modeLabels[item.keyMode] || item.keyMode}</td>
-                  <td>{item.tempoMin && item.tempoMax ? `${item.tempoMin}-${item.tempoMax}` : "-"}</td>
+                  <td>
+                    {item.keyTonic
+                      ? `${item.keyTonic} ${modeLabels[item.keyMode] || item.keyMode}`
+                      : "-"}
+                  </td>
+                  <td>
+                    {item.type === "score"
+                      ? item.tempoMin
+                        ? `♩=${item.tempoMin}`
+                        : "-"
+                      : item.tempoMin && item.tempoMax
+                        ? `${item.tempoMin}-${item.tempoMax}`
+                        : "-"}
+                  </td>
                   <td>
                     <span className={item.analysisStatus === "done" && item.buildStatus === "done"
                       ? styles.statusDone : styles.statusProcessing}>
@@ -548,7 +626,7 @@ export default function AdminPractice({ items: initialItems, tagsByCategory, upl
                         <button
                           type="button"
                           className={styles.primaryBtn}
-                          onClick={() => saveEdit(item.id)}
+                          onClick={() => saveEdit(item)}
                           disabled={editSaving}
                         >
                           {editSaving ? "保存中..." : "保存"}
