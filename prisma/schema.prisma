@@ -69,6 +69,13 @@ model Score {
   timeDenominator  Int?
   defaultTempo     Int?
   isShared         Boolean       @default(false) // true=全ユーザー閲覧可のサンプル
+
+  // ループエンジン用フィールド (2026-05-10 追加)
+  // 「次のチャレンジ」レコメンドで Score も対象とするため、
+  // PracticeItem と同形のメタデータを Score にも持たせる。
+  difficulty       Int? // 1〜10、グレード範囲フィルタ用
+  skillSubTaskTags Json? // sub_task ID 配列、レコメンド対象判定用
+
   createdAt        DateTime      @default(now())
   deletedAt        DateTime? // 論理削除フラグ (NULL=有効、値あり=削除済み)
   performances     Performance[]

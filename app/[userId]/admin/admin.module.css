@@ -53,3 +53,149 @@
 .itemSub { font-size: 11px; color: #888; }
 .statusDone { color: #2e7d32; font-size: 12px; }
 .statusProcessing { color: #e65100; font-size: 12px; }
+
+/* Phase 1: 未割り振り可視化 + フィルタ + インライン編集 */
+.filterBar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: #f0f2f5;
+  border-radius: 8px;
+}
+.filterBtn {
+  padding: 6px 12px;
+  border: 1px solid #d4dae3;
+  border-radius: 6px;
+  background: #fff;
+  color: #444;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.filterBtn:hover { background: #f7f9fc; border-color: #5a7fdf; }
+.filterBtnActive {
+  background: #5a7fdf;
+  color: #fff;
+  border-color: #5a7fdf;
+}
+.filterCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.08);
+  font-size: 11px;
+  font-weight: 700;
+}
+.filterBtnActive .filterCount {
+  background: rgba(255,255,255,0.25);
+}
+.searchInput {
+  padding: 6px 10px;
+  border: 1px solid #d4dae3;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-left: auto;
+  min-width: 200px;
+}
+
+.rowNeedsAttention {
+  background: #fff8e1 !important;
+}
+.rowNeedsAttention:hover {
+  background: #fff3c4 !important;
+}
+
+.missingBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #fdecec;
+  color: #c44a4a;
+}
+
+.subTaskChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.subTaskChip {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  background: #eef2fb;
+  color: #1565c0;
+  white-space: nowrap;
+}
+
+.editTagGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px 8px;
+  font-size: 11px;
+  max-width: 380px;
+}
+.editTagLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.editActions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.editActions > button {
+  width: 100%;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.secondaryBtn {
+  padding: 4px 10px;
+  background: #fff;
+  border: 1px solid #d4dae3;
+  color: #444;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.secondaryBtn:hover { background: #f7f9fc; }
+.secondaryBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.editError {
+  font-size: 11px;
+  color: #c44a4a;
+  background: #fdecec;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.emptyRow {
+  text-align: center;
+  padding: 20px !important;
+  color: #888;
+  font-style: italic;
+}
+
+.scoreMarker {
+  display: inline-block;
+  margin-left: 6px;
+  color: #5a7fdf;
+  font-size: 14px;
+  font-weight: 700;
+}

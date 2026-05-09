@@ -154,6 +154,8 @@ exports.Prisma.ScoreScalarFieldEnum = {
   timeDenominator: 'timeDenominator',
   defaultTempo: 'defaultTempo',
   isShared: 'isShared',
+  difficulty: 'difficulty',
+  skillSubTaskTags: 'skillSubTaskTags',
   createdAt: 'createdAt',
   deletedAt: 'deletedAt'
 };
