@@ -1,0 +1,45 @@
+/* GradeProgressBar.module.css — UI 設計書 v3.1 §6-3 */
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.barRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar {
+  flex: 1;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5a7fdf 0%, #4a6dc9 100%);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+  min-width: 2px; /* 0% でもバー存在を視覚的に示す */
+}
+
+.count {
+  font-size: 12px;
+  color: #555;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 44px;
+  text-align: right;
+}
+
+.remaining {
+  font-size: 12px;
+  color: #5a6473;
+  text-align: right;
+  font-weight: 500;
+}
