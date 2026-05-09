@@ -106,14 +106,18 @@ export async function GET(
   const skillSubScores = buildSkillSubScores(perf.skillSubScores)
   const improvementGuides = buildImprovementGuides(skillSubScores)
 
-  // gradeUpdate: UserGrade.achievedAt > performance.uploadedAt なら
-  // 「この演奏でグレードアップした」と判定する (Commit 7 連動)
+  // gradeUpdate: 「この演奏 upload から ACHIEVED_WINDOW_MS 以内に昇格」を
+  // 「この演奏が引き起こした昇格」とみなす。古い演奏を後で開いた際の
+  // 誤検出を防ぐ。厳密判定 (lastUpgradeTriggerPerformanceId) は β以降。
+  const ACHIEVED_WINDOW_MS = 60 * 60 * 1000 // 1 時間
   const userGrade = await prisma.userGrade.findUnique({
     where: { userId: dbUserId },
     select: { currentGrade: true, achievedAt: true },
   })
   const recentlyChanged = !!(
-    userGrade?.achievedAt && userGrade.achievedAt > perf.uploadedAt
+    userGrade?.achievedAt &&
+    userGrade.achievedAt > perf.uploadedAt &&
+    userGrade.achievedAt.getTime() - perf.uploadedAt.getTime() < ACHIEVED_WINDOW_MS
   )
   const gradeUpdate = userGrade
     ? {
