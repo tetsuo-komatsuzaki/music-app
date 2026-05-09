@@ -66,6 +66,20 @@
   margin-right: 2px;
 }
 
+/* UI-14 (F8): features ヒント (控えめ表示) */
+.featureHint {
+  font-size: 12px;
+  color: #777;
+  line-height: 1.5;
+  margin-top: -4px;
+}
+
+.featureHintLabel {
+  font-weight: 500;
+  color: #5a7fdf;
+  margin-right: 2px;
+}
+
 /* 楽観的更新の選択結果バッジ */
 .badge {
   display: inline-flex;
