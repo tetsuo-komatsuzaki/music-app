@@ -88,6 +88,51 @@ export type UserGrade = $Result.DefaultSelection<Prisma.$UserGradePayload>
  * 
  */
 export type PerformanceSkillFeedback = $Result.DefaultSelection<Prisma.$PerformanceSkillFeedbackPayload>
+/**
+ * Model SongMastery
+ * 
+ */
+export type SongMastery = $Result.DefaultSelection<Prisma.$SongMasteryPayload>
+/**
+ * Model UserGradeProgress
+ * 
+ */
+export type UserGradeProgress = $Result.DefaultSelection<Prisma.$UserGradeProgressPayload>
+/**
+ * Model SkillTaskCard
+ * 
+ */
+export type SkillTaskCard = $Result.DefaultSelection<Prisma.$SkillTaskCardPayload>
+/**
+ * Model SubTask
+ * 
+ */
+export type SubTask = $Result.DefaultSelection<Prisma.$SubTaskPayload>
+/**
+ * Model SubTaskAssignment
+ * 
+ */
+export type SubTaskAssignment = $Result.DefaultSelection<Prisma.$SubTaskAssignmentPayload>
+/**
+ * Model UserPracticeMastery
+ * 
+ */
+export type UserPracticeMastery = $Result.DefaultSelection<Prisma.$UserPracticeMasteryPayload>
+/**
+ * Model UserTechniqueMastery
+ * 
+ */
+export type UserTechniqueMastery = $Result.DefaultSelection<Prisma.$UserTechniqueMasteryPayload>
+/**
+ * Model PracticeItemSubTaskTag
+ * 
+ */
+export type PracticeItemSubTaskTag = $Result.DefaultSelection<Prisma.$PracticeItemSubTaskTagPayload>
+/**
+ * Model MissingPracticeItemFlag
+ * 
+ */
+export type MissingPracticeItemFlag = $Result.DefaultSelection<Prisma.$MissingPracticeItemFlagPayload>
 
 /**
  * Enums
@@ -465,6 +510,96 @@ export class PrismaClient<
     * ```
     */
   get performanceSkillFeedback(): Prisma.PerformanceSkillFeedbackDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.songMastery`: Exposes CRUD operations for the **SongMastery** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SongMasteries
+    * const songMasteries = await prisma.songMastery.findMany()
+    * ```
+    */
+  get songMastery(): Prisma.SongMasteryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userGradeProgress`: Exposes CRUD operations for the **UserGradeProgress** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserGradeProgresses
+    * const userGradeProgresses = await prisma.userGradeProgress.findMany()
+    * ```
+    */
+  get userGradeProgress(): Prisma.UserGradeProgressDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.skillTaskCard`: Exposes CRUD operations for the **SkillTaskCard** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SkillTaskCards
+    * const skillTaskCards = await prisma.skillTaskCard.findMany()
+    * ```
+    */
+  get skillTaskCard(): Prisma.SkillTaskCardDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.subTask`: Exposes CRUD operations for the **SubTask** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SubTasks
+    * const subTasks = await prisma.subTask.findMany()
+    * ```
+    */
+  get subTask(): Prisma.SubTaskDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.subTaskAssignment`: Exposes CRUD operations for the **SubTaskAssignment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SubTaskAssignments
+    * const subTaskAssignments = await prisma.subTaskAssignment.findMany()
+    * ```
+    */
+  get subTaskAssignment(): Prisma.SubTaskAssignmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userPracticeMastery`: Exposes CRUD operations for the **UserPracticeMastery** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserPracticeMasteries
+    * const userPracticeMasteries = await prisma.userPracticeMastery.findMany()
+    * ```
+    */
+  get userPracticeMastery(): Prisma.UserPracticeMasteryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userTechniqueMastery`: Exposes CRUD operations for the **UserTechniqueMastery** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserTechniqueMasteries
+    * const userTechniqueMasteries = await prisma.userTechniqueMastery.findMany()
+    * ```
+    */
+  get userTechniqueMastery(): Prisma.UserTechniqueMasteryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.practiceItemSubTaskTag`: Exposes CRUD operations for the **PracticeItemSubTaskTag** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PracticeItemSubTaskTags
+    * const practiceItemSubTaskTags = await prisma.practiceItemSubTaskTag.findMany()
+    * ```
+    */
+  get practiceItemSubTaskTag(): Prisma.PracticeItemSubTaskTagDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.missingPracticeItemFlag`: Exposes CRUD operations for the **MissingPracticeItemFlag** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MissingPracticeItemFlags
+    * const missingPracticeItemFlags = await prisma.missingPracticeItemFlag.findMany()
+    * ```
+    */
+  get missingPracticeItemFlag(): Prisma.MissingPracticeItemFlagDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -913,7 +1048,16 @@ export namespace Prisma {
     UserSkillSubScore: 'UserSkillSubScore',
     UserSkillTaskCard: 'UserSkillTaskCard',
     UserGrade: 'UserGrade',
-    PerformanceSkillFeedback: 'PerformanceSkillFeedback'
+    PerformanceSkillFeedback: 'PerformanceSkillFeedback',
+    SongMastery: 'SongMastery',
+    UserGradeProgress: 'UserGradeProgress',
+    SkillTaskCard: 'SkillTaskCard',
+    SubTask: 'SubTask',
+    SubTaskAssignment: 'SubTaskAssignment',
+    UserPracticeMastery: 'UserPracticeMastery',
+    UserTechniqueMastery: 'UserTechniqueMastery',
+    PracticeItemSubTaskTag: 'PracticeItemSubTaskTag',
+    MissingPracticeItemFlag: 'MissingPracticeItemFlag'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -929,7 +1073,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "score" | "performance" | "practiceItem" | "techniqueTag" | "practiceItemTechnique" | "practicePerformance" | "userWeakness" | "feedback" | "supportInquiry" | "userSkillScore" | "userSkillSubScore" | "userSkillTaskCard" | "userGrade" | "performanceSkillFeedback"
+      modelProps: "user" | "score" | "performance" | "practiceItem" | "techniqueTag" | "practiceItemTechnique" | "practicePerformance" | "userWeakness" | "feedback" | "supportInquiry" | "userSkillScore" | "userSkillSubScore" | "userSkillTaskCard" | "userGrade" | "performanceSkillFeedback" | "songMastery" | "userGradeProgress" | "skillTaskCard" | "subTask" | "subTaskAssignment" | "userPracticeMastery" | "userTechniqueMastery" | "practiceItemSubTaskTag" | "missingPracticeItemFlag"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2043,6 +2187,672 @@ export namespace Prisma {
           }
         }
       }
+      SongMastery: {
+        payload: Prisma.$SongMasteryPayload<ExtArgs>
+        fields: Prisma.SongMasteryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SongMasteryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SongMasteryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SongMasteryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SongMasteryPayload>
+          }
+          findFirst: {
+            args: Prisma.SongMasteryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SongMasteryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SongMasteryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SongMasteryPayload>
+          }
+          findMany: {
+            args: Prisma.SongMasteryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SongMasteryPayload>[]
+          }
+          create: {
+            args: Prisma.SongMasteryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SongMasteryPayload>
+          }
+          createMany: {
+            args: Prisma.SongMasteryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SongMasteryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SongMasteryPayload>[]
+          }
+          delete: {
+            args: Prisma.SongMasteryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SongMasteryPayload>
+          }
+          update: {
+            args: Prisma.SongMasteryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SongMasteryPayload>
+          }
+          deleteMany: {
+            args: Prisma.SongMasteryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SongMasteryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SongMasteryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SongMasteryPayload>[]
+          }
+          upsert: {
+            args: Prisma.SongMasteryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SongMasteryPayload>
+          }
+          aggregate: {
+            args: Prisma.SongMasteryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSongMastery>
+          }
+          groupBy: {
+            args: Prisma.SongMasteryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SongMasteryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SongMasteryCountArgs<ExtArgs>
+            result: $Utils.Optional<SongMasteryCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserGradeProgress: {
+        payload: Prisma.$UserGradeProgressPayload<ExtArgs>
+        fields: Prisma.UserGradeProgressFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserGradeProgressFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradeProgressPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserGradeProgressFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradeProgressPayload>
+          }
+          findFirst: {
+            args: Prisma.UserGradeProgressFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradeProgressPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserGradeProgressFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradeProgressPayload>
+          }
+          findMany: {
+            args: Prisma.UserGradeProgressFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradeProgressPayload>[]
+          }
+          create: {
+            args: Prisma.UserGradeProgressCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradeProgressPayload>
+          }
+          createMany: {
+            args: Prisma.UserGradeProgressCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserGradeProgressCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradeProgressPayload>[]
+          }
+          delete: {
+            args: Prisma.UserGradeProgressDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradeProgressPayload>
+          }
+          update: {
+            args: Prisma.UserGradeProgressUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradeProgressPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserGradeProgressDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserGradeProgressUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserGradeProgressUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradeProgressPayload>[]
+          }
+          upsert: {
+            args: Prisma.UserGradeProgressUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserGradeProgressPayload>
+          }
+          aggregate: {
+            args: Prisma.UserGradeProgressAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserGradeProgress>
+          }
+          groupBy: {
+            args: Prisma.UserGradeProgressGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserGradeProgressGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserGradeProgressCountArgs<ExtArgs>
+            result: $Utils.Optional<UserGradeProgressCountAggregateOutputType> | number
+          }
+        }
+      }
+      SkillTaskCard: {
+        payload: Prisma.$SkillTaskCardPayload<ExtArgs>
+        fields: Prisma.SkillTaskCardFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SkillTaskCardFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SkillTaskCardPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SkillTaskCardFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SkillTaskCardPayload>
+          }
+          findFirst: {
+            args: Prisma.SkillTaskCardFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SkillTaskCardPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SkillTaskCardFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SkillTaskCardPayload>
+          }
+          findMany: {
+            args: Prisma.SkillTaskCardFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SkillTaskCardPayload>[]
+          }
+          create: {
+            args: Prisma.SkillTaskCardCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SkillTaskCardPayload>
+          }
+          createMany: {
+            args: Prisma.SkillTaskCardCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SkillTaskCardCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SkillTaskCardPayload>[]
+          }
+          delete: {
+            args: Prisma.SkillTaskCardDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SkillTaskCardPayload>
+          }
+          update: {
+            args: Prisma.SkillTaskCardUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SkillTaskCardPayload>
+          }
+          deleteMany: {
+            args: Prisma.SkillTaskCardDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SkillTaskCardUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SkillTaskCardUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SkillTaskCardPayload>[]
+          }
+          upsert: {
+            args: Prisma.SkillTaskCardUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SkillTaskCardPayload>
+          }
+          aggregate: {
+            args: Prisma.SkillTaskCardAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSkillTaskCard>
+          }
+          groupBy: {
+            args: Prisma.SkillTaskCardGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SkillTaskCardGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SkillTaskCardCountArgs<ExtArgs>
+            result: $Utils.Optional<SkillTaskCardCountAggregateOutputType> | number
+          }
+        }
+      }
+      SubTask: {
+        payload: Prisma.$SubTaskPayload<ExtArgs>
+        fields: Prisma.SubTaskFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SubTaskFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SubTaskFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskPayload>
+          }
+          findFirst: {
+            args: Prisma.SubTaskFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SubTaskFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskPayload>
+          }
+          findMany: {
+            args: Prisma.SubTaskFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskPayload>[]
+          }
+          create: {
+            args: Prisma.SubTaskCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskPayload>
+          }
+          createMany: {
+            args: Prisma.SubTaskCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SubTaskCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskPayload>[]
+          }
+          delete: {
+            args: Prisma.SubTaskDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskPayload>
+          }
+          update: {
+            args: Prisma.SubTaskUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskPayload>
+          }
+          deleteMany: {
+            args: Prisma.SubTaskDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SubTaskUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SubTaskUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskPayload>[]
+          }
+          upsert: {
+            args: Prisma.SubTaskUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskPayload>
+          }
+          aggregate: {
+            args: Prisma.SubTaskAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSubTask>
+          }
+          groupBy: {
+            args: Prisma.SubTaskGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SubTaskGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SubTaskCountArgs<ExtArgs>
+            result: $Utils.Optional<SubTaskCountAggregateOutputType> | number
+          }
+        }
+      }
+      SubTaskAssignment: {
+        payload: Prisma.$SubTaskAssignmentPayload<ExtArgs>
+        fields: Prisma.SubTaskAssignmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SubTaskAssignmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskAssignmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SubTaskAssignmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskAssignmentPayload>
+          }
+          findFirst: {
+            args: Prisma.SubTaskAssignmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskAssignmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SubTaskAssignmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskAssignmentPayload>
+          }
+          findMany: {
+            args: Prisma.SubTaskAssignmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskAssignmentPayload>[]
+          }
+          create: {
+            args: Prisma.SubTaskAssignmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskAssignmentPayload>
+          }
+          createMany: {
+            args: Prisma.SubTaskAssignmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SubTaskAssignmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskAssignmentPayload>[]
+          }
+          delete: {
+            args: Prisma.SubTaskAssignmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskAssignmentPayload>
+          }
+          update: {
+            args: Prisma.SubTaskAssignmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskAssignmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.SubTaskAssignmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SubTaskAssignmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SubTaskAssignmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskAssignmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.SubTaskAssignmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SubTaskAssignmentPayload>
+          }
+          aggregate: {
+            args: Prisma.SubTaskAssignmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSubTaskAssignment>
+          }
+          groupBy: {
+            args: Prisma.SubTaskAssignmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SubTaskAssignmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SubTaskAssignmentCountArgs<ExtArgs>
+            result: $Utils.Optional<SubTaskAssignmentCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserPracticeMastery: {
+        payload: Prisma.$UserPracticeMasteryPayload<ExtArgs>
+        fields: Prisma.UserPracticeMasteryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserPracticeMasteryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPracticeMasteryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserPracticeMasteryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPracticeMasteryPayload>
+          }
+          findFirst: {
+            args: Prisma.UserPracticeMasteryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPracticeMasteryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserPracticeMasteryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPracticeMasteryPayload>
+          }
+          findMany: {
+            args: Prisma.UserPracticeMasteryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPracticeMasteryPayload>[]
+          }
+          create: {
+            args: Prisma.UserPracticeMasteryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPracticeMasteryPayload>
+          }
+          createMany: {
+            args: Prisma.UserPracticeMasteryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserPracticeMasteryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPracticeMasteryPayload>[]
+          }
+          delete: {
+            args: Prisma.UserPracticeMasteryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPracticeMasteryPayload>
+          }
+          update: {
+            args: Prisma.UserPracticeMasteryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPracticeMasteryPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserPracticeMasteryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserPracticeMasteryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserPracticeMasteryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPracticeMasteryPayload>[]
+          }
+          upsert: {
+            args: Prisma.UserPracticeMasteryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPracticeMasteryPayload>
+          }
+          aggregate: {
+            args: Prisma.UserPracticeMasteryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserPracticeMastery>
+          }
+          groupBy: {
+            args: Prisma.UserPracticeMasteryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserPracticeMasteryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserPracticeMasteryCountArgs<ExtArgs>
+            result: $Utils.Optional<UserPracticeMasteryCountAggregateOutputType> | number
+          }
+        }
+      }
+      UserTechniqueMastery: {
+        payload: Prisma.$UserTechniqueMasteryPayload<ExtArgs>
+        fields: Prisma.UserTechniqueMasteryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.UserTechniqueMasteryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserTechniqueMasteryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UserTechniqueMasteryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserTechniqueMasteryPayload>
+          }
+          findFirst: {
+            args: Prisma.UserTechniqueMasteryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserTechniqueMasteryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UserTechniqueMasteryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserTechniqueMasteryPayload>
+          }
+          findMany: {
+            args: Prisma.UserTechniqueMasteryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserTechniqueMasteryPayload>[]
+          }
+          create: {
+            args: Prisma.UserTechniqueMasteryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserTechniqueMasteryPayload>
+          }
+          createMany: {
+            args: Prisma.UserTechniqueMasteryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.UserTechniqueMasteryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserTechniqueMasteryPayload>[]
+          }
+          delete: {
+            args: Prisma.UserTechniqueMasteryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserTechniqueMasteryPayload>
+          }
+          update: {
+            args: Prisma.UserTechniqueMasteryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserTechniqueMasteryPayload>
+          }
+          deleteMany: {
+            args: Prisma.UserTechniqueMasteryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UserTechniqueMasteryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserTechniqueMasteryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserTechniqueMasteryPayload>[]
+          }
+          upsert: {
+            args: Prisma.UserTechniqueMasteryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserTechniqueMasteryPayload>
+          }
+          aggregate: {
+            args: Prisma.UserTechniqueMasteryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserTechniqueMastery>
+          }
+          groupBy: {
+            args: Prisma.UserTechniqueMasteryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserTechniqueMasteryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UserTechniqueMasteryCountArgs<ExtArgs>
+            result: $Utils.Optional<UserTechniqueMasteryCountAggregateOutputType> | number
+          }
+        }
+      }
+      PracticeItemSubTaskTag: {
+        payload: Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>
+        fields: Prisma.PracticeItemSubTaskTagFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PracticeItemSubTaskTagFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PracticeItemSubTaskTagPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PracticeItemSubTaskTagFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PracticeItemSubTaskTagPayload>
+          }
+          findFirst: {
+            args: Prisma.PracticeItemSubTaskTagFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PracticeItemSubTaskTagPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PracticeItemSubTaskTagFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PracticeItemSubTaskTagPayload>
+          }
+          findMany: {
+            args: Prisma.PracticeItemSubTaskTagFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PracticeItemSubTaskTagPayload>[]
+          }
+          create: {
+            args: Prisma.PracticeItemSubTaskTagCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PracticeItemSubTaskTagPayload>
+          }
+          createMany: {
+            args: Prisma.PracticeItemSubTaskTagCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PracticeItemSubTaskTagCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PracticeItemSubTaskTagPayload>[]
+          }
+          delete: {
+            args: Prisma.PracticeItemSubTaskTagDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PracticeItemSubTaskTagPayload>
+          }
+          update: {
+            args: Prisma.PracticeItemSubTaskTagUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PracticeItemSubTaskTagPayload>
+          }
+          deleteMany: {
+            args: Prisma.PracticeItemSubTaskTagDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PracticeItemSubTaskTagUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PracticeItemSubTaskTagUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PracticeItemSubTaskTagPayload>[]
+          }
+          upsert: {
+            args: Prisma.PracticeItemSubTaskTagUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PracticeItemSubTaskTagPayload>
+          }
+          aggregate: {
+            args: Prisma.PracticeItemSubTaskTagAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePracticeItemSubTaskTag>
+          }
+          groupBy: {
+            args: Prisma.PracticeItemSubTaskTagGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PracticeItemSubTaskTagGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PracticeItemSubTaskTagCountArgs<ExtArgs>
+            result: $Utils.Optional<PracticeItemSubTaskTagCountAggregateOutputType> | number
+          }
+        }
+      }
+      MissingPracticeItemFlag: {
+        payload: Prisma.$MissingPracticeItemFlagPayload<ExtArgs>
+        fields: Prisma.MissingPracticeItemFlagFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MissingPracticeItemFlagFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MissingPracticeItemFlagPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MissingPracticeItemFlagFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MissingPracticeItemFlagPayload>
+          }
+          findFirst: {
+            args: Prisma.MissingPracticeItemFlagFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MissingPracticeItemFlagPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MissingPracticeItemFlagFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MissingPracticeItemFlagPayload>
+          }
+          findMany: {
+            args: Prisma.MissingPracticeItemFlagFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MissingPracticeItemFlagPayload>[]
+          }
+          create: {
+            args: Prisma.MissingPracticeItemFlagCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MissingPracticeItemFlagPayload>
+          }
+          createMany: {
+            args: Prisma.MissingPracticeItemFlagCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MissingPracticeItemFlagCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MissingPracticeItemFlagPayload>[]
+          }
+          delete: {
+            args: Prisma.MissingPracticeItemFlagDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MissingPracticeItemFlagPayload>
+          }
+          update: {
+            args: Prisma.MissingPracticeItemFlagUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MissingPracticeItemFlagPayload>
+          }
+          deleteMany: {
+            args: Prisma.MissingPracticeItemFlagDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MissingPracticeItemFlagUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MissingPracticeItemFlagUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MissingPracticeItemFlagPayload>[]
+          }
+          upsert: {
+            args: Prisma.MissingPracticeItemFlagUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MissingPracticeItemFlagPayload>
+          }
+          aggregate: {
+            args: Prisma.MissingPracticeItemFlagAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMissingPracticeItemFlag>
+          }
+          groupBy: {
+            args: Prisma.MissingPracticeItemFlagGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MissingPracticeItemFlagGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MissingPracticeItemFlagCountArgs<ExtArgs>
+            result: $Utils.Optional<MissingPracticeItemFlagCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2166,6 +2976,15 @@ export namespace Prisma {
     userSkillTaskCard?: UserSkillTaskCardOmit
     userGrade?: UserGradeOmit
     performanceSkillFeedback?: PerformanceSkillFeedbackOmit
+    songMastery?: SongMasteryOmit
+    userGradeProgress?: UserGradeProgressOmit
+    skillTaskCard?: SkillTaskCardOmit
+    subTask?: SubTaskOmit
+    subTaskAssignment?: SubTaskAssignmentOmit
+    userPracticeMastery?: UserPracticeMasteryOmit
+    userTechniqueMastery?: UserTechniqueMasteryOmit
+    practiceItemSubTaskTag?: PracticeItemSubTaskTagOmit
+    missingPracticeItemFlag?: MissingPracticeItemFlagOmit
   }
 
   /* Types for Logging */
@@ -2257,6 +3076,10 @@ export namespace Prisma {
     userSkillSubScores: number
     userSkillTaskCards: number
     performanceSkillFeedbacks: number
+    songMasteries: number
+    skillTaskCards: number
+    userPracticeMasteries: number
+    userTechniqueMasteries: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2271,6 +3094,10 @@ export namespace Prisma {
     userSkillSubScores?: boolean | UserCountOutputTypeCountUserSkillSubScoresArgs
     userSkillTaskCards?: boolean | UserCountOutputTypeCountUserSkillTaskCardsArgs
     performanceSkillFeedbacks?: boolean | UserCountOutputTypeCountPerformanceSkillFeedbacksArgs
+    songMasteries?: boolean | UserCountOutputTypeCountSongMasteriesArgs
+    skillTaskCards?: boolean | UserCountOutputTypeCountSkillTaskCardsArgs
+    userPracticeMasteries?: boolean | UserCountOutputTypeCountUserPracticeMasteriesArgs
+    userTechniqueMasteries?: boolean | UserCountOutputTypeCountUserTechniqueMasteriesArgs
   }
 
   // Custom InputTypes
@@ -2361,6 +3188,34 @@ export namespace Prisma {
     where?: PerformanceSkillFeedbackWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountSongMasteriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SongMasteryWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountSkillTaskCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SkillTaskCardWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountUserPracticeMasteriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserPracticeMasteryWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountUserTechniqueMasteriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserTechniqueMasteryWhereInput
+  }
+
 
   /**
    * Count Type ScoreCountOutputType
@@ -2368,10 +3223,16 @@ export namespace Prisma {
 
   export type ScoreCountOutputType = {
     performances: number
+    songMasteries: number
+    skillTaskCards: number
+    missingPracticeItemFlags: number
   }
 
   export type ScoreCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     performances?: boolean | ScoreCountOutputTypeCountPerformancesArgs
+    songMasteries?: boolean | ScoreCountOutputTypeCountSongMasteriesArgs
+    skillTaskCards?: boolean | ScoreCountOutputTypeCountSkillTaskCardsArgs
+    missingPracticeItemFlags?: boolean | ScoreCountOutputTypeCountMissingPracticeItemFlagsArgs
   }
 
   // Custom InputTypes
@@ -2392,6 +3253,58 @@ export namespace Prisma {
     where?: PerformanceWhereInput
   }
 
+  /**
+   * ScoreCountOutputType without action
+   */
+  export type ScoreCountOutputTypeCountSongMasteriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SongMasteryWhereInput
+  }
+
+  /**
+   * ScoreCountOutputType without action
+   */
+  export type ScoreCountOutputTypeCountSkillTaskCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SkillTaskCardWhereInput
+  }
+
+  /**
+   * ScoreCountOutputType without action
+   */
+  export type ScoreCountOutputTypeCountMissingPracticeItemFlagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MissingPracticeItemFlagWhereInput
+  }
+
+
+  /**
+   * Count Type PerformanceCountOutputType
+   */
+
+  export type PerformanceCountOutputType = {
+    skillFeedbacks: number
+  }
+
+  export type PerformanceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    skillFeedbacks?: boolean | PerformanceCountOutputTypeCountSkillFeedbacksArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * PerformanceCountOutputType without action
+   */
+  export type PerformanceCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceCountOutputType
+     */
+    select?: PerformanceCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * PerformanceCountOutputType without action
+   */
+  export type PerformanceCountOutputTypeCountSkillFeedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PerformanceSkillFeedbackWhereInput
+  }
+
 
   /**
    * Count Type PracticeItemCountOutputType
@@ -2400,11 +3313,17 @@ export namespace Prisma {
   export type PracticeItemCountOutputType = {
     techniques: number
     practicePerformances: number
+    subTaskAssignments: number
+    userPracticeMasteries: number
+    practiceItemSubTaskTags: number
   }
 
   export type PracticeItemCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     techniques?: boolean | PracticeItemCountOutputTypeCountTechniquesArgs
     practicePerformances?: boolean | PracticeItemCountOutputTypeCountPracticePerformancesArgs
+    subTaskAssignments?: boolean | PracticeItemCountOutputTypeCountSubTaskAssignmentsArgs
+    userPracticeMasteries?: boolean | PracticeItemCountOutputTypeCountUserPracticeMasteriesArgs
+    practiceItemSubTaskTags?: boolean | PracticeItemCountOutputTypeCountPracticeItemSubTaskTagsArgs
   }
 
   // Custom InputTypes
@@ -2432,6 +3351,27 @@ export namespace Prisma {
     where?: PracticePerformanceWhereInput
   }
 
+  /**
+   * PracticeItemCountOutputType without action
+   */
+  export type PracticeItemCountOutputTypeCountSubTaskAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SubTaskAssignmentWhereInput
+  }
+
+  /**
+   * PracticeItemCountOutputType without action
+   */
+  export type PracticeItemCountOutputTypeCountUserPracticeMasteriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserPracticeMasteryWhereInput
+  }
+
+  /**
+   * PracticeItemCountOutputType without action
+   */
+  export type PracticeItemCountOutputTypeCountPracticeItemSubTaskTagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PracticeItemSubTaskTagWhereInput
+  }
+
 
   /**
    * Count Type TechniqueTagCountOutputType
@@ -2440,11 +3380,15 @@ export namespace Prisma {
   export type TechniqueTagCountOutputType = {
     practiceItems: number
     weaknesses: number
+    userTechniqueMasteries: number
+    missingPracticeItemFlags: number
   }
 
   export type TechniqueTagCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     practiceItems?: boolean | TechniqueTagCountOutputTypeCountPracticeItemsArgs
     weaknesses?: boolean | TechniqueTagCountOutputTypeCountWeaknessesArgs
+    userTechniqueMasteries?: boolean | TechniqueTagCountOutputTypeCountUserTechniqueMasteriesArgs
+    missingPracticeItemFlags?: boolean | TechniqueTagCountOutputTypeCountMissingPracticeItemFlagsArgs
   }
 
   // Custom InputTypes
@@ -2470,6 +3414,20 @@ export namespace Prisma {
    */
   export type TechniqueTagCountOutputTypeCountWeaknessesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserWeaknessWhereInput
+  }
+
+  /**
+   * TechniqueTagCountOutputType without action
+   */
+  export type TechniqueTagCountOutputTypeCountUserTechniqueMasteriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserTechniqueMasteryWhereInput
+  }
+
+  /**
+   * TechniqueTagCountOutputType without action
+   */
+  export type TechniqueTagCountOutputTypeCountMissingPracticeItemFlagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MissingPracticeItemFlagWhereInput
   }
 
 
@@ -2501,6 +3459,68 @@ export namespace Prisma {
    */
   export type PracticePerformanceCountOutputTypeCountSkillFeedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: PerformanceSkillFeedbackWhereInput
+  }
+
+
+  /**
+   * Count Type SkillTaskCardCountOutputType
+   */
+
+  export type SkillTaskCardCountOutputType = {
+    subTasks: number
+  }
+
+  export type SkillTaskCardCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    subTasks?: boolean | SkillTaskCardCountOutputTypeCountSubTasksArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * SkillTaskCardCountOutputType without action
+   */
+  export type SkillTaskCardCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCardCountOutputType
+     */
+    select?: SkillTaskCardCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * SkillTaskCardCountOutputType without action
+   */
+  export type SkillTaskCardCountOutputTypeCountSubTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SubTaskWhereInput
+  }
+
+
+  /**
+   * Count Type SubTaskCountOutputType
+   */
+
+  export type SubTaskCountOutputType = {
+    subTaskAssignments: number
+  }
+
+  export type SubTaskCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    subTaskAssignments?: boolean | SubTaskCountOutputTypeCountSubTaskAssignmentsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * SubTaskCountOutputType without action
+   */
+  export type SubTaskCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskCountOutputType
+     */
+    select?: SubTaskCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * SubTaskCountOutputType without action
+   */
+  export type SubTaskCountOutputTypeCountSubTaskAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SubTaskAssignmentWhereInput
   }
 
 
@@ -2724,6 +3744,11 @@ export namespace Prisma {
     userSkillTaskCards?: boolean | User$userSkillTaskCardsArgs<ExtArgs>
     userGrade?: boolean | User$userGradeArgs<ExtArgs>
     performanceSkillFeedbacks?: boolean | User$performanceSkillFeedbacksArgs<ExtArgs>
+    songMasteries?: boolean | User$songMasteriesArgs<ExtArgs>
+    userGradeProgress?: boolean | User$userGradeProgressArgs<ExtArgs>
+    skillTaskCards?: boolean | User$skillTaskCardsArgs<ExtArgs>
+    userPracticeMasteries?: boolean | User$userPracticeMasteriesArgs<ExtArgs>
+    userTechniqueMasteries?: boolean | User$userTechniqueMasteriesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2780,6 +3805,11 @@ export namespace Prisma {
     userSkillTaskCards?: boolean | User$userSkillTaskCardsArgs<ExtArgs>
     userGrade?: boolean | User$userGradeArgs<ExtArgs>
     performanceSkillFeedbacks?: boolean | User$performanceSkillFeedbacksArgs<ExtArgs>
+    songMasteries?: boolean | User$songMasteriesArgs<ExtArgs>
+    userGradeProgress?: boolean | User$userGradeProgressArgs<ExtArgs>
+    skillTaskCards?: boolean | User$skillTaskCardsArgs<ExtArgs>
+    userPracticeMasteries?: boolean | User$userPracticeMasteriesArgs<ExtArgs>
+    userTechniqueMasteries?: boolean | User$userTechniqueMasteriesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2800,6 +3830,11 @@ export namespace Prisma {
       userSkillTaskCards: Prisma.$UserSkillTaskCardPayload<ExtArgs>[]
       userGrade: Prisma.$UserGradePayload<ExtArgs> | null
       performanceSkillFeedbacks: Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>[]
+      songMasteries: Prisma.$SongMasteryPayload<ExtArgs>[]
+      userGradeProgress: Prisma.$UserGradeProgressPayload<ExtArgs> | null
+      skillTaskCards: Prisma.$SkillTaskCardPayload<ExtArgs>[]
+      userPracticeMasteries: Prisma.$UserPracticeMasteryPayload<ExtArgs>[]
+      userTechniqueMasteries: Prisma.$UserTechniqueMasteryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3218,6 +4253,11 @@ export namespace Prisma {
     userSkillTaskCards<T extends User$userSkillTaskCardsArgs<ExtArgs> = {}>(args?: Subset<T, User$userSkillTaskCardsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSkillTaskCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     userGrade<T extends User$userGradeArgs<ExtArgs> = {}>(args?: Subset<T, User$userGradeArgs<ExtArgs>>): Prisma__UserGradeClient<$Result.GetResult<Prisma.$UserGradePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     performanceSkillFeedbacks<T extends User$performanceSkillFeedbacksArgs<ExtArgs> = {}>(args?: Subset<T, User$performanceSkillFeedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    songMasteries<T extends User$songMasteriesArgs<ExtArgs> = {}>(args?: Subset<T, User$songMasteriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SongMasteryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userGradeProgress<T extends User$userGradeProgressArgs<ExtArgs> = {}>(args?: Subset<T, User$userGradeProgressArgs<ExtArgs>>): Prisma__UserGradeProgressClient<$Result.GetResult<Prisma.$UserGradeProgressPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    skillTaskCards<T extends User$skillTaskCardsArgs<ExtArgs> = {}>(args?: Subset<T, User$skillTaskCardsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userPracticeMasteries<T extends User$userPracticeMasteriesArgs<ExtArgs> = {}>(args?: Subset<T, User$userPracticeMasteriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPracticeMasteryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userTechniqueMasteries<T extends User$userTechniqueMasteriesArgs<ExtArgs> = {}>(args?: Subset<T, User$userTechniqueMasteriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserTechniqueMasteryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3928,6 +4968,121 @@ export namespace Prisma {
   }
 
   /**
+   * User.songMasteries
+   */
+  export type User$songMasteriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryInclude<ExtArgs> | null
+    where?: SongMasteryWhereInput
+    orderBy?: SongMasteryOrderByWithRelationInput | SongMasteryOrderByWithRelationInput[]
+    cursor?: SongMasteryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SongMasteryScalarFieldEnum | SongMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * User.userGradeProgress
+   */
+  export type User$userGradeProgressArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGradeProgress
+     */
+    select?: UserGradeProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGradeProgress
+     */
+    omit?: UserGradeProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeProgressInclude<ExtArgs> | null
+    where?: UserGradeProgressWhereInput
+  }
+
+  /**
+   * User.skillTaskCards
+   */
+  export type User$skillTaskCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardInclude<ExtArgs> | null
+    where?: SkillTaskCardWhereInput
+    orderBy?: SkillTaskCardOrderByWithRelationInput | SkillTaskCardOrderByWithRelationInput[]
+    cursor?: SkillTaskCardWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SkillTaskCardScalarFieldEnum | SkillTaskCardScalarFieldEnum[]
+  }
+
+  /**
+   * User.userPracticeMasteries
+   */
+  export type User$userPracticeMasteriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryInclude<ExtArgs> | null
+    where?: UserPracticeMasteryWhereInput
+    orderBy?: UserPracticeMasteryOrderByWithRelationInput | UserPracticeMasteryOrderByWithRelationInput[]
+    cursor?: UserPracticeMasteryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserPracticeMasteryScalarFieldEnum | UserPracticeMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * User.userTechniqueMasteries
+   */
+  export type User$userTechniqueMasteriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryInclude<ExtArgs> | null
+    where?: UserTechniqueMasteryWhereInput
+    orderBy?: UserTechniqueMasteryOrderByWithRelationInput | UserTechniqueMasteryOrderByWithRelationInput[]
+    cursor?: UserTechniqueMasteryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserTechniqueMasteryScalarFieldEnum | UserTechniqueMasteryScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3996,6 +5151,7 @@ export namespace Prisma {
     defaultTempo: number | null
     isShared: boolean | null
     difficulty: number | null
+    ownerScope: string | null
     createdAt: Date | null
     deletedAt: Date | null
   }
@@ -4022,6 +5178,7 @@ export namespace Prisma {
     defaultTempo: number | null
     isShared: boolean | null
     difficulty: number | null
+    ownerScope: string | null
     createdAt: Date | null
     deletedAt: Date | null
   }
@@ -4049,6 +5206,7 @@ export namespace Prisma {
     isShared: number
     difficulty: number
     skillSubTaskTags: number
+    ownerScope: number
     createdAt: number
     deletedAt: number
     _all: number
@@ -4093,6 +5251,7 @@ export namespace Prisma {
     defaultTempo?: true
     isShared?: true
     difficulty?: true
+    ownerScope?: true
     createdAt?: true
     deletedAt?: true
   }
@@ -4119,6 +5278,7 @@ export namespace Prisma {
     defaultTempo?: true
     isShared?: true
     difficulty?: true
+    ownerScope?: true
     createdAt?: true
     deletedAt?: true
   }
@@ -4146,6 +5306,7 @@ export namespace Prisma {
     isShared?: true
     difficulty?: true
     skillSubTaskTags?: true
+    ownerScope?: true
     createdAt?: true
     deletedAt?: true
     _all?: true
@@ -4260,6 +5421,7 @@ export namespace Prisma {
     isShared: boolean
     difficulty: number | null
     skillSubTaskTags: JsonValue | null
+    ownerScope: string
     createdAt: Date
     deletedAt: Date | null
     _count: ScoreCountAggregateOutputType | null
@@ -4306,9 +5468,13 @@ export namespace Prisma {
     isShared?: boolean
     difficulty?: boolean
     skillSubTaskTags?: boolean
+    ownerScope?: boolean
     createdAt?: boolean
     deletedAt?: boolean
     performances?: boolean | Score$performancesArgs<ExtArgs>
+    songMasteries?: boolean | Score$songMasteriesArgs<ExtArgs>
+    skillTaskCards?: boolean | Score$skillTaskCardsArgs<ExtArgs>
+    missingPracticeItemFlags?: boolean | Score$missingPracticeItemFlagsArgs<ExtArgs>
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
     _count?: boolean | ScoreCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["score"]>
@@ -4336,6 +5502,7 @@ export namespace Prisma {
     isShared?: boolean
     difficulty?: boolean
     skillSubTaskTags?: boolean
+    ownerScope?: boolean
     createdAt?: boolean
     deletedAt?: boolean
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
@@ -4364,6 +5531,7 @@ export namespace Prisma {
     isShared?: boolean
     difficulty?: boolean
     skillSubTaskTags?: boolean
+    ownerScope?: boolean
     createdAt?: boolean
     deletedAt?: boolean
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
@@ -4392,13 +5560,17 @@ export namespace Prisma {
     isShared?: boolean
     difficulty?: boolean
     skillSubTaskTags?: boolean
+    ownerScope?: boolean
     createdAt?: boolean
     deletedAt?: boolean
   }
 
-  export type ScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdById" | "title" | "composer" | "arranger" | "originalXmlPath" | "generatedXmlPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "keyTonic" | "keyMode" | "timeNumerator" | "timeDenominator" | "defaultTempo" | "isShared" | "difficulty" | "skillSubTaskTags" | "createdAt" | "deletedAt", ExtArgs["result"]["score"]>
+  export type ScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdById" | "title" | "composer" | "arranger" | "originalXmlPath" | "generatedXmlPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "keyTonic" | "keyMode" | "timeNumerator" | "timeDenominator" | "defaultTempo" | "isShared" | "difficulty" | "skillSubTaskTags" | "ownerScope" | "createdAt" | "deletedAt", ExtArgs["result"]["score"]>
   export type ScoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     performances?: boolean | Score$performancesArgs<ExtArgs>
+    songMasteries?: boolean | Score$songMasteriesArgs<ExtArgs>
+    skillTaskCards?: boolean | Score$skillTaskCardsArgs<ExtArgs>
+    missingPracticeItemFlags?: boolean | Score$missingPracticeItemFlagsArgs<ExtArgs>
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
     _count?: boolean | ScoreCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -4413,6 +5585,9 @@ export namespace Prisma {
     name: "Score"
     objects: {
       performances: Prisma.$PerformancePayload<ExtArgs>[]
+      songMasteries: Prisma.$SongMasteryPayload<ExtArgs>[]
+      skillTaskCards: Prisma.$SkillTaskCardPayload<ExtArgs>[]
+      missingPracticeItemFlags: Prisma.$MissingPracticeItemFlagPayload<ExtArgs>[]
       createdBy: Prisma.$UserPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -4438,6 +5613,7 @@ export namespace Prisma {
       isShared: boolean
       difficulty: number | null
       skillSubTaskTags: Prisma.JsonValue | null
+      ownerScope: string
       createdAt: Date
       deletedAt: Date | null
     }, ExtArgs["result"]["score"]>
@@ -4835,6 +6011,9 @@ export namespace Prisma {
   export interface Prisma__ScoreClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     performances<T extends Score$performancesArgs<ExtArgs> = {}>(args?: Subset<T, Score$performancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PerformancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    songMasteries<T extends Score$songMasteriesArgs<ExtArgs> = {}>(args?: Subset<T, Score$songMasteriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SongMasteryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    skillTaskCards<T extends Score$skillTaskCardsArgs<ExtArgs> = {}>(args?: Subset<T, Score$skillTaskCardsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    missingPracticeItemFlags<T extends Score$missingPracticeItemFlagsArgs<ExtArgs> = {}>(args?: Subset<T, Score$missingPracticeItemFlagsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MissingPracticeItemFlagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     createdBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4887,6 +6066,7 @@ export namespace Prisma {
     readonly isShared: FieldRef<"Score", 'Boolean'>
     readonly difficulty: FieldRef<"Score", 'Int'>
     readonly skillSubTaskTags: FieldRef<"Score", 'Json'>
+    readonly ownerScope: FieldRef<"Score", 'String'>
     readonly createdAt: FieldRef<"Score", 'DateTime'>
     readonly deletedAt: FieldRef<"Score", 'DateTime'>
   }
@@ -5309,6 +6489,78 @@ export namespace Prisma {
   }
 
   /**
+   * Score.songMasteries
+   */
+  export type Score$songMasteriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryInclude<ExtArgs> | null
+    where?: SongMasteryWhereInput
+    orderBy?: SongMasteryOrderByWithRelationInput | SongMasteryOrderByWithRelationInput[]
+    cursor?: SongMasteryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SongMasteryScalarFieldEnum | SongMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * Score.skillTaskCards
+   */
+  export type Score$skillTaskCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardInclude<ExtArgs> | null
+    where?: SkillTaskCardWhereInput
+    orderBy?: SkillTaskCardOrderByWithRelationInput | SkillTaskCardOrderByWithRelationInput[]
+    cursor?: SkillTaskCardWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SkillTaskCardScalarFieldEnum | SkillTaskCardScalarFieldEnum[]
+  }
+
+  /**
+   * Score.missingPracticeItemFlags
+   */
+  export type Score$missingPracticeItemFlagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagInclude<ExtArgs> | null
+    where?: MissingPracticeItemFlagWhereInput
+    orderBy?: MissingPracticeItemFlagOrderByWithRelationInput | MissingPracticeItemFlagOrderByWithRelationInput[]
+    cursor?: MissingPracticeItemFlagWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MissingPracticeItemFlagScalarFieldEnum | MissingPracticeItemFlagScalarFieldEnum[]
+  }
+
+  /**
    * Score without action
    */
   export type ScoreDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5345,6 +6597,11 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    rhythmAccuracy: number | null
+    bowingAccuracy: number | null
+    pitchSkillScore: number | null
+    rhythmSkillScore: number | null
+    bowingSkillScore: number | null
     retryCount: number | null
   }
 
@@ -5354,6 +6611,11 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    rhythmAccuracy: number | null
+    bowingAccuracy: number | null
+    pitchSkillScore: number | null
+    rhythmSkillScore: number | null
+    bowingSkillScore: number | null
     retryCount: number | null
   }
 
@@ -5376,6 +6638,11 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    rhythmAccuracy: number | null
+    bowingAccuracy: number | null
+    pitchSkillScore: number | null
+    rhythmSkillScore: number | null
+    bowingSkillScore: number | null
     analysisStatus: $Enums.JobStatus | null
     retryCount: number | null
     errorMessage: string | null
@@ -5403,6 +6670,11 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    rhythmAccuracy: number | null
+    bowingAccuracy: number | null
+    pitchSkillScore: number | null
+    rhythmSkillScore: number | null
+    bowingSkillScore: number | null
     analysisStatus: $Enums.JobStatus | null
     retryCount: number | null
     errorMessage: string | null
@@ -5431,6 +6703,13 @@ export namespace Prisma {
     overallScore: number
     evaluatedNotes: number
     analysisSummary: number
+    rhythmAccuracy: number
+    bowingAccuracy: number
+    pitchSkillScore: number
+    rhythmSkillScore: number
+    bowingSkillScore: number
+    skillSubScores: number
+    problematicPositions: number
     analysisStatus: number
     retryCount: number
     errorMessage: number
@@ -5447,6 +6726,11 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    rhythmAccuracy?: true
+    bowingAccuracy?: true
+    pitchSkillScore?: true
+    rhythmSkillScore?: true
+    bowingSkillScore?: true
     retryCount?: true
   }
 
@@ -5456,6 +6740,11 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    rhythmAccuracy?: true
+    bowingAccuracy?: true
+    pitchSkillScore?: true
+    rhythmSkillScore?: true
+    bowingSkillScore?: true
     retryCount?: true
   }
 
@@ -5478,6 +6767,11 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    rhythmAccuracy?: true
+    bowingAccuracy?: true
+    pitchSkillScore?: true
+    rhythmSkillScore?: true
+    bowingSkillScore?: true
     analysisStatus?: true
     retryCount?: true
     errorMessage?: true
@@ -5505,6 +6799,11 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    rhythmAccuracy?: true
+    bowingAccuracy?: true
+    pitchSkillScore?: true
+    rhythmSkillScore?: true
+    bowingSkillScore?: true
     analysisStatus?: true
     retryCount?: true
     errorMessage?: true
@@ -5533,6 +6832,13 @@ export namespace Prisma {
     overallScore?: true
     evaluatedNotes?: true
     analysisSummary?: true
+    rhythmAccuracy?: true
+    bowingAccuracy?: true
+    pitchSkillScore?: true
+    rhythmSkillScore?: true
+    bowingSkillScore?: true
+    skillSubScores?: true
+    problematicPositions?: true
     analysisStatus?: true
     retryCount?: true
     errorMessage?: true
@@ -5648,6 +6954,13 @@ export namespace Prisma {
     overallScore: number | null
     evaluatedNotes: number | null
     analysisSummary: JsonValue | null
+    rhythmAccuracy: number | null
+    bowingAccuracy: number | null
+    pitchSkillScore: number | null
+    rhythmSkillScore: number | null
+    bowingSkillScore: number | null
+    skillSubScores: JsonValue | null
+    problematicPositions: JsonValue | null
     analysisStatus: $Enums.JobStatus
     retryCount: number
     errorMessage: string | null
@@ -5695,6 +7008,13 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    rhythmAccuracy?: boolean
+    bowingAccuracy?: boolean
+    pitchSkillScore?: boolean
+    rhythmSkillScore?: boolean
+    bowingSkillScore?: boolean
+    skillSubScores?: boolean
+    problematicPositions?: boolean
     analysisStatus?: boolean
     retryCount?: boolean
     errorMessage?: boolean
@@ -5703,6 +7023,8 @@ export namespace Prisma {
     idempotencyKey?: boolean
     score?: boolean | ScoreDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    skillFeedbacks?: boolean | Performance$skillFeedbacksArgs<ExtArgs>
+    _count?: boolean | PerformanceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["performance"]>
 
   export type PerformanceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5725,6 +7047,13 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    rhythmAccuracy?: boolean
+    bowingAccuracy?: boolean
+    pitchSkillScore?: boolean
+    rhythmSkillScore?: boolean
+    bowingSkillScore?: boolean
+    skillSubScores?: boolean
+    problematicPositions?: boolean
     analysisStatus?: boolean
     retryCount?: boolean
     errorMessage?: boolean
@@ -5755,6 +7084,13 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    rhythmAccuracy?: boolean
+    bowingAccuracy?: boolean
+    pitchSkillScore?: boolean
+    rhythmSkillScore?: boolean
+    bowingSkillScore?: boolean
+    skillSubScores?: boolean
+    problematicPositions?: boolean
     analysisStatus?: boolean
     retryCount?: boolean
     errorMessage?: boolean
@@ -5785,6 +7121,13 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    rhythmAccuracy?: boolean
+    bowingAccuracy?: boolean
+    pitchSkillScore?: boolean
+    rhythmSkillScore?: boolean
+    bowingSkillScore?: boolean
+    skillSubScores?: boolean
+    problematicPositions?: boolean
     analysisStatus?: boolean
     retryCount?: boolean
     errorMessage?: boolean
@@ -5793,10 +7136,12 @@ export namespace Prisma {
     idempotencyKey?: boolean
   }
 
-  export type PerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "performanceType" | "performanceStatus" | "userId" | "scoreId" | "name" | "audioPath" | "audioFeaturesPath" | "comparisonResultPath" | "pseudoXmlPath" | "performanceDuration" | "performanceDate" | "uploadedAt" | "createdAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary" | "analysisStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey", ExtArgs["result"]["performance"]>
+  export type PerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "performanceType" | "performanceStatus" | "userId" | "scoreId" | "name" | "audioPath" | "audioFeaturesPath" | "comparisonResultPath" | "pseudoXmlPath" | "performanceDuration" | "performanceDate" | "uploadedAt" | "createdAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary" | "rhythmAccuracy" | "bowingAccuracy" | "pitchSkillScore" | "rhythmSkillScore" | "bowingSkillScore" | "skillSubScores" | "problematicPositions" | "analysisStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey", ExtArgs["result"]["performance"]>
   export type PerformanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     score?: boolean | ScoreDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
+    skillFeedbacks?: boolean | Performance$skillFeedbacksArgs<ExtArgs>
+    _count?: boolean | PerformanceCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PerformanceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     score?: boolean | ScoreDefaultArgs<ExtArgs>
@@ -5812,6 +7157,7 @@ export namespace Prisma {
     objects: {
       score: Prisma.$ScorePayload<ExtArgs>
       user: Prisma.$UserPayload<ExtArgs>
+      skillFeedbacks: Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5833,6 +7179,13 @@ export namespace Prisma {
       overallScore: number | null
       evaluatedNotes: number | null
       analysisSummary: Prisma.JsonValue | null
+      rhythmAccuracy: number | null
+      bowingAccuracy: number | null
+      pitchSkillScore: number | null
+      rhythmSkillScore: number | null
+      bowingSkillScore: number | null
+      skillSubScores: Prisma.JsonValue | null
+      problematicPositions: Prisma.JsonValue | null
       analysisStatus: $Enums.JobStatus
       retryCount: number
       errorMessage: string | null
@@ -6235,6 +7588,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     score<T extends ScoreDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ScoreDefaultArgs<ExtArgs>>): Prisma__ScoreClient<$Result.GetResult<Prisma.$ScorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    skillFeedbacks<T extends Performance$skillFeedbacksArgs<ExtArgs> = {}>(args?: Subset<T, Performance$skillFeedbacksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PerformanceSkillFeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6283,6 +7637,13 @@ export namespace Prisma {
     readonly overallScore: FieldRef<"Performance", 'Float'>
     readonly evaluatedNotes: FieldRef<"Performance", 'Int'>
     readonly analysisSummary: FieldRef<"Performance", 'Json'>
+    readonly rhythmAccuracy: FieldRef<"Performance", 'Float'>
+    readonly bowingAccuracy: FieldRef<"Performance", 'Float'>
+    readonly pitchSkillScore: FieldRef<"Performance", 'Float'>
+    readonly rhythmSkillScore: FieldRef<"Performance", 'Float'>
+    readonly bowingSkillScore: FieldRef<"Performance", 'Float'>
+    readonly skillSubScores: FieldRef<"Performance", 'Json'>
+    readonly problematicPositions: FieldRef<"Performance", 'Json'>
     readonly analysisStatus: FieldRef<"Performance", 'JobStatus'>
     readonly retryCount: FieldRef<"Performance", 'Int'>
     readonly errorMessage: FieldRef<"Performance", 'String'>
@@ -6682,6 +8043,30 @@ export namespace Prisma {
      * Limit how many Performances to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Performance.skillFeedbacks
+   */
+  export type Performance$skillFeedbacksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PerformanceSkillFeedback
+     */
+    select?: PerformanceSkillFeedbackSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PerformanceSkillFeedback
+     */
+    omit?: PerformanceSkillFeedbackOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+    where?: PerformanceSkillFeedbackWhereInput
+    orderBy?: PerformanceSkillFeedbackOrderByWithRelationInput | PerformanceSkillFeedbackOrderByWithRelationInput[]
+    cursor?: PerformanceSkillFeedbackWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PerformanceSkillFeedbackScalarFieldEnum | PerformanceSkillFeedbackScalarFieldEnum[]
   }
 
   /**
@@ -7116,6 +8501,9 @@ export namespace Prisma {
     owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
     techniques?: boolean | PracticeItem$techniquesArgs<ExtArgs>
     practicePerformances?: boolean | PracticeItem$practicePerformancesArgs<ExtArgs>
+    subTaskAssignments?: boolean | PracticeItem$subTaskAssignmentsArgs<ExtArgs>
+    userPracticeMasteries?: boolean | PracticeItem$userPracticeMasteriesArgs<ExtArgs>
+    practiceItemSubTaskTags?: boolean | PracticeItem$practiceItemSubTaskTagsArgs<ExtArgs>
     _count?: boolean | PracticeItemCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["practiceItem"]>
 
@@ -7228,6 +8616,9 @@ export namespace Prisma {
     owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
     techniques?: boolean | PracticeItem$techniquesArgs<ExtArgs>
     practicePerformances?: boolean | PracticeItem$practicePerformancesArgs<ExtArgs>
+    subTaskAssignments?: boolean | PracticeItem$subTaskAssignmentsArgs<ExtArgs>
+    userPracticeMasteries?: boolean | PracticeItem$userPracticeMasteriesArgs<ExtArgs>
+    practiceItemSubTaskTags?: boolean | PracticeItem$practiceItemSubTaskTagsArgs<ExtArgs>
     _count?: boolean | PracticeItemCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PracticeItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7243,6 +8634,9 @@ export namespace Prisma {
       owner: Prisma.$UserPayload<ExtArgs> | null
       techniques: Prisma.$PracticeItemTechniquePayload<ExtArgs>[]
       practicePerformances: Prisma.$PracticePerformancePayload<ExtArgs>[]
+      subTaskAssignments: Prisma.$SubTaskAssignmentPayload<ExtArgs>[]
+      userPracticeMasteries: Prisma.$UserPracticeMasteryPayload<ExtArgs>[]
+      practiceItemSubTaskTags: Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7673,6 +9067,9 @@ export namespace Prisma {
     owner<T extends PracticeItem$ownerArgs<ExtArgs> = {}>(args?: Subset<T, PracticeItem$ownerArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     techniques<T extends PracticeItem$techniquesArgs<ExtArgs> = {}>(args?: Subset<T, PracticeItem$techniquesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PracticeItemTechniquePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     practicePerformances<T extends PracticeItem$practicePerformancesArgs<ExtArgs> = {}>(args?: Subset<T, PracticeItem$practicePerformancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PracticePerformancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    subTaskAssignments<T extends PracticeItem$subTaskAssignmentsArgs<ExtArgs> = {}>(args?: Subset<T, PracticeItem$subTaskAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubTaskAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userPracticeMasteries<T extends PracticeItem$userPracticeMasteriesArgs<ExtArgs> = {}>(args?: Subset<T, PracticeItem$userPracticeMasteriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPracticeMasteryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    practiceItemSubTaskTags<T extends PracticeItem$practiceItemSubTaskTagsArgs<ExtArgs> = {}>(args?: Subset<T, PracticeItem$practiceItemSubTaskTagsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8196,6 +9593,78 @@ export namespace Prisma {
   }
 
   /**
+   * PracticeItem.subTaskAssignments
+   */
+  export type PracticeItem$subTaskAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentInclude<ExtArgs> | null
+    where?: SubTaskAssignmentWhereInput
+    orderBy?: SubTaskAssignmentOrderByWithRelationInput | SubTaskAssignmentOrderByWithRelationInput[]
+    cursor?: SubTaskAssignmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SubTaskAssignmentScalarFieldEnum | SubTaskAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * PracticeItem.userPracticeMasteries
+   */
+  export type PracticeItem$userPracticeMasteriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryInclude<ExtArgs> | null
+    where?: UserPracticeMasteryWhereInput
+    orderBy?: UserPracticeMasteryOrderByWithRelationInput | UserPracticeMasteryOrderByWithRelationInput[]
+    cursor?: UserPracticeMasteryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserPracticeMasteryScalarFieldEnum | UserPracticeMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * PracticeItem.practiceItemSubTaskTags
+   */
+  export type PracticeItem$practiceItemSubTaskTagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItemSubTaskTag
+     */
+    select?: PracticeItemSubTaskTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItemSubTaskTag
+     */
+    omit?: PracticeItemSubTaskTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemSubTaskTagInclude<ExtArgs> | null
+    where?: PracticeItemSubTaskTagWhereInput
+    orderBy?: PracticeItemSubTaskTagOrderByWithRelationInput | PracticeItemSubTaskTagOrderByWithRelationInput[]
+    cursor?: PracticeItemSubTaskTagWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PracticeItemSubTaskTagScalarFieldEnum | PracticeItemSubTaskTagScalarFieldEnum[]
+  }
+
+  /**
    * PracticeItem without action
    */
   export type PracticeItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8400,6 +9869,8 @@ export namespace Prisma {
     implementStatus?: boolean
     practiceItems?: boolean | TechniqueTag$practiceItemsArgs<ExtArgs>
     weaknesses?: boolean | TechniqueTag$weaknessesArgs<ExtArgs>
+    userTechniqueMasteries?: boolean | TechniqueTag$userTechniqueMasteriesArgs<ExtArgs>
+    missingPracticeItemFlags?: boolean | TechniqueTag$missingPracticeItemFlagsArgs<ExtArgs>
     _count?: boolean | TechniqueTagCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["techniqueTag"]>
 
@@ -8440,6 +9911,8 @@ export namespace Prisma {
   export type TechniqueTagInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     practiceItems?: boolean | TechniqueTag$practiceItemsArgs<ExtArgs>
     weaknesses?: boolean | TechniqueTag$weaknessesArgs<ExtArgs>
+    userTechniqueMasteries?: boolean | TechniqueTag$userTechniqueMasteriesArgs<ExtArgs>
+    missingPracticeItemFlags?: boolean | TechniqueTag$missingPracticeItemFlagsArgs<ExtArgs>
     _count?: boolean | TechniqueTagCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TechniqueTagIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -8450,6 +9923,8 @@ export namespace Prisma {
     objects: {
       practiceItems: Prisma.$PracticeItemTechniquePayload<ExtArgs>[]
       weaknesses: Prisma.$UserWeaknessPayload<ExtArgs>[]
+      userTechniqueMasteries: Prisma.$UserTechniqueMasteryPayload<ExtArgs>[]
+      missingPracticeItemFlags: Prisma.$MissingPracticeItemFlagPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8856,6 +10331,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     practiceItems<T extends TechniqueTag$practiceItemsArgs<ExtArgs> = {}>(args?: Subset<T, TechniqueTag$practiceItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PracticeItemTechniquePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     weaknesses<T extends TechniqueTag$weaknessesArgs<ExtArgs> = {}>(args?: Subset<T, TechniqueTag$weaknessesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserWeaknessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    userTechniqueMasteries<T extends TechniqueTag$userTechniqueMasteriesArgs<ExtArgs> = {}>(args?: Subset<T, TechniqueTag$userTechniqueMasteriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserTechniqueMasteryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    missingPracticeItemFlags<T extends TechniqueTag$missingPracticeItemFlagsArgs<ExtArgs> = {}>(args?: Subset<T, TechniqueTag$missingPracticeItemFlagsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MissingPracticeItemFlagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9326,6 +10803,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserWeaknessScalarFieldEnum | UserWeaknessScalarFieldEnum[]
+  }
+
+  /**
+   * TechniqueTag.userTechniqueMasteries
+   */
+  export type TechniqueTag$userTechniqueMasteriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryInclude<ExtArgs> | null
+    where?: UserTechniqueMasteryWhereInput
+    orderBy?: UserTechniqueMasteryOrderByWithRelationInput | UserTechniqueMasteryOrderByWithRelationInput[]
+    cursor?: UserTechniqueMasteryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserTechniqueMasteryScalarFieldEnum | UserTechniqueMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * TechniqueTag.missingPracticeItemFlags
+   */
+  export type TechniqueTag$missingPracticeItemFlagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagInclude<ExtArgs> | null
+    where?: MissingPracticeItemFlagWhereInput
+    orderBy?: MissingPracticeItemFlagOrderByWithRelationInput | MissingPracticeItemFlagOrderByWithRelationInput[]
+    cursor?: MissingPracticeItemFlagWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MissingPracticeItemFlagScalarFieldEnum | MissingPracticeItemFlagScalarFieldEnum[]
   }
 
   /**
@@ -10405,6 +11930,8 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    rhythmAccuracy: number | null
+    bowingAccuracy: number | null
     retryCount: number | null
     pitchSkillScore: number | null
     rhythmSkillScore: number | null
@@ -10417,6 +11944,8 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    rhythmAccuracy: number | null
+    bowingAccuracy: number | null
     retryCount: number | null
     pitchSkillScore: number | null
     rhythmSkillScore: number | null
@@ -10436,6 +11965,8 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    rhythmAccuracy: number | null
+    bowingAccuracy: number | null
     analysisStatus: $Enums.JobStatus | null
     retryCount: number | null
     errorMessage: string | null
@@ -10460,6 +11991,8 @@ export namespace Prisma {
     timingAccuracy: number | null
     overallScore: number | null
     evaluatedNotes: number | null
+    rhythmAccuracy: number | null
+    bowingAccuracy: number | null
     analysisStatus: $Enums.JobStatus | null
     retryCount: number | null
     errorMessage: string | null
@@ -10485,6 +12018,8 @@ export namespace Prisma {
     overallScore: number
     evaluatedNotes: number
     analysisSummary: number
+    rhythmAccuracy: number
+    bowingAccuracy: number
     analysisStatus: number
     retryCount: number
     errorMessage: number
@@ -10506,6 +12041,8 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    rhythmAccuracy?: true
+    bowingAccuracy?: true
     retryCount?: true
     pitchSkillScore?: true
     rhythmSkillScore?: true
@@ -10518,6 +12055,8 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    rhythmAccuracy?: true
+    bowingAccuracy?: true
     retryCount?: true
     pitchSkillScore?: true
     rhythmSkillScore?: true
@@ -10537,6 +12076,8 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    rhythmAccuracy?: true
+    bowingAccuracy?: true
     analysisStatus?: true
     retryCount?: true
     errorMessage?: true
@@ -10561,6 +12102,8 @@ export namespace Prisma {
     timingAccuracy?: true
     overallScore?: true
     evaluatedNotes?: true
+    rhythmAccuracy?: true
+    bowingAccuracy?: true
     analysisStatus?: true
     retryCount?: true
     errorMessage?: true
@@ -10586,6 +12129,8 @@ export namespace Prisma {
     overallScore?: true
     evaluatedNotes?: true
     analysisSummary?: true
+    rhythmAccuracy?: true
+    bowingAccuracy?: true
     analysisStatus?: true
     retryCount?: true
     errorMessage?: true
@@ -10700,6 +12245,8 @@ export namespace Prisma {
     overallScore: number | null
     evaluatedNotes: number | null
     analysisSummary: JsonValue | null
+    rhythmAccuracy: number | null
+    bowingAccuracy: number | null
     analysisStatus: $Enums.JobStatus
     retryCount: number
     errorMessage: string | null
@@ -10746,6 +12293,8 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    rhythmAccuracy?: boolean
+    bowingAccuracy?: boolean
     analysisStatus?: boolean
     retryCount?: boolean
     errorMessage?: boolean
@@ -10777,6 +12326,8 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    rhythmAccuracy?: boolean
+    bowingAccuracy?: boolean
     analysisStatus?: boolean
     retryCount?: boolean
     errorMessage?: boolean
@@ -10806,6 +12357,8 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    rhythmAccuracy?: boolean
+    bowingAccuracy?: boolean
     analysisStatus?: boolean
     retryCount?: boolean
     errorMessage?: boolean
@@ -10835,6 +12388,8 @@ export namespace Prisma {
     overallScore?: boolean
     evaluatedNotes?: boolean
     analysisSummary?: boolean
+    rhythmAccuracy?: boolean
+    bowingAccuracy?: boolean
     analysisStatus?: boolean
     retryCount?: boolean
     errorMessage?: boolean
@@ -10848,7 +12403,7 @@ export namespace Prisma {
     problematicPositions?: boolean
   }
 
-  export type PracticePerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "practiceItemId" | "name" | "audioPath" | "comparisonResultPath" | "performanceDuration" | "uploadedAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary" | "analysisStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "pitchSkillScore" | "rhythmSkillScore" | "bowingSkillScore" | "skillSubScores" | "problematicPositions", ExtArgs["result"]["practicePerformance"]>
+  export type PracticePerformanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "practiceItemId" | "name" | "audioPath" | "comparisonResultPath" | "performanceDuration" | "uploadedAt" | "pitchAccuracy" | "timingAccuracy" | "overallScore" | "evaluatedNotes" | "analysisSummary" | "rhythmAccuracy" | "bowingAccuracy" | "analysisStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "pitchSkillScore" | "rhythmSkillScore" | "bowingSkillScore" | "skillSubScores" | "problematicPositions", ExtArgs["result"]["practicePerformance"]>
   export type PracticePerformanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
@@ -10885,6 +12440,8 @@ export namespace Prisma {
       overallScore: number | null
       evaluatedNotes: number | null
       analysisSummary: Prisma.JsonValue | null
+      rhythmAccuracy: number | null
+      bowingAccuracy: number | null
       analysisStatus: $Enums.JobStatus
       retryCount: number
       errorMessage: string | null
@@ -11335,6 +12892,8 @@ export namespace Prisma {
     readonly overallScore: FieldRef<"PracticePerformance", 'Float'>
     readonly evaluatedNotes: FieldRef<"PracticePerformance", 'Int'>
     readonly analysisSummary: FieldRef<"PracticePerformance", 'Json'>
+    readonly rhythmAccuracy: FieldRef<"PracticePerformance", 'Float'>
+    readonly bowingAccuracy: FieldRef<"PracticePerformance", 'Float'>
     readonly analysisStatus: FieldRef<"PracticePerformance", 'JobStatus'>
     readonly retryCount: FieldRef<"PracticePerformance", 'Int'>
     readonly errorMessage: FieldRef<"PracticePerformance", 'String'>
@@ -19693,6 +21252,7 @@ export namespace Prisma {
   export type PerformanceSkillFeedbackMinAggregateOutputType = {
     id: string | null
     practicePerformanceId: string | null
+    performanceId: string | null
     userId: string | null
     positionId: string | null
     selectedSubTaskId: string | null
@@ -19704,6 +21264,7 @@ export namespace Prisma {
   export type PerformanceSkillFeedbackMaxAggregateOutputType = {
     id: string | null
     practicePerformanceId: string | null
+    performanceId: string | null
     userId: string | null
     positionId: string | null
     selectedSubTaskId: string | null
@@ -19715,6 +21276,7 @@ export namespace Prisma {
   export type PerformanceSkillFeedbackCountAggregateOutputType = {
     id: number
     practicePerformanceId: number
+    performanceId: number
     userId: number
     positionId: number
     selectedSubTaskId: number
@@ -19728,6 +21290,7 @@ export namespace Prisma {
   export type PerformanceSkillFeedbackMinAggregateInputType = {
     id?: true
     practicePerformanceId?: true
+    performanceId?: true
     userId?: true
     positionId?: true
     selectedSubTaskId?: true
@@ -19739,6 +21302,7 @@ export namespace Prisma {
   export type PerformanceSkillFeedbackMaxAggregateInputType = {
     id?: true
     practicePerformanceId?: true
+    performanceId?: true
     userId?: true
     positionId?: true
     selectedSubTaskId?: true
@@ -19750,6 +21314,7 @@ export namespace Prisma {
   export type PerformanceSkillFeedbackCountAggregateInputType = {
     id?: true
     practicePerformanceId?: true
+    performanceId?: true
     userId?: true
     positionId?: true
     selectedSubTaskId?: true
@@ -19833,7 +21398,8 @@ export namespace Prisma {
 
   export type PerformanceSkillFeedbackGroupByOutputType = {
     id: string
-    practicePerformanceId: string
+    practicePerformanceId: string | null
+    performanceId: string | null
     userId: string
     positionId: string
     selectedSubTaskId: string | null
@@ -19862,45 +21428,52 @@ export namespace Prisma {
   export type PerformanceSkillFeedbackSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     practicePerformanceId?: boolean
+    performanceId?: boolean
     userId?: boolean
     positionId?: boolean
     selectedSubTaskId?: boolean
     feedbackType?: boolean
     comment?: boolean
     createdAt?: boolean
-    practicePerformance?: boolean | PracticePerformanceDefaultArgs<ExtArgs>
+    practicePerformance?: boolean | PerformanceSkillFeedback$practicePerformanceArgs<ExtArgs>
+    performance?: boolean | PerformanceSkillFeedback$performanceArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["performanceSkillFeedback"]>
 
   export type PerformanceSkillFeedbackSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     practicePerformanceId?: boolean
+    performanceId?: boolean
     userId?: boolean
     positionId?: boolean
     selectedSubTaskId?: boolean
     feedbackType?: boolean
     comment?: boolean
     createdAt?: boolean
-    practicePerformance?: boolean | PracticePerformanceDefaultArgs<ExtArgs>
+    practicePerformance?: boolean | PerformanceSkillFeedback$practicePerformanceArgs<ExtArgs>
+    performance?: boolean | PerformanceSkillFeedback$performanceArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["performanceSkillFeedback"]>
 
   export type PerformanceSkillFeedbackSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     practicePerformanceId?: boolean
+    performanceId?: boolean
     userId?: boolean
     positionId?: boolean
     selectedSubTaskId?: boolean
     feedbackType?: boolean
     comment?: boolean
     createdAt?: boolean
-    practicePerformance?: boolean | PracticePerformanceDefaultArgs<ExtArgs>
+    practicePerformance?: boolean | PerformanceSkillFeedback$practicePerformanceArgs<ExtArgs>
+    performance?: boolean | PerformanceSkillFeedback$performanceArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["performanceSkillFeedback"]>
 
   export type PerformanceSkillFeedbackSelectScalar = {
     id?: boolean
     practicePerformanceId?: boolean
+    performanceId?: boolean
     userId?: boolean
     positionId?: boolean
     selectedSubTaskId?: boolean
@@ -19909,29 +21482,34 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type PerformanceSkillFeedbackOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "practicePerformanceId" | "userId" | "positionId" | "selectedSubTaskId" | "feedbackType" | "comment" | "createdAt", ExtArgs["result"]["performanceSkillFeedback"]>
+  export type PerformanceSkillFeedbackOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "practicePerformanceId" | "performanceId" | "userId" | "positionId" | "selectedSubTaskId" | "feedbackType" | "comment" | "createdAt", ExtArgs["result"]["performanceSkillFeedback"]>
   export type PerformanceSkillFeedbackInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    practicePerformance?: boolean | PracticePerformanceDefaultArgs<ExtArgs>
+    practicePerformance?: boolean | PerformanceSkillFeedback$practicePerformanceArgs<ExtArgs>
+    performance?: boolean | PerformanceSkillFeedback$performanceArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type PerformanceSkillFeedbackIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    practicePerformance?: boolean | PracticePerformanceDefaultArgs<ExtArgs>
+    practicePerformance?: boolean | PerformanceSkillFeedback$practicePerformanceArgs<ExtArgs>
+    performance?: boolean | PerformanceSkillFeedback$performanceArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type PerformanceSkillFeedbackIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    practicePerformance?: boolean | PracticePerformanceDefaultArgs<ExtArgs>
+    practicePerformance?: boolean | PerformanceSkillFeedback$practicePerformanceArgs<ExtArgs>
+    performance?: boolean | PerformanceSkillFeedback$performanceArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
 
   export type $PerformanceSkillFeedbackPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "PerformanceSkillFeedback"
     objects: {
-      practicePerformance: Prisma.$PracticePerformancePayload<ExtArgs>
+      practicePerformance: Prisma.$PracticePerformancePayload<ExtArgs> | null
+      performance: Prisma.$PerformancePayload<ExtArgs> | null
       user: Prisma.$UserPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      practicePerformanceId: string
+      practicePerformanceId: string | null
+      performanceId: string | null
       userId: string
       positionId: string
       selectedSubTaskId: string | null
@@ -20332,7 +21910,8 @@ export namespace Prisma {
    */
   export interface Prisma__PerformanceSkillFeedbackClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    practicePerformance<T extends PracticePerformanceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PracticePerformanceDefaultArgs<ExtArgs>>): Prisma__PracticePerformanceClient<$Result.GetResult<Prisma.$PracticePerformancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    practicePerformance<T extends PerformanceSkillFeedback$practicePerformanceArgs<ExtArgs> = {}>(args?: Subset<T, PerformanceSkillFeedback$practicePerformanceArgs<ExtArgs>>): Prisma__PracticePerformanceClient<$Result.GetResult<Prisma.$PracticePerformancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    performance<T extends PerformanceSkillFeedback$performanceArgs<ExtArgs> = {}>(args?: Subset<T, PerformanceSkillFeedback$performanceArgs<ExtArgs>>): Prisma__PerformanceClient<$Result.GetResult<Prisma.$PerformancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -20365,6 +21944,7 @@ export namespace Prisma {
   interface PerformanceSkillFeedbackFieldRefs {
     readonly id: FieldRef<"PerformanceSkillFeedback", 'String'>
     readonly practicePerformanceId: FieldRef<"PerformanceSkillFeedback", 'String'>
+    readonly performanceId: FieldRef<"PerformanceSkillFeedback", 'String'>
     readonly userId: FieldRef<"PerformanceSkillFeedback", 'String'>
     readonly positionId: FieldRef<"PerformanceSkillFeedback", 'String'>
     readonly selectedSubTaskId: FieldRef<"PerformanceSkillFeedback", 'String'>
@@ -20767,6 +22347,44 @@ export namespace Prisma {
   }
 
   /**
+   * PerformanceSkillFeedback.practicePerformance
+   */
+  export type PerformanceSkillFeedback$practicePerformanceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticePerformance
+     */
+    select?: PracticePerformanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticePerformance
+     */
+    omit?: PracticePerformanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticePerformanceInclude<ExtArgs> | null
+    where?: PracticePerformanceWhereInput
+  }
+
+  /**
+   * PerformanceSkillFeedback.performance
+   */
+  export type PerformanceSkillFeedback$performanceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Performance
+     */
+    select?: PerformanceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Performance
+     */
+    omit?: PerformanceOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PerformanceInclude<ExtArgs> | null
+    where?: PerformanceWhereInput
+  }
+
+  /**
    * PerformanceSkillFeedback without action
    */
   export type PerformanceSkillFeedbackDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -20782,6 +22400,10089 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: PerformanceSkillFeedbackInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SongMastery
+   */
+
+  export type AggregateSongMastery = {
+    _count: SongMasteryCountAggregateOutputType | null
+    _avg: SongMasteryAvgAggregateOutputType | null
+    _sum: SongMasterySumAggregateOutputType | null
+    _min: SongMasteryMinAggregateOutputType | null
+    _max: SongMasteryMaxAggregateOutputType | null
+  }
+
+  export type SongMasteryAvgAggregateOutputType = {
+    recentAverageScore: number | null
+    totalPerformanceCount: number | null
+  }
+
+  export type SongMasterySumAggregateOutputType = {
+    recentAverageScore: number | null
+    totalPerformanceCount: number | null
+  }
+
+  export type SongMasteryMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    scoreId: string | null
+    recentAverageScore: number | null
+    totalPerformanceCount: number | null
+    isPerformanceMastered: boolean | null
+    isFullyMastered: boolean | null
+    performanceMasteredAt: Date | null
+    fullyMasteredAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SongMasteryMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    scoreId: string | null
+    recentAverageScore: number | null
+    totalPerformanceCount: number | null
+    isPerformanceMastered: boolean | null
+    isFullyMastered: boolean | null
+    performanceMasteredAt: Date | null
+    fullyMasteredAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SongMasteryCountAggregateOutputType = {
+    id: number
+    userId: number
+    scoreId: number
+    recentAverageScore: number
+    totalPerformanceCount: number
+    isPerformanceMastered: number
+    isFullyMastered: number
+    performanceMasteredAt: number
+    fullyMasteredAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SongMasteryAvgAggregateInputType = {
+    recentAverageScore?: true
+    totalPerformanceCount?: true
+  }
+
+  export type SongMasterySumAggregateInputType = {
+    recentAverageScore?: true
+    totalPerformanceCount?: true
+  }
+
+  export type SongMasteryMinAggregateInputType = {
+    id?: true
+    userId?: true
+    scoreId?: true
+    recentAverageScore?: true
+    totalPerformanceCount?: true
+    isPerformanceMastered?: true
+    isFullyMastered?: true
+    performanceMasteredAt?: true
+    fullyMasteredAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SongMasteryMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    scoreId?: true
+    recentAverageScore?: true
+    totalPerformanceCount?: true
+    isPerformanceMastered?: true
+    isFullyMastered?: true
+    performanceMasteredAt?: true
+    fullyMasteredAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SongMasteryCountAggregateInputType = {
+    id?: true
+    userId?: true
+    scoreId?: true
+    recentAverageScore?: true
+    totalPerformanceCount?: true
+    isPerformanceMastered?: true
+    isFullyMastered?: true
+    performanceMasteredAt?: true
+    fullyMasteredAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SongMasteryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SongMastery to aggregate.
+     */
+    where?: SongMasteryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SongMasteries to fetch.
+     */
+    orderBy?: SongMasteryOrderByWithRelationInput | SongMasteryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SongMasteryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SongMasteries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SongMasteries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SongMasteries
+    **/
+    _count?: true | SongMasteryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SongMasteryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SongMasterySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SongMasteryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SongMasteryMaxAggregateInputType
+  }
+
+  export type GetSongMasteryAggregateType<T extends SongMasteryAggregateArgs> = {
+        [P in keyof T & keyof AggregateSongMastery]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSongMastery[P]>
+      : GetScalarType<T[P], AggregateSongMastery[P]>
+  }
+
+
+
+
+  export type SongMasteryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SongMasteryWhereInput
+    orderBy?: SongMasteryOrderByWithAggregationInput | SongMasteryOrderByWithAggregationInput[]
+    by: SongMasteryScalarFieldEnum[] | SongMasteryScalarFieldEnum
+    having?: SongMasteryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SongMasteryCountAggregateInputType | true
+    _avg?: SongMasteryAvgAggregateInputType
+    _sum?: SongMasterySumAggregateInputType
+    _min?: SongMasteryMinAggregateInputType
+    _max?: SongMasteryMaxAggregateInputType
+  }
+
+  export type SongMasteryGroupByOutputType = {
+    id: string
+    userId: string
+    scoreId: string
+    recentAverageScore: number | null
+    totalPerformanceCount: number
+    isPerformanceMastered: boolean
+    isFullyMastered: boolean
+    performanceMasteredAt: Date | null
+    fullyMasteredAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: SongMasteryCountAggregateOutputType | null
+    _avg: SongMasteryAvgAggregateOutputType | null
+    _sum: SongMasterySumAggregateOutputType | null
+    _min: SongMasteryMinAggregateOutputType | null
+    _max: SongMasteryMaxAggregateOutputType | null
+  }
+
+  type GetSongMasteryGroupByPayload<T extends SongMasteryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SongMasteryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SongMasteryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SongMasteryGroupByOutputType[P]>
+            : GetScalarType<T[P], SongMasteryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SongMasterySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    scoreId?: boolean
+    recentAverageScore?: boolean
+    totalPerformanceCount?: boolean
+    isPerformanceMastered?: boolean
+    isFullyMastered?: boolean
+    performanceMasteredAt?: boolean
+    fullyMasteredAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["songMastery"]>
+
+  export type SongMasterySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    scoreId?: boolean
+    recentAverageScore?: boolean
+    totalPerformanceCount?: boolean
+    isPerformanceMastered?: boolean
+    isFullyMastered?: boolean
+    performanceMasteredAt?: boolean
+    fullyMasteredAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["songMastery"]>
+
+  export type SongMasterySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    scoreId?: boolean
+    recentAverageScore?: boolean
+    totalPerformanceCount?: boolean
+    isPerformanceMastered?: boolean
+    isFullyMastered?: boolean
+    performanceMasteredAt?: boolean
+    fullyMasteredAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["songMastery"]>
+
+  export type SongMasterySelectScalar = {
+    id?: boolean
+    userId?: boolean
+    scoreId?: boolean
+    recentAverageScore?: boolean
+    totalPerformanceCount?: boolean
+    isPerformanceMastered?: boolean
+    isFullyMastered?: boolean
+    performanceMasteredAt?: boolean
+    fullyMasteredAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SongMasteryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "scoreId" | "recentAverageScore" | "totalPerformanceCount" | "isPerformanceMastered" | "isFullyMastered" | "performanceMasteredAt" | "fullyMasteredAt" | "createdAt" | "updatedAt", ExtArgs["result"]["songMastery"]>
+  export type SongMasteryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+  }
+  export type SongMasteryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+  }
+  export type SongMasteryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+  }
+
+  export type $SongMasteryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SongMastery"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      score: Prisma.$ScorePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      scoreId: string
+      recentAverageScore: number | null
+      totalPerformanceCount: number
+      isPerformanceMastered: boolean
+      isFullyMastered: boolean
+      performanceMasteredAt: Date | null
+      fullyMasteredAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["songMastery"]>
+    composites: {}
+  }
+
+  type SongMasteryGetPayload<S extends boolean | null | undefined | SongMasteryDefaultArgs> = $Result.GetResult<Prisma.$SongMasteryPayload, S>
+
+  type SongMasteryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SongMasteryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SongMasteryCountAggregateInputType | true
+    }
+
+  export interface SongMasteryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SongMastery'], meta: { name: 'SongMastery' } }
+    /**
+     * Find zero or one SongMastery that matches the filter.
+     * @param {SongMasteryFindUniqueArgs} args - Arguments to find a SongMastery
+     * @example
+     * // Get one SongMastery
+     * const songMastery = await prisma.songMastery.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SongMasteryFindUniqueArgs>(args: SelectSubset<T, SongMasteryFindUniqueArgs<ExtArgs>>): Prisma__SongMasteryClient<$Result.GetResult<Prisma.$SongMasteryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SongMastery that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SongMasteryFindUniqueOrThrowArgs} args - Arguments to find a SongMastery
+     * @example
+     * // Get one SongMastery
+     * const songMastery = await prisma.songMastery.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SongMasteryFindUniqueOrThrowArgs>(args: SelectSubset<T, SongMasteryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SongMasteryClient<$Result.GetResult<Prisma.$SongMasteryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SongMastery that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SongMasteryFindFirstArgs} args - Arguments to find a SongMastery
+     * @example
+     * // Get one SongMastery
+     * const songMastery = await prisma.songMastery.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SongMasteryFindFirstArgs>(args?: SelectSubset<T, SongMasteryFindFirstArgs<ExtArgs>>): Prisma__SongMasteryClient<$Result.GetResult<Prisma.$SongMasteryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SongMastery that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SongMasteryFindFirstOrThrowArgs} args - Arguments to find a SongMastery
+     * @example
+     * // Get one SongMastery
+     * const songMastery = await prisma.songMastery.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SongMasteryFindFirstOrThrowArgs>(args?: SelectSubset<T, SongMasteryFindFirstOrThrowArgs<ExtArgs>>): Prisma__SongMasteryClient<$Result.GetResult<Prisma.$SongMasteryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SongMasteries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SongMasteryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SongMasteries
+     * const songMasteries = await prisma.songMastery.findMany()
+     * 
+     * // Get first 10 SongMasteries
+     * const songMasteries = await prisma.songMastery.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const songMasteryWithIdOnly = await prisma.songMastery.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SongMasteryFindManyArgs>(args?: SelectSubset<T, SongMasteryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SongMasteryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SongMastery.
+     * @param {SongMasteryCreateArgs} args - Arguments to create a SongMastery.
+     * @example
+     * // Create one SongMastery
+     * const SongMastery = await prisma.songMastery.create({
+     *   data: {
+     *     // ... data to create a SongMastery
+     *   }
+     * })
+     * 
+     */
+    create<T extends SongMasteryCreateArgs>(args: SelectSubset<T, SongMasteryCreateArgs<ExtArgs>>): Prisma__SongMasteryClient<$Result.GetResult<Prisma.$SongMasteryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SongMasteries.
+     * @param {SongMasteryCreateManyArgs} args - Arguments to create many SongMasteries.
+     * @example
+     * // Create many SongMasteries
+     * const songMastery = await prisma.songMastery.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SongMasteryCreateManyArgs>(args?: SelectSubset<T, SongMasteryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SongMasteries and returns the data saved in the database.
+     * @param {SongMasteryCreateManyAndReturnArgs} args - Arguments to create many SongMasteries.
+     * @example
+     * // Create many SongMasteries
+     * const songMastery = await prisma.songMastery.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SongMasteries and only return the `id`
+     * const songMasteryWithIdOnly = await prisma.songMastery.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SongMasteryCreateManyAndReturnArgs>(args?: SelectSubset<T, SongMasteryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SongMasteryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SongMastery.
+     * @param {SongMasteryDeleteArgs} args - Arguments to delete one SongMastery.
+     * @example
+     * // Delete one SongMastery
+     * const SongMastery = await prisma.songMastery.delete({
+     *   where: {
+     *     // ... filter to delete one SongMastery
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SongMasteryDeleteArgs>(args: SelectSubset<T, SongMasteryDeleteArgs<ExtArgs>>): Prisma__SongMasteryClient<$Result.GetResult<Prisma.$SongMasteryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SongMastery.
+     * @param {SongMasteryUpdateArgs} args - Arguments to update one SongMastery.
+     * @example
+     * // Update one SongMastery
+     * const songMastery = await prisma.songMastery.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SongMasteryUpdateArgs>(args: SelectSubset<T, SongMasteryUpdateArgs<ExtArgs>>): Prisma__SongMasteryClient<$Result.GetResult<Prisma.$SongMasteryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SongMasteries.
+     * @param {SongMasteryDeleteManyArgs} args - Arguments to filter SongMasteries to delete.
+     * @example
+     * // Delete a few SongMasteries
+     * const { count } = await prisma.songMastery.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SongMasteryDeleteManyArgs>(args?: SelectSubset<T, SongMasteryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SongMasteries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SongMasteryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SongMasteries
+     * const songMastery = await prisma.songMastery.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SongMasteryUpdateManyArgs>(args: SelectSubset<T, SongMasteryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SongMasteries and returns the data updated in the database.
+     * @param {SongMasteryUpdateManyAndReturnArgs} args - Arguments to update many SongMasteries.
+     * @example
+     * // Update many SongMasteries
+     * const songMastery = await prisma.songMastery.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SongMasteries and only return the `id`
+     * const songMasteryWithIdOnly = await prisma.songMastery.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SongMasteryUpdateManyAndReturnArgs>(args: SelectSubset<T, SongMasteryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SongMasteryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SongMastery.
+     * @param {SongMasteryUpsertArgs} args - Arguments to update or create a SongMastery.
+     * @example
+     * // Update or create a SongMastery
+     * const songMastery = await prisma.songMastery.upsert({
+     *   create: {
+     *     // ... data to create a SongMastery
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SongMastery we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SongMasteryUpsertArgs>(args: SelectSubset<T, SongMasteryUpsertArgs<ExtArgs>>): Prisma__SongMasteryClient<$Result.GetResult<Prisma.$SongMasteryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SongMasteries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SongMasteryCountArgs} args - Arguments to filter SongMasteries to count.
+     * @example
+     * // Count the number of SongMasteries
+     * const count = await prisma.songMastery.count({
+     *   where: {
+     *     // ... the filter for the SongMasteries we want to count
+     *   }
+     * })
+    **/
+    count<T extends SongMasteryCountArgs>(
+      args?: Subset<T, SongMasteryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SongMasteryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SongMastery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SongMasteryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SongMasteryAggregateArgs>(args: Subset<T, SongMasteryAggregateArgs>): Prisma.PrismaPromise<GetSongMasteryAggregateType<T>>
+
+    /**
+     * Group by SongMastery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SongMasteryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SongMasteryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SongMasteryGroupByArgs['orderBy'] }
+        : { orderBy?: SongMasteryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SongMasteryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSongMasteryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SongMastery model
+   */
+  readonly fields: SongMasteryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SongMastery.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SongMasteryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    score<T extends ScoreDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ScoreDefaultArgs<ExtArgs>>): Prisma__ScoreClient<$Result.GetResult<Prisma.$ScorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SongMastery model
+   */
+  interface SongMasteryFieldRefs {
+    readonly id: FieldRef<"SongMastery", 'String'>
+    readonly userId: FieldRef<"SongMastery", 'String'>
+    readonly scoreId: FieldRef<"SongMastery", 'String'>
+    readonly recentAverageScore: FieldRef<"SongMastery", 'Float'>
+    readonly totalPerformanceCount: FieldRef<"SongMastery", 'Int'>
+    readonly isPerformanceMastered: FieldRef<"SongMastery", 'Boolean'>
+    readonly isFullyMastered: FieldRef<"SongMastery", 'Boolean'>
+    readonly performanceMasteredAt: FieldRef<"SongMastery", 'DateTime'>
+    readonly fullyMasteredAt: FieldRef<"SongMastery", 'DateTime'>
+    readonly createdAt: FieldRef<"SongMastery", 'DateTime'>
+    readonly updatedAt: FieldRef<"SongMastery", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SongMastery findUnique
+   */
+  export type SongMasteryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which SongMastery to fetch.
+     */
+    where: SongMasteryWhereUniqueInput
+  }
+
+  /**
+   * SongMastery findUniqueOrThrow
+   */
+  export type SongMasteryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which SongMastery to fetch.
+     */
+    where: SongMasteryWhereUniqueInput
+  }
+
+  /**
+   * SongMastery findFirst
+   */
+  export type SongMasteryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which SongMastery to fetch.
+     */
+    where?: SongMasteryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SongMasteries to fetch.
+     */
+    orderBy?: SongMasteryOrderByWithRelationInput | SongMasteryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SongMasteries.
+     */
+    cursor?: SongMasteryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SongMasteries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SongMasteries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SongMasteries.
+     */
+    distinct?: SongMasteryScalarFieldEnum | SongMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * SongMastery findFirstOrThrow
+   */
+  export type SongMasteryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which SongMastery to fetch.
+     */
+    where?: SongMasteryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SongMasteries to fetch.
+     */
+    orderBy?: SongMasteryOrderByWithRelationInput | SongMasteryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SongMasteries.
+     */
+    cursor?: SongMasteryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SongMasteries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SongMasteries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SongMasteries.
+     */
+    distinct?: SongMasteryScalarFieldEnum | SongMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * SongMastery findMany
+   */
+  export type SongMasteryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which SongMasteries to fetch.
+     */
+    where?: SongMasteryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SongMasteries to fetch.
+     */
+    orderBy?: SongMasteryOrderByWithRelationInput | SongMasteryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SongMasteries.
+     */
+    cursor?: SongMasteryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SongMasteries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SongMasteries.
+     */
+    skip?: number
+    distinct?: SongMasteryScalarFieldEnum | SongMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * SongMastery create
+   */
+  export type SongMasteryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SongMastery.
+     */
+    data: XOR<SongMasteryCreateInput, SongMasteryUncheckedCreateInput>
+  }
+
+  /**
+   * SongMastery createMany
+   */
+  export type SongMasteryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SongMasteries.
+     */
+    data: SongMasteryCreateManyInput | SongMasteryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SongMastery createManyAndReturn
+   */
+  export type SongMasteryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * The data used to create many SongMasteries.
+     */
+    data: SongMasteryCreateManyInput | SongMasteryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SongMastery update
+   */
+  export type SongMasteryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SongMastery.
+     */
+    data: XOR<SongMasteryUpdateInput, SongMasteryUncheckedUpdateInput>
+    /**
+     * Choose, which SongMastery to update.
+     */
+    where: SongMasteryWhereUniqueInput
+  }
+
+  /**
+   * SongMastery updateMany
+   */
+  export type SongMasteryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SongMasteries.
+     */
+    data: XOR<SongMasteryUpdateManyMutationInput, SongMasteryUncheckedUpdateManyInput>
+    /**
+     * Filter which SongMasteries to update
+     */
+    where?: SongMasteryWhereInput
+    /**
+     * Limit how many SongMasteries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SongMastery updateManyAndReturn
+   */
+  export type SongMasteryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * The data used to update SongMasteries.
+     */
+    data: XOR<SongMasteryUpdateManyMutationInput, SongMasteryUncheckedUpdateManyInput>
+    /**
+     * Filter which SongMasteries to update
+     */
+    where?: SongMasteryWhereInput
+    /**
+     * Limit how many SongMasteries to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SongMastery upsert
+   */
+  export type SongMasteryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SongMastery to update in case it exists.
+     */
+    where: SongMasteryWhereUniqueInput
+    /**
+     * In case the SongMastery found by the `where` argument doesn't exist, create a new SongMastery with this data.
+     */
+    create: XOR<SongMasteryCreateInput, SongMasteryUncheckedCreateInput>
+    /**
+     * In case the SongMastery was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SongMasteryUpdateInput, SongMasteryUncheckedUpdateInput>
+  }
+
+  /**
+   * SongMastery delete
+   */
+  export type SongMasteryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryInclude<ExtArgs> | null
+    /**
+     * Filter which SongMastery to delete.
+     */
+    where: SongMasteryWhereUniqueInput
+  }
+
+  /**
+   * SongMastery deleteMany
+   */
+  export type SongMasteryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SongMasteries to delete
+     */
+    where?: SongMasteryWhereInput
+    /**
+     * Limit how many SongMasteries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SongMastery without action
+   */
+  export type SongMasteryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SongMastery
+     */
+    select?: SongMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SongMastery
+     */
+    omit?: SongMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SongMasteryInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserGradeProgress
+   */
+
+  export type AggregateUserGradeProgress = {
+    _count: UserGradeProgressCountAggregateOutputType | null
+    _avg: UserGradeProgressAvgAggregateOutputType | null
+    _sum: UserGradeProgressSumAggregateOutputType | null
+    _min: UserGradeProgressMinAggregateOutputType | null
+    _max: UserGradeProgressMaxAggregateOutputType | null
+  }
+
+  export type UserGradeProgressAvgAggregateOutputType = {
+    currentStar: number | null
+    masteredSongCountAtCurrentStar: number | null
+  }
+
+  export type UserGradeProgressSumAggregateOutputType = {
+    currentStar: number | null
+    masteredSongCountAtCurrentStar: number | null
+  }
+
+  export type UserGradeProgressMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    currentStar: number | null
+    currentGrade: string | null
+    masteredSongCountAtCurrentStar: number | null
+    masterReachedAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UserGradeProgressMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    currentStar: number | null
+    currentGrade: string | null
+    masteredSongCountAtCurrentStar: number | null
+    masterReachedAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UserGradeProgressCountAggregateOutputType = {
+    id: number
+    userId: number
+    currentStar: number
+    currentGrade: number
+    masteredSongCountAtCurrentStar: number
+    masterReachedAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type UserGradeProgressAvgAggregateInputType = {
+    currentStar?: true
+    masteredSongCountAtCurrentStar?: true
+  }
+
+  export type UserGradeProgressSumAggregateInputType = {
+    currentStar?: true
+    masteredSongCountAtCurrentStar?: true
+  }
+
+  export type UserGradeProgressMinAggregateInputType = {
+    id?: true
+    userId?: true
+    currentStar?: true
+    currentGrade?: true
+    masteredSongCountAtCurrentStar?: true
+    masterReachedAt?: true
+    updatedAt?: true
+  }
+
+  export type UserGradeProgressMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    currentStar?: true
+    currentGrade?: true
+    masteredSongCountAtCurrentStar?: true
+    masterReachedAt?: true
+    updatedAt?: true
+  }
+
+  export type UserGradeProgressCountAggregateInputType = {
+    id?: true
+    userId?: true
+    currentStar?: true
+    currentGrade?: true
+    masteredSongCountAtCurrentStar?: true
+    masterReachedAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type UserGradeProgressAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserGradeProgress to aggregate.
+     */
+    where?: UserGradeProgressWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserGradeProgresses to fetch.
+     */
+    orderBy?: UserGradeProgressOrderByWithRelationInput | UserGradeProgressOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserGradeProgressWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserGradeProgresses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserGradeProgresses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserGradeProgresses
+    **/
+    _count?: true | UserGradeProgressCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserGradeProgressAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserGradeProgressSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserGradeProgressMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserGradeProgressMaxAggregateInputType
+  }
+
+  export type GetUserGradeProgressAggregateType<T extends UserGradeProgressAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserGradeProgress]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserGradeProgress[P]>
+      : GetScalarType<T[P], AggregateUserGradeProgress[P]>
+  }
+
+
+
+
+  export type UserGradeProgressGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserGradeProgressWhereInput
+    orderBy?: UserGradeProgressOrderByWithAggregationInput | UserGradeProgressOrderByWithAggregationInput[]
+    by: UserGradeProgressScalarFieldEnum[] | UserGradeProgressScalarFieldEnum
+    having?: UserGradeProgressScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserGradeProgressCountAggregateInputType | true
+    _avg?: UserGradeProgressAvgAggregateInputType
+    _sum?: UserGradeProgressSumAggregateInputType
+    _min?: UserGradeProgressMinAggregateInputType
+    _max?: UserGradeProgressMaxAggregateInputType
+  }
+
+  export type UserGradeProgressGroupByOutputType = {
+    id: string
+    userId: string
+    currentStar: number
+    currentGrade: string
+    masteredSongCountAtCurrentStar: number
+    masterReachedAt: Date | null
+    updatedAt: Date
+    _count: UserGradeProgressCountAggregateOutputType | null
+    _avg: UserGradeProgressAvgAggregateOutputType | null
+    _sum: UserGradeProgressSumAggregateOutputType | null
+    _min: UserGradeProgressMinAggregateOutputType | null
+    _max: UserGradeProgressMaxAggregateOutputType | null
+  }
+
+  type GetUserGradeProgressGroupByPayload<T extends UserGradeProgressGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserGradeProgressGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserGradeProgressGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserGradeProgressGroupByOutputType[P]>
+            : GetScalarType<T[P], UserGradeProgressGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserGradeProgressSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    currentStar?: boolean
+    currentGrade?: boolean
+    masteredSongCountAtCurrentStar?: boolean
+    masterReachedAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userGradeProgress"]>
+
+  export type UserGradeProgressSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    currentStar?: boolean
+    currentGrade?: boolean
+    masteredSongCountAtCurrentStar?: boolean
+    masterReachedAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userGradeProgress"]>
+
+  export type UserGradeProgressSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    currentStar?: boolean
+    currentGrade?: boolean
+    masteredSongCountAtCurrentStar?: boolean
+    masterReachedAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userGradeProgress"]>
+
+  export type UserGradeProgressSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    currentStar?: boolean
+    currentGrade?: boolean
+    masteredSongCountAtCurrentStar?: boolean
+    masterReachedAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type UserGradeProgressOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "currentStar" | "currentGrade" | "masteredSongCountAtCurrentStar" | "masterReachedAt" | "updatedAt", ExtArgs["result"]["userGradeProgress"]>
+  export type UserGradeProgressInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserGradeProgressIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UserGradeProgressIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $UserGradeProgressPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserGradeProgress"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      currentStar: number
+      currentGrade: string
+      masteredSongCountAtCurrentStar: number
+      masterReachedAt: Date | null
+      updatedAt: Date
+    }, ExtArgs["result"]["userGradeProgress"]>
+    composites: {}
+  }
+
+  type UserGradeProgressGetPayload<S extends boolean | null | undefined | UserGradeProgressDefaultArgs> = $Result.GetResult<Prisma.$UserGradeProgressPayload, S>
+
+  type UserGradeProgressCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserGradeProgressFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserGradeProgressCountAggregateInputType | true
+    }
+
+  export interface UserGradeProgressDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserGradeProgress'], meta: { name: 'UserGradeProgress' } }
+    /**
+     * Find zero or one UserGradeProgress that matches the filter.
+     * @param {UserGradeProgressFindUniqueArgs} args - Arguments to find a UserGradeProgress
+     * @example
+     * // Get one UserGradeProgress
+     * const userGradeProgress = await prisma.userGradeProgress.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserGradeProgressFindUniqueArgs>(args: SelectSubset<T, UserGradeProgressFindUniqueArgs<ExtArgs>>): Prisma__UserGradeProgressClient<$Result.GetResult<Prisma.$UserGradeProgressPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserGradeProgress that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserGradeProgressFindUniqueOrThrowArgs} args - Arguments to find a UserGradeProgress
+     * @example
+     * // Get one UserGradeProgress
+     * const userGradeProgress = await prisma.userGradeProgress.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserGradeProgressFindUniqueOrThrowArgs>(args: SelectSubset<T, UserGradeProgressFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserGradeProgressClient<$Result.GetResult<Prisma.$UserGradeProgressPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserGradeProgress that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeProgressFindFirstArgs} args - Arguments to find a UserGradeProgress
+     * @example
+     * // Get one UserGradeProgress
+     * const userGradeProgress = await prisma.userGradeProgress.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserGradeProgressFindFirstArgs>(args?: SelectSubset<T, UserGradeProgressFindFirstArgs<ExtArgs>>): Prisma__UserGradeProgressClient<$Result.GetResult<Prisma.$UserGradeProgressPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserGradeProgress that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeProgressFindFirstOrThrowArgs} args - Arguments to find a UserGradeProgress
+     * @example
+     * // Get one UserGradeProgress
+     * const userGradeProgress = await prisma.userGradeProgress.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserGradeProgressFindFirstOrThrowArgs>(args?: SelectSubset<T, UserGradeProgressFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserGradeProgressClient<$Result.GetResult<Prisma.$UserGradeProgressPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserGradeProgresses that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeProgressFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserGradeProgresses
+     * const userGradeProgresses = await prisma.userGradeProgress.findMany()
+     * 
+     * // Get first 10 UserGradeProgresses
+     * const userGradeProgresses = await prisma.userGradeProgress.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userGradeProgressWithIdOnly = await prisma.userGradeProgress.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserGradeProgressFindManyArgs>(args?: SelectSubset<T, UserGradeProgressFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserGradeProgressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserGradeProgress.
+     * @param {UserGradeProgressCreateArgs} args - Arguments to create a UserGradeProgress.
+     * @example
+     * // Create one UserGradeProgress
+     * const UserGradeProgress = await prisma.userGradeProgress.create({
+     *   data: {
+     *     // ... data to create a UserGradeProgress
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserGradeProgressCreateArgs>(args: SelectSubset<T, UserGradeProgressCreateArgs<ExtArgs>>): Prisma__UserGradeProgressClient<$Result.GetResult<Prisma.$UserGradeProgressPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserGradeProgresses.
+     * @param {UserGradeProgressCreateManyArgs} args - Arguments to create many UserGradeProgresses.
+     * @example
+     * // Create many UserGradeProgresses
+     * const userGradeProgress = await prisma.userGradeProgress.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserGradeProgressCreateManyArgs>(args?: SelectSubset<T, UserGradeProgressCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserGradeProgresses and returns the data saved in the database.
+     * @param {UserGradeProgressCreateManyAndReturnArgs} args - Arguments to create many UserGradeProgresses.
+     * @example
+     * // Create many UserGradeProgresses
+     * const userGradeProgress = await prisma.userGradeProgress.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserGradeProgresses and only return the `id`
+     * const userGradeProgressWithIdOnly = await prisma.userGradeProgress.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserGradeProgressCreateManyAndReturnArgs>(args?: SelectSubset<T, UserGradeProgressCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserGradeProgressPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserGradeProgress.
+     * @param {UserGradeProgressDeleteArgs} args - Arguments to delete one UserGradeProgress.
+     * @example
+     * // Delete one UserGradeProgress
+     * const UserGradeProgress = await prisma.userGradeProgress.delete({
+     *   where: {
+     *     // ... filter to delete one UserGradeProgress
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserGradeProgressDeleteArgs>(args: SelectSubset<T, UserGradeProgressDeleteArgs<ExtArgs>>): Prisma__UserGradeProgressClient<$Result.GetResult<Prisma.$UserGradeProgressPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserGradeProgress.
+     * @param {UserGradeProgressUpdateArgs} args - Arguments to update one UserGradeProgress.
+     * @example
+     * // Update one UserGradeProgress
+     * const userGradeProgress = await prisma.userGradeProgress.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserGradeProgressUpdateArgs>(args: SelectSubset<T, UserGradeProgressUpdateArgs<ExtArgs>>): Prisma__UserGradeProgressClient<$Result.GetResult<Prisma.$UserGradeProgressPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserGradeProgresses.
+     * @param {UserGradeProgressDeleteManyArgs} args - Arguments to filter UserGradeProgresses to delete.
+     * @example
+     * // Delete a few UserGradeProgresses
+     * const { count } = await prisma.userGradeProgress.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserGradeProgressDeleteManyArgs>(args?: SelectSubset<T, UserGradeProgressDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserGradeProgresses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeProgressUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserGradeProgresses
+     * const userGradeProgress = await prisma.userGradeProgress.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserGradeProgressUpdateManyArgs>(args: SelectSubset<T, UserGradeProgressUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserGradeProgresses and returns the data updated in the database.
+     * @param {UserGradeProgressUpdateManyAndReturnArgs} args - Arguments to update many UserGradeProgresses.
+     * @example
+     * // Update many UserGradeProgresses
+     * const userGradeProgress = await prisma.userGradeProgress.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserGradeProgresses and only return the `id`
+     * const userGradeProgressWithIdOnly = await prisma.userGradeProgress.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserGradeProgressUpdateManyAndReturnArgs>(args: SelectSubset<T, UserGradeProgressUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserGradeProgressPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserGradeProgress.
+     * @param {UserGradeProgressUpsertArgs} args - Arguments to update or create a UserGradeProgress.
+     * @example
+     * // Update or create a UserGradeProgress
+     * const userGradeProgress = await prisma.userGradeProgress.upsert({
+     *   create: {
+     *     // ... data to create a UserGradeProgress
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserGradeProgress we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserGradeProgressUpsertArgs>(args: SelectSubset<T, UserGradeProgressUpsertArgs<ExtArgs>>): Prisma__UserGradeProgressClient<$Result.GetResult<Prisma.$UserGradeProgressPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserGradeProgresses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeProgressCountArgs} args - Arguments to filter UserGradeProgresses to count.
+     * @example
+     * // Count the number of UserGradeProgresses
+     * const count = await prisma.userGradeProgress.count({
+     *   where: {
+     *     // ... the filter for the UserGradeProgresses we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserGradeProgressCountArgs>(
+      args?: Subset<T, UserGradeProgressCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserGradeProgressCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserGradeProgress.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeProgressAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserGradeProgressAggregateArgs>(args: Subset<T, UserGradeProgressAggregateArgs>): Prisma.PrismaPromise<GetUserGradeProgressAggregateType<T>>
+
+    /**
+     * Group by UserGradeProgress.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserGradeProgressGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserGradeProgressGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserGradeProgressGroupByArgs['orderBy'] }
+        : { orderBy?: UserGradeProgressGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserGradeProgressGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserGradeProgressGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserGradeProgress model
+   */
+  readonly fields: UserGradeProgressFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserGradeProgress.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserGradeProgressClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserGradeProgress model
+   */
+  interface UserGradeProgressFieldRefs {
+    readonly id: FieldRef<"UserGradeProgress", 'String'>
+    readonly userId: FieldRef<"UserGradeProgress", 'String'>
+    readonly currentStar: FieldRef<"UserGradeProgress", 'Int'>
+    readonly currentGrade: FieldRef<"UserGradeProgress", 'String'>
+    readonly masteredSongCountAtCurrentStar: FieldRef<"UserGradeProgress", 'Int'>
+    readonly masterReachedAt: FieldRef<"UserGradeProgress", 'DateTime'>
+    readonly updatedAt: FieldRef<"UserGradeProgress", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserGradeProgress findUnique
+   */
+  export type UserGradeProgressFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGradeProgress
+     */
+    select?: UserGradeProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGradeProgress
+     */
+    omit?: UserGradeProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeProgressInclude<ExtArgs> | null
+    /**
+     * Filter, which UserGradeProgress to fetch.
+     */
+    where: UserGradeProgressWhereUniqueInput
+  }
+
+  /**
+   * UserGradeProgress findUniqueOrThrow
+   */
+  export type UserGradeProgressFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGradeProgress
+     */
+    select?: UserGradeProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGradeProgress
+     */
+    omit?: UserGradeProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeProgressInclude<ExtArgs> | null
+    /**
+     * Filter, which UserGradeProgress to fetch.
+     */
+    where: UserGradeProgressWhereUniqueInput
+  }
+
+  /**
+   * UserGradeProgress findFirst
+   */
+  export type UserGradeProgressFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGradeProgress
+     */
+    select?: UserGradeProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGradeProgress
+     */
+    omit?: UserGradeProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeProgressInclude<ExtArgs> | null
+    /**
+     * Filter, which UserGradeProgress to fetch.
+     */
+    where?: UserGradeProgressWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserGradeProgresses to fetch.
+     */
+    orderBy?: UserGradeProgressOrderByWithRelationInput | UserGradeProgressOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserGradeProgresses.
+     */
+    cursor?: UserGradeProgressWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserGradeProgresses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserGradeProgresses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserGradeProgresses.
+     */
+    distinct?: UserGradeProgressScalarFieldEnum | UserGradeProgressScalarFieldEnum[]
+  }
+
+  /**
+   * UserGradeProgress findFirstOrThrow
+   */
+  export type UserGradeProgressFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGradeProgress
+     */
+    select?: UserGradeProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGradeProgress
+     */
+    omit?: UserGradeProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeProgressInclude<ExtArgs> | null
+    /**
+     * Filter, which UserGradeProgress to fetch.
+     */
+    where?: UserGradeProgressWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserGradeProgresses to fetch.
+     */
+    orderBy?: UserGradeProgressOrderByWithRelationInput | UserGradeProgressOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserGradeProgresses.
+     */
+    cursor?: UserGradeProgressWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserGradeProgresses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserGradeProgresses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserGradeProgresses.
+     */
+    distinct?: UserGradeProgressScalarFieldEnum | UserGradeProgressScalarFieldEnum[]
+  }
+
+  /**
+   * UserGradeProgress findMany
+   */
+  export type UserGradeProgressFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGradeProgress
+     */
+    select?: UserGradeProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGradeProgress
+     */
+    omit?: UserGradeProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeProgressInclude<ExtArgs> | null
+    /**
+     * Filter, which UserGradeProgresses to fetch.
+     */
+    where?: UserGradeProgressWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserGradeProgresses to fetch.
+     */
+    orderBy?: UserGradeProgressOrderByWithRelationInput | UserGradeProgressOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserGradeProgresses.
+     */
+    cursor?: UserGradeProgressWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserGradeProgresses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserGradeProgresses.
+     */
+    skip?: number
+    distinct?: UserGradeProgressScalarFieldEnum | UserGradeProgressScalarFieldEnum[]
+  }
+
+  /**
+   * UserGradeProgress create
+   */
+  export type UserGradeProgressCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGradeProgress
+     */
+    select?: UserGradeProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGradeProgress
+     */
+    omit?: UserGradeProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeProgressInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserGradeProgress.
+     */
+    data: XOR<UserGradeProgressCreateInput, UserGradeProgressUncheckedCreateInput>
+  }
+
+  /**
+   * UserGradeProgress createMany
+   */
+  export type UserGradeProgressCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserGradeProgresses.
+     */
+    data: UserGradeProgressCreateManyInput | UserGradeProgressCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UserGradeProgress createManyAndReturn
+   */
+  export type UserGradeProgressCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGradeProgress
+     */
+    select?: UserGradeProgressSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGradeProgress
+     */
+    omit?: UserGradeProgressOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserGradeProgresses.
+     */
+    data: UserGradeProgressCreateManyInput | UserGradeProgressCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeProgressIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserGradeProgress update
+   */
+  export type UserGradeProgressUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGradeProgress
+     */
+    select?: UserGradeProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGradeProgress
+     */
+    omit?: UserGradeProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeProgressInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserGradeProgress.
+     */
+    data: XOR<UserGradeProgressUpdateInput, UserGradeProgressUncheckedUpdateInput>
+    /**
+     * Choose, which UserGradeProgress to update.
+     */
+    where: UserGradeProgressWhereUniqueInput
+  }
+
+  /**
+   * UserGradeProgress updateMany
+   */
+  export type UserGradeProgressUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserGradeProgresses.
+     */
+    data: XOR<UserGradeProgressUpdateManyMutationInput, UserGradeProgressUncheckedUpdateManyInput>
+    /**
+     * Filter which UserGradeProgresses to update
+     */
+    where?: UserGradeProgressWhereInput
+    /**
+     * Limit how many UserGradeProgresses to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserGradeProgress updateManyAndReturn
+   */
+  export type UserGradeProgressUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGradeProgress
+     */
+    select?: UserGradeProgressSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGradeProgress
+     */
+    omit?: UserGradeProgressOmit<ExtArgs> | null
+    /**
+     * The data used to update UserGradeProgresses.
+     */
+    data: XOR<UserGradeProgressUpdateManyMutationInput, UserGradeProgressUncheckedUpdateManyInput>
+    /**
+     * Filter which UserGradeProgresses to update
+     */
+    where?: UserGradeProgressWhereInput
+    /**
+     * Limit how many UserGradeProgresses to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeProgressIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserGradeProgress upsert
+   */
+  export type UserGradeProgressUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGradeProgress
+     */
+    select?: UserGradeProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGradeProgress
+     */
+    omit?: UserGradeProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeProgressInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserGradeProgress to update in case it exists.
+     */
+    where: UserGradeProgressWhereUniqueInput
+    /**
+     * In case the UserGradeProgress found by the `where` argument doesn't exist, create a new UserGradeProgress with this data.
+     */
+    create: XOR<UserGradeProgressCreateInput, UserGradeProgressUncheckedCreateInput>
+    /**
+     * In case the UserGradeProgress was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserGradeProgressUpdateInput, UserGradeProgressUncheckedUpdateInput>
+  }
+
+  /**
+   * UserGradeProgress delete
+   */
+  export type UserGradeProgressDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGradeProgress
+     */
+    select?: UserGradeProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGradeProgress
+     */
+    omit?: UserGradeProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeProgressInclude<ExtArgs> | null
+    /**
+     * Filter which UserGradeProgress to delete.
+     */
+    where: UserGradeProgressWhereUniqueInput
+  }
+
+  /**
+   * UserGradeProgress deleteMany
+   */
+  export type UserGradeProgressDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserGradeProgresses to delete
+     */
+    where?: UserGradeProgressWhereInput
+    /**
+     * Limit how many UserGradeProgresses to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserGradeProgress without action
+   */
+  export type UserGradeProgressDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserGradeProgress
+     */
+    select?: UserGradeProgressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserGradeProgress
+     */
+    omit?: UserGradeProgressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserGradeProgressInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SkillTaskCard
+   */
+
+  export type AggregateSkillTaskCard = {
+    _count: SkillTaskCardCountAggregateOutputType | null
+    _min: SkillTaskCardMinAggregateOutputType | null
+    _max: SkillTaskCardMaxAggregateOutputType | null
+  }
+
+  export type SkillTaskCardMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    scoreId: string | null
+    taskCategory: string | null
+    status: string | null
+    generatedAt: Date | null
+    lastMatchedAt: Date | null
+    clearedAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SkillTaskCardMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    scoreId: string | null
+    taskCategory: string | null
+    status: string | null
+    generatedAt: Date | null
+    lastMatchedAt: Date | null
+    clearedAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SkillTaskCardCountAggregateOutputType = {
+    id: number
+    userId: number
+    scoreId: number
+    taskCategory: number
+    status: number
+    generatedAt: number
+    lastMatchedAt: number
+    clearedAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SkillTaskCardMinAggregateInputType = {
+    id?: true
+    userId?: true
+    scoreId?: true
+    taskCategory?: true
+    status?: true
+    generatedAt?: true
+    lastMatchedAt?: true
+    clearedAt?: true
+    updatedAt?: true
+  }
+
+  export type SkillTaskCardMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    scoreId?: true
+    taskCategory?: true
+    status?: true
+    generatedAt?: true
+    lastMatchedAt?: true
+    clearedAt?: true
+    updatedAt?: true
+  }
+
+  export type SkillTaskCardCountAggregateInputType = {
+    id?: true
+    userId?: true
+    scoreId?: true
+    taskCategory?: true
+    status?: true
+    generatedAt?: true
+    lastMatchedAt?: true
+    clearedAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SkillTaskCardAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SkillTaskCard to aggregate.
+     */
+    where?: SkillTaskCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SkillTaskCards to fetch.
+     */
+    orderBy?: SkillTaskCardOrderByWithRelationInput | SkillTaskCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SkillTaskCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SkillTaskCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SkillTaskCards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SkillTaskCards
+    **/
+    _count?: true | SkillTaskCardCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SkillTaskCardMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SkillTaskCardMaxAggregateInputType
+  }
+
+  export type GetSkillTaskCardAggregateType<T extends SkillTaskCardAggregateArgs> = {
+        [P in keyof T & keyof AggregateSkillTaskCard]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSkillTaskCard[P]>
+      : GetScalarType<T[P], AggregateSkillTaskCard[P]>
+  }
+
+
+
+
+  export type SkillTaskCardGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SkillTaskCardWhereInput
+    orderBy?: SkillTaskCardOrderByWithAggregationInput | SkillTaskCardOrderByWithAggregationInput[]
+    by: SkillTaskCardScalarFieldEnum[] | SkillTaskCardScalarFieldEnum
+    having?: SkillTaskCardScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SkillTaskCardCountAggregateInputType | true
+    _min?: SkillTaskCardMinAggregateInputType
+    _max?: SkillTaskCardMaxAggregateInputType
+  }
+
+  export type SkillTaskCardGroupByOutputType = {
+    id: string
+    userId: string
+    scoreId: string
+    taskCategory: string
+    status: string
+    generatedAt: Date
+    lastMatchedAt: Date | null
+    clearedAt: Date | null
+    updatedAt: Date
+    _count: SkillTaskCardCountAggregateOutputType | null
+    _min: SkillTaskCardMinAggregateOutputType | null
+    _max: SkillTaskCardMaxAggregateOutputType | null
+  }
+
+  type GetSkillTaskCardGroupByPayload<T extends SkillTaskCardGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SkillTaskCardGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SkillTaskCardGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SkillTaskCardGroupByOutputType[P]>
+            : GetScalarType<T[P], SkillTaskCardGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SkillTaskCardSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    scoreId?: boolean
+    taskCategory?: boolean
+    status?: boolean
+    generatedAt?: boolean
+    lastMatchedAt?: boolean
+    clearedAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+    subTasks?: boolean | SkillTaskCard$subTasksArgs<ExtArgs>
+    _count?: boolean | SkillTaskCardCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["skillTaskCard"]>
+
+  export type SkillTaskCardSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    scoreId?: boolean
+    taskCategory?: boolean
+    status?: boolean
+    generatedAt?: boolean
+    lastMatchedAt?: boolean
+    clearedAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["skillTaskCard"]>
+
+  export type SkillTaskCardSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    scoreId?: boolean
+    taskCategory?: boolean
+    status?: boolean
+    generatedAt?: boolean
+    lastMatchedAt?: boolean
+    clearedAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["skillTaskCard"]>
+
+  export type SkillTaskCardSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    scoreId?: boolean
+    taskCategory?: boolean
+    status?: boolean
+    generatedAt?: boolean
+    lastMatchedAt?: boolean
+    clearedAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SkillTaskCardOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "scoreId" | "taskCategory" | "status" | "generatedAt" | "lastMatchedAt" | "clearedAt" | "updatedAt", ExtArgs["result"]["skillTaskCard"]>
+  export type SkillTaskCardInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+    subTasks?: boolean | SkillTaskCard$subTasksArgs<ExtArgs>
+    _count?: boolean | SkillTaskCardCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type SkillTaskCardIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+  }
+  export type SkillTaskCardIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+  }
+
+  export type $SkillTaskCardPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SkillTaskCard"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      score: Prisma.$ScorePayload<ExtArgs>
+      subTasks: Prisma.$SubTaskPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      scoreId: string
+      taskCategory: string
+      status: string
+      generatedAt: Date
+      lastMatchedAt: Date | null
+      clearedAt: Date | null
+      updatedAt: Date
+    }, ExtArgs["result"]["skillTaskCard"]>
+    composites: {}
+  }
+
+  type SkillTaskCardGetPayload<S extends boolean | null | undefined | SkillTaskCardDefaultArgs> = $Result.GetResult<Prisma.$SkillTaskCardPayload, S>
+
+  type SkillTaskCardCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SkillTaskCardFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SkillTaskCardCountAggregateInputType | true
+    }
+
+  export interface SkillTaskCardDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SkillTaskCard'], meta: { name: 'SkillTaskCard' } }
+    /**
+     * Find zero or one SkillTaskCard that matches the filter.
+     * @param {SkillTaskCardFindUniqueArgs} args - Arguments to find a SkillTaskCard
+     * @example
+     * // Get one SkillTaskCard
+     * const skillTaskCard = await prisma.skillTaskCard.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SkillTaskCardFindUniqueArgs>(args: SelectSubset<T, SkillTaskCardFindUniqueArgs<ExtArgs>>): Prisma__SkillTaskCardClient<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SkillTaskCard that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SkillTaskCardFindUniqueOrThrowArgs} args - Arguments to find a SkillTaskCard
+     * @example
+     * // Get one SkillTaskCard
+     * const skillTaskCard = await prisma.skillTaskCard.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SkillTaskCardFindUniqueOrThrowArgs>(args: SelectSubset<T, SkillTaskCardFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SkillTaskCardClient<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SkillTaskCard that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SkillTaskCardFindFirstArgs} args - Arguments to find a SkillTaskCard
+     * @example
+     * // Get one SkillTaskCard
+     * const skillTaskCard = await prisma.skillTaskCard.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SkillTaskCardFindFirstArgs>(args?: SelectSubset<T, SkillTaskCardFindFirstArgs<ExtArgs>>): Prisma__SkillTaskCardClient<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SkillTaskCard that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SkillTaskCardFindFirstOrThrowArgs} args - Arguments to find a SkillTaskCard
+     * @example
+     * // Get one SkillTaskCard
+     * const skillTaskCard = await prisma.skillTaskCard.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SkillTaskCardFindFirstOrThrowArgs>(args?: SelectSubset<T, SkillTaskCardFindFirstOrThrowArgs<ExtArgs>>): Prisma__SkillTaskCardClient<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SkillTaskCards that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SkillTaskCardFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SkillTaskCards
+     * const skillTaskCards = await prisma.skillTaskCard.findMany()
+     * 
+     * // Get first 10 SkillTaskCards
+     * const skillTaskCards = await prisma.skillTaskCard.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const skillTaskCardWithIdOnly = await prisma.skillTaskCard.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SkillTaskCardFindManyArgs>(args?: SelectSubset<T, SkillTaskCardFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SkillTaskCard.
+     * @param {SkillTaskCardCreateArgs} args - Arguments to create a SkillTaskCard.
+     * @example
+     * // Create one SkillTaskCard
+     * const SkillTaskCard = await prisma.skillTaskCard.create({
+     *   data: {
+     *     // ... data to create a SkillTaskCard
+     *   }
+     * })
+     * 
+     */
+    create<T extends SkillTaskCardCreateArgs>(args: SelectSubset<T, SkillTaskCardCreateArgs<ExtArgs>>): Prisma__SkillTaskCardClient<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SkillTaskCards.
+     * @param {SkillTaskCardCreateManyArgs} args - Arguments to create many SkillTaskCards.
+     * @example
+     * // Create many SkillTaskCards
+     * const skillTaskCard = await prisma.skillTaskCard.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SkillTaskCardCreateManyArgs>(args?: SelectSubset<T, SkillTaskCardCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SkillTaskCards and returns the data saved in the database.
+     * @param {SkillTaskCardCreateManyAndReturnArgs} args - Arguments to create many SkillTaskCards.
+     * @example
+     * // Create many SkillTaskCards
+     * const skillTaskCard = await prisma.skillTaskCard.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SkillTaskCards and only return the `id`
+     * const skillTaskCardWithIdOnly = await prisma.skillTaskCard.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SkillTaskCardCreateManyAndReturnArgs>(args?: SelectSubset<T, SkillTaskCardCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SkillTaskCard.
+     * @param {SkillTaskCardDeleteArgs} args - Arguments to delete one SkillTaskCard.
+     * @example
+     * // Delete one SkillTaskCard
+     * const SkillTaskCard = await prisma.skillTaskCard.delete({
+     *   where: {
+     *     // ... filter to delete one SkillTaskCard
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SkillTaskCardDeleteArgs>(args: SelectSubset<T, SkillTaskCardDeleteArgs<ExtArgs>>): Prisma__SkillTaskCardClient<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SkillTaskCard.
+     * @param {SkillTaskCardUpdateArgs} args - Arguments to update one SkillTaskCard.
+     * @example
+     * // Update one SkillTaskCard
+     * const skillTaskCard = await prisma.skillTaskCard.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SkillTaskCardUpdateArgs>(args: SelectSubset<T, SkillTaskCardUpdateArgs<ExtArgs>>): Prisma__SkillTaskCardClient<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SkillTaskCards.
+     * @param {SkillTaskCardDeleteManyArgs} args - Arguments to filter SkillTaskCards to delete.
+     * @example
+     * // Delete a few SkillTaskCards
+     * const { count } = await prisma.skillTaskCard.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SkillTaskCardDeleteManyArgs>(args?: SelectSubset<T, SkillTaskCardDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SkillTaskCards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SkillTaskCardUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SkillTaskCards
+     * const skillTaskCard = await prisma.skillTaskCard.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SkillTaskCardUpdateManyArgs>(args: SelectSubset<T, SkillTaskCardUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SkillTaskCards and returns the data updated in the database.
+     * @param {SkillTaskCardUpdateManyAndReturnArgs} args - Arguments to update many SkillTaskCards.
+     * @example
+     * // Update many SkillTaskCards
+     * const skillTaskCard = await prisma.skillTaskCard.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SkillTaskCards and only return the `id`
+     * const skillTaskCardWithIdOnly = await prisma.skillTaskCard.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SkillTaskCardUpdateManyAndReturnArgs>(args: SelectSubset<T, SkillTaskCardUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SkillTaskCard.
+     * @param {SkillTaskCardUpsertArgs} args - Arguments to update or create a SkillTaskCard.
+     * @example
+     * // Update or create a SkillTaskCard
+     * const skillTaskCard = await prisma.skillTaskCard.upsert({
+     *   create: {
+     *     // ... data to create a SkillTaskCard
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SkillTaskCard we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SkillTaskCardUpsertArgs>(args: SelectSubset<T, SkillTaskCardUpsertArgs<ExtArgs>>): Prisma__SkillTaskCardClient<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SkillTaskCards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SkillTaskCardCountArgs} args - Arguments to filter SkillTaskCards to count.
+     * @example
+     * // Count the number of SkillTaskCards
+     * const count = await prisma.skillTaskCard.count({
+     *   where: {
+     *     // ... the filter for the SkillTaskCards we want to count
+     *   }
+     * })
+    **/
+    count<T extends SkillTaskCardCountArgs>(
+      args?: Subset<T, SkillTaskCardCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SkillTaskCardCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SkillTaskCard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SkillTaskCardAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SkillTaskCardAggregateArgs>(args: Subset<T, SkillTaskCardAggregateArgs>): Prisma.PrismaPromise<GetSkillTaskCardAggregateType<T>>
+
+    /**
+     * Group by SkillTaskCard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SkillTaskCardGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SkillTaskCardGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SkillTaskCardGroupByArgs['orderBy'] }
+        : { orderBy?: SkillTaskCardGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SkillTaskCardGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSkillTaskCardGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SkillTaskCard model
+   */
+  readonly fields: SkillTaskCardFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SkillTaskCard.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SkillTaskCardClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    score<T extends ScoreDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ScoreDefaultArgs<ExtArgs>>): Prisma__ScoreClient<$Result.GetResult<Prisma.$ScorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    subTasks<T extends SkillTaskCard$subTasksArgs<ExtArgs> = {}>(args?: Subset<T, SkillTaskCard$subTasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SkillTaskCard model
+   */
+  interface SkillTaskCardFieldRefs {
+    readonly id: FieldRef<"SkillTaskCard", 'String'>
+    readonly userId: FieldRef<"SkillTaskCard", 'String'>
+    readonly scoreId: FieldRef<"SkillTaskCard", 'String'>
+    readonly taskCategory: FieldRef<"SkillTaskCard", 'String'>
+    readonly status: FieldRef<"SkillTaskCard", 'String'>
+    readonly generatedAt: FieldRef<"SkillTaskCard", 'DateTime'>
+    readonly lastMatchedAt: FieldRef<"SkillTaskCard", 'DateTime'>
+    readonly clearedAt: FieldRef<"SkillTaskCard", 'DateTime'>
+    readonly updatedAt: FieldRef<"SkillTaskCard", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SkillTaskCard findUnique
+   */
+  export type SkillTaskCardFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardInclude<ExtArgs> | null
+    /**
+     * Filter, which SkillTaskCard to fetch.
+     */
+    where: SkillTaskCardWhereUniqueInput
+  }
+
+  /**
+   * SkillTaskCard findUniqueOrThrow
+   */
+  export type SkillTaskCardFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardInclude<ExtArgs> | null
+    /**
+     * Filter, which SkillTaskCard to fetch.
+     */
+    where: SkillTaskCardWhereUniqueInput
+  }
+
+  /**
+   * SkillTaskCard findFirst
+   */
+  export type SkillTaskCardFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardInclude<ExtArgs> | null
+    /**
+     * Filter, which SkillTaskCard to fetch.
+     */
+    where?: SkillTaskCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SkillTaskCards to fetch.
+     */
+    orderBy?: SkillTaskCardOrderByWithRelationInput | SkillTaskCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SkillTaskCards.
+     */
+    cursor?: SkillTaskCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SkillTaskCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SkillTaskCards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SkillTaskCards.
+     */
+    distinct?: SkillTaskCardScalarFieldEnum | SkillTaskCardScalarFieldEnum[]
+  }
+
+  /**
+   * SkillTaskCard findFirstOrThrow
+   */
+  export type SkillTaskCardFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardInclude<ExtArgs> | null
+    /**
+     * Filter, which SkillTaskCard to fetch.
+     */
+    where?: SkillTaskCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SkillTaskCards to fetch.
+     */
+    orderBy?: SkillTaskCardOrderByWithRelationInput | SkillTaskCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SkillTaskCards.
+     */
+    cursor?: SkillTaskCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SkillTaskCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SkillTaskCards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SkillTaskCards.
+     */
+    distinct?: SkillTaskCardScalarFieldEnum | SkillTaskCardScalarFieldEnum[]
+  }
+
+  /**
+   * SkillTaskCard findMany
+   */
+  export type SkillTaskCardFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardInclude<ExtArgs> | null
+    /**
+     * Filter, which SkillTaskCards to fetch.
+     */
+    where?: SkillTaskCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SkillTaskCards to fetch.
+     */
+    orderBy?: SkillTaskCardOrderByWithRelationInput | SkillTaskCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SkillTaskCards.
+     */
+    cursor?: SkillTaskCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SkillTaskCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SkillTaskCards.
+     */
+    skip?: number
+    distinct?: SkillTaskCardScalarFieldEnum | SkillTaskCardScalarFieldEnum[]
+  }
+
+  /**
+   * SkillTaskCard create
+   */
+  export type SkillTaskCardCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SkillTaskCard.
+     */
+    data: XOR<SkillTaskCardCreateInput, SkillTaskCardUncheckedCreateInput>
+  }
+
+  /**
+   * SkillTaskCard createMany
+   */
+  export type SkillTaskCardCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SkillTaskCards.
+     */
+    data: SkillTaskCardCreateManyInput | SkillTaskCardCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SkillTaskCard createManyAndReturn
+   */
+  export type SkillTaskCardCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * The data used to create many SkillTaskCards.
+     */
+    data: SkillTaskCardCreateManyInput | SkillTaskCardCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SkillTaskCard update
+   */
+  export type SkillTaskCardUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SkillTaskCard.
+     */
+    data: XOR<SkillTaskCardUpdateInput, SkillTaskCardUncheckedUpdateInput>
+    /**
+     * Choose, which SkillTaskCard to update.
+     */
+    where: SkillTaskCardWhereUniqueInput
+  }
+
+  /**
+   * SkillTaskCard updateMany
+   */
+  export type SkillTaskCardUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SkillTaskCards.
+     */
+    data: XOR<SkillTaskCardUpdateManyMutationInput, SkillTaskCardUncheckedUpdateManyInput>
+    /**
+     * Filter which SkillTaskCards to update
+     */
+    where?: SkillTaskCardWhereInput
+    /**
+     * Limit how many SkillTaskCards to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SkillTaskCard updateManyAndReturn
+   */
+  export type SkillTaskCardUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * The data used to update SkillTaskCards.
+     */
+    data: XOR<SkillTaskCardUpdateManyMutationInput, SkillTaskCardUncheckedUpdateManyInput>
+    /**
+     * Filter which SkillTaskCards to update
+     */
+    where?: SkillTaskCardWhereInput
+    /**
+     * Limit how many SkillTaskCards to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SkillTaskCard upsert
+   */
+  export type SkillTaskCardUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SkillTaskCard to update in case it exists.
+     */
+    where: SkillTaskCardWhereUniqueInput
+    /**
+     * In case the SkillTaskCard found by the `where` argument doesn't exist, create a new SkillTaskCard with this data.
+     */
+    create: XOR<SkillTaskCardCreateInput, SkillTaskCardUncheckedCreateInput>
+    /**
+     * In case the SkillTaskCard was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SkillTaskCardUpdateInput, SkillTaskCardUncheckedUpdateInput>
+  }
+
+  /**
+   * SkillTaskCard delete
+   */
+  export type SkillTaskCardDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardInclude<ExtArgs> | null
+    /**
+     * Filter which SkillTaskCard to delete.
+     */
+    where: SkillTaskCardWhereUniqueInput
+  }
+
+  /**
+   * SkillTaskCard deleteMany
+   */
+  export type SkillTaskCardDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SkillTaskCards to delete
+     */
+    where?: SkillTaskCardWhereInput
+    /**
+     * Limit how many SkillTaskCards to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SkillTaskCard.subTasks
+   */
+  export type SkillTaskCard$subTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTask
+     */
+    select?: SubTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTask
+     */
+    omit?: SubTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskInclude<ExtArgs> | null
+    where?: SubTaskWhereInput
+    orderBy?: SubTaskOrderByWithRelationInput | SubTaskOrderByWithRelationInput[]
+    cursor?: SubTaskWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SubTaskScalarFieldEnum | SubTaskScalarFieldEnum[]
+  }
+
+  /**
+   * SkillTaskCard without action
+   */
+  export type SkillTaskCardDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SkillTaskCard
+     */
+    select?: SkillTaskCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SkillTaskCard
+     */
+    omit?: SkillTaskCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SkillTaskCardInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SubTask
+   */
+
+  export type AggregateSubTask = {
+    _count: SubTaskCountAggregateOutputType | null
+    _min: SubTaskMinAggregateOutputType | null
+    _max: SubTaskMaxAggregateOutputType | null
+  }
+
+  export type SubTaskMinAggregateOutputType = {
+    id: string | null
+    skillTaskCardId: string | null
+    subTaskType: string | null
+    status: string | null
+    generatedAt: Date | null
+    clearedAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SubTaskMaxAggregateOutputType = {
+    id: string | null
+    skillTaskCardId: string | null
+    subTaskType: string | null
+    status: string | null
+    generatedAt: Date | null
+    clearedAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SubTaskCountAggregateOutputType = {
+    id: number
+    skillTaskCardId: number
+    subTaskType: number
+    status: number
+    generatedAt: number
+    clearedAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SubTaskMinAggregateInputType = {
+    id?: true
+    skillTaskCardId?: true
+    subTaskType?: true
+    status?: true
+    generatedAt?: true
+    clearedAt?: true
+    updatedAt?: true
+  }
+
+  export type SubTaskMaxAggregateInputType = {
+    id?: true
+    skillTaskCardId?: true
+    subTaskType?: true
+    status?: true
+    generatedAt?: true
+    clearedAt?: true
+    updatedAt?: true
+  }
+
+  export type SubTaskCountAggregateInputType = {
+    id?: true
+    skillTaskCardId?: true
+    subTaskType?: true
+    status?: true
+    generatedAt?: true
+    clearedAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SubTaskAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SubTask to aggregate.
+     */
+    where?: SubTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubTasks to fetch.
+     */
+    orderBy?: SubTaskOrderByWithRelationInput | SubTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SubTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SubTasks
+    **/
+    _count?: true | SubTaskCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SubTaskMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SubTaskMaxAggregateInputType
+  }
+
+  export type GetSubTaskAggregateType<T extends SubTaskAggregateArgs> = {
+        [P in keyof T & keyof AggregateSubTask]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSubTask[P]>
+      : GetScalarType<T[P], AggregateSubTask[P]>
+  }
+
+
+
+
+  export type SubTaskGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SubTaskWhereInput
+    orderBy?: SubTaskOrderByWithAggregationInput | SubTaskOrderByWithAggregationInput[]
+    by: SubTaskScalarFieldEnum[] | SubTaskScalarFieldEnum
+    having?: SubTaskScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SubTaskCountAggregateInputType | true
+    _min?: SubTaskMinAggregateInputType
+    _max?: SubTaskMaxAggregateInputType
+  }
+
+  export type SubTaskGroupByOutputType = {
+    id: string
+    skillTaskCardId: string
+    subTaskType: string
+    status: string
+    generatedAt: Date
+    clearedAt: Date | null
+    updatedAt: Date
+    _count: SubTaskCountAggregateOutputType | null
+    _min: SubTaskMinAggregateOutputType | null
+    _max: SubTaskMaxAggregateOutputType | null
+  }
+
+  type GetSubTaskGroupByPayload<T extends SubTaskGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SubTaskGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SubTaskGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SubTaskGroupByOutputType[P]>
+            : GetScalarType<T[P], SubTaskGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SubTaskSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    skillTaskCardId?: boolean
+    subTaskType?: boolean
+    status?: boolean
+    generatedAt?: boolean
+    clearedAt?: boolean
+    updatedAt?: boolean
+    skillTaskCard?: boolean | SkillTaskCardDefaultArgs<ExtArgs>
+    subTaskAssignments?: boolean | SubTask$subTaskAssignmentsArgs<ExtArgs>
+    _count?: boolean | SubTaskCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["subTask"]>
+
+  export type SubTaskSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    skillTaskCardId?: boolean
+    subTaskType?: boolean
+    status?: boolean
+    generatedAt?: boolean
+    clearedAt?: boolean
+    updatedAt?: boolean
+    skillTaskCard?: boolean | SkillTaskCardDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["subTask"]>
+
+  export type SubTaskSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    skillTaskCardId?: boolean
+    subTaskType?: boolean
+    status?: boolean
+    generatedAt?: boolean
+    clearedAt?: boolean
+    updatedAt?: boolean
+    skillTaskCard?: boolean | SkillTaskCardDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["subTask"]>
+
+  export type SubTaskSelectScalar = {
+    id?: boolean
+    skillTaskCardId?: boolean
+    subTaskType?: boolean
+    status?: boolean
+    generatedAt?: boolean
+    clearedAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SubTaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "skillTaskCardId" | "subTaskType" | "status" | "generatedAt" | "clearedAt" | "updatedAt", ExtArgs["result"]["subTask"]>
+  export type SubTaskInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    skillTaskCard?: boolean | SkillTaskCardDefaultArgs<ExtArgs>
+    subTaskAssignments?: boolean | SubTask$subTaskAssignmentsArgs<ExtArgs>
+    _count?: boolean | SubTaskCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type SubTaskIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    skillTaskCard?: boolean | SkillTaskCardDefaultArgs<ExtArgs>
+  }
+  export type SubTaskIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    skillTaskCard?: boolean | SkillTaskCardDefaultArgs<ExtArgs>
+  }
+
+  export type $SubTaskPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SubTask"
+    objects: {
+      skillTaskCard: Prisma.$SkillTaskCardPayload<ExtArgs>
+      subTaskAssignments: Prisma.$SubTaskAssignmentPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      skillTaskCardId: string
+      subTaskType: string
+      status: string
+      generatedAt: Date
+      clearedAt: Date | null
+      updatedAt: Date
+    }, ExtArgs["result"]["subTask"]>
+    composites: {}
+  }
+
+  type SubTaskGetPayload<S extends boolean | null | undefined | SubTaskDefaultArgs> = $Result.GetResult<Prisma.$SubTaskPayload, S>
+
+  type SubTaskCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SubTaskFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SubTaskCountAggregateInputType | true
+    }
+
+  export interface SubTaskDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SubTask'], meta: { name: 'SubTask' } }
+    /**
+     * Find zero or one SubTask that matches the filter.
+     * @param {SubTaskFindUniqueArgs} args - Arguments to find a SubTask
+     * @example
+     * // Get one SubTask
+     * const subTask = await prisma.subTask.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SubTaskFindUniqueArgs>(args: SelectSubset<T, SubTaskFindUniqueArgs<ExtArgs>>): Prisma__SubTaskClient<$Result.GetResult<Prisma.$SubTaskPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SubTask that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SubTaskFindUniqueOrThrowArgs} args - Arguments to find a SubTask
+     * @example
+     * // Get one SubTask
+     * const subTask = await prisma.subTask.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SubTaskFindUniqueOrThrowArgs>(args: SelectSubset<T, SubTaskFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SubTaskClient<$Result.GetResult<Prisma.$SubTaskPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SubTask that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskFindFirstArgs} args - Arguments to find a SubTask
+     * @example
+     * // Get one SubTask
+     * const subTask = await prisma.subTask.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SubTaskFindFirstArgs>(args?: SelectSubset<T, SubTaskFindFirstArgs<ExtArgs>>): Prisma__SubTaskClient<$Result.GetResult<Prisma.$SubTaskPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SubTask that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskFindFirstOrThrowArgs} args - Arguments to find a SubTask
+     * @example
+     * // Get one SubTask
+     * const subTask = await prisma.subTask.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SubTaskFindFirstOrThrowArgs>(args?: SelectSubset<T, SubTaskFindFirstOrThrowArgs<ExtArgs>>): Prisma__SubTaskClient<$Result.GetResult<Prisma.$SubTaskPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SubTasks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SubTasks
+     * const subTasks = await prisma.subTask.findMany()
+     * 
+     * // Get first 10 SubTasks
+     * const subTasks = await prisma.subTask.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const subTaskWithIdOnly = await prisma.subTask.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SubTaskFindManyArgs>(args?: SelectSubset<T, SubTaskFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SubTask.
+     * @param {SubTaskCreateArgs} args - Arguments to create a SubTask.
+     * @example
+     * // Create one SubTask
+     * const SubTask = await prisma.subTask.create({
+     *   data: {
+     *     // ... data to create a SubTask
+     *   }
+     * })
+     * 
+     */
+    create<T extends SubTaskCreateArgs>(args: SelectSubset<T, SubTaskCreateArgs<ExtArgs>>): Prisma__SubTaskClient<$Result.GetResult<Prisma.$SubTaskPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SubTasks.
+     * @param {SubTaskCreateManyArgs} args - Arguments to create many SubTasks.
+     * @example
+     * // Create many SubTasks
+     * const subTask = await prisma.subTask.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SubTaskCreateManyArgs>(args?: SelectSubset<T, SubTaskCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SubTasks and returns the data saved in the database.
+     * @param {SubTaskCreateManyAndReturnArgs} args - Arguments to create many SubTasks.
+     * @example
+     * // Create many SubTasks
+     * const subTask = await prisma.subTask.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SubTasks and only return the `id`
+     * const subTaskWithIdOnly = await prisma.subTask.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SubTaskCreateManyAndReturnArgs>(args?: SelectSubset<T, SubTaskCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubTaskPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SubTask.
+     * @param {SubTaskDeleteArgs} args - Arguments to delete one SubTask.
+     * @example
+     * // Delete one SubTask
+     * const SubTask = await prisma.subTask.delete({
+     *   where: {
+     *     // ... filter to delete one SubTask
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SubTaskDeleteArgs>(args: SelectSubset<T, SubTaskDeleteArgs<ExtArgs>>): Prisma__SubTaskClient<$Result.GetResult<Prisma.$SubTaskPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SubTask.
+     * @param {SubTaskUpdateArgs} args - Arguments to update one SubTask.
+     * @example
+     * // Update one SubTask
+     * const subTask = await prisma.subTask.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SubTaskUpdateArgs>(args: SelectSubset<T, SubTaskUpdateArgs<ExtArgs>>): Prisma__SubTaskClient<$Result.GetResult<Prisma.$SubTaskPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SubTasks.
+     * @param {SubTaskDeleteManyArgs} args - Arguments to filter SubTasks to delete.
+     * @example
+     * // Delete a few SubTasks
+     * const { count } = await prisma.subTask.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SubTaskDeleteManyArgs>(args?: SelectSubset<T, SubTaskDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SubTasks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SubTasks
+     * const subTask = await prisma.subTask.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SubTaskUpdateManyArgs>(args: SelectSubset<T, SubTaskUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SubTasks and returns the data updated in the database.
+     * @param {SubTaskUpdateManyAndReturnArgs} args - Arguments to update many SubTasks.
+     * @example
+     * // Update many SubTasks
+     * const subTask = await prisma.subTask.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SubTasks and only return the `id`
+     * const subTaskWithIdOnly = await prisma.subTask.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SubTaskUpdateManyAndReturnArgs>(args: SelectSubset<T, SubTaskUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubTaskPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SubTask.
+     * @param {SubTaskUpsertArgs} args - Arguments to update or create a SubTask.
+     * @example
+     * // Update or create a SubTask
+     * const subTask = await prisma.subTask.upsert({
+     *   create: {
+     *     // ... data to create a SubTask
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SubTask we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SubTaskUpsertArgs>(args: SelectSubset<T, SubTaskUpsertArgs<ExtArgs>>): Prisma__SubTaskClient<$Result.GetResult<Prisma.$SubTaskPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SubTasks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskCountArgs} args - Arguments to filter SubTasks to count.
+     * @example
+     * // Count the number of SubTasks
+     * const count = await prisma.subTask.count({
+     *   where: {
+     *     // ... the filter for the SubTasks we want to count
+     *   }
+     * })
+    **/
+    count<T extends SubTaskCountArgs>(
+      args?: Subset<T, SubTaskCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SubTaskCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SubTask.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SubTaskAggregateArgs>(args: Subset<T, SubTaskAggregateArgs>): Prisma.PrismaPromise<GetSubTaskAggregateType<T>>
+
+    /**
+     * Group by SubTask.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SubTaskGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SubTaskGroupByArgs['orderBy'] }
+        : { orderBy?: SubTaskGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SubTaskGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSubTaskGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SubTask model
+   */
+  readonly fields: SubTaskFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SubTask.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SubTaskClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    skillTaskCard<T extends SkillTaskCardDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SkillTaskCardDefaultArgs<ExtArgs>>): Prisma__SkillTaskCardClient<$Result.GetResult<Prisma.$SkillTaskCardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    subTaskAssignments<T extends SubTask$subTaskAssignmentsArgs<ExtArgs> = {}>(args?: Subset<T, SubTask$subTaskAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubTaskAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SubTask model
+   */
+  interface SubTaskFieldRefs {
+    readonly id: FieldRef<"SubTask", 'String'>
+    readonly skillTaskCardId: FieldRef<"SubTask", 'String'>
+    readonly subTaskType: FieldRef<"SubTask", 'String'>
+    readonly status: FieldRef<"SubTask", 'String'>
+    readonly generatedAt: FieldRef<"SubTask", 'DateTime'>
+    readonly clearedAt: FieldRef<"SubTask", 'DateTime'>
+    readonly updatedAt: FieldRef<"SubTask", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SubTask findUnique
+   */
+  export type SubTaskFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTask
+     */
+    select?: SubTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTask
+     */
+    omit?: SubTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which SubTask to fetch.
+     */
+    where: SubTaskWhereUniqueInput
+  }
+
+  /**
+   * SubTask findUniqueOrThrow
+   */
+  export type SubTaskFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTask
+     */
+    select?: SubTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTask
+     */
+    omit?: SubTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which SubTask to fetch.
+     */
+    where: SubTaskWhereUniqueInput
+  }
+
+  /**
+   * SubTask findFirst
+   */
+  export type SubTaskFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTask
+     */
+    select?: SubTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTask
+     */
+    omit?: SubTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which SubTask to fetch.
+     */
+    where?: SubTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubTasks to fetch.
+     */
+    orderBy?: SubTaskOrderByWithRelationInput | SubTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SubTasks.
+     */
+    cursor?: SubTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SubTasks.
+     */
+    distinct?: SubTaskScalarFieldEnum | SubTaskScalarFieldEnum[]
+  }
+
+  /**
+   * SubTask findFirstOrThrow
+   */
+  export type SubTaskFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTask
+     */
+    select?: SubTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTask
+     */
+    omit?: SubTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which SubTask to fetch.
+     */
+    where?: SubTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubTasks to fetch.
+     */
+    orderBy?: SubTaskOrderByWithRelationInput | SubTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SubTasks.
+     */
+    cursor?: SubTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubTasks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SubTasks.
+     */
+    distinct?: SubTaskScalarFieldEnum | SubTaskScalarFieldEnum[]
+  }
+
+  /**
+   * SubTask findMany
+   */
+  export type SubTaskFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTask
+     */
+    select?: SubTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTask
+     */
+    omit?: SubTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskInclude<ExtArgs> | null
+    /**
+     * Filter, which SubTasks to fetch.
+     */
+    where?: SubTaskWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubTasks to fetch.
+     */
+    orderBy?: SubTaskOrderByWithRelationInput | SubTaskOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SubTasks.
+     */
+    cursor?: SubTaskWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubTasks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubTasks.
+     */
+    skip?: number
+    distinct?: SubTaskScalarFieldEnum | SubTaskScalarFieldEnum[]
+  }
+
+  /**
+   * SubTask create
+   */
+  export type SubTaskCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTask
+     */
+    select?: SubTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTask
+     */
+    omit?: SubTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SubTask.
+     */
+    data: XOR<SubTaskCreateInput, SubTaskUncheckedCreateInput>
+  }
+
+  /**
+   * SubTask createMany
+   */
+  export type SubTaskCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SubTasks.
+     */
+    data: SubTaskCreateManyInput | SubTaskCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SubTask createManyAndReturn
+   */
+  export type SubTaskCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTask
+     */
+    select?: SubTaskSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTask
+     */
+    omit?: SubTaskOmit<ExtArgs> | null
+    /**
+     * The data used to create many SubTasks.
+     */
+    data: SubTaskCreateManyInput | SubTaskCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SubTask update
+   */
+  export type SubTaskUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTask
+     */
+    select?: SubTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTask
+     */
+    omit?: SubTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SubTask.
+     */
+    data: XOR<SubTaskUpdateInput, SubTaskUncheckedUpdateInput>
+    /**
+     * Choose, which SubTask to update.
+     */
+    where: SubTaskWhereUniqueInput
+  }
+
+  /**
+   * SubTask updateMany
+   */
+  export type SubTaskUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SubTasks.
+     */
+    data: XOR<SubTaskUpdateManyMutationInput, SubTaskUncheckedUpdateManyInput>
+    /**
+     * Filter which SubTasks to update
+     */
+    where?: SubTaskWhereInput
+    /**
+     * Limit how many SubTasks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SubTask updateManyAndReturn
+   */
+  export type SubTaskUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTask
+     */
+    select?: SubTaskSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTask
+     */
+    omit?: SubTaskOmit<ExtArgs> | null
+    /**
+     * The data used to update SubTasks.
+     */
+    data: XOR<SubTaskUpdateManyMutationInput, SubTaskUncheckedUpdateManyInput>
+    /**
+     * Filter which SubTasks to update
+     */
+    where?: SubTaskWhereInput
+    /**
+     * Limit how many SubTasks to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SubTask upsert
+   */
+  export type SubTaskUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTask
+     */
+    select?: SubTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTask
+     */
+    omit?: SubTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SubTask to update in case it exists.
+     */
+    where: SubTaskWhereUniqueInput
+    /**
+     * In case the SubTask found by the `where` argument doesn't exist, create a new SubTask with this data.
+     */
+    create: XOR<SubTaskCreateInput, SubTaskUncheckedCreateInput>
+    /**
+     * In case the SubTask was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SubTaskUpdateInput, SubTaskUncheckedUpdateInput>
+  }
+
+  /**
+   * SubTask delete
+   */
+  export type SubTaskDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTask
+     */
+    select?: SubTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTask
+     */
+    omit?: SubTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskInclude<ExtArgs> | null
+    /**
+     * Filter which SubTask to delete.
+     */
+    where: SubTaskWhereUniqueInput
+  }
+
+  /**
+   * SubTask deleteMany
+   */
+  export type SubTaskDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SubTasks to delete
+     */
+    where?: SubTaskWhereInput
+    /**
+     * Limit how many SubTasks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SubTask.subTaskAssignments
+   */
+  export type SubTask$subTaskAssignmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentInclude<ExtArgs> | null
+    where?: SubTaskAssignmentWhereInput
+    orderBy?: SubTaskAssignmentOrderByWithRelationInput | SubTaskAssignmentOrderByWithRelationInput[]
+    cursor?: SubTaskAssignmentWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SubTaskAssignmentScalarFieldEnum | SubTaskAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * SubTask without action
+   */
+  export type SubTaskDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTask
+     */
+    select?: SubTaskSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTask
+     */
+    omit?: SubTaskOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SubTaskAssignment
+   */
+
+  export type AggregateSubTaskAssignment = {
+    _count: SubTaskAssignmentCountAggregateOutputType | null
+    _min: SubTaskAssignmentMinAggregateOutputType | null
+    _max: SubTaskAssignmentMaxAggregateOutputType | null
+  }
+
+  export type SubTaskAssignmentMinAggregateOutputType = {
+    id: string | null
+    subTaskId: string | null
+    practiceItemId: string | null
+    assignedCategory: string | null
+    isMastered: boolean | null
+    masteredAt: Date | null
+    assignedAt: Date | null
+  }
+
+  export type SubTaskAssignmentMaxAggregateOutputType = {
+    id: string | null
+    subTaskId: string | null
+    practiceItemId: string | null
+    assignedCategory: string | null
+    isMastered: boolean | null
+    masteredAt: Date | null
+    assignedAt: Date | null
+  }
+
+  export type SubTaskAssignmentCountAggregateOutputType = {
+    id: number
+    subTaskId: number
+    practiceItemId: number
+    assignedCategory: number
+    isMastered: number
+    masteredAt: number
+    assignedAt: number
+    _all: number
+  }
+
+
+  export type SubTaskAssignmentMinAggregateInputType = {
+    id?: true
+    subTaskId?: true
+    practiceItemId?: true
+    assignedCategory?: true
+    isMastered?: true
+    masteredAt?: true
+    assignedAt?: true
+  }
+
+  export type SubTaskAssignmentMaxAggregateInputType = {
+    id?: true
+    subTaskId?: true
+    practiceItemId?: true
+    assignedCategory?: true
+    isMastered?: true
+    masteredAt?: true
+    assignedAt?: true
+  }
+
+  export type SubTaskAssignmentCountAggregateInputType = {
+    id?: true
+    subTaskId?: true
+    practiceItemId?: true
+    assignedCategory?: true
+    isMastered?: true
+    masteredAt?: true
+    assignedAt?: true
+    _all?: true
+  }
+
+  export type SubTaskAssignmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SubTaskAssignment to aggregate.
+     */
+    where?: SubTaskAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubTaskAssignments to fetch.
+     */
+    orderBy?: SubTaskAssignmentOrderByWithRelationInput | SubTaskAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SubTaskAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubTaskAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubTaskAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SubTaskAssignments
+    **/
+    _count?: true | SubTaskAssignmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SubTaskAssignmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SubTaskAssignmentMaxAggregateInputType
+  }
+
+  export type GetSubTaskAssignmentAggregateType<T extends SubTaskAssignmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateSubTaskAssignment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSubTaskAssignment[P]>
+      : GetScalarType<T[P], AggregateSubTaskAssignment[P]>
+  }
+
+
+
+
+  export type SubTaskAssignmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SubTaskAssignmentWhereInput
+    orderBy?: SubTaskAssignmentOrderByWithAggregationInput | SubTaskAssignmentOrderByWithAggregationInput[]
+    by: SubTaskAssignmentScalarFieldEnum[] | SubTaskAssignmentScalarFieldEnum
+    having?: SubTaskAssignmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SubTaskAssignmentCountAggregateInputType | true
+    _min?: SubTaskAssignmentMinAggregateInputType
+    _max?: SubTaskAssignmentMaxAggregateInputType
+  }
+
+  export type SubTaskAssignmentGroupByOutputType = {
+    id: string
+    subTaskId: string
+    practiceItemId: string
+    assignedCategory: string
+    isMastered: boolean
+    masteredAt: Date | null
+    assignedAt: Date
+    _count: SubTaskAssignmentCountAggregateOutputType | null
+    _min: SubTaskAssignmentMinAggregateOutputType | null
+    _max: SubTaskAssignmentMaxAggregateOutputType | null
+  }
+
+  type GetSubTaskAssignmentGroupByPayload<T extends SubTaskAssignmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SubTaskAssignmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SubTaskAssignmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SubTaskAssignmentGroupByOutputType[P]>
+            : GetScalarType<T[P], SubTaskAssignmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SubTaskAssignmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    subTaskId?: boolean
+    practiceItemId?: boolean
+    assignedCategory?: boolean
+    isMastered?: boolean
+    masteredAt?: boolean
+    assignedAt?: boolean
+    subTask?: boolean | SubTaskDefaultArgs<ExtArgs>
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["subTaskAssignment"]>
+
+  export type SubTaskAssignmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    subTaskId?: boolean
+    practiceItemId?: boolean
+    assignedCategory?: boolean
+    isMastered?: boolean
+    masteredAt?: boolean
+    assignedAt?: boolean
+    subTask?: boolean | SubTaskDefaultArgs<ExtArgs>
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["subTaskAssignment"]>
+
+  export type SubTaskAssignmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    subTaskId?: boolean
+    practiceItemId?: boolean
+    assignedCategory?: boolean
+    isMastered?: boolean
+    masteredAt?: boolean
+    assignedAt?: boolean
+    subTask?: boolean | SubTaskDefaultArgs<ExtArgs>
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["subTaskAssignment"]>
+
+  export type SubTaskAssignmentSelectScalar = {
+    id?: boolean
+    subTaskId?: boolean
+    practiceItemId?: boolean
+    assignedCategory?: boolean
+    isMastered?: boolean
+    masteredAt?: boolean
+    assignedAt?: boolean
+  }
+
+  export type SubTaskAssignmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "subTaskId" | "practiceItemId" | "assignedCategory" | "isMastered" | "masteredAt" | "assignedAt", ExtArgs["result"]["subTaskAssignment"]>
+  export type SubTaskAssignmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    subTask?: boolean | SubTaskDefaultArgs<ExtArgs>
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }
+  export type SubTaskAssignmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    subTask?: boolean | SubTaskDefaultArgs<ExtArgs>
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }
+  export type SubTaskAssignmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    subTask?: boolean | SubTaskDefaultArgs<ExtArgs>
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }
+
+  export type $SubTaskAssignmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SubTaskAssignment"
+    objects: {
+      subTask: Prisma.$SubTaskPayload<ExtArgs>
+      practiceItem: Prisma.$PracticeItemPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      subTaskId: string
+      practiceItemId: string
+      assignedCategory: string
+      isMastered: boolean
+      masteredAt: Date | null
+      assignedAt: Date
+    }, ExtArgs["result"]["subTaskAssignment"]>
+    composites: {}
+  }
+
+  type SubTaskAssignmentGetPayload<S extends boolean | null | undefined | SubTaskAssignmentDefaultArgs> = $Result.GetResult<Prisma.$SubTaskAssignmentPayload, S>
+
+  type SubTaskAssignmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SubTaskAssignmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SubTaskAssignmentCountAggregateInputType | true
+    }
+
+  export interface SubTaskAssignmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SubTaskAssignment'], meta: { name: 'SubTaskAssignment' } }
+    /**
+     * Find zero or one SubTaskAssignment that matches the filter.
+     * @param {SubTaskAssignmentFindUniqueArgs} args - Arguments to find a SubTaskAssignment
+     * @example
+     * // Get one SubTaskAssignment
+     * const subTaskAssignment = await prisma.subTaskAssignment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SubTaskAssignmentFindUniqueArgs>(args: SelectSubset<T, SubTaskAssignmentFindUniqueArgs<ExtArgs>>): Prisma__SubTaskAssignmentClient<$Result.GetResult<Prisma.$SubTaskAssignmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SubTaskAssignment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SubTaskAssignmentFindUniqueOrThrowArgs} args - Arguments to find a SubTaskAssignment
+     * @example
+     * // Get one SubTaskAssignment
+     * const subTaskAssignment = await prisma.subTaskAssignment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SubTaskAssignmentFindUniqueOrThrowArgs>(args: SelectSubset<T, SubTaskAssignmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SubTaskAssignmentClient<$Result.GetResult<Prisma.$SubTaskAssignmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SubTaskAssignment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskAssignmentFindFirstArgs} args - Arguments to find a SubTaskAssignment
+     * @example
+     * // Get one SubTaskAssignment
+     * const subTaskAssignment = await prisma.subTaskAssignment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SubTaskAssignmentFindFirstArgs>(args?: SelectSubset<T, SubTaskAssignmentFindFirstArgs<ExtArgs>>): Prisma__SubTaskAssignmentClient<$Result.GetResult<Prisma.$SubTaskAssignmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SubTaskAssignment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskAssignmentFindFirstOrThrowArgs} args - Arguments to find a SubTaskAssignment
+     * @example
+     * // Get one SubTaskAssignment
+     * const subTaskAssignment = await prisma.subTaskAssignment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SubTaskAssignmentFindFirstOrThrowArgs>(args?: SelectSubset<T, SubTaskAssignmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__SubTaskAssignmentClient<$Result.GetResult<Prisma.$SubTaskAssignmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SubTaskAssignments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskAssignmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SubTaskAssignments
+     * const subTaskAssignments = await prisma.subTaskAssignment.findMany()
+     * 
+     * // Get first 10 SubTaskAssignments
+     * const subTaskAssignments = await prisma.subTaskAssignment.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const subTaskAssignmentWithIdOnly = await prisma.subTaskAssignment.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SubTaskAssignmentFindManyArgs>(args?: SelectSubset<T, SubTaskAssignmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubTaskAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SubTaskAssignment.
+     * @param {SubTaskAssignmentCreateArgs} args - Arguments to create a SubTaskAssignment.
+     * @example
+     * // Create one SubTaskAssignment
+     * const SubTaskAssignment = await prisma.subTaskAssignment.create({
+     *   data: {
+     *     // ... data to create a SubTaskAssignment
+     *   }
+     * })
+     * 
+     */
+    create<T extends SubTaskAssignmentCreateArgs>(args: SelectSubset<T, SubTaskAssignmentCreateArgs<ExtArgs>>): Prisma__SubTaskAssignmentClient<$Result.GetResult<Prisma.$SubTaskAssignmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SubTaskAssignments.
+     * @param {SubTaskAssignmentCreateManyArgs} args - Arguments to create many SubTaskAssignments.
+     * @example
+     * // Create many SubTaskAssignments
+     * const subTaskAssignment = await prisma.subTaskAssignment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SubTaskAssignmentCreateManyArgs>(args?: SelectSubset<T, SubTaskAssignmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SubTaskAssignments and returns the data saved in the database.
+     * @param {SubTaskAssignmentCreateManyAndReturnArgs} args - Arguments to create many SubTaskAssignments.
+     * @example
+     * // Create many SubTaskAssignments
+     * const subTaskAssignment = await prisma.subTaskAssignment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SubTaskAssignments and only return the `id`
+     * const subTaskAssignmentWithIdOnly = await prisma.subTaskAssignment.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SubTaskAssignmentCreateManyAndReturnArgs>(args?: SelectSubset<T, SubTaskAssignmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubTaskAssignmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SubTaskAssignment.
+     * @param {SubTaskAssignmentDeleteArgs} args - Arguments to delete one SubTaskAssignment.
+     * @example
+     * // Delete one SubTaskAssignment
+     * const SubTaskAssignment = await prisma.subTaskAssignment.delete({
+     *   where: {
+     *     // ... filter to delete one SubTaskAssignment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SubTaskAssignmentDeleteArgs>(args: SelectSubset<T, SubTaskAssignmentDeleteArgs<ExtArgs>>): Prisma__SubTaskAssignmentClient<$Result.GetResult<Prisma.$SubTaskAssignmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SubTaskAssignment.
+     * @param {SubTaskAssignmentUpdateArgs} args - Arguments to update one SubTaskAssignment.
+     * @example
+     * // Update one SubTaskAssignment
+     * const subTaskAssignment = await prisma.subTaskAssignment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SubTaskAssignmentUpdateArgs>(args: SelectSubset<T, SubTaskAssignmentUpdateArgs<ExtArgs>>): Prisma__SubTaskAssignmentClient<$Result.GetResult<Prisma.$SubTaskAssignmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SubTaskAssignments.
+     * @param {SubTaskAssignmentDeleteManyArgs} args - Arguments to filter SubTaskAssignments to delete.
+     * @example
+     * // Delete a few SubTaskAssignments
+     * const { count } = await prisma.subTaskAssignment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SubTaskAssignmentDeleteManyArgs>(args?: SelectSubset<T, SubTaskAssignmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SubTaskAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskAssignmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SubTaskAssignments
+     * const subTaskAssignment = await prisma.subTaskAssignment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SubTaskAssignmentUpdateManyArgs>(args: SelectSubset<T, SubTaskAssignmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SubTaskAssignments and returns the data updated in the database.
+     * @param {SubTaskAssignmentUpdateManyAndReturnArgs} args - Arguments to update many SubTaskAssignments.
+     * @example
+     * // Update many SubTaskAssignments
+     * const subTaskAssignment = await prisma.subTaskAssignment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SubTaskAssignments and only return the `id`
+     * const subTaskAssignmentWithIdOnly = await prisma.subTaskAssignment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SubTaskAssignmentUpdateManyAndReturnArgs>(args: SelectSubset<T, SubTaskAssignmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubTaskAssignmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SubTaskAssignment.
+     * @param {SubTaskAssignmentUpsertArgs} args - Arguments to update or create a SubTaskAssignment.
+     * @example
+     * // Update or create a SubTaskAssignment
+     * const subTaskAssignment = await prisma.subTaskAssignment.upsert({
+     *   create: {
+     *     // ... data to create a SubTaskAssignment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SubTaskAssignment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SubTaskAssignmentUpsertArgs>(args: SelectSubset<T, SubTaskAssignmentUpsertArgs<ExtArgs>>): Prisma__SubTaskAssignmentClient<$Result.GetResult<Prisma.$SubTaskAssignmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SubTaskAssignments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskAssignmentCountArgs} args - Arguments to filter SubTaskAssignments to count.
+     * @example
+     * // Count the number of SubTaskAssignments
+     * const count = await prisma.subTaskAssignment.count({
+     *   where: {
+     *     // ... the filter for the SubTaskAssignments we want to count
+     *   }
+     * })
+    **/
+    count<T extends SubTaskAssignmentCountArgs>(
+      args?: Subset<T, SubTaskAssignmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SubTaskAssignmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SubTaskAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskAssignmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SubTaskAssignmentAggregateArgs>(args: Subset<T, SubTaskAssignmentAggregateArgs>): Prisma.PrismaPromise<GetSubTaskAssignmentAggregateType<T>>
+
+    /**
+     * Group by SubTaskAssignment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SubTaskAssignmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SubTaskAssignmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SubTaskAssignmentGroupByArgs['orderBy'] }
+        : { orderBy?: SubTaskAssignmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SubTaskAssignmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSubTaskAssignmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SubTaskAssignment model
+   */
+  readonly fields: SubTaskAssignmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SubTaskAssignment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SubTaskAssignmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    subTask<T extends SubTaskDefaultArgs<ExtArgs> = {}>(args?: Subset<T, SubTaskDefaultArgs<ExtArgs>>): Prisma__SubTaskClient<$Result.GetResult<Prisma.$SubTaskPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    practiceItem<T extends PracticeItemDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PracticeItemDefaultArgs<ExtArgs>>): Prisma__PracticeItemClient<$Result.GetResult<Prisma.$PracticeItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SubTaskAssignment model
+   */
+  interface SubTaskAssignmentFieldRefs {
+    readonly id: FieldRef<"SubTaskAssignment", 'String'>
+    readonly subTaskId: FieldRef<"SubTaskAssignment", 'String'>
+    readonly practiceItemId: FieldRef<"SubTaskAssignment", 'String'>
+    readonly assignedCategory: FieldRef<"SubTaskAssignment", 'String'>
+    readonly isMastered: FieldRef<"SubTaskAssignment", 'Boolean'>
+    readonly masteredAt: FieldRef<"SubTaskAssignment", 'DateTime'>
+    readonly assignedAt: FieldRef<"SubTaskAssignment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SubTaskAssignment findUnique
+   */
+  export type SubTaskAssignmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which SubTaskAssignment to fetch.
+     */
+    where: SubTaskAssignmentWhereUniqueInput
+  }
+
+  /**
+   * SubTaskAssignment findUniqueOrThrow
+   */
+  export type SubTaskAssignmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which SubTaskAssignment to fetch.
+     */
+    where: SubTaskAssignmentWhereUniqueInput
+  }
+
+  /**
+   * SubTaskAssignment findFirst
+   */
+  export type SubTaskAssignmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which SubTaskAssignment to fetch.
+     */
+    where?: SubTaskAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubTaskAssignments to fetch.
+     */
+    orderBy?: SubTaskAssignmentOrderByWithRelationInput | SubTaskAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SubTaskAssignments.
+     */
+    cursor?: SubTaskAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubTaskAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubTaskAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SubTaskAssignments.
+     */
+    distinct?: SubTaskAssignmentScalarFieldEnum | SubTaskAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * SubTaskAssignment findFirstOrThrow
+   */
+  export type SubTaskAssignmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which SubTaskAssignment to fetch.
+     */
+    where?: SubTaskAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubTaskAssignments to fetch.
+     */
+    orderBy?: SubTaskAssignmentOrderByWithRelationInput | SubTaskAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SubTaskAssignments.
+     */
+    cursor?: SubTaskAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubTaskAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubTaskAssignments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SubTaskAssignments.
+     */
+    distinct?: SubTaskAssignmentScalarFieldEnum | SubTaskAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * SubTaskAssignment findMany
+   */
+  export type SubTaskAssignmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter, which SubTaskAssignments to fetch.
+     */
+    where?: SubTaskAssignmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SubTaskAssignments to fetch.
+     */
+    orderBy?: SubTaskAssignmentOrderByWithRelationInput | SubTaskAssignmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SubTaskAssignments.
+     */
+    cursor?: SubTaskAssignmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SubTaskAssignments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SubTaskAssignments.
+     */
+    skip?: number
+    distinct?: SubTaskAssignmentScalarFieldEnum | SubTaskAssignmentScalarFieldEnum[]
+  }
+
+  /**
+   * SubTaskAssignment create
+   */
+  export type SubTaskAssignmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SubTaskAssignment.
+     */
+    data: XOR<SubTaskAssignmentCreateInput, SubTaskAssignmentUncheckedCreateInput>
+  }
+
+  /**
+   * SubTaskAssignment createMany
+   */
+  export type SubTaskAssignmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SubTaskAssignments.
+     */
+    data: SubTaskAssignmentCreateManyInput | SubTaskAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SubTaskAssignment createManyAndReturn
+   */
+  export type SubTaskAssignmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many SubTaskAssignments.
+     */
+    data: SubTaskAssignmentCreateManyInput | SubTaskAssignmentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SubTaskAssignment update
+   */
+  export type SubTaskAssignmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SubTaskAssignment.
+     */
+    data: XOR<SubTaskAssignmentUpdateInput, SubTaskAssignmentUncheckedUpdateInput>
+    /**
+     * Choose, which SubTaskAssignment to update.
+     */
+    where: SubTaskAssignmentWhereUniqueInput
+  }
+
+  /**
+   * SubTaskAssignment updateMany
+   */
+  export type SubTaskAssignmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SubTaskAssignments.
+     */
+    data: XOR<SubTaskAssignmentUpdateManyMutationInput, SubTaskAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which SubTaskAssignments to update
+     */
+    where?: SubTaskAssignmentWhereInput
+    /**
+     * Limit how many SubTaskAssignments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SubTaskAssignment updateManyAndReturn
+   */
+  export type SubTaskAssignmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * The data used to update SubTaskAssignments.
+     */
+    data: XOR<SubTaskAssignmentUpdateManyMutationInput, SubTaskAssignmentUncheckedUpdateManyInput>
+    /**
+     * Filter which SubTaskAssignments to update
+     */
+    where?: SubTaskAssignmentWhereInput
+    /**
+     * Limit how many SubTaskAssignments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SubTaskAssignment upsert
+   */
+  export type SubTaskAssignmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SubTaskAssignment to update in case it exists.
+     */
+    where: SubTaskAssignmentWhereUniqueInput
+    /**
+     * In case the SubTaskAssignment found by the `where` argument doesn't exist, create a new SubTaskAssignment with this data.
+     */
+    create: XOR<SubTaskAssignmentCreateInput, SubTaskAssignmentUncheckedCreateInput>
+    /**
+     * In case the SubTaskAssignment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SubTaskAssignmentUpdateInput, SubTaskAssignmentUncheckedUpdateInput>
+  }
+
+  /**
+   * SubTaskAssignment delete
+   */
+  export type SubTaskAssignmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentInclude<ExtArgs> | null
+    /**
+     * Filter which SubTaskAssignment to delete.
+     */
+    where: SubTaskAssignmentWhereUniqueInput
+  }
+
+  /**
+   * SubTaskAssignment deleteMany
+   */
+  export type SubTaskAssignmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SubTaskAssignments to delete
+     */
+    where?: SubTaskAssignmentWhereInput
+    /**
+     * Limit how many SubTaskAssignments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SubTaskAssignment without action
+   */
+  export type SubTaskAssignmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SubTaskAssignment
+     */
+    select?: SubTaskAssignmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SubTaskAssignment
+     */
+    omit?: SubTaskAssignmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubTaskAssignmentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserPracticeMastery
+   */
+
+  export type AggregateUserPracticeMastery = {
+    _count: UserPracticeMasteryCountAggregateOutputType | null
+    _avg: UserPracticeMasteryAvgAggregateOutputType | null
+    _sum: UserPracticeMasterySumAggregateOutputType | null
+    _min: UserPracticeMasteryMinAggregateOutputType | null
+    _max: UserPracticeMasteryMaxAggregateOutputType | null
+  }
+
+  export type UserPracticeMasteryAvgAggregateOutputType = {
+    recentAverageScore: number | null
+    totalPerformanceCount: number | null
+  }
+
+  export type UserPracticeMasterySumAggregateOutputType = {
+    recentAverageScore: number | null
+    totalPerformanceCount: number | null
+  }
+
+  export type UserPracticeMasteryMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    practiceItemId: string | null
+    recentAverageScore: number | null
+    totalPerformanceCount: number | null
+    isPerformanceMastered: boolean | null
+    masteredAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UserPracticeMasteryMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    practiceItemId: string | null
+    recentAverageScore: number | null
+    totalPerformanceCount: number | null
+    isPerformanceMastered: boolean | null
+    masteredAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UserPracticeMasteryCountAggregateOutputType = {
+    id: number
+    userId: number
+    practiceItemId: number
+    recentAverageScore: number
+    totalPerformanceCount: number
+    isPerformanceMastered: number
+    masteredAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type UserPracticeMasteryAvgAggregateInputType = {
+    recentAverageScore?: true
+    totalPerformanceCount?: true
+  }
+
+  export type UserPracticeMasterySumAggregateInputType = {
+    recentAverageScore?: true
+    totalPerformanceCount?: true
+  }
+
+  export type UserPracticeMasteryMinAggregateInputType = {
+    id?: true
+    userId?: true
+    practiceItemId?: true
+    recentAverageScore?: true
+    totalPerformanceCount?: true
+    isPerformanceMastered?: true
+    masteredAt?: true
+    updatedAt?: true
+  }
+
+  export type UserPracticeMasteryMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    practiceItemId?: true
+    recentAverageScore?: true
+    totalPerformanceCount?: true
+    isPerformanceMastered?: true
+    masteredAt?: true
+    updatedAt?: true
+  }
+
+  export type UserPracticeMasteryCountAggregateInputType = {
+    id?: true
+    userId?: true
+    practiceItemId?: true
+    recentAverageScore?: true
+    totalPerformanceCount?: true
+    isPerformanceMastered?: true
+    masteredAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type UserPracticeMasteryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserPracticeMastery to aggregate.
+     */
+    where?: UserPracticeMasteryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPracticeMasteries to fetch.
+     */
+    orderBy?: UserPracticeMasteryOrderByWithRelationInput | UserPracticeMasteryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserPracticeMasteryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPracticeMasteries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPracticeMasteries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserPracticeMasteries
+    **/
+    _count?: true | UserPracticeMasteryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserPracticeMasteryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserPracticeMasterySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserPracticeMasteryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserPracticeMasteryMaxAggregateInputType
+  }
+
+  export type GetUserPracticeMasteryAggregateType<T extends UserPracticeMasteryAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserPracticeMastery]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserPracticeMastery[P]>
+      : GetScalarType<T[P], AggregateUserPracticeMastery[P]>
+  }
+
+
+
+
+  export type UserPracticeMasteryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserPracticeMasteryWhereInput
+    orderBy?: UserPracticeMasteryOrderByWithAggregationInput | UserPracticeMasteryOrderByWithAggregationInput[]
+    by: UserPracticeMasteryScalarFieldEnum[] | UserPracticeMasteryScalarFieldEnum
+    having?: UserPracticeMasteryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserPracticeMasteryCountAggregateInputType | true
+    _avg?: UserPracticeMasteryAvgAggregateInputType
+    _sum?: UserPracticeMasterySumAggregateInputType
+    _min?: UserPracticeMasteryMinAggregateInputType
+    _max?: UserPracticeMasteryMaxAggregateInputType
+  }
+
+  export type UserPracticeMasteryGroupByOutputType = {
+    id: string
+    userId: string
+    practiceItemId: string
+    recentAverageScore: number | null
+    totalPerformanceCount: number
+    isPerformanceMastered: boolean
+    masteredAt: Date | null
+    updatedAt: Date
+    _count: UserPracticeMasteryCountAggregateOutputType | null
+    _avg: UserPracticeMasteryAvgAggregateOutputType | null
+    _sum: UserPracticeMasterySumAggregateOutputType | null
+    _min: UserPracticeMasteryMinAggregateOutputType | null
+    _max: UserPracticeMasteryMaxAggregateOutputType | null
+  }
+
+  type GetUserPracticeMasteryGroupByPayload<T extends UserPracticeMasteryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserPracticeMasteryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserPracticeMasteryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserPracticeMasteryGroupByOutputType[P]>
+            : GetScalarType<T[P], UserPracticeMasteryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserPracticeMasterySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    practiceItemId?: boolean
+    recentAverageScore?: boolean
+    totalPerformanceCount?: boolean
+    isPerformanceMastered?: boolean
+    masteredAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userPracticeMastery"]>
+
+  export type UserPracticeMasterySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    practiceItemId?: boolean
+    recentAverageScore?: boolean
+    totalPerformanceCount?: boolean
+    isPerformanceMastered?: boolean
+    masteredAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userPracticeMastery"]>
+
+  export type UserPracticeMasterySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    practiceItemId?: boolean
+    recentAverageScore?: boolean
+    totalPerformanceCount?: boolean
+    isPerformanceMastered?: boolean
+    masteredAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userPracticeMastery"]>
+
+  export type UserPracticeMasterySelectScalar = {
+    id?: boolean
+    userId?: boolean
+    practiceItemId?: boolean
+    recentAverageScore?: boolean
+    totalPerformanceCount?: boolean
+    isPerformanceMastered?: boolean
+    masteredAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type UserPracticeMasteryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "practiceItemId" | "recentAverageScore" | "totalPerformanceCount" | "isPerformanceMastered" | "masteredAt" | "updatedAt", ExtArgs["result"]["userPracticeMastery"]>
+  export type UserPracticeMasteryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }
+  export type UserPracticeMasteryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }
+  export type UserPracticeMasteryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }
+
+  export type $UserPracticeMasteryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserPracticeMastery"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      practiceItem: Prisma.$PracticeItemPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      practiceItemId: string
+      recentAverageScore: number | null
+      totalPerformanceCount: number
+      isPerformanceMastered: boolean
+      masteredAt: Date | null
+      updatedAt: Date
+    }, ExtArgs["result"]["userPracticeMastery"]>
+    composites: {}
+  }
+
+  type UserPracticeMasteryGetPayload<S extends boolean | null | undefined | UserPracticeMasteryDefaultArgs> = $Result.GetResult<Prisma.$UserPracticeMasteryPayload, S>
+
+  type UserPracticeMasteryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserPracticeMasteryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserPracticeMasteryCountAggregateInputType | true
+    }
+
+  export interface UserPracticeMasteryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserPracticeMastery'], meta: { name: 'UserPracticeMastery' } }
+    /**
+     * Find zero or one UserPracticeMastery that matches the filter.
+     * @param {UserPracticeMasteryFindUniqueArgs} args - Arguments to find a UserPracticeMastery
+     * @example
+     * // Get one UserPracticeMastery
+     * const userPracticeMastery = await prisma.userPracticeMastery.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserPracticeMasteryFindUniqueArgs>(args: SelectSubset<T, UserPracticeMasteryFindUniqueArgs<ExtArgs>>): Prisma__UserPracticeMasteryClient<$Result.GetResult<Prisma.$UserPracticeMasteryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserPracticeMastery that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserPracticeMasteryFindUniqueOrThrowArgs} args - Arguments to find a UserPracticeMastery
+     * @example
+     * // Get one UserPracticeMastery
+     * const userPracticeMastery = await prisma.userPracticeMastery.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserPracticeMasteryFindUniqueOrThrowArgs>(args: SelectSubset<T, UserPracticeMasteryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserPracticeMasteryClient<$Result.GetResult<Prisma.$UserPracticeMasteryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserPracticeMastery that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPracticeMasteryFindFirstArgs} args - Arguments to find a UserPracticeMastery
+     * @example
+     * // Get one UserPracticeMastery
+     * const userPracticeMastery = await prisma.userPracticeMastery.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserPracticeMasteryFindFirstArgs>(args?: SelectSubset<T, UserPracticeMasteryFindFirstArgs<ExtArgs>>): Prisma__UserPracticeMasteryClient<$Result.GetResult<Prisma.$UserPracticeMasteryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserPracticeMastery that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPracticeMasteryFindFirstOrThrowArgs} args - Arguments to find a UserPracticeMastery
+     * @example
+     * // Get one UserPracticeMastery
+     * const userPracticeMastery = await prisma.userPracticeMastery.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserPracticeMasteryFindFirstOrThrowArgs>(args?: SelectSubset<T, UserPracticeMasteryFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserPracticeMasteryClient<$Result.GetResult<Prisma.$UserPracticeMasteryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserPracticeMasteries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPracticeMasteryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserPracticeMasteries
+     * const userPracticeMasteries = await prisma.userPracticeMastery.findMany()
+     * 
+     * // Get first 10 UserPracticeMasteries
+     * const userPracticeMasteries = await prisma.userPracticeMastery.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userPracticeMasteryWithIdOnly = await prisma.userPracticeMastery.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserPracticeMasteryFindManyArgs>(args?: SelectSubset<T, UserPracticeMasteryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPracticeMasteryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserPracticeMastery.
+     * @param {UserPracticeMasteryCreateArgs} args - Arguments to create a UserPracticeMastery.
+     * @example
+     * // Create one UserPracticeMastery
+     * const UserPracticeMastery = await prisma.userPracticeMastery.create({
+     *   data: {
+     *     // ... data to create a UserPracticeMastery
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserPracticeMasteryCreateArgs>(args: SelectSubset<T, UserPracticeMasteryCreateArgs<ExtArgs>>): Prisma__UserPracticeMasteryClient<$Result.GetResult<Prisma.$UserPracticeMasteryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserPracticeMasteries.
+     * @param {UserPracticeMasteryCreateManyArgs} args - Arguments to create many UserPracticeMasteries.
+     * @example
+     * // Create many UserPracticeMasteries
+     * const userPracticeMastery = await prisma.userPracticeMastery.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserPracticeMasteryCreateManyArgs>(args?: SelectSubset<T, UserPracticeMasteryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserPracticeMasteries and returns the data saved in the database.
+     * @param {UserPracticeMasteryCreateManyAndReturnArgs} args - Arguments to create many UserPracticeMasteries.
+     * @example
+     * // Create many UserPracticeMasteries
+     * const userPracticeMastery = await prisma.userPracticeMastery.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserPracticeMasteries and only return the `id`
+     * const userPracticeMasteryWithIdOnly = await prisma.userPracticeMastery.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserPracticeMasteryCreateManyAndReturnArgs>(args?: SelectSubset<T, UserPracticeMasteryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPracticeMasteryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserPracticeMastery.
+     * @param {UserPracticeMasteryDeleteArgs} args - Arguments to delete one UserPracticeMastery.
+     * @example
+     * // Delete one UserPracticeMastery
+     * const UserPracticeMastery = await prisma.userPracticeMastery.delete({
+     *   where: {
+     *     // ... filter to delete one UserPracticeMastery
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserPracticeMasteryDeleteArgs>(args: SelectSubset<T, UserPracticeMasteryDeleteArgs<ExtArgs>>): Prisma__UserPracticeMasteryClient<$Result.GetResult<Prisma.$UserPracticeMasteryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserPracticeMastery.
+     * @param {UserPracticeMasteryUpdateArgs} args - Arguments to update one UserPracticeMastery.
+     * @example
+     * // Update one UserPracticeMastery
+     * const userPracticeMastery = await prisma.userPracticeMastery.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserPracticeMasteryUpdateArgs>(args: SelectSubset<T, UserPracticeMasteryUpdateArgs<ExtArgs>>): Prisma__UserPracticeMasteryClient<$Result.GetResult<Prisma.$UserPracticeMasteryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserPracticeMasteries.
+     * @param {UserPracticeMasteryDeleteManyArgs} args - Arguments to filter UserPracticeMasteries to delete.
+     * @example
+     * // Delete a few UserPracticeMasteries
+     * const { count } = await prisma.userPracticeMastery.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserPracticeMasteryDeleteManyArgs>(args?: SelectSubset<T, UserPracticeMasteryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserPracticeMasteries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPracticeMasteryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserPracticeMasteries
+     * const userPracticeMastery = await prisma.userPracticeMastery.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserPracticeMasteryUpdateManyArgs>(args: SelectSubset<T, UserPracticeMasteryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserPracticeMasteries and returns the data updated in the database.
+     * @param {UserPracticeMasteryUpdateManyAndReturnArgs} args - Arguments to update many UserPracticeMasteries.
+     * @example
+     * // Update many UserPracticeMasteries
+     * const userPracticeMastery = await prisma.userPracticeMastery.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserPracticeMasteries and only return the `id`
+     * const userPracticeMasteryWithIdOnly = await prisma.userPracticeMastery.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserPracticeMasteryUpdateManyAndReturnArgs>(args: SelectSubset<T, UserPracticeMasteryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPracticeMasteryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserPracticeMastery.
+     * @param {UserPracticeMasteryUpsertArgs} args - Arguments to update or create a UserPracticeMastery.
+     * @example
+     * // Update or create a UserPracticeMastery
+     * const userPracticeMastery = await prisma.userPracticeMastery.upsert({
+     *   create: {
+     *     // ... data to create a UserPracticeMastery
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserPracticeMastery we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserPracticeMasteryUpsertArgs>(args: SelectSubset<T, UserPracticeMasteryUpsertArgs<ExtArgs>>): Prisma__UserPracticeMasteryClient<$Result.GetResult<Prisma.$UserPracticeMasteryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserPracticeMasteries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPracticeMasteryCountArgs} args - Arguments to filter UserPracticeMasteries to count.
+     * @example
+     * // Count the number of UserPracticeMasteries
+     * const count = await prisma.userPracticeMastery.count({
+     *   where: {
+     *     // ... the filter for the UserPracticeMasteries we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserPracticeMasteryCountArgs>(
+      args?: Subset<T, UserPracticeMasteryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserPracticeMasteryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserPracticeMastery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPracticeMasteryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserPracticeMasteryAggregateArgs>(args: Subset<T, UserPracticeMasteryAggregateArgs>): Prisma.PrismaPromise<GetUserPracticeMasteryAggregateType<T>>
+
+    /**
+     * Group by UserPracticeMastery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPracticeMasteryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserPracticeMasteryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserPracticeMasteryGroupByArgs['orderBy'] }
+        : { orderBy?: UserPracticeMasteryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserPracticeMasteryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserPracticeMasteryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserPracticeMastery model
+   */
+  readonly fields: UserPracticeMasteryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserPracticeMastery.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserPracticeMasteryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    practiceItem<T extends PracticeItemDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PracticeItemDefaultArgs<ExtArgs>>): Prisma__PracticeItemClient<$Result.GetResult<Prisma.$PracticeItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserPracticeMastery model
+   */
+  interface UserPracticeMasteryFieldRefs {
+    readonly id: FieldRef<"UserPracticeMastery", 'String'>
+    readonly userId: FieldRef<"UserPracticeMastery", 'String'>
+    readonly practiceItemId: FieldRef<"UserPracticeMastery", 'String'>
+    readonly recentAverageScore: FieldRef<"UserPracticeMastery", 'Float'>
+    readonly totalPerformanceCount: FieldRef<"UserPracticeMastery", 'Int'>
+    readonly isPerformanceMastered: FieldRef<"UserPracticeMastery", 'Boolean'>
+    readonly masteredAt: FieldRef<"UserPracticeMastery", 'DateTime'>
+    readonly updatedAt: FieldRef<"UserPracticeMastery", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserPracticeMastery findUnique
+   */
+  export type UserPracticeMasteryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPracticeMastery to fetch.
+     */
+    where: UserPracticeMasteryWhereUniqueInput
+  }
+
+  /**
+   * UserPracticeMastery findUniqueOrThrow
+   */
+  export type UserPracticeMasteryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPracticeMastery to fetch.
+     */
+    where: UserPracticeMasteryWhereUniqueInput
+  }
+
+  /**
+   * UserPracticeMastery findFirst
+   */
+  export type UserPracticeMasteryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPracticeMastery to fetch.
+     */
+    where?: UserPracticeMasteryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPracticeMasteries to fetch.
+     */
+    orderBy?: UserPracticeMasteryOrderByWithRelationInput | UserPracticeMasteryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserPracticeMasteries.
+     */
+    cursor?: UserPracticeMasteryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPracticeMasteries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPracticeMasteries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserPracticeMasteries.
+     */
+    distinct?: UserPracticeMasteryScalarFieldEnum | UserPracticeMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * UserPracticeMastery findFirstOrThrow
+   */
+  export type UserPracticeMasteryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPracticeMastery to fetch.
+     */
+    where?: UserPracticeMasteryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPracticeMasteries to fetch.
+     */
+    orderBy?: UserPracticeMasteryOrderByWithRelationInput | UserPracticeMasteryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserPracticeMasteries.
+     */
+    cursor?: UserPracticeMasteryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPracticeMasteries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPracticeMasteries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserPracticeMasteries.
+     */
+    distinct?: UserPracticeMasteryScalarFieldEnum | UserPracticeMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * UserPracticeMastery findMany
+   */
+  export type UserPracticeMasteryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which UserPracticeMasteries to fetch.
+     */
+    where?: UserPracticeMasteryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPracticeMasteries to fetch.
+     */
+    orderBy?: UserPracticeMasteryOrderByWithRelationInput | UserPracticeMasteryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserPracticeMasteries.
+     */
+    cursor?: UserPracticeMasteryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPracticeMasteries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPracticeMasteries.
+     */
+    skip?: number
+    distinct?: UserPracticeMasteryScalarFieldEnum | UserPracticeMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * UserPracticeMastery create
+   */
+  export type UserPracticeMasteryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserPracticeMastery.
+     */
+    data: XOR<UserPracticeMasteryCreateInput, UserPracticeMasteryUncheckedCreateInput>
+  }
+
+  /**
+   * UserPracticeMastery createMany
+   */
+  export type UserPracticeMasteryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserPracticeMasteries.
+     */
+    data: UserPracticeMasteryCreateManyInput | UserPracticeMasteryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UserPracticeMastery createManyAndReturn
+   */
+  export type UserPracticeMasteryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserPracticeMasteries.
+     */
+    data: UserPracticeMasteryCreateManyInput | UserPracticeMasteryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserPracticeMastery update
+   */
+  export type UserPracticeMasteryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserPracticeMastery.
+     */
+    data: XOR<UserPracticeMasteryUpdateInput, UserPracticeMasteryUncheckedUpdateInput>
+    /**
+     * Choose, which UserPracticeMastery to update.
+     */
+    where: UserPracticeMasteryWhereUniqueInput
+  }
+
+  /**
+   * UserPracticeMastery updateMany
+   */
+  export type UserPracticeMasteryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserPracticeMasteries.
+     */
+    data: XOR<UserPracticeMasteryUpdateManyMutationInput, UserPracticeMasteryUncheckedUpdateManyInput>
+    /**
+     * Filter which UserPracticeMasteries to update
+     */
+    where?: UserPracticeMasteryWhereInput
+    /**
+     * Limit how many UserPracticeMasteries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserPracticeMastery updateManyAndReturn
+   */
+  export type UserPracticeMasteryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * The data used to update UserPracticeMasteries.
+     */
+    data: XOR<UserPracticeMasteryUpdateManyMutationInput, UserPracticeMasteryUncheckedUpdateManyInput>
+    /**
+     * Filter which UserPracticeMasteries to update
+     */
+    where?: UserPracticeMasteryWhereInput
+    /**
+     * Limit how many UserPracticeMasteries to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserPracticeMastery upsert
+   */
+  export type UserPracticeMasteryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserPracticeMastery to update in case it exists.
+     */
+    where: UserPracticeMasteryWhereUniqueInput
+    /**
+     * In case the UserPracticeMastery found by the `where` argument doesn't exist, create a new UserPracticeMastery with this data.
+     */
+    create: XOR<UserPracticeMasteryCreateInput, UserPracticeMasteryUncheckedCreateInput>
+    /**
+     * In case the UserPracticeMastery was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserPracticeMasteryUpdateInput, UserPracticeMasteryUncheckedUpdateInput>
+  }
+
+  /**
+   * UserPracticeMastery delete
+   */
+  export type UserPracticeMasteryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryInclude<ExtArgs> | null
+    /**
+     * Filter which UserPracticeMastery to delete.
+     */
+    where: UserPracticeMasteryWhereUniqueInput
+  }
+
+  /**
+   * UserPracticeMastery deleteMany
+   */
+  export type UserPracticeMasteryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserPracticeMasteries to delete
+     */
+    where?: UserPracticeMasteryWhereInput
+    /**
+     * Limit how many UserPracticeMasteries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserPracticeMastery without action
+   */
+  export type UserPracticeMasteryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPracticeMastery
+     */
+    select?: UserPracticeMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPracticeMastery
+     */
+    omit?: UserPracticeMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserPracticeMasteryInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserTechniqueMastery
+   */
+
+  export type AggregateUserTechniqueMastery = {
+    _count: UserTechniqueMasteryCountAggregateOutputType | null
+    _min: UserTechniqueMasteryMinAggregateOutputType | null
+    _max: UserTechniqueMasteryMaxAggregateOutputType | null
+  }
+
+  export type UserTechniqueMasteryMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    techniqueTagId: string | null
+    isMastered: boolean | null
+    masteredAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UserTechniqueMasteryMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    techniqueTagId: string | null
+    isMastered: boolean | null
+    masteredAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UserTechniqueMasteryCountAggregateOutputType = {
+    id: number
+    userId: number
+    techniqueTagId: number
+    isMastered: number
+    masteredAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type UserTechniqueMasteryMinAggregateInputType = {
+    id?: true
+    userId?: true
+    techniqueTagId?: true
+    isMastered?: true
+    masteredAt?: true
+    updatedAt?: true
+  }
+
+  export type UserTechniqueMasteryMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    techniqueTagId?: true
+    isMastered?: true
+    masteredAt?: true
+    updatedAt?: true
+  }
+
+  export type UserTechniqueMasteryCountAggregateInputType = {
+    id?: true
+    userId?: true
+    techniqueTagId?: true
+    isMastered?: true
+    masteredAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type UserTechniqueMasteryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserTechniqueMastery to aggregate.
+     */
+    where?: UserTechniqueMasteryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserTechniqueMasteries to fetch.
+     */
+    orderBy?: UserTechniqueMasteryOrderByWithRelationInput | UserTechniqueMasteryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserTechniqueMasteryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserTechniqueMasteries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserTechniqueMasteries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserTechniqueMasteries
+    **/
+    _count?: true | UserTechniqueMasteryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserTechniqueMasteryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserTechniqueMasteryMaxAggregateInputType
+  }
+
+  export type GetUserTechniqueMasteryAggregateType<T extends UserTechniqueMasteryAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserTechniqueMastery]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserTechniqueMastery[P]>
+      : GetScalarType<T[P], AggregateUserTechniqueMastery[P]>
+  }
+
+
+
+
+  export type UserTechniqueMasteryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserTechniqueMasteryWhereInput
+    orderBy?: UserTechniqueMasteryOrderByWithAggregationInput | UserTechniqueMasteryOrderByWithAggregationInput[]
+    by: UserTechniqueMasteryScalarFieldEnum[] | UserTechniqueMasteryScalarFieldEnum
+    having?: UserTechniqueMasteryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserTechniqueMasteryCountAggregateInputType | true
+    _min?: UserTechniqueMasteryMinAggregateInputType
+    _max?: UserTechniqueMasteryMaxAggregateInputType
+  }
+
+  export type UserTechniqueMasteryGroupByOutputType = {
+    id: string
+    userId: string
+    techniqueTagId: string
+    isMastered: boolean
+    masteredAt: Date | null
+    updatedAt: Date
+    _count: UserTechniqueMasteryCountAggregateOutputType | null
+    _min: UserTechniqueMasteryMinAggregateOutputType | null
+    _max: UserTechniqueMasteryMaxAggregateOutputType | null
+  }
+
+  type GetUserTechniqueMasteryGroupByPayload<T extends UserTechniqueMasteryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserTechniqueMasteryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserTechniqueMasteryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserTechniqueMasteryGroupByOutputType[P]>
+            : GetScalarType<T[P], UserTechniqueMasteryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserTechniqueMasterySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    techniqueTagId?: boolean
+    isMastered?: boolean
+    masteredAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    techniqueTag?: boolean | TechniqueTagDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userTechniqueMastery"]>
+
+  export type UserTechniqueMasterySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    techniqueTagId?: boolean
+    isMastered?: boolean
+    masteredAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    techniqueTag?: boolean | TechniqueTagDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userTechniqueMastery"]>
+
+  export type UserTechniqueMasterySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    techniqueTagId?: boolean
+    isMastered?: boolean
+    masteredAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    techniqueTag?: boolean | TechniqueTagDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["userTechniqueMastery"]>
+
+  export type UserTechniqueMasterySelectScalar = {
+    id?: boolean
+    userId?: boolean
+    techniqueTagId?: boolean
+    isMastered?: boolean
+    masteredAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type UserTechniqueMasteryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "techniqueTagId" | "isMastered" | "masteredAt" | "updatedAt", ExtArgs["result"]["userTechniqueMastery"]>
+  export type UserTechniqueMasteryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    techniqueTag?: boolean | TechniqueTagDefaultArgs<ExtArgs>
+  }
+  export type UserTechniqueMasteryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    techniqueTag?: boolean | TechniqueTagDefaultArgs<ExtArgs>
+  }
+  export type UserTechniqueMasteryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    techniqueTag?: boolean | TechniqueTagDefaultArgs<ExtArgs>
+  }
+
+  export type $UserTechniqueMasteryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserTechniqueMastery"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      techniqueTag: Prisma.$TechniqueTagPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      techniqueTagId: string
+      isMastered: boolean
+      masteredAt: Date | null
+      updatedAt: Date
+    }, ExtArgs["result"]["userTechniqueMastery"]>
+    composites: {}
+  }
+
+  type UserTechniqueMasteryGetPayload<S extends boolean | null | undefined | UserTechniqueMasteryDefaultArgs> = $Result.GetResult<Prisma.$UserTechniqueMasteryPayload, S>
+
+  type UserTechniqueMasteryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserTechniqueMasteryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserTechniqueMasteryCountAggregateInputType | true
+    }
+
+  export interface UserTechniqueMasteryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserTechniqueMastery'], meta: { name: 'UserTechniqueMastery' } }
+    /**
+     * Find zero or one UserTechniqueMastery that matches the filter.
+     * @param {UserTechniqueMasteryFindUniqueArgs} args - Arguments to find a UserTechniqueMastery
+     * @example
+     * // Get one UserTechniqueMastery
+     * const userTechniqueMastery = await prisma.userTechniqueMastery.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserTechniqueMasteryFindUniqueArgs>(args: SelectSubset<T, UserTechniqueMasteryFindUniqueArgs<ExtArgs>>): Prisma__UserTechniqueMasteryClient<$Result.GetResult<Prisma.$UserTechniqueMasteryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserTechniqueMastery that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserTechniqueMasteryFindUniqueOrThrowArgs} args - Arguments to find a UserTechniqueMastery
+     * @example
+     * // Get one UserTechniqueMastery
+     * const userTechniqueMastery = await prisma.userTechniqueMastery.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserTechniqueMasteryFindUniqueOrThrowArgs>(args: SelectSubset<T, UserTechniqueMasteryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserTechniqueMasteryClient<$Result.GetResult<Prisma.$UserTechniqueMasteryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserTechniqueMastery that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserTechniqueMasteryFindFirstArgs} args - Arguments to find a UserTechniqueMastery
+     * @example
+     * // Get one UserTechniqueMastery
+     * const userTechniqueMastery = await prisma.userTechniqueMastery.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserTechniqueMasteryFindFirstArgs>(args?: SelectSubset<T, UserTechniqueMasteryFindFirstArgs<ExtArgs>>): Prisma__UserTechniqueMasteryClient<$Result.GetResult<Prisma.$UserTechniqueMasteryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserTechniqueMastery that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserTechniqueMasteryFindFirstOrThrowArgs} args - Arguments to find a UserTechniqueMastery
+     * @example
+     * // Get one UserTechniqueMastery
+     * const userTechniqueMastery = await prisma.userTechniqueMastery.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserTechniqueMasteryFindFirstOrThrowArgs>(args?: SelectSubset<T, UserTechniqueMasteryFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserTechniqueMasteryClient<$Result.GetResult<Prisma.$UserTechniqueMasteryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserTechniqueMasteries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserTechniqueMasteryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserTechniqueMasteries
+     * const userTechniqueMasteries = await prisma.userTechniqueMastery.findMany()
+     * 
+     * // Get first 10 UserTechniqueMasteries
+     * const userTechniqueMasteries = await prisma.userTechniqueMastery.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const userTechniqueMasteryWithIdOnly = await prisma.userTechniqueMastery.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UserTechniqueMasteryFindManyArgs>(args?: SelectSubset<T, UserTechniqueMasteryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserTechniqueMasteryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserTechniqueMastery.
+     * @param {UserTechniqueMasteryCreateArgs} args - Arguments to create a UserTechniqueMastery.
+     * @example
+     * // Create one UserTechniqueMastery
+     * const UserTechniqueMastery = await prisma.userTechniqueMastery.create({
+     *   data: {
+     *     // ... data to create a UserTechniqueMastery
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserTechniqueMasteryCreateArgs>(args: SelectSubset<T, UserTechniqueMasteryCreateArgs<ExtArgs>>): Prisma__UserTechniqueMasteryClient<$Result.GetResult<Prisma.$UserTechniqueMasteryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserTechniqueMasteries.
+     * @param {UserTechniqueMasteryCreateManyArgs} args - Arguments to create many UserTechniqueMasteries.
+     * @example
+     * // Create many UserTechniqueMasteries
+     * const userTechniqueMastery = await prisma.userTechniqueMastery.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserTechniqueMasteryCreateManyArgs>(args?: SelectSubset<T, UserTechniqueMasteryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserTechniqueMasteries and returns the data saved in the database.
+     * @param {UserTechniqueMasteryCreateManyAndReturnArgs} args - Arguments to create many UserTechniqueMasteries.
+     * @example
+     * // Create many UserTechniqueMasteries
+     * const userTechniqueMastery = await prisma.userTechniqueMastery.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserTechniqueMasteries and only return the `id`
+     * const userTechniqueMasteryWithIdOnly = await prisma.userTechniqueMastery.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends UserTechniqueMasteryCreateManyAndReturnArgs>(args?: SelectSubset<T, UserTechniqueMasteryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserTechniqueMasteryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserTechniqueMastery.
+     * @param {UserTechniqueMasteryDeleteArgs} args - Arguments to delete one UserTechniqueMastery.
+     * @example
+     * // Delete one UserTechniqueMastery
+     * const UserTechniqueMastery = await prisma.userTechniqueMastery.delete({
+     *   where: {
+     *     // ... filter to delete one UserTechniqueMastery
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserTechniqueMasteryDeleteArgs>(args: SelectSubset<T, UserTechniqueMasteryDeleteArgs<ExtArgs>>): Prisma__UserTechniqueMasteryClient<$Result.GetResult<Prisma.$UserTechniqueMasteryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserTechniqueMastery.
+     * @param {UserTechniqueMasteryUpdateArgs} args - Arguments to update one UserTechniqueMastery.
+     * @example
+     * // Update one UserTechniqueMastery
+     * const userTechniqueMastery = await prisma.userTechniqueMastery.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserTechniqueMasteryUpdateArgs>(args: SelectSubset<T, UserTechniqueMasteryUpdateArgs<ExtArgs>>): Prisma__UserTechniqueMasteryClient<$Result.GetResult<Prisma.$UserTechniqueMasteryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserTechniqueMasteries.
+     * @param {UserTechniqueMasteryDeleteManyArgs} args - Arguments to filter UserTechniqueMasteries to delete.
+     * @example
+     * // Delete a few UserTechniqueMasteries
+     * const { count } = await prisma.userTechniqueMastery.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserTechniqueMasteryDeleteManyArgs>(args?: SelectSubset<T, UserTechniqueMasteryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserTechniqueMasteries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserTechniqueMasteryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserTechniqueMasteries
+     * const userTechniqueMastery = await prisma.userTechniqueMastery.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserTechniqueMasteryUpdateManyArgs>(args: SelectSubset<T, UserTechniqueMasteryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserTechniqueMasteries and returns the data updated in the database.
+     * @param {UserTechniqueMasteryUpdateManyAndReturnArgs} args - Arguments to update many UserTechniqueMasteries.
+     * @example
+     * // Update many UserTechniqueMasteries
+     * const userTechniqueMastery = await prisma.userTechniqueMastery.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserTechniqueMasteries and only return the `id`
+     * const userTechniqueMasteryWithIdOnly = await prisma.userTechniqueMastery.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserTechniqueMasteryUpdateManyAndReturnArgs>(args: SelectSubset<T, UserTechniqueMasteryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserTechniqueMasteryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserTechniqueMastery.
+     * @param {UserTechniqueMasteryUpsertArgs} args - Arguments to update or create a UserTechniqueMastery.
+     * @example
+     * // Update or create a UserTechniqueMastery
+     * const userTechniqueMastery = await prisma.userTechniqueMastery.upsert({
+     *   create: {
+     *     // ... data to create a UserTechniqueMastery
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserTechniqueMastery we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserTechniqueMasteryUpsertArgs>(args: SelectSubset<T, UserTechniqueMasteryUpsertArgs<ExtArgs>>): Prisma__UserTechniqueMasteryClient<$Result.GetResult<Prisma.$UserTechniqueMasteryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserTechniqueMasteries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserTechniqueMasteryCountArgs} args - Arguments to filter UserTechniqueMasteries to count.
+     * @example
+     * // Count the number of UserTechniqueMasteries
+     * const count = await prisma.userTechniqueMastery.count({
+     *   where: {
+     *     // ... the filter for the UserTechniqueMasteries we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserTechniqueMasteryCountArgs>(
+      args?: Subset<T, UserTechniqueMasteryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserTechniqueMasteryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserTechniqueMastery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserTechniqueMasteryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserTechniqueMasteryAggregateArgs>(args: Subset<T, UserTechniqueMasteryAggregateArgs>): Prisma.PrismaPromise<GetUserTechniqueMasteryAggregateType<T>>
+
+    /**
+     * Group by UserTechniqueMastery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserTechniqueMasteryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserTechniqueMasteryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserTechniqueMasteryGroupByArgs['orderBy'] }
+        : { orderBy?: UserTechniqueMasteryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserTechniqueMasteryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserTechniqueMasteryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserTechniqueMastery model
+   */
+  readonly fields: UserTechniqueMasteryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserTechniqueMastery.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserTechniqueMasteryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    techniqueTag<T extends TechniqueTagDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TechniqueTagDefaultArgs<ExtArgs>>): Prisma__TechniqueTagClient<$Result.GetResult<Prisma.$TechniqueTagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserTechniqueMastery model
+   */
+  interface UserTechniqueMasteryFieldRefs {
+    readonly id: FieldRef<"UserTechniqueMastery", 'String'>
+    readonly userId: FieldRef<"UserTechniqueMastery", 'String'>
+    readonly techniqueTagId: FieldRef<"UserTechniqueMastery", 'String'>
+    readonly isMastered: FieldRef<"UserTechniqueMastery", 'Boolean'>
+    readonly masteredAt: FieldRef<"UserTechniqueMastery", 'DateTime'>
+    readonly updatedAt: FieldRef<"UserTechniqueMastery", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserTechniqueMastery findUnique
+   */
+  export type UserTechniqueMasteryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which UserTechniqueMastery to fetch.
+     */
+    where: UserTechniqueMasteryWhereUniqueInput
+  }
+
+  /**
+   * UserTechniqueMastery findUniqueOrThrow
+   */
+  export type UserTechniqueMasteryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which UserTechniqueMastery to fetch.
+     */
+    where: UserTechniqueMasteryWhereUniqueInput
+  }
+
+  /**
+   * UserTechniqueMastery findFirst
+   */
+  export type UserTechniqueMasteryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which UserTechniqueMastery to fetch.
+     */
+    where?: UserTechniqueMasteryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserTechniqueMasteries to fetch.
+     */
+    orderBy?: UserTechniqueMasteryOrderByWithRelationInput | UserTechniqueMasteryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserTechniqueMasteries.
+     */
+    cursor?: UserTechniqueMasteryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserTechniqueMasteries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserTechniqueMasteries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserTechniqueMasteries.
+     */
+    distinct?: UserTechniqueMasteryScalarFieldEnum | UserTechniqueMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * UserTechniqueMastery findFirstOrThrow
+   */
+  export type UserTechniqueMasteryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which UserTechniqueMastery to fetch.
+     */
+    where?: UserTechniqueMasteryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserTechniqueMasteries to fetch.
+     */
+    orderBy?: UserTechniqueMasteryOrderByWithRelationInput | UserTechniqueMasteryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserTechniqueMasteries.
+     */
+    cursor?: UserTechniqueMasteryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserTechniqueMasteries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserTechniqueMasteries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserTechniqueMasteries.
+     */
+    distinct?: UserTechniqueMasteryScalarFieldEnum | UserTechniqueMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * UserTechniqueMastery findMany
+   */
+  export type UserTechniqueMasteryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryInclude<ExtArgs> | null
+    /**
+     * Filter, which UserTechniqueMasteries to fetch.
+     */
+    where?: UserTechniqueMasteryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserTechniqueMasteries to fetch.
+     */
+    orderBy?: UserTechniqueMasteryOrderByWithRelationInput | UserTechniqueMasteryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserTechniqueMasteries.
+     */
+    cursor?: UserTechniqueMasteryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserTechniqueMasteries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserTechniqueMasteries.
+     */
+    skip?: number
+    distinct?: UserTechniqueMasteryScalarFieldEnum | UserTechniqueMasteryScalarFieldEnum[]
+  }
+
+  /**
+   * UserTechniqueMastery create
+   */
+  export type UserTechniqueMasteryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UserTechniqueMastery.
+     */
+    data: XOR<UserTechniqueMasteryCreateInput, UserTechniqueMasteryUncheckedCreateInput>
+  }
+
+  /**
+   * UserTechniqueMastery createMany
+   */
+  export type UserTechniqueMasteryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserTechniqueMasteries.
+     */
+    data: UserTechniqueMasteryCreateManyInput | UserTechniqueMasteryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * UserTechniqueMastery createManyAndReturn
+   */
+  export type UserTechniqueMasteryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * The data used to create many UserTechniqueMasteries.
+     */
+    data: UserTechniqueMasteryCreateManyInput | UserTechniqueMasteryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserTechniqueMastery update
+   */
+  export type UserTechniqueMasteryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UserTechniqueMastery.
+     */
+    data: XOR<UserTechniqueMasteryUpdateInput, UserTechniqueMasteryUncheckedUpdateInput>
+    /**
+     * Choose, which UserTechniqueMastery to update.
+     */
+    where: UserTechniqueMasteryWhereUniqueInput
+  }
+
+  /**
+   * UserTechniqueMastery updateMany
+   */
+  export type UserTechniqueMasteryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserTechniqueMasteries.
+     */
+    data: XOR<UserTechniqueMasteryUpdateManyMutationInput, UserTechniqueMasteryUncheckedUpdateManyInput>
+    /**
+     * Filter which UserTechniqueMasteries to update
+     */
+    where?: UserTechniqueMasteryWhereInput
+    /**
+     * Limit how many UserTechniqueMasteries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserTechniqueMastery updateManyAndReturn
+   */
+  export type UserTechniqueMasteryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * The data used to update UserTechniqueMasteries.
+     */
+    data: XOR<UserTechniqueMasteryUpdateManyMutationInput, UserTechniqueMasteryUncheckedUpdateManyInput>
+    /**
+     * Filter which UserTechniqueMasteries to update
+     */
+    where?: UserTechniqueMasteryWhereInput
+    /**
+     * Limit how many UserTechniqueMasteries to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * UserTechniqueMastery upsert
+   */
+  export type UserTechniqueMasteryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UserTechniqueMastery to update in case it exists.
+     */
+    where: UserTechniqueMasteryWhereUniqueInput
+    /**
+     * In case the UserTechniqueMastery found by the `where` argument doesn't exist, create a new UserTechniqueMastery with this data.
+     */
+    create: XOR<UserTechniqueMasteryCreateInput, UserTechniqueMasteryUncheckedCreateInput>
+    /**
+     * In case the UserTechniqueMastery was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserTechniqueMasteryUpdateInput, UserTechniqueMasteryUncheckedUpdateInput>
+  }
+
+  /**
+   * UserTechniqueMastery delete
+   */
+  export type UserTechniqueMasteryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryInclude<ExtArgs> | null
+    /**
+     * Filter which UserTechniqueMastery to delete.
+     */
+    where: UserTechniqueMasteryWhereUniqueInput
+  }
+
+  /**
+   * UserTechniqueMastery deleteMany
+   */
+  export type UserTechniqueMasteryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserTechniqueMasteries to delete
+     */
+    where?: UserTechniqueMasteryWhereInput
+    /**
+     * Limit how many UserTechniqueMasteries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserTechniqueMastery without action
+   */
+  export type UserTechniqueMasteryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserTechniqueMastery
+     */
+    select?: UserTechniqueMasterySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserTechniqueMastery
+     */
+    omit?: UserTechniqueMasteryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserTechniqueMasteryInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PracticeItemSubTaskTag
+   */
+
+  export type AggregatePracticeItemSubTaskTag = {
+    _count: PracticeItemSubTaskTagCountAggregateOutputType | null
+    _min: PracticeItemSubTaskTagMinAggregateOutputType | null
+    _max: PracticeItemSubTaskTagMaxAggregateOutputType | null
+  }
+
+  export type PracticeItemSubTaskTagMinAggregateOutputType = {
+    practiceItemId: string | null
+    subTaskType: string | null
+  }
+
+  export type PracticeItemSubTaskTagMaxAggregateOutputType = {
+    practiceItemId: string | null
+    subTaskType: string | null
+  }
+
+  export type PracticeItemSubTaskTagCountAggregateOutputType = {
+    practiceItemId: number
+    subTaskType: number
+    _all: number
+  }
+
+
+  export type PracticeItemSubTaskTagMinAggregateInputType = {
+    practiceItemId?: true
+    subTaskType?: true
+  }
+
+  export type PracticeItemSubTaskTagMaxAggregateInputType = {
+    practiceItemId?: true
+    subTaskType?: true
+  }
+
+  export type PracticeItemSubTaskTagCountAggregateInputType = {
+    practiceItemId?: true
+    subTaskType?: true
+    _all?: true
+  }
+
+  export type PracticeItemSubTaskTagAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PracticeItemSubTaskTag to aggregate.
+     */
+    where?: PracticeItemSubTaskTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PracticeItemSubTaskTags to fetch.
+     */
+    orderBy?: PracticeItemSubTaskTagOrderByWithRelationInput | PracticeItemSubTaskTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PracticeItemSubTaskTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PracticeItemSubTaskTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PracticeItemSubTaskTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PracticeItemSubTaskTags
+    **/
+    _count?: true | PracticeItemSubTaskTagCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PracticeItemSubTaskTagMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PracticeItemSubTaskTagMaxAggregateInputType
+  }
+
+  export type GetPracticeItemSubTaskTagAggregateType<T extends PracticeItemSubTaskTagAggregateArgs> = {
+        [P in keyof T & keyof AggregatePracticeItemSubTaskTag]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePracticeItemSubTaskTag[P]>
+      : GetScalarType<T[P], AggregatePracticeItemSubTaskTag[P]>
+  }
+
+
+
+
+  export type PracticeItemSubTaskTagGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PracticeItemSubTaskTagWhereInput
+    orderBy?: PracticeItemSubTaskTagOrderByWithAggregationInput | PracticeItemSubTaskTagOrderByWithAggregationInput[]
+    by: PracticeItemSubTaskTagScalarFieldEnum[] | PracticeItemSubTaskTagScalarFieldEnum
+    having?: PracticeItemSubTaskTagScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PracticeItemSubTaskTagCountAggregateInputType | true
+    _min?: PracticeItemSubTaskTagMinAggregateInputType
+    _max?: PracticeItemSubTaskTagMaxAggregateInputType
+  }
+
+  export type PracticeItemSubTaskTagGroupByOutputType = {
+    practiceItemId: string
+    subTaskType: string
+    _count: PracticeItemSubTaskTagCountAggregateOutputType | null
+    _min: PracticeItemSubTaskTagMinAggregateOutputType | null
+    _max: PracticeItemSubTaskTagMaxAggregateOutputType | null
+  }
+
+  type GetPracticeItemSubTaskTagGroupByPayload<T extends PracticeItemSubTaskTagGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PracticeItemSubTaskTagGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PracticeItemSubTaskTagGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PracticeItemSubTaskTagGroupByOutputType[P]>
+            : GetScalarType<T[P], PracticeItemSubTaskTagGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PracticeItemSubTaskTagSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    practiceItemId?: boolean
+    subTaskType?: boolean
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["practiceItemSubTaskTag"]>
+
+  export type PracticeItemSubTaskTagSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    practiceItemId?: boolean
+    subTaskType?: boolean
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["practiceItemSubTaskTag"]>
+
+  export type PracticeItemSubTaskTagSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    practiceItemId?: boolean
+    subTaskType?: boolean
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["practiceItemSubTaskTag"]>
+
+  export type PracticeItemSubTaskTagSelectScalar = {
+    practiceItemId?: boolean
+    subTaskType?: boolean
+  }
+
+  export type PracticeItemSubTaskTagOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"practiceItemId" | "subTaskType", ExtArgs["result"]["practiceItemSubTaskTag"]>
+  export type PracticeItemSubTaskTagInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }
+  export type PracticeItemSubTaskTagIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }
+  export type PracticeItemSubTaskTagIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    practiceItem?: boolean | PracticeItemDefaultArgs<ExtArgs>
+  }
+
+  export type $PracticeItemSubTaskTagPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PracticeItemSubTaskTag"
+    objects: {
+      practiceItem: Prisma.$PracticeItemPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      practiceItemId: string
+      subTaskType: string
+    }, ExtArgs["result"]["practiceItemSubTaskTag"]>
+    composites: {}
+  }
+
+  type PracticeItemSubTaskTagGetPayload<S extends boolean | null | undefined | PracticeItemSubTaskTagDefaultArgs> = $Result.GetResult<Prisma.$PracticeItemSubTaskTagPayload, S>
+
+  type PracticeItemSubTaskTagCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PracticeItemSubTaskTagFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PracticeItemSubTaskTagCountAggregateInputType | true
+    }
+
+  export interface PracticeItemSubTaskTagDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PracticeItemSubTaskTag'], meta: { name: 'PracticeItemSubTaskTag' } }
+    /**
+     * Find zero or one PracticeItemSubTaskTag that matches the filter.
+     * @param {PracticeItemSubTaskTagFindUniqueArgs} args - Arguments to find a PracticeItemSubTaskTag
+     * @example
+     * // Get one PracticeItemSubTaskTag
+     * const practiceItemSubTaskTag = await prisma.practiceItemSubTaskTag.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PracticeItemSubTaskTagFindUniqueArgs>(args: SelectSubset<T, PracticeItemSubTaskTagFindUniqueArgs<ExtArgs>>): Prisma__PracticeItemSubTaskTagClient<$Result.GetResult<Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PracticeItemSubTaskTag that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PracticeItemSubTaskTagFindUniqueOrThrowArgs} args - Arguments to find a PracticeItemSubTaskTag
+     * @example
+     * // Get one PracticeItemSubTaskTag
+     * const practiceItemSubTaskTag = await prisma.practiceItemSubTaskTag.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PracticeItemSubTaskTagFindUniqueOrThrowArgs>(args: SelectSubset<T, PracticeItemSubTaskTagFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PracticeItemSubTaskTagClient<$Result.GetResult<Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PracticeItemSubTaskTag that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PracticeItemSubTaskTagFindFirstArgs} args - Arguments to find a PracticeItemSubTaskTag
+     * @example
+     * // Get one PracticeItemSubTaskTag
+     * const practiceItemSubTaskTag = await prisma.practiceItemSubTaskTag.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PracticeItemSubTaskTagFindFirstArgs>(args?: SelectSubset<T, PracticeItemSubTaskTagFindFirstArgs<ExtArgs>>): Prisma__PracticeItemSubTaskTagClient<$Result.GetResult<Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PracticeItemSubTaskTag that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PracticeItemSubTaskTagFindFirstOrThrowArgs} args - Arguments to find a PracticeItemSubTaskTag
+     * @example
+     * // Get one PracticeItemSubTaskTag
+     * const practiceItemSubTaskTag = await prisma.practiceItemSubTaskTag.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PracticeItemSubTaskTagFindFirstOrThrowArgs>(args?: SelectSubset<T, PracticeItemSubTaskTagFindFirstOrThrowArgs<ExtArgs>>): Prisma__PracticeItemSubTaskTagClient<$Result.GetResult<Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PracticeItemSubTaskTags that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PracticeItemSubTaskTagFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PracticeItemSubTaskTags
+     * const practiceItemSubTaskTags = await prisma.practiceItemSubTaskTag.findMany()
+     * 
+     * // Get first 10 PracticeItemSubTaskTags
+     * const practiceItemSubTaskTags = await prisma.practiceItemSubTaskTag.findMany({ take: 10 })
+     * 
+     * // Only select the `practiceItemId`
+     * const practiceItemSubTaskTagWithPracticeItemIdOnly = await prisma.practiceItemSubTaskTag.findMany({ select: { practiceItemId: true } })
+     * 
+     */
+    findMany<T extends PracticeItemSubTaskTagFindManyArgs>(args?: SelectSubset<T, PracticeItemSubTaskTagFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PracticeItemSubTaskTag.
+     * @param {PracticeItemSubTaskTagCreateArgs} args - Arguments to create a PracticeItemSubTaskTag.
+     * @example
+     * // Create one PracticeItemSubTaskTag
+     * const PracticeItemSubTaskTag = await prisma.practiceItemSubTaskTag.create({
+     *   data: {
+     *     // ... data to create a PracticeItemSubTaskTag
+     *   }
+     * })
+     * 
+     */
+    create<T extends PracticeItemSubTaskTagCreateArgs>(args: SelectSubset<T, PracticeItemSubTaskTagCreateArgs<ExtArgs>>): Prisma__PracticeItemSubTaskTagClient<$Result.GetResult<Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PracticeItemSubTaskTags.
+     * @param {PracticeItemSubTaskTagCreateManyArgs} args - Arguments to create many PracticeItemSubTaskTags.
+     * @example
+     * // Create many PracticeItemSubTaskTags
+     * const practiceItemSubTaskTag = await prisma.practiceItemSubTaskTag.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PracticeItemSubTaskTagCreateManyArgs>(args?: SelectSubset<T, PracticeItemSubTaskTagCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PracticeItemSubTaskTags and returns the data saved in the database.
+     * @param {PracticeItemSubTaskTagCreateManyAndReturnArgs} args - Arguments to create many PracticeItemSubTaskTags.
+     * @example
+     * // Create many PracticeItemSubTaskTags
+     * const practiceItemSubTaskTag = await prisma.practiceItemSubTaskTag.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PracticeItemSubTaskTags and only return the `practiceItemId`
+     * const practiceItemSubTaskTagWithPracticeItemIdOnly = await prisma.practiceItemSubTaskTag.createManyAndReturn({
+     *   select: { practiceItemId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PracticeItemSubTaskTagCreateManyAndReturnArgs>(args?: SelectSubset<T, PracticeItemSubTaskTagCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PracticeItemSubTaskTag.
+     * @param {PracticeItemSubTaskTagDeleteArgs} args - Arguments to delete one PracticeItemSubTaskTag.
+     * @example
+     * // Delete one PracticeItemSubTaskTag
+     * const PracticeItemSubTaskTag = await prisma.practiceItemSubTaskTag.delete({
+     *   where: {
+     *     // ... filter to delete one PracticeItemSubTaskTag
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PracticeItemSubTaskTagDeleteArgs>(args: SelectSubset<T, PracticeItemSubTaskTagDeleteArgs<ExtArgs>>): Prisma__PracticeItemSubTaskTagClient<$Result.GetResult<Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PracticeItemSubTaskTag.
+     * @param {PracticeItemSubTaskTagUpdateArgs} args - Arguments to update one PracticeItemSubTaskTag.
+     * @example
+     * // Update one PracticeItemSubTaskTag
+     * const practiceItemSubTaskTag = await prisma.practiceItemSubTaskTag.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PracticeItemSubTaskTagUpdateArgs>(args: SelectSubset<T, PracticeItemSubTaskTagUpdateArgs<ExtArgs>>): Prisma__PracticeItemSubTaskTagClient<$Result.GetResult<Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PracticeItemSubTaskTags.
+     * @param {PracticeItemSubTaskTagDeleteManyArgs} args - Arguments to filter PracticeItemSubTaskTags to delete.
+     * @example
+     * // Delete a few PracticeItemSubTaskTags
+     * const { count } = await prisma.practiceItemSubTaskTag.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PracticeItemSubTaskTagDeleteManyArgs>(args?: SelectSubset<T, PracticeItemSubTaskTagDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PracticeItemSubTaskTags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PracticeItemSubTaskTagUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PracticeItemSubTaskTags
+     * const practiceItemSubTaskTag = await prisma.practiceItemSubTaskTag.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PracticeItemSubTaskTagUpdateManyArgs>(args: SelectSubset<T, PracticeItemSubTaskTagUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PracticeItemSubTaskTags and returns the data updated in the database.
+     * @param {PracticeItemSubTaskTagUpdateManyAndReturnArgs} args - Arguments to update many PracticeItemSubTaskTags.
+     * @example
+     * // Update many PracticeItemSubTaskTags
+     * const practiceItemSubTaskTag = await prisma.practiceItemSubTaskTag.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PracticeItemSubTaskTags and only return the `practiceItemId`
+     * const practiceItemSubTaskTagWithPracticeItemIdOnly = await prisma.practiceItemSubTaskTag.updateManyAndReturn({
+     *   select: { practiceItemId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PracticeItemSubTaskTagUpdateManyAndReturnArgs>(args: SelectSubset<T, PracticeItemSubTaskTagUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PracticeItemSubTaskTag.
+     * @param {PracticeItemSubTaskTagUpsertArgs} args - Arguments to update or create a PracticeItemSubTaskTag.
+     * @example
+     * // Update or create a PracticeItemSubTaskTag
+     * const practiceItemSubTaskTag = await prisma.practiceItemSubTaskTag.upsert({
+     *   create: {
+     *     // ... data to create a PracticeItemSubTaskTag
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PracticeItemSubTaskTag we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PracticeItemSubTaskTagUpsertArgs>(args: SelectSubset<T, PracticeItemSubTaskTagUpsertArgs<ExtArgs>>): Prisma__PracticeItemSubTaskTagClient<$Result.GetResult<Prisma.$PracticeItemSubTaskTagPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PracticeItemSubTaskTags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PracticeItemSubTaskTagCountArgs} args - Arguments to filter PracticeItemSubTaskTags to count.
+     * @example
+     * // Count the number of PracticeItemSubTaskTags
+     * const count = await prisma.practiceItemSubTaskTag.count({
+     *   where: {
+     *     // ... the filter for the PracticeItemSubTaskTags we want to count
+     *   }
+     * })
+    **/
+    count<T extends PracticeItemSubTaskTagCountArgs>(
+      args?: Subset<T, PracticeItemSubTaskTagCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PracticeItemSubTaskTagCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PracticeItemSubTaskTag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PracticeItemSubTaskTagAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PracticeItemSubTaskTagAggregateArgs>(args: Subset<T, PracticeItemSubTaskTagAggregateArgs>): Prisma.PrismaPromise<GetPracticeItemSubTaskTagAggregateType<T>>
+
+    /**
+     * Group by PracticeItemSubTaskTag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PracticeItemSubTaskTagGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PracticeItemSubTaskTagGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PracticeItemSubTaskTagGroupByArgs['orderBy'] }
+        : { orderBy?: PracticeItemSubTaskTagGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PracticeItemSubTaskTagGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPracticeItemSubTaskTagGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PracticeItemSubTaskTag model
+   */
+  readonly fields: PracticeItemSubTaskTagFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PracticeItemSubTaskTag.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PracticeItemSubTaskTagClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    practiceItem<T extends PracticeItemDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PracticeItemDefaultArgs<ExtArgs>>): Prisma__PracticeItemClient<$Result.GetResult<Prisma.$PracticeItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PracticeItemSubTaskTag model
+   */
+  interface PracticeItemSubTaskTagFieldRefs {
+    readonly practiceItemId: FieldRef<"PracticeItemSubTaskTag", 'String'>
+    readonly subTaskType: FieldRef<"PracticeItemSubTaskTag", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PracticeItemSubTaskTag findUnique
+   */
+  export type PracticeItemSubTaskTagFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItemSubTaskTag
+     */
+    select?: PracticeItemSubTaskTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItemSubTaskTag
+     */
+    omit?: PracticeItemSubTaskTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemSubTaskTagInclude<ExtArgs> | null
+    /**
+     * Filter, which PracticeItemSubTaskTag to fetch.
+     */
+    where: PracticeItemSubTaskTagWhereUniqueInput
+  }
+
+  /**
+   * PracticeItemSubTaskTag findUniqueOrThrow
+   */
+  export type PracticeItemSubTaskTagFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItemSubTaskTag
+     */
+    select?: PracticeItemSubTaskTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItemSubTaskTag
+     */
+    omit?: PracticeItemSubTaskTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemSubTaskTagInclude<ExtArgs> | null
+    /**
+     * Filter, which PracticeItemSubTaskTag to fetch.
+     */
+    where: PracticeItemSubTaskTagWhereUniqueInput
+  }
+
+  /**
+   * PracticeItemSubTaskTag findFirst
+   */
+  export type PracticeItemSubTaskTagFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItemSubTaskTag
+     */
+    select?: PracticeItemSubTaskTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItemSubTaskTag
+     */
+    omit?: PracticeItemSubTaskTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemSubTaskTagInclude<ExtArgs> | null
+    /**
+     * Filter, which PracticeItemSubTaskTag to fetch.
+     */
+    where?: PracticeItemSubTaskTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PracticeItemSubTaskTags to fetch.
+     */
+    orderBy?: PracticeItemSubTaskTagOrderByWithRelationInput | PracticeItemSubTaskTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PracticeItemSubTaskTags.
+     */
+    cursor?: PracticeItemSubTaskTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PracticeItemSubTaskTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PracticeItemSubTaskTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PracticeItemSubTaskTags.
+     */
+    distinct?: PracticeItemSubTaskTagScalarFieldEnum | PracticeItemSubTaskTagScalarFieldEnum[]
+  }
+
+  /**
+   * PracticeItemSubTaskTag findFirstOrThrow
+   */
+  export type PracticeItemSubTaskTagFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItemSubTaskTag
+     */
+    select?: PracticeItemSubTaskTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItemSubTaskTag
+     */
+    omit?: PracticeItemSubTaskTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemSubTaskTagInclude<ExtArgs> | null
+    /**
+     * Filter, which PracticeItemSubTaskTag to fetch.
+     */
+    where?: PracticeItemSubTaskTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PracticeItemSubTaskTags to fetch.
+     */
+    orderBy?: PracticeItemSubTaskTagOrderByWithRelationInput | PracticeItemSubTaskTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PracticeItemSubTaskTags.
+     */
+    cursor?: PracticeItemSubTaskTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PracticeItemSubTaskTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PracticeItemSubTaskTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PracticeItemSubTaskTags.
+     */
+    distinct?: PracticeItemSubTaskTagScalarFieldEnum | PracticeItemSubTaskTagScalarFieldEnum[]
+  }
+
+  /**
+   * PracticeItemSubTaskTag findMany
+   */
+  export type PracticeItemSubTaskTagFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItemSubTaskTag
+     */
+    select?: PracticeItemSubTaskTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItemSubTaskTag
+     */
+    omit?: PracticeItemSubTaskTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemSubTaskTagInclude<ExtArgs> | null
+    /**
+     * Filter, which PracticeItemSubTaskTags to fetch.
+     */
+    where?: PracticeItemSubTaskTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PracticeItemSubTaskTags to fetch.
+     */
+    orderBy?: PracticeItemSubTaskTagOrderByWithRelationInput | PracticeItemSubTaskTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PracticeItemSubTaskTags.
+     */
+    cursor?: PracticeItemSubTaskTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PracticeItemSubTaskTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PracticeItemSubTaskTags.
+     */
+    skip?: number
+    distinct?: PracticeItemSubTaskTagScalarFieldEnum | PracticeItemSubTaskTagScalarFieldEnum[]
+  }
+
+  /**
+   * PracticeItemSubTaskTag create
+   */
+  export type PracticeItemSubTaskTagCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItemSubTaskTag
+     */
+    select?: PracticeItemSubTaskTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItemSubTaskTag
+     */
+    omit?: PracticeItemSubTaskTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemSubTaskTagInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PracticeItemSubTaskTag.
+     */
+    data: XOR<PracticeItemSubTaskTagCreateInput, PracticeItemSubTaskTagUncheckedCreateInput>
+  }
+
+  /**
+   * PracticeItemSubTaskTag createMany
+   */
+  export type PracticeItemSubTaskTagCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PracticeItemSubTaskTags.
+     */
+    data: PracticeItemSubTaskTagCreateManyInput | PracticeItemSubTaskTagCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PracticeItemSubTaskTag createManyAndReturn
+   */
+  export type PracticeItemSubTaskTagCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItemSubTaskTag
+     */
+    select?: PracticeItemSubTaskTagSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItemSubTaskTag
+     */
+    omit?: PracticeItemSubTaskTagOmit<ExtArgs> | null
+    /**
+     * The data used to create many PracticeItemSubTaskTags.
+     */
+    data: PracticeItemSubTaskTagCreateManyInput | PracticeItemSubTaskTagCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemSubTaskTagIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PracticeItemSubTaskTag update
+   */
+  export type PracticeItemSubTaskTagUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItemSubTaskTag
+     */
+    select?: PracticeItemSubTaskTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItemSubTaskTag
+     */
+    omit?: PracticeItemSubTaskTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemSubTaskTagInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PracticeItemSubTaskTag.
+     */
+    data: XOR<PracticeItemSubTaskTagUpdateInput, PracticeItemSubTaskTagUncheckedUpdateInput>
+    /**
+     * Choose, which PracticeItemSubTaskTag to update.
+     */
+    where: PracticeItemSubTaskTagWhereUniqueInput
+  }
+
+  /**
+   * PracticeItemSubTaskTag updateMany
+   */
+  export type PracticeItemSubTaskTagUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PracticeItemSubTaskTags.
+     */
+    data: XOR<PracticeItemSubTaskTagUpdateManyMutationInput, PracticeItemSubTaskTagUncheckedUpdateManyInput>
+    /**
+     * Filter which PracticeItemSubTaskTags to update
+     */
+    where?: PracticeItemSubTaskTagWhereInput
+    /**
+     * Limit how many PracticeItemSubTaskTags to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PracticeItemSubTaskTag updateManyAndReturn
+   */
+  export type PracticeItemSubTaskTagUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItemSubTaskTag
+     */
+    select?: PracticeItemSubTaskTagSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItemSubTaskTag
+     */
+    omit?: PracticeItemSubTaskTagOmit<ExtArgs> | null
+    /**
+     * The data used to update PracticeItemSubTaskTags.
+     */
+    data: XOR<PracticeItemSubTaskTagUpdateManyMutationInput, PracticeItemSubTaskTagUncheckedUpdateManyInput>
+    /**
+     * Filter which PracticeItemSubTaskTags to update
+     */
+    where?: PracticeItemSubTaskTagWhereInput
+    /**
+     * Limit how many PracticeItemSubTaskTags to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemSubTaskTagIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PracticeItemSubTaskTag upsert
+   */
+  export type PracticeItemSubTaskTagUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItemSubTaskTag
+     */
+    select?: PracticeItemSubTaskTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItemSubTaskTag
+     */
+    omit?: PracticeItemSubTaskTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemSubTaskTagInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PracticeItemSubTaskTag to update in case it exists.
+     */
+    where: PracticeItemSubTaskTagWhereUniqueInput
+    /**
+     * In case the PracticeItemSubTaskTag found by the `where` argument doesn't exist, create a new PracticeItemSubTaskTag with this data.
+     */
+    create: XOR<PracticeItemSubTaskTagCreateInput, PracticeItemSubTaskTagUncheckedCreateInput>
+    /**
+     * In case the PracticeItemSubTaskTag was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PracticeItemSubTaskTagUpdateInput, PracticeItemSubTaskTagUncheckedUpdateInput>
+  }
+
+  /**
+   * PracticeItemSubTaskTag delete
+   */
+  export type PracticeItemSubTaskTagDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItemSubTaskTag
+     */
+    select?: PracticeItemSubTaskTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItemSubTaskTag
+     */
+    omit?: PracticeItemSubTaskTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemSubTaskTagInclude<ExtArgs> | null
+    /**
+     * Filter which PracticeItemSubTaskTag to delete.
+     */
+    where: PracticeItemSubTaskTagWhereUniqueInput
+  }
+
+  /**
+   * PracticeItemSubTaskTag deleteMany
+   */
+  export type PracticeItemSubTaskTagDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PracticeItemSubTaskTags to delete
+     */
+    where?: PracticeItemSubTaskTagWhereInput
+    /**
+     * Limit how many PracticeItemSubTaskTags to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PracticeItemSubTaskTag without action
+   */
+  export type PracticeItemSubTaskTagDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PracticeItemSubTaskTag
+     */
+    select?: PracticeItemSubTaskTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PracticeItemSubTaskTag
+     */
+    omit?: PracticeItemSubTaskTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PracticeItemSubTaskTagInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model MissingPracticeItemFlag
+   */
+
+  export type AggregateMissingPracticeItemFlag = {
+    _count: MissingPracticeItemFlagCountAggregateOutputType | null
+    _avg: MissingPracticeItemFlagAvgAggregateOutputType | null
+    _sum: MissingPracticeItemFlagSumAggregateOutputType | null
+    _min: MissingPracticeItemFlagMinAggregateOutputType | null
+    _max: MissingPracticeItemFlagMaxAggregateOutputType | null
+  }
+
+  export type MissingPracticeItemFlagAvgAggregateOutputType = {
+    star: number | null
+  }
+
+  export type MissingPracticeItemFlagSumAggregateOutputType = {
+    star: number | null
+  }
+
+  export type MissingPracticeItemFlagMinAggregateOutputType = {
+    id: string | null
+    scoreId: string | null
+    subTaskType: string | null
+    missingCategory: string | null
+    keyTonic: string | null
+    keyMode: string | null
+    star: number | null
+    techniqueTagId: string | null
+    detectedAt: Date | null
+    resolvedAt: Date | null
+  }
+
+  export type MissingPracticeItemFlagMaxAggregateOutputType = {
+    id: string | null
+    scoreId: string | null
+    subTaskType: string | null
+    missingCategory: string | null
+    keyTonic: string | null
+    keyMode: string | null
+    star: number | null
+    techniqueTagId: string | null
+    detectedAt: Date | null
+    resolvedAt: Date | null
+  }
+
+  export type MissingPracticeItemFlagCountAggregateOutputType = {
+    id: number
+    scoreId: number
+    subTaskType: number
+    missingCategory: number
+    keyTonic: number
+    keyMode: number
+    star: number
+    techniqueTagId: number
+    detectedAt: number
+    resolvedAt: number
+    _all: number
+  }
+
+
+  export type MissingPracticeItemFlagAvgAggregateInputType = {
+    star?: true
+  }
+
+  export type MissingPracticeItemFlagSumAggregateInputType = {
+    star?: true
+  }
+
+  export type MissingPracticeItemFlagMinAggregateInputType = {
+    id?: true
+    scoreId?: true
+    subTaskType?: true
+    missingCategory?: true
+    keyTonic?: true
+    keyMode?: true
+    star?: true
+    techniqueTagId?: true
+    detectedAt?: true
+    resolvedAt?: true
+  }
+
+  export type MissingPracticeItemFlagMaxAggregateInputType = {
+    id?: true
+    scoreId?: true
+    subTaskType?: true
+    missingCategory?: true
+    keyTonic?: true
+    keyMode?: true
+    star?: true
+    techniqueTagId?: true
+    detectedAt?: true
+    resolvedAt?: true
+  }
+
+  export type MissingPracticeItemFlagCountAggregateInputType = {
+    id?: true
+    scoreId?: true
+    subTaskType?: true
+    missingCategory?: true
+    keyTonic?: true
+    keyMode?: true
+    star?: true
+    techniqueTagId?: true
+    detectedAt?: true
+    resolvedAt?: true
+    _all?: true
+  }
+
+  export type MissingPracticeItemFlagAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MissingPracticeItemFlag to aggregate.
+     */
+    where?: MissingPracticeItemFlagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MissingPracticeItemFlags to fetch.
+     */
+    orderBy?: MissingPracticeItemFlagOrderByWithRelationInput | MissingPracticeItemFlagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MissingPracticeItemFlagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MissingPracticeItemFlags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MissingPracticeItemFlags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MissingPracticeItemFlags
+    **/
+    _count?: true | MissingPracticeItemFlagCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MissingPracticeItemFlagAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MissingPracticeItemFlagSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MissingPracticeItemFlagMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MissingPracticeItemFlagMaxAggregateInputType
+  }
+
+  export type GetMissingPracticeItemFlagAggregateType<T extends MissingPracticeItemFlagAggregateArgs> = {
+        [P in keyof T & keyof AggregateMissingPracticeItemFlag]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMissingPracticeItemFlag[P]>
+      : GetScalarType<T[P], AggregateMissingPracticeItemFlag[P]>
+  }
+
+
+
+
+  export type MissingPracticeItemFlagGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MissingPracticeItemFlagWhereInput
+    orderBy?: MissingPracticeItemFlagOrderByWithAggregationInput | MissingPracticeItemFlagOrderByWithAggregationInput[]
+    by: MissingPracticeItemFlagScalarFieldEnum[] | MissingPracticeItemFlagScalarFieldEnum
+    having?: MissingPracticeItemFlagScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MissingPracticeItemFlagCountAggregateInputType | true
+    _avg?: MissingPracticeItemFlagAvgAggregateInputType
+    _sum?: MissingPracticeItemFlagSumAggregateInputType
+    _min?: MissingPracticeItemFlagMinAggregateInputType
+    _max?: MissingPracticeItemFlagMaxAggregateInputType
+  }
+
+  export type MissingPracticeItemFlagGroupByOutputType = {
+    id: string
+    scoreId: string
+    subTaskType: string
+    missingCategory: string
+    keyTonic: string
+    keyMode: string
+    star: number
+    techniqueTagId: string | null
+    detectedAt: Date
+    resolvedAt: Date | null
+    _count: MissingPracticeItemFlagCountAggregateOutputType | null
+    _avg: MissingPracticeItemFlagAvgAggregateOutputType | null
+    _sum: MissingPracticeItemFlagSumAggregateOutputType | null
+    _min: MissingPracticeItemFlagMinAggregateOutputType | null
+    _max: MissingPracticeItemFlagMaxAggregateOutputType | null
+  }
+
+  type GetMissingPracticeItemFlagGroupByPayload<T extends MissingPracticeItemFlagGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MissingPracticeItemFlagGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MissingPracticeItemFlagGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MissingPracticeItemFlagGroupByOutputType[P]>
+            : GetScalarType<T[P], MissingPracticeItemFlagGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MissingPracticeItemFlagSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    scoreId?: boolean
+    subTaskType?: boolean
+    missingCategory?: boolean
+    keyTonic?: boolean
+    keyMode?: boolean
+    star?: boolean
+    techniqueTagId?: boolean
+    detectedAt?: boolean
+    resolvedAt?: boolean
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+    techniqueTag?: boolean | MissingPracticeItemFlag$techniqueTagArgs<ExtArgs>
+  }, ExtArgs["result"]["missingPracticeItemFlag"]>
+
+  export type MissingPracticeItemFlagSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    scoreId?: boolean
+    subTaskType?: boolean
+    missingCategory?: boolean
+    keyTonic?: boolean
+    keyMode?: boolean
+    star?: boolean
+    techniqueTagId?: boolean
+    detectedAt?: boolean
+    resolvedAt?: boolean
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+    techniqueTag?: boolean | MissingPracticeItemFlag$techniqueTagArgs<ExtArgs>
+  }, ExtArgs["result"]["missingPracticeItemFlag"]>
+
+  export type MissingPracticeItemFlagSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    scoreId?: boolean
+    subTaskType?: boolean
+    missingCategory?: boolean
+    keyTonic?: boolean
+    keyMode?: boolean
+    star?: boolean
+    techniqueTagId?: boolean
+    detectedAt?: boolean
+    resolvedAt?: boolean
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+    techniqueTag?: boolean | MissingPracticeItemFlag$techniqueTagArgs<ExtArgs>
+  }, ExtArgs["result"]["missingPracticeItemFlag"]>
+
+  export type MissingPracticeItemFlagSelectScalar = {
+    id?: boolean
+    scoreId?: boolean
+    subTaskType?: boolean
+    missingCategory?: boolean
+    keyTonic?: boolean
+    keyMode?: boolean
+    star?: boolean
+    techniqueTagId?: boolean
+    detectedAt?: boolean
+    resolvedAt?: boolean
+  }
+
+  export type MissingPracticeItemFlagOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "scoreId" | "subTaskType" | "missingCategory" | "keyTonic" | "keyMode" | "star" | "techniqueTagId" | "detectedAt" | "resolvedAt", ExtArgs["result"]["missingPracticeItemFlag"]>
+  export type MissingPracticeItemFlagInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+    techniqueTag?: boolean | MissingPracticeItemFlag$techniqueTagArgs<ExtArgs>
+  }
+  export type MissingPracticeItemFlagIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+    techniqueTag?: boolean | MissingPracticeItemFlag$techniqueTagArgs<ExtArgs>
+  }
+  export type MissingPracticeItemFlagIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    score?: boolean | ScoreDefaultArgs<ExtArgs>
+    techniqueTag?: boolean | MissingPracticeItemFlag$techniqueTagArgs<ExtArgs>
+  }
+
+  export type $MissingPracticeItemFlagPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MissingPracticeItemFlag"
+    objects: {
+      score: Prisma.$ScorePayload<ExtArgs>
+      techniqueTag: Prisma.$TechniqueTagPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      scoreId: string
+      subTaskType: string
+      missingCategory: string
+      keyTonic: string
+      keyMode: string
+      star: number
+      techniqueTagId: string | null
+      detectedAt: Date
+      resolvedAt: Date | null
+    }, ExtArgs["result"]["missingPracticeItemFlag"]>
+    composites: {}
+  }
+
+  type MissingPracticeItemFlagGetPayload<S extends boolean | null | undefined | MissingPracticeItemFlagDefaultArgs> = $Result.GetResult<Prisma.$MissingPracticeItemFlagPayload, S>
+
+  type MissingPracticeItemFlagCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MissingPracticeItemFlagFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MissingPracticeItemFlagCountAggregateInputType | true
+    }
+
+  export interface MissingPracticeItemFlagDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MissingPracticeItemFlag'], meta: { name: 'MissingPracticeItemFlag' } }
+    /**
+     * Find zero or one MissingPracticeItemFlag that matches the filter.
+     * @param {MissingPracticeItemFlagFindUniqueArgs} args - Arguments to find a MissingPracticeItemFlag
+     * @example
+     * // Get one MissingPracticeItemFlag
+     * const missingPracticeItemFlag = await prisma.missingPracticeItemFlag.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MissingPracticeItemFlagFindUniqueArgs>(args: SelectSubset<T, MissingPracticeItemFlagFindUniqueArgs<ExtArgs>>): Prisma__MissingPracticeItemFlagClient<$Result.GetResult<Prisma.$MissingPracticeItemFlagPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MissingPracticeItemFlag that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MissingPracticeItemFlagFindUniqueOrThrowArgs} args - Arguments to find a MissingPracticeItemFlag
+     * @example
+     * // Get one MissingPracticeItemFlag
+     * const missingPracticeItemFlag = await prisma.missingPracticeItemFlag.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MissingPracticeItemFlagFindUniqueOrThrowArgs>(args: SelectSubset<T, MissingPracticeItemFlagFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MissingPracticeItemFlagClient<$Result.GetResult<Prisma.$MissingPracticeItemFlagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MissingPracticeItemFlag that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MissingPracticeItemFlagFindFirstArgs} args - Arguments to find a MissingPracticeItemFlag
+     * @example
+     * // Get one MissingPracticeItemFlag
+     * const missingPracticeItemFlag = await prisma.missingPracticeItemFlag.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MissingPracticeItemFlagFindFirstArgs>(args?: SelectSubset<T, MissingPracticeItemFlagFindFirstArgs<ExtArgs>>): Prisma__MissingPracticeItemFlagClient<$Result.GetResult<Prisma.$MissingPracticeItemFlagPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MissingPracticeItemFlag that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MissingPracticeItemFlagFindFirstOrThrowArgs} args - Arguments to find a MissingPracticeItemFlag
+     * @example
+     * // Get one MissingPracticeItemFlag
+     * const missingPracticeItemFlag = await prisma.missingPracticeItemFlag.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MissingPracticeItemFlagFindFirstOrThrowArgs>(args?: SelectSubset<T, MissingPracticeItemFlagFindFirstOrThrowArgs<ExtArgs>>): Prisma__MissingPracticeItemFlagClient<$Result.GetResult<Prisma.$MissingPracticeItemFlagPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MissingPracticeItemFlags that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MissingPracticeItemFlagFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MissingPracticeItemFlags
+     * const missingPracticeItemFlags = await prisma.missingPracticeItemFlag.findMany()
+     * 
+     * // Get first 10 MissingPracticeItemFlags
+     * const missingPracticeItemFlags = await prisma.missingPracticeItemFlag.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const missingPracticeItemFlagWithIdOnly = await prisma.missingPracticeItemFlag.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MissingPracticeItemFlagFindManyArgs>(args?: SelectSubset<T, MissingPracticeItemFlagFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MissingPracticeItemFlagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MissingPracticeItemFlag.
+     * @param {MissingPracticeItemFlagCreateArgs} args - Arguments to create a MissingPracticeItemFlag.
+     * @example
+     * // Create one MissingPracticeItemFlag
+     * const MissingPracticeItemFlag = await prisma.missingPracticeItemFlag.create({
+     *   data: {
+     *     // ... data to create a MissingPracticeItemFlag
+     *   }
+     * })
+     * 
+     */
+    create<T extends MissingPracticeItemFlagCreateArgs>(args: SelectSubset<T, MissingPracticeItemFlagCreateArgs<ExtArgs>>): Prisma__MissingPracticeItemFlagClient<$Result.GetResult<Prisma.$MissingPracticeItemFlagPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MissingPracticeItemFlags.
+     * @param {MissingPracticeItemFlagCreateManyArgs} args - Arguments to create many MissingPracticeItemFlags.
+     * @example
+     * // Create many MissingPracticeItemFlags
+     * const missingPracticeItemFlag = await prisma.missingPracticeItemFlag.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MissingPracticeItemFlagCreateManyArgs>(args?: SelectSubset<T, MissingPracticeItemFlagCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MissingPracticeItemFlags and returns the data saved in the database.
+     * @param {MissingPracticeItemFlagCreateManyAndReturnArgs} args - Arguments to create many MissingPracticeItemFlags.
+     * @example
+     * // Create many MissingPracticeItemFlags
+     * const missingPracticeItemFlag = await prisma.missingPracticeItemFlag.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MissingPracticeItemFlags and only return the `id`
+     * const missingPracticeItemFlagWithIdOnly = await prisma.missingPracticeItemFlag.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MissingPracticeItemFlagCreateManyAndReturnArgs>(args?: SelectSubset<T, MissingPracticeItemFlagCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MissingPracticeItemFlagPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a MissingPracticeItemFlag.
+     * @param {MissingPracticeItemFlagDeleteArgs} args - Arguments to delete one MissingPracticeItemFlag.
+     * @example
+     * // Delete one MissingPracticeItemFlag
+     * const MissingPracticeItemFlag = await prisma.missingPracticeItemFlag.delete({
+     *   where: {
+     *     // ... filter to delete one MissingPracticeItemFlag
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MissingPracticeItemFlagDeleteArgs>(args: SelectSubset<T, MissingPracticeItemFlagDeleteArgs<ExtArgs>>): Prisma__MissingPracticeItemFlagClient<$Result.GetResult<Prisma.$MissingPracticeItemFlagPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MissingPracticeItemFlag.
+     * @param {MissingPracticeItemFlagUpdateArgs} args - Arguments to update one MissingPracticeItemFlag.
+     * @example
+     * // Update one MissingPracticeItemFlag
+     * const missingPracticeItemFlag = await prisma.missingPracticeItemFlag.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MissingPracticeItemFlagUpdateArgs>(args: SelectSubset<T, MissingPracticeItemFlagUpdateArgs<ExtArgs>>): Prisma__MissingPracticeItemFlagClient<$Result.GetResult<Prisma.$MissingPracticeItemFlagPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MissingPracticeItemFlags.
+     * @param {MissingPracticeItemFlagDeleteManyArgs} args - Arguments to filter MissingPracticeItemFlags to delete.
+     * @example
+     * // Delete a few MissingPracticeItemFlags
+     * const { count } = await prisma.missingPracticeItemFlag.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MissingPracticeItemFlagDeleteManyArgs>(args?: SelectSubset<T, MissingPracticeItemFlagDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MissingPracticeItemFlags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MissingPracticeItemFlagUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MissingPracticeItemFlags
+     * const missingPracticeItemFlag = await prisma.missingPracticeItemFlag.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MissingPracticeItemFlagUpdateManyArgs>(args: SelectSubset<T, MissingPracticeItemFlagUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MissingPracticeItemFlags and returns the data updated in the database.
+     * @param {MissingPracticeItemFlagUpdateManyAndReturnArgs} args - Arguments to update many MissingPracticeItemFlags.
+     * @example
+     * // Update many MissingPracticeItemFlags
+     * const missingPracticeItemFlag = await prisma.missingPracticeItemFlag.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more MissingPracticeItemFlags and only return the `id`
+     * const missingPracticeItemFlagWithIdOnly = await prisma.missingPracticeItemFlag.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MissingPracticeItemFlagUpdateManyAndReturnArgs>(args: SelectSubset<T, MissingPracticeItemFlagUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MissingPracticeItemFlagPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one MissingPracticeItemFlag.
+     * @param {MissingPracticeItemFlagUpsertArgs} args - Arguments to update or create a MissingPracticeItemFlag.
+     * @example
+     * // Update or create a MissingPracticeItemFlag
+     * const missingPracticeItemFlag = await prisma.missingPracticeItemFlag.upsert({
+     *   create: {
+     *     // ... data to create a MissingPracticeItemFlag
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MissingPracticeItemFlag we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MissingPracticeItemFlagUpsertArgs>(args: SelectSubset<T, MissingPracticeItemFlagUpsertArgs<ExtArgs>>): Prisma__MissingPracticeItemFlagClient<$Result.GetResult<Prisma.$MissingPracticeItemFlagPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of MissingPracticeItemFlags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MissingPracticeItemFlagCountArgs} args - Arguments to filter MissingPracticeItemFlags to count.
+     * @example
+     * // Count the number of MissingPracticeItemFlags
+     * const count = await prisma.missingPracticeItemFlag.count({
+     *   where: {
+     *     // ... the filter for the MissingPracticeItemFlags we want to count
+     *   }
+     * })
+    **/
+    count<T extends MissingPracticeItemFlagCountArgs>(
+      args?: Subset<T, MissingPracticeItemFlagCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MissingPracticeItemFlagCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MissingPracticeItemFlag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MissingPracticeItemFlagAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MissingPracticeItemFlagAggregateArgs>(args: Subset<T, MissingPracticeItemFlagAggregateArgs>): Prisma.PrismaPromise<GetMissingPracticeItemFlagAggregateType<T>>
+
+    /**
+     * Group by MissingPracticeItemFlag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MissingPracticeItemFlagGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MissingPracticeItemFlagGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MissingPracticeItemFlagGroupByArgs['orderBy'] }
+        : { orderBy?: MissingPracticeItemFlagGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MissingPracticeItemFlagGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMissingPracticeItemFlagGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MissingPracticeItemFlag model
+   */
+  readonly fields: MissingPracticeItemFlagFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MissingPracticeItemFlag.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MissingPracticeItemFlagClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    score<T extends ScoreDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ScoreDefaultArgs<ExtArgs>>): Prisma__ScoreClient<$Result.GetResult<Prisma.$ScorePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    techniqueTag<T extends MissingPracticeItemFlag$techniqueTagArgs<ExtArgs> = {}>(args?: Subset<T, MissingPracticeItemFlag$techniqueTagArgs<ExtArgs>>): Prisma__TechniqueTagClient<$Result.GetResult<Prisma.$TechniqueTagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MissingPracticeItemFlag model
+   */
+  interface MissingPracticeItemFlagFieldRefs {
+    readonly id: FieldRef<"MissingPracticeItemFlag", 'String'>
+    readonly scoreId: FieldRef<"MissingPracticeItemFlag", 'String'>
+    readonly subTaskType: FieldRef<"MissingPracticeItemFlag", 'String'>
+    readonly missingCategory: FieldRef<"MissingPracticeItemFlag", 'String'>
+    readonly keyTonic: FieldRef<"MissingPracticeItemFlag", 'String'>
+    readonly keyMode: FieldRef<"MissingPracticeItemFlag", 'String'>
+    readonly star: FieldRef<"MissingPracticeItemFlag", 'Int'>
+    readonly techniqueTagId: FieldRef<"MissingPracticeItemFlag", 'String'>
+    readonly detectedAt: FieldRef<"MissingPracticeItemFlag", 'DateTime'>
+    readonly resolvedAt: FieldRef<"MissingPracticeItemFlag", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MissingPracticeItemFlag findUnique
+   */
+  export type MissingPracticeItemFlagFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagInclude<ExtArgs> | null
+    /**
+     * Filter, which MissingPracticeItemFlag to fetch.
+     */
+    where: MissingPracticeItemFlagWhereUniqueInput
+  }
+
+  /**
+   * MissingPracticeItemFlag findUniqueOrThrow
+   */
+  export type MissingPracticeItemFlagFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagInclude<ExtArgs> | null
+    /**
+     * Filter, which MissingPracticeItemFlag to fetch.
+     */
+    where: MissingPracticeItemFlagWhereUniqueInput
+  }
+
+  /**
+   * MissingPracticeItemFlag findFirst
+   */
+  export type MissingPracticeItemFlagFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagInclude<ExtArgs> | null
+    /**
+     * Filter, which MissingPracticeItemFlag to fetch.
+     */
+    where?: MissingPracticeItemFlagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MissingPracticeItemFlags to fetch.
+     */
+    orderBy?: MissingPracticeItemFlagOrderByWithRelationInput | MissingPracticeItemFlagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MissingPracticeItemFlags.
+     */
+    cursor?: MissingPracticeItemFlagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MissingPracticeItemFlags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MissingPracticeItemFlags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MissingPracticeItemFlags.
+     */
+    distinct?: MissingPracticeItemFlagScalarFieldEnum | MissingPracticeItemFlagScalarFieldEnum[]
+  }
+
+  /**
+   * MissingPracticeItemFlag findFirstOrThrow
+   */
+  export type MissingPracticeItemFlagFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagInclude<ExtArgs> | null
+    /**
+     * Filter, which MissingPracticeItemFlag to fetch.
+     */
+    where?: MissingPracticeItemFlagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MissingPracticeItemFlags to fetch.
+     */
+    orderBy?: MissingPracticeItemFlagOrderByWithRelationInput | MissingPracticeItemFlagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MissingPracticeItemFlags.
+     */
+    cursor?: MissingPracticeItemFlagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MissingPracticeItemFlags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MissingPracticeItemFlags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MissingPracticeItemFlags.
+     */
+    distinct?: MissingPracticeItemFlagScalarFieldEnum | MissingPracticeItemFlagScalarFieldEnum[]
+  }
+
+  /**
+   * MissingPracticeItemFlag findMany
+   */
+  export type MissingPracticeItemFlagFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagInclude<ExtArgs> | null
+    /**
+     * Filter, which MissingPracticeItemFlags to fetch.
+     */
+    where?: MissingPracticeItemFlagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MissingPracticeItemFlags to fetch.
+     */
+    orderBy?: MissingPracticeItemFlagOrderByWithRelationInput | MissingPracticeItemFlagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MissingPracticeItemFlags.
+     */
+    cursor?: MissingPracticeItemFlagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MissingPracticeItemFlags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MissingPracticeItemFlags.
+     */
+    skip?: number
+    distinct?: MissingPracticeItemFlagScalarFieldEnum | MissingPracticeItemFlagScalarFieldEnum[]
+  }
+
+  /**
+   * MissingPracticeItemFlag create
+   */
+  export type MissingPracticeItemFlagCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MissingPracticeItemFlag.
+     */
+    data: XOR<MissingPracticeItemFlagCreateInput, MissingPracticeItemFlagUncheckedCreateInput>
+  }
+
+  /**
+   * MissingPracticeItemFlag createMany
+   */
+  export type MissingPracticeItemFlagCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MissingPracticeItemFlags.
+     */
+    data: MissingPracticeItemFlagCreateManyInput | MissingPracticeItemFlagCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MissingPracticeItemFlag createManyAndReturn
+   */
+  export type MissingPracticeItemFlagCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * The data used to create many MissingPracticeItemFlags.
+     */
+    data: MissingPracticeItemFlagCreateManyInput | MissingPracticeItemFlagCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MissingPracticeItemFlag update
+   */
+  export type MissingPracticeItemFlagUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MissingPracticeItemFlag.
+     */
+    data: XOR<MissingPracticeItemFlagUpdateInput, MissingPracticeItemFlagUncheckedUpdateInput>
+    /**
+     * Choose, which MissingPracticeItemFlag to update.
+     */
+    where: MissingPracticeItemFlagWhereUniqueInput
+  }
+
+  /**
+   * MissingPracticeItemFlag updateMany
+   */
+  export type MissingPracticeItemFlagUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MissingPracticeItemFlags.
+     */
+    data: XOR<MissingPracticeItemFlagUpdateManyMutationInput, MissingPracticeItemFlagUncheckedUpdateManyInput>
+    /**
+     * Filter which MissingPracticeItemFlags to update
+     */
+    where?: MissingPracticeItemFlagWhereInput
+    /**
+     * Limit how many MissingPracticeItemFlags to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MissingPracticeItemFlag updateManyAndReturn
+   */
+  export type MissingPracticeItemFlagUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * The data used to update MissingPracticeItemFlags.
+     */
+    data: XOR<MissingPracticeItemFlagUpdateManyMutationInput, MissingPracticeItemFlagUncheckedUpdateManyInput>
+    /**
+     * Filter which MissingPracticeItemFlags to update
+     */
+    where?: MissingPracticeItemFlagWhereInput
+    /**
+     * Limit how many MissingPracticeItemFlags to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MissingPracticeItemFlag upsert
+   */
+  export type MissingPracticeItemFlagUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MissingPracticeItemFlag to update in case it exists.
+     */
+    where: MissingPracticeItemFlagWhereUniqueInput
+    /**
+     * In case the MissingPracticeItemFlag found by the `where` argument doesn't exist, create a new MissingPracticeItemFlag with this data.
+     */
+    create: XOR<MissingPracticeItemFlagCreateInput, MissingPracticeItemFlagUncheckedCreateInput>
+    /**
+     * In case the MissingPracticeItemFlag was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MissingPracticeItemFlagUpdateInput, MissingPracticeItemFlagUncheckedUpdateInput>
+  }
+
+  /**
+   * MissingPracticeItemFlag delete
+   */
+  export type MissingPracticeItemFlagDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagInclude<ExtArgs> | null
+    /**
+     * Filter which MissingPracticeItemFlag to delete.
+     */
+    where: MissingPracticeItemFlagWhereUniqueInput
+  }
+
+  /**
+   * MissingPracticeItemFlag deleteMany
+   */
+  export type MissingPracticeItemFlagDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MissingPracticeItemFlags to delete
+     */
+    where?: MissingPracticeItemFlagWhereInput
+    /**
+     * Limit how many MissingPracticeItemFlags to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MissingPracticeItemFlag.techniqueTag
+   */
+  export type MissingPracticeItemFlag$techniqueTagArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TechniqueTag
+     */
+    select?: TechniqueTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TechniqueTag
+     */
+    omit?: TechniqueTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TechniqueTagInclude<ExtArgs> | null
+    where?: TechniqueTagWhereInput
+  }
+
+  /**
+   * MissingPracticeItemFlag without action
+   */
+  export type MissingPracticeItemFlagDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MissingPracticeItemFlag
+     */
+    select?: MissingPracticeItemFlagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MissingPracticeItemFlag
+     */
+    omit?: MissingPracticeItemFlagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MissingPracticeItemFlagInclude<ExtArgs> | null
   }
 
 
@@ -20838,6 +32539,7 @@ export namespace Prisma {
     isShared: 'isShared',
     difficulty: 'difficulty',
     skillSubTaskTags: 'skillSubTaskTags',
+    ownerScope: 'ownerScope',
     createdAt: 'createdAt',
     deletedAt: 'deletedAt'
   };
@@ -20865,6 +32567,13 @@ export namespace Prisma {
     overallScore: 'overallScore',
     evaluatedNotes: 'evaluatedNotes',
     analysisSummary: 'analysisSummary',
+    rhythmAccuracy: 'rhythmAccuracy',
+    bowingAccuracy: 'bowingAccuracy',
+    pitchSkillScore: 'pitchSkillScore',
+    rhythmSkillScore: 'rhythmSkillScore',
+    bowingSkillScore: 'bowingSkillScore',
+    skillSubScores: 'skillSubScores',
+    problematicPositions: 'problematicPositions',
     analysisStatus: 'analysisStatus',
     retryCount: 'retryCount',
     errorMessage: 'errorMessage',
@@ -20950,6 +32659,8 @@ export namespace Prisma {
     overallScore: 'overallScore',
     evaluatedNotes: 'evaluatedNotes',
     analysisSummary: 'analysisSummary',
+    rhythmAccuracy: 'rhythmAccuracy',
+    bowingAccuracy: 'bowingAccuracy',
     analysisStatus: 'analysisStatus',
     retryCount: 'retryCount',
     errorMessage: 'errorMessage',
@@ -21067,6 +32778,7 @@ export namespace Prisma {
   export const PerformanceSkillFeedbackScalarFieldEnum: {
     id: 'id',
     practicePerformanceId: 'practicePerformanceId',
+    performanceId: 'performanceId',
     userId: 'userId',
     positionId: 'positionId',
     selectedSubTaskId: 'selectedSubTaskId',
@@ -21076,6 +32788,127 @@ export namespace Prisma {
   };
 
   export type PerformanceSkillFeedbackScalarFieldEnum = (typeof PerformanceSkillFeedbackScalarFieldEnum)[keyof typeof PerformanceSkillFeedbackScalarFieldEnum]
+
+
+  export const SongMasteryScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    scoreId: 'scoreId',
+    recentAverageScore: 'recentAverageScore',
+    totalPerformanceCount: 'totalPerformanceCount',
+    isPerformanceMastered: 'isPerformanceMastered',
+    isFullyMastered: 'isFullyMastered',
+    performanceMasteredAt: 'performanceMasteredAt',
+    fullyMasteredAt: 'fullyMasteredAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SongMasteryScalarFieldEnum = (typeof SongMasteryScalarFieldEnum)[keyof typeof SongMasteryScalarFieldEnum]
+
+
+  export const UserGradeProgressScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    currentStar: 'currentStar',
+    currentGrade: 'currentGrade',
+    masteredSongCountAtCurrentStar: 'masteredSongCountAtCurrentStar',
+    masterReachedAt: 'masterReachedAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type UserGradeProgressScalarFieldEnum = (typeof UserGradeProgressScalarFieldEnum)[keyof typeof UserGradeProgressScalarFieldEnum]
+
+
+  export const SkillTaskCardScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    scoreId: 'scoreId',
+    taskCategory: 'taskCategory',
+    status: 'status',
+    generatedAt: 'generatedAt',
+    lastMatchedAt: 'lastMatchedAt',
+    clearedAt: 'clearedAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SkillTaskCardScalarFieldEnum = (typeof SkillTaskCardScalarFieldEnum)[keyof typeof SkillTaskCardScalarFieldEnum]
+
+
+  export const SubTaskScalarFieldEnum: {
+    id: 'id',
+    skillTaskCardId: 'skillTaskCardId',
+    subTaskType: 'subTaskType',
+    status: 'status',
+    generatedAt: 'generatedAt',
+    clearedAt: 'clearedAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SubTaskScalarFieldEnum = (typeof SubTaskScalarFieldEnum)[keyof typeof SubTaskScalarFieldEnum]
+
+
+  export const SubTaskAssignmentScalarFieldEnum: {
+    id: 'id',
+    subTaskId: 'subTaskId',
+    practiceItemId: 'practiceItemId',
+    assignedCategory: 'assignedCategory',
+    isMastered: 'isMastered',
+    masteredAt: 'masteredAt',
+    assignedAt: 'assignedAt'
+  };
+
+  export type SubTaskAssignmentScalarFieldEnum = (typeof SubTaskAssignmentScalarFieldEnum)[keyof typeof SubTaskAssignmentScalarFieldEnum]
+
+
+  export const UserPracticeMasteryScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    practiceItemId: 'practiceItemId',
+    recentAverageScore: 'recentAverageScore',
+    totalPerformanceCount: 'totalPerformanceCount',
+    isPerformanceMastered: 'isPerformanceMastered',
+    masteredAt: 'masteredAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type UserPracticeMasteryScalarFieldEnum = (typeof UserPracticeMasteryScalarFieldEnum)[keyof typeof UserPracticeMasteryScalarFieldEnum]
+
+
+  export const UserTechniqueMasteryScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    techniqueTagId: 'techniqueTagId',
+    isMastered: 'isMastered',
+    masteredAt: 'masteredAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type UserTechniqueMasteryScalarFieldEnum = (typeof UserTechniqueMasteryScalarFieldEnum)[keyof typeof UserTechniqueMasteryScalarFieldEnum]
+
+
+  export const PracticeItemSubTaskTagScalarFieldEnum: {
+    practiceItemId: 'practiceItemId',
+    subTaskType: 'subTaskType'
+  };
+
+  export type PracticeItemSubTaskTagScalarFieldEnum = (typeof PracticeItemSubTaskTagScalarFieldEnum)[keyof typeof PracticeItemSubTaskTagScalarFieldEnum]
+
+
+  export const MissingPracticeItemFlagScalarFieldEnum: {
+    id: 'id',
+    scoreId: 'scoreId',
+    subTaskType: 'subTaskType',
+    missingCategory: 'missingCategory',
+    keyTonic: 'keyTonic',
+    keyMode: 'keyMode',
+    star: 'star',
+    techniqueTagId: 'techniqueTagId',
+    detectedAt: 'detectedAt',
+    resolvedAt: 'resolvedAt'
+  };
+
+  export type MissingPracticeItemFlagScalarFieldEnum = (typeof MissingPracticeItemFlagScalarFieldEnum)[keyof typeof MissingPracticeItemFlagScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -21349,6 +33182,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardListRelationFilter
     userGrade?: XOR<UserGradeNullableScalarRelationFilter, UserGradeWhereInput> | null
     performanceSkillFeedbacks?: PerformanceSkillFeedbackListRelationFilter
+    songMasteries?: SongMasteryListRelationFilter
+    userGradeProgress?: XOR<UserGradeProgressNullableScalarRelationFilter, UserGradeProgressWhereInput> | null
+    skillTaskCards?: SkillTaskCardListRelationFilter
+    userPracticeMasteries?: UserPracticeMasteryListRelationFilter
+    userTechniqueMasteries?: UserTechniqueMasteryListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -21374,6 +33212,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardOrderByRelationAggregateInput
     userGrade?: UserGradeOrderByWithRelationInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackOrderByRelationAggregateInput
+    songMasteries?: SongMasteryOrderByRelationAggregateInput
+    userGradeProgress?: UserGradeProgressOrderByWithRelationInput
+    skillTaskCards?: SkillTaskCardOrderByRelationAggregateInput
+    userPracticeMasteries?: UserPracticeMasteryOrderByRelationAggregateInput
+    userTechniqueMasteries?: UserTechniqueMasteryOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -21402,6 +33245,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardListRelationFilter
     userGrade?: XOR<UserGradeNullableScalarRelationFilter, UserGradeWhereInput> | null
     performanceSkillFeedbacks?: PerformanceSkillFeedbackListRelationFilter
+    songMasteries?: SongMasteryListRelationFilter
+    userGradeProgress?: XOR<UserGradeProgressNullableScalarRelationFilter, UserGradeProgressWhereInput> | null
+    skillTaskCards?: SkillTaskCardListRelationFilter
+    userPracticeMasteries?: UserPracticeMasteryListRelationFilter
+    userTechniqueMasteries?: UserTechniqueMasteryListRelationFilter
   }, "id" | "supabaseUserId">
 
   export type UserOrderByWithAggregationInput = {
@@ -21462,9 +33310,13 @@ export namespace Prisma {
     isShared?: BoolFilter<"Score"> | boolean
     difficulty?: IntNullableFilter<"Score"> | number | null
     skillSubTaskTags?: JsonNullableFilter<"Score">
+    ownerScope?: StringFilter<"Score"> | string
     createdAt?: DateTimeFilter<"Score"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Score"> | Date | string | null
     performances?: PerformanceListRelationFilter
+    songMasteries?: SongMasteryListRelationFilter
+    skillTaskCards?: SkillTaskCardListRelationFilter
+    missingPracticeItemFlags?: MissingPracticeItemFlagListRelationFilter
     createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
@@ -21491,9 +33343,13 @@ export namespace Prisma {
     isShared?: SortOrder
     difficulty?: SortOrderInput | SortOrder
     skillSubTaskTags?: SortOrderInput | SortOrder
+    ownerScope?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
     performances?: PerformanceOrderByRelationAggregateInput
+    songMasteries?: SongMasteryOrderByRelationAggregateInput
+    skillTaskCards?: SkillTaskCardOrderByRelationAggregateInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagOrderByRelationAggregateInput
     createdBy?: UserOrderByWithRelationInput
   }
 
@@ -21523,9 +33379,13 @@ export namespace Prisma {
     isShared?: BoolFilter<"Score"> | boolean
     difficulty?: IntNullableFilter<"Score"> | number | null
     skillSubTaskTags?: JsonNullableFilter<"Score">
+    ownerScope?: StringFilter<"Score"> | string
     createdAt?: DateTimeFilter<"Score"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Score"> | Date | string | null
     performances?: PerformanceListRelationFilter
+    songMasteries?: SongMasteryListRelationFilter
+    skillTaskCards?: SkillTaskCardListRelationFilter
+    missingPracticeItemFlags?: MissingPracticeItemFlagListRelationFilter
     createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id" | "idempotencyKey">
 
@@ -21552,6 +33412,7 @@ export namespace Prisma {
     isShared?: SortOrder
     difficulty?: SortOrderInput | SortOrder
     skillSubTaskTags?: SortOrderInput | SortOrder
+    ownerScope?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
     _count?: ScoreCountOrderByAggregateInput
@@ -21587,6 +33448,7 @@ export namespace Prisma {
     isShared?: BoolWithAggregatesFilter<"Score"> | boolean
     difficulty?: IntNullableWithAggregatesFilter<"Score"> | number | null
     skillSubTaskTags?: JsonNullableWithAggregatesFilter<"Score">
+    ownerScope?: StringWithAggregatesFilter<"Score"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Score"> | Date | string
     deletedAt?: DateTimeNullableWithAggregatesFilter<"Score"> | Date | string | null
   }
@@ -21614,6 +33476,13 @@ export namespace Prisma {
     overallScore?: FloatNullableFilter<"Performance"> | number | null
     evaluatedNotes?: IntNullableFilter<"Performance"> | number | null
     analysisSummary?: JsonNullableFilter<"Performance">
+    rhythmAccuracy?: FloatNullableFilter<"Performance"> | number | null
+    bowingAccuracy?: FloatNullableFilter<"Performance"> | number | null
+    pitchSkillScore?: FloatNullableFilter<"Performance"> | number | null
+    rhythmSkillScore?: FloatNullableFilter<"Performance"> | number | null
+    bowingSkillScore?: FloatNullableFilter<"Performance"> | number | null
+    skillSubScores?: JsonNullableFilter<"Performance">
+    problematicPositions?: JsonNullableFilter<"Performance">
     analysisStatus?: EnumJobStatusFilter<"Performance"> | $Enums.JobStatus
     retryCount?: IntFilter<"Performance"> | number
     errorMessage?: StringNullableFilter<"Performance"> | string | null
@@ -21622,6 +33491,7 @@ export namespace Prisma {
     idempotencyKey?: StringNullableFilter<"Performance"> | string | null
     score?: XOR<ScoreScalarRelationFilter, ScoreWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    skillFeedbacks?: PerformanceSkillFeedbackListRelationFilter
   }
 
   export type PerformanceOrderByWithRelationInput = {
@@ -21644,6 +33514,13 @@ export namespace Prisma {
     overallScore?: SortOrderInput | SortOrder
     evaluatedNotes?: SortOrderInput | SortOrder
     analysisSummary?: SortOrderInput | SortOrder
+    rhythmAccuracy?: SortOrderInput | SortOrder
+    bowingAccuracy?: SortOrderInput | SortOrder
+    pitchSkillScore?: SortOrderInput | SortOrder
+    rhythmSkillScore?: SortOrderInput | SortOrder
+    bowingSkillScore?: SortOrderInput | SortOrder
+    skillSubScores?: SortOrderInput | SortOrder
+    problematicPositions?: SortOrderInput | SortOrder
     analysisStatus?: SortOrder
     retryCount?: SortOrder
     errorMessage?: SortOrderInput | SortOrder
@@ -21652,6 +33529,7 @@ export namespace Prisma {
     idempotencyKey?: SortOrderInput | SortOrder
     score?: ScoreOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
+    skillFeedbacks?: PerformanceSkillFeedbackOrderByRelationAggregateInput
   }
 
   export type PerformanceWhereUniqueInput = Prisma.AtLeast<{
@@ -21678,6 +33556,13 @@ export namespace Prisma {
     overallScore?: FloatNullableFilter<"Performance"> | number | null
     evaluatedNotes?: IntNullableFilter<"Performance"> | number | null
     analysisSummary?: JsonNullableFilter<"Performance">
+    rhythmAccuracy?: FloatNullableFilter<"Performance"> | number | null
+    bowingAccuracy?: FloatNullableFilter<"Performance"> | number | null
+    pitchSkillScore?: FloatNullableFilter<"Performance"> | number | null
+    rhythmSkillScore?: FloatNullableFilter<"Performance"> | number | null
+    bowingSkillScore?: FloatNullableFilter<"Performance"> | number | null
+    skillSubScores?: JsonNullableFilter<"Performance">
+    problematicPositions?: JsonNullableFilter<"Performance">
     analysisStatus?: EnumJobStatusFilter<"Performance"> | $Enums.JobStatus
     retryCount?: IntFilter<"Performance"> | number
     errorMessage?: StringNullableFilter<"Performance"> | string | null
@@ -21685,6 +33570,7 @@ export namespace Prisma {
     executionId?: StringNullableFilter<"Performance"> | string | null
     score?: XOR<ScoreScalarRelationFilter, ScoreWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    skillFeedbacks?: PerformanceSkillFeedbackListRelationFilter
   }, "id" | "idempotencyKey">
 
   export type PerformanceOrderByWithAggregationInput = {
@@ -21707,6 +33593,13 @@ export namespace Prisma {
     overallScore?: SortOrderInput | SortOrder
     evaluatedNotes?: SortOrderInput | SortOrder
     analysisSummary?: SortOrderInput | SortOrder
+    rhythmAccuracy?: SortOrderInput | SortOrder
+    bowingAccuracy?: SortOrderInput | SortOrder
+    pitchSkillScore?: SortOrderInput | SortOrder
+    rhythmSkillScore?: SortOrderInput | SortOrder
+    bowingSkillScore?: SortOrderInput | SortOrder
+    skillSubScores?: SortOrderInput | SortOrder
+    problematicPositions?: SortOrderInput | SortOrder
     analysisStatus?: SortOrder
     retryCount?: SortOrder
     errorMessage?: SortOrderInput | SortOrder
@@ -21743,6 +33636,13 @@ export namespace Prisma {
     overallScore?: FloatNullableWithAggregatesFilter<"Performance"> | number | null
     evaluatedNotes?: IntNullableWithAggregatesFilter<"Performance"> | number | null
     analysisSummary?: JsonNullableWithAggregatesFilter<"Performance">
+    rhythmAccuracy?: FloatNullableWithAggregatesFilter<"Performance"> | number | null
+    bowingAccuracy?: FloatNullableWithAggregatesFilter<"Performance"> | number | null
+    pitchSkillScore?: FloatNullableWithAggregatesFilter<"Performance"> | number | null
+    rhythmSkillScore?: FloatNullableWithAggregatesFilter<"Performance"> | number | null
+    bowingSkillScore?: FloatNullableWithAggregatesFilter<"Performance"> | number | null
+    skillSubScores?: JsonNullableWithAggregatesFilter<"Performance">
+    problematicPositions?: JsonNullableWithAggregatesFilter<"Performance">
     analysisStatus?: EnumJobStatusWithAggregatesFilter<"Performance"> | $Enums.JobStatus
     retryCount?: IntWithAggregatesFilter<"Performance"> | number
     errorMessage?: StringNullableWithAggregatesFilter<"Performance"> | string | null
@@ -21789,6 +33689,9 @@ export namespace Prisma {
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     techniques?: PracticeItemTechniqueListRelationFilter
     practicePerformances?: PracticePerformanceListRelationFilter
+    subTaskAssignments?: SubTaskAssignmentListRelationFilter
+    userPracticeMasteries?: UserPracticeMasteryListRelationFilter
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagListRelationFilter
   }
 
   export type PracticeItemOrderByWithRelationInput = {
@@ -21826,6 +33729,9 @@ export namespace Prisma {
     owner?: UserOrderByWithRelationInput
     techniques?: PracticeItemTechniqueOrderByRelationAggregateInput
     practicePerformances?: PracticePerformanceOrderByRelationAggregateInput
+    subTaskAssignments?: SubTaskAssignmentOrderByRelationAggregateInput
+    userPracticeMasteries?: UserPracticeMasteryOrderByRelationAggregateInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagOrderByRelationAggregateInput
   }
 
   export type PracticeItemWhereUniqueInput = Prisma.AtLeast<{
@@ -21866,6 +33772,9 @@ export namespace Prisma {
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     techniques?: PracticeItemTechniqueListRelationFilter
     practicePerformances?: PracticePerformanceListRelationFilter
+    subTaskAssignments?: SubTaskAssignmentListRelationFilter
+    userPracticeMasteries?: UserPracticeMasteryListRelationFilter
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagListRelationFilter
   }, "id" | "idempotencyKey">
 
   export type PracticeItemOrderByWithAggregationInput = {
@@ -21958,6 +33867,8 @@ export namespace Prisma {
     implementStatus?: StringFilter<"TechniqueTag"> | string
     practiceItems?: PracticeItemTechniqueListRelationFilter
     weaknesses?: UserWeaknessListRelationFilter
+    userTechniqueMasteries?: UserTechniqueMasteryListRelationFilter
+    missingPracticeItemFlags?: MissingPracticeItemFlagListRelationFilter
   }
 
   export type TechniqueTagOrderByWithRelationInput = {
@@ -21971,6 +33882,8 @@ export namespace Prisma {
     implementStatus?: SortOrder
     practiceItems?: PracticeItemTechniqueOrderByRelationAggregateInput
     weaknesses?: UserWeaknessOrderByRelationAggregateInput
+    userTechniqueMasteries?: UserTechniqueMasteryOrderByRelationAggregateInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagOrderByRelationAggregateInput
   }
 
   export type TechniqueTagWhereUniqueInput = Prisma.AtLeast<{
@@ -21988,6 +33901,8 @@ export namespace Prisma {
     implementStatus?: StringFilter<"TechniqueTag"> | string
     practiceItems?: PracticeItemTechniqueListRelationFilter
     weaknesses?: UserWeaknessListRelationFilter
+    userTechniqueMasteries?: UserTechniqueMasteryListRelationFilter
+    missingPracticeItemFlags?: MissingPracticeItemFlagListRelationFilter
   }, "id" | "category_name">
 
   export type TechniqueTagOrderByWithAggregationInput = {
@@ -22084,6 +33999,8 @@ export namespace Prisma {
     overallScore?: FloatNullableFilter<"PracticePerformance"> | number | null
     evaluatedNotes?: IntNullableFilter<"PracticePerformance"> | number | null
     analysisSummary?: JsonNullableFilter<"PracticePerformance">
+    rhythmAccuracy?: FloatNullableFilter<"PracticePerformance"> | number | null
+    bowingAccuracy?: FloatNullableFilter<"PracticePerformance"> | number | null
     analysisStatus?: EnumJobStatusFilter<"PracticePerformance"> | $Enums.JobStatus
     retryCount?: IntFilter<"PracticePerformance"> | number
     errorMessage?: StringNullableFilter<"PracticePerformance"> | string | null
@@ -22114,6 +34031,8 @@ export namespace Prisma {
     overallScore?: SortOrderInput | SortOrder
     evaluatedNotes?: SortOrderInput | SortOrder
     analysisSummary?: SortOrderInput | SortOrder
+    rhythmAccuracy?: SortOrderInput | SortOrder
+    bowingAccuracy?: SortOrderInput | SortOrder
     analysisStatus?: SortOrder
     retryCount?: SortOrder
     errorMessage?: SortOrderInput | SortOrder
@@ -22148,6 +34067,8 @@ export namespace Prisma {
     overallScore?: FloatNullableFilter<"PracticePerformance"> | number | null
     evaluatedNotes?: IntNullableFilter<"PracticePerformance"> | number | null
     analysisSummary?: JsonNullableFilter<"PracticePerformance">
+    rhythmAccuracy?: FloatNullableFilter<"PracticePerformance"> | number | null
+    bowingAccuracy?: FloatNullableFilter<"PracticePerformance"> | number | null
     analysisStatus?: EnumJobStatusFilter<"PracticePerformance"> | $Enums.JobStatus
     retryCount?: IntFilter<"PracticePerformance"> | number
     errorMessage?: StringNullableFilter<"PracticePerformance"> | string | null
@@ -22177,6 +34098,8 @@ export namespace Prisma {
     overallScore?: SortOrderInput | SortOrder
     evaluatedNotes?: SortOrderInput | SortOrder
     analysisSummary?: SortOrderInput | SortOrder
+    rhythmAccuracy?: SortOrderInput | SortOrder
+    bowingAccuracy?: SortOrderInput | SortOrder
     analysisStatus?: SortOrder
     retryCount?: SortOrder
     errorMessage?: SortOrderInput | SortOrder
@@ -22212,6 +34135,8 @@ export namespace Prisma {
     overallScore?: FloatNullableWithAggregatesFilter<"PracticePerformance"> | number | null
     evaluatedNotes?: IntNullableWithAggregatesFilter<"PracticePerformance"> | number | null
     analysisSummary?: JsonNullableWithAggregatesFilter<"PracticePerformance">
+    rhythmAccuracy?: FloatNullableWithAggregatesFilter<"PracticePerformance"> | number | null
+    bowingAccuracy?: FloatNullableWithAggregatesFilter<"PracticePerformance"> | number | null
     analysisStatus?: EnumJobStatusWithAggregatesFilter<"PracticePerformance"> | $Enums.JobStatus
     retryCount?: IntWithAggregatesFilter<"PracticePerformance"> | number
     errorMessage?: StringNullableWithAggregatesFilter<"PracticePerformance"> | string | null
@@ -22735,20 +34660,23 @@ export namespace Prisma {
     OR?: PerformanceSkillFeedbackWhereInput[]
     NOT?: PerformanceSkillFeedbackWhereInput | PerformanceSkillFeedbackWhereInput[]
     id?: StringFilter<"PerformanceSkillFeedback"> | string
-    practicePerformanceId?: StringFilter<"PerformanceSkillFeedback"> | string
+    practicePerformanceId?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
+    performanceId?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
     userId?: StringFilter<"PerformanceSkillFeedback"> | string
     positionId?: StringFilter<"PerformanceSkillFeedback"> | string
     selectedSubTaskId?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
     feedbackType?: StringFilter<"PerformanceSkillFeedback"> | string
     comment?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
     createdAt?: DateTimeFilter<"PerformanceSkillFeedback"> | Date | string
-    practicePerformance?: XOR<PracticePerformanceScalarRelationFilter, PracticePerformanceWhereInput>
+    practicePerformance?: XOR<PracticePerformanceNullableScalarRelationFilter, PracticePerformanceWhereInput> | null
+    performance?: XOR<PerformanceNullableScalarRelationFilter, PerformanceWhereInput> | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
   export type PerformanceSkillFeedbackOrderByWithRelationInput = {
     id?: SortOrder
-    practicePerformanceId?: SortOrder
+    practicePerformanceId?: SortOrderInput | SortOrder
+    performanceId?: SortOrderInput | SortOrder
     userId?: SortOrder
     positionId?: SortOrder
     selectedSubTaskId?: SortOrderInput | SortOrder
@@ -22756,6 +34684,7 @@ export namespace Prisma {
     comment?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     practicePerformance?: PracticePerformanceOrderByWithRelationInput
+    performance?: PerformanceOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
   }
 
@@ -22764,20 +34693,23 @@ export namespace Prisma {
     AND?: PerformanceSkillFeedbackWhereInput | PerformanceSkillFeedbackWhereInput[]
     OR?: PerformanceSkillFeedbackWhereInput[]
     NOT?: PerformanceSkillFeedbackWhereInput | PerformanceSkillFeedbackWhereInput[]
-    practicePerformanceId?: StringFilter<"PerformanceSkillFeedback"> | string
+    practicePerformanceId?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
+    performanceId?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
     userId?: StringFilter<"PerformanceSkillFeedback"> | string
     positionId?: StringFilter<"PerformanceSkillFeedback"> | string
     selectedSubTaskId?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
     feedbackType?: StringFilter<"PerformanceSkillFeedback"> | string
     comment?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
     createdAt?: DateTimeFilter<"PerformanceSkillFeedback"> | Date | string
-    practicePerformance?: XOR<PracticePerformanceScalarRelationFilter, PracticePerformanceWhereInput>
+    practicePerformance?: XOR<PracticePerformanceNullableScalarRelationFilter, PracticePerformanceWhereInput> | null
+    performance?: XOR<PerformanceNullableScalarRelationFilter, PerformanceWhereInput> | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
   export type PerformanceSkillFeedbackOrderByWithAggregationInput = {
     id?: SortOrder
-    practicePerformanceId?: SortOrder
+    practicePerformanceId?: SortOrderInput | SortOrder
+    performanceId?: SortOrderInput | SortOrder
     userId?: SortOrder
     positionId?: SortOrder
     selectedSubTaskId?: SortOrderInput | SortOrder
@@ -22794,13 +34726,658 @@ export namespace Prisma {
     OR?: PerformanceSkillFeedbackScalarWhereWithAggregatesInput[]
     NOT?: PerformanceSkillFeedbackScalarWhereWithAggregatesInput | PerformanceSkillFeedbackScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"PerformanceSkillFeedback"> | string
-    practicePerformanceId?: StringWithAggregatesFilter<"PerformanceSkillFeedback"> | string
+    practicePerformanceId?: StringNullableWithAggregatesFilter<"PerformanceSkillFeedback"> | string | null
+    performanceId?: StringNullableWithAggregatesFilter<"PerformanceSkillFeedback"> | string | null
     userId?: StringWithAggregatesFilter<"PerformanceSkillFeedback"> | string
     positionId?: StringWithAggregatesFilter<"PerformanceSkillFeedback"> | string
     selectedSubTaskId?: StringNullableWithAggregatesFilter<"PerformanceSkillFeedback"> | string | null
     feedbackType?: StringWithAggregatesFilter<"PerformanceSkillFeedback"> | string
     comment?: StringNullableWithAggregatesFilter<"PerformanceSkillFeedback"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"PerformanceSkillFeedback"> | Date | string
+  }
+
+  export type SongMasteryWhereInput = {
+    AND?: SongMasteryWhereInput | SongMasteryWhereInput[]
+    OR?: SongMasteryWhereInput[]
+    NOT?: SongMasteryWhereInput | SongMasteryWhereInput[]
+    id?: StringFilter<"SongMastery"> | string
+    userId?: StringFilter<"SongMastery"> | string
+    scoreId?: StringFilter<"SongMastery"> | string
+    recentAverageScore?: FloatNullableFilter<"SongMastery"> | number | null
+    totalPerformanceCount?: IntFilter<"SongMastery"> | number
+    isPerformanceMastered?: BoolFilter<"SongMastery"> | boolean
+    isFullyMastered?: BoolFilter<"SongMastery"> | boolean
+    performanceMasteredAt?: DateTimeNullableFilter<"SongMastery"> | Date | string | null
+    fullyMasteredAt?: DateTimeNullableFilter<"SongMastery"> | Date | string | null
+    createdAt?: DateTimeFilter<"SongMastery"> | Date | string
+    updatedAt?: DateTimeFilter<"SongMastery"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    score?: XOR<ScoreScalarRelationFilter, ScoreWhereInput>
+  }
+
+  export type SongMasteryOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    scoreId?: SortOrder
+    recentAverageScore?: SortOrderInput | SortOrder
+    totalPerformanceCount?: SortOrder
+    isPerformanceMastered?: SortOrder
+    isFullyMastered?: SortOrder
+    performanceMasteredAt?: SortOrderInput | SortOrder
+    fullyMasteredAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    score?: ScoreOrderByWithRelationInput
+  }
+
+  export type SongMasteryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_scoreId?: SongMasteryUserIdScoreIdCompoundUniqueInput
+    AND?: SongMasteryWhereInput | SongMasteryWhereInput[]
+    OR?: SongMasteryWhereInput[]
+    NOT?: SongMasteryWhereInput | SongMasteryWhereInput[]
+    userId?: StringFilter<"SongMastery"> | string
+    scoreId?: StringFilter<"SongMastery"> | string
+    recentAverageScore?: FloatNullableFilter<"SongMastery"> | number | null
+    totalPerformanceCount?: IntFilter<"SongMastery"> | number
+    isPerformanceMastered?: BoolFilter<"SongMastery"> | boolean
+    isFullyMastered?: BoolFilter<"SongMastery"> | boolean
+    performanceMasteredAt?: DateTimeNullableFilter<"SongMastery"> | Date | string | null
+    fullyMasteredAt?: DateTimeNullableFilter<"SongMastery"> | Date | string | null
+    createdAt?: DateTimeFilter<"SongMastery"> | Date | string
+    updatedAt?: DateTimeFilter<"SongMastery"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    score?: XOR<ScoreScalarRelationFilter, ScoreWhereInput>
+  }, "id" | "userId_scoreId">
+
+  export type SongMasteryOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    scoreId?: SortOrder
+    recentAverageScore?: SortOrderInput | SortOrder
+    totalPerformanceCount?: SortOrder
+    isPerformanceMastered?: SortOrder
+    isFullyMastered?: SortOrder
+    performanceMasteredAt?: SortOrderInput | SortOrder
+    fullyMasteredAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SongMasteryCountOrderByAggregateInput
+    _avg?: SongMasteryAvgOrderByAggregateInput
+    _max?: SongMasteryMaxOrderByAggregateInput
+    _min?: SongMasteryMinOrderByAggregateInput
+    _sum?: SongMasterySumOrderByAggregateInput
+  }
+
+  export type SongMasteryScalarWhereWithAggregatesInput = {
+    AND?: SongMasteryScalarWhereWithAggregatesInput | SongMasteryScalarWhereWithAggregatesInput[]
+    OR?: SongMasteryScalarWhereWithAggregatesInput[]
+    NOT?: SongMasteryScalarWhereWithAggregatesInput | SongMasteryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SongMastery"> | string
+    userId?: StringWithAggregatesFilter<"SongMastery"> | string
+    scoreId?: StringWithAggregatesFilter<"SongMastery"> | string
+    recentAverageScore?: FloatNullableWithAggregatesFilter<"SongMastery"> | number | null
+    totalPerformanceCount?: IntWithAggregatesFilter<"SongMastery"> | number
+    isPerformanceMastered?: BoolWithAggregatesFilter<"SongMastery"> | boolean
+    isFullyMastered?: BoolWithAggregatesFilter<"SongMastery"> | boolean
+    performanceMasteredAt?: DateTimeNullableWithAggregatesFilter<"SongMastery"> | Date | string | null
+    fullyMasteredAt?: DateTimeNullableWithAggregatesFilter<"SongMastery"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SongMastery"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SongMastery"> | Date | string
+  }
+
+  export type UserGradeProgressWhereInput = {
+    AND?: UserGradeProgressWhereInput | UserGradeProgressWhereInput[]
+    OR?: UserGradeProgressWhereInput[]
+    NOT?: UserGradeProgressWhereInput | UserGradeProgressWhereInput[]
+    id?: StringFilter<"UserGradeProgress"> | string
+    userId?: StringFilter<"UserGradeProgress"> | string
+    currentStar?: IntFilter<"UserGradeProgress"> | number
+    currentGrade?: StringFilter<"UserGradeProgress"> | string
+    masteredSongCountAtCurrentStar?: IntFilter<"UserGradeProgress"> | number
+    masterReachedAt?: DateTimeNullableFilter<"UserGradeProgress"> | Date | string | null
+    updatedAt?: DateTimeFilter<"UserGradeProgress"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type UserGradeProgressOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    currentStar?: SortOrder
+    currentGrade?: SortOrder
+    masteredSongCountAtCurrentStar?: SortOrder
+    masterReachedAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type UserGradeProgressWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId?: string
+    AND?: UserGradeProgressWhereInput | UserGradeProgressWhereInput[]
+    OR?: UserGradeProgressWhereInput[]
+    NOT?: UserGradeProgressWhereInput | UserGradeProgressWhereInput[]
+    currentStar?: IntFilter<"UserGradeProgress"> | number
+    currentGrade?: StringFilter<"UserGradeProgress"> | string
+    masteredSongCountAtCurrentStar?: IntFilter<"UserGradeProgress"> | number
+    masterReachedAt?: DateTimeNullableFilter<"UserGradeProgress"> | Date | string | null
+    updatedAt?: DateTimeFilter<"UserGradeProgress"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId">
+
+  export type UserGradeProgressOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    currentStar?: SortOrder
+    currentGrade?: SortOrder
+    masteredSongCountAtCurrentStar?: SortOrder
+    masterReachedAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    _count?: UserGradeProgressCountOrderByAggregateInput
+    _avg?: UserGradeProgressAvgOrderByAggregateInput
+    _max?: UserGradeProgressMaxOrderByAggregateInput
+    _min?: UserGradeProgressMinOrderByAggregateInput
+    _sum?: UserGradeProgressSumOrderByAggregateInput
+  }
+
+  export type UserGradeProgressScalarWhereWithAggregatesInput = {
+    AND?: UserGradeProgressScalarWhereWithAggregatesInput | UserGradeProgressScalarWhereWithAggregatesInput[]
+    OR?: UserGradeProgressScalarWhereWithAggregatesInput[]
+    NOT?: UserGradeProgressScalarWhereWithAggregatesInput | UserGradeProgressScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UserGradeProgress"> | string
+    userId?: StringWithAggregatesFilter<"UserGradeProgress"> | string
+    currentStar?: IntWithAggregatesFilter<"UserGradeProgress"> | number
+    currentGrade?: StringWithAggregatesFilter<"UserGradeProgress"> | string
+    masteredSongCountAtCurrentStar?: IntWithAggregatesFilter<"UserGradeProgress"> | number
+    masterReachedAt?: DateTimeNullableWithAggregatesFilter<"UserGradeProgress"> | Date | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"UserGradeProgress"> | Date | string
+  }
+
+  export type SkillTaskCardWhereInput = {
+    AND?: SkillTaskCardWhereInput | SkillTaskCardWhereInput[]
+    OR?: SkillTaskCardWhereInput[]
+    NOT?: SkillTaskCardWhereInput | SkillTaskCardWhereInput[]
+    id?: StringFilter<"SkillTaskCard"> | string
+    userId?: StringFilter<"SkillTaskCard"> | string
+    scoreId?: StringFilter<"SkillTaskCard"> | string
+    taskCategory?: StringFilter<"SkillTaskCard"> | string
+    status?: StringFilter<"SkillTaskCard"> | string
+    generatedAt?: DateTimeFilter<"SkillTaskCard"> | Date | string
+    lastMatchedAt?: DateTimeNullableFilter<"SkillTaskCard"> | Date | string | null
+    clearedAt?: DateTimeNullableFilter<"SkillTaskCard"> | Date | string | null
+    updatedAt?: DateTimeFilter<"SkillTaskCard"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    score?: XOR<ScoreScalarRelationFilter, ScoreWhereInput>
+    subTasks?: SubTaskListRelationFilter
+  }
+
+  export type SkillTaskCardOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    scoreId?: SortOrder
+    taskCategory?: SortOrder
+    status?: SortOrder
+    generatedAt?: SortOrder
+    lastMatchedAt?: SortOrderInput | SortOrder
+    clearedAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    score?: ScoreOrderByWithRelationInput
+    subTasks?: SubTaskOrderByRelationAggregateInput
+  }
+
+  export type SkillTaskCardWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_scoreId_taskCategory?: SkillTaskCardUserIdScoreIdTaskCategoryCompoundUniqueInput
+    AND?: SkillTaskCardWhereInput | SkillTaskCardWhereInput[]
+    OR?: SkillTaskCardWhereInput[]
+    NOT?: SkillTaskCardWhereInput | SkillTaskCardWhereInput[]
+    userId?: StringFilter<"SkillTaskCard"> | string
+    scoreId?: StringFilter<"SkillTaskCard"> | string
+    taskCategory?: StringFilter<"SkillTaskCard"> | string
+    status?: StringFilter<"SkillTaskCard"> | string
+    generatedAt?: DateTimeFilter<"SkillTaskCard"> | Date | string
+    lastMatchedAt?: DateTimeNullableFilter<"SkillTaskCard"> | Date | string | null
+    clearedAt?: DateTimeNullableFilter<"SkillTaskCard"> | Date | string | null
+    updatedAt?: DateTimeFilter<"SkillTaskCard"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    score?: XOR<ScoreScalarRelationFilter, ScoreWhereInput>
+    subTasks?: SubTaskListRelationFilter
+  }, "id" | "userId_scoreId_taskCategory">
+
+  export type SkillTaskCardOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    scoreId?: SortOrder
+    taskCategory?: SortOrder
+    status?: SortOrder
+    generatedAt?: SortOrder
+    lastMatchedAt?: SortOrderInput | SortOrder
+    clearedAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    _count?: SkillTaskCardCountOrderByAggregateInput
+    _max?: SkillTaskCardMaxOrderByAggregateInput
+    _min?: SkillTaskCardMinOrderByAggregateInput
+  }
+
+  export type SkillTaskCardScalarWhereWithAggregatesInput = {
+    AND?: SkillTaskCardScalarWhereWithAggregatesInput | SkillTaskCardScalarWhereWithAggregatesInput[]
+    OR?: SkillTaskCardScalarWhereWithAggregatesInput[]
+    NOT?: SkillTaskCardScalarWhereWithAggregatesInput | SkillTaskCardScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SkillTaskCard"> | string
+    userId?: StringWithAggregatesFilter<"SkillTaskCard"> | string
+    scoreId?: StringWithAggregatesFilter<"SkillTaskCard"> | string
+    taskCategory?: StringWithAggregatesFilter<"SkillTaskCard"> | string
+    status?: StringWithAggregatesFilter<"SkillTaskCard"> | string
+    generatedAt?: DateTimeWithAggregatesFilter<"SkillTaskCard"> | Date | string
+    lastMatchedAt?: DateTimeNullableWithAggregatesFilter<"SkillTaskCard"> | Date | string | null
+    clearedAt?: DateTimeNullableWithAggregatesFilter<"SkillTaskCard"> | Date | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"SkillTaskCard"> | Date | string
+  }
+
+  export type SubTaskWhereInput = {
+    AND?: SubTaskWhereInput | SubTaskWhereInput[]
+    OR?: SubTaskWhereInput[]
+    NOT?: SubTaskWhereInput | SubTaskWhereInput[]
+    id?: StringFilter<"SubTask"> | string
+    skillTaskCardId?: StringFilter<"SubTask"> | string
+    subTaskType?: StringFilter<"SubTask"> | string
+    status?: StringFilter<"SubTask"> | string
+    generatedAt?: DateTimeFilter<"SubTask"> | Date | string
+    clearedAt?: DateTimeNullableFilter<"SubTask"> | Date | string | null
+    updatedAt?: DateTimeFilter<"SubTask"> | Date | string
+    skillTaskCard?: XOR<SkillTaskCardScalarRelationFilter, SkillTaskCardWhereInput>
+    subTaskAssignments?: SubTaskAssignmentListRelationFilter
+  }
+
+  export type SubTaskOrderByWithRelationInput = {
+    id?: SortOrder
+    skillTaskCardId?: SortOrder
+    subTaskType?: SortOrder
+    status?: SortOrder
+    generatedAt?: SortOrder
+    clearedAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    skillTaskCard?: SkillTaskCardOrderByWithRelationInput
+    subTaskAssignments?: SubTaskAssignmentOrderByRelationAggregateInput
+  }
+
+  export type SubTaskWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    skillTaskCardId_subTaskType?: SubTaskSkillTaskCardIdSubTaskTypeCompoundUniqueInput
+    AND?: SubTaskWhereInput | SubTaskWhereInput[]
+    OR?: SubTaskWhereInput[]
+    NOT?: SubTaskWhereInput | SubTaskWhereInput[]
+    skillTaskCardId?: StringFilter<"SubTask"> | string
+    subTaskType?: StringFilter<"SubTask"> | string
+    status?: StringFilter<"SubTask"> | string
+    generatedAt?: DateTimeFilter<"SubTask"> | Date | string
+    clearedAt?: DateTimeNullableFilter<"SubTask"> | Date | string | null
+    updatedAt?: DateTimeFilter<"SubTask"> | Date | string
+    skillTaskCard?: XOR<SkillTaskCardScalarRelationFilter, SkillTaskCardWhereInput>
+    subTaskAssignments?: SubTaskAssignmentListRelationFilter
+  }, "id" | "skillTaskCardId_subTaskType">
+
+  export type SubTaskOrderByWithAggregationInput = {
+    id?: SortOrder
+    skillTaskCardId?: SortOrder
+    subTaskType?: SortOrder
+    status?: SortOrder
+    generatedAt?: SortOrder
+    clearedAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    _count?: SubTaskCountOrderByAggregateInput
+    _max?: SubTaskMaxOrderByAggregateInput
+    _min?: SubTaskMinOrderByAggregateInput
+  }
+
+  export type SubTaskScalarWhereWithAggregatesInput = {
+    AND?: SubTaskScalarWhereWithAggregatesInput | SubTaskScalarWhereWithAggregatesInput[]
+    OR?: SubTaskScalarWhereWithAggregatesInput[]
+    NOT?: SubTaskScalarWhereWithAggregatesInput | SubTaskScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SubTask"> | string
+    skillTaskCardId?: StringWithAggregatesFilter<"SubTask"> | string
+    subTaskType?: StringWithAggregatesFilter<"SubTask"> | string
+    status?: StringWithAggregatesFilter<"SubTask"> | string
+    generatedAt?: DateTimeWithAggregatesFilter<"SubTask"> | Date | string
+    clearedAt?: DateTimeNullableWithAggregatesFilter<"SubTask"> | Date | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"SubTask"> | Date | string
+  }
+
+  export type SubTaskAssignmentWhereInput = {
+    AND?: SubTaskAssignmentWhereInput | SubTaskAssignmentWhereInput[]
+    OR?: SubTaskAssignmentWhereInput[]
+    NOT?: SubTaskAssignmentWhereInput | SubTaskAssignmentWhereInput[]
+    id?: StringFilter<"SubTaskAssignment"> | string
+    subTaskId?: StringFilter<"SubTaskAssignment"> | string
+    practiceItemId?: StringFilter<"SubTaskAssignment"> | string
+    assignedCategory?: StringFilter<"SubTaskAssignment"> | string
+    isMastered?: BoolFilter<"SubTaskAssignment"> | boolean
+    masteredAt?: DateTimeNullableFilter<"SubTaskAssignment"> | Date | string | null
+    assignedAt?: DateTimeFilter<"SubTaskAssignment"> | Date | string
+    subTask?: XOR<SubTaskScalarRelationFilter, SubTaskWhereInput>
+    practiceItem?: XOR<PracticeItemScalarRelationFilter, PracticeItemWhereInput>
+  }
+
+  export type SubTaskAssignmentOrderByWithRelationInput = {
+    id?: SortOrder
+    subTaskId?: SortOrder
+    practiceItemId?: SortOrder
+    assignedCategory?: SortOrder
+    isMastered?: SortOrder
+    masteredAt?: SortOrderInput | SortOrder
+    assignedAt?: SortOrder
+    subTask?: SubTaskOrderByWithRelationInput
+    practiceItem?: PracticeItemOrderByWithRelationInput
+  }
+
+  export type SubTaskAssignmentWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    subTaskId_practiceItemId?: SubTaskAssignmentSubTaskIdPracticeItemIdCompoundUniqueInput
+    AND?: SubTaskAssignmentWhereInput | SubTaskAssignmentWhereInput[]
+    OR?: SubTaskAssignmentWhereInput[]
+    NOT?: SubTaskAssignmentWhereInput | SubTaskAssignmentWhereInput[]
+    subTaskId?: StringFilter<"SubTaskAssignment"> | string
+    practiceItemId?: StringFilter<"SubTaskAssignment"> | string
+    assignedCategory?: StringFilter<"SubTaskAssignment"> | string
+    isMastered?: BoolFilter<"SubTaskAssignment"> | boolean
+    masteredAt?: DateTimeNullableFilter<"SubTaskAssignment"> | Date | string | null
+    assignedAt?: DateTimeFilter<"SubTaskAssignment"> | Date | string
+    subTask?: XOR<SubTaskScalarRelationFilter, SubTaskWhereInput>
+    practiceItem?: XOR<PracticeItemScalarRelationFilter, PracticeItemWhereInput>
+  }, "id" | "subTaskId_practiceItemId">
+
+  export type SubTaskAssignmentOrderByWithAggregationInput = {
+    id?: SortOrder
+    subTaskId?: SortOrder
+    practiceItemId?: SortOrder
+    assignedCategory?: SortOrder
+    isMastered?: SortOrder
+    masteredAt?: SortOrderInput | SortOrder
+    assignedAt?: SortOrder
+    _count?: SubTaskAssignmentCountOrderByAggregateInput
+    _max?: SubTaskAssignmentMaxOrderByAggregateInput
+    _min?: SubTaskAssignmentMinOrderByAggregateInput
+  }
+
+  export type SubTaskAssignmentScalarWhereWithAggregatesInput = {
+    AND?: SubTaskAssignmentScalarWhereWithAggregatesInput | SubTaskAssignmentScalarWhereWithAggregatesInput[]
+    OR?: SubTaskAssignmentScalarWhereWithAggregatesInput[]
+    NOT?: SubTaskAssignmentScalarWhereWithAggregatesInput | SubTaskAssignmentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SubTaskAssignment"> | string
+    subTaskId?: StringWithAggregatesFilter<"SubTaskAssignment"> | string
+    practiceItemId?: StringWithAggregatesFilter<"SubTaskAssignment"> | string
+    assignedCategory?: StringWithAggregatesFilter<"SubTaskAssignment"> | string
+    isMastered?: BoolWithAggregatesFilter<"SubTaskAssignment"> | boolean
+    masteredAt?: DateTimeNullableWithAggregatesFilter<"SubTaskAssignment"> | Date | string | null
+    assignedAt?: DateTimeWithAggregatesFilter<"SubTaskAssignment"> | Date | string
+  }
+
+  export type UserPracticeMasteryWhereInput = {
+    AND?: UserPracticeMasteryWhereInput | UserPracticeMasteryWhereInput[]
+    OR?: UserPracticeMasteryWhereInput[]
+    NOT?: UserPracticeMasteryWhereInput | UserPracticeMasteryWhereInput[]
+    id?: StringFilter<"UserPracticeMastery"> | string
+    userId?: StringFilter<"UserPracticeMastery"> | string
+    practiceItemId?: StringFilter<"UserPracticeMastery"> | string
+    recentAverageScore?: FloatNullableFilter<"UserPracticeMastery"> | number | null
+    totalPerformanceCount?: IntFilter<"UserPracticeMastery"> | number
+    isPerformanceMastered?: BoolFilter<"UserPracticeMastery"> | boolean
+    masteredAt?: DateTimeNullableFilter<"UserPracticeMastery"> | Date | string | null
+    updatedAt?: DateTimeFilter<"UserPracticeMastery"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    practiceItem?: XOR<PracticeItemScalarRelationFilter, PracticeItemWhereInput>
+  }
+
+  export type UserPracticeMasteryOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    practiceItemId?: SortOrder
+    recentAverageScore?: SortOrderInput | SortOrder
+    totalPerformanceCount?: SortOrder
+    isPerformanceMastered?: SortOrder
+    masteredAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    practiceItem?: PracticeItemOrderByWithRelationInput
+  }
+
+  export type UserPracticeMasteryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_practiceItemId?: UserPracticeMasteryUserIdPracticeItemIdCompoundUniqueInput
+    AND?: UserPracticeMasteryWhereInput | UserPracticeMasteryWhereInput[]
+    OR?: UserPracticeMasteryWhereInput[]
+    NOT?: UserPracticeMasteryWhereInput | UserPracticeMasteryWhereInput[]
+    userId?: StringFilter<"UserPracticeMastery"> | string
+    practiceItemId?: StringFilter<"UserPracticeMastery"> | string
+    recentAverageScore?: FloatNullableFilter<"UserPracticeMastery"> | number | null
+    totalPerformanceCount?: IntFilter<"UserPracticeMastery"> | number
+    isPerformanceMastered?: BoolFilter<"UserPracticeMastery"> | boolean
+    masteredAt?: DateTimeNullableFilter<"UserPracticeMastery"> | Date | string | null
+    updatedAt?: DateTimeFilter<"UserPracticeMastery"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    practiceItem?: XOR<PracticeItemScalarRelationFilter, PracticeItemWhereInput>
+  }, "id" | "userId_practiceItemId">
+
+  export type UserPracticeMasteryOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    practiceItemId?: SortOrder
+    recentAverageScore?: SortOrderInput | SortOrder
+    totalPerformanceCount?: SortOrder
+    isPerformanceMastered?: SortOrder
+    masteredAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    _count?: UserPracticeMasteryCountOrderByAggregateInput
+    _avg?: UserPracticeMasteryAvgOrderByAggregateInput
+    _max?: UserPracticeMasteryMaxOrderByAggregateInput
+    _min?: UserPracticeMasteryMinOrderByAggregateInput
+    _sum?: UserPracticeMasterySumOrderByAggregateInput
+  }
+
+  export type UserPracticeMasteryScalarWhereWithAggregatesInput = {
+    AND?: UserPracticeMasteryScalarWhereWithAggregatesInput | UserPracticeMasteryScalarWhereWithAggregatesInput[]
+    OR?: UserPracticeMasteryScalarWhereWithAggregatesInput[]
+    NOT?: UserPracticeMasteryScalarWhereWithAggregatesInput | UserPracticeMasteryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UserPracticeMastery"> | string
+    userId?: StringWithAggregatesFilter<"UserPracticeMastery"> | string
+    practiceItemId?: StringWithAggregatesFilter<"UserPracticeMastery"> | string
+    recentAverageScore?: FloatNullableWithAggregatesFilter<"UserPracticeMastery"> | number | null
+    totalPerformanceCount?: IntWithAggregatesFilter<"UserPracticeMastery"> | number
+    isPerformanceMastered?: BoolWithAggregatesFilter<"UserPracticeMastery"> | boolean
+    masteredAt?: DateTimeNullableWithAggregatesFilter<"UserPracticeMastery"> | Date | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"UserPracticeMastery"> | Date | string
+  }
+
+  export type UserTechniqueMasteryWhereInput = {
+    AND?: UserTechniqueMasteryWhereInput | UserTechniqueMasteryWhereInput[]
+    OR?: UserTechniqueMasteryWhereInput[]
+    NOT?: UserTechniqueMasteryWhereInput | UserTechniqueMasteryWhereInput[]
+    id?: StringFilter<"UserTechniqueMastery"> | string
+    userId?: StringFilter<"UserTechniqueMastery"> | string
+    techniqueTagId?: StringFilter<"UserTechniqueMastery"> | string
+    isMastered?: BoolFilter<"UserTechniqueMastery"> | boolean
+    masteredAt?: DateTimeNullableFilter<"UserTechniqueMastery"> | Date | string | null
+    updatedAt?: DateTimeFilter<"UserTechniqueMastery"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    techniqueTag?: XOR<TechniqueTagScalarRelationFilter, TechniqueTagWhereInput>
+  }
+
+  export type UserTechniqueMasteryOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    techniqueTagId?: SortOrder
+    isMastered?: SortOrder
+    masteredAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    techniqueTag?: TechniqueTagOrderByWithRelationInput
+  }
+
+  export type UserTechniqueMasteryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_techniqueTagId?: UserTechniqueMasteryUserIdTechniqueTagIdCompoundUniqueInput
+    AND?: UserTechniqueMasteryWhereInput | UserTechniqueMasteryWhereInput[]
+    OR?: UserTechniqueMasteryWhereInput[]
+    NOT?: UserTechniqueMasteryWhereInput | UserTechniqueMasteryWhereInput[]
+    userId?: StringFilter<"UserTechniqueMastery"> | string
+    techniqueTagId?: StringFilter<"UserTechniqueMastery"> | string
+    isMastered?: BoolFilter<"UserTechniqueMastery"> | boolean
+    masteredAt?: DateTimeNullableFilter<"UserTechniqueMastery"> | Date | string | null
+    updatedAt?: DateTimeFilter<"UserTechniqueMastery"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    techniqueTag?: XOR<TechniqueTagScalarRelationFilter, TechniqueTagWhereInput>
+  }, "id" | "userId_techniqueTagId">
+
+  export type UserTechniqueMasteryOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    techniqueTagId?: SortOrder
+    isMastered?: SortOrder
+    masteredAt?: SortOrderInput | SortOrder
+    updatedAt?: SortOrder
+    _count?: UserTechniqueMasteryCountOrderByAggregateInput
+    _max?: UserTechniqueMasteryMaxOrderByAggregateInput
+    _min?: UserTechniqueMasteryMinOrderByAggregateInput
+  }
+
+  export type UserTechniqueMasteryScalarWhereWithAggregatesInput = {
+    AND?: UserTechniqueMasteryScalarWhereWithAggregatesInput | UserTechniqueMasteryScalarWhereWithAggregatesInput[]
+    OR?: UserTechniqueMasteryScalarWhereWithAggregatesInput[]
+    NOT?: UserTechniqueMasteryScalarWhereWithAggregatesInput | UserTechniqueMasteryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UserTechniqueMastery"> | string
+    userId?: StringWithAggregatesFilter<"UserTechniqueMastery"> | string
+    techniqueTagId?: StringWithAggregatesFilter<"UserTechniqueMastery"> | string
+    isMastered?: BoolWithAggregatesFilter<"UserTechniqueMastery"> | boolean
+    masteredAt?: DateTimeNullableWithAggregatesFilter<"UserTechniqueMastery"> | Date | string | null
+    updatedAt?: DateTimeWithAggregatesFilter<"UserTechniqueMastery"> | Date | string
+  }
+
+  export type PracticeItemSubTaskTagWhereInput = {
+    AND?: PracticeItemSubTaskTagWhereInput | PracticeItemSubTaskTagWhereInput[]
+    OR?: PracticeItemSubTaskTagWhereInput[]
+    NOT?: PracticeItemSubTaskTagWhereInput | PracticeItemSubTaskTagWhereInput[]
+    practiceItemId?: StringFilter<"PracticeItemSubTaskTag"> | string
+    subTaskType?: StringFilter<"PracticeItemSubTaskTag"> | string
+    practiceItem?: XOR<PracticeItemScalarRelationFilter, PracticeItemWhereInput>
+  }
+
+  export type PracticeItemSubTaskTagOrderByWithRelationInput = {
+    practiceItemId?: SortOrder
+    subTaskType?: SortOrder
+    practiceItem?: PracticeItemOrderByWithRelationInput
+  }
+
+  export type PracticeItemSubTaskTagWhereUniqueInput = Prisma.AtLeast<{
+    practiceItemId_subTaskType?: PracticeItemSubTaskTagPracticeItemIdSubTaskTypeCompoundUniqueInput
+    AND?: PracticeItemSubTaskTagWhereInput | PracticeItemSubTaskTagWhereInput[]
+    OR?: PracticeItemSubTaskTagWhereInput[]
+    NOT?: PracticeItemSubTaskTagWhereInput | PracticeItemSubTaskTagWhereInput[]
+    practiceItemId?: StringFilter<"PracticeItemSubTaskTag"> | string
+    subTaskType?: StringFilter<"PracticeItemSubTaskTag"> | string
+    practiceItem?: XOR<PracticeItemScalarRelationFilter, PracticeItemWhereInput>
+  }, "practiceItemId_subTaskType">
+
+  export type PracticeItemSubTaskTagOrderByWithAggregationInput = {
+    practiceItemId?: SortOrder
+    subTaskType?: SortOrder
+    _count?: PracticeItemSubTaskTagCountOrderByAggregateInput
+    _max?: PracticeItemSubTaskTagMaxOrderByAggregateInput
+    _min?: PracticeItemSubTaskTagMinOrderByAggregateInput
+  }
+
+  export type PracticeItemSubTaskTagScalarWhereWithAggregatesInput = {
+    AND?: PracticeItemSubTaskTagScalarWhereWithAggregatesInput | PracticeItemSubTaskTagScalarWhereWithAggregatesInput[]
+    OR?: PracticeItemSubTaskTagScalarWhereWithAggregatesInput[]
+    NOT?: PracticeItemSubTaskTagScalarWhereWithAggregatesInput | PracticeItemSubTaskTagScalarWhereWithAggregatesInput[]
+    practiceItemId?: StringWithAggregatesFilter<"PracticeItemSubTaskTag"> | string
+    subTaskType?: StringWithAggregatesFilter<"PracticeItemSubTaskTag"> | string
+  }
+
+  export type MissingPracticeItemFlagWhereInput = {
+    AND?: MissingPracticeItemFlagWhereInput | MissingPracticeItemFlagWhereInput[]
+    OR?: MissingPracticeItemFlagWhereInput[]
+    NOT?: MissingPracticeItemFlagWhereInput | MissingPracticeItemFlagWhereInput[]
+    id?: StringFilter<"MissingPracticeItemFlag"> | string
+    scoreId?: StringFilter<"MissingPracticeItemFlag"> | string
+    subTaskType?: StringFilter<"MissingPracticeItemFlag"> | string
+    missingCategory?: StringFilter<"MissingPracticeItemFlag"> | string
+    keyTonic?: StringFilter<"MissingPracticeItemFlag"> | string
+    keyMode?: StringFilter<"MissingPracticeItemFlag"> | string
+    star?: IntFilter<"MissingPracticeItemFlag"> | number
+    techniqueTagId?: StringNullableFilter<"MissingPracticeItemFlag"> | string | null
+    detectedAt?: DateTimeFilter<"MissingPracticeItemFlag"> | Date | string
+    resolvedAt?: DateTimeNullableFilter<"MissingPracticeItemFlag"> | Date | string | null
+    score?: XOR<ScoreScalarRelationFilter, ScoreWhereInput>
+    techniqueTag?: XOR<TechniqueTagNullableScalarRelationFilter, TechniqueTagWhereInput> | null
+  }
+
+  export type MissingPracticeItemFlagOrderByWithRelationInput = {
+    id?: SortOrder
+    scoreId?: SortOrder
+    subTaskType?: SortOrder
+    missingCategory?: SortOrder
+    keyTonic?: SortOrder
+    keyMode?: SortOrder
+    star?: SortOrder
+    techniqueTagId?: SortOrderInput | SortOrder
+    detectedAt?: SortOrder
+    resolvedAt?: SortOrderInput | SortOrder
+    score?: ScoreOrderByWithRelationInput
+    techniqueTag?: TechniqueTagOrderByWithRelationInput
+  }
+
+  export type MissingPracticeItemFlagWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: MissingPracticeItemFlagWhereInput | MissingPracticeItemFlagWhereInput[]
+    OR?: MissingPracticeItemFlagWhereInput[]
+    NOT?: MissingPracticeItemFlagWhereInput | MissingPracticeItemFlagWhereInput[]
+    scoreId?: StringFilter<"MissingPracticeItemFlag"> | string
+    subTaskType?: StringFilter<"MissingPracticeItemFlag"> | string
+    missingCategory?: StringFilter<"MissingPracticeItemFlag"> | string
+    keyTonic?: StringFilter<"MissingPracticeItemFlag"> | string
+    keyMode?: StringFilter<"MissingPracticeItemFlag"> | string
+    star?: IntFilter<"MissingPracticeItemFlag"> | number
+    techniqueTagId?: StringNullableFilter<"MissingPracticeItemFlag"> | string | null
+    detectedAt?: DateTimeFilter<"MissingPracticeItemFlag"> | Date | string
+    resolvedAt?: DateTimeNullableFilter<"MissingPracticeItemFlag"> | Date | string | null
+    score?: XOR<ScoreScalarRelationFilter, ScoreWhereInput>
+    techniqueTag?: XOR<TechniqueTagNullableScalarRelationFilter, TechniqueTagWhereInput> | null
+  }, "id">
+
+  export type MissingPracticeItemFlagOrderByWithAggregationInput = {
+    id?: SortOrder
+    scoreId?: SortOrder
+    subTaskType?: SortOrder
+    missingCategory?: SortOrder
+    keyTonic?: SortOrder
+    keyMode?: SortOrder
+    star?: SortOrder
+    techniqueTagId?: SortOrderInput | SortOrder
+    detectedAt?: SortOrder
+    resolvedAt?: SortOrderInput | SortOrder
+    _count?: MissingPracticeItemFlagCountOrderByAggregateInput
+    _avg?: MissingPracticeItemFlagAvgOrderByAggregateInput
+    _max?: MissingPracticeItemFlagMaxOrderByAggregateInput
+    _min?: MissingPracticeItemFlagMinOrderByAggregateInput
+    _sum?: MissingPracticeItemFlagSumOrderByAggregateInput
+  }
+
+  export type MissingPracticeItemFlagScalarWhereWithAggregatesInput = {
+    AND?: MissingPracticeItemFlagScalarWhereWithAggregatesInput | MissingPracticeItemFlagScalarWhereWithAggregatesInput[]
+    OR?: MissingPracticeItemFlagScalarWhereWithAggregatesInput[]
+    NOT?: MissingPracticeItemFlagScalarWhereWithAggregatesInput | MissingPracticeItemFlagScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MissingPracticeItemFlag"> | string
+    scoreId?: StringWithAggregatesFilter<"MissingPracticeItemFlag"> | string
+    subTaskType?: StringWithAggregatesFilter<"MissingPracticeItemFlag"> | string
+    missingCategory?: StringWithAggregatesFilter<"MissingPracticeItemFlag"> | string
+    keyTonic?: StringWithAggregatesFilter<"MissingPracticeItemFlag"> | string
+    keyMode?: StringWithAggregatesFilter<"MissingPracticeItemFlag"> | string
+    star?: IntWithAggregatesFilter<"MissingPracticeItemFlag"> | number
+    techniqueTagId?: StringNullableWithAggregatesFilter<"MissingPracticeItemFlag"> | string | null
+    detectedAt?: DateTimeWithAggregatesFilter<"MissingPracticeItemFlag"> | Date | string
+    resolvedAt?: DateTimeNullableWithAggregatesFilter<"MissingPracticeItemFlag"> | Date | string | null
   }
 
   export type UserCreateInput = {
@@ -22826,6 +35403,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
     userGrade?: UserGradeCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -22851,6 +35433,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
     userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -22876,6 +35463,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -22901,6 +35493,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -22964,9 +35561,13 @@ export namespace Prisma {
     isShared?: boolean
     difficulty?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
     createdAt?: Date | string
     deletedAt?: Date | string | null
     performances?: PerformanceCreateNestedManyWithoutScoreInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutScoreInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutScoreInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagCreateNestedManyWithoutScoreInput
     createdBy: UserCreateNestedOneWithoutScoresInput
   }
 
@@ -22993,9 +35594,13 @@ export namespace Prisma {
     isShared?: boolean
     difficulty?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
     createdAt?: Date | string
     deletedAt?: Date | string | null
     performances?: PerformanceUncheckedCreateNestedManyWithoutScoreInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutScoreInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutScoreInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedCreateNestedManyWithoutScoreInput
   }
 
   export type ScoreUpdateInput = {
@@ -23020,9 +35625,13 @@ export namespace Prisma {
     isShared?: BoolFieldUpdateOperationsInput | boolean
     difficulty?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUpdateManyWithoutScoreNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutScoreNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutScoreNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUpdateManyWithoutScoreNestedInput
     createdBy?: UserUpdateOneRequiredWithoutScoresNestedInput
   }
 
@@ -23049,9 +35658,13 @@ export namespace Prisma {
     isShared?: BoolFieldUpdateOperationsInput | boolean
     difficulty?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUncheckedUpdateManyWithoutScoreNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutScoreNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutScoreNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedUpdateManyWithoutScoreNestedInput
   }
 
   export type ScoreCreateManyInput = {
@@ -23077,6 +35690,7 @@ export namespace Prisma {
     isShared?: boolean
     difficulty?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
     createdAt?: Date | string
     deletedAt?: Date | string | null
   }
@@ -23103,6 +35717,7 @@ export namespace Prisma {
     isShared?: BoolFieldUpdateOperationsInput | boolean
     difficulty?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -23130,6 +35745,7 @@ export namespace Prisma {
     isShared?: BoolFieldUpdateOperationsInput | boolean
     difficulty?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -23152,6 +35768,13 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -23160,6 +35783,7 @@ export namespace Prisma {
     idempotencyKey?: string | null
     score: ScoreCreateNestedOneWithoutPerformancesInput
     user: UserCreateNestedOneWithoutPerformancesInput
+    skillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutPerformanceInput
   }
 
   export type PerformanceUncheckedCreateInput = {
@@ -23182,12 +35806,20 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
     lastAttemptedAt?: Date | string | null
     executionId?: string | null
     idempotencyKey?: string | null
+    skillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutPerformanceInput
   }
 
   export type PerformanceUpdateInput = {
@@ -23208,6 +35840,13 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23216,6 +35855,7 @@ export namespace Prisma {
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     score?: ScoreUpdateOneRequiredWithoutPerformancesNestedInput
     user?: UserUpdateOneRequiredWithoutPerformancesNestedInput
+    skillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutPerformanceNestedInput
   }
 
   export type PerformanceUncheckedUpdateInput = {
@@ -23238,12 +35878,20 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    skillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutPerformanceNestedInput
   }
 
   export type PerformanceCreateManyInput = {
@@ -23266,6 +35914,13 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -23292,6 +35947,13 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23320,6 +35982,13 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23362,6 +36031,9 @@ export namespace Prisma {
     owner?: UserCreateNestedOneWithoutPracticeItemsInput
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
+    subTaskAssignments?: SubTaskAssignmentCreateNestedManyWithoutPracticeItemInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutPracticeItemInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagCreateNestedManyWithoutPracticeItemInput
   }
 
   export type PracticeItemUncheckedCreateInput = {
@@ -23398,6 +36070,9 @@ export namespace Prisma {
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
+    subTaskAssignments?: SubTaskAssignmentUncheckedCreateNestedManyWithoutPracticeItemInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutPracticeItemInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUncheckedCreateNestedManyWithoutPracticeItemInput
   }
 
   export type PracticeItemUpdateInput = {
@@ -23434,6 +36109,9 @@ export namespace Prisma {
     owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
+    subTaskAssignments?: SubTaskAssignmentUpdateManyWithoutPracticeItemNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutPracticeItemNestedInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUpdateManyWithoutPracticeItemNestedInput
   }
 
   export type PracticeItemUncheckedUpdateInput = {
@@ -23470,6 +36148,9 @@ export namespace Prisma {
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
+    subTaskAssignments?: SubTaskAssignmentUncheckedUpdateManyWithoutPracticeItemNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutPracticeItemNestedInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUncheckedUpdateManyWithoutPracticeItemNestedInput
   }
 
   export type PracticeItemCreateManyInput = {
@@ -23584,6 +36265,8 @@ export namespace Prisma {
     implementStatus: string
     practiceItems?: PracticeItemTechniqueCreateNestedManyWithoutTechniqueTagInput
     weaknesses?: UserWeaknessCreateNestedManyWithoutTechniqueTagInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutTechniqueTagInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagCreateNestedManyWithoutTechniqueTagInput
   }
 
   export type TechniqueTagUncheckedCreateInput = {
@@ -23597,6 +36280,8 @@ export namespace Prisma {
     implementStatus: string
     practiceItems?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutTechniqueTagInput
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutTechniqueTagInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutTechniqueTagInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedCreateNestedManyWithoutTechniqueTagInput
   }
 
   export type TechniqueTagUpdateInput = {
@@ -23610,6 +36295,8 @@ export namespace Prisma {
     implementStatus?: StringFieldUpdateOperationsInput | string
     practiceItems?: PracticeItemTechniqueUpdateManyWithoutTechniqueTagNestedInput
     weaknesses?: UserWeaknessUpdateManyWithoutTechniqueTagNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutTechniqueTagNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUpdateManyWithoutTechniqueTagNestedInput
   }
 
   export type TechniqueTagUncheckedUpdateInput = {
@@ -23623,6 +36310,8 @@ export namespace Prisma {
     implementStatus?: StringFieldUpdateOperationsInput | string
     practiceItems?: PracticeItemTechniqueUncheckedUpdateManyWithoutTechniqueTagNestedInput
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutTechniqueTagNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutTechniqueTagNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedUpdateManyWithoutTechniqueTagNestedInput
   }
 
   export type TechniqueTagCreateManyInput = {
@@ -23710,6 +36399,8 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -23740,6 +36431,8 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -23766,6 +36459,8 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23796,6 +36491,8 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23824,6 +36521,8 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -23849,6 +36548,8 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23876,6 +36577,8 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24427,13 +37130,15 @@ export namespace Prisma {
     feedbackType: string
     comment?: string | null
     createdAt?: Date | string
-    practicePerformance: PracticePerformanceCreateNestedOneWithoutSkillFeedbacksInput
+    practicePerformance?: PracticePerformanceCreateNestedOneWithoutSkillFeedbacksInput
+    performance?: PerformanceCreateNestedOneWithoutSkillFeedbacksInput
     user: UserCreateNestedOneWithoutPerformanceSkillFeedbacksInput
   }
 
   export type PerformanceSkillFeedbackUncheckedCreateInput = {
     id?: string
-    practicePerformanceId: string
+    practicePerformanceId?: string | null
+    performanceId?: string | null
     userId: string
     positionId: string
     selectedSubTaskId?: string | null
@@ -24449,13 +37154,15 @@ export namespace Prisma {
     feedbackType?: StringFieldUpdateOperationsInput | string
     comment?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    practicePerformance?: PracticePerformanceUpdateOneRequiredWithoutSkillFeedbacksNestedInput
+    practicePerformance?: PracticePerformanceUpdateOneWithoutSkillFeedbacksNestedInput
+    performance?: PerformanceUpdateOneWithoutSkillFeedbacksNestedInput
     user?: UserUpdateOneRequiredWithoutPerformanceSkillFeedbacksNestedInput
   }
 
   export type PerformanceSkillFeedbackUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    practicePerformanceId?: StringFieldUpdateOperationsInput | string
+    practicePerformanceId?: NullableStringFieldUpdateOperationsInput | string | null
+    performanceId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     positionId?: StringFieldUpdateOperationsInput | string
     selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24466,7 +37173,8 @@ export namespace Prisma {
 
   export type PerformanceSkillFeedbackCreateManyInput = {
     id?: string
-    practicePerformanceId: string
+    practicePerformanceId?: string | null
+    performanceId?: string | null
     userId: string
     positionId: string
     selectedSubTaskId?: string | null
@@ -24486,13 +37194,665 @@ export namespace Prisma {
 
   export type PerformanceSkillFeedbackUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    practicePerformanceId?: StringFieldUpdateOperationsInput | string
+    practicePerformanceId?: NullableStringFieldUpdateOperationsInput | string | null
+    performanceId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     positionId?: StringFieldUpdateOperationsInput | string
     selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
     feedbackType?: StringFieldUpdateOperationsInput | string
     comment?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SongMasteryCreateInput = {
+    id?: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    isFullyMastered?: boolean
+    performanceMasteredAt?: Date | string | null
+    fullyMasteredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutSongMasteriesInput
+    score: ScoreCreateNestedOneWithoutSongMasteriesInput
+  }
+
+  export type SongMasteryUncheckedCreateInput = {
+    id?: string
+    userId: string
+    scoreId: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    isFullyMastered?: boolean
+    performanceMasteredAt?: Date | string | null
+    fullyMasteredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SongMasteryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    isFullyMastered?: BoolFieldUpdateOperationsInput | boolean
+    performanceMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fullyMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutSongMasteriesNestedInput
+    score?: ScoreUpdateOneRequiredWithoutSongMasteriesNestedInput
+  }
+
+  export type SongMasteryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    isFullyMastered?: BoolFieldUpdateOperationsInput | boolean
+    performanceMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fullyMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SongMasteryCreateManyInput = {
+    id?: string
+    userId: string
+    scoreId: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    isFullyMastered?: boolean
+    performanceMasteredAt?: Date | string | null
+    fullyMasteredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SongMasteryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    isFullyMastered?: BoolFieldUpdateOperationsInput | boolean
+    performanceMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fullyMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SongMasteryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    isFullyMastered?: BoolFieldUpdateOperationsInput | boolean
+    performanceMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fullyMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserGradeProgressCreateInput = {
+    id?: string
+    currentStar?: number
+    currentGrade?: string
+    masteredSongCountAtCurrentStar?: number
+    masterReachedAt?: Date | string | null
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutUserGradeProgressInput
+  }
+
+  export type UserGradeProgressUncheckedCreateInput = {
+    id?: string
+    userId: string
+    currentStar?: number
+    currentGrade?: string
+    masteredSongCountAtCurrentStar?: number
+    masterReachedAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserGradeProgressUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currentStar?: IntFieldUpdateOperationsInput | number
+    currentGrade?: StringFieldUpdateOperationsInput | string
+    masteredSongCountAtCurrentStar?: IntFieldUpdateOperationsInput | number
+    masterReachedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutUserGradeProgressNestedInput
+  }
+
+  export type UserGradeProgressUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    currentStar?: IntFieldUpdateOperationsInput | number
+    currentGrade?: StringFieldUpdateOperationsInput | string
+    masteredSongCountAtCurrentStar?: IntFieldUpdateOperationsInput | number
+    masterReachedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserGradeProgressCreateManyInput = {
+    id?: string
+    userId: string
+    currentStar?: number
+    currentGrade?: string
+    masteredSongCountAtCurrentStar?: number
+    masterReachedAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserGradeProgressUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currentStar?: IntFieldUpdateOperationsInput | number
+    currentGrade?: StringFieldUpdateOperationsInput | string
+    masteredSongCountAtCurrentStar?: IntFieldUpdateOperationsInput | number
+    masterReachedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserGradeProgressUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    currentStar?: IntFieldUpdateOperationsInput | number
+    currentGrade?: StringFieldUpdateOperationsInput | string
+    masteredSongCountAtCurrentStar?: IntFieldUpdateOperationsInput | number
+    masterReachedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SkillTaskCardCreateInput = {
+    id?: string
+    taskCategory: string
+    status?: string
+    generatedAt?: Date | string
+    lastMatchedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutSkillTaskCardsInput
+    score: ScoreCreateNestedOneWithoutSkillTaskCardsInput
+    subTasks?: SubTaskCreateNestedManyWithoutSkillTaskCardInput
+  }
+
+  export type SkillTaskCardUncheckedCreateInput = {
+    id?: string
+    userId: string
+    scoreId: string
+    taskCategory: string
+    status?: string
+    generatedAt?: Date | string
+    lastMatchedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+    subTasks?: SubTaskUncheckedCreateNestedManyWithoutSkillTaskCardInput
+  }
+
+  export type SkillTaskCardUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    taskCategory?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutSkillTaskCardsNestedInput
+    score?: ScoreUpdateOneRequiredWithoutSkillTaskCardsNestedInput
+    subTasks?: SubTaskUpdateManyWithoutSkillTaskCardNestedInput
+  }
+
+  export type SkillTaskCardUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    taskCategory?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subTasks?: SubTaskUncheckedUpdateManyWithoutSkillTaskCardNestedInput
+  }
+
+  export type SkillTaskCardCreateManyInput = {
+    id?: string
+    userId: string
+    scoreId: string
+    taskCategory: string
+    status?: string
+    generatedAt?: Date | string
+    lastMatchedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type SkillTaskCardUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    taskCategory?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SkillTaskCardUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    taskCategory?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubTaskCreateInput = {
+    id?: string
+    subTaskType: string
+    status?: string
+    generatedAt?: Date | string
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+    skillTaskCard: SkillTaskCardCreateNestedOneWithoutSubTasksInput
+    subTaskAssignments?: SubTaskAssignmentCreateNestedManyWithoutSubTaskInput
+  }
+
+  export type SubTaskUncheckedCreateInput = {
+    id?: string
+    skillTaskCardId: string
+    subTaskType: string
+    status?: string
+    generatedAt?: Date | string
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+    subTaskAssignments?: SubTaskAssignmentUncheckedCreateNestedManyWithoutSubTaskInput
+  }
+
+  export type SubTaskUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    skillTaskCard?: SkillTaskCardUpdateOneRequiredWithoutSubTasksNestedInput
+    subTaskAssignments?: SubTaskAssignmentUpdateManyWithoutSubTaskNestedInput
+  }
+
+  export type SubTaskUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    skillTaskCardId?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subTaskAssignments?: SubTaskAssignmentUncheckedUpdateManyWithoutSubTaskNestedInput
+  }
+
+  export type SubTaskCreateManyInput = {
+    id?: string
+    skillTaskCardId: string
+    subTaskType: string
+    status?: string
+    generatedAt?: Date | string
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type SubTaskUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubTaskUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    skillTaskCardId?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubTaskAssignmentCreateInput = {
+    id?: string
+    assignedCategory: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    assignedAt?: Date | string
+    subTask: SubTaskCreateNestedOneWithoutSubTaskAssignmentsInput
+    practiceItem: PracticeItemCreateNestedOneWithoutSubTaskAssignmentsInput
+  }
+
+  export type SubTaskAssignmentUncheckedCreateInput = {
+    id?: string
+    subTaskId: string
+    practiceItemId: string
+    assignedCategory: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    assignedAt?: Date | string
+  }
+
+  export type SubTaskAssignmentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subTask?: SubTaskUpdateOneRequiredWithoutSubTaskAssignmentsNestedInput
+    practiceItem?: PracticeItemUpdateOneRequiredWithoutSubTaskAssignmentsNestedInput
+  }
+
+  export type SubTaskAssignmentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskId?: StringFieldUpdateOperationsInput | string
+    practiceItemId?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubTaskAssignmentCreateManyInput = {
+    id?: string
+    subTaskId: string
+    practiceItemId: string
+    assignedCategory: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    assignedAt?: Date | string
+  }
+
+  export type SubTaskAssignmentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubTaskAssignmentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskId?: StringFieldUpdateOperationsInput | string
+    practiceItemId?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPracticeMasteryCreateInput = {
+    id?: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutUserPracticeMasteriesInput
+    practiceItem: PracticeItemCreateNestedOneWithoutUserPracticeMasteriesInput
+  }
+
+  export type UserPracticeMasteryUncheckedCreateInput = {
+    id?: string
+    userId: string
+    practiceItemId: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserPracticeMasteryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutUserPracticeMasteriesNestedInput
+    practiceItem?: PracticeItemUpdateOneRequiredWithoutUserPracticeMasteriesNestedInput
+  }
+
+  export type UserPracticeMasteryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    practiceItemId?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPracticeMasteryCreateManyInput = {
+    id?: string
+    userId: string
+    practiceItemId: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserPracticeMasteryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPracticeMasteryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    practiceItemId?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserTechniqueMasteryCreateInput = {
+    id?: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutUserTechniqueMasteriesInput
+    techniqueTag: TechniqueTagCreateNestedOneWithoutUserTechniqueMasteriesInput
+  }
+
+  export type UserTechniqueMasteryUncheckedCreateInput = {
+    id?: string
+    userId: string
+    techniqueTagId: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserTechniqueMasteryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutUserTechniqueMasteriesNestedInput
+    techniqueTag?: TechniqueTagUpdateOneRequiredWithoutUserTechniqueMasteriesNestedInput
+  }
+
+  export type UserTechniqueMasteryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    techniqueTagId?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserTechniqueMasteryCreateManyInput = {
+    id?: string
+    userId: string
+    techniqueTagId: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserTechniqueMasteryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserTechniqueMasteryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    techniqueTagId?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PracticeItemSubTaskTagCreateInput = {
+    subTaskType: string
+    practiceItem: PracticeItemCreateNestedOneWithoutPracticeItemSubTaskTagsInput
+  }
+
+  export type PracticeItemSubTaskTagUncheckedCreateInput = {
+    practiceItemId: string
+    subTaskType: string
+  }
+
+  export type PracticeItemSubTaskTagUpdateInput = {
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    practiceItem?: PracticeItemUpdateOneRequiredWithoutPracticeItemSubTaskTagsNestedInput
+  }
+
+  export type PracticeItemSubTaskTagUncheckedUpdateInput = {
+    practiceItemId?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PracticeItemSubTaskTagCreateManyInput = {
+    practiceItemId: string
+    subTaskType: string
+  }
+
+  export type PracticeItemSubTaskTagUpdateManyMutationInput = {
+    subTaskType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PracticeItemSubTaskTagUncheckedUpdateManyInput = {
+    practiceItemId?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type MissingPracticeItemFlagCreateInput = {
+    id?: string
+    subTaskType: string
+    missingCategory: string
+    keyTonic: string
+    keyMode: string
+    star: number
+    detectedAt?: Date | string
+    resolvedAt?: Date | string | null
+    score: ScoreCreateNestedOneWithoutMissingPracticeItemFlagsInput
+    techniqueTag?: TechniqueTagCreateNestedOneWithoutMissingPracticeItemFlagsInput
+  }
+
+  export type MissingPracticeItemFlagUncheckedCreateInput = {
+    id?: string
+    scoreId: string
+    subTaskType: string
+    missingCategory: string
+    keyTonic: string
+    keyMode: string
+    star: number
+    techniqueTagId?: string | null
+    detectedAt?: Date | string
+    resolvedAt?: Date | string | null
+  }
+
+  export type MissingPracticeItemFlagUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    missingCategory?: StringFieldUpdateOperationsInput | string
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    star?: IntFieldUpdateOperationsInput | number
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    score?: ScoreUpdateOneRequiredWithoutMissingPracticeItemFlagsNestedInput
+    techniqueTag?: TechniqueTagUpdateOneWithoutMissingPracticeItemFlagsNestedInput
+  }
+
+  export type MissingPracticeItemFlagUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    missingCategory?: StringFieldUpdateOperationsInput | string
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    star?: IntFieldUpdateOperationsInput | number
+    techniqueTagId?: NullableStringFieldUpdateOperationsInput | string | null
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MissingPracticeItemFlagCreateManyInput = {
+    id?: string
+    scoreId: string
+    subTaskType: string
+    missingCategory: string
+    keyTonic: string
+    keyMode: string
+    star: number
+    techniqueTagId?: string | null
+    detectedAt?: Date | string
+    resolvedAt?: Date | string | null
+  }
+
+  export type MissingPracticeItemFlagUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    missingCategory?: StringFieldUpdateOperationsInput | string
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    star?: IntFieldUpdateOperationsInput | number
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MissingPracticeItemFlagUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    missingCategory?: StringFieldUpdateOperationsInput | string
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    star?: IntFieldUpdateOperationsInput | number
+    techniqueTagId?: NullableStringFieldUpdateOperationsInput | string | null
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -24630,6 +37990,35 @@ export namespace Prisma {
     none?: PerformanceSkillFeedbackWhereInput
   }
 
+  export type SongMasteryListRelationFilter = {
+    every?: SongMasteryWhereInput
+    some?: SongMasteryWhereInput
+    none?: SongMasteryWhereInput
+  }
+
+  export type UserGradeProgressNullableScalarRelationFilter = {
+    is?: UserGradeProgressWhereInput | null
+    isNot?: UserGradeProgressWhereInput | null
+  }
+
+  export type SkillTaskCardListRelationFilter = {
+    every?: SkillTaskCardWhereInput
+    some?: SkillTaskCardWhereInput
+    none?: SkillTaskCardWhereInput
+  }
+
+  export type UserPracticeMasteryListRelationFilter = {
+    every?: UserPracticeMasteryWhereInput
+    some?: UserPracticeMasteryWhereInput
+    none?: UserPracticeMasteryWhereInput
+  }
+
+  export type UserTechniqueMasteryListRelationFilter = {
+    every?: UserTechniqueMasteryWhereInput
+    some?: UserTechniqueMasteryWhereInput
+    none?: UserTechniqueMasteryWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -24676,6 +38065,22 @@ export namespace Prisma {
   }
 
   export type PerformanceSkillFeedbackOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SongMasteryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SkillTaskCardOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type UserPracticeMasteryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type UserTechniqueMasteryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -24852,9 +38257,19 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type MissingPracticeItemFlagListRelationFilter = {
+    every?: MissingPracticeItemFlagWhereInput
+    some?: MissingPracticeItemFlagWhereInput
+    none?: MissingPracticeItemFlagWhereInput
+  }
+
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
+  }
+
+  export type MissingPracticeItemFlagOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type ScoreCountOrderByAggregateInput = {
@@ -24880,6 +38295,7 @@ export namespace Prisma {
     isShared?: SortOrder
     difficulty?: SortOrder
     skillSubTaskTags?: SortOrder
+    ownerScope?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrder
   }
@@ -24914,6 +38330,7 @@ export namespace Prisma {
     defaultTempo?: SortOrder
     isShared?: SortOrder
     difficulty?: SortOrder
+    ownerScope?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrder
   }
@@ -24940,6 +38357,7 @@ export namespace Prisma {
     defaultTempo?: SortOrder
     isShared?: SortOrder
     difficulty?: SortOrder
+    ownerScope?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrder
   }
@@ -25070,6 +38488,13 @@ export namespace Prisma {
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
     analysisSummary?: SortOrder
+    rhythmAccuracy?: SortOrder
+    bowingAccuracy?: SortOrder
+    pitchSkillScore?: SortOrder
+    rhythmSkillScore?: SortOrder
+    bowingSkillScore?: SortOrder
+    skillSubScores?: SortOrder
+    problematicPositions?: SortOrder
     analysisStatus?: SortOrder
     retryCount?: SortOrder
     errorMessage?: SortOrder
@@ -25084,6 +38509,11 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    rhythmAccuracy?: SortOrder
+    bowingAccuracy?: SortOrder
+    pitchSkillScore?: SortOrder
+    rhythmSkillScore?: SortOrder
+    bowingSkillScore?: SortOrder
     retryCount?: SortOrder
   }
 
@@ -25106,6 +38536,11 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    rhythmAccuracy?: SortOrder
+    bowingAccuracy?: SortOrder
+    pitchSkillScore?: SortOrder
+    rhythmSkillScore?: SortOrder
+    bowingSkillScore?: SortOrder
     analysisStatus?: SortOrder
     retryCount?: SortOrder
     errorMessage?: SortOrder
@@ -25133,6 +38568,11 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    rhythmAccuracy?: SortOrder
+    bowingAccuracy?: SortOrder
+    pitchSkillScore?: SortOrder
+    rhythmSkillScore?: SortOrder
+    bowingSkillScore?: SortOrder
     analysisStatus?: SortOrder
     retryCount?: SortOrder
     errorMessage?: SortOrder
@@ -25147,6 +38587,11 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    rhythmAccuracy?: SortOrder
+    bowingAccuracy?: SortOrder
+    pitchSkillScore?: SortOrder
+    rhythmSkillScore?: SortOrder
+    bowingSkillScore?: SortOrder
     retryCount?: SortOrder
   }
 
@@ -25212,7 +38657,27 @@ export namespace Prisma {
     none?: PracticeItemTechniqueWhereInput
   }
 
+  export type SubTaskAssignmentListRelationFilter = {
+    every?: SubTaskAssignmentWhereInput
+    some?: SubTaskAssignmentWhereInput
+    none?: SubTaskAssignmentWhereInput
+  }
+
+  export type PracticeItemSubTaskTagListRelationFilter = {
+    every?: PracticeItemSubTaskTagWhereInput
+    some?: PracticeItemSubTaskTagWhereInput
+    none?: PracticeItemSubTaskTagWhereInput
+  }
+
   export type PracticeItemTechniqueOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SubTaskAssignmentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PracticeItemSubTaskTagOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -25421,6 +38886,8 @@ export namespace Prisma {
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
     analysisSummary?: SortOrder
+    rhythmAccuracy?: SortOrder
+    bowingAccuracy?: SortOrder
     analysisStatus?: SortOrder
     retryCount?: SortOrder
     errorMessage?: SortOrder
@@ -25440,6 +38907,8 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    rhythmAccuracy?: SortOrder
+    bowingAccuracy?: SortOrder
     retryCount?: SortOrder
     pitchSkillScore?: SortOrder
     rhythmSkillScore?: SortOrder
@@ -25459,6 +38928,8 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    rhythmAccuracy?: SortOrder
+    bowingAccuracy?: SortOrder
     analysisStatus?: SortOrder
     retryCount?: SortOrder
     errorMessage?: SortOrder
@@ -25483,6 +38954,8 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    rhythmAccuracy?: SortOrder
+    bowingAccuracy?: SortOrder
     analysisStatus?: SortOrder
     retryCount?: SortOrder
     errorMessage?: SortOrder
@@ -25500,6 +38973,8 @@ export namespace Prisma {
     timingAccuracy?: SortOrder
     overallScore?: SortOrder
     evaluatedNotes?: SortOrder
+    rhythmAccuracy?: SortOrder
+    bowingAccuracy?: SortOrder
     retryCount?: SortOrder
     pitchSkillScore?: SortOrder
     rhythmSkillScore?: SortOrder
@@ -25932,14 +39407,20 @@ export namespace Prisma {
     _max?: NestedJsonFilter<$PrismaModel>
   }
 
-  export type PracticePerformanceScalarRelationFilter = {
-    is?: PracticePerformanceWhereInput
-    isNot?: PracticePerformanceWhereInput
+  export type PracticePerformanceNullableScalarRelationFilter = {
+    is?: PracticePerformanceWhereInput | null
+    isNot?: PracticePerformanceWhereInput | null
+  }
+
+  export type PerformanceNullableScalarRelationFilter = {
+    is?: PerformanceWhereInput | null
+    isNot?: PerformanceWhereInput | null
   }
 
   export type PerformanceSkillFeedbackCountOrderByAggregateInput = {
     id?: SortOrder
     practicePerformanceId?: SortOrder
+    performanceId?: SortOrder
     userId?: SortOrder
     positionId?: SortOrder
     selectedSubTaskId?: SortOrder
@@ -25951,6 +39432,7 @@ export namespace Prisma {
   export type PerformanceSkillFeedbackMaxOrderByAggregateInput = {
     id?: SortOrder
     practicePerformanceId?: SortOrder
+    performanceId?: SortOrder
     userId?: SortOrder
     positionId?: SortOrder
     selectedSubTaskId?: SortOrder
@@ -25962,12 +39444,389 @@ export namespace Prisma {
   export type PerformanceSkillFeedbackMinOrderByAggregateInput = {
     id?: SortOrder
     practicePerformanceId?: SortOrder
+    performanceId?: SortOrder
     userId?: SortOrder
     positionId?: SortOrder
     selectedSubTaskId?: SortOrder
     feedbackType?: SortOrder
     comment?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type SongMasteryUserIdScoreIdCompoundUniqueInput = {
+    userId: string
+    scoreId: string
+  }
+
+  export type SongMasteryCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    scoreId?: SortOrder
+    recentAverageScore?: SortOrder
+    totalPerformanceCount?: SortOrder
+    isPerformanceMastered?: SortOrder
+    isFullyMastered?: SortOrder
+    performanceMasteredAt?: SortOrder
+    fullyMasteredAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SongMasteryAvgOrderByAggregateInput = {
+    recentAverageScore?: SortOrder
+    totalPerformanceCount?: SortOrder
+  }
+
+  export type SongMasteryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    scoreId?: SortOrder
+    recentAverageScore?: SortOrder
+    totalPerformanceCount?: SortOrder
+    isPerformanceMastered?: SortOrder
+    isFullyMastered?: SortOrder
+    performanceMasteredAt?: SortOrder
+    fullyMasteredAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SongMasteryMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    scoreId?: SortOrder
+    recentAverageScore?: SortOrder
+    totalPerformanceCount?: SortOrder
+    isPerformanceMastered?: SortOrder
+    isFullyMastered?: SortOrder
+    performanceMasteredAt?: SortOrder
+    fullyMasteredAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SongMasterySumOrderByAggregateInput = {
+    recentAverageScore?: SortOrder
+    totalPerformanceCount?: SortOrder
+  }
+
+  export type UserGradeProgressCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    currentStar?: SortOrder
+    currentGrade?: SortOrder
+    masteredSongCountAtCurrentStar?: SortOrder
+    masterReachedAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserGradeProgressAvgOrderByAggregateInput = {
+    currentStar?: SortOrder
+    masteredSongCountAtCurrentStar?: SortOrder
+  }
+
+  export type UserGradeProgressMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    currentStar?: SortOrder
+    currentGrade?: SortOrder
+    masteredSongCountAtCurrentStar?: SortOrder
+    masterReachedAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserGradeProgressMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    currentStar?: SortOrder
+    currentGrade?: SortOrder
+    masteredSongCountAtCurrentStar?: SortOrder
+    masterReachedAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserGradeProgressSumOrderByAggregateInput = {
+    currentStar?: SortOrder
+    masteredSongCountAtCurrentStar?: SortOrder
+  }
+
+  export type SubTaskListRelationFilter = {
+    every?: SubTaskWhereInput
+    some?: SubTaskWhereInput
+    none?: SubTaskWhereInput
+  }
+
+  export type SubTaskOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SkillTaskCardUserIdScoreIdTaskCategoryCompoundUniqueInput = {
+    userId: string
+    scoreId: string
+    taskCategory: string
+  }
+
+  export type SkillTaskCardCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    scoreId?: SortOrder
+    taskCategory?: SortOrder
+    status?: SortOrder
+    generatedAt?: SortOrder
+    lastMatchedAt?: SortOrder
+    clearedAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SkillTaskCardMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    scoreId?: SortOrder
+    taskCategory?: SortOrder
+    status?: SortOrder
+    generatedAt?: SortOrder
+    lastMatchedAt?: SortOrder
+    clearedAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SkillTaskCardMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    scoreId?: SortOrder
+    taskCategory?: SortOrder
+    status?: SortOrder
+    generatedAt?: SortOrder
+    lastMatchedAt?: SortOrder
+    clearedAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SkillTaskCardScalarRelationFilter = {
+    is?: SkillTaskCardWhereInput
+    isNot?: SkillTaskCardWhereInput
+  }
+
+  export type SubTaskSkillTaskCardIdSubTaskTypeCompoundUniqueInput = {
+    skillTaskCardId: string
+    subTaskType: string
+  }
+
+  export type SubTaskCountOrderByAggregateInput = {
+    id?: SortOrder
+    skillTaskCardId?: SortOrder
+    subTaskType?: SortOrder
+    status?: SortOrder
+    generatedAt?: SortOrder
+    clearedAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SubTaskMaxOrderByAggregateInput = {
+    id?: SortOrder
+    skillTaskCardId?: SortOrder
+    subTaskType?: SortOrder
+    status?: SortOrder
+    generatedAt?: SortOrder
+    clearedAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SubTaskMinOrderByAggregateInput = {
+    id?: SortOrder
+    skillTaskCardId?: SortOrder
+    subTaskType?: SortOrder
+    status?: SortOrder
+    generatedAt?: SortOrder
+    clearedAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SubTaskScalarRelationFilter = {
+    is?: SubTaskWhereInput
+    isNot?: SubTaskWhereInput
+  }
+
+  export type SubTaskAssignmentSubTaskIdPracticeItemIdCompoundUniqueInput = {
+    subTaskId: string
+    practiceItemId: string
+  }
+
+  export type SubTaskAssignmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    subTaskId?: SortOrder
+    practiceItemId?: SortOrder
+    assignedCategory?: SortOrder
+    isMastered?: SortOrder
+    masteredAt?: SortOrder
+    assignedAt?: SortOrder
+  }
+
+  export type SubTaskAssignmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    subTaskId?: SortOrder
+    practiceItemId?: SortOrder
+    assignedCategory?: SortOrder
+    isMastered?: SortOrder
+    masteredAt?: SortOrder
+    assignedAt?: SortOrder
+  }
+
+  export type SubTaskAssignmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    subTaskId?: SortOrder
+    practiceItemId?: SortOrder
+    assignedCategory?: SortOrder
+    isMastered?: SortOrder
+    masteredAt?: SortOrder
+    assignedAt?: SortOrder
+  }
+
+  export type UserPracticeMasteryUserIdPracticeItemIdCompoundUniqueInput = {
+    userId: string
+    practiceItemId: string
+  }
+
+  export type UserPracticeMasteryCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    practiceItemId?: SortOrder
+    recentAverageScore?: SortOrder
+    totalPerformanceCount?: SortOrder
+    isPerformanceMastered?: SortOrder
+    masteredAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserPracticeMasteryAvgOrderByAggregateInput = {
+    recentAverageScore?: SortOrder
+    totalPerformanceCount?: SortOrder
+  }
+
+  export type UserPracticeMasteryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    practiceItemId?: SortOrder
+    recentAverageScore?: SortOrder
+    totalPerformanceCount?: SortOrder
+    isPerformanceMastered?: SortOrder
+    masteredAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserPracticeMasteryMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    practiceItemId?: SortOrder
+    recentAverageScore?: SortOrder
+    totalPerformanceCount?: SortOrder
+    isPerformanceMastered?: SortOrder
+    masteredAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserPracticeMasterySumOrderByAggregateInput = {
+    recentAverageScore?: SortOrder
+    totalPerformanceCount?: SortOrder
+  }
+
+  export type UserTechniqueMasteryUserIdTechniqueTagIdCompoundUniqueInput = {
+    userId: string
+    techniqueTagId: string
+  }
+
+  export type UserTechniqueMasteryCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    techniqueTagId?: SortOrder
+    isMastered?: SortOrder
+    masteredAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserTechniqueMasteryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    techniqueTagId?: SortOrder
+    isMastered?: SortOrder
+    masteredAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserTechniqueMasteryMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    techniqueTagId?: SortOrder
+    isMastered?: SortOrder
+    masteredAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PracticeItemSubTaskTagPracticeItemIdSubTaskTypeCompoundUniqueInput = {
+    practiceItemId: string
+    subTaskType: string
+  }
+
+  export type PracticeItemSubTaskTagCountOrderByAggregateInput = {
+    practiceItemId?: SortOrder
+    subTaskType?: SortOrder
+  }
+
+  export type PracticeItemSubTaskTagMaxOrderByAggregateInput = {
+    practiceItemId?: SortOrder
+    subTaskType?: SortOrder
+  }
+
+  export type PracticeItemSubTaskTagMinOrderByAggregateInput = {
+    practiceItemId?: SortOrder
+    subTaskType?: SortOrder
+  }
+
+  export type MissingPracticeItemFlagCountOrderByAggregateInput = {
+    id?: SortOrder
+    scoreId?: SortOrder
+    subTaskType?: SortOrder
+    missingCategory?: SortOrder
+    keyTonic?: SortOrder
+    keyMode?: SortOrder
+    star?: SortOrder
+    techniqueTagId?: SortOrder
+    detectedAt?: SortOrder
+    resolvedAt?: SortOrder
+  }
+
+  export type MissingPracticeItemFlagAvgOrderByAggregateInput = {
+    star?: SortOrder
+  }
+
+  export type MissingPracticeItemFlagMaxOrderByAggregateInput = {
+    id?: SortOrder
+    scoreId?: SortOrder
+    subTaskType?: SortOrder
+    missingCategory?: SortOrder
+    keyTonic?: SortOrder
+    keyMode?: SortOrder
+    star?: SortOrder
+    techniqueTagId?: SortOrder
+    detectedAt?: SortOrder
+    resolvedAt?: SortOrder
+  }
+
+  export type MissingPracticeItemFlagMinOrderByAggregateInput = {
+    id?: SortOrder
+    scoreId?: SortOrder
+    subTaskType?: SortOrder
+    missingCategory?: SortOrder
+    keyTonic?: SortOrder
+    keyMode?: SortOrder
+    star?: SortOrder
+    techniqueTagId?: SortOrder
+    detectedAt?: SortOrder
+    resolvedAt?: SortOrder
+  }
+
+  export type MissingPracticeItemFlagSumOrderByAggregateInput = {
+    star?: SortOrder
   }
 
   export type PerformanceCreateNestedManyWithoutUserInput = {
@@ -26053,6 +39912,40 @@ export namespace Prisma {
     connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
   }
 
+  export type SongMasteryCreateNestedManyWithoutUserInput = {
+    create?: XOR<SongMasteryCreateWithoutUserInput, SongMasteryUncheckedCreateWithoutUserInput> | SongMasteryCreateWithoutUserInput[] | SongMasteryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SongMasteryCreateOrConnectWithoutUserInput | SongMasteryCreateOrConnectWithoutUserInput[]
+    createMany?: SongMasteryCreateManyUserInputEnvelope
+    connect?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+  }
+
+  export type UserGradeProgressCreateNestedOneWithoutUserInput = {
+    create?: XOR<UserGradeProgressCreateWithoutUserInput, UserGradeProgressUncheckedCreateWithoutUserInput>
+    connectOrCreate?: UserGradeProgressCreateOrConnectWithoutUserInput
+    connect?: UserGradeProgressWhereUniqueInput
+  }
+
+  export type SkillTaskCardCreateNestedManyWithoutUserInput = {
+    create?: XOR<SkillTaskCardCreateWithoutUserInput, SkillTaskCardUncheckedCreateWithoutUserInput> | SkillTaskCardCreateWithoutUserInput[] | SkillTaskCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SkillTaskCardCreateOrConnectWithoutUserInput | SkillTaskCardCreateOrConnectWithoutUserInput[]
+    createMany?: SkillTaskCardCreateManyUserInputEnvelope
+    connect?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+  }
+
+  export type UserPracticeMasteryCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserPracticeMasteryCreateWithoutUserInput, UserPracticeMasteryUncheckedCreateWithoutUserInput> | UserPracticeMasteryCreateWithoutUserInput[] | UserPracticeMasteryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserPracticeMasteryCreateOrConnectWithoutUserInput | UserPracticeMasteryCreateOrConnectWithoutUserInput[]
+    createMany?: UserPracticeMasteryCreateManyUserInputEnvelope
+    connect?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+  }
+
+  export type UserTechniqueMasteryCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserTechniqueMasteryCreateWithoutUserInput, UserTechniqueMasteryUncheckedCreateWithoutUserInput> | UserTechniqueMasteryCreateWithoutUserInput[] | UserTechniqueMasteryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserTechniqueMasteryCreateOrConnectWithoutUserInput | UserTechniqueMasteryCreateOrConnectWithoutUserInput[]
+    createMany?: UserTechniqueMasteryCreateManyUserInputEnvelope
+    connect?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+  }
+
   export type PerformanceUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<PerformanceCreateWithoutUserInput, PerformanceUncheckedCreateWithoutUserInput> | PerformanceCreateWithoutUserInput[] | PerformanceUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PerformanceCreateOrConnectWithoutUserInput | PerformanceCreateOrConnectWithoutUserInput[]
@@ -26134,6 +40027,40 @@ export namespace Prisma {
     connectOrCreate?: PerformanceSkillFeedbackCreateOrConnectWithoutUserInput | PerformanceSkillFeedbackCreateOrConnectWithoutUserInput[]
     createMany?: PerformanceSkillFeedbackCreateManyUserInputEnvelope
     connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+  }
+
+  export type SongMasteryUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<SongMasteryCreateWithoutUserInput, SongMasteryUncheckedCreateWithoutUserInput> | SongMasteryCreateWithoutUserInput[] | SongMasteryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SongMasteryCreateOrConnectWithoutUserInput | SongMasteryCreateOrConnectWithoutUserInput[]
+    createMany?: SongMasteryCreateManyUserInputEnvelope
+    connect?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+  }
+
+  export type UserGradeProgressUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<UserGradeProgressCreateWithoutUserInput, UserGradeProgressUncheckedCreateWithoutUserInput>
+    connectOrCreate?: UserGradeProgressCreateOrConnectWithoutUserInput
+    connect?: UserGradeProgressWhereUniqueInput
+  }
+
+  export type SkillTaskCardUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<SkillTaskCardCreateWithoutUserInput, SkillTaskCardUncheckedCreateWithoutUserInput> | SkillTaskCardCreateWithoutUserInput[] | SkillTaskCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SkillTaskCardCreateOrConnectWithoutUserInput | SkillTaskCardCreateOrConnectWithoutUserInput[]
+    createMany?: SkillTaskCardCreateManyUserInputEnvelope
+    connect?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+  }
+
+  export type UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserPracticeMasteryCreateWithoutUserInput, UserPracticeMasteryUncheckedCreateWithoutUserInput> | UserPracticeMasteryCreateWithoutUserInput[] | UserPracticeMasteryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserPracticeMasteryCreateOrConnectWithoutUserInput | UserPracticeMasteryCreateOrConnectWithoutUserInput[]
+    createMany?: UserPracticeMasteryCreateManyUserInputEnvelope
+    connect?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+  }
+
+  export type UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<UserTechniqueMasteryCreateWithoutUserInput, UserTechniqueMasteryUncheckedCreateWithoutUserInput> | UserTechniqueMasteryCreateWithoutUserInput[] | UserTechniqueMasteryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserTechniqueMasteryCreateOrConnectWithoutUserInput | UserTechniqueMasteryCreateOrConnectWithoutUserInput[]
+    createMany?: UserTechniqueMasteryCreateManyUserInputEnvelope
+    connect?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -26324,6 +40251,72 @@ export namespace Prisma {
     deleteMany?: PerformanceSkillFeedbackScalarWhereInput | PerformanceSkillFeedbackScalarWhereInput[]
   }
 
+  export type SongMasteryUpdateManyWithoutUserNestedInput = {
+    create?: XOR<SongMasteryCreateWithoutUserInput, SongMasteryUncheckedCreateWithoutUserInput> | SongMasteryCreateWithoutUserInput[] | SongMasteryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SongMasteryCreateOrConnectWithoutUserInput | SongMasteryCreateOrConnectWithoutUserInput[]
+    upsert?: SongMasteryUpsertWithWhereUniqueWithoutUserInput | SongMasteryUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: SongMasteryCreateManyUserInputEnvelope
+    set?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    disconnect?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    delete?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    connect?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    update?: SongMasteryUpdateWithWhereUniqueWithoutUserInput | SongMasteryUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: SongMasteryUpdateManyWithWhereWithoutUserInput | SongMasteryUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: SongMasteryScalarWhereInput | SongMasteryScalarWhereInput[]
+  }
+
+  export type UserGradeProgressUpdateOneWithoutUserNestedInput = {
+    create?: XOR<UserGradeProgressCreateWithoutUserInput, UserGradeProgressUncheckedCreateWithoutUserInput>
+    connectOrCreate?: UserGradeProgressCreateOrConnectWithoutUserInput
+    upsert?: UserGradeProgressUpsertWithoutUserInput
+    disconnect?: UserGradeProgressWhereInput | boolean
+    delete?: UserGradeProgressWhereInput | boolean
+    connect?: UserGradeProgressWhereUniqueInput
+    update?: XOR<XOR<UserGradeProgressUpdateToOneWithWhereWithoutUserInput, UserGradeProgressUpdateWithoutUserInput>, UserGradeProgressUncheckedUpdateWithoutUserInput>
+  }
+
+  export type SkillTaskCardUpdateManyWithoutUserNestedInput = {
+    create?: XOR<SkillTaskCardCreateWithoutUserInput, SkillTaskCardUncheckedCreateWithoutUserInput> | SkillTaskCardCreateWithoutUserInput[] | SkillTaskCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SkillTaskCardCreateOrConnectWithoutUserInput | SkillTaskCardCreateOrConnectWithoutUserInput[]
+    upsert?: SkillTaskCardUpsertWithWhereUniqueWithoutUserInput | SkillTaskCardUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: SkillTaskCardCreateManyUserInputEnvelope
+    set?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    disconnect?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    delete?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    connect?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    update?: SkillTaskCardUpdateWithWhereUniqueWithoutUserInput | SkillTaskCardUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: SkillTaskCardUpdateManyWithWhereWithoutUserInput | SkillTaskCardUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: SkillTaskCardScalarWhereInput | SkillTaskCardScalarWhereInput[]
+  }
+
+  export type UserPracticeMasteryUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserPracticeMasteryCreateWithoutUserInput, UserPracticeMasteryUncheckedCreateWithoutUserInput> | UserPracticeMasteryCreateWithoutUserInput[] | UserPracticeMasteryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserPracticeMasteryCreateOrConnectWithoutUserInput | UserPracticeMasteryCreateOrConnectWithoutUserInput[]
+    upsert?: UserPracticeMasteryUpsertWithWhereUniqueWithoutUserInput | UserPracticeMasteryUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserPracticeMasteryCreateManyUserInputEnvelope
+    set?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    disconnect?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    delete?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    connect?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    update?: UserPracticeMasteryUpdateWithWhereUniqueWithoutUserInput | UserPracticeMasteryUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserPracticeMasteryUpdateManyWithWhereWithoutUserInput | UserPracticeMasteryUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserPracticeMasteryScalarWhereInput | UserPracticeMasteryScalarWhereInput[]
+  }
+
+  export type UserTechniqueMasteryUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserTechniqueMasteryCreateWithoutUserInput, UserTechniqueMasteryUncheckedCreateWithoutUserInput> | UserTechniqueMasteryCreateWithoutUserInput[] | UserTechniqueMasteryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserTechniqueMasteryCreateOrConnectWithoutUserInput | UserTechniqueMasteryCreateOrConnectWithoutUserInput[]
+    upsert?: UserTechniqueMasteryUpsertWithWhereUniqueWithoutUserInput | UserTechniqueMasteryUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserTechniqueMasteryCreateManyUserInputEnvelope
+    set?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    disconnect?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    delete?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    connect?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    update?: UserTechniqueMasteryUpdateWithWhereUniqueWithoutUserInput | UserTechniqueMasteryUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserTechniqueMasteryUpdateManyWithWhereWithoutUserInput | UserTechniqueMasteryUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserTechniqueMasteryScalarWhereInput | UserTechniqueMasteryScalarWhereInput[]
+  }
+
   export type PerformanceUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<PerformanceCreateWithoutUserInput, PerformanceUncheckedCreateWithoutUserInput> | PerformanceCreateWithoutUserInput[] | PerformanceUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PerformanceCreateOrConnectWithoutUserInput | PerformanceCreateOrConnectWithoutUserInput[]
@@ -26488,11 +40481,98 @@ export namespace Prisma {
     deleteMany?: PerformanceSkillFeedbackScalarWhereInput | PerformanceSkillFeedbackScalarWhereInput[]
   }
 
+  export type SongMasteryUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<SongMasteryCreateWithoutUserInput, SongMasteryUncheckedCreateWithoutUserInput> | SongMasteryCreateWithoutUserInput[] | SongMasteryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SongMasteryCreateOrConnectWithoutUserInput | SongMasteryCreateOrConnectWithoutUserInput[]
+    upsert?: SongMasteryUpsertWithWhereUniqueWithoutUserInput | SongMasteryUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: SongMasteryCreateManyUserInputEnvelope
+    set?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    disconnect?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    delete?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    connect?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    update?: SongMasteryUpdateWithWhereUniqueWithoutUserInput | SongMasteryUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: SongMasteryUpdateManyWithWhereWithoutUserInput | SongMasteryUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: SongMasteryScalarWhereInput | SongMasteryScalarWhereInput[]
+  }
+
+  export type UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<UserGradeProgressCreateWithoutUserInput, UserGradeProgressUncheckedCreateWithoutUserInput>
+    connectOrCreate?: UserGradeProgressCreateOrConnectWithoutUserInput
+    upsert?: UserGradeProgressUpsertWithoutUserInput
+    disconnect?: UserGradeProgressWhereInput | boolean
+    delete?: UserGradeProgressWhereInput | boolean
+    connect?: UserGradeProgressWhereUniqueInput
+    update?: XOR<XOR<UserGradeProgressUpdateToOneWithWhereWithoutUserInput, UserGradeProgressUpdateWithoutUserInput>, UserGradeProgressUncheckedUpdateWithoutUserInput>
+  }
+
+  export type SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<SkillTaskCardCreateWithoutUserInput, SkillTaskCardUncheckedCreateWithoutUserInput> | SkillTaskCardCreateWithoutUserInput[] | SkillTaskCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SkillTaskCardCreateOrConnectWithoutUserInput | SkillTaskCardCreateOrConnectWithoutUserInput[]
+    upsert?: SkillTaskCardUpsertWithWhereUniqueWithoutUserInput | SkillTaskCardUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: SkillTaskCardCreateManyUserInputEnvelope
+    set?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    disconnect?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    delete?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    connect?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    update?: SkillTaskCardUpdateWithWhereUniqueWithoutUserInput | SkillTaskCardUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: SkillTaskCardUpdateManyWithWhereWithoutUserInput | SkillTaskCardUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: SkillTaskCardScalarWhereInput | SkillTaskCardScalarWhereInput[]
+  }
+
+  export type UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserPracticeMasteryCreateWithoutUserInput, UserPracticeMasteryUncheckedCreateWithoutUserInput> | UserPracticeMasteryCreateWithoutUserInput[] | UserPracticeMasteryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserPracticeMasteryCreateOrConnectWithoutUserInput | UserPracticeMasteryCreateOrConnectWithoutUserInput[]
+    upsert?: UserPracticeMasteryUpsertWithWhereUniqueWithoutUserInput | UserPracticeMasteryUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserPracticeMasteryCreateManyUserInputEnvelope
+    set?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    disconnect?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    delete?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    connect?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    update?: UserPracticeMasteryUpdateWithWhereUniqueWithoutUserInput | UserPracticeMasteryUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserPracticeMasteryUpdateManyWithWhereWithoutUserInput | UserPracticeMasteryUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserPracticeMasteryScalarWhereInput | UserPracticeMasteryScalarWhereInput[]
+  }
+
+  export type UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<UserTechniqueMasteryCreateWithoutUserInput, UserTechniqueMasteryUncheckedCreateWithoutUserInput> | UserTechniqueMasteryCreateWithoutUserInput[] | UserTechniqueMasteryUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: UserTechniqueMasteryCreateOrConnectWithoutUserInput | UserTechniqueMasteryCreateOrConnectWithoutUserInput[]
+    upsert?: UserTechniqueMasteryUpsertWithWhereUniqueWithoutUserInput | UserTechniqueMasteryUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: UserTechniqueMasteryCreateManyUserInputEnvelope
+    set?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    disconnect?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    delete?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    connect?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    update?: UserTechniqueMasteryUpdateWithWhereUniqueWithoutUserInput | UserTechniqueMasteryUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: UserTechniqueMasteryUpdateManyWithWhereWithoutUserInput | UserTechniqueMasteryUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: UserTechniqueMasteryScalarWhereInput | UserTechniqueMasteryScalarWhereInput[]
+  }
+
   export type PerformanceCreateNestedManyWithoutScoreInput = {
     create?: XOR<PerformanceCreateWithoutScoreInput, PerformanceUncheckedCreateWithoutScoreInput> | PerformanceCreateWithoutScoreInput[] | PerformanceUncheckedCreateWithoutScoreInput[]
     connectOrCreate?: PerformanceCreateOrConnectWithoutScoreInput | PerformanceCreateOrConnectWithoutScoreInput[]
     createMany?: PerformanceCreateManyScoreInputEnvelope
     connect?: PerformanceWhereUniqueInput | PerformanceWhereUniqueInput[]
+  }
+
+  export type SongMasteryCreateNestedManyWithoutScoreInput = {
+    create?: XOR<SongMasteryCreateWithoutScoreInput, SongMasteryUncheckedCreateWithoutScoreInput> | SongMasteryCreateWithoutScoreInput[] | SongMasteryUncheckedCreateWithoutScoreInput[]
+    connectOrCreate?: SongMasteryCreateOrConnectWithoutScoreInput | SongMasteryCreateOrConnectWithoutScoreInput[]
+    createMany?: SongMasteryCreateManyScoreInputEnvelope
+    connect?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+  }
+
+  export type SkillTaskCardCreateNestedManyWithoutScoreInput = {
+    create?: XOR<SkillTaskCardCreateWithoutScoreInput, SkillTaskCardUncheckedCreateWithoutScoreInput> | SkillTaskCardCreateWithoutScoreInput[] | SkillTaskCardUncheckedCreateWithoutScoreInput[]
+    connectOrCreate?: SkillTaskCardCreateOrConnectWithoutScoreInput | SkillTaskCardCreateOrConnectWithoutScoreInput[]
+    createMany?: SkillTaskCardCreateManyScoreInputEnvelope
+    connect?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+  }
+
+  export type MissingPracticeItemFlagCreateNestedManyWithoutScoreInput = {
+    create?: XOR<MissingPracticeItemFlagCreateWithoutScoreInput, MissingPracticeItemFlagUncheckedCreateWithoutScoreInput> | MissingPracticeItemFlagCreateWithoutScoreInput[] | MissingPracticeItemFlagUncheckedCreateWithoutScoreInput[]
+    connectOrCreate?: MissingPracticeItemFlagCreateOrConnectWithoutScoreInput | MissingPracticeItemFlagCreateOrConnectWithoutScoreInput[]
+    createMany?: MissingPracticeItemFlagCreateManyScoreInputEnvelope
+    connect?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
   }
 
   export type UserCreateNestedOneWithoutScoresInput = {
@@ -26506,6 +40586,27 @@ export namespace Prisma {
     connectOrCreate?: PerformanceCreateOrConnectWithoutScoreInput | PerformanceCreateOrConnectWithoutScoreInput[]
     createMany?: PerformanceCreateManyScoreInputEnvelope
     connect?: PerformanceWhereUniqueInput | PerformanceWhereUniqueInput[]
+  }
+
+  export type SongMasteryUncheckedCreateNestedManyWithoutScoreInput = {
+    create?: XOR<SongMasteryCreateWithoutScoreInput, SongMasteryUncheckedCreateWithoutScoreInput> | SongMasteryCreateWithoutScoreInput[] | SongMasteryUncheckedCreateWithoutScoreInput[]
+    connectOrCreate?: SongMasteryCreateOrConnectWithoutScoreInput | SongMasteryCreateOrConnectWithoutScoreInput[]
+    createMany?: SongMasteryCreateManyScoreInputEnvelope
+    connect?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+  }
+
+  export type SkillTaskCardUncheckedCreateNestedManyWithoutScoreInput = {
+    create?: XOR<SkillTaskCardCreateWithoutScoreInput, SkillTaskCardUncheckedCreateWithoutScoreInput> | SkillTaskCardCreateWithoutScoreInput[] | SkillTaskCardUncheckedCreateWithoutScoreInput[]
+    connectOrCreate?: SkillTaskCardCreateOrConnectWithoutScoreInput | SkillTaskCardCreateOrConnectWithoutScoreInput[]
+    createMany?: SkillTaskCardCreateManyScoreInputEnvelope
+    connect?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+  }
+
+  export type MissingPracticeItemFlagUncheckedCreateNestedManyWithoutScoreInput = {
+    create?: XOR<MissingPracticeItemFlagCreateWithoutScoreInput, MissingPracticeItemFlagUncheckedCreateWithoutScoreInput> | MissingPracticeItemFlagCreateWithoutScoreInput[] | MissingPracticeItemFlagUncheckedCreateWithoutScoreInput[]
+    connectOrCreate?: MissingPracticeItemFlagCreateOrConnectWithoutScoreInput | MissingPracticeItemFlagCreateOrConnectWithoutScoreInput[]
+    createMany?: MissingPracticeItemFlagCreateManyScoreInputEnvelope
+    connect?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
   }
 
   export type EnumJobStatusFieldUpdateOperationsInput = {
@@ -26542,6 +40643,48 @@ export namespace Prisma {
     deleteMany?: PerformanceScalarWhereInput | PerformanceScalarWhereInput[]
   }
 
+  export type SongMasteryUpdateManyWithoutScoreNestedInput = {
+    create?: XOR<SongMasteryCreateWithoutScoreInput, SongMasteryUncheckedCreateWithoutScoreInput> | SongMasteryCreateWithoutScoreInput[] | SongMasteryUncheckedCreateWithoutScoreInput[]
+    connectOrCreate?: SongMasteryCreateOrConnectWithoutScoreInput | SongMasteryCreateOrConnectWithoutScoreInput[]
+    upsert?: SongMasteryUpsertWithWhereUniqueWithoutScoreInput | SongMasteryUpsertWithWhereUniqueWithoutScoreInput[]
+    createMany?: SongMasteryCreateManyScoreInputEnvelope
+    set?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    disconnect?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    delete?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    connect?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    update?: SongMasteryUpdateWithWhereUniqueWithoutScoreInput | SongMasteryUpdateWithWhereUniqueWithoutScoreInput[]
+    updateMany?: SongMasteryUpdateManyWithWhereWithoutScoreInput | SongMasteryUpdateManyWithWhereWithoutScoreInput[]
+    deleteMany?: SongMasteryScalarWhereInput | SongMasteryScalarWhereInput[]
+  }
+
+  export type SkillTaskCardUpdateManyWithoutScoreNestedInput = {
+    create?: XOR<SkillTaskCardCreateWithoutScoreInput, SkillTaskCardUncheckedCreateWithoutScoreInput> | SkillTaskCardCreateWithoutScoreInput[] | SkillTaskCardUncheckedCreateWithoutScoreInput[]
+    connectOrCreate?: SkillTaskCardCreateOrConnectWithoutScoreInput | SkillTaskCardCreateOrConnectWithoutScoreInput[]
+    upsert?: SkillTaskCardUpsertWithWhereUniqueWithoutScoreInput | SkillTaskCardUpsertWithWhereUniqueWithoutScoreInput[]
+    createMany?: SkillTaskCardCreateManyScoreInputEnvelope
+    set?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    disconnect?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    delete?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    connect?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    update?: SkillTaskCardUpdateWithWhereUniqueWithoutScoreInput | SkillTaskCardUpdateWithWhereUniqueWithoutScoreInput[]
+    updateMany?: SkillTaskCardUpdateManyWithWhereWithoutScoreInput | SkillTaskCardUpdateManyWithWhereWithoutScoreInput[]
+    deleteMany?: SkillTaskCardScalarWhereInput | SkillTaskCardScalarWhereInput[]
+  }
+
+  export type MissingPracticeItemFlagUpdateManyWithoutScoreNestedInput = {
+    create?: XOR<MissingPracticeItemFlagCreateWithoutScoreInput, MissingPracticeItemFlagUncheckedCreateWithoutScoreInput> | MissingPracticeItemFlagCreateWithoutScoreInput[] | MissingPracticeItemFlagUncheckedCreateWithoutScoreInput[]
+    connectOrCreate?: MissingPracticeItemFlagCreateOrConnectWithoutScoreInput | MissingPracticeItemFlagCreateOrConnectWithoutScoreInput[]
+    upsert?: MissingPracticeItemFlagUpsertWithWhereUniqueWithoutScoreInput | MissingPracticeItemFlagUpsertWithWhereUniqueWithoutScoreInput[]
+    createMany?: MissingPracticeItemFlagCreateManyScoreInputEnvelope
+    set?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    disconnect?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    delete?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    connect?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    update?: MissingPracticeItemFlagUpdateWithWhereUniqueWithoutScoreInput | MissingPracticeItemFlagUpdateWithWhereUniqueWithoutScoreInput[]
+    updateMany?: MissingPracticeItemFlagUpdateManyWithWhereWithoutScoreInput | MissingPracticeItemFlagUpdateManyWithWhereWithoutScoreInput[]
+    deleteMany?: MissingPracticeItemFlagScalarWhereInput | MissingPracticeItemFlagScalarWhereInput[]
+  }
+
   export type UserUpdateOneRequiredWithoutScoresNestedInput = {
     create?: XOR<UserCreateWithoutScoresInput, UserUncheckedCreateWithoutScoresInput>
     connectOrCreate?: UserCreateOrConnectWithoutScoresInput
@@ -26564,6 +40707,48 @@ export namespace Prisma {
     deleteMany?: PerformanceScalarWhereInput | PerformanceScalarWhereInput[]
   }
 
+  export type SongMasteryUncheckedUpdateManyWithoutScoreNestedInput = {
+    create?: XOR<SongMasteryCreateWithoutScoreInput, SongMasteryUncheckedCreateWithoutScoreInput> | SongMasteryCreateWithoutScoreInput[] | SongMasteryUncheckedCreateWithoutScoreInput[]
+    connectOrCreate?: SongMasteryCreateOrConnectWithoutScoreInput | SongMasteryCreateOrConnectWithoutScoreInput[]
+    upsert?: SongMasteryUpsertWithWhereUniqueWithoutScoreInput | SongMasteryUpsertWithWhereUniqueWithoutScoreInput[]
+    createMany?: SongMasteryCreateManyScoreInputEnvelope
+    set?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    disconnect?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    delete?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    connect?: SongMasteryWhereUniqueInput | SongMasteryWhereUniqueInput[]
+    update?: SongMasteryUpdateWithWhereUniqueWithoutScoreInput | SongMasteryUpdateWithWhereUniqueWithoutScoreInput[]
+    updateMany?: SongMasteryUpdateManyWithWhereWithoutScoreInput | SongMasteryUpdateManyWithWhereWithoutScoreInput[]
+    deleteMany?: SongMasteryScalarWhereInput | SongMasteryScalarWhereInput[]
+  }
+
+  export type SkillTaskCardUncheckedUpdateManyWithoutScoreNestedInput = {
+    create?: XOR<SkillTaskCardCreateWithoutScoreInput, SkillTaskCardUncheckedCreateWithoutScoreInput> | SkillTaskCardCreateWithoutScoreInput[] | SkillTaskCardUncheckedCreateWithoutScoreInput[]
+    connectOrCreate?: SkillTaskCardCreateOrConnectWithoutScoreInput | SkillTaskCardCreateOrConnectWithoutScoreInput[]
+    upsert?: SkillTaskCardUpsertWithWhereUniqueWithoutScoreInput | SkillTaskCardUpsertWithWhereUniqueWithoutScoreInput[]
+    createMany?: SkillTaskCardCreateManyScoreInputEnvelope
+    set?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    disconnect?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    delete?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    connect?: SkillTaskCardWhereUniqueInput | SkillTaskCardWhereUniqueInput[]
+    update?: SkillTaskCardUpdateWithWhereUniqueWithoutScoreInput | SkillTaskCardUpdateWithWhereUniqueWithoutScoreInput[]
+    updateMany?: SkillTaskCardUpdateManyWithWhereWithoutScoreInput | SkillTaskCardUpdateManyWithWhereWithoutScoreInput[]
+    deleteMany?: SkillTaskCardScalarWhereInput | SkillTaskCardScalarWhereInput[]
+  }
+
+  export type MissingPracticeItemFlagUncheckedUpdateManyWithoutScoreNestedInput = {
+    create?: XOR<MissingPracticeItemFlagCreateWithoutScoreInput, MissingPracticeItemFlagUncheckedCreateWithoutScoreInput> | MissingPracticeItemFlagCreateWithoutScoreInput[] | MissingPracticeItemFlagUncheckedCreateWithoutScoreInput[]
+    connectOrCreate?: MissingPracticeItemFlagCreateOrConnectWithoutScoreInput | MissingPracticeItemFlagCreateOrConnectWithoutScoreInput[]
+    upsert?: MissingPracticeItemFlagUpsertWithWhereUniqueWithoutScoreInput | MissingPracticeItemFlagUpsertWithWhereUniqueWithoutScoreInput[]
+    createMany?: MissingPracticeItemFlagCreateManyScoreInputEnvelope
+    set?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    disconnect?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    delete?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    connect?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    update?: MissingPracticeItemFlagUpdateWithWhereUniqueWithoutScoreInput | MissingPracticeItemFlagUpdateWithWhereUniqueWithoutScoreInput[]
+    updateMany?: MissingPracticeItemFlagUpdateManyWithWhereWithoutScoreInput | MissingPracticeItemFlagUpdateManyWithWhereWithoutScoreInput[]
+    deleteMany?: MissingPracticeItemFlagScalarWhereInput | MissingPracticeItemFlagScalarWhereInput[]
+  }
+
   export type ScoreCreateNestedOneWithoutPerformancesInput = {
     create?: XOR<ScoreCreateWithoutPerformancesInput, ScoreUncheckedCreateWithoutPerformancesInput>
     connectOrCreate?: ScoreCreateOrConnectWithoutPerformancesInput
@@ -26574,6 +40759,20 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutPerformancesInput, UserUncheckedCreateWithoutPerformancesInput>
     connectOrCreate?: UserCreateOrConnectWithoutPerformancesInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type PerformanceSkillFeedbackCreateNestedManyWithoutPerformanceInput = {
+    create?: XOR<PerformanceSkillFeedbackCreateWithoutPerformanceInput, PerformanceSkillFeedbackUncheckedCreateWithoutPerformanceInput> | PerformanceSkillFeedbackCreateWithoutPerformanceInput[] | PerformanceSkillFeedbackUncheckedCreateWithoutPerformanceInput[]
+    connectOrCreate?: PerformanceSkillFeedbackCreateOrConnectWithoutPerformanceInput | PerformanceSkillFeedbackCreateOrConnectWithoutPerformanceInput[]
+    createMany?: PerformanceSkillFeedbackCreateManyPerformanceInputEnvelope
+    connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+  }
+
+  export type PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutPerformanceInput = {
+    create?: XOR<PerformanceSkillFeedbackCreateWithoutPerformanceInput, PerformanceSkillFeedbackUncheckedCreateWithoutPerformanceInput> | PerformanceSkillFeedbackCreateWithoutPerformanceInput[] | PerformanceSkillFeedbackUncheckedCreateWithoutPerformanceInput[]
+    connectOrCreate?: PerformanceSkillFeedbackCreateOrConnectWithoutPerformanceInput | PerformanceSkillFeedbackCreateOrConnectWithoutPerformanceInput[]
+    createMany?: PerformanceSkillFeedbackCreateManyPerformanceInputEnvelope
+    connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
   }
 
   export type EnumPerformanceTypeFieldUpdateOperationsInput = {
@@ -26608,6 +40807,34 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPerformancesInput, UserUpdateWithoutPerformancesInput>, UserUncheckedUpdateWithoutPerformancesInput>
   }
 
+  export type PerformanceSkillFeedbackUpdateManyWithoutPerformanceNestedInput = {
+    create?: XOR<PerformanceSkillFeedbackCreateWithoutPerformanceInput, PerformanceSkillFeedbackUncheckedCreateWithoutPerformanceInput> | PerformanceSkillFeedbackCreateWithoutPerformanceInput[] | PerformanceSkillFeedbackUncheckedCreateWithoutPerformanceInput[]
+    connectOrCreate?: PerformanceSkillFeedbackCreateOrConnectWithoutPerformanceInput | PerformanceSkillFeedbackCreateOrConnectWithoutPerformanceInput[]
+    upsert?: PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutPerformanceInput | PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutPerformanceInput[]
+    createMany?: PerformanceSkillFeedbackCreateManyPerformanceInputEnvelope
+    set?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    disconnect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    delete?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    update?: PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutPerformanceInput | PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutPerformanceInput[]
+    updateMany?: PerformanceSkillFeedbackUpdateManyWithWhereWithoutPerformanceInput | PerformanceSkillFeedbackUpdateManyWithWhereWithoutPerformanceInput[]
+    deleteMany?: PerformanceSkillFeedbackScalarWhereInput | PerformanceSkillFeedbackScalarWhereInput[]
+  }
+
+  export type PerformanceSkillFeedbackUncheckedUpdateManyWithoutPerformanceNestedInput = {
+    create?: XOR<PerformanceSkillFeedbackCreateWithoutPerformanceInput, PerformanceSkillFeedbackUncheckedCreateWithoutPerformanceInput> | PerformanceSkillFeedbackCreateWithoutPerformanceInput[] | PerformanceSkillFeedbackUncheckedCreateWithoutPerformanceInput[]
+    connectOrCreate?: PerformanceSkillFeedbackCreateOrConnectWithoutPerformanceInput | PerformanceSkillFeedbackCreateOrConnectWithoutPerformanceInput[]
+    upsert?: PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutPerformanceInput | PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutPerformanceInput[]
+    createMany?: PerformanceSkillFeedbackCreateManyPerformanceInputEnvelope
+    set?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    disconnect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    delete?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    connect?: PerformanceSkillFeedbackWhereUniqueInput | PerformanceSkillFeedbackWhereUniqueInput[]
+    update?: PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutPerformanceInput | PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutPerformanceInput[]
+    updateMany?: PerformanceSkillFeedbackUpdateManyWithWhereWithoutPerformanceInput | PerformanceSkillFeedbackUpdateManyWithWhereWithoutPerformanceInput[]
+    deleteMany?: PerformanceSkillFeedbackScalarWhereInput | PerformanceSkillFeedbackScalarWhereInput[]
+  }
+
   export type PracticeItemCreatepositionsInput = {
     set: string[]
   }
@@ -26632,6 +40859,27 @@ export namespace Prisma {
     connect?: PracticePerformanceWhereUniqueInput | PracticePerformanceWhereUniqueInput[]
   }
 
+  export type SubTaskAssignmentCreateNestedManyWithoutPracticeItemInput = {
+    create?: XOR<SubTaskAssignmentCreateWithoutPracticeItemInput, SubTaskAssignmentUncheckedCreateWithoutPracticeItemInput> | SubTaskAssignmentCreateWithoutPracticeItemInput[] | SubTaskAssignmentUncheckedCreateWithoutPracticeItemInput[]
+    connectOrCreate?: SubTaskAssignmentCreateOrConnectWithoutPracticeItemInput | SubTaskAssignmentCreateOrConnectWithoutPracticeItemInput[]
+    createMany?: SubTaskAssignmentCreateManyPracticeItemInputEnvelope
+    connect?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+  }
+
+  export type UserPracticeMasteryCreateNestedManyWithoutPracticeItemInput = {
+    create?: XOR<UserPracticeMasteryCreateWithoutPracticeItemInput, UserPracticeMasteryUncheckedCreateWithoutPracticeItemInput> | UserPracticeMasteryCreateWithoutPracticeItemInput[] | UserPracticeMasteryUncheckedCreateWithoutPracticeItemInput[]
+    connectOrCreate?: UserPracticeMasteryCreateOrConnectWithoutPracticeItemInput | UserPracticeMasteryCreateOrConnectWithoutPracticeItemInput[]
+    createMany?: UserPracticeMasteryCreateManyPracticeItemInputEnvelope
+    connect?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+  }
+
+  export type PracticeItemSubTaskTagCreateNestedManyWithoutPracticeItemInput = {
+    create?: XOR<PracticeItemSubTaskTagCreateWithoutPracticeItemInput, PracticeItemSubTaskTagUncheckedCreateWithoutPracticeItemInput> | PracticeItemSubTaskTagCreateWithoutPracticeItemInput[] | PracticeItemSubTaskTagUncheckedCreateWithoutPracticeItemInput[]
+    connectOrCreate?: PracticeItemSubTaskTagCreateOrConnectWithoutPracticeItemInput | PracticeItemSubTaskTagCreateOrConnectWithoutPracticeItemInput[]
+    createMany?: PracticeItemSubTaskTagCreateManyPracticeItemInputEnvelope
+    connect?: PracticeItemSubTaskTagWhereUniqueInput | PracticeItemSubTaskTagWhereUniqueInput[]
+  }
+
   export type PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput = {
     create?: XOR<PracticeItemTechniqueCreateWithoutPracticeItemInput, PracticeItemTechniqueUncheckedCreateWithoutPracticeItemInput> | PracticeItemTechniqueCreateWithoutPracticeItemInput[] | PracticeItemTechniqueUncheckedCreateWithoutPracticeItemInput[]
     connectOrCreate?: PracticeItemTechniqueCreateOrConnectWithoutPracticeItemInput | PracticeItemTechniqueCreateOrConnectWithoutPracticeItemInput[]
@@ -26644,6 +40892,27 @@ export namespace Prisma {
     connectOrCreate?: PracticePerformanceCreateOrConnectWithoutPracticeItemInput | PracticePerformanceCreateOrConnectWithoutPracticeItemInput[]
     createMany?: PracticePerformanceCreateManyPracticeItemInputEnvelope
     connect?: PracticePerformanceWhereUniqueInput | PracticePerformanceWhereUniqueInput[]
+  }
+
+  export type SubTaskAssignmentUncheckedCreateNestedManyWithoutPracticeItemInput = {
+    create?: XOR<SubTaskAssignmentCreateWithoutPracticeItemInput, SubTaskAssignmentUncheckedCreateWithoutPracticeItemInput> | SubTaskAssignmentCreateWithoutPracticeItemInput[] | SubTaskAssignmentUncheckedCreateWithoutPracticeItemInput[]
+    connectOrCreate?: SubTaskAssignmentCreateOrConnectWithoutPracticeItemInput | SubTaskAssignmentCreateOrConnectWithoutPracticeItemInput[]
+    createMany?: SubTaskAssignmentCreateManyPracticeItemInputEnvelope
+    connect?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+  }
+
+  export type UserPracticeMasteryUncheckedCreateNestedManyWithoutPracticeItemInput = {
+    create?: XOR<UserPracticeMasteryCreateWithoutPracticeItemInput, UserPracticeMasteryUncheckedCreateWithoutPracticeItemInput> | UserPracticeMasteryCreateWithoutPracticeItemInput[] | UserPracticeMasteryUncheckedCreateWithoutPracticeItemInput[]
+    connectOrCreate?: UserPracticeMasteryCreateOrConnectWithoutPracticeItemInput | UserPracticeMasteryCreateOrConnectWithoutPracticeItemInput[]
+    createMany?: UserPracticeMasteryCreateManyPracticeItemInputEnvelope
+    connect?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+  }
+
+  export type PracticeItemSubTaskTagUncheckedCreateNestedManyWithoutPracticeItemInput = {
+    create?: XOR<PracticeItemSubTaskTagCreateWithoutPracticeItemInput, PracticeItemSubTaskTagUncheckedCreateWithoutPracticeItemInput> | PracticeItemSubTaskTagCreateWithoutPracticeItemInput[] | PracticeItemSubTaskTagUncheckedCreateWithoutPracticeItemInput[]
+    connectOrCreate?: PracticeItemSubTaskTagCreateOrConnectWithoutPracticeItemInput | PracticeItemSubTaskTagCreateOrConnectWithoutPracticeItemInput[]
+    createMany?: PracticeItemSubTaskTagCreateManyPracticeItemInputEnvelope
+    connect?: PracticeItemSubTaskTagWhereUniqueInput | PracticeItemSubTaskTagWhereUniqueInput[]
   }
 
   export type EnumPracticeCategoryFieldUpdateOperationsInput = {
@@ -26693,6 +40962,48 @@ export namespace Prisma {
     deleteMany?: PracticePerformanceScalarWhereInput | PracticePerformanceScalarWhereInput[]
   }
 
+  export type SubTaskAssignmentUpdateManyWithoutPracticeItemNestedInput = {
+    create?: XOR<SubTaskAssignmentCreateWithoutPracticeItemInput, SubTaskAssignmentUncheckedCreateWithoutPracticeItemInput> | SubTaskAssignmentCreateWithoutPracticeItemInput[] | SubTaskAssignmentUncheckedCreateWithoutPracticeItemInput[]
+    connectOrCreate?: SubTaskAssignmentCreateOrConnectWithoutPracticeItemInput | SubTaskAssignmentCreateOrConnectWithoutPracticeItemInput[]
+    upsert?: SubTaskAssignmentUpsertWithWhereUniqueWithoutPracticeItemInput | SubTaskAssignmentUpsertWithWhereUniqueWithoutPracticeItemInput[]
+    createMany?: SubTaskAssignmentCreateManyPracticeItemInputEnvelope
+    set?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    disconnect?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    delete?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    connect?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    update?: SubTaskAssignmentUpdateWithWhereUniqueWithoutPracticeItemInput | SubTaskAssignmentUpdateWithWhereUniqueWithoutPracticeItemInput[]
+    updateMany?: SubTaskAssignmentUpdateManyWithWhereWithoutPracticeItemInput | SubTaskAssignmentUpdateManyWithWhereWithoutPracticeItemInput[]
+    deleteMany?: SubTaskAssignmentScalarWhereInput | SubTaskAssignmentScalarWhereInput[]
+  }
+
+  export type UserPracticeMasteryUpdateManyWithoutPracticeItemNestedInput = {
+    create?: XOR<UserPracticeMasteryCreateWithoutPracticeItemInput, UserPracticeMasteryUncheckedCreateWithoutPracticeItemInput> | UserPracticeMasteryCreateWithoutPracticeItemInput[] | UserPracticeMasteryUncheckedCreateWithoutPracticeItemInput[]
+    connectOrCreate?: UserPracticeMasteryCreateOrConnectWithoutPracticeItemInput | UserPracticeMasteryCreateOrConnectWithoutPracticeItemInput[]
+    upsert?: UserPracticeMasteryUpsertWithWhereUniqueWithoutPracticeItemInput | UserPracticeMasteryUpsertWithWhereUniqueWithoutPracticeItemInput[]
+    createMany?: UserPracticeMasteryCreateManyPracticeItemInputEnvelope
+    set?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    disconnect?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    delete?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    connect?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    update?: UserPracticeMasteryUpdateWithWhereUniqueWithoutPracticeItemInput | UserPracticeMasteryUpdateWithWhereUniqueWithoutPracticeItemInput[]
+    updateMany?: UserPracticeMasteryUpdateManyWithWhereWithoutPracticeItemInput | UserPracticeMasteryUpdateManyWithWhereWithoutPracticeItemInput[]
+    deleteMany?: UserPracticeMasteryScalarWhereInput | UserPracticeMasteryScalarWhereInput[]
+  }
+
+  export type PracticeItemSubTaskTagUpdateManyWithoutPracticeItemNestedInput = {
+    create?: XOR<PracticeItemSubTaskTagCreateWithoutPracticeItemInput, PracticeItemSubTaskTagUncheckedCreateWithoutPracticeItemInput> | PracticeItemSubTaskTagCreateWithoutPracticeItemInput[] | PracticeItemSubTaskTagUncheckedCreateWithoutPracticeItemInput[]
+    connectOrCreate?: PracticeItemSubTaskTagCreateOrConnectWithoutPracticeItemInput | PracticeItemSubTaskTagCreateOrConnectWithoutPracticeItemInput[]
+    upsert?: PracticeItemSubTaskTagUpsertWithWhereUniqueWithoutPracticeItemInput | PracticeItemSubTaskTagUpsertWithWhereUniqueWithoutPracticeItemInput[]
+    createMany?: PracticeItemSubTaskTagCreateManyPracticeItemInputEnvelope
+    set?: PracticeItemSubTaskTagWhereUniqueInput | PracticeItemSubTaskTagWhereUniqueInput[]
+    disconnect?: PracticeItemSubTaskTagWhereUniqueInput | PracticeItemSubTaskTagWhereUniqueInput[]
+    delete?: PracticeItemSubTaskTagWhereUniqueInput | PracticeItemSubTaskTagWhereUniqueInput[]
+    connect?: PracticeItemSubTaskTagWhereUniqueInput | PracticeItemSubTaskTagWhereUniqueInput[]
+    update?: PracticeItemSubTaskTagUpdateWithWhereUniqueWithoutPracticeItemInput | PracticeItemSubTaskTagUpdateWithWhereUniqueWithoutPracticeItemInput[]
+    updateMany?: PracticeItemSubTaskTagUpdateManyWithWhereWithoutPracticeItemInput | PracticeItemSubTaskTagUpdateManyWithWhereWithoutPracticeItemInput[]
+    deleteMany?: PracticeItemSubTaskTagScalarWhereInput | PracticeItemSubTaskTagScalarWhereInput[]
+  }
+
   export type PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput = {
     create?: XOR<PracticeItemTechniqueCreateWithoutPracticeItemInput, PracticeItemTechniqueUncheckedCreateWithoutPracticeItemInput> | PracticeItemTechniqueCreateWithoutPracticeItemInput[] | PracticeItemTechniqueUncheckedCreateWithoutPracticeItemInput[]
     connectOrCreate?: PracticeItemTechniqueCreateOrConnectWithoutPracticeItemInput | PracticeItemTechniqueCreateOrConnectWithoutPracticeItemInput[]
@@ -26721,6 +41032,48 @@ export namespace Prisma {
     deleteMany?: PracticePerformanceScalarWhereInput | PracticePerformanceScalarWhereInput[]
   }
 
+  export type SubTaskAssignmentUncheckedUpdateManyWithoutPracticeItemNestedInput = {
+    create?: XOR<SubTaskAssignmentCreateWithoutPracticeItemInput, SubTaskAssignmentUncheckedCreateWithoutPracticeItemInput> | SubTaskAssignmentCreateWithoutPracticeItemInput[] | SubTaskAssignmentUncheckedCreateWithoutPracticeItemInput[]
+    connectOrCreate?: SubTaskAssignmentCreateOrConnectWithoutPracticeItemInput | SubTaskAssignmentCreateOrConnectWithoutPracticeItemInput[]
+    upsert?: SubTaskAssignmentUpsertWithWhereUniqueWithoutPracticeItemInput | SubTaskAssignmentUpsertWithWhereUniqueWithoutPracticeItemInput[]
+    createMany?: SubTaskAssignmentCreateManyPracticeItemInputEnvelope
+    set?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    disconnect?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    delete?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    connect?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    update?: SubTaskAssignmentUpdateWithWhereUniqueWithoutPracticeItemInput | SubTaskAssignmentUpdateWithWhereUniqueWithoutPracticeItemInput[]
+    updateMany?: SubTaskAssignmentUpdateManyWithWhereWithoutPracticeItemInput | SubTaskAssignmentUpdateManyWithWhereWithoutPracticeItemInput[]
+    deleteMany?: SubTaskAssignmentScalarWhereInput | SubTaskAssignmentScalarWhereInput[]
+  }
+
+  export type UserPracticeMasteryUncheckedUpdateManyWithoutPracticeItemNestedInput = {
+    create?: XOR<UserPracticeMasteryCreateWithoutPracticeItemInput, UserPracticeMasteryUncheckedCreateWithoutPracticeItemInput> | UserPracticeMasteryCreateWithoutPracticeItemInput[] | UserPracticeMasteryUncheckedCreateWithoutPracticeItemInput[]
+    connectOrCreate?: UserPracticeMasteryCreateOrConnectWithoutPracticeItemInput | UserPracticeMasteryCreateOrConnectWithoutPracticeItemInput[]
+    upsert?: UserPracticeMasteryUpsertWithWhereUniqueWithoutPracticeItemInput | UserPracticeMasteryUpsertWithWhereUniqueWithoutPracticeItemInput[]
+    createMany?: UserPracticeMasteryCreateManyPracticeItemInputEnvelope
+    set?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    disconnect?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    delete?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    connect?: UserPracticeMasteryWhereUniqueInput | UserPracticeMasteryWhereUniqueInput[]
+    update?: UserPracticeMasteryUpdateWithWhereUniqueWithoutPracticeItemInput | UserPracticeMasteryUpdateWithWhereUniqueWithoutPracticeItemInput[]
+    updateMany?: UserPracticeMasteryUpdateManyWithWhereWithoutPracticeItemInput | UserPracticeMasteryUpdateManyWithWhereWithoutPracticeItemInput[]
+    deleteMany?: UserPracticeMasteryScalarWhereInput | UserPracticeMasteryScalarWhereInput[]
+  }
+
+  export type PracticeItemSubTaskTagUncheckedUpdateManyWithoutPracticeItemNestedInput = {
+    create?: XOR<PracticeItemSubTaskTagCreateWithoutPracticeItemInput, PracticeItemSubTaskTagUncheckedCreateWithoutPracticeItemInput> | PracticeItemSubTaskTagCreateWithoutPracticeItemInput[] | PracticeItemSubTaskTagUncheckedCreateWithoutPracticeItemInput[]
+    connectOrCreate?: PracticeItemSubTaskTagCreateOrConnectWithoutPracticeItemInput | PracticeItemSubTaskTagCreateOrConnectWithoutPracticeItemInput[]
+    upsert?: PracticeItemSubTaskTagUpsertWithWhereUniqueWithoutPracticeItemInput | PracticeItemSubTaskTagUpsertWithWhereUniqueWithoutPracticeItemInput[]
+    createMany?: PracticeItemSubTaskTagCreateManyPracticeItemInputEnvelope
+    set?: PracticeItemSubTaskTagWhereUniqueInput | PracticeItemSubTaskTagWhereUniqueInput[]
+    disconnect?: PracticeItemSubTaskTagWhereUniqueInput | PracticeItemSubTaskTagWhereUniqueInput[]
+    delete?: PracticeItemSubTaskTagWhereUniqueInput | PracticeItemSubTaskTagWhereUniqueInput[]
+    connect?: PracticeItemSubTaskTagWhereUniqueInput | PracticeItemSubTaskTagWhereUniqueInput[]
+    update?: PracticeItemSubTaskTagUpdateWithWhereUniqueWithoutPracticeItemInput | PracticeItemSubTaskTagUpdateWithWhereUniqueWithoutPracticeItemInput[]
+    updateMany?: PracticeItemSubTaskTagUpdateManyWithWhereWithoutPracticeItemInput | PracticeItemSubTaskTagUpdateManyWithWhereWithoutPracticeItemInput[]
+    deleteMany?: PracticeItemSubTaskTagScalarWhereInput | PracticeItemSubTaskTagScalarWhereInput[]
+  }
+
   export type TechniqueTagCreatexmlTagsInput = {
     set: string[]
   }
@@ -26739,6 +41092,20 @@ export namespace Prisma {
     connect?: UserWeaknessWhereUniqueInput | UserWeaknessWhereUniqueInput[]
   }
 
+  export type UserTechniqueMasteryCreateNestedManyWithoutTechniqueTagInput = {
+    create?: XOR<UserTechniqueMasteryCreateWithoutTechniqueTagInput, UserTechniqueMasteryUncheckedCreateWithoutTechniqueTagInput> | UserTechniqueMasteryCreateWithoutTechniqueTagInput[] | UserTechniqueMasteryUncheckedCreateWithoutTechniqueTagInput[]
+    connectOrCreate?: UserTechniqueMasteryCreateOrConnectWithoutTechniqueTagInput | UserTechniqueMasteryCreateOrConnectWithoutTechniqueTagInput[]
+    createMany?: UserTechniqueMasteryCreateManyTechniqueTagInputEnvelope
+    connect?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+  }
+
+  export type MissingPracticeItemFlagCreateNestedManyWithoutTechniqueTagInput = {
+    create?: XOR<MissingPracticeItemFlagCreateWithoutTechniqueTagInput, MissingPracticeItemFlagUncheckedCreateWithoutTechniqueTagInput> | MissingPracticeItemFlagCreateWithoutTechniqueTagInput[] | MissingPracticeItemFlagUncheckedCreateWithoutTechniqueTagInput[]
+    connectOrCreate?: MissingPracticeItemFlagCreateOrConnectWithoutTechniqueTagInput | MissingPracticeItemFlagCreateOrConnectWithoutTechniqueTagInput[]
+    createMany?: MissingPracticeItemFlagCreateManyTechniqueTagInputEnvelope
+    connect?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+  }
+
   export type PracticeItemTechniqueUncheckedCreateNestedManyWithoutTechniqueTagInput = {
     create?: XOR<PracticeItemTechniqueCreateWithoutTechniqueTagInput, PracticeItemTechniqueUncheckedCreateWithoutTechniqueTagInput> | PracticeItemTechniqueCreateWithoutTechniqueTagInput[] | PracticeItemTechniqueUncheckedCreateWithoutTechniqueTagInput[]
     connectOrCreate?: PracticeItemTechniqueCreateOrConnectWithoutTechniqueTagInput | PracticeItemTechniqueCreateOrConnectWithoutTechniqueTagInput[]
@@ -26751,6 +41118,20 @@ export namespace Prisma {
     connectOrCreate?: UserWeaknessCreateOrConnectWithoutTechniqueTagInput | UserWeaknessCreateOrConnectWithoutTechniqueTagInput[]
     createMany?: UserWeaknessCreateManyTechniqueTagInputEnvelope
     connect?: UserWeaknessWhereUniqueInput | UserWeaknessWhereUniqueInput[]
+  }
+
+  export type UserTechniqueMasteryUncheckedCreateNestedManyWithoutTechniqueTagInput = {
+    create?: XOR<UserTechniqueMasteryCreateWithoutTechniqueTagInput, UserTechniqueMasteryUncheckedCreateWithoutTechniqueTagInput> | UserTechniqueMasteryCreateWithoutTechniqueTagInput[] | UserTechniqueMasteryUncheckedCreateWithoutTechniqueTagInput[]
+    connectOrCreate?: UserTechniqueMasteryCreateOrConnectWithoutTechniqueTagInput | UserTechniqueMasteryCreateOrConnectWithoutTechniqueTagInput[]
+    createMany?: UserTechniqueMasteryCreateManyTechniqueTagInputEnvelope
+    connect?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+  }
+
+  export type MissingPracticeItemFlagUncheckedCreateNestedManyWithoutTechniqueTagInput = {
+    create?: XOR<MissingPracticeItemFlagCreateWithoutTechniqueTagInput, MissingPracticeItemFlagUncheckedCreateWithoutTechniqueTagInput> | MissingPracticeItemFlagCreateWithoutTechniqueTagInput[] | MissingPracticeItemFlagUncheckedCreateWithoutTechniqueTagInput[]
+    connectOrCreate?: MissingPracticeItemFlagCreateOrConnectWithoutTechniqueTagInput | MissingPracticeItemFlagCreateOrConnectWithoutTechniqueTagInput[]
+    createMany?: MissingPracticeItemFlagCreateManyTechniqueTagInputEnvelope
+    connect?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
   }
 
   export type TechniqueTagUpdatexmlTagsInput = {
@@ -26786,6 +41167,34 @@ export namespace Prisma {
     deleteMany?: UserWeaknessScalarWhereInput | UserWeaknessScalarWhereInput[]
   }
 
+  export type UserTechniqueMasteryUpdateManyWithoutTechniqueTagNestedInput = {
+    create?: XOR<UserTechniqueMasteryCreateWithoutTechniqueTagInput, UserTechniqueMasteryUncheckedCreateWithoutTechniqueTagInput> | UserTechniqueMasteryCreateWithoutTechniqueTagInput[] | UserTechniqueMasteryUncheckedCreateWithoutTechniqueTagInput[]
+    connectOrCreate?: UserTechniqueMasteryCreateOrConnectWithoutTechniqueTagInput | UserTechniqueMasteryCreateOrConnectWithoutTechniqueTagInput[]
+    upsert?: UserTechniqueMasteryUpsertWithWhereUniqueWithoutTechniqueTagInput | UserTechniqueMasteryUpsertWithWhereUniqueWithoutTechniqueTagInput[]
+    createMany?: UserTechniqueMasteryCreateManyTechniqueTagInputEnvelope
+    set?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    disconnect?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    delete?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    connect?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    update?: UserTechniqueMasteryUpdateWithWhereUniqueWithoutTechniqueTagInput | UserTechniqueMasteryUpdateWithWhereUniqueWithoutTechniqueTagInput[]
+    updateMany?: UserTechniqueMasteryUpdateManyWithWhereWithoutTechniqueTagInput | UserTechniqueMasteryUpdateManyWithWhereWithoutTechniqueTagInput[]
+    deleteMany?: UserTechniqueMasteryScalarWhereInput | UserTechniqueMasteryScalarWhereInput[]
+  }
+
+  export type MissingPracticeItemFlagUpdateManyWithoutTechniqueTagNestedInput = {
+    create?: XOR<MissingPracticeItemFlagCreateWithoutTechniqueTagInput, MissingPracticeItemFlagUncheckedCreateWithoutTechniqueTagInput> | MissingPracticeItemFlagCreateWithoutTechniqueTagInput[] | MissingPracticeItemFlagUncheckedCreateWithoutTechniqueTagInput[]
+    connectOrCreate?: MissingPracticeItemFlagCreateOrConnectWithoutTechniqueTagInput | MissingPracticeItemFlagCreateOrConnectWithoutTechniqueTagInput[]
+    upsert?: MissingPracticeItemFlagUpsertWithWhereUniqueWithoutTechniqueTagInput | MissingPracticeItemFlagUpsertWithWhereUniqueWithoutTechniqueTagInput[]
+    createMany?: MissingPracticeItemFlagCreateManyTechniqueTagInputEnvelope
+    set?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    disconnect?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    delete?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    connect?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    update?: MissingPracticeItemFlagUpdateWithWhereUniqueWithoutTechniqueTagInput | MissingPracticeItemFlagUpdateWithWhereUniqueWithoutTechniqueTagInput[]
+    updateMany?: MissingPracticeItemFlagUpdateManyWithWhereWithoutTechniqueTagInput | MissingPracticeItemFlagUpdateManyWithWhereWithoutTechniqueTagInput[]
+    deleteMany?: MissingPracticeItemFlagScalarWhereInput | MissingPracticeItemFlagScalarWhereInput[]
+  }
+
   export type PracticeItemTechniqueUncheckedUpdateManyWithoutTechniqueTagNestedInput = {
     create?: XOR<PracticeItemTechniqueCreateWithoutTechniqueTagInput, PracticeItemTechniqueUncheckedCreateWithoutTechniqueTagInput> | PracticeItemTechniqueCreateWithoutTechniqueTagInput[] | PracticeItemTechniqueUncheckedCreateWithoutTechniqueTagInput[]
     connectOrCreate?: PracticeItemTechniqueCreateOrConnectWithoutTechniqueTagInput | PracticeItemTechniqueCreateOrConnectWithoutTechniqueTagInput[]
@@ -26812,6 +41221,34 @@ export namespace Prisma {
     update?: UserWeaknessUpdateWithWhereUniqueWithoutTechniqueTagInput | UserWeaknessUpdateWithWhereUniqueWithoutTechniqueTagInput[]
     updateMany?: UserWeaknessUpdateManyWithWhereWithoutTechniqueTagInput | UserWeaknessUpdateManyWithWhereWithoutTechniqueTagInput[]
     deleteMany?: UserWeaknessScalarWhereInput | UserWeaknessScalarWhereInput[]
+  }
+
+  export type UserTechniqueMasteryUncheckedUpdateManyWithoutTechniqueTagNestedInput = {
+    create?: XOR<UserTechniqueMasteryCreateWithoutTechniqueTagInput, UserTechniqueMasteryUncheckedCreateWithoutTechniqueTagInput> | UserTechniqueMasteryCreateWithoutTechniqueTagInput[] | UserTechniqueMasteryUncheckedCreateWithoutTechniqueTagInput[]
+    connectOrCreate?: UserTechniqueMasteryCreateOrConnectWithoutTechniqueTagInput | UserTechniqueMasteryCreateOrConnectWithoutTechniqueTagInput[]
+    upsert?: UserTechniqueMasteryUpsertWithWhereUniqueWithoutTechniqueTagInput | UserTechniqueMasteryUpsertWithWhereUniqueWithoutTechniqueTagInput[]
+    createMany?: UserTechniqueMasteryCreateManyTechniqueTagInputEnvelope
+    set?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    disconnect?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    delete?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    connect?: UserTechniqueMasteryWhereUniqueInput | UserTechniqueMasteryWhereUniqueInput[]
+    update?: UserTechniqueMasteryUpdateWithWhereUniqueWithoutTechniqueTagInput | UserTechniqueMasteryUpdateWithWhereUniqueWithoutTechniqueTagInput[]
+    updateMany?: UserTechniqueMasteryUpdateManyWithWhereWithoutTechniqueTagInput | UserTechniqueMasteryUpdateManyWithWhereWithoutTechniqueTagInput[]
+    deleteMany?: UserTechniqueMasteryScalarWhereInput | UserTechniqueMasteryScalarWhereInput[]
+  }
+
+  export type MissingPracticeItemFlagUncheckedUpdateManyWithoutTechniqueTagNestedInput = {
+    create?: XOR<MissingPracticeItemFlagCreateWithoutTechniqueTagInput, MissingPracticeItemFlagUncheckedCreateWithoutTechniqueTagInput> | MissingPracticeItemFlagCreateWithoutTechniqueTagInput[] | MissingPracticeItemFlagUncheckedCreateWithoutTechniqueTagInput[]
+    connectOrCreate?: MissingPracticeItemFlagCreateOrConnectWithoutTechniqueTagInput | MissingPracticeItemFlagCreateOrConnectWithoutTechniqueTagInput[]
+    upsert?: MissingPracticeItemFlagUpsertWithWhereUniqueWithoutTechniqueTagInput | MissingPracticeItemFlagUpsertWithWhereUniqueWithoutTechniqueTagInput[]
+    createMany?: MissingPracticeItemFlagCreateManyTechniqueTagInputEnvelope
+    set?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    disconnect?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    delete?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    connect?: MissingPracticeItemFlagWhereUniqueInput | MissingPracticeItemFlagWhereUniqueInput[]
+    update?: MissingPracticeItemFlagUpdateWithWhereUniqueWithoutTechniqueTagInput | MissingPracticeItemFlagUpdateWithWhereUniqueWithoutTechniqueTagInput[]
+    updateMany?: MissingPracticeItemFlagUpdateManyWithWhereWithoutTechniqueTagInput | MissingPracticeItemFlagUpdateManyWithWhereWithoutTechniqueTagInput[]
+    deleteMany?: MissingPracticeItemFlagScalarWhereInput | MissingPracticeItemFlagScalarWhereInput[]
   }
 
   export type PracticeItemCreateNestedOneWithoutTechniquesInput = {
@@ -27056,18 +41493,36 @@ export namespace Prisma {
     connect?: PracticePerformanceWhereUniqueInput
   }
 
+  export type PerformanceCreateNestedOneWithoutSkillFeedbacksInput = {
+    create?: XOR<PerformanceCreateWithoutSkillFeedbacksInput, PerformanceUncheckedCreateWithoutSkillFeedbacksInput>
+    connectOrCreate?: PerformanceCreateOrConnectWithoutSkillFeedbacksInput
+    connect?: PerformanceWhereUniqueInput
+  }
+
   export type UserCreateNestedOneWithoutPerformanceSkillFeedbacksInput = {
     create?: XOR<UserCreateWithoutPerformanceSkillFeedbacksInput, UserUncheckedCreateWithoutPerformanceSkillFeedbacksInput>
     connectOrCreate?: UserCreateOrConnectWithoutPerformanceSkillFeedbacksInput
     connect?: UserWhereUniqueInput
   }
 
-  export type PracticePerformanceUpdateOneRequiredWithoutSkillFeedbacksNestedInput = {
+  export type PracticePerformanceUpdateOneWithoutSkillFeedbacksNestedInput = {
     create?: XOR<PracticePerformanceCreateWithoutSkillFeedbacksInput, PracticePerformanceUncheckedCreateWithoutSkillFeedbacksInput>
     connectOrCreate?: PracticePerformanceCreateOrConnectWithoutSkillFeedbacksInput
     upsert?: PracticePerformanceUpsertWithoutSkillFeedbacksInput
+    disconnect?: PracticePerformanceWhereInput | boolean
+    delete?: PracticePerformanceWhereInput | boolean
     connect?: PracticePerformanceWhereUniqueInput
     update?: XOR<XOR<PracticePerformanceUpdateToOneWithWhereWithoutSkillFeedbacksInput, PracticePerformanceUpdateWithoutSkillFeedbacksInput>, PracticePerformanceUncheckedUpdateWithoutSkillFeedbacksInput>
+  }
+
+  export type PerformanceUpdateOneWithoutSkillFeedbacksNestedInput = {
+    create?: XOR<PerformanceCreateWithoutSkillFeedbacksInput, PerformanceUncheckedCreateWithoutSkillFeedbacksInput>
+    connectOrCreate?: PerformanceCreateOrConnectWithoutSkillFeedbacksInput
+    upsert?: PerformanceUpsertWithoutSkillFeedbacksInput
+    disconnect?: PerformanceWhereInput | boolean
+    delete?: PerformanceWhereInput | boolean
+    connect?: PerformanceWhereUniqueInput
+    update?: XOR<XOR<PerformanceUpdateToOneWithWhereWithoutSkillFeedbacksInput, PerformanceUpdateWithoutSkillFeedbacksInput>, PerformanceUncheckedUpdateWithoutSkillFeedbacksInput>
   }
 
   export type UserUpdateOneRequiredWithoutPerformanceSkillFeedbacksNestedInput = {
@@ -27076,6 +41531,302 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutPerformanceSkillFeedbacksInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPerformanceSkillFeedbacksInput, UserUpdateWithoutPerformanceSkillFeedbacksInput>, UserUncheckedUpdateWithoutPerformanceSkillFeedbacksInput>
+  }
+
+  export type UserCreateNestedOneWithoutSongMasteriesInput = {
+    create?: XOR<UserCreateWithoutSongMasteriesInput, UserUncheckedCreateWithoutSongMasteriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSongMasteriesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ScoreCreateNestedOneWithoutSongMasteriesInput = {
+    create?: XOR<ScoreCreateWithoutSongMasteriesInput, ScoreUncheckedCreateWithoutSongMasteriesInput>
+    connectOrCreate?: ScoreCreateOrConnectWithoutSongMasteriesInput
+    connect?: ScoreWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutSongMasteriesNestedInput = {
+    create?: XOR<UserCreateWithoutSongMasteriesInput, UserUncheckedCreateWithoutSongMasteriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSongMasteriesInput
+    upsert?: UserUpsertWithoutSongMasteriesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSongMasteriesInput, UserUpdateWithoutSongMasteriesInput>, UserUncheckedUpdateWithoutSongMasteriesInput>
+  }
+
+  export type ScoreUpdateOneRequiredWithoutSongMasteriesNestedInput = {
+    create?: XOR<ScoreCreateWithoutSongMasteriesInput, ScoreUncheckedCreateWithoutSongMasteriesInput>
+    connectOrCreate?: ScoreCreateOrConnectWithoutSongMasteriesInput
+    upsert?: ScoreUpsertWithoutSongMasteriesInput
+    connect?: ScoreWhereUniqueInput
+    update?: XOR<XOR<ScoreUpdateToOneWithWhereWithoutSongMasteriesInput, ScoreUpdateWithoutSongMasteriesInput>, ScoreUncheckedUpdateWithoutSongMasteriesInput>
+  }
+
+  export type UserCreateNestedOneWithoutUserGradeProgressInput = {
+    create?: XOR<UserCreateWithoutUserGradeProgressInput, UserUncheckedCreateWithoutUserGradeProgressInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserGradeProgressInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutUserGradeProgressNestedInput = {
+    create?: XOR<UserCreateWithoutUserGradeProgressInput, UserUncheckedCreateWithoutUserGradeProgressInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserGradeProgressInput
+    upsert?: UserUpsertWithoutUserGradeProgressInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUserGradeProgressInput, UserUpdateWithoutUserGradeProgressInput>, UserUncheckedUpdateWithoutUserGradeProgressInput>
+  }
+
+  export type UserCreateNestedOneWithoutSkillTaskCardsInput = {
+    create?: XOR<UserCreateWithoutSkillTaskCardsInput, UserUncheckedCreateWithoutSkillTaskCardsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSkillTaskCardsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ScoreCreateNestedOneWithoutSkillTaskCardsInput = {
+    create?: XOR<ScoreCreateWithoutSkillTaskCardsInput, ScoreUncheckedCreateWithoutSkillTaskCardsInput>
+    connectOrCreate?: ScoreCreateOrConnectWithoutSkillTaskCardsInput
+    connect?: ScoreWhereUniqueInput
+  }
+
+  export type SubTaskCreateNestedManyWithoutSkillTaskCardInput = {
+    create?: XOR<SubTaskCreateWithoutSkillTaskCardInput, SubTaskUncheckedCreateWithoutSkillTaskCardInput> | SubTaskCreateWithoutSkillTaskCardInput[] | SubTaskUncheckedCreateWithoutSkillTaskCardInput[]
+    connectOrCreate?: SubTaskCreateOrConnectWithoutSkillTaskCardInput | SubTaskCreateOrConnectWithoutSkillTaskCardInput[]
+    createMany?: SubTaskCreateManySkillTaskCardInputEnvelope
+    connect?: SubTaskWhereUniqueInput | SubTaskWhereUniqueInput[]
+  }
+
+  export type SubTaskUncheckedCreateNestedManyWithoutSkillTaskCardInput = {
+    create?: XOR<SubTaskCreateWithoutSkillTaskCardInput, SubTaskUncheckedCreateWithoutSkillTaskCardInput> | SubTaskCreateWithoutSkillTaskCardInput[] | SubTaskUncheckedCreateWithoutSkillTaskCardInput[]
+    connectOrCreate?: SubTaskCreateOrConnectWithoutSkillTaskCardInput | SubTaskCreateOrConnectWithoutSkillTaskCardInput[]
+    createMany?: SubTaskCreateManySkillTaskCardInputEnvelope
+    connect?: SubTaskWhereUniqueInput | SubTaskWhereUniqueInput[]
+  }
+
+  export type UserUpdateOneRequiredWithoutSkillTaskCardsNestedInput = {
+    create?: XOR<UserCreateWithoutSkillTaskCardsInput, UserUncheckedCreateWithoutSkillTaskCardsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSkillTaskCardsInput
+    upsert?: UserUpsertWithoutSkillTaskCardsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSkillTaskCardsInput, UserUpdateWithoutSkillTaskCardsInput>, UserUncheckedUpdateWithoutSkillTaskCardsInput>
+  }
+
+  export type ScoreUpdateOneRequiredWithoutSkillTaskCardsNestedInput = {
+    create?: XOR<ScoreCreateWithoutSkillTaskCardsInput, ScoreUncheckedCreateWithoutSkillTaskCardsInput>
+    connectOrCreate?: ScoreCreateOrConnectWithoutSkillTaskCardsInput
+    upsert?: ScoreUpsertWithoutSkillTaskCardsInput
+    connect?: ScoreWhereUniqueInput
+    update?: XOR<XOR<ScoreUpdateToOneWithWhereWithoutSkillTaskCardsInput, ScoreUpdateWithoutSkillTaskCardsInput>, ScoreUncheckedUpdateWithoutSkillTaskCardsInput>
+  }
+
+  export type SubTaskUpdateManyWithoutSkillTaskCardNestedInput = {
+    create?: XOR<SubTaskCreateWithoutSkillTaskCardInput, SubTaskUncheckedCreateWithoutSkillTaskCardInput> | SubTaskCreateWithoutSkillTaskCardInput[] | SubTaskUncheckedCreateWithoutSkillTaskCardInput[]
+    connectOrCreate?: SubTaskCreateOrConnectWithoutSkillTaskCardInput | SubTaskCreateOrConnectWithoutSkillTaskCardInput[]
+    upsert?: SubTaskUpsertWithWhereUniqueWithoutSkillTaskCardInput | SubTaskUpsertWithWhereUniqueWithoutSkillTaskCardInput[]
+    createMany?: SubTaskCreateManySkillTaskCardInputEnvelope
+    set?: SubTaskWhereUniqueInput | SubTaskWhereUniqueInput[]
+    disconnect?: SubTaskWhereUniqueInput | SubTaskWhereUniqueInput[]
+    delete?: SubTaskWhereUniqueInput | SubTaskWhereUniqueInput[]
+    connect?: SubTaskWhereUniqueInput | SubTaskWhereUniqueInput[]
+    update?: SubTaskUpdateWithWhereUniqueWithoutSkillTaskCardInput | SubTaskUpdateWithWhereUniqueWithoutSkillTaskCardInput[]
+    updateMany?: SubTaskUpdateManyWithWhereWithoutSkillTaskCardInput | SubTaskUpdateManyWithWhereWithoutSkillTaskCardInput[]
+    deleteMany?: SubTaskScalarWhereInput | SubTaskScalarWhereInput[]
+  }
+
+  export type SubTaskUncheckedUpdateManyWithoutSkillTaskCardNestedInput = {
+    create?: XOR<SubTaskCreateWithoutSkillTaskCardInput, SubTaskUncheckedCreateWithoutSkillTaskCardInput> | SubTaskCreateWithoutSkillTaskCardInput[] | SubTaskUncheckedCreateWithoutSkillTaskCardInput[]
+    connectOrCreate?: SubTaskCreateOrConnectWithoutSkillTaskCardInput | SubTaskCreateOrConnectWithoutSkillTaskCardInput[]
+    upsert?: SubTaskUpsertWithWhereUniqueWithoutSkillTaskCardInput | SubTaskUpsertWithWhereUniqueWithoutSkillTaskCardInput[]
+    createMany?: SubTaskCreateManySkillTaskCardInputEnvelope
+    set?: SubTaskWhereUniqueInput | SubTaskWhereUniqueInput[]
+    disconnect?: SubTaskWhereUniqueInput | SubTaskWhereUniqueInput[]
+    delete?: SubTaskWhereUniqueInput | SubTaskWhereUniqueInput[]
+    connect?: SubTaskWhereUniqueInput | SubTaskWhereUniqueInput[]
+    update?: SubTaskUpdateWithWhereUniqueWithoutSkillTaskCardInput | SubTaskUpdateWithWhereUniqueWithoutSkillTaskCardInput[]
+    updateMany?: SubTaskUpdateManyWithWhereWithoutSkillTaskCardInput | SubTaskUpdateManyWithWhereWithoutSkillTaskCardInput[]
+    deleteMany?: SubTaskScalarWhereInput | SubTaskScalarWhereInput[]
+  }
+
+  export type SkillTaskCardCreateNestedOneWithoutSubTasksInput = {
+    create?: XOR<SkillTaskCardCreateWithoutSubTasksInput, SkillTaskCardUncheckedCreateWithoutSubTasksInput>
+    connectOrCreate?: SkillTaskCardCreateOrConnectWithoutSubTasksInput
+    connect?: SkillTaskCardWhereUniqueInput
+  }
+
+  export type SubTaskAssignmentCreateNestedManyWithoutSubTaskInput = {
+    create?: XOR<SubTaskAssignmentCreateWithoutSubTaskInput, SubTaskAssignmentUncheckedCreateWithoutSubTaskInput> | SubTaskAssignmentCreateWithoutSubTaskInput[] | SubTaskAssignmentUncheckedCreateWithoutSubTaskInput[]
+    connectOrCreate?: SubTaskAssignmentCreateOrConnectWithoutSubTaskInput | SubTaskAssignmentCreateOrConnectWithoutSubTaskInput[]
+    createMany?: SubTaskAssignmentCreateManySubTaskInputEnvelope
+    connect?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+  }
+
+  export type SubTaskAssignmentUncheckedCreateNestedManyWithoutSubTaskInput = {
+    create?: XOR<SubTaskAssignmentCreateWithoutSubTaskInput, SubTaskAssignmentUncheckedCreateWithoutSubTaskInput> | SubTaskAssignmentCreateWithoutSubTaskInput[] | SubTaskAssignmentUncheckedCreateWithoutSubTaskInput[]
+    connectOrCreate?: SubTaskAssignmentCreateOrConnectWithoutSubTaskInput | SubTaskAssignmentCreateOrConnectWithoutSubTaskInput[]
+    createMany?: SubTaskAssignmentCreateManySubTaskInputEnvelope
+    connect?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+  }
+
+  export type SkillTaskCardUpdateOneRequiredWithoutSubTasksNestedInput = {
+    create?: XOR<SkillTaskCardCreateWithoutSubTasksInput, SkillTaskCardUncheckedCreateWithoutSubTasksInput>
+    connectOrCreate?: SkillTaskCardCreateOrConnectWithoutSubTasksInput
+    upsert?: SkillTaskCardUpsertWithoutSubTasksInput
+    connect?: SkillTaskCardWhereUniqueInput
+    update?: XOR<XOR<SkillTaskCardUpdateToOneWithWhereWithoutSubTasksInput, SkillTaskCardUpdateWithoutSubTasksInput>, SkillTaskCardUncheckedUpdateWithoutSubTasksInput>
+  }
+
+  export type SubTaskAssignmentUpdateManyWithoutSubTaskNestedInput = {
+    create?: XOR<SubTaskAssignmentCreateWithoutSubTaskInput, SubTaskAssignmentUncheckedCreateWithoutSubTaskInput> | SubTaskAssignmentCreateWithoutSubTaskInput[] | SubTaskAssignmentUncheckedCreateWithoutSubTaskInput[]
+    connectOrCreate?: SubTaskAssignmentCreateOrConnectWithoutSubTaskInput | SubTaskAssignmentCreateOrConnectWithoutSubTaskInput[]
+    upsert?: SubTaskAssignmentUpsertWithWhereUniqueWithoutSubTaskInput | SubTaskAssignmentUpsertWithWhereUniqueWithoutSubTaskInput[]
+    createMany?: SubTaskAssignmentCreateManySubTaskInputEnvelope
+    set?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    disconnect?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    delete?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    connect?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    update?: SubTaskAssignmentUpdateWithWhereUniqueWithoutSubTaskInput | SubTaskAssignmentUpdateWithWhereUniqueWithoutSubTaskInput[]
+    updateMany?: SubTaskAssignmentUpdateManyWithWhereWithoutSubTaskInput | SubTaskAssignmentUpdateManyWithWhereWithoutSubTaskInput[]
+    deleteMany?: SubTaskAssignmentScalarWhereInput | SubTaskAssignmentScalarWhereInput[]
+  }
+
+  export type SubTaskAssignmentUncheckedUpdateManyWithoutSubTaskNestedInput = {
+    create?: XOR<SubTaskAssignmentCreateWithoutSubTaskInput, SubTaskAssignmentUncheckedCreateWithoutSubTaskInput> | SubTaskAssignmentCreateWithoutSubTaskInput[] | SubTaskAssignmentUncheckedCreateWithoutSubTaskInput[]
+    connectOrCreate?: SubTaskAssignmentCreateOrConnectWithoutSubTaskInput | SubTaskAssignmentCreateOrConnectWithoutSubTaskInput[]
+    upsert?: SubTaskAssignmentUpsertWithWhereUniqueWithoutSubTaskInput | SubTaskAssignmentUpsertWithWhereUniqueWithoutSubTaskInput[]
+    createMany?: SubTaskAssignmentCreateManySubTaskInputEnvelope
+    set?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    disconnect?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    delete?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    connect?: SubTaskAssignmentWhereUniqueInput | SubTaskAssignmentWhereUniqueInput[]
+    update?: SubTaskAssignmentUpdateWithWhereUniqueWithoutSubTaskInput | SubTaskAssignmentUpdateWithWhereUniqueWithoutSubTaskInput[]
+    updateMany?: SubTaskAssignmentUpdateManyWithWhereWithoutSubTaskInput | SubTaskAssignmentUpdateManyWithWhereWithoutSubTaskInput[]
+    deleteMany?: SubTaskAssignmentScalarWhereInput | SubTaskAssignmentScalarWhereInput[]
+  }
+
+  export type SubTaskCreateNestedOneWithoutSubTaskAssignmentsInput = {
+    create?: XOR<SubTaskCreateWithoutSubTaskAssignmentsInput, SubTaskUncheckedCreateWithoutSubTaskAssignmentsInput>
+    connectOrCreate?: SubTaskCreateOrConnectWithoutSubTaskAssignmentsInput
+    connect?: SubTaskWhereUniqueInput
+  }
+
+  export type PracticeItemCreateNestedOneWithoutSubTaskAssignmentsInput = {
+    create?: XOR<PracticeItemCreateWithoutSubTaskAssignmentsInput, PracticeItemUncheckedCreateWithoutSubTaskAssignmentsInput>
+    connectOrCreate?: PracticeItemCreateOrConnectWithoutSubTaskAssignmentsInput
+    connect?: PracticeItemWhereUniqueInput
+  }
+
+  export type SubTaskUpdateOneRequiredWithoutSubTaskAssignmentsNestedInput = {
+    create?: XOR<SubTaskCreateWithoutSubTaskAssignmentsInput, SubTaskUncheckedCreateWithoutSubTaskAssignmentsInput>
+    connectOrCreate?: SubTaskCreateOrConnectWithoutSubTaskAssignmentsInput
+    upsert?: SubTaskUpsertWithoutSubTaskAssignmentsInput
+    connect?: SubTaskWhereUniqueInput
+    update?: XOR<XOR<SubTaskUpdateToOneWithWhereWithoutSubTaskAssignmentsInput, SubTaskUpdateWithoutSubTaskAssignmentsInput>, SubTaskUncheckedUpdateWithoutSubTaskAssignmentsInput>
+  }
+
+  export type PracticeItemUpdateOneRequiredWithoutSubTaskAssignmentsNestedInput = {
+    create?: XOR<PracticeItemCreateWithoutSubTaskAssignmentsInput, PracticeItemUncheckedCreateWithoutSubTaskAssignmentsInput>
+    connectOrCreate?: PracticeItemCreateOrConnectWithoutSubTaskAssignmentsInput
+    upsert?: PracticeItemUpsertWithoutSubTaskAssignmentsInput
+    connect?: PracticeItemWhereUniqueInput
+    update?: XOR<XOR<PracticeItemUpdateToOneWithWhereWithoutSubTaskAssignmentsInput, PracticeItemUpdateWithoutSubTaskAssignmentsInput>, PracticeItemUncheckedUpdateWithoutSubTaskAssignmentsInput>
+  }
+
+  export type UserCreateNestedOneWithoutUserPracticeMasteriesInput = {
+    create?: XOR<UserCreateWithoutUserPracticeMasteriesInput, UserUncheckedCreateWithoutUserPracticeMasteriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserPracticeMasteriesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type PracticeItemCreateNestedOneWithoutUserPracticeMasteriesInput = {
+    create?: XOR<PracticeItemCreateWithoutUserPracticeMasteriesInput, PracticeItemUncheckedCreateWithoutUserPracticeMasteriesInput>
+    connectOrCreate?: PracticeItemCreateOrConnectWithoutUserPracticeMasteriesInput
+    connect?: PracticeItemWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutUserPracticeMasteriesNestedInput = {
+    create?: XOR<UserCreateWithoutUserPracticeMasteriesInput, UserUncheckedCreateWithoutUserPracticeMasteriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserPracticeMasteriesInput
+    upsert?: UserUpsertWithoutUserPracticeMasteriesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUserPracticeMasteriesInput, UserUpdateWithoutUserPracticeMasteriesInput>, UserUncheckedUpdateWithoutUserPracticeMasteriesInput>
+  }
+
+  export type PracticeItemUpdateOneRequiredWithoutUserPracticeMasteriesNestedInput = {
+    create?: XOR<PracticeItemCreateWithoutUserPracticeMasteriesInput, PracticeItemUncheckedCreateWithoutUserPracticeMasteriesInput>
+    connectOrCreate?: PracticeItemCreateOrConnectWithoutUserPracticeMasteriesInput
+    upsert?: PracticeItemUpsertWithoutUserPracticeMasteriesInput
+    connect?: PracticeItemWhereUniqueInput
+    update?: XOR<XOR<PracticeItemUpdateToOneWithWhereWithoutUserPracticeMasteriesInput, PracticeItemUpdateWithoutUserPracticeMasteriesInput>, PracticeItemUncheckedUpdateWithoutUserPracticeMasteriesInput>
+  }
+
+  export type UserCreateNestedOneWithoutUserTechniqueMasteriesInput = {
+    create?: XOR<UserCreateWithoutUserTechniqueMasteriesInput, UserUncheckedCreateWithoutUserTechniqueMasteriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserTechniqueMasteriesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type TechniqueTagCreateNestedOneWithoutUserTechniqueMasteriesInput = {
+    create?: XOR<TechniqueTagCreateWithoutUserTechniqueMasteriesInput, TechniqueTagUncheckedCreateWithoutUserTechniqueMasteriesInput>
+    connectOrCreate?: TechniqueTagCreateOrConnectWithoutUserTechniqueMasteriesInput
+    connect?: TechniqueTagWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutUserTechniqueMasteriesNestedInput = {
+    create?: XOR<UserCreateWithoutUserTechniqueMasteriesInput, UserUncheckedCreateWithoutUserTechniqueMasteriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutUserTechniqueMasteriesInput
+    upsert?: UserUpsertWithoutUserTechniqueMasteriesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUserTechniqueMasteriesInput, UserUpdateWithoutUserTechniqueMasteriesInput>, UserUncheckedUpdateWithoutUserTechniqueMasteriesInput>
+  }
+
+  export type TechniqueTagUpdateOneRequiredWithoutUserTechniqueMasteriesNestedInput = {
+    create?: XOR<TechniqueTagCreateWithoutUserTechniqueMasteriesInput, TechniqueTagUncheckedCreateWithoutUserTechniqueMasteriesInput>
+    connectOrCreate?: TechniqueTagCreateOrConnectWithoutUserTechniqueMasteriesInput
+    upsert?: TechniqueTagUpsertWithoutUserTechniqueMasteriesInput
+    connect?: TechniqueTagWhereUniqueInput
+    update?: XOR<XOR<TechniqueTagUpdateToOneWithWhereWithoutUserTechniqueMasteriesInput, TechniqueTagUpdateWithoutUserTechniqueMasteriesInput>, TechniqueTagUncheckedUpdateWithoutUserTechniqueMasteriesInput>
+  }
+
+  export type PracticeItemCreateNestedOneWithoutPracticeItemSubTaskTagsInput = {
+    create?: XOR<PracticeItemCreateWithoutPracticeItemSubTaskTagsInput, PracticeItemUncheckedCreateWithoutPracticeItemSubTaskTagsInput>
+    connectOrCreate?: PracticeItemCreateOrConnectWithoutPracticeItemSubTaskTagsInput
+    connect?: PracticeItemWhereUniqueInput
+  }
+
+  export type PracticeItemUpdateOneRequiredWithoutPracticeItemSubTaskTagsNestedInput = {
+    create?: XOR<PracticeItemCreateWithoutPracticeItemSubTaskTagsInput, PracticeItemUncheckedCreateWithoutPracticeItemSubTaskTagsInput>
+    connectOrCreate?: PracticeItemCreateOrConnectWithoutPracticeItemSubTaskTagsInput
+    upsert?: PracticeItemUpsertWithoutPracticeItemSubTaskTagsInput
+    connect?: PracticeItemWhereUniqueInput
+    update?: XOR<XOR<PracticeItemUpdateToOneWithWhereWithoutPracticeItemSubTaskTagsInput, PracticeItemUpdateWithoutPracticeItemSubTaskTagsInput>, PracticeItemUncheckedUpdateWithoutPracticeItemSubTaskTagsInput>
+  }
+
+  export type ScoreCreateNestedOneWithoutMissingPracticeItemFlagsInput = {
+    create?: XOR<ScoreCreateWithoutMissingPracticeItemFlagsInput, ScoreUncheckedCreateWithoutMissingPracticeItemFlagsInput>
+    connectOrCreate?: ScoreCreateOrConnectWithoutMissingPracticeItemFlagsInput
+    connect?: ScoreWhereUniqueInput
+  }
+
+  export type TechniqueTagCreateNestedOneWithoutMissingPracticeItemFlagsInput = {
+    create?: XOR<TechniqueTagCreateWithoutMissingPracticeItemFlagsInput, TechniqueTagUncheckedCreateWithoutMissingPracticeItemFlagsInput>
+    connectOrCreate?: TechniqueTagCreateOrConnectWithoutMissingPracticeItemFlagsInput
+    connect?: TechniqueTagWhereUniqueInput
+  }
+
+  export type ScoreUpdateOneRequiredWithoutMissingPracticeItemFlagsNestedInput = {
+    create?: XOR<ScoreCreateWithoutMissingPracticeItemFlagsInput, ScoreUncheckedCreateWithoutMissingPracticeItemFlagsInput>
+    connectOrCreate?: ScoreCreateOrConnectWithoutMissingPracticeItemFlagsInput
+    upsert?: ScoreUpsertWithoutMissingPracticeItemFlagsInput
+    connect?: ScoreWhereUniqueInput
+    update?: XOR<XOR<ScoreUpdateToOneWithWhereWithoutMissingPracticeItemFlagsInput, ScoreUpdateWithoutMissingPracticeItemFlagsInput>, ScoreUncheckedUpdateWithoutMissingPracticeItemFlagsInput>
+  }
+
+  export type TechniqueTagUpdateOneWithoutMissingPracticeItemFlagsNestedInput = {
+    create?: XOR<TechniqueTagCreateWithoutMissingPracticeItemFlagsInput, TechniqueTagUncheckedCreateWithoutMissingPracticeItemFlagsInput>
+    connectOrCreate?: TechniqueTagCreateOrConnectWithoutMissingPracticeItemFlagsInput
+    upsert?: TechniqueTagUpsertWithoutMissingPracticeItemFlagsInput
+    disconnect?: TechniqueTagWhereInput | boolean
+    delete?: TechniqueTagWhereInput | boolean
+    connect?: TechniqueTagWhereUniqueInput
+    update?: XOR<XOR<TechniqueTagUpdateToOneWithWhereWithoutMissingPracticeItemFlagsInput, TechniqueTagUpdateWithoutMissingPracticeItemFlagsInput>, TechniqueTagUncheckedUpdateWithoutMissingPracticeItemFlagsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -27511,6 +42262,13 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -27518,6 +42276,7 @@ export namespace Prisma {
     executionId?: string | null
     idempotencyKey?: string | null
     score: ScoreCreateNestedOneWithoutPerformancesInput
+    skillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutPerformanceInput
   }
 
   export type PerformanceUncheckedCreateWithoutUserInput = {
@@ -27539,12 +42298,20 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
     lastAttemptedAt?: Date | string | null
     executionId?: string | null
     idempotencyKey?: string | null
+    skillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutPerformanceInput
   }
 
   export type PerformanceCreateOrConnectWithoutUserInput = {
@@ -27579,9 +42346,13 @@ export namespace Prisma {
     isShared?: boolean
     difficulty?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
     createdAt?: Date | string
     deletedAt?: Date | string | null
     performances?: PerformanceCreateNestedManyWithoutScoreInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutScoreInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutScoreInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagCreateNestedManyWithoutScoreInput
   }
 
   export type ScoreUncheckedCreateWithoutCreatedByInput = {
@@ -27606,9 +42377,13 @@ export namespace Prisma {
     isShared?: boolean
     difficulty?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
     createdAt?: Date | string
     deletedAt?: Date | string | null
     performances?: PerformanceUncheckedCreateNestedManyWithoutScoreInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutScoreInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutScoreInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedCreateNestedManyWithoutScoreInput
   }
 
   export type ScoreCreateOrConnectWithoutCreatedByInput = {
@@ -27654,6 +42429,9 @@ export namespace Prisma {
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
+    subTaskAssignments?: SubTaskAssignmentCreateNestedManyWithoutPracticeItemInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutPracticeItemInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagCreateNestedManyWithoutPracticeItemInput
   }
 
   export type PracticeItemUncheckedCreateWithoutOwnerInput = {
@@ -27689,6 +42467,9 @@ export namespace Prisma {
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
+    subTaskAssignments?: SubTaskAssignmentUncheckedCreateNestedManyWithoutPracticeItemInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutPracticeItemInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUncheckedCreateNestedManyWithoutPracticeItemInput
   }
 
   export type PracticeItemCreateOrConnectWithoutOwnerInput = {
@@ -27713,6 +42494,8 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -27741,6 +42524,8 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -27977,12 +42762,14 @@ export namespace Prisma {
     feedbackType: string
     comment?: string | null
     createdAt?: Date | string
-    practicePerformance: PracticePerformanceCreateNestedOneWithoutSkillFeedbacksInput
+    practicePerformance?: PracticePerformanceCreateNestedOneWithoutSkillFeedbacksInput
+    performance?: PerformanceCreateNestedOneWithoutSkillFeedbacksInput
   }
 
   export type PerformanceSkillFeedbackUncheckedCreateWithoutUserInput = {
     id?: string
-    practicePerformanceId: string
+    practicePerformanceId?: string | null
+    performanceId?: string | null
     positionId: string
     selectedSubTaskId?: string | null
     feedbackType: string
@@ -27997,6 +42784,155 @@ export namespace Prisma {
 
   export type PerformanceSkillFeedbackCreateManyUserInputEnvelope = {
     data: PerformanceSkillFeedbackCreateManyUserInput | PerformanceSkillFeedbackCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SongMasteryCreateWithoutUserInput = {
+    id?: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    isFullyMastered?: boolean
+    performanceMasteredAt?: Date | string | null
+    fullyMasteredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    score: ScoreCreateNestedOneWithoutSongMasteriesInput
+  }
+
+  export type SongMasteryUncheckedCreateWithoutUserInput = {
+    id?: string
+    scoreId: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    isFullyMastered?: boolean
+    performanceMasteredAt?: Date | string | null
+    fullyMasteredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SongMasteryCreateOrConnectWithoutUserInput = {
+    where: SongMasteryWhereUniqueInput
+    create: XOR<SongMasteryCreateWithoutUserInput, SongMasteryUncheckedCreateWithoutUserInput>
+  }
+
+  export type SongMasteryCreateManyUserInputEnvelope = {
+    data: SongMasteryCreateManyUserInput | SongMasteryCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserGradeProgressCreateWithoutUserInput = {
+    id?: string
+    currentStar?: number
+    currentGrade?: string
+    masteredSongCountAtCurrentStar?: number
+    masterReachedAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserGradeProgressUncheckedCreateWithoutUserInput = {
+    id?: string
+    currentStar?: number
+    currentGrade?: string
+    masteredSongCountAtCurrentStar?: number
+    masterReachedAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserGradeProgressCreateOrConnectWithoutUserInput = {
+    where: UserGradeProgressWhereUniqueInput
+    create: XOR<UserGradeProgressCreateWithoutUserInput, UserGradeProgressUncheckedCreateWithoutUserInput>
+  }
+
+  export type SkillTaskCardCreateWithoutUserInput = {
+    id?: string
+    taskCategory: string
+    status?: string
+    generatedAt?: Date | string
+    lastMatchedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+    score: ScoreCreateNestedOneWithoutSkillTaskCardsInput
+    subTasks?: SubTaskCreateNestedManyWithoutSkillTaskCardInput
+  }
+
+  export type SkillTaskCardUncheckedCreateWithoutUserInput = {
+    id?: string
+    scoreId: string
+    taskCategory: string
+    status?: string
+    generatedAt?: Date | string
+    lastMatchedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+    subTasks?: SubTaskUncheckedCreateNestedManyWithoutSkillTaskCardInput
+  }
+
+  export type SkillTaskCardCreateOrConnectWithoutUserInput = {
+    where: SkillTaskCardWhereUniqueInput
+    create: XOR<SkillTaskCardCreateWithoutUserInput, SkillTaskCardUncheckedCreateWithoutUserInput>
+  }
+
+  export type SkillTaskCardCreateManyUserInputEnvelope = {
+    data: SkillTaskCardCreateManyUserInput | SkillTaskCardCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserPracticeMasteryCreateWithoutUserInput = {
+    id?: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+    practiceItem: PracticeItemCreateNestedOneWithoutUserPracticeMasteriesInput
+  }
+
+  export type UserPracticeMasteryUncheckedCreateWithoutUserInput = {
+    id?: string
+    practiceItemId: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserPracticeMasteryCreateOrConnectWithoutUserInput = {
+    where: UserPracticeMasteryWhereUniqueInput
+    create: XOR<UserPracticeMasteryCreateWithoutUserInput, UserPracticeMasteryUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserPracticeMasteryCreateManyUserInputEnvelope = {
+    data: UserPracticeMasteryCreateManyUserInput | UserPracticeMasteryCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserTechniqueMasteryCreateWithoutUserInput = {
+    id?: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+    techniqueTag: TechniqueTagCreateNestedOneWithoutUserTechniqueMasteriesInput
+  }
+
+  export type UserTechniqueMasteryUncheckedCreateWithoutUserInput = {
+    id?: string
+    techniqueTagId: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserTechniqueMasteryCreateOrConnectWithoutUserInput = {
+    where: UserTechniqueMasteryWhereUniqueInput
+    create: XOR<UserTechniqueMasteryCreateWithoutUserInput, UserTechniqueMasteryUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserTechniqueMasteryCreateManyUserInputEnvelope = {
+    data: UserTechniqueMasteryCreateManyUserInput | UserTechniqueMasteryCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -28039,6 +42975,13 @@ export namespace Prisma {
     overallScore?: FloatNullableFilter<"Performance"> | number | null
     evaluatedNotes?: IntNullableFilter<"Performance"> | number | null
     analysisSummary?: JsonNullableFilter<"Performance">
+    rhythmAccuracy?: FloatNullableFilter<"Performance"> | number | null
+    bowingAccuracy?: FloatNullableFilter<"Performance"> | number | null
+    pitchSkillScore?: FloatNullableFilter<"Performance"> | number | null
+    rhythmSkillScore?: FloatNullableFilter<"Performance"> | number | null
+    bowingSkillScore?: FloatNullableFilter<"Performance"> | number | null
+    skillSubScores?: JsonNullableFilter<"Performance">
+    problematicPositions?: JsonNullableFilter<"Performance">
     analysisStatus?: EnumJobStatusFilter<"Performance"> | $Enums.JobStatus
     retryCount?: IntFilter<"Performance"> | number
     errorMessage?: StringNullableFilter<"Performance"> | string | null
@@ -28089,6 +43032,7 @@ export namespace Prisma {
     isShared?: BoolFilter<"Score"> | boolean
     difficulty?: IntNullableFilter<"Score"> | number | null
     skillSubTaskTags?: JsonNullableFilter<"Score">
+    ownerScope?: StringFilter<"Score"> | string
     createdAt?: DateTimeFilter<"Score"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Score"> | Date | string | null
   }
@@ -28179,6 +43123,8 @@ export namespace Prisma {
     overallScore?: FloatNullableFilter<"PracticePerformance"> | number | null
     evaluatedNotes?: IntNullableFilter<"PracticePerformance"> | number | null
     analysisSummary?: JsonNullableFilter<"PracticePerformance">
+    rhythmAccuracy?: FloatNullableFilter<"PracticePerformance"> | number | null
+    bowingAccuracy?: FloatNullableFilter<"PracticePerformance"> | number | null
     analysisStatus?: EnumJobStatusFilter<"PracticePerformance"> | $Enums.JobStatus
     retryCount?: IntFilter<"PracticePerformance"> | number
     errorMessage?: StringNullableFilter<"PracticePerformance"> | string | null
@@ -28422,13 +43368,165 @@ export namespace Prisma {
     OR?: PerformanceSkillFeedbackScalarWhereInput[]
     NOT?: PerformanceSkillFeedbackScalarWhereInput | PerformanceSkillFeedbackScalarWhereInput[]
     id?: StringFilter<"PerformanceSkillFeedback"> | string
-    practicePerformanceId?: StringFilter<"PerformanceSkillFeedback"> | string
+    practicePerformanceId?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
+    performanceId?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
     userId?: StringFilter<"PerformanceSkillFeedback"> | string
     positionId?: StringFilter<"PerformanceSkillFeedback"> | string
     selectedSubTaskId?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
     feedbackType?: StringFilter<"PerformanceSkillFeedback"> | string
     comment?: StringNullableFilter<"PerformanceSkillFeedback"> | string | null
     createdAt?: DateTimeFilter<"PerformanceSkillFeedback"> | Date | string
+  }
+
+  export type SongMasteryUpsertWithWhereUniqueWithoutUserInput = {
+    where: SongMasteryWhereUniqueInput
+    update: XOR<SongMasteryUpdateWithoutUserInput, SongMasteryUncheckedUpdateWithoutUserInput>
+    create: XOR<SongMasteryCreateWithoutUserInput, SongMasteryUncheckedCreateWithoutUserInput>
+  }
+
+  export type SongMasteryUpdateWithWhereUniqueWithoutUserInput = {
+    where: SongMasteryWhereUniqueInput
+    data: XOR<SongMasteryUpdateWithoutUserInput, SongMasteryUncheckedUpdateWithoutUserInput>
+  }
+
+  export type SongMasteryUpdateManyWithWhereWithoutUserInput = {
+    where: SongMasteryScalarWhereInput
+    data: XOR<SongMasteryUpdateManyMutationInput, SongMasteryUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type SongMasteryScalarWhereInput = {
+    AND?: SongMasteryScalarWhereInput | SongMasteryScalarWhereInput[]
+    OR?: SongMasteryScalarWhereInput[]
+    NOT?: SongMasteryScalarWhereInput | SongMasteryScalarWhereInput[]
+    id?: StringFilter<"SongMastery"> | string
+    userId?: StringFilter<"SongMastery"> | string
+    scoreId?: StringFilter<"SongMastery"> | string
+    recentAverageScore?: FloatNullableFilter<"SongMastery"> | number | null
+    totalPerformanceCount?: IntFilter<"SongMastery"> | number
+    isPerformanceMastered?: BoolFilter<"SongMastery"> | boolean
+    isFullyMastered?: BoolFilter<"SongMastery"> | boolean
+    performanceMasteredAt?: DateTimeNullableFilter<"SongMastery"> | Date | string | null
+    fullyMasteredAt?: DateTimeNullableFilter<"SongMastery"> | Date | string | null
+    createdAt?: DateTimeFilter<"SongMastery"> | Date | string
+    updatedAt?: DateTimeFilter<"SongMastery"> | Date | string
+  }
+
+  export type UserGradeProgressUpsertWithoutUserInput = {
+    update: XOR<UserGradeProgressUpdateWithoutUserInput, UserGradeProgressUncheckedUpdateWithoutUserInput>
+    create: XOR<UserGradeProgressCreateWithoutUserInput, UserGradeProgressUncheckedCreateWithoutUserInput>
+    where?: UserGradeProgressWhereInput
+  }
+
+  export type UserGradeProgressUpdateToOneWithWhereWithoutUserInput = {
+    where?: UserGradeProgressWhereInput
+    data: XOR<UserGradeProgressUpdateWithoutUserInput, UserGradeProgressUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserGradeProgressUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currentStar?: IntFieldUpdateOperationsInput | number
+    currentGrade?: StringFieldUpdateOperationsInput | string
+    masteredSongCountAtCurrentStar?: IntFieldUpdateOperationsInput | number
+    masterReachedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserGradeProgressUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    currentStar?: IntFieldUpdateOperationsInput | number
+    currentGrade?: StringFieldUpdateOperationsInput | string
+    masteredSongCountAtCurrentStar?: IntFieldUpdateOperationsInput | number
+    masterReachedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SkillTaskCardUpsertWithWhereUniqueWithoutUserInput = {
+    where: SkillTaskCardWhereUniqueInput
+    update: XOR<SkillTaskCardUpdateWithoutUserInput, SkillTaskCardUncheckedUpdateWithoutUserInput>
+    create: XOR<SkillTaskCardCreateWithoutUserInput, SkillTaskCardUncheckedCreateWithoutUserInput>
+  }
+
+  export type SkillTaskCardUpdateWithWhereUniqueWithoutUserInput = {
+    where: SkillTaskCardWhereUniqueInput
+    data: XOR<SkillTaskCardUpdateWithoutUserInput, SkillTaskCardUncheckedUpdateWithoutUserInput>
+  }
+
+  export type SkillTaskCardUpdateManyWithWhereWithoutUserInput = {
+    where: SkillTaskCardScalarWhereInput
+    data: XOR<SkillTaskCardUpdateManyMutationInput, SkillTaskCardUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type SkillTaskCardScalarWhereInput = {
+    AND?: SkillTaskCardScalarWhereInput | SkillTaskCardScalarWhereInput[]
+    OR?: SkillTaskCardScalarWhereInput[]
+    NOT?: SkillTaskCardScalarWhereInput | SkillTaskCardScalarWhereInput[]
+    id?: StringFilter<"SkillTaskCard"> | string
+    userId?: StringFilter<"SkillTaskCard"> | string
+    scoreId?: StringFilter<"SkillTaskCard"> | string
+    taskCategory?: StringFilter<"SkillTaskCard"> | string
+    status?: StringFilter<"SkillTaskCard"> | string
+    generatedAt?: DateTimeFilter<"SkillTaskCard"> | Date | string
+    lastMatchedAt?: DateTimeNullableFilter<"SkillTaskCard"> | Date | string | null
+    clearedAt?: DateTimeNullableFilter<"SkillTaskCard"> | Date | string | null
+    updatedAt?: DateTimeFilter<"SkillTaskCard"> | Date | string
+  }
+
+  export type UserPracticeMasteryUpsertWithWhereUniqueWithoutUserInput = {
+    where: UserPracticeMasteryWhereUniqueInput
+    update: XOR<UserPracticeMasteryUpdateWithoutUserInput, UserPracticeMasteryUncheckedUpdateWithoutUserInput>
+    create: XOR<UserPracticeMasteryCreateWithoutUserInput, UserPracticeMasteryUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserPracticeMasteryUpdateWithWhereUniqueWithoutUserInput = {
+    where: UserPracticeMasteryWhereUniqueInput
+    data: XOR<UserPracticeMasteryUpdateWithoutUserInput, UserPracticeMasteryUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserPracticeMasteryUpdateManyWithWhereWithoutUserInput = {
+    where: UserPracticeMasteryScalarWhereInput
+    data: XOR<UserPracticeMasteryUpdateManyMutationInput, UserPracticeMasteryUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type UserPracticeMasteryScalarWhereInput = {
+    AND?: UserPracticeMasteryScalarWhereInput | UserPracticeMasteryScalarWhereInput[]
+    OR?: UserPracticeMasteryScalarWhereInput[]
+    NOT?: UserPracticeMasteryScalarWhereInput | UserPracticeMasteryScalarWhereInput[]
+    id?: StringFilter<"UserPracticeMastery"> | string
+    userId?: StringFilter<"UserPracticeMastery"> | string
+    practiceItemId?: StringFilter<"UserPracticeMastery"> | string
+    recentAverageScore?: FloatNullableFilter<"UserPracticeMastery"> | number | null
+    totalPerformanceCount?: IntFilter<"UserPracticeMastery"> | number
+    isPerformanceMastered?: BoolFilter<"UserPracticeMastery"> | boolean
+    masteredAt?: DateTimeNullableFilter<"UserPracticeMastery"> | Date | string | null
+    updatedAt?: DateTimeFilter<"UserPracticeMastery"> | Date | string
+  }
+
+  export type UserTechniqueMasteryUpsertWithWhereUniqueWithoutUserInput = {
+    where: UserTechniqueMasteryWhereUniqueInput
+    update: XOR<UserTechniqueMasteryUpdateWithoutUserInput, UserTechniqueMasteryUncheckedUpdateWithoutUserInput>
+    create: XOR<UserTechniqueMasteryCreateWithoutUserInput, UserTechniqueMasteryUncheckedCreateWithoutUserInput>
+  }
+
+  export type UserTechniqueMasteryUpdateWithWhereUniqueWithoutUserInput = {
+    where: UserTechniqueMasteryWhereUniqueInput
+    data: XOR<UserTechniqueMasteryUpdateWithoutUserInput, UserTechniqueMasteryUncheckedUpdateWithoutUserInput>
+  }
+
+  export type UserTechniqueMasteryUpdateManyWithWhereWithoutUserInput = {
+    where: UserTechniqueMasteryScalarWhereInput
+    data: XOR<UserTechniqueMasteryUpdateManyMutationInput, UserTechniqueMasteryUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type UserTechniqueMasteryScalarWhereInput = {
+    AND?: UserTechniqueMasteryScalarWhereInput | UserTechniqueMasteryScalarWhereInput[]
+    OR?: UserTechniqueMasteryScalarWhereInput[]
+    NOT?: UserTechniqueMasteryScalarWhereInput | UserTechniqueMasteryScalarWhereInput[]
+    id?: StringFilter<"UserTechniqueMastery"> | string
+    userId?: StringFilter<"UserTechniqueMastery"> | string
+    techniqueTagId?: StringFilter<"UserTechniqueMastery"> | string
+    isMastered?: BoolFilter<"UserTechniqueMastery"> | boolean
+    masteredAt?: DateTimeNullableFilter<"UserTechniqueMastery"> | Date | string | null
+    updatedAt?: DateTimeFilter<"UserTechniqueMastery"> | Date | string
   }
 
   export type PerformanceCreateWithoutScoreInput = {
@@ -28449,6 +43547,13 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -28456,6 +43561,7 @@ export namespace Prisma {
     executionId?: string | null
     idempotencyKey?: string | null
     user: UserCreateNestedOneWithoutPerformancesInput
+    skillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutPerformanceInput
   }
 
   export type PerformanceUncheckedCreateWithoutScoreInput = {
@@ -28477,12 +43583,20 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
     lastAttemptedAt?: Date | string | null
     executionId?: string | null
     idempotencyKey?: string | null
+    skillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutPerformanceInput
   }
 
   export type PerformanceCreateOrConnectWithoutScoreInput = {
@@ -28492,6 +43606,110 @@ export namespace Prisma {
 
   export type PerformanceCreateManyScoreInputEnvelope = {
     data: PerformanceCreateManyScoreInput | PerformanceCreateManyScoreInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SongMasteryCreateWithoutScoreInput = {
+    id?: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    isFullyMastered?: boolean
+    performanceMasteredAt?: Date | string | null
+    fullyMasteredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutSongMasteriesInput
+  }
+
+  export type SongMasteryUncheckedCreateWithoutScoreInput = {
+    id?: string
+    userId: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    isFullyMastered?: boolean
+    performanceMasteredAt?: Date | string | null
+    fullyMasteredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SongMasteryCreateOrConnectWithoutScoreInput = {
+    where: SongMasteryWhereUniqueInput
+    create: XOR<SongMasteryCreateWithoutScoreInput, SongMasteryUncheckedCreateWithoutScoreInput>
+  }
+
+  export type SongMasteryCreateManyScoreInputEnvelope = {
+    data: SongMasteryCreateManyScoreInput | SongMasteryCreateManyScoreInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SkillTaskCardCreateWithoutScoreInput = {
+    id?: string
+    taskCategory: string
+    status?: string
+    generatedAt?: Date | string
+    lastMatchedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutSkillTaskCardsInput
+    subTasks?: SubTaskCreateNestedManyWithoutSkillTaskCardInput
+  }
+
+  export type SkillTaskCardUncheckedCreateWithoutScoreInput = {
+    id?: string
+    userId: string
+    taskCategory: string
+    status?: string
+    generatedAt?: Date | string
+    lastMatchedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+    subTasks?: SubTaskUncheckedCreateNestedManyWithoutSkillTaskCardInput
+  }
+
+  export type SkillTaskCardCreateOrConnectWithoutScoreInput = {
+    where: SkillTaskCardWhereUniqueInput
+    create: XOR<SkillTaskCardCreateWithoutScoreInput, SkillTaskCardUncheckedCreateWithoutScoreInput>
+  }
+
+  export type SkillTaskCardCreateManyScoreInputEnvelope = {
+    data: SkillTaskCardCreateManyScoreInput | SkillTaskCardCreateManyScoreInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MissingPracticeItemFlagCreateWithoutScoreInput = {
+    id?: string
+    subTaskType: string
+    missingCategory: string
+    keyTonic: string
+    keyMode: string
+    star: number
+    detectedAt?: Date | string
+    resolvedAt?: Date | string | null
+    techniqueTag?: TechniqueTagCreateNestedOneWithoutMissingPracticeItemFlagsInput
+  }
+
+  export type MissingPracticeItemFlagUncheckedCreateWithoutScoreInput = {
+    id?: string
+    subTaskType: string
+    missingCategory: string
+    keyTonic: string
+    keyMode: string
+    star: number
+    techniqueTagId?: string | null
+    detectedAt?: Date | string
+    resolvedAt?: Date | string | null
+  }
+
+  export type MissingPracticeItemFlagCreateOrConnectWithoutScoreInput = {
+    where: MissingPracticeItemFlagWhereUniqueInput
+    create: XOR<MissingPracticeItemFlagCreateWithoutScoreInput, MissingPracticeItemFlagUncheckedCreateWithoutScoreInput>
+  }
+
+  export type MissingPracticeItemFlagCreateManyScoreInputEnvelope = {
+    data: MissingPracticeItemFlagCreateManyScoreInput | MissingPracticeItemFlagCreateManyScoreInput[]
     skipDuplicates?: boolean
   }
 
@@ -28517,6 +43735,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
     userGrade?: UserGradeCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutScoresInput = {
@@ -28541,6 +43764,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
     userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutScoresInput = {
@@ -28562,6 +43790,70 @@ export namespace Prisma {
   export type PerformanceUpdateManyWithWhereWithoutScoreInput = {
     where: PerformanceScalarWhereInput
     data: XOR<PerformanceUpdateManyMutationInput, PerformanceUncheckedUpdateManyWithoutScoreInput>
+  }
+
+  export type SongMasteryUpsertWithWhereUniqueWithoutScoreInput = {
+    where: SongMasteryWhereUniqueInput
+    update: XOR<SongMasteryUpdateWithoutScoreInput, SongMasteryUncheckedUpdateWithoutScoreInput>
+    create: XOR<SongMasteryCreateWithoutScoreInput, SongMasteryUncheckedCreateWithoutScoreInput>
+  }
+
+  export type SongMasteryUpdateWithWhereUniqueWithoutScoreInput = {
+    where: SongMasteryWhereUniqueInput
+    data: XOR<SongMasteryUpdateWithoutScoreInput, SongMasteryUncheckedUpdateWithoutScoreInput>
+  }
+
+  export type SongMasteryUpdateManyWithWhereWithoutScoreInput = {
+    where: SongMasteryScalarWhereInput
+    data: XOR<SongMasteryUpdateManyMutationInput, SongMasteryUncheckedUpdateManyWithoutScoreInput>
+  }
+
+  export type SkillTaskCardUpsertWithWhereUniqueWithoutScoreInput = {
+    where: SkillTaskCardWhereUniqueInput
+    update: XOR<SkillTaskCardUpdateWithoutScoreInput, SkillTaskCardUncheckedUpdateWithoutScoreInput>
+    create: XOR<SkillTaskCardCreateWithoutScoreInput, SkillTaskCardUncheckedCreateWithoutScoreInput>
+  }
+
+  export type SkillTaskCardUpdateWithWhereUniqueWithoutScoreInput = {
+    where: SkillTaskCardWhereUniqueInput
+    data: XOR<SkillTaskCardUpdateWithoutScoreInput, SkillTaskCardUncheckedUpdateWithoutScoreInput>
+  }
+
+  export type SkillTaskCardUpdateManyWithWhereWithoutScoreInput = {
+    where: SkillTaskCardScalarWhereInput
+    data: XOR<SkillTaskCardUpdateManyMutationInput, SkillTaskCardUncheckedUpdateManyWithoutScoreInput>
+  }
+
+  export type MissingPracticeItemFlagUpsertWithWhereUniqueWithoutScoreInput = {
+    where: MissingPracticeItemFlagWhereUniqueInput
+    update: XOR<MissingPracticeItemFlagUpdateWithoutScoreInput, MissingPracticeItemFlagUncheckedUpdateWithoutScoreInput>
+    create: XOR<MissingPracticeItemFlagCreateWithoutScoreInput, MissingPracticeItemFlagUncheckedCreateWithoutScoreInput>
+  }
+
+  export type MissingPracticeItemFlagUpdateWithWhereUniqueWithoutScoreInput = {
+    where: MissingPracticeItemFlagWhereUniqueInput
+    data: XOR<MissingPracticeItemFlagUpdateWithoutScoreInput, MissingPracticeItemFlagUncheckedUpdateWithoutScoreInput>
+  }
+
+  export type MissingPracticeItemFlagUpdateManyWithWhereWithoutScoreInput = {
+    where: MissingPracticeItemFlagScalarWhereInput
+    data: XOR<MissingPracticeItemFlagUpdateManyMutationInput, MissingPracticeItemFlagUncheckedUpdateManyWithoutScoreInput>
+  }
+
+  export type MissingPracticeItemFlagScalarWhereInput = {
+    AND?: MissingPracticeItemFlagScalarWhereInput | MissingPracticeItemFlagScalarWhereInput[]
+    OR?: MissingPracticeItemFlagScalarWhereInput[]
+    NOT?: MissingPracticeItemFlagScalarWhereInput | MissingPracticeItemFlagScalarWhereInput[]
+    id?: StringFilter<"MissingPracticeItemFlag"> | string
+    scoreId?: StringFilter<"MissingPracticeItemFlag"> | string
+    subTaskType?: StringFilter<"MissingPracticeItemFlag"> | string
+    missingCategory?: StringFilter<"MissingPracticeItemFlag"> | string
+    keyTonic?: StringFilter<"MissingPracticeItemFlag"> | string
+    keyMode?: StringFilter<"MissingPracticeItemFlag"> | string
+    star?: IntFilter<"MissingPracticeItemFlag"> | number
+    techniqueTagId?: StringNullableFilter<"MissingPracticeItemFlag"> | string | null
+    detectedAt?: DateTimeFilter<"MissingPracticeItemFlag"> | Date | string
+    resolvedAt?: DateTimeNullableFilter<"MissingPracticeItemFlag"> | Date | string | null
   }
 
   export type UserUpsertWithoutScoresInput = {
@@ -28597,6 +43889,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutScoresInput = {
@@ -28621,6 +43918,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ScoreCreateWithoutPerformancesInput = {
@@ -28645,8 +43947,12 @@ export namespace Prisma {
     isShared?: boolean
     difficulty?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    songMasteries?: SongMasteryCreateNestedManyWithoutScoreInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutScoreInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagCreateNestedManyWithoutScoreInput
     createdBy: UserCreateNestedOneWithoutScoresInput
   }
 
@@ -28673,8 +43979,12 @@ export namespace Prisma {
     isShared?: boolean
     difficulty?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
     createdAt?: Date | string
     deletedAt?: Date | string | null
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutScoreInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutScoreInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedCreateNestedManyWithoutScoreInput
   }
 
   export type ScoreCreateOrConnectWithoutPerformancesInput = {
@@ -28704,6 +44014,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
     userGrade?: UserGradeCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPerformancesInput = {
@@ -28728,11 +44043,48 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
     userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPerformancesInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutPerformancesInput, UserUncheckedCreateWithoutPerformancesInput>
+  }
+
+  export type PerformanceSkillFeedbackCreateWithoutPerformanceInput = {
+    id?: string
+    positionId: string
+    selectedSubTaskId?: string | null
+    feedbackType: string
+    comment?: string | null
+    createdAt?: Date | string
+    practicePerformance?: PracticePerformanceCreateNestedOneWithoutSkillFeedbacksInput
+    user: UserCreateNestedOneWithoutPerformanceSkillFeedbacksInput
+  }
+
+  export type PerformanceSkillFeedbackUncheckedCreateWithoutPerformanceInput = {
+    id?: string
+    practicePerformanceId?: string | null
+    userId: string
+    positionId: string
+    selectedSubTaskId?: string | null
+    feedbackType: string
+    comment?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PerformanceSkillFeedbackCreateOrConnectWithoutPerformanceInput = {
+    where: PerformanceSkillFeedbackWhereUniqueInput
+    create: XOR<PerformanceSkillFeedbackCreateWithoutPerformanceInput, PerformanceSkillFeedbackUncheckedCreateWithoutPerformanceInput>
+  }
+
+  export type PerformanceSkillFeedbackCreateManyPerformanceInputEnvelope = {
+    data: PerformanceSkillFeedbackCreateManyPerformanceInput | PerformanceSkillFeedbackCreateManyPerformanceInput[]
+    skipDuplicates?: boolean
   }
 
   export type ScoreUpsertWithoutPerformancesInput = {
@@ -28768,8 +44120,12 @@ export namespace Prisma {
     isShared?: BoolFieldUpdateOperationsInput | boolean
     difficulty?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    songMasteries?: SongMasteryUpdateManyWithoutScoreNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutScoreNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUpdateManyWithoutScoreNestedInput
     createdBy?: UserUpdateOneRequiredWithoutScoresNestedInput
   }
 
@@ -28796,8 +44152,12 @@ export namespace Prisma {
     isShared?: BoolFieldUpdateOperationsInput | boolean
     difficulty?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutScoreNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutScoreNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedUpdateManyWithoutScoreNestedInput
   }
 
   export type UserUpsertWithoutPerformancesInput = {
@@ -28833,6 +44193,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPerformancesInput = {
@@ -28857,6 +44222,27 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutPerformanceInput = {
+    where: PerformanceSkillFeedbackWhereUniqueInput
+    update: XOR<PerformanceSkillFeedbackUpdateWithoutPerformanceInput, PerformanceSkillFeedbackUncheckedUpdateWithoutPerformanceInput>
+    create: XOR<PerformanceSkillFeedbackCreateWithoutPerformanceInput, PerformanceSkillFeedbackUncheckedCreateWithoutPerformanceInput>
+  }
+
+  export type PerformanceSkillFeedbackUpdateWithWhereUniqueWithoutPerformanceInput = {
+    where: PerformanceSkillFeedbackWhereUniqueInput
+    data: XOR<PerformanceSkillFeedbackUpdateWithoutPerformanceInput, PerformanceSkillFeedbackUncheckedUpdateWithoutPerformanceInput>
+  }
+
+  export type PerformanceSkillFeedbackUpdateManyWithWhereWithoutPerformanceInput = {
+    where: PerformanceSkillFeedbackScalarWhereInput
+    data: XOR<PerformanceSkillFeedbackUpdateManyMutationInput, PerformanceSkillFeedbackUncheckedUpdateManyWithoutPerformanceInput>
   }
 
   export type UserCreateWithoutPracticeItemsInput = {
@@ -28881,6 +44267,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
     userGrade?: UserGradeCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPracticeItemsInput = {
@@ -28905,6 +44296,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
     userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPracticeItemsInput = {
@@ -28944,6 +44340,8 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -28972,6 +44370,8 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -28993,6 +44393,82 @@ export namespace Prisma {
 
   export type PracticePerformanceCreateManyPracticeItemInputEnvelope = {
     data: PracticePerformanceCreateManyPracticeItemInput | PracticePerformanceCreateManyPracticeItemInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SubTaskAssignmentCreateWithoutPracticeItemInput = {
+    id?: string
+    assignedCategory: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    assignedAt?: Date | string
+    subTask: SubTaskCreateNestedOneWithoutSubTaskAssignmentsInput
+  }
+
+  export type SubTaskAssignmentUncheckedCreateWithoutPracticeItemInput = {
+    id?: string
+    subTaskId: string
+    assignedCategory: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    assignedAt?: Date | string
+  }
+
+  export type SubTaskAssignmentCreateOrConnectWithoutPracticeItemInput = {
+    where: SubTaskAssignmentWhereUniqueInput
+    create: XOR<SubTaskAssignmentCreateWithoutPracticeItemInput, SubTaskAssignmentUncheckedCreateWithoutPracticeItemInput>
+  }
+
+  export type SubTaskAssignmentCreateManyPracticeItemInputEnvelope = {
+    data: SubTaskAssignmentCreateManyPracticeItemInput | SubTaskAssignmentCreateManyPracticeItemInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserPracticeMasteryCreateWithoutPracticeItemInput = {
+    id?: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutUserPracticeMasteriesInput
+  }
+
+  export type UserPracticeMasteryUncheckedCreateWithoutPracticeItemInput = {
+    id?: string
+    userId: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserPracticeMasteryCreateOrConnectWithoutPracticeItemInput = {
+    where: UserPracticeMasteryWhereUniqueInput
+    create: XOR<UserPracticeMasteryCreateWithoutPracticeItemInput, UserPracticeMasteryUncheckedCreateWithoutPracticeItemInput>
+  }
+
+  export type UserPracticeMasteryCreateManyPracticeItemInputEnvelope = {
+    data: UserPracticeMasteryCreateManyPracticeItemInput | UserPracticeMasteryCreateManyPracticeItemInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PracticeItemSubTaskTagCreateWithoutPracticeItemInput = {
+    subTaskType: string
+  }
+
+  export type PracticeItemSubTaskTagUncheckedCreateWithoutPracticeItemInput = {
+    subTaskType: string
+  }
+
+  export type PracticeItemSubTaskTagCreateOrConnectWithoutPracticeItemInput = {
+    where: PracticeItemSubTaskTagWhereUniqueInput
+    create: XOR<PracticeItemSubTaskTagCreateWithoutPracticeItemInput, PracticeItemSubTaskTagUncheckedCreateWithoutPracticeItemInput>
+  }
+
+  export type PracticeItemSubTaskTagCreateManyPracticeItemInputEnvelope = {
+    data: PracticeItemSubTaskTagCreateManyPracticeItemInput | PracticeItemSubTaskTagCreateManyPracticeItemInput[]
     skipDuplicates?: boolean
   }
 
@@ -29029,6 +44505,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPracticeItemsInput = {
@@ -29053,6 +44534,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PracticeItemTechniqueUpsertWithWhereUniqueWithoutPracticeItemInput = {
@@ -29094,6 +44580,75 @@ export namespace Prisma {
   export type PracticePerformanceUpdateManyWithWhereWithoutPracticeItemInput = {
     where: PracticePerformanceScalarWhereInput
     data: XOR<PracticePerformanceUpdateManyMutationInput, PracticePerformanceUncheckedUpdateManyWithoutPracticeItemInput>
+  }
+
+  export type SubTaskAssignmentUpsertWithWhereUniqueWithoutPracticeItemInput = {
+    where: SubTaskAssignmentWhereUniqueInput
+    update: XOR<SubTaskAssignmentUpdateWithoutPracticeItemInput, SubTaskAssignmentUncheckedUpdateWithoutPracticeItemInput>
+    create: XOR<SubTaskAssignmentCreateWithoutPracticeItemInput, SubTaskAssignmentUncheckedCreateWithoutPracticeItemInput>
+  }
+
+  export type SubTaskAssignmentUpdateWithWhereUniqueWithoutPracticeItemInput = {
+    where: SubTaskAssignmentWhereUniqueInput
+    data: XOR<SubTaskAssignmentUpdateWithoutPracticeItemInput, SubTaskAssignmentUncheckedUpdateWithoutPracticeItemInput>
+  }
+
+  export type SubTaskAssignmentUpdateManyWithWhereWithoutPracticeItemInput = {
+    where: SubTaskAssignmentScalarWhereInput
+    data: XOR<SubTaskAssignmentUpdateManyMutationInput, SubTaskAssignmentUncheckedUpdateManyWithoutPracticeItemInput>
+  }
+
+  export type SubTaskAssignmentScalarWhereInput = {
+    AND?: SubTaskAssignmentScalarWhereInput | SubTaskAssignmentScalarWhereInput[]
+    OR?: SubTaskAssignmentScalarWhereInput[]
+    NOT?: SubTaskAssignmentScalarWhereInput | SubTaskAssignmentScalarWhereInput[]
+    id?: StringFilter<"SubTaskAssignment"> | string
+    subTaskId?: StringFilter<"SubTaskAssignment"> | string
+    practiceItemId?: StringFilter<"SubTaskAssignment"> | string
+    assignedCategory?: StringFilter<"SubTaskAssignment"> | string
+    isMastered?: BoolFilter<"SubTaskAssignment"> | boolean
+    masteredAt?: DateTimeNullableFilter<"SubTaskAssignment"> | Date | string | null
+    assignedAt?: DateTimeFilter<"SubTaskAssignment"> | Date | string
+  }
+
+  export type UserPracticeMasteryUpsertWithWhereUniqueWithoutPracticeItemInput = {
+    where: UserPracticeMasteryWhereUniqueInput
+    update: XOR<UserPracticeMasteryUpdateWithoutPracticeItemInput, UserPracticeMasteryUncheckedUpdateWithoutPracticeItemInput>
+    create: XOR<UserPracticeMasteryCreateWithoutPracticeItemInput, UserPracticeMasteryUncheckedCreateWithoutPracticeItemInput>
+  }
+
+  export type UserPracticeMasteryUpdateWithWhereUniqueWithoutPracticeItemInput = {
+    where: UserPracticeMasteryWhereUniqueInput
+    data: XOR<UserPracticeMasteryUpdateWithoutPracticeItemInput, UserPracticeMasteryUncheckedUpdateWithoutPracticeItemInput>
+  }
+
+  export type UserPracticeMasteryUpdateManyWithWhereWithoutPracticeItemInput = {
+    where: UserPracticeMasteryScalarWhereInput
+    data: XOR<UserPracticeMasteryUpdateManyMutationInput, UserPracticeMasteryUncheckedUpdateManyWithoutPracticeItemInput>
+  }
+
+  export type PracticeItemSubTaskTagUpsertWithWhereUniqueWithoutPracticeItemInput = {
+    where: PracticeItemSubTaskTagWhereUniqueInput
+    update: XOR<PracticeItemSubTaskTagUpdateWithoutPracticeItemInput, PracticeItemSubTaskTagUncheckedUpdateWithoutPracticeItemInput>
+    create: XOR<PracticeItemSubTaskTagCreateWithoutPracticeItemInput, PracticeItemSubTaskTagUncheckedCreateWithoutPracticeItemInput>
+  }
+
+  export type PracticeItemSubTaskTagUpdateWithWhereUniqueWithoutPracticeItemInput = {
+    where: PracticeItemSubTaskTagWhereUniqueInput
+    data: XOR<PracticeItemSubTaskTagUpdateWithoutPracticeItemInput, PracticeItemSubTaskTagUncheckedUpdateWithoutPracticeItemInput>
+  }
+
+  export type PracticeItemSubTaskTagUpdateManyWithWhereWithoutPracticeItemInput = {
+    where: PracticeItemSubTaskTagScalarWhereInput
+    data: XOR<PracticeItemSubTaskTagUpdateManyMutationInput, PracticeItemSubTaskTagUncheckedUpdateManyWithoutPracticeItemInput>
+  }
+
+  export type PracticeItemSubTaskTagScalarWhereInput = {
+    AND?: PracticeItemSubTaskTagScalarWhereInput | PracticeItemSubTaskTagScalarWhereInput[]
+    OR?: PracticeItemSubTaskTagScalarWhereInput[]
+    NOT?: PracticeItemSubTaskTagScalarWhereInput | PracticeItemSubTaskTagScalarWhereInput[]
+    practiceItemId?: StringFilter<"PracticeItemSubTaskTag"> | string
+    subTaskType?: StringFilter<"PracticeItemSubTaskTag"> | string
   }
 
   export type PracticeItemTechniqueCreateWithoutTechniqueTagInput = {
@@ -29146,6 +44701,66 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type UserTechniqueMasteryCreateWithoutTechniqueTagInput = {
+    id?: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutUserTechniqueMasteriesInput
+  }
+
+  export type UserTechniqueMasteryUncheckedCreateWithoutTechniqueTagInput = {
+    id?: string
+    userId: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserTechniqueMasteryCreateOrConnectWithoutTechniqueTagInput = {
+    where: UserTechniqueMasteryWhereUniqueInput
+    create: XOR<UserTechniqueMasteryCreateWithoutTechniqueTagInput, UserTechniqueMasteryUncheckedCreateWithoutTechniqueTagInput>
+  }
+
+  export type UserTechniqueMasteryCreateManyTechniqueTagInputEnvelope = {
+    data: UserTechniqueMasteryCreateManyTechniqueTagInput | UserTechniqueMasteryCreateManyTechniqueTagInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MissingPracticeItemFlagCreateWithoutTechniqueTagInput = {
+    id?: string
+    subTaskType: string
+    missingCategory: string
+    keyTonic: string
+    keyMode: string
+    star: number
+    detectedAt?: Date | string
+    resolvedAt?: Date | string | null
+    score: ScoreCreateNestedOneWithoutMissingPracticeItemFlagsInput
+  }
+
+  export type MissingPracticeItemFlagUncheckedCreateWithoutTechniqueTagInput = {
+    id?: string
+    scoreId: string
+    subTaskType: string
+    missingCategory: string
+    keyTonic: string
+    keyMode: string
+    star: number
+    detectedAt?: Date | string
+    resolvedAt?: Date | string | null
+  }
+
+  export type MissingPracticeItemFlagCreateOrConnectWithoutTechniqueTagInput = {
+    where: MissingPracticeItemFlagWhereUniqueInput
+    create: XOR<MissingPracticeItemFlagCreateWithoutTechniqueTagInput, MissingPracticeItemFlagUncheckedCreateWithoutTechniqueTagInput>
+  }
+
+  export type MissingPracticeItemFlagCreateManyTechniqueTagInputEnvelope = {
+    data: MissingPracticeItemFlagCreateManyTechniqueTagInput | MissingPracticeItemFlagCreateManyTechniqueTagInput[]
+    skipDuplicates?: boolean
+  }
+
   export type PracticeItemTechniqueUpsertWithWhereUniqueWithoutTechniqueTagInput = {
     where: PracticeItemTechniqueWhereUniqueInput
     update: XOR<PracticeItemTechniqueUpdateWithoutTechniqueTagInput, PracticeItemTechniqueUncheckedUpdateWithoutTechniqueTagInput>
@@ -29176,6 +44791,38 @@ export namespace Prisma {
   export type UserWeaknessUpdateManyWithWhereWithoutTechniqueTagInput = {
     where: UserWeaknessScalarWhereInput
     data: XOR<UserWeaknessUpdateManyMutationInput, UserWeaknessUncheckedUpdateManyWithoutTechniqueTagInput>
+  }
+
+  export type UserTechniqueMasteryUpsertWithWhereUniqueWithoutTechniqueTagInput = {
+    where: UserTechniqueMasteryWhereUniqueInput
+    update: XOR<UserTechniqueMasteryUpdateWithoutTechniqueTagInput, UserTechniqueMasteryUncheckedUpdateWithoutTechniqueTagInput>
+    create: XOR<UserTechniqueMasteryCreateWithoutTechniqueTagInput, UserTechniqueMasteryUncheckedCreateWithoutTechniqueTagInput>
+  }
+
+  export type UserTechniqueMasteryUpdateWithWhereUniqueWithoutTechniqueTagInput = {
+    where: UserTechniqueMasteryWhereUniqueInput
+    data: XOR<UserTechniqueMasteryUpdateWithoutTechniqueTagInput, UserTechniqueMasteryUncheckedUpdateWithoutTechniqueTagInput>
+  }
+
+  export type UserTechniqueMasteryUpdateManyWithWhereWithoutTechniqueTagInput = {
+    where: UserTechniqueMasteryScalarWhereInput
+    data: XOR<UserTechniqueMasteryUpdateManyMutationInput, UserTechniqueMasteryUncheckedUpdateManyWithoutTechniqueTagInput>
+  }
+
+  export type MissingPracticeItemFlagUpsertWithWhereUniqueWithoutTechniqueTagInput = {
+    where: MissingPracticeItemFlagWhereUniqueInput
+    update: XOR<MissingPracticeItemFlagUpdateWithoutTechniqueTagInput, MissingPracticeItemFlagUncheckedUpdateWithoutTechniqueTagInput>
+    create: XOR<MissingPracticeItemFlagCreateWithoutTechniqueTagInput, MissingPracticeItemFlagUncheckedCreateWithoutTechniqueTagInput>
+  }
+
+  export type MissingPracticeItemFlagUpdateWithWhereUniqueWithoutTechniqueTagInput = {
+    where: MissingPracticeItemFlagWhereUniqueInput
+    data: XOR<MissingPracticeItemFlagUpdateWithoutTechniqueTagInput, MissingPracticeItemFlagUncheckedUpdateWithoutTechniqueTagInput>
+  }
+
+  export type MissingPracticeItemFlagUpdateManyWithWhereWithoutTechniqueTagInput = {
+    where: MissingPracticeItemFlagScalarWhereInput
+    data: XOR<MissingPracticeItemFlagUpdateManyMutationInput, MissingPracticeItemFlagUncheckedUpdateManyWithoutTechniqueTagInput>
   }
 
   export type PracticeItemCreateWithoutTechniquesInput = {
@@ -29211,6 +44858,9 @@ export namespace Prisma {
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserCreateNestedOneWithoutPracticeItemsInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
+    subTaskAssignments?: SubTaskAssignmentCreateNestedManyWithoutPracticeItemInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutPracticeItemInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagCreateNestedManyWithoutPracticeItemInput
   }
 
   export type PracticeItemUncheckedCreateWithoutTechniquesInput = {
@@ -29246,6 +44896,9 @@ export namespace Prisma {
     difficulty?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
+    subTaskAssignments?: SubTaskAssignmentUncheckedCreateNestedManyWithoutPracticeItemInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutPracticeItemInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUncheckedCreateNestedManyWithoutPracticeItemInput
   }
 
   export type PracticeItemCreateOrConnectWithoutTechniquesInput = {
@@ -29263,6 +44916,8 @@ export namespace Prisma {
     isAnalyzable: string
     implementStatus: string
     weaknesses?: UserWeaknessCreateNestedManyWithoutTechniqueTagInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutTechniqueTagInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagCreateNestedManyWithoutTechniqueTagInput
   }
 
   export type TechniqueTagUncheckedCreateWithoutPracticeItemsInput = {
@@ -29275,6 +44930,8 @@ export namespace Prisma {
     isAnalyzable: string
     implementStatus: string
     weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutTechniqueTagInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutTechniqueTagInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedCreateNestedManyWithoutTechniqueTagInput
   }
 
   export type TechniqueTagCreateOrConnectWithoutPracticeItemsInput = {
@@ -29326,6 +44983,9 @@ export namespace Prisma {
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
+    subTaskAssignments?: SubTaskAssignmentUpdateManyWithoutPracticeItemNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutPracticeItemNestedInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUpdateManyWithoutPracticeItemNestedInput
   }
 
   export type PracticeItemUncheckedUpdateWithoutTechniquesInput = {
@@ -29361,6 +45021,9 @@ export namespace Prisma {
     difficulty?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
+    subTaskAssignments?: SubTaskAssignmentUncheckedUpdateManyWithoutPracticeItemNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutPracticeItemNestedInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUncheckedUpdateManyWithoutPracticeItemNestedInput
   }
 
   export type TechniqueTagUpsertWithoutPracticeItemsInput = {
@@ -29384,6 +45047,8 @@ export namespace Prisma {
     isAnalyzable?: StringFieldUpdateOperationsInput | string
     implementStatus?: StringFieldUpdateOperationsInput | string
     weaknesses?: UserWeaknessUpdateManyWithoutTechniqueTagNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutTechniqueTagNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUpdateManyWithoutTechniqueTagNestedInput
   }
 
   export type TechniqueTagUncheckedUpdateWithoutPracticeItemsInput = {
@@ -29396,6 +45061,8 @@ export namespace Prisma {
     isAnalyzable?: StringFieldUpdateOperationsInput | string
     implementStatus?: StringFieldUpdateOperationsInput | string
     weaknesses?: UserWeaknessUncheckedUpdateManyWithoutTechniqueTagNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutTechniqueTagNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedUpdateManyWithoutTechniqueTagNestedInput
   }
 
   export type UserCreateWithoutPracticePerformancesInput = {
@@ -29420,6 +45087,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
     userGrade?: UserGradeCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPracticePerformancesInput = {
@@ -29444,6 +45116,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
     userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPracticePerformancesInput = {
@@ -29484,6 +45161,9 @@ export namespace Prisma {
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserCreateNestedOneWithoutPracticeItemsInput
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
+    subTaskAssignments?: SubTaskAssignmentCreateNestedManyWithoutPracticeItemInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutPracticeItemInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagCreateNestedManyWithoutPracticeItemInput
   }
 
   export type PracticeItemUncheckedCreateWithoutPracticePerformancesInput = {
@@ -29519,6 +45199,9 @@ export namespace Prisma {
     difficulty?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
+    subTaskAssignments?: SubTaskAssignmentUncheckedCreateNestedManyWithoutPracticeItemInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutPracticeItemInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUncheckedCreateNestedManyWithoutPracticeItemInput
   }
 
   export type PracticeItemCreateOrConnectWithoutPracticePerformancesInput = {
@@ -29533,11 +45216,13 @@ export namespace Prisma {
     feedbackType: string
     comment?: string | null
     createdAt?: Date | string
+    performance?: PerformanceCreateNestedOneWithoutSkillFeedbacksInput
     user: UserCreateNestedOneWithoutPerformanceSkillFeedbacksInput
   }
 
   export type PerformanceSkillFeedbackUncheckedCreateWithoutPracticePerformanceInput = {
     id?: string
+    performanceId?: string | null
     userId: string
     positionId: string
     selectedSubTaskId?: string | null
@@ -29589,6 +45274,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPracticePerformancesInput = {
@@ -29613,6 +45303,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PracticeItemUpsertWithoutPracticePerformancesInput = {
@@ -29659,6 +45354,9 @@ export namespace Prisma {
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
+    subTaskAssignments?: SubTaskAssignmentUpdateManyWithoutPracticeItemNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutPracticeItemNestedInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUpdateManyWithoutPracticeItemNestedInput
   }
 
   export type PracticeItemUncheckedUpdateWithoutPracticePerformancesInput = {
@@ -29694,6 +45392,9 @@ export namespace Prisma {
     difficulty?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
+    subTaskAssignments?: SubTaskAssignmentUncheckedUpdateManyWithoutPracticeItemNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutPracticeItemNestedInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUncheckedUpdateManyWithoutPracticeItemNestedInput
   }
 
   export type PerformanceSkillFeedbackUpsertWithWhereUniqueWithoutPracticePerformanceInput = {
@@ -29734,6 +45435,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
     userGrade?: UserGradeCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWeaknessesInput = {
@@ -29758,6 +45464,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
     userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWeaknessesInput = {
@@ -29775,6 +45486,8 @@ export namespace Prisma {
     isAnalyzable: string
     implementStatus: string
     practiceItems?: PracticeItemTechniqueCreateNestedManyWithoutTechniqueTagInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutTechniqueTagInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagCreateNestedManyWithoutTechniqueTagInput
   }
 
   export type TechniqueTagUncheckedCreateWithoutWeaknessesInput = {
@@ -29787,6 +45500,8 @@ export namespace Prisma {
     isAnalyzable: string
     implementStatus: string
     practiceItems?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutTechniqueTagInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutTechniqueTagInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedCreateNestedManyWithoutTechniqueTagInput
   }
 
   export type TechniqueTagCreateOrConnectWithoutWeaknessesInput = {
@@ -29827,6 +45542,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWeaknessesInput = {
@@ -29851,6 +45571,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TechniqueTagUpsertWithoutWeaknessesInput = {
@@ -29874,6 +45599,8 @@ export namespace Prisma {
     isAnalyzable?: StringFieldUpdateOperationsInput | string
     implementStatus?: StringFieldUpdateOperationsInput | string
     practiceItems?: PracticeItemTechniqueUpdateManyWithoutTechniqueTagNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutTechniqueTagNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUpdateManyWithoutTechniqueTagNestedInput
   }
 
   export type TechniqueTagUncheckedUpdateWithoutWeaknessesInput = {
@@ -29886,6 +45613,8 @@ export namespace Prisma {
     isAnalyzable?: StringFieldUpdateOperationsInput | string
     implementStatus?: StringFieldUpdateOperationsInput | string
     practiceItems?: PracticeItemTechniqueUncheckedUpdateManyWithoutTechniqueTagNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutTechniqueTagNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedUpdateManyWithoutTechniqueTagNestedInput
   }
 
   export type UserCreateWithoutFeedbacksInput = {
@@ -29910,6 +45639,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
     userGrade?: UserGradeCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFeedbacksInput = {
@@ -29934,6 +45668,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
     userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFeedbacksInput = {
@@ -29974,6 +45713,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFeedbacksInput = {
@@ -29998,6 +45742,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSupportInquiriesInput = {
@@ -30022,6 +45771,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
     userGrade?: UserGradeCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSupportInquiriesInput = {
@@ -30046,6 +45800,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
     userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSupportInquiriesInput = {
@@ -30086,6 +45845,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSupportInquiriesInput = {
@@ -30110,6 +45874,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUserSkillScoresInput = {
@@ -30134,6 +45903,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
     userGrade?: UserGradeCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUserSkillScoresInput = {
@@ -30158,6 +45932,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
     userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUserSkillScoresInput = {
@@ -30198,6 +45977,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUserSkillScoresInput = {
@@ -30222,6 +46006,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUserSkillSubScoresInput = {
@@ -30246,6 +46035,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
     userGrade?: UserGradeCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUserSkillSubScoresInput = {
@@ -30270,6 +46064,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
     userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUserSkillSubScoresInput = {
@@ -30310,6 +46109,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUserSkillSubScoresInput = {
@@ -30334,6 +46138,11 @@ export namespace Prisma {
     userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUserSkillTaskCardsInput = {
@@ -30358,6 +46167,11 @@ export namespace Prisma {
     userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
     userGrade?: UserGradeCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUserSkillTaskCardsInput = {
@@ -30382,6 +46196,11 @@ export namespace Prisma {
     userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
     userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUserSkillTaskCardsInput = {
@@ -30422,6 +46241,11 @@ export namespace Prisma {
     userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUserSkillTaskCardsInput = {
@@ -30446,6 +46270,11 @@ export namespace Prisma {
     userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUserGradeInput = {
@@ -30470,6 +46299,11 @@ export namespace Prisma {
     userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
     userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUserGradeInput = {
@@ -30494,6 +46328,11 @@ export namespace Prisma {
     userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
     userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUserGradeInput = {
@@ -30534,6 +46373,11 @@ export namespace Prisma {
     userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
     userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUserGradeInput = {
@@ -30558,6 +46402,11 @@ export namespace Prisma {
     userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
     userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
     performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PracticePerformanceCreateWithoutSkillFeedbacksInput = {
@@ -30572,6 +46421,8 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -30601,6 +46452,8 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -30617,6 +46470,81 @@ export namespace Prisma {
   export type PracticePerformanceCreateOrConnectWithoutSkillFeedbacksInput = {
     where: PracticePerformanceWhereUniqueInput
     create: XOR<PracticePerformanceCreateWithoutSkillFeedbacksInput, PracticePerformanceUncheckedCreateWithoutSkillFeedbacksInput>
+  }
+
+  export type PerformanceCreateWithoutSkillFeedbacksInput = {
+    id?: string
+    performanceType: $Enums.PerformanceType
+    performanceStatus?: $Enums.PerformanceStatus
+    name?: string | null
+    audioPath: string
+    audioFeaturesPath?: string | null
+    comparisonResultPath?: string | null
+    pseudoXmlPath?: string | null
+    performanceDuration?: number | null
+    performanceDate?: Date | string | null
+    uploadedAt?: Date | string
+    createdAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    score: ScoreCreateNestedOneWithoutPerformancesInput
+    user: UserCreateNestedOneWithoutPerformancesInput
+  }
+
+  export type PerformanceUncheckedCreateWithoutSkillFeedbacksInput = {
+    id?: string
+    performanceType: $Enums.PerformanceType
+    performanceStatus?: $Enums.PerformanceStatus
+    userId: string
+    scoreId: string
+    name?: string | null
+    audioPath: string
+    audioFeaturesPath?: string | null
+    comparisonResultPath?: string | null
+    pseudoXmlPath?: string | null
+    performanceDuration?: number | null
+    performanceDate?: Date | string | null
+    uploadedAt?: Date | string
+    createdAt?: Date | string
+    pitchAccuracy?: number | null
+    timingAccuracy?: number | null
+    overallScore?: number | null
+    evaluatedNotes?: number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+  }
+
+  export type PerformanceCreateOrConnectWithoutSkillFeedbacksInput = {
+    where: PerformanceWhereUniqueInput
+    create: XOR<PerformanceCreateWithoutSkillFeedbacksInput, PerformanceUncheckedCreateWithoutSkillFeedbacksInput>
   }
 
   export type UserCreateWithoutPerformanceSkillFeedbacksInput = {
@@ -30641,6 +46569,11 @@ export namespace Prisma {
     userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
     userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
     userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPerformanceSkillFeedbacksInput = {
@@ -30665,6 +46598,11 @@ export namespace Prisma {
     userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
     userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
     userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPerformanceSkillFeedbacksInput = {
@@ -30695,6 +46633,8 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30724,6 +46664,8 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30735,6 +46677,87 @@ export namespace Prisma {
     bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
     skillSubScores?: NullableJsonNullValueInput | InputJsonValue
     problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type PerformanceUpsertWithoutSkillFeedbacksInput = {
+    update: XOR<PerformanceUpdateWithoutSkillFeedbacksInput, PerformanceUncheckedUpdateWithoutSkillFeedbacksInput>
+    create: XOR<PerformanceCreateWithoutSkillFeedbacksInput, PerformanceUncheckedCreateWithoutSkillFeedbacksInput>
+    where?: PerformanceWhereInput
+  }
+
+  export type PerformanceUpdateToOneWithWhereWithoutSkillFeedbacksInput = {
+    where?: PerformanceWhereInput
+    data: XOR<PerformanceUpdateWithoutSkillFeedbacksInput, PerformanceUncheckedUpdateWithoutSkillFeedbacksInput>
+  }
+
+  export type PerformanceUpdateWithoutSkillFeedbacksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    performanceType?: EnumPerformanceTypeFieldUpdateOperationsInput | $Enums.PerformanceType
+    performanceStatus?: EnumPerformanceStatusFieldUpdateOperationsInput | $Enums.PerformanceStatus
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    audioPath?: StringFieldUpdateOperationsInput | string
+    audioFeaturesPath?: NullableStringFieldUpdateOperationsInput | string | null
+    comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
+    pseudoXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
+    performanceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    score?: ScoreUpdateOneRequiredWithoutPerformancesNestedInput
+    user?: UserUpdateOneRequiredWithoutPerformancesNestedInput
+  }
+
+  export type PerformanceUncheckedUpdateWithoutSkillFeedbacksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    performanceType?: EnumPerformanceTypeFieldUpdateOperationsInput | $Enums.PerformanceType
+    performanceStatus?: EnumPerformanceStatusFieldUpdateOperationsInput | $Enums.PerformanceStatus
+    userId?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    audioPath?: StringFieldUpdateOperationsInput | string
+    audioFeaturesPath?: NullableStringFieldUpdateOperationsInput | string | null
+    comparisonResultPath?: NullableStringFieldUpdateOperationsInput | string | null
+    pseudoXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    performanceDuration?: NullableFloatFieldUpdateOperationsInput | number | null
+    performanceDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    uploadedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    pitchAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    timingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
+    analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UserUpsertWithoutPerformanceSkillFeedbacksInput = {
@@ -30770,6 +46793,11 @@ export namespace Prisma {
     userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
     userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPerformanceSkillFeedbacksInput = {
@@ -30794,6 +46822,1962 @@ export namespace Prisma {
     userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
     userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
     userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutSongMasteriesInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutUserInput
+    scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSongMasteriesInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSongMasteriesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSongMasteriesInput, UserUncheckedCreateWithoutSongMasteriesInput>
+  }
+
+  export type ScoreCreateWithoutSongMasteriesInput = {
+    id?: string
+    title: string
+    composer?: string | null
+    arranger?: string | null
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    keyTonic?: string | null
+    keyMode?: string | null
+    timeNumerator?: number | null
+    timeDenominator?: number | null
+    defaultTempo?: number | null
+    isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
+    createdAt?: Date | string
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutScoreInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutScoreInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagCreateNestedManyWithoutScoreInput
+    createdBy: UserCreateNestedOneWithoutScoresInput
+  }
+
+  export type ScoreUncheckedCreateWithoutSongMasteriesInput = {
+    id?: string
+    createdById: string
+    title: string
+    composer?: string | null
+    arranger?: string | null
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    keyTonic?: string | null
+    keyMode?: string | null
+    timeNumerator?: number | null
+    timeDenominator?: number | null
+    defaultTempo?: number | null
+    isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
+    createdAt?: Date | string
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutScoreInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutScoreInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedCreateNestedManyWithoutScoreInput
+  }
+
+  export type ScoreCreateOrConnectWithoutSongMasteriesInput = {
+    where: ScoreWhereUniqueInput
+    create: XOR<ScoreCreateWithoutSongMasteriesInput, ScoreUncheckedCreateWithoutSongMasteriesInput>
+  }
+
+  export type UserUpsertWithoutSongMasteriesInput = {
+    update: XOR<UserUpdateWithoutSongMasteriesInput, UserUncheckedUpdateWithoutSongMasteriesInput>
+    create: XOR<UserCreateWithoutSongMasteriesInput, UserUncheckedCreateWithoutSongMasteriesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutSongMasteriesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSongMasteriesInput, UserUncheckedUpdateWithoutSongMasteriesInput>
+  }
+
+  export type UserUpdateWithoutSongMasteriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutUserNestedInput
+    scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSongMasteriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type ScoreUpsertWithoutSongMasteriesInput = {
+    update: XOR<ScoreUpdateWithoutSongMasteriesInput, ScoreUncheckedUpdateWithoutSongMasteriesInput>
+    create: XOR<ScoreCreateWithoutSongMasteriesInput, ScoreUncheckedCreateWithoutSongMasteriesInput>
+    where?: ScoreWhereInput
+  }
+
+  export type ScoreUpdateToOneWithWhereWithoutSongMasteriesInput = {
+    where?: ScoreWhereInput
+    data: XOR<ScoreUpdateWithoutSongMasteriesInput, ScoreUncheckedUpdateWithoutSongMasteriesInput>
+  }
+
+  export type ScoreUpdateWithoutSongMasteriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    arranger?: NullableStringFieldUpdateOperationsInput | string | null
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
+    keyMode?: NullableStringFieldUpdateOperationsInput | string | null
+    timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
+    timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutScoreNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutScoreNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUpdateManyWithoutScoreNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutScoresNestedInput
+  }
+
+  export type ScoreUncheckedUpdateWithoutSongMasteriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    arranger?: NullableStringFieldUpdateOperationsInput | string | null
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
+    keyMode?: NullableStringFieldUpdateOperationsInput | string | null
+    timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
+    timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutScoreNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutScoreNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedUpdateManyWithoutScoreNestedInput
+  }
+
+  export type UserCreateWithoutUserGradeProgressInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutUserInput
+    scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutUserGradeProgressInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutUserGradeProgressInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutUserGradeProgressInput, UserUncheckedCreateWithoutUserGradeProgressInput>
+  }
+
+  export type UserUpsertWithoutUserGradeProgressInput = {
+    update: XOR<UserUpdateWithoutUserGradeProgressInput, UserUncheckedUpdateWithoutUserGradeProgressInput>
+    create: XOR<UserCreateWithoutUserGradeProgressInput, UserUncheckedCreateWithoutUserGradeProgressInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutUserGradeProgressInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutUserGradeProgressInput, UserUncheckedUpdateWithoutUserGradeProgressInput>
+  }
+
+  export type UserUpdateWithoutUserGradeProgressInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutUserNestedInput
+    scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutUserGradeProgressInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutSkillTaskCardsInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutUserInput
+    scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSkillTaskCardsInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSkillTaskCardsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSkillTaskCardsInput, UserUncheckedCreateWithoutSkillTaskCardsInput>
+  }
+
+  export type ScoreCreateWithoutSkillTaskCardsInput = {
+    id?: string
+    title: string
+    composer?: string | null
+    arranger?: string | null
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    keyTonic?: string | null
+    keyMode?: string | null
+    timeNumerator?: number | null
+    timeDenominator?: number | null
+    defaultTempo?: number | null
+    isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
+    createdAt?: Date | string
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutScoreInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutScoreInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagCreateNestedManyWithoutScoreInput
+    createdBy: UserCreateNestedOneWithoutScoresInput
+  }
+
+  export type ScoreUncheckedCreateWithoutSkillTaskCardsInput = {
+    id?: string
+    createdById: string
+    title: string
+    composer?: string | null
+    arranger?: string | null
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    keyTonic?: string | null
+    keyMode?: string | null
+    timeNumerator?: number | null
+    timeDenominator?: number | null
+    defaultTempo?: number | null
+    isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
+    createdAt?: Date | string
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutScoreInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutScoreInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedCreateNestedManyWithoutScoreInput
+  }
+
+  export type ScoreCreateOrConnectWithoutSkillTaskCardsInput = {
+    where: ScoreWhereUniqueInput
+    create: XOR<ScoreCreateWithoutSkillTaskCardsInput, ScoreUncheckedCreateWithoutSkillTaskCardsInput>
+  }
+
+  export type SubTaskCreateWithoutSkillTaskCardInput = {
+    id?: string
+    subTaskType: string
+    status?: string
+    generatedAt?: Date | string
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+    subTaskAssignments?: SubTaskAssignmentCreateNestedManyWithoutSubTaskInput
+  }
+
+  export type SubTaskUncheckedCreateWithoutSkillTaskCardInput = {
+    id?: string
+    subTaskType: string
+    status?: string
+    generatedAt?: Date | string
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+    subTaskAssignments?: SubTaskAssignmentUncheckedCreateNestedManyWithoutSubTaskInput
+  }
+
+  export type SubTaskCreateOrConnectWithoutSkillTaskCardInput = {
+    where: SubTaskWhereUniqueInput
+    create: XOR<SubTaskCreateWithoutSkillTaskCardInput, SubTaskUncheckedCreateWithoutSkillTaskCardInput>
+  }
+
+  export type SubTaskCreateManySkillTaskCardInputEnvelope = {
+    data: SubTaskCreateManySkillTaskCardInput | SubTaskCreateManySkillTaskCardInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutSkillTaskCardsInput = {
+    update: XOR<UserUpdateWithoutSkillTaskCardsInput, UserUncheckedUpdateWithoutSkillTaskCardsInput>
+    create: XOR<UserCreateWithoutSkillTaskCardsInput, UserUncheckedCreateWithoutSkillTaskCardsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutSkillTaskCardsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSkillTaskCardsInput, UserUncheckedUpdateWithoutSkillTaskCardsInput>
+  }
+
+  export type UserUpdateWithoutSkillTaskCardsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutUserNestedInput
+    scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSkillTaskCardsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type ScoreUpsertWithoutSkillTaskCardsInput = {
+    update: XOR<ScoreUpdateWithoutSkillTaskCardsInput, ScoreUncheckedUpdateWithoutSkillTaskCardsInput>
+    create: XOR<ScoreCreateWithoutSkillTaskCardsInput, ScoreUncheckedCreateWithoutSkillTaskCardsInput>
+    where?: ScoreWhereInput
+  }
+
+  export type ScoreUpdateToOneWithWhereWithoutSkillTaskCardsInput = {
+    where?: ScoreWhereInput
+    data: XOR<ScoreUpdateWithoutSkillTaskCardsInput, ScoreUncheckedUpdateWithoutSkillTaskCardsInput>
+  }
+
+  export type ScoreUpdateWithoutSkillTaskCardsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    arranger?: NullableStringFieldUpdateOperationsInput | string | null
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
+    keyMode?: NullableStringFieldUpdateOperationsInput | string | null
+    timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
+    timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutScoreNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutScoreNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUpdateManyWithoutScoreNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutScoresNestedInput
+  }
+
+  export type ScoreUncheckedUpdateWithoutSkillTaskCardsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    arranger?: NullableStringFieldUpdateOperationsInput | string | null
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
+    keyMode?: NullableStringFieldUpdateOperationsInput | string | null
+    timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
+    timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutScoreNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutScoreNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedUpdateManyWithoutScoreNestedInput
+  }
+
+  export type SubTaskUpsertWithWhereUniqueWithoutSkillTaskCardInput = {
+    where: SubTaskWhereUniqueInput
+    update: XOR<SubTaskUpdateWithoutSkillTaskCardInput, SubTaskUncheckedUpdateWithoutSkillTaskCardInput>
+    create: XOR<SubTaskCreateWithoutSkillTaskCardInput, SubTaskUncheckedCreateWithoutSkillTaskCardInput>
+  }
+
+  export type SubTaskUpdateWithWhereUniqueWithoutSkillTaskCardInput = {
+    where: SubTaskWhereUniqueInput
+    data: XOR<SubTaskUpdateWithoutSkillTaskCardInput, SubTaskUncheckedUpdateWithoutSkillTaskCardInput>
+  }
+
+  export type SubTaskUpdateManyWithWhereWithoutSkillTaskCardInput = {
+    where: SubTaskScalarWhereInput
+    data: XOR<SubTaskUpdateManyMutationInput, SubTaskUncheckedUpdateManyWithoutSkillTaskCardInput>
+  }
+
+  export type SubTaskScalarWhereInput = {
+    AND?: SubTaskScalarWhereInput | SubTaskScalarWhereInput[]
+    OR?: SubTaskScalarWhereInput[]
+    NOT?: SubTaskScalarWhereInput | SubTaskScalarWhereInput[]
+    id?: StringFilter<"SubTask"> | string
+    skillTaskCardId?: StringFilter<"SubTask"> | string
+    subTaskType?: StringFilter<"SubTask"> | string
+    status?: StringFilter<"SubTask"> | string
+    generatedAt?: DateTimeFilter<"SubTask"> | Date | string
+    clearedAt?: DateTimeNullableFilter<"SubTask"> | Date | string | null
+    updatedAt?: DateTimeFilter<"SubTask"> | Date | string
+  }
+
+  export type SkillTaskCardCreateWithoutSubTasksInput = {
+    id?: string
+    taskCategory: string
+    status?: string
+    generatedAt?: Date | string
+    lastMatchedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutSkillTaskCardsInput
+    score: ScoreCreateNestedOneWithoutSkillTaskCardsInput
+  }
+
+  export type SkillTaskCardUncheckedCreateWithoutSubTasksInput = {
+    id?: string
+    userId: string
+    scoreId: string
+    taskCategory: string
+    status?: string
+    generatedAt?: Date | string
+    lastMatchedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type SkillTaskCardCreateOrConnectWithoutSubTasksInput = {
+    where: SkillTaskCardWhereUniqueInput
+    create: XOR<SkillTaskCardCreateWithoutSubTasksInput, SkillTaskCardUncheckedCreateWithoutSubTasksInput>
+  }
+
+  export type SubTaskAssignmentCreateWithoutSubTaskInput = {
+    id?: string
+    assignedCategory: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    assignedAt?: Date | string
+    practiceItem: PracticeItemCreateNestedOneWithoutSubTaskAssignmentsInput
+  }
+
+  export type SubTaskAssignmentUncheckedCreateWithoutSubTaskInput = {
+    id?: string
+    practiceItemId: string
+    assignedCategory: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    assignedAt?: Date | string
+  }
+
+  export type SubTaskAssignmentCreateOrConnectWithoutSubTaskInput = {
+    where: SubTaskAssignmentWhereUniqueInput
+    create: XOR<SubTaskAssignmentCreateWithoutSubTaskInput, SubTaskAssignmentUncheckedCreateWithoutSubTaskInput>
+  }
+
+  export type SubTaskAssignmentCreateManySubTaskInputEnvelope = {
+    data: SubTaskAssignmentCreateManySubTaskInput | SubTaskAssignmentCreateManySubTaskInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SkillTaskCardUpsertWithoutSubTasksInput = {
+    update: XOR<SkillTaskCardUpdateWithoutSubTasksInput, SkillTaskCardUncheckedUpdateWithoutSubTasksInput>
+    create: XOR<SkillTaskCardCreateWithoutSubTasksInput, SkillTaskCardUncheckedCreateWithoutSubTasksInput>
+    where?: SkillTaskCardWhereInput
+  }
+
+  export type SkillTaskCardUpdateToOneWithWhereWithoutSubTasksInput = {
+    where?: SkillTaskCardWhereInput
+    data: XOR<SkillTaskCardUpdateWithoutSubTasksInput, SkillTaskCardUncheckedUpdateWithoutSubTasksInput>
+  }
+
+  export type SkillTaskCardUpdateWithoutSubTasksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    taskCategory?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutSkillTaskCardsNestedInput
+    score?: ScoreUpdateOneRequiredWithoutSkillTaskCardsNestedInput
+  }
+
+  export type SkillTaskCardUncheckedUpdateWithoutSubTasksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    taskCategory?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubTaskAssignmentUpsertWithWhereUniqueWithoutSubTaskInput = {
+    where: SubTaskAssignmentWhereUniqueInput
+    update: XOR<SubTaskAssignmentUpdateWithoutSubTaskInput, SubTaskAssignmentUncheckedUpdateWithoutSubTaskInput>
+    create: XOR<SubTaskAssignmentCreateWithoutSubTaskInput, SubTaskAssignmentUncheckedCreateWithoutSubTaskInput>
+  }
+
+  export type SubTaskAssignmentUpdateWithWhereUniqueWithoutSubTaskInput = {
+    where: SubTaskAssignmentWhereUniqueInput
+    data: XOR<SubTaskAssignmentUpdateWithoutSubTaskInput, SubTaskAssignmentUncheckedUpdateWithoutSubTaskInput>
+  }
+
+  export type SubTaskAssignmentUpdateManyWithWhereWithoutSubTaskInput = {
+    where: SubTaskAssignmentScalarWhereInput
+    data: XOR<SubTaskAssignmentUpdateManyMutationInput, SubTaskAssignmentUncheckedUpdateManyWithoutSubTaskInput>
+  }
+
+  export type SubTaskCreateWithoutSubTaskAssignmentsInput = {
+    id?: string
+    subTaskType: string
+    status?: string
+    generatedAt?: Date | string
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+    skillTaskCard: SkillTaskCardCreateNestedOneWithoutSubTasksInput
+  }
+
+  export type SubTaskUncheckedCreateWithoutSubTaskAssignmentsInput = {
+    id?: string
+    skillTaskCardId: string
+    subTaskType: string
+    status?: string
+    generatedAt?: Date | string
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type SubTaskCreateOrConnectWithoutSubTaskAssignmentsInput = {
+    where: SubTaskWhereUniqueInput
+    create: XOR<SubTaskCreateWithoutSubTaskAssignmentsInput, SubTaskUncheckedCreateWithoutSubTaskAssignmentsInput>
+  }
+
+  export type PracticeItemCreateWithoutSubTaskAssignmentsInput = {
+    id?: string
+    category: $Enums.PracticeCategory
+    title: string
+    composer?: string | null
+    description?: string | null
+    descriptionShort?: string | null
+    keyTonic: string
+    keyMode: string
+    tempoMin?: number | null
+    tempoMax?: number | null
+    positions?: PracticeItemCreatepositionsInput | string[]
+    instrument?: string
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    source?: string | null
+    sortOrder?: number
+    isPublished?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    owner?: UserCreateNestedOneWithoutPracticeItemsInput
+    techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutPracticeItemInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagCreateNestedManyWithoutPracticeItemInput
+  }
+
+  export type PracticeItemUncheckedCreateWithoutSubTaskAssignmentsInput = {
+    id?: string
+    category: $Enums.PracticeCategory
+    title: string
+    composer?: string | null
+    description?: string | null
+    descriptionShort?: string | null
+    keyTonic: string
+    keyMode: string
+    tempoMin?: number | null
+    tempoMax?: number | null
+    positions?: PracticeItemCreatepositionsInput | string[]
+    instrument?: string
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    ownerUserId?: string | null
+    source?: string | null
+    sortOrder?: number
+    isPublished?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutPracticeItemInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUncheckedCreateNestedManyWithoutPracticeItemInput
+  }
+
+  export type PracticeItemCreateOrConnectWithoutSubTaskAssignmentsInput = {
+    where: PracticeItemWhereUniqueInput
+    create: XOR<PracticeItemCreateWithoutSubTaskAssignmentsInput, PracticeItemUncheckedCreateWithoutSubTaskAssignmentsInput>
+  }
+
+  export type SubTaskUpsertWithoutSubTaskAssignmentsInput = {
+    update: XOR<SubTaskUpdateWithoutSubTaskAssignmentsInput, SubTaskUncheckedUpdateWithoutSubTaskAssignmentsInput>
+    create: XOR<SubTaskCreateWithoutSubTaskAssignmentsInput, SubTaskUncheckedCreateWithoutSubTaskAssignmentsInput>
+    where?: SubTaskWhereInput
+  }
+
+  export type SubTaskUpdateToOneWithWhereWithoutSubTaskAssignmentsInput = {
+    where?: SubTaskWhereInput
+    data: XOR<SubTaskUpdateWithoutSubTaskAssignmentsInput, SubTaskUncheckedUpdateWithoutSubTaskAssignmentsInput>
+  }
+
+  export type SubTaskUpdateWithoutSubTaskAssignmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    skillTaskCard?: SkillTaskCardUpdateOneRequiredWithoutSubTasksNestedInput
+  }
+
+  export type SubTaskUncheckedUpdateWithoutSubTaskAssignmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    skillTaskCardId?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PracticeItemUpsertWithoutSubTaskAssignmentsInput = {
+    update: XOR<PracticeItemUpdateWithoutSubTaskAssignmentsInput, PracticeItemUncheckedUpdateWithoutSubTaskAssignmentsInput>
+    create: XOR<PracticeItemCreateWithoutSubTaskAssignmentsInput, PracticeItemUncheckedCreateWithoutSubTaskAssignmentsInput>
+    where?: PracticeItemWhereInput
+  }
+
+  export type PracticeItemUpdateToOneWithWhereWithoutSubTaskAssignmentsInput = {
+    where?: PracticeItemWhereInput
+    data: XOR<PracticeItemUpdateWithoutSubTaskAssignmentsInput, PracticeItemUncheckedUpdateWithoutSubTaskAssignmentsInput>
+  }
+
+  export type PracticeItemUpdateWithoutSubTaskAssignmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: EnumPracticeCategoryFieldUpdateOperationsInput | $Enums.PracticeCategory
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
+    tempoMax?: NullableIntFieldUpdateOperationsInput | number | null
+    positions?: PracticeItemUpdatepositionsInput | string[]
+    instrument?: StringFieldUpdateOperationsInput | string
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    owner?: UserUpdateOneWithoutPracticeItemsNestedInput
+    techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutPracticeItemNestedInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUpdateManyWithoutPracticeItemNestedInput
+  }
+
+  export type PracticeItemUncheckedUpdateWithoutSubTaskAssignmentsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: EnumPracticeCategoryFieldUpdateOperationsInput | $Enums.PracticeCategory
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
+    tempoMax?: NullableIntFieldUpdateOperationsInput | number | null
+    positions?: PracticeItemUpdatepositionsInput | string[]
+    instrument?: StringFieldUpdateOperationsInput | string
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutPracticeItemNestedInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUncheckedUpdateManyWithoutPracticeItemNestedInput
+  }
+
+  export type UserCreateWithoutUserPracticeMasteriesInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutUserInput
+    scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutUserPracticeMasteriesInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutUserPracticeMasteriesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutUserPracticeMasteriesInput, UserUncheckedCreateWithoutUserPracticeMasteriesInput>
+  }
+
+  export type PracticeItemCreateWithoutUserPracticeMasteriesInput = {
+    id?: string
+    category: $Enums.PracticeCategory
+    title: string
+    composer?: string | null
+    description?: string | null
+    descriptionShort?: string | null
+    keyTonic: string
+    keyMode: string
+    tempoMin?: number | null
+    tempoMax?: number | null
+    positions?: PracticeItemCreatepositionsInput | string[]
+    instrument?: string
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    source?: string | null
+    sortOrder?: number
+    isPublished?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    owner?: UserCreateNestedOneWithoutPracticeItemsInput
+    techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
+    subTaskAssignments?: SubTaskAssignmentCreateNestedManyWithoutPracticeItemInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagCreateNestedManyWithoutPracticeItemInput
+  }
+
+  export type PracticeItemUncheckedCreateWithoutUserPracticeMasteriesInput = {
+    id?: string
+    category: $Enums.PracticeCategory
+    title: string
+    composer?: string | null
+    description?: string | null
+    descriptionShort?: string | null
+    keyTonic: string
+    keyMode: string
+    tempoMin?: number | null
+    tempoMax?: number | null
+    positions?: PracticeItemCreatepositionsInput | string[]
+    instrument?: string
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    ownerUserId?: string | null
+    source?: string | null
+    sortOrder?: number
+    isPublished?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
+    subTaskAssignments?: SubTaskAssignmentUncheckedCreateNestedManyWithoutPracticeItemInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUncheckedCreateNestedManyWithoutPracticeItemInput
+  }
+
+  export type PracticeItemCreateOrConnectWithoutUserPracticeMasteriesInput = {
+    where: PracticeItemWhereUniqueInput
+    create: XOR<PracticeItemCreateWithoutUserPracticeMasteriesInput, PracticeItemUncheckedCreateWithoutUserPracticeMasteriesInput>
+  }
+
+  export type UserUpsertWithoutUserPracticeMasteriesInput = {
+    update: XOR<UserUpdateWithoutUserPracticeMasteriesInput, UserUncheckedUpdateWithoutUserPracticeMasteriesInput>
+    create: XOR<UserCreateWithoutUserPracticeMasteriesInput, UserUncheckedCreateWithoutUserPracticeMasteriesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutUserPracticeMasteriesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutUserPracticeMasteriesInput, UserUncheckedUpdateWithoutUserPracticeMasteriesInput>
+  }
+
+  export type UserUpdateWithoutUserPracticeMasteriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutUserNestedInput
+    scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutUserPracticeMasteriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type PracticeItemUpsertWithoutUserPracticeMasteriesInput = {
+    update: XOR<PracticeItemUpdateWithoutUserPracticeMasteriesInput, PracticeItemUncheckedUpdateWithoutUserPracticeMasteriesInput>
+    create: XOR<PracticeItemCreateWithoutUserPracticeMasteriesInput, PracticeItemUncheckedCreateWithoutUserPracticeMasteriesInput>
+    where?: PracticeItemWhereInput
+  }
+
+  export type PracticeItemUpdateToOneWithWhereWithoutUserPracticeMasteriesInput = {
+    where?: PracticeItemWhereInput
+    data: XOR<PracticeItemUpdateWithoutUserPracticeMasteriesInput, PracticeItemUncheckedUpdateWithoutUserPracticeMasteriesInput>
+  }
+
+  export type PracticeItemUpdateWithoutUserPracticeMasteriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: EnumPracticeCategoryFieldUpdateOperationsInput | $Enums.PracticeCategory
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
+    tempoMax?: NullableIntFieldUpdateOperationsInput | number | null
+    positions?: PracticeItemUpdatepositionsInput | string[]
+    instrument?: StringFieldUpdateOperationsInput | string
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    owner?: UserUpdateOneWithoutPracticeItemsNestedInput
+    techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
+    subTaskAssignments?: SubTaskAssignmentUpdateManyWithoutPracticeItemNestedInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUpdateManyWithoutPracticeItemNestedInput
+  }
+
+  export type PracticeItemUncheckedUpdateWithoutUserPracticeMasteriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: EnumPracticeCategoryFieldUpdateOperationsInput | $Enums.PracticeCategory
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
+    tempoMax?: NullableIntFieldUpdateOperationsInput | number | null
+    positions?: PracticeItemUpdatepositionsInput | string[]
+    instrument?: StringFieldUpdateOperationsInput | string
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
+    subTaskAssignments?: SubTaskAssignmentUncheckedUpdateManyWithoutPracticeItemNestedInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUncheckedUpdateManyWithoutPracticeItemNestedInput
+  }
+
+  export type UserCreateWithoutUserTechniqueMasteriesInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutUserInput
+    scores?: ScoreCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutUserTechniqueMasteriesInput = {
+    id?: string
+    supabaseUserId: string
+    name: string
+    role?: $Enums.Role
+    plan?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiTrainingOptIn?: boolean
+    aiTrainingOptInChangedAt?: Date | string | null
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutUserInput
+    scores?: ScoreUncheckedCreateNestedManyWithoutCreatedByInput
+    practiceItems?: PracticeItemUncheckedCreateNestedManyWithoutOwnerInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutUserInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutUserInput
+    feedbacks?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    supportInquiries?: SupportInquiryUncheckedCreateNestedManyWithoutUserInput
+    userSkillScores?: UserSkillScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedCreateNestedManyWithoutUserInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userGrade?: UserGradeUncheckedCreateNestedOneWithoutUserInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedCreateNestedManyWithoutUserInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutUserInput
+    userGradeProgress?: UserGradeProgressUncheckedCreateNestedOneWithoutUserInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutUserInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutUserTechniqueMasteriesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutUserTechniqueMasteriesInput, UserUncheckedCreateWithoutUserTechniqueMasteriesInput>
+  }
+
+  export type TechniqueTagCreateWithoutUserTechniqueMasteriesInput = {
+    id?: string
+    category: string
+    name: string
+    nameEn?: string | null
+    description?: string | null
+    xmlTags?: TechniqueTagCreatexmlTagsInput | string[]
+    isAnalyzable: string
+    implementStatus: string
+    practiceItems?: PracticeItemTechniqueCreateNestedManyWithoutTechniqueTagInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutTechniqueTagInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagCreateNestedManyWithoutTechniqueTagInput
+  }
+
+  export type TechniqueTagUncheckedCreateWithoutUserTechniqueMasteriesInput = {
+    id?: string
+    category: string
+    name: string
+    nameEn?: string | null
+    description?: string | null
+    xmlTags?: TechniqueTagCreatexmlTagsInput | string[]
+    isAnalyzable: string
+    implementStatus: string
+    practiceItems?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutTechniqueTagInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutTechniqueTagInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedCreateNestedManyWithoutTechniqueTagInput
+  }
+
+  export type TechniqueTagCreateOrConnectWithoutUserTechniqueMasteriesInput = {
+    where: TechniqueTagWhereUniqueInput
+    create: XOR<TechniqueTagCreateWithoutUserTechniqueMasteriesInput, TechniqueTagUncheckedCreateWithoutUserTechniqueMasteriesInput>
+  }
+
+  export type UserUpsertWithoutUserTechniqueMasteriesInput = {
+    update: XOR<UserUpdateWithoutUserTechniqueMasteriesInput, UserUncheckedUpdateWithoutUserTechniqueMasteriesInput>
+    create: XOR<UserCreateWithoutUserTechniqueMasteriesInput, UserUncheckedCreateWithoutUserTechniqueMasteriesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutUserTechniqueMasteriesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutUserTechniqueMasteriesInput, UserUncheckedUpdateWithoutUserTechniqueMasteriesInput>
+  }
+
+  export type UserUpdateWithoutUserTechniqueMasteriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutUserNestedInput
+    scores?: ScoreUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutUserTechniqueMasteriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    supabaseUserId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    plan?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiTrainingOptIn?: BoolFieldUpdateOperationsInput | boolean
+    aiTrainingOptInChangedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutUserNestedInput
+    scores?: ScoreUncheckedUpdateManyWithoutCreatedByNestedInput
+    practiceItems?: PracticeItemUncheckedUpdateManyWithoutOwnerNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutUserNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutUserNestedInput
+    feedbacks?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    supportInquiries?: SupportInquiryUncheckedUpdateManyWithoutUserNestedInput
+    userSkillScores?: UserSkillScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillSubScores?: UserSkillSubScoreUncheckedUpdateManyWithoutUserNestedInput
+    userSkillTaskCards?: UserSkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userGrade?: UserGradeUncheckedUpdateOneWithoutUserNestedInput
+    performanceSkillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutUserNestedInput
+    userGradeProgress?: UserGradeProgressUncheckedUpdateOneWithoutUserNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutUserNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type TechniqueTagUpsertWithoutUserTechniqueMasteriesInput = {
+    update: XOR<TechniqueTagUpdateWithoutUserTechniqueMasteriesInput, TechniqueTagUncheckedUpdateWithoutUserTechniqueMasteriesInput>
+    create: XOR<TechniqueTagCreateWithoutUserTechniqueMasteriesInput, TechniqueTagUncheckedCreateWithoutUserTechniqueMasteriesInput>
+    where?: TechniqueTagWhereInput
+  }
+
+  export type TechniqueTagUpdateToOneWithWhereWithoutUserTechniqueMasteriesInput = {
+    where?: TechniqueTagWhereInput
+    data: XOR<TechniqueTagUpdateWithoutUserTechniqueMasteriesInput, TechniqueTagUncheckedUpdateWithoutUserTechniqueMasteriesInput>
+  }
+
+  export type TechniqueTagUpdateWithoutUserTechniqueMasteriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    nameEn?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    xmlTags?: TechniqueTagUpdatexmlTagsInput | string[]
+    isAnalyzable?: StringFieldUpdateOperationsInput | string
+    implementStatus?: StringFieldUpdateOperationsInput | string
+    practiceItems?: PracticeItemTechniqueUpdateManyWithoutTechniqueTagNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutTechniqueTagNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUpdateManyWithoutTechniqueTagNestedInput
+  }
+
+  export type TechniqueTagUncheckedUpdateWithoutUserTechniqueMasteriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    nameEn?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    xmlTags?: TechniqueTagUpdatexmlTagsInput | string[]
+    isAnalyzable?: StringFieldUpdateOperationsInput | string
+    implementStatus?: StringFieldUpdateOperationsInput | string
+    practiceItems?: PracticeItemTechniqueUncheckedUpdateManyWithoutTechniqueTagNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutTechniqueTagNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedUpdateManyWithoutTechniqueTagNestedInput
+  }
+
+  export type PracticeItemCreateWithoutPracticeItemSubTaskTagsInput = {
+    id?: string
+    category: $Enums.PracticeCategory
+    title: string
+    composer?: string | null
+    description?: string | null
+    descriptionShort?: string | null
+    keyTonic: string
+    keyMode: string
+    tempoMin?: number | null
+    tempoMax?: number | null
+    positions?: PracticeItemCreatepositionsInput | string[]
+    instrument?: string
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    source?: string | null
+    sortOrder?: number
+    isPublished?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    owner?: UserCreateNestedOneWithoutPracticeItemsInput
+    techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
+    practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
+    subTaskAssignments?: SubTaskAssignmentCreateNestedManyWithoutPracticeItemInput
+    userPracticeMasteries?: UserPracticeMasteryCreateNestedManyWithoutPracticeItemInput
+  }
+
+  export type PracticeItemUncheckedCreateWithoutPracticeItemSubTaskTagsInput = {
+    id?: string
+    category: $Enums.PracticeCategory
+    title: string
+    composer?: string | null
+    description?: string | null
+    descriptionShort?: string | null
+    keyTonic: string
+    keyMode: string
+    tempoMin?: number | null
+    tempoMax?: number | null
+    positions?: PracticeItemCreatepositionsInput | string[]
+    instrument?: string
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    ownerUserId?: string | null
+    source?: string | null
+    sortOrder?: number
+    isPublished?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
+    practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
+    subTaskAssignments?: SubTaskAssignmentUncheckedCreateNestedManyWithoutPracticeItemInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedCreateNestedManyWithoutPracticeItemInput
+  }
+
+  export type PracticeItemCreateOrConnectWithoutPracticeItemSubTaskTagsInput = {
+    where: PracticeItemWhereUniqueInput
+    create: XOR<PracticeItemCreateWithoutPracticeItemSubTaskTagsInput, PracticeItemUncheckedCreateWithoutPracticeItemSubTaskTagsInput>
+  }
+
+  export type PracticeItemUpsertWithoutPracticeItemSubTaskTagsInput = {
+    update: XOR<PracticeItemUpdateWithoutPracticeItemSubTaskTagsInput, PracticeItemUncheckedUpdateWithoutPracticeItemSubTaskTagsInput>
+    create: XOR<PracticeItemCreateWithoutPracticeItemSubTaskTagsInput, PracticeItemUncheckedCreateWithoutPracticeItemSubTaskTagsInput>
+    where?: PracticeItemWhereInput
+  }
+
+  export type PracticeItemUpdateToOneWithWhereWithoutPracticeItemSubTaskTagsInput = {
+    where?: PracticeItemWhereInput
+    data: XOR<PracticeItemUpdateWithoutPracticeItemSubTaskTagsInput, PracticeItemUncheckedUpdateWithoutPracticeItemSubTaskTagsInput>
+  }
+
+  export type PracticeItemUpdateWithoutPracticeItemSubTaskTagsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: EnumPracticeCategoryFieldUpdateOperationsInput | $Enums.PracticeCategory
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
+    tempoMax?: NullableIntFieldUpdateOperationsInput | number | null
+    positions?: PracticeItemUpdatepositionsInput | string[]
+    instrument?: StringFieldUpdateOperationsInput | string
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    owner?: UserUpdateOneWithoutPracticeItemsNestedInput
+    techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
+    practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
+    subTaskAssignments?: SubTaskAssignmentUpdateManyWithoutPracticeItemNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutPracticeItemNestedInput
+  }
+
+  export type PracticeItemUncheckedUpdateWithoutPracticeItemSubTaskTagsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: EnumPracticeCategoryFieldUpdateOperationsInput | $Enums.PracticeCategory
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    descriptionShort?: NullableStringFieldUpdateOperationsInput | string | null
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    tempoMin?: NullableIntFieldUpdateOperationsInput | number | null
+    tempoMax?: NullableIntFieldUpdateOperationsInput | number | null
+    positions?: PracticeItemUpdatepositionsInput | string[]
+    instrument?: StringFieldUpdateOperationsInput | string
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    ownerUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: NullableStringFieldUpdateOperationsInput | string | null
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
+    practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
+    subTaskAssignments?: SubTaskAssignmentUncheckedUpdateManyWithoutPracticeItemNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutPracticeItemNestedInput
+  }
+
+  export type ScoreCreateWithoutMissingPracticeItemFlagsInput = {
+    id?: string
+    title: string
+    composer?: string | null
+    arranger?: string | null
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    keyTonic?: string | null
+    keyMode?: string | null
+    timeNumerator?: number | null
+    timeDenominator?: number | null
+    defaultTempo?: number | null
+    isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
+    createdAt?: Date | string
+    deletedAt?: Date | string | null
+    performances?: PerformanceCreateNestedManyWithoutScoreInput
+    songMasteries?: SongMasteryCreateNestedManyWithoutScoreInput
+    skillTaskCards?: SkillTaskCardCreateNestedManyWithoutScoreInput
+    createdBy: UserCreateNestedOneWithoutScoresInput
+  }
+
+  export type ScoreUncheckedCreateWithoutMissingPracticeItemFlagsInput = {
+    id?: string
+    createdById: string
+    title: string
+    composer?: string | null
+    arranger?: string | null
+    originalXmlPath: string
+    generatedXmlPath?: string | null
+    analysisStatus?: $Enums.JobStatus
+    buildStatus?: $Enums.JobStatus
+    retryCount?: number
+    errorMessage?: string | null
+    lastAttemptedAt?: Date | string | null
+    executionId?: string | null
+    idempotencyKey?: string | null
+    keyTonic?: string | null
+    keyMode?: string | null
+    timeNumerator?: number | null
+    timeDenominator?: number | null
+    defaultTempo?: number | null
+    isShared?: boolean
+    difficulty?: number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
+    createdAt?: Date | string
+    deletedAt?: Date | string | null
+    performances?: PerformanceUncheckedCreateNestedManyWithoutScoreInput
+    songMasteries?: SongMasteryUncheckedCreateNestedManyWithoutScoreInput
+    skillTaskCards?: SkillTaskCardUncheckedCreateNestedManyWithoutScoreInput
+  }
+
+  export type ScoreCreateOrConnectWithoutMissingPracticeItemFlagsInput = {
+    where: ScoreWhereUniqueInput
+    create: XOR<ScoreCreateWithoutMissingPracticeItemFlagsInput, ScoreUncheckedCreateWithoutMissingPracticeItemFlagsInput>
+  }
+
+  export type TechniqueTagCreateWithoutMissingPracticeItemFlagsInput = {
+    id?: string
+    category: string
+    name: string
+    nameEn?: string | null
+    description?: string | null
+    xmlTags?: TechniqueTagCreatexmlTagsInput | string[]
+    isAnalyzable: string
+    implementStatus: string
+    practiceItems?: PracticeItemTechniqueCreateNestedManyWithoutTechniqueTagInput
+    weaknesses?: UserWeaknessCreateNestedManyWithoutTechniqueTagInput
+    userTechniqueMasteries?: UserTechniqueMasteryCreateNestedManyWithoutTechniqueTagInput
+  }
+
+  export type TechniqueTagUncheckedCreateWithoutMissingPracticeItemFlagsInput = {
+    id?: string
+    category: string
+    name: string
+    nameEn?: string | null
+    description?: string | null
+    xmlTags?: TechniqueTagCreatexmlTagsInput | string[]
+    isAnalyzable: string
+    implementStatus: string
+    practiceItems?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutTechniqueTagInput
+    weaknesses?: UserWeaknessUncheckedCreateNestedManyWithoutTechniqueTagInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedCreateNestedManyWithoutTechniqueTagInput
+  }
+
+  export type TechniqueTagCreateOrConnectWithoutMissingPracticeItemFlagsInput = {
+    where: TechniqueTagWhereUniqueInput
+    create: XOR<TechniqueTagCreateWithoutMissingPracticeItemFlagsInput, TechniqueTagUncheckedCreateWithoutMissingPracticeItemFlagsInput>
+  }
+
+  export type ScoreUpsertWithoutMissingPracticeItemFlagsInput = {
+    update: XOR<ScoreUpdateWithoutMissingPracticeItemFlagsInput, ScoreUncheckedUpdateWithoutMissingPracticeItemFlagsInput>
+    create: XOR<ScoreCreateWithoutMissingPracticeItemFlagsInput, ScoreUncheckedCreateWithoutMissingPracticeItemFlagsInput>
+    where?: ScoreWhereInput
+  }
+
+  export type ScoreUpdateToOneWithWhereWithoutMissingPracticeItemFlagsInput = {
+    where?: ScoreWhereInput
+    data: XOR<ScoreUpdateWithoutMissingPracticeItemFlagsInput, ScoreUncheckedUpdateWithoutMissingPracticeItemFlagsInput>
+  }
+
+  export type ScoreUpdateWithoutMissingPracticeItemFlagsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    arranger?: NullableStringFieldUpdateOperationsInput | string | null
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
+    keyMode?: NullableStringFieldUpdateOperationsInput | string | null
+    timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
+    timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUpdateManyWithoutScoreNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutScoreNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutScoreNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutScoresNestedInput
+  }
+
+  export type ScoreUncheckedUpdateWithoutMissingPracticeItemFlagsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdById?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    composer?: NullableStringFieldUpdateOperationsInput | string | null
+    arranger?: NullableStringFieldUpdateOperationsInput | string | null
+    originalXmlPath?: StringFieldUpdateOperationsInput | string
+    generatedXmlPath?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    buildStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    executionId?: NullableStringFieldUpdateOperationsInput | string | null
+    idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    keyTonic?: NullableStringFieldUpdateOperationsInput | string | null
+    keyMode?: NullableStringFieldUpdateOperationsInput | string | null
+    timeNumerator?: NullableIntFieldUpdateOperationsInput | number | null
+    timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
+    defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
+    isShared?: BoolFieldUpdateOperationsInput | boolean
+    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    performances?: PerformanceUncheckedUpdateManyWithoutScoreNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutScoreNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutScoreNestedInput
+  }
+
+  export type TechniqueTagUpsertWithoutMissingPracticeItemFlagsInput = {
+    update: XOR<TechniqueTagUpdateWithoutMissingPracticeItemFlagsInput, TechniqueTagUncheckedUpdateWithoutMissingPracticeItemFlagsInput>
+    create: XOR<TechniqueTagCreateWithoutMissingPracticeItemFlagsInput, TechniqueTagUncheckedCreateWithoutMissingPracticeItemFlagsInput>
+    where?: TechniqueTagWhereInput
+  }
+
+  export type TechniqueTagUpdateToOneWithWhereWithoutMissingPracticeItemFlagsInput = {
+    where?: TechniqueTagWhereInput
+    data: XOR<TechniqueTagUpdateWithoutMissingPracticeItemFlagsInput, TechniqueTagUncheckedUpdateWithoutMissingPracticeItemFlagsInput>
+  }
+
+  export type TechniqueTagUpdateWithoutMissingPracticeItemFlagsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    nameEn?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    xmlTags?: TechniqueTagUpdatexmlTagsInput | string[]
+    isAnalyzable?: StringFieldUpdateOperationsInput | string
+    implementStatus?: StringFieldUpdateOperationsInput | string
+    practiceItems?: PracticeItemTechniqueUpdateManyWithoutTechniqueTagNestedInput
+    weaknesses?: UserWeaknessUpdateManyWithoutTechniqueTagNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUpdateManyWithoutTechniqueTagNestedInput
+  }
+
+  export type TechniqueTagUncheckedUpdateWithoutMissingPracticeItemFlagsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    nameEn?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    xmlTags?: TechniqueTagUpdatexmlTagsInput | string[]
+    isAnalyzable?: StringFieldUpdateOperationsInput | string
+    implementStatus?: StringFieldUpdateOperationsInput | string
+    practiceItems?: PracticeItemTechniqueUncheckedUpdateManyWithoutTechniqueTagNestedInput
+    weaknesses?: UserWeaknessUncheckedUpdateManyWithoutTechniqueTagNestedInput
+    userTechniqueMasteries?: UserTechniqueMasteryUncheckedUpdateManyWithoutTechniqueTagNestedInput
   }
 
   export type PerformanceCreateManyUserInput = {
@@ -30815,6 +48799,13 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -30845,6 +48836,7 @@ export namespace Prisma {
     isShared?: boolean
     difficulty?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: string
     createdAt?: Date | string
     deletedAt?: Date | string | null
   }
@@ -30895,6 +48887,8 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -30972,12 +48966,55 @@ export namespace Prisma {
 
   export type PerformanceSkillFeedbackCreateManyUserInput = {
     id?: string
-    practicePerformanceId: string
+    practicePerformanceId?: string | null
+    performanceId?: string | null
     positionId: string
     selectedSubTaskId?: string | null
     feedbackType: string
     comment?: string | null
     createdAt?: Date | string
+  }
+
+  export type SongMasteryCreateManyUserInput = {
+    id?: string
+    scoreId: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    isFullyMastered?: boolean
+    performanceMasteredAt?: Date | string | null
+    fullyMasteredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SkillTaskCardCreateManyUserInput = {
+    id?: string
+    scoreId: string
+    taskCategory: string
+    status?: string
+    generatedAt?: Date | string
+    lastMatchedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserPracticeMasteryCreateManyUserInput = {
+    id?: string
+    practiceItemId: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type UserTechniqueMasteryCreateManyUserInput = {
+    id?: string
+    techniqueTagId: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
   }
 
   export type PerformanceUpdateWithoutUserInput = {
@@ -30998,6 +49035,13 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31005,6 +49049,7 @@ export namespace Prisma {
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     score?: ScoreUpdateOneRequiredWithoutPerformancesNestedInput
+    skillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutPerformanceNestedInput
   }
 
   export type PerformanceUncheckedUpdateWithoutUserInput = {
@@ -31026,12 +49071,20 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    skillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutPerformanceNestedInput
   }
 
   export type PerformanceUncheckedUpdateManyWithoutUserInput = {
@@ -31053,6 +49106,13 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31083,9 +49143,13 @@ export namespace Prisma {
     isShared?: BoolFieldUpdateOperationsInput | boolean
     difficulty?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUpdateManyWithoutScoreNestedInput
+    songMasteries?: SongMasteryUpdateManyWithoutScoreNestedInput
+    skillTaskCards?: SkillTaskCardUpdateManyWithoutScoreNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUpdateManyWithoutScoreNestedInput
   }
 
   export type ScoreUncheckedUpdateWithoutCreatedByInput = {
@@ -31110,9 +49174,13 @@ export namespace Prisma {
     isShared?: BoolFieldUpdateOperationsInput | boolean
     difficulty?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     performances?: PerformanceUncheckedUpdateManyWithoutScoreNestedInput
+    songMasteries?: SongMasteryUncheckedUpdateManyWithoutScoreNestedInput
+    skillTaskCards?: SkillTaskCardUncheckedUpdateManyWithoutScoreNestedInput
+    missingPracticeItemFlags?: MissingPracticeItemFlagUncheckedUpdateManyWithoutScoreNestedInput
   }
 
   export type ScoreUncheckedUpdateManyWithoutCreatedByInput = {
@@ -31137,6 +49205,7 @@ export namespace Prisma {
     isShared?: BoolFieldUpdateOperationsInput | boolean
     difficulty?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
+    ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -31174,6 +49243,9 @@ export namespace Prisma {
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
+    subTaskAssignments?: SubTaskAssignmentUpdateManyWithoutPracticeItemNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUpdateManyWithoutPracticeItemNestedInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUpdateManyWithoutPracticeItemNestedInput
   }
 
   export type PracticeItemUncheckedUpdateWithoutOwnerInput = {
@@ -31209,6 +49281,9 @@ export namespace Prisma {
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
+    subTaskAssignments?: SubTaskAssignmentUncheckedUpdateManyWithoutPracticeItemNestedInput
+    userPracticeMasteries?: UserPracticeMasteryUncheckedUpdateManyWithoutPracticeItemNestedInput
+    practiceItemSubTaskTags?: PracticeItemSubTaskTagUncheckedUpdateManyWithoutPracticeItemNestedInput
   }
 
   export type PracticeItemUncheckedUpdateManyWithoutOwnerInput = {
@@ -31256,6 +49331,8 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31284,6 +49361,8 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31311,6 +49390,8 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31517,12 +49598,14 @@ export namespace Prisma {
     feedbackType?: StringFieldUpdateOperationsInput | string
     comment?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    practicePerformance?: PracticePerformanceUpdateOneRequiredWithoutSkillFeedbacksNestedInput
+    practicePerformance?: PracticePerformanceUpdateOneWithoutSkillFeedbacksNestedInput
+    performance?: PerformanceUpdateOneWithoutSkillFeedbacksNestedInput
   }
 
   export type PerformanceSkillFeedbackUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    practicePerformanceId?: StringFieldUpdateOperationsInput | string
+    practicePerformanceId?: NullableStringFieldUpdateOperationsInput | string | null
+    performanceId?: NullableStringFieldUpdateOperationsInput | string | null
     positionId?: StringFieldUpdateOperationsInput | string
     selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
     feedbackType?: StringFieldUpdateOperationsInput | string
@@ -31532,12 +49615,141 @@ export namespace Prisma {
 
   export type PerformanceSkillFeedbackUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    practicePerformanceId?: StringFieldUpdateOperationsInput | string
+    practicePerformanceId?: NullableStringFieldUpdateOperationsInput | string | null
+    performanceId?: NullableStringFieldUpdateOperationsInput | string | null
     positionId?: StringFieldUpdateOperationsInput | string
     selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
     feedbackType?: StringFieldUpdateOperationsInput | string
     comment?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SongMasteryUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    isFullyMastered?: BoolFieldUpdateOperationsInput | boolean
+    performanceMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fullyMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    score?: ScoreUpdateOneRequiredWithoutSongMasteriesNestedInput
+  }
+
+  export type SongMasteryUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    isFullyMastered?: BoolFieldUpdateOperationsInput | boolean
+    performanceMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fullyMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SongMasteryUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    isFullyMastered?: BoolFieldUpdateOperationsInput | boolean
+    performanceMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fullyMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SkillTaskCardUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    taskCategory?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    score?: ScoreUpdateOneRequiredWithoutSkillTaskCardsNestedInput
+    subTasks?: SubTaskUpdateManyWithoutSkillTaskCardNestedInput
+  }
+
+  export type SkillTaskCardUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    taskCategory?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subTasks?: SubTaskUncheckedUpdateManyWithoutSkillTaskCardNestedInput
+  }
+
+  export type SkillTaskCardUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    taskCategory?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPracticeMasteryUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    practiceItem?: PracticeItemUpdateOneRequiredWithoutUserPracticeMasteriesNestedInput
+  }
+
+  export type UserPracticeMasteryUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    practiceItemId?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPracticeMasteryUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    practiceItemId?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserTechniqueMasteryUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    techniqueTag?: TechniqueTagUpdateOneRequiredWithoutUserTechniqueMasteriesNestedInput
+  }
+
+  export type UserTechniqueMasteryUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    techniqueTagId?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserTechniqueMasteryUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    techniqueTagId?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PerformanceCreateManyScoreInput = {
@@ -31559,12 +49771,55 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
+    pitchSkillScore?: number | null
+    rhythmSkillScore?: number | null
+    bowingSkillScore?: number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
     lastAttemptedAt?: Date | string | null
     executionId?: string | null
     idempotencyKey?: string | null
+  }
+
+  export type SongMasteryCreateManyScoreInput = {
+    id?: string
+    userId: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    isFullyMastered?: boolean
+    performanceMasteredAt?: Date | string | null
+    fullyMasteredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SkillTaskCardCreateManyScoreInput = {
+    id?: string
+    userId: string
+    taskCategory: string
+    status?: string
+    generatedAt?: Date | string
+    lastMatchedAt?: Date | string | null
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type MissingPracticeItemFlagCreateManyScoreInput = {
+    id?: string
+    subTaskType: string
+    missingCategory: string
+    keyTonic: string
+    keyMode: string
+    star: number
+    techniqueTagId?: string | null
+    detectedAt?: Date | string
+    resolvedAt?: Date | string | null
   }
 
   export type PerformanceUpdateWithoutScoreInput = {
@@ -31585,6 +49840,13 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31592,6 +49854,7 @@ export namespace Prisma {
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutPerformancesNestedInput
+    skillFeedbacks?: PerformanceSkillFeedbackUpdateManyWithoutPerformanceNestedInput
   }
 
   export type PerformanceUncheckedUpdateWithoutScoreInput = {
@@ -31613,12 +49876,20 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+    skillFeedbacks?: PerformanceSkillFeedbackUncheckedUpdateManyWithoutPerformanceNestedInput
   }
 
   export type PerformanceUncheckedUpdateManyWithoutScoreInput = {
@@ -31640,12 +49911,173 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    pitchSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    rhythmSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    skillSubScores?: NullableJsonNullValueInput | InputJsonValue
+    problematicPositions?: NullableJsonNullValueInput | InputJsonValue
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
     lastAttemptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     executionId?: NullableStringFieldUpdateOperationsInput | string | null
     idempotencyKey?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type SongMasteryUpdateWithoutScoreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    isFullyMastered?: BoolFieldUpdateOperationsInput | boolean
+    performanceMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fullyMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutSongMasteriesNestedInput
+  }
+
+  export type SongMasteryUncheckedUpdateWithoutScoreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    isFullyMastered?: BoolFieldUpdateOperationsInput | boolean
+    performanceMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fullyMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SongMasteryUncheckedUpdateManyWithoutScoreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    isFullyMastered?: BoolFieldUpdateOperationsInput | boolean
+    performanceMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    fullyMasteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SkillTaskCardUpdateWithoutScoreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    taskCategory?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutSkillTaskCardsNestedInput
+    subTasks?: SubTaskUpdateManyWithoutSkillTaskCardNestedInput
+  }
+
+  export type SkillTaskCardUncheckedUpdateWithoutScoreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    taskCategory?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subTasks?: SubTaskUncheckedUpdateManyWithoutSkillTaskCardNestedInput
+  }
+
+  export type SkillTaskCardUncheckedUpdateManyWithoutScoreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    taskCategory?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MissingPracticeItemFlagUpdateWithoutScoreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    missingCategory?: StringFieldUpdateOperationsInput | string
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    star?: IntFieldUpdateOperationsInput | number
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    techniqueTag?: TechniqueTagUpdateOneWithoutMissingPracticeItemFlagsNestedInput
+  }
+
+  export type MissingPracticeItemFlagUncheckedUpdateWithoutScoreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    missingCategory?: StringFieldUpdateOperationsInput | string
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    star?: IntFieldUpdateOperationsInput | number
+    techniqueTagId?: NullableStringFieldUpdateOperationsInput | string | null
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MissingPracticeItemFlagUncheckedUpdateManyWithoutScoreInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    missingCategory?: StringFieldUpdateOperationsInput | string
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    star?: IntFieldUpdateOperationsInput | number
+    techniqueTagId?: NullableStringFieldUpdateOperationsInput | string | null
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type PerformanceSkillFeedbackCreateManyPerformanceInput = {
+    id?: string
+    practicePerformanceId?: string | null
+    userId: string
+    positionId: string
+    selectedSubTaskId?: string | null
+    feedbackType: string
+    comment?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PerformanceSkillFeedbackUpdateWithoutPerformanceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    positionId?: StringFieldUpdateOperationsInput | string
+    selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    feedbackType?: StringFieldUpdateOperationsInput | string
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    practicePerformance?: PracticePerformanceUpdateOneWithoutSkillFeedbacksNestedInput
+    user?: UserUpdateOneRequiredWithoutPerformanceSkillFeedbacksNestedInput
+  }
+
+  export type PerformanceSkillFeedbackUncheckedUpdateWithoutPerformanceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    practicePerformanceId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    positionId?: StringFieldUpdateOperationsInput | string
+    selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    feedbackType?: StringFieldUpdateOperationsInput | string
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PerformanceSkillFeedbackUncheckedUpdateManyWithoutPerformanceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    practicePerformanceId?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    positionId?: StringFieldUpdateOperationsInput | string
+    selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
+    feedbackType?: StringFieldUpdateOperationsInput | string
+    comment?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PracticeItemTechniqueCreateManyPracticeItemInput = {
@@ -31666,6 +50098,8 @@ export namespace Prisma {
     overallScore?: number | null
     evaluatedNotes?: number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: number | null
+    bowingAccuracy?: number | null
     analysisStatus?: $Enums.JobStatus
     retryCount?: number
     errorMessage?: string | null
@@ -31677,6 +50111,29 @@ export namespace Prisma {
     bowingSkillScore?: number | null
     skillSubScores?: NullableJsonNullValueInput | InputJsonValue
     problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type SubTaskAssignmentCreateManyPracticeItemInput = {
+    id?: string
+    subTaskId: string
+    assignedCategory: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    assignedAt?: Date | string
+  }
+
+  export type UserPracticeMasteryCreateManyPracticeItemInput = {
+    id?: string
+    userId: string
+    recentAverageScore?: number | null
+    totalPerformanceCount?: number
+    isPerformanceMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type PracticeItemSubTaskTagCreateManyPracticeItemInput = {
+    subTaskType: string
   }
 
   export type PracticeItemTechniqueUpdateWithoutPracticeItemInput = {
@@ -31706,6 +50163,8 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31734,6 +50193,8 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31761,6 +50222,8 @@ export namespace Prisma {
     overallScore?: NullableFloatFieldUpdateOperationsInput | number | null
     evaluatedNotes?: NullableIntFieldUpdateOperationsInput | number | null
     analysisSummary?: NullableJsonNullValueInput | InputJsonValue
+    rhythmAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
+    bowingAccuracy?: NullableFloatFieldUpdateOperationsInput | number | null
     analysisStatus?: EnumJobStatusFieldUpdateOperationsInput | $Enums.JobStatus
     retryCount?: IntFieldUpdateOperationsInput | number
     errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31772,6 +50235,75 @@ export namespace Prisma {
     bowingSkillScore?: NullableFloatFieldUpdateOperationsInput | number | null
     skillSubScores?: NullableJsonNullValueInput | InputJsonValue
     problematicPositions?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type SubTaskAssignmentUpdateWithoutPracticeItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subTask?: SubTaskUpdateOneRequiredWithoutSubTaskAssignmentsNestedInput
+  }
+
+  export type SubTaskAssignmentUncheckedUpdateWithoutPracticeItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskId?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubTaskAssignmentUncheckedUpdateManyWithoutPracticeItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskId?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPracticeMasteryUpdateWithoutPracticeItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutUserPracticeMasteriesNestedInput
+  }
+
+  export type UserPracticeMasteryUncheckedUpdateWithoutPracticeItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPracticeMasteryUncheckedUpdateManyWithoutPracticeItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    recentAverageScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    totalPerformanceCount?: IntFieldUpdateOperationsInput | number
+    isPerformanceMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PracticeItemSubTaskTagUpdateWithoutPracticeItemInput = {
+    subTaskType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PracticeItemSubTaskTagUncheckedUpdateWithoutPracticeItemInput = {
+    subTaskType?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PracticeItemSubTaskTagUncheckedUpdateManyWithoutPracticeItemInput = {
+    subTaskType?: StringFieldUpdateOperationsInput | string
   }
 
   export type PracticeItemTechniqueCreateManyTechniqueTagInput = {
@@ -31787,6 +50319,26 @@ export namespace Prisma {
     severity: number
     sampleCount: number
     lastUpdated?: Date | string
+  }
+
+  export type UserTechniqueMasteryCreateManyTechniqueTagInput = {
+    id?: string
+    userId: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type MissingPracticeItemFlagCreateManyTechniqueTagInput = {
+    id?: string
+    scoreId: string
+    subTaskType: string
+    missingCategory: string
+    keyTonic: string
+    keyMode: string
+    star: number
+    detectedAt?: Date | string
+    resolvedAt?: Date | string | null
   }
 
   export type PracticeItemTechniqueUpdateWithoutTechniqueTagInput = {
@@ -31834,8 +50386,69 @@ export namespace Prisma {
     lastUpdated?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type UserTechniqueMasteryUpdateWithoutTechniqueTagInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutUserTechniqueMasteriesNestedInput
+  }
+
+  export type UserTechniqueMasteryUncheckedUpdateWithoutTechniqueTagInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserTechniqueMasteryUncheckedUpdateManyWithoutTechniqueTagInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MissingPracticeItemFlagUpdateWithoutTechniqueTagInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    missingCategory?: StringFieldUpdateOperationsInput | string
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    star?: IntFieldUpdateOperationsInput | number
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    score?: ScoreUpdateOneRequiredWithoutMissingPracticeItemFlagsNestedInput
+  }
+
+  export type MissingPracticeItemFlagUncheckedUpdateWithoutTechniqueTagInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    missingCategory?: StringFieldUpdateOperationsInput | string
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    star?: IntFieldUpdateOperationsInput | number
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type MissingPracticeItemFlagUncheckedUpdateManyWithoutTechniqueTagInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    scoreId?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    missingCategory?: StringFieldUpdateOperationsInput | string
+    keyTonic?: StringFieldUpdateOperationsInput | string
+    keyMode?: StringFieldUpdateOperationsInput | string
+    star?: IntFieldUpdateOperationsInput | number
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type PerformanceSkillFeedbackCreateManyPracticePerformanceInput = {
     id?: string
+    performanceId?: string | null
     userId: string
     positionId: string
     selectedSubTaskId?: string | null
@@ -31851,11 +50464,13 @@ export namespace Prisma {
     feedbackType?: StringFieldUpdateOperationsInput | string
     comment?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    performance?: PerformanceUpdateOneWithoutSkillFeedbacksNestedInput
     user?: UserUpdateOneRequiredWithoutPerformanceSkillFeedbacksNestedInput
   }
 
   export type PerformanceSkillFeedbackUncheckedUpdateWithoutPracticePerformanceInput = {
     id?: StringFieldUpdateOperationsInput | string
+    performanceId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     positionId?: StringFieldUpdateOperationsInput | string
     selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31866,12 +50481,87 @@ export namespace Prisma {
 
   export type PerformanceSkillFeedbackUncheckedUpdateManyWithoutPracticePerformanceInput = {
     id?: StringFieldUpdateOperationsInput | string
+    performanceId?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
     positionId?: StringFieldUpdateOperationsInput | string
     selectedSubTaskId?: NullableStringFieldUpdateOperationsInput | string | null
     feedbackType?: StringFieldUpdateOperationsInput | string
     comment?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubTaskCreateManySkillTaskCardInput = {
+    id?: string
+    subTaskType: string
+    status?: string
+    generatedAt?: Date | string
+    clearedAt?: Date | string | null
+    updatedAt?: Date | string
+  }
+
+  export type SubTaskUpdateWithoutSkillTaskCardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subTaskAssignments?: SubTaskAssignmentUpdateManyWithoutSubTaskNestedInput
+  }
+
+  export type SubTaskUncheckedUpdateWithoutSkillTaskCardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subTaskAssignments?: SubTaskAssignmentUncheckedUpdateManyWithoutSubTaskNestedInput
+  }
+
+  export type SubTaskUncheckedUpdateManyWithoutSkillTaskCardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subTaskType?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    clearedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubTaskAssignmentCreateManySubTaskInput = {
+    id?: string
+    practiceItemId: string
+    assignedCategory: string
+    isMastered?: boolean
+    masteredAt?: Date | string | null
+    assignedAt?: Date | string
+  }
+
+  export type SubTaskAssignmentUpdateWithoutSubTaskInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    practiceItem?: PracticeItemUpdateOneRequiredWithoutSubTaskAssignmentsNestedInput
+  }
+
+  export type SubTaskAssignmentUncheckedUpdateWithoutSubTaskInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    practiceItemId?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubTaskAssignmentUncheckedUpdateManyWithoutSubTaskInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    practiceItemId?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: StringFieldUpdateOperationsInput | string
+    isMastered?: BoolFieldUpdateOperationsInput | boolean
+    masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

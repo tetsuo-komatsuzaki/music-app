@@ -45,6 +45,13 @@ model User {
   userGrade                 UserGrade?
   performanceSkillFeedbacks PerformanceSkillFeedback[]
 
+  // ▼ v1.3 上達ループエンジン拡張 (R3 = C ハイブリッド構造)
+  songMasteries          SongMastery[]
+  userGradeProgress      UserGradeProgress?
+  skillTaskCards         SkillTaskCard[]
+  userPracticeMasteries  UserPracticeMastery[]
+  userTechniqueMasteries UserTechniqueMastery[]
+
   @@index([role])
 }
 
@@ -76,13 +83,26 @@ model Score {
   difficulty       Int? // 1〜10、グレード範囲フィルタ用
   skillSubTaskTags Json? // sub_task ID 配列、レコメンド対象判定用
 
+  // ▼ v1.3 上達ループエンジン拡張 (R4 = D 確定)
+  // ownerScope = "admin" の Score のみがループエンジンの対象。
+  // R4 = D により既存 Score 全件 "admin" にマイグレーション。
+  // 将来ユーザーアップロード機能を有効化するときは "user" を発行する。
+  ownerScope String @default("admin")
+
   createdAt    DateTime      @default(now())
   deletedAt    DateTime? // 論理削除フラグ (NULL=有効、値あり=削除済み)
   performances Performance[]
-  createdBy    User          @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  // ▼ v1.3 上達ループエンジン (back-references)
+  songMasteries            SongMastery[]
+  skillTaskCards           SkillTaskCard[]
+  missingPracticeItemFlags MissingPracticeItemFlag[]
+
+  createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
   @@index([createdById])
   @@index([isShared])
+  @@index([ownerScope])
 }
 
 model Performance {
@@ -106,9 +126,23 @@ model Performance {
   // ▼ 解析結果サマリー（段階3: ハイブリッド方式）
   pitchAccuracy   Float? // 0-100 ピッチ正確率（頻繁表示 → カラム）
   timingAccuracy  Float? // 0-100 タイミング正確率（頻繁表示 → カラム）
-  overallScore    Float? // 0-100 総合スコア（pitch×0.6 + timing×0.4）
+  overallScore    Float? // 0-100 総合スコア（v1.0 旧式: pitch×0.6 + timing×0.4 / v1.3 で計算式変更予定: (pitch + rhythm + bowing) / 3）
   evaluatedNotes  Int? // 評価対象ノート数
   analysisSummary Json? // 将来の拡張用（ビブラート・弓使い・音色等）
+
+  // ▼ v1.3 上達ループエンジン拡張 (R1 = B: pitch/rhythm/bowing 体系)
+  // 旧 timingAccuracy は Phase 2 で rhythmAccuracy にリネーム予定 (案 Y)。
+  // 移行期間中は両カラムを併存 (timingAccuracy は legacy、rhythmAccuracy が正)。
+  rhythmAccuracy Float? // 0-100 リズム正確率
+  bowingAccuracy Float? // 0-100 ボウイング正確率 (弦移動・スラー・強弱変化)
+
+  // ▼ v1.3 上達ループエンジン: PracticePerformance ミラー
+  // (score_full のループエンジン処理を Score 演奏でも実行可能にする)
+  pitchSkillScore      Float?
+  rhythmSkillScore     Float?
+  bowingSkillScore     Float?
+  skillSubScores       Json? // 9 sub task の結果 (各 score, target_count, matched 等)
+  problematicPositions Json? // 「気になる箇所」配列
 
   // ▼ 非同期ジョブライフサイクル（Cloud Run Jobs）
   analysisStatus  JobStatus @default(done)
@@ -117,6 +151,9 @@ model Performance {
   lastAttemptedAt DateTime?
   executionId     String?
   idempotencyKey  String?   @unique
+
+  // ▼ v1.3 上達ループエンジン (back-references)
+  skillFeedbacks PerformanceSkillFeedback[]
 
   @@index([scoreId])
   @@index([userId, uploadedAt])
@@ -193,6 +230,11 @@ model PracticeItem {
   techniques           PracticeItemTechnique[]
   practicePerformances PracticePerformance[]
 
+  // ▼ v1.3 上達ループエンジン (back-references)
+  subTaskAssignments      SubTaskAssignment[]
+  userPracticeMasteries   UserPracticeMastery[]
+  practiceItemSubTaskTags PracticeItemSubTaskTag[]
+
   @@index([category, keyTonic, keyMode])
   @@index([category, isPublished, sortOrder])
   @@index([ownerUserId])
@@ -211,6 +253,10 @@ model TechniqueTag {
 
   practiceItems PracticeItemTechnique[]
   weaknesses    UserWeakness[]
+
+  // ▼ v1.3 上達ループエンジン (back-references)
+  userTechniqueMasteries   UserTechniqueMastery[]
+  missingPracticeItemFlags MissingPracticeItemFlag[]
 
   @@unique([category, name])
   @@index([category])
@@ -246,6 +292,11 @@ model PracticePerformance {
   overallScore    Float?
   evaluatedNotes  Int?
   analysisSummary Json?
+
+  // ▼ v1.3 上達ループエンジン拡張 (R1 = B: pitch/rhythm/bowing 体系)
+  // timingAccuracy は Phase 2 で rhythmAccuracy にリネーム予定 (案 Y)。
+  rhythmAccuracy Float?
+  bowingAccuracy Float?
 
   // ▼ 非同期ジョブライフサイクル（Cloud Run Jobs）
   analysisStatus  JobStatus @default(done)
@@ -420,9 +471,14 @@ model UserGrade {
 // 演奏完了画面のフィードバック保存
 // C4: ユーザー操作の保存 (生成テキストキャッシュではない、A 案採用)
 // MVP では記録のみ、β で自動学習ループの種にする
+//
+// v1.3 (2026-05-10): PracticePerformance / Performance (Score 演奏) 両方に対応するため
+// polymorphic 化。実装制約: practicePerformanceId と performanceId のうち
+// 正確に 1 つだけが非 NULL (Postgres CHECK 制約を migration で raw SQL 追加)。
 model PerformanceSkillFeedback {
   id                    String   @id @default(cuid())
-  practicePerformanceId String
+  practicePerformanceId String? // PracticePerformance 由来の feedback (排他)
+  performanceId         String? // v1.3 新規: Score 演奏 (Performance) 由来の feedback (排他)
   userId                String
   positionId            String // problematicPositions の position_id
   selectedSubTaskId     String? // user_selected の場合に設定 (どの sub task が原因か)
@@ -430,9 +486,206 @@ model PerformanceSkillFeedback {
   comment               String? // MVP では使わない、β で自由記述用
   createdAt             DateTime @default(now())
 
-  practicePerformance PracticePerformance @relation(fields: [practicePerformanceId], references: [id], onDelete: Cascade)
-  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  practicePerformance PracticePerformance? @relation(fields: [practicePerformanceId], references: [id], onDelete: Cascade)
+  performance         Performance?         @relation(fields: [performanceId], references: [id], onDelete: Cascade)
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([practicePerformanceId])
+  @@index([performanceId])
   @@index([userId, feedbackType])
+}
+
+// =============================================
+// v1.3 上達ループエンジン拡張 (2026-05-10)
+// 設計書 v1.3 §6-2 に基づく 9 新規テーブル
+// R3 = C ハイブリッド: 既存 UserSkillTaskCard / UserSkillScore / UserSkillSubScore は併存
+// (Phase 4-5 で整理)
+// =============================================
+
+// ─── (1) SongMastery: 曲ごとのユーザー演奏マスター状態 ───
+// v1.3 §2-2 §2-6 / §6-2 (1)
+// 演奏マスター: 直近 5 回平均 overallScore ≥ 90 かつ累計 ≥ 5
+// 完全習得: 演奏マスター + 全演奏技法習得 + 全中課題クリア
+model SongMastery {
+  id                    String    @id @default(cuid())
+  userId                String
+  scoreId               String
+  recentAverageScore    Float? // 直近 5 回 overallScore 平均
+  totalPerformanceCount Int       @default(0)
+  isPerformanceMastered Boolean   @default(false)
+  isFullyMastered       Boolean   @default(false)
+  performanceMasteredAt DateTime?
+  fullyMasteredAt       DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score Score @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, scoreId])
+  @@index([userId, isFullyMastered])
+  @@index([scoreId])
+}
+
+// ─── (2) UserGradeProgress: ユーザーの現在★+グレード進捗 ───
+// v1.3 §1-2 / §6-2 (2)
+// 既存 UserGrade とは別概念で併存 (R3 = C):
+//   - UserGrade: 旧設計 (currentGrade, progressData JSON)
+//   - UserGradeProgress: v1.3 新設計 (currentStar 1-10 + masteredSongCountAtCurrentStar)
+model UserGradeProgress {
+  id                             String    @id @default(cuid())
+  userId                         String    @unique
+  currentStar                    Int       @default(1) // 1-10
+  currentGrade                   String    @default("beginner") // beginner | intermediate | advanced | master
+  masteredSongCountAtCurrentStar Int       @default(0) // 同★で何曲習得したか (10 で次の★に昇格)
+  masterReachedAt                DateTime? // ★10 (master) 到達日時
+  updatedAt                      DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([currentStar])
+}
+
+// ─── (3) SkillTaskCard: 曲×中項目の課題カード (v1.3 R3 = C) ───
+// v1.3 §3-3 / §6-2 (3)
+// 既存 UserSkillTaskCard とは別物:
+//   - 既存: (userId, sub_task) で 9 カード
+//   - v1.3: (userId, scoreId, taskCategory) で曲ごとに最大 3 カード
+// taskCategory ∈ { pitch, rhythm, bowing } (R1 = B)
+model SkillTaskCard {
+  id            String    @id @default(cuid())
+  userId        String
+  scoreId       String
+  taskCategory  String // "pitch" | "rhythm" | "bowing"
+  status        String    @default("active") // "active" | "improving" | "cleared"
+  generatedAt   DateTime  @default(now())
+  lastMatchedAt DateTime?
+  clearedAt     DateTime?
+  updatedAt     DateTime  @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score    Score     @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+  subTasks SubTask[]
+
+  @@unique([userId, scoreId, taskCategory])
+  @@index([userId, status])
+  @@index([scoreId])
+}
+
+// ─── (4) SubTask: 中課題カードに紐づく 9 種類の小課題 ───
+// v1.3 §6-2 (4)
+// subTaskType: 既存 SUB_TASK_IDS の 9 値 (S1 = A 暫定):
+//   pitch_overall, pitch_high, pitch_chromatic
+//   rhythm_overall, rhythm_fast, rhythm_after_rest
+//   string_change_volume, string_change_slur, string_change_timing
+model SubTask {
+  id              String    @id @default(cuid())
+  skillTaskCardId String
+  subTaskType     String
+  status          String    @default("active") // "active" | "cleared"
+  generatedAt     DateTime  @default(now())
+  clearedAt       DateTime?
+  updatedAt       DateTime  @updatedAt
+
+  skillTaskCard      SkillTaskCard       @relation(fields: [skillTaskCardId], references: [id], onDelete: Cascade)
+  subTaskAssignments SubTaskAssignment[]
+
+  @@unique([skillTaskCardId, subTaskType])
+  @@index([subTaskType])
+}
+
+// ─── (5) SubTaskAssignment: 小課題に自動アサインされた教材 (3 カテゴリ × 1) ───
+// v1.3 §2-4 §3-4 / §6-2 (5)
+// M6 = B: 1 SubTask に対し scale + arpeggio + etude の 3 件作成
+model SubTaskAssignment {
+  id               String    @id @default(cuid())
+  subTaskId        String
+  practiceItemId   String
+  assignedCategory String // "scale" | "arpeggio" | "etude"
+  isMastered       Boolean   @default(false)
+  masteredAt       DateTime?
+  assignedAt       DateTime  @default(now())
+
+  subTask      SubTask      @relation(fields: [subTaskId], references: [id], onDelete: Cascade)
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
+
+  @@unique([subTaskId, practiceItemId])
+  @@index([subTaskId])
+  @@index([practiceItemId])
+}
+
+// ─── (6) UserPracticeMastery: PracticeItem ごとのユーザー演奏マスター状態 ───
+// v1.3 §2-2 / §6-2 (6)
+// 演奏マスター: 直近 10 回平均 overallScore ≥ 90 かつ累計 ≥ 10
+model UserPracticeMastery {
+  id                    String    @id @default(cuid())
+  userId                String
+  practiceItemId        String
+  recentAverageScore    Float?
+  totalPerformanceCount Int       @default(0)
+  isPerformanceMastered Boolean   @default(false)
+  masteredAt            DateTime?
+  updatedAt             DateTime  @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, practiceItemId])
+  @@index([userId, isPerformanceMastered])
+}
+
+// ─── (7) UserTechniqueMastery: 演奏技法ごとのユーザー習得状態 ───
+// v1.3 §2-3 / §6-2 (7)
+// 習得: 同調・同★・同 T を持つ scale + arpeggio + etude のうち、
+//       実在する全カテゴリで 1 つ以上演奏マスター
+model UserTechniqueMastery {
+  id             String    @id @default(cuid())
+  userId         String
+  techniqueTagId String
+  isMastered     Boolean   @default(false)
+  masteredAt     DateTime?
+  updatedAt      DateTime  @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  techniqueTag TechniqueTag @relation(fields: [techniqueTagId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, techniqueTagId])
+  @@index([userId, isMastered])
+}
+
+// ─── (8) PracticeItemSubTaskTag: PracticeItem ⇔ sub_task の多対多 ───
+// v1.3 §6-2 (8)
+// 既存 PracticeItem.skillSubTaskTags JSON カラムの正規化版
+// (両方残して移行は Phase 4 で整理)
+model PracticeItemSubTaskTag {
+  practiceItemId String
+  subTaskType    String
+
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
+
+  @@id([practiceItemId, subTaskType])
+  @@index([subTaskType])
+}
+
+// ─── (9) MissingPracticeItemFlag: 該当教材ゼロ件時の admin 通知フラグ ───
+// v1.3 §2-4 / §6-2 (9) / I1 = A 確定
+// 1 カテゴリでも該当教材 0 件なら sub_task 自体生成スキップ + このフラグ作成
+model MissingPracticeItemFlag {
+  id              String    @id @default(cuid())
+  scoreId         String
+  subTaskType     String
+  missingCategory String // "scale" | "arpeggio" | "etude" のうち欠けている
+  keyTonic        String
+  keyMode         String
+  star            Int
+  techniqueTagId  String?
+  detectedAt      DateTime  @default(now())
+  resolvedAt      DateTime? // admin が該当教材登録した日時。null = 未解決
+
+  score        Score         @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+  techniqueTag TechniqueTag? @relation(fields: [techniqueTagId], references: [id], onDelete: SetNull)
+
+  @@index([scoreId, resolvedAt])
+  @@index([keyTonic, keyMode, star])
+  @@index([resolvedAt])
 }
