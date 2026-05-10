@@ -7,6 +7,50 @@
   margin-top: 12px;
 }
 
+/* 中項目グループ (音程 / リズム / 弦移動) */
+.parentGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid #e5e5e5;
+}
+.parentGroup:first-child {
+  border-top: none;
+  padding-top: 4px;
+}
+
+.parentGroupTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d2d2d;
+  margin: 0;
+  padding: 0 4px;
+}
+
+/* 難易度サブグループ (Lv.X) */
+.difficultyGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 8px;
+  padding-left: 12px;
+  border-left: 2px solid #eef2fb;
+}
+
+.difficultyLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5a7fdf;
+  letter-spacing: 0.04em;
+}
+
+.difficultyCards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .empty {
   background: #f7f9fc;
   border: 1px dashed #c7d0db;
