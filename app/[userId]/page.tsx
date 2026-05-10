@@ -358,7 +358,7 @@ export default async function HomePage({ params }: PageProps) {
     limit: 5,
   })
   const recommendationReason = generateRecommendationReason(activeCard)
-  const songRecommendations = candidateItems.map(item => {
+  let songRecommendations = candidateItems.map(item => {
     // category="score" は Score ルート、それ以外は PracticeItem ルート
     const href =
       item.category === "score"
@@ -377,6 +377,39 @@ export default async function HomePage({ params }: PageProps) {
       ...(activeCard ? { triggeredByCardId: activeCard.id } : {}),
     }
   })
+
+  // 演奏履歴ゼロのユーザー (PracticePerformance + Performance ともに 0 件) には
+  // 通常レコメンドを上書きして Lv.1 (☆1) の練習教材を 3 つ提示
+  const hasNoHistory = practiceUploads.length === 0 && scoreUploads.length === 0
+  if (hasNoHistory) {
+    const lv1Items = await prisma.practiceItem.findMany({
+      where: {
+        difficulty: 1,
+        isPublished: true,
+        OR: [{ ownerUserId: null }, { ownerUserId: internalUserId }],
+      },
+      orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+      take: 3,
+      select: {
+        id: true,
+        title: true,
+        category: true,
+        difficulty: true,
+        composer: true,
+      },
+    })
+    songRecommendations = lv1Items.map(item => ({
+      practiceItem: {
+        id: item.id,
+        title: item.title,
+        category: item.category,
+        difficulty: item.difficulty ?? null,
+        composer: item.composer ?? null,
+      },
+      reason: "まずは ☆1 の曲から始めましょう",
+      href: `/${userId}/practice/${item.category}/${item.id}`,
+    }))
+  }
   console.log(`[PERF] home step3_recommendations: ${(performance.now() - perfStep3).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   // --- 直近の練習履歴（3件、Continue バー風レイアウトで表示）---
