@@ -145,7 +145,7 @@
   min-width: 180px;
 }
 
-/* ☆ 進捗 (グレードの下、所属難易度の☆ + 次の☆まで N 曲) */
+/* ☆ 進捗 (グレードの下、Lv1〜10 を 2 段 5 個で表示 + 次の☆まで N 曲) */
 .starRow {
   display: flex;
   align-items: center;
@@ -158,8 +158,10 @@
 }
 
 .starList {
-  display: flex;
-  gap: 2px;
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  grid-auto-rows: auto;
+  gap: 4px 6px;
   font-size: 18px;
   line-height: 1;
 }
