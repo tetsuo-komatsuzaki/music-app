@@ -1,8 +1,36 @@
 import { prisma } from "@/app/_libs/prisma"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import PracticeList from "./practiceLIst"
-import { getRecommendations } from "@/app/lib/practice/getRecommendations"
+import type { ScoredItemDTO } from "@/app/lib/practice/getRecommendations"
 import { getPracticeStats } from "@/app/lib/practice/getPracticeStats"
+import {
+  extractSubTaskIdsFromCard,
+  getAchievedPracticeItemIds,
+  getCurrentGrade,
+} from "@/app/_libs/recommendations"
+import {
+  GRADE_DIFFICULTY_RANGE,
+  SUB_TASK_NAMES,
+  TASK_NAMES,
+  type SubTaskId,
+  type TaskId,
+} from "@/app/_libs/skillMaster"
+
+// アクティブカード由来「今日の課題」のラベル生成
+function buildTodayTaskLabel(card: {
+  cardType: string
+  skillTaskId: string | null
+  skillSubTaskId: string | null
+}): string | null {
+  if (card.cardType === "sub_task" && card.skillSubTaskId) {
+    return SUB_TASK_NAMES[card.skillSubTaskId as SubTaskId] ?? card.skillSubTaskId
+  }
+  if (card.cardType === "task" && card.skillTaskId) {
+    const name = TASK_NAMES[card.skillTaskId as TaskId] ?? card.skillTaskId
+    return `${name}全体`
+  }
+  return null
+}
 
 const categoryTitles: Record<string, string> = {
   scale: "音階", scales: "音階",
@@ -53,31 +81,81 @@ export default async function CategoryPage({
   if (sp.position) where.positions = { has: sp.position }
 
   const perfStart = performance.now()
-  const [items, allItemsForFilter, [recommendations, stats]] = await Promise.all([
-    prisma.practiceItem.findMany({
-      where,
-      orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
-      include: {
-        techniques: {
-          where: { isPrimary: true },
-          include: { techniqueTag: { select: { name: true } } },
+  const [items, allItemsForFilter, stats, activeCard, grade, achievedIds] =
+    await Promise.all([
+      prisma.practiceItem.findMany({
+        where,
+        orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+        include: {
+          techniques: {
+            where: { isPrimary: true },
+            include: { techniqueTag: { select: { name: true } } },
+          },
         },
-      },
-    }),
-    prisma.practiceItem.findMany({
-      where: {
-        category: dbCategory as any,
-        isPublished: true,
-        OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
-      },
-      select: { keyTonic: true, keyMode: true, positions: true },
-    }),
-    Promise.all([
-      getRecommendations(dbUserId, dbCategory, 5),
+      }),
+      prisma.practiceItem.findMany({
+        where: {
+          category: dbCategory as any,
+          isPublished: true,
+          OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
+        },
+        select: { keyTonic: true, keyMode: true, positions: true },
+      }),
       getPracticeStats(dbUserId, dbCategory),
-    ]),
-  ])
+      // 「今日の課題」用のアクティブカード (一番古い active を 1 件)
+      prisma.userSkillTaskCard.findFirst({
+        where: { userId: dbUserId, status: "active" },
+        orderBy: { createdAt: "asc" },
+        select: { id: true, cardType: true, skillTaskId: true, skillSubTaskId: true },
+      }),
+      getCurrentGrade(prisma, dbUserId),
+      getAchievedPracticeItemIds(prisma, dbUserId),
+    ])
   console.log(`[PERF] practice/category step1_parallel: ${(performance.now() - perfStart).toFixed(0)}ms`)
+
+  // 「今日の課題」: アクティブカードに紐づく practiceItem を category 内で検索
+  let todayTaskItems: ScoredItemDTO[] = []
+  let todayTaskLabel: string | null = null
+  if (activeCard) {
+    const subTaskIds = extractSubTaskIdsFromCard(activeCard)
+    if (subTaskIds && subTaskIds.length > 0) {
+      const [diffMin, diffMax] = GRADE_DIFFICULTY_RANGE[grade]
+      const tagOR = subTaskIds.map(id => ({
+        skillSubTaskTags: { array_contains: id },
+      }))
+      const candidates = await prisma.practiceItem.findMany({
+        where: {
+          category: dbCategory as any,
+          isPublished: true,
+          difficulty: { gte: diffMin, lte: diffMax },
+          OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
+          AND: [{ OR: tagOR }],
+          ...(achievedIds.length > 0 ? { id: { notIn: achievedIds } } : {}),
+        },
+        orderBy: { difficulty: "asc" },
+        take: 6,
+        include: {
+          techniques: {
+            where: { isPrimary: true },
+            include: { techniqueTag: { select: { name: true } } },
+          },
+        },
+      })
+      todayTaskItems = candidates.map(c => ({
+        id: c.id,
+        title: c.title,
+        category: c.category,
+        keyTonic: c.keyTonic ?? "",
+        keyMode: c.keyMode ?? "",
+        positions: c.positions,
+        techniqueNames: c.techniques.map(t => t.techniqueTag.name),
+        score: 1,
+        reason: "continue",
+        totalPractices: 0,
+      }))
+      todayTaskLabel = buildTodayTaskLabel(activeCard)
+    }
+  }
 
   const itemIds = items.map((i) => i.id)
 
@@ -146,7 +224,8 @@ export default async function CategoryPage({
       items={itemsWithHistory}
       filterOptions={{ keys, positions }}
       currentFilters={sp}
-      recommendations={recommendations}
+      recommendations={todayTaskItems}
+      todayTaskLabel={todayTaskLabel}
       stats={stats}
     />
   )

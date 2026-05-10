@@ -451,9 +451,14 @@
   font-size: 16px;
 }
 
-/* ───── 直近の練習 (Continue バー風レイアウト、複数バーを縦積み) ───── */
+/* ───── 直近の練習 (Continue バー風レイアウト、複数バーを縦積み + 区切り線) ───── */
 .historyBarList {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+}
+
+.historyBarList > :not(:last-child) {
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 14px;
+  margin-bottom: 14px;
 }

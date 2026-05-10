@@ -1,6 +1,7 @@
 .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
 .pageTitle { font-size: 24px; font-weight: 700; margin-bottom: 24px; }
 .sectionTitle { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+.sectionSubtitle { font-size: 13px; color: #666; margin: -12px 0 12px; }
 
 /* UI-12 (§8 D3): カード由来コンテクスト表示 */
 .cardContextSection {
