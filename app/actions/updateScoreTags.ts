@@ -1,10 +1,11 @@
 "use server"
 
-// 既存 Score の loop engine 必須項目 (difficulty / skillSubTaskTags) を
+// 既存 Score の loop engine 必須項目 (star / skillSubTaskTags) を
 // admin が編集するためのサーバアクション。
 //
 // uploadScore.ts のアップロード時には拡張済み。本 action は既存 Score の編集用。
 // updatePracticeItemTags.ts と対をなす。
+// v1.3 B-3: DB カラム & payload key 双方 star に統一。
 
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
@@ -20,7 +21,7 @@ const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
 
 export async function updateScoreTags(
   scoreId: string,
-  payload: { difficulty: number | null; skillSubTaskTags: string[] },
+  payload: { star: number | null; skillSubTaskTags: string[] },
 ): Promise<UpdateScoreTagsResult> {
   // admin チェック
   const supabase = await createServerSupabaseClient()
@@ -35,11 +36,11 @@ export async function updateScoreTags(
   }
 
   // バリデーション
-  if (payload.difficulty != null) {
-    if (!Number.isFinite(payload.difficulty)) {
+  if (payload.star != null) {
+    if (!Number.isFinite(payload.star)) {
       return { error: "難易度の値が不正です" }
     }
-    if (payload.difficulty < 1 || payload.difficulty > 10) {
+    if (payload.star < 1 || payload.star > 10) {
       return { error: "難易度は 1 〜 10 で指定してください" }
     }
   }
@@ -58,7 +59,7 @@ export async function updateScoreTags(
   await prisma.score.update({
     where: { id: scoreId },
     data: {
-      star: payload.difficulty, // payload は UI 由来 (difficulty キー)、DB は star
+      star: payload.star,
       skillSubTaskTags: cleanedTags as Prisma.InputJsonValue,
     },
   })

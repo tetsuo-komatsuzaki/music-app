@@ -4,7 +4,7 @@
 // admin が編集するためのサーバアクション。
 //
 // アップロード時には uploadPracticeItem.ts、既存 item の編集は本 action を使う。
-// v1.3: DB カラム difficulty → star にリネーム済み。payload キー名 "difficulty" は UI 互換のため維持。
+// v1.3 B-3: DB カラム & payload key 双方 star に統一。
 
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
@@ -20,7 +20,7 @@ const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
 
 export async function updatePracticeItemTags(
   itemId: string,
-  payload: { difficulty: number | null; skillSubTaskTags: string[] },
+  payload: { star: number | null; skillSubTaskTags: string[] },
 ): Promise<UpdatePracticeItemTagsResult> {
   // admin チェック
   const supabase = await createServerSupabaseClient()
@@ -35,11 +35,11 @@ export async function updatePracticeItemTags(
   }
 
   // バリデーション
-  if (payload.difficulty != null) {
-    if (!Number.isFinite(payload.difficulty)) {
+  if (payload.star != null) {
+    if (!Number.isFinite(payload.star)) {
       return { error: "難易度の値が不正です" }
     }
-    if (payload.difficulty < 1 || payload.difficulty > 10) {
+    if (payload.star < 1 || payload.star > 10) {
       return { error: "難易度は 1 〜 10 で指定してください" }
     }
   }
@@ -59,7 +59,7 @@ export async function updatePracticeItemTags(
   await prisma.practiceItem.update({
     where: { id: itemId },
     data: {
-      star: payload.difficulty, // payload は UI 由来 (difficulty キー)、DB は star
+      star: payload.star,
       skillSubTaskTags: cleanedTags as Prisma.InputJsonValue,
     },
   })

@@ -16,8 +16,8 @@ export async function uploadScore(formData: FormData) {
   const file = formData.get("file") as File | null
 
   // ループエンジン用フィールド (2026-05-10 追加、admin upload で利用、user upload では空のまま)
-  // v1.3: DB カラム difficulty → star にリネーム済み。formData 入力名 "difficulty" は UI 互換のため維持。
-  const starRaw = (formData.get("difficulty") as string | null)?.trim() ?? ""
+  // v1.3 B-3: DB カラム & formData key 双方 star に統一
+  const starRaw = (formData.get("star") as string | null)?.trim() ?? ""
   let star: number | null = null
   if (starRaw !== "") {
     const n = Number.parseInt(starRaw, 10)

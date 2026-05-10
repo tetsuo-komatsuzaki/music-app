@@ -10,11 +10,11 @@ import { GRADE_LEVELS, type GradeLevel } from "@/app/_libs/skillMaster"
 
 const RECENT_GRADE_CHANGE_WINDOW_MS = 60 * 60 * 1000 // 1 時間
 
-const NEXT_GRADE_BAND: Record<GradeLevel, { next: GradeLevel | null; difficulties: number[] }> = {
-  BEGINNER: { next: "INTERMEDIATE", difficulties: [1, 2, 3] },
-  INTERMEDIATE: { next: "ADVANCED", difficulties: [4, 5, 6, 7] },
-  ADVANCED: { next: "MASTER", difficulties: [8, 9, 10] },
-  MASTER: { next: null, difficulties: [] },
+const NEXT_GRADE_BAND: Record<GradeLevel, { next: GradeLevel | null; stars: number[] }> = {
+  BEGINNER: { next: "INTERMEDIATE", stars: [1, 2, 3] },
+  INTERMEDIATE: { next: "ADVANCED", stars: [4, 5, 6, 7] },
+  ADVANCED: { next: "MASTER", stars: [8, 9, 10] },
+  MASTER: { next: null, stars: [] },
 }
 
 const PREVIOUS_GRADE: Record<GradeLevel, GradeLevel | null> = {
@@ -59,7 +59,7 @@ export async function GET(
   const band = NEXT_GRADE_BAND[currentGrade]
   let remainingCount = 0
   const nextGradeDetails: Record<string, { completed: number; required: number; remaining: number }> = {}
-  for (const d of band.difficulties) {
+  for (const d of band.stars) {
     const dKey = String(d)
     const entry = progressData[dKey] ?? { completed: 0, required: 10, practiceItemIds: [] }
     const completed = typeof entry.completed === "number" ? entry.completed : 0
