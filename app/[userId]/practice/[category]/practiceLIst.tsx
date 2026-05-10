@@ -1,13 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import styles from "../practice.module.css"
-import type { ScoredItemDTO, RecommendReason } from "@/app/lib/practice/getRecommendations"
+import type { ScoredItemDTO } from "@/app/lib/practice/getRecommendations"
 import type { PracticeStats } from "@/app/lib/practice/getPracticeStats"
 import OnboardingTrigger from "../../_onboarding/OnboardingTrigger"
-import { tonicToJa, modeToJa } from "@/app/_libs/musicNotation"
+import { tonicToJa } from "@/app/_libs/musicNotation"
 
 type PracticeItemDTO = {
   id: string
@@ -62,26 +62,16 @@ type Props = {
   items: PracticeItemDTO[]
   filterOptions: { keys: string[]; positions: string[] }
   currentFilters: { key?: string; position?: string }
+  /** 今日の課題: アクティブカードに紐づく practiceItem (旧 AIおすすめの差し替え) */
   recommendations: ScoredItemDTO[]
+  /** 今日の課題のラベル (アクティブカード sub_task / task 名)。null=課題なし */
+  todayTaskLabel: string | null
   stats: PracticeStats
 }
 
-type ViewType = "recommend" | "group" | "all"
-type SortType = "recommend" | "practices"
+type ViewType = "recommend" | "group"
 
 const modeLabels: Record<string, string> = { major: "長調", minor: "短調" }
-
-const REASON_LABELS: Record<RecommendReason, string> = {
-  weakness: "苦手克服",
-  continue: "継続練習",
-  same_key: "同じ調",
-}
-
-const REASON_COLORS: Record<RecommendReason, string> = {
-  weakness: styles.reasonWeakness,
-  continue: styles.reasonContinue,
-  same_key: styles.reasonSameKey,
-}
 
 const SCALE_TYPE_EN: Record<string, string> = {
   "長調":      "Major Scale",
@@ -191,9 +181,6 @@ function RecommendCard({ item, userId, category }: { item: ScoredItemDTO; userId
   return (
     <Link href={`/${userId}/practice/${category}/${item.id}`} className={styles.recCard}>
       <div className={styles.recCardInner}>
-        <span className={`${styles.recReason} ${REASON_COLORS[item.reason]}`}>
-          {REASON_LABELS[item.reason]}
-        </span>
         <div className={styles.recTitle}>{shortTitle}</div>
         {subtitle && <div className={styles.recSubtitle}>{subtitle}</div>}
         {item.lastPracticed && (
@@ -242,10 +229,11 @@ function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: s
 // ────────────────────────────────────────────────────────────
 
 function RecommendView({
-  items, recommendations, stats, userId, category,
+  items, recommendations, todayTaskLabel, stats, userId, category,
 }: {
   items: PracticeItemDTO[]
   recommendations: ScoredItemDTO[]
+  todayTaskLabel: string | null
   stats: PracticeStats
   userId: string
   category: string
@@ -259,16 +247,25 @@ function RecommendView({
     <div>
       <StatsRow stats={stats} />
 
-      {recommendations.length > 0 && (
-        <section className={styles.viewSection}>
-          <h2 className={styles.sectionTitle}>AIおすすめ</h2>
+      <section className={styles.viewSection}>
+        <h2 className={styles.sectionTitle}>今日の課題</h2>
+        {todayTaskLabel && (
+          <div className={styles.sectionSubtitle}>課題: {todayTaskLabel}</div>
+        )}
+        {recommendations.length > 0 ? (
           <div className={styles.recScroll}>
             {recommendations.map((r) => (
               <RecommendCard key={r.id} item={r} userId={userId} category={category} />
             ))}
           </div>
-        </section>
-      )}
+        ) : (
+          <div className={styles.emptyState}>
+            {todayTaskLabel
+              ? `「${todayTaskLabel}」に該当する教材がこのカテゴリーにはありません`
+              : "現在の課題がありません。あなたの課題ページからカードを作成してください。"}
+          </div>
+        )}
+      </section>
 
       {recent.length > 0 && (
         <section className={styles.viewSection}>
@@ -279,10 +276,6 @@ function RecommendView({
             ))}
           </div>
         </section>
-      )}
-
-      {recommendations.length === 0 && recent.length === 0 && (
-        <div className={styles.emptyState}>練習アイテムがありません</div>
       )}
     </div>
   )
@@ -412,111 +405,18 @@ function GroupView({
 }
 
 // ────────────────────────────────────────────────────────────
-// View 3: すべて（フィルタ + ソート）
-// ────────────────────────────────────────────────────────────
-
-function AllView({
-  items, filterOptions, currentFilters, userId, category,
-}: {
-  items: PracticeItemDTO[]
-  filterOptions: Props["filterOptions"]
-  currentFilters: Props["currentFilters"]
-  userId: string
-  category: string
-}) {
-  const router = useRouter()
-  const [search, setSearch] = useState("")
-  const [sortBy, setSortBy] = useState<SortType>("recommend")
-
-  const handleFilterChange = (key: string, value: string) => {
-    const params = new URLSearchParams()
-    const newFilters = { ...currentFilters, [key]: value }
-    for (const [k, v] of Object.entries(newFilters)) {
-      if (v) params.set(k, v)
-    }
-    router.push(`/${userId}/practice/${category}?${params.toString()}`)
-  }
-
-  let filtered = search.trim()
-    ? items.filter((i) => i.title.includes(search) || (i.composer ?? "").includes(search))
-    : items
-
-  // ソート
-  if (sortBy === "practices") {
-    filtered = [...filtered].sort((a, b) => b.totalPractices - a.totalPractices)
-  }
-
-  return (
-    <div>
-      {/* Search */}
-      <input
-        className={styles.searchInput}
-        placeholder="タイトルで検索…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-
-      {/* Filters + Sort */}
-      <div className={styles.filters} data-onboarding="categoryList.filters">
-        <select
-          className={styles.filterSelect}
-          value={currentFilters.key || ""}
-          onChange={(e) => handleFilterChange("key", e.target.value)}
-        >
-          <option value="">調: 全て</option>
-          {filterOptions.keys.map((k) => {
-            const [tonic, mode] = k.split("_")
-            return <option key={k} value={k}>{tonicToJa(tonic)}{modeToJa(mode)}</option>
-          })}
-        </select>
-
-        {filterOptions.positions.length > 0 && (
-          <select
-            className={styles.filterSelect}
-            value={currentFilters.position || ""}
-            onChange={(e) => handleFilterChange("position", e.target.value)}
-          >
-            <option value="">ポジション: 全て</option>
-            {filterOptions.positions.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
-        )}
-
-        <select
-          className={styles.filterSelect}
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as SortType)}
-        >
-          <option value="recommend">おすすめ順</option>
-          <option value="practices">演奏回数順</option>
-        </select>
-      </div>
-
-      {filtered.length === 0 && (
-        <div className={styles.emptyState}>該当する練習メニューがありません</div>
-      )}
-
-      <div className={styles.itemList} data-onboarding="categoryList.itemList">
-        {filtered.map((item) => (
-          <ItemCard key={item.id} item={item} userId={userId} category={category} />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ────────────────────────────────────────────────────────────
 // Main component
 // ────────────────────────────────────────────────────────────
 
 export default function PracticeList({
-  userId, category, categoryTitle, items, filterOptions, currentFilters, recommendations, stats,
+  userId, category, categoryTitle, items, filterOptions: _filterOptions, currentFilters: _currentFilters, recommendations, todayTaskLabel, stats,
 }: Props) {
+  void _filterOptions
+  void _currentFilters
   const searchParams = useSearchParams()
   const initialView: ViewType = (() => {
     const v = searchParams.get("view")
-    if (v === "recommend" || v === "group" || v === "all") return v
+    if (v === "recommend" || v === "group") return v
     return "recommend"
   })()
   const [activeView, setActiveView] = useState<ViewType>(initialView)
@@ -524,7 +424,7 @@ export default function PracticeList({
   // URL の ?view= が変化したら state を同期 (オンボーディングからのナビゲーション用)
   useEffect(() => {
     const v = searchParams.get("view")
-    if (v === "recommend" || v === "group" || v === "all") {
+    if (v === "recommend" || v === "group") {
       setActiveView(v)
     }
   }, [searchParams])
@@ -532,7 +432,6 @@ export default function PracticeList({
   const tabs: { key: ViewType; label: string }[] = [
     { key: "recommend", label: "おすすめ順" },
     { key: "group",     label: "グループ別" },
-    { key: "all",       label: "すべて" },
   ]
 
   return (
@@ -560,6 +459,7 @@ export default function PracticeList({
         <RecommendView
           items={items}
           recommendations={recommendations}
+          todayTaskLabel={todayTaskLabel}
           stats={stats}
           userId={userId}
           category={category}
@@ -567,15 +467,6 @@ export default function PracticeList({
       )}
       {activeView === "group" && (
         <GroupView items={items} userId={userId} category={category} />
-      )}
-      {activeView === "all" && (
-        <AllView
-          items={items}
-          filterOptions={filterOptions}
-          currentFilters={currentFilters}
-          userId={userId}
-          category={category}
-        />
       )}
 
       <OnboardingTrigger pageKey="categoryList" />
