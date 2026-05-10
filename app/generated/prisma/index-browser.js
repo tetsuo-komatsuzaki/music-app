@@ -156,6 +156,7 @@ exports.Prisma.ScoreScalarFieldEnum = {
   isShared: 'isShared',
   difficulty: 'difficulty',
   skillSubTaskTags: 'skillSubTaskTags',
+  ownerScope: 'ownerScope',
   createdAt: 'createdAt',
   deletedAt: 'deletedAt'
 };
@@ -180,6 +181,13 @@ exports.Prisma.PerformanceScalarFieldEnum = {
   overallScore: 'overallScore',
   evaluatedNotes: 'evaluatedNotes',
   analysisSummary: 'analysisSummary',
+  rhythmAccuracy: 'rhythmAccuracy',
+  bowingAccuracy: 'bowingAccuracy',
+  pitchSkillScore: 'pitchSkillScore',
+  rhythmSkillScore: 'rhythmSkillScore',
+  bowingSkillScore: 'bowingSkillScore',
+  skillSubScores: 'skillSubScores',
+  problematicPositions: 'problematicPositions',
   analysisStatus: 'analysisStatus',
   retryCount: 'retryCount',
   errorMessage: 'errorMessage',
@@ -253,6 +261,8 @@ exports.Prisma.PracticePerformanceScalarFieldEnum = {
   overallScore: 'overallScore',
   evaluatedNotes: 'evaluatedNotes',
   analysisSummary: 'analysisSummary',
+  rhythmAccuracy: 'rhythmAccuracy',
+  bowingAccuracy: 'bowingAccuracy',
   analysisStatus: 'analysisStatus',
   retryCount: 'retryCount',
   errorMessage: 'errorMessage',
@@ -346,12 +356,107 @@ exports.Prisma.UserGradeScalarFieldEnum = {
 exports.Prisma.PerformanceSkillFeedbackScalarFieldEnum = {
   id: 'id',
   practicePerformanceId: 'practicePerformanceId',
+  performanceId: 'performanceId',
   userId: 'userId',
   positionId: 'positionId',
   selectedSubTaskId: 'selectedSubTaskId',
   feedbackType: 'feedbackType',
   comment: 'comment',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.SongMasteryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  scoreId: 'scoreId',
+  recentAverageScore: 'recentAverageScore',
+  totalPerformanceCount: 'totalPerformanceCount',
+  isPerformanceMastered: 'isPerformanceMastered',
+  isFullyMastered: 'isFullyMastered',
+  performanceMasteredAt: 'performanceMasteredAt',
+  fullyMasteredAt: 'fullyMasteredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UserGradeProgressScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  currentStar: 'currentStar',
+  currentGrade: 'currentGrade',
+  masteredSongCountAtCurrentStar: 'masteredSongCountAtCurrentStar',
+  masterReachedAt: 'masterReachedAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SkillTaskCardScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  scoreId: 'scoreId',
+  taskCategory: 'taskCategory',
+  status: 'status',
+  generatedAt: 'generatedAt',
+  lastMatchedAt: 'lastMatchedAt',
+  clearedAt: 'clearedAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SubTaskScalarFieldEnum = {
+  id: 'id',
+  skillTaskCardId: 'skillTaskCardId',
+  subTaskType: 'subTaskType',
+  status: 'status',
+  generatedAt: 'generatedAt',
+  clearedAt: 'clearedAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SubTaskAssignmentScalarFieldEnum = {
+  id: 'id',
+  subTaskId: 'subTaskId',
+  practiceItemId: 'practiceItemId',
+  assignedCategory: 'assignedCategory',
+  isMastered: 'isMastered',
+  masteredAt: 'masteredAt',
+  assignedAt: 'assignedAt'
+};
+
+exports.Prisma.UserPracticeMasteryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  practiceItemId: 'practiceItemId',
+  recentAverageScore: 'recentAverageScore',
+  totalPerformanceCount: 'totalPerformanceCount',
+  isPerformanceMastered: 'isPerformanceMastered',
+  masteredAt: 'masteredAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UserTechniqueMasteryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  techniqueTagId: 'techniqueTagId',
+  isMastered: 'isMastered',
+  masteredAt: 'masteredAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PracticeItemSubTaskTagScalarFieldEnum = {
+  practiceItemId: 'practiceItemId',
+  subTaskType: 'subTaskType'
+};
+
+exports.Prisma.MissingPracticeItemFlagScalarFieldEnum = {
+  id: 'id',
+  scoreId: 'scoreId',
+  subTaskType: 'subTaskType',
+  missingCategory: 'missingCategory',
+  keyTonic: 'keyTonic',
+  keyMode: 'keyMode',
+  star: 'star',
+  techniqueTagId: 'techniqueTagId',
+  detectedAt: 'detectedAt',
+  resolvedAt: 'resolvedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -432,6 +537,18 @@ exports.GradeLevel = exports.$Enums.GradeLevel = {
   MASTER: 'MASTER'
 };
 
+exports.TaskCategory = exports.$Enums.TaskCategory = {
+  PITCH: 'PITCH',
+  RHYTHM: 'RHYTHM',
+  BOWING: 'BOWING'
+};
+
+exports.AssignedCategory = exports.$Enums.AssignedCategory = {
+  SCALE: 'SCALE',
+  ARPEGGIO: 'ARPEGGIO',
+  ETUDE: 'ETUDE'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Score: 'Score',
@@ -447,7 +564,16 @@ exports.Prisma.ModelName = {
   UserSkillSubScore: 'UserSkillSubScore',
   UserSkillTaskCard: 'UserSkillTaskCard',
   UserGrade: 'UserGrade',
-  PerformanceSkillFeedback: 'PerformanceSkillFeedback'
+  PerformanceSkillFeedback: 'PerformanceSkillFeedback',
+  SongMastery: 'SongMastery',
+  UserGradeProgress: 'UserGradeProgress',
+  SkillTaskCard: 'SkillTaskCard',
+  SubTask: 'SubTask',
+  SubTaskAssignment: 'SubTaskAssignment',
+  UserPracticeMastery: 'UserPracticeMastery',
+  UserTechniqueMastery: 'UserTechniqueMastery',
+  PracticeItemSubTaskTag: 'PracticeItemSubTaskTag',
+  MissingPracticeItemFlag: 'MissingPracticeItemFlag'
 };
 
 /**
