@@ -18,6 +18,10 @@ const ACHIEVEMENT_ARPEGGIO_PRACTICE_THRESHOLD = 10
 const ACHIEVEMENT_ETUDE_RECENT_AVG_THRESHOLD = 85
 const ACHIEVEMENT_ETUDE_RECENT_WINDOW = 5
 
+// 難易度マスター判定 (2026-05-10): 直近 5 回の overallScore 平均が 90 点以上でその難易度をマスターとみなす
+const DIFFICULTY_MASTERY_THRESHOLD = 90
+const DIFFICULTY_MASTERY_WINDOW = 5
+
 export const metadata = { title: "成長記録" }
 
 type PageProps = {
@@ -200,32 +204,86 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
   }
 
   // ─────────────────────────────────────────────────────────
-  // カード拡張データ計算: 中項目→難易度グルーピング + 達成基準 (Q3:D)
-  //   - cardDifficulty: 「最後にこの sub_task が target>0 だった演奏」の practiceItem.difficulty
-  //   - 推薦 scale/arpeggio/etude (top1, 同 difficulty + sub_task tag)
-  //   - 練習回数 + etude 直近 5 回サブタスクスコア平均
-  //   - 達成基準: 音階 ≥10回 AND アルペジオ ≥10回 AND エチュード直近5平均 ≥85
+  // 難易度マスター判定 (2026-05-10):
+  //   ユーザーのグレード難易度範囲内で、各 difficulty について直近 5 回の
+  //   PracticePerformance.overallScore 平均が 90 点以上 → その難易度はマスター済み
+  //   currentTargetDifficulty = グレード範囲内でマスターしていない最低難易度
   // ─────────────────────────────────────────────────────────
-  type SubScoreEntry = { score?: number; matched?: boolean; target_count?: number }
   const grade: GradeLevel = (userGrade?.currentGrade as GradeLevel | undefined) ?? "BEGINNER"
-  const [gradeMinDiff] = GRADE_DIFFICULTY_RANGE[grade]
+  const [gradeMinDiff, gradeMaxDiff] = GRADE_DIFFICULTY_RANGE[grade]
 
-  // (1) sub_task ごとに「最近この sub_task に target を持った演奏」のうち最新の難易度
-  const subTaskDifficulty: Partial<Record<SubTaskId, number>> = {}
-  for (const p of practiceDetails) {
-    const diff = p.practiceItem?.difficulty
-    if (diff == null) continue
-    const subScores = (p.skillSubScores ?? {}) as Record<string, SubScoreEntry>
-    for (const subId of SUB_TASK_IDS) {
-      if (subTaskDifficulty[subId] != null) continue
-      const sub = subScores[subId]
-      if (sub?.target_count && sub.target_count > 0) {
-        subTaskDifficulty[subId] = diff
-      }
+  const masteryPerfs = await prisma.practicePerformance.findMany({
+    where: {
+      userId: internalUserId,
+      analysisStatus: "done",
+      overallScore: { not: null },
+      practiceItem: { difficulty: { gte: gradeMinDiff, lte: gradeMaxDiff } },
+    },
+    orderBy: { uploadedAt: "desc" },
+    select: {
+      overallScore: true,
+      practiceItem: { select: { difficulty: true } },
+    },
+  })
+
+  const recentScoresByDifficulty: Record<number, number[]> = {}
+  for (const p of masteryPerfs) {
+    const d = p.practiceItem.difficulty
+    if (d == null || p.overallScore == null) continue
+    if (!recentScoresByDifficulty[d]) recentScoresByDifficulty[d] = []
+    if (recentScoresByDifficulty[d].length < DIFFICULTY_MASTERY_WINDOW) {
+      recentScoresByDifficulty[d].push(p.overallScore)
+    }
+  }
+  const masteredSet = new Set<number>()
+  for (const [dStr, scores] of Object.entries(recentScoresByDifficulty)) {
+    if (scores.length < DIFFICULTY_MASTERY_WINDOW) continue
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length
+    if (avg >= DIFFICULTY_MASTERY_THRESHOLD) masteredSet.add(parseInt(dStr, 10))
+  }
+
+  let currentTargetDifficulty: number | null = null
+  for (let d = gradeMinDiff; d <= gradeMaxDiff; d++) {
+    if (!masteredSet.has(d)) {
+      currentTargetDifficulty = d
+      break
     }
   }
 
-  // (2) sub_task カードに対する augmentation を並列計算
+  // 現在難易度の達成進捗: 直近 5 回の平均と回数
+  type MasteryProgress = {
+    perfCount: number
+    averageScore: number | null
+    threshold: number
+    window: number
+  }
+  let currentDifficultyProgress: MasteryProgress | null = null
+  if (currentTargetDifficulty != null) {
+    const scores = recentScoresByDifficulty[currentTargetDifficulty] ?? []
+    const avg =
+      scores.length > 0
+        ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10
+        : null
+    currentDifficultyProgress = {
+      perfCount: scores.length,
+      averageScore: avg,
+      threshold: DIFFICULTY_MASTERY_THRESHOLD,
+      window: DIFFICULTY_MASTERY_WINDOW,
+    }
+  }
+
+  // practiceDetails は既に Promise.all で取得済み (達成基準計算用に保持)
+  void practiceDetails
+  void SUB_TASK_IDS
+
+  // ─────────────────────────────────────────────────────────
+  // カード拡張データ計算: 全カードの cardDifficulty = currentTargetDifficulty
+  //   - 推薦 scale/arpeggio/etude (top1, currentTargetDifficulty + sub_task tag)
+  //   - 練習回数 + etude 直近 5 回サブタスクスコア平均
+  //   - 達成基準: 音階 ≥10回 AND アルペジオ ≥10回 AND エチュード直近5平均 ≥85
+  //   - currentTargetDifficulty が null (= グレード内全てマスター) の場合は空計算
+  // ─────────────────────────────────────────────────────────
+  type SubScoreEntry = { score?: number; matched?: boolean; target_count?: number }
   type CardAugmentation = {
     cardDifficulty: number
     recommendedScale: { id: string; title: string } | null
@@ -237,14 +295,16 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
     etudeRecentAvgScore: number | null
     achievementMet: boolean
   }
-  const augmentTargets = rawCards.filter(
-    c => c.cardType === "sub_task" && c.skillSubTaskId && c.status !== "cleared",
-  )
+  const augmentTargets = currentTargetDifficulty != null
+    ? rawCards.filter(
+        c => c.cardType === "sub_task" && c.skillSubTaskId && c.status !== "cleared",
+      )
+    : []
   const cardAugmentations: Record<string, CardAugmentation> = {}
   await Promise.all(
     augmentTargets.map(async card => {
       const subId = card.skillSubTaskId as SubTaskId
-      const cardDifficulty = subTaskDifficulty[subId] ?? gradeMinDiff
+      const cardDifficulty = currentTargetDifficulty as number
       const tagFilter = { skillSubTaskTags: { array_contains: subId } }
 
       const [scale, arpeggio, etude] = await Promise.all([
@@ -387,6 +447,9 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
       cards={cards}
       subScoresMap={subScoresMap}
       skillScoresMap={skillScoresMap}
+      currentGrade={grade}
+      currentTargetDifficulty={currentTargetDifficulty}
+      currentDifficultyProgress={currentDifficultyProgress}
     />
   )
 }

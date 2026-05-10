@@ -20,24 +20,42 @@ import SkillTaskCardItem, {
 import { TASK_IDS, TASK_NAMES, type TaskId } from "@/app/_libs/skillMaster"
 import styles from "./TasksSection.module.css"
 
+type MasteryProgress = {
+  perfCount: number
+  averageScore: number | null
+  threshold: number
+  window: number
+}
+
 type Props = {
   userId: string
   initialCards: SkillTaskCardData[]
   subScoresMap: Record<string, number | null>
   skillScoresMap: Record<string, number | null>
+  /** 現在のユーザーグレード (BEGINNER 等) */
+  currentGrade: string
+  /** グレード内でマスターしていない最低難易度。null = 全マスター済み */
+  currentTargetDifficulty: number | null
+  /** 現在難易度の達成進捗 (直近5回平均) */
+  currentDifficultyProgress: MasteryProgress | null
 }
 
-const EMPTY_MESSAGES: Record<
-  CardStatus,
-  { title: string; description: string }
-> = {
+// グレード ID → 表示名 (UI 設計書 v3.1 で日本語ラベルが定義される想定だが、
+// なければ英名そのまま)
+const GRADE_LABELS: Record<string, string> = {
+  BEGINNER: "ビギナー",
+  INTERMEDIATE: "中級",
+  ADVANCED: "上級",
+  PRE_PROFESSIONAL: "上級+",
+  PROFESSIONAL: "プロフェッショナル",
+}
+
+type VisibleStatus = "active" | "cleared"
+
+const EMPTY_MESSAGES: Record<VisibleStatus, { title: string; description: string }> = {
   active: {
     title: "気になる箇所はありません",
     description: "素晴らしい演奏です！次のチャレンジに進みましょう。",
-  },
-  improving: {
-    title: "改善傾向のカードはまだありません",
-    description: "練習を重ねると、改善傾向のカードがここに集まります。",
   },
   cleared: {
     title: "達成したカードはまだありません",
@@ -45,19 +63,13 @@ const EMPTY_MESSAGES: Record<
   },
 }
 
-// F6: status 別ソート (UI 設計書 v3.1 §7-7)
+// status 別ソート (active タブは createdAt 降順 / cleared タブは clearedAt 降順)
 function sortCards(
   cards: SkillTaskCardData[],
-  status: CardStatus,
+  status: VisibleStatus,
 ): SkillTaskCardData[] {
   const sorted = [...cards]
-  if (status === "improving") {
-    sorted.sort((a, b) => {
-      const ax = a.lastMatchedAt ?? "0000"
-      const bx = b.lastMatchedAt ?? "0000"
-      return bx.localeCompare(ax)
-    })
-  } else if (status === "cleared") {
+  if (status === "cleared") {
     sorted.sort((a, b) => {
       const ax = a.clearedAt ?? "0000"
       const bx = b.clearedAt ?? "0000"
@@ -145,9 +157,12 @@ export default function TasksSection({
   initialCards,
   subScoresMap,
   skillScoresMap,
+  currentGrade,
+  currentTargetDifficulty,
+  currentDifficultyProgress,
 }: Props) {
   const [cards, setCards] = useState<SkillTaskCardData[]>(initialCards)
-  const [activeStatus, setActiveStatus] = useState<CardStatus>("active")
+  const [activeStatus, setActiveStatus] = useState<VisibleStatus>("active")
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
   const [toast, setToast] = useState<string | null>(null)
   const toastTimerRef = useRef<number | null>(null)
@@ -163,28 +178,37 @@ export default function TasksSection({
     }, 3000)
   }
 
+  // counts: active タブは active + improving を集約、cleared は cleared のみ
   const counts = useMemo<Record<CardStatus, number>>(() => {
-    const c: Record<CardStatus, number> = {
-      active: 0,
-      improving: 0,
-      cleared: 0,
-    }
+    const c: Record<CardStatus, number> = { active: 0, improving: 0, cleared: 0 }
     for (const card of cards) {
       c[card.status] = (c[card.status] ?? 0) + 1
     }
-    return c
+    // StatusTab 表示用に active = active + improving の合算値で上書き
+    return { ...c, active: c.active + c.improving }
   }, [cards])
 
-  const visibleCards = useMemo(
-    () =>
-      sortCards(
-        cards.filter(c => c.status === activeStatus),
-        activeStatus,
-      ),
-    [cards, activeStatus],
-  )
+  // active タブ: status in [active, improving] AND cardDifficulty == currentTargetDifficulty
+  // cleared タブ: status === cleared
+  const visibleCards = useMemo(() => {
+    if (activeStatus === "cleared") {
+      return sortCards(
+        cards.filter(c => c.status === "cleared"),
+        "cleared",
+      )
+    }
+    // active タブ
+    const filtered = cards.filter(c => {
+      if (c.status !== "active" && c.status !== "improving") return false
+      // currentTargetDifficulty フィルタ (null = 全マスター済みで何も表示しない)
+      if (currentTargetDifficulty == null) return false
+      // augmentation で cardDifficulty = currentTargetDifficulty に揃えてあるカードのみ
+      return c.cardDifficulty === currentTargetDifficulty
+    })
+    return sortCards(filtered, "active")
+  }, [cards, activeStatus, currentTargetDifficulty])
 
-  // active タブのみ中項目→難易度グルーピングを適用 (improving/cleared は従来通りフラット表示)
+  // active タブのみ中項目→難易度グルーピングを適用
   const groupedCards = useMemo(
     () =>
       activeStatus === "active"
@@ -229,14 +253,66 @@ export default function TasksSection({
     }
   }
 
-  const empty = EMPTY_MESSAGES[activeStatus]
+  // empty state 文言: active タブで "全マスター済み" の場合は専用文言
+  const empty = (() => {
+    if (activeStatus === "active" && currentTargetDifficulty == null) {
+      return {
+        title: "現在のグレードを習得しました 🎉",
+        description:
+          "現在のグレードのすべての難易度をマスターしました。次のグレードへ昇格中です。",
+      }
+    }
+    return EMPTY_MESSAGES[activeStatus]
+  })()
+
+  // 達成進捗テキスト
+  const progress = currentDifficultyProgress
+  const progressText = (() => {
+    if (currentTargetDifficulty == null) {
+      return "現在のグレードはすべての難易度をマスター済みです"
+    }
+    if (!progress || progress.perfCount === 0) {
+      return `直近 ${progress?.window ?? 5} 回の平均が ${
+        progress?.threshold ?? 90
+      } 点以上で次の難易度へ。まずは Lv.${currentTargetDifficulty} の曲を演奏してみましょう。`
+    }
+    const avgStr = progress.averageScore != null ? `${progress.averageScore}` : "—"
+    const remaining = Math.max(0, progress.window - progress.perfCount)
+    if (remaining > 0) {
+      return `直近 ${progress.perfCount}/${progress.window} 回の平均: ${avgStr} 点 (達成基準 ${progress.threshold} 点)。あと ${remaining} 回演奏してください。`
+    }
+    return `直近 ${progress.window} 回の平均: ${avgStr} 点 / 達成基準 ${progress.threshold} 点`
+  })()
+
+  const gradeLabel = GRADE_LABELS[currentGrade] ?? currentGrade
 
   return (
     <>
+      {/* ───── グレード + 現在難易度 + 達成状況ヘッダー ───── */}
+      <section className={styles.gradeHeader}>
+        <div className={styles.gradeHeaderTop}>
+          <div className={styles.gradeHeaderItem}>
+            <span className={styles.gradeHeaderLabel}>グレード</span>
+            <span className={styles.gradeHeaderValue}>{gradeLabel}</span>
+          </div>
+          <div className={styles.gradeHeaderItem}>
+            <span className={styles.gradeHeaderLabel}>現在の難易度</span>
+            <span className={styles.gradeHeaderValue}>
+              {currentTargetDifficulty != null ? `Lv.${currentTargetDifficulty}` : "—"}
+            </span>
+          </div>
+        </div>
+        <div className={styles.gradeHeaderProgress}>{progressText}</div>
+      </section>
+
       <StatusTab
         activeStatus={activeStatus}
         counts={counts}
-        onChange={setActiveStatus}
+        onChange={(s) => {
+          // StatusTab は CardStatus 型 (active|improving|cleared) を渡してくるが、
+          // 表示タブは active/cleared のみ。improving は無視 (タブが消えているので来ない想定)
+          if (s === "active" || s === "cleared") setActiveStatus(s)
+        }}
       />
 
       <div className={styles.cardList}>

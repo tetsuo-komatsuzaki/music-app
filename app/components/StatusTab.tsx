@@ -1,11 +1,10 @@
 // app/components/StatusTab.tsx
 //
-// UI 設計書 v3.1 §7-3 — マイページのカード一覧を 3 タブで切り替える。
+// 2026-05-10: 改善傾向タブを撤去し、active(改善傾向含む)/cleared の 2 タブ構成に変更。
 //
 // タブ:
-//   - active    「気になる箇所」
-//   - improving 「改善傾向」
-//   - cleared   「達成」
+//   - active  「気になる箇所」(DB の active + improving を集約)
+//   - cleared 「達成」
 //
 // 各タブにバッジ件数を表示。アクティブタブは強調表示。
 
@@ -15,9 +14,8 @@ import styles from "./StatusTab.module.css"
 
 export type CardStatus = "active" | "improving" | "cleared"
 
-const TAB_DEFS: { id: CardStatus; label: string }[] = [
+const TAB_DEFS: { id: Exclude<CardStatus, "improving">; label: string }[] = [
   { id: "active", label: "気になる箇所" },
-  { id: "improving", label: "改善傾向" },
   { id: "cleared", label: "達成" },
 ]
 

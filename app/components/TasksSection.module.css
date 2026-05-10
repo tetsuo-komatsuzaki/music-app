@@ -1,5 +1,52 @@
 /* TasksSection.module.css — マイページ→成長記録 タブ移設用 */
 
+/* グレード + 現在難易度 + 達成状況ヘッダー (StatusTab 上に常時表示) */
+.gradeHeader {
+  background: linear-gradient(135deg, #f0f7ff 0%, #fdf8e7 100%);
+  border: 1px solid #dce7f5;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gradeHeaderTop {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.gradeHeaderItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gradeHeaderLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4f6b91;
+  letter-spacing: 0.04em;
+}
+
+.gradeHeaderValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2d2d2d;
+}
+
+.gradeHeaderProgress {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.6;
+  background: rgba(255, 255, 255, 0.7);
+  border: 0.5px solid #e5edf7;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
 .cardList {
   display: flex;
   flex-direction: column;
