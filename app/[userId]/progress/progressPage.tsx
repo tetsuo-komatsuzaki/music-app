@@ -15,6 +15,8 @@ type Props = {
   cards:           SkillTaskCardData[]
   subScoresMap:    Record<string, number | null>
   skillScoresMap:  Record<string, number | null>
+  /** ユーザーグレード内でマスターしていない最低難易度。null = グレード内全てマスター済み */
+  currentTargetDifficulty: number | null
 }
 
 // ─── タブ定義 ─────────────────────────────────────────────────
@@ -36,6 +38,7 @@ export default function ProgressPage({
   cards,
   subScoresMap,
   skillScoresMap,
+  currentTargetDifficulty,
 }: Props) {
   const params = useParams()
   // route の userId を優先 (props の userId はサーバ側から渡された supabaseUserId)
@@ -182,6 +185,7 @@ export default function ProgressPage({
             initialCards={cards}
             subScoresMap={subScoresMap}
             skillScoresMap={skillScoresMap}
+            currentTargetDifficulty={currentTargetDifficulty}
           />
         </div>
       )}

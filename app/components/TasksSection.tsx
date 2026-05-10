@@ -25,19 +25,16 @@ type Props = {
   initialCards: SkillTaskCardData[]
   subScoresMap: Record<string, number | null>
   skillScoresMap: Record<string, number | null>
+  /** グレード内でマスターしていない最低難易度。null = 全マスター済み */
+  currentTargetDifficulty: number | null
 }
 
-const EMPTY_MESSAGES: Record<
-  CardStatus,
-  { title: string; description: string }
-> = {
+type VisibleStatus = "active" | "cleared"
+
+const EMPTY_MESSAGES: Record<VisibleStatus, { title: string; description: string }> = {
   active: {
     title: "気になる箇所はありません",
     description: "素晴らしい演奏です！次のチャレンジに進みましょう。",
-  },
-  improving: {
-    title: "改善傾向のカードはまだありません",
-    description: "練習を重ねると、改善傾向のカードがここに集まります。",
   },
   cleared: {
     title: "達成したカードはまだありません",
@@ -45,19 +42,13 @@ const EMPTY_MESSAGES: Record<
   },
 }
 
-// F6: status 別ソート (UI 設計書 v3.1 §7-7)
+// status 別ソート (active タブは createdAt 降順 / cleared タブは clearedAt 降順)
 function sortCards(
   cards: SkillTaskCardData[],
-  status: CardStatus,
+  status: VisibleStatus,
 ): SkillTaskCardData[] {
   const sorted = [...cards]
-  if (status === "improving") {
-    sorted.sort((a, b) => {
-      const ax = a.lastMatchedAt ?? "0000"
-      const bx = b.lastMatchedAt ?? "0000"
-      return bx.localeCompare(ax)
-    })
-  } else if (status === "cleared") {
+  if (status === "cleared") {
     sorted.sort((a, b) => {
       const ax = a.clearedAt ?? "0000"
       const bx = b.clearedAt ?? "0000"
@@ -145,9 +136,10 @@ export default function TasksSection({
   initialCards,
   subScoresMap,
   skillScoresMap,
+  currentTargetDifficulty,
 }: Props) {
   const [cards, setCards] = useState<SkillTaskCardData[]>(initialCards)
-  const [activeStatus, setActiveStatus] = useState<CardStatus>("active")
+  const [activeStatus, setActiveStatus] = useState<VisibleStatus>("active")
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
   const [toast, setToast] = useState<string | null>(null)
   const toastTimerRef = useRef<number | null>(null)
@@ -163,28 +155,37 @@ export default function TasksSection({
     }, 3000)
   }
 
+  // counts: active タブは active + improving を集約、cleared は cleared のみ
   const counts = useMemo<Record<CardStatus, number>>(() => {
-    const c: Record<CardStatus, number> = {
-      active: 0,
-      improving: 0,
-      cleared: 0,
-    }
+    const c: Record<CardStatus, number> = { active: 0, improving: 0, cleared: 0 }
     for (const card of cards) {
       c[card.status] = (c[card.status] ?? 0) + 1
     }
-    return c
+    // StatusTab 表示用に active = active + improving の合算値で上書き
+    return { ...c, active: c.active + c.improving }
   }, [cards])
 
-  const visibleCards = useMemo(
-    () =>
-      sortCards(
-        cards.filter(c => c.status === activeStatus),
-        activeStatus,
-      ),
-    [cards, activeStatus],
-  )
+  // active タブ: status in [active, improving] AND cardDifficulty == currentTargetDifficulty
+  // cleared タブ: status === cleared
+  const visibleCards = useMemo(() => {
+    if (activeStatus === "cleared") {
+      return sortCards(
+        cards.filter(c => c.status === "cleared"),
+        "cleared",
+      )
+    }
+    // active タブ
+    const filtered = cards.filter(c => {
+      if (c.status !== "active" && c.status !== "improving") return false
+      // currentTargetDifficulty フィルタ (null = 全マスター済みで何も表示しない)
+      if (currentTargetDifficulty == null) return false
+      // augmentation で cardDifficulty = currentTargetDifficulty に揃えてあるカードのみ
+      return c.cardDifficulty === currentTargetDifficulty
+    })
+    return sortCards(filtered, "active")
+  }, [cards, activeStatus, currentTargetDifficulty])
 
-  // active タブのみ中項目→難易度グルーピングを適用 (improving/cleared は従来通りフラット表示)
+  // active タブのみ中項目→難易度グルーピングを適用
   const groupedCards = useMemo(
     () =>
       activeStatus === "active"
@@ -229,14 +230,28 @@ export default function TasksSection({
     }
   }
 
-  const empty = EMPTY_MESSAGES[activeStatus]
+  // empty state 文言: active タブで "全マスター済み" の場合は専用文言
+  const empty = (() => {
+    if (activeStatus === "active" && currentTargetDifficulty == null) {
+      return {
+        title: "現在のグレードを習得しました 🎉",
+        description:
+          "現在のグレードのすべての難易度をマスターしました。次のグレードへ昇格中です。",
+      }
+    }
+    return EMPTY_MESSAGES[activeStatus]
+  })()
 
   return (
     <>
       <StatusTab
         activeStatus={activeStatus}
         counts={counts}
-        onChange={setActiveStatus}
+        onChange={(s) => {
+          // StatusTab は CardStatus 型 (active|improving|cleared) を渡してくるが、
+          // 表示タブは active/cleared のみ。improving は無視 (タブが消えているので来ない想定)
+          if (s === "active" || s === "cleared") setActiveStatus(s)
+        }}
       />
 
       <div className={styles.cardList}>
