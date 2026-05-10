@@ -1,9 +1,10 @@
 "use server"
 
-// 既存の PracticeItem の loop engine 必須項目 (difficulty / skillSubTaskTags) を
+// 既存の PracticeItem の loop engine 必須項目 (star / skillSubTaskTags) を
 // admin が編集するためのサーバアクション。
 //
 // アップロード時には uploadPracticeItem.ts、既存 item の編集は本 action を使う。
+// v1.3: DB カラム difficulty → star にリネーム済み。payload キー名 "difficulty" は UI 互換のため維持。
 
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
@@ -58,7 +59,7 @@ export async function updatePracticeItemTags(
   await prisma.practiceItem.update({
     where: { id: itemId },
     data: {
-      difficulty: payload.difficulty,
+      star: payload.difficulty, // payload は UI 由来 (difficulty キー)、DB は star
       skillSubTaskTags: cleanedTags as Prisma.InputJsonValue,
     },
   })

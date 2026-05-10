@@ -77,10 +77,10 @@ model Score {
   defaultTempo     Int?
   isShared         Boolean   @default(false) // true=全ユーザー閲覧可のサンプル
 
-  // ループエンジン用フィールド (2026-05-10 追加)
+  // ループエンジン用フィールド (2026-05-10 追加 / v1.3 で difficulty → star リネーム)
   // 「次のチャレンジ」レコメンドで Score も対象とするため、
   // PracticeItem と同形のメタデータを Score にも持たせる。
-  difficulty       Int? // 1〜10、グレード範囲フィルタ用
+  star             Int? // 1〜10、グレード範囲フィルタ用 (旧名 difficulty)
   skillSubTaskTags Json? // sub_task ID 配列、レコメンド対象判定用
 
   // ▼ v1.3 上達ループエンジン拡張 (R4 = D 確定)
@@ -222,8 +222,8 @@ model PracticeItem {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // ▼ v3.2.2 上達ループエンジン (Commit 1、致命1: difficulty は Commit 1.5 で backfill)
-  difficulty       Int? // 1〜10、Commit 1.5 で backfill 後は NOT NULL 化検討
+  // ▼ v3.2.2 上達ループエンジン (Commit 1、致命1: star は Commit 1.5 で backfill / v1.3 で difficulty → star)
+  star             Int? // 1〜10、Commit 1.5 で backfill 後は NOT NULL 化検討 (旧名 difficulty)
   skillSubTaskTags Json? // 9 sub task のタグ配列 (例: ["pitch_overall", "string_change_volume"])
   // C7: PracticeItemTechnique とは独立した別系統 (Commit 8 で初期付与)
 
@@ -238,7 +238,7 @@ model PracticeItem {
   @@index([category, keyTonic, keyMode])
   @@index([category, isPublished, sortOrder])
   @@index([ownerUserId])
-  @@index([category, difficulty]) // v3.2.2: 教材レコメンド用 (Commit 4)
+  @@index([category, star]) // v3.2.2: 教材レコメンド用 (Commit 4) / v1.3: difficulty → star rename
 }
 
 model TechniqueTag {

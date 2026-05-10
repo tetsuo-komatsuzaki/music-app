@@ -5144,7 +5144,7 @@ export namespace Prisma {
     timeNumerator: number | null
     timeDenominator: number | null
     defaultTempo: number | null
-    difficulty: number | null
+    star: number | null
   }
 
   export type ScoreSumAggregateOutputType = {
@@ -5152,7 +5152,7 @@ export namespace Prisma {
     timeNumerator: number | null
     timeDenominator: number | null
     defaultTempo: number | null
-    difficulty: number | null
+    star: number | null
   }
 
   export type ScoreMinAggregateOutputType = {
@@ -5176,7 +5176,7 @@ export namespace Prisma {
     timeDenominator: number | null
     defaultTempo: number | null
     isShared: boolean | null
-    difficulty: number | null
+    star: number | null
     ownerScope: string | null
     createdAt: Date | null
     deletedAt: Date | null
@@ -5203,7 +5203,7 @@ export namespace Prisma {
     timeDenominator: number | null
     defaultTempo: number | null
     isShared: boolean | null
-    difficulty: number | null
+    star: number | null
     ownerScope: string | null
     createdAt: Date | null
     deletedAt: Date | null
@@ -5230,7 +5230,7 @@ export namespace Prisma {
     timeDenominator: number
     defaultTempo: number
     isShared: number
-    difficulty: number
+    star: number
     skillSubTaskTags: number
     ownerScope: number
     createdAt: number
@@ -5244,7 +5244,7 @@ export namespace Prisma {
     timeNumerator?: true
     timeDenominator?: true
     defaultTempo?: true
-    difficulty?: true
+    star?: true
   }
 
   export type ScoreSumAggregateInputType = {
@@ -5252,7 +5252,7 @@ export namespace Prisma {
     timeNumerator?: true
     timeDenominator?: true
     defaultTempo?: true
-    difficulty?: true
+    star?: true
   }
 
   export type ScoreMinAggregateInputType = {
@@ -5276,7 +5276,7 @@ export namespace Prisma {
     timeDenominator?: true
     defaultTempo?: true
     isShared?: true
-    difficulty?: true
+    star?: true
     ownerScope?: true
     createdAt?: true
     deletedAt?: true
@@ -5303,7 +5303,7 @@ export namespace Prisma {
     timeDenominator?: true
     defaultTempo?: true
     isShared?: true
-    difficulty?: true
+    star?: true
     ownerScope?: true
     createdAt?: true
     deletedAt?: true
@@ -5330,7 +5330,7 @@ export namespace Prisma {
     timeDenominator?: true
     defaultTempo?: true
     isShared?: true
-    difficulty?: true
+    star?: true
     skillSubTaskTags?: true
     ownerScope?: true
     createdAt?: true
@@ -5445,7 +5445,7 @@ export namespace Prisma {
     timeDenominator: number | null
     defaultTempo: number | null
     isShared: boolean
-    difficulty: number | null
+    star: number | null
     skillSubTaskTags: JsonValue | null
     ownerScope: string
     createdAt: Date
@@ -5492,7 +5492,7 @@ export namespace Prisma {
     timeDenominator?: boolean
     defaultTempo?: boolean
     isShared?: boolean
-    difficulty?: boolean
+    star?: boolean
     skillSubTaskTags?: boolean
     ownerScope?: boolean
     createdAt?: boolean
@@ -5526,7 +5526,7 @@ export namespace Prisma {
     timeDenominator?: boolean
     defaultTempo?: boolean
     isShared?: boolean
-    difficulty?: boolean
+    star?: boolean
     skillSubTaskTags?: boolean
     ownerScope?: boolean
     createdAt?: boolean
@@ -5555,7 +5555,7 @@ export namespace Prisma {
     timeDenominator?: boolean
     defaultTempo?: boolean
     isShared?: boolean
-    difficulty?: boolean
+    star?: boolean
     skillSubTaskTags?: boolean
     ownerScope?: boolean
     createdAt?: boolean
@@ -5584,14 +5584,14 @@ export namespace Prisma {
     timeDenominator?: boolean
     defaultTempo?: boolean
     isShared?: boolean
-    difficulty?: boolean
+    star?: boolean
     skillSubTaskTags?: boolean
     ownerScope?: boolean
     createdAt?: boolean
     deletedAt?: boolean
   }
 
-  export type ScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdById" | "title" | "composer" | "arranger" | "originalXmlPath" | "generatedXmlPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "keyTonic" | "keyMode" | "timeNumerator" | "timeDenominator" | "defaultTempo" | "isShared" | "difficulty" | "skillSubTaskTags" | "ownerScope" | "createdAt" | "deletedAt", ExtArgs["result"]["score"]>
+  export type ScoreOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdById" | "title" | "composer" | "arranger" | "originalXmlPath" | "generatedXmlPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "keyTonic" | "keyMode" | "timeNumerator" | "timeDenominator" | "defaultTempo" | "isShared" | "star" | "skillSubTaskTags" | "ownerScope" | "createdAt" | "deletedAt", ExtArgs["result"]["score"]>
   export type ScoreInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     performances?: boolean | Score$performancesArgs<ExtArgs>
     songMasteries?: boolean | Score$songMasteriesArgs<ExtArgs>
@@ -5637,7 +5637,7 @@ export namespace Prisma {
       timeDenominator: number | null
       defaultTempo: number | null
       isShared: boolean
-      difficulty: number | null
+      star: number | null
       skillSubTaskTags: Prisma.JsonValue | null
       ownerScope: string
       createdAt: Date
@@ -6090,7 +6090,7 @@ export namespace Prisma {
     readonly timeDenominator: FieldRef<"Score", 'Int'>
     readonly defaultTempo: FieldRef<"Score", 'Int'>
     readonly isShared: FieldRef<"Score", 'Boolean'>
-    readonly difficulty: FieldRef<"Score", 'Int'>
+    readonly star: FieldRef<"Score", 'Int'>
     readonly skillSubTaskTags: FieldRef<"Score", 'Json'>
     readonly ownerScope: FieldRef<"Score", 'String'>
     readonly createdAt: FieldRef<"Score", 'DateTime'>
@@ -8131,7 +8131,7 @@ export namespace Prisma {
     tempoMax: number | null
     retryCount: number | null
     sortOrder: number | null
-    difficulty: number | null
+    star: number | null
   }
 
   export type PracticeItemSumAggregateOutputType = {
@@ -8139,7 +8139,7 @@ export namespace Prisma {
     tempoMax: number | null
     retryCount: number | null
     sortOrder: number | null
-    difficulty: number | null
+    star: number | null
   }
 
   export type PracticeItemMinAggregateOutputType = {
@@ -8170,7 +8170,7 @@ export namespace Prisma {
     isPublished: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
-    difficulty: number | null
+    star: number | null
   }
 
   export type PracticeItemMaxAggregateOutputType = {
@@ -8201,7 +8201,7 @@ export namespace Prisma {
     isPublished: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
-    difficulty: number | null
+    star: number | null
   }
 
   export type PracticeItemCountAggregateOutputType = {
@@ -8234,7 +8234,7 @@ export namespace Prisma {
     metadata: number
     createdAt: number
     updatedAt: number
-    difficulty: number
+    star: number
     skillSubTaskTags: number
     _all: number
   }
@@ -8245,7 +8245,7 @@ export namespace Prisma {
     tempoMax?: true
     retryCount?: true
     sortOrder?: true
-    difficulty?: true
+    star?: true
   }
 
   export type PracticeItemSumAggregateInputType = {
@@ -8253,7 +8253,7 @@ export namespace Prisma {
     tempoMax?: true
     retryCount?: true
     sortOrder?: true
-    difficulty?: true
+    star?: true
   }
 
   export type PracticeItemMinAggregateInputType = {
@@ -8284,7 +8284,7 @@ export namespace Prisma {
     isPublished?: true
     createdAt?: true
     updatedAt?: true
-    difficulty?: true
+    star?: true
   }
 
   export type PracticeItemMaxAggregateInputType = {
@@ -8315,7 +8315,7 @@ export namespace Prisma {
     isPublished?: true
     createdAt?: true
     updatedAt?: true
-    difficulty?: true
+    star?: true
   }
 
   export type PracticeItemCountAggregateInputType = {
@@ -8348,7 +8348,7 @@ export namespace Prisma {
     metadata?: true
     createdAt?: true
     updatedAt?: true
-    difficulty?: true
+    star?: true
     skillSubTaskTags?: true
     _all?: true
   }
@@ -8469,7 +8469,7 @@ export namespace Prisma {
     metadata: JsonValue | null
     createdAt: Date
     updatedAt: Date
-    difficulty: number | null
+    star: number | null
     skillSubTaskTags: JsonValue | null
     _count: PracticeItemCountAggregateOutputType | null
     _avg: PracticeItemAvgAggregateOutputType | null
@@ -8522,7 +8522,7 @@ export namespace Prisma {
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    difficulty?: boolean
+    star?: boolean
     skillSubTaskTags?: boolean
     owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
     techniques?: boolean | PracticeItem$techniquesArgs<ExtArgs>
@@ -8563,7 +8563,7 @@ export namespace Prisma {
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    difficulty?: boolean
+    star?: boolean
     skillSubTaskTags?: boolean
     owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
   }, ExtArgs["result"]["practiceItem"]>
@@ -8598,7 +8598,7 @@ export namespace Prisma {
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    difficulty?: boolean
+    star?: boolean
     skillSubTaskTags?: boolean
     owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
   }, ExtArgs["result"]["practiceItem"]>
@@ -8633,11 +8633,11 @@ export namespace Prisma {
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    difficulty?: boolean
+    star?: boolean
     skillSubTaskTags?: boolean
   }
 
-  export type PracticeItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "category" | "title" | "composer" | "description" | "descriptionShort" | "keyTonic" | "keyMode" | "tempoMin" | "tempoMax" | "positions" | "instrument" | "originalXmlPath" | "generatedXmlPath" | "analysisPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "ownerUserId" | "source" | "sortOrder" | "isPublished" | "metadata" | "createdAt" | "updatedAt" | "difficulty" | "skillSubTaskTags", ExtArgs["result"]["practiceItem"]>
+  export type PracticeItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "category" | "title" | "composer" | "description" | "descriptionShort" | "keyTonic" | "keyMode" | "tempoMin" | "tempoMax" | "positions" | "instrument" | "originalXmlPath" | "generatedXmlPath" | "analysisPath" | "analysisStatus" | "buildStatus" | "retryCount" | "errorMessage" | "lastAttemptedAt" | "executionId" | "idempotencyKey" | "ownerUserId" | "source" | "sortOrder" | "isPublished" | "metadata" | "createdAt" | "updatedAt" | "star" | "skillSubTaskTags", ExtArgs["result"]["practiceItem"]>
   export type PracticeItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     owner?: boolean | PracticeItem$ownerArgs<ExtArgs>
     techniques?: boolean | PracticeItem$techniquesArgs<ExtArgs>
@@ -8694,7 +8694,7 @@ export namespace Prisma {
       metadata: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
-      difficulty: number | null
+      star: number | null
       skillSubTaskTags: Prisma.JsonValue | null
     }, ExtArgs["result"]["practiceItem"]>
     composites: {}
@@ -9154,7 +9154,7 @@ export namespace Prisma {
     readonly metadata: FieldRef<"PracticeItem", 'Json'>
     readonly createdAt: FieldRef<"PracticeItem", 'DateTime'>
     readonly updatedAt: FieldRef<"PracticeItem", 'DateTime'>
-    readonly difficulty: FieldRef<"PracticeItem", 'Int'>
+    readonly star: FieldRef<"PracticeItem", 'Int'>
     readonly skillSubTaskTags: FieldRef<"PracticeItem", 'Json'>
   }
     
@@ -32563,7 +32563,7 @@ export namespace Prisma {
     timeDenominator: 'timeDenominator',
     defaultTempo: 'defaultTempo',
     isShared: 'isShared',
-    difficulty: 'difficulty',
+    star: 'star',
     skillSubTaskTags: 'skillSubTaskTags',
     ownerScope: 'ownerScope',
     createdAt: 'createdAt',
@@ -32641,7 +32641,7 @@ export namespace Prisma {
     metadata: 'metadata',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
-    difficulty: 'difficulty',
+    star: 'star',
     skillSubTaskTags: 'skillSubTaskTags'
   };
 
@@ -33362,7 +33362,7 @@ export namespace Prisma {
     timeDenominator?: IntNullableFilter<"Score"> | number | null
     defaultTempo?: IntNullableFilter<"Score"> | number | null
     isShared?: BoolFilter<"Score"> | boolean
-    difficulty?: IntNullableFilter<"Score"> | number | null
+    star?: IntNullableFilter<"Score"> | number | null
     skillSubTaskTags?: JsonNullableFilter<"Score">
     ownerScope?: StringFilter<"Score"> | string
     createdAt?: DateTimeFilter<"Score"> | Date | string
@@ -33395,7 +33395,7 @@ export namespace Prisma {
     timeDenominator?: SortOrderInput | SortOrder
     defaultTempo?: SortOrderInput | SortOrder
     isShared?: SortOrder
-    difficulty?: SortOrderInput | SortOrder
+    star?: SortOrderInput | SortOrder
     skillSubTaskTags?: SortOrderInput | SortOrder
     ownerScope?: SortOrder
     createdAt?: SortOrder
@@ -33431,7 +33431,7 @@ export namespace Prisma {
     timeDenominator?: IntNullableFilter<"Score"> | number | null
     defaultTempo?: IntNullableFilter<"Score"> | number | null
     isShared?: BoolFilter<"Score"> | boolean
-    difficulty?: IntNullableFilter<"Score"> | number | null
+    star?: IntNullableFilter<"Score"> | number | null
     skillSubTaskTags?: JsonNullableFilter<"Score">
     ownerScope?: StringFilter<"Score"> | string
     createdAt?: DateTimeFilter<"Score"> | Date | string
@@ -33464,7 +33464,7 @@ export namespace Prisma {
     timeDenominator?: SortOrderInput | SortOrder
     defaultTempo?: SortOrderInput | SortOrder
     isShared?: SortOrder
-    difficulty?: SortOrderInput | SortOrder
+    star?: SortOrderInput | SortOrder
     skillSubTaskTags?: SortOrderInput | SortOrder
     ownerScope?: SortOrder
     createdAt?: SortOrder
@@ -33500,7 +33500,7 @@ export namespace Prisma {
     timeDenominator?: IntNullableWithAggregatesFilter<"Score"> | number | null
     defaultTempo?: IntNullableWithAggregatesFilter<"Score"> | number | null
     isShared?: BoolWithAggregatesFilter<"Score"> | boolean
-    difficulty?: IntNullableWithAggregatesFilter<"Score"> | number | null
+    star?: IntNullableWithAggregatesFilter<"Score"> | number | null
     skillSubTaskTags?: JsonNullableWithAggregatesFilter<"Score">
     ownerScope?: StringWithAggregatesFilter<"Score"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Score"> | Date | string
@@ -33738,7 +33738,7 @@ export namespace Prisma {
     metadata?: JsonNullableFilter<"PracticeItem">
     createdAt?: DateTimeFilter<"PracticeItem"> | Date | string
     updatedAt?: DateTimeFilter<"PracticeItem"> | Date | string
-    difficulty?: IntNullableFilter<"PracticeItem"> | number | null
+    star?: IntNullableFilter<"PracticeItem"> | number | null
     skillSubTaskTags?: JsonNullableFilter<"PracticeItem">
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     techniques?: PracticeItemTechniqueListRelationFilter
@@ -33778,7 +33778,7 @@ export namespace Prisma {
     metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    difficulty?: SortOrderInput | SortOrder
+    star?: SortOrderInput | SortOrder
     skillSubTaskTags?: SortOrderInput | SortOrder
     owner?: UserOrderByWithRelationInput
     techniques?: PracticeItemTechniqueOrderByRelationAggregateInput
@@ -33821,7 +33821,7 @@ export namespace Prisma {
     metadata?: JsonNullableFilter<"PracticeItem">
     createdAt?: DateTimeFilter<"PracticeItem"> | Date | string
     updatedAt?: DateTimeFilter<"PracticeItem"> | Date | string
-    difficulty?: IntNullableFilter<"PracticeItem"> | number | null
+    star?: IntNullableFilter<"PracticeItem"> | number | null
     skillSubTaskTags?: JsonNullableFilter<"PracticeItem">
     owner?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     techniques?: PracticeItemTechniqueListRelationFilter
@@ -33861,7 +33861,7 @@ export namespace Prisma {
     metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    difficulty?: SortOrderInput | SortOrder
+    star?: SortOrderInput | SortOrder
     skillSubTaskTags?: SortOrderInput | SortOrder
     _count?: PracticeItemCountOrderByAggregateInput
     _avg?: PracticeItemAvgOrderByAggregateInput
@@ -33903,7 +33903,7 @@ export namespace Prisma {
     metadata?: JsonNullableWithAggregatesFilter<"PracticeItem">
     createdAt?: DateTimeWithAggregatesFilter<"PracticeItem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"PracticeItem"> | Date | string
-    difficulty?: IntNullableWithAggregatesFilter<"PracticeItem"> | number | null
+    star?: IntNullableWithAggregatesFilter<"PracticeItem"> | number | null
     skillSubTaskTags?: JsonNullableWithAggregatesFilter<"PracticeItem">
   }
 
@@ -35613,7 +35613,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -35646,7 +35646,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -35677,7 +35677,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35710,7 +35710,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35742,7 +35742,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -35769,7 +35769,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35797,7 +35797,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36080,7 +36080,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserCreateNestedOneWithoutPracticeItemsInput
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
@@ -36120,7 +36120,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
@@ -36158,7 +36158,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
@@ -36198,7 +36198,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
@@ -36237,7 +36237,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
   }
 
@@ -36270,7 +36270,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
   }
 
@@ -36304,7 +36304,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
   }
 
@@ -38347,7 +38347,7 @@ export namespace Prisma {
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
     isShared?: SortOrder
-    difficulty?: SortOrder
+    star?: SortOrder
     skillSubTaskTags?: SortOrder
     ownerScope?: SortOrder
     createdAt?: SortOrder
@@ -38359,7 +38359,7 @@ export namespace Prisma {
     timeNumerator?: SortOrder
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
-    difficulty?: SortOrder
+    star?: SortOrder
   }
 
   export type ScoreMaxOrderByAggregateInput = {
@@ -38383,7 +38383,7 @@ export namespace Prisma {
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
     isShared?: SortOrder
-    difficulty?: SortOrder
+    star?: SortOrder
     ownerScope?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrder
@@ -38410,7 +38410,7 @@ export namespace Prisma {
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
     isShared?: SortOrder
-    difficulty?: SortOrder
+    star?: SortOrder
     ownerScope?: SortOrder
     createdAt?: SortOrder
     deletedAt?: SortOrder
@@ -38421,7 +38421,7 @@ export namespace Prisma {
     timeNumerator?: SortOrder
     timeDenominator?: SortOrder
     defaultTempo?: SortOrder
-    difficulty?: SortOrder
+    star?: SortOrder
   }
 
   export type EnumJobStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -38765,7 +38765,7 @@ export namespace Prisma {
     metadata?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    difficulty?: SortOrder
+    star?: SortOrder
     skillSubTaskTags?: SortOrder
   }
 
@@ -38774,7 +38774,7 @@ export namespace Prisma {
     tempoMax?: SortOrder
     retryCount?: SortOrder
     sortOrder?: SortOrder
-    difficulty?: SortOrder
+    star?: SortOrder
   }
 
   export type PracticeItemMaxOrderByAggregateInput = {
@@ -38805,7 +38805,7 @@ export namespace Prisma {
     isPublished?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    difficulty?: SortOrder
+    star?: SortOrder
   }
 
   export type PracticeItemMinOrderByAggregateInput = {
@@ -38836,7 +38836,7 @@ export namespace Prisma {
     isPublished?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    difficulty?: SortOrder
+    star?: SortOrder
   }
 
   export type PracticeItemSumOrderByAggregateInput = {
@@ -38844,7 +38844,7 @@ export namespace Prisma {
     tempoMax?: SortOrder
     retryCount?: SortOrder
     sortOrder?: SortOrder
-    difficulty?: SortOrder
+    star?: SortOrder
   }
 
   export type EnumPracticeCategoryWithAggregatesFilter<$PrismaModel = never> = {
@@ -42474,7 +42474,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -42505,7 +42505,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -42555,7 +42555,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
@@ -42593,7 +42593,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
@@ -43160,7 +43160,7 @@ export namespace Prisma {
     timeDenominator?: IntNullableFilter<"Score"> | number | null
     defaultTempo?: IntNullableFilter<"Score"> | number | null
     isShared?: BoolFilter<"Score"> | boolean
-    difficulty?: IntNullableFilter<"Score"> | number | null
+    star?: IntNullableFilter<"Score"> | number | null
     skillSubTaskTags?: JsonNullableFilter<"Score">
     ownerScope?: StringFilter<"Score"> | string
     createdAt?: DateTimeFilter<"Score"> | Date | string
@@ -43216,7 +43216,7 @@ export namespace Prisma {
     metadata?: JsonNullableFilter<"PracticeItem">
     createdAt?: DateTimeFilter<"PracticeItem"> | Date | string
     updatedAt?: DateTimeFilter<"PracticeItem"> | Date | string
-    difficulty?: IntNullableFilter<"PracticeItem"> | number | null
+    star?: IntNullableFilter<"PracticeItem"> | number | null
     skillSubTaskTags?: JsonNullableFilter<"PracticeItem">
   }
 
@@ -44075,7 +44075,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -44107,7 +44107,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -44248,7 +44248,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -44280,7 +44280,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -44984,7 +44984,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserCreateNestedOneWithoutPracticeItemsInput
     practicePerformances?: PracticePerformanceCreateNestedManyWithoutPracticeItemInput
@@ -45023,7 +45023,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
     subTaskAssignments?: SubTaskAssignmentUncheckedCreateNestedManyWithoutPracticeItemInput
@@ -45109,7 +45109,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
@@ -45148,7 +45148,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
     subTaskAssignments?: SubTaskAssignmentUncheckedUpdateManyWithoutPracticeItemNestedInput
@@ -45287,7 +45287,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserCreateNestedOneWithoutPracticeItemsInput
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
@@ -45326,7 +45326,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
     subTaskAssignments?: SubTaskAssignmentUncheckedCreateNestedManyWithoutPracticeItemInput
@@ -45480,7 +45480,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
@@ -45519,7 +45519,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
     subTaskAssignments?: SubTaskAssignmentUncheckedUpdateManyWithoutPracticeItemNestedInput
@@ -47042,7 +47042,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -47074,7 +47074,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -47189,7 +47189,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -47221,7 +47221,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -47446,7 +47446,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -47478,7 +47478,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -47623,7 +47623,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -47655,7 +47655,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -47856,7 +47856,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserCreateNestedOneWithoutPracticeItemsInput
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
@@ -47895,7 +47895,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
@@ -47979,7 +47979,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
@@ -48018,7 +48018,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
@@ -48118,7 +48118,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserCreateNestedOneWithoutPracticeItemsInput
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
@@ -48157,7 +48157,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
@@ -48279,7 +48279,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
@@ -48318,7 +48318,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
@@ -48559,7 +48559,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserCreateNestedOneWithoutPracticeItemsInput
     techniques?: PracticeItemTechniqueCreateNestedManyWithoutPracticeItemInput
@@ -48598,7 +48598,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedCreateNestedManyWithoutPracticeItemInput
     practicePerformances?: PracticePerformanceUncheckedCreateNestedManyWithoutPracticeItemInput
@@ -48651,7 +48651,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     owner?: UserUpdateOneWithoutPracticeItemsNestedInput
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
@@ -48690,7 +48690,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
@@ -48718,7 +48718,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -48750,7 +48750,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -48829,7 +48829,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -48861,7 +48861,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -48964,7 +48964,7 @@ export namespace Prisma {
     timeDenominator?: number | null
     defaultTempo?: number | null
     isShared?: boolean
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: string
     createdAt?: Date | string
@@ -49000,7 +49000,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
-    difficulty?: number | null
+    star?: number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
   }
 
@@ -49271,7 +49271,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49302,7 +49302,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49333,7 +49333,7 @@ export namespace Prisma {
     timeDenominator?: NullableIntFieldUpdateOperationsInput | number | null
     defaultTempo?: NullableIntFieldUpdateOperationsInput | number | null
     isShared?: BoolFieldUpdateOperationsInput | boolean
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     ownerScope?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -49369,7 +49369,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUpdateManyWithoutPracticeItemNestedInput
@@ -49407,7 +49407,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
     techniques?: PracticeItemTechniqueUncheckedUpdateManyWithoutPracticeItemNestedInput
     practicePerformances?: PracticePerformanceUncheckedUpdateManyWithoutPracticeItemNestedInput
@@ -49445,7 +49445,7 @@ export namespace Prisma {
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    difficulty?: NullableIntFieldUpdateOperationsInput | number | null
+    star?: NullableIntFieldUpdateOperationsInput | number | null
     skillSubTaskTags?: NullableJsonNullValueInput | InputJsonValue
   }
 

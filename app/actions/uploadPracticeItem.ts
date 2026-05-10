@@ -38,15 +38,15 @@ export async function uploadPracticeItem(formData: FormData) {
   const description = (formData.get("description") as string | null)?.trim() || null
   const descriptionShort = (formData.get("descriptionShort") as string | null)?.trim() || null
 
-  // ループエンジン用フィールド (Phase 1c で追加)
-  const difficultyRaw = (formData.get("difficulty") as string | null)?.trim() ?? ""
-  let difficulty: number | null = null
-  if (difficultyRaw !== "") {
-    const n = Number.parseInt(difficultyRaw, 10)
+  // ループエンジン用フィールド (Phase 1c で追加 / v1.3: difficulty → star rename、formData 入力名は UI 互換のため維持)
+  const starRaw = (formData.get("difficulty") as string | null)?.trim() ?? ""
+  let star: number | null = null
+  if (starRaw !== "") {
+    const n = Number.parseInt(starRaw, 10)
     if (!Number.isFinite(n) || n < 1 || n > 10) {
       return { error: "難易度は 1 〜 10 で指定してください" }
     }
-    difficulty = n
+    star = n
   }
   const skillSubTaskTagsRaw = JSON.parse(
     (formData.get("skillSubTaskTags") as string | null) || "[]",
@@ -87,7 +87,7 @@ export async function uploadPracticeItem(formData: FormData) {
       isPublished: true,
       analysisStatus: "queued",
       buildStatus: "queued",
-      difficulty,
+      star,
       skillSubTaskTags: skillSubTaskTags as Prisma.InputJsonValue,
     },
   })

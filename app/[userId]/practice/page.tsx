@@ -86,7 +86,7 @@ export default async function PracticePage({
           id: item.id,
           title: item.title,
           category: item.category,
-          difficulty: item.difficulty ?? null,
+          star: item.star ?? null,
           composer: item.composer ?? null,
           reason,
           href: `/${authUserId}/practice/${item.category}/${item.id}`,

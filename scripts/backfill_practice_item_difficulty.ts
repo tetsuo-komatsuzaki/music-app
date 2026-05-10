@@ -268,7 +268,7 @@ async function main() {
     for (const p of fillable) {
       await prisma.practiceItem.update({
         where: { id: p.id },
-        data: { difficulty: p.finalDifficulty! },
+        data: { star: p.finalDifficulty! }, // v1.3: PracticeItem.difficulty → star に rename
       })
       console.log(`  [${p.category}] ${p.id} "${p.title}" → difficulty=${p.finalDifficulty}`)
     }
@@ -280,16 +280,16 @@ async function main() {
     for (const p of fillable) {
       await prisma.practiceItem.update({
         where: { id: p.id },
-        data: { difficulty: p.finalDifficulty! },
+        data: { star: p.finalDifficulty! }, // v1.3: PracticeItem.difficulty → star に rename
       })
       n++
       if (n % 50 === 0) console.log(`  updated ${n}...`)
     }
     console.log(`\nDone: ${n} items updated.`)
     // verify
-    const remainingNull = await prisma.practiceItem.count({ where: { difficulty: null } })
+    const remainingNull = await prisma.practiceItem.count({ where: { star: null } })
     const total = await prisma.practiceItem.count()
-    console.log(`After: ${total - remainingNull}/${total} items have difficulty (${remainingNull} NULL — should be 21 etudes).`)
+    console.log(`After: ${total - remainingNull}/${total} items have star (${remainingNull} NULL — should be 21 etudes).`)
   }
 
   await prisma.$disconnect()

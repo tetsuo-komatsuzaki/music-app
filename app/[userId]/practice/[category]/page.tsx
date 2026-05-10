@@ -127,12 +127,12 @@ export default async function CategoryPage({
         where: {
           category: dbCategory as any,
           isPublished: true,
-          difficulty: { gte: diffMin, lte: diffMax },
+          star: { gte: diffMin, lte: diffMax },
           OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
           AND: [{ OR: tagOR }],
           ...(achievedIds.length > 0 ? { id: { notIn: achievedIds } } : {}),
         },
-        orderBy: { difficulty: "asc" },
+        orderBy: { star: "asc" },
         take: 6,
         include: {
           techniques: {

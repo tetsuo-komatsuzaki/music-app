@@ -57,14 +57,15 @@ export async function getCurrentGrade(tx: Tx, userId: string): Promise<GradeLeve
 
 // =======================================================================
 // PracticeItem 候補取得 (skillSubTaskTags の jsonb 配列に subTaskIds が
-// いずれか含まれるものを、難易度範囲 + 未達成 + isPublished で絞る)
+// いずれか含まれるものを、難易度(★)範囲 + 未達成 + isPublished で絞る)
+// v1.3: DB カラム difficulty → star にリネーム済み
 // =======================================================================
 
 export type RecommendedPracticeItem = {
   id: string
   title: string
   category: string
-  difficulty: number | null
+  star: number | null
   keyTonic: string
   keyMode: string
   composer: string | null
@@ -79,7 +80,7 @@ export type RecommendedRecommendation = {
   id: string
   title: string
   category: string // scale | arpeggio | etude | score
-  difficulty: number | null
+  star: number | null
   keyTonic: string | null
   keyMode: string | null
   composer: string | null
@@ -99,7 +100,7 @@ export async function findCandidatePracticeItems(
   tx: Tx,
   opts: FindOpts,
 ): Promise<RecommendedPracticeItem[]> {
-  const [diffMin, diffMax] = GRADE_DIFFICULTY_RANGE[opts.grade]
+  const [starMin, starMax] = GRADE_DIFFICULTY_RANGE[opts.grade]
 
   const tagFilter: Prisma.PracticeItemWhereInput | undefined =
     opts.subTaskIds && opts.subTaskIds.length > 0
@@ -112,23 +113,23 @@ export async function findCandidatePracticeItems(
 
   const where: Prisma.PracticeItemWhereInput = {
     isPublished: true,
-    difficulty: { gte: diffMin, lte: diffMax },
+    star: { gte: starMin, lte: starMax },
     ...(opts.achievedIds.length > 0
       ? { id: { notIn: opts.achievedIds } }
       : {}),
     ...(tagFilter ?? {}),
   }
 
-  // §11-3: ORDER BY difficulty ASC, random()
-  // Prisma に random() がないため、難易度別に取得→各群でシャッフル→平坦化→limit。
+  // §11-3: ORDER BY star ASC, random()
+  // Prisma に random() がないため、★別に取得→各群でシャッフル→平坦化→limit。
   const candidates = await tx.practiceItem.findMany({
     where,
-    orderBy: { difficulty: "asc" },
+    orderBy: { star: "asc" },
     select: {
       id: true,
       title: true,
       category: true,
-      difficulty: true,
+      star: true,
       keyTonic: true,
       keyMode: true,
       composer: true,
@@ -137,17 +138,17 @@ export async function findCandidatePracticeItems(
     },
   })
 
-  // 同 difficulty 内でシャッフル
-  const byDifficulty = new Map<number, RecommendedPracticeItem[]>()
+  // 同 ★ 内でシャッフル
+  const byStar = new Map<number, RecommendedPracticeItem[]>()
   for (const c of candidates) {
-    const d = c.difficulty ?? 0
-    if (!byDifficulty.has(d)) byDifficulty.set(d, [])
-    byDifficulty.get(d)!.push(c as RecommendedPracticeItem)
+    const d = c.star ?? 0
+    if (!byStar.has(d)) byStar.set(d, [])
+    byStar.get(d)!.push(c as RecommendedPracticeItem)
   }
-  const sortedDiffs = [...byDifficulty.keys()].sort((a, b) => a - b)
+  const sortedStars = [...byStar.keys()].sort((a, b) => a - b)
   const result: RecommendedPracticeItem[] = []
-  for (const d of sortedDiffs) {
-    const group = byDifficulty.get(d)!
+  for (const d of sortedStars) {
+    const group = byStar.get(d)!
     // Fisher-Yates
     for (let i = group.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
@@ -171,7 +172,7 @@ export async function findCandidatePracticeItems(
 // Score 側のフィルタ条件:
 //   - deletedAt IS NULL (論理削除されていない)
 //   - isShared = true (admin 共有サンプルのみ。ユーザーの自由曲は除外)
-//   - difficulty 範囲 + skillSubTaskTags の重なり
+//   - star 範囲 + skillSubTaskTags の重なり
 //
 // achievedIds は PracticeItem 由来の進捗 (UserGrade.progressData) なので、
 // Score には適用しない。
@@ -180,7 +181,7 @@ export async function findCandidateRecommendations(
   tx: Tx,
   opts: FindOpts,
 ): Promise<RecommendedRecommendation[]> {
-  const [diffMin, diffMax] = GRADE_DIFFICULTY_RANGE[opts.grade]
+  const [starMin, starMax] = GRADE_DIFFICULTY_RANGE[opts.grade]
 
   const tagOR =
     opts.subTaskIds && opts.subTaskIds.length > 0
@@ -191,7 +192,7 @@ export async function findCandidateRecommendations(
 
   const practiceWhere: Prisma.PracticeItemWhereInput = {
     isPublished: true,
-    difficulty: { gte: diffMin, lte: diffMax },
+    star: { gte: starMin, lte: starMax },
     ...(opts.achievedIds.length > 0
       ? { id: { notIn: opts.achievedIds } }
       : {}),
@@ -201,19 +202,19 @@ export async function findCandidateRecommendations(
   const scoreWhere: Prisma.ScoreWhereInput = {
     deletedAt: null,
     isShared: true,
-    difficulty: { gte: diffMin, lte: diffMax },
+    star: { gte: starMin, lte: starMax },
     ...(tagOR ? { OR: tagOR } : {}),
   }
 
   const [practiceCandidates, scoreCandidates] = await Promise.all([
     tx.practiceItem.findMany({
       where: practiceWhere,
-      orderBy: { difficulty: "asc" },
+      orderBy: { star: "asc" },
       select: {
         id: true,
         title: true,
         category: true,
-        difficulty: true,
+        star: true,
         keyTonic: true,
         keyMode: true,
         composer: true,
@@ -223,7 +224,7 @@ export async function findCandidateRecommendations(
     }),
     tx.score.findMany({
       where: scoreWhere,
-      orderBy: { difficulty: "asc" },
+      orderBy: { star: "asc" },
       select: {
         id: true,
         title: true,
@@ -231,7 +232,7 @@ export async function findCandidateRecommendations(
         keyTonic: true,
         keyMode: true,
         originalXmlPath: true,
-        difficulty: true,
+        star: true,
       },
     }),
   ])
@@ -241,7 +242,7 @@ export async function findCandidateRecommendations(
       id: p.id,
       title: p.title,
       category: p.category as string,
-      difficulty: p.difficulty,
+      star: p.star,
       keyTonic: p.keyTonic as string | null,
       keyMode: p.keyMode as string | null,
       composer: p.composer,
@@ -252,7 +253,7 @@ export async function findCandidateRecommendations(
       id: s.id,
       title: s.title,
       category: "score",
-      difficulty: s.difficulty,
+      star: s.star,
       keyTonic: s.keyTonic,
       keyMode: s.keyMode,
       composer: s.composer,
@@ -261,17 +262,17 @@ export async function findCandidateRecommendations(
     })),
   ]
 
-  // 同 difficulty 内でシャッフル + limit (findCandidatePracticeItems と同じパターン)
-  const byDifficulty = new Map<number, RecommendedRecommendation[]>()
+  // 同 ★ 内でシャッフル + limit (findCandidatePracticeItems と同じパターン)
+  const byStar = new Map<number, RecommendedRecommendation[]>()
   for (const c of all) {
-    const d = c.difficulty ?? 0
-    if (!byDifficulty.has(d)) byDifficulty.set(d, [])
-    byDifficulty.get(d)!.push(c)
+    const d = c.star ?? 0
+    if (!byStar.has(d)) byStar.set(d, [])
+    byStar.get(d)!.push(c)
   }
-  const sortedDiffs = [...byDifficulty.keys()].sort((a, b) => a - b)
+  const sortedStars = [...byStar.keys()].sort((a, b) => a - b)
   const result: RecommendedRecommendation[] = []
-  for (const d of sortedDiffs) {
-    const group = byDifficulty.get(d)!
+  for (const d of sortedStars) {
+    const group = byStar.get(d)!
     // Fisher-Yates
     for (let i = group.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))

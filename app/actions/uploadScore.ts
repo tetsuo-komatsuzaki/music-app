@@ -16,14 +16,15 @@ export async function uploadScore(formData: FormData) {
   const file = formData.get("file") as File | null
 
   // ループエンジン用フィールド (2026-05-10 追加、admin upload で利用、user upload では空のまま)
-  const difficultyRaw = (formData.get("difficulty") as string | null)?.trim() ?? ""
-  let difficulty: number | null = null
-  if (difficultyRaw !== "") {
-    const n = Number.parseInt(difficultyRaw, 10)
+  // v1.3: DB カラム difficulty → star にリネーム済み。formData 入力名 "difficulty" は UI 互換のため維持。
+  const starRaw = (formData.get("difficulty") as string | null)?.trim() ?? ""
+  let star: number | null = null
+  if (starRaw !== "") {
+    const n = Number.parseInt(starRaw, 10)
     if (!Number.isFinite(n) || n < 1 || n > 10) {
       return { error: "難易度は 1 〜 10 で指定してください" }
     }
-    difficulty = n
+    star = n
   }
   const skillSubTaskTagsRaw = JSON.parse(
     (formData.get("skillSubTaskTags") as string | null) || "[]",
@@ -69,7 +70,7 @@ export async function uploadScore(formData: FormData) {
       originalXmlPath: "",
       analysisStatus: "queued",
       buildStatus: "queued",
-      difficulty,
+      star,
       skillSubTaskTags: skillSubTaskTags as Prisma.InputJsonValue,
       isShared,
     },

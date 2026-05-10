@@ -20,7 +20,7 @@ export type SongRecommendation = {
     id: string
     title: string
     category: string
-    difficulty?: number | null
+    star?: number | null
     composer?: string | null
   }
   reason: string
@@ -48,7 +48,7 @@ function difficultyStars(d: number | null | undefined): {
 
 export default function RecommendationItem({ recommendation }: Props) {
   const { practiceItem, reason, href } = recommendation
-  const difficulty = difficultyStars(practiceItem.difficulty)
+  const difficulty = difficultyStars(practiceItem.star)
 
   return (
     <Link href={href} className={styles.card}>

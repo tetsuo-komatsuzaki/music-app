@@ -58,7 +58,7 @@ export async function updateScoreTags(
   await prisma.score.update({
     where: { id: scoreId },
     data: {
-      difficulty: payload.difficulty,
+      star: payload.difficulty, // payload は UI 由来 (difficulty キー)、DB は star
       skillSubTaskTags: cleanedTags as Prisma.InputJsonValue,
     },
   })

@@ -134,11 +134,11 @@ async function countRecommendations(
   }
   if (subTaskIds.length === 0) return 0
 
-  const [diffMin, diffMax] = GRADE_DIFFICULTY_RANGE[ctx.grade]
+  const [starMin, starMax] = GRADE_DIFFICULTY_RANGE[ctx.grade]
   return prisma.practiceItem.count({
     where: {
       isPublished: true,
-      difficulty: { gte: diffMin, lte: diffMax },
+      star: { gte: starMin, lte: starMax }, // v1.3: difficulty → star
       ...(ctx.achievedIds.length > 0 ? { id: { notIn: ctx.achievedIds } } : {}),
       OR: subTaskIds.map(id => ({ skillSubTaskTags: { array_contains: id } })),
     },

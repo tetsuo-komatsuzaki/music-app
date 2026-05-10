@@ -143,7 +143,7 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
       where: { userId: internalUserId },
       select: { skillTaskId: true, currentScore: true },
     }),
-    // 達成基準 + 難易度推定 用に skillSubScores と practiceItem.difficulty を持つ演奏履歴
+    // 達成基準 + 難易度推定 用に skillSubScores と practiceItem.star を持つ演奏履歴
     prisma.practicePerformance.findMany({
       where: { userId: internalUserId, analysisStatus: "done" },
       orderBy: { uploadedAt: "desc" },
@@ -152,7 +152,7 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
         uploadedAt: true,
         skillSubScores: true,
         practiceItem: {
-          select: { id: true, category: true, difficulty: true },
+          select: { id: true, category: true, star: true },
         },
       },
     }),
@@ -217,18 +217,18 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
       userId: internalUserId,
       analysisStatus: "done",
       overallScore: { not: null },
-      practiceItem: { difficulty: { gte: gradeMinDiff, lte: gradeMaxDiff } },
+      practiceItem: { star: { gte: gradeMinDiff, lte: gradeMaxDiff } },
     },
     orderBy: { uploadedAt: "desc" },
     select: {
       overallScore: true,
-      practiceItem: { select: { difficulty: true } },
+      practiceItem: { select: { star: true } },
     },
   })
 
   const recentScoresByDifficulty: Record<number, number[]> = {}
   for (const p of masteryPerfs) {
-    const d = p.practiceItem.difficulty
+    const d = p.practiceItem.star
     if (d == null || p.overallScore == null) continue
     if (!recentScoresByDifficulty[d]) recentScoresByDifficulty[d] = []
     if (recentScoresByDifficulty[d].length < DIFFICULTY_MASTERY_WINDOW) {
@@ -312,7 +312,7 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
           where: {
             category: "scale",
             isPublished: true,
-            difficulty: cardDifficulty,
+            star: cardDifficulty,
             ...tagFilter,
           },
           orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
@@ -322,7 +322,7 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
           where: {
             category: "arpeggio",
             isPublished: true,
-            difficulty: cardDifficulty,
+            star: cardDifficulty,
             ...tagFilter,
           },
           orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
@@ -332,7 +332,7 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
           where: {
             category: "etude",
             isPublished: true,
-            difficulty: cardDifficulty,
+            star: cardDifficulty,
             ...tagFilter,
           },
           orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
