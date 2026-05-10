@@ -1,13 +1,22 @@
 import { prisma } from "@/app/_libs/prisma"
 import {
+  GRADE_DIFFICULTY_RANGE,
   SKILL_TASKS,
+  SUB_TASK_IDS,
   SUB_TASK_NAMES,
   TASK_NAMES,
+  type GradeLevel,
   type SubTaskId,
   type TaskId,
 } from "@/app/_libs/skillMaster"
 import type { SkillTaskCardData } from "@/app/components/SkillTaskCardItem"
 import ProgressPage from "./progressPage"
+
+// 達成基準 (Q3:D)
+const ACHIEVEMENT_SCALE_PRACTICE_THRESHOLD = 10
+const ACHIEVEMENT_ARPEGGIO_PRACTICE_THRESHOLD = 10
+const ACHIEVEMENT_ETUDE_RECENT_AVG_THRESHOLD = 85
+const ACHIEVEMENT_ETUDE_RECENT_WINDOW = 5
 
 export const metadata = { title: "成長記録" }
 
@@ -86,8 +95,16 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
 
   // ── 全データを並列取得 ──
   // calendar タブ: practiceAll / scoreAll
-  // tasks タブ: cards / subScores / skillScores (マイページから移設)
-  const [practiceAll, scoreAll, rawCards, subScores, skillScores] = await Promise.all([
+  // tasks タブ: cards / subScores / skillScores / 演奏明細 (達成基準計算用) / userGrade
+  const [
+    practiceAll,
+    scoreAll,
+    rawCards,
+    subScores,
+    skillScores,
+    practiceDetails,
+    userGrade,
+  ] = await Promise.all([
     prisma.practicePerformance.findMany({
       where: { userId: internalUserId },
       select: { uploadedAt: true, performanceDuration: true, comparisonResultPath: true },
@@ -121,6 +138,23 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
     prisma.userSkillScore.findMany({
       where: { userId: internalUserId },
       select: { skillTaskId: true, currentScore: true },
+    }),
+    // 達成基準 + 難易度推定 用に skillSubScores と practiceItem.difficulty を持つ演奏履歴
+    prisma.practicePerformance.findMany({
+      where: { userId: internalUserId, analysisStatus: "done" },
+      orderBy: { uploadedAt: "desc" },
+      select: {
+        practiceItemId: true,
+        uploadedAt: true,
+        skillSubScores: true,
+        practiceItem: {
+          select: { id: true, category: true, difficulty: true },
+        },
+      },
+    }),
+    prisma.userGrade.findUnique({
+      where: { userId: internalUserId },
+      select: { currentGrade: true },
     }),
   ])
 
@@ -165,6 +199,151 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
     if (s.skillTaskId) skillScoresMap[s.skillTaskId] = s.currentScore
   }
 
+  // ─────────────────────────────────────────────────────────
+  // カード拡張データ計算: 中項目→難易度グルーピング + 達成基準 (Q3:D)
+  //   - cardDifficulty: 「最後にこの sub_task が target>0 だった演奏」の practiceItem.difficulty
+  //   - 推薦 scale/arpeggio/etude (top1, 同 difficulty + sub_task tag)
+  //   - 練習回数 + etude 直近 5 回サブタスクスコア平均
+  //   - 達成基準: 音階 ≥10回 AND アルペジオ ≥10回 AND エチュード直近5平均 ≥85
+  // ─────────────────────────────────────────────────────────
+  type SubScoreEntry = { score?: number; matched?: boolean; target_count?: number }
+  const grade: GradeLevel = (userGrade?.currentGrade as GradeLevel | undefined) ?? "BEGINNER"
+  const [gradeMinDiff] = GRADE_DIFFICULTY_RANGE[grade]
+
+  // (1) sub_task ごとに「最近この sub_task に target を持った演奏」のうち最新の難易度
+  const subTaskDifficulty: Partial<Record<SubTaskId, number>> = {}
+  for (const p of practiceDetails) {
+    const diff = p.practiceItem?.difficulty
+    if (diff == null) continue
+    const subScores = (p.skillSubScores ?? {}) as Record<string, SubScoreEntry>
+    for (const subId of SUB_TASK_IDS) {
+      if (subTaskDifficulty[subId] != null) continue
+      const sub = subScores[subId]
+      if (sub?.target_count && sub.target_count > 0) {
+        subTaskDifficulty[subId] = diff
+      }
+    }
+  }
+
+  // (2) sub_task カードに対する augmentation を並列計算
+  type CardAugmentation = {
+    cardDifficulty: number
+    recommendedScale: { id: string; title: string } | null
+    recommendedArpeggio: { id: string; title: string } | null
+    recommendedEtude: { id: string; title: string } | null
+    scalePracticeCount: number
+    arpeggioPracticeCount: number
+    etudePracticeCount: number
+    etudeRecentAvgScore: number | null
+    achievementMet: boolean
+  }
+  const augmentTargets = rawCards.filter(
+    c => c.cardType === "sub_task" && c.skillSubTaskId && c.status !== "cleared",
+  )
+  const cardAugmentations: Record<string, CardAugmentation> = {}
+  await Promise.all(
+    augmentTargets.map(async card => {
+      const subId = card.skillSubTaskId as SubTaskId
+      const cardDifficulty = subTaskDifficulty[subId] ?? gradeMinDiff
+      const tagFilter = { skillSubTaskTags: { array_contains: subId } }
+
+      const [scale, arpeggio, etude] = await Promise.all([
+        prisma.practiceItem.findFirst({
+          where: {
+            category: "scale",
+            isPublished: true,
+            difficulty: cardDifficulty,
+            ...tagFilter,
+          },
+          orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+          select: { id: true, title: true },
+        }),
+        prisma.practiceItem.findFirst({
+          where: {
+            category: "arpeggio",
+            isPublished: true,
+            difficulty: cardDifficulty,
+            ...tagFilter,
+          },
+          orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+          select: { id: true, title: true },
+        }),
+        prisma.practiceItem.findFirst({
+          where: {
+            category: "etude",
+            isPublished: true,
+            difficulty: cardDifficulty,
+            ...tagFilter,
+          },
+          orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+          select: { id: true, title: true },
+        }),
+      ])
+
+      const [scaleCount, arpeggioCount, etudeCount, etudeRecent] = await Promise.all([
+        scale
+          ? prisma.practicePerformance.count({
+              where: { userId: internalUserId, practiceItemId: scale.id },
+            })
+          : Promise.resolve(0),
+        arpeggio
+          ? prisma.practicePerformance.count({
+              where: { userId: internalUserId, practiceItemId: arpeggio.id },
+            })
+          : Promise.resolve(0),
+        etude
+          ? prisma.practicePerformance.count({
+              where: { userId: internalUserId, practiceItemId: etude.id },
+            })
+          : Promise.resolve(0),
+        etude
+          ? prisma.practicePerformance.findMany({
+              where: {
+                userId: internalUserId,
+                practiceItemId: etude.id,
+                analysisStatus: "done",
+              },
+              orderBy: { uploadedAt: "desc" },
+              take: ACHIEVEMENT_ETUDE_RECENT_WINDOW,
+              select: { skillSubScores: true },
+            })
+          : Promise.resolve([] as { skillSubScores: unknown }[]),
+      ])
+
+      let etudeRecentAvgScore: number | null = null
+      if (etudeRecent.length > 0) {
+        const scores = etudeRecent
+          .map(p => {
+            const subs = (p.skillSubScores ?? {}) as Record<string, SubScoreEntry>
+            return subs[subId]?.score
+          })
+          .filter((s): s is number => typeof s === "number")
+        if (scores.length > 0) {
+          etudeRecentAvgScore =
+            Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10
+        }
+      }
+
+      const achievementMet =
+        scaleCount >= ACHIEVEMENT_SCALE_PRACTICE_THRESHOLD &&
+        arpeggioCount >= ACHIEVEMENT_ARPEGGIO_PRACTICE_THRESHOLD &&
+        etudeRecentAvgScore != null &&
+        etudeRecentAvgScore >= ACHIEVEMENT_ETUDE_RECENT_AVG_THRESHOLD
+
+      cardAugmentations[card.id] = {
+        cardDifficulty,
+        recommendedScale: scale,
+        recommendedArpeggio: arpeggio,
+        recommendedEtude: etude,
+        scalePracticeCount: scaleCount,
+        arpeggioPracticeCount: arpeggioCount,
+        etudePracticeCount: etudeCount,
+        etudeRecentAvgScore,
+        achievementMet,
+      }
+    }),
+  )
+
   // ── カードデータをクライアント用に整形 ──
   const cards: SkillTaskCardData[] = rawCards.map(c => {
     const cardType = c.cardType as "task" | "sub_task"
@@ -173,6 +352,7 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
       c.skillTaskId,
       c.skillSubTaskId,
     )
+    const aug = cardAugmentations[c.id] ?? null
     return {
       id: c.id,
       cardType,
@@ -185,6 +365,16 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
       lastMatchedAt: c.lastMatchedAt?.toISOString() ?? null,
       displayName,
       parentTaskName,
+      // 中項目→難易度グルーピング + 達成基準 (Q3:D) 用の augmentation
+      cardDifficulty: aug?.cardDifficulty ?? null,
+      recommendedScale: aug?.recommendedScale ?? null,
+      recommendedArpeggio: aug?.recommendedArpeggio ?? null,
+      recommendedEtude: aug?.recommendedEtude ?? null,
+      scalePracticeCount: aug?.scalePracticeCount ?? 0,
+      arpeggioPracticeCount: aug?.arpeggioPracticeCount ?? 0,
+      etudePracticeCount: aug?.etudePracticeCount ?? 0,
+      etudeRecentAvgScore: aug?.etudeRecentAvgScore ?? null,
+      achievementMet: aug?.achievementMet ?? false,
     }
   })
 

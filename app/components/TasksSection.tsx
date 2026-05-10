@@ -17,6 +17,7 @@ import StatusTab, { type CardStatus } from "@/app/components/StatusTab"
 import SkillTaskCardItem, {
   type SkillTaskCardData,
 } from "@/app/components/SkillTaskCardItem"
+import { TASK_IDS, TASK_NAMES, type TaskId } from "@/app/_libs/skillMaster"
 import styles from "./TasksSection.module.css"
 
 type Props = {
@@ -82,6 +83,63 @@ function getCardScore(
   return null
 }
 
+// 親 TaskId を解決 (sub_task カードは parentTaskName 経由 / task カードは skillTaskId 経由)
+function resolveParentTaskId(card: SkillTaskCardData): TaskId | null {
+  if (card.cardType === "task" && card.skillTaskId) {
+    return TASK_IDS.includes(card.skillTaskId as TaskId)
+      ? (card.skillTaskId as TaskId)
+      : null
+  }
+  // sub_task: parentTaskName で逆引き (TASK_NAMES の値 → key)
+  for (const taskId of TASK_IDS) {
+    if (TASK_NAMES[taskId] === card.parentTaskName) return taskId
+  }
+  return null
+}
+
+// 中項目 → 難易度 → カード の 2 階層グルーピング (Q1:A + Q2:A)
+type DifficultyGroup = { difficulty: number | null; cards: SkillTaskCardData[] }
+type ParentGroup = { taskId: TaskId | "other"; taskName: string; difficultyGroups: DifficultyGroup[] }
+
+function groupByParentAndDifficulty(cards: SkillTaskCardData[]): ParentGroup[] {
+  const byParent = new Map<TaskId | "other", SkillTaskCardData[]>()
+  for (const card of cards) {
+    const parentId = resolveParentTaskId(card) ?? "other"
+    if (!byParent.has(parentId)) byParent.set(parentId, [])
+    byParent.get(parentId)!.push(card)
+  }
+
+  const orderedTaskIds: (TaskId | "other")[] = [...TASK_IDS, "other"]
+  const groups: ParentGroup[] = []
+  for (const taskId of orderedTaskIds) {
+    const list = byParent.get(taskId)
+    if (!list || list.length === 0) continue
+
+    // 難易度 (cardDifficulty) ごとに細分 (null は末尾の "難易度未判定" グループ)
+    const byDiff = new Map<number | null, SkillTaskCardData[]>()
+    for (const c of list) {
+      const d = c.cardDifficulty ?? null
+      if (!byDiff.has(d)) byDiff.set(d, [])
+      byDiff.get(d)!.push(c)
+    }
+    const sortedDiffKeys = [...byDiff.keys()].sort((a, b) => {
+      if (a == null) return 1
+      if (b == null) return -1
+      return a - b
+    })
+
+    groups.push({
+      taskId,
+      taskName: taskId === "other" ? "その他" : TASK_NAMES[taskId as TaskId],
+      difficultyGroups: sortedDiffKeys.map(d => ({
+        difficulty: d,
+        cards: byDiff.get(d)!,
+      })),
+    })
+  }
+  return groups
+}
+
 export default function TasksSection({
   userId,
   initialCards,
@@ -124,6 +182,15 @@ export default function TasksSection({
         activeStatus,
       ),
     [cards, activeStatus],
+  )
+
+  // active タブのみ中項目→難易度グルーピングを適用 (improving/cleared は従来通りフラット表示)
+  const groupedCards = useMemo(
+    () =>
+      activeStatus === "active"
+        ? groupByParentAndDifficulty(visibleCards)
+        : null,
+    [visibleCards, activeStatus],
   )
 
   const toggleExpanded = (cardId: string) => {
@@ -178,7 +245,38 @@ export default function TasksSection({
             <div className={styles.emptyTitle}>{empty.title}</div>
             <div className={styles.emptyDescription}>{empty.description}</div>
           </div>
+        ) : groupedCards ? (
+          // active: 中項目 → 難易度 → カード の 2 階層
+          groupedCards.map(parent => (
+            <section key={parent.taskId} className={styles.parentGroup}>
+              <h3 className={styles.parentGroupTitle}>{parent.taskName}</h3>
+              {parent.difficultyGroups.map(dg => (
+                <div
+                  key={`${parent.taskId}-${dg.difficulty ?? "none"}`}
+                  className={styles.difficultyGroup}
+                >
+                  <div className={styles.difficultyLabel}>
+                    {dg.difficulty != null ? `Lv.${dg.difficulty}` : "難易度未判定"}
+                  </div>
+                  <div className={styles.difficultyCards}>
+                    {dg.cards.map(card => (
+                      <SkillTaskCardItem
+                        key={card.id}
+                        card={card}
+                        averageScore={getCardScore(card, subScoresMap, skillScoresMap)}
+                        expanded={expandedIds.has(card.id)}
+                        userId={userId}
+                        onToggle={() => toggleExpanded(card.id)}
+                        onClear={() => handleClear(card.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </section>
+          ))
         ) : (
+          // improving / cleared: 従来通りフラット表示
           visibleCards.map(card => (
             <SkillTaskCardItem
               key={card.id}

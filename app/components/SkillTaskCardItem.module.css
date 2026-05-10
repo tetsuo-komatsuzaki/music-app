@@ -93,6 +93,47 @@
   color: #2d2d2d;
 }
 
+/* 達成経過セクション (header 外に配置、達成基準を満たすと clearButton に切替) */
+.achievementSection {
+  padding: 0 14px 12px;
+  margin-top: -8px; /* header bottom padding と詰めて視覚的に連続させる */
+}
+
+.progressList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  color: #555;
+  line-height: 1.7;
+}
+
+.progressList li {
+  display: block;
+}
+
+.progressList strong {
+  color: #2d2d2d;
+  font-weight: 700;
+}
+
+.achievementSection .clearButton {
+  display: inline-flex;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #1f883d;
+  background: #e6f5ec;
+  color: #1f883d;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  align-items: center;
+  gap: 6px;
+}
+.achievementSection .clearButton:hover {
+  background: #d3edd9;
+}
+
 .toggleIcon {
   font-size: 12px;
   color: #999;

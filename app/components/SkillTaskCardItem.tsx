@@ -1,19 +1,21 @@
 // app/components/SkillTaskCardItem.tsx
 //
-// UI 設計書 v3.1 §7-4 — マイページの 1 件分カード (collapsed/expanded inline)。
+// UI 設計書 v3.1 §7-4 / 2026-05-10 リデザイン:
 //
 // 畳み時 (collapsed):
 //   - カードタイトル (subTaskName / taskName)
 //   - 平均スコア: {N} 点
+//   - 達成経過 (3 行) または 達成ボタン (達成基準を満たすと切替)
 //   - ▼ アイコン
 //
 // 展開時 (expanded):
-//   - 平均スコア
-//   - 最終検出: 〇日前 (lastMatchedAt)
 //   - 改善のヒント (sub_task のみ improvementGuide.awareness)
-//   - [この教材で練習する]   ← F2 で MVP 有効化、fetch + navigate
-//   - [ピンポイント練習(準備中)] ← C7 disabled
-//   - [達成した！]            ← C6 ワンタップ即遷移、active/improving のみ
+//   - [ピンポイント練習(音階)] [ピンポイント練習(アルペジオ)] [このエチュードで練習する]
+//
+// 達成基準 (Q3:D):
+//   - 推薦音階の練習回数 ≥ 10
+//   - 推薦アルペジオの練習回数 ≥ 10
+//   - 推薦エチュード直近 5 回サブタスクスコア平均 ≥ 85
 //
 // 状態別の左ボーダー: active=赤系、improving=橙系、cleared=緑系。
 
@@ -39,7 +41,20 @@ export type SkillTaskCardData = {
   lastMatchedAt: string | null
   displayName: string
   parentTaskName: string
+  // 中項目→難易度グルーピング + 達成基準 (Q3:D) 用の augmentation
+  cardDifficulty: number | null
+  recommendedScale: { id: string; title: string } | null
+  recommendedArpeggio: { id: string; title: string } | null
+  recommendedEtude: { id: string; title: string } | null
+  scalePracticeCount: number
+  arpeggioPracticeCount: number
+  etudePracticeCount: number
+  etudeRecentAvgScore: number | null
+  achievementMet: boolean
 }
+
+const SCALE_THRESHOLD = 10
+const ARPEGGIO_THRESHOLD = 10
 
 type Props = {
   card: SkillTaskCardData
@@ -56,22 +71,6 @@ type Props = {
 const isSubTaskId = (v: unknown): v is SubTaskId =>
   typeof v === "string" && (SUB_TASK_IDS as readonly string[]).includes(v)
 
-function relativeTime(isoStr: string | null): string {
-  if (!isoStr) return "—"
-  const diff = Date.now() - new Date(isoStr).getTime()
-  if (diff < 0) return "たった今"
-  const mins = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
-  if (mins < 60) return `${mins}分前`
-  if (hours < 24) return `${hours}時間前`
-  if (days < 7) return `${days}日前`
-  return new Date(isoStr).toLocaleDateString("ja-JP", {
-    month: "short",
-    day: "numeric",
-  })
-}
-
 export default function SkillTaskCardItem({
   card,
   averageScore,
@@ -86,11 +85,19 @@ export default function SkillTaskCardItem({
       ? SKILL_SUB_TASKS[card.skillSubTaskId].improvementGuide.awareness
       : null
 
-  const showClearButton = card.status === "active" || card.status === "improving"
+  const isActiveLike = card.status === "active" || card.status === "improving"
+  const showAchievementSection = isActiveLike && card.cardType === "sub_task"
 
-  // UI-12 (§8): /practice?fromCard=&context=etude に遷移して
-  // コンテクスト付きの教材リストを表示する。
-  const etudeHref = `/${userId}/practice?fromCard=${card.id}&context=etude`
+  // 推薦アイテム未紐付けの場合は category top page にフォールバック
+  const scaleHref = card.recommendedScale
+    ? `/${userId}/practice/scale/${card.recommendedScale.id}`
+    : `/${userId}/practice/scale`
+  const arpeggioHref = card.recommendedArpeggio
+    ? `/${userId}/practice/arpeggio/${card.recommendedArpeggio.id}`
+    : `/${userId}/practice/arpeggio`
+  const etudeHref = card.recommendedEtude
+    ? `/${userId}/practice/etude/${card.recommendedEtude.id}`
+    : `/${userId}/practice/etude`
 
   return (
     <article
@@ -122,15 +129,43 @@ export default function SkillTaskCardItem({
         </span>
       </button>
 
+      {/* 達成経過 / 達成ボタン (sub_task カード active/improving のみ、ヘッダー外に配置) */}
+      {showAchievementSection && (
+        <div className={styles.achievementSection}>
+          {card.achievementMet ? (
+            <button
+              type="button"
+              className={styles.clearButton}
+              onClick={onClear}
+            >
+              ✓ 達成した！
+            </button>
+          ) : (
+            <ul className={styles.progressList}>
+              <li>
+                音階練習回数:{" "}
+                <strong>{card.scalePracticeCount}</strong>/{SCALE_THRESHOLD}回
+              </li>
+              <li>
+                アルペジオ練習回数:{" "}
+                <strong>{card.arpeggioPracticeCount}</strong>/{ARPEGGIO_THRESHOLD}回
+              </li>
+              <li>
+                エチュード: スコア{" "}
+                <strong>
+                  {card.etudeRecentAvgScore != null
+                    ? Math.round(card.etudeRecentAvgScore)
+                    : "—"}
+                </strong>
+                点、練習回数 <strong>{card.etudePracticeCount}</strong>回
+              </li>
+            </ul>
+          )}
+        </div>
+      )}
+
       {expanded && (
         <div className={styles.detail} id={`card-detail-${card.id}`}>
-          <div className={styles.metaRow}>
-            <span className={styles.metaLabel}>最終検出:</span>{" "}
-            <span className={styles.metaValue}>
-              {relativeTime(card.lastMatchedAt)}
-            </span>
-          </div>
-
           {awareness && (
             <div className={styles.hint}>
               <div className={styles.hintTitle}>
@@ -145,32 +180,26 @@ export default function SkillTaskCardItem({
 
           <div className={styles.actions}>
             <Link
+              href={scaleHref}
+              className={styles.etudeButton}
+              title="該当する音階のスコア詳細に遷移"
+            >
+              ピンポイント練習(音階)
+            </Link>
+            <Link
+              href={arpeggioHref}
+              className={styles.etudeButton}
+              title="該当するアルペジオのスコア詳細に遷移"
+            >
+              ピンポイント練習(アルペジオ)
+            </Link>
+            <Link
               href={etudeHref}
               className={styles.etudeButton}
-              title="おすすめ教材ページに移動します"
+              title="該当するエチュードのスコア詳細に遷移"
             >
-              この教材で練習する
+              このエチュードで練習する
             </Link>
-
-            <button
-              type="button"
-              className={styles.pinpointButton}
-              disabled
-              aria-disabled="true"
-              title="ピンポイント練習は β 以降で利用可能になります"
-            >
-              ピンポイント練習（準備中）
-            </button>
-
-            {showClearButton && (
-              <button
-                type="button"
-                className={styles.clearButton}
-                onClick={onClear}
-              >
-                ✓ 達成した！
-              </button>
-            )}
           </div>
         </div>
       )}
