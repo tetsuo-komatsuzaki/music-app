@@ -6,7 +6,10 @@ node_modules
 
 .next
 
-/generated/prisma
+# v1.3 B-3 follow-up: Prisma client は schema.prisma から自動生成される派生物。
+# build / postinstall 時に `prisma generate` で再生成されるため git 管理から除外。
+# (旧 .gitignore の `/generated/prisma` は root 直下を指す誤パターンだった、修正)
+app/generated/prisma/
 tmp/
 __pycache__/
 *.pyc

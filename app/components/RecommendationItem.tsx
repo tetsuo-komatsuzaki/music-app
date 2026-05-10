@@ -34,7 +34,8 @@ type Props = {
 }
 
 // 1-10 → ★1-5 にスケール (2 刻みで 1 つ星)。null/0 は表示しない。
-function difficultyStars(d: number | null | undefined): {
+// v1.3 B-3 follow-up: difficultyStars → formatStarBadge にリネーム (UI 整理)
+function formatStarBadge(d: number | null | undefined): {
   stars: string
   ariaLabel: string
 } | null {
@@ -48,7 +49,7 @@ function difficultyStars(d: number | null | undefined): {
 
 export default function RecommendationItem({ recommendation }: Props) {
   const { practiceItem, reason, href } = recommendation
-  const difficulty = difficultyStars(practiceItem.star)
+  const starBadge = formatStarBadge(practiceItem.star)
 
   return (
     <Link href={href} className={styles.card}>
@@ -56,9 +57,9 @@ export default function RecommendationItem({ recommendation }: Props) {
       {practiceItem.composer && (
         <div className={styles.composer}>{practiceItem.composer}</div>
       )}
-      {difficulty && (
-        <div className={styles.difficulty} aria-label={difficulty.ariaLabel}>
-          {difficulty.stars}
+      {starBadge && (
+        <div className={styles.difficulty} aria-label={starBadge.ariaLabel}>
+          {starBadge.stars}
         </div>
       )}
       <p className={styles.reason}>{reason}</p>
