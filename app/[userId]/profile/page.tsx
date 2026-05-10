@@ -17,12 +17,12 @@ export const metadata = { title: "マイページ" }
 
 const NEXT_GRADE_BAND: Record<
   GradeLevel,
-  { next: GradeLevel | null; difficulties: number[] }
+  { next: GradeLevel | null; stars: number[] }
 > = {
-  BEGINNER: { next: "INTERMEDIATE", difficulties: [1, 2, 3] },
-  INTERMEDIATE: { next: "ADVANCED", difficulties: [4, 5, 6, 7] },
-  ADVANCED: { next: "MASTER", difficulties: [8, 9, 10] },
-  MASTER: { next: null, difficulties: [] },
+  BEGINNER: { next: "INTERMEDIATE", stars: [1, 2, 3] },
+  INTERMEDIATE: { next: "ADVANCED", stars: [4, 5, 6, 7] },
+  ADVANCED: { next: "MASTER", stars: [8, 9, 10] },
+  MASTER: { next: null, stars: [] },
 }
 
 const isGradeLevel = (v: unknown): v is GradeLevel =>
@@ -67,7 +67,7 @@ export default async function ProfilePage({ params }: PageProps) {
     string,
     { completed: number; required: number; remaining: number }
   > = {}
-  for (const d of band.difficulties) {
+  for (const d of band.stars) {
     const dKey = String(d)
     const entry = progressData[dKey] ?? {
       completed: 0,

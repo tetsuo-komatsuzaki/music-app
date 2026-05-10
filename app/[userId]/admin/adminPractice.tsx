@@ -166,7 +166,7 @@ export default function AdminPractice({
     setEditSaving(true)
     try {
       const payload = {
-        difficulty,
+        star: difficulty, // local 変数名は UI 概念のまま、payload キーは v1.3 B-3 で star に統一
         skillSubTaskTags: Array.from(editSubTasks),
       }
       // type に応じて適切な server action を呼ぶ
@@ -214,7 +214,7 @@ export default function AdminPractice({
     formData.set("file", file)
     formData.set("title", title)
     formData.set("composer", composer)
-    formData.set("difficulty", difficultyInput)
+    formData.set("star", difficultyInput) // v1.3 B-3: DB カラム & formData key 双方 star に統一
     formData.set("skillSubTaskTags", JSON.stringify(Array.from(selectedSubTasks)))
 
     try {

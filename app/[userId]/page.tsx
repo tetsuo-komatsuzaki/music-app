@@ -14,11 +14,11 @@ import HomeClient from "./home"
 
 // UI-8: ホーム画面のグレード表示用に、grade API と同じ形でサーバ側で構築。
 // (Server Components で取得 → props 渡し)
-const NEXT_GRADE_BAND: Record<GradeLevel, { next: GradeLevel | null; difficulties: number[] }> = {
-  BEGINNER: { next: "INTERMEDIATE", difficulties: [1, 2, 3] },
-  INTERMEDIATE: { next: "ADVANCED", difficulties: [4, 5, 6, 7] },
-  ADVANCED: { next: "MASTER", difficulties: [8, 9, 10] },
-  MASTER: { next: null, difficulties: [] },
+const NEXT_GRADE_BAND: Record<GradeLevel, { next: GradeLevel | null; stars: number[] }> = {
+  BEGINNER: { next: "INTERMEDIATE", stars: [1, 2, 3] },
+  INTERMEDIATE: { next: "ADVANCED", stars: [4, 5, 6, 7] },
+  ADVANCED: { next: "MASTER", stars: [8, 9, 10] },
+  MASTER: { next: null, stars: [] },
 }
 
 const isGradeLevel = (v: unknown): v is GradeLevel =>
@@ -224,7 +224,7 @@ export default async function HomePage({ params }: PageProps) {
   const band = NEXT_GRADE_BAND[currentGrade]
   let remainingCount = 0
   const nextGradeDetails: Record<string, { completed: number; required: number; remaining: number }> = {}
-  for (const d of band.difficulties) {
+  for (const d of band.stars) {
     const dKey = String(d)
     const entry = progressData[dKey] ?? { completed: 0, required: 10, practiceItemIds: [] }
     const completed = typeof entry.completed === "number" ? entry.completed : 0
@@ -250,13 +250,13 @@ export default async function HomePage({ params }: PageProps) {
   const STAR_CLEAR_THRESHOLD_PER_ITEM = 85
   const STAR_CLEAR_MIN_PERFORMANCES = 5
   const STAR_ITEMS_PER_STAR = 10
-  const ALL_DIFFICULTIES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-  const gradeRangeDiffs = band.difficulties
+  const ALL_STARS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  const gradeRangeStars = band.stars
 
   // (1) Lv1〜10 の全 practiceItem を取得
   const allLvItems = await prisma.practiceItem.findMany({
     where: {
-      star: { in: ALL_DIFFICULTIES },
+      star: { in: ALL_STARS },
       isPublished: true,
     },
     select: { id: true, star: true },
@@ -292,7 +292,7 @@ export default async function HomePage({ params }: PageProps) {
 
   // (3) 各 Lv について clearedAt を集計
   const clearedByLv: Record<number, number> = {}
-  for (const d of ALL_DIFFICULTIES) {
+  for (const d of ALL_STARS) {
     const itemIds = itemIdsByDiff.get(d) ?? []
     let clearedAtD = 0
     for (const itemId of itemIds) {
@@ -307,7 +307,7 @@ export default async function HomePage({ params }: PageProps) {
 
   // (4) ☆ は Lv1〜10 (全 10 個)。獲得済み (clearedAtD ≥ 10) を黄色化
   // Lv ごとの mastered フラグ (非連続マスター対応のため per-Lv 配列)
-  const starsByLv: boolean[] = ALL_DIFFICULTIES.map(
+  const starsByLv: boolean[] = ALL_STARS.map(
     d => (clearedByLv[d] ?? 0) >= STAR_ITEMS_PER_STAR,
   )
   const starsFilled = starsByLv.filter(Boolean).length
@@ -315,7 +315,7 @@ export default async function HomePage({ params }: PageProps) {
   // (5) 「次の☆まで」対象 = グレード範囲内のマスターしていない最低 Lv
   let currentStarLv: number | null = null
   let clearedAtCurrentStar = 0
-  for (const d of gradeRangeDiffs) {
+  for (const d of gradeRangeStars) {
     if ((clearedByLv[d] ?? 0) < STAR_ITEMS_PER_STAR) {
       currentStarLv = d
       clearedAtCurrentStar = clearedByLv[d] ?? 0
@@ -334,7 +334,7 @@ export default async function HomePage({ params }: PageProps) {
     totalRequired,
     // ☆ 進捗 (グレードの下に表示、☆は Lv1〜10 の全 10 個 / 2 段 5 個)
     starsFilled,
-    starsTotal: ALL_DIFFICULTIES.length,
+    starsTotal: ALL_STARS.length,
     starsByLv, // [Lv1 mastered?, Lv2 mastered?, ..., Lv10 mastered?]
     currentStarLv,
     itemsToNextStar,

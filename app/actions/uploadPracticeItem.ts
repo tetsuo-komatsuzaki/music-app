@@ -38,8 +38,8 @@ export async function uploadPracticeItem(formData: FormData) {
   const description = (formData.get("description") as string | null)?.trim() || null
   const descriptionShort = (formData.get("descriptionShort") as string | null)?.trim() || null
 
-  // ループエンジン用フィールド (Phase 1c で追加 / v1.3: difficulty → star rename、formData 入力名は UI 互換のため維持)
-  const starRaw = (formData.get("difficulty") as string | null)?.trim() ?? ""
+  // ループエンジン用フィールド (Phase 1c で追加 / v1.3 B-3: DB カラム & formData key 双方 star に統一)
+  const starRaw = (formData.get("star") as string | null)?.trim() ?? ""
   let star: number | null = null
   if (starRaw !== "") {
     const n = Number.parseInt(starRaw, 10)
