@@ -765,6 +765,8 @@ def main() -> None:
         print(f"[loop_engine_runner] uploaded: {result_path}")
 
         # 5. DB に v3.2.2 列を更新 (commit はまだ — 6 と atomic にする)
+        # v1.5/K2=(a): bowingAccuracy = bowingSkillScore のコピー (UPDATE 1)
+        # v1.5/案 α : overallScore = (pitch + rhythm + bowing) / 3 (UPDATE 2、accuracy 列が揃ったあと)
         with conn.cursor() as cur:
             cur.execute(
                 """
@@ -772,6 +774,7 @@ def main() -> None:
                 SET "pitchSkillScore" = %s,
                     "rhythmSkillScore" = %s,
                     "bowingSkillScore" = %s,
+                    "bowingAccuracy" = %s,
                     "skillSubScores" = %s::jsonb,
                     "problematicPositions" = %s::jsonb
                 WHERE id = %s
@@ -780,12 +783,29 @@ def main() -> None:
                     result.get("pitchSkillScore"),
                     result.get("rhythmSkillScore"),
                     result.get("bowingSkillScore"),
+                    result.get("bowingSkillScore"),  # v1.5/K2=(a): bowingAccuracy = bowingSkillScore
                     json.dumps(result.get("skillSubScores") or {}),
                     json.dumps(result.get("problematicPositions") or []),
                     performance_id,
                 ),
             )
-        print(f"[loop_engine_runner] DB v3.2.2 列更新 (uncommitted): perf={performance_id}")
+            # v1.5/案 α: overallScore は 3 軸 (pitch/rhythm/bowing accuracy) が揃ったあとに合成
+            # analyze_performance.py が pitchAccuracy / rhythmAccuracy をセット済、
+            # 上の UPDATE で bowingAccuracy が設定されたので、ここで overallScore を再計算する。
+            cur.execute(
+                """
+                UPDATE "PracticePerformance"
+                SET "overallScore" = ROUND(
+                    (("pitchAccuracy" + "rhythmAccuracy" + "bowingAccuracy") / 3.0)::numeric, 1
+                )::float
+                WHERE id = %s
+                  AND "pitchAccuracy" IS NOT NULL
+                  AND "rhythmAccuracy" IS NOT NULL
+                  AND "bowingAccuracy" IS NOT NULL
+                """,
+                (performance_id,),
+            )
+        print(f"[loop_engine_runner] DB v3.2.2 + v1.5 列更新 (uncommitted): perf={performance_id}")
 
         # 6. 累積処理 (v3.2.3 §7-4 / §9 / §10) — Step 5 と同 transaction で atomic
         sub_scores_for_progress = result.get("skillSubScores") or {}

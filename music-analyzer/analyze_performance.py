@@ -997,8 +997,14 @@ try:
     upload_to_storage(PERFORMANCE_BUCKET, comparison_path, comparison_json.encode("utf-8"))
 
     # --- サマリー計算 ---
-    PITCH_WEIGHT = 0.6
-    TIMING_WEIGHT = 0.4
+    # v1.5/案 Y: timing → rhythm に正書化。timing_accuracy ローカル変数は維持し、
+    #            DB へは timingAccuracy (legacy mirror, P-ア) と rhythmAccuracy (v1.5 正) の両方に
+    #            同値を書き込む。
+    # v1.5/案 α: overallScore は loop_engine_runner.py (= score_full の後段) で
+    #            (pitchAccuracy + rhythmAccuracy + bowingAccuracy) / 3 として計算する。
+    #            analyze_performance.py 単独では計算しない。
+    #            Score 演奏 (IS_PRACTICE=false) では loop_engine_runner が走らないため、
+    #            Phase 3 で対応するまで overallScore は NULL のままとなる。
 
     # 分母は楽譜上の全音符数（not_detected も「不正解」として扱う）
     total_notes = len(results)
@@ -1009,14 +1015,11 @@ try:
 
     pitch_accuracy = round(pitch_ok_count / total_notes * 100, 1) if total_notes > 0 else None
     timing_accuracy = round(timing_ok_count / total_notes * 100, 1) if total_notes > 0 else None
+    rhythm_accuracy = timing_accuracy  # v1.5/案 Y: rhythmAccuracy = timingAccuracy 同値で書き込み
     evaluated_notes = len(evaluated)
 
-    # overallScore 計算
-    overall_score = None
-    if pitch_accuracy is not None and timing_accuracy is not None:
-        overall_score = round(pitch_accuracy * PITCH_WEIGHT + timing_accuracy * TIMING_WEIGHT, 1)
-    elif pitch_accuracy is not None:
-        overall_score = pitch_accuracy
+    # v1.5/案 α: overallScore 計算は loop_engine_runner で実施 (score_full 後段)
+    overall_score = None  # placeholder for legacy print/log; DB UPDATE には含めない
 
     # 拡張用 JSON（将来ビブラート等の指標もここに追加）
     import json as json_module
@@ -1070,13 +1073,16 @@ try:
     if primary_issue:
         print(f"  Primary issue: {primary_issue}")
 
+    # v1.5/案 Y + 案 α:
+    #   - timingAccuracy 列 (legacy) と rhythmAccuracy 列 (v1.3 正) の両方に同値書き込み (P-ア)
+    #   - overallScore は UPDATE に含めない (loop_engine_runner で 3 軸合成して書き込む)
     if IS_PRACTICE:
         cur.execute("""
             UPDATE "PracticePerformance"
             SET "comparisonResultPath" = %s,
                 "pitchAccuracy" = %s,
                 "timingAccuracy" = %s,
-                "overallScore" = %s,
+                "rhythmAccuracy" = %s,
                 "evaluatedNotes" = %s,
                 "analysisSummary" = %s,
                 "analysisStatus" = 'done',
@@ -1086,7 +1092,7 @@ try:
             comparison_path,
             pitch_accuracy,
             timing_accuracy,
-            overall_score,
+            rhythm_accuracy,
             evaluated_notes,
             json_module.dumps(analysis_summary, ensure_ascii=False) if analysis_summary else None,
             PERFORMANCE_ID,
@@ -1097,7 +1103,7 @@ try:
             SET "comparisonResultPath" = %s,
                 "pitchAccuracy" = %s,
                 "timingAccuracy" = %s,
-                "overallScore" = %s,
+                "rhythmAccuracy" = %s,
                 "evaluatedNotes" = %s,
                 "analysisSummary" = %s,
                 "analysisStatus" = 'done',
@@ -1107,7 +1113,7 @@ try:
             comparison_path,
             pitch_accuracy,
             timing_accuracy,
-            overall_score,
+            rhythm_accuracy,
             evaluated_notes,
             json_module.dumps(analysis_summary, ensure_ascii=False) if analysis_summary else None,
             PERFORMANCE_ID,
