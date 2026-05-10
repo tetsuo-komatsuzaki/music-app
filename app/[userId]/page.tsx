@@ -241,6 +241,76 @@ export default async function HomePage({ params }: PageProps) {
     (sum, d) => sum + d.required,
     0,
   )
+  // ───── ☆ 進捗計算 (次の☆まで N 曲) ─────
+  // ルール (2026-05-10):
+  //   1 曲クリア = 該当 practiceItem で総演奏回数 ≥ 5 AND 直近 5 回の overallScore 平均 ≥ 85
+  //   1 ☆ 獲得 = 同じ難易度の曲を 10 曲クリア
+  //   現在の☆ Lv = NEXT_GRADE_BAND[currentGrade].difficulties のうちマスターしていない最低 Lv
+  const STAR_CLEAR_THRESHOLD_PER_ITEM = 85
+  const STAR_CLEAR_MIN_PERFORMANCES = 5
+  const STAR_ITEMS_PER_STAR = 10
+  const targetDifficulties = band.difficulties
+
+  let starsFilled = 0
+  let currentStarLv: number | null = null
+  let clearedAtCurrentStar = 0
+
+  if (targetDifficulties.length > 0) {
+    const itemsAtTargetDiffs = await prisma.practiceItem.findMany({
+      where: {
+        difficulty: { in: targetDifficulties },
+        isPublished: true,
+      },
+      select: { id: true, difficulty: true },
+    })
+    const itemIdsByDiff = new Map<number, string[]>()
+    for (const it of itemsAtTargetDiffs) {
+      if (it.difficulty == null) continue
+      if (!itemIdsByDiff.has(it.difficulty)) itemIdsByDiff.set(it.difficulty, [])
+      itemIdsByDiff.get(it.difficulty)!.push(it.id)
+    }
+
+    const allItemIds = itemsAtTargetDiffs.map(i => i.id)
+    const perfsAtTarget = allItemIds.length > 0
+      ? await prisma.practicePerformance.findMany({
+          where: {
+            userId: internalUserId,
+            analysisStatus: "done",
+            practiceItemId: { in: allItemIds },
+            overallScore: { not: null },
+          },
+          orderBy: { uploadedAt: "desc" },
+          select: { practiceItemId: true, overallScore: true },
+        })
+      : []
+
+    const perfsByItem = new Map<string, number[]>()
+    for (const p of perfsAtTarget) {
+      if (p.overallScore == null) continue
+      if (!perfsByItem.has(p.practiceItemId)) perfsByItem.set(p.practiceItemId, [])
+      perfsByItem.get(p.practiceItemId)!.push(p.overallScore)
+    }
+
+    for (const d of targetDifficulties) {
+      const itemIds = itemIdsByDiff.get(d) ?? []
+      let clearedAtD = 0
+      for (const itemId of itemIds) {
+        const scores = perfsByItem.get(itemId) ?? []
+        if (scores.length < STAR_CLEAR_MIN_PERFORMANCES) continue
+        const recent5 = scores.slice(0, 5)
+        const avg = recent5.reduce((a, b) => a + b, 0) / recent5.length
+        if (avg >= STAR_CLEAR_THRESHOLD_PER_ITEM) clearedAtD++
+      }
+      if (clearedAtD >= STAR_ITEMS_PER_STAR) {
+        starsFilled++
+      } else if (currentStarLv == null) {
+        currentStarLv = d
+        clearedAtCurrentStar = clearedAtD
+      }
+    }
+  }
+  const itemsToNextStar = Math.max(0, STAR_ITEMS_PER_STAR - clearedAtCurrentStar)
+
   const gradeData = {
     currentGrade,
     achievedAt: userGrade?.achievedAt?.toISOString() ?? null,
@@ -249,6 +319,11 @@ export default async function HomePage({ params }: PageProps) {
     nextGradeDetails,
     totalCompleted,
     totalRequired,
+    // ☆ 進捗 (グレードの下に表示)
+    starsFilled,
+    starsTotal: targetDifficulties.length,
+    currentStarLv,
+    itemsToNextStar,
   }
 
   // --- UI-9 + Score 統合 (§11-3): active カード優先のレコメンド ---
