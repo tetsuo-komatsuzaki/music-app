@@ -86,8 +86,8 @@ function getDisplayNames(
 
 export default async function ProgressServerPage({ params, searchParams }: PageProps) {
   const { userId } = await params
-  const { tab: rawTab = "calendar" } = await searchParams
-  const tab = (VALID_TABS as readonly string[]).includes(rawTab) ? rawTab : "calendar"
+  const { tab: rawTab = "tasks" } = await searchParams
+  const tab = (VALID_TABS as readonly string[]).includes(rawTab) ? rawTab : "tasks"
 
   const dbUser = await prisma.user.findUnique({
     where: { supabaseUserId: userId },
