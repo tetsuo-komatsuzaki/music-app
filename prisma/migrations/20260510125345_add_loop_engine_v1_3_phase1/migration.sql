@@ -1,3 +1,11 @@
+-- ─────────────────────────────────────────────────────────
+-- v1.3 Phase 1 (B-3): difficulty → star リネーム
+-- データ温存のため RENAME COLUMN (DROP+ADD ではなく)
+-- ─────────────────────────────────────────────────────────
+ALTER TABLE "Score" RENAME COLUMN "difficulty" TO "star";
+ALTER TABLE "PracticeItem" RENAME COLUMN "difficulty" TO "star";
+ALTER INDEX "PracticeItem_category_difficulty_idx" RENAME TO "PracticeItem_category_star_idx";
+
 -- CreateEnum
 CREATE TYPE "TaskCategory" AS ENUM ('PITCH', 'RHYTHM', 'BOWING');
 

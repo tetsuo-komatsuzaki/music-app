@@ -49,7 +49,7 @@ export default async function AdminPracticePage({
         isShared: true,
         analysisStatus: true,
         buildStatus: true,
-        difficulty: true,
+        star: true,
         skillSubTaskTags: true,
       },
     }),
@@ -86,7 +86,7 @@ export default async function AdminPracticePage({
       isPublished: item.isPublished,
       analysisStatus: item.analysisStatus,
       buildStatus: item.buildStatus,
-      difficulty: item.difficulty,
+      star: item.star,
       skillSubTaskTags: tags,
       techniques: item.techniques.map((t) => ({
         id: t.techniqueTag.id,
@@ -115,7 +115,7 @@ export default async function AdminPracticePage({
       isPublished: s.isShared, // Score の "公開" 相当は isShared
       analysisStatus: s.analysisStatus,
       buildStatus: s.buildStatus,
-      difficulty: s.difficulty,
+      star: s.star,
       skillSubTaskTags: tags,
       techniques: [] as { id: string; name: string; isPrimary: boolean }[],
     }

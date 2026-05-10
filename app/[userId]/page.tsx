@@ -256,16 +256,16 @@ export default async function HomePage({ params }: PageProps) {
   // (1) Lv1〜10 の全 practiceItem を取得
   const allLvItems = await prisma.practiceItem.findMany({
     where: {
-      difficulty: { in: ALL_DIFFICULTIES },
+      star: { in: ALL_DIFFICULTIES },
       isPublished: true,
     },
-    select: { id: true, difficulty: true },
+    select: { id: true, star: true },
   })
   const itemIdsByDiff = new Map<number, string[]>()
   for (const it of allLvItems) {
-    if (it.difficulty == null) continue
-    if (!itemIdsByDiff.has(it.difficulty)) itemIdsByDiff.set(it.difficulty, [])
-    itemIdsByDiff.get(it.difficulty)!.push(it.id)
+    if (it.star == null) continue
+    if (!itemIdsByDiff.has(it.star)) itemIdsByDiff.set(it.star, [])
+    itemIdsByDiff.get(it.star)!.push(it.id)
   }
 
   // (2) 全 item に対するユーザー演奏履歴 (overallScore 付き) を取得
@@ -342,8 +342,8 @@ export default async function HomePage({ params }: PageProps) {
 
   // --- UI-9 + Score 統合 (§11-3): active カード優先のレコメンド ---
   // findCandidateRecommendations が PracticeItem + Score を統合した候補を返す。
-  // - PracticeItem: difficulty 範囲 + skillSubTaskTags + 未達成 + isPublished
-  // - Score: difficulty 範囲 + skillSubTaskTags + isShared + deletedAt=null
+  // - PracticeItem: star 範囲 + skillSubTaskTags + 未達成 + isPublished
+  // - Score: star 範囲 + skillSubTaskTags + isShared + deletedAt=null
   //   (Score は achievedIds 適用なし — 進捗管理は PracticeItem のみ)
   const perfStep3 = performance.now()
   const achievedIds = Object.values(progressData).flatMap(
@@ -369,7 +369,7 @@ export default async function HomePage({ params }: PageProps) {
         id: item.id,
         title: item.title,
         category: item.category,
-        difficulty: item.difficulty ?? null,
+        star: item.star ?? null,
         composer: item.composer ?? null,
       },
       reason: recommendationReason,
@@ -384,7 +384,7 @@ export default async function HomePage({ params }: PageProps) {
   if (hasNoHistory) {
     const lv1Items = await prisma.practiceItem.findMany({
       where: {
-        difficulty: 1,
+        star: 1,
         isPublished: true,
         OR: [{ ownerUserId: null }, { ownerUserId: internalUserId }],
       },
@@ -394,7 +394,7 @@ export default async function HomePage({ params }: PageProps) {
         id: true,
         title: true,
         category: true,
-        difficulty: true,
+        star: true,
         composer: true,
       },
     })
@@ -403,7 +403,7 @@ export default async function HomePage({ params }: PageProps) {
         id: item.id,
         title: item.title,
         category: item.category,
-        difficulty: item.difficulty ?? null,
+        star: item.star ?? null,
         composer: item.composer ?? null,
       },
       reason: "まずは ☆1 の曲から始めましょう",

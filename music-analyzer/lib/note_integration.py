@@ -151,7 +151,7 @@ def build_integrated_score_data(
         performance_id: 演奏ID
         user_id: ユーザーID
         practice_item_id: PracticeItem ID
-        practice_item_difficulty: PracticeItem.difficulty（1〜10）
+        practice_item_difficulty: PracticeItem.star (v1.3 で difficulty → star、1〜10)
         skill_sub_task_tags: PracticeItem.skillSubTaskTags
 
     Returns:

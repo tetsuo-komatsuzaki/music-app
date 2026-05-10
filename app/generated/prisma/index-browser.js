@@ -154,7 +154,7 @@ exports.Prisma.ScoreScalarFieldEnum = {
   timeDenominator: 'timeDenominator',
   defaultTempo: 'defaultTempo',
   isShared: 'isShared',
-  difficulty: 'difficulty',
+  star: 'star',
   skillSubTaskTags: 'skillSubTaskTags',
   ownerScope: 'ownerScope',
   createdAt: 'createdAt',
@@ -226,7 +226,7 @@ exports.Prisma.PracticeItemScalarFieldEnum = {
   metadata: 'metadata',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  difficulty: 'difficulty',
+  star: 'star',
   skillSubTaskTags: 'skillSubTaskTags'
 };
 

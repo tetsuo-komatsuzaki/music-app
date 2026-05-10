@@ -21,7 +21,7 @@ type ItemDTO = {
   keyTonic: string; keyMode: string
   tempoMin: number | null; tempoMax: number | null; positions: string[]
   isPublished: boolean; analysisStatus: string; buildStatus: string
-  difficulty: number | null
+  star: number | null
   skillSubTaskTags: string[]
   techniques: { id: string; name: string; isPrimary: boolean }[]
 }
@@ -142,7 +142,7 @@ export default function AdminPractice({
 
   const startEdit = (item: ItemDTO) => {
     setEditingId(item.id)
-    setEditDifficulty(item.difficulty != null ? String(item.difficulty) : "")
+    setEditDifficulty(item.star != null ? String(item.star) : "")
     setEditSubTasks(new Set(item.skillSubTaskTags))
     setEditError(null)
   }
@@ -183,7 +183,7 @@ export default function AdminPractice({
         setItems(prev =>
           prev.map(it =>
             it.id === item.id
-              ? { ...it, difficulty, skillSubTaskTags: Array.from(editSubTasks) }
+              ? { ...it, star: difficulty, skillSubTaskTags: Array.from(editSubTasks) }
               : it,
           ),
         )
@@ -261,7 +261,7 @@ export default function AdminPractice({
     const lower = searchText.trim().toLowerCase()
     return items.filter(item => {
       // フィルタ
-      const noDiff = item.difficulty == null
+      const noDiff = item.star == null
       const noTags = item.skillSubTaskTags.length === 0
       if (filterMode === "missing_both" && !(noDiff && noTags)) return false
       if (filterMode === "missing_difficulty" && !noDiff) return false
@@ -277,9 +277,9 @@ export default function AdminPractice({
 
   const counts = useMemo(() => {
     const total = items.length
-    const noDiff = items.filter(it => it.difficulty == null).length
+    const noDiff = items.filter(it => it.star == null).length
     const noTags = items.filter(it => it.skillSubTaskTags.length === 0).length
-    const both = items.filter(it => it.difficulty == null && it.skillSubTaskTags.length === 0).length
+    const both = items.filter(it => it.star == null && it.skillSubTaskTags.length === 0).length
     return { total, noDiff, noTags, both }
   }, [items])
 
@@ -540,7 +540,7 @@ export default function AdminPractice({
           <tbody>
             {filteredItems.map((item) => {
               const isEditing = editingId === item.id
-              const noDiff = item.difficulty == null
+              const noDiff = item.star == null
               const noTags = item.skillSubTaskTags.length === 0
               return (
                 <tr key={item.id} className={noDiff || noTags ? styles.rowNeedsAttention : ""}>
@@ -566,7 +566,7 @@ export default function AdminPractice({
                       />
                     ) : (
                       <span className={noDiff ? styles.missingBadge : ""}>
-                        {item.difficulty ?? "未設定"}
+                        {item.star ?? "未設定"}
                       </span>
                     )}
                   </td>

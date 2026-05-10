@@ -173,7 +173,7 @@ class IntegratedScoreData:
     performance_id: str
     user_id: str
     practice_item_id: str
-    practice_item_difficulty: int  # 1〜10 の難易度（PracticeItem.difficulty）
+    practice_item_difficulty: int  # 1〜10 の難易度 (PracticeItem.star、v1.3 で difficulty → star に rename)
 
     notes: List[IntegratedNote]  # 音符のリスト（休符を含む順序保持）
 

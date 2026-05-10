@@ -19,7 +19,7 @@ export type CardContext = {
     id: string
     title: string
     category: string
-    difficulty: number | null
+    star: number | null
     composer: string | null
     reason: string
     href: string

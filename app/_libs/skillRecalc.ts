@@ -214,7 +214,7 @@ export async function recalculateUserGradeProgress(
     where: {
       userId,
       analysisStatus: "done",
-      practiceItem: { difficulty: { not: null } }, // 致命1: difficulty NULL は除外
+      practiceItem: { star: { not: null } }, // 致命1: ★ NULL は除外 (旧名 difficulty、v1.3 で rename)
     },
     orderBy: { uploadedAt: "asc" },
     select: {
@@ -223,7 +223,7 @@ export async function recalculateUserGradeProgress(
       rhythmSkillScore: true,
       bowingSkillScore: true,
       skillSubScores: true,
-      practiceItem: { select: { difficulty: true } },
+      practiceItem: { select: { star: true } },
     },
   })
 
@@ -233,7 +233,7 @@ export async function recalculateUserGradeProgress(
     practiceItemIds: string[]
   }
   const newProgress: Record<string, ProgressEntry> = {}
-  const seenItemsByDifficulty: Record<string, Set<string>> = {}
+  const seenItemsByStar: Record<string, Set<string>> = {}
 
   for (const p of performances) {
     if (p.pitchSkillScore == null || p.pitchSkillScore < GRADE_THRESHOLD) continue
@@ -250,16 +250,16 @@ export async function recalculateUserGradeProgress(
       if (p.bowingSkillScore == null || p.bowingSkillScore < GRADE_THRESHOLD) continue
     }
 
-    const difficulty = p.practiceItem.difficulty
-    if (difficulty == null) continue
-    const dKey = String(difficulty)
+    const star = p.practiceItem.star
+    if (star == null) continue
+    const dKey = String(star)
 
     if (!newProgress[dKey]) {
       newProgress[dKey] = { completed: 0, required: 10, practiceItemIds: [] }
-      seenItemsByDifficulty[dKey] = new Set()
+      seenItemsByStar[dKey] = new Set()
     }
-    if (!seenItemsByDifficulty[dKey].has(p.practiceItemId)) {
-      seenItemsByDifficulty[dKey].add(p.practiceItemId)
+    if (!seenItemsByStar[dKey].has(p.practiceItemId)) {
+      seenItemsByStar[dKey].add(p.practiceItemId)
       newProgress[dKey].practiceItemIds.push(p.practiceItemId)
       newProgress[dKey].completed = newProgress[dKey].practiceItemIds.length
     }
