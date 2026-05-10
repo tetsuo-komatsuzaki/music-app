@@ -210,6 +210,24 @@ export const GradeLevel: {
 
 export type GradeLevel = (typeof GradeLevel)[keyof typeof GradeLevel]
 
+
+export const TaskCategory: {
+  PITCH: 'PITCH',
+  RHYTHM: 'RHYTHM',
+  BOWING: 'BOWING'
+};
+
+export type TaskCategory = (typeof TaskCategory)[keyof typeof TaskCategory]
+
+
+export const AssignedCategory: {
+  SCALE: 'SCALE',
+  ARPEGGIO: 'ARPEGGIO',
+  ETUDE: 'ETUDE'
+};
+
+export type AssignedCategory = (typeof AssignedCategory)[keyof typeof AssignedCategory]
+
 }
 
 export type JobStatus = $Enums.JobStatus
@@ -243,6 +261,14 @@ export const CardStatus: typeof $Enums.CardStatus
 export type GradeLevel = $Enums.GradeLevel
 
 export const GradeLevel: typeof $Enums.GradeLevel
+
+export type TaskCategory = $Enums.TaskCategory
+
+export const TaskCategory: typeof $Enums.TaskCategory
+
+export type AssignedCategory = $Enums.AssignedCategory
+
+export const AssignedCategory: typeof $Enums.AssignedCategory
 
 /**
  * ##  Prisma Client ʲˢ
@@ -23611,7 +23637,7 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     currentStar: number | null
-    currentGrade: string | null
+    currentGrade: $Enums.GradeLevel | null
     masteredSongCountAtCurrentStar: number | null
     masterReachedAt: Date | null
     updatedAt: Date | null
@@ -23621,7 +23647,7 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     currentStar: number | null
-    currentGrade: string | null
+    currentGrade: $Enums.GradeLevel | null
     masteredSongCountAtCurrentStar: number | null
     masterReachedAt: Date | null
     updatedAt: Date | null
@@ -23770,7 +23796,7 @@ export namespace Prisma {
     id: string
     userId: string
     currentStar: number
-    currentGrade: string
+    currentGrade: $Enums.GradeLevel
     masteredSongCountAtCurrentStar: number
     masterReachedAt: Date | null
     updatedAt: Date
@@ -23858,7 +23884,7 @@ export namespace Prisma {
       id: string
       userId: string
       currentStar: number
-      currentGrade: string
+      currentGrade: $Enums.GradeLevel
       masteredSongCountAtCurrentStar: number
       masterReachedAt: Date | null
       updatedAt: Date
@@ -24289,7 +24315,7 @@ export namespace Prisma {
     readonly id: FieldRef<"UserGradeProgress", 'String'>
     readonly userId: FieldRef<"UserGradeProgress", 'String'>
     readonly currentStar: FieldRef<"UserGradeProgress", 'Int'>
-    readonly currentGrade: FieldRef<"UserGradeProgress", 'String'>
+    readonly currentGrade: FieldRef<"UserGradeProgress", 'GradeLevel'>
     readonly masteredSongCountAtCurrentStar: FieldRef<"UserGradeProgress", 'Int'>
     readonly masterReachedAt: FieldRef<"UserGradeProgress", 'DateTime'>
     readonly updatedAt: FieldRef<"UserGradeProgress", 'DateTime'>
@@ -24721,7 +24747,7 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     scoreId: string | null
-    taskCategory: string | null
+    taskCategory: $Enums.TaskCategory | null
     status: string | null
     generatedAt: Date | null
     lastMatchedAt: Date | null
@@ -24733,7 +24759,7 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     scoreId: string | null
-    taskCategory: string | null
+    taskCategory: $Enums.TaskCategory | null
     status: string | null
     generatedAt: Date | null
     lastMatchedAt: Date | null
@@ -24868,7 +24894,7 @@ export namespace Prisma {
     id: string
     userId: string
     scoreId: string
-    taskCategory: string
+    taskCategory: $Enums.TaskCategory
     status: string
     generatedAt: Date
     lastMatchedAt: Date | null
@@ -24976,7 +25002,7 @@ export namespace Prisma {
       id: string
       userId: string
       scoreId: string
-      taskCategory: string
+      taskCategory: $Enums.TaskCategory
       status: string
       generatedAt: Date
       lastMatchedAt: Date | null
@@ -25411,7 +25437,7 @@ export namespace Prisma {
     readonly id: FieldRef<"SkillTaskCard", 'String'>
     readonly userId: FieldRef<"SkillTaskCard", 'String'>
     readonly scoreId: FieldRef<"SkillTaskCard", 'String'>
-    readonly taskCategory: FieldRef<"SkillTaskCard", 'String'>
+    readonly taskCategory: FieldRef<"SkillTaskCard", 'TaskCategory'>
     readonly status: FieldRef<"SkillTaskCard", 'String'>
     readonly generatedAt: FieldRef<"SkillTaskCard", 'DateTime'>
     readonly lastMatchedAt: FieldRef<"SkillTaskCard", 'DateTime'>
@@ -26983,7 +27009,7 @@ export namespace Prisma {
     id: string | null
     subTaskId: string | null
     practiceItemId: string | null
-    assignedCategory: string | null
+    assignedCategory: $Enums.AssignedCategory | null
     isMastered: boolean | null
     masteredAt: Date | null
     assignedAt: Date | null
@@ -26993,7 +27019,7 @@ export namespace Prisma {
     id: string | null
     subTaskId: string | null
     practiceItemId: string | null
-    assignedCategory: string | null
+    assignedCategory: $Enums.AssignedCategory | null
     isMastered: boolean | null
     masteredAt: Date | null
     assignedAt: Date | null
@@ -27118,7 +27144,7 @@ export namespace Prisma {
     id: string
     subTaskId: string
     practiceItemId: string
-    assignedCategory: string
+    assignedCategory: $Enums.AssignedCategory
     isMastered: boolean
     masteredAt: Date | null
     assignedAt: Date
@@ -27211,7 +27237,7 @@ export namespace Prisma {
       id: string
       subTaskId: string
       practiceItemId: string
-      assignedCategory: string
+      assignedCategory: $Enums.AssignedCategory
       isMastered: boolean
       masteredAt: Date | null
       assignedAt: Date
@@ -27643,7 +27669,7 @@ export namespace Prisma {
     readonly id: FieldRef<"SubTaskAssignment", 'String'>
     readonly subTaskId: FieldRef<"SubTaskAssignment", 'String'>
     readonly practiceItemId: FieldRef<"SubTaskAssignment", 'String'>
-    readonly assignedCategory: FieldRef<"SubTaskAssignment", 'String'>
+    readonly assignedCategory: FieldRef<"SubTaskAssignment", 'AssignedCategory'>
     readonly isMastered: FieldRef<"SubTaskAssignment", 'Boolean'>
     readonly masteredAt: FieldRef<"SubTaskAssignment", 'DateTime'>
     readonly assignedAt: FieldRef<"SubTaskAssignment", 'DateTime'>
@@ -33151,6 +33177,34 @@ export namespace Prisma {
    */
   export type ListEnumGradeLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GradeLevel[]'>
     
+
+
+  /**
+   * Reference to a field of type 'TaskCategory'
+   */
+  export type EnumTaskCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaskCategory'>
+    
+
+
+  /**
+   * Reference to a field of type 'TaskCategory[]'
+   */
+  export type ListEnumTaskCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TaskCategory[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AssignedCategory'
+   */
+  export type EnumAssignedCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssignedCategory'>
+    
+
+
+  /**
+   * Reference to a field of type 'AssignedCategory[]'
+   */
+  export type ListEnumAssignedCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssignedCategory[]'>
+    
   /**
    * Deep Input Types
    */
@@ -34834,7 +34888,7 @@ export namespace Prisma {
     id?: StringFilter<"UserGradeProgress"> | string
     userId?: StringFilter<"UserGradeProgress"> | string
     currentStar?: IntFilter<"UserGradeProgress"> | number
-    currentGrade?: StringFilter<"UserGradeProgress"> | string
+    currentGrade?: EnumGradeLevelFilter<"UserGradeProgress"> | $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: IntFilter<"UserGradeProgress"> | number
     masterReachedAt?: DateTimeNullableFilter<"UserGradeProgress"> | Date | string | null
     updatedAt?: DateTimeFilter<"UserGradeProgress"> | Date | string
@@ -34859,7 +34913,7 @@ export namespace Prisma {
     OR?: UserGradeProgressWhereInput[]
     NOT?: UserGradeProgressWhereInput | UserGradeProgressWhereInput[]
     currentStar?: IntFilter<"UserGradeProgress"> | number
-    currentGrade?: StringFilter<"UserGradeProgress"> | string
+    currentGrade?: EnumGradeLevelFilter<"UserGradeProgress"> | $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: IntFilter<"UserGradeProgress"> | number
     masterReachedAt?: DateTimeNullableFilter<"UserGradeProgress"> | Date | string | null
     updatedAt?: DateTimeFilter<"UserGradeProgress"> | Date | string
@@ -34888,7 +34942,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"UserGradeProgress"> | string
     userId?: StringWithAggregatesFilter<"UserGradeProgress"> | string
     currentStar?: IntWithAggregatesFilter<"UserGradeProgress"> | number
-    currentGrade?: StringWithAggregatesFilter<"UserGradeProgress"> | string
+    currentGrade?: EnumGradeLevelWithAggregatesFilter<"UserGradeProgress"> | $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: IntWithAggregatesFilter<"UserGradeProgress"> | number
     masterReachedAt?: DateTimeNullableWithAggregatesFilter<"UserGradeProgress"> | Date | string | null
     updatedAt?: DateTimeWithAggregatesFilter<"UserGradeProgress"> | Date | string
@@ -34901,7 +34955,7 @@ export namespace Prisma {
     id?: StringFilter<"SkillTaskCard"> | string
     userId?: StringFilter<"SkillTaskCard"> | string
     scoreId?: StringFilter<"SkillTaskCard"> | string
-    taskCategory?: StringFilter<"SkillTaskCard"> | string
+    taskCategory?: EnumTaskCategoryFilter<"SkillTaskCard"> | $Enums.TaskCategory
     status?: StringFilter<"SkillTaskCard"> | string
     generatedAt?: DateTimeFilter<"SkillTaskCard"> | Date | string
     lastMatchedAt?: DateTimeNullableFilter<"SkillTaskCard"> | Date | string | null
@@ -34935,7 +34989,7 @@ export namespace Prisma {
     NOT?: SkillTaskCardWhereInput | SkillTaskCardWhereInput[]
     userId?: StringFilter<"SkillTaskCard"> | string
     scoreId?: StringFilter<"SkillTaskCard"> | string
-    taskCategory?: StringFilter<"SkillTaskCard"> | string
+    taskCategory?: EnumTaskCategoryFilter<"SkillTaskCard"> | $Enums.TaskCategory
     status?: StringFilter<"SkillTaskCard"> | string
     generatedAt?: DateTimeFilter<"SkillTaskCard"> | Date | string
     lastMatchedAt?: DateTimeNullableFilter<"SkillTaskCard"> | Date | string | null
@@ -34968,7 +35022,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"SkillTaskCard"> | string
     userId?: StringWithAggregatesFilter<"SkillTaskCard"> | string
     scoreId?: StringWithAggregatesFilter<"SkillTaskCard"> | string
-    taskCategory?: StringWithAggregatesFilter<"SkillTaskCard"> | string
+    taskCategory?: EnumTaskCategoryWithAggregatesFilter<"SkillTaskCard"> | $Enums.TaskCategory
     status?: StringWithAggregatesFilter<"SkillTaskCard"> | string
     generatedAt?: DateTimeWithAggregatesFilter<"SkillTaskCard"> | Date | string
     lastMatchedAt?: DateTimeNullableWithAggregatesFilter<"SkillTaskCard"> | Date | string | null
@@ -35052,7 +35106,7 @@ export namespace Prisma {
     id?: StringFilter<"SubTaskAssignment"> | string
     subTaskId?: StringFilter<"SubTaskAssignment"> | string
     practiceItemId?: StringFilter<"SubTaskAssignment"> | string
-    assignedCategory?: StringFilter<"SubTaskAssignment"> | string
+    assignedCategory?: EnumAssignedCategoryFilter<"SubTaskAssignment"> | $Enums.AssignedCategory
     isMastered?: BoolFilter<"SubTaskAssignment"> | boolean
     masteredAt?: DateTimeNullableFilter<"SubTaskAssignment"> | Date | string | null
     assignedAt?: DateTimeFilter<"SubTaskAssignment"> | Date | string
@@ -35080,7 +35134,7 @@ export namespace Prisma {
     NOT?: SubTaskAssignmentWhereInput | SubTaskAssignmentWhereInput[]
     subTaskId?: StringFilter<"SubTaskAssignment"> | string
     practiceItemId?: StringFilter<"SubTaskAssignment"> | string
-    assignedCategory?: StringFilter<"SubTaskAssignment"> | string
+    assignedCategory?: EnumAssignedCategoryFilter<"SubTaskAssignment"> | $Enums.AssignedCategory
     isMastered?: BoolFilter<"SubTaskAssignment"> | boolean
     masteredAt?: DateTimeNullableFilter<"SubTaskAssignment"> | Date | string | null
     assignedAt?: DateTimeFilter<"SubTaskAssignment"> | Date | string
@@ -35108,7 +35162,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"SubTaskAssignment"> | string
     subTaskId?: StringWithAggregatesFilter<"SubTaskAssignment"> | string
     practiceItemId?: StringWithAggregatesFilter<"SubTaskAssignment"> | string
-    assignedCategory?: StringWithAggregatesFilter<"SubTaskAssignment"> | string
+    assignedCategory?: EnumAssignedCategoryWithAggregatesFilter<"SubTaskAssignment"> | $Enums.AssignedCategory
     isMastered?: BoolWithAggregatesFilter<"SubTaskAssignment"> | boolean
     masteredAt?: DateTimeNullableWithAggregatesFilter<"SubTaskAssignment"> | Date | string | null
     assignedAt?: DateTimeWithAggregatesFilter<"SubTaskAssignment"> | Date | string
@@ -37303,7 +37357,7 @@ export namespace Prisma {
   export type UserGradeProgressCreateInput = {
     id?: string
     currentStar?: number
-    currentGrade?: string
+    currentGrade?: $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: number
     masterReachedAt?: Date | string | null
     updatedAt?: Date | string
@@ -37314,7 +37368,7 @@ export namespace Prisma {
     id?: string
     userId: string
     currentStar?: number
-    currentGrade?: string
+    currentGrade?: $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: number
     masterReachedAt?: Date | string | null
     updatedAt?: Date | string
@@ -37323,7 +37377,7 @@ export namespace Prisma {
   export type UserGradeProgressUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     currentStar?: IntFieldUpdateOperationsInput | number
-    currentGrade?: StringFieldUpdateOperationsInput | string
+    currentGrade?: EnumGradeLevelFieldUpdateOperationsInput | $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: IntFieldUpdateOperationsInput | number
     masterReachedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37334,7 +37388,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     currentStar?: IntFieldUpdateOperationsInput | number
-    currentGrade?: StringFieldUpdateOperationsInput | string
+    currentGrade?: EnumGradeLevelFieldUpdateOperationsInput | $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: IntFieldUpdateOperationsInput | number
     masterReachedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37344,7 +37398,7 @@ export namespace Prisma {
     id?: string
     userId: string
     currentStar?: number
-    currentGrade?: string
+    currentGrade?: $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: number
     masterReachedAt?: Date | string | null
     updatedAt?: Date | string
@@ -37353,7 +37407,7 @@ export namespace Prisma {
   export type UserGradeProgressUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     currentStar?: IntFieldUpdateOperationsInput | number
-    currentGrade?: StringFieldUpdateOperationsInput | string
+    currentGrade?: EnumGradeLevelFieldUpdateOperationsInput | $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: IntFieldUpdateOperationsInput | number
     masterReachedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37363,7 +37417,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     currentStar?: IntFieldUpdateOperationsInput | number
-    currentGrade?: StringFieldUpdateOperationsInput | string
+    currentGrade?: EnumGradeLevelFieldUpdateOperationsInput | $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: IntFieldUpdateOperationsInput | number
     masterReachedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37371,7 +37425,7 @@ export namespace Prisma {
 
   export type SkillTaskCardCreateInput = {
     id?: string
-    taskCategory: string
+    taskCategory: $Enums.TaskCategory
     status?: string
     generatedAt?: Date | string
     lastMatchedAt?: Date | string | null
@@ -37386,7 +37440,7 @@ export namespace Prisma {
     id?: string
     userId: string
     scoreId: string
-    taskCategory: string
+    taskCategory: $Enums.TaskCategory
     status?: string
     generatedAt?: Date | string
     lastMatchedAt?: Date | string | null
@@ -37397,7 +37451,7 @@ export namespace Prisma {
 
   export type SkillTaskCardUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    taskCategory?: StringFieldUpdateOperationsInput | string
+    taskCategory?: EnumTaskCategoryFieldUpdateOperationsInput | $Enums.TaskCategory
     status?: StringFieldUpdateOperationsInput | string
     generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37412,7 +37466,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     scoreId?: StringFieldUpdateOperationsInput | string
-    taskCategory?: StringFieldUpdateOperationsInput | string
+    taskCategory?: EnumTaskCategoryFieldUpdateOperationsInput | $Enums.TaskCategory
     status?: StringFieldUpdateOperationsInput | string
     generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37425,7 +37479,7 @@ export namespace Prisma {
     id?: string
     userId: string
     scoreId: string
-    taskCategory: string
+    taskCategory: $Enums.TaskCategory
     status?: string
     generatedAt?: Date | string
     lastMatchedAt?: Date | string | null
@@ -37435,7 +37489,7 @@ export namespace Prisma {
 
   export type SkillTaskCardUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    taskCategory?: StringFieldUpdateOperationsInput | string
+    taskCategory?: EnumTaskCategoryFieldUpdateOperationsInput | $Enums.TaskCategory
     status?: StringFieldUpdateOperationsInput | string
     generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37447,7 +37501,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     scoreId?: StringFieldUpdateOperationsInput | string
-    taskCategory?: StringFieldUpdateOperationsInput | string
+    taskCategory?: EnumTaskCategoryFieldUpdateOperationsInput | $Enums.TaskCategory
     status?: StringFieldUpdateOperationsInput | string
     generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37530,7 +37584,7 @@ export namespace Prisma {
 
   export type SubTaskAssignmentCreateInput = {
     id?: string
-    assignedCategory: string
+    assignedCategory: $Enums.AssignedCategory
     isMastered?: boolean
     masteredAt?: Date | string | null
     assignedAt?: Date | string
@@ -37542,7 +37596,7 @@ export namespace Prisma {
     id?: string
     subTaskId: string
     practiceItemId: string
-    assignedCategory: string
+    assignedCategory: $Enums.AssignedCategory
     isMastered?: boolean
     masteredAt?: Date | string | null
     assignedAt?: Date | string
@@ -37550,7 +37604,7 @@ export namespace Prisma {
 
   export type SubTaskAssignmentUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    assignedCategory?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: EnumAssignedCategoryFieldUpdateOperationsInput | $Enums.AssignedCategory
     isMastered?: BoolFieldUpdateOperationsInput | boolean
     masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37562,7 +37616,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     subTaskId?: StringFieldUpdateOperationsInput | string
     practiceItemId?: StringFieldUpdateOperationsInput | string
-    assignedCategory?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: EnumAssignedCategoryFieldUpdateOperationsInput | $Enums.AssignedCategory
     isMastered?: BoolFieldUpdateOperationsInput | boolean
     masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37572,7 +37626,7 @@ export namespace Prisma {
     id?: string
     subTaskId: string
     practiceItemId: string
-    assignedCategory: string
+    assignedCategory: $Enums.AssignedCategory
     isMastered?: boolean
     masteredAt?: Date | string | null
     assignedAt?: Date | string
@@ -37580,7 +37634,7 @@ export namespace Prisma {
 
   export type SubTaskAssignmentUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    assignedCategory?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: EnumAssignedCategoryFieldUpdateOperationsInput | $Enums.AssignedCategory
     isMastered?: BoolFieldUpdateOperationsInput | boolean
     masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37590,7 +37644,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     subTaskId?: StringFieldUpdateOperationsInput | string
     practiceItemId?: StringFieldUpdateOperationsInput | string
-    assignedCategory?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: EnumAssignedCategoryFieldUpdateOperationsInput | $Enums.AssignedCategory
     isMastered?: BoolFieldUpdateOperationsInput | boolean
     masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -39550,6 +39604,13 @@ export namespace Prisma {
     masteredSongCountAtCurrentStar?: SortOrder
   }
 
+  export type EnumTaskCategoryFilter<$PrismaModel = never> = {
+    equals?: $Enums.TaskCategory | EnumTaskCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.TaskCategory[] | ListEnumTaskCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TaskCategory[] | ListEnumTaskCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumTaskCategoryFilter<$PrismaModel> | $Enums.TaskCategory
+  }
+
   export type SubTaskListRelationFilter = {
     every?: SubTaskWhereInput
     some?: SubTaskWhereInput
@@ -39563,7 +39624,7 @@ export namespace Prisma {
   export type SkillTaskCardUserIdScoreIdTaskCategoryCompoundUniqueInput = {
     userId: string
     scoreId: string
-    taskCategory: string
+    taskCategory: $Enums.TaskCategory
   }
 
   export type SkillTaskCardCountOrderByAggregateInput = {
@@ -39600,6 +39661,16 @@ export namespace Prisma {
     lastMatchedAt?: SortOrder
     clearedAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type EnumTaskCategoryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TaskCategory | EnumTaskCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.TaskCategory[] | ListEnumTaskCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TaskCategory[] | ListEnumTaskCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumTaskCategoryWithAggregatesFilter<$PrismaModel> | $Enums.TaskCategory
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTaskCategoryFilter<$PrismaModel>
+    _max?: NestedEnumTaskCategoryFilter<$PrismaModel>
   }
 
   export type SkillTaskCardScalarRelationFilter = {
@@ -39642,6 +39713,13 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type EnumAssignedCategoryFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssignedCategory | EnumAssignedCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.AssignedCategory[] | ListEnumAssignedCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssignedCategory[] | ListEnumAssignedCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssignedCategoryFilter<$PrismaModel> | $Enums.AssignedCategory
+  }
+
   export type SubTaskScalarRelationFilter = {
     is?: SubTaskWhereInput
     isNot?: SubTaskWhereInput
@@ -39680,6 +39758,16 @@ export namespace Prisma {
     isMastered?: SortOrder
     masteredAt?: SortOrder
     assignedAt?: SortOrder
+  }
+
+  export type EnumAssignedCategoryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssignedCategory | EnumAssignedCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.AssignedCategory[] | ListEnumAssignedCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssignedCategory[] | ListEnumAssignedCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssignedCategoryWithAggregatesFilter<$PrismaModel> | $Enums.AssignedCategory
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAssignedCategoryFilter<$PrismaModel>
+    _max?: NestedEnumAssignedCategoryFilter<$PrismaModel>
   }
 
   export type UserPracticeMasteryUserIdPracticeItemIdCompoundUniqueInput = {
@@ -41601,6 +41689,10 @@ export namespace Prisma {
     connect?: SubTaskWhereUniqueInput | SubTaskWhereUniqueInput[]
   }
 
+  export type EnumTaskCategoryFieldUpdateOperationsInput = {
+    set?: $Enums.TaskCategory
+  }
+
   export type UserUpdateOneRequiredWithoutSkillTaskCardsNestedInput = {
     create?: XOR<UserCreateWithoutSkillTaskCardsInput, UserUncheckedCreateWithoutSkillTaskCardsInput>
     connectOrCreate?: UserCreateOrConnectWithoutSkillTaskCardsInput
@@ -41711,6 +41803,10 @@ export namespace Prisma {
     create?: XOR<PracticeItemCreateWithoutSubTaskAssignmentsInput, PracticeItemUncheckedCreateWithoutSubTaskAssignmentsInput>
     connectOrCreate?: PracticeItemCreateOrConnectWithoutSubTaskAssignmentsInput
     connect?: PracticeItemWhereUniqueInput
+  }
+
+  export type EnumAssignedCategoryFieldUpdateOperationsInput = {
+    set?: $Enums.AssignedCategory
   }
 
   export type SubTaskUpdateOneRequiredWithoutSubTaskAssignmentsNestedInput = {
@@ -42242,6 +42338,40 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumTaskCategoryFilter<$PrismaModel = never> = {
+    equals?: $Enums.TaskCategory | EnumTaskCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.TaskCategory[] | ListEnumTaskCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TaskCategory[] | ListEnumTaskCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumTaskCategoryFilter<$PrismaModel> | $Enums.TaskCategory
+  }
+
+  export type NestedEnumTaskCategoryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TaskCategory | EnumTaskCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.TaskCategory[] | ListEnumTaskCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TaskCategory[] | ListEnumTaskCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumTaskCategoryWithAggregatesFilter<$PrismaModel> | $Enums.TaskCategory
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTaskCategoryFilter<$PrismaModel>
+    _max?: NestedEnumTaskCategoryFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAssignedCategoryFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssignedCategory | EnumAssignedCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.AssignedCategory[] | ListEnumAssignedCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssignedCategory[] | ListEnumAssignedCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssignedCategoryFilter<$PrismaModel> | $Enums.AssignedCategory
+  }
+
+  export type NestedEnumAssignedCategoryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssignedCategory | EnumAssignedCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.AssignedCategory[] | ListEnumAssignedCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssignedCategory[] | ListEnumAssignedCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssignedCategoryWithAggregatesFilter<$PrismaModel> | $Enums.AssignedCategory
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAssignedCategoryFilter<$PrismaModel>
+    _max?: NestedEnumAssignedCategoryFilter<$PrismaModel>
   }
 
   export type PerformanceCreateWithoutUserInput = {
@@ -42826,7 +42956,7 @@ export namespace Prisma {
   export type UserGradeProgressCreateWithoutUserInput = {
     id?: string
     currentStar?: number
-    currentGrade?: string
+    currentGrade?: $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: number
     masterReachedAt?: Date | string | null
     updatedAt?: Date | string
@@ -42835,7 +42965,7 @@ export namespace Prisma {
   export type UserGradeProgressUncheckedCreateWithoutUserInput = {
     id?: string
     currentStar?: number
-    currentGrade?: string
+    currentGrade?: $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: number
     masterReachedAt?: Date | string | null
     updatedAt?: Date | string
@@ -42848,7 +42978,7 @@ export namespace Prisma {
 
   export type SkillTaskCardCreateWithoutUserInput = {
     id?: string
-    taskCategory: string
+    taskCategory: $Enums.TaskCategory
     status?: string
     generatedAt?: Date | string
     lastMatchedAt?: Date | string | null
@@ -42861,7 +42991,7 @@ export namespace Prisma {
   export type SkillTaskCardUncheckedCreateWithoutUserInput = {
     id?: string
     scoreId: string
-    taskCategory: string
+    taskCategory: $Enums.TaskCategory
     status?: string
     generatedAt?: Date | string
     lastMatchedAt?: Date | string | null
@@ -43425,7 +43555,7 @@ export namespace Prisma {
   export type UserGradeProgressUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     currentStar?: IntFieldUpdateOperationsInput | number
-    currentGrade?: StringFieldUpdateOperationsInput | string
+    currentGrade?: EnumGradeLevelFieldUpdateOperationsInput | $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: IntFieldUpdateOperationsInput | number
     masterReachedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43434,7 +43564,7 @@ export namespace Prisma {
   export type UserGradeProgressUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     currentStar?: IntFieldUpdateOperationsInput | number
-    currentGrade?: StringFieldUpdateOperationsInput | string
+    currentGrade?: EnumGradeLevelFieldUpdateOperationsInput | $Enums.GradeLevel
     masteredSongCountAtCurrentStar?: IntFieldUpdateOperationsInput | number
     masterReachedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43463,7 +43593,7 @@ export namespace Prisma {
     id?: StringFilter<"SkillTaskCard"> | string
     userId?: StringFilter<"SkillTaskCard"> | string
     scoreId?: StringFilter<"SkillTaskCard"> | string
-    taskCategory?: StringFilter<"SkillTaskCard"> | string
+    taskCategory?: EnumTaskCategoryFilter<"SkillTaskCard"> | $Enums.TaskCategory
     status?: StringFilter<"SkillTaskCard"> | string
     generatedAt?: DateTimeFilter<"SkillTaskCard"> | Date | string
     lastMatchedAt?: DateTimeNullableFilter<"SkillTaskCard"> | Date | string | null
@@ -43647,7 +43777,7 @@ export namespace Prisma {
 
   export type SkillTaskCardCreateWithoutScoreInput = {
     id?: string
-    taskCategory: string
+    taskCategory: $Enums.TaskCategory
     status?: string
     generatedAt?: Date | string
     lastMatchedAt?: Date | string | null
@@ -43660,7 +43790,7 @@ export namespace Prisma {
   export type SkillTaskCardUncheckedCreateWithoutScoreInput = {
     id?: string
     userId: string
-    taskCategory: string
+    taskCategory: $Enums.TaskCategory
     status?: string
     generatedAt?: Date | string
     lastMatchedAt?: Date | string | null
@@ -44398,7 +44528,7 @@ export namespace Prisma {
 
   export type SubTaskAssignmentCreateWithoutPracticeItemInput = {
     id?: string
-    assignedCategory: string
+    assignedCategory: $Enums.AssignedCategory
     isMastered?: boolean
     masteredAt?: Date | string | null
     assignedAt?: Date | string
@@ -44408,7 +44538,7 @@ export namespace Prisma {
   export type SubTaskAssignmentUncheckedCreateWithoutPracticeItemInput = {
     id?: string
     subTaskId: string
-    assignedCategory: string
+    assignedCategory: $Enums.AssignedCategory
     isMastered?: boolean
     masteredAt?: Date | string | null
     assignedAt?: Date | string
@@ -44605,7 +44735,7 @@ export namespace Prisma {
     id?: StringFilter<"SubTaskAssignment"> | string
     subTaskId?: StringFilter<"SubTaskAssignment"> | string
     practiceItemId?: StringFilter<"SubTaskAssignment"> | string
-    assignedCategory?: StringFilter<"SubTaskAssignment"> | string
+    assignedCategory?: EnumAssignedCategoryFilter<"SubTaskAssignment"> | $Enums.AssignedCategory
     isMastered?: BoolFilter<"SubTaskAssignment"> | boolean
     masteredAt?: DateTimeNullableFilter<"SubTaskAssignment"> | Date | string | null
     assignedAt?: DateTimeFilter<"SubTaskAssignment"> | Date | string
@@ -47566,7 +47696,7 @@ export namespace Prisma {
 
   export type SkillTaskCardCreateWithoutSubTasksInput = {
     id?: string
-    taskCategory: string
+    taskCategory: $Enums.TaskCategory
     status?: string
     generatedAt?: Date | string
     lastMatchedAt?: Date | string | null
@@ -47580,7 +47710,7 @@ export namespace Prisma {
     id?: string
     userId: string
     scoreId: string
-    taskCategory: string
+    taskCategory: $Enums.TaskCategory
     status?: string
     generatedAt?: Date | string
     lastMatchedAt?: Date | string | null
@@ -47595,7 +47725,7 @@ export namespace Prisma {
 
   export type SubTaskAssignmentCreateWithoutSubTaskInput = {
     id?: string
-    assignedCategory: string
+    assignedCategory: $Enums.AssignedCategory
     isMastered?: boolean
     masteredAt?: Date | string | null
     assignedAt?: Date | string
@@ -47605,7 +47735,7 @@ export namespace Prisma {
   export type SubTaskAssignmentUncheckedCreateWithoutSubTaskInput = {
     id?: string
     practiceItemId: string
-    assignedCategory: string
+    assignedCategory: $Enums.AssignedCategory
     isMastered?: boolean
     masteredAt?: Date | string | null
     assignedAt?: Date | string
@@ -47634,7 +47764,7 @@ export namespace Prisma {
 
   export type SkillTaskCardUpdateWithoutSubTasksInput = {
     id?: StringFieldUpdateOperationsInput | string
-    taskCategory?: StringFieldUpdateOperationsInput | string
+    taskCategory?: EnumTaskCategoryFieldUpdateOperationsInput | $Enums.TaskCategory
     status?: StringFieldUpdateOperationsInput | string
     generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -47648,7 +47778,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     scoreId?: StringFieldUpdateOperationsInput | string
-    taskCategory?: StringFieldUpdateOperationsInput | string
+    taskCategory?: EnumTaskCategoryFieldUpdateOperationsInput | $Enums.TaskCategory
     status?: StringFieldUpdateOperationsInput | string
     generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -48991,7 +49121,7 @@ export namespace Prisma {
   export type SkillTaskCardCreateManyUserInput = {
     id?: string
     scoreId: string
-    taskCategory: string
+    taskCategory: $Enums.TaskCategory
     status?: string
     generatedAt?: Date | string
     lastMatchedAt?: Date | string | null
@@ -49665,7 +49795,7 @@ export namespace Prisma {
 
   export type SkillTaskCardUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    taskCategory?: StringFieldUpdateOperationsInput | string
+    taskCategory?: EnumTaskCategoryFieldUpdateOperationsInput | $Enums.TaskCategory
     status?: StringFieldUpdateOperationsInput | string
     generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49678,7 +49808,7 @@ export namespace Prisma {
   export type SkillTaskCardUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     scoreId?: StringFieldUpdateOperationsInput | string
-    taskCategory?: StringFieldUpdateOperationsInput | string
+    taskCategory?: EnumTaskCategoryFieldUpdateOperationsInput | $Enums.TaskCategory
     status?: StringFieldUpdateOperationsInput | string
     generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49690,7 +49820,7 @@ export namespace Prisma {
   export type SkillTaskCardUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     scoreId?: StringFieldUpdateOperationsInput | string
-    taskCategory?: StringFieldUpdateOperationsInput | string
+    taskCategory?: EnumTaskCategoryFieldUpdateOperationsInput | $Enums.TaskCategory
     status?: StringFieldUpdateOperationsInput | string
     generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49802,7 +49932,7 @@ export namespace Prisma {
   export type SkillTaskCardCreateManyScoreInput = {
     id?: string
     userId: string
-    taskCategory: string
+    taskCategory: $Enums.TaskCategory
     status?: string
     generatedAt?: Date | string
     lastMatchedAt?: Date | string | null
@@ -49967,7 +50097,7 @@ export namespace Prisma {
 
   export type SkillTaskCardUpdateWithoutScoreInput = {
     id?: StringFieldUpdateOperationsInput | string
-    taskCategory?: StringFieldUpdateOperationsInput | string
+    taskCategory?: EnumTaskCategoryFieldUpdateOperationsInput | $Enums.TaskCategory
     status?: StringFieldUpdateOperationsInput | string
     generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49980,7 +50110,7 @@ export namespace Prisma {
   export type SkillTaskCardUncheckedUpdateWithoutScoreInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    taskCategory?: StringFieldUpdateOperationsInput | string
+    taskCategory?: EnumTaskCategoryFieldUpdateOperationsInput | $Enums.TaskCategory
     status?: StringFieldUpdateOperationsInput | string
     generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49992,7 +50122,7 @@ export namespace Prisma {
   export type SkillTaskCardUncheckedUpdateManyWithoutScoreInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    taskCategory?: StringFieldUpdateOperationsInput | string
+    taskCategory?: EnumTaskCategoryFieldUpdateOperationsInput | $Enums.TaskCategory
     status?: StringFieldUpdateOperationsInput | string
     generatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastMatchedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -50116,7 +50246,7 @@ export namespace Prisma {
   export type SubTaskAssignmentCreateManyPracticeItemInput = {
     id?: string
     subTaskId: string
-    assignedCategory: string
+    assignedCategory: $Enums.AssignedCategory
     isMastered?: boolean
     masteredAt?: Date | string | null
     assignedAt?: Date | string
@@ -50239,7 +50369,7 @@ export namespace Prisma {
 
   export type SubTaskAssignmentUpdateWithoutPracticeItemInput = {
     id?: StringFieldUpdateOperationsInput | string
-    assignedCategory?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: EnumAssignedCategoryFieldUpdateOperationsInput | $Enums.AssignedCategory
     isMastered?: BoolFieldUpdateOperationsInput | boolean
     masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50249,7 +50379,7 @@ export namespace Prisma {
   export type SubTaskAssignmentUncheckedUpdateWithoutPracticeItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     subTaskId?: StringFieldUpdateOperationsInput | string
-    assignedCategory?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: EnumAssignedCategoryFieldUpdateOperationsInput | $Enums.AssignedCategory
     isMastered?: BoolFieldUpdateOperationsInput | boolean
     masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50258,7 +50388,7 @@ export namespace Prisma {
   export type SubTaskAssignmentUncheckedUpdateManyWithoutPracticeItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     subTaskId?: StringFieldUpdateOperationsInput | string
-    assignedCategory?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: EnumAssignedCategoryFieldUpdateOperationsInput | $Enums.AssignedCategory
     isMastered?: BoolFieldUpdateOperationsInput | boolean
     masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50531,7 +50661,7 @@ export namespace Prisma {
   export type SubTaskAssignmentCreateManySubTaskInput = {
     id?: string
     practiceItemId: string
-    assignedCategory: string
+    assignedCategory: $Enums.AssignedCategory
     isMastered?: boolean
     masteredAt?: Date | string | null
     assignedAt?: Date | string
@@ -50539,7 +50669,7 @@ export namespace Prisma {
 
   export type SubTaskAssignmentUpdateWithoutSubTaskInput = {
     id?: StringFieldUpdateOperationsInput | string
-    assignedCategory?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: EnumAssignedCategoryFieldUpdateOperationsInput | $Enums.AssignedCategory
     isMastered?: BoolFieldUpdateOperationsInput | boolean
     masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50549,7 +50679,7 @@ export namespace Prisma {
   export type SubTaskAssignmentUncheckedUpdateWithoutSubTaskInput = {
     id?: StringFieldUpdateOperationsInput | string
     practiceItemId?: StringFieldUpdateOperationsInput | string
-    assignedCategory?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: EnumAssignedCategoryFieldUpdateOperationsInput | $Enums.AssignedCategory
     isMastered?: BoolFieldUpdateOperationsInput | boolean
     masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -50558,7 +50688,7 @@ export namespace Prisma {
   export type SubTaskAssignmentUncheckedUpdateManyWithoutSubTaskInput = {
     id?: StringFieldUpdateOperationsInput | string
     practiceItemId?: StringFieldUpdateOperationsInput | string
-    assignedCategory?: StringFieldUpdateOperationsInput | string
+    assignedCategory?: EnumAssignedCategoryFieldUpdateOperationsInput | $Enums.AssignedCategory
     isMastered?: BoolFieldUpdateOperationsInput | boolean
     masteredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string

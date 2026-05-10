@@ -537,6 +537,18 @@ exports.GradeLevel = exports.$Enums.GradeLevel = {
   MASTER: 'MASTER'
 };
 
+exports.TaskCategory = exports.$Enums.TaskCategory = {
+  PITCH: 'PITCH',
+  RHYTHM: 'RHYTHM',
+  BOWING: 'BOWING'
+};
+
+exports.AssignedCategory = exports.$Enums.AssignedCategory = {
+  SCALE: 'SCALE',
+  ARPEGGIO: 'ARPEGGIO',
+  ETUDE: 'ETUDE'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Score: 'Score',

@@ -1,3 +1,9 @@
+-- CreateEnum
+CREATE TYPE "TaskCategory" AS ENUM ('PITCH', 'RHYTHM', 'BOWING');
+
+-- CreateEnum
+CREATE TYPE "AssignedCategory" AS ENUM ('SCALE', 'ARPEGGIO', 'ETUDE');
+
 -- AlterTable
 ALTER TABLE "Performance" ADD COLUMN     "bowingAccuracy" DOUBLE PRECISION,
 ADD COLUMN     "bowingSkillScore" DOUBLE PRECISION,
@@ -40,7 +46,7 @@ CREATE TABLE "UserGradeProgress" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "currentStar" INTEGER NOT NULL DEFAULT 1,
-    "currentGrade" TEXT NOT NULL DEFAULT 'beginner',
+    "currentGrade" "GradeLevel" NOT NULL DEFAULT 'BEGINNER',
     "masteredSongCountAtCurrentStar" INTEGER NOT NULL DEFAULT 0,
     "masterReachedAt" TIMESTAMP(3),
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -53,7 +59,7 @@ CREATE TABLE "SkillTaskCard" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "scoreId" TEXT NOT NULL,
-    "taskCategory" TEXT NOT NULL,
+    "taskCategory" "TaskCategory" NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'active',
     "generatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "lastMatchedAt" TIMESTAMP(3),
@@ -81,7 +87,7 @@ CREATE TABLE "SubTaskAssignment" (
     "id" TEXT NOT NULL,
     "subTaskId" TEXT NOT NULL,
     "practiceItemId" TEXT NOT NULL,
-    "assignedCategory" TEXT NOT NULL,
+    "assignedCategory" "AssignedCategory" NOT NULL,
     "isMastered" BOOLEAN NOT NULL DEFAULT false,
     "masteredAt" TIMESTAMP(3),
     "assignedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
