@@ -16,6 +16,12 @@ import OnboardingTrigger from "./_onboarding/OnboardingTrigger"
 type GradeData = GradeDetailData & {
   totalCompleted: number
   totalRequired: number
+  // ☆ 進捗 (アルコちゃんカード内、グレードの下に表示、Lv1〜10 を 2 段 5 個)
+  starsFilled: number
+  starsTotal: number
+  starsByLv: boolean[] // index 0=Lv1, ..., index 9=Lv10
+  currentStarLv: number | null
+  itemsToNextStar: number
 }
 
 type Props = {
@@ -105,6 +111,29 @@ export default function HomeClient({
                 remainingCount={gradeData.remainingCount}
                 nextGrade={gradeData.nextGrade}
               />
+            </div>
+          </div>
+
+          {/* ☆ 進捗 (グレードの下、Lv1〜10 を 2 段 5 個 + 次の☆まで N 曲) */}
+          <div className={styles.starRow}>
+            <div
+              className={styles.starList}
+              aria-label={`${gradeData.starsFilled}/${gradeData.starsTotal} 個の☆を獲得`}
+            >
+              {gradeData.starsByLv.map((mastered, i) => (
+                <span
+                  key={i}
+                  className={mastered ? styles.starFilled : styles.starEmpty}
+                  aria-label={`Lv.${i + 1} ${mastered ? "獲得済み" : "未獲得"}`}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+            <div className={styles.starCountdown}>
+              {gradeData.currentStarLv != null
+                ? `次の☆まで ${gradeData.itemsToNextStar} 曲`
+                : "全☆獲得 🎉"}
             </div>
           </div>
         </div>

@@ -145,6 +145,42 @@
   min-width: 180px;
 }
 
+/* ☆ 進捗 (グレードの下、Lv1〜10 を 2 段 5 個で表示 + 次の☆まで N 曲) */
+.starRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 0.5px dashed #d4dae3;
+  flex-wrap: wrap;
+}
+
+.starList {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  grid-auto-rows: auto;
+  gap: 4px 6px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.starFilled {
+  color: #f4b400;
+}
+
+.starEmpty {
+  color: #d4dae3;
+}
+
+.starCountdown {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4f6b91;
+  white-space: nowrap;
+}
+
 .arcoRecommendLabel {
   font-size: 11px;
   font-weight: 600;

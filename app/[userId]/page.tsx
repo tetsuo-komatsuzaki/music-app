@@ -241,6 +241,89 @@ export default async function HomePage({ params }: PageProps) {
     (sum, d) => sum + d.required,
     0,
   )
+  // ───── ☆ 進捗計算 (次の☆まで N 曲) ─────
+  // ルール (2026-05-10):
+  //   1 曲クリア = 該当 practiceItem で総演奏回数 ≥ 5 AND 直近 5 回の overallScore 平均 ≥ 85
+  //   1 ☆ 獲得 = 同じ難易度の曲を 10 曲クリア
+  //   ☆ は Lv1〜Lv10 の全 10 個 (2 段 5 個) で常時表示
+  //   現在の☆ Lv (次の☆まで対象) = ユーザーグレード範囲内のマスターしていない最低 Lv
+  const STAR_CLEAR_THRESHOLD_PER_ITEM = 85
+  const STAR_CLEAR_MIN_PERFORMANCES = 5
+  const STAR_ITEMS_PER_STAR = 10
+  const ALL_DIFFICULTIES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  const gradeRangeDiffs = band.difficulties
+
+  // (1) Lv1〜10 の全 practiceItem を取得
+  const allLvItems = await prisma.practiceItem.findMany({
+    where: {
+      difficulty: { in: ALL_DIFFICULTIES },
+      isPublished: true,
+    },
+    select: { id: true, difficulty: true },
+  })
+  const itemIdsByDiff = new Map<number, string[]>()
+  for (const it of allLvItems) {
+    if (it.difficulty == null) continue
+    if (!itemIdsByDiff.has(it.difficulty)) itemIdsByDiff.set(it.difficulty, [])
+    itemIdsByDiff.get(it.difficulty)!.push(it.id)
+  }
+
+  // (2) 全 item に対するユーザー演奏履歴 (overallScore 付き) を取得
+  const allItemIds = allLvItems.map(i => i.id)
+  const perfsAtAll = allItemIds.length > 0
+    ? await prisma.practicePerformance.findMany({
+        where: {
+          userId: internalUserId,
+          analysisStatus: "done",
+          practiceItemId: { in: allItemIds },
+          overallScore: { not: null },
+        },
+        orderBy: { uploadedAt: "desc" },
+        select: { practiceItemId: true, overallScore: true },
+      })
+    : []
+
+  const perfsByItem = new Map<string, number[]>()
+  for (const p of perfsAtAll) {
+    if (p.overallScore == null) continue
+    if (!perfsByItem.has(p.practiceItemId)) perfsByItem.set(p.practiceItemId, [])
+    perfsByItem.get(p.practiceItemId)!.push(p.overallScore)
+  }
+
+  // (3) 各 Lv について clearedAt を集計
+  const clearedByLv: Record<number, number> = {}
+  for (const d of ALL_DIFFICULTIES) {
+    const itemIds = itemIdsByDiff.get(d) ?? []
+    let clearedAtD = 0
+    for (const itemId of itemIds) {
+      const scores = perfsByItem.get(itemId) ?? []
+      if (scores.length < STAR_CLEAR_MIN_PERFORMANCES) continue
+      const recent5 = scores.slice(0, 5)
+      const avg = recent5.reduce((a, b) => a + b, 0) / recent5.length
+      if (avg >= STAR_CLEAR_THRESHOLD_PER_ITEM) clearedAtD++
+    }
+    clearedByLv[d] = clearedAtD
+  }
+
+  // (4) ☆ は Lv1〜10 (全 10 個)。獲得済み (clearedAtD ≥ 10) を黄色化
+  // Lv ごとの mastered フラグ (非連続マスター対応のため per-Lv 配列)
+  const starsByLv: boolean[] = ALL_DIFFICULTIES.map(
+    d => (clearedByLv[d] ?? 0) >= STAR_ITEMS_PER_STAR,
+  )
+  const starsFilled = starsByLv.filter(Boolean).length
+
+  // (5) 「次の☆まで」対象 = グレード範囲内のマスターしていない最低 Lv
+  let currentStarLv: number | null = null
+  let clearedAtCurrentStar = 0
+  for (const d of gradeRangeDiffs) {
+    if ((clearedByLv[d] ?? 0) < STAR_ITEMS_PER_STAR) {
+      currentStarLv = d
+      clearedAtCurrentStar = clearedByLv[d] ?? 0
+      break
+    }
+  }
+  const itemsToNextStar = Math.max(0, STAR_ITEMS_PER_STAR - clearedAtCurrentStar)
+
   const gradeData = {
     currentGrade,
     achievedAt: userGrade?.achievedAt?.toISOString() ?? null,
@@ -249,6 +332,12 @@ export default async function HomePage({ params }: PageProps) {
     nextGradeDetails,
     totalCompleted,
     totalRequired,
+    // ☆ 進捗 (グレードの下に表示、☆は Lv1〜10 の全 10 個 / 2 段 5 個)
+    starsFilled,
+    starsTotal: ALL_DIFFICULTIES.length,
+    starsByLv, // [Lv1 mastered?, Lv2 mastered?, ..., Lv10 mastered?]
+    currentStarLv,
+    itemsToNextStar,
   }
 
   // --- UI-9 + Score 統合 (§11-3): active カード優先のレコメンド ---
