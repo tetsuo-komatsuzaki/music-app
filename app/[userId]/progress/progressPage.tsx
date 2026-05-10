@@ -7,6 +7,13 @@ import type { SkillTaskCardData } from "@/app/components/SkillTaskCardItem"
 import styles from "./progress.module.css"
 import OnboardingTrigger from "../_onboarding/OnboardingTrigger"
 
+type MasteryProgress = {
+  perfCount: number
+  averageScore: number | null
+  threshold: number
+  window: number
+}
+
 type Props = {
   tab:             string
   userId:          string
@@ -15,8 +22,12 @@ type Props = {
   cards:           SkillTaskCardData[]
   subScoresMap:    Record<string, number | null>
   skillScoresMap:  Record<string, number | null>
+  /** 現在のユーザーグレード (BEGINNER 等) */
+  currentGrade: string
   /** ユーザーグレード内でマスターしていない最低難易度。null = グレード内全てマスター済み */
   currentTargetDifficulty: number | null
+  /** 現在難易度の達成進捗 (直近5回平均) */
+  currentDifficultyProgress: MasteryProgress | null
 }
 
 // ─── タブ定義 ─────────────────────────────────────────────────
@@ -38,7 +49,9 @@ export default function ProgressPage({
   cards,
   subScoresMap,
   skillScoresMap,
+  currentGrade,
   currentTargetDifficulty,
+  currentDifficultyProgress,
 }: Props) {
   const params = useParams()
   // route の userId を優先 (props の userId はサーバ側から渡された supabaseUserId)
@@ -185,7 +198,9 @@ export default function ProgressPage({
             initialCards={cards}
             subScoresMap={subScoresMap}
             skillScoresMap={skillScoresMap}
+            currentGrade={currentGrade}
             currentTargetDifficulty={currentTargetDifficulty}
+            currentDifficultyProgress={currentDifficultyProgress}
           />
         </div>
       )}

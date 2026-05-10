@@ -249,6 +249,29 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
       break
     }
   }
+
+  // 現在難易度の達成進捗: 直近 5 回の平均と回数
+  type MasteryProgress = {
+    perfCount: number
+    averageScore: number | null
+    threshold: number
+    window: number
+  }
+  let currentDifficultyProgress: MasteryProgress | null = null
+  if (currentTargetDifficulty != null) {
+    const scores = recentScoresByDifficulty[currentTargetDifficulty] ?? []
+    const avg =
+      scores.length > 0
+        ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10
+        : null
+    currentDifficultyProgress = {
+      perfCount: scores.length,
+      averageScore: avg,
+      threshold: DIFFICULTY_MASTERY_THRESHOLD,
+      window: DIFFICULTY_MASTERY_WINDOW,
+    }
+  }
+
   // practiceDetails は既に Promise.all で取得済み (達成基準計算用に保持)
   void practiceDetails
   void SUB_TASK_IDS
@@ -424,7 +447,9 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
       cards={cards}
       subScoresMap={subScoresMap}
       skillScoresMap={skillScoresMap}
+      currentGrade={grade}
       currentTargetDifficulty={currentTargetDifficulty}
+      currentDifficultyProgress={currentDifficultyProgress}
     />
   )
 }

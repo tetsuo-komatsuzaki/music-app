@@ -20,13 +20,34 @@ import SkillTaskCardItem, {
 import { TASK_IDS, TASK_NAMES, type TaskId } from "@/app/_libs/skillMaster"
 import styles from "./TasksSection.module.css"
 
+type MasteryProgress = {
+  perfCount: number
+  averageScore: number | null
+  threshold: number
+  window: number
+}
+
 type Props = {
   userId: string
   initialCards: SkillTaskCardData[]
   subScoresMap: Record<string, number | null>
   skillScoresMap: Record<string, number | null>
+  /** 現在のユーザーグレード (BEGINNER 等) */
+  currentGrade: string
   /** グレード内でマスターしていない最低難易度。null = 全マスター済み */
   currentTargetDifficulty: number | null
+  /** 現在難易度の達成進捗 (直近5回平均) */
+  currentDifficultyProgress: MasteryProgress | null
+}
+
+// グレード ID → 表示名 (UI 設計書 v3.1 で日本語ラベルが定義される想定だが、
+// なければ英名そのまま)
+const GRADE_LABELS: Record<string, string> = {
+  BEGINNER: "ビギナー",
+  INTERMEDIATE: "中級",
+  ADVANCED: "上級",
+  PRE_PROFESSIONAL: "上級+",
+  PROFESSIONAL: "プロフェッショナル",
 }
 
 type VisibleStatus = "active" | "cleared"
@@ -136,7 +157,9 @@ export default function TasksSection({
   initialCards,
   subScoresMap,
   skillScoresMap,
+  currentGrade,
   currentTargetDifficulty,
+  currentDifficultyProgress,
 }: Props) {
   const [cards, setCards] = useState<SkillTaskCardData[]>(initialCards)
   const [activeStatus, setActiveStatus] = useState<VisibleStatus>("active")
@@ -242,8 +265,46 @@ export default function TasksSection({
     return EMPTY_MESSAGES[activeStatus]
   })()
 
+  // 達成進捗テキスト
+  const progress = currentDifficultyProgress
+  const progressText = (() => {
+    if (currentTargetDifficulty == null) {
+      return "現在のグレードはすべての難易度をマスター済みです"
+    }
+    if (!progress || progress.perfCount === 0) {
+      return `直近 ${progress?.window ?? 5} 回の平均が ${
+        progress?.threshold ?? 90
+      } 点以上で次の難易度へ。まずは Lv.${currentTargetDifficulty} の曲を演奏してみましょう。`
+    }
+    const avgStr = progress.averageScore != null ? `${progress.averageScore}` : "—"
+    const remaining = Math.max(0, progress.window - progress.perfCount)
+    if (remaining > 0) {
+      return `直近 ${progress.perfCount}/${progress.window} 回の平均: ${avgStr} 点 (達成基準 ${progress.threshold} 点)。あと ${remaining} 回演奏してください。`
+    }
+    return `直近 ${progress.window} 回の平均: ${avgStr} 点 / 達成基準 ${progress.threshold} 点`
+  })()
+
+  const gradeLabel = GRADE_LABELS[currentGrade] ?? currentGrade
+
   return (
     <>
+      {/* ───── グレード + 現在難易度 + 達成状況ヘッダー ───── */}
+      <section className={styles.gradeHeader}>
+        <div className={styles.gradeHeaderTop}>
+          <div className={styles.gradeHeaderItem}>
+            <span className={styles.gradeHeaderLabel}>グレード</span>
+            <span className={styles.gradeHeaderValue}>{gradeLabel}</span>
+          </div>
+          <div className={styles.gradeHeaderItem}>
+            <span className={styles.gradeHeaderLabel}>現在の難易度</span>
+            <span className={styles.gradeHeaderValue}>
+              {currentTargetDifficulty != null ? `Lv.${currentTargetDifficulty}` : "—"}
+            </span>
+          </div>
+        </div>
+        <div className={styles.gradeHeaderProgress}>{progressText}</div>
+      </section>
+
       <StatusTab
         activeStatus={activeStatus}
         counts={counts}
