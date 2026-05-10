@@ -71,9 +71,15 @@ def main() -> None:
 
     # v3.2.2 Commit 8a: practice モードの analyze_performance 完了後に
     # score_full (loop engine) を chain。失敗しても analyze_performance の成果は保持。
-    if mode == "analyze_performance" and os.environ.get("IS_PRACTICE") == "true":
+    #
+    # v1.5 Phase 3a (2026-05-11): IS_PRACTICE=true 限定のゲートを撤去。
+    # Score 演奏 (IS_PRACTICE=false) でも loop_engine_runner を呼び、Performance テーブル
+    # に skillSubScores / pitchSkillScore / 等 + bowingAccuracy + overallScore (3 軸) を書き込む。
+    # loop_engine_runner.main() 側で IS_PRACTICE を検出して practice / score モードに分岐。
+    if mode == "analyze_performance":
         try:
-            print("[entrypoint] post-analyze: running loop_engine_runner")
+            mode_label = "practice" if os.environ.get("IS_PRACTICE") == "true" else "score"
+            print(f"[entrypoint] post-analyze: running loop_engine_runner ({mode_label} mode)")
             sys.argv = ["loop_engine_runner.py"]
             runpy.run_path("loop_engine_runner.py", run_name="__main__")
         except Exception as e:

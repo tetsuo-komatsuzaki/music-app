@@ -658,11 +658,203 @@ def process_performance_completion_py(
 
 
 # ---------------------------------------------------------------------------
+# v1.5 Phase 3a (2026-05-11): Score 演奏モード
+# ---------------------------------------------------------------------------
+# practice mode と異なる点:
+#   - DB クエリ先: Score テーブル (vs PracticeItem)
+#   - Storage path: {user_id}/{score_id}/... (vs practice/{practice_item_id}/...)
+#   - DB 更新先: Performance (vs PracticePerformance)
+#   - ownerScope == "admin" gate (M5=B 確定): 非 admin Score は対象外
+#   - performanceType == "user" gate (I4=A 確定): pro 演奏は対象外
+#   - 累積処理 (process_performance_completion_py) は Phase 3c 対応につき skip
+# ---------------------------------------------------------------------------
+
+
+def run_score_mode() -> None:
+    """Score 演奏 (IS_PRACTICE=false) のループエンジン実行。"""
+    user_id = _require("USER_ID")
+    score_id = _require("SCORE_ID")
+    performance_id = _require("PERFORMANCE_ID")
+    supabase_url = _require("SUPABASE_URL")
+    sr_key = _require("SUPABASE_SERVICE_ROLE_KEY")
+    musicxml_bucket = _require("BUCKET_NAME")
+    performance_bucket = os.environ.get("PERFORMANCE_BUCKET", "performances")
+    database_url = _require("DATABASE_URL")
+
+    print(
+        f"[loop_engine_runner] start (score mode): user={user_id} "
+        f"score={score_id} perf={performance_id}"
+    )
+
+    # 1. 入力 3 件を /tmp にダウンロード (Score 用 path: practice/ プレフィックスなし)
+    tmp_dir = "/tmp/loop_engine"
+    os.makedirs(tmp_dir, exist_ok=True)
+
+    analysis_path = _download(
+        supabase_url, sr_key, musicxml_bucket,
+        f"{user_id}/{score_id}/analysis.json",
+        os.path.join(tmp_dir, "analysis.json"),
+    )
+    skill_info_path = _download(
+        supabase_url, sr_key, musicxml_bucket,
+        f"{user_id}/{score_id}/musicxml_skill_info.json",
+        os.path.join(tmp_dir, "musicxml_skill_info.json"),
+    )
+    comparison_path = _download(
+        supabase_url, sr_key, performance_bucket,
+        f"{user_id}/{score_id}/{performance_id}/comparison_result.json",
+        os.path.join(tmp_dir, "comparison_result.json"),
+    )
+    print(f"[loop_engine_runner] (score) inputs downloaded to {tmp_dir}")
+
+    # 2. Score + Performance メタ取得 + ゲート判定
+    conn = psycopg2.connect(database_url)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                'SELECT s.star, s."skillSubTaskTags", s."ownerScope", '
+                '       p."performanceType" '
+                'FROM "Score" s '
+                'INNER JOIN "Performance" p ON p."scoreId" = s.id '
+                'WHERE s.id = %s AND p.id = %s',
+                (score_id, performance_id),
+            )
+            row = cur.fetchone()
+        if not row:
+            raise RuntimeError(
+                f"[loop_engine_runner] Score or Performance not found: "
+                f"score={score_id} perf={performance_id}"
+            )
+        star: Optional[int] = row[0]
+        sub_task_tags_raw = row[1]
+        owner_scope: str = row[2]
+        performance_type: str = row[3]
+
+        # M5 = B 確定: ownerScope != "admin" の Score 演奏はループエンジン対象外
+        if owner_scope != "admin":
+            print(
+                f"[loop_engine_runner] SKIP (score mode): "
+                f"ownerScope={owner_scope} (admin-only path)"
+            )
+            return
+
+        # I4 = A 確定: pro 演奏は完全スキップ (二重防御; analyze_performance も skip するはず)
+        if performance_type == "pro":
+            print(
+                f"[loop_engine_runner] SKIP (score mode): "
+                f"performanceType=pro"
+            )
+            return
+
+        if star is None:
+            print(
+                f"[loop_engine_runner] SKIP (score mode): Score.star is NULL "
+                f"(score={score_id})"
+            )
+            return
+
+        skill_tags: list[str] = (
+            sub_task_tags_raw if isinstance(sub_task_tags_raw, list) else []
+        )
+        print(f"[loop_engine_runner] (score) star={star} tags={skill_tags}")
+
+        # 3. score_full.run_pipeline 実行 (practice_item_id 引数に score_id を渡す)
+        from score_full import run_pipeline
+
+        result = run_pipeline(
+            comparison_result_path=comparison_path,
+            note_results_path=analysis_path,
+            musicxml_skill_info_path=skill_info_path,
+            performance_id=performance_id,
+            user_id=user_id,
+            practice_item_id=score_id,  # score_full 内部では汎用識別子として使われる
+            practice_item_difficulty=star,
+            skill_sub_task_tags=skill_tags,
+        )
+        print(
+            f"[loop_engine_runner] (score) score_full done: "
+            f"status={result.get('status')} "
+            f"detection_rate={result.get('detection_rate')}"
+        )
+
+        # 4. result.json を Storage にアップロード (Score 用 path)
+        result_json = json.dumps(result, ensure_ascii=False, indent=2)
+        result_path = f"{user_id}/{score_id}/{performance_id}/result.json"
+        _upload(
+            supabase_url, sr_key, performance_bucket,
+            result_path, result_json.encode("utf-8"),
+        )
+        print(f"[loop_engine_runner] (score) uploaded: {result_path}")
+
+        # 5. Performance を更新 (PracticePerformance UPDATE と同等のロジック)
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE "Performance"
+                SET "pitchSkillScore" = %s,
+                    "rhythmSkillScore" = %s,
+                    "bowingSkillScore" = %s,
+                    "bowingAccuracy" = %s,
+                    "skillSubScores" = %s::jsonb,
+                    "problematicPositions" = %s::jsonb
+                WHERE id = %s
+                """,
+                (
+                    result.get("pitchSkillScore"),
+                    result.get("rhythmSkillScore"),
+                    result.get("bowingSkillScore"),
+                    result.get("bowingSkillScore"),  # bowingAccuracy = bowingSkillScore
+                    json.dumps(result.get("skillSubScores") or {}),
+                    json.dumps(result.get("problematicPositions") or []),
+                    performance_id,
+                ),
+            )
+            # v1.5/案 α: overallScore = (pitch + rhythm + bowing) / 3 を再計算
+            cur.execute(
+                """
+                UPDATE "Performance"
+                SET "overallScore" = ROUND(
+                    (("pitchAccuracy" + "rhythmAccuracy" + "bowingAccuracy") / 3.0)::numeric, 1
+                )::float
+                WHERE id = %s
+                  AND "pitchAccuracy" IS NOT NULL
+                  AND "rhythmAccuracy" IS NOT NULL
+                  AND "bowingAccuracy" IS NOT NULL
+                """,
+                (performance_id,),
+            )
+        print(
+            f"[loop_engine_runner] (score) DB v1.5 列更新 (uncommitted): "
+            f"perf={performance_id}"
+        )
+
+        # 6. 累積処理 (UserGrade / SongMastery 等) は Phase 3c で対応 — 本 commit では skip
+        # process_performance_completion_py は PracticePerformance + UserGrade.progressData
+        # 専用のため、Score 演奏には現状適用できない。
+        # Phase 3c で SongMastery / UserGradeProgress / SkillTaskCard 生成を追加予定。
+        print(
+            f"[loop_engine_runner] (score) 累積処理は Phase 3c で対応 — 本 commit では skip"
+        )
+        conn.commit()
+
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+# ---------------------------------------------------------------------------
 # main
 # ---------------------------------------------------------------------------
 
 
 def main() -> None:
+    # v1.5 Phase 3a: IS_PRACTICE=false (Score 演奏) は run_score_mode() に分岐
+    if os.environ.get("IS_PRACTICE") != "true":
+        return run_score_mode()
+
+    # 以下、既存の practice mode ロジック (PracticePerformance 経路)
     user_id = _require("USER_ID")
     practice_item_id = _require("SCORE_ID")  # practice mode では practiceItemId
     performance_id = _require("PERFORMANCE_ID")
