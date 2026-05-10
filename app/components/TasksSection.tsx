@@ -17,7 +17,12 @@ import StatusTab, { type CardStatus } from "@/app/components/StatusTab"
 import SkillTaskCardItem, {
   type SkillTaskCardData,
 } from "@/app/components/SkillTaskCardItem"
-import { TASK_IDS, TASK_NAMES, type TaskId } from "@/app/_libs/skillMaster"
+import {
+  GRADE_NAMES,
+  TASK_IDS,
+  TASK_NAMES,
+  type TaskId,
+} from "@/app/_libs/skillMaster"
 import styles from "./TasksSection.module.css"
 
 type MasteryProgress = {
@@ -40,15 +45,7 @@ type Props = {
   currentDifficultyProgress: MasteryProgress | null
 }
 
-// グレード ID → 表示名 (UI 設計書 v3.1 で日本語ラベルが定義される想定だが、
-// なければ英名そのまま)
-const GRADE_LABELS: Record<string, string> = {
-  BEGINNER: "ビギナー",
-  INTERMEDIATE: "中級",
-  ADVANCED: "上級",
-  PRE_PROFESSIONAL: "上級+",
-  PROFESSIONAL: "プロフェッショナル",
-}
+// skillMaster.ts §10-7: 初級者 / 中級者 / 上級者 / マスター を使用
 
 type VisibleStatus = "active" | "cleared"
 
@@ -284,7 +281,8 @@ export default function TasksSection({
     return `直近 ${progress.window} 回の平均: ${avgStr} 点 / 達成基準 ${progress.threshold} 点`
   })()
 
-  const gradeLabel = GRADE_LABELS[currentGrade] ?? currentGrade
+  const gradeLabel =
+    (GRADE_NAMES as Record<string, string>)[currentGrade] ?? currentGrade
 
   return (
     <>
