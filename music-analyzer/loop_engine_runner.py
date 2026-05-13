@@ -658,6 +658,282 @@ def process_performance_completion_py(
 
 
 # ---------------------------------------------------------------------------
+# v1.5 Phase 3b (2026-05-13): Score 演奏完了時のカード生成
+# ---------------------------------------------------------------------------
+# 仕様 (v1.3 §7-1 + §2-4 + R5=A の 9 新規テーブル):
+#   閾値: 中課題/小課題 共に < 70 (Tetsuo 確定)
+#   生成対象:
+#     - SkillTaskCard (userId × scoreId × taskCategory)
+#     - SubTask (中課題に紐づく失敗 sub_task)
+#     - SubTaskAssignment (3 カテゴリ × 1、簡易版アルゴリズム)
+#     - MissingPracticeItemFlag (該当教材ゼロ件時、I1=A)
+#   SubTaskAssignment 簡易版: 未演奏優先 + sortOrder
+#   (フル版 = ユーザー実績 + sortOrder は Phase 3c で UserPracticeMastery 集計後に組込)
+# ---------------------------------------------------------------------------
+
+THRESHOLD_MID_TASK = 70  # 中課題判定 (skill score < 70 で課題化、Tetsuo 確定)
+THRESHOLD_SUB_TASK = 70  # 小課題判定 (skillSubScores の matched score < 70)
+
+# sub_task ID → 親 TaskCategory enum 値
+_SUB_TO_PARENT = {
+    "pitch_overall": "PITCH", "pitch_high": "PITCH", "pitch_chromatic": "PITCH",
+    "rhythm_overall": "RHYTHM", "rhythm_fast": "RHYTHM", "rhythm_after_rest": "RHYTHM",
+    "string_change_volume": "BOWING", "string_change_slur": "BOWING",
+    "string_change_timing": "BOWING",
+}
+
+
+def _pick_practice_item_phase3b(
+    cur,
+    user_internal_id: str,
+    key_tonic: str,
+    key_mode: str,
+    star: int,
+    sub_type: str,
+    category: str,
+) -> Optional[str]:
+    """1 sub_task × 1 category で教材を 1 件選ぶ (簡易版)。
+
+    優先順位 (簡易版、Phase 3c で実績ソート追加予定):
+      1. ユーザー未演奏 (PracticePerformance 未登録) を優先
+      2. PracticeItem.sortOrder 昇順 + title 昇順 (tie-breaker)
+    """
+    cur.execute(
+        """
+        SELECT pi.id
+        FROM "PracticeItem" pi
+        WHERE pi."category" = %s::"PracticeCategory"
+          AND pi."keyTonic" = %s
+          AND pi."keyMode" = %s
+          AND pi."star" = %s
+          AND pi."isPublished" = true
+          AND pi."skillSubTaskTags" @> jsonb_build_array(%s::text)
+        ORDER BY
+          (NOT EXISTS (
+            SELECT 1 FROM "PracticePerformance" pp
+            WHERE pp."userId" = %s AND pp."practiceItemId" = pi.id
+          )) DESC,
+          pi."sortOrder" ASC,
+          pi."title" ASC
+        LIMIT 1
+        """,
+        (category, key_tonic, key_mode, star, sub_type, user_internal_id),
+    )
+    row = cur.fetchone()
+    return row[0] if row else None
+
+
+def _generate_subtask_phase3b(
+    cur,
+    card_id: str,
+    sub_type: str,
+    user_internal_id: str,
+    score_id: str,
+    key_tonic: Optional[str],
+    key_mode: Optional[str],
+    star: Optional[int],
+) -> None:
+    """1 つの失敗 sub_task に対し SubTask + SubTaskAssignment を生成。
+
+    3 カテゴリで該当教材が揃わない場合は MissingPracticeItemFlag を作成し、
+    SubTask 自体は生成しない (I1=A / M6=B 確定)。
+    """
+    if not key_tonic or not key_mode or star is None:
+        print(
+            f"[loop_engine_runner] (3b) SubTask {sub_type}: Score key/star 不足で skip "
+            f"(keyTonic={key_tonic}, keyMode={key_mode}, star={star})"
+        )
+        return
+
+    # 3 カテゴリで候補検索
+    candidates_by_cat: dict[str, str] = {}
+    missing_categories: list[str] = []
+    for cat in ("scale", "arpeggio", "etude"):
+        item_id = _pick_practice_item_phase3b(
+            cur, user_internal_id, key_tonic, key_mode, star, sub_type, cat
+        )
+        if item_id:
+            candidates_by_cat[cat] = item_id
+        else:
+            missing_categories.append(cat)
+
+    # 1 カテゴリでも欠ければ SubTask 生成 skip + Flag 作成 (I1=A / M6=B)
+    if missing_categories:
+        for missing_cat in missing_categories:
+            # 未解決の同じ Flag があれば重複しないように
+            cur.execute(
+                """
+                SELECT 1 FROM "MissingPracticeItemFlag"
+                WHERE "scoreId" = %s AND "subTaskType" = %s
+                  AND "missingCategory" = %s AND "resolvedAt" IS NULL
+                LIMIT 1
+                """,
+                (score_id, sub_type, missing_cat),
+            )
+            if cur.fetchone() is None:
+                cur.execute(
+                    """
+                    INSERT INTO "MissingPracticeItemFlag"
+                    ("id", "scoreId", "subTaskType", "missingCategory",
+                     "keyTonic", "keyMode", "star", "detectedAt")
+                    VALUES (gen_random_uuid()::text, %s, %s, %s, %s, %s, %s, NOW())
+                    """,
+                    (score_id, sub_type, missing_cat, key_tonic, key_mode, star),
+                )
+        print(
+            f"[loop_engine_runner] (3b) SubTask {sub_type} skip: "
+            f"missing categories={missing_categories} → MissingPracticeItemFlag 作成"
+        )
+        return
+
+    # SubTask upsert (既存なら updatedAt 更新)
+    cur.execute(
+        """
+        INSERT INTO "SubTask"
+        ("id", "skillTaskCardId", "subTaskType", "status",
+         "generatedAt", "updatedAt")
+        VALUES (gen_random_uuid()::text, %s, %s, 'active', NOW(), NOW())
+        ON CONFLICT ("skillTaskCardId", "subTaskType") DO UPDATE
+          SET "updatedAt" = NOW()
+        RETURNING id
+        """,
+        (card_id, sub_type),
+    )
+    sub_task_id = cur.fetchone()[0]
+    print(f"[loop_engine_runner] (3b) SubTask {sub_type}: id={sub_task_id}")
+
+    # 3 カテゴリそれぞれ SubTaskAssignment 確認 + insert (既存ならスキップ、§3-4 / S2=A)
+    for cat in ("scale", "arpeggio", "etude"):
+        cur.execute(
+            'SELECT 1 FROM "SubTaskAssignment" '
+            'WHERE "subTaskId" = %s AND "assignedCategory" = %s::"AssignedCategory"',
+            (sub_task_id, cat.upper()),
+        )
+        if cur.fetchone() is not None:
+            continue  # 既存温存 (ユーザー選定変更不可、§3-4)
+        cur.execute(
+            """
+            INSERT INTO "SubTaskAssignment"
+            ("id", "subTaskId", "practiceItemId", "assignedCategory",
+             "isMastered", "assignedAt")
+            VALUES (gen_random_uuid()::text, %s, %s, %s::"AssignedCategory",
+                    false, NOW())
+            ON CONFLICT ("subTaskId", "practiceItemId") DO NOTHING
+            """,
+            (sub_task_id, candidates_by_cat[cat], cat.upper()),
+        )
+    print(
+        f"[loop_engine_runner] (3b) SubTaskAssignment for {sub_type}: "
+        f"scale={candidates_by_cat.get('scale')} "
+        f"arpeggio={candidates_by_cat.get('arpeggio')} "
+        f"etude={candidates_by_cat.get('etude')}"
+    )
+
+
+def generate_score_cards_phase3b(
+    cur,
+    user_internal_id: str,
+    score_id: str,
+    score_key_tonic: Optional[str],
+    score_key_mode: Optional[str],
+    score_star: Optional[int],
+    pitch_skill_score: Optional[float],
+    rhythm_skill_score: Optional[float],
+    bowing_skill_score: Optional[float],
+    skill_sub_scores: dict,
+) -> None:
+    """Phase 3b 本体: Score 演奏完了時にカード一式を生成。
+
+    呼び出し元: run_score_mode (Performance UPDATE 直後、同 transaction 内)
+    """
+    # 1. 中課題判定: skill score 系で < 70 のものを抽出
+    mid_categories: list[str] = []
+    if pitch_skill_score is not None and pitch_skill_score < THRESHOLD_MID_TASK:
+        mid_categories.append("PITCH")
+    if rhythm_skill_score is not None and rhythm_skill_score < THRESHOLD_MID_TASK:
+        mid_categories.append("RHYTHM")
+    if bowing_skill_score is not None and bowing_skill_score < THRESHOLD_MID_TASK:
+        mid_categories.append("BOWING")
+
+    if not mid_categories:
+        print(
+            f"[loop_engine_runner] (3b) 中課題なし (pitch={pitch_skill_score} "
+            f"rhythm={rhythm_skill_score} bowing={bowing_skill_score}, "
+            f"全て ≥ {THRESHOLD_MID_TASK}) — カード生成スキップ"
+        )
+        return
+
+    # 2. 小課題候補抽出 (matched=true かつ score < 70)
+    failed_sub_by_parent: dict[str, list[str]] = {}
+    for sub_type, v in (skill_sub_scores or {}).items():
+        if not isinstance(v, dict):
+            continue
+        if v.get("matched") and v.get("score") is not None and v["score"] < THRESHOLD_SUB_TASK:
+            parent = _SUB_TO_PARENT.get(sub_type)
+            if parent and parent in mid_categories:
+                failed_sub_by_parent.setdefault(parent, []).append(sub_type)
+
+    print(
+        f"[loop_engine_runner] (3b) 中課題: {mid_categories}, "
+        f"小課題候補: {failed_sub_by_parent}"
+    )
+
+    # 3. SkillTaskCard upsert + SubTask 展開
+    for parent_cat in mid_categories:
+        cur.execute(
+            'SELECT id, status FROM "SkillTaskCard" '
+            'WHERE "userId" = %s AND "scoreId" = %s '
+            '  AND "taskCategory" = %s::"TaskCategory"',
+            (user_internal_id, score_id, parent_cat),
+        )
+        row = cur.fetchone()
+        if row and row[1] == "cleared":
+            # 永久クリア (S3=A、MVP 範囲では再アクティブ化しない)
+            print(
+                f"[loop_engine_runner] (3b) SkillTaskCard {parent_cat}: "
+                f"cleared 状態のため skip"
+            )
+            continue
+
+        if row:
+            card_id = row[0]
+            cur.execute(
+                'UPDATE "SkillTaskCard" '
+                'SET "lastMatchedAt" = NOW(), "updatedAt" = NOW() '
+                'WHERE id = %s',
+                (card_id,),
+            )
+            print(
+                f"[loop_engine_runner] (3b) SkillTaskCard {parent_cat}: "
+                f"existing updated (id={card_id})"
+            )
+        else:
+            cur.execute(
+                """
+                INSERT INTO "SkillTaskCard"
+                ("id", "userId", "scoreId", "taskCategory", "status",
+                 "generatedAt", "lastMatchedAt", "updatedAt")
+                VALUES (gen_random_uuid()::text, %s, %s, %s::"TaskCategory",
+                        'active', NOW(), NOW(), NOW())
+                RETURNING id
+                """,
+                (user_internal_id, score_id, parent_cat),
+            )
+            card_id = cur.fetchone()[0]
+            print(
+                f"[loop_engine_runner] (3b) SkillTaskCard {parent_cat}: "
+                f"new (id={card_id})"
+            )
+
+        # この親に紐づく失敗 sub_task を SubTask + Assignment で展開
+        for sub_type in failed_sub_by_parent.get(parent_cat, []):
+            _generate_subtask_phase3b(
+                cur, card_id, sub_type, user_internal_id, score_id,
+                score_key_tonic, score_key_mode, score_star,
+            )
+
+
+# ---------------------------------------------------------------------------
 # v1.5 Phase 3a (2026-05-11): Score 演奏モード
 # ---------------------------------------------------------------------------
 # practice mode と異なる点:
@@ -666,6 +942,7 @@ def process_performance_completion_py(
 #   - DB 更新先: Performance (vs PracticePerformance)
 #   - ownerScope == "admin" gate (M5=B 確定): 非 admin Score は対象外
 #   - performanceType == "user" gate (I4=A 確定): pro 演奏は対象外
+#   - Phase 3b (2026-05-13): generate_score_cards_phase3b() でカード一式を生成
 #   - 累積処理 (process_performance_completion_py) は Phase 3c 対応につき skip
 # ---------------------------------------------------------------------------
 
@@ -713,7 +990,8 @@ def run_score_mode() -> None:
         with conn.cursor() as cur:
             cur.execute(
                 'SELECT s.star, s."skillSubTaskTags", s."ownerScope", '
-                '       p."performanceType" '
+                '       p."performanceType", '
+                '       s."keyTonic", s."keyMode", p."userId" '
                 'FROM "Score" s '
                 'INNER JOIN "Performance" p ON p."scoreId" = s.id '
                 'WHERE s.id = %s AND p.id = %s',
@@ -729,6 +1007,9 @@ def run_score_mode() -> None:
         sub_task_tags_raw = row[1]
         owner_scope: str = row[2]
         performance_type: str = row[3]
+        score_key_tonic: Optional[str] = row[4]
+        score_key_mode: Optional[str] = row[5]
+        user_internal_id: str = row[6]
 
         # M5 = B 確定: ownerScope != "admin" の Score 演奏はループエンジン対象外
         if owner_scope != "admin":
@@ -828,7 +1109,23 @@ def run_score_mode() -> None:
             f"perf={performance_id}"
         )
 
-        # 6. 累積処理 (UserGrade / SongMastery 等) は Phase 3c で対応 — 本 commit では skip
+        # 6. Phase 3b: SkillTaskCard / SubTask / SubTaskAssignment /
+        #    MissingPracticeItemFlag を生成 (同 transaction 内、commit 前)
+        with conn.cursor() as cur:
+            generate_score_cards_phase3b(
+                cur,
+                user_internal_id,
+                score_id,
+                score_key_tonic,
+                score_key_mode,
+                star,
+                result.get("pitchSkillScore"),
+                result.get("rhythmSkillScore"),
+                result.get("bowingSkillScore"),
+                result.get("skillSubScores") or {},
+            )
+
+        # 7. 累積処理 (UserGrade / SongMastery 等) は Phase 3c で対応 — 本 commit では skip
         # process_performance_completion_py は PracticePerformance + UserGrade.progressData
         # 専用のため、Score 演奏には現状適用できない。
         # Phase 3c で SongMastery / UserGradeProgress / SkillTaskCard 生成を追加予定。
