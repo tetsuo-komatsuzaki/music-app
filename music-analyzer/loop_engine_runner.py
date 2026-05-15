@@ -658,6 +658,886 @@ def process_performance_completion_py(
 
 
 # ---------------------------------------------------------------------------
+# v1.5 Phase 3b (2026-05-13): Score 演奏完了時のカード生成
+# ---------------------------------------------------------------------------
+# 仕様 (v1.3 §7-1 + §2-4 + R5=A の 9 新規テーブル):
+#   閾値: 中課題/小課題 共に < 70 (Tetsuo 確定)
+#   生成対象:
+#     - SkillTaskCard (userId × scoreId × taskCategory)
+#     - SubTask (中課題に紐づく失敗 sub_task)
+#     - SubTaskAssignment (3 カテゴリ × 1、簡易版アルゴリズム)
+#     - MissingPracticeItemFlag (該当教材ゼロ件時、I1=A)
+#   SubTaskAssignment 簡易版: 未演奏優先 + sortOrder
+#   (フル版 = ユーザー実績 + sortOrder は Phase 3c で UserPracticeMastery 集計後に組込)
+# ---------------------------------------------------------------------------
+
+THRESHOLD_MID_TASK = 70  # 中課題判定 (skill score < 70 で課題化、Tetsuo 確定)
+THRESHOLD_SUB_TASK = 70  # 小課題判定 (skillSubScores の matched score < 70)
+
+# sub_task ID → 親 TaskCategory enum 値
+_SUB_TO_PARENT = {
+    "pitch_overall": "PITCH", "pitch_high": "PITCH", "pitch_chromatic": "PITCH",
+    "rhythm_overall": "RHYTHM", "rhythm_fast": "RHYTHM", "rhythm_after_rest": "RHYTHM",
+    "string_change_volume": "BOWING", "string_change_slur": "BOWING",
+    "string_change_timing": "BOWING",
+}
+
+
+def _pick_practice_item_phase3b(
+    cur,
+    user_internal_id: str,
+    key_tonic: str,
+    key_mode: str,
+    star: int,
+    sub_type: str,
+    category: str,
+) -> Optional[str]:
+    """1 sub_task × 1 category で教材を 1 件選ぶ (簡易版)。
+
+    優先順位 (簡易版、Phase 3c で実績ソート追加予定):
+      1. ユーザー未演奏 (PracticePerformance 未登録) を優先
+      2. PracticeItem.sortOrder 昇順 + title 昇順 (tie-breaker)
+    """
+    cur.execute(
+        """
+        SELECT pi.id
+        FROM "PracticeItem" pi
+        WHERE pi."category" = %s::"PracticeCategory"
+          AND pi."keyTonic" = %s
+          AND pi."keyMode" = %s
+          AND pi."star" = %s
+          AND pi."isPublished" = true
+          AND pi."skillSubTaskTags" @> jsonb_build_array(%s::text)
+        ORDER BY
+          (NOT EXISTS (
+            SELECT 1 FROM "PracticePerformance" pp
+            WHERE pp."userId" = %s AND pp."practiceItemId" = pi.id
+          )) DESC,
+          pi."sortOrder" ASC,
+          pi."title" ASC
+        LIMIT 1
+        """,
+        (category, key_tonic, key_mode, star, sub_type, user_internal_id),
+    )
+    row = cur.fetchone()
+    return row[0] if row else None
+
+
+def _generate_subtask_phase3b(
+    cur,
+    card_id: str,
+    sub_type: str,
+    user_internal_id: str,
+    score_id: str,
+    key_tonic: Optional[str],
+    key_mode: Optional[str],
+    star: Optional[int],
+) -> None:
+    """1 つの失敗 sub_task に対し SubTask + SubTaskAssignment を生成。
+
+    3 カテゴリで該当教材が揃わない場合は MissingPracticeItemFlag を作成し、
+    SubTask 自体は生成しない (I1=A / M6=B 確定)。
+    """
+    if not key_tonic or not key_mode or star is None:
+        print(
+            f"[loop_engine_runner] (3b) SubTask {sub_type}: Score key/star 不足で skip "
+            f"(keyTonic={key_tonic}, keyMode={key_mode}, star={star})"
+        )
+        return
+
+    # 3 カテゴリで候補検索
+    candidates_by_cat: dict[str, str] = {}
+    missing_categories: list[str] = []
+    for cat in ("scale", "arpeggio", "etude"):
+        item_id = _pick_practice_item_phase3b(
+            cur, user_internal_id, key_tonic, key_mode, star, sub_type, cat
+        )
+        if item_id:
+            candidates_by_cat[cat] = item_id
+        else:
+            missing_categories.append(cat)
+
+    # 1 カテゴリでも欠ければ SubTask 生成 skip + Flag 作成 (I1=A / M6=B)
+    if missing_categories:
+        for missing_cat in missing_categories:
+            # 未解決の同じ Flag があれば重複しないように
+            cur.execute(
+                """
+                SELECT 1 FROM "MissingPracticeItemFlag"
+                WHERE "scoreId" = %s AND "subTaskType" = %s
+                  AND "missingCategory" = %s AND "resolvedAt" IS NULL
+                LIMIT 1
+                """,
+                (score_id, sub_type, missing_cat),
+            )
+            if cur.fetchone() is None:
+                cur.execute(
+                    """
+                    INSERT INTO "MissingPracticeItemFlag"
+                    ("id", "scoreId", "subTaskType", "missingCategory",
+                     "keyTonic", "keyMode", "star", "detectedAt")
+                    VALUES (gen_random_uuid()::text, %s, %s, %s, %s, %s, %s, NOW())
+                    """,
+                    (score_id, sub_type, missing_cat, key_tonic, key_mode, star),
+                )
+        print(
+            f"[loop_engine_runner] (3b) SubTask {sub_type} skip: "
+            f"missing categories={missing_categories} → MissingPracticeItemFlag 作成"
+        )
+        return
+
+    # SubTask upsert (既存なら updatedAt 更新)
+    cur.execute(
+        """
+        INSERT INTO "SubTask"
+        ("id", "skillTaskCardId", "subTaskType", "status",
+         "generatedAt", "updatedAt")
+        VALUES (gen_random_uuid()::text, %s, %s, 'active', NOW(), NOW())
+        ON CONFLICT ("skillTaskCardId", "subTaskType") DO UPDATE
+          SET "updatedAt" = NOW()
+        RETURNING id
+        """,
+        (card_id, sub_type),
+    )
+    sub_task_id = cur.fetchone()[0]
+    print(f"[loop_engine_runner] (3b) SubTask {sub_type}: id={sub_task_id}")
+
+    # 3 カテゴリそれぞれ SubTaskAssignment 確認 + insert (既存ならスキップ、§3-4 / S2=A)
+    for cat in ("scale", "arpeggio", "etude"):
+        cur.execute(
+            'SELECT 1 FROM "SubTaskAssignment" '
+            'WHERE "subTaskId" = %s AND "assignedCategory" = %s::"AssignedCategory"',
+            (sub_task_id, cat.upper()),
+        )
+        if cur.fetchone() is not None:
+            continue  # 既存温存 (ユーザー選定変更不可、§3-4)
+        cur.execute(
+            """
+            INSERT INTO "SubTaskAssignment"
+            ("id", "subTaskId", "practiceItemId", "assignedCategory",
+             "isMastered", "assignedAt")
+            VALUES (gen_random_uuid()::text, %s, %s, %s::"AssignedCategory",
+                    false, NOW())
+            ON CONFLICT ("subTaskId", "practiceItemId") DO NOTHING
+            """,
+            (sub_task_id, candidates_by_cat[cat], cat.upper()),
+        )
+    print(
+        f"[loop_engine_runner] (3b) SubTaskAssignment for {sub_type}: "
+        f"scale={candidates_by_cat.get('scale')} "
+        f"arpeggio={candidates_by_cat.get('arpeggio')} "
+        f"etude={candidates_by_cat.get('etude')}"
+    )
+
+
+def generate_score_cards_phase3b(
+    cur,
+    user_internal_id: str,
+    score_id: str,
+    score_key_tonic: Optional[str],
+    score_key_mode: Optional[str],
+    score_star: Optional[int],
+    pitch_skill_score: Optional[float],
+    rhythm_skill_score: Optional[float],
+    bowing_skill_score: Optional[float],
+    skill_sub_scores: dict,
+) -> None:
+    """Phase 3b 本体: Score 演奏完了時にカード一式を生成。
+
+    呼び出し元: run_score_mode (Performance UPDATE 直後、同 transaction 内)
+    """
+    # 1. 中課題判定: skill score 系で < 70 のものを抽出
+    mid_categories: list[str] = []
+    if pitch_skill_score is not None and pitch_skill_score < THRESHOLD_MID_TASK:
+        mid_categories.append("PITCH")
+    if rhythm_skill_score is not None and rhythm_skill_score < THRESHOLD_MID_TASK:
+        mid_categories.append("RHYTHM")
+    if bowing_skill_score is not None and bowing_skill_score < THRESHOLD_MID_TASK:
+        mid_categories.append("BOWING")
+
+    if not mid_categories:
+        print(
+            f"[loop_engine_runner] (3b) 中課題なし (pitch={pitch_skill_score} "
+            f"rhythm={rhythm_skill_score} bowing={bowing_skill_score}, "
+            f"全て ≥ {THRESHOLD_MID_TASK}) — カード生成スキップ"
+        )
+        return
+
+    # 2. 小課題候補抽出 (matched=true かつ score < 70)
+    failed_sub_by_parent: dict[str, list[str]] = {}
+    for sub_type, v in (skill_sub_scores or {}).items():
+        if not isinstance(v, dict):
+            continue
+        if v.get("matched") and v.get("score") is not None and v["score"] < THRESHOLD_SUB_TASK:
+            parent = _SUB_TO_PARENT.get(sub_type)
+            if parent and parent in mid_categories:
+                failed_sub_by_parent.setdefault(parent, []).append(sub_type)
+
+    print(
+        f"[loop_engine_runner] (3b) 中課題: {mid_categories}, "
+        f"小課題候補: {failed_sub_by_parent}"
+    )
+
+    # 3. SkillTaskCard upsert + SubTask 展開
+    for parent_cat in mid_categories:
+        cur.execute(
+            'SELECT id, status FROM "SkillTaskCard" '
+            'WHERE "userId" = %s AND "scoreId" = %s '
+            '  AND "taskCategory" = %s::"TaskCategory"',
+            (user_internal_id, score_id, parent_cat),
+        )
+        row = cur.fetchone()
+        if row and row[1] == "cleared":
+            # 永久クリア (S3=A、MVP 範囲では再アクティブ化しない)
+            print(
+                f"[loop_engine_runner] (3b) SkillTaskCard {parent_cat}: "
+                f"cleared 状態のため skip"
+            )
+            continue
+
+        if row:
+            card_id = row[0]
+            cur.execute(
+                'UPDATE "SkillTaskCard" '
+                'SET "lastMatchedAt" = NOW(), "updatedAt" = NOW() '
+                'WHERE id = %s',
+                (card_id,),
+            )
+            print(
+                f"[loop_engine_runner] (3b) SkillTaskCard {parent_cat}: "
+                f"existing updated (id={card_id})"
+            )
+        else:
+            cur.execute(
+                """
+                INSERT INTO "SkillTaskCard"
+                ("id", "userId", "scoreId", "taskCategory", "status",
+                 "generatedAt", "lastMatchedAt", "updatedAt")
+                VALUES (gen_random_uuid()::text, %s, %s, %s::"TaskCategory",
+                        'active', NOW(), NOW(), NOW())
+                RETURNING id
+                """,
+                (user_internal_id, score_id, parent_cat),
+            )
+            card_id = cur.fetchone()[0]
+            print(
+                f"[loop_engine_runner] (3b) SkillTaskCard {parent_cat}: "
+                f"new (id={card_id})"
+            )
+
+        # この親に紐づく失敗 sub_task を SubTask + Assignment で展開
+        for sub_type in failed_sub_by_parent.get(parent_cat, []):
+            _generate_subtask_phase3b(
+                cur, card_id, sub_type, user_internal_id, score_id,
+                score_key_tonic, score_key_mode, score_star,
+            )
+
+
+# ---------------------------------------------------------------------------
+# v1.5 Phase 3c (2026-05-16): 累積処理 (SongMastery / UserPracticeMastery /
+#   UserTechniqueMastery / UserGradeProgress + cleared 遷移)
+# ---------------------------------------------------------------------------
+# 仕様 (v1.3 §2-2 〜 §2-7、Tetsuo 確定 2026-05-16):
+#   - Q1=B: UserPracticeMastery は永続 (mastered になったら false に戻さない)
+#   - Q2=A: UserTechniqueMastery は演奏した PracticeItem の技法のみ再計算
+#   - Q3=A: SongMastery は gate 通過 (admin × non-pro) のみ
+#   - Q4=B: ScoreTechniqueTag を参照して「全演奏技法習得」を判定
+#   - Q5=A: SkillTaskCard cleared = 全 SubTask cleared ∧ 当該カテゴリ skill ≥ 70
+#   - Q6=A: PracticeItem 演奏マスター達成時に関連 SubTaskAssignment.isMastered=true
+#   - Q7=A: SongMastery.isFullyMastered=true で UserGradeProgress カウント
+#   - 演奏マスター必要回数は 5 回統一 (Phase 3c 追加仕様、PracticeItem も 5 回)
+# ---------------------------------------------------------------------------
+
+MASTERY_RECENT_COUNT = 5          # 直近 N 回 (SongMastery / UserPracticeMastery 両方)
+MASTERY_AVERAGE_THRESHOLD = 90.0  # 平均 overallScore ≥ 90
+MASTERY_MIN_TOTAL = 5             # 累計 ≥ 5
+CLEARED_SKILL_THRESHOLD = 70.0    # SkillTaskCard cleared 判定 (§2-5)
+GRADE_UP_SONG_COUNT = 10          # 完全習得 10 曲で☆昇格 (§2-7)
+
+
+def _update_user_practice_mastery(
+    cur, user_internal_id: str, practice_item_id: str
+) -> bool:
+    """UserPracticeMastery を upsert。
+
+    Returns:
+        bool: 「今回新たに isPerformanceMastered=true に遷移したか」
+              (Q1=B 永続のため、既に true のものは false 返す)
+    """
+    # 直近 5 回 (PracticePerformance.overallScore IS NOT NULL でフィルタ) + 累計
+    cur.execute(
+        """
+        WITH recent AS (
+          SELECT "overallScore"
+          FROM "PracticePerformance"
+          WHERE "userId" = %s AND "practiceItemId" = %s
+            AND "overallScore" IS NOT NULL
+          ORDER BY "uploadedAt" DESC
+          LIMIT %s
+        )
+        SELECT
+          (SELECT AVG("overallScore") FROM recent)::float AS recent_avg,
+          (SELECT COUNT(*) FROM "PracticePerformance"
+            WHERE "userId" = %s AND "practiceItemId" = %s
+              AND "overallScore" IS NOT NULL)::int AS total_count
+        """,
+        (user_internal_id, practice_item_id, MASTERY_RECENT_COUNT,
+         user_internal_id, practice_item_id),
+    )
+    recent_avg, total_count = cur.fetchone()
+
+    cur.execute(
+        'SELECT "isPerformanceMastered" FROM "UserPracticeMastery" '
+        'WHERE "userId" = %s AND "practiceItemId" = %s',
+        (user_internal_id, practice_item_id),
+    )
+    existing = cur.fetchone()
+    was_mastered = bool(existing[0]) if existing else False
+
+    becomes_mastered = (
+        recent_avg is not None
+        and recent_avg >= MASTERY_AVERAGE_THRESHOLD
+        and total_count >= MASTERY_MIN_TOTAL
+    )
+    # Q1=B 永続: 既に true なら false に戻さない
+    final_mastered = was_mastered or becomes_mastered
+
+    if existing:
+        cur.execute(
+            """
+            UPDATE "UserPracticeMastery"
+            SET "recentAverageScore" = %s,
+                "totalPerformanceCount" = %s,
+                "isPerformanceMastered" = %s,
+                "masteredAt" = CASE
+                  WHEN "isPerformanceMastered" = false AND %s = true
+                  THEN NOW() ELSE "masteredAt"
+                END,
+                "updatedAt" = NOW()
+            WHERE "userId" = %s AND "practiceItemId" = %s
+            """,
+            (recent_avg, total_count, final_mastered,
+             final_mastered, user_internal_id, practice_item_id),
+        )
+    else:
+        cur.execute(
+            """
+            INSERT INTO "UserPracticeMastery"
+            ("id", "userId", "practiceItemId", "recentAverageScore",
+             "totalPerformanceCount", "isPerformanceMastered",
+             "masteredAt", "updatedAt")
+            VALUES (gen_random_uuid()::text, %s, %s, %s, %s, %s,
+                    CASE WHEN %s = true THEN NOW() ELSE NULL END, NOW())
+            """,
+            (user_internal_id, practice_item_id, recent_avg, total_count,
+             final_mastered, final_mastered),
+        )
+
+    just_mastered = (not was_mastered) and becomes_mastered
+    print(
+        f"[loop_engine_runner] (3c) UserPracticeMastery: item={practice_item_id} "
+        f"recent_avg={recent_avg} total={total_count} mastered={final_mastered} "
+        f"(just_mastered={just_mastered})"
+    )
+    return just_mastered
+
+
+def _mark_assignments_mastered(
+    cur, user_internal_id: str, practice_item_id: str
+) -> list[str]:
+    """PracticeItem 演奏マスター達成時、関連 SubTaskAssignment を全て isMastered=true に。
+
+    Returns:
+        list[str]: 影響を受けた SubTask の id 一覧 (cleared 再判定対象)
+    """
+    cur.execute(
+        """
+        UPDATE "SubTaskAssignment" sta
+        SET "isMastered" = true, "masteredAt" = NOW()
+        FROM "SubTask" st
+        INNER JOIN "SkillTaskCard" stc ON st."skillTaskCardId" = stc.id
+        WHERE sta."subTaskId" = st.id
+          AND sta."practiceItemId" = %s
+          AND stc."userId" = %s
+          AND sta."isMastered" = false
+        RETURNING sta."subTaskId"
+        """,
+        (practice_item_id, user_internal_id),
+    )
+    affected = [r[0] for r in cur.fetchall()]
+    if affected:
+        print(
+            f"[loop_engine_runner] (3c) SubTaskAssignment.isMastered=true: "
+            f"item={practice_item_id} affected_subtasks={len(affected)}"
+        )
+    return affected
+
+
+def _reclear_subtasks(cur, sub_task_ids: list[str]) -> list[str]:
+    """指定 SubTask 群について、全 SubTaskAssignment.isMastered=true ならば
+    status='cleared' + clearedAt=NOW() に遷移。
+
+    Returns:
+        list[str]: cleared 状態になった SkillTaskCard id (重複排除済)。
+    """
+    if not sub_task_ids:
+        return []
+
+    cur.execute(
+        """
+        UPDATE "SubTask" st
+        SET "status" = 'cleared', "clearedAt" = NOW(), "updatedAt" = NOW()
+        WHERE st.id = ANY(%s)
+          AND st."status" != 'cleared'
+          AND NOT EXISTS (
+            SELECT 1 FROM "SubTaskAssignment" sta
+            WHERE sta."subTaskId" = st.id AND sta."isMastered" = false
+          )
+        RETURNING st."skillTaskCardId"
+        """,
+        (sub_task_ids,),
+    )
+    affected_card_ids = list({r[0] for r in cur.fetchall()})
+    if affected_card_ids:
+        print(
+            f"[loop_engine_runner] (3c) SubTask.cleared 遷移: "
+            f"cards_affected={len(affected_card_ids)}"
+        )
+    return affected_card_ids
+
+
+def _maybe_clear_skill_cards(
+    cur,
+    card_ids: list[str],
+    latest_skill_scores: Optional[dict[str, Optional[float]]] = None,
+) -> list[str]:
+    """SkillTaskCard cleared 判定 (§2-5 厳密版):
+       全 SubTask cleared ∧ 当該カテゴリ skill score ≥ CLEARED_SKILL_THRESHOLD
+
+    Args:
+        card_ids: 再判定対象のカード id
+        latest_skill_scores: {"PITCH": float, "RHYTHM": float, "BOWING": float}
+            Score 演奏完了直後に渡す。Practice 経路では None (skill 条件未充足扱い)
+
+    Returns:
+        list[str]: cleared に遷移した card id
+    """
+    if not card_ids:
+        return []
+
+    cur.execute(
+        """
+        SELECT id, "userId", "scoreId", "taskCategory"::text
+        FROM "SkillTaskCard"
+        WHERE id = ANY(%s) AND "status" != 'cleared'
+        """,
+        (card_ids,),
+    )
+    rows = cur.fetchall()
+    newly_cleared: list[str] = []
+    for card_id, user_id, score_id, task_category in rows:
+        # 全 SubTask cleared 確認
+        cur.execute(
+            'SELECT COUNT(*) FROM "SubTask" '
+            'WHERE "skillTaskCardId" = %s AND "status" != \'cleared\'',
+            (card_id,),
+        )
+        remaining = cur.fetchone()[0]
+        if remaining > 0:
+            continue
+
+        # 当該カテゴリ skill score ≥ 70 確認
+        skill_score: Optional[float] = None
+        if latest_skill_scores:
+            skill_score = latest_skill_scores.get(task_category)
+        if skill_score is None or skill_score < CLEARED_SKILL_THRESHOLD:
+            # Practice 経路 (skill_score=None) or skill 不足 → cleared 保留
+            print(
+                f"[loop_engine_runner] (3c) SkillTaskCard {task_category} "
+                f"card={card_id}: 全 SubTask cleared だが skill={skill_score} "
+                f"< {CLEARED_SKILL_THRESHOLD} で cleared 保留"
+            )
+            continue
+
+        cur.execute(
+            'UPDATE "SkillTaskCard" SET "status" = \'cleared\', '
+            '  "clearedAt" = NOW(), "updatedAt" = NOW() '
+            'WHERE id = %s',
+            (card_id,),
+        )
+        newly_cleared.append(card_id)
+        print(
+            f"[loop_engine_runner] (3c) SkillTaskCard {task_category} "
+            f"card={card_id}: cleared (skill={skill_score})"
+        )
+    return newly_cleared
+
+
+def _update_user_technique_mastery(
+    cur, user_internal_id: str, practice_item_id: str
+) -> None:
+    """演奏した PracticeItem に紐づく TechniqueTag のみ UserTechniqueMastery 再計算。
+
+    判定 (§2-3): 同調・同★・同 T を持つ scale + arpeggio + etude のうち、
+    実在する全カテゴリで 1 つ以上演奏マスター (UserPracticeMastery.isPerformanceMastered=true)
+    """
+    cur.execute(
+        """
+        SELECT pit."techniqueTagId", pi."keyTonic", pi."keyMode", pi."star"
+        FROM "PracticeItemTechnique" pit
+        INNER JOIN "PracticeItem" pi ON pi.id = pit."practiceItemId"
+        WHERE pit."practiceItemId" = %s
+        """,
+        (practice_item_id,),
+    )
+    triples = cur.fetchall()
+    if not triples:
+        return
+
+    for tag_id, key_tonic, key_mode, star in triples:
+        if star is None or not key_tonic or not key_mode:
+            continue
+        # 同調・同★・同 T で実在カテゴリを取得
+        cur.execute(
+            """
+            SELECT DISTINCT pi."category"::text
+            FROM "PracticeItem" pi
+            INNER JOIN "PracticeItemTechnique" pit2 ON pit2."practiceItemId" = pi.id
+            WHERE pit2."techniqueTagId" = %s
+              AND pi."keyTonic" = %s AND pi."keyMode" = %s AND pi."star" = %s
+              AND pi."isPublished" = true
+            """,
+            (tag_id, key_tonic, key_mode, star),
+        )
+        existing_cats = [r[0] for r in cur.fetchall()]
+        if not existing_cats:
+            continue
+
+        # 実在カテゴリ全てに 1+ mastered があるか
+        cur.execute(
+            """
+            SELECT DISTINCT pi."category"::text
+            FROM "PracticeItem" pi
+            INNER JOIN "PracticeItemTechnique" pit2 ON pit2."practiceItemId" = pi.id
+            INNER JOIN "UserPracticeMastery" upm ON upm."practiceItemId" = pi.id
+            WHERE pit2."techniqueTagId" = %s
+              AND pi."keyTonic" = %s AND pi."keyMode" = %s AND pi."star" = %s
+              AND pi."isPublished" = true
+              AND upm."userId" = %s AND upm."isPerformanceMastered" = true
+            """,
+            (tag_id, key_tonic, key_mode, star, user_internal_id),
+        )
+        mastered_cats = {r[0] for r in cur.fetchall()}
+        is_mastered = all(c in mastered_cats for c in existing_cats)
+
+        cur.execute(
+            'SELECT "isMastered" FROM "UserTechniqueMastery" '
+            'WHERE "userId" = %s AND "techniqueTagId" = %s',
+            (user_internal_id, tag_id),
+        )
+        existing = cur.fetchone()
+        was_mastered = bool(existing[0]) if existing else False
+        # Q1=B と同じ永続ポリシー (技法も剥奪しない)
+        final = was_mastered or is_mastered
+
+        if existing:
+            cur.execute(
+                """
+                UPDATE "UserTechniqueMastery"
+                SET "isMastered" = %s,
+                    "masteredAt" = CASE
+                      WHEN "isMastered" = false AND %s = true THEN NOW()
+                      ELSE "masteredAt"
+                    END,
+                    "updatedAt" = NOW()
+                WHERE "userId" = %s AND "techniqueTagId" = %s
+                """,
+                (final, final, user_internal_id, tag_id),
+            )
+        else:
+            cur.execute(
+                """
+                INSERT INTO "UserTechniqueMastery"
+                ("id", "userId", "techniqueTagId", "isMastered",
+                 "masteredAt", "updatedAt")
+                VALUES (gen_random_uuid()::text, %s, %s, %s,
+                        CASE WHEN %s = true THEN NOW() ELSE NULL END, NOW())
+                """,
+                (user_internal_id, tag_id, final, final),
+            )
+    print(
+        f"[loop_engine_runner] (3c) UserTechniqueMastery 再計算: "
+        f"item={practice_item_id} tags={len(triples)}"
+    )
+
+
+def _update_song_mastery_and_grade(
+    cur,
+    user_internal_id: str,
+    score_id: str,
+    latest_skill_scores: dict[str, Optional[float]],
+) -> None:
+    """Score 演奏完了時の SongMastery / UserGradeProgress 更新。
+
+    1. SongMastery: 直近 5 回平均 (gate 通過のみ) + 累計、isPerformanceMastered 判定
+    2. SkillTaskCard cleared 再判定 (§2-5 厳密版)
+    3. 完全習得判定: 演奏マスター ∧ ScoreTechniqueTag 全習得 ∧ 全 SkillTaskCard cleared
+    4. UserGradeProgress: 完全習得遷移時に masteredSongCountAtCurrentStar++
+    """
+    # Q3=A gate filter: ownerScope=admin × performanceType != 'pro'
+    cur.execute(
+        """
+        WITH eligible AS (
+          SELECT p."overallScore"
+          FROM "Performance" p
+          INNER JOIN "Score" s ON s.id = p."scoreId"
+          WHERE p."userId" = %s AND p."scoreId" = %s
+            AND p."overallScore" IS NOT NULL
+            AND s."ownerScope" = 'admin'
+            AND p."performanceType" != 'pro'
+          ORDER BY p."uploadedAt" DESC
+        ), recent AS (
+          SELECT "overallScore" FROM eligible LIMIT %s
+        )
+        SELECT
+          (SELECT AVG("overallScore") FROM recent)::float,
+          (SELECT COUNT(*) FROM eligible)::int
+        """,
+        (user_internal_id, score_id, MASTERY_RECENT_COUNT),
+    )
+    recent_avg, total_count = cur.fetchone()
+
+    cur.execute(
+        'SELECT "isPerformanceMastered", "isFullyMastered" FROM "SongMastery" '
+        'WHERE "userId" = %s AND "scoreId" = %s',
+        (user_internal_id, score_id),
+    )
+    row = cur.fetchone()
+    was_perf = bool(row[0]) if row else False
+    was_full = bool(row[1]) if row else False
+
+    is_perf_now = (
+        recent_avg is not None
+        and recent_avg >= MASTERY_AVERAGE_THRESHOLD
+        and total_count >= MASTERY_MIN_TOTAL
+    )
+    final_perf = was_perf or is_perf_now  # 永続
+
+    # 2. SkillTaskCard cleared 再判定 — このユーザー × Score の全 active カード
+    cur.execute(
+        'SELECT id FROM "SkillTaskCard" '
+        'WHERE "userId" = %s AND "scoreId" = %s AND "status" != \'cleared\'',
+        (user_internal_id, score_id),
+    )
+    active_card_ids = [r[0] for r in cur.fetchall()]
+    _maybe_clear_skill_cards(cur, active_card_ids, latest_skill_scores)
+
+    # 3. 完全習得判定
+    full_mastery = False
+    if final_perf:
+        # (b) ScoreTechniqueTag 全て UserTechniqueMastery.isMastered=true ?
+        cur.execute(
+            """
+            SELECT
+              COUNT(*) AS total,
+              SUM(CASE WHEN utm."isMastered" = true THEN 1 ELSE 0 END) AS mastered
+            FROM "ScoreTechniqueTag" stt
+            LEFT JOIN "UserTechniqueMastery" utm
+              ON utm."techniqueTagId" = stt."techniqueTagId"
+              AND utm."userId" = %s
+            WHERE stt."scoreId" = %s
+            """,
+            (user_internal_id, score_id),
+        )
+        tt_total, tt_mastered = cur.fetchone()
+        tt_mastered = tt_mastered or 0
+        techniques_ok = (tt_total or 0) == tt_mastered  # 0/0 も OK (技法未登録 Score も完全習得可能)
+
+        # (c) 全 SkillTaskCard cleared (= active カード 0 件)
+        cur.execute(
+            'SELECT COUNT(*) FROM "SkillTaskCard" '
+            'WHERE "userId" = %s AND "scoreId" = %s AND "status" != \'cleared\'',
+            (user_internal_id, score_id),
+        )
+        active_remaining = cur.fetchone()[0]
+        cards_ok = active_remaining == 0
+
+        full_mastery = techniques_ok and cards_ok
+        print(
+            f"[loop_engine_runner] (3c) 完全習得判定: perf={final_perf} "
+            f"techniques={tt_mastered}/{tt_total or 0} ok={techniques_ok} "
+            f"active_cards_left={active_remaining} ok={cards_ok} → full={full_mastery}"
+        )
+
+    final_full = was_full or full_mastery  # 永続
+
+    # SongMastery upsert
+    if row:
+        cur.execute(
+            """
+            UPDATE "SongMastery"
+            SET "recentAverageScore" = %s,
+                "totalPerformanceCount" = %s,
+                "isPerformanceMastered" = %s,
+                "isFullyMastered" = %s,
+                "performanceMasteredAt" = CASE
+                  WHEN "isPerformanceMastered" = false AND %s = true THEN NOW()
+                  ELSE "performanceMasteredAt"
+                END,
+                "fullyMasteredAt" = CASE
+                  WHEN "isFullyMastered" = false AND %s = true THEN NOW()
+                  ELSE "fullyMasteredAt"
+                END,
+                "updatedAt" = NOW()
+            WHERE "userId" = %s AND "scoreId" = %s
+            """,
+            (recent_avg, total_count, final_perf, final_full,
+             final_perf, final_full, user_internal_id, score_id),
+        )
+    else:
+        cur.execute(
+            """
+            INSERT INTO "SongMastery"
+            ("id", "userId", "scoreId", "recentAverageScore",
+             "totalPerformanceCount", "isPerformanceMastered", "isFullyMastered",
+             "performanceMasteredAt", "fullyMasteredAt", "createdAt", "updatedAt")
+            VALUES (gen_random_uuid()::text, %s, %s, %s, %s, %s, %s,
+                    CASE WHEN %s = true THEN NOW() ELSE NULL END,
+                    CASE WHEN %s = true THEN NOW() ELSE NULL END,
+                    NOW(), NOW())
+            """,
+            (user_internal_id, score_id, recent_avg, total_count,
+             final_perf, final_full, final_perf, final_full),
+        )
+
+    print(
+        f"[loop_engine_runner] (3c) SongMastery: score={score_id} "
+        f"recent_avg={recent_avg} total={total_count} "
+        f"perf_mastered={final_perf} full_mastered={final_full}"
+    )
+
+    # 4. UserGradeProgress 更新 — full_mastery 新規遷移時のみカウント
+    just_fully_mastered = (not was_full) and full_mastery
+    if just_fully_mastered:
+        _bump_user_grade_progress(cur, user_internal_id)
+
+
+def _bump_user_grade_progress(cur, user_internal_id: str) -> None:
+    """完全習得 +1 のグレード進捗更新 (§2-7 維持)。10 曲で☆昇格、☆10 で master。"""
+    cur.execute(
+        'SELECT "currentStar", "masteredSongCountAtCurrentStar" '
+        'FROM "UserGradeProgress" WHERE "userId" = %s',
+        (user_internal_id,),
+    )
+    row = cur.fetchone()
+    if row:
+        current_star = row[0]
+        count = row[1] + 1
+    else:
+        current_star = 1
+        count = 1
+
+    new_star = current_star
+    new_count = count
+    master_reached = False
+    if count >= GRADE_UP_SONG_COUNT and current_star < 10:
+        new_star = current_star + 1
+        new_count = 0
+        print(
+            f"[loop_engine_runner] (3c) 🎉 ☆昇格: {current_star} → {new_star}"
+        )
+    if new_star == 10:
+        master_reached = True
+
+    # GradeLevel enum 派生 (B-1: 1-3 BEGINNER / 4-6 INTERMEDIATE / 7-9 ADVANCED / 10 MASTER)
+    if new_star <= 3:
+        grade = "BEGINNER"
+    elif new_star <= 6:
+        grade = "INTERMEDIATE"
+    elif new_star <= 9:
+        grade = "ADVANCED"
+    else:
+        grade = "MASTER"
+
+    if row:
+        cur.execute(
+            """
+            UPDATE "UserGradeProgress"
+            SET "currentStar" = %s,
+                "currentGrade" = %s::"GradeLevel",
+                "masteredSongCountAtCurrentStar" = %s,
+                "masterReachedAt" = CASE
+                  WHEN "masterReachedAt" IS NULL AND %s = true THEN NOW()
+                  ELSE "masterReachedAt"
+                END,
+                "updatedAt" = NOW()
+            WHERE "userId" = %s
+            """,
+            (new_star, grade, new_count, master_reached, user_internal_id),
+        )
+    else:
+        cur.execute(
+            """
+            INSERT INTO "UserGradeProgress"
+            ("id", "userId", "currentStar", "currentGrade",
+             "masteredSongCountAtCurrentStar", "masterReachedAt", "updatedAt")
+            VALUES (gen_random_uuid()::text, %s, %s, %s::"GradeLevel", %s,
+                    CASE WHEN %s = true THEN NOW() ELSE NULL END, NOW())
+            """,
+            (user_internal_id, new_star, grade, new_count, master_reached),
+        )
+    print(
+        f"[loop_engine_runner] (3c) UserGradeProgress: star={new_star} "
+        f"grade={grade} count={new_count}/{GRADE_UP_SONG_COUNT}"
+    )
+
+
+def process_cumulative_phase3c_practice(
+    cur, user_internal_id: str, practice_item_id: str
+) -> None:
+    """Practice 演奏完了時の累積処理。
+
+    1. UserPracticeMastery 更新
+    2. (just_mastered なら) 関連 SubTaskAssignment.isMastered=true → SubTask cleared
+       → SkillTaskCard cleared 判定 (skill 条件不足のため Score 経路で再判定)
+    3. UserTechniqueMastery 再計算 (演奏した item の技法のみ)
+    """
+    just_mastered = _update_user_practice_mastery(
+        cur, user_internal_id, practice_item_id
+    )
+    if just_mastered:
+        affected_subtasks = _mark_assignments_mastered(
+            cur, user_internal_id, practice_item_id
+        )
+        affected_cards = _reclear_subtasks(cur, affected_subtasks)
+        # Practice 経路では skill score 取れないので latest=None → cleared 保留
+        _maybe_clear_skill_cards(cur, affected_cards, latest_skill_scores=None)
+    _update_user_technique_mastery(cur, user_internal_id, practice_item_id)
+
+
+def process_cumulative_phase3c_score(
+    cur,
+    user_internal_id: str,
+    score_id: str,
+    pitch_skill: Optional[float],
+    rhythm_skill: Optional[float],
+    bowing_skill: Optional[float],
+) -> None:
+    """Score 演奏完了時の累積処理。
+
+    - SongMastery 更新 (直近 5 回平均、gate 通過のみ)
+    - SkillTaskCard cleared 再判定 (§2-5 厳密版、当該カテゴリ skill 渡す)
+    - 完全習得判定 → UserGradeProgress 更新
+    """
+    latest = {
+        "PITCH": pitch_skill,
+        "RHYTHM": rhythm_skill,
+        "BOWING": bowing_skill,
+    }
+    _update_song_mastery_and_grade(cur, user_internal_id, score_id, latest)
+
+
+# ---------------------------------------------------------------------------
 # v1.5 Phase 3a (2026-05-11): Score 演奏モード
 # ---------------------------------------------------------------------------
 # practice mode と異なる点:
@@ -666,6 +1546,7 @@ def process_performance_completion_py(
 #   - DB 更新先: Performance (vs PracticePerformance)
 #   - ownerScope == "admin" gate (M5=B 確定): 非 admin Score は対象外
 #   - performanceType == "user" gate (I4=A 確定): pro 演奏は対象外
+#   - Phase 3b (2026-05-13): generate_score_cards_phase3b() でカード一式を生成
 #   - 累積処理 (process_performance_completion_py) は Phase 3c 対応につき skip
 # ---------------------------------------------------------------------------
 
@@ -713,7 +1594,8 @@ def run_score_mode() -> None:
         with conn.cursor() as cur:
             cur.execute(
                 'SELECT s.star, s."skillSubTaskTags", s."ownerScope", '
-                '       p."performanceType" '
+                '       p."performanceType", '
+                '       s."keyTonic", s."keyMode", p."userId" '
                 'FROM "Score" s '
                 'INNER JOIN "Performance" p ON p."scoreId" = s.id '
                 'WHERE s.id = %s AND p.id = %s',
@@ -729,6 +1611,9 @@ def run_score_mode() -> None:
         sub_task_tags_raw = row[1]
         owner_scope: str = row[2]
         performance_type: str = row[3]
+        score_key_tonic: Optional[str] = row[4]
+        score_key_mode: Optional[str] = row[5]
+        user_internal_id: str = row[6]
 
         # M5 = B 確定: ownerScope != "admin" の Score 演奏はループエンジン対象外
         if owner_scope != "admin":
@@ -828,13 +1713,33 @@ def run_score_mode() -> None:
             f"perf={performance_id}"
         )
 
-        # 6. 累積処理 (UserGrade / SongMastery 等) は Phase 3c で対応 — 本 commit では skip
-        # process_performance_completion_py は PracticePerformance + UserGrade.progressData
-        # 専用のため、Score 演奏には現状適用できない。
-        # Phase 3c で SongMastery / UserGradeProgress / SkillTaskCard 生成を追加予定。
-        print(
-            f"[loop_engine_runner] (score) 累積処理は Phase 3c で対応 — 本 commit では skip"
-        )
+        # 6. Phase 3b: SkillTaskCard / SubTask / SubTaskAssignment /
+        #    MissingPracticeItemFlag を生成 (同 transaction 内、commit 前)
+        with conn.cursor() as cur:
+            generate_score_cards_phase3b(
+                cur,
+                user_internal_id,
+                score_id,
+                score_key_tonic,
+                score_key_mode,
+                star,
+                result.get("pitchSkillScore"),
+                result.get("rhythmSkillScore"),
+                result.get("bowingSkillScore"),
+                result.get("skillSubScores") or {},
+            )
+
+        # 7. Phase 3c 累積処理: SongMastery / SkillTaskCard cleared 判定 /
+        #    完全習得判定 / UserGradeProgress 更新 (同 transaction 内、commit 前)
+        with conn.cursor() as cur:
+            process_cumulative_phase3c_score(
+                cur,
+                user_internal_id,
+                score_id,
+                result.get("pitchSkillScore"),
+                result.get("rhythmSkillScore"),
+                result.get("bowingSkillScore"),
+            )
         conn.commit()
 
     except Exception:
@@ -1000,6 +1905,8 @@ def main() -> None:
         print(f"[loop_engine_runner] DB v3.2.2 + v1.5 列更新 (uncommitted): perf={performance_id}")
 
         # 6. 累積処理 (v3.2.3 §7-4 / §9 / §10) — Step 5 と同 transaction で atomic
+        # Q8=A: 既存処理 (UserSkillScore / UserSkillSubScore / UserSkillTaskCard /
+        #              UserGrade.progressData) は温存
         sub_scores_for_progress = result.get("skillSubScores") or {}
         completion_summary = process_performance_completion_py(
             conn,
@@ -1014,7 +1921,15 @@ def main() -> None:
             },
             sub_scores=sub_scores_for_progress,
         )
-        conn.commit()  # Step 5 + 6 を atomic に commit
+
+        # 6b. Phase 3c 累積処理: UserPracticeMastery / SubTaskAssignment.isMastered /
+        #     SubTask cleared / UserTechniqueMastery (新規 4 テーブル経路)
+        with conn.cursor() as cur:
+            process_cumulative_phase3c_practice(
+                cur, user_id, practice_item_id
+            )
+
+        conn.commit()  # Step 5 + 6 + 6b を atomic に commit
         print(
             f"[loop_engine_runner] 累積処理 done: "
             f"gradeUpdate={completion_summary['gradeUpdate']}"

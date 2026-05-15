@@ -97,6 +97,7 @@ model Score {
   songMasteries            SongMastery[]
   skillTaskCards           SkillTaskCard[]
   missingPracticeItemFlags MissingPracticeItemFlag[]
+  scoreTechniqueTags       ScoreTechniqueTag[] // Phase 3c (Q4=B): 完全習得判定の技法集合
 
   createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
@@ -257,6 +258,7 @@ model TechniqueTag {
   // ▼ v1.3 上達ループエンジン (back-references)
   userTechniqueMasteries   UserTechniqueMastery[]
   missingPracticeItemFlags MissingPracticeItemFlag[]
+  scoreTechniqueTags       ScoreTechniqueTag[] // Phase 3c (Q4=B)
 
   @@unique([category, name])
   @@index([category])
@@ -632,7 +634,9 @@ model SubTaskAssignment {
 
 // ─── (6) UserPracticeMastery: PracticeItem ごとのユーザー演奏マスター状態 ───
 // v1.3 §2-2 / §6-2 (6)
-// 演奏マスター: 直近 10 回平均 overallScore ≥ 90 かつ累計 ≥ 10
+// Phase 3c 追加仕様 (2026-05-16, Tetsuo 確定): 演奏マスター必要回数を 5 回統一に変更
+// 演奏マスター: 直近 5 回平均 overallScore ≥ 90 かつ累計 ≥ 5
+// (Q1=B 永続: 一度 mastered になったら以降の再計算で false に戻さない、masteredAt 固定)
 model UserPracticeMastery {
   id                    String    @id @default(cuid())
   userId                String
@@ -681,6 +685,23 @@ model PracticeItemSubTaskTag {
 
   @@id([practiceItemId, subTaskType])
   @@index([subTaskType])
+}
+
+// ─── (8b) ScoreTechniqueTag: Score ⇔ TechniqueTag の多対多 ───
+// v1.3 Phase 3c 追加 (2026-05-16, Tetsuo Q4=B 確定)
+// 完全習得判定 (§2-6) で「全演奏技法習得」を判定するために Score 自身に紐づく
+// TechniqueTag 集合が必要。admin Score 登録 UI に技法選択 (Phase 4 で実装) →
+// このテーブルに保存。PracticeItemTechnique と同じ M2M 構造。
+model ScoreTechniqueTag {
+  scoreId        String
+  techniqueTagId String
+  isPrimary      Boolean @default(false)
+
+  score        Score        @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+  techniqueTag TechniqueTag @relation(fields: [techniqueTagId], references: [id], onDelete: Cascade)
+
+  @@id([scoreId, techniqueTagId])
+  @@index([techniqueTagId])
 }
 
 // ─── (9) MissingPracticeItemFlag: 該当教材ゼロ件時の admin 通知フラグ ───
