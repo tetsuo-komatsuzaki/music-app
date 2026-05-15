@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
+import ScoreDetailTabs, { type ScoreDetailTabId } from "@/app/components/ScoreDetailTabs"
+import ScoreLoopDetail from "@/app/components/ScoreLoopDetail"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
 import * as Tone from "tone"
 import styles from "./scoreDetail.module.css"
@@ -817,6 +819,27 @@ export default function ScoreDetail({
   practiceItemId,
 }: Props) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // ▼ 上達ループタブ (Phase 4-1、Score 演奏のみ。practice 経路では非表示)
+  const isScoreMode = !practiceItemId
+  const initialTab: ScoreDetailTabId =
+    isScoreMode && searchParams.get("tab") === "loop" ? "loop" : "practice"
+  const [activeTab, setActiveTab] = useState<ScoreDetailTabId>(initialTab)
+  const handleTabChange = useCallback(
+    (next: ScoreDetailTabId) => {
+      setActiveTab(next)
+      const params = new URLSearchParams(searchParams.toString())
+      if (next === "loop") {
+        params.set("tab", "loop")
+      } else {
+        params.delete("tab")
+      }
+      const q = params.toString()
+      router.replace(q ? `?${q}` : "?", { scroll: false })
+    },
+    [router, searchParams],
+  )
 
   // ▼ 非同期データ取得
   const [performances, setPerformances] = useState<PerformanceDTO[]>([])
@@ -2001,6 +2024,16 @@ export default function ScoreDetail({
         <div><h1 className={styles.title}>{score.title}</h1></div>
       </div>
 
+      {/* Phase 4-1: Score 演奏のみタブ表示 (練習 / 上達ループ) */}
+      {isScoreMode && (
+        <div data-section="score-tabs" style={{ marginBottom: 12 }}>
+          <ScoreDetailTabs activeTab={activeTab} onChange={handleTabChange} />
+        </div>
+      )}
+
+      {isScoreMode && activeTab === "loop" ? (
+        <ScoreLoopDetail scoreId={score.id} userId={userId} />
+      ) : (
       <div className={styles.grid}>
         <div className={styles.leftColumn} data-section="left-column">
           {infoSlot}
@@ -2015,6 +2048,7 @@ export default function ScoreDetail({
               onRecordingBpmChange={handleRecordingBpmChange}
               onRecordingStop={() => { setRecordingState("preview"); stopRecordingGuide() }}
               uploadProgress={uploadProgress}
+              onShowLoop={isScoreMode ? () => handleTabChange("loop") : undefined}
             />
           </div>
           <div className={styles.card} data-onboarding="scoreDetail.playControls">
@@ -2146,6 +2180,7 @@ export default function ScoreDetail({
           </div>
         </div>
       </div>
+      )}
 
       <OnboardingTrigger pageKey={practiceItemId ? "practiceItem" : "scoreDetail"} />
     </div>
