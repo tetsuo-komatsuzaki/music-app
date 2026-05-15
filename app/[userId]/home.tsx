@@ -1,27 +1,24 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
 import GradeBadge from "@/app/components/GradeBadge"
 import GradeProgressBar from "@/app/components/GradeProgressBar"
-import GradeDetailModal, {
-  type GradeDetailData,
-} from "@/app/components/GradeDetailModal"
 import RecommendationList from "@/app/components/RecommendationList"
 import type { SongRecommendation } from "@/app/components/RecommendationItem"
+import type { GradeLevel } from "@/app/_libs/skillMaster"
 import styles from "./home.module.css"
 import OnboardingTrigger from "./_onboarding/OnboardingTrigger"
 
-// UI-8: ホーム画面のグレード表示用 (page.tsx で構築)
-type GradeData = GradeDetailData & {
-  totalCompleted: number
-  totalRequired: number
-  // ☆ 進捗 (アルコちゃんカード内、グレードの下に表示、Lv1〜10 を 2 段 5 個)
-  starsFilled: number
-  starsTotal: number
-  starsByLv: boolean[] // index 0=Lv1, ..., index 9=Lv10
-  currentStarLv: number | null
-  itemsToNextStar: number
+// v1.6 Phase 4-2 (2026-05-16) — UserGradeProgress 準拠の表示用データ。
+// 仕様書 §3-5-2 必須項目: 現在グレード + ★ + 次の★まで完全習得すべき曲数
+type GradeData = {
+  currentStar: number
+  currentGrade: GradeLevel
+  masteredSongCountAtCurrentStar: number
+  gradeUpRequired: number
+  gradeUpRemaining: number
+  isMaster: boolean
+  masterReachedAt: string | null
 }
 
 type Props = {
@@ -29,7 +26,7 @@ type Props = {
   streak: number
   weeklyDays: number
   arcoMessage: { greeting: string; cheer: string }
-  /** UI-8: アルコちゃんカード内に表示するグレード情報 */
+  /** v1.6 §3-5-2: アルコちゃんカード内に表示するグレード情報 */
   gradeData: GradeData
   /** UI-9 (§11-3): active カード優先のレコメンド (最大 5 件) */
   songRecommendations: SongRecommendation[]
@@ -65,8 +62,20 @@ export default function HomeClient({
   void _userName
   const WEEKLY_GOAL = 5
 
-  // UI-8: グレード詳細モーダルの開閉状態
-  const [gradeModalOpen, setGradeModalOpen] = useState(false)
+  // v1.6 Phase 4-2 Q5=c: GradeProgressBar 直下のヒント文 (次グレード達成のヒント)
+  // currentGrade と ★段階から、次グレード昇格の条件文を組み立てる
+  const hintText = gradeData.isMaster
+    ? undefined
+    : (() => {
+        const star = gradeData.currentStar
+        if (star <= 2) return `☆3 まで習得すると中級者に昇格します`
+        if (star === 3) return `☆4 を完全習得すると中級者に昇格します`
+        if (star <= 5) return `☆6 まで習得すると上級者に昇格します`
+        if (star === 6) return `☆7 を完全習得すると上級者に昇格します`
+        if (star <= 8) return `☆9 まで習得すると上級者で安定します`
+        if (star === 9) return `☆10 を完全習得するとマスターに到達します`
+        return undefined
+      })()
 
   return (
     <div className={styles.page}>
@@ -97,54 +106,25 @@ export default function HomeClient({
         <div className={styles.arcoGreeting}>{arcoMessage.greeting}</div>
         <div className={styles.arcoCheer}>{arcoMessage.cheer}</div>
 
-        {/* UI-8: グレード表示 (旧「今日のおすすめ」を置き換え) */}
+        {/* v1.6 Phase 4-2: グレード/★表示 (UserGradeProgress 準拠、Q3=A 旧 starsByLv 撤去) */}
         <div className={styles.gradeSection}>
           <div className={styles.gradeRow}>
             <GradeBadge
-              grade={gradeData.currentGrade}
-              onTap={() => setGradeModalOpen(true)}
+              currentStar={gradeData.currentStar}
+              currentGrade={gradeData.currentGrade}
             />
             <div className={styles.gradeProgress}>
               <GradeProgressBar
-                completed={gradeData.totalCompleted}
-                required={gradeData.totalRequired}
-                remainingCount={gradeData.remainingCount}
-                nextGrade={gradeData.nextGrade}
+                current={gradeData.masteredSongCountAtCurrentStar}
+                target={gradeData.gradeUpRequired}
+                hintText={hintText}
+                isMaster={gradeData.isMaster}
+                masterReachedAt={gradeData.masterReachedAt}
               />
-            </div>
-          </div>
-
-          {/* ☆ 進捗 (グレードの下、Lv1〜10 を 2 段 5 個 + 次の☆まで N 曲) */}
-          <div className={styles.starRow}>
-            <div
-              className={styles.starList}
-              aria-label={`${gradeData.starsFilled}/${gradeData.starsTotal} 個の☆を獲得`}
-            >
-              {gradeData.starsByLv.map((mastered, i) => (
-                <span
-                  key={i}
-                  className={mastered ? styles.starFilled : styles.starEmpty}
-                  aria-label={`Lv.${i + 1} ${mastered ? "獲得済み" : "未獲得"}`}
-                >
-                  ★
-                </span>
-              ))}
-            </div>
-            <div className={styles.starCountdown}>
-              {gradeData.currentStarLv != null
-                ? `次の☆まで ${gradeData.itemsToNextStar} 曲`
-                : "全☆獲得 🎉"}
             </div>
           </div>
         </div>
       </div>
-
-      {/* UI-8: グレード詳細モーダル */}
-      <GradeDetailModal
-        open={gradeModalOpen}
-        onClose={() => setGradeModalOpen(false)}
-        data={gradeData}
-      />
 
       {/* ───── UI-9 (§6-4): 次のチャレンジ (横スクロール、画像なし、テキストベース) ───── */}
       <div className={styles.card}>

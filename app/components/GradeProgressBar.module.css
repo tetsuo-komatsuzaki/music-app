@@ -43,3 +43,33 @@
   text-align: right;
   font-weight: 500;
 }
+
+/* v1.6 Phase 4-2 Q5=c: GradeProgressBar 直下のヒント文 */
+.hint {
+  font-size: 11px;
+  color: #888;
+  font-style: italic;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+/* v1.6 Phase 4-2 Q1=a-2 / a-3: ★10 Master 到達演出 */
+.masterRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
+  border-radius: 8px;
+  border: 1px solid #ffb300;
+}
+
+.masterIcon {
+  font-size: 18px;
+}
+
+.masterText {
+  font-size: 13px;
+  font-weight: 700;
+  color: #b8860b;
+}

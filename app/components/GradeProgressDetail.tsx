@@ -1,10 +1,10 @@
 // app/components/GradeProgressDetail.tsx
 //
-// UI 設計書 v3.1 §7-5 — マイページの「あなたのグレード」セクション専用コンポーネント。
+// v1.6 Phase 4-2 (2026-05-16) — マイページの「あなたのグレード」セクション専用コンポーネント。
 //
 // 構成:
-//   - 大きめの GradeBadge (タップで GradeDetailModal を開く想定 — onTapBadge で発火)
-//   - GradeProgressBar (UI-8 の細バー、「次まで残り N 曲」付き)
+//   - 大きめの GradeBadge (currentStar + currentGrade)
+//   - GradeProgressBar (★昇格進捗 + Master 演出)
 //   - [グレード履歴を見る] ボタン (任意機能)
 //     - タップで直近 1 つの遷移を展開: 「{prev} → {current}  YYYY年MM月DD日に達成」
 //     - BEGINNER (履歴なし) のときはボタン非表示
@@ -20,13 +20,6 @@ import GradeBadge from "./GradeBadge"
 import GradeProgressBar from "./GradeProgressBar"
 import styles from "./GradeProgressDetail.module.css"
 
-const GRADE_EMOJI: Record<GradeLevel, string> = {
-  BEGINNER: "🌱",
-  INTERMEDIATE: "🌿",
-  ADVANCED: "🌳",
-  MASTER: "🏆",
-}
-
 const PREVIOUS_GRADE: Record<GradeLevel, GradeLevel | null> = {
   BEGINNER: null,
   INTERMEDIATE: "BEGINNER",
@@ -35,18 +28,20 @@ const PREVIOUS_GRADE: Record<GradeLevel, GradeLevel | null> = {
 }
 
 export type GradeProgressDetailData = {
+  /** v1.6 UserGradeProgress.currentStar (1-10) */
+  currentStar: number
   currentGrade: GradeLevel
+  /** v1.6 §2-7 ★昇格までの完全習得曲数 */
+  masteredSongCountAtCurrentStar: number
+  gradeUpRequired: number
+  /** Master 達成日 (ISO string)。null = 未達 */
+  masterReachedAt: string | null
+  /** legacy: 旧 UserGrade.achievedAt (履歴表示用) */
   achievedAt: string | null
-  nextGrade: GradeLevel | null
-  remainingCount: number
-  totalCompleted: number
-  totalRequired: number
 }
 
 type Props = {
   data: GradeProgressDetailData
-  /** バッジタップで詳細モーダルを開く想定。未指定なら静的バッジ。 */
-  onTapBadge?: () => void
 }
 
 function formatJpDate(isoStr: string): string {
@@ -59,22 +54,26 @@ function formatJpDate(isoStr: string): string {
   })
 }
 
-export default function GradeProgressDetail({ data, onTapBadge }: Props) {
+export default function GradeProgressDetail({ data }: Props) {
   const [historyExpanded, setHistoryExpanded] = useState(false)
 
   const previousGrade = PREVIOUS_GRADE[data.currentGrade]
   const hasHistory = !!(previousGrade && data.achievedAt)
+  const isMaster = data.currentGrade === "MASTER"
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.row}>
-        <GradeBadge grade={data.currentGrade} onTap={onTapBadge} />
+        <GradeBadge
+          currentStar={data.currentStar}
+          currentGrade={data.currentGrade}
+        />
         <div className={styles.progress}>
           <GradeProgressBar
-            completed={data.totalCompleted}
-            required={data.totalRequired}
-            remainingCount={data.remainingCount}
-            nextGrade={data.nextGrade}
+            current={data.masteredSongCountAtCurrentStar}
+            target={data.gradeUpRequired}
+            isMaster={isMaster}
+            masterReachedAt={data.masterReachedAt}
           />
         </div>
       </div>
@@ -95,14 +94,10 @@ export default function GradeProgressDetail({ data, onTapBadge }: Props) {
           {historyExpanded && (
             <div className={styles.history} id="grade-history-content">
               <div className={styles.historyTransition}>
-                <span aria-hidden="true">{GRADE_EMOJI[previousGrade!]}</span>{" "}
                 {GRADE_NAMES[previousGrade!]}
                 <span className={styles.arrow} aria-hidden="true">
                   →
                 </span>
-                <span aria-hidden="true">
-                  {GRADE_EMOJI[data.currentGrade]}
-                </span>{" "}
                 {GRADE_NAMES[data.currentGrade]}
               </div>
               <div className={styles.historyDate}>

@@ -199,6 +199,15 @@ export default function ScoresClient({
                     ) : (
                       <h3 className={styles.cardTitle}>
                         {score.title}
+                        {score.isFullyMastered && (
+                          <span
+                            className={styles.fullyMasteredBadge}
+                            aria-label="完全習得済"
+                            title="完全習得済"
+                          >
+                            🏆 完全習得
+                          </span>
+                        )}
                       </h3>
                     )}
 

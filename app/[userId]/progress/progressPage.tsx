@@ -1,17 +1,36 @@
 "use client"
 
+import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useState } from "react"
-import TasksSection from "@/app/components/TasksSection"
-import type { SkillTaskCardData } from "@/app/components/SkillTaskCardItem"
+import GradeBadge from "@/app/components/GradeBadge"
+import GradeProgressBar from "@/app/components/GradeProgressBar"
+import type { GradeLevel } from "@/app/_libs/skillMaster"
 import styles from "./progress.module.css"
 import OnboardingTrigger from "../_onboarding/OnboardingTrigger"
 
-type MasteryProgress = {
-  perfCount: number
-  averageScore: number | null
-  threshold: number
-  window: number
+// v1.6 Phase 4-2 (2026-05-16) — Progress ページ Client Component
+// 仕様書 §3-5-3 引用: 「本書 §1-2 グレード ↔ ★マッピングと §2 マスター条件に整合させる」
+
+type GradeData = {
+  currentStar: number
+  currentGrade: GradeLevel
+  masteredSongCountAtCurrentStar: number
+  gradeUpRequired: number
+  masterReachedAt: string | null
+  isMaster: boolean
+}
+
+type MasteredSong = {
+  scoreId: string
+  title: string
+  composer: string | null
+  star: number | null
+  keyTonic: string | null
+  keyMode: string | null
+  recentAverageScore: number | null
+  totalPerformanceCount: number
+  fullyMasteredAt: string | null
 }
 
 type Props = {
@@ -19,21 +38,19 @@ type Props = {
   userId:          string
   streak:          number
   dayAchievements: Record<string, number>   // dateStr → 0..3
-  cards:           SkillTaskCardData[]
-  subScoresMap:    Record<string, number | null>
-  skillScoresMap:  Record<string, number | null>
-  /** 現在のユーザーグレード (BEGINNER 等) */
-  currentGrade: string
-  /** ユーザーグレード内でマスターしていない最低難易度。null = グレード内全てマスター済み */
-  currentTargetDifficulty: number | null
-  /** 現在難易度の達成進捗 (直近5回平均) */
-  currentDifficultyProgress: MasteryProgress | null
+  gradeData:       GradeData
+  masteredSongs:   MasteredSong[]
+  practiceMasterySummary: {
+    scale: number
+    arpeggio: number
+    etude: number
+    song: number
+  }
 }
 
-// ─── タブ定義 ─────────────────────────────────────────────────
-// 旧「弱点」「サマリー」タブは削除し、マイページから「あなたの課題」を移設。
+// ─── タブ定義 (v1.6 Phase 4-2: 旧 tasks タブ削除、mastery タブ追加) ─────
 const TABS = [
-  { key: "tasks",    label: "あなたの課題" },
+  { key: "mastery",  label: "習得状況" },
   { key: "calendar", label: "練習カレンダー" },
 ]
 
@@ -41,23 +58,28 @@ const DAY_HEADERS = ["月", "火", "水", "木", "金", "土", "日"]
 
 function pad2(n: number): string { return String(n).padStart(2, "0") }
 
+function formatJpDate(iso: string | null): string {
+  if (!iso) return "—"
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return "—"
+  return d.toLocaleDateString("ja-JP", {
+    year: "numeric", month: "long", day: "numeric",
+  })
+}
+
 export default function ProgressPage({
   tab,
   userId: userIdProp,
   streak,
   dayAchievements,
-  cards,
-  subScoresMap,
-  skillScoresMap,
-  currentGrade,
-  currentTargetDifficulty,
-  currentDifficultyProgress,
+  gradeData,
+  masteredSongs,
+  practiceMasterySummary,
 }: Props) {
   const params = useParams()
-  // route の userId を優先 (props の userId はサーバ側から渡された supabaseUserId)
   const userId = (params.userId as string) ?? userIdProp
 
-  // ── カレンダー表示中の年月（クライアント状態、初期=今日の月）──
+  // ── カレンダー表示中の年月 ──
   const today = new Date()
   const todayY = today.getFullYear()
   const todayM = today.getMonth() + 1
@@ -76,7 +98,6 @@ export default function ProgressPage({
     return `/${userId}/progress?tab=${key}`
   }
 
-  // ── 達成レベルから色クラス決定 ──
   function dayClassName(achievements: number | undefined, isToday: boolean): string {
     const parts = [styles.calendarDay]
     if (achievements === 3) parts.push(styles.dayAchievement3)
@@ -86,7 +107,6 @@ export default function ProgressPage({
     return parts.join(" ")
   }
 
-  // ── カレンダー描画用 ──
   const firstDow = new Date(year, month - 1, 1).getDay()
   const offset   = firstDow === 0 ? 6 : firstDow - 1
   const daysInMonth = new Date(year, month, 0).getDate()
@@ -108,7 +128,99 @@ export default function ProgressPage({
       </div>
 
       {/* ═══════════════════════════════════════════════════════
-          練習カレンダータブ (旧ストリーク + 旧3リング 統合)
+          v1.6 Phase 4-2: 習得状況タブ (新タブ、デフォルト)
+      ═══════════════════════════════════════════════════════ */}
+      {tab === "mastery" && (
+        <>
+          {/* 1a. グレードサマリ */}
+          <div className={styles.card}>
+            <div className={styles.sectionTitle}>あなたのグレード</div>
+            <div className={styles.gradeRow}>
+              <GradeBadge
+                currentStar={gradeData.currentStar}
+                currentGrade={gradeData.currentGrade}
+              />
+              <div className={styles.gradeProgress}>
+                <GradeProgressBar
+                  current={gradeData.masteredSongCountAtCurrentStar}
+                  target={gradeData.gradeUpRequired}
+                  isMaster={gradeData.isMaster}
+                  masterReachedAt={gradeData.masterReachedAt}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 1b. 完全習得曲リスト */}
+          <div className={styles.card}>
+            <div className={styles.sectionTitle}>
+              完全習得した曲 ({masteredSongs.length}件)
+            </div>
+            {masteredSongs.length === 0 ? (
+              <p className={styles.emptyHint}>
+                まだ完全習得した曲はありません。Score 演奏で 5 回平均 ≥ 90 点 + 全演奏技法習得 + 全中課題クリアを目指しましょう。
+              </p>
+            ) : (
+              <ul className={styles.masteredList}>
+                {masteredSongs.map(song => (
+                  <li key={song.scoreId} className={styles.masteredItem}>
+                    <Link
+                      href={`/${userId}/scores/${song.scoreId}`}
+                      className={styles.masteredLink}
+                    >
+                      <div className={styles.masteredHeader}>
+                        <span className={styles.masteredTitle}>{song.title}</span>
+                        {song.star != null && (
+                          <span className={styles.masteredStar}>☆{song.star}</span>
+                        )}
+                      </div>
+                      {song.composer && (
+                        <div className={styles.masteredMeta}>
+                          作曲: {song.composer}
+                        </div>
+                      )}
+                      <div className={styles.masteredMeta}>
+                        完全習得: {formatJpDate(song.fullyMasteredAt)}
+                        {song.recentAverageScore != null && (
+                          <> · 直近 5 回平均 {song.recentAverageScore.toFixed(1)} 点</>
+                        )}
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* 1d. 練習教材マスター状況サマリ */}
+          <div className={styles.card}>
+            <div className={styles.sectionTitle}>練習教材マスター状況</div>
+            <div className={styles.masterySummaryGrid}>
+              <div className={styles.masterySummaryItem}>
+                <div className={styles.masterySummaryLabel}>音階</div>
+                <div className={styles.masterySummaryValue}>
+                  {practiceMasterySummary.scale}<span className={styles.masterySummaryUnit}>件</span>
+                </div>
+              </div>
+              <div className={styles.masterySummaryItem}>
+                <div className={styles.masterySummaryLabel}>アルペジオ</div>
+                <div className={styles.masterySummaryValue}>
+                  {practiceMasterySummary.arpeggio}<span className={styles.masterySummaryUnit}>件</span>
+                </div>
+              </div>
+              <div className={styles.masterySummaryItem}>
+                <div className={styles.masterySummaryLabel}>エチュード</div>
+                <div className={styles.masterySummaryValue}>
+                  {practiceMasterySummary.etude}<span className={styles.masterySummaryUnit}>件</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════
+          練習カレンダータブ (現状温存、Phase 4-2 範囲外)
       ═══════════════════════════════════════════════════════ */}
       {tab === "calendar" && (
         <>
@@ -122,7 +234,6 @@ export default function ProgressPage({
             <div className={styles.streakSub}>連続練習記録</div>
           </div>
 
-          {/* カレンダー本体 (月ナビ + 達成レベル色) */}
           <div className={styles.card} data-onboarding="progress.calendar">
             <div className={styles.calendarHeader}>
               <button
@@ -166,7 +277,6 @@ export default function ProgressPage({
               })}
             </div>
 
-            {/* 凡例 */}
             <div className={styles.calendarLegend}>
               <div className={styles.legendItem}>
                 <span className={`${styles.legendBox} ${styles.dayAchievement1}`} />
@@ -186,23 +296,6 @@ export default function ProgressPage({
             </div>
           </div>
         </>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════
-          あなたの課題タブ (マイページから移設)
-      ═══════════════════════════════════════════════════════ */}
-      {tab === "tasks" && (
-        <div className={styles.card}>
-          <TasksSection
-            userId={userId}
-            initialCards={cards}
-            subScoresMap={subScoresMap}
-            skillScoresMap={skillScoresMap}
-            currentGrade={currentGrade}
-            currentTargetDifficulty={currentTargetDifficulty}
-            currentDifficultyProgress={currentDifficultyProgress}
-          />
-        </div>
       )}
 
       <OnboardingTrigger pageKey="progress" />

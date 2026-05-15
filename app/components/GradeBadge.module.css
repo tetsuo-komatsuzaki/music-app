@@ -63,3 +63,11 @@ button.badge:focus-visible {
   border-color: #ffe082;
   color: #b8860b;
 }
+
+/* v1.6 Phase 4-2 Q1=a-1: ★10 Master 到達演出 (金色 + 🌟) */
+.badgeMasterAchieved {
+  background: linear-gradient(135deg, #fff3b8 0%, #ffd700 50%, #ffb300 100%);
+  border-color: #ffa000;
+  color: #6d4c00;
+  box-shadow: 0 2px 8px rgba(255, 179, 0, 0.4);
+}
