@@ -182,11 +182,17 @@ type Props = {
   onCountdownStart?: () => void
   /** アップロード進捗 (0-100、null は未開始/完了)。v3.3 spec Commit 3 で追加 */
   uploadProgress?: number | null
+  /**
+   * Phase 4-1 (Q2=D): 演奏結果ダイアログから「上達ループタブで詳細」リンクを表示。
+   * Score 演奏のみ undefined 以外で渡す (practice では undefined のままにする)。
+   * クリックすると親側で URL ?tab=loop に切替。
+   */
+  onShowLoop?: () => void
 }
 
 export type Status = "idle" | "tempo-select" | "countdown" | "recording" | "preview" | "uploading" | "result"
 
-export default function Recorder({ onRecordingComplete, previousBestScore, bestOverallScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, uploadProgress }: Props) {
+export default function Recorder({ onRecordingComplete, previousBestScore, bestOverallScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, uploadProgress, onShowLoop }: Props) {
   const [status, setStatus] = useState<Status>("idle")
   const [elapsed, setElapsed] = useState(0)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
@@ -825,6 +831,17 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
           )}
 
           {audioUrl && <audio controls src={audioUrl} className={styles.audioPlayer} />}
+
+          {/* Phase 4-1 (Q2=D): Score 演奏で上達ループタブへの導線 */}
+          {onShowLoop && (
+            <button
+              type="button"
+              className={styles.loopLinkBtn}
+              onClick={onShowLoop}
+            >
+              上達ループタブで詳細を見る →
+            </button>
+          )}
 
           <div className={styles.resultActions}>
             <button className={styles.retryBtnStrong} onClick={continueToNext}>
