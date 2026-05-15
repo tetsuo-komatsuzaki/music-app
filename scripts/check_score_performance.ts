@@ -240,6 +240,78 @@ async function main() {
     console.log(`  [${f.subTaskType}] missing=${f.missingCategory}  key=${f.keyTonic} ${f.keyMode} star=${f.star}  ${resolved}`)
     console.log(`    detected=${f.detectedAt.toISOString()}  id=${f.id}`)
   }
+  console.log()
+
+  // ─── Phase 3c: SongMastery / UserGradeProgress / ScoreTechniqueTag ───
+  console.log(`=== Phase 3c 出力 (累積処理: SongMastery / UserGradeProgress) ===`)
+
+  const songMastery = await prisma.songMastery.findUnique({
+    where: { userId_scoreId: { userId: user.id, scoreId: score.id } },
+    select: {
+      recentAverageScore: true,
+      totalPerformanceCount: true,
+      isPerformanceMastered: true,
+      isFullyMastered: true,
+      performanceMasteredAt: true,
+      fullyMasteredAt: true,
+      updatedAt: true,
+    },
+  })
+  console.log(`--- SongMastery ---`)
+  if (!songMastery) {
+    console.log(`  ❌ レコード未生成 (Phase 3c で生成されるはず)`)
+  } else {
+    console.log(`  recentAverageScore:    ${fmt(songMastery.recentAverageScore)}  (期待: 直近 5 回平均 overallScore)`)
+    console.log(`  totalPerformanceCount: ${songMastery.totalPerformanceCount}  (期待: gate 通過の累計)`)
+    console.log(`  isPerformanceMastered: ${songMastery.isPerformanceMastered}  (期待: avg≥90 ∧ total≥5)`)
+    console.log(`  isFullyMastered:       ${songMastery.isFullyMastered}  (期待: 演奏マスター ∧ 全技法習得 ∧ 全カード cleared)`)
+    console.log(`  performanceMasteredAt: ${songMastery.performanceMasteredAt?.toISOString() ?? "—"}`)
+    console.log(`  fullyMasteredAt:       ${songMastery.fullyMasteredAt?.toISOString() ?? "—"}`)
+    console.log(`  updatedAt:             ${songMastery.updatedAt.toISOString()}`)
+  }
+  console.log()
+
+  // ScoreTechniqueTag (Q4=B) — admin 登録時に紐付け
+  const stt = await prisma.scoreTechniqueTag.findMany({
+    where: { scoreId: score.id },
+    select: {
+      techniqueTagId: true, isPrimary: true,
+      techniqueTag: { select: { name: true, category: true } },
+    },
+  })
+  console.log(`--- ScoreTechniqueTag (Q4=B、admin 紐付け) ---`)
+  if (stt.length === 0) {
+    console.log(`  (未登録 — Phase 4 admin UI 実装後に紐付け予定。0/0 で完全習得判定通過する)`)
+  }
+  for (const t of stt) {
+    const userMastery = await prisma.userTechniqueMastery.findUnique({
+      where: { userId_techniqueTagId: { userId: user.id, techniqueTagId: t.techniqueTagId } },
+      select: { isMastered: true, masteredAt: true },
+    })
+    const status = userMastery?.isMastered ? "✓mastered" : "·"
+    console.log(`  ${t.techniqueTag.category.padEnd(12)} ${t.techniqueTag.name.padEnd(20)} ${status}  masteredAt=${userMastery?.masteredAt?.toISOString() ?? "—"}`)
+  }
+  console.log()
+
+  // UserGradeProgress
+  const grade = await prisma.userGradeProgress.findUnique({
+    where: { userId: user.id },
+    select: {
+      currentStar: true, currentGrade: true,
+      masteredSongCountAtCurrentStar: true,
+      masterReachedAt: true, updatedAt: true,
+    },
+  })
+  console.log(`--- UserGradeProgress (Q7=A、完全習得カウント) ---`)
+  if (!grade) {
+    console.log(`  (レコードなし — まだ完全習得 1 曲もなし)`)
+  } else {
+    console.log(`  currentStar:                    ${grade.currentStar} / 10`)
+    console.log(`  currentGrade:                   ${grade.currentGrade}`)
+    console.log(`  masteredSongCountAtCurrentStar: ${grade.masteredSongCountAtCurrentStar} / 10  (10 で☆昇格)`)
+    console.log(`  masterReachedAt:                ${grade.masterReachedAt?.toISOString() ?? "—"}`)
+    console.log(`  updatedAt:                      ${grade.updatedAt.toISOString()}`)
+  }
 }
 
 main()
