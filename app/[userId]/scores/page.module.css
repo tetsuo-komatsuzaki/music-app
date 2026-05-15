@@ -230,6 +230,22 @@
   color: #0F172A;
 }
 
+/* v1.6 Phase 4-2 Q2=a: スコアカードの完全習得バッジ */
+.fullyMasteredBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
+  color: #b8860b;
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: middle;
+  border: 1px solid #ffb300;
+}
+
 .cardComposer {
   font-size: 14px;
   color: #64748B;

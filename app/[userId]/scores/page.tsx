@@ -24,23 +24,33 @@ export default async function Page({ params }: PageProps) {
   console.log(`[PERF] scores/list step1_user: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   const perfStep2 = performance.now()
-  const rawScores = await prisma.score.findMany({
-    where: {
-      OR: [
-        { createdById: user.id },
-        { isShared: true },
-      ],
-      deletedAt: null,   // 修正2: AND として全枝に適用 (OR の中ではなくトップレベル)
-    },
-    orderBy: { createdAt: "desc" }
-  })
+  // v1.6 Phase 4-2 Q2=a: スコアカードに完全習得バッジを掲載するため、
+  //   ユーザーの SongMastery (isFullyMastered=true) も並列取得して scoreId set を作る
+  const [rawScores, masterySongs] = await Promise.all([
+    prisma.score.findMany({
+      where: {
+        OR: [
+          { createdById: user.id },
+          { isShared: true },
+        ],
+        deletedAt: null,   // 修正2: AND として全枝に適用 (OR の中ではなくトップレベル)
+      },
+      orderBy: { createdAt: "desc" }
+    }),
+    prisma.songMastery.findMany({
+      where: { userId: user.id, isFullyMastered: true },
+      select: { scoreId: true },
+    }),
+  ])
   console.log(`[PERF] scores/list step2_scores: ${(performance.now() - perfStep2).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
+  const fullyMasteredScoreIds = new Set(masterySongs.map(m => m.scoreId))
 
   const scores = rawScores.map(score => ({
     ...score,
     createdAt: score.createdAt.toISOString(),
     isOwn: score.createdById === user.id,
+    isFullyMastered: fullyMasteredScoreIds.has(score.id),
   }))
   return <ScoresClient scores={scores} userId={userId} />
 }

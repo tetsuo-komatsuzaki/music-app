@@ -1,10 +1,9 @@
 // app/[userId]/profile/page.tsx
 //
-// UI 設計書 v3.1 §7 — マイページ (Server Component)。
-// グレード詳細セクション + プロフィール / 設定リンク。
+// v1.6 Phase 4-2 (2026-05-16) — マイページ (Server Component)。
+// グレード詳細セクション (UserGradeProgress 準拠) + プロフィール / 設定リンク。
 //
 // 旧「あなたの課題」カードは 成長記録「あなたの課題」タブに移設。
-// このページは グレード詳細 + フッターリンクのみ。
 
 import { prisma } from "@/app/_libs/prisma"
 import {
@@ -15,18 +14,10 @@ import MyPage from "./myPage"
 
 export const metadata = { title: "マイページ" }
 
-const NEXT_GRADE_BAND: Record<
-  GradeLevel,
-  { next: GradeLevel | null; stars: number[] }
-> = {
-  BEGINNER: { next: "INTERMEDIATE", stars: [1, 2, 3] },
-  INTERMEDIATE: { next: "ADVANCED", stars: [4, 5, 6, 7] },
-  ADVANCED: { next: "MASTER", stars: [8, 9, 10] },
-  MASTER: { next: null, stars: [] },
-}
-
 const isGradeLevel = (v: unknown): v is GradeLevel =>
   typeof v === "string" && (GRADE_LEVELS as readonly string[]).includes(v)
+
+const GRADE_UP_SONG_COUNT = 10 // v1.6 §2-7
 
 type PageProps = {
   params: Promise<{ userId: string }>
@@ -43,59 +34,36 @@ export default async function ProfilePage({ params }: PageProps) {
 
   const internalUserId = dbUser.id
 
-  const userGrade = await prisma.userGrade.findUnique({
-    where: { userId: internalUserId },
-    select: { currentGrade: true, achievedAt: true, progressData: true },
-  })
+  // v1.6 Phase 4-2: UserGradeProgress (新設計) + UserGrade.achievedAt (legacy 履歴用)
+  const [userGradeProgress, legacyUserGrade] = await Promise.all([
+    prisma.userGradeProgress.findUnique({
+      where: { userId: internalUserId },
+      select: {
+        currentStar: true,
+        currentGrade: true,
+        masteredSongCountAtCurrentStar: true,
+        masterReachedAt: true,
+      },
+    }),
+    prisma.userGrade.findUnique({
+      where: { userId: internalUserId },
+      select: { achievedAt: true },
+    }),
+  ])
 
-  // ── gradeData (UI-8 と同じ形) ──
-  type ProgressEntry = {
-    completed: number
-    required: number
-    practiceItemIds: string[]
-  }
-  const currentGrade: GradeLevel = isGradeLevel(userGrade?.currentGrade)
-    ? userGrade.currentGrade
+  const currentGrade: GradeLevel = isGradeLevel(userGradeProgress?.currentGrade)
+    ? userGradeProgress.currentGrade
     : "BEGINNER"
-  const progressData = (userGrade?.progressData ?? {}) as Record<
-    string,
-    ProgressEntry
-  >
-  const band = NEXT_GRADE_BAND[currentGrade]
-  let remainingCount = 0
-  const nextGradeDetails: Record<
-    string,
-    { completed: number; required: number; remaining: number }
-  > = {}
-  for (const d of band.stars) {
-    const dKey = String(d)
-    const entry = progressData[dKey] ?? {
-      completed: 0,
-      required: 10,
-      practiceItemIds: [],
-    }
-    const completed = typeof entry.completed === "number" ? entry.completed : 0
-    const required = typeof entry.required === "number" ? entry.required : 10
-    const remaining = Math.max(0, required - completed)
-    nextGradeDetails[dKey] = { completed, required, remaining }
-    remainingCount += remaining
-  }
-  const totalCompleted = Object.values(nextGradeDetails).reduce(
-    (sum, d) => sum + d.completed,
-    0,
-  )
-  const totalRequired = Object.values(nextGradeDetails).reduce(
-    (sum, d) => sum + d.required,
-    0,
-  )
+
   const gradeData = {
+    currentStar: userGradeProgress?.currentStar ?? 1,
     currentGrade,
-    achievedAt: userGrade?.achievedAt?.toISOString() ?? null,
-    nextGrade: band.next,
-    remainingCount,
-    nextGradeDetails,
-    totalCompleted,
-    totalRequired,
+    masteredSongCountAtCurrentStar:
+      userGradeProgress?.masteredSongCountAtCurrentStar ?? 0,
+    gradeUpRequired: GRADE_UP_SONG_COUNT,
+    masterReachedAt:
+      userGradeProgress?.masterReachedAt?.toISOString() ?? null,
+    achievedAt: legacyUserGrade?.achievedAt?.toISOString() ?? null,
   }
 
   return (
