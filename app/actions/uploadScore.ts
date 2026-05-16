@@ -41,6 +41,33 @@ export async function uploadScore(formData: FormData) {
   // admin が共有サンプルとしてアップロードする時に true、user upload は false (formData 未設定でデフォルト false)
   const isShared = formData.get("isShared") === "true"
 
+  // v1.6 Phase 4-3 (Q4=B): admin Score 登録時に ScoreTechniqueTag を作成 (Q4=A 確定で既存セレクタ流用)。
+  // payload: [{ id: string, isPrimary: boolean }, ...] の JSON 文字列。
+  // 不正フォーマットや存在しない techniqueTag は静かにスキップ (admin UI バリデーション側で防ぐ前提)。
+  type TechniqueEntry = { id: string; isPrimary: boolean }
+  let techniques: TechniqueEntry[] = []
+  const techniquesRaw = formData.get("techniques") as string | null
+  if (techniquesRaw) {
+    try {
+      const parsed = JSON.parse(techniquesRaw)
+      if (Array.isArray(parsed)) {
+        const seen = new Set<string>()
+        for (const e of parsed as unknown[]) {
+          if (!e || typeof e !== "object") continue
+          const obj = e as Record<string, unknown>
+          if (typeof obj.id !== "string" || seen.has(obj.id)) continue
+          seen.add(obj.id)
+          techniques.push({
+            id: obj.id,
+            isPrimary: typeof obj.isPrimary === "boolean" ? obj.isPrimary : false,
+          })
+        }
+      }
+    } catch {
+      techniques = []
+    }
+  }
+
   if (!title) return { error: "曲名が必要です" }
   if (!file) return { error: "ファイルがありません" }
   if (file.size > 5 * 1024 * 1024) {
@@ -75,6 +102,26 @@ export async function uploadScore(formData: FormData) {
       isShared,
     },
   })
+
+  // v1.6 Phase 4-3: ScoreTechniqueTag を作成 (技法 ID の存在チェック後 insert)
+  if (techniques.length > 0) {
+    const requestedIds = techniques.map((t) => t.id)
+    const found = await prisma.techniqueTag.findMany({
+      where: { id: { in: requestedIds } },
+      select: { id: true },
+    })
+    const validIds = new Set(found.map((f) => f.id))
+    const toInsert = techniques.filter((t) => validIds.has(t.id))
+    if (toInsert.length > 0) {
+      await prisma.scoreTechniqueTag.createMany({
+        data: toInsert.map((t) => ({
+          scoreId: score.id,
+          techniqueTagId: t.id,
+          isPrimary: t.isPrimary,
+        })),
+      })
+    }
+  }
 
   // Path B 統一 (v3.3 spec): auth.uid() ベースで組み立てる
   const filePath = `${user.id}/${score.id}.${extension}`

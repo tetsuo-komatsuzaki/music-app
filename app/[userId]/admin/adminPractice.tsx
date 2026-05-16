@@ -11,6 +11,7 @@ import {
 } from "@/app/_libs/skillMaster"
 import { updatePracticeItemTags } from "@/app/actions/updatePracticeItemTags"
 import { updateScoreTags } from "@/app/actions/updateScoreTags"
+import { updateScoreTechniqueTags } from "@/app/actions/updateScoreTechniqueTags"
 import styles from "./admin.module.css"
 
 type TechniqueOption = { id: string; category: string; name: string; nameEn: string | null }
@@ -103,6 +104,72 @@ export default function AdminPractice({
   const [, startTransition] = useTransition()
   const [editError, setEditError] = useState<string | null>(null)
   const [editSaving, setEditSaving] = useState(false)
+
+  // v1.6 Phase 4-3 Q5=(b) 確定: Score 用「技法タグを編集」モーダル state (一覧編集とは分離)
+  const [techModalScore, setTechModalScore] = useState<ItemDTO | null>(null)
+  const [techModalTags, setTechModalTags] = useState<{ id: string; isPrimary: boolean }[]>([])
+  const [techModalSaving, setTechModalSaving] = useState(false)
+  const [techModalError, setTechModalError] = useState<string | null>(null)
+
+  const openTechModal = (item: ItemDTO) => {
+    setTechModalScore(item)
+    setTechModalTags(
+      item.techniques.map((t) => ({ id: t.id, isPrimary: t.isPrimary })),
+    )
+    setTechModalError(null)
+  }
+  const closeTechModal = () => {
+    setTechModalScore(null)
+    setTechModalTags([])
+    setTechModalError(null)
+  }
+  const toggleTechModalTag = (tagId: string) => {
+    setTechModalTags((prev) => {
+      const exists = prev.find((t) => t.id === tagId)
+      if (exists) return prev.filter((t) => t.id !== tagId)
+      return [...prev, { id: tagId, isPrimary: false }]
+    })
+  }
+  const toggleTechModalPrimary = (tagId: string) => {
+    setTechModalTags((prev) =>
+      prev.map((t) => (t.id === tagId ? { ...t, isPrimary: !t.isPrimary } : t)),
+    )
+  }
+  const saveTechModal = async () => {
+    if (!techModalScore) return
+    setTechModalError(null)
+    setTechModalSaving(true)
+    try {
+      const result = await updateScoreTechniqueTags(techModalScore.id, techModalTags)
+      if ("error" in result) {
+        setTechModalError(result.error)
+        return
+      }
+      // 楽観的更新: ローカル state にも反映
+      const tagsById = new Map(
+        Object.values(tagsByCategory)
+          .flat()
+          .map((t) => [t.id, t.name]),
+      )
+      const newTechniques = techModalTags.map((t) => ({
+        id: t.id,
+        name: tagsById.get(t.id) ?? "(unknown)",
+        isPrimary: t.isPrimary,
+      }))
+      startTransition(() => {
+        setItems((prev) =>
+          prev.map((it) =>
+            it.id === techModalScore.id ? { ...it, techniques: newTechniques } : it,
+          ),
+        )
+      })
+      closeTechModal()
+    } catch (e) {
+      setTechModalError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setTechModalSaving(false)
+    }
+  }
 
   const togglePosition = (pos: string) => {
     setPositions((prev) => prev.includes(pos) ? prev.filter((p) => p !== pos) : [...prev, pos])
@@ -219,6 +286,8 @@ export default function AdminPractice({
 
     try {
       let result
+      // v1.6 Phase 4-3: Score / PracticeItem 両方で techniques を送る (Q4=A 流用)
+      formData.set("techniques", JSON.stringify(selectedTags))
       if (isScoreCategory) {
         // Score upload
         formData.set("isShared", scoreIsShared ? "true" : "false")
@@ -231,7 +300,6 @@ export default function AdminPractice({
         formData.set("tempoMin", tempoMin)
         formData.set("tempoMax", tempoMax)
         formData.set("positions", JSON.stringify(positions))
-        formData.set("techniques", JSON.stringify(selectedTags))
         formData.set("description", description)
         formData.set("descriptionShort", descriptionShort)
         result = await uploadAction(formData)
@@ -422,6 +490,44 @@ export default function AdminPractice({
               </div>
             </div>
 
+            {/* v1.6 Phase 4-3 (Q4=A): TechniqueTag セレクタは PracticeItem + Score 両方で表示。
+                  isPrimary の意味論が異なるので tooltip/hint で区別する (Q3 確定)。 */}
+            <div className={styles.field}>
+              <label>技法タグ</label>
+              <div className={styles.tagSection}>
+                {Object.entries(tagsByCategory).map(([cat, tags]) => (
+                  <div key={cat} className={styles.tagCategory}>
+                    <div className={styles.tagCategoryName}>{cat}</div>
+                    <div className={styles.tagList}>
+                      {tags.map((tag) => {
+                        const sel = selectedTags.find((t) => t.id === tag.id)
+                        return (
+                          <span key={tag.id}
+                            className={`${styles.tag} ${sel ? styles.tagSelected : ""} ${sel?.isPrimary ? styles.tagPrimary : ""}`}
+                            onClick={() => toggleTag(tag.id)}
+                            onDoubleClick={() => { if (sel) togglePrimary(tag.id) }}
+                            title={
+                              isScoreCategory
+                                ? "クリック: 選択/解除  ダブルクリック: 楽曲の主要技法"
+                                : "クリック: 選択/解除  ダブルクリック: 練習の主目的"
+                            }
+                          >
+                            {tag.name}
+                            {sel?.isPrimary && " ●"}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+                <div className={styles.hint}>
+                  {isScoreCategory
+                    ? "クリック: 選択/解除  ダブルクリック: ● (楽曲の主要技法を指定、完全習得判定 §2-6 で参照)"
+                    : "クリック: 選択/解除  ダブルクリック: ● (この練習教材の主目的の技法)"}
+                </div>
+              </div>
+            </div>
+
             {/* PracticeItem (scale/arpeggio/etude) のみ表示する項目群 */}
             {!isScoreCategory && (
               <>
@@ -435,34 +541,6 @@ export default function AdminPractice({
                         {pos}
                       </label>
                     ))}
-                  </div>
-                </div>
-
-                <div className={styles.field}>
-                  <label>技法タグ</label>
-                  <div className={styles.tagSection}>
-                    {Object.entries(tagsByCategory).map(([cat, tags]) => (
-                      <div key={cat} className={styles.tagCategory}>
-                        <div className={styles.tagCategoryName}>{cat}</div>
-                        <div className={styles.tagList}>
-                          {tags.map((tag) => {
-                            const sel = selectedTags.find((t) => t.id === tag.id)
-                            return (
-                              <span key={tag.id}
-                                className={`${styles.tag} ${sel ? styles.tagSelected : ""} ${sel?.isPrimary ? styles.tagPrimary : ""}`}
-                                onClick={() => toggleTag(tag.id)}
-                                onDoubleClick={() => { if (sel) togglePrimary(tag.id) }}
-                                title="クリックで選択、ダブルクリックで主要タグ"
-                              >
-                                {tag.name}
-                                {sel?.isPrimary && " ●"}
-                              </span>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    ))}
-                    <div className={styles.hint}>クリック: 選択/解除　ダブルクリック: 主要タグ指定</div>
                   </div>
                 </div>
 
@@ -642,13 +720,31 @@ export default function AdminPractice({
                         {editError && <div className={styles.editError}>{editError}</div>}
                       </div>
                     ) : (
-                      <button
-                        type="button"
-                        className={styles.secondaryBtn}
-                        onClick={() => startEdit(item)}
-                      >
-                        編集
-                      </button>
+                      <div className={styles.editActions}>
+                        <button
+                          type="button"
+                          className={styles.secondaryBtn}
+                          onClick={() => startEdit(item)}
+                        >
+                          編集
+                        </button>
+                        {/* v1.6 Phase 4-3 Q5=(b): Score のみ「技法」ボタン (モーダル分離) */}
+                        {item.type === "score" && (
+                          <button
+                            type="button"
+                            className={styles.secondaryBtn}
+                            onClick={() => openTechModal(item)}
+                            title="楽曲の技法タグを編集 (完全習得判定 §2-6 用)"
+                          >
+                            技法
+                            {item.techniques.length > 0 && (
+                              <span className={styles.filterCount}>
+                                {item.techniques.length}
+                              </span>
+                            )}
+                          </button>
+                        )}
+                      </div>
                     )}
                   </td>
                 </tr>
@@ -664,6 +760,90 @@ export default function AdminPractice({
           </tbody>
         </table>
       </div>
+
+      {/* v1.6 Phase 4-3 Q5=(b): Score 技法タグ編集モーダル */}
+      {techModalScore && (
+        <div className={styles.techModalOverlay} onClick={closeTechModal}>
+          <div
+            className={styles.techModal}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`「${techModalScore.title}」の技法タグを編集`}
+          >
+            <div className={styles.techModalHeader}>
+              <h2 className={styles.techModalTitle}>
+                技法タグを編集
+              </h2>
+              <button
+                type="button"
+                className={styles.techModalClose}
+                onClick={closeTechModal}
+                aria-label="閉じる"
+              >
+                ✕
+              </button>
+            </div>
+            <div className={styles.techModalSub}>
+              「{techModalScore.title}」
+              {techModalScore.composer ? ` / ${techModalScore.composer}` : ""}
+            </div>
+
+            <div className={styles.tagSection}>
+              {Object.entries(tagsByCategory).map(([cat, tags]) => (
+                <div key={cat} className={styles.tagCategory}>
+                  <div className={styles.tagCategoryName}>{cat}</div>
+                  <div className={styles.tagList}>
+                    {tags.map((tag) => {
+                      const sel = techModalTags.find((t) => t.id === tag.id)
+                      return (
+                        <span
+                          key={tag.id}
+                          className={`${styles.tag} ${sel ? styles.tagSelected : ""} ${sel?.isPrimary ? styles.tagPrimary : ""}`}
+                          onClick={() => toggleTechModalTag(tag.id)}
+                          onDoubleClick={() => {
+                            if (sel) toggleTechModalPrimary(tag.id)
+                          }}
+                          title="クリック: 選択/解除  ダブルクリック: 楽曲の主要技法"
+                        >
+                          {tag.name}
+                          {sel?.isPrimary && " ●"}
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+              <div className={styles.hint}>
+                クリック: 選択/解除  ダブルクリック: ● (楽曲の主要技法、完全習得判定 §2-6 で参照)
+              </div>
+            </div>
+
+            {techModalError && (
+              <div className={styles.editError}>{techModalError}</div>
+            )}
+
+            <div className={styles.techModalActions}>
+              <button
+                type="button"
+                className={styles.secondaryBtn}
+                onClick={closeTechModal}
+                disabled={techModalSaving}
+              >
+                キャンセル
+              </button>
+              <button
+                type="button"
+                className={styles.primaryBtn}
+                onClick={saveTechModal}
+                disabled={techModalSaving}
+              >
+                {techModalSaving ? "保存中..." : "保存"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
