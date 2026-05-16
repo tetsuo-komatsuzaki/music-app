@@ -65,11 +65,16 @@ MIN_VALID_FRAMES = 5
 CENTER_RATIO = 0.80
 
 # タイミング判定: BPM 連動 (= TIMING_TOLERANCE_BASE × (60 / target_bpm))
-# - BPM 60 で 0.10s, BPM 120 で 0.05s, BPM 180 で 0.033s
-# - 速い tempo ほど許容を厳しく (固定 0.20 では速い曲ほど甘くなる逆転を解消)
+# - 速い tempo ほど許容を厳しく (固定値では速い曲ほど甘くなる逆転を解消)
 # - target_bpm は recording_bpm 優先 (interval_diff は time_scale で recording_bpm 基準に
 #   補正済のため、許容値も同基準で揃える)
-TIMING_TOLERANCE_BASE = 0.10
+#
+# 2026-05-16 調整 (Tetsuo 指示): 0.10 → 0.30 (3倍緩和、判定が厳しすぎたため)。
+#   BPM60で±0.30s, BPM90で±0.20s(約0.3拍), BPM120で±0.15s, BPM180で±0.10s。
+#   timing 判定を寛容化 → rhythmAccuracy / overallScore 上昇。
+#   ダウンストリーム: SongMastery 演奏マスター到達が容易化 / RHYTHM 課題化が減少。
+#   過寛容なら 0.15〜0.20 へ再調整予定。
+TIMING_TOLERANCE_BASE = 0.30
 
 
 def get_timing_tolerance(target_bpm: float) -> float:
