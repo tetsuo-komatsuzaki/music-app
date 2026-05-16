@@ -2120,16 +2120,20 @@ export default function ScoreDetail({
             <EvaluationSummaryCard performance={selected} warnings={warnings} />
           )}
 
-          {/* v3.2.2 上達ループエンジン: PracticeItem 由来 + 演奏選択時に skill-detail を表示 */}
-          {practiceItemId && selected?.id && (
+          {/* v1.6 Phase 4-4 (Q1=a/Q2=A 確定): skill-detail (個別演奏の詳細フィードバック)
+              は Score 演奏選択時のみ「練習」タブ内に表示。練習教材 (scale/arpeggio/etude)
+              からは除去 (仕様書 v1.6 §3-1: ループエンジンは Score 演奏に紐づく)。
+              役割分担: 課題カード一覧は「上達ループ」タブ (ScoreLoopDetail) が担う。 */}
+          {!practiceItemId && selected?.id && (
             <PerformanceSkillDetail
               performanceId={selected.id}
+              kind="score"
               onDeleted={handlePerformanceDeleted}
               onJumpToPosition={handleJumpToProblematicPosition}
               userId={userId}
             />
           )}
-          {practiceItemId && !selected && recentlyDeleted && (
+          {!practiceItemId && !selected && recentlyDeleted && (
             <div className={styles.deleteHint} role="status">
               演奏を削除しました。履歴から別の演奏を選んでください。
             </div>

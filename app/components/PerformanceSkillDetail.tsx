@@ -104,6 +104,9 @@ export type SkillDetailResponse = {
 
 type Props = {
   performanceId: string
+  /** v1.6 Phase 4-4: "practice" = 練習教材演奏 / "score" = 曲(Score)演奏。
+   *  skill-detail / feedback の API base を切り替える。デフォルト "practice" (後方互換)。 */
+  kind?: "practice" | "score"
   /** 削除成功時 (または 404 で既削除を検知した時) に親へ通知する。
    *  渡されない場合は ⋯ メニューを表示しない。 */
   onDeleted?: (performanceId: string) => void
@@ -127,10 +130,16 @@ const INITIAL: FetchState = { data: null, error: null, loaded: false }
 
 export default function PerformanceSkillDetail({
   performanceId,
+  kind = "practice",
   onDeleted,
   onJumpToPosition,
   userId,
 }: Props) {
+  // v1.6 Phase 4-4: Score 演奏は /api/performances/[id]/...、練習は practice-performances
+  const skillDetailUrl =
+    kind === "score"
+      ? `/api/performances/${performanceId}/skill-detail`
+      : `/api/practice-performances/${performanceId}/skill-detail`
   // performanceId 変更時に key として使われ、コンポーネント自体は再マウントされる前提。
   // (scoreDetail.tsx 側の history で別演奏を選んだ時、parent が key={selected.id} で
   //  この子を再マウントするか、または同じインスタンスで performanceId が変わる)
@@ -140,7 +149,7 @@ export default function PerformanceSkillDetail({
     let aborted = false
 
     const fetchOnce = () =>
-      fetch(`/api/practice-performances/${performanceId}/skill-detail`)
+      fetch(skillDetailUrl)
         .then(async res => {
           if (!res.ok) throw new Error(`HTTP ${res.status}`)
           return (await res.json()) as SkillDetailResponse
@@ -166,7 +175,7 @@ export default function PerformanceSkillDetail({
       aborted = true
       clearInterval(pollTimer)
     }
-  }, [performanceId])
+  }, [skillDetailUrl])
 
   const { data, error, loaded } = state
   const loading = !loaded
@@ -250,6 +259,7 @@ export default function PerformanceSkillDetail({
       <section className={styles.section}>
         <ProblematicPositionList
           performanceId={data.performanceId}
+          kind={kind}
           positions={data.problematicPositions ?? []}
           onJumpToPosition={onJumpToPosition}
         />
