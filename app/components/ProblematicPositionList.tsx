@@ -27,6 +27,8 @@ import styles from "./ProblematicPositionList.module.css"
 
 type Props = {
   performanceId: string
+  /** v1.6 Phase 4-4: feedback POST 先を切替。"score" は Score 演奏。デフォルト "practice"。 */
+  kind?: "practice" | "score"
   positions: ProblematicPosition[]
   /** 譜面ジャンプ + ハイライト連携。指定なしなら位置タップ動作を無効化。 */
   onJumpToPosition?: (noteIndices: number[]) => void
@@ -87,9 +89,15 @@ function feedbackBadge(feedback: LocalFeedback): { mark: string; label: string; 
 
 export default function ProblematicPositionList({
   performanceId,
+  kind = "practice",
   positions,
   onJumpToPosition,
 }: Props) {
+  // v1.6 Phase 4-4: Score 演奏は /api/performances/[id]/feedback (Phase 4-3 で実装)
+  const feedbackUrl =
+    kind === "score"
+      ? `/api/performances/${performanceId}/feedback`
+      : `/api/practice-performances/${performanceId}/feedback`
   const [feedbackByPosition, setFeedbackByPosition] = useState<
     Record<string, LocalFeedback>
   >({})
@@ -112,7 +120,7 @@ export default function ProblematicPositionList({
     }
     try {
       const res = await fetch(
-        `/api/practice-performances/${performanceId}/feedback`,
+        feedbackUrl,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
