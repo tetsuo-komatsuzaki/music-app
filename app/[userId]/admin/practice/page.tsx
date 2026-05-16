@@ -51,6 +51,11 @@ export default async function AdminPracticePage({
         buildStatus: true,
         star: true,
         skillSubTaskTags: true,
+        // v1.6 Phase 4-3 (Q4=B): ScoreTechniqueTag を一緒に取得し、
+        //   admin UI の編集モーダル初期値に使う。
+        scoreTechniqueTags: {
+          include: { techniqueTag: { select: { id: true, name: true } } },
+        },
       },
     }),
     // TechniqueTag 一覧（フォームの選択肢用）
@@ -117,7 +122,11 @@ export default async function AdminPracticePage({
       buildStatus: s.buildStatus,
       star: s.star,
       skillSubTaskTags: tags,
-      techniques: [] as { id: string; name: string; isPrimary: boolean }[],
+      techniques: s.scoreTechniqueTags.map((t) => ({
+        id: t.techniqueTag.id,
+        name: t.techniqueTag.name,
+        isPrimary: t.isPrimary,
+      })),
     }
   })
 
