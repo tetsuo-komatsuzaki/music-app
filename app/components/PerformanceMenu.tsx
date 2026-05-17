@@ -17,9 +17,15 @@ import styles from "./PerformanceMenu.module.css"
 type Props = {
   performanceId: string
   onDeleted: (performanceId: string) => void
+  /** v1.6 Phase 5: Score 演奏は score-performances 削除ルートを使う。既定 practice。 */
+  kind?: "score" | "practice"
 }
 
-export default function PerformanceMenu({ performanceId, onDeleted }: Props) {
+export default function PerformanceMenu({
+  performanceId,
+  onDeleted,
+  kind = "practice",
+}: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -86,6 +92,7 @@ export default function PerformanceMenu({ performanceId, onDeleted }: Props) {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onDeleted={onDeleted}
+        kind={kind}
       />
     </div>
   )

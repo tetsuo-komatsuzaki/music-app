@@ -1,55 +1,90 @@
 // app/_libs/skillRecalc.ts
 //
 // v3.2.2 §12 — 演奏削除後の累積データ再計算 4 関数。
-// DELETE /api/practice-performances/[id] が transaction でラップして呼び出す。
+// DELETE /api/practice-performances/[id] / /api/score-performances/[id] が
+// transaction でラップして呼び出す。
+//
+// v1.6 Phase 5 (2026-05-18): skill 指標 (UserSkillScore / UserSkillSubScore /
+// UserSkillTaskCard) を PracticePerformance + Performance (Score 演奏) 合算に拡張。
+// skill = 練習形態によらない普遍的技術指標なので Practice/Score を 1 本化する
+// (Grade = UserGrade.progressData は楽曲完成度 vs 技術習得度で性質が違うため
+//  practice 専用据置 = Phase 3c の分離思想を維持)。
+// 集計式は「ノート数 (evaluatedNotes) 加重平均」: Σ(score×notes)/Σ(notes)。
+// 順序非依存なので Python 側 (loop_engine_runner.py) の演奏完了時更新と
+// 同一結果に収束する (旧 EMA は順序依存で二重ライター不整合の温床だった)。
 
 import { Prisma } from "@/app/generated/prisma"
 import { TASK_IDS, SUB_TASK_IDS, type SubTaskId } from "./skillMaster"
 
 type Tx = Prisma.TransactionClient
 
-const EMA_ALPHA = 0.3 // §12-4
 const GRADE_THRESHOLD = 90 // §12-7 / §10
 const RECENT_PERFORMANCES_FOR_CARD = 3 // §12-6
+
+// evaluatedNotes が null / 0 の演奏はノート数不明 → 重み 1 (1 サンプル相当) で扱う
+function noteWeight(evaluatedNotes: number | null): number {
+  return evaluatedNotes != null && evaluatedNotes > 0 ? evaluatedNotes : 1
+}
 
 // =======================================================================
 // §12-4: UserSkillScore 再計算 (EMA で時系列再構築)
 // =======================================================================
 
+type SkillRow = {
+  pitchSkillScore: number | null
+  rhythmSkillScore: number | null
+  bowingSkillScore: number | null
+  evaluatedNotes: number | null
+}
+
 export async function recalculateUserSkillScore(
   tx: Tx,
   userId: string,
 ): Promise<void> {
-  // 3 中項目分のスコアを 1 度の SELECT で取得 (順序保持)
-  const performances = await tx.practicePerformance.findMany({
-    where: { userId, analysisStatus: "done" },
-    orderBy: { uploadedAt: "asc" },
-    select: {
-      pitchSkillScore: true,
-      rhythmSkillScore: true,
-      bowingSkillScore: true,
-    },
-  })
+  // Phase 5: Practice + Score 両方を合算 (skill は普遍指標)
+  const [practice, score] = await Promise.all([
+    tx.practicePerformance.findMany({
+      where: { userId, analysisStatus: "done" },
+      select: {
+        pitchSkillScore: true,
+        rhythmSkillScore: true,
+        bowingSkillScore: true,
+        evaluatedNotes: true,
+      },
+    }),
+    tx.performance.findMany({
+      where: { userId, analysisStatus: "done" },
+      select: {
+        pitchSkillScore: true,
+        rhythmSkillScore: true,
+        bowingSkillScore: true,
+        evaluatedNotes: true,
+      },
+    }),
+  ])
+  const performances: SkillRow[] = [...practice, ...score]
 
   for (const taskId of TASK_IDS) {
-    const scores = performances
-      .map(p =>
+    // ノート数加重平均: Σ(score×notes)/Σ(notes)。順序非依存。
+    let weightedSum = 0
+    let weightTotal = 0
+    let sampleCount = 0
+    for (const p of performances) {
+      const s =
         taskId === "pitch"
           ? p.pitchSkillScore
           : taskId === "rhythm"
             ? p.rhythmSkillScore
-            : p.bowingSkillScore,
-      )
-      .filter((s): s is number => s != null)
-
-    let currentScore = 0
-    if (scores.length > 0) {
-      currentScore = scores[0]
-      for (let i = 1; i < scores.length; i++) {
-        currentScore = currentScore * (1 - EMA_ALPHA) + scores[i] * EMA_ALPHA
-      }
-      currentScore = Math.round(currentScore * 10) / 10
+            : p.bowingSkillScore
+      if (s == null) continue
+      const w = noteWeight(p.evaluatedNotes)
+      weightedSum += s * w
+      weightTotal += w
+      sampleCount += 1
     }
+
+    const currentScore =
+      weightTotal > 0 ? Math.round((weightedSum / weightTotal) * 10) / 10 : 0
 
     await tx.userSkillScore.upsert({
       where: { userId_skillTaskId: { userId, skillTaskId: taskId } },
@@ -57,11 +92,11 @@ export async function recalculateUserSkillScore(
         userId,
         skillTaskId: taskId,
         currentScore,
-        sampleCount: scores.length,
+        sampleCount,
       },
       update: {
         currentScore,
-        sampleCount: scores.length,
+        sampleCount,
         lastUpdatedAt: new Date(),
       },
     })
@@ -82,20 +117,35 @@ export async function recalculateUserSkillSubScore(
   tx: Tx,
   userId: string,
 ): Promise<void> {
-  const performances = await tx.practicePerformance.findMany({
-    where: {
-      userId,
-      analysisStatus: "done",
-      skillSubScores: { not: Prisma.DbNull },
-    },
-    orderBy: { uploadedAt: "asc" },
-    select: { uploadedAt: true, skillSubScores: true },
-  })
+  // Phase 5: Practice + Score 合算。lastMatchedAt のため uploadedAt 昇順整列。
+  const [practice, score] = await Promise.all([
+    tx.practicePerformance.findMany({
+      where: {
+        userId,
+        analysisStatus: "done",
+        skillSubScores: { not: Prisma.DbNull },
+      },
+      select: { uploadedAt: true, skillSubScores: true },
+    }),
+    tx.performance.findMany({
+      where: {
+        userId,
+        analysisStatus: "done",
+        skillSubScores: { not: Prisma.DbNull },
+      },
+      select: { uploadedAt: true, skillSubScores: true },
+    }),
+  ])
+  const performances = [...practice, ...score].sort(
+    (a, b) => a.uploadedAt.getTime() - b.uploadedAt.getTime(),
+  )
 
   for (const subTaskId of SUB_TASK_IDS) {
     let matchedCount = 0
     let totalCount = 0
-    let scoreSum = 0
+    // averageScore は target_count (当該 sub-task の対象ノート数) 加重平均
+    let weightedScoreSum = 0
+    let weightTotal = 0
     let lastMatchedAt: Date | null = null
 
     for (const p of performances) {
@@ -107,13 +157,15 @@ export async function recalculateUserSkillSubScore(
       totalCount++
       if (sub.matched) {
         matchedCount++
-        scoreSum += typeof sub.score === "number" ? sub.score : 0
+        const sc = typeof sub.score === "number" ? sub.score : 0
+        weightedScoreSum += sc * targetCount
+        weightTotal += targetCount
         lastMatchedAt = p.uploadedAt
       }
     }
 
     const matchRate = totalCount > 0 ? matchedCount / totalCount : 0
-    const averageScore = matchedCount > 0 ? scoreSum / matchedCount : null
+    const averageScore = weightTotal > 0 ? weightedScoreSum / weightTotal : null
 
     await tx.userSkillSubScore.upsert({
       where: { userId_skillSubTaskId: { userId, skillSubTaskId: subTaskId } },
@@ -157,13 +209,24 @@ export async function recalculateUserSkillTaskCards(
 
   if (cards.length === 0) return
 
-  // 直近 N 件の演奏を 1 度だけ取得して再利用
-  const recentPerformances = await tx.practicePerformance.findMany({
-    where: { userId, analysisStatus: "done" },
-    orderBy: { uploadedAt: "desc" },
-    take: RECENT_PERFORMANCES_FOR_CARD,
-    select: { skillSubScores: true },
-  })
+  // Phase 5: Practice + Score 合算の直近 N 件 (uploadedAt 降順マージ)
+  const [recentPractice, recentScore] = await Promise.all([
+    tx.practicePerformance.findMany({
+      where: { userId, analysisStatus: "done" },
+      orderBy: { uploadedAt: "desc" },
+      take: RECENT_PERFORMANCES_FOR_CARD,
+      select: { uploadedAt: true, skillSubScores: true },
+    }),
+    tx.performance.findMany({
+      where: { userId, analysisStatus: "done" },
+      orderBy: { uploadedAt: "desc" },
+      take: RECENT_PERFORMANCES_FOR_CARD,
+      select: { uploadedAt: true, skillSubScores: true },
+    }),
+  ])
+  const recentPerformances = [...recentPractice, ...recentScore]
+    .sort((a, b) => b.uploadedAt.getTime() - a.uploadedAt.getTime())
+    .slice(0, RECENT_PERFORMANCES_FOR_CARD)
 
   if (recentPerformances.length < RECENT_PERFORMANCES_FOR_CARD) {
     // 3 件未満 → §12-6 の「直近 3 回」前提が成立しないため判定保留
@@ -198,6 +261,12 @@ export async function recalculateUserSkillTaskCards(
 // =======================================================================
 // §12-7: UserGrade.progressData 再計算
 // (永久保持原則 — currentGrade はダウングレードしない、§12-7 末尾)
+//
+// Phase 5 注記: ここは Score を UNION しない (practice 専用据置)。
+// 理由: (1) Score に practiceItem.star がない (2) Score のグレード進捗は
+// Phase 3c UserGradeProgress が別系統で担う (Q1=B 分離思想) (3) Phase 4-2 で
+// home/Progress は UserGradeProgress に切替済、legacy UserGrade は旧 API のみ。
+// skill (普遍指標) は合算、Grade (楽曲完成度系) は分離 — が Phase 5 の設計境界。
 // =======================================================================
 
 const STRING_CHANGE_SUB_TASKS: SubTaskId[] = [

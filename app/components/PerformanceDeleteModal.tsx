@@ -3,7 +3,8 @@
 // UI 設計書 v3 §5-7 / §5-12 — 演奏削除確認モーダル
 //
 // 動作:
-//   - DELETE /api/practice-performances/[performanceId] を呼び出し
+//   - kind に応じ DELETE /api/{practice|score}-performances/[performanceId] を呼ぶ
+//     (v1.6 Phase 5: Score 演奏削除ルート対称化。既定は practice 後方互換)
 //   - 成功時: onDeleted(performanceId) を呼んで親に通知 + モーダル閉鎖
 //   - 409 (analysisStatus=processing): モーダル内エラー表示、再試行可
 //   - 404: 既に削除済みとみなして onDeleted を呼んでクライアント状態を整合
@@ -22,6 +23,8 @@ type Props = {
   onClose: () => void
   /** 削除成功時 (または 404 で既削除を検知した時) に呼ばれる。 */
   onDeleted: (performanceId: string) => void
+  /** "score" = Score 演奏 (Performance) / "practice" = 練習教材。既定 practice。 */
+  kind?: "score" | "practice"
 }
 
 type ErrorState =
@@ -33,6 +36,7 @@ export default function PerformanceDeleteModal({
   open,
   onClose,
   onDeleted,
+  kind = "practice",
 }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<ErrorState>(null)
@@ -59,7 +63,9 @@ export default function PerformanceDeleteModal({
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/practice-performances/${performanceId}`, {
+      const base =
+        kind === "score" ? "score-performances" : "practice-performances"
+      const res = await fetch(`/api/${base}/${performanceId}`, {
         method: "DELETE",
       })
       if (res.ok) {
