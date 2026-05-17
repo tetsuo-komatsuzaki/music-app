@@ -9,6 +9,8 @@ import {
   type SubTaskId,
   type TaskId,
 } from "@/app/_libs/skillMaster"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { updatePracticeItemTags } from "@/app/actions/updatePracticeItemTags"
 import { updateScoreTags } from "@/app/actions/updateScoreTags"
 import { updateScoreTechniqueTags } from "@/app/actions/updateScoreTechniqueTags"
@@ -72,6 +74,9 @@ export default function AdminPractice({
   const [showForm, setShowForm] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState("")
+  // v1.6 Phase 6: 不足教材フラグ画面へのナビ ( /{userId}/admin/practice → .../missing-items )
+  const pathname = usePathname()
+  const missingItemsHref = pathname.replace(/\/practice$/, "/missing-items")
 
   // フィルタ
   const [filterMode, setFilterMode] = useState<FilterMode>("all")
@@ -355,9 +360,14 @@ export default function AdminPractice({
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.pageTitle}>教材管理</h1>
-        <button className={styles.primaryBtn} onClick={() => setShowForm(!showForm)}>
-          {showForm ? "閉じる" : "新規登録"}
-        </button>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <Link href={missingItemsHref} style={{ fontSize: "0.9rem", color: "#2563eb" }}>
+            不足教材フラグ →
+          </Link>
+          <button className={styles.primaryBtn} onClick={() => setShowForm(!showForm)}>
+            {showForm ? "閉じる" : "新規登録"}
+          </button>
+        </div>
       </div>
 
       {message && <div className={styles.message}>{message}</div>}

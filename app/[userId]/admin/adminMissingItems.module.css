@@ -1,0 +1,154 @@
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.navLink {
+  font-size: 0.9rem;
+  color: #2563eb;
+  text-decoration: none;
+}
+.navLink:hover {
+  text-decoration: underline;
+}
+
+.summary {
+  margin: 12px 0 16px;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: #444;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.message {
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  color: #065f46;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.groupList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.group {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.groupHead {
+  background: #f9fafb;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.groupKey {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.catList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.cat {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f3f4f6;
+}
+.cat:last-child {
+  border-bottom: none;
+}
+.catResolved {
+  opacity: 0.6;
+}
+
+.catMain {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.catName {
+  font-weight: 600;
+}
+
+.catMeta,
+.subTasks,
+.scores {
+  font-size: 0.82rem;
+  color: #6b7280;
+  word-break: break-word;
+}
+
+.resolveBtn {
+  flex-shrink: 0;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.resolveBtn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+.resolveBtn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.resolvedBadge {
+  flex-shrink: 0;
+  align-self: center;
+  font-size: 0.8rem;
+  color: #059669;
+  font-weight: 600;
+}
