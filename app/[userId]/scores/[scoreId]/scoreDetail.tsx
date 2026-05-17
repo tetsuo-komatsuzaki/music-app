@@ -1136,6 +1136,12 @@ export default function ScoreDetail({
   const [isOsmdReady, setIsOsmdReady] = useState(false)
   const timeToGNotesMap = useRef<Map<number, any[]>>(new Map())
   const sortedTimes = useRef<number[]>([])
+  // 層1 (不変): 時刻 → 不変 Note 模型オブジェクト。
+  //   録音テンポガイド専用。SVG/GraphicalNote は保持しない (stale 元凶を断つ)。
+  //   毎フレーム osmd.rules.GNote(sourceNote) で現在の SVG をライブ解決する (層2)。
+  //   timeToGNotesMap (再生ハイライト用) とは責務分離し、そちらは非改修。
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const timeToSourceNote = useRef<Map<number, any>>(new Map())
   const lastHighlightedTimeRef = useRef<number>(-1)
 
   const HIGHLIGHT_THRESHOLD_SEC = 0.15
@@ -1146,6 +1152,7 @@ export default function ScoreDetail({
     if (!osmd?.cursor) return
 
     timeToGNotesMap.current.clear()
+    timeToSourceNote.current.clear()
     sortedTimes.current = []
 
     try {
@@ -1160,6 +1167,9 @@ export default function ScoreDetail({
         const gNotes = osmd.cursor.GNotesUnderCursor()
         if (gNotes && gNotes.length > 0) {
           timeToGNotesMap.current.set(rounded, [...gNotes])
+          // 層1: 不変 Note 模型のみ保持 (sourceNote は再描画で不変)。
+          //   SVG は録音時に osmd.rules.GNote(sourceNote) でライブ解決する。
+          timeToSourceNote.current.set(rounded, gNotes[0].sourceNote)
           sortedTimes.current.push(rounded)
         }
         iterator.moveToNext()
@@ -1262,7 +1272,6 @@ export default function ScoreDetail({
 
   // --- OSMDインスタンスを受け取り、タイムスタンプマップを構築 ---
   const handleOsmdReady = useCallback((osmd: OpenSheetMusicDisplay) => {
-    console.log("[F-1/diag] handleOsmdReady fired")
     osmdRef.current = osmd
     setIsOsmdReady(true)
     if (analysis) {
@@ -1277,6 +1286,12 @@ export default function ScoreDetail({
       setIsOsmdReady(false)
     }
   }, [score.id])
+
+  // 注: 旧「MutationObserver で再描画検知 → timeToGNotesMap 再構築」effect は撤去。
+  //   P-1 層分離設計により録音テンポガイドは層1 (不変 Note 模型) + 層2
+  //   (毎フレーム osmd.rules.GNote ライブ解決) で再描画に追従するため、
+  //   キャッシュ再構築機構そのものが不要。層1 は handleOsmdReady で構築され、
+  //   再描画時も既存 ScoreViewer 経由で handleOsmdReady が再呼出される (冪等)。
 
   // analysis.notes インデックス → OSMD要素インデックス の変換（評価オーバーレイ用）
   // VexFlow は休符も vf-stavenote として描画するため note_index を直接 OSMD インデックスとして使う
@@ -1441,10 +1456,20 @@ export default function ScoreDetail({
   }, [comparison, playbackState, drawWrongNoteOverlay])
 
   // --- カーソル（縦線）操作 ---
+  // 自動復旧の核心: cursor div は #osmd-container の子。OSMD が再描画
+  //   (最小化/DevTools/リサイズ → container.innerHTML="" / osmd.render()) で
+  //   cursor を DOM から消すことがある。旧実装は「ref があれば返す」だったため
+  //   切り離された幽霊要素を返し続け、ハードリロードしないと復旧しなかった。
+  //   → 「ref があり かつ まだ container に接続されていれば再利用、
+  //     切り離されていれば作り直して再 append」に変更。
+  //   updateRecordingCursor が毎フレーム本関数を呼ぶことで、OSMD が消しても
+  //   次フレームで自動再生成され、ハードリロード不要で青線が復活する。
   const ensureCursor = useCallback(() => {
-    if (cursorRef.current) return cursorRef.current
     const container = document.getElementById("osmd-container")
     if (!container) return null
+    if (cursorRef.current && container.contains(cursorRef.current)) {
+      return cursorRef.current
+    }
     container.style.position = "relative"
     const cursor = document.createElement("div")
     cursor.className = styles.playbackCursor
@@ -1857,7 +1882,9 @@ export default function ScoreDetail({
 
   // 録音中のガイドラインを前後ノート間で線形補間して横スライドさせる
   const updateRecordingCursor = useCallback((currentSec: number) => {
-    const cursor = cursorRef.current
+    // 毎フレーム ensureCursor: OSMD 再描画で cursor が DOM から消えても
+    // ここで自動再生成され、ハードリロード不要で青線が復活する。
+    const cursor = ensureCursor()
     if (!cursor) return
     const times = sortedTimes.current
     if (times.length === 0) return
@@ -1874,8 +1901,9 @@ export default function ScoreDetail({
     const prevTime = times[prevIdx]
     const nextTime = times[nextIdx]
 
-    const prevGNotes = timeToGNotesMap.current.get(prevTime)
-    if (!prevGNotes || prevGNotes.length === 0) return
+    // 層1: 不変 Note 模型を取得 (再描画で不変)
+    const prevNote = timeToSourceNote.current.get(prevTime)
+    if (!prevNote) return
 
     const container = document.getElementById("osmd-container")
     if (!container) return
@@ -1887,9 +1915,16 @@ export default function ScoreDetail({
     }
     if (!activeSvg) return
 
-    const prevSvg = prevGNotes[0].getSVGGElement?.()
+    // 層2: 毎フレーム osmd.rules.GNote(不変Note) で現在の SVG をライブ解決。
+    //   再描画されても NoteToGraphicalNoteMap は再構築済のため常に最新を返す。
+    // osmd.rules は protected。公開 getter osmd.EngravingRules 経由で GNote を呼ぶ。
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const osmdRules: any = osmdRef.current?.EngravingRules
+    const prevGN = osmdRules?.GNote?.(prevNote)
+    const prevSvg = prevGN?.getSVGGElement?.() as SVGGElement | undefined
+    // 追加指示1: ライブ解決失敗 (再描画中の数 ms の null 等) は
+    //   display:none にせず return → 直前フレームの位置を維持し青線を消さない。
     if (!prevSvg || !activeSvg.contains(prevSvg)) {
-      cursor.style.display = "none"
       return
     }
 
@@ -1902,9 +1937,10 @@ export default function ScoreDetail({
 
     // 前後ノートが同じ段なら x を線形補間、改段を跨ぐなら prev 位置に固定
     let x = prevX
-    const nextGNotes = timeToGNotesMap.current.get(nextTime)
-    if (nextGNotes && nextGNotes.length > 0 && nextTime > prevTime) {
-      const nextSvg = nextGNotes[0].getSVGGElement?.()
+    const nextNote = timeToSourceNote.current.get(nextTime)
+    if (nextNote && nextTime > prevTime) {
+      // 層2: next も同様にライブ解決
+      const nextSvg = osmdRules?.GNote?.(nextNote)?.getSVGGElement?.() as SVGGElement | undefined
       if (nextSvg && activeSvg.contains(nextSvg)) {
         const nextRect = nextSvg.getBoundingClientRect()
         const sameRow = Math.abs(prevRect.top - nextRect.top) < 20
@@ -1956,7 +1992,7 @@ export default function ScoreDetail({
     cursor.style.left = `${x}px`
     cursor.style.top = `${staffTop}px`
     cursor.style.height = `${staffHeight}px`
-  }, [])
+  }, [ensureCursor])
 
   const startRecordingGuide = useCallback(() => {
     if (!analysis) return
