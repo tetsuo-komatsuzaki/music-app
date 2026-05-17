@@ -13,7 +13,7 @@ const MAX_TITLE_LEN = 100
  * - cuid 形式検証
  * - 所有者検証 (Score.createdById === dbUser.id)
  * - 論理削除済み (deletedAt !== null) のスコアは更新不可
- * - composer / arranger / deletedAt 等への書き込みは行わない
+ * - composer / deletedAt 等への書き込みは行わない
  */
 export async function updateScoreTitle(
   scoreId: string,
