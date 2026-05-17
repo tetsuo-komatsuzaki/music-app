@@ -60,7 +60,6 @@ model Score {
   createdById      String
   title            String
   composer         String?
-  arranger         String?
   originalXmlPath  String
   generatedXmlPath String?
   analysisStatus   JobStatus @default(processing)

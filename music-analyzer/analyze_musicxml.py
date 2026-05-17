@@ -63,6 +63,21 @@ def freq_to_note_name(freq: float) -> str:
     except Exception:
         return ""
 
+
+def normalize_tonic(name: str) -> str:
+    """music21 の tonic.name (フラットは '-' 表記、例 'B-') を
+    Arcoda 標準フォーマット ('Bb' 形式) に正規化する。
+
+    v1.6 Phase 4-4 critical-path fix (Q1=b 確定):
+      推薦エンジン / Phase 3b SubTask 自動アサインが PracticeItem.keyTonic
+      ('Bb' 形式、admin 手動設定) と突合するため Score.keyTonic も同形式に揃える。
+      music21: 'B-' (B flat) / 'F#' (F sharp) / 'C' (natural)
+      → '-' を 'b' へ置換。シャープ '#' はそのまま (PracticeItem も '#' 形式)。
+    """
+    if not name:
+        return name
+    return name.replace("-", "b")
+
 # =========================
 # DB接続
 # =========================
@@ -419,11 +434,33 @@ try:
             WHERE id = %s
         """, (upload_storage_path, PRACTICE_ITEM_ID))
     else:
+        # v1.6 Phase 4-4 critical-path fix (Q2=a 確定):
+        # MusicXML から抽出済の key (key_obj) を Score DB にも保存する。
+        # これまで analysis.json のみに書き込まれ Score.keyTonic/keyMode は null のままだった
+        # → 推薦エンジン休眠 / Phase 3b SubTask 自動アサイン永久 skip の真因。
+        # PracticeItem 経路 (IS_PRACTICE_ITEM=true) は admin 手動設定を温存するため対象外。
+        # v1.6 G2 fix (2026-05-17): defaultTempo も keyTonic と同型バグ。
+        # BPM は extract_bpm で抽出済・analysis.json には書かれていたが Score.defaultTempo は
+        # 常に null → recommendations API が SELECT するが空。Score 列にも保存する。
+        # Score.defaultTempo は Int? のため round で整数化。
+        # v1.6 G4 fix (2026-05-17): timeNumerator/timeDenominator も key/defaultTempo と同型バグ。
+        # 拍子記号 (time_sig) は抽出済・analysis.json には書かれていたが Score 列は常に null。
+        # 生成スコアに拍子を表記するため Score 列にも保存 (analysis.json と同じ既定 4/4)。
+        norm_tonic = normalize_tonic(key_obj.tonic.name)
+        default_tempo = int(round(BPM))
+        time_num = time_sig.numerator if time_sig else 4
+        time_den = time_sig.denominator if time_sig else 4
         cur.execute("""
             UPDATE "Score"
-            SET "analysisStatus" = 'done'
+            SET "analysisStatus" = 'done',
+                "keyTonic" = %s,
+                "keyMode" = %s,
+                "defaultTempo" = %s,
+                "timeNumerator" = %s,
+                "timeDenominator" = %s
             WHERE id = %s
-        """, (SCORE_ID,))
+        """, (norm_tonic, key_obj.mode, default_tempo, time_num, time_den, SCORE_ID))
+        print(f"[analyze_musicxml] Score meta 保存: key={norm_tonic} {key_obj.mode} tempo={default_tempo} time={time_num}/{time_den} (score={SCORE_ID})")
     conn.commit()
 
     print("Analysis complete")
