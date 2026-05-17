@@ -182,7 +182,11 @@ export default function PerformanceSkillDetail({
 
   const menuArea = onDeleted ? (
     <div className={styles.menuArea}>
-      <PerformanceMenu performanceId={performanceId} onDeleted={onDeleted} />
+      <PerformanceMenu
+        performanceId={performanceId}
+        onDeleted={onDeleted}
+        kind={kind}
+      />
     </div>
   ) : null
 

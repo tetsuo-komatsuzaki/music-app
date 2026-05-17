@@ -220,7 +220,11 @@ def _new_id() -> str:
 def _update_user_skill_score(
     conn, user_id: str, task_id: str, new_score: float
 ) -> None:
-    """UserSkillScore を EMA で 1 サンプル追加更新。
+    """[DEPRECATED v1.6 Phase 5] 旧 incremental EMA 更新。
+    _recompute_legacy_skill_for_user (ノート数加重・全件・Practice+Score 合算) に
+    置換済で本関数は未使用。順序依存で TS skillRecalc と不整合だったため廃止。
+
+    UserSkillScore を EMA で 1 サンプル追加更新。
 
     丸め: 行わない。skillRecalc.ts (TS 全件再計算) と整合性を保つため
     full precision で保持。表示時に丸める。
@@ -266,7 +270,10 @@ def _update_user_skill_sub_score(
     conn, user_id: str, sub_task_id: str,
     score: Optional[float], matched: bool, target_count: int,
 ) -> None:
-    """UserSkillSubScore の matched 比率と平均スコアを増分更新。
+    """[DEPRECATED v1.6 Phase 5] 旧 incremental 更新。
+    _recompute_legacy_skill_for_user に置換済で本関数は未使用。
+
+    UserSkillSubScore の matched 比率と平均スコアを増分更新。
 
     Q5: target_count == 0 はスキップ (集計対象外)。
     """
@@ -592,6 +599,138 @@ def _update_user_grade_progress(
 # エントリポイント -------------------------------------------------------------
 
 
+def _recompute_legacy_skill_for_user(conn, user_id: str) -> None:
+    """v1.6 Phase 5 (2026-05-18): UserSkillScore / UserSkillSubScore を
+    PracticePerformance + Performance 合算の「ノート数(evaluatedNotes)加重平均」で
+    全件再計算する。
+
+    skill は練習形態によらない普遍指標なので Practice/Score を 1 本化。
+    式 Σ(score×notes)/Σ(notes) は順序非依存なので、TS 側
+    app/_libs/skillRecalc.ts (削除経路の全件再計算) と同一結果に収束する
+    (旧 EMA は順序依存で二重ライター不整合の温床だった)。
+
+    evaluatedNotes が NULL/0 の演奏は重み 1 (1 サンプル相当) で扱う
+    (skillRecalc.ts noteWeight() と一致)。
+    UserGrade.progressData / カード生成は本関数の対象外 (別系統・practice 専用)。
+    """
+    SKILL_COLS = (
+        ("pitch", "pitchSkillScore"),
+        ("rhythm", "rhythmSkillScore"),
+        ("bowing", "bowingSkillScore"),
+    )
+    with conn.cursor() as cur:
+        # --- UserSkillScore: Σ(score×w)/Σ(w) over PracticePerformance ∪ Performance ---
+        for task_id, col in SKILL_COLS:
+            cur.execute(
+                f'''
+                WITH rows AS (
+                  SELECT "{col}"::float AS s,
+                         COALESCE(NULLIF("evaluatedNotes", 0), 1)::float AS w
+                  FROM "PracticePerformance"
+                  WHERE "userId" = %s AND "analysisStatus" = 'done'
+                    AND "{col}" IS NOT NULL
+                  UNION ALL
+                  SELECT "{col}"::float AS s,
+                         COALESCE(NULLIF("evaluatedNotes", 0), 1)::float AS w
+                  FROM "Performance"
+                  WHERE "userId" = %s AND "analysisStatus" = 'done'
+                    AND "{col}" IS NOT NULL
+                )
+                SELECT
+                  COALESCE(SUM(s * w) / NULLIF(SUM(w), 0), 0)::float,
+                  COUNT(*)::int
+                FROM rows
+                ''',
+                (user_id, user_id),
+            )
+            raw_score, sample_count = cur.fetchone()
+            # TS skillRecalc.ts と同じく小数 1 桁丸め
+            current_score = round(float(raw_score), 1) if sample_count > 0 else 0.0
+            cur.execute(
+                '''
+                INSERT INTO "UserSkillScore"
+                    ("id", "userId", "skillTaskId", "currentScore",
+                     "sampleCount", "lastUpdatedAt")
+                VALUES (%s, %s, %s, %s, %s, NOW())
+                ON CONFLICT ("userId", "skillTaskId") DO UPDATE SET
+                    "currentScore"  = EXCLUDED."currentScore",
+                    "sampleCount"   = EXCLUDED."sampleCount",
+                    "lastUpdatedAt" = NOW()
+                ''',
+                (_new_id(), user_id, task_id, current_score, sample_count),
+            )
+
+        # --- UserSkillSubScore: matched 比率 + target_count 加重平均 ---
+        for sub_task_id in SUB_TASK_IDS:
+            cur.execute(
+                '''
+                WITH rows AS (
+                  SELECT "uploadedAt" AS up, ("skillSubScores" -> %s) AS j
+                  FROM "PracticePerformance"
+                  WHERE "userId" = %s AND "analysisStatus" = 'done'
+                    AND "skillSubScores" IS NOT NULL
+                  UNION ALL
+                  SELECT "uploadedAt" AS up, ("skillSubScores" -> %s) AS j
+                  FROM "Performance"
+                  WHERE "userId" = %s AND "analysisStatus" = 'done'
+                    AND "skillSubScores" IS NOT NULL
+                ), f AS (
+                  SELECT
+                    up,
+                    COALESCE((j ->> 'matched')::boolean, false) AS matched,
+                    COALESCE((j ->> 'score')::float, 0) AS score,
+                    COALESCE((j ->> 'target_count')::int, 0) AS tc
+                  FROM rows WHERE j IS NOT NULL
+                ), g AS (
+                  SELECT * FROM f WHERE tc > 0  -- Q5: target=0 は除外
+                )
+                SELECT
+                  COUNT(*) FILTER (WHERE matched)::int,
+                  COUNT(*)::int,
+                  CASE WHEN COALESCE(SUM(tc) FILTER (WHERE matched), 0) > 0
+                       THEN (SUM(score * tc) FILTER (WHERE matched)
+                             / SUM(tc) FILTER (WHERE matched))::float
+                       ELSE NULL END,
+                  MAX(up) FILTER (WHERE matched)
+                FROM g
+                ''',
+                (sub_task_id, user_id, sub_task_id, user_id),
+            )
+            matched_count, total_count, average_score, last_matched_at = (
+                cur.fetchone()
+            )
+            matched_count = matched_count or 0
+            total_count = total_count or 0
+            match_rate = (
+                (matched_count / total_count) if total_count > 0 else 0.0
+            )
+            cur.execute(
+                '''
+                INSERT INTO "UserSkillSubScore"
+                    ("id", "userId", "skillSubTaskId",
+                     "matchedCount", "totalCount", "matchRate", "averageScore",
+                     "lastMatchedAt", "lastUpdatedAt")
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                ON CONFLICT ("userId", "skillSubTaskId") DO UPDATE SET
+                    "matchedCount"  = EXCLUDED."matchedCount",
+                    "totalCount"    = EXCLUDED."totalCount",
+                    "matchRate"     = EXCLUDED."matchRate",
+                    "averageScore"  = EXCLUDED."averageScore",
+                    "lastMatchedAt" = EXCLUDED."lastMatchedAt",
+                    "lastUpdatedAt" = NOW()
+                ''',
+                (
+                    _new_id(), user_id, sub_task_id,
+                    matched_count, total_count, match_rate, average_score,
+                    last_matched_at,
+                ),
+            )
+    print(
+        f"[loop_engine_runner] (Phase5) legacy skill 再計算 (Practice+Score "
+        f"ノート数加重): user={user_id}"
+    )
+
+
 def process_performance_completion_py(
     conn,
     *,
@@ -617,24 +756,17 @@ def process_performance_completion_py(
           "gradeUpdate": {"changed": bool, ...}
         }
     """
-    # 1. UserSkillScore (3 中項目)
-    for task_id in TASK_IDS:
-        s = skill_scores.get(task_id)
-        if isinstance(s, (int, float)):
-            _update_user_skill_score(conn, user_id, task_id, float(s))
+    # 1+2. v1.6 Phase 5: UserSkillScore / UserSkillSubScore は
+    #   PracticePerformance + Performance 合算のノート数加重平均で全件再計算。
+    #   (この時点で当該 PracticePerformance 行は同 conn 内 UPDATE 済 = 反映される)
+    #   旧 incremental EMA (_update_user_skill_score/_sub_score) は Phase 5 で廃止。
+    _recompute_legacy_skill_for_user(conn, user_id)
 
-    # 2. UserSkillSubScore (9 sub_task、target=0 はスキップ)
+    # カード判定用に matched フラグだけ抽出 (集計は上の再計算が担う)
     sub_task_results: dict[str, dict] = {}
     for sub_task_id in SUB_TASK_IDS:
         sub = sub_scores.get(sub_task_id) or {}
         sub_task_results[sub_task_id] = {"matched": bool(sub.get("matched"))}
-        score = sub.get("score")
-        target_count = int(sub.get("target_count") or 0)
-        if isinstance(score, (int, float)):
-            _update_user_skill_sub_score(
-                conn, user_id, sub_task_id,
-                float(score), bool(sub.get("matched")), target_count,
-            )
 
     # 3. カード発生 / improving 遷移
     _process_cards_on_performance_complete(
@@ -1740,6 +1872,13 @@ def run_score_mode() -> None:
                 result.get("rhythmSkillScore"),
                 result.get("bowingSkillScore"),
             )
+
+        # 8. v1.6 Phase 5: legacy skill 指標 (UserSkillScore / UserSkillSubScore)
+        #    を Practice+Score 合算で再計算。Score 演奏完了でも skill が普遍指標
+        #    として加算されるようにする (旧来 run_score_mode は skip していた)。
+        #    当該 Performance 行は上の step 5 で同 conn 内 UPDATE 済 → 反映される。
+        _recompute_legacy_skill_for_user(conn, user_internal_id)
+
         conn.commit()
 
     except Exception:
