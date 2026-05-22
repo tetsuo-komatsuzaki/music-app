@@ -5,7 +5,7 @@ import json
 import os
 import copy
 import tempfile
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 import requests
 import psycopg2
 from dotenv import load_dotenv
@@ -307,6 +307,27 @@ try:
                         is_trill = True
                         break
 
+            # v1.7 Phase C (2026-05-23): ハーモニクス検出
+            # - MusicXML <harmonic> は music21 で articulations.Harmonic に対応
+            # - harmonic_type: natural / artificial を best-effort で取得
+            #   (music21 の属性が無い場合は natural を既定 — 出現頻度的に妥当)
+            # - sounding_pitch_hz: music21 解釈 (pitches[0]) を採用。natural なら
+            #   そのまま正解、artificial は touching の可能性あり (Phase E 純度
+            #   判定で harmonic_miss として顕在化、後続 PR で精緻化検討)
+            is_harmonic = False
+            harmonic_type: Optional[str] = None
+            sounding_pitch_hz: Optional[float] = None
+            for art in element.articulations:
+                if isinstance(art, articulations.Harmonic):
+                    is_harmonic = True
+                    ht = getattr(art, "harmonicType", None)
+                    if isinstance(ht, str) and ht in ("natural", "artificial"):
+                        harmonic_type = ht
+                    else:
+                        harmonic_type = "natural"
+                    sounding_pitch_hz = pitches[0] if pitches else None
+                    break
+
             note_results.append({
                 "note_index": note_index,
                 "type": "note",
@@ -321,6 +342,10 @@ try:
                 "is_tremolo": is_tremolo,
                 "is_trill": is_trill,
                 "is_chord": is_chord_flag,
+                # v1.7 Phase C: ハーモニクス
+                "is_harmonic": is_harmonic,
+                "harmonic_type": harmonic_type,
+                "sounding_pitch_hz": sounding_pitch_hz,
             })
 
             note_index += 1
