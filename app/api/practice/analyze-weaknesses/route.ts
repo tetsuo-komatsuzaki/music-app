@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
+import type { EvaluationStatus } from "@/app/types/comparisonResult"
 
 export async function POST(_request: NextRequest) {
   const auth = await requireAuthApi()
@@ -30,11 +31,14 @@ export async function POST(_request: NextRequest) {
     include: { practiceItem: true },
   })
 
+  // v1.7 Phase B: evaluation_status を中央 EvaluationStatus に。
+  // 新値 (double_stop_* / harmonic_* / spectral_inconclusive) は
+  // 既存ロジック (not_detected で continue) で素通り = 後方互換。
   type NoteResult = {
     pitch_ok: boolean | null
     start_ok: boolean | null
     expected_pitch_hz: number
-    evaluation_status?: string
+    evaluation_status?: EvaluationStatus
   }
 
   const allResults: { notes: NoteResult[]; keyTonic: string | null; keyMode: string | null }[] = []

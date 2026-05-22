@@ -21,6 +21,11 @@ import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 // 型定義
 // =========================================================
 
+// v1.7 Phase B (2026-05-23): EvaluationStatus は重音/ハーモニクスの新値を含む。
+// scoreDetail はまだ新値の専用 UI を持たないが、型としては受け入れる
+// (Phase F で表現追加するまで、新値は既存 UI の中立色で描画される)。
+import type { EvaluationStatus } from "@/app/types/comparisonResult"
+
 /** v2 正規化済みの比較結果（コンポーネント内で扱う唯一の型） */
 type ComparisonNote = {
   note_index: number
@@ -30,7 +35,7 @@ type ComparisonNote = {
   start_ok: boolean | null
   pitch_cents_error: number | null
   start_diff_sec: number | null
-  evaluation_status: "evaluated" | "pitch_only" | "not_evaluated" | "not_detected" | "section_missing"
+  evaluation_status: EvaluationStatus
   detected_pitch_hz: number | null
 }
 
