@@ -113,3 +113,42 @@ export type ComparisonResultNote = {
   /** ハーモニクス純度。is_harmonic=true ノートのみ非 null。Phase E 実装後に出力。 */
   harmonic_purity?: HarmonicPurity | null
 }
+
+// =========================================================
+// v1.7 Phase F (2026-05-23): TS consumer 用集計ヘルパー
+// =========================================================
+// Python (analyze_performance.py pitch_accuracy 集計) と同一ロジックを TS で
+// 再現するための中央実装。各 API ルート / UI コンポーネントから利用される。
+
+/** pitch_accuracy 等の集計対象に含める evaluation_status。
+ *  spectral_inconclusive / not_detected / not_evaluated / section_missing は除外
+ *  (判定保留扱い、accuracy の分母から外す = 赤判定にしない)。 */
+export const EVALUATED_STATUSES: readonly EvaluationStatus[] = [
+  "evaluated", "pitch_only",
+  "double_stop_full", "double_stop_partial", "double_stop_miss",
+  "harmonic_ok", "harmonic_normal_tone", "harmonic_miss",
+] as const
+
+/** ノートが集計対象か判定 (filter 用)。 */
+export function isEvaluated(n: {
+  evaluation_status?: EvaluationStatus | string | null
+}): boolean {
+  if (!n.evaluation_status) return false
+  return (EVALUATED_STATUSES as readonly string[]).includes(n.evaluation_status)
+}
+
+/** pitch スコアを 0 / 0.5 / 1 で返す。
+ *  - 重音 △ (double_stop_partial) / ハーモニクス △ (harmonic_normal_tone) = 0.5 点
+ *  - pitch_ok=true = 1.0 点
+ *  - それ以外 = 0.0 点
+ *  Python analyze_performance.py _pitch_score() と完全に同じロジック。 */
+export function pitchScore(n: {
+  evaluation_status?: EvaluationStatus | string | null
+  pitch_ok?: boolean | null
+}): number {
+  if (n.evaluation_status === "double_stop_partial" ||
+      n.evaluation_status === "harmonic_normal_tone") {
+    return 0.5
+  }
+  return n.pitch_ok === true ? 1.0 : 0.0
+}

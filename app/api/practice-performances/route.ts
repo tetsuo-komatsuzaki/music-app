@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
+import { isEvaluated, pitchScore } from "@/app/types/comparisonResult"
 
 export async function GET(request: NextRequest) {
   const auth = await requireAuthApi()
@@ -87,12 +88,12 @@ export async function GET(request: NextRequest) {
 
         if (comparisonResult) {
           const totalNotes = comparisonResult.length
-          const evaluated = comparisonResult.filter(
-            (n: any) => n.evaluation_status === "evaluated" || n.evaluation_status === "pitch_only"
-          )
+          // v1.7 Phase F: 重音/ハーモニクス新 status を集計対象に含め、△は0.5点で寄与
+          const evaluated = comparisonResult.filter(isEvaluated)
           if (totalNotes > 0) {
-            const pitchOk = evaluated.filter((n: any) => n.pitch_ok === true).length
-            pitchAccuracy = Math.round((pitchOk / totalNotes) * 100)
+            const pitchOkSum = evaluated.reduce(
+              (sum: number, n: any) => sum + pitchScore(n), 0)
+            pitchAccuracy = Math.round((pitchOkSum / totalNotes) * 100)
             const timingOk = evaluated.filter((n: any) => n.start_ok === true).length
             timingAccuracy = Math.round((timingOk / totalNotes) * 100)
             if (pitchAccuracy != null && timingAccuracy != null) {
