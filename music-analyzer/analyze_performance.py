@@ -64,6 +64,15 @@ PITCH_SEARCH_CENTS = 200      # ±200cents（±2半音）: ピッチずれ → c
 MIN_VALID_FRAMES = 5
 CENTER_RATIO = 0.80
 
+# v1.7 Phase D (2026-05-23): 重音 / ハーモニクススペクトル検証パラメータ
+# - 単音 (len(pitches)==1) は既存 yin パスで処理。本パラメータは len>=2 専用。
+# - 暫定値、Step G で実機録音から最終調整 (Tetsuo 実機検証時)。
+SPECTRAL_N_FFT             = 4096   # 高音域 fine resolution (FRAME_LENGTH=2048 より大)
+SPECTRAL_PRESENCE_SNR      = 3.0    # bin/noise 比、これ以上で presence_ok=True
+SPECTRAL_INCONCLUSIVE_SNR  = 1.5    # 全 pitch がこれ未満 → spectral_inconclusive (赤判定にしない)
+DOUBLE_STOP_CENTS_OK       = 50     # 重音セント許容 (単音 PITCH_TOLERANCE_CENTS と揃える)
+SPECTRAL_BIN_HALFWIDTH     = 1      # ピーク補間に使う周辺ビン数 (±1 = 3点パラボリック)
+
 # タイミング判定: BPM 連動 (= TIMING_TOLERANCE_BASE × (60 / target_bpm))
 # - 速い tempo ほど許容を厳しく (固定値では速い曲ほど甘くなる逆転を解消)
 # - target_bpm は recording_bpm 優先 (interval_diff は time_scale で recording_bpm 基準に
@@ -583,7 +592,227 @@ def _get_rest_duration(all_notes, current_note_end, next_note_start):
     return gap if gap > 0.05 else 0.0
 
 
-def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, onset_times=None, time_scale=1.0, timing_tolerance=TIMING_TOLERANCE_BASE):
+# ===================================================================
+# v1.7 Phase D (2026-05-23): 重音スペクトル検証層
+# ===================================================================
+# 設計方針 (DoubleStop Analysis Spec brainstorm §2-3 準拠):
+#   - 単音 (len(pitches)==1) は既存 librosa.yin パスで処理 (本層は触らない)
+#   - 重音 (len(pitches)>=2) は STFT スペクトルから各 expected pitch を
+#     独立にスペクトル検証 (presence + pitch_cents_error)
+#   - ピッチ精度: ピーク周辺3点パラボリック補間で本当の周波数を推定
+#   - presence: 当該 bin エネルギーが推定ノイズフロアの SNR_FACTOR 倍以上か
+#   - 倍音衝突対策: 高い音から検査して固有倍音を優先採用
+#   - 3 音以上の真の同時和音は全 pitch 並列検証 (ロール時間分割は Step G で検討)
+
+def _estimate_spectral_noise_floor(
+    stft_mag: np.ndarray,
+    stft_times: np.ndarray,
+    first_sound_time: float,
+) -> float:
+    """演奏前の無音区間 (first_sound_time - 0.1s より前) から
+    STFT 全ビン横断のノイズフロア (中央値) を推定。
+    """
+    pre_mask = stft_times < max(0.0, first_sound_time - 0.1)
+    if pre_mask.sum() >= 3:
+        pre = stft_mag[:, pre_mask]
+        if pre.size > 0:
+            return float(np.median(pre))
+    # フォールバック: 録音全体の下位 10 パーセンタイル
+    return float(np.percentile(stft_mag, 10))
+
+
+def _parabolic_peak_freq(
+    bins: np.ndarray, freqs: np.ndarray, center_idx: int,
+) -> float:
+    """3点パラボリック補間でピーク周波数 (Hz) を推定。
+    bins[center_idx-1..center_idx+1] と対応 freqs から、サブビン位置 p を計算:
+      p = 0.5 * (α - γ) / (α - 2β + γ),  α=左, β=中央, γ=右
+    返す周波数 = freqs[center] + p * (freqs[center+1] - freqs[center])
+    """
+    if center_idx <= 0 or center_idx >= len(bins) - 1:
+        return float(freqs[center_idx])
+    a = float(bins[center_idx - 1])
+    b = float(bins[center_idx])
+    c = float(bins[center_idx + 1])
+    denom = a - 2.0 * b + c
+    if abs(denom) < 1e-12:
+        return float(freqs[center_idx])
+    p = 0.5 * (a - c) / denom
+    p = max(-0.5, min(0.5, p))
+    bin_hz = float(freqs[center_idx + 1] - freqs[center_idx])
+    return float(freqs[center_idx]) + p * bin_hz
+
+
+def _verify_pitches_spectral(
+    stft_mag: np.ndarray,
+    stft_freqs: np.ndarray,
+    stft_times: np.ndarray,
+    note_start_sec: float,
+    note_end_sec: float,
+    expected_pitches_hz,
+    noise_floor: float,
+) -> list:
+    """ノートの時間窓に対し、複数 expected pitch を独立スペクトル検証。
+
+    Returns: [{
+      "expected_pitch_hz": float,
+      "detected_pitch_hz": float | None,
+      "pitch_cents_error": float | None,
+      "pitch_ok": bool | None,
+      "presence_ok": bool | None,
+    }, ...] (length == len(expected_pitches_hz))
+
+    倍音衝突対策: 高い音から処理して、低音の倍音と紛らわしい場合に高音側を
+    優先確定する (基本和音 G3+D5 で D5 が G3 の 3 倍音と一致する場合等)。
+    """
+    # 時間窓フレーム選択
+    t_mask = (stft_times >= note_start_sec) & (stft_times < note_end_sec)
+    if t_mask.sum() < 1:
+        # 窓内フレームなし: 全 pitch 判定不能
+        return [
+            {
+                "expected_pitch_hz": float(p),
+                "detected_pitch_hz": None,
+                "pitch_cents_error": None,
+                "pitch_ok": None,
+                "presence_ok": None,
+            }
+            for p in expected_pitches_hz
+        ]
+    window = stft_mag[:, t_mask]
+    # ノート区間中のビン別中央値スペクトラム (時間方向の代表値)
+    spectrum = np.median(window, axis=1)
+
+    # 高い音から検査 (倍音衝突優先解決)
+    order = sorted(range(len(expected_pitches_hz)),
+                   key=lambda i: -expected_pitches_hz[i])
+
+    results_by_idx: dict = {}
+    bin_hz = float(stft_freqs[1] - stft_freqs[0]) if len(stft_freqs) > 1 else 1.0
+
+    for idx in order:
+        exp_f = float(expected_pitches_hz[idx])
+        if exp_f <= 0:
+            results_by_idx[idx] = {
+                "expected_pitch_hz": exp_f,
+                "detected_pitch_hz": None,
+                "pitch_cents_error": None,
+                "pitch_ok": None,
+                "presence_ok": None,
+            }
+            continue
+        center_bin = int(round(exp_f / bin_hz))
+        if center_bin < 1 or center_bin >= len(stft_freqs) - 1:
+            results_by_idx[idx] = {
+                "expected_pitch_hz": exp_f,
+                "detected_pitch_hz": None,
+                "pitch_cents_error": None,
+                "pitch_ok": None,
+                "presence_ok": None,
+            }
+            continue
+
+        # ローカル探索: ±200 cents (PITCH_SEARCH_CENTS) の範囲で最大ビン
+        cents_per_bin = 1200.0 * np.log2((stft_freqs[center_bin] + bin_hz)
+                                          / max(stft_freqs[center_bin], 1.0))
+        search_bins = max(1, int(np.ceil(PITCH_SEARCH_CENTS / max(cents_per_bin, 1.0))))
+        lo = max(SPECTRAL_BIN_HALFWIDTH, center_bin - search_bins)
+        hi = min(len(stft_freqs) - 1 - SPECTRAL_BIN_HALFWIDTH, center_bin + search_bins)
+        if lo >= hi:
+            results_by_idx[idx] = {
+                "expected_pitch_hz": exp_f,
+                "detected_pitch_hz": None,
+                "pitch_cents_error": None,
+                "pitch_ok": None,
+                "presence_ok": None,
+            }
+            continue
+        local_region = spectrum[lo:hi + 1]
+        local_peak = int(np.argmax(local_region)) + lo
+
+        peak_energy = float(spectrum[local_peak])
+        snr = peak_energy / max(noise_floor, 1e-12)
+
+        # presence 判定
+        if snr >= SPECTRAL_PRESENCE_SNR:
+            presence_ok: object = True
+        elif snr < SPECTRAL_INCONCLUSIVE_SNR:
+            presence_ok = None   # 判定不能 (信号弱)
+        else:
+            presence_ok = False
+
+        # ピッチ補間
+        detected_freq = _parabolic_peak_freq(spectrum, stft_freqs, local_peak)
+        if detected_freq <= 0:
+            results_by_idx[idx] = {
+                "expected_pitch_hz": exp_f,
+                "detected_pitch_hz": None,
+                "pitch_cents_error": None,
+                "pitch_ok": False if presence_ok is True else None,
+                "presence_ok": presence_ok,
+            }
+            continue
+
+        cents_error = float(1200.0 * np.log2(detected_freq / exp_f))
+
+        if presence_ok is True:
+            pitch_ok: object = abs(cents_error) <= DOUBLE_STOP_CENTS_OK
+        elif presence_ok is False:
+            # 鳴ってないので音程は false
+            pitch_ok = False
+        else:
+            pitch_ok = None
+
+        results_by_idx[idx] = {
+            "expected_pitch_hz": exp_f,
+            "detected_pitch_hz": float(detected_freq),
+            "pitch_cents_error": cents_error,
+            "pitch_ok": pitch_ok,
+            "presence_ok": presence_ok,
+        }
+
+    # 元の順序で返却
+    return [results_by_idx[i] for i in range(len(expected_pitches_hz))]
+
+
+def _aggregate_double_stop_status(pitch_results: list) -> tuple:
+    """重音 pitch_results から evaluation_status と後方互換キーを導出。
+
+    Returns: (status, agg_pitch_ok, agg_expected_hz, agg_detected_hz, agg_cents_error)
+    """
+    if not pitch_results:
+        return ("spectral_inconclusive", None, 0.0, None, None)
+
+    all_presence_none = all(p["presence_ok"] is None for p in pitch_results)
+    if all_presence_none:
+        return ("spectral_inconclusive",
+                None,
+                float(pitch_results[0]["expected_pitch_hz"]),
+                None,
+                None)
+
+    all_ok = all(p["pitch_ok"] is True for p in pitch_results)
+    all_ng = all(p["pitch_ok"] is False for p in pitch_results)
+    if all_ok:
+        status = "double_stop_full"
+        agg_pitch_ok: object = True
+    elif all_ng:
+        status = "double_stop_miss"
+        agg_pitch_ok = False
+    else:
+        status = "double_stop_partial"   # △ (改善ポイント可視化)
+        agg_pitch_ok = None
+
+    # 後方互換スカラー = 最低音 (pitches[0]) の値
+    p0 = pitch_results[0]
+    return (status,
+            agg_pitch_ok,
+            float(p0["expected_pitch_hz"]),
+            p0["detected_pitch_hz"],
+            p0["pitch_cents_error"])
+
+
+def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, onset_times=None, time_scale=1.0, timing_tolerance=TIMING_TOLERANCE_BASE, stft_mag=None, stft_freqs=None, stft_times=None, spectral_noise_floor=None):
     results = []
     cursor = performance_start_time
 
@@ -599,7 +828,8 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
 
     for i, n in enumerate(notes_only):
         note_idx = int(n["note_index"])
-        expected_pitch = float(n["pitches"][0])
+        all_expected_pitches = n.get("pitches", [])
+        expected_pitch = float(all_expected_pitches[0])
         es = float(n["start_time_sec"])
         ee = float(n["end_time_sec"])
         expected_duration = (ee - es) * time_scale  # テンポスケール適用
@@ -611,6 +841,17 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
         is_chord = n.get("is_chord", False)
 
         timing_ref = es + global_shift
+
+        # v1.7 Phase D: 重音 (len(pitches)>=2) はスペクトル検証パスへ分岐。
+        # 単音 (len==1) は既存 yin パスに進む。重音時もタイミング判定は
+        # 既存 cursor 探索結果を流用 (start_diff_sec/start_ok の互換維持)。
+        is_double_stop = (
+            len(all_expected_pitches) >= 2
+            and stft_mag is not None
+            and stft_freqs is not None
+            and stft_times is not None
+            and spectral_noise_floor is not None
+        )
 
         # --- 改善K: 再同期 ---
         if consecutive_miss >= RESYNC_AFTER_MISS:
@@ -737,6 +978,45 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
                     cur["evaluation_status"] = "pitch_only"
                     if cur.get("detected_pitch_hz") is None:
                         cur["detected_pitch_hz"] = prev.get("detected_pitch_hz")
+
+        # v1.7 Phase D: pitches 配列の付与 (全ノート共通)。重音はスペクトル検証で
+        # pitch 系を上書きし evaluation_status を double_stop_* に変える。
+        # tied/tremolo/trill 重音は release 領域が不安定なため spectral を走らせず
+        # 単音と同じく pitches[0] ラップに留める (前音継承の意図を尊重)。
+        if len(results) >= 1:
+            cur = results[-1]
+            do_spectral = is_double_stop and not (is_tied or is_tremolo or is_trill)
+            if do_spectral:
+                ds_start = cur.get("detected_start_sec")
+                if ds_start is None:
+                    win_start = es + global_shift
+                    win_end = ee + global_shift
+                else:
+                    win_start = float(ds_start)
+                    win_end = float(ds_start) + expected_duration
+                pitch_results = _verify_pitches_spectral(
+                    stft_mag, stft_freqs, stft_times,
+                    win_start, win_end,
+                    all_expected_pitches, float(spectral_noise_floor),
+                )
+                ds_status, ds_pok, ds_exp_hz, ds_det_hz, ds_cents = \
+                    _aggregate_double_stop_status(pitch_results)
+                cur["pitches"] = pitch_results
+                cur["expected_pitch_hz"] = ds_exp_hz
+                cur["detected_pitch_hz"] = ds_det_hz
+                cur["pitch_cents_error"] = ds_cents
+                cur["pitch_ok"] = ds_pok
+                cur["evaluation_status"] = ds_status
+            else:
+                # 単音 or tied/tremolo/trill: yin 結果を pitches[0] にラップして
+                # forward 互換確保 (重音だった場合でも他 pitch は出力しない)
+                cur["pitches"] = [{
+                    "expected_pitch_hz": float(expected_pitch),
+                    "detected_pitch_hz": cur.get("detected_pitch_hz"),
+                    "pitch_cents_error": cur.get("pitch_cents_error"),
+                    "pitch_ok": cur.get("pitch_ok"),
+                    "presence_ok": None,  # yin パスは presence 概念なし
+                }]
 
     return results
 
@@ -951,7 +1231,25 @@ try:
     else:
         print(f"  [Onset] skipped (USE_ONSET_DETECTION=false)")
 
-    results = evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, onset_times=onset_times, time_scale=time_scale, timing_tolerance=timing_tolerance)
+    # v1.7 Phase D (2026-05-23): 重音スペクトル検証用 STFT を 1 度だけ計算。
+    # 単音ノートでは使われない (yin パス温存)。重音ノート (len(pitches)>=2)
+    # でのみ参照される共有データ。
+    stft_mag = np.abs(librosa.stft(y, n_fft=SPECTRAL_N_FFT, hop_length=HOP_LENGTH))
+    stft_freqs = librosa.fft_frequencies(sr=sr, n_fft=SPECTRAL_N_FFT)
+    stft_times = librosa.frames_to_time(
+        np.arange(stft_mag.shape[1]), sr=sr, hop_length=HOP_LENGTH)
+    spectral_noise_floor = _estimate_spectral_noise_floor(
+        stft_mag, stft_times, first_sound_time)
+    print(f"  [Spectral] STFT shape={stft_mag.shape} "
+          f"noise_floor={spectral_noise_floor:.6f}")
+
+    results = evaluate_notes(
+        notes_only, all_notes, valid_time, valid_f0,
+        global_shift, performance_start_time,
+        onset_times=onset_times, time_scale=time_scale,
+        timing_tolerance=timing_tolerance,
+        stft_mag=stft_mag, stft_freqs=stft_freqs, stft_times=stft_times,
+        spectral_noise_floor=spectral_noise_floor)
 
     # v3.2 Commit A (C5 + 致命3): 音量フィールド (avg_volume_db / volume_drop_after) を追加
     # 設計書 §14-2 参照。bowing 系 sub task (string_change_volume / string_change_slur) が依存。
@@ -1011,14 +1309,38 @@ try:
     #            Score 演奏 (IS_PRACTICE=false) では loop_engine_runner が走らないため、
     #            Phase 3 で対応するまで overallScore は NULL のままとなる。
 
-    # 分母は楽譜上の全音符数（not_detected も「不正解」として扱う）
+    # 分母は楽譜上の全音符数（not_detected も「不正解」として扱う）。
+    # v1.7 Phase D (2026-05-23): 重音/ハーモニクス用の新 status も評価対象に含める。
+    #   - spectral_inconclusive (信号弱・判定保留) は除外 (not_detected と同じ扱い、赤判定にしない)
+    #   - double_stop_partial / harmonic_normal_tone (△) は 0.5 点で寄与
+    #     (重音 △ overallScore 寄与 = 0.5 点扱い、Tetsuo 承認済)
     total_notes = len(results)
-    evaluated = [r for r in results if r["evaluation_status"] in ("evaluated", "pitch_only")]
-    pitch_ok_count = sum(1 for r in evaluated if r["pitch_ok"] is True)
-    timing_evaluated = [r for r in results if r["evaluation_status"] == "evaluated"]
+    EVALUATED_STATUSES = (
+        "evaluated", "pitch_only",
+        "double_stop_full", "double_stop_partial", "double_stop_miss",
+        "harmonic_ok", "harmonic_normal_tone", "harmonic_miss",
+    )
+    evaluated = [r for r in results if r["evaluation_status"] in EVALUATED_STATUSES]
+
+    def _pitch_score(r):
+        st = r.get("evaluation_status")
+        # △ = 0.5 点 (重音/ハーモニクス共通)
+        if st in ("double_stop_partial", "harmonic_normal_tone"):
+            return 0.5
+        if r.get("pitch_ok") is True:
+            return 1.0
+        return 0.0
+
+    pitch_score_sum = sum(_pitch_score(r) for r in evaluated)
+    pitch_ok_count = pitch_score_sum  # 互換: 既存ログ参照向け (整数とは限らない)
+    timing_evaluated = [r for r in results
+                        if r["evaluation_status"] in ("evaluated", "double_stop_full",
+                                                       "double_stop_partial", "double_stop_miss",
+                                                       "harmonic_ok", "harmonic_normal_tone",
+                                                       "harmonic_miss")]
     timing_ok_count = sum(1 for r in timing_evaluated if r["start_ok"] is True)
 
-    pitch_accuracy = round(pitch_ok_count / total_notes * 100, 1) if total_notes > 0 else None
+    pitch_accuracy = round(pitch_score_sum / total_notes * 100, 1) if total_notes > 0 else None
     timing_accuracy = round(timing_ok_count / total_notes * 100, 1) if total_notes > 0 else None
     rhythm_accuracy = timing_accuracy  # v1.5/案 Y: rhythmAccuracy = timingAccuracy 同値で書き込み
     evaluated_notes = len(evaluated)
