@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
-import type { EvaluationStatus } from "@/app/types/comparisonResult"
+import { type EvaluationStatus, isEvaluated, pitchScore } from "@/app/types/comparisonResult"
 
 export async function POST(_request: NextRequest) {
   const auth = await requireAuthApi()
@@ -100,11 +100,11 @@ export async function POST(_request: NextRequest) {
     const key = `${keyTonic}_${keyMode || "major"}`
     if (!keyStats[key]) keyStats[key] = { ok: 0, total: 0 }
     for (const n of notes) {
-      if (n.evaluation_status === "not_detected") continue
-      if (n.pitch_ok !== null && n.pitch_ok !== undefined) {
-        keyStats[key].total++
-        if (n.pitch_ok === true) keyStats[key].ok++
-      }
+      // v1.7 Phase F: 中央 isEvaluated で not_detected/spectral_inconclusive 等を除外し、
+      //   △ (double_stop_partial / harmonic_normal_tone) は pitchScore で 0.5 点寄与。
+      if (!isEvaluated(n)) continue
+      keyStats[key].total++
+      keyStats[key].ok += pitchScore(n)
     }
   }
   for (const [key, stat] of Object.entries(keyStats)) {
@@ -125,11 +125,12 @@ export async function POST(_request: NextRequest) {
   }
   for (const { notes } of allResults) {
     for (const n of notes) {
-      if (!n.expected_pitch_hz || n.pitch_ok === null) continue
+      // v1.7 Phase F: 中央 isEvaluated で除外 + △は pitchScore で 0.5 点
+      if (!n.expected_pitch_hz || !isEvaluated(n)) continue
       const hz = n.expected_pitch_hz
       const range = hz < 294 ? "low" : hz < 440 ? "mid" : hz < 659 ? "high" : "very_high"
       rangeStats[range].total++
-      if (n.pitch_ok === true) rangeStats[range].ok++
+      rangeStats[range].ok += pitchScore(n)
     }
   }
   for (const [range, stat] of Object.entries(rangeStats)) {

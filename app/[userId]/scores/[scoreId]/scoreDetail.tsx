@@ -115,9 +115,14 @@ const COLOR_GREY = "#aaaaaa"
 const HIGHLIGHT_COLOR = "#2266ff"
 
 function getComparisonColor(r: ComparisonNote): string {
+  // v1.7 Phase F: spectral_inconclusive (信号弱で判定保留) は赤判定にせず灰へ
+  if (r.evaluation_status === "spectral_inconclusive") return COLOR_GREY
   if (r.evaluation_status === "not_evaluated" || r.evaluation_status === "section_missing" || r.evaluation_status === "not_detected") {
     return COLOR_GREY
   }
+  // v1.7 Phase F: △ (重音部分一致 / ハーモニクス普通音色化) は橙 = 改善ポイント
+  if (r.evaluation_status === "double_stop_partial" ||
+      r.evaluation_status === "harmonic_normal_tone") return COLOR_ORANGE
   if (r.pitch_ok === false) return COLOR_RED
   if (r.evaluation_status === "evaluated" && r.start_ok === false) return COLOR_ORANGE
   return COLOR_GREEN
