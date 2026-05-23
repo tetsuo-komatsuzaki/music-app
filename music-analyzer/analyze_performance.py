@@ -73,6 +73,14 @@ SPECTRAL_INCONCLUSIVE_SNR  = 1.5    # 全 pitch がこれ未満 → spectral_inc
 DOUBLE_STOP_CENTS_OK       = 50     # 重音セント許容 (単音 PITCH_TOLERANCE_CENTS と揃える)
 SPECTRAL_BIN_HALFWIDTH     = 1      # ピーク補間に使う周辺ビン数 (±1 = 3点パラボリック)
 
+# v1.7 Phase E (2026-05-23): ハーモニクス純度判定パラメータ
+# - is_harmonic=true ノート専用。フラジオレット (基音卓越・倍音少) を判定。
+# - 暫定値、Step G で実機録音から最終調整 (Tetsuo 実機検証時)。
+HARMONIC_FUND_RATIO_OK = 0.45   # 基音卓越度 ≥ これで純度十分 → ◎
+HARMONIC_OVERTONE_MAX  = 3      # 顕著な倍音本数 ≤ これで純度十分 (合わせ技で ◎)
+HARMONIC_OVERTONE_SNR  = 2.0    # 倍音検出 SNR (これ以上で「顕著な倍音」とカウント)
+HARMONIC_CENTS_OK      = 50     # ハーモニクスのセント許容 (sounding pitch 基準)
+
 # タイミング判定: BPM 連動 (= TIMING_TOLERANCE_BASE × (60 / target_bpm))
 # - 速い tempo ほど許容を厳しく (固定値では速い曲ほど甘くなる逆転を解消)
 # - target_bpm は recording_bpm 優先 (interval_diff は time_scale で recording_bpm 基準に
@@ -812,6 +820,148 @@ def _aggregate_double_stop_status(pitch_results: list) -> tuple:
             p0["pitch_cents_error"])
 
 
+# ===================================================================
+# v1.7 Phase E (2026-05-23): ハーモニクス純度判定層
+# ===================================================================
+# 設計方針 (DoubleStop Analysis Spec brainstorm §10-11 準拠):
+#   - is_harmonic=true ノート専用 (analyze_musicxml.py Step C で出力)
+#   - sounding_pitch_hz をターゲットとして純度判定
+#   - 純度指標 2 つ:
+#     (A) fundamental_ratio = 基音帯エネルギー / 全体エネルギー
+#         (フラジオレットは基音卓越、押さえすぎ普通音は倍音分散)
+#     (B) overtone_count = 顕著な倍音本数 (2/3/4/5 倍音帯)
+#         (ハーモニクスは倍音少、普通音は多い)
+#   - presence: 基音帯エネルギーが noise * SPECTRAL_PRESENCE_SNR を超えるか
+#   - 3 状態判定:
+#     presence=False                                       → harmonic_miss (×)
+#     presence=True ∧ 純度十分 (両指標 OK) ∧ pitch OK     → harmonic_ok (◎)
+#     presence=True ∧ 純度不足 (片方 NG)   ∧ pitch OK     → harmonic_normal_tone (△)
+#     presence=True ∧ pitch NG                            → harmonic_miss (×)
+
+def _check_harmonic_purity(
+    stft_mag: np.ndarray,
+    stft_freqs: np.ndarray,
+    stft_times: np.ndarray,
+    note_start_sec: float,
+    note_end_sec: float,
+    sounding_pitch_hz: float,
+    noise_floor: float,
+) -> dict:
+    """ハーモニクスノートの純度判定。
+
+    Returns: {
+      "fundamental_ratio": float,   # 0.0 〜 1.0
+      "overtone_count": int,
+      "ok": True | False | None,    # ◎=True / △=None / ×=False
+      "presence_ok": bool,
+      "detected_pitch_hz": float | None,
+      "pitch_cents_error": float | None,
+    }
+    """
+    if sounding_pitch_hz <= 0:
+        return {
+            "fundamental_ratio": 0.0,
+            "overtone_count": 0,
+            "ok": False,
+            "presence_ok": False,
+            "detected_pitch_hz": None,
+            "pitch_cents_error": None,
+        }
+
+    t_mask = (stft_times >= note_start_sec) & (stft_times < note_end_sec)
+    if t_mask.sum() < 1:
+        # 窓内フレームなし: 判定不能 (presence False と等価扱い)
+        return {
+            "fundamental_ratio": 0.0,
+            "overtone_count": 0,
+            "ok": False,
+            "presence_ok": False,
+            "detected_pitch_hz": None,
+            "pitch_cents_error": None,
+        }
+    spectrum = np.median(stft_mag[:, t_mask], axis=1)
+    bin_hz = float(stft_freqs[1] - stft_freqs[0]) if len(stft_freqs) > 1 else 1.0
+
+    def _bin_index(f: float) -> int:
+        return int(round(f / bin_hz))
+
+    # 基音帯エネルギー (基音周辺 ±1 ビン)
+    fund_bin = _bin_index(sounding_pitch_hz)
+    if fund_bin < SPECTRAL_BIN_HALFWIDTH or fund_bin >= len(stft_freqs) - SPECTRAL_BIN_HALFWIDTH:
+        return {
+            "fundamental_ratio": 0.0,
+            "overtone_count": 0,
+            "ok": False,
+            "presence_ok": False,
+            "detected_pitch_hz": None,
+            "pitch_cents_error": None,
+        }
+    fund_lo = max(0, fund_bin - SPECTRAL_BIN_HALFWIDTH)
+    fund_hi = min(len(stft_freqs), fund_bin + SPECTRAL_BIN_HALFWIDTH + 1)
+    fund_energy = float(np.sum(spectrum[fund_lo:fund_hi]))
+    total_energy = float(np.sum(spectrum)) + 1e-12
+    fundamental_ratio = fund_energy / total_energy
+
+    # presence 判定 (基音帯ピークが noise * SNR を超えるか)
+    fund_peak = float(np.max(spectrum[fund_lo:fund_hi]))
+    presence_ok = (fund_peak / max(noise_floor, 1e-12)) >= SPECTRAL_PRESENCE_SNR
+
+    # 倍音本数 (2/3/4/5 倍音帯で SNR > HARMONIC_OVERTONE_SNR)
+    overtone_count = 0
+    for mult in (2, 3, 4, 5):
+        ot_bin = _bin_index(sounding_pitch_hz * mult)
+        if ot_bin >= len(stft_freqs) - SPECTRAL_BIN_HALFWIDTH:
+            break
+        lo = max(0, ot_bin - SPECTRAL_BIN_HALFWIDTH)
+        hi = min(len(stft_freqs), ot_bin + SPECTRAL_BIN_HALFWIDTH + 1)
+        ot_peak = float(np.max(spectrum[lo:hi]))
+        if (ot_peak / max(noise_floor, 1e-12)) >= HARMONIC_OVERTONE_SNR:
+            overtone_count += 1
+
+    # ピーク補間で detected freq + cents_error
+    detected_freq: Optional[float] = None
+    cents_error: Optional[float] = None
+    if presence_ok:
+        # 基音周辺で正確なピーク位置
+        local_lo = max(SPECTRAL_BIN_HALFWIDTH, fund_bin - 3)
+        local_hi = min(len(stft_freqs) - 1 - SPECTRAL_BIN_HALFWIDTH, fund_bin + 3)
+        if local_lo < local_hi:
+            local_peak = int(np.argmax(spectrum[local_lo:local_hi + 1])) + local_lo
+            df = _parabolic_peak_freq(spectrum, stft_freqs, local_peak)
+            if df > 0:
+                detected_freq = float(df)
+                cents_error = float(1200.0 * np.log2(df / sounding_pitch_hz))
+
+    # 純度判定 (基音卓越 ∧ 倍音少 → ◎)
+    purity_ok = (
+        fundamental_ratio >= HARMONIC_FUND_RATIO_OK
+        and overtone_count <= HARMONIC_OVERTONE_MAX
+    )
+
+    # pitch 判定 (基音帯にエネルギーがあって cents が許容内か)
+    pitch_within = (
+        cents_error is not None and abs(cents_error) <= HARMONIC_CENTS_OK
+    )
+
+    if not presence_ok:
+        ok: Optional[bool] = False              # 鳴らず → ×
+    elif not pitch_within:
+        ok = False                              # 音程外れ → ×
+    elif purity_ok:
+        ok = True                               # ◎
+    else:
+        ok = None                               # △ (鳴ったが純度不足 = 普通の音色)
+
+    return {
+        "fundamental_ratio": float(fundamental_ratio),
+        "overtone_count": int(overtone_count),
+        "ok": ok,
+        "presence_ok": bool(presence_ok),
+        "detected_pitch_hz": detected_freq,
+        "pitch_cents_error": cents_error,
+    }
+
+
 def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, onset_times=None, time_scale=1.0, timing_tolerance=TIMING_TOLERANCE_BASE, stft_mag=None, stft_freqs=None, stft_times=None, spectral_noise_floor=None):
     results = []
     cursor = performance_start_time
@@ -839,6 +989,9 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
         is_tremolo = n.get("is_tremolo", False)
         is_trill = n.get("is_trill", False)
         is_chord = n.get("is_chord", False)
+        # v1.7 Phase E: ハーモニクス情報 (analyze_musicxml.py Step C 由来)
+        is_harmonic = bool(n.get("is_harmonic", False))
+        sounding_pitch_hz = n.get("sounding_pitch_hz")
 
         timing_ref = es + global_shift
 
@@ -1017,6 +1170,67 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
                     "pitch_ok": cur.get("pitch_ok"),
                     "presence_ok": None,  # yin パスは presence 概念なし
                 }]
+
+        # v1.7 Phase E: ハーモニクスノートは純度判定で status と pitch 系を上書き。
+        # double_stop パスの後に実行することで、両フラグ重複時はハーモニクスを優先。
+        # tied/tremolo/trill は spectral スキップ (前音継承を尊重)。
+        if (
+            is_harmonic
+            and stft_mag is not None
+            and stft_freqs is not None
+            and stft_times is not None
+            and spectral_noise_floor is not None
+            and len(results) >= 1
+            and not (is_tied or is_tremolo or is_trill)
+        ):
+            cur = results[-1]
+            # sounding_pitch_hz があれば使用、無ければ pitches[0] へフォールバック
+            if isinstance(sounding_pitch_hz, (int, float)) and sounding_pitch_hz > 0:
+                target_hz = float(sounding_pitch_hz)
+            elif all_expected_pitches:
+                target_hz = float(all_expected_pitches[0])
+            else:
+                target_hz = 0.0
+
+            if target_hz > 0:
+                ds_start = cur.get("detected_start_sec")
+                if ds_start is None:
+                    win_start = es + global_shift
+                    win_end = ee + global_shift
+                else:
+                    win_start = float(ds_start)
+                    win_end = win_start + expected_duration
+                purity = _check_harmonic_purity(
+                    stft_mag, stft_freqs, stft_times,
+                    win_start, win_end, target_hz, float(spectral_noise_floor),
+                )
+                cur["harmonic_purity"] = purity
+                # status 上書き
+                if not purity["presence_ok"]:
+                    cur["evaluation_status"] = "harmonic_miss"  # 鳴らず ×
+                    cur["pitch_ok"] = False
+                elif purity["ok"] is True:
+                    cur["evaluation_status"] = "harmonic_ok"   # ◎
+                    cur["pitch_ok"] = True
+                elif purity["ok"] is None:
+                    cur["evaluation_status"] = "harmonic_normal_tone"  # △
+                    cur["pitch_ok"] = True
+                else:  # ok=False かつ presence=True → 音程外れ
+                    cur["evaluation_status"] = "harmonic_miss"
+                    cur["pitch_ok"] = False
+                cur["expected_pitch_hz"] = target_hz
+                if purity.get("detected_pitch_hz") is not None:
+                    cur["detected_pitch_hz"] = purity["detected_pitch_hz"]
+                    cur["pitch_cents_error"] = purity["pitch_cents_error"]
+                # pitches[0] も上書き (forward 互換、consumer は一貫した形を期待)
+                if cur.get("pitches"):
+                    cur["pitches"][0] = {
+                        "expected_pitch_hz": target_hz,
+                        "detected_pitch_hz": purity.get("detected_pitch_hz"),
+                        "pitch_cents_error": purity.get("pitch_cents_error"),
+                        "pitch_ok": cur["pitch_ok"],
+                        "presence_ok": purity["presence_ok"],
+                    }
 
     return results
 
