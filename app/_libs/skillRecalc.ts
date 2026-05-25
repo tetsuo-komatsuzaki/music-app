@@ -269,10 +269,15 @@ export async function recalculateUserSkillTaskCards(
 // skill (普遍指標) は合算、Grade (楽曲完成度系) は分離 — が Phase 5 の設計境界。
 // =======================================================================
 
+// 個別課題 v1 (2026-05-25): 旧 string_change_{volume,slur,timing} を新スキームの
+// 移弦 6 ペア (bowing_string_change_*) に置換。意味は同じ「演奏に弦移動が含まれるか」。
 const STRING_CHANGE_SUB_TASKS: SubTaskId[] = [
-  "string_change_volume",
-  "string_change_slur",
-  "string_change_timing",
+  "bowing_string_change_g_to_d",
+  "bowing_string_change_d_to_g",
+  "bowing_string_change_d_to_a",
+  "bowing_string_change_a_to_d",
+  "bowing_string_change_a_to_e",
+  "bowing_string_change_e_to_a",
 ]
 
 export async function recalculateUserGradeProgress(

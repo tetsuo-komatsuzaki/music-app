@@ -31,11 +31,43 @@ from typing import Optional
 from .integrated_note import SubTaskResult
 
 
-# 中項目 → 配下 sub task のマップ
+# 個別課題 v1 (2026-05-25): 中項目 → 配下 sub task のマップを 57 項目スキームに更新。
+# 旧 9 sub_task は完全廃止。将来検討 (ricochet x2) は MVP では target=0 で集計除外される
+# ので含めても影響なし。app/_libs/skillMaster.ts SUB_TASK_IDS と一対一対応。
 SKILL_TASK_MAP: dict[str, list[str]] = {
-    "pitch": ["pitch_overall", "pitch_high", "pitch_chromatic"],
-    "rhythm": ["rhythm_overall", "rhythm_fast", "rhythm_after_rest"],
-    "bowing": ["string_change_volume", "string_change_slur", "string_change_timing"],
+    "pitch": [
+        "pitch_position_2", "pitch_position_3", "pitch_position_4", "pitch_position_5plus",
+        "pitch_shift_up", "pitch_shift_down",
+        "pitch_double_stop_2", "pitch_double_stop_3plus", "pitch_double_stop_continuous",
+        "pitch_harmonic",
+        "pitch_interval_up_2nd_plus", "pitch_interval_up_3rd_plus",
+        "pitch_interval_down_2nd_plus", "pitch_interval_down_3rd_plus",
+        "pitch_finger_1", "pitch_finger_2", "pitch_finger_3", "pitch_finger_4",
+    ],
+    "rhythm": [
+        "rhythm_value_whole", "rhythm_value_half", "rhythm_value_16th",
+        "rhythm_value_32nd_plus", "rhythm_value_dotted",
+        "rhythm_pattern_triplet", "rhythm_pattern_2plet_plus",
+        "rhythm_entry_after_rest",
+        "rhythm_technique_martele", "rhythm_technique_staccato", "rhythm_technique_spiccato",
+        "rhythm_technique_ricochet",  # 将来検討
+        "rhythm_technique_tremolo", "rhythm_technique_portato", "rhythm_technique_trill",
+        "rhythm_technique_arpeggio", "rhythm_technique_glissando",
+    ],
+    "bowing": [
+        "bowing_technique_staccato", "bowing_technique_hooked_staccato",
+        "bowing_technique_spiccato",
+        "bowing_technique_ricochet",  # 将来検討
+        "bowing_technique_pizzicato", "bowing_technique_tremolo",
+        "bowing_technique_portato", "bowing_technique_trill",
+        "bowing_technique_arpeggio", "bowing_technique_glissando",
+        "bowing_technique_harmonic",
+        "bowing_string_g", "bowing_string_d", "bowing_string_a", "bowing_string_e",
+        "bowing_string_change_g_to_d", "bowing_string_change_d_to_g",
+        "bowing_string_change_d_to_a", "bowing_string_change_a_to_d",
+        "bowing_string_change_a_to_e", "bowing_string_change_e_to_a",
+        "bowing_double_stop_2", "bowing_double_stop_3plus", "bowing_double_stop_continuous",
+    ],
 }
 
 

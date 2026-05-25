@@ -107,21 +107,19 @@ def extract_candidate_sub_tasks(group: List[IntegratedNote]) -> List[str]:
     timing_errors = sum(1 for n in group if n.start_ok is False)
     has_timing_error = timing_errors > len(group) * TIMING_ERROR_RATIO
 
+    # 個別課題 v1 (2026-05-25): 旧 9 sub_task の中で新スキームに直接対応がある
+    # 2 項目のみ残す。旧 string_change_* / pitch_overall / rhythm_overall は新スキーム
+    # に該当 ID なし (細分化されたため決定論で 1 つに絞れない) → 候補から除外。
+    # 必要なら別タスクで新スキームに合わせた候補抽出ロジックを再設計する。
     candidates: List[tuple[str, float]] = []
-    if has_string_change and has_slur:
-        candidates.append(("string_change_slur", 0.9))
-    if has_string_change and has_pitch_error:
-        candidates.append(("string_change_volume", 0.8))
-    if has_string_change and has_timing_error:
-        candidates.append(("string_change_timing", 0.7))
     if has_high_pitch and has_pitch_error:
-        candidates.append(("pitch_high", 0.8))
+        candidates.append(("pitch_position_5plus", 0.8))
     if has_after_rest and has_timing_error:
-        candidates.append(("rhythm_after_rest", 0.7))
-    if has_pitch_error and not has_string_change:
-        candidates.append(("pitch_overall", 0.6))
-    if has_timing_error and not has_string_change:
-        candidates.append(("rhythm_overall", 0.6))
+        candidates.append(("rhythm_entry_after_rest", 0.7))
+    # 既存変数 has_string_change / has_slur / has_pitch_error / has_timing_error は
+    # 引き続き計算しているが、新スキーム下では具体 sub_task に紐付かないため未使用。
+    # ESLint 風に明示参照しておく (Python では noqa 用途):
+    _ = (has_string_change, has_slur, has_pitch_error, has_timing_error)
 
     candidates.sort(key=lambda x: x[1], reverse=True)
     return [sub_task_id for sub_task_id, _ in candidates[:MAX_CANDIDATES]]
