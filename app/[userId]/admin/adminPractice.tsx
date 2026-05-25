@@ -6,6 +6,8 @@ import {
   SUB_TASK_NAMES,
   TASK_NAMES,
   SKILL_TASKS,
+  AXES,
+  SUB_TASKS_FUTURE,
   type SubTaskId,
   type TaskId,
 } from "@/app/_libs/skillMaster"
@@ -474,24 +476,39 @@ export default function AdminPractice({
             <div className={styles.field}>
               <label>課題タグ (skillSubTaskTags) ★ループエンジン必須</label>
               <div className={styles.tagSection}>
+                {/* 個別課題 v1: 中項目 → 軸 → 項目 の 3 階層でグルーピング表示。
+                    将来検討フラグ付き項目 (リコシェ) は admin UI 非表示。 */}
                 {(Object.keys(SKILL_TASKS) as TaskId[]).map(taskId => (
                   <div key={taskId} className={styles.tagCategory}>
                     <div className={styles.tagCategoryName}>{TASK_NAMES[taskId]}</div>
-                    <div className={styles.tagList}>
-                      {SKILL_TASKS[taskId].subTaskIds.map(subId => {
-                        const checked = selectedSubTasks.has(subId)
-                        return (
-                          <span
-                            key={subId}
-                            className={`${styles.tag} ${checked ? styles.tagSelected : ""}`}
-                            onClick={() => toggleNewSubTask(subId)}
-                            title="クリックで選択/解除"
-                          >
-                            {SUB_TASK_NAMES[subId]}
-                          </span>
-                        )
-                      })}
-                    </div>
+                    {AXES.filter(ax => ax.parentTaskId === taskId).map(axis => {
+                      const visibleSubIds = axis.subTaskIds.filter(
+                        subId => !SUB_TASKS_FUTURE.has(subId),
+                      )
+                      if (visibleSubIds.length === 0) return null
+                      return (
+                        <div key={axis.id} style={{ marginLeft: 12, marginTop: 4 }}>
+                          <div style={{ fontSize: 11, color: "#888", marginBottom: 2 }}>
+                            {axis.name}
+                          </div>
+                          <div className={styles.tagList}>
+                            {visibleSubIds.map(subId => {
+                              const checked = selectedSubTasks.has(subId)
+                              return (
+                                <span
+                                  key={subId}
+                                  className={`${styles.tag} ${checked ? styles.tagSelected : ""}`}
+                                  onClick={() => toggleNewSubTask(subId)}
+                                  title="クリックで選択/解除"
+                                >
+                                  {SUB_TASK_NAMES[subId]}
+                                </span>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 ))}
                 <div className={styles.hint}>
