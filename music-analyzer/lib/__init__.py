@@ -53,18 +53,12 @@ from .audio_volume import (
     calculate_audio_features_per_note,
     merge_audio_features_into_comparison_result,
 )
+# 個別課題 v1 (2026-05-25): 旧 9 judge 関数を削除しスケルトンに置換。
+# 旧 judge_* は再エクスポートから削除。新 ALL_SUB_TASK_IDS を追加公開。
 from .subtask_judges import (
     is_performance_analyzable,
     run_all_judges,
-    judge_pitch_overall,
-    judge_pitch_high,
-    judge_pitch_chromatic,
-    judge_rhythm_overall,
-    judge_rhythm_fast,
-    judge_rhythm_after_rest,
-    judge_string_change_volume,
-    judge_string_change_slur,
-    judge_string_change_timing,
+    ALL_SUB_TASK_IDS,
 )
 from .skill_aggregator import (
     aggregate_skill_scores,
@@ -111,18 +105,10 @@ __all__ = [
     "calc_volume_drop_after",
     "calculate_audio_features_per_note",
     "merge_audio_features_into_comparison_result",
-    # subtask_judges
+    # subtask_judges (個別課題 v1 で旧 9 judge_* は削除済)
     "is_performance_analyzable",
     "run_all_judges",
-    "judge_pitch_overall",
-    "judge_pitch_high",
-    "judge_pitch_chromatic",
-    "judge_rhythm_overall",
-    "judge_rhythm_fast",
-    "judge_rhythm_after_rest",
-    "judge_string_change_volume",
-    "judge_string_change_slur",
-    "judge_string_change_timing",
+    "ALL_SUB_TASK_IDS",
     # skill_aggregator
     "aggregate_skill_scores",
     "SKILL_TASK_MAP",
