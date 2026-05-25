@@ -113,9 +113,17 @@ LOOKAHEAD_COUNT = 10          # medium時の先読みノート数
 LOOKAHEAD_MATCH_RATE = 0.5    # 先読み成功の閾値（要チューニング）
 
 # Onset 検出（環境変数フラグで有効化）
-USE_ONSET_DETECTION = os.environ.get("USE_ONSET_DETECTION", "false") == "true"
+# 個別課題 v1+ (2026-05-25 PDCA): 同音連続箇所の正しい検出に Phase 1 onset 検出が
+# 必須なため、デフォルトを true に変更。明示的に false 設定すれば旧挙動に戻せる。
+USE_ONSET_DETECTION = os.environ.get("USE_ONSET_DETECTION", "true") == "true"
 ONSET_PITCH_CHANGE_CENTS = 30     # onset 前後のピッチ変化閾値（cents）
 ONSET_PITCH_CHANGE_WINDOW = 0.03  # onset 前後の比較窓（秒）
+
+# 個別課題 v1+ (2026-05-25 PDCA): 同音連続箇所の onset 判定。
+# 同音連続では pitch 変化が原理的にないため、RMS rise (音量立ち上がり) で
+# 判定する。異音切替時の既存判定 (ピッチ変化≥30 cents) は無改変。
+SAME_PITCH_ONSET_RMS_RATIO = 1.5    # 後30ms平均 / 前30ms平均 がこれ以上で「立ち上がり」
+SAME_PITCH_ONSET_RMS_WINDOW = 0.03  # ±30ms (ONSET_PITCH_CHANGE_WINDOW と揃える)
 
 # ノート飛ばし: section_missing は廃止
 # 見つからないノートは not_detected として記録し、探索を継続する
@@ -245,12 +253,40 @@ def detect_onsets(y, sr, hop_length=HOP_LENGTH):
     return librosa.frames_to_time(onset_frames, sr=sr, hop_length=hop_length)
 
 
-def _has_pitch_change_at_onset(onset_t, valid_time, valid_f0):
+def _is_legitimate_onset(onset_t, valid_time, valid_f0, rms, time_all,
+                          expected_pitch, prev_expected_pitch):
+    """onset 候補が legitimate な「新しい音の開始」か判定 (ガード)。
+
+    個別課題 v1+ (2026-05-25 PDCA):
+      - 異音切替 (prev_expected_pitch != expected_pitch):
+        既存ピッチ変化判定。≥30 cents で採用、未満は偽 onset として却下。
+      - 同音連続 (prev_expected_pitch == expected_pitch):
+        ピッチ変化が原理的にないため代わりに RMS rise を判定。
+        後30ms平均 / 前30ms平均 ≥ SAME_PITCH_ONSET_RMS_RATIO で「弓の弾き直し」と
+        みなし採用、未満は同一弓継続中の弓圧変化等として却下。
     """
-    onset 前後でピッチが変化しているか確認。
-    レガート中の偽 onset（弓圧変化等）を除外するためのガード。
-    30 cents 未満の変化はビブラートの範囲内と判断し False を返す。
-    """
+    # ─── 同音連続: RMS rise 判定 ─────────────────────────────
+    if (
+        prev_expected_pitch is not None
+        and expected_pitch is not None
+        and abs(prev_expected_pitch - expected_pitch) < 1e-6
+        and rms is not None
+        and time_all is not None
+    ):
+        before_mask = (time_all >= onset_t - SAME_PITCH_ONSET_RMS_WINDOW) & (time_all < onset_t)
+        after_mask = (time_all >= onset_t) & (time_all < onset_t + SAME_PITCH_ONSET_RMS_WINDOW)
+        before_rms = rms[before_mask]
+        after_rms = rms[after_mask]
+        if len(before_rms) < 2 or len(after_rms) < 2:
+            return True  # データ不足 → 採用 (Phase 2 cursor scan で救える)
+        before_mean = float(np.mean(before_rms))
+        after_mean = float(np.mean(after_rms))
+        if before_mean <= 1e-9:
+            # 前が無音相当 → 後ろに音があれば新しい音の立ち上がり
+            return after_mean > 1e-9
+        return (after_mean / before_mean) >= SAME_PITCH_ONSET_RMS_RATIO
+
+    # ─── 異音切替: 既存ピッチ変化判定 (無改変) ──────────────────
     before_mask = (valid_time >= onset_t - ONSET_PITCH_CHANGE_WINDOW) & (valid_time < onset_t)
     after_mask = (valid_time >= onset_t) & (valid_time < onset_t + ONSET_PITCH_CHANGE_WINDOW)
 
@@ -421,7 +457,7 @@ def _try_match_at(t, expected_pitch, expected_duration, valid_time, valid_f0,
 
 def find_note_segment(cursor, expected_pitch, expected_duration, valid_time, valid_f0,
                       onset_times=None, prev_expected_pitch=None, next_expected_pitch=None,
-                      prev_seg_end=None):
+                      prev_seg_end=None, rms=None, time_all=None):
     """
     カーソルから前方に expected_duration 幅の窓を走査し、
     noteの特徴に合う区間を探す。
@@ -444,8 +480,12 @@ def find_note_segment(cursor, expected_pitch, expected_duration, valid_time, val
             timing_gap = abs(onset_t - cursor)
             if timing_gap > expected_duration * 2.0:
                 continue
-            # ガード3: ピッチ変化のない onset は偽 onset として無視
-            if not _has_pitch_change_at_onset(onset_t, valid_time, valid_f0):
+            # ガード3: legitimate な onset か判定。
+            # 同音連続時は RMS rise、異音切替時はピッチ変化で判定 (v1+ PDCA)。
+            if not _is_legitimate_onset(
+                onset_t, valid_time, valid_f0, rms, time_all,
+                expected_pitch, prev_expected_pitch,
+            ):
                 continue
 
             result = _try_match_at(onset_t, expected_pitch, expected_duration,
@@ -962,7 +1002,7 @@ def _check_harmonic_purity(
     }
 
 
-def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, onset_times=None, time_scale=1.0, timing_tolerance=TIMING_TOLERANCE_BASE, stft_mag=None, stft_freqs=None, stft_times=None, spectral_noise_floor=None):
+def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, onset_times=None, time_scale=1.0, timing_tolerance=TIMING_TOLERANCE_BASE, stft_mag=None, stft_freqs=None, stft_times=None, spectral_noise_floor=None, rms=None, time_all=None):
     results = []
     cursor = performance_start_time
 
@@ -1025,7 +1065,8 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
         segment = find_note_segment(cursor, expected_pitch, expected_duration, valid_time, valid_f0,
                                     onset_times=use_onsets,
                                     prev_expected_pitch=prev_pitch, next_expected_pitch=next_pitch,
-                                    prev_seg_end=prev_seg_end)
+                                    prev_seg_end=prev_seg_end,
+                                    rms=rms, time_all=time_all)
 
         accepted = False
 
@@ -1463,7 +1504,8 @@ try:
         onset_times=onset_times, time_scale=time_scale,
         timing_tolerance=timing_tolerance,
         stft_mag=stft_mag, stft_freqs=stft_freqs, stft_times=stft_times,
-        spectral_noise_floor=spectral_noise_floor)
+        spectral_noise_floor=spectral_noise_floor,
+        rms=rms, time_all=time_all)
 
     # v3.2 Commit A (C5 + 致命3): 音量フィールド (avg_volume_db / volume_drop_after) を追加
     # 設計書 §14-2 参照。bowing 系 sub task (string_change_volume / string_change_slur) が依存。
