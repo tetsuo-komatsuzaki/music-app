@@ -116,6 +116,17 @@ LOOKAHEAD_MATCH_RATE = 0.5    # 先読み成功の閾値（要チューニング
 # 個別課題 v1+ (2026-05-25 PDCA): 同音連続箇所の正しい検出に Phase 1 onset 検出が
 # 必須なため、デフォルトを true に変更。明示的に false 設定すれば旧挙動に戻せる。
 USE_ONSET_DETECTION = os.environ.get("USE_ONSET_DETECTION", "true") == "true"
+
+# PDCA-2 (2026-05-26): 残 4 件の同音連続 -300ms 偏差の真因切り分け用診断ログ。
+# ANALYZE_DIAG=true を Cloud Run env で設定した時だけ動く (本番影響なし)。
+# H1: librosa が onset 候補を出していない / H2: ガード却下 / H3: 統合バグ
+# の切り分け用。
+DIAG_LOG = os.environ.get("ANALYZE_DIAG", "false") == "true"
+
+
+def _diag(msg: str) -> None:
+    if DIAG_LOG:
+        print(f"[DIAG] {msg}", flush=True)
 ONSET_PITCH_CHANGE_CENTS = 30     # onset 前後のピッチ変化閾値（cents）
 ONSET_PITCH_CHANGE_WINDOW = 0.03  # onset 前後の比較窓（秒）
 
@@ -278,13 +289,22 @@ def _is_legitimate_onset(onset_t, valid_time, valid_f0, rms, time_all,
         before_rms = rms[before_mask]
         after_rms = rms[after_mask]
         if len(before_rms) < 2 or len(after_rms) < 2:
+            _diag(f"same_pitch_onset t={onset_t:.3f} DATA_INSUFFICIENT "
+                  f"before_n={len(before_rms)} after_n={len(after_rms)} → accept")
             return True  # データ不足 → 採用 (Phase 2 cursor scan で救える)
         before_mean = float(np.mean(before_rms))
         after_mean = float(np.mean(after_rms))
         if before_mean <= 1e-9:
-            # 前が無音相当 → 後ろに音があれば新しい音の立ち上がり
-            return after_mean > 1e-9
-        return (after_mean / before_mean) >= SAME_PITCH_ONSET_RMS_RATIO
+            decision = after_mean > 1e-9
+            _diag(f"same_pitch_onset t={onset_t:.3f} BEFORE_SILENCE "
+                  f"after={after_mean:.5f} → {'accept' if decision else 'reject'}")
+            return decision
+        ratio = after_mean / before_mean
+        decision = ratio >= SAME_PITCH_ONSET_RMS_RATIO
+        _diag(f"same_pitch_onset t={onset_t:.3f} before={before_mean:.5f} "
+              f"after={after_mean:.5f} ratio={ratio:.2f} thr={SAME_PITCH_ONSET_RMS_RATIO} "
+              f"→ {'accept' if decision else 'reject'}")
+        return decision
 
     # ─── 異音切替: 既存ピッチ変化判定 (無改変) ──────────────────
     before_mask = (valid_time >= onset_t - ONSET_PITCH_CHANGE_WINDOW) & (valid_time < onset_t)
@@ -457,7 +477,7 @@ def _try_match_at(t, expected_pitch, expected_duration, valid_time, valid_f0,
 
 def find_note_segment(cursor, expected_pitch, expected_duration, valid_time, valid_f0,
                       onset_times=None, prev_expected_pitch=None, next_expected_pitch=None,
-                      prev_seg_end=None, rms=None, time_all=None):
+                      prev_seg_end=None, rms=None, time_all=None, note_idx=None):
     """
     カーソルから前方に expected_duration 幅の窓を走査し、
     noteの特徴に合う区間を探す。
@@ -469,16 +489,28 @@ def find_note_segment(cursor, expected_pitch, expected_duration, valid_time, val
     search_range = min(search_range, 3.0)
     search_end = cursor + search_range
 
+    same_pitch = (
+        prev_expected_pitch is not None
+        and expected_pitch is not None
+        and abs(prev_expected_pitch - expected_pitch) < 1e-6
+    )
+
     # === Phase 1: onset ベース探索 ===
     if onset_times is not None and len(onset_times) > 0:
         candidate_onsets = onset_times[(onset_times >= cursor) & (onset_times < search_end)]
+        _diag(f"note={note_idx} same_pitch={same_pitch} cursor={cursor:.3f} "
+              f"search_end={search_end:.3f} candidates={len(candidate_onsets)} "
+              f"prev_seg_end={prev_seg_end if prev_seg_end is not None else 'N/A'}")
         for onset_t in candidate_onsets:
             # ガード1: 前ノートの持続中の偽 onset を無視
             if prev_seg_end is not None and onset_t < prev_seg_end - 0.05:
+                _diag(f"note={note_idx} cand t={onset_t:.3f} REJ guard1 prev_seg_end")
                 continue
             # ガード2: 期待タイミングから大幅に外れた onset は無視
             timing_gap = abs(onset_t - cursor)
             if timing_gap > expected_duration * 2.0:
+                _diag(f"note={note_idx} cand t={onset_t:.3f} REJ guard2 "
+                      f"gap={timing_gap:.3f}>{expected_duration*2:.3f}")
                 continue
             # ガード3: legitimate な onset か判定。
             # 同音連続時は RMS rise、異音切替時はピッチ変化で判定 (v1+ PDCA)。
@@ -486,15 +518,45 @@ def find_note_segment(cursor, expected_pitch, expected_duration, valid_time, val
                 onset_t, valid_time, valid_f0, rms, time_all,
                 expected_pitch, prev_expected_pitch,
             ):
+                _diag(f"note={note_idx} cand t={onset_t:.3f} REJ guard3 (gate)")
                 continue
 
             result = _try_match_at(onset_t, expected_pitch, expected_duration,
                                    valid_time, valid_f0,
                                    prev_expected_pitch, next_expected_pitch)
             if result is not None:
+                _diag(f"note={note_idx} cand t={onset_t:.3f} ACCEPT seg_start={result['seg_start']:.3f}")
                 return result
+            else:
+                _diag(f"note={note_idx} cand t={onset_t:.3f} REJ _try_match_at returned None")
 
-    # === Phase 2: 既存のスキャン探索（フォールバック） ===
+    # === 同音連続 + Phase 1 全却下: テンポ外挿フォールバック ===
+    # PDCA-2 (2026-05-26): legato 演奏で音量変化が出ないと Phase 1 ゲートが全却下、
+    # Phase 2 cursor scan は前ノートの sustain 内 pitch 一致点を採用して -300ms 偏差
+    # を生む。音響的に分離不能な区間はテンポ通りに弾いた前提で seg_start = cursor
+    # (= prev_detected_start + expected_duration 相当) で埋める。
+    if same_pitch:
+        synth_seg_start = cursor
+        synth_seg_end = cursor + expected_duration
+        mask = (valid_time >= synth_seg_start) & (valid_time < synth_seg_end)
+        f_in = valid_f0[mask]
+        if len(f_in) >= MIN_VALID_FRAMES:
+            avg_p = float(np.median(f_in))
+            _diag(f"note={note_idx} SAME_PITCH_LEGATO_INFER seg_start={synth_seg_start:.3f} "
+                  f"avg_pitch={avg_p:.1f} (Phase 2 cursor scan skipped to avoid prev-sustain match)")
+            return {
+                "seg_start": synth_seg_start,
+                "seg_end": synth_seg_end,
+                "avg_pitch": avg_p,
+                "valid_frames": len(f_in),
+                "confidence": "low",  # テンポ外挿、音響的に判別不能
+            }
+        # f0 取れない (空白等) → not_detected で OK (return None)
+        _diag(f"note={note_idx} SAME_PITCH_LEGATO_INFER but no valid f0 in window → not_detected")
+        return None
+
+    # === Phase 2: 異音切替時のスキャン探索（フォールバック、無改変） ===
+    _diag(f"note={note_idx} Phase 1 exhausted, falling to Phase 2 cursor scan")
     scan_step = 0.02
     t = cursor
     while t < search_end:
@@ -502,9 +564,11 @@ def find_note_segment(cursor, expected_pitch, expected_duration, valid_time, val
                                valid_time, valid_f0,
                                prev_expected_pitch, next_expected_pitch)
         if result is not None:
+            _diag(f"note={note_idx} Phase 2 matched t={t:.3f} seg_start={result['seg_start']:.3f}")
             return result
         t += scan_step
 
+    _diag(f"note={note_idx} BOTH PHASES FAILED → not_detected")
     return None
 
 
@@ -1066,7 +1130,7 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
                                     onset_times=use_onsets,
                                     prev_expected_pitch=prev_pitch, next_expected_pitch=next_pitch,
                                     prev_seg_end=prev_seg_end,
-                                    rms=rms, time_all=time_all)
+                                    rms=rms, time_all=time_all, note_idx=note_idx)
 
         accepted = False
 
