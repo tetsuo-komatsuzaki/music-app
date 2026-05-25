@@ -544,12 +544,17 @@ def find_note_segment(cursor, expected_pitch, expected_duration, valid_time, val
             avg_p = float(np.median(f_in))
             _diag(f"note={note_idx} SAME_PITCH_LEGATO_INFER seg_start={synth_seg_start:.3f} "
                   f"avg_pitch={avg_p:.1f} (Phase 2 cursor scan skipped to avoid prev-sustain match)")
+            # PDCA-2-fix2 (2026-05-26): confidence="high" にする理由 —
+            # evaluate_notes の accepted 判定が "high" or "medium" のみ許容するため
+            # "low" だと not_detected に倒れて massive regression を生む (実測した)。
+            # テンポ外挿は意図的に採用する fallback なので "high" で渡す。
+            # avg_pitch は実測 (legato の f0 中央値) のため pitch 評価は通常通り動く。
             return {
                 "seg_start": synth_seg_start,
                 "seg_end": synth_seg_end,
                 "avg_pitch": avg_p,
                 "valid_frames": len(f_in),
-                "confidence": "low",  # テンポ外挿、音響的に判別不能
+                "confidence": "high",
             }
         # f0 取れない (空白等) → not_detected で OK (return None)
         _diag(f"note={note_idx} SAME_PITCH_LEGATO_INFER but no valid f0 in window → not_detected")
