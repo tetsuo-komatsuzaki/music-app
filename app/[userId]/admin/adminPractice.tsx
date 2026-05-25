@@ -677,20 +677,44 @@ export default function AdminPractice({
                   </td>
                   <td>
                     {isEditing ? (
+                      // 個別課題 v1: 編集モーダルも新規登録フォームと同じく
+                      // 中項目 → 軸 → 項目 の 3 階層グルーピング。将来検討は非表示。
                       <div className={styles.editTagGrid}>
-                        {SUB_TASK_IDS.map(subId => {
-                          const checked = editSubTasks.has(subId)
-                          return (
-                            <label key={subId} className={styles.editTagLabel}>
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => toggleEditSubTask(subId)}
-                              />
-                              {SUB_TASK_NAMES[subId]}
-                            </label>
-                          )
-                        })}
+                        {(Object.keys(SKILL_TASKS) as TaskId[]).map(taskId => (
+                          <div key={taskId} style={{ marginBottom: 8 }}>
+                            <div style={{ fontSize: 12, fontWeight: 600, color: "#666", marginBottom: 4 }}>
+                              {TASK_NAMES[taskId]}
+                            </div>
+                            {AXES.filter(ax => ax.parentTaskId === taskId).map(axis => {
+                              const visibleSubIds = axis.subTaskIds.filter(
+                                subId => !SUB_TASKS_FUTURE.has(subId),
+                              )
+                              if (visibleSubIds.length === 0) return null
+                              return (
+                                <div key={axis.id} style={{ marginLeft: 12, marginTop: 2 }}>
+                                  <div style={{ fontSize: 11, color: "#888", marginBottom: 2 }}>
+                                    {axis.name}
+                                  </div>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                                    {visibleSubIds.map(subId => {
+                                      const checked = editSubTasks.has(subId)
+                                      return (
+                                        <label key={subId} className={styles.editTagLabel}>
+                                          <input
+                                            type="checkbox"
+                                            checked={checked}
+                                            onChange={() => toggleEditSubTask(subId)}
+                                          />
+                                          {SUB_TASK_NAMES[subId]}
+                                        </label>
+                                      )
+                                    })}
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        ))}
                       </div>
                     ) : noTags ? (
                       <span className={styles.missingBadge}>未設定</span>
