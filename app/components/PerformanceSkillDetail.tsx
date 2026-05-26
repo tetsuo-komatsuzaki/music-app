@@ -249,15 +249,19 @@ export default function PerformanceSkillDetail({
     bowing: data.bowingSkillScore,
   }
   const nullReason = getNullReason(scores)
+  // 全て null の skipped_low_detection ケースはカードを丸ごと非表示にする (Tetsuo 承認 2026-05-26)
+  const showSkillScoreCard = nullReason !== "skipped_low_detection"
 
   return (
     <div className={styles.container}>
       {menuArea}
 
       {/* UI-3: 中項目スコアカード (本 PR で実装) */}
-      <section className={styles.section}>
-        <SkillScoreCard scores={scores} nullReason={nullReason} />
-      </section>
+      {showSkillScoreCard && (
+        <section className={styles.section}>
+          <SkillScoreCard scores={scores} nullReason={nullReason} />
+        </section>
+      )}
 
       {/* UI-4: 気になる箇所リスト + 候補選択 */}
       <section className={styles.section}>

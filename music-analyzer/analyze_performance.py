@@ -64,6 +64,15 @@ PITCH_SEARCH_CENTS = 200      # ±200cents（±2半音）: ピッチずれ → c
 MIN_VALID_FRAMES = 5
 CENTER_RATIO = 0.80
 
+# ③ 3軸カスケード評価 (2026-05-26)
+# 持続が期待値の何%以内なら "持続◯" 判定とするか
+DURATION_TOLERANCE_RATIO = 0.3  # ±30%
+# 段階拡大の探索半径 (秒)
+CASCADE_SEARCH_RADII = [0.15, 0.5, 1.0, 1.5]
+# 短音奏法の note 属性 (これらが True なら持続短くて OK)
+SHORT_TECHNIQUE_ATTRS = ("is_staccato", "is_pizzicato", "is_spiccato",
+                          "is_ricochet", "is_bow_staccato")
+
 # v1.7 Phase D (2026-05-23): 重音 / ハーモニクススペクトル検証パラメータ
 # - 単音 (len(pitches)==1) は既存 yin パスで処理。本パラメータは len>=2 専用。
 # - 暫定値、Step G で実機録音から最終調整 (Tetsuo 実機検証時)。
@@ -103,14 +112,7 @@ def get_timing_tolerance(target_bpm: float) -> float:
 # 区間探索
 SEARCH_DURATION_MULTIPLIER = 3.0  # expected_duration × この倍率
 
-# 再同期（Improvement K）
-RESYNC_AFTER_MISS = 3             # この回数連続 not_detected で再同期を試みる
-RESYNC_CONFIRM_COUNT = 2          # 連続一致で再同期を確定
-RESYNC_MAX_JUMP = 1.2             # ジャンプ距離の上限（秒）
-
-# 先読み検証（改善A）
-LOOKAHEAD_COUNT = 10          # medium時の先読みノート数
-LOOKAHEAD_MATCH_RATE = 0.5    # 先読み成功の閾値（要チューニング）
+# (2026-05-26 ⑤⑧ cleanup: RESYNC_* / LOOKAHEAD_* は cascade 移行後に dead code 化したため削除)
 
 # Onset 検出（環境変数フラグで有効化）
 # 個別課題 v1+ (2026-05-25 PDCA): 同音連続箇所の正しい検出に Phase 1 onset 検出が
@@ -444,21 +446,25 @@ def _try_match_at(t, expected_pitch, expected_duration, valid_time, valid_f0,
     if med <= 0:
         return None
 
-    c = abs(1200.0 * np.log2(med / expected_pitch))
-    if c > PITCH_SEARCH_CENTS:
+    # ⑨ 重複除去 (2026-05-26): cents 計算を 1 回だけ実施。符号付きで保持し
+    # 絶対値は別途取って confidence / 採否判定に使う。pitch_cents_error として
+    # dict に含めて返し、evaluate_notes 側での再計算を不要にする。
+    cents_signed = float(cents_diff(med, expected_pitch))
+    c_abs = abs(cents_signed)
+    if c_abs > PITCH_SEARCH_CENTS:
         return None
 
-    confidence = "high" if c <= PITCH_TOLERANCE_CENTS else "medium"
+    confidence = "high" if c_abs <= PITCH_TOLERANCE_CENTS else "medium"
 
     # Improvement J: medium match 時、前の音か次の音に近ければ skip
     if confidence == "medium":
         if prev_expected_pitch is not None:
             c_prev = abs(1200.0 * np.log2(med / prev_expected_pitch))
-            if c_prev < c:
+            if c_prev < c_abs:
                 return None
         if next_expected_pitch is not None:
             c_next = abs(1200.0 * np.log2(med / next_expected_pitch))
-            if c_next < c:
+            if c_next < c_abs:
                 return None
 
     refined_start = _refine_onset(
@@ -472,21 +478,29 @@ def _try_match_at(t, expected_pitch, expected_duration, valid_time, valid_f0,
         "avg_pitch": med,
         "valid_frames": cnt,
         "confidence": confidence,
+        "pitch_cents_error": cents_signed,  # ⑨ 重複除去で追加
     }
 
 
 def find_note_segment(cursor, expected_pitch, expected_duration, valid_time, valid_f0,
                       onset_times=None, prev_expected_pitch=None, next_expected_pitch=None,
-                      prev_seg_end=None, rms=None, time_all=None, note_idx=None):
+                      prev_seg_end=None, rms=None, time_all=None, note_idx=None,
+                      search_range_override=None):
     """
     カーソルから前方に expected_duration 幅の窓を走査し、
     noteの特徴に合う区間を探す。
 
     Phase 1: onset_times を優先候補として探索（ガード条件付き）
     Phase 2: 既存のスキャン探索（フォールバック）
+
+    search_range_override: ③ medium false-accept 対策の段階拡大用 (2026-05-26)。
+    指定があればそれを使用、なければ従来通り expected_duration から算出。
     """
-    search_range = max(expected_duration * SEARCH_DURATION_MULTIPLIER, 1.5)
-    search_range = min(search_range, 3.0)
+    if search_range_override is not None:
+        search_range = search_range_override
+    else:
+        search_range = max(expected_duration * SEARCH_DURATION_MULTIPLIER, 1.5)
+        search_range = min(search_range, 3.0)
     search_end = cursor + search_range
 
     same_pitch = (
@@ -530,34 +544,13 @@ def find_note_segment(cursor, expected_pitch, expected_duration, valid_time, val
             else:
                 _diag(f"note={note_idx} cand t={onset_t:.3f} REJ _try_match_at returned None")
 
-    # === 同音連続 + Phase 1 全却下: テンポ外挿フォールバック ===
-    # PDCA-2 (2026-05-26): legato 演奏で音量変化が出ないと Phase 1 ゲートが全却下、
-    # Phase 2 cursor scan は前ノートの sustain 内 pitch 一致点を採用して -300ms 偏差
-    # を生む。音響的に分離不能な区間はテンポ通りに弾いた前提で seg_start = cursor
-    # (= prev_detected_start + expected_duration 相当) で埋める。
+    # === 同音連続 + Phase 1 全却下: Phase 2 をスキップして None を返す ===
+    # PDCA-2-revised (2026-05-26): legato 演奏では音響的に音の境界が無く、
+    # Phase 2 cursor scan は前ノートの sustain 内 pitch 一致点を採用して -300ms 偏差を生む。
+    # 旧 synth (v20/v21) はテンポ外挿で seg_start を捏造したがアンカーまで歪めたため撤回。
+    # 構造的に測定不能な区間は None で返し、evaluate_notes 側で pitch_only 救済する。
     if same_pitch:
-        synth_seg_start = cursor
-        synth_seg_end = cursor + expected_duration
-        mask = (valid_time >= synth_seg_start) & (valid_time < synth_seg_end)
-        f_in = valid_f0[mask]
-        if len(f_in) >= MIN_VALID_FRAMES:
-            avg_p = float(np.median(f_in))
-            _diag(f"note={note_idx} SAME_PITCH_LEGATO_INFER seg_start={synth_seg_start:.3f} "
-                  f"avg_pitch={avg_p:.1f} (Phase 2 cursor scan skipped to avoid prev-sustain match)")
-            # PDCA-2-fix2 (2026-05-26): confidence="high" にする理由 —
-            # evaluate_notes の accepted 判定が "high" or "medium" のみ許容するため
-            # "low" だと not_detected に倒れて massive regression を生む (実測した)。
-            # テンポ外挿は意図的に採用する fallback なので "high" で渡す。
-            # avg_pitch は実測 (legato の f0 中央値) のため pitch 評価は通常通り動く。
-            return {
-                "seg_start": synth_seg_start,
-                "seg_end": synth_seg_end,
-                "avg_pitch": avg_p,
-                "valid_frames": len(f_in),
-                "confidence": "high",
-            }
-        # f0 取れない (空白等) → not_detected で OK (return None)
-        _diag(f"note={note_idx} SAME_PITCH_LEGATO_INFER but no valid f0 in window → not_detected")
+        _diag(f"note={note_idx} same_pitch Phase 1 exhausted → None (pitch_only rescue in evaluate_notes)")
         return None
 
     # === Phase 2: 異音切替時のスキャン探索（フォールバック、無改変） ===
@@ -603,104 +596,11 @@ def _detect_sound_end(seg_start, detected_pitch, valid_time, valid_f0):
     return last_valid_time
 
 
-def _advance_cursor(seg_start, seg_end, expected_duration):
-    """レガート判定付きカーソル進行。進行先の時刻を返す。"""
-    actual_dur = seg_end - seg_start
-    if actual_dur <= expected_duration * 1.5:
-        new_cursor = seg_end
-    else:
-        new_cursor = seg_start + expected_duration
-    # IMPROVEMENT cursor_overshoot: 同一seg_startへの再マッチを防止 — 2026-04-05
-    # 最低でも expected_duration の半分は前進する
-    min_advance = seg_start + expected_duration * 0.5
-    return max(new_cursor, min_advance)
-
-
 # =========================================================
-# Step 3: ノートごとの評価（改善A・G・C反映）
+# Step 3: ノートごとの評価
 # =========================================================
-
-def _run_lookahead(start_index, notes_only, temp_cursor, valid_time, valid_f0):
-    """
-    start_index から LOOKAHEAD_COUNT ノート分の先読みを実行。
-    match_count（high or medium で検出できた数）と total_checked を返す。
-    """
-    match_count = 0
-    total_checked = 0
-
-    for k in range(1, LOOKAHEAD_COUNT + 1):
-        idx = start_index + k
-        if idx >= len(notes_only):
-            break
-
-        next_note = notes_only[idx]
-        next_pitch = float(next_note["pitches"][0])
-        next_es = float(next_note["start_time_sec"])
-        next_ee = float(next_note["end_time_sec"])
-        next_dur = next_ee - next_es
-
-        next_seg = find_note_segment(temp_cursor, next_pitch, next_dur, valid_time, valid_f0)
-        total_checked += 1
-
-        if next_seg is None:
-            # MISS: カーソルを音の長さ分だけ進めて次の音を探す
-            temp_cursor += next_dur
-        else:
-            # high でも medium でも、音が見つかったらカウント
-            match_count += 1
-            temp_cursor = _advance_cursor(next_seg["seg_start"], next_seg["seg_end"], next_dur)
-
-    return match_count, total_checked
-
-
-def _try_resync(cursor, note_index, notes_only, valid_time, valid_f0):
-    """
-    not_detected が連続した際に、カーソルを演奏に再同期させる。
-    note_index から RESYNC_CONFIRM_COUNT 音分を連続マッチできる
-    位置を探し、見つかればその位置を返す。
-    """
-    if note_index + RESYNC_CONFIRM_COUNT > len(notes_only):
-        return None
-
-    confirm_notes = notes_only[note_index:note_index + RESYNC_CONFIRM_COUNT]
-    first_dur = float(confirm_notes[0]["end_time_sec"]) - float(confirm_notes[0]["start_time_sec"])
-    search_end = cursor + RESYNC_MAX_JUMP
-
-    scan_step = min(0.01, first_dur / 10)
-
-    t = cursor
-    while t < search_end:
-        temp_cursor = t
-        all_match = True
-
-        for k, cn in enumerate(confirm_notes):
-            cp = float(cn["pitches"][0])
-            cd = float(cn["end_time_sec"]) - float(cn["start_time_sec"])
-
-            seg = find_note_segment(temp_cursor, cp, cd, valid_time, valid_f0)
-
-            if seg is None:
-                all_match = False
-                break
-
-            if seg["confidence"] not in ("high", "medium"):
-                all_match = False
-                break
-
-            # ピッチ精度チェック: ±40cents以内
-            pitch_cents = abs(1200.0 * np.log2(seg["avg_pitch"] / cp))
-            if pitch_cents > 40:
-                all_match = False
-                break
-
-            temp_cursor = _advance_cursor(seg["seg_start"], seg["seg_end"], cd)
-
-        if all_match:
-            return t
-
-        t += scan_step
-
-    return None
+# (2026-05-26 ⑤⑧ cleanup: 旧 _advance_cursor / _run_lookahead / _try_resync は
+#  絶対タイミング + cascade 移行後に dead code 化したため削除)
 
 
 def _get_rest_duration(all_notes, current_note_end, next_note_start):
@@ -1071,16 +971,64 @@ def _check_harmonic_purity(
     }
 
 
+def _is_short_technique_note(note):
+    """note 属性に短音奏法フラグがあれば True。MusicXML パース未実装時は常に False。"""
+    for attr in SHORT_TECHNIQUE_ATTRS:
+        if note.get(attr):
+            return True
+    return False
+
+
+def _classify_segment(segment, expected_pos, expected_duration,
+                       timing_tolerance, is_short_technique):
+    """
+    ③ 3軸カスケード評価のためのセグメント分類 (2026-05-26)。
+
+    軸:
+      - pitch_close: confidence == "high" (= ±50¢)
+      - time_close:  |seg_start - expected_pos| <= timing_tolerance
+      - duration_close: actual_dur が expected_duration の 70%〜130%
+
+    分類:
+      - "all_match"           (◯ ◯ ◯)             → 即採用 (correct)
+      - "short_technique_ok"  (◯ ◯ ✗ + 技法)      → 即採用 (correct、短音技法)
+      - "pitch_wrong"         (✗ ◯ ◯)             → 即採用 (pitch_ok=false)
+      - "timing_wrong"        (◯ ✗ _)             → 即採用 (start_ok=false)
+      - "case_a"              (◯ ◯ ✗ 技法なし)   → fallback A 候補
+      - "case_c"              (✗ ✗ ◯)             → fallback C 候補
+      - "reject"              その他              → 探索拡大
+    """
+    pitch_close = segment.get("confidence") == "high"
+    time_close = abs(segment["seg_start"] - expected_pos) <= timing_tolerance
+    actual_dur = segment["seg_end"] - segment["seg_start"]
+    dur_min = expected_duration * (1.0 - DURATION_TOLERANCE_RATIO)
+    dur_max = expected_duration * (1.0 + DURATION_TOLERANCE_RATIO)
+    duration_close = dur_min <= actual_dur <= dur_max
+
+    if pitch_close and time_close and duration_close:
+        return "all_match"
+    if pitch_close and time_close and not duration_close and is_short_technique:
+        return "short_technique_ok"
+    if pitch_close and not time_close:
+        return "timing_wrong"
+    if not pitch_close and time_close and duration_close:
+        return "pitch_wrong"
+    if pitch_close and time_close and not duration_close:
+        return "case_a"  # 技法なし、fallback
+    if not pitch_close and not time_close and duration_close:
+        return "case_c"  # ピッチ・タイミング両方 NG、duration だけ合う、fallback
+    return "reject"
+
+
 def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, onset_times=None, time_scale=1.0, timing_tolerance=TIMING_TOLERANCE_BASE, stft_mag=None, stft_freqs=None, stft_times=None, spectral_noise_floor=None, rms=None, time_all=None):
     results = []
     cursor = performance_start_time
 
-    # 改善G: 相対タイミング用
-    prev_detected_start = None
-    prev_score_start = None
-
-    # 改善K: 再同期用
-    consecutive_miss = 0
+    # 2026-05-26: 絶対タイミング評価 (前音アンカー方式 = 改善G は撤回)。
+    # テンポガイドラインがあるため演奏全体のドリフトは想定不要。各ノートは
+    # expected_pos (= performance_start_time + 楽譜上の相対位置 * time_scale) と
+    # 直接比較し、前音検出位置に依存しない構造とする。
+    first_es = float(notes_only[0]["start_time_sec"]) if notes_only else 0.0
 
     # onset 連携: 前ノートの検出終了位置（ガード1 用）
     prev_seg_end = None
@@ -1102,7 +1050,17 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
         is_harmonic = bool(n.get("is_harmonic", False))
         sounding_pitch_hz = n.get("sounding_pitch_hz")
 
-        timing_ref = es + global_shift
+        expected_pos = performance_start_time + (es - first_es) * time_scale
+
+        # 絶対タイミング前提: cursor を毎ノート expected_pos 基準にリセット。
+        # 累積カーソルドリフト (medium 誤検出による seg_end 過剰前進等) を防ぐ。
+        # 早入り 0.15s 許容、performance_start_time より前には行かない。
+        # prev_seg_end は Phase 1 guard1 (find_note_segment 内) で別経路で参照される。
+        # ② vulnerability 解消 (2026-05-26): cursor 計算から prev_seg_end 依存を削除。
+        # 同音は v25 で別経路、異音は PITCH_SEARCH_CENTS + Improvement J が前 sustain
+        # での false-match を防ぐため、cursor を前ノート末尾で押し出す必要なし。
+        SEARCH_PRE_BUFFER = 0.15
+        cursor = max(expected_pos - SEARCH_PRE_BUFFER, performance_start_time)
 
         # v1.7 Phase D: 重音 (len(pitches)>=2) はスペクトル検証パスへ分岐。
         # 単音 (len==1) は既存 yin パスに進む。重音時もタイミング判定は
@@ -1115,44 +1073,121 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
             and spectral_noise_floor is not None
         )
 
-        # --- 改善K: 再同期 ---
-        if consecutive_miss >= RESYNC_AFTER_MISS:
-            resync_pos = _try_resync(cursor, i, notes_only, valid_time, valid_f0)
-            if resync_pos is not None:
-                jump = resync_pos - cursor
-                print(f"  [RESYNC] note {i} ({note_name}) cursor {cursor:.2f}->{resync_pos:.2f} (jump={jump:+.2f}s, miss={consecutive_miss})")
-                cursor = resync_pos
-                consecutive_miss = 0
-                prev_detected_start = None
-                prev_score_start = None
+        # ⑧ resync は絶対タイミング cascade では効果なし (cursor は次イテで reset) → 削除
 
-        # --- 区間探索 ---
+        # --- 区間探索 (③ 3軸カスケード評価、2026-05-26) ---
+        # 各候補を pitch/time/duration の 3 軸で分類し、即採用 / fallback / 拡大 を決定。
+        # 段階拡大: ±0.15s → ±0.5s → ±1.0s → ±1.5s
         prev_pitch = float(notes_only[i - 1]["pitches"][0]) if i > 0 else None
         next_pitch = float(notes_only[i + 1]["pitches"][0]) if i + 1 < len(notes_only) else None
-        # onset_times は tied/tremolo/trill ノートには渡さない（Phase 1 スキップ）
         use_onsets = onset_times if not (is_tied or is_tremolo or is_trill) else None
-        segment = find_note_segment(cursor, expected_pitch, expected_duration, valid_time, valid_f0,
-                                    onset_times=use_onsets,
-                                    prev_expected_pitch=prev_pitch, next_expected_pitch=next_pitch,
-                                    prev_seg_end=prev_seg_end,
-                                    rms=rms, time_all=time_all, note_idx=note_idx)
+        is_short_technique = _is_short_technique_note(notes_only[i])
 
-        accepted = False
+        # 仕様準拠の cascade (2026-05-26):
+        # - Stage 1 (±0.15s) で immediate accept があれば即終了
+        # - Stage 1 が case_a → 拡大は (◯◯◯) / technique_ok のみ upgrade
+        # - Stage 1 が case_c または何も無し/reject → 拡大は任意の immediate accept で upgrade
+        # - 最終: stage 1 fallback を採用 or not_detected
+        IMMEDIATE_ACCEPT = ("all_match", "short_technique_ok", "pitch_wrong", "timing_wrong")
+        PERFECT_ACCEPT   = ("all_match", "short_technique_ok")
 
-        if segment is not None:
-            if segment["confidence"] == "high":
-                accepted = True
-            elif segment["confidence"] == "medium":
-                # 先読み検証（改善A）
-                temp_cursor = _advance_cursor(segment["seg_start"], segment["seg_end"], expected_duration)
-                match_count, total_checked = _run_lookahead(
-                    i, notes_only, temp_cursor, valid_time, valid_f0)
-                rate = match_count / total_checked if total_checked > 0 else 1.0
-                if rate >= LOOKAHEAD_MATCH_RATE:
-                    accepted = True
+        stage1_outcome = None  # "case_a" | "case_c" | None (= nothing/reject)
+        stage1_segment = None
+        selected_segment = None
+        selected_case = None
+        seen_seg_starts = set()
+
+        # --- Stage 1 ---
+        stage1_radius = CASCADE_SEARCH_RADII[0]
+        stage1_cursor = max(expected_pos - stage1_radius, performance_start_time)
+        stage1_search_range = (expected_pos + stage1_radius) - stage1_cursor
+        seg = find_note_segment(
+            stage1_cursor, expected_pitch, expected_duration, valid_time, valid_f0,
+            onset_times=use_onsets,
+            prev_expected_pitch=prev_pitch, next_expected_pitch=next_pitch,
+            prev_seg_end=prev_seg_end,
+            rms=rms, time_all=time_all, note_idx=note_idx,
+            search_range_override=stage1_search_range,
+        )
+        if seg is not None:
+            seen_seg_starts.add(round(seg["seg_start"], 3))
+            case = _classify_segment(seg, expected_pos, expected_duration,
+                                      timing_tolerance, is_short_technique)
+            _diag(f"note={note_idx} cascade stage=0 radius={stage1_radius:.2f} "
+                  f"seg={seg['seg_start']:.3f} case={case} conf={seg.get('confidence')}")
+            if case in IMMEDIATE_ACCEPT:
+                selected_segment = seg
+                selected_case = case
+            elif case == "case_a":
+                stage1_outcome = "case_a"
+                stage1_segment = seg
+            elif case == "case_c":
+                stage1_outcome = "case_c"
+                stage1_segment = seg
+            # case == "reject" → stage1_outcome stays None
+
+        # --- Stages 2-4 (拡大) ---
+        # 同音連続では拡大しない (前ノート sustain 内の偽 onset を拾うため)。
+        # 同音連続は stage 1 で見つからなければ pitch_only 救済 (find_note_segment None 経由) に任せる。
+        same_pitch_local = (
+            prev_pitch is not None
+            and abs(prev_pitch - expected_pitch) < 1e-6
+        )
+        if selected_segment is None and not same_pitch_local:
+            for stage_idx in range(1, len(CASCADE_SEARCH_RADII)):
+                radius = CASCADE_SEARCH_RADII[stage_idx]
+                stage_cursor = max(expected_pos - radius, performance_start_time)
+                stage_search_range = (expected_pos + radius) - stage_cursor
+
+                seg = find_note_segment(
+                    stage_cursor, expected_pitch, expected_duration, valid_time, valid_f0,
+                    onset_times=use_onsets,
+                    prev_expected_pitch=prev_pitch, next_expected_pitch=next_pitch,
+                    prev_seg_end=prev_seg_end,
+                    rms=rms, time_all=time_all, note_idx=note_idx,
+                    search_range_override=stage_search_range,
+                )
+                if seg is None:
+                    continue
+                seg_key = round(seg["seg_start"], 3)
+                if seg_key in seen_seg_starts:
+                    continue
+                seen_seg_starts.add(seg_key)
+
+                case = _classify_segment(seg, expected_pos, expected_duration,
+                                          timing_tolerance, is_short_technique)
+                _diag(f"note={note_idx} cascade stage={stage_idx} radius={radius:.2f} "
+                      f"seg={seg['seg_start']:.3f} case={case} conf={seg.get('confidence')}")
+
+                if stage1_outcome == "case_a":
+                    # case_a 経路: (◯◯◯) または technique_ok のみ upgrade
+                    if case in PERFECT_ACCEPT:
+                        selected_segment = seg
+                        selected_case = case
+                        break
+                else:
+                    # case_c または stage 1 何もなし: 任意の immediate accept で upgrade
+                    if case in IMMEDIATE_ACCEPT:
+                        selected_segment = seg
+                        selected_case = case
+                        break
+                    # 拡大段階で stage1 が None だった場合のみ case_c も拾う
+                    if stage1_outcome is None and case == "case_c":
+                        stage1_outcome = "case_c"
+                        stage1_segment = seg
+
+        # --- 最終 fallback ---
+        if selected_segment is None and stage1_segment is not None:
+            selected_segment = stage1_segment
+            selected_case = "fallback_a" if stage1_outcome == "case_a" else "fallback_c"
+
+        segment = selected_segment
+        accepted = segment is not None
+        if selected_case is not None:
+            _diag(f"note={note_idx} cascade RESULT case={selected_case} "
+                  f"seg={segment['seg_start'] if segment else None}")
 
         if accepted:
-            consecutive_miss = 0
             seg_start = segment["seg_start"]
             seg_end = segment["seg_end"]
             avg_pitch = segment["avg_pitch"]
@@ -1162,67 +1197,88 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
             timing_from_start = seg_start - performance_start_time
 
             pitch_tolerance = 100 if is_chord else PITCH_TOLERANCE_CENTS
-            pitch_cents_error = float(cents_diff(avg_pitch, expected_pitch))
+            # ⑨ 重複除去 (2026-05-26): _try_match_at で計算済の値を流用
+            pitch_cents_error = segment["pitch_cents_error"]
             pitch_ok = abs(pitch_cents_error) <= pitch_tolerance
 
-            # 改善G: 相対タイミング評価 (BPM 連動の許容値)
-            if prev_detected_start is not None and prev_score_start is not None:
-                actual_interval = seg_start - prev_detected_start
-                score_interval = (es - prev_score_start) * time_scale
-                interval_diff = actual_interval - score_interval
-                start_ok = abs(interval_diff) <= timing_tolerance
-            else:
-                interval_diff = seg_start - timing_ref
-                start_ok = abs(interval_diff) <= timing_tolerance
+            # 絶対タイミング評価: expected_pos と直接比較 (前音アンカー方式は撤回)
+            start_diff = seg_start - expected_pos
+            start_ok = abs(start_diff) <= timing_tolerance
 
             eval_status = "evaluated"
             if is_tied or is_tremolo or is_trill:
                 eval_status = "pitch_only"
 
-            # カーソル進行（レガート判定付き）
-            cursor = _advance_cursor(seg_start, seg_end, expected_duration)
-
-            # 改善C: 休符分カーソルを追加で進める
-            if i + 1 < len(notes_only):
-                next_es = float(notes_only[i + 1]["start_time_sec"])
-                rest_dur = _get_rest_duration(all_notes, ee, next_es)
-                if rest_dur > 0:
-                    cursor += rest_dur * time_scale
-
-            # onset ガード用: 前ノートの終了位置を記録
+            # onset ガード用: 前ノートの終了位置を記録 (find_note_segment guard1 で使用)
             prev_seg_end = seg_end
-
-            # high confidence のみ基準として採用（ドリフト防止）
-            if confidence == "high":
-                prev_detected_start = seg_start
-                prev_score_start = es
+            # ⑤ cursor の事後更新は dead code (次イテで expected_pos 基準にリセットされる) → 削除
 
             results.append(_make_result(
-                note_idx, measure_num, note_name, global_shift, timing_ref,
+                note_idx, measure_num, note_name, global_shift, expected_pos,
                 ee + global_shift, expected_pitch,
                 safe_float(seg_start), safe_float(avg_pitch),
                 safe_float(timing_from_start),
                 safe_float(pitch_cents_error), pitch_ok,
-                safe_float(interval_diff), start_ok,
+                safe_float(start_diff), start_ok,
                 valid_frames, eval_status, confidence))
 
         else:
-            # not_detected: カーソルを演奏基準で前進させる
-            consecutive_miss += 1
-            if prev_detected_start is not None and prev_score_start is not None:
-                expected_gap = (es - prev_score_start) * time_scale
-                cursor = min(
-                    prev_detected_start + expected_gap,
-                    cursor + expected_duration * 1.5
+            # 同音 legato 救済 (2026-05-26): 前ノートと同音で検出器が拾えなかったケースは
+            # 構造的に判定不能 (acoustic boundary なし) のため、ピッチ継続を確認した上で
+            # pitch_only ステータスで OK 扱いとする。
+            same_pitch_local = (
+                prev_pitch is not None
+                and abs(prev_pitch - expected_pitch) < 1e-6
+            )
+            rescued_as_pitch_only = False
+            if same_pitch_local and len(results) >= 1:
+                prev_result = results[-1]
+                # prev が not_detected で pitch 情報が無い場合は救済不能 (継承元なし)
+                prev_has_pitch_info = (
+                    prev_result.get("detected_pitch_hz") is not None
+                    and prev_result.get("pitch_ok") is not None
                 )
             else:
-                cursor += expected_duration
+                prev_has_pitch_info = False
 
-            results.append(_make_result(
-                note_idx, measure_num, note_name, global_shift, timing_ref,
-                ee + global_shift, expected_pitch,
-                None, None, None, None, None, None, None,
-                0, "not_detected", None))
+            if same_pitch_local and prev_has_pitch_info:
+                # ガード: 期待区間の f0 中央値が prev_pitch ±50¢ 以内 → 同音継続と判定
+                # window は expected_pos 基準で取る
+                window_start = max(expected_pos - expected_duration * 0.3, performance_start_time)
+                window_mask = (valid_time >= window_start) & (valid_time < window_start + expected_duration)
+                f_in_window = valid_f0[window_mask]
+                if len(f_in_window) >= MIN_VALID_FRAMES:
+                    window_med = float(np.median(f_in_window))
+                    if window_med > 0:
+                        # ⑦ 継承連鎖を断ち切る (2026-05-26): prev_result から継承せず、
+                        # 現区間の window_med から fresh に計算する。長い同音連続列で
+                        # 誤った prev 値が孫に伝播する問題を解消。
+                        cents_signed = float(cents_diff(window_med, expected_pitch))
+                        cents_drift = abs(cents_signed)
+                        if cents_drift <= PITCH_TOLERANCE_CENTS:
+                            _diag(f"note={note_idx} SAME_PITCH_LEGATO_RESCUE "
+                                  f"cents_drift={cents_drift:.1f} → pitch_only (fresh from window_med)")
+                            # cursor の事後更新は dead code (次イテで reset) → 削除
+                            results.append(_make_result(
+                                note_idx, measure_num, note_name, global_shift, expected_pos,
+                                ee + global_shift, expected_pitch,
+                                None,                  # detected_start_sec (sustain 中、開始時刻不明)
+                                window_med,            # detected_pitch_hz (current window から)
+                                None,                  # timing_from_start
+                                cents_signed,          # pitch_cents_error (current window から)
+                                True,                  # pitch_ok (guard 通過したので True)
+                                None, True,            # start_diff_sec, start_ok
+                                0, "pitch_only",
+                                "high"))               # match_confidence (cents_drift <= 50 なので high)
+                            rescued_as_pitch_only = True
+
+            if not rescued_as_pitch_only:
+                # ⑤⑧ cursor 事後更新は dead code (次イテで expected_pos 基準にリセット) → 削除
+                results.append(_make_result(
+                    note_idx, measure_num, note_name, global_shift, expected_pos,
+                    ee + global_shift, expected_pitch,
+                    None, None, None, None, None, None, None,
+                    0, "not_detected", None))
 
         # タイ後半 (continuation/stop) のピッチ評価を直前ノートから継承する。
         # スコア側はタイを 2 ノートに時間分割するが、演奏側は 1 弓の continuous tone。
@@ -1365,7 +1421,7 @@ def _make_result(ni, mn, nn, gs, ess, ees, ep,
         # 評価結果
         "pitch_cents_error": pce,
         "pitch_ok": bool(pok) if pok is not None else None,
-        "start_diff_sec": sd,           # 改善G: 相対間隔のズレ
+        "start_diff_sec": sd,           # 絶対タイミングのズレ (= seg_start - expected_pos)
         "start_ok": bool(sok) if sok is not None else None,
         "valid_frames": vf,
         "evaluation_status": est,
@@ -1527,18 +1583,19 @@ try:
 
     performance_start_time = float(notes_only[0]["start_time_sec"]) + global_shift
 
-    # テンポスケール推定（Improvement L）
+    # テンポスケール (2026-05-26: ⑥ 自動推定 fallback を撤去)
+    # - recording_bpm 渡された → 正確に算出 (役割 A: 楽譜↔実演奏のスケール変換)
+    # - 渡されない → 1.0 fallback (= 楽譜 BPM で弾いた想定)
+    # 旧自動推定 (performance_duration / score_duration) は途中停止 / 休止 / リピート逸脱
+    # で大きく狂うため削除。recording_bpm はテンポガイド連携でフロントが必ず渡す前提。
     if RECORDING_BPM is not None and RECORDING_BPM > 0:
-        # ユーザーが録音テンポを指定 → 楽譜BPM / 録音BPM で算出（正確）
         time_scale = BPM / RECORDING_BPM
         print(f"  Time scale: {time_scale:.3f} (score_bpm={BPM}, recording_bpm={RECORDING_BPM})")
     else:
-        # フォールバック: 演奏の実際の長さから自動推定
-        last_sound_time = float(valid_time[-1]) if len(valid_time) > 0 else duration_sec
-        performance_duration = last_sound_time - first_sound_time
-        score_duration = float(notes_only[-1]["end_time_sec"]) - float(notes_only[0]["start_time_sec"])
-        time_scale = performance_duration / score_duration if score_duration > 0 else 1.0
-        print(f"  Time scale: {time_scale:.3f} (score={score_duration:.1f}s, perf={performance_duration:.1f}s) [auto-estimated]")
+        time_scale = 1.0
+        # ユーザー向け warning は出さない (ログのみ)。フロント連携時は recording_bpm が
+        # 常に渡される想定で、未指定はフロント側 bug を意味する。ユーザーには不要な情報。
+        print(f"  WARNING: RECORDING_BPM not provided → time_scale=1.0 fallback (score_bpm={BPM} assumed)")
 
     # タイミング判定の許容値 (BPM 連動)
     # interval_diff は time_scale で recording_bpm 基準に補正済 → 許容値も同基準で計算
@@ -1658,11 +1715,14 @@ try:
 
     pitch_score_sum = sum(_pitch_score(r) for r in evaluated)
     pitch_ok_count = pitch_score_sum  # 互換: 既存ログ参照向け (整数とは限らない)
-    timing_evaluated = [r for r in results
-                        if r["evaluation_status"] in ("evaluated", "double_stop_full",
-                                                       "double_stop_partial", "double_stop_miss",
-                                                       "harmonic_ok", "harmonic_normal_tone",
-                                                       "harmonic_miss")]
+    # rhythm bug fix (2026-05-26): timing_evaluated を evaluated と統一。
+    # 旧実装は pitch_only を timing 集計から除外していたが、分母 total_notes はそのままだったため、
+    # 同音連続救済 (pitch_only, start_ok=true 固定) が「timing NG」として加算されて
+    # UI 緑表示と乖離 (例: 62/64 緑 = 96.9% のはずが、56.2% と表示) していた。
+    # pitch_only も timing 集計に含めることで UI と整合。
+    # (tremolo/trill が pitch_only に倒れて timing 実測値が無視される件は別 issue
+    #  [[tremolo-trill-separate-status]] として将来改善予定)
+    timing_evaluated = evaluated
     timing_ok_count = sum(1 for r in timing_evaluated if r["start_ok"] is True)
 
     pitch_accuracy = round(pitch_score_sum / total_notes * 100, 1) if total_notes > 0 else None
