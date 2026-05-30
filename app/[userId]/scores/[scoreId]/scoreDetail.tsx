@@ -1752,20 +1752,36 @@ export default function ScoreDetail({
   const recGuideStartRef = useRef<number>(0)
 
   // ▼ F-1 Commit 2: 譜面の行構造とスクロール計画
+  // 2026-05-30 bugfix: ResizeObserver でコンテナサイズ変化を検知して rebuild。
+  // 旧実装は window resize のみ依存だったため、録音開始で body[data-fullscreen=true]
+  // が CSS で osmd-container のサイズを変えても (window 自体は resize しないため)
+  // rebuild が走らず stale plan で scrollTop の clamp 値がズレていた。
   const [scrollPlan, setScrollPlan] = useState<ScrollPlan | null>(null)
   useEffect(() => {
-    // [DIAG] 一時診断ログ: 真因切り分けのためどの条件で early-return したか可視化
-    console.log("[F-1/diag] scrollPlan effect tick", {
-      isOsmdReady,
-      hasOsmdRef: !!osmdRef.current,
-      recordingBpm,
-    })
     if (!isOsmdReady || !osmdRef.current || recordingBpm === null) return
     const container = document.getElementById("osmd-container")
-    const viewportHeight = container?.clientHeight ?? 600
-    const plan = buildScrollPlan(osmdRef.current, recordingBpm, viewportHeight)
-    setScrollPlan(plan)
-    console.log("[F-1/diag] scrollPlan generated", plan)
+    if (!container) return
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null
+    const buildPlan = () => {
+      if (!osmdRef.current || recordingBpm === null) return
+      const viewportHeight = container.clientHeight
+      const plan = buildScrollPlan(osmdRef.current, recordingBpm, viewportHeight)
+      setScrollPlan(plan)
+    }
+    const scheduleBuildPlan = () => {
+      // OSMD autoResize の再描画完了を待ってから plan 計算する
+      if (debounceTimer) clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(buildPlan, 300)
+    }
+
+    buildPlan()  // 初回 (即時)
+    const ro = new ResizeObserver(scheduleBuildPlan)
+    ro.observe(container)
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer)
+      ro.disconnect()
+    }
   }, [isOsmdReady, recordingBpm])
 
   // ▼ F-1 Commit 4: 末尾到達自動停止トリガ (Recorder の停止ボタンを click)
@@ -1809,27 +1825,9 @@ export default function ScoreDetail({
     }
   }, [recordingState, triggerStopRecording])
 
-  // ▼ F-1 Commit 6: 画面回転 / リサイズで scrollPlan を再計算
-  useEffect(() => {
-    if (recordingState !== "recording") return
-    if (!isOsmdReady || !osmdRef.current || recordingBpm === null) return
-
-    const handleResize = () => {
-      if (!osmdRef.current || recordingBpm === null) return
-      const container = document.getElementById("osmd-container")
-      const viewportHeight = container?.clientHeight ?? 600
-      const newPlan = buildScrollPlan(osmdRef.current, recordingBpm, viewportHeight)
-      setScrollPlan(newPlan)
-    }
-
-    window.addEventListener("resize", handleResize)
-    window.addEventListener("orientationchange", handleResize)
-
-    return () => {
-      window.removeEventListener("resize", handleResize)
-      window.removeEventListener("orientationchange", handleResize)
-    }
-  }, [recordingState, isOsmdReady, recordingBpm])
+  // 2026-05-30: 旧 F-1 Commit 6 の window resize / orientationchange ハンドラは
+  // ResizeObserver ベースの scrollPlan effect に統合済 (= コンテナサイズ変化を直接検知)
+  // → ここでの window 依存リスナは不要。
 
   // ▼ F-1 Commit 5: 短い譜面の場合は body[data-short-score=true] で上端揃え
   const isShortScore = scrollPlan?.isShortScore ?? false
