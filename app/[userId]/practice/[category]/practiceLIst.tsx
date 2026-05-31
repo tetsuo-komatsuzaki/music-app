@@ -88,21 +88,28 @@ const CHORD_TYPE_EN: Record<string, string> = {
   "増三和音": "Augmented Triad",
 }
 
+// title を音名/スケール種別に分解して表示するカテゴリ (音階・アルペジオのみ)。
+// それ以外 (エチュード / 基礎練の fingering・bowing・position_shift・double_stop) は
+// アップロードされた教材の title をそのまま表示する。
+function decomposesTitle(category: string): boolean {
+  return ["scale", "scales", "arpeggio", "arpeggios"].includes(category)
+}
+
 function extractCardInfo(item: PracticeItemDTO | ScoredItemDTO) {
   const category = item.category
-  const isEtude    = category === "etude"
-  const isArpeggio = category === "arpeggio"
+  const isArpeggio = category === "arpeggio" || category === "arpeggios"
+  const decompose  = decomposesTitle(category)
 
   // 新形式タイトル: "Bb(2オクターブ・低)" / "A(3オクターブ)"
   // 旧形式タイトル: "Bb 長調 2オクターブ デタシェ (低音域)" / "A 長調 長和音 3オクターブ デタシェ"
-  // tonic 部分を抽出 (両形式互換)
+  // 音階/アルペジオは tonic 部分を抽出 (両形式互換)。それ以外は title をそのまま表示。
   const tonicMatch = item.title.match(/^([A-G][#b]?)/)
   const titleParts = item.title.split(" ")
-  const shortTitle = isEtude ? item.title : (tonicMatch?.[1] ?? titleParts[0] ?? "")
+  const shortTitle = decompose ? (tonicMatch?.[1] ?? titleParts[0] ?? "") : item.title
 
   // subtitle: arpeggio は metadata.chordType (新形式) 優先、scale は旧形式 fallback
   let subtitle: string | null = null
-  if (!isEtude) {
+  if (decompose) {
     if (isArpeggio) {
       const ct = "chordType" in item ? item.chordType : null
       if (ct && CHORD_TYPE_LABEL_EN[ct]) {
@@ -296,6 +303,22 @@ function GroupView({
   category: string
 }) {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
+
+  // 音階(tonic別) / アルペジオ(和音種別) / エチュード(作曲者別) のみグループ化。
+  // 基礎練の新カテゴリ (fingering・bowing・position_shift・double_stop) は
+  // グループ化せず、教材の title をそのまま一覧表示する。
+  const isGrouped = ["scale", "scales", "arpeggio", "arpeggios", "etude", "etudes"].includes(category)
+  if (!isGrouped) {
+    return (
+      <section className={styles.viewSection}>
+        <div className={styles.itemList}>
+          {items.map((item) => (
+            <ItemCard key={item.id} item={item} userId={userId} category={category} />
+          ))}
+        </div>
+      </section>
+    )
+  }
 
   let groups: { key: string; label: string; items: PracticeItemDTO[] }[] = []
 
