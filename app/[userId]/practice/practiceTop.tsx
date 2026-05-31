@@ -37,19 +37,12 @@ export type SongPracticeGroup = {
   }[]
 }
 
-export type PieceScore = {
-  id: string
-  title: string
-  composer: string | null
-  star: number | null
-}
-
 type Props = {
   userId: string
   /** category(基礎練6 + etude) → 件数 */
   categoryCounts: Record<string, number>
-  /** 練習曲 = 公開教材(isShared Score) */
-  pieceScores: PieceScore[]
+  /** 練習曲(公開教材 isShared Score) の件数。一覧は /practice/pieces へ。 */
+  pieceCount: number
   /** §9 この曲を上達させる練習 */
   songPracticeGroups: SongPracticeGroup[]
   /** UI-12: /practice?fromCard=&context=etude で遷移してきた場合のコンテクスト */
@@ -59,7 +52,7 @@ type Props = {
 export default function PracticeTop({
   userId,
   categoryCounts,
-  pieceScores,
+  pieceCount,
   songPracticeGroups,
   cardContext,
 }: Props) {
@@ -149,34 +142,19 @@ export default function PracticeTop({
         </section>
       ))}
 
-      {/* 練習曲 (公開教材 = isShared Score) */}
+      {/* 練習曲 (公開教材) — 一覧ページ /practice/pieces へ遷移 */}
       <section className={styles.categorySection}>
         <h2 className={styles.sectionTitle}>練習曲</h2>
-        {pieceScores.length === 0 ? (
-          <p className={styles.cardContextEmpty}>
-            公開されている練習曲はまだありません。
-          </p>
-        ) : (
-          <div className={styles.cardContextList}>
-            {pieceScores.map(score => (
-              <Link
-                key={score.id}
-                href={`/${userId}/scores/${score.id}`}
-                className={styles.cardContextItem}
-              >
-                <div className={styles.cardContextItemTitle}>
-                  {score.title}
-                  {score.star != null && ` ☆${score.star}`}
-                </div>
-                {score.composer && (
-                  <div className={styles.cardContextItemComposer}>
-                    {score.composer}
-                  </div>
-                )}
-              </Link>
-            ))}
-          </div>
-        )}
+        <div className={styles.categoryGrid}>
+          <Link
+            href={`/${userId}/practice/pieces`}
+            className={styles.categoryCard}
+          >
+            <div className={styles.categoryIcon}>🎼</div>
+            <div className={styles.categoryName}>練習曲一覧</div>
+            <div className={styles.categoryCount}>{pieceCount}曲</div>
+          </Link>
+        </div>
       </section>
 
       <OnboardingTrigger pageKey="practice" />

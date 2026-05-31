@@ -123,11 +123,9 @@ export default async function PracticePage({
     categoryCounts[cat] = counts[i]
   })
 
-  // 練習曲 = 公開教材 (isShared Score)。マイライブラリーから移設。
-  const pieceScores = await prisma.score.findMany({
+  // 練習曲 = 公開教材 (isShared Score) の件数。一覧は /practice/pieces へ。
+  const pieceCount = await prisma.score.count({
     where: { isShared: true, deletedAt: null },
-    orderBy: [{ star: "asc" }, { title: "asc" }],
-    select: { id: true, title: true, composer: true, star: true },
   })
 
   // §9「この曲を上達させる練習」: 未クリア課題に紐づく基礎練/エチュードを曲ごとに集約
@@ -177,7 +175,7 @@ export default async function PracticePage({
     <PracticeTop
       userId={authUserId}
       categoryCounts={categoryCounts}
-      pieceScores={pieceScores}
+      pieceCount={pieceCount}
       songPracticeGroups={songPracticeGroups}
       cardContext={cardContext}
     />
