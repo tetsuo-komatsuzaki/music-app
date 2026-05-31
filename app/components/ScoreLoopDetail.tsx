@@ -9,6 +9,10 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import styles from "./ScoreLoopDetail.module.css"
+import {
+  assignedCategoryLabel,
+  assignedCategoryHref,
+} from "@/app/_libs/practiceConstants"
 
 // ─── API レスポンスの型 (route.ts と同期) ────────────────────────────────────
 
@@ -76,18 +80,6 @@ const STATUS_LABELS: Record<string, string> = {
   active: "課題中",
   improving: "改善中",
   cleared: "クリア",
-}
-
-const ASSIGN_LABELS: Record<"SCALE" | "ARPEGGIO" | "ETUDE", string> = {
-  SCALE: "音階",
-  ARPEGGIO: "アルペジオ",
-  ETUDE: "エチュード",
-}
-
-const ASSIGN_HREF: Record<"SCALE" | "ARPEGGIO" | "ETUDE", string> = {
-  SCALE: "scale",
-  ARPEGGIO: "arpeggio",
-  ETUDE: "etude",
 }
 
 const SUB_TASK_LABELS: Record<string, string> = {
@@ -265,14 +257,14 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
                             {st.assignments.map((a) => (
                               <Link
                                 key={a.practiceItemId}
-                                href={`/${userId}/practice/${ASSIGN_HREF[a.assignedCategory]}/${a.practiceItemId}`}
+                                href={`/${userId}/practice/${assignedCategoryHref(a.assignedCategory)}/${a.practiceItemId}`}
                                 className={`${styles.assignmentChip} ${
                                   a.isMastered ? styles.assignmentMastered : ""
                                 }`}
                                 title={a.title}
                               >
                                 <span className={styles.assignmentCat}>
-                                  {ASSIGN_LABELS[a.assignedCategory]}
+                                  {assignedCategoryLabel(a.assignedCategory)}
                                 </span>
                                 <span className={styles.assignmentTitle}>
                                   {a.title}
@@ -309,9 +301,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
                 </code>{" "}
                 / 欠損:{" "}
                 <code className={styles.flagCat}>
-                  {ASSIGN_LABELS[
-                    f.missingCategory.toUpperCase() as "SCALE" | "ARPEGGIO" | "ETUDE"
-                  ] ?? f.missingCategory}
+                  {assignedCategoryLabel(f.missingCategory.toUpperCase())}
                 </code>
               </li>
             ))}

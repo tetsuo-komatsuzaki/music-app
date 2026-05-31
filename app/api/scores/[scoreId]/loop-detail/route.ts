@@ -11,6 +11,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
+import { ASSIGNED_CATEGORY_ORDER } from "@/app/_libs/practiceConstants"
 
 export async function GET(
   _request: Request,
@@ -113,8 +114,8 @@ export async function GET(
     }),
   ])
 
-  // skillTaskCards をフロント向けに整形 (assignments を SCALE/ARPEGGIO/ETUDE 順に並べる)
-  const ASSIGNMENT_ORDER = ["SCALE", "ARPEGGIO", "ETUDE"] as const
+  // skillTaskCards をフロント向けに整形 (assignments を practiceConstants の順に並べる)
+  const ASSIGNMENT_ORDER: readonly string[] = ASSIGNED_CATEGORY_ORDER
   const shapedCards = skillTaskCards.map((c) => ({
     id: c.id,
     taskCategory: c.taskCategory,

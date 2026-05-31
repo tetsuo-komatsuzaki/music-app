@@ -16,6 +16,7 @@ import {
   GRADE_LEVELS,
   type GradeLevel,
 } from "@/app/_libs/skillMaster"
+import { PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
 import ProgressPage from "./progressPage"
 
 export const metadata = { title: "成長記録" }
@@ -193,10 +194,11 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
     fullyMasteredAt: m.fullyMasteredAt?.toISOString() ?? null,
   }))
 
-  // ── 練習教材マスターサマリ (category 別カウント) ──
-  const practiceMasterySummary = { scale: 0, arpeggio: 0, etude: 0, song: 0 }
+  // ── 練習教材マスターサマリ (category 別カウント: 基礎練6 + エチュード) ──
+  const practiceMasterySummary: Record<string, number> = {}
+  for (const cat of PRACTICE_CATEGORIES) practiceMasterySummary[cat] = 0
   for (const m of practiceMasteryByCategory) {
-    const cat = m.practiceItem.category as keyof typeof practiceMasterySummary
+    const cat = m.practiceItem.category
     if (cat in practiceMasterySummary) practiceMasterySummary[cat] += 1
   }
 

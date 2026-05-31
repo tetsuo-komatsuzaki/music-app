@@ -1,7 +1,7 @@
 import { prisma } from "@/app/_libs/prisma"
 import ScoresClient from "./ScoresClient"
 
-export const metadata = { title: "スコア一覧" }
+export const metadata = { title: "マイライブラリー" }
 
 type PageProps = {
   params: Promise<{ userId: string }>
@@ -29,11 +29,10 @@ export default async function Page({ params }: PageProps) {
   const [rawScores, masterySongs] = await Promise.all([
     prisma.score.findMany({
       where: {
-        OR: [
-          { createdById: user.id },
-          { isShared: true },
-        ],
-        deletedAt: null,   // 修正2: AND として全枝に適用 (OR の中ではなくトップレベル)
+        // 2026-05-31 練習メニュー再編: マイライブラリー = 自分のアップロードのみ。
+        // 公開教材(isShared) は練習メニューの「練習曲」セクションへ移設。
+        createdById: user.id,
+        deletedAt: null,
       },
       orderBy: { createdAt: "desc" }
     }),

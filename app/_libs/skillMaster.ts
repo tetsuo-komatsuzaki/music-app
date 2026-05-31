@@ -16,7 +16,7 @@ export type TaskId = (typeof TASK_IDS)[number]
 export const TASK_NAMES: Record<TaskId, string> = {
   pitch: "音程",
   rhythm: "リズム",
-  bowing: "弦移動",
+  bowing: "弓使い",
 }
 
 // =======================================================================
@@ -192,7 +192,7 @@ export const SKILL_TASKS: Record<TaskId, { id: TaskId; name: string; subTaskIds:
   },
   bowing: {
     id: "bowing",
-    name: "弦移動",
+    name: "弓使い",
     subTaskIds: SUB_TASK_IDS.filter((id) => id.startsWith("bowing_")) as SubTaskId[],
   },
 }

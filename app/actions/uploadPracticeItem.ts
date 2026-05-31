@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 import { Prisma, type PracticeCategory } from "@/app/generated/prisma"
 import { SUB_TASK_IDS } from "@/app/_libs/skillMaster"
+import { isPracticeCategory } from "@/app/_libs/practiceConstants"
 
 const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
 
@@ -65,10 +66,12 @@ export async function uploadPracticeItem(formData: FormData) {
     return { error: "必須項目が不足しています" }
   }
 
-  // TODO(Phase 2): category は現状 `as PracticeCategory` で Prisma にキャスト渡し。
-  //                不正値は Prisma create 時に例外になるが、事前に enum 集合で
-  //                ランタイム検証して 400 を返す方がユーザー体感エラーが親切。
-  //                例: if (!["scale","arpeggio","etude"].includes(category)) ...
+  // category ランタイム検証 (2026-05-31: 基礎練6 + エチュード)。
+  // 「練習曲」(score) は Score 側 (uploadScore) で扱うため PracticeItem には来ない。
+  if (!isPracticeCategory(category)) {
+    return { error: `不正なカテゴリです: ${category}` }
+  }
+
   const item = await prisma.practiceItem.create({
     data: {
       category: category as PracticeCategory,

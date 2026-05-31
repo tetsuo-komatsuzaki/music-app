@@ -8,6 +8,7 @@ import { useMemo, useState, useTransition } from "react"
 import Link from "next/link"
 import styles from "./adminMissingItems.module.css"
 import type { ResolveMissingFlagResult } from "@/app/actions/resolveMissingPracticeItemFlag"
+import { CATEGORY_LABELS } from "@/app/_libs/practiceConstants"
 
 type CategoryDto = {
   missingCategory: string
@@ -39,11 +40,7 @@ type Props = {
   }) => Promise<ResolveMissingFlagResult>
 }
 
-const CATEGORY_LABEL: Record<string, string> = {
-  scale: "音階",
-  arpeggio: "アルペジオ",
-  etude: "エチュード",
-}
+const CATEGORY_LABEL: Record<string, string> = { ...CATEGORY_LABELS }
 
 function fmtDate(iso: string): string {
   const d = new Date(iso)

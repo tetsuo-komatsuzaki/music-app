@@ -1,6 +1,5 @@
 import { prisma } from "@/app/_libs/prisma"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
-import { formatKey } from "@/app/_libs/musicNotation"
 import {
   extractSubTaskIdsFromCard,
   findCandidatePracticeItems,
@@ -11,11 +10,18 @@ import {
 import {
   SUB_TASK_NAMES,
   TASK_NAMES,
-  SKILL_TASKS,
   type SubTaskId,
   type TaskId,
 } from "@/app/_libs/skillMaster"
-import PracticeTop, { type CardContext } from "./practiceTop"
+import {
+  BASIC_PRACTICE_CATEGORIES,
+  categoryLabel,
+} from "@/app/_libs/practiceConstants"
+import type { PracticeCategory } from "@/app/generated/prisma"
+import PracticeTop, {
+  type CardContext,
+  type SongPracticeGroup,
+} from "./practiceTop"
 
 export const metadata = { title: "練習メニュー" }
 
@@ -26,8 +32,6 @@ const isTaskId = (v: unknown): v is TaskId =>
   typeof v === "string" && Object.prototype.hasOwnProperty.call(TASK_NAMES, v)
 
 // UI-12 (D3): カード由来の遷移時に画面上部に表示するコンテクスト名を計算。
-// sub_task カード:「{subTaskName}」の教材
-// task カード:「{taskName}」全体の教材
 function buildCardContextLabel(card: {
   cardType: string
   skillTaskId: string | null
@@ -41,6 +45,12 @@ function buildCardContextLabel(card: {
   }
   return ""
 }
+
+// 練習メニューに並ぶカテゴリ全体 (基礎練6 + エチュード)
+const ALL_PRACTICE_CATEGORIES = [
+  ...BASIC_PRACTICE_CATEGORIES,
+  "etude",
+] as const
 
 export default async function PracticePage({
   params,
@@ -94,115 +104,81 @@ export default async function PracticePage({
       }
     }
   }
-  // SKILL_TASKS の参照を保ち TS の tree-shake を回避 (将来 task 拡張用)
-  void SKILL_TASKS
 
-  // カテゴリごとの件数（運営サンプル + 自分のアイテムのみ）
+  // カテゴリごとの件数 (運営サンプル + 自分のアイテムのみ): 基礎練6 + エチュード
   const ownerFilter = { OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }] }
-  const [scaleCount, arpeggioCount, etudeCount] = await Promise.all([
-    prisma.practiceItem.count({ where: { category: "scale", isPublished: true, ...ownerFilter } }),
-    prisma.practiceItem.count({ where: { category: "arpeggio", isPublished: true, ...ownerFilter } }),
-    prisma.practiceItem.count({ where: { category: "etude", isPublished: true, ...ownerFilter } }),
-  ])
-
-  // ユーザーの楽曲（レコメンド用）
-  const scores = await prisma.score.findMany({
-    where: { createdById: dbUserId, deletedAt: null },
-    orderBy: { createdAt: "desc" },
-    take: 5,
-    select: { id: true, title: true, keyTonic: true, keyMode: true, defaultTempo: true },
-  })
-
-  // 楽譜ベースレコメンド
-  const scoreRecommendations = []
-  for (const score of scores) {
-    if (!score.keyTonic) continue
-    const items = await prisma.practiceItem.findMany({
-      where: {
-        keyTonic: score.keyTonic,
-        keyMode: score.keyMode ?? "major",
-        category: { in: ["scale", "arpeggio"] },
-        isPublished: true,
-        OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
-      },
-      take: 3,
-      orderBy: { title: "asc" },
-      select: { id: true, title: true, category: true },
-    })
-    if (items.length > 0) {
-      scoreRecommendations.push({
-        scoreTitle: score.title,
-        reason: `「${score.title}」は${formatKey(score.keyTonic, score.keyMode)}`,
-        items,
-      })
-    }
-  }
-
-  // 弱点ベースレコメンド
-  const weaknesses = await prisma.userWeakness.findMany({
-    where: { userId: dbUserId },
-    orderBy: { severity: "desc" },
-    take: 3,
-    include: { techniqueTag: true },
-  })
-
-  type WeaknessRecItem = { id: string; title: string; category: string }
-  const weaknessRecommendations = []
-  for (const w of weaknesses) {
-    let items: WeaknessRecItem[] = []
-    let reason = ""
-
-    if (w.weaknessType === "key_area") {
-      const [tonic, mode] = w.weaknessKey.split("_")
-      items = await prisma.practiceItem.findMany({
-        where: { keyTonic: tonic, keyMode: mode, category: { in: ["scale", "arpeggio"] }, isPublished: true, OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }] },
-        take: 3, select: { id: true, title: true, category: true },
-      })
-      reason = `${formatKey(tonic, mode)}でピッチが不安定です（エラー率${Math.round(w.severity * 100)}%）`
-    } else if (w.weaknessType === "timing") {
-      items = await prisma.practiceItem.findMany({
+  const counts = await Promise.all(
+    ALL_PRACTICE_CATEGORIES.map(cat =>
+      prisma.practiceItem.count({
         where: {
-          category: "etude", isPublished: true,
-          OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
-          techniques: { some: { techniqueTag: { name: { in: ["デタシェ", "マルテレ", "スタッカート"] } } } },
-        },
-        take: 3, select: { id: true, title: true, category: true },
-      })
-      reason = `タイミングの精度に課題があります（エラー率${Math.round(w.severity * 100)}%）`
-    } else if (w.weaknessType === "pitch_range") {
-      const rangeLabel: Record<string, string> = { low: "低音域", mid: "中音域", high: "高音域", very_high: "超高音域" }
-      items = await prisma.practiceItem.findMany({
-        where: {
-          category: { in: ["scale", "etude"] }, isPublished: true,
-          OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
-          positions: { hasSome: ["3rd", "5th", "7th"] },
-        },
-        take: 3, select: { id: true, title: true, category: true },
-      })
-      reason = `${rangeLabel[w.weaknessKey] || w.weaknessKey}でピッチが不安定です`
-    } else if (w.weaknessType === "technique" && w.techniqueTag) {
-      items = await prisma.practiceItem.findMany({
-        where: {
+          category: cat as PracticeCategory,
           isPublished: true,
-          OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
-          techniques: { some: { techniqueTagId: w.techniqueTagId! } },
+          ...ownerFilter,
         },
-        take: 3, select: { id: true, title: true, category: true },
-      })
-      reason = `${w.techniqueTag.name}が苦手です（エラー率${Math.round(w.severity * 100)}%）`
-    }
+      }),
+    ),
+  )
+  const categoryCounts: Record<string, number> = {}
+  ALL_PRACTICE_CATEGORIES.forEach((cat, i) => {
+    categoryCounts[cat] = counts[i]
+  })
 
-    if (items.length > 0) {
-      weaknessRecommendations.push({ reason, items })
+  // 練習曲 = 公開教材 (isShared Score)。マイライブラリーから移設。
+  const pieceScores = await prisma.score.findMany({
+    where: { isShared: true, deletedAt: null },
+    orderBy: [{ star: "asc" }, { title: "asc" }],
+    select: { id: true, title: true, composer: true, star: true },
+  })
+
+  // §9「この曲を上達させる練習」: 未クリア課題に紐づく基礎練/エチュードを曲ごとに集約
+  const cards = await prisma.skillTaskCard.findMany({
+    where: { userId: dbUserId, status: { not: "cleared" } },
+    select: {
+      score: { select: { id: true, title: true } },
+      subTasks: {
+        where: { status: { not: "cleared" } },
+        select: {
+          subTaskAssignments: {
+            select: {
+              isMastered: true,
+              practiceItem: {
+                select: { id: true, title: true, category: true },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  const songMap = new Map<string, SongPracticeGroup>()
+  for (const card of cards) {
+    if (!card.score) continue
+    let group = songMap.get(card.score.id)
+    if (!group) {
+      group = { scoreId: card.score.id, scoreTitle: card.score.title, items: [] }
+      songMap.set(card.score.id, group)
+    }
+    for (const st of card.subTasks) {
+      for (const a of st.subTaskAssignments) {
+        if (a.isMastered || !a.practiceItem) continue
+        if (group.items.some(it => it.itemId === a.practiceItem.id)) continue
+        group.items.push({
+          itemId: a.practiceItem.id,
+          title: a.practiceItem.title,
+          category: a.practiceItem.category,
+          categoryLabel: categoryLabel(a.practiceItem.category),
+        })
+      }
     }
   }
+  const songPracticeGroups = [...songMap.values()].filter(g => g.items.length > 0)
 
   return (
     <PracticeTop
       userId={authUserId}
-      categoryCounts={{ scale: scaleCount, arpeggio: arpeggioCount, etude: etudeCount }}
-      scoreRecommendations={scoreRecommendations}
-      weaknessRecommendations={weaknessRecommendations}
+      categoryCounts={categoryCounts}
+      pieceScores={pieceScores}
+      songPracticeGroups={songPracticeGroups}
       cardContext={cardContext}
     />
   )

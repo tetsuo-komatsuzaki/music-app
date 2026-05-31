@@ -184,6 +184,11 @@ enum PracticeCategory {
   scale
   arpeggio
   etude
+  // 2026-05-31 練習メニュー再編: 基礎練の新カテゴリ追加
+  fingering
+  bowing
+  position_shift
+  double_stop
 }
 
 model PracticeItem {
@@ -414,6 +419,11 @@ enum AssignedCategory {
   SCALE
   ARPEGGIO
   ETUDE
+  // 2026-05-31 練習メニュー再編: 基礎練の新カテゴリ追加
+  FINGERING
+  BOWING
+  POSITION_SHIFT
+  DOUBLE_STOP
 }
 
 // 中項目スコア累積 (pitch / rhythm / bowing 各 1 行 / user)

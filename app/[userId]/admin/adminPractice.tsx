@@ -16,7 +16,14 @@ import { usePathname } from "next/navigation"
 import { updatePracticeItemTags } from "@/app/actions/updatePracticeItemTags"
 import { updateScoreTags } from "@/app/actions/updateScoreTags"
 import { updateScoreTechniqueTags } from "@/app/actions/updateScoreTechniqueTags"
+import { CATEGORY_LABELS, PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
 import styles from "./admin.module.css"
+
+// アップロード時に選べるカテゴリ: 基礎練6 + エチュード + 練習曲(score=isShared Score)
+const UPLOAD_CATEGORY_OPTIONS: readonly string[] = [
+  ...PRACTICE_CATEGORIES,
+  "score",
+]
 
 type TechniqueOption = { id: string; category: string; name: string; nameEn: string | null }
 type ItemType = "practice" | "score"
@@ -41,10 +48,8 @@ type Props = {
 }
 
 const categoryLabels: Record<string, string> = {
-  scale: "音階",
-  arpeggio: "アルペジオ",
-  etude: "エチュード",
-  score: "曲",
+  ...CATEGORY_LABELS,
+  score: "練習曲",
 }
 const modeLabels: Record<string, string> = { major: "長調", minor: "短調" }
 const positionOptions = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"]
@@ -400,11 +405,11 @@ export default function AdminPractice({
             <div className={styles.field}>
               <label>カテゴリ *</label>
               <div className={styles.radioGroup}>
-                {(["scale", "arpeggio", "etude", "score"] as const).map((c) => (
+                {UPLOAD_CATEGORY_OPTIONS.map((c) => (
                   <label key={c} className={styles.radioLabel}>
                     <input type="radio" name="category" value={c}
                       checked={category === c} onChange={() => setCategory(c)} />
-                    {categoryLabels[c]}
+                    {categoryLabels[c] ?? c}
                   </label>
                 ))}
               </div>

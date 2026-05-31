@@ -1,4 +1,5 @@
 import { prisma } from "@/app/_libs/prisma"
+import type { PracticeCategoryId } from "@/app/_libs/practiceConstants"
 
 export type PracticeStats = {
   totalItems: number
@@ -9,7 +10,7 @@ export type PracticeStats = {
 
 export async function getPracticeStats(
   userId: string,
-  category: "scale" | "arpeggio" | "etude"
+  category: PracticeCategoryId
 ): Promise<PracticeStats> {
   const [totalItems, practicedRows, weaknesses] = await Promise.all([
     prisma.practiceItem.count({
