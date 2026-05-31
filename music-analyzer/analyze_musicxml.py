@@ -20,6 +20,7 @@ from music21 import (
     spanner,
     repeat,
     tempo,
+    key,
     pitch as m21pitch,
 )
 
@@ -220,7 +221,30 @@ try:
 
     performance_part = expand_to_performance_part(part)
 
-    key_obj = score.analyze("key")
+    # =========================
+    # 調号の決定
+    # =========================
+    # 記譜された調号 (<key><fifths>...) を最優先する。
+    # score.analyze("key") は音高ベースの調推定 (Krumhansl-Schmuckler) で、
+    # 開放弦の単音や短い素材だと誤推定する (例: E 線開放弦のみ → A 長調=♯3個)。
+    # その結果、C 長調 (調号なし) の教材に誤った♯が表示される不具合があった。
+    # 記譜上の調号があればそれを正とし、音高推定はフォールバックに留める。
+    notated_key = next(score.recurse().getElementsByClass(key.KeySignature), None)
+    if notated_key is not None:
+        if isinstance(notated_key, key.Key):
+            # MusicXML に <mode> 付きで記譜されている場合はそのまま採用
+            key_obj = notated_key
+        else:
+            # mode なしの素の調号。tonic/mode は音高推定で補うが、
+            # 推定の調号 (fifths) が記譜と食い違う場合は記譜側 (長調) を信頼する。
+            analyzed = score.analyze("key")
+            if analyzed.sharps == notated_key.sharps:
+                key_obj = analyzed
+            else:
+                key_obj = notated_key.asKey("major")
+    else:
+        # 記譜上の調号がない場合のみ音高から推定
+        key_obj = score.analyze("key")
     time_sig = next(score.recurse().getElementsByClass("TimeSignature"), None)
 
     # =========================
