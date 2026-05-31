@@ -11,6 +11,8 @@ export type Piece = {
   star: number | null
 }
 
+type Tab = number | "unset"
+
 export default function PiecesList({
   userId,
   pieces,
@@ -18,55 +20,67 @@ export default function PiecesList({
   userId: string
   pieces: Piece[]
 }) {
-  // ☆順ソート (デフォルト: 低い順)。クリックで昇順/降順を切り替え。
-  const [desc, setDesc] = useState(false)
-  const sorted = [...pieces].sort((a, b) => {
-    // star 未設定は常に末尾
-    const sa = a.star ?? (desc ? -Infinity : Infinity)
-    const sb = b.star ?? (desc ? -Infinity : Infinity)
-    if (sa !== sb) return desc ? sb - sa : sa - sb
-    return a.title.localeCompare(b.title, "ja")
-  })
+  // 出現する☆を昇順にタブ化。star 未設定がある場合のみ末尾に「未設定」タブ。
+  const starValues = Array.from(
+    new Set(pieces.map(p => p.star).filter((s): s is number => s != null)),
+  ).sort((a, b) => a - b)
+  const hasUnset = pieces.some(p => p.star == null)
+  const tabs: Tab[] = [...starValues, ...(hasUnset ? (["unset"] as Tab[]) : [])]
+
+  const [active, setActive] = useState<Tab | null>(tabs.length ? tabs[0] : null)
+
+  const filtered = pieces
+    .filter(p => (active === "unset" ? p.star == null : p.star === active))
+    .sort((a, b) => a.title.localeCompare(b.title, "ja"))
 
   return (
     <div className={styles.container}>
       <h1 className={styles.pageTitle}>練習曲</h1>
 
-      <div className={styles.sortRow}>
-        <button
-          type="button"
-          className={styles.sortToggle}
-          onClick={() => setDesc(d => !d)}
-          aria-label="難易度でソート"
-        >
-          ☆ {desc ? "高い順" : "低い順"}（クリックで切替）
-        </button>
-      </div>
-
-      {sorted.length === 0 ? (
+      {tabs.length === 0 ? (
         <p className={styles.cardContextEmpty}>
           公開されている練習曲はまだありません。
         </p>
       ) : (
-        <div className={styles.cardContextList}>
-          {sorted.map(piece => (
-            <Link
-              key={piece.id}
-              href={`/${userId}/scores/${piece.id}`}
-              className={styles.cardContextItem}
-            >
-              <div className={styles.cardContextItemTitle}>
-                {piece.title}
-                {piece.star != null && ` ☆${piece.star}`}
-              </div>
-              {piece.composer && (
-                <div className={styles.cardContextItemComposer}>
-                  {piece.composer}
-                </div>
-              )}
-            </Link>
-          ))}
-        </div>
+        <>
+          {/* ☆ごとの横並びタブ */}
+          <div className={styles.starTabs}>
+            {tabs.map(t => (
+              <button
+                key={String(t)}
+                type="button"
+                className={`${styles.starTab} ${active === t ? styles.starTabActive : ""}`}
+                onClick={() => setActive(t)}
+              >
+                {t === "unset" ? "未設定" : `☆${t}`}
+              </button>
+            ))}
+          </div>
+
+          {filtered.length === 0 ? (
+            <p className={styles.cardContextEmpty}>この難易度の練習曲はありません。</p>
+          ) : (
+            <div className={styles.cardContextList}>
+              {filtered.map(piece => (
+                <Link
+                  key={piece.id}
+                  href={`/${userId}/scores/${piece.id}`}
+                  className={styles.cardContextItem}
+                >
+                  <div className={styles.cardContextItemTitle}>
+                    {piece.title}
+                    {piece.star != null && ` ☆${piece.star}`}
+                  </div>
+                  {piece.composer && (
+                    <div className={styles.cardContextItemComposer}>
+                      {piece.composer}
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   )

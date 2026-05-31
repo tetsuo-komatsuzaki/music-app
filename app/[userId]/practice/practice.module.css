@@ -304,24 +304,36 @@
   padding: 8px 0;
 }
 
-/* 練習曲一覧の ☆ソートトグル */
-.sortRow {
+/* 練習曲一覧の ☆ごと横並びタブ */
+.starTabs {
   display: flex;
-  justify-content: flex-end;
-  margin: 8px 0 12px;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 14px;
 }
 
-.sortToggle {
+.starTab {
   appearance: none;
   border: 1px solid #d0d0d0;
   background: #fff;
   border-radius: 999px;
   padding: 6px 14px;
   font-size: 13px;
-  color: #333;
+  color: #555;
   cursor: pointer;
+  white-space: nowrap;
 }
 
-.sortToggle:hover {
+.starTab:hover {
   background: #f5f5f5;
+}
+
+.starTabActive {
+  background: #4a6cf7;
+  border-color: #4a6cf7;
+  color: #fff;
+}
+
+.starTabActive:hover {
+  background: #4a6cf7;
 }
