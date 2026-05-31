@@ -26,7 +26,7 @@ export const HELP_CONTENT = {
     title: "ページごとの使い方",
     items: [
       { pageKey: "home",         icon: "🏠", name: "ホーム",          description: "アルコちゃんの案内・続きから練習・履歴",  pathTemplate: "/" },
-      { pageKey: "scores",       icon: "🎵", name: "スコア一覧",      description: "アップロードした楽譜を見る",            pathTemplate: "/scores" },
+      { pageKey: "scores",       icon: "🎵", name: "マイライブラリー",  description: "アップロードした楽譜を見る",            pathTemplate: "/scores" },
       { pageKey: "scoreDetail",  icon: "🎼", name: "スコア詳細",      description: "譜面・再生・録音の使い方",              pathTemplate: null },
       { pageKey: "practice",     icon: "🎯", name: "練習メニュー",    description: "あなた向けのおすすめ",                  pathTemplate: "/practice" },
       { pageKey: "categoryList", icon: "📋", name: "カテゴリ一覧",    description: "練習を絞り込んで探す",                  pathTemplate: null },

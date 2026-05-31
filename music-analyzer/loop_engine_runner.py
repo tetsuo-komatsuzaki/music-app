@@ -850,6 +850,45 @@ _SUB_TO_PARENT: dict[str, str] = {
 }
 
 
+def _route_slot_categories(sub_type: str) -> list[str]:
+    """課題(小課題)に割り当てる練習カテゴリのスロット列を返す
+    (2026-05-31 練習メニュー再編・確定対応表)。
+
+    - エチュードは全課題で無条件必須 (末尾)。
+    - 重音 (double_stop) スロットは検出小課題が *_double_stop_* の時のみ。
+    - 「or」スロット (音程S1/S2, リズムS1) は課題駆動で 1 カテゴリに振り分け。
+    """
+    parent = _SUB_TO_PARENT.get(sub_type, "BOWING")
+    is_double_stop = "double_stop" in sub_type
+    cats: list[str] = []
+    if parent == "PITCH":
+        # S1: 音階 or アルペジオ (3度以上の跳躍/重音 → アルペジオ、他 → 音階)
+        if sub_type in ("pitch_interval_up_3rd_plus", "pitch_interval_down_3rd_plus") or is_double_stop:
+            cats.append("arpeggio")
+        else:
+            cats.append("scale")
+        # S2: フィンガリング or ポジション移動 (運指/音程跳躍/重音 → フィンガリング、ポジション/移動/ハーモニクス → ポジション移動)
+        if sub_type.startswith("pitch_finger_") or sub_type.startswith("pitch_interval_") or is_double_stop:
+            cats.append("fingering")
+        else:
+            cats.append("position_shift")
+        # S3: 重音 (重音課題時のみ)
+        if is_double_stop:
+            cats.append("double_stop")
+    elif parent == "RHYTHM":
+        # S1: 音階 or アルペジオ (アルペジオのリズム → アルペジオ、他 → 音階)
+        cats.append("arpeggio" if sub_type == "rhythm_technique_arpeggio" else "scale")
+        # S2: ボウイング (固定)
+        cats.append("bowing")
+        # リズムには重音(double_stop)小課題が無いため重音スロットなし
+    else:  # BOWING (弓使い)
+        cats.append("bowing")
+        if is_double_stop:
+            cats.append("double_stop")
+    cats.append("etude")  # 無条件必須
+    return cats
+
+
 def _pick_practice_item_phase3b(
     cur,
     user_internal_id: str,
@@ -858,24 +897,39 @@ def _pick_practice_item_phase3b(
     star: int,
     sub_type: str,
     category: str,
+    score_tech_tag_ids: Optional[list[str]] = None,
 ) -> Optional[str]:
-    """1 sub_task × 1 category で教材を 1 件選ぶ (簡易版)。
+    """1 sub_task × 1 category で教材を 1 件選ぶ (2026-05-31 確定ルール)。
 
-    優先順位 (簡易版、Phase 3c で実績ソート追加予定):
-      1. ユーザー未演奏 (PracticePerformance 未登録) を優先
-      2. PracticeItem.sortOrder 昇順 + title 昇順 (tie-breaker)
+    選定条件:
+      1. star 一致を最優先 (同 star → 近傍 star へ ABS 距離でフォールバック)
+      2. 音階/アルペジオのみ「曲と同じ調 (keyTonic/keyMode)」を必須 (他カテゴリは調制約なし)
+      3. 曲の技術タグ (score_tech_tag_ids) を持つ教材を優先 (案①)
+      4. ユーザー未演奏を優先 → sortOrder → title
     """
+    tag_ids = score_tech_tag_ids or []
+    # 音階/アルペジオのみ同調を必須条件にする
+    if category in ("scale", "arpeggio"):
+        key_clause = 'AND pi."keyTonic" = %s AND pi."keyMode" = %s'
+        key_params: tuple = (key_tonic, key_mode)
+    else:
+        key_clause = ""
+        key_params = ()
     cur.execute(
-        """
+        f"""
         SELECT pi.id
         FROM "PracticeItem" pi
         WHERE pi."category" = %s::"PracticeCategory"
-          AND pi."keyTonic" = %s
-          AND pi."keyMode" = %s
-          AND pi."star" = %s
           AND pi."isPublished" = true
           AND pi."skillSubTaskTags" @> jsonb_build_array(%s::text)
+          {key_clause}
         ORDER BY
+          ABS(pi."star" - %s) ASC,
+          (EXISTS (
+            SELECT 1 FROM "PracticeItemTechnique" pit
+            WHERE pit."practiceItemId" = pi.id
+              AND pit."techniqueTagId" = ANY(%s)
+          )) DESC,
           (NOT EXISTS (
             SELECT 1 FROM "PracticePerformance" pp
             WHERE pp."userId" = %s AND pp."practiceItemId" = pi.id
@@ -884,7 +938,7 @@ def _pick_practice_item_phase3b(
           pi."title" ASC
         LIMIT 1
         """,
-        (category, key_tonic, key_mode, star, sub_type, user_internal_id),
+        (category, sub_type, *key_params, star, tag_ids, user_internal_id),
     )
     row = cur.fetchone()
     return row[0] if row else None
@@ -899,11 +953,15 @@ def _generate_subtask_phase3b(
     key_tonic: Optional[str],
     key_mode: Optional[str],
     star: Optional[int],
+    score_tech_tag_ids: Optional[list[str]] = None,
 ) -> None:
-    """1 つの失敗 sub_task に対し SubTask + SubTaskAssignment を生成。
+    """1 つの失敗 sub_task に対し SubTask + SubTaskAssignment を生成
+    (2026-05-31 練習メニュー再編・確定対応表)。
 
-    3 カテゴリで該当教材が揃わない場合は MissingPracticeItemFlag を作成し、
-    SubTask 自体は生成しない (I1=A / M6=B 確定)。
+    課題駆動のスロット構成 (_route_slot_categories) で各スロットの教材を選定。
+    案A: 教材が見つからないスロットは MissingPracticeItemFlag を立てるが、
+    埋まったスロットだけで SubTask を生成しユーザーに表示する (課題ごとスキップしない)。
+    全スロット教材なしの場合のみ SubTask を作らない (空課題ガード, §10a)。
     """
     if not key_tonic or not key_mode or star is None:
         print(
@@ -912,44 +970,47 @@ def _generate_subtask_phase3b(
         )
         return
 
-    # 3 カテゴリで候補検索
-    candidates_by_cat: dict[str, str] = {}
+    # 課題駆動のスロット構成で各スロットの教材を選定
+    slot_categories = _route_slot_categories(sub_type)
+    picked: list[tuple[str, str]] = []  # (category, practiceItemId)
     missing_categories: list[str] = []
-    for cat in ("scale", "arpeggio", "etude"):
+    for cat in slot_categories:
         item_id = _pick_practice_item_phase3b(
-            cur, user_internal_id, key_tonic, key_mode, star, sub_type, cat
+            cur, user_internal_id, key_tonic, key_mode, star, sub_type, cat,
+            score_tech_tag_ids,
         )
         if item_id:
-            candidates_by_cat[cat] = item_id
+            picked.append((cat, item_id))
         else:
             missing_categories.append(cat)
 
-    # 1 カテゴリでも欠ければ SubTask 生成 skip + Flag 作成 (I1=A / M6=B)
-    if missing_categories:
-        for missing_cat in missing_categories:
-            # 未解決の同じ Flag があれば重複しないように
+    # 案A: 埋まらなかったスロットは個別に MissingPracticeItemFlag (課題はスキップしない)
+    for missing_cat in missing_categories:
+        cur.execute(
+            """
+            SELECT 1 FROM "MissingPracticeItemFlag"
+            WHERE "scoreId" = %s AND "subTaskType" = %s
+              AND "missingCategory" = %s AND "resolvedAt" IS NULL
+            LIMIT 1
+            """,
+            (score_id, sub_type, missing_cat),
+        )
+        if cur.fetchone() is None:
             cur.execute(
                 """
-                SELECT 1 FROM "MissingPracticeItemFlag"
-                WHERE "scoreId" = %s AND "subTaskType" = %s
-                  AND "missingCategory" = %s AND "resolvedAt" IS NULL
-                LIMIT 1
+                INSERT INTO "MissingPracticeItemFlag"
+                ("id", "scoreId", "subTaskType", "missingCategory",
+                 "keyTonic", "keyMode", "star", "detectedAt")
+                VALUES (gen_random_uuid()::text, %s, %s, %s, %s, %s, %s, NOW())
                 """,
-                (score_id, sub_type, missing_cat),
+                (score_id, sub_type, missing_cat, key_tonic, key_mode, star),
             )
-            if cur.fetchone() is None:
-                cur.execute(
-                    """
-                    INSERT INTO "MissingPracticeItemFlag"
-                    ("id", "scoreId", "subTaskType", "missingCategory",
-                     "keyTonic", "keyMode", "star", "detectedAt")
-                    VALUES (gen_random_uuid()::text, %s, %s, %s, %s, %s, %s, NOW())
-                    """,
-                    (score_id, sub_type, missing_cat, key_tonic, key_mode, star),
-                )
+
+    # 空課題ガード (§10a): 1 スロットも埋まらなければ SubTask を作らない
+    if not picked:
         print(
-            f"[loop_engine_runner] (3b) SubTask {sub_type} skip: "
-            f"missing categories={missing_categories} → MissingPracticeItemFlag 作成"
+            f"[loop_engine_runner] (3b) SubTask {sub_type}: 全スロット教材なし "
+            f"(slots={slot_categories}) → SubTask 生成せず MissingFlag のみ"
         )
         return
 
@@ -967,10 +1028,9 @@ def _generate_subtask_phase3b(
         (card_id, sub_type),
     )
     sub_task_id = cur.fetchone()[0]
-    print(f"[loop_engine_runner] (3b) SubTask {sub_type}: id={sub_task_id}")
 
-    # 3 カテゴリそれぞれ SubTaskAssignment 確認 + insert (既存ならスキップ、§3-4 / S2=A)
-    for cat in ("scale", "arpeggio", "etude"):
+    # 埋まったスロットのみ SubTaskAssignment 確認 + insert (既存温存、§3-4 / S2=A)
+    for cat, item_id in picked:
         cur.execute(
             'SELECT 1 FROM "SubTaskAssignment" '
             'WHERE "subTaskId" = %s AND "assignedCategory" = %s::"AssignedCategory"',
@@ -987,13 +1047,11 @@ def _generate_subtask_phase3b(
                     false, NOW())
             ON CONFLICT ("subTaskId", "practiceItemId") DO NOTHING
             """,
-            (sub_task_id, candidates_by_cat[cat], cat.upper()),
+            (sub_task_id, item_id, cat.upper()),
         )
     print(
-        f"[loop_engine_runner] (3b) SubTaskAssignment for {sub_type}: "
-        f"scale={candidates_by_cat.get('scale')} "
-        f"arpeggio={candidates_by_cat.get('arpeggio')} "
-        f"etude={candidates_by_cat.get('etude')}"
+        f"[loop_engine_runner] (3b) SubTask {sub_type}: id={sub_task_id} "
+        f"slots={[c for c, _ in picked]} missing={missing_categories}"
     )
 
 
@@ -1013,6 +1071,69 @@ def generate_score_cards_phase3b(
 
     呼び出し元: run_score_mode (Performance UPDATE 直後、同 transaction 内)
     """
+    # 0. この Score の技術タグ (ScoreTechniqueTag) を取得 → 教材選定で優先 (案①)
+    cur.execute(
+        'SELECT "techniqueTagId" FROM "ScoreTechniqueTag" WHERE "scoreId" = %s',
+        (score_id,),
+    )
+    score_tech_tag_ids = [r[0] for r in cur.fetchall()]
+
+    # §10c: 曲に複数技術タグがある場合、未習得タグについても課題ループを回す。
+    # (skill score の良し悪しに関わらず、未習得の技術タグがあれば課題を生成する)
+    # TechniqueTag.nameEn と *_technique_* 小課題の suffix を突合する best-effort 実装。
+    cur.execute(
+        """
+        SELECT tt."nameEn"
+        FROM "ScoreTechniqueTag" stt
+        INNER JOIN "TechniqueTag" tt ON tt.id = stt."techniqueTagId"
+        LEFT JOIN "UserTechniqueMastery" utm
+          ON utm."techniqueTagId" = tt.id AND utm."userId" = %s
+        WHERE stt."scoreId" = %s
+          AND (utm."isMastered" IS NULL OR utm."isMastered" = false)
+        """,
+        (user_internal_id, score_id),
+    )
+    for (name_en,) in cur.fetchall():
+        if not name_en:
+            continue
+        suffix = name_en.strip().lower().replace(" ", "_").replace("-", "_")
+        tech_subtasks = [
+            s for s in SUB_TASK_IDS if s.endswith(f"_technique_{suffix}")
+        ]
+        for sub_type in tech_subtasks:
+            parent = _SUB_TO_PARENT.get(sub_type)
+            if not parent:
+                continue
+            # 親カードを取得 (cleared は永久クリアにつき skip、S3=A)
+            cur.execute(
+                'SELECT id, status FROM "SkillTaskCard" '
+                'WHERE "userId" = %s AND "scoreId" = %s '
+                '  AND "taskCategory" = %s::"TaskCategory"',
+                (user_internal_id, score_id, parent),
+            )
+            r = cur.fetchone()
+            if r and r[1] == "cleared":
+                continue
+            if r:
+                tech_card_id = r[0]
+            else:
+                cur.execute(
+                    """
+                    INSERT INTO "SkillTaskCard"
+                    ("id", "userId", "scoreId", "taskCategory", "status",
+                     "generatedAt", "lastMatchedAt", "updatedAt")
+                    VALUES (gen_random_uuid()::text, %s, %s, %s::"TaskCategory",
+                            'active', NOW(), NOW(), NOW())
+                    RETURNING id
+                    """,
+                    (user_internal_id, score_id, parent),
+                )
+                tech_card_id = cur.fetchone()[0]
+            _generate_subtask_phase3b(
+                cur, tech_card_id, sub_type, user_internal_id, score_id,
+                score_key_tonic, score_key_mode, score_star, score_tech_tag_ids,
+            )
+
     # 1. 中課題判定: skill score 系で < 70 のものを抽出
     mid_categories: list[str] = []
     if pitch_skill_score is not None and pitch_skill_score < THRESHOLD_MID_TASK:
@@ -1097,6 +1218,7 @@ def generate_score_cards_phase3b(
             _generate_subtask_phase3b(
                 cur, card_id, sub_type, user_internal_id, score_id,
                 score_key_tonic, score_key_mode, score_star,
+                score_tech_tag_ids,
             )
 
 
@@ -1240,9 +1362,50 @@ def _mark_assignments_mastered(
     return affected
 
 
-def _reclear_subtasks(cur, sub_task_ids: list[str]) -> list[str]:
-    """指定 SubTask 群について、全 SubTaskAssignment.isMastered=true ならば
-    status='cleared' + clearedAt=NOW() に遷移。
+def _mark_technique_mastery_for_cleared(
+    cur, user_internal_id: str, sub_task_ids: list[str]
+) -> None:
+    """§10b: cleared になった SubTask に割り当てられた教材が持つ技術タグを
+    UserTechniqueMastery に習得済み (isMastered=true) として記録する (永続)。
+    新定義「T タグ付き課題をクリアすれば T 習得」。"""
+    if not sub_task_ids:
+        return
+    cur.execute(
+        """
+        SELECT DISTINCT pit."techniqueTagId"
+        FROM "SubTaskAssignment" sta
+        INNER JOIN "PracticeItemTechnique" pit
+          ON pit."practiceItemId" = sta."practiceItemId"
+        WHERE sta."subTaskId" = ANY(%s)
+        """,
+        (sub_task_ids,),
+    )
+    tag_ids = [r[0] for r in cur.fetchall()]
+    for tag_id in tag_ids:
+        cur.execute(
+            """
+            INSERT INTO "UserTechniqueMastery"
+            ("id", "userId", "techniqueTagId", "isMastered", "masteredAt", "updatedAt")
+            VALUES (gen_random_uuid()::text, %s, %s, true, NOW(), NOW())
+            ON CONFLICT ("userId", "techniqueTagId") DO UPDATE
+              SET "isMastered" = true,
+                  "masteredAt" = COALESCE("UserTechniqueMastery"."masteredAt", NOW()),
+                  "updatedAt" = NOW()
+            """,
+            (user_internal_id, tag_id),
+        )
+    if tag_ids:
+        print(
+            f"[loop_engine_runner] (3c/§10b) 技法習得 (課題クリア駆動): tags={len(tag_ids)}"
+        )
+
+
+def _reclear_subtasks(
+    cur, sub_task_ids: list[str], user_internal_id: Optional[str] = None
+) -> list[str]:
+    """指定 SubTask 群について、割当が1件以上ありかつ全 SubTaskAssignment.isMastered=true
+    ならば status='cleared' + clearedAt=NOW() に遷移 (§10a: 空課題ガード)。
+    cleared した SubTask の教材の技術タグを習得済みに記録 (§10b)。
 
     Returns:
         list[str]: cleared 状態になった SkillTaskCard id (重複排除済)。
@@ -1256,15 +1419,23 @@ def _reclear_subtasks(cur, sub_task_ids: list[str]) -> list[str]:
         SET "status" = 'cleared', "clearedAt" = NOW(), "updatedAt" = NOW()
         WHERE st.id = ANY(%s)
           AND st."status" != 'cleared'
+          AND EXISTS (
+            SELECT 1 FROM "SubTaskAssignment" sta0
+            WHERE sta0."subTaskId" = st.id
+          )
           AND NOT EXISTS (
             SELECT 1 FROM "SubTaskAssignment" sta
             WHERE sta."subTaskId" = st.id AND sta."isMastered" = false
           )
-        RETURNING st."skillTaskCardId"
+        RETURNING st.id, st."skillTaskCardId"
         """,
         (sub_task_ids,),
     )
-    affected_card_ids = list({r[0] for r in cur.fetchall()})
+    rows = cur.fetchall()
+    cleared_sub_task_ids = [r[0] for r in rows]
+    affected_card_ids = list({r[1] for r in rows})
+    if user_internal_id and cleared_sub_task_ids:
+        _mark_technique_mastery_for_cleared(cur, user_internal_id, cleared_sub_task_ids)
     if affected_card_ids:
         print(
             f"[loop_engine_runner] (3c) SubTask.cleared 遷移: "
@@ -1676,10 +1847,14 @@ def process_cumulative_phase3c_practice(
         affected_subtasks = _mark_assignments_mastered(
             cur, user_internal_id, practice_item_id
         )
-        affected_cards = _reclear_subtasks(cur, affected_subtasks)
+        # §10a/§10b: 空課題ガード + cleared 課題の技術タグ習得を _reclear_subtasks 内で処理
+        affected_cards = _reclear_subtasks(
+            cur, affected_subtasks, user_internal_id
+        )
         # Practice 経路では skill score 取れないので latest=None → cleared 保留
         _maybe_clear_skill_cards(cur, affected_cards, latest_skill_scores=None)
-    _update_user_technique_mastery(cur, user_internal_id, practice_item_id)
+    # §10b: 技法習得は「課題クリア駆動」に再定義 (_reclear_subtasks 内で記録)。
+    # 旧 _update_user_technique_mastery (全カテゴリ演奏マスター方式) は廃止。
 
 
 def process_cumulative_phase3c_score(

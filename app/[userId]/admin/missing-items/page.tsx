@@ -11,10 +11,12 @@ import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { redirect } from "next/navigation"
 import AdminMissingItems from "../adminMissingItems"
 import { resolveMissingPracticeItemFlag } from "@/app/actions/resolveMissingPracticeItemFlag"
+import { PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
 
 export const metadata = { title: "不足教材フラグ" }
 
-const CATEGORY_ORDER = ["scale", "arpeggio", "etude"] as const
+// 基礎練6 + エチュード の表示順
+const CATEGORY_ORDER = PRACTICE_CATEGORIES
 
 export default async function AdminMissingItemsPage({
   params,

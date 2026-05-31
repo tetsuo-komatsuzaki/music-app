@@ -130,7 +130,7 @@ export default function ScoresClient({
       {/* ===== MAIN ===== */}
       <main className={styles.main}>
 
-        <h1 className={styles.pageTitle}>スコア一覧</h1>
+        <h1 className={styles.pageTitle}>マイライブラリー</h1>
 
         <div className={styles.subHeaderRow}>
           <h2 className={styles.pageSubTitle}>

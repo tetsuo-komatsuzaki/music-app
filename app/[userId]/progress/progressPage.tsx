@@ -6,6 +6,7 @@ import { useState } from "react"
 import GradeBadge from "@/app/components/GradeBadge"
 import GradeProgressBar from "@/app/components/GradeProgressBar"
 import type { GradeLevel } from "@/app/_libs/skillMaster"
+import { PRACTICE_CATEGORIES, categoryLabel } from "@/app/_libs/practiceConstants"
 import styles from "./progress.module.css"
 import OnboardingTrigger from "../_onboarding/OnboardingTrigger"
 
@@ -40,12 +41,7 @@ type Props = {
   dayAchievements: Record<string, number>   // dateStr → 0..3
   gradeData:       GradeData
   masteredSongs:   MasteredSong[]
-  practiceMasterySummary: {
-    scale: number
-    arpeggio: number
-    etude: number
-    song: number
-  }
+  practiceMasterySummary: Record<string, number>
 }
 
 // ─── タブ定義 (v1.6 Phase 4-2: 旧 tasks タブ削除、mastery タブ追加) ─────
@@ -196,24 +192,14 @@ export default function ProgressPage({
           <div className={styles.card}>
             <div className={styles.sectionTitle}>練習教材マスター状況</div>
             <div className={styles.masterySummaryGrid}>
-              <div className={styles.masterySummaryItem}>
-                <div className={styles.masterySummaryLabel}>音階</div>
-                <div className={styles.masterySummaryValue}>
-                  {practiceMasterySummary.scale}<span className={styles.masterySummaryUnit}>件</span>
+              {PRACTICE_CATEGORIES.map(cat => (
+                <div key={cat} className={styles.masterySummaryItem}>
+                  <div className={styles.masterySummaryLabel}>{categoryLabel(cat)}</div>
+                  <div className={styles.masterySummaryValue}>
+                    {practiceMasterySummary[cat] ?? 0}<span className={styles.masterySummaryUnit}>件</span>
+                  </div>
                 </div>
-              </div>
-              <div className={styles.masterySummaryItem}>
-                <div className={styles.masterySummaryLabel}>アルペジオ</div>
-                <div className={styles.masterySummaryValue}>
-                  {practiceMasterySummary.arpeggio}<span className={styles.masterySummaryUnit}>件</span>
-                </div>
-              </div>
-              <div className={styles.masterySummaryItem}>
-                <div className={styles.masterySummaryLabel}>エチュード</div>
-                <div className={styles.masterySummaryValue}>
-                  {practiceMasterySummary.etude}<span className={styles.masterySummaryUnit}>件</span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </>

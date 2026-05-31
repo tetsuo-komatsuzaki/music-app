@@ -15,6 +15,10 @@ import {
   type SubTaskId,
   type TaskId,
 } from "@/app/_libs/skillMaster"
+import {
+  CATEGORY_LABELS,
+  type PracticeCategoryId,
+} from "@/app/_libs/practiceConstants"
 
 // アクティブカード由来「今日の課題」のラベル生成
 function buildTodayTaskLabel(card: {
@@ -33,9 +37,11 @@ function buildTodayTaskLabel(card: {
 }
 
 const categoryTitles: Record<string, string> = {
-  scale: "音階", scales: "音階",
-  arpeggio: "アルペジオ", arpeggios: "アルペジオ",
-  etude: "エチュード", etudes: "エチュード",
+  ...CATEGORY_LABELS,
+  // 旧 URL の複数形エイリアスも許容
+  scales: "音階",
+  arpeggios: "アルペジオ",
+  etudes: "エチュード",
 }
 
 export async function generateMetadata({
@@ -47,11 +53,11 @@ export async function generateMetadata({
   return { title: categoryTitles[category] ?? "練習" }
 }
 
-const normalizeCat = (c: string): "scale" | "arpeggio" | "etude" => {
+const normalizeCat = (c: string): PracticeCategoryId => {
   if (c === "scales") return "scale"
   if (c === "arpeggios") return "arpeggio"
   if (c === "etudes") return "etude"
-  return c as "scale" | "arpeggio" | "etude"
+  return c as PracticeCategoryId
 }
 
 export default async function CategoryPage({

@@ -11,6 +11,7 @@
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { revalidatePath } from "next/cache"
+import { isPracticeCategory } from "@/app/_libs/practiceConstants"
 
 export type ResolveMissingFlagResult =
   | { success: true; resolvedCount: number }
@@ -45,7 +46,7 @@ export async function resolveMissingPracticeItemFlag(input: {
   ) {
     return { error: "入力が不正です" }
   }
-  if (!["scale", "arpeggio", "etude"].includes(missingCategory)) {
+  if (!isPracticeCategory(missingCategory)) {
     return { error: "missingCategory が不正です" }
   }
 
