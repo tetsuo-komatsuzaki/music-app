@@ -16,6 +16,7 @@ import { usePathname } from "next/navigation"
 import { updatePracticeItemTags } from "@/app/actions/updatePracticeItemTags"
 import { updateScoreTags } from "@/app/actions/updateScoreTags"
 import { updateScoreTechniqueTags } from "@/app/actions/updateScoreTechniqueTags"
+import { deleteAdminMaterial } from "@/app/actions/deleteAdminMaterial"
 import { CATEGORY_LABELS, PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
 import styles from "./admin.module.css"
 
@@ -123,6 +124,8 @@ export default function AdminPractice({
   const [, startTransition] = useTransition()
   const [editError, setEditError] = useState<string | null>(null)
   const [editSaving, setEditSaving] = useState(false)
+  // 削除中の id (二重実行防止 + ボタン無効化)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   // v1.6 Phase 4-3 Q5=(b) 確定: Score 用「技法タグを編集」モーダル state (一覧編集とは分離)
   const [techModalScore, setTechModalScore] = useState<ItemDTO | null>(null)
@@ -242,6 +245,30 @@ export default function AdminPractice({
   const cancelEdit = () => {
     setEditingId(null)
     setEditError(null)
+  }
+
+  const handleDelete = async (item: ItemDTO) => {
+    const label = item.type === "score" ? "練習曲" : "教材"
+    if (!window.confirm(`「${item.title}」を削除します。\nこの操作は取り消せません。よろしいですか？`)) {
+      return
+    }
+    setDeletingId(item.id)
+    try {
+      const result = await deleteAdminMaterial(item.type, item.id)
+      if ("error" in result) {
+        setMessage(`削除エラー: ${result.error}`)
+        return
+      }
+      setMessage(`${label}「${item.title}」を削除しました`)
+      startTransition(() => {
+        setItems((prev) => prev.filter((it) => it.id !== item.id))
+      })
+      if (editingId === item.id) setEditingId(null)
+    } catch (e) {
+      setMessage(`削除エラー: ${e instanceof Error ? e.message : String(e)}`)
+    } finally {
+      setDeletingId(null)
+    }
   }
 
   const saveEdit = async (item: ItemDTO) => {
@@ -916,6 +943,15 @@ export default function AdminPractice({
                             )}
                           </button>
                         )}
+                        <button
+                          type="button"
+                          className={styles.dangerBtn}
+                          onClick={() => handleDelete(item)}
+                          disabled={deletingId === item.id}
+                          title="この公式教材を削除"
+                        >
+                          {deletingId === item.id ? "削除中..." : "削除"}
+                        </button>
                       </div>
                     )}
                   </td>

@@ -177,6 +177,18 @@
 .secondaryBtn:hover { background: #f7f9fc; }
 .secondaryBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.dangerBtn {
+  padding: 4px 10px;
+  background: #fff;
+  border: 1px solid #e3b4b4;
+  color: #c0392b;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.dangerBtn:hover { background: #fdf0f0; }
+.dangerBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .editError {
   font-size: 11px;
   color: #c44a4a;
