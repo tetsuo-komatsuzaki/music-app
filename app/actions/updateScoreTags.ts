@@ -18,10 +18,23 @@ export type UpdateScoreTagsResult =
   | { error: string }
 
 const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
+const VALID_KEY_MODES = new Set(["major", "minor"])
+const MAX_TITLE_LEN = 100
+
+export type UpdateScorePayload = {
+  star: number | null
+  skillSubTaskTags: string[]
+  // v: admin 一覧のインライン編集で追加 (タイトル/調/テンポ)。
+  //    カテゴリは Score=「練習曲」固定のため対象外。
+  title?: string
+  keyTonic?: string | null
+  keyMode?: string | null
+  defaultTempo?: number | null
+}
 
 export async function updateScoreTags(
   scoreId: string,
-  payload: { star: number | null; skillSubTaskTags: string[] },
+  payload: UpdateScorePayload,
 ): Promise<UpdateScoreTagsResult> {
   // admin チェック
   const supabase = await createServerSupabaseClient()
@@ -49,6 +62,35 @@ export async function updateScoreTags(
     new Set(payload.skillSubTaskTags.filter(t => VALID_SUB_TASK_IDS.has(t))),
   )
 
+  // 追加フィールド (任意) の組み立て & バリデーション
+  const data: Prisma.ScoreUpdateInput = {
+    star: payload.star,
+    skillSubTaskTags: cleanedTags as Prisma.InputJsonValue,
+  }
+
+  if (payload.title !== undefined) {
+    const t = payload.title.trim()
+    if (t.length === 0) return { error: "タイトルを入力してください" }
+    if (t.length > MAX_TITLE_LEN) return { error: `タイトルは${MAX_TITLE_LEN}文字以内で入力してください` }
+    data.title = t
+  }
+  if (payload.keyTonic !== undefined) {
+    const k = payload.keyTonic?.trim() ?? ""
+    data.keyTonic = k.length > 0 ? k : null
+  }
+  if (payload.keyMode !== undefined) {
+    if (payload.keyMode != null && !VALID_KEY_MODES.has(payload.keyMode)) {
+      return { error: "調(長短)が不正です" }
+    }
+    data.keyMode = payload.keyMode ?? null
+  }
+  if (payload.defaultTempo !== undefined) {
+    if (payload.defaultTempo !== null && (!Number.isFinite(payload.defaultTempo) || payload.defaultTempo < 1 || payload.defaultTempo > 400)) {
+      return { error: "テンポは 1〜400 で指定してください" }
+    }
+    data.defaultTempo = payload.defaultTempo
+  }
+
   // 存在チェック (deletedAt=null のみ対象)
   const existing = await prisma.score.findFirst({
     where: { id: scoreId, deletedAt: null },
@@ -58,10 +100,7 @@ export async function updateScoreTags(
 
   await prisma.score.update({
     where: { id: scoreId },
-    data: {
-      star: payload.star,
-      skillSubTaskTags: cleanedTags as Prisma.InputJsonValue,
-    },
+    data,
   })
 
   revalidatePath("/admin/practice")

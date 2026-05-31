@@ -9,18 +9,33 @@
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { revalidatePath } from "next/cache"
-import { Prisma } from "@/app/generated/prisma"
+import { Prisma, type PracticeCategory } from "@/app/generated/prisma"
 import { SUB_TASK_IDS } from "@/app/_libs/skillMaster"
+import { isPracticeCategory } from "@/app/_libs/practiceConstants"
 
 export type UpdatePracticeItemTagsResult =
   | { success: true; itemId: string }
   | { error: string }
 
 const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
+const VALID_KEY_MODES = new Set(["major", "minor"])
+const MAX_TITLE_LEN = 100
+
+export type UpdatePracticeItemPayload = {
+  star: number | null
+  skillSubTaskTags: string[]
+  // v: admin 一覧のインライン編集で追加 (タイトル/カテゴリ/調/テンポ)
+  title?: string
+  category?: string
+  keyTonic?: string
+  keyMode?: string
+  tempoMin?: number | null
+  tempoMax?: number | null
+}
 
 export async function updatePracticeItemTags(
   itemId: string,
-  payload: { star: number | null; skillSubTaskTags: string[] },
+  payload: UpdatePracticeItemPayload,
 ): Promise<UpdatePracticeItemTagsResult> {
   // admin チェック
   const supabase = await createServerSupabaseClient()
@@ -49,6 +64,49 @@ export async function updatePracticeItemTags(
     new Set(payload.skillSubTaskTags.filter(t => VALID_SUB_TASK_IDS.has(t))),
   )
 
+  // 追加フィールド (任意) の組み立て & バリデーション
+  const data: Prisma.PracticeItemUpdateInput = {
+    star: payload.star,
+    skillSubTaskTags: cleanedTags as Prisma.InputJsonValue,
+  }
+
+  if (payload.title !== undefined) {
+    const t = payload.title.trim()
+    if (t.length === 0) return { error: "タイトルを入力してください" }
+    if (t.length > MAX_TITLE_LEN) return { error: `タイトルは${MAX_TITLE_LEN}文字以内で入力してください` }
+    data.title = t
+  }
+  if (payload.category !== undefined) {
+    // 基礎練6 + エチュードのみ許可 (score は別テーブルのため不可)
+    if (!isPracticeCategory(payload.category)) {
+      return { error: `不正なカテゴリです: ${payload.category}` }
+    }
+    data.category = payload.category as PracticeCategory
+  }
+  if (payload.keyTonic !== undefined) {
+    const k = payload.keyTonic.trim()
+    if (k.length === 0) return { error: "調(主音)を指定してください" }
+    data.keyTonic = k
+  }
+  if (payload.keyMode !== undefined) {
+    if (!VALID_KEY_MODES.has(payload.keyMode)) return { error: "調(長短)が不正です" }
+    data.keyMode = payload.keyMode
+  }
+  for (const [key, val] of [["tempoMin", payload.tempoMin], ["tempoMax", payload.tempoMax]] as const) {
+    if (val !== undefined) {
+      if (val !== null && (!Number.isFinite(val) || val < 1 || val > 400)) {
+        return { error: "テンポは 1〜400 で指定してください" }
+      }
+      data[key] = val
+    }
+  }
+  if (
+    payload.tempoMin != null && payload.tempoMax != null &&
+    payload.tempoMin > payload.tempoMax
+  ) {
+    return { error: "テンポの最小値は最大値以下にしてください" }
+  }
+
   // 存在チェック
   const existing = await prisma.practiceItem.findUnique({
     where: { id: itemId },
@@ -58,10 +116,7 @@ export async function updatePracticeItemTags(
 
   await prisma.practiceItem.update({
     where: { id: itemId },
-    data: {
-      star: payload.star,
-      skillSubTaskTags: cleanedTags as Prisma.InputJsonValue,
-    },
+    data,
   })
 
   revalidatePath("/admin/practice")

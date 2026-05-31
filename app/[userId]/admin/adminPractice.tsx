@@ -113,6 +113,13 @@ export default function AdminPractice({
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editDifficulty, setEditDifficulty] = useState<string>("")
   const [editSubTasks, setEditSubTasks] = useState<Set<string>>(new Set())
+  // v: タイトル/カテゴリ/調/テンポ もインライン編集対象に追加
+  const [editTitle, setEditTitle] = useState("")
+  const [editCategory, setEditCategory] = useState("")
+  const [editKeyTonic, setEditKeyTonic] = useState("")
+  const [editKeyMode, setEditKeyMode] = useState("")
+  const [editTempoMin, setEditTempoMin] = useState("")
+  const [editTempoMax, setEditTempoMax] = useState("")
   const [, startTransition] = useTransition()
   const [editError, setEditError] = useState<string | null>(null)
   const [editSaving, setEditSaving] = useState(false)
@@ -223,6 +230,12 @@ export default function AdminPractice({
     setEditingId(item.id)
     setEditDifficulty(item.star != null ? String(item.star) : "")
     setEditSubTasks(new Set(item.skillSubTaskTags))
+    setEditTitle(item.title)
+    setEditCategory(item.category)
+    setEditKeyTonic(item.keyTonic || "")
+    setEditKeyMode(item.keyMode || "")
+    setEditTempoMin(item.tempoMin != null ? String(item.tempoMin) : "")
+    setEditTempoMax(item.tempoMax != null ? String(item.tempoMax) : "")
     setEditError(null)
   }
 
@@ -242,17 +255,70 @@ export default function AdminPractice({
       }
       difficulty = n
     }
+
+    // タイトル
+    const title = editTitle.trim()
+    if (title === "") {
+      setEditError("タイトルを入力してください")
+      return
+    }
+
+    // テンポ (空欄は未設定=null)
+    const parseTempo = (s: string): number | null | "invalid" => {
+      if (s.trim() === "") return null
+      const n = Number.parseInt(s, 10)
+      if (!Number.isFinite(n) || n < 1 || n > 400) return "invalid"
+      return n
+    }
+    const tMin = parseTempo(editTempoMin)
+    const tMax = parseTempo(editTempoMax)
+    if (tMin === "invalid" || tMax === "invalid") {
+      setEditError("テンポは 1〜400 で指定してください")
+      return
+    }
+    if (tMin != null && tMax != null && tMin > tMax) {
+      setEditError("テンポの最小値は最大値以下にしてください")
+      return
+    }
+
     setEditSaving(true)
     try {
-      const payload = {
-        star: difficulty, // local 変数名は UI 概念のまま、payload キーは v1.3 B-3 で star に統一
-        skillSubTaskTags: Array.from(editSubTasks),
+      const subTasks = Array.from(editSubTasks)
+      let result
+      let patch: Partial<ItemDTO>
+      if (item.type === "score") {
+        // Score: カテゴリは固定。テンポは単一 (defaultTempo)。最小値を採用。
+        const defaultTempo = tMin
+        result = await updateScoreTags(item.id, {
+          star: difficulty,
+          skillSubTaskTags: subTasks,
+          title,
+          keyTonic: editKeyTonic.trim() || null,
+          keyMode: editKeyMode || null,
+          defaultTempo,
+        })
+        patch = {
+          star: difficulty, skillSubTaskTags: subTasks, title,
+          keyTonic: editKeyTonic.trim(), keyMode: editKeyMode,
+          tempoMin: defaultTempo, tempoMax: null,
+        }
+      } else {
+        result = await updatePracticeItemTags(item.id, {
+          star: difficulty,
+          skillSubTaskTags: subTasks,
+          title,
+          category: editCategory,
+          keyTonic: editKeyTonic.trim(),
+          keyMode: editKeyMode,
+          tempoMin: tMin,
+          tempoMax: tMax,
+        })
+        patch = {
+          star: difficulty, skillSubTaskTags: subTasks, title,
+          category: editCategory, keyTonic: editKeyTonic.trim(), keyMode: editKeyMode,
+          tempoMin: tMin, tempoMax: tMax,
+        }
       }
-      // type に応じて適切な server action を呼ぶ
-      const result =
-        item.type === "score"
-          ? await updateScoreTags(item.id, payload)
-          : await updatePracticeItemTags(item.id, payload)
       if ("error" in result) {
         setEditError(result.error)
         return
@@ -260,11 +326,7 @@ export default function AdminPractice({
       // 楽観的更新: ローカル state も差し替え
       startTransition(() => {
         setItems(prev =>
-          prev.map(it =>
-            it.id === item.id
-              ? { ...it, star: difficulty, skillSubTaskTags: Array.from(editSubTasks) }
-              : it,
-          ),
+          prev.map(it => (it.id === item.id ? { ...it, ...patch } : it)),
         )
       })
       setEditingId(null)
@@ -655,13 +717,33 @@ export default function AdminPractice({
               return (
                 <tr key={item.id} className={noDiff || noTags ? styles.rowNeedsAttention : ""}>
                   <td>
-                    <div className={styles.itemTitle}>{item.title}</div>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        style={{ width: 200 }}
+                        placeholder="タイトル"
+                      />
+                    ) : (
+                      <div className={styles.itemTitle}>{item.title}</div>
+                    )}
                     {item.composer && <div className={styles.itemSub}>{item.composer}</div>}
                   </td>
                   <td>
-                    {categoryLabels[item.category] || item.category}
-                    {item.type === "score" && (
-                      <span className={styles.scoreMarker} title="Score テーブル">♬</span>
+                    {isEditing && item.type !== "score" ? (
+                      <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)}>
+                        {PRACTICE_CATEGORIES.map((c) => (
+                          <option key={c} value={c}>{categoryLabels[c] ?? c}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <>
+                        {categoryLabels[item.category] || item.category}
+                        {item.type === "score" && (
+                          <span className={styles.scoreMarker} title="Score テーブル">♬</span>
+                        )}
+                      </>
                     )}
                   </td>
                   <td>
@@ -734,18 +816,52 @@ export default function AdminPractice({
                     )}
                   </td>
                   <td>
-                    {item.keyTonic
-                      ? `${item.keyTonic} ${modeLabels[item.keyMode] || item.keyMode}`
-                      : "-"}
+                    {isEditing ? (
+                      <div style={{ display: "flex", gap: 4 }}>
+                        <select value={editKeyTonic} onChange={(e) => setEditKeyTonic(e.target.value)}>
+                          <option value="">-</option>
+                          {tonicOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+                        </select>
+                        <select value={editKeyMode} onChange={(e) => setEditKeyMode(e.target.value)}>
+                          <option value="">-</option>
+                          <option value="major">長調</option>
+                          <option value="minor">短調</option>
+                        </select>
+                      </div>
+                    ) : item.keyTonic ? (
+                      `${item.keyTonic} ${modeLabels[item.keyMode] || item.keyMode}`
+                    ) : (
+                      "-"
+                    )}
                   </td>
                   <td>
-                    {item.type === "score"
-                      ? item.tempoMin
-                        ? `♩=${item.tempoMin}`
-                        : "-"
-                      : item.tempoMin && item.tempoMax
-                        ? `${item.tempoMin}-${item.tempoMax}`
-                        : "-"}
+                    {isEditing ? (
+                      item.type === "score" ? (
+                        // Score は単一テンポ (defaultTempo)。最小値欄を流用。
+                        <div className={styles.inlineGroup}>
+                          <span style={{ fontSize: 12 }}>♩=</span>
+                          <input type="number" min={1} max={400} value={editTempoMin}
+                            onChange={(e) => setEditTempoMin(e.target.value)}
+                            placeholder="120" style={{ width: 70 }} />
+                        </div>
+                      ) : (
+                        <div className={styles.inlineGroup}>
+                          <input type="number" min={1} max={400} value={editTempoMin}
+                            onChange={(e) => setEditTempoMin(e.target.value)}
+                            placeholder="60" style={{ width: 60 }} />
+                          <span>〜</span>
+                          <input type="number" min={1} max={400} value={editTempoMax}
+                            onChange={(e) => setEditTempoMax(e.target.value)}
+                            placeholder="90" style={{ width: 60 }} />
+                        </div>
+                      )
+                    ) : item.type === "score" ? (
+                      item.tempoMin ? `♩=${item.tempoMin}` : "-"
+                    ) : item.tempoMin && item.tempoMax ? (
+                      `${item.tempoMin}-${item.tempoMax}`
+                    ) : (
+                      "-"
+                    )}
                   </td>
                   <td>
                     <span className={item.analysisStatus === "done" && item.buildStatus === "done"
