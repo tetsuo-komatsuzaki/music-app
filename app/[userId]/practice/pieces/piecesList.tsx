@@ -11,8 +11,6 @@ export type Piece = {
   star: number | null
 }
 
-type Tab = number | "unset"
-
 export default function PiecesList({
   userId,
   pieces,
@@ -20,17 +18,15 @@ export default function PiecesList({
   userId: string
   pieces: Piece[]
 }) {
-  // 出現する☆を昇順にタブ化。star 未設定がある場合のみ末尾に「未設定」タブ。
-  const starValues = Array.from(
+  // 出現する☆を昇順にタブ化 (star 未設定の曲はタブを設けない)。
+  const tabs = Array.from(
     new Set(pieces.map(p => p.star).filter((s): s is number => s != null)),
   ).sort((a, b) => a - b)
-  const hasUnset = pieces.some(p => p.star == null)
-  const tabs: Tab[] = [...starValues, ...(hasUnset ? (["unset"] as Tab[]) : [])]
 
-  const [active, setActive] = useState<Tab | null>(tabs.length ? tabs[0] : null)
+  const [active, setActive] = useState<number | null>(tabs.length ? tabs[0] : null)
 
   const filtered = pieces
-    .filter(p => (active === "unset" ? p.star == null : p.star === active))
+    .filter(p => p.star === active)
     .sort((a, b) => a.title.localeCompare(b.title, "ja"))
 
   return (
@@ -47,12 +43,12 @@ export default function PiecesList({
           <div className={styles.starTabs}>
             {tabs.map(t => (
               <button
-                key={String(t)}
+                key={t}
                 type="button"
                 className={`${styles.starTab} ${active === t ? styles.starTabActive : ""}`}
                 onClick={() => setActive(t)}
               >
-                {t === "unset" ? "未設定" : `☆${t}`}
+                ☆{t}
               </button>
             ))}
           </div>
