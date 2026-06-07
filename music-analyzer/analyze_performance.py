@@ -596,6 +596,50 @@ def _detect_sound_end(seg_start, detected_pitch, valid_time, valid_f0):
     return last_valid_time
 
 
+# 奏法品質 2e 段階1+ (2026-06-08): 音量(RMS)エンベロープで「実際に発音していた終わり」
+# を求めるための定数。_detect_sound_end(ピッチ継続)は弦の残響を含み長めに出るため、
+# dur_ratio の分子(実音長)用にピーク音量から十分下がった時刻で切る。
+ARTICULATION_END_DECAY_FRAC = 0.2     # ピーク RMS の 20%(≒ -14dB)未満で「鳴り止んだ」とみなす
+ARTICULATION_END_CONFIRM_FRAMES = 3   # N コマ連続で閾値未満なら確定 (~17ms @hop256/44100)
+
+
+def _detect_articulation_end(seg_start, seg_end, rms, time_all,
+                             decay_frac=ARTICULATION_END_DECAY_FRAC,
+                             confirm=ARTICULATION_END_CONFIRM_FRAMES):
+    """音量エンベロープで「実際に発音していた終わり」を返す (dur_ratio 用)。
+
+    _detect_sound_end はピッチが聞こえ続けた終端で、バイオリンの残響(同じ高さで
+    だんだん小さく鳴る)を含むため発音より長めに出る。ここではピーク音量の decay_frac
+    未満へ confirm コマ連続で落ちた最初の時刻を返し、残響の尾を除く。
+    - 落ちなければ(持続音=レガート等) seg_end をそのまま返す → 短く切らない
+    - seg_end(オンセットガード用のピッチ終端)は変更しない。これは出力(dur_ratio)専用
+    - アタックの立ち上がり中に切らないよう、走査はピーク位置から開始する
+    """
+    if rms is None or time_all is None or seg_end is None or seg_start is None:
+        return seg_end
+    mask = (time_all >= seg_start) & (time_all <= seg_end)
+    idx = np.where(mask)[0]
+    if len(idx) < confirm + 1:
+        return seg_end
+    env = rms[idx]
+    t = time_all[idx]
+    peak_i = int(np.argmax(env))
+    peak = float(env[peak_i])
+    if peak <= 0:
+        return seg_end
+    threshold = peak * decay_frac
+    below = 0
+    for k in range(peak_i, len(env)):
+        if env[k] < threshold:
+            below += 1
+            if below >= confirm:
+                # 最初に閾値を割ったコマの時刻を発音終了とする
+                return float(t[k - confirm + 1])
+        else:
+            below = 0
+    return seg_end  # 最後まで下がらない=持続音 → 短く切らない
+
+
 # =========================================================
 # Step 3: ノートごとの評価
 # =========================================================
@@ -1210,8 +1254,14 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
                 eval_status = "pitch_only"
 
             # onset ガード用: 前ノートの終了位置を記録 (find_note_segment guard1 で使用)
+            # ※ ピッチ終端 seg_end を使う (ガードの意味を変えない)。
             prev_seg_end = seg_end
             # ⑤ cursor の事後更新は dead code (次イテで expected_pos 基準にリセットされる) → 削除
+
+            # 奏法品質 2e: dur_ratio 用の実音長は音量で精緻化した発音終端を使う
+            # (残響の尾を除く)。ガード用 seg_end とは別物。
+            articulation_end = _detect_articulation_end(
+                seg_start, seg_end, rms, time_all)
 
             results.append(_make_result(
                 note_idx, measure_num, note_name, global_shift, expected_pos,
@@ -1221,7 +1271,7 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
                 safe_float(pitch_cents_error), pitch_ok,
                 safe_float(start_diff), start_ok,
                 valid_frames, eval_status, confidence,
-                detected_end=safe_float(seg_end)))
+                detected_end=safe_float(articulation_end)))
 
         else:
             # 同音 legato 救済 (2026-05-26): 前ノートと同音で検出器が拾えなかったケースは
@@ -1417,8 +1467,9 @@ def _make_result(ni, mn, nn, gs, ess, ees, ep,
         "expected_pitch_hz": float(ep),
         # 区間データ
         "detected_start_sec": seg_start,
-        # 奏法品質 2e 段階1 (2026-06-08): 実音の終了時刻。_detect_sound_end で内部計算済の
-        # seg_end を出力する (従来は破棄)。dur_ratio=実音長/期待音長 の算出に使う。
+        # 奏法品質 2e 段階1+ (2026-06-08): 実音の発音終了時刻。音量(RMS)エンベロープで
+        # 精緻化した発音終端 (_detect_articulation_end) を出力し、弦の残響の尾を除く。
+        # dur_ratio=実音長/期待音長 の算出に使う。オンセットガード用の seg_end とは別物。
         # 同音 legato 救済 / not_detected では検出不能のため None。
         "detected_end_sec": detected_end,
         "detected_pitch_hz": avg_pitch,
