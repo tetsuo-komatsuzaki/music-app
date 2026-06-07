@@ -389,6 +389,7 @@ function PerformanceHistory({
   performanceCount,
   kind,
   onRenamed,
+  renderDetail,
 }: {
   performances: PerformanceDTO[]
   selectedId: string | null
@@ -397,6 +398,8 @@ function PerformanceHistory({
   performanceCount: number
   kind: "score" | "practice"
   onRenamed: (performanceId: string, newName: string) => void
+  /** 開いたカード内に収納する評価詳細 (再生 / 得点 / 判定内容) を描画する */
+  renderDetail?: (p: PerformanceDTO) => React.ReactNode
 }) {
   const [page, setPage] = useState(0)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -487,17 +490,24 @@ function PerformanceHistory({
                   ) : (
                     <span className={styles.historyName}>{displayName}</span>
                   )}
-                  {p.overallScore != null && !isEditing && (
-                    <span
-                      className={styles.rankBadgeSmall}
-                      style={{
-                        background: rankLabels[getScoreRank(p.overallScore)].bg,
-                        color: rankLabels[getScoreRank(p.overallScore)].color,
-                      }}
-                    >
-                      {rankLabels[getScoreRank(p.overallScore)].label}
-                    </span>
-                  )}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    {p.overallScore != null && !isEditing && (
+                      <span
+                        className={styles.rankBadgeSmall}
+                        style={{
+                          background: rankLabels[getScoreRank(p.overallScore)].bg,
+                          color: rankLabels[getScoreRank(p.overallScore)].color,
+                        }}
+                      >
+                        {rankLabels[getScoreRank(p.overallScore)].label}
+                      </span>
+                    )}
+                    {!isEditing && (
+                      <span aria-hidden style={{ fontSize: 11, color: "#999" }}>
+                        {selectedId === p.id ? "▲" : "▼"}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className={styles.historyMeta}>
                   <span>{statusLabel}</span>
@@ -540,6 +550,15 @@ function PerformanceHistory({
                 </div>
                 {isEditing && saveError && (
                   <div className={styles.historyError}>{saveError}</div>
+                )}
+                {/* アコーディオン展開: 再生 / 得点 / 判定内容 をカード内に収納 */}
+                {!isEditing && selectedId === p.id && renderDetail && (
+                  <div
+                    style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 12 }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {renderDetail(p)}
+                  </div>
                 )}
               </div>
             )
@@ -1007,11 +1026,14 @@ export default function ScoreDetail({
 
   const handleSelectPerformance = useCallback((p: PerformanceDTO) => {
     setPopover(null)
-    setSelected(p)
-    if (!p.comparisonResult && (p.pitchAccuracy != null || p.overallScore != null)) {
+    // アコーディオン: 開いているカードを再タップしたら閉じる
+    const willClose = selected?.id === p.id
+    setSelected(willClose ? null : p)
+    // 開くときだけ comparison をロード (loadComparison は既ロード時 early-return)
+    if (!willClose && !p.comparisonResult && (p.pitchAccuracy != null || p.overallScore != null)) {
       loadComparison(p)
     }
-  }, [loadComparison])
+  }, [selected, loadComparison])
 
   // 過去ベストスコア（ピッチ）— 録音後フィードバックの比較用
   const bestPitchScore = useMemo(() => {
@@ -1264,10 +1286,6 @@ export default function ScoreDetail({
   // --- v1→v2正規化 ---
   const comparison = useMemo(
     () => normalizeComparison(selected?.comparisonResult ?? null),
-    [selected]
-  )
-  const warnings = useMemo(
-    () => selected?.comparisonWarnings ?? [],
     [selected]
   )
 
@@ -2214,25 +2232,8 @@ export default function ScoreDetail({
             </div>
           </div>
 
-          <AudioPlayer audioUrl={selected?.audioUrl ?? null} performanceId={selected?.id} />
-
-          {selected && (selected.pitchAccuracy != null || selected.timingAccuracy != null) && (
-            <EvaluationSummaryCard performance={selected} warnings={warnings} />
-          )}
-
-          {/* v1.6 Phase 4-4 (Q1=a/Q2=A 確定): skill-detail (個別演奏の詳細フィードバック)
-              は Score 演奏選択時のみ「練習」タブ内に表示。練習教材 (scale/arpeggio/etude)
-              からは除去 (仕様書 v1.6 §3-1: ループエンジンは Score 演奏に紐づく)。
-              役割分担: 課題カード一覧は「上達ループ」タブ (ScoreLoopDetail) が担う。 */}
-          {!practiceItemId && selected?.id && (
-            <PerformanceSkillDetail
-              performanceId={selected.id}
-              kind="score"
-              onDeleted={handlePerformanceDeleted}
-              onJumpToPosition={handleJumpToProblematicPosition}
-              userId={userId}
-            />
-          )}
+          {/* 評価詳細 (再生 / 得点 / 判定内容) は各演奏履歴カード内にアコーディオン収納
+              (renderDetail として PerformanceHistory に渡す)。skill-detail は Score 演奏のみ。 */}
           {!practiceItemId && !selected && recentlyDeleted && (
             <div className={styles.deleteHint} role="status">
               演奏を削除しました。履歴から別の演奏を選んでください。
@@ -2255,6 +2256,23 @@ export default function ScoreDetail({
                   prev && prev.id === performanceId ? { ...prev, name: newName } : prev
                 )
               }}
+              renderDetail={(p) => (
+                <>
+                  <AudioPlayer audioUrl={p.audioUrl ?? null} performanceId={p.id} />
+                  {(p.pitchAccuracy != null || p.timingAccuracy != null) && (
+                    <EvaluationSummaryCard performance={p} warnings={p.comparisonWarnings ?? []} />
+                  )}
+                  {!practiceItemId && (
+                    <PerformanceSkillDetail
+                      performanceId={p.id}
+                      kind="score"
+                      onDeleted={handlePerformanceDeleted}
+                      onJumpToPosition={handleJumpToProblematicPosition}
+                      userId={userId}
+                    />
+                  )}
+                </>
+              )}
             />
           </div>
         </div>
