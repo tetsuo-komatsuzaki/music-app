@@ -156,9 +156,12 @@ class IntegratedNote:
     onset_count: Optional[int] = None  # 音符ピッチ区間内のオンセット数(旧指標、参考)
     onset_rate_per_sec: Optional[float] = None  # オンセット密度(回/秒)(旧指標、参考)
     # tremolo 音声側特徴量
-    pitch_alt_count: Optional[int] = None  # f0 が 2 クラスタ間を往復した回数(指トレモロ)
-    pitch_alt_semitones: Optional[float] = None  # 2 クラスタの音程差(半音)。2音交互の確認用
+    pitch_alt_count: Optional[int] = None  # f0 が 2 クラスタ間を往復した回数(指トレモロ/トリル)
+    pitch_alt_semitones: Optional[float] = None  # 2 クラスタの音程差(半音)。交替の確認用
     amp_stroke_count: Optional[int] = None  # 音量ストローク数(弓トレモロ)
+    # ピチカート包絡特徴量 (2e 段階3 2026-06-08)
+    attack_peak_frac: Optional[float] = None  # RMS ピーク位置(区間内, 0=先頭)。撥弦は鋭く小さい
+    decay_ratio: Optional[float] = None  # 末尾1/4平均RMS ÷ ピークRMS。撥弦は減衰で小さい
 
     # === tremolo 楽譜側情報（analysis.json から、2e 段階2 2026-06-08）===
     tremolo_type: Optional[str] = None  # "bowed"(弓/同音) | "fingered"(指/2音) | None

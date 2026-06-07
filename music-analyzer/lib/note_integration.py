@@ -391,6 +391,9 @@ def _merge_notes(
             pitch_alt_semitones = _safe_float(eval_note.get("pitch_alt_semitones"))
             _asc = eval_note.get("amp_stroke_count")
             amp_stroke_count = int(_asc) if isinstance(_asc, (int, float)) else None
+            # ピチカート包絡特徴量 (段階3)
+            attack_peak_frac = _safe_float(eval_note.get("attack_peak_frac"))
+            decay_ratio = _safe_float(eval_note.get("decay_ratio"))
             
             # v3.2.2: measure_number を comparison_result から取得（1-indexed）
             measure_number = eval_note.get("measure_number")
@@ -415,6 +418,8 @@ def _merge_notes(
             pitch_alt_count = None
             pitch_alt_semitones = None
             amp_stroke_count = None
+            attack_peak_frac = None
+            decay_ratio = None
             
             # comparison_result が無い → note_results からフォールバック
             measure_raw = nr_note.get("measure", 0)
@@ -470,6 +475,8 @@ def _merge_notes(
                 pitch_alt_count=pitch_alt_count,
                 pitch_alt_semitones=pitch_alt_semitones,
                 amp_stroke_count=amp_stroke_count,
+                attack_peak_frac=attack_peak_frac,
+                decay_ratio=decay_ratio,
                 tremolo_type=tremolo_type,
                 tremolo_marks=tremolo_marks,
                 tremolo_partner_hz=tremolo_partner_hz,

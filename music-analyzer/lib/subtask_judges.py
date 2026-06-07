@@ -552,10 +552,37 @@ def _make_tremolo_quality(bpm: float) -> Callable[[IntegratedNote], Optional[boo
     return q
 
 
+# 段階3 (2026-06-08) トリル/ピチカート。暫定値([[project_technique_threshold_calibration_pending]])。
+# 注: トリルは tremolo と同じ「速い交替/時間分解能/均一性」の壁を持つ
+#     ([[project_evenness_quality_axis_pending]])。実録音で要再検証。
+_TRILL_MIN_ALTERNATIONS = 4     # トリル: f0 往復がこれ以上 (無計量なので回数期待値は使わない)
+_TRILL_MIN_SEMITONES = 0.7      # トリル: 主音↔補助音 (半音/全音) の下限
+_TRILL_MAX_SEMITONES = 3.0      # トリル: これ超は跳躍/トレモロであってトリルでない
+_PIZZ_MAX_ATTACK_FRAC = 0.4     # ピチカート: ピークが区間前方 (鋭いアタック)
+_PIZZ_MAX_DECAY_RATIO = 0.5     # ピチカート: 末尾がピークの半分以下 (撥弦の自然減衰)
+
+
+def _q_trill(n: IntegratedNote) -> Optional[bool]:
+    if n.pitch_alt_count is None or n.pitch_alt_semitones is None:
+        return None
+    if not (_TRILL_MIN_SEMITONES <= n.pitch_alt_semitones <= _TRILL_MAX_SEMITONES):
+        return False  # 交替が無い/広すぎる = トリルとして弾けていない
+    return n.pitch_alt_count >= _TRILL_MIN_ALTERNATIONS
+
+
+def _q_pizzicato(n: IntegratedNote) -> Optional[bool]:
+    if n.attack_peak_frac is None or n.decay_ratio is None:
+        return None
+    # 鋭いアタック(ピークが前方) かつ 減衰している(末尾が小さい) = 撥弦らしい包絡
+    return n.attack_peak_frac <= _PIZZ_MAX_ATTACK_FRAC and n.decay_ratio <= _PIZZ_MAX_DECAY_RATIO
+
+
 _TECH_QUALITY: dict[str, Callable[[IntegratedNote], Optional[bool]]] = {
     "staccato": _q_staccato,
     "spiccato": _q_staccato,
     "portato": _q_portato,
+    "trill": _q_trill,
+    "pizzicato": _q_pizzicato,
 }
 
 

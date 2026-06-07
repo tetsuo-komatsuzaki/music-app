@@ -695,6 +695,31 @@ def _tremolo_features(seg_start, seg_end, valid_time, valid_f0, rms, time_all):
     return pitch_alt_count, round(pitch_alt_semitones, 2), amp_stroke_count
 
 
+def _pizz_features(seg_start, seg_end, rms, time_all):
+    """ピチカート用の包絡特徴量を返す。
+    Returns: (attack_peak_frac, decay_ratio)
+      attack_peak_frac: RMS ピークが区間のどこに来るか (0=先頭)。撥弦は鋭いアタックで小さい
+      decay_ratio: 末尾1/4の平均RMS ÷ ピークRMS。撥弦は減衰するので小さい(弓は持続で大きい)
+    """
+    if rms is None or time_all is None:
+        return None, None
+    mask = (time_all >= seg_start) & (time_all <= seg_end)
+    idx = np.where(mask)[0]
+    if len(idx) < 4:
+        return None, None
+    r = rms[idx]
+    t = time_all[idx]
+    peak_i = int(np.argmax(r))
+    peak = float(r[peak_i])
+    dur = seg_end - seg_start
+    if peak <= 0 or dur <= 0:
+        return None, None
+    attack_peak_frac = (float(t[peak_i]) - seg_start) / dur
+    tail_n = max(1, len(r) // 4)
+    decay_ratio = float(np.mean(r[-tail_n:])) / peak
+    return round(attack_peak_frac, 3), round(decay_ratio, 3)
+
+
 # =========================================================
 # Step 3: ノートごとの評価
 # =========================================================
@@ -1333,9 +1358,13 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
             pitch_alt_count = None
             pitch_alt_semitones = None
             amp_stroke_count = None
+            attack_peak_frac = None
+            decay_ratio = None
             if seg_end is not None and seg_end > seg_start:
                 pitch_alt_count, pitch_alt_semitones, amp_stroke_count = _tremolo_features(
                     seg_start, seg_end, valid_time, valid_f0, rms, time_all)
+                attack_peak_frac, decay_ratio = _pizz_features(
+                    seg_start, seg_end, rms, time_all)
 
             results.append(_make_result(
                 note_idx, measure_num, note_name, global_shift, expected_pos,
@@ -1350,7 +1379,9 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
                 onset_rate=safe_float(onset_rate_per_sec),
                 pitch_alt_count=pitch_alt_count,
                 pitch_alt_semitones=pitch_alt_semitones,
-                amp_stroke_count=amp_stroke_count))
+                amp_stroke_count=amp_stroke_count,
+                attack_peak_frac=attack_peak_frac,
+                decay_ratio=decay_ratio))
 
         else:
             # 同音 legato 救済 (2026-05-26): 前ノートと同音で検出器が拾えなかったケースは
@@ -1535,7 +1566,8 @@ def _make_result(ni, mn, nn, gs, ess, ees, ep,
                  seg_start, avg_pitch, timing_from_start,
                  pce, pok, sd, sok, vf, est, confidence,
                  detected_end=None, onset_count=None, onset_rate=None,
-                 pitch_alt_count=None, pitch_alt_semitones=None, amp_stroke_count=None):
+                 pitch_alt_count=None, pitch_alt_semitones=None, amp_stroke_count=None,
+                 attack_peak_frac=None, decay_ratio=None):
     return {
         "note_index": ni,
         "measure_number": mn,
@@ -1559,6 +1591,9 @@ def _make_result(ni, mn, nn, gs, ess, ees, ep,
         "pitch_alt_count": pitch_alt_count,
         "pitch_alt_semitones": pitch_alt_semitones,
         "amp_stroke_count": amp_stroke_count,
+        # ピチカート包絡: アタックピーク位置(0=先頭で鋭い) / 減衰比(末尾/ピーク、小=減衰)
+        "attack_peak_frac": attack_peak_frac,
+        "decay_ratio": decay_ratio,
         "detected_pitch_hz": avg_pitch,
         "timing_from_start_sec": timing_from_start,
         "match_confidence": confidence,
