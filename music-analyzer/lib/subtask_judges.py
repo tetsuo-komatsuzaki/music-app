@@ -294,9 +294,10 @@ def _judge_harmonic(
 
 
 # ---------------------------------------------------------------------------
-# 第二弾 2b: 音程の跳躍 (pitch_interval) (2026-06-07)
-# 直前の非休符音からの半音差で判定。2度以上=|Δ|>=1, 3度以上=|Δ|>=3 (_plus は入れ子)。
-# OK = 音程。expected_pitch_midi は note_integration が pitches[0] から補完。
+# 第二弾 2b: 音程の跳躍 (pitch_interval) (2026-06-07, 2度/3度を重複なしに分割)
+# 直前の非休符音からの半音差で判定。重複なし: 2度=|Δ| 1〜2半音, 3度以上=|Δ|>=3半音。
+# 方向で up/down。OK = 音程。expected_pitch_midi は note_integration が pitches[0] 補完。
+# 注: sub_task_id は _2nd_plus のままだが意味は「2度(1〜2半音)」(3度以上と非入れ子)。
 # ---------------------------------------------------------------------------
 
 
@@ -311,13 +312,13 @@ def _run_interval_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
         cur_midi = n.expected_pitch_midi
         if cur_midi is not None and prev_midi is not None and _pitch_evaluable(n):
             delta = cur_midi - prev_midi
-            if delta >= 1:
+            if 1 <= delta <= 2:
                 up2.append(n)
-            if delta >= 3:
+            elif delta >= 3:
                 up3.append(n)
-            if delta <= -1:
+            elif -2 <= delta <= -1:
                 down2.append(n)
-            if delta <= -3:
+            elif delta <= -3:
                 down3.append(n)
         if cur_midi is not None:
             prev_midi = cur_midi
