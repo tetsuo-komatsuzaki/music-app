@@ -1,6 +1,5 @@
 import { prisma } from "@/app/_libs/prisma"
 import { generateArcoMessage } from "@/app/_libs/arcoChan"
-import { formatKey } from "@/app/_libs/musicNotation"
 import {
   extractSubTaskIdsFromCard,
   findCandidateRecommendations,
@@ -97,8 +96,6 @@ export default async function HomePage({ params }: PageProps) {
     latestPracticePerf,
     latestScorePerf,
     latestTwoScores,        // アルコちゃん改善検出用 (直近2件の overallScore)
-    recentPracticeHistory,
-    recentScoreHistory,
     userGrade,              // UI-8: legacy グレード (recommendations 用)
     userGradeProgress,      // v1.6 Phase 4-2: ホーム☆/グレード表示用 (新設計)
     activeCard,             // UI-9: レコメンド用 active カード (§11-3)
@@ -139,25 +136,6 @@ export default async function HomePage({ params }: PageProps) {
       orderBy: { uploadedAt: "desc" },
       take: 2,
       select: { overallScore: true },
-    }),
-    // 直近の練習履歴
-    prisma.practicePerformance.findMany({
-      where: { userId: internalUserId },
-      orderBy: { uploadedAt: "desc" },
-      take: 3,
-      select: {
-        uploadedAt: true,
-        practiceItem: { select: { title: true, category: true, id: true } },
-      },
-    }),
-    prisma.performance.findMany({
-      where: { userId: internalUserId, score: { deletedAt: null } },
-      orderBy: { uploadedAt: "desc" },
-      take: 3,
-      select: {
-        uploadedAt: true,
-        score: { select: { title: true, id: true, keyTonic: true, keyMode: true } },
-      },
     }),
     // UI-8: グレード表示 (legacy 経路、Phase 4-3 でレコメンド書き換え時に撤去予定。
     //   v1.6 §13-2: Q3=A 確定で旧 UI 撤去だが、recommendations は UserGrade.progressData 経由のため温存)
@@ -330,33 +308,55 @@ export default async function HomePage({ params }: PageProps) {
   }
   console.log(`[PERF] home step3_recommendations: ${(performance.now() - perfStep3).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
-  // --- 直近の練習履歴（3件、Continue バー風レイアウトで表示）---
-  type HistoryItem = {
+  // --- 基礎練習の練習状況: 直近に練習した、かつまだクリア(マスター)していない
+  //     基礎練 (PracticeItem) を横並びで提示。各カードに直近の練習日時 + 直近スコア。 ---
+  const [practicePerfsForBasics, clearedMasteryRows] = await Promise.all([
+    prisma.practicePerformance.findMany({
+      where: { userId: internalUserId },
+      orderBy: { uploadedAt: "desc" },
+      take: 50,
+      select: {
+        practiceItemId: true,
+        uploadedAt: true,
+        pitchAccuracy: true,
+        timingAccuracy: true,
+        practiceItem: { select: { id: true, title: true, category: true } },
+      },
+    }),
+    prisma.userPracticeMastery.findMany({
+      where: { userId: internalUserId, isPerformanceMastered: true },
+      select: { practiceItemId: true },
+    }),
+  ])
+  const clearedItemSet = new Set(clearedMasteryRows.map((m) => m.practiceItemId))
+  const seenItemIds = new Set<string>()
+  type BasicPracticeCard = {
+    id: string
     title: string
-    subtitle: string
+    category: string
     href: string
-    uploadedAt: string
+    lastPracticedAt: string
+    recentScore: number | null
   }
-  const recentHistory: HistoryItem[] = [
-    ...recentPracticeHistory
-      .filter(p => p.practiceItem)
-      .map(p => ({
-        title:      p.practiceItem!.title,
-        subtitle:   p.practiceItem!.category,
-        href:       `/${userId}/practice/${p.practiceItem!.category}/${p.practiceItem!.id}`,
-        uploadedAt: p.uploadedAt.toISOString(),
-      })),
-    ...recentScoreHistory
-      .filter(p => p.score)
-      .map(p => ({
-        title:      p.score!.title,
-        subtitle:   formatKey(p.score!.keyTonic, p.score!.keyMode),
-        href:       `/${userId}/scores/${p.score!.id}`,
-        uploadedAt: p.uploadedAt.toISOString(),
-      })),
-  ]
-    .sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt))
-    .slice(0, 3)
+  const basicPracticeCards: BasicPracticeCard[] = []
+  for (const p of practicePerfsForBasics) {
+    if (!p.practiceItemId || !p.practiceItem) continue
+    if (clearedItemSet.has(p.practiceItemId) || seenItemIds.has(p.practiceItemId)) continue
+    seenItemIds.add(p.practiceItemId)
+    const recentScore =
+      p.pitchAccuracy != null && p.timingAccuracy != null
+        ? Math.round((p.pitchAccuracy + p.timingAccuracy) / 2)
+        : null
+    basicPracticeCards.push({
+      id: p.practiceItem.id,
+      title: p.practiceItem.title,
+      category: p.practiceItem.category,
+      href: `/${userId}/practice/${p.practiceItem.category}/${p.practiceItem.id}`,
+      lastPracticedAt: p.uploadedAt.toISOString(),
+      recentScore,
+    })
+    if (basicPracticeCards.length >= 8) break
+  }
 
   // --- 直近の練習曲 (Score) + 曲別 直近平均スコア (pitch+timing の 2 軸平均) ---
   // overallScore は skill 依存で欠損しやすいため、確実に入る pitch/timing で算出。
@@ -448,7 +448,7 @@ export default async function HomePage({ params }: PageProps) {
       arcoMessage={arcoMessage}
       gradeData={gradeData}
       songRecommendations={songRecommendations}
-      recentHistory={recentHistory}
+      basicPracticeCards={basicPracticeCards}
       recentPieces={recentPieces}
       challengeName={challengeName}
       nextPieceRecommendations={nextPieceRecommendations}

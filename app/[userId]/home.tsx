@@ -31,11 +31,14 @@ type Props = {
   gradeData: GradeData
   /** UI-9 (§11-3): active カード優先のレコメンド (最大 5 件) = 課題クリア用の練習教材 */
   songRecommendations: SongRecommendation[]
-  recentHistory: {
+  /** 基礎練習の練習状況: 直近に練習した、まだクリアしていない基礎練 */
+  basicPracticeCards: {
+    id: string
     title: string
-    subtitle: string
+    category: string
     href: string
-    uploadedAt: string
+    lastPracticedAt: string
+    recentScore: number | null
   }[]
   /** 直近の練習曲 (Score) + 曲別 直近平均スコア */
   recentPieces: { id: string; title: string; recentAvg: number | null; href: string }[]
@@ -202,7 +205,7 @@ export default function HomeClient({
   arcoMessage,
   gradeData,
   songRecommendations,
-  recentHistory,
+  basicPracticeCards,
   recentPieces,
   challengeName,
   nextPieceRecommendations,
@@ -282,21 +285,59 @@ export default function HomeClient({
         nextPieces={nextPieceRecommendations}
       />
 
-      {/* ───── 直近の練習 (Continue バー風レイアウト) ───── */}
-      {recentHistory.length > 0 && (
+      {/* ───── 基礎練習の練習状況: 直近練習・未クリアの基礎練を横並び ───── */}
+      {basicPracticeCards.length > 0 && (
         <div className={styles.card}>
-          <div className={styles.sectionTitle}>直近の練習</div>
-          <div className={styles.historyBarList}>
-            {recentHistory.map((item, i) => (
-              <Link key={i} href={item.href} className={styles.continueBar}>
-                <div className={styles.continueIcon}>▶</div>
-                <div className={styles.continueInfo}>
-                  <div className={styles.continueTitle}>{item.title}</div>
-                  <div className={styles.continueMeta}>
-                    {item.subtitle ? `${item.subtitle} · ` : ""}{relativeTime(item.uploadedAt)}
-                  </div>
+          <div className={styles.sectionTitle}>基礎練習の練習状況</div>
+          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+            {basicPracticeCards.map((item) => (
+              <Link
+                key={item.id}
+                href={item.href}
+                style={{
+                  flex: "0 0 auto",
+                  width: 150,
+                  padding: "12px 14px",
+                  borderRadius: 12,
+                  border: "1px solid #e5e7eb",
+                  background: "#fff",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    marginBottom: 8,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {item.title}
                 </div>
-                <span className={styles.continueArrow}>›</span>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 6 }}>
+                  <span style={{ fontSize: 11, color: "#999" }}>
+                    {relativeTime(item.lastPracticedAt)}
+                  </span>
+                  {item.recentScore != null ? (
+                    <span
+                      style={{
+                        fontSize: 18,
+                        fontWeight: 700,
+                        padding: "2px 8px",
+                        borderRadius: 8,
+                        ...scoreColor(item.recentScore),
+                      }}
+                    >
+                      {item.recentScore}
+                      <span style={{ fontSize: 10, fontWeight: 500 }}>点</span>
+                    </span>
+                  ) : (
+                    <span style={{ fontSize: 11, color: "#bbb" }}>未評価</span>
+                  )}
+                </div>
               </Link>
             ))}
           </div>
