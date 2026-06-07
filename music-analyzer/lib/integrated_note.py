@@ -141,6 +141,11 @@ class IntegratedNote:
     # === 連符（analysis.json tuplet_actual から、2c 2026-06-07）===
     tuplet_actual: Optional[int] = None  # 実連符数: 3連符=3, 2連符=2, 5連符=5。連符でなければ None
 
+    # === 奏法（analysis.json から、2e 2026-06-07）===
+    articulations: List[str] = field(default_factory=list)  # music21 articulation クラス名
+    is_tremolo: bool = False
+    is_trill: bool = False
+
     # === note_integration.py で生成（v3.2 Q7 確定）===
     is_string_change_from_prev: bool = False  # 直前の音から弦移動した
                                                 # v3.2: analyze_musicxml ではなく

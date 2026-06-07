@@ -473,6 +473,53 @@ def _run_position_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     return results
 
 
+# ---------------------------------------------------------------------------
+# 第二弾 2e: 奏法 (rhythm_technique_* / bowing_technique_*) (2026-06-07)
+# analysis.json の articulations(music21クラス名) / is_tremolo / is_trill で対象を絞る。
+# OK = リズム系→タイミング, 弓系→音程&タイミング (音色の品質判定は後回し[[..deferred]])。
+# 確実に検出できる奏法のみ実装。martele/hooked_staccato/ricochet/arpeggio/glissando は
+# 確実な検出手段が無いためスケルトン据置。
+# ---------------------------------------------------------------------------
+
+# 奏法 suffix → 検出関数 (該当音符か)
+_TECH_DETECTORS: dict[str, Callable[[IntegratedNote], bool]] = {
+    "staccato": lambda n: any(a in ("Staccato", "Staccatissimo") for a in n.articulations),
+    "spiccato": lambda n: "Spiccato" in n.articulations,
+    "pizzicato": lambda n: "Pizzicato" in n.articulations,
+    "portato": lambda n: any(a in ("DetachedLegato", "Tenuto") for a in n.articulations),
+    "tremolo": lambda n: n.is_tremolo,
+    "trill": lambda n: n.is_trill,
+}
+
+
+def _judge_technique(
+    data: IntegratedScoreData,
+    sub_task_id: str,
+    detector: Callable[[IntegratedNote], bool],
+    axis: str,
+) -> SubTaskResult:
+    """奏法 sub_task。axis='rhythm'→OK=タイミング, 'bowing'→OK=音程&タイミング。"""
+    evaluable = _timing_evaluable if axis == "rhythm" else _bow_evaluable
+    is_bad = _timing_bad if axis == "rhythm" else _bow_bad
+    targets = [
+        n for n in data.notes if not n.is_rest and detector(n) and evaluable(n)
+    ]
+    return _judge(sub_task_id, targets, is_bad)
+
+
+def _run_technique_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
+    all_ids = set(ALL_SUB_TASK_IDS)
+    results: dict[str, SubTaskResult] = {}
+    for tech, detector in _TECH_DETECTORS.items():
+        rid = f"rhythm_technique_{tech}"
+        if rid in all_ids:
+            results[rid] = _judge_technique(data, rid, detector, "rhythm")
+        bid = f"bowing_technique_{tech}"
+        if bid in all_ids:
+            results[bid] = _judge_technique(data, bid, detector, "bowing")
+    return results
+
+
 def _run_chord_harmonic_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     """第二弾 2a: 重音 (2/3plus/continuous) × pitch/bowing + ハーモニクス × pitch/bowing。"""
     cont_ids = _continuous_chord_ids(data)
@@ -546,6 +593,7 @@ def run_all_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     implemented.update(_run_interval_judges(data))
     implemented.update(_run_value_judges(data))
     implemented.update(_run_position_judges(data))
+    implemented.update(_run_technique_judges(data))
     return {
         sub_id: implemented.get(sub_id) or _skipped_result(sub_id)
         for sub_id in ALL_SUB_TASK_IDS

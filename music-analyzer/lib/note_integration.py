@@ -328,6 +328,10 @@ def _merge_notes(
         is_harmonic = bool(nr_note.get("is_harmonic", False))
         _tup = nr_note.get("tuplet_actual")
         tuplet_actual = int(_tup) if isinstance(_tup, (int, float)) else None
+        # 奏法 (2e): articulations(music21クラス名) / is_tremolo / is_trill
+        articulations = list(nr_note.get("articulations") or [])
+        is_tremolo = bool(nr_note.get("is_tremolo", False))
+        is_trill = bool(nr_note.get("is_trill", False))
 
         # comparison_result から検出結果を取得（インデックスで対応付け）
         eval_note = eval_notes[i] if i < len(eval_notes) else None
@@ -401,6 +405,9 @@ def _merge_notes(
                 pitch_count=pitch_count,
                 is_harmonic=is_harmonic,
                 tuplet_actual=tuplet_actual,
+                articulations=articulations,
+                is_tremolo=is_tremolo,
+                is_trill=is_trill,
                 is_string_change_from_prev=False,  # 後で _annotate_string_change で設定
             )
         )
