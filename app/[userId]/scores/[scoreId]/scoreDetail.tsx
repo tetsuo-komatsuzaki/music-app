@@ -225,6 +225,13 @@ const rankLabels: Record<ScoreRank, { label: string; color: string; bg: string }
   needsPractice: { label: "Needs Practice", color: "#791F1F", bg: "#FCEBEB" },
 }
 
+// 演奏スコア = 音程・リズム正確率の平均。総合点(overallScore)廃止に伴う曲の代表点。
+// (2026-06-07 設計確定: 曲の評価は音程+リズム、課題クリアは別軸)
+function performanceScore(p: { pitchAccuracy?: number | null; timingAccuracy?: number | null }): number | null {
+  if (p.pitchAccuracy == null || p.timingAccuracy == null) return null
+  return Math.round((p.pitchAccuracy + p.timingAccuracy) / 2)
+}
+
 // =========================================================
 // 評価サマリー（DB値をそのまま表示）
 // =========================================================
@@ -316,7 +323,7 @@ function EvaluationSummaryCard({
 }) {
   const hasPitch = performance.pitchAccuracy != null
   const hasTiming = performance.timingAccuracy != null
-  const hasOverall = performance.overallScore != null
+  const perfScore = performanceScore(performance)
 
   if (!hasPitch && !hasTiming) return null
 
@@ -336,10 +343,10 @@ function EvaluationSummaryCard({
             <span className={styles.evalValue}>{Math.round(performance.timingAccuracy!)}%</span>
           </div>
         )}
-        {hasOverall && (
+        {perfScore != null && (
           <div className={styles.evalRow}>
-            <span className={styles.evalLabel}>総合スコア</span>
-            <span className={styles.evalValue}>{Math.round(performance.overallScore!)}点</span>
+            <span className={styles.evalLabel}>演奏スコア</span>
+            <span className={styles.evalValue}>{perfScore}点</span>
           </div>
         )}
         {performance.evaluatedNotes != null && (
@@ -455,9 +462,10 @@ function PerformanceHistory({
             const isEditing = editingId === p.id
             const dateLabel = new Date(p.uploadedAt).toLocaleDateString("ja-JP")
             const displayName = p.name ?? "Performance"
+            const score = performanceScore(p)
             const statusLabel =
-              p.overallScore != null
-                ? `${Math.round(p.overallScore)}点`
+              score != null
+                ? `${score}点`
                 : p.analysisStatus === "error"
                   ? "解析失敗"
                   : p.analysisStatus === "done"
@@ -491,15 +499,15 @@ function PerformanceHistory({
                     <span className={styles.historyName}>{displayName}</span>
                   )}
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    {p.overallScore != null && !isEditing && (
+                    {score != null && !isEditing && (
                       <span
                         className={styles.rankBadgeSmall}
                         style={{
-                          background: rankLabels[getScoreRank(p.overallScore)].bg,
-                          color: rankLabels[getScoreRank(p.overallScore)].color,
+                          background: rankLabels[getScoreRank(score)].bg,
+                          color: rankLabels[getScoreRank(score)].color,
                         }}
                       >
-                        {rankLabels[getScoreRank(p.overallScore)].label}
+                        {rankLabels[getScoreRank(score)].label}
                       </span>
                     )}
                     {!isEditing && (
@@ -1042,10 +1050,10 @@ export default function ScoreDetail({
     return scores.length > 0 ? Math.max(...scores) : latestPitchAccuracy ?? undefined
   }, [performances, latestPitchAccuracy])
 
-  // 過去ベストスコア（総合）— 録音ボタン下の表示用
+  // 過去ベストスコア（演奏スコア = 音程+リズム平均）— 録音ボタン下の表示用
   const bestOverallScore = useMemo(() => {
     if (performances.length === 0) return undefined
-    const scores = performances.map(p => p.overallScore ?? null).filter((s): s is number => s !== null)
+    const scores = performances.map(p => performanceScore(p)).filter((s): s is number => s !== null)
     return scores.length > 0 ? Math.max(...scores) : undefined
   }, [performances])
 
@@ -1123,8 +1131,9 @@ export default function ScoreDetail({
       const latest = perfs[0], previous = perfs[1]
       const pitchAccuracy = latest?.pitchAccuracy ?? null
       const timingAccuracy = latest?.timingAccuracy ?? null
-      const overallScore = latest?.overallScore ?? null
-      const prevOverall = previous?.overallScore ?? null
+      // overallScore 廃止: 録音後フィードバックも演奏スコア(音程+リズム平均)で表示
+      const overallScore = latest ? performanceScore(latest) : null
+      const prevOverall = previous ? performanceScore(previous) : null
       const isPersonalBest = overallScore != null && (prevOverall == null || overallScore > prevOverall)
       router.refresh()
       const allApiUrl = practiceItemId

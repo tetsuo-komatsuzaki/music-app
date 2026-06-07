@@ -153,7 +153,8 @@ export default async function PracticeDetailPage({
         select: {
           id: true,
           uploadedAt: true,
-          overallScore: true,
+          pitchAccuracy: true,
+          timingAccuracy: true,
         },
       }),
     ])
@@ -267,8 +268,8 @@ export default async function PracticeDetailPage({
               })}
             </span>
             <span className={styles.infoPanelHistoryScore}>
-              {p.overallScore != null
-                ? `${Math.round(p.overallScore)}点`
+              {p.pitchAccuracy != null && p.timingAccuracy != null
+                ? `${Math.round((p.pitchAccuracy + p.timingAccuracy) / 2)}点`
                 : "解析中"
               }
             </span>

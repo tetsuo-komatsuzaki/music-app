@@ -484,9 +484,9 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
         if (r?.overallScore != null && r?.previousOverall != null) {
           const diff = Math.round(r.overallScore - r.previousOverall)
           if (diff > 0) {
-            showToast(`総合 +${diff}点 改善しました`, "success")
+            showToast(`演奏スコア +${diff}点 改善しました`, "success")
           } else {
-            showToast(`総合 ${Math.round(r.overallScore)}点`, "success")
+            showToast(`演奏スコア ${Math.round(r.overallScore)}点`, "success")
           }
         } else if (r?.pitchAccuracy != null && r?.previousScore != null) {
           const diff = r.pitchAccuracy - r.previousScore

@@ -130,12 +130,17 @@ export default async function HomePage({ params }: PageProps) {
         score: { select: { id: true, title: true, keyTonic: true, keyMode: true } },
       },
     }),
-    // アルコちゃんの改善検出用 (直近 2 件、score 演奏のみ)
+    // アルコちゃんの改善検出用 (直近 2 件、score 演奏のみ)。
+    // overallScore 廃止に伴い演奏スコア(音程+リズム平均)で改善判定する。
     prisma.performance.findMany({
-      where: { userId: internalUserId, overallScore: { not: null } },
+      where: {
+        userId: internalUserId,
+        pitchAccuracy: { not: null },
+        timingAccuracy: { not: null },
+      },
       orderBy: { uploadedAt: "desc" },
       take: 2,
-      select: { overallScore: true },
+      select: { pitchAccuracy: true, timingAccuracy: true },
     }),
     // UI-8: グレード表示 (legacy 経路、Phase 4-3 でレコメンド書き換え時に撤去予定。
     //   v1.6 §13-2: Q3=A 確定で旧 UI 撤去だが、recommendations は UserGrade.progressData 経由のため温存)
@@ -200,8 +205,14 @@ export default async function HomePage({ params }: PageProps) {
     streak,
     weeklyDays,
     lastPracticeDate,
-    lastOverallScore: latestTwoScores[0]?.overallScore ?? null,
-    previousOverallScore: latestTwoScores[1]?.overallScore ?? null,
+    lastOverallScore:
+      latestTwoScores[0]?.pitchAccuracy != null && latestTwoScores[0]?.timingAccuracy != null
+        ? Math.round((latestTwoScores[0].pitchAccuracy + latestTwoScores[0].timingAccuracy) / 2)
+        : null,
+    previousOverallScore:
+      latestTwoScores[1]?.pitchAccuracy != null && latestTwoScores[1]?.timingAccuracy != null
+        ? Math.round((latestTwoScores[1].pitchAccuracy + latestTwoScores[1].timingAccuracy) / 2)
+        : null,
   })
 
   // --- v1.6 Phase 4-2: グレード/★表示用データ (UserGradeProgress ベース、Q3=A 旧 UI 撤去) ---
