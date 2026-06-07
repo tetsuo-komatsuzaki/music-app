@@ -5,7 +5,7 @@
 // を呼び、4 状態 (loading / error / not-done / done) を集約管理する。
 //
 // 子コンポーネント (UI-3 〜 UI-7 で順次実装):
-//   - SkillScoreCard         : 中項目スコア (UI-3 で実装、本 PR に含む)
+//   - SkillScoreCard         : 中項目スコア(音程/リズム/弓使い) — 2026-06-08 非表示化(開示不要)
 //   - ProblematicPositionList: 気になる箇所 (UI-4)
 //   - CandidateSelector      : 候補選択       (UI-4)
 //   - ImprovementGuideCard   : 改善アドバイス (UI-5)
@@ -15,7 +15,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import SkillScoreCard, { getNullReason } from "./SkillScoreCard"
 import GradeUpModal from "./GradeUpModal"
 import PerformanceMenu from "./PerformanceMenu"
 import ImprovementGuideCard from "./ImprovementGuideCard"
@@ -243,25 +242,12 @@ export default function PerformanceSkillDetail({
   }
 
   // --- 状態4: done — 各サブコンポーネントを表示 ---
-  const scores = {
-    pitch: data.pitchSkillScore,
-    rhythm: data.rhythmSkillScore,
-    bowing: data.bowingSkillScore,
-  }
-  const nullReason = getNullReason(scores)
-  // 全て null の skipped_low_detection ケースはカードを丸ごと非表示にする (Tetsuo 承認 2026-05-26)
-  const showSkillScoreCard = nullReason !== "skipped_low_detection"
-
   return (
     <div className={styles.container}>
       {menuArea}
 
-      {/* UI-3: 中項目スコアカード (本 PR で実装) */}
-      {showSkillScoreCard && (
-        <section className={styles.section}>
-          <SkillScoreCard scores={scores} nullReason={nullReason} />
-        </section>
-      )}
+      {/* UI-3 中項目スコアカード(音程/リズム/弓使いの3軸スコア)は非表示化 (2026-06-08 Tetsuo):
+          このスコア概念はユーザーに開示しない。演奏スコア(音程+リズム平均)は演奏評価カードで表示。 */}
 
       {/* UI-4: 気になる箇所リスト + 候補選択 */}
       <section className={styles.section}>
