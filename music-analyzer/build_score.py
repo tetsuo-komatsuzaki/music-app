@@ -202,14 +202,16 @@ try:
         # =========================
         # 1行4小節レイアウト（hairpinループの外で実行）
         # =========================
-        measures = part.makeMeasures()
+        # makeMeasures(inPlace=True): 音符オブジェクトの id() を保持する。
+        # 非 inPlace で part を作り直すと、上で score に挿入したスラー/ヘアピンが
+        # 参照する音符が最終ストリームから外れ、MusicXML export 時に
+        # <slur>/<wedge> が消える（music21 9.x で実機確認済み）。
+        part.makeMeasures(inPlace=True)
 
-        for i, m in enumerate(measures.getElementsByClass(stream.Measure)):
+        for i, m in enumerate(part.getElementsByClass(stream.Measure)):
             # 4小節ごとに改行
             if i != 0 and i % 4 == 0:
                 m.insert(0, layout.SystemLayout(isNew=True))
-
-        part = measures
 
         score.append(part)
         return score

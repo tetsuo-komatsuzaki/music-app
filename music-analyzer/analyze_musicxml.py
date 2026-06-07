@@ -374,6 +374,90 @@ try:
 
             note_index += 1
 
+    # =========================
+    # スラー / ヘアピン抽出
+    # =========================
+    # build_score.py が spanners.{slurs,hairpins} を読み、生成スコアに
+    # spanner.Slur / dynamics.Crescendo|Diminuendo として復元する。
+    #
+    # music21 9.x の制約 (実機確認済み):
+    #   - repeat.Expander.process() は展開時に spanner を破棄する
+    #   - part.expandRepeats() は spanner を複製するが参照先を展開前ノートに
+    #     残す (dangling) ため、展開後ノートからは辿れない
+    # いずれも展開後 performance_part から spanner を直接取れない。そこで:
+    #   1. 展開前 `part` から slur/hairpin を ordinal (0..N-1) で抽出
+    #   2. 各展開ノートを derivation チェーンで元 ordinal に解決
+    #   3. 元の連続スパン(os..oe)が展開列に連続再現される箇所すべてに射影
+    # これでリピート反復区間でもスラーが正しく表示される。非リピート曲は
+    # expanded_to_orig が [0,1,2,...] となり 1:1 射影に帰着する。
+    def _build_ordinal_map(src_part) -> Dict[int, int]:
+        ordinal: Dict[int, int] = {}
+        k = 0
+        for meas in src_part.getElementsByClass("Measure"):
+            for el in meas.notesAndRests:
+                if float(el.duration.quarterLength) == 0:
+                    continue
+                ordinal[id(el)] = k
+                k += 1
+        return ordinal
+
+    orig_ordinal = _build_ordinal_map(part)
+
+    def _spanner_orig_span(sp) -> Optional[tuple]:
+        idxs = [
+            orig_ordinal[id(e)]
+            for e in sp.getSpannedElements()
+            if id(e) in orig_ordinal
+        ]
+        if len(idxs) < 2:
+            return None
+        return (min(idxs), max(idxs))
+
+    # 展開ノート(note_index 順) → 元 ordinal を derivation で解決
+    def _resolve_orig(el) -> Optional[int]:
+        cur = el
+        for _ in range(12):
+            if cur is None:
+                return None
+            if id(cur) in orig_ordinal:
+                return orig_ordinal[id(cur)]
+            d = getattr(cur, "derivation", None)
+            cur = d.origin if d is not None else None
+        return None
+
+    expanded_to_orig: List[Optional[int]] = []
+    for meas in performance_part.getElementsByClass("Measure"):
+        for el in meas.notesAndRests:
+            if float(el.duration.quarterLength) == 0:
+                continue
+            expanded_to_orig.append(_resolve_orig(el))
+
+    def _project(os: int, oe: int) -> List[tuple]:
+        out: List[tuple] = []
+        span = oe - os
+        n = len(expanded_to_orig)
+        for ks in range(n):
+            if expanded_to_orig[ks] != os or ks + span >= n:
+                continue
+            if all(expanded_to_orig[ks + j] == os + j for j in range(span + 1)):
+                out.append((ks, ks + span))
+        return out
+
+    slurs_out: List[Dict[str, int]] = []
+    for sl in part.spannerBundle.getByClass("Slur"):
+        span = _spanner_orig_span(sl)
+        if span is not None:
+            for ks, ke in _project(span[0], span[1]):
+                slurs_out.append({"start": ks, "end": ke})
+
+    hairpins_out: List[Dict[str, Any]] = []
+    for cls_name, hp_type in (("Crescendo", "crescendo"), ("Diminuendo", "diminuendo")):
+        for hp in part.spannerBundle.getByClass(cls_name):
+            span = _spanner_orig_span(hp)
+            if span is not None:
+                for ks, ke in _project(span[0], span[1]):
+                    hairpins_out.append({"type": hp_type, "start": ks, "end": ke})
+
     analysis_result = {
         "bpm": BPM,
         "seconds_per_quarter": SECONDS_PER_QUARTER,
@@ -384,6 +468,7 @@ try:
             "denominator": time_sig.denominator if time_sig else 4,
         },
         "notes": note_results,
+        "spanners": {"slurs": slurs_out, "hairpins": hairpins_out},
     }
 
     analysis_json = json.dumps(analysis_result)
