@@ -2094,6 +2094,21 @@ def run_score_mode() -> None:
                 result.get("skillSubScores") or {},
             )
 
+        # 6.5. A (2026-06-07 確定): 曲(Score)演奏でもホーム用 UserSkillTaskCard を生成する。
+        #    matched sub_task / 中項目 < 60 でカード発火 (基礎練と同じ _process_cards)。
+        #    SkillTaskCard(曲ごと=上達ループタブ) と並行して、グローバル課題も
+        #    ホーム「いま〇〇が課題」に出すための結線。
+        _process_cards_on_performance_complete(
+            conn,
+            user_internal_id,
+            result.get("skillSubScores") or {},
+            {
+                "pitch": result.get("pitchSkillScore"),
+                "rhythm": result.get("rhythmSkillScore"),
+                "bowing": result.get("bowingSkillScore"),
+            },
+        )
+
         # 7. Phase 3c 累積処理: SongMastery / SkillTaskCard cleared 判定 /
         #    完全習得判定 / UserGradeProgress 更新 (同 transaction 内、commit 前)
         with conn.cursor() as cur:
