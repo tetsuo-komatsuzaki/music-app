@@ -8,6 +8,7 @@
 // 2026-06-08: アルペジオ(rhythm/bowing)・ハウスタッカート(bowing)を削除し 58 項目に。
 // 2026-06-08: リコシェ(rhythm/bowing)も削除し 56 項目に。連続スタッカート/スピッカートは
 // 跳ね系共通軸 dur_ratio<=0.5 で実装(均一性は別軸で後日)。
+// 2026-06-08: マルテレ(rhythm)も削除し 55 項目に。
 //
 // improvementGuide 文言は暫定 (UI 設計書で書き直し前提)。
 
@@ -57,7 +58,6 @@ export const SUB_TASK_IDS = [
   "rhythm_pattern_triplet",
   "rhythm_pattern_2plet_plus",
   "rhythm_entry_after_rest",
-  "rhythm_technique_martele",
   "rhythm_technique_staccato",
   "rhythm_technique_spiccato",
   "rhythm_technique_tremolo",
@@ -138,7 +138,6 @@ export const SUB_TASK_NAMES: Record<SubTaskId, string> = {
   rhythm_pattern_triplet: "三連符のリズム",
   rhythm_pattern_2plet_plus: "二連符以上の連符のリズム",
   rhythm_entry_after_rest: "休符後の入り",
-  rhythm_technique_martele: "マルテレのリズム",
   rhythm_technique_staccato: "スタッカートのリズム",
   rhythm_technique_spiccato: "スピッカートのリズム",
   rhythm_technique_tremolo: "トレモロのリズム",
@@ -228,7 +227,7 @@ export const AXES: AxisDef[] = [
   { id: "rhythm_entry",       name: "入り",             parentTaskId: "rhythm",
     subTaskIds: ["rhythm_entry_after_rest"] },
   { id: "rhythm_technique",   name: "演奏技法",         parentTaskId: "rhythm",
-    subTaskIds: ["rhythm_technique_martele", "rhythm_technique_staccato",
+    subTaskIds: ["rhythm_technique_staccato",
                  "rhythm_technique_spiccato",
                  "rhythm_technique_tremolo", "rhythm_technique_portato",
                  "rhythm_technique_trill",

@@ -44,9 +44,9 @@ FIRE_SCORE_THRESHOLD = 70.0
 
 
 # ---------------------------------------------------------------------------
-# 個別課題 v1 全 56 項目の sub_task_id
+# 個別課題 v1 全 55 項目の sub_task_id
 # (TS app/_libs/skillMaster.ts SUB_TASK_IDS と一対一対応)
-# 2026-06-08: アルペジオ/ハウスタッカート削除 61→58、リコシェ削除 58→56。
+# 2026-06-08: アルペジオ/ハウスタッカート削除 61→58、リコシェ削除 58→56、マルテレ削除 56→55。
 # ---------------------------------------------------------------------------
 
 ALL_SUB_TASK_IDS: list[str] = [
@@ -58,12 +58,12 @@ ALL_SUB_TASK_IDS: list[str] = [
     "pitch_interval_up_2nd_plus", "pitch_interval_up_3rd_plus",
     "pitch_interval_down_2nd_plus", "pitch_interval_down_3rd_plus",
     "pitch_finger_1", "pitch_finger_2", "pitch_finger_3", "pitch_finger_4",
-    # ─── リズム (15) ───
+    # ─── リズム (14) ───
     "rhythm_value_whole", "rhythm_value_half", "rhythm_value_16th",
     "rhythm_value_32nd_plus", "rhythm_value_dotted",
     "rhythm_pattern_triplet", "rhythm_pattern_2plet_plus",
     "rhythm_entry_after_rest",
-    "rhythm_technique_martele", "rhythm_technique_staccato", "rhythm_technique_spiccato",
+    "rhythm_technique_staccato", "rhythm_technique_spiccato",
     "rhythm_technique_tremolo", "rhythm_technique_portato", "rhythm_technique_trill",
     "rhythm_technique_glissando",
     # ─── 弦移動 (23) ───
@@ -748,7 +748,7 @@ def run_all_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     判定が必要なため別 PR で段階的に充填する ([[project_skill_scoring_firing_spec]])。
 
     Returns:
-        sub_task_id をキーとする SubTaskResult の辞書 (全 56 エントリ)
+        sub_task_id をキーとする SubTaskResult の辞書 (全 55 エントリ)
     """
     implemented: dict[str, SubTaskResult] = {}
     implemented.update(_run_first_batch_judges(data))
