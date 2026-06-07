@@ -133,6 +133,11 @@ class IntegratedNote:
     is_after_rest: bool = False  # 直前が休符だった
     is_inferred_position: bool = False  # ファーストポジション推定された場合 True
 
+    # === 重音/ハーモニクス（analysis.json から、第二弾 2a 2026-06-07）===
+    is_chord: bool = False  # 重音（同時に複数ピッチ）
+    pitch_count: int = 1  # 同時発音ピッチ数（重音 2 / 3+ の判定用、休符/単音は 1 or 0）
+    is_harmonic: bool = False  # ハーモニクス（フラジオレット）
+
     # === note_integration.py で生成（v3.2 Q7 確定）===
     is_string_change_from_prev: bool = False  # 直前の音から弦移動した
                                                 # v3.2: analyze_musicxml ではなく

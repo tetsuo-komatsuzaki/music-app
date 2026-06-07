@@ -307,6 +307,12 @@ def _merge_notes(
         expected_start_sec = float(nr_note.get("expected_start_sec", 0.0))
         expected_end_sec = float(nr_note.get("expected_end_sec", 0.0))
 
+        # 重音/ハーモニクス (analysis.json 由来。loop engine は analysis.json を
+        # note_results として渡すため nr_note から直接取得できる。第二弾 2a)
+        is_chord = bool(nr_note.get("is_chord", False))
+        pitch_count = len(nr_note.get("pitches", []) or [])
+        is_harmonic = bool(nr_note.get("is_harmonic", False))
+
         # comparison_result から検出結果を取得（インデックスで対応付け）
         eval_note = eval_notes[i] if i < len(eval_notes) else None
         if eval_note is not None:
@@ -375,6 +381,9 @@ def _merge_notes(
                 is_in_slur=is_in_slur,
                 is_after_rest=is_after_rest,
                 is_inferred_position=is_inferred_position,
+                is_chord=is_chord,
+                pitch_count=pitch_count,
+                is_harmonic=is_harmonic,
                 is_string_change_from_prev=False,  # 後で _annotate_string_change で設定
             )
         )

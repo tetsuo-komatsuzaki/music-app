@@ -242,6 +242,80 @@ def _judge_after_rest(data: IntegratedScoreData) -> SubTaskResult:
     return _judge("rhythm_entry_after_rest", targets, _timing_bad)
 
 
+# ---------------------------------------------------------------------------
+# 第二弾 2a: 重音 (double stop) / ハーモニクス (2026-06-07)
+# is_chord / pitch_count / is_harmonic は note_integration が analysis.json から配線。
+# ---------------------------------------------------------------------------
+
+
+def _continuous_chord_ids(data: IntegratedScoreData) -> set[int]:
+    """連続する重音（前後どちらかの非休符音符も重音）の id 集合を返す。"""
+    non_rest = [n for n in data.notes if not n.is_rest]
+    result: set[int] = set()
+    for i, n in enumerate(non_rest):
+        if not n.is_chord:
+            continue
+        prev_chord = i > 0 and non_rest[i - 1].is_chord
+        next_chord = i < len(non_rest) - 1 and non_rest[i + 1].is_chord
+        if prev_chord or next_chord:
+            result.add(id(n))
+    return result
+
+
+def _judge_double_stop(
+    data: IntegratedScoreData,
+    sub_task_id: str,
+    predicate: Callable[[IntegratedNote], bool],
+    is_pitch_axis: bool,
+) -> SubTaskResult:
+    """重音 sub_task。pitch 系は OK=音程、bowing 系は OK=音程かつタイミング。"""
+    evaluable = _pitch_evaluable if is_pitch_axis else _bow_evaluable
+    is_bad = _pitch_bad if is_pitch_axis else _bow_bad
+    targets = [
+        n
+        for n in data.notes
+        if not n.is_rest and n.is_chord and predicate(n) and evaluable(n)
+    ]
+    return _judge(sub_task_id, targets, is_bad)
+
+
+def _judge_harmonic(
+    data: IntegratedScoreData, sub_task_id: str, is_pitch_axis: bool
+) -> SubTaskResult:
+    """ハーモニクス sub_task。pitch 系は OK=音程、bowing 系は OK=音程かつタイミング。"""
+    evaluable = _pitch_evaluable if is_pitch_axis else _bow_evaluable
+    is_bad = _pitch_bad if is_pitch_axis else _bow_bad
+    targets = [
+        n
+        for n in data.notes
+        if not n.is_rest and n.is_harmonic and evaluable(n)
+    ]
+    return _judge(sub_task_id, targets, is_bad)
+
+
+def _run_chord_harmonic_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
+    """第二弾 2a: 重音 (2/3plus/continuous) × pitch/bowing + ハーモニクス × pitch/bowing。"""
+    cont_ids = _continuous_chord_ids(data)
+    preds: dict[str, Callable[[IntegratedNote], bool]] = {
+        "2": lambda n: n.pitch_count == 2,
+        "3plus": lambda n: n.pitch_count >= 3,
+        "continuous": lambda n: id(n) in cont_ids,
+    }
+    results: dict[str, SubTaskResult] = {}
+    for suffix, pred in preds.items():
+        results[f"pitch_double_stop_{suffix}"] = _judge_double_stop(
+            data, f"pitch_double_stop_{suffix}", pred, is_pitch_axis=True
+        )
+        results[f"bowing_double_stop_{suffix}"] = _judge_double_stop(
+            data, f"bowing_double_stop_{suffix}", pred, is_pitch_axis=False
+        )
+    results["pitch_harmonic"] = _judge_harmonic(data, "pitch_harmonic", is_pitch_axis=True)
+    results["bowing_technique_harmonic"] = _judge_harmonic(
+        data, "bowing_technique_harmonic", is_pitch_axis=False
+    )
+    return results
+
+
 def _run_first_batch_judges(
     data: IntegratedScoreData,
 ) -> dict[str, SubTaskResult]:
@@ -278,16 +352,18 @@ def _run_first_batch_judges(
 def run_all_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     """個別課題 v1 全 59 項目の判定を実行する。
 
-    第一弾 (弦・運指・弦移動・休符明け) は本判定を行い、それ以外は
-    スケルトン (target_count=0、集計対象外) を返す。第二弾は属性追加 or
-    音声側品質判定が必要なため別 PR で段階的に充填する
-    ([[project_skill_scoring_firing_spec]] 第二弾)。
+    第一弾 (弦・運指・弦移動・休符明け) + 第二弾 2a (重音・ハーモニクス) は
+    本判定を行い、それ以外はスケルトン (target_count=0、集計対象外) を返す。
+    残りの第二弾 (ポジション/音程跳躍/音価/連符/奏法) は属性追加 or 音声側品質
+    判定が必要なため別 PR で段階的に充填する ([[project_skill_scoring_firing_spec]])。
 
     Returns:
         sub_task_id をキーとする SubTaskResult の辞書 (全 59 エントリ)
     """
-    first_batch = _run_first_batch_judges(data)
+    implemented: dict[str, SubTaskResult] = {}
+    implemented.update(_run_first_batch_judges(data))
+    implemented.update(_run_chord_harmonic_judges(data))
     return {
-        sub_id: first_batch.get(sub_id) or _skipped_result(sub_id)
+        sub_id: implemented.get(sub_id) or _skipped_result(sub_id)
         for sub_id in ALL_SUB_TASK_IDS
     }
