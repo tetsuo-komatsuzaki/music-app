@@ -373,6 +373,11 @@ def _merge_notes(
                 _expected = _cmp_exp_end - _cmp_exp_start
                 if _expected > 0 and _actual >= 0:
                     dur_ratio = _actual / _expected
+
+            # 奏法品質 段階2: オンセット数/密度 (tremolo 判定用)
+            _oc = eval_note.get("onset_count_in_note")
+            onset_count = int(_oc) if isinstance(_oc, (int, float)) else None
+            onset_rate_per_sec = _safe_float(eval_note.get("onset_rate_per_sec"))
             
             # v3.2.2: measure_number を comparison_result から取得（1-indexed）
             measure_number = eval_note.get("measure_number")
@@ -392,6 +397,8 @@ def _merge_notes(
             volume_drop_after = None
             detected_end_sec = None
             dur_ratio = None
+            onset_count = None
+            onset_rate_per_sec = None
             
             # comparison_result が無い → note_results からフォールバック
             measure_raw = nr_note.get("measure", 0)
@@ -442,6 +449,8 @@ def _merge_notes(
                 is_trill=is_trill,
                 detected_end_sec=detected_end_sec,
                 dur_ratio=dur_ratio,
+                onset_count=onset_count,
+                onset_rate_per_sec=onset_rate_per_sec,
                 is_string_change_from_prev=False,  # 後で _annotate_string_change で設定
             )
         )

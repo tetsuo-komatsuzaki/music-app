@@ -1263,6 +1263,17 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
             articulation_end = _detect_articulation_end(
                 seg_start, seg_end, rms, time_all)
 
+            # 奏法品質 2e 段階2 (2026-06-08): tremolo 用に音符のピッチ区間内の
+            # オンセット数/密度(回/秒)を集計。区間は seg_start..seg_end(ピッチ終端)を
+            # 使う。articulation_end(音量精緻化)だとストローク間の音量低下で区間が
+            # 早く切れ、トレモロの細かい刻みを取りこぼすため。
+            onset_count_in_note = None
+            onset_rate_per_sec = None
+            if onset_times is not None and seg_end is not None and seg_end > seg_start:
+                onset_count_in_note = int(
+                    np.sum((onset_times >= seg_start) & (onset_times <= seg_end)))
+                onset_rate_per_sec = onset_count_in_note / (seg_end - seg_start)
+
             results.append(_make_result(
                 note_idx, measure_num, note_name, global_shift, expected_pos,
                 ee + global_shift, expected_pitch,
@@ -1271,7 +1282,9 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
                 safe_float(pitch_cents_error), pitch_ok,
                 safe_float(start_diff), start_ok,
                 valid_frames, eval_status, confidence,
-                detected_end=safe_float(articulation_end)))
+                detected_end=safe_float(articulation_end),
+                onset_count=onset_count_in_note,
+                onset_rate=safe_float(onset_rate_per_sec)))
 
         else:
             # 同音 legato 救済 (2026-05-26): 前ノートと同音で検出器が拾えなかったケースは
@@ -1455,7 +1468,7 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
 def _make_result(ni, mn, nn, gs, ess, ees, ep,
                  seg_start, avg_pitch, timing_from_start,
                  pce, pok, sd, sok, vf, est, confidence,
-                 detected_end=None):
+                 detected_end=None, onset_count=None, onset_rate=None):
     return {
         "note_index": ni,
         "measure_number": mn,
@@ -1472,6 +1485,10 @@ def _make_result(ni, mn, nn, gs, ess, ees, ep,
         # dur_ratio=実音長/期待音長 の算出に使う。オンセットガード用の seg_end とは別物。
         # 同音 legato 救済 / not_detected では検出不能のため None。
         "detected_end_sec": detected_end,
+        # 奏法品質 2e 段階2: 音符のピッチ区間内のオンセット数と密度(回/秒)。tremolo の
+        # 「小刻みに反復しているか」判定用。検出不能/未集計は None。
+        "onset_count_in_note": onset_count,
+        "onset_rate_per_sec": onset_rate,
         "detected_pitch_hz": avg_pitch,
         "timing_from_start_sec": timing_from_start,
         "match_confidence": confidence,
