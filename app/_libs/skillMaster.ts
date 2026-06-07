@@ -6,6 +6,8 @@
 // 2026-06-08: 連続スタッカート/スピッカート(弓系2項目)を追加し 61 項目に。検出は
 // 均一性軸の作り直しで後日 ([[project_evenness_quality_axis_pending]])。現状スケルトン。
 // 2026-06-08: アルペジオ(rhythm/bowing)・ハウスタッカート(bowing)を削除し 58 項目に。
+// 2026-06-08: リコシェ(rhythm/bowing)も削除し 56 項目に。連続スタッカート/スピッカートは
+// 跳ね系共通軸 dur_ratio<=0.5 で実装(均一性は別軸で後日)。
 //
 // improvementGuide 文言は暫定 (UI 設計書で書き直し前提)。
 
@@ -58,15 +60,13 @@ export const SUB_TASK_IDS = [
   "rhythm_technique_martele",
   "rhythm_technique_staccato",
   "rhythm_technique_spiccato",
-  "rhythm_technique_ricochet",
   "rhythm_technique_tremolo",
   "rhythm_technique_portato",
   "rhythm_technique_trill",
   "rhythm_technique_glissando",
-  // ─── 弦移動 (24、うち 1 将来検討) ───
+  // ─── 弦移動 (23) ───
   "bowing_technique_staccato",
   "bowing_technique_spiccato",
-  "bowing_technique_ricochet",
   "bowing_technique_pizzicato",
   "bowing_technique_tremolo",
   "bowing_technique_portato",
@@ -106,11 +106,8 @@ export const SUB_TASKS_QUALITY_DEFERRED = new Set<SubTaskId>([
   "bowing_technique_spiccato_continuous",
 ])
 
-// 「将来検討」フラグ (MVP 未実装、UI で非表示)。リコシェのみ。
-export const SUB_TASKS_FUTURE = new Set<SubTaskId>([
-  "rhythm_technique_ricochet",
-  "bowing_technique_ricochet",
-])
+// 「将来検討」フラグ (MVP 未実装、UI で非表示)。2026-06-08 リコシェ削除で現在は空。
+export const SUB_TASKS_FUTURE = new Set<SubTaskId>([])
 
 export const SUB_TASK_NAMES: Record<SubTaskId, string> = {
   // ─── 音程 ───
@@ -144,7 +141,6 @@ export const SUB_TASK_NAMES: Record<SubTaskId, string> = {
   rhythm_technique_martele: "マルテレのリズム",
   rhythm_technique_staccato: "スタッカートのリズム",
   rhythm_technique_spiccato: "スピッカートのリズム",
-  rhythm_technique_ricochet: "リコシェのリズム",
   rhythm_technique_tremolo: "トレモロのリズム",
   rhythm_technique_portato: "ポルタートのリズム",
   rhythm_technique_trill: "トリルのリズム",
@@ -152,7 +148,6 @@ export const SUB_TASK_NAMES: Record<SubTaskId, string> = {
   // ─── 弦移動 ───
   bowing_technique_staccato: "スタッカートの音色",
   bowing_technique_spiccato: "スピッカートの音色",
-  bowing_technique_ricochet: "リコシェの音色",
   bowing_technique_pizzicato: "ピチカートの音色",
   bowing_technique_tremolo: "トレモロの音色",
   bowing_technique_portato: "ポルタートの音色",
@@ -234,14 +229,14 @@ export const AXES: AxisDef[] = [
     subTaskIds: ["rhythm_entry_after_rest"] },
   { id: "rhythm_technique",   name: "演奏技法",         parentTaskId: "rhythm",
     subTaskIds: ["rhythm_technique_martele", "rhythm_technique_staccato",
-                 "rhythm_technique_spiccato", "rhythm_technique_ricochet",
+                 "rhythm_technique_spiccato",
                  "rhythm_technique_tremolo", "rhythm_technique_portato",
                  "rhythm_technique_trill",
                  "rhythm_technique_glissando"] },
   // 弦移動
   { id: "bowing_technique",   name: "演奏技法",         parentTaskId: "bowing",
     subTaskIds: ["bowing_technique_staccato",
-                 "bowing_technique_spiccato", "bowing_technique_ricochet",
+                 "bowing_technique_spiccato",
                  "bowing_technique_pizzicato", "bowing_technique_tremolo",
                  "bowing_technique_portato", "bowing_technique_trill",
                  "bowing_technique_glissando",

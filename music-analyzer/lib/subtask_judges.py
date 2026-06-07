@@ -44,9 +44,9 @@ FIRE_SCORE_THRESHOLD = 70.0
 
 
 # ---------------------------------------------------------------------------
-# 個別課題 v1 全 58 項目の sub_task_id
+# 個別課題 v1 全 56 項目の sub_task_id
 # (TS app/_libs/skillMaster.ts SUB_TASK_IDS と一対一対応)
-# 2026-06-08: アルペジオ(rhythm/bowing)・ハウスタッカート(bowing)を削除 61→58。
+# 2026-06-08: アルペジオ/ハウスタッカート削除 61→58、リコシェ削除 58→56。
 # ---------------------------------------------------------------------------
 
 ALL_SUB_TASK_IDS: list[str] = [
@@ -58,19 +58,17 @@ ALL_SUB_TASK_IDS: list[str] = [
     "pitch_interval_up_2nd_plus", "pitch_interval_up_3rd_plus",
     "pitch_interval_down_2nd_plus", "pitch_interval_down_3rd_plus",
     "pitch_finger_1", "pitch_finger_2", "pitch_finger_3", "pitch_finger_4",
-    # ─── リズム (16、うち 1 将来検討) ───
+    # ─── リズム (15) ───
     "rhythm_value_whole", "rhythm_value_half", "rhythm_value_16th",
     "rhythm_value_32nd_plus", "rhythm_value_dotted",
     "rhythm_pattern_triplet", "rhythm_pattern_2plet_plus",
     "rhythm_entry_after_rest",
     "rhythm_technique_martele", "rhythm_technique_staccato", "rhythm_technique_spiccato",
-    "rhythm_technique_ricochet",  # 将来検討
     "rhythm_technique_tremolo", "rhythm_technique_portato", "rhythm_technique_trill",
     "rhythm_technique_glissando",
-    # ─── 弦移動 (24、うち 1 将来検討) ───
+    # ─── 弦移動 (23) ───
     "bowing_technique_staccato",
     "bowing_technique_spiccato",
-    "bowing_technique_ricochet",  # 将来検討
     "bowing_technique_pizzicato", "bowing_technique_tremolo",
     "bowing_technique_portato", "bowing_technique_trill",
     "bowing_technique_glissando",
@@ -623,6 +621,23 @@ def _judge_technique(
     return _judge(sub_task_id, targets, is_bad)
 
 
+def _continuous_run_ids(
+    data: IntegratedScoreData, pred: Callable[[IntegratedNote], bool]
+) -> set[int]:
+    """pred を満たす音符が連続している(前後どちらかの非休符音符も pred)塊の id 集合。
+    _continuous_chord_ids と同じ「連続」定義。連続スタッカート/スピッカート用。"""
+    non_rest = [n for n in data.notes if not n.is_rest]
+    result: set[int] = set()
+    for i, n in enumerate(non_rest):
+        if not pred(n):
+            continue
+        prev_ok = i > 0 and pred(non_rest[i - 1])
+        next_ok = i < len(non_rest) - 1 and pred(non_rest[i + 1])
+        if prev_ok or next_ok:
+            result.add(id(n))
+    return result
+
+
 def _run_technique_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     all_ids = set(ALL_SUB_TASK_IDS)
     results: dict[str, SubTaskResult] = {}
@@ -636,6 +651,16 @@ def _run_technique_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]
         bid = f"bowing_technique_{tech}"
         if bid in all_ids:
             results[bid] = _judge_technique(data, bid, detector, "bowing", quality)
+
+    # 連続スタッカート/スピッカート (弓系): 連続する staccato/spiccato 音の塊を対象に、
+    # 跳ね系共通軸 dur_ratio<=0.5 (音価の半分以下=短く切れている) で判定 (_q_staccato)。
+    # 「跳ね/off-string」や粒の均一性は別軸([[project_evenness_quality_axis_pending]])で後日。
+    for tech in ("staccato", "spiccato"):
+        bid = f"bowing_technique_{tech}_continuous"
+        if bid in all_ids:
+            run_ids = _continuous_run_ids(data, _TECH_DETECTORS[tech])
+            detector = lambda n, _ids=run_ids: id(n) in _ids
+            results[bid] = _judge_technique(data, bid, detector, "bowing", _q_staccato)
     return results
 
 
@@ -704,7 +729,7 @@ def run_all_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     判定が必要なため別 PR で段階的に充填する ([[project_skill_scoring_firing_spec]])。
 
     Returns:
-        sub_task_id をキーとする SubTaskResult の辞書 (全 58 エントリ)
+        sub_task_id をキーとする SubTaskResult の辞書 (全 56 エントリ)
     """
     implemented: dict[str, SubTaskResult] = {}
     implemented.update(_run_first_batch_judges(data))
