@@ -5,6 +5,7 @@
 // 置換 (Tetsuo 確定 2026-05-25)。中項目 ID は pitch / rhythm / bowing 維持 (① 確定)。
 // 2026-06-08: 連続スタッカート/スピッカート(弓系2項目)を追加し 61 項目に。検出は
 // 均一性軸の作り直しで後日 ([[project_evenness_quality_axis_pending]])。現状スケルトン。
+// 2026-06-08: アルペジオ(rhythm/bowing)・ハウスタッカート(bowing)を削除し 58 項目に。
 //
 // improvementGuide 文言は暫定 (UI 設計書で書き直し前提)。
 
@@ -61,18 +62,15 @@ export const SUB_TASK_IDS = [
   "rhythm_technique_tremolo",
   "rhythm_technique_portato",
   "rhythm_technique_trill",
-  "rhythm_technique_arpeggio",
   "rhythm_technique_glissando",
-  // ─── 弦移動 (26、うち 1 将来検討) ───
+  // ─── 弦移動 (24、うち 1 将来検討) ───
   "bowing_technique_staccato",
-  "bowing_technique_hooked_staccato",
   "bowing_technique_spiccato",
   "bowing_technique_ricochet",
   "bowing_technique_pizzicato",
   "bowing_technique_tremolo",
   "bowing_technique_portato",
   "bowing_technique_trill",
-  "bowing_technique_arpeggio",
   "bowing_technique_glissando",
   "bowing_technique_harmonic",
   "bowing_technique_staccato_continuous",
@@ -98,13 +96,11 @@ export type SubTaskId = (typeof SUB_TASK_IDS)[number]
 // [[project_subtask_quality_judgment_deferred]] 参照。
 export const SUB_TASKS_QUALITY_DEFERRED = new Set<SubTaskId>([
   "bowing_technique_staccato",
-  "bowing_technique_hooked_staccato",
   "bowing_technique_spiccato",
   "bowing_technique_pizzicato",
   "bowing_technique_tremolo",
   "bowing_technique_portato",
   "bowing_technique_trill",
-  "bowing_technique_arpeggio",
   "bowing_technique_glissando",
   "bowing_technique_staccato_continuous",
   "bowing_technique_spiccato_continuous",
@@ -152,18 +148,15 @@ export const SUB_TASK_NAMES: Record<SubTaskId, string> = {
   rhythm_technique_tremolo: "トレモロのリズム",
   rhythm_technique_portato: "ポルタートのリズム",
   rhythm_technique_trill: "トリルのリズム",
-  rhythm_technique_arpeggio: "アルペジオのリズム",
   rhythm_technique_glissando: "グリッサンドのリズム",
   // ─── 弦移動 ───
   bowing_technique_staccato: "スタッカートの音色",
-  bowing_technique_hooked_staccato: "ハウ・スタッカートの音色",
   bowing_technique_spiccato: "スピッカートの音色",
   bowing_technique_ricochet: "リコシェの音色",
   bowing_technique_pizzicato: "ピチカートの音色",
   bowing_technique_tremolo: "トレモロの音色",
   bowing_technique_portato: "ポルタートの音色",
   bowing_technique_trill: "トリルの音色",
-  bowing_technique_arpeggio: "アルペジオの音色",
   bowing_technique_glissando: "グリッサンドの音色",
   bowing_technique_harmonic: "ハーモニクスの音色",
   bowing_technique_staccato_continuous: "連続スタッカートの音色",
@@ -243,15 +236,15 @@ export const AXES: AxisDef[] = [
     subTaskIds: ["rhythm_technique_martele", "rhythm_technique_staccato",
                  "rhythm_technique_spiccato", "rhythm_technique_ricochet",
                  "rhythm_technique_tremolo", "rhythm_technique_portato",
-                 "rhythm_technique_trill", "rhythm_technique_arpeggio",
+                 "rhythm_technique_trill",
                  "rhythm_technique_glissando"] },
   // 弦移動
   { id: "bowing_technique",   name: "演奏技法",         parentTaskId: "bowing",
-    subTaskIds: ["bowing_technique_staccato", "bowing_technique_hooked_staccato",
+    subTaskIds: ["bowing_technique_staccato",
                  "bowing_technique_spiccato", "bowing_technique_ricochet",
                  "bowing_technique_pizzicato", "bowing_technique_tremolo",
                  "bowing_technique_portato", "bowing_technique_trill",
-                 "bowing_technique_arpeggio", "bowing_technique_glissando",
+                 "bowing_technique_glissando",
                  "bowing_technique_harmonic",
                  "bowing_technique_staccato_continuous", "bowing_technique_spiccato_continuous"] },
   { id: "bowing_string",      name: "弦",               parentTaskId: "bowing",

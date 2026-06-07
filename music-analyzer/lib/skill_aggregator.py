@@ -54,15 +54,15 @@ SKILL_TASK_MAP: dict[str, list[str]] = {
         "rhythm_technique_martele", "rhythm_technique_staccato", "rhythm_technique_spiccato",
         "rhythm_technique_ricochet",  # 将来検討
         "rhythm_technique_tremolo", "rhythm_technique_portato", "rhythm_technique_trill",
-        "rhythm_technique_arpeggio", "rhythm_technique_glissando",
+        "rhythm_technique_glissando",
     ],
     "bowing": [
-        "bowing_technique_staccato", "bowing_technique_hooked_staccato",
+        "bowing_technique_staccato",
         "bowing_technique_spiccato",
         "bowing_technique_ricochet",  # 将来検討
         "bowing_technique_pizzicato", "bowing_technique_tremolo",
         "bowing_technique_portato", "bowing_technique_trill",
-        "bowing_technique_arpeggio", "bowing_technique_glissando",
+        "bowing_technique_glissando",
         "bowing_technique_harmonic",
         "bowing_technique_staccato_continuous", "bowing_technique_spiccato_continuous",
         "bowing_string_g", "bowing_string_d", "bowing_string_a", "bowing_string_e",

@@ -44,8 +44,9 @@ FIRE_SCORE_THRESHOLD = 70.0
 
 
 # ---------------------------------------------------------------------------
-# 個別課題 v1 全 61 項目の sub_task_id
+# 個別課題 v1 全 58 項目の sub_task_id
 # (TS app/_libs/skillMaster.ts SUB_TASK_IDS と一対一対応)
+# 2026-06-08: アルペジオ(rhythm/bowing)・ハウスタッカート(bowing)を削除 61→58。
 # ---------------------------------------------------------------------------
 
 ALL_SUB_TASK_IDS: list[str] = [
@@ -57,7 +58,7 @@ ALL_SUB_TASK_IDS: list[str] = [
     "pitch_interval_up_2nd_plus", "pitch_interval_up_3rd_plus",
     "pitch_interval_down_2nd_plus", "pitch_interval_down_3rd_plus",
     "pitch_finger_1", "pitch_finger_2", "pitch_finger_3", "pitch_finger_4",
-    # ─── リズム (17、うち 1 将来検討) ───
+    # ─── リズム (16、うち 1 将来検討) ───
     "rhythm_value_whole", "rhythm_value_half", "rhythm_value_16th",
     "rhythm_value_32nd_plus", "rhythm_value_dotted",
     "rhythm_pattern_triplet", "rhythm_pattern_2plet_plus",
@@ -65,14 +66,14 @@ ALL_SUB_TASK_IDS: list[str] = [
     "rhythm_technique_martele", "rhythm_technique_staccato", "rhythm_technique_spiccato",
     "rhythm_technique_ricochet",  # 将来検討
     "rhythm_technique_tremolo", "rhythm_technique_portato", "rhythm_technique_trill",
-    "rhythm_technique_arpeggio", "rhythm_technique_glissando",
-    # ─── 弦移動 (26、うち 1 将来検討) ───
-    "bowing_technique_staccato", "bowing_technique_hooked_staccato",
+    "rhythm_technique_glissando",
+    # ─── 弦移動 (24、うち 1 将来検討) ───
+    "bowing_technique_staccato",
     "bowing_technique_spiccato",
     "bowing_technique_ricochet",  # 将来検討
     "bowing_technique_pizzicato", "bowing_technique_tremolo",
     "bowing_technique_portato", "bowing_technique_trill",
-    "bowing_technique_arpeggio", "bowing_technique_glissando",
+    "bowing_technique_glissando",
     "bowing_technique_harmonic",
     # 連続スタッカート/スピッカート (2026-06-08 追加、弓系)。連続性の質=弓の均一性のため
     # 検出は均一性軸の作り直しで後日実装 ([[project_evenness_quality_axis_pending]])。現状スケルトン。
@@ -703,7 +704,7 @@ def run_all_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     判定が必要なため別 PR で段階的に充填する ([[project_skill_scoring_firing_spec]])。
 
     Returns:
-        sub_task_id をキーとする SubTaskResult の辞書 (全 61 エントリ)
+        sub_task_id をキーとする SubTaskResult の辞書 (全 58 エントリ)
     """
     implemented: dict[str, SubTaskResult] = {}
     implemented.update(_run_first_batch_judges(data))
