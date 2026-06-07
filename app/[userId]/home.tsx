@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import GradeBadge from "@/app/components/GradeBadge"
 import GradeProgressBar from "@/app/components/GradeProgressBar"
@@ -28,7 +29,7 @@ type Props = {
   arcoMessage: { greeting: string; cheer: string }
   /** v1.6 §3-5-2: アルコちゃんカード内に表示するグレード情報 */
   gradeData: GradeData
-  /** UI-9 (§11-3): active カード優先のレコメンド (最大 5 件) */
+  /** UI-9 (§11-3): active カード優先のレコメンド (最大 5 件) = 課題クリア用の練習教材 */
   songRecommendations: SongRecommendation[]
   recentHistory: {
     title: string
@@ -36,6 +37,18 @@ type Props = {
     href: string
     uploadedAt: string
   }[]
+  /** 直近の練習曲 (Score) + 曲別 直近平均スコア */
+  recentPieces: { id: string; title: string; recentAvg: number | null; href: string }[]
+  /** いまの課題名 (active カード由来)。null = 課題なし → フォールバック文言 */
+  challengeName: string | null
+}
+
+// スコア → ランク色 (scoreDetail と同じ閾値)
+function scoreColor(score: number): { color: string; bg: string } {
+  if (score >= 90) return { color: "#085041", bg: "#E1F5EE" }
+  if (score >= 75) return { color: "#0C447C", bg: "#E6F1FB" }
+  if (score >= 60) return { color: "#633806", bg: "#FAEEDA" }
+  return { color: "#791F1F", bg: "#FCEBEB" }
 }
 
 // ─── 時間を相対表示 ───────────────────────────────────────────
@@ -50,6 +63,131 @@ function relativeTime(isoStr: string): string {
   return new Date(isoStr).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })
 }
 
+// ─── 今日の練習 (直近の練習曲タブ + 課題アドバイス + 教材リンク) ──────────
+function TodayPanel({
+  recentPieces,
+  challengeName,
+  materials,
+}: {
+  recentPieces: Props["recentPieces"]
+  challengeName: string | null
+  materials: SongRecommendation[]
+}) {
+  const [active, setActive] = useState(0)
+  const piece = recentPieces[active] ?? recentPieces[0] ?? null
+
+  return (
+    <div className={styles.card}>
+      <div className={styles.sectionTitle}>今日の練習</div>
+
+      {/* 直近の練習曲: 複数なら横タブ */}
+      {recentPieces.length > 0 && (
+        <>
+          {recentPieces.length > 1 && (
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                overflowX: "auto",
+                paddingBottom: 6,
+                marginBottom: 10,
+              }}
+            >
+              {recentPieces.map((p, i) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setActive(i)}
+                  style={{
+                    flex: "0 0 auto",
+                    padding: "6px 12px",
+                    borderRadius: 999,
+                    border: "1px solid",
+                    borderColor: active === i ? "#4a90d9" : "#ddd",
+                    background: active === i ? "#4a90d9" : "#fff",
+                    color: active === i ? "#fff" : "#555",
+                    fontSize: 13,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {p.title}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {piece && (
+            <Link
+              href={piece.href}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                padding: "12px 14px",
+                borderRadius: 12,
+                background: "#f7f9fc",
+                textDecoration: "none",
+                color: "inherit",
+                marginBottom: 12,
+              }}
+            >
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 12, color: "#888" }}>直近平均スコア</div>
+                <div
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 600,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {piece.title}
+                </div>
+              </div>
+              {piece.recentAvg != null ? (
+                <span
+                  style={{
+                    flex: "0 0 auto",
+                    fontSize: 22,
+                    fontWeight: 700,
+                    padding: "4px 12px",
+                    borderRadius: 10,
+                    ...scoreColor(piece.recentAvg),
+                  }}
+                >
+                  {piece.recentAvg}
+                  <span style={{ fontSize: 12, fontWeight: 500 }}>点</span>
+                </span>
+              ) : (
+                <span style={{ flex: "0 0 auto", fontSize: 13, color: "#aaa" }}>未評価</span>
+              )}
+            </Link>
+          )}
+        </>
+      )}
+
+      {/* 課題アドバイス: あれば課題名、なければフォールバック */}
+      {challengeName ? (
+        <div style={{ fontSize: 14, lineHeight: 1.7, marginBottom: 10 }}>
+          いま「<strong>{challengeName}</strong>」が課題と出ているね。
+          <br />
+          クリアまでに以下の課題練習をしてみよう！
+        </div>
+      ) : (
+        <div style={{ fontSize: 14, lineHeight: 1.7, marginBottom: 10, color: "#555" }}>
+          直近の課題はありません！<br />次の曲にチャレンジしてみよう！
+        </div>
+      )}
+
+      {/* 課題クリア用の練習教材リンク */}
+      <RecommendationList recommendations={materials} />
+    </div>
+  )
+}
+
 export default function HomeClient({
   userName: _userName,
   streak,
@@ -58,6 +196,8 @@ export default function HomeClient({
   gradeData,
   songRecommendations,
   recentHistory,
+  recentPieces,
+  challengeName,
 }: Props) {
   void _userName
   const WEEKLY_GOAL = 5
@@ -126,11 +266,12 @@ export default function HomeClient({
         </div>
       </div>
 
-      {/* ───── UI-9 (§6-4): 次のチャレンジ (横スクロール、画像なし、テキストベース) ───── */}
-      <div className={styles.card}>
-        <div className={styles.sectionTitle}>次のチャレンジ</div>
-        <RecommendationList recommendations={songRecommendations} />
-      </div>
+      {/* ───── 今日の練習: 直近の練習曲 + 課題アドバイス + 教材リンク ───── */}
+      <TodayPanel
+        recentPieces={recentPieces}
+        challengeName={challengeName}
+        materials={songRecommendations}
+      />
 
       {/* ───── 直近の練習 (Continue バー風レイアウト) ───── */}
       {recentHistory.length > 0 && (

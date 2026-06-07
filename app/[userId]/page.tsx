@@ -8,7 +8,11 @@ import {
 } from "@/app/_libs/recommendations"
 import {
   GRADE_LEVELS,
+  SUB_TASK_NAMES,
+  TASK_NAMES,
   type GradeLevel,
+  type SubTaskId,
+  type TaskId,
 } from "@/app/_libs/skillMaster"
 import HomeClient from "./home"
 
@@ -354,6 +358,52 @@ export default async function HomePage({ params }: PageProps) {
     .sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt))
     .slice(0, 3)
 
+  // --- 直近の練習曲 (Score) + 曲別 直近平均スコア (pitch+timing の 2 軸平均) ---
+  // overallScore は skill 依存で欠損しやすいため、確実に入る pitch/timing で算出。
+  const recentPiecePerfs = await prisma.performance.findMany({
+    where: {
+      userId: internalUserId,
+      score: { deletedAt: null },
+      pitchAccuracy: { not: null },
+      timingAccuracy: { not: null },
+    },
+    orderBy: { uploadedAt: "desc" },
+    take: 50,
+    select: {
+      scoreId: true,
+      pitchAccuracy: true,
+      timingAccuracy: true,
+      score: { select: { id: true, title: true } },
+    },
+  })
+  const pieceOrder: string[] = []
+  const pieceData = new Map<string, { id: string; title: string; vals: number[] }>()
+  for (const p of recentPiecePerfs) {
+    if (!p.scoreId || !p.score || p.pitchAccuracy == null || p.timingAccuracy == null) continue
+    if (!pieceData.has(p.scoreId)) {
+      pieceData.set(p.scoreId, { id: p.score.id, title: p.score.title, vals: [] })
+      pieceOrder.push(p.scoreId)
+    }
+    const d = pieceData.get(p.scoreId)!
+    if (d.vals.length < 5) d.vals.push((p.pitchAccuracy + p.timingAccuracy) / 2)
+  }
+  const recentPieces = pieceOrder.slice(0, 5).map((sid) => {
+    const d = pieceData.get(sid)!
+    const recentAvg = d.vals.length
+      ? Math.round(d.vals.reduce((s, v) => s + v, 0) / d.vals.length)
+      : null
+    return { id: d.id, title: d.title, recentAvg, href: `/${userId}/scores/${d.id}` }
+  })
+
+  // --- 課題名 (active カード由来)。カード未生成 (現状) なら null → フォールバック文言 ---
+  const challengeName: string | null = activeCard
+    ? activeCard.cardType === "sub_task" && activeCard.skillSubTaskId
+      ? SUB_TASK_NAMES[activeCard.skillSubTaskId as SubTaskId] ?? activeCard.skillSubTaskId
+      : activeCard.cardType === "task" && activeCard.skillTaskId
+        ? `${TASK_NAMES[activeCard.skillTaskId as TaskId] ?? activeCard.skillTaskId}全体`
+        : null
+    : null
+
   return (
     <HomeClient
       userName={dbUser.name ?? ""}
@@ -363,6 +413,8 @@ export default async function HomePage({ params }: PageProps) {
       gradeData={gradeData}
       songRecommendations={songRecommendations}
       recentHistory={recentHistory}
+      recentPieces={recentPieces}
+      challengeName={challengeName}
     />
   )
 }
