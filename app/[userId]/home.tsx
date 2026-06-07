@@ -346,10 +346,14 @@ export default function HomeClient({
       </div>
 
       {/* ───── 練習曲の上達状況: 直近の練習曲 + 課題アドバイス + 教材リンク ───── */}
+      {/* 課題ありの「課題練習」には練習曲(category=score)は出さず、基礎練/エチュードのみ提示。
+          練習曲は課題なし時の「次の曲にチャレンジ」(nextPieces) でのみ提示する。 */}
       <TodayPanel
         recentPieces={recentPieces}
         challengeName={challengeName}
-        challengeMaterials={songRecommendations}
+        challengeMaterials={songRecommendations.filter(
+          (r) => r.practiceItem.category !== "score",
+        )}
         nextPieces={nextPieceRecommendations}
       />
 
