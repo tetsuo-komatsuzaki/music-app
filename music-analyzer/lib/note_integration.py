@@ -303,7 +303,13 @@ def _merge_notes(
     for i, nr_note in enumerate(note_results_notes):
         # note_results 側の基本情報
         is_rest = nr_note.get("type") == "rest"
-        expected_pitch_hz = float(nr_note.get("expected_pitch_hz", 0.0)) if not is_rest else 0.0
+        # expected_pitch_hz: note_results.json 由来なら直接、analysis.json 由来(loop engine)
+        # なら pitches[0] から補完 (音程跳躍など pitch 値を使う判定のため)。
+        _exp_hz = nr_note.get("expected_pitch_hz")
+        if _exp_hz is None:
+            _pitches = nr_note.get("pitches") or []
+            _exp_hz = _pitches[0] if _pitches else 0.0
+        expected_pitch_hz = float(_exp_hz) if not is_rest else 0.0
         expected_start_sec = float(nr_note.get("expected_start_sec", 0.0))
         expected_end_sec = float(nr_note.get("expected_end_sec", 0.0))
 

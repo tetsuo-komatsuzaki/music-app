@@ -293,6 +293,42 @@ def _judge_harmonic(
     return _judge(sub_task_id, targets, is_bad)
 
 
+# ---------------------------------------------------------------------------
+# 第二弾 2b: 音程の跳躍 (pitch_interval) (2026-06-07)
+# 直前の非休符音からの半音差で判定。2度以上=|Δ|>=1, 3度以上=|Δ|>=3 (_plus は入れ子)。
+# OK = 音程。expected_pitch_midi は note_integration が pitches[0] から補完。
+# ---------------------------------------------------------------------------
+
+
+def _run_interval_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
+    non_rest = [n for n in data.notes if not n.is_rest]
+    up2: List[IntegratedNote] = []
+    up3: List[IntegratedNote] = []
+    down2: List[IntegratedNote] = []
+    down3: List[IntegratedNote] = []
+    prev_midi: int | None = None
+    for n in non_rest:
+        cur_midi = n.expected_pitch_midi
+        if cur_midi is not None and prev_midi is not None and _pitch_evaluable(n):
+            delta = cur_midi - prev_midi
+            if delta >= 1:
+                up2.append(n)
+            if delta >= 3:
+                up3.append(n)
+            if delta <= -1:
+                down2.append(n)
+            if delta <= -3:
+                down3.append(n)
+        if cur_midi is not None:
+            prev_midi = cur_midi
+    return {
+        "pitch_interval_up_2nd_plus": _judge("pitch_interval_up_2nd_plus", up2, _pitch_bad),
+        "pitch_interval_up_3rd_plus": _judge("pitch_interval_up_3rd_plus", up3, _pitch_bad),
+        "pitch_interval_down_2nd_plus": _judge("pitch_interval_down_2nd_plus", down2, _pitch_bad),
+        "pitch_interval_down_3rd_plus": _judge("pitch_interval_down_3rd_plus", down3, _pitch_bad),
+    }
+
+
 def _run_chord_harmonic_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     """第二弾 2a: 重音 (2/3plus/continuous) × pitch/bowing + ハーモニクス × pitch/bowing。"""
     cont_ids = _continuous_chord_ids(data)
@@ -363,6 +399,7 @@ def run_all_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     implemented: dict[str, SubTaskResult] = {}
     implemented.update(_run_first_batch_judges(data))
     implemented.update(_run_chord_harmonic_judges(data))
+    implemented.update(_run_interval_judges(data))
     return {
         sub_id: implemented.get(sub_id) or _skipped_result(sub_id)
         for sub_id in ALL_SUB_TASK_IDS
