@@ -341,6 +341,13 @@ def _merge_notes(
         articulations = list(nr_note.get("articulations") or [])
         is_tremolo = bool(nr_note.get("is_tremolo", False))
         is_trill = bool(nr_note.get("is_trill", False))
+        # tremolo 楽譜側情報 (段階2): 弓/指 種別・刻み数・相手音・音程差
+        tremolo_type = nr_note.get("tremolo_type")
+        _tm = nr_note.get("tremolo_marks")
+        tremolo_marks = int(_tm) if isinstance(_tm, (int, float)) else None
+        tremolo_partner_hz = _safe_float(nr_note.get("tremolo_partner_hz"))
+        _ti = nr_note.get("tremolo_interval_semitones")
+        tremolo_interval_semitones = int(_ti) if isinstance(_ti, (int, float)) else None
 
         # comparison_result から検出結果を取得（note_index で対応付け; 上記マップ参照）。
         # nr_note(楽譜側)の note_index を鍵にする。休符は eval に存在しない→None。
@@ -374,10 +381,16 @@ def _merge_notes(
                 if _expected > 0 and _actual >= 0:
                     dur_ratio = _actual / _expected
 
-            # 奏法品質 段階2: オンセット数/密度 (tremolo 判定用)
+            # 奏法品質 段階2: オンセット数/密度 (旧指標、参考)
             _oc = eval_note.get("onset_count_in_note")
             onset_count = int(_oc) if isinstance(_oc, (int, float)) else None
             onset_rate_per_sec = _safe_float(eval_note.get("onset_rate_per_sec"))
+            # tremolo 音声側特徴量
+            _pac = eval_note.get("pitch_alt_count")
+            pitch_alt_count = int(_pac) if isinstance(_pac, (int, float)) else None
+            pitch_alt_semitones = _safe_float(eval_note.get("pitch_alt_semitones"))
+            _asc = eval_note.get("amp_stroke_count")
+            amp_stroke_count = int(_asc) if isinstance(_asc, (int, float)) else None
             
             # v3.2.2: measure_number を comparison_result から取得（1-indexed）
             measure_number = eval_note.get("measure_number")
@@ -399,6 +412,9 @@ def _merge_notes(
             dur_ratio = None
             onset_count = None
             onset_rate_per_sec = None
+            pitch_alt_count = None
+            pitch_alt_semitones = None
+            amp_stroke_count = None
             
             # comparison_result が無い → note_results からフォールバック
             measure_raw = nr_note.get("measure", 0)
@@ -451,6 +467,13 @@ def _merge_notes(
                 dur_ratio=dur_ratio,
                 onset_count=onset_count,
                 onset_rate_per_sec=onset_rate_per_sec,
+                pitch_alt_count=pitch_alt_count,
+                pitch_alt_semitones=pitch_alt_semitones,
+                amp_stroke_count=amp_stroke_count,
+                tremolo_type=tremolo_type,
+                tremolo_marks=tremolo_marks,
+                tremolo_partner_hz=tremolo_partner_hz,
+                tremolo_interval_semitones=tremolo_interval_semitones,
                 is_string_change_from_prev=False,  # 後で _annotate_string_change で設定
             )
         )

@@ -315,12 +315,21 @@ try:
                 if element.tie.type in ('continue', 'stop'):
                     is_tied = True
 
-            # トレモロ検出
+            # トレモロ検出 (2e 段階2 2026-06-08)
+            # - 弓トレモロ(1音/同音反復) = expressions.Tremolo (要素の expressions に付く)
+            # - 指トレモロ(2音/交互)   = expressions.TremoloSpanner (2音をまたぐ spanner)
+            #   → ループ後に spannerBundle から拾って両端ノートにタグ付け(下記)
+            # tremolo_type: "bowed" | "fingered" | None。tremolo_marks: 刻み線本数(細分)。
+            # tremolo_partner_hz / tremolo_interval_semitones: 指トレモロの相手音と音程差。
             is_tremolo = False
+            tremolo_type: Optional[str] = None
+            tremolo_marks: Optional[int] = None
             if hasattr(element, 'expressions'):
                 for expr in element.expressions:
                     if isinstance(expr, expressions.Tremolo):
                         is_tremolo = True
+                        tremolo_type = "bowed"
+                        tremolo_marks = int(getattr(expr, "numberOfMarks", 3) or 3)
                         break
 
             # トリル検出
@@ -376,6 +385,10 @@ try:
                 "dynamic": dyn,
                 "is_tied": is_tied,
                 "is_tremolo": is_tremolo,
+                "tremolo_type": tremolo_type,
+                "tremolo_marks": tremolo_marks,
+                "tremolo_partner_hz": None,          # 指トレモロのみ。ループ後に設定
+                "tremolo_interval_semitones": None,  # 指トレモロのみ。ループ後に設定
                 "is_trill": is_trill,
                 "is_chord": is_chord_flag,
                 # v1.7 Phase C: ハーモニクス
@@ -471,6 +484,34 @@ try:
             if span is not None:
                 for ks, ke in _project(span[0], span[1]):
                     hairpins_out.append({"type": hp_type, "start": ks, "end": ke})
+
+    # 指トレモロ (TremoloSpanner): 2音をまたぐ spanner。両端ノートに fingered タグ付けし、
+    # 相手音(partner_hz)と音程差(interval_semitones)を記録。音声側でピッチ交互を検証する。
+    # 注: _project は ql==0(装飾音)をスキップした展開 ordinal を返す。装飾音が無い限り
+    #     note_index と一致する(スラー機構と同じ前提)。tremolo etude では通常問題ない。
+    import math as _math
+    for ts in part.spannerBundle.getByClass("TremoloSpanner"):
+        span = _spanner_orig_span(ts)
+        if span is None:
+            continue
+        marks = int(getattr(ts, "numberOfMarks", 3) or 3)
+        for ks, ke in _project(span[0], span[1]):
+            if not (0 <= ks < len(note_results) and 0 <= ke < len(note_results)):
+                continue
+            a, b = note_results[ks], note_results[ke]
+            if a.get("type") != "note" or b.get("type") != "note":
+                continue
+            pa = (a.get("pitches") or [None])[0]
+            pb = (b.get("pitches") or [None])[0]
+            interval = None
+            if pa and pb and pa > 0 and pb > 0:
+                interval = abs(round(12.0 * _math.log2(pb / pa)))
+            for cur, partner in ((a, pb), (b, pa)):
+                cur["is_tremolo"] = True
+                cur["tremolo_type"] = "fingered"
+                cur["tremolo_marks"] = marks
+                cur["tremolo_partner_hz"] = partner
+                cur["tremolo_interval_semitones"] = interval
 
     analysis_result = {
         "bpm": BPM,

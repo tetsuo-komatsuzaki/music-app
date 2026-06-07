@@ -497,16 +497,14 @@ _TECH_DETECTORS: dict[str, Callable[[IntegratedNote], bool]] = {
 _DUR_RATIO_STACCATO_MAX = 0.5   # staccato/spiccato: これ以下なら「短く切れている」=OK
 _DUR_RATIO_PORTATO_MIN = 0.5    # portato: 切るが切りすぎない範囲 (軽い分離)
 _DUR_RATIO_PORTATO_MAX = 0.85
-_TREMOLO_MIN_ONSET_RATE = 6.0   # tremolo: オンセット密度(回/秒)がこれ以上なら「小刻みに反復」=OK
-                                # 普通の音は ~1-3/秒, tremolo は 6-16/秒想定 (要実演チューニング)
+_TREMOLO_ACHIEVE_FRAC = 0.6     # tremolo: 楽譜の期待反復数のこの割合以上を実演で達成すれば OK
+_TREMOLO_FINGERED_MIN_SEMITONES = 1.0  # 指トレモロ: 2音が実際にこの半音以上離れて往復していること
 
 
 # 奏法 suffix → 品質判定 (note → Optional[bool])。
-#   True  = 奏法として正しく弾けている
-#   False = 弾けていない (NG)
-#   None  = この音符では品質を測れない (対象から除外し誤判定を避ける)
-# 段階1=dur_ratio(staccato/spiccato/portato), 段階2=onset_rate(tremolo)。
-# trill/pizzicato は段階3 (ピッチ交替/音量包絡) のため未登録=従来通り(品質判定なし)。
+#   True  = 奏法として正しく弾けている / False = NG / None = 測れない(対象外)
+# 段階1=dur_ratio(staccato/spiccato/portato)。tremolo は marks に依存するため
+# _run_technique_judges で bpm を束ねた専用クロージャを使う(下記)。
 def _q_staccato(n: IntegratedNote) -> Optional[bool]:
     if n.dur_ratio is None:
         return None
@@ -519,17 +517,45 @@ def _q_portato(n: IntegratedNote) -> Optional[bool]:
     return _DUR_RATIO_PORTATO_MIN <= n.dur_ratio <= _DUR_RATIO_PORTATO_MAX
 
 
-def _q_tremolo(n: IntegratedNote) -> Optional[bool]:
-    if n.onset_rate_per_sec is None:
+def _tremolo_expected_reps(n: IntegratedNote, bpm: float) -> Optional[float]:
+    """楽譜が要求する反復数 = 音価(4分音符換算) × 2^marks。テンポ非依存(刻みは音価で決まる)。"""
+    if n.tremolo_marks is None or bpm <= 0:
         return None
-    return n.onset_rate_per_sec >= _TREMOLO_MIN_ONSET_RATE
+    dur_quarters = (n.expected_end_sec - n.expected_start_sec) * bpm / 60.0
+    if dur_quarters <= 0:
+        return None
+    return dur_quarters * (2 ** n.tremolo_marks)
+
+
+def _make_tremolo_quality(bpm: float) -> Callable[[IntegratedNote], Optional[bool]]:
+    """tremolo の②奏法OK。type で特徴量を切替え、marks+音価の期待反復数と比較(テンポ考慮)。
+    - 指(fingered): f0 が実際に ≥1半音 離れて往復し、往復数が期待の60%以上
+    - 弓(bowed):    音量ストローク数が期待の60%以上
+    """
+    def q(n: IntegratedNote) -> Optional[bool]:
+        expected = _tremolo_expected_reps(n, bpm)
+        if expected is None:
+            return None
+        need = expected * _TREMOLO_ACHIEVE_FRAC
+        if n.tremolo_type == "fingered":
+            if n.pitch_alt_count is None or n.pitch_alt_semitones is None:
+                return None
+            if n.pitch_alt_semitones < _TREMOLO_FINGERED_MIN_SEMITONES:
+                return False  # 2音交互になっていない(ビブラート/単音)
+            return n.pitch_alt_count >= need
+        if n.tremolo_type == "bowed":
+            if n.amp_stroke_count is None:
+                return None
+            return n.amp_stroke_count >= need
+        return None  # 種別不明は測れない
+
+    return q
 
 
 _TECH_QUALITY: dict[str, Callable[[IntegratedNote], Optional[bool]]] = {
     "staccato": _q_staccato,
     "spiccato": _q_staccato,
     "portato": _q_portato,
-    "tremolo": _q_tremolo,
 }
 
 
@@ -569,8 +595,10 @@ def _judge_technique(
 def _run_technique_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     all_ids = set(ALL_SUB_TASK_IDS)
     results: dict[str, SubTaskResult] = {}
+    quality_map = dict(_TECH_QUALITY)
+    quality_map["tremolo"] = _make_tremolo_quality(data.bpm or 60.0)  # marks/音価依存
     for tech, detector in _TECH_DETECTORS.items():
-        quality = _TECH_QUALITY.get(tech)  # 品質判定未対応奏法は None=従来通り
+        quality = quality_map.get(tech)  # 品質判定未対応奏法は None=従来通り
         rid = f"rhythm_technique_{tech}"
         if rid in all_ids:
             results[rid] = _judge_technique(data, rid, detector, "rhythm", quality)

@@ -640,6 +640,61 @@ def _detect_articulation_end(seg_start, seg_end, rms, time_all,
     return seg_end  # 最後まで下がらない=持続音 → 短く切らない
 
 
+# 奏法品質 2e 段階2 (2026-06-08): tremolo の汎用特徴量を音符区間から抽出する。
+# 楽譜情報(弓/指, marks)は使わず、純粋に音声から測る。意味づけは判定側 (subtask_judges)
+# が tremolo_type/marks で行う (疎結合)。
+#   - 指トレモロ(2音交互): f0 が ≥~半音離れた 2 クラスタ間を往復した回数 + その音程差
+#   - 弓トレモロ(同音反復): 音量(RMS)が規則的に上下したストローク数
+PITCH_ALT_MIN_SEMITONES = 0.7   # 2 クラスタがこの半音以上離れていれば「2音交互」とみなす
+PITCH_ALT_HYST = 1.03           # 中点まわりのヒステリシス(≒0.5半音) ビブラート誤検出抑制
+
+
+def _tremolo_features(seg_start, seg_end, valid_time, valid_f0, rms, time_all):
+    """音符区間の tremolo 汎用特徴量を返す。
+    Returns: (pitch_alt_count, pitch_alt_semitones, amp_stroke_count)
+      pitch_alt_count: f0 が 2 クラスタ間を往復した回数 (指トレモロ用)
+      pitch_alt_semitones: 2 クラスタの音程差(半音)。<閾値なら 2 音交互でない
+      amp_stroke_count: 音量の立ち上がり回数 = 弓ストローク数 (弓トレモロ用)
+    """
+    pitch_alt_count = 0
+    pitch_alt_semitones = 0.0
+    if valid_time is not None and valid_f0 is not None:
+        fmask = (valid_time >= seg_start) & (valid_time <= seg_end)
+        f = valid_f0[fmask]
+        f = f[f > 0]
+        if len(f) >= 6:
+            lo = float(np.percentile(f, 20))
+            hi = float(np.percentile(f, 80))
+            if lo > 0 and hi > 0:
+                pitch_alt_semitones = float(12.0 * np.log2(hi / lo))
+                if pitch_alt_semitones >= PITCH_ALT_MIN_SEMITONES:
+                    mid = float(np.sqrt(lo * hi))
+                    state = 0  # -1=low, +1=high
+                    for v in f:
+                        ns = state
+                        if v > mid * PITCH_ALT_HYST:
+                            ns = 1
+                        elif v < mid / PITCH_ALT_HYST:
+                            ns = -1
+                        if ns != 0 and ns != state:
+                            if state != 0:
+                                pitch_alt_count += 1
+                            state = ns
+
+    amp_stroke_count = 0
+    if rms is not None and time_all is not None:
+        rmask = (time_all >= seg_start) & (time_all <= seg_end)
+        r = rms[rmask]
+        if len(r) >= 5:
+            peak = float(np.max(r))
+            if peak > 0:
+                above = r > (peak * 0.5)  # ピーク半分超を「鳴っている」とする
+                # 立ち上がり(False→True)の回数 = ストローク数
+                rises = int(np.sum((~above[:-1]) & (above[1:])))
+                amp_stroke_count = rises + (1 if above[0] else 0)
+    return pitch_alt_count, round(pitch_alt_semitones, 2), amp_stroke_count
+
+
 # =========================================================
 # Step 3: ノートごとの評価
 # =========================================================
@@ -1274,6 +1329,14 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
                     np.sum((onset_times >= seg_start) & (onset_times <= seg_end)))
                 onset_rate_per_sec = onset_count_in_note / (seg_end - seg_start)
 
+            # tremolo 汎用特徴量 (指=ピッチ往復 / 弓=音量ストローク)。区間はピッチ終端で。
+            pitch_alt_count = None
+            pitch_alt_semitones = None
+            amp_stroke_count = None
+            if seg_end is not None and seg_end > seg_start:
+                pitch_alt_count, pitch_alt_semitones, amp_stroke_count = _tremolo_features(
+                    seg_start, seg_end, valid_time, valid_f0, rms, time_all)
+
             results.append(_make_result(
                 note_idx, measure_num, note_name, global_shift, expected_pos,
                 ee + global_shift, expected_pitch,
@@ -1284,7 +1347,10 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
                 valid_frames, eval_status, confidence,
                 detected_end=safe_float(articulation_end),
                 onset_count=onset_count_in_note,
-                onset_rate=safe_float(onset_rate_per_sec)))
+                onset_rate=safe_float(onset_rate_per_sec),
+                pitch_alt_count=pitch_alt_count,
+                pitch_alt_semitones=pitch_alt_semitones,
+                amp_stroke_count=amp_stroke_count))
 
         else:
             # 同音 legato 救済 (2026-05-26): 前ノートと同音で検出器が拾えなかったケースは
@@ -1468,7 +1534,8 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
 def _make_result(ni, mn, nn, gs, ess, ees, ep,
                  seg_start, avg_pitch, timing_from_start,
                  pce, pok, sd, sok, vf, est, confidence,
-                 detected_end=None, onset_count=None, onset_rate=None):
+                 detected_end=None, onset_count=None, onset_rate=None,
+                 pitch_alt_count=None, pitch_alt_semitones=None, amp_stroke_count=None):
     return {
         "note_index": ni,
         "measure_number": mn,
@@ -1485,10 +1552,13 @@ def _make_result(ni, mn, nn, gs, ess, ees, ep,
         # dur_ratio=実音長/期待音長 の算出に使う。オンセットガード用の seg_end とは別物。
         # 同音 legato 救済 / not_detected では検出不能のため None。
         "detected_end_sec": detected_end,
-        # 奏法品質 2e 段階2: 音符のピッチ区間内のオンセット数と密度(回/秒)。tremolo の
-        # 「小刻みに反復しているか」判定用。検出不能/未集計は None。
+        # 奏法品質 2e 段階2: 音符のピッチ区間内のオンセット数と密度(回/秒)。検出不能は None。
         "onset_count_in_note": onset_count,
         "onset_rate_per_sec": onset_rate,
+        # tremolo 汎用特徴量: 指=ピッチ往復数/2音音程差, 弓=音量ストローク数。判定側が type で使い分け。
+        "pitch_alt_count": pitch_alt_count,
+        "pitch_alt_semitones": pitch_alt_semitones,
+        "amp_stroke_count": amp_stroke_count,
         "detected_pitch_hz": avg_pitch,
         "timing_from_start_sec": timing_from_start,
         "match_confidence": confidence,

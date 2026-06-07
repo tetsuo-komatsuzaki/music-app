@@ -153,8 +153,18 @@ class IntegratedNote:
                                         # 検出不能(detected_end/start欠落、期待長0)は None
 
     # === 奏法品質 段階2（comparison_result から、2e 段階2 2026-06-08）===
-    onset_count: Optional[int] = None  # 音符ピッチ区間内のオンセット数。tremolo 判定用
-    onset_rate_per_sec: Optional[float] = None  # オンセット密度(回/秒)。tremolo の小刻み反復判定用
+    onset_count: Optional[int] = None  # 音符ピッチ区間内のオンセット数(旧指標、参考)
+    onset_rate_per_sec: Optional[float] = None  # オンセット密度(回/秒)(旧指標、参考)
+    # tremolo 音声側特徴量
+    pitch_alt_count: Optional[int] = None  # f0 が 2 クラスタ間を往復した回数(指トレモロ)
+    pitch_alt_semitones: Optional[float] = None  # 2 クラスタの音程差(半音)。2音交互の確認用
+    amp_stroke_count: Optional[int] = None  # 音量ストローク数(弓トレモロ)
+
+    # === tremolo 楽譜側情報（analysis.json から、2e 段階2 2026-06-08）===
+    tremolo_type: Optional[str] = None  # "bowed"(弓/同音) | "fingered"(指/2音) | None
+    tremolo_marks: Optional[int] = None  # 刻み線本数(細分)。期待ストローク/往復数の算出に使う
+    tremolo_partner_hz: Optional[float] = None  # 指トレモロの相手音(Hz)
+    tremolo_interval_semitones: Optional[int] = None  # 指トレモロの2音音程差(半音)
 
     # === note_integration.py で生成（v3.2 Q7 確定）===
     is_string_change_from_prev: bool = False  # 直前の音から弦移動した
