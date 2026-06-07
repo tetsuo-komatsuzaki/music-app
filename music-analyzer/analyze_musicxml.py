@@ -513,6 +513,28 @@ try:
                 cur["tremolo_partner_hz"] = partner
                 cur["tremolo_interval_semitones"] = interval
 
+    # グリッサンド (spanner.Glissando): 2音をまたぐ spanner。開始音(小ordinal)に
+    # is_glissando + 音程差 + 方向(up/down)をタグ付け。音声側で f0 軌跡(端点到達/単調性/
+    # 音程踏破)を検証する (2e グリッサンド 2026-06-08)。
+    for gl in part.spannerBundle.getByClass("Glissando"):
+        span = _spanner_orig_span(gl)
+        if span is None:
+            continue
+        for ks, ke in _project(span[0], span[1]):
+            if not (0 <= ks < len(note_results) and 0 <= ke < len(note_results)):
+                continue
+            a, b = note_results[ks], note_results[ke]
+            if a.get("type") != "note" or b.get("type") != "note":
+                continue
+            ps = (a.get("pitches") or [None])[0]
+            pe = (b.get("pitches") or [None])[0]
+            if not (ps and pe and ps > 0 and pe > 0):
+                continue
+            semis = 12.0 * _math.log2(pe / ps)
+            a["is_glissando"] = True
+            a["glissando_interval_semitones"] = abs(round(semis))
+            a["glissando_direction"] = "up" if semis > 0 else "down"
+
     analysis_result = {
         "bpm": BPM,
         "seconds_per_quarter": SECONDS_PER_QUARTER,

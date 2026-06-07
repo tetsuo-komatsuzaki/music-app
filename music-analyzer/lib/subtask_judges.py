@@ -491,6 +491,7 @@ _TECH_DETECTORS: dict[str, Callable[[IntegratedNote], bool]] = {
     "portato": lambda n: any(a in ("DetachedLegato", "Tenuto") for a in n.articulations),
     "tremolo": lambda n: n.is_tremolo,
     "trill": lambda n: n.is_trill,
+    "glissando": lambda n: bool(n.is_glissando),
 }
 
 # 奏法品質しきい値 (2e 段階1/2 2026-06-08)。
@@ -579,12 +580,30 @@ def _q_pizzicato(n: IntegratedNote) -> Optional[bool]:
     return n.attack_peak_frac <= _PIZZ_MAX_ATTACK_FRAC and n.decay_ratio <= _PIZZ_MAX_DECAY_RATIO
 
 
+# グリッサンド (2026-06-08): f0軌跡の「端点方向一致 + 単調 + 音程踏破」で滑ったか判定。暫定値。
+_GLISS_MIN_MONOTONIC = 0.7   # 動くコマの 70%以上が主方向 = 一方向に滑っている
+_GLISS_RANGE_FRAC = 0.6      # 実測踏破幅が楽譜音程の 60%以上 = 途中を飛ばしていない
+
+
+def _q_glissando(n: IntegratedNote) -> Optional[bool]:
+    if (n.gliss_range_semitones is None or n.gliss_monotonic_frac is None
+            or n.glissando_interval_semitones is None):
+        return None
+    # 方向一致(取れていれば) + 単調に滑った + 期待音程の大半を踏破
+    dir_ok = (n.gliss_direction == n.glissando_direction
+              if (n.gliss_direction and n.glissando_direction) else True)
+    range_ok = n.gliss_range_semitones >= n.glissando_interval_semitones * _GLISS_RANGE_FRAC
+    mono_ok = n.gliss_monotonic_frac >= _GLISS_MIN_MONOTONIC
+    return dir_ok and range_ok and mono_ok
+
+
 _TECH_QUALITY: dict[str, Callable[[IntegratedNote], Optional[bool]]] = {
     "staccato": _q_staccato,
     "spiccato": _q_staccato,
     "portato": _q_portato,
     "trill": _q_trill,
     "pizzicato": _q_pizzicato,
+    "glissando": _q_glissando,
 }
 
 

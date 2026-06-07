@@ -169,6 +169,16 @@ class IntegratedNote:
     tremolo_partner_hz: Optional[float] = None  # 指トレモロの相手音(Hz)
     tremolo_interval_semitones: Optional[int] = None  # 指トレモロの2音音程差(半音)
 
+    # === グリッサンド（2e グリッサンド 2026-06-08）===
+    # 楽譜側(analysis.json、開始音に付く)
+    is_glissando: bool = False  # グリッサンド開始音
+    glissando_interval_semitones: Optional[int] = None  # 滑る音程差(半音)
+    glissando_direction: Optional[str] = None  # "up" | "down"
+    # 音声側(comparison_result、次音 onset までの f0 軌跡)
+    gliss_range_semitones: Optional[float] = None  # 実測の踏破幅(半音)
+    gliss_monotonic_frac: Optional[float] = None  # 主方向への単調割合(滑らかさ)
+    gliss_direction: Optional[str] = None  # 実測のスライド方向
+
     # === note_integration.py で生成（v3.2 Q7 確定）===
     is_string_change_from_prev: bool = False  # 直前の音から弦移動した
                                                 # v3.2: analyze_musicxml ではなく

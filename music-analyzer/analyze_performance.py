@@ -720,6 +720,41 @@ def _pizz_features(seg_start, seg_end, rms, time_all):
     return round(attack_peak_frac, 3), round(decay_ratio, 3)
 
 
+def _glissando_features(s0, s1, valid_time, valid_f0):
+    """区間 [s0, s1] の f0 軌跡からグリッサンド特徴量を返す (2e グリッサンド 2026-06-08)。
+    Returns: (range_semitones, monotonic_frac, direction)
+      range_semitones: f0 の最大-最小(半音) = 音程の踏破幅
+      monotonic_frac:  動いているコマのうち、主方向に一致した割合 (滑らかな一方向スライド=高い)
+      direction:       "up" | "down" (始端→終端の中央値比較)
+    """
+    if valid_time is None or valid_f0 is None:
+        return None, None, None
+    mask = (valid_time >= s0) & (valid_time <= s1)
+    f = valid_f0[mask]
+    f = f[f > 0]
+    if len(f) < 5:
+        return None, None, None
+    lo = float(np.min(f))
+    hi = float(np.max(f))
+    if lo <= 0:
+        return None, None, None
+    range_semitones = round(float(12.0 * np.log2(hi / lo)), 2)
+    k = max(1, len(f) // 5)
+    start_med = float(np.median(f[:k]))
+    end_med = float(np.median(f[-k:]))
+    direction = "up" if end_med > start_med else "down"
+    df = np.diff(f)
+    moving = np.abs(df) > (f[:-1] * 0.002)  # >~3.5 cents 動いたコマ
+    n_moving = int(np.sum(moving))
+    if n_moving == 0:
+        monotonic_frac = 0.0
+    else:
+        dom = 1.0 if end_med > start_med else -1.0
+        agree = int(np.sum(np.sign(df[moving]) == dom))
+        monotonic_frac = round(agree / n_moving, 3)
+    return range_semitones, monotonic_frac, direction
+
+
 # =========================================================
 # Step 3: ノートごとの評価
 # =========================================================
@@ -1558,6 +1593,18 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
                         "pitch_ok": cur["pitch_ok"],
                         "presence_ok": purity["presence_ok"],
                     }
+
+    # グリッサンド 2e: 各音→次音の onset 間の f0 軌跡特徴を後処理で付与。判定側は
+    # グリッサンド開始音(楽譜側 is_glissando)にのみ使う。スライドは音をまたぐため、
+    # 単一音符窓 [seg_start,seg_end] でなく次音 onset までの区間で測る。
+    for i in range(len(results) - 1):
+        s0 = results[i].get("detected_start_sec")
+        s1 = results[i + 1].get("detected_start_sec")
+        if s0 is not None and s1 is not None and s1 > s0:
+            rng, mono, direction = _glissando_features(s0, s1, valid_time, valid_f0)
+            results[i]["gliss_range_semitones"] = rng
+            results[i]["gliss_monotonic_frac"] = mono
+            results[i]["gliss_direction"] = direction
 
     return results
 

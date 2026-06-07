@@ -348,6 +348,11 @@ def _merge_notes(
         tremolo_partner_hz = _safe_float(nr_note.get("tremolo_partner_hz"))
         _ti = nr_note.get("tremolo_interval_semitones")
         tremolo_interval_semitones = int(_ti) if isinstance(_ti, (int, float)) else None
+        # グリッサンド 楽譜側情報 (開始音に付く)
+        is_glissando = bool(nr_note.get("is_glissando", False))
+        _gi = nr_note.get("glissando_interval_semitones")
+        glissando_interval_semitones = int(_gi) if isinstance(_gi, (int, float)) else None
+        glissando_direction = nr_note.get("glissando_direction")
 
         # comparison_result から検出結果を取得（note_index で対応付け; 上記マップ参照）。
         # nr_note(楽譜側)の note_index を鍵にする。休符は eval に存在しない→None。
@@ -394,6 +399,10 @@ def _merge_notes(
             # ピチカート包絡特徴量 (段階3)
             attack_peak_frac = _safe_float(eval_note.get("attack_peak_frac"))
             decay_ratio = _safe_float(eval_note.get("decay_ratio"))
+            # グリッサンド 音声側特徴量
+            gliss_range_semitones = _safe_float(eval_note.get("gliss_range_semitones"))
+            gliss_monotonic_frac = _safe_float(eval_note.get("gliss_monotonic_frac"))
+            gliss_direction = eval_note.get("gliss_direction")
             
             # v3.2.2: measure_number を comparison_result から取得（1-indexed）
             measure_number = eval_note.get("measure_number")
@@ -420,6 +429,9 @@ def _merge_notes(
             amp_stroke_count = None
             attack_peak_frac = None
             decay_ratio = None
+            gliss_range_semitones = None
+            gliss_monotonic_frac = None
+            gliss_direction = None
             
             # comparison_result が無い → note_results からフォールバック
             measure_raw = nr_note.get("measure", 0)
@@ -481,6 +493,12 @@ def _merge_notes(
                 tremolo_marks=tremolo_marks,
                 tremolo_partner_hz=tremolo_partner_hz,
                 tremolo_interval_semitones=tremolo_interval_semitones,
+                is_glissando=is_glissando,
+                glissando_interval_semitones=glissando_interval_semitones,
+                glissando_direction=glissando_direction,
+                gliss_range_semitones=gliss_range_semitones,
+                gliss_monotonic_frac=gliss_monotonic_frac,
+                gliss_direction=gliss_direction,
                 is_string_change_from_prev=False,  # 後で _annotate_string_change で設定
             )
         )
