@@ -68,6 +68,74 @@ function relativeTime(isoStr: string): string {
   return new Date(isoStr).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })
 }
 
+// ─── 基礎練のカテゴリ分類 (音階・アルペジオ・フィンガリング・ボーイング・エチュード) ───
+const BASIC_CATEGORY_ORDER = ["scale", "arpeggio", "fingering", "bowing", "etude"] as const
+const BASIC_CATEGORY_LABEL: Record<string, string> = {
+  scale: "音階",
+  arpeggio: "アルペジオ",
+  fingering: "フィンガリング",
+  bowing: "ボーイング",
+  etude: "エチュード",
+}
+function normBasicCat(c: string): string {
+  if (c === "scales") return "scale"
+  if (c === "arpeggios") return "arpeggio"
+  if (c === "etudes") return "etude"
+  return c
+}
+
+type BasicCardItem = Props["basicPracticeCards"][number]
+
+function BasicPracticeCard({ item }: { item: BasicCardItem }) {
+  return (
+    <Link
+      href={item.href}
+      style={{
+        flex: "0 0 auto",
+        width: 150,
+        padding: "12px 14px",
+        borderRadius: 12,
+        border: "1px solid #e5e7eb",
+        background: "#fff",
+        textDecoration: "none",
+        color: "inherit",
+      }}
+    >
+      <div
+        style={{
+          fontSize: 14,
+          fontWeight: 600,
+          marginBottom: 8,
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
+      >
+        {item.title}
+      </div>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 6 }}>
+        <span style={{ fontSize: 11, color: "#999" }}>{relativeTime(item.lastPracticedAt)}</span>
+        {item.recentScore != null ? (
+          <span
+            style={{
+              fontSize: 18,
+              fontWeight: 700,
+              padding: "2px 8px",
+              borderRadius: 8,
+              ...scoreColor(item.recentScore),
+            }}
+          >
+            {item.recentScore}
+            <span style={{ fontSize: 10, fontWeight: 500 }}>点</span>
+          </span>
+        ) : (
+          <span style={{ fontSize: 11, color: "#bbb" }}>未評価</span>
+        )}
+      </div>
+    </Link>
+  )
+}
+
 // ─── 今日の練習 (直近の練習曲タブ + 課題アドバイス + 教材リンク) ──────────
 function TodayPanel({
   recentPieces,
@@ -285,62 +353,35 @@ export default function HomeClient({
         nextPieces={nextPieceRecommendations}
       />
 
-      {/* ───── 基礎練習の練習状況: 直近練習・未クリアの基礎練を横並び ───── */}
+      {/* ───── 基礎練習の練習状況: カテゴリ分類 (音階/アルペジオ/フィンガリング/ボーイング/エチュード) ───── */}
       {basicPracticeCards.length > 0 && (
         <div className={styles.card}>
           <div className={styles.sectionTitle}>基礎練習の練習状況</div>
-          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
-            {basicPracticeCards.map((item) => (
-              <Link
-                key={item.id}
-                href={item.href}
-                style={{
-                  flex: "0 0 auto",
-                  width: 150,
-                  padding: "12px 14px",
-                  borderRadius: 12,
-                  border: "1px solid #e5e7eb",
-                  background: "#fff",
-                  textDecoration: "none",
-                  color: "inherit",
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    marginBottom: 8,
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {item.title}
+          {[
+            ...BASIC_CATEGORY_ORDER,
+            ...Array.from(
+              new Set(
+                basicPracticeCards
+                  .map((c) => normBasicCat(c.category))
+                  .filter((c) => !BASIC_CATEGORY_ORDER.includes(c as (typeof BASIC_CATEGORY_ORDER)[number])),
+              ),
+            ),
+          ].map((cat) => {
+            const items = basicPracticeCards.filter((c) => normBasicCat(c.category) === cat)
+            if (items.length === 0) return null
+            return (
+              <div key={cat} style={{ marginTop: 8 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#555", margin: "6px 0" }}>
+                  {BASIC_CATEGORY_LABEL[cat] ?? cat}
                 </div>
-                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 6 }}>
-                  <span style={{ fontSize: 11, color: "#999" }}>
-                    {relativeTime(item.lastPracticedAt)}
-                  </span>
-                  {item.recentScore != null ? (
-                    <span
-                      style={{
-                        fontSize: 18,
-                        fontWeight: 700,
-                        padding: "2px 8px",
-                        borderRadius: 8,
-                        ...scoreColor(item.recentScore),
-                      }}
-                    >
-                      {item.recentScore}
-                      <span style={{ fontSize: 10, fontWeight: 500 }}>点</span>
-                    </span>
-                  ) : (
-                    <span style={{ fontSize: 11, color: "#bbb" }}>未評価</span>
-                  )}
+                <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+                  {items.map((item) => (
+                    <BasicPracticeCard key={item.id} item={item} />
+                  ))}
                 </div>
-              </Link>
-            ))}
-          </div>
+              </div>
+            )
+          })}
         </div>
       )}
 

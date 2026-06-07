@@ -355,7 +355,7 @@ export default async function HomePage({ params }: PageProps) {
       lastPracticedAt: p.uploadedAt.toISOString(),
       recentScore,
     })
-    if (basicPracticeCards.length >= 8) break
+    if (basicPracticeCards.length >= 24) break
   }
 
   // --- 直近の練習曲 (Score) + 曲別 直近平均スコア (pitch+timing の 2 軸平均) ---
