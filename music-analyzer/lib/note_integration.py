@@ -298,6 +298,15 @@ def _merge_notes(
         n.get("note_index", i): n for i, n in enumerate(skill_info_notes)
     }
 
+    # comparison(eval) を note_index でマップ化 (2026-06-08 アライメント修正)。
+    # comparison_result.json は休符を出力しないため要素数が note_results(楽譜, 休符込み)
+    # と一致しない (例 ふるさと 45 vs 49)。各 eval 要素は本来の note_index を保持しているので、
+    # 位置 i ではなく note_index で突き合わせる。位置ベースだと最初の休符以降、別音符の
+    # 演奏結果が貼り付き全 per-note 判定(指/弦/跳躍/音価/ポジション/奏法/dur_ratio)が狂う。
+    eval_by_index = {
+        e.get("note_index", k): e for k, e in enumerate(eval_notes)
+    }
+
     integrated: List[IntegratedNote] = []
 
     for i, nr_note in enumerate(note_results_notes):
@@ -333,8 +342,10 @@ def _merge_notes(
         is_tremolo = bool(nr_note.get("is_tremolo", False))
         is_trill = bool(nr_note.get("is_trill", False))
 
-        # comparison_result から検出結果を取得（インデックスで対応付け）
-        eval_note = eval_notes[i] if i < len(eval_notes) else None
+        # comparison_result から検出結果を取得（note_index で対応付け; 上記マップ参照）。
+        # nr_note(楽譜側)の note_index を鍵にする。休符は eval に存在しない→None。
+        _nr_idx = nr_note.get("note_index", i)
+        eval_note = eval_by_index.get(_nr_idx)
         if eval_note is not None:
             detected_start_sec = _safe_float(eval_note.get("detected_start_sec"))
             pitch_cents_error = _safe_float(eval_note.get("pitch_cents_error"))
