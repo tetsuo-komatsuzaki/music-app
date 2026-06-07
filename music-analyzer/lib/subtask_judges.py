@@ -22,11 +22,25 @@ rhythm_after_rest、string_change_volume/slur/timing) は完全廃止し、新 5
 
 from __future__ import annotations
 
-from .integrated_note import IntegratedScoreData, SubTaskResult
+from typing import Callable, List
+
+from .integrated_note import (
+    IntegratedNote,
+    IntegratedScoreData,
+    SubTaskResult,
+    calculate_subtask_score_hybrid,
+)
 
 
 # 解析可能性の検出割合閾値 (旧来踏襲、v3.2 §6-3 A1)
 DETECTION_RATE_MIN = 0.50
+
+
+# 発火条件 (課題カード化) の閾値。
+# [[project_skill_scoring_firing_spec]] 2026-06-07 Tetsuo 確定:
+#   matched = (target_count >= FIRE_MIN_SAMPLES) かつ (score < FIRE_SCORE_THRESHOLD)
+FIRE_MIN_SAMPLES = 3
+FIRE_SCORE_THRESHOLD = 70.0
 
 
 # ---------------------------------------------------------------------------
@@ -111,13 +125,169 @@ def _skipped_result(sub_task_id: str) -> SubTaskResult:
     )
 
 
+# ---------------------------------------------------------------------------
+# 第一弾スキル判定 (属性で即時実装可能、IntegratedNote に属性あり)
+# [[project_skill_scoring_firing_spec]] 2026-06-07 確定:
+#   ① 点 = 対象音符のうち OK だった割合 (calculate_subtask_score_hybrid)
+#       - 音程系 → OK = pitch_ok
+#       - リズム系 → OK = start_ok
+#       - 弓・弦系 → OK = pitch_ok かつ start_ok
+#       対象 = 属性で絞った非休符音符のうち、該当 ok が None でない (評価可能) もの
+#   ② 発火 (matched=True) = target_count >= 3 かつ score < 70
+# ---------------------------------------------------------------------------
+
+
+# 弦 ID は IntegratedNote.string_id では大文字 ("G"/"D"/"A"/"E")、
+# sub_task_id では小文字 (g/d/a/e) のため対応表で橋渡しする。
+_STRING_LABEL: dict[str, str] = {"g": "G", "d": "D", "a": "A", "e": "E"}
+
+
+def _pitch_evaluable(n: IntegratedNote) -> bool:
+    """音程系: pitch_ok が判定済み (None でない) なら評価可能。"""
+    return n.pitch_ok is not None
+
+
+def _pitch_bad(n: IntegratedNote) -> bool:
+    return n.pitch_ok is False
+
+
+def _timing_evaluable(n: IntegratedNote) -> bool:
+    """リズム系: start_ok が判定済みなら評価可能。"""
+    return n.start_ok is not None
+
+
+def _timing_bad(n: IntegratedNote) -> bool:
+    return n.start_ok is False
+
+
+def _bow_evaluable(n: IntegratedNote) -> bool:
+    """弓・弦系: pitch_ok と start_ok の両方が判定済みなら評価可能。"""
+    return n.pitch_ok is not None and n.start_ok is not None
+
+
+def _bow_bad(n: IntegratedNote) -> bool:
+    return n.pitch_ok is False or n.start_ok is False
+
+
+def _judge(
+    sub_task_id: str,
+    target_notes: List[IntegratedNote],
+    is_bad: Callable[[IntegratedNote], bool],
+) -> SubTaskResult:
+    """対象音符と is_bad から SubTaskResult を組み立てる (① 点 + ② 発火)。
+
+    target_notes は呼び出し側で「属性で絞った非休符かつ評価可能」に絞り込み済み。
+    target_count == 0 のときは calculate_subtask_score_hybrid が score=100 を返し、
+    matched=False (skill_aggregator が集計から除外) になる。
+    """
+    score, target_count, bad_count = calculate_subtask_score_hybrid(
+        target_notes, is_bad
+    )
+    matched = target_count >= FIRE_MIN_SAMPLES and score < FIRE_SCORE_THRESHOLD
+    return SubTaskResult(
+        sub_task_id=sub_task_id,
+        score=score,
+        matched=matched,
+        sample_size=target_count,
+        target_count=target_count,
+        bad_count=bad_count,
+        details=None,
+        details_with_count=None,
+    )
+
+
+def _judge_string(data: IntegratedScoreData, sub_task_id: str, label: str) -> SubTaskResult:
+    """bowing_string_{g,d,a,e}: 指定弦上の非休符音符。OK = 音程かつタイミング。"""
+    targets = [
+        n
+        for n in data.notes
+        if not n.is_rest and n.string_id == label and _bow_evaluable(n)
+    ]
+    return _judge(sub_task_id, targets, _bow_bad)
+
+
+def _judge_finger(data: IntegratedScoreData, sub_task_id: str, finger: int) -> SubTaskResult:
+    """pitch_finger_{1..4}: 指定運指の非休符音符。OK = 音程。"""
+    targets = [
+        n
+        for n in data.notes
+        if not n.is_rest and n.finger == finger and _pitch_evaluable(n)
+    ]
+    return _judge(sub_task_id, targets, _pitch_bad)
+
+
+def _judge_string_change(
+    data: IntegratedScoreData, sub_task_id: str, src: str, dst: str
+) -> SubTaskResult:
+    """bowing_string_change_{src}_to_{dst}: 連続非休符で src→dst に弦移動した音符。
+
+    対象 = 直前の非休符音符が src 弦、当該音符が dst 弦の遷移先音符。OK = 音程かつタイミング。
+    """
+    non_rest = [n for n in data.notes if not n.is_rest]
+    targets = [
+        curr
+        for prev, curr in zip(non_rest, non_rest[1:])
+        if prev.string_id == src and curr.string_id == dst and _bow_evaluable(curr)
+    ]
+    return _judge(sub_task_id, targets, _bow_bad)
+
+
+def _judge_after_rest(data: IntegratedScoreData) -> SubTaskResult:
+    """rhythm_entry_after_rest: 直前が休符だった音符の入り。OK = タイミング。"""
+    targets = [
+        n
+        for n in data.notes
+        if not n.is_rest and n.is_after_rest and _timing_evaluable(n)
+    ]
+    return _judge("rhythm_entry_after_rest", targets, _timing_bad)
+
+
+def _run_first_batch_judges(
+    data: IntegratedScoreData,
+) -> dict[str, SubTaskResult]:
+    """第一弾スキルの本判定を実行し sub_task_id → SubTaskResult を返す。"""
+    results: dict[str, SubTaskResult] = {}
+
+    # 弦 (G/D/A/E)
+    for key, label in _STRING_LABEL.items():
+        results[f"bowing_string_{key}"] = _judge_string(
+            data, f"bowing_string_{key}", label
+        )
+
+    # 運指 (1〜4)
+    for finger in (1, 2, 3, 4):
+        results[f"pitch_finger_{finger}"] = _judge_finger(
+            data, f"pitch_finger_{finger}", finger
+        )
+
+    # 弦移動 (隣接弦の双方向)
+    for src_key, dst_key in (
+        ("g", "d"), ("d", "g"), ("d", "a"), ("a", "d"), ("a", "e"), ("e", "a"),
+    ):
+        sub_id = f"bowing_string_change_{src_key}_to_{dst_key}"
+        results[sub_id] = _judge_string_change(
+            data, sub_id, _STRING_LABEL[src_key], _STRING_LABEL[dst_key]
+        )
+
+    # 休符明けの入り
+    results["rhythm_entry_after_rest"] = _judge_after_rest(data)
+
+    return results
+
+
 def run_all_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     """個別課題 v1 全 59 項目の判定を実行する。
 
-    現状: 全項目スケルトン (target_count=0)。
-    本実装は項目ごとに別 PR で段階的に充填する。
+    第一弾 (弦・運指・弦移動・休符明け) は本判定を行い、それ以外は
+    スケルトン (target_count=0、集計対象外) を返す。第二弾は属性追加 or
+    音声側品質判定が必要なため別 PR で段階的に充填する
+    ([[project_skill_scoring_firing_spec]] 第二弾)。
 
     Returns:
         sub_task_id をキーとする SubTaskResult の辞書 (全 59 エントリ)
     """
-    return {sub_id: _skipped_result(sub_id) for sub_id in ALL_SUB_TASK_IDS}
+    first_batch = _run_first_batch_judges(data)
+    return {
+        sub_id: first_batch.get(sub_id) or _skipped_result(sub_id)
+        for sub_id in ALL_SUB_TASK_IDS
+    }
