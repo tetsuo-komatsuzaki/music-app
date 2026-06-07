@@ -41,6 +41,8 @@ type Props = {
   recentPieces: { id: string; title: string; recentAvg: number | null; href: string }[]
   /** いまの課題名 (active カード由来)。null = 課題なし → フォールバック文言 */
   challengeName: string | null
+  /** 課題なし時の「次の曲にチャレンジ」: 同じ★の未マスター曲 */
+  nextPieceRecommendations: SongRecommendation[]
 }
 
 // スコア → ランク色 (scoreDetail と同じ閾値)
@@ -67,11 +69,13 @@ function relativeTime(isoStr: string): string {
 function TodayPanel({
   recentPieces,
   challengeName,
-  materials,
+  challengeMaterials,
+  nextPieces,
 }: {
   recentPieces: Props["recentPieces"]
   challengeName: string | null
-  materials: SongRecommendation[]
+  challengeMaterials: SongRecommendation[]
+  nextPieces: SongRecommendation[]
 }) {
   const [active, setActive] = useState(0)
   const piece = recentPieces[active] ?? recentPieces[0] ?? null
@@ -169,21 +173,24 @@ function TodayPanel({
         </>
       )}
 
-      {/* 課題アドバイス: あれば課題名、なければフォールバック */}
+      {/* 課題あり: 課題名 + 紐づく練習教材。課題なし: 同じ★の未マスター曲を推す */}
       {challengeName ? (
-        <div style={{ fontSize: 14, lineHeight: 1.7, marginBottom: 10 }}>
-          いま「<strong>{challengeName}</strong>」が課題と出ているね。
-          <br />
-          クリアまでに以下の課題練習をしてみよう！
-        </div>
+        <>
+          <div style={{ fontSize: 14, lineHeight: 1.7, marginBottom: 10 }}>
+            いま「<strong>{challengeName}</strong>」が課題と出ているね。
+            <br />
+            クリアまでに以下の課題練習をしてみよう！
+          </div>
+          <RecommendationList recommendations={challengeMaterials} />
+        </>
       ) : (
-        <div style={{ fontSize: 14, lineHeight: 1.7, marginBottom: 10, color: "#555" }}>
-          直近の課題はありません！<br />次の曲にチャレンジしてみよう！
-        </div>
+        <>
+          <div style={{ fontSize: 14, lineHeight: 1.7, marginBottom: 10, color: "#555" }}>
+            直近の課題はありません！<br />次の曲にチャレンジしてみよう！
+          </div>
+          <RecommendationList recommendations={nextPieces} />
+        </>
       )}
-
-      {/* 課題クリア用の練習教材リンク */}
-      <RecommendationList recommendations={materials} />
     </div>
   )
 }
@@ -198,6 +205,7 @@ export default function HomeClient({
   recentHistory,
   recentPieces,
   challengeName,
+  nextPieceRecommendations,
 }: Props) {
   void _userName
   const WEEKLY_GOAL = 5
@@ -270,7 +278,8 @@ export default function HomeClient({
       <TodayPanel
         recentPieces={recentPieces}
         challengeName={challengeName}
-        materials={songRecommendations}
+        challengeMaterials={songRecommendations}
+        nextPieces={nextPieceRecommendations}
       />
 
       {/* ───── 直近の練習 (Continue バー風レイアウト) ───── */}

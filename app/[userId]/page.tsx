@@ -404,6 +404,42 @@ export default async function HomePage({ params }: PageProps) {
         : null
     : null
 
+  // --- 課題なし時の「次の曲にチャレンジ」: ユーザーと同じ★で、まだマスターしていない
+  //     共有曲 (Score) を提示。基礎教材ではなく曲を推す。現在練習中の曲は除外。 ---
+  const masteredRows = await prisma.songMastery.findMany({
+    where: { userId: internalUserId, isFullyMastered: true },
+    select: { scoreId: true },
+  })
+  const excludePieceIds = [
+    ...new Set([
+      ...recentPieces.map((p) => p.id),
+      ...masteredRows.map((m) => m.scoreId),
+    ]),
+  ]
+  const nextPieceScores = await prisma.score.findMany({
+    where: {
+      star: currentStar,
+      ownerScope: "admin",
+      isShared: true,
+      deletedAt: null,
+      ...(excludePieceIds.length ? { id: { notIn: excludePieceIds } } : {}),
+    },
+    orderBy: [{ createdAt: "asc" }],
+    take: 4,
+    select: { id: true, title: true, composer: true, star: true },
+  })
+  const nextPieceRecommendations = nextPieceScores.map((s) => ({
+    practiceItem: {
+      id: s.id,
+      title: s.title,
+      category: "score",
+      star: s.star ?? null,
+      composer: s.composer ?? null,
+    },
+    reason: `あなたのレベル（☆${currentStar}）の曲です`,
+    href: `/${userId}/scores/${s.id}`,
+  }))
+
   return (
     <HomeClient
       userName={dbUser.name ?? ""}
@@ -415,6 +451,7 @@ export default async function HomePage({ params }: PageProps) {
       recentHistory={recentHistory}
       recentPieces={recentPieces}
       challengeName={challengeName}
+      nextPieceRecommendations={nextPieceRecommendations}
     />
   )
 }
