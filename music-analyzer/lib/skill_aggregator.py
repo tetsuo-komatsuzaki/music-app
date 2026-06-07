@@ -3,10 +3,11 @@ skill_aggregator.py — 中項目スコア集計（v3.2 §7 Q5 確定）
 
 設計書 v3.2 §7 に基づく実装。
 
-集計ルール（v3.2 Q5 確定、v3 / v3.1 から変更）：
-  中項目スコア = 配下 sub task のうち target_count > 0 のものの score 平均
-              = target_count = 0 の sub task は集計から除外
-              = 全配下が 0 件 → 中項目スコア = None
+集計ルール（2026-06-07 更新、発火ルールと統一）：
+  中項目スコア = 配下 sub task のうち target_count >= FIRE_MIN_SAMPLES(3) のものの score 平均
+              = target_count < 3 の sub task は集計から除外（発火 matched と同じ最低数）
+              = 該当が 0 件 → 中項目スコア = None
+  (旧 v3.2 Q5: target_count > 0 で集計 → 1-2音の偶発ミスが中項目を不当に下げる問題を解消)
 
 中項目構成：
   pitch  = (pitch_overall + pitch_high + pitch_chromatic) の有効平均
@@ -29,6 +30,7 @@ from __future__ import annotations
 from typing import Optional
 
 from .integrated_note import SubTaskResult
+from .subtask_judges import FIRE_MIN_SAMPLES
 
 
 # 個別課題 v1 (2026-05-25): 中項目 → 配下 sub task のマップを 57 項目スキームに更新。
@@ -104,8 +106,10 @@ def aggregate_skill_scores(
             result = sub_task_results.get(sub_task_id)
             if result is None:
                 continue
-            # v3.2 Q5：target_count = 0 は集計対象外（該当音符なし）
-            if result.target_count == 0:
+            # 2026-06-07 確定: 集計も発火と同じ最低サンプル数 (FIRE_MIN_SAMPLES=3) で揃える。
+            # target_count < 3 は除外 (1-2音の偶発ミスが中項目を不当に引き下げ、
+            # 誤って課題化するのを防ぐ。発火ルール matched と一貫させる)。
+            if result.target_count < FIRE_MIN_SAMPLES:
                 continue
             valid_scores.append(result.score)
 
