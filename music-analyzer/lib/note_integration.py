@@ -310,8 +310,16 @@ def _merge_notes(
             _pitches = nr_note.get("pitches") or []
             _exp_hz = _pitches[0] if _pitches else 0.0
         expected_pitch_hz = float(_exp_hz) if not is_rest else 0.0
-        expected_start_sec = float(nr_note.get("expected_start_sec", 0.0))
-        expected_end_sec = float(nr_note.get("expected_end_sec", 0.0))
+        # 開始/終了秒: note_results.json なら expected_*、analysis.json なら *_time_sec。
+        # (音価判定 2c で duration を拍に変換するため両対応)
+        _exp_start = nr_note.get("expected_start_sec")
+        if _exp_start is None:
+            _exp_start = nr_note.get("start_time_sec", 0.0)
+        _exp_end = nr_note.get("expected_end_sec")
+        if _exp_end is None:
+            _exp_end = nr_note.get("end_time_sec", 0.0)
+        expected_start_sec = float(_exp_start)
+        expected_end_sec = float(_exp_end)
 
         # 重音/ハーモニクス (analysis.json 由来。loop engine は analysis.json を
         # note_results として渡すため nr_note から直接取得できる。第二弾 2a)

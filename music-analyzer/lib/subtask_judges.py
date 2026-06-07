@@ -330,6 +330,73 @@ def _run_interval_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     }
 
 
+# ---------------------------------------------------------------------------
+# 第二弾 2c: 音価 (rhythm_value) / 連符 (rhythm_pattern) (2026-06-07)
+# 音符の長さ(拍 = duration_sec / (60/bpm) = quarterLength)で分類。OK = タイミング。
+# 楽譜由来の duration なので整数比でクリーン。連符は ql×3 が2のべき(3連符)で判定。
+# 2plet_plus(2連符等)は拍値からの判別が曖昧なため保留(スケルトン)。
+# ---------------------------------------------------------------------------
+
+
+def _near(a: float, b: float, tol: float = 0.06) -> bool:
+    return abs(a - b) < tol
+
+
+def _is_dotted_value(ql: float) -> bool:
+    """付点音価 (1.5 × 2のべき): 6/3/1.5/0.75/0.375 拍。"""
+    return any(_near(ql, base) for base in (6.0, 3.0, 1.5, 0.75, 0.375))
+
+
+def _is_triplet_value(ql: float) -> bool:
+    """3連符 (基準/3 = ql×3 が2のべき): 1.333/0.667/0.333/0.167 拍。"""
+    return any(_near(ql, base, 0.04) for base in (1.333, 0.667, 0.333, 0.167))
+
+
+def _run_value_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
+    spb = 60.0 / data.bpm if data.bpm else 0.0
+    results: dict[str, SubTaskResult] = {}
+    if spb <= 0:
+        return results
+
+    def ql_of(n: IntegratedNote) -> float:
+        return (n.expected_end_sec - n.expected_start_sec) / spb
+
+    non_rest_eval = [
+        n for n in data.notes if not n.is_rest and _timing_evaluable(n)
+    ]
+
+    def by(pred: Callable[[float], bool]) -> List[IntegratedNote]:
+        return [n for n in non_rest_eval if pred(ql_of(n))]
+
+    # 連符を先に判定 (付点/単純音価より優先)
+    results["rhythm_pattern_triplet"] = _judge(
+        "rhythm_pattern_triplet", by(_is_triplet_value), _timing_bad
+    )
+    # 付点 (連符でないもの)
+    results["rhythm_value_dotted"] = _judge(
+        "rhythm_value_dotted",
+        by(lambda ql: _is_dotted_value(ql) and not _is_triplet_value(ql)),
+        _timing_bad,
+    )
+    # 単純音価 (連符/付点でないもの)
+    def plain(target: float) -> Callable[[float], bool]:
+        return lambda ql: (
+            _near(ql, target)
+            and not _is_triplet_value(ql)
+            and not _is_dotted_value(ql)
+        )
+
+    results["rhythm_value_whole"] = _judge("rhythm_value_whole", by(plain(4.0)), _timing_bad)
+    results["rhythm_value_half"] = _judge("rhythm_value_half", by(plain(2.0)), _timing_bad)
+    results["rhythm_value_16th"] = _judge("rhythm_value_16th", by(plain(0.25)), _timing_bad)
+    results["rhythm_value_32nd_plus"] = _judge(
+        "rhythm_value_32nd_plus",
+        by(lambda ql: ql < 0.1875 and not _is_triplet_value(ql)),
+        _timing_bad,
+    )
+    return results
+
+
 def _run_chord_harmonic_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     """第二弾 2a: 重音 (2/3plus/continuous) × pitch/bowing + ハーモニクス × pitch/bowing。"""
     cont_ids = _continuous_chord_ids(data)
@@ -401,6 +468,7 @@ def run_all_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     implemented.update(_run_first_batch_judges(data))
     implemented.update(_run_chord_harmonic_judges(data))
     implemented.update(_run_interval_judges(data))
+    implemented.update(_run_value_judges(data))
     return {
         sub_id: implemented.get(sub_id) or _skipped_result(sub_id)
         for sub_id in ALL_SUB_TASK_IDS
