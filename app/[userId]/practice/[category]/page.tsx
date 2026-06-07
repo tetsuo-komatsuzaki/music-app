@@ -207,6 +207,7 @@ export default async function CategoryPage({
       title: item.title,
       composer: item.composer,
       category: item.category,
+      star: item.star,
       keyTonic: item.keyTonic,
       keyMode: item.keyMode,
       modeVariant,

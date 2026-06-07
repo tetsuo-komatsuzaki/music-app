@@ -14,6 +14,7 @@ type PracticeItemDTO = {
   title: string
   composer: string | null
   category: string
+  star: number | null
   keyTonic: string
   keyMode: string
   modeVariant?: string | null
@@ -69,7 +70,7 @@ type Props = {
   stats: PracticeStats
 }
 
-type ViewType = "recommend" | "group"
+type ViewType = "star" | "group"
 
 const modeLabels: Record<string, string> = { major: "長調", minor: "短調" }
 
@@ -157,47 +158,6 @@ function relativeDate(isoString: string): string {
 // Sub-components
 // ────────────────────────────────────────────────────────────
 
-function StatsRow({ stats }: { stats: PracticeStats }) {
-  const pct = stats.totalItems > 0
-    ? Math.round((stats.practicedItems / stats.totalItems) * 100)
-    : 0
-  return (
-    <div className={styles.statsRow}>
-      <div className={styles.statCard}>
-        <div className={styles.statValue}>{stats.practicedItems}<span className={styles.statUnit}>/{stats.totalItems}</span></div>
-        <div className={styles.statLabel}>練習済み</div>
-        <div className={styles.statBar}><div className={styles.statBarFill} style={{ width: `${pct}%` }} /></div>
-      </div>
-      <div className={styles.statCard}>
-        <div className={styles.statValue}>
-          {stats.avgPitchAccuracy > 0 ? `${stats.avgPitchAccuracy}` : "–"}<span className={styles.statUnit}>{stats.avgPitchAccuracy > 0 ? "%" : ""}</span>
-        </div>
-        <div className={styles.statLabel}>音程精度 (推定)</div>
-      </div>
-      <div className={styles.statCard}>
-        <div className={styles.statValue}>{stats.weakKeyCount}</div>
-        <div className={styles.statLabel}>苦手な調</div>
-      </div>
-    </div>
-  )
-}
-
-function RecommendCard({ item, userId, category }: { item: ScoredItemDTO; userId: string; category: string }) {
-  const { shortTitle, subtitle } = extractCardInfo(item)
-
-  return (
-    <Link href={`/${userId}/practice/${category}/${item.id}`} className={styles.recCard}>
-      <div className={styles.recCardInner}>
-        <div className={styles.recTitle}>{shortTitle}</div>
-        {subtitle && <div className={styles.recSubtitle}>{subtitle}</div>}
-        {item.lastPracticed && (
-          <div className={styles.recLast}>{relativeDate(item.lastPracticed)}</div>
-        )}
-      </div>
-    </Link>
-  )
-}
-
 function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: string; category: string }) {
   const { shortTitle, subtitle, octaves, bowTech, chordType } = extractCardInfo(item)
   return (
@@ -232,53 +192,62 @@ function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: s
 }
 
 // ────────────────────────────────────────────────────────────
-// View 1: おすすめ順
+// View 1: ☆順 (難易度タブ)
 // ────────────────────────────────────────────────────────────
+// 練習曲 (pieces) と同じ☆タブ仕様。star 未設定の教材も隠さないよう、
+// null の教材がある場合のみ末尾に「☆未設定」フォールバックタブを設ける。
 
-function RecommendView({
-  items, recommendations, todayTaskLabel, stats, userId, category,
+type StarTab = number | "none"
+
+function StarView({
+  items, userId, category,
 }: {
   items: PracticeItemDTO[]
-  recommendations: ScoredItemDTO[]
-  todayTaskLabel: string | null
-  stats: PracticeStats
   userId: string
   category: string
 }) {
-  const recent = items
-    .filter((i) => i.lastPracticed != null)
-    .sort((a, b) => new Date(b.lastPracticed!).getTime() - new Date(a.lastPracticed!).getTime())
-    .slice(0, 5)
+  const starValues = Array.from(
+    new Set(items.map((i) => i.star).filter((s): s is number => s != null)),
+  ).sort((a, b) => a - b)
+  const hasNull = items.some((i) => i.star == null)
+  const tabs: StarTab[] = [...starValues, ...(hasNull ? (["none"] as StarTab[]) : [])]
+
+  const [active, setActive] = useState<StarTab | null>(tabs.length ? tabs[0] : null)
+
+  if (tabs.length === 0) {
+    return (
+      <p className={styles.cardContextEmpty}>
+        公開されている教材はまだありません。
+      </p>
+    )
+  }
+
+  const filtered = items.filter((i) =>
+    active === "none" ? i.star == null : i.star === active,
+  )
 
   return (
     <div>
-      <StatsRow stats={stats} />
+      {/* ☆ごとの横並びタブ */}
+      <div className={styles.starTabs}>
+        {tabs.map((t) => (
+          <button
+            key={String(t)}
+            type="button"
+            className={`${styles.starTab} ${active === t ? styles.starTabActive : ""}`}
+            onClick={() => setActive(t)}
+          >
+            {t === "none" ? "☆未設定" : `☆${t}`}
+          </button>
+        ))}
+      </div>
 
-      <section className={styles.viewSection}>
-        <h2 className={styles.sectionTitle}>今日の課題</h2>
-        {todayTaskLabel && (
-          <div className={styles.sectionSubtitle}>課題: {todayTaskLabel}</div>
-        )}
-        {recommendations.length > 0 ? (
-          <div className={styles.recScroll}>
-            {recommendations.map((r) => (
-              <RecommendCard key={r.id} item={r} userId={userId} category={category} />
-            ))}
-          </div>
-        ) : (
-          <div className={styles.emptyState}>
-            {todayTaskLabel
-              ? `「${todayTaskLabel}」に該当する教材がこのカテゴリーにはありません`
-              : "現在の課題がありません。あなたの課題ページからカードを作成してください。"}
-          </div>
-        )}
-      </section>
-
-      {recent.length > 0 && (
+      {filtered.length === 0 ? (
+        <p className={styles.cardContextEmpty}>この難易度の教材はありません。</p>
+      ) : (
         <section className={styles.viewSection}>
-          <h2 className={styles.sectionTitle}>最近練習した曲</h2>
           <div className={styles.itemList}>
-            {recent.map((item) => (
+            {filtered.map((item) => (
               <ItemCard key={item.id} item={item} userId={userId} category={category} />
             ))}
           </div>
@@ -432,29 +401,32 @@ function GroupView({
 // ────────────────────────────────────────────────────────────
 
 export default function PracticeList({
-  userId, category, categoryTitle, items, filterOptions: _filterOptions, currentFilters: _currentFilters, recommendations, todayTaskLabel, stats,
+  userId, category, categoryTitle, items, filterOptions: _filterOptions, currentFilters: _currentFilters, recommendations: _recommendations, todayTaskLabel: _todayTaskLabel, stats: _stats,
 }: Props) {
   void _filterOptions
   void _currentFilters
+  void _recommendations
+  void _todayTaskLabel
+  void _stats
   const searchParams = useSearchParams()
   const initialView: ViewType = (() => {
     const v = searchParams.get("view")
-    if (v === "recommend" || v === "group") return v
-    return "recommend"
+    if (v === "star" || v === "group") return v
+    return "star"
   })()
   const [activeView, setActiveView] = useState<ViewType>(initialView)
 
   // URL の ?view= が変化したら state を同期 (オンボーディングからのナビゲーション用)
   useEffect(() => {
     const v = searchParams.get("view")
-    if (v === "recommend" || v === "group") {
+    if (v === "star" || v === "group") {
       setActiveView(v)
     }
   }, [searchParams])
 
   const tabs: { key: ViewType; label: string }[] = [
-    { key: "recommend", label: "おすすめ順" },
-    { key: "group",     label: "グループ別" },
+    { key: "star",  label: "☆順" },
+    { key: "group", label: "グループ別" },
   ]
 
   return (
@@ -478,15 +450,8 @@ export default function PracticeList({
         ))}
       </div>
 
-      {activeView === "recommend" && (
-        <RecommendView
-          items={items}
-          recommendations={recommendations}
-          todayTaskLabel={todayTaskLabel}
-          stats={stats}
-          userId={userId}
-          category={category}
-        />
+      {activeView === "star" && (
+        <StarView items={items} userId={userId} category={category} />
       )}
       {activeView === "group" && (
         <GroupView items={items} userId={userId} category={category} />
