@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import GradeBadge from "@/app/components/GradeBadge"
+import MasterBadge from "@/app/components/MasterBadge"
 import GradeProgressBar from "@/app/components/GradeProgressBar"
 import RecommendationList from "@/app/components/RecommendationList"
 import type { SongRecommendation } from "@/app/components/RecommendationItem"
@@ -40,8 +41,8 @@ type Props = {
     lastPracticedAt: string
     recentScore: number | null
   }[]
-  /** 直近の練習曲 (Score) + 曲別 直近平均スコア */
-  recentPieces: { id: string; title: string; recentAvg: number | null; href: string }[]
+  /** 直近の練習曲 (Score) + 曲別 直近平均スコア + マスター済みか */
+  recentPieces: { id: string; title: string; recentAvg: number | null; mastered: boolean; href: string }[]
   /** いまの課題名 (active カード由来)。null = 課題なし → フォールバック文言 */
   challengeName: string | null
   /** 課題なし時の「次の曲にチャレンジ」: 同じ★の未マスター曲 */
@@ -186,6 +187,7 @@ function TodayPanel({
                     whiteSpace: "nowrap",
                   }}
                 >
+                  {p.mastered && "🏆 "}
                   {p.title}
                 </button>
               ))}
@@ -210,16 +212,19 @@ function TodayPanel({
             >
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: 12, color: "#888" }}>直近平均スコア</div>
-                <div
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 600,
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {piece.title}
+                <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+                  <span
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {piece.title}
+                  </span>
+                  <MasterBadge mastered={piece.mastered} />
                 </div>
               </div>
               {piece.recentAvg != null ? (

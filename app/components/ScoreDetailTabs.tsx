@@ -12,7 +12,7 @@ export type ScoreDetailTabId = "practice" | "loop"
 
 const TAB_DEFS: { id: ScoreDetailTabId; label: string }[] = [
   { id: "practice", label: "練習" },
-  { id: "loop", label: "上達ループ" },
+  { id: "loop", label: "課題の取り組み状況" },
 ]
 
 type Props = {

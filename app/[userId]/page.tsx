@@ -398,12 +398,24 @@ export default async function HomePage({ params }: PageProps) {
     const d = pieceData.get(p.scoreId)!
     if (d.vals.length < 5) d.vals.push((p.pitchAccuracy + p.timingAccuracy) / 2)
   }
+  // 完全習得セット (タイトル横「🏆 マスター」バッジ + 「次の曲」除外で再利用)
+  const masteredRows = await prisma.songMastery.findMany({
+    where: { userId: internalUserId, isFullyMastered: true },
+    select: { scoreId: true },
+  })
+  const masteredSet = new Set(masteredRows.map((m) => m.scoreId))
   const recentPieces = pieceOrder.slice(0, 5).map((sid) => {
     const d = pieceData.get(sid)!
     const recentAvg = d.vals.length
       ? Math.round(d.vals.reduce((s, v) => s + v, 0) / d.vals.length)
       : null
-    return { id: d.id, title: d.title, recentAvg, href: `/${userId}/scores/${d.id}` }
+    return {
+      id: d.id,
+      title: d.title,
+      recentAvg,
+      mastered: masteredSet.has(d.id),
+      href: `/${userId}/scores/${d.id}`,
+    }
   })
 
   // --- 課題名 (active カード由来)。カード未生成 (現状) なら null → フォールバック文言 ---
@@ -417,10 +429,6 @@ export default async function HomePage({ params }: PageProps) {
 
   // --- 課題なし時の「次の曲にチャレンジ」: ユーザーと同じ★で、まだマスターしていない
   //     共有曲 (Score) を提示。基礎教材ではなく曲を推す。現在練習中の曲は除外。 ---
-  const masteredRows = await prisma.songMastery.findMany({
-    where: { userId: internalUserId, isFullyMastered: true },
-    select: { scoreId: true },
-  })
   const excludePieceIds = [
     ...new Set([
       ...recentPieces.map((p) => p.id),

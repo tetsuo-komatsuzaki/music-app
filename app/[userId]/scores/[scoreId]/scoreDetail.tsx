@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import ScoreDetailTabs, { type ScoreDetailTabId } from "@/app/components/ScoreDetailTabs"
+import MasterBadge from "@/app/components/MasterBadge"
 import ScoreLoopDetail from "@/app/components/ScoreLoopDetail"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
 import * as Tone from "tone"
@@ -2118,27 +2119,7 @@ export default function ScoreDetail({
       <div className={styles.header} data-section="header">
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <h1 className={styles.title}>{score.title}</h1>
-          {score.isMastered && (
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-                fontSize: 13,
-                fontWeight: 700,
-                padding: "4px 12px",
-                borderRadius: 14,
-                background: "linear-gradient(135deg, #f7d774, #e0a800)",
-                color: "#5c3d00",
-                border: "1px solid #d4a017",
-                boxShadow: "0 1px 3px rgba(212,160,0,0.35)",
-                whiteSpace: "nowrap",
-              }}
-              title="この曲をマスターしました"
-            >
-              🏆 マスター
-            </span>
-          )}
+          <MasterBadge mastered={score.isMastered} size="md" />
         </div>
       </div>
 

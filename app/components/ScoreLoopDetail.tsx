@@ -141,7 +141,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
         エラー: {error}
         <br />
         {error === "Forbidden"
-          ? "この曲はまだ一度も演奏していません。録音すると上達ループが起動します。"
+          ? "この曲はまだ一度も演奏していません。録音すると課題の取り組み状況が表示されます。"
           : null}
       </div>
     )
@@ -186,7 +186,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
 
       {/* ── 2. SkillTaskCard 3 列 (中課題) ───────────────────────── */}
       <section className={styles.cardSection}>
-        <h2 className={styles.sectionTitle}>上達ループの課題</h2>
+        <h2 className={styles.sectionTitle}>取り組む課題</h2>
         {skillTaskCards.length === 0 ? (
           <p className={styles.emptyHint}>
             現在、課題化されている中項目はありません (全 ≥ 70 点)。

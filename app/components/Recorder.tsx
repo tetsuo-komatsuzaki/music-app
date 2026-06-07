@@ -839,7 +839,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
               className={styles.loopLinkBtn}
               onClick={onShowLoop}
             >
-              上達ループタブで詳細を見る →
+              課題の取り組み状況で詳細を見る →
             </button>
           )}
 
