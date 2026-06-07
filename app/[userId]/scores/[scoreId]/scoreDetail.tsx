@@ -1027,6 +1027,20 @@ export default function ScoreDetail({
     return scores.length > 0 ? Math.max(...scores) : undefined
   }, [performances])
 
+  // 現在のレベル（直近 RECENT_LEVEL_N 回の総合点の平均）— 録音ボタン上の表示用。
+  // 「いまどのレベルの演奏ができるか」を安定した値で可視化する。
+  const recentLevel = useMemo(() => {
+    const RECENT_LEVEL_N = 5
+    const scored = performances
+      .filter(p => p.overallScore != null)
+      .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
+      .slice(0, RECENT_LEVEL_N)
+      .map(p => p.overallScore as number)
+    if (scored.length === 0) return null
+    const avg = Math.round(scored.reduce((sum, v) => sum + v, 0) / scored.length)
+    return { avg }
+  }, [performances])
+
   // Recorder の onRecordingComplete ハンドラ (G-1 + Path B、v3.3 spec Commit 3)
   // 旧: convert-audio → uploadRecord(WAV FormData)
   // 新: getSignedUploadUrl → XHR PUT 直接 → uploadAction({ performanceId, recordingBpm })
@@ -2081,6 +2095,47 @@ export default function ScoreDetail({
       <div className={styles.grid}>
         <div className={styles.leftColumn} data-section="left-column">
           {infoSlot}
+          {/* 現在のレベル（直近5回の総合点平均）— 録音ボタンの上に可視化 */}
+          {recordingState === "idle" && recentLevel && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                padding: "12px 16px",
+                marginBottom: 12,
+                borderRadius: 12,
+                background: rankLabels[getScoreRank(recentLevel.avg)].bg,
+              }}
+            >
+              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <span style={{ fontSize: 12, color: "#666" }}>
+                  現在のレベル
+                </span>
+                <span
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: rankLabels[getScoreRank(recentLevel.avg)].color,
+                  }}
+                >
+                  {rankLabels[getScoreRank(recentLevel.avg)].label}
+                </span>
+              </div>
+              <div
+                style={{
+                  fontSize: 28,
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  color: rankLabels[getScoreRank(recentLevel.avg)].color,
+                }}
+              >
+                {recentLevel.avg}
+                <span style={{ fontSize: 14, fontWeight: 500 }}>点</span>
+              </div>
+            </div>
+          )}
           <div data-onboarding="scoreDetail.recordButton">
             <Recorder
               onRecordingComplete={handleRecordingComplete}
