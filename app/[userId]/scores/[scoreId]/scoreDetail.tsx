@@ -323,7 +323,6 @@ function EvaluationSummaryCard({
 }) {
   const hasPitch = performance.pitchAccuracy != null
   const hasTiming = performance.timingAccuracy != null
-  const perfScore = performanceScore(performance)
 
   if (!hasPitch && !hasTiming) return null
 
@@ -343,12 +342,7 @@ function EvaluationSummaryCard({
             <span className={styles.evalValue}>{Math.round(performance.timingAccuracy!)}%</span>
           </div>
         )}
-        {perfScore != null && (
-          <div className={styles.evalRow}>
-            <span className={styles.evalLabel}>演奏スコア</span>
-            <span className={styles.evalValue}>{perfScore}点</span>
-          </div>
-        )}
+        {/* 演奏スコアは演奏履歴カード上部に大きく表示するため、ここからは削除 (2026-06-08 Tetsuo) */}
         {performance.evaluatedNotes != null && (
           <div className={styles.evalRow}>
             <span className={styles.evalLabel}>評価対象</span>
@@ -498,7 +492,7 @@ function PerformanceHistory({
                   ) : (
                     <span className={styles.historyName}>{displayName}</span>
                   )}
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     {score != null && !isEditing && (
                       <span
                         className={styles.rankBadgeSmall}
@@ -510,6 +504,20 @@ function PerformanceHistory({
                         {rankLabels[getScoreRank(score)].label}
                       </span>
                     )}
+                    {/* 演奏スコアを大きく表示 (演奏評価カードの「演奏スコア◯点」から移設・強調) */}
+                    {score != null && !isEditing && (
+                      <span
+                        style={{
+                          fontSize: 26,
+                          fontWeight: 700,
+                          lineHeight: 1,
+                          color: rankLabels[getScoreRank(score)].color,
+                        }}
+                      >
+                        {score}
+                        <span style={{ fontSize: 13, fontWeight: 500 }}>点</span>
+                      </span>
+                    )}
                     {!isEditing && (
                       <span aria-hidden style={{ fontSize: 11, color: "#999" }}>
                         {selectedId === p.id ? "▲" : "▼"}
@@ -518,7 +526,8 @@ function PerformanceHistory({
                   </div>
                 </div>
                 <div className={styles.historyMeta}>
-                  <span>{statusLabel}</span>
+                  {/* スコアありは上部に大きく表示するため、ここでは解析中/失敗などの状態のみ */}
+                  {score == null && <span>{statusLabel}</span>}
                   {showEvalBadge && <span className={styles.historyBadge}>評価あり</span>}
                   <span className={styles.historyDate}>{dateLabel}</span>
                   <div className={styles.historyActions}>

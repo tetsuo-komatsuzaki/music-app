@@ -22,14 +22,32 @@ import Link from "next/link"
 import type {
   ImprovementGuideEntry,
   ImprovementMethod,
+  ProblematicPosition,
 } from "./PerformanceSkillDetail"
 import styles from "./ImprovementGuideCard.module.css"
 
 type Props = {
   guides: ImprovementGuideEntry[]
+  /** 気になる箇所。各 sub_task に対応する位置を該当ガイド内に表示する
+   *  (旧 ProblematicPositionList の候補選択 UI は廃止、2026-06-08)。 */
+  positions?: ProblematicPosition[]
+  /** 該当箇所タップで譜面ジャンプ + ハイライト。未提供なら非クリック表示。 */
+  onJumpToPosition?: (noteIndices: number[]) => void
   /** UI-13: 教材ボタン押下時の navigation 用 supabaseUserId。
    *  未提供時はボタン無効化。 */
   userId?: string
+}
+
+/** 「第 X 小節 Y 拍目」形式の位置文字列 (旧 ProblematicPositionList から踏襲)。 */
+function formatPosition(p: ProblematicPosition): string {
+  const { measure_start, beat_start, measure_end, beat_end } = p
+  if (measure_start === measure_end && beat_start === beat_end) {
+    return `第 ${measure_start} 小節 ${beat_start} 拍目`
+  }
+  if (measure_start === measure_end) {
+    return `第 ${measure_start} 小節 ${beat_start}〜${beat_end} 拍目`
+  }
+  return `第 ${measure_start} 小節 ${beat_start} 拍目〜第 ${measure_end} 小節 ${beat_end} 拍目`
 }
 
 function MethodSection({
@@ -66,9 +84,13 @@ function MethodSection({
 
 function GuideCard({
   entry,
+  positions,
+  onJumpToPosition,
   userId,
 }: {
   entry: ImprovementGuideEntry
+  positions: ProblematicPosition[]
+  onJumpToPosition?: (noteIndices: number[]) => void
   userId?: string
 }) {
   const { guide } = entry
@@ -82,12 +104,68 @@ function GuideCard({
     ? `/${userId}/practice?fromCard=${entry.cardId}&context=etude`
     : null
 
+  // この sub_task に該当する気になる箇所 (候補にこの sub_task を含む位置)
+  const matchedPositions = positions.filter((p) =>
+    p.candidate_sub_task_ids.includes(entry.subTaskId),
+  )
+
   return (
     <article className={styles.card}>
       <header className={styles.cardHeader}>
         <span className={styles.parentTaskBadge}>{entry.parentTaskName}</span>
         <h3 className={styles.subTaskName}>{entry.subTaskName}</h3>
       </header>
+
+      {/* 該当箇所 (旧「気になる箇所」の候補選択 UI を廃止し、ここに位置のみ表示) */}
+      {matchedPositions.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 6,
+            alignItems: "center",
+            marginBottom: 10,
+          }}
+        >
+          <span style={{ fontSize: 12, color: "#888", fontWeight: 600 }}>該当箇所:</span>
+          {matchedPositions.map((pos) =>
+            onJumpToPosition ? (
+              <button
+                key={pos.position_id}
+                type="button"
+                onClick={() => onJumpToPosition(pos.note_indices)}
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  padding: "3px 10px",
+                  borderRadius: 14,
+                  border: "1px solid #d4a373",
+                  background: "#fff7ee",
+                  color: "#b5651d",
+                  cursor: "pointer",
+                }}
+                title="譜面で該当箇所を表示"
+              >
+                {formatPosition(pos)} 🎯
+              </button>
+            ) : (
+              <span
+                key={pos.position_id}
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  padding: "3px 10px",
+                  borderRadius: 14,
+                  background: "#f4f4f4",
+                  color: "#555",
+                }}
+              >
+                {formatPosition(pos)}
+              </span>
+            ),
+          )}
+        </div>
+      )}
 
       <MethodSection icon="🎯" label="意識する" method={guide.awareness} />
       <MethodSection icon="🎵" label={practiceLabel} method={guide.practice} />
@@ -122,7 +200,12 @@ function GuideCard({
   )
 }
 
-export default function ImprovementGuideCard({ guides, userId }: Props) {
+export default function ImprovementGuideCard({
+  guides,
+  positions = [],
+  onJumpToPosition,
+  userId,
+}: Props) {
   if (guides.length === 0) {
     return (
       <div className={styles.emptyState} role="status">
@@ -133,7 +216,13 @@ export default function ImprovementGuideCard({ guides, userId }: Props) {
   return (
     <div className={styles.list}>
       {guides.map(entry => (
-        <GuideCard key={entry.subTaskId} entry={entry} userId={userId} />
+        <GuideCard
+          key={entry.subTaskId}
+          entry={entry}
+          positions={positions}
+          onJumpToPosition={onJumpToPosition}
+          userId={userId}
+        />
       ))}
     </div>
   )

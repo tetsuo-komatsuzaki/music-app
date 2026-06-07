@@ -18,7 +18,6 @@ import { useEffect, useState } from "react"
 import GradeUpModal from "./GradeUpModal"
 import PerformanceMenu from "./PerformanceMenu"
 import ImprovementGuideCard from "./ImprovementGuideCard"
-import ProblematicPositionList from "./ProblematicPositionList"
 import styles from "./PerformanceSkillDetail.module.css"
 
 // ---------------------------------------------------------------------------
@@ -249,19 +248,17 @@ export default function PerformanceSkillDetail({
       {/* UI-3 中項目スコアカード(音程/リズム/弓使いの3軸スコア)は非表示化 (2026-06-08 Tetsuo):
           このスコア概念はユーザーに開示しない。演奏スコア(音程+リズム平均)は演奏評価カードで表示。 */}
 
-      {/* UI-4: 気になる箇所リスト + 候補選択 */}
+      {/* UI-4 気になる箇所の候補選択UI(これだ/違う/分からない)は廃止 (2026-06-08 Tetsuo)。
+          該当箇所は下の改善アドバイス内に sub_task 別に表示する。 */}
+
+      {/* UI-5 + UI-13: 改善アドバイス + 該当箇所 + 教材ボタン */}
       <section className={styles.section}>
-        <ProblematicPositionList
-          performanceId={data.performanceId}
-          kind={kind}
+        <ImprovementGuideCard
+          guides={data.improvementGuides}
           positions={data.problematicPositions ?? []}
           onJumpToPosition={onJumpToPosition}
+          userId={userId}
         />
-      </section>
-
-      {/* UI-5 + UI-13: 改善アドバイス + 教材ボタン */}
-      <section className={styles.section}>
-        <ImprovementGuideCard guides={data.improvementGuides} userId={userId} />
       </section>
 
       {/* UI-7: グレードアップ通知モーダル (recentlyChanged + 未通知の場合のみ表示) */}

@@ -150,7 +150,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
     return <div className={styles.error}>データなし</div>
   }
 
-  const { performance, songMastery, skillTaskCards, missingFlags } = data
+  const { songMastery, skillTaskCards, missingFlags } = data
 
   return (
     <div className={styles.container} role="tabpanel" id="score-detail-tab-panel-loop">
@@ -194,14 +194,6 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
         ) : (
           <div className={styles.cardGrid}>
             {skillTaskCards.map((card) => {
-              const skillScore =
-                performance == null
-                  ? null
-                  : card.taskCategory === "PITCH"
-                  ? performance.pitchSkillScore
-                  : card.taskCategory === "RHYTHM"
-                  ? performance.rhythmSkillScore
-                  : performance.bowingSkillScore
               return (
                 <article
                   key={card.id}
@@ -221,11 +213,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
                       {STATUS_LABELS[card.status] ?? card.status}
                     </span>
                   </header>
-                  {skillScore != null && (
-                    <p className={styles.cardScore}>
-                      直近スキル: <strong>{skillScore.toFixed(1)}</strong> / 100
-                    </p>
-                  )}
+                  {/* 中項目スキルスコア(音程/リズム/弓使いの◯◯点)は非表示化 (2026-06-08 Tetsuo) */}
                   {card.subTasks.length === 0 ? (
                     <p className={styles.emptyHint}>
                       小課題なし
