@@ -64,6 +64,7 @@ SKILL_TASK_MAP: dict[str, list[str]] = {
         "bowing_technique_portato", "bowing_technique_trill",
         "bowing_technique_arpeggio", "bowing_technique_glissando",
         "bowing_technique_harmonic",
+        "bowing_technique_staccato_continuous", "bowing_technique_spiccato_continuous",
         "bowing_string_g", "bowing_string_d", "bowing_string_a", "bowing_string_e",
         "bowing_string_change_g_to_d", "bowing_string_change_d_to_g",
         "bowing_string_change_d_to_a", "bowing_string_change_a_to_d",

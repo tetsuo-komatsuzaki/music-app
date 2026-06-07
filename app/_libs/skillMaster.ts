@@ -3,6 +3,8 @@
 // 個別課題 v1 (2026-05-25) — マスターデータ定義。
 // 旧 9 サブタスクは完全廃止、新 57 項目 (MVP対象、将来検討 2 を加えて 59 定義) で
 // 置換 (Tetsuo 確定 2026-05-25)。中項目 ID は pitch / rhythm / bowing 維持 (① 確定)。
+// 2026-06-08: 連続スタッカート/スピッカート(弓系2項目)を追加し 61 項目に。検出は
+// 均一性軸の作り直しで後日 ([[project_evenness_quality_axis_pending]])。現状スケルトン。
 //
 // improvementGuide 文言は暫定 (UI 設計書で書き直し前提)。
 
@@ -61,7 +63,7 @@ export const SUB_TASK_IDS = [
   "rhythm_technique_trill",
   "rhythm_technique_arpeggio",
   "rhythm_technique_glissando",
-  // ─── 弦移動 (24、うち 1 将来検討) ───
+  // ─── 弦移動 (26、うち 1 将来検討) ───
   "bowing_technique_staccato",
   "bowing_technique_hooked_staccato",
   "bowing_technique_spiccato",
@@ -73,6 +75,8 @@ export const SUB_TASK_IDS = [
   "bowing_technique_arpeggio",
   "bowing_technique_glissando",
   "bowing_technique_harmonic",
+  "bowing_technique_staccato_continuous",
+  "bowing_technique_spiccato_continuous",
   "bowing_string_g",
   "bowing_string_d",
   "bowing_string_a",
@@ -102,6 +106,8 @@ export const SUB_TASKS_QUALITY_DEFERRED = new Set<SubTaskId>([
   "bowing_technique_trill",
   "bowing_technique_arpeggio",
   "bowing_technique_glissando",
+  "bowing_technique_staccato_continuous",
+  "bowing_technique_spiccato_continuous",
 ])
 
 // 「将来検討」フラグ (MVP 未実装、UI で非表示)。リコシェのみ。
@@ -160,6 +166,8 @@ export const SUB_TASK_NAMES: Record<SubTaskId, string> = {
   bowing_technique_arpeggio: "アルペジオの音色",
   bowing_technique_glissando: "グリッサンドの音色",
   bowing_technique_harmonic: "ハーモニクスの音色",
+  bowing_technique_staccato_continuous: "連続スタッカートの音色",
+  bowing_technique_spiccato_continuous: "連続スピッカートの音色",
   bowing_string_g: "G線(4弦)の音色",
   bowing_string_d: "D線(3弦)の音色",
   bowing_string_a: "A線(2弦)の音色",
@@ -244,7 +252,8 @@ export const AXES: AxisDef[] = [
                  "bowing_technique_pizzicato", "bowing_technique_tremolo",
                  "bowing_technique_portato", "bowing_technique_trill",
                  "bowing_technique_arpeggio", "bowing_technique_glissando",
-                 "bowing_technique_harmonic"] },
+                 "bowing_technique_harmonic",
+                 "bowing_technique_staccato_continuous", "bowing_technique_spiccato_continuous"] },
   { id: "bowing_string",      name: "弦",               parentTaskId: "bowing",
     subTaskIds: ["bowing_string_g", "bowing_string_d", "bowing_string_a", "bowing_string_e"] },
   { id: "bowing_string_change", name: "移弦",           parentTaskId: "bowing",

@@ -190,7 +190,8 @@ TASK_SCORE_TASK_CARD_THRESHOLD = 60  # §9-2 task カード化閾値
 RECENT_PERFORMANCES_FOR_IMPROVING = 3  # §9-2 直近 N 件
 
 TASK_IDS = ("pitch", "rhythm", "bowing")
-# 個別課題 v1 (2026-05-25): 旧 9 sub_task を完全廃止し、新 59 項目 (うち 2 将来検討) に置換。
+# 個別課題 v1 (2026-05-25): 旧 9 sub_task を完全廃止し、新 61 項目 (うち 2 将来検討) に置換。
+# (2026-06-08 連続スタッカート/スピッカート追加で 59→61)
 # TS app/_libs/skillMaster.ts SUB_TASK_IDS と一対一対応。
 SUB_TASK_IDS = (
     # 音程 (18)
@@ -217,6 +218,7 @@ SUB_TASK_IDS = (
     "bowing_technique_portato", "bowing_technique_trill",
     "bowing_technique_arpeggio", "bowing_technique_glissando",
     "bowing_technique_harmonic",
+    "bowing_technique_staccato_continuous", "bowing_technique_spiccato_continuous",
     "bowing_string_g", "bowing_string_d", "bowing_string_a", "bowing_string_e",
     "bowing_string_change_g_to_d", "bowing_string_change_d_to_g",
     "bowing_string_change_d_to_a", "bowing_string_change_a_to_d",

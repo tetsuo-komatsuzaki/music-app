@@ -44,7 +44,7 @@ FIRE_SCORE_THRESHOLD = 70.0
 
 
 # ---------------------------------------------------------------------------
-# 個別課題 v1 全 59 項目の sub_task_id
+# 個別課題 v1 全 61 項目の sub_task_id
 # (TS app/_libs/skillMaster.ts SUB_TASK_IDS と一対一対応)
 # ---------------------------------------------------------------------------
 
@@ -66,7 +66,7 @@ ALL_SUB_TASK_IDS: list[str] = [
     "rhythm_technique_ricochet",  # 将来検討
     "rhythm_technique_tremolo", "rhythm_technique_portato", "rhythm_technique_trill",
     "rhythm_technique_arpeggio", "rhythm_technique_glissando",
-    # ─── 弦移動 (24、うち 1 将来検討) ───
+    # ─── 弦移動 (26、うち 1 将来検討) ───
     "bowing_technique_staccato", "bowing_technique_hooked_staccato",
     "bowing_technique_spiccato",
     "bowing_technique_ricochet",  # 将来検討
@@ -74,6 +74,9 @@ ALL_SUB_TASK_IDS: list[str] = [
     "bowing_technique_portato", "bowing_technique_trill",
     "bowing_technique_arpeggio", "bowing_technique_glissando",
     "bowing_technique_harmonic",
+    # 連続スタッカート/スピッカート (2026-06-08 追加、弓系)。連続性の質=弓の均一性のため
+    # 検出は均一性軸の作り直しで後日実装 ([[project_evenness_quality_axis_pending]])。現状スケルトン。
+    "bowing_technique_staccato_continuous", "bowing_technique_spiccato_continuous",
     "bowing_string_g", "bowing_string_d", "bowing_string_a", "bowing_string_e",
     "bowing_string_change_g_to_d", "bowing_string_change_d_to_g",
     "bowing_string_change_d_to_a", "bowing_string_change_a_to_d",
@@ -700,7 +703,7 @@ def run_all_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     判定が必要なため別 PR で段階的に充填する ([[project_skill_scoring_firing_spec]])。
 
     Returns:
-        sub_task_id をキーとする SubTaskResult の辞書 (全 59 エントリ)
+        sub_task_id をキーとする SubTaskResult の辞書 (全 61 エントリ)
     """
     implemented: dict[str, SubTaskResult] = {}
     implemented.update(_run_first_batch_judges(data))
