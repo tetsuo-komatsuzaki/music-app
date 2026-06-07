@@ -1238,7 +1238,7 @@ def generate_score_cards_phase3b(
 # ---------------------------------------------------------------------------
 
 MASTERY_RECENT_COUNT = 5          # 直近 N 回 (SongMastery / UserPracticeMastery 両方)
-MASTERY_AVERAGE_THRESHOLD = 90.0  # 平均 overallScore ≥ 90
+MASTERY_AVERAGE_THRESHOLD = 90.0  # 平均 演奏スコア(音程+リズム平均) ≥ 90
 MASTERY_MIN_TOTAL = 5             # 累計 ≥ 5
 CLEARED_SKILL_THRESHOLD = 70.0    # SkillTaskCard cleared 判定 (§2-5)
 GRADE_UP_SONG_COUNT = 10          # 完全習得 10 曲で☆昇格 (§2-7)
@@ -1253,22 +1253,22 @@ def _update_user_practice_mastery(
         bool: 「今回新たに isPerformanceMastered=true に遷移したか」
               (Q1=B 永続のため、既に true のものは false 返す)
     """
-    # 直近 5 回 (PracticePerformance.overallScore IS NOT NULL でフィルタ) + 累計
+    # 直近 5 回 (演奏スコア=音程+リズム平均、両方 NOT NULL でフィルタ) + 累計
     cur.execute(
         """
         WITH recent AS (
-          SELECT "overallScore"
+          SELECT ("pitchAccuracy" + "timingAccuracy") / 2.0 AS score
           FROM "PracticePerformance"
           WHERE "userId" = %s AND "practiceItemId" = %s
-            AND "overallScore" IS NOT NULL
+            AND "pitchAccuracy" IS NOT NULL AND "timingAccuracy" IS NOT NULL
           ORDER BY "uploadedAt" DESC
           LIMIT %s
         )
         SELECT
-          (SELECT AVG("overallScore") FROM recent)::float AS recent_avg,
+          (SELECT AVG("score") FROM recent)::float AS recent_avg,
           (SELECT COUNT(*) FROM "PracticePerformance"
             WHERE "userId" = %s AND "practiceItemId" = %s
-              AND "overallScore" IS NOT NULL)::int AS total_count
+              AND "pitchAccuracy" IS NOT NULL AND "timingAccuracy" IS NOT NULL)::int AS total_count
         """,
         (user_internal_id, practice_item_id, MASTERY_RECENT_COUNT,
          user_internal_id, practice_item_id),
@@ -1626,19 +1626,20 @@ def _update_song_mastery_and_grade(
     cur.execute(
         """
         WITH eligible AS (
-          SELECT p."overallScore"
+          SELECT (p."pitchAccuracy" + p."timingAccuracy") / 2.0 AS score
           FROM "Performance" p
           INNER JOIN "Score" s ON s.id = p."scoreId"
           WHERE p."userId" = %s AND p."scoreId" = %s
-            AND p."overallScore" IS NOT NULL
+            AND p."pitchAccuracy" IS NOT NULL
+            AND p."timingAccuracy" IS NOT NULL
             AND s."ownerScope" = 'admin'
             AND p."performanceType" != 'pro'
           ORDER BY p."uploadedAt" DESC
         ), recent AS (
-          SELECT "overallScore" FROM eligible LIMIT %s
+          SELECT "score" FROM eligible LIMIT %s
         )
         SELECT
-          (SELECT AVG("overallScore") FROM recent)::float,
+          (SELECT AVG("score") FROM recent)::float,
           (SELECT COUNT(*) FROM eligible)::int
         """,
         (user_internal_id, score_id, MASTERY_RECENT_COUNT),
