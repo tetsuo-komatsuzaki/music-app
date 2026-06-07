@@ -78,7 +78,7 @@ function TodayPanel({
 
   return (
     <div className={styles.card}>
-      <div className={styles.sectionTitle}>今日の練習</div>
+      <div className={styles.sectionTitle}>練習曲の上達状況</div>
 
       {/* 直近の練習曲: 複数なら横タブ */}
       {recentPieces.length > 0 && (
@@ -266,7 +266,7 @@ export default function HomeClient({
         </div>
       </div>
 
-      {/* ───── 今日の練習: 直近の練習曲 + 課題アドバイス + 教材リンク ───── */}
+      {/* ───── 練習曲の上達状況: 直近の練習曲 + 課題アドバイス + 教材リンク ───── */}
       <TodayPanel
         recentPieces={recentPieces}
         challengeName={challengeName}
