@@ -1134,32 +1134,38 @@ def generate_score_cards_phase3b(
                 score_key_tonic, score_key_mode, score_star, score_tech_tag_ids,
             )
 
-    # 1. 中課題判定: skill score 系で < 70 のものを抽出
-    mid_categories: list[str] = []
-    if pitch_skill_score is not None and pitch_skill_score < THRESHOLD_MID_TASK:
-        mid_categories.append("PITCH")
-    if rhythm_skill_score is not None and rhythm_skill_score < THRESHOLD_MID_TASK:
-        mid_categories.append("RHYTHM")
-    if bowing_skill_score is not None and bowing_skill_score < THRESHOLD_MID_TASK:
-        mid_categories.append("BOWING")
-
-    if not mid_categories:
-        print(
-            f"[loop_engine_runner] (3b) 中課題なし (pitch={pitch_skill_score} "
-            f"rhythm={rhythm_skill_score} bowing={bowing_skill_score}, "
-            f"全て ≥ {THRESHOLD_MID_TASK}) — カード生成スキップ"
-        )
-        return
-
-    # 2. 小課題候補抽出 (matched=true かつ score < 70)
+    # 1. 小課題候補抽出 (matched=true かつ score < 70) を先に出す
     failed_sub_by_parent: dict[str, list[str]] = {}
     for sub_type, v in (skill_sub_scores or {}).items():
         if not isinstance(v, dict):
             continue
         if v.get("matched") and v.get("score") is not None and v["score"] < THRESHOLD_SUB_TASK:
             parent = _SUB_TO_PARENT.get(sub_type)
-            if parent and parent in mid_categories:
+            if parent:
                 failed_sub_by_parent.setdefault(parent, []).append(sub_type)
+
+    # 2. 中課題判定: 中項目 < 70 「または」配下に matched 小課題があるカテゴリ。
+    #    (2026-06-07 修正: 旧実装は「中項目<70」だけを関門にしていたため、中項目は
+    #     ≥70 でも特定の小課題だけ弱い場合 (例 ふるさと: リズム中項目75 だが付点50) に
+    #     カードが作られず、ホーム課題(小課題直接)と上達ループタブ/マスター判定
+    #     (per-score カード) が食い違った。設計「課題全クリアで完全習得」に合わせ、
+    #     matched 小課題があれば中項目が良くても課題カードを生成する。)
+    mid_categories: list[str] = []
+    for cat, score in (
+        ("PITCH", pitch_skill_score),
+        ("RHYTHM", rhythm_skill_score),
+        ("BOWING", bowing_skill_score),
+    ):
+        if (score is not None and score < THRESHOLD_MID_TASK) or cat in failed_sub_by_parent:
+            mid_categories.append(cat)
+
+    if not mid_categories:
+        print(
+            f"[loop_engine_runner] (3b) 中課題なし (pitch={pitch_skill_score} "
+            f"rhythm={rhythm_skill_score} bowing={bowing_skill_score} 全て ≥ "
+            f"{THRESHOLD_MID_TASK} かつ matched 小課題なし) — カード生成スキップ"
+        )
+        return
 
     print(
         f"[loop_engine_runner] (3b) 中課題: {mid_categories}, "
