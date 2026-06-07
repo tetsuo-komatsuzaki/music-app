@@ -1027,15 +1027,16 @@ export default function ScoreDetail({
     return scores.length > 0 ? Math.max(...scores) : undefined
   }, [performances])
 
-  // 現在のレベル（直近 RECENT_LEVEL_N 回の総合点の平均）— 録音ボタン上の表示用。
-  // 「いまどのレベルの演奏ができるか」を安定した値で可視化する。
+  // 現在のレベル（直近 RECENT_LEVEL_N 回の「音程・リズム平均」の平均）— 録音ボタン上の表示用。
+  // overallScore は bowing(skill)依存で欠損しやすいため、確実に入る
+  // pitchAccuracy / timingAccuracy の 2 軸平均でレベルを可視化する。
   const recentLevel = useMemo(() => {
     const RECENT_LEVEL_N = 5
     const scored = performances
-      .filter(p => p.overallScore != null)
+      .filter(p => p.pitchAccuracy != null && p.timingAccuracy != null)
       .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
       .slice(0, RECENT_LEVEL_N)
-      .map(p => p.overallScore as number)
+      .map(p => (p.pitchAccuracy! + p.timingAccuracy!) / 2)
     if (scored.length === 0) return null
     const avg = Math.round(scored.reduce((sum, v) => sum + v, 0) / scored.length)
     return { avg }
