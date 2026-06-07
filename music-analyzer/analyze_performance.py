@@ -1220,7 +1220,8 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
                 safe_float(timing_from_start),
                 safe_float(pitch_cents_error), pitch_ok,
                 safe_float(start_diff), start_ok,
-                valid_frames, eval_status, confidence))
+                valid_frames, eval_status, confidence,
+                detected_end=safe_float(seg_end)))
 
         else:
             # 同音 legato 救済 (2026-05-26): 前ノートと同音で検出器が拾えなかったケースは
@@ -1403,7 +1404,8 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
 
 def _make_result(ni, mn, nn, gs, ess, ees, ep,
                  seg_start, avg_pitch, timing_from_start,
-                 pce, pok, sd, sok, vf, est, confidence):
+                 pce, pok, sd, sok, vf, est, confidence,
+                 detected_end=None):
     return {
         "note_index": ni,
         "measure_number": mn,
@@ -1415,6 +1417,10 @@ def _make_result(ni, mn, nn, gs, ess, ees, ep,
         "expected_pitch_hz": float(ep),
         # 区間データ
         "detected_start_sec": seg_start,
+        # 奏法品質 2e 段階1 (2026-06-08): 実音の終了時刻。_detect_sound_end で内部計算済の
+        # seg_end を出力する (従来は破棄)。dur_ratio=実音長/期待音長 の算出に使う。
+        # 同音 legato 救済 / not_detected では検出不能のため None。
+        "detected_end_sec": detected_end,
         "detected_pitch_hz": avg_pitch,
         "timing_from_start_sec": timing_from_start,
         "match_confidence": confidence,

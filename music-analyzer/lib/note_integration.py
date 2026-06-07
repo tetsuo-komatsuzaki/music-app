@@ -343,6 +343,25 @@ def _merge_notes(
             start_ok = _safe_bool(eval_note.get("start_ok"))
             avg_volume_db = _safe_float(eval_note.get("avg_volume_db"))
             volume_drop_after = _safe_float(eval_note.get("volume_drop_after"))
+
+            # 奏法品質 2e 段階1: detected_end_sec と dur_ratio。
+            # dur_ratio は comparison 内の演奏テンポ同士(detected vs comparison の expected)
+            # で算出しテンポ不変にする。IntegratedNote.expected_* は loop engine 経路では
+            # analysis.json(楽譜テンポ)由来でテンポが揃わないため、ここでは使わない。
+            detected_end_sec = _safe_float(eval_note.get("detected_end_sec"))
+            _cmp_exp_start = _safe_float(eval_note.get("expected_start_sec"))
+            _cmp_exp_end = _safe_float(eval_note.get("expected_end_sec"))
+            dur_ratio = None
+            if (
+                detected_start_sec is not None
+                and detected_end_sec is not None
+                and _cmp_exp_start is not None
+                and _cmp_exp_end is not None
+            ):
+                _actual = detected_end_sec - detected_start_sec
+                _expected = _cmp_exp_end - _cmp_exp_start
+                if _expected > 0 and _actual >= 0:
+                    dur_ratio = _actual / _expected
             
             # v3.2.2: measure_number を comparison_result から取得（1-indexed）
             measure_number = eval_note.get("measure_number")
@@ -360,6 +379,8 @@ def _merge_notes(
             start_ok = None
             avg_volume_db = None
             volume_drop_after = None
+            detected_end_sec = None
+            dur_ratio = None
             
             # comparison_result が無い → note_results からフォールバック
             measure_raw = nr_note.get("measure", 0)
@@ -408,6 +429,8 @@ def _merge_notes(
                 articulations=articulations,
                 is_tremolo=is_tremolo,
                 is_trill=is_trill,
+                detected_end_sec=detected_end_sec,
+                dur_ratio=dur_ratio,
                 is_string_change_from_prev=False,  # 後で _annotate_string_change で設定
             )
         )

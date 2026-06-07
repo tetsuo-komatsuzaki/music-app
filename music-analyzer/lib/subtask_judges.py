@@ -491,16 +491,49 @@ _TECH_DETECTORS: dict[str, Callable[[IntegratedNote], bool]] = {
     "trill": lambda n: n.is_trill,
 }
 
+# 奏法品質しきい値 (2e 段階1 2026-06-08, dur_ratio=実音長/期待音長)。
+# ※ 暫定値。奏法を含む実演サンプルで分布を見て要チューニング
+#   ([[feedback_spec_premise_verification]])。
+_DUR_RATIO_STACCATO_MAX = 0.5   # staccato/spiccato: これ以下なら「短く切れている」=OK
+_DUR_RATIO_PORTATO_MIN = 0.5    # portato: 切るが切りすぎない範囲 (軽い分離)
+_DUR_RATIO_PORTATO_MAX = 0.85
+
+# 奏法 suffix → 品質OK判定 (dur_ratio→bool)。段階1で測れる奏法のみ。
+# tremolo/trill/pizzicato は段階2/3 (オンセット密度/ピッチ交替/音量包絡) のため未登録=従来通り。
+_TECH_QUALITY_OK: dict[str, Callable[[float], bool]] = {
+    "staccato": lambda r: r <= _DUR_RATIO_STACCATO_MAX,
+    "spiccato": lambda r: r <= _DUR_RATIO_STACCATO_MAX,
+    "portato": lambda r: _DUR_RATIO_PORTATO_MIN <= r <= _DUR_RATIO_PORTATO_MAX,
+}
+
 
 def _judge_technique(
     data: IntegratedScoreData,
     sub_task_id: str,
     detector: Callable[[IntegratedNote], bool],
     axis: str,
+    quality_ok: Optional[Callable[[float], bool]] = None,
 ) -> SubTaskResult:
-    """奏法 sub_task。axis='rhythm'→OK=タイミング, 'bowing'→OK=音程&タイミング。"""
-    evaluable = _timing_evaluable if axis == "rhythm" else _bow_evaluable
-    is_bad = _timing_bad if axis == "rhythm" else _bow_bad
+    """奏法 sub_task。
+    axis='rhythm'→①OK=タイミング, 'bowing'→①OK=音程&タイミング。
+    quality_ok 指定時 (段階1: staccato/spiccato/portato): ①に加え②奏法実演OK
+    (dur_ratio がしきい値内か) を AND する。dur_ratio 測定不能な音符は対象外
+    (品質判定できないため誤判定を避ける)。
+    """
+    base_evaluable = _timing_evaluable if axis == "rhythm" else _bow_evaluable
+    base_bad = _timing_bad if axis == "rhythm" else _bow_bad
+
+    if quality_ok is None:
+        evaluable = base_evaluable
+        is_bad = base_bad
+    else:
+        def evaluable(n: IntegratedNote) -> bool:
+            return base_evaluable(n) and n.dur_ratio is not None
+
+        def is_bad(n: IntegratedNote) -> bool:
+            # ②奏法実演NG: dur_ratio がしきい値外。①pitch/timing NG とも OR。
+            return base_bad(n) or not quality_ok(n.dur_ratio)
+
     targets = [
         n for n in data.notes if not n.is_rest and detector(n) and evaluable(n)
     ]
@@ -511,12 +544,13 @@ def _run_technique_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]
     all_ids = set(ALL_SUB_TASK_IDS)
     results: dict[str, SubTaskResult] = {}
     for tech, detector in _TECH_DETECTORS.items():
+        quality_ok = _TECH_QUALITY_OK.get(tech)  # 段階1未対応奏法は None=従来通り
         rid = f"rhythm_technique_{tech}"
         if rid in all_ids:
-            results[rid] = _judge_technique(data, rid, detector, "rhythm")
+            results[rid] = _judge_technique(data, rid, detector, "rhythm", quality_ok)
         bid = f"bowing_technique_{tech}"
         if bid in all_ids:
-            results[bid] = _judge_technique(data, bid, detector, "bowing")
+            results[bid] = _judge_technique(data, bid, detector, "bowing", quality_ok)
     return results
 
 

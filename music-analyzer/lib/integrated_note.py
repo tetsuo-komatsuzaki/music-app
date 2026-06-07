@@ -146,6 +146,12 @@ class IntegratedNote:
     is_tremolo: bool = False
     is_trill: bool = False
 
+    # === 奏法品質（comparison_result から、2e 段階1 2026-06-08）===
+    detected_end_sec: Optional[float] = None  # 実音の終了時刻（seg_end）。検出不能は None
+    dur_ratio: Optional[float] = None  # 実音長/期待音長。共に演奏テンポ(comparison)で算出し
+                                        # テンポ不変。staccato 等の「短く切れているか」判定用。
+                                        # 検出不能(detected_end/start欠落、期待長0)は None
+
     # === note_integration.py で生成（v3.2 Q7 確定）===
     is_string_change_from_prev: bool = False  # 直前の音から弦移動した
                                                 # v3.2: analyze_musicxml ではなく
