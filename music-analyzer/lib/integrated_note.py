@@ -138,6 +138,9 @@ class IntegratedNote:
     pitch_count: int = 1  # 同時発音ピッチ数（重音 2 / 3+ の判定用、休符/単音は 1 or 0）
     is_harmonic: bool = False  # ハーモニクス（フラジオレット）
 
+    # === 連符（analysis.json tuplet_actual から、2c 2026-06-07）===
+    tuplet_actual: Optional[int] = None  # 実連符数: 3連符=3, 2連符=2, 5連符=5。連符でなければ None
+
     # === note_integration.py で生成（v3.2 Q7 確定）===
     is_string_change_from_prev: bool = False  # 直前の音から弦移動した
                                                 # v3.2: analyze_musicxml ではなく

@@ -347,9 +347,10 @@ def _is_dotted_value(ql: float) -> bool:
     return any(_near(ql, base) for base in (6.0, 3.0, 1.5, 0.75, 0.375))
 
 
-def _is_triplet_value(ql: float) -> bool:
-    """3連符 (基準/3 = ql×3 が2のべき): 1.333/0.667/0.333/0.167 拍。"""
-    return any(_near(ql, base, 0.04) for base in (1.333, 0.667, 0.333, 0.167))
+def _is_tuplet_note(n: IntegratedNote) -> bool:
+    """楽譜上の連符 (tuplet_actual >= 2)。秒では2連符と付点が区別不可のため、
+    楽譜の連符マーク (analyze_musicxml の tuplet_actual) を正本にする。"""
+    return n.tuplet_actual is not None and n.tuplet_actual >= 2
 
 
 def _run_value_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
@@ -365,25 +366,32 @@ def _run_value_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
         n for n in data.notes if not n.is_rest and _timing_evaluable(n)
     ]
 
-    def by(pred: Callable[[float], bool]) -> List[IntegratedNote]:
-        return [n for n in non_rest_eval if pred(ql_of(n))]
+    def by(pred: Callable[[IntegratedNote], bool]) -> List[IntegratedNote]:
+        return [n for n in non_rest_eval if pred(n)]
 
-    # 連符を先に判定 (付点/単純音価より優先)
+    # 連符 (楽譜の tuplet マークが正本): 3連符 = tuplet_actual==3,
+    # 2連符以上 = 連符かつ 3連符でない (2連符/5連符/…)
     results["rhythm_pattern_triplet"] = _judge(
-        "rhythm_pattern_triplet", by(_is_triplet_value), _timing_bad
+        "rhythm_pattern_triplet", by(lambda n: n.tuplet_actual == 3), _timing_bad
     )
-    # 付点 (連符でないもの)
-    results["rhythm_value_dotted"] = _judge(
-        "rhythm_value_dotted",
-        by(lambda ql: _is_dotted_value(ql) and not _is_triplet_value(ql)),
+    results["rhythm_pattern_2plet_plus"] = _judge(
+        "rhythm_pattern_2plet_plus",
+        by(lambda n: _is_tuplet_note(n) and n.tuplet_actual != 3),
         _timing_bad,
     )
-    # 単純音価 (連符/付点でないもの)
-    def plain(target: float) -> Callable[[float], bool]:
-        return lambda ql: (
-            _near(ql, target)
-            and not _is_triplet_value(ql)
-            and not _is_dotted_value(ql)
+
+    # 音価/付点は「連符でない音」だけを長さ(拍)で分類
+    results["rhythm_value_dotted"] = _judge(
+        "rhythm_value_dotted",
+        by(lambda n: not _is_tuplet_note(n) and _is_dotted_value(ql_of(n))),
+        _timing_bad,
+    )
+
+    def plain(target: float) -> Callable[[IntegratedNote], bool]:
+        return lambda n: (
+            not _is_tuplet_note(n)
+            and _near(ql_of(n), target)
+            and not _is_dotted_value(ql_of(n))
         )
 
     results["rhythm_value_whole"] = _judge("rhythm_value_whole", by(plain(4.0)), _timing_bad)
@@ -391,7 +399,7 @@ def _run_value_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     results["rhythm_value_16th"] = _judge("rhythm_value_16th", by(plain(0.25)), _timing_bad)
     results["rhythm_value_32nd_plus"] = _judge(
         "rhythm_value_32nd_plus",
-        by(lambda ql: ql < 0.1875 and not _is_triplet_value(ql)),
+        by(lambda n: not _is_tuplet_note(n) and ql_of(n) < 0.1875),
         _timing_bad,
     )
     return results

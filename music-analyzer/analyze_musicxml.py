@@ -352,6 +352,18 @@ try:
                     sounding_pitch_hz = pitches[0] if pitches else None
                     break
 
+            # 連符 (tuplet) 情報。music21 の duration.tuplets から実連符数を取得。
+            # 3連符=3, 2連符(duplet)=2, 5連符=5 等。連符でなければ None。
+            # スキル判定 2c (rhythm_pattern_triplet / _2plet_plus) で使用。
+            # 音価(秒)では 2連符と付点が区別できないため、楽譜の連符マークを正本とする。
+            tuplet_actual = None
+            try:
+                _tups = element.duration.tuplets
+                if _tups:
+                    tuplet_actual = int(_tups[0].numberNotesActual)
+            except Exception:
+                tuplet_actual = None
+
             note_results.append({
                 "note_index": note_index,
                 "type": "note",
@@ -370,6 +382,8 @@ try:
                 "is_harmonic": is_harmonic,
                 "harmonic_type": harmonic_type,
                 "sounding_pitch_hz": sounding_pitch_hz,
+                # 2c: 連符 (3連符/2連符以上)
+                "tuplet_actual": tuplet_actual,
             })
 
             note_index += 1

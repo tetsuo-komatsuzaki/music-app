@@ -326,6 +326,8 @@ def _merge_notes(
         is_chord = bool(nr_note.get("is_chord", False))
         pitch_count = len(nr_note.get("pitches", []) or [])
         is_harmonic = bool(nr_note.get("is_harmonic", False))
+        _tup = nr_note.get("tuplet_actual")
+        tuplet_actual = int(_tup) if isinstance(_tup, (int, float)) else None
 
         # comparison_result から検出結果を取得（インデックスで対応付け）
         eval_note = eval_notes[i] if i < len(eval_notes) else None
@@ -398,6 +400,7 @@ def _merge_notes(
                 is_chord=is_chord,
                 pitch_count=pitch_count,
                 is_harmonic=is_harmonic,
+                tuplet_actual=tuplet_actual,
                 is_string_change_from_prev=False,  # 後で _annotate_string_change で設定
             )
         )
