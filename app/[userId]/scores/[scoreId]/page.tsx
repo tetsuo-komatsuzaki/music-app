@@ -89,7 +89,7 @@ export default async function Page({
 
   // 残り全て並列実行
   const perfStep2 = performance.now()
-  const [buildUrl, analysisData, performanceCount, latestPerf] = await Promise.all([
+  const [buildUrl, analysisData, performanceCount, latestPerf, songMastery] = await Promise.all([
     // buildUrl
     (score.buildStatus === "done" && score.generatedXmlPath)
       ? storageAdmin.storage
@@ -132,6 +132,12 @@ export default async function Page({
         analysisSummary: true,
       },
     }),
+
+    // songMastery (タイトル横「🏆 マスター」バッジ用)
+    prisma.songMastery.findUnique({
+      where: { userId_scoreId: { userId: dbUser.id, scoreId } },
+      select: { isFullyMastered: true },
+    }),
   ])
   console.log(`[PERF] scores/detail step2_parallel: ${(performance.now() - perfStep2).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
@@ -140,6 +146,7 @@ export default async function Page({
       score={{
         id: score.id,
         title: score.title,
+        isMastered: songMastery?.isFullyMastered ?? false,
       }}
       userId={userId}
       analysis={analysisData}

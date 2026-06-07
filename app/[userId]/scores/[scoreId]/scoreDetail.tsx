@@ -65,7 +65,7 @@ type AnalysisNote = {
 }
 
 type Props = {
-  score: { id: string; title: string }
+  score: { id: string; title: string; isMastered?: boolean }
   userId: string
   analysis: { bpm: number; notes: AnalysisNote[] } | null
   buildUrl: string | null
@@ -2116,7 +2116,30 @@ export default function ScoreDetail({
         </div>
       )}
       <div className={styles.header} data-section="header">
-        <div><h1 className={styles.title}>{score.title}</h1></div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <h1 className={styles.title}>{score.title}</h1>
+          {score.isMastered && (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                fontSize: 13,
+                fontWeight: 700,
+                padding: "4px 12px",
+                borderRadius: 14,
+                background: "linear-gradient(135deg, #f7d774, #e0a800)",
+                color: "#5c3d00",
+                border: "1px solid #d4a017",
+                boxShadow: "0 1px 3px rgba(212,160,0,0.35)",
+                whiteSpace: "nowrap",
+              }}
+              title="この曲をマスターしました"
+            >
+              🏆 マスター
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Phase 4-1: Score 演奏のみタブ表示 (練習 / 上達ループ) */}
