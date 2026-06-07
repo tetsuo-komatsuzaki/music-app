@@ -35,6 +35,16 @@ def main() -> None:
         runpy.run_path("build_score.py", run_name="__main__")
         return
 
+    if mode == "loop_engine":
+        # バックフィル/再計算用: analyze_performance を再実行せず loop engine だけ走らせる。
+        # 既存の comparison_result.json から bowingAccuracy / overallScore / skill を作り直す
+        # (音声の再解析をしないので pitch/rhythm は不変)。
+        # USER_ID / SCORE_ID / PERFORMANCE_ID / IS_PRACTICE を env で渡す。
+        print("[entrypoint] MODE=loop_engine (standalone)")
+        sys.argv = ["loop_engine_runner.py"]
+        runpy.run_path("loop_engine_runner.py", run_name="__main__")
+        return
+
     if mode == "analyze_musicxml":
         if os.environ.get("PRACTICE_ITEM_ID"):
             argv = ["--practice-item", os.environ["PRACTICE_ITEM_ID"]]

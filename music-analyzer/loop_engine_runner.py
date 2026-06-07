@@ -1913,14 +1913,36 @@ def run_score_mode() -> None:
     tmp_dir = "/tmp/loop_engine"
     os.makedirs(tmp_dir, exist_ok=True)
 
+    # analysis.json / musicxml_skill_info.json はスコアアップロード時に
+    # analyze_musicxml が「所有者 (Score.createdById)」の USER_ID で書き込むため、
+    # 所有者パス {createdById}/{scoreId}/ に存在する。一方 comparison_result.json は
+    # 演奏ごとに analyze_performance が「演奏者 (user_id)」のパスへ書き込む。
+    # admin 共有スコアを所有者以外が練習すると、analysis を performer パスで探して
+    # 404 → loop engine が落ち bowingAccuracy/overallScore が書かれない回帰になる。
+    # そのため score-level 入力は所有者の userId を使う。
+    owner_conn = psycopg2.connect(database_url)
+    try:
+        with owner_conn.cursor() as owner_cur:
+            owner_cur.execute(
+                'SELECT "createdById" FROM "Score" WHERE id = %s', (score_id,)
+            )
+            owner_row = owner_cur.fetchone()
+    finally:
+        owner_conn.close()
+    if not owner_row:
+        raise RuntimeError(
+            f"[loop_engine_runner] Score not found: score={score_id}"
+        )
+    owner_id: str = owner_row[0]
+
     analysis_path = _download(
         supabase_url, sr_key, musicxml_bucket,
-        f"{user_id}/{score_id}/analysis.json",
+        f"{owner_id}/{score_id}/analysis.json",
         os.path.join(tmp_dir, "analysis.json"),
     )
     skill_info_path = _download(
         supabase_url, sr_key, musicxml_bucket,
-        f"{user_id}/{score_id}/musicxml_skill_info.json",
+        f"{owner_id}/{score_id}/musicxml_skill_info.json",
         os.path.join(tmp_dir, "musicxml_skill_info.json"),
     )
     comparison_path = _download(
