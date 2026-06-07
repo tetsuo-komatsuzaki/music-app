@@ -405,6 +405,74 @@ def _run_value_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     return results
 
 
+# ---------------------------------------------------------------------------
+# 第二弾 2d: ポジション (pitch_position) / ポジション移動 (pitch_shift) (2026-06-07)
+# string_id + finger + pitch からポジション番号を近似推定。OK = 音程。
+# 注: 指の間隔は調(長/短)で変わるため厳密なポジションは決まらない。標準的な
+#   「弦の開放からの半音距離 − 指オフセット ≒ ポジション(2半音で+1)」で best-effort 推定。
+# ---------------------------------------------------------------------------
+
+_OPEN_STRING_MIDI: dict[str, int] = {"G": 55, "D": 62, "A": 69, "E": 76}
+# 1指から各指までの標準的な半音間隔(長調寄りの既定)。近似のため厳密ではない。
+_FINGER_GAP: dict[int, int] = {1: 0, 2: 2, 3: 4, 4: 5}
+
+
+def _violin_position(n: IntegratedNote) -> Optional[int]:
+    """string_id + finger + pitch からポジション番号(1〜5+)を近似推定。
+    開放弦(finger 0)・情報不足は None (対象外)。"""
+    open_midi = _OPEN_STRING_MIDI.get(n.string_id or "")
+    if open_midi is None or not n.finger:  # finger None/0(開放) は対象外
+        return None
+    midi = n.expected_pitch_midi
+    if midi is None:
+        return None
+    # 1指の位置(半音) ≒ 音の半音距離 − 指オフセット
+    first_finger_semitones = (midi - open_midi) - _FINGER_GAP.get(n.finger, 0)
+    if first_finger_semitones <= 2:
+        return 1
+    if first_finger_semitones <= 4:
+        return 2
+    if first_finger_semitones <= 6:
+        return 3
+    if first_finger_semitones <= 8:
+        return 4
+    return 5
+
+
+def _run_position_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
+    non_rest = [n for n in data.notes if not n.is_rest]
+    pos_by_id: dict[int, Optional[int]] = {id(n): _violin_position(n) for n in non_rest}
+
+    def in_pos(pred: Callable[[int], bool]) -> List[IntegratedNote]:
+        return [
+            n for n in non_rest
+            if pos_by_id[id(n)] is not None
+            and pred(pos_by_id[id(n)])
+            and _pitch_evaluable(n)
+        ]
+
+    results: dict[str, SubTaskResult] = {
+        "pitch_position_2": _judge("pitch_position_2", in_pos(lambda p: p == 2), _pitch_bad),
+        "pitch_position_3": _judge("pitch_position_3", in_pos(lambda p: p == 3), _pitch_bad),
+        "pitch_position_4": _judge("pitch_position_4", in_pos(lambda p: p == 4), _pitch_bad),
+        "pitch_position_5plus": _judge("pitch_position_5plus", in_pos(lambda p: p >= 5), _pitch_bad),
+    }
+
+    # ポジション移動: 直前の(ポジションが取れる)音から番号が変わった音。OK = 音程。
+    up: List[IntegratedNote] = []
+    down: List[IntegratedNote] = []
+    prev_pos: Optional[int] = None
+    for n in non_rest:
+        p = pos_by_id[id(n)]
+        if p is not None and prev_pos is not None and p != prev_pos and _pitch_evaluable(n):
+            (up if p > prev_pos else down).append(n)
+        if p is not None:
+            prev_pos = p
+    results["pitch_shift_up"] = _judge("pitch_shift_up", up, _pitch_bad)
+    results["pitch_shift_down"] = _judge("pitch_shift_down", down, _pitch_bad)
+    return results
+
+
 def _run_chord_harmonic_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     """第二弾 2a: 重音 (2/3plus/continuous) × pitch/bowing + ハーモニクス × pitch/bowing。"""
     cont_ids = _continuous_chord_ids(data)
@@ -477,6 +545,7 @@ def run_all_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]:
     implemented.update(_run_chord_harmonic_judges(data))
     implemented.update(_run_interval_judges(data))
     implemented.update(_run_value_judges(data))
+    implemented.update(_run_position_judges(data))
     return {
         sub_id: implemented.get(sub_id) or _skipped_result(sub_id)
         for sub_id in ALL_SUB_TASK_IDS
