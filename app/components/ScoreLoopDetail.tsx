@@ -168,16 +168,8 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
                   : "—"
               }
             />
-            <Stat
-              label="演奏マスター"
-              value={songMastery.isPerformanceMastered ? "✓ 達成" : "—"}
-              highlight={songMastery.isPerformanceMastered}
-            />
-            <Stat
-              label="完全習得"
-              value={songMastery.isFullyMastered ? "🏆 達成" : "—"}
-              highlight={songMastery.isFullyMastered}
-            />
+            {/* 演奏マスター/完全習得の達成表示は削除 (2026-06-08 Tetsuo)。
+                マスター状態は曲タイトル横の🏆バッジで示す。 */}
           </div>
         ) : (
           <p className={styles.emptyHint}>まだ演奏記録がありません</p>
