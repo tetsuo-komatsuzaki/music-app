@@ -3,12 +3,14 @@
 import Link from "next/link"
 import { useState } from "react"
 import styles from "../practice.module.css"
+import MasterBadge from "@/app/components/MasterBadge"
 
 export type Piece = {
   id: string
   title: string
   composer: string | null
   star: number | null
+  mastered?: boolean
 }
 
 export default function PiecesList({
@@ -66,6 +68,7 @@ export default function PiecesList({
                   <div className={styles.cardContextItemTitle}>
                     {piece.title}
                     {piece.star != null && ` ☆${piece.star}`}
+                    {piece.mastered && <> <MasterBadge mastered /></>}
                   </div>
                   {piece.composer && (
                     <div className={styles.cardContextItemComposer}>

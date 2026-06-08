@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useState } from "react"
 import GradeBadge from "@/app/components/GradeBadge"
+import MasterBadge from "@/app/components/MasterBadge"
 import GradeProgressBar from "@/app/components/GradeProgressBar"
 import type { GradeLevel } from "@/app/_libs/skillMaster"
 import { PRACTICE_CATEGORIES, categoryLabel } from "@/app/_libs/practiceConstants"
@@ -166,6 +167,7 @@ export default function ProgressPage({
                     >
                       <div className={styles.masteredHeader}>
                         <span className={styles.masteredTitle}>{song.title}</span>
+                        <MasterBadge mastered />
                         {song.star != null && (
                           <span className={styles.masteredStar}>☆{song.star}</span>
                         )}

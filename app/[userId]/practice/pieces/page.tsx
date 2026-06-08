@@ -11,13 +11,24 @@ export default async function PracticePiecesPage({
   params: Promise<{ userId: string }>
 }) {
   const p = await params
-  const { authUserId } = await getUserIdsFromParams(p)
+  const { authUserId, dbUserId } = await getUserIdsFromParams(p)
 
-  const pieces = await prisma.score.findMany({
-    where: { isShared: true, deletedAt: null },
-    orderBy: [{ star: "asc" }, { title: "asc" }],
-    select: { id: true, title: true, composer: true, star: true },
-  })
+  const [pieces, masteredRows] = await Promise.all([
+    prisma.score.findMany({
+      where: { isShared: true, deletedAt: null },
+      orderBy: [{ star: "asc" }, { title: "asc" }],
+      select: { id: true, title: true, composer: true, star: true },
+    }),
+    prisma.songMastery.findMany({
+      where: { userId: dbUserId, isFullyMastered: true },
+      select: { scoreId: true },
+    }),
+  ])
+  const masteredSet = new Set(masteredRows.map((m) => m.scoreId))
+  const piecesWithMastery = pieces.map((pc) => ({
+    ...pc,
+    mastered: masteredSet.has(pc.id),
+  }))
 
-  return <PiecesList userId={authUserId} pieces={pieces} />
+  return <PiecesList userId={authUserId} pieces={piecesWithMastery} />
 }
