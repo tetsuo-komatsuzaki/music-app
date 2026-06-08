@@ -154,6 +154,30 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
 
   return (
     <div className={styles.container} role="tabpanel" id="score-detail-tab-panel-loop">
+      {/* ── 0. クリア/マスターの進め方ガイド (思想: project_clear_master_philosophy) ── */}
+      <section
+        style={{
+          background: "#f0f7ff",
+          border: "1px solid #cfe3fb",
+          borderRadius: 12,
+          padding: "12px 14px",
+          marginBottom: 14,
+          fontSize: 13,
+          lineHeight: 1.7,
+          color: "#33475b",
+        }}
+      >
+        <div style={{ fontWeight: 700, marginBottom: 4 }}>🎯 クリアの進め方</div>
+        <div>
+          曲を弾く → 弱点（<strong>課題</strong>）が見つかる → その課題の
+          <strong>練習教材をクリア</strong>すると<strong>課題クリア</strong>。
+        </div>
+        <div style={{ marginTop: 4 }}>
+          すべての課題をクリアし、さらに<strong>直近5回の演奏スコア（音程＋リズムの平均）が
+          90点以上</strong>になると <strong>🏆 曲マスター</strong>です。
+        </div>
+      </section>
+
       {/* ── 1. SongMastery サマリ ───────────────────────── */}
       <section className={styles.summarySection}>
         <h2 className={styles.sectionTitle}>習得状態</h2>
