@@ -57,8 +57,20 @@
 
 .main {
   flex: 1;
+  min-width: 0;
   padding: 30px;
   background: #F8FAFC;
+}
+
+/* スマホ: 本文余白を縮小して横幅を確保 (2026-06-08 レスポンシブ修正)。
+   サイドバーは既定56px折りたたみのため main は ~319px 確保できる。 */
+@media (max-width: 600px) {
+  .main {
+    padding: 16px 12px;
+  }
+  .header {
+    padding: 10px 14px;
+  }
 }
 
 .topRow {

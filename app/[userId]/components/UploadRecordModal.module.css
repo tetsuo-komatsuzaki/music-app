@@ -12,6 +12,15 @@
   padding: 30px;
   border-radius: 10px;
   width: 400px;
+  max-width: 92vw;
+  box-sizing: border-box;
+}
+
+/* スマホ: 余白を縮小して内容幅を確保 (2026-06-08 レスポンシブ修正) */
+@media (max-width: 500px) {
+  .modal {
+    padding: 22px 18px;
+  }
 }
 
 .actions {
