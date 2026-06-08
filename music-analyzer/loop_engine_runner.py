@@ -1456,13 +1456,14 @@ def _maybe_clear_skill_cards(
     card_ids: list[str],
     latest_skill_scores: Optional[dict[str, Optional[float]]] = None,
 ) -> list[str]:
-    """SkillTaskCard cleared 判定 (§2-5 厳密版):
-       全 SubTask cleared ∧ 当該カテゴリ skill score ≥ CLEARED_SKILL_THRESHOLD
+    """SkillTaskCard cleared 判定 (2026-06-08 思想確定版,
+       [[project_clear_master_philosophy]]):
+       全 SubTask(=紐づく練習教材) cleared のみで cleared。
+       旧「当該カテゴリ skill score ≥ 70」(②曲での再測定) は撤廃。
 
     Args:
         card_ids: 再判定対象のカード id
-        latest_skill_scores: {"PITCH": float, "RHYTHM": float, "BOWING": float}
-            Score 演奏完了直後に渡す。Practice 経路では None (skill 条件未充足扱い)
+        latest_skill_scores: 後方互換で受け取るが判定には使わない (②撤廃)。
 
     Returns:
         list[str]: cleared に遷移した card id
@@ -1491,19 +1492,10 @@ def _maybe_clear_skill_cards(
         if remaining > 0:
             continue
 
-        # 当該カテゴリ skill score ≥ 70 確認
-        skill_score: Optional[float] = None
-        if latest_skill_scores:
-            skill_score = latest_skill_scores.get(task_category)
-        if skill_score is None or skill_score < CLEARED_SKILL_THRESHOLD:
-            # Practice 経路 (skill_score=None) or skill 不足 → cleared 保留
-            print(
-                f"[loop_engine_runner] (3c) SkillTaskCard {task_category} "
-                f"card={card_id}: 全 SubTask cleared だが skill={skill_score} "
-                f"< {CLEARED_SKILL_THRESHOLD} で cleared 保留"
-            )
-            continue
-
+        # 2026-06-08 思想確定 ([[project_clear_master_philosophy]]):
+        # 課題クリア = 紐づく練習教材(全SubTask)クリアのみ。
+        # 旧「当該カテゴリ skill ≥ 70」(②曲での再測定) は撤廃。latest_skill_scores は
+        # 後方互換で受け取るが判定には使わない。
         cur.execute(
             'UPDATE "SkillTaskCard" SET "status" = \'cleared\', '
             '  "clearedAt" = NOW(), "updatedAt" = NOW() '
@@ -1513,7 +1505,7 @@ def _maybe_clear_skill_cards(
         newly_cleared.append(card_id)
         print(
             f"[loop_engine_runner] (3c) SkillTaskCard {task_category} "
-            f"card={card_id}: cleared (skill={skill_score})"
+            f"card={card_id}: cleared (全SubTask=教材クリア)"
         )
     return newly_cleared
 
