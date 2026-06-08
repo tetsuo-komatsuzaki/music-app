@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import GradeBadge from "@/app/components/GradeBadge"
 import MasterBadge from "@/app/components/MasterBadge"
+import ProgressGuideModal from "@/app/components/ProgressGuideModal"
 import GradeProgressBar from "@/app/components/GradeProgressBar"
 import RecommendationList from "@/app/components/RecommendationList"
 import type { SongRecommendation } from "@/app/components/RecommendationItem"
@@ -285,6 +286,7 @@ export default function HomeClient({
 }: Props) {
   void _userName
   const WEEKLY_GOAL = 5
+  const [guideOpen, setGuideOpen] = useState(false)
 
   // v1.6 Phase 4-2 Q5=c: GradeProgressBar 直下のヒント文 (次グレード達成のヒント)
   // currentGrade と ★段階から、次グレード昇格の条件文を組み立てる
@@ -337,6 +339,28 @@ export default function HomeClient({
               currentStar={gradeData.currentStar}
               currentGrade={gradeData.currentGrade}
             />
+            <button
+              type="button"
+              onClick={() => setGuideOpen(true)}
+              aria-label="上達のしくみを見る"
+              style={{
+                flex: "0 0 auto",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "4px 10px",
+                borderRadius: 999,
+                border: "1px solid #cfe3fb",
+                background: "#f0f7ff",
+                color: "#4a90d9",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              ？上達のしくみ
+            </button>
             <div className={styles.gradeProgress}>
               <GradeProgressBar
                 current={gradeData.masteredSongCountAtCurrentStar}
@@ -349,6 +373,8 @@ export default function HomeClient({
           </div>
         </div>
       </div>
+
+      <ProgressGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
 
       {/* ───── 練習曲の上達状況: 直近の練習曲 + 課題アドバイス + 教材リンク ───── */}
       {/* 課題ありの「課題練習」には練習曲(category=score)は出さず、基礎練/エチュードのみ提示。
