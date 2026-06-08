@@ -96,6 +96,8 @@
 /* カード内レイアウト */
 .cardHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2px; }
 .cardTitle { font-size: 15px; font-weight: 600; color: #222; }
+/* 非分解カテゴリ(ボーイング/フィンガリング等)の長いフル題名用: 小さめ+折り返し整形 */
+.cardTitleFull { font-size: 13px; font-weight: 600; color: #333; line-height: 1.45; }
 .cardSubtitle { font-size: 11px; color: #aaa; margin-bottom: 8px; letter-spacing: 0.02em; }
 .cardStars { display: flex; gap: 1px; flex-shrink: 0; margin-left: 8px; }
 .starFilled { color: #f59e0b; font-size: 13px; line-height: 1; }

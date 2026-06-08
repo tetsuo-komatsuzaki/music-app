@@ -106,7 +106,11 @@ function extractCardInfo(item: PracticeItemDTO | ScoredItemDTO) {
   // 音階/アルペジオは tonic 部分を抽出 (両形式互換)。それ以外は title をそのまま表示。
   const tonicMatch = item.title.match(/^([A-G][#b]?)/)
   const titleParts = item.title.split(" ")
-  const shortTitle = decompose ? (tonicMatch?.[1] ?? titleParts[0] ?? "") : item.title
+  // 分解カテゴリ(音階/アルペジオ)は短いトニック表示。それ以外(ボーイング/フィンガリング等)は
+  // フルの題名。アンダースコア区切りは見栄えが悪いので中点に整える (2026-06-08)。
+  const shortTitle = decompose
+    ? (tonicMatch?.[1] ?? titleParts[0] ?? "")
+    : item.title.replace(/_/g, "・")
 
   // subtitle: arpeggio は metadata.chordType (新形式) 優先、scale は旧形式 fallback
   let subtitle: string | null = null
@@ -141,7 +145,7 @@ function extractCardInfo(item: PracticeItemDTO | ScoredItemDTO) {
     }
   }
 
-  return { shortTitle, subtitle, octaves, bowTech, chordType }
+  return { shortTitle, subtitle, octaves, bowTech, chordType, decompose }
 }
 
 function relativeDate(isoString: string): string {
@@ -159,11 +163,12 @@ function relativeDate(isoString: string): string {
 // ────────────────────────────────────────────────────────────
 
 function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: string; category: string }) {
-  const { shortTitle, subtitle, octaves, bowTech, chordType } = extractCardInfo(item)
+  const { shortTitle, subtitle, octaves, bowTech, chordType, decompose } = extractCardInfo(item)
   return (
     <Link href={`/${userId}/practice/${category}/${item.id}`} className={styles.itemCard}>
       <div className={styles.cardHeader}>
-        <div className={styles.cardTitle}>{shortTitle}</div>
+        {/* 分解(音階/アルペジオ)は短いトニックを大きめ、非分解(長いフル題名)は小さめで揃える */}
+        <div className={decompose ? styles.cardTitle : styles.cardTitleFull}>{shortTitle}</div>
       </div>
       {subtitle && <div className={styles.cardSubtitle}>{subtitle}</div>}
       <div className={styles.chipRow}>
