@@ -176,6 +176,16 @@
 
 /* group view: chord/composer grid */
 .groupGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+/* スマホ: 固定カラム数を縮小して潰れを防ぐ (2026-06-08 レスポンシブ修正) */
+@media (max-width: 600px) {
+  .categoryGrid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .keyGrid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 400px) {
+  .categoryGrid { grid-template-columns: 1fr; }
+  .keyGrid { grid-template-columns: repeat(2, 1fr); }
+}
 .groupCell { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; cursor: pointer; text-align: left; transition: box-shadow 0.15s; }
 .groupCell:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
 .groupCellKey { font-size: 15px; font-weight: 600; color: #222; margin-bottom: 4px; }

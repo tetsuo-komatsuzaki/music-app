@@ -247,6 +247,13 @@
   margin-bottom: 20px;
 }
 
+/* スマホ: 指標2列が潰れるので1列に (2026-06-08 レスポンシブ修正) */
+@media (max-width: 440px) {
+  .summaryMetrics {
+    grid-template-columns: 1fr;
+  }
+}
+
 .metricBox {
   background: #f8f9fa;
   border-radius: 8px;

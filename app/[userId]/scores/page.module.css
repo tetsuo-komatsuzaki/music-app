@@ -398,6 +398,14 @@
   animation: slideUp 0.25s ease forwards;
 }
 
+/* スマホ: モーダル余白を縮小して内容幅を確保 (2026-06-08 レスポンシブ修正) */
+@media (max-width: 500px) {
+  .modal {
+    max-width: 94%;
+    padding: 22px 18px;
+  }
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
