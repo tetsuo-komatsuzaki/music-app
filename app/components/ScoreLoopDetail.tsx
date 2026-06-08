@@ -152,53 +152,66 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
 
   const { songMastery, skillTaskCards, missingFlags } = data
 
+  // 曲マスター進捗トラッカー用の集計 ([[project_clear_master_philosophy]])
+  const totalCards = skillTaskCards.length
+  const clearedCards = skillTaskCards.filter((c) => c.status === "cleared").length
+  const remainingCards = totalCards - clearedCards
+  const challengesOk = remainingCards === 0
+  const avg = songMastery?.recentAverageScore ?? null
+  const avgOk = avg != null && avg >= 90
+
   return (
     <div className={styles.container} role="tabpanel" id="score-detail-tab-panel-loop">
-      {/* ── 0. クリア/マスターの進め方ガイド (思想: project_clear_master_philosophy) ── */}
-      <section
-        style={{
-          background: "#f0f7ff",
-          border: "1px solid #cfe3fb",
-          borderRadius: 12,
-          padding: "12px 14px",
-          marginBottom: 14,
-          fontSize: 13,
-          lineHeight: 1.7,
-          color: "#33475b",
-        }}
-      >
-        <div style={{ fontWeight: 700, marginBottom: 4 }}>🎯 クリアの進め方</div>
-        <div>
-          曲を弾く → 弱点（<strong>課題</strong>）が見つかる → その課題の
-          <strong>練習教材をクリア</strong>すると<strong>課題クリア</strong>。
-        </div>
-        <div style={{ marginTop: 4 }}>
-          すべての課題をクリアし、さらに<strong>直近5回の演奏スコア（音程＋リズムの平均）が
-          90点以上</strong>になると <strong>🏆 曲マスター</strong>です。
+      {/* ── 1. 曲マスター進捗トラッカー ([[project_clear_master_philosophy]]) ── */}
+      <section className={styles.summarySection}>
+        <h2 className={styles.sectionTitle}>🏆 曲マスターまで</h2>
+        {songMastery ? (
+          songMastery.isFullyMastered ? (
+            <div style={{ fontWeight: 700, color: "#b5651d", fontSize: 15, padding: "4px 0" }}>
+              🏆 この曲はマスター済みです！おめでとうございます
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {/* 条件1: 課題を全部クリア */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}>
+                <span style={{ fontSize: 16 }}>{challengesOk ? "✅" : "⬜"}</span>
+                <span style={{ fontWeight: 600 }}>課題をすべてクリア</span>
+                <span style={{ color: "#666", marginLeft: "auto" }}>
+                  {clearedCards} / {totalCards} 個
+                  {!challengesOk && `（あと ${remainingCards} 個）`}
+                </span>
+              </div>
+              {/* 条件2: 演奏スコア 90点以上 */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}>
+                <span style={{ fontSize: 16 }}>{avgOk ? "✅" : "⬜"}</span>
+                <span style={{ fontWeight: 600 }}>演奏スコア 90点以上</span>
+                <span style={{ color: "#666", marginLeft: "auto" }}>
+                  {avg != null ? `現在 ${avg.toFixed(0)}点` : "未測定"}
+                  {avg != null && !avgOk && `（あと ${Math.max(1, Math.ceil(90 - avg))}点）`}
+                </span>
+              </div>
+            </div>
+          )
+        ) : (
+          <p className={styles.emptyHint}>まだ演奏記録がありません。録音するとここに進捗が出ます。</p>
+        )}
+        <div style={{ fontSize: 12, color: "#aaa", marginTop: 10 }}>
+          累計演奏 {songMastery?.totalPerformanceCount ?? 0} 回 ／ 演奏スコア＝直近5回の音程＋リズム平均
         </div>
       </section>
 
-      {/* ── 1. SongMastery サマリ ───────────────────────── */}
-      <section className={styles.summarySection}>
-        <h2 className={styles.sectionTitle}>習得状態</h2>
-        {songMastery ? (
-          <div className={styles.summaryRow}>
-            <Stat label="累計演奏" value={`${songMastery.totalPerformanceCount} 回`} />
-            <Stat
-              label="直近 5 回平均"
-              value={
-                songMastery.recentAverageScore != null
-                  ? `${songMastery.recentAverageScore.toFixed(1)} 点`
-                  : "—"
-              }
-            />
-            {/* 演奏マスター/完全習得の達成表示は削除 (2026-06-08 Tetsuo)。
-                マスター状態は曲タイトル横の🏆バッジで示す。 */}
-          </div>
-        ) : (
-          <p className={styles.emptyHint}>まだ演奏記録がありません</p>
-        )}
-      </section>
+      {/* クリアの仕組み (詳しく) — 折りたたみ。普段は進捗トラッカーで十分 */}
+      <details style={{ marginBottom: 14, fontSize: 13, color: "#555" }}>
+        <summary style={{ cursor: "pointer", fontWeight: 600, color: "#4a90d9" }}>
+          ？ 課題クリア・曲マスターの仕組み
+        </summary>
+        <div style={{ marginTop: 8, lineHeight: 1.8, padding: "0 4px" }}>
+          曲を弾く → 弱点（<strong>課題</strong>）が見つかる → その課題の
+          <strong>練習教材をクリア</strong>すると<strong>課題クリア</strong>。
+          すべての課題をクリアし、<strong>直近5回の演奏スコアが90点以上</strong>になると
+          <strong> 🏆 曲マスター</strong>です。
+        </div>
+      </details>
 
       {/* ── 2. SkillTaskCard 3 列 (中課題) ───────────────────────── */}
       <section className={styles.cardSection}>
@@ -230,6 +243,21 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
                     </span>
                   </header>
                   {/* 中項目スキルスコア(音程/リズム/弓使いの◯◯点)は非表示化 (2026-06-08 Tetsuo) */}
+                  {/* 教材クリア進捗: 課題クリア=配下の練習教材(小課題)を全クリア */}
+                  {card.subTasks.length > 0 && (
+                    <p
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        margin: "2px 0 8px",
+                        color: card.status === "cleared" ? "#2e8b57" : "#c47a00",
+                      }}
+                    >
+                      {card.status === "cleared"
+                        ? "✓ この課題はクリア済み"
+                        : `練習教材 ${card.subTasks.filter((st) => st.status === "cleared").length} / ${card.subTasks.length} クリア（全部クリアでこの課題クリア）`}
+                    </p>
+                  )}
                   {card.subTasks.length === 0 ? (
                     <p className={styles.emptyHint}>
                       小課題なし
@@ -316,19 +344,3 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
   )
 }
 
-function Stat({
-  label,
-  value,
-  highlight,
-}: {
-  label: string
-  value: string
-  highlight?: boolean
-}) {
-  return (
-    <div className={`${styles.stat} ${highlight ? styles.statHighlight : ""}`}>
-      <div className={styles.statLabel}>{label}</div>
-      <div className={styles.statValue}>{value}</div>
-    </div>
-  )
-}
