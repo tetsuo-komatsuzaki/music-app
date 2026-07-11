@@ -748,12 +748,34 @@ try:
                         'ON CONFLICT DO NOTHING',
                         (SCORE_ID, _name),
                     )
+            # 工程G (2026-07-11): スタッカート系曖昧記号の確認キューを DB へ。
+            # 確定済み(confirmed)は pending に戻さない (件数・小節のみ最新化)。
+            _target_type = "practice" if IS_PRACTICE_ITEM else "score"
+            _target_id = PRACTICE_ITEM_ID if IS_PRACTICE_ITEM else SCORE_ID
+            for _nc in piece_summary.get("needs_confirmation") or []:
+                cur.execute(
+                    '''
+                    INSERT INTO "TechniqueConfirmation"
+                      (id, "targetType", "targetId", pattern, "noteCount",
+                       measures, status, "updatedAt")
+                    VALUES (%s, %s, %s, %s, %s, %s, 'pending', NOW())
+                    ON CONFLICT ("targetType", "targetId", pattern) DO UPDATE SET
+                      "noteCount" = EXCLUDED."noteCount",
+                      measures = EXCLUDED.measures,
+                      "updatedAt" = NOW()
+                    ''',
+                    (str(_uuid.uuid4()), _target_type, _target_id,
+                     _nc.get("pattern"), len(_nc.get("note_indexes") or []),
+                     [int(m) + 1 for m in (_nc.get("measure_indexes") or [])]),
+                )
             conn.commit()
             print(
                 f"[analyze_musicxml] piece summary 保存: "
                 f"pitch={piece_summary.get('pitch_min')}-{piece_summary.get('pitch_max')} "
                 f"positions={piece_summary.get('positions')} "
-                f"ft={len(_ft_names)} tt={len(_tt_names)} subkeys={len(piece_summary.get('sub_keys') or [])}"
+                f"ft={len(_ft_names)} tt={len(_tt_names)} "
+                f"subkeys={len(piece_summary.get('sub_keys') or [])} "
+                f"confirmations={len(piece_summary.get('needs_confirmation') or [])}"
             )
         except Exception as persist_err:
             conn.rollback()

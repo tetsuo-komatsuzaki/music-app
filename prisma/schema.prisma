@@ -774,6 +774,29 @@ model UserStarProgress {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+// 工程G (2026-07-11): スタッカート系曖昧記号の管理者確認キュー。
+// 楽譜の点(・)は記号だけでは奏法を確定できない(§18-2 決定#4)ため、
+// analyze_musicxml が「スタッカート仮付与+本キューに記録」し、管理者が
+// /admin/confirmations で一律4択(スタッカート/スピッカート/ボウ・スタッカート/
+// ポルタート)から曲単位一括で確定する(2026-07-11 Tetsuo確定)。
+// 確定済み(confirmed)は再解析でも pending に戻さない(件数・小節のみ更新)。
+model TechniqueConfirmation {
+  id          String    @id @default(cuid())
+  targetType  String // "score" | "practice"
+  targetId    String // Score.id / PracticeItem.id
+  pattern     String // "staccato_inside_slur" | "staccato_outside_slur"
+  noteCount   Int       @default(0)
+  measures    Int[] // 該当小節番号(表示用)
+  status      String    @default("pending") // "pending" | "confirmed"
+  resolvedTag String? // 確定した奏法タグ名(選び直し時の付け替え元にも使う)
+  confirmedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([targetType, targetId, pattern])
+  @@index([status])
+}
+
 // ─── (8) PracticeItemSubTaskTag: PracticeItem ⇔ sub_task の多対多 ───
 // v1.3 §6-2 (8)
 // 既存 PracticeItem.skillSubTaskTags JSON カラムの正規化版

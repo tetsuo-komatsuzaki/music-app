@@ -457,6 +457,13 @@ export default function AdminPractice({
       <div className={styles.header}>
         <h1 className={styles.pageTitle}>教材管理</h1>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          {/* 工程G (2026-07-11): スタッカート系曖昧記号の確認キュー */}
+          <Link
+            href={missingItemsHref.replace(/\/missing-items$/, "/confirmations")}
+            style={{ fontSize: "0.9rem", color: "#2563eb" }}
+          >
+            奏法の確認 →
+          </Link>
           <Link href={missingItemsHref} style={{ fontSize: "0.9rem", color: "#2563eb" }}>
             不足教材フラグ →
           </Link>
