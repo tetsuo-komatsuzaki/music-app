@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache"
 import { createServerSupabaseClient } from "../_libs/supabaseServer"
 import { invokeAnalysis } from "../_libs/pythonRunner"
 import { SUB_TASK_IDS } from "../_libs/skillMaster"
+import { autoLinkOnboardingSongs } from "../_libs/onboardingSongLink"
 
 const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
 
@@ -102,6 +103,19 @@ export async function uploadScore(formData: FormData) {
       isShared,
     },
   })
+
+  // オンボーディング目標曲カタログとの自動結線 (共有曲のみ・正規化名の一意一致時)
+  if (isShared) {
+    try {
+      const linked = await autoLinkOnboardingSongs(score.id, title)
+      if (linked.length > 0) {
+        console.log(`[uploadScore] onboarding song linked: ${linked.join(", ")} -> ${score.id}`)
+      }
+    } catch (e) {
+      // 結線失敗はアップロード自体を止めない(後から scripts/link-onboarding-songs.ts で再結線可)
+      console.error("[uploadScore] onboarding song link failed:", e)
+    }
+  }
 
   // v1.6 Phase 4-3: ScoreTechniqueTag を作成 (技法 ID の存在チェック後 insert)
   if (techniques.length > 0) {

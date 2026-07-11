@@ -124,6 +124,9 @@ model Score {
   scoreKeys       ScoreKey[] // 副次調(転調先)。主調は keyTonic/keyMode が正
   featureTags     ScoreFeatureTag[]
 
+  // ▼ オンボーディング目標曲カタログとの結線 (2026-07-12)
+  onboardingSongs OnboardingSong[]
+
   createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
   @@index([createdById])
@@ -797,13 +800,13 @@ model OnboardingProfile {
 // 仮習得3状態モデル (§27-5): PROVISIONAL(自己申告) → CONFIRMED(初回演奏で検証OK)
 //                            / REVOKED(検証NGで剥奪)。
 // 工程DのUserLessonClear(レッスン実績)とは別物=自己申告スキル。
-// 【必須の後続タスク】achievement.py 達成要件① を
-//   UserLessonClear ∪ UserTagAcquisition(state≠REVOKED) に拡張(レッスン制作開始前に実施)。
+// achievement.py 達成要件① は UserLessonClear ∪ UserTagAcquisition(state≠REVOKED)
+// で判定する(2026-07-12 拡張済み)。
 model UserTagAcquisition {
   id          String    @id @default(cuid())
   userId      String
   tagType     String // "technique" | "position" | "double_stop"
-  tagKey      String // "スラー" / "3rd" / "3度"
+  tagKey      String // "スラー" / "3" (UserLessonClearと同じ裸数字) / "3度"
   state       String    @default("PROVISIONAL") // PROVISIONAL | CONFIRMED | REVOKED
   source      String    @default("onboarding")
   confirmedAt DateTime?
@@ -828,6 +831,8 @@ model SongRequest {
 }
 
 // 曲カタログ (v1.0確定・DB化)。モックJSONはAPI失敗時のフォールバックとして残す。
+// scoreId: 目標曲→実際の楽譜(Score)への結線。楽譜アップロード時に名前正規化一致で
+// 自動リンク(uploadScore)+一括結線スクリプト(scripts/link-onboarding-songs.ts)。
 model OnboardingSong {
   id        String  @id @default(cuid())
   category  String // movie | classic | season
@@ -835,8 +840,12 @@ model OnboardingSong {
   star      Int
   sortOrder Int     @default(0)
   isActive  Boolean @default(true)
+  scoreId   String?
+
+  score Score? @relation(fields: [scoreId], references: [id], onDelete: SetNull)
 
   @@unique([category, name])
+  @@index([scoreId])
 }
 
 // Starの現在地（昇格 = UserScoreAchievement の同★件数≥10）
