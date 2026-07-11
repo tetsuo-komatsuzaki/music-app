@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useParams } from "next/navigation"
+import { CumulativeWeaknessPanel } from "@/app/components/WeaknessDiagnosisCard"
 import GradeBadge from "@/app/components/GradeBadge"
 import MasterBadge from "@/app/components/MasterBadge"
 import ProgressGuideModal from "@/app/components/ProgressGuideModal"
@@ -141,17 +143,15 @@ function BasicPracticeCard({ item }: { item: BasicCardItem }) {
 // ─── 今日の練習 (直近の練習曲タブ + 課題アドバイス + 教材リンク) ──────────
 function TodayPanel({
   recentPieces,
-  challengeName,
-  challengeMaterials,
   nextPieces,
 }: {
   recentPieces: Props["recentPieces"]
-  challengeName: string | null
-  challengeMaterials: SongRecommendation[]
   nextPieces: SongRecommendation[]
 }) {
   const [active, setActive] = useState(0)
   const piece = recentPieces[active] ?? recentPieces[0] ?? null
+  // 工程C-6a: 累積弱点API の認可と「練習する →」リンクに URL の userId を使う
+  const { userId: urlUserId } = useParams<{ userId: string }>()
 
   return (
     <div className={styles.card}>
@@ -250,24 +250,20 @@ function TodayPanel({
         </>
       )}
 
-      {/* 課題あり: 課題名 + 紐づく練習教材。課題なし: 同じ★の未マスター曲を推す */}
-      {challengeName ? (
-        <>
-          <div style={{ fontSize: 14, lineHeight: 1.7, marginBottom: 10 }}>
-            いま「<strong>{challengeName}</strong>」が課題と出ているね。
-            <br />
-            クリアまでに以下の課題練習をしてみよう！
-          </div>
-          <RecommendationList recommendations={challengeMaterials} />
-        </>
-      ) : (
-        <>
-          <div style={{ fontSize: 14, lineHeight: 1.7, marginBottom: 10, color: "#555" }}>
-            直近の課題はありません！<br />次の曲にチャレンジしてみよう！
-          </div>
-          <RecommendationList recommendations={nextPieces} />
-        </>
-      )}
+      {/* 工程C-6a (2026-07-11): 旧「いま〇〇が課題」(UserSkillTaskCard由来) を
+          217診断の累積弱点(窓②)に置換。弱点なし/データ不足時は従来どおり
+          「次の曲にチャレンジ」を出す */}
+      <CumulativeWeaknessPanel
+        userId={urlUserId}
+        emptyFallback={
+          <>
+            <div style={{ fontSize: 14, lineHeight: 1.7, marginBottom: 10, color: "#555" }}>
+              直近の課題はありません！<br />次の曲にチャレンジしてみよう！
+            </div>
+            <RecommendationList recommendations={nextPieces} />
+          </>
+        }
+      />
     </div>
   )
 }
@@ -278,13 +274,17 @@ export default function HomeClient({
   weeklyDays,
   arcoMessage,
   gradeData,
-  songRecommendations,
+  songRecommendations: _songRecommendations,
   basicPracticeCards,
   recentPieces,
-  challengeName,
+  challengeName: _challengeName,
   nextPieceRecommendations,
 }: Props) {
   void _userName
+  // 工程C-6a: 旧課題カード由来の2 propsは累積弱点(窓②)置換で未使用。
+  // Props形は server page 互換のため維持し、C-6b(旧系撤去)で削除する。
+  void _songRecommendations
+  void _challengeName
   const WEEKLY_GOAL = 5
   const [guideOpen, setGuideOpen] = useState(false)
 
@@ -379,12 +379,10 @@ export default function HomeClient({
       {/* ───── 練習曲の上達状況: 直近の練習曲 + 課題アドバイス + 教材リンク ───── */}
       {/* 課題ありの「課題練習」には練習曲(category=score)は出さず、基礎練/エチュードのみ提示。
           練習曲は課題なし時の「次の曲にチャレンジ」(nextPieces) でのみ提示する。 */}
+      {/* 工程C-6a: 旧challengeName/challengeMaterials(UserSkillTaskCard由来)は
+          TodayPanel 内の累積弱点(窓②)に置換済み */}
       <TodayPanel
         recentPieces={recentPieces}
-        challengeName={challengeName}
-        challengeMaterials={songRecommendations.filter(
-          (r) => r.practiceItem.category !== "score",
-        )}
         nextPieces={nextPieceRecommendations}
       />
 

@@ -7,12 +7,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
 import styles from "./ScoreLoopDetail.module.css"
-import {
-  assignedCategoryLabel,
-  assignedCategoryHref,
-} from "@/app/_libs/practiceConstants"
+import WeaknessDiagnosisCard from "./WeaknessDiagnosisCard"
 
 // ─── API レスポンスの型 (route.ts と同期) ────────────────────────────────────
 
@@ -68,30 +64,6 @@ type LoopDetailResponse = {
     missingCategory: string
     detectedAt: string
   }>
-}
-
-const CATEGORY_LABELS: Record<"PITCH" | "RHYTHM" | "BOWING", string> = {
-  PITCH: "音程",
-  RHYTHM: "リズム",
-  BOWING: "弓使い",
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  active: "課題中",
-  improving: "改善中",
-  cleared: "クリア",
-}
-
-const SUB_TASK_LABELS: Record<string, string> = {
-  pitch_overall: "全体",
-  pitch_high: "高音域",
-  pitch_chromatic: "半音階",
-  rhythm_overall: "全体",
-  rhythm_fast: "高速パッセージ",
-  rhythm_after_rest: "休符明け",
-  string_change_volume: "音量バランス",
-  string_change_slur: "スラー",
-  string_change_timing: "タイミング",
 }
 
 type Props = {
@@ -150,7 +122,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
     return <div className={styles.error}>データなし</div>
   }
 
-  const { songMastery, skillTaskCards, missingFlags } = data
+  const { songMastery, skillTaskCards } = data
 
   // 曲マスター進捗トラッカー用の集計 ([[project_clear_master_philosophy]])
   const totalCards = skillTaskCards.length
@@ -213,133 +185,23 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
         </div>
       </details>
 
-      {/* ── 2. SkillTaskCard 3 列 (中課題) ───────────────────────── */}
+      {/* ── 2. 工程C-6a (2026-07-11): 旧SkillTaskCard(55体系)を217診断の弱点+推薦に置換。
+             「この曲から生じた課題」= 最新演奏の診断 (Tetsuo確定)。
+             旧 MissingFlag 表示は新カードの「教材準備中です」(noStock) が代替 ── */}
       <section className={styles.cardSection}>
         <h2 className={styles.sectionTitle}>取り組む課題</h2>
-        {skillTaskCards.length === 0 ? (
-          <p className={styles.emptyHint}>
-            現在、課題化されている中項目はありません (全 ≥ 70 点)。
-          </p>
+        {data.performance ? (
+          <WeaknessDiagnosisCard
+            performanceId={data.performance.id}
+            kind="score"
+            userId={userId}
+          />
         ) : (
-          <div className={styles.cardGrid}>
-            {skillTaskCards.map((card) => {
-              return (
-                <article
-                  key={card.id}
-                  className={`${styles.card} ${
-                    card.status === "cleared" ? styles.cardCleared : ""
-                  }`}
-                >
-                  <header className={styles.cardHeader}>
-                    <h3 className={styles.cardTitle}>
-                      {CATEGORY_LABELS[card.taskCategory]}
-                    </h3>
-                    <span
-                      className={`${styles.statusBadge} ${
-                        styles[`status_${card.status}`] ?? ""
-                      }`}
-                    >
-                      {STATUS_LABELS[card.status] ?? card.status}
-                    </span>
-                  </header>
-                  {/* 中項目スキルスコア(音程/リズム/弓使いの◯◯点)は非表示化 (2026-06-08 Tetsuo) */}
-                  {/* 教材クリア進捗: 課題クリア=配下の練習教材(小課題)を全クリア */}
-                  {card.subTasks.length > 0 && (
-                    <p
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                        margin: "2px 0 8px",
-                        color: card.status === "cleared" ? "#2e8b57" : "#c47a00",
-                      }}
-                    >
-                      {card.status === "cleared"
-                        ? "✓ この課題はクリア済み"
-                        : `練習教材 ${card.subTasks.filter((st) => st.status === "cleared").length} / ${card.subTasks.length} クリア（全部クリアでこの課題クリア）`}
-                    </p>
-                  )}
-                  {card.subTasks.length === 0 ? (
-                    <p className={styles.emptyHint}>
-                      小課題なし
-                      {missingFlags.some((f) =>
-                        f.subTaskType.startsWith(
-                          card.taskCategory.toLowerCase().slice(0, 5),
-                        ),
-                      )
-                        ? " (該当教材不足、MissingFlag 発火)"
-                        : ""}
-                    </p>
-                  ) : (
-                    <ul className={styles.subTaskList}>
-                      {card.subTasks.map((st) => (
-                        <li key={st.id} className={styles.subTask}>
-                          <div className={styles.subTaskHeader}>
-                            <span className={styles.subTaskTitle}>
-                              {SUB_TASK_LABELS[st.subTaskType] ?? st.subTaskType}
-                            </span>
-                            <span
-                              className={`${styles.subTaskStatus} ${
-                                st.status === "cleared" ? styles.subTaskCleared : ""
-                              }`}
-                            >
-                              {st.status === "cleared" ? "✓" : "・"}
-                            </span>
-                          </div>
-                          <div className={styles.assignmentRow}>
-                            {st.assignments.map((a) => (
-                              <Link
-                                key={a.practiceItemId}
-                                href={`/${userId}/practice/${assignedCategoryHref(a.assignedCategory)}/${a.practiceItemId}`}
-                                className={`${styles.assignmentChip} ${
-                                  a.isMastered ? styles.assignmentMastered : ""
-                                }`}
-                                title={a.title}
-                              >
-                                <span className={styles.assignmentCat}>
-                                  {assignedCategoryLabel(a.assignedCategory)}
-                                </span>
-                                <span className={styles.assignmentTitle}>
-                                  {a.title}
-                                </span>
-                                {a.isMastered && (
-                                  <span className={styles.assignmentMark}>✓</span>
-                                )}
-                              </Link>
-                            ))}
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </article>
-              )
-            })}
-          </div>
+          <p className={styles.emptyHint}>
+            まだ演奏記録がありません。録音すると弱点と練習メニューが表示されます。
+          </p>
         )}
       </section>
-
-      {/* ── 3. MissingPracticeItemFlag ───────────────────────── */}
-      {missingFlags.length > 0 && (
-        <section className={styles.flagSection}>
-          <h2 className={styles.sectionTitle}>運営対応待ち</h2>
-          <p className={styles.flagHint}>
-            該当教材が未登録の小課題があります。運営が追加するまでお待ちください。
-          </p>
-          <ul className={styles.flagList}>
-            {missingFlags.map((f, i) => (
-              <li key={`${f.subTaskType}-${f.missingCategory}-${i}`}>
-                <code className={styles.flagSub}>
-                  {SUB_TASK_LABELS[f.subTaskType] ?? f.subTaskType}
-                </code>{" "}
-                / 欠損:{" "}
-                <code className={styles.flagCat}>
-                  {assignedCategoryLabel(f.missingCategory.toUpperCase())}
-                </code>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
     </div>
   )
 }

@@ -1,0 +1,161 @@
+/* WeaknessDiagnosisCard.module.css — 工程C-6a 弱点＋推薦教材カード（中間型） */
+
+.heading {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  color: #333;
+}
+
+.slotList {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.slot {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: #fff;
+}
+
+.slotHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.treeBadge {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5a7fdf;
+  background: #eef2fd;
+  border-radius: 999px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+
+.slotTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #222;
+}
+
+.slotStats {
+  font-size: 12px;
+  color: #777;
+}
+
+.breakdown {
+  font-size: 12px;
+  color: #666;
+  margin: 6px 0 0 4px;
+}
+
+.materials {
+  margin-top: 10px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 8px;
+}
+
+.materialsLabel {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 6px;
+}
+
+.materialRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+.materialRow + .materialRow {
+  border-top: 1px dashed #f0f0f0;
+}
+
+.materialInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.materialTitle {
+  font-size: 13px;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.materialMeta {
+  font-size: 11px;
+  color: #888;
+}
+
+.practiceLink {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: #5a7fdf;
+  border-radius: 6px;
+  padding: 6px 12px;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.practiceLink:hover {
+  background: #4a6bc4;
+}
+
+.practiceLinkDisabled {
+  font-size: 11px;
+  color: #aaa;
+  flex-shrink: 0;
+}
+
+.noStock {
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  background: #fafafa;
+  border: 1px dashed #d1d5db;
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+}
+
+.cumulativeIntro {
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.statusBox {
+  padding: 14px;
+  border-radius: 8px;
+  background: #f5f5f5;
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+}
+
+.perfectBox {
+  padding: 18px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #eef7ee, #e8f2fd);
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2c6e49;
+}
+
+.perfectEmoji {
+  margin-right: 8px;
+}

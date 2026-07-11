@@ -340,6 +340,14 @@ try:
                         is_trill = True
                         break
 
+            # 工程A-4 (2026-07-10): モルデント検出 (§18-1 Tier1。技術タグ13の残る1分岐)
+            is_mordent = False
+            if hasattr(element, 'expressions'):
+                for expr in element.expressions:
+                    if isinstance(expr, (expressions.Mordent, expressions.InvertedMordent)):
+                        is_mordent = True
+                        break
+
             # v1.7 Phase C (2026-05-23): ハーモニクス検出
             # - MusicXML <harmonic> は music21 で articulations.Harmonic に対応
             # - harmonic_type: natural / artificial を best-effort で取得
@@ -390,6 +398,7 @@ try:
                 "tremolo_partner_hz": None,          # 指トレモロのみ。ループ後に設定
                 "tremolo_interval_semitones": None,  # 指トレモロのみ。ループ後に設定
                 "is_trill": is_trill,
+                "is_mordent": is_mordent,
                 "is_chord": is_chord_flag,
                 # v1.7 Phase C: ハーモニクス
                 "is_harmonic": is_harmonic,
@@ -587,49 +596,56 @@ try:
     # 既存 analysis.json は変更せず、別ファイルとして並列に出力する (Q6 確定)
     # is_string_change_from_prev は出力しない (Q7、note_integration.py 側で生成)
     # =========================
+    # 工程A-4 (2026-07-10): note_karte v3 (音符カルテ+曲要約) を生成。
+    # 旧 musicxml_skill_info.json にも同一 payload を二重書きし、旧読み手
+    # (デプロイ済み loop_engine) を無傷に保つ (読み手の新名移行は工程C/A-6)。
+    piece_summary = None
     try:
         import dataclasses
-        from lib.musicxml_skill_extractor import extract_skill_info
+        from lib.musicxml_skill_extractor import extract_note_karte
+        from lib.piece_summary import build_piece_summary, build_expansion_map
 
-        skill_info_notes = extract_skill_info(tmp_path)
-        skill_info_payload = {
-            "version": 1,
-            "notes": [dataclasses.asdict(n) for n in skill_info_notes],
-        }
-        skill_info_json = json.dumps(skill_info_payload, ensure_ascii=False)
-
-        skill_info_storage_path = upload_storage_path.replace(
-            "analysis.json", "musicxml_skill_info.json"
+        karte_notes, karte_meta = extract_note_karte(tmp_path)
+        piece_summary = build_piece_summary(karte_notes, karte_meta, analysis_result)
+        # 展開対応表 (工程C前提): 演奏順(リピート展開後) → カルテ note_index
+        emap, emap_status = build_expansion_map(
+            karte_notes, analysis_result.get("notes", [])
         )
-        skill_info_url = f"{SUPABASE_URL}/storage/v1/object/{BUCKET_NAME}/{skill_info_storage_path}"
+        karte_payload = {
+            "version": 3,
+            "notes": [dataclasses.asdict(n) for n in karte_notes],
+            "meta": karte_meta,
+            "piece": piece_summary,
+            "expanded_index_map": emap,
+            "expanded_index_map_status": emap_status,
+        }
+        karte_json = json.dumps(karte_payload, ensure_ascii=False).encode("utf-8")
 
-        skill_info_res = requests.post(
-            skill_info_url,
-            headers={
+        def _upload_json_body(storage_path: str) -> bool:
+            url = f"{SUPABASE_URL}/storage/v1/object/{BUCKET_NAME}/{storage_path}"
+            headers = {
                 "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
                 "Content-Type": "application/json",
-            },
-            data=skill_info_json.encode("utf-8"),
-        )
-        if skill_info_res.status_code not in [200, 201]:
-            skill_info_res = requests.put(
-                skill_info_url,
-                headers={
-                    "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
-                    "Content-Type": "application/json",
-                },
-                data=skill_info_json.encode("utf-8"),
-            )
-            if skill_info_res.status_code not in [200, 201]:
-                # skill_info upload 失敗は警告のみ (analysis.json は upload 成功している)
-                print(f"WARNING: musicxml_skill_info.json upload failed: {skill_info_res.text}")
+            }
+            res = requests.post(url, headers=headers, data=karte_json)
+            if res.status_code not in [200, 201]:
+                res = requests.put(url, headers=headers, data=karte_json)
+            return res.status_code in [200, 201]
+
+        for _name in ("note_karte.json", "musicxml_skill_info.json"):
+            _path = upload_storage_path.replace("analysis.json", _name)
+            if _upload_json_body(_path):
+                print(f"Generated {_name} with {len(karte_notes)} notes "
+                      f"(aligned={piece_summary['index_aligned']})")
             else:
-                print(f"Generated musicxml_skill_info.json with {len(skill_info_notes)} notes")
-        else:
-            print(f"Generated musicxml_skill_info.json with {len(skill_info_notes)} notes")
+                print(f"WARNING: {_name} upload failed")
+        if not piece_summary.get("index_aligned"):
+            print("WARNING: note_karte と analysis.json の音符数が不一致 "
+                  "(§2-1 インバリアント違反。オーナメント由来タグはスキップされた)")
     except Exception as skill_err:
-        # skill_info 生成失敗は警告のみ (analysis.json は既に upload 成功)
-        print(f"WARNING: musicxml_skill_info generation failed: {skill_err}")
+        # カルテ生成失敗は警告のみ (analysis.json は既に upload 成功)
+        piece_summary = None
+        print(f"WARNING: note_karte generation failed: {skill_err}")
     finally:
         # tmp_path を削除 (skill_info 抽出が終わったので不要)
         try:
@@ -673,6 +689,75 @@ try:
         """, (norm_tonic, key_obj.mode, default_tempo, time_num, time_den, SCORE_ID))
         print(f"[analyze_musicxml] Score meta 保存: key={norm_tonic} {key_obj.mode} tempo={default_tempo} time={time_num}/{time_den} (score={SCORE_ID})")
     conn.commit()
+
+    # =========================
+    # 工程A-4 (2026-07-10): 曲/教材の要約を DB へ投入 (設計書§3)
+    # - 数値カラム(pitchMin/Max, Score.positions)は上書き (再分析=最新が正)
+    # - ScoreKey は delete+insert (冪等)
+    # - タグ M:N は「追加のみ」(ON CONFLICT DO NOTHING)。管理者の手動タグは絶対に消さない (§18-2)
+    # - status コミット後の独立トランザクション (失敗しても解析 done は保持・警告のみ)
+    # =========================
+    if piece_summary is not None:
+        try:
+            import uuid as _uuid
+            _ft_names = piece_summary.get("feature_tags") or []
+            _tt_names = piece_summary.get("technique_tags") or []
+            if IS_PRACTICE_ITEM:
+                cur.execute(
+                    'UPDATE "PracticeItem" SET "pitchMin"=%s, "pitchMax"=%s WHERE id=%s',
+                    (piece_summary.get("pitch_min"), piece_summary.get("pitch_max"), PRACTICE_ITEM_ID),
+                )
+                for _name in _ft_names:
+                    cur.execute(
+                        'INSERT INTO "PracticeItemFeatureTag" ("practiceItemId", "featureTagId") '
+                        'SELECT %s, ft.id FROM "FeatureTag" ft WHERE ft."name"=%s '
+                        'ON CONFLICT DO NOTHING',
+                        (PRACTICE_ITEM_ID, _name),
+                    )
+                for _name in _tt_names:
+                    cur.execute(
+                        'INSERT INTO "PracticeItemTechnique" ("practiceItemId", "techniqueTagId", "isPrimary") '
+                        'SELECT %s, t.id, false FROM "TechniqueTag" t WHERE t."name"=%s '
+                        'ON CONFLICT DO NOTHING',
+                        (PRACTICE_ITEM_ID, _name),
+                    )
+            else:
+                cur.execute(
+                    'UPDATE "Score" SET "pitchMin"=%s, "pitchMax"=%s, "positions"=%s WHERE id=%s',
+                    (piece_summary.get("pitch_min"), piece_summary.get("pitch_max"),
+                     piece_summary.get("positions") or [], SCORE_ID),
+                )
+                cur.execute('DELETE FROM "ScoreKey" WHERE "scoreId"=%s', (SCORE_ID,))
+                for _sk in piece_summary.get("sub_keys") or []:
+                    cur.execute(
+                        'INSERT INTO "ScoreKey" (id, "scoreId", "keyTonic", "keyMode", "sortOrder") '
+                        'VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING',
+                        (str(_uuid.uuid4()), SCORE_ID, _sk["tonic"], _sk["mode"], _sk["sort_order"]),
+                    )
+                for _name in _ft_names:
+                    cur.execute(
+                        'INSERT INTO "ScoreFeatureTag" ("scoreId", "featureTagId") '
+                        'SELECT %s, ft.id FROM "FeatureTag" ft WHERE ft."name"=%s '
+                        'ON CONFLICT DO NOTHING',
+                        (SCORE_ID, _name),
+                    )
+                for _name in _tt_names:
+                    cur.execute(
+                        'INSERT INTO "ScoreTechniqueTag" ("scoreId", "techniqueTagId", "isPrimary") '
+                        'SELECT %s, t.id, false FROM "TechniqueTag" t WHERE t."name"=%s '
+                        'ON CONFLICT DO NOTHING',
+                        (SCORE_ID, _name),
+                    )
+            conn.commit()
+            print(
+                f"[analyze_musicxml] piece summary 保存: "
+                f"pitch={piece_summary.get('pitch_min')}-{piece_summary.get('pitch_max')} "
+                f"positions={piece_summary.get('positions')} "
+                f"ft={len(_ft_names)} tt={len(_tt_names)} subkeys={len(piece_summary.get('sub_keys') or [])}"
+            )
+        except Exception as persist_err:
+            conn.rollback()
+            print(f"WARNING: piece summary DB persist failed: {persist_err}")
 
     print("Analysis complete")
 

@@ -1,0 +1,300 @@
+OK   [practice] ハ長調_2オクターブ | notes=48 aligned=Y pitch=57-81 pos=[1] ft=2 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ト長調_2オクターブ | notes=48 aligned=Y pitch=55-79 pos=[1] ft=2 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ヘ長調_２オクターブ | notes=48 aligned=Y pitch=62-81 pos=[1] ft=2 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] イ長調 | notes=32 aligned=Y pitch=57-81 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ト長調 | notes=33 aligned=Y pitch=55-83 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ハ長調 | notes=32 aligned=Y pitch=60-84 pos=[1, 2] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ヘ長調 | notes=26 aligned=Y pitch=65-84 pos=[1, 2] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ホ長調 | notes=26 aligned=Y pitch=64-83 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ロ長調 | notes=32 aligned=Y pitch=59-83 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ニ長調 | notes=26 aligned=Y pitch=62-81 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 変イ長調 | notes=34 aligned=Y pitch=56-84 pos=[1, 2] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 変ロ長調 | notes=32 aligned=Y pitch=58-82 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ロ長調_A線とE線 | notes=34 aligned=Y pitch=71-83 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ニ長調 | notes=48 aligned=Y pitch=59-83 pos=[1] ft=2 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] A線・開放弦の練習_4分の２拍子_基本 | notes=32 aligned=Y pitch=69-69 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] D線・開放弦の練習_4分の２拍子_基本 | notes=32 aligned=Y pitch=62-69 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] G線・開放弦の練習_4分の2拍子_基本 | notes=32 aligned=Y pitch=55-69 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] E線・開放弦の練習_4分の２拍子_基本 | notes=32 aligned=Y pitch=69-76 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] G線・開放弦の練習_4分の4拍子_基本 | notes=64 aligned=Y pitch=55-55 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] E線・開放弦の練習_4分の4拍子_基本 | notes=56 aligned=Y pitch=76-76 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] D線・開放弦の練習_4分の4拍子_基本 | notes=64 aligned=Y pitch=62-62 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] A線・開放弦の練習_4分の4拍子_基本 | notes=64 aligned=Y pitch=69-69 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] G線・開放弦の練習_2分音符 | notes=48 aligned=Y pitch=55-55 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] E線・開放弦の練習_2分音符 | notes=48 aligned=Y pitch=76-76 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] D線・開放弦の練習_2分音符 | notes=48 aligned=Y pitch=62-62 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] A線・開放弦の練習_2分音符 | notes=48 aligned=Y pitch=69-69 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] G線・開放弦の練習_全音符 | notes=16 aligned=Y pitch=55-55 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] D線・開放弦の練習_全音符 | notes=16 aligned=Y pitch=62-62 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] E線・開放弦の練習_全音符 | notes=16 aligned=Y pitch=76-76 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] A線・開放弦の練習_全音符 | notes=16 aligned=Y pitch=69-69 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_G線 | notes=96 aligned=Y pitch=55-55 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_D線 | notes=96 aligned=Y pitch=62-62 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_A線 | notes=96 aligned=Y pitch=69-69 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_E線 | notes=96 aligned=Y pitch=76-76 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_G線_3連符 | notes=128 aligned=Y pitch=55-55 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_D線_3連符 | notes=128 aligned=Y pitch=62-62 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_A線_3連符 | notes=128 aligned=Y pitch=69-69 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_E線_3連符 | notes=128 aligned=Y pitch=76-76 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_E線_16分音符 | notes=160 aligned=Y pitch=76-76 pos=[] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_A線_16分音符 | notes=160 aligned=Y pitch=69-69 pos=[] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_D線_16分音符 | notes=160 aligned=Y pitch=62-62 pos=[] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_G線_16分音符 | notes=160 aligned=Y pitch=55-55 pos=[] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_G線_16分音符_Part2 | notes=128 aligned=Y pitch=55-55 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_D線_16分音符_Part2 | notes=128 aligned=Y pitch=62-62 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_A線_16分音符_Part2 | notes=128 aligned=Y pitch=69-69 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 弓とリズムの練習_E線_16分音符_Part2 | notes=128 aligned=Y pitch=76-76 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_G線とD線_全音符 | notes=16 aligned=Y pitch=55-62 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_D線とA線_全音符 | notes=16 aligned=Y pitch=62-69 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_A線とE線_全音符 | notes=16 aligned=Y pitch=69-76 pos=[] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_G線とD線_2分音符 | notes=32 aligned=Y pitch=55-62 pos=[] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_D線とA線_2分音符 | notes=32 aligned=Y pitch=62-69 pos=[] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_A線とE線_2分音符 | notes=32 aligned=Y pitch=69-76 pos=[] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_G線とD線_4分音符 | notes=48 aligned=Y pitch=55-62 pos=[] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_D線とA線_4分音符 | notes=48 aligned=Y pitch=62-69 pos=[] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_A線とE線_4分音符 | notes=48 aligned=Y pitch=69-76 pos=[] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_A線とE線_8分音符 | notes=96 aligned=Y pitch=69-76 pos=[] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_D線とA線_8分音符 | notes=96 aligned=Y pitch=62-69 pos=[] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_G線とD線_8分音符 | notes=96 aligned=Y pitch=55-62 pos=[] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_A線とE線_16分音符 | notes=160 aligned=Y pitch=69-76 pos=[] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_D線とA線_16分音符 | notes=160 aligned=Y pitch=62-69 pos=[] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_G線とD線_16分音符 | notes=160 aligned=Y pitch=55-62 pos=[] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_A線とE線_3連符 | notes=128 aligned=Y pitch=69-76 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_D線とA線_3連符 | notes=128 aligned=Y pitch=62-69 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_G線とD線_3連符 | notes=128 aligned=Y pitch=55-62 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_G線とD線_16分音符+8分音符 | notes=128 aligned=Y pitch=55-62 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_D線とA線_16分音符+8分音符 | notes=128 aligned=Y pitch=62-69 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 移弦の練習_A線とE線_16分音符+8分音符 | notes=128 aligned=Y pitch=69-76 pos=[] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーの練習_開放弦_A線とE線 | notes=24 aligned=Y pitch=69-76 pos=[] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーの練習_開放弦_D線とA線 | notes=24 aligned=Y pitch=62-69 pos=[] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーの練習_開放弦_G線とD線 | notes=24 aligned=Y pitch=55-62 pos=[] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_A線_指の形0-1-2-0 | notes=96 aligned=Y pitch=69-72 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_A線_指の形1-2-1-0 | notes=96 aligned=Y pitch=69-72 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_A線_指の形1-2-3-1 | notes=96 aligned=Y pitch=71-74 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_A線_指の形2-3-2-1 | notes=96 aligned=Y pitch=71-74 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_A線_指の形2-3-4-2 | notes=96 aligned=Y pitch=72-76 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_A線_指の形3-4-3-2 | notes=96 aligned=Y pitch=72-76 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_D線_指の形0-1-2-0 | notes=96 aligned=Y pitch=62-65 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_D線_指の形1-2-1-0 | notes=96 aligned=Y pitch=62-65 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_D線_指の形2-3-2-1 | notes=96 aligned=Y pitch=64-67 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_D線_指の形2-3-4-2 | notes=96 aligned=Y pitch=65-69 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_D線_指の形3-4-3-2 | notes=96 aligned=Y pitch=65-69 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_D線_指の形1-2-3-1 | notes=96 aligned=Y pitch=64-67 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_E線_指の形0-1-2-0 | notes=96 aligned=Y pitch=76-79 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_E線_指の形2-3-2-1 | notes=96 aligned=Y pitch=77-81 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_E線_指の形2-3-4-2 | notes=96 aligned=Y pitch=79-83 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_E線_指の形3-4-3-2 | notes=96 aligned=Y pitch=79-83 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_G線_指の形0-1-2-0 | notes=96 aligned=Y pitch=55-59 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_E線_指の形1-2-1-0 | notes=96 aligned=Y pitch=76-79 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_E線_指の形1-2-3-1 | notes=96 aligned=Y pitch=77-81 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_G線_指の形1-2-1-0 | notes=96 aligned=Y pitch=55-59 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_G線_指の形1-2-3-1 | notes=96 aligned=Y pitch=57-60 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_G線_指の形2-3-2-1 | notes=96 aligned=Y pitch=57-60 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_G線_指の形2-3-4-2 | notes=96 aligned=Y pitch=59-62 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] スラーと指の練習_E線_指の形3-4-3-2 | notes=96 aligned=Y pitch=79-83 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 6度音程と移弦の練習_A線とE線_指の形1-2-2-1 | notes=64 aligned=Y pitch=71-79 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 6度音程と移弦の練習_A線とE線_指の形2-3-3-2 | notes=64 aligned=Y pitch=72-81 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 6度音程と移弦の練習_A線とE線_指の形3-4-4-3 | notes=64 aligned=Y pitch=74-83 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 6度音程と移弦の練習_D線とA線_指の形1-2-2-1 | notes=64 aligned=Y pitch=64-72 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 6度音程と移弦の練習_D線とA線_指の形2-3-3-2 | notes=64 aligned=Y pitch=65-74 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 6度音程と移弦の練習_D線とA線_指の形3-4-4-3 | notes=64 aligned=Y pitch=67-76 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 6度音程と移弦の練習_G線とD線_指の形1-2-2-1 | notes=64 aligned=Y pitch=57-65 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 6度音程と移弦の練習_G線とD線_指の形2-3-3-2 | notes=64 aligned=Y pitch=59-67 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 6度音程と移弦の練習_G線とD線_指の形3-4-4-3 | notes=64 aligned=Y pitch=60-69 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 4度音程と移弦の練習_A線とE線_指の形2-1-1-2 | notes=64 aligned=Y pitch=72-77 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 4度音程と移弦の練習_A線とE線_指の形3-2-2-3 | notes=64 aligned=Y pitch=74-79 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 4度音程と移弦の練習_A線とE線_指の形4-3-3-4 | notes=64 aligned=Y pitch=76-81 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 4度音程と移弦の練習_D線とA線_指の形2-1-1-2 | notes=64 aligned=Y pitch=65-71 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 4度音程と移弦の練習_D線とA線_指の形3-2-2-3 | notes=64 aligned=Y pitch=67-72 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 4度音程と移弦の練習_D線とA線_指の形4-3-3-4 | notes=64 aligned=Y pitch=69-74 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 4度音程と移弦の練習_G線とD線_指の形2-1-1-2 | notes=64 aligned=Y pitch=59-64 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 4度音程と移弦の練習_G線とD線_指の形3-2-2-3 | notes=64 aligned=Y pitch=60-65 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 4度音程と移弦の練習_G線とD線_指の形4-3-3-4 | notes=64 aligned=Y pitch=62-67 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 7度音程と移弦の練習_A線とE線_指の形1-3-3-1 | notes=64 aligned=Y pitch=71-81 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 7度音程と移弦の練習_A線とE線_指の形2-4-4-2 | notes=64 aligned=Y pitch=72-83 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 7度音程と移弦の練習_D線とA線_指の形1-3-3-1 | notes=64 aligned=Y pitch=64-74 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 7度音程と移弦の練習_D線とA線_指の形2-4-4-2 | notes=64 aligned=Y pitch=65-76 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 7度音程と移弦の練習_G線とD線_指の形1-3-3-1 | notes=64 aligned=Y pitch=57-67 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 7度音程と移弦の練習_G線とD線_指の形2-4-4-2 | notes=64 aligned=Y pitch=59-69 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 3度音程と移弦の練習_A線とE線_指の形3-1-1-3 | notes=64 aligned=Y pitch=74-77 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 3度音程と移弦の練習_A線とE線_指の形4-2-2-4 | notes=64 aligned=Y pitch=76-79 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 3度音程と移弦の練習_D線とA線_指の形3-1-1-3 | notes=64 aligned=Y pitch=67-71 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 3度音程と移弦の練習_D線とA線_指の形4-2-2-4 | notes=64 aligned=Y pitch=69-72 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 3度音程と移弦の練習_G線とD線_指の形3-1-1-3 | notes=64 aligned=Y pitch=60-64 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 3度音程と移弦の練習_G線とD線_指の形4-2-2-4 | notes=64 aligned=Y pitch=62-65 pos=[1] ft=0 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ポルタートの練習 | notes=33 aligned=Y pitch=57-81 pos=[1] ft=1 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ピチカートの練習（入門） | notes=96 aligned=Y pitch=69-76 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] トレモロの練習（入門） | notes=68 aligned=Y pitch=60-81 pos=[1] ft=1 tt=['スタッカート', 'トレモロ'] subkeys=0 conf=1 mv=N storage=OK
+OK   [practice] スタッカートの練習（入門） | notes=68 aligned=Y pitch=60-81 pos=[1] ft=1 tt=['スタッカート'] subkeys=0 conf=1 mv=N storage=OK
+OK   [practice] クレッシェンドの練習（入門①） | notes=30 aligned=Y pitch=69-81 pos=[1] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] クレッシェンドの練習（入門②） | notes=30 aligned=Y pitch=69-81 pos=[1] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] クレッシェンドの練習（入門③） | notes=34 aligned=Y pitch=69-83 pos=[1] ft=1 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] リズムの練習その① | notes=132 aligned=Y pitch=67-81 pos=[1] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] リズム練習その② | notes=165 aligned=Y pitch=67-81 pos=[1] ft=2 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] リズム練習その③ | notes=90 aligned=Y pitch=67-81 pos=[1] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 重音_G線＋D線 | notes=16 aligned=Y pitch=55-62 pos=[] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 重音_D線＋A線 | notes=16 aligned=Y pitch=62-69 pos=[] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 重音_A線＋E線 | notes=16 aligned=Y pitch=69-76 pos=[] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 重音の練習（D線とA線） | notes=20 aligned=Y pitch=62-69 pos=[1] ft=6 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 重音（G線とD線） | notes=20 aligned=Y pitch=55-62 pos=[] ft=6 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 重音（A線とE線） | notes=20 aligned=Y pitch=69-76 pos=[] ft=6 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] kayser etude no.1 | notes=298 aligned=Y pitch=57-84 pos=[1, 2] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] カイザー 練習曲 No.1 Op.20 | notes=298 aligned=Y pitch=57-84 pos=[1, 2] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] カイザー 練習曲 No.2 Op.20 | notes=111 aligned=Y pitch=64-82 pos=[1] ft=5 tt=['スタッカート', 'スラー'] subkeys=0 conf=1 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.3（ヘ長調） | notes=474 aligned=Y pitch=55-82 pos=[1, 2] ft=5 tt=['スタッカート'] subkeys=0 conf=1 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.4（ハ長調） | notes=774 aligned=Y pitch=55-84 pos=[1, 2] ft=6 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.5（イ長調） | notes=520 aligned=Y pitch=57-84 pos=[1, 2] ft=4 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.6（変ホ長調） | notes=519 aligned=Y pitch=55-84 pos=[1, 2] ft=5 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.7（変ロ長調） | notes=479 aligned=Y pitch=55-84 pos=[1, 2] ft=6 tt=['スタッカート'] subkeys=0 conf=1 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.8（ニ長調） | notes=598 aligned=N pitch=55-83 pos=[1] ft=5 tt=['スラー'] subkeys=0 conf=0 mv=Y storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.9（ト長調） | notes=861 aligned=Y pitch=55-84 pos=[1, 2] ft=5 tt=['スタッカート'] subkeys=0 conf=1 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.10（ハ長調） | notes=861 aligned=Y pitch=55-84 pos=[1, 2] ft=5 tt=['スタッカート'] subkeys=0 conf=1 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.11（変ホ長調） | notes=688 aligned=Y pitch=55-82 pos=[1] ft=10 tt=['スタッカート'] subkeys=0 conf=1 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.12（ト長調） | notes=712 aligned=Y pitch=55-84 pos=[1, 2] ft=5 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.13（ト長調） | notes=479 aligned=N pitch=55-86 pos=[1, 2, 3] ft=7 tt=['スタッカート', 'スラー'] subkeys=0 conf=2 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.14（変ロ長調） | notes=519 aligned=Y pitch=62-87 pos=[1, 2, 3, 4] ft=7 tt=['スタッカート', 'スラー'] subkeys=1 conf=2 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.15（変ロ長調） | notes=764 aligned=N pitch=55-86 pos=[1, 2, 3] ft=8 tt=['スタッカート', 'スラー'] subkeys=0 conf=2 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.16（ヘ長調） | notes=749 aligned=N pitch=55-86 pos=[1, 2, 3] ft=9 tt=['スタッカート', 'スラー'] subkeys=0 conf=2 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.17（変ホ長調） | notes=599 aligned=N pitch=55-86 pos=[1, 2, 3] ft=11 tt=['スタッカート', 'スラー'] subkeys=0 conf=2 mv=Y storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.18（ト長調） | notes=622 aligned=Y pitch=55-88 pos=[1, 2, 3, 4] ft=9 tt=['スタッカート'] subkeys=0 conf=1 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.19（ニ長調） | notes=628 aligned=Y pitch=58-88 pos=[1, 2, 3, 4] ft=4 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] カイザー 練習曲 Op.20 No.20（ト長調） | notes=312 aligned=N pitch=55-88 pos=[1, 2, 4] ft=11 tt=['スタッカート', 'スラー'] subkeys=0 conf=2 mv=Y storage=OK
+OK   [practice] エチュード_シンフォニーNo.94 | notes=180 aligned=Y pitch=62-83 pos=[1] ft=4 tt=['スタッカート', 'スラー'] subkeys=0 conf=2 mv=N storage=OK
+OK   [practice] エチュード_狩人の合唱 | notes=141 aligned=Y pitch=62-76 pos=[1] ft=7 tt=['スタッカート', 'スラー'] subkeys=0 conf=1 mv=N storage=OK
+OK   [practice] E線を押さえる練習_1.2.3.4の指 | notes=128 aligned=Y pitch=76-83 pos=[1] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] A線を押さえる練習_1.2.3.4の指 | notes=128 aligned=Y pitch=69-76 pos=[1] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] D線を押さえる練習_1.2.3.4の指 | notes=128 aligned=Y pitch=62-69 pos=[1] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] G線を押さえる練習_1.2.3.4の指 | notes=128 aligned=Y pitch=55-62 pos=[1] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] G線を押さえる練習_1の指 | notes=56 aligned=Y pitch=55-57 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] D線を押さえる練習_1の指 | notes=56 aligned=Y pitch=62-64 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] A線を押さえる練習_1の指 | notes=56 aligned=Y pitch=69-71 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] E線を押さえる練習_1の指 | notes=56 aligned=Y pitch=76-77 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] E線を押さえる練習_2の指 | notes=56 aligned=Y pitch=77-79 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] A線を押さえる練習_2の指 | notes=56 aligned=Y pitch=71-72 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] D線を押さえる練習_2の指 | notes=56 aligned=Y pitch=64-65 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] G線を押さえる練習_2の指 | notes=56 aligned=Y pitch=57-59 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] G線を押さえる練習_3の指 | notes=56 aligned=Y pitch=59-60 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] D線を押さえる練習_3の指 | notes=56 aligned=Y pitch=65-67 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] A線を押さえる練習_3の指 | notes=56 aligned=Y pitch=72-74 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] E線を押さえる練習_3の指 | notes=56 aligned=Y pitch=79-81 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] E線を押さえる練習_4の指 | notes=56 aligned=Y pitch=81-83 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] A線を押さえる練習_4の指 | notes=56 aligned=Y pitch=74-76 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] D線を押さえる練習_4の指 | notes=56 aligned=Y pitch=67-69 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] G線を押さえる練習_4の指 | notes=56 aligned=Y pitch=60-62 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] G線を押さえる練習_2の指_開放弦から | notes=56 aligned=Y pitch=55-59 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] D線を押さえる練習_2の指_開放弦から | notes=56 aligned=Y pitch=62-65 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] A線を押さえる練習_2の指_開放弦から | notes=56 aligned=Y pitch=69-72 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] E線を押さえる練習_2の指_開放弦から | notes=56 aligned=Y pitch=76-79 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] E線を押さえる練習_3の指_開放弦から | notes=56 aligned=Y pitch=76-81 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] D線を押さえる練習_3の指_開放弦から | notes=56 aligned=Y pitch=62-67 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] G線を押さえる練習_3の指_開放弦から | notes=56 aligned=Y pitch=55-60 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] G線を押さえる練習_4の指_開放弦から | notes=56 aligned=Y pitch=55-62 pos=[] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] D線を押さえる練習_4の指_開放弦から | notes=56 aligned=Y pitch=62-69 pos=[] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] A線を押さえる練習_4の指_開放弦から | notes=56 aligned=Y pitch=69-76 pos=[] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] E線を押さえる練習_4の指_開放弦から | notes=56 aligned=Y pitch=76-83 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] A線を押さえる練習_3の指_開放弦から | notes=56 aligned=Y pitch=69-74 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ハ長調_1オクターブ | notes=34 aligned=Y pitch=60-72 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ニ長調_1オクターブ | notes=34 aligned=Y pitch=62-74 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] へ長調_1オクターブ | notes=34 aligned=Y pitch=65-77 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ト長調_1オクターブ_G線とD線 | notes=34 aligned=Y pitch=55-67 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ト長調 | notes=34 aligned=Y pitch=67-79 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 変ロ長調 | notes=34 aligned=Y pitch=70-82 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 変ロ長調_1オクターブ_G線とD線とA線 | notes=34 aligned=Y pitch=58-70 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 変ホ長調 | notes=26 aligned=Y pitch=63-82 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] イ長調_A線とE線 | notes=34 aligned=Y pitch=69-81 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] イ長調_G線とD線 | notes=34 aligned=Y pitch=57-69 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ホ長調 | notes=34 aligned=Y pitch=64-76 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ロ長調_G線とD線とA線 | notes=34 aligned=Y pitch=59-71 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 変イ長調_A線とE線 | notes=34 aligned=Y pitch=68-80 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 変イ長調_G線とD線 | notes=34 aligned=Y pitch=56-68 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 変ロ長調 | notes=48 aligned=Y pitch=58-82 pos=[1] ft=2 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ハ長調_2オクターブ | notes=66 aligned=Y pitch=59-84 pos=[1, 2] ft=2 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] ニ長調_2オクターブ | notes=66 aligned=Y pitch=58-83 pos=[1] ft=2 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] 変ロ長調_2オクターブ | notes=66 aligned=Y pitch=57-82 pos=[1] ft=2 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [practice] リズム練習その④ | notes=102 aligned=Y pitch=62-81 pos=[1] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] カントリーロード | notes=265 aligned=N pitch=72-86 pos=[1, 2, 3] ft=4 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 糸 | notes=146 aligned=Y pitch=62-79 pos=[1] ft=4 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] G線上のアリア | notes=166 aligned=N pitch=69-84 pos=[1, 2] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] アメイジング・グレイス | notes=36 aligned=Y pitch=62-74 pos=[1] ft=5 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] きらきら星 | notes=48 aligned=N pitch=72-81 pos=[1] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ホフマンの舟唄 | notes=176 aligned=Y pitch=57-71 pos=[1] ft=5 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] G線上のアリア | notes=162 aligned=N pitch=55-70 pos=[1, 2, 3, 4] ft=6 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ユレモスク | notes=192 aligned=N pitch=65-81 pos=[1] ft=6 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] レジェンド | notes=585 aligned=N pitch=55-91 pos=[1, 3, 4, 6] ft=16 tt=['スタッカート', 'スラー'] subkeys=1 conf=1 mv=Y storage=OK
+OK   [score] ちょうちょ | notes=56 aligned=Y pitch=67-74 pos=[1] ft=1 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ロングロングアゴー | notes=70 aligned=Y pitch=67-76 pos=[1] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] むすんでひらいて | notes=39 aligned=Y pitch=67-76 pos=[1] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ぶんぶんぶん | notes=36 aligned=Y pitch=62-69 pos=[1] ft=2 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ロンドン橋 | notes=48 aligned=Y pitch=65-74 pos=[1] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] おぼろ月夜 | notes=71 aligned=Y pitch=62-76 pos=[1] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] かっこう | notes=28 aligned=Y pitch=67-74 pos=[1] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] さくらさくら | notes=51 aligned=Y pitch=59-72 pos=[1] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ふるさと | notes=49 aligned=Y pitch=60-74 pos=[1] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] もみじ | notes=68 aligned=Y pitch=60-74 pos=[1] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 七つの子 | notes=100 aligned=Y pitch=60-76 pos=[1] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 春がきた | notes=32 aligned=Y pitch=60-76 pos=[1] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 春の小川 | notes=60 aligned=Y pitch=60-72 pos=[1] ft=0 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 証城寺のたぬきばやし | notes=75 aligned=Y pitch=60-76 pos=[1] ft=4 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 赤とんぼ | notes=66 aligned=Y pitch=60-77 pos=[1] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 歌をわすれたカナリア | notes=82 aligned=Y pitch=58-74 pos=[1] ft=4 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] せいくらべ | notes=81 aligned=Y pitch=62-76 pos=[1] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] しゃぼん玉 | notes=50 aligned=Y pitch=57-74 pos=[1] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ほたるの光 | notes=58 aligned=Y pitch=60-74 pos=[1] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] アルプス一万尺 | notes=58 aligned=Y pitch=59-72 pos=[1] ft=4 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] グリーンスリーブス | notes=74 aligned=Y pitch=62-77 pos=[1] ft=4 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] オーラ・リー | notes=50 aligned=Y pitch=62-72 pos=[1] ft=4 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] なつかしきケンタッキーのわが家 | notes=124 aligned=Y pitch=62-74 pos=[1] ft=5 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] おおスザンナ | notes=63 aligned=Y pitch=67-76 pos=[1] ft=5 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 草けいば | notes=90 aligned=Y pitch=62-74 pos=[1] ft=5 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] とうげのわが家 | notes=84 aligned=Y pitch=62-74 pos=[1] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 歓喜の歌 | notes=62 aligned=Y pitch=62-74 pos=[1] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ホーム・スウィート・ホーム | notes=58 aligned=Y pitch=67-79 pos=[1] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ホルディリディア | notes=62 aligned=Y pitch=60-77 pos=[1] ft=2 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ジャスミン | notes=67 aligned=Y pitch=62-79 pos=[1] ft=2 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 野ばら | notes=61 aligned=Y pitch=62-74 pos=[1] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 子守歌 | notes=105 aligned=Y pitch=67-79 pos=[1] ft=3 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 花 | notes=61 aligned=Y pitch=64-79 pos=[1] ft=4 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 早春賦 | notes=94 aligned=Y pitch=57-74 pos=[1] ft=4 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] オールドブラックジョー | notes=76 aligned=Y pitch=62-76 pos=[1] ft=4 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 見よ、勇者はかえる | notes=54 aligned=Y pitch=67-79 pos=[1] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 子守歌 | notes=55 aligned=Y pitch=65-77 pos=[1] ft=6 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ヴォルガの舟うた | notes=100 aligned=Y pitch=65-77 pos=[1] ft=4 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] トルコ行進曲 | notes=98 aligned=Y pitch=66-78 pos=[1] ft=3 tt=['スタッカート', 'スラー'] subkeys=0 conf=1 mv=N storage=OK
+OK   [score] オーゼの死 | notes=122 aligned=Y pitch=66-83 pos=[1] ft=5 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ノクターン「夏の夜の夢」 | notes=116 aligned=Y pitch=60-84 pos=[1, 2] ft=5 tt=['スタッカート', 'スラー'] subkeys=0 conf=1 mv=N storage=OK
+OK   [score] ファニタ | notes=81 aligned=Y pitch=65-82 pos=[1] ft=5 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] メヌエット（「ドン・ジョバンニ」より） | notes=110 aligned=Y pitch=66-79 pos=[1] ft=6 tt=['スタッカート', 'スラー'] subkeys=0 conf=1 mv=N storage=OK
+OK   [score] ポルカ | notes=92 aligned=Y pitch=62-81 pos=[1] ft=8 tt=['スタッカート', 'スラー'] subkeys=0 conf=2 mv=N storage=OK
+OK   [score] 狩人の合唱 | notes=188 aligned=Y pitch=64-80 pos=[1] ft=5 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] アマリリス | notes=123 aligned=Y pitch=60-84 pos=[1, 2] ft=2 tt=['スタッカート', 'スラー'] subkeys=0 conf=2 mv=N storage=OK
+OK   [score] 家路 | notes=66 aligned=Y pitch=62-76 pos=[1] ft=5 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 古いフランスの曲 | notes=91 aligned=Y pitch=62-77 pos=[1] ft=5 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 主人は冷たい土の中に | notes=59 aligned=Y pitch=69-81 pos=[1] ft=3 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 魔女のおどりのテーマ | notes=152 aligned=Y pitch=62-83 pos=[1] ft=5 tt=['スタッカート', 'スラー'] subkeys=0 conf=1 mv=N storage=OK
+OK   [score] ふたりのてきだん兵 | notes=168 aligned=Y pitch=64-81 pos=[1] ft=6 tt=['スタッカート', 'スラー'] subkeys=1 conf=2 mv=N storage=OK
+OK   [score] ワルツ No.15 | notes=182 aligned=Y pitch=66-81 pos=[1] ft=7 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ☆2_ホフマンの舟唄 | notes=77 aligned=Y pitch=57-76 pos=[1] ft=5 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] メヌエット | notes=254 aligned=Y pitch=62-83 pos=[1] ft=4 tt=['スタッカート', 'スラー'] subkeys=1 conf=1 mv=N storage=OK
+OK   [score] 楽しい農夫 | notes=228 aligned=Y pitch=62-79 pos=[1] ft=4 tt=['スラー'] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] 驚愕シンフォニー | notes=312 aligned=Y pitch=55-83 pos=[1] ft=8 tt=[] subkeys=0 conf=0 mv=N storage=OK
+OK   [score] ガボット | notes=333 aligned=N pitch=55-81 pos=[1] ft=7 tt=['スタッカート', 'スラー'] subkeys=0 conf=2 mv=Y storage=OK
+OK   [score] ガボット | notes=147 aligned=Y pitch=58-84 pos=[1, 2] ft=5 tt=['スタッカート', 'スラー'] subkeys=0 conf=2 mv=N storage=OK
+OK   [score] ガボット | notes=157 aligned=Y pitch=62-79 pos=[1] ft=4 tt=['スタッカート', 'スラー'] subkeys=0 conf=1 mv=N storage=OK
+OK   [score] メヌエット | notes=463 aligned=Y pitch=57-83 pos=[1] ft=8 tt=['スタッカート', 'スラー', 'トリル'] subkeys=1 conf=1 mv=N storage=OK
+OK   [score] メヌエット_ト長調 | notes=394 aligned=Y pitch=57-81 pos=[1] ft=6 tt=['スタッカート', 'スラー'] subkeys=0 conf=1 mv=N storage=OK
+FAIL [score] メヌエット | undefined entity &copy;: line 31, column 21
+OK   [score] ガボット「ミニヨンより」 | notes=390 aligned=Y pitch=55-81 pos=[1] ft=6 tt=['スタッカート', 'スラー'] subkeys=0 conf=2 mv=N storage=OK
+OK   [score] ガボット | notes=641 aligned=Y pitch=57-83 pos=[1] ft=7 tt=['スタッカート', 'スラー', 'トリル'] subkeys=0 conf=2 mv=N storage=OK
+OK   [score] ヴァイオリン協奏曲 | notes=549 aligned=Y pitch=57-83 pos=[1] ft=10 tt=['スラー'] subkeys=1 conf=0 mv=N storage=OK
+
+===== APPLY 完了 =====
+OK=287 FAIL=1 不整合(aligned=N)=13 多声部=5 analysis.json欠落=1
+展開対応表: 成功=282 失敗=5 (成功率 282/287)
+--- 失敗一覧 ---
+score/メヌエット: undefined entity &copy;: line 31, column 21
+--- 対応表 失敗一覧 (理由つき) ---
+practice/カイザー 練習曲 Op.20 No.13（ト長調）: count_mismatch:19
+practice/カイザー 練習曲 Op.20 No.15（変ロ長調）: count_mismatch:2
+practice/カイザー 練習曲 Op.20 No.17（変ホ長調）: count_mismatch:1
+score/カントリーロード: count_mismatch:1
+score/レジェンド: count_mismatch:18

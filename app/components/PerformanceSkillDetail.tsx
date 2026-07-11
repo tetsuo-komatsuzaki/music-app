@@ -17,7 +17,7 @@
 import { useEffect, useState } from "react"
 import GradeUpModal from "./GradeUpModal"
 import PerformanceMenu from "./PerformanceMenu"
-import ImprovementGuideCard from "./ImprovementGuideCard"
+import WeaknessDiagnosisCard from "./WeaknessDiagnosisCard"
 import styles from "./PerformanceSkillDetail.module.css"
 
 // ---------------------------------------------------------------------------
@@ -251,12 +251,14 @@ export default function PerformanceSkillDetail({
       {/* UI-4 気になる箇所の候補選択UI(これだ/違う/分からない)は廃止 (2026-06-08 Tetsuo)。
           該当箇所は下の改善アドバイス内に sub_task 別に表示する。 */}
 
-      {/* UI-5 + UI-13: 改善アドバイス + 該当箇所 + 教材ボタン */}
+      {/* 工程C-6a (2026-07-11): 旧55体系の改善アドバイス(ImprovementGuideCard)を
+          217診断の弱点+推薦教材カードに置換 (Tetsuo確定: 併存でなく置換)。
+          気になる箇所ジャンプ(problematicPositions)は旧アドバイス内の表示だったため
+          一緒に退役 (データは温存・onJumpToPosition は props 互換のため残置)。 */}
       <section className={styles.section}>
-        <ImprovementGuideCard
-          guides={data.improvementGuides}
-          positions={data.problematicPositions ?? []}
-          onJumpToPosition={onJumpToPosition}
+        <WeaknessDiagnosisCard
+          performanceId={data.performanceId}
+          kind={kind}
           userId={userId}
         />
       </section>

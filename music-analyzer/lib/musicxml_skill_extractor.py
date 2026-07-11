@@ -37,8 +37,12 @@ from io import BytesIO
 from typing import List, Optional
 
 from .violin_position import (
+    derive_position,
+    diatonic_index,
+    infer_pitch_only,
+    infer_with_finger,
     string_num_to_id,
-    try_infer_violin_position,
+    try_infer_violin_position,  # noqa: F401  (後方互換のため残置)
 )
 
 
@@ -58,12 +62,58 @@ class SkillInfoNote:
     measure_index: int
     is_rest: bool
 
+    # 工程A-5 (2026-07-10): 楽譜上の小節番号 (<measure number="..">)。
+    # 展開対応表の突合キー (analysis.json の measure_number と同じ番号体系。弱起=0対応)
+    measure_number: Optional[int] = None
+
     string_id: Optional[str] = None  # "E"/"A"/"D"/"G"
     finger: Optional[int] = None  # 0〜4
     is_in_slur: bool = False
     is_after_rest: bool = False
     is_inferred_position: bool = False
     # 注：is_string_change_from_prev はここで出力しない（v3.2 Q7 確定）
+
+    # ─── 工程B 追加 (2026-07-06・version 2) ───
+    # position: ポジション番号 (1〜12)。開放弦・休符・導出不能は None。
+    # position_confidence:
+    #   "annotated" = <string>+<fingering> 両方の注釈から確定
+    #   "estimated" = 方針上の既定推定 (記載なし=1stポジ / 弦既知でポジ導出)
+    #   "low"       = 複数候補から音脈補正で選択 (§25: 移動系の集計から除外)
+    position: Optional[int] = None
+    position_confidence: Optional[str] = None
+
+    # ─── 工程A 追加 (2026-07-10・note_karte version 3) ───
+    # ■ 音符属性
+    step: Optional[str] = None       # 音名文字 "F" 等 (休符は None)
+    alter: int = 0                   # -1=♭ / 0 / +1=♯
+    octave: Optional[int] = None
+    midi: Optional[int] = None       # 実音高 (MIDI)
+    duration_beats: Optional[float] = None  # 拍単位の音価
+    note_type: Optional[str] = None  # "quarter"/"eighth"/"16th" 等
+    is_dotted: bool = False
+    is_grace: bool = False           # 装飾音符
+    is_tuplet: bool = False          # 連符 (time-modification)
+    beat_offset: Optional[float] = None  # 小節内オフセット (拍・0始まり)
+    beat_number: Optional[int] = None    # 拍番号 (1始まり)
+    is_on_beat: Optional[bool] = None    # 拍頭か
+    is_chord: bool = False           # 重音グループの代表音符
+    chord_midis: Optional[list] = None      # 重音の全構成音 (MIDI)
+    chord_intervals: Optional[list] = None  # 隣接ペア分解後の音程種別 ["3度",...]
+    is_slur_start: bool = False
+    is_slur_end: bool = False
+
+    # ■ 遷移属性 (単音のみ。重音・休符・曲頭は None。§26-1)
+    prev_note_index: Optional[int] = None   # 遷移元 (直前の単音。休符透過・重音不参加)
+    interval_degree: Optional[int] = None   # 符号付き度数 (+3=3度上行, 1=同度)
+    interval_semitones: Optional[int] = None
+    string_from: Optional[str] = None
+    string_to: Optional[str] = None
+    string_change_kind: Optional[str] = None  # "same"/"adjacent"/"skip"
+    position_from: Optional[int] = None       # 手のポジション (開放弦は維持)
+    position_to: Optional[int] = None
+    position_moved: Optional[bool] = None
+    prev_duration_beats: Optional[float] = None  # 音価変化の判定用
+    rest_before_beats: float = 0.0               # 直前休符の合計拍
 
 
 # ---------------------------------------------------------------------------
@@ -75,8 +125,13 @@ def load_musicxml(path: str) -> ET.ElementTree:
     """.mxl（圧縮）または .musicxml（プレーン）をロードして ElementTree を返す。
 
     .mxl は ZIP アーカイブで、META-INF/container.xml に主譜面のパスが書かれている。
+    工程A-5 (2026-07-10): 拡張子でなく先頭バイト(PK)で判定する。
+    実データに「拡張子 .musicxml だが中身は ZIP」の教材が存在するため
+    (etude 実測)。拡張子判定だと ET.parse が失敗していた。
     """
-    if path.lower().endswith(".mxl"):
+    with open(path, "rb") as f:
+        magic = f.read(2)
+    if magic == b"PK" or path.lower().endswith(".mxl"):
         return _load_compressed_mxl(path)
     return ET.parse(path)
 
@@ -120,20 +175,28 @@ def _load_compressed_mxl(path: str) -> ET.ElementTree:
 
 
 def extract_skill_info(musicxml_path: str) -> List[SkillInfoNote]:
-    """MusicXML から skill_info のリストを抽出する。
-    
-    v3.2 Q7：is_string_change_from_prev は出力しない（note_integration 側で生成）
+    """後方互換ラッパー（notes のみ返す）。新規コードは extract_note_karte を使う。"""
+    notes, _meta = extract_note_karte(musicxml_path)
+    return notes
 
-    Args:
-        musicxml_path: .mxl または .musicxml のパス
+
+def extract_note_karte(musicxml_path: str) -> tuple[List[SkillInfoNote], dict]:
+    """MusicXML から音符カルテ (note_karte) を抽出する（工程A・version 3）。
+
+    走査は <measure> 直下を文書順に歩く（拍計算・重音収集・多声部検知のため。
+    旧実装の findall(".//note") は <attributes>/<backup> の順序情報を失うため廃止）。
+
+    note_index 規約（§2-1 インバリアント・analysis.json と同一）:
+      - 休符は index を消費する
+      - 重音グループは代表1音のみ index を消費（<chord/> 付き2音目以降は
+        代表音符の chord_midis に収集し、index は進めない）
 
     Returns:
-        SkillInfoNote のリスト（音符・休符を順序保持）
+        (notes, meta)  meta = {"has_multiple_voices": bool}
     """
     tree = load_musicxml(musicxml_path)
     root = tree.getroot()
 
-    # 主声部の <part> を取得（ヴァイオリン1パート前提）
     parts = root.findall(".//part")
     if not parts:
         raise ValueError(f"No <part> element found in {musicxml_path}")
@@ -142,52 +205,279 @@ def extract_skill_info(musicxml_path: str) -> List[SkillInfoNote]:
     notes: List[SkillInfoNote] = []
     note_index = 0
 
-    # スラー状態の追跡（複数の number を扱う、basic case では number=1 のみ）
     active_slurs: set[str] = set()
-
-    # 直前の音符が休符だったかフラグ
     prev_was_rest = False
+    prev_string: Optional[str] = None
+    prev_position: Optional[int] = None
 
-    for measure_idx, measure in enumerate(part.findall(".//measure")):
-        for note_elem in measure.findall(".//note"):
-            is_rest = note_elem.find("rest") is not None
-            is_chord = note_elem.find("chord") is not None
+    # 拍計算の状態（<attributes> で更新・小節を跨いで持続）
+    divisions = 1          # 四分音符の分割数
+    beat_type = 4          # 拍子の分母
+    has_multiple_voices = False
+    key_fifths_changes: list = []  # 調号の出現列 (先頭=主調、以降=副次調候補)
 
-            # コード（同時発音）の2音目以降は note_index を進めずスキップ
-            # （上達ループ的にはメロディラインの主音のみ扱う）
-            if is_chord:
+    for measure_idx, measure in enumerate(part.findall("measure")):
+        cursor = 0  # 小節内カーソル (divisions 単位)
+        # 楽譜上の小節番号 (弱起="0" もあり得る)。数値化できなければ連番+1
+        try:
+            measure_number = int(str(measure.get("number", "")).strip())
+        except ValueError:
+            measure_number = measure_idx + 1
+
+        for elem in list(measure):
+            tag = elem.tag
+
+            if tag == "attributes":
+                d = elem.find("divisions")
+                if d is not None and d.text:
+                    divisions = max(1, int(d.text.strip()))
+                bt = elem.find("time/beat-type")
+                if bt is not None and bt.text:
+                    beat_type = max(1, int(bt.text.strip()))
+                # 工程A-3: 調号 (fifths) の変更を捕捉 → 副次調検出 (§2-4)
+                f = elem.find("key/fifths")
+                if f is not None and f.text:
+                    try:
+                        key_fifths_changes.append(
+                            {"measure_index": measure_idx, "fifths": int(f.text.strip())}
+                        )
+                    except ValueError:
+                        pass
                 continue
 
-            # 弦・指の抽出
-            string_id, finger, is_inferred = _extract_string_and_finger(note_elem)
+            if tag == "backup":
+                dur = elem.find("duration")
+                if dur is not None and dur.text:
+                    cursor -= int(dur.text.strip())
+                continue
 
-            # スラー範囲判定（<slur type="start"> を見つけたら active 化、stop で除去）
+            if tag == "forward":
+                dur = elem.find("duration")
+                if dur is not None and dur.text:
+                    cursor += int(dur.text.strip())
+                continue
+
+            if tag != "note":
+                continue
+
+            note_elem = elem
+            is_rest = note_elem.find("rest") is not None
+            is_chord_member = note_elem.find("chord") is not None
+            is_grace = note_elem.find("grace") is not None
+
+            # 多声部検知: voice != 1 は第1声部のみ処理の v1 制限（§2-6）
+            voice_elem = note_elem.find("voice")
+            voice = voice_elem.text.strip() if voice_elem is not None and voice_elem.text else "1"
+            if voice != "1":
+                has_multiple_voices = True
+                if not is_chord_member and not is_grace:
+                    dur = note_elem.find("duration")
+                    if dur is not None and dur.text:
+                        cursor += int(dur.text.strip())
+                continue
+
+            # 音価 (divisions 単位)。grace は duration なし=0
+            dur_div = 0
+            dur_elem = note_elem.find("duration")
+            if dur_elem is not None and dur_elem.text:
+                dur_div = int(dur_elem.text.strip())
+
+            # 重音メンバー（2音目以降）: 代表音符に音高を収集して終わり
+            if is_chord_member:
+                if notes:
+                    rep = notes[-1]
+                    m = _extract_midi_pitch(note_elem)
+                    so = _extract_step_octave(note_elem)
+                    if m is not None and rep.chord_midis is not None:
+                        rep.chord_midis.append(m)
+                        rep.is_chord = True
+                        if so[0] is not None:
+                            letters = getattr(rep, "_chord_letters", [])
+                            letters.append(so)
+                            rep._chord_letters = letters  # type: ignore[attr-defined]
+                            rep.chord_intervals = _chord_intervals_from_letters(letters)
+                continue
+
+            # ── ここから index を消費する音符（単音代表 or 休符）──
+            string_id, finger, position, confidence, is_inferred = (
+                _resolve_string_finger_position(note_elem, prev_string, prev_position)
+            )
+
             slur_was_active = bool(active_slurs)
             _update_slur_state(note_elem, active_slurs)
-            # 「この音符がスラー範囲内か」は、slur_was_active OR この音符で start
-            # ただし、慣例的には start を含む音符からスラー範囲とみなすので、
-            # update 後の active 状態（または start を含む状態）を採用する
             slur_starts_here = _slur_starts_in_note(note_elem)
+            slur_stops_here = _slur_stops_in_note(note_elem)
             is_in_slur = slur_was_active or slur_starts_here
 
-            # 結果オブジェクト構築
-            # v3.2 Q7：is_string_change_from_prev はここでは出力しない
+            step, octv = _extract_step_octave(note_elem)
+            midi = _extract_midi_pitch(note_elem)
+            alter = _extract_alter(note_elem)
+
+            # 拍位置 (整数演算で判定・float は表示用)
+            beats_scale = divisions * 4  # cursor*beat_type / beats_scale = 拍
+            beat_offset = round(cursor * beat_type / beats_scale, 4)
+            beat_number = (cursor * beat_type) // beats_scale + 1
+            is_on_beat = (cursor * beat_type) % beats_scale == 0
+            duration_beats = round(dur_div * beat_type / beats_scale, 4)
+
+            type_elem = note_elem.find("type")
+            note_type = type_elem.text.strip() if type_elem is not None and type_elem.text else None
+
             skill_note = SkillInfoNote(
                 note_index=note_index,
                 measure_index=measure_idx,
+                measure_number=measure_number,
                 is_rest=is_rest,
                 string_id=string_id,
                 finger=finger,
-                is_in_slur=is_in_slur and not is_rest,  # 休符はスラー対象外
+                is_in_slur=is_in_slur and not is_rest,
                 is_after_rest=prev_was_rest and not is_rest,
                 is_inferred_position=is_inferred and not is_rest,
+                position=position if not is_rest else None,
+                position_confidence=confidence if not is_rest else None,
+                # 工程A: 音符属性
+                step=step,
+                alter=alter,
+                octave=octv,
+                midi=midi,
+                duration_beats=duration_beats,
+                note_type=note_type,
+                is_dotted=note_elem.find("dot") is not None,
+                is_grace=is_grace,
+                is_tuplet=note_elem.find("time-modification") is not None,
+                beat_offset=beat_offset,
+                beat_number=beat_number,
+                is_on_beat=is_on_beat,
+                is_chord=False,  # メンバー収集時に True 化
+                chord_midis=([midi] if (not is_rest and midi is not None) else None),
+                chord_intervals=None,
+                is_slur_start=slur_starts_here and not is_rest,
+                is_slur_end=slur_stops_here and not is_rest,
             )
+            # 重音の音程計算用に音名も一時保持 (JSON には出さない)
+            skill_note._chord_letters = [ (step, octv) ] if step is not None else []  # type: ignore[attr-defined]
+            # 工程A-3: アーティキュレーション記号を一時保持 (技術タグ判定用・非serialize)
+            skill_note._artic = {  # type: ignore[attr-defined]
+                "staccato": note_elem.find("notations/articulations/staccato") is not None,
+                "spiccato": note_elem.find("notations/articulations/spiccato") is not None,
+                "detached_legato": note_elem.find("notations/articulations/detached-legato") is not None,
+                "pizzicato": note_elem.get("pizzicato") == "yes"
+                or note_elem.find("notations/technical/pluck") is not None,
+            }
             notes.append(skill_note)
+
+            if not is_rest and string_id is not None:
+                prev_string = string_id
+                if position is not None:
+                    prev_position = position
 
             note_index += 1
             prev_was_rest = is_rest
+            if not is_grace:
+                cursor += dur_div
 
-    return notes
+    _annotate_transitions(notes)
+
+    # 単音の chord_midis は None に戻す (カルテ上は重音のみ保持)
+    for n in notes:
+        if not n.is_chord:
+            n.chord_midis = None
+        if hasattr(n, "_chord_letters"):
+            del n._chord_letters
+
+    meta = {
+        "has_multiple_voices": has_multiple_voices,
+        "key_fifths_changes": key_fifths_changes,
+    }
+    return notes, meta
+
+
+# ---------------------------------------------------------------------------
+# 工程A: 遷移属性の付与 (§26-1・遷移チェーンは単音のみ)
+# ---------------------------------------------------------------------------
+
+
+def _annotate_transitions(notes: List[SkillInfoNote]) -> None:
+    """遷移属性を後段パスで付与する。
+
+    規則（セッション確定・設計書§2-7）:
+      - チェーンは単音のみ。休符=透過 (rest_before_beats に累積)。
+      - 重音=チェーン不参加 (重音自身の遷移は None、次の単音の遷移元は重音より前の単音)。
+      - 開放弦は手のポジションを動かさない (position は直前の手ポジを維持)。
+    """
+    prev_single: Optional[SkillInfoNote] = None
+    hand_position: Optional[int] = None  # 直近の確定した手ポジ
+    rest_accum = 0.0
+
+    for n in notes:
+        if n.is_rest:
+            rest_accum += n.duration_beats or 0.0
+            continue
+        if n.is_chord:
+            rest_accum = 0.0  # 重音の発音で休符の連続は切れる
+            continue
+
+        n.rest_before_beats = round(rest_accum, 4)
+        rest_accum = 0.0
+
+        if prev_single is not None:
+            n.prev_note_index = prev_single.note_index
+            # 音程 (音名算術: 度数) + 半音
+            if (
+                n.step is not None and n.octave is not None
+                and prev_single.step is not None and prev_single.octave is not None
+            ):
+                d_now = diatonic_index(n.step, n.octave)
+                d_prev = diatonic_index(prev_single.step, prev_single.octave)
+                if d_now is not None and d_prev is not None:
+                    diff = d_now - d_prev
+                    n.interval_degree = (abs(diff) + 1) * (1 if diff > 0 else -1 if diff < 0 else 1)
+            if n.midi is not None and prev_single.midi is not None:
+                n.interval_semitones = n.midi - prev_single.midi
+            # 移弦
+            if n.string_id is not None and prev_single.string_id is not None:
+                n.string_from = prev_single.string_id
+                n.string_to = n.string_id
+                dist = _string_index_distance(prev_single.string_id, n.string_id)
+                n.string_change_kind = (
+                    "same" if dist == 0 else "adjacent" if dist == 1 else "skip"
+                )
+            # ポジション移動 (開放弦は手ポジ維持)
+            pos_from = hand_position
+            pos_to = n.position if n.position is not None else hand_position
+            n.position_from = pos_from
+            n.position_to = pos_to
+            if pos_from is not None and pos_to is not None:
+                n.position_moved = pos_from != pos_to
+            n.prev_duration_beats = prev_single.duration_beats
+
+        if n.position is not None:
+            hand_position = n.position
+        prev_single = n
+
+
+_STRING_INDEX = {"G": 0, "D": 1, "A": 2, "E": 3}
+
+
+def _string_index_distance(a: str, b: str) -> int:
+    return abs(_STRING_INDEX.get(a, 0) - _STRING_INDEX.get(b, 0))
+
+
+# 隣接ペア分解 (§25): ソートした構成音の隣接2音ずつの度数 → 種別ラベル
+_INTERVAL_LABEL = {3: "3度", 4: "4度", 5: "5度", 6: "6度", 8: "オクターブ", 10: "10度"}
+
+
+def _chord_intervals_from_letters(letters: list) -> list:
+    """重音構成音 [(step, octave), ...] を音高順に並べ、隣接ペアの度数種別を返す。"""
+    dias = sorted(
+        d for s, o in letters
+        if s is not None and o is not None and (d := diatonic_index(s, o)) is not None
+    )
+    labels: list[str] = []
+    for lo, hi in zip(dias, dias[1:]):
+        degree = hi - lo + 1
+        labels.append(_INTERVAL_LABEL.get(degree, "その他"))
+    return labels
 
 
 # ---------------------------------------------------------------------------
@@ -195,30 +485,28 @@ def extract_skill_info(musicxml_path: str) -> List[SkillInfoNote]:
 # ---------------------------------------------------------------------------
 
 
-def _extract_string_and_finger(
+def _resolve_string_finger_position(
     note_elem: ET.Element,
-) -> tuple[Optional[str], Optional[int], bool]:
-    """1音符要素から (string_id, finger, is_inferred) を抽出する。
+    prev_string: Optional[str],
+    prev_position: Optional[int],
+) -> tuple[Optional[str], Optional[int], Optional[int], Optional[str], bool]:
+    """1音符要素から (string_id, finger, position, position_confidence, is_inferred) を解決する。
 
-    優先順位（Tetsuo 確定方針 v3.2）：
-      1. <notations><technical><string> + <fingering> が両方ある → そのまま採用（最優先）
-      2. 片方だけある → ある方を採用、ない方は推定で補完
-      3. 両方ない → MIDI ピッチから推定（フォールバック専用）
-    
-    v3.2 注（Phase 0.1 Task 5 反映）:
-      既存 mxl の 86%が <technical> 注釈なしかつ MIDI 84+ を含む。
-      推定範囲外（MIDI 84+）は string_id=None で返る。
-
-    Args:
-        note_elem: <note> 要素
+    優先順位（工程B 2026-07-06・fingering運用方針 §11 / ポジション推定2段方式 §25）:
+      1. <string>+<fingering> 両方あり → 採用、ポジションはモデルから導出 ("annotated")
+      2. <fingering> のみ → 指番号+音高から弦・ポジを導出 (infer_with_finger)。
+         候補1つ="estimated" / 複数候補を音脈補正で選択="low"
+      3. <string> のみ → 弦+音高からポジション導出 ("estimated")
+      4. 両方なし → 音高のみから推定 (infer_pitch_only)。
+         MIDI 55-83=1stポジ既定 ("estimated") / 84+=弦候補×音脈補正 ("low")
+         → 旧実装の「MIDI 84+ は string_id=None で欠落」を撤廃。
 
     Returns:
-        (string_id, finger, is_inferred)
-        休符の場合は (None, None, False)
-        推定範囲外の場合は (None, None, False)
+        (string_id, finger, position, position_confidence, is_inferred)
+        休符・導出不能は (None, None, None, None, False)
     """
     if note_elem.find("rest") is not None:
-        return None, None, False
+        return None, None, None, None, False
 
     # 注釈の取得
     technical = note_elem.find(".//technical")
@@ -237,33 +525,49 @@ def _extract_string_and_finger(
             except ValueError:
                 annotated_finger = None
 
-    # 両方そろっていればそのまま採用（最優先）
-    if annotated_string_id is not None and annotated_finger is not None:
-        return annotated_string_id, annotated_finger, False
-
-    # 推定が必要 → MIDI ピッチを取得
     midi_pitch = _extract_midi_pitch(note_elem)
+    step, octave = _extract_step_octave(note_elem)
+
+    # 1. 両方注釈あり → 最優先で採用
+    if annotated_string_id is not None and annotated_finger is not None:
+        pos = (
+            derive_position(
+                midi_pitch, annotated_string_id, annotated_finger, step, octave
+            )
+            if midi_pitch is not None
+            else None
+        )
+        return annotated_string_id, annotated_finger, pos, "annotated", False
+
     if midi_pitch is None:
-        # ピッチ取得不能 → 注釈分のみ返す（is_inferred = False、注釈の信頼性に従う）
-        return annotated_string_id, annotated_finger, False
+        # ピッチ取得不能 → 注釈分のみ返す
+        return annotated_string_id, annotated_finger, None, None, False
 
-    # ファーストポジション推定（フォールバック）
-    # v3.2 注：MIDI 範囲外（55未満 or 84以上）は None が返る
-    inferred = try_infer_violin_position(midi_pitch)
-    if inferred is None:
-        # 推定範囲外 → 注釈の値があればそれを返す、なければ全 None
-        return annotated_string_id, annotated_finger, False
+    # 2. 指番号のみ → 音名算術で弦・ポジを導出 (§11 の中核ケース)
+    if annotated_finger is not None:
+        inferred = infer_with_finger(
+            midi_pitch, annotated_finger, prev_string, prev_position,
+            step=step, octave=octave,
+        )
+        if inferred is not None:
+            s, pos, conf = inferred
+            confidence = "estimated" if conf == "high" else "low"
+            return s, annotated_finger, pos, confidence, True
+        return None, annotated_finger, None, None, False
 
-    inferred_string_id, inferred_finger = inferred
+    # 3. 弦のみ → 弦+音名からポジション導出
+    if annotated_string_id is not None:
+        pos = derive_position(midi_pitch, annotated_string_id, None, step, octave)
+        return annotated_string_id, None, pos, "estimated", True
 
-    # 注釈が片方だけある場合、ある方を優先する
-    final_string_id = annotated_string_id if annotated_string_id is not None else inferred_string_id
-    final_finger = annotated_finger if annotated_finger is not None else inferred_finger
-
-    # is_inferred は「いずれかが推定で埋まった場合」True
-    is_inferred = (annotated_string_id is None) or (annotated_finger is None)
-
-    return final_string_id, final_finger, is_inferred
+    # 4. 両方なし → 音高のみから推定 (55-83=1stポジ既定 / 84+=音名算術×音脈補正)
+    inferred_po = infer_pitch_only(
+        midi_pitch, prev_string, prev_position, step=step, octave=octave
+    )
+    if inferred_po is None:
+        return None, None, None, None, False
+    s, pos, f, conf = inferred_po
+    return s, f, pos, conf, True
 
 
 # ---------------------------------------------------------------------------
@@ -275,6 +579,31 @@ def _extract_string_and_finger(
 _STEP_TO_SEMITONE = {
     "C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11,
 }
+
+
+def _extract_step_octave(
+    note_elem: ET.Element,
+) -> tuple[Optional[str], Optional[int]]:
+    """<note><pitch> から音名 (step) とオクターブを抽出する（音名算術用）。
+    MusicXML 仕様上 <pitch> には <step>+<octave> が必須のため、
+    有音符なら必ず取得できる。休符・不正値は (None, None)。"""
+    pitch = note_elem.find("pitch")
+    if pitch is None:
+        return None, None
+    step_elem = pitch.find("step")
+    octave_elem = pitch.find("octave")
+    if step_elem is None or octave_elem is None:
+        return None, None
+    if step_elem.text is None or octave_elem.text is None:
+        return None, None
+    step = step_elem.text.strip().upper()
+    if step not in _STEP_TO_SEMITONE:
+        return None, None
+    try:
+        octave = int(octave_elem.text.strip())
+    except ValueError:
+        return None, None
+    return step, octave
 
 
 def _extract_midi_pitch(note_elem: ET.Element) -> Optional[int]:
@@ -364,12 +693,36 @@ def _slur_starts_in_note(note_elem: ET.Element) -> bool:
     return False
 
 
+def _slur_stops_in_note(note_elem: ET.Element) -> bool:
+    """この音符でスラーが stop するかを判定する（工程A: スラー境界フラグ用）。"""
+    notations = note_elem.find("notations")
+    if notations is None:
+        return False
+    for slur in notations.findall("slur"):
+        if slur.attrib.get("type", "") == "stop":
+            return True
+    return False
+
+
+def _extract_alter(note_elem: ET.Element) -> int:
+    """<pitch><alter> を int で返す（無ければ 0）。"""
+    alter_elem = note_elem.find("pitch/alter")
+    if alter_elem is None or alter_elem.text is None:
+        return 0
+    try:
+        return int(float(alter_elem.text.strip()))
+    except ValueError:
+        return 0
+
+
 # ---------------------------------------------------------------------------
 # 出力：musicxml_skill_info.json として保存
 # ---------------------------------------------------------------------------
 
 
-def export_skill_info_json(notes: List[SkillInfoNote], output_path: str) -> None:
+def export_skill_info_json(
+    notes: List[SkillInfoNote], output_path: str, meta: Optional[dict] = None
+) -> None:
     """SkillInfoNote のリストを musicxml_skill_info.json として保存する。
     
     v3.2 Q6 確定：ファイル名は musicxml_skill_info.json
@@ -385,9 +738,14 @@ def export_skill_info_json(notes: List[SkillInfoNote], output_path: str) -> None
         }
     """
     payload = {
-        "version": 1,
+        # version 3 (工程A 2026-07-10): note_karte 化。音符属性(音名/音価/拍位置/重音/
+        # スラー境界)+遷移属性(度数/移弦/ポジ移動/休符前)を追加。追加フィールドのみ後方互換。
+        # version 2 (工程B 2026-07-06): position / position_confidence 追加。
+        "version": 3,
         "notes": [asdict(n) for n in notes],
     }
+    if meta:
+        payload["meta"] = meta
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
@@ -409,8 +767,8 @@ def run_extraction(musicxml_path: str, output_path: str) -> List[SkillInfoNote]:
     Returns:
         抽出された SkillInfoNote のリスト
     """
-    notes = extract_skill_info(musicxml_path)
-    export_skill_info_json(notes, output_path)
+    notes, meta = extract_note_karte(musicxml_path)
+    export_skill_info_json(notes, output_path, meta)
     return notes
 
 

@@ -1893,6 +1893,77 @@ def process_cumulative_phase3c_score(
 # ---------------------------------------------------------------------------
 
 
+def _run_diagnosis_v217(
+    conn,
+    *,
+    performance_id: str,
+    user_internal_id: str,
+    is_practice: bool,
+    comparison_path: str,
+    skill_info_path: str,
+    analysis_path: str,
+) -> None:
+    """工程C-4 (2026-07-11): 217小課題診断を実行し保存する（案3ハイブリッド）。
+
+    - 窓①: analysisSummary に診断JSONをマージ保存（旧 skillSubScores 列は不変）
+    - 窓②: UserSkillSubScore に per_subtask を足し込み（217 ID・旧55行と共存）
+    - skill_info ファイルは A-4 で note_karte と同一 payload の二重書きのため
+      expanded_index_map を含む (v3)。旧 v1/v2 ファイルは map 無し →
+      diagnose が map_available=False で安全に縮退する。
+    - 失敗は警告のみ（SAVEPOINT で隔離し、既存パイプラインの commit を汚さない）。
+    """
+    try:
+        from lib.diagnosis import diagnose
+        from lib.diagnosis_store import (
+            bump_user_subtask_counters,
+            save_performance_diagnosis,
+        )
+
+        with open(comparison_path, encoding="utf-8") as f:
+            comp = json.load(f)
+        comp_results = comp.get("results") or comp.get("evaluatedNotes") or []
+        with open(skill_info_path, encoding="utf-8") as f:
+            karte = json.load(f)
+        analysis_notes = None
+        try:
+            with open(analysis_path, encoding="utf-8") as f:
+                analysis_notes = json.load(f).get("notes")
+        except Exception:
+            pass
+        diag = diagnose(comp_results, karte, analysis_notes)
+    except Exception as e:  # 計算段階の失敗 → 何も書かない
+        print(f"[loop_engine_runner] WARNING: diagnosis_v217 compute failed: {e}")
+        return
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SAVEPOINT diag_v217")
+            save_performance_diagnosis(
+                cur, performance_id, diag, is_practice=is_practice
+            )
+            bump_user_subtask_counters(
+                cur, user_internal_id, diag.get("per_subtask") or {}
+            )
+            cur.execute("RELEASE SAVEPOINT diag_v217")
+        print(
+            f"[loop_engine_runner] diagnosis_v217 saved: "
+            f"map={diag.get('map_available')} "
+            f"pitch={diag['diagnosis']['pitch']} rhythm={diag['diagnosis']['rhythm']}"
+        )
+    except Exception as e:  # 保存段階の失敗 → SAVEPOINT まで巻き戻して続行
+        try:
+            with conn.cursor() as cur:
+                cur.execute("ROLLBACK TO SAVEPOINT diag_v217")
+        except Exception:
+            pass
+        print(f"[loop_engine_runner] WARNING: diagnosis_v217 store failed: {e}")
+
+
+# 工程C-4: 旧課題カード生成の停止フラグ (既定 true=現状維持。工程Dで新カードと
+# 同時に "false" へ切替予定。env フリップだけでロールバック可能にしておく)
+_ENABLE_LEGACY_CARDS = os.environ.get("ENABLE_LEGACY_CARDS", "true").lower() != "false"
+
+
 def run_score_mode() -> None:
     """Score 演奏 (IS_PRACTICE=false) のループエンジン実行。"""
     user_id = _require("USER_ID")
@@ -2077,36 +2148,51 @@ def run_score_mode() -> None:
             f"perf={performance_id}"
         )
 
+        # 5.5. 工程C-4 (2026-07-11): 217小課題診断 (窓①保存+窓②カウンタ)。
+        #      失敗しても既存パイプラインは汚さない (SAVEPOINT隔離・警告のみ)。
+        _run_diagnosis_v217(
+            conn,
+            performance_id=performance_id,
+            user_internal_id=user_internal_id,
+            is_practice=False,
+            comparison_path=comparison_path,
+            skill_info_path=skill_info_path,
+            analysis_path=analysis_path,
+        )
+
         # 6. Phase 3b: SkillTaskCard / SubTask / SubTaskAssignment /
         #    MissingPracticeItemFlag を生成 (同 transaction 内、commit 前)
-        with conn.cursor() as cur:
-            generate_score_cards_phase3b(
-                cur,
-                user_internal_id,
-                score_id,
-                score_key_tonic,
-                score_key_mode,
-                star,
-                result.get("pitchSkillScore"),
-                result.get("rhythmSkillScore"),
-                result.get("bowingSkillScore"),
-                result.get("skillSubScores") or {},
-            )
+        #    工程C-4: ENABLE_LEGACY_CARDS=false で停止可能 (既定=生成継続)
+        if _ENABLE_LEGACY_CARDS:
+            with conn.cursor() as cur:
+                generate_score_cards_phase3b(
+                    cur,
+                    user_internal_id,
+                    score_id,
+                    score_key_tonic,
+                    score_key_mode,
+                    star,
+                    result.get("pitchSkillScore"),
+                    result.get("rhythmSkillScore"),
+                    result.get("bowingSkillScore"),
+                    result.get("skillSubScores") or {},
+                )
 
         # 6.5. A (2026-06-07 確定): 曲(Score)演奏でもホーム用 UserSkillTaskCard を生成する。
         #    matched sub_task / 中項目 < 60 でカード発火 (基礎練と同じ _process_cards)。
         #    SkillTaskCard(曲ごと=上達ループタブ) と並行して、グローバル課題も
         #    ホーム「いま〇〇が課題」に出すための結線。
-        _process_cards_on_performance_complete(
-            conn,
-            user_internal_id,
-            result.get("skillSubScores") or {},
-            {
-                "pitch": result.get("pitchSkillScore"),
-                "rhythm": result.get("rhythmSkillScore"),
-                "bowing": result.get("bowingSkillScore"),
-            },
-        )
+        if _ENABLE_LEGACY_CARDS:
+            _process_cards_on_performance_complete(
+                conn,
+                user_internal_id,
+                result.get("skillSubScores") or {},
+                {
+                    "pitch": result.get("pitchSkillScore"),
+                    "rhythm": result.get("rhythmSkillScore"),
+                    "bowing": result.get("bowingSkillScore"),
+                },
+            )
 
         # 7. Phase 3c 累積処理: SongMastery / SkillTaskCard cleared 判定 /
         #    完全習得判定 / UserGradeProgress 更新 (同 transaction 内、commit 前)
@@ -2289,6 +2375,18 @@ def main() -> None:
                 (performance_id,),
             )
         print(f"[loop_engine_runner] DB v3.2.2 + v1.5 列更新 (uncommitted): perf={performance_id}")
+
+        # 5.5. 工程C-4 (2026-07-11): 217小課題診断 (窓①保存+窓②カウンタ)。
+        #      失敗しても既存パイプラインは汚さない (SAVEPOINT隔離・警告のみ)。
+        _run_diagnosis_v217(
+            conn,
+            performance_id=performance_id,
+            user_internal_id=user_id,
+            is_practice=True,
+            comparison_path=comparison_path,
+            skill_info_path=skill_info_path,
+            analysis_path=analysis_path,
+        )
 
         # 6. 累積処理 (v3.2.3 §7-4 / §9 / §10) — Step 5 と同 transaction で atomic
         # Q8=A: 既存処理 (UserSkillScore / UserSkillSubScore / UserSkillTaskCard /

@@ -1,0 +1,3268 @@
+{
+ "version": 2,
+ "total": 217,
+ "v1_active": 143,
+ "entries": [
+  {
+   "id": "pitch_posshift_1_1",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第1",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "pitch_posshift_1_2",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第2",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_1_3",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第3",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_1_4",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第4",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_1_5plus",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第5以上",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_2_1",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第1",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_2_2",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第2",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "pitch_posshift_2_3",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第3",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_2_4",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第4",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_2_5plus",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第5以上",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_3_1",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第1",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_3_2",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第2",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_3_3",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第3",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "pitch_posshift_3_4",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第4",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_3_5plus",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第5以上",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_4_1",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第1",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_4_2",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第2",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_4_3",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第3",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_4_4",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第4",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "pitch_posshift_4_5plus",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第5以上",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_5plus_1",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第1",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_5plus_2",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第2",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_5plus_3",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第3",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_5plus_4",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第4",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "pitch_posshift_5plus_5plus",
+   "tree": "pitch",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第5以上",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "pitch_double_third_single",
+   "tree": "pitch",
+   "problem": "double_stop",
+   "name": "重音3度・単発",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "3度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "pitch_double_third_cont",
+   "tree": "pitch",
+   "problem": "double_stop",
+   "name": "重音3度・連続",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "3度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "pitch_double_fourth_single",
+   "tree": "pitch",
+   "problem": "double_stop",
+   "name": "重音4度・単発",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "4度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "pitch_double_fourth_cont",
+   "tree": "pitch",
+   "problem": "double_stop",
+   "name": "重音4度・連続",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "4度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "pitch_double_fifth_single",
+   "tree": "pitch",
+   "problem": "double_stop",
+   "name": "重音5度・単発",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "5度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "pitch_double_fifth_cont",
+   "tree": "pitch",
+   "problem": "double_stop",
+   "name": "重音5度・連続",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "5度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "pitch_double_sixth_single",
+   "tree": "pitch",
+   "problem": "double_stop",
+   "name": "重音6度・単発",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "6度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "pitch_double_sixth_cont",
+   "tree": "pitch",
+   "problem": "double_stop",
+   "name": "重音6度・連続",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "6度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "pitch_double_octave_single",
+   "tree": "pitch",
+   "problem": "double_stop",
+   "name": "重音オクターブ・単発",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "オクターブ"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "pitch_double_octave_cont",
+   "tree": "pitch",
+   "problem": "double_stop",
+   "name": "重音オクターブ・連続",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "オクターブ"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "pitch_double_other_single",
+   "tree": "pitch",
+   "problem": "double_stop",
+   "name": "重音その他・単発",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "その他"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "pitch_double_other_cont",
+   "tree": "pitch",
+   "problem": "double_stop",
+   "name": "重音その他・連続",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "その他"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "pitch_tech_slur",
+   "tree": "pitch",
+   "problem": "technique",
+   "name": "スラー",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "スラー"
+    }
+   ]
+  },
+  {
+   "id": "pitch_tech_portato",
+   "tree": "pitch",
+   "problem": "technique",
+   "name": "ポルタート",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ポルタート"
+    }
+   ]
+  },
+  {
+   "id": "pitch_tech_staccato",
+   "tree": "pitch",
+   "problem": "technique",
+   "name": "スタッカート",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "スタッカート"
+    }
+   ]
+  },
+  {
+   "id": "pitch_tech_bow_staccato",
+   "tree": "pitch",
+   "problem": "technique",
+   "name": "ボウ・スタッカート",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ボウ・スタッカート"
+    }
+   ]
+  },
+  {
+   "id": "pitch_tech_spiccato",
+   "tree": "pitch",
+   "problem": "technique",
+   "name": "スピッカート",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "スピッカート"
+    }
+   ]
+  },
+  {
+   "id": "pitch_tech_ricochet",
+   "tree": "pitch",
+   "problem": "technique",
+   "name": "リコシェ",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "リコシェ"
+    }
+   ]
+  },
+  {
+   "id": "pitch_tech_pizzicato",
+   "tree": "pitch",
+   "problem": "technique",
+   "name": "ピチカート",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ピチカート"
+    }
+   ]
+  },
+  {
+   "id": "pitch_tech_tremolo",
+   "tree": "pitch",
+   "problem": "technique",
+   "name": "トレモロ",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "トレモロ"
+    }
+   ]
+  },
+  {
+   "id": "pitch_tech_vibrato",
+   "tree": "pitch",
+   "problem": "technique",
+   "name": "ビブラート",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ビブラート"
+    }
+   ]
+  },
+  {
+   "id": "pitch_tech_trill",
+   "tree": "pitch",
+   "problem": "technique",
+   "name": "トリル",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "トリル"
+    }
+   ]
+  },
+  {
+   "id": "pitch_tech_mordent",
+   "tree": "pitch",
+   "problem": "technique",
+   "name": "モルデント",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "モルデント"
+    }
+   ]
+  },
+  {
+   "id": "pitch_tech_glissando",
+   "tree": "pitch",
+   "problem": "technique",
+   "name": "グリッサンド",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "グリッサンド"
+    }
+   ]
+  },
+  {
+   "id": "pitch_tech_harmonic",
+   "tree": "pitch",
+   "problem": "technique",
+   "name": "ナチュラル・ハーモニクス",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ナチュラル・ハーモニクス"
+    }
+   ]
+  },
+  {
+   "id": "pitch_interval_same_up_step",
+   "tree": "pitch",
+   "problem": "interval_move",
+   "name": "同一弦・上行・順次",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "pitch_interval_same_up_leap",
+   "tree": "pitch",
+   "problem": "interval_move",
+   "name": "同一弦・上行・跳躍",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "pitch_interval_same_down_step",
+   "tree": "pitch",
+   "problem": "interval_move",
+   "name": "同一弦・下行・順次",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "pitch_interval_same_down_leap",
+   "tree": "pitch",
+   "problem": "interval_move",
+   "name": "同一弦・下行・跳躍",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "pitch_interval_adj_up_step",
+   "tree": "pitch",
+   "problem": "interval_move",
+   "name": "隣接移弦・上行・順次",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "pitch_interval_adj_up_leap",
+   "tree": "pitch",
+   "problem": "interval_move",
+   "name": "隣接移弦・上行・跳躍",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "pitch_interval_adj_down_step",
+   "tree": "pitch",
+   "problem": "interval_move",
+   "name": "隣接移弦・下行・順次",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "pitch_interval_adj_down_leap",
+   "tree": "pitch",
+   "problem": "interval_move",
+   "name": "隣接移弦・下行・跳躍",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "pitch_interval_skip_up_step",
+   "tree": "pitch",
+   "problem": "interval_move",
+   "name": "弦飛ばし・上行・順次",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "pitch_interval_skip_up_leap",
+   "tree": "pitch",
+   "problem": "interval_move",
+   "name": "弦飛ばし・上行・跳躍",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "pitch_interval_skip_down_step",
+   "tree": "pitch",
+   "problem": "interval_move",
+   "name": "弦飛ばし・下行・順次",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "pitch_interval_skip_down_leap",
+   "tree": "pitch",
+   "problem": "interval_move",
+   "name": "弦飛ばし・下行・跳躍",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "pitch_interval_unison_crossing",
+   "tree": "pitch",
+   "problem": "interval_move",
+   "name": "移弦ユニゾン（同度）",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "bowing"
+    },
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_value_whole",
+   "tree": "rhythm",
+   "problem": "note_value",
+   "name": "全音符",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "basic"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_value_half",
+   "tree": "rhythm",
+   "problem": "note_value",
+   "name": "2分音符",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "basic"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_value_quarter",
+   "tree": "rhythm",
+   "problem": "note_value",
+   "name": "4分音符",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "basic"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_value_eighth",
+   "tree": "rhythm",
+   "problem": "note_value",
+   "name": "8分音符",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "8分音符"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_value_16th",
+   "tree": "rhythm",
+   "problem": "note_value",
+   "name": "16分音符",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "16分音符"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_value_32nd_plus",
+   "tree": "rhythm",
+   "problem": "note_value",
+   "name": "32分音符以上",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "32分音符"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_value_dotted",
+   "tree": "rhythm",
+   "problem": "note_value",
+   "name": "付点音符",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "付点"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tuplet_3",
+   "tree": "rhythm",
+   "problem": "tuplet",
+   "name": "三連符",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "連符"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tuplet_5",
+   "tree": "rhythm",
+   "problem": "tuplet",
+   "name": "五連符",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "連符"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tuplet_6",
+   "tree": "rhythm",
+   "problem": "tuplet",
+   "name": "六連符",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "連符"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tuplet_7plus",
+   "tree": "rhythm",
+   "problem": "tuplet",
+   "name": "七連符以上",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "連符"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_entry_short_onbeat",
+   "tree": "rhythm",
+   "problem": "entry_after_rest",
+   "name": "短い休符後・拍表の入り",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "拍頭休符"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_entry_short_offbeat",
+   "tree": "rhythm",
+   "problem": "entry_after_rest",
+   "name": "短い休符後・拍裏の入り",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "裏拍開始"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_entry_mid_onbeat",
+   "tree": "rhythm",
+   "problem": "entry_after_rest",
+   "name": "中休符後・拍表の入り",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "拍頭休符"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_entry_mid_offbeat",
+   "tree": "rhythm",
+   "problem": "entry_after_rest",
+   "name": "中休符後・拍裏の入り",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "裏拍開始"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_entry_long_onbeat",
+   "tree": "rhythm",
+   "problem": "entry_after_rest",
+   "name": "長い休符後・拍表の入り",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "拍頭休符"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_entry_long_offbeat",
+   "tree": "rhythm",
+   "problem": "entry_after_rest",
+   "name": "長い休符後・拍裏の入り",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "裏拍開始"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tech_slur",
+   "tree": "rhythm",
+   "problem": "technique",
+   "name": "スラー",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "スラー"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tech_portato",
+   "tree": "rhythm",
+   "problem": "technique",
+   "name": "ポルタート",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ポルタート"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tech_staccato",
+   "tree": "rhythm",
+   "problem": "technique",
+   "name": "スタッカート",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "スタッカート"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tech_bow_staccato",
+   "tree": "rhythm",
+   "problem": "technique",
+   "name": "ボウ・スタッカート",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ボウ・スタッカート"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tech_spiccato",
+   "tree": "rhythm",
+   "problem": "technique",
+   "name": "スピッカート",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "スピッカート"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tech_ricochet",
+   "tree": "rhythm",
+   "problem": "technique",
+   "name": "リコシェ",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "リコシェ"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tech_pizzicato",
+   "tree": "rhythm",
+   "problem": "technique",
+   "name": "ピチカート",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ピチカート"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tech_tremolo",
+   "tree": "rhythm",
+   "problem": "technique",
+   "name": "トレモロ",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "トレモロ"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tech_vibrato",
+   "tree": "rhythm",
+   "problem": "technique",
+   "name": "ビブラート",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ビブラート"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tech_trill",
+   "tree": "rhythm",
+   "problem": "technique",
+   "name": "トリル",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "トリル"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tech_mordent",
+   "tree": "rhythm",
+   "problem": "technique",
+   "name": "モルデント",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "モルデント"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tech_glissando",
+   "tree": "rhythm",
+   "problem": "technique",
+   "name": "グリッサンド",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "グリッサンド"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_tech_harmonic",
+   "tree": "rhythm",
+   "problem": "technique",
+   "name": "ナチュラル・ハーモニクス",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ナチュラル・ハーモニクス"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_interval_same_up_step",
+   "tree": "rhythm",
+   "problem": "interval_move",
+   "name": "同一弦・上行・順次",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_interval_same_up_leap",
+   "tree": "rhythm",
+   "problem": "interval_move",
+   "name": "同一弦・上行・跳躍",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_interval_same_down_step",
+   "tree": "rhythm",
+   "problem": "interval_move",
+   "name": "同一弦・下行・順次",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_interval_same_down_leap",
+   "tree": "rhythm",
+   "problem": "interval_move",
+   "name": "同一弦・下行・跳躍",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_interval_adj_up_step",
+   "tree": "rhythm",
+   "problem": "interval_move",
+   "name": "隣接移弦・上行・順次",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_interval_adj_up_leap",
+   "tree": "rhythm",
+   "problem": "interval_move",
+   "name": "隣接移弦・上行・跳躍",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_interval_adj_down_step",
+   "tree": "rhythm",
+   "problem": "interval_move",
+   "name": "隣接移弦・下行・順次",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_interval_adj_down_leap",
+   "tree": "rhythm",
+   "problem": "interval_move",
+   "name": "隣接移弦・下行・跳躍",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_interval_skip_up_step",
+   "tree": "rhythm",
+   "problem": "interval_move",
+   "name": "弦飛ばし・上行・順次",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_interval_skip_up_leap",
+   "tree": "rhythm",
+   "problem": "interval_move",
+   "name": "弦飛ばし・上行・跳躍",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_interval_skip_down_step",
+   "tree": "rhythm",
+   "problem": "interval_move",
+   "name": "弦飛ばし・下行・順次",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_interval_skip_down_leap",
+   "tree": "rhythm",
+   "problem": "interval_move",
+   "name": "弦飛ばし・下行・跳躍",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_interval_unison_crossing",
+   "tree": "rhythm",
+   "problem": "interval_move",
+   "name": "移弦ユニゾン（同度）",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "bowing"
+    },
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_double_third_single",
+   "tree": "rhythm",
+   "problem": "double_stop",
+   "name": "重音3度・単発",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "3度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_double_third_cont",
+   "tree": "rhythm",
+   "problem": "double_stop",
+   "name": "重音3度・連続",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "3度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_double_fourth_single",
+   "tree": "rhythm",
+   "problem": "double_stop",
+   "name": "重音4度・単発",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "4度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_double_fourth_cont",
+   "tree": "rhythm",
+   "problem": "double_stop",
+   "name": "重音4度・連続",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "4度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_double_fifth_single",
+   "tree": "rhythm",
+   "problem": "double_stop",
+   "name": "重音5度・単発",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "5度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_double_fifth_cont",
+   "tree": "rhythm",
+   "problem": "double_stop",
+   "name": "重音5度・連続",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "5度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_double_sixth_single",
+   "tree": "rhythm",
+   "problem": "double_stop",
+   "name": "重音6度・単発",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "6度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_double_sixth_cont",
+   "tree": "rhythm",
+   "problem": "double_stop",
+   "name": "重音6度・連続",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "6度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_double_octave_single",
+   "tree": "rhythm",
+   "problem": "double_stop",
+   "name": "重音オクターブ・単発",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "オクターブ"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_double_octave_cont",
+   "tree": "rhythm",
+   "problem": "double_stop",
+   "name": "重音オクターブ・連続",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "オクターブ"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_double_other_single",
+   "tree": "rhythm",
+   "problem": "double_stop",
+   "name": "重音その他・単発",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "その他"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_double_other_cont",
+   "tree": "rhythm",
+   "problem": "double_stop",
+   "name": "重音その他・連続",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "その他"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_1_1",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第1",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "rhythm_posshift_1_2",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第2",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_1_3",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第3",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_1_4",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第4",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_1_5plus",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第5以上",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_2_1",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第1",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_2_2",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第2",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "rhythm_posshift_2_3",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第3",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_2_4",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第4",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_2_5plus",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第5以上",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_3_1",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第1",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_3_2",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第2",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_3_3",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第3",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "rhythm_posshift_3_4",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第4",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_3_5plus",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第5以上",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_4_1",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第1",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_4_2",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第2",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_4_3",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第3",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_4_4",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第4",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "rhythm_posshift_4_5plus",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第5以上",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_5plus_1",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第1",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_5plus_2",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第2",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_5plus_3",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第3",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_5plus_4",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第4",
+   "v1_active": true,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "rhythm_posshift_5plus_5plus",
+   "tree": "rhythm",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第5以上",
+   "v1_active": true,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "timbre_tech_slur",
+   "tree": "timbre",
+   "problem": "technique",
+   "name": "スラー",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "スラー"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tech_portato",
+   "tree": "timbre",
+   "problem": "technique",
+   "name": "ポルタート",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ポルタート"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tech_staccato",
+   "tree": "timbre",
+   "problem": "technique",
+   "name": "スタッカート",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "スタッカート"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tech_bow_staccato",
+   "tree": "timbre",
+   "problem": "technique",
+   "name": "ボウ・スタッカート",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ボウ・スタッカート"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tech_spiccato",
+   "tree": "timbre",
+   "problem": "technique",
+   "name": "スピッカート",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "スピッカート"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tech_ricochet",
+   "tree": "timbre",
+   "problem": "technique",
+   "name": "リコシェ",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "リコシェ"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tech_pizzicato",
+   "tree": "timbre",
+   "problem": "technique",
+   "name": "ピチカート",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ピチカート"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tech_tremolo",
+   "tree": "timbre",
+   "problem": "technique",
+   "name": "トレモロ",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "トレモロ"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tech_vibrato",
+   "tree": "timbre",
+   "problem": "technique",
+   "name": "ビブラート",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ビブラート"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tech_trill",
+   "tree": "timbre",
+   "problem": "technique",
+   "name": "トリル",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "トリル"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tech_mordent",
+   "tree": "timbre",
+   "problem": "technique",
+   "name": "モルデント",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "モルデント"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tech_glissando",
+   "tree": "timbre",
+   "problem": "technique",
+   "name": "グリッサンド",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "グリッサンド"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tech_harmonic",
+   "tree": "timbre",
+   "problem": "technique",
+   "name": "ナチュラル・ハーモニクス",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "technique",
+     "name": "ナチュラル・ハーモニクス"
+    }
+   ]
+  },
+  {
+   "id": "timbre_interval_same_up_step",
+   "tree": "timbre",
+   "problem": "interval_move",
+   "name": "同一弦・上行・順次",
+   "v1_active": false,
+   "diagnosable": false,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "timbre_interval_same_up_leap",
+   "tree": "timbre",
+   "problem": "interval_move",
+   "name": "同一弦・上行・跳躍",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "timbre_interval_same_down_step",
+   "tree": "timbre",
+   "problem": "interval_move",
+   "name": "同一弦・下行・順次",
+   "v1_active": false,
+   "diagnosable": false,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "timbre_interval_same_down_leap",
+   "tree": "timbre",
+   "problem": "interval_move",
+   "name": "同一弦・下行・跳躍",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "timbre_interval_adj_up_step",
+   "tree": "timbre",
+   "problem": "interval_move",
+   "name": "隣接移弦・上行・順次",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "timbre_interval_adj_up_leap",
+   "tree": "timbre",
+   "problem": "interval_move",
+   "name": "隣接移弦・上行・跳躍",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "timbre_interval_adj_down_step",
+   "tree": "timbre",
+   "problem": "interval_move",
+   "name": "隣接移弦・下行・順次",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "timbre_interval_adj_down_leap",
+   "tree": "timbre",
+   "problem": "interval_move",
+   "name": "隣接移弦・下行・跳躍",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "timbre_interval_skip_up_step",
+   "tree": "timbre",
+   "problem": "interval_move",
+   "name": "弦飛ばし・上行・順次",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "timbre_interval_skip_up_leap",
+   "tree": "timbre",
+   "problem": "interval_move",
+   "name": "弦飛ばし・上行・跳躍",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "timbre_interval_skip_down_step",
+   "tree": "timbre",
+   "problem": "interval_move",
+   "name": "弦飛ばし・下行・順次",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "timbre_interval_skip_down_leap",
+   "tree": "timbre",
+   "problem": "interval_move",
+   "name": "弦飛ばし・下行・跳躍",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "arpeggio"
+    }
+   ]
+  },
+  {
+   "id": "timbre_interval_unison_crossing",
+   "tree": "timbre",
+   "problem": "interval_move",
+   "name": "移弦ユニゾン（同度）",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "bowing"
+    },
+    {
+     "type": "category",
+     "category": "scale"
+    }
+   ]
+  },
+  {
+   "id": "timbre_value_whole",
+   "tree": "timbre",
+   "problem": "note_value",
+   "name": "全音符",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "basic"
+    }
+   ]
+  },
+  {
+   "id": "timbre_value_half",
+   "tree": "timbre",
+   "problem": "note_value",
+   "name": "2分音符",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "basic"
+    }
+   ]
+  },
+  {
+   "id": "timbre_value_quarter",
+   "tree": "timbre",
+   "problem": "note_value",
+   "name": "4分音符",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "basic"
+    }
+   ]
+  },
+  {
+   "id": "timbre_value_eighth",
+   "tree": "timbre",
+   "problem": "note_value",
+   "name": "8分音符",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "8分音符"
+    }
+   ]
+  },
+  {
+   "id": "timbre_value_16th",
+   "tree": "timbre",
+   "problem": "note_value",
+   "name": "16分音符",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "16分音符"
+    }
+   ]
+  },
+  {
+   "id": "timbre_value_32nd_plus",
+   "tree": "timbre",
+   "problem": "note_value",
+   "name": "32分音符以上",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "32分音符"
+    }
+   ]
+  },
+  {
+   "id": "timbre_value_dotted",
+   "tree": "timbre",
+   "problem": "note_value",
+   "name": "付点音符",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "付点"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tuplet_3",
+   "tree": "timbre",
+   "problem": "tuplet",
+   "name": "三連符",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "連符"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tuplet_5",
+   "tree": "timbre",
+   "problem": "tuplet",
+   "name": "五連符",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "連符"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tuplet_6",
+   "tree": "timbre",
+   "problem": "tuplet",
+   "name": "六連符",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "連符"
+    }
+   ]
+  },
+  {
+   "id": "timbre_tuplet_7plus",
+   "tree": "timbre",
+   "problem": "tuplet",
+   "name": "七連符以上",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "rhythm",
+     "name": "連符"
+    }
+   ]
+  },
+  {
+   "id": "timbre_double_third_single",
+   "tree": "timbre",
+   "problem": "double_stop",
+   "name": "重音3度・単発",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "3度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "timbre_double_third_cont",
+   "tree": "timbre",
+   "problem": "double_stop",
+   "name": "重音3度・連続",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "3度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "timbre_double_fourth_single",
+   "tree": "timbre",
+   "problem": "double_stop",
+   "name": "重音4度・単発",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "4度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "timbre_double_fourth_cont",
+   "tree": "timbre",
+   "problem": "double_stop",
+   "name": "重音4度・連続",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "4度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "timbre_double_fifth_single",
+   "tree": "timbre",
+   "problem": "double_stop",
+   "name": "重音5度・単発",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "5度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "timbre_double_fifth_cont",
+   "tree": "timbre",
+   "problem": "double_stop",
+   "name": "重音5度・連続",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "5度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "timbre_double_sixth_single",
+   "tree": "timbre",
+   "problem": "double_stop",
+   "name": "重音6度・単発",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "6度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "timbre_double_sixth_cont",
+   "tree": "timbre",
+   "problem": "double_stop",
+   "name": "重音6度・連続",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "6度"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "timbre_double_octave_single",
+   "tree": "timbre",
+   "problem": "double_stop",
+   "name": "重音オクターブ・単発",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "オクターブ"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "timbre_double_octave_cont",
+   "tree": "timbre",
+   "problem": "double_stop",
+   "name": "重音オクターブ・連続",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "オクターブ"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "timbre_double_other_single",
+   "tree": "timbre",
+   "problem": "double_stop",
+   "name": "重音その他・単発",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "その他"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "timbre_double_other_cont",
+   "tree": "timbre",
+   "problem": "double_stop",
+   "name": "重音その他・連続",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "連続重音"
+    },
+    {
+     "type": "feature",
+     "category": "double_stop",
+     "name": "その他"
+    },
+    {
+     "type": "category",
+     "category": "double_stop"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_1_1",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第1",
+   "v1_active": false,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "timbre_posshift_1_2",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第2",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_1_3",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第3",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_1_4",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第4",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_1_5plus",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第1→第5以上",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_2_1",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第1",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_2_2",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第2",
+   "v1_active": false,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "timbre_posshift_2_3",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第3",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_2_4",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第4",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_2_5plus",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第2→第5以上",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_3_1",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第1",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_3_2",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第2",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_3_3",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第3",
+   "v1_active": false,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "timbre_posshift_3_4",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第4",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_3_5plus",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第3→第5以上",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_4_1",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第1",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_4_2",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第2",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_4_3",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第3",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_4_4",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第4",
+   "v1_active": false,
+   "diagnosable": false,
+   "material_query": []
+  },
+  {
+   "id": "timbre_posshift_4_5plus",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第4→第5以上",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_5plus_1",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第1",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_5plus_2",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第2",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_5plus_3",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第3",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_5plus_4",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第4",
+   "v1_active": false,
+   "diagnosable": true,
+   "material_query": [
+    {
+     "type": "category",
+     "category": "position_shift"
+    }
+   ]
+  },
+  {
+   "id": "timbre_posshift_5plus_5plus",
+   "tree": "timbre",
+   "problem": "position_shift",
+   "name": "ポジション移動 第5以上→第5以上",
+   "v1_active": false,
+   "diagnosable": false,
+   "material_query": []
+  }
+ ]
+}

@@ -88,6 +88,11 @@ model Score {
   // 将来ユーザーアップロード機能を有効化するときは "user" を発行する。
   ownerScope String @default("admin")
 
+  // ▼ 工程F: 特徴タグ・数値系カラム (2026-07-10, 設計書§14/§19-1)
+  pitchMin  Int? // 音域下限 (MIDI)。analyze_musicxml 層1拡張(工程A)で投入
+  pitchMax  Int? // 音域上限 (MIDI)
+  positions Int[] @default([]) // 音高的に必要なポジション構成(推定) §19-1
+
   createdAt    DateTime      @default(now())
   deletedAt    DateTime? // 論理削除フラグ (NULL=有効、値あり=削除済み)
   performances Performance[]
@@ -97,6 +102,10 @@ model Score {
   skillTaskCards           SkillTaskCard[]
   missingPracticeItemFlags MissingPracticeItemFlag[]
   scoreTechniqueTags       ScoreTechniqueTag[] // Phase 3c (Q4=B): 完全習得判定の技法集合
+
+  // ▼ 工程F (2026-07-10): 特徴タグ・副次調
+  scoreKeys       ScoreKey[] // 副次調(転調先)。主調は keyTonic/keyMode が正
+  featureTags     ScoreFeatureTag[]
 
   createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
@@ -203,8 +212,12 @@ model PracticeItem {
   keyMode    String
   tempoMin   Int?
   tempoMax   Int?
-  positions  String[]
+  positions  String[] // "1st"形式。工程A(自動抽出)で Int[] へ移行予定
   instrument String   @default("violin")
+
+  // ▼ 工程F: 音域 (2026-07-10, 設計書§19-1)
+  pitchMin Int? // MIDI。工程Aで投入
+  pitchMax Int?
 
   originalXmlPath  String
   generatedXmlPath String?
@@ -239,6 +252,9 @@ model PracticeItem {
   subTaskAssignments      SubTaskAssignment[]
   userPracticeMasteries   UserPracticeMastery[]
   practiceItemSubTaskTags PracticeItemSubTaskTag[]
+
+  // ▼ 工程F (2026-07-10): 特徴タグ
+  featureTags PracticeItemFeatureTag[]
 
   @@index([category, keyTonic, keyMode])
   @@index([category, isPublished, sortOrder])
@@ -734,4 +750,62 @@ model MissingPracticeItemFlag {
   @@index([scoreId, resolvedAt])
   @@index([keyTonic, keyMode, star])
   @@index([resolvedAt])
+}
+
+// =============================================
+// ▼ 工程F: 特徴タグ・副次調 (2026-07-10, 設計書§14/§19/§20)
+// =============================================
+
+// 副次調(転調先)。主調は Score.keyTonic/keyMode が正(二重保持しない)。
+// 検出は譜面上の調号変更のみ(臨時記号のみの転調はv1対象外 §19-1)。
+model ScoreKey {
+  id        String @id @default(cuid())
+  scoreId   String
+  keyTonic  String // 'Bb' 形式 (既存 keyTonic と同じ正規化)
+  keyMode   String // 'major' / 'minor'
+  sortOrder Int    @default(0) // 転調の出現順
+
+  score Score @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+
+  @@unique([scoreId, keyTonic, keyMode])
+  @@index([keyTonic, keyMode])
+}
+
+// 特徴タグ(リスト系)。曲・教材の性質属性。TechniqueTag と同型の M:N。
+// 動的拡張(§23)の対象: 管理者がタグ+抽出ルールを追加→全曲再分析。
+model FeatureTag {
+  id            String   @id @default(cuid())
+  category      String   // "rhythm" | "double_stop" | "dynamics"
+  name          String
+  extractRule   String?  // 抽出条件メモ(動的拡張用)
+  isAcquisition Boolean  @default(false) // 習得系(達成をゲート)。重音の主要種別=true
+  createdAt     DateTime @default(now())
+
+  scoreTags        ScoreFeatureTag[]
+  practiceItemTags PracticeItemFeatureTag[]
+
+  @@unique([category, name])
+  @@index([category])
+}
+
+model ScoreFeatureTag {
+  scoreId      String
+  featureTagId String
+
+  score      Score      @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+  featureTag FeatureTag @relation(fields: [featureTagId], references: [id], onDelete: Cascade)
+
+  @@id([scoreId, featureTagId])
+  @@index([featureTagId])
+}
+
+model PracticeItemFeatureTag {
+  practiceItemId String
+  featureTagId   String
+
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
+  featureTag   FeatureTag   @relation(fields: [featureTagId], references: [id], onDelete: Cascade)
+
+  @@id([practiceItemId, featureTagId])
+  @@index([featureTagId])
 }
