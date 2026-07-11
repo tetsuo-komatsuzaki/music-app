@@ -5,6 +5,7 @@ import {
   gradeFromStar,
   STAR_UP_ACHIEVEMENTS,
 } from "@/app/_libs/starProgress"
+import { estimatePeriod } from "@/app/onboarding/_lib/logic"
 import HomeClient from "./home"
 
 // C-6b (2026-07-11): 旧レコメンド(UserSkillTaskCard/UserGrade.progressData)経路は撤去。
@@ -87,6 +88,7 @@ export default async function HomePage({ params }: PageProps) {
     latestTwoScores,        // アルコちゃん改善検出用 (直近2件の overallScore)
     userStarProgress,       // C-6b: ★の現在地 (新判定体系・工程D)
     scoreAchievements,      // C-6b: 曲の達成/マスター記録 (バッジ + ★進捗 + 次曲除外)
+    onboardingProfile,      // 旅の地図カード: 目標曲/Epic Win (オンボーディング回答)
   ] = await Promise.all([
     // ストリーク用（90日以内のみ）
     prisma.practicePerformance.findMany({
@@ -139,6 +141,10 @@ export default async function HomePage({ params }: PageProps) {
     prisma.userScoreAchievement.findMany({
       where: { userId: internalUserId },
       select: { scoreId: true, starAtAchievement: true, achievedAt: true, masteredAt: true },
+    }),
+    prisma.onboardingProfile.findUnique({
+      where: { userId: internalUserId },
+      select: { answers: true, completedAt: true },
     }),
   ])
   console.log(`[PERF] home step2_parallel: ${(performance.now() - perfStep2).toFixed(0)}ms`)
@@ -333,6 +339,57 @@ export default async function HomePage({ params }: PageProps) {
     href: `/${userId}/scores/${s.id}`,
   }))
 
+  // --- 旅の地図: オンボーディングの目標曲/Epic Win を常設表示 ---
+  // 到達予測はオンボーディング時の値ではなく「現在の★ × 現在のQ6回答」で再計算する
+  // (★が上がるほど期間が縮む=上達の実感につなげる)
+  type OnbAnswers = {
+    q4cat?: string
+    q4song?: string
+    q4star?: number
+    q6?: string
+    q8?: string
+    goalSong?: string | null
+    goalDate?: string | null
+  }
+  let journeyMap = null as
+    | null
+    | {
+        songName: string
+        songStar: number
+        songHref: string | null
+        achieved: boolean
+        periodLabel: string | null
+        daily: string | null
+        epicWin: string | null
+        goalDate: string | null
+      }
+  const onbAnswers = (onboardingProfile?.answers ?? null) as OnbAnswers | null
+  if (onboardingProfile?.completedAt && onbAnswers?.q4song && onbAnswers.q4star) {
+    const onbSong = onbAnswers.q4cat
+      ? await prisma.onboardingSong.findUnique({
+          where: {
+            category_name: { category: onbAnswers.q4cat, name: onbAnswers.q4song },
+          },
+          select: { scoreId: true },
+        })
+      : null
+    const achieved =
+      !!onbSong?.scoreId && scoreAchievements.some((a) => a.scoreId === onbSong.scoreId)
+    const pred = onbAnswers.q6
+      ? estimatePeriod(currentStar, onbAnswers.q4star, onbAnswers.q6)
+      : null
+    journeyMap = {
+      songName: onbAnswers.q4song,
+      songStar: onbAnswers.q4star,
+      songHref: onbSong?.scoreId ? `/${userId}/scores/${onbSong.scoreId}` : null,
+      achieved,
+      periodLabel: achieved ? null : (pred?.label ?? null),
+      daily: onbAnswers.q6 ?? null,
+      epicWin: onbAnswers.goalSong || onbAnswers.q8 || null,
+      goalDate: onbAnswers.goalDate ?? null,
+    }
+  }
+
   return (
     <HomeClient
       userName={dbUser.name ?? ""}
@@ -340,6 +397,7 @@ export default async function HomePage({ params }: PageProps) {
       weeklyDays={weeklyDays}
       arcoMessage={arcoMessage}
       gradeData={gradeData}
+      journeyMap={journeyMap}
       basicPracticeCards={basicPracticeCards}
       recentPieces={recentPieces}
       nextPieceRecommendations={nextPieceRecommendations}
