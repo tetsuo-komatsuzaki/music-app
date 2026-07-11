@@ -1,0 +1,39 @@
+/* ============================================================
+   Arcoda オンボーディング デザイントークン (C1・2026-07-11)
+   正本: UI要件定義 v0.3 §1(実測値)。ハードコード禁止 — 必ずこの変数を使う。
+   単位方針(指示書§2): コンテナクエリ単位(cqh/cqw)。vh/vwは大画面で破綻するため禁止。
+   ============================================================ */
+.onbRoot {
+  /* §1-1 カラー */
+  --primary: #58CC02;          /* CTA・プログレスバー塗り */
+  --primary-shadow: #58A700;   /* CTA下端の3D影 */
+  --text-main: #4B4B4B;
+  --text-sub: #777777;
+  --text-disabled: #AFAFAF;
+  --border: #E5E5E5;
+  --sel-border: #84D7FF;
+  --sel-bg: #DDF4FF;
+  --sel-text: #1899D6;
+  --accent-blue: #1CB0F6;
+  --bg: #FFFFFF;
+
+  /* §1-2 タイポグラフィ (コンテナ高さ比。max値はプロトタイプ準拠) */
+  --fs-question: min(2.2cqh, 19px);
+  --fs-option: min(2.2cqh, 19px);
+  --fs-option-sub: min(1.7cqh, 15px);
+  --fs-cta: min(1.9cqh, 17px);
+  --fs-section-head: min(2.5cqh, 22px);
+  --fs-loading-title: min(2.2cqh, 19px);
+  --fs-loading-body: min(2.2cqh, 19px);
+
+  /* §2 共通レイアウト */
+  --margin-x: 4%;              /* 左右マージン 4.0%W */
+  --content-w: 92%;            /* コンテンツ幅 92.0%W */
+  --card-h: 6.4cqh;            /* OptionCard 1行 */
+  --card-h-tall: 8.7cqh;       /* OptionCard 2行拡張 */
+  --card-gap: 1.6cqh;
+  --cta-h: 5.4cqh;
+  --cta-h-max: 52px;
+  --list-top: 29.1%;           /* 選択肢リスト開始位置 */
+  --cta-bottom: 5.8%;          /* CTA下端 = 94.2%H */
+}
