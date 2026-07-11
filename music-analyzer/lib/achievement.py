@@ -276,6 +276,15 @@ def process_score_achievement(
                     (user_id,),
                 )
                 cleared = {(r[0], r[1]) for r in cur.fetchall()}
+                # オンボーディング自己申告の習得タグも要件を満たす
+                # (UserLessonClear ∪ UserTagAcquisition(state≠REVOKED))。
+                # tagKey体系は両テーブルで同一(position="2".."6"の裸数字)
+                cur.execute(
+                    'SELECT "tagType", "tagKey" FROM "UserTagAcquisition" '
+                    "WHERE \"userId\" = %s AND state != 'REVOKED'",
+                    (user_id,),
+                )
+                cleared |= {(r[0], r[1]) for r in cur.fetchall()}
                 missing = [t for t in required if t not in cleared]
                 if missing:
                     blocked = f"lessons:{missing}"
