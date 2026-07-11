@@ -67,7 +67,9 @@ const INITIAL: OnboardingState = {
   songRequest: null,
 }
 
-const DRAFT_KEY = "arcoda_onboarding_draft_v1"
+// ユーザーごとにキーを分ける: 同一ブラウザで別アカウントがログインした際に
+// 他人の途中回答が復元される事故を防ぐ(サーバードラフトが無いユーザーのみ到達する経路)
+const draftKey = (homePath: string) => `arcoda_onboarding_draft_v1:${homePath}`
 
 type Store = OnboardingState & {
   /** 曲カタログ(サーバー=DBが正。失敗時はモックJSONフォールバック) */
@@ -123,7 +125,7 @@ export function OnboardingProvider({
       return
     }
     try {
-      const raw = localStorage.getItem(DRAFT_KEY)
+      const raw = localStorage.getItem(draftKey(homePath))
       if (raw) {
         const draft = JSON.parse(raw) as OnboardingState
         if (draft.screen && draft.seg) hydrate(draft)
@@ -151,7 +153,7 @@ export function OnboardingProvider({
   useEffect(() => {
     if (!restored.current) return
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(state))
+      localStorage.setItem(draftKey(homePath), JSON.stringify(state))
     } catch {
       /* private mode 等は諦める(必須機能ではない) */
     }
@@ -197,8 +199,11 @@ export function OnboardingProvider({
       },
       setSongRequest: (name) => setState((s) => ({ ...s, songRequest: name })),
       resetDraft: () => {
+        // restored を落として保存effectを止める(setState(INITIAL)が
+        // 直後にlocalStorageへ初期状態を再書き込みするのを防ぐ)
+        restored.current = false
         try {
-          localStorage.removeItem(DRAFT_KEY)
+          localStorage.removeItem(draftKey(homePath))
         } catch { /* noop */ }
         setState(INITIAL)
       },

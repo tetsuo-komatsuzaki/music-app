@@ -10,7 +10,7 @@
 // 検証証跡: ラダー確定時に ★/PROVISIONALフラグを console に出力。
 // ============================================================
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import styles from "./onboarding.module.css"
 import {
@@ -727,6 +727,36 @@ const SCREENS: Record<ScreenId, () => React.ReactElement> = {
 function Router() {
   const s = useOnboarding()
   const Screen = SCREENS[s.screen] ?? Scr01
+
+  // キーボード操作 (v0.3 §4): Enter = CTA / ↑↓ = 選択肢フォーカス移動
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        const tag = (e.target as HTMLElement)?.tagName
+        if (tag === "BUTTON" || tag === "INPUT") return // フォーカス中の要素を優先
+        const cta = document.querySelector<HTMLButtonElement>(
+          `.${styles.cta}:not(:disabled)`,
+        )
+        cta?.click()
+      }
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        const cards = [
+          ...document.querySelectorAll<HTMLButtonElement>(`.${styles.card}`),
+        ]
+        if (cards.length === 0) return
+        e.preventDefault()
+        const idx = cards.findIndex((c) => c === document.activeElement)
+        const next =
+          e.key === "ArrowDown"
+            ? cards[Math.min(cards.length - 1, idx + 1)]
+            : cards[Math.max(0, idx - 1)]
+        next?.focus()
+      }
+    }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [])
+
   return <Screen />
 }
 
