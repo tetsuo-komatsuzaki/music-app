@@ -467,6 +467,12 @@ export default function AdminPractice({
           <Link href={missingItemsHref} style={{ fontSize: "0.9rem", color: "#2563eb" }}>
             不足教材フラグ →
           </Link>
+          <Link
+            href={missingItemsHref.replace(/\/missing-items$/, "/song-requests")}
+            style={{ fontSize: "0.9rem", color: "#2563eb" }}
+          >
+            曲リクエスト →
+          </Link>
           <button className={styles.primaryBtn} onClick={() => setShowForm(!showForm)}>
             {showForm ? "閉じる" : "新規登録"}
           </button>
