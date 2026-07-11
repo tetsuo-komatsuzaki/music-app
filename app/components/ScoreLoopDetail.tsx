@@ -1,8 +1,10 @@
 // app/components/ScoreLoopDetail.tsx
 //
-// v1.3 Phase 4-1 (2026-05-16) — Score 詳細「上達ループ」タブの中身。
-// GET /api/scores/[scoreId]/loop-detail を読みに行き、SongMastery / SkillTaskCard /
-// SubTask / SubTaskAssignment / MissingFlag を表示する。
+// Score 詳細「上達ループ」タブの中身 (C-6b 2026-07-11 全面新体系化)。
+// GET /api/scores/[scoreId]/achievement-status 一本で:
+//   1. 達成/マスター進捗トラッカー (レッスン/エチュード/通し3回/平均90)
+//   2. 「取り組む課題」= 最新演奏の217診断 + 弱点練習の推薦 (WeaknessDiagnosisCard)
+// 旧 loop-detail API (SkillTaskCard/旧SongMastery) 依存は撤去 (git 7520842 以前参照)。
 
 "use client"
 
@@ -10,63 +12,7 @@ import { useEffect, useState } from "react"
 import styles from "./ScoreLoopDetail.module.css"
 import WeaknessDiagnosisCard from "./WeaknessDiagnosisCard"
 
-// ─── API レスポンスの型 (route.ts と同期) ────────────────────────────────────
-
-type LoopDetailResponse = {
-  performance: {
-    id: string
-    scoreId: string
-    uploadedAt: string
-    pitchAccuracy: number | null
-    rhythmAccuracy: number | null
-    bowingAccuracy: number | null
-    overallScore: number | null
-    pitchSkillScore: number | null
-    rhythmSkillScore: number | null
-    bowingSkillScore: number | null
-    skillSubScores: unknown
-    problematicPositions: unknown
-  } | null
-  songMastery: {
-    recentAverageScore: number | null
-    totalPerformanceCount: number
-    isPerformanceMastered: boolean
-    isFullyMastered: boolean
-    performanceMasteredAt: string | null
-    fullyMasteredAt: string | null
-  } | null
-  skillTaskCards: Array<{
-    id: string
-    taskCategory: "PITCH" | "RHYTHM" | "BOWING"
-    status: "active" | "improving" | "cleared"
-    generatedAt: string
-    lastMatchedAt: string | null
-    clearedAt: string | null
-    subTasks: Array<{
-      id: string
-      subTaskType: string
-      status: "active" | "cleared"
-      clearedAt: string | null
-      assignments: Array<{
-        practiceItemId: string
-        assignedCategory: "SCALE" | "ARPEGGIO" | "ETUDE"
-        isMastered: boolean
-        masteredAt: string | null
-        title: string
-        category: string
-        star: number | null
-        sortOrder: number | null
-      }>
-    }>
-  }>
-  missingFlags: Array<{
-    subTaskType: string
-    missingCategory: string
-    detectedAt: string
-  }>
-}
-
-// 工程D (2026-07-11): 新判定の進捗 (achievement-status API レスポンスと同期)
+// 工程D/C-6b: achievement-status API レスポンス (route.ts と同期)
 type AchievementStatus = {
   lessons: {
     total: number
@@ -83,6 +29,8 @@ type AchievementStatus = {
     requiredCount: number
     threshold: number
   }
+  latestPerformanceId: string | null
+  totalPerformanceCount: number
 }
 
 type Props = {
@@ -93,71 +41,40 @@ type Props = {
 }
 
 export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) {
-  const [data, setData] = useState<LoopDetailResponse | null>(null)
   const [achv, setAchv] = useState<AchievementStatus | null>(null)
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
     setError(null)
-    fetch(`/api/scores/${scoreId}/loop-detail`)
+    fetch(`/api/scores/${scoreId}/achievement-status`)
       .then(async (res) => {
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
           throw new Error(body?.error ?? `HTTP ${res.status}`)
         }
-        return res.json() as Promise<LoopDetailResponse>
-      })
-      .then((json) => {
-        if (!cancelled) setData(json)
-      })
-      .catch((e) => {
-        if (!cancelled) setError(e.message ?? String(e))
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    // 工程D: 新判定の進捗（旧 songMastery/skillTaskCards ベースの表示を置換）
-    fetch(`/api/scores/${scoreId}/achievement-status`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
         return res.json() as Promise<AchievementStatus>
       })
       .then((json) => {
         if (!cancelled) setAchv(json)
       })
-      .catch(() => {
-        /* トラッカーのみ非表示（タブ全体は落とさない） */
+      .catch((e) => {
+        if (!cancelled) setError(e.message ?? String(e))
       })
     return () => {
       cancelled = true
     }
   }, [scoreId, refetchKey])
 
-  if (loading) {
+  if (error) {
+    return <div className={styles.error}>エラー: {error}</div>
+  }
+  if (!achv) {
     return <div className={styles.loading}>読み込み中...</div>
   }
-  if (error) {
-    return (
-      <div className={styles.error}>
-        エラー: {error}
-        <br />
-        {error === "Forbidden"
-          ? "この曲はまだ一度も演奏していません。録音すると課題の取り組み状況が表示されます。"
-          : null}
-      </div>
-    )
-  }
-  if (!data) {
-    return <div className={styles.error}>データなし</div>
-  }
-
-  const { songMastery } = data
 
   const avgOk =
-    achv?.master.recentAvg != null &&
+    achv.master.recentAvg != null &&
     achv.master.scoredCount >= achv.master.requiredCount &&
     achv.master.recentAvg >= achv.master.threshold
 
@@ -171,61 +88,57 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
 
   return (
     <div className={styles.container} role="tabpanel" id="score-detail-tab-panel-loop">
-      {/* ── 1. 達成/マスター進捗トラッカー (工程D 2026-07-11: 新判定 spec§1 に置換) ── */}
+      {/* ── 1. 達成/マスター進捗トラッカー (工程D: 新判定 spec§1) ── */}
       <section className={styles.summarySection}>
         <h2 className={styles.sectionTitle}>🏆 達成・マスターまで</h2>
-        {achv ? (
-          achv.mastered ? (
-            <div style={{ fontWeight: 700, color: "#b5651d", fontSize: 15, padding: "4px 0" }}>
-              🏆 この曲はマスター済みです！おめでとうございます
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {achv.achieved ? (
-                <div style={{ fontWeight: 700, color: "#2e8b57", fontSize: 14, padding: "2px 0" }}>
-                  ✨ この曲は達成済み！次はマスター（平均90点）を目指そう
-                </div>
-              ) : (
-                <>
-                  {/* 達成条件① 学びレッスン（要件対象タグがある曲のみ表示） */}
-                  {achv.lessons.total > 0 &&
-                    conditionRow(
-                      achv.lessons.cleared >= achv.lessons.total,
-                      "学びレッスン",
-                      `${achv.lessons.cleared} / ${achv.lessons.total} クリア`,
-                    )}
-                  {/* 達成条件② エチュード要件（対象がある曲のみ表示・無ければ免除） */}
-                  {achv.etude.required &&
-                    conditionRow(
-                      achv.etude.achieved === true,
-                      "エチュードを達成",
-                      achv.etude.achieved
-                        ? `${achv.etude.title}`
-                        : `${achv.etude.title} が未達成`,
-                    )}
-                  {/* 達成条件③ 通し演奏 累計3回×崩壊ゼロ */}
-                  {conditionRow(
-                    achv.cleanRuns.count >= achv.cleanRuns.required,
-                    "通して弾き切る（破綻なし）",
-                    `${achv.cleanRuns.count} / ${achv.cleanRuns.required} 回`,
-                  )}
-                </>
-              )}
-              {/* マスター条件: 直近5回平均90 */}
-              {conditionRow(
-                avgOk,
-                "演奏スコア 90点以上（マスター条件）",
-                achv.master.recentAvg != null
-                  ? `現在 ${achv.master.recentAvg.toFixed(0)}点（直近${achv.master.scoredCount}回）`
-                  : "未測定",
-              )}
-            </div>
-          )
+        {achv.mastered ? (
+          <div style={{ fontWeight: 700, color: "#b5651d", fontSize: 15, padding: "4px 0" }}>
+            🏆 この曲はマスター済みです！おめでとうございます
+          </div>
         ) : (
-          <p className={styles.emptyHint}>進捗を読み込み中…</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {achv.achieved ? (
+              <div style={{ fontWeight: 700, color: "#2e8b57", fontSize: 14, padding: "2px 0" }}>
+                ✨ この曲は達成済み！次はマスター（平均90点）を目指そう
+              </div>
+            ) : (
+              <>
+                {/* 達成条件① 学びレッスン（要件対象タグがある曲のみ表示） */}
+                {achv.lessons.total > 0 &&
+                  conditionRow(
+                    achv.lessons.cleared >= achv.lessons.total,
+                    "学びレッスン",
+                    `${achv.lessons.cleared} / ${achv.lessons.total} クリア`,
+                  )}
+                {/* 達成条件② エチュード要件（対象がある曲のみ表示・無ければ免除） */}
+                {achv.etude.required &&
+                  conditionRow(
+                    achv.etude.achieved === true,
+                    "エチュードを達成",
+                    achv.etude.achieved
+                      ? `${achv.etude.title}`
+                      : `${achv.etude.title} が未達成`,
+                  )}
+                {/* 達成条件③ 通し演奏 累計3回×崩壊ゼロ */}
+                {conditionRow(
+                  achv.cleanRuns.count >= achv.cleanRuns.required,
+                  "通して弾き切る（破綻なし）",
+                  `${achv.cleanRuns.count} / ${achv.cleanRuns.required} 回`,
+                )}
+              </>
+            )}
+            {/* マスター条件: 直近5回平均90 */}
+            {conditionRow(
+              avgOk,
+              "演奏スコア 90点以上（マスター条件）",
+              achv.master.recentAvg != null
+                ? `現在 ${achv.master.recentAvg.toFixed(0)}点（直近${achv.master.scoredCount}回）`
+                : "未測定",
+            )}
+          </div>
         )}
         <div style={{ fontSize: 12, color: "#aaa", marginTop: 10 }}>
-          累計演奏 {songMastery?.totalPerformanceCount ?? 0} 回 ／ 破綻なし＝崩壊小節ゼロで最後まで弾けた演奏
+          累計演奏 {achv.totalPerformanceCount} 回 ／ 破綻なし＝崩壊小節ゼロで最後まで弾けた演奏
         </div>
       </section>
 
@@ -243,14 +156,12 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
         </div>
       </details>
 
-      {/* ── 2. 工程C-6a (2026-07-11): 旧SkillTaskCard(55体系)を217診断の弱点+推薦に置換。
-             「この曲から生じた課題」= 最新演奏の診断 (Tetsuo確定)。
-             旧 MissingFlag 表示は新カードの「教材準備中です」(noStock) が代替 ── */}
+      {/* ── 2. 取り組む課題 = 最新演奏の217診断 + 弱点練習の推薦 ── */}
       <section className={styles.cardSection}>
         <h2 className={styles.sectionTitle}>取り組む課題</h2>
-        {data.performance ? (
+        {achv.latestPerformanceId ? (
           <WeaknessDiagnosisCard
-            performanceId={data.performance.id}
+            performanceId={achv.latestPerformanceId}
             kind="score"
             userId={userId}
           />
@@ -263,4 +174,3 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
     </div>
   )
 }
-

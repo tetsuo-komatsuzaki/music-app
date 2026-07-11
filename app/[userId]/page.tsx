@@ -1,26 +1,14 @@
 import { prisma } from "@/app/_libs/prisma"
 import { generateArcoMessage } from "@/app/_libs/arcoChan"
 import {
-  extractSubTaskIdsFromCard,
-  findCandidateRecommendations,
-  generateRecommendationReason,
-} from "@/app/_libs/recommendations"
-import {
-  GRADE_LEVELS,
-  SUB_TASK_NAMES,
-  TASK_NAMES,
-  type GradeLevel,
-  type SubTaskId,
-  type TaskId,
-} from "@/app/_libs/skillMaster"
+  badgeKind,
+  gradeFromStar,
+  STAR_UP_ACHIEVEMENTS,
+} from "@/app/_libs/starProgress"
 import HomeClient from "./home"
 
-// v1.6 Phase 4-2: NEXT_GRADE_BAND は撤去 (旧 UserGrade.progressData per-★ ブレイクダウン用)
-// 仕様書 §1-2 R2=A 確定で重複なし split になり per-★ 別計算が不要に。
-// UserGradeProgress.currentStar 単一値で管理。
-
-const isGradeLevel = (v: unknown): v is GradeLevel =>
-  typeof v === "string" && (GRADE_LEVELS as readonly string[]).includes(v)
+// C-6b (2026-07-11): 旧レコメンド(UserSkillTaskCard/UserGrade.progressData)経路は撤去。
+// ★/グレード/バッジは新判定体系 (UserStarProgress/UserScoreAchievement) から。
 
 export const metadata = { title: "ホーム" }
 
@@ -96,9 +84,8 @@ export default async function HomePage({ params }: PageProps) {
     latestPracticePerf,
     latestScorePerf,
     latestTwoScores,        // アルコちゃん改善検出用 (直近2件の overallScore)
-    userGrade,              // UI-8: legacy グレード (recommendations 用)
-    userGradeProgress,      // v1.6 Phase 4-2: ホーム☆/グレード表示用 (新設計)
-    activeCard,             // UI-9: レコメンド用 active カード (§11-3)
+    userStarProgress,       // C-6b: ★の現在地 (新判定体系・工程D)
+    scoreAchievements,      // C-6b: 曲の達成/マスター記録 (バッジ + ★進捗 + 次曲除外)
   ] = await Promise.all([
     // ストリーク用（90日以内のみ）
     prisma.practicePerformance.findMany({
@@ -142,32 +129,15 @@ export default async function HomePage({ params }: PageProps) {
       take: 2,
       select: { pitchAccuracy: true, timingAccuracy: true },
     }),
-    // UI-8: グレード表示 (legacy 経路、Phase 4-3 でレコメンド書き換え時に撤去予定。
-    //   v1.6 §13-2: Q3=A 確定で旧 UI 撤去だが、recommendations は UserGrade.progressData 経由のため温存)
-    prisma.userGrade.findUnique({
+    // C-6b (2026-07-11): ★とバッジは新判定体系 (UserStarProgress/UserScoreAchievement) から。
+    // 旧 UserGrade / UserGradeProgress / UserSkillTaskCard / SongMastery は退役。
+    prisma.userStarProgress.findUnique({
       where: { userId: internalUserId },
-      select: { currentGrade: true, achievedAt: true, progressData: true },
+      select: { currentStar: true },
     }),
-    // v1.6 Phase 4-2: ホーム表示専用の UserGradeProgress (新 v1.3 設計、Phase 3c で実装)
-    prisma.userGradeProgress.findUnique({
+    prisma.userScoreAchievement.findMany({
       where: { userId: internalUserId },
-      select: {
-        currentStar: true,
-        currentGrade: true,
-        masteredSongCountAtCurrentStar: true,
-        masterReachedAt: true,
-      },
-    }),
-    // UI-9 (§11-3): 最も古い active カード (レコメンド主軸)
-    prisma.userSkillTaskCard.findFirst({
-      where: { userId: internalUserId, status: "active" },
-      orderBy: { createdAt: "asc" },
-      select: {
-        id: true,
-        cardType: true,
-        skillTaskId: true,
-        skillSubTaskId: true,
-      },
+      select: { scoreId: true, starAtAchievement: true, achievedAt: true, masteredAt: true },
     }),
   ])
   console.log(`[PERF] home step2_parallel: ${(performance.now() - perfStep2).toFixed(0)}ms`)
@@ -215,109 +185,24 @@ export default async function HomePage({ params }: PageProps) {
         : null,
   })
 
-  // --- v1.6 Phase 4-2: グレード/★表示用データ (UserGradeProgress ベース、Q3=A 旧 UI 撤去) ---
-  // 仕様書 v1.6 §3-5-2 必須引用:
-  //   「必須: ユーザーの現在グレード + ★表示 (UserGradeProgress 準拠、旧 UserGrade.progressData 経路は廃止)」
-  //   「必須: 次の★まで完全習得すべき曲数 (10 曲 - masteredSongCountAtCurrentStar)」
-  // §2-7 引用: 「★ n の曲を 10 曲習得した瞬間に★(n+1)に昇格」
-  const GRADE_UP_SONG_COUNT = 10
-  const currentStar = userGradeProgress?.currentStar ?? 1
-  const currentGradeFromProgress: GradeLevel = isGradeLevel(userGradeProgress?.currentGrade)
-    ? userGradeProgress.currentGrade
-    : "BEGINNER"
-  const masteredSongCount = userGradeProgress?.masteredSongCountAtCurrentStar ?? 0
-  const gradeUpRemaining = Math.max(0, GRADE_UP_SONG_COUNT - masteredSongCount)
-  const isMaster = currentGradeFromProgress === "MASTER"
-
+  // --- C-6b (2026-07-11): グレード/★表示 = 新判定体系ベース ---
+  // ★ = UserStarProgress、進捗 = 同★の達成曲数（10曲で次の★へ = spec§1-6）。
+  // グレードは★から導出 (starProgress.ts)。
+  const currentStar = userStarProgress?.currentStar ?? 1
+  const achievedCountAtCurrentStar = scoreAchievements.filter(
+    (a) => a.starAtAchievement === currentStar,
+  ).length
+  const currentGradeFromStar = gradeFromStar(currentStar)
   const gradeData = {
     currentStar,
-    currentGrade: currentGradeFromProgress,
-    masteredSongCountAtCurrentStar: masteredSongCount,
-    gradeUpRequired: GRADE_UP_SONG_COUNT,
-    gradeUpRemaining,
-    isMaster,
-    masterReachedAt: userGradeProgress?.masterReachedAt?.toISOString() ?? null,
+    currentGrade: currentGradeFromStar,
+    masteredSongCountAtCurrentStar: achievedCountAtCurrentStar, // 新体系では「達成」数
+    gradeUpRequired: STAR_UP_ACHIEVEMENTS,
+    gradeUpRemaining: Math.max(0, STAR_UP_ACHIEVEMENTS - achievedCountAtCurrentStar),
+    isMaster: currentGradeFromStar === "MASTER",
+    masterReachedAt: null,
   }
-
-  // --- legacy: recommendations のために UserGrade.currentGrade / progressData を構築 ---
-  // (Phase 4-3 でレコメンドエンジン書き換え時に UserGradeProgress 経路に統合予定)
-  type ProgressEntry = { completed: number; required: number; practiceItemIds: string[] }
-  const currentGrade: GradeLevel = isGradeLevel(userGrade?.currentGrade)
-    ? userGrade.currentGrade
-    : "BEGINNER"
-  const progressData = (userGrade?.progressData ?? {}) as Record<string, ProgressEntry>
-
-  // --- UI-9 + Score 統合 (§11-3): active カード優先のレコメンド ---
-  // findCandidateRecommendations が PracticeItem + Score を統合した候補を返す。
-  // - PracticeItem: star 範囲 + skillSubTaskTags + 未達成 + isPublished
-  // - Score: star 範囲 + skillSubTaskTags + isShared + deletedAt=null
-  //   (Score は achievedIds 適用なし — 進捗管理は PracticeItem のみ)
-  const perfStep3 = performance.now()
-  const achievedIds = Object.values(progressData).flatMap(
-    entry => Array.isArray(entry.practiceItemIds) ? entry.practiceItemIds : [],
-  )
-  const subTaskIds = activeCard ? extractSubTaskIdsFromCard(activeCard) : null
-  const candidateItems = await findCandidateRecommendations(prisma, {
-    userId: internalUserId,
-    subTaskIds,
-    grade: currentGrade,
-    achievedIds,
-    limit: 5,
-  })
-  const recommendationReason = generateRecommendationReason(activeCard)
-  let songRecommendations = candidateItems.map(item => {
-    // category="score" は Score ルート、それ以外は PracticeItem ルート
-    const href =
-      item.category === "score"
-        ? `/${userId}/scores/${item.id}`
-        : `/${userId}/practice/${item.category}/${item.id}`
-    return {
-      practiceItem: {
-        id: item.id,
-        title: item.title,
-        category: item.category,
-        star: item.star ?? null,
-        composer: item.composer ?? null,
-      },
-      reason: recommendationReason,
-      href,
-      ...(activeCard ? { triggeredByCardId: activeCard.id } : {}),
-    }
-  })
-
-  // 演奏履歴ゼロのユーザー (PracticePerformance + Performance ともに 0 件) には
-  // 通常レコメンドを上書きして Lv.1 (☆1) の練習教材を 3 つ提示
-  const hasNoHistory = practiceUploads.length === 0 && scoreUploads.length === 0
-  if (hasNoHistory) {
-    const lv1Items = await prisma.practiceItem.findMany({
-      where: {
-        star: 1,
-        isPublished: true,
-        OR: [{ ownerUserId: null }, { ownerUserId: internalUserId }],
-      },
-      orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
-      take: 3,
-      select: {
-        id: true,
-        title: true,
-        category: true,
-        star: true,
-        composer: true,
-      },
-    })
-    songRecommendations = lv1Items.map(item => ({
-      practiceItem: {
-        id: item.id,
-        title: item.title,
-        category: item.category,
-        star: item.star ?? null,
-        composer: item.composer ?? null,
-      },
-      reason: "まずは ☆1 の曲から始めましょう",
-      href: `/${userId}/practice/${item.category}/${item.id}`,
-    }))
-  }
-  console.log(`[PERF] home step3_recommendations: ${(performance.now() - perfStep3).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
+  console.log(`[PERF] home step3: TOTAL ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   // --- 基礎練習の練習状況: 直近に練習した、かつまだクリア(マスター)していない
   //     基礎練 (PracticeItem) を横並びで提示。各カードに直近の練習日時 + 直近スコア。 ---
@@ -334,8 +219,9 @@ export default async function HomePage({ params }: PageProps) {
         practiceItem: { select: { id: true, title: true, category: true } },
       },
     }),
-    prisma.userPracticeMastery.findMany({
-      where: { userId: internalUserId, isPerformanceMastered: true },
+    // C-6b: クリア判定は新体系の教材達成 (3回×崩壊ゼロ) に置換
+    prisma.userPracticeAchievement.findMany({
+      where: { userId: internalUserId },
       select: { practiceItemId: true },
     }),
   ])
@@ -398,12 +284,8 @@ export default async function HomePage({ params }: PageProps) {
     const d = pieceData.get(p.scoreId)!
     if (d.vals.length < 5) d.vals.push((p.pitchAccuracy + p.timingAccuracy) / 2)
   }
-  // 完全習得セット (タイトル横「🏆 マスター」バッジ + 「次の曲」除外で再利用)
-  const masteredRows = await prisma.songMastery.findMany({
-    where: { userId: internalUserId, isFullyMastered: true },
-    select: { scoreId: true },
-  })
-  const masteredSet = new Set(masteredRows.map((m) => m.scoreId))
+  // C-6b: バッジは新達成記録から (マスター ≻ 達成 ≻ なし・上位1つ = Tetsuo確定)
+  const achievementByScore = new Map(scoreAchievements.map((a) => [a.scoreId, a]))
   const recentPieces = pieceOrder.slice(0, 5).map((sid) => {
     const d = pieceData.get(sid)!
     const recentAvg = d.vals.length
@@ -413,26 +295,17 @@ export default async function HomePage({ params }: PageProps) {
       id: d.id,
       title: d.title,
       recentAvg,
-      mastered: masteredSet.has(d.id),
+      badge: badgeKind(achievementByScore.get(d.id)),
       href: `/${userId}/scores/${d.id}`,
     }
   })
 
-  // --- 課題名 (active カード由来)。カード未生成 (現状) なら null → フォールバック文言 ---
-  const challengeName: string | null = activeCard
-    ? activeCard.cardType === "sub_task" && activeCard.skillSubTaskId
-      ? SUB_TASK_NAMES[activeCard.skillSubTaskId as SubTaskId] ?? activeCard.skillSubTaskId
-      : activeCard.cardType === "task" && activeCard.skillTaskId
-        ? `${TASK_NAMES[activeCard.skillTaskId as TaskId] ?? activeCard.skillTaskId}全体`
-        : null
-    : null
-
-  // --- 課題なし時の「次の曲にチャレンジ」: ユーザーと同じ★で、まだマスターしていない
-  //     共有曲 (Score) を提示。基礎教材ではなく曲を推す。現在練習中の曲は除外。 ---
+  // --- 「次の曲にチャレンジ」: ユーザーと同じ★で、まだ達成していない共有曲 (Score)。
+  //     現在練習中の曲・達成済みの曲は除外。 ---
   const excludePieceIds = [
     ...new Set([
       ...recentPieces.map((p) => p.id),
-      ...masteredRows.map((m) => m.scoreId),
+      ...scoreAchievements.map((a) => a.scoreId),
     ]),
   ]
   const nextPieceScores = await prisma.score.findMany({
@@ -466,10 +339,8 @@ export default async function HomePage({ params }: PageProps) {
       weeklyDays={weeklyDays}
       arcoMessage={arcoMessage}
       gradeData={gradeData}
-      songRecommendations={songRecommendations}
       basicPracticeCards={basicPracticeCards}
       recentPieces={recentPieces}
-      challengeName={challengeName}
       nextPieceRecommendations={nextPieceRecommendations}
     />
   )

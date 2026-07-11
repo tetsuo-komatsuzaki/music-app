@@ -44,6 +44,46 @@ export type WeaknessSlot = {
 export type DiagnosisApiResponse = {
   verdict: "perfect" | "no_specific" | "weakness" | "unavailable"
   slots: WeaknessSlot[]
+  /** C-6b: 旧skill-detail後継 (シェルの解析中表示・ポーリング判定用) */
+  analysisStatus?: "processing" | "done" | "error" | "queued" | "retrying"
+}
+
+/** 診断結果の本文表示 (verdict + スロット)。データは呼び手が用意する版 */
+export function DiagnosisBody({
+  data,
+  userId,
+}: {
+  data: DiagnosisApiResponse
+  userId?: string
+}) {
+  if (data.verdict === "perfect") {
+    return (
+      <div className={styles.perfectBox}>
+        <span className={styles.perfectEmoji}>🎉</span>
+        完璧な演奏です！
+      </div>
+    )
+  }
+  if (data.verdict === "no_specific") {
+    return (
+      <div className={styles.statusBox}>
+        特定の弱点は見つかりませんでした（ミスは散発的です）
+      </div>
+    )
+  }
+  if (data.verdict === "unavailable") {
+    return (
+      <div className={styles.statusBox}>
+        この演奏には弱点診断がありません（新しい演奏から表示されます）
+      </div>
+    )
+  }
+  return (
+    <section>
+      <h3 className={styles.heading}>今回の弱点と練習メニュー</h3>
+      <WeaknessSlotList slots={data.slots} userId={userId} />
+    </section>
+  )
 }
 
 const TREE_LABELS: Record<"pitch" | "rhythm", string> = {
@@ -201,34 +241,5 @@ export default function WeaknessDiagnosisCard({ performanceId, kind, userId }: P
   if (!data) {
     return <div className={styles.statusBox}>弱点を分析中…</div>
   }
-
-  if (data.verdict === "perfect") {
-    return (
-      <div className={styles.perfectBox}>
-        <span className={styles.perfectEmoji}>🎉</span>
-        完璧な演奏です！
-      </div>
-    )
-  }
-  if (data.verdict === "no_specific") {
-    return (
-      <div className={styles.statusBox}>
-        特定の弱点は見つかりませんでした（ミスは散発的です）
-      </div>
-    )
-  }
-  if (data.verdict === "unavailable") {
-    return (
-      <div className={styles.statusBox}>
-        この演奏には弱点診断がありません（新しい演奏から表示されます）
-      </div>
-    )
-  }
-
-  return (
-    <section>
-      <h3 className={styles.heading}>今回の弱点と練習メニュー</h3>
-      <WeaknessSlotList slots={data.slots} userId={userId} />
-    </section>
-  )
+  return <DiagnosisBody data={data} userId={userId} />
 }

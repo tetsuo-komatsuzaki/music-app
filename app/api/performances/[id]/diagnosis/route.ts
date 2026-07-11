@@ -32,6 +32,7 @@ export async function GET(
     select: {
       id: true,
       userId: true,
+      analysisStatus: true,
       analysisSummary: true,
       score: {
         select: {
@@ -61,6 +62,8 @@ export async function GET(
   return NextResponse.json({
     performanceId: perf.id,
     scoreTitle: perf.score.title,
+    // C-6b: 旧skill-detail後継として解析状態も返す (シェルの解析中ポーリング用)
+    analysisStatus: perf.analysisStatus,
     ...view,
   })
 }

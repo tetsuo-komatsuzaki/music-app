@@ -23,16 +23,15 @@ type GradeData = {
   isMaster: boolean
 }
 
+// C-6b (2026-07-11): 達成/マスターした曲 (新判定体系 UserScoreAchievement)
 type MasteredSong = {
   scoreId: string
   title: string
   composer: string | null
   star: number | null
-  keyTonic: string | null
-  keyMode: string | null
-  recentAverageScore: number | null
-  totalPerformanceCount: number
-  fullyMasteredAt: string | null
+  badge: "mastered" | "achieved"
+  achievedAt: string
+  masteredAt: string | null
 }
 
 type Props = {
@@ -148,14 +147,15 @@ export default function ProgressPage({
             </div>
           </div>
 
-          {/* 1b. 完全習得曲リスト */}
+          {/* 1b. 達成/マスターした曲リスト (C-6b: 新判定体系・2段バッジ) */}
           <div className={styles.card}>
             <div className={styles.sectionTitle}>
-              完全習得した曲 ({masteredSongs.length}件)
+              達成・マスターした曲 ({masteredSongs.length}件)
             </div>
             {masteredSongs.length === 0 ? (
               <p className={styles.emptyHint}>
-                まだ完全習得した曲はありません。Score 演奏で 5 回平均 ≥ 90 点 + 全演奏技法習得 + 全中課題クリアを目指しましょう。
+                まだ達成した曲はありません。曲を破綻なく3回弾き切ると「✨ 達成」、
+                さらに演奏スコア平均90点で「🏆 マスター」になります。
               </p>
             ) : (
               <ul className={styles.masteredList}>
@@ -167,7 +167,7 @@ export default function ProgressPage({
                     >
                       <div className={styles.masteredHeader}>
                         <span className={styles.masteredTitle}>{song.title}</span>
-                        <MasterBadge mastered />
+                        <MasterBadge kind={song.badge} />
                         {song.star != null && (
                           <span className={styles.masteredStar}>☆{song.star}</span>
                         )}
@@ -178,9 +178,9 @@ export default function ProgressPage({
                         </div>
                       )}
                       <div className={styles.masteredMeta}>
-                        完全習得: {formatJpDate(song.fullyMasteredAt)}
-                        {song.recentAverageScore != null && (
-                          <> · 直近 5 回平均 {song.recentAverageScore.toFixed(1)} 点</>
+                        達成: {formatJpDate(song.achievedAt)}
+                        {song.masteredAt && (
+                          <> · マスター: {formatJpDate(song.masteredAt)}</>
                         )}
                       </div>
                     </Link>
@@ -190,9 +190,9 @@ export default function ProgressPage({
             )}
           </div>
 
-          {/* 1d. 練習教材マスター状況サマリ */}
+          {/* 1d. 練習教材の達成状況サマリ */}
           <div className={styles.card}>
-            <div className={styles.sectionTitle}>練習教材マスター状況</div>
+            <div className={styles.sectionTitle}>練習教材の達成状況</div>
             <div className={styles.masterySummaryGrid}>
               {PRACTICE_CATEGORIES.map(cat => (
                 <div key={cat} className={styles.masterySummaryItem}>

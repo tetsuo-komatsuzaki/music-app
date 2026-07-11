@@ -10,7 +10,8 @@ export type Piece = {
   title: string
   composer: string | null
   star: number | null
-  mastered?: boolean
+  /** C-6b: 達成/マスターの2段バッジ */
+  badge?: "mastered" | "achieved" | null
 }
 
 export default function PiecesList({
@@ -68,7 +69,7 @@ export default function PiecesList({
                   <div className={styles.cardContextItemTitle}>
                     {piece.title}
                     {piece.star != null && ` ☆${piece.star}`}
-                    {piece.mastered && <> <MasterBadge mastered /></>}
+                    {piece.badge && <> <MasterBadge kind={piece.badge} /></>}
                   </div>
                   {piece.composer && (
                     <div className={styles.cardContextItemComposer}>

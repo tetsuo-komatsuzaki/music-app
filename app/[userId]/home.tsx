@@ -33,8 +33,6 @@ type Props = {
   arcoMessage: { greeting: string; cheer: string }
   /** v1.6 §3-5-2: アルコちゃんカード内に表示するグレード情報 */
   gradeData: GradeData
-  /** UI-9 (§11-3): active カード優先のレコメンド (最大 5 件) = 課題クリア用の練習教材 */
-  songRecommendations: SongRecommendation[]
   /** 基礎練習の練習状況: 直近に練習した、まだクリアしていない基礎練 */
   basicPracticeCards: {
     id: string
@@ -44,11 +42,15 @@ type Props = {
     lastPracticedAt: string
     recentScore: number | null
   }[]
-  /** 直近の練習曲 (Score) + 曲別 直近平均スコア + マスター済みか */
-  recentPieces: { id: string; title: string; recentAvg: number | null; mastered: boolean; href: string }[]
-  /** いまの課題名 (active カード由来)。null = 課題なし → フォールバック文言 */
-  challengeName: string | null
-  /** 課題なし時の「次の曲にチャレンジ」: 同じ★の未マスター曲 */
+  /** 直近の練習曲 (Score) + 曲別 直近平均スコア + 達成/マスターバッジ (C-6b) */
+  recentPieces: {
+    id: string
+    title: string
+    recentAvg: number | null
+    badge: "mastered" | "achieved" | null
+    href: string
+  }[]
+  /** 弱点なし時の「次の曲にチャレンジ」: 同じ★の未達成曲 */
   nextPieceRecommendations: SongRecommendation[]
 }
 
@@ -188,7 +190,7 @@ function TodayPanel({
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {p.mastered && "🏆 "}
+                  {p.badge === "mastered" ? "🏆 " : p.badge === "achieved" ? "✨ " : ""}
                   {p.title}
                 </button>
               ))}
@@ -225,7 +227,7 @@ function TodayPanel({
                   >
                     {piece.title}
                   </span>
-                  <MasterBadge mastered={piece.mastered} />
+                  <MasterBadge kind={piece.badge} />
                 </div>
               </div>
               {piece.recentAvg != null ? (
@@ -274,33 +276,24 @@ export default function HomeClient({
   weeklyDays,
   arcoMessage,
   gradeData,
-  songRecommendations: _songRecommendations,
   basicPracticeCards,
   recentPieces,
-  challengeName: _challengeName,
   nextPieceRecommendations,
 }: Props) {
   void _userName
-  // 工程C-6a: 旧課題カード由来の2 propsは累積弱点(窓②)置換で未使用。
-  // Props形は server page 互換のため維持し、C-6b(旧系撤去)で削除する。
-  void _songRecommendations
-  void _challengeName
   const WEEKLY_GOAL = 5
   const [guideOpen, setGuideOpen] = useState(false)
 
-  // v1.6 Phase 4-2 Q5=c: GradeProgressBar 直下のヒント文 (次グレード達成のヒント)
-  // currentGrade と ★段階から、次グレード昇格の条件文を組み立てる
+  // C-6b (2026-07-11): ★昇格は達成ベース (同★10曲達成で次の★へ = spec§1-6)。
+  // グレード帯: ★1-3 初級 / ★4-6 中級 / ★7-9 上級 / ★10 マスター
   const hintText = gradeData.isMaster
     ? undefined
     : (() => {
         const star = gradeData.currentStar
-        if (star <= 2) return `☆3 まで習得すると中級者に昇格します`
-        if (star === 3) return `☆4 を完全習得すると中級者に昇格します`
-        if (star <= 5) return `☆6 まで習得すると上級者に昇格します`
-        if (star === 6) return `☆7 を完全習得すると上級者に昇格します`
-        if (star <= 8) return `☆9 まで習得すると上級者で安定します`
-        if (star === 9) return `☆10 を完全習得するとマスターに到達します`
-        return undefined
+        const next = `同じ★の曲を10曲達成すると次の★へ`
+        if (star <= 3) return `${next}（★4で中級者）`
+        if (star <= 6) return `${next}（★7で上級者）`
+        return `${next}（★10でマスター）`
       })()
 
   return (

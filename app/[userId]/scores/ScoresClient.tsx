@@ -200,7 +200,7 @@ export default function ScoresClient({
                     ) : (
                       <h3 className={styles.cardTitle}>
                         {score.title}
-                        <MasterBadge mastered={score.isFullyMastered} />
+                        <MasterBadge kind={score.badge} />
                       </h3>
                     )}
 

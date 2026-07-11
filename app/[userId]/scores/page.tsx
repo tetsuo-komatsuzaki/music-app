@@ -1,4 +1,5 @@
 import { prisma } from "@/app/_libs/prisma"
+import { badgeKind } from "@/app/_libs/starProgress"
 import ScoresClient from "./ScoresClient"
 
 export const metadata = { title: "マイライブラリー" }
@@ -36,20 +37,21 @@ export default async function Page({ params }: PageProps) {
       },
       orderBy: { createdAt: "desc" }
     }),
-    prisma.songMastery.findMany({
-      where: { userId: user.id, isFullyMastered: true },
-      select: { scoreId: true },
+    // C-6b (2026-07-11): バッジは新達成記録 (UserScoreAchievement) から。マスター≻達成。
+    prisma.userScoreAchievement.findMany({
+      where: { userId: user.id },
+      select: { scoreId: true, achievedAt: true, masteredAt: true },
     }),
   ])
   console.log(`[PERF] scores/list step2_scores: ${(performance.now() - perfStep2).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
-  const fullyMasteredScoreIds = new Set(masterySongs.map(m => m.scoreId))
+  const achievementByScore = new Map(masterySongs.map(a => [a.scoreId, a]))
 
   const scores = rawScores.map(score => ({
     ...score,
     createdAt: score.createdAt.toISOString(),
     isOwn: score.createdById === user.id,
-    isFullyMastered: fullyMasteredScoreIds.has(score.id),
+    badge: badgeKind(achievementByScore.get(score.id)),
   }))
   return <ScoresClient scores={scores} userId={userId} />
 }

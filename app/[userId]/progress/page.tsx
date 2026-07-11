@@ -12,19 +12,15 @@
 // 旧「あなたの課題」タブは Score 詳細「上達ループ」タブに統合済 (Phase 4-1)。
 
 import { prisma } from "@/app/_libs/prisma"
-import {
-  GRADE_LEVELS,
-  type GradeLevel,
-} from "@/app/_libs/skillMaster"
 import { PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
+import {
+  badgeKind,
+  gradeFromStar,
+  STAR_UP_ACHIEVEMENTS,
+} from "@/app/_libs/starProgress"
 import ProgressPage from "./progressPage"
 
 export const metadata = { title: "成長記録" }
-
-const isGradeLevel = (v: unknown): v is GradeLevel =>
-  typeof v === "string" && (GRADE_LEVELS as readonly string[]).includes(v)
-
-const GRADE_UP_SONG_COUNT = 10
 
 type PageProps = {
   params:       Promise<{ userId: string }>
@@ -82,9 +78,9 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
   const [
     practiceAll,
     scoreAll,
-    userGradeProgress,
-    masteredSongs,
-    practiceMasteryByCategory,
+    starProgress,
+    achievements,
+    practiceAchievements,
   ] = await Promise.all([
     // calendar 用: ストリーク + 日別達成カウント
     prisma.practicePerformance.findMany({
@@ -97,40 +93,27 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
       select: { uploadedAt: true, performanceDuration: true, comparisonResultPath: true },
       orderBy: { uploadedAt: "desc" },
     }),
-    // v1.6 Phase 4-2 (mastery タブ用): UserGradeProgress
-    prisma.userGradeProgress.findUnique({
+    // C-6b (2026-07-11): 新判定体系 — ★の現在地
+    prisma.userStarProgress.findUnique({
       where: { userId: internalUserId },
-      select: {
-        currentStar: true,
-        currentGrade: true,
-        masteredSongCountAtCurrentStar: true,
-        masterReachedAt: true,
-      },
+      select: { currentStar: true },
     }),
-    // 完全習得曲リスト (仕様書 §2-6)
-    prisma.songMastery.findMany({
-      where: { userId: internalUserId, isFullyMastered: true },
-      orderBy: { fullyMasteredAt: "desc" },
+    // 達成/マスターした曲リスト (新記録)
+    prisma.userScoreAchievement.findMany({
+      where: { userId: internalUserId },
+      orderBy: { achievedAt: "desc" },
       take: 50,
       select: {
         scoreId: true,
-        recentAverageScore: true,
-        totalPerformanceCount: true,
-        fullyMasteredAt: true,
-        score: {
-          select: {
-            title: true,
-            composer: true,
-            star: true,
-            keyTonic: true,
-            keyMode: true,
-          },
-        },
+        starAtAchievement: true,
+        achievedAt: true,
+        masteredAt: true,
+        score: { select: { title: true, composer: true, star: true } },
       },
     }),
-    // 練習教材マスター状況 (UserPracticeMastery を category 別に集計)
-    prisma.userPracticeMastery.findMany({
-      where: { userId: internalUserId, isPerformanceMastered: true },
+    // 練習教材の達成状況 (新記録を category 別に集計)
+    prisma.userPracticeAchievement.findMany({
+      where: { userId: internalUserId },
       select: {
         practiceItem: { select: { category: true } },
       },
@@ -167,37 +150,35 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
     if (n > 0) dayAchievements[dStr] = n
   }
 
-  // ── v1.6 Phase 4-2: グレード/★データ ──
-  const currentGrade: GradeLevel = isGradeLevel(userGradeProgress?.currentGrade)
-    ? userGradeProgress.currentGrade
-    : "BEGINNER"
+  // ── C-6b: グレード/★データ (新判定体系: ★=UserStarProgress、進捗=同★の達成曲数) ──
+  const currentStar = starProgress?.currentStar ?? 1
+  const currentGrade = gradeFromStar(currentStar)
   const gradeData = {
-    currentStar: userGradeProgress?.currentStar ?? 1,
+    currentStar,
     currentGrade,
-    masteredSongCountAtCurrentStar:
-      userGradeProgress?.masteredSongCountAtCurrentStar ?? 0,
-    gradeUpRequired: GRADE_UP_SONG_COUNT,
-    masterReachedAt: userGradeProgress?.masterReachedAt?.toISOString() ?? null,
+    masteredSongCountAtCurrentStar: achievements.filter(
+      a => a.starAtAchievement === currentStar,
+    ).length,
+    gradeUpRequired: STAR_UP_ACHIEVEMENTS,
+    masterReachedAt: null,
     isMaster: currentGrade === "MASTER",
   }
 
-  // ── 完全習得曲リスト ──
-  const masteredSongsData = masteredSongs.map(m => ({
+  // ── 達成/マスターした曲リスト (マスター≻達成の2段バッジ) ──
+  const masteredSongsData = achievements.map(m => ({
     scoreId: m.scoreId,
     title: m.score.title,
     composer: m.score.composer,
     star: m.score.star,
-    keyTonic: m.score.keyTonic,
-    keyMode: m.score.keyMode,
-    recentAverageScore: m.recentAverageScore,
-    totalPerformanceCount: m.totalPerformanceCount,
-    fullyMasteredAt: m.fullyMasteredAt?.toISOString() ?? null,
+    badge: badgeKind(m) as "mastered" | "achieved",
+    achievedAt: m.achievedAt.toISOString(),
+    masteredAt: m.masteredAt?.toISOString() ?? null,
   }))
 
-  // ── 練習教材マスターサマリ (category 別カウント: 基礎練6 + エチュード) ──
+  // ── 練習教材の達成サマリ (category 別カウント: 基礎練6 + エチュード) ──
   const practiceMasterySummary: Record<string, number> = {}
   for (const cat of PRACTICE_CATEGORIES) practiceMasterySummary[cat] = 0
-  for (const m of practiceMasteryByCategory) {
+  for (const m of practiceAchievements) {
     const cat = m.practiceItem.category
     if (cat in practiceMasterySummary) practiceMasterySummary[cat] += 1
   }

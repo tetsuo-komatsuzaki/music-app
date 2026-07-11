@@ -66,7 +66,7 @@ type AnalysisNote = {
 }
 
 type Props = {
-  score: { id: string; title: string; isMastered?: boolean }
+  score: { id: string; title: string; badge?: "mastered" | "achieved" | null }
   userId: string
   analysis: { bpm: number; notes: AnalysisNote[] } | null
   buildUrl: string | null
@@ -1365,14 +1365,6 @@ export default function ScoreDetail({
     return analysisIdx < noteElementsRef.current.length ? analysisIdx : -1
   }, [analysis])
 
-  // UI-4: 気になる箇所のカードタップ → 譜面ジャンプ + ハイライト
-  // - filter プロパティで紫 (#8b5cf6) drop-shadow を 3 秒付与
-  // - 別カードタップで前のハイライトを即解除 (タイマー競合回避)
-  // - 既存 colorizeNote (fill/stroke 操作) と独立
-  const PROBLEMATIC_HIGHLIGHT_FILTER =
-    "drop-shadow(0 0 1px #8b5cf6) drop-shadow(0 0 4px #8b5cf6) drop-shadow(0 0 8px rgba(139, 92, 246, 0.55))"
-  const PROBLEMATIC_HIGHLIGHT_DURATION_MS = 3000
-
   const clearProblematicHighlight = useCallback(() => {
     if (problematicHighlightTimerRef.current != null) {
       window.clearTimeout(problematicHighlightTimerRef.current)
@@ -1384,39 +1376,8 @@ export default function ScoreDetail({
     problematicHighlightedElsRef.current = []
   }, [])
 
-  const handleJumpToProblematicPosition = useCallback(
-    (noteIndices: number[]) => {
-      // 前回のハイライトを即解除 (Q11/設計書 §5-4「別カードタップで切替」)
-      clearProblematicHighlight()
-      if (noteIndices.length === 0) return
-
-      const elements = noteElementsRef.current
-      const highlighted: Element[] = []
-      for (const idx of noteIndices) {
-        const osmdIdx = analysisIdxToOsmdIdx(idx)
-        if (osmdIdx < 0 || osmdIdx >= elements.length) continue
-        const el = elements[osmdIdx]
-        ;(el as SVGElement).style.filter = PROBLEMATIC_HIGHLIGHT_FILTER
-        highlighted.push(el)
-      }
-      problematicHighlightedElsRef.current = highlighted
-
-      // 最初の対象要素まで譜面をスクロール
-      const first = highlighted[0]
-      if (first) {
-        ;(first as Element).scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        })
-      }
-
-      // 3 秒後に自動消去
-      problematicHighlightTimerRef.current = window.setTimeout(() => {
-        clearProblematicHighlight()
-      }, PROBLEMATIC_HIGHLIGHT_DURATION_MS)
-    },
-    [analysisIdxToOsmdIdx, clearProblematicHighlight],
-  )
+  // C-6b (2026-07-11): 旧「気になる箇所」譜面ジャンプ (handleJumpToProblematicPosition) は
+  // 旧55アドバイス内の表示だったため退役。ハイライト解除機構は他機能が使うので温存。
 
   // unmount 時にタイマーを解放
   useEffect(() => {
@@ -2119,7 +2080,7 @@ export default function ScoreDetail({
       <div className={styles.header} data-section="header">
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <h1 className={styles.title}>{score.title}</h1>
-          <MasterBadge mastered={score.isMastered} size="md" />
+          <MasterBadge kind={score.badge} size="md" />
         </div>
       </div>
 
@@ -2289,7 +2250,6 @@ export default function ScoreDetail({
                       performanceId={p.id}
                       kind="score"
                       onDeleted={handlePerformanceDeleted}
-                      onJumpToPosition={handleJumpToProblematicPosition}
                       userId={userId}
                     />
                   )}

@@ -1,17 +1,18 @@
 """
-music-analyzer ライブラリパッケージ（v3.2）。
+music-analyzer ライブラリパッケージ。
 
-上達ループエンジンの解析パイプラインを構成するモジュール群を提供する。
+構成（2026-07-11 C-6b 再編後）:
+  - 診断系（217小課題体系）: diagnosis.py / diagnosis_store.py / subtask_catalog.py /
+    collapse_detector.py — 弱点分析・崩壊小節（達成判定の材料）
+  - 判定系: achievement.py — 達成/マスター/Star/学びレッスン
+  - 弓採点系: subtask_judges.py（弓23項目のみ）+ 呼び手 bowing_score.py —
+    マスター判定(平均90)の bowingAccuracy の唯一の製造元
+  - カルテ系: musicxml_skill_extractor.py / piece_summary.py / violin_position.py
+  - 統合・音響: note_integration.py / integrated_note.py / audio_volume.py /
+    timing_tolerance.py
 
-v3.2 修正:
-  - violin_position.py：MIDI 55-83 のまま維持（v3.1 高7 巻き戻し）
-  - musicxml_skill_extractor.py：musicxml_skill_info.json として出力（Q6）
-  - note_integration.py：comparison_result が flat array に対応（Phase 0.1 Task 1）、
-                         is_string_change_from_prev を生成（Q7）
-  - audio_volume.py：detected_start_sec を優先（致命3）、flat array に対応
-  - subtask_judges.py：問題1（A 解釈）、問題4（文言）、問題6, 7（厳密化）、高5（BPM 連動）
-  - skill_aggregator.py：target_count=0 を集計除外（Q5、変更なし）
-  - integrated_note.py：time_signature を dict 型に変更（Phase 0.1 Task 2）
+旧55課題体系の課題化用モジュール（skill_aggregator / problematic_positions /
+pitch・rhythm系judges）は 2026-07-11 に削除（217診断に置換済・git 6a35f16 以前参照）。
 """
 
 from .integrated_note import (
@@ -53,22 +54,11 @@ from .audio_volume import (
     calculate_audio_features_per_note,
     merge_audio_features_into_comparison_result,
 )
-# 個別課題 v1 (2026-05-25): 旧 9 judge 関数を削除しスケルトンに置換。
-# 旧 judge_* は再エクスポートから削除。新 ALL_SUB_TASK_IDS を追加公開。
+# 弓採点 (C-6b 2026-07-11: 旧55体系から bowing 23項目のみ残置)
 from .subtask_judges import (
     is_performance_analyzable,
-    run_all_judges,
-    ALL_SUB_TASK_IDS,
-)
-from .skill_aggregator import (
-    aggregate_skill_scores,
-    SKILL_TASK_MAP,
-)
-from .problematic_positions import (
-    generate_problematic_positions,
-    calculate_severity,
-    group_problematic_notes,
-    extract_candidate_sub_tasks,
+    run_bowing_judges,
+    BOWING_SUB_TASK_IDS,
 )
 
 __all__ = [
@@ -105,16 +95,8 @@ __all__ = [
     "calc_volume_drop_after",
     "calculate_audio_features_per_note",
     "merge_audio_features_into_comparison_result",
-    # subtask_judges (個別課題 v1 で旧 9 judge_* は削除済)
+    # subtask_judges (弓採点のみ)
     "is_performance_analyzable",
-    "run_all_judges",
-    "ALL_SUB_TASK_IDS",
-    # skill_aggregator
-    "aggregate_skill_scores",
-    "SKILL_TASK_MAP",
-    # problematic_positions
-    "generate_problematic_positions",
-    "calculate_severity",
-    "group_problematic_notes",
-    "extract_candidate_sub_tasks",
+    "run_bowing_judges",
+    "BOWING_SUB_TASK_IDS",
 ]

@@ -1,4 +1,5 @@
 import { prisma } from "@/app/_libs/prisma"
+import { badgeKind } from "@/app/_libs/starProgress"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import ScoreDetail from "./scoreDetail"
@@ -133,10 +134,10 @@ export default async function Page({
       },
     }),
 
-    // songMastery (タイトル横「🏆 マスター」バッジ用)
-    prisma.songMastery.findUnique({
+    // C-6b: タイトル横バッジは新達成記録 (マスター≻達成) から
+    prisma.userScoreAchievement.findUnique({
       where: { userId_scoreId: { userId: dbUser.id, scoreId } },
-      select: { isFullyMastered: true },
+      select: { achievedAt: true, masteredAt: true },
     }),
   ])
   console.log(`[PERF] scores/detail step2_parallel: ${(performance.now() - perfStep2).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
@@ -146,7 +147,7 @@ export default async function Page({
       score={{
         id: score.id,
         title: score.title,
-        isMastered: songMastery?.isFullyMastered ?? false,
+        badge: badgeKind(songMastery),
       }}
       userId={userId}
       analysis={analysisData}

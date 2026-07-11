@@ -180,12 +180,21 @@ export async function GET(
     where: { userId_scoreId: { userId: dbUserId, scoreId } },
     select: { achievedAt: true, masteredAt: true },
   })
-  const recent = await prisma.performance.findMany({
-    where: { userId: dbUserId, scoreId, overallScore: { not: null } },
-    orderBy: { uploadedAt: "desc" },
-    take: MASTER_RECENT_COUNT,
-    select: { overallScore: true },
-  })
+  const [recent, latestPerf, totalPerformances] = await Promise.all([
+    prisma.performance.findMany({
+      where: { userId: dbUserId, scoreId, overallScore: { not: null } },
+      orderBy: { uploadedAt: "desc" },
+      take: MASTER_RECENT_COUNT,
+      select: { overallScore: true },
+    }),
+    // C-6b: 上達ループタブの弱点表示用 (旧loop-detail API の後継)
+    prisma.performance.findFirst({
+      where: { userId: dbUserId, scoreId },
+      orderBy: { uploadedAt: "desc" },
+      select: { id: true },
+    }),
+    prisma.performance.count({ where: { userId: dbUserId, scoreId } }),
+  ])
   const recentAvg =
     recent.length > 0
       ? recent.reduce((s, p) => s + (p.overallScore ?? 0), 0) / recent.length
@@ -205,5 +214,7 @@ export async function GET(
       requiredCount: MASTER_RECENT_COUNT,
       threshold: MASTER_AVG,
     },
+    latestPerformanceId: latestPerf?.id ?? null,
+    totalPerformanceCount: totalPerformances,
   })
 }
