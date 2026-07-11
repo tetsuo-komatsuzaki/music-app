@@ -249,25 +249,31 @@ export async function recommendForPerformance(
 
 /**
  * ユーザーの累積カウンタ（UserSkillSubScore・217系ID）から累積弱点 top-2×2木を出し、
- * ユーザーの star 帯（演奏実績のある曲の最高star）を基準に教材を推薦する。
+ * ユーザーの★を基準に教材を推薦する。
+ * ★の基準（オンボーディングC5 2026-07-12 修正）: UserStarProgress（オンボ判定/★昇格の正）
+ * を優先し、無ければ演奏実績のある曲の最高star にフォールバック。
+ * （旧実装は実績のみ参照 → オンボで★6判定でも演奏履歴ゼロだと★1帯が出るギャップがあった）
  */
 export async function recommendCumulative(
   userId: string,
   excludeSubtask?: (subtaskId: string) => boolean
 ): Promise<RecommendationSlot[]> {
-  const [rows, starRow] = await Promise.all([
+  const [rows, starProgress, starRow] = await Promise.all([
     prisma.userSkillSubScore.findMany({
       where: { userId },
       select: { skillSubTaskId: true, matchedCount: true, totalCount: true },
     }),
-    // TODO(工程D): 達成記録テーブル完成後は「達成済み曲の最高star」に置換
+    prisma.userStarProgress.findUnique({
+      where: { userId },
+      select: { currentStar: true },
+    }),
     prisma.performance.findFirst({
       where: { userId, score: { star: { not: null } } },
       orderBy: { score: { star: "desc" } },
       select: { score: { select: { star: true } } },
     }),
   ])
-  const userStar = starRow?.score.star ?? 1
+  const userStar = starProgress?.currentStar ?? starRow?.score.star ?? 1
 
   type Cand = { def: SubtaskDef; miss: number; target: number; rate: number }
   const byTree: Record<"pitch" | "rhythm", Cand[]> = { pitch: [], rhythm: [] }
