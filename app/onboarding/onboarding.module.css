@@ -306,6 +306,30 @@
   color: var(--primary);
 }
 
+/* ===== 入力欄 (SCR-11b/11c) ===== */
+.input {
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  min-height: var(--card-h);
+  padding: 0 4%;
+  font-size: var(--fs-option);
+  font-family: inherit;
+  font-weight: 700;
+  color: var(--text-main);
+  width: 100%;
+  background: #fff;
+}
+.linkbtn {
+  background: none;
+  border: none;
+  color: var(--accent-blue);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: min(1.9cqh, 17px);
+  cursor: pointer;
+  padding: 1.5%;
+}
+
 /* ===== 中央系画面 (SCR-01/02/03等) ===== */
 .centerScr {
   position: absolute;
@@ -318,6 +342,21 @@
 .bigChar {
   width: 46%;
   aspect-ratio: 1;
+}
+.bigCharSm {
+  width: 36%;
+  aspect-ratio: 1;
+}
+.predictBody {
+  font-size: var(--fs-loading-body);
+  color: var(--text-sub);
+  line-height: 1.42;
+  padding: 0 12%;
+  font-weight: 400;
+}
+.predictBody b {
+  color: var(--text-main);
+  font-size: 1.2em;
 }
 .wordmark {
   font-size: min(4.6cqh, 40px);

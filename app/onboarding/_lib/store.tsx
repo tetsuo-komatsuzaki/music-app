@@ -34,12 +34,12 @@ export type Answers = {
   q3?: string
   q4cat?: string
   q4song?: string
-  q4songStar?: number
+  q4star?: number
   q5?: string
   q6?: string
   q8?: string
-  q8date?: string | null
-  q8song?: string | null
+  goalDate?: string | null
+  goalSong?: string | null
 }
 
 type OnboardingState = {

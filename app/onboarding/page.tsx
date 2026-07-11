@@ -10,9 +10,16 @@
 // 検証証跡: ラダー確定時に ★/PROVISIONALフラグを console に出力。
 // ============================================================
 
+import { useState } from "react"
 import styles from "./onboarding.module.css"
 import { OnboardingProvider, useOnboarding, type ScreenId } from "./_lib/store"
-import { toProvisionalFlags, type JudgeResult } from "./_lib/logic"
+import {
+  estimatePeriod,
+  toProvisionalFlags,
+  visibleSongs,
+  type JudgeResult,
+} from "./_lib/logic"
+import { CATALOG, popularSongs } from "./_lib/catalog"
 import { ArcoChan } from "./_components/ArcoChan"
 import AvatarBubble from "./_components/AvatarBubble"
 import OptionCard from "./_components/OptionCard"
@@ -265,30 +272,317 @@ function GateG5() {
   )
 }
 
-/* ── SCR-07 (C3で本実装。ラダー完了マイクロ演出 §27-9 + 判定証跡表示) ── */
-function Scr07Stub() {
+/* ── SCR-07 Q3 先生に習っているか(分岐なし・属性保存のみ。先生コード入力は削除済) ── */
+function Scr07() {
+  const s = useOnboarding()
+  const isFirst = s.history[s.history.length - 1] !== "SCR07" && !s.ans.q3
+  return (
+    <>
+      <Header />
+      <AvatarBubble poseKey={isFirst ? "praise" : "question"}>
+        {/* ラダー完了マイクロ演出(§27-9・過剰演出禁止): 初回表示のみ一言 */}
+        {isFirst && (
+          <>
+            なるほど、君のレベルがわかったよ!
+            <br />
+          </>
+        )}
+        いま、先生に習ってる?
+      </AvatarBubble>
+      <div className={styles.list}>
+        {["習っている", "独学", "先生を探し中"].map((o) => (
+          <OptionCard key={o} label={o} selected={s.ans.q3 === o} onClick={() => s.setAns({ q3: o })} />
+        ))}
+      </div>
+      <CtaButton
+        label="次へ"
+        disabled={!s.ans.q3}
+        divider
+        onClick={() => {
+          s.setSeg("Q3", 1)
+          s.go("SCR08A")
+        }}
+      />
+    </>
+  )
+}
+
+/* ── SCR-08a Q4 カテゴリ選択 ── */
+function Scr08A() {
   const s = useOnboarding()
   return (
     <>
       <Header />
-      <AvatarBubble poseKey="praise">
-        なるほど、君のレベルがわかったよ!
-        {s.result && (
-          <>
-            <br />
-            <span style={{ fontSize: "80%", color: "#777" }}>
-              (判定: ★{s.result.star} / 仮習得 {s.result.tags.length}タグ
-              {s.result.doubleStops.length > 0 && ` / 重音 ${s.result.doubleStops.join("・")}`})
-            </span>
-          </>
-        )}
+      <AvatarBubble poseKey="question">どんな曲が弾けるようになりたい?</AvatarBubble>
+      <div className={styles.list}>
+        {Object.entries(CATALOG).map(([key, c]) => (
+          <OptionCard
+            key={key}
+            icon={c.ico}
+            label={c.label}
+            selected={s.ans.q4cat === key}
+            onClick={() => s.setAns({ q4cat: key })}
+          />
+        ))}
+        <OptionCard
+          icon="🤔"
+          label="まだ決まってない"
+          selected={s.ans.q4cat === "undecided"}
+          onClick={() => s.setAns({ q4cat: "undecided" })}
+        />
+      </div>
+      <CtaButton label="次へ" disabled={!s.ans.q4cat} divider onClick={() => s.go("SCR08B")} />
+    </>
+  )
+}
+
+/* ── SCR-08b 曲選択(★同ランク/1つ上のみ表示・未収録自由入力なし §27-8) ── */
+function Scr08B() {
+  const s = useOnboarding()
+  const star = s.result?.star ?? 1
+  const undecided = s.ans.q4cat === "undecided"
+  const songs = undecided
+    ? popularSongs(star)
+    : visibleSongs(CATALOG[s.ans.q4cat ?? "classic"]?.songs ?? [], star)
+  return (
+    <>
+      <Header />
+      <AvatarBubble poseKey="question">
+        {undecided
+          ? `きみ(★${star})にぴったりの3曲だよ。1曲えらんでね!`
+          : `きみ(★${star})にちょうどいい曲だよ。1曲えらんでね!`}
+      </AvatarBubble>
+      <div className={styles.list}>
+        {songs.map(([name, st]) => (
+          <OptionCard
+            key={name}
+            icon="🎵"
+            label={name}
+            sub={`⭐︎${st}`}
+            selected={s.ans.q4song === name}
+            onClick={() => s.setAns({ q4song: name, q4star: st })}
+          />
+        ))}
+      </div>
+      <CtaButton label="次へ" disabled={!s.ans.q4song} divider onClick={() => s.go("SCR10")} />
+    </>
+  )
+}
+
+/* ── SCR-10 Q6 練習時間(曲選択直後・曲名入り文言 2026-07-11改訂) ── */
+function Scr10() {
+  const s = useOnboarding()
+  const OPTS: Array<[string, string]> = [
+    ["5分 / 日", "まずは気軽に"],
+    ["15分 / 日", "しっかり"],
+    ["30分 / 日", "本気"],
+    ["それ以上", "情熱的"],
+  ]
+  return (
+    <>
+      <Header />
+      <AvatarBubble poseKey="question">
+        「{s.ans.q4song}」のために、1日どのくらい練習できそう?
+      </AvatarBubble>
+      <div className={styles.list}>
+        {OPTS.map(([label, sub]) => (
+          <OptionCard
+            key={label}
+            label={label}
+            sub={sub}
+            selected={s.ans.q6 === label}
+            onClick={() => s.setAns({ q6: label })}
+          />
+        ))}
+      </div>
+      <CtaButton
+        label="次へ"
+        disabled={!s.ans.q6}
+        divider
+        onClick={() => {
+          s.setSeg("Q6", 1)
+          s.go("SCR08C")
+        }}
+      />
+    </>
+  )
+}
+
+/* ── SCR-08c 到達予測(専用1画面・Q6実回答で確定計算 承認⑤) ── */
+function Scr08C() {
+  const s = useOnboarding()
+  const period = estimatePeriod(s.result?.star ?? 1, s.ans.q4star ?? 1, s.ans.q6 ?? "").label
+  return (
+    <>
+      <Header />
+      <div className={styles.centerScr}>
+        <div className={`${styles.bigCharSm} ${styles.arcoEnter}`} style={{ marginTop: "15%" }}>
+          <ArcoChan poseKey="predict" />
+        </div>
+        <div className={styles.predictBody} style={{ marginTop: "8%" }}>
+          「{s.ans.q4song}」⭐︎{s.ans.q4star}なら、
+          <br />
+          毎日{s.ans.q6}の練習で<b>{period}</b>で弾けるようになるよ!
+        </div>
+      </div>
+      <CtaButton
+        label="次へ"
+        onClick={() => {
+          s.setSeg("Q4", 1)
+          s.go("SCR09")
+        }}
+      />
+    </>
+  )
+}
+
+/* ── SCR-09 Q5 楽譜は読めるか ── */
+function Scr09() {
+  const s = useOnboarding()
+  return (
+    <>
+      <Header />
+      <AvatarBubble poseKey="question">楽譜は読める?</AvatarBubble>
+      <div className={styles.list}>
+        {["すらすら読める", "ゆっくりなら読める", "読めない"].map((o) => (
+          <OptionCard key={o} label={o} selected={s.ans.q5 === o} onClick={() => s.setAns({ q5: o })} />
+        ))}
+      </div>
+      <CtaButton
+        label="次へ"
+        disabled={!s.ans.q5}
+        divider
+        onClick={() => {
+          s.setSeg("Q5", 1)
+          s.go("SCR11")
+        }}
+      />
+    </>
+  )
+}
+
+/* ── SCR-11 Q8 最終ゴール Epic Win(§27-7-2 5択) ── */
+function Scr11() {
+  const s = useOnboarding()
+  const OPTS: Array<[string, string]> = [
+    ["人前で演奏したい", "🎤"],
+    ["家族や友人に聴かせたい", "👨‍👩‍👧"],
+    ["憧れのあの曲を完璧に弾きたい", "🌟"],
+    ["オーケストラ・アンサンブルに参加したい", "🎻"],
+    ["趣味として長く楽しみたい", "☕"],
+  ]
+  const confirm = () => {
+    if (s.ans.q8 === "人前で演奏したい") s.go("SCR11B")
+    else if (s.ans.q8 === "憧れのあの曲を完璧に弾きたい") s.go("SCR11C")
+    else {
+      s.setSeg("goal", 1)
+      s.go("SCR12")
+    }
+  }
+  return (
+    <>
+      <Header />
+      <AvatarBubble poseKey="question">最後に、いちばん大きな夢を教えて!</AvatarBubble>
+      <div className={styles.list}>
+        {OPTS.map(([label, ico]) => (
+          <OptionCard
+            key={label}
+            icon={ico}
+            label={label}
+            selected={s.ans.q8 === label}
+            onClick={() => s.setAns({ q8: label })}
+          />
+        ))}
+      </div>
+      <CtaButton label="次へ" disabled={!s.ans.q8} divider onClick={confirm} />
+    </>
+  )
+}
+
+/* ── SCR-11b 発表会の日付(スキップ可) ── */
+function Scr11B() {
+  const s = useOnboarding()
+  const [date, setDate] = useState(s.ans.goalDate ?? "")
+  const done = (d: string | null) => {
+    s.setAns({ goalDate: d })
+    s.setSeg("goal", 1)
+    s.go("SCR12")
+  }
+  return (
+    <>
+      <Header />
+      <AvatarBubble poseKey="question">発表会の日は決まってる?</AvatarBubble>
+      <div className={styles.list}>
+        <input
+          className={styles.input}
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          aria-label="発表会の日付"
+        />
+        <button className={styles.linkbtn} onClick={() => done(null)}>
+          まだ決まってない
+        </button>
+      </div>
+      <CtaButton label="次へ" divider onClick={() => done(date || null)} />
+    </>
+  )
+}
+
+/* ── SCR-11c 憧れの曲名(未収録そのまま登録可・リクエスト記録 §27-8・到達予測なし) ── */
+function Scr11C() {
+  const s = useOnboarding()
+  const [song, setSong] = useState(s.ans.goalSong ?? "")
+  return (
+    <>
+      <Header />
+      <AvatarBubble poseKey="question">その曲の名前を教えて!(なんでもOK)</AvatarBubble>
+      <div className={styles.list}>
+        <input
+          className={styles.input}
+          placeholder="曲名を入力"
+          value={song}
+          onChange={(e) => setSong(e.target.value)}
+          aria-label="曲名"
+        />
+      </div>
+      <CtaButton
+        label="次へ"
+        divider
+        onClick={() => {
+          const name = song.trim() || null
+          s.setAns({ goalSong: name })
+          s.setSongRequest(name)
+          s.setSeg("goal", 1)
+          s.go("SCR12")
+        }}
+      />
+    </>
+  )
+}
+
+/* ── SCR-12 (C4で本実装: 旅の地図+プランサマリー) ── */
+function Scr12Stub() {
+  const s = useOnboarding()
+  const period = estimatePeriod(s.result?.star ?? 1, s.ans.q4star ?? 1, s.ans.q6 ?? "").label
+  return (
+    <>
+      <Header />
+      <AvatarBubble poseKey="bravo">
+        ここまでありがとう!
+        <br />
+        <span style={{ fontSize: "80%", color: "#777" }}>
+          (★{s.result?.star} / {s.ans.q4song} ⭐︎{s.ans.q4star} を {s.ans.q6} で{period} /
+          ゴール: {s.ans.goalSong ?? s.ans.q8}
+          {s.ans.goalDate ? ` @${s.ans.goalDate}` : ""})
+        </span>
       </AvatarBubble>
       <div className={styles.list}>
         <div style={{ fontSize: "min(1.9cqh,16px)", color: "#777", fontWeight: 400 }}>
-          ここから先(Q3 先生〜完了画面)は C3 で実装します。
+          完了画面「旅の地図 + あなたの練習プラン」は C4 で実装します。
         </div>
       </div>
-      <CtaButton label="次へ(C3で実装)" disabled divider />
+      <CtaButton label="さっそくスタートする(C4で実装)" disabled divider />
     </>
   )
 }
@@ -304,11 +598,16 @@ const SCREENS: Record<ScreenId, () => React.ReactElement> = {
   L_G3S: GateG3S,
   L_G4: GateG4,
   L_G5: GateG5,
-  SCR07: Scr07Stub,
-  // C3以降のプレースホルダ(ルーター型の完全性のため定義)
-  SCR08A: Scr07Stub, SCR08B: Scr07Stub, SCR10: Scr07Stub, SCR08C: Scr07Stub,
-  SCR09: Scr07Stub, SCR11: Scr07Stub, SCR11B: Scr07Stub, SCR11C: Scr07Stub,
-  SCR12: Scr07Stub,
+  SCR07: Scr07,
+  SCR08A: Scr08A,
+  SCR08B: Scr08B,
+  SCR10: Scr10,
+  SCR08C: Scr08C,
+  SCR09: Scr09,
+  SCR11: Scr11,
+  SCR11B: Scr11B,
+  SCR11C: Scr11C,
+  SCR12: Scr12Stub,
 }
 
 function Router() {
