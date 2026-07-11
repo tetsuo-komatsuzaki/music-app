@@ -52,6 +52,12 @@ model User {
   userPracticeMasteries  UserPracticeMastery[]
   userTechniqueMasteries UserTechniqueMastery[]
 
+  // ▼ 工程D (2026-07-11): 新判定体系（達成/マスター/Star/学びレッスン）
+  lessonClears         UserLessonClear[]
+  scoreAchievements    UserScoreAchievement[]
+  practiceAchievements UserPracticeAchievement[]
+  starProgress         UserStarProgress?
+
   @@index([role])
 }
 
@@ -101,6 +107,9 @@ model Score {
   songMasteries            SongMastery[]
   skillTaskCards           SkillTaskCard[]
   missingPracticeItemFlags MissingPracticeItemFlag[]
+
+  // ▼ 工程D (2026-07-11): 曲の達成/マスター記録
+  userScoreAchievements UserScoreAchievement[]
   scoreTechniqueTags       ScoreTechniqueTag[] // Phase 3c (Q4=B): 完全習得判定の技法集合
 
   // ▼ 工程F (2026-07-10): 特徴タグ・副次調
@@ -198,6 +207,9 @@ enum PracticeCategory {
   bowing
   position_shift
   double_stop
+  // 工程D (2026-07-11): 学びレッスン = 教材パイプライン全再利用の新カテゴリ。
+  // 「教えるタグ」は教材自身のタグ(TechniqueTag/FeatureTag/positions)で表現。
+  lesson
 }
 
 model PracticeItem {
@@ -252,6 +264,9 @@ model PracticeItem {
   subTaskAssignments      SubTaskAssignment[]
   userPracticeMasteries   UserPracticeMastery[]
   practiceItemSubTaskTags PracticeItemSubTaskTag[]
+
+  // ▼ 工程D (2026-07-11): 教材達成記録
+  userPracticeAchievements UserPracticeAchievement[]
 
   // ▼ 工程F (2026-07-10): 特徴タグ
   featureTags PracticeItemFeatureTag[]
@@ -696,6 +711,67 @@ model UserTechniqueMastery {
 
   @@unique([userId, techniqueTagId])
   @@index([userId, isMastered])
+}
+
+// ============================================================================
+// 工程D (2026-07-11): 新判定体系（spec§1・達成/マスター/Star/学びレッスン）
+// 旧記録テーブル(UserPracticeMastery/UserGrade等)は意味が違うため流用しない。
+// 書き手は loop_engine (Python raw SQL)。永続・遡及なし（一度成立したら消さない）。
+// ============================================================================
+
+// 学びレッスンのクリア記録（一度きり・永続・難易度非依存 = spec§1-5）
+model UserLessonClear {
+  id           String   @id @default(cuid())
+  userId       String
+  tagType      String // "technique" | "position" | "double_stop"
+  tagKey       String // TechniqueTag名 / ポジション番号("3") / FeatureTag名("3度"等)
+  lessonItemId String? // クリアに使ったlesson教材（教材差替えに耐えるためnull可）
+  clearedAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tagType, tagKey])
+  @@index([userId])
+}
+
+// 曲の達成/マスター記録（達成=3回崩壊ゼロ+レッスン+エチュード要件 / マスター=達成+avg90）
+model UserScoreAchievement {
+  id                    String    @id @default(cuid())
+  userId                String
+  scoreId               String
+  achievedAt            DateTime  @default(now())
+  starAtAchievement     Int // 達成時の★（Star昇格「同★10曲」の集計キー）
+  masteredAt            DateTime? // 達成後 直近5回平均90成立時に刻む（消さない）
+  achievedPerformanceId String? // 達成を確定させた演奏（お祝いUI用）
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score Score @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, scoreId])
+  @@index([userId, starAtAchievement])
+}
+
+// 教材の達成記録（3回崩壊ゼロ。エチュード要件・練習済み除外の判定材料）
+model UserPracticeAchievement {
+  id             String   @id @default(cuid())
+  userId         String
+  practiceItemId String
+  achievedAt     DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, practiceItemId])
+  @@index([userId])
+}
+
+// Starの現在地（昇格 = UserScoreAchievement の同★件数≥10）
+model UserStarProgress {
+  userId      String   @id
+  currentStar Int      @default(1)
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // ─── (8) PracticeItemSubTaskTag: PracticeItem ⇔ sub_task の多対多 ───

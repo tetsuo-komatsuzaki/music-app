@@ -1921,7 +1921,11 @@ def _run_diagnosis_v217(
 
         with open(comparison_path, encoding="utf-8") as f:
             comp = json.load(f)
-        comp_results = comp.get("results") or comp.get("evaluatedNotes") or []
+        # 旧形式は results 配列が直置き、新形式は {"results": [...]}
+        if isinstance(comp, list):
+            comp_results = comp
+        else:
+            comp_results = comp.get("results") or comp.get("evaluatedNotes") or []
         with open(skill_info_path, encoding="utf-8") as f:
             karte = json.load(f)
         analysis_notes = None
@@ -1959,9 +1963,52 @@ def _run_diagnosis_v217(
         print(f"[loop_engine_runner] WARNING: diagnosis_v217 store failed: {e}")
 
 
-# 工程C-4: 旧課題カード生成の停止フラグ (既定 true=現状維持。工程Dで新カードと
-# 同時に "false" へ切替予定。env フリップだけでロールバック可能にしておく)
-_ENABLE_LEGACY_CARDS = os.environ.get("ENABLE_LEGACY_CARDS", "true").lower() != "false"
+# 工程C-4→D: 旧課題カード生成の停止フラグ。
+# 工程D (2026-07-11) で既定を false=停止 に切替 (Tetsuo確定・退役3段階の①)。
+# 消費UI (上達ループタブ/ホーム課題) は C-6a で新弱点表示に置換済みのため誰も読まない。
+# 万一の復旧は環境変数 ENABLE_LEGACY_CARDS=true で即時可能。
+_ENABLE_LEGACY_CARDS = os.environ.get("ENABLE_LEGACY_CARDS", "false").lower() == "true"
+
+
+def _run_achievement_v2(
+    conn,
+    *,
+    user_id: str,
+    performance_id: str,
+    is_practice: bool,
+    score_id: str = None,
+    practice_item_id: str = None,
+) -> None:
+    """工程D (2026-07-11): 新判定（達成/マスター/Star/レッスン）step 5.6。
+
+    診断 step 5.5 が保存した collapse.is_clean を読むため、必ず診断の後に呼ぶ。
+    失敗は SAVEPOINT 隔離＋警告のみ（既存パイプライン無傷）。
+    """
+    try:
+        from lib.achievement import (
+            process_practice_achievement,
+            process_score_achievement,
+        )
+
+        with conn.cursor() as cur:
+            cur.execute("SAVEPOINT achievement_v2")
+            if is_practice:
+                summary = process_practice_achievement(
+                    cur, user_id, practice_item_id, performance_id
+                )
+            else:
+                summary = process_score_achievement(
+                    cur, user_id, score_id, performance_id
+                )
+            cur.execute("RELEASE SAVEPOINT achievement_v2")
+        print(f"[loop_engine_runner] achievement_v2: {summary}")
+    except Exception as e:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("ROLLBACK TO SAVEPOINT achievement_v2")
+        except Exception:
+            pass
+        print(f"[loop_engine_runner] WARNING: achievement_v2 failed: {e}")
 
 
 def run_score_mode() -> None:
@@ -2158,6 +2205,16 @@ def run_score_mode() -> None:
             comparison_path=comparison_path,
             skill_info_path=skill_info_path,
             analysis_path=analysis_path,
+        )
+
+        # 5.6. 工程D (2026-07-11): 新判定（達成/マスター/Star）。
+        #      診断が保存した崩壊判定(is_clean)を読むため 5.5 の後に置く。
+        _run_achievement_v2(
+            conn,
+            user_id=user_internal_id,
+            performance_id=performance_id,
+            is_practice=False,
+            score_id=score_id,
         )
 
         # 6. Phase 3b: SkillTaskCard / SubTask / SubTaskAssignment /
@@ -2386,6 +2443,15 @@ def main() -> None:
             comparison_path=comparison_path,
             skill_info_path=skill_info_path,
             analysis_path=analysis_path,
+        )
+
+        # 5.6. 工程D (2026-07-11): 新判定（教材達成+レッスンクリア）。5.5 の後に置く。
+        _run_achievement_v2(
+            conn,
+            user_id=user_id,
+            performance_id=performance_id,
+            is_practice=True,
+            practice_item_id=practice_item_id,
         )
 
         # 6. 累積処理 (v3.2.3 §7-4 / §9 / §10) — Step 5 と同 transaction で atomic
