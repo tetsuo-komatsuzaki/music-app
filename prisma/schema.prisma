@@ -58,6 +58,14 @@ model User {
   practiceAchievements UserPracticeAchievement[]
   starProgress         UserStarProgress?
 
+  // ▼ オンボーディング C5 (2026-07-12)
+  // 診断予約: 元用途(初回演奏時に診断)は工程Cで常時診断化され充足済み。
+  // 現在の意味 = 初回演奏時に仮習得(UserTagAcquisition)を検証する予約。
+  diagnosisReservedAt DateTime?
+  onboardingProfile   OnboardingProfile?
+  tagAcquisitions     UserTagAcquisition[]
+  songRequests        SongRequest[]
+
   @@index([role])
 }
 
@@ -763,6 +771,72 @@ model UserPracticeAchievement {
 
   @@unique([userId, practiceItemId])
   @@index([userId])
+}
+
+// ============================================================================
+// オンボーディング C5 (2026-07-12): 回答保存・仮習得・曲リクエスト・曲カタログ
+// 全ユーザー対象(既存ユーザーも次回ログインで質問を受ける = Tetsuo確定 2026-07-12)。
+// ============================================================================
+
+// オンボーディング回答（ドラフト=中断復帰 + 完了記録）。answersはJSONBで保持し、
+// 将来の消費(Q5→読譜初期値/Q6→ストリーク目標等)はprofile経由で読む。
+model OnboardingProfile {
+  userId      String    @id
+  answers     Json      @default("{}") // q2〜q8 / goalDate / goalSong
+  ladder      Json      @default("{}") // ラダー回答(再判定・監査用)
+  screen      String? // 中断復帰用の現在画面
+  seg         Json      @default("{}") // プログレスバー状態
+  star        Int? // 確定★(ラダー判定結果)
+  completedAt DateTime? // 「さっそくスタートする」時刻。非null=オンボ済み
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// 仮習得3状態モデル (§27-5): PROVISIONAL(自己申告) → CONFIRMED(初回演奏で検証OK)
+//                            / REVOKED(検証NGで剥奪)。
+// 工程DのUserLessonClear(レッスン実績)とは別物=自己申告スキル。
+// 【必須の後続タスク】achievement.py 達成要件① を
+//   UserLessonClear ∪ UserTagAcquisition(state≠REVOKED) に拡張(レッスン制作開始前に実施)。
+model UserTagAcquisition {
+  id          String    @id @default(cuid())
+  userId      String
+  tagType     String // "technique" | "position" | "double_stop"
+  tagKey      String // "スラー" / "3rd" / "3度"
+  state       String    @default("PROVISIONAL") // PROVISIONAL | CONFIRMED | REVOKED
+  source      String    @default("onboarding")
+  confirmedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tagType, tagKey])
+}
+
+// 未収録曲リクエスト (§27-8): Q8「憧れの曲」の自由入力。曲追加時通知の元データ。
+model SongRequest {
+  id        String   @id @default(cuid())
+  userId    String
+  songName  String
+  source    String   @default("onboarding")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([songName])
+}
+
+// 曲カタログ (v1.0確定・DB化)。モックJSONはAPI失敗時のフォールバックとして残す。
+model OnboardingSong {
+  id        String  @id @default(cuid())
+  category  String // movie | classic | season
+  name      String
+  star      Int
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+
+  @@unique([category, name])
 }
 
 // Starの現在地（昇格 = UserScoreAchievement の同★件数≥10）

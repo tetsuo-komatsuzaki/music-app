@@ -22,6 +22,8 @@ import {
   type ProgressState,
 } from "../_components/ProgressBar"
 import { judge, type JudgeResult, type LadderAnswers } from "./logic"
+import type { CatalogCategory } from "./catalog"
+import { saveOnboardingDraft } from "./actions"
 
 export type ScreenId =
   | "SCR01" | "SCR02" | "SCR03" | "SCR04"
@@ -52,6 +54,9 @@ type OnboardingState = {
   songRequest: string | null
 }
 
+/** サーバードラフトの受け渡し等で使う公開型 */
+export type OnboardingPublicState = OnboardingState
+
 const INITIAL: OnboardingState = {
   screen: "SCR01",
   history: [],
@@ -65,6 +70,10 @@ const INITIAL: OnboardingState = {
 const DRAFT_KEY = "arcoda_onboarding_draft_v1"
 
 type Store = OnboardingState & {
+  /** 曲カタログ(サーバー=DBが正。失敗時はモックJSONフォールバック) */
+  catalog: Record<string, CatalogCategory>
+  /** 完了後の遷移先(/{supabaseUserId}) */
+  homePath: string
   go: (scr: ScreenId) => void
   back: () => void
   setAns: (patch: Partial<Answers>) => void
@@ -78,24 +87,65 @@ type Store = OnboardingState & {
 
 const Ctx = createContext<Store | null>(null)
 
-export function OnboardingProvider({ children }: { children: ReactNode }) {
+export function OnboardingProvider({
+  children,
+  catalog,
+  homePath,
+  serverDraft,
+}: {
+  children: ReactNode
+  catalog: Record<string, CatalogCategory>
+  homePath: string
+  /** サーバー保存済みドラフト(正)。null=未保存 → localStorageフォールバック */
+  serverDraft: Partial<OnboardingState> | null
+}) {
   const [state, setState] = useState<OnboardingState>(INITIAL)
   const restored = useRef(false)
 
-  // ドラフト復帰(初回マウント時のみ)
+  // ドラフト復帰(初回マウント時のみ)。サーバーが正・localStorageはフォールバック(C5)
   useEffect(() => {
     if (restored.current) return
     restored.current = true
+    const hydrate = (draft: Partial<OnboardingState>) => {
+      const merged: OnboardingState = { ...INITIAL, ...draft }
+      // ラダー確定済みなら判定を再計算(サーバードラフトは★のみ保持のため、
+      // 仮習得タグを復元する。判定は決定的なので同じ結果になる)
+      if ((merged.seg?.ladder ?? 0) >= 1) {
+        merged.result = judge({
+          beginner: merged.ans.q2 === "これから始める",
+          ...merged.ladder,
+        })
+      }
+      setState(merged)
+    }
+    if (serverDraft?.screen && serverDraft.seg) {
+      hydrate(serverDraft)
+      return
+    }
     try {
       const raw = localStorage.getItem(DRAFT_KEY)
       if (raw) {
         const draft = JSON.parse(raw) as OnboardingState
-        if (draft.screen && draft.seg) setState({ ...INITIAL, ...draft })
+        if (draft.screen && draft.seg) hydrate(draft)
       }
     } catch {
       /* 壊れたドラフトは無視して最初から */
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // サーバードラフト保存(画面遷移ごと・fire-and-forget。失敗しても画面は止めない)
+  useEffect(() => {
+    if (!restored.current || state.screen === "SCR01") return
+    void saveOnboardingDraft({
+      answers: state.ans as Record<string, unknown>,
+      ladder: state.ladder as Record<string, unknown>,
+      screen: state.screen,
+      seg: state.seg,
+      star: state.result?.star ?? null,
+    }).catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.screen])
 
   // ドラフト保存
   useEffect(() => {
@@ -110,6 +160,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const store = useMemo<Store>(
     () => ({
       ...state,
+      catalog,
+      homePath,
       go: (scr) =>
         setState((s) => ({ ...s, history: [...s.history, s.screen], screen: scr })),
       back: () =>
@@ -151,7 +203,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         setState(INITIAL)
       },
     }),
-    [state],
+    [state, catalog, homePath],
   )
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>

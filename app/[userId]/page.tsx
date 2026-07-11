@@ -1,4 +1,6 @@
+import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
+import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { generateArcoMessage } from "@/app/_libs/arcoChan"
 import {
   badgeKind,
@@ -66,6 +68,20 @@ export default async function HomePage({ params }: PageProps) {
   console.log(`[PERF] home step1_dbUser: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   const internalUserId = dbUser.id
+
+  // オンボーディングC5 (2026-07-12): 未完了なら質問フローへ(本人閲覧時のみ)。
+  // 全ユーザー対象=既存ユーザーも次回ログインで質問を受ける(Tetsuo確定)。
+  const supabase = await createServerSupabaseClient()
+  const {
+    data: { user: sessionUser },
+  } = await supabase.auth.getUser()
+  if (sessionUser?.id === userId) {
+    const onb = await prisma.onboardingProfile.findUnique({
+      where: { userId: internalUserId },
+      select: { completedAt: true },
+    })
+    if (!onb?.completedAt) redirect("/onboarding")
+  }
 
   // 今週の月曜日
   const now = new Date()

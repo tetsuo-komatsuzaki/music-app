@@ -88,6 +88,27 @@ export function toProvisionalFlags(result: JudgeResult) {
   ]
 }
 
+// DB保存用(C5): UserTagAcquisition の (tagType, tagKey) へ変換。
+// tagKey は工程Dの UserLessonClear と同じ体系に揃える(将来の要件①統合のため):
+//   technique = タグ名そのまま / position = 番号文字列("2".."6") / double_stop = "3度"等
+const _POSITION_KEY: Record<string, string> = {
+  "ポジション(2nd)": "2", "ポジション移動(3rd)": "3", "ポジション(4th)": "4",
+  "ポジション(5th)": "5", "ポジション(6th以上)": "6",
+}
+
+export function toAcquisitionFlags(
+  result: JudgeResult,
+): Array<{ tagType: string; tagKey: string }> {
+  const flags: Array<{ tagType: string; tagKey: string }> = []
+  for (const t of result.tags) {
+    const posKey = _POSITION_KEY[t]
+    if (posKey) flags.push({ tagType: "position", tagKey: posKey })
+    else flags.push({ tagType: "technique", tagKey: t })
+  }
+  for (const d of result.doubleStops) flags.push({ tagType: "double_stop", tagKey: d })
+  return flags
+}
+
 // ============================================================
 // 到達予測ロジック v3(2026-07-11): ★差 × 練習時間 → 習得期間
 // 全パラメータは Tetsuo 確定値(独断変更禁止)
