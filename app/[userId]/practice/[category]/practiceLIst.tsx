@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import styles from "../practice.module.css"
-import type { ScoredItemDTO } from "@/app/lib/practice/getRecommendations"
 import type { PracticeStats } from "@/app/lib/practice/getPracticeStats"
 import OnboardingTrigger from "../../_onboarding/OnboardingTrigger"
 import { tonicToJa } from "@/app/_libs/musicNotation"
@@ -63,10 +62,6 @@ type Props = {
   items: PracticeItemDTO[]
   filterOptions: { keys: string[]; positions: string[] }
   currentFilters: { key?: string; position?: string }
-  /** 今日の課題: アクティブカードに紐づく practiceItem (旧 AIおすすめの差し替え) */
-  recommendations: ScoredItemDTO[]
-  /** 今日の課題のラベル (アクティブカード sub_task / task 名)。null=課題なし */
-  todayTaskLabel: string | null
   stats: PracticeStats
 }
 
@@ -96,7 +91,7 @@ function decomposesTitle(category: string): boolean {
   return ["scale", "scales", "arpeggio", "arpeggios"].includes(category)
 }
 
-function extractCardInfo(item: PracticeItemDTO | ScoredItemDTO) {
+function extractCardInfo(item: PracticeItemDTO) {
   const category = item.category
   const isArpeggio = category === "arpeggio" || category === "arpeggios"
   const decompose  = decomposesTitle(category)
@@ -131,7 +126,7 @@ function extractCardInfo(item: PracticeItemDTO | ScoredItemDTO) {
   const octMatch = item.title.match(/(\d+)オクターブ/)
   const octaves  = octMatch ? parseInt(octMatch[1]) : null
 
-  const techniques = "techniques" in item ? item.techniques : ("techniqueNames" in item ? (item as ScoredItemDTO).techniqueNames : [])
+  const techniques = item.techniques
   const bowTech   = techniques[0] ?? null
 
   // chordType chip: arpeggio のみ。metadata.chordType 優先、旧 title 形式 fallback
@@ -406,12 +401,10 @@ function GroupView({
 // ────────────────────────────────────────────────────────────
 
 export default function PracticeList({
-  userId, category, categoryTitle, items, filterOptions: _filterOptions, currentFilters: _currentFilters, recommendations: _recommendations, todayTaskLabel: _todayTaskLabel, stats: _stats,
+  userId, category, categoryTitle, items, filterOptions: _filterOptions, currentFilters: _currentFilters, stats: _stats,
 }: Props) {
   void _filterOptions
   void _currentFilters
-  void _recommendations
-  void _todayTaskLabel
   void _stats
   const searchParams = useSearchParams()
   const initialView: ViewType = (() => {

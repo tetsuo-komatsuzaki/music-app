@@ -91,21 +91,6 @@ export const SUB_TASK_IDS = [
 ] as const
 export type SubTaskId = (typeof SUB_TASK_IDS)[number]
 
-// MVP では音声側品質判定が未実装の項目 (タグから対象音符は絞れるが判定は別タスク)。
-// 表示時にバッジ等で「精査中」を示す用途。詳細は
-// [[project_subtask_quality_judgment_deferred]] 参照。
-export const SUB_TASKS_QUALITY_DEFERRED = new Set<SubTaskId>([
-  "bowing_technique_staccato",
-  "bowing_technique_spiccato",
-  "bowing_technique_pizzicato",
-  "bowing_technique_tremolo",
-  "bowing_technique_portato",
-  "bowing_technique_trill",
-  "bowing_technique_glissando",
-  "bowing_technique_staccato_continuous",
-  "bowing_technique_spiccato_continuous",
-])
-
 // 「将来検討」フラグ (MVP 未実装、UI で非表示)。2026-06-08 リコシェ削除で現在は空。
 export const SUB_TASKS_FUTURE = new Set<SubTaskId>([])
 
@@ -253,93 +238,11 @@ export const AXES: AxisDef[] = [
 ]
 
 // =======================================================================
-// improvementGuide 型
-// =======================================================================
-
-export type AwarenessGuide = {
-  type: "awareness"
-  title: string
-  description: string
-}
-
-export type PracticeGuide = {
-  type: "practice"
-  title: string
-  description: string
-  durationMinutes: number
-  steps: string[]
-}
-
-export type EtudeRecommendationGuide = {
-  type: "etude_recommendation"
-  title: string
-  description: string
-}
-
-export type ImprovementGuide = {
-  awareness: AwarenessGuide
-  practice: PracticeGuide
-  etudeRecommendation: EtudeRecommendationGuide
-}
-
-export type SubTaskDef = {
-  id: SubTaskId
-  parentTaskId: TaskId
-  name: string
-  improvementGuide: ImprovementGuide
-}
-
-// =======================================================================
-// improvementGuide 暫定文言 (UI 設計書で書き直し前提)
-// =======================================================================
-
-function makeGuide(awarenessText: string, practiceTitle: string, practiceSteps: string[]): ImprovementGuide {
-  return {
-    awareness: {
-      type: "awareness",
-      title: "意識のポイント",
-      description: awarenessText,
-    },
-    practice: {
-      type: "practice",
-      title: practiceTitle,
-      description: "ゆっくりとしたテンポで集中して取り組む練習です。",
-      durationMinutes: 5,
-      steps: practiceSteps,
-    },
-    etudeRecommendation: {
-      type: "etude_recommendation",
-      title: "教材選定中",
-      description: "該当課題に最適なエチュードを別途選定します。",
-    },
-  }
-}
-
-// 暫定: 各サブタスクに最小限の改善ガイドを付与。本実装時に上書き予定。
-export const SKILL_SUB_TASKS: Record<SubTaskId, SubTaskDef> = Object.fromEntries(
-  SUB_TASK_IDS.map((id): [SubTaskId, SubTaskDef] => {
-    const parentTaskId: TaskId = id.startsWith("pitch_") ? "pitch"
-      : id.startsWith("rhythm_") ? "rhythm"
-      : "bowing"
-    return [id, {
-      id,
-      parentTaskId,
-      name: SUB_TASK_NAMES[id],
-      improvementGuide: makeGuide(
-        `${SUB_TASK_NAMES[id]}を意識して、ゆっくり丁寧に演奏してみましょう。`,
-        `${SUB_TASK_NAMES[id]}の基礎練習`,
-        [
-          "メトロノームを♩=60に設定する",
-          "該当箇所を一音ずつ確認しながら演奏する",
-          "うまく出来ない箇所を抜き出して繰り返し練習する",
-        ],
-      ),
-    }]
-  }),
-) as Record<SubTaskId, SubTaskDef>
-
-// =======================================================================
-// グレード (§7-5, §10) — サブタスク再設計の影響範囲外、旧定義を維持
+// C-6b掃除 (2026-07-11): 旧55課題体系の改善ガイド (SKILL_SUB_TASKS/ImprovementGuide) と
+// GRADE_DIFFICULTY_RANGE は削除 (消費者=旧skill-detail/旧推薦は退役済・git fa7b266 以前参照)。
+// 本ファイルの残存定義の現役用途は2つだけ:
+//   1. 管理画面の採点タグUI (SUB_TASK_IDS 等) — 弓採点(bowing_score.py)のゲート用
+//   2. GradeLevel/GRADE_NAMES — ★由来グレード表示 (_libs/starProgress.ts が導出)
 // =======================================================================
 
 export const GRADE_LEVELS = ["BEGINNER", "INTERMEDIATE", "ADVANCED", "MASTER"] as const
@@ -351,16 +254,4 @@ export const GRADE_NAMES: Record<GradeLevel, string> = {
   INTERMEDIATE: "中級者",
   ADVANCED: "上級者",
   MASTER: "マスター",
-}
-
-// difficulty は 1〜10 (Commit 1.5 で backfill 済み、Excel 1-5 を ×2 で拡張)
-export const GRADE_DIFFICULTY_RANGE: Record<GradeLevel, readonly [number, number]> = {
-  BEGINNER: [1, 4],
-  INTERMEDIATE: [3, 7],
-  ADVANCED: [6, 10],
-  MASTER: [1, 10],
-}
-
-export function getDifficultyRange(grade: GradeLevel): readonly [number, number] {
-  return GRADE_DIFFICULTY_RANGE[grade]
 }

@@ -1,21 +1,14 @@
 // DELETE /api/score-performances/[performanceId]
 //
-// v1.6 Phase 5 (2026-05-18) — Score 演奏 (Performance) 削除 + 累積データ再計算。
-// practice 版 DELETE /api/practice-performances/[performanceId] と対称。
-//
-// skillRecalc は Phase 5 で Practice + Score 合算 (ノート数加重平均) に拡張済。
-// Score 演奏削除でも recalculateAllForUser を走らせ skill 指標を一貫再計算する。
+// Score 演奏 (Performance) 削除。practice 版と対称。
+// C-6b掃除 (2026-07-11): 旧skill指標の再計算 (skillRecalc) は退役。
+// 新体系の記録 (診断・達成) は遡及なし原則のため削除時の再計算はしない。
 //
 // 認可: Performance.userId === dbUser.id の演奏のみ削除可、他者/不在は 404。
-// Phase 3c 累積 (SongMastery / UserGradeProgress 等) は Q1=B 永続設計のため
-// 削除時の逆再計算は行わない (次演奏時に recentAverage 等は自然再計算される)。
 
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
-import { recalculateAllForUser } from "@/app/_libs/skillRecalc"
-
-const TX_TIMEOUT_MS = 30_000 // 累積再計算 + 削除を含むため余裕を取る
 
 export async function DELETE(
   _request: NextRequest,
@@ -46,18 +39,7 @@ export async function DELETE(
   }
 
   // PerformanceSkillFeedback は CASCADE で連動削除
-  const recalculatedAt = await prisma.$transaction(
-    async tx => {
-      await tx.performance.delete({ where: { id: performanceId } })
-      await recalculateAllForUser(tx, dbUserId)
-      return new Date()
-    },
-    { timeout: TX_TIMEOUT_MS },
-  )
+  await prisma.performance.delete({ where: { id: performanceId } })
 
-  return NextResponse.json({
-    deleted: true,
-    performanceId,
-    recalculatedAt: recalculatedAt.toISOString(),
-  })
+  return NextResponse.json({ deleted: true, performanceId })
 }
