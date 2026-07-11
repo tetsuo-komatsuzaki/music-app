@@ -370,8 +370,100 @@
   font-weight: 700;
 }
 
+/* ===== SCR-12 旅の地図 (v0.4 §B・モック承認済) ===== */
+.planHead {
+  position: absolute;
+  top: 8.7%;
+  width: 100%;
+  text-align: center;
+  font-size: var(--fs-section-head);
+  font-weight: 800;
+  color: var(--text-main);
+}
+.mapArea {
+  position: absolute;
+  top: 16%;
+  left: 4%;
+  width: 92%;
+  height: 26%;
+}
+.mapSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+/* 描画アニメ: 現在地からの最初の一歩(緑)がスッと伸びる */
+.mapStep {
+  stroke-dasharray: 1 14;
+  animation: mapReveal 0.9s ease-out 0.3s backwards;
+}
+@keyframes mapReveal {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.mapNode {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 2;
+}
+.mapCircle {
+  width: min(5.5cqh, 48px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  margin: 0 auto 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: min(2.5cqh, 22px);
+  background: #fff;
+  border: 3px solid var(--border);
+}
+.mapNodeNow .mapCircle {
+  border-color: var(--primary);
+}
+.mapNodeGoal .mapCircle {
+  border-color: #f7c948;
+}
+.mapLbl {
+  font-size: min(1.4cqh, 12px);
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+}
+.mapSub {
+  font-size: min(1.3cqh, 11px);
+  color: var(--text-sub);
+  white-space: nowrap;
+}
+.mapArco {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+.plan {
+  position: absolute;
+  top: 47%;
+  left: 4%;
+  width: 92%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+}
+.doneNote {
+  position: absolute;
+  bottom: 12.5%;
+  width: 100%;
+  text-align: center;
+  font-size: min(1.6cqh, 14px);
+  color: var(--primary);
+  font-weight: 700;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bubble { animation: none; }
   .pfill { transition: none; }
   .arcoEnter { animation: none; }
+  .mapStep { animation: none; }
 }

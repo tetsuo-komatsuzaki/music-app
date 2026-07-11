@@ -561,28 +561,113 @@ function Scr11C() {
   )
 }
 
-/* ── SCR-12 (C4で本実装: 旅の地図+プランサマリー) ── */
-function Scr12Stub() {
+/* ── SCR-12 完了画面「旅の地図 + あなたの練習プラン」(C4・モック承認済 v0.4§B) ──
+   いま🎻 ─ 目標曲⭐︎(予測) ─ 星を積み上げる ─ 🏆最終ゴール を登りパスで接続。
+   アルコ2体: 「いま」右下=構え(ready) / ゴール左上=紙吹雪ブラボー(bravo)。
+   CTAの保存接続(サーバー)は C5。ここではペイロードをコンソール証跡出力。 */
+const Q6_LABEL: Record<string, string> = {
+  "5分 / 日": "まずは気軽に",
+  "15分 / 日": "しっかり",
+  "30分 / 日": "本気",
+  "それ以上": "情熱的",
+}
+
+function Scr12() {
   const s = useOnboarding()
-  const period = estimatePeriod(s.result?.star ?? 1, s.ans.q4star ?? 1, s.ans.q6 ?? "").label
+  const [done, setDone] = useState(false)
+  const star = s.result?.star ?? 1
+  const period = estimatePeriod(star, s.ans.q4star ?? 1, s.ans.q6 ?? "").label
+  const goalLbl = s.ans.goalSong || s.ans.q8 || "最終ゴール"
+
+  const finish = () => {
+    // C5でサーバー保存に接続。ペイロード形はここで確定(検証証跡)
+    const payload = {
+      answers: s.ans,
+      star,
+      flags: toProvisionalFlags(s.result ?? { star, tags: [], doubleStops: [], notes: [] }),
+      diagnosisReservedAt: new Date().toISOString(),
+      songRequest: s.songRequest,
+    }
+    console.log("=== 登録ペイロード(C5でサーバー保存) ===")
+    console.log(JSON.stringify(payload, null, 1))
+    setDone(true)
+  }
+
   return (
     <>
-      <Header />
-      <AvatarBubble poseKey="bravo">
-        ここまでありがとう!
-        <br />
-        <span style={{ fontSize: "80%", color: "#777" }}>
-          (★{s.result?.star} / {s.ans.q4song} ⭐︎{s.ans.q4star} を {s.ans.q6} で{period} /
-          ゴール: {s.ans.goalSong ?? s.ans.q8}
-          {s.ans.goalDate ? ` @${s.ans.goalDate}` : ""})
-        </span>
-      </AvatarBubble>
-      <div className={styles.list}>
-        <div style={{ fontSize: "min(1.9cqh,16px)", color: "#777", fontWeight: 400 }}>
-          完了画面「旅の地図 + あなたの練習プラン」は C4 で実装します。
+      <div className={styles.planHead}>あなたの練習プラン</div>
+
+      {/* 旅の地図(登りパス: 破線グレー→最初の一歩のみ緑・描画アニメ) */}
+      <div className={styles.mapArea}>
+        <svg className={styles.mapSvg} viewBox="0 0 370 254" fill="none">
+          <path
+            d="M 36 200 C 100 205, 110 130, 150 122 S 240 105, 262 78 S 312 55, 328 44"
+            stroke="#E5E5E5"
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray="1 14"
+          />
+          <path
+            className={styles.mapStep}
+            d="M 36 200 C 60 202, 72 190, 82 178"
+            stroke="#58CC02"
+            strokeWidth="6"
+            strokeLinecap="round"
+          />
+        </svg>
+        <div className={`${styles.mapArco}`} style={{ left: "28%", top: "90%", width: "16%", aspectRatio: 1 }}>
+          <ArcoChan poseKey="ready" />
+        </div>
+        <div className={`${styles.mapArco}`} style={{ left: "74%", top: "8%", width: "13%", aspectRatio: 1 }}>
+          <ArcoChan poseKey="bravo" />
+        </div>
+        <div className={`${styles.mapNode} ${styles.mapNodeNow}`} style={{ left: "9.7%", top: "79%" }}>
+          <div className={styles.mapCircle}>🎻</div>
+          <div className={styles.mapLbl}>いま ★{star}</div>
+        </div>
+        <div className={styles.mapNode} style={{ left: "40.5%", top: "48%" }}>
+          <div className={styles.mapCircle}>⭐️</div>
+          <div className={styles.mapLbl}>
+            {s.ans.q4song ?? "目標曲"} ⭐︎{s.ans.q4star ?? ""}
+          </div>
+          <div className={styles.mapSub}>
+            <b>{period}</b>で到達
+          </div>
+        </div>
+        <div className={styles.mapNode} style={{ left: "70.8%", top: "31%" }}>
+          <div className={styles.mapCircle}>✨</div>
+          <div className={styles.mapLbl}>星を積み上げる</div>
+        </div>
+        <div className={`${styles.mapNode} ${styles.mapNodeGoal}`} style={{ left: "88.5%", top: "16.5%" }}>
+          <div className={styles.mapCircle}>🏆</div>
+          <div className={styles.mapLbl}>{goalLbl}</div>
         </div>
       </div>
-      <CtaButton label="さっそくスタートする(C4で実装)" disabled divider />
+
+      {/* プランサマリー3枚(c型流用・実回答バインド。予測はSCR-08cと同値=同一関数) */}
+      <div className={styles.plan}>
+        <div className={styles.card}>
+          <span className={styles.cardIco}>🎻</span>
+          <span className={styles.cardMain}>
+            {s.ans.q4song}{" "}
+            <span style={{ color: "var(--primary)", fontSize: "0.8em" }}>⭐︎{s.ans.q4star}</span>
+          </span>
+          <span className={styles.cardSub}>{period}で到達</span>
+        </div>
+        <div className={styles.card}>
+          <span className={styles.cardIco}>⏱️</span>
+          <span className={styles.cardMain}>{s.ans.q6}</span>
+          <span className={styles.cardSub}>{Q6_LABEL[s.ans.q6 ?? ""] ?? ""}</span>
+        </div>
+        <div className={styles.card}>
+          <span className={styles.cardIco}>🏆</span>
+          <span className={styles.cardMain}>{s.ans.q8}</span>
+          <span className={styles.cardSub}>{s.ans.goalDate ?? ""}</span>
+        </div>
+      </div>
+
+      {done && <div className={styles.doneNote}>プランを保存しました!(サーバー接続はC5)</div>}
+      <CtaButton label="さっそくスタートする" divider onClick={finish} />
     </>
   )
 }
@@ -607,7 +692,7 @@ const SCREENS: Record<ScreenId, () => React.ReactElement> = {
   SCR11: Scr11,
   SCR11B: Scr11B,
   SCR11C: Scr11C,
-  SCR12: Scr12Stub,
+  SCR12: Scr12,
 }
 
 function Router() {
