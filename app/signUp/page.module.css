@@ -203,3 +203,34 @@
   gap: 8px;
   font-size: 14px;
 }
+
+/* パスワード要件など、入力欄の下に常時出すヒント */
+.hint {
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #6b7280; /* gray-500 */
+}
+
+/* 要件を満たしたときの肯定フィードバック */
+.hintOk {
+  color: #059669; /* green-600 */
+}
+
+/* 入力エラー（不一致・桁不足など）のインライン表示 */
+.error {
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #dc2626; /* red-600 */
+}
+
+/* エラー時の入力枠強調 */
+.inputError {
+  border-color: #dc2626; /* red-600 */
+}
+
+.inputError:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.25);
+}

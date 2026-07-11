@@ -9,6 +9,8 @@ import { signUpAction } from "../actions/signUpAction"
 
 
 
+const MIN_PASSWORD_LEN = 8
+
 export default function loginPage() {
 
   const [email, setEmail] = useState("")
@@ -19,9 +21,19 @@ export default function loginPage() {
   const [agree, setAgree] = useState(false)
   const [isSubmitting, setSubmitting] = useState(false)
 
+  // 入力中のリアルタイム検証（送信前にユーザーが要件を把握できるようにする）
+  const isPasswordLongEnough = password.length >= MIN_PASSWORD_LEN
+  const passwordsMatch =
+    confirmPassword.length === 0 || password === confirmPassword
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
+
+    if (!isPasswordLongEnough) {
+      alert(`パスワードは${MIN_PASSWORD_LEN}文字以上で入力してください`)
+      return
+    }
 
     if (password !== confirmPassword) {
       alert("パスワードが一致しません")
@@ -168,9 +180,23 @@ export default function loginPage() {
               value={password}
               placeholder="パスワードを入力してください"
               required
+              minLength={MIN_PASSWORD_LEN}
+              aria-describedby="password-hint"
               onChange={(e) => setPassword(e.target.value)}
               disabled={isSubmitting}
-              className={styles.input} />
+              className={`${styles.input} ${
+                password.length > 0 && !isPasswordLongEnough ? styles.inputError : ""
+              }`} />
+            <p
+              id="password-hint"
+              className={`${styles.hint} ${
+                isPasswordLongEnough ? styles.hintOk : ""
+              }`}
+            >
+              {isPasswordLongEnough
+                ? `✓ ${MIN_PASSWORD_LEN}文字以上を満たしています`
+                : `${MIN_PASSWORD_LEN}文字以上で入力してください`}
+            </p>
           </div>
 
           <div className={styles.field}>
@@ -179,11 +205,19 @@ export default function loginPage() {
               type="password"
               value={confirmPassword}
               required
+              aria-describedby="confirm-password-error"
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={isSubmitting}
-              className={styles.input}
+              className={`${styles.input} ${
+                !passwordsMatch ? styles.inputError : ""
+              }`}
               placeholder="パスワードを再入力"
             />
+            {!passwordsMatch && (
+              <p id="confirm-password-error" className={styles.error}>
+                パスワードが一致しません
+              </p>
+            )}
           </div>
 
           <div className={styles.field}>

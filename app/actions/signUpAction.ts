@@ -4,6 +4,7 @@ import { prisma } from "../_libs/prisma"
 import { createClient } from "@supabase/supabase-js"
 
 const MAX_EMAIL_LEN = 254
+const MIN_PASSWORD_LEN = 8
 const MAX_PASSWORD_LEN = 128
 const MAX_NAME_LEN = 100
 
@@ -26,8 +27,8 @@ export async function signUpAction(formData: FormData) {
   if (email.length > MAX_EMAIL_LEN || !isValidEmail(email)) {
     return { error: "メールアドレスの形式が正しくありません" }
   }
-  if (password.length < 10 || password.length > MAX_PASSWORD_LEN) {
-    return { error: "パスワードは10文字以上128文字以下で入力してください" }
+  if (password.length < MIN_PASSWORD_LEN || password.length > MAX_PASSWORD_LEN) {
+    return { error: `パスワードは${MIN_PASSWORD_LEN}文字以上${MAX_PASSWORD_LEN}文字以下で入力してください` }
   }
   if (name.length > MAX_NAME_LEN) {
     return { error: "名前が長すぎます" }
@@ -56,6 +57,19 @@ export async function signUpAction(formData: FormData) {
 
   if (error || !data.user) {
     return { error: error?.message ?? "Supabase登録失敗" }
+  }
+
+  // 既存メールの場合、Supabase は email enumeration 対策で error を返さず、
+  // identities を空配列にした難読化ユーザー（毎回ランダムな id）を返す。
+  // ここで Prisma 行を作ると supabaseUserId が衝突せずゴミ行が増えるため、
+  // 既存判定時は行を作らずに返す。
+  // セキュリティ上、レスポンスは新規登録時と同一の汎用メッセージに揃える
+  // （「登録済み」と返すと有効メールアドレスを総当たりで特定されてしまう）。
+  if (!data.user.identities || data.user.identities.length === 0) {
+    return {
+      success: true,
+      message: "確認メールを送信しました。メールを確認してログインしてください。",
+    }
   }
 
   // Prisma User を即座に作成（メール未確認状態でも DB に登録）
