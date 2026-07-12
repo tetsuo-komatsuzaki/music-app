@@ -44,6 +44,14 @@ def _parse_positions(raw: Optional[List[str]]) -> List[int]:
     return out
 
 
+def _position_key(n: int) -> str:
+    """ポジション番号 → tagKey。6以上は "6"(=6thポジション以上) に正規化。
+    学びレッスン確定#8 (2026-07-14): レッスン(2nd〜6th+の5本)・オンボーディング
+    自己申告("6"=6th+)・曲ゲートの3箇所で 6th+ の意味を統一する。
+    """
+    return "6" if int(n) >= 6 else str(n)
+
+
 def _clean_run_count(cur, table: str, owner_col: str, owner_id: str, user_id: str) -> int:
     """崩壊小節ゼロ(is_clean)の演奏の累計数。診断を持たない旧演奏は自然に対象外。"""
     cur.execute(
@@ -81,7 +89,7 @@ def _lesson_stock(cur) -> dict:
         stock["double_stop"].update(ds or [])
         for n in _parse_positions(positions):
             if n >= 2:
-                stock["position"].add(str(n))
+                stock["position"].add(_position_key(n))
     return stock
 
 
@@ -142,7 +150,9 @@ def process_practice_achievement(
         (practice_item_id,),
     )
     tags += [("double_stop", r[0]) for r in cur.fetchall()]
-    tags += [("position", str(n)) for n in _parse_positions(positions) if n >= 2]
+    tags += sorted(
+        {("position", _position_key(n)) for n in _parse_positions(positions) if n >= 2}
+    )
 
     for tag_type, tag_key in tags:
         cur.execute(
@@ -266,9 +276,14 @@ def process_score_achievement(
                 if name in stock["double_stop"]:
                     required.append(("double_stop", name))
             cur.execute('SELECT positions FROM "Score" WHERE id = %s', (score_id,))
-            for n in (cur.fetchone() or [[]])[0] or []:
-                if int(n) >= 2 and str(n) in stock["position"]:
-                    required.append(("position", str(n)))
+            score_pos_keys = {
+                _position_key(n)
+                for n in (cur.fetchone() or [[]])[0] or []
+                if int(n) >= 2
+            }
+            for key in sorted(score_pos_keys):
+                if key in stock["position"]:
+                    required.append(("position", key))
 
             if required:
                 cur.execute(
