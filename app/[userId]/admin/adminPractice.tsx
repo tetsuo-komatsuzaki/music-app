@@ -776,7 +776,7 @@ export default function AdminPractice({
                   <td>
                     {isEditing && item.type !== "score" ? (
                       <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)}>
-                        {PRACTICE_CATEGORIES.map((c) => (
+                        {[...PRACTICE_CATEGORIES, "lesson"].map((c) => (
                           <option key={c} value={c}>{categoryLabels[c] ?? c}</option>
                         ))}
                       </select>

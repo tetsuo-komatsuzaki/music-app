@@ -77,8 +77,8 @@ export async function updatePracticeItemTags(
     data.title = t
   }
   if (payload.category !== undefined) {
-    // 基礎練6 + エチュードのみ許可 (score は別テーブルのため不可)
-    if (!isPracticeCategory(payload.category)) {
+    // 基礎練6 + エチュード + 学びレッスンのみ許可 (score は別テーブルのため不可)
+    if (!isPracticeCategory(payload.category) && payload.category !== "lesson") {
       return { error: `不正なカテゴリです: ${payload.category}` }
     }
     data.category = payload.category as PracticeCategory
