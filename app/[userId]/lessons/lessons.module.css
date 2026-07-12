@@ -106,8 +106,9 @@
 .figCard :global(svg) { max-width: 100%; max-height: 100%; }
 .sheet { position: absolute; left: 0; right: 0; top: 65%; bottom: 0; background: #fff; }
 .term { display: flex; align-items: center; gap: 4%; padding: 4% 6% 0; }
+/* 用語タイル: アルコ全身ポーズ・色枠なし (実装指示書v1.2 §0-3 2026-07-12確定) */
 .termTile {
-  width: 13.5cqw; aspect-ratio: 1; border-radius: 2.5cqw; background: var(--theme);
+  width: 13.5cqw; aspect-ratio: 1; background: none;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden;
 }
 .termTile :global(svg) { width: 96%; height: 96%; }

@@ -194,7 +194,11 @@ export default async function Page({
   return (
     <>
       {pendingLessons.length > 0 && (
-        <LessonGateBanner userId={userId} lessons={pendingLessons.map((l) => ({ id: l.id, name: l.name }))} />
+        <LessonGateBanner
+          userId={userId}
+          scoreId={scoreId}
+          lessons={pendingLessons.map((l) => ({ id: l.id, name: l.name }))}
+        />
       )}
       <ScoreDetail
         score={{

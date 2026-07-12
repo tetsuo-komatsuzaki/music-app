@@ -15,6 +15,7 @@ import { recordLessonPlay } from "@/app/actions/recordLessonPlay"
 import { CATS, FEEDBACK, LESSON_BY_ID } from "../_lib/content"
 import { bowFig, fbFig, staffFig, type BowFigOpts, type FbFigOpts } from "../_lib/figures"
 import { checkSound, SOUND_CHECK_PARAMS } from "../_lib/soundCheck"
+import { playExemplar } from "../_lib/exemplar"
 import styles from "../lessons.module.css"
 
 type Screen = "INTRO" | "SLIDE" | "PLAY" | "CLEAR"
@@ -33,6 +34,8 @@ export default function LessonPlayer({
   initialPlayCount,
   alreadyCleared,
   listHref,
+  returnUrl,
+  exemplarAudioUrl,
 }: {
   lessonId: string
   practiceItemId: string
@@ -41,6 +44,10 @@ export default function LessonPlayer({
   initialPlayCount: number
   alreadyCleared: boolean
   listHref: string
+  /** 曲詳細から来た場合の復帰先 (「曲にもどる」・UI要件v1.1 §4) */
+  returnUrl: string | null
+  /** 専用お手本録音 (未登録=null→課題フレーズの合成再生フォールバック) */
+  exemplarAudioUrl: string | null
 }) {
   const lesson = LESSON_BY_ID.get(lessonId)!
   const theme = CATS[lesson.cat]
@@ -53,6 +60,26 @@ export default function LessonPlayer({
   const [countNum, setCountNum] = useState(0)
   const [bubbleOverride, setBubbleOverride] = useState<string | null>(null)
   const [osmdReady, setOsmdReady] = useState(false)
+  const [exemplarPlaying, setExemplarPlaying] = useState(false)
+  const exemplarStopRef = useRef<(() => void) | null>(null)
+
+  const toggleExemplar = async () => {
+    if (exemplarPlaying) {
+      exemplarStopRef.current?.()
+      return
+    }
+    setExemplarPlaying(true)
+    try {
+      exemplarStopRef.current = await playExemplar(buildUrl, guideBpm, exemplarAudioUrl, () => {
+        setExemplarPlaying(false)
+        exemplarStopRef.current = null
+      })
+    } catch (e) {
+      console.error("[lesson] exemplar failed:", e)
+      setExemplarPlaying(false)
+    }
+  }
+  useEffect(() => () => exemplarStopRef.current?.(), [])
 
   // ── OSMD (弾く画面の譜面 + 期待タイミング抽出) ──────────────────────
   const osmdHostRef = useRef<HTMLDivElement | null>(null)
@@ -328,8 +355,8 @@ export default function LessonPlayer({
                 <div className={styles.termLbl}>{lesson.terms[slide]}</div>
               </div>
               {slide === 0 && (
-                <button type="button" className={styles.playBtn} disabled>
-                  ▶ お手本をきく（準備中）
+                <button type="button" className={styles.playBtn} onClick={() => void toggleExemplar()}>
+                  {exemplarPlaying ? "■ 停止" : "▶ お手本をきく"}
                 </button>
               )}
               <div
@@ -433,13 +460,32 @@ export default function LessonPlayer({
               3回弾けたね。ここからは曲やエチュードの中でみがいていこう。いつでも戻ってこられるよ。
             </div>
             <div className={styles.clrBtns}>
-              <button
-                type="button"
-                className={styles.cta}
-                onClick={() => router.push(listHref)}
-              >
-                レッスン一覧へ
-              </button>
+              {returnUrl ? (
+                <>
+                  <button
+                    type="button"
+                    className={styles.cta}
+                    onClick={() => router.push(returnUrl)}
+                  >
+                    曲にもどる
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.cta} ${styles.ctaGhost}`}
+                    onClick={() => router.push(listHref)}
+                  >
+                    レッスン一覧へ
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.cta}
+                  onClick={() => router.push(listHref)}
+                >
+                  レッスン一覧へ
+                </button>
+              )}
             </div>
           </div>
         )}

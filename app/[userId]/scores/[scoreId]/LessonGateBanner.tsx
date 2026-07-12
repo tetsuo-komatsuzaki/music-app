@@ -5,11 +5,15 @@ import Link from "next/link"
 
 export default function LessonGateBanner({
   userId,
+  scoreId,
   lessons,
 }: {
   userId: string
+  scoreId: string
   lessons: Array<{ id: string; name: string }>
 }) {
+  // クリア後「曲にもどる」でこの曲へ復帰させる (UI要件v1.1 §4)
+  const returnQuery = `?return=${encodeURIComponent(`/${userId}/scores/${scoreId}`)}`
   const names = lessons.map((l) => l.name).join("・")
   return (
     <div
@@ -38,7 +42,7 @@ export default function LessonGateBanner({
         {lessons.slice(0, 3).map((l) => (
           <Link
             key={l.id}
-            href={`/${userId}/lessons/${l.id}`}
+            href={`/${userId}/lessons/${l.id}${returnQuery}`}
             style={{
               background: "#58CC02",
               boxShadow: "0 3px 0 #58A700",

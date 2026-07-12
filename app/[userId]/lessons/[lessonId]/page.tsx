@@ -21,10 +21,16 @@ export async function generateMetadata({
 
 export default async function LessonDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ userId: string; lessonId: string }>
+  searchParams: Promise<{ return?: string }>
 }) {
   const { userId, lessonId } = await params
+  const sp = await searchParams
+  // 「曲にもどる」復帰先 (UI要件v1.1 §4)。オープンリダイレクト防止で自ユーザー配下のみ許可
+  const returnUrl =
+    sp.return && sp.return.startsWith(`/${userId}/`) ? sp.return : null
   const lesson = LESSON_BY_ID.get(lessonId)
   if (!lesson) notFound()
 
@@ -51,11 +57,20 @@ export default async function LessonDetailPage({
     redirect(`/${userId}/lessons`)
   }
 
-  const { data: signed } = await storageAdmin.storage
-    .from("musicxml")
-    .createSignedUrl(item.generatedXmlPath, 600)
+  const [{ data: signed }, itemMeta] = await Promise.all([
+    storageAdmin.storage.from("musicxml").createSignedUrl(item.generatedXmlPath, 600),
+    prisma.practiceItem.findUnique({
+      where: { id: item.practiceItemId },
+      select: { metadata: true },
+    }),
+  ])
   const buildUrl = signed?.signedUrl ? encodeSignedUrl(signed.signedUrl) : null
   if (!buildUrl) redirect(`/${userId}/lessons`)
+
+  // お手本音源 (確定③: 専用録音の差し替え設計。未登録の間は合成再生フォールバック)
+  const meta = itemMeta?.metadata as { exemplarAudioUrl?: string } | null
+  const exemplarAudioUrl =
+    typeof meta?.exemplarAudioUrl === "string" ? meta.exemplarAudioUrl : null
 
   return (
     <LessonPlayer
@@ -66,6 +81,8 @@ export default async function LessonDetailPage({
       initialPlayCount={state.plays.get(item.practiceItemId) ?? 0}
       alreadyCleared={state.cleared.has(tagId(lesson.tag))}
       listHref={`/${userId}/lessons`}
+      returnUrl={returnUrl}
+      exemplarAudioUrl={exemplarAudioUrl}
     />
   )
 }
