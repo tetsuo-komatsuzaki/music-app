@@ -12,6 +12,7 @@ const BASE_NAV_ITEMS = [
   { path: "",         icon: "🏠", label: "ホーム" },
   { path: "scores",   icon: "🎵", label: "マイライブラリー" },
   { path: "practice", icon: "📈", label: "練習メニュー" },
+  { path: "lessons",  icon: "🎓", label: "学びレッスン" },
   { path: "progress", icon: "📊", label: "成長記録" },
   // 「マイページ」は「あなたの課題」を成長記録タブへ移設したため削除。
   // /profile ルート自体は graceful に残置 (bookmark fallback)。
