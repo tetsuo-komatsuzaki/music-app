@@ -31,6 +31,8 @@ export type UpdatePracticeItemPayload = {
   keyMode?: string
   tempoMin?: number | null
   tempoMax?: number | null
+  /** 2026-07-14: "1st".."7th" 形式。学びレッスンのポジション教材で必須のため編集に追加 */
+  positions?: string[]
 }
 
 export async function updatePracticeItemTags(
@@ -105,6 +107,15 @@ export async function updatePracticeItemTags(
     payload.tempoMin > payload.tempoMax
   ) {
     return { error: "テンポの最小値は最大値以下にしてください" }
+  }
+  if (payload.positions !== undefined) {
+    if (
+      !Array.isArray(payload.positions) ||
+      payload.positions.some((p) => typeof p !== "string" || !/^\d+(st|nd|rd|th)$/.test(p))
+    ) {
+      return { error: "ポジションの形式が不正です (例: 1st, 3rd)" }
+    }
+    data.positions = Array.from(new Set(payload.positions))
   }
 
   // 存在チェック

@@ -16,6 +16,7 @@ import { usePathname } from "next/navigation"
 import { updatePracticeItemTags } from "@/app/actions/updatePracticeItemTags"
 import { updateScoreTags } from "@/app/actions/updateScoreTags"
 import { updateScoreTechniqueTags } from "@/app/actions/updateScoreTechniqueTags"
+import { updatePracticeItemTechniques } from "@/app/actions/updatePracticeItemTechniques"
 import { deleteAdminMaterial } from "@/app/actions/deleteAdminMaterial"
 import { CATEGORY_LABELS, PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
 import styles from "./admin.module.css"
@@ -124,6 +125,8 @@ export default function AdminPractice({
   const [editKeyMode, setEditKeyMode] = useState("")
   const [editTempoMin, setEditTempoMin] = useState("")
   const [editTempoMax, setEditTempoMax] = useState("")
+  // 2026-07-14: ポジション欄が編集に無かった(学びレッスンのポジション教材で必須)
+  const [editPositions, setEditPositions] = useState<string[]>([])
   const [, startTransition] = useTransition()
   const [editError, setEditError] = useState<string | null>(null)
   const [editSaving, setEditSaving] = useState(false)
@@ -165,7 +168,10 @@ export default function AdminPractice({
     setTechModalError(null)
     setTechModalSaving(true)
     try {
-      const result = await updateScoreTechniqueTags(techModalScore.id, techModalTags)
+      const result =
+        techModalScore.type === "score"
+          ? await updateScoreTechniqueTags(techModalScore.id, techModalTags)
+          : await updatePracticeItemTechniques(techModalScore.id, techModalTags)
       if ("error" in result) {
         setTechModalError(result.error)
         return
@@ -242,7 +248,14 @@ export default function AdminPractice({
     setEditKeyMode(item.keyMode || "")
     setEditTempoMin(item.tempoMin != null ? String(item.tempoMin) : "")
     setEditTempoMax(item.tempoMax != null ? String(item.tempoMax) : "")
+    setEditPositions(item.positions ?? [])
     setEditError(null)
+  }
+
+  const toggleEditPosition = (pos: string) => {
+    setEditPositions((prev) =>
+      prev.includes(pos) ? prev.filter((p) => p !== pos) : [...prev, pos],
+    )
   }
 
   const cancelEdit = () => {
@@ -342,11 +355,12 @@ export default function AdminPractice({
           keyMode: editKeyMode,
           tempoMin: tMin,
           tempoMax: tMax,
+          positions: editPositions,
         })
         patch = {
           star: difficulty, skillSubTaskTags: subTasks, title,
           category: editCategory, keyTonic: editKeyTonic.trim(), keyMode: editKeyMode,
-          tempoMin: tMin, tempoMax: tMax,
+          tempoMin: tMin, tempoMax: tMax, positions: editPositions,
         }
       }
       if ("error" in result) {
@@ -775,11 +789,29 @@ export default function AdminPractice({
                   </td>
                   <td>
                     {isEditing && item.type !== "score" ? (
-                      <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)}>
-                        {[...PRACTICE_CATEGORIES, "lesson"].map((c) => (
-                          <option key={c} value={c}>{categoryLabels[c] ?? c}</option>
-                        ))}
-                      </select>
+                      <div>
+                        <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)}>
+                          {[...PRACTICE_CATEGORIES, "lesson"].map((c) => (
+                            <option key={c} value={c}>{categoryLabels[c] ?? c}</option>
+                          ))}
+                        </select>
+                        {/* 2026-07-14: ポジション欄 (学びレッスンのポジション教材で必須) */}
+                        <div style={{ marginTop: 6 }}>
+                          <div style={{ fontSize: 11, color: "#888", marginBottom: 2 }}>ポジション</div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                            {positionOptions.map((pos) => (
+                              <label key={pos} style={{ fontSize: 12, display: "inline-flex", alignItems: "center", gap: 2 }}>
+                                <input
+                                  type="checkbox"
+                                  checked={editPositions.includes(pos)}
+                                  onChange={() => toggleEditPosition(pos)}
+                                />
+                                {pos}
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     ) : (
                       <>
                         {categoryLabels[item.category] || item.category}
@@ -943,22 +975,21 @@ export default function AdminPractice({
                         >
                           編集
                         </button>
-                        {/* v1.6 Phase 4-3 Q5=(b): Score のみ「技法」ボタン (モーダル分離) */}
-                        {item.type === "score" && (
-                          <button
-                            type="button"
-                            className={styles.secondaryBtn}
-                            onClick={() => openTechModal(item)}
-                            title="楽曲の技法タグを編集 (完全習得判定 §2-6 用)"
-                          >
-                            技法
-                            {item.techniques.length > 0 && (
-                              <span className={styles.filterCount}>
-                                {item.techniques.length}
-                              </span>
-                            )}
-                          </button>
-                        )}
+                        {/* 技法タグ編集モーダル (2026-07-14: Score専用→教材にも開放。
+                            学びレッスン教材の自動抽出されない技法の後付け用) */}
+                        <button
+                          type="button"
+                          className={styles.secondaryBtn}
+                          onClick={() => openTechModal(item)}
+                          title="技法タグを編集"
+                        >
+                          技法
+                          {item.techniques.length > 0 && (
+                            <span className={styles.filterCount}>
+                              {item.techniques.length}
+                            </span>
+                          )}
+                        </button>
                         <button
                           type="button"
                           className={styles.dangerBtn}
