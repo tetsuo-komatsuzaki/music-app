@@ -47,40 +47,52 @@ export default async function LessonsPage({
           <div className={styles.hSub}>
             クリア: {clearedCount} / {LESSON_TOTAL}（各3回弾けばクリア・点数不問）
           </div>
-          {groups.map((g) => (
-            <div key={g}>
-              <div className={styles.catHead}>
-                <div className={styles.catDot} style={{ background: CATS[g].theme }} />
-                {CATS[g].label}
-              </div>
-              {LESSONS.filter((l) => l.cat === g).map((l) => {
-                const id = tagId(l.tag)
-                const item = inventory.get(id)
-                const cleared = state.cleared.has(id)
-                const reported = !cleared && state.selfReported.has(id)
-                const ready = !!item && item.buildStatus === "done" && !!item.generatedXmlPath
-                if (!ready) {
-                  return (
-                    <div key={l.id} className={`${styles.lCard} ${styles.pending}`}>
-                      {l.name}
-                      <span className={styles.pendingLbl}>準備中</span>
-                    </div>
+          {/* PC(≥900px)ではテーマ3列を並列表示・⭐︎で習得状態を見せる。モバイルは縦積み */}
+          <div className={styles.cols}>
+            {groups.map((g) => (
+              <div key={g} className={styles.catCol}>
+                <div className={styles.catHead}>
+                  <div className={styles.catDot} style={{ background: CATS[g].theme }} />
+                  {CATS[g].label}
+                </div>
+                {LESSONS.filter((l) => l.cat === g).map((l) => {
+                  const id = tagId(l.tag)
+                  const item = inventory.get(id)
+                  const cleared = state.cleared.has(id)
+                  const reported = !cleared && state.selfReported.has(id)
+                  const ready = !!item && item.buildStatus === "done" && !!item.generatedXmlPath
+                  const star = (
+                    <span
+                      className={`${styles.star} ${cleared ? styles.starOn : reported ? styles.starHalf : ""}`}
+                    >
+                      {cleared || reported ? "★" : "☆"}
+                    </span>
                   )
-                }
-                return (
-                  <Link
-                    key={l.id}
-                    href={`/${userId}/lessons/${l.id}`}
-                    className={`${styles.lCard} ${cleared ? styles.done : ""} ${reported ? styles.reported : ""}`}
-                  >
-                    {l.name}
-                    {reported && <span className={styles.reportedLbl}>申告済み</span>}
-                    <span className={styles.chk}>{cleared || reported ? "✓" : ""}</span>
-                  </Link>
-                )
-              })}
-            </div>
-          ))}
+                  if (!ready) {
+                    return (
+                      <div key={l.id} className={`${styles.lCard} ${styles.pending}`}>
+                        {l.name}
+                        <span className={styles.pendingLbl}>準備中</span>
+                        {star}
+                      </div>
+                    )
+                  }
+                  return (
+                    <Link
+                      key={l.id}
+                      href={`/${userId}/lessons/${l.id}`}
+                      className={`${styles.lCard} ${cleared ? styles.done : ""} ${reported ? styles.reported : ""}`}
+                    >
+                      {l.name}
+                      {reported && <span className={styles.reportedLbl}>申告済み</span>}
+                      <span className={styles.chk}>{cleared || reported ? "✓" : ""}</span>
+                      {star}
+                    </Link>
+                  )
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

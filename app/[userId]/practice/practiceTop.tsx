@@ -19,12 +19,15 @@ type Props = {
   categoryCounts: Record<string, number>
   /** 練習曲(公開教材 isShared Score) の件数。一覧は /practice/pieces へ。 */
   pieceCount: number
+  /** 学びのレッスンのクリア数/全数。一覧は /lessons へ。 */
+  lessonProgress: { cleared: number; total: number }
 }
 
 export default function PracticeTop({
   userId,
   categoryCounts,
   pieceCount,
+  lessonProgress,
 }: Props) {
   return (
     <div className={styles.container}>
@@ -67,6 +70,20 @@ export default function PracticeTop({
             <div className={styles.categoryIcon}>🎼</div>
             <div className={styles.categoryName}>練習曲一覧</div>
             <div className={styles.categoryCount}>{pieceCount}曲</div>
+          </Link>
+        </div>
+      </section>
+
+      {/* 学びのレッスン — 技術の導入レッスン一覧 /lessons へ遷移 */}
+      <section className={styles.categorySection}>
+        <h2 className={styles.sectionTitle}>学びのレッスン</h2>
+        <div className={styles.categoryGrid}>
+          <Link href={`/${userId}/lessons`} className={styles.categoryCard}>
+            <div className={styles.categoryIcon}>🎓</div>
+            <div className={styles.categoryName}>学びのレッスン</div>
+            <div className={styles.categoryCount}>
+              クリア {lessonProgress.cleared} / {lessonProgress.total}
+            </div>
           </Link>
         </div>
       </section>

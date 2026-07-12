@@ -2,6 +2,8 @@ import { prisma } from "@/app/_libs/prisma"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { BASIC_PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
 import type { PracticeCategory } from "@/app/generated/prisma"
+import { getUserLessonState, tagId } from "@/app/_libs/lessonStatus"
+import { LESSONS, LESSON_TOTAL } from "@/app/[userId]/lessons/_lib/content"
 import PracticeTop from "./practiceTop"
 
 export const metadata = { title: "練習メニュー" }
@@ -47,11 +49,16 @@ export default async function PracticePage({
     where: { isShared: true, deletedAt: null },
   })
 
+  // 学びのレッスン進捗 (クリア数 = 正式クリアのみ・確定#5)
+  const lessonState = await getUserLessonState(dbUserId)
+  const lessonCleared = LESSONS.filter((l) => lessonState.cleared.has(tagId(l.tag))).length
+
   return (
     <PracticeTop
       userId={authUserId}
       categoryCounts={categoryCounts}
       pieceCount={pieceCount}
+      lessonProgress={{ cleared: lessonCleared, total: LESSON_TOTAL }}
     />
   )
 }

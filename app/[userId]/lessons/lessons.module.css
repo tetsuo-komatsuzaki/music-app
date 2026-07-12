@@ -54,6 +54,41 @@
 .reportedLbl { margin-left: auto; font-size: 1.3cqh; color: var(--primary); font-weight: 800; white-space: nowrap; }
 .pending { opacity: 0.55; cursor: default; }
 .pendingLbl { margin-left: auto; font-size: 1.3cqh; color: var(--text-disabled); font-weight: 800; white-space: nowrap; }
+/* ⭐︎表示 (PC並列レイアウト用。モバイルでは非表示で✓丸を使う) */
+.star { display: none; }
+.cols { display: block; }
+
+/* ── PC (≥900px): テーマ3列並列・⭐︎一覧 (2026-07-14 Tetsuo指示) ── */
+@media (min-width: 900px) {
+  .frame:has(.home) {
+    aspect-ratio: auto;
+    height: auto;
+    width: min(1160px, 100%);
+    container-type: normal;
+  }
+  .home { position: static; padding: 28px 32px 36px; overflow: visible; }
+  .hTitle { font-size: 22px; margin-bottom: 4px; }
+  .hSub { font-size: 13px; margin-bottom: 20px; }
+  .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
+  .catHead { font-size: 15px; gap: 8px; margin: 4px 0 10px; }
+  .catDot { width: 12px; }
+  .lCard { min-height: 46px; font-size: 14px; gap: 8px; padding: 6px 14px; margin-bottom: 10px; border-radius: 12px; }
+  .reportedLbl { font-size: 11px; }
+  .pendingLbl { font-size: 11px; }
+  .chk { display: none; }
+  .star {
+    display: inline-block;
+    margin-left: auto;
+    font-size: 18px;
+    color: #d9d9d9;
+    flex-shrink: 0;
+  }
+  .starOn { color: #f7c948; }
+  .starHalf { color: #cdeeb2; }
+  /* 申告済み/準備中ラベルがあるカードでは star が2つ目の右寄せ要素になるため間隔調整 */
+  .reportedLbl, .pendingLbl { margin-left: auto; }
+  .reportedLbl ~ .star, .pendingLbl ~ .star { margin-left: 8px; }
+}
 
 /* ── スライド ── */
 .slide { position: absolute; inset: 0; background: var(--theme); }
