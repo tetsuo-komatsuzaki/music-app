@@ -11,10 +11,16 @@ export const SOUND_CHECK_PARAMS = {
   windowSec: 0.4,
   /** 音が鳴っていた窓の割合がこれ以上なら有効演奏 */
   passRatio: 0.7,
-  /** 発音とみなす閾値 = max(ノイズ床×この倍率, 絶対下限) */
+  /** 発音とみなす閾値 = max(絶対下限, min(ノイズ床×この倍率, ピーク×peakRatio)) */
   noiseFloorFactor: 4,
-  /** 絶対下限 (フルスケール比RMS)。無音環境でノイズ床が極端に低い場合の保険 */
-  absoluteFloor: 0.01,
+  /**
+   * ピーク(上位5%分位RMS)比の上限。録音全体が鳴りっぱなし(スラー/トレモロ等)だと
+   * 「ノイズ床」推定が信号そのものになり閾値が信号を超えて全滅するため、
+   * ピーク基準で閾値に天井を設ける
+   */
+  peakRatio: 0.5,
+  /** 絶対下限 (フルスケール比RMS)。無音・環境ノイズだけの録音を落とす保険 */
+  absoluteFloor: 0.015,
   /** RMSフレーム長 (秒) */
   frameSec: 0.03,
 }
@@ -55,11 +61,11 @@ export function frameRms(
   return out
 }
 
-/** 下位10%分位のRMS = ノイズ床の推定 */
-function estimateNoiseFloor(rms: Float32Array): number {
+/** 分位RMS (q=0.1でノイズ床、q=0.95でピーク相当) */
+function rmsQuantile(rms: Float32Array, q: number): number {
   if (rms.length === 0) return 0
   const sorted = Array.from(rms).sort((a, b) => a - b)
-  return sorted[Math.floor(sorted.length * 0.1)]
+  return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * q))]
 }
 
 /**
@@ -75,9 +81,11 @@ export function checkSound(
   params = SOUND_CHECK_PARAMS,
 ): SoundCheckResult {
   const rms = frameRms(samples, sampleRate, params.frameSec)
+  const floor = rmsQuantile(rms, 0.1)
+  const peak = rmsQuantile(rms, 0.95)
   const threshold = Math.max(
-    estimateNoiseFloor(rms) * params.noiseFloorFactor,
     params.absoluteFloor,
+    Math.min(floor * params.noiseFloorFactor, peak * params.peakRatio),
   )
   const frameSec = params.frameSec
   let covered = 0

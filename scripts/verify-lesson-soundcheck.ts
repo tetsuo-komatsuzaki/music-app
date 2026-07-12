@@ -67,5 +67,16 @@ const expected = [0, 1, 2, 3, 4, 5, 6, 7]
   t(`⑥ 1音抜け → pass (ratio=${r.ratio.toFixed(2)})`, r.pass && r.covered === 7)
 }
 
+// ⑦ 録音の頭から尻まで完全に鳴りっぱなし (連続トーン=ノイズ床推定が信号になるケース) → 合格
+{
+  const r = checkSound(synth(9, [[0, 9]]), SR, expected)
+  t(`⑦ 全編鳴りっぱなし → pass (ratio=${r.ratio.toFixed(2)}, th=${r.threshold.toFixed(3)})`, r.pass)
+}
+// ⑧ 環境ノイズのみ (ファン等の定常0.008・演奏なし) → 不合格
+{
+  const r = checkSound(synth(9, [], 0.008), SR, expected)
+  t(`⑧ 定常ノイズのみ → fail (th=${r.threshold.toFixed(3)})`, !r.pass)
+}
+
 console.log(`\n${fail === 0 ? "ALL PASS" : "FAILED"} (${pass} pass / ${fail} fail)`)
 if (fail > 0) process.exitCode = 1

@@ -398,7 +398,7 @@ export default function LessonPlayer({
               {!osmdReady && <span style={{ fontSize: "1.6cqh", color: "#afafaf" }}>楽譜を準備中…</span>}
             </div>
             <div className={styles.tempoLbl}>
-              ♩= {guideBpm}(カウント{COUNT_IN_BEATS}拍のあとにスタート・音程やリズムの採点はしないよ)
+              ♩= {guideBpm} ・ カウント{COUNT_IN_BEATS}拍のあとにスタート(採点はしないよ)
             </div>
             {recState === "counting" && <div className={styles.countNum}>{countNum || "♪"}</div>}
             {recState !== "counting" && (

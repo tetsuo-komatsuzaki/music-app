@@ -119,7 +119,7 @@
 }
 .plScoreIntro { top: 44%; }
 .osmdBox { width: 100%; overflow-x: auto; overflow-y: hidden; }
-.tempoLbl { position: absolute; bottom: 17.5%; width: 100%; text-align: center; font-size: 1.5cqh; color: var(--text-disabled); }
+.tempoLbl { position: absolute; top: 61.5%; width: 100%; text-align: center; font-size: 1.5cqh; color: var(--text-disabled); padding: 0 6%; }
 .recBtn {
   position: absolute; left: 50%; transform: translateX(-50%); bottom: 23%;
   width: 17cqw; aspect-ratio: 1; border-radius: 50%; border: 4px solid var(--primary);
