@@ -222,7 +222,7 @@ export default function LessonPlayer({
         setRecState("idle")
         return
       }
-      const res = await recordLessonPlay(practiceItemId)
+      const res = await recordLessonPlay(practiceItemId, lessonId)
       if (!res.ok) {
         setBubbleOverride(res.error)
         setRecState("idle")

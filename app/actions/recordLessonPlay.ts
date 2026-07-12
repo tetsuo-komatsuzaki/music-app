@@ -11,7 +11,8 @@
 
 import { prisma } from "../_libs/prisma"
 import { createServerSupabaseClient } from "../_libs/supabaseServer"
-import { positionTagKey, type LessonTagRef } from "../_libs/lessonStatus"
+import { positionTagKey, tagId, type LessonTagRef } from "../_libs/lessonStatus"
+import { LESSON_BY_ID } from "@/app/[userId]/lessons/_lib/content"
 
 const LESSON_RUNS_REQUIRED = 3 // achievement.py LESSON_RUNS_REQUIRED と同値
 
@@ -29,6 +30,7 @@ export type RecordLessonPlayResult =
 
 export async function recordLessonPlay(
   practiceItemId: string,
+  lessonId: string,
 ): Promise<RecordLessonPlayResult> {
   const supabase = await createServerSupabaseClient()
   const {
@@ -61,19 +63,30 @@ export async function recordLessonPlay(
     return { ok: false, error: "レッスン教材が見つかりません" }
   }
 
-  // 教えるタグ = 教材自身のタグ (achievement.py process_practice_achievement と同一導出)
-  const tags: LessonTagRef[] = []
-  for (const t of item.techniques) tags.push({ tagType: "technique", tagKey: t.techniqueTag.name })
+  // 教えるタグ = そのレッスンが定義するタグ1つだけ (content.ts が正本)。
+  // 教材には自動抽出で複数タグが付き得る(例: リコシェ教材にスタッカートも検出される)が、
+  // レッスンクリアで巻き添えクリアさせないため、教材の全タグではなくレッスン定義タグのみ書く。
+  // 整合性チェックとして、教材に実際にそのタグが張られていることを要求する。
+  const lesson = LESSON_BY_ID.get(lessonId)
+  if (!lesson) return { ok: false, error: "レッスン定義が見つかりません" }
+
+  const itemTags: LessonTagRef[] = []
+  for (const t of item.techniques) itemTags.push({ tagType: "technique", tagKey: t.techniqueTag.name })
   for (const f of item.featureTags) {
     if (f.featureTag.category === "double_stop" && f.featureTag.isAcquisition)
-      tags.push({ tagType: "double_stop", tagKey: f.featureTag.name })
+      itemTags.push({ tagType: "double_stop", tagKey: f.featureTag.name })
   }
   const posKeys = new Set<string>()
   for (const p of item.positions) {
     const key = positionTagKey(p)
     if (key) posKeys.add(key)
   }
-  for (const key of posKeys) tags.push({ tagType: "position", tagKey: key })
+  for (const key of posKeys) itemTags.push({ tagType: "position", tagKey: key })
+
+  if (!itemTags.some((t) => tagId(t) === tagId(lesson.tag))) {
+    return { ok: false, error: "教材とレッスンのタグが一致しません(教材のタグ付けを確認してください)" }
+  }
+  const tags: LessonTagRef[] = [lesson.tag]
 
   const result = await prisma.$transaction(async (tx) => {
     const play = await tx.userLessonPlay.upsert({
