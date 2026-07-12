@@ -45,7 +45,7 @@ export default async function LessonsPage({
         <div className={styles.home}>
           <div className={styles.hTitle}>学びのレッスン</div>
           <div className={styles.hSub}>
-            クリア: {clearedCount} / {LESSON_TOTAL}（各3回弾けばクリア・点数不問）
+            クリア: {clearedCount} / {LESSON_TOTAL}(各3回弾けばクリア・点数不問)
           </div>
           {/* PC(≥900px)ではテーマ3列を並列表示・⭐︎で習得状態を見せる。モバイルは縦積み */}
           <div className={styles.cols}>
