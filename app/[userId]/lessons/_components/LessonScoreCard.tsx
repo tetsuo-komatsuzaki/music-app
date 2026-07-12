@@ -26,14 +26,15 @@ const HI_ALL = new Set([
 const HI_LAST = new Set(["harmonics", "pos2", "pos3", "pos4", "pos5", "pos6"])
 const HI_CHORD = new Set(["ds3", "ds6", "ds8", "ds10"])
 
-/** 補筆 (再書き出し待ち3教材のみ。受領後に削除) */
-const EDITORIAL: Record<string, Array<{ noteIndex: number; kind: "pral" | "mor" | "harm" | "pizz" }>> = {
+/** 補筆 (再書き出し待ち4教材のみ。受領後に削除。※glissはOSMDが線を描かない場合表示側継続) */
+const EDITORIAL: Record<string, Array<{ noteIndex: number; kind: "pral" | "mor" | "harm" | "pizz" | "gliss" }>> = {
   mordent: [
     { noteIndex: 0, kind: "pral" },
     { noteIndex: 1, kind: "mor" },
   ],
   harmonics: [{ noteIndex: -1, kind: "harm" }], // -1 = 最終音
   pizzicato: [{ noteIndex: 0, kind: "pizz" }],
+  glissando: [{ noteIndex: 0, kind: "gliss" }], // 先頭音→次音への斜線+gliss.表記
 }
 
 const HI_COLOR = "#2EAD5B"
@@ -216,6 +217,47 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
       c.setAttribute("stroke", "#333")
       c.setAttribute("stroke-width", String(nh * 0.2))
       put(c)
+    } else if (ed.kind === "gliss") {
+      // 次音への斜線 + 線上に回転させた "gliss." (プロトタイプ rSlide 準拠)
+      const nextIdx = (ed.noteIndex === -1 ? entries.length - 1 : ed.noteIndex) + 1
+      const e2 = entries[nextIdx]
+      if (!e2) continue
+      // 符頭単体のbboxを基準にする (els[0]は符幹込みのことがあるため .vf-notehead を優先)
+      const headOf = (el: SVGGraphicsElement) => {
+        if (el.classList.contains("vf-notehead")) return el
+        return (el.querySelector(".vf-notehead") as SVGGraphicsElement | null) ?? el
+      }
+      const nb1 = headOf(e.els[0]).getBBox()
+      const nb2 = headOf(e2.els[0]).getBBox()
+      const hh = Math.min(nb1.height, nb2.height) || nh * 0.25 // ≈1譜線間隔
+      // 符頭中心±パッドを結ぶ (プロトタイプの cx±9 相当)
+      const x1 = nb1.x + nb1.width + hh * 0.5
+      const y1 = nb1.y + nb1.height / 2 + hh * 0.3
+      const x2 = nb2.x - hh * 0.5
+      const y2 = nb2.y + nb2.height / 2 - hh * 0.3
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line")
+      l.setAttribute("x1", String(x1))
+      l.setAttribute("y1", String(y1))
+      l.setAttribute("x2", String(x2))
+      l.setAttribute("y2", String(y2))
+      l.setAttribute("stroke", "#333")
+      l.setAttribute("stroke-width", String(hh * 0.4))
+      put(l)
+      const gmx = (x1 + x2) / 2
+      const gmy = (y1 + y2) / 2
+      const ga = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text")
+      t.setAttribute("x", String(gmx))
+      t.setAttribute("y", String(gmy - hh * 1.3))
+      t.setAttribute("text-anchor", "middle")
+      t.setAttribute("font-size", String(hh * 2.4))
+      t.setAttribute("font-style", "italic")
+      t.setAttribute("font-weight", "700")
+      t.setAttribute("font-family", "serif")
+      t.setAttribute("fill", "#333")
+      t.setAttribute("transform", `rotate(${ga.toFixed(1)} ${gmx} ${gmy})`)
+      t.textContent = "gliss."
+      put(t)
     } else if (ed.kind === "pizz") {
       const t = document.createElementNS("http://www.w3.org/2000/svg", "text")
       t.setAttribute("x", String(cx))
