@@ -16,6 +16,8 @@ import { CATS, FEEDBACK, LESSON_BY_ID } from "../_lib/content"
 import { bowFig, fbFig, staffFig, type BowFigOpts, type FbFigOpts } from "../_lib/figures"
 import { checkSound, SOUND_CHECK_PARAMS } from "../_lib/soundCheck"
 import { playExemplar } from "../_lib/exemplar"
+import { LESSON_MOTION_MAP } from "@/app/components/violin/bowing-motions"
+import LessonBowingMotion from "./LessonBowingMotion"
 import styles from "../lessons.module.css"
 
 type Screen = "INTRO" | "SLIDE" | "PLAY" | "CLEAR"
@@ -285,6 +287,14 @@ export default function LessonPlayer({
       : fbFig(f as FbFigOpts, theme.theme)
   }
 
+  // 弓系レッスンのS2(slide=1)・S5(slide=4)は運弓モーション2ビュー (v3.18・仕様書v1.2 §10-1)
+  const motionId =
+    (slide === 1 || slide === 4) && LESSON_MOTION_MAP[lesson.id]
+      ? LESSON_MOTION_MAP[lesson.id]
+      : null
+  // S5(弓系)は二段: 上段=モーション/下段=譜面カード
+  const twoTier = slide === 4 && !!motionId
+
   const playBubble =
     bubbleOverride ??
     (plays > 0
@@ -343,10 +353,22 @@ export default function LessonPlayer({
               &lt;
             </button>
             <div className={styles.sTitle}>{lesson.name}</div>
-            <div
-              className={styles.figCard}
-              dangerouslySetInnerHTML={{ __html: figSvg(slide) }}
-            />
+            {motionId ? (
+              <div className={`${styles.figCard} ${twoTier ? styles.figCardTwoTier : ""}`}>
+                <LessonBowingMotion motionId={motionId} />
+              </div>
+            ) : (
+              <div
+                className={styles.figCard}
+                dangerouslySetInnerHTML={{ __html: figSvg(slide) }}
+              />
+            )}
+            {twoTier && (
+              <div
+                className={styles.scoreCard}
+                dangerouslySetInnerHTML={{ __html: staffFig({}) }}
+              />
+            )}
             <div className={styles.sheet}>
               <div className={styles.term}>
                 <div className={styles.termTile}>

@@ -100,10 +100,23 @@
 .backCLight { background: #f0f0f0; }
 .sTitle { position: absolute; top: 6.4%; width: 100%; text-align: center; color: #fff; font-size: 2.3cqh; font-weight: 800; }
 .figCard {
-  position: absolute; left: 11.5%; width: 77%; top: 20%; height: 26%; background: #fff;
+  position: absolute; left: 11.5%; width: 77%; top: 22%; height: 26%; background: #fff;
   border-radius: 4cqw; display: flex; align-items: center; justify-content: center; padding: 3%;
 }
 .figCard :global(svg) { max-width: 100%; max-height: 100%; }
+/* S5(弓系)二段: 上段=運弓モーション/下段=譜面カード (v3.18・仕様書v1.2 §10-1) */
+.figCardTwoTier { top: 19%; height: 24%; }
+.scoreCard {
+  position: absolute; left: 11.5%; width: 77%; top: 45.5%; height: 12%; background: #fff;
+  border-radius: 4cqw; display: flex; align-items: center; justify-content: center; padding: 1.5%;
+}
+.scoreCard :global(svg) { max-width: 100%; max-height: 100%; }
+/* 運弓モーション2ビュー (v3.18 .motionRow/.mCol/.mCap/.mFig 移植) */
+.motionRow { display: flex; gap: 3%; width: 100%; height: 100%; align-items: center; justify-content: center; }
+.mCol { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+.mCap { font-size: 1.3cqh; font-weight: 800; color: var(--text-sub); margin-bottom: 2%; }
+.mFig { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; }
+.mFig :global(svg) { width: 100%; height: auto; max-height: 100%; }
 .sheet { position: absolute; left: 0; right: 0; top: 65%; bottom: 0; background: #fff; }
 .term { display: flex; align-items: center; gap: 4%; padding: 4% 6% 0; }
 /* 用語タイル: アルコ全身ポーズ・色枠なし (実装指示書v1.2 §0-3 2026-07-12確定) */

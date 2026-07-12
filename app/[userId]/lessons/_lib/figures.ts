@@ -43,8 +43,9 @@ export function bowFig(o: BowFigOpts, theme: string): string {
   s += `<path d="M ${XF + 4},60 L ${XF - 26},60 L ${XF - 26},88 L ${XF - 6},88 Q ${XF + 4},88 ${XF + 4},74 Z" fill="${PAL.dark}"/>
       <rect x="${XF + 4}" y="58" width="12" height="8" rx="3" fill="#C9CDD3"/><rect x="${XF - 52}" y="58" width="22" height="7" rx="3" fill="#C9CDD3"/>`
   const cx = (Z[0] + Z[1]) / 2
+  // ダウン記号⊓は削除(2026-07-12確定・v3.18準拠)・矢印のみ
   if (o.dir === "down")
-    s += `<path d="M ${cx + 2},20 L ${cx + 2},34 M ${cx + 2},20 L ${cx + 18},20 L ${cx + 18},34" stroke="${PAL.dark}" stroke-width="4" fill="none"/><path d="M ${cx - 14},27 L ${cx - 52},27 M ${cx - 44},20 L ${cx - 52},27 L ${cx - 44},34" stroke="${t}" stroke-width="4" fill="none" stroke-linecap="round"/>`
+    s += `<path d="M ${cx + 24},27 L ${cx - 24},27 M ${cx - 16},20 L ${cx - 24},27 L ${cx - 16},34" stroke="${t}" stroke-width="4" fill="none" stroke-linecap="round"/>`
   if (o.dir === "both")
     s += `<path d="M ${cx - 34},27 L ${cx + 34},27 M ${cx - 26},20 L ${cx - 34},27 L ${cx - 26},34 M ${cx + 26},20 L ${cx + 34},27 L ${cx + 26},34" stroke="${t}" stroke-width="4" fill="none" stroke-linecap="round"/>`
   if (o.bounce)
