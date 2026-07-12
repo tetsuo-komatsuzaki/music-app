@@ -13,11 +13,12 @@ import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
 import { ArcoChan, POSE_BY_ID } from "@/app/onboarding/_components/ArcoChan"
 import { recordLessonPlay } from "@/app/actions/recordLessonPlay"
 import { CATS, FEEDBACK, LESSON_BY_ID } from "../_lib/content"
-import { bowFig, fbFig, staffFig, type BowFigOpts, type FbFigOpts } from "../_lib/figures"
+import { bowFig, fbFig, type BowFigOpts, type FbFigOpts } from "../_lib/figures"
 import { checkSound, SOUND_CHECK_PARAMS } from "../_lib/soundCheck"
 import { playExemplar } from "../_lib/exemplar"
 import { LESSON_MOTION_MAP } from "@/app/components/violin/bowing-motions"
 import LessonBowingMotion from "./LessonBowingMotion"
+import LessonScoreCard from "./LessonScoreCard"
 import styles from "../lessons.module.css"
 
 type Screen = "INTRO" | "SLIDE" | "PLAY" | "CLEAR"
@@ -102,6 +103,11 @@ export default function LessonPlayer({
       try {
         await osmd.load(buildUrl)
         if (disposed) return
+        // 拍子記号(4/4)非表示 (Part C C-1・全譜面共通)。テンポ表記はガイドラベルと重複のため非表示
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(osmd.EngravingRules as any).RenderTimeSignatures = false
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(osmd.EngravingRules as any).MetronomeMarksDrawn = false
         osmd.zoom = 0.62
         osmd.render()
         // 期待タイミング抽出: 非休符 VoiceEntry の開始時刻 (秒)
@@ -279,8 +285,8 @@ export default function LessonPlayer({
     "--theme-light": theme.light,
   } as React.CSSProperties
 
+  // スライド2〜4の仮図解 (S1/S5の譜面はLessonScoreCardが担当)
   const figSvg = (i: number): string => {
-    if (i === 0 || i === 4) return staffFig({ hi: i === 0 })
     const f = lesson.figs[i - 1]
     return lesson.figType === "bow"
       ? bowFig(f as BowFigOpts, theme.theme)
@@ -324,10 +330,9 @@ export default function LessonPlayer({
                   : "っていう技術を、まず僕といっしょにやってみようか!"}
               </div>
             </div>
-            <div
-              className={`${styles.plScore} ${styles.plScoreIntro}`}
-              dangerouslySetInnerHTML={{ __html: staffFig({ hi: true }) }}
-            />
+            <div className={`${styles.plScore} ${styles.plScoreIntro}`}>
+              <LessonScoreCard buildUrl={buildUrl} lessonId={lessonId} hi />
+            </div>
             <div className={styles.ctaWrap}>
               <button
                 type="button"
@@ -357,6 +362,11 @@ export default function LessonPlayer({
               <div className={`${styles.figCard} ${twoTier ? styles.figCardTwoTier : ""}`}>
                 <LessonBowingMotion motionId={motionId} />
               </div>
+            ) : slide === 0 || slide === 4 ? (
+              // S1=課題フレーズ+緑丸 / S5(非弓系)=課題フレーズ(緑丸なし・v3.18準拠)
+              <div className={styles.figCard}>
+                <LessonScoreCard buildUrl={buildUrl} lessonId={lessonId} hi={slide === 0} />
+              </div>
             ) : (
               <div
                 className={styles.figCard}
@@ -364,10 +374,9 @@ export default function LessonPlayer({
               />
             )}
             {twoTier && (
-              <div
-                className={styles.scoreCard}
-                dangerouslySetInnerHTML={{ __html: staffFig({}) }}
-              />
+              <div className={styles.scoreCard}>
+                <LessonScoreCard buildUrl={buildUrl} lessonId={lessonId} hi={false} />
+              </div>
             )}
             <div className={styles.sheet}>
               <div className={styles.term}>
