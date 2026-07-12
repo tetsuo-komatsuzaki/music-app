@@ -33,7 +33,14 @@ const SC = 1.35
 const BOW_X = 360
 const TGT = 2 // A線
 
-export default function LessonBowingMotion({ motionId }: { motionId: string }) {
+export default function LessonBowingMotion({
+  motionId,
+  view = "both",
+}: {
+  motionId: string
+  /** "both"=うえから+よこから (S2/S5) / "side"=よこから単独 (弓系S3/S4の運弓比較用) */
+  view?: "both" | "side"
+}) {
   const tech = getTechnique(motionId)
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "")
   const dir = tech.alternate ? "alternate" : "normal"
@@ -52,40 +59,46 @@ export default function LessonBowingMotion({ motionId }: { motionId: string }) {
     }
   `
 
+  const sideView = (
+    <div className={styles.mCol}>
+      <div className={styles.mCap}>よこから</div>
+      <div className={styles.mFig}>
+        <svg viewBox="-60 0 660 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="横から">
+          <line x1="-60" y1={HAIR_Y} x2="600" y2={HAIR_Y} stroke={COLORS.string} strokeWidth="2.4" />
+          <circle className={tech.hasBounce ? `mD-${uid}` : undefined} cx={C_SIDE} cy={HAIR_Y} r="5.5" fill={COLORS.teal} opacity=".85" />
+          <g transform={`translate(${C_SIDE},0)`}>
+            <g className={`mS-${uid}`}>
+              <BowShape />
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  )
+
   return (
     <div className={styles.motionRow}>
       <style>{css}</style>
-      <div className={styles.mCol}>
-        <div className={styles.mCap}>うえから</div>
-        <div className={styles.mFig}>
-          <svg viewBox="-10 -120 514 530" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="上から">
-            <g transform={VIOLIN_ROTATE}>
-              <ViolinBody />
-            </g>
-            <line x1="262" y1={CV} x2="405" y2={CV} stroke={COLORS.teal} strokeWidth="3" opacity=".35" />
-            <g transform={`translate(${TX},${CV}) rotate(-90) scale(${SC})`}>
-              <g className={`mV-${uid}`}>
-                <BowShape />
+      {view === "both" && (
+        <div className={styles.mCol}>
+          <div className={styles.mCap}>うえから</div>
+          <div className={styles.mFig}>
+            <svg viewBox="-10 -120 514 530" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="上から">
+              <g transform={VIOLIN_ROTATE}>
+                <ViolinBody />
               </g>
-            </g>
-            <circle className={tech.hasBounce ? `mD-${uid}` : undefined} cx={BOW_X} cy={CV} r="5.5" fill={COLORS.teal} opacity=".9" />
-          </svg>
-        </div>
-      </div>
-      <div className={styles.mCol}>
-        <div className={styles.mCap}>よこから</div>
-        <div className={styles.mFig}>
-          <svg viewBox="-60 0 660 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="横から">
-            <line x1="-60" y1={HAIR_Y} x2="600" y2={HAIR_Y} stroke={COLORS.string} strokeWidth="2.4" />
-            <circle className={tech.hasBounce ? `mD-${uid}` : undefined} cx={C_SIDE} cy={HAIR_Y} r="5.5" fill={COLORS.teal} opacity=".85" />
-            <g transform={`translate(${C_SIDE},0)`}>
-              <g className={`mS-${uid}`}>
-                <BowShape />
+              <line x1="262" y1={CV} x2="405" y2={CV} stroke={COLORS.teal} strokeWidth="3" opacity=".35" />
+              <g transform={`translate(${TX},${CV}) rotate(-90) scale(${SC})`}>
+                <g className={`mV-${uid}`}>
+                  <BowShape />
+                </g>
               </g>
-            </g>
-          </svg>
+              <circle className={tech.hasBounce ? `mD-${uid}` : undefined} cx={BOW_X} cy={CV} r="5.5" fill={COLORS.teal} opacity=".9" />
+            </svg>
+          </div>
         </div>
-      </div>
+      )}
+      {sideView}
     </div>
   )
 }

@@ -304,6 +304,18 @@ export default function LessonPlayer({
   // (2026-07-12 Tetsuo指示)。slide2=間違い(✕)/slide3=コツ(矢印)
   const staticMark: "cross" | "hint" | null =
     bowMotionId && slide === 2 ? "cross" : bowMotionId && slide === 3 ? "hint" : null
+  // レッスンごとにS3(間違い)/S4(コツ)を「別技法の運弓(横から)」で見せる指定
+  // (2026-07-13 Tetsuo指示)。値=技法id。例: スタッカートの間違い=スピッカート運弓
+  const S3S4_SIDE_MOTION: Record<string, { s3: string; s4: string }> = {
+    staccato: { s3: "spiccato", s4: "staccato" }, // 間違い=跳ねる(スピッカート)/成功=乗せて止める(スタッカート)
+  }
+  const sideOverride = S3S4_SIDE_MOTION[lesson.id]
+  const sideMotionId =
+    sideOverride && slide === 2
+      ? (LESSON_MOTION_MAP[sideOverride.s3] ?? null)
+      : sideOverride && slide === 3
+        ? (LESSON_MOTION_MAP[sideOverride.s4] ?? null)
+        : null
 
   const playBubble =
     bubbleOverride ??
@@ -365,6 +377,11 @@ export default function LessonPlayer({
             {motionId ? (
               <div className={`${styles.figCard} ${twoTier ? styles.figCardTwoTier : ""}`}>
                 <LessonBowingMotion motionId={motionId} />
+              </div>
+            ) : sideMotionId ? (
+              // レッスン指定のS3/S4 = 別技法の運弓(横から単独)。奏法差(跳ね/乗せ)を動きで見せる
+              <div className={styles.figCard}>
+                <LessonBowingMotion motionId={sideMotionId} view="side" />
               </div>
             ) : staticMark ? (
               // 弓系のS3(間違い)/S4(コツ) = モーションと同じバイオリン+弓の静止図

@@ -193,7 +193,10 @@
   background: #fff; border: 2px solid var(--border); border-radius: 14px;
   display: flex; align-items: center; justify-content: center; padding: 2%; overflow: hidden;
 }
-.plScoreIntro { top: 44%; }
+/* INTRO(はじめる前)の課題フレーズは大きく見せる。plScoreはmin/max-heightのみで
+   高さが確定しないと LessonScoreCard の height:100% 連鎖が内容高さ(薄い帯)に潰れる
+   ため、確定した height を与える (2026-07-13) */
+.plScoreIntro { top: 38%; height: 30%; max-height: 30%; }
 .osmdBox { width: 100%; overflow-x: auto; overflow-y: hidden; }
 .tempoLbl { position: absolute; top: 61.5%; width: 100%; text-align: center; font-size: 1.5cqh; color: var(--text-disabled); padding: 0 6%; }
 .recBtn {
