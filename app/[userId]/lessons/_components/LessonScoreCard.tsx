@@ -26,8 +26,11 @@ const HI_ALL = new Set([
 const HI_LAST = new Set(["harmonics", "pos2", "pos3", "pos4", "pos5", "pos6"])
 const HI_CHORD = new Set(["ds3", "ds6", "ds8", "ds10"])
 
-/** 補筆 (再書き出し待ち4教材のみ。受領後に削除。※glissはOSMDが線を描かない場合表示側継続) */
-const EDITORIAL: Record<string, Array<{ noteIndex: number; kind: "pral" | "mor" | "harm" | "pizz" | "gliss" }>> = {
+/** 補筆 (再書き出し待ち教材のみ。受領後に削除。※glissはOSMDが線を描かない場合表示側継続) */
+const EDITORIAL: Record<
+  string,
+  Array<{ noteIndex: number; kind: "pral" | "mor" | "harm" | "pizz" | "gliss" | "trill" }>
+> = {
   mordent: [
     { noteIndex: 0, kind: "pral" },
     { noteIndex: 1, kind: "mor" },
@@ -35,6 +38,7 @@ const EDITORIAL: Record<string, Array<{ noteIndex: number; kind: "pral" | "mor" 
   harmonics: [{ noteIndex: -1, kind: "harm" }], // -1 = 最終音
   pizzicato: [{ noteIndex: 0, kind: "pizz" }],
   glissando: [{ noteIndex: 0, kind: "gliss" }], // 先頭音→次音への斜線+gliss.表記
+  trill: [{ noteIndex: 0, kind: "trill" }], // 先頭音の上に "tr" + 波線 (MusicXML未記載)
 }
 
 const HI_COLOR = "#2EAD5B"
@@ -140,9 +144,11 @@ function collectNotes(osmd: OpenSheetMusicDisplay): NoteEntry[] {
 function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: string, hi: boolean) {
   const svg = host.querySelector("svg")
   if (!svg) return
-  svg.style.overflow = "visible" // 高音の緑丸・記号の見切れ防止 (C-1余白の代替)
   const entries = collectNotes(osmd)
   if (entries.length === 0) return
+
+  // 追加した装飾 (緑丸・補筆) を覚えておき、最後に viewBox クロップの範囲計算に使う
+  const extra: SVGGraphicsElement[] = []
 
   // 符頭単体のbboxを返す (els[0]は符幹込みのg要素なので .vf-notehead を優先)。
   // これを取り違えると基準単位が符頭+符幹の高さ(≈符頭の4〜5倍)になり、緑丸が
@@ -183,6 +189,7 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
     el.setAttribute("stroke", HI_COLOR)
     el.setAttribute("stroke-width", String(nh * 0.36))
     svg.appendChild(el)
+    extra.push(el)
   }
 
   if (hi) {
@@ -205,7 +212,10 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
     const b = e.els[0].getBBox()
     const cx = b.x + b.width / 2
     const top = (e.chordEl ?? e.els[0]).getBBox().y
-    const put = (node: SVGElement) => svg.appendChild(node)
+    const put = (node: SVGGraphicsElement) => {
+      svg.appendChild(node)
+      extra.push(node)
+    }
     if (ed.kind === "pral" || ed.kind === "mor") {
       // 装飾波線 (プラルトリラー)。モルデントは+縦棒
       const my = top - nh * 1.2
@@ -291,6 +301,78 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
       t.setAttribute("fill", "#333")
       t.textContent = "pizz."
       put(t)
+    } else if (ed.kind === "trill") {
+      // 音符の上に "tr" + 波線 (プロトタイプ renderScore の n.trl 準拠)
+      const ty = top - nh * 1.0
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text")
+      t.setAttribute("x", String(cx - nh * 0.7))
+      t.setAttribute("y", String(ty))
+      t.setAttribute("font-size", String(nh * 1.15))
+      t.setAttribute("font-style", "italic")
+      t.setAttribute("font-weight", "800")
+      t.setAttribute("font-family", "serif")
+      t.setAttribute("fill", "#333")
+      t.textContent = "tr"
+      put(t)
+      const w = nh * 0.38
+      const p = document.createElementNS("http://www.w3.org/2000/svg", "path")
+      p.setAttribute(
+        "d",
+        `M ${cx + nh * 0.5},${ty - nh * 0.35} l ${w},${-w * 0.7} l ${w},${w * 0.7} l ${w},${-w * 0.7} l ${w},${w * 0.7}`,
+      )
+      p.setAttribute("stroke", "#333")
+      p.setAttribute("stroke-width", String(nh * 0.16))
+      p.setAttribute("fill", "none")
+      put(p)
     }
   }
+
+  // ── viewBox を音楽コンテンツ+装飾にクロップして中央寄せ (2026-07-12) ──
+  // OSMD(Endless)は五線を固定幅で描くため短いフレーズだと右側が空白になり左寄せに
+  // 見える。譜表・音符・補筆・緑丸の外接矩形に viewBox を合わせ、SVGをカードいっぱいに
+  // preserveAspectRatio="xMidYMid meet" で拡大・中央配置する。
+  cropAndCenter(svg, host, extra)
+}
+
+/** 音楽コンテンツ(音部記号・音符)と装飾の外接矩形に viewBox を合わせ、中央配置する */
+function cropAndCenter(svg: SVGSVGElement, host: HTMLElement, extra: SVGGraphicsElement[]) {
+  // 五線(全幅に伸びる)は含めず、音部記号・符頭・符幹・補筆・緑丸だけで範囲を取る
+  const marks: SVGGraphicsElement[] = [
+    ...(svg.querySelectorAll("g.vf-clef, g.vf-stavenote") as NodeListOf<SVGGraphicsElement>),
+    ...extra,
+  ]
+  if (marks.length === 0) return
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+  for (const m of marks) {
+    const b = m.getBBox()
+    if (b.width === 0 && b.height === 0) continue
+    minX = Math.min(minX, b.x)
+    minY = Math.min(minY, b.y)
+    maxX = Math.max(maxX, b.x + b.width)
+    maxY = Math.max(maxY, b.y + b.height)
+  }
+  if (!Number.isFinite(minX)) return
+  // 五線が音符の左右に少しはみ出す分の余白 + 上下の記号余白
+  const padX = (maxY - minY) * 0.12
+  const padY = (maxY - minY) * 0.08
+  const vbX = minX - padX
+  const vbY = minY - padY
+  const vbW = maxX - minX + padX * 2
+  const vbH = maxY - minY + padY * 2
+  svg.setAttribute("viewBox", `${vbX} ${vbY} ${vbW} ${vbH}`)
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet")
+  // カードいっぱいに拡大して中央配置。OSMDは host 内に中間ラッパーdivを挟み、それが
+  // 内容サイズ(小さい)になるため、host→ラッパー→svg の全段を 100% に開放する
+  // (CSSの max-width/height は縮小しかしないため inline style で上書き)。
+  // viewBox外に伸びる五線を隠すため overflow:hidden
+  for (let el: HTMLElement | null = svg.parentElement; el && el !== host; el = el.parentElement) {
+    el.style.width = "100%"
+    el.style.height = "100%"
+  }
+  svg.style.width = "100%"
+  svg.style.height = "100%"
+  svg.style.overflow = "hidden"
 }

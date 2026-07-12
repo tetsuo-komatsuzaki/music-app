@@ -7,6 +7,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { getLessonInventory, getUserLessonState, tagId } from "@/app/_libs/lessonStatus"
 import { CATS, LESSONS, LESSON_TOTAL, type LessonCat } from "./_lib/content"
+import LessonCardStatus from "./_components/LessonCardStatus"
 import styles from "./lessons.module.css"
 
 export const metadata = { title: "学びレッスン" }
@@ -85,7 +86,9 @@ export default async function LessonsPage({
                     >
                       {l.name}
                       {reported && <span className={styles.reportedLbl}>申告済み</span>}
-                      <span className={styles.chk}>{cleared || reported ? "✓" : ""}</span>
+                      <LessonCardStatus>
+                        <span className={styles.chk}>{cleared || reported ? "✓" : ""}</span>
+                      </LessonCardStatus>
                       {star}
                     </Link>
                   )

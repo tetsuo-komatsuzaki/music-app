@@ -42,6 +42,30 @@
   text-decoration: none;
 }
 .lCard:active { border-bottom-width: 2px; transform: translateY(2px); }
+/* クリック直後の即時フィードバック (ナビゲーション待ちの間 色を変える) */
+.lCard:focus { outline: none; }
+.lCard.loading { background: var(--theme-light, #eef7ff); border-color: var(--primary); opacity: 1; }
+.lCard .cardSpin {
+  margin-left: auto; width: min(2.6cqh, 22px); aspect-ratio: 1; border-radius: 50%;
+  border: 2.5px solid var(--border); border-top-color: var(--primary);
+  animation: lsnSpin 0.7s linear infinite; flex-shrink: 0;
+}
+
+/* ── ローディング画面 (レッスン読込中・loading.tsx) ── */
+.loadWrap {
+  position: absolute; inset: 0; background: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3cqh;
+}
+.spinner {
+  width: min(9cqh, 52px); aspect-ratio: 1; border-radius: 50%;
+  border: 5px solid #ececec; border-top-color: var(--primary);
+  animation: lsnSpin 0.8s linear infinite;
+}
+.loadLbl { font-size: 1.9cqh; color: var(--text-sub); font-weight: 700; }
+@keyframes lsnSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .spinner, .lCard .cardSpin { animation-duration: 1.6s; }
+}
 .lCard .chk {
   margin-left: auto; width: min(2.8cqh, 24px); aspect-ratio: 1; border-radius: 50%;
   border: 2px solid var(--border); display: flex; align-items: center; justify-content: center;
