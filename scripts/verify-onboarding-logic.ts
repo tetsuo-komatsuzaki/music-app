@@ -22,7 +22,7 @@ const CASES: Array<{ name: string; a: LadderAnswers }> = [
   { name: "02 G1落ち(★1)", a: { beginner: false, g1: false } },
   { name: "03 G2 0選択(★2・仮習得なし)", a: { g1: true, g2: [] } },
   { name: "04 G2 1選択(★2・スタッカートのみ)", a: { g1: true, g2: ["スタッカート"] } },
-  { name: "05 G2 トリル含む2選択(★2・モルデント連動)", a: { g1: true, g2: ["トリル", "スピッカート"] } },
+  { name: "05 G2 トリル含む2選択(★2・プラルトリラーとモルデント連動)", a: { g1: true, g2: ["トリル", "スピッカート"] } },
   { name: "06 G3落ち+補足YES(★3+3rdフラグ)", a: { g1: true, g2: ["トリル", "スタッカート", "スピッカート"], g3: false, g3sup: true } },
   { name: "07 G3落ち+補足NO(★3)", a: { g1: true, g2: ["トリル", "スタッカート", "スピッカート"], g3: false, g3sup: false } },
   { name: "08 G4 0選択(★4)", a: { g1: true, g2: ["トリル", "スタッカート", "スピッカート"], g3: true, g4: [] } },

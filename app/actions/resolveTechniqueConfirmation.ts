@@ -13,7 +13,7 @@ import { revalidatePath } from "next/cache"
 const ALLOWED_TAGS = [
   "スタッカート",
   "スピッカート",
-  "ボウ・スタッカート",
+  "連続スタッカート", // 2026-07-14 用語改定: 旧称ボウ・スタッカート
   "ポルタート",
 ] as const
 

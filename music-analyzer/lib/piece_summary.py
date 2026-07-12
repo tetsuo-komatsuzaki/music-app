@@ -190,7 +190,8 @@ def build_piece_summary(
         if a.get("is_trill"):
             tags.add("トリル")
         if a.get("is_mordent"):
-            tags.add("モルデント")
+            # 2026-07-14 用語改定: 旧称モルデント (Mordent/InvertedMordent両方を検出)
+            tags.add("プラルトリラーとモルデント")
         if a.get("is_glissando"):
             tags.add("グリッサンド")
         if a.get("is_harmonic"):

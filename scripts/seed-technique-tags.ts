@@ -27,7 +27,7 @@ const techniques = [
   // 弓法-強奏
   { category: "弓法-強奏", name: "スタッカート", nameEn: "staccato", xmlTags: ["<staccato>"], isAnalyzable: "Yes", implementStatus: "実装" },
   { category: "弓法-強奏", name: "スタッカーティシモ", nameEn: "staccatissimo", xmlTags: ["<staccatissimo>"], isAnalyzable: "Yes", implementStatus: "実装" },
-  { category: "弓法-強奏", name: "ボウ・スタッカート", nameEn: "bow-staccato", xmlTags: ["staccato"], isAnalyzable: "Partial", implementStatus: "実装" },
+  { category: "弓法-強奏", name: "連続スタッカート", nameEn: "bow-staccato", xmlTags: ["staccato"], isAnalyzable: "Partial", implementStatus: "実装" }, // 2026-07-14 用語改定: 旧称ボウ・スタッカート
   { category: "弓法-強奏", name: "マルテレ", nameEn: "martele", xmlTags: ["accent"], isAnalyzable: "Partial", implementStatus: "実装" },
   { category: "弓法-強奏", name: "サステインド・マルテレ", nameEn: "sustained-martele", xmlTags: ["accent"], isAnalyzable: "Partial", implementStatus: "実装" },
   { category: "弓法-強奏", name: "スピッカート", nameEn: "spiccato", xmlTags: ["staccato"], isAnalyzable: "Partial", implementStatus: "実装" },
@@ -56,7 +56,7 @@ const techniques = [
   { category: "左手", name: "ビブラート", nameEn: "vibrato", xmlTags: ["ornaments"], isAnalyzable: "No", implementStatus: "実装" },
   { category: "左手", name: "ノン・ビブラート", nameEn: "non-vibrato", xmlTags: ["text-direction"], isAnalyzable: "No", implementStatus: "実装不要" },
   { category: "左手", name: "トリル", nameEn: "trill", xmlTags: ["<trill-mark>"], isAnalyzable: "Partial", implementStatus: "実装" },
-  { category: "左手", name: "モルデント", nameEn: "mordent", xmlTags: ["<mordent>"], isAnalyzable: "Partial", implementStatus: "実装" },
+  { category: "左手", name: "プラルトリラーとモルデント", nameEn: "mordent", xmlTags: ["<mordent>"], isAnalyzable: "Partial", implementStatus: "実装" }, // 2026-07-14 用語改定: 旧称モルデント
   { category: "左手", name: "ターン", nameEn: "turn", xmlTags: ["<turn>"], isAnalyzable: "Partial", implementStatus: "実装" },
   { category: "左手", name: "グリッサンド", nameEn: "glissando", xmlTags: ["<glissando>"], isAnalyzable: "Partial", implementStatus: "実装" },
   { category: "左手", name: "ポルタメント", nameEn: "portamento", xmlTags: ["<slide>"], isAnalyzable: "Partial", implementStatus: "実装" },

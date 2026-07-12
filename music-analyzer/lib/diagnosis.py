@@ -49,11 +49,13 @@ MIN_TARGET_FOR_DIAGNOSIS = 3
 MISS_PATTERNS_CAP = 30
 
 # 技術タグ名(正本13・日本語) → カタログID接尾辞
+# 2026-07-14 用語改定: ボウ・スタッカート→連続スタッカート / モルデント→プラルトリラーとモルデント
+# (カタログID接尾辞 bow_staccato/mordent は歴史的データ互換のため不変)
 _TECH_SUFFIX = {
     "スラー": "slur", "ポルタート": "portato", "スタッカート": "staccato",
-    "ボウ・スタッカート": "bow_staccato", "スピッカート": "spiccato",
+    "連続スタッカート": "bow_staccato", "スピッカート": "spiccato",
     "リコシェ": "ricochet", "ピチカート": "pizzicato", "トレモロ": "tremolo",
-    "ビブラート": "vibrato", "トリル": "trill", "モルデント": "mordent",
+    "ビブラート": "vibrato", "トリル": "trill", "プラルトリラーとモルデント": "mordent",
     "グリッサンド": "glissando", "ナチュラル・ハーモニクス": "harmonic",
 }
 # 重音の音程種別 → カタログ種別（10度等は「その他」へ §26-4）
