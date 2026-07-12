@@ -14,10 +14,12 @@ import type { BowFigOpts, FbFigOpts } from "./figures"
 
 export type LessonCat = "bow" | "left" | "both"
 
+// 2026-07-14 分類改定(Tetsuo指示): スラー/ピチカート→bow(右手・弓系)、
+// both は重音のみ残るため「重音系」に改名 (キーは互換のため both のまま)
 export const CATS: Record<LessonCat, { label: string; theme: string; light: string }> = {
   bow: { label: "右手・弓系", theme: "#55B8B8", light: "#93F4F5" },
   left: { label: "左手系", theme: "#8C2FCF", light: "#F2A7FA" },
-  both: { label: "両手・その他", theme: "#E8883A", light: "#FFD9AE" },
+  both: { label: "重音系", theme: "#E8883A", light: "#FFD9AE" },
 }
 
 export type LessonTag = {
@@ -209,7 +211,7 @@ export const LESSONS: Lesson[] = [
     ],
     terms: [`${nm}ポジション`, "フレームごと運ぶ", "よくあるまちがい", "コツ", "できたときの感覚"],
   })),
-  // ─── 両手・その他 (重音4 + 連続重音 + スラー + ピチカート) ───
+  // ─── 重音系 (重音4 + 連続重音)。スラー/ピチカートは2026-07-14にbowへ移動 ───
   ...(
     [
       ["ds3", "3度", [[1, 1], [2, 3]]],
@@ -250,7 +252,7 @@ export const LESSONS: Lesson[] = [
     terms: ["連続重音", "形ごと運ぶ", "よくあるまちがい", "コツ", "できたときの感覚"],
   },
   {
-    id: "slur", name: "スラー", cat: "both", tag: tech("スラー"), figType: "bow",
+    id: "slur", name: "スラー", cat: "bow", tag: tech("スラー"), figType: "bow",
     figs: [{ zone: "whole", dir: "down" }, { zone: "whole", cross: true }, { zone: "whole", dir: "down" }],
     texts: [
       "<b>1弓で複数の音</b>をなめらかにつなげる技術。弧の線が印だよ。",
@@ -262,7 +264,7 @@ export const LESSONS: Lesson[] = [
     terms: ["スラー", "弓は一定速度", "よくあるまちがい", "コツ", "できたときの感覚"],
   },
   {
-    id: "pizzicato", name: "ピチカート", cat: "both", tag: tech("ピチカート"), figType: "fb",
+    id: "pizzicato", name: "ピチカート", cat: "bow", tag: tech("ピチカート"), figType: "fb",
     figs: [{ pluck: true }, { pluck: true, cross: true }, { pluck: true }],
     texts: [
       "弓を使わずに、<b>指で弦をはじく</b>奏法だよ。",

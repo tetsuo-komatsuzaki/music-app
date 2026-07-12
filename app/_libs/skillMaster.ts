@@ -94,6 +94,37 @@ export type SubTaskId = (typeof SUB_TASK_IDS)[number]
 // 「将来検討」フラグ (MVP 未実装、UI で非表示)。2026-06-08 リコシェ削除で現在は空。
 export const SUB_TASKS_FUTURE = new Set<SubTaskId>([])
 
+// 現役の課題タグ (2026-07-14)。v68 (C-6b) で音程/リズム系の課題採点は217診断体系に
+// 置換され、弓採点23項目だけが skillSubTaskTags を消費する
+// (music-analyzer/bowing_score.py 冒頭コメント参照。正本=subtask_judges.py
+//  BOWING_SUB_TASK_IDS と同期必須)。admin UI の選択肢はこの集合に絞る。
+// 旧IDと既存データは互換のため SUB_TASK_IDS から削除しない。
+export const LIVE_SUB_TASK_IDS = new Set<SubTaskId>([
+  "bowing_technique_staccato",
+  "bowing_technique_spiccato",
+  "bowing_technique_pizzicato",
+  "bowing_technique_tremolo",
+  "bowing_technique_portato",
+  "bowing_technique_trill",
+  "bowing_technique_glissando",
+  "bowing_technique_harmonic",
+  "bowing_technique_staccato_continuous",
+  "bowing_technique_spiccato_continuous",
+  "bowing_string_g",
+  "bowing_string_d",
+  "bowing_string_a",
+  "bowing_string_e",
+  "bowing_string_change_g_to_d",
+  "bowing_string_change_d_to_g",
+  "bowing_string_change_d_to_a",
+  "bowing_string_change_a_to_d",
+  "bowing_string_change_a_to_e",
+  "bowing_string_change_e_to_a",
+  "bowing_double_stop_2",
+  "bowing_double_stop_3plus",
+  "bowing_double_stop_continuous",
+])
+
 export const SUB_TASK_NAMES: Record<SubTaskId, string> = {
   // ─── 音程 ───
   pitch_position_2: "第 2 ポジションの音程",

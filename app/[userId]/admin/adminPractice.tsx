@@ -8,9 +8,15 @@ import {
   SKILL_TASKS,
   AXES,
   SUB_TASKS_FUTURE,
+  LIVE_SUB_TASK_IDS,
   type SubTaskId,
   type TaskId,
 } from "@/app/_libs/skillMaster"
+
+// 課題タグの選択肢は現役(弓採点23項目)のみ表示 (2026-07-14)。
+// 音程/リズム系はv68で217診断体系に置換済みの死にタグのため隠す(既存データは不変)。
+const isSelectableSubTask = (subId: SubTaskId) =>
+  !SUB_TASKS_FUTURE.has(subId) && LIVE_SUB_TASK_IDS.has(subId)
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { updatePracticeItemTags } from "@/app/actions/updatePracticeItemTags"
@@ -601,14 +607,16 @@ export default function AdminPractice({
               <label>課題タグ (skillSubTaskTags) ★ループエンジン必須</label>
               <div className={styles.tagSection}>
                 {/* 個別課題 v1: 中項目 → 軸 → 項目 の 3 階層でグルーピング表示。
-                    将来検討フラグ付き項目 (リコシェ) は admin UI 非表示。 */}
-                {(Object.keys(SKILL_TASKS) as TaskId[]).map(taskId => (
+                    2026-07-14: 現役(弓採点23項目)のみ表示。空になった中項目は非表示 */}
+                {(Object.keys(SKILL_TASKS) as TaskId[])
+                  .filter(taskId =>
+                    AXES.some(ax => ax.parentTaskId === taskId && ax.subTaskIds.some(isSelectableSubTask)),
+                  )
+                  .map(taskId => (
                   <div key={taskId} className={styles.tagCategory}>
                     <div className={styles.tagCategoryName}>{TASK_NAMES[taskId]}</div>
                     {AXES.filter(ax => ax.parentTaskId === taskId).map(axis => {
-                      const visibleSubIds = axis.subTaskIds.filter(
-                        subId => !SUB_TASKS_FUTURE.has(subId),
-                      )
+                      const visibleSubIds = axis.subTaskIds.filter(isSelectableSubTask)
                       if (visibleSubIds.length === 0) return null
                       return (
                         <div key={axis.id} style={{ marginLeft: 12, marginTop: 4 }}>
@@ -840,17 +848,19 @@ export default function AdminPractice({
                   <td>
                     {isEditing ? (
                       // 個別課題 v1: 編集モーダルも新規登録フォームと同じく
-                      // 中項目 → 軸 → 項目 の 3 階層グルーピング。将来検討は非表示。
+                      // 中項目 → 軸 → 項目 の 3 階層グルーピング。現役(弓23項目)のみ表示。
                       <div className={styles.editTagGrid}>
-                        {(Object.keys(SKILL_TASKS) as TaskId[]).map(taskId => (
+                        {(Object.keys(SKILL_TASKS) as TaskId[])
+                          .filter(taskId =>
+                            AXES.some(ax => ax.parentTaskId === taskId && ax.subTaskIds.some(isSelectableSubTask)),
+                          )
+                          .map(taskId => (
                           <div key={taskId} style={{ marginBottom: 8 }}>
                             <div style={{ fontSize: 12, fontWeight: 600, color: "#666", marginBottom: 4 }}>
                               {TASK_NAMES[taskId]}
                             </div>
                             {AXES.filter(ax => ax.parentTaskId === taskId).map(axis => {
-                              const visibleSubIds = axis.subTaskIds.filter(
-                                subId => !SUB_TASKS_FUTURE.has(subId),
-                              )
+                              const visibleSubIds = axis.subTaskIds.filter(isSelectableSubTask)
                               if (visibleSubIds.length === 0) return null
                               return (
                                 <div key={axis.id} style={{ marginLeft: 12, marginTop: 2 }}>
