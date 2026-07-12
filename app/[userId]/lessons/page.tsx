@@ -6,7 +6,7 @@ import Link from "next/link"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { getLessonInventory, getUserLessonState, tagId } from "@/app/_libs/lessonStatus"
-import { CATS, LESSONS, LESSON_TOTAL, type LessonCat } from "./_lib/content"
+import { CATS, LESSONS, type LessonCat } from "./_lib/content"
 import LessonCardStatus from "./_components/LessonCardStatus"
 import styles from "./lessons.module.css"
 
@@ -37,7 +37,6 @@ export default async function LessonsPage({
     getUserLessonState(dbUser.id),
   ])
 
-  const clearedCount = LESSONS.filter((l) => state.cleared.has(tagId(l.tag))).length
   const groups: LessonCat[] = ["bow", "left", "both"]
 
   return (
@@ -45,9 +44,6 @@ export default async function LessonsPage({
       <div className={styles.frame}>
         <div className={styles.home}>
           <div className={styles.hTitle}>学びのレッスン</div>
-          <div className={styles.hSub}>
-            クリア: {clearedCount} / {LESSON_TOTAL}(各3回弾けばクリア・点数不問)
-          </div>
           {/* PC(≥900px)ではテーマ3列を並列表示・⭐︎で習得状態を見せる。モバイルは縦積み */}
           <div className={styles.cols}>
             {groups.map((g) => (
