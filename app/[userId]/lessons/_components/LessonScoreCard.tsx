@@ -192,16 +192,39 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
     extra.push(el)
   }
 
+  // スタッカート点など小さな装飾記号が緑丸の線と重なるのを避け、緑丸の真下へ退避する
+  // (2026-07-13 Tetsuo指摘: 2音目/4音目の点が緑丸にかぶる)。フィンガリング数字・テヌート
+  // 線・スラーなど大きい/横長の修飾は動かさない (点=ほぼ正方形の小さなbboxのみ対象)
+  const moveDotBelow = (e: NoteEntry, c: { cx: number; cy: number; r: number }) => {
+    const stave = e.chordEl ?? (e.els[0].closest("g.vf-stavenote") as SVGGraphicsElement | null)
+    const mod = stave?.querySelector(".vf-modifiers") as SVGGraphicsElement | null
+    if (!mod) return
+    const mb = mod.getBBox()
+    if (mb.width === 0 || mb.width > nh * 0.7 || mb.height > nh * 0.7) return
+    const nb = e.els[0].getBBox()
+    const noteCx = nb.x + nb.width / 2
+    const targetCy = c.cy + c.r + nh * 0.5 + mb.height / 2
+    const dx = noteCx - (mb.x + mb.width / 2)
+    const dy = targetCy - (mb.y + mb.height / 2)
+    mod.setAttribute("transform", `translate(${dx.toFixed(2)} ${dy.toFixed(2)})`)
+    extra.push(mod) // クロップ範囲に含める
+  }
+  const drawOn = (e: NoteEntry) => {
+    const c = circleFor(e)
+    draw(c)
+    moveDotBelow(e, c)
+  }
+
   if (hi) {
     if (HI_ALL.has(lessonId)) {
-      for (const e of entries) draw(circleFor(e))
+      for (const e of entries) drawOn(e)
     } else if (HI_LAST.has(lessonId)) {
-      draw(circleFor(entries[entries.length - 1]))
+      drawOn(entries[entries.length - 1])
     } else if (HI_CHORD.has(lessonId)) {
       const chord = entries.find((e) => e.els.length > 1) ?? entries[0]
-      draw(circleFor(chord))
+      drawOn(chord)
     } else {
-      draw(circleFor(entries[0])) // default: 技術記号付き先頭音 (23教材では先頭音と等価)
+      drawOn(entries[0]) // default: 技術記号付き先頭音 (23教材では先頭音と等価)
     }
   }
 
