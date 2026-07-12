@@ -707,6 +707,19 @@ try:
                     'UPDATE "PracticeItem" SET "pitchMin"=%s, "pitchMax"=%s WHERE id=%s',
                     (piece_summary.get("pitch_min"), piece_summary.get("pitch_max"), PRACTICE_ITEM_ID),
                 )
+                # ポジション自動推定を教材にも反映 (2026-07-14 Tetsuo指示)。
+                # PracticeItem.positions は "1st"/"3rd" 形式の文字列配列のため変換する。
+                # 手動設定を上書きしない: 現在空の場合のみ書き込む
+                # (推定は指番号なしだと1stポジ前提になるため、ポジション教材の手動指定が正)。
+                _pos_ints = piece_summary.get("positions") or []
+                if _pos_ints:
+                    def _ord(n):
+                        return f"{n}{'st' if n == 1 else 'nd' if n == 2 else 'rd' if n == 3 else 'th'}"
+                    cur.execute(
+                        'UPDATE "PracticeItem" SET positions = %s '
+                        "WHERE id = %s AND (positions IS NULL OR positions = '{}')",
+                        ([_ord(int(n)) for n in _pos_ints], PRACTICE_ITEM_ID),
+                    )
                 for _name in _ft_names:
                     cur.execute(
                         'INSERT INTO "PracticeItemFeatureTag" ("practiceItemId", "featureTagId") '
