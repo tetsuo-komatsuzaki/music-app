@@ -18,6 +18,7 @@ import { checkSound, SOUND_CHECK_PARAMS } from "../_lib/soundCheck"
 import { playExemplar } from "../_lib/exemplar"
 import { LESSON_MOTION_MAP } from "@/app/components/violin/bowing-motions"
 import LessonBowingMotion from "./LessonBowingMotion"
+import LessonBowingStatic from "./LessonBowingStatic"
 import LessonScoreCard from "./LessonScoreCard"
 import styles from "../lessons.module.css"
 
@@ -293,13 +294,16 @@ export default function LessonPlayer({
       : fbFig(f as FbFigOpts, theme.theme)
   }
 
-  // 弓系レッスンのS2(slide=1)・S5(slide=4)は運弓モーション2ビュー (v3.18・仕様書v1.2 §10-1)
-  const motionId =
-    (slide === 1 || slide === 4) && LESSON_MOTION_MAP[lesson.id]
-      ? LESSON_MOTION_MAP[lesson.id]
-      : null
+  // 弓系レッスン(モーションを持つ技法)の運弓モーションid
+  const bowMotionId = LESSON_MOTION_MAP[lesson.id] ?? null
+  // S2(slide=1)・S5(slide=4)は運弓モーション2ビュー (v3.18・仕様書v1.2 §10-1)
+  const motionId = (slide === 1 || slide === 4) && bowMotionId ? bowMotionId : null
   // S5(弓系)は二段: 上段=モーション/下段=譜面カード
   const twoTier = slide === 4 && !!motionId
+  // S3(よくある間違い)・S4(コツ)も弓系はモーションと同じバイオリン+弓の静止図に統一
+  // (2026-07-12 Tetsuo指示)。slide2=間違い(✕)/slide3=コツ(矢印)
+  const staticMark: "cross" | "hint" | null =
+    bowMotionId && slide === 2 ? "cross" : bowMotionId && slide === 3 ? "hint" : null
 
   const playBubble =
     bubbleOverride ??
@@ -361,6 +365,11 @@ export default function LessonPlayer({
             {motionId ? (
               <div className={`${styles.figCard} ${twoTier ? styles.figCardTwoTier : ""}`}>
                 <LessonBowingMotion motionId={motionId} />
+              </div>
+            ) : staticMark ? (
+              // 弓系のS3(間違い)/S4(コツ) = モーションと同じバイオリン+弓の静止図
+              <div className={styles.figCard}>
+                <LessonBowingStatic mark={staticMark} />
               </div>
             ) : slide === 0 || slide === 4 ? (
               // S1=課題フレーズ+緑丸 / S5(非弓系)=課題フレーズ(緑丸なし・v3.18準拠)
