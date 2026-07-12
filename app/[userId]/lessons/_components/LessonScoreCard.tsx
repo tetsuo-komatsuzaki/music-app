@@ -100,9 +100,15 @@ export default function LessonScoreCard({
   )
 }
 
-/** OSMDのカーソルから音符要素列を収集 (休符除外・和音は同エントリにまとめる) */
+/** OSMDのカーソルから音符要素列を収集 (休符除外・和音は同エントリにまとめる)
+ *
+ * 和音(重音)は cursor.GNotesUnderCursor() が符頭を別々のステップで返すことがあり、
+ * それに頼ると重音の2符頭を1エントリにまとめられず片方しか囲めない。そこで
+ * 描画済みDOMの `g.vf-stavenote` (VexFlowの音符グループ) 単位でまとめ、その中の
+ * `.vf-notehead` を全て els に入れる。これで重音は必ず両符頭を1エントリに持つ。 */
 function collectNotes(osmd: OpenSheetMusicDisplay): NoteEntry[] {
   const entries: NoteEntry[] = []
+  const seen = new Set<Element>()
   const cursor = osmd.cursor
   cursor.reset()
   const guard = 500
@@ -112,15 +118,16 @@ function collectNotes(osmd: OpenSheetMusicDisplay): NoteEntry[] {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (g: any) => g && g.sourceNote && !g.sourceNote.isRest(),
     )
-    if (gNotes.length > 0) {
-      const els = gNotes
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((g: any) => (typeof g.getSVGGElement === "function" ? g.getSVGGElement() : null))
-        .filter((el: unknown): el is SVGGraphicsElement => !!el)
-      if (els.length > 0) {
-        const chordEl = els[0].closest("g.vf-stavenote") as SVGGraphicsElement | null
-        entries.push({ els, chordEl })
-      }
+    for (const g of gNotes) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const el = typeof (g as any).getSVGGElement === "function" ? (g as any).getSVGGElement() : null
+      if (!el) continue
+      const stave = (el.closest("g.vf-stavenote") as SVGGraphicsElement | null) ?? el
+      if (seen.has(stave)) continue // 和音の2符頭目でstaveが重複 → 1エントリに集約
+      seen.add(stave)
+      const heads = [...stave.querySelectorAll(".vf-notehead")] as SVGGraphicsElement[]
+      const els = heads.length > 0 ? heads : [el as SVGGraphicsElement]
+      entries.push({ els, chordEl: stave === el ? null : stave })
     }
     cursor.next()
   }
@@ -137,21 +144,35 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
   const entries = collectNotes(osmd)
   if (entries.length === 0) return
 
+  // 符頭単体のbboxを返す (els[0]は符幹込みのg要素なので .vf-notehead を優先)。
+  // これを取り違えると基準単位が符頭+符幹の高さ(≈符頭の4〜5倍)になり、緑丸が
+  // 譜面全体より大きくなる (2026-07-12バグ修正)
+  const headBBox = (el: SVGGraphicsElement): DOMRect => {
+    const head = el.classList.contains("vf-notehead")
+      ? el
+      : (el.querySelector(".vf-notehead") as SVGGraphicsElement | null)
+    return (head ?? el).getBBox()
+  }
+
   // 基準単位 = 符頭の高さ (≈1譜線間隔)
-  const nh = entries[0].els[0].getBBox().height || 10
+  const nh = headBBox(entries[0].els[0]).height || 10
 
   const circleFor = (e: NoteEntry) => {
-    const isChord = e.els.length > 1
-    if (isChord && e.chordEl) {
-      // 重音: 符頭群+符幹を包含する拡大円 (C-5)
-      const b = e.chordEl.getBBox()
-      const cx = b.x + b.width / 2
-      const cy = b.y + b.height / 2
-      const r = Math.max(b.width, b.height) / 2 + nh * 0.9
-      return { cx, cy, r }
+    // 符頭群 (単音=1個 / 和音=複数) を包む最小外接ボックスから円を作る。
+    // 符幹は含めない — 含めると円が縦に伸びて符頭からずれる
+    const boxes = e.els.map(headBBox)
+    const minX = Math.min(...boxes.map((b) => b.x))
+    const maxX = Math.max(...boxes.map((b) => b.x + b.width))
+    const minY = Math.min(...boxes.map((b) => b.y))
+    const maxY = Math.max(...boxes.map((b) => b.y + b.height))
+    const cx = (minX + maxX) / 2
+    const cy = (minY + maxY) / 2
+    if (e.els.length > 1) {
+      // 重音: 符頭群を包含する拡大円 (C-5)
+      const span = Math.hypot(maxX - minX, maxY - minY)
+      return { cx, cy, r: span / 2 + nh * 0.7 }
     }
-    const b = e.els[0].getBBox()
-    return { cx: b.x + b.width / 2, cy: b.y + b.height / 2, r: nh * 1.5 }
+    return { cx, cy, r: nh * 1.5 }
   }
   const draw = (c: { cx: number; cy: number; r: number }) => {
     const el = document.createElementNS("http://www.w3.org/2000/svg", "circle")
