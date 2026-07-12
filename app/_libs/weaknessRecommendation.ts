@@ -94,7 +94,8 @@ export async function getInventory(): Promise<MaterialCandidate[]> {
     return inventoryCache.items
   }
   const rows = await prisma.practiceItem.findMany({
-    where: { isPublished: true },
+    // lesson(学びレッスン)は一度きりの導入コンテンツなので弱点推薦の在庫から除外 (確定#7)
+    where: { isPublished: true, category: { not: "lesson" } },
     select: {
       id: true,
       title: true,

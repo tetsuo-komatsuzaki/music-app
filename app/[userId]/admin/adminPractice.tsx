@@ -20,9 +20,11 @@ import { deleteAdminMaterial } from "@/app/actions/deleteAdminMaterial"
 import { CATEGORY_LABELS, PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
 import styles from "./admin.module.css"
 
-// アップロード時に選べるカテゴリ: 基礎練6 + エチュード + 練習曲(score=isShared Score)
+// アップロード時に選べるカテゴリ: 基礎練6 + エチュード + 学びレッスン + 練習曲(score=isShared Score)
+// lesson は練習メニューには出さない管理専用カテゴリ (学びレッスン23本の教材)
 const UPLOAD_CATEGORY_OPTIONS: readonly string[] = [
   ...PRACTICE_CATEGORIES,
+  "lesson",
   "score",
 ]
 
@@ -50,6 +52,7 @@ type Props = {
 
 const categoryLabels: Record<string, string> = {
   ...CATEGORY_LABELS,
+  lesson: "学びレッスン",
   score: "練習曲",
 }
 const modeLabels: Record<string, string> = { major: "長調", minor: "短調" }

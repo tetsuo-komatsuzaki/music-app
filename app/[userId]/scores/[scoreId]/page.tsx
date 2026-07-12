@@ -5,6 +5,9 @@ import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import ScoreDetail from "./scoreDetail"
 import AutoRefresh from "@/app/components/AutoRefresh"
 import { uploadRecord } from "@/app/actions/uploadRecord"
+import LessonGateBanner from "./LessonGateBanner"
+import { getLessonInventory, getUserLessonState, tagId } from "@/app/_libs/lessonStatus"
+import { LESSON_BY_TAG } from "@/app/[userId]/lessons/_lib/content"
 
 export async function generateMetadata({
   params,
@@ -90,7 +93,7 @@ export default async function Page({
 
   // 残り全て並列実行
   const perfStep2 = performance.now()
-  const [buildUrl, analysisData, performanceCount, latestPerf, songMastery] = await Promise.all([
+  const [buildUrl, analysisData, performanceCount, latestPerf, songMastery, scoreTags, lessonInventory, lessonState] = await Promise.all([
     // buildUrl
     (score.buildStatus === "done" && score.generatedXmlPath)
       ? storageAdmin.storage
@@ -139,23 +142,74 @@ export default async function Page({
       where: { userId_scoreId: { userId: dbUser.id, scoreId } },
       select: { achievedAt: true, masteredAt: true },
     }),
+
+    // 学びレッスン誘導 (フロー【1】確定#5/#6): 曲のタグ・レッスン在庫・ユーザー状態
+    prisma.score.findUnique({
+      where: { id: scoreId },
+      select: {
+        scoreTechniqueTags: { select: { techniqueTag: { select: { name: true } } } },
+        featureTags: {
+          select: {
+            featureTag: { select: { category: true, name: true, isAcquisition: true } },
+          },
+        },
+      },
+    }),
+    getLessonInventory(),
+    getUserLessonState(dbUser.id),
   ])
+
+  // ── 学びレッスン誘導: 曲のタグのうち「公開中レッスンがあり、未習得
+  //    (クリアも自己申告もない=ユニオン外)」のものを案内 (achievement.py要件①と同一式) ──
+  const gateTags: Array<{ tagType: string; tagKey: string }> = []
+  for (const t of scoreTags?.scoreTechniqueTags ?? []) {
+    gateTags.push({ tagType: "technique", tagKey: t.techniqueTag.name })
+  }
+  for (const f of scoreTags?.featureTags ?? []) {
+    if (f.featureTag.category === "double_stop" && f.featureTag.isAcquisition) {
+      gateTags.push({ tagType: "double_stop", tagKey: f.featureTag.name })
+    }
+  }
+  const gatePosKeys = new Set<string>()
+  for (const n of score.positions) {
+    if (n >= 2) gatePosKeys.add(n >= 6 ? "6" : String(n)) // 6以上は"6"に正規化 (確定#8)
+  }
+  for (const key of gatePosKeys) gateTags.push({ tagType: "position", tagKey: key })
+
+  const pendingLessons = gateTags
+    .filter((t) => {
+      const id = tagId(t)
+      const item = lessonInventory.get(id)
+      return (
+        !!item &&
+        item.buildStatus === "done" &&
+        !!item.generatedXmlPath &&
+        !lessonState.union.has(id)
+      )
+    })
+    .map((t) => LESSON_BY_TAG.get(tagId(t)))
+    .filter((l): l is NonNullable<typeof l> => !!l)
   console.log(`[PERF] scores/detail step2_parallel: ${(performance.now() - perfStep2).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   return (
-    <ScoreDetail
-      score={{
-        id: score.id,
-        title: score.title,
-        badge: badgeKind(songMastery),
-      }}
-      userId={userId}
-      analysis={analysisData}
-      uploadAction={uploadRecord}
-      buildUrl={buildUrl}
-      performanceCount={performanceCount}
-      latestPitchAccuracy={latestPerf?.pitchAccuracy ?? null}
-      latestTimingAccuracy={latestPerf?.timingAccuracy ?? null}
-    />
+    <>
+      {pendingLessons.length > 0 && (
+        <LessonGateBanner userId={userId} lessons={pendingLessons.map((l) => ({ id: l.id, name: l.name }))} />
+      )}
+      <ScoreDetail
+        score={{
+          id: score.id,
+          title: score.title,
+          badge: badgeKind(songMastery),
+        }}
+        userId={userId}
+        analysis={analysisData}
+        uploadAction={uploadRecord}
+        buildUrl={buildUrl}
+        performanceCount={performanceCount}
+        latestPitchAccuracy={latestPerf?.pitchAccuracy ?? null}
+        latestTimingAccuracy={latestPerf?.timingAccuracy ?? null}
+      />
+    </>
   )
 }

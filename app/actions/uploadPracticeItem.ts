@@ -66,9 +66,10 @@ export async function uploadPracticeItem(formData: FormData) {
     return { error: "必須項目が不足しています" }
   }
 
-  // category ランタイム検証 (2026-05-31: 基礎練6 + エチュード)。
+  // category ランタイム検証 (2026-05-31: 基礎練6 + エチュード / 2026-07-14: 学びレッスン追加)。
   // 「練習曲」(score) は Score 側 (uploadScore) で扱うため PracticeItem には来ない。
-  if (!isPracticeCategory(category)) {
+  // lesson は練習メニュー非表示の管理専用カテゴリ (PRACTICE_CATEGORIES に混ぜない)。
+  if (!isPracticeCategory(category) && category !== "lesson") {
     return { error: `不正なカテゴリです: ${category}` }
   }
 

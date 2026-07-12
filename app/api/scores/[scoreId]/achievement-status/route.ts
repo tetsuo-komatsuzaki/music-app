@@ -75,7 +75,8 @@ export async function GET(
       }
     }
     for (const n of parsePositions(li.positions)) {
-      if (n >= 2) stock.position.add(String(n))
+      // 6以上は "6"(=6thポジション以上) に正規化 (学びレッスン確定#8・achievement.pyと同一)
+      if (n >= 2) stock.position.add(n >= 6 ? "6" : String(n))
     }
   }
 
@@ -95,16 +96,32 @@ export async function GET(
       required.push({ tagType: "double_stop", tagKey: f.featureTag.name })
     }
   }
+  const scorePosKeys = new Set<string>()
   for (const n of score.positions) {
-    if (n >= 2 && stock.position.has(String(n))) {
-      required.push({ tagType: "position", tagKey: String(n) })
+    if (n >= 2) scorePosKeys.add(n >= 6 ? "6" : String(n))
+  }
+  for (const key of [...scorePosKeys].sort()) {
+    if (stock.position.has(key)) {
+      required.push({ tagType: "position", tagKey: key })
     }
   }
-  const clears = await prisma.userLessonClear.findMany({
-    where: { userId: dbUserId },
-    select: { tagType: true, tagKey: true },
-  })
-  const clearedSet = new Set(clears.map((c) => `${c.tagType}:${c.tagKey}`))
+  // クリア判定 = UserLessonClear ∪ UserTagAcquisition(≠REVOKED) のユニオン
+  // (学びレッスン確定#5・achievement.py 要件①と同一式。自己申告済みユーザーに
+  //  不要なレッスンを「未クリア」と出さない)
+  const [clears, acquisitions] = await Promise.all([
+    prisma.userLessonClear.findMany({
+      where: { userId: dbUserId },
+      select: { tagType: true, tagKey: true },
+    }),
+    prisma.userTagAcquisition.findMany({
+      where: { userId: dbUserId, state: { not: "REVOKED" } },
+      select: { tagType: true, tagKey: true },
+    }),
+  ])
+  const clearedSet = new Set([
+    ...clears.map((c) => `${c.tagType}:${c.tagKey}`),
+    ...acquisitions.map((a) => `${a.tagType}:${a.tagKey}`),
+  ])
   const lessons = required.map((r) => ({
     ...r,
     cleared: clearedSet.has(`${r.tagType}:${r.tagKey}`),
