@@ -31,8 +31,10 @@ Arcoda の学びレッスン／技法解説で使う、左手のポジション�
 | `lefthand-fingers.ts` | 指パターン 7 種のパスデータ |
 | `lefthand-instrument.ts` | 楽器部分（不動）の SVG |
 | `LeftHand.tsx` | 静止イラストの描画コンポーネント＋注釈ヘルパ |
-| `lefthand-motions.ts` | ポジション移動のキーフレーム定義＋CSS 生成 |
-| `PositionShiftDemo.tsx` | モーション再生コンポーネント |
+| `lefthand-motions.ts` | ポジション移動（正解）のキーフレーム定義＋CSS 生成 |
+| `PositionShiftDemo.tsx` | モーション再生コンポーネント（CSS 駆動） |
+| `lefthand-mistake-motions.ts` | ポジション移動（ミス）のキーフレーム定義＋SMIL 値生成 |
+| `PositionMistakeDemo.tsx` | ミスモーション再生コンポーネント（SMIL 駆動） |
 | `index.ts` | バレルエクスポート |
 
 ---
@@ -62,6 +64,78 @@ import { PositionShiftDemo } from "@/components/lefthand";
 
 // 停止状態（1st・開放弦の静止画として正しく表示される）
 <PositionShiftDemo shift="1st-5th" playing={false} />
+```
+
+### ミスパターンのアニメーション
+
+```tsx
+import { PositionMistakeDemo } from "@/components/lefthand";
+
+<PositionMistakeDemo shift="miss-1st-2nd" />   // 親指が 1st に取り残される
+<PositionMistakeDemo shift="miss-1st-3rd" />   // 親指が 2nd までしか進まない
+<PositionMistakeDemo shift="miss-1st-4th" />   // 親指が 3rd までしか進まない
+```
+
+**5th / 6th のミスは存在しない。** 正しい手が「親指がネック裏」形状のため、
+取り残される形が構造的に別物になる。元絵が提供されるまで規則の外挿は禁止。
+
+---
+
+## ミスパターン（親指が残る・指が逆傾き）
+
+### 構造（元絵から機械抽出）
+
+| | 変換 |
+|---|---|
+| 指 | 正しい `fingerTransform(d)` ∘ 剪断 `matrix(1,0,-0.42,1,128.1,0)` |
+| 手 | 正しい `handTransform(d)` ＋ **専用のミス手パス**（正しい手60点／ミス手70点） |
+
+ミス手パスは「**掌が 68px 引っ込み、親指がさらに (lag − 68) 引っ込む**」形で描かれている。
+`lag`（親指の遅れ量）= そのポジションの d − 1つ前のポジションの d。
+
+| ポジション | lag | 親指の行き先 |
+|---|---:|---|
+| 2nd | 68 | 1st（**一歩も動かない**） |
+| 3rd | 102 | 2nd |
+| 4th | 102 | 3rd |
+
+### モーションは s（移動進捗 0→1）の一元管理
+
+```
+指  = fingerTransform(D·s) ∘ translate(128.1·s, 0) ∘ skewX(-22.78241° · s)
+手  = handTransform(D·s + 68·(1 - s))              ← 掌の遅れ
+パス = missHandPath(68 - (68 - lag)·s)             ← 親指の追加の遅れ
+
+⇒ 親指の絶対x = 314 + s·(D - lag)   掌の絶対x = 471 + s·(D - 68)
+```
+
+**親指・掌ともに単調増加し、最終値を超えない。これが唯一の合格条件**（`assertMonotone()` で検証）。
+
+### ミスパターンの禁則（実際に踏んだ罠）
+
+> ❌ **ミス手を到達位置で静止させ、終盤にクロスフェードしてはならない。**
+> 正しい手が親指を前進させたあとにミス手の親指が後ろから現れ、**親指が逆戻りして見える。**
+
+> ❌ **親指の座標だけを s に比例させてはならない。**
+> ミス手は掌も 68px 引っ込んでいるため、s=0 のとき掌だけが左に残り、
+> **親指の左に出っ張りが生じる。** 掌の遅れも s に比例させること。
+
+> ❌ **transform と `d` 属性で異なる keyTimes / keySplines を使ってはならない。**
+> 進捗がずれ、**親指が逆戻りする。**
+
+> ❌ **静止画のミスを「1つ前のポジションの handTransform」で描いてはならない。**
+> 掌まで丸ごと後ろに下がる。専用パス（`MissHandShape`）を使うこと。
+
+### なぜ SMIL なのか
+親指の遅れは path の `d` の変化として現れる。CSS の `d: path()` は対応環境が限られるため、
+**ミスモーションだけ SMIL 駆動**にしてある（正解モーションは CSS のまま）。
+
+### 剪断は matrix のままアニメーションできない
+`animateTransform` の `type` は translate / scale / rotate / skewX / skewY のみ。
+`matrix(1,0,-0.42,1,128.1,0)` は以下に分解して `additive="sum"` で3本重ねる。
+
+```
+matrix(1,0,-0.42,1,128.1,0) ≡ translate(128.1, 0) skewX(-22.78241°)     // tan = -0.420000
 ```
 
 ---
@@ -179,8 +253,13 @@ transform を抑止すること**。両方に付くと変換が二重に掛か�
 | `PositionShiftDemo` | 内外で transform が二重に掛かる | `animated` で内側を抑止 |
 | `POSITIONS.floor` 等の色 | 楽器SVGの実値と不一致 | 実値に統一 |
 | モーション | 開放弦フェーズなし／持ち替えが早すぎる／6th が 5th を経由しない | すべて修正 |
+| `LeftHand thumbLagsBehind` | 1つ前のポジションの `handTransform` を使っていた（掌ごと下がる） | 専用の `MissHandShape` に差し替え |
+| ミスモーション | 未実装 | `lefthand-mistake-motions.ts` ＋ `PositionMistakeDemo.tsx` を新設 |
 
 `f1_up2` / `f12_up3` の 2 パターンは**確定SVGの出典が未提供**のため、既存値をそのまま引き継いだ（機械照合できていない）。SVG があれば差し替えること。
+
+**ミスパターンの 5th / 6th も元絵が未提供**。正しい手が「親指がネック裏」形状のため、
+取り残される形が構造的に別物になる。規則の外挿は禁止。
 
 ---
 
@@ -189,6 +268,8 @@ transform を抑止すること**。両方に付くと変換が二重に掛か�
 | 検証項目 | 結果 |
 |---|---|
 | TSデータから静止画を生成 → 確定SVGと画素比較（1st〜6th × f1） | ✓ **差分 0** |
+| ミス静止画（2nd / 4th × `thumbLagsBehind reverseTilt`）→ 確定ミスSVGと画素比較 | ✓ **差分 0** |
+| ミスモーションの親指・掌の単調性（2nd / 3rd / 4th） | ✓ 単調増加・行き過ぎなし |
 | 同（1st × f12 / f123 / f1234） | ✓ **差分 0** |
 | 同（1st × open ＝ 承認済みの全指開放） | ✓ **差分 0** |
 | `f1_up2` / `f12_up3` | ⚠ 出典SVG未提供・未照合 |
@@ -205,3 +286,10 @@ transform を抑止すること**。両方に付くと変換が二重に掛か�
 - 全 SVG に `role="img"` と `aria-label`
 - `prefers-reduced-motion: reduce` でアニメーション無効化
 - `playing={false}` で停止（1st・開放弦の静止画として正しく表示される）
+
+---
+
+## レンダラの要件（検証時）
+
+検証用レンダラは **`skewX` と `matrix` に対応していること**。
+未対応だと剪断が無視され、正しい実装を誤って「不一致」と判定する。

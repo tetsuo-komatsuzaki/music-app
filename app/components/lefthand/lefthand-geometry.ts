@@ -62,11 +62,22 @@ const round2 = (v: number) => Math.round(v * 100) / 100;
  *    異なるため。**片方だけ動かすと掌がネックから浮いて絵が壊れる。**
  */
 export function fingerTransform(d: number): string {
-  return `translate(${FINGER_ORIGIN_X + d}, ${round2(FINGER_ORIGIN_Y + d * STRING_SLOPE)})`;
+  const [x, y] = fingerTranslate(d);
+  return `translate(${x}, ${y})`;
 }
 
 export function handTransform(d: number): string {
-  return `translate(${HAND_ORIGIN_X + d}, ${round2(HAND_ORIGIN_Y + d * NECK_SLOPE)})`;
+  const [x, y] = handTranslate(d);
+  return `translate(${x}, ${y})`;
+}
+
+/** SMIL の animateTransform に渡す数値ペア（transform 文字列ではなく [x, y]） */
+export function fingerTranslate(d: number): [number, number] {
+  return [FINGER_ORIGIN_X + d, round2(FINGER_ORIGIN_Y + d * STRING_SLOPE)];
+}
+
+export function handTranslate(d: number): [number, number] {
+  return [HAND_ORIGIN_X + d, round2(HAND_ORIGIN_Y + d * NECK_SLOPE)];
 }
 
 /* ============================================================
@@ -147,6 +158,123 @@ export const HAND_BEHIND_NECK_CREASES = [
  */
 export const BODY_OVERLAY_FILL = `M 692,355.4 L 1000,371 L 1000,478 L 716,464 C 702,460 694,428 692,383 Z`;
 export const BODY_OVERLAY_STROKE = `M 692,383 C 694,428 702,460 716,464 L 1000,478`;
+
+/* ============================================================
+   ミスパターン（親指が1つ前のポジションに取り残される・指が逆傾き）
+
+   元絵の構造（2nd-miss / 4th-miss の実測から機械特定）:
+     指 = fingerTransform(d) ∘ 剪断 MISS_SHEAR_MATRIX
+     手 = handTransform(d) ＋ 専用のミス手パス
+   ミス手パスは「掌が MISS_PALM_LAG(68px) 引っ込み、
+   親指がさらに (lag - 68) 引っ込む」形で描かれている。
+   正しい手は60点・ミス手は70点なので、**両者は形状補間できない**。
+   ============================================================ */
+
+/** 親指が取り残される先（1つ前のポジション） */
+export const PREV_POSITION: Record<PositionId, PositionId> = {
+  "1st": "1st", "2nd": "1st", "3rd": "2nd", "4th": "3rd", "5th": "4th", "6th": "5th",
+};
+
+/** ミス手の掌が引っ込んでいる量（元絵に焼き込まれた定数） */
+export const MISS_PALM_LAG = 68;
+
+/** 指の逆傾き（剪断）。⚠️ 鏡映 scale(-1,1) は禁止（指の並び順まで反転する） */
+export const MISS_SHEAR_MATRIX = "matrix(1,0,-0.42,1,128.1,0)";
+/** 上記をアニメーション可能な形に分解: translate(TX,0) skewX(DEG) */
+export const MISS_SHEAR_TX = 128.1;
+export const MISS_SKEW_DEG = -22.78241;   // atan(-0.42) → tan = -0.420000
+
+/** ミス手パスの基準形（遅れ量 lag = MISS_PALM_LAG のとき。= 2nd-miss の元絵） */
+export const MISS_HAND_PATH_BASE = `M 295,339 C 314,371 330,401 352,437 C 376,471 418,491 452,497 C 458,501 472,506 480,516 Q
+  486,524 490,532 L 597,626 Q 603,632 610,629 L 696,579 Q 703,575 702,568 L 616,486 C 606,478
+  598,468 594,456 C 612,432 640,410 646,381 L 422,370 C 414,374 406,378 398,383 C 376,373
+  352,347 329,319 C 322,307 304,311 295,339 Z`;
+
+/**
+ * 上記パスの数値列を 0 始まりで数えたときの、**親指側 x 座標**の位置。
+ * 2nd-miss と 4th-miss の差分（x のみ14点・すべて -34）から機械特定した。
+ */
+export const MISS_HAND_THUMB_INDICES = [0, 2, 4, 6, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68] as const;
+
+/** ミス手のしわ（遅れ量によらず不変） */
+export const MISS_HAND_CREASES = [
+  "M 436,404 C 464,424 474,452 476,480",
+  "M 516,386 C 528,420 552,440 582,444",
+  "M 414,372 C 421,380 426,388 428,396",
+] as const;
+
+/** そのポジションで親指が取り残される量（px） */
+export function missLag(p: PositionId): number {
+  return POSITIONS[p].d - POSITIONS[PREV_POSITION[p]].d;
+}
+
+/** 遅れ量 lag のミス手パスを生成する（親指側 x を -(lag - 68) だけずらす） */
+export function missHandPath(lag: number): string {
+  const off = -(lag - MISS_PALM_LAG);
+  const idx = new Set<number>(MISS_HAND_THUMB_INDICES as readonly number[]);
+  let i = -1;
+  return MISS_HAND_PATH_BASE.replace(/-?\d+\.?\d*/g, (mm) => {
+    i += 1;
+    return idx.has(i) ? String(Number(mm) + off) : mm;
+  });
+}
+
+/* ------------------------------------------------------------
+   ミスモーションは「移動進捗 s（0→1）」の一元管理。
+
+     指  = fingerTransform(D·s) translate(TX·s, 0) skewX(DEG·s)
+     手  = handTransform(D·s + MISS_PALM_LAG·(1 - s))
+     パス = missHandPath(MISS_PALM_LAG - (MISS_PALM_LAG - lag)·s)
+
+   ⇒ 親指の絶対x = 314 + s·(D - lag)   掌の絶対x = 471 + s·(D - 68)
+      ともに **単調増加**し、最終値を超えない。これが唯一の合格条件。
+
+   ⚠️ 親指の座標だけを s に比例させてはならない。掌も68px引っ込んでいるため、
+      s=0 のとき掌だけが左に残り、**親指の左に出っ張りが生じる**。
+   ⚠️ transform と d 属性は必ず同一の keyTimes / keySplines を使うこと。
+      ずらすと **親指が逆戻りする**。
+   ------------------------------------------------------------ */
+
+/** 静止画用: 指の transform 文字列（剪断込み） */
+export function missFingerTransform(target: PositionId, s: number): string {
+  const [x, y] = fingerTranslate(POSITIONS[target].d * s);
+  return `translate(${x}, ${y}) translate(${round2(MISS_SHEAR_TX * s)}, 0)`
+    + ` skewX(${(MISS_SKEW_DEG * s).toFixed(5)})`;
+}
+
+/** 静止画用: 崩れた手の transform 文字列（掌の遅れ込み） */
+export function missHandTransform(target: PositionId, s: number): string {
+  return handTransform(POSITIONS[target].d * s + MISS_PALM_LAG * (1 - s));
+}
+
+/** 崩れた手のパス（親指の遅れ込み） */
+export function missHandPathAt(target: PositionId, s: number): string {
+  return missHandPath(MISS_PALM_LAG - (MISS_PALM_LAG - missLag(target)) * s);
+}
+
+/* ------------------------------------------------------------
+   SMIL 用の数値ペア。
+   ⚠️ 剪断 matrix(...) は animateTransform で補間できない（type は translate/scale/
+      rotate/skewX/skewY のみ）。**additive="sum" の3本に分解**して重ねること:
+        1) translate  fingerTranslate(D·s)
+        2) translate  (MISS_SHEAR_TX·s, 0)   additive
+        3) skewX      MISS_SKEW_DEG·s        additive
+   ------------------------------------------------------------ */
+export const missFingerTranslate = (target: PositionId, s: number) =>
+  fingerTranslate(POSITIONS[target].d * s);
+
+export const missShearTranslate = (s: number): [number, number] =>
+  [round2(MISS_SHEAR_TX * s), 0];
+
+export const missSkew = (s: number): number =>
+  Number((MISS_SKEW_DEG * s).toFixed(5));
+
+export const missHandTranslate = (target: PositionId, s: number) =>
+  handTranslate(POSITIONS[target].d * s + MISS_PALM_LAG * (1 - s));
+
+/** 正しい手（崩れる前に見えている手）の平行移動 */
+export const okHandTranslate = (target: PositionId, s: number) =>
+  handTranslate(POSITIONS[target].d * s);
 
 /* ============================================================
    検証用の不変条件（改変後は必ず確認すること）

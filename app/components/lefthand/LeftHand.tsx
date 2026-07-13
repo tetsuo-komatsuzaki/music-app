@@ -19,10 +19,14 @@ import {
   HAND_CREASES,
   HAND_BEHIND_NECK_PATH,
   HAND_BEHIND_NECK_CREASES,
+  MISS_HAND_CREASES,
+  MISS_SHEAR_MATRIX,
   BODY_OVERLAY_FILL,
   BODY_OVERLAY_STROKE,
   fingerTransform,
   handTransform,
+  missHandTransform,
+  missHandPathAt,
   POSITIONS,
   type PositionId,
   type FingerPatternId,
@@ -121,7 +125,7 @@ export function FingersShape({
   const p = FINGER_PATTERNS[pattern];
   // ⚠️ 鏡映(scale(-1,1))は禁止。指の並び順まで反転してしまう。
   //    指先ライン(y=305)を固定した剪断を使う。
-  const shear = reverseTilt ? "matrix(1,0,-0.42,1,128.1,0)" : "";
+  const shear = reverseTilt ? MISS_SHEAR_MATRIX : "";
   const t = animated
     ? shear || undefined
     : `${fingerTransform(d)}${shear ? " " + shear : ""}`;
@@ -151,6 +155,41 @@ export function FingersShape({
       <g transform={t} fill={COLORS.nail} stroke={COLORS.skinEdge} strokeWidth="1.4">
         {p.nails.map((n, i) => (
           <rect key={i} {...n} />
+        ))}
+      </g>
+    </g>
+  );
+}
+
+/* ============================================================
+   崩れた手（ミスパターン: 親指が1つ前のポジションに取り残される）
+
+   ⚠️ 正しい手を「1つ前のポジションの transform」で描いてはならない。
+      掌まで丸ごと後ろに下がってしまう。ミス手は専用パス（70点）で、
+      正しい手（60点）とは**形状補間できない**。
+   ============================================================ */
+export function MissHandShape({
+  target,
+  s = 1,
+  className,
+}: {
+  target: PositionId;
+  /** 移動進捗 0-1（1 = 到達した崩れた形） */
+  s?: number;
+  className?: string;
+}) {
+  return (
+    <g className={className} transform={missHandTransform(target, s)}>
+      <path
+        d={missHandPathAt(target, s)}
+        fill={COLORS.skin}
+        stroke={COLORS.skinEdge}
+        strokeWidth="2.4"
+        strokeLinejoin="round"
+      />
+      <g stroke={COLORS.skinEdge} strokeWidth="2" strokeLinecap="round" opacity=".5" fill="none">
+        {MISS_HAND_CREASES.map((c, i) => (
+          <path key={i} d={c} />
         ))}
       </g>
     </g>
@@ -189,10 +228,6 @@ export interface LeftHandProps {
   title?: string;
 }
 
-const PREV: Record<PositionId, PositionId> = {
-  "1st": "1st", "2nd": "1st", "3rd": "2nd", "4th": "3rd", "5th": "4th", "6th": "5th",
-};
-
 export function LeftHand({
   position,
   pattern = "f1",
@@ -202,7 +237,6 @@ export function LeftHand({
   title,
 }: LeftHandProps) {
   const pos = POSITIONS[position];
-  const handPos = thumbLagsBehind ? POSITIONS[PREV[position]] : pos;
   const label = title ?? `${pos.label}・${pattern}`;
 
   return (
@@ -215,7 +249,11 @@ export function LeftHand({
     >
       <InstrumentShape />
       <FingersShape d={pos.d} pattern={pattern} reverseTilt={reverseTilt} />
-      <HandShape d={handPos.d} behindNeck={pos.thumbBehindNeck && !thumbLagsBehind} />
+      {thumbLagsBehind ? (
+        <MissHandShape target={position} />
+      ) : (
+        <HandShape d={pos.d} behindNeck={pos.thumbBehindNeck} />
+      )}
       {pos.bodyOverlay && <BodyOverlay />}
     </svg>
   );

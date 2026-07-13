@@ -14,6 +14,7 @@ export {
   LeftHand,
   InstrumentShape,
   HandShape,
+  MissHandShape,
   FingersShape,
   BodyOverlay,
   PositionBadge,
@@ -21,7 +22,7 @@ export {
   type LeftHandProps,
 } from "./LeftHand";
 
-// ポジション移動モーション
+// ポジション移動モーション（正解）
 export {
   POSITION_SHIFTS,
   getShift,
@@ -33,3 +34,19 @@ export {
   type ShiftKeyframe,
 } from "./lefthand-motions";
 export { PositionShiftDemo, type PositionShiftDemoProps } from "./PositionShiftDemo";
+
+// ポジション移動モーション（ミスパターン）
+export {
+  MISTAKE_SHIFTS,
+  getMistake,
+  hasMistake,
+  smilTiming,
+  assertMonotone,
+  mistakeThumbStaysAt,
+  type MistakeShift,
+  type MistakeKeyframe,
+} from "./lefthand-mistake-motions";
+export {
+  PositionMistakeDemo,
+  type PositionMistakeDemoProps,
+} from "./PositionMistakeDemo";

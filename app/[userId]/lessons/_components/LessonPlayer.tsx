@@ -20,6 +20,7 @@ import { LESSON_MOTION_MAP } from "@/app/components/violin/bowing-motions"
 import LessonBowingMotion from "./LessonBowingMotion"
 import LessonBowingStatic from "./LessonBowingStatic"
 import LessonPositionShift from "./LessonPositionShift"
+import LessonPositionMistake from "./LessonPositionMistake"
 import LessonScoreCard from "./LessonScoreCard"
 import styles from "../lessons.module.css"
 
@@ -351,16 +352,25 @@ export default function LessonPlayer({
   const slideMark: "cross" | "circle" | null =
     slide === 2 ? "cross" : slide === 3 ? "circle" : null
 
-  // 左手ポジション移動モーション: 各ポジションレッスンのS2(体の使い方)で見せる指定
-  // (2026-07-13 Tetsuo指示: すべてのポジション移動教材に差し替え)。値 = 左手アセットの shift id
-  const LEFT_SHIFT: Record<string, string> = {
+  // 左手ポジション移動モーション (2026-07-14 Tetsuo指示)。
+  //   S2(体の使い方,slide1) と S4(コツ,slide3) = 正しい移動モーション
+  //   S3(よくある間違い,slide2)              = ミスモーション(親指が取り残される)
+  const POS_SHIFT: Record<string, string> = {
     pos2: "1st-2nd",
     pos3: "1st-3rd",
     pos4: "1st-4th",
     pos5: "1st-5th",
     pos6: "1st-5th-6th", // 6th は 5th を経由 (手はネック裏のまま指だけ伸ばす)
   }
-  const leftShiftId = slide === 1 ? LEFT_SHIFT[lesson.id] : undefined
+  const POS_MISTAKE: Record<string, string> = {
+    pos2: "miss-1st-2nd",
+    pos3: "miss-1st-3rd",
+    pos4: "miss-1st-4th",
+    pos5: "miss-1st-4th", // 5th/6thのミスは構造上作れないため4thのミスを流用
+    pos6: "miss-1st-4th",
+  }
+  const posShiftId = slide === 1 || slide === 3 ? POS_SHIFT[lesson.id] : undefined
+  const posMistakeId = slide === 2 ? POS_MISTAKE[lesson.id] : undefined
 
   const playBubble =
     bubbleOverride ??
@@ -434,10 +444,17 @@ export default function LessonPlayer({
                 <LessonBowingStatic />
                 <FigMark kind={slideMark} />
               </div>
-            ) : leftShiftId ? (
-              // 左手ポジション移動モーション (pos2 S2「フレームごと運ぶ」= 1st→2nd)
+            ) : posShiftId ? (
+              // 左手ポジション移動: S2(体の使い方)/S4(コツ) = 正しい移動モーション + (S4は◯)
               <div className={styles.figCard}>
-                <LessonPositionShift shift={leftShiftId} />
+                <LessonPositionShift shift={posShiftId} />
+                <FigMark kind={slideMark} />
+              </div>
+            ) : posMistakeId ? (
+              // 左手ポジション移動: S3(よくある間違い) = ミスモーション + ❌
+              <div className={styles.figCard}>
+                <LessonPositionMistake shift={posMistakeId} />
+                <FigMark kind={slideMark} />
               </div>
             ) : slide === 0 || slide === 4 ? (
               // S1=課題フレーズ+緑丸 / S5(非弓系)=課題フレーズ(緑丸なし・v3.18準拠)
