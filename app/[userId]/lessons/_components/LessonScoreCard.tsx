@@ -17,7 +17,13 @@
 
 import { useEffect, useRef, useState } from "react"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
+import { lessonFingerings } from "../_lib/content"
 import styles from "../lessons.module.css"
+
+// ポジション移動レッスンで弾く弦 (すべてA線の音階練習)。指番号の上に表示する
+const POSITION_STRING: Record<string, string> = {
+  pos2: "A", pos3: "A", pos4: "A", pos5: "A", pos6: "A",
+}
 
 const HI_ALL = new Set([
   "staccato", "bow_staccato", "spiccato", "ricochet", "tremolo", "portato",
@@ -421,6 +427,45 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
    } catch (err) {
     console.error("[lesson] editorial mark failed:", err)
    }
+  }
+
+  // ── ポジション移動レッスン: 指番号 + 弾く弦を補筆 (2026-07-14 Tetsuo指示) ──
+  //    build_scoreに運指が無いため lessonScores の fg を音符順で対応付ける。
+  //    各音符の上に「弦名(上)/指番号(下)」を積んで表示する。
+  const posString = POSITION_STRING[lessonId]
+  if (posString) {
+    const fingerings = lessonFingerings(lessonId)
+    const putText = (
+      cx: number, y: number, text: string, size: number, fill: string, weight = "800",
+    ) => {
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text")
+      t.setAttribute("x", String(cx))
+      t.setAttribute("y", String(y))
+      t.setAttribute("text-anchor", "middle")
+      t.setAttribute("font-size", String(size))
+      t.setAttribute("font-weight", weight)
+      t.setAttribute("font-family", "sans-serif")
+      t.setAttribute("fill", fill)
+      t.textContent = text
+      svg.appendChild(t)
+      extra.push(t)
+    }
+    entries.forEach((e, i) => {
+      const fg = fingerings[i]
+      if (!fg) return
+      try {
+        const hb = headBBox(e.els[0])
+        const cx = hb.x + hb.width / 2
+        // その音符の緑丸(r≈nh*1.5)より上に置くための最上端
+        const noteTop = hb.y - nh * 1.6
+        const fingerY = noteTop - nh * 0.6
+        const stringY = fingerY - nh * 1.5
+        putText(cx, stringY, `${posString}線`, nh * 1.1, "#2563cb") // 弦名(上・青)
+        putText(cx, fingerY, fg, nh * 1.5, "#333") // 指番号(下)
+      } catch (err) {
+        console.error("[lesson] fingering mark failed:", err)
+      }
+    })
   }
 
   // ── viewBox を音楽コンテンツ+装飾にクロップして中央寄せ (2026-07-12) ──

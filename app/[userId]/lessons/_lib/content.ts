@@ -88,6 +88,26 @@ export const LESSONS: Lesson[] = lessonData.lessons.map((l) => {
 export const LESSON_BY_ID = new Map(LESSONS.map((l) => [l.id, l]))
 export const LESSON_TOTAL = LESSONS.length // 23
 
+// ── 譜面(lessonScores)の運指参照 (指番号・弦の補筆用) ──
+type LessonScoreNote = { r?: number; fg?: string }
+const LESSON_SCORES = lessonData.lessonScores as unknown as Record<
+  string,
+  { m: LessonScoreNote[][] }
+>
+
+/** レッスン譜面から休符を除いた「音符順の運指(fg)」配列を返す。
+ *  LessonScoreCard の collectNotes と同じ音符順で、fg の無い音符は undefined。 */
+export function lessonFingerings(id: string): (string | undefined)[] {
+  const s = LESSON_SCORES[id]
+  if (!s) return []
+  const out: (string | undefined)[] = []
+  for (const measure of s.m) for (const n of measure) {
+    if (n.r) continue
+    out.push(n.fg)
+  }
+  return out
+}
+
 /** 3回いっしょに弾こう画面の掛け声 (クリアまで固定3種) */
 export const FEEDBACK = (name: string): [string, string, string] => [
   `いいね!${name}の感覚、つかめてきた?`,
