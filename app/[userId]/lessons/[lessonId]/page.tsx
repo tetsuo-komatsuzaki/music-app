@@ -58,7 +58,9 @@ export default async function LessonDetailPage({
   }
 
   const [{ data: signed }, itemMeta] = await Promise.all([
-    storageAdmin.storage.from("musicxml").createSignedUrl(item.generatedXmlPath, 600),
+    // 署名URLは長め(1時間)にする。短いとページ生成〜クライアントのOSMD読込までの
+    // 遅延やRSCキャッシュで期限切れになり譜面が出ないことがある (2026-07-13)
+    storageAdmin.storage.from("musicxml").createSignedUrl(item.generatedXmlPath, 3600),
     prisma.practiceItem.findUnique({
       where: { id: item.practiceItemId },
       select: { metadata: true },

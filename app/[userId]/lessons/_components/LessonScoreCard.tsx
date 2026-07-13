@@ -73,21 +73,44 @@ export default function LessonScoreCard({
       drawingParameters: "compacttight",
     })
     ;(async () => {
+      // ① 譜面読込 (署名URLのfetchは一過性の失敗があり得るのでリトライ)
+      let loaded = false
+      for (let attempt = 0; attempt < 3 && !disposed; attempt++) {
+        try {
+          await osmd.load(buildUrl)
+          loaded = true
+          break
+        } catch (e) {
+          console.error(`[lesson] score load failed (attempt ${attempt + 1}/3):`, e)
+          await new Promise((r) => setTimeout(r, 400 * (attempt + 1)))
+        }
+      }
+      if (disposed) return
+      if (!loaded) {
+        setFailed(true)
+        return
+      }
+      // ② 描画
       try {
-        await osmd.load(buildUrl)
-        if (disposed) return
-        // 拍子記号(4/4)非表示 (Part C C-1・2026-07-12確定)。テンポ表記もプロト準拠で非表示
+        // 拍子記号(4/4)非表示 (Part C C-1)。テンポ表記もプロト準拠で非表示
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ;(osmd.EngravingRules as any).RenderTimeSignatures = false
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ;(osmd.EngravingRules as any).MetronomeMarksDrawn = false
-        // 短フレーズがカード全面に拡大されないようプロトタイプの見た目に近い縮尺で描画
         osmd.zoom = 0.35
         osmd.render()
+      } catch (e) {
+        console.error("[lesson] score render failed:", e)
+        setFailed(true)
+        return
+      }
+      // ③ 装飾(緑丸・補筆・スタッカート点の退避)。ブラウザのgetBBox挙動差やタイミングで
+      //    例外があり得るが、失敗しても描画済みの譜面は絶対に消さない
+      //    (2026-07-13: 本番でスコアが表示されない不具合対策)
+      try {
         decorate(osmd, host, lessonId, hi)
       } catch (e) {
-        console.error("[lesson] score card failed:", e)
-        setFailed(true)
+        console.error("[lesson] score decorate failed (譜面は表示継続):", e)
       }
     })()
     return () => {
@@ -215,9 +238,15 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
     extra.push(mod) // クロップ範囲に含める
   }
   const drawOn = (e: NoteEntry) => {
-    const c = circleFor(e)
-    draw(c)
-    clearDotFromCircle(e, c)
+    // 円の座標計算・点退避は getBBox に依存し稀に例外があり得るので個別に握りつぶす
+    // (1音分の装飾が失敗しても他の音・譜面表示は続行する)
+    try {
+      const c = circleFor(e)
+      draw(c)
+      clearDotFromCircle(e, c)
+    } catch (err) {
+      console.error("[lesson] highlight draw failed for a note:", err)
+    }
   }
 
   if (hi) {
@@ -235,6 +264,7 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
 
   // ── 補筆 (C-6・再書き出し待ちの3教材のみ) ──
   for (const ed of EDITORIAL[lessonId] ?? []) {
+   try {
     const e = entries[ed.noteIndex === -1 ? entries.length - 1 : ed.noteIndex]
     if (!e) continue
     const b = e.els[0].getBBox()
@@ -353,13 +383,21 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
       p.setAttribute("fill", "none")
       put(p)
     }
+   } catch (err) {
+    console.error("[lesson] editorial mark failed:", err)
+   }
   }
 
   // ── viewBox を音楽コンテンツ+装飾にクロップして中央寄せ (2026-07-12) ──
   // OSMD(Endless)は五線を固定幅で描くため短いフレーズだと右側が空白になり左寄せに
   // 見える。譜表・音符・補筆・緑丸の外接矩形に viewBox を合わせ、SVGをカードいっぱいに
   // preserveAspectRatio="xMidYMid meet" で拡大・中央配置する。
-  cropAndCenter(svg, host, extra)
+  // 失敗しても譜面自体は表示継続 (SVGは描画済み)
+  try {
+    cropAndCenter(svg, host, extra)
+  } catch (err) {
+    console.error("[lesson] cropAndCenter failed:", err)
+  }
 }
 
 /** 音楽コンテンツ(音部記号・音符)と装飾の外接矩形に viewBox を合わせ、中央配置する */
