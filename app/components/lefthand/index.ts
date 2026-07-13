@@ -26,6 +26,9 @@ export {
   POSITION_SHIFTS,
   getShift,
   shiftCSS,
+  fingerKeyframes,
+  handKeyframes,
+  overlayOpacityKeyframes,
   type PositionShift,
   type ShiftKeyframe,
 } from "./lefthand-motions";

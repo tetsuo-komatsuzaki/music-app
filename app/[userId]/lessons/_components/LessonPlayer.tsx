@@ -351,9 +351,15 @@ export default function LessonPlayer({
   const slideMark: "cross" | "circle" | null =
     slide === 2 ? "cross" : slide === 3 ? "circle" : null
 
-  // 左手ポジション移動モーション: レッスンのS2(体の使い方)で見せる指定 (2026-07-13 Tetsuo指示)
-  // 値 = 左手アセットの shift id。現状は pos2 の「フレームごと運ぶ」= 1st→2nd のみ
-  const LEFT_SHIFT: Record<string, string> = { pos2: "1st-2nd" }
+  // 左手ポジション移動モーション: 各ポジションレッスンのS2(体の使い方)で見せる指定
+  // (2026-07-13 Tetsuo指示: すべてのポジション移動教材に差し替え)。値 = 左手アセットの shift id
+  const LEFT_SHIFT: Record<string, string> = {
+    pos2: "1st-2nd",
+    pos3: "1st-3rd",
+    pos4: "1st-4th",
+    pos5: "1st-5th",
+    pos6: "1st-5th-6th", // 6th は 5th を経由 (手はネック裏のまま指だけ伸ばす)
+  }
   const leftShiftId = slide === 1 ? LEFT_SHIFT[lesson.id] : undefined
 
   const playBubble =

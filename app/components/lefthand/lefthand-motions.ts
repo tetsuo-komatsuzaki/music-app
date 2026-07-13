@@ -9,12 +9,18 @@
  * > パーツごとに動きを作り込んではならない。破綻の原因になる。
  *
  * （運弓仕様 §9-1 の「h の一元管理」と同じ設計）
+ *
+ * 【教則上のタイムライン】
+ *   開放弦（全指浮き） → 1の指を押弦 → 静止して確認 → 移動（途中で止まらない）
+ *   → 到着して静止（耳で確認する間） → 1st へ戻る → 指を離す
+ * ループの継ぎ目が跳ばないよう、必ず開放弦の状態に戻して終わる。
  */
 
 import {
+  fingerTransform,
+  handTransform,
   POSITIONS,
-  STRING_SLOPE,
-  NECK_SLOPE,
+  BODY_OVERLAY_MIN_D,
   type PositionId,
 } from "./lefthand-geometry";
 
@@ -27,102 +33,143 @@ export interface ShiftKeyframe {
   t: number;
   /** シフト量（px）。1st = 0 */
   d: number;
+  /** 1の指が弦を押さえているか（0=浮かせ / 1=押弦）。中間値はクロスフェード */
+  press: number;
   /**
    * 親指がネック裏に回っているか（0=手前・1=裏）。
-   * 0/1 の間の値は持ち替え中のクロスフェードを表す。
+   * 中間値は持ち替えのクロスフェードを表す。
    */
   behind: number;
+  /** イージング（この点から次の点までの区間に適用） */
+  ease?: "ease" | "linear";
 }
 
 export interface PositionShift {
   id: string;
   label: string;
-  /** 到達するポジション */
+  /** 最終的に到達するポジション */
   target: PositionId;
+  /** 経由するポジション（6th は 5th を経由する） */
+  via?: PositionId;
   /** 1 ループの長さ（秒） */
   dur: number;
   keyframes: ShiftKeyframe[];
   /** 親指の持ち替えを伴うか（5th/6th） */
   hasThumbSwitch: boolean;
-  /** 教材上の説明 */
+  /** ネック裏形状を描くときの d（手は動かないが指は d で動く） */
+  behindHandD: number;
   description: string;
 }
 
-const k = (t: number, d: number, behind = 0): ShiftKeyframe => ({ t, d, behind });
+const D = (p: PositionId) => POSITIONS[p].d;
+
+const k = (
+  t: number,
+  d: number,
+  press: number,
+  behind = 0,
+  ease: "ease" | "linear" = "linear",
+): ShiftKeyframe => ({ t, d, press, behind, ease });
 
 /* ============================================================
    移動の確定データ
 
-   タイムライン設計:
-     0-30%   スライド（イージングあり）
-     30-40%  親指の持ち替え（5th/6th のみ）
-     40-72%  到達状態で静止（学習者が形を観察する時間）
-     72-95%  1st へ戻る
-     95-100% 静止
+   ⚠️ 持ち替え（親指がネック裏へ回る）は、移動の**終盤**で行う。
+      早すぎると、4th の位置にいる時点で正しい手形が消えてしまう。
+      往路は移動距離の 72%〜100%、復路は 0%〜28% の区間に割り当てる。
    ============================================================ */
 
-const D = (p: PositionId) => POSITIONS[p].d;
+/** 単一移動（1st → 目標）の共通タイムライン */
+function simpleShift(
+  target: PositionId,
+  label: string,
+  description: string,
+  hasThumbSwitch = false,
+): PositionShift {
+  const d = D(target);
+  // 移動: 32%→47%（往路） / 68%→83%（復路）
+  // 持ち替え窓: 往路 42.8%→47%、復路 68%→72.2%
+  const kf: ShiftKeyframe[] = hasThumbSwitch
+    ? [
+        k(0, 0, 0),
+        k(14, 0, 0),
+        k(19, 0, 1),
+        k(32, 0, 1, 0, "ease"),
+        k(42.8, d * 0.72, 1, 0, "ease"),
+        k(47, d, 1, 1),
+        k(68, d, 1, 1, "ease"),
+        k(72.2, d * 0.72, 1, 0, "ease"),
+        k(83, 0, 1),
+        k(90, 0, 0),
+        k(100, 0, 0),
+      ]
+    : [
+        k(0, 0, 0),
+        k(14, 0, 0),
+        k(19, 0, 1, 0, "ease"),
+        k(32, 0, 1, 0, "ease"),
+        k(47, d, 1),
+        k(68, d, 1, 0, "ease"),
+        k(83, 0, 1),
+        k(90, 0, 0),
+        k(100, 0, 0),
+      ];
+  return {
+    id: `1st-${target}`,
+    label,
+    target,
+    dur: hasThumbSwitch ? 6.5 : 6.0,
+    hasThumbSwitch,
+    behindHandD: d,
+    description,
+    keyframes: kf,
+  };
+}
 
 export const POSITION_SHIFTS: Record<string, PositionShift> = {
-  "1st-2nd": {
-    id: "1st-2nd",
-    label: "1st → 2nd",
-    target: "2nd",
-    dur: 1.8,
-    hasThumbSwitch: false,
-    description: "指幅1本分（68px）右へスライド。親指もネックに沿って同時に移動する。",
-    keyframes: [k(0, 0), k(35, D("2nd")), k(60, D("2nd")), k(95, 0), k(100, 0)],
-  },
-  "1st-3rd": {
-    id: "1st-3rd",
-    label: "1st → 3rd",
-    target: "3rd",
-    dur: 1.8,
-    hasThumbSwitch: false,
-    description: "掌が胴に達するため、胴が掌の手前に来る（胴オーバーレイ）。",
-    keyframes: [k(0, 0), k(35, D("3rd")), k(60, D("3rd")), k(95, 0), k(100, 0)],
-  },
-  "1st-4th": {
-    id: "1st-4th",
-    label: "1st → 4th",
-    target: "4th",
-    dur: 1.8,
-    hasThumbSwitch: false,
-    description: "手が胴に深く回り込む。",
-    keyframes: [k(0, 0), k(35, D("4th")), k(60, D("4th")), k(95, 0), k(100, 0)],
-  },
-  "1st-5th": {
-    id: "1st-5th",
-    label: "1st → 5th",
-    target: "5th",
-    dur: 2.4,
-    hasThumbSwitch: true,
-    description:
-      "スライドの到達時に、親指がネックの裏へ回る（持ち替え）。ハイポジションの要。",
-    keyframes: [
-      k(0, 0, 0),
-      k(30, D("5th"), 0),
-      k(40, D("5th"), 1), // 持ち替え
-      k(72, D("5th"), 1),
-      k(80, D("5th"), 0),
-      k(95, 0, 0),
-      k(100, 0, 0),
-    ],
-  },
-  "1st-6th": {
-    id: "1st-6th",
-    label: "1st → 6th",
+  "1st-2nd": simpleShift(
+    "2nd",
+    "1st → 2nd",
+    "指幅1本分（68px）右へスライド。親指もネックに沿って同時に移動する。",
+  ),
+  "1st-3rd": simpleShift(
+    "3rd",
+    "1st → 3rd",
+    "掌が胴に達するため、胴が掌の手前に来る（胴オーバーレイ）。",
+  ),
+  "1st-4th": simpleShift("4th", "1st → 4th", "手が胴に深く回り込む。"),
+  "1st-5th": simpleShift(
+    "5th",
+    "1st → 5th",
+    "移動の終盤で親指がネックの裏へ回る（持ち替え）。ハイポジションの要。",
+    true,
+  ),
+
+  /** 6th は 5th を経由する（5th → 6th では手は動かず、指だけが先へ伸びる） */
+  "1st-5th-6th": {
+    id: "1st-5th-6th",
+    label: "1st → 5th → 6th",
     target: "6th",
-    dur: 2.4,
+    via: "5th",
+    dur: 9.0,
     hasThumbSwitch: true,
-    description: "5th と同じ持ち替えを行い、指はさらに指幅0.75本分先へ進む。",
+    behindHandD: D("5th"), // 手はネック裏形状のまま動かない
+    description:
+      "まず 5th へ移動して持ち替え、そこから指だけを 6th へ伸ばす。手は動かさない。",
     keyframes: [
       k(0, 0, 0),
-      k(30, D("6th"), 0),
-      k(40, D("6th"), 1),
-      k(72, D("6th"), 1),
-      k(80, D("6th"), 0),
-      k(95, 0, 0),
+      k(10, 0, 0),
+      k(14, 0, 1),
+      k(24, 0, 1, 0, "ease"),
+      k(34.8, D("5th") * 0.72, 1, 0, "ease"),
+      k(39, D("5th"), 1, 1),
+      k(50, D("5th"), 1, 1, "ease"),
+      k(58, D("6th"), 1, 1),
+      k(74, D("6th"), 1, 1, "ease"),
+      k(78, D("5th") * 0.98, 1, 1, "ease"),
+      k(79.9, D("5th") * 0.72, 1, 0, "ease"),
+      k(88, 0, 1),
+      k(94, 0, 0),
       k(100, 0, 0),
     ],
   },
@@ -139,54 +186,76 @@ export function getShift(id: string): PositionShift | undefined {
       1 つの keyframes を共有してはならない。
    ============================================================ */
 
-const EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
+const EASE = "cubic-bezier(0.42, 0, 0.58, 1)";
+const LINEAR = "linear";
 
-// CSS アニメの transform は「d=0 基準からのデルタ」で出す。
-//   - 子要素(指塊/手パス)は既に fingerTransform(0)/handTransform(0) の位置に描かれている
-//     ため、g 側は 0→d の差分だけ動かせばよい(絶対値を足すと基準が二重に効いて破綻する)。
-//   - CSS の translate は単位必須。unitless(例 translate(68,3.4))は無効化されるので px を付ける。
-// (SVG属性用の fingerTransform/handTransform は unitless のままで正しい)
-const px2 = (v: number) => Math.round(v * 100) / 100;
+/** 各キーフレームに個別のイージングを付ける（CSS の animation-timing-function は
+ *  keyframe セレクタ内に書くと「その点から次の点まで」に適用される） */
+const timing = (f: ShiftKeyframe) =>
+  `animation-timing-function: ${f.ease === "ease" ? EASE : LINEAR};`;
 
-/** 指系（指塊・爪・指しわ）の keyframes */
-export function fingerKeyframes(shift: PositionShift): string {
-  return shift.keyframes
-    .map((f) => `${f.t}% { transform: translate(${f.d}px, ${px2(f.d * STRING_SLOPE)}px); }`)
-    .join("\n  ");
-}
+const kfBlock = (shift: PositionShift, decl: (f: ShiftKeyframe) => string) =>
+  shift.keyframes
+    .map((f) => `  ${f.t}% { ${decl(f)} ${timing(f)} }`)
+    .join("\n");
 
-/** 手系（掌・親指・前腕・手しわ）の keyframes */
-export function handKeyframes(shift: PositionShift): string {
-  return shift.keyframes
-    .map((f) => `${f.t}% { transform: translate(${f.d}px, ${px2(f.d * NECK_SLOPE)}px); }`)
-    .join("\n  ");
-}
+// CSS の translate は単位必須(unitless の translate(-34,-1.69) は無効化される)。
+// fingerTransform/handTransform は SVG属性用に unitless を返すので、CSSキーフレーム用に
+// px を付ける。新コンポーネントは animated 時に内側 transform を出さない(二重変換なし)ため、
+// ここは絶対値のまま px 化すればよい (2026-07-13 統合時の互換対応)。
+const withPx = (t: string) => t.replace(/(-?\d[\d.]*)/g, "$1px");
+
+/** 指系（指塊・爪・指しわ） */
+export const fingerKeyframes = (s: PositionShift) =>
+  kfBlock(s, (f) => `transform: ${withPx(fingerTransform(f.d))};`);
+
+/** 手系（掌・親指・前腕・手しわ） */
+export const handKeyframes = (s: PositionShift) =>
+  kfBlock(s, (f) => `transform: ${withPx(handTransform(f.d))};`);
 
 /** 通常形状の手の不透明度（持ち替え時にフェードアウト） */
-export function handFrontOpacityKeyframes(shift: PositionShift): string {
-  return shift.keyframes
-    .map((f) => `${f.t}% { opacity: ${1 - f.behind}; }`)
-    .join("\n  ");
-}
+export const handFrontOpacityKeyframes = (s: PositionShift) =>
+  kfBlock(s, (f) => `opacity: ${1 - f.behind};`);
 
 /** ネック裏形状の手の不透明度（持ち替え時にフェードイン） */
-export function handBehindOpacityKeyframes(shift: PositionShift): string {
-  return shift.keyframes
-    .map((f) => `${f.t}% { opacity: ${f.behind}; }`)
-    .join("\n  ");
-}
+export const handBehindOpacityKeyframes = (s: PositionShift) =>
+  kfBlock(s, (f) => `opacity: ${f.behind};`);
+
+/** 開放弦（全指浮き）レイヤの不透明度 */
+export const fingersOpenOpacityKeyframes = (s: PositionShift) =>
+  kfBlock(s, (f) => `opacity: ${1 - f.press};`);
+
+/** 押弦レイヤの不透明度 */
+export const fingersPressOpacityKeyframes = (s: PositionShift) =>
+  kfBlock(s, (f) => `opacity: ${f.press};`);
 
 /**
  * 胴オーバーレイの不透明度。
  *
- * ⚠️ 常時表示すると、1st 位置にある前腕を覆ってしまう。
- *    手が胴の領域に入ってから現れるようアニメーションさせること。
+ * ⚠️ 常時表示すると、1st 位置にある前腕を覆ってしまう（元絵の 1st/2nd には胴オーバーレイがない）。
+ * ⚠️ かつ、ネック裏の手形が現れる**前に**不透明化を完了していなければ、掌が胴から透ける。
+ *    そのため d のしきい値ではなく「移動を開始したら即座に立ち上げる」形にしてある。
  */
-export function overlayOpacityKeyframes(shift: PositionShift): string {
-  const threshold = 100; // d がこれ未満なら手はまだ胴に達していない
-  return shift.keyframes
-    .map((f) => `${f.t}% { opacity: ${f.d >= threshold ? 1 : 0}; }`)
-    .join("\n  ");
+export function overlayOpacityKeyframes(s: PositionShift): string {
+  const kfs = s.keyframes;
+  const dMax = Math.max(...kfs.map((f) => f.d));
+  if (dMax < BODY_OVERLAY_MIN_D) return "  0% { opacity: 0; }\n  100% { opacity: 0; }";
+
+  // 出発（最後に d=0 だった点）と帰着（再び d=0 に戻る点）を keyframes から導く
+  const iOut = kfs.reduce((acc, f, i) => (f.d === 0 && i < kfs.length / 2 ? i : acc), 0);
+  const iBack = kfs.findIndex((f, i) => f.d === 0 && i > kfs.length / 2);
+  const tOut = kfs[iOut].t;
+  const tBack = kfs[iBack].t;
+  const ramp = 3; // 出発直後の 3% で不透明化しきる（持ち替えより十分手前）
+
+  return [
+    `  0% { opacity: 0; ${LINEAR ? "animation-timing-function: linear;" : ""} }`,
+    `  ${tOut}% { opacity: 0; animation-timing-function: linear; }`,
+    `  ${tOut + ramp}% { opacity: 1; animation-timing-function: linear; }`,
+    `  ${tBack - ramp}% { opacity: 1; animation-timing-function: linear; }`,
+    `  ${tBack}% { opacity: 0; animation-timing-function: linear; }`,
+    `  100% { opacity: 0; }`,
+  ].join("\n");
 }
 
 /**
@@ -194,32 +263,39 @@ export function overlayOpacityKeyframes(shift: PositionShift): string {
  * @param uid useId() 等で得た一意な識別子（同一ページに複数配置する場合の衝突回避）
  */
 export function shiftCSS(shift: PositionShift, uid: string): string {
-  const dur = `${shift.dur}s`;
-  const common = `${dur} ${EASE} infinite`;
+  const anim = (name: string) => `${name}-${uid} ${shift.dur}s linear infinite`;
   return `
 @keyframes lh-finger-${uid} {
-  ${fingerKeyframes(shift)}
+${fingerKeyframes(shift)}
 }
 @keyframes lh-hand-${uid} {
-  ${handKeyframes(shift)}
+${handKeyframes(shift)}
 }
 @keyframes lh-hand-front-op-${uid} {
-  ${handFrontOpacityKeyframes(shift)}
+${handFrontOpacityKeyframes(shift)}
 }
 @keyframes lh-hand-behind-op-${uid} {
-  ${handBehindOpacityKeyframes(shift)}
+${handBehindOpacityKeyframes(shift)}
+}
+@keyframes lh-fingers-open-op-${uid} {
+${fingersOpenOpacityKeyframes(shift)}
+}
+@keyframes lh-fingers-press-op-${uid} {
+${fingersPressOpacityKeyframes(shift)}
 }
 @keyframes lh-overlay-op-${uid} {
-  ${overlayOpacityKeyframes(shift)}
+${overlayOpacityKeyframes(shift)}
 }
 
-.lh-${uid} .lh-fingers { animation: lh-finger-${uid} ${common}; }
-.lh-${uid} .lh-hand    { animation: lh-hand-${uid} ${common}; }
-.lh-${uid} .lh-hand-front  { animation: lh-hand-${uid} ${common}, lh-hand-front-op-${uid} ${common}; }
-.lh-${uid} .lh-hand-behind { animation: lh-hand-behind-op-${uid} ${common}; }
-.lh-${uid} .lh-overlay { animation: lh-overlay-op-${uid} ${common}; }
+.lh-${uid} .lh-fingers        { animation: ${anim("lh-finger")}; }
+.lh-${uid} .lh-fingers-open   { animation: ${anim("lh-fingers-open-op")}; }
+.lh-${uid} .lh-fingers-press  { animation: ${anim("lh-fingers-press-op")}; }
+.lh-${uid} .lh-hand           { animation: ${anim("lh-hand")}; }
+.lh-${uid} .lh-hand-front     { animation: ${anim("lh-hand")}, ${anim("lh-hand-front-op")}; }
+.lh-${uid} .lh-hand-behind    { animation: ${anim("lh-hand-behind-op")}; }
+.lh-${uid} .lh-overlay        { animation: ${anim("lh-overlay-op")}; }
 
-/* 停止状態では 1st ポジションの静止画として正しく表示される */
+/* 停止状態では 1st ポジション・開放弦の静止画として正しく表示される */
 .lh-${uid}.is-paused * { animation-play-state: paused !important; }
 
 @media (prefers-reduced-motion: reduce) {

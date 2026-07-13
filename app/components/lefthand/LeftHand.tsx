@@ -6,6 +6,10 @@
  *   1 背景・床 → 2 スクロール/ペグ → 3 ネック・胴の一塊 → 4 指板 → 5 弦 → 6 ナット
  *   → 7 指（指塊 → 爪 → 指しわ） → 8 手（掌＋親指＋前腕）
  *   → 9 胴の前面再描画（3rd 以上のみ／手を覆う）
+ *
+ * ⚠️ animated=true のとき、内側の transform 属性を出さない。
+ *    CSS アニメーションが外側の <g> に transform を与えるため、両方に付けると
+ *    変換が二重に掛かって絵が壊れる。
  */
 
 import {
@@ -30,7 +34,6 @@ import { INSTRUMENT_SVG } from "./lefthand-instrument";
    楽器（不動部分）
    ============================================================ */
 export function InstrumentShape() {
-  // 背景・床・スクロール・ペグ・ネック・胴の一塊・指板・弦・ナット
   return <g dangerouslySetInnerHTML={{ __html: INSTRUMENT_SVG }} />;
 }
 
@@ -40,14 +43,17 @@ export function InstrumentShape() {
 export function HandShape({
   d,
   behindNeck = false,
+  animated = false,
   className,
 }: {
   d: number;
   behindNeck?: boolean;
+  /** true のとき transform は CSS 側が与える（二重変換の防止） */
+  animated?: boolean;
   className?: string;
 }) {
   if (behindNeck) {
-    // 5th/6th 専用形状: translate では作れないため最終座標で描く
+    // 5th/6th 専用形状: translate では作れないため最終座標で描く（移動しない）
     return (
       <g className={className}>
         <path
@@ -65,7 +71,7 @@ export function HandShape({
       </g>
     );
   }
-  const t = handTransform(d);
+  const t = animated ? undefined : handTransform(d);
   return (
     <g className={className}>
       <path
@@ -99,30 +105,52 @@ export function FingersShape({
   d,
   pattern,
   reverseTilt = false,
+  animated = false,
   className,
+  opacity,
 }: {
   d: number;
   pattern: FingerPatternId;
   /** ミスパターン用: 指の軸の傾きを反転させる */
   reverseTilt?: boolean;
+  /** true のとき transform は CSS 側が与える（二重変換の防止） */
+  animated?: boolean;
   className?: string;
+  opacity?: number;
 }) {
   const p = FINGER_PATTERNS[pattern];
   // ⚠️ 鏡映(scale(-1,1))は禁止。指の並び順まで反転してしまう。
   //    指先ライン(y=305)を固定した剪断を使う。
-  const shear = reverseTilt ? " matrix(1,0,-0.42,1,128.1,0)" : "";
-  const t = fingerTransform(d) + shear;
+  const shear = reverseTilt ? "matrix(1,0,-0.42,1,128.1,0)" : "";
+  const t = animated
+    ? shear || undefined
+    : `${fingerTransform(d)}${shear ? " " + shear : ""}`;
   return (
-    <g className={className}>
-      <path transform={t} d={p.mass} fill={COLORS.skin} stroke={COLORS.skinEdge} strokeWidth="2.4" strokeLinejoin="round" />
-      <g transform={t} fill={COLORS.nail} stroke={COLORS.skinEdge} strokeWidth="1.8">
-        {p.nails.map((n, i) => (
-          <rect key={i} {...n} />
-        ))}
-      </g>
-      <g transform={t} stroke={COLORS.skinEdge} strokeWidth="2" strokeLinecap="round" opacity=".8" fill="none">
+    <g className={className} opacity={opacity}>
+      <path
+        transform={t}
+        d={p.mass}
+        fill={COLORS.skin}
+        stroke={COLORS.skinEdge}
+        strokeWidth="2.4"
+        strokeLinejoin="round"
+      />
+      <g
+        transform={t}
+        stroke={COLORS.skinEdge}
+        strokeWidth="2"
+        strokeLinecap="round"
+        opacity=".8"
+        fill="none"
+      >
         {p.creases.map((c, i) => (
           <path key={i} d={c} />
+        ))}
+      </g>
+      {/* 爪は指しわより手前（元絵の描画順どおり）／stroke-width は 1.4 */}
+      <g transform={t} fill={COLORS.nail} stroke={COLORS.skinEdge} strokeWidth="1.4">
+        {p.nails.map((n, i) => (
+          <rect key={i} {...n} />
         ))}
       </g>
     </g>
@@ -161,6 +189,10 @@ export interface LeftHandProps {
   title?: string;
 }
 
+const PREV: Record<PositionId, PositionId> = {
+  "1st": "1st", "2nd": "1st", "3rd": "2nd", "4th": "3rd", "5th": "4th", "6th": "5th",
+};
+
 export function LeftHand({
   position,
   pattern = "f1",
@@ -170,6 +202,7 @@ export function LeftHand({
   title,
 }: LeftHandProps) {
   const pos = POSITIONS[position];
+  const handPos = thumbLagsBehind ? POSITIONS[PREV[position]] : pos;
   const label = title ?? `${pos.label}・${pattern}`;
 
   return (
@@ -182,7 +215,7 @@ export function LeftHand({
     >
       <InstrumentShape />
       <FingersShape d={pos.d} pattern={pattern} reverseTilt={reverseTilt} />
-      <HandShape d={pos.d} behindNeck={pos.thumbBehindNeck} />
+      <HandShape d={handPos.d} behindNeck={pos.thumbBehindNeck && !thumbLagsBehind} />
       {pos.bodyOverlay && <BodyOverlay />}
     </svg>
   );
@@ -192,7 +225,6 @@ export function LeftHand({
    注釈ヘルパ（Violin.tsx の FingerBadge / WrongMark と同系）
    ============================================================ */
 
-/** ポジション名のバッジ */
 export function PositionBadge({ x, y, label }: { x: number; y: number; label: string }) {
   return (
     <g>
@@ -204,7 +236,6 @@ export function PositionBadge({ x, y, label }: { x: number; y: number; label: st
   );
 }
 
-/** ミスを示す × マーク */
 export function WrongMark({ x, y, size = 40 }: { x: number; y: number; size?: number }) {
   const r = size / 2;
   return (
