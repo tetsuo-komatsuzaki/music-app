@@ -52,10 +52,10 @@ function DownArrow({ x, y, s }: { x: number; y: number; s: number }) {
   )
 }
 
-export default function LessonBowingStatic({ mark }: { mark: "cross" | "hint" }) {
+export default function LessonBowingStatic({ mark }: { mark?: "cross" | "hint" | null }) {
   const CV = stringDisplayY(TGT, BOW_X)
   const TX = BOW_X - SC * HAIR_Y_CONST
-  const Mark = mark === "cross" ? CrossMark : DownArrow
+  const Mark = mark === "cross" ? CrossMark : mark === "hint" ? DownArrow : null
 
   return (
     <div className={styles.motionRow}>
@@ -70,7 +70,7 @@ export default function LessonBowingStatic({ mark }: { mark: "cross" | "hint" })
             <g transform={`translate(${TX},${CV}) rotate(-90) scale(${SC})`}>
               <BowShape />
             </g>
-            <Mark x={BOW_X} y={CV} s={34} />
+            {Mark && <Mark x={BOW_X} y={CV} s={34} />}
           </svg>
         </div>
       </div>
@@ -82,7 +82,7 @@ export default function LessonBowingStatic({ mark }: { mark: "cross" | "hint" })
             <g transform={`translate(${C_SIDE},0)`}>
               <BowShape />
             </g>
-            <Mark x={C_SIDE} y={HAIR_Y_CONST} s={26} />
+            {Mark && <Mark x={C_SIDE} y={HAIR_Y_CONST} s={26} />}
           </svg>
         </div>
       </div>

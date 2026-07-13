@@ -30,6 +30,29 @@ const COUNT_IN_BEATS = 4
 /** スライドの用語タイルに出すアルコのポーズ (プロト準拠) */
 const SLIDE_POSES = ["07B", "05A", "04A", "01A", "02A"] as const
 
+/** 間違い(❌ 赤)/コツ(◯ 緑)のマーク。スライドのイラスト右上に重ねる (全レッスン共通) */
+function FigMark({ kind }: { kind: "cross" | "circle" | null }) {
+  if (!kind) return null
+  const color = kind === "cross" ? "#E5484D" : "#2EAD5B"
+  return (
+    <div className={styles.figMark} aria-hidden="true">
+      <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        {kind === "cross" ? (
+          <path
+            d="M 9,9 L 31,31 M 31,9 L 9,31"
+            stroke={color}
+            strokeWidth="6.5"
+            strokeLinecap="round"
+            fill="none"
+          />
+        ) : (
+          <circle cx="20" cy="20" r="15" stroke={color} strokeWidth="5.5" fill="none" />
+        )}
+      </svg>
+    </div>
+  )
+}
+
 export default function LessonPlayer({
   lessonId,
   practiceItemId,
@@ -286,9 +309,11 @@ export default function LessonPlayer({
     "--theme-light": theme.light,
   } as React.CSSProperties
 
-  // スライド2〜4の仮図解 (S1/S5の譜面はLessonScoreCardが担当)
+  // スライド2〜4の仮図解 (S1/S5の譜面はLessonScoreCardが担当)。間違い(❌)はFigMarkで
+  // 統一するため、図解自体の cross(✕) は描かない
   const figSvg = (i: number): string => {
-    const f = lesson.figs[i - 1]
+    const f = { ...lesson.figs[i - 1] } as BowFigOpts & FbFigOpts
+    delete f.cross
     return lesson.figType === "bow"
       ? bowFig(f as BowFigOpts, theme.theme)
       : fbFig(f as FbFigOpts, theme.theme)
@@ -300,22 +325,29 @@ export default function LessonPlayer({
   const motionId = (slide === 1 || slide === 4) && bowMotionId ? bowMotionId : null
   // S5(弓系)は二段: 上段=モーション/下段=譜面カード
   const twoTier = slide === 4 && !!motionId
-  // S3(よくある間違い)・S4(コツ)も弓系はモーションと同じバイオリン+弓の静止図に統一
-  // (2026-07-12 Tetsuo指示)。slide2=間違い(✕)/slide3=コツ(矢印)
-  const staticMark: "cross" | "hint" | null =
-    bowMotionId && slide === 2 ? "cross" : bowMotionId && slide === 3 ? "hint" : null
-  // レッスンごとにS3(間違い)/S4(コツ)を「別技法の運弓(横から)」で見せる指定
-  // (2026-07-13 Tetsuo指示)。値=技法id。例: スタッカートの間違い=スピッカート運弓
-  const S3S4_SIDE_MOTION: Record<string, { s3: string; s4: string }> = {
-    staccato: { s3: "spiccato", s4: "staccato" }, // 間違い=跳ねる(スピッカート)/成功=乗せて止める(スタッカート)
+
+  // S3(間違い)で見せる「別技法」の運弓(横から)。指定レッスンのみ (2026-07-13 Tetsuo指示)
+  const S3_WRONG_MOTION: Record<string, string> = {
+    staccato: "spiccato", // 間違い=跳ねてしまう(スピッカート)
+    bow_staccato: "portato", // 間違い=つながってしまう(ポルタート)
+    spiccato: "staccato", // 間違い=弦に乗ってしまう(スタッカート)
+    ricochet: "staccato", // 間違い=1音ずつ返してしまう(スタッカート)
+    portato: "staccato", // 間違い=切りすぎる(スタッカート)
   }
-  const sideOverride = S3S4_SIDE_MOTION[lesson.id]
+  // S3/S4 の運弓(横から)イラスト:
+  //   S4(コツ,slide3) = その技法自身の運弓(横から) — 全弓系motionレッスン共通
+  //   S3(間違い,slide2) = 指定の別技法の運弓(横から) — 指定レッスンのみ
   const sideMotionId =
-    sideOverride && slide === 2
-      ? (LESSON_MOTION_MAP[sideOverride.s3] ?? null)
-      : sideOverride && slide === 3
-        ? (LESSON_MOTION_MAP[sideOverride.s4] ?? null)
+    slide === 3 && bowMotionId
+      ? bowMotionId
+      : slide === 2 && S3_WRONG_MOTION[lesson.id]
+        ? (LESSON_MOTION_MAP[S3_WRONG_MOTION[lesson.id]] ?? null)
         : null
+  // S3で運弓指定が無い弓系は静止バイオリン+弓 (マークはFigMarkで付与)
+  const staticFig = slide === 2 && !!bowMotionId && !sideMotionId
+  // スライドのマーク: S3(間違い)=❌ / S4(コツ)=◯ (全レッスン共通)
+  const slideMark: "cross" | "circle" | null =
+    slide === 2 ? "cross" : slide === 3 ? "circle" : null
 
   const playBubble =
     bubbleOverride ??
@@ -379,14 +411,16 @@ export default function LessonPlayer({
                 <LessonBowingMotion motionId={motionId} />
               </div>
             ) : sideMotionId ? (
-              // レッスン指定のS3/S4 = 別技法の運弓(横から単独)。奏法差(跳ね/乗せ)を動きで見せる
+              // S3=別技法の運弓 / S4=自技法の運弓 (横から単独)。奏法差を動きで見せる + ❌/◯
               <div className={styles.figCard}>
                 <LessonBowingMotion motionId={sideMotionId} view="side" />
+                <FigMark kind={slideMark} />
               </div>
-            ) : staticMark ? (
-              // 弓系のS3(間違い)/S4(コツ) = モーションと同じバイオリン+弓の静止図
+            ) : staticFig ? (
+              // S3(間違い)で運弓指定が無い弓系 = 静止バイオリン+弓 + ❌
               <div className={styles.figCard}>
-                <LessonBowingStatic mark={staticMark} />
+                <LessonBowingStatic />
+                <FigMark kind={slideMark} />
               </div>
             ) : slide === 0 || slide === 4 ? (
               // S1=課題フレーズ+緑丸 / S5(非弓系)=課題フレーズ(緑丸なし・v3.18準拠)
@@ -394,10 +428,11 @@ export default function LessonPlayer({
                 <LessonScoreCard buildUrl={buildUrl} lessonId={lessonId} hi={slide === 0} />
               </div>
             ) : (
-              <div
-                className={styles.figCard}
-                dangerouslySetInnerHTML={{ __html: figSvg(slide) }}
-              />
+              // S2〜S4の仮図解 (左手系/重音系/ピチカート)。S3=❌ / S4=◯ を重ねる
+              <div className={styles.figCard}>
+                <div style={{ display: "contents" }} dangerouslySetInnerHTML={{ __html: figSvg(slide) }} />
+                <FigMark kind={slideMark} />
+              </div>
             )}
             {twoTier && (
               <div className={styles.scoreCard}>

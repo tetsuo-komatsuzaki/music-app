@@ -225,7 +225,9 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
     const mod = stave?.querySelector(".vf-modifiers") as SVGGraphicsElement | null
     if (!mod) return
     const mb = mod.getBBox()
-    if (mb.width === 0 || mb.width > nh * 0.7 || mb.height > nh * 0.7) return
+    // 対象=スタッカート点(小さな点)・テヌート線(横長だが薄い)など「背の低い」記号のみ。
+    // フィンガリング数字・トレモロの斜線など背の高い修飾は動かさない(高さで判定)
+    if (mb.width === 0 || mb.height > nh * 0.8) return
     const nb = e.els[0].getBBox()
     const noteCy = nb.y + nb.height / 2
     const dotCy = mb.y + mb.height / 2
@@ -259,6 +261,38 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
       drawOn(chord)
     } else {
       drawOn(entries[0]) // default: 技術記号付き先頭音 (23教材では先頭音と等価)
+    }
+  }
+
+  // 譜面(音符+音部記号)の最上端。pizz./tr など上部の記号を五線に被らせないための基準
+  const topCandidates = entries.flatMap((en) => en.els.map((el) => el.getBBox().y))
+  const clefEl = svg.querySelector(".vf-clef") as SVGGraphicsElement | null
+  if (clefEl) topCandidates.push(clefEl.getBBox().y)
+  const staffTop = topCandidates.length ? Math.min(...topCandidates) : 0
+
+  // ── トレモロの演奏記号 (符幹に斜線)。build_scoreに未記載のため補筆 (2026-07-13) ──
+  if (lessonId === "tremolo") {
+    for (const e of entries) {
+      try {
+        const stave = e.chordEl ?? (e.els[0].closest("g.vf-stavenote") as SVGGraphicsElement | null)
+        const stem = stave?.querySelector(".vf-stem") as SVGGraphicsElement | null
+        if (!stem) continue
+        const sb = stem.getBBox()
+        const cx = sb.x + sb.width / 2
+        const midY = sb.y + sb.height * 0.45
+        for (let k = 0; k < 3; k++) {
+          const y = midY + (k - 1) * nh * 0.5
+          const p = document.createElementNS("http://www.w3.org/2000/svg", "path")
+          p.setAttribute("d", `M ${cx - nh * 0.55},${y + nh * 0.28} L ${cx + nh * 0.55},${y - nh * 0.28}`)
+          p.setAttribute("stroke", "#333")
+          p.setAttribute("stroke-width", String(nh * 0.24))
+          p.setAttribute("stroke-linecap", "round")
+          svg.appendChild(p)
+          extra.push(p)
+        }
+      } catch (err) {
+        console.error("[lesson] tremolo mark failed:", err)
+      }
     }
   }
 
@@ -350,7 +384,8 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
     } else if (ed.kind === "pizz") {
       const t = document.createElementNS("http://www.w3.org/2000/svg", "text")
       t.setAttribute("x", String(cx))
-      t.setAttribute("y", String(top - nh * 1.2))
+      // 五線に重ならないよう上方に退避 (2026-07-13)
+      t.setAttribute("y", String(staffTop - nh * 0.8))
       t.setAttribute("text-anchor", "middle")
       t.setAttribute("font-size", String(nh * 1.15))
       t.setAttribute("font-style", "italic")
@@ -360,8 +395,8 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
       t.textContent = "pizz."
       put(t)
     } else if (ed.kind === "trill") {
-      // 音符の上に "tr" + 波線 (プロトタイプ renderScore の n.trl 準拠)
-      const ty = top - nh * 1.0
+      // 音符の上に "tr" + 波線 (プロトタイプ renderScore の n.trl 準拠)。五線に重ならないよう上方へ
+      const ty = staffTop - nh * 0.4
       const t = document.createElementNS("http://www.w3.org/2000/svg", "text")
       t.setAttribute("x", String(cx - nh * 0.7))
       t.setAttribute("y", String(ty))
