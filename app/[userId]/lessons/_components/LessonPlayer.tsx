@@ -368,16 +368,15 @@ export default function LessonPlayer({
             >
               &lt;
             </button>
-            <div className={`${styles.qa} ${styles.qaIntro}`}>
-              <div className={styles.avatar}>
-                <ArcoChan pose={POSE_BY_ID["05B"]} />
-              </div>
-              <div className={styles.bubble}>
-                <b>{lesson.name}</b>
-                {alreadyCleared
-                  ? "のレッスンだよ。復習はいつでも大歓迎!"
-                  : "っていう技術を、まず僕といっしょにやってみようか!"}
-              </div>
+            {/* アルコちゃんを上部中央に大きく (2026-07-13 Tetsuo指示) */}
+            <div className={styles.introChar}>
+              <ArcoChan pose={POSE_BY_ID["05B"]} />
+            </div>
+            <div className={styles.introGreet}>
+              <b>{lesson.name}</b>
+              {alreadyCleared
+                ? "のレッスンだよ。復習はいつでも大歓迎!"
+                : "っていう技術を、まず僕といっしょにやってみようか!"}
             </div>
             <div className={`${styles.plScore} ${styles.plScoreIntro}`}>
               <LessonScoreCard buildUrl={buildUrl} lessonId={lessonId} hi />

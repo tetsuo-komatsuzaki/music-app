@@ -181,6 +181,22 @@
 .dotOn { background: var(--primary); }
 .qa { position: absolute; top: 16%; left: 4%; width: 92%; display: flex; gap: 3%; align-items: center; }
 .qaIntro { top: 22%; }
+/* INTRO: アルコちゃんを上部中央に大きく + 挨拶ふきだしを中央下に (2026-07-13) */
+.introChar {
+  position: absolute; top: 3%; left: 50%; transform: translateX(-50%);
+  width: 34%; font-size: 0; z-index: 1;
+}
+.introChar :global(svg) { width: 100%; height: auto; }
+.introGreet {
+  position: absolute; top: 25%; left: 8%; width: 84%;
+  background: #fff; border: 2px solid var(--border); border-radius: 16px; padding: 2.6% 4%;
+  font-size: 1.9cqh; font-weight: 700; color: var(--text-main); line-height: 1.35; text-align: center;
+}
+.introGreet::before {
+  content: ""; position: absolute; top: -9px; left: 50%;
+  transform: translateX(-50%) rotate(45deg); width: 14px; height: 14px; background: #fff;
+  border-left: 2px solid var(--border); border-top: 2px solid var(--border);
+}
 .avatar { width: 18%; aspect-ratio: 1; flex-shrink: 0; }
 .avatar :global(svg) { width: 100%; height: 100%; }
 .bubble {
