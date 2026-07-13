@@ -333,6 +333,7 @@ export default function LessonPlayer({
     spiccato: "staccato", // 間違い=弦に乗ってしまう(スタッカート)
     ricochet: "staccato", // 間違い=1音ずつ返してしまう(スタッカート)
     portato: "staccato", // 間違い=切りすぎる(スタッカート)
+    slur: "bow_staccato", // 間違い=1音ずつ切ってしまう(連続スタッカート)
   }
   // S3/S4 の運弓(横から)イラスト:
   //   S4(コツ,slide3) = その技法自身の運弓(横から) — 全弓系motionレッスン共通
