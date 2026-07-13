@@ -89,21 +89,31 @@ export const LESSON_BY_ID = new Map(LESSONS.map((l) => [l.id, l]))
 export const LESSON_TOTAL = LESSONS.length // 23
 
 // ── 譜面(lessonScores)の運指参照 (指番号・弦の補筆用) ──
-type LessonScoreNote = { r?: number; fg?: string }
+type LessonScoreNote = { r?: number; fg?: string; p?: [string, number, number] }
 const LESSON_SCORES = lessonData.lessonScores as unknown as Record<
   string,
   { m: LessonScoreNote[][] }
 >
 
-/** レッスン譜面から休符を除いた「音符順の運指(fg)」配列を返す。
- *  LessonScoreCard の collectNotes と同じ音符順で、fg の無い音符は undefined。 */
-export function lessonFingerings(id: string): (string | undefined)[] {
+/** A線・1stポジションの標準運指 (シフト前の音符に付与)。開放弦=0 */
+const FIRST_POS_A: Record<string, string> = {
+  A4: "0", B4: "1", C5: "2", D5: "3", E5: "4",
+}
+
+/** レッスン譜面から休符を除いた「音符順の指番号」配列を返す。
+ *  LessonScoreCard の collectNotes と同じ音符順。
+ *  - fg があればそれ (ポジション移動後の運指)
+ *  - 無ければ A線・1stポジションの標準運指を音高から導出 (移動前の音符)
+ *  - どちらも無ければ undefined */
+export function lessonFingerNumbers(id: string): (string | undefined)[] {
   const s = LESSON_SCORES[id]
   if (!s) return []
   const out: (string | undefined)[] = []
   for (const measure of s.m) for (const n of measure) {
     if (n.r) continue
-    out.push(n.fg)
+    if (n.fg) { out.push(n.fg); continue }
+    const key = n.p ? `${n.p[0]}${n.p[1]}` : ""
+    out.push(FIRST_POS_A[key])
   }
   return out
 }

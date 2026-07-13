@@ -17,7 +17,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
-import { lessonFingerings } from "../_lib/content"
+import { lessonFingerNumbers } from "../_lib/content"
 import styles from "../lessons.module.css"
 
 // ポジション移動レッスンで弾く弦 (すべてA線の音階練習)。指番号の上に表示する
@@ -434,7 +434,7 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
   //    各音符の上に「弦名(上)/指番号(下)」を積んで表示する。
   const posString = POSITION_STRING[lessonId]
   if (posString) {
-    const fingerings = lessonFingerings(lessonId)
+    const fingerings = lessonFingerNumbers(lessonId)
     const putText = (
       cx: number, y: number, text: string, size: number, fill: string, weight = "800",
     ) => {
