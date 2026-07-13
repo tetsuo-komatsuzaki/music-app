@@ -19,6 +19,7 @@ import { playExemplar } from "../_lib/exemplar"
 import { LESSON_MOTION_MAP } from "@/app/components/violin/bowing-motions"
 import LessonBowingMotion from "./LessonBowingMotion"
 import LessonBowingStatic from "./LessonBowingStatic"
+import LessonPositionShift from "./LessonPositionShift"
 import LessonScoreCard from "./LessonScoreCard"
 import styles from "../lessons.module.css"
 
@@ -350,6 +351,11 @@ export default function LessonPlayer({
   const slideMark: "cross" | "circle" | null =
     slide === 2 ? "cross" : slide === 3 ? "circle" : null
 
+  // 左手ポジション移動モーション: レッスンのS2(体の使い方)で見せる指定 (2026-07-13 Tetsuo指示)
+  // 値 = 左手アセットの shift id。現状は pos2 の「フレームごと運ぶ」= 1st→2nd のみ
+  const LEFT_SHIFT: Record<string, string> = { pos2: "1st-2nd" }
+  const leftShiftId = slide === 1 ? LEFT_SHIFT[lesson.id] : undefined
+
   const playBubble =
     bubbleOverride ??
     (plays > 0
@@ -421,6 +427,11 @@ export default function LessonPlayer({
               <div className={styles.figCard}>
                 <LessonBowingStatic />
                 <FigMark kind={slideMark} />
+              </div>
+            ) : leftShiftId ? (
+              // 左手ポジション移動モーション (pos2 S2「フレームごと運ぶ」= 1st→2nd)
+              <div className={styles.figCard}>
+                <LessonPositionShift shift={leftShiftId} />
               </div>
             ) : slide === 0 || slide === 4 ? (
               // S1=課題フレーズ+緑丸 / S5(非弓系)=課題フレーズ(緑丸なし・v3.18準拠)
