@@ -21,7 +21,7 @@ import { getFbLesson, fbLoop, type FbEvent, type FbNote } from "./fingerboard-le
 
 const F = "system-ui, 'Hiragino Sans', 'Noto Sans JP', sans-serif";
 
-function Pill({ x, y, text, left = false }: { x: number; y: number; text: string; left?: boolean }) {
+export function Pill({ x, y, text, left = false }: { x: number; y: number; text: string; left?: boolean }) {
   const w = 30 * text.length + 22;
   const x0 = left ? x : x - w / 2;
   return (
@@ -34,7 +34,7 @@ function Pill({ x, y, text, left = false }: { x: number; y: number; text: string
   );
 }
 
-function Dot({ g, n, color, children }: { g: Geo; n: FbNote; color: string; children?: React.ReactNode }) {
+export function Dot({ g, n, color, children }: { g: Geo; n: FbNote; color: string; children?: React.ReactNode }) {
   if (n.finger === 0) {
     const [ox, oy] = g.openPos(n.string);
     return (
@@ -57,14 +57,14 @@ function Dot({ g, n, color, children }: { g: Geo; n: FbNote; color: string; chil
   );
 }
 
-function Label({ g, n, text }: { g: Geo; n: FbNote; text?: string }) {
+export function Label({ g, n, text }: { g: Geo; n: FbNote; text?: string }) {
   const [x, y] = n.finger > 0 ? g.pos(n.string, n.off) : g.openPos(n.string);
   return g.h
     ? <Pill x={x} y={y - 62} text={text ?? n.name} />
     : <Pill x={x + 40} y={y} text={text ?? n.name} left />;
 }
 
-function Board({ g }: { g: Geo }) {
+export function Board({ g }: { g: Geo }) {
   const S = g.h ? H_STR : V_STR;
   const lo = Math.min(...Object.values(S)) - 38;
   const hi = Math.max(...Object.values(S)) + 38;
@@ -131,7 +131,7 @@ function Board({ g }: { g: Geo }) {
 }
 
 /** イベント可視ウィンドウの discrete opacity */
-function Window({ t0, t1, loop, children }: { t0: number; t1: number; loop: number; children: React.ReactNode }) {
+export function Window({ t0, t1, loop, children }: { t0: number; t1: number; loop: number; children: React.ReactNode }) {
   const kt = [0, t0 / loop, Math.min(t1 / loop, 1), 1].map((v) => Math.round(v * 1e5) / 1e5);
   return (
     <g opacity={0}>

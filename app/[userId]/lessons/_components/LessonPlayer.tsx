@@ -433,6 +433,8 @@ export default function LessonPlayer({
   const fbId = FB_LESSON_MAP[lesson.id] ?? null
   // 重音(縦型): S4(コツ,slide3)に差し替え
   const fbCoachId = fbId && DOUBLE_STOP_FB.has(lesson.id) && slide === 3 ? fbId : null
+  // 重音(縦型): S3(よくある間違い,slide2)にミス図=pull(引っ張られて音程が潰れる)。本文「音程がくずれる」と一致
+  const fbMissId = fbId && DOUBLE_STOP_FB.has(lesson.id) && slide === 2 ? fbId : null
   // 非重音(横長): S1(これは何,slide0)に譜面と併記
   const fbIntroId = fbId && !DOUBLE_STOP_FB.has(lesson.id) && slide === 0 ? fbId : null
 
@@ -554,6 +556,12 @@ export default function LessonPlayer({
                   <LessonFingerboard lesson={fbIntroId} />
                 </div>
               </>
+            ) : fbMissId ? (
+              // 重音レッスン S3「よくある間違い」: 指板俯瞰図ミス(縦型・pull=音程が潰れる) + ❌
+              <div className={`${styles.figCard} ${styles.fbCoachCard}`}>
+                <LessonFingerboard lesson={fbMissId} miss="pull" />
+                <FigMark kind={slideMark} />
+              </div>
             ) : fbCoachId ? (
               // 重音レッスン S4「コツ」: 指板俯瞰図(縦型)に差し替え + ◯
               <div className={`${styles.figCard} ${styles.fbCoachCard}`}>

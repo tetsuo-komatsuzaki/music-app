@@ -10,3 +10,8 @@ export {
   type FbLesson, type FbEvent, type FbNote,
 } from "./fingerboard-lessons";
 export { FingerboardDemo, type FingerboardDemoProps } from "./FingerboardDemo";
+export {
+  FB_MISTAKES, PULL_SEMITONES, LATE_SEC, MISS_COLOR, assertFbMistakes,
+  type FbMistakeSet, type PullVictim, type LateVictim,
+} from "./fingerboard-mistakes";
+export { FingerboardMissDemo, type FingerboardMissDemoProps } from "./FingerboardMissDemo";
