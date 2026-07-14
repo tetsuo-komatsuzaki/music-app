@@ -21,6 +21,8 @@ import LessonBowingMotion from "./LessonBowingMotion"
 import LessonBowingStatic from "./LessonBowingStatic"
 import LessonPositionShift from "./LessonPositionShift"
 import LessonPositionMistake from "./LessonPositionMistake"
+import LessonTrill from "./LessonTrill"
+import LessonGlissando from "./LessonGlissando"
 import LessonScoreCard from "./LessonScoreCard"
 import styles from "../lessons.module.css"
 
@@ -372,6 +374,20 @@ export default function LessonPlayer({
   const posShiftId = slide === 1 || slide === 3 ? POS_SHIFT[lesson.id] : undefined
   const posMistakeId = slide === 2 ? POS_MISTAKE[lesson.id] : undefined
 
+  // トリル/グリッサンド: S3(よくあるまちがい,slide2)/S4(コツ,slide3) にモーション
+  // (2026-07-14 Tetsuo指示)。トリル: S3=立て指(raised)/S4=浮かせ指(hover)
+  const trillLift: "raised" | "hover" | null =
+    lesson.id === "trill" ? (slide === 2 ? "raised" : slide === 3 ? "hover" : null) : null
+  // グリッサンド: S3=速度ムラ(uneven)/S4=倍速(fast)
+  const glissId: string | null =
+    lesson.id === "glissando"
+      ? slide === 2
+        ? "6th-1st-uneven"
+        : slide === 3
+          ? "6th-1st-fast"
+          : null
+      : null
+
   const playBubble =
     bubbleOverride ??
     (plays > 0
@@ -454,6 +470,18 @@ export default function LessonPlayer({
               // 左手ポジション移動: S3(よくある間違い) = ミスモーション + ❌
               <div className={styles.figCard}>
                 <LessonPositionMistake shift={posMistakeId} />
+                <FigMark kind={slideMark} />
+              </div>
+            ) : trillLift ? (
+              // トリル: S3(間違い)=立て指 / S4(コツ)=浮かせ指 + ❌/◯
+              <div className={styles.figCard}>
+                <LessonTrill trill="0-1" liftStyle={trillLift} />
+                <FigMark kind={slideMark} />
+              </div>
+            ) : glissId ? (
+              // グリッサンド: S3(間違い)=速度ムラ / S4(コツ)=倍速 + ❌/◯
+              <div className={styles.figCard}>
+                <LessonGlissando glissando={glissId} />
                 <FigMark kind={slideMark} />
               </div>
             ) : slide === 0 || slide === 4 ? (

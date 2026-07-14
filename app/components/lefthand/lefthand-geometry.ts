@@ -112,6 +112,7 @@ export const BODY_OVERLAY_MIN_D = POSITIONS["3rd"].d;
    ============================================================ */
 export type FingerPatternId =
   | "open"        // どの指も押さえていない（開放弦）
+  | "up1"         // 1の指を立てる（トリル「0の指 ⇔ 1の指」の上側）
   | "f1"          // 1の指のみ押弦
   | "f12"         // 1〜2の指
   | "f123"        // 1〜3の指
@@ -275,6 +276,38 @@ export const missHandTranslate = (target: PositionId, s: number) =>
 /** 正しい手（崩れる前に見えている手）の平行移動 */
 export const okHandTranslate = (target: PositionId, s: number) =>
   handTranslate(POSITIONS[target].d * s);
+
+/* ============================================================
+   立て指(F-6)のスロット間隔 (トリル up1 の機械導出用)
+   f1_up2 → f12_up3 の実測差分。傾き 0.05 は弦の傾き(0.0497)と一致する。
+   ============================================================ */
+export const RAISED_FINGER_SLOT_DX = 60;
+export const RAISED_FINGER_SLOT_DY = 3;
+
+/* ============================================================
+   連続移動(グリッサンド)のためのしきい値
+   ポジション移動は「点から点へ」だが、グリッサンドは d が連続変化する。
+   そのため手形の持ち替えと胴オーバーレイの出没を d から直接導出する。
+   ⚠️ BODY_OVERLAY_FADE_HI < HAND_SWITCH_D_LO を必ず保つこと(掌が胴から透ける防止)。
+   ============================================================ */
+/** この d 以下ではナット側の手形、以上ではネック裏の手形。間はクロスフェード */
+export const HAND_SWITCH_D_LO = 265;
+export const HAND_SWITCH_D_HI = 315;
+/** 胴オーバーレイの出没帯(3rd の d=170 前後) */
+export const BODY_OVERLAY_FADE_LO = BODY_OVERLAY_MIN_D; // 170
+export const BODY_OVERLAY_FADE_HI = 215;
+
+const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+
+/** d から「親指がネック裏に回っている度合い」(0-1) を導く */
+export function behindNeckAt(d: number): number {
+  return clamp01((d - HAND_SWITCH_D_LO) / (HAND_SWITCH_D_HI - HAND_SWITCH_D_LO));
+}
+
+/** d から「胴オーバーレイの不透明度」(0-1) を導く */
+export function bodyOverlayAt(d: number): number {
+  return clamp01((d - BODY_OVERLAY_FADE_LO) / (BODY_OVERLAY_FADE_HI - BODY_OVERLAY_FADE_LO));
+}
 
 /* ============================================================
    検証用の不変条件（改変後は必ず確認すること）

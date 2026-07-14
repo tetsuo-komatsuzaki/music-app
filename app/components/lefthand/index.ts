@@ -50,3 +50,31 @@ export {
   PositionMistakeDemo,
   type PositionMistakeDemoProps,
 } from "./PositionMistakeDemo";
+
+// トリル
+export {
+  TRILLS,
+  getTrill,
+  trillCSS,
+  trillD,
+  type TrillDef,
+  type TrillLiftStyle,
+} from "./lefthand-trill-motions";
+export { TrillDemo, type TrillDemoProps } from "./TrillDemo";
+
+// グリッサンド
+export {
+  GLISSANDOS,
+  PROFILE_EVEN,
+  PROFILE_UNEVEN,
+  getGlissando,
+  glissandoCSS,
+  glissKeyframes,
+  glissSpeeds,
+  assertMonotone as assertGlissMonotone,
+  type GlissandoDef,
+  type GlissKeyframe,
+  type SpeedSegment,
+  type GlissandoSpeedId,
+} from "./lefthand-glissando-motions";
+export { GlissandoDemo, type GlissandoDemoProps } from "./GlissandoDemo";
