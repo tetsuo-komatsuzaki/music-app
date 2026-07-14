@@ -375,16 +375,22 @@ export default function LessonPlayer({
   const posMistakeId = slide === 2 ? POS_MISTAKE[lesson.id] : undefined
 
   // トリル/グリッサンド: S3(よくあるまちがい,slide2)/S4(コツ,slide3) にモーション
-  // (2026-07-14 Tetsuo指示)。トリル: S3=立て指(raised)/S4=浮かせ指(hover)
+  // (2026-07-14 Tetsuo指示)。トリル: S3=立て指(raised) / S2(下の指は置いたまま)とS4(コツ)=浮かせ指(hover)
   const trillLift: "raised" | "hover" | null =
-    lesson.id === "trill" ? (slide === 2 ? "raised" : slide === 3 ? "hover" : null) : null
-  // グリッサンド: S3=速度ムラ(uneven)/S4=倍速(fast)
+    lesson.id === "trill"
+      ? slide === 2
+        ? "raised"
+        : slide === 1 || slide === 3
+          ? "hover"
+          : null
+      : null
+  // グリッサンド: S2(腕ごと運ぶ)=コツと同一(倍速) / S3=速度ムラ(uneven) / S4=倍速(fast)
   const glissId: string | null =
     lesson.id === "glissando"
-      ? slide === 2
-        ? "6th-1st-uneven"
-        : slide === 3
-          ? "6th-1st-fast"
+      ? slide === 1 || slide === 3
+        ? "6th-1st-fast"
+        : slide === 2
+          ? "6th-1st-uneven"
           : null
       : null
 
