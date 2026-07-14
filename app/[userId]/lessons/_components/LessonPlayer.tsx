@@ -26,6 +26,7 @@ import LessonGlissando from "./LessonGlissando"
 import LessonVibrato from "./LessonVibrato"
 import LessonOrnament from "./LessonOrnament"
 import LessonFingerboard from "./LessonFingerboard"
+import LessonHarmonics from "./LessonHarmonics"
 import LessonScoreCard from "./LessonScoreCard"
 import styles from "../lessons.module.css"
 
@@ -441,6 +442,16 @@ export default function LessonPlayer({
   const fbIntroId = fbId && !DOUBLE_STOP_FB.has(lesson.id) && slide === 0 ? fbId : null
   // ポジション移動 S4(コツ,slide3)/S5(成功の感覚,slide4): 移動モーション+指板俯瞰図を併記 (2026-07-15 Tetsuo指示)
   const posFbId = posShiftId && (slide === 3 || slide === 4) ? (FB_LESSON_MAP[lesson.id] ?? null) : null
+  // ハーモニクス左手図(1/2点・4th・4の指): S2(体の使い方)/S4(コツ)=正しい接触 / S3(間違い)=押さえすぎ (2026-07-15 Tetsuo指示)
+  //   ※押さえすぎ図は図自身に✗と「押さえすぎ」注釈を持つ。正解S4のみ◯を重ねる。
+  const harmonicKind: "ok" | "mistake" | null =
+    lesson.id === "harmonics"
+      ? slide === 1 || slide === 3
+        ? "ok"
+        : slide === 2
+          ? "mistake"
+          : null
+      : null
 
   const playBubble =
     bubbleOverride ??
@@ -584,6 +595,12 @@ export default function LessonPlayer({
               <div className={`${styles.figCard} ${styles.fbCoachCard}`}>
                 <LessonFingerboard lesson={fbCoachId} />
                 <FigMark kind={slideMark} />
+              </div>
+            ) : harmonicKind ? (
+              // ハーモニクス: S2/S4=正しい接触(軽く触れる) / S3=押さえすぎ(図自身に✗) + S4は◯
+              <div className={styles.figCard}>
+                <LessonHarmonics mistake={harmonicKind === "mistake"} />
+                {harmonicKind === "ok" && <FigMark kind={slideMark} />}
               </div>
             ) : slide === 0 || slide === 4 ? (
               // S1=課題フレーズ+緑丸 / S5(非弓系)=課題フレーズ(緑丸なし・v3.18準拠)
