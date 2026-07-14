@@ -381,7 +381,8 @@ export default function LessonPlayer({
     pos5: "miss-1st-4th", // 5th/6thのミスは構造上作れないため4thのミスを流用
     pos6: "miss-1st-4th",
   }
-  const posShiftId = slide === 1 || slide === 3 ? POS_SHIFT[lesson.id] : undefined
+  // S2(体の使い方,slide1)/S4(コツ,slide3)/S5(成功の感覚,slide4) = 正しい移動モーション
+  const posShiftId = slide === 1 || slide === 3 || slide === 4 ? POS_SHIFT[lesson.id] : undefined
   const posMistakeId = slide === 2 ? POS_MISTAKE[lesson.id] : undefined
 
   // トリル/グリッサンド: S3(よくあるまちがい,slide2)/S4(コツ,slide3) にモーション
@@ -431,12 +432,15 @@ export default function LessonPlayer({
   }
   const DOUBLE_STOP_FB = new Set(["ds3", "ds6", "ds8", "ds10", "ds_seq"])
   const fbId = FB_LESSON_MAP[lesson.id] ?? null
-  // 重音(縦型): S4(コツ,slide3)に差し替え
-  const fbCoachId = fbId && DOUBLE_STOP_FB.has(lesson.id) && slide === 3 ? fbId : null
+  // 重音(縦型): S4(コツ,slide3) と S2(体の使い方,slide1) に指板俯瞰図(正解)。
+  //   S2はコツと同一(2026-07-15 Tetsuo指示)。S2はマークなし/S4は◯。
+  const fbCoachId = fbId && DOUBLE_STOP_FB.has(lesson.id) && (slide === 1 || slide === 3) ? fbId : null
   // 重音(縦型): S3(よくある間違い,slide2)にミス図=pull(引っ張られて音程が潰れる)。本文「音程がくずれる」と一致
   const fbMissId = fbId && DOUBLE_STOP_FB.has(lesson.id) && slide === 2 ? fbId : null
   // 非重音(横長): S1(これは何,slide0)に譜面と併記
   const fbIntroId = fbId && !DOUBLE_STOP_FB.has(lesson.id) && slide === 0 ? fbId : null
+  // ポジション移動 S4(コツ,slide3)/S5(成功の感覚,slide4): 移動モーション+指板俯瞰図を併記 (2026-07-15 Tetsuo指示)
+  const posFbId = posShiftId && (slide === 3 || slide === 4) ? (FB_LESSON_MAP[lesson.id] ?? null) : null
 
   const playBubble =
     bubbleOverride ??
@@ -511,11 +515,24 @@ export default function LessonPlayer({
                 <FigMark kind={slideMark} />
               </div>
             ) : posShiftId ? (
-              // 左手ポジション移動: S2(体の使い方)/S4(コツ) = 正しい移動モーション + (S4は◯)
-              <div className={styles.figCard}>
-                <LessonPositionShift shift={posShiftId} />
-                <FigMark kind={slideMark} />
-              </div>
+              posFbId ? (
+                // S4(コツ)/S5(成功の感覚): 移動モーション(上) + 指板俯瞰図(下) 併記 (S4は◯/S5はマークなし)
+                <>
+                  <div className={`${styles.figCard} ${styles.fbCoachMotion}`}>
+                    <LessonPositionShift shift={posShiftId} />
+                    <FigMark kind={slideMark} />
+                  </div>
+                  <div className={`${styles.figCard} ${styles.fbCoachBoard}`}>
+                    <LessonFingerboard lesson={posFbId} />
+                  </div>
+                </>
+              ) : (
+                // 左手ポジション移動: S2(体の使い方) = 正しい移動モーション
+                <div className={styles.figCard}>
+                  <LessonPositionShift shift={posShiftId} />
+                  <FigMark kind={slideMark} />
+                </div>
+              )
             ) : posMistakeId ? (
               // 左手ポジション移動: S3(よくある間違い) = ミスモーション + ❌
               <div className={styles.figCard}>

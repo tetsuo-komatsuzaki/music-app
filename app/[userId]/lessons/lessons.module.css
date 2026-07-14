@@ -148,6 +148,9 @@
 .fbIntroBoard { top: 29%; height: 30%; }
 /* S4「コツ」重音の指板俯瞰(縦型)。中央寄せの縦長カード */
 .fbCoachCard { left: 30%; width: 40%; top: 12%; height: 50%; }
+/* ポジション移動S4(コツ)併記: 上=移動モーション / 下=指板俯瞰(横長) */
+.fbCoachMotion { top: 12%; height: 25%; }
+.fbCoachBoard { top: 39%; height: 21%; }
 /* OSMD譜面カードの中身 (横スクロールなしで収める) */
 .osmdCardBox { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .osmdCardBox :global(svg) { max-width: 100%; max-height: 100%; height: auto; }
