@@ -339,15 +339,22 @@ export default function LessonPlayer({
     portato: "staccato", // 間違い=切りすぎる(スタッカート)
     slur: "bow_staccato", // 間違い=1音ずつ切ってしまう(連続スタッカート)
   }
+  // S3(間違い)で見せる「その技法自身のミスモーション」(横から)。指定レッスンのみ (2026-07-14 Tetsuo指示)
+  //   別技法に倒れるのではなく、同じ技法の崩れた運弓を見せる (トレモロ=弓の位置が定まらない)
+  const S3_MISTAKE_MOTION: Record<string, string> = {
+    tremolo: "tremolo-unstable",
+  }
   // S3/S4 の運弓(横から)イラスト:
   //   S4(コツ,slide3) = その技法自身の運弓(横から) — 全弓系motionレッスン共通
-  //   S3(間違い,slide2) = 指定の別技法の運弓(横から) — 指定レッスンのみ
+  //   S3(間違い,slide2) = 指定の別技法の運弓、または同技法のミスモーション(横から) — 指定レッスンのみ
   const sideMotionId =
     slide === 3 && bowMotionId
       ? bowMotionId
       : slide === 2 && S3_WRONG_MOTION[lesson.id]
         ? (LESSON_MOTION_MAP[S3_WRONG_MOTION[lesson.id]] ?? null)
-        : null
+        : slide === 2 && S3_MISTAKE_MOTION[lesson.id]
+          ? S3_MISTAKE_MOTION[lesson.id]
+          : null
   // S3で運弓指定が無い弓系は静止バイオリン+弓 (マークはFigMarkで付与)
   const staticFig = slide === 2 && !!bowMotionId && !sideMotionId
   // スライドのマーク: S3(間違い)=❌ / S4(コツ)=◯ (全レッスン共通)

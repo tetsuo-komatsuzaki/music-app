@@ -25,6 +25,7 @@ import {
   violinKeyframes,
   contactKeyframes,
 } from "@/app/components/violin/bowing-motions"
+import { getBowingMistake } from "@/app/components/violin/bowing-mistake-motions"
 import styles from "../lessons.module.css"
 
 // 幾何定数 (図解モーション要件v1.0 A-3 確定値)
@@ -41,7 +42,8 @@ export default function LessonBowingMotion({
   /** "both"=うえから+よこから (S2/S5) / "side"=よこから単独 (弓系S3/S4の運弓比較用) */
   view?: "both" | "side"
 }) {
-  const tech = getTechnique(motionId)
+  // ミスモーション(別配列)を優先解決。getTechnique は未知idで detache に倒れるため先に引く
+  const tech = getBowingMistake(motionId) ?? getTechnique(motionId)
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "")
   const dir = tech.alternate ? "alternate" : "normal"
   const CV = stringDisplayY(TGT, BOW_X)
