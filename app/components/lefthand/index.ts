@@ -98,3 +98,16 @@ export {
   type VibratoKeyframe,
 } from "./lefthand-vibrato-motions";
 export { VibratoDemo, type VibratoDemoProps } from "./VibratoDemo";
+
+// 装飾音（プラルトリラー / モルデント・正解 / ミス）
+export {
+  ORNAMENTS,
+  getOrnament,
+  ornamentCSS,
+  ornamentD,
+  ornamentShare,
+  slownessVsCorrect,
+  assertOrnament,
+  type OrnamentDef,
+} from "./lefthand-ornament-motions";
+export { OrnamentDemo, type OrnamentDemoProps } from "./OrnamentDemo";

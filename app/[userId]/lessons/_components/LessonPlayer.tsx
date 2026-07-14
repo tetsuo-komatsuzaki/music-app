@@ -24,6 +24,7 @@ import LessonPositionMistake from "./LessonPositionMistake"
 import LessonTrill from "./LessonTrill"
 import LessonGlissando from "./LessonGlissando"
 import LessonVibrato from "./LessonVibrato"
+import LessonOrnament from "./LessonOrnament"
 import LessonScoreCard from "./LessonScoreCard"
 import styles from "../lessons.module.css"
 
@@ -410,6 +411,16 @@ export default function LessonPlayer({
           ? "3rd-stiff-hand"
           : null
       : null
+  // 装飾音(プラルトリラー+モルデント): 1レッスン2技術のため1スライドに両方を横並び表示。
+  //   S2(体の使い方)/S4(コツ)=正解(ok) / S3(間違い)=指を立てて装飾がもたつく(slow)
+  const ornamentKind: "ok" | "slow" | null =
+    lesson.id === "mordent"
+      ? slide === 1 || slide === 3
+        ? "ok"
+        : slide === 2
+          ? "slow"
+          : null
+      : null
 
   const playBubble =
     bubbleOverride ??
@@ -511,6 +522,12 @@ export default function LessonPlayer({
               // ビブラート: S3(間違い)=手が固まって指だけ滑る / S2・S4=手と指が一緒に揺れる + ❌/◯
               <div className={styles.figCard}>
                 <LessonVibrato vibrato={vibratoId} />
+                <FigMark kind={slideMark} />
+              </div>
+            ) : ornamentKind ? (
+              // 装飾音: プラルトリラー+モルデントを横並び。S3(間違い)=slow / S2・S4=ok + ❌/◯
+              <div className={styles.figCard}>
+                <LessonOrnament kind={ornamentKind} />
                 <FigMark kind={slideMark} />
               </div>
             ) : slide === 0 || slide === 4 ? (
