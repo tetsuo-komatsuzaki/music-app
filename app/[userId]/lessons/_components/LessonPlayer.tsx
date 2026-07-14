@@ -25,6 +25,7 @@ import LessonTrill from "./LessonTrill"
 import LessonGlissando from "./LessonGlissando"
 import LessonVibrato from "./LessonVibrato"
 import LessonOrnament from "./LessonOrnament"
+import LessonFingerboard from "./LessonFingerboard"
 import LessonScoreCard from "./LessonScoreCard"
 import styles from "../lessons.module.css"
 
@@ -422,6 +423,19 @@ export default function LessonPlayer({
           : null
       : null
 
+  // 指板俯瞰図 (fingerboard パッケージ・13レッスン)。lesson.id → fingerboard id (2026-07-15 Tetsuo指示)
+  const FB_LESSON_MAP: Record<string, string> = {
+    pos2: "pos-2nd", pos3: "pos-3rd", pos4: "pos-4th", pos5: "pos-5th", pos6: "pos-6th",
+    glissando: "glissando", harmonics: "harmonics", mordent: "ornament",
+    ds3: "double-3rd", ds6: "double-6th", ds8: "double-octave", ds10: "double-10th", ds_seq: "double-series",
+  }
+  const DOUBLE_STOP_FB = new Set(["ds3", "ds6", "ds8", "ds10", "ds_seq"])
+  const fbId = FB_LESSON_MAP[lesson.id] ?? null
+  // 重音(縦型): S4(コツ,slide3)に差し替え
+  const fbCoachId = fbId && DOUBLE_STOP_FB.has(lesson.id) && slide === 3 ? fbId : null
+  // 非重音(横長): S1(これは何,slide0)に譜面と併記
+  const fbIntroId = fbId && !DOUBLE_STOP_FB.has(lesson.id) && slide === 0 ? fbId : null
+
   const playBubble =
     bubbleOverride ??
     (plays > 0
@@ -528,6 +542,22 @@ export default function LessonPlayer({
               // 装飾音: プラルトリラー+モルデントを横並び。S3(間違い)=slow / S2・S4=ok + ❌/◯
               <div className={styles.figCard}>
                 <LessonOrnament kind={ornamentKind} />
+                <FigMark kind={slideMark} />
+              </div>
+            ) : fbIntroId ? (
+              // 非重音レッスン S1「これは何」: 上=課題フレーズ(緑丸) / 下=指板俯瞰図(横長) 併記
+              <>
+                <div className={`${styles.figCard} ${styles.fbIntroScore}`}>
+                  <LessonScoreCard buildUrl={buildUrl} lessonId={lessonId} hi />
+                </div>
+                <div className={`${styles.figCard} ${styles.fbIntroBoard}`}>
+                  <LessonFingerboard lesson={fbIntroId} />
+                </div>
+              </>
+            ) : fbCoachId ? (
+              // 重音レッスン S4「コツ」: 指板俯瞰図(縦型)に差し替え + ◯
+              <div className={`${styles.figCard} ${styles.fbCoachCard}`}>
+                <LessonFingerboard lesson={fbCoachId} />
                 <FigMark kind={slideMark} />
               </div>
             ) : slide === 0 || slide === 4 ? (
