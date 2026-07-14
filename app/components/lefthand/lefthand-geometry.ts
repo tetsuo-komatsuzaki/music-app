@@ -310,6 +310,57 @@ export function bodyOverlayAt(d: number): number {
 }
 
 /* ============================================================
+   親指を支点として掌だけを動かす（ビブラート）
+
+   ⚠️ HAND_PATH は **掌＋親指＋前腕が融合した単一パス（30節点）**。
+      handTransform(d) で動かすと **親指まで動いてしまう**。
+      ビブラートでは親指はネックに触れた**支点**であり、動いてはならない。
+
+   そこで節点ごとに「掌への追従率 w」を与える:
+     w = 0   … 親指の先端（＝支点）。完全に固定
+     w = 1   … 掌・前腕。完全に追従
+     0<w<1   … 親指の付け根〜水かき。親指が屈曲する
+
+   ⚠️ 追従率を全部 1 にすると親指が動く。0 にすると手が完全静止する（＝ミス）。
+   ⚠️ 掌の点は必ず **ネックの傾き（NECK_SLOPE）に沿って** ずらすこと。
+      x だけずらすと掌がネック下縁から浮き、「一本線」の不変条件が壊れる。
+   ============================================================ */
+
+/** HAND_PATH の節点ごとの追従率（未指定は 1.0 = 掌・前腕） */
+export const THUMB_PIVOT_FOLLOW: Record<number, number> = {
+  0: 0, 1: 0, 2: 0.25, 3: 0.6, 4: 0.9,
+  24: 0.9, 25: 0.6, 26: 0.25, 27: 0, 28: 0, 29: 0,
+};
+
+/**
+ * HAND_CREASES の追従率。
+ * #0 (x472-494) / #1 (x624-678) = 掌・前腕 → 1.0
+ * #2 (x414-428) = **親指の関節しわ** → 0.6（掌と一緒に動かすと親指から剥がれる）
+ */
+export const HAND_CREASE_FOLLOW = [1.0, 1.0, 0.6] as const;
+
+const POINT_RE = /(-?\d+\.?\d*),(-?\d+\.?\d*)/g;
+
+function shiftWeighted(path: string, delta: number, weightAt: (i: number) => number): string {
+  let i = -1;
+  return path.replace(POINT_RE, (_m, x: string, y: string) => {
+    i += 1;
+    const w = weightAt(i);
+    return `${Number(x) + delta * w},${round2(Number(y) + delta * NECK_SLOPE * w)}`;
+  });
+}
+
+/** 掌を delta だけずらした手のパス。親指の先端は動かない */
+export function handPathPivotThumb(delta: number): string {
+  return shiftWeighted(HAND_PATH, delta, (i) => THUMB_PIVOT_FOLLOW[i] ?? 1);
+}
+
+/** 上記に対応する手のしわ */
+export function handCreasesPivotThumb(delta: number): string[] {
+  return HAND_CREASES.map((c, i) => shiftWeighted(c, delta, () => HAND_CREASE_FOLLOW[i] ?? 1));
+}
+
+/* ============================================================
    検証用の不変条件（改変後は必ず確認すること）
    ============================================================ */
 export const INVARIANTS = {

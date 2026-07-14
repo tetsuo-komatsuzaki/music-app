@@ -23,6 +23,7 @@ import LessonPositionShift from "./LessonPositionShift"
 import LessonPositionMistake from "./LessonPositionMistake"
 import LessonTrill from "./LessonTrill"
 import LessonGlissando from "./LessonGlissando"
+import LessonVibrato from "./LessonVibrato"
 import LessonScoreCard from "./LessonScoreCard"
 import styles from "../lessons.module.css"
 
@@ -400,6 +401,15 @@ export default function LessonPlayer({
           ? "6th-1st-uneven"
           : null
       : null
+  // ビブラート: S2(体の使い方)/S4(コツ)=正解(手と指が一緒に揺れる) / S3(間違い)=手が固まって指だけ滑る
+  const vibratoId: string | null =
+    lesson.id === "vibrato"
+      ? slide === 1 || slide === 3
+        ? "3rd-ok"
+        : slide === 2
+          ? "3rd-stiff-hand"
+          : null
+      : null
 
   const playBubble =
     bubbleOverride ??
@@ -495,6 +505,12 @@ export default function LessonPlayer({
               // グリッサンド: S3(間違い)=速度ムラ / S4(コツ)=倍速 + ❌/◯
               <div className={styles.figCard}>
                 <LessonGlissando glissando={glissId} />
+                <FigMark kind={slideMark} />
+              </div>
+            ) : vibratoId ? (
+              // ビブラート: S3(間違い)=手が固まって指だけ滑る / S2・S4=手と指が一緒に揺れる + ❌/◯
+              <div className={styles.figCard}>
+                <LessonVibrato vibrato={vibratoId} />
                 <FigMark kind={slideMark} />
               </div>
             ) : slide === 0 || slide === 4 ? (

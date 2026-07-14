@@ -78,3 +78,23 @@ export {
   type GlissandoSpeedId,
 } from "./lefthand-glissando-motions";
 export { GlissandoDemo, type GlissandoDemoProps } from "./GlissandoDemo";
+
+// ビブラート（正解 / ミス）
+export {
+  VIBRATOS,
+  getVibrato,
+  vibratoKeyframes,
+  vibratoNoteD,
+  vibratoAmplitude,
+  vibratoHandAmplitude,
+  vibratoDuration,
+  pxPerCent,
+  assertVibrato,
+  smilTiming as vibratoSmilTiming,
+  fingerValues as vibratoFingerValues,
+  handPathValues as vibratoHandPathValues,
+  handCreaseValues as vibratoHandCreaseValues,
+  type VibratoDef,
+  type VibratoKeyframe,
+} from "./lefthand-vibrato-motions";
+export { VibratoDemo, type VibratoDemoProps } from "./VibratoDemo";
