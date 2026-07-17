@@ -157,10 +157,61 @@ function relativeDate(isoString: string): string {
 // Sub-components
 // ────────────────────────────────────────────────────────────
 
+// カバープレースホルダ: カテゴリ色 + グリフ + ☆ (練習曲カードと共通の .matCover/.matStar を再利用)。
+// 将来 coverImagePath の写真を差し込める枠。
+const CAT_COVER: Record<string, { a: string; b: string }> = {
+  scale:          { a: "#12988f", b: "#0c645d" },
+  scales:         { a: "#12988f", b: "#0c645d" },
+  arpeggio:       { a: "#8a54b8", b: "#573380" },
+  arpeggios:      { a: "#8a54b8", b: "#573380" },
+  etude:          { a: "#d9722a", b: "#9a4d18" },
+  etudes:         { a: "#d9722a", b: "#9a4d18" },
+  fingering:      { a: "#3f78d4", b: "#24447e" },
+  bowing:         { a: "#2e9866", b: "#1c6041" },
+  position_shift: { a: "#c85d86", b: "#8a3556" },
+  double_stop:    { a: "#5b78c9", b: "#374a80" },
+  _default:       { a: "#3f78d4", b: "#24447e" },
+}
+
+function coverGlyph(category: string) {
+  if (category === "scale" || category === "scales") {
+    return <path d="M4 15c3 0 3-8 6-8s3 8 6 8M4 19h16" />
+  }
+  if (category === "arpeggio" || category === "arpeggios") {
+    return <><circle cx="6" cy="17" r="2.3" /><circle cx="18" cy="13" r="2.3" /><path d="M8.3 16.3 15.8 13M8 15V8l10-2.4V11" /></>
+  }
+  if (category === "etude" || category === "etudes") {
+    return <><path d="M6 4v13" /><circle cx="6" cy="18.5" r="2.2" /><path d="M11 8h7M11 12h7M11 16h4" /></>
+  }
+  // fingering / bowing / position_shift / double_stop 等
+  return <><path d="M9 18V6l9-2v12" /><circle cx="6.5" cy="18" r="2.5" /><circle cx="15.5" cy="16" r="2.5" /></>
+}
+
+function CategoryCover({ category, star }: { category: string; star: number | null }) {
+  const c = CAT_COVER[category] ?? CAT_COVER._default
+  return (
+    <div className={styles.matCover} style={{ background: `linear-gradient(150deg, ${c.a}, ${c.b})` }}>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round">
+        {coverGlyph(category)}
+      </svg>
+      {star != null && (
+        <span className={styles.matStar}>
+          <svg width="8" height="8" viewBox="0 0 24 24" fill="#fff">
+            <path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.7 5.9 21l1.5-6.8L2.2 9.6l6.9-.7z" />
+          </svg>
+          {star}
+        </span>
+      )}
+    </div>
+  )
+}
+
 function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: string; category: string }) {
   const { shortTitle, subtitle, octaves, bowTech, chordType, decompose } = extractCardInfo(item)
   return (
     <Link href={`/${userId}/practice/${category}/${item.id}`} className={styles.itemCard}>
+      <CategoryCover category={category} star={item.star} />
+      <div className={styles.itemCardBody}>
       <div className={styles.cardHeader}>
         {/* 分解(音階/アルペジオ)は短いトニックを大きめ、非分解(長いフル題名)は小さめで揃える */}
         <div className={decompose ? styles.cardTitle : styles.cardTitleFull}>{shortTitle}</div>
@@ -186,6 +237,7 @@ function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: s
             <span className={styles.cardFooterEmpty}>スコアなし</span>
           )}
         </div>
+      </div>
       </div>
     </Link>
   )

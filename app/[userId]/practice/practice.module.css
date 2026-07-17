@@ -81,8 +81,10 @@
 .filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
 .filterSelect { padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
 .itemList { display: flex; flex-direction: column; gap: 8px; }
-.itemCard { display: block; padding: 14px 16px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; text-decoration: none; color: inherit; transition: box-shadow 0.2s; }
-.itemCard:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+/* カバー付き行レイアウト (2026-07-15: 練習曲カードと体裁を統一) */
+.itemCard { display: flex; gap: 13px; align-items: flex-start; padding: 10px 12px; background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; text-decoration: none; color: inherit; transition: box-shadow 0.2s, border-color .15s; }
+.itemCard:hover { box-shadow: 0 5px 16px rgba(60,20,35,.09); border-color: #c3a9b2; }
+.itemCardBody { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .itemTitle { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
 .itemComposer { font-size: 12px; color: #888; margin-bottom: 2px; }
 .itemMeta { font-size: 12px; color: #888; }
