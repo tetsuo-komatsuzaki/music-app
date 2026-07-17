@@ -349,3 +349,95 @@
 .starTabActive:hover {
   background: #4a6cf7;
 }
+
+/* ============================================================
+   教材カード一覧 (P1: 練習曲リスト刷新 2026-07-15 Tetsuo指示)
+   カバーはカテゴリ色+グリフのプレースホルダ(将来 coverImagePath で写真差し替え)。
+   ============================================================ */
+.matList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(288px, 1fr));
+  gap: 12px;
+}
+.matRow {
+  display: flex;
+  gap: 13px;
+  background: #fff;
+  border: 1px solid #e7e2e4;
+  border-radius: 14px;
+  padding: 10px;
+  text-decoration: none;
+  color: inherit;
+  align-items: center;
+  transition: border-color .15s, box-shadow .15s, transform .08s;
+}
+.matRow:hover {
+  border-color: #c3a9b2;
+  box-shadow: 0 5px 16px rgba(60, 20, 35, .09);
+}
+.matRow:active { transform: scale(.995); }
+/* カバー枠: 将来 <img> を差し込める。無い間はカテゴリ色グラデ+グリフ */
+.matCover {
+  position: relative;
+  flex: 0 0 76px;
+  width: 76px;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: linear-gradient(150deg, #3f78d4, #24447e);
+}
+.matCover svg { opacity: .9; }
+.matCover img { width: 100%; height: 100%; object-fit: cover; }
+.matStar {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #fff;
+  background: rgba(0, 0, 0, .30);
+  padding: 1.5px 7px 1.5px 6px;
+  border-radius: 999px;
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+.matInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.matTitle {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.32;
+  color: #2d2d2d;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.matComposer {
+  font-size: 12px;
+  color: #777;
+}
+.matMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.matChip {
+  font-size: 11px;
+  font-weight: 700;
+  color: #5a5560;
+  background: #f1edf0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}

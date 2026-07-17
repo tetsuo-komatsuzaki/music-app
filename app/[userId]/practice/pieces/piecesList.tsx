@@ -14,6 +14,27 @@ export type Piece = {
   badge?: "mastered" | "achieved" | null
 }
 
+// カバープレースホルダ (曲=ブルー系)。将来 coverImagePath で写真に差し替え。
+function CoverPlaceholder({ star }: { star: number | null }) {
+  return (
+    <div className={styles.matCover}>
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round">
+        <path d="M9 18V6l9-2v12" />
+        <circle cx="6.5" cy="18" r="2.5" />
+        <circle cx="15.5" cy="16" r="2.5" />
+      </svg>
+      {star != null && (
+        <span className={styles.matStar}>
+          <svg width="8" height="8" viewBox="0 0 24 24" fill="#fff">
+            <path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.7 5.9 21l1.5-6.8L2.2 9.6l6.9-.7z" />
+          </svg>
+          {star}
+        </span>
+      )}
+    </div>
+  )
+}
+
 export default function PiecesList({
   userId,
   pieces,
@@ -42,7 +63,7 @@ export default function PiecesList({
         </p>
       ) : (
         <>
-          {/* ☆ごとの横並びタブ */}
+          {/* ☆ごとの横並びタブ (難易度フィルタ) */}
           <div className={styles.starTabs}>
             {tabs.map(t => (
               <button
@@ -59,23 +80,26 @@ export default function PiecesList({
           {filtered.length === 0 ? (
             <p className={styles.cardContextEmpty}>この難易度の練習曲はありません。</p>
           ) : (
-            <div className={styles.cardContextList}>
+            <div className={styles.matList}>
               {filtered.map(piece => (
                 <Link
                   key={piece.id}
                   href={`/${userId}/scores/${piece.id}`}
-                  className={styles.cardContextItem}
+                  className={styles.matRow}
                 >
-                  <div className={styles.cardContextItemTitle}>
-                    {piece.title}
-                    {piece.star != null && ` ☆${piece.star}`}
-                    {piece.badge && <> <MasterBadge kind={piece.badge} /></>}
-                  </div>
-                  {piece.composer && (
-                    <div className={styles.cardContextItemComposer}>
-                      {piece.composer}
+                  <CoverPlaceholder star={piece.star} />
+                  <div className={styles.matInfo}>
+                    <div className={styles.matTitle}>{piece.title}</div>
+                    {piece.composer && (
+                      <div className={styles.matComposer}>{piece.composer}</div>
+                    )}
+                    <div className={styles.matMeta}>
+                      {piece.star != null && (
+                        <span className={styles.matChip}>☆{piece.star}</span>
+                      )}
+                      {piece.badge && <MasterBadge kind={piece.badge} />}
                     </div>
-                  )}
+                  </div>
                 </Link>
               ))}
             </div>
