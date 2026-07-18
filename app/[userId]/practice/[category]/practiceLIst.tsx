@@ -23,22 +23,8 @@ type PracticeItemDTO = {
   descriptionShort: string | null
   lastPracticed: string | null
   totalPractices: number
-}
-
-const CHORD_TYPE_LABEL_JA: Record<string, string> = {
-  major_triad: "長和音",
-  minor_triad: "短和音",
-  augmented:   "増和音",
-  dominant7:   "属7和音",
-  diminished7: "減7和音",
-}
-
-const CHORD_TYPE_LABEL_EN: Record<string, string> = {
-  major_triad: "Major Triad",
-  minor_triad: "Minor Triad",
-  augmented:   "Augmented Triad",
-  dominant7:   "Dominant 7th",
-  diminished7: "Diminished 7th",
+  /** 自己ベストスコア(0-100)。無ければ null */
+  bestScore?: number | null
 }
 
 const VARIANT_LABEL: Record<string, string> = {
@@ -69,88 +55,12 @@ type ViewType = "star" | "group"
 
 const modeLabels: Record<string, string> = { major: "長調", minor: "短調" }
 
-const SCALE_TYPE_EN: Record<string, string> = {
-  "長調":      "Major Scale",
-  "和声的短調": "Harmonic Minor",
-  "旋律的短調": "Melodic Minor",
-  "自然短調":  "Natural Minor",
-  "半音階":    "Chromatic Scale",
-}
 const CHORD_TYPE_EN: Record<string, string> = {
   "長和音":   "Major Triad",
   "短和音":   "Minor Triad",
   "属七和音": "Dominant 7th",
   "減七和音": "Diminished 7th",
   "増三和音": "Augmented Triad",
-}
-
-// title を音名/スケール種別に分解して表示するカテゴリ (音階・アルペジオのみ)。
-// それ以外 (エチュード / 基礎練の fingering・bowing・position_shift・double_stop) は
-// アップロードされた教材の title をそのまま表示する。
-function decomposesTitle(category: string): boolean {
-  return ["scale", "scales", "arpeggio", "arpeggios"].includes(category)
-}
-
-function extractCardInfo(item: PracticeItemDTO) {
-  const category = item.category
-  const isArpeggio = category === "arpeggio" || category === "arpeggios"
-  const decompose  = decomposesTitle(category)
-
-  // 新形式タイトル: "Bb(2オクターブ・低)" / "A(3オクターブ)"
-  // 旧形式タイトル: "Bb 長調 2オクターブ デタシェ (低音域)" / "A 長調 長和音 3オクターブ デタシェ"
-  // 音階/アルペジオは tonic 部分を抽出 (両形式互換)。それ以外は title をそのまま表示。
-  const tonicMatch = item.title.match(/^([A-G][#b]?)/)
-  const titleParts = item.title.split(" ")
-  // 分解カテゴリ(音階/アルペジオ)は短いトニック表示。それ以外(ボーイング/フィンガリング等)は
-  // フルの題名。アンダースコア区切りは見栄えが悪いので中点に整える (2026-06-08)。
-  const shortTitle = decompose
-    ? (tonicMatch?.[1] ?? titleParts[0] ?? "")
-    : item.title.replace(/_/g, "・")
-
-  // subtitle: arpeggio は metadata.chordType (新形式) 優先、scale は旧形式 fallback
-  let subtitle: string | null = null
-  if (decompose) {
-    if (isArpeggio) {
-      const ct = "chordType" in item ? item.chordType : null
-      if (ct && CHORD_TYPE_LABEL_EN[ct]) {
-        subtitle = CHORD_TYPE_LABEL_EN[ct]
-      } else {
-        // 旧形式 title 第3要素 (互換)
-        subtitle = CHORD_TYPE_EN[titleParts[2] ?? ""] ?? ""
-      }
-    } else {
-      subtitle = SCALE_TYPE_EN[titleParts[1] ?? ""] ?? ""
-    }
-  }
-
-  const octMatch = item.title.match(/(\d+)オクターブ/)
-  const octaves  = octMatch ? parseInt(octMatch[1]) : null
-
-  const techniques = item.techniques
-  const bowTech   = techniques[0] ?? null
-
-  // chordType chip: arpeggio のみ。metadata.chordType 優先、旧 title 形式 fallback
-  let chordType: string | null = null
-  if (isArpeggio) {
-    const ct = "chordType" in item ? item.chordType : null
-    if (ct && CHORD_TYPE_LABEL_JA[ct]) {
-      chordType = CHORD_TYPE_LABEL_JA[ct]
-    } else {
-      chordType = titleParts[2] ?? null  // 旧形式
-    }
-  }
-
-  return { shortTitle, subtitle, octaves, bowTech, chordType, decompose }
-}
-
-function relativeDate(isoString: string): string {
-  const days = Math.floor((Date.now() - new Date(isoString).getTime()) / 86400000)
-  if (days === 0) return "今日"
-  if (days === 1) return "昨日"
-  if (days < 7)  return `${days}日前`
-  if (days < 30) return `${Math.floor(days / 7)}週間前`
-  if (days < 365) return `${Math.floor(days / 30)}ヶ月前`
-  return `${Math.floor(days / 365)}年前`
 }
 
 // ────────────────────────────────────────────────────────────
@@ -187,57 +97,47 @@ function coverGlyph(category: string) {
   return <><path d="M9 18V6l9-2v12" /><circle cx="6.5" cy="18" r="2.5" /><circle cx="15.5" cy="16" r="2.5" /></>
 }
 
-function CategoryCover({ category, star }: { category: string; star: number | null }) {
+function CategoryCover({ category }: { category: string }) {
   const c = CAT_COVER[category] ?? CAT_COVER._default
   return (
     <div className={styles.matCover} style={{ background: `linear-gradient(150deg, ${c.a}, ${c.b})` }}>
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round">
         {coverGlyph(category)}
       </svg>
-      {star != null && (
-        <span className={styles.matStar}>
-          <svg width="8" height="8" viewBox="0 0 24 24" fill="#fff">
-            <path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.7 5.9 21l1.5-6.8L2.2 9.6l6.9-.7z" />
-          </svg>
-          {star}
-        </span>
-      )}
     </div>
   )
 }
 
+function relativeDate(isoString: string): string {
+  const days = Math.floor((Date.now() - new Date(isoString).getTime()) / 86400000)
+  if (days === 0) return "今日"
+  if (days === 1) return "昨日"
+  if (days < 7) return `${days}日前`
+  if (days < 30) return `${Math.floor(days / 7)}週間前`
+  if (days < 365) return `${Math.floor(days / 30)}ヶ月前`
+  return `${Math.floor(days / 365)}年前`
+}
+
+// 基礎練カード (曲以外): カバー / タイトル / ◯ポジション + 最終練習 / 薄い線 / 説明文(左)・スコア(右下)。
+// (2026-07-18 Tetsuo指示のレイアウト)
 function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: string; category: string }) {
-  const { shortTitle, subtitle, octaves, bowTech, chordType, decompose } = extractCardInfo(item)
+  const pos = item.positions.length ? item.positions.join("・") : null
   return (
     <Link href={`/${userId}/practice/${category}/${item.id}`} className={styles.itemCard}>
-      <CategoryCover category={category} star={item.star} />
+      <CategoryCover category={category} />
       <div className={styles.itemCardBody}>
-      <div className={styles.cardHeader}>
-        {/* 分解(音階/アルペジオ)は短いトニックを大きめ、非分解(長いフル題名)は小さめで揃える */}
-        <div className={decompose ? styles.cardTitle : styles.cardTitleFull}>{shortTitle}</div>
-      </div>
-      {subtitle && <div className={styles.cardSubtitle}>{subtitle}</div>}
-      <div className={styles.chipRow}>
-        {octaves != null && <span className={styles.chipBlue}>{octaves} オクターブ</span>}
-        {bowTech && <span className={styles.chipGreen}>{bowTech}</span>}
-        {item.positions.length > 0 && <span className={styles.chipGray}>{item.positions.join(", ")}</span>}
-        {chordType && <span className={styles.chipPurple}>{chordType}</span>}
-      </div>
-      <div className={styles.cardFooter}>
-        <div className={styles.cardFooterLeft}>
-          <div className={styles.cardFooterLabel}>最終練習</div>
-          <div className={styles.cardFooterValue}>
-            {item.lastPracticed ? relativeDate(item.lastPracticed) : "未練習"}
-          </div>
+        <div className={styles.matTitle}>{item.title.replace(/_/g, "・")}</div>
+        <div className={styles.basicTop}>
+          {pos && <span className={styles.posCircle}>{pos}</span>}
+          <span className={styles.lastPracticed}>
+            最終練習 {item.lastPracticed ? relativeDate(item.lastPracticed) : "未練習"}
+          </span>
         </div>
-        <div>
-          {item.totalPractices > 0 ? (
-            <span className={styles.scoreBadge}>練習済み {item.totalPractices}回</span>
-          ) : (
-            <span className={styles.cardFooterEmpty}>スコアなし</span>
-          )}
+        <div className={styles.basicDivider} />
+        <div className={styles.basicBottom}>
+          <span className={styles.basicDesc}>{item.descriptionShort ?? ""}</span>
+          {item.bestScore != null && <span className={styles.basicScore}>ベスト {item.bestScore}</span>}
         </div>
-      </div>
       </div>
     </Link>
   )

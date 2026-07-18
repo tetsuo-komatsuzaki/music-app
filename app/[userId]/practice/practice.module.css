@@ -80,9 +80,10 @@
 .listHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
 .filterSelect { padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
-.itemList { display: flex; flex-direction: column; gap: 8px; }
-/* カバー付き行レイアウト (2026-07-15: 練習曲カードと体裁を統一) */
-.itemCard { display: flex; gap: 13px; align-items: flex-start; padding: 10px 12px; background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; text-decoration: none; color: inherit; transition: box-shadow 0.2s, border-color .15s; }
+/* 基礎練リストも練習曲(.matList)と同じグリッド幅に揃える (2026-07-18 Tetsuo指示) */
+.itemList { display: grid; grid-template-columns: repeat(auto-fill, minmax(288px, 1fr)); gap: 12px; }
+/* カバー付き行レイアウト (2026-07-15: 練習曲カードと体裁を統一)。高さは曲カードと揃える(中央揃え) */
+.itemCard { display: flex; gap: 13px; align-items: center; padding: 10px 12px; background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; text-decoration: none; color: inherit; transition: box-shadow 0.2s, border-color .15s; }
 .itemCard:hover { box-shadow: 0 5px 16px rgba(60,20,35,.09); border-color: #c3a9b2; }
 .itemCardBody { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .itemTitle { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
@@ -443,3 +444,69 @@
   border-radius: 999px;
   white-space: nowrap;
 }
+
+/* カバー右上の達成/マスターマーク (☆は撤去。練習曲のみ) */
+.matCrown {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 3px;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  line-height: 1;
+  background: rgba(0, 0, 0, .30);
+  border-radius: 999px;
+  backdrop-filter: blur(2px);
+}
+/* 一言説明 (基礎練 descriptionShort) */
+.matDesc {
+  font-size: 12px;
+  color: #6f6a6d;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* ベストスコア */
+.matBest {
+  font-size: 12px;
+  font-weight: 800;
+  color: #c98a16;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 基礎練カード(曲以外)のレイアウト (2026-07-18 Tetsuo指示)。曲カードと高さを揃えるため縦は詰める */
+.basicTop { display: flex; align-items: center; gap: 10px; margin-top: 3px; }
+/* ◯で囲ったポジション */
+.posCircle {
+  border: 1.5px solid #c9c2c5;
+  border-radius: 999px;
+  padding: 2px 11px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #5a5560;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.lastPracticed { font-size: 11.5px; color: #8a8288; }
+/* 薄い区切り線 */
+.basicDivider { border-top: 1px solid #eee; margin: 5px 0 4px; }
+/* 左=説明文 / 右下=スコア */
+.basicBottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.basicDesc {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.basicScore { font-size: 14px; font-weight: 800; color: #c98a16; white-space: nowrap; font-variant-numeric: tabular-nums; }

@@ -27,9 +27,22 @@ export default async function PracticePiecesPage({
     }),
   ])
   const achievementByScore = new Map(achievements.map((a) => [a.scoreId, a]))
+
+  // ベストスコア: この曲でのユーザー自己ベスト overallScore (存在する時だけ表示)。
+  // ⚠️ overallScore は旧式で null の場合あり → 値がある曲だけ載る (graceful)。
+  const bestRows = pieces.length
+    ? await prisma.performance.groupBy({
+        by: ["scoreId"],
+        where: { userId: dbUserId, scoreId: { in: pieces.map((p) => p.id) }, overallScore: { not: null } },
+        _max: { overallScore: true },
+      })
+    : []
+  const bestByScore = new Map(bestRows.map((r) => [r.scoreId, r._max.overallScore]))
+
   const piecesWithBadge = pieces.map((pc) => ({
     ...pc,
     badge: badgeKind(achievementByScore.get(pc.id)),
+    bestScore: bestByScore.get(pc.id) != null ? Math.round(bestByScore.get(pc.id)!) : null,
   }))
 
   return <PiecesList userId={authUserId} pieces={piecesWithBadge} />

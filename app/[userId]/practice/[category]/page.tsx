@@ -91,26 +91,30 @@ export default async function CategoryPage({
   const allPerformances = itemIds.length > 0
     ? await prisma.practicePerformance.findMany({
         where: { userId: dbUserId, practiceItemId: { in: itemIds } },
-        select: { practiceItemId: true, uploadedAt: true, comparisonResultPath: true },
+        select: { practiceItemId: true, uploadedAt: true, comparisonResultPath: true, overallScore: true },
         orderBy: { uploadedAt: "desc" },
       })
     : []
   console.log(`[PERF] practice/category step2_performances: ${(performance.now() - perfStep2).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
-  // アイテムIDごとに集計
-  const perfByItem = new Map<string, { latest: Date | null; total: number }>()
+  // アイテムIDごとに集計 (best = 自己ベスト overallScore、存在する時だけ)
+  const perfByItem = new Map<string, { latest: Date | null; total: number; best: number | null }>()
   for (const p of allPerformances) {
     const cur = perfByItem.get(p.practiceItemId)
     if (!cur) {
       perfByItem.set(p.practiceItemId, {
         latest: p.comparisonResultPath ? p.uploadedAt : null,
         total: 1,
+        best: p.overallScore ?? null,
       })
     } else {
       if (p.comparisonResultPath && (!cur.latest || p.uploadedAt > cur.latest)) {
         cur.latest = p.uploadedAt
       }
       cur.total += 1
+      if (p.overallScore != null && (cur.best == null || p.overallScore > cur.best)) {
+        cur.best = p.overallScore
+      }
     }
   }
 
@@ -139,6 +143,7 @@ export default async function CategoryPage({
       descriptionShort: item.descriptionShort,
       lastPracticed: perf?.latest?.toISOString() ?? null,
       totalPractices: perf?.total ?? 0,
+      bestScore: perf?.best != null ? Math.round(perf.best) : null,
     }
   })
 

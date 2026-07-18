@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { useState } from "react"
 import styles from "../practice.module.css"
-import MasterBadge from "@/app/components/MasterBadge"
 
 export type Piece = {
   id: string
@@ -12,10 +11,13 @@ export type Piece = {
   star: number | null
   /** C-6b: 達成/マスターの2段バッジ */
   badge?: "mastered" | "achieved" | null
+  /** 自己ベストスコア(0-100)。無ければ null */
+  bestScore?: number | null
 }
 
-// カバープレースホルダ (曲=ブルー系)。将来 coverImagePath で写真に差し替え。
-function CoverPlaceholder({ star }: { star: number | null }) {
+// カバー: 曲=ブルー系のプレースホルダ。将来 coverImagePath で写真に差し替え。
+// 右上は 👑(マスター) / ✓(達成) のみ (☆は難易度タブで代替)。
+function Cover({ badge }: { badge?: "mastered" | "achieved" | null }) {
   return (
     <div className={styles.matCover}>
       <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round">
@@ -23,12 +25,10 @@ function CoverPlaceholder({ star }: { star: number | null }) {
         <circle cx="6.5" cy="18" r="2.5" />
         <circle cx="15.5" cy="16" r="2.5" />
       </svg>
-      {star != null && (
-        <span className={styles.matStar}>
-          <svg width="8" height="8" viewBox="0 0 24 24" fill="#fff">
-            <path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.7 5.9 21l1.5-6.8L2.2 9.6l6.9-.7z" />
-          </svg>
-          {star}
+      {badge === "mastered" && <span className={styles.matCrown} aria-label="マスター">👑</span>}
+      {badge === "achieved" && (
+        <span className={styles.matCrown} aria-label="達成">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
         </span>
       )}
     </div>
@@ -87,18 +87,16 @@ export default function PiecesList({
                   href={`/${userId}/scores/${piece.id}`}
                   className={styles.matRow}
                 >
-                  <CoverPlaceholder star={piece.star} />
+                  <Cover badge={piece.badge} />
                   <div className={styles.matInfo}>
                     <div className={styles.matTitle}>{piece.title}</div>
                     {piece.composer && (
                       <div className={styles.matComposer}>{piece.composer}</div>
                     )}
-                    <div className={styles.matMeta}>
-                      {piece.star != null && (
-                        <span className={styles.matChip}>☆{piece.star}</span>
-                      )}
-                      {piece.badge && <MasterBadge kind={piece.badge} />}
-                    </div>
+                    {/* 練習曲は一言説明なし(①作曲者のみ)。ベストスコアは有る時だけ */}
+                    {piece.bestScore != null && (
+                      <div className={styles.matBest}>ベスト {piece.bestScore}</div>
+                    )}
                   </div>
                 </Link>
               ))}
