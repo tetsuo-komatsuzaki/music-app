@@ -938,6 +938,8 @@ export default function ScoreDetail({
   const [rangeEnd, setRangeEnd] = useState<number | null>(null)     // note index
   const [isRangeLooping, setIsRangeLooping] = useState(false)
   const rangeBandsRef = useRef<HTMLDivElement[]>([])         // オーバーレイのハイライト帯
+  // 演奏バー(Step 2)の展開パネル: テンポ / 区間 のどちらを開いているか
+  const [openPanel, setOpenPanel] = useState<null | "tempo" | "range">(null)
   const [, setComparisonLoading] = useState(false)
 
   // ▼ ポップオーバー
@@ -2296,57 +2298,91 @@ export default function ScoreDetail({
       )}
 
       {(!isScoreMode || activeTab === "play") && (
-      <div className={styles.grid}>
-        <div className={styles.leftColumn} data-section="left-column">
-          {infoSlot}
-          {/* 現在のレベル（直近5回の総合点平均）— 録音ボタンの上に可視化 */}
-          {recordingState === "idle" && recentLevel && (
+      <div className={styles.playStack} data-section="play-tab">
+        {infoSlot}
+
+        {/* 譜面ヒーロー (全幅・最上部) — UX刷新 Step 3 */}
+        <div ref={scoreWrapperRef} style={{ position: "relative" }} data-onboarding="scoreDetail.scoreOverlay" data-section="score-hero">
+          <ScoreViewer
+            buildUrl={buildUrl}
+            onNoteElementsReady={handleNoteElementsReady}
+            onOsmdReady={handleOsmdReady}
+            onScoreClick={handleScoreClick}
+            onPageChange={() => setPopover(null)}
+            singleStaffLine={singleStaffLine}
+          />
+          {popover && (
             <div
+              className={styles.notePopover}
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 12,
-                padding: "12px 16px",
-                marginBottom: 12,
-                borderRadius: 12,
-                background: rankLabels[getScoreRank(recentLevel.avg)].bg,
+                left: popover.left,
+                top: popover.top,
+                borderLeftColor: getComparisonColor(popover.note),
               }}
             >
-              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <span style={{ fontSize: 12, color: "#666" }}>
-                  現在のレベル
-                </span>
-                <span
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: rankLabels[getScoreRank(recentLevel.avg)].color,
-                  }}
-                >
-                  {rankLabels[getScoreRank(recentLevel.avg)].label}
-                </span>
-              </div>
-              <div
-                style={{
-                  fontSize: 28,
-                  fontWeight: 700,
-                  lineHeight: 1,
-                  color: rankLabels[getScoreRank(recentLevel.avg)].color,
-                }}
-              >
-                {recentLevel.avg}
-                <span style={{ fontSize: 14, fontWeight: 500 }}>点</span>
-              </div>
+              <NotePopoverContent note={popover.note} />
             </div>
           )}
-          {/* テンポ・メトロノーム: お手本再生・録音の両方に適用 (2026-07-18 一本化・配置見直し) */}
-          {analysis && (
-            <div className={styles.card}>
-              <div className={styles.tempoCardHead}>
-                <h3 className={styles.tempoCardTitle}>テンポ・メトロノーム</h3>
-              </div>
-              <div className={styles.tempoControl}>
+        </div>
+
+        {/* 演奏バー: お手本 / テンポ / メトロノーム / 区間 を1本に統合 — UX刷新 Step 2 */}
+        {analysis && (
+          <div className={styles.playBar} data-onboarding="scoreDetail.playControls">
+            <div className={styles.playBarRow}>
+              <button
+                type="button"
+                className={`${styles.barCell} ${playbackState === "playing" ? styles.barCellOn : ""}`}
+                onClick={() => {
+                  if (playbackState === "playing") pausePlayback()
+                  else if (playbackState === "paused") resumePlayback()
+                  else startPlayback()
+                }}
+                disabled={recordingState === "recording" || recordingState === "countdown"}
+                aria-label="お手本 再生/一時停止"
+              >
+                {playbackState === "playing" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                )}
+                <span className={styles.barLabel}>お手本</span>
+              </button>
+
+              <button
+                type="button"
+                className={`${styles.barCell} ${openPanel === "tempo" ? styles.barCellActive : ""}`}
+                onClick={() => setOpenPanel((p) => (p === "tempo" ? null : "tempo"))}
+                aria-expanded={openPanel === "tempo"}
+              >
+                <span className={styles.barTempo}>♩{playbackTempo}</span>
+                <span className={styles.barLabel}>テンポ</span>
+              </button>
+
+              <button
+                type="button"
+                className={`${styles.barCell} ${metronomeOn ? styles.barCellOn : ""}`}
+                onClick={() => setMetronomeOn((v) => !v)}
+                aria-pressed={metronomeOn}
+                aria-label="メトロノーム"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 21h12L15 4H9L6 21z" /><path d="M12 8l4 8" /></svg>
+                <span className={styles.barLabel}>メトロ{metronomeOn ? "・ON" : ""}</span>
+              </button>
+
+              <button
+                type="button"
+                className={`${styles.barCell} ${openPanel === "range" || rangeMode || (rangeStart !== null && rangeEnd !== null) ? styles.barCellActive : ""}`}
+                onClick={() => setOpenPanel((p) => (p === "range" ? null : "range"))}
+                aria-expanded={openPanel === "range"}
+                aria-label="区間ループ"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M17 2l4 4-4 4" /><path d="M3 11V10a4 4 0 0 1 4-4h14" /><path d="M7 22l-4-4 4-4" /><path d="M21 13v1a4 4 0 0 1-4 4H3" /></svg>
+                <span className={styles.barLabel}>区間</span>
+              </button>
+            </div>
+
+            {openPanel === "tempo" && (
+              <div className={styles.barPanel}>
                 {(() => {
                   const tMin = Math.max(Math.round(analysis.bpm * 0.25), 20)
                   const tMax = Math.round(analysis.bpm * 2)
@@ -2354,20 +2390,7 @@ export default function ScoreDetail({
                   const set = (v: number) => setPlaybackTempo(Math.min(tMax, Math.max(tMin, v)))
                   const pct = ((playbackTempo - tMin) / Math.max(1, tMax - tMin)) * 100
                   return (
-                    <>
-                      <div className={styles.tempoHeader}>
-                        <span className={styles.tempoLabel}>テンポ</span>
-                        <button
-                          type="button"
-                          className={`${styles.metroBtn} ${metronomeOn ? styles.metroOn : ""}`}
-                          onClick={() => setMetronomeOn((v) => !v)}
-                          aria-pressed={metronomeOn}
-                        >
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 21h12L15 4H9L6 21z" /><path d="M12 8l4 8" /></svg>
-                          メトロノーム {metronomeOn ? "ON" : "OFF"}
-                        </button>
-                      </div>
-
+                    <div className={styles.tempoControl}>
                       <div className={styles.tempoMain}>
                         <button type="button" className={styles.stepBtn} onClick={() => set(playbackTempo - 1)} disabled={busy || playbackTempo <= tMin} aria-label="遅く">−</button>
                         <div className={styles.tempoCenter}>
@@ -2379,7 +2402,6 @@ export default function ScoreDetail({
                         </div>
                         <button type="button" className={styles.stepBtn} onClick={() => set(playbackTempo + 1)} disabled={busy || playbackTempo >= tMax} aria-label="速く">＋</button>
                       </div>
-
                       <input
                         type="range" min={tMin} max={tMax} value={playbackTempo}
                         onChange={(e) => set(Number(e.target.value))}
@@ -2388,129 +2410,92 @@ export default function ScoreDetail({
                         style={{ background: `linear-gradient(to right, var(--tempo-accent,#4a6cf7) ${pct}%, #e6e4ea ${pct}%)` }}
                       />
                       <div className={styles.tempoScale}><span>{tMin}</span><span>{tMax}</span></div>
-                    </>
+                    </div>
                   )
                 })()}
               </div>
-            </div>
-          )}
-          <div data-onboarding="scoreDetail.recordButton">
-            <Recorder
-              onRecordingComplete={handleRecordingComplete}
-              previousBestScore={bestPitchScore}
-              bestOverallScore={bestOverallScore}
-              bpm={playbackTempo}
-              onCountdownStart={() => setRecordingState("countdown")}
-              onRecordingStart={() => { setRecordingState("recording"); startRecordingGuide() }}
-              onRecordingBpmChange={handleRecordingBpmChange}
-              onRecordingStop={() => { setRecordingState("preview"); stopRecordingGuide() }}
-              uploadProgress={uploadProgress}
-              onShowLoop={isScoreMode ? () => handleTabChange("review") : undefined}
-            />
-          </div>
-          <div className={styles.card} data-onboarding="scoreDetail.playControls">
-            <h3>お手本を聞く</h3>
-            <div className={styles.playbackButtons}>
-              {playbackState === "stopped" && (
-                <button className={styles.playBtn} onClick={startPlayback} disabled={!analysis}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                  再生
-                </button>
-              )}
-              {playbackState === "playing" && (
-                <>
-                  <button className={styles.playBtn} onClick={pausePlayback}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
-                    一時停止
+            )}
+
+            {openPanel === "range" && (
+              <div className={styles.barPanel}>
+                <div className={styles.rangeBody}>
+                  <button
+                    type="button"
+                    className={`${styles.rangeSelectBtn} ${rangeMode ? styles.rangeSelectOn : ""}`}
+                    onClick={() => setRangeMode((v) => !v)}
+                    aria-pressed={rangeMode}
+                  >
+                    {rangeMode ? "選択モード中（もう一度で終了）" : "区間を選ぶ"}
                   </button>
-                  <button className={styles.stopBtn} onClick={stopPlayback}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
-                    停止
-                  </button>
-                </>
-              )}
-              {playbackState === "paused" && (
-                <>
-                  <button className={styles.playBtn} onClick={resumePlayback}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                    再開
-                  </button>
-                  <button className={styles.stopBtn} onClick={stopPlayback}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
-                    停止
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
 
-          {/* 区間ループ (部分練習 Phase 1) 2026-07-18: 譜面で区間を選び、その区間だけお手本をループ再生 */}
-          {analysis && (
-            <div className={styles.card}>
-              <div className={styles.tempoCardHead}>
-                <h3 className={styles.tempoCardTitle}>区間ループ（部分練習）</h3>
-              </div>
-              <div className={styles.rangeBody}>
-                <button
-                  type="button"
-                  className={`${styles.rangeSelectBtn} ${rangeMode ? styles.rangeSelectOn : ""}`}
-                  onClick={() => setRangeMode((v) => !v)}
-                  aria-pressed={rangeMode}
-                >
-                  {rangeMode ? "選択モード中（もう一度で終了）" : "区間を選ぶ"}
-                </button>
+                  {rangeMode && rangeStart === null && (
+                    <p className={styles.rangeHint}>楽譜で <b>開始の音符</b> をタップ → 次に <b>終了の音符</b> をタップ</p>
+                  )}
+                  {rangeMode && rangeStart !== null && rangeEnd === null && (
+                    <p className={styles.rangeHint}>次に <b>終了の音符</b> をタップ</p>
+                  )}
 
-                {rangeMode && rangeStart === null && (
-                  <p className={styles.rangeHint}>楽譜で <b>開始の音符</b> をタップ → 次に <b>終了の音符</b> をタップ</p>
-                )}
-                {rangeMode && rangeStart !== null && rangeEnd === null && (
-                  <p className={styles.rangeHint}>次に <b>終了の音符</b> をタップ</p>
-                )}
-
-                {rangeStart !== null && rangeEnd !== null && (
-                  <div className={styles.rangeActions}>
-                    {!isRangeLooping ? (
-                      <button className={styles.rangePlayBtn} onClick={startRangeLoop}>▶ 区間をループ再生</button>
-                    ) : (
-                      <button className={styles.rangeStopBtn} onClick={stopPlayback}>■ ループ停止</button>
-                    )}
-                    <button
-                      className={styles.rangeClearBtn}
-                      onClick={() => { if (isRangeLooping) stopPlayback(); setRangeStart(null); setRangeEnd(null) }}
-                    >
-                      解除
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-        </div>
-
-        <div className={styles.rightColumn} data-section="right-column">
-          <div ref={scoreWrapperRef} style={{ position: "relative" }} data-onboarding="scoreDetail.scoreOverlay">
-            <ScoreViewer
-              buildUrl={buildUrl}
-              onNoteElementsReady={handleNoteElementsReady}
-              onOsmdReady={handleOsmdReady}
-              onScoreClick={handleScoreClick}
-              onPageChange={() => setPopover(null)}
-              singleStaffLine={singleStaffLine}
-            />
-            {popover && (
-              <div
-                className={styles.notePopover}
-                style={{
-                  left: popover.left,
-                  top: popover.top,
-                  borderLeftColor: getComparisonColor(popover.note),
-                }}
-              >
-                <NotePopoverContent note={popover.note} />
+                  {rangeStart !== null && rangeEnd !== null && (
+                    <div className={styles.rangeActions}>
+                      {!isRangeLooping ? (
+                        <button className={styles.rangePlayBtn} onClick={startRangeLoop}>▶ 区間をループ再生</button>
+                      ) : (
+                        <button className={styles.rangeStopBtn} onClick={stopPlayback}>■ ループ停止</button>
+                      )}
+                      <button
+                        className={styles.rangeClearBtn}
+                        onClick={() => { if (isRangeLooping) stopPlayback(); setRangeStart(null); setRangeEnd(null) }}
+                      >
+                        解除
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
+        )}
+
+        {/* 現在のレベル（直近5回の総合点平均）— 録音の直前に可視化 */}
+        {recordingState === "idle" && recentLevel && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              padding: "12px 16px",
+              borderRadius: 12,
+              background: rankLabels[getScoreRank(recentLevel.avg)].bg,
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <span style={{ fontSize: 12, color: "#666" }}>現在のレベル</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: rankLabels[getScoreRank(recentLevel.avg)].color }}>
+                {rankLabels[getScoreRank(recentLevel.avg)].label}
+              </span>
+            </div>
+            <div style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, color: rankLabels[getScoreRank(recentLevel.avg)].color }}>
+              {recentLevel.avg}
+              <span style={{ fontSize: 14, fontWeight: 500 }}>点</span>
+            </div>
+          </div>
+        )}
+
+        {/* 録音 (主アクション) — UX刷新 Step 3 */}
+        <div data-onboarding="scoreDetail.recordButton">
+          <Recorder
+            onRecordingComplete={handleRecordingComplete}
+            previousBestScore={bestPitchScore}
+            bestOverallScore={bestOverallScore}
+            bpm={playbackTempo}
+            onCountdownStart={() => setRecordingState("countdown")}
+            onRecordingStart={() => { setRecordingState("recording"); startRecordingGuide() }}
+            onRecordingBpmChange={handleRecordingBpmChange}
+            onRecordingStop={() => { setRecordingState("preview"); stopRecordingGuide() }}
+            uploadProgress={uploadProgress}
+            onShowLoop={isScoreMode ? () => handleTabChange("review") : undefined}
+          />
         </div>
       </div>
       )}

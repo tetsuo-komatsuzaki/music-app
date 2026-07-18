@@ -415,6 +415,54 @@
   will-change: transform;
 }
 
+/* 演奏タブ 単一カラム (UX刷新 Step 3: 譜面ヒーロー) 2026-07-18 */
+.playStack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* 演奏バー (UX刷新 Step 2: お手本/テンポ/メトロ/区間 を1本に統合) */
+.playBar {
+  border: 1px solid #eceaef;
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 6px 18px -14px rgba(20, 15, 40, 0.35);
+}
+.playBarRow { display: flex; }
+.barCell {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 11px 4px;
+  background: #fff;
+  border: none;
+  border-right: 1px solid #f1f0f2;
+  font-family: inherit;
+  color: #4a4650;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s;
+}
+.barCell:last-child { border-right: none; }
+.barCell:disabled { opacity: 0.4; cursor: default; }
+.barCell:active { background: #f6f6f8; }
+.barLabel { font-size: 11px; font-weight: 800; letter-spacing: 0.02em; white-space: nowrap; }
+.barTempo { font-size: 16px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.barCellOn { color: #fff; background: linear-gradient(160deg, #4a6cf7, #6a5cf0); }
+.barCellOn:active { background: linear-gradient(160deg, #4460ea, #5f52e6); }
+.barCellActive { color: #3b56d4; background: #eef1fd; }
+.barPanel { padding: 12px; border-top: 1px solid #f1f0f2; background: #fbfbfd; }
+.barPanel .tempoControl { margin: 0; border: none; background: transparent; padding: 0; }
+.barPanel .rangeBody { margin: 0; }
+
 /* 区間ループ (部分練習 Phase 1) 2026-07-18: 選択区間の半透明ハイライト帯 */
 .rangeBand {
   position: absolute;

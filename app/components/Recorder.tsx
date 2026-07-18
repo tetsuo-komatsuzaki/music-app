@@ -587,7 +587,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
           {/* テンポは共通の「テンポ・メトロノーム」で設定 → ここは直接カウントインへ (2026-07-18 一本化) */}
           <button className={styles.mainCta} onClick={startCountdown} disabled={disabled}>
             <span className={styles.ctaDot} />
-            <span>録音する</span>
+            <span>録音して AI 採点</span>
           </button>
           <div className={styles.safetyMsg}>何度でもやり直せます</div>
           {bestOverallScore != null && (
