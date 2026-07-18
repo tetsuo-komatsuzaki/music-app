@@ -926,6 +926,10 @@ export default function ScoreDetail({
   }, [])
   const [playbackState, setPlaybackState] = useState<"stopped" | "playing" | "paused">("stopped")
   const [playbackTempo, setPlaybackTempo] = useState(analysis?.bpm ?? 90)
+  // メトロノーム (お手本再生中に拍を刻む) 2026-07-18
+  const [metronomeOn, setMetronomeOn] = useState(false)
+  const metronomeOnRef = useRef(false)
+  useEffect(() => { metronomeOnRef.current = metronomeOn }, [metronomeOn])
   const [, setComparisonLoading] = useState(false)
 
   // ▼ ポップオーバー
@@ -1185,6 +1189,8 @@ export default function ScoreDetail({
   const synthRef = useRef<Tone.Synth | null>(null)
   const vibratoRef = useRef<Tone.Vibrato | null>(null)
   const partRef = useRef<Tone.Part | null>(null)
+  // 視覚ビート(青い線の上で上下に揺れる丸)。表拍=下/裏拍=上
+  const beatBallRef = useRef<HTMLDivElement | null>(null)
   const noteElementsRef = useRef<Element[]>([])
   const animationRef = useRef<number | null>(null)
   const activeTempoRatioRef = useRef<number>(1)
@@ -1496,9 +1502,26 @@ export default function ScoreDetail({
     container.style.position = "relative"
     const cursor = document.createElement("div")
     cursor.className = styles.playbackCursor
+    // 視覚ビート用の丸 (青い線の上端に載せ、拍位相で上下)
+    const ball = document.createElement("div")
+    ball.className = styles.beatBall
+    cursor.appendChild(ball)
+    beatBallRef.current = ball
     container.appendChild(cursor)
     cursorRef.current = cursor
     return cursor
+  }, [])
+
+  // 視覚ビート: 経過秒とテンポから拍位相を出し、丸を上下させる (表拍=下/裏拍=上)
+  const updateBeatBall = useCallback((elapsedSec: number, bpm: number) => {
+    const ball = beatBallRef.current
+    if (!ball) return
+    if (!metronomeOnRef.current || !bpm) { ball.style.opacity = "0"; return }
+    const beatSec = 60 / bpm
+    const phase = ((elapsedSec % beatSec) + beatSec) % beatSec / beatSec // 0..1
+    const y = -18 * Math.sin(phase * Math.PI) // 0=下(表拍), 0.5=上(裏拍)
+    ball.style.opacity = "1"
+    ball.style.transform = `translateX(-50%) translateY(${y.toFixed(1)}px)`
   }, [])
 
   const updateCursorFromGNotes = useCallback((gNotes: any[] | null) => {
@@ -1582,6 +1605,7 @@ export default function ScoreDetail({
       cancelAnimationFrame(animationRef.current)
       animationRef.current = null
     }
+    if (beatBallRef.current) beatBallRef.current.style.opacity = "0"
   }, [])
 
   const startVisualSync = useCallback(() => {
@@ -1599,10 +1623,13 @@ export default function ScoreDetail({
       const gNotes = findNearestGNotes(analysisTime)
       updateCursorFromGNotes(gNotes)
 
+      // 視覚ビート: 再生テンポの拍で上下 (transport秒の拍間隔 = 60/playbackTempo)
+      updateBeatBall(t, playbackTempo)
+
       animationRef.current = requestAnimationFrame(loop)
     }
     animationRef.current = requestAnimationFrame(loop)
-  }, [analysis, highlightNoteAtTime, findNearestGNotes, ensureCursor, updateCursorFromGNotes])
+  }, [analysis, highlightNoteAtTime, findNearestGNotes, ensureCursor, updateCursorFromGNotes, updateBeatBall, playbackTempo])
 
   // --- テンポ比率ヘルパー ---
   const getTempoRatio = useCallback(() => {
@@ -1683,7 +1710,7 @@ export default function ScoreDetail({
     transport.start()
     startVisualSync()
     setPlaybackState("playing")
-  }, [analysis, getTempoRatio, startVisualSync, stopPlayback, ensureCursor])
+  }, [analysis, getTempoRatio, startVisualSync, stopPlayback, ensureCursor, playbackTempo])
 
   // --- 再開 ---
   const resumePlayback = useCallback(async () => {
@@ -2028,10 +2055,12 @@ export default function ScoreDetail({
       const recBpm = recordingBpmRef.current || analysis.bpm
       const scoreTimeSec = elapsedRealSec * (recBpm / analysis.bpm)
       updateRecordingCursor(scoreTimeSec)
+      // 視覚ビート: 録音テンポの拍で上下 (実経過秒の拍間隔 = 60/recBpm)
+      updateBeatBall(elapsedRealSec, recBpm)
       recGuideAnimRef.current = requestAnimationFrame(loop)
     }
     recGuideAnimRef.current = requestAnimationFrame(loop)
-  }, [analysis, ensureCursor, updateRecordingCursor])
+  }, [analysis, ensureCursor, updateRecordingCursor, updateBeatBall])
 
   const stopRecordingGuide = useCallback(() => {
     if (recGuideAnimRef.current) {
@@ -2156,34 +2185,50 @@ export default function ScoreDetail({
             <h3>楽譜を再生</h3>
             {analysis && (
               <div className={styles.tempoControl}>
-                <div className={styles.tempoHeader}>
-                  <span className={styles.tempoLabel}>テンポ</span>
-                  <span className={styles.tempoValue}>{playbackTempo} BPM</span>
-                </div>
-                <input
-                  type="range"
-                  min={Math.max(Math.round((analysis.bpm) * 0.25), 20)}
-                  max={Math.round((analysis.bpm) * 2)}
-                  value={playbackTempo}
-                  onChange={(e) => setPlaybackTempo(Number(e.target.value))}
-                  disabled={playbackState === "playing"}
-                  className={styles.tempoSlider}
-                />
-                <div className={styles.tempoPresets}>
-                  {[0.5, 0.75, 1, 1.25, 1.5].map((ratio) => {
-                    const t = Math.round(analysis.bpm * ratio)
-                    return (
-                      <button
-                        key={ratio}
-                        className={`${styles.tempoPresetBtn} ${playbackTempo === t ? styles.tempoPresetActive : ""}`}
-                        onClick={() => setPlaybackTempo(t)}
-                        disabled={playbackState === "playing"}
-                      >
-                        {ratio === 1 ? `${t}` : `x${ratio}`}
-                      </button>
-                    )
-                  })}
-                </div>
+                {(() => {
+                  const tMin = Math.max(Math.round(analysis.bpm * 0.25), 20)
+                  const tMax = Math.round(analysis.bpm * 2)
+                  const playing = playbackState === "playing"
+                  const set = (v: number) => setPlaybackTempo(Math.min(tMax, Math.max(tMin, v)))
+                  const pct = ((playbackTempo - tMin) / Math.max(1, tMax - tMin)) * 100
+                  return (
+                    <>
+                      <div className={styles.tempoHeader}>
+                        <span className={styles.tempoLabel}>テンポ</span>
+                        <button
+                          type="button"
+                          className={`${styles.metroBtn} ${metronomeOn ? styles.metroOn : ""}`}
+                          onClick={() => setMetronomeOn((v) => !v)}
+                          aria-pressed={metronomeOn}
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 21h12L15 4H9L6 21z" /><path d="M12 8l4 8" /></svg>
+                          メトロノーム {metronomeOn ? "ON" : "OFF"}
+                        </button>
+                      </div>
+
+                      <div className={styles.tempoMain}>
+                        <button type="button" className={styles.stepBtn} onClick={() => set(playbackTempo - 1)} disabled={playing || playbackTempo <= tMin} aria-label="遅く">−</button>
+                        <div className={styles.tempoCenter}>
+                          <span className={styles.tempoNum}>{playbackTempo}</span>
+                          <span className={styles.tempoUnit}>BPM</span>
+                          <button type="button" className={styles.resetBtn} onClick={() => set(analysis.bpm)} disabled={playing} title="原速に戻す" aria-label="原速に戻す">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
+                          </button>
+                        </div>
+                        <button type="button" className={styles.stepBtn} onClick={() => set(playbackTempo + 1)} disabled={playing || playbackTempo >= tMax} aria-label="速く">＋</button>
+                      </div>
+
+                      <input
+                        type="range" min={tMin} max={tMax} value={playbackTempo}
+                        onChange={(e) => set(Number(e.target.value))}
+                        disabled={playing}
+                        className={styles.tempoSlider}
+                        style={{ background: `linear-gradient(to right, var(--tempo-accent,#4a6cf7) ${pct}%, #e6e4ea ${pct}%)` }}
+                      />
+                      <div className={styles.tempoScale}><span>{tMin}</span><span>{tMax}</span></div>
+                    </>
+                  )
+                })()}
               </div>
             )}
             <div className={styles.playbackButtons}>
