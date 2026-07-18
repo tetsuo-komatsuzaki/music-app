@@ -10,6 +10,7 @@ import { createServerSupabaseClient } from "../_libs/supabaseServer"
 import { invokeAnalysis } from "../_libs/pythonRunner"
 import { SUB_TASK_IDS } from "../_libs/skillMaster"
 import { autoLinkOnboardingSongs } from "../_libs/onboardingSongLink"
+import { isSongGenre } from "../_libs/songGenre"
 
 const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
 
@@ -43,6 +44,10 @@ export async function uploadScore(formData: FormData) {
     : []
   // admin が共有サンプルとしてアップロードする時に true、user upload は false (formData 未設定でデフォルト false)
   const isShared = formData.get("isShared") === "true"
+
+  // 曲ジャンル (songGenre.ts の id)。admin 登録UIで手動指定。未選択/不正は null。
+  const genreRaw = (formData.get("genre") as string | null)?.trim() || ""
+  const genre = isSongGenre(genreRaw) ? genreRaw : null
 
   // v1.6 Phase 4-3 (Q4=B): admin Score 登録時に ScoreTechniqueTag を作成 (Q4=A 確定で既存セレクタ流用)。
   // payload: [{ id: string, isPrimary: boolean }, ...] の JSON 文字列。
@@ -103,6 +108,7 @@ export async function uploadScore(formData: FormData) {
       star,
       skillSubTaskTags: skillSubTaskTags as Prisma.InputJsonValue,
       isShared,
+      genre,
     },
   })
 

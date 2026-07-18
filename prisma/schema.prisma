@@ -78,6 +78,7 @@ model Score {
   originalXmlPath  String
   generatedXmlPath String?
   coverImagePath   String? // AI生成カバー画像(Supabase Storage public URL)。無ければUI側でプレースホルダ
+  genre            String? // 曲ジャンル (songGenre.ts: warabe/shouka/classic/folk/pops)。既存はAI分類、新規はadmin手動
   analysisStatus   JobStatus @default(processing)
   buildStatus      JobStatus @default(processing)
   retryCount       Int       @default(0)

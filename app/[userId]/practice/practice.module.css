@@ -203,6 +203,18 @@
 .railPos { color: #8a8288; }
 .railBest { color: #c98a16; font-weight: 600; }
 .railUnpracticed { color: #b0a9ac; }
+/* 練習曲レール: 作曲者サブ行 + ベストを縦積み */
+.railSub {
+  font-size: 11.5px;
+  color: #8a8288;
+  margin-top: 3px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.railCard .railBest { margin-top: 3px; font-size: 11.5px; }
 
 /* search */
 .searchInput { width: 100%; max-width: 360px; padding: 7px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; margin-bottom: 12px; outline: none; }

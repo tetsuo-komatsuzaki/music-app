@@ -25,6 +25,7 @@ import { updateScoreTechniqueTags } from "@/app/actions/updateScoreTechniqueTags
 import { updatePracticeItemTechniques } from "@/app/actions/updatePracticeItemTechniques"
 import { deleteAdminMaterial } from "@/app/actions/deleteAdminMaterial"
 import { CATEGORY_LABELS, PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
+import { SONG_GENRES } from "@/app/_libs/songGenre"
 import styles from "./admin.module.css"
 
 // アップロード時に選べるカテゴリ: 基礎練6 + エチュード + 学びレッスン + 練習曲(score=isShared Score)
@@ -118,6 +119,8 @@ export default function AdminPractice({
   const [selectedSubTasks, setSelectedSubTasks] = useState<Set<string>>(new Set())
   // Score 用 (admin が共有サンプルとしてアップロードする場合のフラグ、デフォルト true)
   const [scoreIsShared, setScoreIsShared] = useState(true)
+  // Score 用ジャンル (曲のみ。未選択可、後から一覧編集も可)
+  const [scoreGenre, setScoreGenre] = useState("")
   const isScoreCategory = category === "score"
 
   // インライン編集 state
@@ -415,6 +418,7 @@ export default function AdminPractice({
       if (isScoreCategory) {
         // Score upload
         formData.set("isShared", scoreIsShared ? "true" : "false")
+        formData.set("genre", scoreGenre)
         result = await uploadScoreAction(formData)
       } else {
         // PracticeItem upload (scale / arpeggio / etude)
@@ -438,7 +442,7 @@ export default function AdminPractice({
         setSelectedTags([]); setDescription(""); setDescriptionShort("")
         setFile(null); setShowForm(false)
         setDifficultyInput(""); setSelectedSubTasks(new Set())
-        setScoreIsShared(true)
+        setScoreIsShared(true); setScoreGenre("")
         window.location.reload()
       }
     } catch (e) {
@@ -576,18 +580,29 @@ export default function AdminPractice({
               </div>
             )}
 
-            {/* Score 用フィールド: 共有フラグ */}
+            {/* Score 用フィールド: 共有フラグ + ジャンル */}
             {isScoreCategory && (
-              <div className={styles.field}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={scoreIsShared}
-                    onChange={(e) => setScoreIsShared(e.target.checked)}
-                  />
-                  全ユーザーに共有 (サンプル曲として公開)
-                </label>
-              </div>
+              <>
+                <div className={styles.field}>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={scoreIsShared}
+                      onChange={(e) => setScoreIsShared(e.target.checked)}
+                    />
+                    全ユーザーに共有 (サンプル曲として公開)
+                  </label>
+                </div>
+                <div className={styles.field}>
+                  <label>ジャンル (練習曲一覧の区分に使用)</label>
+                  <select value={scoreGenre} onChange={(e) => setScoreGenre(e.target.value)}>
+                    <option value="">未選択</option>
+                    {SONG_GENRES.map((g) => (
+                      <option key={g.id} value={g.id}>{g.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
             )}
 
             <div className={styles.field}>

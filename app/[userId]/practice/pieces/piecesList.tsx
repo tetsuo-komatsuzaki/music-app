@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useState } from "react"
 import styles from "../practice.module.css"
+import { SONG_GENRES } from "@/app/_libs/songGenre"
 
 export type Piece = {
   id: string
@@ -15,6 +16,8 @@ export type Piece = {
   bestScore?: number | null
   /** AI生成カバー画像URL。無ければプレースホルダ */
   coverImagePath?: string | null
+  /** 曲ジャンル (songGenre.ts の id)。無ければ「その他」 */
+  genre?: string | null
 }
 
 // カバー: coverImagePath があれば写真、無ければ 曲=ブルー系のプレースホルダ。
@@ -42,6 +45,21 @@ function Cover({ badge, cover }: { badge?: "mastered" | "achieved" | null; cover
   )
 }
 
+// ☆タブ内をジャンル別の横スクロールレールに区分 (2026-07-18 Tetsuo確定)。
+// 順序は SONG_GENRES、未分類は「その他」で末尾。
+function groupByGenre(pieces: Piece[]): { label: string; pieces: Piece[] }[] {
+  const map = new Map<string, Piece[]>()
+  for (const p of pieces) {
+    const g = p.genre ?? "__none"
+    if (!map.has(g)) map.set(g, [])
+    map.get(g)!.push(p)
+  }
+  const groups: { label: string; pieces: Piece[] }[] = []
+  for (const g of SONG_GENRES) if (map.has(g.id)) groups.push({ label: g.label, pieces: map.get(g.id)! })
+  if (map.has("__none")) groups.push({ label: "その他", pieces: map.get("__none")! })
+  return groups
+}
+
 export default function PiecesList({
   userId,
   pieces,
@@ -59,6 +77,7 @@ export default function PiecesList({
   const filtered = pieces
     .filter(p => p.star === active)
     .sort((a, b) => a.title.localeCompare(b.title, "ja"))
+  const genreGroups = groupByGenre(filtered)
 
   return (
     <div className={styles.container}>
@@ -87,27 +106,29 @@ export default function PiecesList({
           {filtered.length === 0 ? (
             <p className={styles.cardContextEmpty}>この難易度の練習曲はありません。</p>
           ) : (
-            <div className={styles.matList}>
-              {filtered.map(piece => (
-                <Link
-                  key={piece.id}
-                  href={`/${userId}/scores/${piece.id}`}
-                  className={styles.matRow}
-                >
-                  <Cover badge={piece.badge} cover={piece.coverImagePath} />
-                  <div className={styles.matInfo}>
-                    <div className={styles.matTitle}>{piece.title}</div>
-                    {piece.composer && (
-                      <div className={styles.matComposer}>{piece.composer}</div>
-                    )}
-                    {/* 練習曲は一言説明なし(①作曲者のみ)。ベストスコアは有る時だけ */}
-                    {piece.bestScore != null && (
-                      <div className={styles.matBest}>ベスト {piece.bestScore}</div>
-                    )}
-                  </div>
-                </Link>
-              ))}
-            </div>
+            genreGroups.map((grp, idx) => (
+              <section key={grp.label || idx} className={styles.railSection}>
+                <h3 className={styles.railLabel}>{grp.label}</h3>
+                <div className={styles.itemRail}>
+                  {grp.pieces.map(piece => (
+                    <Link
+                      key={piece.id}
+                      href={`/${userId}/scores/${piece.id}`}
+                      className={styles.railCard}
+                    >
+                      <Cover badge={piece.badge} cover={piece.coverImagePath} />
+                      <div className={styles.railCardTitle}>{piece.title}</div>
+                      {piece.composer && (
+                        <div className={styles.railSub}>{piece.composer}</div>
+                      )}
+                      {piece.bestScore != null && (
+                        <div className={styles.railBest}>ベスト {piece.bestScore}</div>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ))
           )}
         </>
       )}
