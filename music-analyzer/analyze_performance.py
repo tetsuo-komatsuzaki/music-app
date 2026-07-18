@@ -1669,7 +1669,7 @@ try:
         """, (PERFORMANCE_ID, USER_ID, SCORE_ID))
     else:
         cur.execute("""
-            SELECT "audioPath", "scoreId"
+            SELECT "audioPath", "scoreId", "rangeFromNote", "rangeToNote"
             FROM "Performance"
             WHERE id = %s AND "userId" = %s AND "scoreId" = %s
         """, (PERFORMANCE_ID, USER_ID, SCORE_ID))
@@ -1679,7 +1679,11 @@ try:
         raise Exception("Performance not found or unauthorized")
 
     audio_path = row[0]
-    print(f"[1/5] audioPath: {audio_path} (practice={IS_PRACTICE})")
+    # 区間録音 (部分練習 Phase 2): 非practice の Performance 行に区間があれば部分採点する。
+    # note_index ベース。null = 通常の全体演奏。
+    RANGE_FROM = row[2] if (not IS_PRACTICE and len(row) >= 4) else None
+    RANGE_TO = row[3] if (not IS_PRACTICE and len(row) >= 4) else None
+    print(f"[1/5] audioPath: {audio_path} (practice={IS_PRACTICE}, range={RANGE_FROM}..{RANGE_TO})")
 
     if IS_PRACTICE:
         # PracticeItem.analysisPath からパスを取得
@@ -1779,6 +1783,20 @@ try:
     notes_only = [n for n in all_notes if n.get("type") == "note" and n.get("pitches")]
     if not notes_only:
         raise RuntimeError("No note entries in analysis.json")
+
+    # 区間録音 (部分練習 Phase 2): notes_only を選択区間 [RANGE_FROM, RANGE_TO] にスライス。
+    # global_shift は単一加算オフセットなので、区間先頭ノートが録音先頭に整列し、
+    # 各ノートの元 start_time_sec が相対タイミングを保持 → find_start_position / evaluate_notes は無改修で機能。
+    # all_notes は全体のまま (rest 計算などは時刻ベースで境界も正しく扱える)。
+    # 3音未満になる区間は誤検出リスクが高いため全体採点にフォールバック。
+    if RANGE_FROM is not None and RANGE_TO is not None:
+        lo, hi = int(RANGE_FROM), int(RANGE_TO)
+        sliced = [n for n in notes_only if lo <= int(n["note_index"]) <= hi]
+        if len(sliced) >= 3:
+            print(f"[range] 区間録音: note_index {lo}..{hi} → {len(sliced)}/{len(notes_only)} notes を部分採点")
+            notes_only = sliced
+        else:
+            print(f"[range] 区間 {lo}..{hi} のノートが {len(sliced)} 個 (<3) → 全体採点にフォールバック")
 
     MIN_SUSTAIN = 15
     pitched_loud = (rms > RMS_THRESHOLD * 2) & (~np.isnan(f0[:len(rms)]))

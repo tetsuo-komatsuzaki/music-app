@@ -167,6 +167,12 @@ model Performance {
   evaluatedNotes  Int? // 評価対象ノート数
   analysisSummary Json? // 将来の拡張用（ビブラート・弓使い・音色等）
 
+  // ▼ 区間録音（部分練習 Phase 2, 2026-07-18）: 選択区間だけを録音・部分採点した演奏。
+  // null = 通常の全体演奏。非null = 区間演奏 → 曲の公式スコア/マスター判定には非算入（練習補助）。
+  // note_index ベース（analysis.notes のインデックス）。
+  rangeFromNote Int?
+  rangeToNote   Int?
+
   // ▼ v1.3 上達ループエンジン拡張 (R1 = B: pitch/rhythm/bowing 体系)
   // 旧 timingAccuracy は Phase 2 で rhythmAccuracy にリネーム予定 (案 Y)。
   // 移行期間中は両カラムを併存 (timingAccuracy は legacy、rhythmAccuracy が正)。

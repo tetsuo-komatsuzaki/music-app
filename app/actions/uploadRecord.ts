@@ -18,6 +18,10 @@ import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 export async function uploadRecord(params: {
   performanceId: string
   recordingBpm?: number
+  // 区間録音 (部分練習 Phase 2): 選択区間だけを録音した場合の note_index 範囲。
+  // 未指定 = 通常の全体演奏。指定時は Python が区間だけを部分採点し、曲の公式スコア/マスターには非算入。
+  rangeFromNote?: number
+  rangeToNote?: number
 }) {
   // 1. 認証
   const supabase = await createServerSupabaseClient()
@@ -44,6 +48,20 @@ export async function uploadRecord(params: {
   }
   if (!performance.audioPath || performance.audioPath === "") {
     return { error: "audioPath が確定していません" }
+  }
+
+  // 3.5 区間録音 (部分練習 Phase 2): 有効な区間 (3音以上) なら Performance 行に保存。
+  // Python (analyze_performance.py) がこの行を読み、区間だけをスライスして部分採点する。
+  const rf = params.rangeFromNote
+  const rt = params.rangeToNote
+  const validRange =
+    Number.isInteger(rf) && Number.isInteger(rt) &&
+    (rf as number) >= 0 && (rt as number) >= (rf as number) + 2
+  if (validRange) {
+    await prisma.performance.update({
+      where: { id: performance.id },
+      data: { rangeFromNote: rf, rangeToNote: rt },
+    })
   }
 
   // 4. invokeAnalysis 起動 (storageUserId = auth.uid() を Python に渡す)

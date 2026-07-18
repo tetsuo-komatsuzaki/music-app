@@ -54,10 +54,14 @@ def _position_key(n: int) -> str:
 
 def _clean_run_count(cur, table: str, owner_col: str, owner_id: str, user_id: str) -> int:
     """崩壊小節ゼロ(is_clean)の演奏の累計数。診断を持たない旧演奏は自然に対象外。"""
+    # 区間録音 (部分練習 Phase 2): 区間演奏は練習補助であり達成/マスター判定に非算入。
+    # rangeFromNote カラムは Performance のみ (PracticePerformance には無い) → テーブル別に付与。
+    range_filter = ' AND "rangeFromNote" IS NULL' if table == "Performance" else ""
     cur.execute(
         f'SELECT COUNT(*) FROM "{table}" '
         f'WHERE "userId" = %s AND "{owner_col}" = %s '
-        f"AND (\"analysisSummary\"->'diagnosis'->'collapse'->>'is_clean')::boolean = true",
+        f"AND (\"analysisSummary\"->'diagnosis'->'collapse'->>'is_clean')::boolean = true"
+        f"{range_filter}",
         (user_id, owner_id),
     )
     return int(cur.fetchone()[0])
@@ -339,6 +343,7 @@ def process_score_achievement(
             SELECT COUNT(*), AVG(s."overallScore") FROM (
               SELECT "overallScore" FROM "Performance"
               WHERE "userId" = %s AND "scoreId" = %s AND "overallScore" IS NOT NULL
+                AND "rangeFromNote" IS NULL
               ORDER BY "uploadedAt" DESC LIMIT %s
             ) s
             ''',
