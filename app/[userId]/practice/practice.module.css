@@ -167,6 +167,8 @@
   -webkit-overflow-scrolling: touch;
 }
 .itemRail::-webkit-scrollbar { display: none; }
+/* 族カード一覧 (音階/アルペジオ): 折返しグリッド */
+.familyGrid { display: flex; flex-wrap: wrap; gap: 14px; }
 .railCard {
   flex: 0 0 160px;
   width: 160px;

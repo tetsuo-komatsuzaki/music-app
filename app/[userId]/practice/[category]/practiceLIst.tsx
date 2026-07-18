@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import styles from "../practice.module.css"
 import type { PracticeStats } from "@/app/lib/practice/getPracticeStats"
 import OnboardingTrigger from "../../_onboarding/OnboardingTrigger"
 import { tonicToJa } from "@/app/_libs/musicNotation"
+import BasicsPreSheet from "./BasicsPreSheet"
 
 type PracticeItemDTO = {
   id: string
@@ -22,6 +23,10 @@ type PracticeItemDTO = {
   techniques: string[]
   /** 重音の度数など double_stop 系特徴タグ名 (区分軸用) */
   intervals?: string[]
+  /** 族(グループ)。音階/アルペジオの調シート用 (Phase C-basics) */
+  groupId?: string | null
+  groupTitle?: string | null
+  articulation?: string | null
   descriptionShort: string | null
   lastPracticed: string | null
   totalPractices: number
@@ -245,6 +250,88 @@ function subGroupItems(
   return [{ label: "", items }]
 }
 
+// 音階/アルペジオ = 族(調違いの束)カード + 調シート。他カテゴリは従来のサブグループ。
+function isFamilyCategory(c: string): boolean {
+  return c === "scale" || c === "scales" || c === "arpeggio" || c === "arpeggios"
+}
+
+const TONIC_JA: Record<string, string> = {
+  C: "ハ", G: "ト", D: "ニ", A: "イ", E: "ホ", B: "ロ", F: "ヘ",
+  "F#": "嬰ヘ", "C#": "嬰ハ", Db: "変ニ", Ab: "変イ", Eb: "変ホ", Bb: "変ロ", Gb: "変ト",
+}
+// 教材の調ラベル: title 先頭の「〜長調/〜短調」を優先、無ければ keyTonic+keyMode から生成。
+function keyLabelOf(it: PracticeItemDTO): string {
+  const m = it.title.match(/^[^_＿]*?[長短]調/)
+  if (m) return m[0]
+  return `${TONIC_JA[it.keyTonic] ?? it.keyTonic}${it.keyMode === "minor" ? "短調" : "長調"}`
+}
+
+type Family = { title: string; cover: string | null; items: PracticeItemDTO[] }
+
+// 族カード一覧 (音階/アルペジオ)。族(groupId)ごとに1枚、タップで調シート。1調のみは直接遷移。
+function FamilyView({
+  items, userId, category,
+}: {
+  items: PracticeItemDTO[]
+  userId: string
+  category: string
+}) {
+  const router = useRouter()
+  const [sheet, setSheet] = useState<Family | null>(null)
+
+  const map = new Map<string, PracticeItemDTO[]>()
+  for (const it of items) {
+    const k = it.groupId ?? `solo:${it.id}`
+    if (!map.has(k)) map.set(k, [])
+    map.get(k)!.push(it)
+  }
+  const families: Family[] = [...map.values()]
+    .map((its) => ({
+      title: its[0].groupTitle ?? its[0].title.replace(/_/g, "・"),
+      cover: its[0].coverImagePath ?? null,
+      items: its,
+    }))
+    .sort((a, b) => a.title.localeCompare(b.title, "ja"))
+
+  const tap = (fam: Family) => {
+    if (fam.items.length > 1) setSheet(fam)
+    else router.push(`/${userId}/practice/${category}/${fam.items[0].id}`)
+  }
+
+  return (
+    <section className={styles.railSection}>
+      <div className={styles.familyGrid}>
+        {families.map((fam, i) => (
+          <button key={i} type="button" className={styles.railCard} onClick={() => tap(fam)}>
+            <CategoryCover category={category} cover={fam.cover} />
+            <div className={styles.railCardTitle}>{fam.title}</div>
+            <div className={styles.railSub}>
+              {fam.items.length > 1 ? `${fam.items.length}調` : keyLabelOf(fam.items[0])}
+            </div>
+          </button>
+        ))}
+      </div>
+      {sheet && (
+        <BasicsPreSheet
+          userId={userId}
+          category={category}
+          family={{
+            title: sheet.title,
+            coverImagePath: sheet.cover,
+            variants: sheet.items.map((it) => ({
+              id: it.id,
+              keyLabel: keyLabelOf(it),
+              articulation: it.articulation ?? null,
+              bestScore: it.bestScore ?? null,
+            })),
+          }}
+          onClose={() => setSheet(null)}
+        />
+      )}
+    </section>
+  )
+}
+
 // ────────────────────────────────────────────────────────────
 // View 1: ☆順 (難易度タブ → カテゴリ別サブグループの横スクロールレール)
 // ────────────────────────────────────────────────────────────
@@ -300,6 +387,9 @@ function StarView({
 
       {filtered.length === 0 ? (
         <p className={styles.cardContextEmpty}>この難易度の教材はありません。</p>
+      ) : isFamilyCategory(category) ? (
+        // 音階/アルペジオ: 族カード + 調シート (オクターブ見出しは廃止し族が兼ねる)
+        <FamilyView items={filtered} userId={userId} category={category} />
       ) : (
         subGroups.map((sg, idx) => (
           <section key={sg.label || idx} className={styles.railSection}>

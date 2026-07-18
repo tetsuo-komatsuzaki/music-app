@@ -75,6 +75,8 @@ export default async function CategoryPage({
           featureTags: {
             include: { featureTag: { select: { name: true, category: true } } },
           },
+          // 族(グループ) 情報 = 音階/アルペジオの調シート用 (Phase C-basics)
+          group: { select: { id: true, title: true } },
         },
       }),
       prisma.practiceItem.findMany({
@@ -147,6 +149,10 @@ export default async function CategoryPage({
       intervals: item.featureTags
         .filter((f) => f.featureTag?.category === "double_stop")
         .map((f) => f.featureTag!.name),
+      // 族(グループ) = 音階/アルペジオの調シート用
+      groupId: item.groupId,
+      groupTitle: item.group?.title ?? null,
+      articulation: item.articulation,
       descriptionShort: item.descriptionShort,
       lastPracticed: perf?.latest?.toISOString() ?? null,
       totalPractices: perf?.total ?? 0,
