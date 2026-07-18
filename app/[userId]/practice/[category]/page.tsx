@@ -144,6 +144,7 @@ export default async function CategoryPage({
       lastPracticed: perf?.latest?.toISOString() ?? null,
       totalPractices: perf?.total ?? 0,
       bestScore: perf?.best != null ? Math.round(perf.best) : null,
+      coverImagePath: item.coverImagePath,
     }
   })
 

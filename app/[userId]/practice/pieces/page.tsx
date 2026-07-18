@@ -19,7 +19,7 @@ export default async function PracticePiecesPage({
     prisma.score.findMany({
       where: { isShared: true, deletedAt: null },
       orderBy: [{ star: "asc" }, { title: "asc" }],
-      select: { id: true, title: true, composer: true, star: true },
+      select: { id: true, title: true, composer: true, star: true, coverImagePath: true },
     }),
     prisma.userScoreAchievement.findMany({
       where: { userId: dbUserId },

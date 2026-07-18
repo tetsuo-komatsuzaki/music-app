@@ -25,6 +25,8 @@ type PracticeItemDTO = {
   totalPractices: number
   /** 自己ベストスコア(0-100)。無ければ null */
   bestScore?: number | null
+  /** AI生成カバー画像URL。無ければプレースホルダ */
+  coverImagePath?: string | null
 }
 
 const VARIANT_LABEL: Record<string, string> = {
@@ -97,8 +99,16 @@ function coverGlyph(category: string) {
   return <><path d="M9 18V6l9-2v12" /><circle cx="6.5" cy="18" r="2.5" /><circle cx="15.5" cy="16" r="2.5" /></>
 }
 
-function CategoryCover({ category }: { category: string }) {
+function CategoryCover({ category, cover }: { category: string; cover?: string | null }) {
   const c = CAT_COVER[category] ?? CAT_COVER._default
+  if (cover) {
+    return (
+      <div className={styles.matCover}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={cover} alt="" loading="lazy" />
+      </div>
+    )
+  }
   return (
     <div className={styles.matCover} style={{ background: `linear-gradient(150deg, ${c.a}, ${c.b})` }}>
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round">
@@ -114,7 +124,7 @@ function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: s
   const pos = item.positions.length ? item.positions.join("・") : null
   return (
     <Link href={`/${userId}/practice/${category}/${item.id}`} className={styles.itemCard}>
-      <CategoryCover category={category} />
+      <CategoryCover category={category} cover={item.coverImagePath} />
       <div className={styles.itemCardBody}>
         <div className={styles.matTitle}>{item.title.replace(/_/g, "・")}</div>
         {pos && (

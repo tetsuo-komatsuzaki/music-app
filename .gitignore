@@ -40,3 +40,6 @@ Thumbs.db
 # 一時ファイル
 *.tmp
 *.bak
+
+# AIカバー試作の出力(コミット不要)
+cover-samples/

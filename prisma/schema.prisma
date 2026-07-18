@@ -77,6 +77,7 @@ model Score {
   composer         String?
   originalXmlPath  String
   generatedXmlPath String?
+  coverImagePath   String? // AI生成カバー画像(Supabase Storage public URL)。無ければUI側でプレースホルダ
   analysisStatus   JobStatus @default(processing)
   buildStatus      JobStatus @default(processing)
   retryCount       Int       @default(0)
@@ -231,6 +232,7 @@ model PracticeItem {
   composer         String?
   description      String?
   descriptionShort String?
+  coverImagePath   String? // AI生成カバー画像(Supabase Storage public URL)。無ければUI側でプレースホルダ
 
   keyTonic   String
   keyMode    String

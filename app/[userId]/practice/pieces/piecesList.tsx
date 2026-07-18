@@ -13,18 +13,25 @@ export type Piece = {
   badge?: "mastered" | "achieved" | null
   /** 自己ベストスコア(0-100)。無ければ null */
   bestScore?: number | null
+  /** AI生成カバー画像URL。無ければプレースホルダ */
+  coverImagePath?: string | null
 }
 
-// カバー: 曲=ブルー系のプレースホルダ。将来 coverImagePath で写真に差し替え。
+// カバー: coverImagePath があれば写真、無ければ 曲=ブルー系のプレースホルダ。
 // 右上は 👑(マスター) / ✓(達成) のみ (☆は難易度タブで代替)。
-function Cover({ badge }: { badge?: "mastered" | "achieved" | null }) {
+function Cover({ badge, cover }: { badge?: "mastered" | "achieved" | null; cover?: string | null }) {
   return (
     <div className={styles.matCover}>
-      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round">
-        <path d="M9 18V6l9-2v12" />
-        <circle cx="6.5" cy="18" r="2.5" />
-        <circle cx="15.5" cy="16" r="2.5" />
-      </svg>
+      {cover ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={cover} alt="" loading="lazy" />
+      ) : (
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round">
+          <path d="M9 18V6l9-2v12" />
+          <circle cx="6.5" cy="18" r="2.5" />
+          <circle cx="15.5" cy="16" r="2.5" />
+        </svg>
+      )}
       {badge === "mastered" && <span className={styles.matCrown} aria-label="マスター">👑</span>}
       {badge === "achieved" && (
         <span className={styles.matCrown} aria-label="達成">
@@ -87,7 +94,7 @@ export default function PiecesList({
                   href={`/${userId}/scores/${piece.id}`}
                   className={styles.matRow}
                 >
-                  <Cover badge={piece.badge} />
+                  <Cover badge={piece.badge} cover={piece.coverImagePath} />
                   <div className={styles.matInfo}>
                     <div className={styles.matTitle}>{piece.title}</div>
                     {piece.composer && (
