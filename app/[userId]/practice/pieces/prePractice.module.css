@@ -64,6 +64,23 @@
 .radio[data-on="true"] { border-color: #4a6cf7; }
 .radio[data-on="true"]::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #4a6cf7; }
 
+/* 譜面プレビュー + お手本再生 (難易度連動) */
+.previewWrap { margin: 14px 0 2px; }
+.modelBtn {
+  display: inline-flex; align-items: center; gap: 7px; border: 1px solid #dfe3fb; background: #eef1fd;
+  color: #3b56d4; font-family: inherit; font-size: 12.5px; font-weight: 800; padding: 8px 14px;
+  border-radius: 999px; cursor: pointer; transition: filter .15s;
+}
+.modelBtn:disabled { opacity: .5; cursor: default; }
+.modelBtn:active { filter: brightness(.96); }
+.sheetBox {
+  margin-top: 10px; border: 1px solid #eee; border-radius: 12px; background: #fff;
+  max-height: 156px; overflow: hidden auto; position: relative;
+}
+.previewNote { padding: 26px 12px; text-align: center; font-size: 12px; color: #a8a2a8; }
+.osmdBox { padding: 6px 4px; }
+.osmdBox svg { max-width: 100%; height: auto; }
+
 .cta {
   width: 100%; border: none; cursor: pointer; border-radius: 16px; padding: 16px; margin-top: 20px;
   font-family: inherit; font-size: 16px; font-weight: 800; color: #fff; letter-spacing: 0.02em;

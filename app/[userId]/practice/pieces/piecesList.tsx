@@ -142,6 +142,7 @@ export default function PiecesList({
       {sheet && (
         <PrePracticeSheet
           userId={userId}
+          enablePreview
           group={{
             title: sheet.title,
             composer: sheet.composer,

@@ -7,6 +7,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import styles from "./prePractice.module.css"
 import { DIFFICULTIES } from "@/app/_libs/materialVariant"
+import SheetPreview from "./SheetPreview"
 
 export type SheetSection = { name: string; startMeasure: number; endMeasure: number }
 export type SheetVariant = {
@@ -27,13 +28,15 @@ export type SheetGroup = {
 const DIFF_DOT: Record<string, string> = { BEGINNER: "#2e9e6b", INTERMEDIATE: "#e0a02f", ADVANCED: "#e0812f" }
 
 export default function PrePracticeSheet({
-  userId, group, onClose, basePath = "/scores",
+  userId, group, onClose, basePath = "/scores", enablePreview = false,
 }: {
   userId: string
   group: SheetGroup
   onClose: () => void
   /** 遷移先ベース。曲=/scores(既定)、エチュード=/practice/etude */
   basePath?: string
+  /** 譜面プレビュー+お手本再生を出す(曲=Scoreのみ対応)。難易度連動で選択変種を表示 */
+  enablePreview?: boolean
 }) {
   const router = useRouter()
   // 難易度 → 変種 (教材の有無)
@@ -80,6 +83,9 @@ export default function PrePracticeSheet({
             {variant?.bestScore != null && <div className={styles.best}>ベスト {variant.bestScore}</div>}
           </div>
         </div>
+
+        {/* 譜面プレビュー + お手本再生 (選択中の難易度変種で出し分け) */}
+        {enablePreview && variant && <SheetPreview key={variant.id} scoreId={variant.id} />}
 
         {/* 難易度: 初級〜上級を常時表示。教材の無いものはグレー */}
         <div className={styles.slab}>難易度を選ぶ</div>
