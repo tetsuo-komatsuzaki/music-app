@@ -678,7 +678,6 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
               </button>
             )}
           </div>
-          <div className={styles.safetyMsg}>何度でもやり直せます</div>
         </div>
       )}
 
