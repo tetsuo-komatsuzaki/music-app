@@ -71,6 +71,10 @@ export default async function CategoryPage({
             where: { isPrimary: true },
             include: { techniqueTag: { select: { name: true } } },
           },
+          // 重音の度数区分用 (double_stop カテゴリの特徴タグ名)
+          featureTags: {
+            include: { featureTag: { select: { name: true, category: true } } },
+          },
         },
       }),
       prisma.practiceItem.findMany({
@@ -140,6 +144,9 @@ export default async function CategoryPage({
       chordType,
       positions: item.positions,
       techniques: item.techniques.map((t) => t.techniqueTag.name),
+      intervals: item.featureTags
+        .filter((f) => f.featureTag?.category === "double_stop")
+        .map((f) => f.featureTag!.name),
       descriptionShort: item.descriptionShort,
       lastPracticed: perf?.latest?.toISOString() ?? null,
       totalPractices: perf?.total ?? 0,

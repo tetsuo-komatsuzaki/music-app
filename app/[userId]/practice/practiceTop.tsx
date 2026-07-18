@@ -3,10 +3,10 @@
 import Link from "next/link"
 import styles from "./practice.module.css"
 import OnboardingTrigger from "../_onboarding/OnboardingTrigger"
+import PracticeCatIcon from "./PracticeCatIcon"
 import {
   PRACTICE_TOP_GROUPS,
   categoryLabel,
-  categoryIcon,
 } from "@/app/_libs/practiceConstants"
 
 // C-6b掃除 (2026-07-11): 旧カード由来コンテクスト(UI-12)と
@@ -48,7 +48,7 @@ export default function PracticeTop({
                 href={`/${userId}/practice/${cat}`}
                 className={styles.categoryCard}
               >
-                <div className={styles.categoryIcon}>{categoryIcon(cat)}</div>
+                <PracticeCatIcon cat={cat} />
                 <div className={styles.categoryName}>{categoryLabel(cat)}</div>
                 <div className={styles.categoryCount}>
                   {categoryCounts[cat] ?? 0}項目
@@ -67,7 +67,7 @@ export default function PracticeTop({
             href={`/${userId}/practice/pieces`}
             className={styles.categoryCard}
           >
-            <div className={styles.categoryIcon}>🎼</div>
+            <PracticeCatIcon cat="pieces" />
             <div className={styles.categoryName}>練習曲一覧</div>
             <div className={styles.categoryCount}>{pieceCount}曲</div>
           </Link>
@@ -79,7 +79,7 @@ export default function PracticeTop({
         <h2 className={styles.sectionTitle}>学びのレッスン</h2>
         <div className={styles.categoryGrid}>
           <Link href={`/${userId}/lessons`} className={styles.categoryCard}>
-            <div className={styles.categoryIcon}>🎓</div>
+            <PracticeCatIcon cat="lessons" />
             <div className={styles.categoryName}>学びのレッスン</div>
             <div className={styles.categoryCount}>
               クリア {lessonProgress.cleared} / {lessonProgress.total}

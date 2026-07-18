@@ -20,6 +20,8 @@ type PracticeItemDTO = {
   chordType?: string | null
   positions: string[]
   techniques: string[]
+  /** 重音の度数など double_stop 系特徴タグ名 (区分軸用) */
+  intervals?: string[]
   descriptionShort: string | null
   lastPracticed: string | null
   totalPractices: number
@@ -146,11 +148,109 @@ function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: s
   )
 }
 
+// 横スクロールレール用の囲みなしカード (2026-07-18 Tetsuo指示: Violy風。
+// 教材を囲む四角(枠/背景/影)を撤去し、カバー画像 + タイトル + メタのみで見せる)。
+function RailCard({ item, userId, category }: { item: PracticeItemDTO; userId: string; category: string }) {
+  const pos = item.positions.length ? item.positions.join("・") : null
+  return (
+    <Link href={`/${userId}/practice/${category}/${item.id}`} className={styles.railCard}>
+      <CategoryCover category={category} cover={item.coverImagePath} />
+      <div className={styles.railCardTitle}>{item.title.replace(/_/g, "・")}</div>
+      <div className={styles.railCardMeta}>
+        {pos && <span className={styles.railPos}>{pos}</span>}
+        {item.bestScore != null ? (
+          <span className={styles.railBest}>ベスト {item.bestScore}</span>
+        ) : (
+          <span className={styles.railUnpracticed}>未練習</span>
+        )}
+      </div>
+    </Link>
+  )
+}
+
+// title からオクターブ数を抽出 (半角/全角/漢数字対応)。無ければ null。
+function octaveOf(title: string): string | null {
+  const m = title.match(/([0-9０-９一二三四五六])\s*オクターブ/)
+  if (!m) return null
+  const z: Record<string, string> = {
+    "０": "0", "１": "1", "２": "2", "３": "3", "４": "4", "５": "5", "６": "6",
+    "一": "1", "二": "2", "三": "3", "四": "4", "五": "5", "六": "6",
+  }
+  return `${z[m[1]] ?? m[1]}オクターブ`
+}
+
+// 練習テーマ = title の最初のセグメント。先頭の弦名(例「E線を」)は除いて抽象化する。
+function themeOf(title: string): string {
+  const seg = (title.split(/[_＿]/)[0] || title).trim()
+  const stripped = seg.replace(/^[GDAEＧＤＡＥ]線[をと]?/, "").trim()
+  return stripped || seg
+}
+
+// 重音の度数区分。小さい度数を優先し代表を1つ選ぶ (double_stop 特徴タグ名から)。
+const DEGREE_ORDER = ["3度", "4度", "5度", "6度", "オクターブ", "10度", "連続重音", "その他"]
+function representativeDegree(intervals: string[]): string {
+  for (const d of DEGREE_ORDER) if (intervals.includes(d)) return d
+  return intervals[0] ?? "その他"
+}
+
+// ☆タブ内をカテゴリ別の軸でサブグループ化 (2026-07-18 Tetsuo確定、実データ準拠)。
+//   音階 / アルペジオ … オクターブ数
+//   フィンガリング / ボーイング … 練習テーマ (title 先頭セグメント / 弦名は除去)
+//   重音 … 度数 (double_stop 特徴タグの代表1つ)
+//   エチュード … 作者
+//   ポジション移動 等 … 単一レール (label 空)
+function subGroupItems(
+  items: PracticeItemDTO[],
+  category: string,
+): { label: string; items: PracticeItemDTO[] }[] {
+  const group = (
+    keyOf: (it: PracticeItemDTO) => string,
+    order: (keys: string[]) => string[],
+  ) => {
+    const map = new Map<string, PracticeItemDTO[]>()
+    for (const it of items) {
+      const k = keyOf(it)
+      if (!map.has(k)) map.set(k, [])
+      map.get(k)!.push(it)
+    }
+    return order([...map.keys()]).map((k) => ({ label: k, items: map.get(k)! }))
+  }
+  const jaSort = (keys: string[]) => keys.sort((a, b) => a.localeCompare(b, "ja"))
+
+  if (["scale", "scales", "arpeggio", "arpeggios"].includes(category)) {
+    const UNSET = "オクターブ数未設定"
+    return group(
+      (it) => octaveOf(it.title) ?? UNSET,
+      (keys) => {
+        const num = keys
+          .filter((k) => k !== UNSET)
+          .sort((a, b) => a.localeCompare(b, "ja", { numeric: true }))
+        return keys.includes(UNSET) ? [...num, UNSET] : num
+      },
+    )
+  }
+  if (category === "fingering" || category === "bowing") {
+    return group((it) => themeOf(it.title), jaSort)
+  }
+  if (category === "double_stop") {
+    return group(
+      (it) => representativeDegree(it.intervals ?? []),
+      (keys) => [...DEGREE_ORDER.filter((k) => keys.includes(k)), ...keys.filter((k) => !DEGREE_ORDER.includes(k))],
+    )
+  }
+  if (category === "etude" || category === "etudes") {
+    return group((it) => it.composer || "不明", jaSort)
+  }
+  // ポジション移動 等: サブグループ無し
+  return [{ label: "", items }]
+}
+
 // ────────────────────────────────────────────────────────────
-// View 1: ☆順 (難易度タブ)
+// View 1: ☆順 (難易度タブ → カテゴリ別サブグループの横スクロールレール)
 // ────────────────────────────────────────────────────────────
 // 練習曲 (pieces) と同じ☆タブ仕様。star 未設定の教材も隠さないよう、
 // null の教材がある場合のみ末尾に「☆未設定」フォールバックタブを設ける。
+// 2026-07-18: ☆選択後、教材を調/和音種別/作曲者ごとの横並びレールに区分。
 
 type StarTab = number | "none"
 
@@ -180,6 +280,7 @@ function StarView({
   const filtered = items.filter((i) =>
     active === "none" ? i.star == null : i.star === active,
   )
+  const subGroups = subGroupItems(filtered, category)
 
   return (
     <div>
@@ -200,13 +301,16 @@ function StarView({
       {filtered.length === 0 ? (
         <p className={styles.cardContextEmpty}>この難易度の教材はありません。</p>
       ) : (
-        <section className={styles.viewSection}>
-          <div className={styles.itemList}>
-            {filtered.map((item) => (
-              <ItemCard key={item.id} item={item} userId={userId} category={category} />
-            ))}
-          </div>
-        </section>
+        subGroups.map((sg, idx) => (
+          <section key={sg.label || idx} className={styles.railSection}>
+            {sg.label && <h3 className={styles.railLabel}>{sg.label}</h3>}
+            <div className={styles.itemRail}>
+              {sg.items.map((item) => (
+                <RailCard key={item.id} item={item} userId={userId} category={category} />
+              ))}
+            </div>
+          </section>
+        ))
       )}
     </div>
   )
