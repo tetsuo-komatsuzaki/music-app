@@ -23,6 +23,13 @@ from music21 import (
     key,
     pitch as m21pitch,
 )
+# 運指・弦の推定 (音名算術, v64)。運指表示 (1stポジ以外のみ・弦は既定と異なる時のみ) に使用。
+from lib.violin_position import (
+    infer_with_finger,
+    infer_pitch_only,
+    VIOLIN_FIRST_POSITION_MAP,
+    string_id_to_num,
+)
 
 # =========================
 # 引数取得
@@ -252,6 +259,9 @@ try:
     # =========================
     note_results: List[Dict[str, Any]] = []
     note_index = 0
+    # 運指推定の音脈コンテキスト (直前の弦・ポジション)。複数弦候補の選択に使う。
+    fp_prev_string: Optional[str] = None
+    fp_prev_position: Optional[int] = None
 
     for measure in performance_part.getElementsByClass("Measure"):
         measure_number = int(measure.number)
@@ -305,6 +315,47 @@ try:
 
             # アーティキュレーション
             articulation_list: List[str] = [type(a).__name__ for a in element.articulations]
+
+            # --- 運指・弦の表示解決 (Tetsuo ルール 2026-07-19) ---
+            #  ・運指: 1stポジション以外で弾く音符のみ表記 (1stポジは非表示=情報過多回避)
+            #  ・弦  : 1stポジで弾く弦と異なる場合のみ表記
+            # 推定は violin_position (音名算術)。元記号<fingering>があれば指優先で弦/ポジ導出。
+            disp_finger: Optional[int] = None       # 表示する指番号 or None
+            disp_string_num: Optional[int] = None   # 表示する弦番号(1-4) or None
+            if not is_chord_flag and len(element.pitches) == 1:
+                _p = element.pitches[0]
+                _midi = int(_p.midi)
+                _src_finger = next(
+                    (int(a.fingerNumber) for a in element.articulations
+                     if type(a).__name__ == "Fingering" and getattr(a, "fingerNumber", None) is not None),
+                    None,
+                )
+                if _src_finger is not None:
+                    _r = infer_with_finger(_midi, _src_finger, fp_prev_string, fp_prev_position, _p.step, _p.octave)
+                    if _r is not None:
+                        _s_id, _pos, _ = _r
+                    else:
+                        _s_id, _pos = None, None
+                    _finger = _src_finger
+                else:
+                    _r = infer_pitch_only(_midi, fp_prev_string, fp_prev_position, _p.step, _p.octave)
+                    if _r is not None:
+                        _s_id, _pos, _finger, _ = _r
+                    else:
+                        _s_id, _pos, _finger = None, None, None
+                # 表示ルール適用
+                _fp = VIOLIN_FIRST_POSITION_MAP.get(_midi)
+                _fp_string = _fp[0] if _fp else None
+                if _pos is not None and _pos >= 2 and _finger is not None and _finger >= 1:
+                    disp_finger = _finger
+                if _s_id is not None and _s_id != _fp_string:
+                    disp_string_num = string_id_to_num(_s_id)
+                # 音脈コンテキスト更新
+                if _s_id is not None:
+                    fp_prev_string = _s_id
+                    if _pos is not None:
+                        fp_prev_position = _pos
+
             dyn = measure_dynamics.get(float(element.offset))
 
             # タイ検出
@@ -390,6 +441,8 @@ try:
                 "end_time_sec": end_time_sec,
                 "measure_number": measure_number,
                 "articulations": articulation_list,
+                "display_finger": disp_finger,
+                "display_string_num": disp_string_num,
                 "dynamic": dyn,
                 "is_tied": is_tied,
                 "is_tremolo": is_tremolo,

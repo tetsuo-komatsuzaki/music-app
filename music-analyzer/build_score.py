@@ -158,10 +158,25 @@ try:
             n.quarterLength = quarter_length
 
             for art_name in r.get("articulations", []):
-                if art_name == "Fingering":
-                    continue  # 運指番号なしだと"none"と表示されるためスキップ
+                if art_name in ("Fingering", "StringIndication"):
+                    continue  # 運指/弦は display_* フィールドからルール適用して付与 (下)
                 if hasattr(articulations, art_name):
                     n.articulations.append(getattr(articulations, art_name)())
+
+            # 運指・弦の表示 (analyze_musicxml がルール適用済: 1stポジ以外の指 / 既定と異なる弦のみ)。
+            # music21 → MusicXML <technical><fingering>/<string> → OSMD が描画。
+            _df = r.get("display_finger")
+            if _df is not None:
+                try:
+                    n.articulations.append(articulations.Fingering(int(_df)))
+                except (ValueError, TypeError):
+                    pass
+            _ds = r.get("display_string_num")
+            if _ds is not None:
+                try:
+                    n.articulations.append(articulations.StringIndication(int(_ds)))
+                except (ValueError, TypeError):
+                    pass
 
             if r.get("dynamic"):
                 part.append(dynamics.Dynamic(r["dynamic"]))
