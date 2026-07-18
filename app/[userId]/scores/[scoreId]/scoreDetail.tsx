@@ -953,6 +953,8 @@ export default function ScoreDetail({
   const pendingRangeRef = useRef<{ from: number; to: number } | null>(null)
   const recordingRangeRef = useRef<{ from: number; to: number } | null>(null)
   const recGuideOffsetSecRef = useRef<number>(0) // 録音ガイドの開始オフセット秒 (区間先頭ノートの開始秒)
+  // 区間録音の自動停止 (2c): この実経過秒に達したら録音を止める。全体録音は Infinity (末尾停止は別effect)。
+  const recGuideStopAtRealSecRef = useRef<number>(Infinity)
   const [, setComparisonLoading] = useState(false)
 
   // ▼ ポップオーバー
@@ -1193,6 +1195,7 @@ export default function ScoreDetail({
     const activeRange = recordingRangeRef.current
     recordingRangeRef.current = null
     recGuideOffsetSecRef.current = 0
+    recGuideStopAtRealSecRef.current = Infinity
     const notifyResult = await uploadAction({
       performanceId: signedRes.performanceId,
       recordingBpm: recordingBpmRef.current,
@@ -2245,6 +2248,11 @@ export default function ScoreDetail({
 
     const loop = () => {
       const elapsedRealSec = (performance.now() - recGuideStartRef.current) / 1000
+      // 区間録音(2c): 区間終端 + バッファに達したら自動停止 (全体録音は Infinity で発火しない)
+      if (elapsedRealSec >= recGuideStopAtRealSecRef.current) {
+        triggerStopRecording()
+        return
+      }
       // ユーザー録音テンポで再生位置をスケール:
       // recordingBpm=60, analysis.bpm=120 なら、実時間 1 秒 = 楽譜時間 0.5 秒
       // (ゆっくり録音するほど、カーソルもゆっくり進む)
@@ -2257,7 +2265,7 @@ export default function ScoreDetail({
       recGuideAnimRef.current = requestAnimationFrame(loop)
     }
     recGuideAnimRef.current = requestAnimationFrame(loop)
-  }, [analysis, ensureCursor, updateRecordingCursor, updateBeatBall])
+  }, [analysis, ensureCursor, updateRecordingCursor, updateBeatBall, triggerStopRecording])
 
   const stopRecordingGuide = useCallback(() => {
     if (recGuideAnimRef.current) {
@@ -2639,8 +2647,19 @@ export default function ScoreDetail({
               const r = pendingRangeRef.current
               pendingRangeRef.current = null
               recordingRangeRef.current = r
-              recGuideOffsetSecRef.current =
-                r && analysis ? (analysis.notes[r.from]?.start_time_sec ?? 0) : 0
+              if (r && analysis) {
+                const startSec = analysis.notes[r.from]?.start_time_sec ?? 0
+                const endSec = analysis.notes[r.to]?.end_time_sec ?? startSec
+                recGuideOffsetSecRef.current = startSec
+                // 区間の実時間長 = 楽譜時間長 × (楽譜bpm / 録音bpm)。末尾に余韻+反応分のバッファ。
+                const recBpm = recordingBpmRef.current || analysis.bpm
+                const RANGE_TAIL_BUFFER_SEC = 2.0
+                recGuideStopAtRealSecRef.current =
+                  (endSec - startSec) * (analysis.bpm / recBpm) + RANGE_TAIL_BUFFER_SEC
+              } else {
+                recGuideOffsetSecRef.current = 0
+                recGuideStopAtRealSecRef.current = Infinity
+              }
             }}
           />
         </div>
