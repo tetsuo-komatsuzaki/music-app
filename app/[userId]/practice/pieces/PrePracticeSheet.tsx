@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import styles from "./prePractice.module.css"
 import { DIFFICULTIES } from "@/app/_libs/materialVariant"
 import SheetPreview from "./SheetPreview"
+import SheetSkills from "./SheetSkills"
 
 export type SheetSection = { name: string; startMeasure: number; endMeasure: number }
 export type SheetVariant = {
@@ -88,6 +89,9 @@ export default function PrePracticeSheet({
 
         {/* 譜面プレビュー + お手本再生 (選択中の難易度変種で出し分け) */}
         {enablePreview && variant && <SheetPreview key={variant.id} scoreId={variant.id} kind={previewKind} />}
+
+        {/* この曲に必要な技術 (未習得表示) */}
+        {variant && <SheetSkills key={`sk-${variant.id}`} userId={userId} kind={previewKind} id={variant.id} />}
 
         {/* 難易度: 初級〜上級を常時表示。教材の無いものはグレー */}
         <div className={styles.slab}>難易度を選ぶ</div>

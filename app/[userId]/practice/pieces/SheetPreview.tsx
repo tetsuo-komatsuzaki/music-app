@@ -9,11 +9,14 @@ import styles from "./prePractice.module.css"
 
 export default function SheetPreview({ scoreId, kind = "score" }: { scoreId: string; kind?: "score" | "practice" }) {
   const boxRef = useRef<HTMLDivElement>(null)
+  const fsRef = useRef<HTMLDivElement>(null)
+  const buildUrlRef = useRef<string | null>(null)
   const notesRef = useRef<PreviewNote[]>([])
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const toneRef = useRef<{ synth?: any; part?: any }>({})
   const [status, setStatus] = useState<"loading" | "ready" | "empty">("loading")
   const [playing, setPlaying] = useState(false)
+  const [fullscreen, setFullscreen] = useState(false)
 
   // 選択変種が変わるたびに 譜面 + お手本ノートを取り直す
   useEffect(() => {
@@ -21,12 +24,15 @@ export default function SheetPreview({ scoreId, kind = "score" }: { scoreId: str
     setStatus("loading")
     stopPlayback()
     if (boxRef.current) boxRef.current.innerHTML = ""
+    buildUrlRef.current = null
+    setFullscreen(false)
     ;(async () => {
       const data = kind === "practice"
         ? await getPracticeItemPreview(scoreId)
         : await getScorePreview(scoreId)
       if (cancelled) return
       notesRef.current = data?.notes ?? []
+      buildUrlRef.current = data?.buildUrl ?? null
       if (data?.buildUrl && boxRef.current) {
         try {
           const { OpenSheetMusicDisplay } = await import("opensheetmusicdisplay")
@@ -98,6 +104,29 @@ export default function SheetPreview({ scoreId, kind = "score" }: { scoreId: str
     setPlaying(true)
   }
 
+  // 全画面で譜面をフル描画
+  useEffect(() => {
+    if (!fullscreen || !buildUrlRef.current || !fsRef.current) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const { OpenSheetMusicDisplay } = await import("opensheetmusicdisplay")
+        if (cancelled || !fsRef.current) return
+        fsRef.current.innerHTML = ""
+        const osmd = new OpenSheetMusicDisplay(fsRef.current, {
+          autoResize: true, drawTitle: false, drawPartNames: false,
+        })
+        await osmd.load(buildUrlRef.current!)
+        if (cancelled) return
+        osmd.zoom = 1.0
+        osmd.render()
+      } catch { /* noop */ }
+    })()
+    return () => { cancelled = true }
+  }, [fullscreen])
+
+  const canFullscreen = status === "ready" && !!buildUrlRef.current
+
   return (
     <div className={styles.previewWrap}>
       <button
@@ -113,11 +142,30 @@ export default function SheetPreview({ scoreId, kind = "score" }: { scoreId: str
         )}
         <span>お手本を{playing ? "停止" : "再生"}</span>
       </button>
-      <div className={styles.sheetBox}>
+      <div
+        className={styles.sheetBox}
+        onClick={() => canFullscreen && setFullscreen(true)}
+        style={{ cursor: canFullscreen ? "zoom-in" : "default" }}
+      >
         {status === "loading" && <div className={styles.previewNote}>読み込み中…</div>}
         {status === "empty" && <div className={styles.previewNote}>譜面プレビューは準備中です</div>}
         <div ref={boxRef} className={styles.osmdBox} />
+        {canFullscreen && (
+          <span className={styles.expandHint}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5" /></svg>
+            タップで拡大
+          </span>
+        )}
       </div>
+
+      {fullscreen && (
+        <div className={styles.fsOverlay} onClick={() => setFullscreen(false)}>
+          <button type="button" className={styles.fsClose} onClick={() => setFullscreen(false)} aria-label="閉じる">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+          </button>
+          <div className={styles.fsSheet} ref={fsRef} onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
     </div>
   )
 }

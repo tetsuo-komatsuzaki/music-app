@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import styles from "../pieces/prePractice.module.css"
 import { ARTICULATIONS } from "@/app/_libs/materialVariant"
 import SheetPreview from "../pieces/SheetPreview"
+import SheetSkills from "../pieces/SheetSkills"
 
 export type BasicsVariant = {
   id: string
@@ -86,6 +87,9 @@ export default function BasicsPreSheet({
 
         {/* 譜面プレビュー + お手本再生 (選択中の調変種で出し分け) */}
         {variant && <SheetPreview key={variant.id} scoreId={variant.id} kind="practice" />}
+
+        {/* この練習に必要な技術 (未習得表示) */}
+        {variant && <SheetSkills key={`sk-${variant.id}`} userId={userId} kind="practice" id={variant.id} />}
 
         {/* 調: 12調を常時表示。族に無い調はグレー */}
         <div className={styles.slab}>調を選ぶ</div>
