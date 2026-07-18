@@ -2302,7 +2302,6 @@ export default function ScoreDetail({
             <div className={styles.card}>
               <div className={styles.tempoCardHead}>
                 <h3 className={styles.tempoCardTitle}>テンポ・メトロノーム</h3>
-                <span className={styles.tempoCardSub}>お手本・録音の両方に適用</span>
               </div>
               <div className={styles.tempoControl}>
                 {(() => {
@@ -2367,19 +2366,22 @@ export default function ScoreDetail({
             />
           </div>
           <div className={styles.card} data-onboarding="scoreDetail.playControls">
-            <h3>楽譜を再生</h3>
+            <h3>お手本を聞く</h3>
             <div className={styles.playbackButtons}>
               {playbackState === "stopped" && (
                 <button className={styles.playBtn} onClick={startPlayback} disabled={!analysis}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
                   再生
                 </button>
               )}
               {playbackState === "playing" && (
                 <>
                   <button className={styles.playBtn} onClick={pausePlayback}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
                     一時停止
                   </button>
                   <button className={styles.stopBtn} onClick={stopPlayback}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
                     停止
                   </button>
                 </>
@@ -2387,9 +2389,11 @@ export default function ScoreDetail({
               {playbackState === "paused" && (
                 <>
                   <button className={styles.playBtn} onClick={resumePlayback}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
                     再開
                   </button>
                   <button className={styles.stopBtn} onClick={stopPlayback}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
                     停止
                   </button>
                 </>
@@ -2402,7 +2406,6 @@ export default function ScoreDetail({
             <div className={styles.card}>
               <div className={styles.tempoCardHead}>
                 <h3 className={styles.tempoCardTitle}>区間ループ（部分練習）</h3>
-                <span className={styles.tempoCardSub}>選んだ区間だけお手本を繰り返し</span>
               </div>
               <div className={styles.rangeBody}>
                 <button

@@ -80,6 +80,9 @@
 }
 
 .playBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: #f0f0f0;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -94,6 +97,9 @@
 }
 
 .stopBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: #fff;
   border: 1px solid #e53935;
   color: #e53935;
