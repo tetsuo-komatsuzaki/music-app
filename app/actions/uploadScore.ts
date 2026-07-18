@@ -11,6 +11,7 @@ import { invokeAnalysis } from "../_libs/pythonRunner"
 import { SUB_TASK_IDS } from "../_libs/skillMaster"
 import { autoLinkOnboardingSongs } from "../_libs/onboardingSongLink"
 import { isSongGenre } from "../_libs/songGenre"
+import { ensureScoreGroup } from "../_libs/materialGroup"
 
 const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
 
@@ -166,6 +167,13 @@ export async function uploadScore(formData: FormData) {
     where: { id: score.id },
     data: { originalXmlPath: filePath },
   })
+
+  // 教材グループを作成し紐付け (Phase A-2: 1曲=1グループ。orphan 防止)。失敗しても致命的でない。
+  try {
+    await ensureScoreGroup(score.id)
+  } catch (e) {
+    console.error(`[group] score ${score.id} グループ作成失敗:`, e instanceof Error ? e.message : e)
+  }
 
   // AIカバーを応答後に非同期生成 (アップロードを遅らせない)。失敗しても致命的でない。
   // ⚠️ REPLICATE_API_TOKEN 未設定/課金未登録の環境ではスキップされるだけ (batchで後追い可)。

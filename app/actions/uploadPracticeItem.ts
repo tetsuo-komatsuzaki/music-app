@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache"
 import { after } from "next/server"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 import { generatePracticeItemCover } from "@/app/_libs/coverImage/generateAndStore"
+import { ensurePracticeItemGroup } from "@/app/_libs/materialGroup"
 import { Prisma, type PracticeCategory } from "@/app/generated/prisma"
 import { SUB_TASK_IDS } from "@/app/_libs/skillMaster"
 import { isPracticeCategory } from "@/app/_libs/practiceConstants"
@@ -121,6 +122,13 @@ export async function uploadPracticeItem(formData: FormData) {
     where: { id: item.id },
     data: { originalXmlPath: storagePath },
   })
+
+  // 教材グループを作成し紐付け (Phase A-2: 1教材=1グループ。orphan 防止)。失敗しても致命的でない。
+  try {
+    await ensurePracticeItemGroup(item.id)
+  } catch (e) {
+    console.error(`[group] practiceItem ${item.id} グループ作成失敗:`, e instanceof Error ? e.message : e)
+  }
 
   // AIカバーを応答後に非同期生成 (アップロードを遅らせない)。失敗しても致命的でない。
   after(async () => {

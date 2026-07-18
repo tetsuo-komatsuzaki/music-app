@@ -52,12 +52,14 @@ async function storeCover(storagePath: string, buf: Buffer): Promise<string> {
 export async function generateScoreCover(scoreId: string): Promise<string> {
   const s = await prisma.score.findUnique({
     where: { id: scoreId },
-    select: { id: true, title: true, composer: true, keyMode: true },
+    select: { id: true, title: true, composer: true, keyMode: true, groupId: true },
   })
   if (!s) throw new Error(`Score が見つかりません: ${scoreId}`)
   const buf = await renderCover({ title: s.title, composer: s.composer, keyMode: s.keyMode, category: "piece" })
   const url = await storeCover(`score/${scoreId}.webp`, buf)
   await prisma.score.update({ where: { id: scoreId }, data: { coverImagePath: url } })
+  // カバーはグループ単位に集約 (Phase A-2)。当面 Score 側も後方互換で残す。
+  if (s.groupId) await prisma.materialGroup.update({ where: { id: s.groupId }, data: { coverImagePath: url } })
   return url
 }
 
@@ -65,11 +67,13 @@ export async function generateScoreCover(scoreId: string): Promise<string> {
 export async function generatePracticeItemCover(itemId: string): Promise<string> {
   const it = await prisma.practiceItem.findUnique({
     where: { id: itemId },
-    select: { id: true, title: true, composer: true, category: true, keyMode: true },
+    select: { id: true, title: true, composer: true, category: true, keyMode: true, groupId: true },
   })
   if (!it) throw new Error(`PracticeItem が見つかりません: ${itemId}`)
   const buf = await renderCover({ title: it.title, composer: it.composer, category: it.category, keyMode: it.keyMode })
   const url = await storeCover(`practice/${itemId}.webp`, buf)
   await prisma.practiceItem.update({ where: { id: itemId }, data: { coverImagePath: url } })
+  // カバーはグループ単位に集約 (Phase A-2)。当面 PracticeItem 側も後方互換で残す。
+  if (it.groupId) await prisma.materialGroup.update({ where: { id: it.groupId }, data: { coverImagePath: url } })
   return url
 }
