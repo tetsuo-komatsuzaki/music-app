@@ -2167,28 +2167,18 @@ export default function ScoreDetail({
               </div>
             </div>
           )}
-          <div data-onboarding="scoreDetail.recordButton">
-            <Recorder
-              onRecordingComplete={handleRecordingComplete}
-              previousBestScore={bestPitchScore}
-              bestOverallScore={bestOverallScore}
-              bpm={analysis?.bpm ?? undefined}
-              onCountdownStart={() => setRecordingState("countdown")}
-              onRecordingStart={() => { setRecordingState("recording"); startRecordingGuide() }}
-              onRecordingBpmChange={handleRecordingBpmChange}
-              onRecordingStop={() => { setRecordingState("preview"); stopRecordingGuide() }}
-              uploadProgress={uploadProgress}
-              onShowLoop={isScoreMode ? () => handleTabChange("loop") : undefined}
-            />
-          </div>
-          <div className={styles.card} data-onboarding="scoreDetail.playControls">
-            <h3>楽譜を再生</h3>
-            {analysis && (
+          {/* テンポ・メトロノーム: お手本再生・録音の両方に適用 (2026-07-18 一本化・配置見直し) */}
+          {analysis && (
+            <div className={styles.card}>
+              <div className={styles.tempoCardHead}>
+                <h3 className={styles.tempoCardTitle}>テンポ・メトロノーム</h3>
+                <span className={styles.tempoCardSub}>お手本・録音の両方に適用</span>
+              </div>
               <div className={styles.tempoControl}>
                 {(() => {
                   const tMin = Math.max(Math.round(analysis.bpm * 0.25), 20)
                   const tMax = Math.round(analysis.bpm * 2)
-                  const playing = playbackState === "playing"
+                  const busy = playbackState === "playing" || recordingState === "recording" || recordingState === "countdown"
                   const set = (v: number) => setPlaybackTempo(Math.min(tMax, Math.max(tMin, v)))
                   const pct = ((playbackTempo - tMin) / Math.max(1, tMax - tMin)) * 100
                   return (
@@ -2207,21 +2197,21 @@ export default function ScoreDetail({
                       </div>
 
                       <div className={styles.tempoMain}>
-                        <button type="button" className={styles.stepBtn} onClick={() => set(playbackTempo - 1)} disabled={playing || playbackTempo <= tMin} aria-label="遅く">−</button>
+                        <button type="button" className={styles.stepBtn} onClick={() => set(playbackTempo - 1)} disabled={busy || playbackTempo <= tMin} aria-label="遅く">−</button>
                         <div className={styles.tempoCenter}>
                           <span className={styles.tempoNum}>{playbackTempo}</span>
                           <span className={styles.tempoUnit}>BPM</span>
-                          <button type="button" className={styles.resetBtn} onClick={() => set(analysis.bpm)} disabled={playing} title="原速に戻す" aria-label="原速に戻す">
+                          <button type="button" className={styles.resetBtn} onClick={() => set(analysis.bpm)} disabled={busy} title="原速に戻す" aria-label="原速に戻す">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
                           </button>
                         </div>
-                        <button type="button" className={styles.stepBtn} onClick={() => set(playbackTempo + 1)} disabled={playing || playbackTempo >= tMax} aria-label="速く">＋</button>
+                        <button type="button" className={styles.stepBtn} onClick={() => set(playbackTempo + 1)} disabled={busy || playbackTempo >= tMax} aria-label="速く">＋</button>
                       </div>
 
                       <input
                         type="range" min={tMin} max={tMax} value={playbackTempo}
                         onChange={(e) => set(Number(e.target.value))}
-                        disabled={playing}
+                        disabled={busy}
                         className={styles.tempoSlider}
                         style={{ background: `linear-gradient(to right, var(--tempo-accent,#4a6cf7) ${pct}%, #e6e4ea ${pct}%)` }}
                       />
@@ -2230,7 +2220,24 @@ export default function ScoreDetail({
                   )
                 })()}
               </div>
-            )}
+            </div>
+          )}
+          <div data-onboarding="scoreDetail.recordButton">
+            <Recorder
+              onRecordingComplete={handleRecordingComplete}
+              previousBestScore={bestPitchScore}
+              bestOverallScore={bestOverallScore}
+              bpm={playbackTempo}
+              onCountdownStart={() => setRecordingState("countdown")}
+              onRecordingStart={() => { setRecordingState("recording"); startRecordingGuide() }}
+              onRecordingBpmChange={handleRecordingBpmChange}
+              onRecordingStop={() => { setRecordingState("preview"); stopRecordingGuide() }}
+              uploadProgress={uploadProgress}
+              onShowLoop={isScoreMode ? () => handleTabChange("loop") : undefined}
+            />
+          </div>
+          <div className={styles.card} data-onboarding="scoreDetail.playControls">
+            <h3>楽譜を再生</h3>
             <div className={styles.playbackButtons}>
               {playbackState === "stopped" && (
                 <button className={styles.playBtn} onClick={startPlayback} disabled={!analysis}>

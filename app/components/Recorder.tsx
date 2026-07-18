@@ -584,7 +584,8 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
       {/* ① 待機 */}
       {status === "idle" && (
         <div className={styles.idlePanel}>
-          <button className={styles.mainCta} onClick={() => setStatus("tempo-select")} disabled={disabled}>
+          {/* テンポは共通の「テンポ・メトロノーム」で設定 → ここは直接カウントインへ (2026-07-18 一本化) */}
+          <button className={styles.mainCta} onClick={startCountdown} disabled={disabled}>
             <span className={styles.ctaDot} />
             <span>録音する</span>
           </button>
@@ -592,70 +593,6 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
           {bestOverallScore != null && (
             <div className={styles.prevScore}>ベストスコア: {Math.round(bestOverallScore)}点</div>
           )}
-        </div>
-      )}
-
-      {/* ①-b テンポ選択 */}
-      {status === "tempo-select" && (
-        <div className={styles.idlePanel}>
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-              <span style={{ fontSize: 13, color: "#555" }}>録音テンポ</span>
-              <span ref={bpmDisplayRef} style={{ fontSize: 18, fontWeight: 700 }}>{recordingBpm} BPM</span>
-            </div>
-            <input
-              ref={sliderRef}
-              type="range"
-              min={Math.max(Math.round(scoreBpm * 0.25), 20)}
-              max={Math.round(scoreBpm * 2)}
-              defaultValue={recordingBpm}
-              onInput={(e) => {
-                userChangedBpmRef.current = true
-                const v = Number(e.currentTarget.value)
-                if (bpmDisplayRef.current) bpmDisplayRef.current.textContent = `${v} BPM`
-                onRecordingBpmChange?.(v)
-              }}
-              onMouseUp={(e) => setRecordingBpm(Number(e.currentTarget.value))}
-              onTouchEnd={(e) => setRecordingBpm(Number(e.currentTarget.value))}
-              onKeyUp={(e) => setRecordingBpm(Number(e.currentTarget.value))}
-              style={{ width: "100%", accentColor: "#2e7dff" }}
-            />
-            <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-              {[0.5, 0.75, 1, 1.25, 1.5].map((ratio) => {
-                const t = Math.round(scoreBpm * ratio)
-                return (
-                  <button
-                    key={ratio}
-                    onClick={() => {
-                      userChangedBpmRef.current = true
-                      setRecordingBpm(t)
-                      if (sliderRef.current) sliderRef.current.value = String(t)
-                      if (bpmDisplayRef.current) bpmDisplayRef.current.textContent = `${t} BPM`
-                      onRecordingBpmChange?.(t)
-                    }}
-                    style={{
-                      flex: 1, padding: "4px 0", fontSize: 12, borderRadius: 6, cursor: "pointer",
-                      border: recordingBpm === t ? "1px solid #2e7dff" : "1px solid #ddd",
-                      background: recordingBpm === t ? "#2e7dff" : "#f5f5f5",
-                      color: recordingBpm === t ? "#fff" : "#333",
-                    }}
-                  >
-                    {ratio === 1 ? `${t}` : `x${ratio}`}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-          <button className={styles.mainCta} onClick={startCountdown}>
-            <span className={styles.ctaDot} />
-            <span>録音開始</span>
-          </button>
-          <button
-            onClick={() => setStatus("idle")}
-            style={{ marginTop: 8, background: "none", border: "none", color: "#999", fontSize: 13, cursor: "pointer" }}
-          >
-            キャンセル
-          </button>
         </div>
       )}
 
