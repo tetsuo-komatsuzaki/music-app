@@ -320,7 +320,7 @@ function FamilyView({
             coverImagePath: sheet.cover,
             variants: sheet.items.map((it) => ({
               id: it.id,
-              keyLabel: keyLabelOf(it),
+              keyTonic: it.keyTonic,
               articulation: it.articulation ?? null,
               bestScore: it.bestScore ?? null,
             })),

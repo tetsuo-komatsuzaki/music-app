@@ -1,12 +1,12 @@
 "use client"
 
-// 練習前シート (Phase C): 曲カードをタップ→難易度/練習範囲を選んでから詳細(録音)へ。
-// データ駆動: 変種が1つ&sections無しなら呼び出し側が直接遷移するので、ここは「選ぶ余地がある」時のみ開く。
-// お手本再生・譜面プレビューはアセット未整備のため次段 (設計: 見本Artifact)。
+// 練習前シート (Phase C / 2026-07-18更新): 難易度・パートを常時フル表示。
+// 教材の無い難易度/パートはグレー(選択不可)で「準備中」を明示。曲が増えれば自動で有効化。
+// お手本再生・譜面プレビューは次段 (アセット未整備)。
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import styles from "./prePractice.module.css"
-import { difficultyLabel } from "@/app/_libs/materialVariant"
+import { DIFFICULTIES } from "@/app/_libs/materialVariant"
 
 export type SheetSection = { name: string; startMeasure: number; endMeasure: number }
 export type SheetVariant = {
@@ -24,7 +24,6 @@ export type SheetGroup = {
   variants: SheetVariant[]
 }
 
-const DIFF_ORDER = ["BEGINNER", "INTERMEDIATE", "ADVANCED"]
 const DIFF_DOT: Record<string, string> = { BEGINNER: "#2e9e6b", INTERMEDIATE: "#e0a02f", ADVANCED: "#e0812f" }
 
 export default function PrePracticeSheet({
@@ -35,14 +34,15 @@ export default function PrePracticeSheet({
   onClose: () => void
 }) {
   const router = useRouter()
-  // 難易度で並べた変種 (未設定は末尾)
-  const variants = [...group.variants].sort(
-    (a, b) => (DIFF_ORDER.indexOf(a.difficulty ?? "") + 1 || 99) - (DIFF_ORDER.indexOf(b.difficulty ?? "") + 1 || 99),
-  )
-  const [variantId, setVariantId] = useState(variants[0]?.id ?? "")
-  const variant = variants.find((v) => v.id === variantId) ?? variants[0]
+  // 難易度 → 変種 (教材の有無)
+  const byDiff = new Map<string, SheetVariant>()
+  for (const v of group.variants) byDiff.set(v.difficulty ?? "BEGINNER", v)
+  const firstAvail = DIFFICULTIES.find((d) => byDiff.has(d.id))?.id ?? "BEGINNER"
+
+  const [diff, setDiff] = useState(firstAvail)
+  const variant = byDiff.get(diff)
   const sections = variant?.sections ?? []
-  const [rangeIdx, setRangeIdx] = useState(-1) // -1 = 全部
+  const [rangeIdx, setRangeIdx] = useState(-1) // -1 = 全部演奏する
 
   const start = () => {
     if (!variant) return
@@ -55,7 +55,6 @@ export default function PrePracticeSheet({
     router.push(`/${userId}/scores/${variant.id}${qs ? `?${qs}` : ""}`)
   }
 
-  const showDifficulty = variants.length > 1
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
@@ -80,43 +79,61 @@ export default function PrePracticeSheet({
           </div>
         </div>
 
-        {showDifficulty && (
-          <>
-            <div className={styles.slab}>難易度を選ぶ</div>
-            <div className={styles.difs}>
-              {variants.map((v) => (
-                <button
-                  key={v.id}
-                  className={`${styles.dif} ${variantId === v.id ? styles.difOn : ""}`}
-                  onClick={() => { setVariantId(v.id); setRangeIdx(-1) }}
-                >
-                  <span className={styles.dot} style={{ background: DIFF_DOT[v.difficulty ?? ""] ?? "#b0a9ac" }} />
-                  <span className={styles.difName}>{difficultyLabel(v.difficulty) || "標準"}</span>
-                  {v.bestScore != null && <span className={styles.difBest}>ベスト {v.bestScore}</span>}
-                  <span className={styles.radio} data-on={variantId === v.id} />
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-
-        {sections.length > 0 && (
-          <>
-            <div className={styles.slab}>練習範囲を選ぶ</div>
-            <div className={styles.difs}>
-              <button className={`${styles.dif} ${rangeIdx === -1 ? styles.difOn : ""}`} onClick={() => setRangeIdx(-1)}>
-                <span className={styles.difName}>全部弾く</span>
-                <span className={styles.radio} data-on={rangeIdx === -1} />
+        {/* 難易度: 初級〜上級を常時表示。教材の無いものはグレー */}
+        <div className={styles.slab}>難易度を選ぶ</div>
+        <div className={styles.difs}>
+          {DIFFICULTIES.map((d) => {
+            const v = byDiff.get(d.id)
+            const avail = !!v
+            return (
+              <button
+                key={d.id}
+                type="button"
+                disabled={!avail}
+                className={`${styles.dif} ${diff === d.id ? styles.difOn : ""} ${!avail ? styles.difDisabled : ""}`}
+                onClick={() => { if (avail) { setDiff(d.id); setRangeIdx(-1) } }}
+              >
+                <span className={styles.dot} style={{ background: DIFF_DOT[d.id] }} />
+                <span className={styles.difName}>{d.label}</span>
+                {avail
+                  ? (v!.bestScore != null && <span className={styles.difBest}>ベスト {v!.bestScore}</span>)
+                  : <span className={styles.soon}>準備中</span>}
+                {avail && <span className={styles.radio} data-on={diff === d.id} />}
               </button>
-              {sections.map((s, i) => (
-                <button key={i} className={`${styles.dif} ${rangeIdx === i ? styles.difOn : ""}`} onClick={() => setRangeIdx(i)}>
-                  <span className={styles.difName}>{s.name}<small>{s.startMeasure}〜{s.endMeasure}小節</small></span>
-                  <span className={styles.radio} data-on={rangeIdx === i} />
-                </button>
-              ))}
-            </div>
-          </>
-        )}
+            )
+          })}
+        </div>
+
+        {/* パート: 全部演奏する(現行スコア) + 分割は教材が入れば有効 */}
+        <div className={styles.slab}>パートを選ぶ</div>
+        <div className={styles.difs}>
+          <button
+            type="button"
+            className={`${styles.dif} ${rangeIdx === -1 ? styles.difOn : ""}`}
+            onClick={() => setRangeIdx(-1)}
+          >
+            <span className={styles.difName}>全部演奏する</span>
+            <span className={styles.radio} data-on={rangeIdx === -1} />
+          </button>
+          {sections.length > 0 ? (
+            sections.map((s, i) => (
+              <button
+                key={i}
+                type="button"
+                className={`${styles.dif} ${rangeIdx === i ? styles.difOn : ""}`}
+                onClick={() => setRangeIdx(i)}
+              >
+                <span className={styles.difName}>{s.name}<small>{s.startMeasure}〜{s.endMeasure}小節</small></span>
+                <span className={styles.radio} data-on={rangeIdx === i} />
+              </button>
+            ))
+          ) : (
+            <button type="button" disabled className={`${styles.dif} ${styles.difDisabled}`}>
+              <span className={styles.difName}>パート別に練習</span>
+              <span className={styles.soon}>準備中</span>
+            </button>
+          )}
+        </div>
 
         <button className={styles.cta} onClick={start}>練習をはじめる</button>
       </div>

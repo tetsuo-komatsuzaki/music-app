@@ -83,11 +83,10 @@ export default function PiecesList({
     .sort((a, b) => a.title.localeCompare(b.title, "ja"))
   const genreGroups = groupByGenre(filtered)
 
-  // 選ぶ余地(複数変種 or 練習範囲)がある時のみシートを開く。無ければ直接遷移。
+  // 常にシートを開き、難易度・パートのフルラダーを見せる (2026-07-18)。
+  // 変種の無い曲(旧データ)のみ直接遷移のフォールバック。
   const handleTap = (p: Piece) => {
-    const needsSheet = p.variants.length > 1 || p.variants.some(v => v.sections.length > 0)
-    if (needsSheet) setSheet(p)
-    else if (p.variants[0]) router.push(`/${userId}/scores/${p.variants[0].id}`)
+    if (p.variants.length > 0) setSheet(p)
   }
 
   return (
