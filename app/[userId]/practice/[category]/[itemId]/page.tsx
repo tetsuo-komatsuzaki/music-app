@@ -2,7 +2,6 @@ import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
-import { formatKeyWithVariant, formatChordKey } from "@/app/_libs/musicNotation"
 import ScoreDetail from "@/app/[userId]/scores/[scoreId]/scoreDetail"
 import { uploadPracticeRecord } from "@/app/actions/uploadPracticeRecord"
 import styles from "../../practice.module.css"
@@ -98,7 +97,7 @@ export default async function PracticeDetailPage({
   // item確定後の処理を並列化
   // =========================
   const perfStep3 = performance.now()
-  const [buildUrl, analysisData, performanceCount, latestPerf, recentPerfs] =
+  const [buildUrl, analysisData, performanceCount, latestPerf] =
     await Promise.all([
       // buildUrl
       (async (): Promise<string | null> => {
@@ -144,19 +143,6 @@ export default async function PracticeDetailPage({
           analysisSummary: true,
         },
       }),
-
-      // 練習履歴（最新5件）
-      prisma.practicePerformance.findMany({
-        where: { userId: dbUserId, practiceItemId: itemId },
-        orderBy: { uploadedAt: "desc" },
-        take: 5,
-        select: {
-          id: true,
-          uploadedAt: true,
-          pitchAccuracy: true,
-          timingAccuracy: true,
-        },
-      }),
     ])
   console.log(`[PERF] practice/item step3_parallel: ${(performance.now() - perfStep3).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
@@ -165,119 +151,6 @@ export default async function PracticeDetailPage({
     arpeggio: "アルペジオ", arpeggios: "アルペジオ",
     etude: "エチュード", etudes: "エチュード",
   }
-
-  const infoPanel = (
-    <div className={styles.infoPanel}>
-      {/* カテゴリバッジ */}
-      <span className={`${styles.infoPanelCategory} ${
-        item.category === "scale" ? styles.infoPanelCategoryScale :
-        item.category === "arpeggio" ? styles.infoPanelCategoryArpeggio :
-        styles.infoPanelCategoryEtude
-      }`}>
-        {categoryLabels[item.category] || item.category}
-      </span>
-
-      {/* タイトル */}
-      <div className={styles.infoPanelTitle}>{item.title}</div>
-
-      {/* 作曲者 */}
-      {item.composer && (
-        <div className={styles.infoPanelComposer}>{item.composer}</div>
-      )}
-
-
-      <hr className={styles.infoPanelDivider} />
-
-      {/* メタ情報 */}
-      <div className={styles.infoPanelMeta}>
-        <div className={styles.infoPanelMetaRow}>
-          <span className={styles.infoPanelMetaLabel}>調</span>
-          <span className={styles.infoPanelMetaValue}>
-            {(() => {
-              const meta =
-                typeof item.metadata === "object" && item.metadata !== null && !Array.isArray(item.metadata)
-                  ? (item.metadata as Record<string, unknown>)
-                  : {}
-              if (item.category === "arpeggio") {
-                const chordType = typeof meta.chordType === "string" ? (meta.chordType as string) : null
-                return formatChordKey(item.keyTonic, chordType)
-              }
-              const variant = typeof meta.modeVariant === "string" ? (meta.modeVariant as string) : null
-              return formatKeyWithVariant(item.keyTonic, item.keyMode, variant)
-            })()}
-          </span>
-        </div>
-        {item.tempoMin && item.tempoMax && (
-          <div className={styles.infoPanelMetaRow}>
-            <span className={styles.infoPanelMetaLabel}>テンポ</span>
-            <span className={styles.infoPanelMetaValue}>
-              ♩= {item.tempoMin}-{item.tempoMax}
-            </span>
-          </div>
-        )}
-        {item.positions.length > 0 && (
-          <div className={styles.infoPanelMetaRow}>
-            <span className={styles.infoPanelMetaLabel}>ポジション</span>
-            <span className={styles.infoPanelMetaValue}>
-              {item.positions.join(", ")}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* 技法タグ */}
-      {item.techniques.length > 0 && (
-        <>
-          <hr className={styles.infoPanelDivider} />
-          <div className={styles.infoPanelTagSection}>
-            <div className={styles.infoPanelTagLabel}>技法</div>
-            {item.techniques.map(t => (
-              <span key={t.techniqueTag.name}
-                className={`${styles.infoPanelTag} ${
-                  t.isPrimary ? styles.infoPanelTagPrimary : styles.infoPanelTagNormal
-                }`}>
-                {t.techniqueTag.name}
-              </span>
-            ))}
-          </div>
-        </>
-      )}
-
-      {/* 説明 */}
-      {(item.description || item.descriptionShort) && (
-        <>
-          <hr className={styles.infoPanelDivider} />
-          <div className={styles.infoPanelDescription}>
-            {item.description || item.descriptionShort}
-          </div>
-        </>
-      )}
-
-      {/* 練習履歴 */}
-      <hr className={styles.infoPanelDivider} />
-      <div className={styles.infoPanelHistory}>
-        <div className={styles.infoPanelTagLabel}>練習履歴</div>
-        {recentPerfs.length === 0 && (
-          <div className={styles.infoPanelEmpty}>まだ練習していません</div>
-        )}
-        {recentPerfs.map(p => (
-          <div key={p.id} className={styles.infoPanelHistoryItem}>
-            <span className={styles.infoPanelHistoryDate}>
-              {new Date(p.uploadedAt).toLocaleDateString("ja-JP", {
-                month: "numeric", day: "numeric"
-              })}
-            </span>
-            <span className={styles.infoPanelHistoryScore}>
-              {p.pitchAccuracy != null && p.timingAccuracy != null
-                ? `${Math.round((p.pitchAccuracy + p.timingAccuracy) / 2)}点`
-                : "解析中"
-              }
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
 
   return (
     <div>
@@ -298,7 +171,6 @@ export default async function PracticeDetailPage({
         performanceCount={performanceCount}
         latestPitchAccuracy={latestPerf?.pitchAccuracy ?? null}
         latestTimingAccuracy={latestPerf?.timingAccuracy ?? null}
-        infoSlot={infoPanel}
         singleStaffLine={item.category === "scale" || item.category === "arpeggio"}
         practiceItemId={item.id}
       />

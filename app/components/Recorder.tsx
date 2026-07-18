@@ -600,10 +600,6 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
             <span className={styles.ctaDot} />
             <span>録音して AI 採点</span>
           </button>
-          <div className={styles.safetyMsg}>何度でもやり直せます</div>
-          {bestOverallScore != null && (
-            <div className={styles.prevScore}>ベストスコア: {Math.round(bestOverallScore)}点</div>
-          )}
         </div>
       )}
 
