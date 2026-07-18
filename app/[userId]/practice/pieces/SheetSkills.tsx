@@ -22,7 +22,16 @@ export default function SheetSkills({
     return () => { cancelled = true }
   }, [kind, id, userId])
 
-  if (!skills || skills.length === 0) return null
+  if (!skills) return null // 取得中/失敗は非表示
+  // 技術が不要な曲は「不要」と明示 (機能が動作していると分かるように)
+  if (skills.length === 0) {
+    return (
+      <div className={styles.skillsWrap}>
+        <div className={styles.skillsLab}>この曲に必要な技術</div>
+        <div className={styles.skillsNone}>特別な技術なしで弾けます</div>
+      </div>
+    )
+  }
   const unlearned = skills.filter((s) => !s.acquired).length
 
   return (
