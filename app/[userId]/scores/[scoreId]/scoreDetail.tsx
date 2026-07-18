@@ -930,6 +930,12 @@ export default function ScoreDetail({
   const [metronomeOn, setMetronomeOn] = useState(false)
   const metronomeOnRef = useRef(false)
   useEffect(() => { metronomeOnRef.current = metronomeOn }, [metronomeOn])
+  // ▼ 区間ループ (部分練習 Phase 1) 2026-07-18: 譜面で開始/終了の音符を選び、その区間だけお手本をループ再生
+  const [rangeMode, setRangeMode] = useState(false)          // 区間選択モード
+  const [rangeStart, setRangeStart] = useState<number | null>(null) // note index
+  const [rangeEnd, setRangeEnd] = useState<number | null>(null)     // note index
+  const [isRangeLooping, setIsRangeLooping] = useState(false)
+  const rangeBandsRef = useRef<HTMLDivElement[]>([])         // オーバーレイのハイライト帯
   const [, setComparisonLoading] = useState(false)
 
   // ▼ ポップオーバー
@@ -1599,6 +1605,82 @@ export default function ScoreDetail({
     if (cursorRef.current) cursorRef.current.style.display = "none"
   }, [])
 
+  // --- 区間ハイライト帯の描画 (部分練習 Phase 1) ---
+  // cursor と同じく #osmd-container 内にコンテンツ座標(scrollTop加算)で絶対配置し、スクロール追従させる。
+  // 選択区間の音符を行ごとにまとめ、各行に半透明の帯を描く (行の切れ目は x が左へ戻ることで検出)。
+  const renderRangeOverlay = useCallback(() => {
+    const container = document.getElementById("osmd-container")
+    if (!container) return
+    // 既存の帯を除去
+    rangeBandsRef.current.forEach((b) => b.remove())
+    rangeBandsRef.current = []
+    if (rangeStart === null || rangeEnd === null) return
+
+    container.style.position = "relative"
+    const cRect = container.getBoundingClientRect()
+    const scrollTop = container.scrollTop
+    const lo = Math.min(rangeStart, rangeEnd)
+    const hi = Math.max(rangeStart, rangeEnd)
+
+    type Band = { left: number; right: number; top: number; bottom: number }
+    const bands: Band[] = []
+    let cur: Band | null = null
+    let prevCx = -Infinity
+    for (let i = lo; i <= hi; i++) {
+      const el = noteElementsRef.current[i]
+      if (!el || !container.contains(el)) continue
+      const r = el.getBoundingClientRect()
+      if (r.width === 0 && r.height === 0) continue
+      const left = r.left - cRect.left
+      const right = r.right - cRect.left
+      const top = r.top - cRect.top + scrollTop
+      const bottom = r.bottom - cRect.top + scrollTop
+      const cx = (left + right) / 2
+      if (!cur || cx < prevCx - 4) {
+        cur = { left, right, top, bottom }
+        bands.push(cur)
+      } else {
+        cur.left = Math.min(cur.left, left)
+        cur.right = Math.max(cur.right, right)
+        cur.top = Math.min(cur.top, top)
+        cur.bottom = Math.max(cur.bottom, bottom)
+      }
+      prevCx = cx
+    }
+
+    const padX = 5
+    const padY = 9
+    for (const g of bands) {
+      const b = document.createElement("div")
+      b.className = styles.rangeBand
+      b.style.left = `${g.left - padX}px`
+      b.style.top = `${g.top - padY}px`
+      b.style.width = `${g.right - g.left + padX * 2}px`
+      b.style.height = `${g.bottom - g.top + padY * 2}px`
+      container.appendChild(b)
+      rangeBandsRef.current.push(b)
+    }
+  }, [rangeStart, rangeEnd])
+
+  // 選択変化・再描画(zoom等)・スクロール・リサイズで区間ハイライトを再配置
+  useEffect(() => {
+    renderRangeOverlay()
+    const container = document.getElementById("osmd-container")
+    if (!container) return
+    let raf: number | null = null
+    const schedule = () => {
+      if (raf !== null) return
+      raf = requestAnimationFrame(() => { raf = null; renderRangeOverlay() })
+    }
+    container.addEventListener("scroll", schedule, { passive: true })
+    window.addEventListener("resize", schedule)
+    return () => {
+      if (raf !== null) cancelAnimationFrame(raf)
+      container.removeEventListener("scroll", schedule)
+      window.removeEventListener("resize", schedule)
+    }
+  }, [renderRangeOverlay, noteElementsVersion, isOsmdReady])
+
   // --- 譜面再生のアニメーション ---
   const stopVisualSync = useCallback(() => {
     if (animationRef.current !== null) {
@@ -1641,10 +1723,12 @@ export default function ScoreDetail({
   const stopPlayback = useCallback(() => {
     Tone.getTransport().stop()
     Tone.getTransport().cancel()
+    Tone.getTransport().loop = false // 区間ループを解除 (singleton の transport に残るため)
     stopVisualSync()
     clearHighlight()
     hideCursor()
     pausedAtRef.current = 0
+    setIsRangeLooping(false)
     setPlaybackState("stopped")
     // 色復元 + オーバーレイ再描画は useEffect 経由で applyComparisonColors が担当
     // （playbackState → "stopped" の変化で発火する）
@@ -1663,7 +1747,7 @@ export default function ScoreDetail({
   }, [stopVisualSync])
 
   // --- Partのセットアップ（共通） ---
-  const setupPart = useCallback(async (startFromSec: number = 0) => {
+  const setupPart = useCallback(async (startFromSec: number = 0, loop?: { start: number; end: number }) => {
     if (!analysis) return
     setPopover(null)
     await Tone.start()
@@ -1700,9 +1784,17 @@ export default function ScoreDetail({
       events
     ).start(0)
 
-    const lastNote = analysis.notes[analysis.notes.length - 1]
-    const endTimeSec = lastNote ? lastNote.end_time_sec * tempoRatio + 0.5 : 10
-    transport.schedule(() => stopPlayback(), `${endTimeSec}` as any)
+    if (loop) {
+      // 区間ループ: transport のネイティブ loop で [start, end] を繰り返す (Part のイベントは絶対時刻なので窓内のみ再発火)
+      transport.loop = true
+      transport.loopStart = loop.start
+      transport.loopEnd = loop.end
+    } else {
+      transport.loop = false
+      const lastNote = analysis.notes[analysis.notes.length - 1]
+      const endTimeSec = lastNote ? lastNote.end_time_sec * tempoRatio + 0.5 : 10
+      transport.schedule(() => stopPlayback(), `${endTimeSec}` as any)
+    }
 
     transport.seconds = startFromSec
     lastHighlightedTimeRef.current = -1
@@ -1722,6 +1814,27 @@ export default function ScoreDetail({
     pausedAtRef.current = 0
     await setupPart(0)
   }, [setupPart])
+
+  // --- 区間ループ再生 (部分練習 Phase 1) ---
+  const startRangeLoop = useCallback(async () => {
+    if (!analysis || rangeStart === null || rangeEnd === null) return
+    const ratio = getTempoRatio()
+    const lo = Math.min(rangeStart, rangeEnd)
+    const hi = Math.max(rangeStart, rangeEnd)
+    const s = analysis.notes[lo]
+    const e = analysis.notes[hi]
+    if (!s || !e) return
+    const startSec = s.start_time_sec * ratio
+    const endSec = e.end_time_sec * ratio
+    if (endSec <= startSec) return
+    if (playbackState === "playing") {
+      Tone.getTransport().stop()
+      Tone.getTransport().cancel()
+      stopVisualSync()
+    }
+    setIsRangeLooping(true)
+    await setupPart(startSec, { start: startSec, end: endSec })
+  }, [analysis, rangeStart, rangeEnd, getTempoRatio, setupPart, playbackState, stopVisualSync])
 
   // --- スコアクリックで任意位置から再生 / ポップオーバー表示 ---
   const handleScoreClick = useCallback(async (e: React.MouseEvent) => {
@@ -1748,6 +1861,23 @@ export default function ScoreDetail({
     }
 
     const HIT_RADIUS = 40
+
+    // 1.5 区間選択モード: 開始→終了の音符を順にタップして区間を確定 (部分練習 Phase 1)
+    if (rangeMode && closestDist <= HIT_RADIUS) {
+      if (rangeStart === null || rangeEnd !== null) {
+        // 新しい選択を開始
+        setRangeStart(closestIdx)
+        setRangeEnd(null)
+      } else {
+        // 終了を確定 (開始 > 終了 なら入れ替え)
+        const a = Math.min(rangeStart, closestIdx)
+        const b = Math.max(rangeStart, closestIdx)
+        setRangeStart(a)
+        setRangeEnd(b)
+      }
+      setPopover(null)
+      return
+    }
 
     // 2. ポップオーバー分岐: 停止中 + 評価あり + ノート近傍
     if (playbackState === "stopped" && comparison && closestDist <= HIT_RADIUS) {
@@ -1785,7 +1915,7 @@ export default function ScoreDetail({
     }
 
     await setupPart(startSec)
-  }, [analysis, playbackState, comparison, getTempoRatio, setupPart, stopVisualSync])
+  }, [analysis, playbackState, comparison, getTempoRatio, setupPart, stopVisualSync, rangeMode, rangeStart, rangeEnd])
 
   // --- 録音中ガイドカーソル ---
   const recGuideAnimRef = useRef<number | null>(null)
@@ -2266,6 +2396,49 @@ export default function ScoreDetail({
               )}
             </div>
           </div>
+
+          {/* 区間ループ (部分練習 Phase 1) 2026-07-18: 譜面で区間を選び、その区間だけお手本をループ再生 */}
+          {analysis && (
+            <div className={styles.card}>
+              <div className={styles.tempoCardHead}>
+                <h3 className={styles.tempoCardTitle}>区間ループ（部分練習）</h3>
+                <span className={styles.tempoCardSub}>選んだ区間だけお手本を繰り返し</span>
+              </div>
+              <div className={styles.rangeBody}>
+                <button
+                  type="button"
+                  className={`${styles.rangeSelectBtn} ${rangeMode ? styles.rangeSelectOn : ""}`}
+                  onClick={() => setRangeMode((v) => !v)}
+                  aria-pressed={rangeMode}
+                >
+                  {rangeMode ? "選択モード中（もう一度で終了）" : "区間を選ぶ"}
+                </button>
+
+                {rangeMode && rangeStart === null && (
+                  <p className={styles.rangeHint}>楽譜で <b>開始の音符</b> をタップ → 次に <b>終了の音符</b> をタップ</p>
+                )}
+                {rangeMode && rangeStart !== null && rangeEnd === null && (
+                  <p className={styles.rangeHint}>次に <b>終了の音符</b> をタップ</p>
+                )}
+
+                {rangeStart !== null && rangeEnd !== null && (
+                  <div className={styles.rangeActions}>
+                    {!isRangeLooping ? (
+                      <button className={styles.rangePlayBtn} onClick={startRangeLoop}>▶ 区間をループ再生</button>
+                    ) : (
+                      <button className={styles.rangeStopBtn} onClick={stopPlayback}>■ ループ停止</button>
+                    )}
+                    <button
+                      className={styles.rangeClearBtn}
+                      onClick={() => { if (isRangeLooping) stopPlayback(); setRangeStart(null); setRangeEnd(null) }}
+                    >
+                      解除
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* 評価詳細 (再生 / 得点 / 判定内容) は各演奏履歴カード内にアコーディオン収納
               (renderDetail として PerformanceHistory に渡す)。skill-detail は Score 演奏のみ。 */}
