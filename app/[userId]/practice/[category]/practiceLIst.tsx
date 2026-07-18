@@ -108,18 +108,8 @@ function CategoryCover({ category }: { category: string }) {
   )
 }
 
-function relativeDate(isoString: string): string {
-  const days = Math.floor((Date.now() - new Date(isoString).getTime()) / 86400000)
-  if (days === 0) return "今日"
-  if (days === 1) return "昨日"
-  if (days < 7) return `${days}日前`
-  if (days < 30) return `${Math.floor(days / 7)}週間前`
-  if (days < 365) return `${Math.floor(days / 30)}ヶ月前`
-  return `${Math.floor(days / 365)}年前`
-}
-
-// 基礎練カード (曲以外): カバー / タイトル / ◯ポジション + 最終練習 / 薄い線 / 説明文(左)・スコア(右下)。
-// (2026-07-18 Tetsuo指示のレイアウト)
+// 基礎練カード (曲以外): カバー / タイトル / ◯ポジション / 薄い線 / 説明文(左)・スコア or 未練習(右端)。
+// (2026-07-18 Tetsuo指示。「最終練習」表記は撤去し、右端はベストスコア/未練習)
 function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: string; category: string }) {
   const pos = item.positions.length ? item.positions.join("・") : null
   return (
@@ -127,16 +117,19 @@ function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: s
       <CategoryCover category={category} />
       <div className={styles.itemCardBody}>
         <div className={styles.matTitle}>{item.title.replace(/_/g, "・")}</div>
-        <div className={styles.basicTop}>
-          {pos && <span className={styles.posCircle}>{pos}</span>}
-          <span className={styles.lastPracticed}>
-            最終練習 {item.lastPracticed ? relativeDate(item.lastPracticed) : "未練習"}
-          </span>
-        </div>
+        {pos && (
+          <div className={styles.basicTop}>
+            <span className={styles.posCircle}>{pos}</span>
+          </div>
+        )}
         <div className={styles.basicDivider} />
         <div className={styles.basicBottom}>
           <span className={styles.basicDesc}>{item.descriptionShort ?? ""}</span>
-          {item.bestScore != null && <span className={styles.basicScore}>ベスト {item.bestScore}</span>}
+          {item.bestScore != null ? (
+            <span className={styles.basicScore}>ベスト {item.bestScore}</span>
+          ) : (
+            <span className={styles.basicUnpracticed}>未練習</span>
+          )}
         </div>
       </div>
     </Link>

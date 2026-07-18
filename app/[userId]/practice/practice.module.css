@@ -510,3 +510,6 @@
   overflow: hidden;
 }
 .basicScore { font-size: 14px; font-weight: 800; color: #c98a16; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* 未練習ラベル (ベストスコアが無い時に右端へ) */
+.basicUnpracticed { font-size: 12px; color: #b0a9ac; white-space: nowrap; font-weight: 600; }
