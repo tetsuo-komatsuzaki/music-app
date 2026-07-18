@@ -1080,6 +1080,42 @@ export default function ScoreDetail({
     }
   }, [selected, loadComparison])
 
+  // 演奏セレクタ (譜面の上で過去の演奏を選び、フィードバックを譜面に色表示) 2026-07-18
+  // 直接選択版 (トグルしない)。selected を設定すると comparison(useMemo) 経由で譜面が色付く。
+  const selectPerformanceById = useCallback((id: string | null) => {
+    setPopover(null)
+    if (!id) { setSelected(null); return }
+    const p = performances.find((x) => x.id === id)
+    if (!p) return
+    setSelected(p)
+    if (!p.comparisonResult && (p.pitchAccuracy != null || p.overallScore != null)) {
+      loadComparison(p)
+    }
+  }, [performances, loadComparison])
+
+  // リネーム (演奏履歴カード・セレクタ横 共通)
+  const handleRenamed = useCallback((performanceId: string, newName: string) => {
+    setPerformances((prev) => prev.map((p) => (p.id === performanceId ? { ...p, name: newName } : p)))
+    setSelected((prev) => (prev && prev.id === performanceId ? { ...prev, name: newName } : prev))
+  }, [])
+  const [renamingId, setRenamingId] = useState<string | null>(null)
+  const [renameDraft, setRenameDraft] = useState("")
+  const [renameSaving, setRenameSaving] = useState(false)
+  const submitRename = useCallback(async () => {
+    if (!renamingId || renameSaving) return
+    setRenameSaving(true)
+    const res = await renamePerformance({
+      performanceId: renamingId,
+      kind: practiceItemId ? "practice" : "score",
+      name: renameDraft,
+    })
+    setRenameSaving(false)
+    if (res.ok) {
+      handleRenamed(renamingId, res.name)
+      setRenamingId(null)
+    }
+  }, [renamingId, renameSaving, renameDraft, practiceItemId, handleRenamed])
+
   // 過去ベストスコア（ピッチ）— 録音後フィードバックの比較用
   // 区間演奏(rangeFromNote != null)は練習補助であり、ベスト/レベル等の公式表示には非算入。
   const fullPerformances = useMemo(
@@ -2268,14 +2304,7 @@ export default function ScoreDetail({
         loading={perfLoading}
         performanceCount={performanceCount}
         kind={practiceItemId ? "practice" : "score"}
-        onRenamed={(performanceId, newName) => {
-          setPerformances((prev) =>
-            prev.map((p) => (p.id === performanceId ? { ...p, name: newName } : p))
-          )
-          setSelected((prev) =>
-            prev && prev.id === performanceId ? { ...prev, name: newName } : prev
-          )
-        }}
+        onRenamed={handleRenamed}
         renderDetail={(p) => (
           <>
             <AudioPlayer audioUrl={p.audioUrl ?? null} performanceId={p.id} />
@@ -2326,6 +2355,67 @@ export default function ScoreDetail({
       {activeTab === "play" && (
       <div className={styles.playStack} data-section="play-tab">
         {infoSlot}
+
+        {/* 過去の演奏セレクタ: 選ぶと譜面にその演奏のフィードバックを色表示 + 右にスコア。名前編集も。 */}
+        {performances.length > 0 && (
+          <div className={styles.perfSelectRow}>
+            {renamingId && selected && renamingId === selected.id ? (
+              <>
+                <input
+                  className={styles.perfRenameInput}
+                  value={renameDraft}
+                  maxLength={PERFORMANCE_NAME_MAX}
+                  autoFocus
+                  onChange={(e) => setRenameDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") submitRename()
+                    else if (e.key === "Escape") setRenamingId(null)
+                  }}
+                  disabled={renameSaving}
+                />
+                <button className={styles.perfSaveBtn} onClick={submitRename} disabled={renameSaving}>保存</button>
+                <button className={styles.perfCancelBtn} onClick={() => setRenamingId(null)}>取消</button>
+              </>
+            ) : (
+              <>
+                <select
+                  className={styles.perfSelect}
+                  value={selected?.id ?? ""}
+                  onChange={(e) => selectPerformanceById(e.target.value || null)}
+                >
+                  <option value="">🎻 お手本モード（演奏を選ぶと採点を表示）</option>
+                  {performances.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {(p.name ?? "Performance")}{p.rangeFromNote != null ? "（区間）" : ""} ・ {new Date(p.uploadedAt).toLocaleDateString("ja-JP")}
+                    </option>
+                  ))}
+                </select>
+                {selected && (() => {
+                  const sc = performanceScore(selected)
+                  return (
+                    <span className={styles.perfSelectScore}>
+                      {sc != null ? (
+                        <span style={{ color: rankLabels[getScoreRank(sc)].color }}>{sc}<small>点</small></span>
+                      ) : (
+                        <span style={{ fontSize: 12, color: "#999" }}>解析中</span>
+                      )}
+                    </span>
+                  )
+                })()}
+                {selected && (
+                  <button
+                    className={styles.perfRenameBtn}
+                    onClick={() => { setRenamingId(selected.id); setRenameDraft(selected.name ?? "") }}
+                    title="この演奏の名前を編集"
+                    aria-label="名前を編集"
+                  >
+                    ✎
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        )}
 
         {/* 譜面ヒーロー (全幅・最上部) — UX刷新 Step 3 */}
         <div ref={scoreWrapperRef} style={{ position: "relative" }} data-onboarding="scoreDetail.scoreOverlay" data-section="score-hero">

@@ -415,6 +415,31 @@
   will-change: transform;
 }
 
+/* 過去の演奏セレクタ (譜面上・フィードバック表示 + スコア + リネーム) 2026-07-18 */
+.perfSelectRow { display: flex; align-items: center; gap: 8px; }
+.perfSelect {
+  flex: 1; min-width: 0; font-family: inherit; font-size: 13px; font-weight: 700; color: #2c2830;
+  background: #fff; border: 1px solid #e0dde3; border-radius: 10px; padding: 10px 12px; cursor: pointer;
+}
+.perfSelectScore { flex: 0 0 auto; font-size: 22px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.perfSelectScore small { font-size: 12px; font-weight: 600; margin-left: 1px; }
+.perfRenameBtn {
+  flex: 0 0 auto; width: 38px; height: 38px; border-radius: 9px; border: 1px solid #e0dde3;
+  background: #f7f6f9; color: #6a6470; cursor: pointer; font-size: 15px; display: grid; place-items: center;
+}
+.perfRenameBtn:active { filter: brightness(0.96); }
+.perfRenameInput {
+  flex: 1; min-width: 0; font-family: inherit; font-size: 14px; font-weight: 700; color: #201c22;
+  border: 1px solid #4a6cf7; border-radius: 10px; padding: 10px 12px; outline: none;
+}
+.perfSaveBtn, .perfCancelBtn {
+  flex: 0 0 auto; font-family: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer;
+  border-radius: 9px; padding: 10px 13px; border: 1px solid transparent;
+}
+.perfSaveBtn { color: #fff; background: #4a6cf7; }
+.perfSaveBtn:disabled { opacity: 0.5; cursor: default; }
+.perfCancelBtn { color: #5a545c; background: #f2f1f4; border-color: #eceaef; }
+
 /* 演奏タブ 単一カラム (UX刷新 Step 3: 譜面ヒーロー) 2026-07-18 */
 .playStack {
   display: flex;
