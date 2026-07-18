@@ -4,6 +4,8 @@ import { prisma } from "../_libs/prisma"
 import { Prisma } from "../generated/prisma"
 import { createClient } from "@supabase/supabase-js"
 import { revalidatePath } from "next/cache"
+import { after } from "next/server"
+import { generateScoreCover } from "../_libs/coverImage/generateAndStore"
 import { createServerSupabaseClient } from "../_libs/supabaseServer"
 import { invokeAnalysis } from "../_libs/pythonRunner"
 import { SUB_TASK_IDS } from "../_libs/skillMaster"
@@ -157,6 +159,16 @@ export async function uploadScore(formData: FormData) {
   await prisma.score.update({
     where: { id: score.id },
     data: { originalXmlPath: filePath },
+  })
+
+  // AIカバーを応答後に非同期生成 (アップロードを遅らせない)。失敗しても致命的でない。
+  // ⚠️ REPLICATE_API_TOKEN 未設定/課金未登録の環境ではスキップされるだけ (batchで後追い可)。
+  after(async () => {
+    try {
+      await generateScoreCover(score.id)
+    } catch (e) {
+      console.error(`[cover] score ${score.id} 生成失敗:`, e instanceof Error ? e.message : e)
+    }
   })
 
   // 解析ジョブ起動 (Cloud Run Jobs 経由・非同期)

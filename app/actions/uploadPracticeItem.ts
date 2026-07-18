@@ -3,7 +3,9 @@ import { prisma } from "@/app/_libs/prisma"
 import { createClient } from "@supabase/supabase-js"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { revalidatePath } from "next/cache"
+import { after } from "next/server"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
+import { generatePracticeItemCover } from "@/app/_libs/coverImage/generateAndStore"
 import { Prisma, type PracticeCategory } from "@/app/generated/prisma"
 import { SUB_TASK_IDS } from "@/app/_libs/skillMaster"
 import { isPracticeCategory } from "@/app/_libs/practiceConstants"
@@ -118,6 +120,15 @@ export async function uploadPracticeItem(formData: FormData) {
   await prisma.practiceItem.update({
     where: { id: item.id },
     data: { originalXmlPath: storagePath },
+  })
+
+  // AIカバーを応答後に非同期生成 (アップロードを遅らせない)。失敗しても致命的でない。
+  after(async () => {
+    try {
+      await generatePracticeItemCover(item.id)
+    } catch (e) {
+      console.error(`[cover] practiceItem ${item.id} 生成失敗:`, e instanceof Error ? e.message : e)
+    }
   })
 
   // 技法タグを紐づけ
