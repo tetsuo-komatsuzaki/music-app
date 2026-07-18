@@ -4,10 +4,10 @@
 // scoreId(=選択中の難易度変種) が変わると譜面・お手本を出し分ける。
 // OSMD / Tone は遅延 import。最終的な音・描画は実アプリでの確認前提。
 import { useEffect, useRef, useState } from "react"
-import { getScorePreview, type PreviewNote } from "@/app/actions/getScorePreview"
+import { getScorePreview, getPracticeItemPreview, type PreviewNote } from "@/app/actions/getScorePreview"
 import styles from "./prePractice.module.css"
 
-export default function SheetPreview({ scoreId }: { scoreId: string }) {
+export default function SheetPreview({ scoreId, kind = "score" }: { scoreId: string; kind?: "score" | "practice" }) {
   const boxRef = useRef<HTMLDivElement>(null)
   const notesRef = useRef<PreviewNote[]>([])
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,7 +22,9 @@ export default function SheetPreview({ scoreId }: { scoreId: string }) {
     stopPlayback()
     if (boxRef.current) boxRef.current.innerHTML = ""
     ;(async () => {
-      const data = await getScorePreview(scoreId)
+      const data = kind === "practice"
+        ? await getPracticeItemPreview(scoreId)
+        : await getScorePreview(scoreId)
       if (cancelled) return
       notesRef.current = data?.notes ?? []
       if (data?.buildUrl && boxRef.current) {

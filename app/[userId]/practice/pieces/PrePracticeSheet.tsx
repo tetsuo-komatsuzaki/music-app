@@ -28,15 +28,17 @@ export type SheetGroup = {
 const DIFF_DOT: Record<string, string> = { BEGINNER: "#2e9e6b", INTERMEDIATE: "#e0a02f", ADVANCED: "#e0812f" }
 
 export default function PrePracticeSheet({
-  userId, group, onClose, basePath = "/scores", enablePreview = false,
+  userId, group, onClose, basePath = "/scores", enablePreview = false, previewKind = "score",
 }: {
   userId: string
   group: SheetGroup
   onClose: () => void
   /** 遷移先ベース。曲=/scores(既定)、エチュード=/practice/etude */
   basePath?: string
-  /** 譜面プレビュー+お手本再生を出す(曲=Scoreのみ対応)。難易度連動で選択変種を表示 */
+  /** 譜面プレビュー+お手本再生を出す。難易度連動で選択変種を表示 */
   enablePreview?: boolean
+  /** プレビュー取得元。曲=score(既定)、エチュード=practice */
+  previewKind?: "score" | "practice"
 }) {
   const router = useRouter()
   // 難易度 → 変種 (教材の有無)
@@ -85,7 +87,7 @@ export default function PrePracticeSheet({
         </div>
 
         {/* 譜面プレビュー + お手本再生 (選択中の難易度変種で出し分け) */}
-        {enablePreview && variant && <SheetPreview key={variant.id} scoreId={variant.id} />}
+        {enablePreview && variant && <SheetPreview key={variant.id} scoreId={variant.id} kind={previewKind} />}
 
         {/* 難易度: 初級〜上級を常時表示。教材の無いものはグレー */}
         <div className={styles.slab}>難易度を選ぶ</div>

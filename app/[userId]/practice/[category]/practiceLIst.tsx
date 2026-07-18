@@ -420,6 +420,8 @@ function StarView({
         <PrePracticeSheet
           userId={userId}
           basePath={`/practice/${category}`}
+          enablePreview
+          previewKind="practice"
           group={{
             title: songItem.title.replace(/_/g, "・"),
             composer: songItem.composer,

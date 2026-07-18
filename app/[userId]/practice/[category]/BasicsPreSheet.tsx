@@ -6,6 +6,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import styles from "../pieces/prePractice.module.css"
 import { ARTICULATIONS } from "@/app/_libs/materialVariant"
+import SheetPreview from "../pieces/SheetPreview"
 
 export type BasicsVariant = {
   id: string
@@ -82,6 +83,9 @@ export default function BasicsPreSheet({
             <div className={styles.composer}>調・奏法を選んで練習</div>
           </div>
         </div>
+
+        {/* 譜面プレビュー + お手本再生 (選択中の調変種で出し分け) */}
+        {variant && <SheetPreview key={variant.id} scoreId={variant.id} kind="practice" />}
 
         {/* 調: 12調を常時表示。族に無い調はグレー */}
         <div className={styles.slab}>調を選ぶ</div>

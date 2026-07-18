@@ -41,6 +41,35 @@ export async function getScorePreview(scoreId: string): Promise<ScorePreview | n
   return { buildUrl, notes }
 }
 
+// 基礎練/エチュード(PracticeItem)版。generatedXmlPath + analysisPath を使う。
+export async function getPracticeItemPreview(itemId: string): Promise<ScorePreview | null> {
+  const item = await prisma.practiceItem.findUnique({
+    where: { id: itemId },
+    select: { id: true, generatedXmlPath: true, analysisPath: true, analysisStatus: true, buildStatus: true },
+  })
+  if (!item) return null
+
+  const [buildUrl, notes] = await Promise.all([
+    item.buildStatus === "done" && item.generatedXmlPath
+      ? storageAdmin.storage.from("musicxml").createSignedUrl(item.generatedXmlPath, 300)
+          .then((r) => encodeSignedUrl(r.data?.signedUrl) ?? null)
+          .catch(() => null)
+      : Promise.resolve(null),
+    item.analysisStatus === "done" && item.analysisPath
+      ? storageAdmin.storage.from("musicxml").createSignedUrl(item.analysisPath, 60)
+          .then((r) => {
+            const u = encodeSignedUrl(r.data?.signedUrl)
+            return u ? fetch(u) : null
+          })
+          .then((res) => (res?.ok ? res.json() : null))
+          .then((a) => extractNotes(a))
+          .catch(() => [] as PreviewNote[])
+      : Promise.resolve([] as PreviewNote[]),
+  ])
+
+  return { buildUrl, notes }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function extractNotes(analysis: any): PreviewNote[] {
   const raw = Array.isArray(analysis?.notes) ? analysis.notes : []
