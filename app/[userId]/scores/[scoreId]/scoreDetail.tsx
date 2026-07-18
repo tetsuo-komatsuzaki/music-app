@@ -871,14 +871,16 @@ export default function ScoreDetail({
   // ▼ 上達ループタブ (Phase 4-1、Score 演奏のみ。practice 経路では非表示)
   const isScoreMode = !practiceItemId
   const initialTab: ScoreDetailTabId =
-    isScoreMode && searchParams.get("tab") === "loop" ? "loop" : "practice"
+    isScoreMode && ["review", "loop"].includes(searchParams.get("tab") ?? "")
+      ? "review"
+      : "play"
   const [activeTab, setActiveTab] = useState<ScoreDetailTabId>(initialTab)
   const handleTabChange = useCallback(
     (next: ScoreDetailTabId) => {
       setActiveTab(next)
       const params = new URLSearchParams(searchParams.toString())
-      if (next === "loop") {
-        params.set("tab", "loop")
+      if (next === "review") {
+        params.set("tab", "review")
       } else {
         params.delete("tab")
       }
@@ -2222,6 +2224,49 @@ export default function ScoreDetail({
     }
   }, [stopVisualSync])
 
+  // ふりかえりタブ用ブロック (Step 1: 構成再編 2026-07-18 — 履歴/採点結果/上達ループを1タブに集約)
+  const deleteHintBlock = !practiceItemId && !selected && recentlyDeleted && (
+    <div className={styles.deleteHint} role="status">
+      演奏を削除しました。履歴から別の演奏を選んでください。
+    </div>
+  )
+  const performanceHistoryBlock = (
+    <div data-onboarding="scoreDetail.performanceHistory">
+      <PerformanceHistory
+        performances={performances}
+        selectedId={selected?.id ?? null}
+        onSelect={handleSelectPerformance}
+        loading={perfLoading}
+        performanceCount={performanceCount}
+        kind={practiceItemId ? "practice" : "score"}
+        onRenamed={(performanceId, newName) => {
+          setPerformances((prev) =>
+            prev.map((p) => (p.id === performanceId ? { ...p, name: newName } : p))
+          )
+          setSelected((prev) =>
+            prev && prev.id === performanceId ? { ...prev, name: newName } : prev
+          )
+        }}
+        renderDetail={(p) => (
+          <>
+            <AudioPlayer audioUrl={p.audioUrl ?? null} performanceId={p.id} />
+            {(p.pitchAccuracy != null || p.timingAccuracy != null) && (
+              <EvaluationSummaryCard performance={p} warnings={p.comparisonWarnings ?? []} />
+            )}
+            {!practiceItemId && (
+              <PerformanceSkillDetail
+                performanceId={p.id}
+                kind="score"
+                onDeleted={handlePerformanceDeleted}
+                userId={userId}
+              />
+            )}
+          </>
+        )}
+      />
+    </div>
+  )
+
   return (
     <div className={styles.container} data-section="score-detail-root">
       {/* F-1: フルスクリーン中の操作ガイドバー (Recorder の停止ボタンは leftColumn 内で非表示のため、戻るボタンを案内) */}
@@ -2250,9 +2295,7 @@ export default function ScoreDetail({
         </div>
       )}
 
-      {isScoreMode && activeTab === "loop" ? (
-        <ScoreLoopDetail scoreId={score.id} userId={userId} />
-      ) : (
+      {(!isScoreMode || activeTab === "play") && (
       <div className={styles.grid}>
         <div className={styles.leftColumn} data-section="left-column">
           {infoSlot}
@@ -2362,7 +2405,7 @@ export default function ScoreDetail({
               onRecordingBpmChange={handleRecordingBpmChange}
               onRecordingStop={() => { setRecordingState("preview"); stopRecordingGuide() }}
               uploadProgress={uploadProgress}
-              onShowLoop={isScoreMode ? () => handleTabChange("loop") : undefined}
+              onShowLoop={isScoreMode ? () => handleTabChange("review") : undefined}
             />
           </div>
           <div className={styles.card} data-onboarding="scoreDetail.playControls">
@@ -2443,48 +2486,6 @@ export default function ScoreDetail({
             </div>
           )}
 
-          {/* 評価詳細 (再生 / 得点 / 判定内容) は各演奏履歴カード内にアコーディオン収納
-              (renderDetail として PerformanceHistory に渡す)。skill-detail は Score 演奏のみ。 */}
-          {!practiceItemId && !selected && recentlyDeleted && (
-            <div className={styles.deleteHint} role="status">
-              演奏を削除しました。履歴から別の演奏を選んでください。
-            </div>
-          )}
-
-          <div data-onboarding="scoreDetail.performanceHistory">
-            <PerformanceHistory
-              performances={performances}
-              selectedId={selected?.id ?? null}
-              onSelect={handleSelectPerformance}
-              loading={perfLoading}
-              performanceCount={performanceCount}
-              kind={practiceItemId ? "practice" : "score"}
-              onRenamed={(performanceId, newName) => {
-                setPerformances((prev) =>
-                  prev.map((p) => (p.id === performanceId ? { ...p, name: newName } : p))
-                )
-                setSelected((prev) =>
-                  prev && prev.id === performanceId ? { ...prev, name: newName } : prev
-                )
-              }}
-              renderDetail={(p) => (
-                <>
-                  <AudioPlayer audioUrl={p.audioUrl ?? null} performanceId={p.id} />
-                  {(p.pitchAccuracy != null || p.timingAccuracy != null) && (
-                    <EvaluationSummaryCard performance={p} warnings={p.comparisonWarnings ?? []} />
-                  )}
-                  {!practiceItemId && (
-                    <PerformanceSkillDetail
-                      performanceId={p.id}
-                      kind="score"
-                      onDeleted={handlePerformanceDeleted}
-                      userId={userId}
-                    />
-                  )}
-                </>
-              )}
-            />
-          </div>
         </div>
 
         <div className={styles.rightColumn} data-section="right-column">
@@ -2512,6 +2513,15 @@ export default function ScoreDetail({
           </div>
         </div>
       </div>
+      )}
+
+      {/* ふりかえりタブ: 演奏履歴(採点結果含む) + 上達ループ を集約 (Step 1) */}
+      {(!isScoreMode || activeTab === "review") && (
+        <div data-section="review" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {deleteHintBlock}
+          {performanceHistoryBlock}
+          {isScoreMode && <ScoreLoopDetail scoreId={score.id} userId={userId} />}
+        </div>
       )}
 
       <OnboardingTrigger pageKey={practiceItemId ? "practiceItem" : "scoreDetail"} />

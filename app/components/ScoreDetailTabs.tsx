@@ -8,11 +8,11 @@
 
 import styles from "./StatusTab.module.css"
 
-export type ScoreDetailTabId = "practice" | "loop"
+export type ScoreDetailTabId = "play" | "review"
 
 const TAB_DEFS: { id: ScoreDetailTabId; label: string }[] = [
-  { id: "practice", label: "練習" },
-  { id: "loop", label: "課題の取り組み状況" },
+  { id: "play", label: "演奏" },
+  { id: "review", label: "ふりかえり" },
 ]
 
 type Props = {

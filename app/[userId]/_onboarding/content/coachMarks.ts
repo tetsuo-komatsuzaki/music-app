@@ -92,9 +92,11 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
       },
       {
         id: "scoreDetail.history",
-        targetKey: "scoreDetail.performanceHistory",
-        headline: "演奏履歴を確認",
-        body: "演奏履歴はここに保存されます。タップすると、その時の分析したフィードバック内容が譜面の上に色で表示されます。",
+        // Step 1 構成再編: 履歴/採点結果/上達ループは「ふりかえり」タブへ集約したため
+        // 演奏タブには存在しない。中央表示でタブの存在を案内する。
+        targetKey: null,
+        headline: "演奏履歴は「ふりかえり」タブに",
+        body: "録音した演奏の履歴と採点結果は、上部の「ふりかえり」タブにまとまっています。選ぶと、その時のフィードバックが譜面の上に色で表示されます。",
         trigger: "page",
         showDismissAllCheckbox: false,
       },
