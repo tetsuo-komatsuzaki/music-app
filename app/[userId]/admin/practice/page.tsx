@@ -66,6 +66,22 @@ export default async function AdminPracticePage({
     }),
   ])
 
+  // 教材グループ一覧 (Phase B: 「既存グループに変種を追加」の選択肢用)
+  const groupsRaw = await prisma.materialGroup.findMany({
+    orderBy: [{ category: "asc" }, { title: "asc" }],
+    select: {
+      id: true, category: true, title: true, composer: true,
+      _count: { select: { scores: true, practiceItems: true } },
+    },
+  })
+  const groups = groupsRaw.map((g) => ({
+    id: g.id,
+    category: g.category,
+    title: g.title,
+    composer: g.composer,
+    variantCount: g._count.scores + g._count.practiceItems,
+  }))
+
   // カテゴリでグルーピング
   const tagsByCategory: Record<string, typeof techniqueTags> = {}
   for (const tag of techniqueTags) {
@@ -137,6 +153,7 @@ export default async function AdminPracticePage({
     <AdminPractice
       items={allItems}
       tagsByCategory={tagsByCategory}
+      groups={groups}
       uploadAction={uploadPracticeItem}
       uploadScoreAction={uploadScore}
     />

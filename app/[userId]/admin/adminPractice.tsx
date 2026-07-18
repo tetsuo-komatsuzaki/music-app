@@ -26,6 +26,12 @@ import { updatePracticeItemTechniques } from "@/app/actions/updatePracticeItemTe
 import { deleteAdminMaterial } from "@/app/actions/deleteAdminMaterial"
 import { CATEGORY_LABELS, PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
 import { SONG_GENRES } from "@/app/_libs/songGenre"
+import {
+  DIFFICULTIES,
+  ARTICULATIONS,
+  usesDifficulty,
+  usesArticulation,
+} from "@/app/_libs/materialVariant"
 import styles from "./admin.module.css"
 
 // アップロード時に選べるカテゴリ: 基礎練6 + エチュード + 学びレッスン + 練習曲(score=isShared Score)
@@ -49,9 +55,18 @@ type ItemDTO = {
   techniques: { id: string; name: string; isPrimary: boolean }[]
 }
 
+type GroupOption = {
+  id: string
+  category: string
+  title: string
+  composer: string | null
+  variantCount: number
+}
+
 type Props = {
   items: ItemDTO[]
   tagsByCategory: Record<string, TechniqueOption[]>
+  groups: GroupOption[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   uploadAction: (formData: FormData) => Promise<any>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,6 +101,7 @@ function tagShortName(tag: string): string {
 export default function AdminPractice({
   items: initialItems,
   tagsByCategory,
+  groups,
   uploadAction,
   uploadScoreAction,
 }: Props) {
@@ -121,6 +137,12 @@ export default function AdminPractice({
   const [scoreIsShared, setScoreIsShared] = useState(true)
   // Score 用ジャンル (曲のみ。未選択可、後から一覧編集も可)
   const [scoreGenre, setScoreGenre] = useState("")
+
+  // 教材グループ・変種 (Phase B): 既存グループに変種として追加するか
+  const [groupMode, setGroupMode] = useState<"new" | "existing">("new")
+  const [joinGroupId, setJoinGroupId] = useState("")
+  const [difficulty, setDifficulty] = useState("") // 曲/エチュード
+  const [articulation, setArticulation] = useState("") // 基礎練
   const isScoreCategory = category === "score"
 
   // インライン編集 state
@@ -410,6 +432,10 @@ export default function AdminPractice({
     formData.set("composer", composer)
     formData.set("star", difficultyInput) // v1.3 B-3: DB カラム & formData key 双方 star に統一
     formData.set("skillSubTaskTags", JSON.stringify(Array.from(selectedSubTasks)))
+    // 教材グループ・変種 (Phase B): 既存グループに変種追加なら groupId、軸=difficulty/articulation
+    if (groupMode === "existing" && joinGroupId) formData.set("groupId", joinGroupId)
+    if (usesDifficulty(category)) formData.set("difficulty", difficulty)
+    if (usesArticulation(category)) formData.set("articulation", articulation)
 
     try {
       let result
@@ -443,6 +469,7 @@ export default function AdminPractice({
         setFile(null); setShowForm(false)
         setDifficultyInput(""); setSelectedSubTasks(new Set())
         setScoreIsShared(true); setScoreGenre("")
+        setGroupMode("new"); setJoinGroupId(""); setDifficulty(""); setArticulation("")
         window.location.reload()
       }
     } catch (e) {
@@ -550,6 +577,55 @@ export default function AdminPractice({
                 </div>
               )}
             </div>
+
+            {/* 教材グループ・変種 (Phase B): 同じ曲/エクササイズを束ねる */}
+            <div className={styles.field}>
+              <label>教材グループ</label>
+              <div className={styles.radioGroup}>
+                <label className={styles.radioLabel}>
+                  <input type="radio" name="groupMode" checked={groupMode === "new"} onChange={() => setGroupMode("new")} />
+                  新規グループ
+                </label>
+                <label className={styles.radioLabel}>
+                  <input type="radio" name="groupMode" checked={groupMode === "existing"} onChange={() => setGroupMode("existing")} />
+                  既存グループに変種を追加
+                </label>
+              </div>
+              {groupMode === "existing" && (
+                <select value={joinGroupId} onChange={(e) => setJoinGroupId(e.target.value)}>
+                  <option value="">グループを選択…</option>
+                  {groups
+                    .filter((g) => g.category === category)
+                    .map((g) => (
+                      <option key={g.id} value={g.id}>
+                        {g.title}{g.composer ? ` / ${g.composer}` : ""}（変種{g.variantCount}）
+                      </option>
+                    ))}
+                </select>
+              )}
+              <div className={styles.hint}>
+                同じ曲/エクササイズの難易度・奏法違いは「既存グループに追加」で束ねます（カバーはグループ共通）。
+              </div>
+            </div>
+
+            {usesDifficulty(category) && (
+              <div className={styles.field}>
+                <label>難易度（変種の軸）</label>
+                <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+                  <option value="">未設定</option>
+                  {DIFFICULTIES.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
+                </select>
+              </div>
+            )}
+            {usesArticulation(category) && (
+              <div className={styles.field}>
+                <label>奏法バリエーション（変種の軸）</label>
+                <select value={articulation} onChange={(e) => setArticulation(e.target.value)}>
+                  <option value="">未設定（基本／レガート）</option>
+                  {ARTICULATIONS.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
+                </select>
+              </div>
+            )}
 
             {/* PracticeItem (scale/arpeggio/etude) のみ表示する項目 */}
             {!isScoreCategory && (

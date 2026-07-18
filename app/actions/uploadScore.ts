@@ -12,6 +12,7 @@ import { SUB_TASK_IDS } from "../_libs/skillMaster"
 import { autoLinkOnboardingSongs } from "../_libs/onboardingSongLink"
 import { isSongGenre } from "../_libs/songGenre"
 import { ensureScoreGroup } from "../_libs/materialGroup"
+import { isDifficulty } from "../_libs/materialVariant"
 
 const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
 
@@ -49,6 +50,11 @@ export async function uploadScore(formData: FormData) {
   // 曲ジャンル (songGenre.ts の id)。admin 登録UIで手動指定。未選択/不正は null。
   const genreRaw = (formData.get("genre") as string | null)?.trim() || ""
   const genre = isSongGenre(genreRaw) ? genreRaw : null
+
+  // 教材グループ・変種 (Phase B): 既存グループに変種として追加する場合 groupId、難易度は difficulty。
+  const joinGroupId = (formData.get("groupId") as string | null)?.trim() || ""
+  const difficultyRaw = (formData.get("difficulty") as string | null)?.trim() || ""
+  const difficulty = isDifficulty(difficultyRaw) ? difficultyRaw : null
 
   // v1.6 Phase 4-3 (Q4=B): admin Score 登録時に ScoreTechniqueTag を作成 (Q4=A 確定で既存セレクタ流用)。
   // payload: [{ id: string, isPrimary: boolean }, ...] の JSON 文字列。
@@ -110,6 +116,7 @@ export async function uploadScore(formData: FormData) {
       skillSubTaskTags: skillSubTaskTags as Prisma.InputJsonValue,
       isShared,
       genre,
+      difficulty,
     },
   })
 
@@ -168,22 +175,37 @@ export async function uploadScore(formData: FormData) {
     data: { originalXmlPath: filePath },
   })
 
-  // 教材グループを作成し紐付け (Phase A-2: 1曲=1グループ。orphan 防止)。失敗しても致命的でない。
+  // 教材グループ紐付け (Phase B): 既存グループ指定があれば変種として追加、無ければ新規1:1作成。
+  // 失敗しても致命的でない。
+  let joinedExistingGroup = false
   try {
-    await ensureScoreGroup(score.id)
+    if (joinGroupId) {
+      const g = await prisma.materialGroup.findUnique({
+        where: { id: joinGroupId },
+        select: { id: true, kind: true },
+      })
+      if (g && g.kind === "SONG") {
+        await prisma.score.update({ where: { id: score.id }, data: { groupId: g.id } })
+        joinedExistingGroup = true
+      }
+    }
+    if (!joinedExistingGroup) await ensureScoreGroup(score.id)
   } catch (e) {
-    console.error(`[group] score ${score.id} グループ作成失敗:`, e instanceof Error ? e.message : e)
+    console.error(`[group] score ${score.id} グループ紐付け失敗:`, e instanceof Error ? e.message : e)
   }
 
   // AIカバーを応答後に非同期生成 (アップロードを遅らせない)。失敗しても致命的でない。
+  // 既存グループへの変種追加時はグループのカバーを継承するため生成しない。
   // ⚠️ REPLICATE_API_TOKEN 未設定/課金未登録の環境ではスキップされるだけ (batchで後追い可)。
-  after(async () => {
-    try {
-      await generateScoreCover(score.id)
-    } catch (e) {
-      console.error(`[cover] score ${score.id} 生成失敗:`, e instanceof Error ? e.message : e)
-    }
-  })
+  if (!joinedExistingGroup) {
+    after(async () => {
+      try {
+        await generateScoreCover(score.id)
+      } catch (e) {
+        console.error(`[cover] score ${score.id} 生成失敗:`, e instanceof Error ? e.message : e)
+      }
+    })
+  }
 
   // 解析ジョブ起動 (Cloud Run Jobs 経由・非同期)
   try {

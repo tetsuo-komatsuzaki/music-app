@@ -7,6 +7,7 @@ import { after } from "next/server"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 import { generatePracticeItemCover } from "@/app/_libs/coverImage/generateAndStore"
 import { ensurePracticeItemGroup } from "@/app/_libs/materialGroup"
+import { isDifficulty, isArticulation } from "@/app/_libs/materialVariant"
 import { Prisma, type PracticeCategory } from "@/app/generated/prisma"
 import { SUB_TASK_IDS } from "@/app/_libs/skillMaster"
 import { isPracticeCategory } from "@/app/_libs/practiceConstants"
@@ -41,6 +42,13 @@ export async function uploadPracticeItem(formData: FormData) {
   const techniques = JSON.parse(formData.get("techniques") as string || "[]")
   const description = (formData.get("description") as string | null)?.trim() || null
   const descriptionShort = (formData.get("descriptionShort") as string | null)?.trim() || null
+
+  // 教材グループ・変種 (Phase B): 既存グループに追加=groupId、エチュード難易度=difficulty、基礎練奏法=articulation
+  const joinGroupId = (formData.get("groupId") as string | null)?.trim() || ""
+  const difficultyRaw = (formData.get("difficulty") as string | null)?.trim() || ""
+  const difficulty = isDifficulty(difficultyRaw) ? difficultyRaw : null
+  const articulationRaw = (formData.get("articulation") as string | null)?.trim() || ""
+  const articulation = isArticulation(articulationRaw) ? articulationRaw : null
 
   // ループエンジン用フィールド (Phase 1c で追加 / v1.3 B-3: DB カラム & formData key 双方 star に統一)
   const starRaw = (formData.get("star") as string | null)?.trim() ?? ""
@@ -96,6 +104,8 @@ export async function uploadPracticeItem(formData: FormData) {
       buildStatus: "queued",
       star,
       skillSubTaskTags: skillSubTaskTags as Prisma.InputJsonValue,
+      difficulty,
+      articulation,
     },
   })
 
@@ -123,21 +133,35 @@ export async function uploadPracticeItem(formData: FormData) {
     data: { originalXmlPath: storagePath },
   })
 
-  // 教材グループを作成し紐付け (Phase A-2: 1教材=1グループ。orphan 防止)。失敗しても致命的でない。
+  // 教材グループ紐付け (Phase B): 既存グループ指定があれば変種として追加、無ければ新規1:1作成。
+  let joinedExistingGroup = false
   try {
-    await ensurePracticeItemGroup(item.id)
+    if (joinGroupId) {
+      const g = await prisma.materialGroup.findUnique({
+        where: { id: joinGroupId },
+        select: { id: true, category: true },
+      })
+      // 同カテゴリのグループのみ受け入れる
+      if (g && g.category === category) {
+        await prisma.practiceItem.update({ where: { id: item.id }, data: { groupId: g.id } })
+        joinedExistingGroup = true
+      }
+    }
+    if (!joinedExistingGroup) await ensurePracticeItemGroup(item.id)
   } catch (e) {
-    console.error(`[group] practiceItem ${item.id} グループ作成失敗:`, e instanceof Error ? e.message : e)
+    console.error(`[group] practiceItem ${item.id} グループ紐付け失敗:`, e instanceof Error ? e.message : e)
   }
 
-  // AIカバーを応答後に非同期生成 (アップロードを遅らせない)。失敗しても致命的でない。
-  after(async () => {
-    try {
-      await generatePracticeItemCover(item.id)
-    } catch (e) {
-      console.error(`[cover] practiceItem ${item.id} 生成失敗:`, e instanceof Error ? e.message : e)
-    }
-  })
+  // AIカバーを応答後に非同期生成。既存グループへの変種追加時は継承するため生成しない。
+  if (!joinedExistingGroup) {
+    after(async () => {
+      try {
+        await generatePracticeItemCover(item.id)
+      } catch (e) {
+        console.error(`[cover] practiceItem ${item.id} 生成失敗:`, e instanceof Error ? e.message : e)
+      }
+    })
+  }
 
   // 技法タグを紐づけ
   for (const tech of techniques as { id: string; isPrimary: boolean }[]) {
