@@ -175,6 +175,11 @@
   text-decoration: none;
   color: inherit;
   box-sizing: border-box;
+  /* button でも Link と同一に見せる (piecesList はタップでシートを開くため button) */
+  appearance: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
   /* 2026-07-18 Tetsuo: カード枠を復活。一番外の線は薄く細く */
   background: #fff;
   border: 1px solid #ededed;

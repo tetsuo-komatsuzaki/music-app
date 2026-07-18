@@ -1,27 +1,31 @@
 "use client"
 
-import Link from "next/link"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import styles from "../practice.module.css"
 import { SONG_GENRES } from "@/app/_libs/songGenre"
+import PrePracticeSheet, { type SheetVariant } from "./PrePracticeSheet"
+
+type PieceVariant = SheetVariant & { badge: "mastered" | "achieved" | null }
 
 export type Piece = {
-  id: string
+  /** グループID (カード key) */
+  groupId: string
   title: string
   composer: string | null
+  /** 代表☆ (変種の最小 star) */
   star: number | null
-  /** C-6b: 達成/マスターの2段バッジ */
+  /** 代表バッジ (変種の最上位) */
   badge?: "mastered" | "achieved" | null
-  /** 自己ベストスコア(0-100)。無ければ null */
+  /** 代表ベスト (変種の最大) */
   bestScore?: number | null
-  /** AI生成カバー画像URL。無ければプレースホルダ */
   coverImagePath?: string | null
-  /** 曲ジャンル (songGenre.ts の id)。無ければ「その他」 */
   genre?: string | null
+  /** 配下の変種 (難易度別)。練習前シートで選択 */
+  variants: PieceVariant[]
 }
 
-// カバー: coverImagePath があれば写真、無ければ 曲=ブルー系のプレースホルダ。
-// 右上は 👑(マスター) / ✓(達成) のみ (☆は難易度タブで代替)。
+// カバー: coverImagePath があれば写真、無ければ 曲=ブルー系のプレースホルダ。右上は 👑/✓ バッジ。
 function Cover({ badge, cover }: { badge?: "mastered" | "achieved" | null; cover?: string | null }) {
   return (
     <div className={styles.matCover}>
@@ -45,8 +49,7 @@ function Cover({ badge, cover }: { badge?: "mastered" | "achieved" | null; cover
   )
 }
 
-// ☆タブ内をジャンル別の横スクロールレールに区分 (2026-07-18 Tetsuo確定)。
-// 順序は SONG_GENRES、未分類は「その他」で末尾。
+// ☆タブ内をジャンル別レールに区分 (順序=SONG_GENRES、未分類は「その他」末尾)
 function groupByGenre(pieces: Piece[]): { label: string; pieces: Piece[] }[] {
   const map = new Map<string, Piece[]>()
   for (const p of pieces) {
@@ -67,11 +70,12 @@ export default function PiecesList({
   userId: string
   pieces: Piece[]
 }) {
-  // 出現する☆を昇順にタブ化 (star 未設定の曲はタブを設けない)。
+  const router = useRouter()
+  const [sheet, setSheet] = useState<Piece | null>(null)
+
   const tabs = Array.from(
     new Set(pieces.map(p => p.star).filter((s): s is number => s != null)),
   ).sort((a, b) => a - b)
-
   const [active, setActive] = useState<number | null>(tabs.length ? tabs[0] : null)
 
   const filtered = pieces
@@ -79,17 +83,21 @@ export default function PiecesList({
     .sort((a, b) => a.title.localeCompare(b.title, "ja"))
   const genreGroups = groupByGenre(filtered)
 
+  // 選ぶ余地(複数変種 or 練習範囲)がある時のみシートを開く。無ければ直接遷移。
+  const handleTap = (p: Piece) => {
+    const needsSheet = p.variants.length > 1 || p.variants.some(v => v.sections.length > 0)
+    if (needsSheet) setSheet(p)
+    else if (p.variants[0]) router.push(`/${userId}/scores/${p.variants[0].id}`)
+  }
+
   return (
     <div className={styles.container}>
       <h1 className={styles.pageTitle}>練習曲</h1>
 
       {tabs.length === 0 ? (
-        <p className={styles.cardContextEmpty}>
-          公開されている練習曲はまだありません。
-        </p>
+        <p className={styles.cardContextEmpty}>公開されている練習曲はまだありません。</p>
       ) : (
         <>
-          {/* ☆ごとの横並びタブ (難易度フィルタ) */}
           <div className={styles.starTabs}>
             {tabs.map(t => (
               <button
@@ -111,26 +119,39 @@ export default function PiecesList({
                 <h3 className={styles.railLabel}>{grp.label}</h3>
                 <div className={styles.itemRail}>
                   {grp.pieces.map(piece => (
-                    <Link
-                      key={piece.id}
-                      href={`/${userId}/scores/${piece.id}`}
+                    <button
+                      key={piece.groupId}
+                      type="button"
                       className={styles.railCard}
+                      onClick={() => handleTap(piece)}
                     >
                       <Cover badge={piece.badge} cover={piece.coverImagePath} />
                       <div className={styles.railCardTitle}>{piece.title}</div>
-                      {piece.composer && (
-                        <div className={styles.railSub}>{piece.composer}</div>
-                      )}
+                      {piece.composer && <div className={styles.railSub}>{piece.composer}</div>}
                       {piece.bestScore != null && (
                         <div className={styles.railBest}>ベスト {piece.bestScore}</div>
                       )}
-                    </Link>
+                    </button>
                   ))}
                 </div>
               </section>
             ))
           )}
         </>
+      )}
+
+      {sheet && (
+        <PrePracticeSheet
+          userId={userId}
+          group={{
+            title: sheet.title,
+            composer: sheet.composer,
+            genre: sheet.genre ?? null,
+            coverImagePath: sheet.coverImagePath ?? null,
+            variants: sheet.variants,
+          }}
+          onClose={() => setSheet(null)}
+        />
       )}
     </div>
   )
