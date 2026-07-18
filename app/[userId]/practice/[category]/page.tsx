@@ -153,6 +153,7 @@ export default async function CategoryPage({
       groupId: item.groupId,
       groupTitle: item.group?.title ?? null,
       articulation: item.articulation,
+      difficulty: item.difficulty,
       descriptionShort: item.descriptionShort,
       lastPracticed: perf?.latest?.toISOString() ?? null,
       totalPractices: perf?.total ?? 0,

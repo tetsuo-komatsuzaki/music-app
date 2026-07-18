@@ -27,11 +27,13 @@ export type SheetGroup = {
 const DIFF_DOT: Record<string, string> = { BEGINNER: "#2e9e6b", INTERMEDIATE: "#e0a02f", ADVANCED: "#e0812f" }
 
 export default function PrePracticeSheet({
-  userId, group, onClose,
+  userId, group, onClose, basePath = "/scores",
 }: {
   userId: string
   group: SheetGroup
   onClose: () => void
+  /** 遷移先ベース。曲=/scores(既定)、エチュード=/practice/etude */
+  basePath?: string
 }) {
   const router = useRouter()
   // 難易度 → 変種 (教材の有無)
@@ -52,7 +54,7 @@ export default function PrePracticeSheet({
       q.set("to", String(sections[rangeIdx].endMeasure))
     }
     const qs = q.toString()
-    router.push(`/${userId}/scores/${variant.id}${qs ? `?${qs}` : ""}`)
+    router.push(`/${userId}${basePath}/${variant.id}${qs ? `?${qs}` : ""}`)
   }
 
   return (
@@ -95,6 +97,7 @@ export default function PrePracticeSheet({
               >
                 <span className={styles.dot} style={{ background: DIFF_DOT[d.id] }} />
                 <span className={styles.difName}>{d.label}</span>
+                {avail && v!.star != null && <span className={styles.difStar}>☆{v!.star}</span>}
                 {avail
                   ? (v!.bestScore != null && <span className={styles.difBest}>ベスト {v!.bestScore}</span>)
                   : <span className={styles.soon}>準備中</span>}

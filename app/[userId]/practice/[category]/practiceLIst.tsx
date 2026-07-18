@@ -8,6 +8,7 @@ import type { PracticeStats } from "@/app/lib/practice/getPracticeStats"
 import OnboardingTrigger from "../../_onboarding/OnboardingTrigger"
 import { tonicToJa } from "@/app/_libs/musicNotation"
 import BasicsPreSheet from "./BasicsPreSheet"
+import PrePracticeSheet from "../pieces/PrePracticeSheet"
 
 type PracticeItemDTO = {
   id: string
@@ -27,6 +28,8 @@ type PracticeItemDTO = {
   groupId?: string | null
   groupTitle?: string | null
   articulation?: string | null
+  /** 難易度 (エチュードシート用) */
+  difficulty?: string | null
   descriptionShort: string | null
   lastPracticed: string | null
   totalPractices: number
@@ -155,10 +158,13 @@ function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: s
 
 // 横スクロールレール用の囲みなしカード (2026-07-18 Tetsuo指示: Violy風。
 // 教材を囲む四角(枠/背景/影)を撤去し、カバー画像 + タイトル + メタのみで見せる)。
-function RailCard({ item, userId, category }: { item: PracticeItemDTO; userId: string; category: string }) {
+// onOpen があればタップでシートを開く(button)、無ければ従来の直接遷移(Link)。
+function RailCard({ item, userId, category, onOpen }: {
+  item: PracticeItemDTO; userId: string; category: string; onOpen?: (item: PracticeItemDTO) => void
+}) {
   const pos = item.positions.length ? item.positions.join("・") : null
-  return (
-    <Link href={`/${userId}/practice/${category}/${item.id}`} className={styles.railCard}>
+  const inner = (
+    <>
       <CategoryCover category={category} cover={item.coverImagePath} />
       <div className={styles.railCardTitle}>{item.title.replace(/_/g, "・")}</div>
       <div className={styles.railCardMeta}>
@@ -169,8 +175,12 @@ function RailCard({ item, userId, category }: { item: PracticeItemDTO; userId: s
           <span className={styles.railUnpracticed}>未練習</span>
         )}
       </div>
-    </Link>
+    </>
   )
+  if (onOpen) {
+    return <button type="button" className={styles.railCard} onClick={() => onOpen(item)}>{inner}</button>
+  }
+  return <Link href={`/${userId}/practice/${category}/${item.id}`} className={styles.railCard}>{inner}</Link>
 }
 
 // title からオクターブ数を抽出 (半角/全角/漢数字対応)。無ければ null。
@@ -276,7 +286,6 @@ function FamilyView({
   userId: string
   category: string
 }) {
-  const router = useRouter()
   const [sheet, setSheet] = useState<Family | null>(null)
 
   const map = new Map<string, PracticeItemDTO[]>()
@@ -293,10 +302,8 @@ function FamilyView({
     }))
     .sort((a, b) => a.title.localeCompare(b.title, "ja"))
 
-  const tap = (fam: Family) => {
-    if (fam.items.length > 1) setSheet(fam)
-    else router.push(`/${userId}/practice/${category}/${fam.items[0].id}`)
-  }
+  // 常にシートを開く (1調だけの族も調ラダーを見せる = 教材による有無をなくす)
+  const tap = (fam: Family) => setSheet(fam)
 
   return (
     <section className={styles.railSection}>
@@ -355,6 +362,11 @@ function StarView({
   const tabs: StarTab[] = [...starValues, ...(hasNull ? (["none"] as StarTab[]) : [])]
 
   const [active, setActive] = useState<StarTab | null>(tabs.length ? tabs[0] : null)
+  // 全教材でシートを開く: エチュード=難易度+パート, その他基礎練=調+奏法
+  const [songItem, setSongItem] = useState<PracticeItemDTO | null>(null)
+  const [basicItem, setBasicItem] = useState<PracticeItemDTO | null>(null)
+  const isEtude = category === "etude" || category === "etudes"
+  const openItem = (it: PracticeItemDTO) => (isEtude ? setSongItem(it) : setBasicItem(it))
 
   if (tabs.length === 0) {
     return (
@@ -396,11 +408,48 @@ function StarView({
             {sg.label && <h3 className={styles.railLabel}>{sg.label}</h3>}
             <div className={styles.itemRail}>
               {sg.items.map((item) => (
-                <RailCard key={item.id} item={item} userId={userId} category={category} />
+                <RailCard key={item.id} item={item} userId={userId} category={category} onOpen={openItem} />
               ))}
             </div>
           </section>
         ))
+      )}
+
+      {/* エチュード: 難易度+パートシート */}
+      {songItem && (
+        <PrePracticeSheet
+          userId={userId}
+          basePath={`/practice/${category}`}
+          group={{
+            title: songItem.title.replace(/_/g, "・"),
+            composer: songItem.composer,
+            genre: null,
+            coverImagePath: songItem.coverImagePath ?? null,
+            variants: [{
+              id: songItem.id, star: songItem.star,
+              difficulty: songItem.difficulty ?? "BEGINNER",
+              sections: [], bestScore: songItem.bestScore ?? null,
+            }],
+          }}
+          onClose={() => setSongItem(null)}
+        />
+      )}
+
+      {/* フィンガリング/ボーイング/重音 等: 調+奏法シート */}
+      {basicItem && (
+        <BasicsPreSheet
+          userId={userId}
+          category={category}
+          family={{
+            title: basicItem.title.replace(/_/g, "・"),
+            coverImagePath: basicItem.coverImagePath ?? null,
+            variants: [{
+              id: basicItem.id, keyTonic: basicItem.keyTonic,
+              articulation: basicItem.articulation ?? null, bestScore: basicItem.bestScore ?? null,
+            }],
+          }}
+          onClose={() => setBasicItem(null)}
+        />
       )}
     </div>
   )
