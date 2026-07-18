@@ -35,6 +35,8 @@ export async function GET(request: NextRequest) {
       overallScore: true,
       evaluatedNotes: true,
       analysisSummary: true,
+      rangeFromNote: true,
+      rangeToNote: true,
     },
   })
 
@@ -59,6 +61,8 @@ export async function GET(request: NextRequest) {
           overallScore: p.overallScore,
           evaluatedNotes: p.evaluatedNotes,
           analysisSummary: p.analysisSummary,
+          rangeFromNote: p.rangeFromNote,
+          rangeToNote: p.rangeToNote,
           comparisonResult: null,
           comparisonWarnings: [],
         }
@@ -117,6 +121,8 @@ export async function GET(request: NextRequest) {
         overallScore,
         evaluatedNotes: p.evaluatedNotes,
         analysisSummary: p.analysisSummary,
+        rangeFromNote: p.rangeFromNote,
+        rangeToNote: p.rangeToNote,
         comparisonResult,
         comparisonWarnings,
       }

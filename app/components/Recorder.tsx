@@ -188,11 +188,17 @@ type Props = {
    * クリックすると親側で URL ?tab=loop に切替。
    */
   onShowLoop?: () => void
+  /**
+   * 区間録音 (部分練習 Phase 2b): idle の録音CTAが押された瞬間に親へ通知。
+   * 親はここで「この録音が区間録音か」を確定する (区間ボタン経由なら pending→confirmed)。
+   * 区間ボタンは data-testid="recorder-start-button" を click してこのCTAをトリガする。
+   */
+  onIdleRecordClick?: () => void
 }
 
 export type Status = "idle" | "tempo-select" | "countdown" | "recording" | "preview" | "uploading" | "result"
 
-export default function Recorder({ onRecordingComplete, previousBestScore, bestOverallScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, uploadProgress, onShowLoop }: Props) {
+export default function Recorder({ onRecordingComplete, previousBestScore, bestOverallScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, uploadProgress, onShowLoop, onIdleRecordClick }: Props) {
   const [status, setStatus] = useState<Status>("idle")
   const [elapsed, setElapsed] = useState(0)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
@@ -585,7 +591,12 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
       {status === "idle" && (
         <div className={styles.idlePanel}>
           {/* テンポは共通の「テンポ・メトロノーム」で設定 → ここは直接カウントインへ (2026-07-18 一本化) */}
-          <button className={styles.mainCta} onClick={startCountdown} disabled={disabled}>
+          <button
+            className={styles.mainCta}
+            data-testid="recorder-start-button"
+            onClick={() => { onIdleRecordClick?.(); startCountdown() }}
+            disabled={disabled}
+          >
             <span className={styles.ctaDot} />
             <span>録音して AI 採点</span>
           </button>

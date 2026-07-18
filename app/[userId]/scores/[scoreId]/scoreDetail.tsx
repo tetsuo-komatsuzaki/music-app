@@ -55,6 +55,9 @@ type PerformanceDTO = {
   overallScore?: number | null
   evaluatedNotes?: number | null
   analysisSummary?: any
+  // 区間録音 (部分練習 Phase 2): 非null = 区間演奏。曲の公式スコアには非算入・履歴で「区間」表示。
+  rangeFromNote?: number | null
+  rangeToNote?: number | null
 }
 
 type AnalysisNote = {
@@ -76,7 +79,7 @@ type Props = {
    * 現状は呼び出し側 (page.tsx) でアダプター経由の呼び出しを行う。
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  uploadAction: (params: { performanceId: string; recordingBpm?: number }) => Promise<any>
+  uploadAction: (params: { performanceId: string; recordingBpm?: number; rangeFromNote?: number; rangeToNote?: number }) => Promise<any>
   performanceCount: number
   latestPitchAccuracy: number | null
   latestTimingAccuracy: number | null
@@ -491,7 +494,12 @@ function PerformanceHistory({
                       disabled={saving}
                     />
                   ) : (
-                    <span className={styles.historyName}>{displayName}</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+                      <span className={styles.historyName}>{displayName}</span>
+                      {p.rangeFromNote != null && (
+                        <span className={styles.rangeTag} title="区間だけを録音した部分練習（曲のスコアには非算入）">区間</span>
+                      )}
+                    </span>
                   )}
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     {score != null && !isEditing && (
@@ -871,7 +879,7 @@ export default function ScoreDetail({
   // ▼ 上達ループタブ (Phase 4-1、Score 演奏のみ。practice 経路では非表示)
   const isScoreMode = !practiceItemId
   const initialTab: ScoreDetailTabId =
-    isScoreMode && ["review", "loop"].includes(searchParams.get("tab") ?? "")
+    ["review", "loop"].includes(searchParams.get("tab") ?? "")
       ? "review"
       : "play"
   const [activeTab, setActiveTab] = useState<ScoreDetailTabId>(initialTab)
@@ -940,6 +948,11 @@ export default function ScoreDetail({
   const rangeBandsRef = useRef<HTMLDivElement[]>([])         // オーバーレイのハイライト帯
   // 演奏バー(Step 2)の展開パネル: テンポ / 区間 のどちらを開いているか
   const [openPanel, setOpenPanel] = useState<null | "tempo" | "range">(null)
+  // 区間録音 (部分練習 Phase 2b): この録音が区間演奏か。pending=録音開始トリガ直前にステージ、
+  // recording=進行中の録音に確定した区間 (アップロード時に読む)。null = 通常の全体録音。
+  const pendingRangeRef = useRef<{ from: number; to: number } | null>(null)
+  const recordingRangeRef = useRef<{ from: number; to: number } | null>(null)
+  const recGuideOffsetSecRef = useRef<number>(0) // 録音ガイドの開始オフセット秒 (区間先頭ノートの開始秒)
   const [, setComparisonLoading] = useState(false)
 
   // ▼ ポップオーバー
@@ -1068,25 +1081,31 @@ export default function ScoreDetail({
   }, [selected, loadComparison])
 
   // 過去ベストスコア（ピッチ）— 録音後フィードバックの比較用
+  // 区間演奏(rangeFromNote != null)は練習補助であり、ベスト/レベル等の公式表示には非算入。
+  const fullPerformances = useMemo(
+    () => performances.filter(p => p.rangeFromNote == null),
+    [performances],
+  )
+
   const bestPitchScore = useMemo(() => {
-    if (performances.length === 0) return latestPitchAccuracy ?? undefined
-    const scores = performances.map(p => p.pitchAccuracy ?? null).filter((s): s is number => s !== null)
+    if (fullPerformances.length === 0) return latestPitchAccuracy ?? undefined
+    const scores = fullPerformances.map(p => p.pitchAccuracy ?? null).filter((s): s is number => s !== null)
     return scores.length > 0 ? Math.max(...scores) : latestPitchAccuracy ?? undefined
-  }, [performances, latestPitchAccuracy])
+  }, [fullPerformances, latestPitchAccuracy])
 
   // 過去ベストスコア（演奏スコア = 音程+リズム平均）— 録音ボタン下の表示用
   const bestOverallScore = useMemo(() => {
-    if (performances.length === 0) return undefined
-    const scores = performances.map(p => performanceScore(p)).filter((s): s is number => s !== null)
+    if (fullPerformances.length === 0) return undefined
+    const scores = fullPerformances.map(p => performanceScore(p)).filter((s): s is number => s !== null)
     return scores.length > 0 ? Math.max(...scores) : undefined
-  }, [performances])
+  }, [fullPerformances])
 
   // 現在のレベル（直近 RECENT_LEVEL_N 回の「音程・リズム平均」の平均）— 録音ボタン上の表示用。
   // overallScore は bowing(skill)依存で欠損しやすいため、確実に入る
   // pitchAccuracy / timingAccuracy の 2 軸平均でレベルを可視化する。
   const recentLevel = useMemo(() => {
     const RECENT_LEVEL_N = 5
-    const scored = performances
+    const scored = fullPerformances
       .filter(p => p.pitchAccuracy != null && p.timingAccuracy != null)
       .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
       .slice(0, RECENT_LEVEL_N)
@@ -1094,7 +1113,7 @@ export default function ScoreDetail({
     if (scored.length === 0) return null
     const avg = Math.round(scored.reduce((sum, v) => sum + v, 0) / scored.length)
     return { avg }
-  }, [performances])
+  }, [fullPerformances])
 
   // Recorder の onRecordingComplete ハンドラ (G-1 + Path B、v3.3 spec Commit 3)
   // 旧: convert-audio → uploadRecord(WAV FormData)
@@ -1134,10 +1153,15 @@ export default function ScoreDetail({
       return { error: "アップロードに失敗しました。もう一度お試しください" }
     }
 
-    // 3. 解析起動を通知
+    // 3. 解析起動を通知 (区間録音ならこの録音に確定した区間を渡す → Python が部分採点)
+    const activeRange = recordingRangeRef.current
+    recordingRangeRef.current = null
+    recGuideOffsetSecRef.current = 0
     const notifyResult = await uploadAction({
       performanceId: signedRes.performanceId,
       recordingBpm: recordingBpmRef.current,
+      rangeFromNote: activeRange?.from,
+      rangeToNote: activeRange?.to,
     })
     // エラー分類 3: 解析起動失敗 (録音は Storage に保存済み)
     if (notifyResult?.error) {
@@ -2019,6 +2043,8 @@ export default function ScoreDetail({
   // ▼ F-1 Commit 3: 録音中の自動スクロール (短い譜面はスキップ、analysis null もスキップ)
   useEffect(() => {
     if (recordingState !== "recording") return
+    // 区間録音では曲全体スクロールを止める (区間はハイライトで可視・カーソルは区間内で動く)。
+    if (recordingRangeRef.current) return
     if (!scrollPlan || scrollPlan.isShortScore) return
     if (!analysis) return
 
@@ -2187,7 +2213,8 @@ export default function ScoreDetail({
       // recordingBpm=60, analysis.bpm=120 なら、実時間 1 秒 = 楽譜時間 0.5 秒
       // (ゆっくり録音するほど、カーソルもゆっくり進む)
       const recBpm = recordingBpmRef.current || analysis.bpm
-      const scoreTimeSec = elapsedRealSec * (recBpm / analysis.bpm)
+      // 区間録音では区間先頭ノートの開始秒をオフセットとして加算 → カーソルが区間から始まる
+      const scoreTimeSec = recGuideOffsetSecRef.current + elapsedRealSec * (recBpm / analysis.bpm)
       updateRecordingCursor(scoreTimeSec)
       // 視覚ビート: 録音テンポの拍で上下 (実経過秒の拍間隔 = 60/recBpm)
       updateBeatBall(elapsedRealSec, recBpm)
@@ -2290,14 +2317,13 @@ export default function ScoreDetail({
         </div>
       </div>
 
-      {/* Phase 4-1: Score 演奏のみタブ表示 (練習 / 上達ループ) */}
-      {isScoreMode && (
-        <div data-section="score-tabs" style={{ marginBottom: 12 }}>
-          <ScoreDetailTabs activeTab={activeTab} onChange={handleTabChange} />
-        </div>
-      )}
+      {/* タブ (演奏 / ふりかえり): 曲・練習アイテムの両方で表示。
+          演奏履歴はふりかえり側に集約。上達ループは曲のみ (下の isScoreMode ガード)。 */}
+      <div data-section="score-tabs" style={{ marginBottom: 12 }}>
+        <ScoreDetailTabs activeTab={activeTab} onChange={handleTabChange} />
+      </div>
 
-      {(!isScoreMode || activeTab === "play") && (
+      {activeTab === "play" && (
       <div className={styles.playStack} data-section="play-tab">
         {infoSlot}
 
@@ -2436,19 +2462,41 @@ export default function ScoreDetail({
                   )}
 
                   {rangeStart !== null && rangeEnd !== null && (
-                    <div className={styles.rangeActions}>
-                      {!isRangeLooping ? (
-                        <button className={styles.rangePlayBtn} onClick={startRangeLoop}>▶ 区間をループ再生</button>
-                      ) : (
-                        <button className={styles.rangeStopBtn} onClick={stopPlayback}>■ ループ停止</button>
+                    <>
+                      <div className={styles.rangeActions}>
+                        {!isRangeLooping ? (
+                          <button className={styles.rangePlayBtn} onClick={startRangeLoop}>▶ 区間をループ再生</button>
+                        ) : (
+                          <button className={styles.rangeStopBtn} onClick={stopPlayback}>■ ループ停止</button>
+                        )}
+                        <button
+                          className={styles.rangeClearBtn}
+                          onClick={() => { if (isRangeLooping) stopPlayback(); setRangeStart(null); setRangeEnd(null) }}
+                        >
+                          解除
+                        </button>
+                      </div>
+                      {isScoreMode && (
+                        <button
+                          type="button"
+                          className={styles.rangeRecordBtn}
+                          disabled={recordingState !== "idle"}
+                          onClick={() => {
+                            if (rangeStart === null || rangeEnd === null) return
+                            const lo = Math.min(rangeStart, rangeEnd)
+                            const hi = Math.max(rangeStart, rangeEnd)
+                            if (isRangeLooping) stopPlayback()
+                            pendingRangeRef.current = { from: lo, to: hi }
+                            // 区間先頭を画面内へ入れてから録音CTAをトリガ (Recorderのidleボタンを click)
+                            noteElementsRef.current[lo]?.scrollIntoView({ behavior: "smooth", block: "center" })
+                            const btn = document.querySelector('[data-testid="recorder-start-button"]') as HTMLButtonElement | null
+                            btn?.click()
+                          }}
+                        >
+                          ● この区間を録音（部分採点）
+                        </button>
                       )}
-                      <button
-                        className={styles.rangeClearBtn}
-                        onClick={() => { if (isRangeLooping) stopPlayback(); setRangeStart(null); setRangeEnd(null) }}
-                      >
-                        解除
-                      </button>
-                    </div>
+                    </>
                   )}
                 </div>
               </div>
@@ -2495,13 +2543,22 @@ export default function ScoreDetail({
             onRecordingStop={() => { setRecordingState("preview"); stopRecordingGuide() }}
             uploadProgress={uploadProgress}
             onShowLoop={isScoreMode ? () => handleTabChange("review") : undefined}
+            onIdleRecordClick={() => {
+              // 録音CTA押下の瞬間に「この録音が区間録音か」を確定。
+              // 区間ボタン経由なら pendingRangeRef がセット済 → 確定。通常録音なら null。
+              const r = pendingRangeRef.current
+              pendingRangeRef.current = null
+              recordingRangeRef.current = r
+              recGuideOffsetSecRef.current =
+                r && analysis ? (analysis.notes[r.from]?.start_time_sec ?? 0) : 0
+            }}
           />
         </div>
       </div>
       )}
 
-      {/* ふりかえりタブ: 演奏履歴(採点結果含む) + 上達ループ を集約 (Step 1) */}
-      {(!isScoreMode || activeTab === "review") && (
+      {/* ふりかえりタブ: 演奏履歴(採点結果含む) + 上達ループ を集約 (Step 1)。曲・練習アイテム両対応。 */}
+      {activeTab === "review" && (
         <div data-section="review" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {deleteHintBlock}
           {performanceHistoryBlock}

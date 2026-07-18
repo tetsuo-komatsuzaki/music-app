@@ -124,9 +124,9 @@ export default async function Page({
       where: { userId: dbUser.id, scoreId },
     }),
 
-    // latestPerf
+    // latestPerf (区間録音=部分練習は公式指標に非算入 → rangeFromNote: null)
     prisma.performance.findFirst({
-      where: { userId: dbUser.id, scoreId },
+      where: { userId: dbUser.id, scoreId, rangeFromNote: null },
       orderBy: { uploadedAt: "desc" },
       select: {
         id: true,
