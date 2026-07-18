@@ -79,6 +79,11 @@ model Score {
   generatedXmlPath String?
   coverImagePath   String? // AI生成カバー画像(Supabase Storage public URL)。無ければUI側でプレースホルダ
   genre            String? // 曲ジャンル (songGenre.ts: warabe/shouka/classic/folk/pops)。既存はAI分類、新規はadmin手動
+  // ▼ 教材グループ・変種 (2026-07-18): Score = 曲の変種。難易度別アレンジ + 練習範囲。
+  groupId          String? // MaterialGroup。backfill で 1:1 付与
+  group            MaterialGroup? @relation(fields: [groupId], references: [id])
+  difficulty       Difficulty? // 難易度別アレンジ (BEGINNER/INTERMEDIATE/ADVANCED)
+  sections         Json? // 練習範囲 [{name,startMeasure,endMeasure}]
   analysisStatus   JobStatus @default(processing)
   buildStatus      JobStatus @default(processing)
   retryCount       Int       @default(0)
@@ -226,6 +231,43 @@ enum PracticeCategory {
   lesson
 }
 
+// ▼ 教材グループ・変種モデル (2026-07-18 Tetsuo確定、設計書 §material-group)
+// 一覧の単位=MaterialGroup。配下の変種(Score/PracticeItem)が軸違いでぶら下がる。
+enum MaterialKind {
+  SONG
+  ETUDE
+  SCALE
+  ARPEGGIO
+  FINGERING
+  BOWING
+  POSITION_SHIFT
+  DOUBLE_STOP
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+// 一覧・カバーの単位。1グループ配下は Score のみ or PracticeItem のみ (混在しない)。
+model MaterialGroup {
+  id             String         @id @default(cuid())
+  kind           MaterialKind
+  category       String // "score" / scale / arpeggio / etude ... (一覧の区分に流用)
+  title          String
+  composer       String?
+  genre          String? // 曲のみ (songGenre.ts の id)
+  coverImagePath String? // カバーはグループ単位に集約 (ファイル単位から移行)
+  sortOrder      Int            @default(0)
+  scores         Score[]
+  practiceItems  PracticeItem[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([kind, category])
+}
+
 model PracticeItem {
   id               String           @id @default(cuid())
   category         PracticeCategory
@@ -234,6 +276,14 @@ model PracticeItem {
   description      String?
   descriptionShort String?
   coverImagePath   String? // AI生成カバー画像(Supabase Storage public URL)。無ければUI側でプレースホルダ
+
+  // ▼ 教材グループ・変種 (2026-07-18): PracticeItem = エチュード/基礎練の変種。
+  // エチュード=難易度+範囲 / 基礎練=調(keyTonic)+奏法(articulation)。
+  groupId      String? // MaterialGroup。backfill で 1:1 付与
+  group        MaterialGroup? @relation(fields: [groupId], references: [id])
+  difficulty   Difficulty? // エチュードの難易度
+  articulation String? // 基礎練の奏法 (legato/staccato/martele/slur ...)
+  sections     Json? // エチュードの分割 [{name,startMeasure,endMeasure}]
 
   keyTonic   String
   keyMode    String
