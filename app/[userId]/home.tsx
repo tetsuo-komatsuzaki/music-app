@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useParams } from "next/navigation"
 import MyRankCard from "@/app/components/MyRankCard"
 import ArcoFace from "@/app/components/ArcoFace"
 import PracticeFocusCard from "@/app/components/PracticeFocusCard"
@@ -83,6 +84,7 @@ export default function HomeClient({
   rankCard,
 }: Props) {
   void _userName
+  const { userId } = useParams<{ userId: string }>()
   const [guideOpen, setGuideOpen] = useState(false)
 
   return (
@@ -92,7 +94,7 @@ export default function HomeClient({
       <MyRankCard {...rankCard} />
 
       {/* ② いま練習している曲 ＋〈この曲のおすすめ ‖ 毎日の基礎練〉 */}
-      <PracticeFocusCard pieces={recentPieces} basics={basicPracticeCards} />
+      <PracticeFocusCard pieces={recentPieces} basics={basicPracticeCards} userId={userId} />
 
       {/* ③ アルコちゃんカード (イラスト＋一言。励まし＋目標) */}
       <div className={hb.root}>
