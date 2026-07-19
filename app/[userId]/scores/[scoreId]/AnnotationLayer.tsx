@@ -30,6 +30,69 @@ const HL_COLORS = [
   "rgba(255,150,190,.42)", // pink
 ]
 
+// 記譜スタンプ (Phase 2, MusicXML互換)。kind は music21/MusicXML の要素名に対応 → 将来round-trip可。
+// 表示は自前SVG/テキストグリフ (OSMD描画検証済セット)。value は運指/弦/強弱の値。
+type StampDef = { kind: string; value?: string; g: string; label: string }
+const STAMP_GROUPS: { group: string; items: StampDef[] }[] = [
+  { group: "弓", items: [
+    { kind: "down-bow", g: "downbow", label: "ダウン弓" },
+    { kind: "up-bow", g: "upbow", label: "アップ弓" },
+  ] },
+  { group: "奏法", items: [
+    { kind: "staccato", g: "staccato", label: "スタッカート" },
+    { kind: "staccatissimo", g: "staccatissimo", label: "スタッカーティシモ" },
+    { kind: "accent", g: "accent", label: "アクセント" },
+    { kind: "strong-accent", g: "marcato", label: "マルカート" },
+    { kind: "tenuto", g: "tenuto", label: "テヌート" },
+    { kind: "breath-mark", g: "breath", label: "ブレス" },
+  ] },
+  { group: "装飾", items: [
+    { kind: "trill-mark", g: "trill", label: "トリル" },
+    { kind: "fermata", g: "fermata", label: "フェルマータ" },
+    { kind: "tremolo", g: "tremolo", label: "トレモロ" },
+  ] },
+  { group: "左手", items: [
+    { kind: "stopped", g: "plus", label: "左手pizz" },
+    { kind: "open-string", g: "circle", label: "開放弦" },
+    { kind: "harmonic", g: "diamond", label: "ハーモニクス" },
+  ] },
+  { group: "強弱", items: ["pp", "p", "mp", "mf", "f", "ff"].map((v) => (
+    { kind: "dynamic", value: v, g: "dyn", label: v }
+  )) },
+  { group: "運指", items: ["0", "1", "2", "3", "4"].map((v) => (
+    { kind: "fingering", value: v, g: "num", label: v }
+  )) },
+  { group: "弦", items: ["I", "II", "III", "IV"].map((v) => (
+    { kind: "string", value: v, g: "roman", label: v }
+  )) },
+]
+
+// スタンプの描画HTML (SVG=クリーンな記号 / span=テキスト記号)。ダーク色・背景なしで記譜に馴染ませる。
+function stampInnerHtml(kind: string, value?: string): string {
+  const svg = (inner: string) =>
+    `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`
+  switch (kind) {
+    case "down-bow": return svg('<path d="M5 6 H19 V15 H16 V9 H8 V15 H5 Z" fill="currentColor" stroke="none"/>')
+    case "up-bow": return svg('<path d="M7 6 L12 17 L17 6"/>')
+    case "accent": return svg('<path d="M6 8 L18 12 L6 16"/>')
+    case "strong-accent": return svg('<path d="M7 16 L12 6 L17 16"/>')
+    case "tenuto": return svg('<path d="M6 12 H18"/>')
+    case "staccato": return svg('<circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/>')
+    case "staccatissimo": return svg('<path d="M9.5 6 H14.5 L12 16 Z" fill="currentColor" stroke="none"/>')
+    case "breath-mark": return svg('<path d="M13 6 C13 10 10 11 9 14 C12 12 15 12 14 7"/>')
+    case "trill-mark": return `<span class="txt" style="font-style:italic;font-weight:800;font-family:Georgia,serif">tr</span>`
+    case "fermata": return svg('<path d="M4 15 A9 9 0 0 1 20 15"/><circle cx="12" cy="13.5" r="1.4" fill="currentColor" stroke="none"/>')
+    case "tremolo": return svg('<path d="M7 10 L17 7 M7 14 L17 11" stroke-width="2.4"/>')
+    case "stopped": return svg('<path d="M12 6 V18 M6 12 H18"/>')
+    case "open-string": return svg('<circle cx="12" cy="12" r="6" stroke-width="1.8"/>')
+    case "harmonic": return svg('<path d="M12 6 L18 12 L12 18 L6 12 Z" stroke-width="1.8"/>')
+    case "dynamic": return `<span class="txt" style="font-style:italic;font-weight:900;font-family:Georgia,serif">${value ?? ""}</span>`
+    case "fingering": return `<span class="txt" style="font-weight:800">${value ?? ""}</span>`
+    case "string": return `<span class="txt" style="font-weight:800;font-variant:small-caps">${value ?? ""}</span>`
+    default: return `<span class="txt">?</span>`
+  }
+}
+
 type Props = {
   containerId: string
   noteElementsRef: React.MutableRefObject<Element[]>
@@ -60,6 +123,11 @@ export default function AnnotationLayer({
   const [hlColor, setHlColor] = useState<string>(HL_COLORS[0])
   const hlColorRef = useRef<string>(HL_COLORS[0])
   hlColorRef.current = hlColor
+  // 記譜スタンプ: 選択中のスタンプ (kind,value)。null = 未選択。tool より優先して配置。
+  const [stamp, setStamp] = useState<StampDef | null>(null)
+  const stampRef = useRef<StampDef | null>(null)
+  stampRef.current = stamp
+  const [showPalette, setShowPalette] = useState(false)
 
   const overlayNodesRef = useRef<HTMLElement[]>([])
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -163,6 +231,20 @@ export default function AnnotationLayer({
         if (p) placeBadge(w.noteIndex, w.dy ?? 0, `<span class="${styles.g}">${p.icon}</span>${p.label}`, styles[p.cls] ?? "")
       }
     }
+
+    // 記譜スタンプ (音符の上に素の記号として)
+    for (const n of d.notation ?? []) {
+      const el = els[n.noteIndex]
+      if (!el || !container.contains(el)) continue
+      const r = el.getBoundingClientRect()
+      const node = document.createElement("div")
+      node.className = styles.stampGlyph
+      node.style.left = `${r.left + r.width / 2 - cRect.left}px`
+      node.style.top = `${r.top - cRect.top + scrollTop - 21}px`
+      node.innerHTML = stampInnerHtml(n.kind, n.value)
+      container.appendChild(node)
+      overlayNodesRef.current.push(node)
+    }
   }, [containerId, noteElementsRef])
 
   // 描画 + スクロール/リサイズ/再レイアウト追従
@@ -190,13 +272,19 @@ export default function AnnotationLayer({
     const container = document.getElementById(containerId)
     if (!container) return
     const onClick = (e: MouseEvent) => {
+      const st = stampRef.current
       const t = toolRef.current
-      if (!t) return
+      if (!st && !t) return
       const idx = nearestNote(e.clientX, e.clientY)
       if (idx === null) return
       e.preventDefault()
       e.stopPropagation()
       const d = dataRef.current
+      if (st) {
+        commit({ ...d, notation: [...(d.notation ?? []), { noteIndex: idx, kind: st.kind, value: st.value }] })
+        return
+      }
+      if (!t) return
       if (t === "highlight") {
         const start = hlStartRef.current
         if (start === null) { setHlStart(idx) }
@@ -211,6 +299,7 @@ export default function AnnotationLayer({
           ...d,
           highlight: (d.highlight ?? []).filter((h) => idx < Math.min(h.fromNote, h.toNote) || idx > Math.max(h.fromNote, h.toNote)),
           warnings: (d.warnings ?? []).filter((w) => w.noteIndex !== idx),
+          notation: (d.notation ?? []).filter((n) => n.noteIndex !== idx),
         })
       } else if (t === "text") {
         const text = window.prompt("メモを入力")
@@ -233,7 +322,7 @@ export default function AnnotationLayer({
     <button
       type="button"
       className={`${styles.toolBtn} ${tool === t ? styles.toolOn : ""}`}
-      onClick={() => { setTool(tool === t ? null : t); setHlStart(null) }}
+      onClick={() => { setTool(tool === t ? null : t); setHlStart(null); setStamp(null); setShowPalette(false) }}
     >
       {glyph && <span className={styles.g}>{glyph}</span>}
       {label}
@@ -260,9 +349,43 @@ export default function AnnotationLayer({
           {toolBtn("sharp", "♯", "高い")}
           {toolBtn("tempo", "♩", "テンポ")}
           {toolBtn("hard", "!", "難所")}
+          <button
+            type="button"
+            className={`${styles.toolBtn} ${showPalette || stamp ? styles.toolOn : ""}`}
+            onClick={() => { setShowPalette((v) => !v); setTool(null); setHlStart(null) }}
+          >
+            <span className={styles.g}>♪</span>記譜
+          </button>
           {toolBtn("erase", "✕", "消す")}
           <button type="button" className={styles.clearBtn} onClick={clearAll}>全消去</button>
         </div>
+      )}
+      {active && showPalette && (
+        <div className={styles.palette}>
+          {STAMP_GROUPS.map((grp) => (
+            <div key={grp.group} className={styles.palGroup}>
+              <span className={styles.palLabel}>{grp.group}</span>
+              <div className={styles.palItems}>
+                {grp.items.map((it) => {
+                  const on = stamp?.kind === it.kind && stamp?.value === it.value
+                  return (
+                    <button
+                      key={it.kind + (it.value ?? "")}
+                      type="button"
+                      className={`${styles.stampBtn} ${on ? styles.stampOn : ""}`}
+                      title={it.label}
+                      onClick={() => { setStamp(on ? null : it); setTool(null) }}
+                      dangerouslySetInnerHTML={{ __html: stampInnerHtml(it.kind, it.value) }}
+                    />
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {active && stamp && (
+        <p className={styles.hint}><b>{stamp.label}</b> を置く音符をタップ</p>
       )}
       {active && tool === "highlight" && (
         <>

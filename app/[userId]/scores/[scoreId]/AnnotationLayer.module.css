@@ -93,3 +93,34 @@
   color: #35313c; background: #ffffff; font-weight: 700; letter-spacing: 0;
   box-shadow: 0 2px 8px -2px rgba(24,18,40,.28), 0 0 0 1px #ece9f0 inset;
 }
+
+/* 記譜スタンプ: 音符の上に素の記号 (背景なし・ダーク) */
+.stampGlyph {
+  position: absolute;
+  transform: translateX(-50%);
+  color: #26232b;
+  pointer-events: none;
+  z-index: 9;
+  display: inline-grid; place-items: center;
+  line-height: 1;
+}
+.stampGlyph .txt { font-size: 14px; line-height: 1; }
+.stampGlyph svg { display: block; }
+
+/* スタンプ・パレット */
+.palette {
+  display: flex; flex-wrap: wrap; gap: 13px;
+  padding: 11px 12px; border: 1px solid #ecebf0; border-radius: 13px; background: #fbfbfd;
+}
+.palGroup { display: flex; flex-direction: column; gap: 5px; }
+.palLabel { font-size: 9.5px; font-weight: 800; color: #9a949f; letter-spacing: .05em; padding-left: 1px; }
+.palItems { display: flex; gap: 5px; flex-wrap: wrap; }
+.stampBtn {
+  width: 33px; height: 33px; display: grid; place-items: center; cursor: pointer;
+  color: #35313c; background: #fff; border: 1px solid #e8e6ec; border-radius: 8px;
+  transition: all .12s ease;
+}
+.stampBtn:hover { border-color: #c9c4d2; }
+.stampBtn .txt { font-size: 14px; line-height: 1; }
+.stampBtn svg { display: block; }
+.stampOn { color: #fff; background: #4a6cf7; border-color: transparent; box-shadow: 0 3px 9px -4px rgba(74, 108, 247, .7); }
