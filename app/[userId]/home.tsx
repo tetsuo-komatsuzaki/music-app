@@ -110,96 +110,6 @@ function normBasicCat(c: string): string {
   return c
 }
 
-// ─── 旅の地図: 目標曲/Epic Win の常設カード (オンボーディング SCR-12 の続き) ───
-function JourneyMapCard({ map }: { map: NonNullable<Props["journeyMap"]> }) {
-  const goalDateLabel = map.goalDate
-    ? new Date(map.goalDate).toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric" })
-    : null
-  const songLine = (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-      <span style={{ fontSize: 20 }}>{map.achieved ? "🏆" : "🎯"}</span>
-      <span style={{ fontWeight: 700, color: "#3c3c3c" }}>
-        {map.songName}
-        <span style={{ marginLeft: 6, fontSize: 12, color: "#8a8a8a", fontWeight: 600 }}>
-          ⭐︎{map.songStar}
-        </span>
-      </span>
-      {map.achieved ? (
-        <span
-          style={{
-            fontSize: 11,
-            fontWeight: 700,
-            color: "#085041",
-            background: "#E1F5EE",
-            borderRadius: 999,
-            padding: "2px 10px",
-          }}
-        >
-          達成済み!
-        </span>
-      ) : (
-        map.periodLabel && (
-          <span
-            style={{
-              fontSize: 12,
-              fontWeight: 700,
-              color: "#0C447C",
-              background: "#E6F1FB",
-              borderRadius: 999,
-              padding: "2px 10px",
-            }}
-          >
-            {map.daily ? `毎日${map.daily.replace(" / 日", "")}で` : ""}
-            {map.periodLabel}で到達
-          </span>
-        )
-      )}
-      {map.songHref && (
-        <Link
-          href={map.songHref}
-          style={{
-            marginLeft: "auto",
-            fontSize: 12,
-            fontWeight: 700,
-            color: "#58CC02",
-            textDecoration: "none",
-            whiteSpace: "nowrap",
-          }}
-        >
-          楽譜へ ▶
-        </Link>
-      )}
-    </div>
-  )
-  return (
-    <div className={styles.card}>
-      <div className={styles.sectionTitle}>🗺️ 旅の地図</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#8a8a8a", marginBottom: 4 }}>
-            目標曲
-          </div>
-          {songLine}
-        </div>
-        {map.epicWin && (
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#8a8a8a", marginBottom: 4 }}>
-              大きな夢
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 20 }}>🌟</span>
-              <span style={{ fontWeight: 700, color: "#3c3c3c" }}>{map.epicWin}</span>
-              {goalDateLabel && (
-                <span style={{ fontSize: 12, color: "#8a8a8a" }}>目標: {goalDateLabel}</span>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
 type BasicCardItem = Props["basicPracticeCards"][number]
 
 function BasicPracticeCard({ item }: { item: BasicCardItem }) {
@@ -255,10 +165,8 @@ function BasicPracticeCard({ item }: { item: BasicCardItem }) {
 // ─── 今日の練習 (直近の練習曲タブ + 課題アドバイス + 教材リンク) ──────────
 function TodayPanel({
   recentPieces,
-  nextPieces,
 }: {
   recentPieces: Props["recentPieces"]
-  nextPieces: SongRecommendation[]
 }) {
   const [active, setActive] = useState(0)
   const piece = recentPieces[active] ?? recentPieces[0] ?? null
@@ -267,7 +175,7 @@ function TodayPanel({
 
   return (
     <div className={styles.card}>
-      <div className={styles.sectionTitle}>練習曲の上達状況</div>
+      <div className={styles.sectionTitle}>いま練習している曲</div>
 
       {/* 直近の練習曲: 複数なら横タブ */}
       {recentPieces.length > 0 && (
@@ -362,18 +270,22 @@ function TodayPanel({
         </>
       )}
 
-      {/* 工程C-6a (2026-07-11): 旧「いま〇〇が課題」(UserSkillTaskCard由来) を
-          217診断の累積弱点(窓②)に置換。弱点なし/データ不足時は従来どおり
-          「次の曲にチャレンジ」を出す */}
+      {piece?.recentAvg != null && (
+        <div style={{ fontSize: 12.5, fontWeight: 700, color: "#6C6BA8", margin: "-4px 2px 12px" }}>
+          🎯 マスターまで：平均 {piece.recentAvg} → 90点 ＋ 全課題クリア
+        </div>
+      )}
+
+      {/* この曲の学びポイント (217診断の累積弱点。処方教材は在庫拡充後に接続) */}
+      <div style={{ fontSize: 13, fontWeight: 800, color: "#B5762E", margin: "4px 2px 8px" }}>
+        🎯 この曲の学びポイント
+      </div>
       <CumulativeWeaknessPanel
         userId={urlUserId}
         emptyFallback={
-          <>
-            <div style={{ fontSize: 14, lineHeight: 1.7, marginBottom: 10, color: "#555" }}>
-              直近の課題はありません！<br />次の曲にチャレンジしてみよう！
-            </div>
-            <RecommendationList recommendations={nextPieces} />
-          </>
+          <div style={{ fontSize: 14, lineHeight: 1.7, color: "#555" }}>
+            いまの学びポイントはありません。次の曲にチャレンジしてみよう！
+          </div>
         }
       />
     </div>
@@ -430,23 +342,13 @@ export default function HomeClient({
 
       <ProgressGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
 
-      {/* ───── 旅の地図: オンボーディングで決めた目標曲と大きな夢の常設表示 ───── */}
-      {journeyMap && <JourneyMapCard map={journeyMap} />}
+      {/* ───── いま練習している曲 + この曲の学びポイント ───── */}
+      <TodayPanel recentPieces={recentPieces} />
 
-      {/* ───── 練習曲の上達状況: 直近の練習曲 + 課題アドバイス + 教材リンク ───── */}
-      {/* 課題ありの「課題練習」には練習曲(category=score)は出さず、基礎練/エチュードのみ提示。
-          練習曲は課題なし時の「次の曲にチャレンジ」(nextPieces) でのみ提示する。 */}
-      {/* 工程C-6a: 旧challengeName/challengeMaterials(UserSkillTaskCard由来)は
-          TodayPanel 内の累積弱点(窓②)に置換済み */}
-      <TodayPanel
-        recentPieces={recentPieces}
-        nextPieces={nextPieceRecommendations}
-      />
-
-      {/* ───── 基礎練習の練習状況: カテゴリ分類 (音階/アルペジオ/フィンガリング/ボーイング/エチュード) ───── */}
+      {/* ───── 毎日の基礎練: カテゴリ分類 (音階/アルペジオ/フィンガリング/ボーイング/エチュード) ───── */}
       {basicPracticeCards.length > 0 && (
         <div className={styles.card}>
-          <div className={styles.sectionTitle}>基礎練習の練習状況</div>
+          <div className={styles.sectionTitle}>毎日の基礎練</div>
           {[
             ...BASIC_CATEGORY_ORDER,
             ...Array.from(
@@ -472,6 +374,14 @@ export default function HomeClient({
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* ───── 次の曲にチャレンジ (同☆の未達成曲・独立ブロック) ───── */}
+      {nextPieceRecommendations.length > 0 && (
+        <div className={styles.card}>
+          <div className={styles.sectionTitle}>次の曲にチャレンジ</div>
+          <RecommendationList recommendations={nextPieceRecommendations} />
         </div>
       )}
 
