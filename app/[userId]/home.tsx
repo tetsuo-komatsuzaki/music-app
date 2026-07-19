@@ -6,6 +6,7 @@ import { useParams } from "next/navigation"
 import { CumulativeWeaknessPanel } from "@/app/components/WeaknessDiagnosisCard"
 import GradeBadge from "@/app/components/GradeBadge"
 import MasterBadge from "@/app/components/MasterBadge"
+import MyRankCard from "@/app/components/MyRankCard"
 import ProgressGuideModal from "@/app/components/ProgressGuideModal"
 import GradeProgressBar from "@/app/components/GradeProgressBar"
 import RecommendationList from "@/app/components/RecommendationList"
@@ -65,6 +66,13 @@ type Props = {
     epicWin: string | null
     goalDate: string | null
   } | null
+  /** マイランクカード: 現在★の達成スタンプ (演奏の軌跡) */
+  rankCard: {
+    currentStar: number
+    required: number
+    achievedCount: number
+    stamps: { scoreId: string; title: string; best: number | null; achievedAt: string | null; href: string }[]
+  }
 }
 
 // スコア → ランク色 (scoreDetail と同じ閾値)
@@ -383,6 +391,7 @@ export default function HomeClient({
   recentPieces,
   nextPieceRecommendations,
   journeyMap,
+  rankCard,
 }: Props) {
   void _userName
   const WEEKLY_GOAL = 5
@@ -403,7 +412,10 @@ export default function HomeClient({
   return (
     <div className={styles.page}>
 
-      {/* ───── アルコちゃんからの案内 (最上部・主役) ───── */}
+      {/* ───── マイランクカード (最上部・タップで演奏の軌跡) ───── */}
+      <MyRankCard {...rankCard} />
+
+      {/* ───── アルコちゃんからの案内 ───── */}
       <div className={`${styles.card} ${styles.arcoCard}`} data-onboarding="home.arcoCard">
         <div className={styles.arcoHeader}>
           <div className={styles.arcoHeaderLeft}>

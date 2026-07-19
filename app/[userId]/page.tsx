@@ -211,6 +211,50 @@ export default async function HomePage({ params }: PageProps) {
   }
   console.log(`[PERF] home step3: TOTAL ${(performance.now() - perfStart).toFixed(0)}ms`)
 
+  // --- マイランクカード: 現在★の達成曲をスタンプ化 (曲名 + ベスト演奏スコア + 達成日) ---
+  const currentStarAchievements = scoreAchievements
+    .filter((a) => a.starAtAchievement === currentStar)
+    .sort((a, b) => (a.achievedAt?.getTime() ?? 0) - (b.achievedAt?.getTime() ?? 0))
+  const rankStampIds = currentStarAchievements.map((a) => a.scoreId)
+  let rankStamps: {
+    scoreId: string; title: string; best: number | null; achievedAt: string | null; href: string
+  }[] = []
+  if (rankStampIds.length > 0) {
+    const rows = await prisma.performance.findMany({
+      where: {
+        userId: internalUserId,
+        scoreId: { in: rankStampIds },
+        rangeFromNote: null,
+        pitchAccuracy: { not: null },
+        timingAccuracy: { not: null },
+      },
+      select: { scoreId: true, pitchAccuracy: true, timingAccuracy: true, score: { select: { title: true } } },
+    })
+    const bestByScore = new Map<string, { title: string; best: number }>()
+    for (const r of rows) {
+      if (r.pitchAccuracy == null || r.timingAccuracy == null || !r.score) continue
+      const s = Math.round((r.pitchAccuracy + r.timingAccuracy) / 2)
+      const cur = bestByScore.get(r.scoreId)
+      if (!cur || s > cur.best) bestByScore.set(r.scoreId, { title: r.score.title, best: s })
+    }
+    rankStamps = currentStarAchievements.map((a) => {
+      const b = bestByScore.get(a.scoreId)
+      return {
+        scoreId: a.scoreId,
+        title: b?.title ?? "この曲",
+        best: b?.best ?? null,
+        achievedAt: a.achievedAt ? a.achievedAt.toISOString() : null,
+        href: `/${userId}/scores/${a.scoreId}`,
+      }
+    })
+  }
+  const rankCard = {
+    currentStar,
+    required: STAR_UP_ACHIEVEMENTS,
+    achievedCount: achievedCountAtCurrentStar,
+    stamps: rankStamps,
+  }
+
   // --- 基礎練習の練習状況: 直近に練習した、かつまだクリア(マスター)していない
   //     基礎練 (PracticeItem) を横並びで提示。各カードに直近の練習日時 + 直近スコア。 ---
   const [practicePerfsForBasics, clearedMasteryRows] = await Promise.all([
@@ -401,6 +445,7 @@ export default async function HomePage({ params }: PageProps) {
       basicPracticeCards={basicPracticeCards}
       recentPieces={recentPieces}
       nextPieceRecommendations={nextPieceRecommendations}
+      rankCard={rankCard}
     />
   )
 }
