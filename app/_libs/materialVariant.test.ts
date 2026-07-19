@@ -3,9 +3,7 @@ import {
   DIFFICULTIES,
   ARTICULATIONS,
   isDifficulty,
-  difficultyLabel,
   isArticulation,
-  articulationLabel,
   usesDifficulty,
   usesArticulation,
 } from "./materialVariant"
@@ -32,14 +30,6 @@ describe("難易度 (DifficultyId)", () => {
     }
   })
 
-  it("difficultyLabel は既知→ラベル / 未知・null・undefined→空文字", () => {
-    expect(difficultyLabel("BEGINNER")).toBe("初級")
-    expect(difficultyLabel("INTERMEDIATE")).toBe("中級")
-    expect(difficultyLabel("ADVANCED")).toBe("上級")
-    expect(difficultyLabel("EXPERT")).toBe("")
-    expect(difficultyLabel(null)).toBe("")
-    expect(difficultyLabel(undefined)).toBe("")
-  })
 })
 
 describe("奏法 (ArticulationId)", () => {
@@ -65,14 +55,6 @@ describe("奏法 (ArticulationId)", () => {
     for (const v of ["Legato", "detache", "", "レガート"]) {
       expect(isArticulation(v)).toBe(false)
     }
-  })
-
-  it("articulationLabel は既知→ラベル / 未知・null→空文字", () => {
-    expect(articulationLabel("legato")).toBe("レガート")
-    expect(articulationLabel("spiccato")).toBe("スピッカート")
-    expect(articulationLabel("nope")).toBe("")
-    expect(articulationLabel(null)).toBe("")
-    expect(articulationLabel(undefined)).toBe("")
   })
 })
 

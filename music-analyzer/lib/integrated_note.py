@@ -56,24 +56,6 @@ def hz_to_midi(hz: float) -> int:
     return round(69 + 12 * math.log2(hz / 440.0))
 
 
-def calc_duration_beats(start_sec: float, end_sec: float, bpm: float) -> float:
-    """秒からビート単位への変換。
-
-    Args:
-        start_sec: 開始秒
-        end_sec: 終了秒
-        bpm: テンポ（拍/分）
-
-    Returns:
-        ビート単位の長さ（4分音符 = 1.0）
-    """
-    if bpm <= 0:
-        raise ValueError(f"Invalid BPM: {bpm}")
-    duration_sec = end_sec - start_sec
-    beat_duration_sec = 60.0 / bpm
-    return duration_sec / beat_duration_sec
-
-
 # ---------------------------------------------------------------------------
 # IntegratedNote — 1音符の統合データ
 # ---------------------------------------------------------------------------

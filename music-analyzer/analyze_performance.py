@@ -1962,7 +1962,6 @@ try:
         return 0.0
 
     pitch_score_sum = sum(_pitch_score(r) for r in evaluated)
-    pitch_ok_count = pitch_score_sum  # 互換: 既存ログ参照向け (整数とは限らない)
     # rhythm bug fix (2026-05-26): timing_evaluated を evaluated と統一。
     # 旧実装は pitch_only を timing 集計から除外していたが、分母 total_notes はそのままだったため、
     # 同音連続救済 (pitch_only, start_ok=true 固定) が「timing NG」として加算されて

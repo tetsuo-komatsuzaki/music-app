@@ -13,9 +13,6 @@ const DIFFICULTY_IDS: readonly string[] = DIFFICULTIES.map((d) => d.id)
 export function isDifficulty(v: string): v is DifficultyId {
   return DIFFICULTY_IDS.includes(v)
 }
-export function difficultyLabel(id: string | null | undefined): string {
-  return DIFFICULTIES.find((d) => d.id === id)?.label ?? ""
-}
 
 export const ARTICULATIONS = [
   { id: "legato", label: "レガート" },
@@ -30,9 +27,6 @@ export type ArticulationId = (typeof ARTICULATIONS)[number]["id"]
 const ARTICULATION_IDS: readonly string[] = ARTICULATIONS.map((a) => a.id)
 export function isArticulation(v: string): v is ArticulationId {
   return ARTICULATION_IDS.includes(v)
-}
-export function articulationLabel(id: string | null | undefined): string {
-  return ARTICULATIONS.find((a) => a.id === id)?.label ?? ""
 }
 
 /** 難易度軸を使うカテゴリ (曲・エチュード) */

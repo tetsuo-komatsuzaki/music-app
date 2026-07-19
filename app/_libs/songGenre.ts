@@ -24,6 +24,3 @@ export function songGenreLabel(id: string | null | undefined): string {
 export function isSongGenre(v: string): v is SongGenreId {
   return SONG_GENRE_IDS.includes(v)
 }
-
-/** piecesList のサブグループ表示順 (未分類は末尾) */
-export const SONG_GENRE_ORDER: readonly string[] = SONG_GENRES.map((g) => g.label)

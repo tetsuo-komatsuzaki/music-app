@@ -1139,13 +1139,6 @@ export default function ScoreDetail({
     return scores.length > 0 ? Math.max(...scores) : latestPitchAccuracy ?? undefined
   }, [fullPerformances, latestPitchAccuracy])
 
-  // 過去ベストスコア（演奏スコア = 音程+リズム平均）— 録音ボタン下の表示用
-  const bestOverallScore = useMemo(() => {
-    if (fullPerformances.length === 0) return undefined
-    const scores = fullPerformances.map(p => performanceScore(p)).filter((s): s is number => s !== null)
-    return scores.length > 0 ? Math.max(...scores) : undefined
-  }, [fullPerformances])
-
   // 現在のレベル（直近 RECENT_LEVEL_N 回の「音程・リズム平均」の平均）— 録音ボタン上の表示用。
   // overallScore は bowing(skill)依存で欠損しやすいため、確実に入る
   // pitchAccuracy / timingAccuracy の 2 軸平均でレベルを可視化する。
@@ -2664,7 +2657,6 @@ export default function ScoreDetail({
           <Recorder
             onRecordingComplete={handleRecordingComplete}
             previousBestScore={bestPitchScore}
-            bestOverallScore={bestOverallScore}
             bpm={playbackTempo}
             onCountdownStart={() => setRecordingState("countdown")}
             onRecordingStart={() => { setRecordingState("recording"); startRecordingGuide() }}

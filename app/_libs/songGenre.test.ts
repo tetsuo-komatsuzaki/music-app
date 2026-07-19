@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest"
 import {
   SONG_GENRES,
   SONG_GENRE_IDS,
-  SONG_GENRE_ORDER,
   songGenreLabel,
   isSongGenre,
 } from "./songGenre"
@@ -34,10 +33,6 @@ describe("SONG_GENRES 定義の健全性", () => {
 
   it("SONG_GENRE_IDS は SONG_GENRES の id と一致する", () => {
     expect(SONG_GENRE_IDS).toEqual(SONG_GENRES.map((g) => g.id))
-  })
-
-  it("SONG_GENRE_ORDER は定義順のラベル列と一致する", () => {
-    expect(SONG_GENRE_ORDER).toEqual(SONG_GENRES.map((g) => g.label))
   })
 })
 

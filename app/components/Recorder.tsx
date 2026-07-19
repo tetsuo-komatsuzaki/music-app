@@ -172,7 +172,6 @@ type Props = {
     result?: PerfResult
   }>
   previousBestScore?: number       // ピッチベスト（録音後フィードバック比較用）
-  bestOverallScore?: number        // 総合ベスト（録音ボタン下の表示用）
   disabled?: boolean
   bpm?: number
   onRecordingStart?: () => void
@@ -198,7 +197,7 @@ type Props = {
 
 export type Status = "idle" | "tempo-select" | "countdown" | "recording" | "preview" | "uploading" | "result"
 
-export default function Recorder({ onRecordingComplete, previousBestScore, bestOverallScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, uploadProgress, onShowLoop, onIdleRecordClick }: Props) {
+export default function Recorder({ onRecordingComplete, previousBestScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, uploadProgress, onShowLoop, onIdleRecordClick }: Props) {
   const [status, setStatus] = useState<Status>("idle")
   const [elapsed, setElapsed] = useState(0)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
