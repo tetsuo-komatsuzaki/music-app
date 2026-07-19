@@ -53,7 +53,6 @@ type PerformanceDTO = {
   comparisonWarnings?: string[]
   pitchAccuracy?: number | null
   timingAccuracy?: number | null
-  overallScore?: number | null
   evaluatedNotes?: number | null
   analysisSummary?: any
   // 区間録音 (部分練習 Phase 2): 非null = 区間演奏。曲の公式スコアには非算入・履歴で「区間」表示。
@@ -1033,7 +1032,7 @@ export default function ScoreDetail({
           const first = data[0]
           setSelected(first)
           // 初期選択のcomparison詳細をロード
-          if (!first.comparisonResult && (first.pitchAccuracy != null || first.overallScore != null)) {
+          if (!first.comparisonResult && first.pitchAccuracy != null) {
             const compApi = practiceItemId
               ? `/api/practice-performances/${first.id}/comparison`
               : `/api/score-performances/${first.id}/comparison`
@@ -1086,7 +1085,7 @@ export default function ScoreDetail({
     const willClose = selected?.id === p.id
     setSelected(willClose ? null : p)
     // 開くときだけ comparison をロード (loadComparison は既ロード時 early-return)
-    if (!willClose && !p.comparisonResult && (p.pitchAccuracy != null || p.overallScore != null)) {
+    if (!willClose && !p.comparisonResult && p.pitchAccuracy != null) {
       loadComparison(p)
     }
   }, [selected, loadComparison])
@@ -1099,7 +1098,7 @@ export default function ScoreDetail({
     const p = performances.find((x) => x.id === id)
     if (!p) return
     setSelected(p)
-    if (!p.comparisonResult && (p.pitchAccuracy != null || p.overallScore != null)) {
+    if (!p.comparisonResult && p.pitchAccuracy != null) {
       loadComparison(p)
     }
   }, [performances, loadComparison])
@@ -1240,7 +1239,7 @@ export default function ScoreDetail({
         if (data.length > 0) {
           const first = data[0]
           setSelected(first)
-          if (!first.comparisonResult && (first.pitchAccuracy != null || first.overallScore != null)) {
+          if (!first.comparisonResult && first.pitchAccuracy != null) {
             loadComparison(first)
           }
         }

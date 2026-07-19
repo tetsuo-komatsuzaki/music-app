@@ -572,9 +572,9 @@ model UserSkillSubScore {
   id             String    @id @default(cuid())
   userId         String
   skillSubTaskId String // 9 sub task の ID (例: "pitch_overall", "string_change_volume")
-  matchedCount   Int       @default(0) // matched=true だった回数
+  matchedCount   Int       @default(0) // 現行C-5: ミス音数の累計 (旧: matched=true回数)。diagnosis_store.py:8 と一致
   totalCount     Int       @default(0) // この sub task が判定対象になった回数 (Q5: target_count > 0 のみ)
-  matchRate      Float     @default(0) // matchedCount / totalCount (課題ランキング・レコメンド用)
+  matchRate      Float     @default(0) // ミス率 = matchedCount(=ミス数) / totalCount (課題ランキング・レコメンド用)
   averageScore   Float? // 該当時のスコア平均
   lastMatchedAt  DateTime?
   lastUpdatedAt  DateTime  @default(now())

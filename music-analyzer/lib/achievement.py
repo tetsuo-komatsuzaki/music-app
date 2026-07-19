@@ -9,7 +9,9 @@ achievement.py — 新判定エンジン（工程D・2026-07-11・spec§1 / kout
   曲の達成     = ①レッスン要件（曲のタグのうち lesson在庫のあるタグ全クリア=論点1）
                  ②エチュード要件（技術タグ最多カバー同★1つ達成。候補なし/技術タグなし=免除）
                  ③崩壊ゼロ累計3回
-  マスター     = 達成 + 直近5回平均 overallScore≥90（5回以上採点済が前提）。一度刻んだら消さない
+  マスター     = 達成 + 直近5回平均（音程+リズム)/2 ≥ 90（5回以上採点済が前提）。一度刻んだら消さない
+                 ※ overallScore は 2026-06-07 廃止。マスター平均は (pitchAccuracy+timingAccuracy)/2
+                    で計算（区間録音は rangeFromNote IS NULL で除外）。弓(bowing)は平均に含めない。
   Star昇格     = 同★の達成曲数≥10 で currentStar+1
 
 呼び出し: loop_engine step 5.6（診断5.5の直後・同トランザクション・SAVEPOINT隔離は呼び手）。

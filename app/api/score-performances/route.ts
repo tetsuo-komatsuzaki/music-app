@@ -33,7 +33,6 @@ export async function GET(request: NextRequest) {
       errorMessage: true,
       pitchAccuracy: true,
       timingAccuracy: true,
-      overallScore: true,
       evaluatedNotes: true,
       analysisSummary: true,
       rangeFromNote: true,
@@ -59,7 +58,6 @@ export async function GET(request: NextRequest) {
           audioUrl,
           pitchAccuracy: p.pitchAccuracy,
           timingAccuracy: p.timingAccuracy,
-          overallScore: p.overallScore,
           evaluatedNotes: p.evaluatedNotes,
           analysisSummary: p.analysisSummary,
           rangeFromNote: p.rangeFromNote,
@@ -82,7 +80,6 @@ export async function GET(request: NextRequest) {
       let comparisonWarnings: string[] = []
       let pitchAccuracy: number | null = null
       let timingAccuracy: number | null = null
-      let overallScore: number | null = null
 
       if (compJson) {
         if (compJson.version && compJson.results) {
@@ -102,9 +99,6 @@ export async function GET(request: NextRequest) {
             pitchAccuracy = Math.round((pitchOkSum / totalNotes) * 100)
             const timingOk = evaluated.filter((n: any) => n.start_ok === true).length
             timingAccuracy = Math.round((timingOk / totalNotes) * 100)
-            if (pitchAccuracy != null && timingAccuracy != null) {
-              overallScore = Math.round(pitchAccuracy * 0.6 + timingAccuracy * 0.4)
-            }
           }
         }
       }
@@ -119,7 +113,6 @@ export async function GET(request: NextRequest) {
         audioUrl,
         pitchAccuracy,
         timingAccuracy,
-        overallScore,
         evaluatedNotes: p.evaluatedNotes,
         analysisSummary: p.analysisSummary,
         rangeFromNote: p.rangeFromNote,

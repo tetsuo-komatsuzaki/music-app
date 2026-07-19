@@ -120,9 +120,12 @@ export type ComparisonResultNote = {
 // Python (analyze_performance.py pitch_accuracy 集計) と同一ロジックを TS で
 // 再現するための中央実装。各 API ルート / UI コンポーネントから利用される。
 
-/** pitch_accuracy 等の集計対象に含める evaluation_status。
- *  spectral_inconclusive / not_detected / not_evaluated / section_missing は除外
- *  (判定保留扱い、accuracy の分母から外す = 赤判定にしない)。 */
+/** pitch_accuracy 等の【加点対象(分子)】に含める evaluation_status。
+ *  これ以外 (spectral_inconclusive / not_detected / not_evaluated 等) は分子から除外＝0点扱い。
+ *  【重要】分母は常に楽譜上の全音符数 (total_notes) で固定。除外statusを分母からは外さない
+ *  ため、実質「ミス」として減点に効く (analyze_performance.py:1942 と完全一致・意図的設計)。
+ *  「赤セルにしない」のは UI 色付けの話であって、分母除外ではない — ここを分母から外す変更は
+ *  全ユーザーのスコアを動かすので厳禁。 */
 export const EVALUATED_STATUSES: readonly EvaluationStatus[] = [
   "evaluated", "pitch_only",
   "double_stop_full", "double_stop_partial", "double_stop_miss",

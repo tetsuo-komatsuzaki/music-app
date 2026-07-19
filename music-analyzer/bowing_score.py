@@ -3,12 +3,14 @@
 bowing_score.py — マスター判定用の弓（bowing）採点パイプライン（C-6b 2026-07-11）
 
 【役割 — 他の人が読むときはここだけ理解すればOK】
-  マスター判定 = 直近5回の演奏スコア(overallScore)平均90点。
-    overallScore = (音程 + リズム + 弓) ÷ 3
-  音程・リズムの点は analyze_performance.py（音符照合）が作る。
   **弓の点(bowingScore)はこのパイプラインが唯一の製造元**で、
   弦ごとの安定性・弦移動・重音・奏法品質の23項目（lib/subtask_judges.py）を
-  平均して 0-100 点にする。教材の skillSubTaskTags はこの採点の関係で残っている。
+  平均して 0-100 点にし、bowingAccuracy として保存する。
+  教材の skillSubTaskTags はこの採点の関係で残っている。
+
+  【マスター判定との関係】旧 overallScore=(音程+リズム+弓)÷3 の平均90点は 2026-06-07 廃止。
+  現行マスター判定は (pitchAccuracy+timingAccuracy)/2 の直近5回平均≥90 で弓は含まれない
+  （lib/achievement.py が唯一の判定元）。bowingAccuracy はマスターには流れない。
 
 【旧 score_full.py からの変更（2026-07-11）】
   旧55課題体系の「課題化」用途（音程/リズムのスキルスコア・skillSubScores・
