@@ -13,8 +13,8 @@ import {
 type SlotKind = "done" | "now" | "empty" | "goal"
 const TILTS = ["-6deg", "5deg", "-4deg", "6deg", "-5deg", "4deg", "-7deg", "6deg", "-4deg", "5deg"]
 
-export default function MyRankCard(props: RankCardData) {
-  const { currentStar, required, achievedCount, stamps } = props
+export default function MyRankCard(props: RankCardData & { onGuide?: () => void }) {
+  const { currentStar, required, achievedCount, stamps, onGuide } = props
   const [open, setOpen] = useState(false)
   const [openStamp, setOpenStamp] = useState<number | null>(null)
   const [mounted, setMounted] = useState(false)
@@ -95,7 +95,13 @@ export default function MyRankCard(props: RankCardData) {
   return (
     <div className={styles.root}>
       {/* マイランクカード (★でティアが変わる) */}
-      <button type="button" className={`${styles.rankcard} ${styles[cardTier(currentStar)]}`} onClick={() => setOpen(true)}>
+      <div
+        role="button"
+        tabIndex={0}
+        className={`${styles.rankcard} ${styles[cardTier(currentStar)]}`}
+        onClick={() => setOpen(true)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true) } }}
+      >
         <span className={styles.rcHint}>タップで軌跡 ▸</span>
         <div className={styles.rcEmblem}>
           <ArcoFace />
@@ -111,7 +117,12 @@ export default function MyRankCard(props: RankCardData) {
             ))}
           </div>
         </div>
-      </button>
+        {onGuide && (
+          <button type="button" className={styles.guide} onClick={(e) => { e.stopPropagation(); onGuide() }} aria-label="上達のしくみを見る">
+            ？上達のしくみ
+          </button>
+        )}
+      </div>
 
       {/* ボトムシート: 演奏の軌跡 */}
       {mounted && open && createPortal(

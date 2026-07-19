@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useParams } from "next/navigation"
 import MyRankCard from "@/app/components/MyRankCard"
-import ArcoFace from "@/app/components/ArcoFace"
+import ArcoDaily from "@/app/components/ArcoDaily"
 import PracticeFocusCard from "@/app/components/PracticeFocusCard"
 import NextPiecesCard from "@/app/components/NextPiecesCard"
 import hb from "./homeBlocks.module.css"
@@ -90,23 +90,15 @@ export default function HomeClient({
   return (
     <div className={styles.page}>
 
-      {/* ① マイランクカード (最上部・タップで演奏の軌跡) */}
-      <MyRankCard {...rankCard} />
+      {/* ① マイランクカード (最上部・タップで演奏の軌跡／上達のしくみを内蔵) */}
+      <MyRankCard {...rankCard} onGuide={() => setGuideOpen(true)} />
 
-      {/* ② いま練習している曲 ＋〈この曲のおすすめ ‖ 毎日の基礎練〉 */}
+      {/* ② いま練習している曲 ＋〈マスターへのステップ ‖ 毎日の基礎練〉 */}
       <PracticeFocusCard pieces={recentPieces} basics={basicPracticeCards} userId={userId} />
 
-      {/* ③ アルコちゃんカード (イラスト＋一言。励まし＋目標) */}
+      {/* ③ アルコちゃんカード (全身・モーション付き。今日の一言。タップで次のポーズ) */}
       <div className={hb.root}>
-        <div className={hb.arco} data-onboarding="home.arcoCard">
-          <ArcoFace className={hb.ill} />
-          <div className={hb.bubble}>
-            今日もいっしょに練習しよう🎵
-          </div>
-        </div>
-        <button type="button" className={hb.guideLink} onClick={() => setGuideOpen(true)} aria-label="上達のしくみを見る">
-          ？上達のしくみ
-        </button>
+        <ArcoDaily />
       </div>
 
       {/* ④ 次の曲にチャレンジ (同☆の未達成曲) */}
