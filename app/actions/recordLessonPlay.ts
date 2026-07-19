@@ -21,10 +21,6 @@ export type RecordLessonPlayResult =
       ok: true
       playCount: number
       cleared: boolean
-      /** 今回のクリアで新規に書かれたタグ */
-      newlyCleared: string[]
-      /** PROVISIONAL→CONFIRMED に昇格した自己申告タグ数 */
-      confirmed: number
     }
   | { ok: false; error: string }
 
@@ -99,7 +95,7 @@ export async function recordLessonPlay(
     })
 
     if (play.playCount < LESSON_RUNS_REQUIRED || tags.length === 0) {
-      return { playCount: play.playCount, cleared: play.playCount >= LESSON_RUNS_REQUIRED, newlyCleared: [] as string[], confirmed: 0 }
+      return { playCount: play.playCount, cleared: play.playCount >= LESSON_RUNS_REQUIRED }
     }
 
     // ① 正式クリア記録 (冪等: unique userId+tagType+tagKey)
@@ -125,9 +121,8 @@ export async function recordLessonPlay(
     }
 
     // ② 自己申告の昇格 (確定#4: レッスンクリア = 触れた確認済み)
-    let confirmed = 0
     for (const t of tags) {
-      const res = await tx.userTagAcquisition.updateMany({
+      await tx.userTagAcquisition.updateMany({
         where: {
           userId: dbUser.id,
           tagType: t.tagType,
@@ -136,14 +131,11 @@ export async function recordLessonPlay(
         },
         data: { state: "CONFIRMED", confirmedAt: new Date() },
       })
-      confirmed += res.count
     }
 
     return {
       playCount: play.playCount,
       cleared: true,
-      newlyCleared: fresh.map((t) => `${t.tagType}:${t.tagKey}`),
-      confirmed,
     }
   })
 

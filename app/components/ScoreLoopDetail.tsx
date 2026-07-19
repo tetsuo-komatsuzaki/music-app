@@ -17,7 +17,6 @@ type AchievementStatus = {
   lessons: {
     total: number
     cleared: number
-    items: Array<{ tagType: string; tagKey: string; cleared: boolean }>
   }
   etude: { required: boolean; id?: string; title?: string; achieved?: boolean }
   cleanRuns: { count: number; required: number }

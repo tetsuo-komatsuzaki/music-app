@@ -197,7 +197,7 @@ export async function GET(
   // ── 達成/マスターの記録と直近5回平均 ──
   const achievement = await prisma.userScoreAchievement.findUnique({
     where: { userId_scoreId: { userId: dbUserId, scoreId } },
-    select: { achievedAt: true, masteredAt: true },
+    select: { masteredAt: true },
   })
   const [recent, latestPerf, totalPerformances] = await Promise.all([
     // overallScore は bowing 依存で欠損しやすいため廃止 → 音程+リズム平均で算出 (アプリ全体と統一)。
@@ -225,13 +225,11 @@ export async function GET(
       : null
 
   return NextResponse.json({
-    lessons: { total: lessons.length, cleared: lessons.filter((l) => l.cleared).length, items: lessons },
+    lessons: { total: lessons.length, cleared: lessons.filter((l) => l.cleared).length },
     etude,
     cleanRuns: { count: Math.min(cleanRuns, CLEAN_RUNS_REQUIRED), required: CLEAN_RUNS_REQUIRED },
     achieved: achievement !== null,
-    achievedAt: achievement?.achievedAt ?? null,
     mastered: achievement?.masteredAt !== null && achievement?.masteredAt !== undefined,
-    masteredAt: achievement?.masteredAt ?? null,
     master: {
       recentAvg: recentAvg !== null ? Math.round(recentAvg * 10) / 10 : null,
       scoredCount: recent.length,

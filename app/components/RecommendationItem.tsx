@@ -26,7 +26,6 @@ export type SongRecommendation = {
   reason: string
   /** 遷移先 (page.tsx で構築済み) */
   href: string
-  triggeredByCardId?: string
 }
 
 type Props = {

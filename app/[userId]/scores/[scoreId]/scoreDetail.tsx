@@ -47,7 +47,6 @@ type PerformanceDTO = {
   uploadedAt: string
   status: string
   analysisStatus?: string | null
-  errorMessage?: string | null
   audioUrl: string | null
   comparisonResult: any[] | null
   comparisonWarnings?: string[]
@@ -82,7 +81,6 @@ type Props = {
   uploadAction: (params: { performanceId: string; recordingBpm?: number; rangeFromNote?: number; rangeToNote?: number }) => Promise<any>
   performanceCount: number
   latestPitchAccuracy: number | null
-  latestTimingAccuracy: number | null
   infoSlot?: React.ReactNode
   singleStaffLine?: boolean
   /** practice用: score-performancesの代わりにpractice-performancesを使う */
@@ -868,7 +866,6 @@ export default function ScoreDetail({
   buildUrl,
   performanceCount,
   latestPitchAccuracy,
-  latestTimingAccuracy: _latestTimingAccuracy,
   infoSlot,
   singleStaffLine,
   practiceItemId,

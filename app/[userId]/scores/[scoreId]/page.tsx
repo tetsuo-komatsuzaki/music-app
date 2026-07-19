@@ -211,7 +211,6 @@ export default async function Page({
         buildUrl={buildUrl}
         performanceCount={performanceCount}
         latestPitchAccuracy={latestPerf?.pitchAccuracy ?? null}
-        latestTimingAccuracy={latestPerf?.timingAccuracy ?? null}
       />
     </>
   )
