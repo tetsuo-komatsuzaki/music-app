@@ -1263,6 +1263,7 @@ export default function ScoreDetail({
   const synthRef = useRef<Tone.Synth | null>(null)
   const vibratoRef = useRef<Tone.Vibrato | null>(null)
   const partRef = useRef<Tone.Part | null>(null)
+  const colorTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]) // 比較色付けの遅延タイマー群
   // 視覚ビート(青い線の上で上下に揺れる丸)。表拍=下/裏拍=上
   const beatBallRef = useRef<HTMLDivElement | null>(null)
   const noteElementsRef = useRef<Element[]>([])
@@ -1470,6 +1471,9 @@ export default function ScoreDetail({
 
   // --- 色塗りのみ（getBoundingClientRect 不要、即時実行可能）---
   const applyComparisonColors = useCallback(() => {
+    // 前回の遅延色付けタイマーを破棄 (演奏を素早く切替えると前の色が後から乗る問題を防止)
+    colorTimersRef.current.forEach(clearTimeout)
+    colorTimersRef.current = []
     const elements = noteElementsRef.current
     const container = document.getElementById("osmd-container")
     if (elements.length === 0 || !container) return
@@ -1488,7 +1492,7 @@ export default function ScoreDetail({
         colorizeNote(elements[osmdIdx], color)
       } else {
         const delay = Math.min(osmdIdx * 18, 800)
-        setTimeout(() => colorizeNote(elements[osmdIdx], color), delay)
+        colorTimersRef.current.push(setTimeout(() => colorizeNote(elements[osmdIdx], color), delay))
       }
     }
   }, [comparison, analysisIdxToOsmdIdx])
@@ -2291,9 +2295,17 @@ export default function ScoreDetail({
     return () => {
       stopVisualSync()
       if (recGuideAnimRef.current) cancelAnimationFrame(recGuideAnimRef.current)
+      colorTimersRef.current.forEach(clearTimeout)
+      colorTimersRef.current = []
       try {
         Tone.getTransport().stop()
         Tone.getTransport().cancel()
+      } catch { /* ignore */ }
+      // Tone.js の音声ノードを破棄 (未破棄だと遷移毎に Destination に接続が残りリーク)
+      try {
+        partRef.current?.dispose(); partRef.current = null
+        synthRef.current?.dispose(); synthRef.current = null
+        vibratoRef.current?.dispose(); vibratoRef.current = null
       } catch { /* ignore */ }
     }
   }, [stopVisualSync])

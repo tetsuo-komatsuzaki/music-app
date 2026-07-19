@@ -200,6 +200,8 @@ model Performance {
 
   @@index([scoreId])
   @@index([userId, uploadedAt])
+  // achievement-status / score-performances が userId+scoreId で絞り uploadedAt で並べる hot path 用
+  @@index([userId, scoreId, uploadedAt])
 }
 
 // 譜面注釈（Phase 1, 2026-07-19）: ユーザーが譜面に付けるハイライト/テキスト/注意メモ/記譜スタンプ。

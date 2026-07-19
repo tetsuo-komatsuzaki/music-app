@@ -47,18 +47,32 @@ export async function saveScoreAnnotation(
   const userId = auth.user.dbUser.id
   const data = params.data ?? {}
 
-  if (params.practiceItemId) {
-    await prisma.scoreAnnotation.upsert({
-      where: { userId_practiceItemId: { userId, practiceItemId: params.practiceItemId } },
-      create: { userId, practiceItemId: params.practiceItemId, data },
-      update: { data },
-    })
-  } else if (params.scoreId) {
-    await prisma.scoreAnnotation.upsert({
-      where: { userId_scoreId: { userId, scoreId: params.scoreId } },
-      create: { userId, scoreId: params.scoreId, data },
-      update: { data },
-    })
+  try {
+    if (params.practiceItemId) {
+      await prisma.scoreAnnotation.upsert({
+        where: { userId_practiceItemId: { userId, practiceItemId: params.practiceItemId } },
+        create: { userId, practiceItemId: params.practiceItemId, data },
+        update: { data },
+      })
+    } else if (params.scoreId) {
+      await prisma.scoreAnnotation.upsert({
+        where: { userId_scoreId: { userId, scoreId: params.scoreId } },
+        create: { userId, scoreId: params.scoreId, data },
+        update: { data },
+      })
+    }
+  } catch (e: unknown) {
+    // 同時初回保存の競合 (upsert は非アトミックで P2002 になり得る) → update で再試行 (行は既に存在)
+    if (typeof e === "object" && e !== null && (e as { code?: string }).code === "P2002") {
+      await prisma.scoreAnnotation.updateMany({
+        where: params.practiceItemId
+          ? { userId, practiceItemId: params.practiceItemId }
+          : { userId, scoreId: params.scoreId },
+        data: { data },
+      })
+    } else {
+      throw e
+    }
   }
   return { ok: true }
 }
