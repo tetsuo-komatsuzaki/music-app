@@ -30,30 +30,8 @@ from lib.violin_position import (
     VIOLIN_FIRST_POSITION_MAP,
     string_id_to_num,
 )
-
-# 元XMLに含まれる未定義HTMLエンティティ (MusicXMLはDTD無しでは無効) を数値参照に。
-_HTML_ENTITIES = {
-    "copy": "169", "reg": "174", "trade": "8482", "nbsp": "160", "deg": "176",
-    "mdash": "8212", "ndash": "8211", "hellip": "8230", "sect": "167", "para": "182",
-    "rsquo": "8217", "lsquo": "8216", "rdquo": "8221", "ldquo": "8220", "bull": "8226",
-    "eacute": "233", "egrave": "232", "agrave": "224", "uuml": "252", "ouml": "246", "auml": "228",
-}
-
-
-def _sanitize_xml_entities(data: bytes) -> bytes:
-    """平文XML中の未定義HTMLエンティティを数値参照に置換し、裸の & をエスケープして
-    ElementTree/music21 が parse できるようにする。ZIP(.mxl) は呼び出し側で除外。"""
-    import re as _re
-    text = data.decode("utf-8", errors="replace")
-
-    def _named(m):
-        name = m.group(1)
-        return f"&#{_HTML_ENTITIES[name]};" if name in _HTML_ENTITIES else m.group(0)
-
-    text = _re.sub(r"&([a-zA-Z][a-zA-Z0-9]*);", _named, text)
-    # XMLとして正当なエンティティ以外の裸の & を &amp; に (未知の名前付きも含めパース可能化)
-    text = _re.sub(r"&(?!(?:amp|lt|gt|quot|apos|#[0-9]+|#x[0-9a-fA-F]+);)", "&amp;", text)
-    return text.encode("utf-8")
+# 未定義HTMLエンティティのサニタイズ (単体テスト可能に lib へ分離)
+from lib.xml_sanitize import sanitize_xml_entities
 
 # =========================
 # 引数取得
@@ -165,7 +143,7 @@ try:
 
     # 堅牢化: 一部の元XMLに &copy; 等の未定義HTMLエンティティが含まれ ElementTree parse が
     # 落ちるため、平文XMLのみ事前サニタイズ (既知エンティティ→数値参照 + 裸の&エスケープ)。
-    xml_bytes = res.content if is_zip else _sanitize_xml_entities(res.content)
+    xml_bytes = res.content if is_zip else sanitize_xml_entities(res.content)
 
     with tempfile.NamedTemporaryFile(
         suffix=original_ext,
@@ -182,11 +160,12 @@ try:
     # BPM
     # =========================
     def extract_bpm(sc) -> float:
+        # number > 0 ガード: 元XMLに <per-minute>0</per-minute> 等があっても 60/BPM のゼロ除算を防ぐ
         for mm in sc.recurse().getElementsByClass(tempo.MetronomeMark):
-            if mm.number is not None:
+            if mm.number is not None and mm.number > 0:
                 return float(mm.number)
         for ti in sc.recurse().getElementsByClass(tempo.TempoIndication):
-            if hasattr(ti, 'number') and ti.number is not None:
+            if hasattr(ti, 'number') and ti.number is not None and ti.number > 0:
                 return float(ti.number)
         print("WARNING: No tempo marking found. Using default BPM=90")
         return 90.0

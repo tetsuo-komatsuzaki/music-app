@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
+import { clampLimit } from "@/app/_libs/apiLimit"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
 import { isEvaluated, pitchScore } from "@/app/types/comparisonResult"
@@ -11,8 +12,7 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const scoreId = searchParams.get("scoreId")
-  // 無制限 take による DoS / NaN throw を防止 (1..100 にクランプ)
-  const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit") ?? "50") || 50))
+  const limit = clampLimit(searchParams.get("limit")) // DoS/NaN 防止 (1..100)
 
   if (!scoreId) {
     return NextResponse.json({ error: "scoreId required" }, { status: 400 })
