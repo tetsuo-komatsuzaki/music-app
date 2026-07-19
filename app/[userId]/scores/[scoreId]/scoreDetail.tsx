@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import ScoreDetailTabs, { type ScoreDetailTabId } from "@/app/components/ScoreDetailTabs"
 import MasterBadge from "@/app/components/MasterBadge"
 import FavoriteButton from "@/app/components/FavoriteButton"
+import ArcoResultOverlay from "@/app/components/ArcoResultOverlay"
 import ScoreLoopDetail from "@/app/components/ScoreLoopDetail"
 import AnnotationLayer from "./AnnotationLayer"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
@@ -903,6 +904,9 @@ export default function ScoreDetail({
   const [performances, setPerformances] = useState<PerformanceDTO[]>([])
   const [perfLoading, setPerfLoading] = useState(performanceCount > 0)
   const [selected, setSelected] = useState<PerformanceDTO | null>(null)
+  // 録音直後のアルコ結果オーバーレイ (通し録音の解析完了で表示)
+  const justRecordedRef = useRef<string | null>(null)
+  const [arcoResult, setArcoResult] = useState<PerformanceDTO | null>(null)
 
   // ▼ UI-6: 削除完了後の状態
   // - recentlyDeleted: 直前の操作が削除だった = ヒント表示用 (selected が再度選ばれたら解除)
@@ -1209,6 +1213,9 @@ export default function ScoreDetail({
       return { error: `録音は保存されましたが、解析に失敗しました (${notifyResult.error})` }
     }
 
+    // 通し録音(非区間)かつ曲モードなら、解析完了後にアルコ結果オーバーレイを出す
+    justRecordedRef.current = (activeRange || practiceItemId) ? null : signedRes.performanceId
+
     // 4. 後続処理 (latest perf 取得・comparison ロード・state 更新) - 既存ロジック踏襲
     try {
       const apiUrl = practiceItemId
@@ -1256,6 +1263,17 @@ export default function ScoreDetail({
       return { success: true }
     }
   }, [score.id, userId, uploadAction, bestPitchScore, router, practiceItemId, loadComparison])
+
+  // 解析完了した「今録音した曲演奏」を検知してアルコ結果を表示 (3秒ポーリングが performances を更新)
+  useEffect(() => {
+    const id = justRecordedRef.current
+    if (!id) return
+    const p = performances.find((x) => x.id === id)
+    if (p && p.analysisStatus === "done" && p.pitchAccuracy != null && p.timingAccuracy != null) {
+      justRecordedRef.current = null
+      setArcoResult(p)
+    }
+  }, [performances])
 
   // =========================================================
   // 再生・ハイライト関連
@@ -2704,6 +2722,16 @@ export default function ScoreDetail({
           {performanceHistoryBlock}
           {isScoreMode && <ScoreLoopDetail scoreId={score.id} userId={userId} />}
         </div>
+      )}
+
+      {arcoResult && (
+        <ArcoResultOverlay
+          scoreId={score.id}
+          userId={userId}
+          perf={{ id: arcoResult.id, pitchAccuracy: arcoResult.pitchAccuracy ?? null, timingAccuracy: arcoResult.timingAccuracy ?? null }}
+          onClose={() => setArcoResult(null)}
+          onGoReview={isScoreMode ? () => { setArcoResult(null); handleTabChange("review") } : undefined}
+        />
       )}
 
       <OnboardingTrigger pageKey={practiceItemId ? "practiceItem" : "scoreDetail"} />
