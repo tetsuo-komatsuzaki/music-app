@@ -45,6 +45,7 @@ type Props = {
     id: string
     title: string
     star: number | null
+    cover: string | null
     latest: number
     recentAvg: number | null
     badge: "mastered" | "achieved" | null
@@ -76,11 +77,9 @@ type Props = {
 
 export default function HomeClient({
   userName: _userName,
-  arcoMessage,
   basicPracticeCards,
   recentPieces,
   nextPieceRecommendations,
-  journeyMap,
   rankCard,
 }: Props) {
   void _userName
@@ -100,13 +99,7 @@ export default function HomeClient({
         <div className={hb.arco} data-onboarding="home.arcoCard">
           <ArcoFace className={hb.ill} />
           <div className={hb.bubble}>
-            <div className={hb.name}>アルコちゃん</div>
-            {arcoMessage.greeting}{arcoMessage.cheer}
-            {journeyMap && !journeyMap.achieved && journeyMap.periodLabel && (
-              <>
-                <br />目標の <span className={hb.goalw}>「{journeyMap.songName}」</span> まで {journeyMap.periodLabel}！
-              </>
-            )}
+            今日もいっしょに練習しよう🎵
           </div>
         </div>
         <button type="button" className={hb.guideLink} onClick={() => setGuideOpen(true)} aria-label="上達のしくみを見る">

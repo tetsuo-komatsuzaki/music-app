@@ -17,7 +17,8 @@
 .tabOn { border-color:var(--accent); background:var(--accent); color:#fff; }
 
 .piece { display:flex; align-items:center; gap:11px; }
-.thumb { width:38px; height:38px; border-radius:10px; display:grid; place-items:center; font-size:17px; flex:none; background:var(--accentSoft); }
+.thumb { width:38px; height:38px; border-radius:10px; display:grid; place-items:center; font-size:17px; flex:none; background:var(--accentSoft); overflow:hidden; }
+.thumb img { width:100%; height:100%; object-fit:cover; }
 .thumbGoal { background:var(--goalSoft); }
 .g { flex:1; min-width:0; }
 .title { font-size:14px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -46,7 +47,15 @@
 .rm { font-size:9.5px; color:var(--inkFaint); margin-top:2px; }
 .ritem .chip { font-size:8.5px; padding:1px 6px; margin-top:2px; display:inline-block; }
 .recEmpty { font-size:10px; color:var(--inkFaint); font-weight:600; padding:4px 2px; line-height:1.5; }
-.recPrep { font-size:8.5px; font-weight:800; color:var(--warn); background:var(--warnSoft); border-radius:999px; padding:1px 6px; margin-top:2px; display:inline-block; }
+
+/* この曲の課題チェックリスト (案A) */
+.task { display:flex; align-items:center; gap:7px; padding:6px 7px; border:1px solid var(--line); border-radius:10px; background:var(--panel); }
+.task + .task { margin-top:6px; }
+.tk { width:17px; height:17px; border-radius:50%; display:grid; place-items:center; font-size:10px; font-weight:900; flex:none; background:var(--line); color:var(--inkFaint); }
+.taskDone .tk { background:var(--good); color:#fff; }
+.tl { font-size:10.5px; font-weight:700; flex:1; display:flex; justify-content:space-between; align-items:center; gap:5px; min-width:0; }
+.taskDone .tl { color:var(--inkFaint); }
+.tn { font-size:9px; color:var(--inkFaint); font-weight:800; flex:none; }
 
 /* アルコちゃんカード */
 .arco { background:linear-gradient(162deg,var(--accentSoft),var(--panel) 66%); border-radius:var(--radius); padding:16px; display:flex; gap:13px; align-items:center; box-shadow:0 1px 2px rgba(42,36,32,.05); }

@@ -20,7 +20,7 @@ export default function NextPiecesCard({
         </div>
         {pieces.slice(0, 3).map((p) => (
           <Link key={p.practiceItem.id} href={p.href} className={styles.mat}>
-            <div className={`${styles.thumb} ${styles.thumbGoal}`}>♪</div>
+            <div className={`${styles.thumb} ${styles.thumbGoal}`}>{p.practiceItem.cover ? <img src={p.practiceItem.cover} alt="" loading="lazy" /> : "♪"}</div>
             <div className={styles.g}>
               <div className={styles.title}>{p.practiceItem.title}</div>
               <div className={styles.meta}>

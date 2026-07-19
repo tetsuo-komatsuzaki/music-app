@@ -22,6 +22,7 @@ export type SongRecommendation = {
     category: string
     star?: number | null
     composer?: string | null
+    cover?: string | null
   }
   reason: string
   /** 遷移先 (page.tsx で構築済み) */

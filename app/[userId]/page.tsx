@@ -321,17 +321,17 @@ export default async function HomePage({ params }: PageProps) {
       scoreId: true,
       pitchAccuracy: true,
       timingAccuracy: true,
-      score: { select: { id: true, title: true, star: true } },
+      score: { select: { id: true, title: true, star: true, coverImagePath: true } },
     },
   })
   const pieceOrder: string[] = []
-  const pieceData = new Map<string, { id: string; title: string; star: number | null; latest: number; vals: number[] }>()
+  const pieceData = new Map<string, { id: string; title: string; star: number | null; cover: string | null; latest: number; vals: number[] }>()
   for (const p of recentPiecePerfs) {
     if (!p.scoreId || !p.score || p.pitchAccuracy == null || p.timingAccuracy == null) continue
     const avg2 = (p.pitchAccuracy + p.timingAccuracy) / 2
     if (!pieceData.has(p.scoreId)) {
       // 最初の1件 = 最新(desc順) → 直近点
-      pieceData.set(p.scoreId, { id: p.score.id, title: p.score.title, star: p.score.star, latest: Math.round(avg2), vals: [] })
+      pieceData.set(p.scoreId, { id: p.score.id, title: p.score.title, star: p.score.star, cover: p.score.coverImagePath, latest: Math.round(avg2), vals: [] })
       pieceOrder.push(p.scoreId)
     }
     const d = pieceData.get(p.scoreId)!
@@ -348,6 +348,7 @@ export default async function HomePage({ params }: PageProps) {
       id: d.id,
       title: d.title,
       star: d.star,
+      cover: d.cover,
       latest: d.latest,
       recentAvg,
       badge: badgeKind(achievementByScore.get(d.id)),
@@ -373,7 +374,7 @@ export default async function HomePage({ params }: PageProps) {
     },
     orderBy: [{ createdAt: "asc" }],
     take: 4,
-    select: { id: true, title: true, composer: true, star: true },
+    select: { id: true, title: true, composer: true, star: true, coverImagePath: true },
   })
   const nextPieceRecommendations = nextPieceScores.map((s) => ({
     practiceItem: {
@@ -382,6 +383,7 @@ export default async function HomePage({ params }: PageProps) {
       category: "score",
       star: s.star ?? null,
       composer: s.composer ?? null,
+      cover: s.coverImagePath ?? null,
     },
     reason: `あなたのレベル（☆${currentStar}）の曲です`,
     href: `/${userId}/scores/${s.id}`,
