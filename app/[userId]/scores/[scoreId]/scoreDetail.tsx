@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import ScoreDetailTabs, { type ScoreDetailTabId } from "@/app/components/ScoreDetailTabs"
 import MasterBadge from "@/app/components/MasterBadge"
 import ScoreLoopDetail from "@/app/components/ScoreLoopDetail"
+import AnnotationLayer from "./AnnotationLayer"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
 import * as Tone from "tone"
 import styles from "./scoreDetail.module.css"
@@ -2448,6 +2449,17 @@ export default function ScoreDetail({
             </div>
           )}
         </div>
+
+        {/* 譜面注釈 (Phase 1): ハイライト/メモ/注意を譜面に書き込み・保存 */}
+        {analysis && (
+          <AnnotationLayer
+            containerId="osmd-container"
+            noteElementsRef={noteElementsRef}
+            noteElementsVersion={noteElementsVersion}
+            scoreId={practiceItemId ? undefined : score.id}
+            practiceItemId={practiceItemId}
+          />
+        )}
 
         {/* 演奏バー: お手本 / テンポ / メトロノーム / 区間 を1本に統合 — UX刷新 Step 2 */}
         {analysis && (

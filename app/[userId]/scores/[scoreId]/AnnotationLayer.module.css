@@ -1,0 +1,95 @@
+/* 譜面注釈レイヤー (Phase 1) 2026-07-19 — スタイリッシュ刷新 */
+.wrap { display: flex; flex-direction: column; gap: 9px; }
+.head { display: flex; }
+
+.modeBtn {
+  align-self: flex-start;
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: .01em; cursor: pointer;
+  color: #4a4650; background: #fbfbfd; border: 1px solid #e6e3ea;
+  border-radius: 999px; padding: 8px 15px; transition: all .16s ease;
+}
+.modeBtn:hover { background: #f5f4f8; }
+.modeOn {
+  color: #fff; border-color: transparent;
+  background: linear-gradient(120deg, #2b2b33, #454550);
+  box-shadow: 0 6px 16px -8px rgba(40, 40, 55, .6);
+}
+
+/* --- ツールバー: 洗練チップ --- */
+.tools {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 8px; border: 1px solid #ecebf0; border-radius: 14px; background: #fbfbfd;
+}
+.toolBtn {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: inherit; font-size: 12px; font-weight: 700; letter-spacing: .01em; cursor: pointer;
+  color: #55515c; background: #fff; border: 1px solid #e8e6ec;
+  border-radius: 9px; padding: 6px 11px; transition: all .13s ease;
+}
+.toolBtn:hover { border-color: #d5d2db; }
+.toolBtn .g { font-size: 13px; line-height: 1; opacity: .9; }
+.toolOn {
+  color: #fff; border-color: transparent; background: #4a6cf7;
+  box-shadow: 0 4px 12px -5px rgba(74, 108, 247, .6);
+}
+.toolOn .g { opacity: 1; }
+.clearBtn {
+  font-family: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer;
+  color: #a2455f; background: transparent; border: 1px solid transparent;
+  border-radius: 9px; padding: 6px 10px; margin-left: auto;
+}
+.clearBtn:hover { background: #fbecf0; }
+.hint { margin: 0 2px; font-size: 11.5px; color: #8a8690; line-height: 1.5; }
+.hint b { color: #4a6cf7; font-weight: 700; }
+
+/* ============================================================
+   オーバーレイ (命令的に #osmd-container へ append)
+   ============================================================ */
+
+/* ハイライト: フラットな蛍光ストローク。色は inline 指定、乗算で譜面に馴染む */
+.hlBand {
+  position: absolute;
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 7;
+  mix-blend-mode: multiply;
+}
+
+/* ハイライト色スウォッチ */
+.swatches { display: flex; align-items: center; gap: 7px; padding: 2px 2px; }
+.swatch {
+  width: 22px; height: 22px; border-radius: 7px; cursor: pointer;
+  border: 2px solid #fff; box-shadow: 0 0 0 1px #e2dfe8, 0 1px 3px rgba(0,0,0,.12);
+  transition: transform .12s ease;
+}
+.swatch:hover { transform: scale(1.1); }
+.swatchOn { box-shadow: 0 0 0 2px #4a6cf7, 0 1px 4px rgba(0,0,0,.18); }
+
+/* マーク共通: 小さく上品なタグ。半透明ティント + 極細リング + やわらかい影 */
+.badge {
+  position: absolute;
+  transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 800; line-height: 1; letter-spacing: .02em;
+  padding: 3px 8px; border-radius: 7px; white-space: nowrap;
+  pointer-events: none; z-index: 9;
+  box-shadow: 0 2px 7px -2px rgba(24, 18, 40, .28);
+  -webkit-backdrop-filter: saturate(1.2); backdrop-filter: saturate(1.2);
+}
+.badge .g {
+  font-size: 11px; font-weight: 900; line-height: 1;
+  display: inline-grid; place-items: center;
+}
+
+/* 注意系: トーンを落とした上品カラー (ティント地 + 濃色文字 + 同系リング) */
+.wFlat  { color: #29508f; background: #e4edfb; box-shadow: 0 2px 7px -2px rgba(40,90,160,.32), 0 0 0 1px rgba(58,110,190,.28) inset; }
+.wSharp { color: #a53b52; background: #fbe6ea; box-shadow: 0 2px 7px -2px rgba(180,70,95,.30), 0 0 0 1px rgba(200,80,105,.26) inset; }
+.wTempo { color: #8a6510; background: #f7ecd2; box-shadow: 0 2px 7px -2px rgba(160,120,30,.30), 0 0 0 1px rgba(190,150,60,.30) inset; }
+.wHard  { color: #5b3ba0; background: #ece3fb; box-shadow: 0 2px 7px -2px rgba(105,70,175,.30), 0 0 0 1px rgba(120,85,190,.26) inset; }
+
+/* テキストメモ: 付箋でなく、控えめな吹き出しタグ */
+.badgeText {
+  color: #35313c; background: #ffffff; font-weight: 700; letter-spacing: 0;
+  box-shadow: 0 2px 8px -2px rgba(24,18,40,.28), 0 0 0 1px #ece9f0 inset;
+}

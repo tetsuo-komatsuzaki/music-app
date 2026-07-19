@@ -202,6 +202,23 @@ model Performance {
   @@index([userId, uploadedAt])
 }
 
+// 譜面注釈（Phase 1, 2026-07-19）: ユーザーが譜面に付けるハイライト/テキスト/注意メモ/記譜スタンプ。
+// 音符アンカー(note_index)で保持し、OSMD再レイアウトに追従。1ユーザー×1教材で1レコード(data JSON)。
+// data = { highlight:[{fromNote,toNote,color}], warnings:[{noteIndex,dy,kind,text}], notation:[{noteIndex,kind,value}] }
+model ScoreAnnotation {
+  id             String   @id @default(cuid())
+  userId         String
+  scoreId        String? // 曲の場合
+  practiceItemId String? // 練習アイテムの場合
+  data           Json     @default("{}")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, scoreId])
+  @@unique([userId, practiceItemId])
+  @@index([userId])
+}
+
 enum Role {
   student
   teacher
