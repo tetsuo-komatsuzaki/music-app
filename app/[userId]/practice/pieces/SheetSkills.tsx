@@ -18,9 +18,9 @@ export default function SheetSkills({
   useEffect(() => {
     let cancelled = false
     setSkills(null)
-    getRequiredSkills(kind, id, userId).then((s) => { if (!cancelled) setSkills(s) }).catch(() => {})
+    getRequiredSkills(kind, id).then((s) => { if (!cancelled) setSkills(s) }).catch(() => {})
     return () => { cancelled = true }
-  }, [kind, id, userId])
+  }, [kind, id])
 
   if (!skills) return null // 取得中/失敗は非表示
   // 技術が不要な曲は「不要」と明示 (機能が動作していると分かるように)

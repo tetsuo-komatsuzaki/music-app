@@ -8,6 +8,8 @@ import {
   getLessonInventory, getUserLessonState, tagId, positionTagKey,
 } from "../_libs/lessonStatus"
 import { LESSON_BY_TAG } from "../[userId]/lessons/_lib/content"
+import { requireAuthAction } from "../_libs/requireAuth"
+import { isValidCuid } from "../_libs/validators"
 
 export type SkillChip = {
   /** 表示名 (レッスン名 or タグ名) */
@@ -24,12 +26,11 @@ type Gate = { tagType: string; tagKey: string; label: string }
 export async function getRequiredSkills(
   kind: "score" | "practice",
   id: string,
-  authUserId: string,
 ): Promise<SkillChip[]> {
-  const dbUser = await prisma.user.findUnique({
-    where: { supabaseUserId: authUserId },
-    select: { id: true },
-  })
+  // 本人はクライアント指定でなく認証セッションから導出 (IDOR 対策)
+  const auth = await requireAuthAction()
+  if (!auth.ok || !isValidCuid(id)) return []
+  const dbUser = { id: auth.user.dbUser.id }
 
   const gates: Gate[] = []
   const addTech = (name: string) => gates.push({ tagType: "technique", tagKey: name, label: name })
@@ -37,15 +38,17 @@ export async function getRequiredSkills(
   const addPos = (key: string) => gates.push({ tagType: "position", tagKey: key, label: `${key}ポジション` })
 
   if (kind === "score") {
-    const s = await prisma.score.findUnique({
-      where: { id },
+    const s = await prisma.score.findFirst({
+      where: { id, deletedAt: null },
       select: {
+        createdById: true, isShared: true,
         scoreTechniqueTags: { select: { techniqueTag: { select: { name: true } } } },
         featureTags: { select: { featureTag: { select: { category: true, name: true, isAcquisition: true } } } },
         positions: true,
       },
     })
     if (!s) return []
+    if (s.createdById !== dbUser.id && !s.isShared) return [] // 他人の非公開曲は拒否
     for (const t of s.scoreTechniqueTags) addTech(t.techniqueTag.name)
     for (const f of s.featureTags) if (f.featureTag.category === "double_stop" && f.featureTag.isAcquisition) addDs(f.featureTag.name)
     const pk = new Set<string>()
