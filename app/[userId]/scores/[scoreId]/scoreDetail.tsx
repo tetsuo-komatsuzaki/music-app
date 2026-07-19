@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import ScoreDetailTabs, { type ScoreDetailTabId } from "@/app/components/ScoreDetailTabs"
 import MasterBadge from "@/app/components/MasterBadge"
+import FavoriteButton from "@/app/components/FavoriteButton"
 import ScoreLoopDetail from "@/app/components/ScoreLoopDetail"
 import AnnotationLayer from "./AnnotationLayer"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
@@ -85,6 +86,8 @@ type Props = {
   singleStaffLine?: boolean
   /** practice用: score-performancesの代わりにpractice-performancesを使う */
   practiceItemId?: string
+  /** お気に入り初期状態 (曲/教材) */
+  initialFavorite?: boolean
 }
 
 // =========================================================
@@ -869,6 +872,7 @@ export default function ScoreDetail({
   infoSlot,
   singleStaffLine,
   practiceItemId,
+  initialFavorite,
 }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -2358,9 +2362,16 @@ export default function ScoreDetail({
         </div>
       )}
       <div className={styles.header} data-section="header">
-        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <h1 className={styles.title}>{score.title}</h1>
-          <MasterBadge kind={score.badge} size="md" />
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", flex: 1, minWidth: 0 }}>
+            <h1 className={styles.title}>{score.title}</h1>
+            <MasterBadge kind={score.badge} size="md" />
+          </div>
+          <FavoriteButton
+            scoreId={practiceItemId ? undefined : score.id}
+            practiceItemId={practiceItemId}
+            initialOn={!!initialFavorite}
+          />
         </div>
       </div>
 

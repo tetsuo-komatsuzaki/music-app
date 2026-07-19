@@ -103,18 +103,20 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true) } }}
       >
         <span className={styles.rcHint}>タップで軌跡 ▸</span>
-        <div className={styles.rcEmblem}>
-          <ArcoFace />
-          <span className={styles.lv}>☆{currentStar}</span>
-        </div>
-        <div className={styles.rcBody}>
-          <div className={styles.rcEyebrow}>My Rank Card</div>
-          <div className={styles.rcRank}>☆{currentStar} <small>{rankName(currentStar)}</small></div>
-          <div className={styles.rcNeed}>☆{nextStar}まで あと <b>{remaining}曲</b></div>
-          <div className={styles.rcPips}>
-            {Array.from({ length: required }, (_, i) => (
-              <i key={i} className={i < achievedCount ? styles.on : ""} />
-            ))}
+        <div className={styles.rcMain}>
+          <div className={styles.rcEmblem}>
+            <ArcoFace />
+            <span className={styles.lv}>☆{currentStar}</span>
+          </div>
+          <div className={styles.rcBody}>
+            <div className={styles.rcEyebrow}>My Rank Card</div>
+            <div className={styles.rcRank}>☆{currentStar} <small>{rankName(currentStar)}</small></div>
+            <div className={styles.rcNeed}>☆{nextStar}まで あと <b>{remaining}曲</b></div>
+            <div className={styles.rcPips}>
+              {Array.from({ length: required }, (_, i) => (
+                <i key={i} className={i < achievedCount ? styles.on : ""} />
+              ))}
+            </div>
           </div>
         </div>
         {onGuide && (

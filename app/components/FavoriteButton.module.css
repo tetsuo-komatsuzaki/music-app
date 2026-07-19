@@ -1,0 +1,18 @@
+.btn {
+  display:inline-grid; place-items:center; flex:none;
+  width:38px; height:38px; border-radius:999px;
+  border:1px solid #EAE3D8; background:#fff; color:#E0555C;
+  font-size:19px; line-height:1; cursor:pointer;
+  transition:transform .1s ease, background .15s ease;
+}
+.btn:hover { background:#FBF3EE; }
+.btn:active { transform:scale(.88); }
+.btn.on { color:#fff; background:#E0555C; border-color:#E0555C; }
+
+.sm { width:30px; height:30px; font-size:15px; }
+
+@media (prefers-color-scheme: dark) {
+  .btn { background:#201C17; border-color:#322C24; }
+  .btn:hover { background:#2A241C; }
+  .btn.on { background:#E0555C; border-color:#E0555C; }
+}

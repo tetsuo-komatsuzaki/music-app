@@ -278,6 +278,15 @@ export default async function HomePage({ params }: PageProps) {
   ])
   const clearedItemSet = new Set(clearedMasteryRows.map((m) => m.practiceItemId))
   const seenItemIds = new Set<string>()
+  // 毎日の基礎練「○回/3回」用: 本日(JST)の教材別 演奏回数
+  const homeTodayStr = toJSTDateStr(new Date())
+  const todayCountByItem = new Map<string, number>()
+  for (const p of practicePerfsForBasics) {
+    if (!p.practiceItemId) continue
+    if (toJSTDateStr(p.uploadedAt) === homeTodayStr) {
+      todayCountByItem.set(p.practiceItemId, (todayCountByItem.get(p.practiceItemId) ?? 0) + 1)
+    }
+  }
   type BasicPracticeCard = {
     id: string
     title: string
@@ -285,6 +294,7 @@ export default async function HomePage({ params }: PageProps) {
     href: string
     lastPracticedAt: string
     recentScore: number | null
+    todayCount: number
   }
   const basicPracticeCards: BasicPracticeCard[] = []
   for (const p of practicePerfsForBasics) {
@@ -302,6 +312,7 @@ export default async function HomePage({ params }: PageProps) {
       href: `/${userId}/practice/${p.practiceItem.category}/${p.practiceItem.id}`,
       lastPracticedAt: p.uploadedAt.toISOString(),
       recentScore,
+      todayCount: todayCountByItem.get(p.practiceItem.id) ?? 0,
     })
     if (basicPracticeCards.length >= 24) break
   }
@@ -440,6 +451,31 @@ export default async function HomePage({ params }: PageProps) {
     }
   }
 
+  // --- お気に入り (曲 Score / 教材 PracticeItem) ---
+  // Favorite テーブル未マイグレーション環境でもホームが落ちないよう防御的に取得
+  let favorites: { id: string; title: string; category: string; cover: string | null; href: string }[] = []
+  try {
+    const favoriteRows = await prisma.favorite.findMany({
+      where: { userId: internalUserId },
+      orderBy: { createdAt: "desc" },
+      select: {
+        score: { select: { id: true, title: true, coverImagePath: true } },
+        practiceItem: { select: { id: true, title: true, category: true, coverImagePath: true } },
+      },
+    })
+    favorites = favoriteRows.flatMap((f) => {
+      if (f.score) {
+        return [{ id: f.score.id, title: f.score.title, category: "score", cover: f.score.coverImagePath, href: `/${userId}/scores/${f.score.id}` }]
+      }
+      if (f.practiceItem) {
+        return [{ id: f.practiceItem.id, title: f.practiceItem.title, category: f.practiceItem.category, cover: f.practiceItem.coverImagePath, href: `/${userId}/practice/${f.practiceItem.category}/${f.practiceItem.id}` }]
+      }
+      return []
+    })
+  } catch {
+    favorites = []
+  }
+
   return (
     <HomeClient
       userName={dbUser.name ?? ""}
@@ -452,6 +488,7 @@ export default async function HomePage({ params }: PageProps) {
       recentPieces={recentPieces}
       nextPieceRecommendations={nextPieceRecommendations}
       rankCard={rankCard}
+      favorites={favorites}
     />
   )
 }

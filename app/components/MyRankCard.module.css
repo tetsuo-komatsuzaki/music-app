@@ -13,9 +13,10 @@
   --sheen:.16;
   position:relative; border-radius:18px; padding:14px 15px; cursor:pointer; overflow:hidden;
   background:var(--tierBg); border:1.5px solid var(--tierBorder);
-  box-shadow:0 8px 20px rgba(0,0,0,.28); color:#fff; display:flex; align-items:center; gap:13px;
+  box-shadow:0 8px 20px rgba(0,0,0,.28); color:#fff; display:flex; flex-direction:column; align-items:stretch; gap:0;
   width:100%; text-align:left; font:inherit;
 }
+.rcMain { display:flex; align-items:center; gap:13px; width:100%; }
 .rankcard::after {
   content:""; position:absolute; inset:0; pointer-events:none;
   background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,var(--sheen)) 50%,transparent 60%);
@@ -43,16 +44,15 @@
 .rcPips i { flex:1; height:5px; border-radius:3px; background:rgba(255,255,255,.18); }
 .rcPips i.on { background:var(--tierChip); }
 .rcHint { position:absolute; top:9px; right:12px; font-size:8.5px; color:var(--tierAccent); font-weight:800; z-index:1; }
-/* 上達のしくみ (ランクカード内に組み込み) */
+/* 上達のしくみ (ランクカード下部フッター。ピップスと重ならない) */
 .guide {
-  position:absolute; bottom:9px; right:11px; z-index:2;
-  display:inline-flex; align-items:center; gap:3px; padding:3px 9px;
-  border-radius:999px; border:1px solid var(--tierBorder);
-  background:rgba(255,255,255,.10); color:var(--tierAccent);
-  font-size:9.5px; font-weight:800; cursor:pointer;
+  width:100%; margin-top:11px; padding:9px 0 1px; z-index:2;
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  border:none; border-top:1px solid rgba(255,255,255,.16); background:none;
+  color:var(--tierAccent); font-size:10.5px; font-weight:800; cursor:pointer;
 }
-.guide:hover { background:rgba(255,255,255,.2); }
-.guide:active { transform:scale(.95); }
+.guide:hover { color:#fff; }
+.guide:active { transform:scale(.98); }
 
 /* --- ティア: 銅 / 銀 / 金 / ホロ --- */
 .bronze {

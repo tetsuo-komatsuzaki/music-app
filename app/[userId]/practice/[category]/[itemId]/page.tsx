@@ -151,6 +151,14 @@ export default async function PracticeDetailPage({
     etude: "エチュード", etudes: "エチュード",
   }
 
+  let favRow: { id: string } | null = null
+  try {
+    favRow = await prisma.favorite.findUnique({
+      where: { userId_practiceItemId: { userId: dbUserId, practiceItemId: item.id } },
+      select: { id: true },
+    })
+  } catch { favRow = null }
+
   return (
     <div>
       {/* パンくず */}
@@ -171,6 +179,7 @@ export default async function PracticeDetailPage({
         latestPitchAccuracy={latestPerf?.pitchAccuracy ?? null}
         singleStaffLine={item.category === "scale" || item.category === "arpeggio"}
         practiceItemId={item.id}
+        initialFavorite={!!favRow}
       />
     </div>
   )

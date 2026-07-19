@@ -190,6 +190,14 @@ export default async function Page({
     .filter((l): l is NonNullable<typeof l> => !!l)
   console.log(`[PERF] scores/detail step2_parallel: ${(performance.now() - perfStep2).toFixed(0)}ms  TOTAL: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
+  let favRow: { id: string } | null = null
+  try {
+    favRow = await prisma.favorite.findUnique({
+      where: { userId_scoreId: { userId: dbUser.id, scoreId: score.id } },
+      select: { id: true },
+    })
+  } catch { favRow = null }
+
   return (
     <>
       {pendingLessons.length > 0 && (
@@ -211,6 +219,7 @@ export default async function Page({
         buildUrl={buildUrl}
         performanceCount={performanceCount}
         latestPitchAccuracy={latestPerf?.pitchAccuracy ?? null}
+        initialFavorite={!!favRow}
       />
     </>
   )

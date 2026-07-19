@@ -8,7 +8,7 @@ type Piece = {
   id: string; title: string; star: number | null; cover: string | null; latest: number; recentAvg: number | null
   badge: "mastered" | "achieved" | null; href: string
 }
-type Basic = { id: string; title: string; category: string; href: string; recentScore: number | null }
+type Basic = { id: string; title: string; category: string; href: string; recentScore: number | null; lastPracticedAt: string; todayCount: number }
 
 type AchStatus = {
   lessons: { total: number; cleared: number }
@@ -19,6 +19,8 @@ type AchStatus = {
 
 const NORM: Record<string, string> = { scales: "scale", arpeggios: "arpeggio", etudes: "etude" }
 const norm = (c: string) => NORM[c] ?? c
+
+const DAILY_GOAL = 3 // 毎日の基礎練: 3回通しで演奏
 
 export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: Piece[]; basics: Basic[]; userId: string }) {
   const [active, setActive] = useState(0)
@@ -41,18 +43,31 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
   const avg = ach?.master?.recentAvg != null ? Math.round(ach.master.recentAvg) : null
   const barW = avg != null ? Math.min(100, Math.round((avg / 90) * 100)) : 0
   const lessonsDone = !!ach?.lessons && ach.lessons.total > 0 && ach.lessons.cleared >= ach.lessons.total
+  const masterDone = avg != null && avg >= 90
   const etudeDone = !!ach?.etude?.achieved
   const cleanDone = !!ach && ach.cleanRuns.count >= ach.cleanRuns.required
   const chipLabel = piece.badge === "mastered" ? "マスター" : piece.badge === "achieved" ? "達成" : "挑戦中"
 
-  // 基礎練カテゴリを固定表示 (直近練習があればスコア/リンク、無ければカテゴリへ)
-  const catItem = (cat: string, label: string) => {
+  // 統一項目: 小さいチェック + ラベル(未完了時=やること) + メトリクス
+  const Step = ({ done, label, metric }: { done: boolean; label: string; metric: string }) => (
+    <div className={`${styles.step} ${done ? styles.stepDone : ""}`}>
+      <span className={styles.stepCk}>{done ? "✓" : ""}</span>
+      <span className={styles.stepLabel}>{label}</span>
+      <span className={styles.stepMetric}>{metric}</span>
+    </div>
+  )
+
+  // 毎日の基礎練: 各カテゴリ「○回/3回(本日通し)」。タップで教材へ
+  const dailyStep = (cat: string, label: string) => {
     const b = basics.find((x) => norm(x.category) === cat)
     const href = b?.href ?? `/${userId}/practice/${cat}`
-    const note = b?.recentScore != null ? `直近 ${b.recentScore}点` : "はじめる →"
+    const count = b?.todayCount ?? 0
+    const done = count >= DAILY_GOAL
     return (
-      <Link key={cat} href={href} className={styles.ritem}>
-        <div><div className={styles.rt}>{label}</div><div className={styles.rm}>{note}</div></div>
+      <Link key={cat} href={href} className={`${styles.step} ${done ? styles.stepDone : ""}`}>
+        <span className={styles.stepCk}>{done ? "✓" : ""}</span>
+        <span className={styles.stepLabel}>{label}</span>
+        <span className={styles.stepMetric}>{count}/{DAILY_GOAL}</span>
       </Link>
     )
   }
@@ -91,34 +106,27 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
 
         {/* 学びレッスン (独立項目) */}
         {ach?.lessons && ach.lessons.total > 0 && (
-          <Link href={`/${userId}/lessons`} className={`${styles.task} ${lessonsDone ? styles.taskDone : ""}`} style={{ marginTop: 9, textDecoration: "none", color: "inherit" }}>
-            <span className={styles.tk}>{lessonsDone ? "✓" : "○"}</span>
-            <div className={styles.tl}><span>学びレッスン</span><span className={styles.tn}>{ach.lessons.cleared}/{ach.lessons.total}</span></div>
+          <Link href={`/${userId}/lessons`} className={`${styles.step} ${lessonsDone ? styles.stepDone : ""}`} style={{ marginTop: 9 }}>
+            <span className={styles.stepCk}>{lessonsDone ? "✓" : ""}</span>
+            <span className={styles.stepLabel}>学びレッスン</span>
+            <span className={styles.stepMetric}>{ach.lessons.cleared}/{ach.lessons.total}</span>
           </Link>
         )}
 
         <div className={styles.rec2}>
           <div className={styles.recCol}>
             <div className={`${styles.recH} ${styles.recHPiece}`}><span className={styles.dot} />マスターへのステップ</div>
-            {catItem("fingering", "フィンガリング")}
+            <Step done={masterDone} label={masterDone ? "演奏マスター" : "演奏をマスター"} metric={`${avg ?? "…"}/90`} />
             {ach?.etude?.required && (
-              <div className={`${styles.task} ${etudeDone ? styles.taskDone : ""}`} style={{ marginTop: 7 }}>
-                <span className={styles.tk}>{etudeDone ? "✓" : "○"}</span>
-                <div className={styles.tl}><span>エチュード</span><span className={styles.tn}>{etudeDone ? "済" : "未"}</span></div>
-              </div>
+              <Step done={etudeDone} label={etudeDone ? "エチュード達成" : "エチュードを達成"} metric={etudeDone ? "済" : "未"} />
             )}
-            {ach && (
-              <div className={`${styles.task} ${cleanDone ? styles.taskDone : ""}`} style={{ marginTop: 7 }}>
-                <span className={styles.tk}>{cleanDone ? "✓" : "○"}</span>
-                <div className={styles.tl}><span>通しで演奏成功</span><span className={styles.tn}>{ach.cleanRuns.count}/{ach.cleanRuns.required}</span></div>
-              </div>
-            )}
+            <Step done={cleanDone} label={cleanDone ? "通しで演奏成功" : "通しで演奏"} metric={ach ? `${ach.cleanRuns.count}/${ach.cleanRuns.required}` : "…"} />
           </div>
           <div className={styles.recCol}>
             <div className={`${styles.recH} ${styles.recHDaily}`}><span className={styles.dot} />毎日の基礎練</div>
-            {catItem("scale", "音階")}
-            {catItem("arpeggio", "アルペジオ")}
-            {catItem("bowing", "ボーイング")}
+            {dailyStep("scale", "音階")}
+            {dailyStep("arpeggio", "アルペジオ")}
+            {dailyStep("bowing", "ボーイング")}
           </div>
         </div>
       </div>

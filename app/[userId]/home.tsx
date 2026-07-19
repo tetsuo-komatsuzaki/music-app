@@ -6,6 +6,7 @@ import MyRankCard from "@/app/components/MyRankCard"
 import ArcoDaily from "@/app/components/ArcoDaily"
 import PracticeFocusCard from "@/app/components/PracticeFocusCard"
 import NextPiecesCard from "@/app/components/NextPiecesCard"
+import FavoritesSection, { type FavoriteEntry } from "@/app/components/FavoritesSection"
 import hb from "./homeBlocks.module.css"
 import ProgressGuideModal from "@/app/components/ProgressGuideModal"
 import type { SongRecommendation } from "@/app/components/RecommendationItem"
@@ -40,6 +41,7 @@ type Props = {
     href: string
     lastPracticedAt: string
     recentScore: number | null
+    todayCount: number
   }[]
   /** 直近の練習曲 (Score) + 曲別 直近平均スコア + 達成/マスターバッジ (C-6b) */
   recentPieces: {
@@ -74,6 +76,8 @@ type Props = {
     achievedCount: number
     stamps: { scoreId: string; title: string; best: number | null; achievedAt: string | null; href: string }[]
   }
+  /** お気に入り (曲/教材) */
+  favorites: FavoriteEntry[]
 }
 
 export default function HomeClient({
@@ -82,6 +86,7 @@ export default function HomeClient({
   recentPieces,
   nextPieceRecommendations,
   rankCard,
+  favorites,
 }: Props) {
   void _userName
   const { userId } = useParams<{ userId: string }>()
@@ -102,11 +107,10 @@ export default function HomeClient({
       </div>
 
       {/* ④ 次の曲にチャレンジ (同☆の未達成曲) */}
-      <NextPiecesCard
-        pieces={nextPieceRecommendations}
-        remaining={Math.max(0, rankCard.required - rankCard.achievedCount)}
-        nextStar={rankCard.currentStar + 1}
-      />
+      <NextPiecesCard pieces={nextPieceRecommendations} />
+
+      {/* ⑤ お気に入り (曲・音階・アルペジオ・エチュード・ボーイング・フィンガリング・重音) */}
+      <FavoritesSection favorites={favorites} />
 
       <ProgressGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
       <OnboardingTrigger pageKey="home" />
