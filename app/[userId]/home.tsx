@@ -4,11 +4,10 @@ import { useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { CumulativeWeaknessPanel } from "@/app/components/WeaknessDiagnosisCard"
-import GradeBadge from "@/app/components/GradeBadge"
 import MasterBadge from "@/app/components/MasterBadge"
 import MyRankCard from "@/app/components/MyRankCard"
+import ArcoFace from "@/app/components/ArcoFace"
 import ProgressGuideModal from "@/app/components/ProgressGuideModal"
-import GradeProgressBar from "@/app/components/GradeProgressBar"
 import RecommendationList from "@/app/components/RecommendationList"
 import type { SongRecommendation } from "@/app/components/RecommendationItem"
 import type { GradeLevel } from "@/app/_libs/skillMaster"
@@ -383,10 +382,7 @@ function TodayPanel({
 
 export default function HomeClient({
   userName: _userName,
-  streak,
-  weeklyDays,
   arcoMessage,
-  gradeData,
   basicPracticeCards,
   recentPieces,
   nextPieceRecommendations,
@@ -394,20 +390,7 @@ export default function HomeClient({
   rankCard,
 }: Props) {
   void _userName
-  const WEEKLY_GOAL = 5
   const [guideOpen, setGuideOpen] = useState(false)
-
-  // C-6b (2026-07-11): ★昇格は達成ベース (同★10曲達成で次の★へ = spec§1-6)。
-  // グレード帯: ★1-3 初級 / ★4-6 中級 / ★7-9 上級 / ★10 マスター
-  const hintText = gradeData.isMaster
-    ? undefined
-    : (() => {
-        const star = gradeData.currentStar
-        const next = `同じ★の曲を10曲達成すると次の★へ`
-        if (star <= 3) return `${next}（★4で中級者）`
-        if (star <= 6) return `${next}（★7で上級者）`
-        return `${next}（★10でマスター）`
-      })()
 
   return (
     <div className={styles.page}>
@@ -415,72 +398,34 @@ export default function HomeClient({
       {/* ───── マイランクカード (最上部・タップで演奏の軌跡) ───── */}
       <MyRankCard {...rankCard} />
 
-      {/* ───── アルコちゃんからの案内 ───── */}
+      {/* ───── アルコちゃんからの案内 (イラスト＋一言。★/進捗はランクカードに集約) ───── */}
       <div className={`${styles.card} ${styles.arcoCard}`} data-onboarding="home.arcoCard">
-        <div className={styles.arcoHeader}>
-          <div className={styles.arcoHeaderLeft}>
-            <span className={styles.arcoIcon}>🎻</span>
-            <span className={styles.arcoName}>アルコちゃんからの案内</span>
-          </div>
-          <div className={styles.arcoStats}>
-            <div className={styles.arcoStatItem}>
-              <span className={styles.arcoStatLabel}>今週の練習</span>
-              <span className={styles.arcoStatValue}>
-                {weeklyDays}<span className={styles.arcoStatGoal}>/{WEEKLY_GOAL}日</span>
-              </span>
-            </div>
-            <div className={styles.arcoStatItem}>
-              <span className={styles.arcoStatLabel}>🔥 連続練習記録</span>
-              <span className={styles.arcoStatValue}>
-                {streak}<span className={styles.arcoStatGoal}>日</span>
-              </span>
-            </div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <ArcoFace style={{ width: 62, height: 62, flex: "none", overflow: "visible" }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className={styles.arcoName}>アルコちゃん</div>
+            <div className={styles.arcoGreeting}>{arcoMessage.greeting}</div>
+            <div className={styles.arcoCheer}>{arcoMessage.cheer}</div>
+            {journeyMap && !journeyMap.achieved && journeyMap.periodLabel && (
+              <div style={{ marginTop: 6, fontSize: 12.5, fontWeight: 700, color: "#6C6BA8" }}>
+                🎯 目標「{journeyMap.songName}」まで {journeyMap.periodLabel}
+              </div>
+            )}
           </div>
         </div>
-
-        <div className={styles.arcoGreeting}>{arcoMessage.greeting}</div>
-        <div className={styles.arcoCheer}>{arcoMessage.cheer}</div>
-
-        {/* v1.6 Phase 4-2: グレード/★表示 (UserGradeProgress 準拠、Q3=A 旧 starsByLv 撤去) */}
-        <div className={styles.gradeSection}>
-          <div className={styles.gradeRow}>
-            <GradeBadge
-              currentStar={gradeData.currentStar}
-              currentGrade={gradeData.currentGrade}
-            />
-            <button
-              type="button"
-              onClick={() => setGuideOpen(true)}
-              aria-label="上達のしくみを見る"
-              style={{
-                flex: "0 0 auto",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-                padding: "4px 10px",
-                borderRadius: 999,
-                border: "1px solid #cfe3fb",
-                background: "#f0f7ff",
-                color: "#4a90d9",
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-              }}
-            >
-              ？上達のしくみ
-            </button>
-            <div className={styles.gradeProgress}>
-              <GradeProgressBar
-                current={gradeData.masteredSongCountAtCurrentStar}
-                target={gradeData.gradeUpRequired}
-                hintText={hintText}
-                isMaster={gradeData.isMaster}
-                masterReachedAt={gradeData.masterReachedAt}
-              />
-            </div>
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={() => setGuideOpen(true)}
+          aria-label="上達のしくみを見る"
+          style={{
+            marginTop: 10, display: "inline-flex", alignItems: "center", gap: 4,
+            padding: "4px 10px", borderRadius: 999, border: "1px solid #cfe3fb",
+            background: "#f0f7ff", color: "#4a90d9", fontSize: 12, fontWeight: 700,
+            cursor: "pointer", whiteSpace: "nowrap",
+          }}
+        >
+          ？上達のしくみ
+        </button>
       </div>
 
       <ProgressGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
