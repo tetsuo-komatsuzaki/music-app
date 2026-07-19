@@ -1005,7 +1005,15 @@ export default function ScoreDetail({
     const timer = setInterval(() => {
       fetch(apiBase)
         .then(res => res.json())
-        .then((data: PerformanceDTO[]) => setPerformances(data))
+        .then((data: PerformanceDTO[]) =>
+          // 既にロード済みの comparison を保持しつつ他フィールドを更新 (ポーリング上書き防止)
+          setPerformances(prev => data.map(d => {
+            const old = prev.find(p => p.id === d.id)
+            return old?.comparisonResult
+              ? { ...d, comparisonResult: old.comparisonResult, comparisonWarnings: old.comparisonWarnings }
+              : d
+          }))
+        )
         .catch(() => {})
     }, 3000)
     return () => clearInterval(timer)

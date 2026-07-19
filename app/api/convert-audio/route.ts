@@ -109,7 +109,8 @@ export async function POST(request: NextRequest) {
       unlink(inputPath).catch(() => {}),
       unlink(outputPath).catch(() => {}),
     ])
-    const detail = err.stderr || err.message || String(err)
-    return NextResponse.json({ error: detail }, { status: 500 })
+    // 内部詳細(ffmpeg stderr/サーバパス)はクライアントに返さずサーバログのみ (情報漏洩防止)
+    console.error("[convert-audio] failed:", err?.stderr || err?.message || err)
+    return NextResponse.json({ error: "音声の変換に失敗しました" }, { status: 500 })
   }
 }

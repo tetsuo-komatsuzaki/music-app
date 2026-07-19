@@ -27,7 +27,11 @@ IS_PRACTICE = any(a == "practice" for a in sys.argv[4:])
 RECORDING_BPM: Optional[float] = None
 for a in sys.argv[4:]:
     if a.startswith("--recording-bpm="):
-        RECORDING_BPM = float(a.split("=", 1)[1])
+        # 非数値でも import 時にクラッシュさせない (行が processing 固着するのを防止)
+        try:
+            RECORDING_BPM = float(a.split("=", 1)[1])
+        except (ValueError, IndexError):
+            RECORDING_BPM = None
 
 # =========================
 # ENV

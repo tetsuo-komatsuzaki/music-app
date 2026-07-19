@@ -129,11 +129,6 @@ export async function getInventory(): Promise<MaterialCandidate[]> {
   return items
 }
 
-/** テスト・管理操作用（教材登録直後に即反映したい場合） */
-export function invalidateInventoryCache(): void {
-  inventoryCache = null
-}
-
 // ── 検索と順位付け ────────────────────────────────────────────────────
 
 function matchesQuery(item: MaterialCandidate, q: MaterialQuery): boolean {
