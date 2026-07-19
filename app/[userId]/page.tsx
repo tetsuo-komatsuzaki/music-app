@@ -321,19 +321,21 @@ export default async function HomePage({ params }: PageProps) {
       scoreId: true,
       pitchAccuracy: true,
       timingAccuracy: true,
-      score: { select: { id: true, title: true } },
+      score: { select: { id: true, title: true, star: true } },
     },
   })
   const pieceOrder: string[] = []
-  const pieceData = new Map<string, { id: string; title: string; vals: number[] }>()
+  const pieceData = new Map<string, { id: string; title: string; star: number | null; latest: number; vals: number[] }>()
   for (const p of recentPiecePerfs) {
     if (!p.scoreId || !p.score || p.pitchAccuracy == null || p.timingAccuracy == null) continue
+    const avg2 = (p.pitchAccuracy + p.timingAccuracy) / 2
     if (!pieceData.has(p.scoreId)) {
-      pieceData.set(p.scoreId, { id: p.score.id, title: p.score.title, vals: [] })
+      // 最初の1件 = 最新(desc順) → 直近点
+      pieceData.set(p.scoreId, { id: p.score.id, title: p.score.title, star: p.score.star, latest: Math.round(avg2), vals: [] })
       pieceOrder.push(p.scoreId)
     }
     const d = pieceData.get(p.scoreId)!
-    if (d.vals.length < 5) d.vals.push((p.pitchAccuracy + p.timingAccuracy) / 2)
+    if (d.vals.length < 5) d.vals.push(avg2)
   }
   // C-6b: バッジは新達成記録から (マスター ≻ 達成 ≻ なし・上位1つ = Tetsuo確定)
   const achievementByScore = new Map(scoreAchievements.map((a) => [a.scoreId, a]))
@@ -345,6 +347,8 @@ export default async function HomePage({ params }: PageProps) {
     return {
       id: d.id,
       title: d.title,
+      star: d.star,
+      latest: d.latest,
       recentAvg,
       badge: badgeKind(achievementByScore.get(d.id)),
       href: `/${userId}/scores/${d.id}`,
