@@ -11,7 +11,8 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const scoreId = searchParams.get("scoreId")
-  const limit = Number(searchParams.get("limit") ?? "50")
+  // 無制限 take による DoS / NaN throw を防止 (1..100 にクランプ)
+  const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit") ?? "50") || 50))
 
   if (!scoreId) {
     return NextResponse.json({ error: "scoreId required" }, { status: 400 })

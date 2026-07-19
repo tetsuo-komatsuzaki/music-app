@@ -338,11 +338,14 @@ def process_score_achievement(
 
     # ── マスター判定（達成済みの曲のみ・一度刻んだら消さない） ──
     if existing is not None and existing[1] is None:
+        # overallScore は bowing 依存で欠損しやすいため廃止 → 音程+リズム平均で判定
+        # (2026-06-07 スコア設計方針転換 / フロント achievement-status と統一)。区間録音は非算入。
         cur.execute(
             '''
-            SELECT COUNT(*), AVG(s."overallScore") FROM (
-              SELECT "overallScore" FROM "Performance"
-              WHERE "userId" = %s AND "scoreId" = %s AND "overallScore" IS NOT NULL
+            SELECT COUNT(*), AVG(s.avg2) FROM (
+              SELECT (("pitchAccuracy" + "timingAccuracy") / 2.0) AS avg2 FROM "Performance"
+              WHERE "userId" = %s AND "scoreId" = %s
+                AND "pitchAccuracy" IS NOT NULL AND "timingAccuracy" IS NOT NULL
                 AND "rangeFromNote" IS NULL
               ORDER BY "uploadedAt" DESC LIMIT %s
             ) s

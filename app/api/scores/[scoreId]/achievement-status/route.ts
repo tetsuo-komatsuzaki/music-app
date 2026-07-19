@@ -184,10 +184,12 @@ export async function GET(
   }
 
   // ── 要件③: 崩壊ゼロの通し演奏 累計3回（v65以降の演奏のみ diagnosis を持つ） ──
+  // 区間録音(部分練習)は非算入 (rangeFromNote != null を除外)。
   const cleanRuns = await prisma.performance.count({
     where: {
       userId: dbUserId,
       scoreId,
+      rangeFromNote: null,
       analysisSummary: { path: ["diagnosis", "collapse", "is_clean"], equals: true },
     },
   })
@@ -198,23 +200,28 @@ export async function GET(
     select: { achievedAt: true, masteredAt: true },
   })
   const [recent, latestPerf, totalPerformances] = await Promise.all([
+    // overallScore は bowing 依存で欠損しやすいため廃止 → 音程+リズム平均で算出 (アプリ全体と統一)。
+    // Python の achievement.py マスター判定も同式に揃えてある。区間録音は非算入。
     prisma.performance.findMany({
-      where: { userId: dbUserId, scoreId, overallScore: { not: null } },
+      where: {
+        userId: dbUserId, scoreId, rangeFromNote: null,
+        pitchAccuracy: { not: null }, timingAccuracy: { not: null },
+      },
       orderBy: { uploadedAt: "desc" },
       take: MASTER_RECENT_COUNT,
-      select: { overallScore: true },
+      select: { pitchAccuracy: true, timingAccuracy: true },
     }),
-    // C-6b: 上達ループタブの弱点表示用 (旧loop-detail API の後継)
+    // C-6b: 上達ループタブの弱点表示用 (旧loop-detail API の後継)。区間録音は非算入。
     prisma.performance.findFirst({
-      where: { userId: dbUserId, scoreId },
+      where: { userId: dbUserId, scoreId, rangeFromNote: null },
       orderBy: { uploadedAt: "desc" },
       select: { id: true },
     }),
-    prisma.performance.count({ where: { userId: dbUserId, scoreId } }),
+    prisma.performance.count({ where: { userId: dbUserId, scoreId, rangeFromNote: null } }),
   ])
   const recentAvg =
     recent.length > 0
-      ? recent.reduce((s, p) => s + (p.overallScore ?? 0), 0) / recent.length
+      ? recent.reduce((s, p) => s + ((p.pitchAccuracy ?? 0) + (p.timingAccuracy ?? 0)) / 2, 0) / recent.length
       : null
 
   return NextResponse.json({

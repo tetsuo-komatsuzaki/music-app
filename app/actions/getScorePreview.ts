@@ -5,11 +5,17 @@
 import { prisma } from "../_libs/prisma"
 import { storageAdmin } from "../_libs/storageAdmin"
 import { encodeSignedUrl } from "../_libs/encodeSignedUrl"
+import { requireAuthAction } from "../_libs/requireAuth"
+import { isValidCuid } from "../_libs/validators"
 
 export type PreviewNote = { freq: number; start: number; end: number }
 export type ScorePreview = { buildUrl: string | null; notes: PreviewNote[] }
 
 export async function getScorePreview(scoreId: string): Promise<ScorePreview | null> {
+  // 認証必須 + 所有者/共有チェック (未認証や他人の非公開曲は拒否 = IDOR 対策)
+  const auth = await requireAuthAction()
+  if (!auth.ok || !isValidCuid(scoreId)) return null
+
   const score = await prisma.score.findFirst({
     where: { id: scoreId, deletedAt: null },
     select: {
@@ -18,6 +24,7 @@ export async function getScorePreview(scoreId: string): Promise<ScorePreview | n
     },
   })
   if (!score) return null
+  if (score.createdById !== auth.user.dbUser.id && !score.isShared) return null
 
   const [buildUrl, notes] = await Promise.all([
     score.buildStatus === "done" && score.generatedXmlPath
@@ -43,6 +50,10 @@ export async function getScorePreview(scoreId: string): Promise<ScorePreview | n
 
 // 基礎練/エチュード(PracticeItem)版。generatedXmlPath + analysisPath を使う。
 export async function getPracticeItemPreview(itemId: string): Promise<ScorePreview | null> {
+  // 練習アイテムは共有カリキュラム(管理者作成)だが、認証は必須にする
+  const auth = await requireAuthAction()
+  if (!auth.ok || !isValidCuid(itemId)) return null
+
   const item = await prisma.practiceItem.findUnique({
     where: { id: itemId },
     select: { id: true, generatedXmlPath: true, analysisPath: true, analysisStatus: true, buildStatus: true },

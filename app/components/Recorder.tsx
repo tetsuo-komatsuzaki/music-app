@@ -574,6 +574,26 @@ export default function Recorder({ onRecordingComplete, previousBestScore, bestO
     }
   }, [audioUrl])
 
+  // 真のアンマウント専用: 録音中/カウントイン中にタブ切替等で消えても
+  // マイク・MediaRecorder・AudioContext を確実に解放する (リーク & マイク点灯継続 防止)。
+  useEffect(() => {
+    return () => {
+      const rec = mediaRecorderRef.current
+      if (rec && rec.state !== "inactive") {
+        // 停止すると onstop が発火し stream/recAudioCtx を解放 + onRecordingStop で親stateも復帰
+        try { rec.stop() } catch { /* ignore */ }
+      } else {
+        // カウントイン中など (recorder 未生成でも stream は取得済み) は直接解放
+        streamRef.current?.getTracks().forEach((t) => t.stop())
+      }
+      // カウントインのクリック音用 AudioContext (recAudioCtx とは別) は常に閉じる
+      if (audioCtxRef.current && audioCtxRef.current.state !== "closed") {
+        audioCtxRef.current.close().catch(() => {})
+        audioCtxRef.current = null
+      }
+    }
+  }, [])
+
   return (
     <div className={styles.wrapper}>
 
