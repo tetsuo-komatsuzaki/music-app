@@ -12,8 +12,8 @@
 }
 
 .sidebarOpen {
-  width: 220px;                   /* 展開時: 元の幅 */
-  padding: 20px;
+  width: 180px;                   /* 展開時 (2026-07-20: 220→180 に短縮し本体幅を確保) */
+  padding: 20px 14px;
 }
 
 .toggleButton {
