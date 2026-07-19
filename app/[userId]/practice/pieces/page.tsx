@@ -50,22 +50,33 @@ export default async function PracticePiecesPage({
 
   const allVariantIds = groups.flatMap((g) => g.scores.map((s) => s.id))
 
-  // C-6b: バッジ (UserScoreAchievement)。ベスト: Performance の自己ベスト overallScore。
+  // C-6b: バッジ (UserScoreAchievement)。
+  // 自己ベスト = 演奏スコア(音程+リズム平均)の最大。overallScore(旧式)廃止に伴い新指標へ移行。
+  // 区間録音(部分練習)は公式指標に非算入 → rangeFromNote: null で除外 (マスター判定と同思想)。
   const [achievements, bestRows] = await Promise.all([
     prisma.userScoreAchievement.findMany({
       where: { userId: dbUserId, scoreId: { in: allVariantIds } },
       select: { scoreId: true, achievedAt: true, masteredAt: true },
     }),
     allVariantIds.length
-      ? prisma.performance.groupBy({
-          by: ["scoreId"],
-          where: { userId: dbUserId, scoreId: { in: allVariantIds }, overallScore: { not: null } },
-          _max: { overallScore: true },
+      ? prisma.performance.findMany({
+          where: {
+            userId: dbUserId, scoreId: { in: allVariantIds },
+            rangeFromNote: null,
+            pitchAccuracy: { not: null }, timingAccuracy: { not: null },
+          },
+          select: { scoreId: true, pitchAccuracy: true, timingAccuracy: true },
         })
       : Promise.resolve([]),
   ])
   const achByScore = new Map(achievements.map((a) => [a.scoreId, a]))
-  const bestByScore = new Map(bestRows.map((r) => [r.scoreId, r._max.overallScore]))
+  // scoreId ごとに (音程+リズム)/2 の最大値 (performanceScore と同一式)
+  const bestByScore = new Map<string, number>()
+  for (const r of bestRows) {
+    const s = Math.round((r.pitchAccuracy! + r.timingAccuracy!) / 2)
+    const cur = bestByScore.get(r.scoreId)
+    if (cur == null || s > cur) bestByScore.set(r.scoreId, s)
+  }
 
   const pieces: Piece[] = groups.map((g) => {
     const variants = g.scores.map((s) => ({

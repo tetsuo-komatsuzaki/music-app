@@ -132,7 +132,6 @@ export default async function Page({
         id: true,
         pitchAccuracy: true,
         timingAccuracy: true,
-        overallScore: true,
         analysisSummary: true,
       },
     }),

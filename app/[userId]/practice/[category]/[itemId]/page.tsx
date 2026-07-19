@@ -139,7 +139,6 @@ export default async function PracticeDetailPage({
           id: true,
           pitchAccuracy: true,
           timingAccuracy: true,
-          overallScore: true,
           analysisSummary: true,
         },
       }),
