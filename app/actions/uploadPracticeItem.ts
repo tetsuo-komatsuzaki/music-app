@@ -8,7 +8,7 @@ import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 import { generatePracticeItemCover } from "@/app/_libs/coverImage/generateAndStore"
 import { ensurePracticeItemGroup, MATERIAL_KIND_BY_CATEGORY } from "@/app/_libs/materialGroup"
 import { allKeyTargets, KEY_EXPAND_CATEGORIES } from "@/app/_libs/scaleKeyExpansion"
-import { STANDARD_ARTICULATIONS, ARTICULATION_CATEGORIES } from "@/app/_libs/articulationPatterns"
+import { STANDARD_ARTICULATIONS, ARTICULATION_CATEGORIES, ARTICULATION_SUBTASK } from "@/app/_libs/articulationPatterns"
 import { isDifficulty, isArticulation } from "@/app/_libs/materialVariant"
 import { Prisma, type PracticeCategory, type MaterialKind } from "@/app/generated/prisma"
 import { SUB_TASK_IDS } from "@/app/_libs/skillMaster"
@@ -22,6 +22,8 @@ type VariantSpec = {
   keyMode: string
   articulation: string | null
   metadata: Prisma.InputJsonValue
+  /** 奏法別の課題タグ(弓サブタスク)。未指定なら opts の admin 値を継承 */
+  skillSubTaskTags?: Prisma.InputJsonValue
 }
 
 /** 共有MaterialGroup配下に複数変種を作成し、同一ソースXMLを各件へアップ、カバー1枚共有、各件を並列解析。 */
@@ -69,7 +71,7 @@ async function generateVariantGroup(opts: {
         analysisStatus: "queued",
         buildStatus: "queued",
         star: opts.star,
-        skillSubTaskTags: opts.skillSubTaskTags,
+        skillSubTaskTags: v.skillSubTaskTags ?? opts.skillSubTaskTags,
         articulation: v.articulation,
         groupId: group.id,
         metadata: v.metadata,
@@ -209,12 +211,15 @@ export async function uploadPracticeItem(formData: FormData) {
         const metadata: Record<string, unknown> = {}
         if (wantExpand) metadata.transposeSource = { keyTonic, keyMode: "major" }
         if (a) metadata.articulationPattern = { type: "uniform", articulation: a.id }
+        // 奏法別の課題タグ(弓サブタスク)。対応があれば付与、無ければ admin値を継承。
+        const artSub = a ? ARTICULATION_SUBTASK[a.id as keyof typeof ARTICULATION_SUBTASK] : undefined
         variants.push({
           titleSuffix: suffix,
           keyTonic: k.keyTonic,
           keyMode: k.keyMode,
           articulation: a ? a.id : articulation,
           metadata: metadata as Prisma.InputJsonValue,
+          skillSubTaskTags: artSub ? ([artSub] as unknown as Prisma.InputJsonValue) : undefined,
         })
       }
     }

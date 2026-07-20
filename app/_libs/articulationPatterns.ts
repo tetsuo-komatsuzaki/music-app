@@ -16,3 +16,12 @@ export const STANDARD_ARTICULATIONS: { id: ArticulationId; label: string }[] = [
 
 /** 通常技法パターンの対象カテゴリ */
 export const ARTICULATION_CATEGORIES = ["scale", "arpeggio", "bowing", "fingering", "position_shift"]
+
+// 奏法 → 弓の課題タグ(skillSubTaskTags)。現役=弓サブタスクのみ (skillMaster LIVE_SUB_TASK_IDS)。
+// マルテレ/レガートは対応サブタスクが無いため付与しない。音程/リズムの課題は217診断が自動で担う。
+export const ARTICULATION_SUBTASK: Partial<Record<ArticulationId, string>> = {
+  staccato: "bowing_technique_staccato",
+  spiccato: "bowing_technique_spiccato",
+  tremolo: "bowing_technique_tremolo",
+  portato: "bowing_technique_portato",
+}

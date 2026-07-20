@@ -185,6 +185,17 @@ def apply_articulation_variant(score, metadata):
             n.articulations.append(_ART_CLS[art_id]())
     return score
 
+
+# 技術タグ→⭐︎ 正本 (docs/arcoda-design-spec.md §2-2b / 2026-07-20 承認: マルテレ=2)。
+# 自動生成の変種は「付いた技術タグをマスターするのに必要な⭐︎の最大値(最低1)」を star に自動登録。
+_TAG_STAR = {
+    "スラー": 1,
+    "スタッカート": 2, "ピチカート": 2, "トレモロ": 2, "ポルタート": 2, "連続スタッカート": 2, "マルテレ": 2,
+    "スピッカート": 3, "トリル": 3, "プラルトリラーとモルデント": 3,
+    "ビブラート": 4, "リコシェ": 4,
+    "グリッサンド": 5, "ナチュラル・ハーモニクス": 5,
+}
+
 # =========================
 # DB接続
 # =========================
@@ -916,6 +927,17 @@ try:
                         'ON CONFLICT DO NOTHING',
                         (PRACTICE_ITEM_ID, _name),
                     )
+                # 自動生成の変種のみ: タグの⭐︎最大値(最低1)を star に自動登録
+                _md_v = pi_metadata
+                if isinstance(_md_v, str):
+                    try:
+                        _md_v = json.loads(_md_v)
+                    except Exception:
+                        _md_v = None
+                _is_variant = isinstance(_md_v, dict) and bool(_md_v.get("transposeSource") or _md_v.get("articulationPattern"))
+                if _is_variant:
+                    _star = max([1] + [_TAG_STAR[t] for t in _tt_names if t in _TAG_STAR])
+                    cur.execute('UPDATE "PracticeItem" SET star=%s WHERE id=%s', (_star, PRACTICE_ITEM_ID))
             else:
                 cur.execute(
                     'UPDATE "Score" SET "pitchMin"=%s, "pitchMax"=%s, "positions"=%s WHERE id=%s',
