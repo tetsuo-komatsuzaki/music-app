@@ -936,24 +936,34 @@ try:
                     'UPDATE "PracticeItem" SET "pitchMin"=%s, "pitchMax"=%s WHERE id=%s',
                     (piece_summary.get("pitch_min"), piece_summary.get("pitch_max"), PRACTICE_ITEM_ID),
                 )
-                # ポジション: 手動指定を尊重して「最終 positions」を確定する (2026-07-14方針)。
-                #  - 手動 positions が入っている教材 = その値が正 (推定は運指なしだと過少になる)。
-                #  - 空の教材のみ推定値を書き込む。
-                # ポジション習得系タグ + star は、この「最終 positions」から導出する
-                # (推定だけでタグ付けすると手動指定の position教材と食い違うため / 2026-07-20)。
+                # 変種判定を先に (positions/star/slur の扱いを分岐する)。
+                _md_v = pi_metadata
+                if isinstance(_md_v, str):
+                    try:
+                        _md_v = json.loads(_md_v)
+                    except Exception:
+                        _md_v = None
+                _is_variant = isinstance(_md_v, dict) and bool(_md_v.get("transposeSource") or _md_v.get("articulationPattern"))
+
+                # ポジション「最終値」の確定 (2026-07-20)。
+                #  - 変種(自動生成): 常に推定で上書き。既存カラムは過去解析の残骸なので尊重しない
+                #    (移調オクターブ修正後の再解析で、旧オクターブ由来の高ポジが残るのを防ぐ)。
+                #  - 手動教材: 既存 positions があればそれが正 (推定は運指なしだと過少)。空なら推定を書く。
                 _pos_ints_inf = [int(n) for n in (piece_summary.get("positions") or [])]
-                cur.execute('SELECT positions FROM "PracticeItem" WHERE id=%s', (PRACTICE_ITEM_ID,))
-                _row_pos = cur.fetchone()
-                _cur_pos = (_row_pos[0] if _row_pos else None) or []
+                if not _is_variant:
+                    cur.execute('SELECT positions FROM "PracticeItem" WHERE id=%s', (PRACTICE_ITEM_ID,))
+                    _row_pos = cur.fetchone()
+                    _cur_pos = (_row_pos[0] if _row_pos else None) or []
+                else:
+                    _cur_pos = []
                 if _cur_pos:
                     _final_pos_ints = sorted({p for s in _cur_pos if (p := _pos_str_to_int(s)) is not None})
                 else:
                     _final_pos_ints = sorted(set(_pos_ints_inf))
-                    if _final_pos_ints:
-                        cur.execute(
-                            'UPDATE "PracticeItem" SET positions=%s WHERE id=%s',
-                            ([_pos_ord(n) for n in _final_pos_ints], PRACTICE_ITEM_ID),
-                        )
+                    cur.execute(
+                        'UPDATE "PracticeItem" SET positions=%s WHERE id=%s',
+                        ([_pos_ord(n) for n in _final_pos_ints], PRACTICE_ITEM_ID),
+                    )
                 # 特徴タグ = piece_summary の特徴タグ + 最終ポジション由来のポジションタグ。
                 # ポジションタグ(category=position)は自動導出なので権威的に貼り替える
                 # (最終 positions を単一の正とし、再解析での過去の誤タグ残留を防ぐ)。
@@ -988,13 +998,7 @@ try:
                     )
                 # タグの⭐︎最大値(最低1)を star に自動登録 (§2-2b 統合表: 技術+ポジ+重音)。
                 # 変種は毎回上書き / 手動教材は star 未設定のときだけ補完 (監修値を潰さない)。
-                _md_v = pi_metadata
-                if isinstance(_md_v, str):
-                    try:
-                        _md_v = json.loads(_md_v)
-                    except Exception:
-                        _md_v = None
-                _is_variant = isinstance(_md_v, dict) and bool(_md_v.get("transposeSource") or _md_v.get("articulationPattern"))
+                # (_is_variant は上のポジション分岐で算出済み)
                 _star = max([1] + [_TAG_STAR[t] for t in (_tt_names + _ft_all) if t in _TAG_STAR])
                 if _is_variant:
                     cur.execute('UPDATE "PracticeItem" SET star=%s WHERE id=%s', (_star, PRACTICE_ITEM_ID))
