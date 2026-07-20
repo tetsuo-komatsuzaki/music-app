@@ -157,11 +157,16 @@ try:
 
             n.quarterLength = quarter_length
 
+            # 描画マッピング (2026-07-20): OSMD が Spiccato/DetachedLegato の記号を描かないため、
+            # スピッカート→スタッカート(点)、ポルタート→スタッカート+テヌート(点+線) に置換して表示。
+            # (技術タグは analyze_musicxml/piece_summary 側で付与済みのため不変)
+            _RENDER_MAP = {"Spiccato": ["Staccato"], "DetachedLegato": ["Staccato", "Tenuto"]}
             for art_name in r.get("articulations", []):
                 if art_name in ("Fingering", "StringIndication"):
                     continue  # 運指/弦は display_* フィールドからルール適用して付与 (下)
-                if hasattr(articulations, art_name):
-                    n.articulations.append(getattr(articulations, art_name)())
+                for rn in _RENDER_MAP.get(art_name, [art_name]):
+                    if hasattr(articulations, rn):
+                        n.articulations.append(getattr(articulations, rn)())
 
             # 運指・弦の表示 (analyze_musicxml がルール適用済: 1stポジ以外の指 / 既定と異なる弦のみ)。
             # music21 → MusicXML <technical><fingering>/<string> → OSMD が描画。
