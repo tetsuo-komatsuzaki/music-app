@@ -107,12 +107,19 @@ def _to_m21_tonic(db_tonic: str) -> str:
 
 
 def _fit_to_violin(s):
-    """最低音が開放G未満なら+1oct、上限超なら-1octしてバイオリン音域に収める。"""
+    """バイオリン音域に収めつつ、1stポジション寄り(最低オクターブ)に配置する。
+    移調は既定オクターブで上振れしやすい(例: C→A で A4-A6)ため、開放Gを割らない
+    範囲でできるだけ下げる=標準の音階本と同じ最低オクターブ(1stポジ)に揃える。
+      ① 最低音が開放G未満なら +1oct
+      ② 最低音が G3 以上を保てる限り -1oct (1stポジ寄せ)
+      ③ 稀に上限 B6 超なら -1oct"""
     ps = list(s.recurse().pitches)
     if not ps:
         return s
     while min(p.ps for p in ps) < VIOLIN_LOW.ps:
         s = s.transpose("P8"); ps = list(s.recurse().pitches)
+    while min(p.ps for p in ps) - 12 >= VIOLIN_LOW.ps:
+        s = s.transpose("-P8"); ps = list(s.recurse().pitches)
     while max(p.ps for p in ps) > VIOLIN_TOP.ps:
         s = s.transpose("-P8"); ps = list(s.recurse().pitches)
     return s
@@ -970,6 +977,14 @@ try:
                         'SELECT %s, t.id, false FROM "TechniqueTag" t WHERE t."name"=%s '
                         'ON CONFLICT DO NOTHING',
                         (PRACTICE_ITEM_ID, _name),
+                    )
+                # スラー識別 (2026-07-20): 弓の奏法がスラーのみ(他の奏法技術なし)で articulation 未設定なら
+                # articulation='slur' を補完。奏法バリエーションで「スラー」として識別させる(基本は廃止)。
+                _OTHER_ART_TAGS = {"スタッカート", "スピッカート", "マルテレ", "ポルタート", "トレモロ", "連続スタッカート"}
+                if "スラー" in _tt_names and not (_OTHER_ART_TAGS & set(_tt_names)):
+                    cur.execute(
+                        'UPDATE "PracticeItem" SET articulation=%s WHERE id=%s AND articulation IS NULL',
+                        ("slur", PRACTICE_ITEM_ID),
                     )
                 # タグの⭐︎最大値(最低1)を star に自動登録 (§2-2b 統合表: 技術+ポジ+重音)。
                 # 変種は毎回上書き / 手動教材は star 未設定のときだけ補完 (監修値を潰さない)。

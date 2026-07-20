@@ -34,8 +34,8 @@ const TONIC_JA: Record<string, string> = {
   Db: "変ニ", Ab: "変イ", Eb: "変ホ", Bb: "変ロ", F: "ヘ",
 }
 const keyJa = (k: string) => `${TONIC_JA[k] ?? k}長調`
-// 奏法ラダー: 基本(=既存/レガート相当) + 各奏法
-const ART_LADDER = [{ id: "basic", label: "基本" }, ...ARTICULATIONS]
+// 奏法ラダー: 各奏法 (「基本」は廃止 2026-07-20。スラー等は articulation で識別)
+const ART_LADDER = [...ARTICULATIONS]
 
 function coverGlyph(category: string) {
   if (category === "arpeggio" || category === "arpeggios") {
