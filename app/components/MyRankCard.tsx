@@ -4,7 +4,7 @@ import { useEffect, useState, type CSSProperties } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
 import styles from "./MyRankCard.module.css"
-import ArcoFace from "./ArcoFace"
+import { ArcoChan, POSES } from "./ArcoChan"
 import {
   rankName, perfRank, stampComment, cheerForCount, shortDate, cardTier,
   type RankCardData,
@@ -12,6 +12,9 @@ import {
 
 type SlotKind = "done" | "now" | "empty" | "goal"
 const TILTS = ["-6deg", "5deg", "-4deg", "6deg", "-5deg", "4deg", "-7deg", "6deg", "-4deg", "5deg"]
+// ホームの日替わりアルコと同じモーション付きイラストで統一 (2026-07-20)。
+const POSE_EMBLEM = POSES.find((p) => p.cat === "指差し") ?? POSES[0]
+const POSE_JOY = POSES.find((p) => p.cat === "喜び") ?? POSES[0]
 
 export default function MyRankCard(props: RankCardData & { onGuide?: () => void }) {
   const { currentStar, required, achievedCount, stamps, onGuide } = props
@@ -77,7 +80,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
 
         {s.kind === "done" && stamp && openStamp === s.i && (
           <div className={styles.memory} onClick={(e) => e.stopPropagation()}>
-            <ArcoFace className={styles.mf} />
+            <div className={styles.mf}><ArcoChan pose={POSE_JOY} /></div>
             <div className={styles.mbody}>
               <div className={styles.mtop}>{stamp.title} <span className={styles.mdate}>{shortDate(stamp.achievedAt)}</span></div>
               <div className={styles.mscore}>
@@ -105,7 +108,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
         <span className={styles.rcHint}>タップで軌跡 ▸</span>
         <div className={styles.rcMain}>
           <div className={styles.rcEmblem}>
-            <ArcoFace />
+            <ArcoChan pose={POSE_EMBLEM} />
             <span className={styles.lv}>☆{currentStar}</span>
           </div>
           <div className={styles.rcBody}>
@@ -154,7 +157,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
               </div>
 
               <div className={styles.cheer}>
-                <ArcoFace className={styles.av} />
+                <div className={styles.av}><ArcoChan pose={POSE_JOY} /></div>
                 <div className={styles.bwrap}>
                   <span className={styles.cheertag}>{achievedCount}曲達成{remaining === 0 ? " 🎉" : ""}</span>
                   <div className={styles.bubble}>{cheerForCount(achievedCount, required)}</div>

@@ -163,7 +163,7 @@
   content:""; position:absolute; left:50%; bottom:-6px; transform:translateX(-50%) rotate(45deg); width:11px; height:11px;
   background:var(--panel); border-right:1px solid var(--line); border-bottom:1px solid var(--line);
 }
-.mf { width:34px; height:34px; flex:none; background:var(--accentSoft); border-radius:50%; padding:2px; }
+.mf { width:46px; height:46px; flex:none; overflow:visible; }
 .mbody { min-width:0; }
 .mtop { font-size:11px; font-weight:800; color:var(--ink); line-height:1.25; }
 .mdate { font-size:9px; font-weight:700; color:var(--inkFaint); margin-left:3px; }
@@ -176,7 +176,7 @@
 
 /* === arco cheer === */
 .cheer { display:flex; align-items:flex-end; gap:8px; margin-top:16px; padding:0 2px; }
-.av { width:54px; height:54px; flex:none; overflow:visible; animation:bob 1.5s ease-in-out infinite; }
+.av { width:64px; height:64px; flex:none; overflow:visible; }
 @keyframes bob { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-5px) rotate(3deg)} }
 .bwrap { min-width:0; }
 .cheertag { display:inline-block; font-size:9px; font-weight:900; color:var(--accent); background:var(--accentSoft); border-radius:999px; padding:1px 8px; margin-bottom:4px; }

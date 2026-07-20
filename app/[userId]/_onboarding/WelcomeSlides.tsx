@@ -5,7 +5,15 @@ import { createPortal } from "react-dom"
 import { useParams, useRouter } from "next/navigation"
 import { SLIDES, Slide, SlideVisual } from "./content/slides"
 import { useOnboarding } from "./hooks/useOnboarding"
+import { ArcoChan, POSES } from "@/app/components/ArcoChan"
 import styles from "./styles/WelcomeSlides.module.css"
+
+// アルコちゃんの pose カテゴリ解決 (モーション付きイラスト)
+const ARCO_POSE = {
+  greet: POSES.find((p) => p.cat === "指差し") ?? POSES[0],
+  point: POSES.find((p) => p.cat === "指差し") ?? POSES[0],
+  joy: POSES.find((p) => p.cat === "喜び") ?? POSES[0],
+}
 
 type Props = {
   /** ヘルプモーダルから明示的に再生する場合に true */
@@ -26,6 +34,15 @@ function renderVisual(visual: SlideVisual): ReactNode {
       return (
         <div className={styles.heroVisual}>
           <span className={styles.heroEmoji} aria-hidden>{visual.emoji}</span>
+        </div>
+      )
+    case "arco":
+      return (
+        <div className={styles.arcoVisual}>
+          <div className={styles.arcoGlow} aria-hidden />
+          <div className={styles.arcoFig}>
+            <ArcoChan pose={ARCO_POSE[visual.pose]} />
+          </div>
         </div>
       )
     case "options":

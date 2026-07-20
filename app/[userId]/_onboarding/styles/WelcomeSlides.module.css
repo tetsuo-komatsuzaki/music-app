@@ -114,6 +114,42 @@
   line-height: 1;
 }
 
+/* ── アルコちゃん ビジュアル (slide 1, 5・モーション付きイラスト) ── */
+
+.arcoVisual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 210px;
+  height: 196px;
+}
+
+.arcoGlow {
+  position: absolute;
+  inset: -8px 0 4px 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 56%,
+    rgba(74, 127, 163, 0.2) 0%,
+    rgba(74, 127, 163, 0.09) 42%,
+    transparent 70%
+  );
+  animation: arcoGlowPulse 2.6s ease-in-out infinite;
+}
+
+@keyframes arcoGlowPulse {
+  0%, 100% { opacity: 0.72; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+.arcoFig {
+  position: relative;
+  width: 196px;
+  height: 196px;
+  filter: drop-shadow(0 9px 18px rgba(74, 127, 163, 0.22));
+}
+
 /* ── Options ビジュアル (slide 2) ──────────────────── */
 
 .optionsVisual {
@@ -382,6 +418,9 @@
   .body {
     animation: none;
   }
+  .arcoGlow {
+    animation: none;
+  }
   .progressDot,
   .navButton,
   .primaryButton,
@@ -409,6 +448,14 @@
   }
   .heroEmoji {
     font-size: 64px;
+  }
+  .arcoVisual {
+    width: 176px;
+    height: 168px;
+  }
+  .arcoFig {
+    width: 168px;
+    height: 168px;
   }
   .flowStep {
     min-width: 64px;
