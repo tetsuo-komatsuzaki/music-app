@@ -121,6 +121,7 @@ export default function AdminPractice({
   const [title, setTitle] = useState("")
   const [composer, setComposer] = useState("")
   const [category, setCategory] = useState<string>("scale")
+  const [expandAllKeys, setExpandAllKeys] = useState(false)
   const [keyTonic, setKeyTonic] = useState("G")
   const [keyMode, setKeyMode] = useState("major")
   const [tempoMin, setTempoMin] = useState("")
@@ -451,6 +452,7 @@ export default function AdminPractice({
         formData.set("category", category)
         formData.set("keyTonic", keyTonic)
         formData.set("keyMode", keyMode)
+        formData.set("expandAllKeys", expandAllKeys ? "true" : "false")
         formData.set("tempoMin", tempoMin)
         formData.set("tempoMax", tempoMax)
         formData.set("positions", JSON.stringify(positions))
@@ -641,6 +643,17 @@ export default function AdminPractice({
                       <option value="minor">短調</option>
                     </select>
                   </div>
+                  {(category === "scale" || category === "arpeggio") && (
+                    <label style={{ display: "block", marginTop: 8, fontSize: 13 }}>
+                      <input
+                        type="checkbox"
+                        checked={expandAllKeys}
+                        disabled={keyMode !== "major"}
+                        onChange={(e) => setExpandAllKeys(e.target.checked)}
+                      />{" "}
+                      全調で自動生成（長調ソース→12長調＋12自然的短調＝24件）
+                    </label>
+                  )}
                 </div>
 
                 <div className={styles.field}>

@@ -21,6 +21,7 @@ from music21 import (
     repeat,
     tempo,
     key,
+    interval,
     pitch as m21pitch,
 )
 # 運指・弦の推定 (音名算術, v64)。運指表示 (1stポジ以外のみ・弦は既定と異なる時のみ) に使用。
@@ -88,6 +89,64 @@ def normalize_tonic(name: str) -> str:
         return name
     return name.replace("-", "b")
 
+
+# =========================
+# 全調自動生成: 移調ヘルパー (2026-07-20)
+#   metadata.transposeSource(長調) から その行の keyTonic/keyMode へ移調する。
+#   長調ターゲット=素直に移調 / 自然的短調ターゲット=3,6,7度を♭化(同主調)→移調。
+# =========================
+VIOLIN_LOW = m21pitch.Pitch("G3")        # 開放G
+VIOLIN_TOP = m21pitch.Pitch("B6")
+_FLAT_DEG = {4, 9, 11}                    # 長3/長6/長7 (主音からの半音)
+_DOWN_A1 = interval.Interval("-A1")       # 増1度下げ=音名保持で半音下げ (E→E♭)
+
+
+def _to_m21_tonic(db_tonic: str) -> str:
+    """DB表記('Eb','F#','C') → music21表記('E-','F#','C')。フラット 'b'→'-'。"""
+    return (db_tonic or "").replace("b", "-")
+
+
+def _fit_to_violin(s):
+    """最低音が開放G未満なら+1oct、上限超なら-1octしてバイオリン音域に収める。"""
+    ps = list(s.recurse().pitches)
+    if not ps:
+        return s
+    while min(p.ps for p in ps) < VIOLIN_LOW.ps:
+        s = s.transpose("P8"); ps = list(s.recurse().pitches)
+    while max(p.ps for p in ps) > VIOLIN_TOP.ps:
+        s = s.transpose("-P8"); ps = list(s.recurse().pitches)
+    return s
+
+
+def _to_parallel_natural_minor(score, tonic_p):
+    """長調スコア → 同主調の自然的短調 (3,6,7度を音名保持で半音下げ)。リズム等は保持。"""
+    m = copy.deepcopy(score)
+    for n in m.recurse().notes:
+        for p in n.pitches:
+            if (p.pitchClass - tonic_p.pitchClass) % 12 in _FLAT_DEG:
+                p.transpose(_DOWN_A1, inPlace=True)
+    return m
+
+
+def transpose_variant(score, metadata, target_tonic_db, target_mode):
+    """metadata.transposeSource(長調)から target_tonic/mode へ移調。対象外なら None。"""
+    md = metadata
+    if isinstance(md, str):
+        try:
+            md = json.loads(md)
+        except Exception:
+            md = None
+    src = (md or {}).get("transposeSource") if isinstance(md, dict) else None
+    if not src or not src.get("keyTonic"):
+        return None
+    src_p = m21pitch.Pitch(_to_m21_tonic(src["keyTonic"]))
+    tgt_p = m21pitch.Pitch(_to_m21_tonic(target_tonic_db or src["keyTonic"]))
+    base = score
+    if (target_mode or "").lower() in ("minor", "natural_minor"):
+        base = _to_parallel_natural_minor(score, src_p)      # C major → C natural minor
+    out = base.transpose(interval.Interval(src_p, tgt_p))     # → target key
+    return _fit_to_violin(out)
+
 # =========================
 # DB接続
 # =========================
@@ -101,7 +160,7 @@ try:
             UPDATE "PracticeItem"
             SET "analysisStatus" = 'processing'
             WHERE id = %s
-            RETURNING "originalXmlPath"
+            RETURNING "originalXmlPath", "metadata", "keyTonic", "keyMode"
         """, (PRACTICE_ITEM_ID,))
     else:
         cur.execute("""
@@ -117,6 +176,10 @@ try:
         raise Exception("Score not found or unauthorized")
 
     xml_storage_path = row[0]
+    # 全調自動生成の変種は metadata.transposeSource を持つ (practice-item のみ)
+    pi_metadata = row[1] if (IS_PRACTICE_ITEM and len(row) > 1) else None
+    pi_key_tonic = row[2] if (IS_PRACTICE_ITEM and len(row) > 3) else None
+    pi_key_mode = row[3] if (IS_PRACTICE_ITEM and len(row) > 3) else None
     conn.commit()
 
     # =========================
@@ -155,6 +218,18 @@ try:
     score = converter.parse(tmp_path)
     # v3.2 Commit D: tmp_path は musicxml_skill_extractor で後ほど再利用するため、
     # ここでは削除しない (analysis.json upload 後に削除する)
+
+    # 全調自動生成 (2026-07-20): 変種なら metadata.transposeSource から移調。
+    # 後段(skill_extractor 等)も移調後を使うよう tmp_path を書き換える。
+    if IS_PRACTICE_ITEM:
+        _transposed = transpose_variant(score, pi_metadata, pi_key_tonic, pi_key_mode)
+        if _transposed is not None:
+            score = _transposed
+            _t2 = tempfile.NamedTemporaryFile(suffix=".musicxml", delete=False)
+            _t2.close()
+            score.write("musicxml", fp=_t2.name)
+            tmp_path = _t2.name
+            print(f"[transpose] variant → {pi_key_tonic}/{pi_key_mode} applied")
 
     # =========================
     # BPM

@@ -6,7 +6,8 @@ import { revalidatePath } from "next/cache"
 import { after } from "next/server"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 import { generatePracticeItemCover } from "@/app/_libs/coverImage/generateAndStore"
-import { ensurePracticeItemGroup } from "@/app/_libs/materialGroup"
+import { ensurePracticeItemGroup, MATERIAL_KIND_BY_CATEGORY } from "@/app/_libs/materialGroup"
+import { allKeyTargets } from "@/app/_libs/scaleKeyExpansion"
 import { isDifficulty, isArticulation } from "@/app/_libs/materialVariant"
 import { Prisma, type PracticeCategory } from "@/app/generated/prisma"
 import { SUB_TASK_IDS } from "@/app/_libs/skillMaster"
@@ -82,6 +83,75 @@ export async function uploadPracticeItem(formData: FormData) {
   // lesson は練習メニュー非表示の管理専用カテゴリ (PRACTICE_CATEGORIES に混ぜない)。
   if (!isPracticeCategory(category) && category !== "lesson") {
     return { error: `不正なカテゴリです: ${category}` }
+  }
+
+  // ── 全調自動生成 (音階/アルペジオ・長調ソースのみ): 12長調 + 12自然的短調 = 24変種を1グループで作成 ──
+  const wantExpand = (formData.get("expandAllKeys") as string) === "true"
+  if (wantExpand) {
+    if (!((category === "scale" || category === "arpeggio") && keyMode === "major")) {
+      return { error: "全調生成は 音階/アルペジオ かつ 長調ソース のみ対応です" }
+    }
+    const kind = MATERIAL_KIND_BY_CATEGORY[category]
+    if (!kind) return { error: `全調生成に未対応のカテゴリ: ${category}` }
+
+    const storage = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+    const buffer = Buffer.from(await file.arrayBuffer())
+
+    // 共有グループを1つ作成 (カバーもグループ単位)
+    const group = await prisma.materialGroup.create({
+      data: { kind, category, title, composer: composer || null },
+    })
+
+    const createdIds: string[] = []
+    for (const t of allKeyTargets()) {
+      const child = await prisma.practiceItem.create({
+        data: {
+          category: category as PracticeCategory,
+          title: `${title}（${t.label}）`,
+          composer, description, descriptionShort,
+          keyTonic: t.keyTonic, keyMode: t.keyMode,
+          tempoMin, tempoMax, positions, instrument: "violin",
+          originalXmlPath: "", source: "admin", isPublished: true,
+          analysisStatus: "queued", buildStatus: "queued",
+          star, skillSubTaskTags: skillSubTaskTags as Prisma.InputJsonValue,
+          articulation, groupId: group.id,
+          // Python(analyze_musicxml) が読む: このソース調(長調) から t.keyTonic/keyMode へ移調
+          metadata: { transposeSource: { keyTonic, keyMode: "major" } } as Prisma.InputJsonValue,
+        },
+      })
+      const path = `practice/${child.id}/original.musicxml`
+      const { error: upErr } = await storage.storage.from("musicxml")
+        .upload(path, buffer, { contentType: "application/xml", upsert: true })
+      if (upErr) {
+        await prisma.practiceItem.delete({ where: { id: child.id } })
+        continue
+      }
+      await prisma.practiceItem.update({ where: { id: child.id }, data: { originalXmlPath: path } })
+      for (const tech of techniques as { id: string; isPrimary: boolean }[]) {
+        await prisma.practiceItemTechnique.create({
+          data: { practiceItemId: child.id, techniqueTagId: tech.id, isPrimary: tech.isPrimary },
+        })
+      }
+      createdIds.push(child.id)
+    }
+
+    // カバーは先頭変種で1枚だけ生成 (generateAndStore が group.coverImagePath も更新 → 他23件は継承)。
+    // 解析ジョブ(24件)は応答後に並列起動。
+    after(async () => {
+      try {
+        if (createdIds[0]) await generatePracticeItemCover(createdIds[0])
+      } catch (e) {
+        console.error(`[cover] group ${group.id} カバー生成失敗:`, e instanceof Error ? e.message : e)
+      }
+      await Promise.allSettled(
+        createdIds.map((id) =>
+          invokeAnalysis({ mode: "score_full", idempotencyKey: `score_full:${id}`, practiceItemId: id }),
+        ),
+      )
+    })
+
+    revalidatePath("/admin/practice")
+    return { success: true, groupId: group.id, count: createdIds.length }
   }
 
   const item = await prisma.practiceItem.create({
