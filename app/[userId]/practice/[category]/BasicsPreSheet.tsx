@@ -14,6 +14,7 @@ import SheetSkills from "../pieces/SheetSkills"
 export type BasicsVariant = {
   id: string
   keyTonic: string
+  keyMode: string | null
   articulation: string | null
   bestScore: number | null
   /** この変種の難易度⭐。上位★ロック判定に使う */
@@ -27,13 +28,18 @@ export type BasicsFamily = {
   baseStar?: number | null
 }
 
-// 調ラダー (長調12調・指導順)。族に無い調はグレー表示。
+// 調ラダー: 長調12 + 短調12 (指導順)。族に無い調はグレー表示。
+// 長調・短調は主音が同じでも別物なので、(主音+旋法) を identity にして出し分ける (2026-07-20)。
 const KEY_ORDER = ["C", "G", "D", "A", "E", "B", "F#", "Db", "Ab", "Eb", "Bb", "F"]
+const MINOR_ORDER = ["A", "E", "B", "F#", "C#", "G#", "D", "G", "C", "F", "Bb", "Eb"]
 const TONIC_JA: Record<string, string> = {
-  C: "ハ", G: "ト", D: "ニ", A: "イ", E: "ホ", B: "ロ", "F#": "嬰ヘ",
+  C: "ハ", G: "ト", D: "ニ", A: "イ", E: "ホ", B: "ロ", "F#": "嬰ヘ", "C#": "嬰ハ", "G#": "嬰ト",
   Db: "変ニ", Ab: "変イ", Eb: "変ホ", Bb: "変ロ", F: "ヘ",
 }
-const keyJa = (k: string) => `${TONIC_JA[k] ?? k}長調`
+type ModeKind = "major" | "minor"
+const modeOf = (m?: string | null): ModeKind => ((m ?? "").includes("minor") ? "minor" : "major")
+const ckey = (tonic: string, mode: ModeKind) => `${tonic}:${mode}`
+const keyLabel = (tonic: string, mode: ModeKind) => `${TONIC_JA[tonic] ?? tonic}${mode === "minor" ? "短調" : "長調"}`
 // 奏法ラダー: 各奏法 (「基本」は廃止 2026-07-20。スラー等は articulation で識別)
 const ART_LADDER = [...ARTICULATIONS]
 
@@ -58,17 +64,28 @@ export default function BasicsPreSheet({
   const inLevel = (v: BasicsVariant) => baseStar == null || (v.star != null && v.star <= baseStar)
   // いま選択可能な変種 (★条件を満たすもの)
   const selVariants = family.variants.filter(inLevel)
-  const availKeys = new Set(selVariants.map((v) => v.keyTonic))
+  const vkey = (v: BasicsVariant) => ckey(v.keyTonic, modeOf(v.keyMode))
+  const availKeys = new Set(selVariants.map(vkey))
   const availArts = new Set(selVariants.map((v) => v.articulation ?? "basic"))
-  const firstKey = KEY_ORDER.find((k) => availKeys.has(k)) ?? [...availKeys][0] ?? ""
+  // 調ラダー = 長調12 + (族に短調があれば)短調12 + 標準外の実在調
+  const hasMinor = family.variants.some((v) => modeOf(v.keyMode) === "minor")
+  const keyList: { tonic: string; mode: ModeKind }[] = [
+    ...KEY_ORDER.map((t) => ({ tonic: t, mode: "major" as ModeKind })),
+    ...(hasMinor ? MINOR_ORDER.map((t) => ({ tonic: t, mode: "minor" as ModeKind })) : []),
+  ]
+  for (const v of family.variants) {
+    const m = modeOf(v.keyMode)
+    if (!keyList.some((x) => x.tonic === v.keyTonic && x.mode === m)) keyList.push({ tonic: v.keyTonic, mode: m })
+  }
+  const firstKey = keyList.find((x) => availKeys.has(ckey(x.tonic, x.mode)))
   const firstArt = ART_LADDER.find((a) => availArts.has(a.id))?.id ?? "basic"
-  const [selKey, setSelKey] = useState(firstKey)
+  const [selKey, setSelKey] = useState(firstKey ? ckey(firstKey.tonic, firstKey.mode) : "")
   const [selArt, setSelArt] = useState(firstArt)
 
   const variant =
     family.variants.find(
-      (v) => v.keyTonic === selKey && (v.articulation ?? "basic") === selArt && inLevel(v),
-    ) ?? selVariants.find((v) => v.keyTonic === selKey)
+      (v) => vkey(v) === selKey && (v.articulation ?? "basic") === selArt && inLevel(v),
+    ) ?? selVariants.find((v) => vkey(v) === selKey)
 
   // 選択不可の奏法が「上位★でのみ存在」なら、その最小★を返す (=選択不可(⭐N))。教材自体が無ければ null。
   const lockStar = (artId: string): number | null => {
@@ -79,9 +96,6 @@ export default function BasicsPreSheet({
   }
 
   const start = () => { if (variant) router.push(`/${userId}/practice/${category}/${variant.id}`) }
-
-  // 調ラダー: 族の調 + 未整備の長調をグレーで
-  const keyRows = [...KEY_ORDER, ...[...availKeys].filter((k) => !KEY_ORDER.includes(k))]
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -112,25 +126,26 @@ export default function BasicsPreSheet({
         {/* この練習に必要な技術 (未習得表示) */}
         {variant && <SheetSkills key={`sk-${variant.id}`} userId={userId} kind="practice" id={variant.id} />}
 
-        {/* 調: 12調を常時表示。族に無い調はグレー */}
+        {/* 調: 長調・短調を出し分けて常時表示。族に無い調はグレー */}
         <div className={styles.slab}>調を選ぶ</div>
         <div className={styles.difs}>
-          {keyRows.map((k) => {
-            const v = selVariants.find((x) => x.keyTonic === k)
-            const avail = availKeys.has(k)
+          {keyList.map(({ tonic, mode }) => {
+            const cek = ckey(tonic, mode)
+            const avail = availKeys.has(cek)
+            const v = selVariants.find((x) => vkey(x) === cek)
             return (
               <button
-                key={k}
+                key={cek}
                 type="button"
                 disabled={!avail}
-                className={`${styles.dif} ${selKey === k ? styles.difOn : ""} ${!avail ? styles.difDisabled : ""}`}
-                onClick={() => { if (avail) setSelKey(k) }}
+                className={`${styles.dif} ${selKey === cek ? styles.difOn : ""} ${!avail ? styles.difDisabled : ""}`}
+                onClick={() => { if (avail) setSelKey(cek) }}
               >
-                <span className={styles.difName}>{keyJa(k)}</span>
+                <span className={styles.difName}>{keyLabel(tonic, mode)}</span>
                 {avail
                   ? (v?.bestScore != null && <span className={styles.difBest}>ベスト {v.bestScore}</span>)
                   : <span className={styles.soon}>準備中</span>}
-                {avail && <span className={styles.radio} data-on={selKey === k} />}
+                {avail && <span className={styles.radio} data-on={selKey === cek} />}
               </button>
             )
           })}

@@ -96,7 +96,7 @@ def normalize_tonic(name: str) -> str:
 #   長調ターゲット=素直に移調 / 自然的短調ターゲット=3,6,7度を♭化(同主調)→移調。
 # =========================
 VIOLIN_LOW = m21pitch.Pitch("G3")        # 開放G
-VIOLIN_TOP = m21pitch.Pitch("B6")
+VIOLIN_TOP = m21pitch.Pitch("A7")        # 実用上限 (3オクターブ音階の最高音 C7〜E7 を収める。旧B6=95は低すぎて3octが1oct下振れした)
 _FLAT_DEG = {4, 9, 11}                    # 長3/長6/長7 (主音からの半音)
 _DOWN_A1 = interval.Interval("-A1")       # 増1度下げ=音名保持で半音下げ (E→E♭)
 

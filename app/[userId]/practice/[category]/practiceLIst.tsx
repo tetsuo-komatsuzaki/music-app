@@ -338,6 +338,7 @@ function FamilyView({
             variants: siblings.map((it) => ({
               id: it.id,
               keyTonic: it.keyTonic,
+              keyMode: it.keyMode ?? null,
               articulation: it.articulation ?? null,
               bestScore: it.bestScore ?? null,
               star: it.star ?? null,
@@ -461,7 +462,7 @@ function StarView({
             variants: items
               .filter((i) => groupKeyOf(i) === groupKeyOf(basicItem))
               .map((i) => ({
-                id: i.id, keyTonic: i.keyTonic,
+                id: i.id, keyTonic: i.keyTonic, keyMode: i.keyMode ?? null,
                 articulation: i.articulation ?? null, bestScore: i.bestScore ?? null,
                 star: i.star ?? null,
               })),
