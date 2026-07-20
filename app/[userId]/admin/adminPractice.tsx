@@ -122,6 +122,7 @@ export default function AdminPractice({
   const [composer, setComposer] = useState("")
   const [category, setCategory] = useState<string>("scale")
   const [expandAllKeys, setExpandAllKeys] = useState(false)
+  const [stdArticulations, setStdArticulations] = useState(false)
   const [keyTonic, setKeyTonic] = useState("G")
   const [keyMode, setKeyMode] = useState("major")
   const [tempoMin, setTempoMin] = useState("")
@@ -453,6 +454,7 @@ export default function AdminPractice({
         formData.set("keyTonic", keyTonic)
         formData.set("keyMode", keyMode)
         formData.set("expandAllKeys", expandAllKeys ? "true" : "false")
+        formData.set("standardArticulations", stdArticulations ? "true" : "false")
         formData.set("tempoMin", tempoMin)
         formData.set("tempoMax", tempoMax)
         formData.set("positions", JSON.stringify(positions))
@@ -652,6 +654,16 @@ export default function AdminPractice({
                         onChange={(e) => setExpandAllKeys(e.target.checked)}
                       />{" "}
                       全調で自動生成（長調ソース→12長調＋12自然的短調＝24件）
+                    </label>
+                  )}
+                  {["scale", "arpeggio", "bowing", "fingering", "position_shift"].includes(category) && (
+                    <label style={{ display: "block", marginTop: 6, fontSize: 13 }}>
+                      <input
+                        type="checkbox"
+                        checked={stdArticulations}
+                        onChange={(e) => setStdArticulations(e.target.checked)}
+                      />{" "}
+                      通常技法パターンで6奏法を一括生成（レガート/スタッカート/スピッカート/マルテレ/ポルタート/トレモロ）
                     </label>
                   )}
                 </div>

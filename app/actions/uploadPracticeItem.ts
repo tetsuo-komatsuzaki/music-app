@@ -8,12 +8,103 @@ import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 import { generatePracticeItemCover } from "@/app/_libs/coverImage/generateAndStore"
 import { ensurePracticeItemGroup, MATERIAL_KIND_BY_CATEGORY } from "@/app/_libs/materialGroup"
 import { allKeyTargets } from "@/app/_libs/scaleKeyExpansion"
+import { STANDARD_ARTICULATIONS, ARTICULATION_CATEGORIES } from "@/app/_libs/articulationPatterns"
 import { isDifficulty, isArticulation } from "@/app/_libs/materialVariant"
-import { Prisma, type PracticeCategory } from "@/app/generated/prisma"
+import { Prisma, type PracticeCategory, type MaterialKind } from "@/app/generated/prisma"
 import { SUB_TASK_IDS } from "@/app/_libs/skillMaster"
 import { isPracticeCategory } from "@/app/_libs/practiceConstants"
 
 const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
+
+type VariantSpec = {
+  titleSuffix: string
+  keyTonic: string
+  keyMode: string
+  articulation: string | null
+  metadata: Prisma.InputJsonValue
+}
+
+/** 共有MaterialGroup配下に複数変種を作成し、同一ソースXMLを各件へアップ、カバー1枚共有、各件を並列解析。 */
+async function generateVariantGroup(opts: {
+  kind: MaterialKind
+  category: string
+  title: string
+  composer: string | null
+  description: string | null
+  descriptionShort: string | null
+  tempoMin: number | null
+  tempoMax: number | null
+  positions: string[]
+  star: number | null
+  skillSubTaskTags: Prisma.InputJsonValue
+  techniques: { id: string; isPrimary: boolean }[]
+  buffer: Buffer
+  variants: VariantSpec[]
+}): Promise<{ groupId: string; count: number }> {
+  const storage = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  )
+  const group = await prisma.materialGroup.create({
+    data: { kind: opts.kind, category: opts.category, title: opts.title, composer: opts.composer },
+  })
+  const createdIds: string[] = []
+  for (const v of opts.variants) {
+    const child = await prisma.practiceItem.create({
+      data: {
+        category: opts.category as PracticeCategory,
+        title: `${opts.title}（${v.titleSuffix}）`,
+        composer: opts.composer,
+        description: opts.description,
+        descriptionShort: opts.descriptionShort,
+        keyTonic: v.keyTonic,
+        keyMode: v.keyMode,
+        tempoMin: opts.tempoMin,
+        tempoMax: opts.tempoMax,
+        positions: opts.positions,
+        instrument: "violin",
+        originalXmlPath: "",
+        source: "admin",
+        isPublished: true,
+        analysisStatus: "queued",
+        buildStatus: "queued",
+        star: opts.star,
+        skillSubTaskTags: opts.skillSubTaskTags,
+        articulation: v.articulation,
+        groupId: group.id,
+        metadata: v.metadata,
+      },
+    })
+    const path = `practice/${child.id}/original.musicxml`
+    const { error: upErr } = await storage.storage
+      .from("musicxml")
+      .upload(path, opts.buffer, { contentType: "application/xml", upsert: true })
+    if (upErr) {
+      await prisma.practiceItem.delete({ where: { id: child.id } })
+      continue
+    }
+    await prisma.practiceItem.update({ where: { id: child.id }, data: { originalXmlPath: path } })
+    for (const tech of opts.techniques) {
+      await prisma.practiceItemTechnique.create({
+        data: { practiceItemId: child.id, techniqueTagId: tech.id, isPrimary: tech.isPrimary },
+      })
+    }
+    createdIds.push(child.id)
+  }
+  after(async () => {
+    try {
+      if (createdIds[0]) await generatePracticeItemCover(createdIds[0])
+    } catch (e) {
+      console.error(`[cover] group ${group.id} カバー生成失敗:`, e instanceof Error ? e.message : e)
+    }
+    await Promise.allSettled(
+      createdIds.map((id) =>
+        invokeAnalysis({ mode: "score_full", idempotencyKey: `score_full:${id}`, practiceItemId: id }),
+      ),
+    )
+  })
+  return { groupId: group.id, count: createdIds.length }
+}
 
 export async function uploadPracticeItem(formData: FormData) {
   console.log("▶ uploadPracticeItem START")
@@ -85,73 +176,45 @@ export async function uploadPracticeItem(formData: FormData) {
     return { error: `不正なカテゴリです: ${category}` }
   }
 
-  // ── 全調自動生成 (音階/アルペジオ・長調ソースのみ): 12長調 + 12自然的短調 = 24変種を1グループで作成 ──
+  // ── 変種の一括生成: 全調(expandAllKeys) / 通常技法パターン(standardArticulations) ──
   const wantExpand = (formData.get("expandAllKeys") as string) === "true"
-  if (wantExpand) {
-    if (!((category === "scale" || category === "arpeggio") && keyMode === "major")) {
-      return { error: "全調生成は 音階/アルペジオ かつ 長調ソース のみ対応です" }
-    }
+  const wantStdArt = (formData.get("standardArticulations") as string) === "true"
+  if (wantExpand && wantStdArt) {
+    return { error: "全調生成と通常技法パターンは同時指定できません（別々にアップロードしてください）" }
+  }
+  if (wantExpand || wantStdArt) {
     const kind = MATERIAL_KIND_BY_CATEGORY[category]
-    if (!kind) return { error: `全調生成に未対応のカテゴリ: ${category}` }
+    if (!kind) return { error: `変種生成に未対応のカテゴリ: ${category}` }
 
-    const storage = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
-    const buffer = Buffer.from(await file.arrayBuffer())
-
-    // 共有グループを1つ作成 (カバーもグループ単位)
-    const group = await prisma.materialGroup.create({
-      data: { kind, category, title, composer: composer || null },
-    })
-
-    const createdIds: string[] = []
-    for (const t of allKeyTargets()) {
-      const child = await prisma.practiceItem.create({
-        data: {
-          category: category as PracticeCategory,
-          title: `${title}（${t.label}）`,
-          composer, description, descriptionShort,
-          keyTonic: t.keyTonic, keyMode: t.keyMode,
-          tempoMin, tempoMax, positions, instrument: "violin",
-          originalXmlPath: "", source: "admin", isPublished: true,
-          analysisStatus: "queued", buildStatus: "queued",
-          star, skillSubTaskTags: skillSubTaskTags as Prisma.InputJsonValue,
-          articulation, groupId: group.id,
-          // Python(analyze_musicxml) が読む: このソース調(長調) から t.keyTonic/keyMode へ移調
-          metadata: { transposeSource: { keyTonic, keyMode: "major" } } as Prisma.InputJsonValue,
-        },
-      })
-      const path = `practice/${child.id}/original.musicxml`
-      const { error: upErr } = await storage.storage.from("musicxml")
-        .upload(path, buffer, { contentType: "application/xml", upsert: true })
-      if (upErr) {
-        await prisma.practiceItem.delete({ where: { id: child.id } })
-        continue
+    let variants: VariantSpec[]
+    if (wantExpand) {
+      if (!((category === "scale" || category === "arpeggio") && keyMode === "major")) {
+        return { error: "全調生成は 音階/アルペジオ かつ 長調ソース のみ対応です" }
       }
-      await prisma.practiceItem.update({ where: { id: child.id }, data: { originalXmlPath: path } })
-      for (const tech of techniques as { id: string; isPrimary: boolean }[]) {
-        await prisma.practiceItemTechnique.create({
-          data: { practiceItemId: child.id, techniqueTagId: tech.id, isPrimary: tech.isPrimary },
-        })
+      variants = allKeyTargets().map((t) => ({
+        titleSuffix: t.label, keyTonic: t.keyTonic, keyMode: t.keyMode, articulation: null,
+        metadata: { transposeSource: { keyTonic, keyMode: "major" } } as Prisma.InputJsonValue,
+      }))
+    } else {
+      if (!ARTICULATION_CATEGORIES.includes(category)) {
+        return { error: "通常技法パターンは 音階/アルペジオ/ボーイング/フィンガリング/ポジション移動 のみ対応です" }
       }
-      createdIds.push(child.id)
+      variants = STANDARD_ARTICULATIONS.map((a) => ({
+        titleSuffix: a.label, keyTonic, keyMode, articulation: a.id,
+        metadata: { articulationPattern: { type: "uniform", articulation: a.id } } as Prisma.InputJsonValue,
+      }))
     }
 
-    // カバーは先頭変種で1枚だけ生成 (generateAndStore が group.coverImagePath も更新 → 他23件は継承)。
-    // 解析ジョブ(24件)は応答後に並列起動。
-    after(async () => {
-      try {
-        if (createdIds[0]) await generatePracticeItemCover(createdIds[0])
-      } catch (e) {
-        console.error(`[cover] group ${group.id} カバー生成失敗:`, e instanceof Error ? e.message : e)
-      }
-      await Promise.allSettled(
-        createdIds.map((id) =>
-          invokeAnalysis({ mode: "score_full", idempotencyKey: `score_full:${id}`, practiceItemId: id }),
-        ),
-      )
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const r = await generateVariantGroup({
+      kind, category, title, composer, description, descriptionShort,
+      tempoMin, tempoMax, positions, star,
+      skillSubTaskTags: skillSubTaskTags as Prisma.InputJsonValue,
+      techniques: techniques as { id: string; isPrimary: boolean }[],
+      buffer, variants,
     })
-
     revalidatePath("/admin/practice")
-    return { success: true, groupId: group.id, count: createdIds.length }
+    return { success: true, ...r }
   }
 
   const item = await prisma.practiceItem.create({

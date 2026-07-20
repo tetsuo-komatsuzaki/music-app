@@ -147,6 +147,44 @@ def transpose_variant(score, metadata, target_tonic_db, target_mode):
     out = base.transpose(interval.Interval(src_p, tgt_p))     # → target key
     return _fit_to_violin(out)
 
+
+# 通常技法パターン: 奏法→music21記譜 (2026-07-20)。
+#   レガート=Tenuto / スタッカート=Staccato / スピッカート=Spiccato /
+#   マルテレ=StrongAccent(マルカート) / ポルタート=DetachedLegato(スラー下点) /
+#   トレモロ=expressions.Tremolo(斜線2本)。
+_ART_CLS = {
+    "legato": articulations.Tenuto,
+    "staccato": articulations.Staccato,
+    "spiccato": articulations.Spiccato,
+    "martele": articulations.StrongAccent,
+    "portato": articulations.DetachedLegato,
+}
+
+
+def apply_articulation_variant(score, metadata):
+    """metadata.articulationPattern(uniform) があれば全音符に奏法を付与。対象外なら None。"""
+    md = metadata
+    if isinstance(md, str):
+        try:
+            md = json.loads(md)
+        except Exception:
+            md = None
+    pat = (md or {}).get("articulationPattern") if isinstance(md, dict) else None
+    if not pat or pat.get("type") != "uniform":
+        return None
+    art_id = pat.get("articulation")
+    for n in score.recurse().notes:
+        if art_id == "tremolo":
+            t = expressions.Tremolo()
+            try:
+                t.numberOfMarks = 2
+            except Exception:
+                pass
+            n.expressions.append(t)
+        elif art_id in _ART_CLS:
+            n.articulations.append(_ART_CLS[art_id]())
+    return score
+
 # =========================
 # DB接続
 # =========================
@@ -222,14 +260,22 @@ try:
     # 全調自動生成 (2026-07-20): 変種なら metadata.transposeSource から移調。
     # 後段(skill_extractor 等)も移調後を使うよう tmp_path を書き換える。
     if IS_PRACTICE_ITEM:
+        _changed = False
         _transposed = transpose_variant(score, pi_metadata, pi_key_tonic, pi_key_mode)
         if _transposed is not None:
             score = _transposed
+            _changed = True
+            print(f"[transpose] variant → {pi_key_tonic}/{pi_key_mode} applied")
+        _articulated = apply_articulation_variant(score, pi_metadata)
+        if _articulated is not None:
+            score = _articulated
+            _changed = True
+            print("[articulation] variant applied")
+        if _changed:
             _t2 = tempfile.NamedTemporaryFile(suffix=".musicxml", delete=False)
             _t2.close()
             score.write("musicxml", fp=_t2.name)
             tmp_path = _t2.name
-            print(f"[transpose] variant → {pi_key_tonic}/{pi_key_mode} applied")
 
     # =========================
     # BPM
