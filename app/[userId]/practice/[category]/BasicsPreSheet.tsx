@@ -95,6 +95,14 @@ export default function BasicsPreSheet({
     return higher.length ? Math.min(...higher) : null
   }
 
+  // 選択不可の調が「上位★でのみ存在」なら、その最小★を返す (=選択不可(⭐N))。教材自体が無ければ null。
+  const lockKeyStar = (tonic: string, mode: ModeKind): number | null => {
+    const higher = family.variants
+      .filter((v) => v.keyTonic === tonic && modeOf(v.keyMode) === mode && v.star != null && (baseStar == null || (v.star as number) > baseStar))
+      .map((v) => v.star as number)
+    return higher.length ? Math.min(...higher) : null
+  }
+
   const start = () => { if (variant) router.push(`/${userId}/practice/${category}/${variant.id}`) }
 
   return (
@@ -133,6 +141,7 @@ export default function BasicsPreSheet({
             const cek = ckey(tonic, mode)
             const avail = availKeys.has(cek)
             const v = selVariants.find((x) => vkey(x) === cek)
+            const lock = avail ? null : lockKeyStar(tonic, mode) // number=上位★で存在 / null=教材なし
             return (
               <button
                 key={cek}
@@ -144,7 +153,9 @@ export default function BasicsPreSheet({
                 <span className={styles.difName}>{keyLabel(tonic, mode)}</span>
                 {avail
                   ? (v?.bestScore != null && <span className={styles.difBest}>ベスト {v.bestScore}</span>)
-                  : <span className={styles.soon}>準備中</span>}
+                  : lock != null
+                    ? <span className={styles.soon}>選択不可(⭐{lock})</span>
+                    : <span className={styles.soon}>準備中</span>}
                 {avail && <span className={styles.radio} data-on={selKey === cek} />}
               </button>
             )
