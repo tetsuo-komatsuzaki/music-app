@@ -204,6 +204,27 @@ _TAG_STAR = {
     "6度": 2, "3度": 3, "オクターブ": 4, "10度": 5, "連続重音": 6,
 }
 
+
+def _pos_ord(n: int) -> str:
+    """ポジション番号 → 序数 (1→1st, 2→2nd, 3→3rd, 4〜→Nth)。"""
+    return f"{n}{'st' if n == 1 else 'nd' if n == 2 else 'rd' if n == 3 else 'th'}"
+
+
+def _pos_str_to_int(s):
+    """positions カラムの値 ("1st"/"3rd"/3 等) を int へ。取れなければ None。"""
+    import re as _re
+    m = _re.match(r"\s*(\d+)", str(s))
+    return int(m.group(1)) if m else None
+
+
+def _position_tags(pos_ints):
+    """ポジション int 列 → 習得系タグ名 (2nd以上のみ, 10th超は10thに丸め)。1stは既定=タグなし。"""
+    out = set()
+    for p in pos_ints:
+        if p is not None and p >= 2:
+            out.add(f"{_pos_ord(10 if p > 10 else p)}ポジション")
+    return sorted(out)
+
 # =========================
 # DB接続
 # =========================
@@ -908,20 +929,35 @@ try:
                     'UPDATE "PracticeItem" SET "pitchMin"=%s, "pitchMax"=%s WHERE id=%s',
                     (piece_summary.get("pitch_min"), piece_summary.get("pitch_max"), PRACTICE_ITEM_ID),
                 )
-                # ポジション自動推定を教材にも反映 (2026-07-14 Tetsuo指示)。
-                # PracticeItem.positions は "1st"/"3rd" 形式の文字列配列のため変換する。
-                # 手動設定を上書きしない: 現在空の場合のみ書き込む
-                # (推定は指番号なしだと1stポジ前提になるため、ポジション教材の手動指定が正)。
-                _pos_ints = piece_summary.get("positions") or []
-                if _pos_ints:
-                    def _ord(n):
-                        return f"{n}{'st' if n == 1 else 'nd' if n == 2 else 'rd' if n == 3 else 'th'}"
-                    cur.execute(
-                        'UPDATE "PracticeItem" SET positions = %s '
-                        "WHERE id = %s AND (positions IS NULL OR positions = '{}')",
-                        ([_ord(int(n)) for n in _pos_ints], PRACTICE_ITEM_ID),
-                    )
-                for _name in _ft_names:
+                # ポジション: 手動指定を尊重して「最終 positions」を確定する (2026-07-14方針)。
+                #  - 手動 positions が入っている教材 = その値が正 (推定は運指なしだと過少になる)。
+                #  - 空の教材のみ推定値を書き込む。
+                # ポジション習得系タグ + star は、この「最終 positions」から導出する
+                # (推定だけでタグ付けすると手動指定の position教材と食い違うため / 2026-07-20)。
+                _pos_ints_inf = [int(n) for n in (piece_summary.get("positions") or [])]
+                cur.execute('SELECT positions FROM "PracticeItem" WHERE id=%s', (PRACTICE_ITEM_ID,))
+                _row_pos = cur.fetchone()
+                _cur_pos = (_row_pos[0] if _row_pos else None) or []
+                if _cur_pos:
+                    _final_pos_ints = sorted({p for s in _cur_pos if (p := _pos_str_to_int(s)) is not None})
+                else:
+                    _final_pos_ints = sorted(set(_pos_ints_inf))
+                    if _final_pos_ints:
+                        cur.execute(
+                            'UPDATE "PracticeItem" SET positions=%s WHERE id=%s',
+                            ([_pos_ord(n) for n in _final_pos_ints], PRACTICE_ITEM_ID),
+                        )
+                # 特徴タグ = piece_summary の特徴タグ + 最終ポジション由来のポジションタグ。
+                # ポジションタグ(category=position)は自動導出なので権威的に貼り替える
+                # (最終 positions を単一の正とし、再解析での過去の誤タグ残留を防ぐ)。
+                # 他カテゴリの特徴タグ/手動タグは従来どおり「追加のみ」で温存。
+                cur.execute(
+                    'DELETE FROM "PracticeItemFeatureTag" WHERE "practiceItemId"=%s AND "featureTagId" IN '
+                    '(SELECT id FROM "FeatureTag" WHERE category=%s)',
+                    (PRACTICE_ITEM_ID, "position"),
+                )
+                _ft_all = list(_ft_names) + _position_tags(_final_pos_ints)
+                for _name in _ft_all:
                     cur.execute(
                         'INSERT INTO "PracticeItemFeatureTag" ("practiceItemId", "featureTagId") '
                         'SELECT %s, ft.id FROM "FeatureTag" ft WHERE ft."name"=%s '
@@ -935,8 +971,7 @@ try:
                         'ON CONFLICT DO NOTHING',
                         (PRACTICE_ITEM_ID, _name),
                     )
-                # タグの⭐︎最大値(最低1)を star に自動登録。
-                # 対象タグ = 技術タグ + 特徴タグ(ポジション/重音) の全部 (§2-2b 統合表)。
+                # タグの⭐︎最大値(最低1)を star に自動登録 (§2-2b 統合表: 技術+ポジ+重音)。
                 # 変種は毎回上書き / 手動教材は star 未設定のときだけ補完 (監修値を潰さない)。
                 _md_v = pi_metadata
                 if isinstance(_md_v, str):
@@ -945,16 +980,18 @@ try:
                     except Exception:
                         _md_v = None
                 _is_variant = isinstance(_md_v, dict) and bool(_md_v.get("transposeSource") or _md_v.get("articulationPattern"))
-                _star = max([1] + [_TAG_STAR[t] for t in (_tt_names + _ft_names) if t in _TAG_STAR])
+                _star = max([1] + [_TAG_STAR[t] for t in (_tt_names + _ft_all) if t in _TAG_STAR])
                 if _is_variant:
                     cur.execute('UPDATE "PracticeItem" SET star=%s WHERE id=%s', (_star, PRACTICE_ITEM_ID))
                 else:
                     cur.execute('UPDATE "PracticeItem" SET star=%s WHERE id=%s AND star IS NULL', (_star, PRACTICE_ITEM_ID))
             else:
+                # 曲は positions を毎回上書き (int[])。ポジションタグもこの値から導出。
+                _score_pos_ints = [int(n) for n in (piece_summary.get("positions") or [])]
                 cur.execute(
                     'UPDATE "Score" SET "pitchMin"=%s, "pitchMax"=%s, "positions"=%s WHERE id=%s',
                     (piece_summary.get("pitch_min"), piece_summary.get("pitch_max"),
-                     piece_summary.get("positions") or [], SCORE_ID),
+                     _score_pos_ints, SCORE_ID),
                 )
                 cur.execute('DELETE FROM "ScoreKey" WHERE "scoreId"=%s', (SCORE_ID,))
                 for _sk in piece_summary.get("sub_keys") or []:
@@ -963,7 +1000,14 @@ try:
                         'VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING',
                         (str(_uuid.uuid4()), SCORE_ID, _sk["tonic"], _sk["mode"], _sk["sort_order"]),
                     )
-                for _name in _ft_names:
+                # ポジションタグ(category=position)は権威的に貼り替え (PracticeItem と同様)。
+                cur.execute(
+                    'DELETE FROM "ScoreFeatureTag" WHERE "scoreId"=%s AND "featureTagId" IN '
+                    '(SELECT id FROM "FeatureTag" WHERE category=%s)',
+                    (SCORE_ID, "position"),
+                )
+                _ft_all = list(_ft_names) + _position_tags(_score_pos_ints)
+                for _name in _ft_all:
                     cur.execute(
                         'INSERT INTO "ScoreFeatureTag" ("scoreId", "featureTagId") '
                         'SELECT %s, ft.id FROM "FeatureTag" ft WHERE ft."name"=%s '

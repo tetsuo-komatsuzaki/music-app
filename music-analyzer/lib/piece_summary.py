@@ -236,13 +236,8 @@ def build_piece_summary(
              "measure_index": ch["measure_index"]}
         )
 
-    # ── ポジション習得系タグ (2026-07-20 Tetsuo確定): 2ndポジ以上を特徴タグ化 ──
-    # 推定/運指どちらも n.position をそのまま準用 (A方針: 追加ゲートなし)。
-    # 1st は既定=タグなし。学びレッスンは10thまでのため 10th超は 10thポジション に丸める。
-    for _p in positions:
-        if _p >= 2:
-            _pp = 10 if _p > 10 else _p
-            feature_tags.add(f"{_pos_ordinal(_pp)}ポジション")
+    # ポジション習得系タグは analyze_musicxml 側で「最終 positions(手動優先)」から導出する
+    # (piece_summary の推定だけで付けると、手動指定の position教材と食い違うため)。
 
     return {
         "pitch_min": min(midis) if midis else None,
