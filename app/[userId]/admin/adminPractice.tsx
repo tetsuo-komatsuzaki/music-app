@@ -645,7 +645,7 @@ export default function AdminPractice({
                       <option value="minor">短調</option>
                     </select>
                   </div>
-                  {(category === "scale" || category === "arpeggio") && (
+                  {["scale", "arpeggio", "fingering"].includes(category) && (
                     <label style={{ display: "block", marginTop: 8, fontSize: 13 }}>
                       <input
                         type="checkbox"
@@ -653,7 +653,7 @@ export default function AdminPractice({
                         disabled={keyMode !== "major"}
                         onChange={(e) => setExpandAllKeys(e.target.checked)}
                       />{" "}
-                      全調で自動生成（長調ソース→12長調＋12自然的短調＝24件）
+                      全調で自動生成（長調ソース→12長調＋12自然的短調＝24件。奏法も選ぶと掛け合わせ）
                     </label>
                   )}
                   {["scale", "arpeggio", "bowing", "fingering", "position_shift"].includes(category) && (

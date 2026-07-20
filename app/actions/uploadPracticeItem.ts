@@ -7,7 +7,7 @@ import { after } from "next/server"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 import { generatePracticeItemCover } from "@/app/_libs/coverImage/generateAndStore"
 import { ensurePracticeItemGroup, MATERIAL_KIND_BY_CATEGORY } from "@/app/_libs/materialGroup"
-import { allKeyTargets } from "@/app/_libs/scaleKeyExpansion"
+import { allKeyTargets, KEY_EXPAND_CATEGORIES } from "@/app/_libs/scaleKeyExpansion"
 import { STANDARD_ARTICULATIONS, ARTICULATION_CATEGORIES } from "@/app/_libs/articulationPatterns"
 import { isDifficulty, isArticulation } from "@/app/_libs/materialVariant"
 import { Prisma, type PracticeCategory, type MaterialKind } from "@/app/generated/prisma"
@@ -176,33 +176,42 @@ export async function uploadPracticeItem(formData: FormData) {
     return { error: `不正なカテゴリです: ${category}` }
   }
 
-  // ── 変種の一括生成: 全調(expandAllKeys) / 通常技法パターン(standardArticulations) ──
+  // ── 変種の一括生成: 全調(expandAllKeys) × 通常技法(standardArticulations) ──
+  //   音階/アルペジオ/フィンガリング は全調可 (両方選べばクロス積 = 24調 × 6奏法 = 144件)。
+  //   ボーイング/ポジション移動 は奏法のみ (調は不要 = 全調チェックは非表示)。
   const wantExpand = (formData.get("expandAllKeys") as string) === "true"
   const wantStdArt = (formData.get("standardArticulations") as string) === "true"
-  if (wantExpand && wantStdArt) {
-    return { error: "全調生成と通常技法パターンは同時指定できません（別々にアップロードしてください）" }
-  }
   if (wantExpand || wantStdArt) {
     const kind = MATERIAL_KIND_BY_CATEGORY[category]
     if (!kind) return { error: `変種生成に未対応のカテゴリ: ${category}` }
+    if (wantExpand && !(KEY_EXPAND_CATEGORIES.includes(category) && keyMode === "major")) {
+      return { error: "全調生成は 音階/アルペジオ/フィンガリング かつ 長調ソース のみ対応です" }
+    }
+    if (wantStdArt && !ARTICULATION_CATEGORIES.includes(category)) {
+      return { error: "通常技法パターンは 音階/アルペジオ/ボーイング/フィンガリング/ポジション移動 のみ対応です" }
+    }
 
-    let variants: VariantSpec[]
-    if (wantExpand) {
-      if (!((category === "scale" || category === "arpeggio") && keyMode === "major")) {
-        return { error: "全調生成は 音階/アルペジオ かつ 長調ソース のみ対応です" }
+    // 調ターゲット × 奏法ターゲット のクロス積で変種を作る (片方だけなら単軸)
+    const keys: { keyTonic: string; keyMode: string; label: string | null }[] =
+      wantExpand ? allKeyTargets() : [{ keyTonic, keyMode, label: null }]
+    const arts: ({ id: string; label: string } | null)[] =
+      wantStdArt ? STANDARD_ARTICULATIONS : [null]
+
+    const variants: VariantSpec[] = []
+    for (const k of keys) {
+      for (const a of arts) {
+        const suffix = [k.label, a?.label].filter(Boolean).join("・")
+        const metadata: Record<string, unknown> = {}
+        if (wantExpand) metadata.transposeSource = { keyTonic, keyMode: "major" }
+        if (a) metadata.articulationPattern = { type: "uniform", articulation: a.id }
+        variants.push({
+          titleSuffix: suffix,
+          keyTonic: k.keyTonic,
+          keyMode: k.keyMode,
+          articulation: a ? a.id : articulation,
+          metadata: metadata as Prisma.InputJsonValue,
+        })
       }
-      variants = allKeyTargets().map((t) => ({
-        titleSuffix: t.label, keyTonic: t.keyTonic, keyMode: t.keyMode, articulation: null,
-        metadata: { transposeSource: { keyTonic, keyMode: "major" } } as Prisma.InputJsonValue,
-      }))
-    } else {
-      if (!ARTICULATION_CATEGORIES.includes(category)) {
-        return { error: "通常技法パターンは 音階/アルペジオ/ボーイング/フィンガリング/ポジション移動 のみ対応です" }
-      }
-      variants = STANDARD_ARTICULATIONS.map((a) => ({
-        titleSuffix: a.label, keyTonic, keyMode, articulation: a.id,
-        metadata: { articulationPattern: { type: "uniform", articulation: a.id } } as Prisma.InputJsonValue,
-      }))
     }
 
     const buffer = Buffer.from(await file.arrayBuffer())

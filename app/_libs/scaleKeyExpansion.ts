@@ -15,6 +15,9 @@ const MINOR: [string, string][] = [
   ["Eb", "変ホ"], ["E", "ホ"], ["F", "ヘ"], ["F#", "嬰ヘ"], ["G", "ト"], ["G#", "嬰ト"],
 ]
 
+/** 全調生成(移調)の対象カテゴリ。ボーイング/ポジション移動は調不要=対象外。 */
+export const KEY_EXPAND_CATEGORIES = ["scale", "arpeggio", "fingering"]
+
 /** 12長調 + 12自然的短調 = 24ターゲット。 */
 export function allKeyTargets(): KeyTarget[] {
   return [
