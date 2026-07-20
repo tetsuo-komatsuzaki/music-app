@@ -100,11 +100,12 @@ HARMONIC_CENTS_OK      = 50     # ハーモニクスのセント許容 (sounding
 #   補正済のため、許容値も同基準で揃える)
 #
 # 2026-05-16 調整 (Tetsuo 指示): 0.10 → 0.30 (3倍緩和、判定が厳しすぎたため)。
-#   BPM60で±0.30s, BPM90で±0.20s(約0.3拍), BPM120で±0.15s, BPM180で±0.10s。
+# 2026-07-20 調整 (Tetsuo 指示): 0.30 → 0.40 (まだ厳しすぎたため、さらに +33% 緩和)。
+#   BPM60で±0.40s, BPM90で±0.267s(約0.4拍), BPM120で±0.20s, BPM180で±0.133s。
 #   timing 判定を寛容化 → rhythmAccuracy / overallScore 上昇。
-#   ダウンストリーム: SongMastery 演奏マスター到達が容易化 / RHYTHM 課題化が減少。
-#   過寛容なら 0.15〜0.20 へ再調整予定。
-TIMING_TOLERANCE_BASE = 0.30
+#   ダウンストリーム: 演奏マスター(直近5回平均90)到達が容易化 / RHYTHM 課題化が減少。
+#   過寛容なら 0.30〜0.35 へ戻す、まだ厳しければ 0.45〜0.50 へ。
+TIMING_TOLERANCE_BASE = 0.40
 
 
 def get_timing_tolerance(target_bpm: float) -> float:

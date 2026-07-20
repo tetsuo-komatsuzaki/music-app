@@ -121,7 +121,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
                 {/* 達成条件③ 通し演奏 累計3回×崩壊ゼロ */}
                 {conditionRow(
                   achv.cleanRuns.count >= achv.cleanRuns.required,
-                  "通して弾き切る（破綻なし）",
+                  "通して弾き切る",
                   `${achv.cleanRuns.count} / ${achv.cleanRuns.required} 回`,
                 )}
               </>
@@ -136,9 +136,6 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
             )}
           </div>
         )}
-        <div style={{ fontSize: 12, color: "#aaa", marginTop: 10 }}>
-          累計演奏 {achv.totalPerformanceCount} 回 ／ 破綻なし＝崩壊小節ゼロで最後まで弾けた演奏
-        </div>
       </section>
 
       {/* 達成/マスターの仕組み (詳しく) — 折りたたみ。普段は進捗トラッカーで十分 */}
@@ -155,9 +152,8 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
         </div>
       </details>
 
-      {/* ── 2. 取り組む課題 = 最新演奏の217診断 + 弱点練習の推薦 ── */}
+      {/* ── 2. 最新演奏の217診断 + 弱点練習の推薦 (見出しは WeaknessDiagnosisCard 側) ── */}
       <section className={styles.cardSection}>
-        <h2 className={styles.sectionTitle}>取り組む課題</h2>
         {achv.latestPerformanceId ? (
           <WeaknessDiagnosisCard
             performanceId={achv.latestPerformanceId}

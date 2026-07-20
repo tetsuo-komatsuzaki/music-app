@@ -72,11 +72,7 @@ export function DiagnosisBody({
     )
   }
   if (data.verdict === "unavailable") {
-    return (
-      <div className={styles.statusBox}>
-        この演奏には学びポイントの分析がありません（新しい演奏から表示されます）
-      </div>
-    )
+    return null
   }
   return (
     <section>
