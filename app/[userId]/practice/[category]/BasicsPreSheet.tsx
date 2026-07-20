@@ -1,7 +1,9 @@
 "use client"
 
 // 基礎練の練習前シート (Phase C-basics / 2026-07-18更新): 調・奏法を常時フル表示。
-// 教材の無い調/奏法はグレー(選択不可)で「準備中」を明示。教材が増えれば自動で有効化。
+// グレー(選択不可)の理由を出し分ける (2026-07-20):
+//   - 上位★でのみ存在する奏法 (例: ⭐1音階のスタッカート=⭐2) → 「選択不可(⭐N)」
+//   - そもそも教材が無い → 「準備中」(教材が増えれば自動で有効化)
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import styles from "../pieces/prePractice.module.css"
@@ -14,11 +16,15 @@ export type BasicsVariant = {
   keyTonic: string
   articulation: string | null
   bestScore: number | null
+  /** この変種の難易度⭐。上位★ロック判定に使う */
+  star?: number | null
 }
 export type BasicsFamily = {
   title: string
   coverImagePath: string | null
   variants: BasicsVariant[]
+  /** いま開いている★タブの難易度。これ以下の★のみ選択可、超過は「選択不可(⭐N)」表示 */
+  baseStar?: number | null
 }
 
 // 調ラダー (長調12調・指導順)。族に無い調はグレー表示。
@@ -47,15 +53,30 @@ export default function BasicsPreSheet({
   onClose: () => void
 }) {
   const router = useRouter()
-  const availKeys = new Set(family.variants.map((v) => v.keyTonic))
-  const availArts = new Set(family.variants.map((v) => v.articulation ?? "basic"))
+  // baseStar = 開いている★タブ。null なら全存在教材を選択可 (旧挙動)。
+  const baseStar = family.baseStar ?? null
+  const inLevel = (v: BasicsVariant) => baseStar == null || (v.star != null && v.star <= baseStar)
+  // いま選択可能な変種 (★条件を満たすもの)
+  const selVariants = family.variants.filter(inLevel)
+  const availKeys = new Set(selVariants.map((v) => v.keyTonic))
+  const availArts = new Set(selVariants.map((v) => v.articulation ?? "basic"))
   const firstKey = KEY_ORDER.find((k) => availKeys.has(k)) ?? [...availKeys][0] ?? ""
+  const firstArt = ART_LADDER.find((a) => availArts.has(a.id))?.id ?? "basic"
   const [selKey, setSelKey] = useState(firstKey)
-  const [selArt, setSelArt] = useState("basic")
+  const [selArt, setSelArt] = useState(firstArt)
 
-  const variant = family.variants.find(
-    (v) => v.keyTonic === selKey && (v.articulation ?? "basic") === selArt,
-  ) ?? family.variants.find((v) => v.keyTonic === selKey)
+  const variant =
+    family.variants.find(
+      (v) => v.keyTonic === selKey && (v.articulation ?? "basic") === selArt && inLevel(v),
+    ) ?? selVariants.find((v) => v.keyTonic === selKey)
+
+  // 選択不可の奏法が「上位★でのみ存在」なら、その最小★を返す (=選択不可(⭐N))。教材自体が無ければ null。
+  const lockStar = (artId: string): number | null => {
+    const higher = family.variants
+      .filter((v) => (v.articulation ?? "basic") === artId && v.star != null && (baseStar == null || (v.star as number) > baseStar))
+      .map((v) => v.star as number)
+    return higher.length ? Math.min(...higher) : null
+  }
 
   const start = () => { if (variant) router.push(`/${userId}/practice/${category}/${variant.id}`) }
 
@@ -95,7 +116,7 @@ export default function BasicsPreSheet({
         <div className={styles.slab}>調を選ぶ</div>
         <div className={styles.difs}>
           {keyRows.map((k) => {
-            const v = family.variants.find((x) => x.keyTonic === k)
+            const v = selVariants.find((x) => x.keyTonic === k)
             const avail = availKeys.has(k)
             return (
               <button
@@ -120,6 +141,7 @@ export default function BasicsPreSheet({
         <div className={styles.difs}>
           {ART_LADDER.map((a) => {
             const avail = availArts.has(a.id)
+            const lock = avail ? null : lockStar(a.id) // number=上位★で存在 / null=教材なし
             return (
               <button
                 key={a.id}
@@ -129,7 +151,11 @@ export default function BasicsPreSheet({
                 onClick={() => { if (avail) setSelArt(a.id) }}
               >
                 <span className={styles.difName}>{a.label}</span>
-                {avail ? <span className={styles.radio} data-on={selArt === a.id} /> : <span className={styles.soon}>準備中</span>}
+                {avail
+                  ? <span className={styles.radio} data-on={selArt === a.id} />
+                  : lock != null
+                    ? <span className={styles.soon}>選択不可(⭐{lock})</span>
+                    : <span className={styles.soon}>準備中</span>}
               </button>
             )
           })}

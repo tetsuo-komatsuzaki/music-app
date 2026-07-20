@@ -276,13 +276,18 @@ function keyLabelOf(it: PracticeItemDTO): string {
   return `${TONIC_JA[it.keyTonic] ?? it.keyTonic}${it.keyMode === "minor" ? "短調" : "長調"}`
 }
 
-type Family = { title: string; cover: string | null; items: PracticeItemDTO[] }
+type Family = { gkey: string; title: string; cover: string | null; items: PracticeItemDTO[] }
+
+const groupKeyOf = (it: PracticeItemDTO) => it.groupId ?? `solo:${it.id}`
 
 // 族カード一覧 (音階/アルペジオ)。族(groupId)ごとに1枚、タップで調シート。1調のみは直接遷移。
+// items = 現★タブの族カード用 (絞り込み済) / allItems = シートの奏法ラダー用 (全★の同族兄弟)。
 function FamilyView({
-  items, userId, category,
+  items, allItems, baseStar, userId, category,
 }: {
   items: PracticeItemDTO[]
+  allItems: PracticeItemDTO[]
+  baseStar: number | null
   userId: string
   category: string
 }) {
@@ -290,12 +295,13 @@ function FamilyView({
 
   const map = new Map<string, PracticeItemDTO[]>()
   for (const it of items) {
-    const k = it.groupId ?? `solo:${it.id}`
+    const k = groupKeyOf(it)
     if (!map.has(k)) map.set(k, [])
     map.get(k)!.push(it)
   }
-  const families: Family[] = [...map.values()]
-    .map((its) => ({
+  const families: Family[] = [...map.entries()]
+    .map(([gkey, its]) => ({
+      gkey,
       title: its[0].groupTitle ?? its[0].title.replace(/_/g, "・"),
       cover: its[0].coverImagePath ?? null,
       items: its,
@@ -304,6 +310,9 @@ function FamilyView({
 
   // 常にシートを開く (1調だけの族も調ラダーを見せる = 教材による有無をなくす)
   const tap = (fam: Family) => setSheet(fam)
+
+  // シートには全★の同族兄弟を渡す (上位★の奏法を「選択不可(⭐N)」で示すため)。
+  const siblings = sheet ? allItems.filter((it) => groupKeyOf(it) === sheet.gkey) : []
 
   return (
     <section className={styles.railSection}>
@@ -325,11 +334,13 @@ function FamilyView({
           family={{
             title: sheet.title,
             coverImagePath: sheet.cover,
-            variants: sheet.items.map((it) => ({
+            baseStar,
+            variants: siblings.map((it) => ({
               id: it.id,
               keyTonic: it.keyTonic,
               articulation: it.articulation ?? null,
               bestScore: it.bestScore ?? null,
+              star: it.star ?? null,
             })),
           }}
           onClose={() => setSheet(null)}
@@ -380,6 +391,7 @@ function StarView({
     active === "none" ? i.star == null : i.star === active,
   )
   const subGroups = subGroupItems(filtered, category)
+  const baseStar = typeof active === "number" ? active : null
 
   return (
     <div>
@@ -401,7 +413,7 @@ function StarView({
         <p className={styles.cardContextEmpty}>この難易度の教材はありません。</p>
       ) : isFamilyCategory(category) ? (
         // 音階/アルペジオ: 族カード + 調シート (オクターブ見出しは廃止し族が兼ねる)
-        <FamilyView items={filtered} userId={userId} category={category} />
+        <FamilyView items={filtered} allItems={items} baseStar={baseStar} userId={userId} category={category} />
       ) : (
         subGroups.map((sg, idx) => (
           <section key={sg.label || idx} className={styles.railSection}>
@@ -437,18 +449,22 @@ function StarView({
         />
       )}
 
-      {/* フィンガリング/ボーイング/重音 等: 調+奏法シート */}
+      {/* フィンガリング/ボーイング/重音 等: 調+奏法シート (同族兄弟を全★渡し、上位★は選択不可(⭐N)) */}
       {basicItem && (
         <BasicsPreSheet
           userId={userId}
           category={category}
           family={{
-            title: basicItem.title.replace(/_/g, "・"),
+            title: basicItem.groupTitle ?? basicItem.title.replace(/_/g, "・"),
             coverImagePath: basicItem.coverImagePath ?? null,
-            variants: [{
-              id: basicItem.id, keyTonic: basicItem.keyTonic,
-              articulation: basicItem.articulation ?? null, bestScore: basicItem.bestScore ?? null,
-            }],
+            baseStar,
+            variants: items
+              .filter((i) => groupKeyOf(i) === groupKeyOf(basicItem))
+              .map((i) => ({
+                id: i.id, keyTonic: i.keyTonic,
+                articulation: i.articulation ?? null, bestScore: i.bestScore ?? null,
+                star: i.star ?? null,
+              })),
           }}
           onClose={() => setBasicItem(null)}
         />
