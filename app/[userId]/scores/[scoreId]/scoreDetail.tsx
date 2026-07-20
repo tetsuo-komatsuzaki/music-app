@@ -1213,8 +1213,13 @@ export default function ScoreDetail({
       return { error: `録音は保存されましたが、解析に失敗しました (${notifyResult.error})` }
     }
 
-    // 通し録音(非区間)かつ曲モードなら、解析完了後にアルコ結果オーバーレイを出す
-    justRecordedRef.current = (activeRange || practiceItemId) ? null : signedRes.performanceId
+    // 通し録音(非区間)かつ曲モードなら、解析完了後にアルコ結果オーバーレイを出す。
+    // モバイルでの背面化/再読込/ブラウザバック復帰でも拾えるよう sessionStorage にも保持。
+    const arcoPendingId = (activeRange || practiceItemId) ? null : signedRes.performanceId
+    justRecordedRef.current = arcoPendingId
+    if (arcoPendingId) {
+      try { sessionStorage.setItem("arcoPending", JSON.stringify({ scoreId: score.id, perfId: arcoPendingId, at: Date.now() })) } catch {}
+    }
 
     // 4. 後続処理 (latest perf 取得・comparison ロード・state 更新) - 既存ロジック踏襲
     try {
@@ -1264,16 +1269,55 @@ export default function ScoreDetail({
     }
   }, [score.id, userId, uploadAction, bestPitchScore, router, practiceItemId, loadComparison])
 
-  // 解析完了した「今録音した曲演奏」を検知してアルコ結果を表示 (3秒ポーリングが performances を更新)
+  // 解析完了した「今録音した曲演奏」を検知してアルコ結果を表示 (3秒ポーリング/復帰再取得が performances を更新)
   useEffect(() => {
     const id = justRecordedRef.current
     if (!id) return
     const p = performances.find((x) => x.id === id)
     if (p && p.analysisStatus === "done" && p.pitchAccuracy != null && p.timingAccuracy != null) {
       justRecordedRef.current = null
+      try { sessionStorage.removeItem("arcoPending") } catch {}
       setArcoResult(p)
     }
   }, [performances])
+
+  // 再読込/ブラウザバック後も拾えるよう、保存済みの pending 録音を復元 (マウント時)
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("arcoPending")
+      if (!raw) return
+      const p = JSON.parse(raw) as { scoreId?: string; perfId?: string; at?: number }
+      if (p?.scoreId === score.id && p.perfId && (!p.at || Date.now() - p.at < 3600_000)) {
+        justRecordedRef.current = p.perfId
+      } else {
+        sessionStorage.removeItem("arcoPending")
+      }
+    } catch {}
+  }, [score.id])
+
+  // フォアグラウンド復帰時に performances を再取得 (モバイルは背面でタイマーが止まるため、
+  // 復帰した瞬間に解析完了を拾えるようにする)
+  useEffect(() => {
+    const onVisible = () => {
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") return
+      if (!justRecordedRef.current) return
+      const apiBase = practiceItemId
+        ? `/api/practice-performances?practiceItemId=${practiceItemId}&userId=${userId}`
+        : `/api/score-performances?scoreId=${score.id}&userId=${userId}`
+      fetch(apiBase).then((r) => r.json()).then((data: PerformanceDTO[]) => {
+        setPerformances((prev) => data.map((d) => {
+          const old = prev.find((p) => p.id === d.id)
+          return old?.comparisonResult ? { ...d, comparisonResult: old.comparisonResult, comparisonWarnings: old.comparisonWarnings } : d
+        }))
+      }).catch(() => {})
+    }
+    document.addEventListener("visibilitychange", onVisible)
+    window.addEventListener("focus", onVisible)
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible)
+      window.removeEventListener("focus", onVisible)
+    }
+  }, [score.id, userId, practiceItemId])
 
   // =========================================================
   // 再生・ハイライト関連
@@ -2370,7 +2414,10 @@ export default function ScoreDetail({
       {/* F-1: フルスクリーン中の操作ガイドバー (Recorder の停止ボタンは leftColumn 内で非表示のため、戻るボタンを案内) */}
       {isFullscreen && (
         <div data-section="fullscreen-bar">
-          演奏停止するには、ブラウザの戻るボタン(←)を押してください
+          <span data-fs-hint>録音中… 弾き終えたら停止</span>
+          <button type="button" data-fs-stop onClick={triggerStopRecording} aria-label="録音を停止">
+            <span data-fs-sq /> 停止
+          </button>
         </div>
       )}
       {/* UI-6: 削除完了トースト (3 秒で自動消去) */}

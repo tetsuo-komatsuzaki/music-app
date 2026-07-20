@@ -43,15 +43,35 @@ body[data-fullscreen="true"] [data-section="right-column"] {
   color: #FFFFFF !important;
   display: flex !important;
   align-items: center !important;
-  justify-content: center !important;
+  justify-content: space-between !important;
   font-size: 14px !important;
   font-weight: 500 !important;
   letter-spacing: 0.02em !important;
-  padding: 0 16px !important;
+  padding: 0 14px !important;
   border-bottom: 1px solid #163050 !important;
   z-index: 1002 !important;
   /* transform/filter/will-change を持たせない (持つと子の position:fixed の含有ブロックが変わる)。
      親の score-detail-root 側にも transform は付けていないため、本要素は viewport にスティック */
+}
+
+/* 全画面録音中の停止ボタン (2026-07-20: iPhone で戻るボタンが見えず止められない問題の修正)。
+   Recorder 本体は leftColumn 内で display:none のため、ここに露出させた停止ボタンで
+   内部の停止処理 (triggerStopRecording → 隠れた stop ボタンを click) を叩く。 */
+[data-section="fullscreen-bar"] [data-fs-hint] {
+  font-size: 13px !important; opacity: .92 !important; white-space: nowrap !important;
+  overflow: hidden !important; text-overflow: ellipsis !important;
+}
+[data-section="fullscreen-bar"] [data-fs-stop] {
+  display: inline-flex !important; align-items: center !important; gap: 7px !important;
+  background: #E5484D !important; color: #fff !important; border: none !important;
+  border-radius: 10px !important; padding: 9px 20px !important;
+  font-size: 15px !important; font-weight: 800 !important; line-height: 1 !important;
+  cursor: pointer !important; flex: none !important; box-shadow: 0 2px 8px rgba(0,0,0,.28) !important;
+}
+[data-section="fullscreen-bar"] [data-fs-stop]:active { background: #C93B40 !important; transform: scale(.97) !important; }
+[data-section="fullscreen-bar"] [data-fs-sq] {
+  width: 11px !important; height: 11px !important; border-radius: 2px !important;
+  background: #fff !important; display: inline-block !important;
 }
 
 /* 以下 recordingPanel / countdownPanel 系のルールは leftColumn の display:none により
