@@ -11,53 +11,54 @@ export const HELP_CONTENT = {
   // ② 譜面マーカーの読み方
   markerLegend: {
     title: "譜面マーカーの読み方",
-    intro: "譜面の上のマーカーは、4色で答えを返します。",
+    intro: "弾いた音は、譜面の上に4色で表示されます。色を見るだけで、どこを直せばいいかわかります。",
+    // key = CSS でカラードットを描くための色ID (絵文字は使わない)
     rows: [
-      { color: "🟢", name: "緑",       meaning: "OK",                     detail: "音程・タイミングともに合っている音符" },
-      { color: "🔴", name: "赤",       meaning: "音程がズレた",           detail: "楽譜と違う高さで弾いた音符" },
-      { color: "🟠", name: "オレンジ", meaning: "タイミングがズレた",     detail: "楽譜より早い／遅く弾いた音符" },
-      { color: "⚪", name: "灰色",     meaning: "検出できなかった",       detail: "短すぎる／音量が足りなかった／弓で擦れなかった音符" },
+      { key: "green",  name: "緑",       meaning: "ばっちり",         detail: "音程もタイミングも合っている音" },
+      { key: "red",    name: "赤",       meaning: "音程がズレた",     detail: "楽譜と違う高さで弾いた音" },
+      { key: "orange", name: "オレンジ", meaning: "タイミングがズレた", detail: "楽譜より早い・遅く弾いた音" },
+      { key: "gray",   name: "グレー",   meaning: "拾えなかった",     detail: "音が小さい・短いなどで検出できなかった音" },
     ],
-    note: "音程もタイミングも両方ズレた音符は、赤で表示されます。Arcodaは音程のズレを優先してお伝えします。まずは音程を直すことが上達への近道です。",
+    note: "音程とタイミングが両方ズレた音は、赤で表示します。まずは赤（音程）から直すのが、上達への近道です。",
   },
 
   // ③ ページごとの使い方 (簡潔な一行紹介、詳しくは /support/help)
   pageGuides: {
     title: "ページごとの使い方",
     items: [
-      { pageKey: "home",         icon: "🏠", name: "ホーム",          description: "アルコちゃんの案内・続きから練習・履歴",  pathTemplate: "/" },
-      { pageKey: "scores",       icon: "🎵", name: "マイライブラリー",  description: "アップロードした楽譜を見る",            pathTemplate: "/scores" },
-      { pageKey: "scoreDetail",  icon: "🎼", name: "スコア詳細",      description: "譜面・再生・録音の使い方",              pathTemplate: null },
-      { pageKey: "practice",     icon: "🎯", name: "練習メニュー",    description: "あなた向けのおすすめ",                  pathTemplate: "/practice" },
-      { pageKey: "categoryList", icon: "📋", name: "カテゴリ一覧",    description: "練習を絞り込んで探す",                  pathTemplate: null },
-      { pageKey: "practiceItem", icon: "🎻", name: "練習アイテム詳細", description: "練習メニューを実行する (操作はスコア詳細と同じ)", pathTemplate: null },
-      { pageKey: "progress",     icon: "📊", name: "成長記録",        description: "練習カレンダーと弱点",                  pathTemplate: "/progress" },
+      { pageKey: "home",         icon: "🏠", name: "ホーム",          description: "続きから練習・履歴・アルコの案内",      pathTemplate: "/" },
+      { pageKey: "scores",       icon: "🎵", name: "マイライブラリー",  description: "アップロードした楽譜の一覧",            pathTemplate: "/scores" },
+      { pageKey: "scoreDetail",  icon: "🎼", name: "スコア詳細",      description: "譜面を見て、再生・録音する",            pathTemplate: null },
+      { pageKey: "practice",     icon: "🎯", name: "練習メニュー",    description: "あなた向けのおすすめ練習",              pathTemplate: "/practice" },
+      { pageKey: "categoryList", icon: "📋", name: "カテゴリ一覧",    description: "種類をしぼって練習を探す",              pathTemplate: null },
+      { pageKey: "practiceItem", icon: "🎻", name: "練習アイテム詳細", description: "練習を再生・録音する（操作はスコア詳細と同じ）", pathTemplate: null },
+      { pageKey: "progress",     icon: "📊", name: "成長記録",        description: "練習カレンダーと弱点の確認",            pathTemplate: "/progress" },
     ],
     buttonLabel: "ガイドを再生",
-    note: "scoreDetail / categoryList / practiceItem は対象ページにアクセスしてからご利用ください。",
+    note: "スコア詳細・カテゴリ一覧・練習アイテム詳細は、そのページを開いてからガイドを再生できます。",
   },
 
   // ④ よくある質問 (5 件以内、完全版は /support/help)
   faq: [
     {
-      q: "録音データは他のユーザーに見えますか？",
-      a: "いいえ、録音した演奏と分析結果は本人だけが見られます。",
+      q: "録音した演奏は、他の人に見られますか？",
+      a: "いいえ。演奏も分析結果も、見られるのはあなただけです。",
     },
     {
-      q: "解析にはどれくらい時間がかかりますか？",
-      a: "演奏の長さによりますが、通常30秒〜1分ほどです。長い演奏ほど時間がかかります。",
+      q: "分析にどれくらい時間がかかりますか？",
+      a: "ふつう1分ほどです。演奏が長いほど、少し時間がかかります。",
     },
     {
-      q: "アップロードできるファイル形式は？",
-      a: ".xml / .musicxml / .mxl の3形式に対応。1ファイル5MBまでです。",
+      q: "どんな楽譜ファイルを使えますか？",
+      a: "MusicXML（.xml / .musicxml / .mxl）を使えます。1ファイル5MBまでです。",
     },
     {
-      q: "MusicXMLはどこで入手できますか？",
-      a: "MuseScore等の楽譜編集ソフトで作成・出力できます。市販の楽譜の中にはMusicXML形式で配信されているものもあります。",
+      q: "MusicXMLはどこで手に入りますか？",
+      a: "MuseScoreなどの無料ソフトで作れます。市販の楽譜にも、MusicXML付きのものがあります。",
     },
     {
-      q: "練習履歴はいつまで残りますか？",
-      a: "削除しない限り保持されます。退会時にすべて削除されます。",
+      q: "練習の記録は、いつまで残りますか？",
+      a: "消さない限り、ずっと残ります。退会すると、すべて削除されます。",
     },
   ],
 
@@ -68,19 +69,19 @@ export const HELP_CONTENT = {
   troubleshooting: [
     {
       title: "マイクが反応しない",
-      body: "ブラウザのマイク許可が必要です。\n・Chrome / Edge (PC)：URLバー左の鍵アイコン → サイトの設定 → マイクを許可\n・Safari (Mac)：環境設定 → Webサイト → マイク → このサイトを許可\n・iOS Safari：設定アプリ → Safari → マイク → 許可",
+      body: "ブラウザでマイクを「許可」にしてください。\n・PC（Chrome / Edge）：URLバー左の鍵アイコン → マイクを許可\n・iPhone（Safari）：設定アプリ → Safari → マイク → 許可",
     },
     {
-      title: "録音はできるけど分析されない／止まる",
-      body: "ファイルが大きすぎる、またはサーバー混雑の可能性があります。少し時間をあけて再読み込み、もういちど録音してみてください。",
+      title: "録音できるのに分析されない・止まる",
+      body: "少し時間をおいて、ページを再読み込みしてから、もう一度録音してください。",
     },
     {
       title: "楽譜のアップロードでエラーが出る",
-      body: "ファイル形式 (.xml / .musicxml / .mxl) と容量 (5MB以下) を確認してください。一部の楽譜編集ソフトは独自形式で出力するため、MusicXML形式で書き出し直してください。",
+      body: "形式（.xml / .musicxml / .mxl）と容量（5MB以下）を確認してください。ソフトによっては「MusicXMLで書き出し」が必要です。",
     },
     {
-      title: "解析結果が表示されない",
-      body: "譜面と録音が一致しない場合 (別の曲を演奏したなど)、マーカーが正しく出ないことがあります。同じ楽譜を見ながら演奏してみてください。",
+      title: "分析しても色がつかない",
+      body: "譜面と違う曲を弾くと、正しく判定できません。同じ楽譜を見ながら弾いてみてください。",
     },
   ],
 

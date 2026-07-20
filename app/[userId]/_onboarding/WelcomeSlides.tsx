@@ -22,10 +22,10 @@ type Props = {
 }
 
 const COLOR_LEGEND_ITEMS = [
-  { emoji: "🟢", name: "緑",       meaning: "OK",                     bg: "#e8f7e9" },
-  { emoji: "🔴", name: "赤",       meaning: "音程ズレ",               bg: "#fdecea" },
-  { emoji: "🟠", name: "オレンジ", meaning: "タイミングズレ",          bg: "#fef4e8" },
-  { emoji: "⚪", name: "灰色",     meaning: "検出できず",              bg: "#f0f0f0" },
+  { key: "green",  name: "緑",       meaning: "ばっちり",       bg: "#e8f7e9" },
+  { key: "red",    name: "赤",       meaning: "音程ズレ",       bg: "#fdecea" },
+  { key: "orange", name: "オレンジ", meaning: "タイミングズレ", bg: "#fef4e8" },
+  { key: "gray",   name: "グレー",   meaning: "拾えなかった",   bg: "#f0f0f0" },
 ] as const
 
 function renderVisual(visual: SlideVisual): ReactNode {
@@ -85,7 +85,7 @@ function renderVisual(visual: SlideVisual): ReactNode {
               className={styles.legendRow}
               style={{ background: item.bg }}
             >
-              <span className={styles.legendDot} aria-hidden>{item.emoji}</span>
+              <span className={styles.legendDot} data-c={item.key} aria-hidden />
               <span className={styles.legendName}>{item.name}</span>
               <span className={styles.legendMeaning}>{item.meaning}</span>
             </div>
