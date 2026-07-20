@@ -174,6 +174,8 @@ def build_piece_summary(
             tags.add("ポルタート")  # 明示要素は信頼
         if artic.get("pizzicato") or "Pizzicato" in (a.get("articulations") or []):
             tags.add("ピチカート")
+        if "StrongAccent" in (a.get("articulations") or []):
+            tags.add("マルテレ")  # マルカート(^) = マルテレ (2026-07-20)
         if artic.get("staccato") or "Staccato" in (a.get("articulations") or []):
             # 曖昧記号: スタッカート点 → 仮付与 + 要確認 (§18-2, 決定#4)
             tags.add("スタッカート")

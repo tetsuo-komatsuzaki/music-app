@@ -97,11 +97,16 @@ async function generateVariantGroup(opts: {
     } catch (e) {
       console.error(`[cover] group ${group.id} カバー生成失敗:`, e instanceof Error ? e.message : e)
     }
-    await Promise.allSettled(
-      createdIds.map((id) =>
-        invokeAnalysis({ mode: "score_full", idempotencyKey: `score_full:${id}`, practiceItemId: id }),
-      ),
-    )
+    // Cloud Run のジョブ実行/分クォータ(429)対策: 一定間隔で順次投入 (~50/分)。
+    // 大量(例144)の一斉投入で 429 Quota exceeded が出るため。
+    for (const id of createdIds) {
+      try {
+        await invokeAnalysis({ mode: "score_full", idempotencyKey: `score_full:${id}`, practiceItemId: id })
+      } catch {
+        /* 個別失敗は relay/status に反映。ここでは握りつぶして次へ */
+      }
+      await new Promise((r) => setTimeout(r, 1200))
+    }
   })
   return { groupId: group.id, count: createdIds.length }
 }
