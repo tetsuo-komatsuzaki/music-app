@@ -1065,7 +1065,7 @@ model ScoreKey {
 // 動的拡張(§23)の対象: 管理者がタグ+抽出ルールを追加→全曲再分析。
 model FeatureTag {
   id            String   @id @default(cuid())
-  category      String   // "rhythm" | "double_stop" | "dynamics"
+  category      String   // "rhythm" | "double_stop" | "dynamics" | "position"
   name          String
   extractRule   String?  // 抽出条件メモ(動的拡張用)
   isAcquisition Boolean  @default(false) // 習得系(達成をゲート)。重音の主要種別=true

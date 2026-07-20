@@ -186,14 +186,22 @@ def apply_articulation_variant(score, metadata):
     return score
 
 
-# 技術タグ→⭐︎ 正本 (docs/arcoda-design-spec.md §2-2b / 2026-07-20 承認: マルテレ=2)。
-# 自動生成の変種は「付いた技術タグをマスターするのに必要な⭐︎の最大値(最低1)」を star に自動登録。
+# タグ→⭐︎ 正本 (docs/arcoda-design-spec.md §2-2b / 2026-07-20 承認: マルテレ=2, 7thポジ=5)。
+# 技術タグ13 + ポジション習得系タグ9 + 重音習得系タグ5 を1表に統合。
+# 教材の star = 付いた全タグ(技術+特徴)の⭐︎の最大値(最低1)を自動登録。
 _TAG_STAR = {
+    # ── 技術タグ ──
     "スラー": 1,
     "スタッカート": 2, "ピチカート": 2, "トレモロ": 2, "ポルタート": 2, "連続スタッカート": 2, "マルテレ": 2,
     "スピッカート": 3, "トリル": 3, "プラルトリラーとモルデント": 3,
     "ビブラート": 4, "リコシェ": 4,
     "グリッサンド": 5, "ナチュラル・ハーモニクス": 5,
+    # ── ポジション習得系タグ (7thポジ=5 は 2026-07-20 Tetsuo確定, 他は §2-2b) ──
+    "3rdポジション": 4, "5thポジション": 5, "7thポジション": 5,
+    "2ndポジション": 6, "4thポジション": 6, "6thポジション": 6,
+    "8thポジション": 6, "9thポジション": 6, "10thポジション": 6,
+    # ── 重音習得系タグ (piece_summary が chord_intervals から付与する名称) ──
+    "6度": 2, "3度": 3, "オクターブ": 4, "10度": 5, "連続重音": 6,
 }
 
 # =========================
@@ -927,7 +935,9 @@ try:
                         'ON CONFLICT DO NOTHING',
                         (PRACTICE_ITEM_ID, _name),
                     )
-                # 自動生成の変種のみ: タグの⭐︎最大値(最低1)を star に自動登録
+                # タグの⭐︎最大値(最低1)を star に自動登録。
+                # 対象タグ = 技術タグ + 特徴タグ(ポジション/重音) の全部 (§2-2b 統合表)。
+                # 変種は毎回上書き / 手動教材は star 未設定のときだけ補完 (監修値を潰さない)。
                 _md_v = pi_metadata
                 if isinstance(_md_v, str):
                     try:
@@ -935,9 +945,11 @@ try:
                     except Exception:
                         _md_v = None
                 _is_variant = isinstance(_md_v, dict) and bool(_md_v.get("transposeSource") or _md_v.get("articulationPattern"))
+                _star = max([1] + [_TAG_STAR[t] for t in (_tt_names + _ft_names) if t in _TAG_STAR])
                 if _is_variant:
-                    _star = max([1] + [_TAG_STAR[t] for t in _tt_names if t in _TAG_STAR])
                     cur.execute('UPDATE "PracticeItem" SET star=%s WHERE id=%s', (_star, PRACTICE_ITEM_ID))
+                else:
+                    cur.execute('UPDATE "PracticeItem" SET star=%s WHERE id=%s AND star IS NULL', (_star, PRACTICE_ITEM_ID))
             else:
                 cur.execute(
                     'UPDATE "Score" SET "pitchMin"=%s, "pitchMax"=%s, "positions"=%s WHERE id=%s',

@@ -61,6 +61,11 @@ def _hz_to_midi(hz: float) -> Optional[int]:
     return round(69 + 12 * math.log2(hz / 440.0))
 
 
+def _pos_ordinal(n: int) -> str:
+    """ポジション番号 → 序数ラベル (2→"2nd", 3→"3rd", 4〜→"Nth")。習得系特徴タグ名に使う。"""
+    return f"{n}{'st' if n == 1 else 'nd' if n == 2 else 'rd' if n == 3 else 'th'}"
+
+
 # ---------------------------------------------------------------------------
 # 本体
 # ---------------------------------------------------------------------------
@@ -230,6 +235,14 @@ def build_piece_summary(
             {"tonic": tonic, "mode": main_mode, "sort_order": len(sub_keys) + 1,
              "measure_index": ch["measure_index"]}
         )
+
+    # ── ポジション習得系タグ (2026-07-20 Tetsuo確定): 2ndポジ以上を特徴タグ化 ──
+    # 推定/運指どちらも n.position をそのまま準用 (A方針: 追加ゲートなし)。
+    # 1st は既定=タグなし。学びレッスンは10thまでのため 10th超は 10thポジション に丸める。
+    for _p in positions:
+        if _p >= 2:
+            _pp = 10 if _p > 10 else _p
+            feature_tags.add(f"{_pos_ordinal(_pp)}ポジション")
 
     return {
         "pitch_min": min(midis) if midis else None,
