@@ -55,7 +55,10 @@ FRAME_LENGTH = 2048
 RMS_THRESHOLD = 0.01
 
 # ノイズゲート
-GATE_THRESHOLD_MULTIPLIER = 6      # ノイズフロア × 倍率
+GATE_THRESHOLD_MULTIPLIER = 3      # ノイズフロア × 倍率
+# 2026-07-20 (Tetsuo指示): 6 → 3 に緩和。小音量録音での未検知(not_detected=ミス扱い)を減らす。
+# トレードオフ: 弱音のピッチ不安定化(未検知→音程ずれ化)・オンセット精度低下・分離ミス・雑音誤検出が増える。
+# 過検出(雑音拾い)が目立てば 4〜5 へ戻す。下限は GATE_THRESHOLD_MIN=0.003 で据置。
 GATE_THRESHOLD_MIN        = 0.003  # 閾値下限（超静音環境対策）
 GATE_THRESHOLD_MAX        = 0.05   # 閾値上限
 GATE_ATTACK_FRAMES        = 3      # 約17ms @hop=256,sr=44100

@@ -329,6 +329,7 @@ function EvaluationSummaryCard({
 }) {
   const hasPitch = performance.pitchAccuracy != null
   const hasTiming = performance.timingAccuracy != null
+  const totalNotes = Array.isArray(performance.comparisonResult) ? performance.comparisonResult.length : null
 
   if (!hasPitch && !hasTiming) return null
 
@@ -352,7 +353,7 @@ function EvaluationSummaryCard({
         {performance.evaluatedNotes != null && (
           <div className={styles.evalRow}>
             <span className={styles.evalLabel}>評価対象</span>
-            <span className={styles.evalValue}>{performance.evaluatedNotes}ノート</span>
+            <span className={styles.evalValue}>{performance.evaluatedNotes}{totalNotes != null ? ` / ${totalNotes}` : ""} ノート</span>
           </div>
         )}
         {warnings.length > 0 && (
@@ -362,20 +363,6 @@ function EvaluationSummaryCard({
             ))}
           </div>
         )}
-        <div className={styles.evalLegend}>
-          <span className={styles.legendItem}>
-            <span className={styles.legendDot} style={{ background: COLOR_GREEN }} /> 正確
-          </span>
-          <span className={styles.legendItem}>
-            <span className={styles.legendDot} style={{ background: COLOR_ORANGE }} /> タイミングずれ
-          </span>
-          <span className={styles.legendItem}>
-            <span className={styles.legendDot} style={{ background: COLOR_RED }} /> 音程ずれ
-          </span>
-          <span className={styles.legendItem}>
-            <span className={styles.legendDot} style={{ background: COLOR_GREY }} /> 判定不能
-          </span>
-        </div>
       </div>
     </div>
   )
@@ -397,6 +384,7 @@ function PerformanceHistory({
   kind,
   onRenamed,
   renderDetail,
+  onReplayArco,
 }: {
   performances: PerformanceDTO[]
   selectedId: string | null
@@ -407,6 +395,8 @@ function PerformanceHistory({
   onRenamed: (performanceId: string, newName: string) => void
   /** 開いたカード内に収納する評価詳細 (再生 / 得点 / 判定内容) を描画する */
   renderDetail?: (p: PerformanceDTO) => React.ReactNode
+  /** アルコ結果オーバーレイを再表示する (スコアモードのみ) */
+  onReplayArco?: (p: PerformanceDTO) => void
 }) {
   const [page, setPage] = useState(0)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -542,6 +532,17 @@ function PerformanceHistory({
                   {showEvalBadge && <span className={styles.historyBadge}>評価あり</span>}
                   <span className={styles.historyDate}>{dateLabel}</span>
                   <div className={styles.historyActions}>
+                    {!isEditing && score != null && onReplayArco && (
+                      <button
+                        type="button"
+                        className={styles.historyActionBtn}
+                        onClick={(e) => { e.stopPropagation(); onReplayArco(p) }}
+                        aria-label="アルコの結果をもう一度見る"
+                        title="アルコの結果をもう一度"
+                      >
+                        🎻 結果
+                      </button>
+                    )}
                     {isEditing ? (
                       <>
                         <button
@@ -822,38 +823,27 @@ function AudioPlayer({
   audioUrl: string | null
   performanceId: string | undefined
 }) {
-  const audioRef = useRef<HTMLAudioElement | null>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
-
-  useEffect(() => {
-    setIsPlaying(false)
-  }, [performanceId])
-
-  const handleToggle = () => {
-    if (!audioRef.current || !audioUrl) return
-    if (isPlaying) {
-      audioRef.current.pause()
-      setIsPlaying(false)
-    } else {
-      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
-    }
-  }
-
   return (
-    <div className={styles.card}>
-      <h3>最新の演奏</h3>
-      <button className={styles.playBtn} onClick={handleToggle} disabled={!audioUrl}>
-        {isPlaying ? "一時停止" : "再生"}
-      </button>
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "2px 0" }}>
+      <span style={{ fontSize: 12, fontWeight: 600, color: "#555", whiteSpace: "nowrap" }}>🔊 この演奏を聴く</span>
       <audio
-        ref={audioRef}
         key={performanceId}
         controls
         src={audioUrl ?? undefined}
-        className={styles.audioMock}
-        onPause={() => setIsPlaying(false)}
-        onEnded={() => setIsPlaying(false)}
+        style={{ flex: 1, minWidth: 0, height: 36 }}
       />
+    </div>
+  )
+}
+
+// スコア(譜面)下に置く判定カラーの凡例
+function ScoreLegend() {
+  return (
+    <div className={styles.evalLegend}>
+      <span className={styles.legendItem}><span className={styles.legendDot} style={{ background: COLOR_GREEN }} /> 正確</span>
+      <span className={styles.legendItem}><span className={styles.legendDot} style={{ background: COLOR_ORANGE }} /> タイミングずれ</span>
+      <span className={styles.legendItem}><span className={styles.legendDot} style={{ background: COLOR_RED }} /> 音程ずれ</span>
+      <span className={styles.legendItem}><span className={styles.legendDot} style={{ background: COLOR_GREY }} /> 判定不能</span>
     </div>
   )
 }
@@ -1035,8 +1025,8 @@ export default function ScoreDetail({
         setPerformances(data)
         if (data.length > 0) {
           const first = data[0]
-          setSelected(first)
-          // 初期選択のcomparison詳細をロード
+          // 演奏モード既定のため自動選択はしない。comparison だけ先読みしておく
+          void 0
           if (!first.comparisonResult && first.pitchAccuracy != null) {
             const compApi = practiceItemId
               ? `/api/practice-performances/${first.id}/comparison`
@@ -1244,7 +1234,7 @@ export default function ScoreDetail({
         setPerformances(data)
         if (data.length > 0) {
           const first = data[0]
-          setSelected(first)
+          // 録音後も演奏モードを維持 (結果はアルコ結果オーバーレイ + Recorder 結果で表示)。comparison だけ先読み
           if (!first.comparisonResult && first.pitchAccuracy != null) {
             loadComparison(first)
           }
@@ -2389,6 +2379,7 @@ export default function ScoreDetail({
         performanceCount={performanceCount}
         kind={practiceItemId ? "practice" : "score"}
         onRenamed={handleRenamed}
+        onReplayArco={practiceItemId ? undefined : (p) => setArcoResult(p)}
         renderDetail={(p) => (
           <>
             <AudioPlayer audioUrl={p.audioUrl ?? null} performanceId={p.id} />
@@ -2477,7 +2468,7 @@ export default function ScoreDetail({
                   value={selected?.id ?? ""}
                   onChange={(e) => selectPerformanceById(e.target.value || null)}
                 >
-                  <option value="">🎻 お手本モード（演奏を選ぶと採点を表示）</option>
+                  <option value="">🎻 演奏モード（演奏を選ぶと採点を表示）</option>
                   {performances.map((p) => (
                     <option key={p.id} value={p.id}>
                       {(p.name ?? "Performance")}{p.rangeFromNote != null ? "（区間）" : ""} ・ {new Date(p.uploadedAt).toLocaleDateString("ja-JP")}
@@ -2534,6 +2525,9 @@ export default function ScoreDetail({
             </div>
           )}
         </div>
+
+        {/* 判定カラーの凡例: 演奏を選択して譜面に採点色が出ている時にスコア直下へ */}
+        {selected && <ScoreLegend />}
 
         {/* 譜面注釈 (Phase 1): ハイライト/メモ/注意を譜面に書き込み・保存 */}
         {analysis && (
@@ -2725,7 +2719,14 @@ export default function ScoreDetail({
           </div>
         )}
 
-        {/* 録音 (主アクション) — UX刷新 Step 3 */}
+        {/* 履歴レビュー中(演奏を選択中)は録音ボタンを隠し、演奏モードへ戻すリードを表示 */}
+        {selected ? (
+          <div style={{ textAlign: "center", padding: "18px 16px", background: "linear-gradient(135deg,#F0F7FF,#FDF8E7)", border: "1px solid #DCE7F5", borderRadius: 14 }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#1a1a1a", marginBottom: 4 }}>🎻 もう一度演奏してみよう！</div>
+            <div style={{ fontSize: 13, color: "#666", marginBottom: 14 }}>この演奏をふまえて、もう一度チャレンジ</div>
+            <button type="button" onClick={() => selectPerformanceById(null)} style={{ background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "#fff", border: "none", borderRadius: 10, padding: "11px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>演奏する</button>
+          </div>
+        ) : (
         <div data-onboarding="scoreDetail.recordButton">
           <Recorder
             onRecordingComplete={handleRecordingComplete}
@@ -2759,6 +2760,7 @@ export default function ScoreDetail({
             }}
           />
         </div>
+        )}
       </div>
       )}
 
