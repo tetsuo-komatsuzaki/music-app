@@ -428,6 +428,23 @@ try:
     else:
         # 記譜上の調号がない場合のみ音高から推定
         key_obj = score.analyze("key")
+
+    # 全調自動生成の変種は DB の keyTonic/keyMode が正。移調で調号がズレる
+    # (特に短調: 同主調化した楽譜は長調の調号のまま残り、A短調がA長調調号=♯3で描かれる)
+    # ため、変種では DB 値で調号を上書きする (2026-07-20)。
+    if IS_PRACTICE_ITEM and pi_key_tonic:
+        _md_key = pi_metadata
+        if isinstance(_md_key, str):
+            try:
+                _md_key = json.loads(_md_key)
+            except Exception:
+                _md_key = None
+        if isinstance(_md_key, dict) and (_md_key.get("transposeSource") or _md_key.get("articulationPattern")):
+            _kmode = "minor" if (pi_key_mode or "").lower() in ("minor", "natural_minor") else "major"
+            try:
+                key_obj = key.Key(_to_m21_tonic(pi_key_tonic), _kmode)
+            except Exception:
+                pass
     time_sig = next(score.recurse().getElementsByClass("TimeSignature"), None)
 
     # =========================

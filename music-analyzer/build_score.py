@@ -142,8 +142,16 @@ try:
             if r["type"] == "rest":
                 n = note.Rest()
             else:
+                # 音名(note_name)から綴りを保持して構築 (2026-07-20 Tetsuo承認)。
+                # 周波数から組むと異名同音が既定(♯)に倒れ、A♭→G# 等で調号と食い違う。
+                # 正しい綴り(analysis.json の nameWithOctave)を最優先し、無い時のみ周波数へフォールバック。
+                _names = [s for s in (r.get("note_name") or "").split("/") if s]
                 pitches = r.get("pitches", [])
-                if len(pitches) <= 1:
+                if len(_names) == 1:
+                    n = note.Note(_names[0])
+                elif len(_names) >= 2:
+                    n = chord.Chord(_names)
+                elif len(pitches) <= 1:
                     n = note.Note()
                     if len(pitches) == 1:
                         n.pitch.frequency = float(pitches[0])
