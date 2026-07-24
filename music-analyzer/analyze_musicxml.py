@@ -168,6 +168,54 @@ _ART_CLS = {
 }
 
 
+# =========================
+# 記号ガイド用の付随情報 (2026-07-25)
+# =========================
+# フロント (app/_libs/scoreSymbols.ts) の記号ガイドが「この曲に出てくる記号」を
+# 出すために使う。note_index は一切変えない (既存の採点・譜面ハイライトと共有のため)。
+def _symbol_expressions(el) -> List[str]:
+    """music21 expressions のクラス名。Fermata / Turn / Schleifer / ArpeggioMark 等。"""
+    out: List[str] = []
+    for e in getattr(el, "expressions", []) or []:
+        n = type(e).__name__
+        # 遅れターン (音符の右寄りに書かれる) は delay 属性で区別する。
+        # 注意: music21 の delay 既定値は OrnamentDelay.NO_DELAY で、enum なので
+        # 真偽判定すると常に真になる。名前で比較すること。
+        if n in ("Turn", "InvertedTurn"):
+            _dl = getattr(e, "delay", None)
+            if _dl is not None and getattr(_dl, "name", "") not in ("", "NO_DELAY"):
+                n = f"{n}:delayed"
+        out.append(n)
+    return out
+
+
+def _symbol_accidental(el) -> Optional[Dict[str, Any]]:
+    """譜面に実際に書かれる臨時記号。調号由来 (displayStatus=False) は除く。"""
+    try:
+        pitches_ = list(el.pitches)
+    except Exception:
+        return None
+    for pp in pitches_:
+        a = getattr(pp, "accidental", None)
+        if a is None:
+            continue
+        if getattr(a, "displayStatus", None) is False:
+            continue
+        return {
+            "name": a.name,                                  # sharp / flat / natural / double-sharp / half-sharp ...
+            "style": getattr(a, "displayStyle", None),       # parentheses = 親切記号
+        }
+    return None
+
+
+def _symbol_notehead(el) -> Optional[str]:
+    """ふつうと違う符頭 (diamond=ハーモニクス記譜 / x / cross 等) のみ返す。"""
+    nh = getattr(el, "notehead", None)
+    if isinstance(nh, str) and nh not in ("", "normal"):
+        return nh
+    return None
+
+
 def apply_articulation_variant(score, metadata):
     """metadata.articulationPattern(uniform) があれば全音符に奏法を付与。対象外なら None。"""
     md = metadata
@@ -482,6 +530,12 @@ try:
                     "end_time_sec": end_time_sec,
                     "measure_number": measure_number,
                     "articulations": [],
+                    "expressions": _symbol_expressions(element),
+                    "accidental": None,
+                    "notehead": _symbol_notehead(element),
+                    "dots": int(element.duration.dots or 0),
+                    "voice": str(getattr(element, "voice", "") or ""),
+                    "has_lyric": False,
                     "dynamic": None,
                     "is_tied": False,
                     "is_tremolo": False,
@@ -634,6 +688,13 @@ try:
                 "end_time_sec": end_time_sec,
                 "measure_number": measure_number,
                 "articulations": articulation_list,
+                # 記号ガイド用 (2026-07-25)
+                "expressions": _symbol_expressions(element),
+                "accidental": _symbol_accidental(element),
+                "notehead": _symbol_notehead(element),
+                "dots": int(element.duration.dots or 0),
+                "voice": str(getattr(element, "voice", "") or ""),
+                "has_lyric": bool(getattr(element, "lyrics", None)),
                 "display_finger": disp_finger,
                 "display_string_num": disp_string_num,
                 "dynamic": dyn,

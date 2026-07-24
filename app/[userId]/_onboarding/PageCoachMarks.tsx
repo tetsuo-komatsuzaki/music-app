@@ -29,7 +29,17 @@ export default function PageCoachMarks({ pageKey, marks }: Props) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const pageMarks = marks.filter(m => m.trigger === "page")
+  // requiresTarget のマークは、対象要素が今この画面に在るときだけ出す。
+  // (無いまま出すと useTargetRect が 5 秒後に画面中央フォールバックしてしまう)
+  const pageMarks = useMemo(
+    () => marks.filter((m) => {
+      if (m.trigger !== "page") return false
+      if (!m.requiresTarget || !m.targetKey) return true
+      if (!isHydrated || typeof document === "undefined") return false
+      return !!document.querySelector(`[data-onboarding="${m.targetKey}"]`)
+    }),
+    [marks, isHydrated],
+  )
   const analysisMark = marks.find(m => m.trigger === "first-analysis-complete") ?? null
 
   const [pageMarkIndex, setPageMarkIndex] = useState(0)

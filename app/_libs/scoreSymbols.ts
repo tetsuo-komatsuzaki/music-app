@@ -55,6 +55,12 @@ type MatchSpec = {
   semitones?: number[]
   /** fieldValue マッチの期待値 (例: tremolo_type = "fingered") */
   value?: string
+  /** notehead / accidentalKind の候補 */
+  values?: string[]
+  /** 付点の数 */
+  count?: number
+  /** 臨時記号の表示スタイル ("normal" | "parentheses") */
+  style?: string
 }
 
 /** JSON の1件 (語彙の定義) */
@@ -101,6 +107,17 @@ let CHORD_DEF: SymbolDef | undefined
 let REST_DEF: SymbolDef | undefined
 /** 特定フィールドが特定値のときだけ該当する定義 (指トレモロなど) */
 const BY_FIELD_VALUE: { field: string; value: string; def: SymbolDef }[] = []
+/** music21 expressions のクラス名 → 定義 (フェルマータ・ターン・装飾など) */
+const BY_EXPRESSION = new Map<string, SymbolDef>()
+/** 符頭の形 → 定義 */
+const BY_NOTEHEAD = new Map<string, SymbolDef>()
+/** 臨時記号の種類 → 定義。style 指定があるものは表示スタイルも一致が条件 */
+const ACCIDENTALS: { values: string[]; style?: string; def: SymbolDef }[] = []
+/** 親切記号 (かっこつき) など、表示スタイルだけで決まる定義 */
+const ACCIDENTAL_STYLES: { style: string; def: SymbolDef }[] = []
+/** 付点の数 → 定義 */
+const BY_DOTS = new Map<number, SymbolDef>()
+let VOICE_DEF: SymbolDef | undefined
 
 for (const d of ALL_SYMBOLS) {
   const m = d.match
@@ -125,6 +142,22 @@ for (const d of ALL_SYMBOLS) {
     case "fieldValue":
       if (m.field && m.value) BY_FIELD_VALUE.push({ field: m.field, value: m.value, def: d })
       break
+    case "expression":
+      for (const n of m.m21 ?? []) BY_EXPRESSION.set(n, d)
+      break
+    case "notehead":
+      for (const v of m.values ?? []) BY_NOTEHEAD.set(v, d)
+      break
+    case "accidentalKind":
+      ACCIDENTALS.push({ values: m.values ?? [], style: m.style, def: d })
+      break
+    case "accidentalStyle":
+      if (m.style) ACCIDENTAL_STYLES.push({ style: m.style, def: d })
+      break
+    case "dots":
+      if (m.count) BY_DOTS.set(m.count, d)
+      break
+    case "voice": VOICE_DEF = d; break
     default: break // expression / words / notehead / barline ほか = 解析側の追加待ち
   }
 }
@@ -194,7 +227,14 @@ export type SymbolSourceNote = {
   is_mordent?: boolean | null
   is_chord?: boolean | null
   is_harmonic?: boolean | null
+  is_glissando?: boolean | null
   tremolo_type?: string | null
+  expressions?: string[] | null
+  accidental?: { name?: string | null; style?: string | null } | null
+  notehead?: string | null
+  dots?: number | null
+  voice?: string | null
+  has_lyric?: boolean | null
   tuplet_actual?: number | null
   display_finger?: number | null
   display_string_num?: number | null
@@ -294,6 +334,20 @@ export function extractScoreSymbols(
     const rec = n as unknown as Record<string, unknown>
 
     for (const a of n.articulations ?? []) add(BY_ARTICULATION.get(a), i)
+    for (const e of n.expressions ?? []) add(BY_EXPRESSION.get(e), i)
+    if (n.notehead) add(BY_NOTEHEAD.get(n.notehead), i)
+    if (n.dots) add(BY_DOTS.get(n.dots), i)
+
+    // 臨時記号: 種類 (♯♭♮ / ダブル / 四分音) と、かっこつき (親切記号) を別に見る
+    const acc = n.accidental
+    if (acc?.name) {
+      for (const a of ACCIDENTALS) {
+        if (!a.values.includes(acc.name)) continue
+        if (a.style && a.style !== (acc.style ?? "normal")) continue
+        add(a.def, i)
+      }
+      for (const a of ACCIDENTAL_STYLES) if (acc.style === a.style) add(a.def, i)
+    }
 
     // 値つき判定 (例: tremolo_type="fingered" の指トレモロ)。
     // 該当したら、同じ現象を指す汎用フラグ側 (is_tremolo) は出さない。
@@ -338,6 +392,15 @@ export function extractScoreSymbols(
         value: String(tup),
         what: `本来2つ分の長さに、音符を${tup}つ均等に入れる記号。数字の「${tup}」が目印。`,
       })
+    }
+  }
+
+  // --- 声部: 譜面に2つ以上の流れがあるときだけ記号として出す ---
+  if (VOICE_DEF) {
+    const voices = new Set<string>()
+    for (const n of analysis.notes) if (n.voice) voices.add(n.voice)
+    if (voices.size >= 2) {
+      for (const n of analysis.notes) if (n.voice && n.voice !== "1") add(VOICE_DEF, n.note_index)
     }
   }
 

@@ -312,11 +312,13 @@
    "cat": "left",
    "glyph": "diamond",
    "label": "ダイヤ形の符頭",
-   "supply": "pending",
+   "supply": "ready",
    "lessonId": "harmonics",
    "match": {
     "type": "notehead",
-    "value": "diamond"
+    "values": [
+     "diamond"
+    ]
    },
    "what": "ひし形の音符。ハーモニクスで「軽く触れる位置」を示すのに使う。",
    "tip": "ふつうの黒丸の音符が実際に押さえる音、ひし形が触れるだけの音。"
@@ -326,10 +328,14 @@
    "cat": "left",
    "glyph": "xhead",
    "label": "×形の符頭",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "notehead",
-    "value": "x"
+    "values": [
+     "x",
+     "cross",
+     "circle-x"
+    ]
    },
    "what": "×形の音符。音程をはっきり決めない音や、弦を叩くような特殊な音に使う。",
    "tip": "音程を狙わなくていい。弓や指の当て方で音色をつくる。"
@@ -572,14 +578,14 @@
    "cat": "left",
    "glyph": "gliss",
    "label": "グリッサンド",
-   "supply": "pending",
+   "supply": "ready",
    "lessonId": "glissando",
    "match": {
-    "type": "spanner",
-    "name": "glissandi"
+    "type": "flag",
+    "field": "is_glissando"
    },
    "what": "音と音を結ぶ斜めの線。指を弦の上で滑らせて、あいだの音をつなげる。",
-   "tip": "着地する音を先に決めてから滑る。滑る速さで表情が変わる。"
+   "tip": "着地する音を先に決めてから滑る。滑る速さで表情が変わる。解析は音程差と方向も見ているよ。"
   },
   {
    "id": "portamento",
@@ -600,7 +606,7 @@
    "cat": "left",
    "glyph": "fall",
    "label": "フォール・スクープ",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "articulation",
     "m21": [
@@ -736,7 +742,7 @@
    "cat": "left",
    "glyph": "arpeggio",
    "label": "アルペジオ記号",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "expression",
     "m21": [
@@ -779,7 +785,7 @@
    "cat": "orn",
    "glyph": "turn",
    "label": "ターン",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "expression",
     "m21": [
@@ -795,11 +801,13 @@
    "cat": "orn",
    "glyph": "turn",
    "label": "遅れターン",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "expressionAttr",
-    "expr": "Turn",
-    "attr": "delayed"
+    "type": "expression",
+    "m21": [
+     "Turn:delayed",
+     "InvertedTurn:delayed"
+    ]
    },
    "what": "ターンと同じ形だが、音符の真上ではなく右寄りに書かれる。音を伸ばしてから、終わりぎわに回す。",
    "tip": "伸ばした音の終わりで回す。次の音の直前に着地させる。"
@@ -821,10 +829,13 @@
    "cat": "orn",
    "glyph": "ghost",
    "label": "ゴーストノート",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "notehead",
-    "value": "x-ghost"
+    "values": [
+     "slash",
+     "none"
+    ]
    },
    "what": "かっこや×で書かれる、音程をはっきり出さない音。リズムだけを感じさせる。",
    "tip": "鳴らしきらず、気配だけ。リズムを保つのが目的。"
@@ -834,7 +845,7 @@
    "cat": "orn",
    "glyph": "grace",
    "label": "前打音（アポジャトゥーラ）",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "expression",
     "m21": [
@@ -852,7 +863,7 @@
    "cat": "orn",
    "glyph": "mordent",
    "label": "シュライファー",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "expression",
     "m21": [
@@ -867,7 +878,7 @@
    "cat": "orn",
    "glyph": "trill",
    "label": "シェイク",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "expression",
     "m21": [
@@ -897,7 +908,7 @@
    "cat": "orn",
    "glyph": "fermata",
    "label": "フェルマータ",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "expression",
     "m21": [
@@ -1097,9 +1108,10 @@
    "cat": "rhythm",
    "glyph": "dotted",
    "label": "付点",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "dots"
+    "type": "dots",
+    "count": 1
    },
    "what": "音符の右の点。その音符の長さを1.5倍にする。",
    "tip": "短いほうの音を短く弾ききると、付点らしいはずみが出る。"
@@ -1109,7 +1121,7 @@
    "cat": "rhythm",
    "glyph": "doubledot",
    "label": "複付点",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "dots",
     "count": 2
@@ -1146,7 +1158,7 @@
    "cat": "rhythm",
    "glyph": "voice",
    "label": "声部（ボイス）",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "voice"
    },
@@ -1270,9 +1282,15 @@
    "cat": "struct",
    "glyph": "accidental",
    "label": "臨時記号",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "accidental"
+    "type": "accidentalKind",
+    "values": [
+     "sharp",
+     "flat",
+     "natural"
+    ],
+    "style": "normal"
    },
    "what": "音符の左につく ♯ ♭ ♮。その音だけ半音上げ下げ、または調号を打ち消す。",
    "tip": "効果はその小節のあいだだけ。次の小節では元に戻る。"
@@ -1294,10 +1312,10 @@
    "cat": "struct",
    "glyph": "accidental",
    "label": "親切記号（かっこつき）",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "accidentalStyle",
-    "value": "parentheses"
+    "style": "parentheses"
    },
    "what": "かっこで囲まれた ♯ ♭ ♮。念のための確認で、音は変わらない。「ここは間違えやすいよ」という注意書き。",
    "tip": "音は変わらない。「前の小節の記号はもう効いていないよ」という念押し。"
@@ -1307,7 +1325,7 @@
    "cat": "struct",
    "glyph": "doubleacc",
    "label": "ダブルシャープ・ダブルフラット",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "accidentalKind",
     "values": [
@@ -1323,7 +1341,7 @@
    "cat": "struct",
    "glyph": "quarter",
    "label": "四分音",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "accidentalKind",
     "values": [
@@ -1444,9 +1462,10 @@
    "cat": "struct",
    "glyph": "lyric",
    "label": "歌詞",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "lyric"
+    "type": "flag",
+    "field": "has_lyric"
    },
    "what": "音符の下に書かれたことば。歌のパートで、どの音にどの音節を当てるかを示す。",
    "tip": "ヴァイオリンでは弾かないけれど、歌詞を読むとフレーズの切れ目がわかる。"

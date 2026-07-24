@@ -16,6 +16,13 @@ export type CoachMarkConfig = {
   trigger: "page" | "first-analysis-complete"
   showDismissAllCheckbox: boolean
   /**
+   * true のとき、targetKey の要素が画面に無ければこのマークを出さない。
+   * 状態によって出たり出なかったりする導線 (練習中の曲が無いときだけ出る
+   * 「曲を選ぶ」CTA など) に使う。既定 (false) は従来どおり、
+   * 要素が無ければ画面中央にフォールバック表示する。
+   */
+  requiresTarget?: boolean
+  /**
    * マーク表示前に navigate する相対 URL (例: "?tab=mastery")。
    * URL クエリ駆動でタブを切り替えるページ (progress / categoryList) で使う。
    * 既に同じクエリの場合は no-op。
@@ -32,6 +39,17 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
   {
     pageKey: "home",
     marks: [
+      {
+        // 練習中の曲がまだ無いユーザーにだけ出る (PracticeFocusCard の空状態)。
+        // 曲を選んだ後は要素ごと消えるので requiresTarget で抑止する。
+        id: "home.pickPiece",
+        targetKey: "home.pickPiece",
+        requiresTarget: true,
+        headline: "さっそく、弾く曲を選ぼう",
+        body: "まずは1曲、通して弾いてみよう。☆が小さいほどやさしい曲だよ。ここから選べる。",
+        trigger: "page",
+        showDismissAllCheckbox: false,
+      },
       {
         // ランクは最上部の MyRankCard。新軸(マスター→ランクUP)の入口なので最初に案内する
         id: "home.rankCard",

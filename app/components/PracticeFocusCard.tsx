@@ -39,7 +39,32 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
     return () => { aborted = true }
   }, [piece?.id])
 
-  if (!piece) return null
+  // 練習している曲がまだ無いユーザー: カードごと消さず、曲選びへ誘導する (2026-07-25)。
+  // 「まず1曲を通して弾く」が体験の入口なので、ホーム最上部の次に置く。
+  if (!piece) {
+    return (
+      <div className={styles.root}>
+        <div className={styles.card}>
+          <div className={styles.cardTitle}>さっそく始めよう</div>
+          <p className={styles.startLead}>
+            まだ練習している曲がないよ。弾きたい曲を1つ選んで、通して弾いてみよう。
+          </p>
+          <Link
+            href={`/${userId}/practice/pieces`}
+            className={styles.startCta}
+            data-onboarding="home.pickPiece"
+          >
+            <span className={styles.startIcon} aria-hidden>♪</span>
+            <span className={styles.startBody}>
+              <span className={styles.startTitle}>曲を選ぶ</span>
+              <span className={styles.startSub}>☆が小さいほどやさしい曲だよ</span>
+            </span>
+            <span className={styles.startGo} aria-hidden>→</span>
+          </Link>
+        </div>
+      </div>
+    )
+  }
   const avg = ach?.master?.recentAvg != null ? Math.round(ach.master.recentAvg) : null
   const barW = avg != null ? Math.min(100, Math.round((avg / 90) * 100)) : 0
   const lessonsDone = !!ach?.lessons && ach.lessons.total > 0 && ach.lessons.cleared >= ach.lessons.total

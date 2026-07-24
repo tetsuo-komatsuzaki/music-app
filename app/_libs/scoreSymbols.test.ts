@@ -173,6 +173,60 @@ describe("extractScoreSymbols", () => {
     expect(list.map((s) => s.id)).toEqual(["slur", "staccato", "tie", "key_signature"])
   })
 
+  it("expressions からフェルマータ・装飾を拾う", () => {
+    const { list, byNote } = extractScoreSymbols({
+      notes: [
+        note(0, { expressions: ["Fermata"] }),
+        note(1, { expressions: ["Turn"] }),
+        note(2, { expressions: ["Turn:delayed"] }),
+        note(3, { expressions: ["ArpeggioMark", "Schleifer"] }),
+      ],
+    })
+    expect(new Set(list.map((s) => s.id)))
+      .toEqual(new Set(["fermata", "turn", "delayed_turn", "arpeggio_mark", "schleifer"]))
+    expect(byNote.get(3)).toEqual(["arpeggio_mark", "schleifer"])
+  })
+
+  it("臨時記号は種類ごとに、かっこつきは親切記号としても出す", () => {
+    const { list, byNote } = extractScoreSymbols({
+      notes: [
+        note(0, { accidental: { name: "sharp", style: "normal" } }),
+        note(1, { accidental: { name: "double-flat", style: "normal" } }),
+        note(2, { accidental: { name: "half-sharp", style: "normal" } }),
+        note(3, { accidental: { name: "flat", style: "parentheses" } }),
+      ],
+    })
+    expect(list.find((s) => s.id === "accidental")?.noteIndices).toEqual([0])
+    expect(list.find((s) => s.id === "double_accidental")?.noteIndices).toEqual([1])
+    expect(list.find((s) => s.id === "quarter_tone")?.noteIndices).toEqual([2])
+    // かっこつきの♭は「臨時記号(normal)」には入らず、親切記号として出る
+    expect(byNote.get(3)).toEqual(["cautionary_accidental"])
+  })
+
+  it("付点は数で出し分け、特殊な符頭も拾う", () => {
+    const { list } = extractScoreSymbols({
+      notes: [
+        note(0, { dots: 1 }), note(1, { dots: 2 }),
+        note(2, { notehead: "diamond" }), note(3, { notehead: "x" }),
+        note(4, { notehead: "normal" }),
+      ],
+    })
+    expect(new Set(list.map((s) => s.id)))
+      .toEqual(new Set(["dotted", "double_dotted", "notehead_diamond", "notehead_x"]))
+  })
+
+  it("声部は2つ以上あるときだけ出す", () => {
+    const single = extractScoreSymbols({ notes: [note(0, { voice: "1" }), note(1, { voice: "1" })] })
+    expect(single.list.find((s) => s.id === "voice")).toBeUndefined()
+    const multi = extractScoreSymbols({ notes: [note(0, { voice: "1" }), note(1, { voice: "2" })] })
+    expect(multi.list.find((s) => s.id === "voice")?.noteIndices).toEqual([1])
+  })
+
+  it("グリッサンドは解析側のフラグから拾う", () => {
+    const { list } = extractScoreSymbols({ notes: [note(0, { is_glissando: true }), note(1)] })
+    expect(list.find((s) => s.id === "glissando")?.noteIndices).toEqual([0])
+  })
+
   it("supply が pending の記号は (データが無いので) 出てこない", () => {
     const { list } = extractScoreSymbols({ notes: [note(0, { articulations: ["Staccato"] })] })
     expect(list.every((s) => s.supply === "ready")).toBe(true)
