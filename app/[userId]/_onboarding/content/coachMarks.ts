@@ -147,12 +147,23 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
     pageKey: "scoreDetail",
     marks: [
       {
+        // 楽譜そのものを指す。記号の説明は次のマーク (記号ガイドを指す) に分けている。
+        // 1枚に混ぜると「すぐ下に…」と言いながら譜面を光らせることになり、
+        // どこを見ればいいのか分からなくなる。
         id: "scoreDetail.score",
         targetKey: "scoreDetail.scoreOverlay",
-        headline: "知らない記号は、タップで聞ける",
-        body: "選んだ曲の楽譜がここに出るよ。すぐ下に「この曲に出てくる記号」がならんでいて、タップすると意味と弾き方がわかる。わからないまま弾かなくて大丈夫。",
+        headline: "選んだ曲の楽譜が、ここに出るよ",
+        body: "譜面の上についている丸い目印は、この曲に出てくる記号。タップすると、その場で意味と弾き方がわかる。",
         trigger: "page",
         showDismissAllCheckbox: true,
+      },
+      {
+        id: "scoreDetail.symbols",
+        targetKey: "scoreDetail.symbolGuide",
+        headline: "知らない記号は、タップで聞ける",
+        body: "この曲に出てくる記号がぜんぶならんでいるよ。タップすると意味と弾き方、譜面のどこに出るかまでわかる。わからないまま弾かなくて大丈夫。",
+        trigger: "page",
+        showDismissAllCheckbox: false,
       },
       {
         id: "scoreDetail.play",
