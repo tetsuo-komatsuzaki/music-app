@@ -26,6 +26,13 @@ export type OnboardingState = {
   isHydrated: boolean
   analysisOverlayRenderedAt: number | null
   replayingPageKey: string | null
+  /**
+   * ガイドが「見本データを見せている」間だけ立つ印 (例: "review")。
+   * まだ演奏が1件も無いユーザーに、ふりかえり画面がどうなるかを見せるため、
+   * 該当画面が見本の採点結果とおすすめ練習を描画する。
+   */
+  guideSample: string | null
+  setGuideSample: (key: string | null) => void
   helpOpen: boolean
   helpSection: HelpSection | null
 }
@@ -59,6 +66,8 @@ const NOOP_CONTEXT: OnboardingContextValue = {
   isHydrated: true,
   analysisOverlayRenderedAt: null,
   replayingPageKey: null,
+  guideSample: null,
+  setGuideSample: () => {},
   helpOpen: false,
   helpSection: null,
   markWelcomeSlidesShown: () => {},
@@ -118,6 +127,7 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
 
   const [analysisOverlayRenderedAt, setAnalysisOverlayRenderedAt] = useState<number | null>(null)
   const [replayingPageKey, setReplayingPageKey] = useState<string | null>(null)
+  const [guideSample, setGuideSample] = useState<string | null>(null)
   const [helpOpen, setHelpOpen] = useState(false)
   const [helpSection, setHelpSection] = useState<HelpSection | null>(null)
 
@@ -210,6 +220,8 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
     isHydrated,
     analysisOverlayRenderedAt,
     replayingPageKey,
+    guideSample,
+    setGuideSample,
     helpOpen,
     helpSection,
     markWelcomeSlidesShown,

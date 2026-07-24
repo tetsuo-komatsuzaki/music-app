@@ -1,4 +1,15 @@
 // 純データのみ ("use client" 不要)
+//
+// 【この順番の意図 (Tetsuo 2026-07-25)】
+//   曲を選ぶ (自分に合った難易度・むずかしければパート毎) → 一度通して弾く
+//   → アルコが分析して「曲のどこが苦手か」を教える
+//   → 苦手に合った練習メニューが届く (音階・フィンガリング・ボウイングなど目的別)
+//   → 毎日の練習はお気に入りに登録 → 知らない技法は学びのレッスンで
+//   → 練習したら曲に再挑戦 → クリアで星がひとつ → 星10個でランクUP
+//   → ランクが上がると、さらにむずかしい曲に挑戦できる
+//   → (任意) 自分の楽譜を持ち込む → 成長記録・スキルツリー
+// 「実際に弾いて、どこが悪かったか目で見てわかる。だから直せる、だから上達する」
+// がこの体験の軸。
 
 export type CoachMarkBody =
   | string
@@ -37,6 +48,12 @@ export type CoachMarkConfig = {
    */
   awaitTap?: { hint: string }
   /**
+   * このマークの表示中だけ、対象画面に「見本データ」を出させる (例: "review")。
+   * まだ演奏が無いユーザーにも、分析結果とおすすめ練習がどう出るかを見せられる。
+   * 見本であることは画面側で明示する。
+   */
+  sample?: string
+  /**
    * マーク表示前に navigate する相対 URL (例: "?tab=mastery")。
    * URL クエリ駆動でタブを切り替えるページ (progress / categoryList) で使う。
    * 既に同じクエリの場合は no-op。
@@ -47,35 +64,65 @@ export type CoachMarkConfig = {
 export type PageCoachMarksConfig = {
   pageKey: string
   marks: CoachMarkConfig[]
+  /**
+   * このページのガイドが動いている間ずっと見本を出す (例: "home")。
+   * マーク単位の sample と違い、requiresTarget の判定より先に立つので、
+   * 「見本が出る → 対象要素ができる → その対象を指すマークが出せる」
+   * という順番が成立する。
+   */
+  sample?: string
 }
 
 export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
   {
+    // ホームは状態で中身が入れ替わる。
+    //  ・まだ弾いていない人 → 「曲を選ぼう」だけ (上4枚は requiresTarget で出ない)
+    //  ・1曲でも弾いた人   → 続き方・クリア条件・おすすめ練習・お気に入り・ランク
+    // ランクの説明は「1曲クリアしたらどうなるか」の話なので、
+    // 演奏を一周したあと (弾いた曲がホームに出るようになってから) に置く。
     pageKey: "home",
+    // まだ弾いていない人にも、弾いたあとのホームを見本で見せる
+    // (見本が無いと「弾いた曲はこの画面にも出るよ」が指す先が存在しない)
+    sample: "home",
     marks: [
       {
-        // すでに弾いた人: 続きと次の練習がホームに出ることを伝える。
-        // home.pickPiece と排他 (どちらか一方だけが画面に在る)。
         id: "home.focusCard",
         targetKey: "home.focusCard",
         requiresTarget: true,
-        headline: "弾いた曲は、ここから続けられる",
-        body: "演奏した曲と、その曲のおすすめ練習がホームに出るよ。次にやることは、ここから選べば大丈夫。",
+        headline: "弾いた曲は、この画面にも出るよ",
+        body: "「マスターへのステップ」がこの曲のクリア条件。音程とリズムの平均が90点以上になって、通し演奏が3回たまるとクリアだよ。",
         trigger: "page",
         showDismissAllCheckbox: true,
       },
       {
-        // ランクは「上達の結果」なので、成長を見せたあと (ホームの最後) に置く。
-        id: "home.rankCard",
-        targetKey: "home.rankCard",
-        headline: "ランクが上がると、弾ける曲が増える",
-        body: "技法や曲をクリアするとランクUP。もっとむずかしい憧れの曲に挑戦できるようになるよ。タップで、ここまでの歩みも見られる。",
+        id: "home.focusPractice",
+        targetKey: "home.focusCard",
+        requiresTarget: true,
+        headline: "おすすめの練習は、ここからすぐ",
+        body: "苦手に効く練習と、毎日の基礎練がならんでいるよ。タップするとその練習が始まる。さっそくやってみよう。",
         trigger: "page",
         showDismissAllCheckbox: false,
       },
       {
-        // まだ曲を弾いていない人: 曲選びへ送り出す。
-        // 曲を選ぶと PracticeFocusCard が中身のある表示に変わり、この要素は消える。
+        id: "home.favorites",
+        targetKey: "home.favorites",
+        requiresTarget: true,
+        headline: "毎日やりたい練習は、♡でここに",
+        body: "曲や教材の ♡ を押すとお気に入りに入るよ。毎日の練習も大事なので、続けたいものを集めておこう。",
+        trigger: "page",
+        showDismissAllCheckbox: false,
+      },
+      {
+        id: "home.rankCard",
+        targetKey: "home.rankCard",
+        requiresTarget: true,
+        headline: "クリアすると、星がひとつ増える",
+        body: "練習したら、もう一度その曲に挑戦しよう。クリアするとランクカードに星がひとつ。星が10個たまるとランクが上がって、さらにむずかしい曲にも挑戦できるようになるよ。この繰り返しでうまくなっていこう。",
+        trigger: "page",
+        showDismissAllCheckbox: false,
+      },
+      {
+        // まだ弾いていない人に出るのは、この1枚だけ
         id: "home.pickPiece",
         targetKey: "home.pickPiece",
         requiresTarget: true,
@@ -95,12 +142,11 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         id: "pieces.starTabs",
         targetKey: "pieces.starTabs",
         headline: "まずは1曲、通して弾いてみよう",
-        body: "☆が小さいほどやさしい曲だよ。最初は通して弾けるやさしめから始めるのがおすすめ。",
+        body: "☆が小さいほどやさしい曲だよ。最初は一回通して弾ける、やさしめの曲から始めるのがおすすめ。",
         trigger: "page",
         showDismissAllCheckbox: true,
       },
       {
-        // ここは読み飛ばさせず、実際に曲を選ばせる
         id: "pieces.rail",
         targetKey: "pieces.rail",
         headline: "気になる曲をタップしてみよう",
@@ -113,13 +159,13 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
   },
   {
     // 練習前シート (曲をタップすると開くボトムシート)。
-    // シートが mount された時に発火する (OnboardingTrigger をシート内に置いている)。
+    // シート内に OnboardingTrigger を置いているので、開いた時に発火する。
     pageKey: "prePractice",
     marks: [
       {
         id: "prePractice.choose",
         targetKey: "prePractice.choose",
-        headline: "むりのない難易度で、いい",
+        headline: "自分に合った難易度で、いい",
         body: "同じ曲でも初級〜上級から選べるよ。むずかしければパートごとに分けて弾いてもOK。完璧じゃなくて大丈夫。",
         trigger: "page",
         showDismissAllCheckbox: true,
@@ -128,7 +174,7 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         id: "prePractice.skills",
         targetKey: "prePractice.skills",
         headline: "知らない技法があっても、置いていかない",
-        body: "弾く前に、この曲に必要な技術がわかるよ。「未習得」のものはタップすると、学びのレッスンで基礎から学べる。",
+        body: "弾く前に、この曲に必要な技術がわかるよ。「未習得」のものはタップすると、学びのレッスンで基礎から学べるから安心。",
         trigger: "page",
         showDismissAllCheckbox: false,
       },
@@ -147,9 +193,8 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
     pageKey: "scoreDetail",
     marks: [
       {
-        // 楽譜そのものを指す。記号の説明は次のマーク (記号ガイドを指す) に分けている。
-        // 1枚に混ぜると「すぐ下に…」と言いながら譜面を光らせることになり、
-        // どこを見ればいいのか分からなくなる。
+        // 楽譜そのものを指す。記号の説明は次のマークに分けている
+        // (1枚に混ぜると「すぐ下に…」と言いながら譜面を光らせることになる)。
         id: "scoreDetail.score",
         targetKey: "scoreDetail.scoreOverlay",
         headline: "選んだ曲の楽譜が、ここに出るよ",
@@ -174,33 +219,40 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         showDismissAllCheckbox: false,
       },
       {
-        // 「ふりかえり」タブへ実際に切り替えたうえで、おすすめ練習が出る場所を指す。
-        // targetUrl でタブを切り替え、targetKey で ScoreLoopDetail の推薦セクションを
-        // スポットライトする (演奏記録が無い場合も同じ枠に案内文が出る)。
-        id: "scoreDetail.recommendation",
+        // ふりかえりタブへ切り替え、まだ演奏が無くても「弾くとこう出る」を見本で見せる
+        id: "scoreDetail.reviewResult",
         targetKey: "scoreDetail.recommendation",
         targetUrl: "?tab=review",
-        headline: "きみ専用の練習メニューが届く",
-        body: "点数と、苦手に合わせたおすすめ練習がここにたまるよ。次に何をすればいいか、もう迷わない。",
+        sample: "review",
+        headline: "弾いたら、アルコが分析してくれる",
+        body: "音程とリズムを見て点数をつけて、曲のどこが苦手かを教えてくれるよ。（いまは見本を出しているよ）",
         trigger: "page",
         showDismissAllCheckbox: false,
       },
       {
+        id: "scoreDetail.reviewReco",
+        targetKey: "scoreDetail.recommendation",
+        targetUrl: "?tab=review",
+        sample: "review",
+        headline: "きみに合った練習メニューが届く",
+        body: "「おすすめ教材」をタップすると、その練習の画面にうつるよ。次に何をすればいいか、もう迷わない。",
+        trigger: "page",
+        showDismissAllCheckbox: false,
+      },
+      {
+        // 最後に演奏タブへ戻して録音を促す (戻さないと録音ボタンが見えない)
         id: "scoreDetail.record",
         targetKey: "scoreDetail.recordButton",
-        // ふりかえりタブから演奏タブへ戻してから録音を促す (最後の一歩)
         targetUrl: "?tab=play",
         headline: "まず1回、弾いてみて",
-        body: "弾き終わると、アルコが演奏を分析するよ。曲のどこが苦手かを見つけて、きみに合った練習まで教えてくれる。うまく弾けなくて大丈夫。",
+        body: "うまく弾けなくて大丈夫。弾き終わると自動で分析がはじまるよ。",
         awaitTap: { hint: "タップして録音" },
         trigger: "page",
         showDismissAllCheckbox: false,
       },
       {
+        // ハイライト不要 (画面中央に tooltip のみ)。spotlight は見せたい譜面に被る。
         id: "scoreDetail.markers",
-        // ハイライト不要 (画面中央に tooltip のみ表示)。
-        // 4 色凡例は情報メッセージで特定要素を指す必要がなく、また spotlight が
-        // 視認性を損なう (解析結果を見せたい譜面に被る) ため targetKey を null に。
         targetKey: null,
         headline: "見てわかるから、直せる",
         body: {
@@ -222,9 +274,8 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
     pageKey: "practice",
     marks: [
       {
-        // 旧 targetKey "practice.categoryNav" は該当要素が無くなったため中央表示に変更
         id: "practice.categoryNav",
-        targetKey: null,
+        targetKey: "practice.categoryNav",
         headline: "目的にあわせて、練習を選べる",
         body: "音階・アルペジオ・フィンガリング・ボウイング・ポジション移動・重音。苦手に効くものを選ぼう。",
         trigger: "page",
@@ -234,7 +285,15 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         id: "practice.lessons",
         targetKey: "practice.lessons",
         headline: "知らない技法は、ここで学べる",
-        body: "スラーやビブラートなどの技法を、基礎から順番に。クリアするとランクにも効いてくるよ。",
+        body: "スラーやビブラートなどの技法を、基礎から順番に。曲を選ぶときにも「未習得」として出てくるから、置いていかれない。",
+        trigger: "page",
+        showDismissAllCheckbox: false,
+      },
+      {
+        id: "practice.retry",
+        targetKey: null,
+        headline: "練習したら、もう一度その曲へ",
+        body: "練習で手ごたえが出たら、また曲に挑戦しよう。弾く → 苦手がわかる → 練習する。この行き来でうまくなっていくよ。",
         trigger: "page",
         showDismissAllCheckbox: false,
       },
@@ -244,7 +303,6 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
     pageKey: "categoryList",
     marks: [
       {
-        // 旧 targetKey/絞り込みUIは現行に無いため、現在の画面(☆順・グループ別)に合わせて中央表示に統合
         id: "categoryList.cards",
         targetKey: null,
         headline: "やさしい順に、選べる",
@@ -279,15 +337,21 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         showDismissAllCheckbox: true,
       },
       {
-        // 旧「弱点」タブは廃止 (現在は 習得状況/練習カレンダー の2タブ)。
-        // 該当要素も無いため中央表示にし、遷移先も実在する mastery タブへ修正。
         id: "progress.mastery",
         targetKey: null,
-        headline: "できることが、増えていく",
-        body: "身につけた技法と、いまのランクを確認できるよ。クリアするほど、挑戦できる曲が広がっていく。",
+        headline: "きみの成長は、ここで見られる",
+        body: "身につけた技法と、いまのランクを確認できるよ。技法や曲をクリアするほど、挑戦できる曲が広がっていく。",
         trigger: "page",
         showDismissAllCheckbox: false,
         targetUrl: "?tab=mastery",
+      },
+      {
+        id: "progress.skillTree",
+        targetKey: null,
+        headline: "これから、スキルツリーもつくるよ",
+        body: "身につけた技術が枝分かれして広がっていく地図を準備中。そこでも技をひとつずつマスターしていけるようにするね。",
+        trigger: "page",
+        showDismissAllCheckbox: false,
       },
     ],
   },
@@ -299,7 +363,7 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
       {
         id: "scores.upload",
         targetKey: "scores.uploadButton",
-        headline: "憧れのあの曲も、持ち込める",
+        headline: "弾きたい曲があったら、持ち込もう",
         body: "手持ちの楽譜を取り込めば、その曲でも練習できるよ。(.xml / .musicxml / .mxl・5MBまで)",
         trigger: "page",
         showDismissAllCheckbox: true,
@@ -307,8 +371,8 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
       {
         id: "scores.grid",
         targetKey: "scores.scoreGrid",
-        headline: "きみの楽譜が集まる場所",
-        body: "取り込んだ楽譜はここに並ぶよ。タップすると、譜面を見ながら再生・録音できる。",
+        headline: "持ち込んだ曲も、同じように見てもらえる",
+        body: "練習曲とまったく同じだよ。弾けばアルコが分析して、上手く弾くためのおすすめ練習まで案内する。",
         trigger: "page",
         showDismissAllCheckbox: false,
       },

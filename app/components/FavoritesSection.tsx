@@ -20,7 +20,7 @@ export default function FavoritesSection({ favorites }: { favorites: FavoriteEnt
   return (
     <div className={styles.root}>
       <div className={styles.card}>
-        <div className={styles.cardTitle}>お気に入り</div>
+        <div className={styles.cardTitle} data-onboarding="home.favorites">お気に入り</div>
         {favorites.length === 0 ? (
           <div className={styles.favEmpty}>♡ を押すと、曲や教材をここに集められます</div>
         ) : (

@@ -10,6 +10,8 @@
 
 import { useEffect, useState } from "react"
 import styles from "./ScoreLoopDetail.module.css"
+import GuideSampleReview from "./GuideSampleReview"
+import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 import WeaknessDiagnosisCard from "./WeaknessDiagnosisCard"
 
 // 工程D/C-6b: achievement-status API レスポンス (route.ts と同期)
@@ -42,6 +44,8 @@ type Props = {
 export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) {
   const [achv, setAchv] = useState<AchievementStatus | null>(null)
   const [error, setError] = useState<string | null>(null)
+  // 画面ガイドが見本を出している間だけ true 相当になる
+  const { guideSample } = useOnboarding()
 
   useEffect(() => {
     let cancelled = false
@@ -162,6 +166,9 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
             kind="score"
             userId={userId}
           />
+        ) : guideSample === "review" ? (
+          // 画面ガイド表示中: まだ演奏が無くても「弾くとこう出る」を見せる
+          <GuideSampleReview />
         ) : (
           <p className={styles.emptyHint}>
             まだ演奏記録がありません。録音すると弱点と練習メニューが表示されます。

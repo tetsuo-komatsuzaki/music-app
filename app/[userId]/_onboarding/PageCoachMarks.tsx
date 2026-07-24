@@ -9,9 +9,11 @@ import { CoachMarkConfig } from "./content/coachMarks"
 type Props = {
   pageKey: string
   marks: CoachMarkConfig[]
+  /** このページのガイドが動いている間ずっと出す見本の種類 */
+  pageSample?: string
 }
 
-export default function PageCoachMarks({ pageKey, marks }: Props) {
+export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
   const {
     isHydrated,
     allGuidesDismissed,
@@ -23,6 +25,8 @@ export default function PageCoachMarks({ pageKey, marks }: Props) {
     markFirstAnalysisGuideShown,
     markPageGuideSeen,
     dismissAllGuides,
+    guideSample,
+    setGuideSample,
   } = useOnboarding()
 
   const router = useRouter()
@@ -123,6 +127,14 @@ export default function PageCoachMarks({ pageKey, marks }: Props) {
     }
     router.replace(pathname + "?" + currentParams.toString())
   }, [activeMark?.id, activeMark?.targetUrl, urlMatchesTarget, router, pathname, searchParams])
+
+  // 見本表示の on/off。描画中の state 調整 (React 公式パターン) で effect を使わない。
+  // ページ単位の見本は、マークが1枚でも出ている間ずっと立てる。
+  // requiresTarget の判定より先に見本が描画されるので、見本が作った要素を
+  // 指すマークもきちんと出せる。
+  const guideRunning = shouldShowPageMarks && !pageMarksDone
+  const wantSample = activeMark?.sample ?? (guideRunning ? pageSample ?? null : null)
+  if (wantSample !== guideSample) setGuideSample(wantSample)
 
   if (!isHydrated) return null
   // URL がマークの targetUrl と一致するまでマーク描画を遅延 (タブ切替が完了するまで非表示)

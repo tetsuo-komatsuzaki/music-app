@@ -16,7 +16,7 @@ export default function OnboardingTrigger({ pageKey }: Props) {
   if (!config) return null
   return (
     <OnboardingErrorBoundary>
-      <PageCoachMarks pageKey={pageKey} marks={config.marks} />
+      <PageCoachMarks pageKey={pageKey} marks={config.marks} pageSample={config.sample} />
     </OnboardingErrorBoundary>
   )
 }
