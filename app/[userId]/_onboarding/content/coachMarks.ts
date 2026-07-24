@@ -16,7 +16,7 @@ export type CoachMarkConfig = {
   trigger: "page" | "first-analysis-complete"
   showDismissAllCheckbox: boolean
   /**
-   * マーク表示前に navigate する相対 URL (例: "?tab=weakness")。
+   * マーク表示前に navigate する相対 URL (例: "?tab=mastery")。
    * URL クエリ駆動でタブを切り替えるページ (progress / categoryList) で使う。
    * 既に同じクエリの場合は no-op。
    */
@@ -35,8 +35,8 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
       {
         id: "home.arcoCard",
         targetKey: "home.arcoCard",
-        headline: "アルコちゃんがあなたを案内します",
-        body: "毎日の挨拶と、今日のおすすめ練習を表示します。練習を続けるとストリーク (連続練習日数) も伸びます。",
+        headline: "アルコがあなたを案内します",
+        body: "毎日の挨拶と、いまのランク・つづきの練習をここに表示します。曲をマスターするほどランクが上がります。",
         trigger: "page",
         showDismissAllCheckbox: true,
       },
@@ -109,10 +109,10 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         headline: "色で答え合わせ",
         body: {
           rows: [
-            { color: "🟢", label: "緑",       meaning: "OK" },
-            { color: "🔴", label: "赤",       meaning: "音程がズレた" },
-            { color: "🟠", label: "オレンジ", meaning: "タイミングがズレた" },
-            { color: "⚪", label: "灰色",     meaning: "音が検出できなかった" },
+            { color: "green",  label: "緑",       meaning: "ばっちり" },
+            { color: "red",    label: "赤",       meaning: "音程がズレた" },
+            { color: "orange", label: "オレンジ", meaning: "タイミングがズレた" },
+            { color: "gray",   label: "グレー",   meaning: "拾えなかった" },
           ],
         },
         trigger: "first-analysis-complete",
@@ -124,10 +124,11 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
     pageKey: "practice",
     marks: [
       {
+        // 旧 targetKey "practice.categoryNav" は該当要素が無くなったため中央表示に変更
         id: "practice.categoryNav",
-        targetKey: "practice.categoryNav",
-        headline: "カテゴリから自由に探す",
-        body: "音階・アルペジオ・エチュードから、いまの自分に合った練習を選べます。",
+        targetKey: null,
+        headline: "おすすめ練習と、学びのレッスン",
+        body: "いまのあなたに合った「おすすめ練習」と、新しい技術を身につける「学びのレッスン」から選べます。むずかしい曲も、ここで練習すれば近づきます。",
         trigger: "page",
         showDismissAllCheckbox: true,
       },
@@ -137,22 +138,13 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
     pageKey: "categoryList",
     marks: [
       {
+        // 旧 targetKey/絞り込みUIは現行に無いため、現在の画面(☆順・グループ別)に合わせて中央表示に統合
         id: "categoryList.cards",
-        targetKey: "categoryList.itemList",
-        headline: "練習したいカードを選択",
-        body: "カードをタップすると、練習画面に遷移します。",
+        targetKey: null,
+        headline: "練習を選ぶ",
+        body: "「☆順」で難易度から、「グループ別」でまとまりから探せます。カードをタップすると、調や奏法を選んで練習を始められます。",
         trigger: "page",
         showDismissAllCheckbox: true,
-        targetUrl: "?view=all",
-      },
-      {
-        id: "categoryList.filters",
-        targetKey: "categoryList.filters",
-        headline: "条件を絞ります",
-        body: "キー (調)・ポジション・並び順で練習を絞り込めます。",
-        trigger: "page",
-        showDismissAllCheckbox: false,
-        targetUrl: "?view=all",
       },
     ],
   },
@@ -181,13 +173,15 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         showDismissAllCheckbox: true,
       },
       {
-        id: "progress.weakness",
-        targetKey: "progress.weakness",
-        headline: "苦手を見える化",
-        body: "練習を重ねると、つまずきやすいキーやタイミングをArcodaが自動で見つけます。「弱点」タブで確認できます。",
+        // 旧「弱点」タブは廃止 (現在は 習得状況/練習カレンダー の2タブ)。
+        // 該当要素も無いため中央表示にし、遷移先も実在する mastery タブへ修正。
+        id: "progress.mastery",
+        targetKey: null,
+        headline: "習得状況をふりかえる",
+        body: "どの技術が身についたか、いまのランクと習得状況を確認できます。演奏を重ねると、あなたの学びポイントも見つかります。",
         trigger: "page",
         showDismissAllCheckbox: false,
-        targetUrl: "?tab=weakness",
+        targetUrl: "?tab=mastery",
       },
     ],
   },

@@ -96,7 +96,7 @@ export default function CoachMark({
       <div className={styles.legendTable}>
         {body.rows.map(row => (
           <div key={row.label} className={styles.legendRow}>
-            <span className={styles.legendColor}>{row.color}</span>
+            <span className={styles.legendColor} data-c={row.color} aria-hidden />
             <span className={styles.legendName}>{row.label}</span>
             <span className={styles.legendMeaning}>{row.meaning}</span>
           </div>
