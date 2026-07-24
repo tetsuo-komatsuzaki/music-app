@@ -132,6 +132,10 @@ const BY_WORDS: { words: string[]; def: SymbolDef }[] = []
 const TEMPO_DEFS: { kinds: string[]; needText?: boolean; needNumber?: boolean; def: SymbolDef }[] = []
 const STRUCT_COUNT: { field: string; min: number; def: SymbolDef }[] = []
 const STRUCT_FLAG: { field: string; def: SymbolDef }[] = []
+/** structure の配列が空でなければ該当 (とび先の指示・リハーサル記号) */
+const STRUCT_LIST: { field: string; def: SymbolDef }[] = []
+/** 特定キーワードに当たらなかった文字指示の受け皿 */
+let WORDS_FALLBACK_DEF: SymbolDef | undefined
 const BY_BARLINE = new Map<string, SymbolDef>()
 let TIME_SYMBOL_DEF: SymbolDef | undefined
 let CLEF_DEF: SymbolDef | undefined
@@ -188,6 +192,10 @@ for (const d of ALL_SYMBOLS) {
     case "structureFlag":
       if (m.field) STRUCT_FLAG.push({ field: m.field, def: d })
       break
+    case "structureList":
+      if (m.field) STRUCT_LIST.push({ field: m.field, def: d })
+      break
+    case "wordsFallback": WORDS_FALLBACK_DEF = d; break
     case "barline": if (m.value) BY_BARLINE.set(m.value, d); break
     case "timeSymbol": TIME_SYMBOL_DEF = d; break
     case "clef": CLEF_DEF = d; break
@@ -292,7 +300,19 @@ export type SymbolSourceAnalysis = {
     clef?: string | null
     tempo_marks?: { kind?: string | null; number?: number | null; text?: string | null }[] | null
     harmony?: string[] | null
+    navigation?: string[] | null
+    has_repeat_bracket?: boolean | null
+    rehearsal_marks?: string[] | null
+    grace_note_count?: number | null
+    beamed_note_count?: number | null
   } | null
+}
+
+/** music21 の RepeatExpression クラス名 → 譜面での書かれ方 */
+const NAVIGATION_JA: Record<string, string> = {
+  DaCapo: "D.C.", DaCapoAlFine: "D.C. al Fine", DaCapoAlCoda: "D.C. al Coda",
+  DalSegno: "D.S.", DalSegnoAlFine: "D.S. al Fine", DalSegnoAlCoda: "D.S. al Coda",
+  AlSegno: "al Segno", Segno: "セーニョ", Coda: "コーダ", Fine: "Fine",
 }
 
 const CLEF_JA: Record<string, string> = {
@@ -461,9 +481,12 @@ export function extractScoreSymbols(
   for (const dir of analysis.directions ?? []) {
     for (const raw of dir.texts ?? []) {
       const text = raw.toLowerCase()
+      let hit = false
       for (const w of BY_WORDS) {
-        if (w.words.some((k) => text.includes(k))) add(w.def, dir.note_index, { value: raw })
+        if (w.words.some((k) => text.includes(k))) { add(w.def, dir.note_index, { value: raw }); hit = true }
       }
+      // dolce / cantabile など、決まった語に当てはまらない指示もことばの指示として拾う
+      if (!hit && WORDS_FALLBACK_DEF) add(WORDS_FALLBACK_DEF, dir.note_index, { value: raw })
     }
   }
 
@@ -476,6 +499,13 @@ export function extractScoreSymbols(
     }
     for (const f of STRUCT_FLAG) {
       if ((st as unknown as Record<string, unknown>)[f.field]) add(f.def, null)
+    }
+    for (const l of STRUCT_LIST) {
+      const v = (st as unknown as Record<string, unknown>)[l.field]
+      if (Array.isArray(v) && v.length > 0) {
+        const shown = v.map((x) => NAVIGATION_JA[String(x)] ?? String(x))
+        add(l.def, null, { value: shown.slice(0, 4).join(" ・ ") })
+      }
     }
     for (const b of st.barline_types ?? []) add(BY_BARLINE.get(b), null)
     if (st.time_symbol && TIME_SYMBOL_DEF) {

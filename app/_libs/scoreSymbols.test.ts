@@ -289,6 +289,44 @@ describe("extractScoreSymbols", () => {
     expect(t.list.find((s) => s.id === "tempo_text")?.value).toBe("Allegro")
   })
 
+  it("とび先の指示・リハーサル記号・装飾音・連桁を構造から拾う", () => {
+    const { list } = extractScoreSymbols({
+      notes: [note(0)],
+      structure: {
+        navigation: ["Segno", "DaCapoAlFine"],
+        has_repeat_bracket: true,
+        rehearsal_marks: ["A", "B"],
+        grace_note_count: 2,
+        beamed_note_count: 12,
+      },
+    })
+    // クラス名は譜面での書かれ方に直して見せる
+    expect(list.find((s) => s.id === "navigation")?.value).toBe("セーニョ ・ D.C. al Fine")
+    expect(list.find((s) => s.id === "rehearsal_mark")?.value).toBe("A ・ B")
+    const ids = new Set(list.map((s) => s.id))
+    expect(ids.has("repeat_bracket")).toBe(true)
+    expect(ids.has("grace_note")).toBe(true)
+    expect(ids.has("beam")).toBe(true)
+  })
+
+  it("空の配列・0件では構造系の記号を出さない", () => {
+    const { list } = extractScoreSymbols({
+      notes: [note(0)],
+      structure: { navigation: [], rehearsal_marks: [], grace_note_count: 0, beamed_note_count: 0 },
+    })
+    expect(list).toEqual([])
+  })
+
+  it("決まった語に当たらない文字指示は「ことばの指示」として拾う", () => {
+    const { list, byNote } = extractScoreSymbols({
+      notes: [note(0), note(1)],
+      directions: [{ note_index: 0, texts: ["dolce"] }, { note_index: 1, texts: ["arco"] }],
+    })
+    expect(list.find((s) => s.id === "text_expression")?.value).toBe("dolce")
+    // 特定キーワードに当たったものは受け皿に入れない
+    expect(byNote.get(1)).toEqual(["arco"])
+  })
+
   it("supply が pending の記号は (データが無いので) 出てこない", () => {
     const { list } = extractScoreSymbols({ notes: [note(0, { articulations: ["Staccato"] })] })
     expect(list.every((s) => s.supply === "ready")).toBe(true)

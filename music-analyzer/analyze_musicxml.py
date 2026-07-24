@@ -907,6 +907,30 @@ try:
         str(getattr(cs, "figure", "") or "")
         for cs in performance_part.recurse().getElementsByClass(harmony.ChordSymbol)
     ]
+    # とび先の指示 (D.C. / D.S. / Coda / Segno / Fine) と 1番2番かっこは、
+    # リピート展開で消えるので展開前の part から取る。
+    _navigation = sorted({
+        type(e).__name__
+        for e in part.recurse().getElementsByClass(repeat.RepeatExpression)
+    })
+    _has_repeat_bracket = any(
+        type(sp).__name__ == "RepeatBracket" for sp in part.spannerBundle
+    )
+    _rehearsal = [
+        str(getattr(rm, "content", "") or "")
+        for rm in part.recurse().getElementsByClass(expressions.RehearsalMark)
+    ]
+    # 装飾音は quarterLength==0 で note_index から除外している (既存動作は変えない)。
+    # 「この曲に装飾音があるか」だけ数えて記号ガイドに渡す。
+    _grace_count = sum(
+        1 for n in performance_part.recurse().notes
+        if float(n.duration.quarterLength) == 0
+    )
+    _beamed = 0
+    for n in performance_part.recurse().notes:
+        b = getattr(n, "beams", None)
+        if b is not None and getattr(b, "beamsList", None):
+            _beamed += 1
 
     structure = {
         # 2つ以上あれば曲中で調/拍子が変わっている
@@ -920,6 +944,11 @@ try:
         "clef": _clef_name,
         "tempo_marks": _tempo_marks,
         "harmony": [h for h in _harmony if h],
+        "navigation": _navigation,
+        "has_repeat_bracket": _has_repeat_bracket,
+        "rehearsal_marks": [r for r in _rehearsal if r],
+        "grace_note_count": _grace_count,
+        "beamed_note_count": _beamed,
     }
 
     analysis_result = {

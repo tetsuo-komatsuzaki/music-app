@@ -596,7 +596,7 @@
     "name": "slides"
    },
    "what": "音と音を波線や直線でつなぐ指示。グリッサンドが「一段ずつ聞かせる」のに対し、ポルタメントは目的の音へ滑らかに寄せる。",
-   "tip": "MusicXML では <slide> と <glissando> は別の記号だけれど、弾き方は近い。"
+   "tip": "MusicXML では <slide> と <glissando> は別の記号だけれど、弾き方は近い。 MusicXML では glissando と別の記号だけれど、解析ではまとめて扱っている。"
   },
   {
    "id": "jazz_slide",
@@ -814,9 +814,11 @@
    "cat": "orn",
    "glyph": "grace",
    "label": "装飾音",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "grace"
+    "type": "structureCount",
+    "field": "grace_note_count",
+    "min": 1
    },
    "what": "斜め線のついた小さな音符。本来の音の直前に、さっと軽く添える。",
    "tip": "拍を食わないように、次の音を拍の頭に置く。"
@@ -970,12 +972,9 @@
    "cat": "dyn",
    "glyph": "text",
    "label": "ことばの指示",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "expression",
-    "m21": [
-     "TextExpression"
-    ]
+    "type": "wordsFallback"
    },
    "what": "dolce（やさしく）・cantabile（歌うように）など、雰囲気をことばで書いた指示。",
    "tip": "強さではなく「雰囲気」の指示。弓の速さと圧のバランスでつくる。"
@@ -1057,12 +1056,10 @@
    "cat": "dyn",
    "glyph": "text",
    "label": "リハーサル記号",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "expression",
-    "m21": [
-     "RehearsalMark"
-    ]
+    "type": "structureList",
+    "field": "rehearsal_marks"
    },
    "what": "四角で囲まれた A・B・C や数字。合わせるときに「Bから」と位置を指すための目印。",
    "tip": "合わせ練習で「Bから」と場所を言うための目印。演奏そのものには影響しない。"
@@ -1147,9 +1144,11 @@
    "cat": "rhythm",
    "glyph": "beam",
    "label": "連桁（れんこう）",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "beam"
+    "type": "structureCount",
+    "field": "beamed_note_count",
+    "min": 1
    },
    "what": "8分音符などをつなぐ横棒。どの音がひとまとまりの拍かを見せてくれる。",
    "tip": "連桁のまとまり＝1拍。拍を数えるときの目印になる。"
@@ -1191,7 +1190,7 @@
     ]
    },
    "what": "太い横棒と数字。その小節数ぶん、まるごと休む。",
-   "tip": "数字の小節数だけ待つ。数え間違えやすいので、拍を追い続けよう。"
+   "tip": "数字の小節数だけ待つ。数え間違えやすいので、拍を追い続けよう。 楽譜には出るけれど、いまの解析では拾えていない記号だよ。"
   },
   {
    "id": "measure_repeat",
@@ -1385,7 +1384,7 @@
     ]
    },
    "what": "8va と点線。この区間は、書かれた音より1オクターブ高く（8vb なら低く）弾く。",
-   "tip": "点線が終わるところまで続く。書かれた音より1オクターブ上（下）を弾く。"
+   "tip": "点線が終わるところまで続く。書かれた音より1オクターブ上（下）を弾く。 楽譜には出るけれど、いまの解析では拾えていない記号だよ。"
   },
   {
    "id": "repeat_bar",
@@ -1405,12 +1404,10 @@
    "cat": "struct",
    "glyph": "repeat",
    "label": "1番・2番かっこ",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "spannerClass",
-    "m21": [
-     "RepeatBracket"
-    ]
+    "type": "structureFlag",
+    "field": "has_repeat_bracket"
    },
    "what": "1・2 と書かれたかぎかっこ。1回目は1のかっこ、繰り返しの2回目は2のかっこを弾く。",
    "tip": "1回目は1のかっこ、繰り返しの2回目は1を飛ばして2のかっこへ。"
@@ -1420,21 +1417,10 @@
    "cat": "struct",
    "glyph": "segno",
    "label": "とび先の指示",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "repeatExpression",
-    "m21": [
-     "DaCapo",
-     "DaCapoAlFine",
-     "DaCapoAlCoda",
-     "DalSegno",
-     "DalSegnoAlFine",
-     "DalSegnoAlCoda",
-     "Segno",
-     "Coda",
-     "Fine",
-     "AlSegno"
-    ]
+    "type": "structureList",
+    "field": "navigation"
    },
    "what": "D.C.（最初から）・D.S.（セーニョから）・Coda・Fine など、どこへ飛んでどこで終わるかの指示。",
    "tip": "弾く前に順番を整理して、譜面に番号を書き込んでおくと迷わない。"
