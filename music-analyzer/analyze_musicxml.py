@@ -190,7 +190,17 @@ def _symbol_expressions(el) -> List[str]:
 
 
 def _symbol_accidental(el) -> Optional[Dict[str, Any]]:
-    """譜面に実際に書かれる臨時記号。調号由来 (displayStatus=False) は除く。"""
+    """譜面に実際に書かれる臨時記号だけを返す。
+
+    displayStatus は「その臨時記号を実際に印字するか」で、
+      True  = 元 XML に <accidental> があった (＝譜面に書かれている)
+      False = 調号で賄われるので印字しない
+      None  = 未判定
+    移調 (transpose) を通した音は None になることを実測で確認済み。
+    生成スコアは調号に合う綴りを選ぶので臨時記号は印字されない。
+    よって None は「書かれていない」側に倒す (True のときだけ拾う)。
+    ここを緩めると、調号で足りている音まで「臨時記号あり」と誤報する。
+    """
     try:
         pitches_ = list(el.pitches)
     except Exception:
@@ -199,7 +209,7 @@ def _symbol_accidental(el) -> Optional[Dict[str, Any]]:
         a = getattr(pp, "accidental", None)
         if a is None:
             continue
-        if getattr(a, "displayStatus", None) is False:
+        if getattr(a, "displayStatus", None) is not True:
             continue
         return {
             "name": a.name,                                  # sharp / flat / natural / double-sharp / half-sharp ...
