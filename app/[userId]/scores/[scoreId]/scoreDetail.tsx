@@ -8,6 +8,8 @@ import FavoriteButton from "@/app/components/FavoriteButton"
 import ArcoResultOverlay from "@/app/components/ArcoResultOverlay"
 import ScoreLoopDetail from "@/app/components/ScoreLoopDetail"
 import AnnotationLayer from "./AnnotationLayer"
+import SymbolGuide, { type SymbolGuideHandle } from "./SymbolGuide"
+import { extractScoreSymbols } from "@/app/_libs/scoreSymbols"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
 import * as Tone from "tone"
 import styles from "./scoreDetail.module.css"
@@ -61,18 +63,39 @@ type PerformanceDTO = {
   rangeToNote?: number | null
 }
 
+// analysis.json (analyze_musicxml.py) の音符。記号ガイド用のフィールドは
+// 以前から書き出されていたが型に載っていなかったため、任意項目として追加 (2026-07-25)。
 type AnalysisNote = {
   note_index: number
   type: string
   pitches: number[]
   start_time_sec: number
   end_time_sec: number
+  articulations?: string[] | null
+  dynamic?: string | null
+  is_tied?: boolean | null
+  is_tremolo?: boolean | null
+  is_trill?: boolean | null
+  is_mordent?: boolean | null
+  is_chord?: boolean | null
+  is_harmonic?: boolean | null
+  tuplet_actual?: number | null
+  display_finger?: number | null
+  display_string_num?: number | null
+}
+
+type AnalysisData = {
+  bpm: number
+  notes: AnalysisNote[]
+  key?: { tonic?: string | null; mode?: string | null } | null
+  time_signature?: { numerator?: number | null; denominator?: number | null } | null
+  spanners?: { slurs?: { start: number; end: number }[] | null } | null
 }
 
 type Props = {
   score: { id: string; title: string; badge?: "mastered" | "achieved" | null }
   userId: string
-  analysis: { bpm: number; notes: AnalysisNote[] } | null
+  analysis: AnalysisData | null
   buildUrl: string | null
   /**
    * 解析起動を通知する Server Action (v3.3 spec Commit 3 で型変更)
@@ -870,11 +893,19 @@ export default function ScoreDetail({
 
   // ▼ 上達ループタブ (Phase 4-1、Score 演奏のみ。practice 経路では非表示)
   const isScoreMode = !practiceItemId
-  const initialTab: ScoreDetailTabId =
+  const urlTab: ScoreDetailTabId =
     ["review", "loop"].includes(searchParams.get("tab") ?? "")
       ? "review"
       : "play"
-  const [activeTab, setActiveTab] = useState<ScoreDetailTabId>(initialTab)
+  const [activeTab, setActiveTab] = useState<ScoreDetailTabId>(urlTab)
+  // URL の ?tab= が外部から変わったら追従する (画面ガイドのタブ誘導 targetUrl など)。
+  // タブ操作自体は setActiveTab で即時反映し、router.replace の完了を待たない。
+  // 「props 変化に合わせた描画中の state 調整」= React 公式パターン (effect ではない)。
+  const [lastUrlTab, setLastUrlTab] = useState<ScoreDetailTabId>(urlTab)
+  if (urlTab !== lastUrlTab) {
+    setLastUrlTab(urlTab)
+    setActiveTab(urlTab)
+  }
   const handleTabChange = useCallback(
     (next: ScoreDetailTabId) => {
       setActiveTab(next)
@@ -1459,6 +1490,14 @@ export default function ScoreDetail({
     return () => clearTimeout(id)
   }, [selected?.comparisonResult, noteElementsVersion, markAnalysisOverlayRendered])
 
+  // --- 記号ガイド: 譜面に出てくる記号・技法 (2026-07-25) ---
+  // analysis.json に既にある情報から抽出するだけなので追加の通信は無い。
+  const scoreSymbols = useMemo(() => extractScoreSymbols(analysis), [analysis])
+  const [symbolTapMode, setSymbolTapMode] = useState(false)
+  const symbolGuideRef = useRef<SymbolGuideHandle | null>(null)
+  const symbolTapModeRef = useRef(false)
+  symbolTapModeRef.current = symbolTapMode
+
   // --- ScoreViewer からノート要素を受け取る（評価オーバーレイ用）---
   const handleNoteElementsReady = useCallback((elements: Element[]) => {
     noteElementsRef.current = elements
@@ -2004,6 +2043,14 @@ export default function ScoreDetail({
       return
     }
 
+    // 1.7 記号ガイド: 「譜面をタップして調べる」ON のときは再生ジャンプより優先。
+    //    OFF (既定) では従来動作のままなので、通常の操作感は変わらない。
+    if (symbolTapModeRef.current && closestDist <= HIT_RADIUS) {
+      setPopover(null)
+      symbolGuideRef.current?.openForNote(closestIdx)
+      return
+    }
+
     // 2. ポップオーバー分岐: 停止中 + 評価あり + ノート近傍
     if (playbackState === "stopped" && comparison && closestDist <= HIT_RADIUS) {
       const compNote = comparison.find(c => c.note_index === closestIdx)
@@ -2525,6 +2572,22 @@ export default function ScoreDetail({
             </div>
           )}
         </div>
+
+        {/* 記号ガイド: 譜面に出てくる記号・技法をタップで説明 (2026-07-25) */}
+        {analysis && (
+          <div data-onboarding="scoreDetail.symbolGuide">
+            <SymbolGuide
+              userId={userId}
+              symbols={scoreSymbols.list}
+              byNote={scoreSymbols.byNote}
+              noteElementsRef={noteElementsRef}
+              noteElementsVersion={noteElementsVersion}
+              tapMode={symbolTapMode}
+              onTapModeChange={setSymbolTapMode}
+              ref={symbolGuideRef}
+            />
+          </div>
+        )}
 
         {/* 判定カラーの凡例: 演奏を選択して譜面に採点色が出ている時にスコア直下へ */}
         {selected && <ScoreLegend />}

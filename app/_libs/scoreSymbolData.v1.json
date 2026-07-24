@@ -1,0 +1,1497 @@
+{
+ "version": "1.0",
+ "note": "譜面記号の正本 (2026-07-25)。母集合は MusicXML 3.1/4.0 の記号要素 (notations: articulations 17 / ornaments 13 / technical 30、direction-type 24、attributes: key・time・clef・measure-style、note: accidental 13・notehead・dot・grace・cue・tie・time-modification、barline: bar-style 11・repeat・ending、harmony ほか) とし、music21 が読める形を実機で確認した上で、ヴァイオリン学習で実際に出るものを採録した。supply は供給状態: ready=analysis.json から今すぐ出せる / pending=analyze_musicxml.py の出力追加が必要 / tag=TechniqueTag など DB 側から引く (記譜だけでは判別できない奏法)。文言は未監修 (Tetsuo 確認前)。",
+ "categories": {
+  "bow": {
+   "label": "弓づかい"
+  },
+  "left": {
+   "label": "左手"
+  },
+  "orn": {
+   "label": "飾りの音"
+  },
+  "dyn": {
+   "label": "強弱・表情"
+  },
+  "rhythm": {
+   "label": "音の長さ・リズム"
+  },
+  "struct": {
+   "label": "楽譜の決まりごと"
+  }
+ },
+ "symbols": [
+  {
+   "id": "slur",
+   "cat": "bow",
+   "glyph": "slur",
+   "label": "スラー",
+   "supply": "ready",
+   "lessonId": "slur",
+   "match": {
+    "type": "spanner",
+    "name": "slurs"
+   },
+   "what": "ちがう高さの音符をまとめる曲線。この中は弓を返さず、ひと弓でなめらかにつなぐ。",
+   "tip": "弓を配分して、最後の音まで弓が足りるように。"
+  },
+  {
+   "id": "staccato",
+   "cat": "bow",
+   "glyph": "staccato",
+   "label": "スタッカート",
+   "supply": "ready",
+   "lessonId": "staccato",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "Staccato"
+    ]
+   },
+   "what": "音符につく小さな点。その音を短く切って弾く合図だよ。",
+   "tip": "音を短くするだけ。強く弾く記号ではないので、力まなくて大丈夫。"
+  },
+  {
+   "id": "staccatissimo",
+   "cat": "bow",
+   "glyph": "staccatissimo",
+   "label": "スタッカーティシモ",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "Staccatissimo"
+    ]
+   },
+   "what": "スタッカートよりさらに短く、鋭く切る記号。くさび形をしているよ。",
+   "tip": "弓を弦に置いたまま、ごく短く動かして止める。"
+  },
+  {
+   "id": "spiccato",
+   "cat": "bow",
+   "glyph": "spiccato",
+   "label": "スピッカート",
+   "supply": "ready",
+   "lessonId": "spiccato",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "Spiccato"
+    ]
+   },
+   "what": "弓を弦から自然に弾ませて、粒のそろった短い音を出す奏法。",
+   "tip": "弓を投げるのではなく、弓の重さで勝手に跳ねる場所を探すのがコツ。"
+  },
+  {
+   "id": "accent",
+   "cat": "bow",
+   "glyph": "accent",
+   "label": "アクセント",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "Accent"
+    ]
+   },
+   "what": "その音だけ、はっきり強く出す記号。「＞」の形をしているよ。",
+   "tip": "弾き始めだけ弓のスピードを上げる。押しつけると音がつぶれる。"
+  },
+  {
+   "id": "marcato",
+   "cat": "bow",
+   "glyph": "marcato",
+   "label": "マルカート",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "StrongAccent"
+    ]
+   },
+   "what": "アクセントよりさらに強く、はっきり際立たせる記号。",
+   "tip": "強さに加えて、音と音のあいだを少し空けると際立つ。"
+  },
+  {
+   "id": "tenuto",
+   "cat": "bow",
+   "glyph": "tenuto",
+   "label": "テヌート",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "Tenuto"
+    ]
+   },
+   "what": "音符につく短い横線。その音を「たっぷり長さいっぱい」弾く合図。",
+   "tip": "音を切らずに、次の音の直前まで伸ばす。"
+  },
+  {
+   "id": "portato",
+   "cat": "bow",
+   "glyph": "portato",
+   "label": "ポルタート",
+   "supply": "ready",
+   "lessonId": "portato",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "DetachedLegato"
+    ]
+   },
+   "what": "スラーと点が一緒についた記号。つなげながらも、一音ずつ区切って弾く。",
+   "tip": "弓は返さず、同じ弓のなかで軽く押し直す感じ。"
+  },
+  {
+   "id": "up_bow",
+   "cat": "bow",
+   "glyph": "upbow",
+   "label": "アップ弓",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "UpBow"
+    ]
+   },
+   "what": "「Ｖ」の形の記号。弓先から弓元へ、引き上げる向きで弾く合図。",
+   "tip": "弱起 (小節の途中から始まる曲) は、アップから始めることが多いよ。"
+  },
+  {
+   "id": "down_bow",
+   "cat": "bow",
+   "glyph": "downbow",
+   "label": "ダウン弓",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "DownBow"
+    ]
+   },
+   "what": "コの字型の記号。弓元から弓先へ、押し下げる向きで弾く合図。",
+   "tip": "拍の頭や強く出したい音は、ダウンだと自然に力が乗る。"
+  },
+  {
+   "id": "tremolo",
+   "cat": "bow",
+   "glyph": "tremolo",
+   "label": "トレモロ",
+   "supply": "ready",
+   "lessonId": "tremolo",
+   "match": {
+    "type": "flag",
+    "field": "is_tremolo"
+   },
+   "what": "音符の棒についた斜線。弓を細かく往復させて、震えるような音を出す。",
+   "tip": "腕ではなく手首から先で。弓の量は少なめに。"
+  },
+  {
+   "id": "tremolo_fingered",
+   "cat": "bow",
+   "glyph": "tremolo2",
+   "label": "指トレモロ（2音間）",
+   "supply": "ready",
+   "lessonId": "tremolo",
+   "match": {
+    "type": "fieldValue",
+    "field": "tremolo_type",
+    "value": "fingered"
+   },
+   "what": "2つの音を連桁で結んだトレモロ。弓は動かさず、左手の指で2音をすばやく交互に鳴らす。",
+   "tip": "1音を細かく往復する弓トレモロとは別物。指の付け根から動かす。"
+  },
+  {
+   "id": "breath",
+   "cat": "bow",
+   "glyph": "breath",
+   "label": "ブレス",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "BreathMark"
+    ]
+   },
+   "what": "「'」のような記号。ここで息をつくように、ほんの少し間をあける。",
+   "tip": "止まるのではなく、フレーズの切れ目を感じさせるくらいで十分。"
+  },
+  {
+   "id": "caesura",
+   "cat": "bow",
+   "glyph": "breath",
+   "label": "カエスーラ",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "Caesura"
+    ]
+   },
+   "what": "斜め二本線（//）。ブレスよりはっきり、音楽をいったん切って間をあける。",
+   "tip": "ブレスよりはっきり間をとる。合わせて弾くときは、みんなで呼吸をそろえよう。"
+  },
+  {
+   "id": "stress",
+   "cat": "bow",
+   "glyph": "accent",
+   "label": "ストレス",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "Stress"
+    ]
+   },
+   "what": "その音を少しだけ重く。アクセントほど強くはしない、控えめな強調。",
+   "tip": "弓の速さをほんの少し上げるだけ。アクセントほど強くしない。"
+  },
+  {
+   "id": "unstress",
+   "cat": "bow",
+   "glyph": "tenuto",
+   "label": "アンストレス",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "Unstress"
+    ]
+   },
+   "what": "その音を軽く、目立たせずに通り過ぎる指示。",
+   "tip": "弓の量を減らして軽く。次の音へ自然につなげる。"
+  },
+  {
+   "id": "bow_staccato",
+   "cat": "bow",
+   "glyph": "staccato",
+   "label": "連続スタッカート",
+   "supply": "tag",
+   "lessonId": "bow_staccato",
+   "match": {
+    "type": "none"
+   },
+   "what": "スラーの中にいくつも点が並ぶ記号。ひと弓のまま、弓を止めては動かして音を切りそろえる。",
+   "tip": "記譜はスラー＋点なので、譜面だけではポルタートと見分けがつかない。曲についた技術タグで判別する。"
+  },
+  {
+   "id": "ricochet",
+   "cat": "bow",
+   "glyph": "spiccato",
+   "label": "リコシェ",
+   "supply": "tag",
+   "lessonId": "ricochet",
+   "match": {
+    "type": "none"
+   },
+   "what": "弓を落として、その跳ね返りで続けて数音鳴らす奏法。スラーと点で書かれる。",
+   "tip": "記譜がスピッカートと共通なので、曲についた技術タグで判別する。"
+  },
+  {
+   "id": "harmonic",
+   "cat": "left",
+   "glyph": "harmonic",
+   "label": "ハーモニクス",
+   "supply": "ready",
+   "lessonId": "harmonics",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "Harmonic",
+     "StringHarmonic"
+    ],
+    "orFlag": "is_harmonic"
+   },
+   "what": "音符の上の小さな「○」。弦を押さえず軽く触れて、笛のような澄んだ音を出す。",
+   "tip": "指は置くだけ。押さえ込むと普通の音になってしまう。"
+  },
+  {
+   "id": "notehead_diamond",
+   "cat": "left",
+   "glyph": "diamond",
+   "label": "ダイヤ形の符頭",
+   "supply": "pending",
+   "lessonId": "harmonics",
+   "match": {
+    "type": "notehead",
+    "value": "diamond"
+   },
+   "what": "ひし形の音符。ハーモニクスで「軽く触れる位置」を示すのに使う。",
+   "tip": "ふつうの黒丸の音符が実際に押さえる音、ひし形が触れるだけの音。"
+  },
+  {
+   "id": "notehead_x",
+   "cat": "left",
+   "glyph": "xhead",
+   "label": "×形の符頭",
+   "supply": "pending",
+   "match": {
+    "type": "notehead",
+    "value": "x"
+   },
+   "what": "×形の音符。音程をはっきり決めない音や、弦を叩くような特殊な音に使う。",
+   "tip": "音程を狙わなくていい。弓や指の当て方で音色をつくる。"
+  },
+  {
+   "id": "open_string",
+   "cat": "left",
+   "glyph": "openstring",
+   "label": "開放弦",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "OpenString"
+    ]
+   },
+   "what": "音符の上の「○」。指で押さえず、弦をそのまま鳴らす。",
+   "tip": "よく響くぶん目立つので、弓の速さをすこし抑えると馴染む。"
+  },
+  {
+   "id": "pizzicato",
+   "cat": "left",
+   "glyph": "pizz",
+   "label": "ピチカート",
+   "supply": "ready",
+   "lessonId": "pizzicato",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "Pizzicato"
+    ]
+   },
+   "what": "「pizz.」と書かれたら、弓を使わず指で弦をはじいて鳴らす。",
+   "tip": "指の腹で、弦を横に払うようにはじくとよく響く。"
+  },
+  {
+   "id": "snap_pizzicato",
+   "cat": "left",
+   "glyph": "snappizz",
+   "label": "バルトーク・ピチカート",
+   "supply": "ready",
+   "lessonId": "pizzicato",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "SnapPizzicato"
+    ]
+   },
+   "what": "弦を上に引っぱって指板に叩きつける、パチンと鳴るピチカート。○に縦線の記号。",
+   "tip": "強く引きすぎると弦を傷める。真上に軽く引いて離す。"
+  },
+  {
+   "id": "arco",
+   "cat": "left",
+   "glyph": "arco",
+   "label": "アルコ（弓に戻す）",
+   "supply": "pending",
+   "match": {
+    "type": "words",
+    "words": [
+     "arco"
+    ]
+   },
+   "what": "ピチカートのあと「arco」と書かれたら、弓を使う奏き方に戻す。",
+   "tip": "pizz. と arco は必ず対で出てくる。どこで戻るか先に見ておこう。"
+  },
+  {
+   "id": "sul_ponticello",
+   "cat": "left",
+   "glyph": "sulpont",
+   "label": "スル・ポンティチェロ",
+   "supply": "pending",
+   "match": {
+    "type": "words",
+    "words": [
+     "sul pont.",
+     "sul ponticello",
+     "s.p."
+    ]
+   },
+   "what": "「駒の近くを弾く」指示。細く硬い、ガラスのような音になる。",
+   "tip": "弓は弦に軽く。押しつけると音が潰れる。ord. で普通の位置に戻る。"
+  },
+  {
+   "id": "sul_tasto",
+   "cat": "left",
+   "glyph": "sultasto",
+   "label": "スル・タスト",
+   "supply": "pending",
+   "match": {
+    "type": "words",
+    "words": [
+     "sul tasto",
+     "s.t.",
+     "flautando"
+    ]
+   },
+   "what": "「指板の上を弾く」指示。やわらかく、笛のような音になる。",
+   "tip": "弓の圧は軽く、速さもゆっくり。ord. で普通の位置に戻る。"
+  },
+  {
+   "id": "col_legno",
+   "cat": "left",
+   "glyph": "collegno",
+   "label": "コル・レーニョ",
+   "supply": "pending",
+   "match": {
+    "type": "words",
+    "words": [
+     "col legno",
+     "col legno battuto",
+     "col legno tratto"
+    ]
+   },
+   "what": "弓の毛ではなく「木の部分」で弾く（または叩く）指示。カタカタした打楽器的な音になる。",
+   "tip": "弓を傷めるので、練習用の弓を使うことが多い。"
+  },
+  {
+   "id": "nail_pizzicato",
+   "cat": "left",
+   "glyph": "pizz",
+   "label": "爪ピチカート",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "NailPizzicato"
+    ]
+   },
+   "what": "指の腹ではなく爪ではじく、硬く鋭い音のピチカート。",
+   "tip": "爪の先ではじく。弦を傷めやすいので力を入れすぎない。"
+  },
+  {
+   "id": "lh_pizzicato",
+   "cat": "left",
+   "glyph": "lhpizz",
+   "label": "左手ピチカート",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "Stopped"
+    ]
+   },
+   "what": "音符の上の「＋」。弓を持ったまま、左手の指で弦をはじく。",
+   "tip": "押さえている指ではなく、空いている指ではじく。"
+  },
+  {
+   "id": "fingering",
+   "cat": "left",
+   "glyph": "finger",
+   "label": "運指の数字",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "Fingering",
+     "StringFingering"
+    ],
+    "orField": "display_finger"
+   },
+   "what": "音符の近くの 0〜4 は、左手のどの指で押さえるかの指示。0＝開放弦、1＝人差し指。",
+   "tip": "この曲では 1stポジション以外で弾くところにだけ数字を出しているよ。"
+  },
+  {
+   "id": "fingering_substitution",
+   "cat": "left",
+   "glyph": "finger_sub",
+   "label": "変え指",
+   "supply": "pending",
+   "match": {
+    "type": "fingeringSubstitution"
+   },
+   "what": "「2-3」のように数字が2つ並ぶ指示。音を鳴らしたまま、押さえる指を入れ替える。",
+   "tip": "音が切れないよう、次の指を置いてから前の指を離す。"
+  },
+  {
+   "id": "pluck",
+   "cat": "left",
+   "glyph": "finger",
+   "label": "右手の指指定",
+   "supply": "pending",
+   "match": {
+    "type": "technical",
+    "m21": [
+     "Pluck"
+    ]
+   },
+   "what": "ピチカートで、右手のどの指ではじくかの指示（p＝親指、i＝人差し指 など）。",
+   "tip": "ギター由来の表記。ヴァイオリンでは人差し指だけで弾くことが多い。"
+  },
+  {
+   "id": "string_indication",
+   "cat": "left",
+   "glyph": "string",
+   "label": "弦の指定",
+   "supply": "ready",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "StringIndication"
+    ],
+    "orField": "display_string_num"
+   },
+   "what": "ローマ数字（Ⅰ〜Ⅳ）は、どの弦で弾くかの指示。Ⅰ＝E線、Ⅳ＝G線。",
+   "tip": "いつもと違う弦を指定するのは、音色をそろえたい時が多い。"
+  },
+  {
+   "id": "con_sordino",
+   "cat": "left",
+   "glyph": "sordino",
+   "label": "弱音器（ミュート）",
+   "supply": "pending",
+   "match": {
+    "type": "words",
+    "words": [
+     "con sordino",
+     "senza sordino",
+     "sord.",
+     "via sord."
+    ]
+   },
+   "what": "con sordino は駒に弱音器を付ける指示。senza sordino で外す。音がやわらかく、くぐもった響きになる。",
+   "tip": "付け外しに時間がかかるので、休符のあいだに準備する。"
+  },
+  {
+   "id": "scordatura",
+   "cat": "left",
+   "glyph": "tuning",
+   "label": "変則調弦（スコルダトゥーラ）",
+   "supply": "pending",
+   "match": {
+    "type": "scordatura"
+   },
+   "what": "弦の調律をふつうと変える指示。開放弦の音が変わるので、押さえる位置も変わる。",
+   "tip": "曲の前に調弦し直し、終わったら戻す。"
+  },
+  {
+   "id": "glissando",
+   "cat": "left",
+   "glyph": "gliss",
+   "label": "グリッサンド",
+   "supply": "pending",
+   "lessonId": "glissando",
+   "match": {
+    "type": "spanner",
+    "name": "glissandi"
+   },
+   "what": "音と音を結ぶ斜めの線。指を弦の上で滑らせて、あいだの音をつなげる。",
+   "tip": "着地する音を先に決めてから滑る。滑る速さで表情が変わる。"
+  },
+  {
+   "id": "portamento",
+   "cat": "left",
+   "glyph": "gliss",
+   "label": "ポルタメント",
+   "supply": "pending",
+   "lessonId": "glissando",
+   "match": {
+    "type": "spanner",
+    "name": "slides"
+   },
+   "what": "音と音を波線や直線でつなぐ指示。グリッサンドが「一段ずつ聞かせる」のに対し、ポルタメントは目的の音へ滑らかに寄せる。",
+   "tip": "MusicXML では <slide> と <glissando> は別の記号だけれど、弾き方は近い。"
+  },
+  {
+   "id": "jazz_slide",
+   "cat": "left",
+   "glyph": "fall",
+   "label": "フォール・スクープ",
+   "supply": "pending",
+   "match": {
+    "type": "articulation",
+    "m21": [
+     "Doit",
+     "Falloff",
+     "Plop",
+     "Scoop"
+    ]
+   },
+   "what": "音の終わりで下げる（フォール）、始めで下から入る（スクープ）などの短い滑り。ジャズ寄りの表現。",
+   "tip": "ヴァイオリンではあまり使わない。管楽器やジャズ譜でよく見る記号。"
+  },
+  {
+   "id": "vibrato",
+   "cat": "left",
+   "glyph": "vibrato",
+   "label": "ビブラート",
+   "supply": "tag",
+   "lessonId": "vibrato",
+   "match": {
+    "type": "none"
+   },
+   "what": "音を細かく揺らして、豊かに響かせる左手の技術。",
+   "tip": "楽譜には書かれないことがほとんど。どこで使うかは自分で決める。"
+  },
+  {
+   "id": "position_shift",
+   "cat": "left",
+   "glyph": "shift",
+   "label": "ポジション移動",
+   "supply": "tag",
+   "match": {
+    "type": "none"
+   },
+   "what": "左手の位置を動かして、高い音や弾きやすい運指にすること。",
+   "tip": "この曲で使うポジションは、練習前シートの「この曲に必要な技術」で確認できるよ。"
+  },
+  {
+   "id": "double_stop_3",
+   "cat": "left",
+   "glyph": "chord",
+   "label": "重音 3度",
+   "supply": "ready",
+   "lessonId": "ds3",
+   "match": {
+    "type": "chordInterval",
+    "semitones": [
+     3,
+     4
+    ]
+   },
+   "what": "3度の重音。となり合う2本の弦を同時に鳴らすところだよ。",
+   "tip": "指の形をひとかたまりで覚えると安定する。"
+  },
+  {
+   "id": "double_stop_6",
+   "cat": "left",
+   "glyph": "chord",
+   "label": "重音 6度",
+   "supply": "ready",
+   "lessonId": "ds6",
+   "match": {
+    "type": "chordInterval",
+    "semitones": [
+     8,
+     9
+    ]
+   },
+   "what": "6度の重音。2本の弦を同時に鳴らすところだよ。",
+   "tip": "2本の指の間隔を保ったまま動かすのがコツ。"
+  },
+  {
+   "id": "double_stop_8",
+   "cat": "left",
+   "glyph": "chord",
+   "label": "重音 オクターブ",
+   "supply": "ready",
+   "lessonId": "ds8",
+   "match": {
+    "type": "chordInterval",
+    "semitones": [
+     12
+    ]
+   },
+   "what": "オクターブの重音。同じ音名を、高さ違いで同時に鳴らす。",
+   "tip": "ずれると濁りがはっきり出る。1の指と4の指の幅を先に決める。"
+  },
+  {
+   "id": "double_stop_10",
+   "cat": "left",
+   "glyph": "chord",
+   "label": "重音 10度",
+   "supply": "ready",
+   "lessonId": "ds10",
+   "match": {
+    "type": "chordInterval",
+    "semitones": [
+     16,
+     17
+    ]
+   },
+   "what": "10度の重音。手をかなり広げて2本の弦を同時に鳴らす。",
+   "tip": "手を痛めやすいので、無理せず短時間から。"
+  },
+  {
+   "id": "double_stop",
+   "cat": "left",
+   "glyph": "chord",
+   "label": "重音",
+   "supply": "ready",
+   "match": {
+    "type": "flag",
+    "field": "is_chord"
+   },
+   "what": "音符が縦に重なっているところ。2本の弦を同時に鳴らす。",
+   "tip": "まず片方ずつ音程を確かめてから、2本を同時に。弓は2本の弦の真ん中に置く。"
+  },
+  {
+   "id": "double_stop_seq",
+   "cat": "left",
+   "glyph": "chord",
+   "label": "連続重音",
+   "supply": "tag",
+   "lessonId": "ds_seq",
+   "match": {
+    "type": "none"
+   },
+   "what": "重音が続けて並ぶところ。押さえ替えながら音程を保つのがむずかしい。",
+   "tip": "1つずつ止めて音程をつくり、つないでいく。速さは最後でいい。"
+  },
+  {
+   "id": "arpeggio_mark",
+   "cat": "left",
+   "glyph": "arpeggio",
+   "label": "アルペジオ記号",
+   "supply": "pending",
+   "match": {
+    "type": "expression",
+    "m21": [
+     "ArpeggioMark"
+    ]
+   },
+   "what": "和音の左の波線。3本以上の弦は同時に鳴らせないので、下から順に分散して鳴らす。",
+   "tip": "弓を弦から弦へ、途切れさせずに転がすように動かす。"
+  },
+  {
+   "id": "trill",
+   "cat": "orn",
+   "glyph": "trill",
+   "label": "トリル",
+   "supply": "ready",
+   "lessonId": "trill",
+   "match": {
+    "type": "flag",
+    "field": "is_trill"
+   },
+   "what": "「tr」の記号。その音と、すぐ上の音を、すばやく交互に鳴らす。",
+   "tip": "速さより粒のそろい方が大事。ゆっくりから始めよう。"
+  },
+  {
+   "id": "mordent",
+   "cat": "orn",
+   "glyph": "mordent",
+   "label": "プラルトリラー・モルデント",
+   "supply": "ready",
+   "lessonId": "mordent",
+   "match": {
+    "type": "flag",
+    "field": "is_mordent"
+   },
+   "what": "ギザギザの短い記号。となりの音をチラッと挟んでから、元の音に戻る飾り。",
+   "tip": "1回だけ素早く。拍の頭から始めるのが基本。"
+  },
+  {
+   "id": "turn",
+   "cat": "orn",
+   "glyph": "turn",
+   "label": "ターン",
+   "supply": "pending",
+   "match": {
+    "type": "expression",
+    "m21": [
+     "Turn",
+     "InvertedTurn"
+    ]
+   },
+   "what": "「〜」を横にしたような記号。上の音・元の音・下の音・元の音、と回るように飾る。",
+   "tip": "4つの音を均等に。拍の頭から始めるか少し遅らせるかは、曲の様式による。"
+  },
+  {
+   "id": "delayed_turn",
+   "cat": "orn",
+   "glyph": "turn",
+   "label": "遅れターン",
+   "supply": "pending",
+   "match": {
+    "type": "expressionAttr",
+    "expr": "Turn",
+    "attr": "delayed"
+   },
+   "what": "ターンと同じ形だが、音符の真上ではなく右寄りに書かれる。音を伸ばしてから、終わりぎわに回す。",
+   "tip": "伸ばした音の終わりで回す。次の音の直前に着地させる。"
+  },
+  {
+   "id": "grace_note",
+   "cat": "orn",
+   "glyph": "grace",
+   "label": "装飾音",
+   "supply": "pending",
+   "match": {
+    "type": "grace"
+   },
+   "what": "斜め線のついた小さな音符。本来の音の直前に、さっと軽く添える。",
+   "tip": "拍を食わないように、次の音を拍の頭に置く。"
+  },
+  {
+   "id": "ghost_note",
+   "cat": "orn",
+   "glyph": "ghost",
+   "label": "ゴーストノート",
+   "supply": "pending",
+   "match": {
+    "type": "notehead",
+    "value": "x-ghost"
+   },
+   "what": "かっこや×で書かれる、音程をはっきり出さない音。リズムだけを感じさせる。",
+   "tip": "鳴らしきらず、気配だけ。リズムを保つのが目的。"
+  },
+  {
+   "id": "appoggiatura",
+   "cat": "orn",
+   "glyph": "grace",
+   "label": "前打音（アポジャトゥーラ）",
+   "supply": "pending",
+   "match": {
+    "type": "expression",
+    "m21": [
+     "HalfStepAppoggiatura",
+     "WholeStepAppoggiatura",
+     "HalfStepInvertedAppoggiatura",
+     "WholeStepInvertedAppoggiatura"
+    ]
+   },
+   "what": "本来の音の前に置く、たっぷり長さをとる小さな音符。装飾音より重く扱う。",
+   "tip": "本来の音から時間をもらう。ふつうは半分ほどの長さをとる。"
+  },
+  {
+   "id": "schleifer",
+   "cat": "orn",
+   "glyph": "mordent",
+   "label": "シュライファー",
+   "supply": "pending",
+   "match": {
+    "type": "expression",
+    "m21": [
+     "Schleifer"
+    ]
+   },
+   "what": "下の音から数音、階段のように駆け上がって目的の音に着く飾り。",
+   "tip": "軽く駆け上がる。目的の音を拍の頭に置く。"
+  },
+  {
+   "id": "shake",
+   "cat": "orn",
+   "glyph": "trill",
+   "label": "シェイク",
+   "supply": "pending",
+   "match": {
+    "type": "expression",
+    "m21": [
+     "Shake"
+    ]
+   },
+   "what": "トリルの仲間。上の音との往復を、より強く目立たせる飾り。",
+   "tip": "トリルより幅広く、荒々しく。バロックの様式で使う。"
+  },
+  {
+   "id": "haydn",
+   "cat": "orn",
+   "glyph": "mordent",
+   "label": "ハイドン装飾",
+   "supply": "pending",
+   "match": {
+    "type": "expression",
+    "m21": [
+     "Haydn"
+    ]
+   },
+   "what": "ターンとトリルを組み合わせたような、古典派でよく使われる飾り。",
+   "tip": "ターンから入ってトリルに続く。古典派らしい軽さで。"
+  },
+  {
+   "id": "fermata",
+   "cat": "orn",
+   "glyph": "fermata",
+   "label": "フェルマータ",
+   "supply": "pending",
+   "match": {
+    "type": "expression",
+    "m21": [
+     "Fermata"
+    ]
+   },
+   "what": "半円と点の記号。その音（または休符）を、書かれた長さより長く伸ばす。",
+   "tip": "どれだけ伸ばすかは決まっていない。だいたい2倍が目安。"
+  },
+  {
+   "id": "dynamic",
+   "cat": "dyn",
+   "glyph": "dynamic",
+   "label": "強弱記号",
+   "supply": "ready",
+   "match": {
+    "type": "dynamic"
+   },
+   "what": "音の大きさを指示する記号。",
+   "tip": "大きさは弓のスピードで作る。押しつけると音がつぶれてしまう。"
+  },
+  {
+   "id": "crescendo",
+   "cat": "dyn",
+   "glyph": "cresc",
+   "label": "クレッシェンド",
+   "supply": "ready",
+   "match": {
+    "type": "hairpin",
+    "hairpin": "crescendo"
+   },
+   "what": "だんだん開いていく「＜」。この区間で、少しずつ大きくしていく。",
+   "tip": "最初を控えめに始めるのがコツ。始めが大きいと伸びしろが無くなる。"
+  },
+  {
+   "id": "diminuendo",
+   "cat": "dyn",
+   "glyph": "dim",
+   "label": "デクレッシェンド",
+   "supply": "ready",
+   "match": {
+    "type": "hairpin",
+    "hairpin": "diminuendo"
+   },
+   "what": "だんだん閉じていく「＞」。この区間で、少しずつ小さくしていく。",
+   "tip": "小さくしても弓のスピードは保つ。止めると音がかすれる。"
+  },
+  {
+   "id": "dashes",
+   "cat": "dyn",
+   "glyph": "dashes",
+   "label": "破線の指示",
+   "supply": "pending",
+   "match": {
+    "type": "dashes"
+   },
+   "what": "cresc. - - - - のように、ことばのあとに続く破線。破線が続くあいだ、その変化をかけ続ける。",
+   "tip": "＜＞（松葉）と意味は同じ。長い区間では破線で書かれることが多い。"
+  },
+  {
+   "id": "text_expression",
+   "cat": "dyn",
+   "glyph": "text",
+   "label": "ことばの指示",
+   "supply": "pending",
+   "match": {
+    "type": "expression",
+    "m21": [
+     "TextExpression"
+    ]
+   },
+   "what": "dolce（やさしく）・cantabile（歌うように）など、雰囲気をことばで書いた指示。",
+   "tip": "強さではなく「雰囲気」の指示。弓の速さと圧のバランスでつくる。"
+  },
+  {
+   "id": "tempo_text",
+   "cat": "dyn",
+   "glyph": "text",
+   "label": "速さの指示",
+   "supply": "pending",
+   "match": {
+    "type": "tempo",
+    "m21": [
+     "TempoText"
+    ]
+   },
+   "what": "Allegro（速く）・Andante（歩く速さで）など、曲全体の速さをことばで示す指示。",
+   "tip": "曲全体の速さの目安。まずゆっくり弾けるようになってから近づけよう。"
+  },
+  {
+   "id": "tempo_change",
+   "cat": "dyn",
+   "glyph": "ritard",
+   "label": "速さを変える指示",
+   "supply": "pending",
+   "match": {
+    "type": "words",
+    "words": [
+     "rit.",
+     "ritard.",
+     "rallent.",
+     "rall.",
+     "accel.",
+     "a tempo",
+     "tempo primo",
+     "rubato"
+    ]
+   },
+   "what": "rit.（だんだん遅く）・accel.（だんだん速く）・a tempo（元の速さに戻る）など、途中で速さを変える指示。",
+   "tip": "rit. のあとには a tempo が来ることが多い。どこで戻るか先に確認しよう。"
+  },
+  {
+   "id": "swing",
+   "cat": "dyn",
+   "glyph": "swing",
+   "label": "スウィング",
+   "supply": "pending",
+   "match": {
+    "type": "words",
+    "words": [
+     "swing",
+     "shuffle"
+    ]
+   },
+   "what": "8分音符を「タッカ、タッカ」と3連符ぎみに崩して弾く指示。ジャズやポップスで使う。",
+   "tip": "譜面は均等な8分音符でも、実際は長短のペアで弾く。"
+  },
+  {
+   "id": "metronome",
+   "cat": "dyn",
+   "glyph": "metronome",
+   "label": "メトロノーム記号",
+   "supply": "pending",
+   "match": {
+    "type": "tempo",
+    "m21": [
+     "MetronomeMark"
+    ]
+   },
+   "what": "♩＝90 のような表記。1分間に4分音符を何回打つ速さか、という意味。",
+   "tip": "この曲のテンポは、演奏バーのテンポ表示でも変えられるよ。"
+  },
+  {
+   "id": "rehearsal_mark",
+   "cat": "dyn",
+   "glyph": "text",
+   "label": "リハーサル記号",
+   "supply": "pending",
+   "match": {
+    "type": "expression",
+    "m21": [
+     "RehearsalMark"
+    ]
+   },
+   "what": "四角で囲まれた A・B・C や数字。合わせるときに「Bから」と位置を指すための目印。",
+   "tip": "合わせ練習で「Bから」と場所を言うための目印。演奏そのものには影響しない。"
+  },
+  {
+   "id": "harmony_symbol",
+   "cat": "dyn",
+   "glyph": "text",
+   "label": "コードネーム",
+   "supply": "pending",
+   "match": {
+    "type": "harmony"
+   },
+   "what": "五線の上の C・G7・Am のような記号。伴奏の和音を示す。旋律を弾くときは直接は使わない。",
+   "tip": "旋律を弾くときは直接使わないけれど、和音がわかると音程が取りやすくなる。"
+  },
+  {
+   "id": "tie",
+   "cat": "rhythm",
+   "glyph": "tie",
+   "label": "タイ",
+   "supply": "ready",
+   "match": {
+    "type": "flag",
+    "field": "is_tied"
+   },
+   "what": "同じ高さの音符どうしを結ぶ線。弾き直さず、ひとつの長い音にする。",
+   "tip": "スラーと形が似ているけれど、タイは「同じ音」をつなぐもの。"
+  },
+  {
+   "id": "tuplet",
+   "cat": "rhythm",
+   "glyph": "tuplet",
+   "label": "連符",
+   "supply": "ready",
+   "match": {
+    "type": "tuplet"
+   },
+   "what": "本来2つ分の長さに、音符を均等に入れる記号。上の数字が入れる個数。",
+   "tip": "急がずに、まず声に出して数えてから弾くとそろう。"
+  },
+  {
+   "id": "dotted",
+   "cat": "rhythm",
+   "glyph": "dotted",
+   "label": "付点",
+   "supply": "pending",
+   "match": {
+    "type": "dots"
+   },
+   "what": "音符の右の点。その音符の長さを1.5倍にする。",
+   "tip": "短いほうの音を短く弾ききると、付点らしいはずみが出る。"
+  },
+  {
+   "id": "double_dotted",
+   "cat": "rhythm",
+   "glyph": "doubledot",
+   "label": "複付点",
+   "supply": "pending",
+   "match": {
+    "type": "dots",
+    "count": 2
+   },
+   "what": "点が2つ。1つ目で1.5倍、2つ目でさらにその半分を足す（合計 1.75 倍）。",
+   "tip": "続く短い音がとても短くなる。鋭く弾ききるとリズムが立つ。"
+  },
+  {
+   "id": "cue_note",
+   "cat": "rhythm",
+   "glyph": "cue",
+   "label": "小さい音符（キュー）",
+   "supply": "pending",
+   "match": {
+    "type": "cue"
+   },
+   "what": "ふつうより小さく書かれた音符。ほかの楽器が弾いている音を参考に示したもので、自分は弾かない。",
+   "tip": "自分は弾かない。出るタイミングを数えるための目印。"
+  },
+  {
+   "id": "beam",
+   "cat": "rhythm",
+   "glyph": "beam",
+   "label": "連桁（れんこう）",
+   "supply": "pending",
+   "match": {
+    "type": "beam"
+   },
+   "what": "8分音符などをつなぐ横棒。どの音がひとまとまりの拍かを見せてくれる。",
+   "tip": "連桁のまとまり＝1拍。拍を数えるときの目印になる。"
+  },
+  {
+   "id": "voice",
+   "cat": "rhythm",
+   "glyph": "voice",
+   "label": "声部（ボイス）",
+   "supply": "pending",
+   "match": {
+    "type": "voice"
+   },
+   "what": "ひとつの五線に2つ以上の流れがあるとき、符尾を上下に分けて書き分けたもの。",
+   "tip": "重音とちがい、それぞれ別のリズムで動く。自分が弾く声部を確認しよう。"
+  },
+  {
+   "id": "rest",
+   "cat": "rhythm",
+   "glyph": "rest",
+   "label": "休符",
+   "supply": "ready",
+   "match": {
+    "type": "rest"
+   },
+   "what": "音を出さずに待つ記号。長さごとに形が変わる。",
+   "tip": "休符も music の一部。弓を止めて、次に備える時間だよ。"
+  },
+  {
+   "id": "multi_measure_rest",
+   "cat": "rhythm",
+   "glyph": "rest",
+   "label": "長休符",
+   "supply": "pending",
+   "match": {
+    "type": "spannerClass",
+    "m21": [
+     "MultiMeasureRest"
+    ]
+   },
+   "what": "太い横棒と数字。その小節数ぶん、まるごと休む。",
+   "tip": "数字の小節数だけ待つ。数え間違えやすいので、拍を追い続けよう。"
+  },
+  {
+   "id": "measure_repeat",
+   "cat": "rhythm",
+   "glyph": "measure_repeat",
+   "label": "小節反復",
+   "supply": "pending",
+   "match": {
+    "type": "measureStyle",
+    "value": "measure-repeat"
+   },
+   "what": "斜線と点の記号。ひとつ前の小節と同じものをもう一度弾く、という省略記法。",
+   "tip": "前の小節と同じ。省略されているだけで、弾く中身は変わらない。"
+  },
+  {
+   "id": "key_signature",
+   "cat": "struct",
+   "glyph": "key",
+   "label": "調号",
+   "supply": "ready",
+   "match": {
+    "type": "key"
+   },
+   "what": "曲の最初にある ♯ や ♭。その曲でずっと使う音を決めている。",
+   "tip": "調号がついた音は、譜面に書かれていなくてもいつも♯（♭）で弾く。"
+  },
+  {
+   "id": "key_change",
+   "cat": "struct",
+   "glyph": "key",
+   "label": "転調（調号の変更）",
+   "supply": "pending",
+   "match": {
+    "type": "keyChange"
+   },
+   "what": "曲の途中で調号が変わること。変わる場所に新しい ♯ / ♭ が書かれ、前の調号はナチュラルで打ち消される。",
+   "tip": "ここから先は指の位置の感覚が変わる。変わり目だけ取り出して練習しよう。"
+  },
+  {
+   "id": "time_signature",
+   "cat": "struct",
+   "glyph": "time",
+   "label": "拍子",
+   "supply": "ready",
+   "match": {
+    "type": "time"
+   },
+   "what": "曲の最初にある分数のような数字。1小節に入る拍の数と、その1拍の音符を示す。",
+   "tip": "1拍目を少しはっきり弾くとリズムが立つ。"
+  },
+  {
+   "id": "time_change",
+   "cat": "struct",
+   "glyph": "time",
+   "label": "拍子の変更",
+   "supply": "pending",
+   "match": {
+    "type": "timeChange"
+   },
+   "what": "曲の途中で拍子が変わること。数え方が変わるので、切り替わる小節に印をつけておくと安心。",
+   "tip": "数え方が変わる。切り替わる1小節前から声に出して数えると乗り遅れない。"
+  },
+  {
+   "id": "time_symbol",
+   "cat": "struct",
+   "glyph": "timeC",
+   "label": "C・¢（拍子の記号）",
+   "supply": "pending",
+   "match": {
+    "type": "timeSymbol"
+   },
+   "what": "数字の代わりに書かれる「C」は4分の4拍子、縦線の入った「¢」は2分の2拍子（アラ・ブレーヴェ）のこと。",
+   "tip": "¢ は 4/4 と音符の並びが同じでも、2拍で数える。速く感じて弾くのがコツ。"
+  },
+  {
+   "id": "senza_misura",
+   "cat": "struct",
+   "glyph": "time",
+   "label": "拍子なし",
+   "supply": "pending",
+   "match": {
+    "type": "senzaMisura"
+   },
+   "what": "拍子記号が書かれていない、または「senza misura」と指示された部分。小節線に縛られず自由に弾く。",
+   "tip": "拍に縛られず、フレーズの流れで。息づかいで長さを決める。"
+  },
+  {
+   "id": "accidental",
+   "cat": "struct",
+   "glyph": "accidental",
+   "label": "臨時記号",
+   "supply": "pending",
+   "match": {
+    "type": "accidental"
+   },
+   "what": "音符の左につく ♯ ♭ ♮。その音だけ半音上げ下げ、または調号を打ち消す。",
+   "tip": "効果はその小節のあいだだけ。次の小節では元に戻る。"
+  },
+  {
+   "id": "enharmonic",
+   "cat": "struct",
+   "glyph": "enharmonic",
+   "label": "異名同音",
+   "supply": "pending",
+   "match": {
+    "type": "enharmonic"
+   },
+   "what": "レ♯ と ミ♭ のように、高さは同じでも書き方が違う音のこと。どちらで書くかは、その曲の調号で決まる。",
+   "tip": "Arcoda が作る楽譜は、臨時記号がなるべく増えない綴りを選んでいるよ。"
+  },
+  {
+   "id": "cautionary_accidental",
+   "cat": "struct",
+   "glyph": "accidental",
+   "label": "親切記号（かっこつき）",
+   "supply": "pending",
+   "match": {
+    "type": "accidentalStyle",
+    "value": "parentheses"
+   },
+   "what": "かっこで囲まれた ♯ ♭ ♮。念のための確認で、音は変わらない。「ここは間違えやすいよ」という注意書き。",
+   "tip": "音は変わらない。「前の小節の記号はもう効いていないよ」という念押し。"
+  },
+  {
+   "id": "double_accidental",
+   "cat": "struct",
+   "glyph": "doubleacc",
+   "label": "ダブルシャープ・ダブルフラット",
+   "supply": "pending",
+   "match": {
+    "type": "accidentalKind",
+    "values": [
+     "double-sharp",
+     "double-flat"
+    ]
+   },
+   "what": "𝄪 は半音2つぶん上げ、𝄫 は半音2つぶん下げる。実際の音は、となりの音名と同じ高さになる。",
+   "tip": "ファのダブルシャープ＝ソの高さ。指の位置はソだが、譜面上はファの場所に書かれる。"
+  },
+  {
+   "id": "quarter_tone",
+   "cat": "struct",
+   "glyph": "quarter",
+   "label": "四分音",
+   "supply": "pending",
+   "match": {
+    "type": "accidentalKind",
+    "values": [
+     "half-sharp",
+     "half-flat",
+     "one-and-a-half-sharp",
+     "one-and-a-half-flat"
+    ]
+   },
+   "what": "半音のさらに半分だけ上げ下げする記号。現代曲や民族音楽で使う。",
+   "tip": "半音のさらに半分。指をほんの少しずらして、耳で高さをつくる。"
+  },
+  {
+   "id": "clef",
+   "cat": "struct",
+   "glyph": "clef",
+   "label": "音部記号",
+   "supply": "pending",
+   "match": {
+    "type": "clef"
+   },
+   "what": "五線の左はしの記号。ヴァイオリンはト音記号で、下から2本目の線が「ソ」。",
+   "tip": "ヴァイオリンはいつもト音記号。渦の中心が通る線が「ソ」だよ。"
+  },
+  {
+   "id": "ottava",
+   "cat": "struct",
+   "glyph": "ottava",
+   "label": "オクターブ記号",
+   "supply": "pending",
+   "match": {
+    "type": "spannerClass",
+    "m21": [
+     "Ottava"
+    ]
+   },
+   "what": "8va と点線。この区間は、書かれた音より1オクターブ高く（8vb なら低く）弾く。",
+   "tip": "点線が終わるところまで続く。書かれた音より1オクターブ上（下）を弾く。"
+  },
+  {
+   "id": "repeat_bar",
+   "cat": "struct",
+   "glyph": "repeat",
+   "label": "反復記号",
+   "supply": "pending",
+   "match": {
+    "type": "repeat"
+   },
+   "what": "点2つと縦線（:‖）。ここまで戻って、もう一度弾く。",
+   "tip": "Arcoda は繰り返しを展開した楽譜を表示するので、譜面上は既に2回ぶん並んでいるよ。"
+  },
+  {
+   "id": "repeat_bracket",
+   "cat": "struct",
+   "glyph": "repeat",
+   "label": "1番・2番かっこ",
+   "supply": "pending",
+   "match": {
+    "type": "spannerClass",
+    "m21": [
+     "RepeatBracket"
+    ]
+   },
+   "what": "1・2 と書かれたかぎかっこ。1回目は1のかっこ、繰り返しの2回目は2のかっこを弾く。",
+   "tip": "1回目は1のかっこ、繰り返しの2回目は1を飛ばして2のかっこへ。"
+  },
+  {
+   "id": "navigation",
+   "cat": "struct",
+   "glyph": "segno",
+   "label": "とび先の指示",
+   "supply": "pending",
+   "match": {
+    "type": "repeatExpression",
+    "m21": [
+     "DaCapo",
+     "DaCapoAlFine",
+     "DaCapoAlCoda",
+     "DalSegno",
+     "DalSegnoAlFine",
+     "DalSegnoAlCoda",
+     "Segno",
+     "Coda",
+     "Fine",
+     "AlSegno"
+    ]
+   },
+   "what": "D.C.（最初から）・D.S.（セーニョから）・Coda・Fine など、どこへ飛んでどこで終わるかの指示。",
+   "tip": "弾く前に順番を整理して、譜面に番号を書き込んでおくと迷わない。"
+  },
+  {
+   "id": "barline_final",
+   "cat": "struct",
+   "glyph": "barline",
+   "label": "終止線",
+   "supply": "pending",
+   "match": {
+    "type": "barline"
+   },
+   "what": "細い線と太い線の二重線。曲の終わりを示す。",
+   "tip": "ここで曲は終わり。最後の音は、余韻が消えるまで弓を止めないで。"
+  },
+  {
+   "id": "double_barline",
+   "cat": "struct",
+   "glyph": "barline",
+   "label": "複縦線",
+   "supply": "pending",
+   "match": {
+    "type": "barline",
+    "value": "double"
+   },
+   "what": "細い線が2本の区切り。曲の終わりではなく、段落や調・拍子が変わる切れ目を示す。",
+   "tip": "終わりではなく区切り。ここから雰囲気や調が変わることが多い。"
+  },
+  {
+   "id": "lyric",
+   "cat": "struct",
+   "glyph": "lyric",
+   "label": "歌詞",
+   "supply": "pending",
+   "match": {
+    "type": "lyric"
+   },
+   "what": "音符の下に書かれたことば。歌のパートで、どの音にどの音節を当てるかを示す。",
+   "tip": "ヴァイオリンでは弾かないけれど、歌詞を読むとフレーズの切れ目がわかる。"
+  }
+ ],
+ "excluded": [
+  {
+   "notionTool": "異名同音の変更",
+   "reason": "記号ではなく編集操作。概念としては enharmonic に収録"
+  },
+  {
+   "notionTool": "五線をまたぐ連桁",
+   "reason": "大譜表(ピアノ・ハープ)専用。ヴァイオリンは単一譜表"
+  },
+  {
+   "notionTool": "楽器変更",
+   "reason": "同一譜表で楽器を持ち替える指示。ヴァイオリン独奏譜には出ない"
+  },
+  {
+   "notionTool": "ギターコードダイアグラム",
+   "reason": "ギター専用。コード記号本体は harmony_symbol に収録"
+  },
+  {
+   "notionTool": "ギターテクニック / ベンド / ジャズベンド / ワーミーバー / タブ譜",
+   "reason": "ギター専用"
+  },
+  {
+   "notionTool": "ペダル記号",
+   "reason": "ピアノ専用"
+  },
+  {
+   "notionTool": "ドラムセット記譜 / リズムスラッシュ",
+   "reason": "打楽器・コード伴奏用。旋律譜には出ない"
+  },
+  {
+   "notionTool": "管楽器のテクニック (ダブル/トリプルタンギング等)",
+   "reason": "管楽器専用"
+  },
+  {
+   "notionTool": "ハープ/オルガン/ハンドベルのテクニック",
+   "reason": "他楽器専用"
+  },
+  {
+   "notionTool": "親指ポジション",
+   "reason": "チェロ・コントラバス専用。ヴァイオリンでは使わない"
+  }
+ ]
+}

@@ -153,7 +153,9 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
       </details>
 
       {/* ── 2. 最新演奏の217診断 + 弱点練習の推薦 (見出しは WeaknessDiagnosisCard 側) ── */}
-      <section className={styles.cardSection}>
+      {/* data-onboarding: 画面ガイドが「おすすめ練習はここ」と指すアンカー。
+          演奏記録が無い場合も emptyHint がこの中に出るため、常に存在する。 */}
+      <section className={styles.cardSection} data-onboarding="scoreDetail.recommendation">
         {achv.latestPerformanceId ? (
           <WeaknessDiagnosisCard
             performanceId={achv.latestPerformanceId}

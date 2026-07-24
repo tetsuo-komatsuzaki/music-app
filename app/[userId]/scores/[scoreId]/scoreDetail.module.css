@@ -136,6 +136,8 @@
    ============================== */
 .osmdContainer {
   width: 100%;
+  /* 記号ガイドの目印 (SymbolGuide) を絶対配置で重ねるための基準 */
+  position: relative;
   overflow-x: auto;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;

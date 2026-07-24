@@ -79,8 +79,8 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
       {
         id: "scoreDetail.score",
         targetKey: "scoreDetail.scoreOverlay",
-        headline: "ここに楽譜が表示されます",
-        body: "譜面のどこかをタップすると、その位置から再生を始められます。再生中の現在位置はカーソルで示されます。",
+        headline: "知らない記号は、タップで聞ける",
+        body: "選んだ曲の楽譜がここに出るよ。すぐ下に「この曲に出てくる記号」がならんでいて、タップすると意味と弾き方がわかる。わからないまま弾かなくて大丈夫。",
         trigger: "page",
         showDismissAllCheckbox: true,
       },
@@ -101,12 +101,14 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         showDismissAllCheckbox: false,
       },
       {
-        id: "scoreDetail.history",
-        // Step 1 構成再編: 履歴/採点結果/上達ループは「ふりかえり」タブへ集約したため
-        // 演奏タブには存在しない。中央表示でタブの存在を案内する。
-        targetKey: null,
-        headline: "演奏履歴は「ふりかえり」タブに",
-        body: "録音した演奏の履歴と採点結果は、上部の「ふりかえり」タブにまとまっています。選ぶと、その時のフィードバックが譜面の上に色で表示されます。",
+        // 「ふりかえり」タブへ実際に切り替えたうえで、おすすめ練習が出る場所を指す。
+        // targetUrl でタブを切り替え、targetKey で ScoreLoopDetail の推薦セクションを
+        // スポットライトする (演奏記録が無い場合も同じ枠に案内文が出る)。
+        id: "scoreDetail.recommendation",
+        targetKey: "scoreDetail.recommendation",
+        targetUrl: "?tab=review",
+        headline: "きみ専用の練習メニューが届く",
+        body: "点数と、苦手に合わせたおすすめ練習がここにたまるよ。次に何をすればいいか、もう迷わない。",
         trigger: "page",
         showDismissAllCheckbox: false,
       },
