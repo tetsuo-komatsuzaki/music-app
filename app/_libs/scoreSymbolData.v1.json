@@ -392,7 +392,7 @@
    "cat": "left",
    "glyph": "arco",
    "label": "アルコ（弓に戻す）",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "words",
     "words": [
@@ -407,12 +407,12 @@
    "cat": "left",
    "glyph": "sulpont",
    "label": "スル・ポンティチェロ",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "words",
     "words": [
-     "sul pont.",
-     "sul ponticello",
+     "sul pont",
+     "ponticello",
      "s.p."
     ]
    },
@@ -424,7 +424,7 @@
    "cat": "left",
    "glyph": "sultasto",
    "label": "スル・タスト",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "words",
     "words": [
@@ -441,13 +441,11 @@
    "cat": "left",
    "glyph": "collegno",
    "label": "コル・レーニョ",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "words",
     "words": [
-     "col legno",
-     "col legno battuto",
-     "col legno tratto"
+     "col legno"
     ]
    },
    "what": "弓の毛ではなく「木の部分」で弾く（または叩く）指示。カタカタした打楽器的な音になる。",
@@ -548,14 +546,13 @@
    "cat": "left",
    "glyph": "sordino",
    "label": "弱音器（ミュート）",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "words",
     "words": [
-     "con sordino",
-     "senza sordino",
-     "sord.",
-     "via sord."
+     "con sord",
+     "senza sord",
+     "sord."
     ]
    },
    "what": "con sordino は駒に弱音器を付ける指示。senza sordino で外す。音がやわらかく、くぐもった響きになる。",
@@ -988,12 +985,14 @@
    "cat": "dyn",
    "glyph": "text",
    "label": "速さの指示",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "tempo",
-    "m21": [
-     "TempoText"
-    ]
+    "kinds": [
+     "TempoText",
+     "MetronomeMark"
+    ],
+    "needText": true
    },
    "what": "Allegro（速く）・Andante（歩く速さで）など、曲全体の速さをことばで示す指示。",
    "tip": "曲全体の速さの目安。まずゆっくり弾けるようになってから近づけよう。"
@@ -1003,17 +1002,18 @@
    "cat": "dyn",
    "glyph": "ritard",
    "label": "速さを変える指示",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "words",
     "words": [
      "rit.",
-     "ritard.",
-     "rallent.",
+     "ritard",
+     "rallent",
      "rall.",
-     "accel.",
+     "accel",
      "a tempo",
      "tempo primo",
+     "tempo i",
      "rubato"
     ]
    },
@@ -1025,7 +1025,7 @@
    "cat": "dyn",
    "glyph": "swing",
    "label": "スウィング",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "words",
     "words": [
@@ -1041,12 +1041,13 @@
    "cat": "dyn",
    "glyph": "metronome",
    "label": "メトロノーム記号",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "tempo",
-    "m21": [
+    "kinds": [
      "MetronomeMark"
-    ]
+    ],
+    "needNumber": true
    },
    "what": "♩＝90 のような表記。1分間に4分音符を何回打つ速さか、という意味。",
    "tip": "この曲のテンポは、演奏バーのテンポ表示でも変えられるよ。"
@@ -1071,7 +1072,7 @@
    "cat": "dyn",
    "glyph": "text",
    "label": "コードネーム",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "harmony"
    },
@@ -1222,9 +1223,11 @@
    "cat": "struct",
    "glyph": "key",
    "label": "転調（調号の変更）",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "keyChange"
+    "type": "structureCount",
+    "field": "key_signature_count",
+    "min": 2
    },
    "what": "曲の途中で調号が変わること。変わる場所に新しい ♯ / ♭ が書かれ、前の調号はナチュラルで打ち消される。",
    "tip": "ここから先は指の位置の感覚が変わる。変わり目だけ取り出して練習しよう。"
@@ -1246,9 +1249,11 @@
    "cat": "struct",
    "glyph": "time",
    "label": "拍子の変更",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "timeChange"
+    "type": "structureCount",
+    "field": "time_signature_count",
+    "min": 2
    },
    "what": "曲の途中で拍子が変わること。数え方が変わるので、切り替わる小節に印をつけておくと安心。",
    "tip": "数え方が変わる。切り替わる1小節前から声に出して数えると乗り遅れない。"
@@ -1258,7 +1263,7 @@
    "cat": "struct",
    "glyph": "timeC",
    "label": "C・¢（拍子の記号）",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "timeSymbol"
    },
@@ -1270,9 +1275,10 @@
    "cat": "struct",
    "glyph": "time",
    "label": "拍子なし",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "senzaMisura"
+    "type": "structureFlag",
+    "field": "senza_misura"
    },
    "what": "拍子記号が書かれていない、または「senza misura」と指示された部分。小節線に縛られず自由に弾く。",
    "tip": "拍に縛られず、フレーズの流れで。息づかいで長さを決める。"
@@ -1359,7 +1365,7 @@
    "cat": "struct",
    "glyph": "clef",
    "label": "音部記号",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "clef"
    },
@@ -1386,9 +1392,10 @@
    "cat": "struct",
    "glyph": "repeat",
    "label": "反復記号",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "repeat"
+    "type": "structureFlag",
+    "field": "has_repeat"
    },
    "what": "点2つと縦線（:‖）。ここまで戻って、もう一度弾く。",
    "tip": "Arcoda は繰り返しを展開した楽譜を表示するので、譜面上は既に2回ぶん並んでいるよ。"
@@ -1437,9 +1444,10 @@
    "cat": "struct",
    "glyph": "barline",
    "label": "終止線",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
-    "type": "barline"
+    "type": "barline",
+    "value": "final"
    },
    "what": "細い線と太い線の二重線。曲の終わりを示す。",
    "tip": "ここで曲は終わり。最後の音は、余韻が消えるまで弓を止めないで。"
@@ -1449,7 +1457,7 @@
    "cat": "struct",
    "glyph": "barline",
    "label": "複縦線",
-   "supply": "pending",
+   "supply": "ready",
    "match": {
     "type": "barline",
     "value": "double"

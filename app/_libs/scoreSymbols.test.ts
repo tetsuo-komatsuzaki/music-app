@@ -227,6 +227,68 @@ describe("extractScoreSymbols", () => {
     expect(list.find((s) => s.id === "glissando")?.noteIndices).toEqual([0])
   })
 
+  it("文字指示 (arco / rit. / con sordino) を音符に紐づけて拾う", () => {
+    const { list, byNote } = extractScoreSymbols({
+      notes: [note(0), note(1), note(2), note(3)],
+      directions: [
+        { note_index: 1, texts: ["arco"] },
+        { note_index: 2, texts: ["sul pont.", "con sordino"] },
+        { note_index: 3, texts: ["rit."] },
+      ],
+    })
+    expect(list.find((s) => s.id === "arco")?.noteIndices).toEqual([1])
+    expect(byNote.get(2)).toEqual(["sul_ponticello", "con_sordino"])
+    expect(list.find((s) => s.id === "tempo_change")?.value).toBe("rit.")
+  })
+
+  it("文字指示は表記ゆれ・大文字小文字を吸収する", () => {
+    const { list } = extractScoreSymbols({
+      notes: [note(0), note(1)],
+      directions: [{ note_index: 0, texts: ["Sul Pont."] }, { note_index: 1, texts: ["A Tempo"] }],
+    })
+    expect(new Set(list.map((s) => s.id))).toEqual(new Set(["sul_ponticello", "tempo_change"]))
+  })
+
+  it("曲全体の構造から 転調・拍子変更・小節線・反復・音部記号を出す", () => {
+    const { list, byNote } = extractScoreSymbols({
+      notes: [note(0)],
+      structure: {
+        key_signature_count: 2, time_signature_count: 3,
+        barline_types: ["double", "final"], has_repeat: true, clef: "TrebleClef",
+      },
+    })
+    const ids = new Set(list.map((s) => s.id))
+    expect(ids.has("key_change")).toBe(true)
+    expect(ids.has("time_change")).toBe(true)
+    expect(ids.has("double_barline")).toBe(true)
+    expect(ids.has("barline_final")).toBe(true)
+    expect(ids.has("repeat_bar")).toBe(true)
+    expect(list.find((s) => s.id === "clef")?.value).toBe("ト音記号")
+    // 曲全体の記号なので特定の音符には紐づかない
+    expect(byNote.size).toBe(0)
+  })
+
+  it("調号が1つだけなら転調とは言わない", () => {
+    const { list } = extractScoreSymbols({
+      notes: [note(0)], structure: { key_signature_count: 1, time_signature_count: 1 },
+    })
+    expect(list.find((s) => s.id === "key_change")).toBeUndefined()
+    expect(list.find((s) => s.id === "time_change")).toBeUndefined()
+  })
+
+  it("C / ¢ とテンポ表示を出す", () => {
+    const c = extractScoreSymbols({ notes: [note(0)], structure: { time_symbol: "common" } })
+    expect(c.list.find((s) => s.id === "time_symbol")?.value).toBe("C")
+    const cut = extractScoreSymbols({ notes: [note(0)], structure: { time_symbol: "cut" } })
+    expect(cut.list.find((s) => s.id === "time_symbol")?.value).toBe("¢")
+    const t = extractScoreSymbols({
+      notes: [note(0)],
+      structure: { tempo_marks: [{ kind: "MetronomeMark", number: 90, text: "Allegro" }] },
+    })
+    expect(t.list.find((s) => s.id === "metronome")?.value).toBe("♩=90")
+    expect(t.list.find((s) => s.id === "tempo_text")?.value).toBe("Allegro")
+  })
+
   it("supply が pending の記号は (データが無いので) 出てこない", () => {
     const { list } = extractScoreSymbols({ notes: [note(0, { articulations: ["Staccato"] })] })
     expect(list.every((s) => s.supply === "ready")).toBe(true)

@@ -16,7 +16,11 @@ from music21 import (
     instrument,
     dynamics,
     articulations,
+    bar,
+    clef,
     expressions,
+    harmony,
+    meter,
     spanner,
     repeat,
     tempo,
@@ -509,6 +513,7 @@ try:
     # ノート走査（設計書に合わせて拡張）
     # =========================
     note_results: List[Dict[str, Any]] = []
+    directions_out: List[Dict[str, Any]] = []   # 記号ガイド用の文字指示
     note_index = 0
     # 運指推定の音脈コンテキスト (直前の弦・ポジション)。複数弦候補の選択に使う。
     fp_prev_string: Optional[str] = None
@@ -521,10 +526,26 @@ try:
         for d in measure.getElementsByClass(dynamics.Dynamic):
             measure_dynamics[float(d.offset)] = d.value
 
+        # 記号ガイド用: 文字指示 (arco / sul pont. / rit. / con sordino / Allegro ...)。
+        # <direction><words> は music21 で TextExpression になる。小節内オフセットが
+        # 一番近い「以降の音符」に紐づけて、フロントで note_index から引けるようにする。
+        _pending_texts = sorted(
+            (float(te.offset), (getattr(te, "content", "") or "").strip())
+            for te in measure.getElementsByClass(expressions.TextExpression)
+            if (getattr(te, "content", "") or "").strip()
+        )
+
         for element in measure.notesAndRests:
             duration_quarter = float(element.duration.quarterLength)
             if duration_quarter == 0:
                 continue
+
+            # この音符以前に置かれた文字指示を回収する
+            _here: List[str] = []
+            while _pending_texts and _pending_texts[0][0] <= float(element.offset) + 1e-6:
+                _here.append(_pending_texts.pop(0)[1])
+            if _here:
+                directions_out.append({"note_index": note_index, "texts": _here})
 
             global_offset = float(measure.offset + element.offset)
             start_time_sec = global_offset * SECONDS_PER_QUARTER
@@ -861,6 +882,46 @@ try:
             a["glissando_interval_semitones"] = abs(round(semis))
             a["glissando_direction"] = "up" if semis > 0 else "down"
 
+    # =========================
+    # 記号ガイド用の構造情報 (2026-07-25)
+    # =========================
+    # リピートは展開後 part から消えるので、展開前 `part` から数える。
+    _key_sigs = list(performance_part.recurse().getElementsByClass(key.KeySignature))
+    _time_sigs = list(performance_part.recurse().getElementsByClass(meter.TimeSignature))
+    _barline_types = sorted({
+        b.type for b in performance_part.recurse().getElementsByClass(bar.Barline)
+        if getattr(b, "type", None)
+    })
+    _has_repeat = len(list(part.recurse().getElementsByClass(bar.Repeat))) > 0
+    _clef_name = next(
+        (type(c).__name__ for c in performance_part.recurse().getElementsByClass(clef.Clef)), None,
+    )
+    _tempo_marks: List[Dict[str, Any]] = []
+    for tm in performance_part.recurse().getElementsByClass(tempo.TempoIndication):
+        _tempo_marks.append({
+            "kind": type(tm).__name__,
+            "number": getattr(tm, "number", None),
+            "text": getattr(tm, "text", None),
+        })
+    _harmony = [
+        str(getattr(cs, "figure", "") or "")
+        for cs in performance_part.recurse().getElementsByClass(harmony.ChordSymbol)
+    ]
+
+    structure = {
+        # 2つ以上あれば曲中で調/拍子が変わっている
+        "key_signature_count": len(_key_sigs),
+        "time_signature_count": len(_time_sigs),
+        # 4/4 を C、2/2 を ¢ で書いているか
+        "time_symbol": (getattr(_time_sigs[0], "symbol", None) or None) if _time_sigs else None,
+        "senza_misura": len(_time_sigs) == 0,
+        "barline_types": _barline_types,      # double(複縦線) / final(終止線) など
+        "has_repeat": _has_repeat,
+        "clef": _clef_name,
+        "tempo_marks": _tempo_marks,
+        "harmony": [h for h in _harmony if h],
+    }
+
     analysis_result = {
         "bpm": BPM,
         "seconds_per_quarter": SECONDS_PER_QUARTER,
@@ -872,6 +933,9 @@ try:
         },
         "notes": note_results,
         "spanners": {"slurs": slurs_out, "hairpins": hairpins_out},
+        # 記号ガイド用 (2026-07-25)
+        "directions": directions_out,
+        "structure": structure,
     }
 
     analysis_json = json.dumps(analysis_result)

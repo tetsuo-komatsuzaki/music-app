@@ -29,7 +29,7 @@ const MATCH_TYPES = new Set([
   "words", "notehead", "technical", "harmony", "cue", "beam", "measureStyle",
   "timeSymbol", "senzaMisura", "accidentalStyle", "scordatura", "dashes", "expressionAttr", "fieldValue",
   "accidentalKind", "voice", "lyric", "enharmonic", "keyChange", "timeChange",
-  "fingeringSubstitution",
+  "fingeringSubstitution", "structureCount", "structureFlag",
 ])
 
 // 解析側が今すぐ供給できる match の型
@@ -37,6 +37,8 @@ const READY_MATCH_TYPES = new Set([
   "articulation", "flag", "spanner", "hairpin", "chordInterval", "dynamic", "tuplet",
   "rest", "key", "time", "fieldValue",
   "expression", "notehead", "accidentalKind", "accidentalStyle", "dots", "voice",
+  "words", "tempo", "structureCount", "structureFlag", "barline", "timeSymbol",
+  "clef", "harmony",
 ])
 
 describe("scoreSymbolData.v1.json (記号の正本)", () => {
@@ -113,6 +115,6 @@ describe("scoreSymbolData.v1.json (記号の正本)", () => {
   it("網羅状況を記録する (増減したらこのテストを更新して意図を明示する)", () => {
     const by = (k: string) => ALL_SYMBOLS.filter((s) => s.supply === k).length
     expect({ total: ALL_SYMBOLS.length, ready: by("ready"), pending: by("pending"), tag: by("tag") })
-      .toEqual({ total: 99, ready: 59, pending: 35, tag: 5 })
+      .toEqual({ total: 99, ready: 77, pending: 17, tag: 5 })
   })
 })

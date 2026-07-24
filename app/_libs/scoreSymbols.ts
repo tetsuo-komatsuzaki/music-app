@@ -61,6 +61,14 @@ type MatchSpec = {
   count?: number
   /** 臨時記号の表示スタイル ("normal" | "parentheses") */
   style?: string
+  /** 文字指示のキーワード (小文字・部分一致) */
+  words?: string[]
+  /** tempo マッチの対象クラス / 条件 */
+  kinds?: string[]
+  needText?: boolean
+  needNumber?: boolean
+  /** structure の件数条件 */
+  min?: number
 }
 
 /** JSON の1件 (語彙の定義) */
@@ -118,6 +126,16 @@ const ACCIDENTAL_STYLES: { style: string; def: SymbolDef }[] = []
 /** 付点の数 → 定義 */
 const BY_DOTS = new Map<number, SymbolDef>()
 let VOICE_DEF: SymbolDef | undefined
+/** 文字指示 (arco / rit. など) → 定義 */
+const BY_WORDS: { words: string[]; def: SymbolDef }[] = []
+/** 曲全体の構造から決まる定義 */
+const TEMPO_DEFS: { kinds: string[]; needText?: boolean; needNumber?: boolean; def: SymbolDef }[] = []
+const STRUCT_COUNT: { field: string; min: number; def: SymbolDef }[] = []
+const STRUCT_FLAG: { field: string; def: SymbolDef }[] = []
+const BY_BARLINE = new Map<string, SymbolDef>()
+let TIME_SYMBOL_DEF: SymbolDef | undefined
+let CLEF_DEF: SymbolDef | undefined
+let HARMONY_DEF: SymbolDef | undefined
 
 for (const d of ALL_SYMBOLS) {
   const m = d.match
@@ -158,6 +176,22 @@ for (const d of ALL_SYMBOLS) {
       if (m.count) BY_DOTS.set(m.count, d)
       break
     case "voice": VOICE_DEF = d; break
+    case "words":
+      BY_WORDS.push({ words: (m.words ?? []).map((w) => w.toLowerCase()), def: d })
+      break
+    case "tempo":
+      TEMPO_DEFS.push({ kinds: m.kinds ?? [], needText: m.needText, needNumber: m.needNumber, def: d })
+      break
+    case "structureCount":
+      if (m.field) STRUCT_COUNT.push({ field: m.field, min: m.min ?? 2, def: d })
+      break
+    case "structureFlag":
+      if (m.field) STRUCT_FLAG.push({ field: m.field, def: d })
+      break
+    case "barline": if (m.value) BY_BARLINE.set(m.value, d); break
+    case "timeSymbol": TIME_SYMBOL_DEF = d; break
+    case "clef": CLEF_DEF = d; break
+    case "harmony": HARMONY_DEF = d; break
     default: break // expression / words / notehead / barline ほか = 解析側の追加待ち
   }
 }
@@ -245,6 +279,25 @@ export type SymbolSourceAnalysis = {
   key?: { tonic?: string | null; mode?: string | null } | null
   time_signature?: { numerator?: number | null; denominator?: number | null } | null
   spanners?: Record<string, { type?: string; start: number; end: number }[] | null | undefined> | null
+  /** 文字指示 (arco / sul pont. / rit. など) を音符に紐づけたもの */
+  directions?: { note_index: number; texts: string[] }[] | null
+  /** 曲全体の構造 (調・拍子の変更、小節線、反復、音部記号、テンポ、コード) */
+  structure?: {
+    key_signature_count?: number | null
+    time_signature_count?: number | null
+    time_symbol?: string | null
+    senza_misura?: boolean | null
+    barline_types?: string[] | null
+    has_repeat?: boolean | null
+    clef?: string | null
+    tempo_marks?: { kind?: string | null; number?: number | null; text?: string | null }[] | null
+    harmony?: string[] | null
+  } | null
+}
+
+const CLEF_JA: Record<string, string> = {
+  TrebleClef: "ト音記号", BassClef: "ヘ音記号", AltoClef: "ハ音記号(アルト)",
+  TenorClef: "ハ音記号(テノール)", Treble8vbClef: "ト音記号(1オクターブ下)",
 }
 
 export type ExtractedSymbols = {
@@ -401,6 +454,44 @@ export function extractScoreSymbols(
     for (const n of analysis.notes) if (n.voice) voices.add(n.voice)
     if (voices.size >= 2) {
       for (const n of analysis.notes) if (n.voice && n.voice !== "1") add(VOICE_DEF, n.note_index)
+    }
+  }
+
+  // --- 文字指示 (arco / sul pont. / rit. / con sordino など) ---
+  for (const dir of analysis.directions ?? []) {
+    for (const raw of dir.texts ?? []) {
+      const text = raw.toLowerCase()
+      for (const w of BY_WORDS) {
+        if (w.words.some((k) => text.includes(k))) add(w.def, dir.note_index, { value: raw })
+      }
+    }
+  }
+
+  // --- 曲全体の構造 (調・拍子の変更 / 小節線 / 反復 / 音部記号 / テンポ / コード) ---
+  const st = analysis.structure
+  if (st) {
+    for (const c of STRUCT_COUNT) {
+      const v = (st as unknown as Record<string, unknown>)[c.field]
+      if (typeof v === "number" && v >= c.min) add(c.def, null, { value: `${v}回` })
+    }
+    for (const f of STRUCT_FLAG) {
+      if ((st as unknown as Record<string, unknown>)[f.field]) add(f.def, null)
+    }
+    for (const b of st.barline_types ?? []) add(BY_BARLINE.get(b), null)
+    if (st.time_symbol && TIME_SYMBOL_DEF) {
+      add(TIME_SYMBOL_DEF, null, { value: st.time_symbol === "cut" ? "¢" : "C" })
+    }
+    if (st.clef && CLEF_DEF) add(CLEF_DEF, null, { value: CLEF_JA[st.clef] ?? st.clef })
+    if ((st.harmony ?? []).length > 0 && HARMONY_DEF) {
+      add(HARMONY_DEF, null, { value: (st.harmony ?? []).slice(0, 3).join(" ") })
+    }
+    for (const tm of st.tempo_marks ?? []) {
+      for (const t of TEMPO_DEFS) {
+        if (!t.kinds.includes(String(tm.kind))) continue
+        if (t.needNumber && tm.number == null) continue
+        if (t.needText && !tm.text) continue
+        add(t.def, null, { value: t.needNumber ? `♩=${tm.number}` : String(tm.text ?? "") })
+      }
     }
   }
 
