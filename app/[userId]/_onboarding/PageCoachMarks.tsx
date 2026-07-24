@@ -34,18 +34,33 @@ export default function PageCoachMarks({ pageKey, marks }: Props) {
 
   const [pageMarkIndex, setPageMarkIndex] = useState(0)
   const [showAnalysisMark, setShowAnalysisMark] = useState(false)
+  // 表示を開始したら、このマウント中は出し続けるためのラッチ。
+  // (表示と同時に既読化するため、既読判定だけでは即座に閉じてしまう)
+  const [latchedOpen, setLatchedOpen] = useState(false)
 
   const isReplaying = replayingPageKey === pageKey
-  const shouldShowPageMarks =
+  const eligible =
     isHydrated &&
     !allGuidesDismissed &&
     pageMarks.length > 0 &&
     (isReplaying || !pageGuidesSeen.has(pageKey))
+  const shouldShowPageMarks =
+    eligible || (latchedOpen && !allGuidesDismissed && pageMarks.length > 0)
+
+  // 「一度でも表示したら既読」にする (2026-07-21)。
+  // 従来は最後まで進める/閉じる まで既読にならず、途中でページを離れると
+  // 次回また最初から出てしまい「何回も表示される」状態だった。
+  useEffect(() => {
+    if (!eligible || latchedOpen) return
+    setLatchedOpen(true)
+    if (!isReplaying) markPageGuideSeen(pageKey)
+  }, [eligible, latchedOpen, isReplaying, pageKey, markPageGuideSeen])
 
   // pageKey or replay 切替時に index リセット
   useEffect(() => {
     setPageMarkIndex(0)
     setShowAnalysisMark(false)
+    setLatchedOpen(false)
   }, [pageKey, replayingPageKey])
 
   const pageMarksDone = pageMarkIndex >= pageMarks.length
