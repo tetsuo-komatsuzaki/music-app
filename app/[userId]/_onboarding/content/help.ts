@@ -4,7 +4,7 @@ export const HELP_CONTENT = {
   // ① はじめてガイド
   welcome: {
     title: "はじめてガイドをもう一度見る",
-    description: "Arcodaの基本的な使い方を5枚のスライドで紹介します。",
+    description: "弾きたい曲に挑戦して、上手くなっていく流れを7枚のスライドで紹介します。",
     buttonLabel: "スライドを再生する",
   },
 

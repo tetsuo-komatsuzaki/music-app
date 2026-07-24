@@ -150,6 +150,123 @@
   filter: drop-shadow(0 9px 18px rgba(74, 127, 163, 0.22));
 }
 
+/* ── ① 憧れの曲カード ─────────────────────────── */
+.songwrap { position: relative; width: 100%; max-width: 300px; padding: 16px 2px 24px; display: flex; justify-content: center; }
+.songCard {
+  position: relative; display: flex; align-items: center; gap: 13px; background: #fff;
+  border: 1px solid #e6edf4; border-radius: 16px; padding: 12px 15px;
+  box-shadow: 0 13px 30px rgba(74, 127, 163, 0.22); transform: rotate(-2deg);
+}
+.scover {
+  width: 54px; height: 54px; border-radius: 12px; flex: none; display: grid; place-items: center;
+  background: linear-gradient(150deg, #12988f, #0c645d); box-shadow: inset 0 -2px 6px rgba(0, 0, 0, 0.15);
+}
+.scover svg { width: 26px; height: 26px; }
+.sinfo { text-align: left; }
+.stitle { font-size: 16px; font-weight: 900; color: #1a1a1a; }
+.scomp { font-size: 11px; color: #95a1ac; font-weight: 700; margin: 1px 0 7px; }
+.wantTag {
+  display: inline-block; font-size: 10.5px; font-weight: 800; color: #c0396a;
+  background: #ffe9f0; border: 1px solid #f5c2d4; border-radius: 999px; padding: 2px 10px;
+}
+.spk { position: absolute; animation: spk 2.2s ease-in-out infinite; }
+.spkA { top: 4px; right: 34px; }
+.spkB { bottom: 10px; left: 26px; animation-delay: 0.7s; }
+.spkC { top: 38px; left: 10px; animation-delay: 1.3s; }
+@keyframes spk { 0%, 100% { transform: scale(0.5); opacity: 0.25 } 50% { transform: scale(1); opacity: 1 } }
+.gaze { position: absolute; right: -2px; bottom: -18px; width: 60px; height: 60px; }
+.gaze svg { width: 100%; height: 100%; overflow: visible; }
+
+/* ── ② 譜面に色で評価 ─────────────────────────── */
+.scoreEval { width: 100%; max-width: 292px; }
+.scoreEval svg { width: 100%; height: auto; }
+.mk { opacity: 0; transform-box: fill-box; transform-origin: center; animation: mkIn 0.45s cubic-bezier(0.2, 1.3, 0.5, 1) forwards; }
+@keyframes mkIn { from { opacity: 0; transform: scale(0.2) } to { opacity: 1; transform: scale(1) } }
+.miniLeg { display: flex; justify-content: center; flex-wrap: wrap; gap: 11px; margin-top: 10px; }
+.miniLeg span { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 700; color: #66727e; }
+.miniLeg i { width: 11px; height: 11px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08); }
+.miniLeg i[data-c="green"]  { background: radial-gradient(circle at 35% 30%, #6fdc7e, #2fae52); }
+.miniLeg i[data-c="red"]    { background: radial-gradient(circle at 35% 30%, #ff8a80, #e5392b); }
+.miniLeg i[data-c="orange"] { background: radial-gradient(circle at 35% 30%, #ffc16b, #f08a1d); }
+.miniLeg i[data-c="gray"]   { background: radial-gradient(circle at 35% 30%, #d7dce0, #a7afb6); }
+
+/* ── ③ 分析結果画面 (ArcoResultOverlay 準拠) ──────── */
+.rscreen { width: 100%; max-width: 296px; text-align: left; }
+.rhero { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
+.rarco { width: 56px; height: 56px; flex: none; }
+.rarco svg { width: 100%; height: 100%; overflow: visible; }
+.rbubble {
+  position: relative; background: #eaf2f7; color: #1a1a1a; border-radius: 13px;
+  padding: 9px 12px; font-size: 12.5px; font-weight: 800; line-height: 1.45; flex: 1;
+}
+.rbubble::before { content: ""; position: absolute; left: -6px; top: 15px; width: 11px; height: 11px; background: #eaf2f7; transform: rotate(45deg); }
+.rcard { background: #f4f6f8; border-radius: 13px; padding: 11px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rbig { display: flex; align-items: baseline; gap: 3px; }
+.rnum { font-size: 38px; font-weight: 900; line-height: 1; color: #1a1a1a; font-variant-numeric: tabular-nums; }
+.runit { font-size: 13px; font-weight: 700; color: #6a7580; }
+.rbadge { margin-left: 6px; align-self: center; font-size: 12px; font-weight: 900; color: #fff; border-radius: 8px; padding: 3px 9px; background: #3E8E7E; }
+.rsubs { display: flex; gap: 15px; }
+.rsub { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #6a7580; font-weight: 700; }
+.rsub b { font-size: 18px; color: #1a1a1a; font-variant-numeric: tabular-nums; }
+.rsec { margin-top: 12px; }
+.rsecH { font-size: 11px; font-weight: 800; color: #8a97a3; margin: 0 2px 7px; }
+.rrec { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 11px; background: #f6f9fc; }
+.rrec + .rrec { margin-top: 6px; }
+.rtag { flex: none; font-size: 9px; font-weight: 800; border-radius: 999px; padding: 2px 8px; }
+.tagPitch { background: #e8f7e9; color: #2fae52; }
+.tagRhythm { background: #eaf2f7; color: #4a7fa3; }
+.rrb { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.rrs { font-size: 9.5px; color: #9aa5b0; font-weight: 700; }
+.rrm { font-size: 12px; font-weight: 800; color: #1a1a1a; }
+
+/* ── ④ 学びのレッスン ─────────────────────────── */
+.lcard {
+  display: flex; align-items: center; gap: 13px; background: #fff; border: 1px solid #e6edf4;
+  border-radius: 18px; padding: 15px 16px; width: 100%; max-width: 300px;
+  box-shadow: 0 9px 24px rgba(74, 127, 163, 0.16);
+}
+.lArco { width: 58px; height: 58px; flex: none; }
+.lArco svg { width: 100%; height: 100%; overflow: visible; }
+.lbody { text-align: left; flex: 1; min-width: 0; }
+.lbadge {
+  display: inline-block; font-size: 10px; font-weight: 900; color: #2f7d59;
+  background: #e6f5ec; border: 1px solid #bfe4c6; border-radius: 999px; padding: 3px 10px;
+}
+.lmsg { font-size: 12px; color: #5a6672; line-height: 1.55; margin-top: 7px; }
+
+/* ── ⑤ ランク推移 ─────────────────────────────── */
+.trend { width: 100%; max-width: 290px; text-align: center; }
+.trend svg { width: 100%; height: auto; }
+.tline { stroke-dasharray: 340; stroke-dashoffset: 340; animation: draw 1.3s ease-out forwards; }
+@keyframes draw { to { stroke-dashoffset: 0 } }
+.tdot { opacity: 0; animation: dotIn 0.3s ease-out forwards; }
+@keyframes dotIn { to { opacity: 1 } }
+.tnow { transform-box: fill-box; transform-origin: center; animation: pulse2 1.8s ease-in-out infinite 1.3s; }
+@keyframes pulse2 { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.18) } }
+.rankupTag {
+  display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 900; color: #6a4b09;
+  background: linear-gradient(180deg, #ffe9a8, #f7c948); border: 1.5px solid #e2ad24;
+  border-radius: 999px; padding: 5px 15px; box-shadow: 0 4px 12px rgba(240, 170, 20, 0.4);
+}
+.rankupTag span { color: #c23b50; }
+
+/* ── ⑥ 積み上がるマスター曲 ───────────────────── */
+.shelfwrap { width: 100%; max-width: 290px; text-align: center; }
+.shelf { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; }
+.stamp {
+  aspect-ratio: 1; border-radius: 12px; display: grid; place-items: center; position: relative;
+  background: linear-gradient(150deg, #3fb9a6, #137d76); box-shadow: 0 3px 8px rgba(19, 125, 118, 0.28);
+  animation: pop 0.5s cubic-bezier(0.2, 1.3, 0.5, 1) backwards;
+}
+@keyframes pop { from { transform: scale(0.2); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+.v2 { background: linear-gradient(150deg, #8a54b8, #573380); }
+.v3 { background: linear-gradient(150deg, #d9722a, #9a4d18); }
+.stamp svg { width: 22px; height: 22px; opacity: 0.92; }
+.ck { position: absolute; right: -4px; top: -4px; width: 17px; height: 17px; border-radius: 50%; background: #2fae52; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
+.locked { background: #eef2f6; box-shadow: none; }
+.mcount { margin-top: 13px; font-size: 13.5px; font-weight: 800; color: #41505c; }
+.mcount b { font-size: 28px; font-weight: 900; color: #4a7fa3; vertical-align: -3px; margin-right: 2px; }
+
 /* ── Options ビジュアル (slide 2) ──────────────────── */
 
 .optionsVisual {
@@ -427,6 +544,10 @@
   .arcoGlow {
     animation: none;
   }
+  /* 動きを止める。opacity:0 起点のものは表示状態で固定する */
+  .spk, .tnow, .stamp { animation: none; }
+  .mk, .tdot { animation: none; opacity: 1; }
+  .tline { animation: none; stroke-dashoffset: 0; }
   .progressDot,
   .navButton,
   .primaryButton,
