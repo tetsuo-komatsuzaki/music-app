@@ -33,12 +33,22 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
     pageKey: "home",
     marks: [
       {
-        id: "home.arcoCard",
-        targetKey: "home.arcoCard",
-        headline: "アルコがあなたを案内します",
-        body: "毎日の挨拶と、いまのランク・つづきの練習をここに表示します。曲をマスターするほどランクが上がります。",
+        // ランクは最上部の MyRankCard。新軸(マスター→ランクUP)の入口なので最初に案内する
+        id: "home.rankCard",
+        targetKey: "home.rankCard",
+        headline: "ここが、きみのランク",
+        body: "曲をマスターするほどランクが上がるよ。タップすると、これまでの演奏の軌跡も見られる。",
         trigger: "page",
         showDismissAllCheckbox: true,
+      },
+      {
+        // このカードは「アルコの今日の一言」(タップでポーズが変わる)。ランク表示ではない。
+        id: "home.arcoCard",
+        targetKey: "home.arcoCard",
+        headline: "アルコが毎日ひとこと",
+        body: "その日のアルコがひとこと声をかけてくれるよ。タップすると次のポーズになるんだ。",
+        trigger: "page",
+        showDismissAllCheckbox: false,
       },
     ],
   },
