@@ -48,10 +48,6 @@ export default function PageCoachMarks({ pageKey, marks }: Props) {
   // (表示と同時に既読化するため、既読判定だけでは即座に閉じてしまう)
   const [latchedOpen, setLatchedOpen] = useState(false)
 
-  // action.href の "{userId}" を実際のIDに置換する ( /{userId}/... 構造 )
-  const userId = pathname.split("/")[1] ?? ""
-  const resolveHref = (href: string) => href.replace("{userId}", userId)
-
   const isReplaying = replayingPageKey === pageKey
   const eligible =
     isHydrated &&
@@ -167,13 +163,11 @@ export default function PageCoachMarks({ pageKey, marks }: Props) {
         step={pageMarkIndex + 1}
         totalSteps={pageMarks.length}
         showDismissAllCheckbox={mark.showDismissAllCheckbox}
-        actionLabel={mark.action?.label}
-        onAction={mark.action ? () => {
-          // ガイドは読み物ではなく体験。節目では実際に次の画面へ送り出す。
-          if (isReplaying) clearReplayingPageKey()
-          else markPageGuideSeen(pageKey)
-          setPageMarkIndex(pageMarks.length)
-          if (mark.action?.href) router.push(resolveHref(mark.action.href))
+        awaitTapHint={mark.awaitTap?.hint}
+        onTargetTap={mark.awaitTap ? () => {
+          // 実際のボタンが押された。遷移や録音はアプリ側が行うので、
+          // ここではガイドを次へ進めるだけ。
+          onAdvance()
         } : undefined}
         onNext={onAdvance}
         onPrev={pageMarkIndex > 0 ? () => setPageMarkIndex(pageMarkIndex - 1) : undefined}

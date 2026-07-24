@@ -158,7 +158,7 @@ export default function PrePracticeSheet({
 
         </div>
 
-        <button className={styles.cta} onClick={start}>練習をはじめる</button>
+        <button className={styles.cta} onClick={start} data-onboarding="prePractice.start">練習をはじめる</button>
 
         {/* シート自体が開いたときに出るガイド (z-index: シート1000 < マーク1901) */}
         <OnboardingTrigger pageKey="prePractice" />

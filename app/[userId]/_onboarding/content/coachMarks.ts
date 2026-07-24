@@ -29,14 +29,13 @@ export type CoachMarkConfig = {
    */
   requiresTarget?: boolean
   /**
-   * 最後のボタンを「次の一歩」に変える。
-   * ガイドは読み物ではなく、実際に体験させるためのものなので、
-   * 流れの節目では「次へ/完了」ではなく行動を促すラベルにする。
-   *   label … ボタンの文言 (例: "曲を選びに行く")
-   *   href  … 押したときに遷移する先。"{userId}" は実際のIDに置換される。
-   *           省略時はガイドを閉じるだけ (ユーザー自身に画面を操作させたい場合)
+   * 「次へ」で読み飛ばさせず、実際の画面のボタンを押させる。
+   * ガイドの意義は一連の体験を自分でたどらせることなので、流れの節目では
+   * ツールチップに次へを出さず、対象を光らせてタップを待つ。
+   *   hint … 対象の近くに出す短い指示 (例: "ここをタップ")
+   * 対象がリンク/ボタンなら、押した結果 (遷移や録音開始) はアプリ側で起きる。
    */
-  action?: { label: string; href?: string }
+  awaitTap?: { hint: string }
   /**
    * マーク表示前に navigate する相対 URL (例: "?tab=mastery")。
    * URL クエリ駆動でタブを切り替えるページ (progress / categoryList) で使う。
@@ -82,7 +81,7 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         requiresTarget: true,
         headline: "さっそく、弾く曲を選ぼう",
         body: "まずは1曲、通して弾いてみよう。☆が小さいほどやさしい曲だよ。さっそく選びに行こう。",
-        action: { label: "曲を選びに行く →", href: "/{userId}/practice/pieces" },
+        awaitTap: { hint: "ここをタップ" },
         trigger: "page",
         showDismissAllCheckbox: true,
       },
@@ -96,10 +95,19 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         id: "pieces.starTabs",
         targetKey: "pieces.starTabs",
         headline: "まずは1曲、通して弾いてみよう",
-        body: "☆が小さいほどやさしい曲だよ。最初は通して弾けるやさしめから始めるのがおすすめ。曲をタップすると、難易度やパートを選べる。",
-        action: { label: "弾きたい曲をタップ" },
+        body: "☆が小さいほどやさしい曲だよ。最初は通して弾けるやさしめから始めるのがおすすめ。",
         trigger: "page",
         showDismissAllCheckbox: true,
+      },
+      {
+        // ここは読み飛ばさせず、実際に曲を選ばせる
+        id: "pieces.rail",
+        targetKey: "pieces.rail",
+        headline: "気になる曲をタップしてみよう",
+        body: "曲をタップすると、難易度やパートを選ぶ画面がひらくよ。",
+        awaitTap: { hint: "曲をタップ" },
+        trigger: "page",
+        showDismissAllCheckbox: false,
       },
     ],
   },
@@ -121,7 +129,15 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         targetKey: "prePractice.skills",
         headline: "知らない技法があっても、置いていかない",
         body: "弾く前に、この曲に必要な技術がわかるよ。「未習得」のものはタップすると、学びのレッスンで基礎から学べる。",
-        action: { label: "難易度を選んで、はじめよう" },
+        trigger: "page",
+        showDismissAllCheckbox: false,
+      },
+      {
+        id: "prePractice.start",
+        targetKey: "prePractice.start",
+        headline: "準備はいいかな",
+        body: "難易度とパートを決めたら、ここから練習に入ろう。",
+        awaitTap: { hint: "タップして始める" },
         trigger: "page",
         showDismissAllCheckbox: false,
       },
@@ -165,7 +181,7 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         targetUrl: "?tab=play",
         headline: "まず1回、弾いてみて",
         body: "弾き終わると、アルコが演奏を分析するよ。曲のどこが苦手かを見つけて、きみに合った練習まで教えてくれる。うまく弾けなくて大丈夫。",
-        action: { label: "録音してみる" },
+        awaitTap: { hint: "タップして録音" },
         trigger: "page",
         showDismissAllCheckbox: false,
       },

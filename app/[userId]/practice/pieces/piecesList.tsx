@@ -117,7 +117,7 @@ export default function PiecesList({
             genreGroups.map((grp, idx) => (
               <section key={grp.label || idx} className={styles.railSection}>
                 <h3 className={styles.railLabel}>{grp.label}</h3>
-                <div className={styles.itemRail}>
+                <div className={styles.itemRail} data-onboarding={idx === 0 ? "pieces.rail" : undefined}>
                   {grp.pieces.map(piece => (
                     <button
                       key={piece.groupId}

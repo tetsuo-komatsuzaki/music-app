@@ -14,10 +14,13 @@ type Props = {
   step: number
   totalSteps: number
   showDismissAllCheckbox: boolean
-  /** 最後のボタンの文言を差し替える (行動を促す場合) */
-  actionLabel?: string
-  /** actionLabel 指定時に押されたときの処理 (遷移など) */
-  onAction?: () => void
+  /**
+   * 指定すると「次へ」を出さず、対象を光らせて実際のタップを待つ。
+   * 文字列は対象の近くに出す指示 (例: "ここをタップ")。
+   */
+  awaitTapHint?: string
+  /** 対象が実際にタップされたときに呼ばれる */
+  onTargetTap?: () => void
   onNext: () => void
   onPrev?: () => void
   onSkip: () => void
@@ -56,8 +59,8 @@ export default function CoachMark({
   step,
   totalSteps,
   showDismissAllCheckbox,
-  actionLabel,
-  onAction,
+  awaitTapHint,
+  onTargetTap,
   onNext,
   onPrev,
   onSkip,
@@ -72,6 +75,18 @@ export default function CoachMark({
     h: typeof window !== "undefined" ? window.innerHeight : 0,
   })
   const [dismissAll, setDismissAll] = useState(false)
+
+  // タップ待ちモード: 対象要素が押されたら次へ進む。
+  // 背景は pointer-events:none なので、実際のボタン/リンクはそのまま機能する。
+  useEffect(() => {
+    if (!awaitTapHint || !targetKey || !onTargetTap) return
+    if (typeof document === "undefined") return
+    const el = document.querySelector(`[data-onboarding="${targetKey}"]`)
+    if (!el) return
+    const handler = () => onTargetTap()
+    el.addEventListener("click", handler, { capture: true })
+    return () => el.removeEventListener("click", handler, { capture: true } as EventListenerOptions)
+  }, [awaitTapHint, targetKey, onTargetTap, rect])
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -145,13 +160,13 @@ export default function CoachMark({
               戻る
             </button>
           )}
-          <button
-            type="button"
-            className={`${styles.primaryButton} ${actionLabel ? styles.actionButton : ""}`}
-            onClick={actionLabel && onAction ? () => { if (dismissAll) onDismissAll?.(); onAction() } : handleNextClick}
-          >
-            {actionLabel ?? (step === totalSteps ? "完了" : "次へ")}
-          </button>
+          {awaitTapHint ? (
+            <span className={styles.awaitLabel}>{awaitTapHint}</span>
+          ) : (
+            <button type="button" className={styles.primaryButton} onClick={handleNextClick}>
+              {step === totalSteps ? "完了" : "次へ"}
+            </button>
+          )}
         </div>
       </div>
     </>
@@ -175,6 +190,28 @@ export default function CoachMark({
   const padding = 4
   return createPortal(
     <>
+      {awaitTapHint && (
+        <div
+          className={styles.tapRing}
+          style={{
+            top: rect.top - padding - 3,
+            left: rect.left - padding - 3,
+            width: rect.width + padding * 2 + 6,
+            height: rect.height + padding * 2 + 6,
+          }}
+        />
+      )}
+      {awaitTapHint && (
+        <div
+          className={styles.tapChip}
+          style={{
+            top: rect.bottom + 10 > viewport.h - 60 ? rect.top - 30 : rect.bottom + 10,
+            left: Math.min(Math.max(rect.left + rect.width / 2, 60), viewport.w - 60),
+          }}
+        >
+          👆 {awaitTapHint}
+        </div>
+      )}
       <div
         className={styles.spotlight}
         style={{
