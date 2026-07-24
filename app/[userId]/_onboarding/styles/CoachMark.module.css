@@ -77,6 +77,14 @@
 }
 
 /* 凡例表 (マーク 3 用) */
+.legendNote {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #3b56d4;
+  line-height: 1.6;
+}
+
 .legendTable {
   display: flex;
   flex-direction: column;
@@ -126,6 +134,12 @@
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.actionButton {
+  background: linear-gradient(100deg, #4a6cf7, #6a5cf0);
+  font-weight: 700;
+  padding: 9px 17px;
 }
 
 .stepIndicator {

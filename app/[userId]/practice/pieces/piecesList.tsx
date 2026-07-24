@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import styles from "../practice.module.css"
 import { SONG_GENRES } from "@/app/_libs/songGenre"
 import PrePracticeSheet, { type SheetVariant } from "./PrePracticeSheet"
+import OnboardingTrigger from "../../_onboarding/OnboardingTrigger"
 
 type PieceVariant = SheetVariant & { badge: "mastered" | "achieved" | null }
 
@@ -97,7 +98,7 @@ export default function PiecesList({
         <p className={styles.cardContextEmpty}>公開されている練習曲はまだありません。</p>
       ) : (
         <>
-          <div className={styles.starTabs}>
+          <div className={styles.starTabs} data-onboarding="pieces.starTabs">
             {tabs.map(t => (
               <button
                 key={t}
@@ -138,6 +139,8 @@ export default function PiecesList({
           )}
         </>
       )}
+
+      <OnboardingTrigger pageKey="pieces" />
 
       {sheet && (
         <PrePracticeSheet

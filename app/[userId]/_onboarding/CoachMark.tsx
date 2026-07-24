@@ -14,6 +14,10 @@ type Props = {
   step: number
   totalSteps: number
   showDismissAllCheckbox: boolean
+  /** 最後のボタンの文言を差し替える (行動を促す場合) */
+  actionLabel?: string
+  /** actionLabel 指定時に押されたときの処理 (遷移など) */
+  onAction?: () => void
   onNext: () => void
   onPrev?: () => void
   onSkip: () => void
@@ -52,6 +56,8 @@ export default function CoachMark({
   step,
   totalSteps,
   showDismissAllCheckbox,
+  actionLabel,
+  onAction,
   onNext,
   onPrev,
   onSkip,
@@ -93,15 +99,19 @@ export default function CoachMark({
       return <p className={styles.bodyText} style={{ whiteSpace: "pre-line" }}>{body}</p>
     }
     return (
-      <div className={styles.legendTable}>
-        {body.rows.map(row => (
-          <div key={row.label} className={styles.legendRow}>
-            <span className={styles.legendColor} data-c={row.color} aria-hidden />
-            <span className={styles.legendName}>{row.label}</span>
-            <span className={styles.legendMeaning}>{row.meaning}</span>
-          </div>
-        ))}
-      </div>
+      <>
+        {body.lead && <p className={styles.bodyText}>{body.lead}</p>}
+        <div className={styles.legendTable}>
+          {body.rows.map(row => (
+            <div key={row.label} className={styles.legendRow}>
+              <span className={styles.legendColor} data-c={row.color} aria-hidden />
+              <span className={styles.legendName}>{row.label}</span>
+              <span className={styles.legendMeaning}>{row.meaning}</span>
+            </div>
+          ))}
+        </div>
+        {body.note && <p className={styles.legendNote}>{body.note}</p>}
+      </>
     )
   }
 
@@ -135,8 +145,12 @@ export default function CoachMark({
               戻る
             </button>
           )}
-          <button type="button" className={styles.primaryButton} onClick={handleNextClick}>
-            {step === totalSteps ? "完了" : "次へ"}
+          <button
+            type="button"
+            className={`${styles.primaryButton} ${actionLabel ? styles.actionButton : ""}`}
+            onClick={actionLabel && onAction ? () => { if (dismissAll) onDismissAll?.(); onAction() } : handleNextClick}
+          >
+            {actionLabel ?? (step === totalSteps ? "完了" : "次へ")}
           </button>
         </div>
       </div>

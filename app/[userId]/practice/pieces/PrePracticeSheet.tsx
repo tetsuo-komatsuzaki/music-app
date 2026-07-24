@@ -9,6 +9,7 @@ import styles from "./prePractice.module.css"
 import { DIFFICULTIES } from "@/app/_libs/materialVariant"
 import SheetPreview from "./SheetPreview"
 import SheetSkills from "./SheetSkills"
+import OnboardingTrigger from "../../_onboarding/OnboardingTrigger"
 
 export type SheetSection = { name: string; startMeasure: number; endMeasure: number }
 export type SheetVariant = {
@@ -91,9 +92,14 @@ export default function PrePracticeSheet({
         {enablePreview && variant && <SheetPreview key={variant.id} scoreId={variant.id} kind={previewKind} />}
 
         {/* この曲に必要な技術 (未習得表示) */}
-        {variant && <SheetSkills key={`sk-${variant.id}`} userId={userId} kind={previewKind} id={variant.id} />}
+        {variant && (
+          <div data-onboarding="prePractice.skills">
+            <SheetSkills key={`sk-${variant.id}`} userId={userId} kind={previewKind} id={variant.id} />
+          </div>
+        )}
 
-        {/* 難易度: 初級〜上級を常時表示。教材の無いものはグレー */}
+        {/* 難易度・パート: 画面ガイドはこの2つをまとめて指す */}
+        <div data-onboarding="prePractice.choose">
         <div className={styles.slab}>難易度を選ぶ</div>
         <div className={styles.difs}>
           {DIFFICULTIES.map((d) => {
@@ -150,7 +156,12 @@ export default function PrePracticeSheet({
           )}
         </div>
 
+        </div>
+
         <button className={styles.cta} onClick={start}>練習をはじめる</button>
+
+        {/* シート自体が開いたときに出るガイド (z-index: シート1000 < マーク1901) */}
+        <OnboardingTrigger pageKey="prePractice" />
       </div>
     </div>
   )

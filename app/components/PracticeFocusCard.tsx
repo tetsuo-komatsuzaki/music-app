@@ -99,7 +99,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
 
   return (
     <div className={styles.root}>
-      <div className={styles.card}>
+      <div className={styles.card} data-onboarding="home.focusCard">
         <div className={styles.cardTitle}>いま練習している曲</div>
 
         {pieces.length > 1 && (

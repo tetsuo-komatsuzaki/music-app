@@ -75,7 +75,7 @@ export default function PracticeTop({
       </section>
 
       {/* 学びのレッスン — 技術の導入レッスン一覧 /lessons へ遷移 */}
-      <section className={styles.categorySection}>
+      <section className={styles.categorySection} data-onboarding="practice.lessons">
         <h2 className={styles.sectionTitle}>学びのレッスン</h2>
         <div className={styles.categoryGrid}>
           <Link href={`/${userId}/lessons`} className={styles.categoryCard}>
