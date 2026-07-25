@@ -5,8 +5,10 @@ import {
   ReactNode,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from "react"
+import { useParams } from "next/navigation"
 
 export type HelpSection =
   | "welcome"
@@ -84,7 +86,27 @@ const NOOP_CONTEXT: OnboardingContextValue = {
 
 export const OnboardingContext = createContext<OnboardingContextValue>(NOOP_CONTEXT)
 
-const STORAGE_KEYS = {
+// localStorage キーはユーザーごとに分ける (2026-07-25)。
+// 以前は全ユーザー共通キーだったため、同じブラウザで別ユーザーがログインすると
+// 前のユーザーの「見た」状態を引き継ぎ、新規ユーザーにガイドが出なかった。
+// userId を名前空間に含めることで、各ユーザーが自分の状態を持つ。
+type StorageKeys = {
+  welcomeSlidesShown: string
+  allGuidesDismissed: string
+  pageGuidesSeen: string
+  firstAnalysisGuideShown: string
+}
+function makeStorageKeys(userId: string): StorageKeys {
+  const ns = `arcoda.onboarding.${userId || "anon"}`
+  return {
+    welcomeSlidesShown: `${ns}.welcomeSlidesShown`,
+    allGuidesDismissed: `${ns}.allGuidesDismissed`,
+    pageGuidesSeen: `${ns}.pageGuidesSeen`,
+    firstAnalysisGuideShown: `${ns}.firstAnalysisGuideShown`,
+  }
+}
+// 旧・全ユーザー共通キー (移行判定に使う)
+const LEGACY_KEYS: StorageKeys = {
   welcomeSlidesShown: "arcoda.onboarding.welcomeSlidesShown",
   allGuidesDismissed: "arcoda.onboarding.allGuidesDismissed",
   pageGuidesSeen: "arcoda.onboarding.pageGuidesSeen",
@@ -119,6 +141,13 @@ const safeRemoveItem = (key: string) => {
 }
 
 export default function OnboardingProvider({ children }: { children: ReactNode }) {
+  const params = useParams<{ userId: string }>()
+  const userId = params?.userId ?? ""
+  // localStorage キーは userId で名前空間化する。コールバックの依存に載せないよう
+  // ref に保持し、常に最新の userId 分のキーを参照する (userId 変化時は下の effect で更新)。
+  const keysRef = useRef<StorageKeys>(makeStorageKeys(userId))
+  keysRef.current = makeStorageKeys(userId)
+
   const [welcomeSlidesShown, setWelcomeSlidesShown] = useState(false)
   const [allGuidesDismissed, setAllGuidesDismissed] = useState(false)
   const [pageGuidesSeen, setPageGuidesSeen] = useState<Set<string>>(() => new Set())
@@ -131,28 +160,47 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
   const [helpOpen, setHelpOpen] = useState(false)
   const [helpSection, setHelpSection] = useState<HelpSection | null>(null)
 
-  // Hydration: localStorage 読込
+  // Hydration: localStorage 読込 (userId ごと)
   useEffect(() => {
+    const STORAGE_KEYS = keysRef.current
+    // 一回限りの移行: このユーザーの新キーがまだ無く、旧・全ユーザー共通キーが
+    // 残っている場合だけ引き継ぐ。これで「既存ユーザーが移行直後にガイドを
+    // もう一度見せられる」のを防ぎつつ、新規ユーザーには汚染が伝播しない。
+    // (旧キーは残さず消す。以後どのユーザーにも影響させない)
+    if (
+      safeGetItem(STORAGE_KEYS.welcomeSlidesShown) === null &&
+      safeGetItem(LEGACY_KEYS.welcomeSlidesShown) !== null
+    ) {
+      // 移行するのは「初回ログイン後にオンボーディングを完了した既存ユーザー」だけ。
+      // completedAt を通ったユーザーだけがこの Provider に来る前提だが、
+      // ブラウザ共有の新規ユーザーに旧状態が漏れないよう、移行は現ユーザーの
+      // 新キーへコピーしてから旧キーを削除する。
+      for (const k of ["welcomeSlidesShown", "allGuidesDismissed", "pageGuidesSeen", "firstAnalysisGuideShown"] as const) {
+        const v = safeGetItem(LEGACY_KEYS[k])
+        if (v !== null) safeSetItem(STORAGE_KEYS[k], v)
+        safeRemoveItem(LEGACY_KEYS[k])
+      }
+    }
+
     setWelcomeSlidesShown(safeGetItem(STORAGE_KEYS.welcomeSlidesShown) === "true")
     setAllGuidesDismissed(safeGetItem(STORAGE_KEYS.allGuidesDismissed) === "true")
     const seenJson = safeGetItem(STORAGE_KEYS.pageGuidesSeen)
+    let seen = new Set<string>()
     if (seenJson) {
       try {
         const arr = JSON.parse(seenJson)
-        if (Array.isArray(arr)) {
-          setPageGuidesSeen(new Set(arr.filter((x): x is string => typeof x === "string")))
-        }
-      } catch {
-        // パース失敗は空 Set のまま
-      }
+        if (Array.isArray(arr)) seen = new Set(arr.filter((x): x is string => typeof x === "string"))
+      } catch { /* パース失敗は空 Set */ }
     }
+    setPageGuidesSeen(seen)
     setFirstAnalysisGuideShown(safeGetItem(STORAGE_KEYS.firstAnalysisGuideShown) === "true")
     setIsHydrated(true)
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId])
 
   const markWelcomeSlidesShown = useCallback(() => {
     setWelcomeSlidesShown(true)
-    safeSetItem(STORAGE_KEYS.welcomeSlidesShown, "true")
+    safeSetItem(keysRef.current.welcomeSlidesShown, "true")
   }, [])
 
   const markPageGuideSeen = useCallback((pageKey: string) => {
@@ -160,19 +208,19 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
       if (prev.has(pageKey)) return prev
       const next = new Set(prev)
       next.add(pageKey)
-      safeSetItem(STORAGE_KEYS.pageGuidesSeen, JSON.stringify([...next]))
+      safeSetItem(keysRef.current.pageGuidesSeen, JSON.stringify([...next]))
       return next
     })
   }, [])
 
   const markFirstAnalysisGuideShown = useCallback(() => {
     setFirstAnalysisGuideShown(true)
-    safeSetItem(STORAGE_KEYS.firstAnalysisGuideShown, "true")
+    safeSetItem(keysRef.current.firstAnalysisGuideShown, "true")
   }, [])
 
   const dismissAllGuides = useCallback(() => {
     setAllGuidesDismissed(true)
-    safeSetItem(STORAGE_KEYS.allGuidesDismissed, "true")
+    safeSetItem(keysRef.current.allGuidesDismissed, "true")
   }, [])
 
   const resetAll = useCallback(() => {
@@ -184,10 +232,10 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
     setReplayingPageKey(null)
     setHelpOpen(false)
     setHelpSection(null)
-    safeRemoveItem(STORAGE_KEYS.welcomeSlidesShown)
-    safeRemoveItem(STORAGE_KEYS.allGuidesDismissed)
-    safeRemoveItem(STORAGE_KEYS.pageGuidesSeen)
-    safeRemoveItem(STORAGE_KEYS.firstAnalysisGuideShown)
+    safeRemoveItem(keysRef.current.welcomeSlidesShown)
+    safeRemoveItem(keysRef.current.allGuidesDismissed)
+    safeRemoveItem(keysRef.current.pageGuidesSeen)
+    safeRemoveItem(keysRef.current.firstAnalysisGuideShown)
   }, [])
 
   const markAnalysisOverlayRendered = useCallback(() => {
