@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
+import { selectDailyLessons } from "@/app/_libs/dailyLessons"
 
 const CLEAN_RUNS_REQUIRED = 3
 const MASTER_RECENT_COUNT = 5
@@ -224,7 +225,32 @@ export async function GET(
       ? recent.reduce((s, p) => s + ((p.pitchAccuracy ?? 0) + (p.timingAccuracy ?? 0)) / 2, 0) / recent.length
       : null
 
+  // ── 毎日の基礎練 (4教材: 音階/フィンガリング/推薦上位2) ──
+  // ユーザーの★ (UserStarProgress 優先 → 演奏実績の最高star → 曲の★ → 1)
+  const starProgress = await prisma.userStarProgress.findUnique({
+    where: { userId: dbUserId },
+    select: { currentStar: true },
+  })
+  const userStar = starProgress?.currentStar ?? score.star ?? 1
+  const dailyLessons = await selectDailyLessons({
+    userId: dbUserId,
+    userStar,
+    latestPerformanceId: latestPerf?.id ?? null,
+    score: {
+      star: score.star,
+      keyTonic: score.keyTonic,
+      keyMode: score.keyMode,
+      defaultTempo: score.defaultTempo,
+      positions: score.positions.filter((n) => n >= 2),
+      techNames: score.scoreTechniqueTags.map((t) => t.techniqueTag.name),
+      acqFeatureKeys: score.featureTags
+        .filter((f) => f.featureTag.isAcquisition)
+        .map((f) => `${f.featureTag.category}:${f.featureTag.name}`),
+    },
+  })
+
   return NextResponse.json({
+    dailyLessons,
     lessons: { total: lessons.length, cleared: lessons.filter((l) => l.cleared).length },
     etude,
     cleanRuns: { count: Math.min(cleanRuns, CLEAN_RUNS_REQUIRED), required: CLEAN_RUNS_REQUIRED },

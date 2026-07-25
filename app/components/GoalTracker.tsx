@@ -3,8 +3,11 @@
 // 見出し・カード枠は呼び手側が用意し、ここは中身 (道バッジ帯 + STEP1達成 + STEP2マスター) のみ描く。
 // データ元は GET /api/scores/[scoreId]/achievement-status。
 
+import type { DailyLesson } from "../_libs/dailyLessons"
+
 // achievement-status API レスポンス (route.ts と同期)
 export type AchievementStatus = {
+  dailyLessons: DailyLesson[]
   lessons: { total: number; cleared: number }
   etude: { required: boolean; id?: string; title?: string; achieved?: boolean }
   cleanRuns: { count: number; required: number }

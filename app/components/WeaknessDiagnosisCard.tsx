@@ -53,11 +53,14 @@ export function DiagnosisBody({
   data,
   userId,
   hideHeading,
+  hideMaterials,
 }: {
   data: DiagnosisApiResponse
   userId?: string
   /** 見出し「今回の学びポイントと練習メニュー」を出さない (呼び手が独自の見出しを付ける場合) */
   hideHeading?: boolean
+  /** おすすめ教材の行を出さず診断文のみ (教材は「毎日の基礎練」に一本化・2026-07-25 案B) */
+  hideMaterials?: boolean
 }) {
   if (data.verdict === "perfect") {
     return (
@@ -79,8 +82,12 @@ export function DiagnosisBody({
   }
   return (
     <section>
-      {!hideHeading && <h3 className={styles.heading}>今回の学びポイントと練習メニュー</h3>}
-      <WeaknessSlotList slots={data.slots} userId={userId} />
+      {!hideHeading && (
+        <h3 className={styles.heading}>
+          {hideMaterials ? "今回の学びポイント" : "今回の学びポイントと練習メニュー"}
+        </h3>
+      )}
+      <WeaknessSlotList slots={data.slots} userId={userId} hideMaterials={hideMaterials} />
     </section>
   )
 }
@@ -95,9 +102,12 @@ const TREE_LABELS: Record<"pitch" | "rhythm", string> = {
 export function WeaknessSlotList({
   slots,
   userId,
+  hideMaterials,
 }: {
   slots: WeaknessSlot[]
   userId?: string
+  /** おすすめ教材の行を出さず診断文のみ (教材は「毎日の基礎練」に一本化・2026-07-25 案B) */
+  hideMaterials?: boolean
 }) {
   return (
     <div className={styles.slotList}>
@@ -112,7 +122,7 @@ export function WeaknessSlotList({
           </div>
           {slot.breakdown && <div className={styles.breakdown}>{slot.breakdown}</div>}
 
-          {slot.noStock ? (
+          {hideMaterials ? null : slot.noStock ? (
             <div className={styles.noStock}>教材準備中です</div>
           ) : (
             <div className={styles.materials}>
@@ -208,9 +218,11 @@ type Props = {
   userId?: string
   /** 見出しを出さない (呼び手が独自の見出しを付ける場合) */
   hideHeading?: boolean
+  /** おすすめ教材の行を出さず診断文のみ (教材は「毎日の基礎練」に一本化・2026-07-25 案B) */
+  hideMaterials?: boolean
 }
 
-export default function WeaknessDiagnosisCard({ performanceId, kind, userId, hideHeading }: Props) {
+export default function WeaknessDiagnosisCard({ performanceId, kind, userId, hideHeading, hideMaterials }: Props) {
   const url =
     kind === "score"
       ? `/api/performances/${performanceId}/diagnosis`
@@ -242,5 +254,5 @@ export default function WeaknessDiagnosisCard({ performanceId, kind, userId, hid
   if (!data) {
     return <div className={styles.statusBox}>学びポイントを分析中…</div>
   }
-  return <DiagnosisBody data={data} userId={userId} hideHeading={hideHeading} />
+  return <DiagnosisBody data={data} userId={userId} hideHeading={hideHeading} hideMaterials={hideMaterials} />
 }

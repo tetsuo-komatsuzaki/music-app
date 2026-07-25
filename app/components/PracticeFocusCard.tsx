@@ -5,6 +5,7 @@ import Link from "next/link"
 import styles from "../[userId]/homeBlocks.module.css"
 import GoalTracker, { type AchievementStatus } from "./GoalTracker"
 import WeaknessDiagnosisCard from "./WeaknessDiagnosisCard"
+import DailyLessons from "./DailyLessons"
 
 type Piece = {
   id: string; title: string; star: number | null; cover: string | null; latest: number; recentAvg: number | null
@@ -12,12 +13,10 @@ type Piece = {
 }
 type Basic = { id: string; title: string; category: string; href: string; recentScore: number | null; lastPracticedAt: string; todayCount: number }
 
-const NORM: Record<string, string> = { scales: "scale", arpeggios: "arpeggio", etudes: "etude" }
-const norm = (c: string) => NORM[c] ?? c
-
-const DAILY_GOAL = 3 // 毎日の基礎練: 3回通しで演奏
-
+// 毎日の基礎練は achievement-status API の dailyLessons(4教材) に一本化 (2026-07-25)。
+// basics(旧・履歴ベースの3チップ) は当面プロップに残すが未使用。
 export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: Piece[]; basics: Basic[]; userId: string }) {
+  void basics
   const [active, setActive] = useState(0)
   const piece = pieces[active] ?? pieces[0] ?? null
   const [ach, setAch] = useState<AchievementStatus | null>(null)
@@ -62,21 +61,6 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
   }
   const chipLabel = piece.badge === "mastered" ? "マスター" : piece.badge === "achieved" ? "達成" : "挑戦中"
 
-  // 毎日の基礎練: 各カテゴリ「○回/3回(本日通し)」チップ。タップで教材へ
-  const dailyChip = (cat: string, label: string, icon: string) => {
-    const b = basics.find((x) => norm(x.category) === cat)
-    const href = b?.href ?? `/${userId}/practice/${cat}`
-    const count = b?.todayCount ?? 0
-    const done = count >= DAILY_GOAL
-    return (
-      <Link key={cat} href={href} style={{ display: "flex", alignItems: "center", gap: 8, background: done ? "#eefaf1" : "#f7f9fc", borderRadius: 10, padding: "9px 11px", textDecoration: "none", color: "inherit" }}>
-        <span style={{ fontSize: 15 }}>{icon}</span>
-        <span style={{ fontWeight: 700, fontSize: 12.5, color: "#3a4653" }}>{label}</span>
-        <span style={{ marginLeft: "auto", fontSize: 11.5, fontWeight: 800, color: done ? "#34a06a" : "#9aa6b3" }}>{count}/{DAILY_GOAL}</span>
-      </Link>
-    )
-  }
-
   return (
     <div className={styles.root}>
       <div className={styles.card} data-onboarding="home.focusCard">
@@ -113,17 +97,17 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
         {ach?.latestPerformanceId && (
           <>
             <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "16px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11 }}>📘 毎日のレッスン</div>
-            <WeaknessDiagnosisCard performanceId={ach.latestPerformanceId} kind="score" userId={userId} hideHeading />
+            <WeaknessDiagnosisCard performanceId={ach.latestPerformanceId} kind="score" userId={userId} hideHeading hideMaterials />
           </>
         )}
 
-        {/* 毎日の基礎練 */}
-        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "16px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11 }}>毎日の基礎練</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-          {dailyChip("scale", "音階", "🎵")}
-          {dailyChip("arpeggio", "アルペジオ", "🎶")}
-          {dailyChip("bowing", "ボーイング", "🎻")}
-        </div>
+        {/* 毎日の基礎練 (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホーム/曲詳細で共通) */}
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "16px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11 }}>🎯 毎日の基礎練</div>
+        {ach ? (
+          <DailyLessons lessons={ach.dailyLessons ?? []} userId={userId} />
+        ) : (
+          <div style={{ fontSize: 12.5, color: "#9aa6b3", padding: "8px 0" }}>読み込み中…</div>
+        )}
       </div>
     </div>
   )

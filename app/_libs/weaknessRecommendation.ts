@@ -94,8 +94,10 @@ export async function getInventory(): Promise<MaterialCandidate[]> {
     return inventoryCache.items
   }
   const rows = await prisma.practiceItem.findMany({
-    // lesson(学びレッスン)は一度きりの導入コンテンツなので弱点推薦の在庫から除外 (確定#7)
-    where: { isPublished: true, category: { not: "lesson" } },
+    // lesson(学びレッスン)は一度きりの導入コンテンツなので弱点推薦の在庫から除外 (確定#7)。
+    // scale(音階)は「毎日の基礎練」①で曲の調・難易度に合わせて常に別枠で出すため、
+    // 弱点推薦の対象からは外す (2026-07-25 Tetsuo指示・①③④の重複防止)。
+    where: { isPublished: true, category: { notIn: ["lesson", "scale"] } },
     select: {
       id: true,
       title: true,

@@ -14,6 +14,7 @@ import GuideSampleReview from "./GuideSampleReview"
 import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 import WeaknessDiagnosisCard from "./WeaknessDiagnosisCard"
 import GoalTracker, { type AchievementStatus } from "./GoalTracker"
+import DailyLessons from "./DailyLessons"
 
 type Props = {
   scoreId: string
@@ -65,7 +66,13 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
         <GoalTracker achv={achv} />
       </section>
 
-      {/* ── 2. おすすめ練習 (最新演奏の217診断+弱点推薦) を「マスター」の直下に配置 ──
+      {/* ── 2. 毎日の基礎練 (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホームと共通ロジック) ── */}
+      <section className={styles.cardSection}>
+        <h2 className={styles.sectionTitle}>🎯 毎日の基礎練</h2>
+        <DailyLessons lessons={achv.dailyLessons ?? []} userId={userId} />
+      </section>
+
+      {/* ── 3. おすすめ練習 (最新演奏の217診断+弱点推薦) を「マスター」の直下に配置 ──
           「ゴール → その達成に効く練習」の流れになるよう、仕組み(詳しく)より前に出す。
           data-onboarding: 画面ガイドが「おすすめ練習はここ」と指すアンカー。
           演奏記録が無い場合も emptyHint がこの中に出るため、常に存在する。 */}
@@ -75,6 +82,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
             performanceId={achv.latestPerformanceId}
             kind="score"
             userId={userId}
+            hideMaterials
           />
         ) : guideSample === "review" ? (
           // 画面ガイド表示中: まだ演奏が無くても「弾くとこう出る」を見せる
