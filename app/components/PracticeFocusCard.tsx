@@ -69,10 +69,10 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
     const count = b?.todayCount ?? 0
     const done = count >= DAILY_GOAL
     return (
-      <Link key={cat} href={href} style={{ flex: "1 1 88px", display: "flex", alignItems: "center", gap: 6, background: done ? "#eefaf1" : "#f7f9fc", borderRadius: 10, padding: "8px 9px", textDecoration: "none", color: "inherit" }}>
-        <span style={{ fontSize: 14 }}>{icon}</span>
-        <span style={{ fontWeight: 700, fontSize: 11.5, color: "#3a4653" }}>{label}</span>
-        <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 800, color: done ? "#34a06a" : "#9aa6b3" }}>{count}/{DAILY_GOAL}</span>
+      <Link key={cat} href={href} style={{ display: "flex", alignItems: "center", gap: 8, background: done ? "#eefaf1" : "#f7f9fc", borderRadius: 10, padding: "9px 11px", textDecoration: "none", color: "inherit" }}>
+        <span style={{ fontSize: 15 }}>{icon}</span>
+        <span style={{ fontWeight: 700, fontSize: 12.5, color: "#3a4653" }}>{label}</span>
+        <span style={{ marginLeft: "auto", fontSize: 11.5, fontWeight: 800, color: done ? "#34a06a" : "#9aa6b3" }}>{count}/{DAILY_GOAL}</span>
       </Link>
     )
   }
@@ -119,7 +119,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
 
         {/* 毎日の基礎練 */}
         <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "16px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11 }}>毎日の基礎練</div>
-        <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
           {dailyChip("scale", "音階", "🎵")}
           {dailyChip("arpeggio", "アルペジオ", "🎶")}
           {dailyChip("bowing", "ボーイング", "🎻")}
