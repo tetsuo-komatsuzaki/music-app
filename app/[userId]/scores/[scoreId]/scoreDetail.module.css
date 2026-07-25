@@ -234,6 +234,35 @@
 /* ==============================
    履歴
    ============================== */
+/* ふりかえり: 個別演奏一覧の折りたたみ (上達の推移がメイン・詳細は任意展開) */
+.allTakes {
+  border: none;
+}
+.allTakesSummary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7c8894;
+  background: #f5f7fa;
+  border-radius: 10px;
+  padding: 10px;
+}
+.allTakesSummary::-webkit-details-marker {
+  display: none;
+}
+.allTakesSummary::after {
+  content: "▾";
+  font-size: 11px;
+}
+.allTakes[open] .allTakesSummary::after {
+  content: "▴";
+}
+
 .historyItem {
   padding: 10px 12px;
   margin-bottom: 6px;

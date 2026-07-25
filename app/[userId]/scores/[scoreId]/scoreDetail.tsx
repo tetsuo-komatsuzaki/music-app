@@ -645,6 +645,186 @@ function PerformanceHistory({
 }
 
 // =========================================================
+// サブコンポーネント: ProgressTrajectory（上達のようす）
+// 演奏履歴を「1演奏ずつのカード」ではなく "推移" で見せる (2026-07-25 Tetsuo確定・案1拡張)。
+// 総合スコアの折れ線を主役に、音程/リズムの分解と統計を添える。個別一覧は呼び手側で折りたたむ。
+// データは既存 performances(pitchAccuracy/timingAccuracy/uploadedAt) のみで算出。区間録音は非算入。
+// =========================================================
+
+const GOAL_SCORE = 90 // 達成ライン (曲マスター基準・アプリ全体と統一)
+const TRAJECTORY_MIN_POINTS = 2 // 推移として見せるのに必要な最小演奏数
+
+type TrajAxis = "total" | "pitch" | "rhythm"
+const TRAJ_COLOR: Record<TrajAxis, string> = { total: "#2e8b57", pitch: "#3f74c4", rhythm: "#cc5470" }
+
+/** 数値系列を viewBox 内の polyline points 文字列にする */
+function seriesPoints(values: number[], w: number, h: number, pad: number, minV: number, maxV: number): string {
+  const n = values.length
+  const span = maxV - minV || 1
+  return values
+    .map((v, i) => {
+      const x = n === 1 ? w / 2 : pad + (i / (n - 1)) * (w - 2 * pad)
+      const y = h - pad - ((v - minV) / span) * (h - 2 * pad)
+      return `${x.toFixed(1)},${y.toFixed(1)}`
+    })
+    .join(" ")
+}
+
+function TrajStat({ v, l }: { v: string; l: string }) {
+  return (
+    <div style={{ flex: 1, background: "#f7f9fc", borderRadius: 11, padding: "9px 4px", textAlign: "center" }}>
+      <div style={{ fontSize: 16, fontWeight: 800, color: "#2b3742", fontVariantNumeric: "tabular-nums" }}>{v}</div>
+      <div style={{ fontSize: 10, color: "#9aa6b3", fontWeight: 700, marginTop: 2 }}>{l}</div>
+    </div>
+  )
+}
+
+/** 音程/リズムのミニ推移カード */
+function AxisMini({ name, color, series }: { name: string; color: string; series: number[] }) {
+  const latest = Math.round(series[series.length - 1])
+  const first = Math.round(series[0])
+  const delta = latest - first
+  const pts = seriesPoints(series, 120, 34, 4, Math.min(...series) - 3, Math.max(...series) + 3)
+  const lastX = 116
+  const lastY = pts.split(" ").pop()!.split(",")[1]
+  return (
+    <div style={{ flex: 1, background: "#f7f9fc", borderRadius: 12, padding: "10px 11px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+        <span style={{ fontSize: 11.5, fontWeight: 800, color }}>{name}</span>
+        <span style={{ fontSize: 10, fontWeight: 800, color: delta >= 0 ? "#2e8b57" : "#cc5470" }}>
+          {delta >= 0 ? "+" : ""}{delta}
+        </span>
+      </div>
+      <svg viewBox="0 0 120 34" width="100%" height="30" preserveAspectRatio="none" style={{ margin: "4px 0 2px" }}>
+        <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />
+        <circle cx={lastX} cy={lastY} r="3" fill={color} />
+      </svg>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+        <span style={{ fontSize: 10, color: "#9aa6b3" }}>{first} → {latest}%</span>
+        <span style={{ fontSize: 15, fontWeight: 800, color, fontVariantNumeric: "tabular-nums" }}>
+          {latest}<span style={{ fontSize: 10 }}>%</span>
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function ProgressTrajectory({ performances }: { performances: PerformanceDTO[] }) {
+  const [axis, setAxis] = useState<TrajAxis>("total")
+
+  // 評価済み・通し演奏のみ、古い順。区間録音(rangeFromNote != null)は非算入。
+  const evaluated = performances
+    .filter((p) => p.rangeFromNote == null && p.pitchAccuracy != null && p.timingAccuracy != null)
+    .slice()
+    .sort((a, b) => new Date(a.uploadedAt).getTime() - new Date(b.uploadedAt).getTime())
+
+  if (evaluated.length < TRAJECTORY_MIN_POINTS) return null
+
+  const totals = evaluated.map((p) => performanceScore(p) ?? 0)
+  const pitches = evaluated.map((p) => Math.round(p.pitchAccuracy!))
+  const timings = evaluated.map((p) => Math.round(p.timingAccuracy!))
+  const series = axis === "total" ? totals : axis === "pitch" ? pitches : timings
+  const color = TRAJ_COLOR[axis]
+
+  const latest = totals[totals.length - 1]
+  // 直近5回の伸び: 最新 − (5回前 or 最初)
+  const baseIdx = Math.max(0, totals.length - 5)
+  const delta = latest - totals[baseIdx]
+  const best = Math.max(...totals)
+  const recent5 = totals.slice(-5)
+  const recentAvg = Math.round(recent5.reduce((s, v) => s + v, 0) / recent5.length)
+
+  // チャート座標 (viewBox 265x110, pad 10)。下限は 50 か 最低点-5 の低い方。
+  const W = 265, H = 110, PAD = 10
+  const minV = Math.max(0, Math.min(50, Math.min(...series) - 5))
+  const maxV = 100
+  const pts = seriesPoints(series, W, H, PAD, minV, maxV)
+  const goalY = H - PAD - ((GOAL_SCORE - minV) / (maxV - minV)) * (H - 2 * PAD)
+  const lastPt = pts.split(" ").pop()!.split(",")
+
+  const seg = (key: TrajAxis, label: string) => (
+    <button
+      type="button"
+      onClick={() => setAxis(key)}
+      style={{
+        flex: 1, border: "none", background: axis === key ? "#fff" : "transparent",
+        fontSize: 11.5, fontWeight: 800, color: axis === key ? TRAJ_COLOR[key] : "#8b97a3",
+        padding: "6px 0", borderRadius: 8, cursor: "pointer",
+        boxShadow: axis === key ? "0 1px 2px rgba(30,45,70,.08)" : "none",
+      }}
+    >
+      {label}
+    </button>
+  )
+
+  return (
+    <div className={styles.card}>
+      <h3 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 800 }}>上達のようす</h3>
+
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 12, marginBottom: 12 }}>
+        <div>
+          <div style={{ fontSize: 11, color: "#9aa6b3", fontWeight: 700, marginBottom: 3 }}>いまのスコア</div>
+          <div>
+            <span style={{ fontSize: 40, fontWeight: 800, lineHeight: .95, color, fontVariantNumeric: "tabular-nums" }}>{latest}</span>
+            <span style={{ fontSize: 15, fontWeight: 700, color }}>点</span>
+          </div>
+        </div>
+        <span style={{
+          display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 800,
+          color: delta >= 0 ? "#2e8b57" : "#cc5470", background: delta >= 0 ? "#e9f7ef" : "#fdeef0",
+          borderRadius: 999, padding: "4px 10px", marginBottom: 4,
+        }}>
+          {delta >= 0 ? "▲" : "▼"} {delta >= 0 ? "+" : ""}{delta}
+          <span style={{ color: "#9aa6b3", fontWeight: 700 }}>直近{recent5.length}回</span>
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: 4, background: "#f1f4f8", borderRadius: 10, padding: 3, marginBottom: 10 }}>
+        {seg("total", "総合")}
+        {seg("pitch", "音程")}
+        {seg("rhythm", "リズム")}
+      </div>
+
+      <div style={{ position: "relative" }}>
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="120" preserveAspectRatio="none">
+          {goalY > PAD && goalY < H - PAD && (
+            <line x1={PAD - 2} y1={goalY} x2={W - PAD + 2} y2={goalY} stroke="#e7c9a0" strokeWidth="1.2" strokeDasharray="4 4" />
+          )}
+          {axis === "total" && (
+            <path d={`M${pts} L${lastPt[0]},${H} L${PAD},${H} Z`} fill="#e9f7ef" />
+          )}
+          <polyline points={pts} fill="none" stroke={color} strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round" />
+          <circle cx={lastPt[0]} cy={lastPt[1]} r="4.4" fill={color} stroke="#fff" strokeWidth="2" />
+        </svg>
+        {goalY > PAD && goalY < H - PAD && (
+          <span style={{ position: "absolute", right: 2, top: Math.max(0, goalY * (120 / H) - 14), fontSize: 9.5, fontWeight: 800, color: "#b5651d" }}>
+            達成 {GOAL_SCORE}点
+          </span>
+        )}
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#b3bcc6", marginTop: 2 }}>
+        <span>{new Date(evaluated[0].uploadedAt).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}</span>
+        <span>いま</span>
+      </div>
+
+      <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+        <TrajStat v={String(best)} l="自己ベスト" />
+        <TrajStat v={String(recentAvg)} l={`直近${recent5.length}回平均`} />
+        <TrajStat v={String(evaluated.length)} l="演奏回数" />
+      </div>
+
+      <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "18px 0 9px", borderTop: "1px solid #eef1f4", paddingTop: 13 }}>
+        🎯 どの力が伸びた？
+      </div>
+      <div style={{ display: "flex", gap: 10 }}>
+        <AxisMini name="音程" color={TRAJ_COLOR.pitch} series={pitches} />
+        <AxisMini name="リズム" color={TRAJ_COLOR.rhythm} series={timings} />
+      </div>
+    </div>
+  )
+}
+
+// =========================================================
 // サブコンポーネント: ScoreViewer（OSMDインスタンスを親に公開）
 // =========================================================
 
@@ -2437,6 +2617,8 @@ export default function ScoreDetail({
       演奏を削除しました。履歴から別の演奏を選んでください。
     </div>
   )
+  // 上達の推移 (上達のようす)。個別演奏の一覧はこの下に「すべての演奏を見る」で畳む。
+  const trajectoryBlock = <ProgressTrajectory performances={performances} />
   const performanceHistoryBlock = (
     <div data-onboarding="scoreDetail.performanceHistory">
       <PerformanceHistory
@@ -2861,12 +3043,21 @@ export default function ScoreDetail({
       </div>
       )}
 
-      {/* ふりかえりタブ: 演奏履歴(採点結果含む) + 上達ループ を集約 (Step 1)。曲・練習アイテム両対応。 */}
+      {/* ふりかえりタブ: 上達の推移 → ゴール/基礎練/学びポイント → (畳んだ)演奏履歴。曲・練習アイテム両対応。
+          個別演奏の一覧は「すべての演奏を見る」で畳み、気になる人だけ展開する (2026-07-25 案1拡張)。 */}
       {activeTab === "review" && (
         <div data-section="review" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {deleteHintBlock}
-          {performanceHistoryBlock}
+          {trajectoryBlock}
           {isScoreMode && <ScoreLoopDetail scoreId={score.id} userId={userId} />}
+          {selected != null ? (
+            performanceHistoryBlock
+          ) : (
+            <details className={styles.allTakes}>
+              <summary className={styles.allTakesSummary}>すべての演奏を見る</summary>
+              <div style={{ marginTop: 12 }}>{performanceHistoryBlock}</div>
+            </details>
+          )}
         </div>
       )}
 
