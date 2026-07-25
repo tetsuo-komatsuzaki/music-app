@@ -72,14 +72,21 @@
   font-weight: 700;
   color: #1a1a1a;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.45;
+  /* 日本語を不自然な位置で折らない: 文節優先(対応ブラウザ)+ 禁則 + 長語のはみ出し防止 */
+  word-break: auto-phrase;
+  line-break: strict;
+  overflow-wrap: anywhere;
 }
 
 .bodyText {
   font-size: 13px;
   color: #444;
-  line-height: 1.7;
+  line-height: 1.8;
   margin: 0;
+  word-break: auto-phrase;
+  line-break: strict;
+  overflow-wrap: anywhere;
 }
 
 /* 凡例表 (マーク 3 用) */

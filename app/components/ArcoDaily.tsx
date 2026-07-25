@@ -48,32 +48,35 @@ const COMMENTS: Record<string, string> = {
   "10C": "音楽って楽しいね、ぎゅっ🎵",
 }
 
-// 端末ローカルの日付で 1日ごとに変わるインデックス
-function todayIndex() {
-  const d = new Date()
-  const dayNum = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000)
-  return ((dayNum % POSES.length) + POSES.length) % POSES.length
+// ログイン(セッション)ごとに 1 回だけランダムで選び、その間は固定する。
+// タップしても変わらない。次にログイン(新しいセッション)すると別の一言になる。
+const SESSION_KEY = "arcoda.arcoDaily.idx"
+function pickSessionIndex(): number {
+  if (typeof window === "undefined") return 0
+  try {
+    const saved = window.sessionStorage.getItem(SESSION_KEY)
+    if (saved !== null) {
+      const n = parseInt(saved, 10)
+      if (!Number.isNaN(n) && n >= 0 && n < POSES.length) return n
+    }
+    const n = Math.floor(Math.random() * POSES.length)
+    window.sessionStorage.setItem(SESSION_KEY, String(n))
+    return n
+  } catch {
+    return 0
+  }
 }
 
 export default function ArcoDaily() {
-  // SSR/ハイドレーション不一致を避けるため初期は 0、マウント後に当日ぶんへ
+  // SSR/ハイドレーション不一致を避けるため初期は 0、マウント後にこのセッションぶんへ
   const [i, setI] = useState(0)
-  useEffect(() => setI(todayIndex()), [])
+  useEffect(() => setI(pickSessionIndex()), [])
 
   const pose = POSES[i]
   const comment = COMMENTS[pose.id] ?? "今日もいっしょに練習しよう🎵"
 
   return (
-    <div
-      className={hb.arco}
-      data-onboarding="home.arcoCard"
-      role="button"
-      tabIndex={0}
-      aria-label="アルコちゃんの今日の一言（タップで次へ）"
-      onClick={() => setI((v) => (v + 1) % POSES.length)}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setI((v) => (v + 1) % POSES.length) } }}
-      style={{ cursor: "pointer" }}
-    >
+    <div className={hb.arco} data-onboarding="home.arcoCard" aria-label="アルコちゃんの一言">
       <div className={hb.ill}><ArcoChan pose={pose} /></div>
       <div className={hb.bubble}>{comment}</div>
     </div>

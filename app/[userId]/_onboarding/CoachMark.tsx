@@ -32,13 +32,19 @@ const TOOLTIP_GAP = 12  // ターゲットとの隙間
 
 type Position = { top: number; left: number }
 
+// 実際の tooltip 幅 (小さい画面では画面幅に合わせて縮める。固定 px にしない)
+function tooltipWidth(viewportW: number): number {
+  return Math.min(TOOLTIP_W, viewportW - 16)
+}
+
 function calcTooltipPos(rect: DOMRect, viewportW: number, viewportH: number): Position {
+  const tw = tooltipWidth(viewportW)
   // tooltip の高さは可変なので暫定 200px で見切れ判定 (実描画後の自動調整は CSS で吸収)
   const tooltipH = 200
   // 横位置: ターゲット中央に揃える、画面端で寄せる
-  let left = rect.left + rect.width / 2 - TOOLTIP_W / 2
+  let left = rect.left + rect.width / 2 - tw / 2
   if (left < 8) left = 8
-  if (left + TOOLTIP_W > viewportW - 8) left = viewportW - TOOLTIP_W - 8
+  if (left + tw > viewportW - 8) left = viewportW - tw - 8
 
   // 縦位置: 下を優先、画面下端を超えたら上にフリップ
   let top = rect.bottom + TOOLTIP_GAP
@@ -262,7 +268,7 @@ export default function CoachMark({
         className={styles.tooltip}
         role="dialog"
         aria-modal="true"
-        style={{ top: pos.top, left: pos.left, width: TOOLTIP_W }}
+        style={{ top: pos.top, left: pos.left, width: tooltipWidth(viewport.w) }}
       >
         {tooltipContent}
       </div>
