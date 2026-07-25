@@ -52,9 +52,12 @@ export type DiagnosisApiResponse = {
 export function DiagnosisBody({
   data,
   userId,
+  hideHeading,
 }: {
   data: DiagnosisApiResponse
   userId?: string
+  /** 見出し「今回の学びポイントと練習メニュー」を出さない (呼び手が独自の見出しを付ける場合) */
+  hideHeading?: boolean
 }) {
   if (data.verdict === "perfect") {
     return (
@@ -76,7 +79,7 @@ export function DiagnosisBody({
   }
   return (
     <section>
-      <h3 className={styles.heading}>今回の学びポイントと練習メニュー</h3>
+      {!hideHeading && <h3 className={styles.heading}>今回の学びポイントと練習メニュー</h3>}
       <WeaknessSlotList slots={data.slots} userId={userId} />
     </section>
   )
@@ -203,9 +206,11 @@ type Props = {
   kind: "score" | "practice"
   /** 「練習する →」の遷移に使う URL 用 userId (Supabase ID)。無ければリンク非表示 */
   userId?: string
+  /** 見出しを出さない (呼び手が独自の見出しを付ける場合) */
+  hideHeading?: boolean
 }
 
-export default function WeaknessDiagnosisCard({ performanceId, kind, userId }: Props) {
+export default function WeaknessDiagnosisCard({ performanceId, kind, userId, hideHeading }: Props) {
   const url =
     kind === "score"
       ? `/api/performances/${performanceId}/diagnosis`
@@ -237,5 +242,5 @@ export default function WeaknessDiagnosisCard({ performanceId, kind, userId }: P
   if (!data) {
     return <div className={styles.statusBox}>学びポイントを分析中…</div>
   }
-  return <DiagnosisBody data={data} userId={userId} />
+  return <DiagnosisBody data={data} userId={userId} hideHeading={hideHeading} />
 }

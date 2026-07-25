@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import styles from "../[userId]/homeBlocks.module.css"
 import GoalTracker, { type AchievementStatus } from "./GoalTracker"
+import WeaknessDiagnosisCard from "./WeaknessDiagnosisCard"
 
 type Piece = {
   id: string; title: string; star: number | null; cover: string | null; latest: number; recentAvg: number | null
@@ -106,6 +107,14 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
           <GoalTracker achv={ach} />
         ) : (
           <div style={{ fontSize: 12.5, color: "#9aa6b3", padding: "8px 0" }}>読み込み中…</div>
+        )}
+
+        {/* 毎日のレッスン (マスターの下・曲詳細のおすすめ練習と揃える。コーチガイドに合わせ「毎日のレッスン」) */}
+        {ach?.latestPerformanceId && (
+          <>
+            <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "16px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11 }}>📘 毎日のレッスン</div>
+            <WeaknessDiagnosisCard performanceId={ach.latestPerformanceId} kind="score" userId={userId} hideHeading />
+          </>
         )}
 
         {/* 毎日の基礎練 */}
