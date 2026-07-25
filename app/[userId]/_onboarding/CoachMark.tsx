@@ -98,8 +98,17 @@ export default function CoachMark({
   // SSR / Hydration ガード
   if (!isHydrated) return null
   if (typeof document === "undefined") return null
-  // target 解決前は何も描画しない (5 秒タイムアウト後に resolved=true になる)
-  if (!resolved) return null
+  // target 解決前: 何も出ないとユーザーが「ガイドが止まった?」と不安になるので、
+  // 「次を準備中」の小さなインジケータを出す (解決 or 5 秒タイムアウトで実マークへ)。
+  if (!resolved) {
+    return createPortal(
+      <div className={styles.preparing} role="status" aria-live="polite">
+        <span className={styles.preparingSpinner} aria-hidden />
+        <span>次のガイドを準備中…</span>
+      </div>,
+      document.body,
+    )
+  }
 
   const handleNextClick = () => {
     if (showDismissAllCheckbox && dismissAll && onDismissAll) {

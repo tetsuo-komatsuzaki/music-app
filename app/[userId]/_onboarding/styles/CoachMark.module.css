@@ -150,6 +150,42 @@
   0%, 100% { opacity: 1; transform: scale(1) }
   50% { opacity: .55; transform: scale(1.015) }
 }
+/* 遷移・target 解決待ちの「次を準備中」インジケータ (画面下中央) */
+.preparing {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 1903;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 16px;
+  background: rgba(26, 32, 44, 0.92);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+  pointer-events: none;
+  max-width: calc(100vw - 32px);
+}
+.preparingSpinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: cmSpin 0.7s linear infinite;
+  flex: none;
+}
+@keyframes cmSpin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .preparingSpinner { animation: none; }
+}
+
 .tapChip {
   position: fixed;
   transform: translateX(-50%);

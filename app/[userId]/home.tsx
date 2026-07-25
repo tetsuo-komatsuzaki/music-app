@@ -98,11 +98,11 @@ export default function HomeClient({
   const [guideOpen, setGuideOpen] = useState(false)
 
   // オンボ終盤の締め: 練習教材から「ホームに戻る」で ?guide=finish 付きで戻ってきた、
-  // まだ1曲も弾いていないユーザーに、選んだ曲を「弾いたらこう出る」の見本で見せる。
+  // まだ1曲も弾いていないユーザーに、「弾いたらこう出る」の見本で見せる。
+  // 選んだ曲があればその曲で、無ければ既定の見本で出す (samplePiece 有無に依存させない)。
   // URL 駆動なので、他画面へ遷移すれば自然に解除される (残留フラグ不要)。
   const ending =
     searchParams.get("guide") === "finish" &&
-    !!onboardingSamplePiece &&
     recentPieces.length === 0
 
   return (

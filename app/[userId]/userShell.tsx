@@ -4,6 +4,7 @@ import styles from "./layout.module.css"
 import { ReactNode } from "react"
 import Sidebar from "./components/Sidebar"
 import Header from "./components/Header"
+import NavProgress from "./components/NavProgress"
 import OnboardingErrorBoundary from "./_onboarding/OnboardingErrorBoundary"
 import OnboardingProvider from "./_onboarding/OnboardingProvider"
 import WelcomeSlides from "./_onboarding/WelcomeSlides"
@@ -16,6 +17,7 @@ export default function UserShell({
 }) {
   return (
     <OnboardingProvider>
+      <NavProgress />
       <div className={styles.container}>
         <Header />
         <div className={styles.body}>

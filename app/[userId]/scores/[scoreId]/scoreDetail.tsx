@@ -1478,10 +1478,13 @@ export default function ScoreDetail({
 
   // --- オンボーディング: 解析オーバーレイ描画完了を Provider に通知 ---
   // applyComparisonColors の setTimeout 連鎖 (最大 800ms) を待ってから dispatch
-  const { markAnalysisOverlayRendered, activeGuideMarkId, setOnboardingSamplePiece, onboardingSamplePiece, allGuidesDismissed } = useOnboarding()
+  const { markAnalysisOverlayRendered, activeGuideMarkId, setOnboardingSamplePiece, allGuidesDismissed, welcomeSlidesShown, pageGuidesSeen } = useOnboarding()
   // オンボの「録音」ステップ表示中だけ、録音ボタンを「ふりかえりへ進むだけのボタン」に差し替える。
   // 実録音は省くという方針 (通常ユーザーの録音ボタンは元のまま)。
   const onboardingRecordStep = isScoreMode && activeGuideMarkId === "scoreDetail.record"
+  // オンボ進行中 (はじめてガイド済み・未dismiss・締めの homeEnding 未到達) の判定。
+  // 「ホームに戻る」バナーの表示に使う (samplePiece 有無に依存させない = 確実に出す)。
+  const onboardingActive = welcomeSlidesShown && !allGuidesDismissed && !pageGuidesSeen.has("homeEnding")
   useEffect(() => {
     if (!selected?.comparisonResult) return
     if (noteElementsRef.current.length === 0) return
@@ -2491,8 +2494,8 @@ export default function ScoreDetail({
       </div>
 
       {/* オンボーディング終盤: 練習教材まで来たら「ホームに戻る」で締めの見本ホームへ。
-          ツアーで曲を選んだ (samplePiece あり) 練習アイテム表示中だけ出す。 */}
-      {practiceItemId && onboardingSamplePiece && !allGuidesDismissed && (
+          オンボ進行中の練習アイテム表示中に出す (samplePiece 非依存で確実に)。 */}
+      {practiceItemId && onboardingActive && (
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", padding: "12px 14px", marginBottom: 12, background: "linear-gradient(135deg,#F0F7FF,#FDF8E7)", border: "1px solid #DCE7F5", borderRadius: 12 }}>
           <span style={{ fontSize: 13, color: "#334", flex: 1, minWidth: 0 }}>おすすめの練習はこんな感じ。ホームに戻って、続きを見よう。</span>
           <button
