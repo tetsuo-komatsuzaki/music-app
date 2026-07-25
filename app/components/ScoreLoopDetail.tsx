@@ -244,22 +244,9 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
         )}
       </section>
 
-      {/* 達成/マスターの仕組み (詳しく) — 折りたたみ。普段は進捗トラッカーで十分 */}
-      <details style={{ marginBottom: 14, fontSize: 13, color: "#555" }}>
-        <summary style={{ cursor: "pointer", fontWeight: 600, color: "#4a90d9" }}>
-          ？ 達成・マスターの仕組み
-        </summary>
-        <div style={{ marginTop: 8, lineHeight: 1.8, padding: "0 4px" }}>
-          <strong>達成</strong>＝この曲を「弾ける」の認定。点数は関係なく、
-          学びレッスン＋エチュード（対象がある場合）＋<strong>破綻せず3回弾き切る</strong>こと。
-          <br />
-          <strong>🏆 マスター</strong>＝達成に加えて<strong>直近5回の演奏スコア平均90点以上</strong>。
-          達成した曲が同じ★で10曲たまると、次の★へ昇格します。
-        </div>
-      </details>
-
-      {/* ── 2. 最新演奏の217診断 + 弱点練習の推薦 (見出しは WeaknessDiagnosisCard 側) ── */}
-      {/* data-onboarding: 画面ガイドが「おすすめ練習はここ」と指すアンカー。
+      {/* ── 2. おすすめ練習 (最新演奏の217診断+弱点推薦) を「マスター」の直下に配置 ──
+          「ゴール → その達成に効く練習」の流れになるよう、仕組み(詳しく)より前に出す。
+          data-onboarding: 画面ガイドが「おすすめ練習はここ」と指すアンカー。
           演奏記録が無い場合も emptyHint がこの中に出るため、常に存在する。 */}
       <section className={styles.cardSection} data-onboarding="scoreDetail.recommendation">
         {achv.latestPerformanceId ? (
@@ -277,6 +264,20 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
           </p>
         )}
       </section>
+
+      {/* 達成/マスターの仕組み (詳しく) — 折りたたみ。最下部に置く */}
+      <details style={{ marginBottom: 14, fontSize: 13, color: "#555" }}>
+        <summary style={{ cursor: "pointer", fontWeight: 600, color: "#4a90d9" }}>
+          ？ 達成・マスターの仕組み
+        </summary>
+        <div style={{ marginTop: 8, lineHeight: 1.8, padding: "0 4px" }}>
+          <strong>達成</strong>＝この曲を「弾ける」の認定。点数は関係なく、
+          学びレッスン＋エチュード（対象がある場合）＋<strong>破綻せず3回弾き切る</strong>こと。
+          <br />
+          <strong>🏆 マスター</strong>＝達成に加えて<strong>直近5回の演奏スコア平均90点以上</strong>。
+          達成した曲が同じ★で10曲たまると、次の★へ昇格します。
+        </div>
+      </details>
     </div>
   )
 }
