@@ -26,6 +26,8 @@ const baseCtx = (over: Partial<OnboardingContextValue> = {}): OnboardingContextV
   replayingPageKey: null,
   guideSample: null,
   setGuideSample: vi.fn(),
+  activeGuideMarkId: null,
+  setActiveGuideMarkId: vi.fn(),
   helpOpen: false,
   helpSection: null,
   markWelcomeSlidesShown: vi.fn(),

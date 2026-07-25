@@ -60,6 +60,7 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
     dismissAllGuides,
     guideSample,
     setGuideSample,
+    setActiveGuideMarkId,
   } = useOnboarding()
 
   const router = useRouter()
@@ -155,6 +156,14 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
 
   // --- 描画すべきマーク ---
   const active = selectActiveMark(state, analysisMark)
+
+  // 表示中マークの id を Provider に公開 (画面側がガイド中だけ挙動を変えるため)。
+  // アンマウント時 / 非表示時は null に戻す。
+  const activeMarkId = active?.mark.id ?? null
+  useEffect(() => {
+    setActiveGuideMarkId(activeMarkId)
+    return () => setActiveGuideMarkId(null)
+  }, [activeMarkId, setActiveGuideMarkId])
 
   // --- targetUrl: 表示前にクエリを合わせる (タブ切替マーク) ---
   const targetUrl = active?.mark.targetUrl ?? null

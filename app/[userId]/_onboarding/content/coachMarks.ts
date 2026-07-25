@@ -226,7 +226,19 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         showDismissAllCheckbox: false,
       },
       {
-        // ふりかえりタブへ切り替え、まだ演奏が無くても「弾くとこう出る」を見本で見せる
+        // 実際に弾くのは体験が長いので、ガイド中はここを押しても録音は始めず
+        // 「弾いたらどう分析されるか」の見本(ふりかえり)へ進める (scoreDetail.tsx で intercept)。
+        id: "scoreDetail.record",
+        targetKey: "scoreDetail.recordButton",
+        targetUrl: "?tab=play",
+        headline: "弾くときは、ここから録音するよ",
+        body: "ふだんはこのボタンで録音して、弾き終わると自動で分析がはじまるよ。ここでは押すと、分析結果がどう出るか見本を見てみよう。",
+        awaitTap: { hint: "タップしてみよう" },
+        trigger: "page",
+        showDismissAllCheckbox: false,
+      },
+      {
+        // ↑の録音タップで review タブへ来て、まだ演奏が無くても「弾くとこう出る」を見本で見せる
         id: "scoreDetail.reviewResult",
         targetKey: "scoreDetail.recommendation",
         targetUrl: "?tab=review",
@@ -243,17 +255,6 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         sample: "review",
         headline: "きみに合った練習メニューが届く",
         body: "「おすすめ教材」をタップすると、その練習の画面にうつるよ。次に何をすればいいか、もう迷わない。",
-        trigger: "page",
-        showDismissAllCheckbox: false,
-      },
-      {
-        // 最後に演奏タブへ戻して録音を促す (戻さないと録音ボタンが見えない)
-        id: "scoreDetail.record",
-        targetKey: "scoreDetail.recordButton",
-        targetUrl: "?tab=play",
-        headline: "まず1回、弾いてみて",
-        body: "うまく弾けなくて大丈夫。弾き終わると自動で分析がはじまるよ。",
-        awaitTap: { hint: "タップして録音" },
         trigger: "page",
         showDismissAllCheckbox: false,
       },

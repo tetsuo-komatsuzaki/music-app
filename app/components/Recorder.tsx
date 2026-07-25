@@ -191,8 +191,11 @@ type Props = {
    * 区間録音 (部分練習 Phase 2b): idle の録音CTAが押された瞬間に親へ通知。
    * 親はここで「この録音が区間録音か」を確定する (区間ボタン経由なら pending→confirmed)。
    * 区間ボタンは data-testid="recorder-start-button" を click してこのCTAをトリガする。
+   *
+   * 戻り値が truthy のときは、この後の録音開始 (カウントイン) を行わない。
+   * オンボーディング中に「録音は始めず、ふりかえりの見本へ進める」ために使う。
    */
-  onIdleRecordClick?: () => void
+  onIdleRecordClick?: () => boolean | void
 }
 
 export type Status = "idle" | "tempo-select" | "countdown" | "recording" | "preview" | "uploading" | "result"
@@ -613,7 +616,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
           <button
             className={styles.mainCta}
             data-testid="recorder-start-button"
-            onClick={() => { onIdleRecordClick?.(); startCountdown() }}
+            onClick={() => { if (onIdleRecordClick?.()) return; startCountdown() }}
             disabled={disabled}
           >
             <span className={styles.ctaDot} />

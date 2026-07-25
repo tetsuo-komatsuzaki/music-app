@@ -35,6 +35,13 @@ export type OnboardingState = {
    */
   guideSample: string | null
   setGuideSample: (key: string | null) => void
+  /**
+   * いま画面に出ているコーチマークの id (例: "scoreDetail.record")。出ていなければ null。
+   * ガイド中だけ挙動を変えたい画面側 (例: オンボ中は録音ボタンで実録音せずふりかえりへ)
+   * が、どのマークが出ているかを知るために使う。
+   */
+  activeGuideMarkId: string | null
+  setActiveGuideMarkId: (id: string | null) => void
   helpOpen: boolean
   helpSection: HelpSection | null
 }
@@ -70,6 +77,8 @@ const NOOP_CONTEXT: OnboardingContextValue = {
   replayingPageKey: null,
   guideSample: null,
   setGuideSample: () => {},
+  activeGuideMarkId: null,
+  setActiveGuideMarkId: () => {},
   helpOpen: false,
   helpSection: null,
   markWelcomeSlidesShown: () => {},
@@ -157,6 +166,7 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
   const [analysisOverlayRenderedAt, setAnalysisOverlayRenderedAt] = useState<number | null>(null)
   const [replayingPageKey, setReplayingPageKey] = useState<string | null>(null)
   const [guideSample, setGuideSample] = useState<string | null>(null)
+  const [activeGuideMarkId, setActiveGuideMarkId] = useState<string | null>(null)
   const [helpOpen, setHelpOpen] = useState(false)
   const [helpSection, setHelpSection] = useState<HelpSection | null>(null)
 
@@ -270,6 +280,8 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
     replayingPageKey,
     guideSample,
     setGuideSample,
+    activeGuideMarkId,
+    setActiveGuideMarkId,
     helpOpen,
     helpSection,
     markWelcomeSlidesShown,
