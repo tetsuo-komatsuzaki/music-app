@@ -223,19 +223,18 @@ describe("extractScoreSymbols", () => {
     expect(new Set(list.map((s) => s.id))).toEqual(new Set(["sul_ponticello", "tempo_change"]))
   })
 
-  it("曲全体の構造から 転調・拍子変更・反復・音部記号を出す", () => {
+  it("曲全体の構造から 転調・拍子変更・反復を出す", () => {
     const { list, byNote } = extractScoreSymbols({
       notes: [note(0)],
       structure: {
         key_signature_count: 2, time_signature_count: 3,
-        has_repeat: true, clef: "TrebleClef",
+        has_repeat: true,
       },
     })
     const ids = new Set(list.map((s) => s.id))
     expect(ids.has("key_change")).toBe(true)
     expect(ids.has("time_change")).toBe(true)
     expect(ids.has("repeat_bar")).toBe(true)
-    expect(list.find((s) => s.id === "clef")?.value).toBe("ト音記号")
     // 曲全体の記号なので特定の音符には紐づかない
     expect(byNote.size).toBe(0)
   })

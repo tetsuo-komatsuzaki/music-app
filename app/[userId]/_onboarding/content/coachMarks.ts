@@ -357,36 +357,7 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
       },
     ],
   },
-  {
-    pageKey: "progress",
-    marks: [
-      {
-        id: "progress.calendar",
-        targetKey: "progress.calendar",
-        headline: "続けた自分が、残っていく",
-        body: "練習した日にマークがつくよ。この積み重ねが、そのまま自信になる。",
-        trigger: "page",
-        showDismissAllCheckbox: true,
-      },
-      {
-        id: "progress.mastery",
-        targetKey: null,
-        headline: "きみの成長は、ここで見られる",
-        body: "身につけた技法と、いまのランクを確認できるよ。技法や曲をクリアするほど、挑戦できる曲が広がっていく。",
-        trigger: "page",
-        showDismissAllCheckbox: false,
-        targetUrl: "?tab=mastery",
-      },
-      {
-        id: "progress.skillTree",
-        targetKey: null,
-        headline: "これから、スキルツリーもつくるよ",
-        body: "身につけた技術が枝分かれして広がっていく地図を準備中。そこでも技をひとつずつマスターしていけるようにするね。",
-        trigger: "page",
-        showDismissAllCheckbox: false,
-      },
-    ],
-  },
+  // 成長記録 (progress) はコーチガイド廃止 (2026-07-25 Tetsuo 指示)。
   {
     // 主導線ではない。弾く曲は「練習曲」から選ぶのが基本で、
     // ここは自分の楽譜を持ち込みたい人向けの任意の入口なので最後に置く。

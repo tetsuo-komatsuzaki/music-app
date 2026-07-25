@@ -130,7 +130,6 @@ const STRUCT_LIST: { field: string; def: SymbolDef }[] = []
 /** 特定キーワードに当たらなかった文字指示の受け皿 */
 let WORDS_FALLBACK_DEF: SymbolDef | undefined
 let TIME_SYMBOL_DEF: SymbolDef | undefined
-let CLEF_DEF: SymbolDef | undefined
 
 for (const d of ALL_SYMBOLS) {
   const m = d.match
@@ -180,7 +179,6 @@ for (const d of ALL_SYMBOLS) {
       break
     case "wordsFallback": WORDS_FALLBACK_DEF = d; break
     case "timeSymbol": TIME_SYMBOL_DEF = d; break
-    case "clef": CLEF_DEF = d; break
     default: break // expression / words / notehead ほか = 解析側の追加待ち
   }
 }
@@ -294,11 +292,6 @@ const NAVIGATION_JA: Record<string, string> = {
   DaCapo: "D.C.", DaCapoAlFine: "D.C. al Fine", DaCapoAlCoda: "D.C. al Coda",
   DalSegno: "D.S.", DalSegnoAlFine: "D.S. al Fine", DalSegnoAlCoda: "D.S. al Coda",
   AlSegno: "al Segno", Segno: "セーニョ", Coda: "コーダ", Fine: "Fine",
-}
-
-const CLEF_JA: Record<string, string> = {
-  TrebleClef: "ト音記号", BassClef: "ヘ音記号", AltoClef: "ハ音記号(アルト)",
-  TenorClef: "ハ音記号(テノール)", Treble8vbClef: "ト音記号(1オクターブ下)",
 }
 
 export type ExtractedSymbols = {
@@ -459,7 +452,6 @@ export function extractScoreSymbols(
     if (st.time_symbol && TIME_SYMBOL_DEF) {
       add(TIME_SYMBOL_DEF, null, { value: st.time_symbol === "cut" ? "¢" : "C" })
     }
-    if (st.clef && CLEF_DEF) add(CLEF_DEF, null, { value: CLEF_JA[st.clef] ?? st.clef })
     for (const tm of st.tempo_marks ?? []) {
       for (const t of TEMPO_DEFS) {
         if (!t.kinds.includes(String(tm.kind))) continue
