@@ -40,6 +40,12 @@ export type CoachMarkConfig = {
    */
   requiresTarget?: boolean
   /**
+   * requiresTarget の逆。指定した data-onboarding 要素が「無い」ときだけ出す。
+   * 例: home.pickPiece (まだ弾いていない印) が無い = 既に弾いた人、という判定に使う。
+   * これで「弾いた人向けの説明」を新規ユーザーには出さないようにする。
+   */
+  requiresAbsent?: string
+  /**
    * 「次へ」で読み飛ばさせず、実際の画面のボタンを押させる。
    * ガイドの意義は一連の体験を自分でたどらせることなので、流れの節目では
    * ツールチップに次へを出さず、対象を光らせてタップを待つ。
@@ -81,14 +87,12 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
     // ランクの説明は「1曲クリアしたらどうなるか」の話なので、
     // 演奏を一周したあと (弾いた曲がホームに出るようになってから) に置く。
     pageKey: "home",
-    // まだ弾いていない人にも、弾いたあとのホームを見本で見せる
-    // (見本が無いと「弾いた曲はこの画面にも出るよ」が指す先が存在しない)
-    sample: "home",
     marks: [
       {
         id: "home.focusCard",
         targetKey: "home.focusCard",
         requiresTarget: true,
+        requiresAbsent: "home.pickPiece",
         headline: "弾いた曲は、この画面にも出るよ",
         body: "「マスターへのステップ」がこの曲のクリア条件。音程とリズムの平均が90点以上になって、通し演奏が3回たまるとクリアだよ。",
         trigger: "page",
@@ -98,6 +102,7 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         id: "home.focusPractice",
         targetKey: "home.focusCard",
         requiresTarget: true,
+        requiresAbsent: "home.pickPiece",
         headline: "おすすめの練習は、ここからすぐ",
         body: "苦手に効く練習と、毎日の基礎練がならんでいるよ。タップするとその練習が始まる。さっそくやってみよう。",
         trigger: "page",
@@ -107,6 +112,7 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         id: "home.favorites",
         targetKey: "home.favorites",
         requiresTarget: true,
+        requiresAbsent: "home.pickPiece",
         headline: "毎日やりたい練習は、♡でここに",
         body: "曲や教材の ♡ を押すとお気に入りに入るよ。毎日の練習も大事なので、続けたいものを集めておこう。",
         trigger: "page",
@@ -116,6 +122,7 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         id: "home.rankCard",
         targetKey: "home.rankCard",
         requiresTarget: true,
+        requiresAbsent: "home.pickPiece",
         headline: "クリアすると、星がひとつ増える",
         body: "練習したら、もう一度その曲に挑戦しよう。クリアするとランクカードに星がひとつ。星が10個たまるとランクが上がって、さらにむずかしい曲にも挑戦できるようになるよ。この繰り返しでうまくなっていこう。",
         trigger: "page",

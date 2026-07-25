@@ -39,8 +39,13 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
   const pageMarks = useMemo(
     () => marks.filter((m) => {
       if (m.trigger !== "page") return false
+      if (!isHydrated || typeof document === "undefined") {
+        // 判定に DOM が要るマーク (requiresTarget / requiresAbsent) は保留
+        return !m.requiresTarget && !m.requiresAbsent
+      }
+      // requiresAbsent: 指定要素が「在る」なら出さない (例: まだ弾いていない人向け)
+      if (m.requiresAbsent && document.querySelector(`[data-onboarding="${m.requiresAbsent}"]`)) return false
       if (!m.requiresTarget || !m.targetKey) return true
-      if (!isHydrated || typeof document === "undefined") return false
       return !!document.querySelector(`[data-onboarding="${m.targetKey}"]`)
     }),
     [marks, isHydrated],

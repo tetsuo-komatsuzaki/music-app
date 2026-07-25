@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import styles from "../[userId]/homeBlocks.module.css"
-import GuideSampleFocus from "./GuideSampleFocus"
-import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 
 type Piece = {
   id: string; title: string; star: number | null; cover: string | null; latest: number; recentAvg: number | null
@@ -29,8 +27,6 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
   const piece = pieces[active] ?? pieces[0] ?? null
   const [ach, setAch] = useState<AchStatus | null>(null)
   const [loading, setLoading] = useState(false)
-  // 画面ガイドが見本を出している間だけ "home" になる
-  const { guideSample } = useOnboarding()
 
   useEffect(() => {
     if (!piece) return
@@ -67,10 +63,6 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
           </Link>
         </div>
 
-        {/* ガイド表示中は「弾いたあとのホーム」も見本で見せる。
-            これが無いと、ガイドの「弾いた曲はこの画面にも出るよ」が
-            指す先が存在せず、何の話か分からなくなる。 */}
-        {guideSample === "home" && <GuideSampleFocus />}
       </div>
     )
   }
