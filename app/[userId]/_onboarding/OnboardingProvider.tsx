@@ -57,6 +57,12 @@ export type OnboardingState = {
   /** ツアーで選んだ曲 (終盤の見本ホームで使う)。実演奏を省略するので見本に流用。 */
   onboardingSamplePiece: OnboardingSamplePiece | null
   setOnboardingSamplePiece: (p: OnboardingSamplePiece | null) => void
+  /**
+   * 終盤の締め (見本ホーム + homeEnding ガイド) を出す印。練習教材まで来たら立てる。
+   * サイドバーの「ホーム」からも戻れるよう、URL クエリではなくフラグで駆動する。
+   */
+  onboardingEnding: boolean
+  setOnboardingEnding: (v: boolean) => void
   helpOpen: boolean
   helpSection: HelpSection | null
 }
@@ -96,6 +102,8 @@ const NOOP_CONTEXT: OnboardingContextValue = {
   setActiveGuideMarkId: () => {},
   onboardingSamplePiece: null,
   setOnboardingSamplePiece: () => {},
+  onboardingEnding: false,
+  setOnboardingEnding: () => {},
   helpOpen: false,
   helpSection: null,
   markWelcomeSlidesShown: () => {},
@@ -186,6 +194,7 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
   // 「いま出ているマーク id」。画面側が描画時に UI を差し替える判定に使う (リアクティブ)。
   const [activeGuideMarkId, setActiveGuideMarkId] = useState<string | null>(null)
   const [onboardingSamplePiece, setOnboardingSamplePiece] = useState<OnboardingSamplePiece | null>(null)
+  const [onboardingEnding, setOnboardingEnding] = useState(false)
   const [helpOpen, setHelpOpen] = useState(false)
   const [helpSection, setHelpSection] = useState<HelpSection | null>(null)
 
@@ -249,6 +258,7 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
 
   const dismissAllGuides = useCallback(() => {
     setAllGuidesDismissed(true)
+    setOnboardingEnding(false)
     safeSetItem(keysRef.current.allGuidesDismissed, "true")
   }, [])
 
@@ -260,6 +270,7 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
     setAnalysisOverlayRenderedAt(null)
     setReplayingPageKey(null)
     setOnboardingSamplePiece(null)
+    setOnboardingEnding(false)
     setHelpOpen(false)
     setHelpSection(null)
     safeRemoveItem(keysRef.current.welcomeSlidesShown)
@@ -304,6 +315,8 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
     setActiveGuideMarkId,
     onboardingSamplePiece,
     setOnboardingSamplePiece,
+    onboardingEnding,
+    setOnboardingEnding,
     helpOpen,
     helpSection,
     markWelcomeSlidesShown,

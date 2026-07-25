@@ -28,46 +28,51 @@ export default function GuideSampleFocus({ piece }: { piece?: SamplePiece }) {
     </div>
   )
 
+  // 通常の PracticeFocusCard とまったく同じ枠 (hb.root > hb.card) で描画し、
+  // 先頭に「見本」バッジ・末尾に注記だけ足す (崩れ防止・見た目を本物と揃える)。
   return (
-    <div className={styles.wrap} data-onboarding="home.focusCard" aria-label="ガイド用の見本">
-      <div className={styles.badge}>見本 ・ 弾くとこう出るよ</div>
+    <div className={hb.root}>
+      <div className={hb.card} data-onboarding="home.focusCard" aria-label="ガイド用の見本">
+        <div className={styles.badge}>見本 ・ 弾くとこう出るよ</div>
 
-      <div className={hb.cardTitle}>いま練習している曲</div>
+        <div className={hb.cardTitle}>いま練習している曲</div>
 
-      <div className={hb.piece}>
-        <div className={`${hb.thumb} ${hb.thumbGoal}`}>{cover ? <img src={cover} alt="" loading="lazy" /> : "♪"}</div>
-        <div className={hb.g}>
-          <div className={hb.title}>{title}</div>
-          <div className={hb.meta}>☆{star} ・ 直近 82点</div>
+        <div className={hb.piece}>
+          <div className={`${hb.thumb} ${hb.thumbGoal}`}>{cover ? <img src={cover} alt="" loading="lazy" /> : "♪"}</div>
+          <div className={hb.g}>
+            <div className={hb.title}>{title}</div>
+            <div className={hb.meta}>☆{star} ・ 直近 82点</div>
+          </div>
+          <span className={`${hb.chip} ${hb.chipGoal}`}>挑戦中</span>
         </div>
-        <span className={`${hb.chip} ${hb.chipGoal}`}>挑戦中</span>
+
+        <div className={hb.mastery}>
+          <div className={hb.mrow}>
+            <span>演奏マスターまで</span>
+            <span>あと 8点</span>
+          </div>
+          <div className={hb.mbar}><i style={{ width: "91%" }} /></div>
+        </div>
+
+        <div className={hb.rec2}>
+          <div className={hb.recCol}>
+            <div className={`${hb.recH} ${hb.recHPiece}`}><span className={hb.dot} />マスターへのステップ</div>
+            {step(false, "演奏をマスター", "82/90")}
+            {step(false, "通しで演奏", `1/${DAILY_GOAL}`)}
+            {step(true, "学びレッスン", "2/2")}
+          </div>
+          <div className={hb.recCol} data-onboarding="home.focusDaily">
+            <div className={`${hb.recH} ${hb.recHDaily}`}><span className={hb.dot} />毎日の基礎練</div>
+            {step(true, "音階", `3/${DAILY_GOAL}`)}
+            {step(false, "アルペジオ", `1/${DAILY_GOAL}`)}
+            {step(false, "ボーイング", `1/${DAILY_GOAL}`)}
+          </div>
+        </div>
+
+        <p className={styles.note}>
+          ここは見本だよ。1曲でも弾くと、きみの曲とクリアまでの進み具合がここに出るようになる。
+        </p>
       </div>
-
-      <div className={hb.mastery}>
-        <div className={hb.mrow}>
-          <span>演奏マスターまで</span>
-          <span><b>82</b> / 90点</span>
-        </div>
-        <div className={hb.mbar}><i style={{ width: "91%" }} /></div>
-      </div>
-
-      <div className={hb.rec2}>
-        <div className={hb.recCol}>
-          <div className={`${hb.recH} ${hb.recHPiece}`}><span className={hb.dot} />マスターへのステップ</div>
-          {step(false, "音程とリズムの平均90点", "82")}
-          {step(false, "通し演奏", `1/${DAILY_GOAL}`)}
-          {step(true, "学びレッスン", "2/2")}
-        </div>
-        <div className={hb.recCol} data-onboarding="home.focusDaily">
-          <div className={`${hb.recH} ${hb.recHDaily}`}><span className={hb.dot} />毎日の基礎練</div>
-          {step(true, "音階", `3/${DAILY_GOAL}`)}
-          {step(false, "アルペジオ", `1/${DAILY_GOAL}`)}
-        </div>
-      </div>
-
-      <p className={styles.note}>
-        ここは見本だよ。1曲でも弾くと、きみの曲とクリアまでの進み具合がここに出るようになる。
-      </p>
     </div>
   )
 }

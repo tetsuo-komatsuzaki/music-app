@@ -1478,7 +1478,7 @@ export default function ScoreDetail({
 
   // --- オンボーディング: 解析オーバーレイ描画完了を Provider に通知 ---
   // applyComparisonColors の setTimeout 連鎖 (最大 800ms) を待ってから dispatch
-  const { markAnalysisOverlayRendered, activeGuideMarkId, setOnboardingSamplePiece, allGuidesDismissed, welcomeSlidesShown, pageGuidesSeen } = useOnboarding()
+  const { markAnalysisOverlayRendered, activeGuideMarkId, setOnboardingSamplePiece, setOnboardingEnding, allGuidesDismissed, welcomeSlidesShown, pageGuidesSeen } = useOnboarding()
   // オンボの「録音」ステップ表示中だけ、録音ボタンを「ふりかえりへ進むだけのボタン」に差し替える。
   // 実録音は省くという方針 (通常ユーザーの録音ボタンは元のまま)。
   const onboardingRecordStep = isScoreMode && activeGuideMarkId === "scoreDetail.record"
@@ -1504,6 +1504,12 @@ export default function ScoreDetail({
       setOnboardingSamplePiece({ id: score.id, title: score.title, cover: null, star: null })
     }
   }, [isScoreMode, allGuidesDismissed, score.id, score.title, setOnboardingSamplePiece])
+
+  // オンボ中に練習教材まで来たら「締め」を armed 状態にする。以後どの経路 (サイドバーの
+  // 「ホーム」含む) でホームに戻っても、見本ホーム + 締めガイドが出る。
+  useEffect(() => {
+    if (practiceItemId && onboardingActive) setOnboardingEnding(true)
+  }, [practiceItemId, onboardingActive, setOnboardingEnding])
 
   // --- 記号ガイド: 譜面に出てくる記号・技法 (2026-07-25) ---
   // analysis.json に既にある情報から抽出するだけなので追加の通信は無い。
@@ -2492,22 +2498,6 @@ export default function ScoreDetail({
           />
         </div>
       </div>
-
-      {/* オンボーディング終盤: 練習教材まで来たら「ホームに戻る」で締めの見本ホームへ。
-          オンボ進行中の練習アイテム表示中に出す (samplePiece 非依存で確実に)。 */}
-      {practiceItemId && onboardingActive && (
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", padding: "12px 14px", marginBottom: 12, background: "linear-gradient(135deg,#F0F7FF,#FDF8E7)", border: "1px solid #DCE7F5", borderRadius: 12 }}>
-          <span style={{ fontSize: 13, color: "#334", flex: 1, minWidth: 0 }}>おすすめの練習はこんな感じ。ホームに戻って、続きを見よう。</span>
-          <button
-            type="button"
-            data-onboarding="practiceItem.backHome"
-            onClick={() => router.push(`/${userId}?guide=finish`)}
-            style={{ background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "#fff", border: "none", borderRadius: 10, padding: "9px 18px", fontSize: 14, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
-          >
-            ホームに戻る →
-          </button>
-        </div>
-      )}
 
       {/* タブ (演奏 / ふりかえり): 曲・練習アイテムの両方で表示。
           演奏履歴はふりかえり側に集約。上達ループは曲のみ (下の isScoreMode ガード)。 */}

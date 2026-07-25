@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useParams, useSearchParams } from "next/navigation"
+import { useParams } from "next/navigation"
 import MyRankCard from "@/app/components/MyRankCard"
 import ArcoDaily from "@/app/components/ArcoDaily"
 import PracticeFocusCard from "@/app/components/PracticeFocusCard"
@@ -93,17 +93,14 @@ export default function HomeClient({
 }: Props) {
   void _userName
   const { userId } = useParams<{ userId: string }>()
-  const searchParams = useSearchParams()
-  const { onboardingSamplePiece } = useOnboarding()
+  const { onboardingSamplePiece, onboardingEnding, setOnboardingEnding } = useOnboarding()
   const [guideOpen, setGuideOpen] = useState(false)
 
-  // オンボ終盤の締め: 練習教材から「ホームに戻る」で ?guide=finish 付きで戻ってきた、
-  // まだ1曲も弾いていないユーザーに、「弾いたらこう出る」の見本で見せる。
-  // 選んだ曲があればその曲で、無ければ既定の見本で出す (samplePiece 有無に依存させない)。
-  // URL 駆動なので、他画面へ遷移すれば自然に解除される (残留フラグ不要)。
-  const ending =
-    searchParams.get("guide") === "finish" &&
-    recentPieces.length === 0
+  // オンボ終盤の締め: 練習教材まで来て「締め」が armed のまま、まだ1曲も弾いていない
+  // ユーザーがホームに戻ってきたとき、「弾いたらこう出る」の見本を見せて締めガイドを出す。
+  // サイドバーの「ホーム」からも戻れるよう URL ではなくフラグ (onboardingEnding) で駆動する。
+  // 選んだ曲があればその曲で、無ければ既定の見本で出す。
+  const ending = onboardingEnding && recentPieces.length === 0
 
   return (
     <div className={styles.page}>
@@ -130,27 +127,14 @@ export default function HomeClient({
       {/* ⑤ お気に入り (曲・音階・アルペジオ・エチュード・ボーイング・フィンガリング・重音) */}
       <FavoritesSection favorites={favorites} />
 
-      {/* ⑥ 終盤のみ: 自分の楽譜を持ち込む導線 (既存「マイスコア」へ) */}
-      {ending && (
-        <Link
-          href={`/${userId}/scores`}
-          data-onboarding="home.uploadLead"
-          style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: "#fff", border: "1px solid #e6ebf2", borderRadius: 14, textDecoration: "none", color: "inherit" }}
-        >
-          <span aria-hidden style={{ fontSize: 22 }}>🎼</span>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "block", fontWeight: 700, fontSize: 14, color: "#1a1a1a" }}>自分の楽譜を持ち込む</span>
-            <span style={{ display: "block", fontSize: 12, color: "#667" }}>「マイスコア」からアップロードすると、その曲でも練習できるよ</span>
-          </span>
-          <span aria-hidden style={{ color: "#889" }}>→</span>
-        </Link>
-      )}
-
-      {/* ⑦ 終盤の締め: さっそく本物の1曲へ (見本ホームからの出口) */}
+      {/* ⑥ 終盤の締め: さっそく本物の1曲へ (見本ホームからの出口)。
+          自分の楽譜の持ち込みは homeEnding.upload ガイドが左サイドバーの
+          「マイライブラリー」を案内する (専用ボタンは作らない)。 */}
       {ending && (
         <Link
           href={`/${userId}/practice/pieces`}
           data-onboarding="home.startCta"
+          onClick={() => setOnboardingEnding(false)}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 16px", background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "#fff", borderRadius: 14, textDecoration: "none", fontWeight: 800, fontSize: 15 }}
         >
           <span aria-hidden>♪</span> さっそく1曲、弾いてみよう

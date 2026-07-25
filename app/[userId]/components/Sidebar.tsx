@@ -64,6 +64,7 @@ export default function Sidebar() {
       <button
         type="button"
         className={styles.toggleButton}
+        data-onboarding="nav.toggle"
         onClick={() => setIsOpen(prev => !prev)}
         aria-label={isOpen ? "メニューを閉じる" : "メニューを開く"}
         aria-expanded={isOpen}
@@ -81,11 +82,14 @@ export default function Sidebar() {
                   ? pathname === `/${userId}` || pathname === `/${userId}/`
                   : pathname === href || pathname.startsWith(`${href}/`)
 
+              // オンボのガイドが指せるよう、ホーム / マイライブラリーに目印を付ける
+              const onbKey = item.path === "" ? "nav.home" : item.path === "scores" ? "nav.library" : undefined
               return (
                 <Link
                   key={item.path}
                   href={href}
                   onClick={() => setIsOpen(false)}
+                  data-onboarding={onbKey}
                   className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
                 >
                   <span className={styles.navIcon}>{item.icon}</span>

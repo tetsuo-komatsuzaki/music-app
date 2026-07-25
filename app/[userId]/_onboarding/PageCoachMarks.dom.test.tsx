@@ -30,6 +30,8 @@ const baseCtx = (over: Partial<OnboardingContextValue> = {}): OnboardingContextV
   setActiveGuideMarkId: vi.fn(),
   onboardingSamplePiece: null,
   setOnboardingSamplePiece: vi.fn(),
+  onboardingEnding: false,
+  setOnboardingEnding: vi.fn(),
   helpOpen: false,
   helpSection: null,
   markWelcomeSlidesShown: vi.fn(),

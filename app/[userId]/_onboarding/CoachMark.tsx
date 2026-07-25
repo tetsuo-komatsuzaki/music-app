@@ -102,10 +102,14 @@ export default function CoachMark({
   // 「次を準備中」の小さなインジケータを出す (解決 or 5 秒タイムアウトで実マークへ)。
   if (!resolved) {
     return createPortal(
-      <div className={styles.preparing} role="status" aria-live="polite">
-        <span className={styles.preparingSpinner} aria-hidden />
-        <span>次のガイドを準備中…</span>
-      </div>,
+      <>
+        {/* 解決待ち中も誤タップで画面が動かないよう全面ブロック */}
+        <div className={styles.blocker} style={{ inset: 0 }} />
+        <div className={styles.preparing} role="status" aria-live="polite">
+          <span className={styles.preparingSpinner} aria-hidden />
+          <span>次のガイドを準備中…</span>
+        </div>
+      </>,
       document.body,
     )
   }
@@ -206,8 +210,23 @@ export default function CoachMark({
   let chipTop = tooltipBelow ? rect.top - CHIP_H : rect.bottom + 8
   // 対象が画面上端に近く上に出せない稀なケースだけ下へ (それ以外は上下で衝突しない)
   if (chipTop < 8) chipTop = rect.bottom + 8
+
+  // オンボ中の誤タップ防止: awaitTap は対象の「穴」を残して周囲だけブロック (対象のみ操作可)。
+  // 非 awaitTap は対象も含めて全面ブロック (ユーザーは「次へ」で進む)。
+  const blockers = awaitTapHint ? (
+    <>
+      <div className={styles.blocker} style={{ top: 0, left: 0, width: "100%", height: Math.max(0, rect.top - padding) }} />
+      <div className={styles.blocker} style={{ top: rect.bottom + padding, left: 0, width: "100%", bottom: 0 }} />
+      <div className={styles.blocker} style={{ top: rect.top - padding, left: 0, width: Math.max(0, rect.left - padding), height: rect.height + padding * 2 }} />
+      <div className={styles.blocker} style={{ top: rect.top - padding, left: rect.right + padding, right: 0, height: rect.height + padding * 2 }} />
+    </>
+  ) : (
+    <div className={styles.blocker} style={{ inset: 0 }} />
+  )
+
   return createPortal(
     <>
+      {blockers}
       {awaitTapHint && (
         <div
           className={styles.tapRing}
