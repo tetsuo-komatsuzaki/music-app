@@ -3,19 +3,13 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import styles from "../[userId]/homeBlocks.module.css"
+import GoalTracker, { type AchievementStatus } from "./GoalTracker"
 
 type Piece = {
   id: string; title: string; star: number | null; cover: string | null; latest: number; recentAvg: number | null
   badge: "mastered" | "achieved" | null; href: string
 }
 type Basic = { id: string; title: string; category: string; href: string; recentScore: number | null; lastPracticedAt: string; todayCount: number }
-
-type AchStatus = {
-  lessons: { total: number; cleared: number }
-  etude: { required: boolean; achieved?: boolean }
-  cleanRuns: { count: number; required: number }
-  master: { recentAvg: number | null }
-}
 
 const NORM: Record<string, string> = { scales: "scale", arpeggios: "arpeggio", etudes: "etude" }
 const norm = (c: string) => NORM[c] ?? c
@@ -25,17 +19,16 @@ const DAILY_GOAL = 3 // 毎日の基礎練: 3回通しで演奏
 export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: Piece[]; basics: Basic[]; userId: string }) {
   const [active, setActive] = useState(0)
   const piece = pieces[active] ?? pieces[0] ?? null
-  const [ach, setAch] = useState<AchStatus | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [ach, setAch] = useState<AchievementStatus | null>(null)
 
   useEffect(() => {
     if (!piece) return
     let aborted = false
-    setLoading(true); setAch(null)
+    setAch(null)
     fetch(`/api/scores/${piece.id}/achievement-status`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { if (!aborted) { setAch(j); setLoading(false) } })
-      .catch(() => { if (!aborted) setLoading(false) })
+      .then((j) => { if (!aborted) setAch(j) })
+      .catch(() => {})
     return () => { aborted = true }
   }, [piece?.id])
 
@@ -66,34 +59,19 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
       </div>
     )
   }
-  const avg = ach?.master?.recentAvg != null ? Math.round(ach.master.recentAvg) : null
-  const barW = avg != null ? Math.min(100, Math.round((avg / 90) * 100)) : 0
-  const lessonsDone = !!ach?.lessons && ach.lessons.total > 0 && ach.lessons.cleared >= ach.lessons.total
-  const masterDone = avg != null && avg >= 90
-  const etudeDone = !!ach?.etude?.achieved
-  const cleanDone = !!ach && ach.cleanRuns.count >= ach.cleanRuns.required
   const chipLabel = piece.badge === "mastered" ? "マスター" : piece.badge === "achieved" ? "達成" : "挑戦中"
 
-  // 統一項目: 小さいチェック + ラベル(未完了時=やること) + メトリクス
-  const Step = ({ done, label, metric }: { done: boolean; label: string; metric: string }) => (
-    <div className={`${styles.step} ${done ? styles.stepDone : ""}`}>
-      <span className={styles.stepCk}>{done ? "✓" : ""}</span>
-      <span className={styles.stepLabel}>{label}</span>
-      <span className={styles.stepMetric}>{metric}</span>
-    </div>
-  )
-
-  // 毎日の基礎練: 各カテゴリ「○回/3回(本日通し)」。タップで教材へ
-  const dailyStep = (cat: string, label: string) => {
+  // 毎日の基礎練: 各カテゴリ「○回/3回(本日通し)」チップ。タップで教材へ
+  const dailyChip = (cat: string, label: string, icon: string) => {
     const b = basics.find((x) => norm(x.category) === cat)
     const href = b?.href ?? `/${userId}/practice/${cat}`
     const count = b?.todayCount ?? 0
     const done = count >= DAILY_GOAL
     return (
-      <Link key={cat} href={href} className={`${styles.step} ${done ? styles.stepDone : ""}`}>
-        <span className={styles.stepCk}>{done ? "✓" : ""}</span>
-        <span className={styles.stepLabel}>{label}</span>
-        <span className={styles.stepMetric}>{count}/{DAILY_GOAL}</span>
+      <Link key={cat} href={href} style={{ flex: "1 1 88px", display: "flex", alignItems: "center", gap: 6, background: done ? "#eefaf1" : "#f7f9fc", borderRadius: 10, padding: "8px 9px", textDecoration: "none", color: "inherit" }}>
+        <span style={{ fontSize: 14 }}>{icon}</span>
+        <span style={{ fontWeight: 700, fontSize: 11.5, color: "#3a4653" }}>{label}</span>
+        <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 800, color: done ? "#34a06a" : "#9aa6b3" }}>{count}/{DAILY_GOAL}</span>
       </Link>
     )
   }
@@ -122,38 +100,20 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
           <span className={`${styles.chip} ${styles.chipGoal}`}>{chipLabel}</span>
         </Link>
 
-        <div className={styles.mastery}>
-          <div className={styles.mrow}>
-            <span>演奏マスターまで</span>
-            <span>{loading || avg == null ? "…" : `あと ${Math.max(0, 90 - avg)}点`}</span>
-          </div>
-          <div className={styles.mbar}><i style={{ width: `${barW}%` }} /></div>
-        </div>
-
-        {/* 学びレッスン (独立項目) */}
-        {ach?.lessons && ach.lessons.total > 0 && (
-          <Link href={`/${userId}/lessons`} className={`${styles.step} ${lessonsDone ? styles.stepDone : ""}`} style={{ marginTop: 9 }}>
-            <span className={styles.stepCk}>{lessonsDone ? "✓" : ""}</span>
-            <span className={styles.stepLabel}>学びレッスン</span>
-            <span className={styles.stepMetric}>{ach.lessons.cleared}/{ach.lessons.total}</span>
-          </Link>
+        {/* 🏆 この曲のゴール (曲詳細と同じ GoalTracker を流用) */}
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "14px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}>🏆 この曲のゴール</div>
+        {ach ? (
+          <GoalTracker achv={ach} />
+        ) : (
+          <div style={{ fontSize: 12.5, color: "#9aa6b3", padding: "8px 0" }}>読み込み中…</div>
         )}
 
-        <div className={styles.rec2}>
-          <div className={styles.recCol}>
-            <div className={`${styles.recH} ${styles.recHPiece}`}><span className={styles.dot} />マスターへのステップ</div>
-            <Step done={masterDone} label={masterDone ? "演奏マスター" : "演奏をマスター"} metric={`${avg ?? "…"}/90`} />
-            {ach?.etude?.required && (
-              <Step done={etudeDone} label={etudeDone ? "エチュード達成" : "エチュードを達成"} metric={etudeDone ? "済" : "未"} />
-            )}
-            <Step done={cleanDone} label={cleanDone ? "通しで演奏成功" : "通しで演奏"} metric={ach ? `${ach.cleanRuns.count}/${ach.cleanRuns.required}` : "…"} />
-          </div>
-          <div className={styles.recCol}>
-            <div className={`${styles.recH} ${styles.recHDaily}`}><span className={styles.dot} />毎日の基礎練</div>
-            {dailyStep("scale", "音階")}
-            {dailyStep("arpeggio", "アルペジオ")}
-            {dailyStep("bowing", "ボーイング")}
-          </div>
+        {/* 毎日の基礎練 */}
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "16px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11 }}>毎日の基礎練</div>
+        <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
+          {dailyChip("scale", "音階", "🎵")}
+          {dailyChip("arpeggio", "アルペジオ", "🎶")}
+          {dailyChip("bowing", "ボーイング", "🎻")}
         </div>
       </div>
     </div>
