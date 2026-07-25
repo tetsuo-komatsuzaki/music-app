@@ -4,7 +4,6 @@ import { extractScoreSymbols, type SymbolSourceAnalysis } from "./scoreSymbols"
 const note = (i: number, over: Partial<SymbolSourceAnalysis["notes"][number]> = {}) => ({
   note_index: i, type: "note", articulations: [], ...over,
 })
-const hz = (midi: number) => 440 * Math.pow(2, (midi - 69) / 12)
 
 describe("extractScoreSymbols", () => {
   it("解析データが無ければ空", () => {
@@ -29,12 +28,12 @@ describe("extractScoreSymbols", () => {
     expect(byNote.has(2)).toBe(false)
   })
 
-  it("休符には音符用の記号を付けない (休符そのものは記号として出す)", () => {
+  it("休符には記号を付けない (休符はガイド対象外)", () => {
     const { list, byNote } = extractScoreSymbols({
       notes: [{ note_index: 0, type: "rest", articulations: ["Staccato"] }],
     })
-    expect(list.map((s) => s.id)).toEqual(["rest"])
-    expect(byNote.get(0)).toEqual(["rest"])
+    expect(list).toEqual([])
+    expect(byNote.has(0)).toBe(false)
   })
 
   it("スラーは spanner の区間すべての音符に付く", () => {
@@ -47,21 +46,19 @@ describe("extractScoreSymbols", () => {
     expect(byNote.get(2)).toEqual(["slur"])
   })
 
-  it("フラグ系 (トリル/トレモロ/タイ/重音) を拾う", () => {
+  it("フラグ系 (トリル/トレモロ) を拾う", () => {
     const { list } = extractScoreSymbols({
-      notes: [note(0, { is_trill: true, is_tied: true }), note(1, { is_tremolo: true, is_chord: true })],
+      notes: [note(0, { is_trill: true }), note(1, { is_tremolo: true })],
     })
-    expect(new Set(list.map((s) => s.id)))
-      .toEqual(new Set(["trill", "tie", "tremolo", "double_stop"]))
+    expect(new Set(list.map((s) => s.id))).toEqual(new Set(["trill", "tremolo"]))
   })
 
-  it("強弱・連符は値ごとに別の記号になる", () => {
+  it("強弱は値ごとに別の記号になる", () => {
     const { list } = extractScoreSymbols({
-      notes: [note(0, { dynamic: "f" }), note(1, { dynamic: "pp" }), note(2, { tuplet_actual: 3 })],
+      notes: [note(0, { dynamic: "f" }), note(1, { dynamic: "pp" })],
     })
     expect(list.find((s) => s.id === "dynamic:f")?.value).toBe("f")
     expect(list.find((s) => s.id === "dynamic:pp")?.what).toContain("とても小さく")
-    expect(list.find((s) => s.id === "tuplet:3")?.label).toBe("3連符")
   })
 
   it("調号・拍子は曲全体の記号で、byNote には入れない", () => {
@@ -105,19 +102,6 @@ describe("extractScoreSymbols", () => {
     })
     expect(list.find((s) => s.id === "crescendo")?.noteIndices).toEqual([0, 1])
     expect(byNote.get(2)).toEqual(["diminuendo"])
-  })
-
-  it("重音は音程から度数を判定し、対応するレッスンにつなぐ", () => {
-    const { list } = extractScoreSymbols({
-      notes: [
-        note(0, { is_chord: true, pitches: [hz(62), hz(71)] }), // 長6度 = 9半音
-        note(1, { is_chord: true, pitches: [hz(62), hz(74)] }), // オクターブ
-        note(2, { is_chord: true, pitches: [hz(62), hz(64)] }), // 長2度 = 判定外
-      ],
-    })
-    expect(list.find((s) => s.id === "double_stop_6")?.label).toBe("重音 6度")
-    expect(list.find((s) => s.id === "double_stop_8")?.lessonId).toBe("ds8")
-    expect(list.find((s) => s.id === "double_stop")?.noteIndices).toEqual([2])
   })
 
   it("music21 の派生クラス名 (StringHarmonic / SnapPizzicato) も拾う", () => {
@@ -165,12 +149,12 @@ describe("extractScoreSymbols", () => {
 
   it("並び順は正本 (JSON) の宣言順にそろう", () => {
     const { list } = extractScoreSymbols({
-      notes: [note(0, { articulations: ["Staccato"], is_tied: true })],
+      notes: [note(0, { articulations: ["Staccato"] })],
       key: { tonic: "C", mode: "major" },
       spanners: { slurs: [{ start: 0, end: 0 }] },
     })
-    // JSON の並び: slur → staccato → …(左手/装飾/強弱)… → tie → …(構造) → key_signature
-    expect(list.map((s) => s.id)).toEqual(["slur", "staccato", "tie", "key_signature"])
+    // JSON の並び: slur → staccato → …(左手/装飾)… → (構造) → key_signature
+    expect(list.map((s) => s.id)).toEqual(["slur", "staccato", "key_signature"])
   })
 
   it("expressions からフェルマータ・装飾を拾う", () => {
@@ -179,12 +163,12 @@ describe("extractScoreSymbols", () => {
         note(0, { expressions: ["Fermata"] }),
         note(1, { expressions: ["Turn"] }),
         note(2, { expressions: ["Turn:delayed"] }),
-        note(3, { expressions: ["ArpeggioMark", "Schleifer"] }),
+        note(3, { expressions: ["Schleifer"] }),
       ],
     })
     expect(new Set(list.map((s) => s.id)))
-      .toEqual(new Set(["fermata", "turn", "delayed_turn", "arpeggio_mark", "schleifer"]))
-    expect(byNote.get(3)).toEqual(["arpeggio_mark", "schleifer"])
+      .toEqual(new Set(["fermata", "turn", "delayed_turn", "schleifer"]))
+    expect(byNote.get(3)).toEqual(["schleifer"])
   })
 
   it("臨時記号は種類ごとに、かっこつきは親切記号としても出す", () => {
@@ -192,34 +176,24 @@ describe("extractScoreSymbols", () => {
       notes: [
         note(0, { accidental: { name: "sharp", style: "normal" } }),
         note(1, { accidental: { name: "double-flat", style: "normal" } }),
-        note(2, { accidental: { name: "half-sharp", style: "normal" } }),
-        note(3, { accidental: { name: "flat", style: "parentheses" } }),
+        note(2, { accidental: { name: "flat", style: "parentheses" } }),
       ],
     })
     expect(list.find((s) => s.id === "accidental")?.noteIndices).toEqual([0])
     expect(list.find((s) => s.id === "double_accidental")?.noteIndices).toEqual([1])
-    expect(list.find((s) => s.id === "quarter_tone")?.noteIndices).toEqual([2])
     // かっこつきの♭は「臨時記号(normal)」には入らず、親切記号として出る
-    expect(byNote.get(3)).toEqual(["cautionary_accidental"])
+    expect(byNote.get(2)).toEqual(["cautionary_accidental"])
   })
 
-  it("付点は数で出し分け、特殊な符頭も拾う", () => {
+  it("特殊な符頭を拾う", () => {
     const { list } = extractScoreSymbols({
       notes: [
-        note(0, { dots: 1 }), note(1, { dots: 2 }),
-        note(2, { notehead: "diamond" }), note(3, { notehead: "x" }),
-        note(4, { notehead: "normal" }),
+        note(0, { notehead: "diamond" }), note(1, { notehead: "x" }),
+        note(2, { notehead: "normal" }),
       ],
     })
     expect(new Set(list.map((s) => s.id)))
-      .toEqual(new Set(["dotted", "double_dotted", "notehead_diamond", "notehead_x"]))
-  })
-
-  it("声部は2つ以上あるときだけ出す", () => {
-    const single = extractScoreSymbols({ notes: [note(0, { voice: "1" }), note(1, { voice: "1" })] })
-    expect(single.list.find((s) => s.id === "voice")).toBeUndefined()
-    const multi = extractScoreSymbols({ notes: [note(0, { voice: "1" }), note(1, { voice: "2" })] })
-    expect(multi.list.find((s) => s.id === "voice")?.noteIndices).toEqual([1])
+      .toEqual(new Set(["notehead_diamond", "notehead_x"]))
   })
 
   it("グリッサンドは解析側のフラグから拾う", () => {
@@ -249,19 +223,17 @@ describe("extractScoreSymbols", () => {
     expect(new Set(list.map((s) => s.id))).toEqual(new Set(["sul_ponticello", "tempo_change"]))
   })
 
-  it("曲全体の構造から 転調・拍子変更・小節線・反復・音部記号を出す", () => {
+  it("曲全体の構造から 転調・拍子変更・反復・音部記号を出す", () => {
     const { list, byNote } = extractScoreSymbols({
       notes: [note(0)],
       structure: {
         key_signature_count: 2, time_signature_count: 3,
-        barline_types: ["double", "final"], has_repeat: true, clef: "TrebleClef",
+        has_repeat: true, clef: "TrebleClef",
       },
     })
     const ids = new Set(list.map((s) => s.id))
     expect(ids.has("key_change")).toBe(true)
     expect(ids.has("time_change")).toBe(true)
-    expect(ids.has("double_barline")).toBe(true)
-    expect(ids.has("barline_final")).toBe(true)
     expect(ids.has("repeat_bar")).toBe(true)
     expect(list.find((s) => s.id === "clef")?.value).toBe("ト音記号")
     // 曲全体の記号なので特定の音符には紐づかない
@@ -285,28 +257,20 @@ describe("extractScoreSymbols", () => {
       notes: [note(0)],
       structure: { tempo_marks: [{ kind: "MetronomeMark", number: 90, text: "Allegro" }] },
     })
-    expect(t.list.find((s) => s.id === "metronome")?.value).toBe("♩=90")
     expect(t.list.find((s) => s.id === "tempo_text")?.value).toBe("Allegro")
   })
 
-  it("とび先の指示・リハーサル記号・装飾音・連桁を構造から拾う", () => {
+  it("とび先の指示・装飾音を構造から拾う", () => {
     const { list } = extractScoreSymbols({
       notes: [note(0)],
       structure: {
         navigation: ["Segno", "DaCapoAlFine"],
-        has_repeat_bracket: true,
-        rehearsal_marks: ["A", "B"],
         grace_note_count: 2,
-        beamed_note_count: 12,
       },
     })
     // クラス名は譜面での書かれ方に直して見せる
     expect(list.find((s) => s.id === "navigation")?.value).toBe("セーニョ ・ D.C. al Fine")
-    expect(list.find((s) => s.id === "rehearsal_mark")?.value).toBe("A ・ B")
-    const ids = new Set(list.map((s) => s.id))
-    expect(ids.has("repeat_bracket")).toBe(true)
-    expect(ids.has("grace_note")).toBe(true)
-    expect(ids.has("beam")).toBe(true)
+    expect(new Set(list.map((s) => s.id)).has("grace_note")).toBe(true)
   })
 
   it("空の配列・0件では構造系の記号を出さない", () => {

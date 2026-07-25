@@ -106,13 +106,9 @@ const BY_FLAG = new Map<string, SymbolDef>()
 const BY_SPANNER = new Map<string, SymbolDef>()
 const BY_HAIRPIN = new Map<string, SymbolDef>()
 const BY_ORFIELD = new Map<string, SymbolDef>()
-const CHORD_INTERVALS: { semitones: number[]; def: SymbolDef }[] = []
 let KEY_DEF: SymbolDef | undefined
 let TIME_DEF: SymbolDef | undefined
 let DYNAMIC_DEF: SymbolDef | undefined
-let TUPLET_DEF: SymbolDef | undefined
-let CHORD_DEF: SymbolDef | undefined
-let REST_DEF: SymbolDef | undefined
 /** 特定フィールドが特定値のときだけ該当する定義 (指トレモロなど) */
 const BY_FIELD_VALUE: { field: string; value: string; def: SymbolDef }[] = []
 /** music21 expressions のクラス名 → 定義 (フェルマータ・ターン・装飾など) */
@@ -123,9 +119,6 @@ const BY_NOTEHEAD = new Map<string, SymbolDef>()
 const ACCIDENTALS: { values: string[]; style?: string; def: SymbolDef }[] = []
 /** 親切記号 (かっこつき) など、表示スタイルだけで決まる定義 */
 const ACCIDENTAL_STYLES: { style: string; def: SymbolDef }[] = []
-/** 付点の数 → 定義 */
-const BY_DOTS = new Map<number, SymbolDef>()
-let VOICE_DEF: SymbolDef | undefined
 /** 文字指示 (arco / rit. など) → 定義 */
 const BY_WORDS: { words: string[]; def: SymbolDef }[] = []
 /** 曲全体の構造から決まる定義 */
@@ -136,10 +129,8 @@ const STRUCT_FLAG: { field: string; def: SymbolDef }[] = []
 const STRUCT_LIST: { field: string; def: SymbolDef }[] = []
 /** 特定キーワードに当たらなかった文字指示の受け皿 */
 let WORDS_FALLBACK_DEF: SymbolDef | undefined
-const BY_BARLINE = new Map<string, SymbolDef>()
 let TIME_SYMBOL_DEF: SymbolDef | undefined
 let CLEF_DEF: SymbolDef | undefined
-let HARMONY_DEF: SymbolDef | undefined
 
 for (const d of ALL_SYMBOLS) {
   const m = d.match
@@ -150,17 +141,13 @@ for (const d of ALL_SYMBOLS) {
       if (m.orField) BY_ORFIELD.set(m.orField, d)
       break
     case "flag":
-      if (m.field === "is_chord") CHORD_DEF = d
-      else if (m.field) BY_FLAG.set(m.field, d)
+      if (m.field) BY_FLAG.set(m.field, d)
       break
     case "spanner": if (m.name) BY_SPANNER.set(m.name, d); break
     case "hairpin": if (m.hairpin) BY_HAIRPIN.set(m.hairpin, d); break
-    case "chordInterval": CHORD_INTERVALS.push({ semitones: m.semitones ?? [], def: d }); break
     case "key": KEY_DEF = d; break
     case "time": TIME_DEF = d; break
     case "dynamic": DYNAMIC_DEF = d; break
-    case "tuplet": TUPLET_DEF = d; break
-    case "rest": REST_DEF = d; break
     case "fieldValue":
       if (m.field && m.value) BY_FIELD_VALUE.push({ field: m.field, value: m.value, def: d })
       break
@@ -176,10 +163,6 @@ for (const d of ALL_SYMBOLS) {
     case "accidentalStyle":
       if (m.style) ACCIDENTAL_STYLES.push({ style: m.style, def: d })
       break
-    case "dots":
-      if (m.count) BY_DOTS.set(m.count, d)
-      break
-    case "voice": VOICE_DEF = d; break
     case "words":
       BY_WORDS.push({ words: (m.words ?? []).map((w) => w.toLowerCase()), def: d })
       break
@@ -196,11 +179,9 @@ for (const d of ALL_SYMBOLS) {
       if (m.field) STRUCT_LIST.push({ field: m.field, def: d })
       break
     case "wordsFallback": WORDS_FALLBACK_DEF = d; break
-    case "barline": if (m.value) BY_BARLINE.set(m.value, d); break
     case "timeSymbol": TIME_SYMBOL_DEF = d; break
     case "clef": CLEF_DEF = d; break
-    case "harmony": HARMONY_DEF = d; break
-    default: break // expression / words / notehead / barline ほか = 解析側の追加待ち
+    default: break // expression / words / notehead ほか = 解析側の追加待ち
   }
 }
 
@@ -403,13 +384,12 @@ export function extractScoreSymbols(
   // --- 音符ごと ---
   for (const n of analysis.notes) {
     const i = n.note_index
-    if (n.type === "rest") { add(REST_DEF, i); continue }
+    if (n.type === "rest") continue
     const rec = n as unknown as Record<string, unknown>
 
     for (const a of n.articulations ?? []) add(BY_ARTICULATION.get(a), i)
     for (const e of n.expressions ?? []) add(BY_EXPRESSION.get(e), i)
     if (n.notehead) add(BY_NOTEHEAD.get(n.notehead), i)
-    if (n.dots) add(BY_DOTS.get(n.dots), i)
 
     // 臨時記号: 種類 (♯♭♮ / ダブル / 四分音) と、かっこつき (親切記号) を別に見る
     const acc = n.accidental
@@ -436,18 +416,6 @@ export function extractScoreSymbols(
     // 解析側の表示値 (display_finger / display_string_num) からの補完
     for (const [field, def] of BY_ORFIELD) if (rec[field] != null) add(def, i)
 
-    // 重音: 音程が判定できれば度数別 (レッスン付き)、できなければ総称
-    if (n.is_chord) {
-      const ps = n.pitches ?? []
-      let semis: number | null = null
-      if (ps.length >= 2) {
-        const lo = Math.min(...ps), hi = Math.max(...ps)
-        if (lo > 0) semis = Math.round(12 * Math.log2(hi / lo))
-      }
-      const hit = semis === null ? undefined : CHORD_INTERVALS.find((c) => c.semitones.includes(semis))
-      add(hit ? hit.def : CHORD_DEF, i)
-    }
-
     if (n.dynamic && DYNAMIC_DEF) {
       add(DYNAMIC_DEF, i, {
         id: `dynamic:${n.dynamic}`,
@@ -455,25 +423,6 @@ export function extractScoreSymbols(
         value: n.dynamic,
         what: DYNAMIC_WHAT[n.dynamic] ?? DYNAMIC_DEF.what,
       })
-    }
-
-    const tup = n.tuplet_actual
-    if (tup && tup >= 2 && TUPLET_DEF) {
-      add(TUPLET_DEF, i, {
-        id: `tuplet:${tup}`,
-        label: `${tup}連符`,
-        value: String(tup),
-        what: `本来2つ分の長さに、音符を${tup}つ均等に入れる記号。数字の「${tup}」が目印。`,
-      })
-    }
-  }
-
-  // --- 声部: 譜面に2つ以上の流れがあるときだけ記号として出す ---
-  if (VOICE_DEF) {
-    const voices = new Set<string>()
-    for (const n of analysis.notes) if (n.voice) voices.add(n.voice)
-    if (voices.size >= 2) {
-      for (const n of analysis.notes) if (n.voice && n.voice !== "1") add(VOICE_DEF, n.note_index)
     }
   }
 
@@ -507,14 +456,10 @@ export function extractScoreSymbols(
         add(l.def, null, { value: shown.slice(0, 4).join(" ・ ") })
       }
     }
-    for (const b of st.barline_types ?? []) add(BY_BARLINE.get(b), null)
     if (st.time_symbol && TIME_SYMBOL_DEF) {
       add(TIME_SYMBOL_DEF, null, { value: st.time_symbol === "cut" ? "¢" : "C" })
     }
     if (st.clef && CLEF_DEF) add(CLEF_DEF, null, { value: CLEF_JA[st.clef] ?? st.clef })
-    if ((st.harmony ?? []).length > 0 && HARMONY_DEF) {
-      add(HARMONY_DEF, null, { value: (st.harmony ?? []).slice(0, 3).join(" ") })
-    }
     for (const tm of st.tempo_marks ?? []) {
       for (const t of TEMPO_DEFS) {
         if (!t.kinds.includes(String(tm.kind))) continue

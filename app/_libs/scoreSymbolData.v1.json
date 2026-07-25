@@ -14,9 +14,6 @@
   "dyn": {
    "label": "強弱・表情"
   },
-  "rhythm": {
-   "label": "音の長さ・リズム"
-  },
   "struct": {
    "label": "楽譜の決まりごと"
   }
@@ -642,114 +639,6 @@
    "tip": "この曲で使うポジションは、練習前シートの「この曲に必要な技術」で確認できるよ。"
   },
   {
-   "id": "double_stop_3",
-   "cat": "left",
-   "glyph": "chord",
-   "label": "重音 3度",
-   "supply": "ready",
-   "lessonId": "ds3",
-   "match": {
-    "type": "chordInterval",
-    "semitones": [
-     3,
-     4
-    ]
-   },
-   "what": "3度の重音。となり合う2本の弦を同時に鳴らすところだよ。",
-   "tip": "指の形をひとかたまりで覚えると安定する。"
-  },
-  {
-   "id": "double_stop_6",
-   "cat": "left",
-   "glyph": "chord",
-   "label": "重音 6度",
-   "supply": "ready",
-   "lessonId": "ds6",
-   "match": {
-    "type": "chordInterval",
-    "semitones": [
-     8,
-     9
-    ]
-   },
-   "what": "6度の重音。2本の弦を同時に鳴らすところだよ。",
-   "tip": "2本の指の間隔を保ったまま動かすのがコツ。"
-  },
-  {
-   "id": "double_stop_8",
-   "cat": "left",
-   "glyph": "chord",
-   "label": "重音 オクターブ",
-   "supply": "ready",
-   "lessonId": "ds8",
-   "match": {
-    "type": "chordInterval",
-    "semitones": [
-     12
-    ]
-   },
-   "what": "オクターブの重音。同じ音名を、高さ違いで同時に鳴らす。",
-   "tip": "ずれると濁りがはっきり出る。1の指と4の指の幅を先に決める。"
-  },
-  {
-   "id": "double_stop_10",
-   "cat": "left",
-   "glyph": "chord",
-   "label": "重音 10度",
-   "supply": "ready",
-   "lessonId": "ds10",
-   "match": {
-    "type": "chordInterval",
-    "semitones": [
-     16,
-     17
-    ]
-   },
-   "what": "10度の重音。手をかなり広げて2本の弦を同時に鳴らす。",
-   "tip": "手を痛めやすいので、無理せず短時間から。"
-  },
-  {
-   "id": "double_stop",
-   "cat": "left",
-   "glyph": "chord",
-   "label": "重音",
-   "supply": "ready",
-   "match": {
-    "type": "flag",
-    "field": "is_chord"
-   },
-   "what": "音符が縦に重なっているところ。2本の弦を同時に鳴らす。",
-   "tip": "まず片方ずつ音程を確かめてから、2本を同時に。弓は2本の弦の真ん中に置く。"
-  },
-  {
-   "id": "double_stop_seq",
-   "cat": "left",
-   "glyph": "chord",
-   "label": "連続重音",
-   "supply": "tag",
-   "lessonId": "ds_seq",
-   "match": {
-    "type": "none"
-   },
-   "what": "重音が続けて並ぶところ。押さえ替えながら音程を保つのがむずかしい。",
-   "tip": "1つずつ止めて音程をつくり、つないでいく。速さは最後でいい。"
-  },
-  {
-   "id": "arpeggio_mark",
-   "cat": "left",
-   "glyph": "arpeggio",
-   "label": "アルペジオ記号",
-   "supply": "ready",
-   "match": {
-    "type": "expression",
-    "m21": [
-     "ArpeggioMark"
-    ]
-   },
-   "what": "和音の左の波線。3本以上の弦は同時に鳴らせないので、下から順に分散して鳴らす。",
-   "tip": "弓を弦から弦へ、途切れさせずに転がすように動かす。"
-  },
-  {
    "id": "trill",
    "cat": "orn",
    "glyph": "trill",
@@ -1036,176 +925,6 @@
    "tip": "譜面は均等な8分音符でも、実際は長短のペアで弾く。"
   },
   {
-   "id": "metronome",
-   "cat": "dyn",
-   "glyph": "metronome",
-   "label": "メトロノーム記号",
-   "supply": "ready",
-   "match": {
-    "type": "tempo",
-    "kinds": [
-     "MetronomeMark"
-    ],
-    "needNumber": true
-   },
-   "what": "♩＝90 のような表記。1分間に4分音符を何回打つ速さか、という意味。",
-   "tip": "この曲のテンポは、演奏バーのテンポ表示でも変えられるよ。"
-  },
-  {
-   "id": "rehearsal_mark",
-   "cat": "dyn",
-   "glyph": "text",
-   "label": "リハーサル記号",
-   "supply": "ready",
-   "match": {
-    "type": "structureList",
-    "field": "rehearsal_marks"
-   },
-   "what": "四角で囲まれた A・B・C や数字。合わせるときに「Bから」と位置を指すための目印。",
-   "tip": "合わせ練習で「Bから」と場所を言うための目印。演奏そのものには影響しない。"
-  },
-  {
-   "id": "harmony_symbol",
-   "cat": "dyn",
-   "glyph": "text",
-   "label": "コードネーム",
-   "supply": "ready",
-   "match": {
-    "type": "harmony"
-   },
-   "what": "五線の上の C・G7・Am のような記号。伴奏の和音を示す。旋律を弾くときは直接は使わない。",
-   "tip": "旋律を弾くときは直接使わないけれど、和音がわかると音程が取りやすくなる。"
-  },
-  {
-   "id": "tie",
-   "cat": "rhythm",
-   "glyph": "tie",
-   "label": "タイ",
-   "supply": "ready",
-   "match": {
-    "type": "flag",
-    "field": "is_tied"
-   },
-   "what": "同じ高さの音符どうしを結ぶ線。弾き直さず、ひとつの長い音にする。",
-   "tip": "スラーと形が似ているけれど、タイは「同じ音」をつなぐもの。"
-  },
-  {
-   "id": "tuplet",
-   "cat": "rhythm",
-   "glyph": "tuplet",
-   "label": "連符",
-   "supply": "ready",
-   "match": {
-    "type": "tuplet"
-   },
-   "what": "本来2つ分の長さに、音符を均等に入れる記号。上の数字が入れる個数。",
-   "tip": "急がずに、まず声に出して数えてから弾くとそろう。"
-  },
-  {
-   "id": "dotted",
-   "cat": "rhythm",
-   "glyph": "dotted",
-   "label": "付点",
-   "supply": "ready",
-   "match": {
-    "type": "dots",
-    "count": 1
-   },
-   "what": "音符の右の点。その音符の長さを1.5倍にする。",
-   "tip": "短いほうの音を短く弾ききると、付点らしいはずみが出る。"
-  },
-  {
-   "id": "double_dotted",
-   "cat": "rhythm",
-   "glyph": "doubledot",
-   "label": "複付点",
-   "supply": "ready",
-   "match": {
-    "type": "dots",
-    "count": 2
-   },
-   "what": "点が2つ。1つ目で1.5倍、2つ目でさらにその半分を足す（合計 1.75 倍）。",
-   "tip": "続く短い音がとても短くなる。鋭く弾ききるとリズムが立つ。"
-  },
-  {
-   "id": "cue_note",
-   "cat": "rhythm",
-   "glyph": "cue",
-   "label": "小さい音符（キュー）",
-   "supply": "pending",
-   "match": {
-    "type": "cue"
-   },
-   "what": "ふつうより小さく書かれた音符。ほかの楽器が弾いている音を参考に示したもので、自分は弾かない。",
-   "tip": "自分は弾かない。出るタイミングを数えるための目印。"
-  },
-  {
-   "id": "beam",
-   "cat": "rhythm",
-   "glyph": "beam",
-   "label": "連桁（れんこう）",
-   "supply": "ready",
-   "match": {
-    "type": "structureCount",
-    "field": "beamed_note_count",
-    "min": 1
-   },
-   "what": "8分音符などをつなぐ横棒。どの音がひとまとまりの拍かを見せてくれる。",
-   "tip": "連桁のまとまり＝1拍。拍を数えるときの目印になる。"
-  },
-  {
-   "id": "voice",
-   "cat": "rhythm",
-   "glyph": "voice",
-   "label": "声部（ボイス）",
-   "supply": "ready",
-   "match": {
-    "type": "voice"
-   },
-   "what": "ひとつの五線に2つ以上の流れがあるとき、符尾を上下に分けて書き分けたもの。",
-   "tip": "重音とちがい、それぞれ別のリズムで動く。自分が弾く声部を確認しよう。"
-  },
-  {
-   "id": "rest",
-   "cat": "rhythm",
-   "glyph": "rest",
-   "label": "休符",
-   "supply": "ready",
-   "match": {
-    "type": "rest"
-   },
-   "what": "音を出さずに待つ記号。長さごとに形が変わる。",
-   "tip": "休符も music の一部。弓を止めて、次に備える時間だよ。"
-  },
-  {
-   "id": "multi_measure_rest",
-   "cat": "rhythm",
-   "glyph": "rest",
-   "label": "長休符",
-   "supply": "pending",
-   "match": {
-    "type": "spannerClass",
-    "m21": [
-     "MultiMeasureRest"
-    ]
-   },
-   "what": "太い横棒と数字。その小節数ぶん、まるごと休む。",
-   "tip": "数字の小節数だけ待つ。数え間違えやすいので、拍を追い続けよう。 楽譜には出るけれど、いまの解析では拾えていない記号だよ。"
-  },
-  {
-   "id": "measure_repeat",
-   "cat": "rhythm",
-   "glyph": "measure_repeat",
-   "label": "小節反復",
-   "supply": "pending",
-   "match": {
-    "type": "measureStyle",
-    "value": "measure-repeat"
-   },
-   "what": "斜線と点の記号。ひとつ前の小節と同じものをもう一度弾く、という省略記法。",
-   "tip": "前の小節と同じ。省略されているだけで、弾く中身は変わらない。"
-  },
-  {
    "id": "key_signature",
    "cat": "struct",
    "glyph": "key",
@@ -1342,24 +1061,6 @@
    "tip": "ファのダブルシャープ＝ソの高さ。指の位置はソだが、譜面上はファの場所に書かれる。"
   },
   {
-   "id": "quarter_tone",
-   "cat": "struct",
-   "glyph": "quarter",
-   "label": "四分音",
-   "supply": "ready",
-   "match": {
-    "type": "accidentalKind",
-    "values": [
-     "half-sharp",
-     "half-flat",
-     "one-and-a-half-sharp",
-     "one-and-a-half-flat"
-    ]
-   },
-   "what": "半音のさらに半分だけ上げ下げする記号。現代曲や民族音楽で使う。",
-   "tip": "半音のさらに半分。指をほんの少しずらして、耳で高さをつくる。"
-  },
-  {
    "id": "clef",
    "cat": "struct",
    "glyph": "clef",
@@ -1400,19 +1101,6 @@
    "tip": "Arcoda は繰り返しを展開した楽譜を表示するので、譜面上は既に2回ぶん並んでいるよ。"
   },
   {
-   "id": "repeat_bracket",
-   "cat": "struct",
-   "glyph": "repeat",
-   "label": "1番・2番かっこ",
-   "supply": "ready",
-   "match": {
-    "type": "structureFlag",
-    "field": "has_repeat_bracket"
-   },
-   "what": "1・2 と書かれたかぎかっこ。1回目は1のかっこ、繰り返しの2回目は2のかっこを弾く。",
-   "tip": "1回目は1のかっこ、繰り返しの2回目は1を飛ばして2のかっこへ。"
-  },
-  {
    "id": "navigation",
    "cat": "struct",
    "glyph": "segno",
@@ -1424,45 +1112,6 @@
    },
    "what": "D.C.（最初から）・D.S.（セーニョから）・Coda・Fine など、どこへ飛んでどこで終わるかの指示。",
    "tip": "弾く前に順番を整理して、譜面に番号を書き込んでおくと迷わない。"
-  },
-  {
-   "id": "barline_final",
-   "cat": "struct",
-   "glyph": "barline",
-   "label": "終止線",
-   "supply": "ready",
-   "match": {
-    "type": "barline",
-    "value": "final"
-   },
-   "what": "細い線と太い線の二重線。曲の終わりを示す。",
-   "tip": "ここで曲は終わり。最後の音は、余韻が消えるまで弓を止めないで。"
-  },
-  {
-   "id": "double_barline",
-   "cat": "struct",
-   "glyph": "barline",
-   "label": "複縦線",
-   "supply": "ready",
-   "match": {
-    "type": "barline",
-    "value": "double"
-   },
-   "what": "細い線が2本の区切り。曲の終わりではなく、段落や調・拍子が変わる切れ目を示す。",
-   "tip": "終わりではなく区切り。ここから雰囲気や調が変わることが多い。"
-  },
-  {
-   "id": "lyric",
-   "cat": "struct",
-   "glyph": "lyric",
-   "label": "歌詞",
-   "supply": "ready",
-   "match": {
-    "type": "flag",
-    "field": "has_lyric"
-   },
-   "what": "音符の下に書かれたことば。歌のパートで、どの音にどの音節を当てるかを示す。",
-   "tip": "ヴァイオリンでは弾かないけれど、歌詞を読むとフレーズの切れ目がわかる。"
   }
  ],
  "excluded": [

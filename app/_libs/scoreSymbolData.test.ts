@@ -98,7 +98,6 @@ describe("scoreSymbolData.v1.json (記号の正本)", () => {
 
   it("getSymbolDef は値つきIDでも基底定義を返す", () => {
     expect(getSymbolDef("dynamic:f")?.id).toBe("dynamic")
-    expect(getSymbolDef("tuplet:3")?.id).toBe("tuplet")
     expect(getSymbolDef("staccato")?.label).toBe("スタッカート")
     expect(getSymbolDef("no_such_symbol")).toBeUndefined()
   })
@@ -113,8 +112,11 @@ describe("scoreSymbolData.v1.json (記号の正本)", () => {
   })
 
   it("網羅状況を記録する (増減したらこのテストを更新して意図を明示する)", () => {
+    // 2026-07-25: ガイドから 25 記号を除外 (重音系/アルペジオ/四分音/終止線・複縦線/
+    // 歌詞/1・2番かっこ/メトロノーム/リハーサル記号/コードネーム/リズム系10種)。
+    // 譜面上の記号表示は OSMD が担当するため、除外してもスコア表記は残る。
     const by = (k: string) => ALL_SYMBOLS.filter((s) => s.supply === k).length
     expect({ total: ALL_SYMBOLS.length, ready: by("ready"), pending: by("pending"), tag: by("tag") })
-      .toEqual({ total: 99, ready: 83, pending: 11, tag: 5 })
+      .toEqual({ total: 74, ready: 62, pending: 8, tag: 4 })
   })
 })
