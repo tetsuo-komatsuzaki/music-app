@@ -37,7 +37,10 @@ const supabase = createBrowserSupabaseClient()
     } else {
       const userId = data.user.id
       await supabase.auth.getSession()
-      router.push(`/${userId}/scores`)
+      // ホームへ着地させる (旧: /scores。ログイン直後に一瞬ライブラリーが出て
+      // からホームへ遷移する見え方 + コーチガイドのタイミング崩れを避ける)。
+      // 未オンボーディングのユーザーは [userId]/layout の gate が /onboarding へ回す。
+      router.push(`/${userId}`)
     }
   }
 

@@ -34,6 +34,19 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
+  // クライアント遷移(router.push)では isHydrated が既に true のため、
+  // pageMarks の useMemo が「遷移先の対象要素がまだ DOM に無い一瞬」に
+  // 一度だけ走り、対象なしで確定してしまう(リロードしないとガイドが出ない)。
+  // pathname 変化のたびに、描画が落ち着くタイミングで数回 再評価する。
+  const [settleTick, setSettleTick] = useState(0)
+  useEffect(() => {
+    setSettleTick((t) => t + 1)
+    const timers = [0, 60, 200, 500].map((ms) =>
+      setTimeout(() => setSettleTick((t) => t + 1), ms),
+    )
+    return () => timers.forEach(clearTimeout)
+  }, [pathname])
+
   // requiresTarget のマークは、対象要素が今この画面に在るときだけ出す。
   // (無いまま出すと useTargetRect が 5 秒後に画面中央フォールバックしてしまう)
   const pageMarks = useMemo(
@@ -48,7 +61,9 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
       if (!m.requiresTarget || !m.targetKey) return true
       return !!document.querySelector(`[data-onboarding="${m.targetKey}"]`)
     }),
-    [marks, isHydrated],
+    // settleTick: クライアント遷移後に DOM が揃ってから再評価するためのトリガ
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [marks, isHydrated, settleTick],
   )
   const analysisMark = marks.find(m => m.trigger === "first-analysis-complete") ?? null
 
@@ -73,6 +88,28 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
     (isReplaying || !pageGuidesSeen.has(pageKey))
   const shouldShowPageMarks =
     eligible || (latchedOpen && !allGuidesDismissed && pageMarks.length > 0)
+
+  // === 一時診断 (2026-07-25) ===
+  // コーチガイドが「出るはずなのに出ない」真因を実ブラウザで特定するため。
+  // 表示判定に関わる全条件を出す。確定したら撤去する。
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.info("[coach]", pageKey, {
+      isHydrated,
+      welcomeSlidesShown,
+      welcomeDone,
+      allGuidesDismissed,
+      pageMarksLen: pageMarks.length,
+      pageMarkIds: pageMarks.map((m) => m.id),
+      seenThisPage: pageGuidesSeen.has(pageKey),
+      isReplaying,
+      eligible,
+      latchedOpen,
+      shouldShow: shouldShowPageMarks,
+      pageMarkIndex,
+      pathname,
+    })
+  })
 
   // 「一度でも表示したら既読」にする (2026-07-21)。
   // 従来は最後まで進める/閉じる まで既読にならず、途中でページを離れると
