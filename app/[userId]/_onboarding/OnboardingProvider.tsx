@@ -36,11 +36,18 @@ export type OnboardingState = {
   guideSample: string | null
   setGuideSample: (key: string | null) => void
   /**
-   * いま画面に出ているコーチマークの id (例: "scoreDetail.record")。出ていなければ null。
+   * いま画面に出ているコーチマークの id (例: "scoreDetail.record") を保持する ref。
    * ガイド中だけ挙動を変えたい画面側 (例: オンボ中は録音ボタンで実録音せずふりかえりへ)
-   * が、どのマークが出ているかを知るために使う。
+   * が、どのマークが出ているかをクリック時に読むために使う。
+   *
+   * ★ 値(state) ではなく ref にしている理由:
+   * awaitTap は native capture リスナで click を捕まえてガイドを次へ進める。
+   * その setState が同期フラッシュされると、同じ click のバブル段階で走る
+   * React の onClick は「既に次マークへ進んだ後の新しいクロージャ」を読んでしまう。
+   * ref なら PageCoachMarks の useEffect (この click より後に走る) まで更新されないので、
+   * クリック時点では確実に「今表示中のマーク id」を読める。
    */
-  activeGuideMarkId: string | null
+  activeGuideMarkIdRef: { readonly current: string | null }
   setActiveGuideMarkId: (id: string | null) => void
   helpOpen: boolean
   helpSection: HelpSection | null
@@ -77,7 +84,7 @@ const NOOP_CONTEXT: OnboardingContextValue = {
   replayingPageKey: null,
   guideSample: null,
   setGuideSample: () => {},
-  activeGuideMarkId: null,
+  activeGuideMarkIdRef: { current: null },
   setActiveGuideMarkId: () => {},
   helpOpen: false,
   helpSection: null,
@@ -166,7 +173,11 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
   const [analysisOverlayRenderedAt, setAnalysisOverlayRenderedAt] = useState<number | null>(null)
   const [replayingPageKey, setReplayingPageKey] = useState<string | null>(null)
   const [guideSample, setGuideSample] = useState<string | null>(null)
-  const [activeGuideMarkId, setActiveGuideMarkId] = useState<string | null>(null)
+  // 「いま出ているマーク id」は再レンダー不要 & click 時に最新を読みたいので ref。
+  const activeGuideMarkIdRef = useRef<string | null>(null)
+  const setActiveGuideMarkId = useCallback((id: string | null) => {
+    activeGuideMarkIdRef.current = id
+  }, [])
   const [helpOpen, setHelpOpen] = useState(false)
   const [helpSection, setHelpSection] = useState<HelpSection | null>(null)
 
@@ -280,7 +291,7 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
     replayingPageKey,
     guideSample,
     setGuideSample,
-    activeGuideMarkId,
+    activeGuideMarkIdRef,
     setActiveGuideMarkId,
     helpOpen,
     helpSection,

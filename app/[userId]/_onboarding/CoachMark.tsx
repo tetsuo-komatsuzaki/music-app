@@ -188,6 +188,15 @@ export default function CoachMark({
   // rect 存在: spotlight + tooltip
   const pos = calcTooltipPos(rect, viewport.w, viewport.h)
   const padding = 4
+
+  // タップヒントのチップは、ツールチップと同じ「対象の下」に出すと見出し/本文に
+  // 被って読めなくなる。ツールチップが下にあるなら対象の上、上にあるなら対象の下、
+  // と必ず反対側に置いて文章と重ならないようにする。
+  const CHIP_H = 30
+  const tooltipBelow = pos.top >= rect.bottom
+  let chipTop = tooltipBelow ? rect.top - CHIP_H : rect.bottom + 8
+  // 対象が画面上端に近く上に出せない稀なケースだけ下へ (それ以外は上下で衝突しない)
+  if (chipTop < 8) chipTop = rect.bottom + 8
   return createPortal(
     <>
       {awaitTapHint && (
@@ -205,7 +214,7 @@ export default function CoachMark({
         <div
           className={styles.tapChip}
           style={{
-            top: rect.bottom + 10 > viewport.h - 60 ? rect.top - 30 : rect.bottom + 10,
+            top: chipTop,
             left: Math.min(Math.max(rect.left + rect.width / 2, 60), viewport.w - 60),
           }}
         >

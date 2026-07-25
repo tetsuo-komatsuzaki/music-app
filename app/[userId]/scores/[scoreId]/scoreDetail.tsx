@@ -1478,7 +1478,7 @@ export default function ScoreDetail({
 
   // --- オンボーディング: 解析オーバーレイ描画完了を Provider に通知 ---
   // applyComparisonColors の setTimeout 連鎖 (最大 800ms) を待ってから dispatch
-  const { markAnalysisOverlayRendered, activeGuideMarkId } = useOnboarding()
+  const { markAnalysisOverlayRendered, activeGuideMarkIdRef } = useOnboarding()
   useEffect(() => {
     if (!selected?.comparisonResult) return
     if (noteElementsRef.current.length === 0) return
@@ -2805,7 +2805,7 @@ export default function ScoreDetail({
               // オンボーディング中「弾くときは、ここから録音するよ」マーク表示中は、
               // 実録音 (マイク許可+カウントイン) を始めず、分析結果の見本 (ふりかえり) へ進める。
               // 実演奏は体験が長いのでガイドでは省略する、という Tetsuo 判断 (2026-07-25)。
-              if (activeGuideMarkId === "scoreDetail.record") {
+              if (activeGuideMarkIdRef.current === "scoreDetail.record") {
                 if (isScoreMode) handleTabChange("review")
                 return true // 録音開始をスキップ (awaitTap の click 検知でガイドは次へ進む)
               }

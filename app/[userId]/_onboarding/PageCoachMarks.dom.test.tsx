@@ -26,7 +26,7 @@ const baseCtx = (over: Partial<OnboardingContextValue> = {}): OnboardingContextV
   replayingPageKey: null,
   guideSample: null,
   setGuideSample: vi.fn(),
-  activeGuideMarkId: null,
+  activeGuideMarkIdRef: { current: null },
   setActiveGuideMarkId: vi.fn(),
   helpOpen: false,
   helpSection: null,
