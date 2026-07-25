@@ -9,7 +9,7 @@
 // 旧実装は settleTick / latchedOpen / pageMarkIndex / showAnalysisMark / didMountRef …
 // が絡み合い、複数の useEffect が同じ state を奪い合って順序バグを起こしていた。
 
-import { useCallback, useEffect, useReducer, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useOnboarding } from "./hooks/useOnboarding"
 import CoachMark from "./CoachMark"
@@ -70,17 +70,8 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
   const analysisMark = marks.find((m) => m.trigger === "first-analysis-complete") ?? null
 
   // --- 状態機械 ---
-  // transition が返す effects を Provider アクションに落とす reducer ラッパー。
-  const [state, rawDispatch] = useReducer(
-    (s: GuideState, e: GuideEvent): GuideState => {
-      const { next, effects } = transition(s, e, { isReplaying })
-      pendingEffectsRef.current.push(...effects)
-      return next
-    },
-    initialState,
-  )
-  // effects は render 後の effect フェーズで実行する (dispatch 中に副作用を起こさない)
-  const pendingEffectsRef = useRef<GuideEffect[]>([])
+  const [state, setStateRaw] = useState<GuideState>(initialState)
+  const stateRef = useRef<GuideState>(state)
   const runEffect = useCallback((eff: GuideEffect) => {
     switch (eff.type) {
       case "MARK_SEEN": markPageGuideSeen(pageKey); break
@@ -89,13 +80,19 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
       case "MARK_ANALYSIS_SEEN": markFirstAnalysisGuideShown(); break
     }
   }, [pageKey, markPageGuideSeen, clearReplayingPageKey, dismissAllGuides, markFirstAnalysisGuideShown])
-  useEffect(() => {
-    if (pendingEffectsRef.current.length === 0) return
-    const effs = pendingEffectsRef.current
-    pendingEffectsRef.current = []
-    effs.forEach(runEffect)
-  })
-  const dispatch = rawDispatch
+  // dispatch: 純粋 transition を stateRef に対して計算し、副作用を即実行して setState。
+  // dispatch は全てイベントハンドラ/effect から呼ばれる (render 中には呼ばれない) ため
+  // 副作用の即時実行は安全。
+  const dispatch = useCallback((e: GuideEvent) => {
+    const { next, effects } = transition(stateRef.current, e, { isReplaying: replayingPageKeyRef.current === pageKey })
+    if (next === stateRef.current) return
+    stateRef.current = next
+    effects.forEach(runEffect)
+    setStateRaw(next)
+  }, [pageKey, runEffect])
+  // isReplaying は dispatch 内で最新を読むため ref に持つ
+  const replayingPageKeyRef = useRef(replayingPageKey)
+  replayingPageKeyRef.current = replayingPageKey
 
   // --- 開始判定 (旧 settleTick + gating + latch + reset を1本化) ---
   // state が pagePending のときだけ動く。gating を満たし、DOM 由来の有効マークが
@@ -155,6 +152,20 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
     if (analysisOverlayRenderedAt === null) return
     dispatch({ type: "ANALYSIS_READY" })
   }, [state.t, analysisMark, firstAnalysisGuideShown, allGuidesDismissed, analysisOverlayRenderedAt])
+
+  // === 一時診断 (2026-07-25 リファクタ後の非表示調査) ===
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.info("[coach2]", pageKey, {
+      stateT: state.t,
+      isHydrated,
+      welcomeSlidesShown,
+      allGuidesDismissed,
+      seen: pageGuidesSeen.has(pageKey),
+      isReplaying,
+      markCount: marks.length,
+    })
+  })
 
   // --- 描画すべきマーク ---
   const active = selectActiveMark(state, analysisMark)
