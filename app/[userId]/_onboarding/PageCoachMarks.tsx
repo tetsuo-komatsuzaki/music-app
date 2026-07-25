@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useOnboarding } from "./hooks/useOnboarding"
 import CoachMark from "./CoachMark"
@@ -120,8 +120,16 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
     if (!isReplaying) markPageGuideSeen(pageKey)
   }, [eligible, latchedOpen, isReplaying, pageKey, markPageGuideSeen])
 
-  // pageKey or replay 切替時に index リセット
+  // replay 切替時に index リセット。
+  // 初回マウントはスキップする (state は既定値。ここでリセットすると、同じ
+  // マウントで先に走ったラッチ(latchedOpen=true)を打ち消し、クライアント遷移で
+  // 来たページのガイドが一度も出ず「見た」扱いになる — 真因)。
+  const didMountRef = useRef(false)
   useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true
+      return
+    }
     setPageMarkIndex(0)
     setShowAnalysisMark(false)
     setLatchedOpen(false)
