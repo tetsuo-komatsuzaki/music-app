@@ -140,7 +140,7 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
     prevReplayRef.current = replayingPageKey
     if (prev === replayingPageKey) return
     if (replayingPageKey === pageKey) dispatch({ type: "REPLAY_START" })
-  }, [replayingPageKey, pageKey])
+  }, [replayingPageKey, pageKey, dispatch])
 
   // --- analysis-trigger 発火 ---
   // page ガイドが idle に落ち、分析オーバーレイが描画され未表示なら1回出す。
@@ -151,21 +151,7 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
     if (allGuidesDismissed) return
     if (analysisOverlayRenderedAt === null) return
     dispatch({ type: "ANALYSIS_READY" })
-  }, [state.t, analysisMark, firstAnalysisGuideShown, allGuidesDismissed, analysisOverlayRenderedAt])
-
-  // === 一時診断 (2026-07-25 リファクタ後の非表示調査) ===
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.info("[coach2]", pageKey, {
-      stateT: state.t,
-      isHydrated,
-      welcomeSlidesShown,
-      allGuidesDismissed,
-      seen: pageGuidesSeen.has(pageKey),
-      isReplaying,
-      markCount: marks.length,
-    })
-  })
+  }, [state.t, analysisMark, firstAnalysisGuideShown, allGuidesDismissed, analysisOverlayRenderedAt, dispatch])
 
   // --- 描画すべきマーク ---
   const active = selectActiveMark(state, analysisMark)
