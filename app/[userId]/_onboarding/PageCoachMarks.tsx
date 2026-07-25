@@ -16,6 +16,7 @@ type Props = {
 export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
   const {
     isHydrated,
+    welcomeSlidesShown,
     allGuidesDismissed,
     pageGuidesSeen,
     replayingPageKey,
@@ -53,8 +54,15 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
   const [latchedOpen, setLatchedOpen] = useState(false)
 
   const isReplaying = replayingPageKey === pageKey
+  // はじめてガイド(スライド)が出ている間はコーチマークを開始しない (2026-07-25)。
+  // 両方が同時に走ると、コーチマークが全画面スライドの裏に隠れたまま
+  // 「表示した=既読」と記録され、スライドを閉じた頃には消費済みになっていた。
+  // スライドを見終わって (welcomeSlidesShown=true) から出す。
+  // 「もう一度見る」(replay) はスライドと無関係に出したいので例外。
+  const welcomeDone = welcomeSlidesShown || isReplaying
   const eligible =
     isHydrated &&
+    welcomeDone &&
     !allGuidesDismissed &&
     pageMarks.length > 0 &&
     (isReplaying || !pageGuidesSeen.has(pageKey))

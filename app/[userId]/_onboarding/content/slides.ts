@@ -4,13 +4,11 @@
 
 export type SlidePrimaryCta =
   | { type: "next" }
-  | {
-      type: "dual"
-      // pathTemplate は /[userId] プレフィックスを含まない相対パス
-      // 呼び出し側 (WelcomeSlides) で useParams().userId を runtime に付与する
-      primary: { label: string; pathTemplate: string }
-      secondary: { label: string; pathTemplate: string }
-    }
+  // 最終スライド: 押すとホームへ着地し、そこからコーチガイドが始まる (2026-07-25)。
+  // 「スライドを見終わる → ホーム → コーチガイド」の順にするため。
+  // (旧 dual CTA の「練習をはじめる/楽譜をアップロード」はホームの
+  //  コーチガイド 1枚目「弾く曲を選ぼう」と重複するので統合した)
+  | { type: "start"; label: string }
 
 export type SlideVisual =
   // アルコちゃん(モーション付きイラスト)。pose は POSES のカテゴリで解決
@@ -92,9 +90,8 @@ export const SLIDES: Slide[] = [
     subhead: "あの憧れの曲も、きっと弾ける。",
     body: "用意された曲でも、自分の楽譜でもOK。今日、はじめてみよう！",
     cta: {
-      type: "dual",
-      primary:   { label: "練習をはじめる",      pathTemplate: "/practice" },
-      secondary: { label: "楽譜をアップロード",  pathTemplate: "/scores" },
+      type: "start",
+      label: "さっそく始めよう",
     },
   },
 ]

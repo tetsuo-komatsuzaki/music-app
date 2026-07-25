@@ -279,11 +279,13 @@ export default function WelcomeSlides({ forceOpen, onClose }: Props) {
     handleClose()
   }
 
-  const handleDualCta = (pathTemplate: string) => {
-    const fullPath = userId ? `/${userId}${pathTemplate}` : pathTemplate
+  // 最終スライド完了: ホームへ着地させ、そこからコーチガイドを始めさせる。
+  // welcomeSlidesShown が true になるので、ホームのコーチマークが
+  // 「はじめてガイド完了後」の条件を満たして表示される (PageCoachMarks 側で判定)。
+  const handleStart = () => {
     markWelcomeSlidesShown()
     onClose?.()
-    router.push(fullPath)
+    router.push(userId ? `/${userId}` : "/")
   }
 
   return createPortal(
@@ -316,24 +318,15 @@ export default function WelcomeSlides({ forceOpen, onClose }: Props) {
           ))}
         </div>
 
-        {slide.cta.type === "dual" ? (
+        {slide.cta.type === "start" ? (
           <>
-            <div className={styles.dualCta}>
-              <button
-                type="button"
-                className={styles.dualCtaPrimary}
-                onClick={() => handleDualCta(slide.cta.type === "dual" ? slide.cta.primary.pathTemplate : "/")}
-              >
-                {slide.cta.type === "dual" ? slide.cta.primary.label : ""}
-              </button>
-              <button
-                type="button"
-                className={styles.dualCtaSecondary}
-                onClick={() => handleDualCta(slide.cta.type === "dual" ? slide.cta.secondary.pathTemplate : "/")}
-              >
-                {slide.cta.type === "dual" ? slide.cta.secondary.label : ""}
-              </button>
-            </div>
+            <button
+              type="button"
+              className={styles.dualCtaPrimary}
+              onClick={handleStart}
+            >
+              {slide.cta.label}
+            </button>
             <div className={styles.footer}>
               <div className={styles.footerLeft}>
                 <button
@@ -345,15 +338,7 @@ export default function WelcomeSlides({ forceOpen, onClose }: Props) {
                   戻る
                 </button>
               </div>
-              <div className={styles.footerRight}>
-                <button
-                  type="button"
-                  className={styles.skipButton}
-                  onClick={handleClose}
-                >
-                  閉じる
-                </button>
-              </div>
+              <div className={styles.footerRight} />
             </div>
           </>
         ) : (
