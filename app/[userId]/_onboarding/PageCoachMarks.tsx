@@ -1,16 +1,48 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+// コーチガイドの薄い React ラッパー (2026-07-25 状態機械化)
+//
+// 役割は2つだけ:
+//   1. 外界のシグナル (Provider の state / DOM / navigation) → Event 変換して dispatch
+//   2. 状態機械の State → CoachMark を描画
+// 遷移ロジックは guideMachine.ts (純粋・テスト済み) に集約している。
+// 旧実装は settleTick / latchedOpen / pageMarkIndex / showAnalysisMark / didMountRef …
+// が絡み合い、複数の useEffect が同じ state を奪い合って順序バグを起こしていた。
+
+import { useCallback, useEffect, useReducer, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useOnboarding } from "./hooks/useOnboarding"
 import CoachMark from "./CoachMark"
 import { CoachMarkConfig } from "./content/coachMarks"
+import {
+  transition,
+  selectActiveMark,
+  selectGuideSample,
+  isPageGuideActive,
+  initialState,
+  type GuideState,
+  type GuideEvent,
+  type GuideEffect,
+} from "./guideMachine"
 
 type Props = {
   pageKey: string
   marks: CoachMarkConfig[]
   /** このページのガイドが動いている間ずっと出す見本の種類 */
   pageSample?: string
+}
+
+/** DOM を見て、この画面で実際に出せる page マークだけに絞る。 */
+function computeEligibleMarks(marks: CoachMarkConfig[]): CoachMarkConfig[] {
+  const has = (key: string) => !!document.querySelector(`[data-onboarding="${key}"]`)
+  return marks.filter((m) => {
+    if (m.trigger !== "page") return false
+    // requiresAbsent: 指定要素が「在る」なら出さない (例: まだ弾いていない人向け)
+    if (m.requiresAbsent && has(m.requiresAbsent)) return false
+    // requiresTarget: 対象要素が「無い」なら出さない
+    if (m.requiresTarget && m.targetKey && !has(m.targetKey)) return false
+    return true
+  })
 }
 
 export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
@@ -34,241 +66,162 @@ export default function PageCoachMarks({ pageKey, marks, pageSample }: Props) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  // クライアント遷移(router.push)では isHydrated が既に true のため、
-  // pageMarks の useMemo が「遷移先の対象要素がまだ DOM に無い一瞬」に
-  // 一度だけ走り、対象なしで確定してしまう(リロードしないとガイドが出ない)。
-  // pathname 変化のたびに、描画が落ち着くタイミングで数回 再評価する。
-  const [settleTick, setSettleTick] = useState(0)
-  useEffect(() => {
-    setSettleTick((t) => t + 1)
-    const timers = [0, 60, 200, 500].map((ms) =>
-      setTimeout(() => setSettleTick((t) => t + 1), ms),
-    )
-    return () => timers.forEach(clearTimeout)
-  }, [pathname])
-
-  // requiresTarget のマークは、対象要素が今この画面に在るときだけ出す。
-  // (無いまま出すと useTargetRect が 5 秒後に画面中央フォールバックしてしまう)
-  const pageMarks = useMemo(
-    () => marks.filter((m) => {
-      if (m.trigger !== "page") return false
-      if (!isHydrated || typeof document === "undefined") {
-        // 判定に DOM が要るマーク (requiresTarget / requiresAbsent) は保留
-        return !m.requiresTarget && !m.requiresAbsent
-      }
-      // requiresAbsent: 指定要素が「在る」なら出さない (例: まだ弾いていない人向け)
-      if (m.requiresAbsent && document.querySelector(`[data-onboarding="${m.requiresAbsent}"]`)) return false
-      if (!m.requiresTarget || !m.targetKey) return true
-      return !!document.querySelector(`[data-onboarding="${m.targetKey}"]`)
-    }),
-    // settleTick: クライアント遷移後に DOM が揃ってから再評価するためのトリガ
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [marks, isHydrated, settleTick],
-  )
-  const analysisMark = marks.find(m => m.trigger === "first-analysis-complete") ?? null
-
-  const [pageMarkIndex, setPageMarkIndex] = useState(0)
-  const [showAnalysisMark, setShowAnalysisMark] = useState(false)
-  // 表示を開始したら、このマウント中は出し続けるためのラッチ。
-  // (表示と同時に既読化するため、既読判定だけでは即座に閉じてしまう)
-  const [latchedOpen, setLatchedOpen] = useState(false)
-
   const isReplaying = replayingPageKey === pageKey
-  // はじめてガイド(スライド)が出ている間はコーチマークを開始しない (2026-07-25)。
-  // 両方が同時に走ると、コーチマークが全画面スライドの裏に隠れたまま
-  // 「表示した=既読」と記録され、スライドを閉じた頃には消費済みになっていた。
-  // スライドを見終わって (welcomeSlidesShown=true) から出す。
-  // 「もう一度見る」(replay) はスライドと無関係に出したいので例外。
-  const welcomeDone = welcomeSlidesShown || isReplaying
-  const eligible =
-    isHydrated &&
-    welcomeDone &&
-    !allGuidesDismissed &&
-    pageMarks.length > 0 &&
-    (isReplaying || !pageGuidesSeen.has(pageKey))
-  const shouldShowPageMarks =
-    eligible || (latchedOpen && !allGuidesDismissed && pageMarks.length > 0)
+  const analysisMark = marks.find((m) => m.trigger === "first-analysis-complete") ?? null
 
-  // === 一時診断 (2026-07-25) ===
-  // コーチガイドが「出るはずなのに出ない」真因を実ブラウザで特定するため。
-  // 表示判定に関わる全条件を出す。確定したら撤去する。
+  // --- 状態機械 ---
+  // transition が返す effects を Provider アクションに落とす reducer ラッパー。
+  const [state, rawDispatch] = useReducer(
+    (s: GuideState, e: GuideEvent): GuideState => {
+      const { next, effects } = transition(s, e, { isReplaying })
+      pendingEffectsRef.current.push(...effects)
+      return next
+    },
+    initialState,
+  )
+  // effects は render 後の effect フェーズで実行する (dispatch 中に副作用を起こさない)
+  const pendingEffectsRef = useRef<GuideEffect[]>([])
+  const runEffect = useCallback((eff: GuideEffect) => {
+    switch (eff.type) {
+      case "MARK_SEEN": markPageGuideSeen(pageKey); break
+      case "CLEAR_REPLAY": clearReplayingPageKey(); break
+      case "DISMISS_ALL": dismissAllGuides(); break
+      case "MARK_ANALYSIS_SEEN": markFirstAnalysisGuideShown(); break
+    }
+  }, [pageKey, markPageGuideSeen, clearReplayingPageKey, dismissAllGuides, markFirstAnalysisGuideShown])
   useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.info("[coach]", pageKey, {
-      isHydrated,
-      welcomeSlidesShown,
-      welcomeDone,
-      allGuidesDismissed,
-      pageMarksLen: pageMarks.length,
-      pageMarkIds: pageMarks.map((m) => m.id),
-      seenThisPage: pageGuidesSeen.has(pageKey),
-      isReplaying,
-      eligible,
-      latchedOpen,
-      shouldShow: shouldShowPageMarks,
-      pageMarkIndex,
-      pathname,
-    })
+    if (pendingEffectsRef.current.length === 0) return
+    const effs = pendingEffectsRef.current
+    pendingEffectsRef.current = []
+    effs.forEach(runEffect)
   })
+  const dispatch = rawDispatch
 
-  // 「一度でも表示したら既読」にする (2026-07-21)。
-  // 従来は最後まで進める/閉じる まで既読にならず、途中でページを離れると
-  // 次回また最初から出てしまい「何回も表示される」状態だった。
+  // --- 開始判定 (旧 settleTick + gating + latch + reset を1本化) ---
+  // state が pagePending のときだけ動く。gating を満たし、DOM 由来の有効マークが
+  // 確定したら START(marks) を1回。DOM 未確定ならタイマーで再試行し、
+  // タイムアウトで有効0なら GATING_FAIL。→ 開始時に有効マークを凍結する。
   useEffect(() => {
-    if (!eligible || latchedOpen) return
-    setLatchedOpen(true)
-    if (!isReplaying) markPageGuideSeen(pageKey)
-  }, [eligible, latchedOpen, isReplaying, pageKey, markPageGuideSeen])
+    if (state.t !== "pagePending") return
+    if (!isHydrated) return
+    if (typeof document === "undefined") return
 
-  // replay 切替時に index リセット。
-  // 初回マウントはスキップする (state は既定値。ここでリセットすると、同じ
-  // マウントで先に走ったラッチ(latchedOpen=true)を打ち消し、クライアント遷移で
-  // 来たページのガイドが一度も出ず「見た」扱いになる — 真因)。
-  const didMountRef = useRef(false)
-  useEffect(() => {
-    if (!didMountRef.current) {
-      didMountRef.current = true
+    // 構造的に出せない: 既読(非replay) or dismissed
+    if (allGuidesDismissed || (!isReplaying && pageGuidesSeen.has(pageKey))) {
+      dispatch({ type: "GATING_FAIL" })
       return
     }
-    setPageMarkIndex(0)
-    setShowAnalysisMark(false)
-    setLatchedOpen(false)
-  }, [pageKey, replayingPageKey])
+    // はじめてガイド表示中は開始しない (replay は例外)
+    if (!welcomeSlidesShown && !isReplaying) return
 
-  const pageMarksDone = pageMarkIndex >= pageMarks.length
+    let done = false
+    const timers: ReturnType<typeof setTimeout>[] = []
+    const tryStart = () => {
+      if (done || state.t !== "pagePending") return
+      const eligible = computeEligibleMarks(marks)
+      if (eligible.length > 0) {
+        done = true
+        dispatch({ type: "START", marks: eligible })
+      }
+    }
+    // 遷移直後は対象要素が未 commit のことがある → 描画が落ち着くまで数回試す
+    ;[0, 60, 200, 500].forEach((ms) => timers.push(setTimeout(tryStart, ms)))
+    // それでも 0 件なら「出すものが無い」で idle へ
+    timers.push(setTimeout(() => {
+      if (!done && state.t === "pagePending") dispatch({ type: "GATING_FAIL" })
+    }, 800))
+    return () => timers.forEach(clearTimeout)
+    // pathname を依存に入れ、クライアント遷移のたびに再評価する
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.t, isHydrated, allGuidesDismissed, isReplaying, welcomeSlidesShown, pageGuidesSeen, pageKey, marks, pathname])
 
-  // analysis-trigger 発動判定
-  // M4: page-trigger を全て消費してから初めて発動する
+  // --- 明示的な再生 (replay) ---
+  // replayingPageKey がこのページに変わったら再生。マウント初回は発火させない。
+  const prevReplayRef = useRef(replayingPageKey)
   useEffect(() => {
+    const prev = prevReplayRef.current
+    prevReplayRef.current = replayingPageKey
+    if (prev === replayingPageKey) return
+    if (replayingPageKey === pageKey) dispatch({ type: "REPLAY_START" })
+  }, [replayingPageKey, pageKey])
+
+  // --- analysis-trigger 発火 ---
+  // page ガイドが idle に落ち、分析オーバーレイが描画され未表示なら1回出す。
+  useEffect(() => {
+    if (state.t !== "idle") return
     if (!analysisMark) return
     if (firstAnalysisGuideShown) return
     if (allGuidesDismissed) return
-    if (!isHydrated) return
-    if (shouldShowPageMarks && !pageMarksDone) return
     if (analysisOverlayRenderedAt === null) return
-    setShowAnalysisMark(true)
-  }, [
-    analysisMark,
-    firstAnalysisGuideShown,
-    allGuidesDismissed,
-    isHydrated,
-    shouldShowPageMarks,
-    pageMarksDone,
-    analysisOverlayRenderedAt,
-  ])
+    dispatch({ type: "ANALYSIS_READY" })
+  }, [state.t, analysisMark, firstAnalysisGuideShown, allGuidesDismissed, analysisOverlayRenderedAt])
 
-  // 現在表示すべきマーク
-  const activeMark: CoachMarkConfig | null = (() => {
-    if (shouldShowPageMarks && !pageMarksDone) return pageMarks[pageMarkIndex] ?? null
-    if (showAnalysisMark && analysisMark) return analysisMark
-    return null
-  })()
+  // --- 描画すべきマーク ---
+  const active = selectActiveMark(state, analysisMark)
 
-  // targetUrl が指定されたマークに対する URL ナビゲーション
-  // (タブ切替が必要なマーク: progress.weakness, categoryList.* 等)
-  const urlMatchesTarget = useMemo(() => {
-    if (!activeMark?.targetUrl) return true
-    const targetParams = new URLSearchParams(activeMark.targetUrl)
-    for (const [key, value] of targetParams.entries()) {
-      if (searchParams.get(key) !== value) return false
-    }
+  // --- targetUrl: 表示前にクエリを合わせる (タブ切替マーク) ---
+  const targetUrl = active?.mark.targetUrl ?? null
+  const urlMatches = (() => {
+    if (!targetUrl) return true
+    const want = new URLSearchParams(targetUrl)
+    for (const [k, v] of want.entries()) if (searchParams.get(k) !== v) return false
     return true
-  }, [activeMark?.targetUrl, searchParams])
-
+  })()
   useEffect(() => {
-    if (!activeMark?.targetUrl) return
-    if (urlMatchesTarget) return
-    const targetParams = new URLSearchParams(activeMark.targetUrl)
-    const currentParams = new URLSearchParams(searchParams.toString())
-    for (const [key, value] of targetParams.entries()) {
-      currentParams.set(key, value)
-    }
-    router.replace(pathname + "?" + currentParams.toString())
-  }, [activeMark?.id, activeMark?.targetUrl, urlMatchesTarget, router, pathname, searchParams])
+    if (!targetUrl || urlMatches) return
+    const want = new URLSearchParams(targetUrl)
+    const cur = new URLSearchParams(searchParams.toString())
+    for (const [k, v] of want.entries()) cur.set(k, v)
+    router.replace(pathname + "?" + cur.toString())
+  }, [targetUrl, urlMatches, router, pathname, searchParams])
 
-  // 見本表示の on/off。描画中の state 調整 (React 公式パターン) で effect を使わない。
-  // ページ単位の見本は、マークが1枚でも出ている間ずっと立てる。
-  // requiresTarget の判定より先に見本が描画されるので、見本が作った要素を
-  // 指すマークもきちんと出せる。
-  const guideRunning = shouldShowPageMarks && !pageMarksDone
-  const wantSample = activeMark?.sample ?? (guideRunning ? pageSample ?? null : null)
+  // --- 見本 (guideSample) の on/off。描画中調整 (React 公式パターン) ---
+  const wantSample = selectGuideSample(state, pageSample ?? null)
   if (wantSample !== guideSample) setGuideSample(wantSample)
 
   if (!isHydrated) return null
-  // URL がマークの targetUrl と一致するまでマーク描画を遅延 (タブ切替が完了するまで非表示)
-  if (!urlMatchesTarget) return null
+  if (!active) return null
+  // URL がマークの targetUrl と一致するまで非表示 (タブ切替が完了するまで)
+  if (!urlMatches) return null
 
-  // page-trigger マーク表示
-  if (shouldShowPageMarks && !pageMarksDone) {
-    const mark = pageMarks[pageMarkIndex]
-    const onAdvance = () => {
-      const next = pageMarkIndex + 1
-      if (next >= pageMarks.length) {
-        if (isReplaying) {
-          clearReplayingPageKey()
-        } else {
-          markPageGuideSeen(pageKey)
-        }
-      }
-      setPageMarkIndex(next)
-    }
-    const onSkipAll = () => {
-      if (isReplaying) {
-        clearReplayingPageKey()
-      } else {
-        markPageGuideSeen(pageKey)
-      }
-      setPageMarkIndex(pageMarks.length)
-    }
-    const onDismissAllAction = () => {
-      dismissAllGuides()
-      setPageMarkIndex(pageMarks.length)
-    }
+  if (active.kind === "page") {
+    const { mark, index, total } = active
     return (
       <CoachMark
-        key={`${pageKey}-page-${pageMarkIndex}`}
+        key={`${pageKey}-page-${index}`}
         targetKey={mark.targetKey}
         headline={mark.headline}
         body={mark.body}
-        step={pageMarkIndex + 1}
-        totalSteps={pageMarks.length}
+        step={index + 1}
+        totalSteps={total}
         showDismissAllCheckbox={mark.showDismissAllCheckbox}
         awaitTapHint={mark.awaitTap?.hint}
-        onTargetTap={mark.awaitTap ? () => {
-          // 実際のボタンが押された。遷移や録音はアプリ側が行うので、
-          // ここではガイドを次へ進めるだけ。
-          onAdvance()
-        } : undefined}
-        onNext={onAdvance}
-        onPrev={pageMarkIndex > 0 ? () => setPageMarkIndex(pageMarkIndex - 1) : undefined}
-        onSkip={onSkipAll}
-        onDismissAll={mark.showDismissAllCheckbox ? onDismissAllAction : undefined}
+        onTargetTap={mark.awaitTap ? () => dispatch({ type: "TARGET_TAP" }) : undefined}
+        onNext={() => dispatch({ type: "NEXT" })}
+        onPrev={index > 0 ? () => dispatch({ type: "PREV" }) : undefined}
+        onSkip={() => dispatch({ type: "SKIP_ALL" })}
+        onDismissAll={mark.showDismissAllCheckbox ? () => dispatch({ type: "DISMISS_ALL" }) : undefined}
       />
     )
   }
 
-  // analysis-trigger マーク表示
-  if (showAnalysisMark && analysisMark) {
-    return (
-      <CoachMark
-        key={`${pageKey}-analysis`}
-        targetKey={analysisMark.targetKey}
-        headline={analysisMark.headline}
-        body={analysisMark.body}
-        step={1}
-        totalSteps={1}
-        showDismissAllCheckbox={false}
-        onNext={() => {
-          markFirstAnalysisGuideShown()
-          setShowAnalysisMark(false)
-        }}
-        onSkip={() => {
-          markFirstAnalysisGuideShown()
-          setShowAnalysisMark(false)
-        }}
-      />
-    )
-  }
-
-  return null
+  // analysis-trigger マーク
+  return (
+    <CoachMark
+      key={`${pageKey}-analysis`}
+      targetKey={active.mark.targetKey}
+      headline={active.mark.headline}
+      body={active.mark.body}
+      step={1}
+      totalSteps={1}
+      showDismissAllCheckbox={false}
+      onNext={() => dispatch({ type: "ANALYSIS_DONE" })}
+      onSkip={() => dispatch({ type: "ANALYSIS_DONE" })}
+    />
+  )
 }
+
+// isPageGuideActive はセレクタとして guideMachine 側に持たせているが、
+// このラッパーでは analysis 発火を state.t==="idle" で判定するため未使用。
+// (将来 page ガイド中に別処理を挟む場合の拡張点として export を残す)
+void isPageGuideActive
