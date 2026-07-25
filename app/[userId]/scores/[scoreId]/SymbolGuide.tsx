@@ -104,6 +104,13 @@ export function SymbolGlyph({ glyph, value }: { glyph: SymbolGlyphKind; value?: 
 export type SymbolGuideHandle = { openForNote: (noteIndex: number) => void }
 
 const CONTAINER_ID = "osmd-container"
+// 目印の portal 先は「OSMD がクリアしない安定要素」= 譜面ラッパー
+// ([data-onboarding="scoreDetail.scoreOverlay"], position:relative)。
+// #osmd-container に portal すると OSMD の innerHTML='' 再描画で React が
+// 管理ノードを見失い removeChild で全体クラッシュする (真因)。
+const HOST_SELECTOR = '[data-onboarding="scoreDetail.scoreOverlay"]'
+const getHost = (): HTMLElement | null =>
+  typeof document === "undefined" ? null : document.querySelector<HTMLElement>(HOST_SELECTOR)
 
 type Props = {
   userId: string
@@ -134,26 +141,26 @@ export default function SymbolGuide({
     [symbols],
   )
 
-  // 目印は #osmd-container に直接ぶら下げる (position:relative は CSS 側で付与済み)。
-  // OSMD が再描画で innerHTML を空にしても、noteElementsVersion が変わって
-  // key が変わるため React が作り直して入れ直す。
-  const overlayEl = typeof document === "undefined" ? null : document.getElementById(CONTAINER_ID)
+  // 目印は譜面ラッパー(安定要素)にぶら下げる。#osmd-container は OSMD が
+  // 再描画で innerHTML='' するため、そこへ React portal を挿すとクラッシュする。
+  const overlayEl = getHost()
 
   // 位置は state に持たず、ref コールバックで直接 style を書く
   // (再描画のたびに state 更新が走るのを避けるため)。
   const markNodesRef = useRef<Map<string, { node: HTMLElement; noteIndex: number }>>(new Map())
   const placeMark = useCallback((node: HTMLElement | null, noteIndex: number) => {
+    const host = getHost()
     const container = document.getElementById(CONTAINER_ID)
     const el = noteElementsRef.current[noteIndex] as HTMLElement | undefined
-    if (!node || !container || !el || !container.contains(el)) {
+    if (!node || !host || !el || (container && !container.contains(el))) {
       if (node) node.style.display = "none"
       return
     }
-    const c = container.getBoundingClientRect()
+    const h = host.getBoundingClientRect()
     const r = el.getBoundingClientRect()
     node.style.display = ""
-    node.style.left = `${r.left + r.width / 2 - c.left}px`
-    node.style.top = `${r.top - c.top + container.scrollTop - 24}px`
+    node.style.left = `${r.left + r.width / 2 - h.left}px`
+    node.style.top = `${r.top - h.top - 24}px`
   }, [noteElementsRef])
 
   const repositionAll = useCallback(() => {
