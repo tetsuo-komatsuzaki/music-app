@@ -1478,7 +1478,7 @@ export default function ScoreDetail({
 
   // --- オンボーディング: 解析オーバーレイ描画完了を Provider に通知 ---
   // applyComparisonColors の setTimeout 連鎖 (最大 800ms) を待ってから dispatch
-  const { markAnalysisOverlayRendered, activeGuideMarkIdRef } = useOnboarding()
+  const { markAnalysisOverlayRendered, activeGuideMarkIdRef, setOnboardingSamplePiece, onboardingSamplePiece, allGuidesDismissed } = useOnboarding()
   useEffect(() => {
     if (!selected?.comparisonResult) return
     if (noteElementsRef.current.length === 0) return
@@ -2478,6 +2478,22 @@ export default function ScoreDetail({
         </div>
       </div>
 
+      {/* オンボーディング終盤: 練習教材まで来たら「ホームに戻る」で締めの見本ホームへ。
+          ツアーで曲を選んだ (samplePiece あり) 練習アイテム表示中だけ出す。 */}
+      {practiceItemId && onboardingSamplePiece && !allGuidesDismissed && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", padding: "12px 14px", marginBottom: 12, background: "linear-gradient(135deg,#F0F7FF,#FDF8E7)", border: "1px solid #DCE7F5", borderRadius: 12 }}>
+          <span style={{ fontSize: 13, color: "#334", flex: 1, minWidth: 0 }}>おすすめの練習はこんな感じ。ホームに戻って、続きを見よう。</span>
+          <button
+            type="button"
+            data-onboarding="practiceItem.backHome"
+            onClick={() => router.push(`/${userId}?guide=finish`)}
+            style={{ background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "#fff", border: "none", borderRadius: 10, padding: "9px 18px", fontSize: 14, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
+          >
+            ホームに戻る →
+          </button>
+        </div>
+      )}
+
       {/* タブ (演奏 / ふりかえり): 曲・練習アイテムの両方で表示。
           演奏履歴はふりかえり側に集約。上達ループは曲のみ (下の isScoreMode ガード)。 */}
       <div data-section="score-tabs" style={{ marginBottom: 12 }}>
@@ -2806,6 +2822,8 @@ export default function ScoreDetail({
               // 実録音 (マイク許可+カウントイン) を始めず、分析結果の見本 (ふりかえり) へ進める。
               // 実演奏は体験が長いのでガイドでは省略する、という Tetsuo 判断 (2026-07-25)。
               if (activeGuideMarkIdRef.current === "scoreDetail.record") {
+                // 終盤の見本ホームで「弾いた曲」として見せるため、選んだ曲を控える
+                if (isScoreMode) setOnboardingSamplePiece({ id: score.id, title: score.title, cover: null, star: null })
                 if (isScoreMode) handleTabChange("review")
                 return true // 録音開始をスキップ (awaitTap の click 検知でガイドは次へ進む)
               }

@@ -17,6 +17,18 @@ export type HelpSection =
   | "faq"
   | "troubleshooting"
 
+/**
+ * オンボーディングのツアー中に「選んだ曲」。
+ * 実演奏を省略するため、ツアー終盤にホームで「弾いたらこう出る」を
+ * 本人が選んだ曲の見本として見せるのに使う。client nav 間で持ち回るだけの transient。
+ */
+export type OnboardingSamplePiece = {
+  id: string
+  title: string
+  cover: string | null
+  star: number | null
+}
+
 export type OnboardingState = {
   // 永続化 (localStorage)
   welcomeSlidesShown: boolean
@@ -49,6 +61,9 @@ export type OnboardingState = {
    */
   activeGuideMarkIdRef: { readonly current: string | null }
   setActiveGuideMarkId: (id: string | null) => void
+  /** ツアーで選んだ曲 (終盤の見本ホームで使う)。実演奏を省略するので見本に流用。 */
+  onboardingSamplePiece: OnboardingSamplePiece | null
+  setOnboardingSamplePiece: (p: OnboardingSamplePiece | null) => void
   helpOpen: boolean
   helpSection: HelpSection | null
 }
@@ -86,6 +101,8 @@ const NOOP_CONTEXT: OnboardingContextValue = {
   setGuideSample: () => {},
   activeGuideMarkIdRef: { current: null },
   setActiveGuideMarkId: () => {},
+  onboardingSamplePiece: null,
+  setOnboardingSamplePiece: () => {},
   helpOpen: false,
   helpSection: null,
   markWelcomeSlidesShown: () => {},
@@ -178,6 +195,7 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
   const setActiveGuideMarkId = useCallback((id: string | null) => {
     activeGuideMarkIdRef.current = id
   }, [])
+  const [onboardingSamplePiece, setOnboardingSamplePiece] = useState<OnboardingSamplePiece | null>(null)
   const [helpOpen, setHelpOpen] = useState(false)
   const [helpSection, setHelpSection] = useState<HelpSection | null>(null)
 
@@ -251,6 +269,7 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
     setFirstAnalysisGuideShown(false)
     setAnalysisOverlayRenderedAt(null)
     setReplayingPageKey(null)
+    setOnboardingSamplePiece(null)
     setHelpOpen(false)
     setHelpSection(null)
     safeRemoveItem(keysRef.current.welcomeSlidesShown)
@@ -293,6 +312,8 @@ export default function OnboardingProvider({ children }: { children: ReactNode }
     setGuideSample,
     activeGuideMarkIdRef,
     setActiveGuideMarkId,
+    onboardingSamplePiece,
+    setOnboardingSamplePiece,
     helpOpen,
     helpSection,
     markWelcomeSlidesShown,

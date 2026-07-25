@@ -168,7 +168,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
           />
         ) : guideSample === "review" ? (
           // 画面ガイド表示中: まだ演奏が無くても「弾くとこう出る」を見せる
-          <GuideSampleReview />
+          <GuideSampleReview userId={userId} />
         ) : (
           <p className={styles.emptyHint}>
             まだ演奏記録がありません。録音すると弱点と練習メニューが表示されます。

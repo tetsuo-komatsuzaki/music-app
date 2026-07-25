@@ -14,7 +14,12 @@ import hb from "../[userId]/homeBlocks.module.css"
 
 const DAILY_GOAL = 3
 
-export default function GuideSampleFocus() {
+type SamplePiece = { title: string; cover: string | null; star: number | null }
+
+export default function GuideSampleFocus({ piece }: { piece?: SamplePiece }) {
+  const title = piece?.title ?? "きらきら星"
+  const cover = piece?.cover ?? null
+  const star = piece?.star ?? 1
   const step = (done: boolean, label: string, metric: string) => (
     <div className={`${hb.step} ${done ? hb.stepDone : ""}`} key={label}>
       <span className={hb.stepCk}>{done ? "✓" : ""}</span>
@@ -30,10 +35,10 @@ export default function GuideSampleFocus() {
       <div className={hb.cardTitle}>いま練習している曲</div>
 
       <div className={hb.piece}>
-        <div className={`${hb.thumb} ${hb.thumbGoal}`}>♪</div>
+        <div className={`${hb.thumb} ${hb.thumbGoal}`}>{cover ? <img src={cover} alt="" loading="lazy" /> : "♪"}</div>
         <div className={hb.g}>
-          <div className={hb.title}>きらきら星</div>
-          <div className={hb.meta}>☆1 ・ 直近 82点</div>
+          <div className={hb.title}>{title}</div>
+          <div className={hb.meta}>☆{star} ・ 直近 82点</div>
         </div>
         <span className={`${hb.chip} ${hb.chipGoal}`}>挑戦中</span>
       </div>
@@ -53,10 +58,10 @@ export default function GuideSampleFocus() {
           {step(false, "通し演奏", `1/${DAILY_GOAL}`)}
           {step(true, "学びレッスン", "2/2")}
         </div>
-        <div className={hb.recCol}>
+        <div className={hb.recCol} data-onboarding="home.focusDaily">
           <div className={`${hb.recH} ${hb.recHDaily}`}><span className={hb.dot} />毎日の基礎練</div>
           {step(true, "音階", `3/${DAILY_GOAL}`)}
-          {step(false, "ボウイング", `1/${DAILY_GOAL}`)}
+          {step(false, "アルペジオ", `1/${DAILY_GOAL}`)}
         </div>
       </div>
 

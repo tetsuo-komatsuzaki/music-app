@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { useParams } from "next/navigation"
+import Link from "next/link"
+import { useParams, useSearchParams } from "next/navigation"
 import MyRankCard from "@/app/components/MyRankCard"
 import ArcoDaily from "@/app/components/ArcoDaily"
 import PracticeFocusCard from "@/app/components/PracticeFocusCard"
+import GuideSampleFocus from "@/app/components/GuideSampleFocus"
 import NextPiecesCard from "@/app/components/NextPiecesCard"
 import FavoritesSection, { type FavoriteEntry } from "@/app/components/FavoritesSection"
 import hb from "./homeBlocks.module.css"
@@ -13,6 +15,7 @@ import type { SongRecommendation } from "@/app/components/RecommendationItem"
 import type { GradeLevel } from "@/app/_libs/skillMaster"
 import styles from "./home.module.css"
 import OnboardingTrigger from "./_onboarding/OnboardingTrigger"
+import { useOnboarding } from "./_onboarding/hooks/useOnboarding"
 
 // v1.6 Phase 4-2 (2026-05-16) — UserGradeProgress 準拠の表示用データ。
 // 仕様書 §3-5-2 必須項目: 現在グレード + ★ + 次の★まで完全習得すべき曲数
@@ -90,7 +93,17 @@ export default function HomeClient({
 }: Props) {
   void _userName
   const { userId } = useParams<{ userId: string }>()
+  const searchParams = useSearchParams()
+  const { onboardingSamplePiece } = useOnboarding()
   const [guideOpen, setGuideOpen] = useState(false)
+
+  // オンボ終盤の締め: 練習教材から「ホームに戻る」で ?guide=finish 付きで戻ってきた、
+  // まだ1曲も弾いていないユーザーに、選んだ曲を「弾いたらこう出る」の見本で見せる。
+  // URL 駆動なので、他画面へ遷移すれば自然に解除される (残留フラグ不要)。
+  const ending =
+    searchParams.get("guide") === "finish" &&
+    !!onboardingSamplePiece &&
+    recentPieces.length === 0
 
   return (
     <div className={styles.page}>
@@ -98,8 +111,13 @@ export default function HomeClient({
       {/* ① マイランクカード (最上部・タップで演奏の軌跡／上達のしくみを内蔵) */}
       <MyRankCard {...rankCard} onGuide={() => setGuideOpen(true)} />
 
-      {/* ② いま練習している曲 ＋〈マスターへのステップ ‖ 毎日の基礎練〉 */}
-      <PracticeFocusCard pieces={recentPieces} basics={basicPracticeCards} userId={userId} />
+      {/* ② いま練習している曲 ＋〈マスターへのステップ ‖ 毎日の基礎練〉。
+          終盤の締めでは、選んだ曲の「弾いたらこう出る」見本カードに差し替える。 */}
+      {ending ? (
+        <GuideSampleFocus piece={onboardingSamplePiece ?? undefined} />
+      ) : (
+        <PracticeFocusCard pieces={recentPieces} basics={basicPracticeCards} userId={userId} />
+      )}
 
       {/* ③ アルコちゃんカード (全身・モーション付き。今日の一言。タップで次のポーズ) */}
       <div className={hb.root}>
@@ -112,8 +130,35 @@ export default function HomeClient({
       {/* ⑤ お気に入り (曲・音階・アルペジオ・エチュード・ボーイング・フィンガリング・重音) */}
       <FavoritesSection favorites={favorites} />
 
+      {/* ⑥ 終盤のみ: 自分の楽譜を持ち込む導線 (既存「マイスコア」へ) */}
+      {ending && (
+        <Link
+          href={`/${userId}/scores`}
+          data-onboarding="home.uploadLead"
+          style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: "#fff", border: "1px solid #e6ebf2", borderRadius: 14, textDecoration: "none", color: "inherit" }}
+        >
+          <span aria-hidden style={{ fontSize: 22 }}>🎼</span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: "block", fontWeight: 700, fontSize: 14, color: "#1a1a1a" }}>自分の楽譜を持ち込む</span>
+            <span style={{ display: "block", fontSize: 12, color: "#667" }}>「マイスコア」からアップロードすると、その曲でも練習できるよ</span>
+          </span>
+          <span aria-hidden style={{ color: "#889" }}>→</span>
+        </Link>
+      )}
+
+      {/* ⑦ 終盤の締め: さっそく本物の1曲へ (見本ホームからの出口) */}
+      {ending && (
+        <Link
+          href={`/${userId}/practice/pieces`}
+          data-onboarding="home.startCta"
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 16px", background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "#fff", borderRadius: 14, textDecoration: "none", fontWeight: 800, fontSize: 15 }}
+        >
+          <span aria-hidden>♪</span> さっそく1曲、弾いてみよう
+        </Link>
+      )}
+
       <ProgressGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
-      <OnboardingTrigger pageKey="home" />
+      <OnboardingTrigger pageKey={ending ? "homeEnding" : "home"} />
     </div>
   )
 }
