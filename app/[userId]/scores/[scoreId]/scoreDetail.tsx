@@ -1478,7 +1478,10 @@ export default function ScoreDetail({
 
   // --- オンボーディング: 解析オーバーレイ描画完了を Provider に通知 ---
   // applyComparisonColors の setTimeout 連鎖 (最大 800ms) を待ってから dispatch
-  const { markAnalysisOverlayRendered, activeGuideMarkIdRef, setOnboardingSamplePiece, onboardingSamplePiece, allGuidesDismissed } = useOnboarding()
+  const { markAnalysisOverlayRendered, activeGuideMarkId, setOnboardingSamplePiece, onboardingSamplePiece, allGuidesDismissed } = useOnboarding()
+  // オンボの「録音」ステップ表示中だけ、録音ボタンを「ふりかえりへ進むだけのボタン」に差し替える。
+  // 実録音は省くという方針 (通常ユーザーの録音ボタンは元のまま)。
+  const onboardingRecordStep = isScoreMode && activeGuideMarkId === "scoreDetail.record"
   useEffect(() => {
     if (!selected?.comparisonResult) return
     if (noteElementsRef.current.length === 0) return
@@ -1489,6 +1492,15 @@ export default function ScoreDetail({
     }, 900)
     return () => clearTimeout(id)
   }, [selected?.comparisonResult, noteElementsVersion, markAnalysisOverlayRendered])
+
+  // --- オンボ: 開いた曲を「終盤の見本ホーム」用に控える ---
+  // ツアーでは実録音を省くので、録音タップ時ではなく「曲を開いた時点」で確実に保存する。
+  // これで練習教材まで進んでも samplePiece が残り、ホームで「弾いたらこう出る」見本を出せる。
+  useEffect(() => {
+    if (isScoreMode && !allGuidesDismissed) {
+      setOnboardingSamplePiece({ id: score.id, title: score.title, cover: null, star: null })
+    }
+  }, [isScoreMode, allGuidesDismissed, score.id, score.title, setOnboardingSamplePiece])
 
   // --- 記号ガイド: 譜面に出てくる記号・技法 (2026-07-25) ---
   // analysis.json に既にある情報から抽出するだけなので追加の通信は無い。
@@ -2805,6 +2817,19 @@ export default function ScoreDetail({
             <div style={{ fontSize: 13, color: "#666", marginBottom: 14 }}>この演奏をふまえて、もう一度チャレンジ</div>
             <button type="button" onClick={() => selectPerformanceById(null)} style={{ background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "#fff", border: "none", borderRadius: 10, padding: "11px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>演奏する</button>
           </div>
+        ) : onboardingRecordStep ? (
+          // オンボの録音ステップだけ、実録音せず「ふりかえり(見本)へ進むだけ」のボタンに差し替える。
+          // 通常ユーザーの録音ボタン(下の Recorder)は元のまま。
+          <div data-onboarding="scoreDetail.recordButton">
+            <button
+              type="button"
+              onClick={() => handleTabChange("review")}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", padding: "14px 16px", background: "linear-gradient(100deg,#e5392b,#f0603a)", color: "#fff", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: "pointer" }}
+            >
+              <span aria-hidden style={{ width: 10, height: 10, borderRadius: "50%", background: "#fff", display: "inline-block" }} />
+              録音して AI 採点
+            </button>
+          </div>
         ) : (
         <div data-onboarding="scoreDetail.recordButton">
           <Recorder
@@ -2818,15 +2843,6 @@ export default function ScoreDetail({
             uploadProgress={uploadProgress}
             onShowLoop={isScoreMode ? () => handleTabChange("review") : undefined}
             onIdleRecordClick={() => {
-              // オンボーディング中「弾くときは、ここから録音するよ」マーク表示中は、
-              // 実録音 (マイク許可+カウントイン) を始めず、分析結果の見本 (ふりかえり) へ進める。
-              // 実演奏は体験が長いのでガイドでは省略する、という Tetsuo 判断 (2026-07-25)。
-              if (activeGuideMarkIdRef.current === "scoreDetail.record") {
-                // 終盤の見本ホームで「弾いた曲」として見せるため、選んだ曲を控える
-                if (isScoreMode) setOnboardingSamplePiece({ id: score.id, title: score.title, cover: null, star: null })
-                if (isScoreMode) handleTabChange("review")
-                return true // 録音開始をスキップ (awaitTap の click 検知でガイドは次へ進む)
-              }
               // 録音CTA押下の瞬間に「この録音が区間録音か」を確定。
               // 区間ボタン経由なら pendingRangeRef がセット済 → 確定。通常録音なら null。
               const r = pendingRangeRef.current

@@ -226,8 +226,8 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         showDismissAllCheckbox: false,
       },
       {
-        // 実際に弾くのは体験が長いので、ガイド中はここを押しても録音は始めず
-        // 「弾いたらどう分析されるか」の見本(ふりかえり)へ進める (scoreDetail.tsx で intercept)。
+        // 実際に弾くのは体験が長いので、ガイド中はこのボタンを「ふりかえり(見本)へ進むだけ」の
+        // ボタンに差し替えている (scoreDetail.tsx: onboardingRecordStep)。実録音は起きない。
         id: "scoreDetail.record",
         targetKey: "scoreDetail.recordButton",
         targetUrl: "?tab=play",

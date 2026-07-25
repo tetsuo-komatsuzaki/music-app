@@ -26,7 +26,7 @@ const baseCtx = (over: Partial<OnboardingContextValue> = {}): OnboardingContextV
   replayingPageKey: null,
   guideSample: null,
   setGuideSample: vi.fn(),
-  activeGuideMarkIdRef: { current: null },
+  activeGuideMarkId: null,
   setActiveGuideMarkId: vi.fn(),
   onboardingSamplePiece: null,
   setOnboardingSamplePiece: vi.fn(),
@@ -94,6 +94,13 @@ describe("PageCoachMarks (実マウント)", () => {
     renderWith(baseCtx({ markPageGuideSeen: markSeen }))
     await waitFor(() => expect(screen.getByText("見出しA")).toBeTruthy(), { timeout: 2000 })
     expect(markSeen).toHaveBeenCalledWith("scores")
+  })
+
+  it("表示中マークの id が setActiveGuideMarkId に渡る (intercept 用 ref)", async () => {
+    const setActive = vi.fn()
+    renderWith(baseCtx({ setActiveGuideMarkId: setActive }))
+    await waitFor(() => expect(screen.getByText("見出しA")).toBeTruthy(), { timeout: 2000 })
+    expect(setActive).toHaveBeenCalledWith("p.a")
   })
 
   // --- 実シナリオに近い条件 ---
