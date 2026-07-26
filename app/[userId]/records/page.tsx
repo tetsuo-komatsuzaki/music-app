@@ -3,10 +3,8 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { prisma } from "@/app/_libs/prisma"
-import { CELEBRATION_ENABLED } from "@/app/_libs/featureFlags"
 
 export default async function RecordsPage({ params }: { params: Promise<{ userId: string }> }) {
-  if (!CELEBRATION_ENABLED) notFound()
   const { userId } = await params
 
   const dbUser = await prisma.user.findUnique({

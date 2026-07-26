@@ -294,11 +294,9 @@ def _run_celebration_v2(
     practice_item_id: str = None,
 ) -> None:
     """祝い体験 v2.0 (§4/§5/§6): milestone導出(ID照合) + 教材クリア再計算。
-    CELEBRATION_WRITE_ENABLED='true' のときのみ書き込む(§8)。各書き込みは専用SAVEPOINTで隔離し、
+    通常機能として常時実行(ON/OFFフラグは廃止・2026-07-26)。各書き込みは専用SAVEPOINTで隔離し、
     失敗は既存の達成/診断/解析本体を巻き添えにしない(§6・警告ログのみ)。診断5.5の後に呼ぶ。
     """
-    if os.environ.get("CELEBRATION_WRITE_ENABLED") != "true":
-        return
     try:
         from lib.achievement import (
             derive_score_milestone_events,
@@ -560,7 +558,7 @@ def run_score_mode() -> None:
             score_id=score_id,
         )
 
-        # 5.7. 祝い体験 v2.0: milestone導出+保存 (CELEBRATION_WRITE_ENABLED でゲート・SAVEPOINT隔離)。
+        # 5.7. 祝い体験 v2.0: milestone導出+保存 (通常機能・常時実行・SAVEPOINT隔離)。
         _run_celebration_v2(
             conn,
             user_id=user_internal_id,
@@ -749,7 +747,7 @@ def main() -> None:
             practice_item_id=practice_item_id,
         )
 
-        # 5.7. 祝い体験 v2.0: 教材クリア再計算+milestone保存 (WRITEフラグゲート・SAVEPOINT隔離)。
+        # 5.7. 祝い体験 v2.0: 教材クリア再計算+milestone保存 (通常機能・常時実行・SAVEPOINT隔離)。
         _run_celebration_v2(
             conn,
             user_id=user_id,

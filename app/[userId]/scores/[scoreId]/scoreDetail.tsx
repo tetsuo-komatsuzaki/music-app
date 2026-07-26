@@ -21,7 +21,7 @@ import PerformanceSkillDetail from "@/app/components/PerformanceSkillDetail"
 import { getSignedUploadUrl } from "@/app/actions/getSignedUploadUrl"
 import { renamePerformance } from "@/app/actions/renamePerformance"
 import { resolvePartToNoteRange, type Part } from "@/app/_libs/materialParts"
-import { CELEBRATION_ENABLED, CELEBRATION_SINCE_MS } from "@/app/_libs/featureFlags"
+import { CELEBRATION_SINCE_MS } from "@/app/_libs/featureFlags"
 import { parseMilestoneEvents } from "@/app/_libs/celebration"
 import CelebrationBanner from "@/app/components/CelebrationBanner"
 import MilestoneCelebration from "@/app/components/MilestoneCelebration"
@@ -1511,8 +1511,7 @@ export default function ScoreDetail({
     if (p && p.analysisStatus === "done" && p.pitchAccuracy != null && p.timingAccuracy != null) {
       justRecordedRef.current = null
       try { sessionStorage.removeItem("arcoPending") } catch {}
-      // 祝い体験 v2.0 (§2): 自動全画面は廃止しバナー方式へ。フラグON時は自動オーバーレイを出さない。
-      if (!CELEBRATION_ENABLED) setArcoResult(p)
+      // 祝い体験 v2.0 (§2): 自動全画面は廃止し、バナー → 振り返りで祝う方式に統一(自動オーバーレイは出さない)。
     }
   }, [performances])
 
@@ -2679,10 +2678,9 @@ export default function ScoreDetail({
     return ss.length ? Math.max(...ss) : null
   }
 
-  // ── 祝い体験 v2.0 (§2): バナー → 振り返りを開いた瞬間に祝い。CELEBRATION_ENABLED でゲート ──
+  // ── 祝い体験 v2.0 (§2): バナー → 振り返りを開いた瞬間に祝い(通常機能・常時有効) ──
   const [celebShown, setCelebShown] = useState<Set<string>>(new Set())
   useEffect(() => {
-    if (!CELEBRATION_ENABLED) return
     try {
       const shown = new Set<string>()
       for (const p of performances) {
@@ -2693,7 +2691,6 @@ export default function ScoreDetail({
   }, [performances])
   // milestone(Python導出) に加え、自己ベスト(過去最高更新)をフロントで合成する (§1・personal_best)。
   const celebration = useMemo(() => {
-    if (!CELEBRATION_ENABLED) return { perf: null as PerformanceDTO | null, events: [] as ReturnType<typeof parseMilestoneEvents> }
     // 評価済み通し演奏を古い順に見て「その時点で過去最高を超えたか」を判定 (初回は対象外)。
     const fulls = performances
       .filter((p) => p.rangeFromNote == null && p.pitchAccuracy != null && p.timingAccuracy != null)
@@ -2811,7 +2808,7 @@ export default function ScoreDetail({
         {infoSlot}
 
         {/* 祝いバナー (§2.1): done演奏に対し常に同一・節目を読まない。タップで振り返りへ。 */}
-        {CELEBRATION_ENABLED && celebrationPerf && !celebAlreadyShown && (
+        {celebrationPerf && !celebAlreadyShown && (
           <CelebrationBanner name={score.title} onOpen={() => handleTabChange("review")} />
         )}
 
@@ -3259,7 +3256,7 @@ export default function ScoreDetail({
       )}
 
       {/* 祝いオーバーレイ (§2.2): 振り返りを開いた瞬間に発動。Error Boundary で通常結果に必ずフォールバック。 */}
-      {CELEBRATION_ENABLED && activeTab === "review" && celebrationPerf && !celebAlreadyShown && celebEvents.length > 0 && (
+      {activeTab === "review" && celebrationPerf && !celebAlreadyShown && celebEvents.length > 0 && (
         <CelebrationBoundary>
           <MilestoneCelebration
             events={celebEvents}

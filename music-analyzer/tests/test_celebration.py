@@ -3,9 +3,7 @@
 
 - derive_score_milestone_events: ID照合方式 (achieve/master/rank_up)。再解析でも同一結果。
 - recompute_practice_mastery   : 直近5回平均90の境界・日常は降格しない。
-- _run_celebration_v2          : CELEBRATION_WRITE_ENABLED=false で書き込みが一切発生しない。
 """
-import os
 from datetime import datetime
 
 from lib.achievement import (
@@ -141,20 +139,3 @@ def test_recompute_recompute_mode_demotes():
     cur = Cur(_recompute_routes(5, 80.0, 12, True))
     assert recompute_practice_mastery(cur, "u", "i", allow_demotion=True) is False
     assert _insert_next_mastered(cur) is False  # 降格
-
-
-# ─── WRITE フラグ ─────────────────────────────────────────────────────────
-
-def test_write_flag_off_no_writes(monkeypatch):
-    from lib import __init__  # noqa: F401 (パッケージ確認)
-    import loop_engine_runner as runner
-
-    class ExplodingConn:
-        def cursor(self):
-            raise AssertionError("フラグOFF時に cursor が呼ばれてはいけない")
-
-    monkeypatch.delenv("CELEBRATION_WRITE_ENABLED", raising=False)
-    # 例外を出さずに即 return する (書き込みゼロ)
-    runner._run_celebration_v2(
-        ExplodingConn(), user_id="u", performance_id=PERF, is_practice=False, score_id="s"
-    )

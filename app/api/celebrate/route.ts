@@ -3,10 +3,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
-import { CELEBRATION_ENABLED } from "@/app/_libs/featureFlags"
 
 export async function POST(request: NextRequest) {
-  if (!CELEBRATION_ENABLED) return NextResponse.json({ ok: false, disabled: true })
   const auth = await requireAuthApi()
   if (!auth.ok) return auth.response
   const userId = auth.user.dbUser.id
