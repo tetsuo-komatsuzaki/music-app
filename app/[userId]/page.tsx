@@ -444,15 +444,42 @@ export default async function HomePage({ params }: PageProps) {
           select: { scoreId: true },
         })
       : null
-    const achieved =
-      !!onbSong?.scoreId && scoreAchievements.some((a) => a.scoreId === onbSong.scoreId)
+    // 目標曲を group 単位に解決 (2026-07-26 変種整合): リンク先が変種グループなら
+    // 現在★に最も近い変種へリンク。達成判定はグループ内いずれかの変種で成立。
+    let goalScoreId: string | null = onbSong?.scoreId ?? null
+    let achieved = false
+    if (onbSong?.scoreId) {
+      const linked = await prisma.score.findUnique({
+        where: { id: onbSong.scoreId },
+        select: { groupId: true },
+      })
+      if (linked?.groupId) {
+        const variants = await prisma.score.findMany({
+          where: { groupId: linked.groupId, deletedAt: null },
+          select: { id: true, star: true },
+        })
+        if (variants.length) {
+          goalScoreId = variants
+            .slice()
+            .sort(
+              (a, b) =>
+                Math.abs((a.star ?? 99) - currentStar) - Math.abs((b.star ?? 99) - currentStar) ||
+                a.id.localeCompare(b.id),
+            )[0].id
+        }
+        const variantIds = new Set(variants.map((v) => v.id))
+        achieved = scoreAchievements.some((a) => variantIds.has(a.scoreId))
+      } else {
+        achieved = scoreAchievements.some((a) => a.scoreId === onbSong.scoreId)
+      }
+    }
     const pred = onbAnswers.q6
       ? estimatePeriod(currentStar, onbAnswers.q4star, onbAnswers.q6)
       : null
     journeyMap = {
       songName: onbAnswers.q4song,
       songStar: onbAnswers.q4star,
-      songHref: onbSong?.scoreId ? `/${userId}/scores/${onbSong.scoreId}` : null,
+      songHref: goalScoreId ? `/${userId}/scores/${goalScoreId}` : null,
       achieved,
       periodLabel: achieved ? null : (pred?.label ?? null),
       daily: onbAnswers.q6 ?? null,
@@ -469,15 +496,23 @@ export default async function HomePage({ params }: PageProps) {
       where: { userId: internalUserId },
       orderBy: { createdAt: "desc" },
       select: {
-        score: { select: { id: true, title: true, coverImagePath: true } },
-        practiceItem: { select: { id: true, title: true, category: true, coverImagePath: true } },
+        score: { select: { id: true, title: true, coverImagePath: true, groupId: true } },
+        practiceItem: { select: { id: true, title: true, category: true, coverImagePath: true, groupId: true } },
       },
     })
+    // 同一グループ(曲/教材)の変種は1つに集約して表示 (2026-07-26 パート/変種整合)。groupId=null は id で一意扱い。
+    const seenFavGroups = new Set<string>()
     favorites = favoriteRows.flatMap((f) => {
       if (f.score) {
+        const key = `s:${f.score.groupId ?? f.score.id}`
+        if (seenFavGroups.has(key)) return []
+        seenFavGroups.add(key)
         return [{ id: f.score.id, title: f.score.title, category: "score", cover: f.score.coverImagePath, href: `/${userId}/scores/${f.score.id}` }]
       }
       if (f.practiceItem) {
+        const key = `p:${f.practiceItem.groupId ?? f.practiceItem.id}`
+        if (seenFavGroups.has(key)) return []
+        seenFavGroups.add(key)
         return [{ id: f.practiceItem.id, title: f.practiceItem.title, category: f.practiceItem.category, cover: f.practiceItem.coverImagePath, href: `/${userId}/practice/${f.practiceItem.category}/${f.practiceItem.id}` }]
       }
       return []
