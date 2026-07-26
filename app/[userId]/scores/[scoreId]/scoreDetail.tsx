@@ -715,12 +715,25 @@ function AxisMini({ name, color, series }: { name: string; color: string; series
   )
 }
 
-function ProgressTrajectory({ performances }: { performances: PerformanceDTO[] }) {
+function ProgressTrajectory({
+  performances,
+  partId,
+  title,
+}: {
+  performances: PerformanceDTO[]
+  /** 指定時: そのパート(partId一致の区間録音)だけの推移。未指定: 通し(区間非算入)。 */
+  partId?: string
+  title?: string
+}) {
   const [axis, setAxis] = useState<TrajAxis>("total")
 
-  // 評価済み・通し演奏のみ、古い順。区間録音(rangeFromNote != null)は非算入。
+  // partId指定=そのパートの区間録音のみ / 未指定=通し演奏のみ(区間非算入)。いずれも評価済み・古い順。
   const evaluated = performances
-    .filter((p) => p.rangeFromNote == null && p.pitchAccuracy != null && p.timingAccuracy != null)
+    .filter((p) =>
+      (partId ? p.partId === partId : p.rangeFromNote == null) &&
+      p.pitchAccuracy != null &&
+      p.timingAccuracy != null,
+    )
     .slice()
     .sort((a, b) => new Date(a.uploadedAt).getTime() - new Date(b.uploadedAt).getTime())
 
@@ -765,7 +778,7 @@ function ProgressTrajectory({ performances }: { performances: PerformanceDTO[] }
 
   return (
     <div className={styles.card}>
-      <h3 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 800 }}>上達のようす</h3>
+      <h3 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 800 }}>{title ?? "上達のようす"}</h3>
 
       <div style={{ display: "flex", alignItems: "flex-end", gap: 12, marginBottom: 12 }}>
         <div>
@@ -2783,6 +2796,13 @@ export default function ScoreDetail({
                 選択中のパートの範囲で録音します（部分採点・曲の達成には非算入）。
               </div>
             )}
+          </div>
+        )}
+
+        {/* パート振り返り: 選択中パートの推移のみ (おすすめ教材/学びポイントは出さない・点数のみ)。2026-07-26 */}
+        {isScoreMode && selectedPartId != null && (
+          <div style={{ marginBottom: 10 }}>
+            <ProgressTrajectory performances={performances} partId={selectedPartId} title="このパートの上達" />
           </div>
         )}
 
