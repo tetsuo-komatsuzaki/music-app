@@ -2691,18 +2691,38 @@ export default function ScoreDetail({
       if (shown.size) setCelebShown((s) => new Set([...s, ...shown]))
     } catch {}
   }, [performances])
-  const celebrationPerf = useMemo(() => {
-    if (!CELEBRATION_ENABLED) return null
+  // milestone(Python導出) に加え、自己ベスト(過去最高更新)をフロントで合成する (§1・personal_best)。
+  const celebration = useMemo(() => {
+    if (!CELEBRATION_ENABLED) return { perf: null as PerformanceDTO | null, events: [] as ReturnType<typeof parseMilestoneEvents> }
+    // 評価済み通し演奏を古い順に見て「その時点で過去最高を超えたか」を判定 (初回は対象外)。
+    const fulls = performances
+      .filter((p) => p.rangeFromNote == null && p.pitchAccuracy != null && p.timingAccuracy != null)
+      .slice()
+      .sort((a, b) => new Date(a.uploadedAt).getTime() - new Date(b.uploadedAt).getTime())
+    const bestFlag = new Map<string, boolean>()
+    let prevMax = -Infinity
+    let hasPrior = false
+    for (const p of fulls) {
+      const s = performanceScore(p) ?? 0
+      bestFlag.set(p.id, hasPrior && s > prevMax)
+      if (s > prevMax) prevMax = s
+      hasPrior = true
+    }
+    // 候補 = milestoneイベントあり or 自己ベスト。最新を採用。
     const cands = performances
-      .filter((p) => p.analysisStatus === "done" && parseMilestoneEvents(p.analysisSummary).length > 0)
+      .filter((p) =>
+        p.analysisStatus === "done" &&
+        (parseMilestoneEvents(p.analysisSummary).length > 0 || bestFlag.get(p.id)))
       .slice()
       .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
-    return cands[0] ?? null
+    const perf = cands[0] ?? null
+    if (!perf) return { perf: null, events: [] }
+    const events = parseMilestoneEvents(perf.analysisSummary)
+    if (bestFlag.get(perf.id)) events.push({ type: "personal_best", tier: "medium", payload: {} })
+    return { perf, events }
   }, [performances])
-  const celebEvents = useMemo(
-    () => (celebrationPerf ? parseMilestoneEvents(celebrationPerf.analysisSummary) : []),
-    [celebrationPerf],
-  )
+  const celebrationPerf = celebration.perf
+  const celebEvents = celebration.events
   const celebAlreadyShown = !celebrationPerf || celebShown.has(celebrationPerf.id)
   const closeCelebration = useCallback(() => {
     const perf = celebrationPerf
