@@ -13,6 +13,7 @@ import { autoLinkOnboardingSongs } from "../_libs/onboardingSongLink"
 import { isSongGenre } from "../_libs/songGenre"
 import { ensureScoreGroup } from "../_libs/materialGroup"
 import { isDifficulty } from "../_libs/materialVariant"
+import { parseParts, validateParts, type Part } from "../_libs/materialParts"
 
 const VALID_SUB_TASK_IDS = new Set<string>(SUB_TASK_IDS as readonly string[])
 
@@ -55,6 +56,13 @@ export async function uploadScore(formData: FormData) {
   const joinGroupId = (formData.get("groupId") as string | null)?.trim() || ""
   const difficultyRaw = (formData.get("difficulty") as string | null)?.trim() || ""
   const difficulty = isDifficulty(difficultyRaw) ? difficultyRaw : null
+
+  // パート分け (2026-07-26): アップロード時に parts を任意個入力 (案b)。パートは曲(グループ)単位。
+  const partsRaw = (formData.get("parts") as string | null)?.trim() || ""
+  let partsInput: Part[] = []
+  if (partsRaw) {
+    try { partsInput = parseParts(JSON.parse(partsRaw)) } catch { partsInput = [] }
+  }
 
   // v1.6 Phase 4-3 (Q4=B): admin Score 登録時に ScoreTechniqueTag を作成 (Q4=A 確定で既存セレクタ流用)。
   // payload: [{ id: string, isPrimary: boolean }, ...] の JSON 文字列。
@@ -192,6 +200,24 @@ export async function uploadScore(formData: FormData) {
     if (!joinedExistingGroup) await ensureScoreGroup(score.id)
   } catch (e) {
     console.error(`[group] score ${score.id} グループ紐付け失敗:`, e instanceof Error ? e.message : e)
+  }
+
+  // パートは曲(グループ)単位に保存 (難易度共通)。入力があるときだけ更新 (変種追加時に既存partsを消さない)。
+  if (partsInput.length > 0 && validateParts(partsInput) == null) {
+    try {
+      const withGroup = await prisma.score.findUnique({
+        where: { id: score.id },
+        select: { groupId: true },
+      })
+      if (withGroup?.groupId) {
+        await prisma.materialGroup.update({
+          where: { id: withGroup.groupId },
+          data: { parts: partsInput as unknown as Prisma.InputJsonValue },
+        })
+      }
+    } catch (e) {
+      console.error(`[parts] score ${score.id} parts保存失敗:`, e instanceof Error ? e.message : e)
+    }
   }
 
   // AIカバーを応答後に非同期生成 (アップロードを遅らせない)。失敗しても致命的でない。

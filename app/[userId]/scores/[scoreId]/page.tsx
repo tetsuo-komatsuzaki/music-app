@@ -8,6 +8,7 @@ import { uploadRecord } from "@/app/actions/uploadRecord"
 import LessonGateBanner from "./LessonGateBanner"
 import { getLessonInventory, getUserLessonState, tagId } from "@/app/_libs/lessonStatus"
 import { LESSON_BY_TAG } from "@/app/[userId]/lessons/_lib/content"
+import { parseParts } from "@/app/_libs/materialParts"
 
 export async function generateMetadata({
   params,
@@ -46,6 +47,18 @@ export default async function Page({
   if (score.createdById !== dbUser.id && !score.isShared) {
     return <div>このスコアへのアクセス権がありません</div>
   }
+
+  // パート分け (2026-07-26): パートは曲(グループ)単位に保存されている。
+  const groupParts = score.groupId
+    ? parseParts(
+        (
+          await prisma.materialGroup.findUnique({
+            where: { id: score.groupId },
+            select: { parts: true },
+          })
+        )?.parts,
+      )
+    : []
 
   // 解析・ビルド未完了なら準備中 / エラー画面 (3 秒ごとに RSC を再取得)
   if (score.analysisStatus !== "done" || score.buildStatus !== "done") {
@@ -216,6 +229,7 @@ export default async function Page({
         userId={userId}
         analysis={analysisData}
         uploadAction={uploadRecord}
+        parts={groupParts}
         buildUrl={buildUrl}
         performanceCount={performanceCount}
         latestPitchAccuracy={latestPerf?.pitchAccuracy ?? null}

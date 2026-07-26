@@ -179,6 +179,10 @@ model Performance {
   rangeFromNote Int?
   rangeToNote   Int?
 
+  // ▼ パート分け (2026-07-26): この区間録音がどのパート(MaterialGroup.parts[].id)か。
+  // null = 通常/自由区間。非null = 名前付きパートの練習 → パート別の自己ベスト/推移の集計キー。
+  partId String?
+
   // ▼ v1.3 上達ループエンジン拡張 (R1 = B: pitch/rhythm/bowing 体系)
   // 旧 timingAccuracy は Phase 2 で rhythmAccuracy にリネーム予定 (案 Y)。
   // 移行期間中は両カラムを併存 (timingAccuracy は legacy、rhythmAccuracy が正)。
@@ -291,6 +295,9 @@ model MaterialGroup {
   genre          String? // 曲のみ (songGenre.ts の id)
   coverImagePath String? // カバーはグループ単位に集約 (ファイル単位から移行)
   sortOrder      Int            @default(0)
+  // ▼ パート分け (2026-07-26): 曲の「◯小節〜◯小節=Part」の範囲リスト(難易度共通・任意個・任意スポット)。
+  // [{ id, name, startMeasure, endMeasure, order }]。null=分割なし(通しのみ)。詳細=materialParts.ts
+  parts          Json?
   scores         Score[]
   practiceItems  PracticeItem[]
   createdAt      DateTime       @default(now())

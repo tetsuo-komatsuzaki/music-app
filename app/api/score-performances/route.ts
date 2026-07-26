@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
       analysisSummary: true,
       rangeFromNote: true,
       rangeToNote: true,
+      partId: true,
     },
   })
 
@@ -60,6 +61,7 @@ export async function GET(request: NextRequest) {
           analysisSummary: p.analysisSummary,
           rangeFromNote: p.rangeFromNote,
           rangeToNote: p.rangeToNote,
+          partId: p.partId,
           comparisonResult: null,
           comparisonWarnings: [],
         }
@@ -114,6 +116,7 @@ export async function GET(request: NextRequest) {
         analysisSummary: p.analysisSummary,
         rangeFromNote: p.rangeFromNote,
         rangeToNote: p.rangeToNote,
+        partId: p.partId,
         comparisonResult,
         comparisonWarnings,
       }

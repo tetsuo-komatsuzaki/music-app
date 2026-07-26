@@ -147,6 +147,18 @@ export default function AdminPractice({
   const [articulation, setArticulation] = useState("") // 基礎練
   const isScoreCategory = category === "score"
 
+  // パート分け (2026-07-26): 曲アップロード時に任意個のパート範囲を入力 (案b)。パートは曲(グループ)単位。
+  type PartRow = { id: string; name: string; startMeasure: string; endMeasure: string }
+  const [parts, setParts] = useState<PartRow[]>([])
+  const addPartRow = () =>
+    setParts((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), name: "", startMeasure: "", endMeasure: "" },
+    ])
+  const updatePartRow = (id: string, patch: Partial<PartRow>) =>
+    setParts((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)))
+  const removePartRow = (id: string) => setParts((prev) => prev.filter((p) => p.id !== id))
+
   // インライン編集 state
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editDifficulty, setEditDifficulty] = useState<string>("")
@@ -437,6 +449,27 @@ export default function AdminPractice({
     // 教材グループ・変種 (Phase B): 既存グループに変種追加なら groupId、軸=difficulty/articulation
     if (groupMode === "existing" && joinGroupId) formData.set("groupId", joinGroupId)
     if (usesDifficulty(category)) formData.set("difficulty", difficulty)
+
+    // パート分け (曲のみ): 入力があれば JSON で送る。id は入力時に採番済み(固定)。
+    if (isScoreCategory && parts.length > 0) {
+      const payload = parts
+        .map((p, i) => ({
+          id: p.id,
+          name: p.name.trim(),
+          startMeasure: Number.parseInt(p.startMeasure, 10),
+          endMeasure: Number.parseInt(p.endMeasure, 10),
+          order: i,
+        }))
+        .filter(
+          (p) =>
+            p.name !== "" &&
+            Number.isInteger(p.startMeasure) &&
+            Number.isInteger(p.endMeasure) &&
+            p.startMeasure >= 1 &&
+            p.endMeasure >= p.startMeasure,
+        )
+      if (payload.length > 0) formData.set("parts", JSON.stringify(payload))
+    }
     if (usesArticulation(category)) formData.set("articulation", articulation)
 
     try {
@@ -474,6 +507,7 @@ export default function AdminPractice({
         setDifficultyInput(""); setSelectedSubTasks(new Set())
         setScoreIsShared(true); setScoreGenre("")
         setGroupMode("new"); setJoinGroupId(""); setDifficulty(""); setArticulation("")
+        setParts([])
         window.location.reload()
       }
     } catch (e) {
@@ -628,6 +662,46 @@ export default function AdminPractice({
                   <option value="">未設定（基本／レガート）</option>
                   {ARTICULATIONS.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
                 </select>
+              </div>
+            )}
+
+            {/* パート分け (曲のみ・任意・小節範囲・グループ共通)。2026-07-26 */}
+            {isScoreCategory && (
+              <div className={styles.field}>
+                <label>パート分け（任意・小節範囲）</label>
+                <div style={{ fontSize: 12, color: "#888", marginBottom: 6 }}>
+                  サビ・難所など練習させたい区間を「◯小節〜◯小節」で登録。曲(グループ)共通・難易度に依存しません。
+                </div>
+                {parts.map((p) => (
+                  <div key={p.id} style={{ display: "flex", gap: 6, marginBottom: 6, alignItems: "center" }}>
+                    <input
+                      placeholder="名前(例: サビ)"
+                      value={p.name}
+                      onChange={(e) => updatePartRow(p.id, { name: e.target.value })}
+                      style={{ flex: 1, minWidth: 0 }}
+                    />
+                    <input
+                      type="number" min={1} placeholder="開始"
+                      value={p.startMeasure}
+                      onChange={(e) => updatePartRow(p.id, { startMeasure: e.target.value })}
+                      style={{ width: 64 }}
+                    />
+                    <span>〜</span>
+                    <input
+                      type="number" min={1} placeholder="終了"
+                      value={p.endMeasure}
+                      onChange={(e) => updatePartRow(p.id, { endMeasure: e.target.value })}
+                      style={{ width: 64 }}
+                    />
+                    <span style={{ fontSize: 11, color: "#999" }}>小節</span>
+                    <button type="button" onClick={() => removePartRow(p.id)} style={{ padding: "2px 8px" }}>
+                      削除
+                    </button>
+                  </div>
+                ))}
+                <button type="button" onClick={addPartRow} style={{ padding: "4px 10px", fontSize: 13 }}>
+                  ＋ パートを追加
+                </button>
               </div>
             )}
 

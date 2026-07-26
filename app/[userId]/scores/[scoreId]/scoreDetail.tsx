@@ -20,6 +20,7 @@ import PerformanceSkeleton from "@/app/components/PerformanceSkeleton"
 import PerformanceSkillDetail from "@/app/components/PerformanceSkillDetail"
 import { getSignedUploadUrl } from "@/app/actions/getSignedUploadUrl"
 import { renamePerformance } from "@/app/actions/renamePerformance"
+import { resolvePartToNoteRange, type Part } from "@/app/_libs/materialParts"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 
@@ -61,12 +62,15 @@ type PerformanceDTO = {
   // 区間録音 (部分練習 Phase 2): 非null = 区間演奏。曲の公式スコアには非算入・履歴で「区間」表示。
   rangeFromNote?: number | null
   rangeToNote?: number | null
+  // パート分け (2026-07-26): 区間がどの名前付きパートか。パート別 自己ベスト/推移の集計キー。
+  partId?: string | null
 }
 
 // analysis.json (analyze_musicxml.py) の音符。記号ガイド用のフィールドは
 // 以前から書き出されていたが型に載っていなかったため、任意項目として追加 (2026-07-25)。
 type AnalysisNote = {
   note_index: number
+  measure_number?: number // パート(小節範囲)→音符範囲の解決に使う (2026-07-26)
   type: string
   pitches: number[]
   start_time_sec: number
@@ -103,7 +107,7 @@ type Props = {
    * 現状は呼び出し側 (page.tsx) でアダプター経由の呼び出しを行う。
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  uploadAction: (params: { performanceId: string; recordingBpm?: number; rangeFromNote?: number; rangeToNote?: number }) => Promise<any>
+  uploadAction: (params: { performanceId: string; recordingBpm?: number; rangeFromNote?: number; rangeToNote?: number; partId?: string }) => Promise<any>
   performanceCount: number
   latestPitchAccuracy: number | null
   infoSlot?: React.ReactNode
@@ -112,6 +116,8 @@ type Props = {
   practiceItemId?: string
   /** お気に入り初期状態 (曲/教材) */
   initialFavorite?: boolean
+  /** パート分け (2026-07-26): 曲(グループ)共通のパート範囲リスト。空=分割なし(通しのみ) */
+  parts?: Part[]
 }
 
 // =========================================================
@@ -1067,6 +1073,7 @@ export default function ScoreDetail({
   singleStaffLine,
   practiceItemId,
   initialFavorite,
+  parts = [],
 }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -1158,6 +1165,11 @@ export default function ScoreDetail({
   // recording=進行中の録音に確定した区間 (アップロード時に読む)。null = 通常の全体録音。
   const pendingRangeRef = useRef<{ from: number; to: number } | null>(null)
   const recordingRangeRef = useRef<{ from: number; to: number } | null>(null)
+  // パート分け (2026-07-26): 区間がどの名前付きパートか。pending→recording は区間と同じタイミングで確定。
+  const pendingPartIdRef = useRef<string | null>(null)
+  const recordingPartIdRef = useRef<string | null>(null)
+  // 現在選択中のパート (UI表示用)。null = 通し。
+  const [selectedPartId, setSelectedPartId] = useState<string | null>(null)
   const recGuideOffsetSecRef = useRef<number>(0) // 録音ガイドの開始オフセット秒 (区間先頭ノートの開始秒)
   // 区間録音の自動停止 (2c): この実経過秒に達したら録音を止める。全体録音は Infinity (末尾停止は別effect)。
   const recGuideStopAtRealSecRef = useRef<number>(Infinity)
@@ -1401,6 +1413,8 @@ export default function ScoreDetail({
     // 3. 解析起動を通知 (区間録音ならこの録音に確定した区間を渡す → Python が部分採点)
     const activeRange = recordingRangeRef.current
     recordingRangeRef.current = null
+    const activePartId = recordingPartIdRef.current
+    recordingPartIdRef.current = null
     recGuideOffsetSecRef.current = 0
     recGuideStopAtRealSecRef.current = Infinity
     const notifyResult = await uploadAction({
@@ -1408,6 +1422,7 @@ export default function ScoreDetail({
       recordingBpm: recordingBpmRef.current,
       rangeFromNote: activeRange?.from,
       rangeToNote: activeRange?.to,
+      partId: activePartId ?? undefined,
     })
     // エラー分類 3: 解析起動失敗 (録音は Storage に保存済み)
     if (notifyResult?.error) {
@@ -2618,6 +2633,33 @@ export default function ScoreDetail({
     </div>
   )
   // 上達の推移 (上達のようす)。個別演奏の一覧はこの下に「すべての演奏を見る」で畳む。
+  // パート分け (2026-07-26): パートを選ぶと、そのパートの音符範囲を区間として確定 (次の録音が部分採点+partId付与)。
+  const selectPart = (part: Part | null) => {
+    if (!part || !analysis) {
+      setSelectedPartId(null)
+      pendingPartIdRef.current = null
+      pendingRangeRef.current = null
+      setRangeStart(null)
+      setRangeEnd(null)
+      return
+    }
+    const nr = resolvePartToNoteRange(part, analysis.notes)
+    if (!nr) return // このアレンジには該当小節の音符が無い
+    setSelectedPartId(part.id)
+    pendingPartIdRef.current = part.id
+    pendingRangeRef.current = { from: nr.rangeFromNote, to: nr.rangeToNote }
+    setRangeStart(nr.rangeFromNote)
+    setRangeEnd(nr.rangeToNote)
+  }
+  // パート別 自己ベスト (partId 一致の区間録音の最高点)
+  const partBest = (pid: string): number | null => {
+    const ss = performances
+      .filter((p) => p.partId === pid && p.pitchAccuracy != null && p.timingAccuracy != null)
+      .map((p) => performanceScore(p))
+      .filter((s): s is number => s != null)
+    return ss.length ? Math.max(...ss) : null
+  }
+
   const trajectoryBlock = <ProgressTrajectory performances={performances} />
   const performanceHistoryBlock = (
     <div data-onboarding="scoreDetail.performanceHistory">
@@ -2690,6 +2732,59 @@ export default function ScoreDetail({
       {activeTab === "play" && (
       <div className={styles.playStack} data-section="play-tab">
         {infoSlot}
+
+        {/* パート練習 (曲にパートがある時のみ)。選ぶとその範囲だけを録音・部分採点し partId を付与。
+            右に各パートの自己ベスト。おすすめ非表示・点数のみは振り返り側の仕様 (2026-07-26)。 */}
+        {isScoreMode && parts.length > 0 && analysis && (
+          <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 12, padding: "11px 13px", marginBottom: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#3a4653", marginBottom: 8 }}>🎯 パート練習</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+              <button
+                type="button"
+                onClick={() => selectPart(null)}
+                style={{
+                  border: `1.5px solid ${selectedPartId == null ? "#2e8b57" : "#e3e9f0"}`,
+                  background: selectedPartId == null ? "#eef7f1" : "#fff",
+                  color: "#2b3742", borderRadius: 999, padding: "6px 12px", fontSize: 12.5, fontWeight: 700, cursor: "pointer",
+                }}
+              >
+                通し
+              </button>
+              {parts.map((p) => {
+                const resolvable = resolvePartToNoteRange(p, analysis.notes) != null
+                const best = partBest(p.id)
+                const on = selectedPartId === p.id
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    disabled={!resolvable}
+                    onClick={() => selectPart(p)}
+                    title={resolvable ? "" : "この難易度には該当小節がありません"}
+                    style={{
+                      border: `1.5px solid ${on ? "#2e8b57" : "#e3e9f0"}`,
+                      background: on ? "#eef7f1" : "#fff",
+                      color: resolvable ? "#2b3742" : "#b3bcc6",
+                      borderRadius: 999, padding: "6px 12px", fontSize: 12.5, fontWeight: 700,
+                      cursor: resolvable ? "pointer" : "not-allowed",
+                      display: "inline-flex", alignItems: "center", gap: 7,
+                    }}
+                  >
+                    <span>{p.name}</span>
+                    {best != null && (
+                      <span style={{ fontSize: 11, fontWeight: 800, color: "#2e8b57" }}>{best}点</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+            {selectedPartId != null && (
+              <div style={{ fontSize: 11, color: "#9aa6b3", marginTop: 7 }}>
+                選択中のパートの範囲で録音します（部分採点・曲の達成には非算入）。
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 過去の演奏セレクタ: 選ぶと譜面にその演奏のフィードバックを色表示 + 右にスコア。名前編集も。 */}
         {performances.length > 0 && (
@@ -3023,6 +3118,9 @@ export default function ScoreDetail({
               const r = pendingRangeRef.current
               pendingRangeRef.current = null
               recordingRangeRef.current = r
+              // パート: 区間と同じタイミングで確定 (区間が無ければパートも無し)
+              recordingPartIdRef.current = r ? pendingPartIdRef.current : null
+              pendingPartIdRef.current = null
               if (r && analysis) {
                 const startSec = analysis.notes[r.from]?.start_time_sec ?? 0
                 const endSec = analysis.notes[r.to]?.end_time_sec ?? startSec

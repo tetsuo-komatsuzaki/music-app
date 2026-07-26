@@ -22,6 +22,9 @@ export async function uploadRecord(params: {
   // 未指定 = 通常の全体演奏。指定時は Python が区間だけを部分採点し、曲の公式スコア/マスターには非算入。
   rangeFromNote?: number
   rangeToNote?: number
+  // パート分け (2026-07-26): この区間録音が名前付きパート(MaterialGroup.parts[].id)なら partId。
+  // 区間(rangeFromNote/To)と一緒に保存し、パート別の自己ベスト/推移の集計キーにする。
+  partId?: string
 }) {
   // 1. 認証
   const supabase = await createServerSupabaseClient()
@@ -58,9 +61,10 @@ export async function uploadRecord(params: {
     Number.isInteger(rf) && Number.isInteger(rt) &&
     (rf as number) >= 0 && (rt as number) >= (rf as number) + 2
   if (validRange) {
+    const partId = typeof params.partId === "string" && params.partId ? params.partId : null
     await prisma.performance.update({
       where: { id: performance.id },
-      data: { rangeFromNote: rf, rangeToNote: rt },
+      data: { rangeFromNote: rf, rangeToNote: rt, partId },
     })
   }
 
