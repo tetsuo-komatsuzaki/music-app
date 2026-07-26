@@ -21,6 +21,11 @@ import PerformanceSkillDetail from "@/app/components/PerformanceSkillDetail"
 import { getSignedUploadUrl } from "@/app/actions/getSignedUploadUrl"
 import { renamePerformance } from "@/app/actions/renamePerformance"
 import { resolvePartToNoteRange, type Part } from "@/app/_libs/materialParts"
+import { CELEBRATION_ENABLED } from "@/app/_libs/featureFlags"
+import { parseMilestoneEvents } from "@/app/_libs/celebration"
+import CelebrationBanner from "@/app/components/CelebrationBanner"
+import MilestoneCelebration from "@/app/components/MilestoneCelebration"
+import CelebrationBoundary from "@/app/components/CelebrationBoundary"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 
@@ -1506,7 +1511,8 @@ export default function ScoreDetail({
     if (p && p.analysisStatus === "done" && p.pitchAccuracy != null && p.timingAccuracy != null) {
       justRecordedRef.current = null
       try { sessionStorage.removeItem("arcoPending") } catch {}
-      setArcoResult(p)
+      // 祝い体験 v2.0 (§2): 自動全画面は廃止しバナー方式へ。フラグON時は自動オーバーレイを出さない。
+      if (!CELEBRATION_ENABLED) setArcoResult(p)
     }
   }, [performances])
 
@@ -2673,6 +2679,43 @@ export default function ScoreDetail({
     return ss.length ? Math.max(...ss) : null
   }
 
+  // ── 祝い体験 v2.0 (§2): バナー → 振り返りを開いた瞬間に祝い。CELEBRATION_ENABLED でゲート ──
+  const [celebShown, setCelebShown] = useState<Set<string>>(new Set())
+  useEffect(() => {
+    if (!CELEBRATION_ENABLED) return
+    try {
+      const shown = new Set<string>()
+      for (const p of performances) {
+        if (sessionStorage.getItem(`celebShown:${p.id}`) === "1") shown.add(p.id)
+      }
+      if (shown.size) setCelebShown((s) => new Set([...s, ...shown]))
+    } catch {}
+  }, [performances])
+  const celebrationPerf = useMemo(() => {
+    if (!CELEBRATION_ENABLED) return null
+    const cands = performances
+      .filter((p) => p.analysisStatus === "done" && parseMilestoneEvents(p.analysisSummary).length > 0)
+      .slice()
+      .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
+    return cands[0] ?? null
+  }, [performances])
+  const celebEvents = useMemo(
+    () => (celebrationPerf ? parseMilestoneEvents(celebrationPerf.analysisSummary) : []),
+    [celebrationPerf],
+  )
+  const celebAlreadyShown = !celebrationPerf || celebShown.has(celebrationPerf.id)
+  const closeCelebration = useCallback(() => {
+    const perf = celebrationPerf
+    if (!perf) return
+    try { sessionStorage.setItem(`celebShown:${perf.id}`, "1") } catch {}
+    setCelebShown((s) => new Set(s).add(perf.id))
+    fetch("/api/celebrate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(practiceItemId ? { practiceItemId } : { scoreId: score.id }),
+    }).catch(() => {})
+  }, [celebrationPerf, practiceItemId, score.id])
+
   const trajectoryBlock = <ProgressTrajectory performances={performances} />
   const performanceHistoryBlock = (
     <div data-onboarding="scoreDetail.performanceHistory">
@@ -2745,6 +2788,11 @@ export default function ScoreDetail({
       {activeTab === "play" && (
       <div className={styles.playStack} data-section="play-tab">
         {infoSlot}
+
+        {/* 祝いバナー (§2.1): done演奏に対し常に同一・節目を読まない。タップで振り返りへ。 */}
+        {CELEBRATION_ENABLED && celebrationPerf && !celebAlreadyShown && (
+          <CelebrationBanner name={score.title} onOpen={() => handleTabChange("review")} />
+        )}
 
         {/* パート練習 (曲にパートがある時のみ)。選ぶとその範囲だけを録音・部分採点し partId を付与。
             右に各パートの自己ベスト。おすすめ非表示・点数のみは振り返り側の仕様 (2026-07-26)。 */}
@@ -3187,6 +3235,22 @@ export default function ScoreDetail({
           onClose={() => { setArcoResult(null); if (isScoreMode) handleTabChange("review") }}
           onGoReview={isScoreMode ? () => { setArcoResult(null); handleTabChange("review") } : undefined}
         />
+      )}
+
+      {/* 祝いオーバーレイ (§2.2): 振り返りを開いた瞬間に発動。Error Boundary で通常結果に必ずフォールバック。 */}
+      {CELEBRATION_ENABLED && activeTab === "review" && celebrationPerf && !celebAlreadyShown && celebEvents.length > 0 && (
+        <CelebrationBoundary>
+          <MilestoneCelebration
+            events={celebEvents}
+            tone="child"
+            subjectName={score.title}
+            star={null}
+            dateLabel={new Date(celebrationPerf.uploadedAt).toLocaleDateString("ja-JP").replace(/\//g, ".")}
+            onClose={closeCelebration}
+            onSeeRecords={() => { closeCelebration(); router.push(`/${userId}/records`) }}
+            onNewPieces={() => { closeCelebration(); router.push(`/${userId}/practice/pieces`) }}
+          />
+        </CelebrationBoundary>
       )}
 
       <OnboardingTrigger pageKey={practiceItemId ? "practiceItem" : "scoreDetail"} />

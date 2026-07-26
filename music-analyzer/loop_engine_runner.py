@@ -284,6 +284,81 @@ def _run_achievement_v2(
         print(f"[loop_engine_runner] WARNING: achievement_v2 failed: {e}")
 
 
+def _run_celebration_v2(
+    conn,
+    *,
+    user_id: str,
+    performance_id: str,
+    is_practice: bool,
+    score_id: str = None,
+    practice_item_id: str = None,
+) -> None:
+    """祝い体験 v2.0 (§4/§5/§6): milestone導出(ID照合) + 教材クリア再計算。
+    CELEBRATION_WRITE_ENABLED='true' のときのみ書き込む(§8)。各書き込みは専用SAVEPOINTで隔離し、
+    失敗は既存の達成/診断/解析本体を巻き添えにしない(§6・警告ログのみ)。診断5.5の後に呼ぶ。
+    """
+    if os.environ.get("CELEBRATION_WRITE_ENABLED") != "true":
+        return
+    try:
+        from lib.achievement import (
+            derive_score_milestone_events,
+            recompute_practice_mastery,
+        )
+        from lib.diagnosis_store import save_performance_milestone
+    except Exception as e:
+        print(f"[loop_engine_runner] WARNING: celebration import failed: {e}")
+        return
+
+    events: list = []
+    # 教材: 直近5回平均90 の再計算 (SAVEPOINT practice_mastery)。日常は降格しない。
+    if is_practice and practice_item_id:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SAVEPOINT practice_mastery")
+                newly = recompute_practice_mastery(
+                    cur, user_id, practice_item_id, allow_demotion=False
+                )
+                cur.execute("RELEASE SAVEPOINT practice_mastery")
+            if newly:
+                events.append({
+                    "type": "material_clear", "tier": "medium",
+                    "subject": {"kind": "material", "id": practice_item_id},
+                })
+        except Exception as e:
+            try:
+                with conn.cursor() as cur:
+                    cur.execute("ROLLBACK TO SAVEPOINT practice_mastery")
+            except Exception:
+                pass
+            print(f"[loop_engine_runner] WARNING: practice_mastery failed: perf={performance_id} {e}")
+    # 曲: ID照合で milestone 導出 (再解析でも同一結果)
+    elif score_id:
+        try:
+            with conn.cursor() as cur:
+                events = derive_score_milestone_events(cur, user_id, score_id, performance_id)
+        except Exception as e:
+            print(f"[loop_engine_runner] WARNING: derive milestone failed: perf={performance_id} {e}")
+            events = []
+
+    # milestone 保存 (SAVEPOINT milestone_save)。空でも {events:[]} を保存し、done+欠落と区別する(§7)。
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SAVEPOINT milestone_save")
+            save_performance_milestone(cur, performance_id, events, is_practice=is_practice)
+            cur.execute("RELEASE SAVEPOINT milestone_save")
+        print(
+            f"[loop_engine_runner] milestone saved: perf={performance_id} "
+            f"events={[e['type'] for e in events]}"
+        )
+    except Exception as e:
+        try:
+            with conn.cursor() as cur:
+                cur.execute("ROLLBACK TO SAVEPOINT milestone_save")
+        except Exception:
+            pass
+        print(f"[loop_engine_runner] WARNING: milestone_save failed: perf={performance_id} {e}")
+
+
 def run_score_mode() -> None:
     """Score 演奏 (IS_PRACTICE=false) のループエンジン実行。"""
     user_id = _require("USER_ID")
@@ -485,6 +560,15 @@ def run_score_mode() -> None:
             score_id=score_id,
         )
 
+        # 5.7. 祝い体験 v2.0: milestone導出+保存 (CELEBRATION_WRITE_ENABLED でゲート・SAVEPOINT隔離)。
+        _run_celebration_v2(
+            conn,
+            user_id=user_internal_id,
+            performance_id=performance_id,
+            is_practice=False,
+            score_id=score_id,
+        )
+
         # (C-6b 2026-07-11) 旧 step 6〜8 (SkillTaskCard生成 / 旧SongMastery+グレード進行 /
         # legacy skill再計算) は削除。判定は step 5.6 の新体系 (achievement_v2) が正。
         # 旧実装は git 履歴 7520842 以前を参照。
@@ -658,6 +742,15 @@ def main() -> None:
 
         # 5.6. 工程D (2026-07-11): 新判定（教材達成+レッスンクリア）。5.5 の後に置く。
         _run_achievement_v2(
+            conn,
+            user_id=user_id,
+            performance_id=performance_id,
+            is_practice=True,
+            practice_item_id=practice_item_id,
+        )
+
+        # 5.7. 祝い体験 v2.0: 教材クリア再計算+milestone保存 (WRITEフラグゲート・SAVEPOINT隔離)。
+        _run_celebration_v2(
             conn,
             user_id=user_id,
             performance_id=performance_id,

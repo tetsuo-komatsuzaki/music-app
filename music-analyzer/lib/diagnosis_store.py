@@ -30,6 +30,23 @@ def save_performance_diagnosis(
     )
 
 
+def save_performance_milestone(
+    cur, performance_id: str, events: list, is_practice: bool = False
+) -> None:
+    """祝い体験 v2.0 (§4.3): milestone イベント配列を analysisSummary にマージ保存する。
+    診断と同じ jsonb `||` マージ (トップレベル "milestone" キーのみ差し替え・他キー保持)。
+    ID照合方式(§4)により再解析でも同一内容が再生成されるため、上書きガードは不要。
+    """
+    table = "PracticePerformance" if is_practice else "Performance"
+    payload = {"milestone": {"version": 1, "events": events}}
+    cur.execute(
+        f'UPDATE "{table}" '
+        f'SET "analysisSummary" = COALESCE("analysisSummary", \'{{}}\'::jsonb) || %s::jsonb '
+        f"WHERE id = %s",
+        (json.dumps(payload, ensure_ascii=False), performance_id),
+    )
+
+
 def bump_user_subtask_counters(cur, user_id: str, per_subtask: dict) -> int:
     """診断の per_subtask カウントを UserSkillSubScore に足し込む（窓②）。
 

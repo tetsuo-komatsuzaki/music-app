@@ -794,6 +794,7 @@ model UserPracticeMastery {
   totalPerformanceCount Int       @default(0)
   isPerformanceMastered Boolean   @default(false)
   masteredAt            DateTime?
+  celebratedAt         DateTime? // 祝い体験 v2.0 (2026-07-26): 教材クリアの祝い既読。バナー消滅の根拠
   updatedAt             DateTime  @updatedAt
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -852,6 +853,9 @@ model UserScoreAchievement {
   starAtAchievement     Int // 達成時の★（Star昇格「同★10曲」の集計キー）
   masteredAt            DateTime? // 達成後 直近5回平均90成立時に刻む（消さない）
   achievedPerformanceId String? // 達成を確定させた演奏（お祝いUI用）
+  // ▼ 祝い体験 v2.0 (2026-07-26)
+  masteredPerformanceId String? // マスターに遷移した演奏ID。masteredAt刻印と同時記録。再解析耐性(ID照合)の根拠
+  celebratedAt          DateTime? // 祝いカード閲覧で記録。バナー消滅・端末をまたぐ一回性の根拠
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   score Score @relation(fields: [scoreId], references: [id], onDelete: Cascade)

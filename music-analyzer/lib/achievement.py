@@ -356,10 +356,12 @@ def process_score_achievement(
         )
         cnt, avg = cur.fetchone()
         if int(cnt) >= MASTER_RECENT_COUNT and avg is not None and float(avg) >= MASTER_AVG:
+            # 祝い体験 v2.0: マスター遷移と同時に masteredPerformanceId を記録 (ID照合の再解析耐性)。
             cur.execute(
-                'UPDATE "UserScoreAchievement" SET "masteredAt" = NOW() '
+                'UPDATE "UserScoreAchievement" '
+                'SET "masteredAt" = NOW(), "masteredPerformanceId" = %s '
                 'WHERE "userId" = %s AND "scoreId" = %s AND "masteredAt" IS NULL',
-                (user_id, score_id),
+                (performance_id, user_id, score_id),
             )
             result["mastered"] = cur.rowcount > 0
 
@@ -392,3 +394,114 @@ def _check_star_up(cur, user_id: str) -> Optional[int]:
         )
         return current + 1
     return None
+
+
+# ─── 祝い体験 v2.0 (2026-07-26・celebrationdesign_v2_0.md) ──────────────────
+
+
+def derive_score_milestone_events(cur, user_id: str, score_id: str, performance_id: str) -> list:
+    """永続化状態から曲の milestone イベントを導出する (§4 ID照合方式)。
+    遷移の観測ではなく状態導出なので、何度再解析しても同じ結果になる。
+    Returns: [{"type","tier","subject","payload"}] 形式のイベント配列。
+    """
+    events: list = []
+    cur.execute(
+        'SELECT "achievedPerformanceId", "masteredPerformanceId", "starAtAchievement", "achievedAt" '
+        'FROM "UserScoreAchievement" WHERE "userId" = %s AND "scoreId" = %s',
+        (user_id, score_id),
+    )
+    row = cur.fetchone()
+    if not row:
+        return events
+    achieved_perf_id, mastered_perf_id, star_at, achieved_at = row
+    subject = {"kind": "score", "id": score_id}
+
+    if achieved_perf_id == performance_id:
+        events.append({"type": "achieve", "tier": "major", "subject": subject})
+        # rank_up: この達成が同★の10曲目(=昇格トリガ)で、実際に昇格した場合のみ。ID照合で再解析耐性。
+        if star_at is not None:
+            cur.execute(
+                'SELECT COUNT(*) FROM "UserScoreAchievement" '
+                'WHERE "userId" = %s AND "starAtAchievement" = %s AND "achievedAt" <= %s',
+                (user_id, star_at, achieved_at),
+            )
+            rank = int(cur.fetchone()[0])
+            cur.execute('SELECT "currentStar" FROM "UserStarProgress" WHERE "userId" = %s', (user_id,))
+            cs_row = cur.fetchone()
+            current_star = int(cs_row[0]) if cs_row else 1
+            if rank == STAR_UP_ACHIEVEMENTS and current_star > int(star_at):
+                events.append({"type": "rank_up", "tier": "epic", "payload": {"newStar": int(star_at) + 1}})
+
+    if mastered_perf_id == performance_id:
+        events.append({"type": "master", "tier": "major", "subject": subject})
+
+    return events
+
+
+def recompute_practice_mastery(
+    cur, user_id: str, practice_item_id: str, allow_demotion: bool = False
+) -> bool:
+    """教材クリア(直近5回平均90)を現存録音からゼロ導出し UserPracticeMastery を upsert する
+    (§5・原則1「再計算がベース」)。dailyLessons.ts:isMaterialCleared と定義一致。
+      母集合: pitch/timing 両方非null (解析失敗/未評価除外)
+      並び : uploadedAt 降順で5件 / 5件未満は未クリア
+      式   : (pitchAccuracy + timingAccuracy)/2 の平均 ≥ 90
+    allow_demotion=False(日常): 既 mastered は false に戻さない(進行を守る=原則2)。
+    allow_demotion=True(一斉/削除): 現状に合わせて false へも戻す。
+    Returns: 今回「新規到達」したか (material_clear 発火の根拠)。
+    """
+    cur.execute(
+        '''
+        SELECT COUNT(*), AVG(avg2) FROM (
+          SELECT (("pitchAccuracy" + "timingAccuracy") / 2.0) AS avg2 FROM "PracticePerformance"
+          WHERE "userId" = %s AND "practiceItemId" = %s
+            AND "pitchAccuracy" IS NOT NULL AND "timingAccuracy" IS NOT NULL
+          ORDER BY "uploadedAt" DESC LIMIT %s
+        ) s
+        ''',
+        (user_id, practice_item_id, MASTER_RECENT_COUNT),
+    )
+    cnt, avg = cur.fetchone()
+    cnt = int(cnt)
+    avg_f = float(avg) if avg is not None else None
+    is_mastered = cnt >= MASTER_RECENT_COUNT and avg_f is not None and avg_f >= MASTER_AVG
+
+    cur.execute(
+        'SELECT COUNT(*) FROM "PracticePerformance" '
+        'WHERE "userId" = %s AND "practiceItemId" = %s '
+        'AND "pitchAccuracy" IS NOT NULL AND "timingAccuracy" IS NOT NULL',
+        (user_id, practice_item_id),
+    )
+    total_count = int(cur.fetchone()[0])
+
+    cur.execute(
+        'SELECT "isPerformanceMastered" FROM "UserPracticeMastery" '
+        'WHERE "userId" = %s AND "practiceItemId" = %s',
+        (user_id, practice_item_id),
+    )
+    ex = cur.fetchone()
+    was_mastered = bool(ex[0]) if ex else False
+
+    next_mastered = is_mastered if allow_demotion else (was_mastered or is_mastered)
+    newly = is_mastered and not was_mastered
+
+    cur.execute(
+        '''
+        INSERT INTO "UserPracticeMastery"
+          (id, "userId", "practiceItemId", "recentAverageScore", "totalPerformanceCount",
+           "isPerformanceMastered", "masteredAt", "updatedAt")
+        VALUES (%s, %s, %s, %s, %s, %s, CASE WHEN %s THEN NOW() ELSE NULL END, NOW())
+        ON CONFLICT ("userId", "practiceItemId") DO UPDATE SET
+          "recentAverageScore" = EXCLUDED."recentAverageScore",
+          "totalPerformanceCount" = EXCLUDED."totalPerformanceCount",
+          "isPerformanceMastered" = %s,
+          "masteredAt" = CASE WHEN %s THEN COALESCE("UserPracticeMastery"."masteredAt", NOW()) ELSE NULL END,
+          "updatedAt" = NOW()
+        ''',
+        (
+            str(uuid.uuid4()), user_id, practice_item_id, avg_f, total_count,
+            next_mastered, next_mastered,   # INSERT: isPerformanceMastered / masteredAt CASE
+            next_mastered, next_mastered,   # UPDATE: isPerformanceMastered / masteredAt CASE
+        ),
+    )
+    return newly
