@@ -375,7 +375,7 @@ export default async function HomePage({ params }: PageProps) {
       ...scoreAchievements.map((a) => a.scoreId),
     ]),
   ]
-  const nextPieceScores = await prisma.score.findMany({
+  const nextPieceScoresRaw = await prisma.score.findMany({
     where: {
       star: currentStar,
       ownerScope: "admin",
@@ -384,9 +384,19 @@ export default async function HomePage({ params }: PageProps) {
       ...(excludePieceIds.length ? { id: { notIn: excludePieceIds } } : {}),
     },
     orderBy: [{ createdAt: "asc" }],
-    take: 4,
-    select: { id: true, title: true, composer: true, star: true, coverImagePath: true },
+    take: 16, // 重複排除前提で多めに取る
+    select: { id: true, title: true, composer: true, star: true, coverImagePath: true, groupId: true },
   })
+  // 同一グループ(曲)の難易度違いは1つに集約 (2026-07-26 パート/変種整合)。groupId=null は id で一意扱い。
+  const seenNextGroups = new Set<string>()
+  const nextPieceScores: typeof nextPieceScoresRaw = []
+  for (const s of nextPieceScoresRaw) {
+    const key = s.groupId ?? s.id
+    if (seenNextGroups.has(key)) continue
+    seenNextGroups.add(key)
+    nextPieceScores.push(s)
+    if (nextPieceScores.length >= 4) break
+  }
   const nextPieceRecommendations = nextPieceScores.map((s) => ({
     practiceItem: {
       id: s.id,
