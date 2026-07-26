@@ -21,7 +21,7 @@ import PerformanceSkillDetail from "@/app/components/PerformanceSkillDetail"
 import { getSignedUploadUrl } from "@/app/actions/getSignedUploadUrl"
 import { renamePerformance } from "@/app/actions/renamePerformance"
 import { resolvePartToNoteRange, type Part } from "@/app/_libs/materialParts"
-import { CELEBRATION_ENABLED } from "@/app/_libs/featureFlags"
+import { CELEBRATION_ENABLED, CELEBRATION_SINCE_MS } from "@/app/_libs/featureFlags"
 import { parseMilestoneEvents } from "@/app/_libs/celebration"
 import CelebrationBanner from "@/app/components/CelebrationBanner"
 import MilestoneCelebration from "@/app/components/MilestoneCelebration"
@@ -2708,10 +2708,11 @@ export default function ScoreDetail({
       if (s > prevMax) prevMax = s
       hasPrior = true
     }
-    // 候補 = milestoneイベントあり or 自己ベスト。最新を採用。
+    // 候補 = milestoneイベントあり or 自己ベスト。公開時刻カットオフより後の演奏に限る(遡及発火の遮断)。最新を採用。
     const cands = performances
       .filter((p) =>
         p.analysisStatus === "done" &&
+        new Date(p.uploadedAt).getTime() >= CELEBRATION_SINCE_MS &&
         (parseMilestoneEvents(p.analysisSummary).length > 0 || bestFlag.get(p.id)))
       .slice()
       .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
