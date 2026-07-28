@@ -134,8 +134,10 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
               {HELP_CONTENT.markerLegend.rows.map(row => (
                 <div key={row.name} className={styles.legendCard}>
                   <span className={styles.legendColor} data-c={row.key} aria-hidden />
-                  <span className={styles.legendName}>{row.name} ({row.meaning})</span>
-                  <span className={styles.legendDetail}>{row.detail}</span>
+                  <span className={styles.legendText}>
+                    <span className={styles.legendName}>{row.meaning}</span>
+                    <span className={styles.legendDetail}>{row.detail}</span>
+                  </span>
                 </div>
               ))}
             </div>

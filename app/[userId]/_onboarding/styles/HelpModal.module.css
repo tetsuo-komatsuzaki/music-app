@@ -116,55 +116,67 @@
 }
 
 /* ② マーカー凡例 */
+/* 譜面マーカー凡例 — 1枚のカードに行を並べ、色ドット＋意味＋説明 (2026-07-28 刷新) */
 .legendList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  border: 1px solid #eef1f4;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(30, 45, 70, 0.05);
 }
 
 .legendCard {
-  display: grid;
-  grid-template-columns: 32px 90px 1fr;
-  gap: 12px;
-  padding: 10px 14px;
-  background: #f7f9fc;
-  border-radius: 8px;
-  align-items: start;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 12px 15px;
+}
+.legendCard + .legendCard {
+  border-top: 1px solid #f1f3f5;
 }
 
-/* 絵文字をやめ、譜面マーカーと同じ質感のカラードットで表示 */
+/* 譜面マーカーと同じ質感のカラードット */
 .legendColor {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   flex: none;
-  align-self: center;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.14);
 }
 .legendColor[data-c="green"]  { background: radial-gradient(circle at 35% 30%, #6fdc7e, #2fae52); }
 .legendColor[data-c="red"]    { background: radial-gradient(circle at 35% 30%, #ff8a80, #e5392b); }
 .legendColor[data-c="orange"] { background: radial-gradient(circle at 35% 30%, #ffc16b, #f08a1d); }
 .legendColor[data-c="gray"]   { background: radial-gradient(circle at 35% 30%, #d7dce0, #a7afb6); }
 
+.legendText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .legendName {
-  font-weight: 600;
-  color: #1a1a1a;
+  font-weight: 800;
+  color: #2b3742;
   font-size: 14px;
 }
 
 .legendDetail {
-  font-size: 13px;
-  color: #555;
-  line-height: 1.6;
+  font-size: 12.5px;
+  color: #6b7885;
+  line-height: 1.5;
+  margin-top: 1px;
 }
 
 .legendNote {
-  font-size: 12px;
-  color: #777;
-  background: #fff8e1;
-  border-radius: 6px;
-  padding: 8px 12px;
-  line-height: 1.6;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #2e8b57;
+  background: #eafaf0;
+  border: 1px solid #cbe8d6;
+  border-radius: 10px;
+  padding: 10px 13px;
+  line-height: 1.55;
+  margin-top: 10px;
 }
 
 /* ③ ページごとの使い方 */
