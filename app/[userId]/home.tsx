@@ -9,6 +9,7 @@ import PracticeFocusCard from "@/app/components/PracticeFocusCard"
 import GuideSampleFocus from "@/app/components/GuideSampleFocus"
 import NextPiecesCard from "@/app/components/NextPiecesCard"
 import FavoritesSection, { type FavoriteEntry } from "@/app/components/FavoritesSection"
+import TeacherAssignments, { type StudentAssignment } from "./TeacherAssignments"
 import hb from "./homeBlocks.module.css"
 import ProgressGuideModal from "@/app/components/ProgressGuideModal"
 import type { SongRecommendation } from "@/app/components/RecommendationItem"
@@ -81,6 +82,8 @@ type Props = {
   }
   /** お気に入り (曲/教材) */
   favorites: FavoriteEntry[]
+  /** 先生からの宿題 (未完了)。先生機能 MVP (2026-07-28) */
+  teacherAssignments: StudentAssignment[]
 }
 
 export default function HomeClient({
@@ -90,6 +93,7 @@ export default function HomeClient({
   nextPieceRecommendations,
   rankCard,
   favorites,
+  teacherAssignments,
 }: Props) {
   void _userName
   const { userId } = useParams<{ userId: string }>()
@@ -107,6 +111,9 @@ export default function HomeClient({
 
       {/* ① マイランクカード (最上部・タップで演奏の軌跡／上達のしくみを内蔵) */}
       <MyRankCard {...rankCard} onGuide={() => setGuideOpen(true)} />
+
+      {/* 先生から (未完了の宿題があるときだけ表示・先生機能 MVP) */}
+      <TeacherAssignments assignments={teacherAssignments} />
 
       {/* ② いま練習している曲 ＋〈マスターへのステップ ‖ 毎日の基礎練〉。
           終盤の締めでは、選んだ曲の「弾いたらこう出る」見本カードに差し替える。 */}

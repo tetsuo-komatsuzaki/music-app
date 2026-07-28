@@ -5,6 +5,7 @@ import { updateUserName } from "@/app/actions/updateUserName"
 import { updateUserEmail } from "@/app/actions/updateUserEmail"
 import { updateUserPassword } from "@/app/actions/updateUserPassword"
 import DeleteAccountModal from "./DeleteAccountModal"
+import TeacherLinkCard from "./TeacherLinkCard"
 import styles from "./Settings.module.css"
 
 interface Props {
@@ -120,6 +121,9 @@ export default function SettingsClient({
   return (
     <div className={styles.page}>
       <h1 className={styles.title}>設定</h1>
+
+      {/* 先生とつながる (先生機能 MVP 2026-07-28) */}
+      <TeacherLinkCard />
 
       {/* アカウント情報 */}
       <section className={styles.card}>

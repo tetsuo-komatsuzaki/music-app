@@ -68,13 +68,20 @@ model User {
   lessonPlays         UserLessonPlay[]
 
   // ▼ お気に入り (2026-07-20): 曲(Score)/教材(PracticeItem) をブックマーク
-  favorites           Favorite[]
+  favorites Favorite[]
+
+  // ▼ 先生ユーザー機能 MVP (2026-07-28): 先生⇄生徒リンク + 宿題。別シェル /teacher。
+  teacherInviteCode   String?          @unique // 先生が発行する招待コード。生徒が入力して紐付け
+  teacherLinks        TeacherStudent[] @relation("teacherLinks") // 自分が先生として持つ生徒
+  studentLinks        TeacherStudent[] @relation("studentLinks") // 自分が生徒として持つ先生
+  assignmentsGiven    Assignment[]     @relation("assignmentTeacher")
+  assignmentsReceived Assignment[]     @relation("assignmentStudent")
 
   @@index([role])
 }
 
 model Score {
-  id               String    @id @default(cuid())
+  id               String         @id @default(cuid())
   createdById      String
   title            String
   composer         String?
@@ -87,19 +94,19 @@ model Score {
   group            MaterialGroup? @relation(fields: [groupId], references: [id])
   difficulty       Difficulty? // 難易度別アレンジ (BEGINNER/INTERMEDIATE/ADVANCED)
   sections         Json? // 練習範囲 [{name,startMeasure,endMeasure}]
-  analysisStatus   JobStatus @default(processing)
-  buildStatus      JobStatus @default(processing)
-  retryCount       Int       @default(0)
+  analysisStatus   JobStatus      @default(processing)
+  buildStatus      JobStatus      @default(processing)
+  retryCount       Int            @default(0)
   errorMessage     String?
   lastAttemptedAt  DateTime?
   executionId      String?
-  idempotencyKey   String?   @unique
+  idempotencyKey   String?        @unique
   keyTonic         String?
   keyMode          String?
   timeNumerator    Int?
   timeDenominator  Int?
   defaultTempo     Int?
-  isShared         Boolean   @default(false) // true=全ユーザー閲覧可のサンプル
+  isShared         Boolean        @default(false) // true=全ユーザー閲覧可のサンプル
 
   // ループエンジン用フィールド (2026-05-10 追加 / v1.3 で difficulty → star リネーム)
   // 「次のチャレンジ」レコメンドで Score も対象とするため、
@@ -129,17 +136,18 @@ model Score {
 
   // ▼ 工程D (2026-07-11): 曲の達成/マスター記録
   userScoreAchievements UserScoreAchievement[]
-  scoreTechniqueTags       ScoreTechniqueTag[] // Phase 3c (Q4=B): 完全習得判定の技法集合
+  scoreTechniqueTags    ScoreTechniqueTag[] // Phase 3c (Q4=B): 完全習得判定の技法集合
 
   // ▼ 工程F (2026-07-10): 特徴タグ・副次調
-  scoreKeys       ScoreKey[] // 副次調(転調先)。主調は keyTonic/keyMode が正
-  featureTags     ScoreFeatureTag[]
+  scoreKeys   ScoreKey[] // 副次調(転調先)。主調は keyTonic/keyMode が正
+  featureTags ScoreFeatureTag[]
 
   // ▼ オンボーディング目標曲カタログとの結線 (2026-07-12)
   onboardingSongs OnboardingSong[]
 
   // ▼ お気に入り (2026-07-20)
-  favorites Favorite[]
+  favorites   Favorite[]
+  assignments Assignment[] // 先生機能: この曲を対象にした宿題
 
   createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
@@ -378,7 +386,8 @@ model PracticeItem {
   lessonPlays UserLessonPlay[]
 
   // ▼ お気に入り (2026-07-20)
-  favorites Favorite[]
+  favorites   Favorite[]
+  assignments Assignment[] // 先生機能: この教材を対象にした宿題
 
   @@index([category, keyTonic, keyMode])
   @@index([category, isPublished, sortOrder])
@@ -794,7 +803,7 @@ model UserPracticeMastery {
   totalPerformanceCount Int       @default(0)
   isPerformanceMastered Boolean   @default(false)
   masteredAt            DateTime?
-  celebratedAt         DateTime? // 祝い体験 v2.0 (2026-07-26): 教材クリアの祝い既読。バナー消滅の根拠
+  celebratedAt          DateTime? // 祝い体験 v2.0 (2026-07-26): 教材クリアの祝い既読。バナー消滅の根拠
   updatedAt             DateTime  @updatedAt
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -1076,9 +1085,9 @@ model ScoreKey {
 // 動的拡張(§23)の対象: 管理者がタグ+抽出ルールを追加→全曲再分析。
 model FeatureTag {
   id            String   @id @default(cuid())
-  category      String   // "rhythm" | "double_stop" | "dynamics" | "position"
+  category      String // "rhythm" | "double_stop" | "dynamics" | "position"
   name          String
-  extractRule   String?  // 抽出条件メモ(動的拡張用)
+  extractRule   String? // 抽出条件メモ(動的拡張用)
   isAcquisition Boolean  @default(false) // 習得系(達成をゲート)。重音の主要種別=true
   createdAt     DateTime @default(now())
 
@@ -1109,6 +1118,46 @@ model PracticeItemFeatureTag {
 
   @@id([practiceItemId, featureTagId])
   @@index([featureTagId])
+}
+
+// ▼ 先生ユーザー機能 MVP (2026-07-28 Tetsuo)。別シェル /teacher。将来の予約/添削/決済等は
+// この2モデルの拡張 or 関連テーブル追加で足す(画面はタブ/カード/セクション追加)。
+// 先生⇄生徒の紐付け。多対多(将来: 1先生:多生徒 / 1生徒:多先生)。招待コードは User.teacherInviteCode。
+model TeacherStudent {
+  id        String   @id @default(cuid())
+  teacherId String
+  studentId String
+  createdAt DateTime @default(now())
+
+  teacher User @relation("teacherLinks", fields: [teacherId], references: [id], onDelete: Cascade)
+  student User @relation("studentLinks", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, studentId])
+  @@index([studentId])
+}
+
+// 宿題 (ch5-3)。先生が「曲 or 教材・対象小節・回数・目標テンポ・コメント」を割当。
+// 生徒ホームに出て既存の練習ループへ着地する。将来: 提出/添削は関連テーブルで拡張。
+model Assignment {
+  id             String    @id @default(cuid())
+  teacherId      String
+  studentId      String
+  scoreId        String? // 対象が曲のとき
+  practiceItemId String? // 対象が教材のとき
+  targetMeasures String? // "1-4" 等、対象小節(自由入力)
+  reps           Int? // 練習回数
+  targetTempo    Int? // 目標テンポ(BPM)
+  comment        String? // 生徒へのコメント
+  doneAt         DateTime? // 生徒が完了にした時刻(任意)
+  createdAt      DateTime  @default(now())
+
+  teacher      User          @relation("assignmentTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  student      User          @relation("assignmentStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  score        Score?        @relation(fields: [scoreId], references: [id], onDelete: SetNull)
+  practiceItem PracticeItem? @relation(fields: [practiceItemId], references: [id], onDelete: SetNull)
+
+  @@index([studentId, createdAt])
+  @@index([teacherId, createdAt])
 }
 
 // ▼ お気に入り (2026-07-20 Tetsuo): 曲(Score) or 教材(PracticeItem) をユーザーがブックマーク。

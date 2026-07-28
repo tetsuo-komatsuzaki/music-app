@@ -2,17 +2,32 @@
 
 import styles from "./Header.module.css"
 import Image from "next/image"
+import Link from "next/link"
+import { useParams } from "next/navigation"
 import { useOnboarding } from "../_onboarding/hooks/useOnboarding"
 
 
-export default function Header() {
+export default function Header({ role }: { role?: string }) {
   const { openHelp } = useOnboarding()
+  const { userId } = useParams<{ userId: string }>()
   return (
 <>
       {/* ===== HEADER ===== */}
       <header className={styles.header}>
         <div className={styles.headerRight}>
           <span className={styles.appName}>Violin Practice</span>
+          {/* 先生アカウントのみ: 先生モードへの切替 (別シェル /teacher へ) */}
+          {role === "teacher" && userId && (
+            <Link
+              href={`/${userId}/teacher`}
+              style={{
+                fontSize: 11.5, fontWeight: 700, color: "#2b3742", textDecoration: "none",
+                background: "#eef1f4", border: "1px solid #e2e6ea", borderRadius: 999, padding: "4px 10px",
+              }}
+            >
+              🎓 先生モード
+            </Link>
+          )}
           <button
             type="button"
             className={styles.helpButton}

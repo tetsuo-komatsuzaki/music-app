@@ -26,12 +26,15 @@ export default async function UserLayout({
     data: { user: sessionUser },
   } = await supabase.auth.getUser()
 
+  // 本人閲覧時のみ role を取得し、先生モード切替UIの表示判定に渡す (別シェル /teacher へのゲート)。
+  let viewerRole: string | undefined
   if (sessionUser?.id === userId) {
     const dbUser = await prisma.user.findUnique({
       where: { supabaseUserId: userId },
-      select: { id: true },
+      select: { id: true, role: true },
     })
     if (dbUser) {
+      viewerRole = dbUser.role
       const onb = await prisma.onboardingProfile.findUnique({
         where: { userId: dbUser.id },
         select: { completedAt: true },
@@ -40,5 +43,5 @@ export default async function UserLayout({
     }
   }
 
-  return <UserShell>{children}</UserShell>
+  return <UserShell role={viewerRole}>{children}</UserShell>
 }

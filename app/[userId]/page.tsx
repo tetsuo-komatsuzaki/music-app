@@ -521,8 +521,45 @@ export default async function HomePage({ params }: PageProps) {
     favorites = []
   }
 
+  // 先生からの宿題 (未完了) — ホーム上部の「先生から」セクション用 (2026-07-28)
+  let teacherAssignments: {
+    id: string; teacherName: string; title: string; detail: string; comment: string | null; href: string
+  }[] = []
+  try {
+    const rows = await prisma.assignment.findMany({
+      where: { studentId: internalUserId, doneAt: null },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      select: {
+        id: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
+        teacher: { select: { name: true } },
+        score: { select: { id: true, title: true } },
+        practiceItem: { select: { id: true, title: true, category: true } },
+      },
+    })
+    teacherAssignments = rows.map((a) => ({
+      id: a.id,
+      teacherName: a.teacher.name,
+      title: a.score?.title ?? a.practiceItem?.title ?? "課題",
+      detail: [
+        a.targetMeasures && `第${a.targetMeasures}小節`,
+        a.reps && `×${a.reps}`,
+        a.targetTempo && `♩=${a.targetTempo}`,
+      ].filter(Boolean).join(" ・ "),
+      comment: a.comment,
+      href: a.score
+        ? `/${userId}/scores/${a.score.id}`
+        : a.practiceItem
+          ? `/${userId}/practice/${a.practiceItem.category}/${a.practiceItem.id}`
+          : `/${userId}`,
+    }))
+  } catch {
+    teacherAssignments = []
+  }
+
   return (
     <HomeClient
+      teacherAssignments={teacherAssignments}
       userName={dbUser.name ?? ""}
       streak={streak}
       weeklyDays={weeklyDays}

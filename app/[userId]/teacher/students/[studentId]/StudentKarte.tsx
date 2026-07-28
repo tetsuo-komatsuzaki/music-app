@@ -1,0 +1,241 @@
+"use client"
+
+// 生徒カルテ UI (2026-07-28)。タブ = 概要 / 宿題。将来タブ(診断/添削)はここに足すだけ。
+import { useState, useTransition } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { createAssignment } from "@/app/actions/teacherActions"
+
+type Target = { id: string; title: string }
+type Briefing = {
+  practiceCount7d: number
+  recent5: { title: string; avg: number; date: string }[]
+  achievements: { title: string; mastered: boolean }[]
+}
+type AssignmentRow = {
+  id: string
+  targetTitle: string
+  targetMeasures: string | null
+  reps: number | null
+  targetTempo: number | null
+  comment: string | null
+  done: boolean
+  createdAt: string
+}
+
+export default function StudentKarte({
+  userId, studentId, studentName, briefing, scoreTargets, itemTargets, assignments,
+}: {
+  userId: string
+  studentId: string
+  studentName: string
+  briefing: Briefing
+  scoreTargets: Target[]
+  itemTargets: Target[]
+  assignments: AssignmentRow[]
+}) {
+  const [tab, setTab] = useState<"overview" | "homework">("overview")
+  return (
+    <div>
+      <Link href={`/${userId}/teacher`} style={{ fontSize: 12, color: "#6b7885", textDecoration: "none" }}>← 生徒一覧</Link>
+      <h1 style={{ fontSize: 18, fontWeight: 900, margin: "6px 0 10px" }}>{studentName}</h1>
+
+      <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+        {([["overview", "概要"], ["homework", "宿題"]] as const).map(([k, label]) => (
+          <button
+            key={k}
+            type="button"
+            onClick={() => setTab(k)}
+            style={{
+              flex: 1, border: "1px solid", borderColor: tab === k ? "#2b3742" : "#e2e6ea",
+              background: tab === k ? "#2b3742" : "#fff", color: tab === k ? "#fff" : "#6b7885",
+              borderRadius: 10, padding: "8px 0", fontSize: 12.5, fontWeight: 800, cursor: "pointer",
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "overview" ? (
+        <Overview b={briefing} />
+      ) : (
+        <Homework
+          studentId={studentId}
+          scoreTargets={scoreTargets}
+          itemTargets={itemTargets}
+          assignments={assignments}
+        />
+      )}
+    </div>
+  )
+}
+
+function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: "14px 16px", marginBottom: 12 }}>
+      {children}
+    </div>
+  )
+}
+
+function Overview({ b }: { b: Briefing }) {
+  return (
+    <>
+      <Card>
+        <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 6 }}>レッスン前ブリーフィング</div>
+        <div style={{ fontSize: 14, color: "#2b3742" }}>
+          直近7日の練習：<b>{b.practiceCount7d}</b> 回
+        </div>
+      </Card>
+
+      <Card>
+        <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 8 }}>直近の演奏</div>
+        {b.recent5.length === 0 ? (
+          <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>まだ評価済みの演奏がありません。</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {b.recent5.map((r, i) => (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+                <span style={{ color: "#2b3742", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title}</span>
+                <span style={{ color: "#6b7885", flex: "none", marginLeft: 8 }}>{r.avg}点 ・ {r.date}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
+      <Card>
+        <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 8 }}>達成・マスター</div>
+        {b.achievements.length === 0 ? (
+          <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>まだ達成した曲はありません。</div>
+        ) : (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {b.achievements.map((a, i) => (
+              <span key={i} style={{ fontSize: 12, fontWeight: 700, color: a.mastered ? "#b5651d" : "#2e8b57", background: a.mastered ? "#fdf3df" : "#eafaf0", border: "1px solid", borderColor: a.mastered ? "#eecfa0" : "#cbe8d6", borderRadius: 999, padding: "3px 10px" }}>
+                {a.mastered ? "🏆" : "✨"} {a.title}
+              </span>
+            ))}
+          </div>
+        )}
+      </Card>
+    </>
+  )
+}
+
+function Homework({
+  studentId, scoreTargets, itemTargets, assignments,
+}: {
+  studentId: string
+  scoreTargets: Target[]
+  itemTargets: Target[]
+  assignments: AssignmentRow[]
+}) {
+  const router = useRouter()
+  const [open, setOpen] = useState(false)
+  const [kind, setKind] = useState<"score" | "item">("score")
+  const [targetId, setTargetId] = useState("")
+  const [measures, setMeasures] = useState("")
+  const [reps, setReps] = useState("")
+  const [tempo, setTempo] = useState("")
+  const [comment, setComment] = useState("")
+  const [err, setErr] = useState<string | null>(null)
+  const [pending, startTransition] = useTransition()
+
+  const targets = kind === "score" ? scoreTargets : itemTargets
+
+  const submit = () => {
+    setErr(null)
+    if (!targetId) { setErr("対象の曲/教材を選んでください"); return }
+    startTransition(async () => {
+      const r = await createAssignment({
+        studentId,
+        scoreId: kind === "score" ? targetId : null,
+        practiceItemId: kind === "item" ? targetId : null,
+        targetMeasures: measures || null,
+        reps: reps ? Number(reps) : null,
+        targetTempo: tempo ? Number(tempo) : null,
+        comment: comment || null,
+      })
+      if (!r.ok) { setErr(r.error); return }
+      setOpen(false); setTargetId(""); setMeasures(""); setReps(""); setTempo(""); setComment("")
+      router.refresh()
+    })
+  }
+
+  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 13, marginTop: 4 }
+  const lbl: React.CSSProperties = { fontSize: 11.5, fontWeight: 700, color: "#6b7885" }
+
+  return (
+    <>
+      {!open ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          style={{ width: "100%", border: "1px dashed #b7c0ca", background: "#fff", color: "#2b3742", borderRadius: 12, padding: 12, fontSize: 13, fontWeight: 800, cursor: "pointer", marginBottom: 14 }}
+        >
+          ＋ 宿題を出す
+        </button>
+      ) : (
+        <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: 16, marginBottom: 14 }}>
+          <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+            {([["score", "曲"], ["item", "教材"]] as const).map(([k, label]) => (
+              <button key={k} type="button" onClick={() => { setKind(k); setTargetId("") }}
+                style={{ flex: 1, border: "1px solid", borderColor: kind === k ? "#2b3742" : "#e2e6ea", background: kind === k ? "#2b3742" : "#fff", color: kind === k ? "#fff" : "#6b7885", borderRadius: 8, padding: "6px 0", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <label style={lbl}>対象（生徒が最近取り組んだ{kind === "score" ? "曲" : "教材"}）
+            <select value={targetId} onChange={(e) => setTargetId(e.target.value)} style={inp}>
+              <option value="">選択してください</option>
+              {targets.map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
+            </select>
+          </label>
+          {targets.length === 0 && (
+            <div style={{ fontSize: 11.5, color: "#9aa6b3", marginTop: 4 }}>この生徒はまだ{kind === "score" ? "曲" : "教材"}の演奏記録がありません。</div>
+          )}
+
+          <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+            <label style={{ ...lbl, flex: 1 }}>対象小節<input value={measures} onChange={(e) => setMeasures(e.target.value)} placeholder="例: 1-4" style={inp} /></label>
+            <label style={{ ...lbl, width: 90 }}>回数<input value={reps} onChange={(e) => setReps(e.target.value.replace(/[^0-9]/g, ""))} placeholder="5" style={inp} inputMode="numeric" /></label>
+            <label style={{ ...lbl, width: 110 }}>目標♩<input value={tempo} onChange={(e) => setTempo(e.target.value.replace(/[^0-9]/g, ""))} placeholder="80" style={inp} inputMode="numeric" /></label>
+          </div>
+          <label style={{ ...lbl, display: "block", marginTop: 10 }}>コメント
+            <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} placeholder="例: 移弦を先に準備しよう" style={{ ...inp, resize: "vertical" }} />
+          </label>
+
+          {err && <div style={{ fontSize: 12, color: "#c0392b", marginTop: 8 }}>{err}</div>}
+          <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+            <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, border: "1px solid #e2e6ea", background: "#fff", color: "#6b7885", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>キャンセル</button>
+            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "#2b3742", color: "#fff", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+              {pending ? "送信中…" : "宿題を出す"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", margin: "4px 0 8px" }}>これまでの宿題</div>
+      {assignments.length === 0 ? (
+        <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>まだ宿題はありません。</div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {assignments.map((a) => (
+            <div key={a.id} style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 12, padding: "10px 12px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "#2b3742" }}>{a.targetTitle}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: a.done ? "#2e8b57" : "#b7823a", flex: "none" }}>{a.done ? "完了" : "未完了"}</span>
+              </div>
+              <div style={{ fontSize: 12, color: "#6b7885", marginTop: 3 }}>
+                {[a.targetMeasures && `第${a.targetMeasures}小節`, a.reps && `×${a.reps}`, a.targetTempo && `♩=${a.targetTempo}`].filter(Boolean).join(" ・ ") || "（詳細指定なし）"}
+              </div>
+              {a.comment && <div style={{ fontSize: 12.5, color: "#2b3742", marginTop: 4 }}>💬 {a.comment}</div>}
+              <div style={{ fontSize: 10.5, color: "#b3bcc6", marginTop: 4 }}>{a.createdAt}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  )
+}
