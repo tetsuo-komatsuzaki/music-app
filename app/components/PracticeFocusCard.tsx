@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import styles from "../[userId]/homeBlocks.module.css"
-import GoalTracker, { type AchievementStatus } from "./GoalTracker"
-import WeaknessDiagnosisCard from "./WeaknessDiagnosisCard"
+import { type AchievementStatus } from "./GoalTracker"
 import DailyLessons from "./DailyLessons"
 
 type Piece = {
@@ -64,8 +63,6 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
   return (
     <div className={styles.root}>
       <div className={styles.card} data-onboarding="home.focusCard">
-        <div className={styles.cardTitle}>いま練習している曲</div>
-
         {pieces.length > 1 && (
           <div className={styles.tabs}>
             {pieces.map((p, i) => (
@@ -84,22 +81,6 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
           </div>
           <span className={`${styles.chip} ${styles.chipGoal}`}>{chipLabel}</span>
         </Link>
-
-        {/* 🏆 この曲のゴール (曲詳細と同じ GoalTracker を流用) */}
-        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "14px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}>🏆 この曲のゴール</div>
-        {ach ? (
-          <GoalTracker achv={ach} />
-        ) : (
-          <div style={{ fontSize: 12.5, color: "#9aa6b3", padding: "8px 0" }}>読み込み中…</div>
-        )}
-
-        {/* 毎日のレッスン (マスターの下・曲詳細のおすすめ練習と揃える。コーチガイドに合わせ「毎日のレッスン」) */}
-        {ach?.latestPerformanceId && (
-          <>
-            <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "16px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11 }}>📘 毎日のレッスン</div>
-            <WeaknessDiagnosisCard performanceId={ach.latestPerformanceId} kind="score" userId={userId} hideHeading hideMaterials />
-          </>
-        )}
 
         {/* 毎日の基礎練 (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホーム/曲詳細で共通) */}
         <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "16px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11 }}>🎯 毎日の基礎練</div>
