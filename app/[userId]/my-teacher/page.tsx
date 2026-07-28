@@ -28,9 +28,21 @@ export default async function MyTeacherPage({
   const link = await prisma.teacherStudent.findFirst({
     where: { studentId: me.id },
     orderBy: { createdAt: "asc" },
-    select: { createdAt: true, teacher: { select: { name: true } } },
+    select: { createdAt: true, teacher: { select: { id: true, name: true } } },
   })
   if (!link) redirect(`/${userId}`)
+
+  // 先生からの未読メッセージを既読化 (開いた時点)
+  await prisma.message.updateMany({
+    where: { studentId: me.id, teacherId: link.teacher.id, fromTeacher: true, readAt: null },
+    data: { readAt: new Date() },
+  })
+  const messages = await prisma.message.findMany({
+    where: { studentId: me.id, teacherId: link.teacher.id },
+    orderBy: { createdAt: "asc" },
+    take: 100,
+    select: { id: true, fromTeacher: true, body: true, createdAt: true },
+  })
 
   const assignments = await prisma.assignment.findMany({
     where: { studentId: me.id },
@@ -82,6 +94,14 @@ export default async function MyTeacherPage({
       })
     }
   }
+  for (const m of messages) {
+    events.push({
+      at: m.createdAt.getTime(),
+      when: m.createdAt.toLocaleDateString("ja-JP"),
+      kind: "comment",
+      text: `${m.fromTeacher ? "💬 先生" : "🙋 あなた"}：${m.body}`,
+    })
+  }
   events.sort((x, y) => y.at - x.at)
 
   return (
@@ -91,6 +111,12 @@ export default async function MyTeacherPage({
       since={link.createdAt.toLocaleDateString("ja-JP")}
       timeline={events.map(({ when, kind, text, href }) => ({ when, kind, text, href }))}
       homework={hw}
+      messages={messages.map((m) => ({
+        id: m.id,
+        fromTeacher: m.fromTeacher,
+        body: m.body,
+        time: m.createdAt.toLocaleDateString("ja-JP"),
+      }))}
     />
   )
 }

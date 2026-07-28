@@ -5,26 +5,28 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { unlinkTeacher } from "@/app/actions/teacherActions"
+import { unlinkTeacher, sendMessage } from "@/app/actions/teacherActions"
 
 type TimelineEv = { when: string; kind: "hw" | "comment"; text: string; href?: string | null }
 type Homework = {
   id: string; title: string; detail: string; comment: string | null
   done: boolean; date: string; href: string
 }
+type Msg = { id: string; fromTeacher: boolean; body: string; time: string }
 
 const ACCENT = "#4f63c6"
 const INK = "#26303a"
 const SUB = "#6b7885"
 
 export default function MyTeacherClient({
-  userId, teacherName, since, timeline, homework,
+  userId, teacherName, since, timeline, homework, messages,
 }: {
   userId: string
   teacherName: string
   since: string
   timeline: TimelineEv[]
   homework: Homework[]
+  messages: Msg[]
 }) {
   const [tab, setTab] = useState<"all" | "hw" | "review" | "msg">("all")
   const router = useRouter()
@@ -67,7 +69,7 @@ export default function MyTeacherClient({
       {tab === "all" && <AllTab timeline={timeline} />}
       {tab === "hw" && <HwTab homework={homework} />}
       {tab === "review" && <Soon label="添削" note="先生が譜面に書き込んだ添削が、ここに届きます。（準備中）" />}
-      {tab === "msg" && <Soon label="メッセージ" note="先生とのメッセージのやりとりが、ここでできます。（準備中）" />}
+      {tab === "msg" && <MsgTab teacherName={teacherName} messages={messages} />}
 
       {/* 解約 */}
       <div style={{ ...card(), marginTop: 18 }}>
@@ -120,6 +122,64 @@ function HwTab({ homework }: { homework: Homework[] }) {
           </div>
         </div>
       ))}
+    </div>
+  )
+}
+
+function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[] }) {
+  const router = useRouter()
+  const [text, setText] = useState("")
+  const [pending, startTransition] = useTransition()
+  const [err, setErr] = useState<string | null>(null)
+
+  const send = () => {
+    const body = text.trim()
+    if (!body) return
+    setErr(null)
+    startTransition(async () => {
+      const r = await sendMessage(body)
+      if (!r.ok) { setErr(r.error); return }
+      setText("")
+      router.refresh()
+    })
+  }
+
+  return (
+    <div style={card()}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 12, maxHeight: 360, overflowY: "auto" }}>
+        {messages.length === 0 ? (
+          <div style={{ fontSize: 12.5, color: SUB, textAlign: "center", padding: "12px 0" }}>
+            まだメッセージはありません。{teacherName} 先生に質問してみよう。
+          </div>
+        ) : (
+          messages.map((m) => (
+            <div key={m.id} style={{
+              maxWidth: "84%", alignSelf: m.fromTeacher ? "flex-start" : "flex-end",
+              background: m.fromTeacher ? "#fff" : ACCENT, color: m.fromTeacher ? INK : "#fff",
+              border: m.fromTeacher ? "1px solid #e7eaee" : "none", borderRadius: 12,
+              borderBottomLeftRadius: m.fromTeacher ? 3 : 12, borderBottomRightRadius: m.fromTeacher ? 12 : 3,
+              padding: "7px 11px", fontSize: 12.5, lineHeight: 1.45,
+            }}>
+              {m.body}
+              <div style={{ fontSize: 9.5, opacity: 0.7, marginTop: 3, textAlign: "right" }}>{m.time}</div>
+            </div>
+          ))
+        )}
+      </div>
+      <div style={{ display: "flex", gap: 7 }}>
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) send() }}
+          placeholder="メッセージを書く…"
+          style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: 13 }}
+        />
+        <button type="button" onClick={send} disabled={pending || !text.trim()}
+          style={{ border: "none", borderRadius: 9, padding: "0 16px", fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACCENT, cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
+          送る
+        </button>
+      </div>
+      {err && <div style={{ fontSize: 11.5, color: "#c0392b", marginTop: 6 }}>{err}</div>}
     </div>
   )
 }

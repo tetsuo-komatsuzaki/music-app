@@ -67,6 +67,18 @@ export default async function StudentKartePage({
     }),
   ])
 
+  // メッセージ (生徒→先生の未読を既読化して取得)
+  await prisma.message.updateMany({
+    where: { teacherId: me.id, studentId, fromTeacher: false, readAt: null },
+    data: { readAt: new Date() },
+  })
+  const messages = await prisma.message.findMany({
+    where: { teacherId: me.id, studentId },
+    orderBy: { createdAt: "asc" },
+    take: 100,
+    select: { id: true, fromTeacher: true, body: true, createdAt: true },
+  })
+
   const recent5 = recentPerfs.map((p) => ({
     title: p.score?.title ?? "曲",
     avg: Math.round(((p.pitchAccuracy ?? 0) + (p.timingAccuracy ?? 0)) / 2),
@@ -84,6 +96,10 @@ export default async function StudentKartePage({
       userId={userId}
       studentId={studentId}
       studentName={student.name}
+      messages={messages.map((m) => ({
+        id: m.id, fromTeacher: m.fromTeacher, body: m.body,
+        time: m.createdAt.toLocaleDateString("ja-JP"),
+      }))}
       briefing={{
         practiceCount7d: perfCount7d + pracCount7d,
         recent5,

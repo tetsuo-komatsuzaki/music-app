@@ -4,7 +4,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { createAssignment } from "@/app/actions/teacherActions"
+import { createAssignment, sendMessageToStudent } from "@/app/actions/teacherActions"
 
 type Target = { id: string; title: string }
 type Briefing = {
@@ -23,8 +23,10 @@ type AssignmentRow = {
   createdAt: string
 }
 
+type Msg = { id: string; fromTeacher: boolean; body: string; time: string }
+
 export default function StudentKarte({
-  userId, studentId, studentName, briefing, scoreTargets, itemTargets, assignments,
+  userId, studentId, studentName, briefing, scoreTargets, itemTargets, assignments, messages,
 }: {
   userId: string
   studentId: string
@@ -33,15 +35,16 @@ export default function StudentKarte({
   scoreTargets: Target[]
   itemTargets: Target[]
   assignments: AssignmentRow[]
+  messages: Msg[]
 }) {
-  const [tab, setTab] = useState<"overview" | "homework">("overview")
+  const [tab, setTab] = useState<"overview" | "homework" | "message">("overview")
   return (
     <div>
       <Link href={`/${userId}/teacher`} style={{ fontSize: 12, color: "#6b7885", textDecoration: "none" }}>← 生徒一覧</Link>
       <h1 style={{ fontSize: 18, fontWeight: 900, margin: "6px 0 10px" }}>{studentName}</h1>
 
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-        {([["overview", "概要"], ["homework", "宿題"]] as const).map(([k, label]) => (
+        {([["overview", "概要"], ["homework", "宿題"], ["message", "メッセージ"]] as const).map(([k, label]) => (
           <button
             key={k}
             type="button"
@@ -57,17 +60,67 @@ export default function StudentKarte({
         ))}
       </div>
 
-      {tab === "overview" ? (
-        <Overview b={briefing} />
-      ) : (
-        <Homework
-          studentId={studentId}
-          scoreTargets={scoreTargets}
-          itemTargets={itemTargets}
-          assignments={assignments}
-        />
+      {tab === "overview" && <Overview b={briefing} />}
+      {tab === "homework" && (
+        <Homework studentId={studentId} scoreTargets={scoreTargets} itemTargets={itemTargets} assignments={assignments} />
       )}
+      {tab === "message" && <Messages studentId={studentId} studentName={studentName} messages={messages} />}
     </div>
+  )
+}
+
+function Messages({ studentId, studentName, messages }: { studentId: string; studentName: string; messages: Msg[] }) {
+  const router = useRouter()
+  const [text, setText] = useState("")
+  const [err, setErr] = useState<string | null>(null)
+  const [pending, startTransition] = useTransition()
+
+  const send = () => {
+    const body = text.trim()
+    if (!body) return
+    setErr(null)
+    startTransition(async () => {
+      const r = await sendMessageToStudent(studentId, body)
+      if (!r.ok) { setErr(r.error); return }
+      setText("")
+      router.refresh()
+    })
+  }
+
+  return (
+    <Card>
+      <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 12, maxHeight: 380, overflowY: "auto" }}>
+        {messages.length === 0 ? (
+          <div style={{ fontSize: 12.5, color: "#9aa6b3", textAlign: "center", padding: "12px 0" }}>
+            {studentName} さんとのメッセージはまだありません。
+          </div>
+        ) : (
+          messages.map((m) => (
+            <div key={m.id} style={{
+              maxWidth: "84%", alignSelf: m.fromTeacher ? "flex-end" : "flex-start",
+              background: m.fromTeacher ? "#2b3742" : "#fff", color: m.fromTeacher ? "#fff" : "#2b3742",
+              border: m.fromTeacher ? "none" : "1px solid #e7eaee", borderRadius: 12,
+              borderBottomRightRadius: m.fromTeacher ? 3 : 12, borderBottomLeftRadius: m.fromTeacher ? 12 : 3,
+              padding: "7px 11px", fontSize: 12.5, lineHeight: 1.45,
+            }}>
+              {m.body}
+              <div style={{ fontSize: 9.5, opacity: 0.7, marginTop: 3, textAlign: "right" }}>{m.time}</div>
+            </div>
+          ))
+        )}
+      </div>
+      <div style={{ display: "flex", gap: 7 }}>
+        <input value={text} onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) send() }}
+          placeholder={`${studentName} さんへ返信…`}
+          style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: 13 }} />
+        <button type="button" onClick={send} disabled={pending || !text.trim()}
+          style={{ border: "none", borderRadius: 9, padding: "0 16px", fontSize: 12.5, fontWeight: 800, color: "#fff", background: "#2b3742", cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
+          送る
+        </button>
+      </div>
+      {err && <div style={{ fontSize: 11.5, color: "#c0392b", marginTop: 6 }}>{err}</div>}
+    </Card>
   )
 }
 

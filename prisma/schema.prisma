@@ -76,6 +76,8 @@ model User {
   studentLinks        TeacherStudent[] @relation("studentLinks") // 自分が生徒として持つ先生
   assignmentsGiven    Assignment[]     @relation("assignmentTeacher")
   assignmentsReceived Assignment[]     @relation("assignmentStudent")
+  messagesAsTeacher   Message[]        @relation("msgTeacher")
+  messagesAsStudent   Message[]        @relation("msgStudent")
 
   @@index([role])
 }
@@ -1158,6 +1160,23 @@ model Assignment {
 
   @@index([studentId, createdAt])
   @@index([teacherId, createdAt])
+}
+
+// 先生⇔生徒の短文メッセージ (2026-07-28 Phase1.5)。fromTeacher で向きを表す。
+model Message {
+  id          String    @id @default(cuid())
+  teacherId   String
+  studentId   String
+  fromTeacher Boolean // true=先生→生徒 / false=生徒→先生(質問)
+  body        String
+  readAt      DateTime? // 受け手が読んだ時刻
+  createdAt   DateTime  @default(now())
+
+  teacher User @relation("msgTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  student User @relation("msgStudent", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId, studentId, createdAt])
+  @@index([studentId, createdAt])
 }
 
 // ▼ お気に入り (2026-07-20 Tetsuo): 曲(Score) or 教材(PracticeItem) をユーザーがブックマーク。

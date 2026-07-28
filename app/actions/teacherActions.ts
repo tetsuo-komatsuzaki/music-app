@@ -142,6 +142,54 @@ export async function unlinkTeacher(): Promise<{ ok: true } | { ok: false; error
   }
 }
 
+/** 生徒: 先生にメッセージ(質問)を送る。 */
+export async function sendMessage(body: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  const text = (body || "").trim()
+  if (!text) return { ok: false, error: "メッセージを入力してください" }
+  if (text.length > 1000) return { ok: false, error: "長すぎます（1000文字まで）" }
+  try {
+    const link = await prisma.teacherStudent.findFirst({
+      where: { studentId: auth.user.dbUser.id },
+      orderBy: { createdAt: "asc" },
+      select: { teacherId: true },
+    })
+    if (!link) return { ok: false, error: "先生が登録されていません" }
+    await prisma.message.create({
+      data: { teacherId: link.teacherId, studentId: auth.user.dbUser.id, fromTeacher: false, body: text },
+    })
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "送信に失敗しました" }
+  }
+}
+
+/** 先生: 担当生徒にメッセージを送る。 */
+export async function sendMessageToStudent(
+  studentId: string, body: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  if (auth.user.dbUser.role !== "teacher") return { ok: false, error: "先生アカウントが必要です" }
+  const text = (body || "").trim()
+  if (!text) return { ok: false, error: "メッセージを入力してください" }
+  if (text.length > 1000) return { ok: false, error: "長すぎます（1000文字まで）" }
+  try {
+    const link = await prisma.teacherStudent.findUnique({
+      where: { teacherId_studentId: { teacherId: auth.user.dbUser.id, studentId } },
+      select: { id: true },
+    })
+    if (!link) return { ok: false, error: "担当していない生徒です" }
+    await prisma.message.create({
+      data: { teacherId: auth.user.dbUser.id, studentId, fromTeacher: true, body: text },
+    })
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "送信に失敗しました" }
+  }
+}
+
 /** 生徒: 宿題を「やった」にする(完了時刻を刻む)。 */
 export async function markAssignmentDone(
   assignmentId: string,
