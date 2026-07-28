@@ -5,6 +5,7 @@ import { useParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { getUserRole } from "@/app/actions/getUserRole"
+import { getMyTeacherLink } from "@/app/actions/teacherActions"
 import { createBrowserSupabaseClient } from "@/app/_libs/supabaseBrowser"
 import { useOnboarding } from "../_onboarding/hooks/useOnboarding"
 
@@ -19,6 +20,8 @@ const BASE_NAV_ITEMS = [
 ]
 
 const ADMIN_NAV_ITEM = { path: "admin/practice", icon: "⚙️", label: "管理" }
+// 先生機能: 先生を登録している生徒だけに出る (2026-07-28)。成長記録の下に置く。
+const TEACHER_NAV_ITEM = { path: "my-teacher", icon: "💬", label: "先生とのやりとり" }
 
 // アカウント系メニュー (S-1 で追加)
 // 注: admin が ⚙️ を使っているため、設定は 🛠️ に変更して衝突回避
@@ -32,6 +35,7 @@ export default function Sidebar() {
   const pathname = usePathname()
   const userId = params.userId as string
   const [isAdmin, setIsAdmin] = useState(false)
+  const [hasTeacher, setHasTeacher] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const { openHelp } = useOnboarding()
 
@@ -39,11 +43,18 @@ export default function Sidebar() {
     getUserRole().then(role => {
       setIsAdmin(role === "admin")
     })
+    // 先生を登録している生徒だけ「先生とのやりとり」を出す
+    getMyTeacherLink().then(link => {
+      setHasTeacher(!!link)
+    })
   }, [userId])
 
-  const navItems = isAdmin
-    ? [...BASE_NAV_ITEMS, ADMIN_NAV_ITEM, ...ACCOUNT_NAV_ITEMS]
-    : [...BASE_NAV_ITEMS, ...ACCOUNT_NAV_ITEMS]
+  const navItems = [
+    ...BASE_NAV_ITEMS,
+    ...(hasTeacher ? [TEACHER_NAV_ITEM] : []),
+    ...(isAdmin ? [ADMIN_NAV_ITEM] : []),
+    ...ACCOUNT_NAV_ITEMS,
+  ]
 
   const handleLogout = async () => {
     // 録音中チェック (Recorder が window.__arcodaIsRecording を更新する)

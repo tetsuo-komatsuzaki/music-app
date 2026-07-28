@@ -526,7 +526,12 @@ export default async function HomePage({ params }: PageProps) {
     id: string; teacherName: string; title: string; detail: string; comment: string | null; href: string
   }[] = []
   try {
-    const rows = await prisma.assignment.findMany({
+    // 先生を登録している生徒のみ「先生から」を出す (解約したら消える)
+    const hasTeacher = await prisma.teacherStudent.findFirst({
+      where: { studentId: internalUserId },
+      select: { id: true },
+    })
+    const rows = hasTeacher ? await prisma.assignment.findMany({
       where: { studentId: internalUserId, doneAt: null },
       orderBy: { createdAt: "desc" },
       take: 5,
@@ -536,7 +541,7 @@ export default async function HomePage({ params }: PageProps) {
         score: { select: { id: true, title: true } },
         practiceItem: { select: { id: true, title: true, category: true } },
       },
-    })
+    }) : []
     teacherAssignments = rows.map((a) => ({
       id: a.id,
       teacherName: a.teacher.name,

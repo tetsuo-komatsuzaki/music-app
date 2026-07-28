@@ -113,6 +113,35 @@ export async function createAssignment(
   return { ok: true }
 }
 
+/** 生徒: 自分の先生(最初の1人)を返す。無ければ null。サイドバー項目の出し分けに使う。 */
+export async function getMyTeacherLink(): Promise<{ teacherId: string; teacherName: string } | null> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return null
+  try {
+    const link = await prisma.teacherStudent.findFirst({
+      where: { studentId: auth.user.dbUser.id },
+      orderBy: { createdAt: "asc" },
+      select: { teacher: { select: { id: true, name: true } } },
+    })
+    return link ? { teacherId: link.teacher.id, teacherName: link.teacher.name } : null
+  } catch {
+    // テーブル未整備時など安全に null
+    return null
+  }
+}
+
+/** 生徒: 先生を解約する(自分の先生リンクを解除)。宿題履歴は残す。 */
+export async function unlinkTeacher(): Promise<{ ok: true } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  try {
+    await prisma.teacherStudent.deleteMany({ where: { studentId: auth.user.dbUser.id } })
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "解約に失敗しました" }
+  }
+}
+
 /** 生徒: 宿題を「やった」にする(完了時刻を刻む)。 */
 export async function markAssignmentDone(
   assignmentId: string,
