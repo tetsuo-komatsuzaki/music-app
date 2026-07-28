@@ -61,7 +61,7 @@ export default async function StudentKartePage({
       where: { teacherId: me.id, studentId }, orderBy: { createdAt: "desc" }, take: 30,
       select: {
         id: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
-        doneAt: true, createdAt: true,
+        doneAt: true, submittedAt: true, submittedScore: true, createdAt: true,
         score: { select: { title: true } }, practiceItem: { select: { title: true } },
       },
     }),
@@ -118,6 +118,8 @@ export default async function StudentKartePage({
         targetTempo: a.targetTempo,
         comment: a.comment,
         done: a.doneAt != null,
+        submitted: a.submittedAt != null,
+        submittedScore: a.submittedScore,
         createdAt: a.createdAt.toLocaleDateString("ja-JP"),
       }))}
     />

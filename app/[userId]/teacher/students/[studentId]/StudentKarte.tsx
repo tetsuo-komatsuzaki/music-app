@@ -20,6 +20,8 @@ type AssignmentRow = {
   targetTempo: number | null
   comment: string | null
   done: boolean
+  submitted: boolean
+  submittedScore: number | null
   createdAt: string
 }
 
@@ -278,7 +280,7 @@ function Homework({
             <div key={a.id} style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 12, padding: "10px 12px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "#2b3742" }}>{a.targetTitle}</span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: a.done ? "#2e8b57" : "#b7823a", flex: "none" }}>{a.done ? "完了" : "未完了"}</span>
+                <span style={{ fontSize: 11, fontWeight: 800, color: a.submitted ? "#2e8b57" : "#b7823a", flex: "none" }}>{a.submitted ? `提出済${a.submittedScore != null ? ` ${a.submittedScore}点` : ""}` : "未提出"}</span>
               </div>
               <div style={{ fontSize: 12, color: "#6b7885", marginTop: 3 }}>
                 {[a.targetMeasures && `第${a.targetMeasures}小節`, a.reps && `×${a.reps}`, a.targetTempo && `♩=${a.targetTempo}`].filter(Boolean).join(" ・ ") || "（詳細指定なし）"}

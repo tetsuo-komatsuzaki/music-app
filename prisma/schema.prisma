@@ -1151,6 +1151,10 @@ model Assignment {
   targetTempo    Int? // 目標テンポ(BPM)
   comment        String? // 生徒へのコメント
   doneAt         DateTime? // 生徒が完了にした時刻(任意)
+  // ▼ 提出 (2026-07-29 Phase1.5): 生徒が録音を紐付けて提出。先生に点数ごと届く。
+  submittedAt           DateTime? // 提出時刻
+  submittedPerformanceId String? // 提出した演奏ID(Performance or PracticePerformance・ゆるい参照)
+  submittedScore        Float? // 提出時の点数(音程×リズム平均)
   createdAt      DateTime  @default(now())
 
   teacher      User          @relation("assignmentTeacher", fields: [teacherId], references: [id], onDelete: Cascade)

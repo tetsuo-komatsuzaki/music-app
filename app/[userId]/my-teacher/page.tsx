@@ -50,7 +50,7 @@ export default async function MyTeacherPage({
     take: 50,
     select: {
       id: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
-      doneAt: true, createdAt: true,
+      doneAt: true, submittedAt: true, submittedScore: true, createdAt: true,
       score: { select: { id: true, title: true } },
       practiceItem: { select: { id: true, title: true, category: true } },
     },
@@ -66,6 +66,8 @@ export default async function MyTeacherPage({
     ].filter(Boolean).join(" ・ "),
     comment: a.comment,
     done: a.doneAt != null,
+    submitted: a.submittedAt != null,
+    submittedScore: a.submittedScore,
     date: a.createdAt.toLocaleDateString("ja-JP"),
     href: a.score
       ? `/${userId}/scores/${a.score.id}`
@@ -91,6 +93,14 @@ export default async function MyTeacherPage({
         when: a.createdAt.toLocaleDateString("ja-JP"),
         kind: "comment",
         text: `💬 ${a.comment}`,
+      })
+    }
+    if (a.submittedAt) {
+      events.push({
+        at: a.submittedAt.getTime(),
+        when: a.submittedAt.toLocaleDateString("ja-JP"),
+        kind: "hw",
+        text: `📤 「${a.score?.title ?? a.practiceItem?.title ?? "課題"}」を提出${a.submittedScore != null ? `（${a.submittedScore}点）` : ""}`,
       })
     }
   }

@@ -5,12 +5,12 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { unlinkTeacher, sendMessage } from "@/app/actions/teacherActions"
+import { unlinkTeacher, sendMessage, submitAssignment } from "@/app/actions/teacherActions"
 
 type TimelineEv = { when: string; kind: "hw" | "comment"; text: string; href?: string | null }
 type Homework = {
   id: string; title: string; detail: string; comment: string | null
-  done: boolean; date: string; href: string
+  done: boolean; submitted: boolean; submittedScore: number | null; date: string; href: string
 }
 type Msg = { id: string; fromTeacher: boolean; body: string; time: string }
 
@@ -109,19 +109,49 @@ function HwTab({ homework }: { homework: Homework[] }) {
   if (homework.length === 0) return <Empty note="いまは宿題がありません。" />
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      {homework.map((h) => (
-        <div key={h.id} style={card()}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-            <span style={{ fontSize: 13.5, fontWeight: 800, color: INK }}>{h.title}</span>
-            <span style={{ fontSize: 11, fontWeight: 700, color: h.done ? "#2e8b57" : "#b7823a", flex: "none" }}>{h.done ? "完了" : "未完了"}</span>
-          </div>
-          <div style={{ fontSize: 12, color: SUB, marginTop: 3 }}>{h.detail || "（詳細指定なし）"}</div>
-          {h.comment && <div style={{ fontSize: 12.5, color: INK, marginTop: 4 }}>💬 {h.comment}</div>}
-          <div style={{ marginTop: 9 }}>
-            <Link href={h.href} style={{ display: "inline-block", background: ACCENT, color: "#fff", fontSize: 12, fontWeight: 800, borderRadius: 9, padding: "8px 16px", textDecoration: "none" }}>練習する →</Link>
-          </div>
+      {homework.map((h) => <HwCard key={h.id} h={h} />)}
+    </div>
+  )
+}
+
+function HwCard({ h }: { h: Homework }) {
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
+  const [msg, setMsg] = useState<string | null>(null)
+
+  const submit = () => {
+    setMsg(null)
+    startTransition(async () => {
+      const r = await submitAssignment(h.id)
+      if (!r.ok) { setMsg(r.error); return }
+      router.refresh()
+    })
+  }
+
+  return (
+    <div style={card()}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+        <span style={{ fontSize: 13.5, fontWeight: 800, color: INK }}>{h.title}</span>
+        {h.submitted ? (
+          <span style={{ fontSize: 11, fontWeight: 800, color: "#2e8b57", flex: "none" }}>提出済{h.submittedScore != null ? ` ${h.submittedScore}点` : ""}</span>
+        ) : (
+          <span style={{ fontSize: 11, fontWeight: 700, color: "#b7823a", flex: "none" }}>未提出</span>
+        )}
+      </div>
+      <div style={{ fontSize: 12, color: SUB, marginTop: 3 }}>{h.detail || "（詳細指定なし）"}</div>
+      {h.comment && <div style={{ fontSize: 12.5, color: INK, marginTop: 4 }}>💬 {h.comment}</div>}
+      {!h.submitted && (
+        <div style={{ display: "flex", gap: 7, marginTop: 9 }}>
+          <Link href={h.href} style={{ flex: 1, textAlign: "center", background: "#f7f8fa", color: SUB, border: "1px solid #e7eaee", fontSize: 12, fontWeight: 800, borderRadius: 9, padding: "8px 0", textDecoration: "none" }}>録音する</Link>
+          <button type="button" onClick={submit} disabled={pending} style={{ flex: 1, background: ACCENT, color: "#fff", border: "none", fontSize: 12, fontWeight: 800, borderRadius: 9, padding: "8px 0", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>提出する</button>
         </div>
-      ))}
+      )}
+      {h.submitted && (
+        <div style={{ marginTop: 9 }}>
+          <Link href={h.href} style={{ display: "inline-block", background: "#f7f8fa", color: SUB, border: "1px solid #e7eaee", fontSize: 12, fontWeight: 800, borderRadius: 9, padding: "8px 16px", textDecoration: "none" }}>もう一度練習する →</Link>
+        </div>
+      )}
+      {msg && <div style={{ fontSize: 11.5, color: "#c0392b", marginTop: 7 }}>{msg}</div>}
     </div>
   )
 }

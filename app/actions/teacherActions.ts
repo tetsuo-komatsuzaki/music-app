@@ -190,6 +190,49 @@ export async function sendMessageToStudent(
   }
 }
 
+/** 生徒: 宿題を提出する。対象曲/教材の最新の評価済み演奏を紐付け、点数ごと先生に届く。 */
+export async function submitAssignment(
+  assignmentId: string,
+): Promise<{ ok: true; score: number | null } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  try {
+    const a = await prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: { studentId: true, scoreId: true, practiceItemId: true },
+    })
+    if (!a || a.studentId !== auth.user.dbUser.id) return { ok: false, error: "対象の宿題がありません" }
+
+    let perfId: string | null = null
+    let score: number | null = null
+    if (a.scoreId) {
+      const p = await prisma.performance.findFirst({
+        where: { userId: auth.user.dbUser.id, scoreId: a.scoreId, rangeFromNote: null, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
+        orderBy: { uploadedAt: "desc" },
+        select: { id: true, pitchAccuracy: true, timingAccuracy: true },
+      })
+      if (p) { perfId = p.id; score = Math.round(((p.pitchAccuracy ?? 0) + (p.timingAccuracy ?? 0)) / 2) }
+    } else if (a.practiceItemId) {
+      const p = await prisma.practicePerformance.findFirst({
+        where: { userId: auth.user.dbUser.id, practiceItemId: a.practiceItemId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
+        orderBy: { uploadedAt: "desc" },
+        select: { id: true, pitchAccuracy: true, timingAccuracy: true },
+      })
+      if (p) { perfId = p.id; score = Math.round(((p.pitchAccuracy ?? 0) + (p.timingAccuracy ?? 0)) / 2) }
+    }
+    if (!perfId) return { ok: false, error: "まず、この曲/教材を通して録音してください" }
+
+    const now = new Date()
+    await prisma.assignment.update({
+      where: { id: assignmentId },
+      data: { submittedPerformanceId: perfId, submittedScore: score, submittedAt: now, doneAt: now },
+    })
+    return { ok: true, score }
+  } catch {
+    return { ok: false, error: "提出に失敗しました" }
+  }
+}
+
 /** 生徒: 宿題を「やった」にする(完了時刻を刻む)。 */
 export async function markAssignmentDone(
   assignmentId: string,
