@@ -44,6 +44,25 @@ export default async function MyTeacherPage({
     select: { id: true, fromTeacher: true, body: true, createdAt: true },
   })
 
+  // 添削 (先生が譜面に書き込んだもの)。曲単位。TeacherFeedback は score リレーションを持たないので別引き。
+  const feedbackRows = await prisma.teacherFeedback.findMany({
+    where: { studentId: me.id, teacherId: link.teacher.id, scoreId: { not: null } },
+    orderBy: { updatedAt: "desc" },
+    take: 50,
+    select: { scoreId: true, updatedAt: true },
+  })
+  const fbScoreTitles = new Map<string, string>()
+  if (feedbackRows.length) {
+    const scores = await prisma.score.findMany({
+      where: { id: { in: feedbackRows.map((f) => f.scoreId as string) } },
+      select: { id: true, title: true },
+    })
+    for (const s of scores) fbScoreTitles.set(s.id, s.title)
+  }
+  const feedbacks = feedbackRows
+    .filter((f) => f.scoreId)
+    .map((f) => ({ scoreId: f.scoreId as string, title: fbScoreTitles.get(f.scoreId as string) ?? "曲", date: f.updatedAt.toLocaleDateString("ja-JP") }))
+
   const assignments = await prisma.assignment.findMany({
     where: { studentId: me.id },
     orderBy: { createdAt: "desc" },
@@ -127,6 +146,7 @@ export default async function MyTeacherPage({
         body: m.body,
         time: m.createdAt.toLocaleDateString("ja-JP"),
       }))}
+      feedbacks={feedbacks}
     />
   )
 }

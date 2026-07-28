@@ -78,6 +78,8 @@ model User {
   assignmentsReceived Assignment[]     @relation("assignmentStudent")
   messagesAsTeacher   Message[]        @relation("msgTeacher")
   messagesAsStudent   Message[]        @relation("msgStudent")
+  feedbacksAsTeacher  TeacherFeedback[] @relation("fbTeacher")
+  feedbacksAsStudent  TeacherFeedback[] @relation("fbStudent")
 
   @@index([role])
 }
@@ -1181,6 +1183,26 @@ model Message {
 
   @@index([teacherId, studentId, createdAt])
   @@index([studentId, createdAt])
+}
+
+// 添削 (2026-07-29 Phase1.5-c)。先生が「特定の生徒の曲/教材」に書き込む譜面注釈。
+// data は ScoreAnnotation と同形式(highlight/warnings/notation・音符アンカー)で描画を流用。
+model TeacherFeedback {
+  id             String   @id @default(cuid())
+  teacherId      String
+  studentId      String
+  scoreId        String?
+  practiceItemId String?
+  data           Json     @default("{}")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  teacher User @relation("fbTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  student User @relation("fbStudent", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, studentId, scoreId])
+  @@unique([teacherId, studentId, practiceItemId])
+  @@index([studentId])
 }
 
 // ▼ お気に入り (2026-07-20 Tetsuo): 曲(Score) or 教材(PracticeItem) をユーザーがブックマーク。

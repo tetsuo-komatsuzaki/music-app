@@ -99,6 +99,11 @@ type Props = {
   noteElementsVersion: number
   scoreId?: string
   practiceItemId?: string
+  /** 添削モード等で読み書きを差し替える (省略時は自分の ScoreAnnotation)。 */
+  loadOverride?: () => Promise<AnnotationData>
+  saveOverride?: (data: AnnotationData) => void | Promise<void>
+  /** 読み取り専用: ツールバーを出さず、描画のみ (生徒が先生の添削を見る等)。 */
+  readOnly?: boolean
 }
 
 export default function AnnotationLayer({
@@ -107,6 +112,9 @@ export default function AnnotationLayer({
   noteElementsVersion,
   scoreId,
   practiceItemId,
+  loadOverride,
+  saveOverride,
+  readOnly = false,
 }: Props) {
   const [active, setActive] = useState(false)
   const [tool, setTool] = useState<Tool>(null)
@@ -133,11 +141,16 @@ export default function AnnotationLayer({
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // ---- 読み込み ----
+  const loadOverrideRef = useRef(loadOverride)
+  loadOverrideRef.current = loadOverride
+  const saveOverrideRef = useRef(saveOverride)
+  saveOverrideRef.current = saveOverride
   useEffect(() => {
     let cancelled = false
-    getScoreAnnotation({ scoreId, practiceItemId }).then((r) => {
-      if (!cancelled && r.ok) setData(r.data ?? {})
-    })
+    const p = loadOverrideRef.current
+      ? loadOverrideRef.current()
+      : getScoreAnnotation({ scoreId, practiceItemId }).then((r) => (r.ok ? r.data ?? {} : {}))
+    p.then((d) => { if (!cancelled) setData(d ?? {}) })
     return () => { cancelled = true }
   }, [scoreId, practiceItemId])
 
@@ -146,7 +159,8 @@ export default function AnnotationLayer({
     setData(next)
     if (saveTimer.current) clearTimeout(saveTimer.current)
     saveTimer.current = setTimeout(() => {
-      saveScoreAnnotation({ scoreId, practiceItemId, data: next })
+      if (saveOverrideRef.current) saveOverrideRef.current(next)
+      else saveScoreAnnotation({ scoreId, practiceItemId, data: next })
     }, 700)
   }, [scoreId, practiceItemId])
 
@@ -328,6 +342,9 @@ export default function AnnotationLayer({
       {label}
     </button>
   )
+
+  // 読み取り専用 (生徒が先生の添削を見る): ツールバーは出さず、オーバーレイ描画だけ効かせる。
+  if (readOnly) return null
 
   return (
     <div className={styles.wrap}>

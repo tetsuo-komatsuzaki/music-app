@@ -13,13 +13,14 @@ type Homework = {
   done: boolean; submitted: boolean; submittedScore: number | null; date: string; href: string
 }
 type Msg = { id: string; fromTeacher: boolean; body: string; time: string }
+type Feedback = { scoreId: string; title: string; date: string }
 
 const ACCENT = "#4f63c6"
 const INK = "#26303a"
 const SUB = "#6b7885"
 
 export default function MyTeacherClient({
-  userId, teacherName, since, timeline, homework, messages,
+  userId, teacherName, since, timeline, homework, messages, feedbacks,
 }: {
   userId: string
   teacherName: string
@@ -27,6 +28,7 @@ export default function MyTeacherClient({
   timeline: TimelineEv[]
   homework: Homework[]
   messages: Msg[]
+  feedbacks: Feedback[]
 }) {
   const [tab, setTab] = useState<"all" | "hw" | "review" | "msg">("all")
   const router = useRouter()
@@ -68,7 +70,7 @@ export default function MyTeacherClient({
 
       {tab === "all" && <AllTab timeline={timeline} />}
       {tab === "hw" && <HwTab homework={homework} />}
-      {tab === "review" && <Soon label="添削" note="先生が譜面に書き込んだ添削が、ここに届きます。（準備中）" />}
+      {tab === "review" && <ReviewTab userId={userId} feedbacks={feedbacks} />}
       {tab === "msg" && <MsgTab teacherName={teacherName} messages={messages} />}
 
       {/* 解約 */}
@@ -214,12 +216,20 @@ function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[
   )
 }
 
-function Soon({ label, note }: { label: string; note: string }) {
+function ReviewTab({ userId, feedbacks }: { userId: string; feedbacks: Feedback[] }) {
+  if (feedbacks.length === 0) return <Empty note="まだ先生からの添削はありません。先生が譜面に書き込むと、ここに届きます。" />
   return (
-    <div style={{ ...card(), textAlign: "center" }}>
-      <div style={{ fontSize: 26, marginBottom: 6 }}>🚧</div>
-      <div style={{ fontSize: 13, fontWeight: 800, color: INK }}>{label}は準備中です</div>
-      <div style={{ fontSize: 12, color: SUB, marginTop: 4 }}>{note}</div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {feedbacks.map((f) => (
+        <Link key={f.scoreId} href={`/${userId}/my-teacher/review/${f.scoreId}`}
+          style={{ ...card(), display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit" }}>
+          <span style={{ minWidth: 0 }}>
+            <span style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: INK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>📝 {f.title}</span>
+            <span style={{ display: "block", fontSize: 11, color: SUB }}>{f.date} に更新</span>
+          </span>
+          <span style={{ fontSize: 12, fontWeight: 800, color: ACCENT, flex: "none" }}>見る →</span>
+        </Link>
+      ))}
     </div>
   )
 }

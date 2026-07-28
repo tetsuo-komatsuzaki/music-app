@@ -39,14 +39,14 @@ export default function StudentKarte({
   assignments: AssignmentRow[]
   messages: Msg[]
 }) {
-  const [tab, setTab] = useState<"overview" | "homework" | "message">("overview")
+  const [tab, setTab] = useState<"overview" | "homework" | "review" | "message">("overview")
   return (
     <div>
       <Link href={`/${userId}/teacher`} style={{ fontSize: 12, color: "#6b7885", textDecoration: "none" }}>← 生徒一覧</Link>
       <h1 style={{ fontSize: 18, fontWeight: 900, margin: "6px 0 10px" }}>{studentName}</h1>
 
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-        {([["overview", "概要"], ["homework", "宿題"], ["message", "メッセージ"]] as const).map(([k, label]) => (
+        {([["overview", "概要"], ["homework", "宿題"], ["review", "添削"], ["message", "メッセージ"]] as const).map(([k, label]) => (
           <button
             key={k}
             type="button"
@@ -66,8 +66,31 @@ export default function StudentKarte({
       {tab === "homework" && (
         <Homework studentId={studentId} scoreTargets={scoreTargets} itemTargets={itemTargets} assignments={assignments} />
       )}
+      {tab === "review" && <FeedbackTab userId={userId} studentId={studentId} scoreTargets={scoreTargets} />}
       {tab === "message" && <Messages studentId={studentId} studentName={studentName} messages={messages} />}
     </div>
+  )
+}
+
+function FeedbackTab({ userId, studentId, scoreTargets }: { userId: string; studentId: string; scoreTargets: Target[] }) {
+  return (
+    <Card>
+      <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 4 }}>譜面に添削する</div>
+      <p style={{ fontSize: 12, color: "#9aa6b3", margin: "0 0 10px" }}>曲を選ぶと、譜面にハイライトやメモを書き込めます（生徒に届きます）。</p>
+      {scoreTargets.length === 0 ? (
+        <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>この生徒はまだ曲の演奏がありません。</div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {scoreTargets.map((s) => (
+            <Link key={s.id} href={`/${userId}/teacher/students/${studentId}/annotate/${s.id}`}
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit", border: "1px solid #eef1f4", borderRadius: 10, padding: "10px 12px" }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: "#2b3742", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.title}</span>
+              <span style={{ fontSize: 11.5, fontWeight: 800, color: "#4f63c6", flex: "none" }}>添削する →</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </Card>
   )
 }
 
