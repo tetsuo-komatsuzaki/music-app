@@ -159,9 +159,10 @@ export default function SymbolGuide({
     const h = host.getBoundingClientRect()
     const r = el.getBoundingClientRect()
     node.style.display = ""
-    // 案4: 音符の「上のチップ」→ 音符そのものに淡いハイライト。中央に重ねる (被り解消・下線なし)。
+    // 案2 (2026-08-01): 音符の「上」→「下」に逃がす。上の小節番号/運指と被らない。
+    // チップ中心を音符の下端から一定offset下に置き、引き線で音符と結ぶ。
     node.style.left = `${r.left + r.width / 2 - h.left}px`
-    node.style.top = `${r.top - h.top + r.height / 2}px`
+    node.style.top = `${r.bottom - h.top + 20}px`
   }, [noteElementsRef])
 
   const repositionAll = useCallback(() => {
@@ -274,7 +275,9 @@ export default function SymbolGuide({
                 placeMark(node, m.noteIndex)
               }}
               onClick={(e) => { e.stopPropagation(); openSymbol(m.sym) }}
-            />
+            >
+              <SymbolGlyph glyph={m.sym.glyph} value={m.sym.value} />
+            </button>
 
           ))}
         </div>,

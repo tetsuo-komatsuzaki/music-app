@@ -17,18 +17,28 @@
 .markLayer {
   position: absolute; inset: 0; pointer-events: none; z-index: 5;
 }
-/* 案4 (2026-08-01): 音符上のチップ廃止 → 音符そのものに淡いハイライト(柔らかいグロー)。
-   硬い輪郭は別記号(ハーモニクスの○等)と誤解されるため、ソフトなグローのみ。下線もなし。 */
+/* 案2 (2026-08-01): マークを音符の「下」に逃がす。上の小節番号/運指と被らない。
+   小さめ・高コントラスト(塗り+白アイコン)。引き線(::before)で音符と結ぶ。 */
 .mark {
   position: absolute; transform: translate(-50%, -50%);
   pointer-events: auto; cursor: pointer; appearance: none; font-family: inherit;
-  width: 26px; height: 22px; padding: 0;
+  display: grid; place-items: center;
+  width: 19px; height: 19px; padding: 0;
   border-radius: 50%; border: none;
-  background: rgba(79, 99, 198, .18);
-  box-shadow: 0 0 0 4px rgba(79, 99, 198, .08);
+  background: #4f63c6; color: #fff;
+  box-shadow: 0 1px 3px rgba(30, 45, 70, .28);
   transition: transform .12s, background .12s;
 }
-.mark:hover { background: rgba(79, 99, 198, .32); }
+.mark svg { width: 11.5px; height: 11.5px; }
+.mark .gTxt { font-size: 9px; line-height: 1; color: #fff; }
+/* 音符へ向かう引き線 (チップ上端から上へ) */
+.mark::before {
+  content: ""; position: absolute; left: 50%; bottom: 100%;
+  transform: translateX(-50%);
+  width: 2px; height: 13px; background: #4f63c6; opacity: .5;
+  border-radius: 1px;
+}
+.mark:hover { background: #3f52b0; }
 .mark:active { transform: translate(-50%, -50%) scale(.92); }
 /* タップ領域を見た目より広げる (譜面が密でも押しやすく) */
 .mark::after {
