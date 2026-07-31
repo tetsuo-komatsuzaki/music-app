@@ -3,6 +3,9 @@
 import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
+import { storageAdmin } from "@/app/_libs/storageAdmin"
+import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
+import { categoryLabel } from "@/app/_libs/practiceConstants"
 import StudentKarte from "./StudentKarte"
 
 export const metadata = { title: "生徒カルテ" }
@@ -91,6 +94,50 @@ export default async function StudentKartePage({
     .filter((s) => s.practiceItemId)
     .map((s) => ({ id: s.practiceItemId as string, title: s.practiceItem?.title ?? "教材" }))
 
+  // ── 練習タブ (§5-1 拡充): 取り組んでいる曲/教材 + 直近の録音(分析結果 + 音声) ──
+  const [scorePerfs, pracPerfs] = await Promise.all([
+    prisma.performance.findMany({
+      where: { userId: studentId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
+      orderBy: { uploadedAt: "desc" }, take: 12,
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, rangeFromNote: true, score: { select: { title: true } } },
+    }),
+    prisma.practicePerformance.findMany({
+      where: { userId: studentId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
+      orderBy: { uploadedAt: "desc" }, take: 12,
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, practiceItem: { select: { title: true, category: true } } },
+    }),
+  ])
+  const avg2 = (p: number | null, t: number | null) => Math.round(((p ?? 0) + (t ?? 0)) / 2)
+  type RecRaw = { id: string; at: number; title: string; cat: string; pitch: number; timing: number; avg: number; audioPath: string }
+  const recRaw: RecRaw[] = [
+    ...scorePerfs.map((p) => ({
+      id: p.id, at: p.uploadedAt.getTime(), title: p.score?.title ?? "曲",
+      cat: p.rangeFromNote != null ? "曲（区間）" : "曲",
+      pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
+      audioPath: p.audioPath,
+    })),
+    ...pracPerfs.map((p) => ({
+      id: p.id, at: p.uploadedAt.getTime(), title: p.practiceItem?.title ?? "教材",
+      cat: p.practiceItem?.category ? categoryLabel(p.practiceItem.category) : "基礎練",
+      pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
+      audioPath: p.audioPath,
+    })),
+  ].sort((a, b) => b.at - a.at).slice(0, 12)
+
+  // 音声の署名URL (先生が聴ける)
+  const recordings = await Promise.all(recRaw.map(async (r) => ({
+    id: r.id, title: r.title, cat: r.cat, pitch: r.pitch, timing: r.timing, avg: r.avg,
+    date: new Date(r.at).toLocaleDateString("ja-JP"),
+    audioUrl: r.audioPath
+      ? await storageAdmin.storage.from("performances").createSignedUrl(r.audioPath, 600).then((x) => encodeSignedUrl(x.data?.signedUrl)).catch(() => null)
+      : null,
+  })))
+
+  // 取り組んでいる曲・教材 (直近の録音から重複除去・最新スコア)
+  const seenWork = new Set<string>()
+  const working = recRaw.filter((r) => { const k = `${r.cat}:${r.title}`; if (seenWork.has(k)) return false; seenWork.add(k); return true })
+    .slice(0, 10).map((r) => ({ title: r.title, cat: r.cat, avg: r.avg }))
+
   return (
     <StudentKarte
       userId={userId}
@@ -110,6 +157,8 @@ export default async function StudentKartePage({
       }}
       scoreTargets={scoreTargets}
       itemTargets={itemTargets}
+      working={working}
+      recordings={recordings}
       assignments={assignments.map((a) => ({
         id: a.id,
         targetTitle: a.score?.title ?? a.practiceItem?.title ?? "課題",

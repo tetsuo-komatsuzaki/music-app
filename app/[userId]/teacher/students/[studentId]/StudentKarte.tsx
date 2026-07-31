@@ -26,9 +26,11 @@ type AssignmentRow = {
 }
 
 type Msg = { id: string; fromTeacher: boolean; body: string; time: string }
+type WorkItem = { title: string; cat: string; avg: number }
+type Recording = { id: string; title: string; cat: string; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null }
 
 export default function StudentKarte({
-  userId, studentId, studentName, briefing, scoreTargets, itemTargets, assignments, messages,
+  userId, studentId, studentName, briefing, scoreTargets, itemTargets, working, recordings, assignments, messages,
 }: {
   userId: string
   studentId: string
@@ -36,17 +38,19 @@ export default function StudentKarte({
   briefing: Briefing
   scoreTargets: Target[]
   itemTargets: Target[]
+  working: WorkItem[]
+  recordings: Recording[]
   assignments: AssignmentRow[]
   messages: Msg[]
 }) {
-  const [tab, setTab] = useState<"overview" | "homework" | "review" | "message">("overview")
+  const [tab, setTab] = useState<"overview" | "practice" | "homework" | "review" | "message">("overview")
   return (
     <div>
       <Link href={`/${userId}/teacher`} style={{ fontSize: 12, color: "#6b7885", textDecoration: "none" }}>← 生徒一覧</Link>
       <h1 style={{ fontSize: 18, fontWeight: 900, margin: "6px 0 10px" }}>{studentName}</h1>
 
-      <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-        {([["overview", "概要"], ["homework", "宿題"], ["review", "添削"], ["message", "メッセージ"]] as const).map(([k, label]) => (
+      <div style={{ display: "flex", gap: 4, marginBottom: 14 }}>
+        {([["overview", "概要"], ["practice", "練習"], ["homework", "宿題"], ["review", "添削"], ["message", "メッセージ"]] as const).map(([k, label]) => (
           <button
             key={k}
             type="button"
@@ -54,7 +58,7 @@ export default function StudentKarte({
             style={{
               flex: 1, border: "1px solid", borderColor: tab === k ? "#2b3742" : "#e2e6ea",
               background: tab === k ? "#2b3742" : "#fff", color: tab === k ? "#fff" : "#6b7885",
-              borderRadius: 10, padding: "8px 0", fontSize: 12.5, fontWeight: 800, cursor: "pointer",
+              borderRadius: 10, padding: "8px 0", fontSize: 10.5, fontWeight: 800, cursor: "pointer",
             }}
           >
             {label}
@@ -63,6 +67,7 @@ export default function StudentKarte({
       </div>
 
       {tab === "overview" && <Overview b={briefing} />}
+      {tab === "practice" && <PracticeTab working={working} recordings={recordings} />}
       {tab === "homework" && (
         <Homework studentId={studentId} scoreTargets={scoreTargets} itemTargets={itemTargets} assignments={assignments} />
       )}
@@ -91,6 +96,64 @@ function FeedbackTab({ userId, studentId, scoreTargets }: { userId: string; stud
         </div>
       )}
     </Card>
+  )
+}
+
+function PracticeTab({ working, recordings }: { working: WorkItem[]; recordings: Recording[] }) {
+  const scoreColor = (n: number) => (n >= 90 ? "#2e8b57" : n >= 70 ? "#b7823a" : "#c0473a")
+  return (
+    <>
+      <Card>
+        <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 8 }}>取り組んでいる曲・教材</div>
+        {working.length === 0 ? (
+          <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>まだ録音がありません。</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {working.map((w, i) => (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, fontSize: 13 }}>
+                <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: "#6b7885", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", marginRight: 6 }}>{w.cat}</span>
+                  <b style={{ color: "#2b3742" }}>{w.title}</b>
+                </span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: scoreColor(w.avg), flex: "none" }}>{w.avg}点</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
+      <Card>
+        <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 8 }}>直近の録音（分析結果つき）</div>
+        {recordings.length === 0 ? (
+          <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>まだ録音がありません。</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {recordings.map((r) => (
+              <div key={r.id} style={{ border: "1px solid #eef1f4", borderRadius: 10, padding: "9px 11px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                  <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <span style={{ fontSize: 9.5, fontWeight: 800, color: "#6b7885", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{r.cat}</span>
+                    <b style={{ fontSize: 13, color: "#2b3742" }}>{r.title}</b>
+                  </span>
+                  <span style={{ fontSize: 11, color: "#9aa6b3", flex: "none" }}>{r.date}</span>
+                </div>
+                <div style={{ display: "flex", gap: 12, fontSize: 11.5, marginTop: 5 }}>
+                  <span style={{ color: "#6b7885" }}>音程 <b style={{ color: scoreColor(r.pitch) }}>{r.pitch}</b></span>
+                  <span style={{ color: "#6b7885" }}>リズム <b style={{ color: scoreColor(r.timing) }}>{r.timing}</b></span>
+                  <span style={{ color: "#6b7885" }}>平均 <b style={{ color: scoreColor(r.avg) }}>{r.avg}</b></span>
+                </div>
+                {r.audioUrl ? (
+                  // eslint-disable-next-line jsx-a11y/media-has-caption
+                  <audio controls preload="none" src={r.audioUrl} style={{ width: "100%", height: 34, marginTop: 8 }} />
+                ) : (
+                  <div style={{ fontSize: 11, color: "#b3bcc6", marginTop: 6 }}>音声を読み込めませんでした</div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+    </>
   )
 }
 
