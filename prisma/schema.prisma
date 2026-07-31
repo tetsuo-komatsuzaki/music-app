@@ -81,6 +81,8 @@ model User {
   feedbacksAsTeacher  TeacherFeedback[] @relation("fbTeacher")
   feedbacksAsStudent  TeacherFeedback[] @relation("fbStudent")
   teacherProfile      TeacherProfile?   @relation("profileTeacher")
+  lessonsAsTeacher    Lesson[]          @relation("lessonTeacher")
+  lessonsAsStudent    Lesson[]          @relation("lessonStudent")
 
   @@index([role])
 }
@@ -1226,6 +1228,26 @@ model TeacherProfile {
   teacher User @relation("profileTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@index([published])
+}
+
+// レッスン予約 (2026-08-01 Phase3)。先生が空き枠(studentId=null,status=open)を作り、
+// 生徒が予約(studentId=生徒,status=booked)。プッシュ通知は範囲外(アプリ内表示のみ)。
+model Lesson {
+  id           String   @id @default(cuid())
+  teacherId    String
+  studentId    String? // null=空き枠 / 値=予約済み
+  startAt      DateTime
+  durationMin  Int      @default(30)
+  online       Boolean  @default(true)
+  locationNote String? // 対面の場所 or ビデオURL等
+  status       String   @default("open") // open / booked / cancelled
+  createdAt    DateTime @default(now())
+
+  teacher User  @relation("lessonTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  student User? @relation("lessonStudent", fields: [studentId], references: [id], onDelete: SetNull)
+
+  @@index([teacherId, startAt])
+  @@index([studentId, startAt])
 }
 
 // ▼ お気に入り (2026-07-20 Tetsuo): 曲(Score) or 教材(PracticeItem) をユーザーがブックマーク。

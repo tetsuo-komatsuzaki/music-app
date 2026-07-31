@@ -6,6 +6,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { unlinkTeacher, sendMessage, submitAssignment } from "@/app/actions/teacherActions"
+import { bookLesson, cancelMyBooking } from "@/app/actions/teacherLessons"
 
 type TimelineEv = { when: string; kind: "hw" | "comment"; text: string; href?: string | null }
 type Homework = {
@@ -14,13 +15,15 @@ type Homework = {
 }
 type Msg = { id: string; fromTeacher: boolean; body: string; time: string }
 type Feedback = { scoreId: string; title: string; date: string }
+type LessonDTO = { id: string; when: string; durationMin: number; online: boolean; locationNote: string | null }
+type Lessons = { open: LessonDTO[]; booked: LessonDTO[] }
 
 const ACCENT = "#4f63c6"
 const INK = "#26303a"
 const SUB = "#6b7885"
 
 export default function MyTeacherClient({
-  userId, teacherName, since, timeline, homework, messages, feedbacks,
+  userId, teacherName, since, timeline, homework, messages, feedbacks, lessons, nextLessonLabel,
 }: {
   userId: string
   teacherName: string
@@ -29,8 +32,10 @@ export default function MyTeacherClient({
   homework: Homework[]
   messages: Msg[]
   feedbacks: Feedback[]
+  lessons: Lessons
+  nextLessonLabel: string | null
 }) {
-  const [tab, setTab] = useState<"all" | "hw" | "review" | "msg">("all")
+  const [tab, setTab] = useState<"all" | "hw" | "review" | "msg" | "lesson">("all")
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
@@ -56,13 +61,18 @@ export default function MyTeacherClient({
             <span style={{ display: "block", fontSize: 11.5, color: SUB }}>つながって {since} から</span>
           </span>
         </div>
+        {nextLessonLabel && (
+          <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #f1f3f5", fontSize: 12.5, color: INK }}>
+            📅 次回レッスン：<b>{nextLessonLabel}</b>
+          </div>
+        )}
       </div>
 
       {/* タブ */}
-      <div style={{ display: "flex", gap: 4, background: "#fff", border: "1px solid #eef1f4", borderRadius: 10, padding: 3, margin: "12px 0" }}>
-        {([["all", "すべて"], ["hw", "宿題"], ["review", "添削"], ["msg", "メッセージ"]] as const).map(([k, label]) => (
+      <div style={{ display: "flex", gap: 3, background: "#fff", border: "1px solid #eef1f4", borderRadius: 10, padding: 3, margin: "12px 0" }}>
+        {([["all", "すべて"], ["hw", "宿題"], ["review", "添削"], ["msg", "メッセージ"], ["lesson", "レッスン"]] as const).map(([k, label]) => (
           <button key={k} type="button" onClick={() => setTab(k)}
-            style={{ flex: 1, border: "none", background: tab === k ? ACCENT : "transparent", color: tab === k ? "#fff" : SUB, borderRadius: 8, padding: "7px 0", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+            style={{ flex: 1, border: "none", background: tab === k ? ACCENT : "transparent", color: tab === k ? "#fff" : SUB, borderRadius: 8, padding: "7px 0", fontSize: 10.5, fontWeight: 800, cursor: "pointer" }}>
             {label}
           </button>
         ))}
@@ -72,6 +82,7 @@ export default function MyTeacherClient({
       {tab === "hw" && <HwTab homework={homework} />}
       {tab === "review" && <ReviewTab userId={userId} feedbacks={feedbacks} />}
       {tab === "msg" && <MsgTab teacherName={teacherName} messages={messages} />}
+      {tab === "lesson" && <LessonTab lessons={lessons} />}
 
       {/* 解約 */}
       <div style={{ ...card(), marginTop: 18 }}>
@@ -213,6 +224,69 @@ function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[
       </div>
       {err && <div style={{ fontSize: 11.5, color: "#c0392b", marginTop: 6 }}>{err}</div>}
     </div>
+  )
+}
+
+function LessonTab({ lessons }: { lessons: Lessons }) {
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
+  const [err, setErr] = useState<string | null>(null)
+
+  const book = (id: string) => {
+    setErr(null)
+    startTransition(async () => {
+      const r = await bookLesson(id)
+      if (!r.ok) { setErr(r.error); return }
+      router.refresh()
+    })
+  }
+  const cancel = (id: string) => {
+    if (!window.confirm("このレッスンの予約を取り消しますか？")) return
+    startTransition(async () => { await cancelMyBooking(id); router.refresh() })
+  }
+  const meta = (l: LessonDTO) => `${l.durationMin}分 ・ ${l.online ? "オンライン" : "対面"}${l.locationNote ? ` ・ ${l.locationNote}` : ""}`
+
+  return (
+    <>
+      <div style={{ ...card(), marginBottom: 10 }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", marginBottom: 8 }}>予約中のレッスン</div>
+        {lessons.booked.length === 0 ? (
+          <div style={{ fontSize: 12.5, color: SUB }}>予約中のレッスンはありません。</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {lessons.booked.map((l) => (
+              <div key={l.id} style={{ border: "1px solid #cbe8d6", background: "#f4fbf7", borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: INK }}>📅 {l.when}</div>
+                <div style={{ fontSize: 11.5, color: SUB, marginTop: 2 }}>{meta(l)}</div>
+                <button type="button" onClick={() => cancel(l.id)} disabled={pending}
+                  style={{ marginTop: 8, border: "1px solid #e2e6ea", background: "#fff", color: "#c0473a", borderRadius: 8, padding: "5px 12px", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>予約を取り消す</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div style={card()}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", marginBottom: 8 }}>予約できる枠</div>
+        {err && <div style={{ fontSize: 12, color: "#c0392b", marginBottom: 8 }}>{err}</div>}
+        {lessons.open.length === 0 ? (
+          <div style={{ fontSize: 12.5, color: SUB }}>いまは空き枠がありません。先生が枠を出すと予約できます。</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {lessons.open.map((l) => (
+              <div key={l.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, border: "1px solid #eef1f4", borderRadius: 10, padding: "10px 12px" }}>
+                <span style={{ minWidth: 0 }}>
+                  <span style={{ display: "block", fontSize: 13, fontWeight: 800, color: INK }}>{l.when}</span>
+                  <span style={{ display: "block", fontSize: 11, color: SUB }}>{meta(l)}</span>
+                </span>
+                <button type="button" onClick={() => book(l.id)} disabled={pending}
+                  style={{ flex: "none", border: "none", background: ACCENT, color: "#fff", borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>予約する</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   )
 }
 

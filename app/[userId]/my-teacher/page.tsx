@@ -63,6 +63,26 @@ export default async function MyTeacherPage({
     .filter((f) => f.scoreId)
     .map((f) => ({ scoreId: f.scoreId as string, title: fbScoreTitles.get(f.scoreId as string) ?? "曲", date: f.updatedAt.toLocaleDateString("ja-JP") }))
 
+  // レッスン (予約) — 予約できる空き枠 + 自分の予約済み
+  const nowD = new Date()
+  const fmtLesson = (d: Date) => d.toLocaleString("ja-JP", { month: "numeric", day: "numeric", weekday: "short", hour: "2-digit", minute: "2-digit" })
+  const [openSlotRows, myLessonRows] = await Promise.all([
+    prisma.lesson.findMany({
+      where: { teacherId: link.teacher.id, status: "open", startAt: { gte: nowD } },
+      orderBy: { startAt: "asc" }, take: 30,
+      select: { id: true, startAt: true, durationMin: true, online: true, locationNote: true },
+    }),
+    prisma.lesson.findMany({
+      where: { studentId: me.id, status: "booked", startAt: { gte: new Date(Date.now() - 3600_000) } },
+      orderBy: { startAt: "asc" }, take: 30,
+      select: { id: true, startAt: true, durationMin: true, online: true, locationNote: true },
+    }),
+  ])
+  const toLessonDTO = (l: { id: string; startAt: Date; durationMin: number; online: boolean; locationNote: string | null }) =>
+    ({ id: l.id, when: fmtLesson(l.startAt), durationMin: l.durationMin, online: l.online, locationNote: l.locationNote })
+  const lessons = { open: openSlotRows.map(toLessonDTO), booked: myLessonRows.map(toLessonDTO) }
+  const nextLessonLabel = myLessonRows[0] ? fmtLesson(myLessonRows[0].startAt) : null
+
   const assignments = await prisma.assignment.findMany({
     where: { studentId: me.id },
     orderBy: { createdAt: "desc" },
@@ -147,6 +167,8 @@ export default async function MyTeacherPage({
         time: m.createdAt.toLocaleDateString("ja-JP"),
       }))}
       feedbacks={feedbacks}
+      lessons={lessons}
+      nextLessonLabel={nextLessonLabel}
     />
   )
 }
