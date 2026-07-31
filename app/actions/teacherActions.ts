@@ -130,6 +130,32 @@ export async function getMyTeacherLink(): Promise<{ teacherId: string; teacherNa
   }
 }
 
+/** 生徒: 「先生を探す」から先生とつながる(生徒起点)。公開プロフィールの先生のみ。 */
+export async function connectToTeacher(
+  teacherId: string,
+): Promise<{ ok: true; teacherName: string } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  if (teacherId === auth.user.dbUser.id) return { ok: false, error: "自分自身とは繋がれません" }
+  try {
+    const teacher = await prisma.user.findUnique({
+      where: { id: teacherId },
+      select: { name: true, role: true, teacherProfile: { select: { published: true } } },
+    })
+    if (!teacher || teacher.role !== "teacher" || !teacher.teacherProfile?.published) {
+      return { ok: false, error: "この先生とは繋がれません" }
+    }
+    await prisma.teacherStudent.upsert({
+      where: { teacherId_studentId: { teacherId, studentId: auth.user.dbUser.id } },
+      create: { teacherId, studentId: auth.user.dbUser.id },
+      update: {},
+    })
+    return { ok: true, teacherName: teacher.name }
+  } catch {
+    return { ok: false, error: "接続に失敗しました" }
+  }
+}
+
 /** 生徒: 先生を解約する(自分の先生リンクを解除)。宿題履歴は残す。 */
 export async function unlinkTeacher(): Promise<{ ok: true } | { ok: false; error: string }> {
   const auth = await requireAuthAction()

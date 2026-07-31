@@ -20,8 +20,9 @@ const BASE_NAV_ITEMS = [
 ]
 
 const ADMIN_NAV_ITEM = { path: "admin/practice", icon: "⚙️", label: "管理" }
-// 先生機能: 先生を登録している生徒だけに出る (2026-07-28)。成長記録の下に置く。
+// 先生機能 (2026-07-28)。先生の有無で1項目を出し分ける。
 const TEACHER_NAV_ITEM = { path: "my-teacher", icon: "💬", label: "先生とのやりとり" }
+const FIND_TEACHER_NAV_ITEM = { path: "find-teacher", icon: "🔎", label: "先生を探す" }
 
 // アカウント系メニュー (S-1 で追加)
 // 注: admin が ⚙️ を使っているため、設定は 🛠️ に変更して衝突回避
@@ -51,7 +52,7 @@ export default function Sidebar() {
 
   const navItems = [
     ...BASE_NAV_ITEMS,
-    ...(hasTeacher ? [TEACHER_NAV_ITEM] : []),
+    ...(hasTeacher ? [TEACHER_NAV_ITEM] : [FIND_TEACHER_NAV_ITEM]),
     ...(isAdmin ? [ADMIN_NAV_ITEM] : []),
     ...ACCOUNT_NAV_ITEMS,
   ]
