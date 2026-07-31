@@ -12,7 +12,6 @@
 import { useEffect, useState } from "react"
 import PerformanceMenu from "./PerformanceMenu"
 import {
-  DiagnosisBody,
   type DiagnosisApiResponse,
 } from "./WeaknessDiagnosisCard"
 import styles from "./PerformanceSkillDetail.module.css"
@@ -40,7 +39,6 @@ export default function PerformanceSkillDetail({
   performanceId,
   kind = "practice",
   onDeleted,
-  userId,
 }: Props) {
   const url =
     kind === "score"
@@ -143,12 +141,11 @@ export default function PerformanceSkillDetail({
     )
   }
 
+  // 診断本体(今回の学びポイントと練習メニュー)は演奏履歴では非表示に (2026-08-01 Tetsuo指示)。
+  // 削除メニュー(⋯)は残す。弱点/推薦は先生カルテ「練習」タブ側で扱う。
   return (
     <div className={styles.container}>
       {menuArea}
-      <section className={styles.section}>
-        <DiagnosisBody data={data} userId={userId} />
-      </section>
     </div>
   )
 }
