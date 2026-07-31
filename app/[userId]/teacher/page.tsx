@@ -61,7 +61,12 @@ export default async function TeacherHomePage({
 
   return (
     <div>
-      <h1 style={{ fontSize: 18, fontWeight: 900, margin: "4px 0 2px" }}>生徒</h1>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+        <h1 style={{ fontSize: 18, fontWeight: 900, margin: "4px 0 2px" }}>生徒</h1>
+        <Link href={`/${userId}/teacher/profile`} style={{ fontSize: 12, fontWeight: 700, color: "#2b3742", background: "#eef1f4", border: "1px solid #e2e6ea", borderRadius: 999, padding: "5px 12px", textDecoration: "none" }}>
+          プロフィール
+        </Link>
+      </div>
       <p style={{ fontSize: 12.5, color: "#6b7885", margin: "0 0 16px" }}>
         担当している生徒の一覧です。タップでカルテ（練習の様子・宿題）を開きます。
       </p>

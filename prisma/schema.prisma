@@ -80,6 +80,7 @@ model User {
   messagesAsStudent   Message[]        @relation("msgStudent")
   feedbacksAsTeacher  TeacherFeedback[] @relation("fbTeacher")
   feedbacksAsStudent  TeacherFeedback[] @relation("fbStudent")
+  teacherProfile      TeacherProfile?   @relation("profileTeacher")
 
   @@index([role])
 }
@@ -1203,6 +1204,28 @@ model TeacherFeedback {
   @@unique([teacherId, studentId, scoreId])
   @@unique([teacherId, studentId, practiceItemId])
   @@index([studentId])
+}
+
+// 先生プロフィール (2026-08-01 Phase2)。先生が自分で編集。「先生を探す」ページに掲載。
+model TeacherProfile {
+  id          String   @id @default(cuid())
+  teacherId   String   @unique
+  headline    String? // 一言(例: 移弦とリズムが得意)
+  bio         String? // 自己紹介
+  specialties String[] // 得意タグ(例: 移弦/リズム/初心者/ビブラート)
+  levels      String[] // 対応レベル(初級/中級/上級)
+  forKids     Boolean  @default(false) // 子どもOK
+  online      Boolean  @default(true) // オンライン対応
+  priceNote   String? // 料金(自由テキスト)
+  trial       Boolean  @default(false) // 体験レッスン可
+  sampleUrl   String? // 演奏サンプル/動画URL
+  published   Boolean  @default(false) // 「先生を探す」に掲載する
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  teacher User @relation("profileTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([published])
 }
 
 // ▼ お気に入り (2026-07-20 Tetsuo): 曲(Score) or 教材(PracticeItem) をユーザーがブックマーク。
