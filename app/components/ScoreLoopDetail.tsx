@@ -66,9 +66,9 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
         <GoalTracker achv={achv} />
       </section>
 
-      {/* ── 2. 毎日の基礎練 (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホームと共通ロジック) ── */}
+      {/* ── 2. 学びのポイント (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホームと共通ロジック) ── */}
       <section className={styles.cardSection}>
-        <h2 className={styles.sectionTitle}>🎯 毎日の基礎練</h2>
+        <h2 className={styles.sectionTitle}>🎯 学びのポイント</h2>
         <DailyLessons lessons={achv.dailyLessons ?? []} userId={userId} />
       </section>
 

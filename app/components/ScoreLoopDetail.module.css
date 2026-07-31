@@ -71,10 +71,15 @@
   font-weight: 700;
 }
 
-/* ── SkillTaskCard 3 列 ── */
+/* ── 各セクションは白カードで背景から浮かせる (2026-08-01: 背景同化の見づらさ修正) ── */
 .cardSection {
   display: flex;
   flex-direction: column;
+  background: #fff;
+  border: 1px solid #eef1f4;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .cardGrid {
