@@ -6,7 +6,29 @@ import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
+import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
 import StudentKarte from "./StudentKarte"
+
+// 演奏の analysisSummary.diagnosis から上位の弱点パターンを抽出 (§5-1: ミス集中箇所・原因候補)
+type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
+function topWeak(analysisSummary: unknown): WeakSlot[] {
+  const dj = (analysisSummary as { diagnosis?: {
+    map_available?: boolean
+    per_subtask?: Record<string, { miss: number; target: number }>
+    diagnosis?: { pitch?: string[]; rhythm?: string[] }
+  } })?.diagnosis
+  if (!dj || !dj.map_available) return []
+  const out: WeakSlot[] = []
+  for (const tree of ["pitch", "rhythm"] as const) {
+    for (const sid of dj.diagnosis?.[tree] ?? []) {
+      const def = SUBTASK_BY_ID[sid]
+      if (!def || !def.diagnosable) continue
+      const c = dj.per_subtask?.[sid] ?? { miss: 0, target: 0 }
+      out.push({ name: def.name, tree: tree === "pitch" ? "音程" : "リズム", miss: c.miss, target: c.target })
+    }
+  }
+  return out.slice(0, 3)
+}
 
 export const metadata = { title: "生徒カルテ" }
 
@@ -99,34 +121,34 @@ export default async function StudentKartePage({
     prisma.performance.findMany({
       where: { userId: studentId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: 12,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, rangeFromNote: true, score: { select: { title: true } } },
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, rangeFromNote: true, analysisSummary: true, score: { select: { title: true } } },
     }),
     prisma.practicePerformance.findMany({
       where: { userId: studentId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: 12,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, practiceItem: { select: { title: true, category: true } } },
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, practiceItem: { select: { title: true, category: true } } },
     }),
   ])
   const avg2 = (p: number | null, t: number | null) => Math.round(((p ?? 0) + (t ?? 0)) / 2)
-  type RecRaw = { id: string; at: number; title: string; cat: string; pitch: number; timing: number; avg: number; audioPath: string }
+  type RecRaw = { id: string; at: number; title: string; cat: string; pitch: number; timing: number; avg: number; audioPath: string; weak: WeakSlot[] }
   const recRaw: RecRaw[] = [
     ...scorePerfs.map((p) => ({
       id: p.id, at: p.uploadedAt.getTime(), title: p.score?.title ?? "曲",
       cat: p.rangeFromNote != null ? "曲（区間）" : "曲",
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
-      audioPath: p.audioPath,
+      audioPath: p.audioPath, weak: topWeak(p.analysisSummary),
     })),
     ...pracPerfs.map((p) => ({
       id: p.id, at: p.uploadedAt.getTime(), title: p.practiceItem?.title ?? "教材",
       cat: p.practiceItem?.category ? categoryLabel(p.practiceItem.category) : "基礎練",
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
-      audioPath: p.audioPath,
+      audioPath: p.audioPath, weak: topWeak(p.analysisSummary),
     })),
   ].sort((a, b) => b.at - a.at).slice(0, 12)
 
   // 音声の署名URL (先生が聴ける)
   const recordings = await Promise.all(recRaw.map(async (r) => ({
-    id: r.id, title: r.title, cat: r.cat, pitch: r.pitch, timing: r.timing, avg: r.avg,
+    id: r.id, title: r.title, cat: r.cat, pitch: r.pitch, timing: r.timing, avg: r.avg, weak: r.weak,
     date: new Date(r.at).toLocaleDateString("ja-JP"),
     audioUrl: r.audioPath
       ? await storageAdmin.storage.from("performances").createSignedUrl(r.audioPath, 600).then((x) => encodeSignedUrl(x.data?.signedUrl)).catch(() => null)

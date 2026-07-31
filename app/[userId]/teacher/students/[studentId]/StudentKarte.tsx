@@ -27,7 +27,8 @@ type AssignmentRow = {
 
 type Msg = { id: string; fromTeacher: boolean; body: string; time: string }
 type WorkItem = { title: string; cat: string; avg: number }
-type Recording = { id: string; title: string; cat: string; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null }
+type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
+type Recording = { id: string; title: string; cat: string; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[] }
 
 export default function StudentKarte({
   userId, studentId, studentName, briefing, scoreTargets, itemTargets, working, recordings, assignments, messages,
@@ -142,6 +143,17 @@ function PracticeTab({ working, recordings }: { working: WorkItem[]; recordings:
                   <span style={{ color: "#6b7885" }}>リズム <b style={{ color: scoreColor(r.timing) }}>{r.timing}</b></span>
                   <span style={{ color: "#6b7885" }}>平均 <b style={{ color: scoreColor(r.avg) }}>{r.avg}</b></span>
                 </div>
+                {r.weak.length > 0 && (
+                  <div style={{ marginTop: 7, display: "flex", flexDirection: "column", gap: 3 }}>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: "#9aa6b3" }}>崩れやすかった所</div>
+                    {r.weak.map((w, i) => (
+                      <div key={i} style={{ fontSize: 11.5, color: "#4a5766" }}>
+                        <span style={{ fontSize: 9.5, fontWeight: 800, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{w.tree}</span>
+                        🎯 {w.name}（{w.target}音中{w.miss}ミス）
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {r.audioUrl ? (
                   // eslint-disable-next-line jsx-a11y/media-has-caption
                   <audio controls preload="none" src={r.audioUrl} style={{ width: "100%", height: 34, marginTop: 8 }} />
