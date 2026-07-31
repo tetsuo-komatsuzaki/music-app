@@ -27,7 +27,7 @@ type PageProps = {
   searchParams: Promise<{ tab?: string }>
 }
 
-const VALID_TABS = ["calendar", "mastery"] as const
+const VALID_TABS = ["calendar", "mastery", "karte"] as const
 
 function toJSTDateStr(date: Date): string {
   const jst = new Date(date.getTime() + 9 * 60 * 60 * 1000)
@@ -183,6 +183,48 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
     if (cat in practiceMasterySummary) practiceMasterySummary[cat] += 1
   }
 
+  // ── 成長カルテ「あゆみ」(企画書§4-1): 演奏・練習・先生の指導・達成が一本の物語に ──
+  // 達成/マスター(常に) + 先生を登録していれば 提出/添削/先生コメント を時系列で混ぜる。
+  const teacherLink = await prisma.teacherStudent.findFirst({
+    where: { studentId: internalUserId },
+    orderBy: { createdAt: "asc" },
+    select: { teacherId: true, teacher: { select: { name: true } } },
+  })
+  type KEvent = { at: number; date: string; text: string; kind: "achieve" | "master" | "submit" | "feedback" | "comment" }
+  const kevents: KEvent[] = []
+  const fmtDate = (d: Date) => d.toLocaleDateString("ja-JP")
+  for (const a of achievements) {
+    kevents.push({ at: a.achievedAt.getTime(), date: fmtDate(a.achievedAt), kind: "achieve", text: `「${a.score.title}」を達成` })
+    if (a.masteredAt) kevents.push({ at: a.masteredAt.getTime(), date: fmtDate(a.masteredAt), kind: "master", text: `「${a.score.title}」をマスター` })
+  }
+  if (teacherLink) {
+    const [subs, fbs, msgs] = await Promise.all([
+      prisma.assignment.findMany({
+        where: { studentId: internalUserId, submittedAt: { not: null } },
+        orderBy: { submittedAt: "desc" }, take: 30,
+        select: { submittedAt: true, submittedScore: true, score: { select: { title: true } }, practiceItem: { select: { title: true } } },
+      }),
+      prisma.teacherFeedback.findMany({
+        where: { studentId: internalUserId, teacherId: teacherLink.teacherId, scoreId: { not: null } },
+        orderBy: { updatedAt: "desc" }, take: 30, select: { updatedAt: true, scoreId: true },
+      }),
+      prisma.message.findMany({
+        where: { studentId: internalUserId, teacherId: teacherLink.teacherId, fromTeacher: true },
+        orderBy: { createdAt: "desc" }, take: 15, select: { createdAt: true, body: true },
+      }),
+    ])
+    const fbTitles = new Map<string, string>()
+    if (fbs.length) {
+      const ss = await prisma.score.findMany({ where: { id: { in: fbs.map((f) => f.scoreId as string) } }, select: { id: true, title: true } })
+      for (const s of ss) fbTitles.set(s.id, s.title)
+    }
+    for (const s of subs) if (s.submittedAt) kevents.push({ at: s.submittedAt.getTime(), date: fmtDate(s.submittedAt), kind: "submit", text: `「${s.score?.title ?? s.practiceItem?.title ?? "課題"}」を提出${s.submittedScore != null ? `（${s.submittedScore}点）` : ""}` })
+    for (const f of fbs) kevents.push({ at: f.updatedAt.getTime(), date: fmtDate(f.updatedAt), kind: "feedback", text: `「${fbTitles.get(f.scoreId as string) ?? "曲"}」に先生の添削がとどいた` })
+    for (const m of msgs) kevents.push({ at: m.createdAt.getTime(), date: fmtDate(m.createdAt), kind: "comment", text: `先生：${m.body}` })
+  }
+  kevents.sort((a, b) => b.at - a.at)
+  const karteEvents = kevents.slice(0, 60).map(({ date, text, kind }) => ({ date, text, kind }))
+
   return (
     <ProgressPage
       tab={tab}
@@ -192,6 +234,8 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
       gradeData={gradeData}
       masteredSongs={masteredSongsData}
       practiceMasterySummary={practiceMasterySummary}
+      karteEvents={karteEvents}
+      teacherName={teacherLink?.teacher.name ?? null}
     />
   )
 }

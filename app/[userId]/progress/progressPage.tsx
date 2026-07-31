@@ -42,11 +42,24 @@ type Props = {
   gradeData:       GradeData
   masteredSongs:   MasteredSong[]
   practiceMasterySummary: Record<string, number>
+  karteEvents:     KarteEvent[]
+  teacherName:     string | null
+}
+
+// 成長カルテ「あゆみ」のイベント (企画書§4-1)
+export type KarteEvent = {
+  date: string
+  text: string
+  kind: "achieve" | "master" | "submit" | "feedback" | "comment"
+}
+const KARTE_ICON: Record<KarteEvent["kind"], string> = {
+  achieve: "🎯", master: "🏆", submit: "📤", feedback: "📝", comment: "💬",
 }
 
 // ─── タブ定義 (v1.6 Phase 4-2: 旧 tasks タブ削除、mastery タブ追加) ─────
 const TABS = [
   { key: "mastery",  label: "習得状況" },
+  { key: "karte",    label: "あゆみ" },
   { key: "calendar", label: "練習カレンダー" },
 ]
 
@@ -71,6 +84,8 @@ export default function ProgressPage({
   gradeData,
   masteredSongs,
   practiceMasterySummary,
+  karteEvents,
+  teacherName,
 }: Props) {
   const params = useParams()
   const userId = (params.userId as string) ?? userIdProp
@@ -204,6 +219,41 @@ export default function ProgressPage({
               ))}
             </div>
           </div>
+        </>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════
+          あゆみタブ = 成長カルテ (企画書§4-1): 演奏・練習・先生の指導・達成が一本の物語に
+      ═══════════════════════════════════════════════════════ */}
+      {tab === "karte" && (
+        <>
+          <div className={styles.card}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: "#2b3742", marginBottom: 2 }}>あゆみ</div>
+            <div style={{ fontSize: 12, color: "#6b7885" }}>
+              {teacherName
+                ? `達成やマスター、${teacherName} 先生とのあゆみが、ここに残っていきます。`
+                : "達成やマスターが、ここに残っていきます。"}
+            </div>
+          </div>
+
+          {karteEvents.length === 0 ? (
+            <div className={styles.card} style={{ textAlign: "center", color: "#9aa6b3", fontSize: 13 }}>
+              まだ記録がありません。曲を弾いて、達成を目指そう。
+            </div>
+          ) : (
+            <div className={styles.card}>
+              <div style={{ position: "relative", paddingLeft: 18, display: "flex", flexDirection: "column", gap: 13 }}>
+                <span style={{ position: "absolute", left: 5, top: 4, bottom: 4, width: 2, background: "#e7eaee" }} />
+                {karteEvents.map((e, i) => (
+                  <div key={i} style={{ position: "relative" }}>
+                    <span style={{ position: "absolute", left: -18, top: 2, width: 11, height: 11, borderRadius: "50%", background: e.kind === "master" ? "#b5651d" : e.kind === "achieve" ? "#2e8b57" : "#4f63c6", border: "2px solid #fff" }} />
+                    <div style={{ fontSize: 10.5, color: "#9aa6b3", fontWeight: 700 }}>{e.date}</div>
+                    <div style={{ fontSize: 13, color: "#2b3742", marginTop: 1 }}>{KARTE_ICON[e.kind]} {e.text}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </>
       )}
 
