@@ -524,7 +524,7 @@ export default async function HomePage({ params }: PageProps) {
 
   // 先生からの宿題(未完了) + 新着サマリ — ホーム上部「先生から」用 (2026-07-28 / E追加 2026-08-01)
   let teacherAssignments: {
-    id: string; kind: "score" | "practice"; teacherName: string; title: string; detail: string; comment: string | null; href: string
+    id: string; kind: "score" | "practice"; teacherName: string; title: string; reps: number | null; targetTempo: number | null; comment: string | null; href: string
     dueDate: string | null; goalType: string | null; targetScore: number | null; achieved: boolean; mastered: boolean
   }[] = []
   let teacherSummary: { teacherName: string | null; unreadMessages: number; feedbackCount: number } | undefined
@@ -558,10 +558,8 @@ export default async function HomePage({ params }: PageProps) {
         kind: (a.score ? "score" : "practice") as "score" | "practice",
         teacherName: a.teacher.name,
         title: a.score?.title ?? a.practiceItem?.title ?? "課題",
-        detail: [
-          a.reps && `×${a.reps}`,
-          a.targetTempo && `♩=${a.targetTempo}`,
-        ].filter(Boolean).join(" ・ "),
+        reps: a.reps,
+        targetTempo: a.targetTempo,
         comment: a.comment,
         dueDate: a.dueDate ? a.dueDate.toISOString() : null,
         goalType: a.goalType,

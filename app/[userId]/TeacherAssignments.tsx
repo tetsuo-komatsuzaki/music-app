@@ -1,12 +1,12 @@
 "use client"
 
-// 生徒ホームの「先生から」セクション (2026-07-28)。未完了の宿題を出し、タップで既存の練習へ。
-// 将来: 次回レッスン/提出物などのセクションをこの下に足す。
-import { useState, useTransition } from "react"
+// 生徒ホームの「先生から」カード (案3・2026-08-01)。
+// 1行ヘッダー＋宿題アコーディオン(既定で閉じる)。色は控えめ(グレー基調)。
+// 「できたら✓」は廃止(完了は曲/教材側の提出で行う)。タップで対象へ遷移。
+import { useState } from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
-import { markAssignmentDone } from "@/app/actions/teacherActions"
-import { goalLabel, dueInfo, DUE_COLOR, goalResult } from "@/app/_libs/assignmentGoal"
+import { useParams } from "next/navigation"
+import { goalLabel, dueInfo, goalResult } from "@/app/_libs/assignmentGoal"
 
 export type StudentAssignment = {
   id: string
@@ -14,7 +14,8 @@ export type StudentAssignment = {
   kind: "score" | "practice"
   teacherName: string
   title: string
-  detail: string
+  reps: number | null
+  targetTempo: number | null
   comment: string | null
   href: string
   dueDate: string | null
@@ -30,6 +31,22 @@ export type TeacherHomeSummary = {
   feedbackCount: number
 }
 
+// 期限チップの控えめな色 (近い/過ぎた時だけ弱く色づけ)
+const DUE_CALM = {
+  overdue: { fg: "#b0524c", bg: "#f7ebea", bd: "#eed6d3" },
+  soon: { fg: "#a9762f", bg: "#f7f1e6", bd: "#ecdfc8" },
+  normal: { fg: "#5a636e", bg: "#f2f4f7", bd: "#e6e9ee" },
+}
+const chip: React.CSSProperties = {
+  display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 800,
+  borderRadius: 8, padding: "4px 9px", whiteSpace: "nowrap", lineHeight: 1,
+}
+const softChip: React.CSSProperties = { ...chip, color: "#5a636e", background: "#f2f4f7", border: "1px solid #e6e9ee" }
+const badge: React.CSSProperties = {
+  fontSize: 11, fontWeight: 800, color: "#5a636e", background: "#f2f4f7",
+  border: "1px solid #e6e9ee", borderRadius: 999, padding: "2px 9px",
+}
+
 export default function TeacherAssignments({
   assignments,
   summary,
@@ -37,113 +54,70 @@ export default function TeacherAssignments({
   assignments: StudentAssignment[]
   summary?: TeacherHomeSummary
 }) {
-  const router = useRouter()
   const { userId } = useParams<{ userId: string }>()
-  const [pending, startTransition] = useTransition()
-  const [doneIds, setDoneIds] = useState<Set<string>>(new Set())
+  const [open, setOpen] = useState(false)
 
-  const hasChips = !!summary && (summary.unreadMessages > 0 || summary.feedbackCount > 0)
-  if (!assignments.length && !hasChips) return null
-
-  const markDone = (id: string) => {
-    setDoneIds((s) => new Set(s).add(id))
-    startTransition(async () => {
-      await markAssignmentDone(id)
-      router.refresh()
-    })
-  }
-
-  // 曲 / 曲以外(基礎練・教材) で分けて表示
-  const songs = assignments.filter((a) => a.kind === "score")
-  const others = assignments.filter((a) => a.kind === "practice")
-  const showLabels = songs.length > 0 && others.length > 0
-  const groupLabel = { fontSize: 11, fontWeight: 800 as const, color: "#9aa6b3", margin: "0 2px 6px" }
-
-  const card = (a: StudentAssignment) => (
-    <div key={a.id} style={{ border: "1px solid #eef1f4", borderRadius: 12, padding: "10px 12px", opacity: doneIds.has(a.id) ? 0.5 : 1 }}>
-      <Link href={a.href} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-        <div style={{ fontSize: 13.5, fontWeight: 800, color: "#2b3742" }}>📌 {a.title}</div>
-        {(dueInfo(a.dueDate) || goalLabel(a.goalType, a.targetScore)) && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
-            {(() => {
-              const di = dueInfo(a.dueDate)
-              if (!di) return null
-              const c = DUE_COLOR[di.state]
-              return (
-                <span style={{ fontSize: 10.5, fontWeight: 800, color: c.fg, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 999, padding: "2px 8px" }}>
-                  期限 {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}
-                </span>
-              )
-            })()}
-            {goalLabel(a.goalType, a.targetScore) && (
-              <span style={{ fontSize: 10.5, fontWeight: 800, color: "#3b56d4", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "2px 8px" }}>
-                {goalLabel(a.goalType, a.targetScore)}
-              </span>
-            )}
-            {(() => {
-              const gr = goalResult(a.goalType, { achieved: a.achieved, mastered: a.mastered })
-              if (!gr || a.goalType === "score") return null
-              return (
-                <span style={{ fontSize: 10.5, fontWeight: 800, color: gr.met ? "#2e8b57" : "#9aa6b3", background: gr.met ? "#e9f7ef" : "#f1f4f8", border: `1px solid ${gr.met ? "#cbe8d6" : "#e2e6ea"}`, borderRadius: 999, padding: "2px 8px" }}>
-                  {gr.label}
-                </span>
-              )
-            })()}
-          </div>
-        )}
-        {a.detail && <div style={{ fontSize: 12, color: "#6b7885", marginTop: 4 }}>{a.detail}</div>}
-        {a.comment && <div style={{ fontSize: 12.5, color: "#2b3742", marginTop: 4 }}>💬 {a.comment}</div>}
-      </Link>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
-        <span style={{ fontSize: 10.5, color: "#b3bcc6" }}>{a.teacherName} 先生</span>
-        <button
-          type="button"
-          onClick={() => markDone(a.id)}
-          disabled={pending || doneIds.has(a.id)}
-          style={{ fontSize: 11, fontWeight: 700, color: "#2e8b57", background: "#eafaf0", border: "1px solid #cbe8d6", borderRadius: 999, padding: "4px 12px", cursor: "pointer" }}
-        >
-          {doneIds.has(a.id) ? "できた！" : "できたら✓"}
-        </button>
-      </div>
-    </div>
-  )
+  const unread = summary?.unreadMessages ?? 0
+  const feedback = summary?.feedbackCount ?? 0
+  const hwCount = assignments.length
+  // 宿題も未読も添削も無ければ出さない
+  if (hwCount === 0 && unread === 0 && feedback === 0) return null
 
   return (
-    <section style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 16, padding: "14px 16px", margin: "0 0 14px", boxShadow: "0 1px 3px rgba(30,45,70,.05)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+    <section style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 16, padding: "12px 14px", margin: "0 0 14px", boxShadow: "0 1px 3px rgba(30,45,70,.04)" }}>
+      {/* 1行ヘッダー = アコーディオンのトグル */}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", padding: 0, cursor: "pointer", font: "inherit", textAlign: "left" }}
+      >
         <span style={{ fontSize: 12.5, fontWeight: 800, color: "#2b3742" }}>👩‍🏫 先生から</span>
-        <Link href={`/${userId}/my-teacher`} style={{ marginLeft: "auto", fontSize: 11, fontWeight: 700, color: "#4a6cf7", textDecoration: "none" }}>
-          やりとりを見る →
-        </Link>
-      </div>
+        {hwCount > 0 && <span style={badge}>宿題{hwCount}</span>}
+        {unread > 0 && <span style={badge}>未読{unread}</span>}
+        <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 800, color: "#9aa6b3" }}>{open ? "▲ 閉じる" : "▼ 開く"}</span>
+      </button>
 
-      {/* 未読メッセージ・添削の件数チップ (E) */}
-      {hasChips && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: assignments.length ? 10 : 0 }}>
-          {summary!.unreadMessages > 0 && (
-            <Link href={`/${userId}/my-teacher`} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 800, color: "#b23", background: "#fdecec", border: "1px solid #f6cdcd", borderRadius: 999, padding: "5px 11px", textDecoration: "none" }}>
-              💬 未読メッセージ {summary!.unreadMessages}
-            </Link>
-          )}
-          {summary!.feedbackCount > 0 && (
-            <Link href={`/${userId}/my-teacher`} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 800, color: "#3b56d4", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "5px 11px", textDecoration: "none" }}>
-              ✍️ 添削 {summary!.feedbackCount}
-            </Link>
-          )}
-        </div>
-      )}
+      {open && (
+        <>
+          {/* メッセージ / 添削 への導線 */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
+            <Link href={`/${userId}/my-teacher`} style={{ fontSize: 11.5, fontWeight: 800, color: "#5b6b9e", textDecoration: "none" }}>💬 メッセージ{unread > 0 ? `（${unread}）` : ""}</Link>
+            <span style={{ color: "#dfe3e8" }}>|</span>
+            <Link href={`/${userId}/my-teacher`} style={{ fontSize: 11.5, fontWeight: 800, color: "#5b6b9e", textDecoration: "none" }}>✍️ 添削{feedback > 0 ? `（${feedback}）` : ""}</Link>
+          </div>
 
-      {songs.length > 0 && (
-        <div style={{ marginBottom: others.length ? 12 : 0 }}>
-          {showLabels && <div style={groupLabel}>🎼 曲</div>}
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{songs.map(card)}</div>
-        </div>
-      )}
-      {others.length > 0 && (
-        <div>
-          {showLabels && <div style={groupLabel}>🎵 基礎練・教材</div>}
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{others.map(card)}</div>
-        </div>
+          {/* 宿題リスト (タップで対象へ) */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
+            {assignments.map((a) => {
+              const di = dueInfo(a.dueDate)
+              const goal = goalLabel(a.goalType, a.targetScore)
+              const gr = goalResult(a.goalType, { achieved: a.achieved, mastered: a.mastered })
+              const metLabel = gr && a.goalType !== "score" && gr.met ? gr.label : null
+              return (
+                <Link key={a.id} href={a.href} style={{ display: "block", border: "1px solid #eef1f4", borderRadius: 10, padding: "9px 11px", textDecoration: "none", color: "inherit" }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: "#2b3742" }}>
+                    {a.title}
+                    <span style={{ fontSize: 10, color: "#aab2bb", fontWeight: 700, marginLeft: 6 }}>{a.kind === "score" ? "曲" : "基礎練"}</span>
+                  </div>
+                  {(goal || di || metLabel) && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+                      {goal && <span style={softChip}>🎯 {goal}{a.reps ? ` ・ ${a.reps}回` : ""}</span>}
+                      {a.targetTempo && <span style={softChip}>♩={a.targetTempo}</span>}
+                      {di && (() => {
+                        const c = DUE_CALM[di.state]
+                        return <span style={{ ...chip, color: c.fg, background: c.bg, border: `1px solid ${c.bd}` }}>📅 {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}</span>
+                      })()}
+                      {metLabel && <span style={{ ...chip, color: "#2e8b57", background: "#eaf5ee", border: "1px solid #cfe6d8" }}>{metLabel}</span>}
+                    </div>
+                  )}
+                  {a.comment && <div style={{ fontSize: 12, color: "#4a4650", marginTop: 6, lineHeight: 1.5 }}>💬 {a.comment}</div>}
+                  <div style={{ fontSize: 10.5, color: "#aab2bb", marginTop: 7 }}>{a.teacherName} 先生</div>
+                </Link>
+              )
+            })}
+          </div>
+        </>
       )}
     </section>
   )
