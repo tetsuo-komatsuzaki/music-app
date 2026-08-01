@@ -44,7 +44,7 @@ function StepHead({ n, title, sub, tone }: { n: string; title: string; sub: stri
     <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 800, color: "#22303c", margin: "0 0 8px" }}>
       <span style={{ fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: pillBg, color: pillCol }}>{n}</span>
       {title}
-      <span style={{ fontWeight: 600, color: "#94a0ad", fontSize: 11 }}>{sub}</span>
+      {sub && <span style={{ fontWeight: 600, color: "#94a0ad", fontSize: 11 }}>{sub}</span>}
     </div>
   )
 }
@@ -133,7 +133,7 @@ export default function GoalTracker({ achv }: { achv: AchievementStatus }) {
         <div style={goalCheer(true)}>🏆 この曲をマスター！ おつかれさま、すごい！</div>
       ) : (
         <>
-          <StepHead n="STEP 1" title="まずは弾けるように" sub="通して弾けたらクリア" tone="s1" />
+          <StepHead n="STEP 1" title="まずは弾けるように" sub="" tone="s1" />
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             {condDone >= condTotal
               ? <GoalRing full />

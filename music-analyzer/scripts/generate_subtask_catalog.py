@@ -45,6 +45,19 @@ INTERVAL_CROSS = [("same", "同一弦"), ("adj", "隣接移弦"), ("skip", "弦�
 INTERVAL_DIR = [("up", "上行"), ("down", "下行")]
 INTERVAL_DIST = [("step", "順次"), ("leap", "跳躍")]
 
+# 学びポイントのラベルを平易な文章にする (2026-08-01 Tetsuo)。
+# 「同一弦・下行・跳躍」等の専門語の並びは伝わらないので、どんな動きのミスかを説明する。
+_ICROSS_TXT = {"same": "同じ弦で", "adj": "となりの弦に移って", "skip": "弦を1本とばして"}
+_IMOVE_TXT = {
+    ("up", "step"): "少し上の音へ動く",
+    ("down", "step"): "少し下の音へ動く",
+    ("up", "leap"): "高い音へ大きく跳ぶ",
+    ("down", "leap"): "低い音へ大きく跳ぶ",
+}
+# 入り(休符後の入り)も同様に平易化
+_REST_TXT = {"short": "短い休みのあと", "mid": "中くらいの休みのあと", "long": "長い休みのあと"}
+_BEAT_TXT = {"onbeat": "拍の頭から入る", "offbeat": "拍の裏から入る"}
+
 VALUES = [
     ("whole", "全音符"), ("half", "2分音符"), ("quarter", "4分音符"),
     ("eighth", "8分音符"), ("16th", "16分音符"), ("32nd_plus", "32分音符以上"),
@@ -115,10 +128,11 @@ def _interval(prefix: str):
                 diag = not (c_id == "same" and s_id == "step")
                 # 順次系→音階 / 跳躍系→アルペジオ (教材タグに移弦軸が無いための近似)
                 q = [_CAT("arpeggio" if s_id == "leap" else "scale")]
+                name = f"{_ICROSS_TXT[c_id]}{_IMOVE_TXT[(d_id, s_id)]}"
                 out.append((f"{prefix}_interval_{c_id}_{d_id}_{s_id}", "interval_move",
-                            f"{c_name}・{d_name}・{s_name}", diag, q))
+                            name, diag, q))
     out.append((f"{prefix}_interval_unison_crossing", "interval_move",
-                "移弦ユニゾン（同度）", True, [_CAT("bowing"), _CAT("scale")]))
+                "弦を移っても同じ高さの音を弾く", True, [_CAT("bowing"), _CAT("scale")]))
     return out
 
 
@@ -145,8 +159,9 @@ def _entry(prefix: str):
     for r_id, r_name in ENTRY_REST:
         for b_id, b_name in ENTRY_BEAT:
             q = [_FEAT("rhythm", "拍頭休符" if b_id == "onbeat" else "裏拍開始")]
+            name = f"{_REST_TXT[r_id]}、{_BEAT_TXT[b_id]}"
             out.append((f"{prefix}_entry_{r_id}_{b_id}", "entry_after_rest",
-                        f"{r_name}・{b_name}の入り", True, q))
+                        name, True, q))
     return out
 
 
