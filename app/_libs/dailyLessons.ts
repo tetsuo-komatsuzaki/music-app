@@ -180,13 +180,26 @@ export async function selectDailyLessons(opts: {
       const slots = await recommendForPerformance(diag, ctx)
       // おすすめ度順 = スロット順(弱点の重い順) × スロット内の順位
       const flat = slots.flatMap((s) => s.materials)
+      // カテゴリの偏り防止 (2026-08-01 Tetsuo): まず①②や互いと「違うカテゴリ」を優先。
+      // それで2つに満たない時だけ同一カテゴリも許容 (例: アルペジオが2つ並ぶのを避ける)。
+      const recCats = new Set(out.map((o) => o.category))
       let added = 0
       for (const m of flat) {
         if (added >= 2) break
-        if (usedIds.has(m.id)) continue
+        if (usedIds.has(m.id) || recCats.has(m.category)) continue
         if (await isMaterialCleared(userId, m.id)) continue
         push("rec", { id: m.id, category: m.category })
+        recCats.add(m.category)
         added++
+      }
+      if (added < 2) {
+        for (const m of flat) {
+          if (added >= 2) break
+          if (usedIds.has(m.id)) continue
+          if (await isMaterialCleared(userId, m.id)) continue
+          push("rec", { id: m.id, category: m.category })
+          added++
+        }
       }
     }
   }

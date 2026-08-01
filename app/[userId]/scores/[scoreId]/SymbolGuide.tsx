@@ -157,11 +157,18 @@ export default function SymbolGuide({
       return
     }
     const h = host.getBoundingClientRect()
-    const r = el.getBoundingClientRect()
+    // 符頭(玉)単体を狙う。el(g.vf-stavenote)は符幹込みで縦長なので、
+    // その中の .vf-notehead を優先すると玉の中心・大きさが取れる
+    // (LessonScoreCard と同方式)。玉を輪でかこう配置に使う。
+    const head = (el.querySelector(".vf-notehead") as HTMLElement | null) ?? el
+    const r = head.getBoundingClientRect()
     node.style.display = ""
-    // 元の方式(音符の上に小さな目印)に戻す。円は小さめ(被り軽減)。
+    // 玉に少しだけ余白を足した円で「かこむ」。玉サイズに合わせて毎回調整。
+    const d = Math.max(r.width, r.height) + 7
+    node.style.width = `${d}px`
+    node.style.height = `${d}px`
     node.style.left = `${r.left + r.width / 2 - h.left}px`
-    node.style.top = `${r.top - h.top - 14}px`
+    node.style.top = `${r.top + r.height / 2 - h.top}px`
   }, [noteElementsRef])
 
   const repositionAll = useCallback(() => {
@@ -274,9 +281,8 @@ export default function SymbolGuide({
                 placeMark(node, m.noteIndex)
               }}
               onClick={(e) => { e.stopPropagation(); openSymbol(m.sym) }}
-            >
-              <SymbolGlyph glyph={m.sym.glyph} value={m.sym.value} />
-            </button>
+            />
+
 
           ))}
         </div>,

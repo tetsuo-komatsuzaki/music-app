@@ -17,24 +17,21 @@
 .markLayer {
   position: absolute; inset: 0; pointer-events: none; z-index: 5;
 }
-/* 元の方式(音符の上に小さな目印)。円は小さめ(音符より少し大きい程度)で被り軽減。 */
+/* 符頭(玉)を「かこむ」輪。中は透過して玉が見える。サイズは JS が玉に合わせる。 */
 .mark {
-  position: absolute; transform: translateX(-50%);
+  position: absolute; transform: translate(-50%, -50%);
   pointer-events: auto; cursor: pointer; appearance: none; font-family: inherit;
-  display: grid; place-items: center;
-  width: 11px; height: 11px; padding: 0;
-  border-radius: 50%; border: 1px solid #e0a02f;
-  background: #fff8e8; color: #8a5a10;
-  box-shadow: 0 1px 2px rgba(120, 80, 10, .22);
+  display: grid; place-items: center; padding: 0;
+  border-radius: 50%; border: 1.6px solid #e0a02f;
+  background: rgba(255, 248, 232, .28);
+  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .55), 0 1px 3px rgba(120, 80, 10, .25);
   transition: transform .12s, background .12s;
 }
-.mark svg { width: 7.5px; height: 7.5px; }
-.mark .gTxt { font-size: 7px; line-height: 1; }
-.mark:hover { background: #ffeec4; }
-.mark:active { transform: translateX(-50%) scale(.9); }
+.mark:hover { background: rgba(255, 224, 160, .45); }
+.mark:active { transform: translate(-50%, -50%) scale(.9); }
 /* タップ領域を見た目より広げる (譜面が密でも押しやすく) */
 .mark::after {
-  content: ""; position: absolute; inset: -9px; border-radius: 50%;
+  content: ""; position: absolute; inset: -7px; border-radius: 50%;
 }
 
 .chips { display: flex; flex-wrap: wrap; gap: 7px; }
