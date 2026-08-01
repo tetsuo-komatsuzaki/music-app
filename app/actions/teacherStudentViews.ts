@@ -17,6 +17,9 @@ export type ScoreTeacherView = {
     dueDate: string | null
     goalType: string | null
     targetScore: number | null
+    /** この曲の達成/マスター状態 (達成・マスター目標の自動判定用) */
+    achieved: boolean
+    mastered: boolean
   } | null
   /** この曲にこの生徒宛の添削(注釈)があるか */
   hasFeedback: boolean
@@ -39,7 +42,7 @@ export async function getScoreTeacherView(scoreId: string): Promise<ScoreTeacher
     })
     if (!link) return EMPTY_VIEW
 
-    const [assignment, feedback] = await Promise.all([
+    const [assignment, feedback, achievement] = await Promise.all([
       prisma.assignment.findFirst({
         where: { studentId: me, scoreId, doneAt: null },
         orderBy: { createdAt: "desc" },
@@ -51,6 +54,10 @@ export async function getScoreTeacherView(scoreId: string): Promise<ScoreTeacher
       prisma.teacherFeedback.findFirst({
         where: { teacherId: link.teacherId, studentId: me, scoreId },
         select: { id: true },
+      }),
+      prisma.userScoreAchievement.findUnique({
+        where: { userId_scoreId: { userId: me, scoreId } },
+        select: { masteredAt: true },
       }),
     ])
 
@@ -69,6 +76,8 @@ export async function getScoreTeacherView(scoreId: string): Promise<ScoreTeacher
             dueDate: assignment.dueDate ? assignment.dueDate.toISOString() : null,
             goalType: assignment.goalType,
             targetScore: assignment.targetScore,
+            achieved: achievement != null,
+            mastered: achievement?.masteredAt != null,
           }
         : null,
       hasFeedback: !!feedback,

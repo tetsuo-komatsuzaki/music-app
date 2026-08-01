@@ -6,7 +6,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { markAssignmentDone } from "@/app/actions/teacherActions"
-import { goalLabel, dueInfo, DUE_COLOR } from "@/app/_libs/assignmentGoal"
+import { goalLabel, dueInfo, DUE_COLOR, goalResult } from "@/app/_libs/assignmentGoal"
 
 export type StudentAssignment = {
   id: string
@@ -20,6 +20,8 @@ export type StudentAssignment = {
   dueDate: string | null
   goalType: string | null
   targetScore: number | null
+  achieved: boolean
+  mastered: boolean
 }
 
 export type TeacherHomeSummary = {
@@ -78,6 +80,15 @@ export default function TeacherAssignments({
                 {goalLabel(a.goalType, a.targetScore)}
               </span>
             )}
+            {(() => {
+              const gr = goalResult(a.goalType, { achieved: a.achieved, mastered: a.mastered })
+              if (!gr || a.goalType === "score") return null
+              return (
+                <span style={{ fontSize: 10.5, fontWeight: 800, color: gr.met ? "#2e8b57" : "#9aa6b3", background: gr.met ? "#e9f7ef" : "#f1f4f8", border: `1px solid ${gr.met ? "#cbe8d6" : "#e2e6ea"}`, borderRadius: 999, padding: "2px 8px" }}>
+                  {gr.label}
+                </span>
+              )
+            })()}
           </div>
         )}
         {a.detail && <div style={{ fontSize: 12, color: "#6b7885", marginTop: 4 }}>{a.detail}</div>}

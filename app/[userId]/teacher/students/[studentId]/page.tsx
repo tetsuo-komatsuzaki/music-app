@@ -6,6 +6,7 @@ import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
+import { getAchievementFlags } from "@/app/_libs/achievementFlags"
 import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
 import StudentKarte from "./StudentKarte"
 
@@ -85,7 +86,7 @@ export default async function StudentKartePage({
     prisma.assignment.findMany({
       where: { teacherId: me.id, studentId }, orderBy: { createdAt: "desc" }, take: 30,
       select: {
-        id: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
+        id: true, scoreId: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
         dueDate: true, goalType: true, targetScore: true,
         doneAt: true, submittedAt: true, submittedScore: true, createdAt: true,
         score: { select: { title: true } }, practiceItem: { select: { title: true } },
@@ -141,6 +142,9 @@ export default async function StudentKartePage({
     title: s.star != null ? `★${s.star} ${s.title}` : s.title,
     group: categoryLabel(s.category),
   }))
+
+  // 宿題の「達成/マスター目標」自動判定用に、対象曲の達成状態をまとめて取得
+  const achFlags = await getAchievementFlags(studentId, assignments.map((a) => a.scoreId))
 
   // ── 練習タブ (§5-1 拡充): 取り組んでいる曲/教材 + 直近の録音(分析結果 + 音声) ──
   const [scorePerfs, pracPerfs] = await Promise.all([
@@ -219,6 +223,8 @@ export default async function StudentKartePage({
         dueDate: a.dueDate ? a.dueDate.toISOString() : null,
         goalType: a.goalType,
         targetScore: a.targetScore,
+        achieved: a.scoreId ? (achFlags.get(a.scoreId)?.achieved ?? false) : false,
+        mastered: a.scoreId ? (achFlags.get(a.scoreId)?.mastered ?? false) : false,
         done: a.doneAt != null,
         submitted: a.submittedAt != null,
         submittedScore: a.submittedScore,

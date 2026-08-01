@@ -5,7 +5,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createAssignment, sendMessageToStudent } from "@/app/actions/teacherActions"
-import { goalLabel, dueInfo, DUE_COLOR, scorePassed } from "@/app/_libs/assignmentGoal"
+import { goalLabel, dueInfo, DUE_COLOR, scorePassed, goalResult } from "@/app/_libs/assignmentGoal"
 
 type Target = { id: string; title: string; group?: string }
 type Briefing = {
@@ -23,6 +23,8 @@ type AssignmentRow = {
   dueDate: string | null
   goalType: string | null
   targetScore: number | null
+  achieved: boolean
+  mastered: boolean
   done: boolean
   submitted: boolean
   submittedScore: number | null
@@ -466,6 +468,15 @@ function Homework({
                       {goalLabel(a.goalType, a.targetScore)}
                     </span>
                   )}
+                  {(() => {
+                    const gr = goalResult(a.goalType, { achieved: a.achieved, mastered: a.mastered })
+                    if (!gr || a.goalType === "score") return null
+                    return (
+                      <span style={{ fontSize: 10.5, fontWeight: 800, color: gr.met ? "#2e8b57" : "#9aa6b3", background: gr.met ? "#e9f7ef" : "#f1f4f8", border: `1px solid ${gr.met ? "#cbe8d6" : "#e2e6ea"}`, borderRadius: 999, padding: "2px 8px" }}>
+                        {gr.label}
+                      </span>
+                    )
+                  })()}
                 </div>
               )}
               {a.comment && <div style={{ fontSize: 12.5, color: "#2b3742", marginTop: 4 }}>💬 {a.comment}</div>}

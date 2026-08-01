@@ -1,5 +1,6 @@
 import { prisma } from "@/app/_libs/prisma"
 import { generateArcoMessage } from "@/app/_libs/arcoChan"
+import { getAchievementFlags } from "@/app/_libs/achievementFlags"
 import {
   badgeKind,
   gradeFromStar,
@@ -524,7 +525,7 @@ export default async function HomePage({ params }: PageProps) {
   // 先生からの宿題(未完了) + 新着サマリ — ホーム上部「先生から」用 (2026-07-28 / E追加 2026-08-01)
   let teacherAssignments: {
     id: string; kind: "score" | "practice"; teacherName: string; title: string; detail: string; comment: string | null; href: string
-    dueDate: string | null; goalType: string | null; targetScore: number | null
+    dueDate: string | null; goalType: string | null; targetScore: number | null; achieved: boolean; mastered: boolean
   }[] = []
   let teacherSummary: { teacherName: string | null; unreadMessages: number; feedbackCount: number } | undefined
   try {
@@ -551,6 +552,7 @@ export default async function HomePage({ params }: PageProps) {
         prisma.message.count({ where: { studentId: internalUserId, teacherId: link.teacherId, fromTeacher: true, readAt: null } }),
         prisma.teacherFeedback.count({ where: { teacherId: link.teacherId, studentId: internalUserId } }),
       ])
+      const homeAchFlags = await getAchievementFlags(internalUserId, rows.map((a) => a.score?.id))
       teacherAssignments = rows.map((a) => ({
         id: a.id,
         kind: (a.score ? "score" : "practice") as "score" | "practice",
@@ -564,6 +566,8 @@ export default async function HomePage({ params }: PageProps) {
         dueDate: a.dueDate ? a.dueDate.toISOString() : null,
         goalType: a.goalType,
         targetScore: a.targetScore,
+        achieved: a.score?.id ? (homeAchFlags.get(a.score.id)?.achieved ?? false) : false,
+        mastered: a.score?.id ? (homeAchFlags.get(a.score.id)?.mastered ?? false) : false,
         href: a.score
           ? `/${userId}/scores/${a.score.id}`
           : a.practiceItem

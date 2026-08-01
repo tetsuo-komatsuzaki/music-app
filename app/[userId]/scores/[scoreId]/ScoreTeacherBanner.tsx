@@ -7,7 +7,7 @@ import { useEffect, useState, useTransition } from "react"
 import Link from "next/link"
 import { getScoreTeacherView, type ScoreTeacherView } from "@/app/actions/teacherStudentViews"
 import { submitAssignment } from "@/app/actions/teacherActions"
-import { goalLabel, dueInfo, DUE_COLOR } from "@/app/_libs/assignmentGoal"
+import { goalLabel, dueInfo, DUE_COLOR, goalResult } from "@/app/_libs/assignmentGoal"
 
 export default function ScoreTeacherBanner({ scoreId, userId }: { scoreId: string; userId: string }) {
   const [view, setView] = useState<ScoreTeacherView | null>(null)
@@ -68,6 +68,16 @@ export default function ScoreTeacherBanner({ scoreId, userId }: { scoreId: strin
                   {goalLabel(assignment.goalType, assignment.targetScore)}
                 </span>
               )}
+              {(() => {
+                // 達成/マスール目標は達成状態で自動判定して結果チップを出す
+                const gr = goalResult(assignment.goalType, { achieved: assignment.achieved, mastered: assignment.mastered })
+                if (!gr || assignment.goalType === "score") return null
+                return (
+                  <span style={{ fontSize: 10.5, fontWeight: 800, color: gr.met ? "#2e8b57" : "#9aa6b3", background: gr.met ? "#e9f7ef" : "#f1f4f8", border: `1px solid ${gr.met ? "#cbe8d6" : "#e2e6ea"}`, borderRadius: 999, padding: "2px 8px" }}>
+                    {gr.label}
+                  </span>
+                )
+              })()}
             </div>
           )}
           {assignment.detail && (

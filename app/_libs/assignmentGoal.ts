@@ -35,3 +35,19 @@ export function scorePassed(goalType?: string | null, targetScore?: number | nul
   if (goalType !== "score" || targetScore == null || submittedScore == null) return null
   return submittedScore >= targetScore
 }
+
+/** 合格条件の自動判定。点数=提出点数と比較 / 達成・マスター=達成状態で判定。
+ *  判定できないとき(点数目標で未提出 等)は null。 */
+export function goalResult(
+  goalType: string | null | undefined,
+  opts: { targetScore?: number | null; submittedScore?: number | null; achieved?: boolean; mastered?: boolean },
+): { met: boolean; label: string } | null {
+  if (goalType === "score") {
+    if (opts.targetScore == null || opts.submittedScore == null) return null
+    const met = opts.submittedScore >= opts.targetScore
+    return { met, label: met ? "合格🎉" : "あと少し" }
+  }
+  if (goalType === "achieve") return { met: !!opts.achieved, label: opts.achieved ? "達成✓" : "達成まだ" }
+  if (goalType === "master") return { met: !!opts.mastered, label: opts.mastered ? "マスター🏆" : "マスターまだ" }
+  return null
+}
