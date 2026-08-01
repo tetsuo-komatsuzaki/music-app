@@ -104,7 +104,7 @@ export async function getSignedUploadUrl(
         scoreId: params.scoreId,
         performanceType: "user",
         performanceStatus: "uploaded",
-        name: `Performance #${existingCount + 1}`,
+        name: `録音 #${existingCount + 1}`,
         audioPath: "",
         analysisStatus: "queued",
       },
@@ -118,7 +118,7 @@ export async function getSignedUploadUrl(
       data: {
         userId: dbUserId,
         practiceItemId: params.itemId,
-        name: `Performance #${existingCount + 1}`,
+        name: `録音 #${existingCount + 1}`,
         audioPath: "",
         analysisStatus: "queued",
       },

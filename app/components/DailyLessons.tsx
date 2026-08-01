@@ -19,9 +19,9 @@ const CAT_ICON: Record<string, string> = {
 
 // スロット由来の一言 (なぜ選ばれたか) をやさしく添える
 const SLOT_NOTE: Record<DailyLesson["slot"], string> = {
-  scale: "この曲の調・レベルに合わせて",
-  fingering: "この曲のレベルに合わせて",
-  rec: "いまの学びポイントに効く",
+  scale: "調にあわせて",
+  fingering: "レベルにあわせて",
+  rec: "学びポイントに効く",
 }
 
 // 案C: カテゴリごとの色 (左のカラーバンド・チップ・ボタンに使う)
