@@ -17,7 +17,7 @@ type Homework = {
   achieved: boolean; mastered: boolean
   done: boolean; submitted: boolean; submittedScore: number | null; date: string; href: string
 }
-type Msg = { id: string; fromTeacher: boolean; body: string; time: string }
+type Msg = { id: string; fromTeacher: boolean; body: string; time: string; perf?: { title: string; href: string } | null }
 type Feedback = { scoreId: string; title: string; date: string }
 type LessonDTO = { id: string; when: string; durationMin: number; online: boolean; locationNote: string | null }
 type Lessons = { open: LessonDTO[]; booked: LessonDTO[] }
@@ -217,7 +217,15 @@ function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[
               borderBottomLeftRadius: m.fromTeacher ? 3 : 12, borderBottomRightRadius: m.fromTeacher ? 12 : 3,
               padding: "7px 11px", fontSize: 12.5, lineHeight: 1.45,
             }}>
-              {m.body}
+              {m.perf && (
+                <Link
+                  href={m.perf.href}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10.5, fontWeight: 800, textDecoration: "none", marginBottom: 4, padding: "2px 7px", borderRadius: 999, background: m.fromTeacher ? "#eef0fc" : "rgba(255,255,255,.22)", color: m.fromTeacher ? "#5b6b9e" : "#fff" }}
+                >
+                  🎧 {m.perf.title} の演奏について →
+                </Link>
+              )}
+              <div>{m.body}</div>
               <div style={{ fontSize: 9.5, opacity: 0.7, marginTop: 3, textAlign: "right" }}>{m.time}</div>
             </div>
           ))

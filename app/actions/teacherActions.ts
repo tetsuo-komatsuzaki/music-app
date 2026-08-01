@@ -210,9 +210,10 @@ export async function sendMessage(body: string): Promise<{ ok: true } | { ok: fa
   }
 }
 
-/** 先生: 担当生徒にメッセージを送る。 */
+/** 先生: 担当生徒にメッセージを送る。performanceId 指定でその演奏に紐づく。 */
 export async function sendMessageToStudent(
   studentId: string, body: string,
+  performanceId?: string, performanceKind?: "score" | "practice",
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const auth = await requireAuthAction()
   if (!auth.ok) return { ok: false, error: auth.error }
@@ -227,7 +228,11 @@ export async function sendMessageToStudent(
     })
     if (!link) return { ok: false, error: "担当していない生徒です" }
     await prisma.message.create({
-      data: { teacherId: auth.user.dbUser.id, studentId, fromTeacher: true, body: text },
+      data: {
+        teacherId: auth.user.dbUser.id, studentId, fromTeacher: true, body: text,
+        performanceId: performanceId ?? null,
+        performanceKind: performanceId ? (performanceKind ?? null) : null,
+      },
     })
     await notifyStudent(studentId, auth.user.dbUser.id, "message", text)
     return { ok: true }

@@ -42,8 +42,27 @@ export default async function MyTeacherPage({
     where: { studentId: me.id, teacherId: link.teacher.id },
     orderBy: { createdAt: "asc" },
     take: 100,
-    select: { id: true, fromTeacher: true, body: true, createdAt: true },
+    select: { id: true, fromTeacher: true, body: true, createdAt: true, performanceId: true, performanceKind: true },
   })
+
+  // メッセージに紐づく演奏を解決 (タイトル + 対象へのリンク)
+  const perfMap = new Map<string, { title: string; href: string }>()
+  const scorePerfIds = messages.filter((m) => m.performanceKind === "score" && m.performanceId).map((m) => m.performanceId as string)
+  const pracPerfIds = messages.filter((m) => m.performanceKind === "practice" && m.performanceId).map((m) => m.performanceId as string)
+  const [scorePerfRows, pracPerfRows] = await Promise.all([
+    scorePerfIds.length
+      ? prisma.performance.findMany({ where: { id: { in: scorePerfIds }, userId: me.id }, select: { id: true, score: { select: { id: true, title: true } } } })
+      : Promise.resolve([]),
+    pracPerfIds.length
+      ? prisma.practicePerformance.findMany({ where: { id: { in: pracPerfIds }, userId: me.id }, select: { id: true, practiceItem: { select: { id: true, title: true, category: true } } } })
+      : Promise.resolve([]),
+  ])
+  for (const p of scorePerfRows) {
+    if (p.score) perfMap.set(p.id, { title: p.score.title, href: `/${userId}/scores/${p.score.id}` })
+  }
+  for (const p of pracPerfRows) {
+    if (p.practiceItem) perfMap.set(p.id, { title: p.practiceItem.title, href: `/${userId}/practice/${p.practiceItem.category}/${p.practiceItem.id}` })
+  }
 
   // 添削 (先生が譜面に書き込んだもの)。曲単位。TeacherFeedback は score リレーションを持たないので別引き。
   const feedbackRows = await prisma.teacherFeedback.findMany({
@@ -172,6 +191,7 @@ export default async function MyTeacherPage({
         fromTeacher: m.fromTeacher,
         body: m.body,
         time: m.createdAt.toLocaleDateString("ja-JP"),
+        perf: m.performanceId ? (perfMap.get(m.performanceId) ?? null) : null,
       }))}
       feedbacks={feedbacks}
       lessons={lessons}

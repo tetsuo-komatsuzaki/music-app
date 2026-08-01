@@ -34,7 +34,7 @@ type AssignmentRow = {
 type Msg = { id: string; fromTeacher: boolean; body: string; time: string }
 type WorkItem = { title: string; cat: string; avg: number }
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
-type Recording = { id: string; title: string; cat: string; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[] }
+type Recording = { id: string; kind: "score" | "practice"; title: string; cat: string; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[] }
 
 export default function StudentKarte({
   userId, studentId, studentName, briefing, scoreTargets, itemTargets,
@@ -79,7 +79,7 @@ export default function StudentKarte({
       </div>
 
       {tab === "overview" && <Overview b={briefing} />}
-      {tab === "practice" && <PracticeTab working={working} recordings={recordings} />}
+      {tab === "practice" && <PracticeTab studentId={studentId} working={working} recordings={recordings} />}
       {tab === "homework" && (
         <Homework studentId={studentId} scoreTargets={allScoreTargets} itemTargets={allItemTargets} assignments={assignments} />
       )}
@@ -111,7 +111,41 @@ function FeedbackTab({ userId, studentId, scoreTargets }: { userId: string; stud
   )
 }
 
-function PracticeTab({ working, recordings }: { working: WorkItem[]; recordings: Recording[] }) {
+function RecCommentBox({ studentId, performanceId, kind }: { studentId: string; performanceId: string; kind: "score" | "practice" }) {
+  const router = useRouter()
+  const [open, setOpen] = useState(false)
+  const [text, setText] = useState("")
+  const [pending, start] = useTransition()
+  const [done, setDone] = useState(false)
+
+  const send = () => {
+    const t = text.trim()
+    if (!t) return
+    start(async () => {
+      const r = await sendMessageToStudent(studentId, t, performanceId, kind)
+      if (r.ok) { setDone(true); setText(""); setOpen(false); router.refresh() }
+    })
+  }
+  if (done) return <div style={{ fontSize: 11, fontWeight: 800, color: "#2e8b57", marginTop: 8 }}>この演奏にコメントを送りました ✓</div>
+  const btn: React.CSSProperties = { fontSize: 11, fontWeight: 800, borderRadius: 8, padding: "6px 12px", cursor: "pointer" }
+  return (
+    <div style={{ marginTop: 8 }}>
+      {!open ? (
+        <button type="button" onClick={() => setOpen(true)} style={{ ...btn, color: "#5b6b9e", background: "#eef0fc", border: "1px solid #d7dcf6" }}>💬 この演奏にコメント</button>
+      ) : (
+        <div>
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="この演奏へのコメント（生徒に届きます）" style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 12.5, resize: "vertical" }} />
+          <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+            <button type="button" onClick={() => { setOpen(false); setText("") }} style={{ ...btn, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea" }}>やめる</button>
+            <button type="button" onClick={send} disabled={pending} style={{ ...btn, color: "#fff", background: "#2b3742", border: "none", opacity: pending ? 0.6 : 1 }}>{pending ? "送信中…" : "送る"}</button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function PracticeTab({ studentId, working, recordings }: { studentId: string; working: WorkItem[]; recordings: Recording[] }) {
   const scoreColor = (n: number) => (n >= 90 ? "#2e8b57" : n >= 70 ? "#b7823a" : "#c0473a")
   return (
     <>
@@ -171,6 +205,7 @@ function PracticeTab({ working, recordings }: { working: WorkItem[]; recordings:
                 ) : (
                   <div style={{ fontSize: 11, color: "#b3bcc6", marginTop: 6 }}>音声を読み込めませんでした</div>
                 )}
+                <RecCommentBox studentId={studentId} performanceId={r.id} kind={r.kind} />
               </div>
             ))}
           </div>
