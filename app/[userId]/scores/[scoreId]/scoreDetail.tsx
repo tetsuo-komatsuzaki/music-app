@@ -745,12 +745,13 @@ function ProgressTrajectory({
   const series = axis === "total" ? totals : axis === "pitch" ? pitches : timings
   const color = TRAJ_COLOR[axis]
 
-  const latest = totals[totals.length - 1]
+  // 表示中の軸(総合/音程/リズム)に合わせて、数値・伸び・統計も切り替える
+  const latest = series[series.length - 1]
   // 直近5回の伸び: 最新 − (5回前 or 最初)
-  const baseIdx = Math.max(0, totals.length - 5)
-  const delta = latest - totals[baseIdx]
-  const best = Math.max(...totals)
-  const recent5 = totals.slice(-5)
+  const baseIdx = Math.max(0, series.length - 5)
+  const delta = latest - series[baseIdx]
+  const best = Math.max(...series)
+  const recent5 = series.slice(-5)
   const recentAvg = Math.round(recent5.reduce((s, v) => s + v, 0) / recent5.length)
 
   // チャート座標 (viewBox 265x110, pad 10)。下限は 50 か 最低点-5 の低い方。

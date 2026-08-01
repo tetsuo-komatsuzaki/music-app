@@ -130,26 +130,22 @@ export function WeaknessSlotList({
         <div key={g.tree} className={styles.group}>
           <div className={styles.groupHead}>
             <span className={styles.treeBadge}>{TREE_LABELS[g.tree]}</span>
-            <span className={styles.groupHeadLabel}>の学びポイント</span>
             <span className={styles.groupCount}>{g.items.length}件</span>
           </div>
-          {g.items.map((slot, i) => {
+          {g.items.map((slot) => {
             const sev = severity(slot.missRate)
             const pct = Math.round(slot.missRate * 100)
             return (
               <div key={slot.subtaskId} className={styles.slot}>
-                <div className={styles.slotMain}>
-                  <span className={styles.rank} style={{ background: sev.color }}>{i + 1}</span>
-                  <div className={styles.slotBody}>
-                    <div className={styles.slotTitle}>{slot.subtaskName}</div>
-                    <div className={styles.miniRow}>
-                      <span className={styles.miniTrack}>
-                        <span className={styles.miniFill} style={{ width: `${pct}%`, background: sev.color }} />
-                      </span>
-                      <span className={styles.miniPct} style={{ color: sev.color }}>{pct}%</span>
-                      <span className={styles.miniCount}>{slot.miss}/{slot.target}音</span>
-                    </div>
-                    {slot.breakdown && <div className={styles.breakdown}>{slot.breakdown}</div>}
+                <div className={styles.slotTitle}>{slot.subtaskName}</div>
+                <div className={styles.miniRow}>
+                  <span className={styles.miniLabel}>ミス率</span>
+                  <span className={styles.miniTrack}>
+                    <span className={styles.miniFill} style={{ width: `${pct}%`, background: sev.color }} />
+                  </span>
+                  <span className={styles.miniPct} style={{ color: sev.color }}>{pct}%</span>
+                </div>
+                {slot.breakdown && <div className={styles.breakdown}>{slot.breakdown}</div>}
 
                     {hideMaterials ? null : slot.noStock ? (
                       <div className={styles.noStock}>教材準備中です</div>
@@ -181,8 +177,6 @@ export function WeaknessSlotList({
                         ))}
                       </div>
                     )}
-                  </div>
-                </div>
               </div>
             )
           })}
