@@ -503,117 +503,141 @@ function PerformanceHistory({
                 className={`${styles.historyItem} ${selectedId === p.id ? styles.historyActive : ""}`}
                 onClick={() => !isEditing && onSelect(p)}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={draftName}
-                      maxLength={PERFORMANCE_NAME_MAX}
-                      autoFocus
-                      onChange={(e) => setDraftName(e.target.value)}
-                      onClick={(e) => e.stopPropagation()}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") submitEdit(p.id, e)
-                        else if (e.key === "Escape") cancelEdit(e)
-                      }}
-                      className={styles.historyNameInput}
-                      disabled={saving}
-                    />
-                  ) : (
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, minWidth: 0 }}>
-                      <span className={styles.historyName}>{displayName}</span>
-                      {p.rangeFromNote != null && (
-                        <span className={styles.rangeTag} title="区間だけを録音した部分練習（曲のスコアには非算入）">区間</span>
-                      )}
-                    </span>
-                  )}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    {score != null && !isEditing && (
-                      <span
-                        className={styles.rankBadgeSmall}
-                        style={{
-                          background: rankLabels[getScoreRank(score)].bg,
-                          color: rankLabels[getScoreRank(score)].color,
-                        }}
-                      >
-                        {rankLabels[getScoreRank(score)].label}
-                      </span>
-                    )}
-                    {/* 演奏スコアを大きく表示 (演奏評価カードの「演奏スコア◯点」から移設・強調) */}
-                    {score != null && !isEditing && (
-                      <span
-                        style={{
-                          fontSize: 26,
-                          fontWeight: 700,
-                          lineHeight: 1,
-                          color: rankLabels[getScoreRank(score)].color,
-                        }}
-                      >
+                <div className={styles.histMain}>
+                  {/* 左: 点数 (ランク色)。無ければプレースホルダ */}
+                  {!isEditing &&
+                    (score != null ? (
+                      <div className={styles.histScore} style={{ color: rankLabels[getScoreRank(score)].color }}>
                         {score}
-                        <span style={{ fontSize: 13, fontWeight: 500 }}>点</span>
-                      </span>
+                        <span className={styles.histScoreUnit}>点</span>
+                      </div>
+                    ) : (
+                      <div className={styles.histScoreNa} aria-hidden>—</div>
+                    ))}
+
+                  {/* 中: 名前・ランク・日付 + 音程/リズムバー (無評価時は状態) */}
+                  <div className={styles.histMid}>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={draftName}
+                        maxLength={PERFORMANCE_NAME_MAX}
+                        autoFocus
+                        onChange={(e) => setDraftName(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") submitEdit(p.id, e)
+                          else if (e.key === "Escape") cancelEdit(e)
+                        }}
+                        className={styles.historyNameInput}
+                        disabled={saving}
+                      />
+                    ) : (
+                      <>
+                        <div className={styles.histTop}>
+                          <span className={styles.historyName}>{displayName}</span>
+                          {p.rangeFromNote != null && (
+                            <span className={styles.rangeTag} title="区間だけを録音した部分練習（曲のスコアには非算入）">区間</span>
+                          )}
+                          {score != null && (
+                            <span
+                              className={styles.rankBadgeSmall}
+                              style={{
+                                background: rankLabels[getScoreRank(score)].bg,
+                                color: rankLabels[getScoreRank(score)].color,
+                              }}
+                            >
+                              {rankLabels[getScoreRank(score)].label}
+                            </span>
+                          )}
+                          <span className={styles.historyDate}>{dateLabel}</span>
+                        </div>
+                        {score != null ? (
+                          <div className={styles.histSubs}>
+                            <div className={styles.histBar}>
+                              <span className={styles.histDot} style={{ background: "#4a6cf7" }} />
+                              <span className={styles.histMiniLabel}>音程</span>
+                              <span className={styles.histBarTrack}>
+                                <span className={styles.histBarFill} style={{ width: `${Math.round(p.pitchAccuracy!)}%`, background: "#4a6cf7" }} />
+                              </span>
+                              <b className={styles.histBarVal}>{Math.round(p.pitchAccuracy!)}</b>
+                            </div>
+                            <div className={styles.histBar}>
+                              <span className={styles.histDot} style={{ background: "#e0872b" }} />
+                              <span className={styles.histMiniLabel}>リズム</span>
+                              <span className={styles.histBarTrack}>
+                                <span className={styles.histBarFill} style={{ width: `${Math.round(p.timingAccuracy!)}%`, background: "#e0872b" }} />
+                              </span>
+                              <b className={styles.histBarVal}>{Math.round(p.timingAccuracy!)}</b>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className={styles.histStatusRow}>
+                            <span>{statusLabel}</span>
+                            {showEvalBadge && <span className={styles.historyBadge}>評価あり</span>}
+                          </div>
+                        )}
+                      </>
                     )}
+                    {isEditing && saveError && (
+                      <div className={styles.historyError}>{saveError}</div>
+                    )}
+                  </div>
+
+                  {/* 右: 操作 + 開閉 */}
+                  <div className={styles.histRight}>
+                    <div className={styles.historyActions}>
+                      {!isEditing && score != null && onReplayArco && (
+                        <button
+                          type="button"
+                          className={styles.historyActionBtn}
+                          onClick={(e) => { e.stopPropagation(); onReplayArco(p) }}
+                          aria-label="アルコの結果をもう一度見る"
+                          title="アルコの結果をもう一度"
+                        >
+                          🎻 結果
+                        </button>
+                      )}
+                      {isEditing ? (
+                        <>
+                          <button
+                            type="button"
+                            className={styles.historyActionBtn}
+                            onClick={(e) => submitEdit(p.id, e)}
+                            disabled={saving}
+                            aria-label="保存"
+                          >
+                            {saving ? "..." : "保存"}
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.historyActionBtn}
+                            onClick={cancelEdit}
+                            disabled={saving}
+                            aria-label="キャンセル"
+                          >
+                            取消
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          className={styles.historyEditBtn}
+                          onClick={(e) => startEdit(p, e)}
+                          aria-label="名前を編集"
+                          title="名前を編集"
+                        >
+                          ✏
+                        </button>
+                      )}
+                    </div>
                     {!isEditing && (
-                      <span aria-hidden style={{ fontSize: 11, color: "#999" }}>
+                      <span aria-hidden className={styles.histChev}>
                         {selectedId === p.id ? "▲" : "▼"}
                       </span>
                     )}
                   </div>
                 </div>
-                <div className={styles.historyMeta}>
-                  {/* スコアありは上部に大きく表示するため、ここでは解析中/失敗などの状態のみ */}
-                  {score == null && <span>{statusLabel}</span>}
-                  {showEvalBadge && <span className={styles.historyBadge}>評価あり</span>}
-                  <span className={styles.historyDate}>{dateLabel}</span>
-                  <div className={styles.historyActions}>
-                    {!isEditing && score != null && onReplayArco && (
-                      <button
-                        type="button"
-                        className={styles.historyActionBtn}
-                        onClick={(e) => { e.stopPropagation(); onReplayArco(p) }}
-                        aria-label="アルコの結果をもう一度見る"
-                        title="アルコの結果をもう一度"
-                      >
-                        🎻 結果
-                      </button>
-                    )}
-                    {isEditing ? (
-                      <>
-                        <button
-                          type="button"
-                          className={styles.historyActionBtn}
-                          onClick={(e) => submitEdit(p.id, e)}
-                          disabled={saving}
-                          aria-label="保存"
-                        >
-                          {saving ? "..." : "保存"}
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.historyActionBtn}
-                          onClick={cancelEdit}
-                          disabled={saving}
-                          aria-label="キャンセル"
-                        >
-                          取消
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        type="button"
-                        className={styles.historyEditBtn}
-                        onClick={(e) => startEdit(p, e)}
-                        aria-label="名前を編集"
-                        title="名前を編集"
-                      >
-                        ✏
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {isEditing && saveError && (
-                  <div className={styles.historyError}>{saveError}</div>
-                )}
                 {/* アコーディオン展開: 再生 / 得点 / 判定内容 をカード内に収納 */}
                 {!isEditing && selectedId === p.id && renderDetail && (
                   <div
@@ -691,35 +715,6 @@ function TrajStat({ v, l }: { v: string; l: string }) {
 }
 
 /** 音程/リズムのミニ推移カード */
-function AxisMini({ name, color, series }: { name: string; color: string; series: number[] }) {
-  const latest = Math.round(series[series.length - 1])
-  const first = Math.round(series[0])
-  const delta = latest - first
-  const pts = seriesPoints(series, 120, 34, 4, Math.min(...series) - 3, Math.max(...series) + 3)
-  const lastX = 116
-  const lastY = pts.split(" ").pop()!.split(",")[1]
-  return (
-    <div style={{ flex: 1, background: "#f7f9fc", borderRadius: 12, padding: "10px 11px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 11.5, fontWeight: 800, color }}>{name}</span>
-        <span style={{ fontSize: 10, fontWeight: 800, color: delta >= 0 ? "#2e8b57" : "#cc5470" }}>
-          {delta >= 0 ? "+" : ""}{delta}
-        </span>
-      </div>
-      <svg viewBox="0 0 120 34" width="100%" height="30" preserveAspectRatio="none" style={{ margin: "4px 0 2px" }}>
-        <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />
-        <circle cx={lastX} cy={lastY} r="3" fill={color} />
-      </svg>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 10, color: "#9aa6b3" }}>{first} → {latest}%</span>
-        <span style={{ fontSize: 15, fontWeight: 800, color, fontVariantNumeric: "tabular-nums" }}>
-          {latest}<span style={{ fontSize: 10 }}>%</span>
-        </span>
-      </div>
-    </div>
-  )
-}
-
 function ProgressTrajectory({
   performances,
   partId,
@@ -787,7 +782,6 @@ function ProgressTrajectory({
 
       <div style={{ display: "flex", alignItems: "flex-end", gap: 12, marginBottom: 12 }}>
         <div>
-          <div style={{ fontSize: 11, color: "#9aa6b3", fontWeight: 700, marginBottom: 3 }}>いまのスコア</div>
           <div>
             <span style={{ fontSize: 40, fontWeight: 800, lineHeight: .95, color, fontVariantNumeric: "tabular-nums" }}>{latest}</span>
             <span style={{ fontSize: 15, fontWeight: 700, color }}>点</span>
@@ -837,13 +831,6 @@ function ProgressTrajectory({
         <TrajStat v={String(evaluated.length)} l="演奏回数" />
       </div>
 
-      <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "18px 0 9px", borderTop: "1px solid #eef1f4", paddingTop: 13 }}>
-        🎯 どの力が伸びた？
-      </div>
-      <div style={{ display: "flex", gap: 10 }}>
-        <AxisMini name="音程" color={TRAJ_COLOR.pitch} series={pitches} />
-        <AxisMini name="リズム" color={TRAJ_COLOR.rhythm} series={timings} />
-      </div>
     </div>
   )
 }

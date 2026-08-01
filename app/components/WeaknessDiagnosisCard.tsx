@@ -97,6 +97,13 @@ const TREE_LABELS: Record<"pitch" | "rhythm", string> = {
   rhythm: "リズム",
 }
 
+// 案E (2026-08-01): ミス率の重症度→色。赤=要練習 / 橙=あと少し / 緑=good。
+function severity(rate: number): { color: string; bg: string; label: string } {
+  if (rate >= 0.55) return { color: "#d64f5c", bg: "#fdecec", label: "要練習" }
+  if (rate >= 0.35) return { color: "#e0872b", bg: "#fdf2e4", label: "あと少し" }
+  return { color: "#4a9d6a", bg: "#e9f6ee", label: "good" }
+}
+
 // ─── スロット表示（fetch済みデータを渡す版。累積窓など親がデータを持つ場合用） ───
 
 export function WeaknessSlotList({
@@ -109,49 +116,76 @@ export function WeaknessSlotList({
   /** おすすめ教材の行を出さず診断文のみ (教材は「毎日の基礎練」に一本化・2026-07-25 案B) */
   hideMaterials?: boolean
 }) {
+  // 音程/リズムで束ね、軸内をミス率の高い順にランク表示 (案E)。
+  const groups = (["pitch", "rhythm"] as const)
+    .map((tree) => ({
+      tree,
+      items: slots.filter((s) => s.tree === tree).sort((a, b) => b.missRate - a.missRate),
+    }))
+    .filter((g) => g.items.length > 0)
+
   return (
     <div className={styles.slotList}>
-      {slots.map((slot) => (
-        <div key={slot.subtaskId} className={styles.slot}>
-          <div className={styles.slotHeader}>
-            <span className={styles.treeBadge}>{TREE_LABELS[slot.tree]}</span>
-            <span className={styles.slotTitle}>{slot.subtaskName}</span>
-            <span className={styles.slotStats}>
-              {slot.target}音中{slot.miss}ミス（{Math.round(slot.missRate * 100)}%）
-            </span>
+      {groups.map((g) => (
+        <div key={g.tree} className={styles.group}>
+          <div className={styles.groupHead}>
+            <span className={styles.treeBadge}>{TREE_LABELS[g.tree]}</span>
+            <span className={styles.groupHeadLabel}>の学びポイント</span>
+            <span className={styles.groupCount}>{g.items.length}件</span>
           </div>
-          {slot.breakdown && <div className={styles.breakdown}>{slot.breakdown}</div>}
+          {g.items.map((slot, i) => {
+            const sev = severity(slot.missRate)
+            const pct = Math.round(slot.missRate * 100)
+            return (
+              <div key={slot.subtaskId} className={styles.slot}>
+                <div className={styles.slotMain}>
+                  <span className={styles.rank} style={{ background: sev.color }}>{i + 1}</span>
+                  <div className={styles.slotBody}>
+                    <div className={styles.slotTitle}>{slot.subtaskName}</div>
+                    <div className={styles.miniRow}>
+                      <span className={styles.miniTrack}>
+                        <span className={styles.miniFill} style={{ width: `${pct}%`, background: sev.color }} />
+                      </span>
+                      <span className={styles.miniPct} style={{ color: sev.color }}>{pct}%</span>
+                      <span className={styles.miniCount}>{slot.miss}/{slot.target}音</span>
+                    </div>
+                    {slot.breakdown && <div className={styles.breakdown}>{slot.breakdown}</div>}
 
-          {hideMaterials ? null : slot.noStock ? (
-            <div className={styles.noStock}>教材準備中です</div>
-          ) : (
-            <div className={styles.materials}>
-              <div className={styles.materialsLabel}>おすすめ教材</div>
-              {slot.materials.map((m) => (
-                <div key={m.id} className={styles.materialRow}>
-                  <div className={styles.materialInfo}>
-                    <span className={styles.materialTitle}>{m.title}</span>
-                    <span className={styles.materialMeta}>
-                      {m.star !== null ? `★${m.star}・` : ""}
-                      {formatKey(m.keyTonic, m.keyMode)}
-                    </span>
+                    {hideMaterials ? null : slot.noStock ? (
+                      <div className={styles.noStock}>教材準備中です</div>
+                    ) : (
+                      <div className={styles.materials}>
+                        <div className={styles.materialsLabel}>おすすめ教材</div>
+                        {slot.materials.map((m) => (
+                          <div key={m.id} className={styles.materialRow}>
+                            <div className={styles.materialInfo}>
+                              <span className={styles.materialTitle}>{m.title}</span>
+                              <span className={styles.materialMeta}>
+                                {m.star !== null ? `★${m.star}・` : ""}
+                                {formatKey(m.keyTonic, m.keyMode)}
+                              </span>
+                            </div>
+                            {userId ? (
+                              <Link
+                                href={`/${userId}/practice/${m.category}/${m.id}`}
+                                className={styles.practiceLink}
+                              >
+                                練習する →
+                              </Link>
+                            ) : (
+                              <span className={styles.practiceLinkDisabled}>
+                                {categoryLabel(m.category)}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  {userId ? (
-                    <Link
-                      href={`/${userId}/practice/${m.category}/${m.id}`}
-                      className={styles.practiceLink}
-                    >
-                      練習する →
-                    </Link>
-                  ) : (
-                    <span className={styles.practiceLinkDisabled}>
-                      {categoryLabel(m.category)}
-                    </span>
-                  )}
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            )
+          })}
         </div>
       ))}
     </div>
