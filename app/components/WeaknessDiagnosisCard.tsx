@@ -73,7 +73,7 @@ export function DiagnosisBody({
   if (data.verdict === "no_specific") {
     return (
       <div className={styles.statusBox}>
-        特定の学びポイントは見つかりませんでした（ミスは散発的です）
+        特定ののびしろポイントは見つかりませんでした（ミスは散発的です）
       </div>
     )
   }
@@ -84,7 +84,7 @@ export function DiagnosisBody({
     <section>
       {!hideHeading && (
         <h3 className={styles.heading}>
-          {hideMaterials ? "今回の学びポイント" : "今回の学びポイントと練習メニュー"}
+          {hideMaterials ? "のびしろポイント" : "のびしろポイントと練習メニュー"}
         </h3>
       )}
       <WeaknessSlotList slots={data.slots} userId={userId} hideMaterials={hideMaterials} />
@@ -223,14 +223,14 @@ export function CumulativeWeaknessPanel({
     return <>{emptyFallback}</>
   }
   if (slots === null) {
-    return <div className={styles.statusBox}>学びポイントを分析中…</div>
+    return <div className={styles.statusBox}>のびしろポイントを分析中…</div>
   }
   return (
     <>
       <div className={styles.cumulativeIntro}>
-        これまでの演奏から、いまの学びポイントはこれ！
+        これまでの演奏から、いまののびしろポイントはこれ！
         <br />
-        クリアに向けて学びポイントを練習してみよう！
+        クリアに向けてのびしろポイントを練習してみよう！
       </div>
       <WeaknessSlotList slots={slots} userId={userId} />
     </>
@@ -278,10 +278,10 @@ export default function WeaknessDiagnosisCard({ performanceId, kind, userId, hid
   }, [url])
 
   if (error) {
-    return <div className={styles.statusBox}>学びポイントの取得に失敗しました（{error}）</div>
+    return <div className={styles.statusBox}>のびしろポイントの取得に失敗しました（{error}）</div>
   }
   if (!data) {
-    return <div className={styles.statusBox}>学びポイントを分析中…</div>
+    return <div className={styles.statusBox}>のびしろポイントを分析中…</div>
   }
   return <DiagnosisBody data={data} userId={userId} hideHeading={hideHeading} hideMaterials={hideMaterials} />
 }
