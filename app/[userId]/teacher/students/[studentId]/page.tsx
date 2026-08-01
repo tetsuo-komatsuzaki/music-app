@@ -151,10 +151,11 @@ export default async function StudentKartePage({
   try {
     const onb = await prisma.onboardingProfile.findUnique({
       where: { userId: studentId },
-      select: { answers: true, completedAt: true },
+      select: { answers: true },
     })
     const a = (onb?.answers ?? null) as { q4song?: string; q4star?: number; q8?: string; goalSong?: string | null; goalDate?: string | null } | null
-    if (onb?.completedAt && a?.q4song) {
+    // オンボ完了に関わらず、目標曲が設定されていれば共有 (設定から後付け変更できるため)
+    if (a?.q4song) {
       studentGoal = {
         songName: a.q4song,
         songStar: a.q4star ?? null,

@@ -7,6 +7,7 @@ import { updateUserPassword } from "@/app/actions/updateUserPassword"
 import { setTeacherEmailOff } from "@/app/actions/updateNotificationPref"
 import DeleteAccountModal from "./DeleteAccountModal"
 import TeacherLinkCard from "./TeacherLinkCard"
+import GoalCard from "./GoalCard"
 import styles from "./Settings.module.css"
 
 interface Props {
@@ -137,6 +138,9 @@ export default function SettingsClient({
   return (
     <div className={styles.page}>
       <h1 className={styles.title}>設定</h1>
+
+      {/* 目標の変更 (2026-08-02): オンボで答えた目標曲/時期/かなえたいこと */}
+      <GoalCard />
 
       {/* 先生とつながる (先生機能 MVP 2026-07-28) */}
       <TeacherLinkCard />
