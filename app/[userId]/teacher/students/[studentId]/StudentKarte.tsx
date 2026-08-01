@@ -31,14 +31,19 @@ type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; targ
 type Recording = { id: string; title: string; cat: string; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[] }
 
 export default function StudentKarte({
-  userId, studentId, studentName, briefing, scoreTargets, itemTargets, working, recordings, assignments, messages,
+  userId, studentId, studentName, briefing, scoreTargets, itemTargets,
+  allScoreTargets, allItemTargets, working, recordings, assignments, messages,
 }: {
   userId: string
   studentId: string
   studentName: string
   briefing: Briefing
+  /** 生徒が最近取り組んだ曲/教材 (添削タブ用) */
   scoreTargets: Target[]
   itemTargets: Target[]
+  /** 宿題で選べる全曲/全公開教材 (最近以外も出せる) */
+  allScoreTargets: Target[]
+  allItemTargets: Target[]
   working: WorkItem[]
   recordings: Recording[]
   assignments: AssignmentRow[]
@@ -70,7 +75,7 @@ export default function StudentKarte({
       {tab === "overview" && <Overview b={briefing} />}
       {tab === "practice" && <PracticeTab working={working} recordings={recordings} />}
       {tab === "homework" && (
-        <Homework studentId={studentId} scoreTargets={scoreTargets} itemTargets={itemTargets} assignments={assignments} />
+        <Homework studentId={studentId} scoreTargets={allScoreTargets} itemTargets={allItemTargets} assignments={assignments} />
       )}
       {tab === "review" && <FeedbackTab userId={userId} studentId={studentId} scoreTargets={scoreTargets} />}
       {tab === "message" && <Messages studentId={studentId} studentName={studentName} messages={messages} />}
@@ -288,6 +293,7 @@ function Homework({
   const [open, setOpen] = useState(false)
   const [kind, setKind] = useState<"score" | "item">("score")
   const [targetId, setTargetId] = useState("")
+  const [filter, setFilter] = useState("")
   const [measures, setMeasures] = useState("")
   const [reps, setReps] = useState("")
   const [tempo, setTempo] = useState("")
@@ -296,6 +302,8 @@ function Homework({
   const [pending, startTransition] = useTransition()
 
   const targets = kind === "score" ? scoreTargets : itemTargets
+  const q = filter.trim().toLowerCase()
+  const filtered = q ? targets.filter((t) => t.title.toLowerCase().includes(q)) : targets
 
   const submit = () => {
     setErr(null)
@@ -333,21 +341,27 @@ function Homework({
         <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: 16, marginBottom: 14 }}>
           <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
             {([["score", "曲"], ["item", "教材"]] as const).map(([k, label]) => (
-              <button key={k} type="button" onClick={() => { setKind(k); setTargetId("") }}
+              <button key={k} type="button" onClick={() => { setKind(k); setTargetId(""); setFilter("") }}
                 style={{ flex: 1, border: "1px solid", borderColor: kind === k ? "#2b3742" : "#e2e6ea", background: kind === k ? "#2b3742" : "#fff", color: kind === k ? "#fff" : "#6b7885", borderRadius: 8, padding: "6px 0", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
                 {label}
               </button>
             ))}
           </div>
 
-          <label style={lbl}>対象（生徒が最近取り組んだ{kind === "score" ? "曲" : "教材"}）
-            <select value={targetId} onChange={(e) => setTargetId(e.target.value)} style={inp}>
-              <option value="">選択してください</option>
-              {targets.map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
+          <label style={lbl}>対象の{kind === "score" ? "曲" : "教材"}を選ぶ（最近以外もOK）
+            <input
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="名前で絞り込み"
+              style={inp}
+            />
+            <select value={targetId} onChange={(e) => setTargetId(e.target.value)} style={{ ...inp, marginTop: 6 }}>
+              <option value="">選択してください（{filtered.length}件）</option>
+              {filtered.map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
             </select>
           </label>
           {targets.length === 0 && (
-            <div style={{ fontSize: 11.5, color: "#9aa6b3", marginTop: 4 }}>この生徒はまだ{kind === "score" ? "曲" : "教材"}の演奏記録がありません。</div>
+            <div style={{ fontSize: 11.5, color: "#9aa6b3", marginTop: 4 }}>選べる{kind === "score" ? "曲" : "教材"}がありません。</div>
           )}
 
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>

@@ -116,6 +116,22 @@ export default async function StudentKartePage({
     .filter((s) => s.practiceItemId)
     .map((s) => ({ id: s.practiceItemId as string, title: s.practiceItem?.title ?? "教材" }))
 
+  // 宿題で選べる全曲(共有ライブラリ+生徒の曲)と公開教材 — 最近取り組んでいなくても出せる
+  const [allScoresRaw, allItemsRaw] = await Promise.all([
+    prisma.score.findMany({
+      where: { deletedAt: null, OR: [{ isShared: true }, { createdById: studentId }] },
+      select: { id: true, title: true },
+      orderBy: { title: "asc" },
+    }),
+    prisma.practiceItem.findMany({
+      where: { isPublished: true },
+      select: { id: true, title: true, category: true },
+      orderBy: [{ category: "asc" }, { title: "asc" }],
+    }),
+  ])
+  const allScoreTargets = allScoresRaw.map((s) => ({ id: s.id, title: s.title }))
+  const allItemTargets = allItemsRaw.map((s) => ({ id: s.id, title: `[${categoryLabel(s.category)}] ${s.title}` }))
+
   // ── 練習タブ (§5-1 拡充): 取り組んでいる曲/教材 + 直近の録音(分析結果 + 音声) ──
   const [scorePerfs, pracPerfs] = await Promise.all([
     prisma.performance.findMany({
@@ -179,6 +195,8 @@ export default async function StudentKartePage({
       }}
       scoreTargets={scoreTargets}
       itemTargets={itemTargets}
+      allScoreTargets={allScoreTargets}
+      allItemTargets={allItemTargets}
       working={working}
       recordings={recordings}
       assignments={assignments.map((a) => ({
