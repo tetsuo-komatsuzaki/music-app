@@ -24,7 +24,6 @@
   display: grid; place-items: center; padding: 0;
   border-radius: 50%; border: 1.6px solid #e0a02f;
   background: rgba(255, 248, 232, .28);
-  box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .55), 0 1px 3px rgba(120, 80, 10, .25);
   transition: transform .12s, background .12s;
 }
 .mark:hover { background: rgba(255, 224, 160, .45); }

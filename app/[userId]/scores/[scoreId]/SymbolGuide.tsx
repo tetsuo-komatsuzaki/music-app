@@ -164,7 +164,7 @@ export default function SymbolGuide({
     const r = head.getBoundingClientRect()
     node.style.display = ""
     // 玉に少しだけ余白を足した円で「かこむ」。玉サイズに合わせて毎回調整。
-    const d = Math.max(r.width, r.height) + 6
+    const d = Math.max(r.width, r.height) + 4
     node.style.width = `${d}px`
     node.style.height = `${d}px`
     node.style.left = `${r.left + r.width / 2 - h.left}px`
