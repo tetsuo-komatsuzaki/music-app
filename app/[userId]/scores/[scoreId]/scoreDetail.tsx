@@ -10,6 +10,7 @@ import ScoreLoopDetail from "@/app/components/ScoreLoopDetail"
 import AnnotationLayer from "./AnnotationLayer"
 import { getFeedbackAsStudent } from "@/app/actions/teacherFeedback"
 import type { AnnotationData } from "@/app/actions/scoreAnnotations"
+import ShareToTeacherButton from "./ShareToTeacherButton"
 import SymbolGuide, { type SymbolGuideHandle } from "./SymbolGuide"
 import { extractScoreSymbols } from "@/app/_libs/scoreSymbols"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
@@ -405,6 +406,7 @@ function PerformanceHistory({
   onRenamed,
   renderDetail,
   onReplayArco,
+  canShareToTeacher,
 }: {
   performances: PerformanceDTO[]
   selectedId: string | null
@@ -417,6 +419,8 @@ function PerformanceHistory({
   renderDetail?: (p: PerformanceDTO) => React.ReactNode
   /** アルコ結果オーバーレイを再表示する (スコアモードのみ) */
   onReplayArco?: (p: PerformanceDTO) => void
+  /** D: 先生あり生徒のとき、各録音に「先生に共有」ボタンを出す */
+  canShareToTeacher?: boolean
 }) {
   const [page, setPage] = useState(0)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -597,6 +601,9 @@ function PerformanceHistory({
                       >
                         ✏ 名前を変更
                       </button>
+                      {canShareToTeacher && (
+                        <ShareToTeacherButton performanceId={p.id} kind={kind} />
+                      )}
                     </div>
                     {renderDetail && renderDetail(p)}
                   </div>
@@ -1071,12 +1078,15 @@ export default function ScoreDetail({
   // 先生の添削(readOnly)を録音/練習の譜面に重ねる (2026-08-01)。存在するときだけトグルを出す。
   const [hasTeacherFeedback, setHasTeacherFeedback] = useState(false)
   const [showTeacherFeedback, setShowTeacherFeedback] = useState(false)
+  // 先生あり生徒か (D: 演奏の「先生に共有」ボタンの出し分け)。teacherName で判定。
+  const [studentHasTeacher, setStudentHasTeacher] = useState(false)
   const teacherFeedbackRef = useRef<AnnotationData>({})
   useEffect(() => {
     let cancelled = false
     getFeedbackAsStudent(practiceItemId ? { practiceItemId } : { scoreId: score.id })
       .then((r) => {
         if (cancelled || !r.ok) return
+        setStudentHasTeacher(r.teacherName != null)
         const d = r.data ?? {}
         const has =
           (d.highlight?.length ?? 0) > 0 ||
@@ -2709,6 +2719,7 @@ export default function ScoreDetail({
         performanceCount={performanceCount}
         kind={practiceItemId ? "practice" : "score"}
         onRenamed={handleRenamed}
+        canShareToTeacher={studentHasTeacher}
         onReplayArco={practiceItemId ? undefined : (p) => setArcoResult(p)}
         renderDetail={(p) => (
           <>

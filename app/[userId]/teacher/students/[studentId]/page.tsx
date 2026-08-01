@@ -120,17 +120,26 @@ export default async function StudentKartePage({
   const [allScoresRaw, allItemsRaw] = await Promise.all([
     prisma.score.findMany({
       where: { deletedAt: null, OR: [{ isShared: true }, { createdById: studentId }] },
-      select: { id: true, title: true },
-      orderBy: { title: "asc" },
+      select: { id: true, title: true, star: true },
+      orderBy: [{ star: "asc" }, { title: "asc" }],
     }),
     prisma.practiceItem.findMany({
       where: { isPublished: true },
-      select: { id: true, title: true, category: true },
-      orderBy: [{ category: "asc" }, { title: "asc" }],
+      select: { id: true, title: true, category: true, star: true },
+      orderBy: [{ category: "asc" }, { star: "asc" }, { title: "asc" }],
     }),
   ])
-  const allScoreTargets = allScoresRaw.map((s) => ({ id: s.id, title: s.title }))
-  const allItemTargets = allItemsRaw.map((s) => ({ id: s.id, title: `[${categoryLabel(s.category)}] ${s.title}` }))
+  // 曲は難易度(★)ごと、教材はカテゴリごとに group 化してプルダウンを見やすくする
+  const allScoreTargets = allScoresRaw.map((s) => ({
+    id: s.id,
+    title: s.title,
+    group: s.star != null ? `★${s.star}` : "★未設定",
+  }))
+  const allItemTargets = allItemsRaw.map((s) => ({
+    id: s.id,
+    title: s.star != null ? `★${s.star} ${s.title}` : s.title,
+    group: categoryLabel(s.category),
+  }))
 
   // ── 練習タブ (§5-1 拡充): 取り組んでいる曲/教材 + 直近の録音(分析結果 + 音声) ──
   const [scorePerfs, pracPerfs] = await Promise.all([

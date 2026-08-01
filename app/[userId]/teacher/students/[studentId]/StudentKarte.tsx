@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createAssignment, sendMessageToStudent } from "@/app/actions/teacherActions"
 
-type Target = { id: string; title: string }
+type Target = { id: string; title: string; group?: string }
 type Briefing = {
   practiceCount7d: number
   recent5: { title: string; avg: number; date: string }[]
@@ -304,6 +304,14 @@ function Homework({
   const targets = kind === "score" ? scoreTargets : itemTargets
   const q = filter.trim().toLowerCase()
   const filtered = q ? targets.filter((t) => t.title.toLowerCase().includes(q)) : targets
+  // 難易度/カテゴリ(group)ごとにまとめて optgroup 表示 (並列プルダウンを避ける)
+  const grouped = new Map<string, Target[]>()
+  for (const t of filtered) {
+    const g = t.group ?? "その他"
+    const arr = grouped.get(g)
+    if (arr) arr.push(t)
+    else grouped.set(g, [t])
+  }
 
   const submit = () => {
     setErr(null)
@@ -357,7 +365,11 @@ function Homework({
             />
             <select value={targetId} onChange={(e) => setTargetId(e.target.value)} style={{ ...inp, marginTop: 6 }}>
               <option value="">選択してください（{filtered.length}件）</option>
-              {filtered.map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
+              {[...grouped.entries()].map(([g, items]) => (
+                <optgroup key={g} label={g}>
+                  {items.map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
+                </optgroup>
+              ))}
             </select>
           </label>
           {targets.length === 0 && (

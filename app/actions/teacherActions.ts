@@ -275,3 +275,55 @@ export async function markAssignmentDone(
   }
   return { ok: true }
 }
+
+/** 生徒(D): 宿題でなくても、任意の演奏を「見てほしい」と先生に共有する。
+ *  メッセージで先生に通知し、先生は生徒カルテの録音一覧から再生できる。 */
+export async function sharePerformanceWithTeacher(
+  performanceId: string,
+  kind: "score" | "practice",
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  const me = auth.user.dbUser.id
+  try {
+    const link = await prisma.teacherStudent.findFirst({
+      where: { studentId: me },
+      orderBy: { createdAt: "asc" },
+      select: { teacherId: true },
+    })
+    if (!link) return { ok: false, error: "先生が登録されていません" }
+
+    let title = "演奏"
+    let label = ""
+    let score: number | null = null
+    if (kind === "score") {
+      const p = await prisma.performance.findFirst({
+        where: { id: performanceId, userId: me },
+        select: { name: true, pitchAccuracy: true, timingAccuracy: true, score: { select: { title: true } } },
+      })
+      if (!p) return { ok: false, error: "対象の演奏が見つかりません" }
+      title = p.score?.title ?? "曲"
+      label = p.name ?? ""
+      if (p.pitchAccuracy != null && p.timingAccuracy != null) score = Math.round((p.pitchAccuracy + p.timingAccuracy) / 2)
+    } else {
+      const p = await prisma.practicePerformance.findFirst({
+        where: { id: performanceId, userId: me },
+        select: { name: true, pitchAccuracy: true, timingAccuracy: true, practiceItem: { select: { title: true } } },
+      })
+      if (!p) return { ok: false, error: "対象の演奏が見つかりません" }
+      title = p.practiceItem?.title ?? "教材"
+      label = p.name ?? ""
+      if (p.pitchAccuracy != null && p.timingAccuracy != null) score = Math.round((p.pitchAccuracy + p.timingAccuracy) / 2)
+    }
+
+    const body =
+      `🎧「${title}」${label ? `${label} ` : ""}の演奏を見てほしいです` +
+      (score != null ? `（${score}点）` : "")
+    await prisma.message.create({
+      data: { teacherId: link.teacherId, studentId: me, fromTeacher: false, body },
+    })
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "共有に失敗しました" }
+  }
+}
