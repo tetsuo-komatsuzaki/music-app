@@ -6,17 +6,6 @@
 import Link from "next/link"
 import type { DailyLesson } from "@/app/_libs/dailyLessons"
 
-const CAT_ICON: Record<string, string> = {
-  scale: "🎵",
-  arpeggio: "🎶",
-  etude: "📖",
-  fingering: "✋",
-  bowing: "🎻",
-  position_shift: "↕️",
-  double_stop: "♬",
-  lesson: "📘",
-}
-
 // スロット由来の一言 (なぜ選ばれたか) をやさしく添える
 const SLOT_NOTE: Record<DailyLesson["slot"], string> = {
   scale: "調にあわせて",
@@ -74,11 +63,8 @@ export default function DailyLessons({
             {/* 左: カテゴリ色のバンド */}
             <span style={{ width: 5, flex: "none", background: col.c }} aria-hidden />
             <span style={{ flex: 1, minWidth: 0, padding: "13px 14px", display: "flex", flexDirection: "column", gap: 11 }}>
-              {/* 絵文字 + 名前 + 理由チップ */}
+              {/* 名前 + 理由チップ */}
               <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 18, lineHeight: 1 }} aria-hidden>
-                  {CAT_ICON[l.category] ?? "🎼"}
-                </span>
                 <span style={{ fontSize: 14, fontWeight: 800, color: "#22252b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>
                   {l.label}
                 </span>
