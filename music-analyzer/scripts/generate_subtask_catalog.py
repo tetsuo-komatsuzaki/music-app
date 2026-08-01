@@ -93,8 +93,11 @@ def _pos_shift(prefix: str):
     for f_id, f_name in POSITIONS:
         for t_id, t_name in POSITIONS:
             same = f_id == t_id
+            # ラベルを平易な文章に (2026-08-01 Tetsuo)
+            name = (f"{f_name}ポジションの中だけで弾く" if same
+                    else f"左手を{f_name}から{t_name}ポジションへ移す")
             out.append((f"{prefix}_posshift_{f_id}_{t_id}", "position_shift",
-                        f"ポジション移動 {f_name}→{t_name}",
+                        name,
                         not same,  # 同一ポジ内は診断出力から除外(前提条件へ)
                         [] if same else [_CAT("position_shift")]))
     return out
@@ -109,13 +112,16 @@ def _double(prefix: str):
                 q.append(_FEAT("double_stop", "連続重音"))
             q.append(_FEAT("double_stop", _DOUBLE_FEATURE[k_id]))
             q.append(_CAT("double_stop"))
+            name = (f"{k_name}の重音を続けて弾く" if c_id == "cont"
+                    else f"{k_name}の重音を弾く")
             out.append((f"{prefix}_double_{k_id}_{c_id}", "double_stop",
-                        f"重音{k_name}・{c_name}", True, q))
+                        name, True, q))
     return out
 
 
 def _tech(prefix: str):
-    return [(f"{prefix}_tech_{t_id}", "technique", t_name, True, [_TECHQ(t_name)])
+    # 表示名は「〜のところ」と平易化。教材検索は元の奏法名(t_name)のまま。
+    return [(f"{prefix}_tech_{t_id}", "technique", f"{t_name}のところ", True, [_TECHQ(t_name)])
             for t_id, t_name in TECHNIQUES]
 
 
@@ -145,12 +151,12 @@ def _values(prefix: str):
             q = [_FEAT("rhythm", "付点")]
         else:  # whole/half/quarter: 教材タグなし → 基礎に立ち返る
             q = [_BASIC]
-        out.append((f"{prefix}_value_{v_id}", "note_value", v_name, True, q))
+        out.append((f"{prefix}_value_{v_id}", "note_value", f"{v_name}のリズム", True, q))
     return out
 
 
 def _tuplets(prefix: str):
-    return [(f"{prefix}_tuplet_{t_id}", "tuplet", t_name, True, [_FEAT("rhythm", "連符")])
+    return [(f"{prefix}_tuplet_{t_id}", "tuplet", f"{t_name}のリズム", True, [_FEAT("rhythm", "連符")])
             for t_id, t_name in TUPLETS]
 
 
