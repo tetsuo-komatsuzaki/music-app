@@ -5,6 +5,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createAssignment, sendMessageToStudent, sendCelebration } from "@/app/actions/teacherActions"
+import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
 import { goalLabel, dueInfo, DUE_COLOR, scorePassed, goalResult } from "@/app/_libs/assignmentGoal"
 
 type Target = { id: string; title: string; group?: string }
@@ -390,6 +391,84 @@ function CelebrateBox({ studentId, latest }: { studentId: string; latest: { titl
   )
 }
 
+/** 楽譜を渡す (2026-08-02): 先生が MusicXML をアップロード → 生徒のライブラリーに追加される */
+function SendScoreBox({ studentId }: { studentId: string }) {
+  const router = useRouter()
+  const [open, setOpen] = useState(false)
+  const [title, setTitle] = useState("")
+  const [composer, setComposer] = useState("")
+  const [comment, setComment] = useState("")
+  const [file, setFile] = useState<File | null>(null)
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [pending, start] = useTransition()
+
+  const submit = () => {
+    setMsg(null)
+    if (!file) { setMsg({ ok: false, text: "MusicXMLファイルを選んでください" }); return }
+    if (!title.trim()) { setMsg({ ok: false, text: "曲名を入力してください" }); return }
+    const fd = new FormData()
+    fd.append("title", title)
+    fd.append("composer", composer)
+    fd.append("comment", comment)
+    fd.append("file", file)
+    start(async () => {
+      const r = await uploadScoreForStudent(studentId, fd)
+      if (r.ok) {
+        setMsg({ ok: true, text: "楽譜を渡しました！生徒のライブラリーに追加され、解析が終わると演奏できます。" })
+        setOpen(false); setTitle(""); setComposer(""); setComment(""); setFile(null)
+        router.refresh()
+      } else {
+        setMsg({ ok: false, text: r.error })
+      }
+    })
+  }
+
+  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 13, marginTop: 4 }
+  const lbl: React.CSSProperties = { fontSize: 11.5, fontWeight: 700, color: "#6b7885" }
+
+  return (
+    <>
+      {!open ? (
+        <button
+          type="button"
+          onClick={() => { setOpen(true); setMsg(null) }}
+          style={{ width: "100%", border: "1px dashed #b7c0ca", background: "#fff", color: "#2b3742", borderRadius: 12, padding: 12, fontSize: 13, fontWeight: 800, cursor: "pointer", marginBottom: 14 }}
+        >
+          📓 楽譜を渡す（MusicXML）
+        </button>
+      ) : (
+        <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: 16, marginBottom: 14 }}>
+          <div style={{ fontSize: 12.5, fontWeight: 800, color: "#2b3742", marginBottom: 10 }}>📓 楽譜を渡す</div>
+          <label style={lbl}>MusicXMLファイル（.xml / .musicxml / .mxl・5MBまで）
+            <input type="file" accept=".xml,.musicxml,.mxl" style={{ ...inp, padding: "7px 8px" }}
+              onChange={(e) => {
+                const f = e.target.files?.[0] ?? null
+                setFile(f)
+                if (f && !title.trim()) setTitle(f.name.replace(/\.(xml|musicxml|mxl)$/i, ""))
+              }} />
+          </label>
+          <label style={{ ...lbl, display: "block", marginTop: 10 }}>曲名
+            <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例: きらきら星 変奏曲" style={inp} maxLength={100} />
+          </label>
+          <label style={{ ...lbl, display: "block", marginTop: 10 }}>作曲者（任意）
+            <input value={composer} onChange={(e) => setComposer(e.target.value)} placeholder="例: モーツァルト" style={inp} maxLength={100} />
+          </label>
+          <label style={{ ...lbl, display: "block", marginTop: 10 }}>ひとこと（任意・メッセージで届きます）
+            <input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="例: 次のレッスンまでに1ページ目をさらっておいてね" style={inp} maxLength={200} />
+          </label>
+          <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+            <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, border: "1px solid #e2e6ea", background: "#fff", color: "#6b7885", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>キャンセル</button>
+            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "#2b3742", color: "#fff", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+              {pending ? "アップロード中…" : "生徒に渡す"}
+            </button>
+          </div>
+        </div>
+      )}
+      {msg && <div style={{ fontSize: 12, margin: "0 0 10px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
+    </>
+  )
+}
+
 function Homework({
   studentId, scoreTargets, itemTargets, assignments,
 }: {
@@ -451,6 +530,7 @@ function Homework({
 
   return (
     <>
+      <SendScoreBox studentId={studentId} />
       {!open ? (
         <button
           type="button"
