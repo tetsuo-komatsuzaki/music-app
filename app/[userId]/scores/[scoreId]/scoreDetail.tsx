@@ -361,43 +361,27 @@ function EvaluationSummaryCard({
   performance: PerformanceDTO
   warnings: string[]
 }) {
-  const hasPitch = performance.pitchAccuracy != null
-  const hasTiming = performance.timingAccuracy != null
   const totalNotes = Array.isArray(performance.comparisonResult) ? performance.comparisonResult.length : null
+  const showEval = performance.evaluatedNotes != null
 
-  if (!hasPitch && !hasTiming) return null
+  // 音程/タイミング正確率と点数は畳んだ演奏履歴カードで表示済みのため、
+  // ここは「評価対象 ○/○ ノート」だけを小さく残す (2026-08-01 Tetsuo)。
+  if (!showEval && warnings.length === 0) return null
 
   return (
-    <div className={styles.card}>
-      <h3>演奏評価</h3>
-      <div className={styles.evalSummary}>
-        {hasPitch && (
-          <div className={styles.evalRow}>
-            <span className={styles.evalLabel}>音程正確率</span>
-            <span className={styles.evalValue}>{Math.round(performance.pitchAccuracy!)}%</span>
-          </div>
-        )}
-        {hasTiming && (
-          <div className={styles.evalRow}>
-            <span className={styles.evalLabel}>タイミング正確率</span>
-            <span className={styles.evalValue}>{Math.round(performance.timingAccuracy!)}%</span>
-          </div>
-        )}
-        {/* 演奏スコアは演奏履歴カード上部に大きく表示するため、ここからは削除 (2026-06-08 Tetsuo) */}
-        {performance.evaluatedNotes != null && (
-          <div className={styles.evalRow}>
-            <span className={styles.evalLabel}>評価対象</span>
-            <span className={styles.evalValue}>{performance.evaluatedNotes}{totalNotes != null ? ` / ${totalNotes}` : ""} ノート</span>
-          </div>
-        )}
-        {warnings.length > 0 && (
-          <div className={styles.evalWarnings}>
-            {warnings.map((w, i) => (
-              <div key={i} className={styles.evalWarning}>{w}</div>
-            ))}
-          </div>
-        )}
-      </div>
+    <div>
+      {showEval && (
+        <div style={{ fontSize: 11, color: "#9aa6b3", fontWeight: 600 }}>
+          評価対象 {performance.evaluatedNotes}{totalNotes != null ? ` / ${totalNotes}` : ""} ノート
+        </div>
+      )}
+      {warnings.length > 0 && (
+        <div className={styles.evalWarnings} style={{ marginTop: showEval ? 8 : 0 }}>
+          {warnings.map((w, i) => (
+            <div key={i} className={styles.evalWarning}>{w}</div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
