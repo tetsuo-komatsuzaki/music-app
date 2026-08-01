@@ -5,6 +5,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createAssignment, sendMessageToStudent } from "@/app/actions/teacherActions"
+import { goalLabel, dueInfo, DUE_COLOR, scorePassed } from "@/app/_libs/assignmentGoal"
 
 type Target = { id: string; title: string; group?: string }
 type Briefing = {
@@ -19,6 +20,9 @@ type AssignmentRow = {
   reps: number | null
   targetTempo: number | null
   comment: string | null
+  dueDate: string | null
+  goalType: string | null
+  targetScore: number | null
   done: boolean
   submitted: boolean
   submittedScore: number | null
@@ -296,6 +300,9 @@ function Homework({
   const [filter, setFilter] = useState("")
   const [reps, setReps] = useState("")
   const [tempo, setTempo] = useState("")
+  const [dueDate, setDueDate] = useState("")
+  const [goalType, setGoalType] = useState<"" | "score" | "achieve" | "master">("")
+  const [targetScore, setTargetScore] = useState("")
   const [comment, setComment] = useState("")
   const [err, setErr] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
@@ -323,9 +330,13 @@ function Homework({
         reps: reps ? Number(reps) : null,
         targetTempo: tempo ? Number(tempo) : null,
         comment: comment || null,
+        dueDate: dueDate || null,
+        goalType: goalType || null,
+        targetScore: goalType === "score" && targetScore ? Number(targetScore) : null,
       })
       if (!r.ok) { setErr(r.error); return }
       setOpen(false); setTargetId(""); setReps(""); setTempo(""); setComment("")
+      setDueDate(""); setGoalType(""); setTargetScore("")
       router.refresh()
     })
   }
@@ -378,6 +389,33 @@ function Homework({
             <label style={{ ...lbl, flex: 1 }}>回数<input value={reps} onChange={(e) => setReps(e.target.value.replace(/[^0-9]/g, ""))} placeholder="5" style={inp} inputMode="numeric" /></label>
             <label style={{ ...lbl, flex: 1 }}>目標♩<input value={tempo} onChange={(e) => setTempo(e.target.value.replace(/[^0-9]/g, ""))} placeholder="80" style={inp} inputMode="numeric" /></label>
           </div>
+
+          <label style={{ ...lbl, display: "block", marginTop: 10 }}>提出期限（任意）
+            <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} style={inp} />
+          </label>
+
+          <div style={{ ...lbl, marginTop: 10 }}>合格の目安（任意）</div>
+          <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+            {([["score", "点数"], ["achieve", "達成"], ["master", "マスター"]] as const).map(([g, label]) => (
+              <button
+                key={g}
+                type="button"
+                onClick={() => setGoalType((cur) => (cur === g ? "" : g))}
+                style={{ flex: 1, border: "1px solid", borderColor: goalType === g ? "#2b3742" : "#e2e6ea", background: goalType === g ? "#2b3742" : "#fff", color: goalType === g ? "#fff" : "#6b7885", borderRadius: 8, padding: "6px 0", fontSize: 12, fontWeight: 800, cursor: "pointer" }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {goalType === "score" && (
+            <label style={{ ...lbl, display: "block", marginTop: 8 }}>合格ライン（点）
+              <input value={targetScore} onChange={(e) => setTargetScore(e.target.value.replace(/[^0-9]/g, ""))} placeholder="80" style={inp} inputMode="numeric" />
+            </label>
+          )}
+          {goalType === "master" && (
+            <div style={{ fontSize: 11, color: "#9aa6b3", marginTop: 6 }}>マスター＝達成＋直近5回の平均90点以上（曲のみ）</div>
+          )}
+
           <label style={{ ...lbl, display: "block", marginTop: 10 }}>コメント
             <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} placeholder="例: 移弦を先に準備しよう" style={{ ...inp, resize: "vertical" }} />
           </label>
@@ -399,13 +437,37 @@ function Homework({
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {assignments.map((a) => (
             <div key={a.id} style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 12, padding: "10px 12px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline" }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: "#2b3742" }}>{a.targetTitle}</span>
-                <span style={{ fontSize: 11, fontWeight: 800, color: a.submitted ? "#2e8b57" : "#b7823a", flex: "none" }}>{a.submitted ? `提出済${a.submittedScore != null ? ` ${a.submittedScore}点` : ""}` : "未提出"}</span>
+                {(() => {
+                  if (!a.submitted) return <span style={{ fontSize: 11, fontWeight: 800, color: "#b7823a", flex: "none" }}>未提出</span>
+                  const passed = scorePassed(a.goalType, a.targetScore, a.submittedScore)
+                  const base = `提出済${a.submittedScore != null ? ` ${a.submittedScore}点` : ""}`
+                  return <span style={{ fontSize: 11, fontWeight: 800, color: passed === false ? "#c0392b" : "#2e8b57", flex: "none" }}>{base}{passed === true ? " ・合格🎉" : passed === false ? " ・あと少し" : ""}</span>
+                })()}
               </div>
               <div style={{ fontSize: 12, color: "#6b7885", marginTop: 3 }}>
-                {[a.targetMeasures && `第${a.targetMeasures}小節`, a.reps && `×${a.reps}`, a.targetTempo && `♩=${a.targetTempo}`].filter(Boolean).join(" ・ ") || "（詳細指定なし）"}
+                {[a.reps && `×${a.reps}`, a.targetTempo && `♩=${a.targetTempo}`].filter(Boolean).join(" ・ ") || "（詳細指定なし）"}
               </div>
+              {(dueInfo(a.dueDate) || goalLabel(a.goalType, a.targetScore)) && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+                  {(() => {
+                    const di = dueInfo(a.dueDate)
+                    if (!di) return null
+                    const c = DUE_COLOR[di.state]
+                    return (
+                      <span style={{ fontSize: 10.5, fontWeight: 800, color: c.fg, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 999, padding: "2px 8px" }}>
+                        期限 {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}
+                      </span>
+                    )
+                  })()}
+                  {goalLabel(a.goalType, a.targetScore) && (
+                    <span style={{ fontSize: 10.5, fontWeight: 800, color: "#3b56d4", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "2px 8px" }}>
+                      {goalLabel(a.goalType, a.targetScore)}
+                    </span>
+                  )}
+                </div>
+              )}
               {a.comment && <div style={{ fontSize: 12.5, color: "#2b3742", marginTop: 4 }}>💬 {a.comment}</div>}
               <div style={{ fontSize: 10.5, color: "#b3bcc6", marginTop: 4 }}>{a.createdAt}</div>
             </div>

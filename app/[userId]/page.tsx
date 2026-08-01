@@ -524,6 +524,7 @@ export default async function HomePage({ params }: PageProps) {
   // 先生からの宿題(未完了) + 新着サマリ — ホーム上部「先生から」用 (2026-07-28 / E追加 2026-08-01)
   let teacherAssignments: {
     id: string; kind: "score" | "practice"; teacherName: string; title: string; detail: string; comment: string | null; href: string
+    dueDate: string | null; goalType: string | null; targetScore: number | null
   }[] = []
   let teacherSummary: { teacherName: string | null; unreadMessages: number; feedbackCount: number } | undefined
   try {
@@ -541,6 +542,7 @@ export default async function HomePage({ params }: PageProps) {
           take: 5,
           select: {
             id: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
+            dueDate: true, goalType: true, targetScore: true,
             teacher: { select: { name: true } },
             score: { select: { id: true, title: true } },
             practiceItem: { select: { id: true, title: true, category: true } },
@@ -555,11 +557,13 @@ export default async function HomePage({ params }: PageProps) {
         teacherName: a.teacher.name,
         title: a.score?.title ?? a.practiceItem?.title ?? "課題",
         detail: [
-          a.targetMeasures && `第${a.targetMeasures}小節`,
           a.reps && `×${a.reps}`,
           a.targetTempo && `♩=${a.targetTempo}`,
         ].filter(Boolean).join(" ・ "),
         comment: a.comment,
+        dueDate: a.dueDate ? a.dueDate.toISOString() : null,
+        goalType: a.goalType,
+        targetScore: a.targetScore,
         href: a.score
           ? `/${userId}/scores/${a.score.id}`
           : a.practiceItem

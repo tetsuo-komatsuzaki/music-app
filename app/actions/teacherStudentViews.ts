@@ -9,7 +9,15 @@ export type ScoreTeacherView = {
   hasTeacher: boolean
   teacherName: string | null
   /** この曲に紐づく未完了の宿題 (最新1件) */
-  assignment: { id: string; detail: string; comment: string | null; submitted: boolean } | null
+  assignment: {
+    id: string
+    detail: string
+    comment: string | null
+    submitted: boolean
+    dueDate: string | null
+    goalType: string | null
+    targetScore: number | null
+  } | null
   /** この曲にこの生徒宛の添削(注釈)があるか */
   hasFeedback: boolean
 }
@@ -35,7 +43,10 @@ export async function getScoreTeacherView(scoreId: string): Promise<ScoreTeacher
       prisma.assignment.findFirst({
         where: { studentId: me, scoreId, doneAt: null },
         orderBy: { createdAt: "desc" },
-        select: { id: true, targetMeasures: true, reps: true, targetTempo: true, comment: true, submittedAt: true },
+        select: {
+          id: true, targetMeasures: true, reps: true, targetTempo: true, comment: true, submittedAt: true,
+          dueDate: true, goalType: true, targetScore: true,
+        },
       }),
       prisma.teacherFeedback.findFirst({
         where: { teacherId: link.teacherId, studentId: me, scoreId },
@@ -50,12 +61,14 @@ export async function getScoreTeacherView(scoreId: string): Promise<ScoreTeacher
         ? {
             id: assignment.id,
             detail: [
-              assignment.targetMeasures && `第${assignment.targetMeasures}小節`,
               assignment.reps && `×${assignment.reps}`,
               assignment.targetTempo && `♩=${assignment.targetTempo}`,
             ].filter(Boolean).join(" ・ "),
             comment: assignment.comment,
             submitted: assignment.submittedAt != null,
+            dueDate: assignment.dueDate ? assignment.dueDate.toISOString() : null,
+            goalType: assignment.goalType,
+            targetScore: assignment.targetScore,
           }
         : null,
       hasFeedback: !!feedback,

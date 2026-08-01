@@ -79,6 +79,12 @@ export type CreateAssignmentInput = {
   reps?: number | null
   targetTempo?: number | null
   comment?: string | null
+  /** 提出期限 (ISO 文字列)。null=なし */
+  dueDate?: string | null
+  /** 合格条件: "score"=目標点数 / "achieve"=達成 / "master"=マスター */
+  goalType?: "score" | "achieve" | "master" | null
+  /** goalType="score" のときの合格ライン(0-100) */
+  targetScore?: number | null
 }
 
 /** 先生: 担当生徒に宿題を出す。 */
@@ -98,6 +104,14 @@ export async function createAssignment(
   if (!input.scoreId && !input.practiceItemId)
     return { ok: false, error: "対象の曲または教材を選んでください" }
 
+  // 合格条件: 点数は 0-100 にクランプ。達成/マスターは targetScore 不要。
+  const goalType = input.goalType ?? null
+  const targetScore =
+    goalType === "score" && input.targetScore != null
+      ? Math.max(0, Math.min(100, Math.round(input.targetScore)))
+      : null
+  const dueDate = input.dueDate ? new Date(input.dueDate) : null
+
   await prisma.assignment.create({
     data: {
       teacherId: auth.user.dbUser.id,
@@ -108,6 +122,9 @@ export async function createAssignment(
       reps: input.reps ?? null,
       targetTempo: input.targetTempo ?? null,
       comment: input.comment?.trim() || null,
+      dueDate: dueDate && !isNaN(dueDate.getTime()) ? dueDate : null,
+      goalType,
+      targetScore,
     },
   })
   return { ok: true }

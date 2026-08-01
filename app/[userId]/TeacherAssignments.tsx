@@ -6,6 +6,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { markAssignmentDone } from "@/app/actions/teacherActions"
+import { goalLabel, dueInfo, DUE_COLOR } from "@/app/_libs/assignmentGoal"
 
 export type StudentAssignment = {
   id: string
@@ -16,6 +17,9 @@ export type StudentAssignment = {
   detail: string
   comment: string | null
   href: string
+  dueDate: string | null
+  goalType: string | null
+  targetScore: number | null
 }
 
 export type TeacherHomeSummary = {
@@ -57,7 +61,26 @@ export default function TeacherAssignments({
     <div key={a.id} style={{ border: "1px solid #eef1f4", borderRadius: 12, padding: "10px 12px", opacity: doneIds.has(a.id) ? 0.5 : 1 }}>
       <Link href={a.href} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
         <div style={{ fontSize: 13.5, fontWeight: 800, color: "#2b3742" }}>📌 {a.title}</div>
-        {a.detail && <div style={{ fontSize: 12, color: "#6b7885", marginTop: 2 }}>{a.detail}</div>}
+        {(dueInfo(a.dueDate) || goalLabel(a.goalType, a.targetScore)) && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
+            {(() => {
+              const di = dueInfo(a.dueDate)
+              if (!di) return null
+              const c = DUE_COLOR[di.state]
+              return (
+                <span style={{ fontSize: 10.5, fontWeight: 800, color: c.fg, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 999, padding: "2px 8px" }}>
+                  期限 {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}
+                </span>
+              )
+            })()}
+            {goalLabel(a.goalType, a.targetScore) && (
+              <span style={{ fontSize: 10.5, fontWeight: 800, color: "#3b56d4", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "2px 8px" }}>
+                {goalLabel(a.goalType, a.targetScore)}
+              </span>
+            )}
+          </div>
+        )}
+        {a.detail && <div style={{ fontSize: 12, color: "#6b7885", marginTop: 4 }}>{a.detail}</div>}
         {a.comment && <div style={{ fontSize: 12.5, color: "#2b3742", marginTop: 4 }}>💬 {a.comment}</div>}
       </Link>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>

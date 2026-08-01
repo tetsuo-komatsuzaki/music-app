@@ -1155,6 +1155,10 @@ model Assignment {
   reps           Int? // 練習回数
   targetTempo    Int? // 目標テンポ(BPM)
   comment        String? // 生徒へのコメント
+  // ▼ 2026-08-01: 締め切り + 合格条件 (①提出期限 ②目標点数 or 達成)
+  dueDate        DateTime? // 提出期限(任意)
+  goalType       String? // 合格条件の種類: "score"=目標点数 / "achieve"=達成
+  targetScore    Int? // goalType=score のときの合格ライン(0-100)
   doneAt         DateTime? // 生徒が完了にした時刻(任意)
   // ▼ 提出 (2026-07-29 Phase1.5): 生徒が録音を紐付けて提出。先生に点数ごと届く。
   submittedAt           DateTime? // 提出時刻

@@ -7,6 +7,7 @@ import { useEffect, useState, useTransition } from "react"
 import Link from "next/link"
 import { getScoreTeacherView, type ScoreTeacherView } from "@/app/actions/teacherStudentViews"
 import { submitAssignment } from "@/app/actions/teacherActions"
+import { goalLabel, dueInfo, DUE_COLOR } from "@/app/_libs/assignmentGoal"
 
 export default function ScoreTeacherBanner({ scoreId, userId }: { scoreId: string; userId: string }) {
   const [view, setView] = useState<ScoreTeacherView | null>(null)
@@ -33,7 +34,12 @@ export default function ScoreTeacherBanner({ scoreId, userId }: { scoreId: strin
       const res = await submitAssignment(assignment.id)
       if (res.ok) {
         setSubmitted(true)
-        setSubmitMsg(res.score != null ? `提出しました！（${res.score}点）` : "提出しました！")
+        const passed =
+          assignment.goalType === "score" && assignment.targetScore != null && res.score != null
+            ? res.score >= assignment.targetScore
+            : null
+        const base = res.score != null ? `提出しました！（${res.score}点）` : "提出しました！"
+        setSubmitMsg(base + (passed === true ? " 合格🎉" : passed === false ? " 合格ラインまであと少し" : ""))
       } else {
         setSubmitMsg(res.error)
       }
@@ -45,8 +51,27 @@ export default function ScoreTeacherBanner({ scoreId, userId }: { scoreId: strin
       {assignment && (
         <div style={{ background: "#fff", border: "1px solid #ecdcb6", borderLeft: "4px solid #e0a02f", borderRadius: 12, padding: "12px 14px", boxShadow: "0 1px 2px rgba(120,80,10,.05)" }}>
           <div style={{ fontSize: 12, fontWeight: 800, color: "#8a5a10" }}>📌 先生からの宿題</div>
+          {(dueInfo(assignment.dueDate) || goalLabel(assignment.goalType, assignment.targetScore)) && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 5 }}>
+              {(() => {
+                const di = dueInfo(assignment.dueDate)
+                if (!di) return null
+                const c = DUE_COLOR[di.state]
+                return (
+                  <span style={{ fontSize: 10.5, fontWeight: 800, color: c.fg, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 999, padding: "2px 8px" }}>
+                    期限 {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}
+                  </span>
+                )
+              })()}
+              {goalLabel(assignment.goalType, assignment.targetScore) && (
+                <span style={{ fontSize: 10.5, fontWeight: 800, color: "#3b56d4", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "2px 8px" }}>
+                  {goalLabel(assignment.goalType, assignment.targetScore)}
+                </span>
+              )}
+            </div>
+          )}
           {assignment.detail && (
-            <div style={{ fontSize: 12.5, color: "#6b7885", marginTop: 3 }}>{assignment.detail}</div>
+            <div style={{ fontSize: 12.5, color: "#6b7885", marginTop: 5 }}>{assignment.detail}</div>
           )}
           {assignment.comment && (
             <div style={{ fontSize: 13, color: "#2b3742", marginTop: 5 }}>💬 {assignment.comment}</div>
