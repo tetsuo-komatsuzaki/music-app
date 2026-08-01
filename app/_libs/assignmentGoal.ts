@@ -3,8 +3,8 @@
 
 export function goalLabel(goalType?: string | null, targetScore?: number | null): string | null {
   if (goalType === "score") return targetScore != null ? `目標 ${targetScore}点以上` : "目標 点数"
-  if (goalType === "achieve") return "目標 達成（弾ける）"
-  if (goalType === "master") return "目標 🏆マスター"
+  if (goalType === "achieve") return "目標 達成"
+  if (goalType === "master") return "目標 マスター"
   return null
 }
 

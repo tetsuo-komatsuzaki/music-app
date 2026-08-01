@@ -11,7 +11,8 @@ export type ScoreTeacherView = {
   /** この曲に紐づく未完了の宿題 (最新1件) */
   assignment: {
     id: string
-    detail: string
+    reps: number | null
+    targetTempo: number | null
     comment: string | null
     submitted: boolean
     dueDate: string | null
@@ -67,10 +68,8 @@ export async function getScoreTeacherView(scoreId: string): Promise<ScoreTeacher
       assignment: assignment
         ? {
             id: assignment.id,
-            detail: [
-              assignment.reps && `×${assignment.reps}`,
-              assignment.targetTempo && `♩=${assignment.targetTempo}`,
-            ].filter(Boolean).join(" ・ "),
+            reps: assignment.reps,
+            targetTempo: assignment.targetTempo,
             comment: assignment.comment,
             submitted: assignment.submittedAt != null,
             dueDate: assignment.dueDate ? assignment.dueDate.toISOString() : null,

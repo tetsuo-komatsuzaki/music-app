@@ -1094,6 +1094,8 @@ export default function ScoreDetail({
           (d.notation?.length ?? 0) > 0
         teacherFeedbackRef.current = d
         setHasTeacherFeedback(has)
+        // 添削があれば演奏モードの譜面に初期表示 (別画面に遷移しない)。トグルで隠せる。
+        if (has) setShowTeacherFeedback(true)
       })
       .catch(() => {})
     return () => { cancelled = true }
