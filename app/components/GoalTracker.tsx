@@ -114,7 +114,7 @@ export default function GoalTracker({ achv }: { achv: AchievementStatus }) {
   const n1On: NodeOn = achv.mastered ? "a" : achv.achieved ? "" : "a"
   const n1Label = !achv.achieved && !achv.mastered ? "いま挑戦中" : "スタート"
   const n2On: NodeOn = achv.achieved || achv.mastered ? "a" : ""
-  const n2Label = achv.mastered ? "達成" : achv.achieved ? "達成ずみ✨" : "達成"
+  const n2Label = achv.mastered ? "弾ける" : achv.achieved ? "弾けた✨" : "弾ける"
   const n3On: NodeOn = achv.mastered ? "m" : ""
   const n3Label = achv.mastered ? "マスター！" : "マスター"
 
@@ -124,7 +124,7 @@ export default function GoalTracker({ achv }: { achv: AchievementStatus }) {
       <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "2px 0 14px" }}>
         <TrackNode em="🎻" label={n1Label} on={n1On} />
         <span style={{ color: "#c4ccd6", fontWeight: 900 }}>›</span>
-        <TrackNode em="🎯" label={n2Label} on={n2On} />
+        <TrackNode em="🎵" label={n2Label} on={n2On} />
         <span style={{ color: "#c4ccd6", fontWeight: 900 }}>›</span>
         <TrackNode em="🏆" label={n3Label} on={n3On} />
       </div>
@@ -133,7 +133,7 @@ export default function GoalTracker({ achv }: { achv: AchievementStatus }) {
         <div style={goalCheer(true)}>🏆 この曲をマスター！ おつかれさま、すごい！</div>
       ) : (
         <>
-          <StepHead n="STEP 1" title="達成" sub="まず弾けるように" tone="s1" />
+          <StepHead n="STEP 1" title="まずは弾けるように" sub="通して弾けたらクリア" tone="s1" />
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             {condDone >= condTotal
               ? <GoalRing full />

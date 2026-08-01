@@ -115,7 +115,7 @@ export function WeaknessSlotList({
         <div key={slot.subtaskId} className={styles.slot}>
           <div className={styles.slotHeader}>
             <span className={styles.treeBadge}>{TREE_LABELS[slot.tree]}</span>
-            <span className={styles.slotTitle}>🎯 {slot.subtaskName}</span>
+            <span className={styles.slotTitle}>{slot.subtaskName}</span>
             <span className={styles.slotStats}>
               {slot.target}音中{slot.miss}ミス（{Math.round(slot.missRate * 100)}%）
             </span>

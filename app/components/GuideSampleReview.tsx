@@ -36,7 +36,7 @@ export default function GuideSampleReview({ userId }: { userId?: string }) {
         <div className={styles.secTitle}>今回の学びポイントと練習メニュー</div>
         <div className={styles.slot}>
           <span className={styles.tree}>リズム</span>
-          <span className={styles.slotName}>🎯 付点のリズム</span>
+          <span className={styles.slotName}>付点のリズム</span>
           <span className={styles.pct}>ミス 31%</span>
         </div>
         <div className={styles.breakdown}>付点のあとの短い音が、少し長めになっているよ。</div>

@@ -159,10 +159,9 @@ export default function SymbolGuide({
     const h = host.getBoundingClientRect()
     const r = el.getBoundingClientRect()
     node.style.display = ""
-    // 案2 (2026-08-01): 音符の「上」→「下」に逃がす。上の小節番号/運指と被らない。
-    // チップ中心を音符の下端から一定offset下に置き、引き線で音符と結ぶ。
+    // 元の方式(音符の上に小さな目印)に戻す。円は小さめ(被り軽減)。
     node.style.left = `${r.left + r.width / 2 - h.left}px`
-    node.style.top = `${r.bottom - h.top + 20}px`
+    node.style.top = `${r.top - h.top - 14}px`
   }, [noteElementsRef])
 
   const repositionAll = useCallback(() => {

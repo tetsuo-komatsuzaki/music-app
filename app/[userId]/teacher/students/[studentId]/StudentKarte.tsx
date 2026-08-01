@@ -149,7 +149,7 @@ function PracticeTab({ working, recordings }: { working: WorkItem[]; recordings:
                     {r.weak.map((w, i) => (
                       <div key={i} style={{ fontSize: 11.5, color: "#4a5766" }}>
                         <span style={{ fontSize: 9.5, fontWeight: 800, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{w.tree}</span>
-                        🎯 {w.name}（{w.target}音中{w.miss}ミス）
+                        {w.name}（{w.target}音中{w.miss}ミス）
                       </div>
                     ))}
                   </div>
