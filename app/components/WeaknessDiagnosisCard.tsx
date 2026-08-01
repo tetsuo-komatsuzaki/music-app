@@ -134,16 +134,17 @@ export function WeaknessSlotList({
           </div>
           {g.items.map((slot) => {
             const sev = severity(slot.missRate)
-            const pct = Math.round(slot.missRate * 100)
+            // 成功率で前向きに表示 (色分けの重症度はミス率基準のまま)
+            const successPct = 100 - Math.round(slot.missRate * 100)
             return (
               <div key={slot.subtaskId} className={styles.slot}>
                 <div className={styles.slotTitle}>{slot.subtaskName}</div>
                 <div className={styles.miniRow}>
-                  <span className={styles.miniLabel}>ミス率</span>
+                  <span className={styles.miniLabel}>成功率</span>
                   <span className={styles.miniTrack}>
-                    <span className={styles.miniFill} style={{ width: `${pct}%`, background: sev.color }} />
+                    <span className={styles.miniFill} style={{ width: `${successPct}%`, background: sev.color }} />
                   </span>
-                  <span className={styles.miniPct} style={{ color: sev.color }}>{pct}%</span>
+                  <span className={styles.miniPct} style={{ color: sev.color }}>{successPct}%</span>
                 </div>
                 {slot.breakdown && <div className={styles.breakdown}>{slot.breakdown}</div>}
 
