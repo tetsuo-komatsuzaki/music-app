@@ -233,9 +233,10 @@ export async function sendMessageToStudent(
   }
 }
 
-/** 生徒: 宿題を提出する。対象曲/教材の最新の評価済み演奏を紐付け、点数ごと先生に届く。 */
+/** 生徒: 宿題を提出する。performanceId 指定でその演奏を、未指定なら最新の評価済み演奏を紐付ける。 */
 export async function submitAssignment(
   assignmentId: string,
+  performanceId?: string,
 ): Promise<{ ok: true; score: number | null } | { ok: false; error: string }> {
   const auth = await requireAuthAction()
   if (!auth.ok) return { ok: false, error: auth.error }
@@ -248,16 +249,25 @@ export async function submitAssignment(
 
     let perfId: string | null = null
     let score: number | null = null
+    // performanceId 指定時は、その演奏が本人・対象曲/教材のものか where で検証して採用。
     if (a.scoreId) {
       const p = await prisma.performance.findFirst({
-        where: { userId: auth.user.dbUser.id, scoreId: a.scoreId, rangeFromNote: null, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
+        where: {
+          userId: auth.user.dbUser.id, scoreId: a.scoreId, rangeFromNote: null,
+          pitchAccuracy: { not: null }, timingAccuracy: { not: null },
+          ...(performanceId ? { id: performanceId } : {}),
+        },
         orderBy: { uploadedAt: "desc" },
         select: { id: true, pitchAccuracy: true, timingAccuracy: true },
       })
       if (p) { perfId = p.id; score = Math.round(((p.pitchAccuracy ?? 0) + (p.timingAccuracy ?? 0)) / 2) }
     } else if (a.practiceItemId) {
       const p = await prisma.practicePerformance.findFirst({
-        where: { userId: auth.user.dbUser.id, practiceItemId: a.practiceItemId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
+        where: {
+          userId: auth.user.dbUser.id, practiceItemId: a.practiceItemId,
+          pitchAccuracy: { not: null }, timingAccuracy: { not: null },
+          ...(performanceId ? { id: performanceId } : {}),
+        },
         orderBy: { uploadedAt: "desc" },
         select: { id: true, pitchAccuracy: true, timingAccuracy: true },
       })
@@ -273,6 +283,50 @@ export async function submitAssignment(
     return { ok: true, score }
   } catch {
     return { ok: false, error: "提出に失敗しました" }
+  }
+}
+
+export type SubmittablePerformance = { id: string; name: string; score: number | null; date: string }
+
+/** 生徒: この宿題に提出できる演奏(評価済み)の一覧。提出時に選ばせるために使う。 */
+export async function listSubmittablePerformances(
+  assignmentId: string,
+): Promise<{ ok: true; items: SubmittablePerformance[] } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  const me = auth.user.dbUser.id
+  const dispName = (name: string | null) => {
+    const m = /^Performance #?(\d+)$/i.exec(name ?? "")
+    return m ? `#${m[1]}` : (name ?? "録音")
+  }
+  const toScore = (pitch: number | null, timing: number | null) =>
+    pitch != null && timing != null ? Math.round((pitch + timing) / 2) : null
+  try {
+    const a = await prisma.assignment.findUnique({
+      where: { id: assignmentId },
+      select: { studentId: true, scoreId: true, practiceItemId: true },
+    })
+    if (!a || a.studentId !== me) return { ok: false, error: "対象の宿題がありません" }
+
+    if (a.scoreId) {
+      const rows = await prisma.performance.findMany({
+        where: { userId: me, scoreId: a.scoreId, rangeFromNote: null, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
+        orderBy: { uploadedAt: "desc" }, take: 20,
+        select: { id: true, name: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true },
+      })
+      return { ok: true, items: rows.map((p) => ({ id: p.id, name: dispName(p.name), score: toScore(p.pitchAccuracy, p.timingAccuracy), date: p.uploadedAt.toLocaleDateString("ja-JP") })) }
+    }
+    if (a.practiceItemId) {
+      const rows = await prisma.practicePerformance.findMany({
+        where: { userId: me, practiceItemId: a.practiceItemId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
+        orderBy: { uploadedAt: "desc" }, take: 20,
+        select: { id: true, name: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true },
+      })
+      return { ok: true, items: rows.map((p) => ({ id: p.id, name: dispName(p.name), score: toScore(p.pitchAccuracy, p.timingAccuracy), date: p.uploadedAt.toLocaleDateString("ja-JP") })) }
+    }
+    return { ok: true, items: [] }
+  } catch {
+    return { ok: false, error: "取得に失敗しました" }
   }
 }
 

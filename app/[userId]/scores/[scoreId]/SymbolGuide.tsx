@@ -130,6 +130,8 @@ export default function SymbolGuide({
 }: Props) {
   const [sheet, setSheet] = useState<{ heading: string; items: ScoreSymbol[] } | null>(null)
   const [showMarks, setShowMarks] = useState(true)
+  // アコーディオン: 記号一覧は既定で閉じる (2026-08-01)
+  const [open, setOpen] = useState(false)
   const litRef = useRef<HTMLElement[]>([])
 
   // 譜面に置く目印: 各記号の「最初に出てくる音符」に1つだけ付ける。
@@ -232,39 +234,54 @@ export default function SymbolGuide({
 
   return (
     <div className={styles.wrap}>
-      <div className={styles.head}>
+      <button
+        type="button"
+        className={styles.head}
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        style={{ width: "100%", background: "none", border: "none", cursor: "pointer", font: "inherit", textAlign: "left", padding: 0 }}
+      >
         <span className={styles.lab}>この曲に出てくる記号</span>
         <span className={styles.spacer} />
-        <button
-          type="button"
-          className={`${styles.tapToggle} ${showMarks ? styles.tapOn : ""}`}
-          onClick={() => setShowMarks((v) => !v)}
-          aria-pressed={showMarks}
-        >
-          譜面に目印
-        </button>
-        <button
-          type="button"
-          className={`${styles.tapToggle} ${tapMode ? styles.tapOn : ""}`}
-          onClick={() => { onTapModeChange(!tapMode); if (tapMode) close() }}
-          aria-pressed={tapMode}
-        >
-          {tapMode ? "譜面タップ：ON" : "譜面をタップして調べる"}
-        </button>
-      </div>
+        <span aria-hidden style={{ fontSize: 11, fontWeight: 800, color: "#9aa2ad" }}>{open ? "▲ 閉じる" : `▼ 開く（${symbols.length}）`}</span>
+      </button>
 
-      <div className={styles.chips}>
-        {symbols.map((s) => (
-          <button key={s.id} type="button" className={styles.chip} onClick={() => openSymbol(s)}>
-            <span className={styles.gWrap}><SymbolGlyph glyph={s.glyph} value={s.value} /></span>
-            <span className={styles.chipLabel}>{s.label}</span>
-            {s.value && s.glyph !== "dynamic" && s.glyph !== "tuplet" && (
-              <span className={styles.chipValue}>{s.value}</span>
-            )}
-            {s.lessonId && <span className={styles.chipLesson}>学べる</span>}
-          </button>
-        ))}
-      </div>
+      {open && (
+        <>
+          <div className={styles.head} style={{ marginTop: 8 }}>
+            <span className={styles.spacer} />
+            <button
+              type="button"
+              className={`${styles.tapToggle} ${showMarks ? styles.tapOn : ""}`}
+              onClick={() => setShowMarks((v) => !v)}
+              aria-pressed={showMarks}
+            >
+              譜面に目印
+            </button>
+            <button
+              type="button"
+              className={`${styles.tapToggle} ${tapMode ? styles.tapOn : ""}`}
+              onClick={() => { onTapModeChange(!tapMode); if (tapMode) close() }}
+              aria-pressed={tapMode}
+            >
+              {tapMode ? "譜面タップ：ON" : "譜面をタップして調べる"}
+            </button>
+          </div>
+
+          <div className={styles.chips}>
+            {symbols.map((s) => (
+              <button key={s.id} type="button" className={styles.chip} onClick={() => openSymbol(s)}>
+                <span className={styles.gWrap}><SymbolGlyph glyph={s.glyph} value={s.value} /></span>
+                <span className={styles.chipLabel}>{s.label}</span>
+                {s.value && s.glyph !== "dynamic" && s.glyph !== "tuplet" && (
+                  <span className={styles.chipValue}>{s.value}</span>
+                )}
+                {s.lessonId && <span className={styles.chipLesson}>学べる</span>}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
       {showMarks && overlayEl && createPortal(
         <div key={noteElementsVersion} className={styles.markLayer}>

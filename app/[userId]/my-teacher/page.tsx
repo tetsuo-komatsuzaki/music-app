@@ -4,6 +4,7 @@
 import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
+import { getAchievementFlags } from "@/app/_libs/achievementFlags"
 import MyTeacherClient from "./MyTeacherClient"
 
 export const metadata = { title: "先生とのやりとり" }
@@ -89,21 +90,27 @@ export default async function MyTeacherPage({
     take: 50,
     select: {
       id: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
+      dueDate: true, goalType: true, targetScore: true,
       doneAt: true, submittedAt: true, submittedScore: true, createdAt: true,
       score: { select: { id: true, title: true } },
       practiceItem: { select: { id: true, title: true, category: true } },
     },
   })
 
+  const hwAchFlags = await getAchievementFlags(me.id, assignments.map((a) => a.score?.id))
   const hw = assignments.map((a) => ({
     id: a.id,
     title: a.score?.title ?? a.practiceItem?.title ?? "課題",
     detail: [
-      a.targetMeasures && `第${a.targetMeasures}小節`,
       a.reps && `×${a.reps}`,
       a.targetTempo && `♩=${a.targetTempo}`,
     ].filter(Boolean).join(" ・ "),
     comment: a.comment,
+    dueDate: a.dueDate ? a.dueDate.toISOString() : null,
+    goalType: a.goalType,
+    targetScore: a.targetScore,
+    achieved: a.score?.id ? (hwAchFlags.get(a.score.id)?.achieved ?? false) : false,
+    mastered: a.score?.id ? (hwAchFlags.get(a.score.id)?.mastered ?? false) : false,
     done: a.doneAt != null,
     submitted: a.submittedAt != null,
     submittedScore: a.submittedScore,
