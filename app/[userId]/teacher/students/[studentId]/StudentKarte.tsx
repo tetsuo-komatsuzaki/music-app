@@ -294,7 +294,6 @@ function Homework({
   const [kind, setKind] = useState<"score" | "item">("score")
   const [targetId, setTargetId] = useState("")
   const [filter, setFilter] = useState("")
-  const [measures, setMeasures] = useState("")
   const [reps, setReps] = useState("")
   const [tempo, setTempo] = useState("")
   const [comment, setComment] = useState("")
@@ -321,13 +320,12 @@ function Homework({
         studentId,
         scoreId: kind === "score" ? targetId : null,
         practiceItemId: kind === "item" ? targetId : null,
-        targetMeasures: measures || null,
         reps: reps ? Number(reps) : null,
         targetTempo: tempo ? Number(tempo) : null,
         comment: comment || null,
       })
       if (!r.ok) { setErr(r.error); return }
-      setOpen(false); setTargetId(""); setMeasures(""); setReps(""); setTempo(""); setComment("")
+      setOpen(false); setTargetId(""); setReps(""); setTempo(""); setComment("")
       router.refresh()
     })
   }
@@ -377,9 +375,8 @@ function Homework({
           )}
 
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-            <label style={{ ...lbl, flex: 1 }}>対象小節<input value={measures} onChange={(e) => setMeasures(e.target.value)} placeholder="例: 1-4" style={inp} /></label>
-            <label style={{ ...lbl, width: 90 }}>回数<input value={reps} onChange={(e) => setReps(e.target.value.replace(/[^0-9]/g, ""))} placeholder="5" style={inp} inputMode="numeric" /></label>
-            <label style={{ ...lbl, width: 110 }}>目標♩<input value={tempo} onChange={(e) => setTempo(e.target.value.replace(/[^0-9]/g, ""))} placeholder="80" style={inp} inputMode="numeric" /></label>
+            <label style={{ ...lbl, flex: 1 }}>回数<input value={reps} onChange={(e) => setReps(e.target.value.replace(/[^0-9]/g, ""))} placeholder="5" style={inp} inputMode="numeric" /></label>
+            <label style={{ ...lbl, flex: 1 }}>目標♩<input value={tempo} onChange={(e) => setTempo(e.target.value.replace(/[^0-9]/g, ""))} placeholder="80" style={inp} inputMode="numeric" /></label>
           </div>
           <label style={{ ...lbl, display: "block", marginTop: 10 }}>コメント
             <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} placeholder="例: 移弦を先に準備しよう" style={{ ...inp, resize: "vertical" }} />
