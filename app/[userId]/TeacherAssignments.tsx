@@ -63,6 +63,13 @@ export default function TeacherAssignments({
   // 宿題も未読も添削も無ければ出さない
   if (hwCount === 0 && unread === 0 && feedback === 0) return null
 
+  // 畳んでいても分かるよう、最も近い(=最短の締め切り)期限をヘッダーに出す
+  const dueDates = assignments.map((a) => a.dueDate).filter((d): d is string => !!d)
+  const nearestDue = dueDates.length
+    ? dueDates.reduce((a, b) => (new Date(a).getTime() <= new Date(b).getTime() ? a : b))
+    : null
+  const headerDue = nearestDue ? dueInfo(nearestDue) : null
+
   return (
     <section style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 16, padding: "12px 14px", margin: "0 0 14px", boxShadow: "0 1px 3px rgba(30,45,70,.04)" }}>
       {/* 1行ヘッダー = アコーディオンのトグル */}
@@ -75,6 +82,14 @@ export default function TeacherAssignments({
         <span style={{ fontSize: 12.5, fontWeight: 800, color: "#2b3742" }}>👩‍🏫 先生から</span>
         {hwCount > 0 && <span style={badge}>宿題{hwCount}</span>}
         {unread > 0 && <span style={badge}>未読{unread}</span>}
+        {headerDue && (() => {
+          const c = DUE_CALM[headerDue.state]
+          return (
+            <span style={{ ...chip, color: c.fg, background: c.bg, border: `1px solid ${c.bd}` }}>
+              📅 {headerDue.label}{headerDue.state === "overdue" ? "（過ぎています）" : headerDue.state === "soon" ? "（もうすぐ）" : ""}
+            </span>
+          )
+        })()}
         <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 800, color: "#9aa6b3" }}>{open ? "▲ 閉じる" : "▼ 開く"}</span>
       </button>
 
