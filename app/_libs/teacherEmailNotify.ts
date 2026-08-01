@@ -33,10 +33,11 @@ export async function notifyStudent(
     if (!apiKey || !from) return
 
     const [student, teacher] = await Promise.all([
-      prisma.user.findUnique({ where: { id: studentDbUserId }, select: { supabaseUserId: true } }),
+      prisma.user.findUnique({ where: { id: studentDbUserId }, select: { supabaseUserId: true, teacherEmailOff: true } }),
       prisma.user.findUnique({ where: { id: teacherDbUserId }, select: { name: true } }),
     ])
     if (!student) return
+    if (student.teacherEmailOff) return // 生徒が配信停止に設定している
 
     const { data, error } = await supabaseAdmin.auth.admin.getUserById(student.supabaseUserId)
     const to = data?.user?.email
@@ -50,7 +51,7 @@ export async function notifyStudent(
     const lines = [`${teacherName}から${NOUN[kind]}が届きました。`]
     if (trimmed) lines.push("", `「${trimmed}${(preview ?? "").length > 140 ? "…" : ""}」`)
     if (link) lines.push("", `▼ アプリで確認`, link)
-    lines.push("", "――", "Arcoda（アルコダ）")
+    lines.push("", "――", "Arcoda（アルコダ）", "※通知が不要な場合は、アプリの「設定 > 通知」からオフにできます。")
 
     const resend = new Resend(apiKey)
     await resend.emails.send({

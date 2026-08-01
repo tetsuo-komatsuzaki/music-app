@@ -4,6 +4,7 @@ import { useState, useTransition } from "react"
 import { updateUserName } from "@/app/actions/updateUserName"
 import { updateUserEmail } from "@/app/actions/updateUserEmail"
 import { updateUserPassword } from "@/app/actions/updateUserPassword"
+import { setTeacherEmailOff } from "@/app/actions/updateNotificationPref"
 import DeleteAccountModal from "./DeleteAccountModal"
 import TeacherLinkCard from "./TeacherLinkCard"
 import styles from "./Settings.module.css"
@@ -13,6 +14,8 @@ interface Props {
   initialName: string
   currentEmail: string
   accountDeletionEnabled: boolean
+  hasTeacher?: boolean
+  teacherEmailOff?: boolean
 }
 
 export default function SettingsClient({
@@ -20,7 +23,20 @@ export default function SettingsClient({
   initialName,
   currentEmail,
   accountDeletionEnabled,
+  hasTeacher = false,
+  teacherEmailOff = false,
 }: Props) {
+  // 先生からの通知メール: オフ(配信停止)にできる
+  const [emailOff, setEmailOff] = useState(teacherEmailOff)
+  const [notifyPending, startNotifyTransition] = useTransition()
+  const toggleTeacherEmail = () => {
+    const next = !emailOff
+    setEmailOff(next)
+    startNotifyTransition(async () => {
+      const r = await setTeacherEmailOff(next)
+      if (!r.ok) setEmailOff(!next) // 失敗したら戻す
+    })
+  }
   const [name, setName] = useState(initialName)
   const [savedName, setSavedName] = useState(initialName)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
@@ -124,6 +140,34 @@ export default function SettingsClient({
 
       {/* 先生とつながる (先生機能 MVP 2026-07-28) */}
       <TeacherLinkCard />
+
+      {/* 通知設定 (先生がいる生徒のみ・2026-08-01) */}
+      {hasTeacher && (
+        <section className={styles.card}>
+          <h2 className={styles.sectionTitle}>通知</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#22303c" }}>先生からの通知メール</div>
+              <div style={{ fontSize: 12, color: "#8a9099", marginTop: 3, lineHeight: 1.6 }}>
+                先生から宿題・添削・メッセージが届いたとき、登録メールにお知らせします。
+              </div>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={!emailOff}
+              onClick={toggleTeacherEmail}
+              disabled={notifyPending}
+              style={{ flex: "none", width: 46, height: 27, borderRadius: 999, border: "none", cursor: "pointer", position: "relative", background: emailOff ? "#cfd4da" : "#34a06a", transition: "background .15s", padding: 0 }}
+            >
+              <span style={{ position: "absolute", top: 3, left: emailOff ? 3 : 22, width: 21, height: 21, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 2px rgba(0,0,0,.25)", transition: "left .15s" }} />
+            </button>
+          </div>
+          <div style={{ fontSize: 11.5, color: "#9aa6b3", marginTop: 8 }}>
+            {emailOff ? "いまはオフ（メールは届きません）" : "いまはオン（メールが届きます）"}
+          </div>
+        </section>
+      )}
 
       {/* アカウント情報 */}
       <section className={styles.card}>

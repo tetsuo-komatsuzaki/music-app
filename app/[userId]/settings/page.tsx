@@ -22,10 +22,18 @@ export default async function SettingsPage({
 
   const dbUser = await prisma.user.findUnique({
     where: { id: dbUserId },
-    select: { name: true },
+    select: { name: true, teacherEmailOff: true },
   })
   // helper を通過していれば dbUser は存在するはず、念のため
   if (!dbUser) redirect("/login")
+
+  // 先生がいる生徒だけ「先生からの通知」設定を出す
+  let hasTeacher = false
+  try {
+    hasTeacher = !!(await prisma.teacherStudent.findFirst({ where: { studentId: dbUserId }, select: { id: true } }))
+  } catch {
+    hasTeacher = false
+  }
 
   return (
     <SettingsClient
@@ -33,6 +41,8 @@ export default async function SettingsPage({
       initialName={dbUser.name}
       currentEmail={authUser?.email ?? ""}
       accountDeletionEnabled={process.env.ENABLE_ACCOUNT_DELETION === "true"}
+      hasTeacher={hasTeacher}
+      teacherEmailOff={dbUser.teacherEmailOff}
     />
   )
 }

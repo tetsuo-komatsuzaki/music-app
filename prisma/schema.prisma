@@ -34,6 +34,8 @@ model User {
   // ▼ S-1: アカウント設定追加分
   aiTrainingOptIn          Boolean          @default(false)
   aiTrainingOptInChangedAt DateTime?
+  // ▼ 2026-08-01: 先生からの通知メール配信停止 (true=送らない)
+  teacherEmailOff          Boolean          @default(false)
   deletedAt                DateTime? // 退会受付時刻 (idempotency key 兼用)
   feedbacks                Feedback[]
   supportInquiries         SupportInquiry[]
