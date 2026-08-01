@@ -9,7 +9,7 @@ import PracticeFocusCard from "@/app/components/PracticeFocusCard"
 import GuideSampleFocus from "@/app/components/GuideSampleFocus"
 import NextPiecesCard from "@/app/components/NextPiecesCard"
 import FavoritesSection, { type FavoriteEntry } from "@/app/components/FavoritesSection"
-import TeacherAssignments, { type StudentAssignment } from "./TeacherAssignments"
+import TeacherAssignments, { type StudentAssignment, type TeacherHomeSummary } from "./TeacherAssignments"
 import hb from "./homeBlocks.module.css"
 import ProgressGuideModal from "@/app/components/ProgressGuideModal"
 import type { SongRecommendation } from "@/app/components/RecommendationItem"
@@ -84,6 +84,8 @@ type Props = {
   favorites: FavoriteEntry[]
   /** 先生からの宿題 (未完了)。先生機能 MVP (2026-07-28) */
   teacherAssignments: StudentAssignment[]
+  /** 先生からの新着サマリ (未読メッセージ/添削件数)。E (2026-08-01) */
+  teacherSummary?: TeacherHomeSummary
 }
 
 export default function HomeClient({
@@ -94,6 +96,7 @@ export default function HomeClient({
   rankCard,
   favorites,
   teacherAssignments,
+  teacherSummary,
 }: Props) {
   void _userName
   const { userId } = useParams<{ userId: string }>()
@@ -113,7 +116,7 @@ export default function HomeClient({
       <MyRankCard {...rankCard} onGuide={() => setGuideOpen(true)} />
 
       {/* 先生から (未完了の宿題があるときだけ表示・先生機能 MVP) */}
-      <TeacherAssignments assignments={teacherAssignments} />
+      <TeacherAssignments assignments={teacherAssignments} summary={teacherSummary} />
 
       {/* ② いま練習している曲 ＋〈マスターへのステップ ‖ 毎日の基礎練〉。
           終盤の締めでは、選んだ曲の「弾いたらこう出る」見本カードに差し替える。 */}

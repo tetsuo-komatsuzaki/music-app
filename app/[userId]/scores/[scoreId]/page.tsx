@@ -3,6 +3,7 @@ import { badgeKind } from "@/app/_libs/starProgress"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import ScoreDetail from "./scoreDetail"
+import ScoreTeacherBanner from "./ScoreTeacherBanner"
 import AutoRefresh from "@/app/components/AutoRefresh"
 import { uploadRecord } from "@/app/actions/uploadRecord"
 import LessonGateBanner from "./LessonGateBanner"
@@ -220,6 +221,7 @@ export default async function Page({
           lessons={pendingLessons.map((l) => ({ id: l.id, name: l.name }))}
         />
       )}
+      <ScoreTeacherBanner scoreId={scoreId} userId={userId} />
       <ScoreDetail
         score={{
           id: score.id,

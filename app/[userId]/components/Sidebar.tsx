@@ -5,7 +5,7 @@ import { useParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { getUserRole } from "@/app/actions/getUserRole"
-import { getMyTeacherLink } from "@/app/actions/teacherActions"
+import { getTeacherStudentSummary } from "@/app/actions/teacherStudentViews"
 import { createBrowserSupabaseClient } from "@/app/_libs/supabaseBrowser"
 import { useOnboarding } from "../_onboarding/hooks/useOnboarding"
 
@@ -37,6 +37,7 @@ export default function Sidebar() {
   const userId = params.userId as string
   const [isAdmin, setIsAdmin] = useState(false)
   const [hasTeacher, setHasTeacher] = useState(false)
+  const [unread, setUnread] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
   const { openHelp } = useOnboarding()
 
@@ -44,10 +45,11 @@ export default function Sidebar() {
     getUserRole().then(role => {
       setIsAdmin(role === "admin")
     })
-    // 先生を登録している生徒だけ「先生とのやりとり」を出す
-    getMyTeacherLink().then(link => {
-      setHasTeacher(!!link)
-    })
+    // 先生を登録している生徒だけ「先生とのやりとり」を出す。未読数もバッジ用に取得
+    getTeacherStudentSummary().then(s => {
+      setHasTeacher(s.hasTeacher)
+      setUnread(s.unreadMessages)
+    }).catch(() => {})
   }, [userId])
 
   const navItems = [
@@ -106,6 +108,14 @@ export default function Sidebar() {
                 >
                   <span className={styles.navIcon}>{item.icon}</span>
                   <span>{item.label}</span>
+                  {item.path === "my-teacher" && unread > 0 && (
+                    <span
+                      aria-label={`未読${unread}件`}
+                      style={{ marginLeft: "auto", minWidth: 18, height: 18, padding: "0 5px", borderRadius: 999, background: "#e5484d", color: "#fff", fontSize: 11, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                    >
+                      {unread}
+                    </span>
+                  )}
                 </Link>
               )
             })}

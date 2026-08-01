@@ -521,50 +521,61 @@ export default async function HomePage({ params }: PageProps) {
     favorites = []
   }
 
-  // 先生からの宿題 (未完了) — ホーム上部の「先生から」セクション用 (2026-07-28)
+  // 先生からの宿題(未完了) + 新着サマリ — ホーム上部「先生から」用 (2026-07-28 / E追加 2026-08-01)
   let teacherAssignments: {
     id: string; teacherName: string; title: string; detail: string; comment: string | null; href: string
   }[] = []
+  let teacherSummary: { teacherName: string | null; unreadMessages: number; feedbackCount: number } | undefined
   try {
     // 先生を登録している生徒のみ「先生から」を出す (解約したら消える)
-    const hasTeacher = await prisma.teacherStudent.findFirst({
+    const link = await prisma.teacherStudent.findFirst({
       where: { studentId: internalUserId },
-      select: { id: true },
+      orderBy: { createdAt: "asc" },
+      select: { teacherId: true, teacher: { select: { name: true } } },
     })
-    const rows = hasTeacher ? await prisma.assignment.findMany({
-      where: { studentId: internalUserId, doneAt: null },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      select: {
-        id: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
-        teacher: { select: { name: true } },
-        score: { select: { id: true, title: true } },
-        practiceItem: { select: { id: true, title: true, category: true } },
-      },
-    }) : []
-    teacherAssignments = rows.map((a) => ({
-      id: a.id,
-      teacherName: a.teacher.name,
-      title: a.score?.title ?? a.practiceItem?.title ?? "課題",
-      detail: [
-        a.targetMeasures && `第${a.targetMeasures}小節`,
-        a.reps && `×${a.reps}`,
-        a.targetTempo && `♩=${a.targetTempo}`,
-      ].filter(Boolean).join(" ・ "),
-      comment: a.comment,
-      href: a.score
-        ? `/${userId}/scores/${a.score.id}`
-        : a.practiceItem
-          ? `/${userId}/practice/${a.practiceItem.category}/${a.practiceItem.id}`
-          : `/${userId}`,
-    }))
+    if (link) {
+      const [rows, unreadMessages, feedbackCount] = await Promise.all([
+        prisma.assignment.findMany({
+          where: { studentId: internalUserId, doneAt: null },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          select: {
+            id: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
+            teacher: { select: { name: true } },
+            score: { select: { id: true, title: true } },
+            practiceItem: { select: { id: true, title: true, category: true } },
+          },
+        }),
+        prisma.message.count({ where: { studentId: internalUserId, teacherId: link.teacherId, fromTeacher: true, readAt: null } }),
+        prisma.teacherFeedback.count({ where: { teacherId: link.teacherId, studentId: internalUserId } }),
+      ])
+      teacherAssignments = rows.map((a) => ({
+        id: a.id,
+        teacherName: a.teacher.name,
+        title: a.score?.title ?? a.practiceItem?.title ?? "課題",
+        detail: [
+          a.targetMeasures && `第${a.targetMeasures}小節`,
+          a.reps && `×${a.reps}`,
+          a.targetTempo && `♩=${a.targetTempo}`,
+        ].filter(Boolean).join(" ・ "),
+        comment: a.comment,
+        href: a.score
+          ? `/${userId}/scores/${a.score.id}`
+          : a.practiceItem
+            ? `/${userId}/practice/${a.practiceItem.category}/${a.practiceItem.id}`
+            : `/${userId}`,
+      }))
+      teacherSummary = { teacherName: link.teacher.name, unreadMessages, feedbackCount }
+    }
   } catch {
     teacherAssignments = []
+    teacherSummary = undefined
   }
 
   return (
     <HomeClient
       teacherAssignments={teacherAssignments}
+      teacherSummary={teacherSummary}
       userName={dbUser.name ?? ""}
       streak={streak}
       weeklyDays={weeklyDays}

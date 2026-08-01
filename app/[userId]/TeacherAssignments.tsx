@@ -4,7 +4,7 @@
 // 将来: 次回レッスン/提出物などのセクションをこの下に足す。
 import { useState, useTransition } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { markAssignmentDone } from "@/app/actions/teacherActions"
 
 export type StudentAssignment = {
@@ -16,11 +16,26 @@ export type StudentAssignment = {
   href: string
 }
 
-export default function TeacherAssignments({ assignments }: { assignments: StudentAssignment[] }) {
+export type TeacherHomeSummary = {
+  teacherName: string | null
+  unreadMessages: number
+  feedbackCount: number
+}
+
+export default function TeacherAssignments({
+  assignments,
+  summary,
+}: {
+  assignments: StudentAssignment[]
+  summary?: TeacherHomeSummary
+}) {
   const router = useRouter()
+  const { userId } = useParams<{ userId: string }>()
   const [pending, startTransition] = useTransition()
   const [doneIds, setDoneIds] = useState<Set<string>>(new Set())
-  if (!assignments.length) return null
+
+  const hasChips = !!summary && (summary.unreadMessages > 0 || summary.feedbackCount > 0)
+  if (!assignments.length && !hasChips) return null
 
   const markDone = (id: string) => {
     setDoneIds((s) => new Set(s).add(id))
@@ -32,7 +47,29 @@ export default function TeacherAssignments({ assignments }: { assignments: Stude
 
   return (
     <section style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 16, padding: "14px 16px", margin: "0 0 14px", boxShadow: "0 1px 3px rgba(30,45,70,.05)" }}>
-      <div style={{ fontSize: 12.5, fontWeight: 800, color: "#2b3742", marginBottom: 10 }}>👩‍🏫 先生から</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <span style={{ fontSize: 12.5, fontWeight: 800, color: "#2b3742" }}>👩‍🏫 先生から</span>
+        <Link href={`/${userId}/my-teacher`} style={{ marginLeft: "auto", fontSize: 11, fontWeight: 700, color: "#4a6cf7", textDecoration: "none" }}>
+          やりとりを見る →
+        </Link>
+      </div>
+
+      {/* 未読メッセージ・添削の件数チップ (E) */}
+      {hasChips && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: assignments.length ? 10 : 0 }}>
+          {summary!.unreadMessages > 0 && (
+            <Link href={`/${userId}/my-teacher`} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 800, color: "#b23", background: "#fdecec", border: "1px solid #f6cdcd", borderRadius: 999, padding: "5px 11px", textDecoration: "none" }}>
+              💬 未読メッセージ {summary!.unreadMessages}
+            </Link>
+          )}
+          {summary!.feedbackCount > 0 && (
+            <Link href={`/${userId}/my-teacher`} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 800, color: "#3b56d4", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "5px 11px", textDecoration: "none" }}>
+              ✍️ 添削 {summary!.feedbackCount}
+            </Link>
+          )}
+        </div>
+      )}
+
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {assignments.map((a) => (
           <div key={a.id} style={{ border: "1px solid #eef1f4", borderRadius: 12, padding: "10px 12px", opacity: doneIds.has(a.id) ? 0.5 : 1 }}>
