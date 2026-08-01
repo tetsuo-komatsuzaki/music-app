@@ -146,6 +146,26 @@ export default async function StudentKartePage({
   // 宿題の「達成/マスター目標」自動判定用に、対象曲の達成状態をまとめて取得
   const achFlags = await getAchievementFlags(studentId, assignments.map((a) => a.scoreId))
 
+  // 生徒の目標 (目標共有・2026-08-02): オンボの旅の地図(目標曲/時期/エピックウィン)を先生にも見せる
+  let studentGoal: { songName: string; songStar: number | null; goalDate: string | null; epicWin: string | null } | null = null
+  try {
+    const onb = await prisma.onboardingProfile.findUnique({
+      where: { userId: studentId },
+      select: { answers: true, completedAt: true },
+    })
+    const a = (onb?.answers ?? null) as { q4song?: string; q4star?: number; q8?: string; goalSong?: string | null; goalDate?: string | null } | null
+    if (onb?.completedAt && a?.q4song) {
+      studentGoal = {
+        songName: a.q4song,
+        songStar: a.q4star ?? null,
+        goalDate: a.goalDate ?? null,
+        epicWin: a.goalSong || a.q8 || null,
+      }
+    }
+  } catch {
+    studentGoal = null
+  }
+
   // ── 練習タブ (§5-1 拡充): 取り組んでいる曲/教材 + 直近の録音(分析結果 + 音声) ──
   const [scorePerfs, pracPerfs] = await Promise.all([
     prisma.performance.findMany({
@@ -206,6 +226,7 @@ export default async function StudentKartePage({
           title: a.score?.title ?? "曲",
           mastered: a.masteredAt != null,
         })),
+        goal: studentGoal,
       }}
       scoreTargets={scoreTargets}
       itemTargets={itemTargets}

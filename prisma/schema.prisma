@@ -1188,6 +1188,8 @@ model Message {
   // ▼ 2026-08-01: メッセージを生徒の演奏に紐づける(ゆるい参照)。null=通常メッセージ
   performanceId   String? // Performance or PracticePerformance の id
   performanceKind String? // "score" | "practice"
+  // ▼ 2026-08-02: メッセージ種別。"celebration"=お祝い(達成を一緒に祝う)。null=通常
+  kind        String?
   createdAt   DateTime  @default(now())
 
   teacher User @relation("msgTeacher", fields: [teacherId], references: [id], onDelete: Cascade)

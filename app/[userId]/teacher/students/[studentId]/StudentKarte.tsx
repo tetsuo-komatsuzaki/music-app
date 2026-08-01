@@ -4,7 +4,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { createAssignment, sendMessageToStudent } from "@/app/actions/teacherActions"
+import { createAssignment, sendMessageToStudent, sendCelebration } from "@/app/actions/teacherActions"
 import { goalLabel, dueInfo, DUE_COLOR, scorePassed, goalResult } from "@/app/_libs/assignmentGoal"
 
 type Target = { id: string; title: string; group?: string }
@@ -12,6 +12,8 @@ type Briefing = {
   practiceCount7d: number
   recent5: { title: string; avg: number; date: string }[]
   achievements: { title: string; mastered: boolean }[]
+  /** 生徒の目標 (オンボの旅の地図)。null=未回答 */
+  goal: { songName: string; songStar: number | null; goalDate: string | null; epicWin: string | null } | null
 }
 type AssignmentRow = {
   id: string
@@ -78,7 +80,7 @@ export default function StudentKarte({
         ))}
       </div>
 
-      {tab === "overview" && <Overview b={briefing} />}
+      {tab === "overview" && <Overview b={briefing} studentId={studentId} />}
       {tab === "practice" && <PracticeTab studentId={studentId} working={working} recordings={recordings} />}
       {tab === "homework" && (
         <Homework studentId={studentId} scoreTargets={allScoreTargets} itemTargets={allItemTargets} assignments={assignments} />
@@ -278,9 +280,24 @@ function Card({ children }: { children: React.ReactNode }) {
   )
 }
 
-function Overview({ b }: { b: Briefing }) {
+function Overview({ b, studentId }: { b: Briefing; studentId: string }) {
   return (
     <>
+      {/* 生徒の目標 (目標共有・2026-08-02) */}
+      {b.goal && (
+        <Card>
+          <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 8 }}>🎯 生徒の目標</div>
+          <div style={{ fontSize: 14.5, fontWeight: 800, color: "#2b3742" }}>
+            {b.goal.songName}
+            {b.goal.songStar != null && <span style={{ fontSize: 11.5, fontWeight: 800, color: "#b7823a", marginLeft: 6 }}>★{b.goal.songStar}</span>}
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 6, fontSize: 11.5, color: "#6b7885" }}>
+            {b.goal.goalDate && <span>📅 目標時期 {b.goal.goalDate}</span>}
+            {b.goal.epicWin && <span>✨ かなえたいこと：{b.goal.epicWin}</span>}
+          </div>
+        </Card>
+      )}
+
       <Card>
         <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 6 }}>レッスン前ブリーフィング</div>
         <div style={{ fontSize: 14, color: "#2b3742" }}>
@@ -309,16 +326,67 @@ function Overview({ b }: { b: Briefing }) {
         {b.achievements.length === 0 ? (
           <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>まだ達成した曲はありません。</div>
         ) : (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {b.achievements.map((a, i) => (
-              <span key={i} style={{ fontSize: 12, fontWeight: 700, color: a.mastered ? "#b5651d" : "#2e8b57", background: a.mastered ? "#fdf3df" : "#eafaf0", border: "1px solid", borderColor: a.mastered ? "#eecfa0" : "#cbe8d6", borderRadius: 999, padding: "3px 10px" }}>
-                {a.mastered ? "🏆" : "✨"} {a.title}
-              </span>
-            ))}
-          </div>
+          <>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {b.achievements.map((a, i) => (
+                <span key={i} style={{ fontSize: 12, fontWeight: 700, color: a.mastered ? "#b5651d" : "#2e8b57", background: a.mastered ? "#fdf3df" : "#eafaf0", border: "1px solid", borderColor: a.mastered ? "#eecfa0" : "#cbe8d6", borderRadius: 999, padding: "3px 10px" }}>
+                  {a.mastered ? "🏆" : "✨"} {a.title}
+                </span>
+              ))}
+            </div>
+            <CelebrateBox studentId={studentId} latest={b.achievements[0]} />
+          </>
         )}
       </Card>
     </>
+  )
+}
+
+/** 一緒に祝う (2026-08-02): 生徒の達成に、先生からお祝いメッセージを送る */
+function CelebrateBox({ studentId, latest }: { studentId: string; latest: { title: string; mastered: boolean } }) {
+  const [open, setOpen] = useState(false)
+  const [text, setText] = useState("")
+  const [done, setDone] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+  const [pending, start] = useTransition()
+
+  const defaultMsg = `「${latest.title}」${latest.mastered ? "マスター" : "達成"}おめでとう！🎉 がんばったね！`
+
+  const send = () => {
+    const body = (text.trim() || defaultMsg)
+    setErr(null)
+    start(async () => {
+      const r = await sendCelebration(studentId, body)
+      if (r.ok) { setDone(true); setOpen(false) }
+      else setErr(r.error)
+    })
+  }
+
+  if (done) return <div style={{ fontSize: 12, fontWeight: 800, color: "#2e8b57", marginTop: 10 }}>🎉 お祝いを送りました！生徒に届きます。</div>
+
+  return (
+    <div style={{ marginTop: 10 }}>
+      {!open ? (
+        <button type="button" onClick={() => setOpen(true)}
+          style={{ fontSize: 12, fontWeight: 800, color: "#b5651d", background: "#fdf3df", border: "1px solid #eecfa0", borderRadius: 9, padding: "7px 14px", cursor: "pointer" }}>
+          🎉 一緒に祝う（お祝いを送る）
+        </button>
+      ) : (
+        <div>
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder={defaultMsg}
+            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 12.5, resize: "vertical" }} />
+          <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+            <button type="button" onClick={() => { setOpen(false); setText("") }}
+              style={{ fontSize: 11.5, fontWeight: 800, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 8, padding: "6px 12px", cursor: "pointer" }}>やめる</button>
+            <button type="button" onClick={send} disabled={pending}
+              style={{ fontSize: 11.5, fontWeight: 800, color: "#fff", background: "#b5651d", border: "none", borderRadius: 8, padding: "6px 14px", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+              {pending ? "送信中…" : "🎉 送る"}
+            </button>
+          </div>
+          {err && <div style={{ fontSize: 11, color: "#c0392b", marginTop: 5 }}>{err}</div>}
+        </div>
+      )}
+    </div>
   )
 }
 

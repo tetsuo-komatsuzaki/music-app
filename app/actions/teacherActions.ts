@@ -241,6 +241,33 @@ export async function sendMessageToStudent(
   }
 }
 
+/** 先生: 生徒の達成を一緒に祝う (お祝いメッセージ・kind=celebration)。
+ *  生徒側では特別なお祝い表示になり、メールも祝い件名で届く。 */
+export async function sendCelebration(
+  studentId: string, body: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  if (auth.user.dbUser.role !== "teacher") return { ok: false, error: "先生アカウントが必要です" }
+  const text = (body || "").trim()
+  if (!text) return { ok: false, error: "お祝いメッセージを入力してください" }
+  if (text.length > 500) return { ok: false, error: "長すぎます（500文字まで）" }
+  try {
+    const link = await prisma.teacherStudent.findUnique({
+      where: { teacherId_studentId: { teacherId: auth.user.dbUser.id, studentId } },
+      select: { id: true },
+    })
+    if (!link) return { ok: false, error: "担当していない生徒です" }
+    await prisma.message.create({
+      data: { teacherId: auth.user.dbUser.id, studentId, fromTeacher: true, body: text, kind: "celebration" },
+    })
+    await notifyStudent(studentId, auth.user.dbUser.id, "celebration", text)
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "送信に失敗しました" }
+  }
+}
+
 /** 生徒: 宿題を提出する。performanceId 指定でその演奏を、未指定なら最新の評価済み演奏を紐付ける。 */
 export async function submitAssignment(
   assignmentId: string,

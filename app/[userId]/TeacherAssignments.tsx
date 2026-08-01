@@ -29,6 +29,8 @@ export type TeacherHomeSummary = {
   teacherName: string | null
   unreadMessages: number
   feedbackCount: number
+  /** 未読のお祝いメッセージがある (🎉 で目立たせる・2026-08-02) */
+  unreadCelebration?: boolean
 }
 
 // 期限チップの控えめな色 (近い/過ぎた時だけ弱く色づけ)
@@ -80,6 +82,9 @@ export default function TeacherAssignments({
         style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", padding: 0, cursor: "pointer", font: "inherit", textAlign: "left" }}
       >
         <span style={{ fontSize: 12.5, fontWeight: 800, color: "#2b3742" }}>👩‍🏫 先生から</span>
+        {summary?.unreadCelebration && (
+          <span style={{ ...chip, color: "#8a5a10", background: "linear-gradient(135deg,#fdf3df,#fdeef2)", border: "1px solid #eecfa0" }}>🎉 お祝いが届いてるよ！</span>
+        )}
         {hwCount > 0 && <span style={badge}>宿題{hwCount}</span>}
         {unread > 0 && <span style={badge}>未読{unread}</span>}
         {headerDue && (() => {

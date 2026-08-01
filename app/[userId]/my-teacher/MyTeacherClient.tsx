@@ -17,7 +17,7 @@ type Homework = {
   achieved: boolean; mastered: boolean
   done: boolean; submitted: boolean; submittedScore: number | null; date: string; href: string
 }
-type Msg = { id: string; fromTeacher: boolean; body: string; time: string; perf?: { title: string; href: string } | null }
+type Msg = { id: string; fromTeacher: boolean; body: string; time: string; perf?: { title: string; href: string } | null; kind?: string | null }
 type Feedback = { scoreId: string; title: string; date: string }
 type LessonDTO = { id: string; when: string; durationMin: number; online: boolean; locationNote: string | null }
 type Lessons = { open: LessonDTO[]; booked: LessonDTO[] }
@@ -210,6 +210,18 @@ function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[
           </div>
         ) : (
           messages.map((m) => (
+            m.kind === "celebration" ? (
+              // お祝いメッセージ (2026-08-02): 特別なお祝いカードで表示
+              <div key={m.id} style={{
+                alignSelf: "stretch", textAlign: "center",
+                background: "linear-gradient(135deg,#fdf3df,#fdeef2)", border: "1px solid #eecfa0",
+                borderRadius: 14, padding: "13px 14px",
+              }}>
+                <div style={{ fontSize: 19, lineHeight: 1 }}>🎉</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "#8a5a10", marginTop: 5, lineHeight: 1.6 }}>{m.body}</div>
+                <div style={{ fontSize: 10, color: "#c4a97a", marginTop: 4 }}>先生からのお祝い ・ {m.time}</div>
+              </div>
+            ) : (
             <div key={m.id} style={{
               maxWidth: "84%", alignSelf: m.fromTeacher ? "flex-start" : "flex-end",
               background: m.fromTeacher ? "#fff" : ACCENT, color: m.fromTeacher ? INK : "#fff",
@@ -228,6 +240,7 @@ function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[
               <div>{m.body}</div>
               <div style={{ fontSize: 9.5, opacity: 0.7, marginTop: 3, textAlign: "right" }}>{m.time}</div>
             </div>
+            )
           ))
         )}
       </div>

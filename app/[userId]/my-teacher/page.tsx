@@ -42,7 +42,7 @@ export default async function MyTeacherPage({
     where: { studentId: me.id, teacherId: link.teacher.id },
     orderBy: { createdAt: "asc" },
     take: 100,
-    select: { id: true, fromTeacher: true, body: true, createdAt: true, performanceId: true, performanceKind: true },
+    select: { id: true, fromTeacher: true, body: true, createdAt: true, performanceId: true, performanceKind: true, kind: true },
   })
 
   // メッセージに紐づく演奏を解決 (タイトル + 対象へのリンク)
@@ -192,6 +192,7 @@ export default async function MyTeacherPage({
         body: m.body,
         time: m.createdAt.toLocaleDateString("ja-JP"),
         perf: m.performanceId ? (perfMap.get(m.performanceId) ?? null) : null,
+        kind: m.kind,
       }))}
       feedbacks={feedbacks}
       lessons={lessons}
