@@ -309,13 +309,13 @@ function ReviewTab({ userId, feedbacks }: { userId: string; feedbacks: Feedback[
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       {feedbacks.map((f) => (
-        <Link key={f.scoreId} href={`/${userId}/my-teacher/review/${f.scoreId}`}
+        <Link key={f.scoreId} href={`/${userId}/scores/${f.scoreId}`}
           style={{ ...card(), display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit" }}>
           <span style={{ minWidth: 0 }}>
             <span style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: INK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>📝 {f.title}</span>
             <span style={{ display: "block", fontSize: 11, color: SUB }}>{f.date} に更新</span>
           </span>
-          <span style={{ fontSize: 12, fontWeight: 800, color: ACCENT, flex: "none" }}>見る →</span>
+          <span style={{ fontSize: 12, fontWeight: 800, color: ACCENT, flex: "none" }}>譜面で見る →</span>
         </Link>
       ))}
     </div>
