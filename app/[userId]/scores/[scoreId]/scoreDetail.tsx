@@ -8,6 +8,8 @@ import FavoriteButton from "@/app/components/FavoriteButton"
 import ArcoResultOverlay from "@/app/components/ArcoResultOverlay"
 import ScoreLoopDetail from "@/app/components/ScoreLoopDetail"
 import AnnotationLayer from "./AnnotationLayer"
+import { getFeedbackAsStudent } from "@/app/actions/teacherFeedback"
+import type { AnnotationData } from "@/app/actions/scoreAnnotations"
 import SymbolGuide, { type SymbolGuideHandle } from "./SymbolGuide"
 import { extractScoreSymbols } from "@/app/_libs/scoreSymbols"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
@@ -1065,6 +1067,28 @@ export default function ScoreDetail({
     },
     [router, searchParams],
   )
+
+  // 先生の添削(readOnly)を録音/練習の譜面に重ねる (2026-08-01)。存在するときだけトグルを出す。
+  const [hasTeacherFeedback, setHasTeacherFeedback] = useState(false)
+  const [showTeacherFeedback, setShowTeacherFeedback] = useState(false)
+  const teacherFeedbackRef = useRef<AnnotationData>({})
+  useEffect(() => {
+    let cancelled = false
+    getFeedbackAsStudent(practiceItemId ? { practiceItemId } : { scoreId: score.id })
+      .then((r) => {
+        if (cancelled || !r.ok) return
+        const d = r.data ?? {}
+        const has =
+          (d.highlight?.length ?? 0) > 0 ||
+          (d.warnings?.length ?? 0) > 0 ||
+          (d.notation?.length ?? 0) > 0
+        teacherFeedbackRef.current = d
+        setHasTeacherFeedback(has)
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [score.id, practiceItemId])
+  const loadTeacherFeedback = useCallback(() => Promise.resolve(teacherFeedbackRef.current), [])
 
   // ▼ 非同期データ取得
   const [performances, setPerformances] = useState<PerformanceDTO[]>([])
@@ -2915,6 +2939,36 @@ export default function ScoreDetail({
 
         {/* 判定カラーの凡例: 演奏を選択して譜面に採点色が出ている時にスコア直下へ */}
         {selected && <ScoreLegend />}
+
+        {/* 先生の添削を録音/練習の譜面に重ねて表示 (readOnly・トグル・2026-08-01) */}
+        {analysis && hasTeacherFeedback && (
+          <button
+            type="button"
+            onClick={() => setShowTeacherFeedback((v) => !v)}
+            aria-pressed={showTeacherFeedback}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6, margin: "0 0 8px",
+              fontSize: 12, fontWeight: 800, cursor: "pointer",
+              color: showTeacherFeedback ? "#fff" : "#3b56d4",
+              background: showTeacherFeedback ? "#4a6cf7" : "#eef1fe",
+              border: `1px solid ${showTeacherFeedback ? "#4a6cf7" : "#d6ddff"}`,
+              borderRadius: 999, padding: "6px 13px",
+            }}
+          >
+            ✍️ 先生の添削を{showTeacherFeedback ? "隠す" : "譜面に表示"}
+          </button>
+        )}
+        {analysis && showTeacherFeedback && (
+          <AnnotationLayer
+            readOnly
+            containerId="osmd-container"
+            noteElementsRef={noteElementsRef}
+            noteElementsVersion={noteElementsVersion}
+            scoreId={practiceItemId ? undefined : score.id}
+            practiceItemId={practiceItemId}
+            loadOverride={loadTeacherFeedback}
+          />
+        )}
 
         {/* 譜面注釈 (Phase 1): ハイライト/メモ/注意を譜面に書き込み・保存 */}
         {analysis && (
