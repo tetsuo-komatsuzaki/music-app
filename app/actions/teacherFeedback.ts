@@ -5,6 +5,7 @@
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthAction } from "@/app/_libs/requireAuth"
 import { isValidCuid } from "@/app/_libs/validators"
+import { notifyStudent } from "@/app/_libs/teacherEmailNotify"
 import type { AnnotationData } from "@/app/actions/scoreAnnotations"
 
 type Target = { scoreId?: string; practiceItemId?: string }
@@ -70,6 +71,7 @@ export async function saveFeedback(
         update: { data: d },
       })
     }
+    await notifyStudent(studentId, teacherId, "feedback")
     return { ok: true }
   } catch {
     return { ok: false, error: "保存に失敗しました" }

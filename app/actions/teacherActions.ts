@@ -6,6 +6,7 @@
 import { randomBytes } from "crypto"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthAction } from "@/app/_libs/requireAuth"
+import { notifyStudent } from "@/app/_libs/teacherEmailNotify"
 
 // 紛らわしい文字(0/O/1/I)を除いた6桁コード
 function genInviteCode(): string {
@@ -127,6 +128,7 @@ export async function createAssignment(
       targetScore,
     },
   })
+  await notifyStudent(input.studentId, auth.user.dbUser.id, "assignment", input.comment)
   return { ok: true }
 }
 
@@ -227,6 +229,7 @@ export async function sendMessageToStudent(
     await prisma.message.create({
       data: { teacherId: auth.user.dbUser.id, studentId, fromTeacher: true, body: text },
     })
+    await notifyStudent(studentId, auth.user.dbUser.id, "message", text)
     return { ok: true }
   } catch {
     return { ok: false, error: "送信に失敗しました" }
