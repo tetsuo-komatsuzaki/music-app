@@ -17,6 +17,13 @@ type Teacher = {
   priceNote: string | null
   trial: boolean
   sampleUrl: string | null
+  photoUrl: string | null
+  career: string | null
+  lessonStyle: string | null
+  area: string | null
+  availability: string | null
+  ages: string[]
+  genres: string[]
   match: number
   matchWeak: boolean
 }
@@ -108,7 +115,12 @@ export default function FindTeacherClient({
           {filtered.map((t) => (
             <div key={t.teacherId} style={card}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                <span style={{ width: 42, height: 42, borderRadius: "50%", background: "#eaedfb", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21, flex: "none" }}>👩‍🏫</span>
+                <span style={{ width: 42, height: 42, borderRadius: "50%", background: "#eaedfb", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21, flex: "none" }}>
+                  {t.photoUrl
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={t.photoUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    : "👩‍🏫"}
+                </span>
                 <span style={{ minWidth: 0, flex: 1 }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <b style={{ fontSize: 14.5, color: INK }}>{t.name} 先生</b>
@@ -131,13 +143,19 @@ export default function FindTeacherClient({
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 9, fontSize: 11, color: SUB }}>
                 {t.levels.length > 0 && <span>対応：{t.levels.join("・")}</span>}
+                {t.ages.length > 0 && <span>対象年齢：{t.ages.join("・")}</span>}
+                {t.genres.length > 0 && <span>ジャンル：{t.genres.join("・")}</span>}
                 {t.forKids && <span>👦 子どもOK</span>}
                 {t.online && <span>💻 オンライン</span>}
+                {t.area && <span>📍 {t.area}</span>}
+                {t.availability && <span>🕒 {t.availability}</span>}
                 {t.trial && <span>🎁 体験あり</span>}
                 {t.priceNote && <span>💴 {t.priceNote}</span>}
               </div>
 
               {t.bio && <div style={{ fontSize: 12, color: "#4a5766", marginTop: 8, lineHeight: 1.55 }}>{t.bio}</div>}
+              {t.career && <div style={{ fontSize: 11.5, color: SUB, marginTop: 6, lineHeight: 1.5 }}>🎓 {t.career}</div>}
+              {t.lessonStyle && <div style={{ fontSize: 11.5, color: SUB, marginTop: 4, lineHeight: 1.5 }}>📝 {t.lessonStyle}</div>}
 
               <div style={{ display: "flex", gap: 7, marginTop: 11 }}>
                 {t.sampleUrl && (

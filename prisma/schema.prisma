@@ -1230,6 +1230,14 @@ model TeacherProfile {
   priceNote   String? // 料金(自由テキスト)
   trial       Boolean  @default(false) // 体験レッスン可
   sampleUrl   String? // 演奏サンプル/動画URL
+  // ▼ 2026-08-01 プロフィール充実: 写真/経歴/指導方針/地域/対応時間/対象年齢/ジャンル
+  photoUrl     String? // 顔写真(画像URL)
+  career       String? // 経歴・実績(指導年数/出身/受賞 等)
+  lessonStyle  String? // 指導方針・レッスンの流れ
+  area         String? // 対応地域・場所(対面の目安)
+  availability String? // 対応できる曜日・時間帯(目安)
+  ages         String[] // 対象年齢(未就学/小学生/中高生/大人/シニア)
+  genres       String[] // ジャンル(クラシック/ポップス/ジャズ 等)
   published   Boolean  @default(false) // 「先生を探す」に掲載する
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

@@ -41,6 +41,7 @@ export default async function FindTeacherPage({
     select: {
       teacherId: true, headline: true, bio: true, specialties: true, levels: true,
       forKids: true, online: true, priceNote: true, trial: true, sampleUrl: true,
+      photoUrl: true, career: true, lessonStyle: true, area: true, availability: true, ages: true, genres: true,
       teacher: { select: { name: true } },
     },
   })
@@ -64,6 +65,13 @@ export default async function FindTeacherPage({
       priceNote: p.priceNote,
       trial: p.trial,
       sampleUrl: p.sampleUrl,
+      photoUrl: p.photoUrl,
+      career: p.career,
+      lessonStyle: p.lessonStyle,
+      area: p.area,
+      availability: p.availability,
+      ages: p.ages,
+      genres: p.genres,
       match: score,
       matchWeak,
     }

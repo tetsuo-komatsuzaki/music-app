@@ -14,6 +14,14 @@ export type ProfileInput = {
   priceNote: string
   trial: boolean
   sampleUrl: string
+  // ▼ 充実項目 (2026-08-01)
+  photoUrl: string
+  career: string
+  lessonStyle: string
+  area: string
+  availability: string
+  ages: string[]
+  genres: string[]
   published: boolean
 }
 
@@ -21,7 +29,9 @@ export type ProfileData = ProfileInput
 
 const EMPTY: ProfileData = {
   headline: "", bio: "", specialties: [], levels: [],
-  forKids: false, online: true, priceNote: "", trial: false, sampleUrl: "", published: false,
+  forKids: false, online: true, priceNote: "", trial: false, sampleUrl: "",
+  photoUrl: "", career: "", lessonStyle: "", area: "", availability: "", ages: [], genres: [],
+  published: false,
 }
 
 /** 先生: 自分のプロフィールを取得(無ければ既定)。 */
@@ -37,7 +47,10 @@ export async function getMyProfile(): Promise<{ ok: true; data: ProfileData } | 
       data: {
         headline: p.headline ?? "", bio: p.bio ?? "", specialties: p.specialties, levels: p.levels,
         forKids: p.forKids, online: p.online, priceNote: p.priceNote ?? "", trial: p.trial,
-        sampleUrl: p.sampleUrl ?? "", published: p.published,
+        sampleUrl: p.sampleUrl ?? "",
+        photoUrl: p.photoUrl ?? "", career: p.career ?? "", lessonStyle: p.lessonStyle ?? "",
+        area: p.area ?? "", availability: p.availability ?? "", ages: p.ages, genres: p.genres,
+        published: p.published,
       },
     }
   } catch {
@@ -61,6 +74,13 @@ export async function saveMyProfile(input: ProfileInput): Promise<{ ok: true } |
     priceNote: (input.priceNote ?? "").trim().slice(0, 200) || null,
     trial: !!input.trial,
     sampleUrl: (input.sampleUrl ?? "").trim().slice(0, 500) || null,
+    photoUrl: (input.photoUrl ?? "").trim().slice(0, 500) || null,
+    career: (input.career ?? "").trim().slice(0, 1000) || null,
+    lessonStyle: (input.lessonStyle ?? "").trim().slice(0, 1000) || null,
+    area: (input.area ?? "").trim().slice(0, 200) || null,
+    availability: (input.availability ?? "").trim().slice(0, 200) || null,
+    ages: (input.ages ?? []).map((s) => s.trim()).filter(Boolean).slice(0, 8),
+    genres: (input.genres ?? []).map((s) => s.trim()).filter(Boolean).slice(0, 8),
     published: !!input.published,
   }
   try {

@@ -7,10 +7,14 @@ import { getMyProfile, saveMyProfile, type ProfileData } from "@/app/actions/tea
 
 const SPECIALTY_PRESETS = ["初心者", "子ども", "大人の趣味", "受験・コンクール", "音程", "リズム", "移弦", "ボウイング", "ビブラート", "ポジション移動", "重音"]
 const LEVEL_PRESETS = ["初級", "中級", "上級"]
+const AGE_PRESETS = ["未就学", "小学生", "中高生", "大人", "シニア"]
+const GENRE_PRESETS = ["クラシック", "ポップス", "ジャズ", "その他"]
 
 const EMPTY: ProfileData = {
   headline: "", bio: "", specialties: [], levels: [],
-  forKids: false, online: true, priceNote: "", trial: false, sampleUrl: "", published: false,
+  forKids: false, online: true, priceNote: "", trial: false, sampleUrl: "",
+  photoUrl: "", career: "", lessonStyle: "", area: "", availability: "", ages: [], genres: [],
+  published: false,
 }
 
 export default function ProfileEditor({ userId, teacherName }: { userId: string; teacherName: string }) {
@@ -24,7 +28,7 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
   }, [])
 
   const toggle = (key: "forKids" | "online" | "trial" | "published") => setP((s) => ({ ...s, [key]: !s[key] }))
-  const toggleIn = (key: "specialties" | "levels", v: string) =>
+  const toggleIn = (key: "specialties" | "levels" | "ages" | "genres", v: string) =>
     setP((s) => ({ ...s, [key]: s[key].includes(v) ? s[key].filter((x) => x !== v) : [...s[key], v] }))
 
   const save = () => {
@@ -48,11 +52,28 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
       <p style={{ fontSize: 12, color: "#6b7885", margin: "0 0 14px" }}>「先生を探す」に載る、あなたの紹介です（{teacherName}）。</p>
 
       <div style={card}>
-        <label style={lbl}>一言キャッチ
+        <div style={lbl}>顔写真（画像URL・任意）</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 8 }}>
+          <span style={{ width: 56, height: 56, borderRadius: "50%", flex: "none", overflow: "hidden", background: "#f2f4f7", border: "1px solid #e6e9ee", display: "grid", placeItems: "center" }}>
+            {p.photoUrl
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={p.photoUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              : <span style={{ fontSize: 22 }}>👩‍🏫</span>}
+          </span>
+          <input value={p.photoUrl} onChange={(e) => setP((s) => ({ ...s, photoUrl: e.target.value }))} placeholder="https://…（画像のURL）" style={{ ...inp, marginTop: 0, flex: 1 }} maxLength={500} inputMode="url" />
+        </div>
+
+        <label style={{ ...lbl, display: "block", marginTop: 14 }}>一言キャッチ
           <input value={p.headline} onChange={(e) => setP((s) => ({ ...s, headline: e.target.value }))} placeholder="例: 移弦とリズムが得意。初心者歓迎！" style={inp} maxLength={60} />
         </label>
         <label style={{ ...lbl, display: "block", marginTop: 12 }}>自己紹介
-          <textarea value={p.bio} onChange={(e) => setP((s) => ({ ...s, bio: e.target.value }))} rows={4} placeholder="指導方針や経歴など" style={{ ...inp, resize: "vertical" }} maxLength={1000} />
+          <textarea value={p.bio} onChange={(e) => setP((s) => ({ ...s, bio: e.target.value }))} rows={4} placeholder="どんな先生か、雰囲気など" style={{ ...inp, resize: "vertical" }} maxLength={1000} />
+        </label>
+        <label style={{ ...lbl, display: "block", marginTop: 12 }}>経歴・実績
+          <textarea value={p.career} onChange={(e) => setP((s) => ({ ...s, career: e.target.value }))} rows={3} placeholder="例: 指導歴10年／○○音大卒／○○コンクール入賞" style={{ ...inp, resize: "vertical" }} maxLength={1000} />
+        </label>
+        <label style={{ ...lbl, display: "block", marginTop: 12 }}>指導方針・レッスンの流れ
+          <textarea value={p.lessonStyle} onChange={(e) => setP((s) => ({ ...s, lessonStyle: e.target.value }))} rows={3} placeholder="例: まず基礎の音階から。録音を一緒に聴いて弱点を確認します" style={{ ...inp, resize: "vertical" }} maxLength={1000} />
         </label>
       </div>
 
@@ -69,12 +90,30 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
             <Chip key={s} on={p.levels.includes(s)} onClick={() => toggleIn("levels", s)}>{s}</Chip>
           ))}
         </div>
+        <div style={{ ...lbl, marginTop: 14 }}>対象年齢</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+          {AGE_PRESETS.map((s) => (
+            <Chip key={s} on={p.ages.includes(s)} onClick={() => toggleIn("ages", s)}>{s}</Chip>
+          ))}
+        </div>
+        <div style={{ ...lbl, marginTop: 14 }}>ジャンル</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+          {GENRE_PRESETS.map((s) => (
+            <Chip key={s} on={p.genres.includes(s)} onClick={() => toggleIn("genres", s)}>{s}</Chip>
+          ))}
+        </div>
       </div>
 
       <div style={card}>
         <Toggle label="子どもの指導OK" on={p.forKids} onClick={() => toggle("forKids")} />
         <Toggle label="オンライン対応" on={p.online} onClick={() => toggle("online")} />
         <Toggle label="体験レッスンあり" on={p.trial} onClick={() => toggle("trial")} />
+        <label style={{ ...lbl, display: "block", marginTop: 12 }}>対応地域・場所（対面の目安）
+          <input value={p.area} onChange={(e) => setP((s) => ({ ...s, area: e.target.value }))} placeholder="例: 東京23区 / オンライン全国" style={inp} maxLength={200} />
+        </label>
+        <label style={{ ...lbl, display: "block", marginTop: 12 }}>対応できる曜日・時間帯（目安）
+          <input value={p.availability} onChange={(e) => setP((s) => ({ ...s, availability: e.target.value }))} placeholder="例: 平日夜・土日午前" style={inp} maxLength={200} />
+        </label>
         <label style={{ ...lbl, display: "block", marginTop: 12 }}>料金（自由記入）
           <input value={p.priceNote} onChange={(e) => setP((s) => ({ ...s, priceNote: e.target.value }))} placeholder="例: 30分 2,000円〜 / 体験無料" style={inp} maxLength={200} />
         </label>
