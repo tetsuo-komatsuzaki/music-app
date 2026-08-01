@@ -130,27 +130,12 @@ export default function FindTeacherClient({
                 </span>
               </div>
 
-              {t.specialties.length > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 9 }}>
-                  {t.specialties.map((s) => (
-                    <span key={s} style={{ fontSize: 10.5, fontWeight: 700, borderRadius: 999, padding: "3px 9px",
-                      color: weakAxis && s.includes(weakAxis) ? "#fff" : SUB,
-                      background: weakAxis && s.includes(weakAxis) ? ACCENT : "#f7f8fa",
-                      border: "1px solid", borderColor: weakAxis && s.includes(weakAxis) ? ACCENT : "#e7eaee" }}>{s}</span>
-                  ))}
-                </div>
-              )}
-
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 9, fontSize: 11, color: SUB }}>
-                {t.levels.length > 0 && <span>対応：{t.levels.join("・")}</span>}
-                {t.ages.length > 0 && <span>対象年齢：{t.ages.join("・")}</span>}
                 {t.genres.length > 0 && <span>ジャンル：{t.genres.join("・")}</span>}
                 {t.forKids && <span>👦 子どもOK</span>}
                 {t.online && <span>💻 オンライン</span>}
                 {t.area && <span>📍 {t.area}</span>}
                 {t.availability && <span>🕒 {t.availability}</span>}
-                {t.trial && <span>🎁 体験あり</span>}
-                {t.priceNote && <span>💴 {t.priceNote}</span>}
               </div>
 
               {t.bio && <div style={{ fontSize: 12, color: "#4a5766", marginTop: 8, lineHeight: 1.55 }}>{t.bio}</div>}
@@ -164,7 +149,7 @@ export default function FindTeacherClient({
                 )}
                 <button type="button" onClick={() => connect(t)} disabled={pending && busyId === t.teacherId}
                   style={{ flex: 2, background: ACCENT, color: "#fff", border: "none", borderRadius: 9, padding: "9px 0", fontSize: 12.5, fontWeight: 800, cursor: "pointer", opacity: pending && busyId === t.teacherId ? 0.6 : 1 }}>
-                  {t.trial ? "体験を申し込む・つながる" : "この先生とつながる"}
+                  この先生とつながる
                 </button>
               </div>
             </div>

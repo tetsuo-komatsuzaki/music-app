@@ -1,13 +1,11 @@
 "use client"
 
 // 先生プロフィール編集フォーム (2026-08-01 Phase2)。
-import { useEffect, useState, useTransition } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
 import Link from "next/link"
 import { getMyProfile, saveMyProfile, type ProfileData } from "@/app/actions/teacherProfile"
+import { uploadTeacherPhoto, removeTeacherPhoto } from "@/app/actions/uploadTeacherPhoto"
 
-const SPECIALTY_PRESETS = ["初心者", "子ども", "大人の趣味", "受験・コンクール", "音程", "リズム", "移弦", "ボウイング", "ビブラート", "ポジション移動", "重音"]
-const LEVEL_PRESETS = ["初級", "中級", "上級"]
-const AGE_PRESETS = ["未就学", "小学生", "中高生", "大人", "シニア"]
 const GENRE_PRESETS = ["クラシック", "ポップス", "ジャズ", "その他"]
 
 const EMPTY: ProfileData = {
@@ -22,6 +20,30 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
   const [loaded, setLoaded] = useState(false)
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [pending, startTransition] = useTransition()
+  // 顔写真アップロード
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [photoMsg, setPhotoMsg] = useState<string | null>(null)
+  const [photoPending, startPhoto] = useTransition()
+
+  const onPhotoPick = (file: File | null) => {
+    if (!file) return
+    setPhotoMsg(null)
+    const fd = new FormData()
+    fd.append("file", file)
+    startPhoto(async () => {
+      const r = await uploadTeacherPhoto(fd)
+      if (r.ok) setP((s) => ({ ...s, photoUrl: r.url }))
+      else setPhotoMsg(r.error)
+    })
+  }
+  const onPhotoRemove = () => {
+    setPhotoMsg(null)
+    startPhoto(async () => {
+      const r = await removeTeacherPhoto()
+      if (r.ok) setP((s) => ({ ...s, photoUrl: "" }))
+      else setPhotoMsg(r.error)
+    })
+  }
 
   useEffect(() => {
     getMyProfile().then((r) => { if (r.ok) setP(r.data); setLoaded(true) })
@@ -52,7 +74,7 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
       <p style={{ fontSize: 12, color: "#6b7885", margin: "0 0 14px" }}>「先生を探す」に載る、あなたの紹介です（{teacherName}）。</p>
 
       <div style={card}>
-        <div style={lbl}>顔写真（画像URL・任意）</div>
+        <div style={lbl}>顔写真（任意）</div>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 8 }}>
           <span style={{ width: 56, height: 56, borderRadius: "50%", flex: "none", overflow: "hidden", background: "#f2f4f7", border: "1px solid #e6e9ee", display: "grid", placeItems: "center" }}>
             {p.photoUrl
@@ -60,8 +82,26 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
               ? <img src={p.photoUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               : <span style={{ fontSize: 22 }}>👩‍🏫</span>}
           </span>
-          <input value={p.photoUrl} onChange={(e) => setP((s) => ({ ...s, photoUrl: e.target.value }))} placeholder="https://…（画像のURL）" style={{ ...inp, marginTop: 0, flex: 1 }} maxLength={500} inputMode="url" />
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            style={{ display: "none" }}
+            onChange={(e) => { onPhotoPick(e.target.files?.[0] ?? null); e.target.value = "" }}
+          />
+          <button type="button" onClick={() => fileRef.current?.click()} disabled={photoPending}
+            style={{ fontSize: 12, fontWeight: 800, color: "#2b3742", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 9, padding: "8px 14px", cursor: "pointer", opacity: photoPending ? 0.6 : 1 }}>
+            {photoPending ? "アップロード中…" : p.photoUrl ? "写真を変更" : "写真をアップロード"}
+          </button>
+          {p.photoUrl && !photoPending && (
+            <button type="button" onClick={onPhotoRemove}
+              style={{ fontSize: 12, fontWeight: 700, color: "#c0392b", background: "none", border: "none", cursor: "pointer" }}>
+              削除
+            </button>
+          )}
         </div>
+        {photoMsg && <div style={{ fontSize: 11.5, color: "#c0392b", marginTop: 6 }}>{photoMsg}</div>}
+        <p style={{ fontSize: 10.5, color: "#9aa6b3", margin: "6px 0 0" }}>JPEG / PNG / WebP・5MBまで。アップロードするとすぐ反映されます。</p>
 
         <label style={{ ...lbl, display: "block", marginTop: 14 }}>一言キャッチ
           <input value={p.headline} onChange={(e) => setP((s) => ({ ...s, headline: e.target.value }))} placeholder="例: 移弦とリズムが得意。初心者歓迎！" style={inp} maxLength={60} />
@@ -78,25 +118,7 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
       </div>
 
       <div style={card}>
-        <div style={lbl}>得意なこと</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-          {SPECIALTY_PRESETS.map((s) => (
-            <Chip key={s} on={p.specialties.includes(s)} onClick={() => toggleIn("specialties", s)}>{s}</Chip>
-          ))}
-        </div>
-        <div style={{ ...lbl, marginTop: 14 }}>対応レベル</div>
-        <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-          {LEVEL_PRESETS.map((s) => (
-            <Chip key={s} on={p.levels.includes(s)} onClick={() => toggleIn("levels", s)}>{s}</Chip>
-          ))}
-        </div>
-        <div style={{ ...lbl, marginTop: 14 }}>対象年齢</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-          {AGE_PRESETS.map((s) => (
-            <Chip key={s} on={p.ages.includes(s)} onClick={() => toggleIn("ages", s)}>{s}</Chip>
-          ))}
-        </div>
-        <div style={{ ...lbl, marginTop: 14 }}>ジャンル</div>
+        <div style={lbl}>ジャンル</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
           {GENRE_PRESETS.map((s) => (
             <Chip key={s} on={p.genres.includes(s)} onClick={() => toggleIn("genres", s)}>{s}</Chip>
@@ -107,15 +129,11 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
       <div style={card}>
         <Toggle label="子どもの指導OK" on={p.forKids} onClick={() => toggle("forKids")} />
         <Toggle label="オンライン対応" on={p.online} onClick={() => toggle("online")} />
-        <Toggle label="体験レッスンあり" on={p.trial} onClick={() => toggle("trial")} />
         <label style={{ ...lbl, display: "block", marginTop: 12 }}>対応地域・場所（対面の目安）
           <input value={p.area} onChange={(e) => setP((s) => ({ ...s, area: e.target.value }))} placeholder="例: 東京23区 / オンライン全国" style={inp} maxLength={200} />
         </label>
         <label style={{ ...lbl, display: "block", marginTop: 12 }}>対応できる曜日・時間帯（目安）
           <input value={p.availability} onChange={(e) => setP((s) => ({ ...s, availability: e.target.value }))} placeholder="例: 平日夜・土日午前" style={inp} maxLength={200} />
-        </label>
-        <label style={{ ...lbl, display: "block", marginTop: 12 }}>料金（自由記入）
-          <input value={p.priceNote} onChange={(e) => setP((s) => ({ ...s, priceNote: e.target.value }))} placeholder="例: 30分 2,000円〜 / 体験無料" style={inp} maxLength={200} />
         </label>
         <label style={{ ...lbl, display: "block", marginTop: 12 }}>演奏サンプル・動画URL（任意）
           <input value={p.sampleUrl} onChange={(e) => setP((s) => ({ ...s, sampleUrl: e.target.value }))} placeholder="https://…" style={inp} maxLength={500} inputMode="url" />
