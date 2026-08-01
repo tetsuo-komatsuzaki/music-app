@@ -469,9 +469,9 @@ function PerformanceHistory({
           {pageItems.map((p) => {
             const isEditing = editingId === p.id
             const dateLabel = new Date(p.uploadedAt).toLocaleDateString("ja-JP")
-            // 既定名 "Performance #N" は長いので短い "録音 #N" に (既存データも表示時に変換)
+            // 既定名は録音回数の連番 "#N"。旧既定名 "Performance #N" も表示時に "#N" へ変換
             const nameMatch = /^Performance #?(\d+)$/i.exec(p.name ?? "")
-            const displayName = nameMatch ? `録音 #${nameMatch[1]}` : (p.name ?? "録音")
+            const displayName = nameMatch ? `#${nameMatch[1]}` : (p.name ?? "録音")
             const score = performanceScore(p)
             const statusLabel =
               score != null
