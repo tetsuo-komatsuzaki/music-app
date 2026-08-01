@@ -264,22 +264,24 @@
 }
 
 .historyItem {
-  padding: 10px 12px;
-  margin-bottom: 6px;
-  border-radius: 8px;
+  padding: 13px 14px;
+  margin-bottom: 8px;
+  border-radius: 14px;
   cursor: pointer;
-  border: 1px solid #eee;
-  transition: background 0.15s;
+  border: 1px solid #eceef2;
+  box-shadow: 0 1px 2px rgba(20, 25, 40, 0.03);
+  transition: background 0.15s, box-shadow 0.15s, border-color 0.15s;
   font-size: 13px;
 }
 
 .historyItem:hover {
-  background: #f5f7ff;
+  background: #fafbff;
 }
 
 .historyActive {
-  background: #eef2ff;
+  background: #fafbff;
   border-color: #b4c4ff;
+  box-shadow: 0 2px 10px -4px rgba(66, 87, 255, 0.28);
 }
 
 .historyMeta {
@@ -430,8 +432,19 @@
   gap: 6px;
 }
 .histChev {
-  font-size: 11px;
-  color: #b8bec8;
+  flex: none;
+  font-size: 12px;
+  color: #c4c9d2;
+}
+.histEditRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.histDetailActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .historyActions {
@@ -524,6 +537,8 @@
   border-radius: 10px;
   font-size: 11px;
   font-weight: 500;
+  white-space: nowrap;
+  flex: none;
 }
 
 /* ==============================

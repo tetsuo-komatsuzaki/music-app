@@ -518,20 +518,24 @@ function PerformanceHistory({
                   {/* 中: 名前・ランク・日付 + 音程/リズムバー (無評価時は状態) */}
                   <div className={styles.histMid}>
                     {isEditing ? (
-                      <input
-                        type="text"
-                        value={draftName}
-                        maxLength={PERFORMANCE_NAME_MAX}
-                        autoFocus
-                        onChange={(e) => setDraftName(e.target.value)}
-                        onClick={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") submitEdit(p.id, e)
-                          else if (e.key === "Escape") cancelEdit(e)
-                        }}
-                        className={styles.historyNameInput}
-                        disabled={saving}
-                      />
+                      <div className={styles.histEditRow}>
+                        <input
+                          type="text"
+                          value={draftName}
+                          maxLength={PERFORMANCE_NAME_MAX}
+                          autoFocus
+                          onChange={(e) => setDraftName(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") submitEdit(p.id, e)
+                            else if (e.key === "Escape") cancelEdit(e)
+                          }}
+                          className={styles.historyNameInput}
+                          disabled={saving}
+                        />
+                        <button type="button" className={styles.historyActionBtn} onClick={(e) => submitEdit(p.id, e)} disabled={saving} aria-label="保存">{saving ? "..." : "保存"}</button>
+                        <button type="button" className={styles.historyActionBtn} onClick={cancelEdit} disabled={saving} aria-label="キャンセル">取消</button>
+                      </div>
                     ) : (
                       <>
                         <div className={styles.histTop}>
@@ -584,67 +588,40 @@ function PerformanceHistory({
                     )}
                   </div>
 
-                  {/* 右: 操作 + 開閉 */}
-                  <div className={styles.histRight}>
-                    <div className={styles.historyActions}>
-                      {!isEditing && score != null && onReplayArco && (
-                        <button
-                          type="button"
-                          className={styles.historyActionBtn}
-                          onClick={(e) => { e.stopPropagation(); onReplayArco(p) }}
-                          aria-label="アルコの結果をもう一度見る"
-                          title="アルコの結果をもう一度"
-                        >
-                          🎻 結果
-                        </button>
-                      )}
-                      {isEditing ? (
-                        <>
-                          <button
-                            type="button"
-                            className={styles.historyActionBtn}
-                            onClick={(e) => submitEdit(p.id, e)}
-                            disabled={saving}
-                            aria-label="保存"
-                          >
-                            {saving ? "..." : "保存"}
-                          </button>
-                          <button
-                            type="button"
-                            className={styles.historyActionBtn}
-                            onClick={cancelEdit}
-                            disabled={saving}
-                            aria-label="キャンセル"
-                          >
-                            取消
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          type="button"
-                          className={styles.historyEditBtn}
-                          onClick={(e) => startEdit(p, e)}
-                          aria-label="名前を編集"
-                          title="名前を編集"
-                        >
-                          ✏
-                        </button>
-                      )}
-                    </div>
-                    {!isEditing && (
-                      <span aria-hidden className={styles.histChev}>
-                        {selectedId === p.id ? "▲" : "▼"}
-                      </span>
-                    )}
-                  </div>
+                  {/* 右: 開閉のみ (操作は展開後に表示してモックの簡潔な行に合わせる) */}
+                  {!isEditing && (
+                    <span aria-hidden className={styles.histChev}>
+                      {selectedId === p.id ? "▲" : "▼"}
+                    </span>
+                  )}
                 </div>
-                {/* アコーディオン展開: 再生 / 得点 / 判定内容 をカード内に収納 */}
-                {!isEditing && selectedId === p.id && renderDetail && (
+                {/* アコーディオン展開: 操作(結果/名前) + 再生 / 得点 / 判定内容 */}
+                {!isEditing && selectedId === p.id && (
                   <div
                     style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 12 }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {renderDetail(p)}
+                    <div className={styles.histDetailActions}>
+                      {score != null && onReplayArco && (
+                        <button
+                          type="button"
+                          className={styles.historyActionBtn}
+                          onClick={(e) => { e.stopPropagation(); onReplayArco(p) }}
+                          title="アルコの結果をもう一度"
+                        >
+                          🎻 結果をもう一度
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className={styles.historyActionBtn}
+                        onClick={(e) => startEdit(p, e)}
+                        title="名前を編集"
+                      >
+                        ✏ 名前を変更
+                      </button>
+                    </div>
+                    {renderDetail && renderDetail(p)}
                   </div>
                 )}
               </div>
