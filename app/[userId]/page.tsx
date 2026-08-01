@@ -523,7 +523,7 @@ export default async function HomePage({ params }: PageProps) {
 
   // 先生からの宿題(未完了) + 新着サマリ — ホーム上部「先生から」用 (2026-07-28 / E追加 2026-08-01)
   let teacherAssignments: {
-    id: string; teacherName: string; title: string; detail: string; comment: string | null; href: string
+    id: string; kind: "score" | "practice"; teacherName: string; title: string; detail: string; comment: string | null; href: string
   }[] = []
   let teacherSummary: { teacherName: string | null; unreadMessages: number; feedbackCount: number } | undefined
   try {
@@ -551,6 +551,7 @@ export default async function HomePage({ params }: PageProps) {
       ])
       teacherAssignments = rows.map((a) => ({
         id: a.id,
+        kind: (a.score ? "score" : "practice") as "score" | "practice",
         teacherName: a.teacher.name,
         title: a.score?.title ?? a.practiceItem?.title ?? "課題",
         detail: [

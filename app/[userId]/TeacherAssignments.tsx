@@ -9,6 +9,8 @@ import { markAssignmentDone } from "@/app/actions/teacherActions"
 
 export type StudentAssignment = {
   id: string
+  /** 対象が曲(score)か、曲以外(基礎練・教材)か */
+  kind: "score" | "practice"
   teacherName: string
   title: string
   detail: string
@@ -45,6 +47,33 @@ export default function TeacherAssignments({
     })
   }
 
+  // 曲 / 曲以外(基礎練・教材) で分けて表示
+  const songs = assignments.filter((a) => a.kind === "score")
+  const others = assignments.filter((a) => a.kind === "practice")
+  const showLabels = songs.length > 0 && others.length > 0
+  const groupLabel = { fontSize: 11, fontWeight: 800 as const, color: "#9aa6b3", margin: "0 2px 6px" }
+
+  const card = (a: StudentAssignment) => (
+    <div key={a.id} style={{ border: "1px solid #eef1f4", borderRadius: 12, padding: "10px 12px", opacity: doneIds.has(a.id) ? 0.5 : 1 }}>
+      <Link href={a.href} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+        <div style={{ fontSize: 13.5, fontWeight: 800, color: "#2b3742" }}>📌 {a.title}</div>
+        {a.detail && <div style={{ fontSize: 12, color: "#6b7885", marginTop: 2 }}>{a.detail}</div>}
+        {a.comment && <div style={{ fontSize: 12.5, color: "#2b3742", marginTop: 4 }}>💬 {a.comment}</div>}
+      </Link>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
+        <span style={{ fontSize: 10.5, color: "#b3bcc6" }}>{a.teacherName} 先生</span>
+        <button
+          type="button"
+          onClick={() => markDone(a.id)}
+          disabled={pending || doneIds.has(a.id)}
+          style={{ fontSize: 11, fontWeight: 700, color: "#2e8b57", background: "#eafaf0", border: "1px solid #cbe8d6", borderRadius: 999, padding: "4px 12px", cursor: "pointer" }}
+        >
+          {doneIds.has(a.id) ? "できた！" : "できたら✓"}
+        </button>
+      </div>
+    </div>
+  )
+
   return (
     <section style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 16, padding: "14px 16px", margin: "0 0 14px", boxShadow: "0 1px 3px rgba(30,45,70,.05)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
@@ -70,28 +99,18 @@ export default function TeacherAssignments({
         </div>
       )}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {assignments.map((a) => (
-          <div key={a.id} style={{ border: "1px solid #eef1f4", borderRadius: 12, padding: "10px 12px", opacity: doneIds.has(a.id) ? 0.5 : 1 }}>
-            <Link href={a.href} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-              <div style={{ fontSize: 13.5, fontWeight: 800, color: "#2b3742" }}>📌 {a.title}</div>
-              {a.detail && <div style={{ fontSize: 12, color: "#6b7885", marginTop: 2 }}>{a.detail}</div>}
-              {a.comment && <div style={{ fontSize: 12.5, color: "#2b3742", marginTop: 4 }}>💬 {a.comment}</div>}
-            </Link>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
-              <span style={{ fontSize: 10.5, color: "#b3bcc6" }}>{a.teacherName} 先生</span>
-              <button
-                type="button"
-                onClick={() => markDone(a.id)}
-                disabled={pending || doneIds.has(a.id)}
-                style={{ fontSize: 11, fontWeight: 700, color: "#2e8b57", background: "#eafaf0", border: "1px solid #cbe8d6", borderRadius: 999, padding: "4px 12px", cursor: "pointer" }}
-              >
-                {doneIds.has(a.id) ? "できた！" : "できたら✓"}
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      {songs.length > 0 && (
+        <div style={{ marginBottom: others.length ? 12 : 0 }}>
+          {showLabels && <div style={groupLabel}>🎼 曲</div>}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{songs.map(card)}</div>
+        </div>
+      )}
+      {others.length > 0 && (
+        <div>
+          {showLabels && <div style={groupLabel}>🎵 基礎練・教材</div>}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{others.map(card)}</div>
+        </div>
+      )}
     </section>
   )
 }
