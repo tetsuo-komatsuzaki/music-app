@@ -179,6 +179,7 @@ model Performance {
   comparisonResultPath String?
   pseudoXmlPath        String?
   performanceDuration  Float?
+  recordingBpm         Float? // 録音時のテンポガイドbpm (2026-08-03 カルテv2: テンポ帯分析用。旧録音はnull)
   performanceDate      DateTime?
   uploadedAt           DateTime          @default(now())
   createdAt            DateTime          @default(now())
@@ -447,6 +448,7 @@ model PracticePerformance {
   audioPath            String
   comparisonResultPath String?
   performanceDuration  Float?
+  recordingBpm         Float? // 録音時のテンポガイドbpm (2026-08-03 カルテv2: テンポ帯分析用。旧録音はnull)
   uploadedAt           DateTime @default(now())
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)

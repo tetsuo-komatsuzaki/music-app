@@ -71,6 +71,14 @@ export async function uploadRecord(params: {
   // 4. invokeAnalysis 起動 (storageUserId = auth.uid() を Python に渡す)
   const bpm = params.recordingBpm
   const validBpm = bpm && bpm > 0 && bpm < 1000 ? bpm : undefined
+  // 録音時bpmをDBにも保存 (カルテv2 Phase0-1: テンポ帯分析用。従来は解析に渡すのみだった)
+  if (validBpm) {
+    try {
+      await prisma.performance.update({ where: { id: performance.id }, data: { recordingBpm: validBpm } })
+    } catch (e) {
+      console.error("[uploadRecord] recordingBpm save failed:", e) // 保存失敗でも解析は続行
+    }
+  }
   try {
     await invokeAnalysis({
       mode: "analyze_performance",

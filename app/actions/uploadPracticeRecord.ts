@@ -49,6 +49,14 @@ export async function uploadPracticeRecord(params: {
   // 4. invokeAnalysis 起動 (isPractice: true、storageUserId = auth.uid())
   const bpm = params.recordingBpm
   const validBpm = bpm && bpm > 0 && bpm < 1000 ? bpm : undefined
+  // 録音時bpmをDBにも保存 (カルテv2 Phase0-1: テンポ帯分析用)
+  if (validBpm) {
+    try {
+      await prisma.practicePerformance.update({ where: { id: performance.id }, data: { recordingBpm: validBpm } })
+    } catch (e) {
+      console.error("[uploadPracticeRecord] recordingBpm save failed:", e) // 保存失敗でも解析は続行
+    }
+  }
   try {
     await invokeAnalysis({
       mode: "analyze_performance",
