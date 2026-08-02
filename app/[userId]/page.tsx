@@ -580,6 +580,24 @@ export default async function HomePage({ params }: PageProps) {
     teacherSummary = undefined
   }
 
+  // 🌟 まずはこれから (2026-08-02・旅の地図の後継): 録音0ユーザーに最初の1曲を一等地で推す。
+  // 選曲=「次の曲にチャレンジ」1位の昇格 (新しい推薦ロジックは持たない)。
+  let starterPick: { title: string; star: number | null; reason: string; href: string; cover: string | null } | null = null
+  if (recentPieces.length === 0 && nextPieceRecommendations.length > 0) {
+    const top = nextPieceRecommendations[0]
+    let reason = `きみの★${currentStar}にぴったりの曲だよ`
+    try {
+      const tags = await prisma.scoreTechniqueTag.findMany({
+        where: { scoreId: top.practiceItem.id },
+        orderBy: { isPrimary: "desc" },
+        take: 1,
+        select: { techniqueTag: { select: { name: true } } },
+      })
+      if (tags[0]) reason = `${tags[0].techniqueTag.name}の練習になるよ`
+    } catch { /* タグ無しでも既定文言で出す */ }
+    starterPick = { title: top.practiceItem.title, star: top.practiceItem.star ?? null, reason, href: top.href, cover: top.practiceItem.cover ?? null }
+  }
+
   // ホーム上部の解析通知 (2026-08-02): 直近24hの録音の採点状況 (採点中チップ+完了バナー)
   let analysisNotices: { id: string; status: string; scoreId: string; title: string; score: number | null }[] = []
   try {
@@ -609,6 +627,7 @@ export default async function HomePage({ params }: PageProps) {
       teacherAssignments={teacherAssignments}
       teacherSummary={teacherSummary}
       analysisNotices={analysisNotices}
+      starterPick={starterPick}
       userName={dbUser.name ?? ""}
       streak={streak}
       weeklyDays={weeklyDays}

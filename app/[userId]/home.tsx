@@ -89,6 +89,8 @@ type Props = {
   teacherSummary?: TeacherHomeSummary
   /** 解析通知 (2026-08-02): 直近24hの録音の採点状況 (採点中/完了) */
   analysisNotices: AnalysisNotice[]
+  /** 🌟 まずはこれから (2026-08-02・旅の地図の後継): 録音0ユーザー向けの最初の1曲。null=非表示 */
+  starterPick: { title: string; star: number | null; reason: string; href: string; cover: string | null } | null
 }
 
 export default function HomeClient({
@@ -101,6 +103,7 @@ export default function HomeClient({
   teacherAssignments,
   teacherSummary,
   analysisNotices,
+  starterPick,
 }: Props) {
   void _userName
   const { userId } = useParams<{ userId: string }>()
@@ -119,17 +122,46 @@ export default function HomeClient({
       {/* ⓪ 解析通知 (採点中チップ / 完了バナー)。該当なしなら何も出ない */}
       <AnalysisNoticeBar userId={userId} notices={analysisNotices} />
 
-      {/* ① マイランクカード (最上部・タップで演奏の軌跡／上達のしくみを内蔵) */}
+      {/* 🌟 まずはこれから (録音0ユーザーの一等地。旅の地図の後継・案5「きみへのセレクト」確定 2026-08-02):
+          おすすめ1曲だけをドンと出す。弾き始めたら消えて「いま練習している曲」に世代交代 */}
+      {!ending && starterPick && recentPieces.length === 0 && (
+        <div style={{ position: "relative", overflow: "hidden", background: "#fff", border: "1px solid #eef1f4", borderRadius: 16, padding: 16, boxShadow: "0 1px 3px rgba(30,45,70,.05)" }}>
+          <span style={{ position: "absolute", top: 14, right: -34, transform: "rotate(38deg)", background: "#c9a227", color: "#fff", fontSize: 10, fontWeight: 900, letterSpacing: ".1em", padding: "4px 40px" }}>きみへ</span>
+          <div style={{ display: "flex", gap: 13, alignItems: "center" }}>
+            <div style={{ flex: "none", width: 74, aspectRatio: "1", borderRadius: 12, background: "linear-gradient(140deg,#dde5f2,#c6d2e6)", display: "grid", placeItems: "center", fontSize: 30, overflow: "hidden" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {starterPick.cover ? <img src={starterPick.cover} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span aria-hidden>🎵</span>}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#8a9099" }}>🌟 さいしょの1曲</div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 7, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 18, fontWeight: 900, color: "#2b3742", lineHeight: 1.35 }}>{starterPick.title}</span>
+                {starterPick.star != null && (
+                  <span style={{ flex: "none", fontSize: 11, fontWeight: 800, color: "#b7823a", background: "#faf1e1", border: "1px solid #ecdfc8", borderRadius: 999, padding: "2px 9px" }}>★{starterPick.star}</span>
+                )}
+              </div>
+              <div style={{ fontSize: 11.5, color: "#8a9099", marginTop: 1 }}>{starterPick.reason}</div>
+            </div>
+          </div>
+          <Link href={starterPick.href}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 13, padding: "13px 16px", background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "#fff", borderRadius: 12, textDecoration: "none", fontWeight: 800, fontSize: 14.5 }}>
+            <span aria-hidden>♪</span> この曲をひく →
+          </Link>
+        </div>
+      )}
+
+      {/* ① マイランクカード (タップで演奏の軌跡／上達のしくみを内蔵) */}
       <MyRankCard {...rankCard} onGuide={() => setGuideOpen(true)} />
 
       {/* 先生から (未完了の宿題があるときだけ表示・先生機能 MVP) */}
       <TeacherAssignments assignments={teacherAssignments} summary={teacherSummary} />
 
       {/* ② いま練習している曲 ＋〈マスターへのステップ ‖ 毎日の基礎練〉。
-          終盤の締めでは、選んだ曲の「弾いたらこう出る」見本カードに差し替える。 */}
+          終盤の締めでは、選んだ曲の「弾いたらこう出る」見本カードに差し替える。
+          🌟カード表示中は空状態の文言が重複するため、中身が無ければ丸ごと省略 */}
       {ending ? (
         <GuideSampleFocus piece={onboardingSamplePiece ?? undefined} />
-      ) : (
+      ) : starterPick && recentPieces.length === 0 && basicPracticeCards.length === 0 ? null : (
         <PracticeFocusCard pieces={recentPieces} basics={basicPracticeCards} userId={userId} />
       )}
 
@@ -138,8 +170,8 @@ export default function HomeClient({
         <ArcoDaily />
       </div>
 
-      {/* ④ 次の曲にチャレンジ (同☆の未達成曲) */}
-      <NextPiecesCard pieces={nextPieceRecommendations} />
+      {/* ④ 次の曲にチャレンジ (同☆の未達成曲)。🌟カード表示中は1位を昇格済みなので残りだけ */}
+      <NextPiecesCard pieces={!ending && starterPick && recentPieces.length === 0 ? nextPieceRecommendations.slice(1) : nextPieceRecommendations} />
 
       {/* ⑤ お気に入り (曲・音階・アルペジオ・エチュード・ボーイング・フィンガリング・重音) */}
       <FavoritesSection favorites={favorites} />
