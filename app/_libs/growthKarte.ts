@@ -3,6 +3,8 @@
 // すべて既存データ (Performance/PracticePerformance の analysisSummary.diagnosis
 // per_subtask {miss,target}・達成/提出/添削/所見) から生成。新テーブル不要。
 import { prisma } from "./prisma"
+import { storageAdmin } from "./storageAdmin"
+import { encodeSignedUrl } from "./encodeSignedUrl"
 import { formatKey } from "./musicNotation"
 import { categoryLabel } from "./practiceConstants"
 import { OBSERVATION_TAG_BY_ID } from "./observationCatalog"
@@ -517,5 +519,224 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     insights: insights.slice(0, 4),
     events: events.slice(0, 40),
     skillMap,
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 技術の詳細分析 (/progress/skill/[techId]・先生あり特典・モック743beec0承認済)
+// 指導注釈つき推移 / 先生の指導履歴 / 聴き比べ / 処方箋
+// ═══════════════════════════════════════════════════════════════════
+
+export const SKILL_IDS = SKILL_DEFS.map((d) => d.id)
+
+export interface SkillSeriesPoint { at: number; date: string; pct: number; target: number }
+export interface SkillAnnotation {
+  at: number
+  date: string
+  kind: "observation" | "lesson_clear"
+  label: string
+  severity?: string | null
+}
+export interface SkillListenItem { date: string; title: string; pct: number | null; audioUrl: string | null }
+export interface SkillGuidance { date: string; severity: string | null; tags: string[]; comment: string | null }
+
+export interface SkillDetailData {
+  id: string
+  label: string
+  lane: "bow" | "left"
+  star: number
+  state: SkillNodeState
+  provisional: boolean
+  pct: number | null
+  miss: number
+  target: number
+  practiceHref: string
+  series: SkillSeriesPoint[]
+  annotations: SkillAnnotation[]
+  /** 直近の指導(所見/クリア)前後の安定度変化。null=判定材料不足 */
+  effect: { label: string; delta: number } | null
+  listen: { old: SkillListenItem; new: SkillListenItem } | null
+  guidance: SkillGuidance[]
+}
+
+/** 技術1つの詳細分析 (全期間)。先生なし/不明IDは null (呼び手でリダイレクト)。 */
+export async function buildSkillDetail(
+  userId: string, supabaseUserId: string, techId: string,
+): Promise<SkillDetailData | null> {
+  const def = SKILL_DEFS.find((d) => d.id === techId)
+  if (!def) return null
+
+  const link = await prisma.teacherStudent.findFirst({
+    where: { studentId: userId },
+    orderBy: { createdAt: "asc" },
+    select: { teacherId: true },
+  })
+  if (!link) return null // 先生あり特典
+
+  const [perfs, pracs, clears, acqs, starRow, obsRows] = await Promise.all([
+    prisma.performance.findMany({
+      where: { userId },
+      orderBy: { uploadedAt: "asc" },
+      select: { uploadedAt: true, analysisSummary: true, audioPath: true, score: { select: { title: true } } },
+    }),
+    prisma.practicePerformance.findMany({
+      where: { userId },
+      orderBy: { uploadedAt: "asc" },
+      select: { uploadedAt: true, analysisSummary: true, audioPath: true, practiceItem: { select: { title: true } } },
+    }),
+    prisma.userLessonClear.findMany({ where: { userId }, select: { tagType: true, tagKey: true, clearedAt: true } }),
+    prisma.userTagAcquisition.findMany({ where: { userId, state: { not: "REVOKED" } }, select: { tagType: true, tagKey: true } }),
+    prisma.userStarProgress.findUnique({ where: { userId }, select: { currentStar: true } }),
+    prisma.teacherObservation.findMany({
+      where: { studentId: userId, teacherId: link.teacherId },
+      orderBy: { createdAt: "asc" },
+      take: 50,
+      select: { createdAt: true, tagIds: true, severity: true, comment: true },
+    }),
+  ])
+
+  // この技術の per_subtask 集計対象か
+  const posRe = /^(?:pitch|rhythm)_posshift_([0-9a-z]+)_([0-9a-z]+)$/
+  const inScope = (sid: string): boolean => {
+    if (def.subIds.length) return def.subIds.includes(sid)
+    if (def.id === "position") {
+      const m = posRe.exec(sid)
+      return !!m && m[1] !== m[2]
+    }
+    return sid.startsWith("pitch_double_") || sid.startsWith("rhythm_double_")
+  }
+  const aggOf = (summary: unknown): { miss: number; target: number } => {
+    const d = (summary as { diagnosis?: DiagnosisJson } | null)?.diagnosis
+    let miss = 0
+    let target = 0
+    if (d?.per_subtask) {
+      for (const [sid, v] of Object.entries(d.per_subtask)) {
+        if (!inScope(sid) || typeof v?.miss !== "number" || typeof v?.target !== "number") continue
+        miss += v.miss
+        target += v.target
+      }
+    }
+    return { miss, target }
+  }
+
+  // 録音ごとの安定度 (対象3音以上のみ点にする) + 聴き比べ候補
+  type Rec = { at: Date; title: string; audioPath: string | null; agg: { miss: number; target: number } }
+  const recs: Rec[] = [
+    ...perfs.map((p) => ({ at: p.uploadedAt, title: p.score?.title ?? "曲", audioPath: p.audioPath || null, agg: aggOf(p.analysisSummary) })),
+    ...pracs.map((p) => ({ at: p.uploadedAt, title: p.practiceItem?.title ?? "教材", audioPath: p.audioPath || null, agg: aggOf(p.analysisSummary) })),
+  ].sort((a, b) => a.at.getTime() - b.at.getTime())
+
+  const scored = recs.filter((r) => r.agg.target >= 3)
+  const pctOf = (r: Rec) => Math.max(0, round(100 - (r.agg.miss / r.agg.target) * 100))
+  const series: SkillSeriesPoint[] = scored.map((r) => ({
+    at: r.at.getTime(),
+    date: fmtJp(r.at),
+    pct: pctOf(r),
+    target: r.agg.target,
+  }))
+
+  // 全期間の合算 → 状態判定 (マップと同じ規則)
+  const total = scored.reduce((a, r) => ({ miss: a.miss + r.agg.miss, target: a.target + r.agg.target }), { miss: 0, target: 0 })
+  const clearSet = new Set(clears.map((c) => c.tagType + ":" + c.tagKey))
+  const acqSet = new Set(acqs.map((c) => c.tagType + ":" + c.tagKey))
+  let inClear = false
+  let inAcq = false
+  if (def.tagType === "technique") {
+    inClear = def.tagKeys.some((k) => clearSet.has("technique:" + k))
+    inAcq = def.tagKeys.some((k) => acqSet.has("technique:" + k))
+  } else {
+    inClear = clears.some((c) => c.tagType === def.tagType)
+    inAcq = acqs.some((c) => c.tagType === def.tagType)
+  }
+  const acquired = inClear || inAcq
+  const currentStar = starRow?.currentStar ?? 1
+  let state: SkillNodeState
+  let pct: number | null = null
+  if (!acquired) {
+    state = def.star > currentStar ? "locked" : "ready"
+  } else if (total.target >= 8) {
+    pct = Math.max(0, round(100 - (total.miss / total.target) * 100))
+    state = pct < 70 ? "wobble" : "stable"
+  } else {
+    state = "acquired_nodata"
+  }
+
+  // 注釈: 関連する所見 + この技術のレッスンクリア
+  const related = obsRows.filter((o) => o.tagIds.some((t) => def.obsTagIds.includes(t)))
+  const annotations: SkillAnnotation[] = related.map((o) => ({
+    at: o.createdAt.getTime(),
+    date: fmtJp(o.createdAt),
+    kind: "observation" as const,
+    label: o.tagIds.filter((t) => def.obsTagIds.includes(t)).map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).join("・") || "所見",
+    severity: o.severity,
+  }))
+  for (const c of clears) {
+    const hit = def.tagType === "technique"
+      ? c.tagType === "technique" && def.tagKeys.includes(c.tagKey)
+      : c.tagType === def.tagType
+    if (hit) annotations.push({ at: c.clearedAt.getTime(), date: fmtJp(c.clearedAt), kind: "lesson_clear", label: "レッスンクリア" })
+  }
+  annotations.sort((a, b) => a.at - b.at)
+
+  // 指導の効果: 直近の注釈の前後で平均を比較 (各1点以上)
+  let effect: { label: string; delta: number } | null = null
+  for (let i = annotations.length - 1; i >= 0; i--) {
+    const anno = annotations[i]
+    const before = series.filter((s) => s.at < anno.at)
+    const after = series.filter((s) => s.at > anno.at)
+    if (before.length >= 1 && after.length >= 1) {
+      const avg = (xs: number[]) => xs.reduce((s, v) => s + v, 0) / xs.length
+      const delta = round(avg(after.map((s) => s.pct)) - avg(before.map((s) => s.pct)))
+      effect = { label: anno.kind === "lesson_clear" ? "レッスンクリア" : "所見「" + anno.label + "」", delta }
+      break
+    }
+  }
+
+  // 聴き比べ: 最古と最新 (2点以上あるとき)
+  let listen: SkillDetailData["listen"] = null
+  if (scored.length >= 2) {
+    const first = scored[0]
+    const last = scored[scored.length - 1]
+    const sign = async (path: string | null) =>
+      path
+        ? await storageAdmin.storage.from("performances").createSignedUrl(path, 600)
+            .then((r) => encodeSignedUrl(r.data?.signedUrl) ?? null)
+            .catch(() => null)
+        : null
+    const [oldUrl, newUrl] = await Promise.all([sign(first.audioPath), sign(last.audioPath)])
+    listen = {
+      old: { date: fmtJp(first.at), title: first.title, pct: pctOf(first), audioUrl: oldUrl },
+      new: { date: fmtJp(last.at), title: last.title, pct: pctOf(last), audioUrl: newUrl },
+    }
+  }
+
+  // 指導履歴 (新しい順・5件)
+  const guidance: SkillGuidance[] = related
+    .slice()
+    .reverse()
+    .slice(0, 5)
+    .map((o) => ({
+      date: fmtJp(o.createdAt),
+      severity: o.severity,
+      tags: o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter((s): s is string => !!s),
+      comment: o.comment,
+    }))
+
+  return {
+    id: def.id,
+    label: def.label,
+    lane: def.lane,
+    star: def.star,
+    state,
+    provisional: acquired && !inClear,
+    pct,
+    miss: total.miss,
+    target: total.target,
+    practiceHref: def.practiceCat ? "/" + supabaseUserId + "/practice/" + def.practiceCat : "/" + supabaseUserId + "/practice",
+    series,
+    annotations,
+    effect,
+    listen,
+    guidance,
   }
 }

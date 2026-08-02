@@ -398,10 +398,16 @@ function SkillMapSection({ userId, data }: { userId: string; data: KarteData }) 
               </div>
             )}
 
-            <Link href={sel.practiceHref}
-              style={{ display: "inline-block", marginTop: 10, fontSize: 11.5, fontWeight: 800, color: "#fff", background: "#c98a2a", borderRadius: 8, padding: "7px 14px", textDecoration: "none" }}>
-              この技術を練習する →
-            </Link>
+            <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+              <Link href={`/${userId}/progress/skill/${sel.id}`}
+                style={{ fontSize: 11.5, fontWeight: 800, color: "#fff", background: "#4a5bd0", borderRadius: 8, padding: "7px 14px", textDecoration: "none" }}>
+                📈 くわしい分析 →
+              </Link>
+              <Link href={sel.practiceHref}
+                style={{ fontSize: 11.5, fontWeight: 800, color: "#fff", background: "#c98a2a", borderRadius: 8, padding: "7px 14px", textDecoration: "none" }}>
+                練習する →
+              </Link>
+            </div>
           </div>
         </div>
       )}
