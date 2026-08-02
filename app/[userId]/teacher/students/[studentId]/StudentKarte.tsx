@@ -10,6 +10,16 @@ import { createObservation } from "@/app/actions/teacherObservations"
 import { OBSERVATION_CATALOG, OBSERVATION_TAG_BY_ID, OBSERVATION_SEVERITIES } from "@/app/_libs/observationCatalog"
 import { BODY_VIEWS, NON_BODY_CATEGORIES, spotsOf, type BodyViewId } from "@/app/_libs/bodyMap"
 import BodyFigure from "@/app/components/BodyFigure"
+import BodyObsMap, { type BodyObsItem } from "@/app/components/BodyObsMap"
+
+/** 履歴(新しい順)からタグごとに最新の所見1件を取り出す (癖マップ表示用) */
+function latestPerTag(observations: ObservationRow[]): BodyObsItem[] {
+  const m = new Map<string, BodyObsItem>()
+  for (const o of observations) {
+    for (const t of o.tagIds) if (!m.has(t)) m.set(t, { tagId: t, severity: o.severity, date: o.date })
+  }
+  return [...m.values()]
+}
 import { goalLabel, dueInfo, DUE_COLOR, scorePassed, goalResult } from "@/app/_libs/assignmentGoal"
 
 type Target = { id: string; title: string; group?: string }
@@ -519,6 +529,13 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
         </div>
       )}
       {msg && <div style={{ fontSize: 12, margin: "0 0 8px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
+
+      {/* 癖マップ (レッスン前のひと目確認): タグごとに最新の所見を体の場所で表示 */}
+      {!open && observations.length > 0 && (
+        <div style={{ marginBottom: 12 }}>
+          <BodyObsMap tags={latestPerTag(observations)} />
+        </div>
+      )}
 
       {/* 履歴 */}
       {observations.length === 0 ? (

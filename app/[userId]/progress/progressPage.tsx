@@ -5,10 +5,8 @@
 import { useState } from "react"
 import Link from "next/link"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
-import type { KarteData, GridCell, SkillNode, BodyObsTag } from "@/app/_libs/growthKarte"
-import { BODY_VIEWS, SPOT_BY_TAG, spotsOf, type BodyViewId } from "@/app/_libs/bodyMap"
-import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
-import BodyFigure from "@/app/components/BodyFigure"
+import type { KarteData, GridCell, SkillNode } from "@/app/_libs/growthKarte"
+import BodyObsMap from "@/app/components/BodyObsMap"
 
 const INK = "#2b3742"
 const SUB = "#8a9099"
@@ -421,113 +419,18 @@ function SkillMapSection({ userId, data }: { userId: string; data: KarteData }) 
   )
 }
 
-/* ── 癖の人体マップ (先生あり特典・モックv2 1349ea3b) ── */
+/* ── 癖の人体マップ (先生あり特典・モックv2 1349ea3b)。表示本体は共通の BodyObsMap ── */
 function BodyMapSection({ data }: { data: KarteData }) {
-  const [viewId, setViewId] = useState<BodyViewId | null>(null)
   if (!data.bodyObs) return null // 先生なし (ティーザーは技術マップ側に集約)
-
-  const sevPill = (s: string | null) =>
-    s === "focus"
-      ? { l: "要重点", c: BAD.c, bg: BAD.bg, bd: "#f0d4d0" }
-      : { l: "気になる", c: "#b7823a", bg: "#faf1e1", bd: "#ecdfc8" }
-
-  // ビューごとの該当タグ
-  const tagsOf = (v: BodyViewId): BodyObsTag[] => data.bodyObs!.filter((t) => SPOT_BY_TAG[t.tagId]?.view === v)
-  const nonBody = data.bodyObs.filter((t) => !SPOT_BY_TAG[t.tagId] && OBSERVATION_TAG_BY_ID[t.tagId])
-  const total = data.bodyObs.filter((t) => SPOT_BY_TAG[t.tagId]).length
-
-  const sel = viewId ? BODY_VIEWS.find((v) => v.id === viewId)! : null
-  const selTags = viewId ? tagsOf(viewId) : []
-
   return (
     <div style={card}>
       <div style={secTtl}>🧍 癖マップ <span style={{ fontSize: 10, fontWeight: 700, color: SUB }}>先生の所見を体の場所で</span></div>
-
-      {total === 0 && nonBody.length === 0 ? (
+      {data.bodyObs.length === 0 ? (
         <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>
           先生がレッスンで気づいた癖を記録すると、ここに「体のどこの癖か」が表示されます。
         </div>
       ) : (
-        <>
-          {/* サムネイル一覧 */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-            {BODY_VIEWS.map((v) => {
-              const tags = tagsOf(v.id)
-              const focus = tags.some((t) => t.severity === "focus")
-              const on = viewId === v.id
-              return (
-                <button key={v.id} type="button" onClick={() => setViewId(on ? null : v.id)}
-                  style={{ position: "relative", background: "#fdfaf4", border: "1.5px solid", borderColor: on ? "#4a5bd0" : tags.length ? (focus ? "#f0d4d0" : "#ecdfc8") : "#f0e9db", borderRadius: 11, padding: "6px 4px 4px", cursor: "pointer" }}>
-                  <BodyFigure view={v.id} />
-                  <div style={{ fontSize: 9.5, fontWeight: 800, color: "#4a5766", marginTop: 2 }}>{v.short}</div>
-                  {tags.length > 0 && (
-                    <span style={{ position: "absolute", top: -6, right: -5, minWidth: 17, height: 17, borderRadius: 999, background: focus ? BAD.c : "#c98a2a", color: "#fff", fontSize: 10, fontWeight: 900, display: "grid", placeItems: "center", padding: "0 4px", border: "1.5px solid #fff" }}>
-                      {tags.length}
-                    </span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* 選択ビューの詳細 */}
-          {sel && (
-            <div style={{ border: "1px solid #eef1f4", borderRadius: 13, marginTop: 10, overflow: "hidden" }}>
-              <div style={{ background: "#f7f4ec", padding: "8px 12px", fontSize: 11.5, fontWeight: 800, color: "#4a5766" }}>
-                {sel.emoji} {sel.label}
-              </div>
-              <div style={{ padding: 10 }}>
-                <div style={{ position: "relative", background: "#fdfaf4", border: "1px solid #f0e9db", borderRadius: 11, padding: 6 }}>
-                  <BodyFigure view={sel.id} />
-                  {spotsOf(sel.id).map((s) => {
-                    const cnt = selTags.filter((t) => SPOT_BY_TAG[t.tagId]?.id === s.id).length
-                    if (cnt === 0) return null
-                    const focus = selTags.some((t) => SPOT_BY_TAG[t.tagId]?.id === s.id && t.severity === "focus")
-                    return (
-                      <span key={s.id}
-                        style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, transform: "translate(-50%, -50%)", fontSize: 10, fontWeight: 900, borderRadius: 999, padding: "3px 8px", background: focus ? BAD.c : "#c98a2a", color: "#fff", boxShadow: "0 1px 4px rgba(60,50,30,.25)", whiteSpace: "nowrap" }}>
-                        {s.label} {cnt}
-                      </span>
-                    )
-                  })}
-                </div>
-                {selTags.length === 0 ? (
-                  <div style={{ fontSize: 11.5, color: SUB, marginTop: 8 }}>この場所の癖は記録されていません。いい調子！</div>
-                ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 9 }}>
-                    {selTags.map((t) => {
-                      const sev = sevPill(t.severity)
-                      return (
-                        <div key={t.tagId} style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", border: "1px solid #eef1f4", borderRadius: 9, padding: "7px 10px" }}>
-                          <span style={{ fontSize: 9.5, fontWeight: 800, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "2px 7px" }}>{sev.l}</span>
-                          <span style={{ fontSize: 11.5, fontWeight: 700, color: "#2b3742" }}>{OBSERVATION_TAG_BY_ID[t.tagId]?.label ?? t.tagId}</span>
-                          <span style={{ marginLeft: "auto", fontSize: 9.5, color: "#aab2bb" }}>{t.date}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* 体で表せない癖 (リズム・習慣など) */}
-          {nonBody.length > 0 && (
-            <div style={{ marginTop: 10 }}>
-              <div style={{ ...miniLbl, marginBottom: 6 }}>体の外の癖（リズム・習慣など）</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {nonBody.map((t) => {
-                  const sev = sevPill(t.severity)
-                  return (
-                    <span key={t.tagId} style={{ fontSize: 10.5, fontWeight: 700, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "4px 10px" }}>
-                      {OBSERVATION_TAG_BY_ID[t.tagId]?.label ?? t.tagId}
-                    </span>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-        </>
+        <BodyObsMap tags={data.bodyObs} />
       )}
     </div>
   )
