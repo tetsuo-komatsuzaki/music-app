@@ -128,7 +128,7 @@ export default function ArcoResultOverlay({
                   <div style={{ position: "relative", height: 14, borderRadius: 7, background: "#eef0f4", margin: "26px 4px 6px" }}>
                     <span style={{ position: "absolute", inset: "0 auto 0 0", width: `${Math.min(avg, 100)}%`, borderRadius: 7, background: "linear-gradient(90deg,#7a8ce0,#5b6b9e)" }} />
                     <span style={{ position: "absolute", top: -7, bottom: -7, left: "90%", width: 3, borderRadius: 2, background: "#c9a227" }}>
-                      <span style={{ position: "absolute", top: -19, right: -4, fontSize: 9, fontWeight: 800, color: "#c9a227", whiteSpace: "nowrap" }}>90点=達成ライン</span>
+                      <span style={{ position: "absolute", top: -19, right: -4, fontSize: 9, fontWeight: 800, color: "#c9a227", whiteSpace: "nowrap" }}>90点=マスターライン</span>
                     </span>
                     <span style={{ position: "absolute", top: -24, left: `${Math.min(avg, 100)}%`, transform: "translateX(-50%)", fontSize: 10, fontWeight: 900, color: "#5b6b9e", whiteSpace: "nowrap", animation: "aroHop 1.2s ease-in-out infinite" }}>
                       きみ {avg}点
