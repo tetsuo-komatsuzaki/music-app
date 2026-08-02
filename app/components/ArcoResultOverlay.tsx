@@ -8,7 +8,7 @@ import styles from "./ArcoResultOverlay.module.css"
 
 type Ach = {
   lessons: { total: number; cleared: number; nextLessonId?: string | null }
-  etude: { required: boolean; achieved?: boolean }
+  etude: { required: boolean; id?: string; title?: string; achieved?: boolean }
   cleanRuns: { count: number; required: number }
   master: { recentAvg: number | null; threshold: number; scoredCount: number; requiredCount: number }
   achieved: boolean
