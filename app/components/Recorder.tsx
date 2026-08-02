@@ -4,41 +4,39 @@ import { useState, useRef, useCallback, useEffect } from "react"
 import styles from "./recorder.module.css"
 
 // =========================================================
-// 解析待ちカード (2026-08-02): 解析ジョブ完了までの数分を
-// 「空の-%」ではなく子ども向けの待てる画面にする
+// 解析待ちカード (2026-08-02 案2改・Tetsuo確定デザイン):
+// クリーム×木目 + 金のVUメーター + 赤ランプ「アルコが採点ちゅう…」。
+// 解析ジョブ完了までの数分を「空の-%」ではなく待てる画面にする。
 // =========================================================
 
-const WAIT_MSGS = [
-  "アルコが耳をすませて聴いているよ…🎧",
-  "音をひとつずつ確かめ中…🎵",
-  "リズムをかぞえ中…🥁",
-  "きみの良いところを探し中…🌟",
-  "のびしろを見つけ中…🌱",
-]
+const VU_BARS = [11, 18, 14, 9, 15] // 高さpx (モックと同一)
 
 function AnalysisWaiting() {
-  const [i, setI] = useState(0)
-  useEffect(() => {
-    const t = setInterval(() => setI((v) => (v + 1) % WAIT_MSGS.length), 3200)
-    return () => clearInterval(t)
-  }, [])
   return (
-    <div style={{ textAlign: "center", padding: "16px 8px 6px" }}>
+    <div style={{
+      textAlign: "center", padding: "20px 12px 18px",
+      background: "linear-gradient(150deg,#fdf8ec,#f7efe2)",
+      border: "1.5px solid #e8dcc2", borderRadius: 15,
+    }}>
       <style>{`
-        @keyframes arcoBob { 0%,100%{ transform: translateY(0) rotate(-4deg) } 50%{ transform: translateY(-7px) rotate(4deg) } }
-        @keyframes waitDot { 0%,80%,100%{ opacity:.25; transform:scale(.8) } 40%{ opacity:1; transform:scale(1) } }
+        @keyframes recVu { 0%,100%{ transform:scaleY(.3) } 30%{ transform:scaleY(1) } 60%{ transform:scaleY(.6) } }
+        @keyframes recBlink { 0%,100%{ opacity:1 } 50%{ opacity:.15 } }
       `}</style>
-      <div style={{ fontSize: 42, display: "inline-block", animation: "arcoBob 1.6s ease-in-out infinite" }} aria-hidden>🎻</div>
-      <div style={{ fontSize: 14.5, fontWeight: 800, color: "#3a4653", marginTop: 8 }}>録音できた！AIが採点中…</div>
-      <div style={{ fontSize: 12.5, color: "#5b6b7a", marginTop: 6, minHeight: 20 }}>{WAIT_MSGS[i]}</div>
-      <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 10 }} aria-hidden>
-        {[0, 1, 2].map((d) => (
-          <span key={d} style={{ width: 8, height: 8, borderRadius: "50%", background: "#7a8ce0", animation: `waitDot 1.4s ease-in-out ${d * 0.22}s infinite` }} />
+      <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 3, height: 24 }} aria-hidden>
+        {VU_BARS.map((h, i) => (
+          <span key={i} style={{
+            width: 4, height: h * 1.33, borderRadius: 2, transformOrigin: "bottom",
+            background: "linear-gradient(180deg,#c9a227,#b8862e)",
+            animation: `recVu 1s ease-in-out ${i * 0.15}s infinite`,
+          }} />
         ))}
+      </span>
+      <div style={{ fontSize: 14.5, fontWeight: 800, color: "#4a3f2e", marginTop: 11 }}>
+        <span aria-hidden style={{ display: "inline-block", verticalAlign: 2, marginRight: 7, width: 9, height: 9, borderRadius: "50%", background: "#d64541", animation: "recBlink 1.1s steps(1) infinite" }} />
+        アルコが採点ちゅう…
       </div>
-      <div style={{ fontSize: 10.5, color: "#9aa6b3", marginTop: 10, lineHeight: 1.6 }}>
-        だいたい1〜2分だよ。おわったら結果がポンと出るから、<br />そのあいだにもう一回弾く練習をしてもOK！
-      </div>
+      <div style={{ fontSize: 11.5, color: "#9a8c74", marginTop: 5 }}>できあがりまで 約1〜2分</div>
+      <div style={{ fontSize: 10.5, color: "#9a8c74", marginTop: 7 }}>待っているあいだに、もう一回練習してもOK！</div>
     </div>
   )
 }

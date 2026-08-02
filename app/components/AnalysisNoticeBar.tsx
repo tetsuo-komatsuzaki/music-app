@@ -1,8 +1,8 @@
 "use client"
 
-// ホーム上部の解析通知 (2026-08-02)。
-//  - 採点中の録音がある → 「🎻 採点中…」チップ (完了を拾うため15秒ごとに router.refresh)
-//  - 直近24hに完了した録音 → 「✅ 採点できたよ！」バナー (結果リンク)。既読は localStorage。
+// ホーム上部の解析通知 (2026-08-02 案2改・Tetsuo確定デザイン: クリーム×木目)。
+//  - 採点中: 赤ランプ+曲名チップ+金のVUメーター (完了を拾うため15秒ごとに router.refresh)
+//  - 完了: 「できたよ！」スタンプ+曲名+結果ボタンの1行バナー。既読は localStorage。
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -12,7 +12,7 @@ export type AnalysisNotice = {
   status: string // queued | processing | done | error
   scoreId: string
   title: string
-  score: number | null // 演奏スコア(音程+リズム平均・表示用)。未算出はnull
+  score: number | null // 現デザインでは未表示 (将来用に温存)
 }
 
 const SEEN_KEY = "arcoda_seen_analysis_v1"
@@ -26,6 +26,13 @@ function markSeen(id: string) {
     localStorage.setItem(SEEN_KEY, JSON.stringify(s))
   } catch { /* private mode等は諦める */ }
 }
+
+const CARD: React.CSSProperties = {
+  background: "linear-gradient(150deg,#fdf8ec,#f7efe2)",
+  border: "1.5px solid #e8dcc2",
+  borderRadius: 13,
+}
+const VU_BARS = [11, 18, 14, 9, 15]
 
 export default function AnalysisNoticeBar({ userId, notices }: { userId: string; notices: AnalysisNotice[] }) {
   const router = useRouter()
@@ -47,45 +54,44 @@ export default function AnalysisNoticeBar({ userId, notices }: { userId: string;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <style>{`@keyframes anbPulse { 0%,100%{opacity:.4} 50%{opacity:1} }`}</style>
+      <style>{`
+        @keyframes anbBlink { 0%,100%{ opacity:1 } 50%{ opacity:.15 } }
+        @keyframes anbVu { 0%,100%{ transform:scaleY(.3) } 30%{ transform:scaleY(1) } 60%{ transform:scaleY(.6) } }
+        @keyframes anbStamp { 0%{ transform:scale(2.2) rotate(-6deg); opacity:0 } 60%{ transform:scale(.92) rotate(-6deg); opacity:1 } 100%{ transform:scale(1) rotate(-6deg) } }
+      `}</style>
 
-      {/* 完了バナー */}
+      {/* 完了バナー: [できたよ！] 曲名 [結果を見る →] の1行構成 */}
       {done.map((n) => (
         <Link
           key={n.id}
           href={`/${userId}/scores/${n.scoreId}?tab=review`}
           onClick={() => { markSeen(n.id); setSeen((s) => [...(s ?? []), n.id]) }}
-          style={{
-            display: "flex", alignItems: "center", gap: 10, textDecoration: "none",
-            background: "linear-gradient(120deg,#e9f5ee,#f2fbf5)", border: "1.5px solid #bfe3cd",
-            borderRadius: 13, padding: "11px 14px",
-          }}
+          style={{ ...CARD, display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "11px 14px" }}
         >
-          <span style={{ fontSize: 20 }} aria-hidden>🎉</span>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: 13, fontWeight: 800, color: "#1e6b43" }}>
-              採点できたよ！
-            </span>
-            <span style={{ display: "block", fontSize: 11.5, color: "#4a5766", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              「{n.title}」{n.score != null ? ` — ${Math.round(n.score)}点` : ""}
-            </span>
+          <span style={{ flex: "none", fontSize: 12, fontWeight: 900, letterSpacing: ".08em", color: "#2e8b57", border: "2.5px solid #2e8b57", borderRadius: 7, padding: "3px 9px", display: "inline-block", animation: "anbStamp .5s ease-out" }}>
+            できたよ！
           </span>
-          <span style={{ flex: "none", fontSize: 12, fontWeight: 800, color: "#fff", background: "#2e8b57", borderRadius: 999, padding: "7px 13px" }}>
+          <span style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 800, color: "#4a3f2e", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            「{n.title}」
+          </span>
+          <span style={{ flex: "none", fontSize: 11.5, fontWeight: 800, color: "#fff", background: "#2e8b57", borderRadius: 999, padding: "7px 13px" }}>
             結果を見る →
           </span>
         </Link>
       ))}
 
-      {/* 採点中チップ */}
+      {/* 採点中チップ: 赤ランプ + 曲名 + VUメーター */}
       {pending.length > 0 && (
-        <div style={{
-          display: "flex", alignItems: "center", gap: 9,
-          background: "#f4f6fb", border: "1px solid #dfe5f0", borderRadius: 13, padding: "10px 14px",
-        }}>
-          <span style={{ fontSize: 17, display: "inline-block", animation: "anbPulse 1.4s ease-in-out infinite" }} aria-hidden>🎻</span>
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#4a5766" }}>
-            採点中… 「{pending[0].title}」{pending.length > 1 ? ` ほか${pending.length - 1}件` : ""}
-            <span style={{ color: "#9aa6b3", fontWeight: 600 }}>（だいたい1〜2分）</span>
+        <div style={{ ...CARD, display: "flex", alignItems: "center", gap: 9, padding: "10px 14px" }}>
+          <span aria-hidden style={{ flex: "none", width: 9, height: 9, borderRadius: "50%", background: "#d64541", animation: "anbBlink 1.1s steps(1) infinite" }} />
+          <span style={{ fontSize: 12, fontWeight: 800, color: "#4a3f2e", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            「{pending[0].title}」を採点ちゅう…{pending.length > 1 ? ` ほか${pending.length - 1}件` : ""}
+            <span style={{ color: "#9a8c74", fontWeight: 600 }}>（約1〜2分）</span>
+          </span>
+          <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 2.5, height: 14, marginLeft: "auto", flex: "none" }} aria-hidden>
+            {VU_BARS.map((h, i) => (
+              <span key={i} style={{ width: 3.5, height: h * 0.78, borderRadius: 2, transformOrigin: "bottom", background: "linear-gradient(180deg,#c9a227,#b8862e)", animation: `anbVu 1s ease-in-out ${i * 0.15}s infinite` }} />
+            ))}
           </span>
         </div>
       )}
