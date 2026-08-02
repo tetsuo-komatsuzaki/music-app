@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createAssignment, sendMessageToStudent, sendCelebration } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
-import { createObservation } from "@/app/actions/teacherObservations"
+import { createObservation, recordObservationProgress } from "@/app/actions/teacherObservations"
 import { OBSERVATION_CATALOG, OBSERVATION_TAG_BY_ID, OBSERVATION_SEVERITIES } from "@/app/_libs/observationCatalog"
 import { BODY_VIEWS, NON_BODY_CATEGORIES, spotsOf, type BodyViewId } from "@/app/_libs/bodyMap"
 import BodyFigure from "@/app/components/BodyFigure"
@@ -19,6 +19,38 @@ function latestPerTag(observations: ObservationRow[]): BodyObsItem[] {
     for (const t of o.tagIds) if (!m.has(t)) m.set(t, { tagId: t, severity: o.severity, date: o.date })
   }
   return [...m.values()]
+}
+
+/** レッスン直後の経過記録 (まだ / 🌿良くなってきた / 🌱克服)。克服だけ二度押し確認 */
+function ObsProgressButtons({ studentId, tag }: { studentId: string; tag: BodyObsItem }) {
+  const router = useRouter()
+  const [pending, start] = useTransition()
+  const [confirmResolve, setConfirmResolve] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  const record = (status: "still" | "improving" | "resolved") => {
+    setErr(null)
+    start(async () => {
+      const r = await recordObservationProgress({ studentId, tagId: tag.tagId, status })
+      if (r.ok) { setConfirmResolve(false); router.refresh() }
+      else setErr(r.error)
+    })
+  }
+  const b: React.CSSProperties = { fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1px solid #e2e6ea", background: "#fff", color: "#6b7885" }
+
+  return (
+    <div style={{ display: "flex", gap: 5, flexWrap: "wrap", alignItems: "center", opacity: pending ? 0.5 : 1 }}>
+      <button type="button" disabled={pending} onClick={() => record("still")} style={b}>まだある</button>
+      <button type="button" disabled={pending} onClick={() => record("improving")} style={{ ...b, color: "#2e8b57", borderColor: "#cfe6d8" }}>🌿 良くなってきた</button>
+      {confirmResolve ? (
+        <button type="button" disabled={pending} onClick={() => record("resolved")}
+          style={{ ...b, color: "#fff", background: "#2e8b57", borderColor: "#2e8b57" }}>🌱 克服にする（もう一度押して確定）</button>
+      ) : (
+        <button type="button" disabled={pending} onClick={() => setConfirmResolve(true)} style={{ ...b, color: "#2e8b57", borderColor: "#cfe6d8" }}>🌱 克服</button>
+      )}
+      {err && <span style={{ fontSize: 10, color: "#c0392b" }}>{err}</span>}
+    </div>
+  )
 }
 import { goalLabel, dueInfo, DUE_COLOR, scorePassed, goalResult } from "@/app/_libs/assignmentGoal"
 
@@ -406,7 +438,12 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
     })
   }
 
-  const sevColor = (s: string | null) => (s === "focus" ? { c: "#c0473a", bg: "#fbecea", bd: "#f0d4d0", l: "要重点" } : s === "mild" ? { c: "#b7823a", bg: "#faf1e1", bd: "#ecdfc8", l: "気になる" } : null)
+  const sevColor = (s: string | null) =>
+    s === "focus" ? { c: "#c0473a", bg: "#fbecea", bd: "#f0d4d0", l: "要重点" }
+    : s === "mild" ? { c: "#b7823a", bg: "#faf1e1", bd: "#ecdfc8", l: "気になる" }
+    : s === "improving" ? { c: "#2e8b57", bg: "#e9f5ee", bd: "#cfe6d8", l: "🌿 良くなってきた" }
+    : s === "resolved" ? { c: "#2e8b57", bg: "#e9f5ee", bd: "#cfe6d8", l: "🌱 克服" }
+    : null
 
   return (
     <Card>
@@ -530,10 +567,12 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
       )}
       {msg && <div style={{ fontSize: 12, margin: "0 0 8px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
 
-      {/* 癖マップ (レッスン前のひと目確認): タグごとに最新の所見を体の場所で表示 */}
+      {/* 癖マップ (レッスン前後のひと目確認): タグごとに最新の所見を体の場所で表示。
+          レッスン直後はここから経過をワンタップ記録 (まだ/🌿良くなってきた/🌱克服) */}
       {!open && observations.length > 0 && (
         <div style={{ marginBottom: 12 }}>
-          <BodyObsMap tags={latestPerTag(observations)} />
+          <BodyObsMap tags={latestPerTag(observations)}
+            renderTagActions={(t) => <ObsProgressButtons studentId={studentId} tag={t} />} />
         </div>
       )}
 
@@ -542,7 +581,7 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
         !open && <div style={{ fontSize: 12, color: "#9aa6b3" }}>まだ所見はありません。レッスン後に気づいた癖を記録すると、生徒に届き、カルテに蓄積されます。</div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {observations.map((o) => {
+          {observations.slice(0, 10).map((o) => {
             const sev = sevColor(o.severity)
             return (
               <div key={o.id} style={{ border: "1px solid #eef1f4", borderRadius: 10, padding: "9px 11px" }}>

@@ -2,7 +2,10 @@
 
 // 癖マップの共通表示 (2026-08-02): 6ビューのサムネイル+件数バッジ → 部位ハイライト+タグ一覧。
 // 生徒の成長カルテと先生の生徒カルテの両方から使う (タグごと最新の所見を渡す)。
-import { useState } from "react"
+// 癖は演奏ではなく本人に紐づく。タグの現在状態 = 最新所見の severity:
+//   mild(気になる) / focus(要重点) / improving(🌿良くなってきた) / resolved(🌱克服=卒業)
+// renderTagActions を渡すと各タグ行に操作UIが出る (先生の経過記録用)。
+import { useState, type ReactNode } from "react"
 import { BODY_VIEWS, SPOT_BY_TAG, spotsOf, type BodyViewId } from "@/app/_libs/bodyMap"
 import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
 import BodyFigure from "@/app/components/BodyFigure"
@@ -16,16 +19,24 @@ export interface BodyObsItem {
 const BAD = { c: "#c0473a", bg: "#fbecea", bd: "#f0d4d0" }
 const SUB = "#8a9099"
 
-export default function BodyObsMap({ tags }: { tags: BodyObsItem[] }) {
+function sevPill(s: string | null) {
+  if (s === "focus") return { l: "要重点", c: BAD.c, bg: BAD.bg, bd: BAD.bd }
+  if (s === "improving") return { l: "🌿 良くなってきた", c: "#2e8b57", bg: "#e9f5ee", bd: "#cfe6d8" }
+  return { l: "気になる", c: "#b7823a", bg: "#faf1e1", bd: "#ecdfc8" }
+}
+
+export default function BodyObsMap({ tags, renderTagActions }: {
+  tags: BodyObsItem[]
+  renderTagActions?: (tag: BodyObsItem) => ReactNode
+}) {
   const [viewId, setViewId] = useState<BodyViewId | null>(null)
 
-  const sevPill = (s: string | null) =>
-    s === "focus"
-      ? { l: "要重点", c: BAD.c, bg: BAD.bg, bd: BAD.bd }
-      : { l: "気になる", c: "#b7823a", bg: "#faf1e1", bd: "#ecdfc8" }
+  // 🌱克服したタグはマップから卒業し、下部の「克服した癖」に移る
+  const active = tags.filter((t) => t.severity !== "resolved" && OBSERVATION_TAG_BY_ID[t.tagId])
+  const resolved = tags.filter((t) => t.severity === "resolved" && OBSERVATION_TAG_BY_ID[t.tagId])
 
-  const tagsOf = (v: BodyViewId): BodyObsItem[] => tags.filter((t) => SPOT_BY_TAG[t.tagId]?.view === v)
-  const nonBody = tags.filter((t) => !SPOT_BY_TAG[t.tagId] && OBSERVATION_TAG_BY_ID[t.tagId])
+  const tagsOf = (v: BodyViewId): BodyObsItem[] => active.filter((t) => SPOT_BY_TAG[t.tagId]?.view === v)
+  const nonBody = active.filter((t) => !SPOT_BY_TAG[t.tagId])
 
   const sel = viewId ? BODY_VIEWS.find((v) => v.id === viewId)! : null
   const selTags = viewId ? tagsOf(viewId) : []
@@ -81,10 +92,13 @@ export default function BodyObsMap({ tags }: { tags: BodyObsItem[] }) {
                 {selTags.map((t) => {
                   const sev = sevPill(t.severity)
                   return (
-                    <div key={t.tagId} style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", border: "1px solid #eef1f4", borderRadius: 9, padding: "7px 10px" }}>
-                      <span style={{ fontSize: 9.5, fontWeight: 800, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "2px 7px" }}>{sev.l}</span>
-                      <span style={{ fontSize: 11.5, fontWeight: 700, color: "#2b3742" }}>{OBSERVATION_TAG_BY_ID[t.tagId]?.label ?? t.tagId}</span>
-                      <span style={{ marginLeft: "auto", fontSize: 9.5, color: "#aab2bb" }}>{t.date}</span>
+                    <div key={t.tagId} style={{ border: "1px solid #eef1f4", borderRadius: 9, padding: "7px 10px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 9.5, fontWeight: 800, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "2px 7px" }}>{sev.l}</span>
+                        <span style={{ fontSize: 11.5, fontWeight: 700, color: "#2b3742" }}>{OBSERVATION_TAG_BY_ID[t.tagId]?.label ?? t.tagId}</span>
+                        <span style={{ marginLeft: "auto", fontSize: 9.5, color: "#aab2bb" }}>{t.date}</span>
+                      </div>
+                      {renderTagActions && <div style={{ marginTop: 6 }}>{renderTagActions(t)}</div>}
                     </div>
                   )
                 })}
@@ -98,15 +112,33 @@ export default function BodyObsMap({ tags }: { tags: BodyObsItem[] }) {
       {nonBody.length > 0 && (
         <div style={{ marginTop: 10 }}>
           <div style={{ fontSize: 11, fontWeight: 800, color: SUB, marginBottom: 6 }}>体の外の癖（リズム・習慣など）</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {nonBody.map((t) => {
               const sev = sevPill(t.severity)
               return (
-                <span key={t.tagId} style={{ fontSize: 10.5, fontWeight: 700, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "4px 10px" }}>
-                  {OBSERVATION_TAG_BY_ID[t.tagId]?.label ?? t.tagId}
-                </span>
+                <div key={t.tagId} style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "4px 10px" }}>
+                    {OBSERVATION_TAG_BY_ID[t.tagId]?.label ?? t.tagId}
+                  </span>
+                  {renderTagActions && renderTagActions(t)}
+                </div>
               )
             })}
+          </div>
+        </div>
+      )}
+
+      {/* 🌱 克服した癖 (卒業リスト) */}
+      {resolved.length > 0 && (
+        <div style={{ marginTop: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 800, color: "#2e8b57", marginBottom: 6 }}>🌱 克服した癖</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {resolved.map((t) => (
+              <span key={t.tagId} style={{ fontSize: 10.5, fontWeight: 700, color: "#7b8a80", background: "#f2f6f3", border: "1px solid #dbe6de", borderRadius: 999, padding: "4px 10px", textDecoration: "line-through" }}>
+                {OBSERVATION_TAG_BY_ID[t.tagId]?.label ?? t.tagId}
+                <span style={{ textDecoration: "none", marginLeft: 5, fontSize: 9.5, color: "#9aa6a0" }}>{t.date}</span>
+              </span>
+            ))}
           </div>
         </div>
       )}

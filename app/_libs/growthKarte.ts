@@ -389,7 +389,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
         }),
         prisma.teacherObservation.findMany({
           where: { studentId: userId, teacherId: link.teacherId },
-          orderBy: { createdAt: "desc" }, take: 15,
+          orderBy: { createdAt: "desc" }, take: 40, // 経過記録で行が増えるためタグ最新状態の網羅用に多めに
           select: { createdAt: true, tagIds: true, severity: true },
         }),
         prisma.message.findMany({
@@ -412,17 +412,20 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
         at: f.updatedAt.getTime(), date: fmtJp(f.updatedAt), kind: "feedback",
         text: `${link.teacher.name} 先生が「${(f.scoreId && fbTitles.get(f.scoreId)) ?? "曲"}」を添削`,
       })
-      for (const o of obs) {
+      for (const [oi, o] of obs.entries()) {
         for (const t of o.tagIds) {
-          recentObsTagIds.add(t)
           if (!bodyObsMap.has(t)) bodyObsMap.set(t, { tagId: t, severity: o.severity, date: fmtJp(o.createdAt) })
         }
+        if (oi >= 15) continue // 物語に流すのは直近15件まで (残りは状態把握のみ)
         const tags = o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).slice(0, 3).join("・")
-        events.push({
-          at: o.createdAt.getTime(), date: fmtJp(o.createdAt), kind: "observation",
-          text: `先生の所見${o.severity === "focus" ? "【要重点】" : ""}：${tags || "コメント"}`,
-        })
+        const text =
+          o.severity === "resolved" ? `🌱 癖を克服：${tags || "コメント"}` :
+          o.severity === "improving" ? `🌿 癖が良くなってきた：${tags || "コメント"}` :
+          `先生の所見${o.severity === "focus" ? "【要重点】" : ""}：${tags || "コメント"}`
+        events.push({ at: o.createdAt.getTime(), date: fmtJp(o.createdAt), kind: "observation", text })
       }
+      // 技術マップの「!」= 現在アクティブな癖のみ (最新が🌱克服のタグは外す)
+      for (const [t, e] of bodyObsMap) if (e.severity !== "resolved") recentObsTagIds.add(t)
       for (const c of cels) events.push({
         at: c.createdAt.getTime(), date: fmtJp(c.createdAt), kind: "celebration",
         text: `🎉 先生からお祝い：${c.body.slice(0, 40)}${c.body.length > 40 ? "…" : ""}`,
@@ -676,13 +679,17 @@ export async function buildSkillDetail(
 
   // 注釈: 関連する所見 + この技術のレッスンクリア
   const related = obsRows.filter((o) => o.tagIds.some((t) => def.obsTagIds.includes(t)))
-  const annotations: SkillAnnotation[] = related.map((o) => ({
-    at: o.createdAt.getTime(),
-    date: fmtJp(o.createdAt),
-    kind: "observation" as const,
-    label: o.tagIds.filter((t) => def.obsTagIds.includes(t)).map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).join("・") || "所見",
-    severity: o.severity,
-  }))
+  const annotations: SkillAnnotation[] = related.map((o) => {
+    const base = o.tagIds.filter((t) => def.obsTagIds.includes(t)).map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).join("・") || "所見"
+    const prefix = o.severity === "resolved" ? "🌱克服 " : o.severity === "improving" ? "🌿 " : ""
+    return {
+      at: o.createdAt.getTime(),
+      date: fmtJp(o.createdAt),
+      kind: "observation" as const,
+      label: prefix + base,
+      severity: o.severity,
+    }
+  })
   for (const c of clears) {
     const hit = def.tagType === "technique"
       ? c.tagType === "technique" && def.tagKeys.includes(c.tagKey)

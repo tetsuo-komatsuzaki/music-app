@@ -42,3 +42,54 @@ export async function createObservation(input: {
     return { ok: false, error: "保存に失敗しました" }
   }
 }
+
+// 癖の経過記録 (2026-08-02): レッスン直後に先生がワンタップで更新する。
+// 新しい所見行を積む(履歴が時系列で残る)。タグの現在状態 = そのタグを含む最新行の severity。
+//  - still     … まだある (元の程度で再記録して日付を更新)
+//  - improving … 良くなってきた
+//  - resolved  … 🌱克服 (癖マップから卒業・あゆみに🌱イベント)
+export async function recordObservationProgress(input: {
+  studentId: string
+  tagId: string
+  status: "still" | "improving" | "resolved"
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  if (auth.user.dbUser.role !== "teacher") return { ok: false, error: "先生アカウントが必要です" }
+  const teacherId = auth.user.dbUser.id
+
+  const tag = OBSERVATION_TAG_BY_ID[input.tagId]
+  if (!tag) return { ok: false, error: "不明なタグです" }
+  if (!["still", "improving", "resolved"].includes(input.status)) return { ok: false, error: "不明な状態です" }
+
+  try {
+    const link = await prisma.teacherStudent.findUnique({
+      where: { teacherId_studentId: { teacherId, studentId: input.studentId } },
+      select: { id: true },
+    })
+    if (!link) return { ok: false, error: "担当していない生徒です" }
+
+    let severity: string
+    if (input.status === "still") {
+      const prev = await prisma.teacherObservation.findFirst({
+        where: { teacherId, studentId: input.studentId, tagIds: { has: input.tagId } },
+        orderBy: { createdAt: "desc" },
+        select: { severity: true },
+      })
+      severity = prev?.severity === "focus" ? "focus" : "mild"
+    } else {
+      severity = input.status
+    }
+
+    await prisma.teacherObservation.create({
+      data: { teacherId, studentId: input.studentId, tagIds: [input.tagId], severity, comment: null },
+    })
+
+    // まだある(still)はメール通知しない (状態維持のノイズになるため)
+    if (input.status === "improving") await notifyStudent(input.studentId, teacherId, "observation", `🌿「${tag.label}」が良くなってきた、と先生が記録しました`)
+    if (input.status === "resolved") await notifyStudent(input.studentId, teacherId, "observation", `🌱「${tag.label}」の癖を克服！と先生が記録しました`)
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "保存に失敗しました" }
+  }
+}

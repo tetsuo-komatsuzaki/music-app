@@ -152,7 +152,7 @@ export default async function StudentKartePage({
     const rows = await prisma.teacherObservation.findMany({
       where: { teacherId: me.id, studentId },
       orderBy: { createdAt: "desc" },
-      take: 10,
+      take: 40, // 癖マップのタグ最新状態の網羅用 (履歴リスト表示は10件に絞る)
       select: { id: true, tagIds: true, severity: true, comment: true, createdAt: true },
     })
     observations = rows.map((o) => ({
