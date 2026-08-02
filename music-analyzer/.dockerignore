@@ -10,6 +10,8 @@ data/
 docs/
 scripts/
 *.json
+# 診断カタログはランタイム必須 (2026-08-02: これが無くて診断が2ヶ月沈黙した)
+!lib/subtask_catalog.json
 *.md
 get_result.py
 generate_test_data.py
