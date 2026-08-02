@@ -6,6 +6,8 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createAssignment, sendMessageToStudent, sendCelebration } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
+import { createObservation } from "@/app/actions/teacherObservations"
+import { OBSERVATION_CATALOG, OBSERVATION_TAG_BY_ID, OBSERVATION_SEVERITIES } from "@/app/_libs/observationCatalog"
 import { goalLabel, dueInfo, DUE_COLOR, scorePassed, goalResult } from "@/app/_libs/assignmentGoal"
 
 type Target = { id: string; title: string; group?: string }
@@ -35,6 +37,7 @@ type AssignmentRow = {
 }
 
 type Msg = { id: string; fromTeacher: boolean; body: string; time: string }
+type ObservationRow = { id: string; tagIds: string[]; severity: string | null; comment: string | null; date: string }
 type WorkItem = { title: string; cat: string; avg: number }
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
 type Recording = { id: string; kind: "score" | "practice"; title: string; cat: string; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[] }
@@ -42,6 +45,7 @@ type Recording = { id: string; kind: "score" | "practice"; title: string; cat: s
 export default function StudentKarte({
   userId, studentId, studentName, briefing, scoreTargets, itemTargets,
   allScoreTargets, allItemTargets, working, recordings, assignments, messages,
+  observations = [],
 }: {
   userId: string
   studentId: string
@@ -57,6 +61,8 @@ export default function StudentKarte({
   recordings: Recording[]
   assignments: AssignmentRow[]
   messages: Msg[]
+  /** 先生の所見 (癖タグ) 履歴 */
+  observations?: ObservationRow[]
 }) {
   const [tab, setTab] = useState<"overview" | "practice" | "homework" | "review" | "message">("overview")
   return (
@@ -81,7 +87,7 @@ export default function StudentKarte({
         ))}
       </div>
 
-      {tab === "overview" && <Overview b={briefing} studentId={studentId} />}
+      {tab === "overview" && <Overview b={briefing} studentId={studentId} observations={observations} />}
       {tab === "practice" && <PracticeTab studentId={studentId} working={working} recordings={recordings} />}
       {tab === "homework" && (
         <Homework studentId={studentId} scoreTargets={allScoreTargets} itemTargets={allItemTargets} assignments={assignments} />
@@ -281,7 +287,7 @@ function Card({ children }: { children: React.ReactNode }) {
   )
 }
 
-function Overview({ b, studentId }: { b: Briefing; studentId: string }) {
+function Overview({ b, studentId, observations }: { b: Briefing; studentId: string; observations: ObservationRow[] }) {
   return (
     <>
       {/* 生徒の目標 (目標共有・2026-08-02) */}
@@ -339,7 +345,135 @@ function Overview({ b, studentId }: { b: Briefing; studentId: string }) {
           </>
         )}
       </Card>
+
+      {/* 所見 (癖タグ・2026-08-02): 選択式で記録→生徒にも表示・集計してアドバイスに活用 */}
+      <ObservationSection studentId={studentId} observations={observations} />
     </>
+  )
+}
+
+function ObservationSection({ studentId, observations }: { studentId: string; observations: ObservationRow[] }) {
+  const router = useRouter()
+  const [open, setOpen] = useState(false)
+  const [catId, setCatId] = useState(OBSERVATION_CATALOG[0].id)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [severity, setSeverity] = useState<"" | "mild" | "focus">("")
+  const [comment, setComment] = useState("")
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [pending, start] = useTransition()
+
+  const cat = OBSERVATION_CATALOG.find((c) => c.id === catId) ?? OBSERVATION_CATALOG[0]
+  const toggleTag = (id: string) =>
+    setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n })
+
+  const save = () => {
+    setMsg(null)
+    start(async () => {
+      const r = await createObservation({
+        studentId,
+        tagIds: [...selected],
+        severity: severity || null,
+        comment: comment || null,
+      })
+      if (r.ok) {
+        setMsg({ ok: true, text: "所見を記録しました（生徒にも届きます）" })
+        setSelected(new Set()); setSeverity(""); setComment(""); setOpen(false)
+        router.refresh()
+      } else {
+        setMsg({ ok: false, text: r.error })
+      }
+    })
+  }
+
+  const sevColor = (s: string | null) => (s === "focus" ? { c: "#c0473a", bg: "#fbecea", bd: "#f0d4d0", l: "要重点" } : s === "mild" ? { c: "#b7823a", bg: "#faf1e1", bd: "#ecdfc8", l: "気になる" } : null)
+
+  return (
+    <Card>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: "#6b7885" }}>📋 所見（癖の記録）</span>
+        {!open && (
+          <button type="button" onClick={() => { setOpen(true); setMsg(null) }}
+            style={{ marginLeft: "auto", fontSize: 11.5, fontWeight: 800, color: "#2b3742", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 8, padding: "6px 12px", cursor: "pointer" }}>
+            ＋ 記録する
+          </button>
+        )}
+      </div>
+
+      {open && (
+        <div style={{ border: "1px solid #eef1f4", borderRadius: 12, padding: 12, marginBottom: 10 }}>
+          {/* 分類タブ */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 9 }}>
+            {OBSERVATION_CATALOG.map((c) => (
+              <button key={c.id} type="button" onClick={() => setCatId(c.id)}
+                style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: catId === c.id ? "#2b3742" : "#e2e6ea", background: catId === c.id ? "#2b3742" : "#fff", color: catId === c.id ? "#fff" : "#6b7885" }}>
+                {c.emoji} {c.label}
+              </button>
+            ))}
+          </div>
+          {/* タグ選択 */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {cat.tags.map((t) => (
+              <button key={t.id} type="button" onClick={() => toggleTag(t.id)}
+                style={{ fontSize: 11.5, fontWeight: 700, borderRadius: 9, padding: "6px 11px", cursor: "pointer", border: "1px solid", borderColor: selected.has(t.id) ? "#4a5bd0" : "#e2e6ea", background: selected.has(t.id) ? "#eef0fc" : "#fff", color: selected.has(t.id) ? "#4a5bd0" : "#4a5766" }}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+          {/* 選択中 (他分類も含む) */}
+          {selected.size > 0 && (
+            <div style={{ fontSize: 10.5, color: "#6b7885", marginTop: 8 }}>
+              選択中: {[...selected].map((id) => OBSERVATION_TAG_BY_ID[id]?.label).filter(Boolean).join("・")}
+            </div>
+          )}
+          {/* 程度 */}
+          <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+            {OBSERVATION_SEVERITIES.map((s) => (
+              <button key={s.id} type="button" onClick={() => setSeverity((cur) => (cur === s.id ? "" : s.id))}
+                style={{ flex: 1, fontSize: 11.5, fontWeight: 800, borderRadius: 8, padding: "7px 0", cursor: "pointer", border: "1px solid", borderColor: severity === s.id ? "#2b3742" : "#e2e6ea", background: severity === s.id ? "#2b3742" : "#fff", color: severity === s.id ? "#fff" : "#6b7885" }}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+          <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2}
+            placeholder="補足コメント（任意・「その他」の内容もここに）"
+            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 12.5, marginTop: 10, resize: "vertical" }} />
+          <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+            <button type="button" onClick={() => setOpen(false)}
+              style={{ flex: 1, fontSize: 12, fontWeight: 800, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 9, padding: 9, cursor: "pointer" }}>キャンセル</button>
+            <button type="button" onClick={save} disabled={pending}
+              style={{ flex: 2, fontSize: 12, fontWeight: 800, color: "#fff", background: "#2b3742", border: "none", borderRadius: 9, padding: 9, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+              {pending ? "保存中…" : "記録する"}
+            </button>
+          </div>
+        </div>
+      )}
+      {msg && <div style={{ fontSize: 12, margin: "0 0 8px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
+
+      {/* 履歴 */}
+      {observations.length === 0 ? (
+        !open && <div style={{ fontSize: 12, color: "#9aa6b3" }}>まだ所見はありません。レッスン後に気づいた癖を記録すると、生徒に届き、カルテに蓄積されます。</div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {observations.map((o) => {
+            const sev = sevColor(o.severity)
+            return (
+              <div key={o.id} style={{ border: "1px solid #eef1f4", borderRadius: 10, padding: "9px 11px" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, alignItems: "center" }}>
+                  {sev && <span style={{ fontSize: 10, fontWeight: 800, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "2px 8px" }}>{sev.l}</span>}
+                  {o.tagIds.map((t) => (
+                    <span key={t} style={{ fontSize: 10.5, fontWeight: 700, color: "#4a5bd0", background: "#eef0fc", border: "1px solid #d7dcf6", borderRadius: 8, padding: "3px 8px" }}>
+                      {OBSERVATION_TAG_BY_ID[t]?.label ?? t}
+                    </span>
+                  ))}
+                  <span style={{ marginLeft: "auto", fontSize: 10, color: "#aab2bb" }}>{o.date}</span>
+                </div>
+                {o.comment && <div style={{ fontSize: 12, color: "#4a5766", marginTop: 5, lineHeight: 1.55 }}>💬 {o.comment}</div>}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </Card>
   )
 }
 

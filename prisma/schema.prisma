@@ -85,6 +85,8 @@ model User {
   teacherProfile      TeacherProfile?   @relation("profileTeacher")
   lessonsAsTeacher    Lesson[]          @relation("lessonTeacher")
   lessonsAsStudent    Lesson[]          @relation("lessonStudent")
+  observationsAsTeacher TeacherObservation[] @relation("obsTeacher")
+  observationsAsStudent TeacherObservation[] @relation("obsStudent")
 
   @@index([role])
 }
@@ -1217,6 +1219,25 @@ model TeacherFeedback {
   @@unique([teacherId, studentId, scoreId])
   @@unique([teacherId, studentId, practiceItemId])
   @@index([studentId])
+}
+
+// 先生の所見 (2026-08-02 成長カルテ Phase2先行)。自由記述ではなく癖タグ(選択式)で
+// 構造化して記録する。タグの正本はコード定義 (app/_libs/observationCatalog.ts)。
+// 生徒にも表示される。集計して解析データとの相関・処方箋提案に使う。
+model TeacherObservation {
+  id        String   @id @default(cuid())
+  teacherId String
+  studentId String
+  tagIds    String[] // observationCatalog のタグID (複数)
+  severity  String? // "mild"=気になる / "focus"=要重点
+  comment   String? // 任意の補足 (「その他」タグの内容もここ)
+  createdAt DateTime @default(now())
+
+  teacher User @relation("obsTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  student User @relation("obsStudent", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, createdAt])
+  @@index([teacherId, studentId, createdAt])
 }
 
 // 先生プロフィール (2026-08-01 Phase2)。先生が自分で編集。「先生を探す」ページに掲載。

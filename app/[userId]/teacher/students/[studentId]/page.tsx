@@ -146,6 +146,23 @@ export default async function StudentKartePage({
   // 宿題の「達成/マスター目標」自動判定用に、対象曲の達成状態をまとめて取得
   const achFlags = await getAchievementFlags(studentId, assignments.map((a) => a.scoreId))
 
+  // 先生の所見 (2026-08-02): 癖タグの記録履歴 (直近10件)
+  let observations: { id: string; tagIds: string[]; severity: string | null; comment: string | null; date: string }[] = []
+  try {
+    const rows = await prisma.teacherObservation.findMany({
+      where: { teacherId: me.id, studentId },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      select: { id: true, tagIds: true, severity: true, comment: true, createdAt: true },
+    })
+    observations = rows.map((o) => ({
+      id: o.id, tagIds: o.tagIds, severity: o.severity, comment: o.comment,
+      date: o.createdAt.toLocaleDateString("ja-JP"),
+    }))
+  } catch {
+    observations = []
+  }
+
   // 生徒の目標 (目標共有・2026-08-02): オンボの旅の地図(目標曲/時期/エピックウィン)を先生にも見せる
   let studentGoal: { songName: string; songStar: number | null; goalDate: string | null; epicWin: string | null } | null = null
   try {
@@ -229,6 +246,7 @@ export default async function StudentKartePage({
         })),
         goal: studentGoal,
       }}
+      observations={observations}
       scoreTargets={scoreTargets}
       itemTargets={itemTargets}
       allScoreTargets={allScoreTargets}

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { getAchievementFlags } from "@/app/_libs/achievementFlags"
+import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
 import MyTeacherClient from "./MyTeacherClient"
 
 export const metadata = { title: "先生とのやりとり" }
@@ -177,6 +178,28 @@ export default async function MyTeacherPage({
       text: `${m.fromTeacher ? "💬 先生" : "🙋 あなた"}：${m.body}`,
     })
   }
+
+  // 先生の所見 (癖タグ・2026-08-02): 生徒にも表示する
+  try {
+    const obsRows = await prisma.teacherObservation.findMany({
+      where: { studentId: me.id, teacherId: link.teacher.id },
+      orderBy: { createdAt: "desc" },
+      take: 30,
+      select: { tagIds: true, severity: true, comment: true, createdAt: true },
+    })
+    for (const o of obsRows) {
+      const tags = o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).join("・")
+      const sev = o.severity === "focus" ? "【要重点】" : ""
+      const body = [tags, o.comment].filter(Boolean).join(" — ")
+      events.push({
+        at: o.createdAt.getTime(),
+        when: o.createdAt.toLocaleDateString("ja-JP"),
+        kind: "comment",
+        text: `📋 先生の所見${sev}：${body}`,
+      })
+    }
+  } catch { /* テーブル未整備時は無視 */ }
+
   events.sort((x, y) => y.at - x.at)
 
   return (
