@@ -22,13 +22,14 @@ async function main() {
   const user = await prisma.user.findFirst({ select: { id: true } })
   if (!user) throw new Error("no user")
 
-  // 上級者★6の実回答を再現(単体テストcase11相当)
+  // 上級者★6の実回答を再現(登録star整合ラダー 2026-08-02・logic.test.ts G6ケース相当)
   const result = judge({
     g1: true,
-    g2: ["トリル", "スタッカート", "スピッカート"],
-    g3: true,
-    g4: ["2nd", "3rd", "4th", "5th", "6th+"],
-    g5: true,
+    g2: ["スタッカート", "ピチカート", "トレモロ"],
+    g3: ["スピッカート", "トリル"],
+    g4: ["ビブラート", "3rd"],
+    g5: ["5th", "グリッサンド", "ハーモニクス"],
+    g6: ["2nd", "4th", "6th+", "連続重音"],
   })
   const input = {
     answers: {
@@ -37,7 +38,7 @@ async function main() {
       q5: "すらすら読める", q6: "30分 / 日",
       q8: "憧れのあの曲を完璧に弾きたい", goalSong: "イザイ 無伴奏ソナタ",
     },
-    ladder: { g1: true, g2: ["トリル", "スタッカート", "スピッカート"], g3: true, g4: ["2nd", "3rd", "4th", "5th", "6th+"], g5: true },
+    ladder: { g1: true, g2: ["スタッカート", "ピチカート", "トレモロ"], g3: ["スピッカート", "トリル"], g4: ["ビブラート", "3rd"], g5: ["5th", "グリッサンド", "ハーモニクス"], g6: ["2nd", "4th", "6th+", "連続重音"] },
     screen: "SCR12",
     seg: { Q2: 1, ladder: 1, Q3: 1, Q4: 1, Q5: 1, Q6: 1, goal: 1 },
     star: result.star,

@@ -1,12 +1,12 @@
 "use client"
 
 // ============================================================
-// /onboarding — 画面ルーター (C2・2026-07-11)
-// フロー = 指示書 §0-3 を 1:1 でコード化:
+// /onboarding — 画面ルーター (2026-08-02 登録star整合版)
+// フロー:
 //   SCR-01 → 02 → 03 → 04(Q2)
 //    ├ これから始める → ★1確定・ラダースキップ → SCR-07
-//    └ 経験者 → L_G1..G5(+G3補足) → SCR-07
-//   SCR-07以降(Q3〜完了)は C3/C4 で実装。
+//    └ 経験者 → L_G1..G6(+G3補足) → SCR-07
+//   各関門 Gn = ★n帯の代表技術 (正本: docs/arcoda-design-spec.md §2-2b)。
 // 検証証跡: ラダー確定時に ★/PROVISIONALフラグを console に出力。
 // ============================================================
 
@@ -143,7 +143,8 @@ function Scr04() {
   )
 }
 
-/* ── ★判定ラダー G1〜G5 (§27-3) ── */
+/* ── ★判定ラダー G1〜G6 (2026-08-02 登録star整合版・§2-2b)
+     各関門 Gn = ★n帯の代表技術。欠けがあれば★nで確定 (選択分は仮習得)。 ── */
 function GateG1() {
   const s = useOnboarding()
   const finalize = useFinalize()
@@ -151,11 +152,11 @@ function GateG1() {
     <>
       <Header />
       <YesNoGate
-        question="1stポジションで、4の指まで使って弾ける?"
-        yesLabel="はい、弾ける"
+        question="スラー(2つの音を1弓でつなげる)はできる?"
+        yesLabel="はい、できる"
         onAnswer={(v) => {
           s.setLadder({ g1: v })
-          s.setSeg("ladder", 0.2)
+          s.setSeg("ladder", 0.15)
           if (!v) {
             finalize({ g1: v })
             s.go("SCR07")
@@ -175,14 +176,14 @@ function GateG2() {
       <MultiGate
         question="この中で、できるものをぜんぶ選んで!"
         options={[
-          { value: "トリル", desc: "2つの音をすばやく交互に弾く" },
           { value: "スタッカート", desc: "音を短く切って弾く" },
-          { value: "スピッカート", desc: "弓を弦の上で跳ねさせる" },
+          { value: "ピチカート", desc: "指で弦をはじく" },
+          { value: "トレモロ", desc: "同じ音を細かくくり返す" },
         ]}
         noneLabel="どれもまだできない"
         onConfirm={(sel) => {
           s.setLadder({ g2: sel })
-          s.setSeg("ladder", 0.4)
+          s.setSeg("ladder", 0.3)
           if (sel.length < 3) {
             finalize({ g2: sel })
             s.go("SCR07")
@@ -198,12 +199,17 @@ function GateG3() {
   return (
     <>
       <Header />
-      <YesNoGate
-        question="ビブラートはできる?"
-        onAnswer={(v) => {
-          s.setLadder({ g3: v })
-          s.setSeg("ladder", 0.6)
-          if (!v) s.go("L_G3S")
+      <MultiGate
+        question="この中で、できるものをぜんぶ選んで!"
+        options={[
+          { value: "スピッカート", desc: "弓を弦の上で跳ねさせる" },
+          { value: "トリル", desc: "2つの音をすばやく交互に弾く" },
+        ]}
+        noneLabel="どれもまだできない"
+        onConfirm={(sel) => {
+          s.setLadder({ g3: sel })
+          s.setSeg("ladder", 0.45)
+          if (sel.length < 2) s.go("L_G3S")
           else s.go("L_G4")
         }}
       />
@@ -219,7 +225,7 @@ function GateG3S() {
     <>
       <Header />
       <YesNoGate
-        question="ポジション移動はできる?"
+        question="ポジション移動(3rd)はできる?"
         onAnswer={(v) => {
           s.setLadder({ g3sup: v })
           finalize({ g3sup: v })
@@ -237,22 +243,16 @@ function GateG4() {
     <>
       <Header />
       <MultiGate
-        question="できるポジションをぜんぶ選んで!"
+        question="この中で、できるものをぜんぶ選んで!"
         options={[
-          { value: "2nd" },
-          { value: "3rd" },
-          { value: "4th" },
-          { value: "5th" },
-          { value: "6th+", desc: "6thポジション以上" },
+          { value: "ビブラート", desc: "音をゆらして響かせる" },
+          { value: "3rd", desc: "3rdポジションへの移動" },
         ]}
-        noneLabel="ポジション移動はまだ"
+        noneLabel="どちらもまだできない"
         onConfirm={(sel) => {
           s.setLadder({ g4: sel })
-          s.setSeg("ladder", 0.8)
-          const has = (p: string) => sel.includes(p)
-          const stopsAt4 =
-            sel.length === 0 || (!has("2nd") && !has("4th") && !has("5th") && !has("6th+"))
-          if (stopsAt4) {
+          s.setSeg("ladder", 0.6)
+          if (sel.length < 2) {
             finalize({ g4: sel })
             s.go("SCR07")
           } else s.go("L_G5")
@@ -268,12 +268,46 @@ function GateG5() {
   return (
     <>
       <Header />
-      <YesNoGate
-        question="重音の音階(2本の弦を同時に)は弾ける?"
-        yesLabel="はい、弾ける"
-        onAnswer={(v) => {
-          s.setLadder({ g5: v })
-          finalize({ g5: v })
+      <MultiGate
+        question="この中で、できるものをぜんぶ選んで!"
+        options={[
+          { value: "5th", desc: "5thポジションへの移動" },
+          { value: "グリッサンド", desc: "指を滑らせて音をつなぐ" },
+          { value: "ハーモニクス", desc: "弦に軽く触れて澄んだ音を出す" },
+        ]}
+        noneLabel="どれもまだできない"
+        onConfirm={(sel) => {
+          s.setLadder({ g5: sel })
+          s.setSeg("ladder", 0.8)
+          if (sel.length < 3) {
+            finalize({ g5: sel })
+            s.go("SCR07")
+          } else s.go("L_G6")
+        }}
+      />
+    </>
+  )
+}
+
+function GateG6() {
+  const s = useOnboarding()
+  const finalize = useFinalize()
+  return (
+    <>
+      <Header />
+      <MultiGate
+        question="さいごに!この中で、できるものをぜんぶ選んで!"
+        options={[
+          { value: "2nd", desc: "2ndポジション" },
+          { value: "4th", desc: "4thポジション" },
+          { value: "6th+", desc: "6thポジション以上" },
+          { value: "連続重音", desc: "重音(2本の弦を同時に)をつづけて弾く" },
+        ]}
+        noneLabel="どれもまだできない"
+        onConfirm={(sel) => {
+          s.setLadder({ g6: sel })
+          s.setSeg("ladder", 0.95)
+          finalize({ g6: sel })
           s.go("SCR07")
         }}
       />
@@ -712,6 +746,7 @@ const SCREENS: Record<ScreenId, () => React.ReactElement> = {
   L_G3S: GateG3S,
   L_G4: GateG4,
   L_G5: GateG5,
+  L_G6: GateG6,
   SCR07: Scr07,
   SCR08A: Scr08A,
   SCR08B: Scr08B,

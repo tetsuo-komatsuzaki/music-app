@@ -1,22 +1,34 @@
 // ============================================================
-// オンボーディング判定ロジック (C2・2026-07-11)
-// 正本: arcoda_onboarding_logic.js (Tetsuo確定) の TypeScript 移植。
-// **数値パラメータの独断変更禁止** (指示書§1)。挙動同一性は
-// scripts/verify-onboarding-logic.ts が参照JS(logic.reference.js)との
-// 全11パターン比較で保証する。
+// オンボーディング判定ロジック (C3・2026-08-02 登録star整合版)
+// 正本: docs/arcoda-design-spec.md §2-2b「技術⭐︎の正」= 学びレッスン教材の登録star。
+// 旧版 (arcoda_onboarding_logic.js のC2移植) は旧⭐︎帯前提で14タグずれていたため、
+// Tetsuo承認 (2026-08-02) のもとラダーの質問構造ごと登録starに合わせて再設計。
+// 各関門 Gn は「★n帯の代表技術」を聞き、欠けがあれば★nで確定する。
+// 検証: app/onboarding/_lib/logic.test.ts (§2-2b準拠の期待パターン)
 // ============================================================
 
-// 2026-07-14 用語改定(Tetsuo指示): モルデント→プラルトリラーとモルデント /
-// ボウ・スタッカート→連続スタッカート (TechniqueTagマスタ・既存データも同時リネーム)
+// 帯 = 登録star (§2-2b)。帯一括付与ルール: 確定★の1つ下の帯まで(1..star-1)+個別聴取分
+// (2026-07-11確定の解釈Aを踏襲)。
 export const BANDS: Record<number, string[]> = {
-  1: ["スラー", "ピチカート"],
-  2: ["スタッカート", "スピッカート", "トリル", "プラルトリラーとモルデント"],
-  3: ["ビブラート", "ポルタート", "トレモロ"],
-  4: ["グリッサンド", "ナチュラル・ハーモニクス"], // ポジションは個別付与(§27-4-3)
-  5: ["連続スタッカート", "リコシェ"],
-  6: [], // ポジション6th以上は個別付与
+  1: ["スラー"],
+  2: ["スタッカート", "ピチカート", "トレモロ", "ポルタート", "連続スタッカート"],
+  3: ["スピッカート", "トリル", "プラルトリラーとモルデント"],
+  4: ["ビブラート", "リコシェ"],
+  5: ["グリッサンド", "ナチュラル・ハーモニクス"],
+  6: [],
 }
 
+// 重音の帯 (§2-2b)。帯一括付与の対象 (tagKey は lessons/content.ts の ds() と同一体系)
+export const DOUBLE_BY_BAND: Record<number, string> = {
+  2: "6度",
+  3: "3度",
+  4: "オクターブ",
+  5: "10度",
+  6: "連続重音",
+}
+
+// ポジションは帯一括付与しない(個別聴取分のみ)。3rd=G4関門 / 5th=G5関門 /
+// 2nd・4th・6th+=G6関門で聴取するため、上位★の通過者は自然に該当ポジションを持つ。
 export const POSITION_TAG: Record<string, string> = {
   "2nd": "ポジション(2nd)", "3rd": "ポジション移動(3rd)", "4th": "ポジション(4th)",
   "5th": "ポジション(5th)", "6th+": "ポジション(6th以上)",
@@ -24,12 +36,20 @@ export const POSITION_TAG: Record<string, string> = {
 
 export type LadderAnswers = {
   beginner?: boolean
+  /** G1 (★1関門): スラーで2音をつなげて弾ける */
   g1?: boolean
-  g2?: string[] // トリル|スタッカート|スピッカート
-  g3?: boolean
+  /** G2 (★2関門): スタッカート|ピチカート|トレモロ */
+  g2?: string[]
+  /** G3 (★3関門): スピッカート|トリル */
+  g3?: string[]
+  /** G3欠け時の補足: 3rdポジ移動可 (★判定に不使用・タグのみ) */
   g3sup?: boolean
-  g4?: string[] // 2nd|3rd|4th|5th|6th+
-  g5?: boolean
+  /** G4 (★4関門): ビブラート|3rd */
+  g4?: string[]
+  /** G5 (★5関門): 5th|グリッサンド|ハーモニクス */
+  g5?: string[]
+  /** G6 (★6関門): 2nd|4th|6th+|連続重音 (1つ以上で★6) */
+  g6?: string[]
 }
 
 export type JudgeResult = {
@@ -40,59 +60,73 @@ export type JudgeResult = {
 }
 
 // ★判定+一括付与。
-// ※ 帯一括付与ルール【確定 2026-07-11】: 「確定★の1つ下の帯まで(1..star-1)+個別聴取分」。
-//    §27-4-3原文「未満(当該★を含む)」は誤記としてTetsuo承認のもと本解釈で確定。
 export function judge(a: LadderAnswers): JudgeResult {
   const notes: string[] = []
-  let star: number
   const tags = new Set<string>()
-  let doubleStops: string[] = []
+  const doubleStops = new Set<string>()
 
+  const g2 = a.g2 || [], g3 = a.g3 || [], g4 = a.g4 || [], g5 = a.g5 || [], g6 = a.g6 || []
+
+  // ★確定: 各関門の代表技術に欠けがあればその★で止まる
+  let star: number
   if (a.beginner) {
-    star = 1 // これから始める → ★1確定・ラダースキップ(§27-2)
+    star = 1 // これから始める → ★1確定・ラダースキップ
   } else if (!a.g1) {
     star = 1 // G1落ち
-  } else if ((a.g2 || []).length < 3) {
-    star = 2 // G2: 1つでも欠け→★2、選択分は仮習得(§27-3)
-    ;(a.g2 || []).forEach((t) => tags.add(t))
-    if ((a.g2 || []).includes("トリル")) tags.add("プラルトリラーとモルデント") // トリルの短縮形として同帯(§27-4)
-  } else if (!a.g3) {
-    star = 3 // G3落ち
-    if (a.g3sup) {
-      tags.add(POSITION_TAG["3rd"])
-      notes.push("補足質問: 移動可→ポジションフラグのみ付与(★判定に不使用)")
-    }
+  } else if (g2.length < 3) {
+    star = 2
+  } else if (g3.length < 2) {
+    star = 3
+  } else if (g4.length < 2) {
+    star = 4
+  } else if (g5.length < 3) {
+    star = 5
   } else {
-    const g4 = a.g4 || []
-    const has = (p: string) => g4.includes(p)
-    if (g4.length === 0) {
-      star = 4 // 移動不可→★4確定
-    } else if (!has("2nd") && !has("4th") && !has("5th") && !has("6th+")) {
-      star = 4 // 3rdまで→★4確定
-    } else {
-      star = a.g5 ? 6 : 5 // G5: 重音可→★6(上限)/不可→★5
-    }
-    g4.forEach((p) => tags.add(POSITION_TAG[p])) // ポジションは選択分のみ付与(一括付与しない)
-    if (star === 6) doubleStops = ["3度", "6度"] // G5通過者のみ(§27-4-3)
+    star = g6.length >= 1 ? 6 : 5
   }
 
-  // 帯一括付与: 1 .. star-1(解釈A)
-  for (let b = 1; b < star; b++) BANDS[b].forEach((t) => tags.add(t))
+  // 個別聴取分は関門通過に関係なく仮習得として付与
+  g2.forEach((t) => tags.add(t))
+  g3.forEach((t) => tags.add(t))
+  if (g3.includes("トリル")) tags.add("プラルトリラーとモルデント") // トリルの短縮形として同帯
+  if (g4.includes("ビブラート")) tags.add("ビブラート")
+  if (g4.includes("3rd")) tags.add(POSITION_TAG["3rd"])
+  if (g5.includes("グリッサンド")) tags.add("グリッサンド")
+  if (g5.includes("ハーモニクス")) tags.add("ナチュラル・ハーモニクス")
+  if (g5.includes("5th")) tags.add(POSITION_TAG["5th"])
+  if (g6.includes("2nd")) tags.add(POSITION_TAG["2nd"])
+  if (g6.includes("4th")) tags.add(POSITION_TAG["4th"])
+  if (g6.includes("6th+")) tags.add(POSITION_TAG["6th+"])
+  if (g6.includes("連続重音")) doubleStops.add("連続重音")
+  if (a.g3sup) {
+    tags.add(POSITION_TAG["3rd"])
+    notes.push("補足質問: 移動可→ポジションフラグのみ付与(★判定に不使用)")
+  }
 
-  return { star, tags: [...tags], doubleStops, notes }
+  // 帯一括付与: 1 .. star-1 (技術+重音)
+  for (let b = 1; b < star; b++) {
+    BANDS[b].forEach((t) => tags.add(t))
+    if (DOUBLE_BY_BAND[b]) doubleStops.add(DOUBLE_BY_BAND[b])
+  }
+
+  return { star, tags: [...tags], doubleStops: [...doubleStops], notes }
 }
 
-// 全フラグは PROVISIONAL で書き込む(§27-5)
+// 全フラグは PROVISIONAL で書き込む
 export function toProvisionalFlags(result: JudgeResult) {
   return [
     ...result.tags.map((t) => ({ tag: t, state: "PROVISIONAL" as const })),
-    ...result.doubleStops.map((d) => ({ tag: `重音(${d})`, state: "PROVISIONAL" as const })),
+    ...result.doubleStops.map((d) => ({
+      tag: d === "連続重音" ? d : `重音(${d})`,
+      state: "PROVISIONAL" as const,
+    })),
   ]
 }
 
 // DB保存用(C5): UserTagAcquisition の (tagType, tagKey) へ変換。
-// tagKey は工程Dの UserLessonClear と同じ体系に揃える(将来の要件①統合のため):
-//   technique = タグ名そのまま / position = 番号文字列("2".."6") / double_stop = "3度"等
+// tagKey は UserLessonClear と同じ体系 (lessons/content.ts の正本対応表):
+//   technique = タグ名そのまま / position = 番号文字列("2".."6") /
+//   double_stop = "3度"/"6度"/"オクターブ"/"10度"/"連続重音"
 const _POSITION_KEY: Record<string, string> = {
   "ポジション(2nd)": "2", "ポジション移動(3rd)": "3", "ポジション(4th)": "4",
   "ポジション(5th)": "5", "ポジション(6th以上)": "6",

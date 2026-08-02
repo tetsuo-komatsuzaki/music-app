@@ -27,7 +27,7 @@ import { saveOnboardingDraft } from "./actions"
 
 export type ScreenId =
   | "SCR01" | "SCR02" | "SCR03" | "SCR04"
-  | "L_G1" | "L_G2" | "L_G3" | "L_G3S" | "L_G4" | "L_G5"
+  | "L_G1" | "L_G2" | "L_G3" | "L_G3S" | "L_G4" | "L_G5" | "L_G6"
   | "SCR07" | "SCR08A" | "SCR08B" | "SCR10" | "SCR08C" | "SCR09"
   | "SCR11" | "SCR11B" | "SCR11C" | "SCR12"
 

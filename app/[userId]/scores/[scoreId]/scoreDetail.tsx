@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback, useMemo } from "react"
+import { useState, useRef, useEffect, useCallback, useMemo, Component, type ReactNode, type ErrorInfo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import ScoreDetailTabs, { type ScoreDetailTabId } from "@/app/components/ScoreDetailTabs"
 import MasterBadge from "@/app/components/MasterBadge"
@@ -1025,10 +1025,59 @@ function ScoreLegend() {
 }
 
 // =========================================================
+// クラッシュ封じ込め境界 (2026-08-02)
+// 録音→解析の遷移で稀に React removeChild (NotFoundError) が起き、従来は
+// 画面全体が落ちて手動リロードが必要だった。真因は未特定 (命令的DOM群は
+// すべて自己管理ノードで、静的解析ではReact管理ノードを消す箇所が見つからない)。
+// ここで捕まえて (1) コンポーネントスタックを console と sessionStorage に保存し、
+// (2) スコア画面だけを自動再マウントして復旧する。スタックが取れたら真因を修正する。
+// =========================================================
+
+class ScoreCrashBoundary extends Component<{ children: ReactNode }, { epoch: number }> {
+  state = { epoch: 0 }
+  static getDerivedStateFromError() { return {} } // 再renderを起こす (remountはepochで)
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("[score-crash]", error?.name, error?.message, info?.componentStack)
+    try {
+      sessionStorage.setItem("scoreCrashLast", JSON.stringify({
+        name: error?.name, message: String(error?.message ?? "").slice(0, 300),
+        componentStack: String(info?.componentStack ?? "").slice(0, 3000),
+        at: new Date().toISOString(),
+      }))
+    } catch { /* storage不可でも復旧は続行 */ }
+    this.setState((s) => ({ epoch: s.epoch + 1 }))
+  }
+  render() {
+    if (this.state.epoch >= 3) {
+      // 自動復旧が連続で失敗 → 無限ループを避けて手動リロードを案内
+      return (
+        <div style={{ padding: "40px 20px", textAlign: "center" }}>
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 8 }}>画面の表示に問題が起きました</div>
+          <div style={{ fontSize: 12, color: "#8a9099", marginBottom: 14 }}>録音データは保存されています。ページを再読み込みしてください。</div>
+          <button type="button" onClick={() => window.location.reload()}
+            style={{ fontSize: 13, fontWeight: 800, color: "#fff", background: "#2b3742", border: "none", borderRadius: 9, padding: "10px 22px", cursor: "pointer" }}>
+            再読み込み
+          </button>
+        </div>
+      )
+    }
+    return <div key={this.state.epoch} style={{ display: "contents" }}>{this.props.children}</div>
+  }
+}
+
+export default function ScoreDetail(props: Props) {
+  return (
+    <ScoreCrashBoundary>
+      <ScoreDetailInner {...props} />
+    </ScoreCrashBoundary>
+  )
+}
+
+// =========================================================
 // メインコンポーネント
 // =========================================================
 
-export default function ScoreDetail({
+function ScoreDetailInner({
   score,
   userId,
   uploadAction,
