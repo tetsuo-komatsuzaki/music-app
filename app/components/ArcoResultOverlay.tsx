@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
 import { ArcoChan, POSES } from "./ArcoChan"
+import { sendScoringFeedback } from "@/app/actions/scoringFeedback"
 import styles from "./ArcoResultOverlay.module.css"
 
 type Ach = {
@@ -206,6 +207,9 @@ export default function ArcoResultOverlay({
           )}
         </div>
 
+        {/* 採点の正直な注記 + その場フィードバック (2026-08-03) */}
+        <ScoringFeedbackNote performanceId={perf.id} kind="score" />
+
         <div className={styles.actions}>
           {onGoReview && <button type="button" className={styles.ghost} onClick={onGoReview}>ふりかえりで詳しく</button>}
           <button type="button" className={styles.primary} onClick={onClose}>とじる</button>
@@ -213,5 +217,47 @@ export default function ArcoResultOverlay({
       </div>
     </div>,
     document.body,
+  )
+}
+
+/** 「採点は勉強中」の正直な注記 + ワンタップで運営へ届くフィードバック */
+function ScoringFeedbackNote({ performanceId, kind }: { performanceId: string; kind: "score" | "practice" }) {
+  const [open, setOpen] = useState(false)
+  const [text, setText] = useState("")
+  const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle")
+
+  const send = async () => {
+    if (!text.trim()) return
+    setState("sending")
+    const r = await sendScoringFeedback({ performanceId, kind, message: text })
+    setState(r.ok ? "done" : "error")
+  }
+
+  return (
+    <div style={{ margin: "10px 2px 0", fontSize: 10.5, color: "#9aa6b3", lineHeight: 1.7 }}>
+      🔧 アルコの採点は、これからどんどん正確になっていくよ。
+      {state === "done" ? (
+        <span style={{ color: "#2e8b57", fontWeight: 800 }}> フィードバックありがとう！べんきょうします🎻</span>
+      ) : (
+        <>
+          「この点数、おかしいな？」と思ったら{" "}
+          <button type="button" onClick={() => setOpen((v) => !v)}
+            style={{ font: "inherit", fontWeight: 800, color: "#4a5bd0", background: "none", border: "none", padding: 0, cursor: "pointer", textDecoration: "underline" }}>
+            教えてね
+          </button>
+          {open && (
+            <span style={{ display: "flex", gap: 6, marginTop: 6 }}>
+              <input value={text} onChange={(e) => setText(e.target.value)} placeholder="例: 本当はもっと弾けていたと思う"
+                style={{ flex: 1, minWidth: 0, fontSize: 11.5, border: "1px solid #dfe3e8", borderRadius: 8, padding: "7px 10px" }} />
+              <button type="button" onClick={send} disabled={state === "sending" || !text.trim()}
+                style={{ flex: "none", fontSize: 11, fontWeight: 800, color: "#fff", background: "#4a5bd0", border: "none", borderRadius: 8, padding: "7px 12px", cursor: "pointer", opacity: state === "sending" ? 0.6 : 1 }}>
+                {state === "sending" ? "送信中…" : "おくる"}
+              </button>
+            </span>
+          )}
+          {state === "error" && <span style={{ color: "#c0473a" }}> 送信できなかった…もう一度ためしてね</span>}
+        </>
+      )}
+    </div>
   )
 }
