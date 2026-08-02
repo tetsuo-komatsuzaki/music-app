@@ -10,6 +10,34 @@ import { isValidCuid } from "@/app/_libs/validators"
 
 const OPERATOR_EMAIL = "tetsuo9293@gmail.com" // 運営 (サーバー側のみ・クライアントに出ない)
 
+/** アプリ全般への改善要望・ご意見 (2026-08-03)。設定画面の常設入口から */
+export async function sendAppFeedback(input: {
+  message: string
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  const dbUser = auth.user.dbUser
+
+  const message = (input.message ?? "").trim().slice(0, 2000)
+  if (!message) return { ok: false, error: "内容を書いてください" }
+
+  try {
+    const apiKey = process.env.RESEND_API_KEY
+    const from = process.env.ARCODA_NOREPLY_EMAIL
+    if (!apiKey || !from) return { ok: false, error: "送信基盤が未設定です" }
+    const resend = new Resend(apiKey)
+    await resend.emails.send({
+      from,
+      to: OPERATOR_EMAIL,
+      subject: `【ご意見】アプリへの要望 (${dbUser.role})`,
+      text: [`ユーザー: ${dbUser.id} (${dbUser.role})`, "", message].join("\n"),
+    })
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "送信に失敗しました。時間をおいて試してください" }
+  }
+}
+
 export async function sendScoringFeedback(input: {
   performanceId: string
   kind: "score" | "practice"

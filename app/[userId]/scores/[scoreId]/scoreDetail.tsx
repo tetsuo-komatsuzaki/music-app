@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import ScoreDetailTabs, { type ScoreDetailTabId } from "@/app/components/ScoreDetailTabs"
 import MasterBadge from "@/app/components/MasterBadge"
 import FavoriteButton from "@/app/components/FavoriteButton"
-import ArcoResultOverlay from "@/app/components/ArcoResultOverlay"
+import ArcoResultOverlay, { ScoringFeedbackNote } from "@/app/components/ArcoResultOverlay"
 import ScoreLoopDetail from "@/app/components/ScoreLoopDetail"
 import AnnotationLayer from "./AnnotationLayer"
 import { getFeedbackAsStudent } from "@/app/actions/teacherFeedback"
@@ -2788,6 +2788,10 @@ function ScoreDetailInner({
                 onDeleted={handlePerformanceDeleted}
                 userId={userId}
               />
+            )}
+            {/* 採点への乖離フィードバック (2026-08-03): 過去の点数を見返す場所にも設置 */}
+            {(p.pitchAccuracy != null || p.timingAccuracy != null) && (
+              <ScoringFeedbackNote performanceId={p.id} kind={practiceItemId ? "practice" : "score"} />
             )}
           </>
         )}

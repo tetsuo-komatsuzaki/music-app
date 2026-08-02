@@ -8,6 +8,7 @@ import { setTeacherEmailOff } from "@/app/actions/updateNotificationPref"
 import DeleteAccountModal from "./DeleteAccountModal"
 import TeacherLinkCard from "./TeacherLinkCard"
 import GoalCard from "./GoalCard"
+import { sendAppFeedback } from "@/app/actions/scoringFeedback"
 import styles from "./Settings.module.css"
 
 interface Props {
@@ -172,6 +173,9 @@ export default function SettingsClient({
           </div>
         </section>
       )}
+
+      {/* ご意見・要望 (2026-08-03): 改善要望の常設入口。運営メールへ届く */}
+      <FeedbackCard />
 
       {/* アカウント情報 */}
       <section className={styles.card}>
@@ -365,5 +369,45 @@ export default function SettingsClient({
         onClose={() => setDeleteModalOpen(false)}
       />
     </div>
+  )
+}
+
+/** ご意見・要望 (2026-08-03): アプリ改善の常設入口。運営メールへ届く */
+function FeedbackCard() {
+  const [text, setText] = useState("")
+  const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle")
+  const [pending, start] = useTransition()
+  const send = () => {
+    if (!text.trim()) return
+    setState("sending")
+    start(async () => {
+      const r = await sendAppFeedback({ message: text })
+      if (r.ok) { setState("done"); setText("") }
+      else setState("error")
+    })
+  }
+  return (
+    <section style={{ background: "#fff", border: "1px solid #eceff3", borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
+      <h2 style={{ fontSize: 15, fontWeight: 800, margin: "0 0 4px", color: "#22303c" }}>💬 ご意見・要望</h2>
+      <p style={{ fontSize: 12, color: "#8a9099", margin: "0 0 10px", lineHeight: 1.6 }}>
+        「こうだったらいいのに」「採点がおかしい気がする」— なんでも運営に届きます。アプリはみなさんの声で良くなります。
+      </p>
+      {state === "done" ? (
+        <div style={{ fontSize: 12.5, fontWeight: 800, color: "#2e8b57" }}>届きました！ありがとうございます🎻</div>
+      ) : (
+        <>
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3}
+            placeholder="例: 演奏履歴の点数が実際より低い気がする / こんな機能がほしい"
+            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 11px", fontSize: 13, resize: "vertical" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
+            {state === "error" && <span style={{ fontSize: 11.5, color: "#c0392b" }}>送信できませんでした。時間をおいて試してください</span>}
+            <button type="button" onClick={send} disabled={pending || !text.trim()}
+              style={{ marginLeft: "auto", fontSize: 12.5, fontWeight: 800, color: "#fff", background: "#3555d4", border: "none", borderRadius: 9, padding: "9px 20px", cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
+              {pending ? "送信中…" : "送信する"}
+            </button>
+          </div>
+        </>
+      )}
+    </section>
   )
 }

@@ -221,7 +221,7 @@ export default function ArcoResultOverlay({
 }
 
 /** 「採点は勉強中」の正直な注記 + ワンタップで運営へ届くフィードバック */
-function ScoringFeedbackNote({ performanceId, kind }: { performanceId: string; kind: "score" | "practice" }) {
+export function ScoringFeedbackNote({ performanceId, kind }: { performanceId: string; kind: "score" | "practice" }) {
   const [open, setOpen] = useState(false)
   const [text, setText] = useState("")
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle")
