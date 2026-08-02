@@ -390,7 +390,7 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
   return (
     <Card>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: "#6b7885" }}>📋 所見（癖の記録）</span>
+        <span style={{ fontSize: 12, fontWeight: 800, color: "#6b7885" }}>📋 先生の所見（癖の記録）</span>
         {!open && (
           <button type="button" onClick={() => { setOpen(true); setMsg(null) }}
             style={{ marginLeft: "auto", fontSize: 11.5, fontWeight: 800, color: "#2b3742", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 8, padding: "6px 12px", cursor: "pointer" }}>

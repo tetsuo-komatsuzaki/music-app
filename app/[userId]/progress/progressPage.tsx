@@ -271,7 +271,7 @@ function StabilityMap({ data }: { data: KarteData }) {
         </div>
       )}
       <div style={{ fontSize: 10.5, color: SUB, marginTop: 10, lineHeight: 1.6 }}>
-        ※ 右手（ボウイング・音色）の解析は今後追加予定。
+        ※ この数字は録音の「音程・リズム」から算出。右手（ボウイング・音色）そのものの解析は今後追加予定。
       </div>
     </div>
   )
@@ -291,7 +291,8 @@ function Insights({ data }: { data: KarteData }) {
   if (data.insights.length === 0) return null
   return (
     <div style={card}>
-      <div style={secTtl}>💡 カルテの所見（データからの知見）</div>
+      {/* 「所見」は先生の癖タグ記録の専用語 → 自動生成の知見は「AIの見立て」で区別 (2026-08-02) */}
+      <div style={secTtl}>💡 AIの見立て（データからの気づき）</div>
       {data.insights.map((ins, i) => {
         const warn = ins.tone === "warn"
         return (
