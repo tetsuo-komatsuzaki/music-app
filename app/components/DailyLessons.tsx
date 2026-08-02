@@ -29,9 +29,12 @@ const DEFAULT_COLOR = { c: "#6b7480", bg: "#eef1f4" }
 export default function DailyLessons({
   lessons,
   userId,
+  fromScoreId,
 }: {
   lessons: DailyLesson[]
   userId: string
+  /** 曲詳細から来た場合の元Score ID。教材ページに「曲にもどる」導線を出す (2026-08-02) */
+  fromScoreId?: string | null
 }) {
   if (!lessons.length) {
     return (
@@ -47,7 +50,7 @@ export default function DailyLessons({
         return (
           <Link
             key={l.itemId}
-            href={`/${userId}/practice/${l.category}/${l.itemId}`}
+            href={`/${userId}/practice/${l.category}/${l.itemId}${fromScoreId ? `?from=${fromScoreId}` : ""}`}
             style={{
               display: "flex",
               alignItems: "stretch",

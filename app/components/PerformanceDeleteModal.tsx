@@ -76,7 +76,7 @@ export default function PerformanceDeleteModal({
       if (res.status === 409) {
         setError({
           kind: "in_progress",
-          message: "解析中のため削除できません。完了後にもう一度お試しください。",
+          message: "採点中のため削除できません。完了後にもう一度お試しください。",
         })
       } else if (res.status === 404) {
         // 既に削除済み: クライアント状態を整合 (親が一覧から除外する)

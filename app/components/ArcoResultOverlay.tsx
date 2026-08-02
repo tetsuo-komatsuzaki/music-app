@@ -144,7 +144,7 @@ export default function ArcoResultOverlay({
               {recSlots.map((s) => {
                 const m = s.materials[0]
                 return (
-                  <Link key={s.subtaskName} href={`/${userId}/practice/${m.category}/${m.id}`} className={styles.rec} onClick={onClose}>
+                  <Link key={s.subtaskName} href={`/${userId}/practice/${m.category}/${m.id}?from=${scoreId}`} className={styles.rec} onClick={onClose}>
                     <span className={`${styles.recTag} ${s.tree === "pitch" ? styles.tagPitch : styles.tagRhythm}`}>{s.tree === "pitch" ? "音程" : "リズム"}</span>
                     <span className={styles.recBody}><span className={styles.recSub}>{s.subtaskName}</span><span className={styles.recMat}>{m.title}</span></span>
                     <span className={styles.recGo}>→</span>

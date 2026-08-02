@@ -120,9 +120,9 @@ export default function PerformanceSkillDetail({
   if (data.analysisStatus && data.analysisStatus !== "done") {
     const statusLabel: Record<string, string> = {
       queued: "順番待ちです",
-      processing: "解析中です…",
-      retrying: "解析を再試行中です…",
-      error: "解析中にエラーが発生しました。もう一度録音をお試しください。",
+      processing: "採点中です…",
+      retrying: "採点をやり直し中です…",
+      error: "採点中にエラーが発生しました。もう一度録音をお試しください。",
     }
     return (
       <div className={styles.container}>
@@ -135,7 +135,7 @@ export default function PerformanceSkillDetail({
           }
         >
           {data.analysisStatus !== "error" && <span className={styles.spinner} />}
-          {statusLabel[data.analysisStatus] ?? "解析待機中"}
+          {statusLabel[data.analysisStatus] ?? "採点の順番待ち…"}
         </div>
       </div>
     )

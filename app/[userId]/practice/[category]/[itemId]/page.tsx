@@ -21,12 +21,28 @@ export async function generateMetadata({
 
 export default async function PracticeDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ userId: string; category: string; itemId: string }>
+  searchParams: Promise<{ from?: string }>
 }) {
   const p = await params
   const { authUserId, dbUserId } = await getUserIdsFromParams(p)
   const { category, itemId } = p
+
+  // 曲詳細から来た場合 (?from=scoreId) は「曲にもどる」導線を出す (2026-08-02 ループ動線)。
+  // scoreId は本人がアクセスできる曲のみ有効化 (他人の非共有曲は無視)。
+  const { from } = await searchParams
+  let fromScore: { id: string; title: string } | null = null
+  if (from && /^c[a-z0-9]{20,32}$/.test(from)) {
+    try {
+      const s = await prisma.score.findFirst({
+        where: { id: from, deletedAt: null, OR: [{ createdById: dbUserId }, { isShared: true }] },
+        select: { id: true, title: true },
+      })
+      if (s) fromScore = s
+    } catch { fromScore = null }
+  }
 
   const perfStart = performance.now()
   console.log(`[PERF] practice/item step1_dbUser: ${(performance.now() - perfStart).toFixed(0)}ms`)
@@ -168,6 +184,19 @@ export default async function PracticeDetailPage({
           ← {categoryLabels[category] || category}
         </a>
       </div>
+
+      {/* 曲にもどる (曲詳細のおすすめ経由で来た場合のみ): 教材→曲の往復ループを切らない */}
+      {fromScore && (
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "10px 24px 0" }}>
+          <a href={`/${authUserId}/scores/${fromScore.id}`}
+             style={{ display: "flex", alignItems: "center", gap: 9, background: "#fff", border: "1px solid #dce7f5", borderRadius: 12, padding: "10px 14px", textDecoration: "none" }}>
+            <span aria-hidden style={{ fontSize: 15 }}>🎵</span>
+            <span style={{ fontSize: 12.5, color: "#4a5766", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              練習がおわったら<b style={{ color: "#2563EB" }}>「{fromScore.title}」にもどる →</b>
+            </span>
+          </a>
+        </div>
+      )}
 
       <ScoreDetail
         score={{ id: item.id, title: item.title }}

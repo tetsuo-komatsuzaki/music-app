@@ -69,7 +69,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
       {/* ── 2. 学びのポイント (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホームと共通ロジック) ── */}
       <section className={styles.cardSection}>
         <h2 className={styles.sectionTitle}>🎯 学びのポイント</h2>
-        <DailyLessons lessons={achv.dailyLessons ?? []} userId={userId} />
+        <DailyLessons lessons={achv.dailyLessons ?? []} userId={userId} fromScoreId={scoreId} />
       </section>
 
       {/* ── 3. おすすめ練習 (最新演奏の217診断+弱点推薦) を「マスター」の直下に配置 ──
@@ -83,6 +83,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
             kind="score"
             userId={userId}
             hideMaterials
+            fromScoreId={scoreId}
           />
         ) : guideSample === "review" ? (
           // 画面ガイド表示中: まだ演奏が無くても「弾くとこう出る」を見せる

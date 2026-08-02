@@ -137,7 +137,7 @@ async function checkAudioQuality(blob: Blob): Promise<{ quality: QualityResult; 
   const clippingRatio = clippingCount / channelData.length
   if (clippingRatio >= 0.01) {
     return {
-      quality: { status: "clipping", message: "音が割れています。解析精度が下がる場合があります。" },
+      quality: { status: "clipping", message: "音が割れています。採点の正確さが下がる場合があります。" },
       audioBuffer,
     }
   }
@@ -734,7 +734,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
             </button>
             {qualityResult?.status !== "silent" && (
               <button className={styles.submitBtn} onClick={submitRecording}>
-                この録音で解析する
+                この録音で採点する
               </button>
             )}
           </div>

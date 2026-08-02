@@ -54,6 +54,7 @@ export function DiagnosisBody({
   userId,
   hideHeading,
   hideMaterials,
+  fromScoreId,
 }: {
   data: DiagnosisApiResponse
   userId?: string
@@ -61,6 +62,8 @@ export function DiagnosisBody({
   hideHeading?: boolean
   /** おすすめ教材の行を出さず診断文のみ (教材は「毎日の基礎練」に一本化・2026-07-25 案B) */
   hideMaterials?: boolean
+  /** 曲詳細から来た場合の元Score ID (教材ページの「曲にもどる」用) */
+  fromScoreId?: string | null
 }) {
   if (data.verdict === "perfect") {
     return (
@@ -87,7 +90,7 @@ export function DiagnosisBody({
           {hideMaterials ? "のびしろポイント" : "のびしろポイントと練習メニュー"}
         </h3>
       )}
-      <WeaknessSlotList slots={data.slots} userId={userId} hideMaterials={hideMaterials} />
+      <WeaknessSlotList slots={data.slots} userId={userId} hideMaterials={hideMaterials} fromScoreId={fromScoreId} />
     </section>
   )
 }
@@ -110,11 +113,14 @@ export function WeaknessSlotList({
   slots,
   userId,
   hideMaterials,
+  fromScoreId,
 }: {
   slots: WeaknessSlot[]
   userId?: string
   /** おすすめ教材の行を出さず診断文のみ (教材は「毎日の基礎練」に一本化・2026-07-25 案B) */
   hideMaterials?: boolean
+  /** 曲詳細から来た場合の元Score ID。教材ページに「曲にもどる」導線を出す (2026-08-02) */
+  fromScoreId?: string | null
 }) {
   // 音程/リズムで束ね、軸内をミス率の高い順にランク表示 (案E)。
   const groups = (["pitch", "rhythm"] as const)
@@ -164,7 +170,7 @@ export function WeaknessSlotList({
                             </div>
                             {userId ? (
                               <Link
-                                href={`/${userId}/practice/${m.category}/${m.id}`}
+                                href={`/${userId}/practice/${m.category}/${m.id}${fromScoreId ? `?from=${fromScoreId}` : ""}`}
                                 className={styles.practiceLink}
                               >
                                 練習する →
@@ -249,9 +255,11 @@ type Props = {
   hideHeading?: boolean
   /** おすすめ教材の行を出さず診断文のみ (教材は「毎日の基礎練」に一本化・2026-07-25 案B) */
   hideMaterials?: boolean
+  /** 曲詳細から来た場合の元Score ID (教材ページの「曲にもどる」用・2026-08-02) */
+  fromScoreId?: string | null
 }
 
-export default function WeaknessDiagnosisCard({ performanceId, kind, userId, hideHeading, hideMaterials }: Props) {
+export default function WeaknessDiagnosisCard({ performanceId, kind, userId, hideHeading, hideMaterials, fromScoreId }: Props) {
   const url =
     kind === "score"
       ? `/api/performances/${performanceId}/diagnosis`
@@ -283,5 +291,5 @@ export default function WeaknessDiagnosisCard({ performanceId, kind, userId, hid
   if (!data) {
     return <div className={styles.statusBox}>のびしろポイントを分析中…</div>
   }
-  return <DiagnosisBody data={data} userId={userId} hideHeading={hideHeading} hideMaterials={hideMaterials} />
+  return <DiagnosisBody data={data} userId={userId} hideHeading={hideHeading} hideMaterials={hideMaterials} fromScoreId={fromScoreId} />
 }
