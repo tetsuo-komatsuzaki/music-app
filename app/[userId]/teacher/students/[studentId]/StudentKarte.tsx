@@ -11,6 +11,8 @@ import { OBSERVATION_CATALOG, OBSERVATION_TAG_BY_ID, OBSERVATION_SEVERITIES } fr
 import { BODY_VIEWS, NON_BODY_CATEGORIES, spotsOf, type BodyViewId } from "@/app/_libs/bodyMap"
 import BodyFigure from "@/app/components/BodyFigure"
 import BodyObsMap, { type BodyObsItem } from "@/app/components/BodyObsMap"
+import ProgressPage from "@/app/[userId]/progress/progressPage"
+import type { KarteData } from "@/app/_libs/growthKarte"
 
 /** 履歴(新しい順)からタグごとに最新の所見1件を取り出す (癖マップ表示用) */
 function latestPerTag(observations: ObservationRow[]): BodyObsItem[] {
@@ -90,6 +92,8 @@ export default function StudentKarte({
   userId, studentId, studentName, briefing, scoreTargets, itemTargets,
   allScoreTargets, allItemTargets, working, recordings, assignments, messages,
   observations = [],
+  karte = null,
+  studentSupabaseUserId = null,
 }: {
   userId: string
   studentId: string
@@ -107,15 +111,18 @@ export default function StudentKarte({
   messages: Msg[]
   /** 先生の所見 (癖タグ) 履歴 */
   observations?: ObservationRow[]
+  /** 生徒の成長カルテ (2026-08-02): 生徒に見えているのと同じもの (30日) を読み取り専用で */
+  karte?: KarteData | null
+  studentSupabaseUserId?: string | null
 }) {
-  const [tab, setTab] = useState<"overview" | "practice" | "homework" | "review" | "message">("overview")
+  const [tab, setTab] = useState<"overview" | "practice" | "homework" | "review" | "message" | "karte">("overview")
   return (
     <div>
       <Link href={`/${userId}/teacher`} style={{ fontSize: 12, color: "#6b7885", textDecoration: "none" }}>← 生徒一覧</Link>
       <h1 style={{ fontSize: 18, fontWeight: 900, margin: "6px 0 10px" }}>{studentName}</h1>
 
       <div style={{ display: "flex", gap: 4, marginBottom: 14 }}>
-        {([["overview", "概要"], ["practice", "練習"], ["homework", "宿題"], ["review", "添削"], ["message", "メッセージ"]] as const).map(([k, label]) => (
+        {([["overview", "概要"], ["practice", "練習"], ["karte", "カルテ"], ["homework", "宿題"], ["review", "添削"], ["message", "メッセージ"]] as const).map(([k, label]) => (
           <button
             key={k}
             type="button"
@@ -133,6 +140,13 @@ export default function StudentKarte({
 
       {tab === "overview" && <Overview b={briefing} studentId={studentId} observations={observations} />}
       {tab === "practice" && <PracticeTab studentId={studentId} working={working} recordings={recordings} />}
+      {tab === "karte" && (
+        karte ? (
+          <ProgressPage userId={studentSupabaseUserId ?? ""} data={karte} readOnly />
+        ) : (
+          <Card><div style={{ fontSize: 12.5, color: "#9aa6b3" }}>カルテを読み込めませんでした。</div></Card>
+        )
+      )}
       {tab === "homework" && (
         <Homework studentId={studentId} scoreTargets={allScoreTargets} itemTargets={allItemTargets} assignments={assignments} />
       )}
@@ -247,7 +261,8 @@ function PracticeTab({ studentId, working, recordings }: { studentId: string; wo
                     {r.weak.map((w, i) => (
                       <div key={i} style={{ fontSize: 11.5, color: "#4a5766" }}>
                         <span style={{ fontSize: 9.5, fontWeight: 800, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{w.tree}</span>
-                        {w.name}（{w.target}音中{w.miss}ミス）
+                        {/* 生徒側と同じ「成功率」の向きで表示 (2026-08-02 会話の温度を揃える)。詳細は括弧で補足 */}
+                        {w.name} 成功率{Math.max(0, Math.round(100 - (w.miss / Math.max(1, w.target)) * 100))}%（{w.target}音中{w.miss}ミス）
                       </div>
                     ))}
                   </div>

@@ -219,6 +219,14 @@ type Props = {
   onCountdownStart?: () => void
   /** アップロード進捗 (0-100、null は未開始/完了)。v3.3 spec Commit 3 で追加 */
   uploadProgress?: number | null
+  /** 採点完了の後追い通知 (2026-08-02): 録音直後は採点未完で点数が無いが、
+   *  親のポーリングが完了を検知したらここに結果が入る → 待ちカードを結果表示に昇格 */
+  resolvedResult?: {
+    pitchAccuracy: number | null
+    timingAccuracy: number | null
+    overallScore: number | null
+    analysisSummary?: PerfResult["analysisSummary"]
+  } | null
   /**
    * Phase 4-1 (Q2=D): 演奏結果ダイアログから「上達ループタブで詳細」リンクを表示。
    * Score 演奏のみ undefined 以外で渡す (practice では undefined のままにする)。
@@ -238,12 +246,28 @@ type Props = {
 
 export type Status = "idle" | "tempo-select" | "countdown" | "recording" | "preview" | "uploading" | "result"
 
-export default function Recorder({ onRecordingComplete, previousBestScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, uploadProgress, onShowLoop, onIdleRecordClick }: Props) {
+export default function Recorder({ onRecordingComplete, previousBestScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, uploadProgress, onShowLoop, onIdleRecordClick, resolvedResult }: Props) {
   const [status, setStatus] = useState<Status>("idle")
   const [elapsed, setElapsed] = useState(0)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
   const [blobRef, setBlobRef] = useState<Blob | null>(null)
   const [perfResult, setPerfResult] = useState<PerfResult | null>(null)
+
+  // 採点完了の後追い (2026-08-02): 待ちカード表示中に親が完了を検知したら点数を注入し、
+  // 「アルコ結果を閉じたのに下はまだ採点ちゅう」の取り残しを無くす
+  useEffect(() => {
+    if (!resolvedResult || resolvedResult.pitchAccuracy == null) return
+    setPerfResult((prev) => {
+      if (prev?.pitchAccuracy != null) return prev // すでに点数あり
+      return {
+        ...prev,
+        pitchAccuracy: resolvedResult.pitchAccuracy ?? undefined,
+        timingAccuracy: resolvedResult.timingAccuracy ?? undefined,
+        overallScore: resolvedResult.overallScore ?? undefined,
+        analysisSummary: resolvedResult.analysisSummary ?? prev?.analysisSummary,
+      }
+    })
+  }, [resolvedResult])
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "ring" } | null>(null)
   const [volumeLevel, setVolumeLevel] = useState(0)
   const [realtimeHint, setRealtimeHint] = useState("")

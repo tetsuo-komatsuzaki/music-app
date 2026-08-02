@@ -1158,6 +1158,8 @@ function ScoreDetailInner({
   // 録音直後のアルコ結果オーバーレイ (通し録音の解析完了で表示)
   const justRecordedRef = useRef<string | null>(null)
   const [arcoResult, setArcoResult] = useState<PerformanceDTO | null>(null)
+  // 直近に録音した演奏ID (区間録音含む)。採点完了をポーリングで検知して Recorder の待ちカードへ後追い通知する
+  const [lastRecordedId, setLastRecordedId] = useState<string | null>(null)
 
   // ▼ UI-6: 削除完了後の状態
   // - recentlyDeleted: 直前の操作が削除だった = ヒント表示用 (selected が再度選ばれたら解除)
@@ -1476,6 +1478,7 @@ function ScoreDetailInner({
     // モバイルでの背面化/再読込/ブラウザバック復帰でも拾えるよう sessionStorage にも保持。
     const arcoPendingId = (activeRange || practiceItemId) ? null : signedRes.performanceId
     justRecordedRef.current = arcoPendingId
+    setLastRecordedId(signedRes.performanceId) // 待ちカードの完了後追い用 (区間録音・練習教材も対象)
     if (arcoPendingId) {
       try { sessionStorage.setItem("arcoPending", JSON.stringify({ scoreId: score.id, perfId: arcoPendingId, at: Date.now() })) } catch {}
     }
@@ -2884,8 +2887,9 @@ function ScoreDetailInner({
               })}
             </div>
             {selectedPartId != null && (
-              <div style={{ fontSize: 11, color: "#9aa6b3", marginTop: 7 }}>
-                選択中のパートの範囲で録音します（部分採点・曲の達成には非算入）。
+              <div style={{ fontSize: 11, color: "#9aa6b3", marginTop: 7, lineHeight: 1.6 }}>
+                パート練習は「できるまでくり返す」ための練習モード。<b>あえて採点はひかえめ</b>にして、
+                点数や曲の達成には数えないよ（記録はこのパートの自己ベストにだけ残る）。
               </div>
             )}
           </div>
@@ -3253,6 +3257,17 @@ function ScoreDetailInner({
             onRecordingBpmChange={handleRecordingBpmChange}
             onRecordingStop={() => { setRecordingState("preview"); stopRecordingGuide() }}
             uploadProgress={uploadProgress}
+            resolvedResult={(() => {
+              // 直近録音の採点完了をポーリング結果から後追いで渡す (待ちカード→結果へ昇格)
+              const p = lastRecordedId ? performances.find((x) => x.id === lastRecordedId) : null
+              if (!p || p.pitchAccuracy == null) return null
+              return {
+                pitchAccuracy: p.pitchAccuracy,
+                timingAccuracy: p.timingAccuracy ?? null,
+                overallScore: performanceScore(p),
+                analysisSummary: p.analysisSummary as { primaryIssue?: string; primaryAdvice?: string } | undefined,
+              }
+            })()}
             onShowLoop={isScoreMode ? () => handleTabChange("review") : undefined}
             onIdleRecordClick={() => {
               // 録音CTA押下の瞬間に「この録音が区間録音か」を確定。

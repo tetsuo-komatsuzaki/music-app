@@ -8,6 +8,7 @@ import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { getAchievementFlags } from "@/app/_libs/achievementFlags"
 import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
+import { buildKarteData } from "@/app/_libs/growthKarte"
 import StudentKarte from "./StudentKarte"
 
 // 演奏の analysisSummary.diagnosis から上位の弱点パターンを抽出 (§5-1: ミス集中箇所・原因候補)
@@ -56,7 +57,7 @@ export default async function StudentKartePage({
   })
   if (!link) redirect(`/${userId}/teacher`)
 
-  const student = await prisma.user.findUnique({ where: { id: studentId }, select: { name: true } })
+  const student = await prisma.user.findUnique({ where: { id: studentId }, select: { name: true, supabaseUserId: true } })
   if (!student) redirect(`/${userId}/teacher`)
 
   const since = new Date(Date.now() - 7 * 86400000)
@@ -228,11 +229,19 @@ export default async function StudentKartePage({
   const working = recRaw.filter((r) => { const k = `${r.cat}:${r.title}`; if (seenWork.has(k)) return false; seenWork.add(k); return true })
     .slice(0, 10).map((r) => ({ title: r.title, cat: r.cat, avg: r.avg }))
 
+  // カルテタブ (2026-08-02): 生徒に見えているのと同じ成長カルテ(直近30日)を読み取り専用で先生にも
+  let karte = null
+  try {
+    if (student?.supabaseUserId) karte = await buildKarteData(studentId, student.supabaseUserId, "30d")
+  } catch { karte = null }
+
   return (
     <StudentKarte
       userId={userId}
       studentId={studentId}
       studentName={student.name}
+      karte={karte}
+      studentSupabaseUserId={student?.supabaseUserId ?? null}
       messages={messages.map((m) => ({
         id: m.id, fromTeacher: m.fromTeacher, body: m.body,
         time: m.createdAt.toLocaleDateString("ja-JP"),

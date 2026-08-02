@@ -30,38 +30,54 @@ function rateColor(miss: number, target: number) {
   return BAD
 }
 
-export default function ProgressPage({ userId, data }: { userId: string; data: KarteData }) {
+export default function ProgressPage({ userId, data, readOnly = false }: {
+  userId: string
+  data: KarteData
+  /** 先生の閲覧モード (2026-08-02): 生徒と同じカルテを読み取り専用で表示。
+   *  期間タブ・練習/詳細リンク・オンボは出さない (先生ルートでは生徒のリンク先に飛べないため) */
+  readOnly?: boolean
+}) {
   return (
-    <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", fontFamily: "inherit", color: INK }}>
-      <h1 style={{ fontSize: 18, fontWeight: 900, margin: "0 0 3px" }}>📖 成長カルテ</h1>
-      <p style={{ fontSize: 11.5, color: SUB, margin: "0 0 14px", lineHeight: 1.6 }}>
-        きみの練習を「意味」に変えて見せるよ。
-      </p>
+    <div style={{ maxWidth: 520, margin: "0 auto", padding: readOnly ? "4px 0 30px" : "18px 14px 60px", fontFamily: "inherit", color: INK }}>
+      {!readOnly && (
+        <>
+          <h1 style={{ fontSize: 18, fontWeight: 900, margin: "0 0 3px" }}>📖 成長カルテ</h1>
+          <p style={{ fontSize: 11.5, color: SUB, margin: "0 0 14px", lineHeight: 1.6 }}>
+            きみの練習を「意味」に変えて見せるよ。
+          </p>
+        </>
+      )}
 
-      {/* 期間タブ */}
-      <div style={{ display: "flex", gap: 4, background: "#eceef2", borderRadius: 10, padding: 3, marginBottom: 16 }}>
-        {([["7d", "今週"], ["30d", "直近30日"], ["all", "全期間"]] as const).map(([p, label]) => (
-          <Link key={p} href={`/${userId}/progress${p === "30d" ? "" : `?period=${p}`}`} scroll={false}
-            style={{
-              flex: 1, textAlign: "center", fontSize: 12, fontWeight: 800, padding: "7px 0", borderRadius: 8,
-              textDecoration: "none",
-              color: data.period === p ? INK : "#8b97a3",
-              background: data.period === p ? "#fff" : "transparent",
-              boxShadow: data.period === p ? "0 1px 2px rgba(30,45,70,.08)" : "none",
-            }}>
-            {label}
-          </Link>
-        ))}
-      </div>
+      {/* 期間タブ (先生閲覧モードは30日固定のラベルのみ) */}
+      {readOnly ? (
+        <div style={{ fontSize: 11, fontWeight: 800, color: SUB, margin: "0 0 12px" }}>
+          生徒に見えているのと同じカルテ（直近30日）
+        </div>
+      ) : (
+        <div style={{ display: "flex", gap: 4, background: "#eceef2", borderRadius: 10, padding: 3, marginBottom: 16 }}>
+          {([["7d", "今週"], ["30d", "直近30日"], ["all", "全期間"]] as const).map(([p, label]) => (
+            <Link key={p} href={`/${userId}/progress${p === "30d" ? "" : `?period=${p}`}`} scroll={false}
+              style={{
+                flex: 1, textAlign: "center", fontSize: 12, fontWeight: 800, padding: "7px 0", borderRadius: 8,
+                textDecoration: "none",
+                color: data.period === p ? INK : "#8b97a3",
+                background: data.period === p ? "#fff" : "transparent",
+                boxShadow: data.period === p ? "0 1px 2px rgba(30,45,70,.08)" : "none",
+              }}>
+              {label}
+            </Link>
+          ))}
+        </div>
+      )}
 
       <Reality userId={userId} data={data} />
       <StabilityMap data={data} />
-      <SkillMapSection userId={userId} data={data} />
+      <SkillMapSection userId={userId} data={data} readOnly={readOnly} />
       <BodyMapSection data={data} />
       <Insights data={data} />
       <Story data={data} />
 
-      <OnboardingTrigger pageKey="progress" />
+      {!readOnly && <OnboardingTrigger pageKey="progress" />}
     </div>
   )
 }
@@ -298,11 +314,12 @@ const SKILL_GLYPH: Record<string, string> = {
   glissando: "⤴", harmonic: "◯",
 }
 
-function SkillMapSection({ userId, data }: { userId: string; data: KarteData }) {
+function SkillMapSection({ userId, data, readOnly = false }: { userId: string; data: KarteData; readOnly?: boolean }) {
   const [selId, setSelId] = useState<string | null>(null)
 
-  // 先生なし: 特典ティーザー
+  // 先生なし: 特典ティーザー (先生閲覧モードでは出さない)
   if (!data.skillMap) {
+    if (readOnly) return null
     return (
       <div style={{ ...card, textAlign: "center" }}>
         <div style={{ fontSize: 13, fontWeight: 800 }}>🎻 技術マップ</div>
@@ -402,16 +419,18 @@ function SkillMapSection({ userId, data }: { userId: string; data: KarteData }) 
               </div>
             )}
 
-            <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-              <Link href={`/${userId}/progress/skill/${sel.id}`}
-                style={{ fontSize: 11.5, fontWeight: 800, color: "#fff", background: "#4a5bd0", borderRadius: 8, padding: "7px 14px", textDecoration: "none" }}>
-                📈 くわしい分析 →
-              </Link>
-              <Link href={sel.practiceHref}
-                style={{ fontSize: 11.5, fontWeight: 800, color: "#fff", background: "#c98a2a", borderRadius: 8, padding: "7px 14px", textDecoration: "none" }}>
-                練習する →
-              </Link>
-            </div>
+            {!readOnly && (
+              <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                <Link href={`/${userId}/progress/skill/${sel.id}`}
+                  style={{ fontSize: 11.5, fontWeight: 800, color: "#fff", background: "#4a5bd0", borderRadius: 8, padding: "7px 14px", textDecoration: "none" }}>
+                  📈 くわしい分析 →
+                </Link>
+                <Link href={sel.practiceHref}
+                  style={{ fontSize: 11.5, fontWeight: 800, color: "#fff", background: "#c98a2a", borderRadius: 8, padding: "7px 14px", textDecoration: "none" }}>
+                  練習する →
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}

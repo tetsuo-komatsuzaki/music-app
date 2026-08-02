@@ -155,7 +155,7 @@ export function WeaknessSlotList({
                 {slot.breakdown && <div className={styles.breakdown}>{slot.breakdown}</div>}
 
                     {hideMaterials ? null : slot.noStock ? (
-                      <div className={styles.noStock}>教材準備中です</div>
+                      <div className={styles.noStock}>ぴったりの教材はいま準備中。まずは曲の中で、この部分だけゆっくり弾いてみよう</div>
                     ) : (
                       <div className={styles.materials}>
                         <div className={styles.materialsLabel}>おすすめ教材</div>
