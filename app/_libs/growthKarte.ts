@@ -38,6 +38,64 @@ export interface KarteEvent {
   text: string
 }
 
+// ── 技術マップ (先生ありユーザー特典・project_skill_map_spec 準拠) ────────────
+// 習得の正 = UserLessonClear ∪ UserTagAcquisition(state≠REVOKED)。旧UserTechniqueMasteryは不使用。
+// 安定度% = per_subtask(pitch_tech_*/rhythm_tech_*)の実測のみ(音程・リズム由来の代理値)。
+
+export type SkillNodeState = "stable" | "wobble" | "acquired_nodata" | "ready" | "locked"
+
+export interface SkillNode {
+  id: string // subtask tech id ("slur") or "position" / "double"
+  label: string
+  lane: "bow" | "left"
+  star: number // 登録star (正本 = docs/arcoda-design-spec.md §2-2b)
+  state: SkillNodeState
+  /** オンボ自己申告のみで習得扱い (仮習得) */
+  provisional: boolean
+  /** 安定度% (100 - ミス率)。データ少は null */
+  pct: number | null
+  miss: number
+  target: number
+  /** 関連する先生の癖タグ (直近の所見から) */
+  obsTags: string[]
+  /** 処方箋リンク先 (practice カテゴリ or トップ) */
+  practiceHref: string
+}
+
+export interface SkillMapData {
+  currentStar: number
+  nodes: SkillNode[]
+}
+
+// 技術定義: 登録star は §2-2b 確定値 ([[project_technique_star_source_of_truth]])
+// tagKeys = UserLessonClear/UserTagAcquisition の tagKey 候補 (v72改名等の揺れを吸収)
+const SKILL_DEFS: Array<{
+  id: string; label: string; lane: "bow" | "left"; star: number
+  tagType: "technique" | "position" | "double_stop"
+  tagKeys: string[]
+  subIds: string[] // per_subtask の合算対象
+  practiceCat: string | null
+  obsTagIds: string[] // 関連する癖タグ (observationCatalog)
+}> = [
+  // 右手 (弓)
+  { id: "slur", label: "スラー", lane: "bow", star: 1, tagType: "technique", tagKeys: ["スラー"], subIds: ["pitch_tech_slur", "rhythm_tech_slur"], practiceCat: "bowing", obsTagIds: ["bow_elbow_lag", "bow_distribution"] },
+  { id: "staccato", label: "スタッカート", lane: "bow", star: 2, tagType: "technique", tagKeys: ["スタッカート"], subIds: ["pitch_tech_staccato", "rhythm_tech_staccato"], practiceCat: "bowing", obsTagIds: ["bow_pressure_heavy"] },
+  { id: "portato", label: "ポルタート", lane: "bow", star: 2, tagType: "technique", tagKeys: ["ポルタート"], subIds: ["pitch_tech_portato", "rhythm_tech_portato"], practiceCat: "bowing", obsTagIds: [] },
+  { id: "bow_staccato", label: "連続スタッカート", lane: "bow", star: 2, tagType: "technique", tagKeys: ["連続スタッカート", "ボウ・スタッカート"], subIds: ["pitch_tech_bow_staccato", "rhythm_tech_bow_staccato"], practiceCat: "bowing", obsTagIds: [] },
+  { id: "tremolo", label: "トレモロ", lane: "bow", star: 2, tagType: "technique", tagKeys: ["トレモロ"], subIds: ["pitch_tech_tremolo", "rhythm_tech_tremolo"], practiceCat: "bowing", obsTagIds: ["bow_wrist_stiff"] },
+  { id: "pizzicato", label: "ピチカート", lane: "bow", star: 2, tagType: "technique", tagKeys: ["ピチカート"], subIds: ["pitch_tech_pizzicato", "rhythm_tech_pizzicato"], practiceCat: null, obsTagIds: [] },
+  { id: "spiccato", label: "スピッカート", lane: "bow", star: 3, tagType: "technique", tagKeys: ["スピッカート"], subIds: ["pitch_tech_spiccato", "rhythm_tech_spiccato"], practiceCat: "bowing", obsTagIds: ["bow_wrist_stiff"] },
+  { id: "ricochet", label: "リコシェ", lane: "bow", star: 4, tagType: "technique", tagKeys: ["リコシェ"], subIds: ["pitch_tech_ricochet", "rhythm_tech_ricochet"], practiceCat: "bowing", obsTagIds: [] },
+  // 左手
+  { id: "position", label: "ポジション移動", lane: "left", star: 4, tagType: "position", tagKeys: [], subIds: [], practiceCat: "position_shift", obsTagIds: ["left_shift_tense", "pitch_after_shift"] },
+  { id: "double", label: "重音", lane: "left", star: 2, tagType: "double_stop", tagKeys: [], subIds: [], practiceCat: "double_stop", obsTagIds: ["left_press_hard"] },
+  { id: "trill", label: "トリル", lane: "left", star: 3, tagType: "technique", tagKeys: ["トリル"], subIds: ["pitch_tech_trill", "rhythm_tech_trill"], practiceCat: null, obsTagIds: ["left_press_hard"] },
+  { id: "mordent", label: "プラルトリラーとモルデント", lane: "left", star: 3, tagType: "technique", tagKeys: ["プラルトリラーとモルデント", "モルデント"], subIds: ["pitch_tech_mordent", "rhythm_tech_mordent"], practiceCat: null, obsTagIds: [] },
+  { id: "vibrato", label: "ビブラート", lane: "left", star: 4, tagType: "technique", tagKeys: ["ビブラート"], subIds: ["pitch_tech_vibrato", "rhythm_tech_vibrato"], practiceCat: null, obsTagIds: ["tone_vibrato", "left_press_hard"] },
+  { id: "glissando", label: "グリッサンド", lane: "left", star: 5, tagType: "technique", tagKeys: ["グリッサンド"], subIds: ["pitch_tech_glissando", "rhythm_tech_glissando"], practiceCat: null, obsTagIds: [] },
+  { id: "harmonic", label: "ハーモニクス", lane: "left", star: 5, tagType: "technique", tagKeys: ["ナチュラル・ハーモニクス", "ハーモニクス"], subIds: ["pitch_tech_harmonic", "rhythm_tech_harmonic"], practiceCat: null, obsTagIds: [] },
+]
+
 export interface KarteData {
   period: KartePeriod
   // 1. 実態
@@ -56,6 +114,8 @@ export interface KarteData {
   insights: KarteInsight[]
   // 4. 物語
   events: KarteEvent[]
+  // 技術マップ (先生ありユーザーのみ。無しは null → 特典ティーザー表示)
+  skillMap: SkillMapData | null
 }
 
 const JST_MS = 9 * 3600_000
@@ -294,6 +354,9 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     events.push({ at: a.achievedAt.getTime(), date: fmtJp(a.achievedAt), kind: "achieve", text: `「${a.score.title}」を達成` })
     if (a.masteredAt) events.push({ at: a.masteredAt.getTime(), date: fmtJp(a.masteredAt), kind: "master", text: `「${a.score.title}」をマスター` })
   }
+  // 先生リンクと直近の癖タグ (技術マップでも使うため外に出す)
+  let teacherLink: { teacherId: string; teacherName: string } | null = null
+  const recentObsTagIds = new Set<string>()
   try {
     const link = await prisma.teacherStudent.findFirst({
       where: { studentId: userId },
@@ -301,6 +364,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
       select: { teacherId: true, teacher: { select: { name: true } } },
     })
     if (link) {
+      teacherLink = { teacherId: link.teacherId, teacherName: link.teacher.name }
       const [subs, fbs, obs, cels] = await Promise.all([
         prisma.assignment.findMany({
           where: { studentId: userId, submittedAt: { not: null } },
@@ -338,6 +402,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
         text: `${link.teacher.name} 先生が「${(f.scoreId && fbTitles.get(f.scoreId)) ?? "曲"}」を添削`,
       })
       for (const o of obs) {
+        for (const t of o.tagIds) recentObsTagIds.add(t)
         const tags = o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).slice(0, 3).join("・")
         events.push({
           at: o.createdAt.getTime(), date: fmtJp(o.createdAt), kind: "observation",
@@ -351,6 +416,91 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     }
   } catch { /* 先生機能未整備でも物語は出す */ }
   events.sort((a, b) => b.at - a.at)
+
+  // ── 技術マップ (先生ありユーザーのみ・spec: project_skill_map_spec) ──
+  let skillMap: SkillMapData | null = null
+  if (teacherLink) {
+    try {
+      const [clears, acqs, starRow] = await Promise.all([
+        prisma.userLessonClear.findMany({
+          where: { userId },
+          select: { tagType: true, tagKey: true },
+        }),
+        prisma.userTagAcquisition.findMany({
+          where: { userId, state: { not: "REVOKED" } },
+          select: { tagType: true, tagKey: true },
+        }),
+        prisma.userStarProgress.findUnique({ where: { userId }, select: { currentStar: true } }),
+      ])
+      const currentStar = starRow?.currentStar ?? 1
+      const clearSet = new Set(clears.map((c) => `${c.tagType}:${c.tagKey}`))
+      const acqSet = new Set(acqs.map((c) => `${c.tagType}:${c.tagKey}`))
+      const clearTypes = new Set(clears.map((c) => c.tagType))
+      const acqTypes = new Set(acqs.map((c) => c.tagType))
+
+      const sumPrefix = (prefixes: string[]) => {
+        let miss = 0, target = 0
+        for (const [sid, e] of sub.entries()) {
+          if (prefixes.some((p) => sid.startsWith(p))) { miss += e.miss; target += e.target }
+        }
+        return { miss, target }
+      }
+
+      const nodes: SkillNode[] = SKILL_DEFS.map((d) => {
+        // 習得: technique はタグ名一致 / position・double_stop は種別に1つでもあれば
+        let inClear = false, inAcq = false
+        if (d.tagType === "technique") {
+          inClear = d.tagKeys.some((k) => clearSet.has(`technique:${k}`))
+          inAcq = d.tagKeys.some((k) => acqSet.has(`technique:${k}`))
+        } else {
+          inClear = clearTypes.has(d.tagType)
+          inAcq = acqTypes.has(d.tagType)
+        }
+        const acquired = inClear || inAcq
+
+        // 安定度 (per_subtask 実測のみ)
+        const agg = d.subIds.length
+          ? d.subIds.reduce((a, sid) => {
+              const e = sub.get(sid)
+              return e ? { miss: a.miss + e.miss, target: a.target + e.target } : a
+            }, { miss: 0, target: 0 })
+          : d.id === "position"
+            ? (() => {
+                // 「移動を伴う」ペアのみ (同一ポジ内 X_X は変化なし箱=前提条件なので除外)
+                let miss = 0, target = 0
+                for (const [sid, e] of sub.entries()) {
+                  const m = /^(?:pitch|rhythm)_posshift_([0-9a-z]+)_([0-9a-z]+)$/.exec(sid)
+                  if (m && m[1] !== m[2]) { miss += e.miss; target += e.target }
+                }
+                return { miss, target }
+              })()
+            : sumPrefix(["pitch_double_", "rhythm_double_"])
+
+        let state: SkillNodeState
+        let pct: number | null = null
+        if (!acquired) {
+          state = d.star > currentStar ? "locked" : "ready"
+        } else if (agg.target >= 8) {
+          pct = Math.max(0, round(100 - (agg.miss / agg.target) * 100))
+          state = pct < 70 ? "wobble" : "stable"
+        } else {
+          state = "acquired_nodata"
+        }
+
+        return {
+          id: d.id, label: d.label, lane: d.lane, star: d.star, state,
+          provisional: acquired && !inClear,
+          pct, miss: agg.miss, target: agg.target,
+          obsTags: d.obsTagIds.filter((t) => recentObsTagIds.has(t)).map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter((s): s is string => !!s),
+          practiceHref: d.practiceCat ? `/${supabaseUserId}/practice/${d.practiceCat}` : `/${supabaseUserId}/practice`,
+        }
+      })
+      nodes.sort((a, b) => a.star - b.star || a.label.localeCompare(b.label))
+      skillMap = { currentStar, nodes }
+    } catch {
+      skillMap = null
+    }
+  }
 
   return {
     period,
@@ -366,5 +516,6 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     balance,
     insights: insights.slice(0, 4),
     events: events.slice(0, 40),
+    skillMap,
   }
 }

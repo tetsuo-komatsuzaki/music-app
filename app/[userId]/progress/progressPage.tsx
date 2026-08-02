@@ -5,7 +5,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
-import type { KarteData, GridCell } from "@/app/_libs/growthKarte"
+import type { KarteData, GridCell, SkillNode } from "@/app/_libs/growthKarte"
 
 const INK = "#2b3742"
 const SUB = "#8a9099"
@@ -55,6 +55,7 @@ export default function ProgressPage({ userId, data }: { userId: string; data: K
 
       <Reality userId={userId} data={data} />
       <StabilityMap data={data} />
+      <SkillMapSection userId={userId} data={data} />
       <Insights data={data} />
       <Story data={data} />
 
@@ -286,7 +287,129 @@ function FragmentRow({ label, children }: { label: string; children: React.React
   )
 }
 
-/* ── 3. 所見 ── */
+/* ── 3. 技術マップ (先生ありユーザー特典・spec: project_skill_map_spec) ── */
+const SKILL_GLYPH: Record<string, string> = {
+  slur: "〰️", staccato: "•", portato: "‿", bow_staccato: "•••", tremolo: "🌀",
+  pizzicato: "🤏", spiccato: "✨", ricochet: "🎯",
+  position: "↕️", double: "♬", trill: "tr", mordent: "≈", vibrato: "🫨",
+  glissando: "⤴", harmonic: "◯",
+}
+
+function SkillMapSection({ userId, data }: { userId: string; data: KarteData }) {
+  const [selId, setSelId] = useState<string | null>(null)
+
+  // 先生なし: 特典ティーザー
+  if (!data.skillMap) {
+    return (
+      <div style={{ ...card, textAlign: "center" }}>
+        <div style={{ fontSize: 13, fontWeight: 800 }}>🎻 技術マップ</div>
+        <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
+          スラーやビブラートなど「わざ」の習得と安定が一目でわかる地図。<br />
+          <b>先生とつながると開放</b>されます。
+        </div>
+        <Link href={`/${userId}/find-teacher`}
+          style={{ display: "inline-block", fontSize: 12.5, fontWeight: 800, color: "#fff", background: "#5b6b9e", borderRadius: 9, padding: "9px 18px", textDecoration: "none" }}>
+          🔎 先生を探す →
+        </Link>
+      </div>
+    )
+  }
+
+  const { nodes, currentStar } = data.skillMap
+  const sel = nodes.find((n) => n.id === selId) ?? null
+
+  const nodeStyle = (n: SkillNode): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      width: 46, height: 46, borderRadius: "50%", display: "grid", placeItems: "center",
+      fontSize: 17, fontWeight: 800, border: "2.5px solid", cursor: "pointer",
+      position: "relative", background: "#fff", fontFamily: "inherit", padding: 0,
+    }
+    if (n.state === "stable") return { ...base, borderColor: GOOD.c, background: GOOD.bg }
+    if (n.state === "wobble") return { ...base, borderColor: BAD.c, background: BAD.bg }
+    if (n.state === "acquired_nodata") return { ...base, borderColor: GOOD.bd, background: "#f4faf6" }
+    if (n.state === "ready") return { ...base, borderColor: "#cfd5dc", background: "#fff" }
+    return { ...base, borderColor: "#e2e6ea", background: "#f2f4f7", filter: "grayscale(1)", opacity: 0.7, cursor: "default" }
+  }
+
+  const lane = (title: string, key: "bow" | "left") => (
+    <div style={{ marginTop: 10 }}>
+      <div style={{ ...miniLbl, marginBottom: 8 }}>{title}</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, rowGap: 14 }}>
+        {nodes.filter((n) => n.lane === key).map((n) => (
+          <div key={n.id} style={{ width: 58, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+            <button type="button" onClick={() => n.state !== "locked" && setSelId(selId === n.id ? null : n.id)} style={nodeStyle(n)} aria-label={n.label}>
+              {n.state === "locked" ? "🔒" : SKILL_GLYPH[n.id] ?? "♪"}
+              {n.pct != null && (
+                <span style={{ position: "absolute", bottom: -4, right: -8, fontSize: 8.5, fontWeight: 900, color: "#fff", borderRadius: 999, padding: "1px 5px", background: n.state === "wobble" ? BAD.c : GOOD.c, fontVariantNumeric: "tabular-nums" }}>{n.pct}</span>
+              )}
+              {n.obsTags.length > 0 && (
+                <span style={{ position: "absolute", top: -5, right: -6, width: 15, height: 15, borderRadius: "50%", background: BAD.c, color: "#fff", fontSize: 9, fontWeight: 900, display: "grid", placeItems: "center", border: "1.5px solid #fff" }}>!</span>
+              )}
+              {selId === n.id && <span style={{ position: "absolute", inset: -6, borderRadius: "50%", outline: "3px solid #d7dcf6" }} />}
+            </button>
+            <span style={{ fontSize: 9, fontWeight: 800, textAlign: "center", lineHeight: 1.25, color: n.state === "locked" ? "#aab2bb" : "#4a5766" }}>
+              {n.label}{n.provisional && n.state !== "locked" ? <span style={{ color: "#b7823a" }}>（仮）</span> : ""}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+
+  return (
+    <div style={card}>
+      <div style={secTtl}>🎻 技術マップ <span style={{ fontSize: 10, fontWeight: 700, color: SUB }}>いまの★{currentStar}</span></div>
+      {lane("🏹 右手のわざ（弓）", "bow")}
+      {lane("🤚 左手のわざ", "left")}
+      <div style={{ display: "flex", gap: 10, marginTop: 12, fontSize: 10, color: SUB, fontWeight: 700, flexWrap: "wrap" }}>
+        <span>🟢 安定</span><span>🔴 ゆらぎ</span><span>⚪ これから</span><span>🔒 まだ先（★が足りない）</span><span>🔴! = 先生の所見と関連</span>
+      </div>
+
+      {sel && (
+        <div style={{ border: "1px solid #d7dcf6", borderRadius: 13, overflow: "hidden", marginTop: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 9, background: "#eef0fc", padding: "10px 13px" }}>
+            <span style={{ fontSize: 19 }}>{SKILL_GLYPH[sel.id] ?? "♪"}</span>
+            <b style={{ fontSize: 13.5 }}>{sel.label}</b>
+            <span style={{ marginLeft: "auto", fontSize: 10, fontWeight: 800, color: SUB }}>
+              {sel.state === "stable" ? "習得済み・安定" : sel.state === "wobble" ? "習得済み・ゆらぎ中" : sel.state === "acquired_nodata" ? "習得済み（データ集め中）" : "これから挑戦"}
+              {sel.provisional ? "・仮習得" : ""}
+            </span>
+          </div>
+          <div style={{ padding: "11px 13px" }}>
+            {sel.pct != null ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ width: 46, flex: "none", fontSize: 10.5, fontWeight: 800, color: SUB }}>安定度</span>
+                <span style={{ flex: 1, height: 8, borderRadius: 4, background: "#eef0f4", overflow: "hidden" }}>
+                  <span style={{ display: "block", height: "100%", borderRadius: 4, width: `${sel.pct}%`, background: sel.state === "wobble" ? BAD.c : GOOD.c }} />
+                </span>
+                <b style={{ width: 38, flex: "none", textAlign: "right", fontSize: 12, color: sel.state === "wobble" ? BAD.c : GOOD.c, fontVariantNumeric: "tabular-nums" }}>{sel.pct}%</b>
+              </div>
+            ) : (
+              <div style={{ fontSize: 11.5, color: SUB }}>この期間の録音に「{sel.label}」の音がまだ少ないため、安定度は集計中です。</div>
+            )}
+            {sel.pct != null && (
+              <div style={{ fontSize: 10, color: SUB, marginTop: 5 }}>※ この技術が出てくる音（{sel.target}音）の音程・リズムから算出</div>
+            )}
+
+            {sel.obsTags.length > 0 && (
+              <div style={{ border: "1px solid #f0d4d0", background: "#fbecea", borderRadius: 10, padding: "8px 11px", marginTop: 9 }}>
+                <div style={{ fontSize: 10.5, fontWeight: 800, color: BAD.c, marginBottom: 3 }}>🧍 関連する先生の所見</div>
+                <div style={{ fontSize: 11.5, color: "#4a5766" }}>{sel.obsTags.join("・")}</div>
+              </div>
+            )}
+
+            <Link href={sel.practiceHref}
+              style={{ display: "inline-block", marginTop: 10, fontSize: 11.5, fontWeight: 800, color: "#fff", background: "#c98a2a", borderRadius: 8, padding: "7px 14px", textDecoration: "none" }}>
+              この技術を練習する →
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── 4. AIの見立て ── */
 function Insights({ data }: { data: KarteData }) {
   if (data.insights.length === 0) return null
   return (
