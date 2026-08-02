@@ -4,6 +4,46 @@ import { useState, useRef, useCallback, useEffect } from "react"
 import styles from "./recorder.module.css"
 
 // =========================================================
+// 解析待ちカード (2026-08-02): 解析ジョブ完了までの数分を
+// 「空の-%」ではなく子ども向けの待てる画面にする
+// =========================================================
+
+const WAIT_MSGS = [
+  "アルコが耳をすませて聴いているよ…🎧",
+  "音をひとつずつ確かめ中…🎵",
+  "リズムをかぞえ中…🥁",
+  "きみの良いところを探し中…🌟",
+  "のびしろを見つけ中…🌱",
+]
+
+function AnalysisWaiting() {
+  const [i, setI] = useState(0)
+  useEffect(() => {
+    const t = setInterval(() => setI((v) => (v + 1) % WAIT_MSGS.length), 3200)
+    return () => clearInterval(t)
+  }, [])
+  return (
+    <div style={{ textAlign: "center", padding: "16px 8px 6px" }}>
+      <style>{`
+        @keyframes arcoBob { 0%,100%{ transform: translateY(0) rotate(-4deg) } 50%{ transform: translateY(-7px) rotate(4deg) } }
+        @keyframes waitDot { 0%,80%,100%{ opacity:.25; transform:scale(.8) } 40%{ opacity:1; transform:scale(1) } }
+      `}</style>
+      <div style={{ fontSize: 42, display: "inline-block", animation: "arcoBob 1.6s ease-in-out infinite" }} aria-hidden>🎻</div>
+      <div style={{ fontSize: 14.5, fontWeight: 800, color: "#3a4653", marginTop: 8 }}>録音できた！AIが採点中…</div>
+      <div style={{ fontSize: 12.5, color: "#5b6b7a", marginTop: 6, minHeight: 20 }}>{WAIT_MSGS[i]}</div>
+      <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 10 }} aria-hidden>
+        {[0, 1, 2].map((d) => (
+          <span key={d} style={{ width: 8, height: 8, borderRadius: "50%", background: "#7a8ce0", animation: `waitDot 1.4s ease-in-out ${d * 0.22}s infinite` }} />
+        ))}
+      </div>
+      <div style={{ fontSize: 10.5, color: "#9aa6b3", marginTop: 10, lineHeight: 1.6 }}>
+        だいたい1〜2分だよ。おわったら結果がポンと出るから、<br />そのあいだにもう一回弾く練習をしてもOK！
+      </div>
+    </div>
+  )
+}
+
+// =========================================================
 // スコアランク + フィードバック
 // =========================================================
 
@@ -728,8 +768,24 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
         </div>
       )}
 
-      {/* ⑥ 結果表示 */}
-      {status === "result" && (
+      {/* ⑥ 結果表示。解析(Cloud Run job)が未完のうちは点数が無いので、
+          空の「-%」を見せず ワクワク待ちカード に差し替える (2026-08-02)。
+          完了すると通し録音はアルコ結果オーバーレイが自動で出る。 */}
+      {status === "result" && perfResult?.pitchAccuracy == null && (
+        <div className={styles.resultPanel}>
+          <AnalysisWaiting />
+          {audioUrl && <audio controls src={audioUrl} className={styles.audioPlayer} />}
+          <div className={styles.resultActions}>
+            <button className={styles.retryBtnStrong} onClick={continueToNext}>
+              {getRetryLabel()}
+            </button>
+            <button className={styles.doneBtn} onClick={continueToNext}>
+              完了
+            </button>
+          </div>
+        </div>
+      )}
+      {status === "result" && perfResult?.pitchAccuracy != null && (
         <div className={styles.resultPanel}>
           {perfResult?.isPersonalBest && (
             <div className={styles.personalBest}>自己ベスト更新！</div>
