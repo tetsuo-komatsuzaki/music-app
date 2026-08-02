@@ -580,10 +580,35 @@ export default async function HomePage({ params }: PageProps) {
     teacherSummary = undefined
   }
 
+  // ホーム上部の解析通知 (2026-08-02): 直近24hの録音の採点状況 (採点中チップ+完了バナー)
+  let analysisNotices: { id: string; status: string; scoreId: string; title: string; score: number | null }[] = []
+  try {
+    const rows = await prisma.performance.findMany({
+      where: {
+        userId: dbUser.id,
+        performanceType: "user",
+        createdAt: { gte: new Date(Date.now() - 24 * 3600_000) },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+      select: { id: true, analysisStatus: true, scoreId: true, pitchAccuracy: true, timingAccuracy: true, score: { select: { title: true } } },
+    })
+    analysisNotices = rows.map((r) => ({
+      id: r.id,
+      status: r.analysisStatus,
+      scoreId: r.scoreId,
+      title: r.score.title,
+      score: r.pitchAccuracy != null && r.timingAccuracy != null ? (r.pitchAccuracy + r.timingAccuracy) / 2 : null,
+    }))
+  } catch {
+    analysisNotices = []
+  }
+
   return (
     <HomeClient
       teacherAssignments={teacherAssignments}
       teacherSummary={teacherSummary}
+      analysisNotices={analysisNotices}
       userName={dbUser.name ?? ""}
       streak={streak}
       weeklyDays={weeklyDays}

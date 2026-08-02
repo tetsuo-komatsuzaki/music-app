@@ -10,6 +10,7 @@ import GuideSampleFocus from "@/app/components/GuideSampleFocus"
 import NextPiecesCard from "@/app/components/NextPiecesCard"
 import FavoritesSection, { type FavoriteEntry } from "@/app/components/FavoritesSection"
 import TeacherAssignments, { type StudentAssignment, type TeacherHomeSummary } from "./TeacherAssignments"
+import AnalysisNoticeBar, { type AnalysisNotice } from "@/app/components/AnalysisNoticeBar"
 import hb from "./homeBlocks.module.css"
 import ProgressGuideModal from "@/app/components/ProgressGuideModal"
 import type { SongRecommendation } from "@/app/components/RecommendationItem"
@@ -86,6 +87,8 @@ type Props = {
   teacherAssignments: StudentAssignment[]
   /** 先生からの新着サマリ (未読メッセージ/添削件数)。E (2026-08-01) */
   teacherSummary?: TeacherHomeSummary
+  /** 解析通知 (2026-08-02): 直近24hの録音の採点状況 (採点中/完了) */
+  analysisNotices: AnalysisNotice[]
 }
 
 export default function HomeClient({
@@ -97,6 +100,7 @@ export default function HomeClient({
   favorites,
   teacherAssignments,
   teacherSummary,
+  analysisNotices,
 }: Props) {
   void _userName
   const { userId } = useParams<{ userId: string }>()
@@ -111,6 +115,9 @@ export default function HomeClient({
 
   return (
     <div className={styles.page}>
+
+      {/* ⓪ 解析通知 (採点中チップ / 完了バナー)。該当なしなら何も出ない */}
+      <AnalysisNoticeBar userId={userId} notices={analysisNotices} />
 
       {/* ① マイランクカード (最上部・タップで演奏の軌跡／上達のしくみを内蔵) */}
       <MyRankCard {...rankCard} onGuide={() => setGuideOpen(true)} />
