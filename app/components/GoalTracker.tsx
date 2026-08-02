@@ -3,12 +3,13 @@
 // 見出し・カード枠は呼び手側が用意し、ここは中身 (道バッジ帯 + STEP1達成 + STEP2マスター) のみ描く。
 // データ元は GET /api/scores/[scoreId]/achievement-status。
 
+import Link from "next/link"
 import type { DailyLesson } from "../_libs/dailyLessons"
 
 // achievement-status API レスポンス (route.ts と同期)
 export type AchievementStatus = {
   dailyLessons: DailyLesson[]
-  lessons: { total: number; cleared: number }
+  lessons: { total: number; cleared: number; nextLessonId?: string | null }
   etude: { required: boolean; id?: string; title?: string; achieved?: boolean }
   cleanRuns: { count: number; required: number }
   achieved: boolean
@@ -64,14 +65,24 @@ function GoalRing({ full, pct, done, total }: { full?: boolean; pct?: number; do
   )
 }
 
-function GoalDot({ icon, name, done, st }: { icon: string; name: string; done: boolean; st: string }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5 }}>
+function GoalDot({ icon, name, done, st, href }: { icon: string; name: string; done: boolean; st: string; href?: string | null }) {
+  const body = (
+    <>
       <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", fontSize: 14, background: done ? "#e3f5ea" : "#eef1f5", filter: done ? "none" : "grayscale(.4) opacity(.7)" }}>{icon}</span>
       <span style={{ fontWeight: 700, color: done ? "#1f7a4d" : "#3a4653" }}>{name}</span>
       <span style={{ marginLeft: "auto", fontSize: 11.5, fontWeight: 700, color: done ? "#34a06a" : "#9aa6b3" }}>{st}</span>
-    </div>
+      {!done && href && <span style={{ fontSize: 11, fontWeight: 800, color: "#4a5bd0" }}>やる →</span>}
+    </>
   )
+  // 未クリアで行き先があるものはタップでそのまま飛べる (2026-08-02 行き止まり解消)
+  if (!done && href) {
+    return (
+      <Link href={href} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, textDecoration: "none", background: "#f7f8fd", border: "1px solid #e3e7f6", borderRadius: 9, padding: "5px 8px", margin: "-3px -4px" }}>
+        {body}
+      </Link>
+    )
+  }
+  return <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5 }}>{body}</div>
 }
 
 const goalCheer = (gold?: boolean) => ({
@@ -79,14 +90,16 @@ const goalCheer = (gold?: boolean) => ({
   color: gold ? "#b5651d" : "#2e8b57", background: gold ? "#fbf0da" : "#eafaf0", borderRadius: 10, padding: gold ? 12 : 7,
 })
 
-export default function GoalTracker({ achv }: { achv: AchievementStatus }) {
-  // 達成条件（対象がある曲だけ・通し演奏は常に）→ リング進捗
-  const condItems = [
+export default function GoalTracker({ achv, userId }: { achv: AchievementStatus; userId?: string }) {
+  // 達成条件（対象がある曲だけ・通し演奏は常に）→ リング進捗。
+  // userId があれば未クリア条件はタップでそのまま飛べる (行き止まり解消 2026-08-02)
+  const condItems: { icon: string; name: string; done: boolean; st: string; href?: string | null }[] = [
     ...(achv.lessons.total > 0
       ? [{
           icon: "📘", name: "学びレッスン",
           done: achv.lessons.cleared >= achv.lessons.total,
           st: achv.lessons.cleared >= achv.lessons.total ? "✓" : `${achv.lessons.cleared}/${achv.lessons.total}`,
+          href: userId ? (achv.lessons.nextLessonId ? `/${userId}/lessons/${achv.lessons.nextLessonId}` : `/${userId}/lessons`) : null,
         }]
       : []),
     ...(achv.etude.required
@@ -94,6 +107,7 @@ export default function GoalTracker({ achv }: { achv: AchievementStatus }) {
           icon: "🎼", name: "エチュード",
           done: achv.etude.achieved === true,
           st: achv.etude.achieved ? "✓" : "まだ",
+          href: userId && achv.etude.id ? `/${userId}/practice/etude/${achv.etude.id}` : null,
         }]
       : []),
     {
@@ -140,7 +154,7 @@ export default function GoalTracker({ achv }: { achv: AchievementStatus }) {
               : <GoalRing pct={ringPct} done={condDone} total={condTotal} />}
             <div style={{ display: "flex", flexDirection: "column", gap: 7, flex: 1, minWidth: 0 }}>
               {condItems.map((c) => (
-                <GoalDot key={c.name} icon={c.icon} name={c.name} done={c.done} st={c.st} />
+                <GoalDot key={c.name} icon={c.icon} name={c.name} done={c.done} st={c.st} href={c.href} />
               ))}
             </div>
           </div>

@@ -63,7 +63,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
       {/* ── 1. 達成/マスター進捗 (共通部品 GoalTracker) ── */}
       <section className={styles.summarySection}>
         <h2 className={styles.sectionTitle}>🏆 この曲のゴール</h2>
-        <GoalTracker achv={achv} />
+        <GoalTracker achv={achv} userId={userId} />
       </section>
 
       {/* ── 2. 学びのポイント (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホームと共通ロジック) ── */}

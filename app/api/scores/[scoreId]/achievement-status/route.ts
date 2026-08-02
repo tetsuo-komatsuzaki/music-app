@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
 import { selectDailyLessons } from "@/app/_libs/dailyLessons"
+import { LESSON_BY_TAG } from "@/app/[userId]/lessons/_lib/content"
 
 const CLEAN_RUNS_REQUIRED = 3
 const MASTER_RECENT_COUNT = 5
@@ -251,7 +252,17 @@ export async function GET(
 
   return NextResponse.json({
     dailyLessons,
-    lessons: { total: lessons.length, cleared: lessons.filter((l) => l.cleared).length },
+    lessons: {
+      total: lessons.length,
+      cleared: lessons.filter((l) => l.cleared).length,
+      // 課題チップから直接レッスンへ飛べるように (2026-08-02 断絶修理)。
+      // 未クリアの先頭1件 (=次にやるべきレッスン) の遷移先を返す
+      nextLessonId: (() => {
+        const next = lessons.find((l) => !l.cleared)
+        if (!next) return null
+        return LESSON_BY_TAG.get(`${next.tagType}:${next.tagKey}`)?.id ?? null
+      })(),
+    },
     etude,
     cleanRuns: { count: Math.min(cleanRuns, CLEAN_RUNS_REQUIRED), required: CLEAN_RUNS_REQUIRED },
     achieved: achievement !== null,

@@ -7,7 +7,7 @@ import { ArcoChan, POSES } from "./ArcoChan"
 import styles from "./ArcoResultOverlay.module.css"
 
 type Ach = {
-  lessons: { total: number; cleared: number }
+  lessons: { total: number; cleared: number; nextLessonId?: string | null }
   etude: { required: boolean; achieved?: boolean }
   cleanRuns: { count: number; required: number }
   master: { recentAvg: number | null; threshold: number; scoredCount: number; requiredCount: number }
@@ -77,12 +77,21 @@ export default function ArcoResultOverlay({
   const pose = pickPose(overall)
   const avg = ach?.master?.recentAvg != null ? Math.round(ach.master.recentAvg) : null
 
-  // 条件チップ (点数以外の達成条件。案2: ゲージ+チップ構成 2026-08-02)
-  const chips: { done: boolean; label: string }[] = []
+  // 条件チップ (点数以外の達成条件。案2: ゲージ+チップ構成 2026-08-02)。
+  // 未クリアで行き先があるチップはタップでそのまま飛べる (行き止まり解消)
+  const chips: { done: boolean; label: string; href?: string | null }[] = []
   if (ach) {
     chips.push({ done: ach.cleanRuns.count >= ach.cleanRuns.required, label: `通し ${ach.cleanRuns.count}/${ach.cleanRuns.required}` })
-    if (ach.etude.required) chips.push({ done: !!ach.etude.achieved, label: ach.etude.achieved ? "エチュード ✓" : "エチュード 未" })
-    if (ach.lessons.total > 0) chips.push({ done: ach.lessons.cleared >= ach.lessons.total, label: `レッスン ${ach.lessons.cleared}/${ach.lessons.total}` })
+    if (ach.etude.required) chips.push({
+      done: !!ach.etude.achieved,
+      label: ach.etude.achieved ? "エチュード ✓" : "エチュード 未",
+      href: ach.etude.id ? `/${userId}/practice/etude/${ach.etude.id}?from=${scoreId}` : null,
+    })
+    if (ach.lessons.total > 0) chips.push({
+      done: ach.lessons.cleared >= ach.lessons.total,
+      label: `レッスン ${ach.lessons.cleared}/${ach.lessons.total}`,
+      href: ach.lessons.nextLessonId ? `/${userId}/lessons/${ach.lessons.nextLessonId}` : `/${userId}/lessons`,
+    })
   }
 
   // おすすめ練習 (診断 窓①)
@@ -152,9 +161,16 @@ export default function ArcoResultOverlay({
               {chips.length > 0 && (
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 9, justifyContent: "center" }}>
                   {chips.map((c) => (
-                    <span key={c.label} style={{ fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "3px 9px", border: `1px solid ${c.done ? "#cfe6d8" : "#eef1f4"}`, color: c.done ? "#2e8b57" : "#8a9099", background: c.done ? "#f2faf5" : "transparent" }}>
-                      {c.label}
-                    </span>
+                    !c.done && c.href ? (
+                      <Link key={c.label} href={c.href} onClick={onClose}
+                        style={{ fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "3px 9px", border: "1px solid #d7dcf6", color: "#4a5bd0", background: "#eef0fc", textDecoration: "none" }}>
+                        {c.label} →
+                      </Link>
+                    ) : (
+                      <span key={c.label} style={{ fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "3px 9px", border: `1px solid ${c.done ? "#cfe6d8" : "#eef1f4"}`, color: c.done ? "#2e8b57" : "#8a9099", background: c.done ? "#f2faf5" : "transparent" }}>
+                        {c.label}
+                      </span>
+                    )
                   ))}
                 </div>
               )}
