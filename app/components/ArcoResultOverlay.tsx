@@ -10,7 +10,7 @@ type Ach = {
   lessons: { total: number; cleared: number }
   etude: { required: boolean; achieved?: boolean }
   cleanRuns: { count: number; required: number }
-  master: { recentAvg: number | null; threshold: number }
+  master: { recentAvg: number | null; threshold: number; scoredCount: number; requiredCount: number }
   achieved: boolean
   mastered: boolean
 }
@@ -77,13 +77,12 @@ export default function ArcoResultOverlay({
   const pose = pickPose(overall)
   const avg = ach?.master?.recentAvg != null ? Math.round(ach.master.recentAvg) : null
 
-  // 課題の評価行
-  const taskRows: { done: boolean; label: string; note: string }[] = []
+  // 条件チップ (点数以外の達成条件。案2: ゲージ+チップ構成 2026-08-02)
+  const chips: { done: boolean; label: string }[] = []
   if (ach) {
-    taskRows.push({ done: avg != null && avg >= 90, label: "演奏マスター", note: avg != null ? (avg >= 90 ? "達成" : `あと ${90 - avg}点`) : "—" })
-    taskRows.push({ done: ach.cleanRuns.count >= ach.cleanRuns.required, label: "通しで演奏成功", note: `${ach.cleanRuns.count}/${ach.cleanRuns.required}` })
-    if (ach.etude.required) taskRows.push({ done: !!ach.etude.achieved, label: "エチュード", note: ach.etude.achieved ? "済" : "未" })
-    if (ach.lessons.total > 0) taskRows.push({ done: ach.lessons.cleared >= ach.lessons.total, label: "学びレッスン", note: `${ach.lessons.cleared}/${ach.lessons.total}` })
+    chips.push({ done: ach.cleanRuns.count >= ach.cleanRuns.required, label: `通し ${ach.cleanRuns.count}/${ach.cleanRuns.required}` })
+    if (ach.etude.required) chips.push({ done: !!ach.etude.achieved, label: ach.etude.achieved ? "エチュード ✓" : "エチュード 未" })
+    if (ach.lessons.total > 0) chips.push({ done: ach.lessons.cleared >= ach.lessons.total, label: `レッスン ${ach.lessons.cleared}/${ach.lessons.total}` })
   }
 
   // おすすめ練習 (診断 窓①)
@@ -111,20 +110,56 @@ export default function ArcoResultOverlay({
           </div>
         </div>
 
-        {/* 課題の評価 */}
+        {/* 🏆 マスターまで (案2: 点数ゲージ+90点ライン+条件チップ・2026-08-02確定) */}
         <div className={styles.sec}>
-          <div className={styles.secH}>課題の評価</div>
-          {ach ? (
-            <div className={styles.tasks}>
-              {taskRows.map((t) => (
-                <div key={t.label} className={`${styles.task} ${t.done ? styles.taskDone : ""}`}>
-                  <span className={styles.tk}>{t.done ? "✓" : ""}</span>
-                  <span className={styles.tl}>{t.label}</span>
-                  <span className={styles.tn}>{t.note}</span>
-                </div>
-              ))}
+          <div className={styles.secH}>🏆 マスターまで</div>
+          {!ach ? (
+            <div className={styles.muted}>集計中…</div>
+          ) : ach.mastered ? (
+            <div style={{ textAlign: "center", fontSize: 13, fontWeight: 800, color: "#2e8b57", padding: "6px 0" }}>
+              🏆 この曲はマスター済み！{avg != null ? ` いまの平均 ${avg}点` : ""}
             </div>
-          ) : <div className={styles.muted}>集計中…</div>}
+          ) : (
+            <div>
+              <style>{`@keyframes aroHop { 0%,100%{ transform:translate(-50%,0) } 50%{ transform:translate(-50%,-4px) } }`}</style>
+              {avg != null ? (
+                <>
+                  {/* ゲージ: 直近5回平均 vs 90点ライン */}
+                  <div style={{ position: "relative", height: 14, borderRadius: 7, background: "#eef0f4", margin: "26px 4px 6px" }}>
+                    <span style={{ position: "absolute", inset: "0 auto 0 0", width: `${Math.min(avg, 100)}%`, borderRadius: 7, background: "linear-gradient(90deg,#7a8ce0,#5b6b9e)" }} />
+                    <span style={{ position: "absolute", top: -7, bottom: -7, left: "90%", width: 3, borderRadius: 2, background: "#c9a227" }}>
+                      <span style={{ position: "absolute", top: -19, right: -4, fontSize: 9, fontWeight: 800, color: "#c9a227", whiteSpace: "nowrap" }}>90点=達成ライン</span>
+                    </span>
+                    <span style={{ position: "absolute", top: -24, left: `${Math.min(avg, 100)}%`, transform: "translateX(-50%)", fontSize: 10, fontWeight: 900, color: "#5b6b9e", whiteSpace: "nowrap", animation: "aroHop 1.2s ease-in-out infinite" }}>
+                      きみ {avg}点
+                      <span style={{ display: "block", textAlign: "center", fontSize: 8 }}>▼</span>
+                    </span>
+                  </div>
+                  <div style={{ textAlign: "center", fontSize: 13, fontWeight: 900, marginTop: 10 }}>
+                    {avg >= 90
+                      ? <>90点ラインを超えてるよ！🎉</>
+                      : <>あと <b style={{ color: "#d64541", fontSize: 16 }}>{Math.max(1, Math.ceil(90 - avg))}点</b> で90点ライン！</>}
+                  </div>
+                  {ach.master.scoredCount < ach.master.requiredCount && (
+                    <div style={{ textAlign: "center", fontSize: 10, color: "#9aa6b3", marginTop: 3 }}>
+                      ※ 直近{ach.master.requiredCount}回の平均で判定（いま{ach.master.scoredCount}回）
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className={styles.muted}>採点済みの演奏がたまると、90点ラインまでの距離が出るよ</div>
+              )}
+              {chips.length > 0 && (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 9, justifyContent: "center" }}>
+                  {chips.map((c) => (
+                    <span key={c.label} style={{ fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "3px 9px", border: `1px solid ${c.done ? "#cfe6d8" : "#eef1f4"}`, color: c.done ? "#2e8b57" : "#8a9099", background: c.done ? "#f2faf5" : "transparent" }}>
+                      {c.label}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* おすすめ練習 */}
