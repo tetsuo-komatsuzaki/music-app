@@ -123,7 +123,8 @@ function Reality({ userId, data }: { userId: string; data: KarteData }) {
         </div>
       )}
 
-      <Calendar userId={userId} dayCounts={data.dayCounts} />
+      {/* 月カレンダーは期間と独立した表示なので「直近30日」タブのみに出す (全タブ重複の違和感解消) */}
+      {data.period === "30d" && <Calendar userId={userId} dayCounts={data.dayCounts} />}
     </div>
   )
 }
