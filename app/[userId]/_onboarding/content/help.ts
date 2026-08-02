@@ -33,7 +33,7 @@ export const HELP_CONTENT = {
       { pageKey: "pieces",       icon: "🎶", name: "練習曲",          description: "☆別・ジャンル別に弾く曲を選ぶ",         pathTemplate: "/practice/pieces" },
       { pageKey: "categoryList", icon: "📋", name: "カテゴリ一覧",    description: "種類をしぼって練習を探す",              pathTemplate: null },
       { pageKey: "practiceItem", icon: "🎻", name: "練習アイテム詳細", description: "練習を再生・録音する（操作はスコア詳細と同じ）", pathTemplate: null },
-      { pageKey: "progress",     icon: "📊", name: "成長記録",        description: "練習カレンダーと弱点の確認",            pathTemplate: "/progress" },
+      { pageKey: "progress",     icon: "📖", name: "成長カルテ",      description: "練習の実態・安定マップ・所見・成長の物語", pathTemplate: "/progress" },
     ],
     buttonLabel: "ガイドを再生",
     note: "スコア詳細・カテゴリ一覧・練習アイテム詳細は、そのページを開いてからガイドを再生できます。",

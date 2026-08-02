@@ -1,70 +1,29 @@
 // app/[userId]/progress/page.tsx
 //
-// v1.6 Phase 4-2 (2026-05-16) — 成長記録 (Server Component)。
-//
-// 仕様書 v1.6 §3-5-3 引用:
-//   「Phase 4-2 着手時に詳細仕様化、本書 §1-2 グレード ↔ ★マッピングと §2 マスター条件に整合させる」
-//
-// タブ構成 (Q3=A 確定: 完全に剥がして書き直し):
-//   - 「習得状況」(mastery, デフォルト): UserGradeProgress / SongMastery / UserPracticeMastery 集計
-//   - 「練習カレンダー」(calendar): 既存ロジック温存
-//
-// 旧「あなたの課題」タブは Score 詳細「上達ループ」タブに統合済 (Phase 4-1)。
+// 成長カルテ (2026-08-02 全面作り替え)。
+// 旧・成長記録(グレード/達成一覧/教材件数/あゆみ/3つルールカレンダー)を廃止し、
+// 「練習データを意味のある知見に変換する診断書」= カルテ4章構成に再定義:
+//   1. 練習の実態 (日数/回数/内訳/調カバレッジ/録音ベースのカレンダー)
+//   2. 音の安定マップ (音の動き方グリッド/奏法別/音程×リズム)
+//   3. 所見 (苦手×練習不足の相関知見 + 行動導線)
+//   4. 成長の物語 (達成/マスター/提出/添削/先生の所見/お祝い)
+// 集計は app/_libs/growthKarte.ts (既存データのみ・新テーブル不要)。
 
 import { prisma } from "@/app/_libs/prisma"
-import { PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
-import {
-  badgeKind,
-  gradeFromStar,
-  STAR_UP_ACHIEVEMENTS,
-} from "@/app/_libs/starProgress"
+import { buildKarteData, type KartePeriod } from "@/app/_libs/growthKarte"
 import ProgressPage from "./progressPage"
 
-export const metadata = { title: "成長記録" }
+export const metadata = { title: "成長カルテ" }
 
 type PageProps = {
-  params:       Promise<{ userId: string }>
-  searchParams: Promise<{ tab?: string }>
-}
-
-const VALID_TABS = ["calendar", "mastery", "karte"] as const
-
-function toJSTDateStr(date: Date): string {
-  const jst = new Date(date.getTime() + 9 * 60 * 60 * 1000)
-  return jst.toISOString().split("T")[0]
-}
-
-function calculateStreak(dates: Date[]): number {
-  const uniqueDays = [...new Set(dates.map(toJSTDateStr))].sort().reverse()
-  if (uniqueDays.length === 0) return 0
-
-  const todayStr     = toJSTDateStr(new Date())
-  const yesterdayStr = toJSTDateStr(new Date(Date.now() - 86400000))
-
-  let start: string
-  if      (uniqueDays[0] === todayStr)     start = todayStr
-  else if (uniqueDays[0] === yesterdayStr) start = yesterdayStr
-  else                                      return 0
-
-  let streak = 0
-  for (let i = 0; i < uniqueDays.length; i++) {
-    const expected = toJSTDateStr(
-      new Date(new Date(start + "T00:00:00+09:00").getTime() - i * 86400000)
-    )
-    if (uniqueDays[i] === expected) streak++
-    else break
-  }
-  return streak
+  params: Promise<{ userId: string }>
+  searchParams: Promise<{ period?: string }>
 }
 
 export default async function ProgressServerPage({ params, searchParams }: PageProps) {
   const { userId } = await params
-  const { tab: rawTab = "mastery" } = await searchParams
-  // 旧 tab=tasks (Phase 4-1 で削除) は mastery にフォールバック
-  const normalizedTab = rawTab === "tasks" ? "mastery" : rawTab
-  const tab = (VALID_TABS as readonly string[]).includes(normalizedTab)
-    ? normalizedTab
-    : "mastery"
+  const { period: rawPeriod = "30d" } = await searchParams
+  const period: KartePeriod = rawPeriod === "7d" || rawPeriod === "all" ? rawPeriod : "30d"
 
   const dbUser = await prisma.user.findUnique({
     where: { supabaseUserId: userId },
@@ -72,170 +31,7 @@ export default async function ProgressServerPage({ params, searchParams }: PageP
   })
   if (!dbUser) return <div>User not found</div>
 
-  const internalUserId = dbUser.id
+  const data = await buildKarteData(dbUser.id, userId, period)
 
-  // ── 並列取得 (calendar 用 + mastery タブ用) ──
-  const [
-    practiceAll,
-    scoreAll,
-    starProgress,
-    achievements,
-    practiceAchievements,
-  ] = await Promise.all([
-    // calendar 用: ストリーク + 日別達成カウント
-    prisma.practicePerformance.findMany({
-      where: { userId: internalUserId },
-      select: { uploadedAt: true, performanceDuration: true, comparisonResultPath: true },
-      orderBy: { uploadedAt: "desc" },
-    }),
-    prisma.performance.findMany({
-      where: { userId: internalUserId },
-      select: { uploadedAt: true, performanceDuration: true, comparisonResultPath: true },
-      orderBy: { uploadedAt: "desc" },
-    }),
-    // C-6b (2026-07-11): 新判定体系 — ★の現在地
-    prisma.userStarProgress.findUnique({
-      where: { userId: internalUserId },
-      select: { currentStar: true },
-    }),
-    // 達成/マスターした曲リスト (新記録)
-    prisma.userScoreAchievement.findMany({
-      where: { userId: internalUserId },
-      orderBy: { achievedAt: "desc" },
-      take: 50,
-      select: {
-        scoreId: true,
-        starAtAchievement: true,
-        achievedAt: true,
-        masteredAt: true,
-        score: { select: { title: true, composer: true, star: true } },
-      },
-    }),
-    // 練習教材の達成状況 (新記録を category 別に集計)
-    prisma.userPracticeAchievement.findMany({
-      where: { userId: internalUserId },
-      select: {
-        practiceItem: { select: { category: true } },
-      },
-    }),
-  ])
-
-  // ── ストリーク計算 ──
-  const allDates = [
-    ...practiceAll.map(p => p.uploadedAt),
-    ...scoreAll.map(p => p.uploadedAt),
-  ].filter(Boolean) as Date[]
-  const streak = calculateStreak(allDates)
-
-  // ── 全期間の日別達成カウント (0..3) ──
-  type PerfEntry = { performanceDuration: number | null; comparisonResultPath: string | null }
-  const dayMap = new Map<string, PerfEntry[]>()
-  for (const p of [...practiceAll, ...scoreAll]) {
-    const dStr = toJSTDateStr(p.uploadedAt)
-    if (!dayMap.has(dStr)) dayMap.set(dStr, [])
-    dayMap.get(dStr)!.push(p)
-  }
-
-  const dayAchievements: Record<string, number> = {}
-  for (const [dStr, entries] of dayMap.entries()) {
-    const totalSec = entries.reduce((a, x) => a + (x.performanceDuration ?? 0), 0)
-    const recordCount = entries.length
-    const reviewCount = entries.filter(x => x.comparisonResultPath).length
-
-    let n = 0
-    if (totalSec >= 15 * 60) n++
-    if (recordCount >= 1) n++
-    if (reviewCount >= 2) n++
-
-    if (n > 0) dayAchievements[dStr] = n
-  }
-
-  // ── C-6b: グレード/★データ (新判定体系: ★=UserStarProgress、進捗=同★の達成曲数) ──
-  const currentStar = starProgress?.currentStar ?? 1
-  const currentGrade = gradeFromStar(currentStar)
-  const gradeData = {
-    currentStar,
-    currentGrade,
-    masteredSongCountAtCurrentStar: achievements.filter(
-      a => a.starAtAchievement === currentStar,
-    ).length,
-    gradeUpRequired: STAR_UP_ACHIEVEMENTS,
-    masterReachedAt: null,
-    isMaster: currentGrade === "MASTER",
-  }
-
-  // ── 達成/マスターした曲リスト (マスター≻達成の2段バッジ) ──
-  const masteredSongsData = achievements.map(m => ({
-    scoreId: m.scoreId,
-    title: m.score.title,
-    composer: m.score.composer,
-    star: m.score.star,
-    badge: badgeKind(m) as "mastered" | "achieved",
-    achievedAt: m.achievedAt.toISOString(),
-    masteredAt: m.masteredAt?.toISOString() ?? null,
-  }))
-
-  // ── 練習教材の達成サマリ (category 別カウント: 基礎練6 + エチュード) ──
-  const practiceMasterySummary: Record<string, number> = {}
-  for (const cat of PRACTICE_CATEGORIES) practiceMasterySummary[cat] = 0
-  for (const m of practiceAchievements) {
-    const cat = m.practiceItem.category
-    if (cat in practiceMasterySummary) practiceMasterySummary[cat] += 1
-  }
-
-  // ── 成長カルテ「あゆみ」(企画書§4-1): 演奏・練習・先生の指導・達成が一本の物語に ──
-  // 達成/マスター(常に) + 先生を登録していれば 提出/添削/先生コメント を時系列で混ぜる。
-  const teacherLink = await prisma.teacherStudent.findFirst({
-    where: { studentId: internalUserId },
-    orderBy: { createdAt: "asc" },
-    select: { teacherId: true, teacher: { select: { name: true } } },
-  })
-  type KEvent = { at: number; date: string; text: string; kind: "achieve" | "master" | "submit" | "feedback" | "comment" }
-  const kevents: KEvent[] = []
-  const fmtDate = (d: Date) => d.toLocaleDateString("ja-JP")
-  for (const a of achievements) {
-    kevents.push({ at: a.achievedAt.getTime(), date: fmtDate(a.achievedAt), kind: "achieve", text: `「${a.score.title}」を達成` })
-    if (a.masteredAt) kevents.push({ at: a.masteredAt.getTime(), date: fmtDate(a.masteredAt), kind: "master", text: `「${a.score.title}」をマスター` })
-  }
-  if (teacherLink) {
-    const [subs, fbs, msgs] = await Promise.all([
-      prisma.assignment.findMany({
-        where: { studentId: internalUserId, submittedAt: { not: null } },
-        orderBy: { submittedAt: "desc" }, take: 30,
-        select: { submittedAt: true, submittedScore: true, score: { select: { title: true } }, practiceItem: { select: { title: true } } },
-      }),
-      prisma.teacherFeedback.findMany({
-        where: { studentId: internalUserId, teacherId: teacherLink.teacherId, scoreId: { not: null } },
-        orderBy: { updatedAt: "desc" }, take: 30, select: { updatedAt: true, scoreId: true },
-      }),
-      prisma.message.findMany({
-        where: { studentId: internalUserId, teacherId: teacherLink.teacherId, fromTeacher: true },
-        orderBy: { createdAt: "desc" }, take: 15, select: { createdAt: true, body: true },
-      }),
-    ])
-    const fbTitles = new Map<string, string>()
-    if (fbs.length) {
-      const ss = await prisma.score.findMany({ where: { id: { in: fbs.map((f) => f.scoreId as string) } }, select: { id: true, title: true } })
-      for (const s of ss) fbTitles.set(s.id, s.title)
-    }
-    for (const s of subs) if (s.submittedAt) kevents.push({ at: s.submittedAt.getTime(), date: fmtDate(s.submittedAt), kind: "submit", text: `「${s.score?.title ?? s.practiceItem?.title ?? "課題"}」を提出${s.submittedScore != null ? `（${s.submittedScore}点）` : ""}` })
-    for (const f of fbs) kevents.push({ at: f.updatedAt.getTime(), date: fmtDate(f.updatedAt), kind: "feedback", text: `「${fbTitles.get(f.scoreId as string) ?? "曲"}」に先生の添削がとどいた` })
-    for (const m of msgs) kevents.push({ at: m.createdAt.getTime(), date: fmtDate(m.createdAt), kind: "comment", text: `先生：${m.body}` })
-  }
-  kevents.sort((a, b) => b.at - a.at)
-  const karteEvents = kevents.slice(0, 60).map(({ date, text, kind }) => ({ date, text, kind }))
-
-  return (
-    <ProgressPage
-      tab={tab}
-      userId={userId}
-      streak={streak}
-      dayAchievements={dayAchievements}
-      gradeData={gradeData}
-      masteredSongs={masteredSongsData}
-      practiceMasterySummary={practiceMasterySummary}
-      karteEvents={karteEvents}
-      teacherName={teacherLink?.teacher.name ?? null}
-    />
-  )
+  return <ProgressPage userId={userId} data={data} />
 }
