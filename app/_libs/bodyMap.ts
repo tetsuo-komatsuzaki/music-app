@@ -1,0 +1,76 @@
+// 癖の人体マップ 定義 (2026-08-02・モックv2承認済 1349ea3b)。
+// 癖タグ(observationCatalog)を「体の場所」に対応づける。
+//  - 先生の入力: ビュー切替→部位タップ→その部位のタグだけ表示
+//  - 生徒の表示: ビューごとの癖バッジ + 部位ハイライト (先生あり特典)
+// 座標 x/y は各ビューSVGの viewBox に対する % (BodyFigure と対で管理)。
+
+export type BodyViewId = "body" | "left_out" | "left_in" | "bow_frog" | "bow_tip" | "strings"
+
+export interface BodyView {
+  id: BodyViewId
+  label: string
+  short: string
+  emoji: string
+  caption: string
+}
+
+export const BODY_VIEWS: BodyView[] = [
+  { id: "body", label: "全身", short: "全身", emoji: "🧍", caption: "全身（正面）＋横すがた（猫背・目線）" },
+  { id: "left_out", label: "左手（指板の右側から）", short: "左手·右", emoji: "🤚", caption: "指のかたち・1〜4指の音程" },
+  { id: "left_in", label: "左手（指板の左側から）", short: "左手·左", emoji: "🤚", caption: "手首の折れ・親指・押さえすぎ" },
+  { id: "bow_frog", label: "右手・弓（元弓）", short: "元弓", emoji: "🏹", caption: "元弓（フロッグ寄り）の手と肘" },
+  { id: "bow_tip", label: "右手・弓（先弓）", short: "先弓", emoji: "🏹", caption: "先弓（先端寄り）の手と肘" },
+  { id: "strings", label: "弦の上（弓と弦の接点）", short: "弦の上", emoji: "🎻", caption: "弓の通り道・接点の音" },
+]
+
+export interface BodySpot {
+  id: string
+  view: BodyViewId
+  label: string
+  /** SVGステージに対する位置 (%) */
+  x: number
+  y: number
+  tagIds: string[]
+}
+
+export const BODY_SPOTS: BodySpot[] = [
+  // 全身 (viewBox 300x200)
+  { id: "right_shoulder", view: "body", label: "右肩", x: 16, y: 33, tagIds: ["posture_right_shoulder_up"] },
+  { id: "left_shoulder", view: "body", label: "左肩", x: 38, y: 30, tagIds: ["posture_left_shoulder_tense"] },
+  { id: "neck", view: "body", label: "首", x: 27, y: 12, tagIds: ["posture_head_tilt"] },
+  { id: "violin", view: "body", label: "楽器", x: 40, y: 40, tagIds: ["posture_violin_drops"] },
+  { id: "back", view: "body", label: "背中", x: 69, y: 34, tagIds: ["posture_slouch"] },
+  // 左手・右側から (viewBox 240x190)
+  {
+    id: "fingers", view: "left_out", label: "指", x: 52, y: 22,
+    tagIds: [
+      "left_finger_flat", "left_finger_high", "left_pinky_straight",
+      "pitch_finger1_low", "pitch_finger2_high", "pitch_finger3_low", "pitch_finger4_short",
+      "pitch_semitone_wide", "pitch_no_resonance",
+    ],
+  },
+  // 左手・左側から (viewBox 240x190)
+  { id: "left_wrist", view: "left_in", label: "手首", x: 44, y: 76, tagIds: ["left_wrist_collapse", "left_shift_tense", "pitch_after_shift", "tone_vibrato"] },
+  { id: "left_thumb", view: "left_in", label: "親指", x: 48, y: 30, tagIds: ["left_thumb_position", "left_press_hard"] },
+  // 元弓 (viewBox 240x190)
+  { id: "frog_hand", view: "bow_frog", label: "手", x: 40, y: 42, tagIds: ["bow_pressure_heavy", "bow_distribution"] },
+  { id: "frog_elbow", view: "bow_frog", label: "肘", x: 17, y: 76, tagIds: ["bow_elbow_lag"] },
+  // 先弓 (viewBox 240x190)
+  { id: "tip_hand", view: "bow_tip", label: "手", x: 76, y: 44, tagIds: ["bow_wrist_stiff", "bow_pressure_light"] },
+  { id: "tip_elbow", view: "bow_tip", label: "肘", x: 44, y: 78, tagIds: ["bow_short_stroke"] },
+  // 弦の上 (viewBox 240x140)
+  { id: "contact", view: "strings", label: "弓", x: 45, y: 48, tagIds: ["bow_drift_fingerboard", "bow_drift_bridge", "bow_crooked", "tone_crossing_noise", "tone_scratchy", "tone_weak", "tone_speed_uneven"] },
+]
+
+/** タグID → 部位 (体で表せないタグは undefined) */
+export const SPOT_BY_TAG: Record<string, BodySpot> = Object.fromEntries(
+  BODY_SPOTS.flatMap((s) => s.tagIds.map((t) => [t, s])),
+)
+
+/** ビューごとの部位一覧 */
+export function spotsOf(view: BodyViewId): BodySpot[] {
+  return BODY_SPOTS.filter((s) => s.view === view)
+}
+
+/** 体で表せないカテゴリ (入力UIでは別ボタン) */
+export const NON_BODY_CATEGORIES = ["rhythm", "habit"] as const

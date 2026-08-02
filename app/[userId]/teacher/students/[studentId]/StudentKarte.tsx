@@ -8,6 +8,8 @@ import { createAssignment, sendMessageToStudent, sendCelebration } from "@/app/a
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
 import { createObservation } from "@/app/actions/teacherObservations"
 import { OBSERVATION_CATALOG, OBSERVATION_TAG_BY_ID, OBSERVATION_SEVERITIES } from "@/app/_libs/observationCatalog"
+import { BODY_VIEWS, NON_BODY_CATEGORIES, spotsOf, type BodyViewId } from "@/app/_libs/bodyMap"
+import BodyFigure from "@/app/components/BodyFigure"
 import { goalLabel, dueInfo, DUE_COLOR, scorePassed, goalResult } from "@/app/_libs/assignmentGoal"
 
 type Target = { id: string; title: string; group?: string }
@@ -355,16 +357,25 @@ function Overview({ b, studentId, observations }: { b: Briefing; studentId: stri
 function ObservationSection({ studentId, observations }: { studentId: string; observations: ObservationRow[] }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
-  const [catId, setCatId] = useState(OBSERVATION_CATALOG[0].id)
+  // 選び方 (2026-08-02 人体マップ化): 体のビュー / 体で表せない分類(リズム・習慣) / 全タグ一覧
+  const [mode, setMode] = useState<{ kind: "view"; view: BodyViewId } | { kind: "cat"; catId: string } | { kind: "all" }>({ kind: "view", view: "body" })
+  const [spotId, setSpotId] = useState<string | null>(null)
+  const [allCatId, setAllCatId] = useState(OBSERVATION_CATALOG[0].id)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [severity, setSeverity] = useState<"" | "mild" | "focus">("")
   const [comment, setComment] = useState("")
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const [pending, start] = useTransition()
 
-  const cat = OBSERVATION_CATALOG.find((c) => c.id === catId) ?? OBSERVATION_CATALOG[0]
   const toggleTag = (id: string) =>
     setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n })
+
+  const tagChip = (t: { id: string; label: string }) => (
+    <button key={t.id} type="button" onClick={() => toggleTag(t.id)}
+      style={{ fontSize: 11.5, fontWeight: 700, borderRadius: 9, padding: "6px 11px", cursor: "pointer", border: "1px solid", borderColor: selected.has(t.id) ? "#4a5bd0" : "#e2e6ea", background: selected.has(t.id) ? "#eef0fc" : "#fff", color: selected.has(t.id) ? "#4a5bd0" : "#4a5766" }}>
+      {t.label}
+    </button>
+  )
 
   const save = () => {
     setMsg(null)
@@ -401,24 +412,84 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
 
       {open && (
         <div style={{ border: "1px solid #eef1f4", borderRadius: 12, padding: 12, marginBottom: 10 }}>
-          {/* 分類タブ */}
+          {/* ビュー切替 (人体マップ) + 体で表せない分類 + 全タグ */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 9 }}>
-            {OBSERVATION_CATALOG.map((c) => (
-              <button key={c.id} type="button" onClick={() => setCatId(c.id)}
-                style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: catId === c.id ? "#2b3742" : "#e2e6ea", background: catId === c.id ? "#2b3742" : "#fff", color: catId === c.id ? "#fff" : "#6b7885" }}>
-                {c.emoji} {c.label}
-              </button>
-            ))}
+            {BODY_VIEWS.map((v) => {
+              const on = mode.kind === "view" && mode.view === v.id
+              return (
+                <button key={v.id} type="button" onClick={() => { setMode({ kind: "view", view: v.id }); setSpotId(null) }}
+                  style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885" }}>
+                  {v.emoji} {v.short}
+                </button>
+              )
+            })}
+            {OBSERVATION_CATALOG.filter((c) => (NON_BODY_CATEGORIES as readonly string[]).includes(c.id)).map((c) => {
+              const on = mode.kind === "cat" && mode.catId === c.id
+              return (
+                <button key={c.id} type="button" onClick={() => setMode({ kind: "cat", catId: c.id })}
+                  style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885" }}>
+                  {c.emoji} {c.label}
+                </button>
+              )
+            })}
+            <button type="button" onClick={() => setMode({ kind: "all" })}
+              style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px dashed", borderColor: mode.kind === "all" ? "#2b3742" : "#cdd3d9", background: mode.kind === "all" ? "#2b3742" : "#fff", color: mode.kind === "all" ? "#fff" : "#8a95a1" }}>
+              📄 全タグ
+            </button>
           </div>
-          {/* タグ選択 */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {cat.tags.map((t) => (
-              <button key={t.id} type="button" onClick={() => toggleTag(t.id)}
-                style={{ fontSize: 11.5, fontWeight: 700, borderRadius: 9, padding: "6px 11px", cursor: "pointer", border: "1px solid", borderColor: selected.has(t.id) ? "#4a5bd0" : "#e2e6ea", background: selected.has(t.id) ? "#eef0fc" : "#fff", color: selected.has(t.id) ? "#4a5bd0" : "#4a5766" }}>
-                {t.label}
-              </button>
-            ))}
-          </div>
+
+          {mode.kind === "view" && (() => {
+            const view = BODY_VIEWS.find((v) => v.id === mode.view)!
+            const spots = spotsOf(mode.view)
+            const activeSpot = spots.find((s) => s.id === spotId) ?? null
+            return (
+              <div>
+                {/* イラスト + 部位ボタン */}
+                <div style={{ position: "relative", background: "#fdfaf4", border: "1px solid #f0e9db", borderRadius: 12, padding: 6 }}>
+                  <BodyFigure view={mode.view} className="" />
+                  {spots.map((s) => {
+                    const cnt = s.tagIds.filter((t) => selected.has(t)).length
+                    const on = spotId === s.id
+                    return (
+                      <button key={s.id} type="button" onClick={() => setSpotId((cur) => (cur === s.id ? null : s.id))}
+                        style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, transform: "translate(-50%, -50%)", fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1.5px solid", borderColor: on ? "#4a5bd0" : cnt > 0 ? "#4a5bd0" : "#c9a87c", background: on ? "#4a5bd0" : "#fff", color: on ? "#fff" : cnt > 0 ? "#4a5bd0" : "#7a6a55", boxShadow: "0 1px 4px rgba(60,50,30,.18)", whiteSpace: "nowrap" }}>
+                        {s.label}{cnt > 0 ? ` ${cnt}` : ""}
+                      </button>
+                    )
+                  })}
+                </div>
+                <div style={{ fontSize: 10, color: "#9aa6b3", marginTop: 5 }}>{view.caption} — 気になる場所をタップ</div>
+                {/* タップした部位のタグ */}
+                {activeSpot && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                    {activeSpot.tagIds.filter((id) => OBSERVATION_TAG_BY_ID[id]).map((id) => tagChip({ id, label: OBSERVATION_TAG_BY_ID[id].label }))}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+
+          {mode.kind === "cat" && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {(OBSERVATION_CATALOG.find((c) => c.id === mode.catId)?.tags ?? []).map((t) => tagChip(t))}
+            </div>
+          )}
+
+          {mode.kind === "all" && (
+            <div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 8 }}>
+                {OBSERVATION_CATALOG.map((c) => (
+                  <button key={c.id} type="button" onClick={() => setAllCatId(c.id)}
+                    style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1px solid", borderColor: allCatId === c.id ? "#4a5bd0" : "#e2e6ea", background: allCatId === c.id ? "#eef0fc" : "#fff", color: allCatId === c.id ? "#4a5bd0" : "#6b7885" }}>
+                    {c.emoji} {c.label}
+                  </button>
+                ))}
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {(OBSERVATION_CATALOG.find((c) => c.id === allCatId) ?? OBSERVATION_CATALOG[0]).tags.map((t) => tagChip(t))}
+              </div>
+            </div>
+          )}
           {/* 選択中 (他分類も含む) */}
           {selected.size > 0 && (
             <div style={{ fontSize: 10.5, color: "#6b7885", marginTop: 8 }}>

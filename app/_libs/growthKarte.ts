@@ -118,6 +118,14 @@ export interface KarteData {
   events: KarteEvent[]
   // 技術マップ (先生ありユーザーのみ。無しは null → 特典ティーザー表示)
   skillMap: SkillMapData | null
+  // 癖の人体マップ (先生ありユーザーのみ)。タグごとに最新の所見1件 (severity/日付)
+  bodyObs: BodyObsTag[] | null
+}
+
+export interface BodyObsTag {
+  tagId: string
+  severity: string | null
+  date: string
 }
 
 const JST_MS = 9 * 3600_000
@@ -359,6 +367,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
   // 先生リンクと直近の癖タグ (技術マップでも使うため外に出す)
   let teacherLink: { teacherId: string; teacherName: string } | null = null
   const recentObsTagIds = new Set<string>()
+  const bodyObsMap = new Map<string, BodyObsTag>() // タグ→最新所見 (obsは新しい順なので初出=最新)
   try {
     const link = await prisma.teacherStudent.findFirst({
       where: { studentId: userId },
@@ -404,7 +413,10 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
         text: `${link.teacher.name} 先生が「${(f.scoreId && fbTitles.get(f.scoreId)) ?? "曲"}」を添削`,
       })
       for (const o of obs) {
-        for (const t of o.tagIds) recentObsTagIds.add(t)
+        for (const t of o.tagIds) {
+          recentObsTagIds.add(t)
+          if (!bodyObsMap.has(t)) bodyObsMap.set(t, { tagId: t, severity: o.severity, date: fmtJp(o.createdAt) })
+        }
         const tags = o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).slice(0, 3).join("・")
         events.push({
           at: o.createdAt.getTime(), date: fmtJp(o.createdAt), kind: "observation",
@@ -519,6 +531,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     insights: insights.slice(0, 4),
     events: events.slice(0, 40),
     skillMap,
+    bodyObs: teacherLink ? [...bodyObsMap.values()] : null,
   }
 }
 
