@@ -2032,6 +2032,64 @@ try:
     analysis_summary["primaryIssue"] = primary_issue
     analysis_summary["primaryAdvice"] = primary_advice
 
+    # --- カルテv2 Phase0-2 (2026-08-03): 音符単位サマリ (noteStats) ---
+    # 音名別ミス/セント平均・音域帯(弦域)・遷移(前の音→この音)を analysisSummary に同梱。
+    # フロントがストレージの比較JSONを都度読まずに「音の虫めがね」「音域別」「遷移分析」を
+    # 表示できるようにする (feasibility監査 2026-08-02 の推奨実装)。
+    try:
+        note_stats = {"version": 1, "notes": {}, "registers": {}, "transitions": {}}
+        prev_name = None
+        for r in results:  # results は楽譜順
+            name = r.get("note_name") or None
+            is_eval = r.get("evaluation_status") in EVALUATED_STATUSES
+            if not name:
+                prev_name = None  # 休符等で遷移を切る
+                continue
+            if is_eval:
+                pitch_miss = r.get("pitch_ok") is False
+                timing_miss = r.get("start_ok") is False
+                n = note_stats["notes"].setdefault(
+                    name, {"target": 0, "pitch_miss": 0, "timing_miss": 0, "cents_sum": 0.0, "cents_n": 0})
+                n["target"] += 1
+                if pitch_miss:
+                    n["pitch_miss"] += 1
+                if timing_miss:
+                    n["timing_miss"] += 1
+                ce = r.get("pitch_cents_error")
+                if ce is not None:
+                    n["cents_sum"] += float(ce)
+                    n["cents_n"] += 1
+                # 音域帯 = 弦域の近似: low=G/D線域(<440Hz) / mid=A線域(<659Hz) / high=E線域(>=659Hz)
+                hz = r.get("expected_pitch_hz")
+                if hz:
+                    band = "low" if hz < 440.0 else ("mid" if hz < 659.0 else "high")
+                    b = note_stats["registers"].setdefault(
+                        band, {"target": 0, "pitch_miss": 0, "timing_miss": 0})
+                    b["target"] += 1
+                    if pitch_miss:
+                        b["pitch_miss"] += 1
+                    if timing_miss:
+                        b["timing_miss"] += 1
+                # 遷移: 前の音 → この音 (この音のミスを帰属)
+                if prev_name:
+                    key = f"{prev_name}>{name}"
+                    t = note_stats["transitions"].setdefault(key, {"target": 0, "miss": 0})
+                    t["target"] += 1
+                    if pitch_miss or timing_miss:
+                        t["miss"] += 1
+            prev_name = name
+        for n in note_stats["notes"].values():
+            n["cents_avg"] = round(n["cents_sum"] / n["cents_n"], 1) if n["cents_n"] else None
+            del n["cents_sum"]
+            del n["cents_n"]
+        # サイズ削減: 遷移は出現2回以上のみ保持
+        note_stats["transitions"] = {
+            k: v for k, v in note_stats["transitions"].items() if v["target"] >= 2}
+        analysis_summary["noteStats"] = note_stats
+        print(f"  noteStats: notes={len(note_stats['notes'])} registers={len(note_stats['registers'])} transitions={len(note_stats['transitions'])}")
+    except Exception as e:
+        print(f"  noteStats skipped: {e}")
+
     print(f"  Summary: pitch={pitch_accuracy}% timing={timing_accuracy}% overall={overall_score}%")
     if primary_issue:
         print(f"  Primary issue: {primary_issue}")
