@@ -31,6 +31,8 @@ export type TeacherHomeSummary = {
   feedbackCount: number
   /** 未読のお祝いメッセージがある (🎉 で目立たせる・2026-08-02) */
   unreadCelebration?: boolean
+  /** 直近7日の先生の所見(癖)件数 (既読概念が無いため期間で新着扱い・2026-08-02) */
+  recentObservations?: number
 }
 
 // 期限チップの控えめな色 (近い/過ぎた時だけ弱く色づけ)
@@ -61,9 +63,10 @@ export default function TeacherAssignments({
 
   const unread = summary?.unreadMessages ?? 0
   const feedback = summary?.feedbackCount ?? 0
+  const recentObs = summary?.recentObservations ?? 0
   const hwCount = assignments.length
-  // 宿題も未読も添削も無ければ出さない
-  if (hwCount === 0 && unread === 0 && feedback === 0) return null
+  // 宿題も未読も添削も所見も無ければ出さない
+  if (hwCount === 0 && unread === 0 && feedback === 0 && recentObs === 0) return null
 
   // 畳んでいても分かるよう、最も近い(=最短の締め切り)期限をヘッダーに出す
   const dueDates = assignments.map((a) => a.dueDate).filter((d): d is string => !!d)
@@ -87,6 +90,7 @@ export default function TeacherAssignments({
         )}
         {hwCount > 0 && <span style={badge}>宿題{hwCount}</span>}
         {unread > 0 && <span style={badge}>未読{unread}</span>}
+        {recentObs > 0 && <span style={{ ...chip, color: "#4a5bd0", background: "#eef0fc", border: "1px solid #d7dcf6" }}>📋 新しい所見</span>}
         {headerDue && (() => {
           const c = DUE_CALM[headerDue.state]
           return (
@@ -105,6 +109,12 @@ export default function TeacherAssignments({
             <Link href={`/${userId}/my-teacher`} style={{ fontSize: 11.5, fontWeight: 800, color: "#5b6b9e", textDecoration: "none" }}>💬 メッセージ{unread > 0 ? `（${unread}）` : ""}</Link>
             <span style={{ color: "#dfe3e8" }}>|</span>
             <Link href={`/${userId}/my-teacher`} style={{ fontSize: 11.5, fontWeight: 800, color: "#5b6b9e", textDecoration: "none" }}>✍️ 添削{feedback > 0 ? `（${feedback}）` : ""}</Link>
+            {recentObs > 0 && (
+              <>
+                <span style={{ color: "#dfe3e8" }}>|</span>
+                <Link href={`/${userId}/progress`} style={{ fontSize: 11.5, fontWeight: 800, color: "#4a5bd0", textDecoration: "none" }}>📋 先生の所見 → 癖マップ</Link>
+              </>
+            )}
           </div>
 
           {/* 宿題リスト (タップで対象へ) */}

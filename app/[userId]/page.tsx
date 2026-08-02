@@ -527,7 +527,7 @@ export default async function HomePage({ params }: PageProps) {
     id: string; kind: "score" | "practice"; teacherName: string; title: string; reps: number | null; targetTempo: number | null; comment: string | null; href: string
     dueDate: string | null; goalType: string | null; targetScore: number | null; achieved: boolean; mastered: boolean
   }[] = []
-  let teacherSummary: { teacherName: string | null; unreadMessages: number; feedbackCount: number; unreadCelebration: boolean } | undefined
+  let teacherSummary: { teacherName: string | null; unreadMessages: number; feedbackCount: number; unreadCelebration: boolean; recentObservations: number } | undefined
   try {
     // 先生を登録している生徒のみ「先生から」を出す (解約したら消える)
     const link = await prisma.teacherStudent.findFirst({
@@ -536,7 +536,7 @@ export default async function HomePage({ params }: PageProps) {
       select: { teacherId: true, teacher: { select: { name: true } } },
     })
     if (link) {
-      const [rows, unreadMessages, feedbackCount, unreadCelebrationCount] = await Promise.all([
+      const [rows, unreadMessages, feedbackCount, unreadCelebrationCount, recentObservations] = await Promise.all([
         prisma.assignment.findMany({
           where: { studentId: internalUserId, doneAt: null },
           orderBy: { createdAt: "desc" },
@@ -552,6 +552,10 @@ export default async function HomePage({ params }: PageProps) {
         prisma.message.count({ where: { studentId: internalUserId, teacherId: link.teacherId, fromTeacher: true, readAt: null } }),
         prisma.teacherFeedback.count({ where: { teacherId: link.teacherId, studentId: internalUserId } }),
         prisma.message.count({ where: { studentId: internalUserId, teacherId: link.teacherId, fromTeacher: true, readAt: null, kind: "celebration" } }),
+        // 所見(癖)の新着: 既読概念が無いため直近7日を新着扱い (週1レッスンの起点を塞ぐ・2026-08-02)
+        prisma.teacherObservation.count({
+          where: { studentId: internalUserId, teacherId: link.teacherId, createdAt: { gte: new Date(Date.now() - 7 * 864e5) } },
+        }),
       ])
       const homeAchFlags = await getAchievementFlags(internalUserId, rows.map((a) => a.score?.id))
       teacherAssignments = rows.map((a) => ({
@@ -573,7 +577,7 @@ export default async function HomePage({ params }: PageProps) {
             ? `/${userId}/practice/${a.practiceItem.category}/${a.practiceItem.id}`
             : `/${userId}`,
       }))
-      teacherSummary = { teacherName: link.teacher.name, unreadMessages, feedbackCount, unreadCelebration: unreadCelebrationCount > 0 }
+      teacherSummary = { teacherName: link.teacher.name, unreadMessages, feedbackCount, unreadCelebration: unreadCelebrationCount > 0, recentObservations }
     }
   } catch {
     teacherAssignments = []
