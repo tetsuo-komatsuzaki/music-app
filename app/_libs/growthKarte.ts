@@ -413,11 +413,14 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
         text: `${link.teacher.name} 先生が「${(f.scoreId && fbTitles.get(f.scoreId)) ?? "曲"}」を添削`,
       })
       for (const [oi, o] of obs.entries()) {
-        for (const t of o.tagIds) {
+        // 表現評価 (expr_*) の行は癖系の表示に流さない (Phase1で表現力の章が担当)
+        const kuseTagIds = o.tagIds.filter((t) => !t.startsWith("expr_"))
+        if (kuseTagIds.length === 0 && o.tagIds.length > 0) continue
+        for (const t of kuseTagIds) {
           if (!bodyObsMap.has(t)) bodyObsMap.set(t, { tagId: t, severity: o.severity, date: fmtJp(o.createdAt) })
         }
         if (oi >= 15) continue // 物語に流すのは直近15件まで (残りは状態把握のみ)
-        const tags = o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).slice(0, 3).join("・")
+        const tags = kuseTagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).slice(0, 3).join("・")
         const text =
           o.severity === "resolved" ? `🌱 癖を克服：${tags || "コメント"}` :
           o.severity === "improving" ? `🌿 癖が良くなってきた：${tags || "コメント"}` :

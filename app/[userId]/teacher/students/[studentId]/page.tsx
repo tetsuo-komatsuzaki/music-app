@@ -149,6 +149,8 @@ export default async function StudentKartePage({
 
   // 先生の所見 (2026-08-02): 癖タグの記録履歴 (直近10件)
   let observations: { id: string; tagIds: string[]; severity: string | null; comment: string | null; date: string }[] = []
+  // 表現の評価 (2026-08-03 Phase0-3): expr_* 行 (💪/🔥/🌿)
+  let expressions: { id: string; tagId: string; severity: string | null; comment: string | null; date: string }[] = []
   try {
     const rows = await prisma.teacherObservation.findMany({
       where: { teacherId: me.id, studentId },
@@ -156,10 +158,19 @@ export default async function StudentKartePage({
       take: 40, // 癖マップのタグ最新状態の網羅用 (履歴リスト表示は10件に絞る)
       select: { id: true, tagIds: true, severity: true, comment: true, createdAt: true },
     })
-    observations = rows.map((o) => ({
-      id: o.id, tagIds: o.tagIds, severity: o.severity, comment: o.comment,
-      date: o.createdAt.toLocaleDateString("ja-JP"),
-    }))
+    // 表現評価 (expr_*) は癖の所見と分離して渡す (2026-08-03 Phase0-3)
+    observations = rows
+      .filter((o) => !o.tagIds.some((t) => t.startsWith("expr_")))
+      .map((o) => ({
+        id: o.id, tagIds: o.tagIds, severity: o.severity, comment: o.comment,
+        date: o.createdAt.toLocaleDateString("ja-JP"),
+      }))
+    expressions = rows
+      .filter((o) => o.tagIds.some((t) => t.startsWith("expr_")))
+      .map((o) => ({
+        id: o.id, tagId: o.tagIds[0], severity: o.severity, comment: o.comment,
+        date: o.createdAt.toLocaleDateString("ja-JP"),
+      }))
   } catch {
     observations = []
   }
@@ -256,6 +267,7 @@ export default async function StudentKartePage({
         goal: studentGoal,
       }}
       observations={observations}
+      expressions={expressions}
       scoreTargets={scoreTargets}
       itemTargets={itemTargets}
       allScoreTargets={allScoreTargets}

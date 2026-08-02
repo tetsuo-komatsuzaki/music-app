@@ -7,7 +7,7 @@ import { Resend } from "resend"
 import { prisma } from "./prisma"
 import { supabaseAdmin } from "./supabaseAdmin"
 
-export type NotifyKind = "message" | "feedback" | "assignment" | "celebration" | "observation"
+export type NotifyKind = "message" | "feedback" | "assignment" | "celebration" | "observation" | "expression"
 
 const SUBJECT: Record<NotifyKind, string> = {
   message: "先生からメッセージが届きました",
@@ -15,6 +15,7 @@ const SUBJECT: Record<NotifyKind, string> = {
   assignment: "先生から新しい宿題が届きました",
   celebration: "🎉 先生からお祝いが届きました！",
   observation: "先生からレッスンの所見が届きました",
+  expression: "🎤 先生から表現の評価が届きました",
 }
 const NOUN: Record<NotifyKind, string> = {
   message: "メッセージ",
@@ -22,6 +23,7 @@ const NOUN: Record<NotifyKind, string> = {
   assignment: "宿題",
   celebration: "お祝いメッセージ",
   observation: "所見",
+  expression: "表現の評価",
 }
 
 /** 生徒へ即時メール通知 (best effort)。studentDbUserId / teacherDbUserId は User.id。 */
