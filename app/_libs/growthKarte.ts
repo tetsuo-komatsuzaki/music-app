@@ -8,6 +8,7 @@ import { encodeSignedUrl } from "./encodeSignedUrl"
 import { formatKey } from "./musicNotation"
 import { categoryLabel } from "./practiceConstants"
 import { OBSERVATION_TAG_BY_ID } from "./observationCatalog"
+import { expressionLabel } from "./expressionCatalog"
 import type { DiagnosisJson } from "./weaknessRecommendation"
 
 export type KartePeriod = "7d" | "30d" | "all"
@@ -62,6 +63,16 @@ export interface SkillNode {
   obsTags: string[]
   /** 処方箋リンク先 (practice カテゴリ or トップ) */
   practiceHref: string
+  // ── カルテv2 (2026-08-03 Phase1) ──
+  /** 音程/リズムの2本バー分離 (確定: 苦手の種類を分けて見せる) */
+  pitchPct: number | null
+  rhythmPct: number | null
+  /** 今週vs先週の変化 (両窓 target>=8 のときのみ。無ければ null) */
+  weekDelta: number | null
+  /** 今週 習得した (NEWバッジ) */
+  isNew: boolean
+  /** 録音ごとの安定度% 時系列 (期間内・target>=3 の録音のみ・最大12点。案4パネルのスパークライン) */
+  series: number[]
 }
 
 export interface SkillMapData {
@@ -120,12 +131,101 @@ export interface KarteData {
   skillMap: SkillMapData | null
   // 癖の人体マップ (先生ありユーザーのみ)。タグごとに最新の所見1件 (severity/日付)
   bodyObs: BodyObsTag[] | null
+  // カルテv2 (2026-08-03 Phase1): 数字ヘッダ/表現/発見/きみの歴史
+  v2: KarteV2
 }
 
 export interface BodyObsTag {
   tagId: string
   severity: string | null
   date: string
+}
+
+// ── カルテv2 (2026-08-03 Phase1・確定モック7c74b97d) ──────────────────────
+export interface ExprItem {
+  tagId: string
+  label: string
+  status: "strength" | "improving" | "challenge"
+  comment: string | null
+  date: string
+}
+
+export interface Milestone {
+  at: number
+  date: string
+  icon: string
+  text: string
+}
+
+export interface KarteV2 {
+  /** アルコの解説ひと言 (数字ヘッダ横) */
+  arcoLine: string
+  /** 数字ヘッダ: ★進捗(固定) + 今週の基礎練クリア/わざ習得 (ゼロ週は±0を正直表示) */
+  kpi: { star: number; starDone: number; starRequired: number; basicsWeek: number; skillsWeek: number }
+  /** 表現力 (先生あり)。growing = 🔥挑戦中(🌿improving含む) */
+  expression: { strengths: ExprItem[]; growing: ExprItem[] } | null
+  /** ⑤くわしい数字の表面 = いちばんの発見 + 🔍虫めがね */
+  discovery: {
+    keyWorst: { label: string; pct: number } | null
+    registerWorst: { band: "low" | "mid" | "high"; pct: number } | null
+    lens: {
+      note: string        // カナ表記 (例: ファ♯)
+      raw: string         // 元表記 (例: F#4)
+      hand: string | null // 弦・指の推定 (例: A線・2の指)。1stポジ前提の推定
+      type: string        // ぶら下がり型 / 上ずり型 / ミスが多め
+      cents: number | null
+      fromNote: string | null // この音から来た時に悪化 (カナ)
+      successPct: number
+    } | null
+  }
+  /** ⑥きみの歴史 (節目のみ・新しい順) */
+  milestones: Milestone[]
+}
+
+// ── カルテv2 ヘルパー ──────────────────────────────────────────────
+/** "F#4" → ファ♯ (カナ音名) */
+export function kanaNote(name: string): string {
+  const m = /^([A-G])(#{1,2}|b{1,2})?(\d)?$/.exec(name)
+  if (!m) return name
+  const KANA: Record<string, string> = { C: "ド", D: "レ", E: "ミ", F: "ファ", G: "ソ", A: "ラ", B: "シ" }
+  const acc = m[2]?.startsWith("#") ? "♯" : m[2]?.startsWith("b") ? "♭" : ""
+  return `${KANA[m[1]]}${acc}`
+}
+
+/** "F#4" → 弦・指の推定 (1stポジション前提。範囲外は null) */
+export function noteToHand(name: string): string | null {
+  const m = /^([A-G])(#|b)?(\d)$/.exec(name)
+  if (!m) return null
+  const SEMIS: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }
+  const midi = (parseInt(m[3], 10) + 1) * 12 + SEMIS[m[1]] + (m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0)
+  const OPENS = [
+    { s: "G線", m: 55 }, { s: "D線", m: 62 }, { s: "A線", m: 69 }, { s: "E線", m: 76 },
+  ]
+  let open = OPENS[0]
+  if (midi < open.m) return null
+  for (const o of OPENS) if (midi >= o.m) open = o
+  const d = midi - open.m
+  if (d > 7) return null // 1stポジの範囲外 (上位ポジ) は推定しない
+  const finger = d === 0 ? 0 : Math.ceil(d / 2)
+  return finger === 0 ? `${open.s}・開放` : `${open.s}・${finger}の指`
+}
+
+type SubEntry = { miss: number; target: number }
+/** analysisSummary列から per_subtask 合算マップを作る */
+function subMapOf(rows: Array<{ analysisSummary: unknown }>): Map<string, SubEntry> {
+  const map = new Map<string, SubEntry>()
+  for (const r of rows) {
+    const d = (r.analysisSummary as { diagnosis?: DiagnosisJson } | null)?.diagnosis
+    if (!d?.per_subtask) continue
+    for (const [sid, v] of Object.entries(d.per_subtask)) {
+      if (!v || typeof v.miss !== "number" || typeof v.target !== "number") continue
+      const e = map.get(sid) ?? { miss: 0, target: 0 }
+      e.miss += v.miss
+      e.target += v.target
+      map.set(sid, e)
+    }
+  }
+  return map
 }
 
 const JST_MS = 9 * 3600_000
@@ -165,10 +265,33 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     prisma.userScoreAchievement.findMany({
       where: { userId },
       orderBy: { achievedAt: "desc" },
-      take: 30,
-      select: { achievedAt: true, masteredAt: true, score: { select: { title: true } } },
+      select: { achievedAt: true, masteredAt: true, starAtAchievement: true, score: { select: { title: true } } },
     }),
   ])
+
+  // ── カルテv2: 週次窓 (今週 vs 先週。期間タブと独立) + 今週のクリア/習得 ──
+  const now = Date.now()
+  const weekAgo = new Date(now - 7 * 864e5)
+  const twoWeeksAgo = new Date(now - 14 * 864e5)
+  const [recent14perf, recent14prac, basicsWeekRows] = await Promise.all([
+    prisma.performance.findMany({
+      where: { userId, uploadedAt: { gte: twoWeeksAgo } },
+      select: { uploadedAt: true, analysisSummary: true },
+    }),
+    prisma.practicePerformance.findMany({
+      where: { userId, uploadedAt: { gte: twoWeeksAgo } },
+      select: { uploadedAt: true, analysisSummary: true },
+    }),
+    prisma.userPracticeAchievement.findMany({
+      where: { userId, achievedAt: { gte: weekAgo } },
+      select: { achievedAt: true },
+    }),
+  ])
+  const recent14 = [...recent14perf, ...recent14prac]
+  const week0Rows = recent14.filter((r) => r.uploadedAt >= weekAgo)
+  const week1Rows = recent14.filter((r) => r.uploadedAt < weekAgo)
+  const subWeek0 = subMapOf(week0Rows)
+  const subWeek1 = subMapOf(week1Rows)
 
   // ── カレンダー/連続記録 (全期間・録音した日ベース。旧「3つルール」は廃止) ──
   const dayCounts: Record<string, number> = {}
@@ -365,17 +488,20 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     if (a.masteredAt) events.push({ at: a.masteredAt.getTime(), date: fmtJp(a.masteredAt), kind: "master", text: `「${a.score.title}」をマスター` })
   }
   // 先生リンクと直近の癖タグ (技術マップでも使うため外に出す)
-  let teacherLink: { teacherId: string; teacherName: string } | null = null
+  let teacherLink: { teacherId: string; teacherName: string; since: Date } | null = null
   const recentObsTagIds = new Set<string>()
   const bodyObsMap = new Map<string, BodyObsTag>() // タグ→最新所見 (obsは新しい順なので初出=最新)
+  const exprLatest = new Map<string, { severity: string | null; comment: string | null; at: Date }>() // 表現評価 (v2)
+  const resolvedKuse: Array<{ at: Date; label: string }> = [] // 克服の節目 (v2)
+  const strengthExpr: Array<{ at: Date; label: string }> = [] // 💪昇格の節目 (v2)
   try {
     const link = await prisma.teacherStudent.findFirst({
       where: { studentId: userId },
       orderBy: { createdAt: "asc" },
-      select: { teacherId: true, teacher: { select: { name: true } } },
+      select: { teacherId: true, createdAt: true, teacher: { select: { name: true } } },
     })
     if (link) {
-      teacherLink = { teacherId: link.teacherId, teacherName: link.teacher.name }
+      teacherLink = { teacherId: link.teacherId, teacherName: link.teacher.name, since: link.createdAt }
       const [subs, fbs, obs, cels] = await Promise.all([
         prisma.assignment.findMany({
           where: { studentId: userId, submittedAt: { not: null } },
@@ -389,8 +515,8 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
         }),
         prisma.teacherObservation.findMany({
           where: { studentId: userId, teacherId: link.teacherId },
-          orderBy: { createdAt: "desc" }, take: 40, // 経過記録で行が増えるためタグ最新状態の網羅用に多めに
-          select: { createdAt: true, tagIds: true, severity: true },
+          orderBy: { createdAt: "desc" }, take: 60, // 経過+表現で行が増えるためタグ最新状態の網羅用に多めに
+          select: { createdAt: true, tagIds: true, severity: true, comment: true },
         }),
         prisma.message.findMany({
           where: { studentId: userId, teacherId: link.teacherId, fromTeacher: true, kind: "celebration" },
@@ -413,8 +539,16 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
         text: `${link.teacher.name} 先生が「${(f.scoreId && fbTitles.get(f.scoreId)) ?? "曲"}」を添削`,
       })
       for (const [oi, o] of obs.entries()) {
-        // 表現評価 (expr_*) の行は癖系の表示に流さない (Phase1で表現力の章が担当)
+        // 表現評価 (expr_*) の行は癖系の表示に流さず、v2表現章のデータとして取り込む
         const kuseTagIds = o.tagIds.filter((t) => !t.startsWith("expr_"))
+        for (const t of o.tagIds) {
+          if (!t.startsWith("expr_")) continue
+          if (!exprLatest.has(t)) exprLatest.set(t, { severity: o.severity, comment: o.comment, at: o.createdAt })
+          if (o.severity === "strength") strengthExpr.push({ at: o.createdAt, label: t })
+        }
+        if (o.severity === "resolved") {
+          for (const t of kuseTagIds) resolvedKuse.push({ at: o.createdAt, label: t })
+        }
         if (kuseTagIds.length === 0 && o.tagIds.length > 0) continue
         for (const t of kuseTagIds) {
           if (!bodyObsMap.has(t)) bodyObsMap.set(t, { tagId: t, severity: o.severity, date: fmtJp(o.createdAt) })
@@ -439,24 +573,34 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
 
   // ── 技術マップ (先生ありユーザーのみ・spec: project_skill_map_spec) ──
   let skillMap: SkillMapData | null = null
+  let skillDates: Array<{ tagType: string; tagKey: string; at: Date; kind: "clear" | "acq" }> = []
   if (teacherLink) {
     try {
       const [clears, acqs, starRow] = await Promise.all([
         prisma.userLessonClear.findMany({
           where: { userId },
-          select: { tagType: true, tagKey: true },
+          select: { tagType: true, tagKey: true, clearedAt: true },
         }),
         prisma.userTagAcquisition.findMany({
           where: { userId, state: { not: "REVOKED" } },
-          select: { tagType: true, tagKey: true },
+          select: { tagType: true, tagKey: true, createdAt: true },
         }),
         prisma.userStarProgress.findUnique({ where: { userId }, select: { currentStar: true } }),
       ])
+      skillDates = [
+        ...clears.map((c) => ({ tagType: c.tagType, tagKey: c.tagKey, at: c.clearedAt, kind: "clear" as const })),
+        ...acqs.map((c) => ({ tagType: c.tagType, tagKey: c.tagKey, at: c.createdAt, kind: "acq" as const })),
+      ]
       const currentStar = starRow?.currentStar ?? 1
       const clearSet = new Set(clears.map((c) => `${c.tagType}:${c.tagKey}`))
       const acqSet = new Set(acqs.map((c) => `${c.tagType}:${c.tagKey}`))
       const clearTypes = new Set(clears.map((c) => c.tagType))
       const acqTypes = new Set(acqs.map((c) => c.tagType))
+
+      // v2スパークライン用: 録音ごとの per_subtask マップを1回だけ展開 (ノード15個で使い回す)
+      const rowSubs = [...perfs, ...pracs]
+        .sort((a, b) => a.uploadedAt.getTime() - b.uploadedAt.getTime())
+        .map((r) => subMapOf([r]))
 
       const sumPrefix = (prefixes: string[]) => {
         let miss = 0, target = 0
@@ -507,19 +651,240 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
           state = "acquired_nodata"
         }
 
+        // ── v2: 定義に対する sub 集計器 (ノードのsubIds/position/double を共通化) ──
+        const aggOf = (m: Map<string, SubEntry>): SubEntry => {
+          if (d.subIds.length) {
+            return d.subIds.reduce((a, sid) => {
+              const e = m.get(sid)
+              return e ? { miss: a.miss + e.miss, target: a.target + e.target } : a
+            }, { miss: 0, target: 0 })
+          }
+          if (d.id === "position") {
+            let miss = 0, target = 0
+            for (const [sid, e] of m.entries()) {
+              const mm = /^(?:pitch|rhythm)_posshift_([0-9a-z]+)_([0-9a-z]+)$/.exec(sid)
+              if (mm && mm[1] !== mm[2]) { miss += e.miss; target += e.target }
+            }
+            return { miss, target }
+          }
+          let miss = 0, target = 0
+          for (const [sid, e] of m.entries()) {
+            if (sid.startsWith("pitch_double_") || sid.startsWith("rhythm_double_")) { miss += e.miss; target += e.target }
+          }
+          return { miss, target }
+        }
+        const pctOf = (e: SubEntry, min: number): number | null =>
+          e.target >= min ? Math.max(0, round(100 - (e.miss / e.target) * 100)) : null
+
+        // 音程/リズムの2本分離 (期間集計から)
+        const treeOf = (tree: "pitch" | "rhythm"): SubEntry => {
+          const filtered = new Map([...sub.entries()].filter(([sid]) => sid.startsWith(`${tree}_`)))
+          return aggOf(filtered)
+        }
+        const pitchPct = acquired ? pctOf(treeOf("pitch"), 4) : null
+        const rhythmPct = acquired ? pctOf(treeOf("rhythm"), 4) : null
+
+        // 今週vs先週の変化 (両窓 target>=8 のみ・確定フォールバック規則)
+        const w0 = pctOf(aggOf(subWeek0), 8)
+        const w1 = pctOf(aggOf(subWeek1), 8)
+        const weekDelta = w0 != null && w1 != null ? w0 - w1 : null
+
+        // 今週習得 (NEW)
+        const isNew = skillDates.some((sd) => {
+          if (sd.kind !== "clear") return false // 仮習得の一括付与はNEW扱いしない
+          if (sd.at < weekAgo) return false
+          if (d.tagType === "technique") return sd.tagType === "technique" && d.tagKeys.includes(sd.tagKey)
+          return sd.tagType === d.tagType
+        })
+
+        // 録音ごとの時系列 (案4パネルのスパークライン・期間内・最大12点)
+        const series: number[] = []
+        for (const one of rowSubs) {
+          const p = pctOf(aggOf(one), 3)
+          if (p != null) series.push(p)
+        }
+        const seriesTail = series.slice(-12)
+
         return {
           id: d.id, label: d.label, lane: d.lane, star: d.star, state,
           provisional: acquired && !inClear,
           pct, miss: agg.miss, target: agg.target,
           obsTags: d.obsTagIds.filter((t) => recentObsTagIds.has(t)).map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter((s): s is string => !!s),
           practiceHref: d.practiceCat ? `/${supabaseUserId}/practice/${d.practiceCat}` : `/${supabaseUserId}/practice`,
+          pitchPct, rhythmPct, weekDelta, isNew, series: seriesTail,
         }
       })
       nodes.sort((a, b) => a.star - b.star || a.label.localeCompare(b.label))
       skillMap = { currentStar, nodes }
-    } catch {
+    } catch (e) {
+      console.error("[growthKarte] skillMap build failed:", e)
       skillMap = null
     }
+  }
+
+  // ══ カルテv2 (2026-08-03 Phase1・確定モック7c74b97d) ══════════════════════
+  // KPI: ★進捗 + 今週の基礎練クリア/わざ習得
+  const starRow2 = await prisma.userStarProgress.findUnique({ where: { userId }, select: { currentStar: true } })
+  const kpiStar = skillMap?.currentStar ?? starRow2?.currentStar ?? 1
+  const starDone = achievements.filter((a) => a.starAtAchievement === kpiStar).length
+  // 仮習得(オンボ一括)はノイズになるため、正式習得=レッスンクリアのみ数える (isNew/milestoneと同基準)
+  const skillsWeek = new Set(
+    skillDates.filter((sd) => sd.kind === "clear" && sd.at >= weekAgo).map((sd) => `${sd.tagType}:${sd.tagKey}`),
+  ).size
+  const kpi = { star: kpiStar, starDone, starRequired: 10, basicsWeek: basicsWeekRows.length, skillsWeek }
+
+  // 表現力 (先生あり): タグごとの最新状態 → 💪 / 🔥(🌿含む)
+  let expression: KarteV2["expression"] = null
+  if (teacherLink) {
+    const items: ExprItem[] = [...exprLatest.entries()].map(([tagId, e]) => ({
+      tagId,
+      label: expressionLabel(tagId),
+      status: (e.severity === "strength" ? "strength" : e.severity === "improving" ? "improving" : "challenge") as ExprItem["status"],
+      comment: e.comment,
+      date: fmtJp(e.at),
+    }))
+    expression = {
+      strengths: items.filter((i) => i.status === "strength"),
+      growing: items.filter((i) => i.status !== "strength"),
+    }
+  }
+
+  // ⑤の表面 = いちばんの発見 (調 → 音域 → 🔍虫めがね)。noteStats を期間で合算
+  const nsNotes = new Map<string, { target: number; miss: number; centsSum: number; centsN: number }>()
+  const nsRegs = new Map<string, { target: number; miss: number }>()
+  const nsTrans = new Map<string, { target: number; miss: number }>()
+  for (const r of [...perfs, ...pracs]) {
+    const ns = (r.analysisSummary as { noteStats?: {
+      notes?: Record<string, { target: number; pitch_miss: number; timing_miss: number; cents_avg: number | null }>
+      registers?: Record<string, { target: number; pitch_miss: number; timing_miss: number }>
+      transitions?: Record<string, { target: number; miss: number }>
+    } } | null)?.noteStats
+    if (!ns) continue
+    for (const [k, v] of Object.entries(ns.notes ?? {})) {
+      const e = nsNotes.get(k) ?? { target: 0, miss: 0, centsSum: 0, centsN: 0 }
+      e.target += v.target
+      e.miss += v.pitch_miss + v.timing_miss
+      if (v.cents_avg != null) { e.centsSum += v.cents_avg * v.target; e.centsN += v.target }
+      nsNotes.set(k, e)
+    }
+    for (const [k, v] of Object.entries(ns.registers ?? {})) {
+      const e = nsRegs.get(k) ?? { target: 0, miss: 0 }
+      e.target += v.target
+      e.miss += v.pitch_miss + v.timing_miss
+      nsRegs.set(k, e)
+    }
+    for (const [k, v] of Object.entries(ns.transitions ?? {})) {
+      const e = nsTrans.get(k) ?? { target: 0, miss: 0 }
+      e.target += v.target
+      e.miss += v.miss
+      nsTrans.set(k, e)
+    }
+  }
+  const successOf = (miss: number, target: number, axes: number) =>
+    Math.max(0, round(100 - (miss / Math.max(1, target * axes)) * 100))
+  // 調: 音程平均が最低のもの (3回以上)
+  let keyWorst: KarteV2["discovery"]["keyWorst"] = null
+  for (const [label, e] of keyAgg.entries()) {
+    if (e.count < 3 || e.pitchN === 0) continue
+    const avg = round(e.pitchSum / e.pitchN)
+    if (!keyWorst || avg < keyWorst.pct) keyWorst = { label, pct: avg }
+  }
+  // 音域: 成功率最低の帯 (10音以上)
+  let registerWorst: KarteV2["discovery"]["registerWorst"] = null
+  for (const [band, e] of nsRegs.entries()) {
+    if (e.target < 10) continue
+    const pct = successOf(e.miss, e.target, 2)
+    if (!registerWorst || pct < registerWorst.pct) registerWorst = { band: band as "low" | "mid" | "high", pct }
+  }
+  // 🔍虫めがね: ミス率最大の音 (6音以上・ミス1以上)
+  let lens: KarteV2["discovery"]["lens"] = null
+  {
+    let worst: { name: string; e: { target: number; miss: number; centsSum: number; centsN: number }; rate: number } | null = null
+    for (const [name, e] of nsNotes.entries()) {
+      if (e.target < 6 || e.miss === 0) continue
+      const rate = e.miss / (e.target * 2)
+      if (!worst || rate > worst.rate) worst = { name, e, rate }
+    }
+    if (worst) {
+      const cents = worst.e.centsN ? round((worst.e.centsSum / worst.e.centsN) * 10) / 10 : null
+      const type = cents != null && cents <= -15 ? "ぶら下がり型（ビミョウに低い）"
+        : cents != null && cents >= 15 ? "上ずり型（ビミョウに高い）" : "ミスが多め"
+      let fromNote: string | null = null
+      let fromRate = 0
+      for (const [k, t] of nsTrans.entries()) {
+        if (!k.endsWith(`>${worst.name}`) || t.target < 3 || t.miss === 0) continue
+        const r = t.miss / t.target
+        if (r > fromRate) { fromRate = r; fromNote = k.split(">")[0] }
+      }
+      lens = {
+        note: kanaNote(worst.name), raw: worst.name, hand: noteToHand(worst.name),
+        type, cents, fromNote: fromNote ? kanaNote(fromNote) : null,
+        successPct: successOf(worst.e.miss, worst.e.target, 2),
+      }
+    }
+  }
+
+  // ⑥きみの歴史 (節目のみ)
+  const milestones: Milestone[] = []
+  const pushMs = (at: Date, icon: string, text: string) => milestones.push({ at: at.getTime(), date: fmtJp(at), icon, text })
+  {
+    const allDates = [...allPerfDates, ...allPracDates].map((r) => r.uploadedAt)
+    if (allDates.length) pushMs(new Date(Math.min(...allDates.map((d) => d.getTime()))), "🎙", "はじめての録音")
+  }
+  if (teacherLink) pushMs(teacherLink.since, "👩‍🏫", "先生とつながった日")
+  for (const a of achievements) {
+    pushMs(a.achievedAt, "✨", `「${a.score.title}」を達成`)
+    if (a.masteredAt) pushMs(a.masteredAt, "🏆", `「${a.score.title}」をマスター`)
+  }
+  {
+    // ★昇格: 同★の10個目の達成日 = 昇格日
+    const byStar = new Map<number, Date[]>()
+    for (const a of achievements) {
+      const arr = byStar.get(a.starAtAchievement) ?? []
+      arr.push(a.achievedAt)
+      byStar.set(a.starAtAchievement, arr)
+    }
+    for (const [star, dates] of byStar.entries()) {
+      if (dates.length >= 10) {
+        dates.sort((x, y) => x.getTime() - y.getTime())
+        pushMs(dates[9], "⭐", `★${star + 1} に昇格！`)
+      }
+    }
+  }
+  {
+    // わざ習得 (レッスンクリアのみ節目扱い。オンボ一括の仮習得はノイズになるため除く)
+    const POS_LABEL: Record<string, string> = { "2": "2ndポジション", "3": "3rdポジション", "4": "4thポジション", "5": "5thポジション", "6": "6thポジション以上" }
+    for (const sd of skillDates) {
+      if (sd.kind !== "clear") continue
+      const label = sd.tagType === "technique" ? sd.tagKey
+        : sd.tagType === "position" ? (POS_LABEL[sd.tagKey] ?? `${sd.tagKey}ポジション`)
+        : sd.tagKey === "連続重音" ? "連続重音" : `重音(${sd.tagKey})`
+      pushMs(sd.at, "🎓", `わざ「${label}」を習得`)
+    }
+  }
+  for (const rk of resolvedKuse) pushMs(rk.at, "🌱", `癖「${OBSERVATION_TAG_BY_ID[rk.label]?.label ?? rk.label}」を克服`)
+  for (const se of strengthExpr) pushMs(se.at, "💪", `表現「${expressionLabel(se.label)}」が強みに`)
+  milestones.sort((a, b) => b.at - a.at)
+
+  // アルコのひと言 (ルールベース)
+  const weekRecCount = week0Rows.length
+  let topUp: { label: string; delta: number } | null = null
+  for (const n of skillMap?.nodes ?? []) {
+    if (n.weekDelta != null && n.weekDelta > 0 && (!topUp || n.weekDelta > topUp.delta)) topUp = { label: n.label, delta: n.weekDelta }
+  }
+  const arcoLine =
+    topUp && topUp.delta >= 3 ? `今週は${topUp.label}がのびたね！`
+    : skillsWeek > 0 ? `新しいわざを${skillsWeek}個 習得！すごい！`
+    : kpi.basicsWeek > 0 ? `基礎練を${kpi.basicsWeek}個クリア、いい調子！`
+    : weekRecCount > 0 ? `今週は${weekRecCount}回れんしゅうしたね。つみ重ねが力になるよ`
+    : "今週も、いっしょにコツコツいこう🎻"
+
+  const v2: KarteV2 = {
+    arcoLine,
+    kpi,
+    expression,
+    discovery: { keyWorst, registerWorst, lens },
+    milestones: milestones.slice(0, 20),
   }
 
   return {
@@ -538,6 +903,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     events: events.slice(0, 40),
     skillMap,
     bodyObs: teacherLink ? [...bodyObsMap.values()] : null,
+    v2,
   }
 }
 
