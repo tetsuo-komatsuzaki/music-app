@@ -944,6 +944,216 @@ export interface SkillDetailData {
   guidance: SkillGuidance[]
 }
 
+// ══ Phase2 D2: 表現の詳細 (2026-08-03) ═══════════════════════════════════
+export interface ExpressionDetailData {
+  tagId: string
+  label: string
+  kid: string | null // 子ども語の説明 (カタログ語彙のみ。自由入力はnull)
+  status: "strength" | "improving" | "challenge"
+  history: Array<{ date: string; status: string; comment: string | null }> // 古い順
+  arcoLine: string
+}
+
+export async function buildExpressionDetail(
+  userId: string, tagId: string,
+): Promise<ExpressionDetailData | null> {
+  if (!tagId.startsWith("expr_")) return null
+  const link = await prisma.teacherStudent.findFirst({
+    where: { studentId: userId }, orderBy: { createdAt: "asc" }, select: { teacherId: true },
+  })
+  if (!link) return null // 先生あり特典
+  const rows = await prisma.teacherObservation.findMany({
+    where: { studentId: userId, teacherId: link.teacherId, tagIds: { has: tagId } },
+    orderBy: { createdAt: "asc" },
+    select: { createdAt: true, severity: true, comment: true },
+  })
+  if (rows.length === 0) return null
+  const latest = rows[rows.length - 1]
+  const status = (latest.severity === "strength" ? "strength" : latest.severity === "improving" ? "improving" : "challenge") as ExpressionDetailData["status"]
+  const { EXPRESSION_TAG_BY_ID } = await import("./expressionCatalog")
+  const cat = EXPRESSION_TAG_BY_ID[tagId]
+  const label = expressionLabel(tagId)
+  const arcoLine =
+    status === "strength" ? `「${label}」はきみの強み！この武器で歌える曲、ホームにおすすめしておくね`
+    : status === "improving" ? `💪まであと少し！つぎの録音でも「${label}」を意識してみよう`
+    : `いまの挑戦は「${label}」。先生と一緒に、少しずついこう`
+  return {
+    tagId, label, kid: cat?.kid ?? null, status,
+    history: rows.map((r) => ({ date: fmtJp(r.createdAt), status: r.severity ?? "challenge", comment: r.comment })),
+    arcoLine,
+  }
+}
+
+// ══ Phase2 D3: 数字のへや (2026-08-03) ═══════════════════════════════════
+export interface NumbersRoomData {
+  period: KartePeriod
+  keys: Array<{ label: string; count: number; pct: number }>
+  registers: Array<{ band: "low" | "mid" | "high"; target: number; pct: number }>
+  tempoBands: Array<{ label: string; count: number; pct: number }>
+  worstNotes: Array<{ kana: string; raw: string; hand: string | null; target: number; pct: number; cents: number | null }>
+  bestNotes: Array<{ kana: string; raw: string; target: number; pct: number }>
+  transitions: Array<{ from: string; to: string; target: number; missRate: number }>
+  weekMoved: Array<{ label: string; delta: number }>
+}
+
+export async function buildNumbersRoom(
+  userId: string, period: KartePeriod,
+): Promise<NumbersRoomData> {
+  const since = periodSince(period)
+  const [perfs, pracs] = await Promise.all([
+    prisma.performance.findMany({
+      where: { userId, uploadedAt: { gte: since } },
+      select: {
+        uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, analysisSummary: true,
+        score: { select: { keyTonic: true, keyMode: true, defaultTempo: true } },
+      },
+    }),
+    prisma.practicePerformance.findMany({
+      where: { userId, uploadedAt: { gte: since } },
+      select: {
+        uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, analysisSummary: true,
+        practiceItem: { select: { keyTonic: true, keyMode: true } },
+      },
+    }),
+  ])
+  const rows = [...perfs.map((p) => ({ ...p, key: p.score, tempo: p.score?.defaultTempo ?? null })),
+    ...pracs.map((p) => ({ ...p, key: p.practiceItem, tempo: null as number | null }))]
+
+  // 調べつ (演奏スコア平均)
+  const keyAgg = new Map<string, { count: number; sum: number; n: number }>()
+  for (const r of rows) {
+    if (!r.key?.keyTonic) continue
+    const label = formatKey(r.key.keyTonic, r.key.keyMode)
+    const e = keyAgg.get(label) ?? { count: 0, sum: 0, n: 0 }
+    e.count++
+    if (r.pitchAccuracy != null && r.timingAccuracy != null) { e.sum += (r.pitchAccuracy + r.timingAccuracy) / 2; e.n++ }
+    keyAgg.set(label, e)
+  }
+  const keys = [...keyAgg.entries()]
+    .filter(([, e]) => e.n >= 2)
+    .map(([label, e]) => ({ label, count: e.count, pct: round(e.sum / e.n) }))
+    .sort((a, b) => a.pct - b.pct)
+
+  // noteStats 合算 (音域/音/遷移)
+  const nsNotes = new Map<string, { target: number; miss: number; centsSum: number; centsN: number }>()
+  const nsRegs = new Map<string, { target: number; miss: number }>()
+  const nsTrans = new Map<string, { target: number; miss: number }>()
+  const addNs = (summary: unknown) => {
+    const ns = (summary as { noteStats?: {
+      notes?: Record<string, { target: number; pitch_miss: number; timing_miss: number; cents_avg: number | null }>
+      registers?: Record<string, { target: number; pitch_miss: number; timing_miss: number }>
+      transitions?: Record<string, { target: number; miss: number }>
+    } } | null)?.noteStats
+    if (!ns) return
+    for (const [k, v] of Object.entries(ns.notes ?? {})) {
+      const e = nsNotes.get(k) ?? { target: 0, miss: 0, centsSum: 0, centsN: 0 }
+      e.target += v.target; e.miss += v.pitch_miss + v.timing_miss
+      if (v.cents_avg != null) { e.centsSum += v.cents_avg * v.target; e.centsN += v.target }
+      nsNotes.set(k, e)
+    }
+    for (const [k, v] of Object.entries(ns.registers ?? {})) {
+      const e = nsRegs.get(k) ?? { target: 0, miss: 0 }
+      e.target += v.target; e.miss += v.pitch_miss + v.timing_miss
+      nsRegs.set(k, e)
+    }
+    for (const [k, v] of Object.entries(ns.transitions ?? {})) {
+      const e = nsTrans.get(k) ?? { target: 0, miss: 0 }
+      e.target += v.target; e.miss += v.miss
+      nsTrans.set(k, e)
+    }
+  }
+  for (const r of rows) addNs(r.analysisSummary)
+  const success2 = (miss: number, target: number) => Math.max(0, round(100 - (miss / Math.max(1, target * 2)) * 100))
+
+  const registers = ([...nsRegs.entries()] as Array<["low" | "mid" | "high", { target: number; miss: number }]>)
+    .filter(([, e]) => e.target >= 6)
+    .map(([band, e]) => ({ band, target: e.target, pct: success2(e.miss, e.target) }))
+    .sort((a, b) => a.pct - b.pct)
+
+  // テンポ帯 (曲のdefaultTempo。録音時bpmが貯まったらそちらへ進化)
+  const tempoAgg = new Map<string, { count: number; sum: number; n: number }>()
+  for (const r of rows) {
+    if (r.tempo == null) continue
+    const label = r.tempo <= 80 ? "〜♩80 (ゆっくり)" : r.tempo < 100 ? "♩81〜99" : "♩100〜 (はやい)"
+    const e = tempoAgg.get(label) ?? { count: 0, sum: 0, n: 0 }
+    e.count++
+    if (r.pitchAccuracy != null && r.timingAccuracy != null) { e.sum += (r.pitchAccuracy + r.timingAccuracy) / 2; e.n++ }
+    tempoAgg.set(label, e)
+  }
+  const tempoBands = [...tempoAgg.entries()]
+    .filter(([, e]) => e.n >= 2)
+    .map(([label, e]) => ({ label, count: e.count, pct: round(e.sum / e.n) }))
+    .sort((a, b) => a.pct - b.pct)
+
+  const noteRows = [...nsNotes.entries()]
+    .filter(([, e]) => e.target >= 4)
+    .map(([raw, e]) => ({
+      raw, kana: kanaNote(raw), hand: noteToHand(raw), target: e.target,
+      pct: success2(e.miss, e.target),
+      cents: e.centsN ? Math.round((e.centsSum / e.centsN) * 10) / 10 : null,
+    }))
+  const worstNotes = [...noteRows].sort((a, b) => a.pct - b.pct).slice(0, 8)
+  const bestNotes = [...noteRows].sort((a, b) => b.pct - a.pct).slice(0, 3)
+    .map(({ kana, raw, target, pct }) => ({ kana, raw, target, pct }))
+
+  const transitions = [...nsTrans.entries()]
+    .filter(([, e]) => e.target >= 3 && e.miss > 0)
+    .map(([k, e]) => {
+      const [from, to] = k.split(">")
+      return { from: kanaNote(from), to: kanaNote(to), target: e.target, missRate: round((e.miss / e.target) * 100) }
+    })
+    .sort((a, b) => b.missRate - a.missRate)
+    .slice(0, 5)
+
+  // 今週うごいた枝 (調・音域を週窓で比較)
+  const weekAgo = new Date(Date.now() - 7 * 864e5)
+  const twoWeeksAgo = new Date(Date.now() - 14 * 864e5)
+  const inWin = (d: Date, a: Date, b: Date | null) => d >= a && (b == null || d < b)
+  const weekMoved: Array<{ label: string; delta: number }> = []
+  {
+    const aggWin = (a: Date, b: Date | null) => {
+      const kk = new Map<string, { sum: number; n: number }>()
+      const rr = new Map<string, { target: number; miss: number }>()
+      for (const r of rows) {
+        if (!inWin(r.uploadedAt, a, b)) continue
+        if (r.key?.keyTonic && r.pitchAccuracy != null && r.timingAccuracy != null) {
+          const label = formatKey(r.key.keyTonic, r.key.keyMode)
+          const e = kk.get(label) ?? { sum: 0, n: 0 }
+          e.sum += (r.pitchAccuracy + r.timingAccuracy) / 2; e.n++
+          kk.set(label, e)
+        }
+        const ns = (r.analysisSummary as { noteStats?: { registers?: Record<string, { target: number; pitch_miss: number; timing_miss: number }> } } | null)?.noteStats
+        for (const [k, v] of Object.entries(ns?.registers ?? {})) {
+          const e = rr.get(k) ?? { target: 0, miss: 0 }
+          e.target += v.target; e.miss += v.pitch_miss + v.timing_miss
+          rr.set(k, e)
+        }
+      }
+      return { kk, rr }
+    }
+    const w0 = aggWin(weekAgo, null)
+    const w1 = aggWin(twoWeeksAgo, weekAgo)
+    const REG_LABEL: Record<string, string> = { low: "低い弦域", mid: "まん中", high: "高い弦域" }
+    for (const [label, e0] of w0.kk.entries()) {
+      const e1 = w1.kk.get(label)
+      if (e0.n >= 2 && e1 && e1.n >= 2) {
+        const d = round(e0.sum / e0.n) - round(e1.sum / e1.n)
+        if (d !== 0) weekMoved.push({ label, delta: d })
+      }
+    }
+    for (const [band, e0] of w0.rr.entries()) {
+      const e1 = w1.rr.get(band)
+      if (e0.target >= 6 && e1 && e1.target >= 6) {
+        const d = success2(e0.miss, e0.target) - success2(e1.miss, e1.target)
+        if (d !== 0) weekMoved.push({ label: REG_LABEL[band] ?? band, delta: d })
+      }
+    }
+    weekMoved.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
+  }
+
+  return { period, keys, registers, tempoBands, worstNotes, bestNotes, transitions, weekMoved: weekMoved.slice(0, 6) }
+}
+
 /** 技術1つの詳細分析 (全期間)。先生なし/不明IDは null (呼び手でリダイレクト)。 */
 export async function buildSkillDetail(
   userId: string, supabaseUserId: string, techId: string,

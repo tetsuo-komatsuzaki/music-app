@@ -9,10 +9,10 @@ const INK = "#2b3742"
 const SUB = "#8a9099"
 const GOOD = "#2e8b57"
 const BAD = "#c0473a"
-const ACCENT = "#4a5bd0"
+const ACCENT = "#3555d4"
 
 const card: React.CSSProperties = {
-  background: "#fff", border: "1px solid #eef1f4", borderRadius: 16,
+  background: "#fff", border: "1px solid #eceff3", borderRadius: 12,
   padding: "15px 16px", marginBottom: 12, boxShadow: "0 1px 3px rgba(30,45,70,.04)",
 }
 const secTtl: React.CSSProperties = { fontSize: 12.5, fontWeight: 800, margin: "0 0 10px" }
@@ -186,9 +186,9 @@ function Chart({ data }: { data: SkillDetailData }) {
           {annos.map((a, i) => (
             <line key={i} x1={x(a.at)} y1={PAD - 4} x2={x(a.at)} y2={H - PAD} stroke={a.kind === "lesson_clear" ? "#c98a2a" : "#c0473a"} strokeWidth="1.4" strokeDasharray="3 3" />
           ))}
-          <polyline points={pts} fill="none" stroke="#4a5bd0" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
+          <polyline points={pts} fill="none" stroke="#3555d4" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
           {data.series.map((s, i) => (
-            <circle key={i} cx={x(s.at)} cy={y(s.pct)} r={i === data.series.length - 1 ? 4.2 : 2.6} fill="#4a5bd0" stroke="#fff" strokeWidth="1.5" />
+            <circle key={i} cx={x(s.at)} cy={y(s.pct)} r={i === data.series.length - 1 ? 4.2 : 2.6} fill="#3555d4" stroke="#fff" strokeWidth="1.5" />
           ))}
         </svg>
         {/* 注釈ラベル */}

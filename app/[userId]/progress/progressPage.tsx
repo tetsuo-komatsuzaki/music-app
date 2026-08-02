@@ -72,7 +72,7 @@ export default function ProgressPage({ userId, data, readOnly = false }: {
       <SkillMapV2 userId={userId} data={data} readOnly={readOnly} />
       <ExpressionSectionV2 userId={userId} data={data} readOnly={readOnly} />
       <BodyMapSection data={data} />
-      <DiscoverySection data={data} />
+      <DiscoverySection userId={userId} data={data} readOnly={readOnly} />
       <HistorySection data={data} />
 
       {!readOnly && <OnboardingTrigger pageKey="progress" />}
@@ -275,14 +275,20 @@ function ExpressionSectionV2({ userId, data, readOnly }: { userId: string; data:
       </div>
     )
   }
-  const chip = (label: string, kind: "str" | "grow", extra?: string) => (
-    <span key={label + kind} style={{
+  const chip = (tagId: string, label: string, kind: "str" | "grow", extra?: string) => {
+    const style: React.CSSProperties = {
       display: "inline-block", fontSize: 11, fontWeight: 800, borderRadius: 999, padding: "4px 12px", margin: "2px 4px 2px 0",
       color: kind === "str" ? GOLD : ACC,
       background: kind === "str" ? "#fbf3dc" : "#eef1fc",
       border: kind === "str" ? "1.5px solid #e8d9ae" : "1.5px dashed #b9c2f0",
-    }}>{label}{extra ? ` ${extra}` : ""}</span>
-  )
+      textDecoration: "none",
+    }
+    const body = `${label}${extra ? ` ${extra}` : ""}`
+    // タップで表現の詳細 (D2) へ (先生の閲覧モードはリンクなし)
+    return readOnly
+      ? <span key={tagId} style={style}>{body}</span>
+      : <Link key={tagId} href={`/${userId}/progress/expression/${encodeURIComponent(tagId)}`} style={style}>{body} →</Link>
+  }
   return (
     <div style={card}>
       <div style={secTtl}>🎤 表現力 <span style={subLbl}>先生の評価</span></div>
@@ -295,13 +301,13 @@ function ExpressionSectionV2({ userId, data, readOnly }: { userId: string; data:
           {ex.strengths.length > 0 && (
             <div style={{ marginBottom: ex.growing.length ? 8 : 0 }}>
               <div style={{ ...subLbl, color: GOLD }}>💪 きみのとくい</div>
-              <div style={{ marginTop: 3 }}>{ex.strengths.map((i) => chip(i.label, "str"))}</div>
+              <div style={{ marginTop: 3 }}>{ex.strengths.map((i) => chip(i.tagId, i.label, "str"))}</div>
             </div>
           )}
           {ex.growing.length > 0 && (
             <div>
               <div style={{ ...subLbl, color: ACC }}>🔥 挑戦中</div>
-              <div style={{ marginTop: 3 }}>{ex.growing.map((i) => chip(i.label, "grow", i.status === "improving" ? "🌿" : ""))}</div>
+              <div style={{ marginTop: 3 }}>{ex.growing.map((i) => chip(i.tagId, i.label, "grow", i.status === "improving" ? "🌿" : ""))}</div>
             </div>
           )}
         </>
@@ -328,13 +334,17 @@ function BodyMapSection({ data }: { data: KarteData }) {
 }
 
 /* ── ⑤ くわしい数字: いちばんの発見 + 🔍虫めがね + ▸折りたたみ(実態・調・奏法) ── */
-function DiscoverySection({ data }: { data: KarteData }) {
+function DiscoverySection({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
   const d = data.v2.discovery
   const BAND_LABEL: Record<string, string> = { low: "低い弦域（G・D線）", mid: "まん中（A線域）", high: "高い弦域（E線域）" }
   const hasFinding = d.keyWorst || d.registerWorst || d.lens
   return (
     <div style={card}>
-      <div style={secTtl}>📊 くわしい数字</div>
+      <div style={secTtl}>📊 くわしい数字
+        {!readOnly && (
+          <Link href={`/${userId}/progress/numbers`} style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>数字のへや →</Link>
+        )}
+      </div>
       {!hasFinding ? (
         <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>録音がたまると、苦手な調・音域・音がここに見えてくるよ。</div>
       ) : (
