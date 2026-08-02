@@ -450,7 +450,9 @@ model PracticePerformance {
   uploadedAt           DateTime @default(now())
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
+  // 2026-08-02: Cascade→Restrict。教材カタログ再構築が全ユーザーの録音履歴を
+  // 無言で道連れにした事故の再発防止 (録音がある教材は hard delete 不可)
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Restrict)
 
   // ▼ 解析結果サマリー（段階3: ハイブリッド方式）
   pitchAccuracy   Float?
@@ -818,7 +820,8 @@ model UserPracticeMastery {
   updatedAt             DateTime  @updatedAt
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
+  // 2026-08-02: Cascade→Restrict (ユーザー習得履歴の保護)
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Restrict)
 
   @@unique([userId, practiceItemId])
   @@index([userId, isPerformanceMastered])
@@ -892,7 +895,8 @@ model UserPracticeAchievement {
   achievedAt     DateTime @default(now())
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
+  // 2026-08-02: Cascade→Restrict (ユーザー達成履歴の保護)
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Restrict)
 
   @@unique([userId, practiceItemId])
   @@index([userId])
@@ -951,7 +955,8 @@ model UserLessonPlay {
   updatedAt      DateTime @updatedAt
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
+  // 2026-08-02: Cascade→Restrict (レッスン演奏履歴の保護)
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Restrict)
 
   @@unique([userId, practiceItemId])
 }
@@ -1259,8 +1264,8 @@ model TeacherProfile {
   lessonStyle  String? // 指導方針・レッスンの流れ
   area         String? // 対応地域・場所(対面の目安)
   availability String? // 対応できる曜日・時間帯(目安)
-  ages         String[] // 対象年齢(未就学/小学生/中高生/大人/シニア)
-  genres       String[] // ジャンル(クラシック/ポップス/ジャズ 等)
+  ages         String[] @default([]) // 対象年齢(未就学/小学生/中高生/大人/シニア)
+  genres       String[] @default([]) // ジャンル(クラシック/ポップス/ジャズ 等)
   published   Boolean  @default(false) // 「先生を探す」に掲載する
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
