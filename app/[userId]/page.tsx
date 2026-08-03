@@ -690,11 +690,24 @@ export default async function HomePage({ params }: PageProps) {
     analysisNotices = []
   }
 
+  // 編み込み案4 (2026-08-03): わざ点灯の祝い (直近7日のレッスンクリア=正式習得のみ)
+  let skillLits: { key: string; label: string }[] = []
+  try {
+    const rows = await prisma.userLessonClear.findMany({
+      where: { userId: internalUserId, clearedAt: { gte: new Date(Date.now() - 7 * 864e5) } },
+      orderBy: { clearedAt: "desc" },
+      take: 3,
+      select: { tagType: true, tagKey: true },
+    })
+    skillLits = rows.map((r) => ({ key: `${r.tagType}:${r.tagKey}`, label: r.tagKey }))
+  } catch { skillLits = [] }
+
   return (
     <HomeClient
       teacherAssignments={teacherAssignments}
       teacherSummary={teacherSummary}
       analysisNotices={analysisNotices}
+      skillLits={skillLits}
       starterPick={starterPick}
       userName={dbUser.name ?? ""}
       streak={streak}

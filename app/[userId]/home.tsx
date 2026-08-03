@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import MyRankCard from "@/app/components/MyRankCard"
@@ -91,6 +91,8 @@ type Props = {
   analysisNotices: AnalysisNotice[]
   /** 🌟 まずはこれから (2026-08-02・旅の地図の後継): 録音0ユーザー向けの最初の1曲。null=非表示 */
   starterPick: { title: string; star: number | null; reason: string; href: string; cover: string | null } | null
+  /** 編み込み案4 (2026-08-03): 直近7日で点灯したわざ (レッスンクリア=正式習得のみ) */
+  skillLits: { key: string; label: string }[]
 }
 
 export default function HomeClient({
@@ -103,6 +105,7 @@ export default function HomeClient({
   teacherAssignments,
   teacherSummary,
   analysisNotices,
+  skillLits,
   starterPick,
 }: Props) {
   void _userName
@@ -121,6 +124,7 @@ export default function HomeClient({
 
       {/* ⓪ 解析通知 (採点中チップ / 完了バナー)。該当なしなら何も出ない */}
       <AnalysisNoticeBar userId={userId} notices={analysisNotices} />
+      <SkillLitBanner userId={userId} lits={skillLits} />
 
       {/* 🌟 まずはこれから (録音0ユーザーの一等地。旅の地図の後継・案5「きみへのセレクト」確定 2026-08-02):
           おすすめ1曲だけをドンと出す。弾き始めたら消えて「いま練習している曲」に世代交代 */}
@@ -192,6 +196,47 @@ export default function HomeClient({
 
       <ProgressGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
       <OnboardingTrigger pageKey={ending ? "homeEnding" : "home"} />
+    </div>
+  )
+}
+
+/** 編み込み案4 (2026-08-03): わざ点灯の祝いバナー。
+ * レッスンクリア(正式習得)から7日以内のわざを金色バナーで祝い、カルテ技術マップへの入口にする。
+ * 既読は localStorage (キー単位) — 一度とじたわざは再表示しない。 */
+function SkillLitBanner({ userId, lits }: { userId: string; lits: { key: string; label: string }[] }) {
+  const SEEN_KEY = "arcoda_seen_skill_lit_v1"
+  const [visible, setVisible] = useState<{ key: string; label: string }[]>([])
+  useEffect(() => {
+    try {
+      const seen: string[] = JSON.parse(localStorage.getItem(SEEN_KEY) ?? "[]")
+      setVisible(lits.filter((l) => !seen.includes(l.key)))
+    } catch { setVisible(lits) }
+  }, [lits])
+  if (visible.length === 0) return null
+  const dismiss = () => {
+    try {
+      const seen: string[] = JSON.parse(localStorage.getItem(SEEN_KEY) ?? "[]")
+      localStorage.setItem(SEEN_KEY, JSON.stringify([...new Set([...seen, ...visible.map((l) => l.key)])]))
+    } catch { /* 保存できなくても表示は消す */ }
+    setVisible([])
+  }
+  const labels = visible.map((l) => `「${l.label}」`).join("と")
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: 8, margin: "0 0 10px", padding: "10px 12px",
+      borderRadius: 12, background: "linear-gradient(135deg,#fdf6e0,#f9ecc8)", border: "1px solid #eed9a0",
+    }}>
+      <span style={{ fontSize: 18 }}>⭐</span>
+      <div style={{ flex: 1, minWidth: 0, fontSize: 12, fontWeight: 800, color: "#7a6420", lineHeight: 1.5 }}>
+        わざ{labels}が点灯したよ！🎉
+        <Link href={`/${userId}/progress`} style={{ marginLeft: 6, color: "#4a5bd0", textDecoration: "underline", fontWeight: 800 }}>
+          カルテの技術マップで見る
+        </Link>
+      </div>
+      <button type="button" onClick={dismiss} aria-label="とじる"
+        style={{ flex: "none", border: "none", background: "none", color: "#b8a260", fontSize: 14, cursor: "pointer", padding: 4 }}>
+        ✕
+      </button>
     </div>
   )
 }
