@@ -1,8 +1,8 @@
 // GET /api/performances/[id]/growth-line
 //
 // 成長の編み込み 案3 (2026-08-03): 採点直後の「成長1行」。
-// この演奏の per_subtask を、直近30日 (この演奏より前・曲/基礎練横断) のベースラインと比べ、
-// いちばん伸びたわざを返す。伸びが無ければ line: null (でっち上げない)。
+// 分母改定 (同日Tetsuo指示): 窓vs窓。now=直近30日(この演奏含む) / base=その前の30日 (30〜60日前)。
+// どちらも曲/基礎練横断の音符合算 (各8個以上)。伸びが無ければ line: null (でっち上げない)。
 //
 // レスポンス: { line: { label, from, to } | null }
 // 認可: Performance.userId === dbUser.id のみ、他者は404 (diagnosis と同方針)
@@ -40,20 +40,29 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
 
-  const since = new Date(perf.uploadedAt.getTime() - 30 * 864e5)
-  const [prevPerfs, prevPracs] = await Promise.all([
+  const since30 = new Date(perf.uploadedAt.getTime() - 30 * 864e5)
+  const since60 = new Date(perf.uploadedAt.getTime() - 60 * 864e5)
+  const [nowPerfs, nowPracs, basePerfs, basePracs] = await Promise.all([
     prisma.performance.findMany({
-      where: { userId: dbUserId, uploadedAt: { gte: since, lt: perf.uploadedAt }, id: { not: perf.id } },
+      where: { userId: dbUserId, uploadedAt: { gte: since30, lte: perf.uploadedAt } },
       select: { analysisSummary: true },
     }),
     prisma.practicePerformance.findMany({
-      where: { userId: dbUserId, uploadedAt: { gte: since, lt: perf.uploadedAt } },
+      where: { userId: dbUserId, uploadedAt: { gte: since30, lte: perf.uploadedAt } },
+      select: { analysisSummary: true },
+    }),
+    prisma.performance.findMany({
+      where: { userId: dbUserId, uploadedAt: { gte: since60, lt: since30 } },
+      select: { analysisSummary: true },
+    }),
+    prisma.practicePerformance.findMany({
+      where: { userId: dbUserId, uploadedAt: { gte: since60, lt: since30 } },
       select: { analysisSummary: true },
     }),
   ])
 
-  const now = buildSubMap([perf.analysisSummary])
-  const base = buildSubMap([...prevPerfs, ...prevPracs].map((r) => r.analysisSummary))
+  const now = buildSubMap([...nowPerfs, ...nowPracs].map((r) => r.analysisSummary))
+  const base = buildSubMap([...basePerfs, ...basePracs].map((r) => r.analysisSummary))
   const line = computeGrowthLine(now, base, GROWTH_DEFS)
 
   // 先生の強み (案5・2026-08-03): タグごとの最新所見が severity=strength の数。

@@ -39,8 +39,8 @@ const pctOf = (m: SubMap, subIds: string[], minTarget: number): number | null =>
 }
 
 /**
- * 成長1行の選定。
- * - 今回: 対象音符3個以上 / ベースライン(直近30日): 8個以上 — 少数サンプルの嘘を出さない
+ * 成長1行の選定 (2026-08-03 分母改定: 窓vs窓)。
+ * - now = 直近30日(この演奏含む) / base = その前の30日 — どちらも合算8個以上 (1回の録音のブレを見せない)
  * - 丸め後 +3pt 以上 伸びたわざのうち、いちばん伸びたもの1つ。無ければ null (でっち上げない)
  */
 export function computeGrowthLine(now: SubMap, base: SubMap, defs: SkillSubDef[]): GrowthLine | null {
@@ -48,7 +48,7 @@ export function computeGrowthLine(now: SubMap, base: SubMap, defs: SkillSubDef[]
   let bestPriority = -1
   for (const d of defs) {
     if (d.subIds.length === 0) continue
-    const to = pctOf(now, d.subIds, 3)
+    const to = pctOf(now, d.subIds, 8)
     const from = pctOf(base, d.subIds, 8)
     if (to == null || from == null) continue
     const rTo = Math.round(to)

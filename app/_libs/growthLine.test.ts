@@ -25,9 +25,9 @@ describe("buildSubMap", () => {
 
 describe("computeGrowthLine", () => {
   it("+3pt以上 伸びたわざを返す (74→78)", () => {
-    // base: miss 26/100 = 74% / now: miss 1/9+0/3 → (1-1/12)=91.7%…ではなく現実的に: 22/100→78%
+    // base(前の30日): miss 26/100 = 74% / now(直近30日): miss 22/100 = 78%
     const base = buildSubMap([summary({ pitch_tech_slur: { miss: 26, target: 100 } })])
-    const now = buildSubMap([summary({ pitch_tech_slur: { miss: 2, target: 9 } })]) // 77.8→78
+    const now = buildSubMap([summary({ pitch_tech_slur: { miss: 22, target: 100 } })])
     const line = computeGrowthLine(now, base, DEFS)
     expect(line).toEqual({ label: "スラー", from: 74, to: 78 })
   })
@@ -37,27 +37,27 @@ describe("computeGrowthLine", () => {
       pitch_tech_staccato: { miss: 30, target: 100 },  // 70%
     })])
     const now = buildSubMap([summary({
-      pitch_tech_slur: { miss: 1, target: 4 },        // 75% (+5)
-      pitch_tech_staccato: { miss: 0, target: 5 },    // 100% (+30)
+      pitch_tech_slur: { miss: 2, target: 8 },        // 75% (+5)
+      pitch_tech_staccato: { miss: 0, target: 8 },    // 100% (+30)
     })])
     expect(computeGrowthLine(now, base, DEFS)?.label).toBe("スタッカート")
   })
-  it("今回target<3 / ベースtarget<8 は対象外", () => {
+  it("直近30日側・前30日側とも合算8個未満は対象外", () => {
     const base7 = buildSubMap([summary({ pitch_tech_slur: { miss: 0, target: 7 } })])
-    const now = buildSubMap([summary({ pitch_tech_slur: { miss: 0, target: 3 } })])
+    const now = buildSubMap([summary({ pitch_tech_slur: { miss: 0, target: 8 } })])
     expect(computeGrowthLine(now, base7, DEFS)).toBeNull()
     const base8 = buildSubMap([summary({ pitch_tech_slur: { miss: 3, target: 8 } })])
-    const now2 = buildSubMap([summary({ pitch_tech_slur: { miss: 0, target: 2 } })])
+    const now2 = buildSubMap([summary({ pitch_tech_slur: { miss: 0, target: 7 } })])
     expect(computeGrowthLine(now2, base8, DEFS)).toBeNull()
   })
   it("伸びが+3pt未満なら null (でっち上げない)", () => {
     const base = buildSubMap([summary({ pitch_tech_slur: { miss: 25, target: 100 } })]) // 75%
-    const now = buildSubMap([summary({ pitch_tech_slur: { miss: 1, target: 4 } })]) // 75%
+    const now = buildSubMap([summary({ pitch_tech_slur: { miss: 2, target: 8 } })]) // 75%
     expect(computeGrowthLine(now, base, DEFS)).toBeNull()
   })
   it("下がったときも null (成長1行はポジティブ専用)", () => {
     const base = buildSubMap([summary({ pitch_tech_slur: { miss: 10, target: 100 } })]) // 90%
-    const now = buildSubMap([summary({ pitch_tech_slur: { miss: 2, target: 4 } })]) // 50%
+    const now = buildSubMap([summary({ pitch_tech_slur: { miss: 4, target: 8 } })]) // 50%
     expect(computeGrowthLine(now, base, DEFS)).toBeNull()
   })
 })
