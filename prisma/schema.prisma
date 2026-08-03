@@ -120,6 +120,9 @@ model Score {
   timeNumerator    Int?
   timeDenominator  Int?
   defaultTempo     Int?
+  // ▼ 表現特徴 (2026-08-04): analysis.json の集約キャッシュ (exprSongFeatures.ts)。
+  // 「合う曲」推薦用。null=未計算 (表示時にオンデマンド計算して保存)
+  exprFeatures     Json?
   isShared         Boolean        @default(false) // true=全ユーザー閲覧可のサンプル
 
   // ループエンジン用フィールド (2026-05-10 追加 / v1.3 で difficulty → star リネーム)
