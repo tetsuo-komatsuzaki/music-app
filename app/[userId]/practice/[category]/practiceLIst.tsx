@@ -128,6 +128,22 @@ function CategoryCover({ category, cover }: { category: string; cover?: string |
   )
 }
 
+// 編み込み案4/案2 (2026-08-03): 教材わざラベル。技術マップ/わざ点灯バナーと同じ語彙 (TechniqueTag名) を
+// 教材カードに表示し、「この教材はカルテのこのわざを伸ばす」の繋がりを見せる。主タグのみ・最大2つ。
+function TechChips({ names }: { names: string[] }) {
+  if (names.length === 0) return null
+  return (
+    <>
+      {names.slice(0, 2).map((n) => (
+        <span key={n} style={{
+          fontSize: 9, fontWeight: 800, color: "#7a6420", background: "#fdf3d8",
+          border: "1px solid #eed9a0", borderRadius: 999, padding: "1px 7px", whiteSpace: "nowrap",
+        }}>⭐ {n}</span>
+      ))}
+    </>
+  )
+}
+
 // 基礎練カード (曲以外): カバー / タイトル / ◯ポジション / 薄い線 / 説明文(左)・スコア or 未練習(右端)。
 // (2026-07-18 Tetsuo指示。「最終練習」表記は撤去し、右端はベストスコア/未練習)
 function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: string; category: string }) {
@@ -137,9 +153,10 @@ function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: s
       <CategoryCover category={category} cover={item.coverImagePath} />
       <div className={styles.itemCardBody}>
         <div className={styles.matTitle}>{item.title.replace(/_/g, "・")}</div>
-        {pos && (
-          <div className={styles.basicTop}>
-            <span className={styles.posCircle}>{pos}</span>
+        {(pos || item.techniques.length > 0) && (
+          <div className={styles.basicTop} style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+            {pos && <span className={styles.posCircle}>{pos}</span>}
+            <TechChips names={item.techniques} />
           </div>
         )}
         <div className={styles.basicDivider} />
@@ -169,6 +186,7 @@ function RailCard({ item, userId, category, onOpen }: {
       <div className={styles.railCardTitle}>{item.title.replace(/_/g, "・")}</div>
       <div className={styles.railCardMeta}>
         {pos && <span className={styles.railPos}>{pos}</span>}
+        <TechChips names={item.techniques} />
         {item.bestScore != null ? (
           <span className={styles.railBest}>ベスト {item.bestScore}</span>
         ) : (

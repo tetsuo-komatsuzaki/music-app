@@ -67,8 +67,9 @@ export default async function CategoryPage({
         where,
         orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
         include: {
+          // 編み込み案2 (2026-08-03): わざラベル用。isPrimary は全件false運用のため全タグ取得し、
+          // 表示側で「1〜2個の教材のみ」チップ化 (スケール系の奏法バリエーション6個はノイズなので出さない)
           techniques: {
-            where: { isPrimary: true },
             include: { techniqueTag: { select: { name: true } } },
           },
           // 重音の度数区分用 (double_stop カテゴリの特徴タグ名)
@@ -148,7 +149,7 @@ export default async function CategoryPage({
       modeVariant,
       chordType,
       positions: item.positions,
-      techniques: item.techniques.map((t) => t.techniqueTag.name),
+      techniques: item.techniques.length <= 2 ? item.techniques.map((t) => t.techniqueTag.name) : [],
       intervals: item.featureTags
         .filter((f) => f.featureTag?.category === "double_stop")
         .map((f) => f.featureTag!.name),
