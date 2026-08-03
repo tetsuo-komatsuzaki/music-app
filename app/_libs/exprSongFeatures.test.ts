@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest"
-import { computeExprFeatures, rankSongsForExpr, EXPR_MATCH_MIN, type ExprFeatures } from "./exprSongFeatures"
+import {
+  computeExprFeatures, rankSongsForExpr, percentileThreshold, EXPR_AXES, type ExprFeatures,
+} from "./exprSongFeatures"
 import type { SymbolSourceAnalysis } from "./scoreSymbols"
 
 const note = (i: number, over: Record<string, unknown> = {}) => ({ note_index: i, type: "quarter", pitches: [523], ...over })
@@ -36,30 +38,41 @@ describe("computeExprFeatures", () => {
   })
 })
 
-describe("rankSongsForExpr", () => {
+describe("percentileThreshold (上位5%)", () => {
+  it("100曲なら上位5位の値がしきい値", () => {
+    const values = Array.from({ length: 100 }, (_, i) => (i + 1) / 100) // 0.01..1.00
+    expect(percentileThreshold(values)).toBe(0.96) // 降順5番目
+  })
+  it("少数カタログでも最低1曲は通る", () => {
+    expect(percentileThreshold([0.1, 0.5, 0.3])).toBe(0.5) // ceil(3*0.05)=1 → 最大値
+  })
+  it("全曲0なら Infinity (合う曲なし)", () => {
+    expect(percentileThreshold([0, 0, 0])).toBe(Infinity)
+  })
+})
+
+describe("rankSongsForExpr (相対順位)", () => {
   const feat = (over: Partial<ExprFeatures>): ExprFeatures => ({
     v: 1, notes: 100, slurDensity: 0, longSlurRate: 0, staccatoDensity: 0,
     dynamicsVariety: 0, hairpinCount: 0, longToneRate: 0, lowRegisterRate: 0, vibratoTag: false, ...over,
   })
-  it("レガート: スラー密度が高くテンポ緩やかな曲が上位", () => {
+  it("しきい値以上だけを降順で返す (0は常に除外)", () => {
     const ranked = rankSongsForExpr("expr_legato_singing", [
-      { id: "a", title: "アリア", features: feat({ slurDensity: 0.7 }), tempo: 70 },
-      { id: "b", title: "速い曲", features: feat({ slurDensity: 0.7 }), tempo: 160 },
-      { id: "c", title: "刻み曲", features: feat({ slurDensity: 0.05 }), tempo: 80 },
-    ])
-    expect(ranked[0].id).toBe("a")
-    expect(ranked.find((r) => r.id === "c")).toBeUndefined() // 最低ライン未満は出さない
+      { id: "a", title: "アリア", features: feat({ slurDensity: 0.7 }) },
+      { id: "b", title: "中位曲", features: feat({ slurDensity: 0.3 }) },
+      { id: "c", title: "刻み曲", features: feat({ slurDensity: 0 }) },
+    ], 0.6)
+    expect(ranked.map((r) => r.id)).toEqual(["a"])
   })
-  it("ルバート (未対応語彙) は空", () => {
+  it("削除済み語彙 (ルバート等) は空", () => {
     expect(rankSongsForExpr("expr_rubato", [
-      { id: "a", title: "x", features: feat({}), tempo: null },
-    ])).toEqual([])
+      { id: "a", title: "x", features: feat({}) },
+    ], 0)).toEqual([])
   })
-  it("最低ライン EXPR_MATCH_MIN を下回る曲だけなら空 (でっち上げない)", () => {
-    const ranked = rankSongsForExpr("expr_articulation", [
-      { id: "a", title: "x", features: feat({ staccatoDensity: 0.05 }), tempo: null },
-    ])
-    expect(EXPR_MATCH_MIN).toBeGreaterThan(0.15)
-    expect(ranked).toEqual([])
+  it("4語彙すべてに軸と雰囲気語がある", () => {
+    for (const id of ["expr_legato_singing", "expr_articulation", "expr_dynamics", "expr_tone_depth"]) {
+      expect(EXPR_AXES[id]).toBeDefined()
+      expect(EXPR_AXES[id].mood.length).toBeGreaterThan(3)
+    }
   })
 })

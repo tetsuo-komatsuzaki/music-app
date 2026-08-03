@@ -6,7 +6,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import type { SymbolSourceAnalysis } from "@/app/_libs/scoreSymbols"
 import {
-  computeExprFeatures, rankSongsForExpr, type ExprFeatures,
+  computeExprFeatures, rankSongsForExpr, percentileThreshold, EXPR_AXES, type ExprFeatures,
 } from "@/app/_libs/exprSongFeatures"
 
 const FEATURE_VERSION = 1
@@ -55,16 +55,13 @@ export async function ensureExprFeatures(rows: ScoreRow[]): Promise<Map<string, 
 
 export type ExprSongMatch = { id: string; title: string; star: number | null; cover: string | null; score: number }
 
-/** 表現タグに合う曲 top N (ユーザーの★±1の共有曲・解析完了のみ)。未対応語彙は null (=準備中表示) */
+/** 表現タグに合う曲 top N (相対順位: カタログ全曲の上位5%のみ・ユーザーの★±1帯から)。未対応語彙は null (=準備中表示) */
 export async function matchSongsForExpr(tagId: string, userStar: number, take = 3): Promise<ExprSongMatch[] | null> {
-  if (!tagIdSupported(tagId)) return null // ルバート/自由入力 → 準備中表示
+  if (!EXPR_AXES[tagId]) return null // 削除済み旧語彙/自由入力 → 準備中表示
+  // しきい値はカタログ全曲で決める (上位5%)。★帯で絞るのは候補側だけ
   const rows = await prisma.score.findMany({
-    where: {
-      ownerScope: "admin", isShared: true, deletedAt: null, analysisStatus: "done",
-      star: { gte: Math.max(1, userStar - 1), lte: userStar + 1 },
-    },
+    where: { ownerScope: "admin", isShared: true, deletedAt: null, analysisStatus: "done" },
     orderBy: [{ star: "asc" }, { createdAt: "asc" }],
-    take: 40,
     select: {
       id: true, title: true, createdById: true, defaultTempo: true, exprFeatures: true,
       star: true, coverImagePath: true, groupId: true,
@@ -80,19 +77,25 @@ export async function matchSongsForExpr(tagId: string, userStar: number, take = 
   })
 
   const features = await ensureExprFeatures(unique)
-  const candidates = unique
-    .filter((r) => features.has(r.id))
-    .map((r) => ({ id: r.id, title: r.title, features: features.get(r.id)!, tempo: r.defaultTempo }))
+  const axis = EXPR_AXES[tagId].axis
+  const threshold = percentileThreshold(
+    unique.filter((r) => features.has(r.id)).map((r) => axis(features.get(r.id)!)),
+  )
 
-  // 空配列 = 対応語彙だが今の★帯に合う曲が無い (正直に「見つからず」表示)
-  const ranked = rankSongsForExpr(tagId, candidates)
+  // 候補 = ユーザーの★±1帯のみ (しきい値は全カタログ基準)
+  const band = unique.filter((r) => {
+    const st = r.star ?? 1
+    return st >= Math.max(1, userStar - 1) && st <= userStar + 1 && features.has(r.id)
+  })
+  const ranked = rankSongsForExpr(
+    tagId,
+    band.map((r) => ({ id: r.id, title: r.title, features: features.get(r.id)! })),
+    threshold,
+  )
+  // 空配列 = 対応語彙だが今の★帯に上位5%の曲が無い (正直に「見つからず」表示)
   const byId = new Map(unique.map((r) => [r.id, r]))
   return ranked.slice(0, take).map((m) => {
     const r = byId.get(m.id)!
-    return { id: m.id, title: m.title, star: r.star ?? null, cover: r.coverImagePath ?? null, score: Math.round(m.score * 100) / 100 }
+    return { id: m.id, title: m.title, star: r.star ?? null, cover: r.coverImagePath ?? null, score: m.value }
   })
-}
-
-function tagIdSupported(tagId: string): boolean {
-  return ["expr_legato_singing", "expr_articulation", "expr_dynamics", "expr_phrasing", "expr_tone_depth", "expr_vibrato"].includes(tagId)
 }

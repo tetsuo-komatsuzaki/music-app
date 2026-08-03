@@ -70,42 +70,43 @@ export function computeExprFeatures(analysis: SymbolSourceAnalysis): ExprFeature
   }
 }
 
-// ── 変換表: 先生語彙 → 曲スコア (0〜1) ────────────────────
-// tempo は Score.defaultTempo (null なら中庸90扱い)
-const clamp01 = (x: number) => Math.max(0, Math.min(1, x))
-
-export const EXPR_MATCHERS: Record<string, (f: ExprFeatures, tempo: number | null) => number> = {
-  // レガート歌わせ ⇔ スラー密度 高 × 低中テンポ
-  expr_legato_singing: (f, tempo) => {
-    const t = tempo ?? 90
-    const tempoFit = t <= 100 ? 1 : clamp01(1 - (t - 100) / 60)
-    return clamp01(f.slurDensity * 1.4) * 0.75 + tempoFit * 0.25
-  },
-  // 歯切れ ⇔ スタッカート密度
-  expr_articulation: (f) => clamp01(f.staccatoDensity * 3),
-  // 強弱の起伏 ⇔ 強弱記号の種類数 + ヘアピン
-  expr_dynamics: (f) => clamp01(f.dynamicsVariety / 4) * 0.7 + clamp01(f.hairpinCount / 4) * 0.3,
-  // フレーズ呼吸 ⇔ 長スラー
-  expr_phrasing: (f) => clamp01(f.longSlurRate * 1.8),
-  // 音の深み ⇔ 低音域 × ロングトーン
-  expr_tone_depth: (f) => clamp01(f.lowRegisterRate * 1.2) * 0.6 + clamp01(f.longToneRate * 2.5) * 0.4,
-  // ビブラート表情 ⇔ ロングトーン率 (伸ばす音がないとかけられない)
-  expr_vibrato: (f) => clamp01(f.longToneRate * 2.5),
-  // ルバート ⇔ rit/フェルマータ — 原料未抽出のため当面対象外 (呼び手は undefined を「準備中」扱い)
+// ── 変換表 (2026-08-04 Tetsuo確定: 相対順位方式・上位5%) ────────────────
+// 係数による絶対式は廃止。「その語彙の軸の数字が、カタログ全曲の中で上位5%に入る曲」だけを合う曲とする。
+// 軸は説明可能な単一数値のみ (根拠を一言で言える形):
+//   レガート=スラー内音符率 / 歯切れ=スタッカート音符率 /
+//   強弱=強弱の書き込み量(種類数+ヘアピン区間数) / 音の深み=低音域(G/D線帯)音符率
+export const EXPR_AXES: Record<string, { axis: (f: ExprFeatures) => number; mood: string }> = {
+  expr_legato_singing: { axis: (f) => f.slurDensity, mood: "歌うように ゆったり流れる曲" },
+  expr_articulation: { axis: (f) => f.staccatoDensity, mood: "軽快で はずむような曲" },
+  expr_dynamics: { axis: (f) => f.dynamicsVariety + f.hairpinCount, mood: "表情の起伏が ゆたかな曲" },
+  expr_tone_depth: { axis: (f) => f.lowRegisterRate, mood: "しっとり深く ひびく曲" },
 }
 
-/** 「合う」と言ってよい最低スコア (これ未満の曲しか無ければ正直に出さない) */
-export const EXPR_MATCH_MIN = 0.45
+/** 「合う曲」に入れる割合 (カタログ全曲の上位5%・2026-08-04確定) */
+export const EXPR_TOP_RATIO = 0.05
 
-/** 曲リストから表現タグに合う順に並べる (score降順・最低ライン未満は落とす) */
+/** 上位5%のしきい値 (値の降順で ceil(N*5%) 番目の値)。全カタログの軸値を渡す */
+export function percentileThreshold(allValues: number[], topRatio = EXPR_TOP_RATIO): number {
+  const positive = allValues.filter((v) => v > 0).sort((a, b) => b - a)
+  if (positive.length === 0) return Infinity // 全曲0 → 合う曲なし
+  const k = Math.max(1, Math.ceil(allValues.length * topRatio))
+  return positive[Math.min(k, positive.length) - 1]
+}
+
+/**
+ * 表現タグに合う曲 (相対順位方式)。
+ * threshold はカタログ全曲から percentileThreshold で求めた値。
+ * songs (ユーザーの★帯) のうち軸値がしきい値以上のものを降順で返す。0曲なら正直に空。
+ */
 export function rankSongsForExpr(
   tagId: string,
-  songs: Array<{ id: string; title: string; features: ExprFeatures; tempo: number | null }>,
-): Array<{ id: string; title: string; score: number }> {
-  const matcher = EXPR_MATCHERS[tagId]
-  if (!matcher) return []
+  songs: Array<{ id: string; title: string; features: ExprFeatures }>,
+  threshold: number,
+): Array<{ id: string; title: string; value: number }> {
+  const def = EXPR_AXES[tagId]
+  if (!def) return []
   return songs
-    .map((s) => ({ id: s.id, title: s.title, score: matcher(s.features, s.tempo) }))
-    .filter((s) => s.score >= EXPR_MATCH_MIN)
-    .sort((a, b) => b.score - a.score)
+    .map((s) => ({ id: s.id, title: s.title, value: def.axis(s.features) }))
+    .filter((s) => s.value > 0 && s.value >= threshold)
+    .sort((a, b) => b.value - a.value)
 }

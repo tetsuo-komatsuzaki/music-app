@@ -4,6 +4,9 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { buildExpressionDetail } from "@/app/_libs/growthKarte"
+import { prisma } from "@/app/_libs/prisma"
+import { matchSongsForExpr } from "@/app/_libs/exprSongMatch.server"
+import { EXPR_AXES } from "@/app/_libs/exprSongFeatures"
 
 export const metadata = { title: "表現のくわしい分析" }
 
@@ -19,6 +22,11 @@ export default async function ExpressionDetailPage({ params }: { params: Promise
   const tagId = decodeURIComponent(p.tagId)
   const d = await buildExpressionDetail(dbUserId, tagId)
   if (!d) redirect(`/${authUserId}/progress`)
+
+  // ③合う曲 (相対順位・上位5%)。ユーザーの★はUserStarProgressから
+  const starRow = await prisma.userStarProgress.findUnique({ where: { userId: dbUserId }, select: { currentStar: true } })
+  const matches = await matchSongsForExpr(tagId, starRow?.currentStar ?? 1)
+  const tag = tagId
 
   const statusLabel = d.status === "strength" ? "💪 きみのとくい" : d.status === "improving" ? "🌿 良くなってきた" : "🔥 挑戦中"
   const stepLabel = (s: string) => (s === "strength" ? "💪 とくいに！" : s === "improving" ? "🌿 良くなってきた" : "🔥 課題として記録")
@@ -52,14 +60,34 @@ export default async function ExpressionDetailPage({ params }: { params: Promise
         ))}
       </div>
 
-      {/* ③ この表現に合う曲 (変換表=曲の記号解析バッチ実装後に自動化) */}
+      {/* ③ この表現に合う曲 (2026-08-04: 相対順位方式=カタログ上位5%のみ。雰囲気の言葉で見せる) */}
       <div style={card}>
         <div style={{ fontSize: 12.5, fontWeight: 900, marginBottom: 5 }}>
           {d.status === "strength" ? "この強みが活きる曲" : "この表現に挑戦できる曲"}
         </div>
-        <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>
-          きみに合う曲の自動おすすめは準備中。いまは先生に「{d.label}{d.status === "strength" ? "が活きる曲" : "の練習になる曲"}」を聞いてみてね。
-        </div>
+        {matches === null ? (
+          <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>
+            この表現の自動おすすめは準備中。いまは先生に「{d.label}{d.status === "strength" ? "が活きる曲" : "の練習になる曲"}」を聞いてみてね。
+          </div>
+        ) : matches.length === 0 ? (
+          <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>
+            きみの★の近くには、この表現がとくに濃い曲がまだ無いみたい。先生にも聞いてみてね。
+          </div>
+        ) : (
+          <>
+            <div style={{ fontSize: 10.5, color: SUB, marginBottom: 7 }}>{EXPR_AXES[tag]?.mood} を、ぜんぶの曲の中からえらんだよ</div>
+            <div style={{ display: "grid", gap: 6 }}>
+              {matches.map((m) => (
+                <Link key={m.id} href={`/${authUserId}/scores/${m.id}`}
+                  style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit", border: "1px solid #f0ead8", background: "#fdfaf2", borderRadius: 10, padding: "7px 10px" }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, flex: 1, minWidth: 0 }}>{m.title}</span>
+                  {m.star != null && <span style={{ fontSize: 10, fontWeight: 800, color: GOLD }}>★{m.star}</span>}
+                  <span style={{ fontSize: 11, color: ACC, fontWeight: 800 }}>→</span>
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* ④ アルコのひと言 */}
