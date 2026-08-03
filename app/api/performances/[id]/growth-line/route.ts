@@ -55,5 +55,21 @@ export async function GET(
   const now = buildSubMap([perf.analysisSummary])
   const base = buildSubMap([...prevPerfs, ...prevPracs].map((r) => r.analysisSummary))
   const line = computeGrowthLine(now, base, GROWTH_DEFS)
-  return NextResponse.json({ line })
+
+  // 先生の強み (案5・2026-08-03): タグごとの最新所見が severity=strength の数。
+  // 結果画面には件数リンクだけ出し、詳細はカルテの表現セクションで見る (癖は出さない線引き)
+  let strengthCount = 0
+  try {
+    const obs = await prisma.teacherObservation.findMany({
+      where: { studentId: dbUserId },
+      orderBy: { createdAt: "desc" },
+      take: 60,
+      select: { tagIds: true, severity: true },
+    })
+    const latest = new Map<string, string | null>()
+    for (const o of obs) for (const t of o.tagIds) if (!latest.has(t)) latest.set(t, o.severity)
+    strengthCount = [...latest.values()].filter((sv) => sv === "strength").length
+  } catch { strengthCount = 0 }
+
+  return NextResponse.json({ line, strengthCount })
 }

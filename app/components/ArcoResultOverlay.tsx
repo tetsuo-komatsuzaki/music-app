@@ -59,6 +59,7 @@ export default function ArcoResultOverlay({
   const [diag, setDiag] = useState<Diag | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
   const [growth, setGrowth] = useState<GrowthLine | null>(null)
+  const [strengthCount, setStrengthCount] = useState(0)
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
@@ -73,7 +74,7 @@ export default function ArcoResultOverlay({
       fetch(`/api/scores/${scoreId}/achievement-status`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
       fetch(`/api/performances/${perf.id}/diagnosis`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
       fetch(`/api/performances/${perf.id}/growth-line`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-    ]).then(([a, d, g]) => { if (!aborted) { setAch(a); setDiag(d); setGrowth(g?.line ?? null) } })
+    ]).then(([a, d, g]) => { if (!aborted) { setAch(a); setDiag(d); setGrowth(g?.line ?? null); setStrengthCount(g?.strengthCount ?? 0) } })
     return () => { aborted = true }
   }, [scoreId, perf.id])
 
@@ -139,6 +140,15 @@ export default function ArcoResultOverlay({
             <Link href={`/${userId}/progress`} onClick={onClose}
               style={{ marginLeft: 4, fontSize: 10, fontWeight: 800, color: "#4a5bd0", textDecoration: "underline" }}>
               カルテで見る
+            </Link>
+          </div>
+        )}
+
+        {/* 💪 先生の強みリンク (案5・2026-08-03): 入口だけ置き、詳細はカルテの表現セクションへ */}
+        {strengthCount > 0 && (
+          <div style={{ margin: "6px 4px 0", fontSize: 11.5, fontWeight: 800 }}>
+            <Link href={`/${userId}/progress`} onClick={onClose} style={{ color: "#4a5bd0", textDecoration: "underline" }}>
+              💪 先生が見つけたきみの強み（{strengthCount}個）を見る →
             </Link>
           </div>
         )}
