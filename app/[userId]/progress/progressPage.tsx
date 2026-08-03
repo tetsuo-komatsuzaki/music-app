@@ -9,6 +9,7 @@ import Link from "next/link"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import type { KarteData, SkillNode } from "@/app/_libs/growthKarte"
 import BodyObsMap from "@/app/components/BodyObsMap"
+import ShareSheet from "@/app/components/ShareSheet"
 
 // ── 案10 トークン ──
 const INK = "#1a2028"
@@ -40,14 +41,21 @@ export default function ProgressPage({ userId, data, readOnly = false }: {
   readOnly?: boolean
 }) {
   const v2 = data.v2
+  const [weeklyShare, setWeeklyShare] = useState(false)
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: readOnly ? "4px 0 30px" : "18px 14px 60px", fontFamily: "inherit", color: INK }}>
       {!readOnly && (
         <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 10 }}>
           <h1 style={{ fontSize: 17, fontWeight: 900, margin: 0 }}>成長カルテ</h1>
           <span style={subLbl}>きみの成長の記録</span>
+          {/* 週間ハイライトのシェア (自分のカルテのみ) */}
+          <button type="button" onClick={() => setWeeklyShare(true)}
+            style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 800, color: GOLD, background: "#fdf6e6", border: "1px solid #eee0bd", borderRadius: 999, padding: "4px 11px", cursor: "pointer" }}>
+            📤 今週をシェア
+          </button>
         </div>
       )}
+      {weeklyShare && <ShareSheet kind="weekly" onClose={() => setWeeklyShare(false)} />}
 
       {/* 期間タブ (readOnlyは30d固定ラベル) */}
       {readOnly ? (

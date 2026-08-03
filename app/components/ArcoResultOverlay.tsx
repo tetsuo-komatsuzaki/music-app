@@ -5,6 +5,7 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import { ArcoChan, POSES } from "./ArcoChan"
 import { sendScoringFeedback } from "@/app/actions/scoringFeedback"
+import ShareSheet from "./ShareSheet"
 import styles from "./ArcoResultOverlay.module.css"
 
 type Ach = {
@@ -55,6 +56,7 @@ export default function ArcoResultOverlay({
   const [mounted, setMounted] = useState(false)
   const [ach, setAch] = useState<Ach | null>(null)
   const [diag, setDiag] = useState<Diag | null>(null)
+  const [shareOpen, setShareOpen] = useState(false)
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
@@ -212,8 +214,18 @@ export default function ArcoResultOverlay({
 
         <div className={styles.actions}>
           {onGoReview && <button type="button" className={styles.ghost} onClick={onGoReview}>ふりかえりで詳しく</button>}
+          <button type="button" className={styles.ghost} onClick={() => setShareOpen(true)}>📤 シェア</button>
           <button type="button" className={styles.primary} onClick={onClose}>とじる</button>
         </div>
+
+        {/* シェア: マスター済みなら🏆マスターカード、通常は🎵きょうの演奏カード */}
+        {shareOpen && (
+          <ShareSheet
+            kind={ach?.mastered ? "master" : "daily"}
+            refId={ach?.mastered ? scoreId : perf.id}
+            onClose={() => setShareOpen(false)}
+          />
+        )}
       </div>
     </div>,
     document.body,

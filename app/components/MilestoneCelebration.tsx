@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { ArcoChan, POSES } from "./ArcoChan"
 import KeepsakeCard, { type Keepsake } from "./KeepsakeCard"
+import ShareSheet from "./ShareSheet"
 import {
   selectCelebrations,
   CELEBRATION_SPEC,
@@ -49,6 +50,7 @@ export default function MilestoneCelebration(props: MilestoneCelebrationProps) {
   const [mounted, setMounted] = useState(false)
   const [reduced, setReduced] = useState(false)
   const [step, setStep] = useState(0)
+  const [shareOpen, setShareOpen] = useState(false)
   useEffect(() => setMounted(true), [])
   useEffect(() => {
     setReduced(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false)
@@ -136,6 +138,10 @@ export default function MilestoneCelebration(props: MilestoneCelebrationProps) {
         )}
 
         <div style={{ position: "relative", marginTop: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
+          {/* シェア: rank_up はいつでも / master は subject の scoreId があるとき */}
+          {(ev.type === "rank_up" || (ev.type === "master" && ev.subject?.id)) && (
+            <button type="button" onClick={() => setShareOpen(true)} style={ghostBtn}>📤 シェアする</button>
+          )}
           {isLast && ev.type === "rank_up" && onNewPieces && (
             <button type="button" onClick={onNewPieces} style={ghostBtn}>新しい曲を見る</button>
           )}
@@ -146,6 +152,14 @@ export default function MilestoneCelebration(props: MilestoneCelebrationProps) {
             {isLast ? "つづける" : "つぎへ"}
           </button>
         </div>
+
+        {shareOpen && (
+          <ShareSheet
+            kind={ev.type === "rank_up" ? "rank_up" : "master"}
+            refId={ev.type === "master" ? ev.subject?.id : undefined}
+            onClose={() => setShareOpen(false)}
+          />
+        )}
       </div>
     </div>,
     document.body,

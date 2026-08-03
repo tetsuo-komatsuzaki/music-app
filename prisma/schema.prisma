@@ -88,6 +88,9 @@ model User {
   observationsAsTeacher TeacherObservation[] @relation("obsTeacher")
   observationsAsStudent TeacherObservation[] @relation("obsStudent")
 
+  // ▼ シェア機能 (2026-08-03): SNS公開リンク+OGP動的画像
+  shareCards ShareCard[]
+
   @@index([role])
 }
 
@@ -1313,4 +1316,23 @@ model Favorite {
   @@unique([userId, scoreId])
   @@unique([userId, practiceItemId])
   @@index([userId])
+}
+
+// ═══════════════════════════════════════════════════════
+// シェア機能 (2026-08-03): マスター/★UP/週間/本日をSNS公開リンクでシェア。
+// payload はサーバー生成の自己完結スナップショット (公開ページ/OG画像は追加クエリなしで描画)。
+// token は URL のキー (推測不能ランダム)。公開ページは認証不要 (middleware は /s/* を素通り)。
+// ═══════════════════════════════════════════════════════
+model ShareCard {
+  id          String   @id @default(cuid())
+  token       String   @unique // 公開URLキー (crypto random base64url)
+  userId      String
+  kind        String // "master" | "rank_up" | "weekly" | "daily"
+  displayName String? // シェア時に選んだ表示名。null = 名前なし (デフォルト)
+  payload     Json // 表示データ一式 (shareCard.ts SharePayload)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
