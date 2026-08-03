@@ -20,6 +20,7 @@ type Diag = {
   verdict: "perfect" | "no_specific" | "weakness" | "unavailable"
   slots: { subtaskName: string; tree: "pitch" | "rhythm"; materials: { id: string; title: string; category: string }[]; noStock: boolean }[]
 }
+type GrowthLine = { label: string; from: number; to: number }
 
 // 点数帯でアルコのポーズ(気分)を選ぶ
 function pickPose(score: number) {
@@ -57,6 +58,7 @@ export default function ArcoResultOverlay({
   const [ach, setAch] = useState<Ach | null>(null)
   const [diag, setDiag] = useState<Diag | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
+  const [growth, setGrowth] = useState<GrowthLine | null>(null)
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
@@ -70,7 +72,8 @@ export default function ArcoResultOverlay({
     Promise.all([
       fetch(`/api/scores/${scoreId}/achievement-status`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
       fetch(`/api/performances/${perf.id}/diagnosis`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-    ]).then(([a, d]) => { if (!aborted) { setAch(a); setDiag(d) } })
+      fetch(`/api/performances/${perf.id}/growth-line`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    ]).then(([a, d, g]) => { if (!aborted) { setAch(a); setDiag(d); setGrowth(g?.line ?? null) } })
     return () => { aborted = true }
   }, [scoreId, perf.id])
 
@@ -121,6 +124,24 @@ export default function ArcoResultOverlay({
             <div className={styles.sub}><span>リズム</span><b>{Math.round(timing)}</b></div>
           </div>
         </div>
+
+        {/* 🌱 成長1行 (案3・編み込み): この演奏で伸びたわざを直近30日比で1つだけ。無い日は出さない */}
+        {growth && (
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+            margin: "8px 2px 0", padding: "7px 10px", borderRadius: 10,
+            background: "#f2faf5", border: "1px solid #cfe6d8",
+            fontSize: 12, fontWeight: 800, color: "#2e8b57",
+          }}>
+            🌱 {growth.label}が伸びてる！ 安定度 {growth.from}%
+            <span style={{ fontSize: 11, color: "#7aa98c" }}>→</span>
+            <b style={{ fontSize: 14 }}>{growth.to}%</b>
+            <Link href={`/${userId}/progress`} onClick={onClose}
+              style={{ marginLeft: 4, fontSize: 10, fontWeight: 800, color: "#4a5bd0", textDecoration: "underline" }}>
+              カルテで見る
+            </Link>
+          </div>
+        )}
 
         {/* 🏆 マスターまで (案2: 点数ゲージ+90点ライン+条件チップ・2026-08-02確定) */}
         <div className={styles.sec}>
