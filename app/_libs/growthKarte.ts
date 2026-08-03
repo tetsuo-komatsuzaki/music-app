@@ -109,10 +109,10 @@ const SKILL_DEFS: Array<{
   { id: "harmonic", label: "ハーモニクス", lane: "left", star: 5, tagType: "technique", tagKeys: ["ナチュラル・ハーモニクス", "ハーモニクス"], subIds: ["pitch_tech_harmonic", "rhythm_tech_harmonic"], practiceCat: null, obsTagIds: [] },
 ]
 
-// 成長1行 (growthLine.ts) 用: わざ→per_subtask 対応の軽量ビュー (SKILL_DEFS と単一ソース)
+// 成長1行 (growthLine.ts)・選曲理由 (編み込み案1) 用: わざ→per_subtask 対応の軽量ビュー (SKILL_DEFS と単一ソース)
 export const SKILL_SUB_DEFS = SKILL_DEFS
   .filter((d) => d.subIds.length > 0)
-  .map((d) => ({ label: d.label, subIds: d.subIds }))
+  .map((d) => ({ label: d.label, subIds: d.subIds, tagKeys: d.tagKeys }))
 
 export interface KarteData {
   period: KartePeriod

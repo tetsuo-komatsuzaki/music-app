@@ -1,6 +1,8 @@
 import { prisma } from "@/app/_libs/prisma"
 import { generateArcoMessage } from "@/app/_libs/arcoChan"
 import { getAchievementFlags } from "@/app/_libs/achievementFlags"
+import { SKILL_SUB_DEFS } from "@/app/_libs/growthKarte"
+import { buildSubMap } from "@/app/_libs/growthLine"
 import {
   badgeKind,
   gradeFromStar,
@@ -410,6 +412,68 @@ export default async function HomePage({ params }: PageProps) {
     reason: `あなたのレベル（☆${currentStar}）の曲です`,
     href: `/${userId}/scores/${s.id}`,
   }))
+
+  // 編み込み案1 (2026-08-03): 選曲理由を成長ベースに ([[project_growth_woven_experience]])。
+  // 曲のわざタグ × ユーザーの30日安定度/習得状況 →
+  //   「◯◯が安定してきたから、次はこの曲」(安定度70%以上) >「新しいわざ「◯◯」に挑戦できる曲」(未習得)。
+  // データが無ければ既定文言 (レベル文) のまま — でっち上げない。
+  try {
+    const recIds = nextPieceRecommendations.map((r) => r.practiceItem.id)
+    if (recIds.length > 0) {
+      const since30 = new Date(Date.now() - 30 * 864e5)
+      const [tagRows, clears, acqs, perf30, prac30] = await Promise.all([
+        prisma.scoreTechniqueTag.findMany({
+          where: { scoreId: { in: recIds } },
+          orderBy: { isPrimary: "desc" },
+          select: { scoreId: true, techniqueTag: { select: { name: true } } },
+        }),
+        prisma.userLessonClear.findMany({
+          where: { userId: internalUserId, tagType: "technique" }, select: { tagKey: true },
+        }),
+        prisma.userTagAcquisition.findMany({
+          where: { userId: internalUserId, tagType: "technique", state: { not: "REVOKED" } }, select: { tagKey: true },
+        }),
+        prisma.performance.findMany({
+          where: { userId: internalUserId, uploadedAt: { gte: since30 } }, select: { analysisSummary: true },
+        }),
+        prisma.practicePerformance.findMany({
+          where: { userId: internalUserId, uploadedAt: { gte: since30 } }, select: { analysisSummary: true },
+        }),
+      ])
+      const acquired = new Set([...clears, ...acqs].map((r) => r.tagKey))
+      const sub30 = buildSubMap([...perf30, ...prac30].map((r) => r.analysisSummary))
+      const pctOfTag = (name: string): number | null => {
+        const def = SKILL_SUB_DEFS.find((d) => d.label === name || d.tagKeys.includes(name))
+        if (!def) return null
+        let miss = 0
+        let target = 0
+        for (const sid of def.subIds) {
+          const e = sub30.get(sid)
+          if (e) { miss += e.miss; target += e.target }
+        }
+        if (target < 8) return null // 少数サンプルで「安定」と言わない
+        return (1 - miss / target) * 100
+      }
+      const tagsByScore = new Map<string, string[]>()
+      for (const t of tagRows) {
+        const arr = tagsByScore.get(t.scoreId) ?? []
+        arr.push(t.techniqueTag.name)
+        tagsByScore.set(t.scoreId, arr)
+      }
+      for (const rec of nextPieceRecommendations) {
+        const names = tagsByScore.get(rec.practiceItem.id) ?? []
+        let stable: { name: string; pct: number } | null = null
+        let fresh: string | null = null
+        for (const n of names) {
+          const pct = pctOfTag(n)
+          if (pct != null && pct >= 70 && (!stable || pct > stable.pct)) stable = { name: n, pct }
+          if (!fresh && !acquired.has(n)) fresh = n
+        }
+        if (stable) rec.reason = `${stable.name}が安定してきたから、次はこの曲`
+        else if (fresh) rec.reason = `新しいわざ「${fresh}」に挑戦できる曲`
+      }
+    }
+  } catch { /* 理由の高度化に失敗しても既定文言で表示は継続 */ }
 
   // --- 旅の地図: オンボーディングの目標曲/Epic Win を常設表示 ---
   // 到達予測はオンボーディング時の値ではなく「現在の★ × 現在のQ6回答」で再計算する
