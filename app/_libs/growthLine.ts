@@ -64,3 +64,17 @@ export function computeGrowthLine(now: SubMap, base: SubMap, defs: SkillSubDef[]
   }
   return best
 }
+
+/**
+ * 比較窓の選定 (2026-08-04 Tetsuo指示)。
+ * - 通常: now = [演奏-30日, 演奏] / base = [演奏-60日, 演奏-30日)
+ * - 演奏期間が30日未満 (初録音が30日以内): 全期間を半分に割り、前半=base / 後半=now
+ */
+export function growthWindows(firstAt: Date, perfAt: Date): { nowFrom: Date; baseFrom: Date; baseTo: Date } {
+  const since30 = new Date(perfAt.getTime() - 30 * 864e5)
+  if (firstAt >= since30) {
+    const mid = new Date(firstAt.getTime() + (perfAt.getTime() - firstAt.getTime()) / 2)
+    return { nowFrom: mid, baseFrom: firstAt, baseTo: mid }
+  }
+  return { nowFrom: since30, baseFrom: new Date(perfAt.getTime() - 60 * 864e5), baseTo: since30 }
+}

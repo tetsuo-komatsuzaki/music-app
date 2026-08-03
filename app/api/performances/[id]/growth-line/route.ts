@@ -1,7 +1,8 @@
 // GET /api/performances/[id]/growth-line
 //
 // 成長の編み込み 案3 (2026-08-03): 採点直後の「成長1行」。
-// 分母改定 (同日Tetsuo指示): 窓vs窓。now=直近30日(この演奏含む) / base=その前の30日 (30〜60日前)。
+// 分母改定 (2026-08-03/04 Tetsuo指示): 窓vs窓。now=直近30日(この演奏含む) / base=その前の30日。
+// 演奏期間が30日未満なら全期間を半分に割って前半vs後半 (growthWindows)。
 // どちらも曲/基礎練横断の音符合算 (各8個以上)。伸びが無ければ line: null (でっち上げない)。
 //
 // レスポンス: { line: { label, from, to } | null }
@@ -12,7 +13,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
 import { SKILL_SUB_DEFS } from "@/app/_libs/growthKarte"
 import { SUBTASK_CATALOG } from "@/app/_libs/subtaskCatalog.generated"
-import { buildSubMap, computeGrowthLine, type SkillSubDef } from "@/app/_libs/growthLine"
+import { buildSubMap, computeGrowthLine, growthWindows, type SkillSubDef } from "@/app/_libs/growthLine"
 
 // 成長1行の候補: わざ系 (技術マップと同語彙・優先) + 基礎系 (診断カタログの diagnosable のみ。
 // 「変化なし箱」(diagnosable=false) は診断と同じく文脈扱いで出さない)
@@ -40,23 +41,29 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
 
-  const since30 = new Date(perf.uploadedAt.getTime() - 30 * 864e5)
-  const since60 = new Date(perf.uploadedAt.getTime() - 60 * 864e5)
+  const [firstPerfRow, firstPracRow] = await Promise.all([
+    prisma.performance.findFirst({ where: { userId: dbUserId }, orderBy: { uploadedAt: "asc" }, select: { uploadedAt: true } }),
+    prisma.practicePerformance.findFirst({ where: { userId: dbUserId }, orderBy: { uploadedAt: "asc" }, select: { uploadedAt: true } }),
+  ])
+  const firstAt = [firstPerfRow?.uploadedAt, firstPracRow?.uploadedAt]
+    .filter((d): d is Date => d != null)
+    .sort((a, b) => a.getTime() - b.getTime())[0] ?? perf.uploadedAt
+  const { nowFrom, baseFrom, baseTo } = growthWindows(firstAt, perf.uploadedAt)
   const [nowPerfs, nowPracs, basePerfs, basePracs] = await Promise.all([
     prisma.performance.findMany({
-      where: { userId: dbUserId, uploadedAt: { gte: since30, lte: perf.uploadedAt } },
+      where: { userId: dbUserId, uploadedAt: { gte: nowFrom, lte: perf.uploadedAt } },
       select: { analysisSummary: true },
     }),
     prisma.practicePerformance.findMany({
-      where: { userId: dbUserId, uploadedAt: { gte: since30, lte: perf.uploadedAt } },
+      where: { userId: dbUserId, uploadedAt: { gte: nowFrom, lte: perf.uploadedAt } },
       select: { analysisSummary: true },
     }),
     prisma.performance.findMany({
-      where: { userId: dbUserId, uploadedAt: { gte: since60, lt: since30 } },
+      where: { userId: dbUserId, uploadedAt: { gte: baseFrom, lt: baseTo } },
       select: { analysisSummary: true },
     }),
     prisma.practicePerformance.findMany({
-      where: { userId: dbUserId, uploadedAt: { gte: since60, lt: since30 } },
+      where: { userId: dbUserId, uploadedAt: { gte: baseFrom, lt: baseTo } },
       select: { analysisSummary: true },
     }),
   ])

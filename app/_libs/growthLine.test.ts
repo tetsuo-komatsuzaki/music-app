@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { buildSubMap, computeGrowthLine, type SkillSubDef } from "./growthLine"
+import { buildSubMap, computeGrowthLine, growthWindows, type SkillSubDef } from "./growthLine"
 
 const DEFS: SkillSubDef[] = [
   { label: "スラー", subIds: ["pitch_tech_slur", "rhythm_tech_slur"] },
@@ -59,5 +59,33 @@ describe("computeGrowthLine", () => {
     const base = buildSubMap([summary({ pitch_tech_slur: { miss: 10, target: 100 } })]) // 90%
     const now = buildSubMap([summary({ pitch_tech_slur: { miss: 4, target: 8 } })]) // 50%
     expect(computeGrowthLine(now, base, DEFS)).toBeNull()
+  })
+})
+
+describe("growthWindows (窓の選定)", () => {
+  const day = 864e5
+  it("演奏期間30日以上: 直近30日 vs その前の30日", () => {
+    const perfAt = new Date("2026-08-04T00:00:00Z")
+    const firstAt = new Date(perfAt.getTime() - 90 * day)
+    const w = growthWindows(firstAt, perfAt)
+    expect(w.nowFrom.getTime()).toBe(perfAt.getTime() - 30 * day)
+    expect(w.baseTo.getTime()).toBe(perfAt.getTime() - 30 * day)
+    expect(w.baseFrom.getTime()).toBe(perfAt.getTime() - 60 * day)
+  })
+  it("演奏期間30日未満: 全期間を半分に割る (前半=base/後半=now)", () => {
+    const perfAt = new Date("2026-08-04T00:00:00Z")
+    const firstAt = new Date(perfAt.getTime() - 10 * day)
+    const w = growthWindows(firstAt, perfAt)
+    const mid = new Date(firstAt.getTime() + 5 * day)
+    expect(w.baseFrom.getTime()).toBe(firstAt.getTime())
+    expect(w.baseTo.getTime()).toBe(mid.getTime())
+    expect(w.nowFrom.getTime()).toBe(mid.getTime())
+  })
+  it("ちょうど30日も半分割 (通常窓だと前30日窓が空でnullになるため)", () => {
+    const perfAt = new Date("2026-08-04T00:00:00Z")
+    const firstAt = new Date(perfAt.getTime() - 30 * day)
+    const w = growthWindows(firstAt, perfAt)
+    expect(w.baseFrom.getTime()).toBe(firstAt.getTime())
+    expect(w.baseTo.getTime()).toBe(firstAt.getTime() + 15 * day)
   })
 })
