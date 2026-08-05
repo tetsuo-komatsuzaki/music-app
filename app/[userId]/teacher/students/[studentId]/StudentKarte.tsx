@@ -129,20 +129,27 @@ export default function StudentKarte({
 }) {
   const [tab, setTab] = useState<"overview" | "practice" | "homework" | "review" | "message" | "karte">("overview")
   return (
-    <div>
-      <Link href={`/${userId}/teacher`} style={{ fontSize: 12, color: "#6b7885", textDecoration: "none" }}>← 生徒一覧</Link>
-      <h1 style={{ fontSize: 18, fontWeight: 900, margin: "6px 0 10px" }}>{studentName}</h1>
+    // 生徒カルテ ペーパーデザイン (2026-08-06 Tetsuo確定B: 成長カルテv3と同じ世界観に全面統一)
+    <div style={{
+      background: "linear-gradient(165deg,#fffdf6,#faf4e4)", border: "1px solid #eee6d0",
+      borderRadius: 18, padding: "16px 14px 14px", color: "#241f14",
+    }}>
+      <Link href={`/${userId}/teacher`} style={{ fontSize: 12, color: "#9a8c74", textDecoration: "none" }}>← 生徒一覧</Link>
+      <div style={{ fontSize: 9, fontWeight: 900, letterSpacing: ".22em", color: "#a98b2f", marginTop: 6 }}>STUDENT KARTE</div>
+      <h1 style={{ fontSize: 18, fontWeight: 900, margin: "0 0 10px" }}>{studentName}</h1>
 
-      <div style={{ display: "flex", gap: 4, marginBottom: 14 }}>
+      <div style={{ display: "flex", gap: 4, marginBottom: 14, background: "rgba(255,255,255,.55)", border: "1px solid #efe5cc", borderRadius: 12, padding: 3 }}>
         {([["overview", "概要"], ["practice", "練習"], ["karte", "カルテ"], ["homework", "宿題"], ["review", "採点カルテ"], ["message", "メッセージ"]] as const).map(([k, label]) => (
           <button
             key={k}
             type="button"
             onClick={() => setTab(k)}
             style={{
-              flex: 1, border: "1px solid", borderColor: tab === k ? "#2b3742" : "#e2e6ea",
-              background: tab === k ? "#2b3742" : "#fff", color: tab === k ? "#fff" : "#6b7885",
-              borderRadius: 10, padding: "8px 0", fontSize: 10.5, fontWeight: 800, cursor: "pointer",
+              flex: 1, border: "none",
+              background: tab === k ? "linear-gradient(150deg,#f5df9e,#e3b93c)" : "transparent",
+              color: tab === k ? "#4a3a12" : "#9a8c74",
+              boxShadow: tab === k ? "0 1px 3px rgba(200,160,40,.3)" : "none",
+              borderRadius: 9, padding: "8px 0", fontSize: 10.5, fontWeight: 900, cursor: "pointer",
             }}
           >
             {label}
@@ -265,7 +272,7 @@ function RecCommentBox({ studentId, performanceId, kind }: { studentId: string; 
           <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="この演奏へのコメント（生徒に届きます）" style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 12.5, resize: "vertical" }} />
           <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
             <button type="button" onClick={() => { setOpen(false); setText("") }} style={{ ...btn, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea" }}>やめる</button>
-            <button type="button" onClick={send} disabled={pending} style={{ ...btn, color: "#fff", background: "#2b3742", border: "none", opacity: pending ? 0.6 : 1 }}>{pending ? "送信中…" : "送る"}</button>
+            <button type="button" onClick={send} disabled={pending} style={{ ...btn, color: "#fff", background: "#8a5a1f", border: "none", opacity: pending ? 0.6 : 1 }}>{pending ? "送信中…" : "送る"}</button>
           </div>
         </div>
       )}
@@ -390,7 +397,7 @@ function Messages({ studentId, studentName, messages }: { studentId: string; stu
           placeholder={`${studentName} さんへ返信…`}
           style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: 13 }} />
         <button type="button" onClick={send} disabled={pending || !text.trim()}
-          style={{ border: "none", borderRadius: 9, padding: "0 16px", fontSize: 12.5, fontWeight: 800, color: "#fff", background: "#2b3742", cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
+          style={{ border: "none", borderRadius: 9, padding: "0 16px", fontSize: 12.5, fontWeight: 800, color: "#fff", background: "#8a5a1f", cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
           送る
         </button>
       </div>
@@ -400,8 +407,9 @@ function Messages({ studentId, studentName, messages }: { studentId: string; stu
 }
 
 function Card({ children }: { children: React.ReactNode }) {
+  // ペーパーデザイン (2026-08-06): クリームの紙の上の半透明カード (成長カルテv3と同トークン)
   return (
-    <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: "14px 16px", marginBottom: 12 }}>
+    <div style={{ background: "rgba(255,255,255,.8)", border: "1px solid #efe5cc", borderRadius: 15, padding: "14px 16px", marginBottom: 12 }}>
       {children}
     </div>
   )
@@ -639,7 +647,7 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
             <button type="button" onClick={() => setOpen(false)}
               style={{ flex: 1, fontSize: 12, fontWeight: 800, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 9, padding: 9, cursor: "pointer" }}>キャンセル</button>
             <button type="button" onClick={save} disabled={pending}
-              style={{ flex: 2, fontSize: 12, fontWeight: 800, color: "#fff", background: "#2b3742", border: "none", borderRadius: 9, padding: 9, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+              style={{ flex: 2, fontSize: 12, fontWeight: 800, color: "#fff", background: "#8a5a1f", border: "none", borderRadius: 9, padding: 9, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
               {pending ? "保存中…" : "記録する"}
             </button>
           </div>
@@ -902,7 +910,7 @@ function SendScoreBox({ studentId }: { studentId: string }) {
           </label>
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
             <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, border: "1px solid #e2e6ea", background: "#fff", color: "#6b7885", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>キャンセル</button>
-            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "#2b3742", color: "#fff", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "#8a5a1f", color: "#fff", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
               {pending ? "アップロード中…" : "生徒に渡す"}
             </button>
           </div>
@@ -991,7 +999,7 @@ function Homework({
           <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
             {([["score", "曲"], ["item", "教材"]] as const).map(([k, label]) => (
               <button key={k} type="button" onClick={() => { setKind(k); setTargetId(""); setFilter("") }}
-                style={{ flex: 1, border: "1px solid", borderColor: kind === k ? "#2b3742" : "#e2e6ea", background: kind === k ? "#2b3742" : "#fff", color: kind === k ? "#fff" : "#6b7885", borderRadius: 8, padding: "6px 0", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+                style={{ flex: 1, border: "1px solid", borderColor: kind === k ? "#8a5a1f" : "#e8e0cc", background: kind === k ? "#8a5a1f" : "rgba(255,255,255,.7)", color: kind === k ? "#fff" : "#9a8c74", borderRadius: 8, padding: "6px 0", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
                 {label}
               </button>
             ))}
@@ -1033,7 +1041,7 @@ function Homework({
                 key={g}
                 type="button"
                 onClick={() => setGoalType((cur) => (cur === g ? "" : g))}
-                style={{ flex: 1, border: "1px solid", borderColor: goalType === g ? "#2b3742" : "#e2e6ea", background: goalType === g ? "#2b3742" : "#fff", color: goalType === g ? "#fff" : "#6b7885", borderRadius: 8, padding: "6px 0", fontSize: 12, fontWeight: 800, cursor: "pointer" }}
+                style={{ flex: 1, border: "1px solid", borderColor: goalType === g ? "#8a5a1f" : "#e8e0cc", background: goalType === g ? "#8a5a1f" : "rgba(255,255,255,.7)", color: goalType === g ? "#fff" : "#9a8c74", borderRadius: 8, padding: "6px 0", fontSize: 12, fontWeight: 800, cursor: "pointer" }}
               >
                 {label}
               </button>
@@ -1065,7 +1073,7 @@ function Homework({
           {err && <div style={{ fontSize: 12, color: "#c0392b", marginTop: 8 }}>{err}</div>}
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
             <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, border: "1px solid #e2e6ea", background: "#fff", color: "#6b7885", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>キャンセル</button>
-            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "#2b3742", color: "#fff", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "#8a5a1f", color: "#fff", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
               {pending ? "送信中…" : "宿題を出す"}
             </button>
           </div>
