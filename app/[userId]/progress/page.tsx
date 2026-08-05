@@ -17,13 +17,13 @@ export const metadata = { title: "成長カルテ" }
 
 type PageProps = {
   params: Promise<{ userId: string }>
-  searchParams: Promise<{ period?: string }>
 }
 
-export default async function ProgressServerPage({ params, searchParams }: PageProps) {
+// カルテ本体は30日固定 (2026-08-06 Tetsuo確定: 期間タブは①⑤にしか効かず嘘のシグナルだった)。
+// 期間切替は「数字のへや」(numbers) にだけ残す。
+export default async function ProgressServerPage({ params }: PageProps) {
   const { userId } = await params
-  const { period: rawPeriod = "30d" } = await searchParams
-  const period: KartePeriod = rawPeriod === "7d" || rawPeriod === "all" ? rawPeriod : "30d"
+  const period: KartePeriod = "30d"
 
   const dbUser = await prisma.user.findUnique({
     where: { supabaseUserId: userId },

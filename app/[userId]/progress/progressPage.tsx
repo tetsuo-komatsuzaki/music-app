@@ -57,23 +57,9 @@ export default function ProgressPage({ userId, data, readOnly = false }: {
       )}
       {weeklyShare && <ShareSheet kind="weekly" onClose={() => setWeeklyShare(false)} />}
 
-      {/* 期間タブ (readOnlyは30d固定ラベル) */}
-      {readOnly ? (
+      {/* 期間タブは撤去 (2026-08-06 Tetsuo確定): カルテ本体=30日固定。期間切替は数字のへやのみ */}
+      {readOnly && (
         <div style={{ ...subLbl, margin: "0 0 10px" }}>生徒に見えているのと同じカルテ（直近30日）</div>
-      ) : (
-        <div style={{ display: "flex", gap: 4, background: "#eceef2", borderRadius: 10, padding: 3, marginBottom: 12 }}>
-          {([["7d", "今週"], ["30d", "直近30日"], ["all", "全期間"]] as const).map(([p, label]) => (
-            <Link key={p} href={`/${userId}/progress${p === "30d" ? "" : `?period=${p}`}`} scroll={false}
-              style={{
-                flex: 1, textAlign: "center", fontSize: 12, fontWeight: 800, padding: "7px 0", borderRadius: 8,
-                textDecoration: "none",
-                color: data.period === p ? INK : "#8b97a3",
-                background: data.period === p ? "#fff" : "transparent",
-              }}>
-              {label}
-            </Link>
-          ))}
-        </div>
       )}
 
       <HeaderKpi data={data} />

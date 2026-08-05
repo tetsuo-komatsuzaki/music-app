@@ -48,9 +48,23 @@ export default async function NumbersRoomPage({
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", color: "#1a2028" }}>
       <Link href={`/${authUserId}/progress`} style={{ fontSize: 12, color: SUB, textDecoration: "none" }}>← 成長カルテ</Link>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "8px 0 12px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "8px 0 10px" }}>
         <h1 style={{ fontSize: 17, fontWeight: 900, margin: 0 }}>📊 数字のへや</h1>
-        <span style={{ fontSize: 10, fontWeight: 800, color: SUB }}>{period === "7d" ? "今週" : period === "all" ? "全期間" : "直近30日"}・得意も苦手もぜんぶ</span>
+        <span style={{ fontSize: 10, fontWeight: 800, color: SUB }}>得意も苦手もぜんぶ</span>
+      </div>
+      {/* 期間切替 (2026-08-06: カルテ本体から移設。期間が効くのはこの部屋だけ) */}
+      <div style={{ display: "flex", gap: 4, background: "#eceef2", borderRadius: 10, padding: 3, marginBottom: 12 }}>
+        {([["7d", "今週"], ["30d", "直近30日"], ["all", "全期間"]] as const).map(([pp, label]) => (
+          <Link key={pp} href={`/${authUserId}/progress/numbers${pp === "30d" ? "" : `?period=${pp}`}`} scroll={false}
+            style={{
+              flex: 1, textAlign: "center", fontSize: 12, fontWeight: 800, padding: "7px 0", borderRadius: 8,
+              textDecoration: "none",
+              color: period === pp ? "#1a2028" : "#8b97a3",
+              background: period === pp ? "#fff" : "transparent",
+            }}>
+            {label}
+          </Link>
+        ))}
       </div>
 
       {empty ? (
