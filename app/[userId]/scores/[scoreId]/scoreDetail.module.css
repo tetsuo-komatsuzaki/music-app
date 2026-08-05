@@ -140,6 +140,8 @@
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
+  /* 点滅根治 (2026-08-06): 内側バーの出入りでも幅を動かさない (globals.css の html 側と対) */
+  scrollbar-gutter: stable;
   -webkit-overflow-scrolling: touch;
 }
 

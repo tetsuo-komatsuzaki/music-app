@@ -1824,6 +1824,10 @@ function ScoreDetailInner({
   }, [])
 
   // --- 色塗りのみ（getBoundingClientRect 不要、即時実行可能）---
+  // 波の演出 (1音ずつ最大800ms) は「演奏を選んで最初に塗る1回」だけ。
+  // 譜面の描き直し後の貼り直しで毎回波が走ると点滅に見える (2026-08-06 真因特定) ため、
+  // 同じ comparison の2回目以降は演出なしで即時に貼る。
+  const wavePlayedForRef = useRef<unknown>(null)
   const applyComparisonColors = useCallback(() => {
     // 前回の遅延色付けタイマーを破棄 (演奏を素早く切替えると前の色が後から乗る問題を防止)
     colorTimersRef.current.forEach(clearTimeout)
@@ -1837,12 +1841,14 @@ function ScoreDetailInner({
 
     const prefersReduced = typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const instant = prefersReduced || wavePlayedForRef.current === comparison
+    wavePlayedForRef.current = comparison
 
     for (const c of comparison) {
       const osmdIdx = analysisIdxToOsmdIdx(c.note_index)
       if (osmdIdx < 0 || osmdIdx >= elements.length) continue
       const color = getComparisonColor(c)
-      if (prefersReduced) {
+      if (instant) {
         colorizeNote(elements[osmdIdx], color)
       } else {
         const delay = Math.min(osmdIdx * 18, 800)
