@@ -765,27 +765,19 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
         </div>
       )}
 
-      {/* ⑤ アップロード/解析中 */}
+      {/* ⑤ アップロード中 (2026-08-06: 継ぎ目撤去 — 提出の瞬間から採点ちゅうカード1枚に統一。
+          内部工程 (アップロード→解析) の切り替わりはユーザーに見せない。
+          進捗バーだけカード下に小さく出し、送信が終わると自然に消える) */}
       {status === "uploading" && (
-        <div className={styles.uploadingPanel}>
-          {uploadProgress != null && uploadProgress < 100 ? (
-            <>
-              <div style={{
-                width: "100%", height: 8, background: "#eee",
-                borderRadius: 4, overflow: "hidden", marginBottom: 8,
-              }}>
-                <div style={{
-                  width: `${uploadProgress}%`, height: "100%",
-                  background: "#2e7dff", transition: "width 0.2s ease",
-                }} />
+        <div className={styles.resultPanel}>
+          <AnalysisWaiting />
+          {uploadProgress != null && uploadProgress < 100 && (
+            <div style={{ margin: "10px 2px 0" }}>
+              <div style={{ width: "100%", height: 5, background: "#eee5cc", borderRadius: 3, overflow: "hidden" }}>
+                <div style={{ width: `${uploadProgress}%`, height: "100%", background: "#c9a227", transition: "width 0.2s ease" }} />
               </div>
-              <span>アップロード中... {uploadProgress}%</span>
-            </>
-          ) : (
-            <>
-              <span className={styles.spinner} />
-              <span>どれくらい良くなったか計算中…</span>
-            </>
+              <div style={{ fontSize: 10, color: "#9a8c74", marginTop: 3, textAlign: "center" }}>録音をおくっています… {uploadProgress}%</div>
+            </div>
           )}
         </div>
       )}
