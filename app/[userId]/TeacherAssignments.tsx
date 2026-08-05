@@ -5,7 +5,7 @@
 // 「できたら✓」は廃止(完了は曲/教材側の提出で行う)。タップで対象へ遷移。
 import { useState } from "react"
 import Link from "next/link"
-import { moodTagLabel } from "@/app/_libs/moodTags"
+import { moodTagGoalText } from "@/app/_libs/moodTags"
 import { useParams } from "next/navigation"
 import { goalLabel, dueInfo, goalResult } from "@/app/_libs/assignmentGoal"
 
@@ -146,7 +146,7 @@ export default function TeacherAssignments({
                   )}
                   {a.moodTagId && (
                     <div style={{ fontSize: 11.5, fontWeight: 800, color: "#8a5a1f", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "3px 10px", display: "inline-block", marginTop: 6 }}>
-                      🎨 「{moodTagLabel(a.moodTagId)}」を意識してみよう
+                      🎨 {moodTagGoalText(a.moodTagId)}
                     </div>
                   )}
                   {a.comment && <div style={{ fontSize: 12, color: "#4a4650", marginTop: 6, lineHeight: 1.5 }}>💬 {a.comment}</div>}

@@ -12,6 +12,8 @@ export type MoodTagGroup = "rhythm" | "texture"
 export type MoodTag = {
   id: string
   label: string
+  /** イタリア語の発想標語 (音の表情のみ。日本語主表示+補足の確定方針) */
+  italian?: string
   group: MoodTagGroup
 }
 
@@ -24,17 +26,22 @@ export const MOOD_TAG_DEFS: MoodTag[] = [
   { id: "mood_groove", label: "心地よく躍動する", group: "rhythm" },
   { id: "mood_supple_flow", label: "しなやかに流れる", group: "rhythm" },
   { id: "mood_crisp", label: "歯切れよく引き締まった", group: "rhythm" },
-  // ── ② 音の表情 ──
-  { id: "mood_radiant", label: "明るく輝きのある", group: "texture" },
-  { id: "mood_warm", label: "温かく包み込むような", group: "texture" },
-  { id: "mood_soft_calm", label: "柔らかく穏やかな", group: "texture" },
-  { id: "mood_strong_core", label: "力強く芯のある", group: "texture" },
-  { id: "mood_deep_rich", label: "深みと厚みのある", group: "texture" },
-  { id: "mood_clear", label: "澄んだ透明感のある", group: "texture" },
-  { id: "mood_lustrous", label: "艶やかで色彩豊かな", group: "texture" },
-  { id: "mood_delicate", label: "繊細で淡い", group: "texture" },
-  { id: "mood_sharp_taut", label: "鋭く張りのある", group: "texture" },
-  { id: "mood_dark_shadow", label: "重く陰影のある", group: "texture" },
+  // ── ② 音の表情 (2026-08-06 Tetsuo確定: イタリア語の発想標語15語に統一。日本語主表示+イタリア語補足) ──
+  { id: "mood_dolce", label: "優しく", italian: "Dolce", group: "texture" },
+  { id: "mood_cantabile", label: "歌うように", italian: "Cantabile", group: "texture" },
+  { id: "mood_espressivo", label: "表情豊かに", italian: "Espressivo", group: "texture" },
+  { id: "mood_tranquillo", label: "穏やかに", italian: "Tranquillo", group: "texture" },
+  { id: "mood_grazioso", label: "優雅に", italian: "Grazioso", group: "texture" },
+  { id: "mood_brillante", label: "華やかに", italian: "Brillante", group: "texture" },
+  { id: "mood_energico", label: "力強く", italian: "Energico", group: "texture" },
+  { id: "mood_appassionato", label: "情熱的に", italian: "Appassionato", group: "texture" },
+  { id: "mood_misterioso", label: "神秘的に", italian: "Misterioso", group: "texture" },
+  { id: "mood_delicato", label: "繊細に", italian: "Delicato", group: "texture" },
+  { id: "mood_leggiero", label: "軽やかに", italian: "Leggiero", group: "texture" },
+  { id: "mood_maestoso", label: "荘厳に", italian: "Maestoso", group: "texture" },
+  { id: "mood_giocoso", label: "楽しげに", italian: "Giocoso", group: "texture" },
+  { id: "mood_amoroso", label: "愛情深く", italian: "Amoroso", group: "texture" },
+  { id: "mood_nobile", label: "気高く", italian: "Nobile", group: "texture" },
 ]
 
 export const MOOD_TAG_BY_ID: Record<string, MoodTag> =
@@ -49,6 +56,32 @@ export function isMoodTagId(v: unknown): v is string {
   return typeof v === "string" && v in MOOD_TAG_BY_ID
 }
 
+/** 表示ラベル: 音の表情は「優しく（Dolce）」形式 (日本語主+イタリア語補足) */
 export function moodTagLabel(id: string): string {
-  return MOOD_TAG_BY_ID[id]?.label ?? id
+  const t = MOOD_TAG_BY_ID[id]
+  if (!t) return id
+  return t.italian ? `${t.label}（${t.italian}）` : t.label
+}
+
+/** グループの名詞 (文中で使う): リズムの印象→リズム / 音の表情→音色 */
+export const MOOD_GROUP_NOUNS: Record<MoodTagGroup, string> = {
+  rhythm: "リズム",
+  texture: "音色",
+}
+
+/** 名詞つきフレーズ: リズム=「ゆったりと呼吸するようなリズム」 / 音色=「優しく（Dolce）」 */
+export function moodTagPhrase(id: string): string {
+  const t = MOOD_TAG_BY_ID[id]
+  if (!t) return id
+  return t.group === "rhythm" ? `${t.label}${MOOD_GROUP_NOUNS.rhythm}` : moodTagLabel(id)
+}
+
+/** 宿題の目標文 (2026-08-06 Tetsuo確定の言い回し):
+ * リズム系=「◯◯リズムを意識しよう」 / 音色系=「◯◯音色を表現しよう」 */
+export function moodTagGoalText(id: string): string {
+  const t = MOOD_TAG_BY_ID[id]
+  if (!t) return id
+  return t.group === "rhythm"
+    ? `${t.label}リズムを意識しよう`
+    : `${moodTagLabel(id)}の音色を表現しよう`
 }

@@ -4,7 +4,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { MOOD_TAG_DEFS, MOOD_GROUP_LABELS, moodTagLabel } from "@/app/_libs/moodTags"
+import { MOOD_TAG_DEFS, MOOD_GROUP_LABELS, moodTagPhrase, moodTagLabel } from "@/app/_libs/moodTags"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
 import { createAssignment, sendMessageToStudent, sendCelebration } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
@@ -787,7 +787,7 @@ function ExprClearBox({ studentId, scoreTargets }: { studentId: string; scoreTar
             {(["rhythm", "texture"] as const).map((g) => (
               <optgroup key={g} label={MOOD_GROUP_LABELS[g]}>
                 {MOOD_TAG_DEFS.filter((t) => t.group === g).map((t) => (
-                  <option key={t.id} value={t.id}>{t.label}</option>
+                  <option key={t.id} value={t.id}>{moodTagLabel(t.id)}</option>
                 ))}
               </optgroup>
             ))}
@@ -1098,7 +1098,7 @@ function Homework({
               {(["rhythm", "texture"] as const).map((g) => (
                 <optgroup key={g} label={MOOD_GROUP_LABELS[g]}>
                   {MOOD_TAG_DEFS.filter((t) => t.group === g).map((t) => (
-                    <option key={t.id} value={t.id}>{t.label}</option>
+                    <option key={t.id} value={t.id}>{moodTagLabel(t.id)}</option>
                   ))}
                 </optgroup>
               ))}
@@ -1171,7 +1171,7 @@ function Homework({
               {a.moodTagId && (
                 <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
                   <span style={{ fontSize: 10.5, fontWeight: 800, color: "#8a5a1f", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "2px 8px" }}>
-                    🎨 {moodTagLabel(a.moodTagId)}
+                    🎨 {moodTagPhrase(a.moodTagId)}
                   </span>
                   {a.submitted && a.scoreId && (
                     <AssignmentExprClearButton studentId={studentId} moodTagId={a.moodTagId} scoreId={a.scoreId} />

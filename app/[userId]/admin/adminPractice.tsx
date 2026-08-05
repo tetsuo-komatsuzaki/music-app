@@ -33,7 +33,7 @@ import {
   usesArticulation,
 } from "@/app/_libs/materialVariant"
 import styles from "./admin.module.css"
-import { MOOD_TAG_DEFS, MOOD_GROUP_LABELS } from "@/app/_libs/moodTags"
+import { MOOD_TAG_DEFS, MOOD_GROUP_LABELS, moodTagLabel } from "@/app/_libs/moodTags"
 
 // アップロード時に選べるカテゴリ: 基礎練6 + エチュード + 学びレッスン + 練習曲(score=isShared Score)
 // lesson は練習メニューには出さない管理専用カテゴリ (学びレッスン23本の教材)
@@ -1107,7 +1107,7 @@ export default function AdminPractice({
                                           return next
                                         })}
                                       />
-                                      {t.label}
+                                      {moodTagLabel(t.id)}
                                     </label>
                                   ))}
                                 </div>

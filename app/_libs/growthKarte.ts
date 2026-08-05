@@ -9,7 +9,7 @@ import { formatKey } from "./musicNotation"
 import { categoryLabel } from "./practiceConstants"
 import { OBSERVATION_TAG_BY_ID } from "./observationCatalog"
 import { expressionLabel } from "./expressionCatalog"
-import { moodTagLabel } from "./moodTags"
+import { moodTagPhrase } from "./moodTags"
 import type { DiagnosisJson } from "./weaknessRecommendation"
 
 export type KartePeriod = "7d" | "30d" | "all"
@@ -770,7 +770,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     levelMap.set(r.moodTagId, cur)
   }
   const exprLevels = [...levelMap.entries()]
-    .map(([tagId, v]) => ({ tagId, label: moodTagLabel(tagId), star: v.star, count: v.count }))
+    .map(([tagId, v]) => ({ tagId, label: moodTagPhrase(tagId), star: v.star, count: v.count }))
     .sort((a, b) => b.star - a.star || a.label.localeCompare(b.label))
 
   // ⑤の表面 = いちばんの発見 (調 → 音域 → 🔍虫めがね)。noteStats を期間で合算
