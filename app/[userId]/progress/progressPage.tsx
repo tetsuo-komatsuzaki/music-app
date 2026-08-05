@@ -4,7 +4,7 @@
 // 6章: ①数字ヘッダ(変化が主役) ②技術マップ(2本バー) ③表現力 ④癖マップ ⑤くわしい数字 ⑥きみの歴史。
 // 全章文法 =「表面は薄く → タップで深く」。次の一歩(カリキュラム)はホームの領分 (カルテには置かない)。
 // readOnly = 先生の閲覧モード (期間タブ・リンク・オンボ非表示)。
-import { useState } from "react"
+import { useRef, useState } from "react"
 import Link from "next/link"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import type { KarteData, SkillNode } from "@/app/_libs/growthKarte"
@@ -462,23 +462,124 @@ function DiscoverySection({ userId, data, readOnly }: { userId: string; data: Ka
 
 /* ── ⑥ きみの歴史: 節目だけの年表 ── */
 function HistorySection({ data }: { data: KarteData }) {
+  // きみの歴史 縦スライド版 (2026-08-06 Tetsuo確定デモ 0edb9f66):
+  // タップ不要 — 縦スナップで節目カードが入れ替わり、左の「時間の道」が現在地に追従。
+  // 絵文字スタンプは廃止し、カテゴリ色+カナ表記で情報を整理。新しい順→一番下に「はじまり」。
   const ms = data.v2.milestones
-  return (
-    <div style={{ ...card, marginBottom: 0 }}>
-      <div style={secTtl}>📜 きみの歴史</div>
-      {ms.length === 0 ? (
+  const railRef = useRef<HTMLDivElement | null>(null)
+  const [active, setActive] = useState(0)
+
+  // アイコン → カテゴリ表記/色 (Milestone.icon を流用してカテゴリ判定)
+  const CAT: Record<string, { label: string; color: string }> = {
+    "🏆": { label: "マスター", color: "#b58a1e" },
+    "⭐": { label: "ランクアップ", color: "#b58a1e" },
+    "✨": { label: "タッセイ", color: "#2e8b57" },
+    "🎓": { label: "ワザ", color: "#4a63c8" },
+    "🎨": { label: "ヒョウゲン", color: "#a4527a" },
+    "💪": { label: "ヒョウゲン", color: "#a4527a" },
+    "🌱": { label: "クセこくふく", color: "#5f9c6e" },
+    "👩‍🏫": { label: "センセイ", color: "#8a6fb8" },
+    "🎙": { label: "ハジマリ", color: "#9aa3ae" },
+  }
+  const isBig = (icon: string) => icon === "🏆" || icon === "⭐"
+
+  const onScroll = () => {
+    const rail = railRef.current
+    if (!rail) return
+    requestAnimationFrame(() => {
+      const mid = rail.scrollTop + rail.clientHeight / 2
+      let best = 0
+      let bestDist = Infinity
+      Array.from(rail.children).forEach((c, i) => {
+        const el = c as HTMLElement
+        const center = el.offsetTop + el.offsetHeight / 2
+        const d = Math.abs(center - mid)
+        if (d < bestDist) { bestDist = d; best = i }
+      })
+      setActive(best)
+    })
+  }
+
+  if (ms.length === 0) {
+    return (
+      <div style={{ ...card, marginBottom: 0 }}>
+        <div style={secTtl}>📜 きみの歴史</div>
         <div style={{ fontSize: 11.5, color: SUB }}>最初の録音をすると、ここにきみの歴史が刻まれはじめるよ。</div>
-      ) : (
-        <div>
-          {ms.map((m, i) => (
-            <div key={`${m.at}-${i}`} style={{ display: "flex", gap: 9, fontSize: 11.5, lineHeight: 1.7, marginBottom: i === ms.length - 1 ? 0 : 6 }}>
-              <span style={{ flex: "none", width: 52, fontSize: 9.5, color: SUB, fontWeight: 800, paddingTop: 2, ...tnum }}>{m.date}</span>
-              <span style={{ flex: "none" }}>{m.icon}</span>
-              <span style={{ minWidth: 0 }}>{m.text}</span>
-            </div>
-          ))}
+      </div>
+    )
+  }
+
+  const N = ms.length
+  const first = ms[N - 1]
+  const days = Math.max(1, Math.round((ms[0].at - first.at) / 864e5))
+  // 表示順 i (新しい順) → 時系列位置 (0=はじまり)
+  const tickIdx = N - 1 - active
+
+  return (
+    <div style={{ ...card, marginBottom: 0, paddingLeft: 0, paddingRight: 0, overflow: "hidden" }}>
+      <div style={{ padding: "0 15px" }}>
+        <div style={secTtl}>📜 きみの歴史</div>
+        <div style={{ ...subLbl, marginTop: -4 }}>{first.date}にはじまって {days}日間 ・ {N}つの節目</div>
+      </div>
+
+      <div style={{ display: "flex", gap: 12, padding: "10px 15px 0" }}>
+        {/* 時間の道 (縦): 上=いま / 下=はじまり。スライドに追従 */}
+        <div style={{ position: "relative", width: 22, flex: "none" }}>
+          <div style={{ position: "absolute", top: 0, bottom: 0, left: 9, width: 2, borderRadius: 1, background: "#ece8db" }} />
+          <div style={{
+            position: "absolute", top: 0, left: 9, width: 2, borderRadius: 1,
+            background: "linear-gradient(180deg,#e3c96a,#d8b34e)",
+            height: `${(active / Math.max(1, N - 1)) * 100}%`, transition: "height .3s ease",
+          }} />
+          {ms.map((m, i) => {
+            const frac = i / Math.max(1, N - 1)
+            const cur = i === active
+            return (
+              <span key={`${m.at}-${i}`} style={{
+                position: "absolute", left: isBig(m.icon) ? 5 : 6, top: `calc(${frac * 100}% - 4px)`,
+                width: isBig(m.icon) ? 10 : 8, height: isBig(m.icon) ? 10 : 8, borderRadius: "50%",
+                boxSizing: "border-box", background: cur ? "#fdf3d8" : "#fff",
+                border: `2px solid ${cur ? "#c9a227" : i <= active ? "#d8b34e" : "#ded8c6"}`,
+                transform: cur ? "scale(1.5)" : "none", transition: "border-color .3s, transform .3s",
+              }} />
+            )
+          })}
         </div>
-      )}
+
+        {/* 縦スナップのカードレール */}
+        <div ref={railRef} onScroll={onScroll} style={{
+          flex: 1, minWidth: 0, height: 280, overflowY: "auto",
+          scrollSnapType: "y mandatory", scrollbarWidth: "none",
+          display: "flex", flexDirection: "column", gap: 10, padding: "56px 2px",
+        }}>
+          {ms.map((m, i) => {
+            const cat = CAT[m.icon] ?? { label: "セツメ", color: SUB }
+            const big = isBig(m.icon)
+            const activeCard = i === active
+            return (
+              <div key={`${m.at}-${i}`} style={{
+                flex: "none", scrollSnapAlign: "center", borderRadius: 14, padding: "13px 15px",
+                background: big ? "linear-gradient(155deg,#fffdf4,#fbf2d8)" : "#fbfaf6",
+                border: `1px solid ${big ? "#ecd9a2" : "#eee9da"}`,
+                transform: activeCard ? "scale(1)" : "scale(.94)",
+                opacity: activeCard ? 1 : 0.55,
+                filter: activeCard ? "none" : "saturate(.6)",
+                transition: "transform .35s cubic-bezier(.2,.8,.3,1), opacity .35s, filter .35s",
+              }}>
+                <div style={{ fontSize: 8.5, fontWeight: 900, letterSpacing: ".16em", color: cat.color }}>
+                  {cat.label} ・ {m.date}
+                </div>
+                <div style={{ fontSize: big ? 14.5 : 13, fontWeight: 900, lineHeight: 1.5, marginTop: 3 }}>
+                  {m.text}
+                </div>
+                {i === N - 1 && (
+                  <div style={{ fontSize: 10, color: "#9a9384", marginTop: 4 }}>ここから物語がはじまった</div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
