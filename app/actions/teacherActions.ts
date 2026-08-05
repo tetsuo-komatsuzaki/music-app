@@ -5,6 +5,7 @@
 // 権限は requireAuthAction + role/リンク存在チェックで担保。別シェル /teacher と生徒設定から呼ぶ。
 import { randomBytes } from "crypto"
 import { prisma } from "@/app/_libs/prisma"
+import { isMoodTagId } from "@/app/_libs/moodTags"
 import { requireAuthAction } from "@/app/_libs/requireAuth"
 import { notifyStudent } from "@/app/_libs/teacherEmailNotify"
 
@@ -86,6 +87,8 @@ export type CreateAssignmentInput = {
   goalType?: "score" | "achieve" | "master" | null
   /** goalType="score" のときの合格ライン(0-100) */
   targetScore?: number | null
+  /** 意識する表現 (統一雰囲気タグ台帳のID・任意) */
+  moodTagId?: string | null
 }
 
 /** 先生: 担当生徒に宿題を出す。 */
@@ -126,6 +129,7 @@ export async function createAssignment(
       dueDate: dueDate && !isNaN(dueDate.getTime()) ? dueDate : null,
       goalType,
       targetScore,
+      moodTagId: input.moodTagId && isMoodTagId(input.moodTagId) ? input.moodTagId : null,
     },
   })
   await notifyStudent(input.studentId, auth.user.dbUser.id, "assignment", input.comment)

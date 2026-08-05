@@ -1179,6 +1179,8 @@ model Assignment {
   dueDate        DateTime? // 提出期限(任意)
   goalType       String? // 合格条件の種類: "score"=目標点数 / "achieve"=達成
   targetScore    Int? // goalType=score のときの合格ライン(0-100)
+  // ▼ 2026-08-05: 意識する表現 (統一雰囲気タグ台帳 moodTags.ts のID・1つ)。先生が「この曲では◯◯を意識しよう」と目標を出す
+  moodTagId      String?
   doneAt         DateTime? // 生徒が完了にした時刻(任意)
   // ▼ 提出 (2026-07-29 Phase1.5): 生徒が録音を紐付けて提出。先生に点数ごと届く。
   submittedAt           DateTime? // 提出時刻

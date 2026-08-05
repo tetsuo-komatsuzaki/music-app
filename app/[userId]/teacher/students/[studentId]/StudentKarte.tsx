@@ -4,6 +4,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { MOOD_TAG_DEFS, MOOD_GROUP_LABELS } from "@/app/_libs/moodTags"
 import { createAssignment, sendMessageToStudent, sendCelebration } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
 import { createObservation, recordObservationProgress } from "@/app/actions/teacherObservations"
@@ -888,6 +889,7 @@ function Homework({
   const [goalType, setGoalType] = useState<"" | "score" | "achieve" | "master">("")
   const [targetScore, setTargetScore] = useState("")
   const [comment, setComment] = useState("")
+  const [moodTagId, setMoodTagId] = useState("")
   const [err, setErr] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -917,10 +919,11 @@ function Homework({
         dueDate: dueDate || null,
         goalType: goalType || null,
         targetScore: goalType === "score" && targetScore ? Number(targetScore) : null,
+        moodTagId: moodTagId || null,
       })
       if (!r.ok) { setErr(r.error); return }
       setOpen(false); setTargetId(""); setReps(""); setTempo(""); setComment("")
-      setDueDate(""); setGoalType(""); setTargetScore("")
+      setDueDate(""); setGoalType(""); setTargetScore(""); setMoodTagId("")
       router.refresh()
     })
   }
@@ -1000,6 +1003,20 @@ function Homework({
           {goalType === "master" && (
             <div style={{ fontSize: 11, color: "#9aa6b3", marginTop: 6 }}>マスター＝達成＋直近5回の平均90点以上（曲のみ）</div>
           )}
+
+          {/* 意識する表現 (2026-08-05): 統一雰囲気タグから1つ。「この曲では◯◯を意識しよう」 */}
+          <label style={{ ...lbl, display: "block", marginTop: 10 }}>🎨 意識する表現（任意）
+            <select value={moodTagId} onChange={(e) => setMoodTagId(e.target.value)} style={inp}>
+              <option value="">なし</option>
+              {(["rhythm", "texture"] as const).map((g) => (
+                <optgroup key={g} label={MOOD_GROUP_LABELS[g]}>
+                  {MOOD_TAG_DEFS.filter((t) => t.group === g).map((t) => (
+                    <option key={t.id} value={t.id}>{t.label}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </label>
 
           <label style={{ ...lbl, display: "block", marginTop: 10 }}>コメント
             <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} placeholder="例: 移弦を先に準備しよう" style={{ ...inp, resize: "vertical" }} />
