@@ -193,59 +193,8 @@ function centsToLabel(cents: number): string {
   return "大きくずれている"
 }
 
-/** MIDI番号 → ダイアトニックステップ（C4=0起点ではなく、絶対値） */
-function midiToDiatonicStep(midi: number): number {
-  const octave = Math.floor(midi / 12)
-  const pc = midi % 12
-  //               C  C# D  D# E  F  F# G  G# A  A# B
-  const map = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6]
-  return octave * 7 + map[pc]
-}
+// (間違い音符オーバーレイのヘルパー群は 2026-08-06 廃止で削除)
 
-/** 期待Hz vs 検出Hz → 五線上の Y オフセット (px) */
-function calcYOffset(expectedHz: number, detectedHz: number, lineSpacing: number): number {
-  const expectedMidi = Math.round(12 * Math.log2(expectedHz / 440) + 69)
-  const detectedMidi = Math.round(12 * Math.log2(detectedHz / 440) + 69)
-  const stepDiff = midiToDiatonicStep(detectedMidi) - midiToDiatonicStep(expectedMidi)
-  if (stepDiff === 0) return 0 // 同一ダイアトニック位置（半音差）→ オーバーレイ不要
-  return -stepDiff * (lineSpacing / 2)
-}
-
-/** オーバーレイ用 SVG レイヤーを確保（なければ作成、あればクリア） */
-function ensureOverlaySvg(container: HTMLElement): SVGSVGElement {
-  let overlay = container.querySelector("svg.wrong-note-layer") as SVGSVGElement | null
-  if (!overlay) {
-    overlay = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-    overlay.setAttribute("class", "wrong-note-layer")
-    overlay.style.position = "absolute"
-    overlay.style.top = "0"
-    overlay.style.left = "0"
-    overlay.style.pointerEvents = "none"
-    overlay.style.zIndex = "5"
-    container.style.position = "relative"
-    container.appendChild(overlay)
-  }
-  overlay.setAttribute("width", String(container.scrollWidth))
-  overlay.setAttribute("height", String(container.scrollHeight))
-  overlay.innerHTML = ""
-  return overlay
-}
-
-/** 五線の線間隔を計測（ノートヘッドの高さから算出） */
-function measureLineSpacing(noteElements: Element[]): number {
-  // 楽譜の標準: ノートヘッド高さ ≒ 五線の1スペース（隣接する線の間隔）
-  // 表示中のノート要素からノートヘッドの高さを取得
-  for (const el of noteElements) {
-    const rect = el.getBoundingClientRect()
-    if (rect.height > 0 && rect.width > 0) {
-      // vf-stavenote の高さはノートヘッド+符幹を含むが、幅はノートヘッド幅に近い
-      // ノートヘッドは楕円で、高さ ≈ 幅 × 0.8〜1.0
-      // ノートヘッドの高さ ≈ 五線の1スペース
-      return rect.height
-    }
-  }
-  return 12
-}
 
 
 // =========================================================
@@ -1857,45 +1806,8 @@ function ScoreDetailInner({
     }
   }, [comparison, analysisIdxToOsmdIdx])
 
-  // --- 間違い音符オーバーレイ描画（getBoundingClientRect 使用、遅延実行専用）---
-  const drawWrongNoteOverlay = useCallback(() => {
-    const elements = noteElementsRef.current
-    const container = document.getElementById("osmd-container")
-    if (elements.length === 0 || !container || !comparison || !analysis) return
-
-    const lineSpacing = measureLineSpacing(elements)
-    const containerRect = container.getBoundingClientRect()
-    const overlay = ensureOverlaySvg(container)
-
-    for (const c of comparison) {
-      if (c.pitch_ok !== false || !c.detected_pitch_hz) continue
-      const osmdIdx = analysisIdxToOsmdIdx(c.note_index)
-      if (osmdIdx < 0 || osmdIdx >= elements.length) continue
-      const el = elements[osmdIdx]
-
-      const expectedHz = analysis.notes[c.note_index]?.pitches?.[0]
-      if (!expectedHz) continue
-
-      const yOffset = calcYOffset(expectedHz, c.detected_pitch_hz, lineSpacing)
-      if (yOffset === 0) continue
-
-      const noteRect = el.getBoundingClientRect()
-      if (noteRect.width === 0) continue
-      const cx = noteRect.left + noteRect.width / 2 - containerRect.left
-      const cy = noteRect.top + noteRect.height / 2 - containerRect.top
-
-      const ellipse = document.createElementNS("http://www.w3.org/2000/svg", "ellipse")
-      ellipse.setAttribute("cx", String(cx))
-      ellipse.setAttribute("cy", String(cy + yOffset))
-      ellipse.setAttribute("rx", String(Math.max(noteRect.width / 2.2, 5)))
-      ellipse.setAttribute("ry", String(Math.max(noteRect.height / 2.5, 3.5)))
-      ellipse.setAttribute("fill", "rgba(238, 34, 34, 0.3)")
-      ellipse.setAttribute("stroke", "#ee2222")
-      ellipse.setAttribute("stroke-width", "1.5")
-      ellipse.style.pointerEvents = "none"
-      overlay.appendChild(ellipse)
-    }
-  }, [comparison, analysis, analysisIdxToOsmdIdx])
+  // 間違い音符オーバーレイ (実際に鳴った高さの赤い丸) は 2026-08-06 Tetsuo確定で廃止。
+  // 譜面がごちゃつくため。ミスの方向 (上ずり/ぶら下がり) はカルテの🔍虫めがねが担う。
 
   // 色塗り: noteElementsVersion が変わるたびに即時実行
   useEffect(() => {
@@ -1907,20 +1819,6 @@ function ScoreDetailInner({
       }
     }
   }, [comparison, playbackState, applyComparisonColors, noteElementsVersion])
-
-  // オーバーレイ: comparison が変わったときだけ遅延実行（noteElementsVersion に依存しない）
-  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  useEffect(() => {
-    if (playbackState !== "stopped" || !comparison) return
-    if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current)
-    overlayTimerRef.current = setTimeout(() => {
-      drawWrongNoteOverlay()
-      overlayTimerRef.current = null
-    }, 2000)
-    return () => {
-      if (overlayTimerRef.current) { clearTimeout(overlayTimerRef.current); overlayTimerRef.current = null }
-    }
-  }, [comparison, playbackState, drawWrongNoteOverlay])
 
   // --- カーソル（縦線）操作 ---
   // 自動復旧の核心: cursor div は #osmd-container の子。OSMD が再描画
