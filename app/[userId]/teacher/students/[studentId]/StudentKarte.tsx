@@ -4,7 +4,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { MOOD_TAG_DEFS, MOOD_GROUP_LABELS, moodTagPhrase, moodTagLabel } from "@/app/_libs/moodTags"
+import { MOOD_TAG_DEFS, moodTagPhrase, moodTagLabel } from "@/app/_libs/moodTags"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
 import { createAssignment, sendMessageToStudent, sendCelebration } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
@@ -784,13 +784,9 @@ function ExprClearBox({ studentId, scoreTargets }: { studentId: string; scoreTar
           <div style={{ fontSize: 11.5, fontWeight: 800, color: "#6b7885" }}>この曲で、この表現ができていた:</div>
           <select value={tag} onChange={(e) => setTag(e.target.value)} style={sel}>
             <option value="">表現をえらぶ</option>
-            {(["rhythm", "texture"] as const).map((g) => (
-              <optgroup key={g} label={MOOD_GROUP_LABELS[g]}>
-                {MOOD_TAG_DEFS.filter((t) => t.group === g).map((t) => (
-                  <option key={t.id} value={t.id}>{moodTagLabel(t.id)}</option>
-                ))}
-              </optgroup>
-            ))}
+                          {MOOD_TAG_DEFS.map((t) => (
+                <option key={t.id} value={t.id}>{moodTagLabel(t.id)}</option>
+              ))}
           </select>
           <select value={scoreId} onChange={(e) => setScoreId(e.target.value)} style={sel}>
             <option value="">曲をえらぶ</option>
@@ -1095,12 +1091,8 @@ function Homework({
           <label style={{ ...lbl, display: "block", marginTop: 10 }}>🎨 意識する表現（任意）
             <select value={moodTagId} onChange={(e) => setMoodTagId(e.target.value)} style={inp}>
               <option value="">なし</option>
-              {(["rhythm", "texture"] as const).map((g) => (
-                <optgroup key={g} label={MOOD_GROUP_LABELS[g]}>
-                  {MOOD_TAG_DEFS.filter((t) => t.group === g).map((t) => (
-                    <option key={t.id} value={t.id}>{moodTagLabel(t.id)}</option>
-                  ))}
-                </optgroup>
+                            {MOOD_TAG_DEFS.map((t) => (
+                <option key={t.id} value={t.id}>{moodTagLabel(t.id)}</option>
               ))}
             </select>
           </label>

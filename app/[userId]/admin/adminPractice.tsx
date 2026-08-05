@@ -33,7 +33,7 @@ import {
   usesArticulation,
 } from "@/app/_libs/materialVariant"
 import styles from "./admin.module.css"
-import { MOOD_TAG_DEFS, MOOD_GROUP_LABELS, moodTagLabel } from "@/app/_libs/moodTags"
+import { MOOD_TAG_DEFS, moodTagLabel } from "@/app/_libs/moodTags"
 
 // アップロード時に選べるカテゴリ: 基礎練6 + エチュード + 学びレッスン + 練習曲(score=isShared Score)
 // lesson は練習メニューには出さない管理専用カテゴリ (学びレッスン23本の教材)
@@ -1091,28 +1091,23 @@ export default function AdminPractice({
                             <div style={{ fontSize: 12, fontWeight: 600, color: "#666", marginBottom: 4 }}>
                               🎨 雰囲気タグ（曲を聴いて設定）
                             </div>
-                            {(["rhythm", "texture"] as const).map((g) => (
-                              <div key={g} style={{ marginLeft: 12, marginTop: 2 }}>
-                                <div style={{ fontSize: 11, color: "#888", marginBottom: 2 }}>{MOOD_GROUP_LABELS[g]}</div>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                                  {MOOD_TAG_DEFS.filter((t) => t.group === g).map((t) => (
-                                    <label key={t.id} className={styles.editTagLabel}>
-                                      <input
-                                        type="checkbox"
-                                        checked={editMoodTags.has(t.id)}
-                                        onChange={() => setEditMoodTags((prev) => {
-                                          const next = new Set(prev)
-                                          if (next.has(t.id)) next.delete(t.id)
-                                          else next.add(t.id)
-                                          return next
-                                        })}
-                                      />
-                                      {moodTagLabel(t.id)}
-                                    </label>
-                                  ))}
-                                </div>
-                              </div>
-                            ))}
+                            <div style={{ marginLeft: 12, marginTop: 2, display: "flex", flexWrap: "wrap", gap: 4 }}>
+                              {MOOD_TAG_DEFS.map((t) => (
+                                <label key={t.id} className={styles.editTagLabel}>
+                                  <input
+                                    type="checkbox"
+                                    checked={editMoodTags.has(t.id)}
+                                    onChange={() => setEditMoodTags((prev) => {
+                                      const next = new Set(prev)
+                                      if (next.has(t.id)) next.delete(t.id)
+                                      else next.add(t.id)
+                                      return next
+                                    })}
+                                  />
+                                  {moodTagLabel(t.id)}
+                                </label>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
