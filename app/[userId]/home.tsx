@@ -61,19 +61,6 @@ type Props = {
   }[]
   /** 弱点なし時の「次の曲にチャレンジ」: 同じ★の未達成曲 */
   nextPieceRecommendations: SongRecommendation[]
-  /** 旅の地図: オンボーディングの目標曲/Epic Win 常設 (null=未回答ユーザー) */
-  journeyMap: {
-    songName: string
-    songStar: number
-    /** 目標曲が楽譜(Score)と結線済みなら詳細ページへのリンク */
-    songHref: string | null
-    achieved: boolean
-    /** 到達予測 (現在の★とQ6回答で再計算)。達成済みなら null */
-    periodLabel: string | null
-    daily: string | null
-    epicWin: string | null
-    goalDate: string | null
-  } | null
   /** マイランクカード: 現在★の達成スタンプ (演奏の軌跡) */
   rankCard: {
     currentStar: number
