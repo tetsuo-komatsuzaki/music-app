@@ -6,6 +6,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { MOOD_TAG_DEFS, moodTagPhrase, moodTagLabel } from "@/app/_libs/moodTags"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
+import { resolveListenRequest } from "@/app/actions/listenRequests"
 import { createAssignment, sendMessageToStudent, sendCelebration } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
 import { createObservation, recordObservationProgress } from "@/app/actions/teacherObservations"
@@ -94,10 +95,11 @@ type ObservationRow = { id: string; tagIds: string[]; severity: string | null; c
 type ExpressionRow = { id: string; tagId: string; severity: string | null; comment: string | null; date: string }
 type WorkItem = { title: string; cat: string; avg: number }
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
+type ListenReq = { id: string; scoreId: string; title: string; avg: number | null; date: string }
 type Recording = { id: string; kind: "score" | "practice"; title: string; cat: string; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[] }
 
 export default function StudentKarte({
-  userId, studentId, studentName, briefing, scoreTargets, itemTargets,
+  userId, studentId, studentName, briefing, scoreTargets, itemTargets, listenRequests = [],
   allScoreTargets, allItemTargets, working, recordings, assignments, messages,
   observations = [],
   expressions = [],
@@ -110,6 +112,7 @@ export default function StudentKarte({
   briefing: Briefing
   /** 生徒が最近取り組んだ曲/教材 (添削タブ用) */
   scoreTargets: Target[]
+  listenRequests?: ListenReq[]
   itemTargets: Target[]
   /** 宿題で選べる全曲/全公開教材 (最近以外も出せる) */
   allScoreTargets: Target[]
@@ -149,7 +152,7 @@ export default function StudentKarte({
         ))}
       </div>
 
-      {tab === "overview" && <Overview b={briefing} studentId={studentId} observations={observations} expressions={expressions} scoreTargets={allScoreTargets} />}
+      {tab === "overview" && <Overview b={briefing} studentId={studentId} observations={observations} expressions={expressions} scoreTargets={allScoreTargets} listenRequests={listenRequests} />}
       {tab === "practice" && <PracticeTab studentId={studentId} working={working} recordings={recordings} />}
       {tab === "karte" && (
         karte ? (
@@ -357,7 +360,7 @@ function Card({ children }: { children: React.ReactNode }) {
   )
 }
 
-function Overview({ b, studentId, observations, expressions = [], scoreTargets = [] }: { b: Briefing; studentId: string; observations: ObservationRow[]; expressions?: ExpressionRow[]; scoreTargets?: Target[] }) {
+function Overview({ b, studentId, observations, expressions = [], scoreTargets = [], listenRequests = [] }: { b: Briefing; studentId: string; observations: ObservationRow[]; expressions?: ExpressionRow[]; scoreTargets?: Target[]; listenRequests?: ListenReq[] }) {
   return (
     <>
       {/* 生徒の目標 (目標共有・2026-08-02) */}
@@ -415,6 +418,17 @@ function Overview({ b, studentId, observations, expressions = [], scoreTargets =
           </>
         )}
       </Card>
+
+      {/* 👂 聴いてもらうリクエスト (2026-08-06): 生徒がワンタップで届けた演奏 */}
+      {listenRequests.length > 0 && (
+        <Card>
+          <div style={{ fontSize: 12, fontWeight: 800, color: "#8a5a1f", marginBottom: 8 }}>👂 聴いてほしいリクエスト <span style={{ fontSize: 10.5, background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "1px 8px" }}>{listenRequests.length}件</span></div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+            {listenRequests.map((r) => <ListenRequestRow key={r.id} r={r} />)}
+          </div>
+          <div style={{ fontSize: 10.5, color: "#9aa6b3", marginTop: 7 }}>録音は「録音」タブで再生できます。良い表現があれば下の🎨認定ボックスでクリア認定を。</div>
+        </Card>
+      )}
 
       {/* 所見 (癖タグ・2026-08-02): 選択式で記録→生徒にも表示・集計してアドバイスに活用 */}
       <ObservationSection studentId={studentId} observations={observations} />
@@ -807,6 +821,30 @@ function ExprClearBox({ studentId, scoreTargets }: { studentId: string; scoreTar
   )
 }
 
+/** 聴いてもらうリクエスト1行 (2026-08-06) */
+function ListenRequestRow({ r }: { r: ListenReq }) {
+  const router = useRouter()
+  const [pending, start] = useTransition()
+  const [done, setDone] = useState(false)
+  if (done) return null
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, border: "1px solid #eed9a0", background: "#fdfaf2", borderRadius: 10, padding: "8px 11px" }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ fontSize: 12.5, fontWeight: 900, color: "#2b3742" }}>{r.title}</span>
+        <span style={{ fontSize: 11, color: "#6b7885", marginLeft: 6 }}>{r.avg != null ? `${r.avg}点 ・ ` : ""}{r.date}</span>
+      </div>
+      <button type="button" disabled={pending}
+        onClick={() => start(async () => {
+          const res = await resolveListenRequest(r.id)
+          if (res.ok) { setDone(true); router.refresh() }
+        })}
+        style={{ flex: "none", fontSize: 10.5, fontWeight: 800, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 999, padding: "4px 10px", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+        対応済みにする
+      </button>
+    </div>
+  )
+}
+
 /** 宿題カード内の表現クリア認定ボタン (2026-08-06・案C 宿題側入口) */
 function AssignmentExprClearButton({ studentId, moodTagId, scoreId }: { studentId: string; moodTagId: string; scoreId: string }) {
   const [state, setState] = useState<"idle" | "saving" | "done" | "error">("idle")
@@ -958,6 +996,7 @@ function Homework({
 }: {
   studentId: string
   scoreTargets: Target[]
+  listenRequests?: ListenReq[]
   itemTargets: Target[]
   assignments: AssignmentRow[]
 }) {

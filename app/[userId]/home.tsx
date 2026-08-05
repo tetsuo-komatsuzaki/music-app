@@ -93,6 +93,8 @@ type Props = {
   starterPick: { title: string; star: number | null; reason: string; href: string; cover: string | null } | null
   /** 編み込み案4 (2026-08-03): 直近7日で点灯したわざ (レッスンクリア=正式習得のみ) */
   skillLits: { key: string; label: string }[]
+  /** 表現の棚 (2026-08-06 案2): きみの表現が活きる曲。null=非表示 (認定なし or タグ付き曲なし) */
+  exprShelf: { tagLabel: string; star: number; items: { id: string; title: string; star: number | null; cover: string | null }[] } | null
 }
 
 export default function HomeClient({
@@ -106,6 +108,7 @@ export default function HomeClient({
   teacherSummary,
   analysisNotices,
   skillLits,
+  exprShelf,
   starterPick,
 }: Props) {
   void _userName
@@ -125,6 +128,7 @@ export default function HomeClient({
       {/* ⓪ 解析通知 (採点中チップ / 完了バナー)。該当なしなら何も出ない */}
       <AnalysisNoticeBar userId={userId} notices={analysisNotices} />
       <SkillLitBanner userId={userId} lits={skillLits} />
+      <ExprShelf userId={userId} shelf={exprShelf} />
 
       {/* 🌟 まずはこれから (録音0ユーザーの一等地。旅の地図の後継・案5「きみへのセレクト」確定 2026-08-02):
           おすすめ1曲だけをドンと出す。弾き始めたら消えて「いま練習している曲」に世代交代 */}
@@ -237,6 +241,35 @@ function SkillLitBanner({ userId, lits }: { userId: string; lits: { key: string;
         style={{ flex: "none", border: "none", background: "none", color: "#b8a260", fontSize: 14, cursor: "pointer", padding: 4 }}>
         ✕
       </button>
+    </div>
+  )
+}
+
+/** 表現の棚 (2026-08-06 案2): きみの表現(先生認定の強み)が活きる曲の横スクロール棚 */
+function ExprShelf({ userId, shelf }: { userId: string; shelf: Props["exprShelf"] }) {
+  if (!shelf) return null
+  return (
+    <div style={{ margin: "0 0 12px" }}>
+      <div style={{ fontSize: 13, fontWeight: 900, color: "#3a3428" }}>🎨 きみの表現が活きる曲</div>
+      <div style={{ fontSize: 10.5, fontWeight: 800, color: "#8a5a1f", margin: "1px 0 7px" }}>
+        {shelf.tagLabel} ★{shelf.star} の きみへ
+      </div>
+      <div style={{ display: "flex", gap: 9, overflowX: "auto", paddingBottom: 4 }}>
+        {shelf.items.map((s) => (
+          <Link key={s.id} href={`/${userId}/scores/${s.id}`}
+            style={{ flex: "none", width: 92, textDecoration: "none", color: "inherit" }}>
+            <div style={{
+              height: 64, borderRadius: 9, overflow: "hidden",
+              background: s.cover ? `url(${s.cover}) center/cover` : "linear-gradient(150deg,#e8c96a,#c9932a)",
+              display: "grid", placeItems: "center", fontSize: 20,
+            }}>{s.cover ? "" : "🎻"}</div>
+            <div style={{ fontSize: 10.5, fontWeight: 800, marginTop: 3, lineHeight: 1.4, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+              {s.title}
+            </div>
+            {s.star != null && <div style={{ fontSize: 9.5, fontWeight: 800, color: "#a97b1f" }}>★{s.star}</div>}
+          </Link>
+        ))}
+      </div>
     </div>
   )
 }

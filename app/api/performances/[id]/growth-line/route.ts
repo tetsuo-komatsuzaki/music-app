@@ -75,7 +75,11 @@ export async function GET(
   // 先生の強み (案5・2026-08-03): タグごとの最新所見が severity=strength の数。
   // 結果画面には件数リンクだけ出し、詳細はカルテの表現セクションで見る (癖は出さない線引き)
   let strengthCount = 0
+  let hasTeacher = false
   try {
+    hasTeacher = (await prisma.teacherStudent.findFirst({
+      where: { studentId: dbUserId }, select: { id: true },
+    })) != null
     const obs = await prisma.teacherObservation.findMany({
       where: { studentId: dbUserId },
       orderBy: { createdAt: "desc" },
@@ -87,5 +91,5 @@ export async function GET(
     strengthCount = [...latest.values()].filter((sv) => sv === "strength").length
   } catch { strengthCount = 0 }
 
-  return NextResponse.json({ line, strengthCount })
+  return NextResponse.json({ line, strengthCount, hasTeacher })
 }

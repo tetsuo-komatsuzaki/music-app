@@ -691,6 +691,40 @@ export default async function HomePage({ params }: PageProps) {
     analysisNotices = []
   }
 
+  // 表現の棚 (2026-08-06 案2): きみの表現(最高★の強み)が活きる曲。
+  // 源泉 = UserExpressionClear(先生認定) × Score.moodTags(手動タグ)。タグ付き曲が無い間は棚ごと非表示
+  let exprShelf: { tagLabel: string; star: number; items: { id: string; title: string; star: number | null; cover: string | null }[] } | null = null
+  try {
+    const clears = await prisma.userExpressionClear.findMany({
+      where: { userId: internalUserId },
+      select: { moodTagId: true, starAtClear: true },
+    })
+    if (clears.length > 0) {
+      const best = new Map<string, number>()
+      for (const c of clears) best.set(c.moodTagId, Math.max(best.get(c.moodTagId) ?? 0, c.starAtClear))
+      // いちばん育っている表現を看板に
+      const [topTag, topStar] = [...best.entries()].sort((a, b) => b[1] - a[1])[0]
+      const songs = await prisma.score.findMany({
+        where: {
+          ownerScope: "admin", isShared: true, deletedAt: null,
+          moodTags: { has: topTag },
+          star: { gte: topStar, lte: topStar + 1 },
+          ...(excludePieceIds.length ? { id: { notIn: excludePieceIds } } : {}),
+        },
+        orderBy: [{ star: "desc" }, { createdAt: "asc" }],
+        take: 4,
+        select: { id: true, title: true, star: true, coverImagePath: true },
+      })
+      if (songs.length > 0) {
+        const { moodTagLabel } = await import("@/app/_libs/moodTags")
+        exprShelf = {
+          tagLabel: moodTagLabel(topTag), star: topStar,
+          items: songs.map((sc) => ({ id: sc.id, title: sc.title, star: sc.star ?? null, cover: sc.coverImagePath ?? null })),
+        }
+      }
+    }
+  } catch { exprShelf = null }
+
   // 編み込み案4 (2026-08-03): わざ点灯の祝い (直近7日のレッスンクリア=正式習得のみ)
   let skillLits: { key: string; label: string }[] = []
   try {
@@ -709,6 +743,7 @@ export default async function HomePage({ params }: PageProps) {
       teacherSummary={teacherSummary}
       analysisNotices={analysisNotices}
       skillLits={skillLits}
+      exprShelf={exprShelf}
       starterPick={starterPick}
       userName={dbUser.name ?? ""}
       streak={streak}

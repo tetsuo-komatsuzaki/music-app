@@ -147,6 +147,31 @@ export default async function StudentKartePage({
   // 宿題の「達成/マスター目標」自動判定用に、対象曲の達成状態をまとめて取得
   const achFlags = await getAchievementFlags(studentId, assignments.map((a) => a.scoreId))
 
+  // 聴いてもらうリクエスト (2026-08-06): pending のみ・新しい順
+  const listenReqRows = await prisma.listenRequest.findMany({
+    where: { teacherId: me.id, studentId, status: "pending" },
+    orderBy: { createdAt: "desc" },
+    take: 10,
+    select: { id: true, scoreId: true, performanceId: true, createdAt: true },
+  })
+  const listenPerfs = listenReqRows.length
+    ? await prisma.performance.findMany({
+        where: { id: { in: listenReqRows.map((r) => r.performanceId) } },
+        select: { id: true, pitchAccuracy: true, timingAccuracy: true, score: { select: { title: true } } },
+      })
+    : []
+  const perfById = new Map(listenPerfs.map((pf) => [pf.id, pf]))
+  const listenRequests = listenReqRows.map((r) => {
+    const pf = perfById.get(r.performanceId)
+    const avg = pf?.pitchAccuracy != null && pf?.timingAccuracy != null
+      ? Math.round((pf.pitchAccuracy + pf.timingAccuracy) / 2) : null
+    return {
+      id: r.id, scoreId: r.scoreId,
+      title: pf?.score.title ?? "演奏", avg,
+      date: r.createdAt.toLocaleDateString("ja-JP"),
+    }
+  })
+
   // 先生の所見 (2026-08-02): 癖タグの記録履歴 (直近10件)
   let observations: { id: string; tagIds: string[]; severity: string | null; comment: string | null; date: string }[] = []
   // 表現の評価 (2026-08-03 Phase0-3): expr_* 行 (💪/🔥/🌿)
@@ -274,6 +299,7 @@ export default async function StudentKartePage({
       allItemTargets={allItemTargets}
       working={working}
       recordings={recordings}
+      listenRequests={listenRequests}
       assignments={assignments.map((a) => ({
         id: a.id,
         targetTitle: a.score?.title ?? a.practiceItem?.title ?? "課題",

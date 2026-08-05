@@ -6,6 +6,7 @@ import Link from "next/link"
 import { ArcoChan, POSES } from "./ArcoChan"
 import { sendScoringFeedback } from "@/app/actions/scoringFeedback"
 import ShareSheet from "./ShareSheet"
+import { createListenRequest } from "@/app/actions/listenRequests"
 import styles from "./ArcoResultOverlay.module.css"
 
 type Ach = {
@@ -60,6 +61,8 @@ export default function ArcoResultOverlay({
   const [shareOpen, setShareOpen] = useState(false)
   const [growth, setGrowth] = useState<GrowthLine | null>(null)
   const [strengthCount, setStrengthCount] = useState(0)
+  const [hasTeacher, setHasTeacher] = useState(false)
+  const [listenState, setListenState] = useState<"idle" | "sending" | "done" | "error">("idle")
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
@@ -74,7 +77,7 @@ export default function ArcoResultOverlay({
       fetch(`/api/scores/${scoreId}/achievement-status`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
       fetch(`/api/performances/${perf.id}/diagnosis`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
       fetch(`/api/performances/${perf.id}/growth-line`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-    ]).then(([a, d, g]) => { if (!aborted) { setAch(a); setDiag(d); setGrowth(g?.line ?? null); setStrengthCount(g?.strengthCount ?? 0) } })
+    ]).then(([a, d, g]) => { if (!aborted) { setAch(a); setDiag(d); setGrowth(g?.line ?? null); setStrengthCount(g?.strengthCount ?? 0); setHasTeacher(!!g?.hasTeacher) } })
     return () => { aborted = true }
   }, [scoreId, perf.id])
 
@@ -246,6 +249,17 @@ export default function ArcoResultOverlay({
         <div className={styles.actions}>
           {onGoReview && <button type="button" className={styles.ghost} onClick={onGoReview}>ふりかえりで詳しく</button>}
           <button type="button" className={styles.ghost} onClick={() => setShareOpen(true)}>📤 シェア</button>
+          {/* 👂 先生に聴いてもらう (2026-08-06 案1簡素版): ワンタップ送信・シート無し */}
+          {hasTeacher && (
+            <button type="button" className={styles.ghost} disabled={listenState === "sending" || listenState === "done"}
+              onClick={async () => {
+                setListenState("sending")
+                const r = await createListenRequest(perf.id)
+                setListenState(r.ok ? "done" : "error")
+              }}>
+              {listenState === "done" ? "✓ 先生に届けたよ" : listenState === "sending" ? "送信中…" : listenState === "error" ? "👂 もう一度" : "👂 先生に聴いてもらう"}
+            </button>
+          )}
           <button type="button" className={styles.primary} onClick={onClose}>とじる</button>
         </div>
 
