@@ -6,7 +6,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { MOOD_TAG_DEFS, moodTagPhrase, moodTagLabel } from "@/app/_libs/moodTags"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
-import { resolveListenRequest } from "@/app/actions/listenRequests"
 import { createAssignment, sendMessageToStudent, sendCelebration } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
 import { createObservation, recordObservationProgress } from "@/app/actions/teacherObservations"
@@ -135,7 +134,7 @@ export default function StudentKarte({
       <h1 style={{ fontSize: 18, fontWeight: 900, margin: "6px 0 10px" }}>{studentName}</h1>
 
       <div style={{ display: "flex", gap: 4, marginBottom: 14 }}>
-        {([["overview", "概要"], ["practice", "練習"], ["karte", "カルテ"], ["homework", "宿題"], ["review", "添削"], ["message", "メッセージ"]] as const).map(([k, label]) => (
+        {([["overview", "概要"], ["practice", "練習"], ["karte", "カルテ"], ["homework", "宿題"], ["review", "採点カルテ"], ["message", "メッセージ"]] as const).map(([k, label]) => (
           <button
             key={k}
             type="button"
@@ -163,30 +162,79 @@ export default function StudentKarte({
       {tab === "homework" && (
         <Homework studentId={studentId} scoreTargets={allScoreTargets} itemTargets={allItemTargets} assignments={assignments} />
       )}
-      {tab === "review" && <FeedbackTab userId={userId} studentId={studentId} scoreTargets={scoreTargets} />}
+      {tab === "review" && <FeedbackTab userId={userId} studentId={studentId} scoreTargets={scoreTargets} listenRequests={listenRequests} assignments={assignments} />}
       {tab === "message" && <Messages studentId={studentId} studentName={studentName} messages={messages} />}
     </div>
   )
 }
 
-function FeedbackTab({ userId, studentId, scoreTargets }: { userId: string; studentId: string; scoreTargets: Target[] }) {
+function FeedbackTab({ userId, studentId, scoreTargets, listenRequests = [], assignments = [] }: {
+  userId: string; studentId: string; scoreTargets: Target[]
+  listenRequests?: ListenReq[]; assignments?: AssignmentRow[]
+}) {
+  // 採点カルテの依頼箱 (2026-08-06 統一・モック103dcadf):
+  // 👂聴いてほしい依頼 + 📚提出済み宿題 + 自分で選ぶ、を1本に。書くものはどれも同じ採点カルテ。
+  const submittedHw = assignments.filter((a) => a.submitted && !a.done && a.scoreId)
+  const pendingCount = listenRequests.length + submittedHw.length
+  const annotateHref = (scoreId: string, mood?: string | null) =>
+    `/${userId}/teacher/students/${studentId}/annotate/${scoreId}${mood ? `?mood=${encodeURIComponent(mood)}` : ""}`
   return (
     <Card>
-      <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 4 }}>譜面に添削する</div>
-      <p style={{ fontSize: 12, color: "#9aa6b3", margin: "0 0 10px" }}>曲を選ぶと、譜面にハイライトやメモを書き込めます（生徒に届きます）。</p>
-      {scoreTargets.length === 0 ? (
-        <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>この生徒はまだ曲の演奏がありません。</div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {scoreTargets.map((s) => (
-            <Link key={s.id} href={`/${userId}/teacher/students/${studentId}/annotate/${s.id}`}
-              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit", border: "1px solid #eef1f4", borderRadius: 10, padding: "10px 12px" }}>
-              <span style={{ fontSize: 13, fontWeight: 800, color: "#2b3742", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.title}</span>
-              <span style={{ fontSize: 11.5, fontWeight: 800, color: "#4f63c6", flex: "none" }}>添削する →</span>
-            </Link>
-          ))}
+      <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 4 }}>
+        📥 採点カルテ {pendingCount > 0 && (
+          <span style={{ fontSize: 10.5, fontWeight: 800, color: "#8a5a1f", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "1px 8px" }}>未対応 {pendingCount}</span>
+        )}
+      </div>
+      <p style={{ fontSize: 12, color: "#9aa6b3", margin: "0 0 10px" }}>
+        演奏を聴いて、譜面添削・コメント・表現の認定を1枚のカルテで返せます。
+      </p>
+
+      {/* 👂 聴いてほしい依頼 */}
+      {listenRequests.map((r) => (
+        <div key={r.id} style={{ border: "1px solid #eed9a0", background: "#fdfaf2", borderRadius: 11, padding: "9px 12px", marginBottom: 7 }}>
+          <div style={{ fontSize: 12.5 }}>
+            <span style={{ fontSize: 9, fontWeight: 900, color: "#8a5a1f", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "1px 8px", marginRight: 6 }}>👂 聴いてほしい</span>
+            <b>{r.title}</b>
+            <span style={{ fontSize: 10.5, color: "#6b7885", marginLeft: 6 }}>{r.avg != null ? `${r.avg}点 ・ ` : ""}{r.date}</span>
+          </div>
+          <Link href={annotateHref(r.scoreId)} style={{ display: "inline-block", marginTop: 6, fontSize: 11, fontWeight: 800, color: "#fff", background: "#8a5a1f", borderRadius: 999, padding: "5px 13px", textDecoration: "none" }}>
+            採点カルテを書く →
+          </Link>
         </div>
-      )}
+      ))}
+
+      {/* 📚 提出済み宿題 */}
+      {submittedHw.map((a) => (
+        <div key={a.id} style={{ border: "1px solid #d6ddff", background: "#fbfcff", borderRadius: 11, padding: "9px 12px", marginBottom: 7 }}>
+          <div style={{ fontSize: 12.5 }}>
+            <span style={{ fontSize: 9, fontWeight: 900, color: "#3b56d4", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "1px 8px", marginRight: 6 }}>📚 宿題の提出</span>
+            <b>{a.targetTitle}</b>
+            <span style={{ fontSize: 10.5, color: "#6b7885", marginLeft: 6 }}>{a.submittedScore != null ? `${a.submittedScore}点` : "提出済み"}</span>
+          </div>
+          {a.moodTagId && <div style={{ fontSize: 9.5, fontWeight: 800, color: "#8a5a1f", margin: "3px 0 0" }}>🎨 目標: {moodTagPhrase(a.moodTagId)}</div>}
+          <Link href={annotateHref(a.scoreId!, a.moodTagId)} style={{ display: "inline-block", marginTop: 6, fontSize: 11, fontWeight: 800, color: "#fff", background: "#3b56d4", borderRadius: 999, padding: "5px 13px", textDecoration: "none" }}>
+            採点カルテを書く →
+          </Link>
+        </div>
+      ))}
+
+      {/* 自分で選ぶ */}
+      <div style={{ borderTop: "1px dashed #e2e6ea", marginTop: 4, paddingTop: 10 }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", marginBottom: 6 }}>自分で曲をえらんで書く</div>
+        {scoreTargets.length === 0 ? (
+          <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>この生徒はまだ曲の演奏がありません。</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {scoreTargets.map((s) => (
+              <Link key={s.id} href={annotateHref(s.id)}
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit", border: "1px solid #eef1f4", borderRadius: 10, padding: "10px 12px" }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "#2b3742", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.title}</span>
+                <span style={{ fontSize: 11.5, fontWeight: 800, color: "#4f63c6", flex: "none" }}>カルテを書く →</span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
     </Card>
   )
 }
@@ -418,17 +466,7 @@ function Overview({ b, studentId, observations, expressions = [], scoreTargets =
         )}
       </Card>
 
-      {/* 👂 聴いてもらうリクエスト (2026-08-06): 生徒がワンタップで届けた演奏 */}
-      {listenRequests.length > 0 && (
-        <Card>
-          <div style={{ fontSize: 12, fontWeight: 800, color: "#8a5a1f", marginBottom: 8 }}>👂 聴いてほしいリクエスト <span style={{ fontSize: 10.5, background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "1px 8px" }}>{listenRequests.length}件</span></div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-            {listenRequests.map((r) => <ListenRequestRow key={r.id} r={r} />)}
-          </div>
-          <div style={{ fontSize: 10.5, color: "#9aa6b3", marginTop: 7 }}>録音は「録音」タブで再生できます。良い表現があれば下の🎨認定ボックスでクリア認定を。</div>
-        </Card>
-      )}
-
+      {/* 👂リクエストは採点カルテタブの依頼箱に一本化 (2026-08-06統一) */}
       {/* 所見 (癖タグ・2026-08-02): 選択式で記録→生徒にも表示・集計してアドバイスに活用 */}
       <ObservationSection studentId={studentId} observations={observations} />
 
@@ -725,30 +763,6 @@ function ExprClearBox({ studentId, scoreTargets }: { studentId: string; scoreTar
         </div>
       )}
       {msg && <div style={{ fontSize: 12, marginTop: 6, color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
-    </div>
-  )
-}
-
-/** 聴いてもらうリクエスト1行 (2026-08-06) */
-function ListenRequestRow({ r }: { r: ListenReq }) {
-  const router = useRouter()
-  const [pending, start] = useTransition()
-  const [done, setDone] = useState(false)
-  if (done) return null
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, border: "1px solid #eed9a0", background: "#fdfaf2", borderRadius: 10, padding: "8px 11px" }}>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ fontSize: 12.5, fontWeight: 900, color: "#2b3742" }}>{r.title}</span>
-        <span style={{ fontSize: 11, color: "#6b7885", marginLeft: 6 }}>{r.avg != null ? `${r.avg}点 ・ ` : ""}{r.date}</span>
-      </div>
-      <button type="button" disabled={pending}
-        onClick={() => start(async () => {
-          const res = await resolveListenRequest(r.id)
-          if (res.ok) { setDone(true); router.refresh() }
-        })}
-        style={{ flex: "none", fontSize: 10.5, fontWeight: 800, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 999, padding: "4px 10px", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
-        対応済みにする
-      </button>
     </div>
   )
 }

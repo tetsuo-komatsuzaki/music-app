@@ -1078,6 +1078,9 @@ function ScoreDetailInner({
   const [showTeacherFeedback, setShowTeacherFeedback] = useState(false)
   // 先生あり生徒か (D: 演奏の「先生に共有」ボタンの出し分け)。teacherName で判定。
   const [studentHasTeacher, setStudentHasTeacher] = useState(false)
+  // 採点カルテのコメント (2026-08-06統一): 添削データJSONに同居。添削が無くてもコメントだけで表示
+  const [teacherComment, setTeacherComment] = useState<string | null>(null)
+  const [teacherNameForKarte, setTeacherNameForKarte] = useState<string | null>(null)
   const teacherFeedbackRef = useRef<AnnotationData>({})
   useEffect(() => {
     let cancelled = false
@@ -1092,6 +1095,9 @@ function ScoreDetailInner({
           (d.notation?.length ?? 0) > 0
         teacherFeedbackRef.current = d
         setHasTeacherFeedback(has)
+        const dc = (d as AnnotationData & { comment?: string | null }).comment
+        setTeacherComment(typeof dc === "string" && dc.trim() ? dc : null)
+        setTeacherNameForKarte(r.teacherName ?? null)
         // 添削があれば演奏モードの譜面に初期表示 (別画面に遷移しない)。トグルで隠せる。
         if (has) setShowTeacherFeedback(true)
       })
@@ -2913,6 +2919,16 @@ function ScoreDetailInner({
 
         {/* 判定カラーの凡例: 演奏を選択して譜面に採点色が出ている時にスコア直下へ */}
         {selected && <ScoreLegend />}
+
+        {/* 採点カルテのひとこと (2026-08-06統一): 先生が「カルテを返す」で書いたコメント */}
+        {teacherComment && (
+          <div style={{ border: "1.5px solid #eed9a0", background: "linear-gradient(150deg,#fffdf6,#fdf6e6)", borderRadius: 12, padding: "9px 13px", margin: "10px 0 4px" }}>
+            <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: ".12em", color: "#a98b2f" }}>
+              ✍️ {teacherNameForKarte ? `${teacherNameForKarte}先生` : "先生"}の採点カルテ
+            </div>
+            <div style={{ fontSize: 12.5, color: "#4a4030", marginTop: 3, lineHeight: 1.7 }}>「{teacherComment}」</div>
+          </div>
+        )}
 
         {/* 先生の添削を録音/練習の譜面に重ねて表示 (readOnly・トグル・2026-08-01) */}
         {analysis && hasTeacherFeedback && (

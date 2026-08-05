@@ -6,14 +6,17 @@ import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import AnnotateClient from "./AnnotateClient"
 
-export const metadata = { title: "添削" }
+export const metadata = { title: "採点カルテ" }
 
 export default async function AnnotatePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ userId: string; studentId: string; scoreId: string }>
+  searchParams: Promise<{ mood?: string }>
 }) {
   const { userId, studentId, scoreId } = await params
+  const { mood } = await searchParams
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || user.id !== userId) redirect(`/${userId}`)
@@ -41,6 +44,7 @@ export default async function AnnotatePage({
 
   return (
     <AnnotateClient
+      initialMood={mood ?? null}
       userId={userId}
       studentId={studentId}
       studentName={student.name}
