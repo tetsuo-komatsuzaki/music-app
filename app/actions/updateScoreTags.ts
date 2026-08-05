@@ -12,6 +12,7 @@ import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { revalidatePath } from "next/cache"
 import { Prisma } from "@/app/generated/prisma"
 import { SUB_TASK_IDS } from "@/app/_libs/skillMaster"
+import { isMoodTagId } from "@/app/_libs/moodTags"
 
 export type UpdateScoreTagsResult =
   | { success: true; scoreId: string }
@@ -30,6 +31,8 @@ export type UpdateScorePayload = {
   keyTonic?: string | null
   keyMode?: string | null
   defaultTempo?: number | null
+  // 雰囲気タグ (2026-08-05): 統一語彙台帳のID。曲を聴いて手動設定
+  moodTags?: string[]
 }
 
 export async function updateScoreTags(
@@ -89,6 +92,12 @@ export async function updateScoreTags(
       return { error: "テンポは 1〜400 で指定してください" }
     }
     data.defaultTempo = payload.defaultTempo
+  }
+  if (payload.moodTags !== undefined) {
+    if (!Array.isArray(payload.moodTags) || payload.moodTags.some((t) => !isMoodTagId(t))) {
+      return { error: "雰囲気タグが不正です" }
+    }
+    data.moodTags = [...new Set(payload.moodTags)]
   }
 
   // 存在チェック (deletedAt=null のみ対象)

@@ -51,6 +51,7 @@ export default async function AdminPracticePage({
         buildStatus: true,
         star: true,
         skillSubTaskTags: true,
+        moodTags: true,
         // v1.6 Phase 4-3 (Q4=B): ScoreTechniqueTag を一緒に取得し、
         //   admin UI の編集モーダル初期値に使う。
         scoreTechniqueTags: {
@@ -138,6 +139,7 @@ export default async function AdminPracticePage({
       buildStatus: s.buildStatus,
       star: s.star,
       skillSubTaskTags: tags,
+      moodTags: s.moodTags ?? [],
       techniques: s.scoreTechniqueTags.map((t) => ({
         id: t.techniqueTag.id,
         name: t.techniqueTag.name,

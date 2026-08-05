@@ -53,8 +53,10 @@ describe("percentileThreshold (上位5%)", () => {
 
 describe("rankSongsForExpr (相対順位)", () => {
   const feat = (over: Partial<ExprFeatures>): ExprFeatures => ({
-    v: 1, notes: 100, slurDensity: 0, longSlurRate: 0, staccatoDensity: 0,
-    dynamicsVariety: 0, hairpinCount: 0, longToneRate: 0, lowRegisterRate: 0, vibratoTag: false, ...over,
+    v: 2, notes: 100, slurDensity: 0, longSlurRate: 0, staccatoDensity: 0,
+    dynamicsVariety: 0, hairpinCount: 0, longToneRate: 0, lowRegisterRate: 0, vibratoTag: false,
+    loudRate: 0, softRate: 0, accentRate: 0, ornamentRate: 0, highRegisterRate: 0,
+    leapRate: 0, rangeSemitones: 0, keyChangeCount: 0, tempoMarkCount: 0, ...over,
   })
   it("しきい値以上だけを降順で返す (0は常に除外)", () => {
     const ranked = rankSongsForExpr("expr_legato_singing", [

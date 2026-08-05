@@ -9,7 +9,7 @@ import {
   computeExprFeatures, rankSongsForExpr, percentileThreshold, EXPR_AXES, type ExprFeatures,
 } from "@/app/_libs/exprSongFeatures"
 
-const FEATURE_VERSION = 1
+const FEATURE_VERSION = 2
 
 type ScoreRow = {
   id: string

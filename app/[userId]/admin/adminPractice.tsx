@@ -33,6 +33,7 @@ import {
   usesArticulation,
 } from "@/app/_libs/materialVariant"
 import styles from "./admin.module.css"
+import { MOOD_TAG_DEFS, MOOD_GROUP_LABELS } from "@/app/_libs/moodTags"
 
 // アップロード時に選べるカテゴリ: 基礎練6 + エチュード + 学びレッスン + 練習曲(score=isShared Score)
 // lesson は練習メニューには出さない管理専用カテゴリ (学びレッスン23本の教材)
@@ -52,6 +53,8 @@ type ItemDTO = {
   isPublished: boolean; analysisStatus: string; buildStatus: string
   star: number | null
   skillSubTaskTags: string[]
+  /** 雰囲気タグ (2026-08-05・曲のみ手動設定) */
+  moodTags?: string[]
   techniques: { id: string; name: string; isPrimary: boolean }[]
 }
 
@@ -168,6 +171,7 @@ export default function AdminPractice({
   const [editCategory, setEditCategory] = useState("")
   const [editKeyTonic, setEditKeyTonic] = useState("")
   const [editKeyMode, setEditKeyMode] = useState("")
+  const [editMoodTags, setEditMoodTags] = useState<Set<string>>(new Set())
   const [editTempoMin, setEditTempoMin] = useState("")
   const [editTempoMax, setEditTempoMax] = useState("")
   // 2026-07-14: ポジション欄が編集に無かった(学びレッスンのポジション教材で必須)
@@ -294,6 +298,7 @@ export default function AdminPractice({
     setEditTempoMin(item.tempoMin != null ? String(item.tempoMin) : "")
     setEditTempoMax(item.tempoMax != null ? String(item.tempoMax) : "")
     setEditPositions(item.positions ?? [])
+    setEditMoodTags(new Set(item.moodTags ?? []))
     setEditError(null)
   }
 
@@ -377,6 +382,7 @@ export default function AdminPractice({
       if (item.type === "score") {
         // Score: カテゴリは固定。テンポは単一 (defaultTempo)。最小値を採用。
         const defaultTempo = tMin
+        const moodTags = Array.from(editMoodTags)
         result = await updateScoreTags(item.id, {
           star: difficulty,
           skillSubTaskTags: subTasks,
@@ -384,11 +390,13 @@ export default function AdminPractice({
           keyTonic: editKeyTonic.trim() || null,
           keyMode: editKeyMode || null,
           defaultTempo,
+          moodTags,
         })
         patch = {
           star: difficulty, skillSubTaskTags: subTasks, title,
           keyTonic: editKeyTonic.trim(), keyMode: editKeyMode,
           tempoMin: defaultTempo, tempoMax: null,
+          moodTags,
         }
       } else {
         result = await updatePracticeItemTags(item.id, {
@@ -1077,6 +1085,36 @@ export default function AdminPractice({
                             })}
                           </div>
                         ))}
+                        {/* 雰囲気タグ (2026-08-05・曲のみ): 曲を聴いて手動設定。統一語彙台帳 */}
+                        {item.type === "score" && (
+                          <div style={{ marginTop: 10, borderTop: "1px dashed #ddd", paddingTop: 8 }}>
+                            <div style={{ fontSize: 12, fontWeight: 600, color: "#666", marginBottom: 4 }}>
+                              🎨 雰囲気タグ（曲を聴いて設定）
+                            </div>
+                            {(["rhythm", "texture"] as const).map((g) => (
+                              <div key={g} style={{ marginLeft: 12, marginTop: 2 }}>
+                                <div style={{ fontSize: 11, color: "#888", marginBottom: 2 }}>{MOOD_GROUP_LABELS[g]}</div>
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                                  {MOOD_TAG_DEFS.filter((t) => t.group === g).map((t) => (
+                                    <label key={t.id} className={styles.editTagLabel}>
+                                      <input
+                                        type="checkbox"
+                                        checked={editMoodTags.has(t.id)}
+                                        onChange={() => setEditMoodTags((prev) => {
+                                          const next = new Set(prev)
+                                          if (next.has(t.id)) next.delete(t.id)
+                                          else next.add(t.id)
+                                          return next
+                                        })}
+                                      />
+                                      {t.label}
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ) : noTags ? (
                       <span className={styles.missingBadge}>未設定</span>

@@ -123,6 +123,9 @@ model Score {
   // ▼ 表現特徴 (2026-08-04): analysis.json の集約キャッシュ (exprSongFeatures.ts)。
   // 「合う曲」推薦用。null=未計算 (表示時にオンデマンド計算して保存)
   exprFeatures     Json?
+  // ▼ 雰囲気タグ (2026-08-05確定): 統一語彙台帳 (moodTags.ts) のID。曲を聴いて admin が手動設定。
+  // 曲側=手動 / 演奏側=将来AI判定 (同じ語彙)。手動タグは将来のAI学習の正解データにもなる
+  moodTags         String[] @default([])
   isShared         Boolean        @default(false) // true=全ユーザー閲覧可のサンプル
 
   // ループエンジン用フィールド (2026-05-10 追加 / v1.3 で difficulty → star リネーム)
