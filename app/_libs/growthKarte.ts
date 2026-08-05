@@ -172,6 +172,17 @@ export interface KarteV2 {
   expression: { strengths: ExprItem[]; growing: ExprItem[] } | null
   /** 表現力レベル (2026-08-06): 先生のクリア認定 → タグごとの最高★ (統一雰囲気タグ台帳) */
   exprLevels: { tagId: string; label: string; star: number; count: number }[]
+  /** 表現マップ (2026-08-06確定): 15語全ノード。状態=点灯(★N)/未開拓のみ・バッジ=NEWのみ */
+  exprMap: {
+    nodes: {
+      tagId: string; label: string
+      star: number // 0=未開拓
+      isNew: boolean // 7日以内の初認定/★昇格
+      history: { title: string; star: number; date: string; teacher: string }[]
+    }[]
+    /** この表現に挑戦する曲 (Score.moodTags 手動タグ・★昇順・最大3) */
+    songsByTag: Record<string, { id: string; title: string; star: number | null }[]>
+  }
   /** ⑤くわしい数字の表面 = いちばんの発見 + 🔍虫めがね */
   discovery: {
     keyWorst: { label: string; pct: number } | null
@@ -760,7 +771,11 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
   // 表現力レベル (2026-08-06): クリア認定の集計 (タグごとの最高★・回数)
   const exprClearRows = await prisma.userExpressionClear.findMany({
     where: { userId },
-    select: { moodTagId: true, starAtClear: true },
+    orderBy: { clearedAt: "asc" },
+    select: {
+      moodTagId: true, starAtClear: true, clearedAt: true,
+      score: { select: { title: true } }, teacher: { select: { name: true } },
+    },
   })
   const levelMap = new Map<string, { star: number; count: number }>()
   for (const r of exprClearRows) {
@@ -772,6 +787,33 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
   const exprLevels = [...levelMap.entries()]
     .map(([tagId, v]) => ({ tagId, label: moodTagPhrase(tagId), star: v.star, count: v.count }))
     .sort((a, b) => b.star - a.star || a.label.localeCompare(b.label))
+
+  // 表現マップ (2026-08-06確定): 15語全ノード + 認定履歴 + 挑戦する曲
+  const { MOOD_TAG_DEFS } = await import("./moodTags")
+  const weekAgoExpr = new Date(Date.now() - 7 * 864e5)
+  const exprNodes = MOOD_TAG_DEFS.map((t) => {
+    const rows = exprClearRows.filter((r) => r.moodTagId === t.id)
+    const star = rows.reduce((m, r) => Math.max(m, r.starAtClear), 0)
+    // NEW = 7日以内に初認定 or 最高★を更新した認定がある
+    const isNew = rows.some((r) => r.clearedAt >= weekAgoExpr && (r.starAtClear === star || rows.length === 1))
+    return {
+      tagId: t.id, label: moodTagPhrase(t.id), star, isNew,
+      history: rows.map((r) => ({ title: r.score.title, star: r.starAtClear, date: fmtJp(r.clearedAt), teacher: r.teacher.name })),
+    }
+  }).sort((a, b) => b.star - a.star)
+  const taggedSongs = await prisma.score.findMany({
+    where: { ownerScope: "admin", isShared: true, deletedAt: null, moodTags: { isEmpty: false } },
+    orderBy: [{ star: "asc" }, { createdAt: "asc" }],
+    select: { id: true, title: true, star: true, moodTags: true },
+  })
+  const songsByTag: Record<string, { id: string; title: string; star: number | null }[]> = {}
+  for (const sc of taggedSongs) {
+    for (const tg of sc.moodTags) {
+      const arr = (songsByTag[tg] ??= [])
+      if (arr.length < 3) arr.push({ id: sc.id, title: sc.title, star: sc.star ?? null })
+    }
+  }
+  const exprMap = { nodes: exprNodes, songsByTag }
 
   // ⑤の表面 = いちばんの発見 (調 → 音域 → 🔍虫めがね)。noteStats を期間で合算
   const nsNotes = new Map<string, { target: number; miss: number; centsSum: number; centsN: number }>()
@@ -908,6 +950,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     kpi,
     expression,
     exprLevels,
+    exprMap,
     discovery: { keyWorst, registerWorst, lens },
     milestones: milestones.slice(0, 20),
   }

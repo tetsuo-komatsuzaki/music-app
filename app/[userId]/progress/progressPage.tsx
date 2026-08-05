@@ -301,23 +301,9 @@ function ExpressionSectionV2({ userId, data, readOnly }: { userId: string; data:
   return (
     <div style={card}>
       <div style={secTtl}>🎤 表現力 <span style={subLbl}>先生の評価</span></div>
-      {/* 🎨 表現力レベル (2026-08-06): クリアした曲の★ = その表現の到達レベル */}
-      {levels.length > 0 && (
-        <div style={{ marginBottom: 8 }}>
-          <div style={{ ...subLbl, color: GOLD }}>🎨 できるようになった表現</div>
-          <div style={{ marginTop: 3 }}>
-            {levels.map((l) => (
-              <span key={l.tagId} style={{
-                display: "inline-block", fontSize: 11, fontWeight: 800, borderRadius: 999,
-                padding: "4px 12px", margin: "2px 4px 2px 0", color: "#8a5a1f",
-                background: "#fdf3d8", border: "1.5px solid #eed9a0",
-              }}>
-                {l.label} <b style={{ color: "#c9820e" }}>★{l.star}</b>{l.count > 1 ? ` ×${l.count}曲` : ""}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* 🎨 表現マップ (2026-08-06確定): 15語全ノード。点灯(★N)/未開拓の2状態・バッジ=NEWのみ。
+          タップでパネル (★ゲージ/認定のあゆみ/挑戦する曲/聴いてもらう導線) */}
+      <ExprMapGrid data={data} readOnly={readOnly} userId={userId} />
       {ex.strengths.length === 0 && ex.growing.length === 0 ? (
         <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>
           先生がレッスンで表現を評価すると、きみの「とくい」がここに並ぶよ。
@@ -337,6 +323,80 @@ function ExpressionSectionV2({ userId, data, readOnly }: { userId: string; data:
             </div>
           )}
         </>
+      )}
+    </div>
+  )
+}
+
+/** 🎨 表現マップ (2026-08-06): ノード=点灯(★N)/未開拓、NEWのみ。タップで下にパネル展開 */
+function ExprMapGrid({ data, readOnly, userId }: { data: KarteData; readOnly: boolean; userId: string }) {
+  const [openTag, setOpenTag] = useState<string | null>(null)
+  const m = data.v2.exprMap
+  if (!m) return null
+  const sel = m.nodes.find((n) => n.tagId === openTag) ?? null
+  return (
+    <div style={{ marginBottom: 8 }}>
+      <div style={{ ...subLbl, color: GOLD }}>🎨 表現マップ</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 4 }}>
+        {m.nodes.map((n) => {
+          const lit = n.star > 0
+          const active = openTag === n.tagId
+          return (
+            <button key={n.tagId} type="button" onClick={() => setOpenTag(active ? null : n.tagId)}
+              style={{
+                position: "relative", fontSize: 10.5, fontWeight: 800, borderRadius: 999,
+                padding: "4px 11px", cursor: "pointer",
+                color: lit ? "#8a5a1f" : "#9aa6b3",
+                background: lit ? "#fdf3d8" : "#f4f6f8",
+                border: `1.5px solid ${active ? "#c9a227" : lit ? "#eed9a0" : "#e5e9ed"}`,
+              }}>
+              {n.label}{lit && <b style={{ color: "#c9820e" }}> ★{n.star}</b>}
+              {n.isNew && (
+                <span style={{ position: "absolute", top: -7, right: -4, fontSize: 8, fontWeight: 900, color: "#fff", background: "#d0453a", borderRadius: 999, padding: "1px 5px" }}>NEW</span>
+              )}
+            </button>
+          )
+        })}
+      </div>
+      {sel && (
+        <div style={{ marginTop: 8, border: "1px solid #eed9a0", background: "#fdfaf2", borderRadius: 11, padding: "10px 12px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+            <span style={{ fontSize: 13, fontWeight: 900 }}>{sel.label}</span>
+            <span style={{ fontSize: 15, fontWeight: 900, color: "#c9820e" }}>
+              {"★".repeat(Math.max(0, sel.star))}<span style={{ color: "#e5d9b8" }}>{"★".repeat(Math.max(0, 5 - sel.star))}</span>
+            </span>
+          </div>
+          {sel.history.length > 0 ? (
+            <div style={{ marginTop: 6 }}>
+              <div style={{ fontSize: 9.5, fontWeight: 800, color: SUB }}>認定のあゆみ</div>
+              {sel.history.map((hh, i) => (
+                <div key={i} style={{ fontSize: 11, color: "#6a5f48", marginTop: 2 }}>
+                  {hh.title}（★{hh.star}） ・ {hh.teacher}先生 ・ {hh.date}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ fontSize: 11, color: SUB, marginTop: 4 }}>まだ認定はないよ。曲で表現して、先生に聴いてもらおう。</div>
+          )}
+          {(data.v2.exprMap.songsByTag[sel.tagId] ?? []).length > 0 && (
+            <div style={{ marginTop: 7 }}>
+              <div style={{ fontSize: 9.5, fontWeight: 800, color: SUB }}>この表現に挑戦する曲</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 3 }}>
+                {data.v2.exprMap.songsByTag[sel.tagId].map((sg) => (
+                  readOnly ? (
+                    <span key={sg.id} style={{ fontSize: 11.5, fontWeight: 800 }}>{sg.title} {sg.star != null ? `★${sg.star}` : ""}</span>
+                  ) : (
+                    <Link key={sg.id} href={`/${userId}/scores/${sg.id}`}
+                      style={{ fontSize: 11.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>
+                      {sg.title} {sg.star != null ? `★${sg.star}` : ""} →
+                    </Link>
+                  )
+                ))}
+              </div>
+              {!readOnly && <div style={{ fontSize: 10, color: SUB, marginTop: 5 }}>弾けたら、採点画面の「👂 先生に聴いてもらう」で認定をもらおう</div>}
+            </div>
+          )}
+        </div>
       )}
     </div>
   )
