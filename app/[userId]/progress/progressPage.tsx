@@ -1,38 +1,68 @@
 "use client"
 
-// 成長カルテ v2 (2026-08-03 Phase1・確定モック 7c74b97d・案10ミニマルダッシュボード)。
-// 6章: ①数字ヘッダ(変化が主役) ②技術マップ(2本バー) ③表現力 ④癖マップ ⑤くわしい数字 ⑥きみの歴史。
-// 全章文法 =「表面は薄く → タップで深く」。次の一歩(カリキュラム)はホームの領分 (カルテには置かない)。
-// readOnly = 先生の閲覧モード (期間タブ・リンク・オンボ非表示)。
-import { useRef, useState } from "react"
+// 成長カルテ v3 ビジュアル刷新 (2026-08-06 Tetsuo確定モック 1f527c6d)。
+// 白カードの羅列を廃止し「1枚のクリームの紙」に章を刻む。シェアカードの世界観
+// (五線譜・金・アルコ・大きな数字) で統一。操作はスクロールと横スライドのみ —
+// クリック依存ゼロ (リンクは補助導線のみ)。章はスクロールで順に現れる。
+// 30日固定 (期間切替は数字のへや)。次の一歩はホームの領分 (カルテには置かない)。
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import type { KarteData, SkillNode } from "@/app/_libs/growthKarte"
 import BodyObsMap from "@/app/components/BodyObsMap"
 import ShareSheet from "@/app/components/ShareSheet"
 
-// ── 案10 トークン ──
-const INK = "#1a2028"
-const SUB = "#8a9099"
+// ── ペーパートークン ──
+const INK = "#241f14"
+const SUB = "#9a8c74"
 const ACC = "#3555d4"
 const GOOD = "#0f8a4f"
 const BAD = "#d0453a"
-const GOLD = "#a97b1f"
+const GOLD = "#b58a1e"
 const WARN = "#c9752e"
-
-const card: React.CSSProperties = {
-  background: "#fff", border: "1px solid #eceff3", borderRadius: 12,
-  padding: "13px 15px", marginBottom: 11,
-}
-const secTtl: React.CSSProperties = { fontSize: 12.5, fontWeight: 900, color: INK, margin: "0 0 8px", display: "flex", alignItems: "baseline", gap: 6 }
-const subLbl: React.CSSProperties = { fontSize: 9.5, fontWeight: 800, color: SUB }
 const tnum: React.CSSProperties = { fontVariantNumeric: "tabular-nums" }
 
-const SKILL_GLYPH: Record<string, string> = {
-  slur: "〰️", staccato: "•", portato: "‿", bow_staccato: "•••", tremolo: "🌀",
-  pizzicato: "🤏", spiccato: "✨", ricochet: "🎯",
-  position: "↕️", double: "♬", trill: "tr", mordent: "≈", vibrato: "🫨",
-  glissando: "⤴", harmonic: "◯",
+const kicker: React.CSSProperties = { fontSize: 9, fontWeight: 900, letterSpacing: ".24em", color: "#b99b45" }
+const chapTitle: React.CSSProperties = { fontSize: 15, fontWeight: 900, marginTop: 1 }
+const chapNote: React.CSSProperties = { fontSize: 9.5, color: SUB, fontWeight: 700 }
+const railCard: React.CSSProperties = {
+  flex: "none", width: 150, scrollSnapAlign: "start", borderRadius: 15, padding: "12px 13px",
+  boxSizing: "border-box", background: "rgba(255,255,255,.8)", border: "1px solid #efe5cc",
+}
+const litCard: React.CSSProperties = { borderColor: "#e3c96a", background: "linear-gradient(155deg,#fffdf4,#fdf2d2)" }
+const dimCard: React.CSSProperties = { opacity: 0.55, filter: "saturate(.5)" }
+const railStyle: React.CSSProperties = {
+  display: "flex", gap: 10, overflowX: "auto", scrollSnapType: "x mandatory",
+  padding: "12px 18px 16px", scrollbarWidth: "none",
+}
+
+/** 金の罫線 (章区切り) */
+const Rule = () => (
+  <div style={{ height: 1, margin: "16px 18px 0", background: "linear-gradient(90deg,#e3c96a,#f2ead2 70%,transparent)" }} />
+)
+
+/** スクロールで現れる (IntersectionObserver・reduced-motion対応) */
+function Reveal({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement | null>(null)
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setInView(true); return }
+    const io = new IntersectionObserver((es) => {
+      es.forEach((e) => { if (e.isIntersecting) setInView(true) })
+    }, { threshold: 0.15 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  return (
+    <div ref={ref} style={{
+      opacity: inView ? 1 : 0, transform: inView ? "none" : "translateY(14px)",
+      transition: "opacity .5s ease, transform .5s cubic-bezier(.2,.8,.3,1)",
+    }}>
+      {children}
+    </div>
+  )
 }
 
 export default function ProgressPage({ userId, data, readOnly = false }: {
@@ -40,422 +70,368 @@ export default function ProgressPage({ userId, data, readOnly = false }: {
   data: KarteData
   readOnly?: boolean
 }) {
-  const v2 = data.v2
   const [weeklyShare, setWeeklyShare] = useState(false)
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: readOnly ? "4px 0 30px" : "18px 14px 60px", fontFamily: "inherit", color: INK }}>
-      {!readOnly && (
-        <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 10 }}>
-          <h1 style={{ fontSize: 17, fontWeight: 900, margin: 0 }}>成長カルテ</h1>
-          <span style={subLbl}>きみの成長の記録</span>
-          {/* 週間ハイライトのシェア (自分のカルテのみ) */}
-          <button type="button" onClick={() => setWeeklyShare(true)}
-            style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 800, color: GOLD, background: "#fdf6e6", border: "1px solid #eee0bd", borderRadius: 999, padding: "4px 11px", cursor: "pointer" }}>
-            📤 今週をシェア
-          </button>
-        </div>
-      )}
       {weeklyShare && <ShareSheet kind="weekly" onClose={() => setWeeklyShare(false)} />}
-
-      {/* 期間タブは撤去 (2026-08-06 Tetsuo確定): カルテ本体=30日固定。期間切替は数字のへやのみ */}
       {readOnly && (
-        <div style={{ ...subLbl, margin: "0 0 10px" }}>生徒に見えているのと同じカルテ（直近30日）</div>
+        <div style={{ fontSize: 9.5, fontWeight: 800, color: "#8a9099", margin: "0 0 10px" }}>生徒に見えているのと同じカルテ（直近30日）</div>
       )}
 
-      <HeaderKpi data={data} />
-      <SkillMapV2 userId={userId} data={data} readOnly={readOnly} />
-      <ExpressionSectionV2 userId={userId} data={data} readOnly={readOnly} />
-      <BodyMapSection data={data} />
-      <DiscoverySection userId={userId} data={data} readOnly={readOnly} />
-      <HistorySection data={data} />
+      {/* ═ 1枚のクリームの紙 ═ */}
+      <div style={{
+        background: "linear-gradient(165deg,#fffdf6,#faf4e4)", border: "1px solid #eee6d0",
+        borderRadius: 18, overflow: "hidden", position: "relative",
+      }}>
+        <Hero data={data} readOnly={readOnly} onShare={() => setWeeklyShare(true)} />
+        <Rule />
+        <SkillsChapter userId={userId} data={data} readOnly={readOnly} />
+        <Rule />
+        <ExprChapter userId={userId} data={data} readOnly={readOnly} />
+        {data.bodyObs && <Rule />}
+        <FormChapter data={data} />
+        <Rule />
+        <DiscoveryChapter userId={userId} data={data} readOnly={readOnly} />
+        <Rule />
+        <HistorySection data={data} />
+      </div>
 
       {!readOnly && <OnboardingTrigger pageKey="progress" />}
     </div>
   )
 }
 
-/* ── ① 数字ヘッダ: アルコの解説 + ★進捗(固定) + 今週の基礎練/わざ (ゼロ週は±0を正直表示) ── */
-function HeaderKpi({ data }: { data: KarteData }) {
+/* ═ ヒーロー: 五線譜 + アルコ + KPI大数字 ═ */
+function Hero({ data, readOnly, onShare }: { data: KarteData; readOnly: boolean; onShare: () => void }) {
   const k = data.v2.kpi
   return (
-    <div style={{ marginBottom: 11 }}>
-      <div style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 9 }}>
-        <span style={{ fontSize: 21, flex: "none" }} aria-hidden>🎻</span>
-        <span style={{ flex: 1, background: "#eef1fc", borderRadius: 10, borderTopLeftRadius: 3, padding: "7px 11px", fontSize: 11.5, fontWeight: 700 }}>
-          {data.v2.arcoLine}
-        </span>
-      </div>
-      <div style={{ display: "flex", gap: 8, textAlign: "center" }}>
-        <div style={{ ...card, flex: 1, marginBottom: 0, padding: "10px 4px 8px", borderColor: "#d8dcf0" }}>
-          <b style={{ ...tnum, display: "block", fontSize: 21, fontWeight: 900, lineHeight: 1.15, color: ACC }}>
-            {k.starDone}<small style={{ fontSize: 10, color: SUB }}>/{k.starRequired}</small>
-          </b>
-          <span style={subLbl}>★{k.star}の達成曲</span>
+    <div style={{ position: "relative", padding: "22px 18px 18px" }}>
+      <svg viewBox="0 0 400 200" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} aria-hidden>
+        <g stroke="#e3d5ac" strokeWidth="1.4" fill="none" opacity=".5">
+          <path d="M-10,36 C100,26 260,48 410,30" />
+          <path d="M-10,52 C100,42 260,64 410,46" />
+          <path d="M-10,68 C100,58 260,80 410,62" />
+        </g>
+        <g transform="translate(330,26) rotate(-6)" opacity=".8">
+          <ellipse cx="0" cy="0" rx="5.5" ry="4" fill="#d8c48e" transform="rotate(-20)" />
+          <rect x="4" y="-17" width="1.4" height="17" rx=".7" fill="#d8c48e" />
+        </g>
+      </svg>
+      <div style={{ position: "relative" }}>
+        <div style={{ display: "flex", alignItems: "baseline" }}>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: ".22em", color: "#a98b2f" }}>GROWTH KARTE</div>
+            <div style={{ fontSize: 20, fontWeight: 900 }}>きみの成長カルテ</div>
+            <div style={{ fontSize: 10.5, color: "#8a7c62", fontWeight: 700 }}>直近30日のきろく</div>
+          </div>
+          {!readOnly && (
+            <button type="button" onClick={onShare}
+              style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 800, color: GOLD, background: "rgba(255,255,255,.7)", border: "1px solid #eee0bd", borderRadius: 999, padding: "4px 11px", cursor: "pointer" }}>
+              📤 今週をシェア
+            </button>
+          )}
         </div>
-        <div style={{ ...card, flex: 1, marginBottom: 0, padding: "10px 4px 8px" }}>
-          <b style={{ ...tnum, display: "block", fontSize: 21, fontWeight: 900, lineHeight: 1.15, color: k.basicsWeek > 0 ? GOOD : SUB }}>
-            {k.basicsWeek > 0 ? `+${k.basicsWeek}` : "±0"}
-          </b>
-          <span style={subLbl}>今週の基礎練クリア</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
+          <span style={{ flex: "none", fontSize: 42, filter: "drop-shadow(0 3px 6px rgba(160,120,30,.25))" }} aria-hidden>🎻</span>
+          <span style={{ flex: 1, background: "rgba(255,255,255,.75)", border: "1px solid #eee0bd", borderRadius: 13, borderTopLeftRadius: 4, padding: "9px 12px", fontSize: 11.5, fontWeight: 700, color: "#4a4030" }}>
+            {data.v2.arcoLine}
+          </span>
         </div>
-        <div style={{ ...card, flex: 1, marginBottom: 0, padding: "10px 4px 8px" }}>
-          <b style={{ ...tnum, display: "block", fontSize: 21, fontWeight: 900, lineHeight: 1.15, color: k.skillsWeek > 0 ? GOLD : SUB }}>
-            {k.skillsWeek > 0 ? `+${k.skillsWeek}` : "±0"}
-          </b>
-          <span style={subLbl}>今週のわざ習得</span>
+        <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+          <div style={kpiBox}><b style={{ ...kpiNum, color: ACC }}>{k.starDone}<small style={{ fontSize: 11, color: "#9aa6b3" }}>/{k.starRequired}</small></b><span style={kpiLbl}>★{k.star}の達成曲</span></div>
+          <div style={kpiBox}><b style={{ ...kpiNum, color: k.basicsWeek > 0 ? GOOD : SUB }}>{k.basicsWeek > 0 ? `+${k.basicsWeek}` : "±0"}</b><span style={kpiLbl}>今週の基礎練</span></div>
+          <div style={kpiBox}><b style={{ ...kpiNum, color: k.skillsWeek > 0 ? GOLD : SUB }}>{k.skillsWeek > 0 ? `+${k.skillsWeek}` : "±0"}</b><span style={kpiLbl}>今週のわざ</span></div>
         </div>
-        {/* 表現の4枚目は表現記録の運用開始後に追加 (確定: それまで3枚) */}
       </div>
     </div>
   )
 }
+const kpiBox: React.CSSProperties = { flex: 1, textAlign: "center", background: "rgba(255,255,255,.65)", border: "1px solid #efe5cc", borderRadius: 13, padding: "10px 4px 8px" }
+const kpiNum: React.CSSProperties = { display: "block", fontSize: 23, fontWeight: 900, lineHeight: 1.1, ...tnum }
+const kpiLbl: React.CSSProperties = { fontSize: 8.5, fontWeight: 800, color: "#9a8c74" }
 
-/* ── ② 技術マップ: 全15わざ・印はNEW/↑/%のみ・タップで案4パネル(推移主役) ── */
-function SkillMapV2({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
-  const [selId, setSelId] = useState<string | null>(null)
-
+/* ═ わざの地図: 俯瞰ミニマップ + 横スライド (タップ不要・情報常時表示) ═ */
+function SkillsChapter({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
   if (!data.skillMap) {
     if (readOnly) return null
     return (
-      <div style={{ ...card, textAlign: "center" }}>
-        <div style={{ fontSize: 13, fontWeight: 900 }}>🎻 技術マップ</div>
+      <div style={{ padding: "20px 18px 4px", textAlign: "center" }}>
+        <div style={kicker}>SKILLS</div>
+        <div style={chapTitle}>わざの地図</div>
         <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
           スラーやビブラートなど「わざ」の習得と安定が一目でわかる地図。<br />
-          先生が気づいた癖を体の場所で見られる「🧍 癖マップ」も。<br />
+          先生が気づいた癖を体の場所で見られる「からだの癖」も。<br />
           <b>先生とつながると開放</b>されます。
         </div>
         <Link href={`/${userId}/find-teacher`}
-          style={{ display: "inline-block", fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none" }}>
+          style={{ display: "inline-block", fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none", marginBottom: 12 }}>
           🔎 先生を探す →
         </Link>
       </div>
     )
   }
-
   const { nodes, currentStar } = data.skillMap
-  const sel = nodes.find((n) => n.id === selId) ?? null
+  // 並び: 実測あり → 習得済み(データ待ち) → 挑戦できる → まだ先
+  const order = (n: SkillNode) =>
+    n.pct != null ? 0 : n.state === "acquired_nodata" ? 1 : n.state === "ready" ? 2 : 3
+  const sorted = [...nodes].sort((a, b) => order(a) - order(b) || a.star - b.star)
+  const litCount = nodes.filter((n) => n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata").length
 
-  const nodeEl = (n: SkillNode) => {
-    const locked = n.state === "locked"
-    const borderColor =
-      n.state === "stable" ? GOOD : n.state === "wobble" ? WARN
-      : n.state === "acquired_nodata" ? "#bcd9cc" : n.state === "ready" ? "#cfd5dc" : "#e2e6ea"
-    const bg = n.state === "stable" ? "#e9f5ee" : n.state === "wobble" ? "#fdf2e4" : "#fff"
-    return (
-      <div key={n.id} style={{ width: 46, textAlign: "center" }}>
-        <button type="button" onClick={() => !locked && setSelId(selId === n.id ? null : n.id)}
-          aria-label={n.label}
-          style={{
-            position: "relative", width: 38, height: 38, borderRadius: "50%", border: `2px solid ${borderColor}`,
-            background: locked ? "#f2f4f7" : bg, display: "inline-grid", placeItems: "center", fontSize: 13,
-            cursor: locked ? "default" : "pointer", filter: locked ? "grayscale(1)" : "none", opacity: locked ? 0.5 : 1,
-            outline: selId === n.id ? `3px solid #d8dcf0` : "none", padding: 0, fontFamily: "inherit",
-          }}>
-          {locked ? "🔒" : SKILL_GLYPH[n.id] ?? "♪"}
-          {!locked && n.isNew && (
-            <span style={{ position: "absolute", top: -7, right: -10, fontSize: 7.5, fontWeight: 900, color: "#fff", background: GOLD, borderRadius: 999, padding: "1px 5px" }}>NEW</span>
-          )}
-          {!locked && !n.isNew && n.weekDelta != null && n.weekDelta > 0 && (
-            <span style={{ position: "absolute", top: -7, right: -10, fontSize: 7.5, fontWeight: 900, color: "#fff", background: GOOD, borderRadius: 999, padding: "1px 5px" }}>↑{n.weekDelta}</span>
-          )}
-          {!locked && n.pct != null && (
-            <span style={{ ...tnum, position: "absolute", bottom: -4, right: -7, fontSize: 7.5, fontWeight: 900, color: "#fff", background: n.state === "wobble" ? WARN : GOOD, borderRadius: 999, padding: "1px 4px" }}>{n.pct}</span>
-          )}
-        </button>
-        <div style={{ fontSize: 8, fontWeight: 800, color: locked ? "#b3bcc6" : "#4a5766", marginTop: 2, lineHeight: 1.2 }}>{n.label}</div>
-      </div>
-    )
+  const tile = (n: SkillNode) => {
+    const lit = n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata"
+    const style: React.CSSProperties = {
+      width: 21, height: 21, borderRadius: 7, boxSizing: "border-box",
+      background: lit
+        ? "linear-gradient(150deg,#ffe9a8,#e3b93c)"
+        : n.state === "ready" ? "#f6edd6" : "#efe9da",
+      border: n.state === "ready" ? "1.5px solid #e3c96a" : "none",
+      boxShadow: lit ? "0 1px 3px rgba(200,160,40,.35)" : "none",
+      opacity: n.state === "wobble" ? 0.85 : 1,
+    }
+    return <span key={n.id} style={style} title={n.label} />
   }
 
   return (
-    <div style={card}>
-      <div style={secTtl}>🎻 技術マップ <span style={subLbl}>いまの★{currentStar}</span></div>
-      <div style={{ ...subLbl, margin: "4px 0 5px" }}>🏹 右手のわざ（弓）</div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "9px 7px" }}>{nodes.filter((n) => n.lane === "bow").map(nodeEl)}</div>
-      <div style={{ ...subLbl, margin: "9px 0 5px" }}>🤚 左手のわざ</div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "9px 7px" }}>{nodes.filter((n) => n.lane === "left").map(nodeEl)}</div>
-
-      {sel && <SkillPanel userId={userId} n={sel} readOnly={readOnly} />}
-    </div>
-  )
-}
-
-/* 案4パネル: 推移が主役 (大きな%↑ + スパークライン + 2本バー) */
-function SkillPanel({ userId, n, readOnly }: { userId: string; n: SkillNode; readOnly: boolean }) {
-  const stateLabel =
-    n.state === "stable" ? "習得ずみ・安定" : n.state === "wobble" ? "習得ずみ・ゆらぎ中"
-    : n.state === "acquired_nodata" ? "習得ずみ（データ集め中）" : "これから挑戦"
-  const bar = (label: string, pct: number | null, color: string) => (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 10.5, marginTop: 6 }}>
-      <span style={{ width: 80, flex: "none", fontWeight: 800, color: SUB }}>{label}</span>
-      <span style={{ flex: 1, height: 7, borderRadius: 4, background: "#eceff3", overflow: "hidden" }}>
-        {pct != null && <span style={{ display: "block", width: `${pct}%`, height: "100%", borderRadius: 4, background: color }} />}
-      </span>
-      <b style={{ ...tnum, width: 40, flex: "none", textAlign: "right", fontSize: 11.5 }}>{pct != null ? pct : "—"}</b>
-    </div>
-  )
-  const advice =
-    n.pitchPct != null && n.rhythmPct != null
-      ? (n.rhythmPct < n.pitchPct - 5 ? "音程はいい感じ。次はテンポ — メトロノームに合わせてみよう"
-        : n.pitchPct < n.rhythmPct - 5 ? "リズムはいい感じ。次は音程 — ゆっくり音を確かめよう"
-        : "音程もテンポもバランスよし。この調子！")
-      : "録音がたまると、音程とテンポの中身が見えてくるよ"
-  return (
-    <div style={{ border: "1.5px solid #d8dcf0", borderRadius: 11, padding: "11px 13px", marginTop: 11 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
-        <span style={{ fontSize: 15 }}>{SKILL_GLYPH[n.id] ?? "♪"}</span>
-        <b style={{ fontSize: 12.5 }}>{n.label}{n.provisional ? <span style={{ color: GOLD, fontSize: 10 }}>（仮習得）</span> : ""}</b>
-        <span style={{ ...subLbl, marginLeft: "auto" }}>{stateLabel}</span>
+    <Reveal>
+      <div style={{ padding: "18px 18px 0" }}>
+        <div style={kicker}>SKILLS</div>
+        <div style={chapTitle}>わざの地図 <span style={{ fontSize: 10, fontWeight: 800, color: SUB }}>いまの★{currentStar}</span></div>
+        <div style={chapNote}>15のわざ ・ {litCount}つ点灯 ・ 横にスライドでくわしく</div>
+        {/* 俯瞰ミニマップ: 点灯状況が3秒でわかる (地図性) */}
+        <div style={{ display: "flex", gap: 5, marginTop: 8, flexWrap: "wrap" }}>{nodes.map(tile)}</div>
       </div>
-      {n.pct != null ? (
-        <div style={{ display: "flex", gap: 14, alignItems: "flex-end", marginBottom: 4 }}>
-          <div>
-            <div style={{ ...tnum, fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{n.pct}<span style={{ fontSize: 12, color: SUB }}>%</span></div>
-            {n.weekDelta != null && (
-              <div style={{ fontSize: 10, fontWeight: 900, color: n.weekDelta > 0 ? GOOD : n.weekDelta < 0 ? BAD : SUB }}>
-                {n.weekDelta > 0 ? `↑${n.weekDelta}` : n.weekDelta < 0 ? `↓${-n.weekDelta}` : "→"} 今週
-              </div>
-            )}
-          </div>
-          {n.series.length >= 2 && (
-            <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 32 }} aria-hidden>
-              {n.series.map((v, i) => (
-                <span key={i} style={{ width: 9, height: `${Math.max(8, v * 0.32)}px`, borderRadius: "2px 2px 0 0", background: i === n.series.length - 1 ? ACC : "#c3cdea" }} />
-              ))}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div style={{ fontSize: 11.5, color: SUB }}>この期間の録音に「{n.label}」の音がまだ少ないよ。</div>
-      )}
-      {bar("🎵 音程のぶれ", n.pitchPct, ACC)}
-      {bar("🥁 テンポずれ", n.rhythmPct, "#a9b6d8")}
-      <div style={{ fontSize: 10, color: SUB, marginTop: 6 }}>{advice}</div>
-      {n.obsTags.length > 0 && (
-        <div style={{ fontSize: 10, color: BAD, marginTop: 5 }}>📋 先生の所見と関連: {n.obsTags.join("・")}</div>
-      )}
-      {!readOnly && (
-        <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-          <Link href={`/${userId}/progress/skill/${n.id}`}
-            style={{ fontSize: 11, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 8, padding: "7px 13px", textDecoration: "none" }}>
-            📈 くわしい分析 →
-          </Link>
-          <Link href={n.practiceHref}
-            style={{ fontSize: 11, fontWeight: 800, color: "#fff", background: WARN, borderRadius: 8, padding: "7px 13px", textDecoration: "none" }}>
-            練習する →
-          </Link>
-        </div>
-      )}
-    </div>
-  )
-}
-
-/* ── ③ 表現力: タグのみ (💪とくい / 🔥挑戦中)。詳細画面はPhase2 ── */
-function ExpressionSectionV2({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
-  // 2026-08-06統一: 旧4語彙の💪/🔥チップは廃止。表現=統一15語の認定 (表現マップ) に一本化。
-  // data.v2.expression の有無は「先生とつながっているか」の判定にのみ使う
-  if (!data.v2.expression) {
-    if (readOnly) return null
-    return (
-      <div style={{ ...card, textAlign: "center" }}>
-        <div style={{ fontSize: 13, fontWeight: 900 }}>🎤 表現力</div>
-        <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
-          「優しく（Dolce）」「歌うように（Cantabile）」— きみの表現を先生が認定してくれる場所。<br />
-          <b>先生とつながると開放</b>されます。
-        </div>
-        <Link href={`/${userId}/find-teacher`}
-          style={{ display: "inline-block", fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none" }}>
-          🔎 先生を探す →
-        </Link>
-      </div>
-    )
-  }
-  return (
-    <div style={card}>
-      <div style={secTtl}>🎤 表現力 <span style={subLbl}>先生の認定</span></div>
-      <ExprMapGrid data={data} readOnly={readOnly} userId={userId} />
-      {data.v2.exprMap.nodes.every((n) => n.star === 0) && (
-        <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7, marginTop: 4 }}>
-          曲で表現して「👂 先生に聴いてもらう」と、先生がきみの表現を認定してくれるよ。
-        </div>
-      )}
-    </div>
-  )
-}
-
-/** 🎨 表現マップ (2026-08-06): ノード=点灯(★N)/未開拓、NEWのみ。タップで下にパネル展開 */
-function ExprMapGrid({ data, readOnly, userId }: { data: KarteData; readOnly: boolean; userId: string }) {
-  const [openTag, setOpenTag] = useState<string | null>(null)
-  const m = data.v2.exprMap
-  if (!m) return null
-  const sel = m.nodes.find((n) => n.tagId === openTag) ?? null
-  return (
-    <div style={{ marginBottom: 8 }}>
-      <div style={{ ...subLbl, color: GOLD }}>🎨 表現マップ</div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 4 }}>
-        {m.nodes.map((n) => {
-          const lit = n.star > 0
-          const active = openTag === n.tagId
+      <div style={railStyle}>
+        {sorted.map((n) => {
+          const lit = n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata"
+          const locked = n.state === "locked"
           return (
-            <button key={n.tagId} type="button" onClick={() => setOpenTag(active ? null : n.tagId)}
-              style={{
-                position: "relative", fontSize: 10.5, fontWeight: 800, borderRadius: 999,
-                padding: "4px 11px", cursor: "pointer",
-                color: lit ? "#8a5a1f" : "#9aa6b3",
-                background: lit ? "#fdf3d8" : "#f4f6f8",
-                border: `1.5px solid ${active ? "#c9a227" : lit ? "#eed9a0" : "#e5e9ed"}`,
-              }}>
-              {n.label}{lit && <b style={{ color: "#c9820e" }}> ★{n.star}</b>}
-              {n.isNew && (
-                <span style={{ position: "absolute", top: -7, right: -4, fontSize: 8, fontWeight: 900, color: "#fff", background: "#d0453a", borderRadius: 999, padding: "1px 5px" }}>NEW</span>
+            <div key={n.id} style={{ ...railCard, ...(lit ? litCard : {}), ...(locked ? dimCard : {}) }}>
+              <div style={{ fontSize: 12, fontWeight: 900, lineHeight: 1.4 }}>
+                {n.label}
+                {n.isNew && <span style={{ fontSize: 7.5, fontWeight: 900, color: "#fff", background: BAD, borderRadius: 999, padding: "1px 6px", marginLeft: 5, verticalAlign: 2 }}>NEW</span>}
+              </div>
+              {n.pct != null ? (
+                <>
+                  <div style={{ ...tnum, fontSize: 25, fontWeight: 900, lineHeight: 1.15, marginTop: 4, color: n.state === "wobble" ? WARN : GOOD }}>
+                    {n.pct}<span style={{ fontSize: 11 }}>%</span>
+                  </div>
+                  <div style={{ fontSize: 9, fontWeight: 800, color: SUB, marginTop: 2 }}>
+                    {n.weekDelta != null && n.weekDelta !== 0
+                      ? `先週より ${n.weekDelta > 0 ? `+${n.weekDelta}` : n.weekDelta}`
+                      : n.state === "wobble" ? "ゆらぎ中 ・ 練習しどき" : "安定してきた"}
+                  </div>
+                  {n.series.length >= 2 && (
+                    <div style={{ display: "flex", alignItems: "flex-end", gap: 2.5, height: 24, marginTop: 8 }} aria-hidden>
+                      {n.series.slice(-8).map((v, i, arr) => (
+                        <span key={i} style={{ flex: 1, height: `${Math.max(12, v)}%`, borderRadius: "2px 2px 0 0", background: i === arr.length - 1 ? "#c9a227" : "linear-gradient(180deg,#e3c96a,#d8b34e)" }} />
+                      ))}
+                    </div>
+                  )}
+                  {!readOnly && (
+                    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                      <Link href={`/${userId}/progress/skill/${n.id}`} style={{ fontSize: 9.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>くわしく →</Link>
+                      {n.practiceHref && <Link href={n.practiceHref} style={{ fontSize: 9.5, fontWeight: 800, color: WARN, textDecoration: "none" }}>練習する →</Link>}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: "#c0b598", marginTop: 4 }}>—</div>
+                  <div style={{ fontSize: 9, fontWeight: 800, color: SUB, marginTop: 2 }}>
+                    {n.state === "acquired_nodata" ? "習得ずみ ・ データ集め中"
+                      : n.state === "ready" ? "つぎに挑戦できる"
+                      : `★${n.star} で出会う`}
+                  </div>
+                </>
               )}
-            </button>
+            </div>
           )
         })}
       </div>
-      {sel && (
-        <div style={{ marginTop: 8, border: "1px solid #eed9a0", background: "#fdfaf2", borderRadius: 11, padding: "10px 12px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <span style={{ fontSize: 13, fontWeight: 900 }}>{sel.label}</span>
-            <span style={{ fontSize: 15, fontWeight: 900, color: "#c9820e" }}>
-              {"★".repeat(Math.max(0, sel.star))}<span style={{ color: "#e5d9b8" }}>{"★".repeat(Math.max(0, 5 - sel.star))}</span>
-            </span>
+    </Reveal>
+  )
+}
+
+/* ═ 表現のレベル: 認定★の横スライド ═ */
+function ExprChapter({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
+  if (!data.v2.expression) {
+    if (readOnly) return null
+    return (
+      <Reveal>
+        <div style={{ padding: "18px 18px 14px", textAlign: "center" }}>
+          <div style={kicker}>ESPRESSIONE</div>
+          <div style={chapTitle}>表現のレベル</div>
+          <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
+            「優しく（Dolce）」「歌うように（Cantabile）」— きみの表現を先生が認定してくれる場所。<br />
+            <b>先生とつながると開放</b>されます。
           </div>
-          {sel.history.length > 0 ? (
-            <div style={{ marginTop: 6 }}>
-              <div style={{ fontSize: 9.5, fontWeight: 800, color: SUB }}>認定のあゆみ</div>
-              {sel.history.map((hh, i) => (
-                <div key={i} style={{ fontSize: 11, color: "#6a5f48", marginTop: 2 }}>
-                  {hh.title}（★{hh.star}） ・ {hh.teacher}先生 ・ {hh.date}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ fontSize: 11, color: SUB, marginTop: 4 }}>まだ認定はないよ。曲で表現して、先生に聴いてもらおう。</div>
-          )}
-          {(data.v2.exprMap.songsByTag[sel.tagId] ?? []).length > 0 && (
-            <div style={{ marginTop: 7 }}>
-              <div style={{ fontSize: 9.5, fontWeight: 800, color: SUB }}>この表現に挑戦する曲</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 3 }}>
-                {data.v2.exprMap.songsByTag[sel.tagId].map((sg) => (
-                  readOnly ? (
-                    <span key={sg.id} style={{ fontSize: 11.5, fontWeight: 800 }}>{sg.title} {sg.star != null ? `★${sg.star}` : ""}</span>
-                  ) : (
-                    <Link key={sg.id} href={`/${userId}/scores/${sg.id}`}
-                      style={{ fontSize: 11.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>
-                      {sg.title} {sg.star != null ? `★${sg.star}` : ""} →
-                    </Link>
-                  )
-                ))}
-              </div>
-              {!readOnly && <div style={{ fontSize: 10, color: SUB, marginTop: 5 }}>弾けたら、採点画面の「👂 先生に聴いてもらう」で認定をもらおう</div>}
-            </div>
-          )}
+          <Link href={`/${userId}/find-teacher`}
+            style={{ display: "inline-block", fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none" }}>
+            🔎 先生を探す →
+          </Link>
         </div>
-      )}
-    </div>
-  )
-}
-
-/* ── ④ 癖マップ (機能は現行のまま・「日々の意識でなおす」明記) ── */
-function BodyMapSection({ data }: { data: KarteData }) {
-  if (!data.bodyObs) return null // 先生なし (ティーザーは②③に集約)
+      </Reveal>
+    )
+  }
+  const nodes = data.v2.exprMap.nodes
+  const litCount = nodes.filter((n) => n.star > 0).length
   return (
-    <div style={card}>
-      <div style={secTtl}>🧍 癖マップ <span style={subLbl}>日々の意識でなおす</span></div>
-      {data.bodyObs.length === 0 ? (
-        <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>
-          先生がレッスンで気づいた癖を記録すると、ここに「体のどこの癖か」が表示されます。
+    <Reveal>
+      <div style={{ padding: "18px 18px 0" }}>
+        <div style={kicker}>ESPRESSIONE</div>
+        <div style={chapTitle}>表現のレベル</div>
+        <div style={chapNote}>
+          先生の認定 ・ ★は認定された曲のレベル
+          {litCount === 0 && " ・ 曲で表現して「👂 先生に聴いてもらう」と認定してもらえるよ"}
         </div>
-      ) : (
-        <BodyObsMap tags={data.bodyObs} />
-      )}
-    </div>
+      </div>
+      <div style={railStyle}>
+        {nodes.map((n) => {
+          const lit = n.star > 0
+          const latest = n.history[n.history.length - 1]
+          const jp = n.label.replace(/（.+）$/, "")
+          const it = (n.label.match(/（(.+)）$/)?.[1] ?? "").toUpperCase()
+          return (
+            <div key={n.tagId} style={{ ...railCard, ...(lit ? litCard : dimCard) }}>
+              <div style={{ fontSize: 12, fontWeight: 900, lineHeight: 1.4 }}>
+                {jp}
+                {n.isNew && <span style={{ fontSize: 7.5, fontWeight: 900, color: "#fff", background: BAD, borderRadius: 999, padding: "1px 6px", marginLeft: 5, verticalAlign: 2 }}>NEW</span>}
+              </div>
+              {it && <div style={{ fontSize: 8, fontWeight: 800, letterSpacing: ".1em", color: SUB, marginTop: 1 }}>{it}</div>}
+              <div style={{ fontSize: 20, fontWeight: 900, marginTop: 5, color: lit ? "#c9820e" : "#c0b598" }}>
+                {lit
+                  ? <>{"★".repeat(Math.min(5, n.star))}<span style={{ color: "#ecdcb2" }}>{"★".repeat(Math.max(0, 5 - n.star))}</span></>
+                  : "☆☆☆☆☆"}
+              </div>
+              <div style={{ fontSize: 9, fontWeight: 800, color: SUB, marginTop: 3, lineHeight: 1.5 }}>
+                {lit ? `${latest?.title ?? ""}で認定` : "これから出会う表現"}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </Reveal>
   )
 }
 
-/* ── ⑤ くわしい数字: いちばんの発見 + 🔍虫めがね + ▸折りたたみ(実態・調・奏法) ── */
-function DiscoverySection({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
+/* ═ からだの癖 (先生の目・日々の意識でなおす) ═ */
+function FormChapter({ data }: { data: KarteData }) {
+  if (!data.bodyObs) return null
+  return (
+    <Reveal>
+      <div style={{ padding: "18px 18px 0" }}>
+        <div style={kicker}>FORM</div>
+        <div style={chapTitle}>からだの癖</div>
+        <div style={chapNote}>先生の目 ・ 日々の意識でなおす</div>
+      </div>
+      <div style={{ padding: "10px 18px 16px" }}>
+        {data.bodyObs.length === 0 ? (
+          <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>
+            先生がレッスンで気づいた癖を記録すると、ここに「体のどこの癖か」が表示されます。
+          </div>
+        ) : (
+          <BodyObsMap tags={data.bodyObs} />
+        )}
+      </div>
+    </Reveal>
+  )
+}
+
+/* ═ いちばんの発見 (虫めがね・大数字の1枚) ═ */
+function DiscoveryChapter({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
   const d = data.v2.discovery
   const BAND_LABEL: Record<string, string> = { low: "低い弦域（G・D線）", mid: "まん中（A線域）", high: "高い弦域（E線域）" }
   const hasFinding = d.keyWorst || d.registerWorst || d.lens
   return (
-    <div style={card}>
-      <div style={secTtl}>📊 くわしい数字
-        {!readOnly && (
-          <Link href={`/${userId}/progress/numbers`} style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>数字のへや →</Link>
+    <Reveal>
+      <div style={{ padding: "18px 18px 0" }}>
+        <div style={kicker}>DISCOVERY</div>
+        <div style={{ display: "flex", alignItems: "baseline" }}>
+          <div style={chapTitle}>いちばんの発見</div>
+          {!readOnly && (
+            <Link href={`/${userId}/progress/numbers`} style={{ marginLeft: "auto", fontSize: 10, fontWeight: 800, color: ACC, textDecoration: "none" }}>数字のへや →</Link>
+          )}
+        </div>
+      </div>
+      <div style={{ margin: "10px 18px 16px" }}>
+        {!hasFinding ? (
+          <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>録音がたまると、苦手な調・音域・音がここに見えてくるよ。</div>
+        ) : (
+          <div style={{ background: "rgba(255,255,255,.8)", border: "1px solid #efe5cc", borderRadius: 16, padding: "13px 15px" }}>
+            {d.lens ? (
+              <>
+                <div style={{ fontSize: 9.5, fontWeight: 800, color: "#a4527a" }}>🔍 30日の録音ぜんぶから見つけた</div>
+                <div style={{ fontSize: 27, fontWeight: 900, marginTop: 2 }}>
+                  {d.lens.note} <span style={{ fontSize: 12, color: "#8a7c62", fontWeight: 800 }}>{d.lens.hand ? `${d.lens.hand}・推定` : d.lens.raw}</span>
+                </div>
+                <div style={{ fontSize: 10.5, color: "#6a5f48", marginTop: 4, lineHeight: 1.7 }}>
+                  成功 <b style={tnum}>{d.lens.successPct}%</b>。{d.lens.type}
+                  {d.lens.cents != null && <>（平均 {d.lens.cents > 0 ? "+" : ""}{d.lens.cents}セント）</>}。
+                  {d.lens.fromNote && <>とくに<b>「{d.lens.fromNote}」から動いてきた時</b>にずれやすい。</>}
+                  <span style={{ color: GOLD, fontWeight: 800 }}> 処方はホームのおすすめに出しておくね。</span>
+                </div>
+              </>
+            ) : (
+              <div style={{ fontSize: 12, lineHeight: 1.7 }}>
+                いまの苦手:
+                {d.keyWorst && <> <b style={{ color: BAD }}>{d.keyWorst.label} <span style={tnum}>{d.keyWorst.pct}%</span></b></>}
+                {d.keyWorst && d.registerWorst && " ・ "}
+                {d.registerWorst && <>とくに<b>{BAND_LABEL[d.registerWorst.band]}</b> <span style={{ ...tnum, color: BAD, fontWeight: 800 }}>{d.registerWorst.pct}%</span></>}
+              </div>
+            )}
+            {d.lens && (d.keyWorst || d.registerWorst) && (
+              <div style={{ fontSize: 10, color: SUB, marginTop: 7 }}>
+                苦手な調: {d.keyWorst ? `${d.keyWorst.label} ${d.keyWorst.pct}%` : "—"}
+                {d.registerWorst && ` ・ ${BAND_LABEL[d.registerWorst.band]} ${d.registerWorst.pct}%`}
+              </div>
+            )}
+            <details style={{ marginTop: 9 }}>
+              <summary style={{ fontSize: 10, fontWeight: 800, color: SUB, cursor: "pointer" }}>▸ もっと見る（練習の実態・調・奏法）</summary>
+              <div style={{ fontSize: 11, color: "#5a5140", lineHeight: 1.9, marginTop: 7 }}>
+                練習 <b style={tnum}>{data.practiceDays}日</b> ・ 録音 <b style={tnum}>{data.recordingCount}回</b> ・ れんぞく <b style={tnum}>{data.streak}日</b>🔥
+                {data.keyRows.length > 0 && (
+                  <div style={{ marginTop: 4 }}>
+                    {data.keyRows.slice(0, 5).map((kk) => (
+                      <div key={kk.label} style={{ display: "flex", gap: 8, fontSize: 10.5 }}>
+                        <span style={{ width: 92, flex: "none" }}>{kk.label}</span>
+                        <span style={{ color: SUB }}>{kk.count}回</span>
+                        {kk.avgPitch != null && <span style={{ ...tnum, marginLeft: "auto", fontWeight: 800 }}>{kk.avgPitch}%</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {data.techRows.length > 0 && (
+                  <div style={{ marginTop: 6 }}>
+                    {data.techRows.slice(0, 4).map((t) => {
+                      const pct = Math.max(0, Math.round(100 - (t.miss / Math.max(1, t.target)) * 100))
+                      return (
+                        <div key={t.label} style={{ display: "flex", gap: 8, fontSize: 10.5 }}>
+                          <span style={{ width: 92, flex: "none" }}>{t.label}</span>
+                          <span style={{ flex: 1, alignSelf: "center", height: 5, borderRadius: 3, background: "#efe9da", overflow: "hidden" }}>
+                            <span style={{ display: "block", width: `${pct}%`, height: "100%", background: pct < 70 ? WARN : GOOD }} />
+                          </span>
+                          <b style={{ ...tnum, width: 36, textAlign: "right" }}>{pct}%</b>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+                <div style={{ fontSize: 9, color: "#c0b598", marginTop: 5 }}>※ この数字は録音の音程・リズムから算出しています</div>
+              </div>
+            </details>
+          </div>
         )}
       </div>
-      {!hasFinding ? (
-        <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>録音がたまると、苦手な調・音域・音がここに見えてくるよ。</div>
-      ) : (
-        <>
-          {(d.keyWorst || d.registerWorst) && (
-            <div style={{ fontSize: 12, lineHeight: 1.7, marginBottom: d.lens ? 7 : 0 }}>
-              いまの苦手:
-              {d.keyWorst && <> <b style={{ color: BAD }}>{d.keyWorst.label} <span style={tnum}>{d.keyWorst.pct}%</span></b></>}
-              {d.keyWorst && d.registerWorst && " ・ "}
-              {d.registerWorst && <>とくに<b>{BAND_LABEL[d.registerWorst.band]}</b> <span style={{ ...tnum, color: BAD, fontWeight: 800 }}>{d.registerWorst.pct}%</span></>}
-            </div>
-          )}
-          {d.lens && (
-            <div style={{ background: "#fdf8ec", border: "1px solid #e8dcc2", borderRadius: 10, padding: "9px 12px", fontSize: 11.5, lineHeight: 1.85 }}>
-              🔍 <b>{d.lens.note}{d.lens.hand ? `（${d.lens.hand}・推定）` : `（${d.lens.raw}）`}</b> が {d.lens.type}
-              {d.lens.cents != null && <>（平均 {d.lens.cents > 0 ? "+" : ""}{d.lens.cents}セント）</>}。
-              {d.lens.fromNote && <><br />とくに<b>「{d.lens.fromNote}」から動いてきた時</b>にずれやすいよ。</>}
-              <span style={{ color: GOLD, fontWeight: 800 }}><br />処方はホームのおすすめに出しておくね</span>
-            </div>
-          )}
-        </>
-      )}
-      <details style={{ marginTop: 9 }}>
-        <summary style={{ fontSize: 10.5, fontWeight: 800, color: SUB, cursor: "pointer" }}>▸ もっと見る（練習の実態・調・奏法）</summary>
-        <div style={{ fontSize: 11.5, color: "#4a5766", lineHeight: 1.9, marginTop: 7 }}>
-          練習 <b style={tnum}>{data.practiceDays}日</b> ・ 録音 <b style={tnum}>{data.recordingCount}回</b> ・ れんぞく <b style={tnum}>{data.streak}日</b>🔥
-          {data.keyRows.length > 0 && (
-            <div style={{ marginTop: 4 }}>
-              {data.keyRows.slice(0, 5).map((k) => (
-                <div key={k.label} style={{ display: "flex", gap: 8, fontSize: 11 }}>
-                  <span style={{ width: 92, flex: "none" }}>{k.label}</span>
-                  <span style={{ color: SUB }}>{k.count}回</span>
-                  {k.avgPitch != null && <span style={{ ...tnum, marginLeft: "auto", fontWeight: 800 }}>{k.avgPitch}%</span>}
-                </div>
-              ))}
-            </div>
-          )}
-          {data.techRows.length > 0 && (
-            <div style={{ marginTop: 6 }}>
-              {data.techRows.slice(0, 4).map((t) => {
-                const pct = Math.max(0, Math.round(100 - (t.miss / Math.max(1, t.target)) * 100))
-                return (
-                  <div key={t.label} style={{ display: "flex", gap: 8, fontSize: 11 }}>
-                    <span style={{ width: 92, flex: "none" }}>{t.label}</span>
-                    <span style={{ flex: 1, alignSelf: "center", height: 5, borderRadius: 3, background: "#eceff3", overflow: "hidden" }}>
-                      <span style={{ display: "block", width: `${pct}%`, height: "100%", background: pct < 70 ? WARN : GOOD }} />
-                    </span>
-                    <b style={{ ...tnum, width: 36, textAlign: "right" }}>{pct}%</b>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-          <div style={{ fontSize: 9.5, color: "#b3bcc6", marginTop: 5 }}>※ この数字は録音の音程・リズムから算出しています</div>
-        </div>
-      </details>
-    </div>
+    </Reveal>
   )
 }
 
-/* ── ⑥ きみの歴史: 節目だけの年表 ── */
+/* ═ きみの歴史: 縦スライド + 時間の道 (2026-08-06確定・デモ0edb9f66) ═ */
 function HistorySection({ data }: { data: KarteData }) {
-  // きみの歴史 縦スライド版 (2026-08-06 Tetsuo確定デモ 0edb9f66):
-  // タップ不要 — 縦スナップで節目カードが入れ替わり、左の「時間の道」が現在地に追従。
-  // 絵文字スタンプは廃止し、カテゴリ色+カナ表記で情報を整理。新しい順→一番下に「はじまり」。
   const ms = data.v2.milestones
   const railRef = useRef<HTMLDivElement | null>(null)
   const [active, setActive] = useState(0)
 
-  // アイコン → カテゴリ表記/色 (Milestone.icon を流用してカテゴリ判定)
   const CAT: Record<string, { label: string; color: string }> = {
     "🏆": { label: "マスター", color: "#b58a1e" },
     "⭐": { label: "ランクアップ", color: "#b58a1e" },
@@ -479,8 +455,8 @@ function HistorySection({ data }: { data: KarteData }) {
       Array.from(rail.children).forEach((c, i) => {
         const el = c as HTMLElement
         const center = el.offsetTop + el.offsetHeight / 2
-        const d = Math.abs(center - mid)
-        if (d < bestDist) { bestDist = d; best = i }
+        const dd = Math.abs(center - mid)
+        if (dd < bestDist) { bestDist = dd; best = i }
       })
       setActive(best)
     })
@@ -488,9 +464,10 @@ function HistorySection({ data }: { data: KarteData }) {
 
   if (ms.length === 0) {
     return (
-      <div style={{ ...card, marginBottom: 0 }}>
-        <div style={secTtl}>📜 きみの歴史</div>
-        <div style={{ fontSize: 11.5, color: SUB }}>最初の録音をすると、ここにきみの歴史が刻まれはじめるよ。</div>
+      <div style={{ padding: "18px 18px 16px" }}>
+        <div style={kicker}>STORY</div>
+        <div style={chapTitle}>きみの歴史</div>
+        <div style={{ fontSize: 11.5, color: SUB, marginTop: 6 }}>最初の録音をすると、ここにきみの歴史が刻まれはじめるよ。</div>
       </div>
     )
   }
@@ -498,18 +475,17 @@ function HistorySection({ data }: { data: KarteData }) {
   const N = ms.length
   const first = ms[N - 1]
   const days = Math.max(1, Math.round((ms[0].at - first.at) / 864e5))
-  // 表示順 i (新しい順) → 時系列位置 (0=はじまり)
-  const tickIdx = N - 1 - active
 
   return (
-    <div style={{ ...card, marginBottom: 0, paddingLeft: 0, paddingRight: 0, overflow: "hidden" }}>
-      <div style={{ padding: "0 15px" }}>
-        <div style={secTtl}>📜 きみの歴史</div>
-        <div style={{ ...subLbl, marginTop: -4 }}>{first.date}にはじまって {days}日間 ・ {N}つの節目</div>
+    <Reveal>
+      <div style={{ padding: "18px 18px 0" }}>
+        <div style={kicker}>STORY</div>
+        <div style={chapTitle}>きみの歴史</div>
+        <div style={chapNote}>{first.date}にはじまって {days}日間 ・ {N}つの節目</div>
       </div>
 
-      <div style={{ display: "flex", gap: 12, padding: "10px 15px 0" }}>
-        {/* 時間の道 (縦): 上=いま / 下=はじまり。スライドに追従 */}
+      <div style={{ display: "flex", gap: 12, padding: "10px 18px 16px" }}>
+        {/* 時間の道 (縦): 上=いま / 下=はじまり */}
         <div style={{ position: "relative", width: 22, flex: "none" }}>
           <div style={{ position: "absolute", top: 0, bottom: 0, left: 9, width: 2, borderRadius: 1, background: "#ece8db" }} />
           <div style={{
@@ -545,7 +521,7 @@ function HistorySection({ data }: { data: KarteData }) {
             return (
               <div key={`${m.at}-${i}`} style={{
                 flex: "none", scrollSnapAlign: "center", borderRadius: 14, padding: "13px 15px",
-                background: big ? "linear-gradient(155deg,#fffdf4,#fbf2d8)" : "#fbfaf6",
+                background: big ? "linear-gradient(155deg,#fffdf4,#fbf2d8)" : "rgba(255,255,255,.8)",
                 border: `1px solid ${big ? "#ecd9a2" : "#eee9da"}`,
                 transform: activeCard ? "scale(1)" : "scale(.94)",
                 opacity: activeCard ? 1 : 0.55,
@@ -566,6 +542,6 @@ function HistorySection({ data }: { data: KarteData }) {
           })}
         </div>
       </div>
-    </div>
+    </Reveal>
   )
 }
