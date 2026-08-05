@@ -87,6 +87,8 @@ model User {
   lessonsAsStudent    Lesson[]          @relation("lessonStudent")
   observationsAsTeacher TeacherObservation[] @relation("obsTeacher")
   observationsAsStudent TeacherObservation[] @relation("obsStudent")
+  exprClearsAsTeacher   UserExpressionClear[] @relation("exprClearTeacher")
+  exprClearsAsStudent   UserExpressionClear[] @relation("exprClearStudent")
 
   // ▼ シェア機能 (2026-08-03): SNS公開リンク+OGP動的画像
   shareCards ShareCard[]
@@ -157,6 +159,7 @@ model Score {
   // ▼ 工程D (2026-07-11): 曲の達成/マスター記録
   userScoreAchievements UserScoreAchievement[]
   scoreTechniqueTags    ScoreTechniqueTag[] // Phase 3c (Q4=B): 完全習得判定の技法集合
+  expressionClears      UserExpressionClear[]
 
   // ▼ 工程F (2026-07-10): 特徴タグ・副次調
   scoreKeys   ScoreKey[] // 副次調(転調先)。主調は keyTonic/keyMode が正
@@ -1343,4 +1346,24 @@ model ShareCard {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+}
+
+// 表現クリア実績 (2026-08-06 Tetsuo確定): 表現力レベル = クリアした曲の★。
+// 先生が「この曲(★N)でこの表現ができていた」と認定 → その表現の到達レベルが★Nに (最高値・下がらない)。
+// 語彙は統一台帳 (moodTags.ts)。強み表示・楽しい方向の曲推薦の土台。
+model UserExpressionClear {
+  id          String   @id @default(cuid())
+  userId      String // 生徒
+  teacherId   String
+  moodTagId   String // moodTags.ts のID
+  scoreId     String
+  starAtClear Int // クリア時の曲の★ (スナップショット)
+  clearedAt   DateTime @default(now())
+
+  student User  @relation("exprClearStudent", fields: [userId], references: [id], onDelete: Cascade)
+  teacher User  @relation("exprClearTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  score   Score @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moodTagId, scoreId])
+  @@index([userId, moodTagId])
 }

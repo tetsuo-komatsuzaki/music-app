@@ -88,7 +88,7 @@ export default async function StudentKartePage({
       where: { teacherId: me.id, studentId }, orderBy: { createdAt: "desc" }, take: 30,
       select: {
         id: true, scoreId: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
-        dueDate: true, goalType: true, targetScore: true,
+        dueDate: true, goalType: true, targetScore: true, moodTagId: true,
         doneAt: true, submittedAt: true, submittedScore: true, createdAt: true,
         score: { select: { title: true } }, practiceItem: { select: { title: true } },
       },
@@ -284,6 +284,8 @@ export default async function StudentKartePage({
         dueDate: a.dueDate ? a.dueDate.toISOString() : null,
         goalType: a.goalType,
         targetScore: a.targetScore,
+        moodTagId: a.moodTagId,
+        scoreId: a.scoreId,
         achieved: a.scoreId ? (achFlags.get(a.scoreId)?.achieved ?? false) : false,
         mastered: a.scoreId ? (achFlags.get(a.scoreId)?.mastered ?? false) : false,
         done: a.doneAt != null,

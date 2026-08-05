@@ -297,9 +297,27 @@ function ExpressionSectionV2({ userId, data, readOnly }: { userId: string; data:
       ? <span key={tagId} style={style}>{body}</span>
       : <Link key={tagId} href={`/${userId}/progress/expression/${encodeURIComponent(tagId)}`} style={style}>{body} →</Link>
   }
+  const levels = data.v2.exprLevels
   return (
     <div style={card}>
       <div style={secTtl}>🎤 表現力 <span style={subLbl}>先生の評価</span></div>
+      {/* 🎨 表現力レベル (2026-08-06): クリアした曲の★ = その表現の到達レベル */}
+      {levels.length > 0 && (
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ ...subLbl, color: GOLD }}>🎨 できるようになった表現</div>
+          <div style={{ marginTop: 3 }}>
+            {levels.map((l) => (
+              <span key={l.tagId} style={{
+                display: "inline-block", fontSize: 11, fontWeight: 800, borderRadius: 999,
+                padding: "4px 12px", margin: "2px 4px 2px 0", color: "#8a5a1f",
+                background: "#fdf3d8", border: "1.5px solid #eed9a0",
+              }}>
+                {l.label} <b style={{ color: "#c9820e" }}>★{l.star}</b>{l.count > 1 ? ` ×${l.count}曲` : ""}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
       {ex.strengths.length === 0 && ex.growing.length === 0 ? (
         <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>
           先生がレッスンで表現を評価すると、きみの「とくい」がここに並ぶよ。

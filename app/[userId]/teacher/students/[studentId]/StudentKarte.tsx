@@ -4,7 +4,8 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { MOOD_TAG_DEFS, MOOD_GROUP_LABELS } from "@/app/_libs/moodTags"
+import { MOOD_TAG_DEFS, MOOD_GROUP_LABELS, moodTagLabel } from "@/app/_libs/moodTags"
+import { recordExpressionClear } from "@/app/actions/expressionClears"
 import { createAssignment, sendMessageToStudent, sendCelebration } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
 import { createObservation, recordObservationProgress } from "@/app/actions/teacherObservations"
@@ -77,6 +78,9 @@ type AssignmentRow = {
   dueDate: string | null
   goalType: string | null
   targetScore: number | null
+  /** 意識する表現 (統一雰囲気タグID) */
+  moodTagId?: string | null
+  scoreId?: string | null
   achieved: boolean
   mastered: boolean
   done: boolean
@@ -145,7 +149,7 @@ export default function StudentKarte({
         ))}
       </div>
 
-      {tab === "overview" && <Overview b={briefing} studentId={studentId} observations={observations} expressions={expressions} />}
+      {tab === "overview" && <Overview b={briefing} studentId={studentId} observations={observations} expressions={expressions} scoreTargets={allScoreTargets} />}
       {tab === "practice" && <PracticeTab studentId={studentId} working={working} recordings={recordings} />}
       {tab === "karte" && (
         karte ? (
@@ -353,7 +357,7 @@ function Card({ children }: { children: React.ReactNode }) {
   )
 }
 
-function Overview({ b, studentId, observations, expressions = [] }: { b: Briefing; studentId: string; observations: ObservationRow[]; expressions?: ExpressionRow[] }) {
+function Overview({ b, studentId, observations, expressions = [], scoreTargets = [] }: { b: Briefing; studentId: string; observations: ObservationRow[]; expressions?: ExpressionRow[]; scoreTargets?: Target[] }) {
   return (
     <>
       {/* 生徒の目標 (目標共有・2026-08-02) */}
@@ -416,7 +420,7 @@ function Overview({ b, studentId, observations, expressions = [] }: { b: Briefin
       <ObservationSection studentId={studentId} observations={observations} />
 
       {/* 表現の評価 (2026-08-03 Phase0-3): 💪とくい/🔥挑戦中/🌿。強みは曲の推薦にも使われる(変換表実装後) */}
-      <ExpressionSection studentId={studentId} expressions={expressions} />
+      <ExpressionSection studentId={studentId} expressions={expressions} scoreTargets={scoreTargets} />
     </>
   )
 }
@@ -631,7 +635,7 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
 
 /** 表現の評価 (2026-08-03 Phase0-3): 7語彙+自由入力から選び 💪/🔥/🌿 で記録。
  *  現在状態 = タグごとの最新行。挑戦中→🌿→💪の昇格が時系列で残り、カルテ表現章(Phase1)に流れる */
-function ExpressionSection({ studentId, expressions }: { studentId: string; expressions: ExpressionRow[] }) {
+function ExpressionSection({ studentId, expressions, scoreTargets }: { studentId: string; expressions: ExpressionRow[]; scoreTargets: Target[] }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [tagId, setTagId] = useState<string | null>(null)
@@ -740,7 +744,90 @@ function ExpressionSection({ studentId, expressions }: { studentId: string; expr
           )}
         </div>
       )}
+
+      {/* 🎨 表現クリア認定 (2026-08-06・案C カルテ側入口): この曲(★N)でこの表現ができていた → 表現力レベル=★N */}
+      <ExprClearBox studentId={studentId} scoreTargets={scoreTargets} />
     </Card>
+  )
+}
+
+/** 表現クリア認定ボックス (2026-08-06): 統一雰囲気タグ × 曲 → UserExpressionClear */
+function ExprClearBox({ studentId, scoreTargets }: { studentId: string; scoreTargets: Target[] }) {
+  const router = useRouter()
+  const [open, setOpen] = useState(false)
+  const [tag, setTag] = useState("")
+  const [scoreId, setScoreId] = useState("")
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [pending, start] = useTransition()
+
+  const submit = () => {
+    if (!tag || !scoreId) return
+    start(async () => {
+      const r = await recordExpressionClear({ studentId, moodTagId: tag, scoreId })
+      if (!r.ok) { setMsg({ ok: false, text: r.error }); return }
+      setMsg({ ok: true, text: `認定しました！ この表現の到達レベルは ★${r.star} 相当になります` })
+      setTag(""); setScoreId(""); setOpen(false)
+      router.refresh()
+    })
+  }
+
+  const sel: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "7px 10px", fontSize: 12, marginTop: 6 }
+  return (
+    <div style={{ marginTop: 12, borderTop: "1px dashed #e2e6ea", paddingTop: 10 }}>
+      {!open ? (
+        <button type="button" onClick={() => { setOpen(true); setMsg(null) }}
+          style={{ width: "100%", border: "1px dashed #d8c9a4", background: "#fdfaf2", color: "#8a5a1f", borderRadius: 10, padding: 9, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+          🎨 表現クリアを認定する（曲の★が表現力レベルになります）
+        </button>
+      ) : (
+        <div>
+          <div style={{ fontSize: 11.5, fontWeight: 800, color: "#6b7885" }}>この曲で、この表現ができていた:</div>
+          <select value={tag} onChange={(e) => setTag(e.target.value)} style={sel}>
+            <option value="">表現をえらぶ</option>
+            {(["rhythm", "texture"] as const).map((g) => (
+              <optgroup key={g} label={MOOD_GROUP_LABELS[g]}>
+                {MOOD_TAG_DEFS.filter((t) => t.group === g).map((t) => (
+                  <option key={t.id} value={t.id}>{t.label}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+          <select value={scoreId} onChange={(e) => setScoreId(e.target.value)} style={sel}>
+            <option value="">曲をえらぶ</option>
+            {scoreTargets.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
+          </select>
+          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <button type="button" onClick={() => setOpen(false)}
+              style={{ flex: 1, fontSize: 12, fontWeight: 800, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 9, padding: 8, cursor: "pointer" }}>キャンセル</button>
+            <button type="button" onClick={submit} disabled={pending || !tag || !scoreId}
+              style={{ flex: 2, fontSize: 12, fontWeight: 800, color: "#fff", background: "#8a5a1f", border: "none", borderRadius: 9, padding: 8, cursor: "pointer", opacity: pending || !tag || !scoreId ? 0.5 : 1 }}>
+              {pending ? "記録中…" : "🎨 クリア認定"}
+            </button>
+          </div>
+        </div>
+      )}
+      {msg && <div style={{ fontSize: 12, marginTop: 6, color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
+    </div>
+  )
+}
+
+/** 宿題カード内の表現クリア認定ボタン (2026-08-06・案C 宿題側入口) */
+function AssignmentExprClearButton({ studentId, moodTagId, scoreId }: { studentId: string; moodTagId: string; scoreId: string }) {
+  const [state, setState] = useState<"idle" | "saving" | "done" | "error">("idle")
+  const [star, setStar] = useState<number | null>(null)
+  if (state === "done") {
+    return <span style={{ fontSize: 10.5, fontWeight: 800, color: "#2e8b57" }}>✓ 表現クリア認定{star != null ? `（★${star}相当）` : ""}</span>
+  }
+  return (
+    <button type="button" disabled={state === "saving"}
+      onClick={async () => {
+        setState("saving")
+        const r = await recordExpressionClear({ studentId, moodTagId, scoreId })
+        if (r.ok) { setStar(r.star); setState("done") } else setState("error")
+      }}
+      style={{ fontSize: 10.5, fontWeight: 800, color: "#fff", background: "#8a5a1f", border: "none", borderRadius: 999, padding: "3px 10px", cursor: "pointer", opacity: state === "saving" ? 0.6 : 1 }}>
+      {state === "saving" ? "記録中…" : state === "error" ? "失敗・もう一度" : "表現できていた → クリア認定"}
+    </button>
   )
 }
 
@@ -1080,6 +1167,17 @@ function Homework({
                 </div>
               )}
               {a.comment && <div style={{ fontSize: 12.5, color: "#2b3742", marginTop: 4 }}>💬 {a.comment}</div>}
+              {/* 🎨 意識する表現 (2026-08-06・案C 宿題側入口): 提出済みなら聴いてクリア認定できる */}
+              {a.moodTagId && (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
+                  <span style={{ fontSize: 10.5, fontWeight: 800, color: "#8a5a1f", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "2px 8px" }}>
+                    🎨 {moodTagLabel(a.moodTagId)}
+                  </span>
+                  {a.submitted && a.scoreId && (
+                    <AssignmentExprClearButton studentId={studentId} moodTagId={a.moodTagId} scoreId={a.scoreId} />
+                  )}
+                </div>
+              )}
               <div style={{ fontSize: 10.5, color: "#b3bcc6", marginTop: 4 }}>{a.createdAt}</div>
             </div>
           ))}

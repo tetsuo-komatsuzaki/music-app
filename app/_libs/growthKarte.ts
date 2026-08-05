@@ -9,6 +9,7 @@ import { formatKey } from "./musicNotation"
 import { categoryLabel } from "./practiceConstants"
 import { OBSERVATION_TAG_BY_ID } from "./observationCatalog"
 import { expressionLabel } from "./expressionCatalog"
+import { moodTagLabel } from "./moodTags"
 import type { DiagnosisJson } from "./weaknessRecommendation"
 
 export type KartePeriod = "7d" | "30d" | "all"
@@ -169,6 +170,8 @@ export interface KarteV2 {
   kpi: { star: number; starDone: number; starRequired: number; basicsWeek: number; skillsWeek: number }
   /** 表現力 (先生あり)。growing = 🔥挑戦中(🌿improving含む) */
   expression: { strengths: ExprItem[]; growing: ExprItem[] } | null
+  /** 表現力レベル (2026-08-06): 先生のクリア認定 → タグごとの最高★ (統一雰囲気タグ台帳) */
+  exprLevels: { tagId: string; label: string; star: number; count: number }[]
   /** ⑤くわしい数字の表面 = いちばんの発見 + 🔍虫めがね */
   discovery: {
     keyWorst: { label: string; pct: number } | null
@@ -754,6 +757,22 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     }
   }
 
+  // 表現力レベル (2026-08-06): クリア認定の集計 (タグごとの最高★・回数)
+  const exprClearRows = await prisma.userExpressionClear.findMany({
+    where: { userId },
+    select: { moodTagId: true, starAtClear: true },
+  })
+  const levelMap = new Map<string, { star: number; count: number }>()
+  for (const r of exprClearRows) {
+    const cur = levelMap.get(r.moodTagId) ?? { star: 0, count: 0 }
+    cur.star = Math.max(cur.star, r.starAtClear)
+    cur.count += 1
+    levelMap.set(r.moodTagId, cur)
+  }
+  const exprLevels = [...levelMap.entries()]
+    .map(([tagId, v]) => ({ tagId, label: moodTagLabel(tagId), star: v.star, count: v.count }))
+    .sort((a, b) => b.star - a.star || a.label.localeCompare(b.label))
+
   // ⑤の表面 = いちばんの発見 (調 → 音域 → 🔍虫めがね)。noteStats を期間で合算
   const nsNotes = new Map<string, { target: number; miss: number; centsSum: number; centsN: number }>()
   const nsRegs = new Map<string, { target: number; miss: number }>()
@@ -888,6 +907,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     arcoLine,
     kpi,
     expression,
+    exprLevels,
     discovery: { keyWorst, registerWorst, lens },
     milestones: milestones.slice(0, 20),
   }
