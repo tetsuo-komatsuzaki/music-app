@@ -10,7 +10,6 @@ import { resolveListenRequest } from "@/app/actions/listenRequests"
 import { createAssignment, sendMessageToStudent, sendCelebration } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
 import { createObservation, recordObservationProgress } from "@/app/actions/teacherObservations"
-import { recordExpressionReview } from "@/app/actions/expressionReviews"
 import { EXPRESSION_TAGS, expressionLabel } from "@/app/_libs/expressionCatalog"
 import { OBSERVATION_CATALOG, OBSERVATION_TAG_BY_ID, OBSERVATION_SEVERITIES } from "@/app/_libs/observationCatalog"
 import { BODY_VIEWS, NON_BODY_CATEGORIES, spotsOf, type BodyViewId } from "@/app/_libs/bodyMap"
@@ -650,117 +649,26 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
 /** 表現の評価 (2026-08-03 Phase0-3): 7語彙+自由入力から選び 💪/🔥/🌿 で記録。
  *  現在状態 = タグごとの最新行。挑戦中→🌿→💪の昇格が時系列で残り、カルテ表現章(Phase1)に流れる */
 function ExpressionSection({ studentId, expressions, scoreTargets }: { studentId: string; expressions: ExpressionRow[]; scoreTargets: Target[] }) {
-  const router = useRouter()
-  const [open, setOpen] = useState(false)
-  const [tagId, setTagId] = useState<string | null>(null)
-  const [freeLabel, setFreeLabel] = useState("")
-  const [status, setStatus] = useState<"strength" | "improving" | "challenge">("strength")
-  const [comment, setComment] = useState("")
-  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
-  const [pending, start] = useTransition()
-
-  // タグごとの最新状態 (expressionsは新しい順)
-  const latest = new Map<string, ExpressionRow>()
-  for (const e of expressions) if (!latest.has(e.tagId)) latest.set(e.tagId, e)
-  const groups: Record<string, ExpressionRow[]> = { strength: [], improving: [], challenge: [] }
-  for (const e of latest.values()) if (e.severity && groups[e.severity]) groups[e.severity].push(e)
-
-  const save = () => {
-    setMsg(null)
-    start(async () => {
-      const r = await recordExpressionReview({
-        studentId,
-        tagId: tagId ?? undefined,
-        freeLabel: tagId ? undefined : freeLabel,
-        status,
-        comment: comment || null,
-      })
-      if (r.ok) {
-        setMsg({ ok: true, text: "評価を記録しました（生徒にも届きます）" })
-        setTagId(null); setFreeLabel(""); setComment(""); setOpen(false)
-        router.refresh()
-      } else setMsg({ ok: false, text: r.error })
-    })
-  }
-
-  const stChip = (s: string) =>
-    s === "strength" ? { l: "💪 とくい", c: "#8a6d1f", bg: "#fbf3dc", bd: "#e8d9ae" }
-    : s === "improving" ? { l: "🌿", c: "#2e8b57", bg: "#e9f5ee", bd: "#cfe6d8" }
-    : { l: "🔥 挑戦中", c: "#4a5bd0", bg: "#eef0fc", bd: "#d7dcf6" }
-
+  // 2026-08-06統一: 旧4語彙の評価フォーム(💪🌿🔥)は廃止。表現=統一15語のクリア認定に一本化。
+  // 過去の旧評価はコメント付きの記録として表示だけ残す (入力は不可)
+  const past = expressions.filter((e) => e.comment)
   return (
     <Card>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: "#6b7885" }}>🎤 表現の評価（強み・挑戦中）</span>
-        {!open && (
-          <button type="button" onClick={() => { setOpen(true); setMsg(null) }}
-            style={{ marginLeft: "auto", fontSize: 11.5, fontWeight: 800, color: "#2b3742", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 8, padding: "6px 12px", cursor: "pointer" }}>
-            ＋ 評価する
-          </button>
-        )}
+      <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 4 }}>🎨 表現の認定</div>
+      <div style={{ fontSize: 11, color: "#9aa6b3", marginBottom: 4 }}>
+        「この曲でこの表現ができていた」を認定すると、曲の★がそのまま生徒の表現力レベルになります。
       </div>
-
-      {open && (
-        <div style={{ border: "1px solid #eef1f4", borderRadius: 12, padding: 12, marginBottom: 10 }}>
-          {/* 語彙選択 (単一) */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {EXPRESSION_TAGS.map((t) => (
-              <button key={t.id} type="button" onClick={() => { setTagId(tagId === t.id ? null : t.id); if (tagId !== t.id) setFreeLabel("") }}
-                style={{ fontSize: 11.5, fontWeight: 700, borderRadius: 9, padding: "6px 11px", cursor: "pointer", border: "1px solid", borderColor: tagId === t.id ? "#4a5bd0" : "#e2e6ea", background: tagId === t.id ? "#eef0fc" : "#fff", color: tagId === t.id ? "#4a5bd0" : "#4a5766" }}>
-                {t.label}
-              </button>
-            ))}
-          </div>
-          <input value={freeLabel} onChange={(e) => { setFreeLabel(e.target.value); if (e.target.value) setTagId(null) }}
-            placeholder="ないときは自由に入力（例: 音の立ち上がり）"
-            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "7px 10px", fontSize: 12, marginTop: 8 }} />
-          {/* 状態 */}
-          <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-            {([["strength", "💪 とくい（強み）"], ["improving", "🌿 良くなってきた"], ["challenge", "🔥 挑戦中（課題）"]] as const).map(([s, label]) => (
-              <button key={s} type="button" onClick={() => setStatus(s)}
-                style={{ flex: 1, fontSize: 11, fontWeight: 800, borderRadius: 8, padding: "7px 0", cursor: "pointer", border: "1px solid", borderColor: status === s ? "#2b3742" : "#e2e6ea", background: status === s ? "#2b3742" : "#fff", color: status === s ? "#fff" : "#6b7885" }}>
-                {label}
-              </button>
-            ))}
-          </div>
-          <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2}
-            placeholder="先生の言葉（任意・生徒のカルテに残ります）例: 低い弦の響かせ方がとても良い"
-            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 12.5, marginTop: 10, resize: "vertical" }} />
-          <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-            <button type="button" onClick={() => setOpen(false)}
-              style={{ flex: 1, fontSize: 12, fontWeight: 800, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 9, padding: 9, cursor: "pointer" }}>キャンセル</button>
-            <button type="button" onClick={save} disabled={pending || (!tagId && !freeLabel.trim())}
-              style={{ flex: 2, fontSize: 12, fontWeight: 800, color: "#fff", background: "#2b3742", border: "none", borderRadius: 9, padding: 9, cursor: "pointer", opacity: pending || (!tagId && !freeLabel.trim()) ? 0.5 : 1 }}>
-              {pending ? "保存中…" : "記録する"}
-            </button>
-          </div>
-        </div>
-      )}
-      {msg && <div style={{ fontSize: 12, margin: "0 0 8px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
-
-      {/* 現在の状態 (タグごとの最新) */}
-      {latest.size === 0 ? (
-        !open && <div style={{ fontSize: 12, color: "#9aa6b3" }}>まだ評価はありません。強みを1つ記録すると、生徒のカルテに「きみのとくい」として届きます。</div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {(["strength", "improving", "challenge"] as const).flatMap((g) =>
-            groups[g].map((e) => {
-              const c = stChip(g)
-              return (
-                <div key={e.tagId} style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", border: "1px solid #eef1f4", borderRadius: 9, padding: "7px 10px" }}>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: c.c, background: c.bg, border: `1px solid ${c.bd}`, borderRadius: 999, padding: "2px 8px" }}>{c.l}</span>
-                  <span style={{ fontSize: 11.5, fontWeight: 700, color: "#2b3742" }}>{expressionLabel(e.tagId)}</span>
-                  {e.comment && <span style={{ fontSize: 10.5, color: "#8a9099" }}>「{e.comment}」</span>}
-                  <span style={{ marginLeft: "auto", fontSize: 9.5, color: "#aab2bb" }}>{e.date}</span>
-                </div>
-              )
-            }),
-          )}
-        </div>
-      )}
-
-      {/* 🎨 表現クリア認定 (2026-08-06・案C カルテ側入口): この曲(★N)でこの表現ができていた → 表現力レベル=★N */}
       <ExprClearBox studentId={studentId} scoreTargets={scoreTargets} />
+      {past.length > 0 && (
+        <div style={{ marginTop: 10 }}>
+          <div style={{ fontSize: 10.5, fontWeight: 800, color: "#9aa6b3" }}>これまでの表現メモ（旧記録）</div>
+          {past.slice(0, 3).map((e) => (
+            <div key={e.id} style={{ fontSize: 11, color: "#8a9099", marginTop: 3 }}>
+              {expressionLabel(e.tagId)}: 「{e.comment}」 <span style={{ fontSize: 9.5 }}>{e.date}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </Card>
   )
 }

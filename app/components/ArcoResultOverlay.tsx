@@ -151,7 +151,7 @@ export default function ArcoResultOverlay({
         {strengthCount > 0 && (
           <div style={{ margin: "6px 4px 0", fontSize: 11.5, fontWeight: 800 }}>
             <Link href={`/${userId}/progress`} onClick={onClose} style={{ color: "#4a5bd0", textDecoration: "underline" }}>
-              💪 先生が見つけたきみの強み（{strengthCount}個）を見る →
+              🎨 先生が認定したきみの表現（{strengthCount}個）を見る →
             </Link>
           </div>
         )}

@@ -930,6 +930,19 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
   }
   for (const rk of resolvedKuse) pushMs(rk.at, "🌱", `癖「${OBSERVATION_TAG_BY_ID[rk.label]?.label ?? rk.label}」を克服`)
   for (const se of strengthExpr) pushMs(se.at, "💪", `表現「${expressionLabel(se.label)}」が強みに`)
+  // 表現クリア認定 (2026-08-06統一): 初認定と★更新を節目に
+  {
+    const bestSoFar = new Map<string, number>()
+    for (const r of exprClearRows) {
+      const prev = bestSoFar.get(r.moodTagId) ?? 0
+      if (r.starAtClear > prev) {
+        bestSoFar.set(r.moodTagId, r.starAtClear)
+        pushMs(r.clearedAt, "🎨", prev === 0
+          ? `表現「${moodTagPhrase(r.moodTagId)}」を先生が認定（★${r.starAtClear}）`
+          : `表現「${moodTagPhrase(r.moodTagId)}」が★${r.starAtClear}に`)
+      }
+    }
+  }
   milestones.sort((a, b) => b.at - a.at)
 
   // アルコのひと言 (ルールベース)

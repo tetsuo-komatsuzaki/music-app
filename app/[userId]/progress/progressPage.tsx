@@ -266,14 +266,15 @@ function SkillPanel({ userId, n, readOnly }: { userId: string; n: SkillNode; rea
 
 /* ── ③ 表現力: タグのみ (💪とくい / 🔥挑戦中)。詳細画面はPhase2 ── */
 function ExpressionSectionV2({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
-  const ex = data.v2.expression
-  if (!ex) {
+  // 2026-08-06統一: 旧4語彙の💪/🔥チップは廃止。表現=統一15語の認定 (表現マップ) に一本化。
+  // data.v2.expression の有無は「先生とつながっているか」の判定にのみ使う
+  if (!data.v2.expression) {
     if (readOnly) return null
     return (
       <div style={{ ...card, textAlign: "center" }}>
         <div style={{ fontSize: 13, fontWeight: 900 }}>🎤 表現力</div>
         <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
-          「音の深み」「歌わせ方」— きみの表現の<b>強み</b>を先生が記録してくれる場所。<br />
+          「優しく（Dolce）」「歌うように（Cantabile）」— きみの表現を先生が認定してくれる場所。<br />
           <b>先生とつながると開放</b>されます。
         </div>
         <Link href={`/${userId}/find-teacher`}
@@ -283,46 +284,14 @@ function ExpressionSectionV2({ userId, data, readOnly }: { userId: string; data:
       </div>
     )
   }
-  const chip = (tagId: string, label: string, kind: "str" | "grow", extra?: string) => {
-    const style: React.CSSProperties = {
-      display: "inline-block", fontSize: 11, fontWeight: 800, borderRadius: 999, padding: "4px 12px", margin: "2px 4px 2px 0",
-      color: kind === "str" ? GOLD : ACC,
-      background: kind === "str" ? "#fbf3dc" : "#eef1fc",
-      border: kind === "str" ? "1.5px solid #e8d9ae" : "1.5px dashed #b9c2f0",
-      textDecoration: "none",
-    }
-    const body = `${label}${extra ? ` ${extra}` : ""}`
-    // タップで表現の詳細 (D2) へ (先生の閲覧モードはリンクなし)
-    return readOnly
-      ? <span key={tagId} style={style}>{body}</span>
-      : <Link key={tagId} href={`/${userId}/progress/expression/${encodeURIComponent(tagId)}`} style={style}>{body} →</Link>
-  }
-  const levels = data.v2.exprLevels
   return (
     <div style={card}>
-      <div style={secTtl}>🎤 表現力 <span style={subLbl}>先生の評価</span></div>
-      {/* 🎨 表現マップ (2026-08-06確定): 15語全ノード。点灯(★N)/未開拓の2状態・バッジ=NEWのみ。
-          タップでパネル (★ゲージ/認定のあゆみ/挑戦する曲/聴いてもらう導線) */}
+      <div style={secTtl}>🎤 表現力 <span style={subLbl}>先生の認定</span></div>
       <ExprMapGrid data={data} readOnly={readOnly} userId={userId} />
-      {ex.strengths.length === 0 && ex.growing.length === 0 ? (
-        <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>
-          先生がレッスンで表現を評価すると、きみの「とくい」がここに並ぶよ。
+      {data.v2.exprMap.nodes.every((n) => n.star === 0) && (
+        <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7, marginTop: 4 }}>
+          曲で表現して「👂 先生に聴いてもらう」と、先生がきみの表現を認定してくれるよ。
         </div>
-      ) : (
-        <>
-          {ex.strengths.length > 0 && (
-            <div style={{ marginBottom: ex.growing.length ? 8 : 0 }}>
-              <div style={{ ...subLbl, color: GOLD }}>💪 きみのとくい</div>
-              <div style={{ marginTop: 3 }}>{ex.strengths.map((i) => chip(i.tagId, i.label, "str"))}</div>
-            </div>
-          )}
-          {ex.growing.length > 0 && (
-            <div>
-              <div style={{ ...subLbl, color: ACC }}>🔥 挑戦中</div>
-              <div style={{ marginTop: 3 }}>{ex.growing.map((i) => chip(i.tagId, i.label, "grow", i.status === "improving" ? "🌿" : ""))}</div>
-            </div>
-          )}
-        </>
       )}
     </div>
   )
