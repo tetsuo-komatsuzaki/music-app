@@ -8,6 +8,7 @@ import { setTeacherEmailOff } from "@/app/actions/updateNotificationPref"
 import DeleteAccountModal from "./DeleteAccountModal"
 import TeacherLinkCard from "./TeacherLinkCard"
 import GoalCard from "./GoalCard"
+import PlanCard from "./PlanCard"
 import { sendAppFeedback } from "@/app/actions/scoringFeedback"
 import styles from "./Settings.module.css"
 
@@ -18,6 +19,13 @@ interface Props {
   accountDeletionEnabled: boolean
   hasTeacher?: boolean
   teacherEmailOff?: boolean
+  billing?: {
+    billingEnabled: boolean
+    isPlus: boolean
+    planStatus: string | null
+    periodEnd: string | null
+    trialEligible: boolean
+  }
 }
 
 export default function SettingsClient({
@@ -27,6 +35,7 @@ export default function SettingsClient({
   accountDeletionEnabled,
   hasTeacher = false,
   teacherEmailOff = false,
+  billing,
 }: Props) {
   // 先生からの通知メール: オフ(配信停止)にできる
   const [emailOff, setEmailOff] = useState(teacherEmailOff)
@@ -139,6 +148,9 @@ export default function SettingsClient({
   return (
     <div className={styles.page}>
       <h1 className={styles.title}>設定</h1>
+
+      {/* プラン (課金 Phase 2, 2026-08-07): Stripe 未構成の間は非表示 */}
+      {billing && <PlanCard {...billing} />}
 
       {/* 目標の変更 (2026-08-02): オンボで答えた目標曲/時期/かなえたいこと */}
       <GoalCard />
