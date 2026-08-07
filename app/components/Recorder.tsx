@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useCallback, useEffect } from "react"
-import styles from "./recorder.module.css"
+import styles from "./Recorder.module.css"
 
 // =========================================================
 // 解析待ちカード (2026-08-02 案2改・Tetsuo確定デザイン):
@@ -248,6 +248,19 @@ export type Status = "idle" | "tempo-select" | "countdown" | "recording" | "prev
 
 export default function Recorder({ onRecordingComplete, previousBestScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, uploadProgress, onShowLoop, onIdleRecordClick, resolvedResult }: Props) {
   const [status, setStatus] = useState<Status>("idle")
+
+  // 課金 Phase 1 (2026-08-07): 無料ユーザーへの週次採点カウント表示 (制限はまだ発動しない)。
+  // idle に戻るたびに再取得 (採点1回で消費が増えるため)。無制限 (プラス/先生接続) は非表示。
+  const [quota, setQuota] = useState<{ unlimited: boolean; used: number; limit: number } | null>(null)
+  useEffect(() => {
+    if (status !== "idle") return
+    let cancelled = false
+    fetch("/api/plan/usage")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (!cancelled && data) setQuota(data) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [status])
   const [elapsed, setElapsed] = useState(0)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
   const [blobRef, setBlobRef] = useState<Blob | null>(null)
@@ -684,6 +697,11 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
             <span className={styles.ctaDot} />
             <span>録音して AI 採点</span>
           </button>
+          {quota && !quota.unlimited && (
+            <div className={styles.quotaLine} data-testid="recorder-quota">
+              今週のAI採点 {Math.min(quota.used, quota.limit)}/{quota.limit}回
+            </div>
+          )}
         </div>
       )}
 

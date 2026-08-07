@@ -20,7 +20,13 @@ model User {
   supabaseUserId String        @unique
   name           String
   role           Role          @default(student)
-  plan           String?
+  plan           String? // "plus" = アルコプラス契約中 (Stripe webhook が正を書く)。null = 無料
+
+  // ▼ 課金 (2026-08-07 課金設計確定: フリーミアム/週7回/月980円。Stripe が正・DB は写し)
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?
+  planStatus           String? // Stripe subscription.status の写し (trialing/active/past_due/canceled 等)
+  planCurrentPeriodEnd DateTime? // 現契約期間の終了日 (表示用)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   performances   Performance[]

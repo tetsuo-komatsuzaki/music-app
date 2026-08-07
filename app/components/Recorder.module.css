@@ -21,6 +21,8 @@
 
 /* ① 待機 */
 .idlePanel { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+/* 課金 Phase 1: 無料ユーザーの週次採点カウント (制限発動前は情報表示のみ) */
+.quotaLine { font-size: 11.5px; color: #9aa3ae; letter-spacing: 0.02em; }
 .mainCta {
   display: flex; align-items: center; gap: 10px;
   padding: 16px 36px; background: #fff;
