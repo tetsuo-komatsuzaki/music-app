@@ -38,9 +38,18 @@ export async function POST(request: NextRequest) {
         break
       }
       case "customer.subscription.created":
-      case "customer.subscription.updated":
+      case "customer.subscription.updated": {
+        // 順不同配送対策 (2026-08-08): イベントのスナップショットは古い可能性があるため、
+        // checkout.session.completed と同様に「今の subscription」を取り直して反映する。
+        // これで「古い updated が新しい状態を上書きして解約済みが plus に戻る」等を防ぐ。
+        const snap = event.data.object as Stripe.Subscription
+        const sub = await getStripe().subscriptions.retrieve(snap.id)
+        await applySubscription(sub, null)
+        break
+      }
       case "customer.subscription.deleted": {
-        // deleted は status="canceled" の subscription が届く → 写像が plan:null に落とす
+        // deleted は取り直すと 404 になりうる。届いた時点で終端状態 (canceled) が確定しており、
+        // 写像は plan:null に落とすだけなので、そのまま反映して問題ない。
         await applySubscription(event.data.object as Stripe.Subscription, null)
         break
       }
