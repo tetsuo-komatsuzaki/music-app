@@ -248,6 +248,7 @@ function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
+          maxLength={1000}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) send() }}
           placeholder="メッセージを書く…"
           style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: 13 }}

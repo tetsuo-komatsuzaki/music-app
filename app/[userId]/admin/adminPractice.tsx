@@ -594,13 +594,13 @@ export default function AdminPractice({
 
             <div className={styles.field}>
               <label>タイトル *</label>
-              <input value={title} onChange={(e) => setTitle(e.target.value)}
+              <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100}
                 placeholder="ト長調 音階 2オクターブ" />
             </div>
 
             <div className={styles.field}>
               <label>作曲者</label>
-              <input value={composer} onChange={(e) => setComposer(e.target.value)}
+              <input value={composer} onChange={(e) => setComposer(e.target.value)} maxLength={100}
                 placeholder="カイザー" />
             </div>
 
@@ -753,10 +753,10 @@ export default function AdminPractice({
                 <div className={styles.field}>
                   <label>推奨テンポ</label>
                   <div className={styles.inlineGroup}>
-                    <input type="number" value={tempoMin} onChange={(e) => setTempoMin(e.target.value)}
+                    <input type="number" min={1} max={400} value={tempoMin} onChange={(e) => setTempoMin(e.target.value)}
                       placeholder="60" style={{ width: 80 }} />
                     <span>〜</span>
-                    <input type="number" value={tempoMax} onChange={(e) => setTempoMax(e.target.value)}
+                    <input type="number" min={1} max={400} value={tempoMax} onChange={(e) => setTempoMax(e.target.value)}
                       placeholder="90" style={{ width: 80 }} />
                   </div>
                 </div>
@@ -903,13 +903,13 @@ export default function AdminPractice({
 
                 <div className={styles.field}>
                   <label>短い説明（一覧表示用）</label>
-                  <input value={descriptionShort} onChange={(e) => setDescriptionShort(e.target.value)}
+                  <input value={descriptionShort} onChange={(e) => setDescriptionShort(e.target.value)} maxLength={200}
                     placeholder="2の指と3の指の間隔に注意" />
                 </div>
 
                 <div className={styles.field}>
                   <label>詳細説明</label>
-                  <textarea value={description} onChange={(e) => setDescription(e.target.value)}
+                  <textarea value={description} onChange={(e) => setDescription(e.target.value)} maxLength={2000}
                     placeholder="練習のポイント、注意事項など" rows={3} />
                 </div>
               </>

@@ -588,6 +588,7 @@ function Scr11C() {
           placeholder="曲名を入力"
           value={song}
           onChange={(e) => setSong(e.target.value)}
+          maxLength={100}
           aria-label="曲名"
         />
       </div>

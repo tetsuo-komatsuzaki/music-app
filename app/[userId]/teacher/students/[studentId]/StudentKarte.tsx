@@ -17,6 +17,13 @@ import BodyObsMap, { type BodyObsItem } from "@/app/components/BodyObsMap"
 import ProgressPage from "@/app/[userId]/progress/progressPage"
 import type { KarteData } from "@/app/_libs/growthKarte"
 
+// 数値入力を打った瞬間に上限へ収める (2026-08-08)。サーバーのクランプと一致させ、
+// 「打った値と保存される値が違う」サイレントな食い違いを無くす。空欄は空のまま許可。
+function clampNumStr(raw: string, max: number): string {
+  const d = raw.replace(/[^0-9]/g, "")
+  return d === "" ? "" : String(Math.min(max, Number(d)))
+}
+
 /** 履歴(新しい順)からタグごとに最新の所見1件を取り出す (癖マップ表示用) */
 function latestPerTag(observations: ObservationRow[]): BodyObsItem[] {
   const m = new Map<string, BodyObsItem>()
@@ -269,7 +276,7 @@ function RecCommentBox({ studentId, performanceId, kind }: { studentId: string; 
         <button type="button" onClick={() => setOpen(true)} style={{ ...btn, color: "#5b6b9e", background: "#eef0fc", border: "1px solid #d7dcf6" }}>💬 この演奏にコメント</button>
       ) : (
         <div>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="この演奏へのコメント（生徒に届きます）" style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 12.5, resize: "vertical" }} />
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={1000} placeholder="この演奏へのコメント（生徒に届きます）" style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 12.5, resize: "vertical" }} />
           <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
             <button type="button" onClick={() => { setOpen(false); setText("") }} style={{ ...btn, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea" }}>やめる</button>
             <button type="button" onClick={send} disabled={pending} style={{ ...btn, color: "#fff", background: "#8a5a1f", border: "none", opacity: pending ? 0.6 : 1 }}>{pending ? "送信中…" : "送る"}</button>
@@ -392,7 +399,7 @@ function Messages({ studentId, studentName, messages }: { studentId: string; stu
         )}
       </div>
       <div style={{ display: "flex", gap: 7 }}>
-        <input value={text} onChange={(e) => setText(e.target.value)}
+        <input value={text} onChange={(e) => setText(e.target.value)} maxLength={1000}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) send() }}
           placeholder={`${studentName} さんへ返信…`}
           style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: 13 }} />
@@ -640,7 +647,7 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
               </button>
             ))}
           </div>
-          <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2}
+          <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} maxLength={500}
             placeholder="補足コメント（任意・「その他」の内容もここに）"
             style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 12.5, marginTop: 10, resize: "vertical" }} />
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
@@ -826,7 +833,7 @@ function CelebrateBox({ studentId, latest }: { studentId: string; latest: { titl
         </button>
       ) : (
         <div>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder={defaultMsg}
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={500} placeholder={defaultMsg}
             style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 12.5, resize: "vertical" }} />
           <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
             <button type="button" onClick={() => { setOpen(false); setText("") }}
@@ -1026,8 +1033,8 @@ function Homework({
           )}
 
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-            <label style={{ ...lbl, flex: 1 }}>回数<input value={reps} onChange={(e) => setReps(e.target.value.replace(/[^0-9]/g, ""))} placeholder="5" style={inp} inputMode="numeric" /></label>
-            <label style={{ ...lbl, flex: 1 }}>目標♩<input value={tempo} onChange={(e) => setTempo(e.target.value.replace(/[^0-9]/g, ""))} placeholder="80" style={inp} inputMode="numeric" /></label>
+            <label style={{ ...lbl, flex: 1 }}>回数<input value={reps} onChange={(e) => setReps(clampNumStr(e.target.value, 999))} placeholder="5" style={inp} inputMode="numeric" /></label>
+            <label style={{ ...lbl, flex: 1 }}>目標♩<input value={tempo} onChange={(e) => setTempo(clampNumStr(e.target.value, 400))} placeholder="80" style={inp} inputMode="numeric" /></label>
           </div>
 
           <label style={{ ...lbl, display: "block", marginTop: 10 }}>提出期限（任意）
@@ -1049,7 +1056,7 @@ function Homework({
           </div>
           {goalType === "score" && (
             <label style={{ ...lbl, display: "block", marginTop: 8 }}>合格ライン（点）
-              <input value={targetScore} onChange={(e) => setTargetScore(e.target.value.replace(/[^0-9]/g, ""))} placeholder="80" style={inp} inputMode="numeric" />
+              <input value={targetScore} onChange={(e) => setTargetScore(clampNumStr(e.target.value, 100))} placeholder="80" style={inp} inputMode="numeric" />
             </label>
           )}
           {goalType === "master" && (
@@ -1067,7 +1074,7 @@ function Homework({
           </label>
 
           <label style={{ ...lbl, display: "block", marginTop: 10 }}>コメント
-            <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} placeholder="例: 移弦を先に準備しよう" style={{ ...inp, resize: "vertical" }} />
+            <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} maxLength={500} placeholder="例: 移弦を先に準備しよう" style={{ ...inp, resize: "vertical" }} />
           </label>
 
           {err && <div style={{ fontSize: 12, color: "#c0392b", marginTop: 8 }}>{err}</div>}

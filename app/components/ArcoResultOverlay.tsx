@@ -304,7 +304,7 @@ export function ScoringFeedbackNote({ performanceId, kind }: { performanceId: st
           </button>
           {open && (
             <span style={{ display: "flex", gap: 6, marginTop: 6 }}>
-              <input value={text} onChange={(e) => setText(e.target.value)} placeholder="例: 本当はもっと弾けていたと思う"
+              <input value={text} onChange={(e) => setText(e.target.value)} placeholder="例: 本当はもっと弾けていたと思う" maxLength={1000}
                 style={{ flex: 1, minWidth: 0, fontSize: 11.5, border: "1px solid #dfe3e8", borderRadius: 8, padding: "7px 10px" }} />
               <button type="button" onClick={send} disabled={state === "sending" || !text.trim()}
                 style={{ flex: "none", fontSize: 11, fontWeight: 800, color: "#fff", background: "#4a5bd0", border: "none", borderRadius: 8, padding: "7px 12px", cursor: "pointer", opacity: state === "sending" ? 0.6 : 1 }}>

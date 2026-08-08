@@ -72,7 +72,7 @@ export default function AnnotateClient({
         </label>
 
         <label style={lbl}>💬 ひとこと（生徒に届きます）
-          <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3}
+          <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} maxLength={500}
             placeholder="例: フレーズの終わりがふわっと収まって、とても良かった！"
             style={{ ...inp, resize: "vertical" }} />
         </label>

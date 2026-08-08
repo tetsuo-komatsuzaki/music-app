@@ -408,7 +408,7 @@ function FeedbackCard() {
         <div style={{ fontSize: 12.5, fontWeight: 800, color: "#2e8b57" }}>届きました！ありがとうございます🎻</div>
       ) : (
         <>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3}
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} maxLength={2000}
             placeholder="例: 演奏履歴の点数が実際より低い気がする / こんな機能がほしい"
             style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 11px", fontSize: 13, resize: "vertical" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
