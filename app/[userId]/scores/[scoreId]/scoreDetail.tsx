@@ -418,7 +418,7 @@ function PerformanceHistory({
       {loading ? (
         <PerformanceSkeleton count={Math.min(performanceCount, 5)} />
       ) : performances.length === 0 ? (
-        <div style={{ fontSize: 13, color: "#999" }}>まだ演奏がありません</div>
+        <div style={{ fontSize: 13, color: "#999" }}>まだ演奏がないよ。録音してみよう！</div>
       ) : (
         <>
           {pageItems.map((p) => {

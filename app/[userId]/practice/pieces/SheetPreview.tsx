@@ -148,7 +148,7 @@ export default function SheetPreview({ scoreId, kind = "score" }: { scoreId: str
         style={{ cursor: canFullscreen ? "zoom-in" : "default" }}
       >
         {status === "loading" && <div className={styles.previewNote}>読み込み中…</div>}
-        {status === "empty" && <div className={styles.previewNote}>譜面プレビューは準備中です</div>}
+        {status === "empty" && <div className={styles.previewNote}>楽譜のプレビューを準備中だよ</div>}
         <div ref={boxRef} className={styles.osmdBox} />
         {canFullscreen && (
           <span className={styles.expandHint}>

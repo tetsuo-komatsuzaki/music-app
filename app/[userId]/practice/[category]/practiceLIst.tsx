@@ -401,7 +401,7 @@ function StarView({
   if (tabs.length === 0) {
     return (
       <p className={styles.cardContextEmpty}>
-        公開されている教材はまだありません。
+        この教材はまだ準備中だよ。もう少し待っててね
       </p>
     )
   }
@@ -429,7 +429,7 @@ function StarView({
       </div>
 
       {filtered.length === 0 ? (
-        <p className={styles.cardContextEmpty}>この難易度の教材はありません。</p>
+        <p className={styles.cardContextEmpty}>この難しさの教材はまだないよ</p>
       ) : isFamilyCategory(category) ? (
         // 音階/アルペジオ: 族カード + 調シート (オクターブ見出しは廃止し族が兼ねる)
         <FamilyView items={filtered} allItems={items} baseStar={baseStar} userId={userId} category={category} />
