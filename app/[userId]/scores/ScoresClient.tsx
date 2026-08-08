@@ -135,7 +135,7 @@ export default function ScoresClient({
 
         <div className={styles.subHeaderRow}>
           <h2 className={styles.pageSubTitle}>
-            あなたの登録済み楽曲
+            あなたの曲
           </h2>
 
           <button
@@ -143,14 +143,14 @@ export default function ScoresClient({
             onClick={() => setIsOpen(true)}
             data-onboarding="scores.uploadButton"
           >
-            ＋ 新規楽曲を登録
+            ＋ 曲を追加
           </button>
         </div>
 
         {/* ===== EMPTY STATE ===== */}
         {scores.length === 0 && (
           <div className={styles.emptyState}>
-            🎻 まだ楽曲が登録されていません
+            🎻 弾きたい曲を、ここに集めよう
           </div>
         )}
 
@@ -217,7 +217,7 @@ export default function ScoresClient({
                   )}
 
                   <p className={styles.cardComposer}>
-                    作曲者:{score.composer ?? "未登録"}
+                    作曲者:{score.composer ?? "不明"}
                   </p>
 
                   <div className={styles.cardBottomRow}>
@@ -250,7 +250,7 @@ export default function ScoresClient({
                         type="button"
                         onClick={() => handleStartRename(score)}
                       >
-                        楽曲名を変更
+                        曲名を変更
                       </button>
                       <button
                         type="button"

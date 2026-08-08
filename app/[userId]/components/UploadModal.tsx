@@ -87,7 +87,7 @@ export default function UploadModal({
         onClose()
         router.refresh()
       } else {
-        setError(result.error || "登録に失敗しました")
+        setError(result.error || "うまく追加できなかったよ")
       }
     })
   }
@@ -110,7 +110,7 @@ export default function UploadModal({
           ✕
         </button>
 
-        <h2 className={styles.modalTitle}>♪ 新規楽曲を登録</h2>
+        <h2 className={styles.modalTitle}>♪ 曲を追加</h2>
 
         <form onSubmit={handleSubmit} className={styles.uploadForm}>
           {/* ===== 基本情報 ===== */}
@@ -241,7 +241,7 @@ export default function UploadModal({
                   flexShrink: 0,
                 }}
               />
-              スコアを登録中… 完了まで画面を閉じずにお待ちください
+              曲を追加しているよ… 画面を閉じずに待っててね
               <style>{`@keyframes uploadModalSpin { to { transform: rotate(360deg); } }`}</style>
             </div>
           )}
@@ -262,7 +262,7 @@ export default function UploadModal({
               disabled={isPending || !selectedFile}
               className={styles.primaryBtn}
             >
-              {isPending ? "登録中…" : "登録"}
+              {isPending ? "追加中…" : "追加する"}
             </button>
           </div>
         </form>
