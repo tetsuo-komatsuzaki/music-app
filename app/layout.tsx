@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Arcoda - バイオリン練習を見える化",
+    default: "Arcoda｜きみの音を、きみの曲に。",
     template: "%s | Arcoda",
   },
   description:
