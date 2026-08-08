@@ -5,6 +5,7 @@ import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { revalidatePath } from "next/cache"
 import { isValidCuid } from "@/app/_libs/validators"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
+import { logError } from "@/app/_libs/logError"
 
 /**
  * 録音アップロード完了通知 + 解析起動 (G-1 + Path B、v3.3 spec Commit 3+4)
@@ -90,7 +91,7 @@ export async function uploadRecord(params: {
       recordingBpm: validBpm,
     })
   } catch (e) {
-    console.error("[uploadRecord] invokeAnalysis failed:", e)
+    logError("analysis.invoke", e, { performanceId: performance.id, scoreId: performance.scoreId })
     await prisma.performance.update({
       where: { id: performance.id },
       data: {

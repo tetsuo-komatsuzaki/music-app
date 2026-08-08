@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server"
 import type Stripe from "stripe"
 import { prisma } from "@/app/_libs/prisma"
 import { getStripe, subscriptionToUserFields } from "@/app/_libs/stripe"
+import { logError } from "@/app/_libs/logError"
 
 export async function POST(request: NextRequest) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
     const payload = await request.text()
     event = getStripe().webhooks.constructEvent(payload, signature, secret)
   } catch (e) {
-    console.error("[stripe/webhook] signature verification failed:", e)
+    logError("stripe.webhook.signature", e)
     return NextResponse.json({ error: "invalid signature" }, { status: 400 })
   }
 
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ received: true })
   } catch (e) {
-    console.error(`[stripe/webhook] handling failed (${event.type}):`, e)
+    logError("stripe.webhook.handler", e, { eventType: event.type })
     return NextResponse.json({ error: "handler failed" }, { status: 500 }) // 500 → Stripe が再送
   }
 }
@@ -73,5 +74,5 @@ async function applySubscription(sub: Stripe.Subscription, dbUserIdHint: string 
     })
     return
   }
-  console.error(`[stripe/webhook] no user for customer ${customerId} (sub ${sub.id})`)
+  logError("stripe.webhook.orphan", new Error("no user for customer"), { customerId, subId: sub.id })
 }

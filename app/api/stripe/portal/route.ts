@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
 import { getStripe } from "@/app/_libs/stripe"
+import { logError } from "@/app/_libs/logError"
 
 export async function POST(request: NextRequest) {
   const auth = await requireAuthApi()
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
     })
     return NextResponse.json({ url: session.url })
   } catch (e) {
-    console.error("[stripe/portal] failed:", e)
+    logError("stripe.portal", e)
     return NextResponse.json({ error: "管理ページの作成に失敗しました" }, { status: 500 })
   }
 }

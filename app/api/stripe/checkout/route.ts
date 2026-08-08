@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
 import { getStripe, isBillingConfigured, isTrialEligible } from "@/app/_libs/stripe"
+import { logError } from "@/app/_libs/logError"
 
 export async function POST(request: NextRequest) {
   const auth = await requireAuthApi()
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
     })
     return NextResponse.json({ url: session.url })
   } catch (e) {
-    console.error("[stripe/checkout] failed:", e)
+    logError("stripe.checkout", e, { dbUserId: dbUser.id })
     return NextResponse.json({ error: "決済ページの作成に失敗しました" }, { status: 500 })
   }
 }

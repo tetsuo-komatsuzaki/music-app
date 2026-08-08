@@ -8,12 +8,25 @@ import { prisma } from "@/app/_libs/prisma"
 import { isMoodTagId } from "@/app/_libs/moodTags"
 import { requireAuthAction } from "@/app/_libs/requireAuth"
 import { notifyStudent } from "@/app/_libs/teacherEmailNotify"
+import { evaluateRateLimit, rateLimitMessage, MESSAGE_LIMIT, type RateLimitResult } from "@/app/_libs/rateLimit"
 
 // 紛らわしい文字(0/O/1/I)を除いた6桁コード
 function genInviteCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
   const b = randomBytes(6)
   return Array.from(b, (x) => chars[x % chars.length]).join("")
+}
+
+// メッセージ連投(spam)の安全弁 (2026-08-08 P0-2)。送信者本人の直近メッセージ時刻で判定。
+async function checkMessageRate(dbUserId: string, asTeacher: boolean): Promise<RateLimitResult> {
+  const since = new Date(Date.now() - MESSAGE_LIMIT.windowMs)
+  const rows = await prisma.message.findMany({
+    where: asTeacher
+      ? { teacherId: dbUserId, fromTeacher: true, createdAt: { gte: since } }
+      : { studentId: dbUserId, fromTeacher: false, createdAt: { gte: since } },
+    select: { createdAt: true },
+  })
+  return evaluateRateLimit(rows.map((r) => r.createdAt.getTime()), Date.now(), MESSAGE_LIMIT)
 }
 
 /** 先生: 自分の招待コードを取得(無ければ発行)。 */
@@ -202,6 +215,8 @@ export async function sendMessage(body: string): Promise<{ ok: true } | { ok: fa
   const text = (body || "").trim()
   if (!text) return { ok: false, error: "メッセージを入力してください" }
   if (text.length > 1000) return { ok: false, error: "長すぎます（1000文字まで）" }
+  const rl = await checkMessageRate(auth.user.dbUser.id, false)
+  if (!rl.ok) return { ok: false, error: rateLimitMessage(rl) }
   try {
     const link = await prisma.teacherStudent.findFirst({
       where: { studentId: auth.user.dbUser.id },
@@ -229,6 +244,8 @@ export async function sendMessageToStudent(
   const text = (body || "").trim()
   if (!text) return { ok: false, error: "メッセージを入力してください" }
   if (text.length > 1000) return { ok: false, error: "長すぎます（1000文字まで）" }
+  const rl = await checkMessageRate(auth.user.dbUser.id, true)
+  if (!rl.ok) return { ok: false, error: rateLimitMessage(rl) }
   try {
     const link = await prisma.teacherStudent.findUnique({
       where: { teacherId_studentId: { teacherId: auth.user.dbUser.id, studentId } },
@@ -260,6 +277,8 @@ export async function sendCelebration(
   const text = (body || "").trim()
   if (!text) return { ok: false, error: "お祝いメッセージを入力してください" }
   if (text.length > 500) return { ok: false, error: "長すぎます（500文字まで）" }
+  const rl = await checkMessageRate(auth.user.dbUser.id, true)
+  if (!rl.ok) return { ok: false, error: rateLimitMessage(rl) }
   try {
     const link = await prisma.teacherStudent.findUnique({
       where: { teacherId_studentId: { teacherId: auth.user.dbUser.id, studentId } },

@@ -4,6 +4,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { requireAuthAction } from "@/app/_libs/requireAuth"
 import { isValidCuid } from "@/app/_libs/validators"
+import { evaluateRateLimit, rateLimitMessage, RECORDING_LIMIT } from "@/app/_libs/rateLimit"
 
 const ALLOWED_MIME = ["audio/webm", "audio/ogg", "audio/mp4"] as const
 type AllowedMime = typeof ALLOWED_MIME[number]
@@ -52,6 +53,19 @@ export async function getSignedUploadUrl(
   if (!auth.ok) return { ok: false, error: auth.error }
   const dbUserId       = auth.user.dbUser.id
   const supabaseUserId = auth.user.supabaseUser.id
+
+  // === 1.5 レート制限 (2026-08-08 P0-2: Cloud Run 解析コストの暴走/濫用の安全弁) ===
+  // 直近1時間の録音時刻から瞬間的な濫用のみを弾く (実利用は無傷)。
+  {
+    const since = new Date(Date.now() - RECORDING_LIMIT.windowMs)
+    const [perf, prac] = await Promise.all([
+      prisma.performance.findMany({ where: { userId: dbUserId, createdAt: { gte: since } }, select: { createdAt: true } }),
+      prisma.practicePerformance.findMany({ where: { userId: dbUserId, uploadedAt: { gte: since } }, select: { uploadedAt: true } }),
+    ])
+    const ts = [...perf.map((p) => p.createdAt.getTime()), ...prac.map((p) => p.uploadedAt.getTime())]
+    const rl = evaluateRateLimit(ts, Date.now(), RECORDING_LIMIT)
+    if (!rl.ok) return { ok: false, error: rateLimitMessage(rl) }
+  }
 
   // === 2. mimeType allowlist (codec suffix を剥がして正規化) ===
   // 例: "audio/webm;codecs=opus" → "audio/webm"
