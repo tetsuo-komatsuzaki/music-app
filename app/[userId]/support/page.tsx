@@ -25,7 +25,7 @@ export default async function SupportPage({
       href: `/${authUserId}/support/terms`,
       icon: "📜",
       title: "利用規約",
-      desc: "サービス利用にあたっての規約",
+      desc: "アプリを使うときのきまり",
     },
     {
       href: `/${authUserId}/support/privacy`,
@@ -36,14 +36,14 @@ export default async function SupportPage({
     {
       href: `/${authUserId}/support/feedback`,
       icon: "💬",
-      title: "フィードバックを送る",
-      desc: "サービス改善へのご意見",
+      title: "アルコに意見を送る",
+      desc: "気になったこと、教えてね",
     },
     {
       href: `/${authUserId}/support/contact`,
       icon: "📧",
       title: "お問い合わせ",
-      desc: "サポートチームへのご連絡",
+      desc: "困ったときは、ここから",
     },
   ]
 

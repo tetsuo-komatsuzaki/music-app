@@ -53,10 +53,9 @@ export default function FeedbackClient({
 
   return (
     <div className={styles.page}>
-      <h1 className={styles.title}>フィードバックを送る</h1>
+      <h1 className={styles.title}>アルコに意見を送る</h1>
       <p className={styles.intro}>
-        サービス改善のため、ご意見・ご要望をお聞かせください。
-        いただいた内容は今後の機能改善の参考にさせていただきます。
+        気になったこと、あったら教えてね。きみの声でアルコはもっと良くなる。
       </p>
 
       <form className={styles.form} onSubmit={handleSubmit}>
@@ -109,7 +108,7 @@ export default function FeedbackClient({
             className={styles.textarea}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="サービスについてのご意見をお聞かせください"
+            placeholder="例: 採点がちょっと厳しい気がする / こんな機能がほしい"
           />
           <div className={`${styles.charCount} ${messageOver ? styles.charCountOver : ""}`}>
             {message.length} / {MAX_MESSAGE_LENGTH}
