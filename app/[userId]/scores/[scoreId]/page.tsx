@@ -41,12 +41,12 @@ export default async function Page({
   ])
   console.log(`[PERF] scores/detail step1_dbUser+score: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
-  if (!dbUser) return <div>ユーザーが見つかりません</div>
-  if (!score) return <div>スコアが見つかりません</div>
+  if (!dbUser) return <div>きみの情報が見つからなかったよ</div>
+  if (!score) return <div>この曲は見つからなかったよ</div>
 
   // アクセス制御
   if (score.createdById !== dbUser.id && !score.isShared) {
-    return <div>このスコアへのアクセス権がありません</div>
+    return <div>この曲はいま見られないよ</div>
   }
 
   // パート分け (2026-07-26): パートは曲(グループ)単位に保存されている。
@@ -72,7 +72,7 @@ export default async function Page({
         {isError ? (
           <>
             <p style={{ color: "#c00", marginTop: "1rem" }}>
-              解析に失敗しました
+              楽譜の準備がうまくいかなかったよ
             </p>
             {score.errorMessage && (
               <pre
@@ -92,12 +92,9 @@ export default async function Page({
           </>
         ) : (
           <>
-            <p style={{ marginTop: "1rem" }}>スコア準備中...</p>
-            <p style={{ marginTop: "0.5rem", fontSize: "0.875rem", color: "#666" }}>
-              解析: {score.analysisStatus} / 生成: {score.buildStatus}
-            </p>
+            <p style={{ marginTop: "1rem" }}>アルコが、楽譜を準備しているよ</p>
             <p style={{ marginTop: "0.5rem", fontSize: "0.75rem", color: "#999" }}>
-              3 秒ごとに自動更新します
+              自動で最新にするから、そのまま待っててね
             </p>
           </>
         )}

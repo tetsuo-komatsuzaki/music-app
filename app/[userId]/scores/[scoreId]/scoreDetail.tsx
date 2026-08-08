@@ -432,10 +432,10 @@ function PerformanceHistory({
               score != null
                 ? `${score}点`
                 : p.analysisStatus === "error"
-                  ? "解析失敗"
+                  ? "採点できなかったよ"
                   : p.analysisStatus === "done"
                     ? "評価あり"
-                    : "解析中..."
+                    : "採点中…"
             const showEvalBadge = p.comparisonResult || p.pitchAccuracy != null
 
             return (
@@ -905,7 +905,7 @@ function ScoreViewer({
     return (
       <div className={styles.card}>
         <h3>楽譜データ</h3>
-        <div className={styles.scoreMock}><div>解析データなし</div></div>
+        <div className={styles.scoreMock}><div>まだ採点してないよ</div></div>
       </div>
     )
   }
@@ -2857,7 +2857,7 @@ function ScoreDetailInner({
                       {sc != null ? (
                         <span style={{ color: rankLabels[getScoreRank(sc)].color }}>{sc}<small>点</small></span>
                       ) : (
-                        <span style={{ fontSize: 12, color: "#999" }}>解析中</span>
+                        <span style={{ fontSize: 12, color: "#999" }}>採点中…</span>
                       )}
                     </span>
                   )

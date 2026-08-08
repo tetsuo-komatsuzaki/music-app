@@ -29,7 +29,7 @@ export default function CelebrationBanner({ name, onOpen }: { name: string; onOp
       </span>
       <span style={{ minWidth: 0, flex: 1 }}>
         <span style={{ display: "block", fontSize: 12.5, fontWeight: 800, color: "#2b3742" }}>
-          {truncateBannerName(name)}の分析おわったよ！
+          {truncateBannerName(name)}の採点、できあがったよ！
         </span>
         <span style={{ display: "block", fontSize: 11, color: "#9aa6b3", marginTop: 1 }}>
           ここから確認してね

@@ -58,11 +58,11 @@ export default async function PracticeDetailPage({
   })
   console.log(`[PERF] practice/item step2_item: ${(performance.now() - perfStep2).toFixed(0)}ms`)
 
-  if (!item) return <div>練習メニューが見つかりません</div>
+  if (!item) return <div>この教材は見つからなかったよ</div>
 
   // アクセス制御: 他ユーザーの個人アイテムは閲覧不可
   if (item.ownerUserId && item.ownerUserId !== dbUserId) {
-    return <div>このアイテムへのアクセス権がありません</div>
+    return <div>この教材はいま見られないよ</div>
   }
 
   // 解析・ビルド未完了なら準備中 / エラー画面 (3 秒ごと自動更新)
@@ -76,7 +76,7 @@ export default async function PracticeDetailPage({
         {isError ? (
           <>
             <p style={{ color: "#c00", marginTop: "1rem" }}>
-              解析に失敗しました
+              楽譜の準備がうまくいかなかったよ
             </p>
             {item.errorMessage && (
               <pre
@@ -96,12 +96,9 @@ export default async function PracticeDetailPage({
           </>
         ) : (
           <>
-            <p style={{ marginTop: "1rem" }}>スコア準備中...</p>
-            <p style={{ marginTop: "0.5rem", fontSize: "0.875rem", color: "#666" }}>
-              解析: {item.analysisStatus} / 生成: {item.buildStatus}
-            </p>
+            <p style={{ marginTop: "1rem" }}>アルコが、楽譜を準備しているよ</p>
             <p style={{ marginTop: "0.5rem", fontSize: "0.75rem", color: "#999" }}>
-              3 秒ごとに自動更新します
+              自動で最新にするから、そのまま待っててね
             </p>
           </>
         )}
