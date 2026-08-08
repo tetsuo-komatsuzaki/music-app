@@ -84,7 +84,7 @@ export default function GoalCard() {
               </div>
             </div>
           ) : (
-            <div style={{ fontSize: 12.5, color: "#8a9099" }}>目標が未設定です。目標を決めると「旅の地図」や先生への共有に使われます。</div>
+            <div style={{ fontSize: 12.5, color: "#8a9099" }}>目標が未設定です。目標を決めると、ホームのおすすめや先生への共有に使われます。</div>
           )}
           <button type="button" onClick={openEdit}
             style={{ marginTop: 10, fontSize: 12, fontWeight: 800, color: "#2b3742", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 9, padding: "8px 14px", cursor: "pointer" }}>

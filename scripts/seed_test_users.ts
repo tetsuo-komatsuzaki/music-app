@@ -75,6 +75,7 @@ async function wipeUserData(userId: string) {
     prisma.message.deleteMany({ where: { OR: [{ studentId: userId }, { teacherId: userId }] } }),
     prisma.teacherObservation.deleteMany({ where: { OR: [{ studentId: userId }, { teacherId: userId }] } }),
     prisma.userExpressionClear.deleteMany({ where: { OR: [{ userId }, { teacherId: userId }] } }),
+    prisma.teacherFeedback.deleteMany({ where: { OR: [{ studentId: userId }, { teacherId: userId }] } }),
     prisma.assignment.deleteMany({ where: { OR: [{ studentId: userId }, { teacherId: userId }] } }),
     prisma.performance.deleteMany({ where: { userId } }),
     prisma.practicePerformance.deleteMany({ where: { userId } }),
@@ -190,8 +191,8 @@ async function create() {
   await prisma.listenRequest.create({
     data: { studentId: sid, teacherId: tid, performanceId: listenPerf!.id, scoreId: listenPerf!.scoreId, status: "pending" },
   })
-  // 表現クリア3語 (★は曲のsnapshot)
-  for (const [i, mood] of ["dolce", "cantabile", "energico"].entries()) {
+  // 表現クリア3語 (★は曲のsnapshot)。ID は moodTags.ts の正 (mood_ prefix 必須)
+  for (const [i, mood] of ["mood_dolce", "mood_cantabile", "mood_energico"].entries()) {
     const sc = scores[i % scores.length]
     await prisma.userExpressionClear.upsert({
       where: { userId_moodTagId_scoreId: { userId: sid, moodTagId: mood, scoreId: sc.id } },
@@ -201,7 +202,7 @@ async function create() {
   // 宿題4状態: 未着手(期限先) / 提出済 / 合格(提出+高得点) / 期限切れ
   await prisma.assignment.createMany({
     data: [
-      { teacherId: tid, studentId: sid, scoreId: scoreIds[0], reps: 3, targetTempo: 80, comment: "seed: 未着手", dueDate: new Date(Date.now() + 7 * DAY), goalType: "score", targetScore: 80, moodTagId: "dolce" },
+      { teacherId: tid, studentId: sid, scoreId: scoreIds[0], reps: 3, targetTempo: 80, comment: "seed: 未着手", dueDate: new Date(Date.now() + 7 * DAY), goalType: "score", targetScore: 80, moodTagId: "mood_dolce" },
       { teacherId: tid, studentId: sid, scoreId: scoreIds[1], comment: "seed: 提出済", dueDate: new Date(Date.now() + 3 * DAY), submittedAt: new Date(Date.now() - 1 * DAY), submittedPerformanceId: listenPerf!.id, submittedScore: 72 },
       { teacherId: tid, studentId: sid, scoreId: scoreIds[2], comment: "seed: 合格", goalType: "score", targetScore: 70, submittedAt: new Date(Date.now() - 2 * DAY), submittedPerformanceId: listenPerf!.id, submittedScore: 91, doneAt: new Date(Date.now() - 2 * DAY) },
       { teacherId: tid, studentId: sid, scoreId: scoreIds[0], comment: "seed: 期限切れ", dueDate: new Date(Date.now() - 3 * DAY) },
