@@ -116,16 +116,20 @@ export async function createAssignment(
       : null
   const dueDate = input.dueDate ? new Date(input.dueDate) : null
 
+  // 数値・文字数の防御的クランプ (2026-08-08 Wave9)。UI外/直接呼び出しでも異常値を弾く。
+  const clampInt = (v: number | null | undefined, lo: number, hi: number): number | null =>
+    v == null || !Number.isFinite(v) ? null : Math.max(lo, Math.min(hi, Math.round(v)))
+
   await prisma.assignment.create({
     data: {
       teacherId: auth.user.dbUser.id,
       studentId: input.studentId,
       scoreId: input.scoreId ?? null,
       practiceItemId: input.practiceItemId ?? null,
-      targetMeasures: input.targetMeasures?.trim() || null,
-      reps: input.reps ?? null,
-      targetTempo: input.targetTempo ?? null,
-      comment: input.comment?.trim() || null,
+      targetMeasures: input.targetMeasures?.trim().slice(0, 50) || null,
+      reps: clampInt(input.reps, 1, 999),
+      targetTempo: clampInt(input.targetTempo, 20, 400),
+      comment: input.comment?.trim().slice(0, 500) || null,
       dueDate: dueDate && !isNaN(dueDate.getTime()) ? dueDate : null,
       goalType,
       targetScore,

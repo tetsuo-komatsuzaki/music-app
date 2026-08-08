@@ -3,14 +3,11 @@
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthAction } from "@/app/_libs/requireAuth"
 import { isValidCuid } from "@/app/_libs/validators"
+import { sanitizeAnnotationData, type AnnotationData } from "@/app/_libs/annotationSanitize"
 
 // 譜面注釈 (Phase 1, 2026-07-19)。音符アンカーのハイライト/テキスト/注意メモ。
-// data 形状: { highlight: [...], warnings: [...], notation: [...] }
-export type AnnotationData = {
-  highlight?: Array<{ fromNote: number; toNote: number; color?: string }>
-  warnings?: Array<{ noteIndex: number; dy?: number; kind: string; text?: string }>
-  notation?: Array<{ noteIndex: number; kind: string; value?: string }>
-}
+// data 形状: { highlight: [...], warnings: [...], notation: [...] }。型/サニタイズは annotationSanitize に集約。
+export type { AnnotationData }
 
 type Target = { scoreId?: string; practiceItemId?: string }
 
@@ -45,7 +42,7 @@ export async function saveScoreAnnotation(
   if (!auth.ok) return { ok: false, error: auth.error }
   if (!validTarget(params)) return { ok: false, error: "対象が不正です" }
   const userId = auth.user.dbUser.id
-  const data = params.data ?? {}
+  const data = sanitizeAnnotationData(params.data ?? {})
 
   try {
     if (params.practiceItemId) {
