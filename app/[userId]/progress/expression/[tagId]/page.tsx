@@ -8,7 +8,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { matchSongsForExpr } from "@/app/_libs/exprSongMatch.server"
 import { EXPR_AXES } from "@/app/_libs/exprSongFeatures"
 
-export const metadata = { title: "表現のくわしい分析" }
+export const metadata = { title: "表現マップ" }
 
 const SUB = "#8a9099"
 const ACC = "#3555d4"

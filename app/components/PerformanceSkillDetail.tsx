@@ -108,7 +108,7 @@ export default function PerformanceSkillDetail({
       <div className={styles.container}>
         {menuArea}
         <div className={`${styles.statusBox} ${styles.statusBoxError}`}>
-          弱点診断の取得に失敗しました ({error})
+          いまは見つけられなかったよ
         </div>
       </div>
     )

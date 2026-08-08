@@ -76,7 +76,7 @@ export function DiagnosisBody({
   if (data.verdict === "no_specific") {
     return (
       <div className={styles.statusBox}>
-        特定ののびしろポイントは見つかりませんでした（ミスは散発的です）
+        とくに苦手はなさそう。バランスよく弾けているよ
       </div>
     )
   }
@@ -229,7 +229,7 @@ export function CumulativeWeaknessPanel({
     return <>{emptyFallback}</>
   }
   if (slots === null) {
-    return <div className={styles.statusBox}>のびしろポイントを分析中…</div>
+    return <div className={styles.statusBox}>アルコがのびしろを探している…</div>
   }
   return (
     <>
@@ -286,10 +286,10 @@ export default function WeaknessDiagnosisCard({ performanceId, kind, userId, hid
   }, [url])
 
   if (error) {
-    return <div className={styles.statusBox}>のびしろポイントの取得に失敗しました（{error}）</div>
+    return <div className={styles.statusBox}>いまは見つけられなかったよ</div>
   }
   if (!data) {
-    return <div className={styles.statusBox}>のびしろポイントを分析中…</div>
+    return <div className={styles.statusBox}>アルコがのびしろを探している…</div>
   }
   return <DiagnosisBody data={data} userId={userId} hideHeading={hideHeading} hideMaterials={hideMaterials} fromScoreId={fromScoreId} />
 }

@@ -6,7 +6,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { buildSkillDetail } from "@/app/_libs/growthKarte"
 import SkillDetailClient from "./SkillDetailClient"
 
-export const metadata = { title: "技術の分析" }
+export const metadata = { title: "技術マップ" }
 
 export default async function SkillDetailPage({
   params,

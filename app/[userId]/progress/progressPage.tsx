@@ -416,7 +416,7 @@ function DiscoveryChapter({ userId, data, readOnly }: { userId: string; data: Ka
                     })}
                   </div>
                 )}
-                <div style={{ fontSize: 9, color: "#c0b598", marginTop: 5 }}>※ この数字は録音の音程・リズムから算出しています</div>
+                <div style={{ fontSize: 9, color: "#c0b598", marginTop: 5 }}>※ アルコが、録音の音程・リズムから見ているよ</div>
               </div>
             </details>
           </div>

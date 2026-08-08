@@ -102,7 +102,7 @@ export default async function NumbersRoomPage({
             <div style={card}>
               <div style={ttl}>⏱ テンポ帯べつ <span style={{ fontSize: 9.5, color: SUB, fontWeight: 800 }}>曲のテンポで分類</span></div>
               {d.tempoBands.map((t) => <Row key={t.label} label={t.label} sub={`${t.count}回`} pct={t.pct} />)}
-              <div style={{ fontSize: 9.5, color: "#b3bcc6", marginTop: 4 }}>※ 録音時のテンポでの分析は、これからの録音がたまると精密になるよ</div>
+              <div style={{ fontSize: 9.5, color: "#b3bcc6", marginTop: 4 }}>※ 録音がたまるほど、アルコの見方がくわしくなるよ</div>
             </div>
           )}
 
