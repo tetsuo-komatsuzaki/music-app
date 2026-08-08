@@ -55,10 +55,10 @@ function getScoreRank(score: number): ScoreRank {
 }
 
 const rankLabels: Record<ScoreRank, { label: string; color: string; bg: string }> = {
-  excellent:     { label: "Excellent",      color: "#085041", bg: "#E1F5EE" },
-  good:          { label: "Good",           color: "#0C447C", bg: "#E6F1FB" },
-  ok:            { label: "OK",             color: "#633806", bg: "#FAEEDA" },
-  needsPractice: { label: "Needs Practice", color: "#791F1F", bg: "#FCEBEB" },
+  excellent:     { label: "ばっちり",   color: "#085041", bg: "#E1F5EE" },
+  good:          { label: "いい調子",   color: "#0C447C", bg: "#E6F1FB" },
+  ok:            { label: "あと少し",   color: "#633806", bg: "#FAEEDA" },
+  needsPractice: { label: "練習しよう", color: "#791F1F", bg: "#FCEBEB" },
 }
 
 type Feedback = {

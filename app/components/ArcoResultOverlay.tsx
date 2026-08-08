@@ -160,7 +160,7 @@ export default function ArcoResultOverlay({
         <div className={styles.sec}>
           <div className={styles.secH}>🏆 マスターまで</div>
           {!ach ? (
-            <div className={styles.muted}>集計中…</div>
+            <div className={styles.muted}>集計してるよ…</div>
           ) : ach.mastered ? (
             <div style={{ textAlign: "center", fontSize: 13, fontWeight: 800, color: "#2e8b57", padding: "6px 0" }}>
               🏆 この曲はマスター済み！{avg != null ? ` いまの平均 ${avg}点` : ""}
@@ -219,12 +219,12 @@ export default function ArcoResultOverlay({
         <div className={styles.sec}>
           <div className={styles.secH}>おすすめ練習</div>
           {diag == null ? (
-            <div className={styles.muted}>診断中…</div>
+            <div className={styles.muted}>見ているよ…</div>
           ) : recSlots.length === 0 ? (
             <div className={styles.muted}>
               {diag.verdict === "perfect" ? "完璧！大きな弱点はなし🎉"
                 : diag.verdict === "no_specific" ? "大きな弱点はなし。この調子！"
-                : diag.verdict === "unavailable" ? "この演奏は診断対象外でした"
+                : diag.verdict === "unavailable" ? "今回は見きれなかったよ"
                 : "今回のおすすめ教材は準備中です"}
             </div>
           ) : (
