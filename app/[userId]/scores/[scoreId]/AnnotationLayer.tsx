@@ -67,8 +67,18 @@ const STAMP_GROUPS: { group: string; items: StampDef[] }[] = [
   )) },
 ]
 
+// value を HTML に直挿しする前のエスケープ (防御的多層防御・2026-08-08 テスト調査)。
+// 現状 value は固定リスト (pp/p/../ff, 0-4, I-IV) のみで注入経路は無いが、
+// dangerouslySetInnerHTML に生値を渡す設計なので、将来の自由入力化や不正保存値に備える。
+function escHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c] as string
+  ))
+}
+
 // スタンプの描画HTML (SVG=クリーンな記号 / span=テキスト記号)。ダーク色・背景なしで記譜に馴染ませる。
 function stampInnerHtml(kind: string, value?: string): string {
+  const v = escHtml(value ?? "")
   const svg = (inner: string) =>
     `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`
   switch (kind) {
@@ -86,9 +96,9 @@ function stampInnerHtml(kind: string, value?: string): string {
     case "stopped": return svg('<path d="M12 6 V18 M6 12 H18"/>')
     case "open-string": return svg('<circle cx="12" cy="12" r="6" stroke-width="1.8"/>')
     case "harmonic": return svg('<path d="M12 6 L18 12 L12 18 L6 12 Z" stroke-width="1.8"/>')
-    case "dynamic": return `<span class="txt" style="font-style:italic;font-weight:900;font-family:Georgia,serif">${value ?? ""}</span>`
-    case "fingering": return `<span class="txt" style="font-weight:800">${value ?? ""}</span>`
-    case "string": return `<span class="txt" style="font-weight:800;font-variant:small-caps">${value ?? ""}</span>`
+    case "dynamic": return `<span class="txt" style="font-style:italic;font-weight:900;font-family:Georgia,serif">${v}</span>`
+    case "fingering": return `<span class="txt" style="font-weight:800">${v}</span>`
+    case "string": return `<span class="txt" style="font-weight:800;font-variant:small-caps">${v}</span>`
     default: return `<span class="txt">?</span>`
   }
 }
