@@ -15,7 +15,7 @@ export default function Header({ role }: { role?: string }) {
       {/* ===== HEADER ===== */}
       <header className={styles.header}>
         <div className={styles.headerRight}>
-          <span className={styles.appName}>Violin Practice</span>
+          <span className={styles.appName}>Arcoda</span>
           {/* 先生アカウントのみ: 先生モードへの切替 (別シェル /teacher へ) */}
           {role === "teacher" && userId && (
             <Link

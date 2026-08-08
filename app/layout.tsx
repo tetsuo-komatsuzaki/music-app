@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: "%s | Arcoda",
   },
   description:
-    "録音から音程・リズム・音色を解析し、上達を数値で可視化するバイオリン練習アプリ",
+    "いつか弾きたいあの曲へ。AIの先生アルコと、バイオリンの上達をいっしょに。",
 };
 
 export default function RootLayout({

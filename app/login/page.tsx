@@ -67,9 +67,9 @@ const supabase = createBrowserSupabaseClient()
           priority
         />
       </div>
-      <h2 className={styles.title}>バイオリン学習アプリへようこそ</h2>
+      <h2 className={styles.title}>また会えたね、アルコだよ</h2>
       <h3 className={styles.subtitle}>
-        アカウントにログインして練習を始めましょう
+        さあ、今日も音を鳴らそう
       </h3>
       <div className={styles.wrapper}>
         <form

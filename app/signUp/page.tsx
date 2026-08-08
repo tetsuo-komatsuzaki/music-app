@@ -83,12 +83,12 @@ export default function loginPage() {
           priority
         />
       </div>
-      <h2 className={styles.title}>バイオリン学習アプリへようこそ</h2>
+      <h2 className={styles.title}>はじめまして、アルコだよ</h2>
       <h3 className={styles.subtitle}>
-        バイオリン表現力向上支援サービスへようこそ
+        きみの音を、きみの曲に。
       </h3>
       <h3 className={styles.subtitle}>
-        演奏分析と可視化で、あなたの演奏を次のレベルへ
+        上達が、目に見える。だから続く。
       </h3>
       <div className={styles.heroImageWrapper}>
         <Image
