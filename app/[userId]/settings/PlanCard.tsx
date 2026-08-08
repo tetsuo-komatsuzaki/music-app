@@ -5,6 +5,7 @@
 // - 加入中: 状態表示 + 「契約を管理」(Stripe Customer Portal へ)
 // - Stripe 未構成 (env なし) の間はサーバー側で billingEnabled=false → 何も描画しない
 import { useState } from "react"
+import { Sparkles } from "lucide-react"
 
 type Props = {
   billingEnabled: boolean
@@ -60,7 +61,7 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
       {isPlus ? (
         <>
           <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "8px 0 4px" }}>
-            <span style={{ fontSize: 14, fontWeight: 900, color: "#8a5a1f" }}>✨ アルコプラス</span>
+            <span style={{ fontSize: 14, fontWeight: 900, color: "#8a5a1f", display: "inline-flex", alignItems: "center", gap: 4 }}><Sparkles size={15} /> アルコプラス</span>
             <span style={{ fontSize: 10.5, fontWeight: 800, color: "#8a5a1f", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "2px 10px" }}>
               {(planStatus && STATUS_LABEL[planStatus]) || "契約中"}
             </span>
@@ -83,7 +84,7 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
       ) : (
         <>
           <p style={{ fontSize: 12, color: "#8a9099", margin: "0 0 10px", lineHeight: 1.7 }}>
-            <b style={{ color: "#22303c" }}>✨ アルコプラス</b> — AI採点が無制限になり、全ての基礎練・学びレッスン・
+            <b style={{ color: "#22303c" }}><Sparkles size={13} style={{ verticalAlign: -1 }} /> アルコプラス</b> — AI採点が無制限になり、全ての基礎練・学びレッスン・
             おすすめ練習・部分練習・くわしい数字が使えるようになります。
             {trialEligible && <><br /><b style={{ color: "#8a5a1f" }}>はじめての方は14日間無料</b>で試せます。</>}
           </p>

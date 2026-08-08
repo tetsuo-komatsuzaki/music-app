@@ -3,6 +3,7 @@
 // 設定「🎯 目標」カード (2026-08-02)。オンボーディングで答えた目標(目標曲/時期/
 // かなえたいこと)をあとから変更できる。曲はオンボと同じ候補リストから選択。
 import { useEffect, useMemo, useState, useTransition } from "react"
+import { Target, Calendar, Sparkles } from "lucide-react"
 import { getGoalOptions, getMyGoal, saveMyGoal, type GoalSongOption, type MyGoal } from "@/app/actions/updateGoal"
 import styles from "./Settings.module.css"
 
@@ -68,7 +69,7 @@ export default function GoalCard() {
 
   return (
     <section className={styles.card}>
-      <h2 className={styles.sectionTitle}>🎯 目標</h2>
+      <h2 className={styles.sectionTitle} style={{ display: "flex", alignItems: "center", gap: 6 }}><Target size={16} /> 目標</h2>
 
       {!editing ? (
         <>
@@ -79,8 +80,8 @@ export default function GoalCard() {
                 {goal.songStar != null && <span style={{ fontSize: 11.5, fontWeight: 800, color: "#b7823a", marginLeft: 6 }}>★{goal.songStar}</span>}
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 5, fontSize: 12, color: "#8a9099" }}>
-                {goal.goalDate && <span>📅 {goal.goalDate}</span>}
-                {goal.epicWin && <span>✨ {goal.epicWin}</span>}
+                {goal.goalDate && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Calendar size={12} /> {goal.goalDate}</span>}
+                {goal.epicWin && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Sparkles size={12} /> {goal.epicWin}</span>}
               </div>
             </div>
           ) : (

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { MessageCircle } from "lucide-react"
 import { updateUserName } from "@/app/actions/updateUserName"
 import { updateUserEmail } from "@/app/actions/updateUserEmail"
 import { updateUserPassword } from "@/app/actions/updateUserPassword"
@@ -400,7 +401,7 @@ function FeedbackCard() {
   }
   return (
     <section style={{ background: "#fff", border: "1px solid #eceff3", borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
-      <h2 style={{ fontSize: 15, fontWeight: 800, margin: "0 0 4px", color: "#22303c" }}>💬 ご意見・要望</h2>
+      <h2 style={{ fontSize: 15, fontWeight: 800, margin: "0 0 4px", color: "#22303c", display: "flex", alignItems: "center", gap: 5 }}><MessageCircle size={16} /> ご意見・要望</h2>
       <p style={{ fontSize: 12, color: "#8a9099", margin: "0 0 10px", lineHeight: 1.6 }}>
         「こうだったらいいのに」「採点がおかしい気がする」— なんでも運営に届きます。アプリはみなさんの声で良くなります。
       </p>
