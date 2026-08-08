@@ -6,7 +6,7 @@
 
 | 変数 | 用途 | 本番の状況(2026-08-08確認) |
 |---|---|---|
-| `STRIPE_SECRET_KEY` | Stripe API 認証(サーバー) | ⚠️ **要再確認**（下記「発見」参照） |
+| `STRIPE_SECRET_KEY` | Stripe API 認証(サーバー) | ✅ **解決済(2026-08-08)**: 入れ直し+再デプロイで本番checkoutが200・checkout.stripe.comへ遷移確認 |
 | `STRIPE_WEBHOOK_SECRET` | webhook 署名検証 | ✅ 設定済（本番webhookが400 invalid signatureを返す=未設定なら503） |
 | `STRIPE_PRICE_MONTHLY` | 月額980円のprice ID | ✅ 値は有効（テストキーでセッション作成成功） |
 | `STRIPE_PRICE_YEARLY` | 年額9,800円のprice ID | ✅ 値は有効（同上） |
@@ -21,7 +21,10 @@ STRIPE_PRICE_YEARLY=price_1U1oYoQnMgaMHv9M7ftXhY5F
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_51U1nyt……（公開キーなので秘匿不要・Stripeダッシュボード参照）
 ```
 
-### 🔴 発見(2026-08-08): 本番の決済ページ作成が失敗する
+### ✅ 解決済(2026-08-08): 本番の決済ページ作成が失敗していた → 直った
+経緯: キー入れ直し**だけ**では直らず、**再デプロイ**して初めて反映(Vercel env変更は再デプロイ必須)。再デプロイ後、本番checkoutが200でcheckout.stripe.comへ遷移することを確認。以下は当時の記録。
+
+### (記録) 発見(2026-08-08): 本番の決済ページ作成が失敗する
 - 症状: 本番設定ページのプラン欄は表示されるが、「月額980円で始める」を押すと **「決済ページの作成に失敗しました」(500)**。
 - 切り分け: 上記テストキー + 同じ price ID ではセッション作成が**成功する**（price IDは有効）。→ 原因は**本番の `STRIPE_SECRET_KEY`**。
 - 最有力: (a) Vercelに貼った値のタイポ/欠け、(b) **本番(live)キーとテストのprice IDの食い違い**（liveキーだとテストのprice IDは "No such price" になる）。
