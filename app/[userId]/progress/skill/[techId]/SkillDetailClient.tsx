@@ -89,7 +89,7 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
       <div style={card}>
         <div style={secTtl}>👩‍🏫 先生からの指導（この技術に関わる所見）</div>
         {data.guidance.length === 0 ? (
-          <div style={{ fontSize: 12, color: SUB }}>まだこの技術に関わる所見はありません。</div>
+          <div style={{ fontSize: 12, color: SUB }}>この技術について、先生の所見はまだないよ</div>
         ) : (
           <div style={{ borderLeft: "3px solid #d7dcf6", paddingLeft: 12 }}>
             {data.guidance.map((g, i) => (
@@ -128,7 +128,7 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
                   // eslint-disable-next-line jsx-a11y/media-has-caption
                   <audio controls preload="none" src={it.audioUrl} style={{ width: "100%", height: 32 }} />
                 ) : (
-                  <div style={{ fontSize: 10.5, color: "#b3bcc6" }}>音声を読み込めませんでした</div>
+                  <div style={{ fontSize: 10.5, color: "#b3bcc6" }}>音がうまく開けなかったよ</div>
                 )}
                 {it.pct != null && (
                   <div style={{ fontSize: 11, fontWeight: 800, marginTop: 6, color: c, fontVariantNumeric: "tabular-nums" }}>{data.label}の安定度 {it.pct}%</div>

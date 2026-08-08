@@ -311,7 +311,7 @@ function PracticeTab({ studentId, working, recordings }: { studentId: string; wo
       </Card>
 
       <Card>
-        <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 8 }}>直近の録音（分析結果つき）</div>
+        <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 8 }}>直近の録音（アルコの聴きとりつき）</div>
         {recordings.length === 0 ? (
           <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>まだ録音がありません。</div>
         ) : (
@@ -873,7 +873,7 @@ function SendScoreBox({ studentId }: { studentId: string }) {
     start(async () => {
       const r = await uploadScoreForStudent(studentId, fd)
       if (r.ok) {
-        setMsg({ ok: true, text: "楽譜を渡しました！生徒のライブラリーに追加され、解析が終わると演奏できます。" })
+        setMsg({ ok: true, text: "楽譜を渡しました！生徒のライブラリーに追加され、準備ができると演奏できます。" })
         setOpen(false); setTitle(""); setComposer(""); setComment(""); setFile(null)
         router.refresh()
       } else {

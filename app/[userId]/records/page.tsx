@@ -53,7 +53,7 @@ export default async function RecordsPage({ params }: { params: Promise<{ userId
 
       {cards.length === 0 ? (
         <div style={{ fontSize: 13, color: "#9aa6b3", padding: "24px 0", textAlign: "center" }}>
-          まだ記録がありません。曲を達成すると、ここに記念カードが並びます。
+          まだ記録がないよ。曲を達成すると、ここに記念カードがならぶよ
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 12 }}>

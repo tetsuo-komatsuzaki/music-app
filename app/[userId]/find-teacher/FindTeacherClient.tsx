@@ -108,7 +108,7 @@ export default function FindTeacherClient({
 
       {filtered.length === 0 ? (
         <div style={{ ...card, textAlign: "center", color: SUB, fontSize: 13 }}>
-          {teachers.length === 0 ? "いま公開中の先生がいません。準備が整うまでお待ちください。" : "条件に合う先生がいません。"}
+          {teachers.length === 0 ? "いまは先生が見つからないみたい。もう少し待ってね" : "条件に合う先生がいないみたい"}
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 11 }}>

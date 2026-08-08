@@ -95,7 +95,7 @@ export default function PiecesList({
       <h1 className={styles.pageTitle}>練習曲</h1>
 
       {tabs.length === 0 ? (
-        <p className={styles.cardContextEmpty}>公開されている練習曲はまだありません。</p>
+        <p className={styles.cardContextEmpty}>練習曲はまだ準備中だよ。もう少し待っててね</p>
       ) : (
         <>
           <div className={styles.starTabs} data-onboarding="pieces.starTabs">
@@ -112,7 +112,7 @@ export default function PiecesList({
           </div>
 
           {filtered.length === 0 ? (
-            <p className={styles.cardContextEmpty}>この難易度の練習曲はありません。</p>
+            <p className={styles.cardContextEmpty}>この難しさの練習曲はまだないよ</p>
           ) : (
             genreGroups.map((grp, idx) => (
               <section key={grp.label || idx} className={styles.railSection}>

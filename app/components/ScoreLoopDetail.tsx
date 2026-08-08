@@ -52,7 +52,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
   }, [scoreId, refetchKey])
 
   if (error) {
-    return <div className={styles.error}>エラー: {error}</div>
+    return <div className={styles.error}>いまうまく開けなかったみたい。少し待ってね</div>
   }
   if (!achv) {
     return <div className={styles.loading}>読み込み中...</div>
@@ -90,7 +90,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
           <GuideSampleReview userId={userId} />
         ) : (
           <p className={styles.emptyHint}>
-            まだ演奏記録がありません。録音すると弱点と練習メニューが表示されます。
+            まだ録音がないよ。弾いてみると、ここに練習のヒントが出るよ
           </p>
         )}
       </section>
