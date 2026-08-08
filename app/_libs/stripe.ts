@@ -50,6 +50,8 @@ export function subscriptionToUserFields(sub: {
     plan: PLUS_STATUSES.has(sub.status) ? "plus" : null,
     planStatus: sub.status,
     planCurrentPeriodEnd: endSec != null ? new Date(endSec * 1000) : null,
+    // 解約(deleted)でも旧 sub.id を残す。これが isTrialEligible の「加入歴あり=再トライアル不可」
+    // 判定の土台になっているため、ここを null にしてはいけない (トライアル使い回し防止)。
     stripeSubscriptionId: sub.id,
   }
 }
@@ -57,6 +59,10 @@ export function subscriptionToUserFields(sub: {
 /**
  * トライアル付与の判定。純関数。
  * 一度でもサブスクを持ったことがあるユーザー (解約→再加入) には 2 回目のトライアルを与えない。
+ *
+ * ⚠️ この判定は「解約後も stripeSubscriptionId を null にしない」ことに依存している。
+ * 解約時に subscriptionToUserFields が旧 sub.id を残すため false のままになり、再加入は即課金。
+ * もし将来「解約したら綺麗に null にしよう」と変えると、トライアル使い回しが復活するので注意。
  */
 export function isTrialEligible(user: { stripeSubscriptionId: string | null }): boolean {
   return user.stripeSubscriptionId == null
