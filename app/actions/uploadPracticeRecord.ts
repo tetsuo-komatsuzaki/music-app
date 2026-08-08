@@ -5,6 +5,9 @@ import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { revalidatePath } from "next/cache"
 import { isValidCuid } from "@/app/_libs/validators"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
+import { logError } from "@/app/_libs/logError"
+import { storageAdmin } from "@/app/_libs/storageAdmin"
+import { checkAudioFile } from "@/app/_libs/audioValidation"
 
 /**
  * 練習録音アップロード完了通知 + 解析起動 (G-1 + Path B、v3.3 spec Commit 3+4)
@@ -44,6 +47,27 @@ export async function uploadPracticeRecord(params: {
   }
   if (!performance.audioPath || performance.audioPath === "") {
     return { error: "audioPath が確定していません" }
+  }
+
+  // 3.7 アップロード実体の検証 (2026-08-08 P1): magic-byte + サイズ。解析前に不正を弾く。
+  try {
+    const dl = await storageAdmin.storage.from("performances").download(performance.audioPath)
+    if (dl.error || !dl.data) {
+      return { error: "アップロードされた録音が確認できませんでした。もう一度お試しください" }
+    }
+    const check = checkAudioFile(new Uint8Array(await dl.data.arrayBuffer()))
+    if (!check.ok) {
+      await prisma.practicePerformance.update({
+        where: { id: performance.id },
+        data: { analysisStatus: "error", errorMessage: `invalid audio: ${check.reason}` },
+      })
+      logError("upload.invalidAudio", new Error(check.reason), { performanceId: performance.id, kind: "practice", detail: check.detail })
+      return { error: check.reason === "too_large"
+        ? "録音ファイルが大きすぎます。もう一度短く録音してください"
+        : "音声ファイルとして認識できませんでした。もう一度録音してください" }
+    }
+  } catch (e) {
+    logError("upload.validateFailed", e, { performanceId: performance.id, kind: "practice" })
   }
 
   // 4. invokeAnalysis 起動 (isPractice: true、storageUserId = auth.uid())

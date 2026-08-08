@@ -31,6 +31,26 @@ const nextConfig: NextConfig = {
     },
     proxyClientMaxBodySize: "50mb",
   },
+
+  // セキュリティヘッダ (2026-08-08 P1・多層防御)。
+  // 注意: 録音があるため microphone=(self) は必須 (殺すと録音が壊れる)。
+  // CSP は全面適用だと Stripe/Supabase/OSMD 等を壊すため、クリックジャッキング防御の
+  // 核 (frame-ancestors) に絞る。script-src 等の本格CSPは別途検証してから。
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "microphone=(self), camera=(), geolocation=(), interest-cohort=()" },
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'; upgrade-insecure-requests" },
+        ],
+      },
+    ]
+  },
 };
 
 export default nextConfig;

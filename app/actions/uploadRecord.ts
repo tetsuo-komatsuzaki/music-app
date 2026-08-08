@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache"
 import { isValidCuid } from "@/app/_libs/validators"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 import { logError } from "@/app/_libs/logError"
+import { storageAdmin } from "@/app/_libs/storageAdmin"
+import { checkAudioFile } from "@/app/_libs/audioValidation"
 
 /**
  * 録音アップロード完了通知 + 解析起動 (G-1 + Path B、v3.3 spec Commit 3+4)
@@ -67,6 +69,32 @@ export async function uploadRecord(params: {
       where: { id: performance.id },
       data: { rangeFromNote: rf, rangeToNote: rt, partId },
     })
+  }
+
+  // 3.7 アップロード実体の検証 (2026-08-08 P1): 解析(Cloud Run)を起動する前に、
+  // Storage の実ファイルの magic-byte とサイズを確認。音声でない/巨大なファイルは
+  // 解析コストの前に弾く (署名URL直PUTはブラウザ自己申告MIMEしか通っていないため)。
+  try {
+    const dl = await storageAdmin.storage.from("performances").download(performance.audioPath)
+    if (dl.error || !dl.data) {
+      return { error: "アップロードされた録音が確認できませんでした。もう一度お試しください" }
+    }
+    const bytes = new Uint8Array(await dl.data.arrayBuffer())
+    const check = checkAudioFile(bytes)
+    if (!check.ok) {
+      // 不正ファイルは解析せず error 化 (Cloud Run を回さない)
+      await prisma.performance.update({
+        where: { id: performance.id },
+        data: { analysisStatus: "error", errorMessage: `invalid audio: ${check.reason}` },
+      })
+      logError("upload.invalidAudio", new Error(check.reason), { performanceId: performance.id, detail: check.detail })
+      return { error: check.reason === "too_large"
+        ? "録音ファイルが大きすぎます。もう一度短く録音してください"
+        : "音声ファイルとして認識できませんでした。もう一度録音してください" }
+    }
+  } catch (e) {
+    logError("upload.validateFailed", e, { performanceId: performance.id })
+    // 検証自体の失敗(一時的なStorage障害等)では解析を止めない(従来動作を維持)
   }
 
   // 4. invokeAnalysis 起動 (storageUserId = auth.uid() を Python に渡す)
