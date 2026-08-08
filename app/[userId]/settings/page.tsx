@@ -25,7 +25,7 @@ export default async function SettingsPage({
   const dbUser = await prisma.user.findUnique({
     where: { id: dbUserId },
     select: {
-      name: true, teacherEmailOff: true, createdAt: true,
+      name: true, teacherEmailOff: true, createdAt: true, role: true,
       // ▼ 課金 Phase 2 (2026-08-07): プラン欄
       plan: true, planStatus: true, planCurrentPeriodEnd: true, stripeSubscriptionId: true,
     },
@@ -55,7 +55,9 @@ export default async function SettingsPage({
       accountDeletionEnabled={process.env.ENABLE_ACCOUNT_DELETION === "true"}
       hasTeacher={hasTeacher}
       teacherEmailOff={dbUser.teacherEmailOff}
-      billing={{
+      // 課金設計 (project_pricing_plan): アルコプラスは生徒向け。先生には生徒プランの
+      // 加入導線を出さない (先生プランは別軸・料金未定)。teacher は billing を渡さず非表示。
+      billing={dbUser.role === "teacher" ? undefined : {
         billingEnabled: isBillingConfigured(),
         isPlus,
         planStatus: dbUser.planStatus,

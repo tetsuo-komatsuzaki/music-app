@@ -67,6 +67,14 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // --- 既ログインで /login を開いたら自分のホームへ (2026-08-08 調査Wave7発見#2) ---
+  // ログイン済みなのにログインフォームが見える綻びを解消。
+  if (user && pathname === "/login") {
+    const url = request.nextUrl.clone()
+    url.pathname = `/${user.id}`
+    return NextResponse.redirect(url)
+  }
+
   // --- ユーザー専用ページ /[UUID]/* へのアクセス制御（既存挙動維持）---
   const isUserPage = pathname.match(/^\/([a-f0-9-]{36})(\/|$)/)
 
