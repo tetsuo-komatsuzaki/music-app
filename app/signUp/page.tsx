@@ -146,7 +146,7 @@ export default function loginPage() {
               name="email"
               id="email"
               value={email}
-              placeholder="メールアドレスを入力してください"
+              placeholder="メールアドレス"
               required
               onChange={(e) => setEmail(e.target.value)}
               disabled={isSubmitting}
@@ -165,7 +165,7 @@ export default function loginPage() {
               disabled={isSubmitting}
               className={styles.input}
             >
-              <option value="">プランを選択してください</option>
+              <option value="">プランを選ぶ</option>
               <option value="free">無料プラン</option>
             </select>
           </div>
@@ -178,7 +178,7 @@ export default function loginPage() {
               name="password"
               id="password"
               value={password}
-              placeholder="パスワードを入力してください"
+              placeholder="パスワード"
               required
               minLength={MIN_PASSWORD_LEN}
               aria-describedby="password-hint"

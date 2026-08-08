@@ -113,9 +113,9 @@ export default function PerformanceDeleteModal({
           この演奏を削除しますか？
         </h2>
         <p className={styles.message}>
-          削除すると元に戻せません。
+          消すと、もう戻せないよ。
           <br />
-          スコアやカードのデータも更新されます。
+          点数やカードも一緒に更新されるよ。
         </p>
         {error && (
           <div className={styles.errorBox} role="alert">

@@ -119,7 +119,7 @@ const supabase = createBrowserSupabaseClient()
               id="email"
               value={email}
               required
-              placeholder="メールアドレスを入力してください"
+              placeholder="メールアドレス"
               onChange={(e) => setEmail(e.target.value)}
               className={styles.input}
               disabled={isLoading}
