@@ -104,7 +104,7 @@ const TREE_LABELS: Record<"pitch" | "rhythm", string> = {
 function severity(rate: number): { color: string; bg: string; label: string } {
   if (rate >= 0.55) return { color: "#d64f5c", bg: "#fdecec", label: "要練習" }
   if (rate >= 0.35) return { color: "#e0872b", bg: "#fdf2e4", label: "あと少し" }
-  return { color: "#4a9d6a", bg: "#e9f6ee", label: "good" }
+  return { color: "#4a9d6a", bg: "#e9f6ee", label: "いい調子" }
 }
 
 // ─── スロット表示（fetch済みデータを渡す版。累積窓など親がデータを持つ場合用） ───

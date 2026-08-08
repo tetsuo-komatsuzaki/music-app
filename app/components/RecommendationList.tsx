@@ -31,11 +31,11 @@ export default function RecommendationList({
     return (
       <div className={styles.empty} role="status">
         <div className={styles.emptyTitle}>
-          {emptyTitle ?? "現在のおすすめは準備中です"}
+          {emptyTitle ?? "おすすめはいま準備中だよ"}
         </div>
         <div className={styles.emptyDescription}>
           {emptyDescription ??
-            "演奏を重ねるとあなたに合ったおすすめが表示されます。"}
+            "録音がたまると、きみにぴったりのおすすめが出てくるよ"}
         </div>
       </div>
     )

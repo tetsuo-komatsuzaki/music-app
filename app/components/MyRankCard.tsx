@@ -113,7 +113,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
             <span className={styles.lv}>☆{currentStar}</span>
           </div>
           <div className={styles.rcBody}>
-            <div className={styles.rcEyebrow}>My Rank Card</div>
+            <div className={styles.rcEyebrow}>ランクカード</div>
             <div className={styles.rcRank}>☆{currentStar} <small>{rankName(currentStar)}</small></div>
             <div className={styles.rcNeed}>☆{nextStar}まで あと <b>{remaining}曲</b></div>
             <div className={styles.rcPips}>

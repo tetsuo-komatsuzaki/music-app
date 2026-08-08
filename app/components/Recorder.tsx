@@ -586,7 +586,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
           setTimeout(() => {
             showToast(
               r.ringStatus!.remaining > 0
-                ? `Recordリング達成！あと${r.ringStatus!.remaining}つで今日完了`
+                ? `録音リング達成！あと${r.ringStatus!.remaining}つで今日ぶん`
                 : `今日のリング全て達成！`,
               "ring"
             )

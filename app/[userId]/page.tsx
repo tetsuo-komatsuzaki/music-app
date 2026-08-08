@@ -65,7 +65,7 @@ export default async function HomePage({ params }: PageProps) {
     where: { supabaseUserId: userId },
     select: { id: true, name: true },
   })
-  if (!dbUser) return <div>User not found</div>
+  if (!dbUser) return <div>きみの情報が見つからなかったよ</div>
   console.log(`[PERF] home step1_dbUser: ${(performance.now() - perfStart).toFixed(0)}ms`)
 
   const internalUserId = dbUser.id
@@ -403,7 +403,7 @@ export default async function HomePage({ params }: PageProps) {
       composer: s.composer ?? null,
       cover: s.coverImagePath ?? null,
     },
-    reason: `あなたのレベル（☆${currentStar}）の曲です`,
+    reason: `きみの★${currentStar}にちょうどいい曲だよ`,
     href: `/${userId}/scores/${s.id}`,
   }))
 

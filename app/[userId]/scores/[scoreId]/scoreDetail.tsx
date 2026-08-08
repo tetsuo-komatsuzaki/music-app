@@ -268,10 +268,10 @@ function saveOriginalColors(el: Element) {
 
 function NotePopoverContent({ note }: { note: ComparisonNote }) {
   if (note.evaluation_status === "not_detected") {
-    return <div style={{ fontSize: 16, fontWeight: 700 }}>検出できませんでした</div>
+    return <div style={{ fontSize: 16, fontWeight: 700 }}>この音は聞きとれなかったよ</div>
   }
   if (note.evaluation_status === "not_evaluated" || note.evaluation_status === "section_missing") {
-    return <div style={{ fontSize: 16, fontWeight: 700 }}>評価対象外</div>
+    return <div style={{ fontSize: 16, fontWeight: 700 }}>採点なし</div>
   }
   const expected = note.note_name
   const detected = note.detected_pitch_hz ? hzToNoteName(note.detected_pitch_hz) : null
@@ -324,7 +324,7 @@ function EvaluationSummaryCard({
     <div>
       {showEval && (
         <div style={{ fontSize: 11, color: "#9aa6b3", fontWeight: 600 }}>
-          評価対象 {performance.evaluatedNotes}{totalNotes != null ? ` / ${totalNotes}` : ""} ノート
+          採点した音 {performance.evaluatedNotes}{totalNotes != null ? ` / ${totalNotes}` : ""}
         </div>
       )}
       {warnings.length > 0 && (
@@ -434,7 +434,7 @@ function PerformanceHistory({
                 : p.analysisStatus === "error"
                   ? "採点できなかったよ"
                   : p.analysisStatus === "done"
-                    ? "評価あり"
+                    ? "採点ずみ"
                     : "採点中…"
             const showEvalBadge = p.comparisonResult || p.pitchAccuracy != null
 
@@ -508,7 +508,7 @@ function PerformanceHistory({
                         ) : (
                           <div className={styles.histStatusRow}>
                             <span>{statusLabel}</span>
-                            {showEvalBadge && <span className={styles.historyBadge}>評価あり</span>}
+                            {showEvalBadge && <span className={styles.historyBadge}>採点ずみ</span>}
                           </div>
                         )}
                       </>
@@ -904,7 +904,7 @@ function ScoreViewer({
   if (!buildUrl) {
     return (
       <div className={styles.card}>
-        <h3>楽譜データ</h3>
+        <h3>楽譜</h3>
         <div className={styles.scoreMock}><div>まだ採点してないよ</div></div>
       </div>
     )
@@ -912,7 +912,7 @@ function ScoreViewer({
 
   return (
     <div className={styles.card}>
-      <h3>楽譜データ</h3>
+      <h3>楽譜</h3>
       <div className={styles.scoreMock}>
         {error ? (
           <div style={{ color: "#c62828", padding: "20px 0" }}>{error}</div>
@@ -968,7 +968,7 @@ function ScoreLegend() {
       <span className={styles.legendItem}><span className={styles.legendDot} style={{ background: COLOR_GREEN }} /> 正確</span>
       <span className={styles.legendItem}><span className={styles.legendDot} style={{ background: COLOR_ORANGE }} /> タイミングずれ</span>
       <span className={styles.legendItem}><span className={styles.legendDot} style={{ background: COLOR_RED }} /> 音程ずれ</span>
-      <span className={styles.legendItem}><span className={styles.legendDot} style={{ background: COLOR_GREY }} /> 判定不能</span>
+      <span className={styles.legendItem}><span className={styles.legendDot} style={{ background: COLOR_GREY }} /> 聞きとれず</span>
     </div>
   )
 }

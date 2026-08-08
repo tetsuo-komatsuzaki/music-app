@@ -77,7 +77,7 @@ export default function loginPage() {
       <div className={styles.logoContainer}>
         <Image
           src="/Icon.png"
-          alt="App Icon"
+          alt="アルコのアイコン"
           width={120}
           height={120}
           priority
@@ -93,7 +93,7 @@ export default function loginPage() {
       <div className={styles.heroImageWrapper}>
         <Image
           src="/top.png"
-          alt="Violin Motivation"
+          alt="バイオリンを弾く女の子"
           width={500}
           height={280}
           className={styles.heroImage}

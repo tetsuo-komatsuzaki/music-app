@@ -50,8 +50,8 @@ export default function GradeProgressBar({
           <span className={styles.masterIcon} aria-hidden="true">🏆</span>
           <span className={styles.masterText}>
             {masterReachedAt
-              ? `Master 達成: ${formatJpDate(masterReachedAt)}`
-              : "Master 達成"}
+              ? `マスター達成: ${formatJpDate(masterReachedAt)}`
+              : "マスター達成"}
           </span>
         </div>
         {hintText && <div className={styles.hint}>{hintText}</div>}
