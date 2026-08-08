@@ -42,6 +42,7 @@
 
 .navItem {
   display: flex;
+  align-items: center;
   gap: 10px;
   padding: 10px;
   cursor: pointer;
@@ -49,6 +50,15 @@
   transition: 0.2s;
   color: white;
   text-decoration: none;
+}
+
+/* アイコン(SVG)を一定の幅で縦横中央に。currentColor で文字色を継承 */
+.navIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  flex: none;
 }
 
 .navItem:hover {

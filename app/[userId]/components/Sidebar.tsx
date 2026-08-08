@@ -8,27 +8,30 @@ import { getUserRole } from "@/app/actions/getUserRole"
 import { getTeacherStudentSummary } from "@/app/actions/teacherStudentViews"
 import { createBrowserSupabaseClient } from "@/app/_libs/supabaseBrowser"
 import { useOnboarding } from "../_onboarding/hooks/useOnboarding"
+// 文言/アイコンの世界観統一 (2026-08-09): 絵文字→SVGアイコン(lucide)。currentColorで既存の文字色を継承。
+import { Home, Library, Dumbbell, NotebookPen, MessageCircle, Search, Wrench, Settings, LifeBuoy, BookOpen, LogOut, X, Menu, type LucideIcon } from "lucide-react"
 
-const BASE_NAV_ITEMS = [
-  { path: "",         icon: "🏠", label: "ホーム" },
-  { path: "scores",   icon: "🎵", label: "マイライブラリー" },
-  { path: "practice", icon: "📈", label: "練習メニュー" },
+type NavItem = { path: string; Icon: LucideIcon; label: string }
+
+const BASE_NAV_ITEMS: NavItem[] = [
+  { path: "",         Icon: Home,       label: "ホーム" },
+  { path: "scores",   Icon: Library,    label: "マイライブラリー" },
+  { path: "practice", Icon: Dumbbell,   label: "練習メニュー" },
   // 学びのレッスンは練習メニュー内のカードから遷移 (2026-07-14 Tetsuo指示でサイドバーから移設)
-  { path: "progress", icon: "📖", label: "成長カルテ" },
+  { path: "progress", Icon: NotebookPen, label: "成長カルテ" },
   // 「マイページ」は「あなたの課題」を成長記録タブへ移設したため削除。
   // /profile ルート自体は graceful に残置 (bookmark fallback)。
 ]
 
-const ADMIN_NAV_ITEM = { path: "admin/practice", icon: "⚙️", label: "管理" }
+const ADMIN_NAV_ITEM: NavItem = { path: "admin/practice", Icon: Wrench, label: "管理" }
 // 先生機能 (2026-07-28)。先生の有無で1項目を出し分ける。
-const TEACHER_NAV_ITEM = { path: "my-teacher", icon: "💬", label: "先生とのやりとり" }
-const FIND_TEACHER_NAV_ITEM = { path: "find-teacher", icon: "🔎", label: "先生を探す" }
+const TEACHER_NAV_ITEM: NavItem = { path: "my-teacher", Icon: MessageCircle, label: "先生とのやりとり" }
+const FIND_TEACHER_NAV_ITEM: NavItem = { path: "find-teacher", Icon: Search, label: "先生を探す" }
 
 // アカウント系メニュー (S-1 で追加)
-// 注: admin が ⚙️ を使っているため、設定は 🛠️ に変更して衝突回避
-const ACCOUNT_NAV_ITEMS = [
-  { path: "settings", icon: "🛠️", label: "設定" },
-  { path: "support",  icon: "❓",  label: "サポート" },
+const ACCOUNT_NAV_ITEMS: NavItem[] = [
+  { path: "settings", Icon: Settings, label: "設定" },
+  { path: "support",  Icon: LifeBuoy, label: "サポート" },
 ]
 
 export default function Sidebar() {
@@ -83,7 +86,7 @@ export default function Sidebar() {
         aria-label={isOpen ? "メニューを閉じる" : "メニューを開く"}
         aria-expanded={isOpen}
       >
-        {isOpen ? "✕" : "☰"}
+        {isOpen ? <X size={22} strokeWidth={2.2} /> : <Menu size={22} strokeWidth={2.2} />}
       </button>
 
       {isOpen && (
@@ -98,6 +101,7 @@ export default function Sidebar() {
 
               // オンボのガイドが指せるよう、ホーム / マイライブラリーに目印を付ける
               const onbKey = item.path === "" ? "nav.home" : item.path === "scores" ? "nav.library" : undefined
+              const Icon = item.Icon
               return (
                 <Link
                   key={item.path}
@@ -106,7 +110,7 @@ export default function Sidebar() {
                   data-onboarding={onbKey}
                   className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
                 >
-                  <span className={styles.navIcon}>{item.icon}</span>
+                  <span className={styles.navIcon}><Icon size={20} strokeWidth={2} /></span>
                   <span>{item.label}</span>
                   {item.path === "my-teacher" && unread > 0 && (
                     <span
@@ -131,7 +135,7 @@ export default function Sidebar() {
               className={styles.helpEntryButton}
               aria-label="使い方"
             >
-              <span className={styles.navIcon}>📖</span>
+              <span className={styles.navIcon}><BookOpen size={20} strokeWidth={2} /></span>
               <span>使い方</span>
             </button>
             <button
@@ -140,7 +144,7 @@ export default function Sidebar() {
               className={styles.logoutButton}
               aria-label="ログアウト"
             >
-              <span className={styles.navIcon}>🚪</span>
+              <span className={styles.navIcon}><LogOut size={20} strokeWidth={2} /></span>
               <span>ログアウト</span>
             </button>
           </div>
