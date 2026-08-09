@@ -133,10 +133,6 @@ export default function ArcoResultOverlay({
             <Sprout size={14} style={{ flex: "none" }} /> {growth.label}が伸びてる！ 安定度 {growth.from}%
             <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>→</span>
             <b style={{ fontSize: "var(--fs-subhead)" }}>{growth.to}%</b>
-            <Link href={`/${userId}/progress`} onClick={onClose}
-              style={{ marginLeft: 4, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-link)", textDecoration: "underline" }}>
-              カルテで見る
-            </Link>
           </div>
         )}
 
@@ -237,6 +233,7 @@ export default function ArcoResultOverlay({
         </div>
 
         <div className={styles.actions}>
+          <Link href={`/${userId}/progress`} onClick={onClose} className={styles.ghost} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5 }}><Sprout size={13} /> カルテで成長記録をみる</Link>
           <button type="button" className={styles.ghost} onClick={() => setShareOpen(true)}><span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Share2 size={13} /> シェア</span></button>
           {/* 👂 先生に聴いてもらう (2026-08-06 案1簡素版): ワンタップ送信・シート無し */}
           {hasTeacher && (
