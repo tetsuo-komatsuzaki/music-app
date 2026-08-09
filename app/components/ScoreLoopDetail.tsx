@@ -95,20 +95,6 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
           </p>
         )}
       </section>
-
-      {/* 達成/マスターの仕組み (詳しく) — 折りたたみ。最下部に置く */}
-      <details style={{ marginBottom: 14, fontSize: "var(--fs-body)", color: "var(--text-body)" }}>
-        <summary style={{ cursor: "pointer", fontWeight: 600, color: "var(--text-link)" }}>
-          ？ 達成・マスターの仕組み
-        </summary>
-        <div style={{ marginTop: 8, lineHeight: 1.8, padding: "0 4px" }}>
-          <strong>達成</strong>＝この曲を「弾ける」の認定。点数は関係なく、
-          学びレッスン＋エチュード（対象がある場合）＋<strong>破綻せず3回弾き切る</strong>こと。
-          <br />
-          <strong style={{ display: "inline-flex", alignItems: "center", gap: 3, verticalAlign: "-3px" }}><Trophy size={14} color="#b58a1e" /> マスター</strong>＝達成に加えて<strong>直近5回の演奏スコア平均90点以上</strong>。
-          達成した曲が同じ★で10曲たまると、次の★へ昇格します。
-        </div>
-      </details>
     </div>
   )
 }
