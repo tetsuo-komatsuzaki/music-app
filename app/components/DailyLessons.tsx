@@ -45,7 +45,7 @@ export default function DailyLessons({
     )
   }
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       {lessons.map((l) => {
         const col = CAT_COLOR[l.category] ?? DEFAULT_COLOR
         return (
@@ -54,10 +54,10 @@ export default function DailyLessons({
             href={`/${userId}/practice/${l.category}/${l.itemId}${fromScoreId ? `?from=${fromScoreId}` : ""}`}
             style={{
               display: "flex",
-              alignItems: "stretch",
+              alignItems: "center",
               background: "#fff",
               border: "1px solid #eceef2",
-              borderRadius: 14,
+              borderRadius: 12,
               overflow: "hidden",
               textDecoration: "none",
               color: "inherit",
@@ -65,21 +65,15 @@ export default function DailyLessons({
             }}
           >
             {/* 左: カテゴリ色のバンド */}
-            <span style={{ width: 5, flex: "none", background: col.c }} aria-hidden />
-            <span style={{ flex: 1, minWidth: 0, padding: "13px 14px", display: "flex", flexDirection: "column", gap: 11 }}>
-              {/* 名前 + 理由チップ */}
-              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>
-                  {l.label}
-                </span>
-                <span style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, padding: "2px 8px", borderRadius: 999, background: col.bg, color: col.c, whiteSpace: "nowrap" }}>
-                  {SLOT_NOTE[l.slot]}
-                </span>
+            <span style={{ width: 4, alignSelf: "stretch", flex: "none", background: col.c }} aria-hidden />
+            <span style={{ flex: 1, minWidth: 0, padding: "9px 11px", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {l.label}
               </span>
-              {/* 練習ボタン (カード全体がリンク・見た目のボタン) */}
-              <span style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 5, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: col.c, borderRadius: 9, padding: "8px 14px" }}>
-                練習する →
+              <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, padding: "2px 8px", borderRadius: 999, background: col.bg, color: col.c, whiteSpace: "nowrap" }}>
+                {SLOT_NOTE[l.slot]}
               </span>
+              <span style={{ flex: "none", width: 21, height: 21, borderRadius: "50%", background: col.c, color: "var(--text-on-accent)", display: "grid", placeItems: "center", fontSize: "var(--fs-caption)", fontWeight: 900 }} aria-hidden>→</span>
             </span>
           </Link>
         )

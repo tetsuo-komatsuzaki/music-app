@@ -32,11 +32,10 @@ function GoalRibbon({ stage }: { stage: 1 | 2 | 3 }) {
   const GRAY = "#e6eaef"
   const bars = [
     stage >= 2 ? "#2e8b57" : "#7cc39a",
-    stage >= 2 ? "#2e8b57" : GRAY,
     stage === 3 ? "#b5651d" : stage === 2 ? "linear-gradient(90deg,#e6a94a,#b5651d)" : GRAY,
   ]
-  const labels = ["はじめ", stage >= 2 ? "弾けた" : "弾ける", "マスター"]
-  const labCol = ["#2e8b57", stage >= 2 ? "#2e8b57" : "#8b97a3", stage >= 2 ? "#b5651d" : "#8b97a3"]
+  const labels = [stage >= 2 ? "弾けた" : "弾ける", "マスター"]
+  const labCol = ["#2e8b57", stage >= 2 ? "#b5651d" : "#8b97a3"]
   return (
     <div style={{ margin: "2px 0 14px" }}>
       <div style={{ display: "flex", gap: 4 }}>
