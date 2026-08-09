@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { MessageCircle } from "lucide-react"
 import { updateUserName } from "@/app/actions/updateUserName"
 import { updateUserEmail } from "@/app/actions/updateUserEmail"
 import { updateUserPassword } from "@/app/actions/updateUserPassword"
@@ -10,7 +9,6 @@ import DeleteAccountModal from "./DeleteAccountModal"
 import TeacherLinkCard from "./TeacherLinkCard"
 import GoalCard from "./GoalCard"
 import PlanCard from "./PlanCard"
-import { sendAppFeedback } from "@/app/actions/scoringFeedback"
 import styles from "./Settings.module.css"
 
 interface Props {
@@ -150,6 +148,8 @@ export default function SettingsClient({
     <div className={styles.page}>
       <h1 className={styles.title}>設定</h1>
 
+      <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, letterSpacing: ".06em", color: "var(--text-master)", margin: "2px 2px 8px" }}>アプリ設定</div>
+
       {/* プラン (課金 Phase 2, 2026-08-07): Stripe 未構成の間は非表示 */}
       {billing && <PlanCard {...billing} />}
 
@@ -187,8 +187,7 @@ export default function SettingsClient({
         </section>
       )}
 
-      {/* ご意見・要望 (2026-08-03): 改善要望の常設入口。運営メールへ届く */}
-      <FeedbackCard />
+      <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, letterSpacing: ".06em", color: "var(--text-master)", margin: "20px 2px 8px" }}>アカウント</div>
 
       {/* アカウント情報 */}
       <section className={styles.card}>
@@ -385,42 +384,3 @@ export default function SettingsClient({
   )
 }
 
-/** ご意見・要望 (2026-08-03): アプリ改善の常設入口。運営メールへ届く */
-function FeedbackCard() {
-  const [text, setText] = useState("")
-  const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle")
-  const [pending, start] = useTransition()
-  const send = () => {
-    if (!text.trim()) return
-    setState("sending")
-    start(async () => {
-      const r = await sendAppFeedback({ message: text })
-      if (r.ok) { setState("done"); setText("") }
-      else setState("error")
-    })
-  }
-  return (
-    <section style={{ background: "#fff", border: "1px solid #eceff3", borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
-      <h2 style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, margin: "0 0 4px", color: "var(--text-ink)", display: "flex", alignItems: "center", gap: 5 }}><MessageCircle size={16} /> ご意見・要望</h2>
-      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 10px", lineHeight: 1.6 }}>
-        「こうだったらいいのに」「採点がおかしい気がする」— なんでも運営に届きます。アプリはみなさんの声で良くなります。
-      </p>
-      {state === "done" ? (
-        <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-good)" }}>届きました！ありがとうございます</div>
-      ) : (
-        <>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} maxLength={2000}
-            placeholder="例: 演奏履歴の点数が実際より低い気がする / こんな機能がほしい"
-            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 11px", fontSize: "var(--fs-body)", resize: "vertical" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
-            {state === "error" && <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-error)" }}>送信できませんでした。時間をおいて試してください</span>}
-            <button type="button" onClick={send} disabled={pending || !text.trim()}
-              style={{ marginLeft: "auto", fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#3555d4", border: "none", borderRadius: 9, padding: "9px 20px", cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
-              {pending ? "送信中…" : "送信する"}
-            </button>
-          </div>
-        </>
-      )}
-    </section>
-  )
-}
