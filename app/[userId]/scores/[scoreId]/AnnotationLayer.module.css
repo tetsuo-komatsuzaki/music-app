@@ -66,32 +66,29 @@
 .swatch:hover { transform: scale(1.1); }
 .swatchOn { box-shadow: 0 0 0 2px #4a6cf7, 0 1px 4px rgba(0,0,0,.18); }
 
-/* マーク共通: 小さく上品なタグ。半透明ティント + 極細リング + やわらかい影 */
+/* マーク共通: 囲まず、素の小さな記号/文字。視認性は白ハローで担保 (2026-08-09) */
 .badge {
   position: absolute;
   transform: translateX(-50%);
-  display: inline-flex; align-items: center; gap: 4px;
+  display: inline-flex; align-items: center; gap: 3px;
   font-size: var(--fs-label); font-weight: 800; line-height: 1; letter-spacing: .02em;
-  padding: 3px 8px; border-radius: 7px; white-space: nowrap;
-  pointer-events: none; z-index: 9;
-  box-shadow: 0 2px 7px -2px rgba(24, 18, 40, .28);
-  -webkit-backdrop-filter: saturate(1.2); backdrop-filter: saturate(1.2);
+  white-space: nowrap; pointer-events: none; z-index: 9;
+  text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 1px 1px rgba(255, 255, 255, .95);
 }
 .badge .g {
-  font-size: var(--fs-caption); font-weight: 900; line-height: 1;
+  font-size: var(--fs-label); font-weight: 900; line-height: 1;
   display: inline-grid; place-items: center;
 }
 
-/* 注意系: トーンを落とした上品カラー (ティント地 + 濃色文字 + 同系リング) */
-.wFlat  { color: var(--text-link); background: #e4edfb; box-shadow: 0 2px 7px -2px rgba(40,90,160,.32), 0 0 0 1px rgba(58,110,190,.28) inset; }
-.wSharp { color: var(--text-error); background: #fbe6ea; box-shadow: 0 2px 7px -2px rgba(180,70,95,.30), 0 0 0 1px rgba(200,80,105,.26) inset; }
-.wTempo { color: var(--text-master); background: #f7ecd2; box-shadow: 0 2px 7px -2px rgba(160,120,30,.30), 0 0 0 1px rgba(190,150,60,.30) inset; }
-.wHard  { color: #5b3ba0; background: #ece3fb; box-shadow: 0 2px 7px -2px rgba(105,70,175,.30), 0 0 0 1px rgba(120,85,190,.26) inset; }
+/* 注意系: 囲いなし・色だけ */
+.wFlat  { color: var(--text-link); }
+.wSharp { color: var(--text-error); }
+.wTempo { color: var(--text-master); }
+.wHard  { color: #5b3ba0; }
 
-/* テキストメモ: 付箋でなく、控えめな吹き出しタグ */
+/* テキストメモ: 囲いなし・濃い文字＋白ハローで読みやすく */
 .badgeText {
-  color: var(--text-ink); background: #ffffff; font-weight: 700; letter-spacing: 0;
-  box-shadow: 0 2px 8px -2px rgba(24,18,40,.28), 0 0 0 1px #ece9f0 inset;
+  color: var(--text-ink); font-weight: 700; letter-spacing: 0;
 }
 
 /* 記譜スタンプ: 音符の上に素の記号 (背景なし・ダーク) */
