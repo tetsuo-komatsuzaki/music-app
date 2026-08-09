@@ -1,9 +1,9 @@
 // rankCard.ts — マイランクカード / 演奏の軌跡(スタンプラリー)の表示ヘルパ
-// 純粋関数のみ。データ源は gradeData(現在★/達成数) + UserScoreAchievement(達成曲)。
+// 純粋関数のみ。データ源は gradeData(現在/達成数) + UserScoreAchievement(達成曲)。
 
 export type PerfRank = "s" | "a" | "b" | "c"
 
-/** ★ごとのランク名（表示用。文言は調整可）。 */
+/**ごとのランク名（表示用。文言は調整可）。 */
 const RANK_NAMES: Record<number, string> = {
   1: "はじまりの奏者",
   2: "かけだしの奏者",
@@ -24,7 +24,7 @@ export function rankName(star: number): string {
 
 export type CardTier = "bronze" | "silver" | "gold" | "holo"
 
-/** ★でカードの豪華さ段階を変える（グレード帯と一致: 1-3/4-6/7-9/10）。 */
+/**でカードの豪華さ段階を変える（グレード帯と一致: 1-3/4-6/7-9/10）。 */
 export function cardTier(star: number): CardTier {
   if (star >= 10) return "holo"
   if (star >= 7) return "gold"
@@ -44,20 +44,20 @@ export function perfRank(score: number | null | undefined): PerfRank | null {
 /** ランク章 → 達成時のアルコの一言（曲別データが無いためランクから生成）。 */
 export function stampComment(rank: PerfRank | null): string {
   switch (rank) {
-    case "s": return "アルコ「文句なしの演奏！すごい✨」"
-    case "a": return "アルコ「きれいに弾けたね♪」"
+    case "s": return "アルコ「文句なしの演奏！すごい」"
+    case "a": return "アルコ「きれいに弾けたね」"
     case "b": return "アルコ「よく頑張った！」"
-    default:  return "アルコ「クリアおめでとう🎵」"
+    default:  return "アルコ「クリアおめでとう」"
   }
 }
 
-/** 達成数(0..required) に応じたアルコの応援。次の★までの残り曲数で締める。 */
+/** 達成数(0..required) に応じたアルコの応援。次のまでの残り曲数で締める。 */
 export function cheerForCount(achieved: number, required: number): string {
   const remaining = Math.max(0, required - achieved)
-  if (achieved <= 0) return "さあ、最初のスタンプを集めよう🎵"
-  if (remaining === 0) return `ぜんぶ揃った！ランクアップ🎉 おめでとう！！`
+  if (achieved <= 0) return "さあ、最初のスタンプを集めよう"
+  if (remaining === 0) return `ぜんぶ揃った！ランクアップおめでとう！！`
   if (remaining === 1) return "あと1曲…！ドキドキするね、いける！"
-  if (achieved === Math.floor(required / 2)) return "もう半分！すごいペースだね🔥"
+  if (achieved === Math.floor(required / 2)) return "もう半分！すごいペースだね"
   if (remaining <= 3) return `残り${remaining}曲…！ゴールが近づいてきた`
   if (achieved === 1) return "はじめの1曲、おめでとう！ここからだよ"
   return `${achieved}曲め！いい調子、その調子〜`

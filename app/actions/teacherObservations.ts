@@ -47,7 +47,7 @@ export async function createObservation(input: {
 // 新しい所見行を積む(履歴が時系列で残る)。タグの現在状態 = そのタグを含む最新行の severity。
 //  - still     … まだある (元の程度で再記録して日付を更新)
 //  - improving … 良くなってきた
-//  - resolved  … 🌱克服 (癖マップから卒業・あゆみに🌱イベント)
+//  - resolved  …克服 (癖マップから卒業・あゆみにイベント)
 export async function recordObservationProgress(input: {
   studentId: string
   tagId: string
@@ -86,8 +86,8 @@ export async function recordObservationProgress(input: {
     })
 
     // まだある(still)はメール通知しない (状態維持のノイズになるため)
-    if (input.status === "improving") await notifyStudent(input.studentId, teacherId, "observation", `🌿「${tag.label}」が良くなってきた、と先生が記録しました`)
-    if (input.status === "resolved") await notifyStudent(input.studentId, teacherId, "observation", `🌱「${tag.label}」の癖を克服！と先生が記録しました`)
+    if (input.status === "improving") await notifyStudent(input.studentId, teacherId, "observation", `「${tag.label}」が良くなってきた、と先生が記録しました`)
+    if (input.status === "resolved") await notifyStudent(input.studentId, teacherId, "observation", `「${tag.label}」の癖を克服！と先生が記録しました`)
     return { ok: true }
   } catch {
     return { ok: false, error: "保存に失敗しました" }

@@ -7,12 +7,14 @@
 //  - 各分類の「その他」({cat}_other) の利用率が高い分類は粒度が荒いサイン。
 //    コメントの内容を見てタグ昇格を検討する (実データでタクソノミーを育てる)。
 
+import { PersonStanding, Move, Hand, Music, Activity, Bell, Calendar, type LucideIcon } from "lucide-react"
+
 export type ObservationTag = { id: string; label: string }
-export type ObservationCategory = { id: string; label: string; emoji: string; tags: ObservationTag[] }
+export type ObservationCategory = { id: string; label: string; Icon: LucideIcon; tags: ObservationTag[] }
 
 export const OBSERVATION_CATALOG: ObservationCategory[] = [
   {
-    id: "posture", label: "姿勢・構え", emoji: "🧍",
+    id: "posture", label: "姿勢・構え", Icon: PersonStanding,
     tags: [
       { id: "posture_right_shoulder_up", label: "右肩が上がる" },
       { id: "posture_left_shoulder_tense", label: "左肩に力み" },
@@ -23,7 +25,7 @@ export const OBSERVATION_CATALOG: ObservationCategory[] = [
     ],
   },
   {
-    id: "bow", label: "右手（ボウイング）", emoji: "🏹",
+    id: "bow", label: "右手（ボウイング）", Icon: Move,
     tags: [
       { id: "bow_drift_fingerboard", label: "弓が指板寄りに流れる" },
       { id: "bow_drift_bridge", label: "弓が駒寄りに流れる" },
@@ -38,7 +40,7 @@ export const OBSERVATION_CATALOG: ObservationCategory[] = [
     ],
   },
   {
-    id: "left", label: "左手", emoji: "🤚",
+    id: "left", label: "左手", Icon: Hand,
     tags: [
       { id: "left_wrist_collapse", label: "手首が折れる" },
       { id: "left_press_hard", label: "指の押さえすぎ" },
@@ -51,7 +53,7 @@ export const OBSERVATION_CATALOG: ObservationCategory[] = [
     ],
   },
   {
-    id: "pitch", label: "音程の癖", emoji: "🎵",
+    id: "pitch", label: "音程の癖", Icon: Music,
     tags: [
       { id: "pitch_finger1_low", label: "1の指が低い" },
       { id: "pitch_finger2_high", label: "2の指が高い" },
@@ -64,7 +66,7 @@ export const OBSERVATION_CATALOG: ObservationCategory[] = [
     ],
   },
   {
-    id: "rhythm", label: "リズムの癖", emoji: "🥁",
+    id: "rhythm", label: "リズムの癖", Icon: Activity,
     tags: [
       { id: "rhythm_rush", label: "走る（速くなる）" },
       { id: "rhythm_drag", label: "もたる（遅れる）" },
@@ -76,7 +78,7 @@ export const OBSERVATION_CATALOG: ObservationCategory[] = [
     ],
   },
   {
-    id: "tone", label: "音・音色", emoji: "🔔",
+    id: "tone", label: "音・音色", Icon: Bell,
     tags: [
       { id: "tone_scratchy", label: "音がかすれる" },
       { id: "tone_weak", label: "芯がない（圧不足）" },
@@ -87,7 +89,7 @@ export const OBSERVATION_CATALOG: ObservationCategory[] = [
     ],
   },
   {
-    id: "habit", label: "練習習慣", emoji: "📅",
+    id: "habit", label: "練習習慣", Icon: Calendar,
     tags: [
       { id: "habit_no_slow", label: "ゆっくり練習をしない" },
       { id: "habit_no_section", label: "部分練習をしない（通しばかり）" },

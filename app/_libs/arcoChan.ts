@@ -66,7 +66,7 @@ export function generateArcoMessage(ctx: ArcoContext): ArcoMessage {
     const delta = Math.round(lastOverallScore - previousOverallScore)
     return {
       greeting,
-      cheer: `前回の演奏より総合スコアが +${delta}点 改善しています！この調子で続けましょう 🔥`,
+      cheer: `前回の演奏より総合スコアが +${delta}点 改善しています！この調子で続けましょう`,
     }
   }
 
@@ -82,7 +82,7 @@ export function generateArcoMessage(ctx: ArcoContext): ArcoMessage {
   if (streak >= 30) {
     return {
       greeting,
-      cheer: `${streak}日連続！驚異的な継続力です 🌟 今日も自分のペースで練習しましょう。`,
+      cheer: `${streak}日連続！驚異的な継続力です。今日も自分のペースで練習しましょう。`,
     }
   }
 
@@ -98,7 +98,7 @@ export function generateArcoMessage(ctx: ArcoContext): ArcoMessage {
   if (streak >= 7) {
     return {
       greeting,
-      cheer: `${streak}日連続で練習できています、素晴らしいペースです 🔥`,
+      cheer: `${streak}日連続で練習できています、素晴らしいペースです`,
     }
   }
 

@@ -15,7 +15,7 @@ export type CatalogCategory = {
 export const CATALOG: Record<string, CatalogCategory> = {
   movie: {
     label: "映画・アニメの曲",
-    ico: "🎬",
+    ico: "",
     songs: [
       ["さんぽ(となりのトトロ)", 1], ["ドレミの歌", 1],
       ["星に願いを", 2], ["君をのせて(天空の城ラピュタ)", 2],
@@ -28,7 +28,7 @@ export const CATALOG: Record<string, CatalogCategory> = {
   },
   classic: {
     label: "クラシックの名曲",
-    ico: "🎼",
+    ico: "",
     songs: [
       ["きらきら星変奏曲(主題)", 1], ["ロング・ロング・アゴー", 1],
       ["カノン(パッヘルベル)", 2], ["メヌエット ト長調(バッハ)", 2],
@@ -41,7 +41,7 @@ export const CATALOG: Record<string, CatalogCategory> = {
   },
   season: {
     label: "季節・イベントの曲",
-    ico: "🎄",
+    ico: "",
     songs: [
       ["きよしこの夜", 1], ["ジングルベル", 1],
       ["赤鼻のトナカイ", 2], ["もろびとこぞりて", 2],

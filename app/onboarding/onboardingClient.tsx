@@ -12,7 +12,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { HelpCircle, Music, Mic, Users, Sparkles, Coffee, Star, Trophy, Timer } from "lucide-react"
+import { HelpCircle, Music, Mic, Users, Sparkles, Coffee, Star, Trophy, Timer, Clapperboard, TreePine } from "lucide-react"
 import styles from "./onboarding.module.css"
 import {
   OnboardingProvider,
@@ -362,7 +362,7 @@ function Scr08A() {
         {Object.entries(s.catalog).map(([key, c]) => (
           <OptionCard
             key={key}
-            icon={c.ico}
+            icon={key === "movie" ? <Clapperboard size={20} /> : key === "season" ? <TreePine size={20} /> : <Music size={20} />}
             label={c.label}
             selected={s.ans.q4cat === key}
             onClick={() => s.setAns({ q4cat: key })}

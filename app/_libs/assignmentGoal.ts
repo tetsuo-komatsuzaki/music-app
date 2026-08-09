@@ -45,9 +45,9 @@ export function goalResult(
   if (goalType === "score") {
     if (opts.targetScore == null || opts.submittedScore == null) return null
     const met = opts.submittedScore >= opts.targetScore
-    return { met, label: met ? "合格🎉" : "あと少し" }
+    return { met, label: met ? "合格" : "あと少し" }
   }
-  if (goalType === "achieve") return { met: !!opts.achieved, label: opts.achieved ? "達成✓" : "達成まだ" }
-  if (goalType === "master") return { met: !!opts.mastered, label: opts.mastered ? "マスター🏆" : "マスターまだ" }
+  if (goalType === "achieve") return { met: !!opts.achieved, label: opts.achieved ? "達成" : "達成まだ" }
+  if (goalType === "master") return { met: !!opts.mastered, label: opts.mastered ? "マスター" : "マスターまだ" }
   return null
 }

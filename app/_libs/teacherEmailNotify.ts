@@ -13,9 +13,9 @@ const SUBJECT: Record<NotifyKind, string> = {
   message: "先生からメッセージが届きました",
   feedback: "先生の添削が届きました",
   assignment: "先生から新しい宿題が届きました",
-  celebration: "🎉 先生からお祝いが届きました！",
+  celebration: "先生からお祝いが届きました！",
   observation: "先生からレッスンの所見が届きました",
-  expression: "🎤 先生から表現の評価が届きました",
+  expression: "先生から表現の評価が届きました",
 }
 const NOUN: Record<NotifyKind, string> = {
   message: "メッセージ",

@@ -68,8 +68,8 @@ export default function BodyObsMap({ tags, renderTagActions }: {
       {/* 選択ビューの詳細 */}
       {sel && (
         <div style={{ border: "1px solid #eef1f4", borderRadius: 13, marginTop: 10, overflow: "hidden" }}>
-          <div style={{ background: "#f7f4ec", padding: "8px 12px", fontSize: 11.5, fontWeight: 800, color: "#4a5766" }}>
-            {sel.emoji} {sel.label}
+          <div style={{ background: "#f7f4ec", padding: "8px 12px", fontSize: 11.5, fontWeight: 800, color: "#4a5766", display: "flex", alignItems: "center", gap: 5 }}>
+            <sel.Icon size={14} /> {sel.label}
           </div>
           <div style={{ padding: 10 }}>
             <div style={{ position: "relative", background: "#fdfaf4", border: "1px solid #f0e9db", borderRadius: 11, padding: 6 }}>

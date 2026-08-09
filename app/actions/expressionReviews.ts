@@ -1,9 +1,9 @@
 "use server"
 
 // 表現の評価 (2026-08-03 カルテv2 Phase0-3)。
-// 先生が生徒の表現技法を 💪とくい/🔥挑戦中/🌿良くなってきた として記録する。
+// 先生が生徒の表現技法をとくい/挑戦中/良くなってきた として記録する。
 // 保存は TeacherObservation を共用 (tagId=expr_*・severity=状態)。癖と同じく
-// 「タグの現在状態 = そのタグを含む最新行」。挑戦中→🌿→💪の昇格が時系列で残る。
+// 「タグの現在状態 = そのタグを含む最新行」。挑戦中→→の昇格が時系列で残る。
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthAction } from "@/app/_libs/requireAuth"
 import { notifyStudent } from "@/app/_libs/teacherEmailNotify"
@@ -53,9 +53,9 @@ export async function recordExpressionReview(input: {
 
     const label = expressionLabel(tagId)
     const preview =
-      input.status === "strength" ? `💪「${label}」はきみの強み！と先生が評価しました`
-      : input.status === "improving" ? `🌿「${label}」が良くなってきた、と先生が評価しました`
-      : `🔥「${label}」に挑戦しよう、と先生が評価しました`
+      input.status === "strength" ? `「${label}」はきみの強み！と先生が評価しました`
+      : input.status === "improving" ? `「${label}」が良くなってきた、と先生が評価しました`
+      : `「${label}」に挑戦しよう、と先生が評価しました`
     await notifyStudent(input.studentId, teacherId, "expression", preview)
     return { ok: true }
   } catch {

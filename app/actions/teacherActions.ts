@@ -450,7 +450,7 @@ export async function sharePerformanceWithTeacher(
     }
 
     const body =
-      `🎧「${title}」${label ? `${label} ` : ""}の演奏を見てほしいです` +
+      `「${title}」${label ? `${label} ` : ""}の演奏を見てほしいです` +
       (score != null ? `（${score}点）` : "")
     await prisma.message.create({
       data: { teacherId: link.teacherId, studentId: me, fromTeacher: false, body },

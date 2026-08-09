@@ -575,8 +575,8 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
         if (oi >= 15) continue // 物語に流すのは直近15件まで (残りは状態把握のみ)
         const tags = kuseTagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).slice(0, 3).join("・")
         const text =
-          o.severity === "resolved" ? `🌱 癖を克服：${tags || "コメント"}` :
-          o.severity === "improving" ? `🌿 癖が良くなってきた：${tags || "コメント"}` :
+          o.severity === "resolved" ? `癖を克服：${tags || "コメント"}` :
+          o.severity === "improving" ? `癖が良くなってきた：${tags || "コメント"}` :
           `先生の所見${o.severity === "focus" ? "【要重点】" : ""}：${tags || "コメント"}`
         events.push({ at: o.createdAt.getTime(), date: fmtJp(o.createdAt), kind: "observation", text })
       }
@@ -584,7 +584,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
       for (const [t, e] of bodyObsMap) if (e.severity !== "resolved") recentObsTagIds.add(t)
       for (const c of cels) events.push({
         at: c.createdAt.getTime(), date: fmtJp(c.createdAt), kind: "celebration",
-        text: `🎉 先生からお祝い：${c.body.slice(0, 40)}${c.body.length > 40 ? "…" : ""}`,
+        text: `先生からお祝い：${c.body.slice(0, 40)}${c.body.length > 40 ? "…" : ""}`,
       })
     }
   } catch { /* 先生機能未整備でも物語は出す */ }
@@ -956,7 +956,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     : skillsWeek > 0 ? `新しいわざを${skillsWeek}個 習得！すごい！`
     : kpi.basicsWeek > 0 ? `基礎練を${kpi.basicsWeek}個クリア、いい調子！`
     : weekRecCount > 0 ? `今週は${weekRecCount}回れんしゅうしたね。つみ重ねが力になるよ`
-    : "今週も、いっしょにコツコツいこう🎻"
+    : "今週も、いっしょにコツコツいこう"
 
   const v2: KarteV2 = {
     arcoLine,
@@ -1056,7 +1056,7 @@ export async function buildExpressionDetail(
   const label = expressionLabel(tagId)
   const arcoLine =
     status === "strength" ? `「${label}」はきみの強み！この武器で歌える曲、ホームにおすすめしておくね`
-    : status === "improving" ? `💪まであと少し！つぎの録音でも「${label}」を意識してみよう`
+    : status === "improving" ? `強みまであと少し！つぎの録音でも「${label}」を意識してみよう`
     : `いまの挑戦は「${label}」。先生と一緒に、少しずついこう`
   return {
     tagId, label, kid: cat?.kid ?? null, status,
@@ -1341,7 +1341,7 @@ export async function buildSkillDetail(
   const related = obsRows.filter((o) => o.tagIds.some((t) => def.obsTagIds.includes(t)))
   const annotations: SkillAnnotation[] = related.map((o) => {
     const base = o.tagIds.filter((t) => def.obsTagIds.includes(t)).map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).join("・") || "所見"
-    const prefix = o.severity === "resolved" ? "🌱克服 " : o.severity === "improving" ? "🌿 " : ""
+    const prefix = o.severity === "resolved" ? "克服 " : ""
     return {
       at: o.createdAt.getTime(),
       date: fmtJp(o.createdAt),

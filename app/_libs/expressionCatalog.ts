@@ -1,7 +1,7 @@
 // 表現技法カタログ (2026-08-03 カルテv2 Phase0-3・Tetsuo確定7語彙)。
 // 先生が生徒の「表現の強み/挑戦中」を評価する語彙。記録は TeacherObservation を共用し、
 // tagId は expr_ プレフィックスで癖タグと区別する (癖マップ等の既存表示からは除外)。
-// 状態は severity 列に格納: strength(💪とくい) / challenge(🔥挑戦中) / improving(🌿良くなってきた)。
+// 状態は severity 列に格納: strength(とくい) / challenge(挑戦中) / improving(良くなってきた)。
 // 自由入力は `expr_free:<ラベル>` 形式の tagId で保存 (変換表未登録の間は表示のみ・推薦対象外)。
 //
 // 推薦への変換表 (先生語彙 ⇔ 曲の記号特徴) は project_karte_growth_requirements 確定6を正とし、
@@ -33,9 +33,9 @@ export const EXPRESSION_TAG_BY_ID: Record<string, ExpressionTag> =
   Object.fromEntries(EXPRESSION_TAGS.map((t) => [t.id, t]))
 
 export const EXPRESSION_STATUSES = [
-  { id: "strength", label: "💪 とくい（強み）" },
-  { id: "improving", label: "🌿 良くなってきた" },
-  { id: "challenge", label: "🔥 挑戦中（課題）" },
+  { id: "strength", label: "とくい（強み）" },
+  { id: "improving", label: "良くなってきた" },
+  { id: "challenge", label: "挑戦中（課題）" },
 ] as const
 export type ExpressionStatus = (typeof EXPRESSION_STATUSES)[number]["id"]
 

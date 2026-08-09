@@ -561,8 +561,8 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
               const on = mode.kind === "view" && mode.view === v.id
               return (
                 <button key={v.id} type="button" onClick={() => { setMode({ kind: "view", view: v.id }); setSpotId(null) }}
-                  style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885" }}>
-                  {v.emoji} {v.short}
+                  style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <v.Icon size={12} /> {v.short}
                 </button>
               )
             })}
@@ -570,8 +570,8 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
               const on = mode.kind === "cat" && mode.catId === c.id
               return (
                 <button key={c.id} type="button" onClick={() => setMode({ kind: "cat", catId: c.id })}
-                  style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885" }}>
-                  {c.emoji} {c.label}
+                  style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <c.Icon size={12} /> {c.label}
                 </button>
               )
             })}
@@ -623,8 +623,8 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
               <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 8 }}>
                 {OBSERVATION_CATALOG.map((c) => (
                   <button key={c.id} type="button" onClick={() => setAllCatId(c.id)}
-                    style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1px solid", borderColor: allCatId === c.id ? "#4a5bd0" : "#e2e6ea", background: allCatId === c.id ? "#eef0fc" : "#fff", color: allCatId === c.id ? "#4a5bd0" : "#6b7885" }}>
-                    {c.emoji} {c.label}
+                    style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1px solid", borderColor: allCatId === c.id ? "#4a5bd0" : "#e2e6ea", background: allCatId === c.id ? "#eef0fc" : "#fff", color: allCatId === c.id ? "#4a5bd0" : "#6b7885", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <c.Icon size={12} /> {c.label}
                   </button>
                 ))}
               </div>

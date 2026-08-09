@@ -106,7 +106,7 @@ export async function uploadScoreForStudent(
 
   // 生徒へお知らせ (メッセージ + メール)
   try {
-    const body = `📓 楽譜「${title}」を送りました。ライブラリーから開いてね${comment ? `\n💬 ${comment}` : ""}`
+    const body = `楽譜「${title}」を送りました。ライブラリーから開いてね${comment ? `\n${comment}` : ""}`
     await prisma.message.create({
       data: { teacherId, studentId, fromTeacher: true, body },
     })
