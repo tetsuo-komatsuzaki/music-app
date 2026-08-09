@@ -17,10 +17,6 @@ type Ach = {
   achieved: boolean
   mastered: boolean
 }
-type Diag = {
-  verdict: "perfect" | "no_specific" | "weakness" | "unavailable"
-  slots: { subtaskName: string; tree: "pitch" | "rhythm"; materials: { id: string; title: string; category: string }[]; noStock: boolean }[]
-}
 type GrowthLine = { label: string; from: number; to: number }
 
 // 点数帯でアルコのポーズ(気分)を選ぶ
@@ -56,7 +52,6 @@ export default function ArcoResultOverlay({
 }) {
   const [mounted, setMounted] = useState(false)
   const [ach, setAch] = useState<Ach | null>(null)
-  const [diag, setDiag] = useState<Diag | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
   const [growth, setGrowth] = useState<GrowthLine | null>(null)
   const [strengthCount, setStrengthCount] = useState(0)
@@ -74,9 +69,8 @@ export default function ArcoResultOverlay({
     let aborted = false
     Promise.all([
       fetch(`/api/scores/${scoreId}/achievement-status`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-      fetch(`/api/performances/${perf.id}/diagnosis`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
       fetch(`/api/performances/${perf.id}/growth-line`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-    ]).then(([a, d, g]) => { if (!aborted) { setAch(a); setDiag(d); setGrowth(g?.line ?? null); setStrengthCount(g?.strengthCount ?? 0); setHasTeacher(!!g?.hasTeacher) } })
+    ]).then(([a, g]) => { if (!aborted) { setAch(a); setGrowth(g?.line ?? null); setStrengthCount(g?.strengthCount ?? 0); setHasTeacher(!!g?.hasTeacher) } })
     return () => { aborted = true }
   }, [scoreId, perf.id])
 
@@ -97,9 +91,6 @@ export default function ArcoResultOverlay({
     })
   }
 
-  // おすすめ練習 (診断 窓①)
-  const recSlots = (diag?.verdict === "weakness" ? diag.slots : []).filter((s) => !s.noStock && s.materials.length > 0).slice(0, 2)
-
   if (!mounted) return null
 
   return createPortal(
@@ -113,12 +104,24 @@ export default function ArcoResultOverlay({
           <div className={styles.bubble}>{headline(overall, !!ach?.mastered)}</div>
         </div>
 
-        {/* 採点結果 */}
+        {/* 採点結果 (案3: 合計を上に、音程/リズムを横棒で) */}
         <div className={styles.scoreCard}>
-          <div className={styles.big}><span className={styles.bigNum}>{overall}</span><span className={styles.bigUnit}>点</span><span className={`${styles.rank} ${styles["r" + rankOf(overall)]}`}>{rankOf(overall)}</span></div>
-          <div className={styles.subs}>
-            <div className={styles.sub}><span>音程</span><b>{Math.round(pitch)}</b></div>
-            <div className={styles.sub}><span>リズム</span><b>{Math.round(timing)}</b></div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 6, justifyContent: "center", marginBottom: 12 }}>
+            <span className={styles.bigNum}>{overall}</span>
+            <span className={styles.bigUnit}>点</span>
+            <span className={`${styles.rank} ${styles["r" + rankOf(overall)]}`} style={{ alignSelf: "center", marginLeft: 4 }}>{rankOf(overall)}</span>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ width: 34, flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)" }}>音程</span>
+              <span style={{ flex: 1, height: 8, borderRadius: 5, background: "#eef1f5", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(pitch)}%`, background: "#2b5bc4", borderRadius: 5 }} /></span>
+              <b style={{ width: 26, flex: "none", textAlign: "right", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#1f3d78", fontVariantNumeric: "tabular-nums" }}>{Math.round(pitch)}</b>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ width: 34, flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)" }}>リズム</span>
+              <span style={{ flex: 1, height: 8, borderRadius: 5, background: "#eef1f5", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(timing)}%`, background: "#e6a94a", borderRadius: 5 }} /></span>
+              <b style={{ width: 26, flex: "none", textAlign: "right", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#8a5a1f", fontVariantNumeric: "tabular-nums" }}>{Math.round(timing)}</b>
+            </div>
           </div>
         </div>
 
@@ -204,36 +207,8 @@ export default function ArcoResultOverlay({
           )}
         </div>
 
-        {/* おすすめ練習 */}
-        <div className={styles.sec}>
-          <div className={styles.secH}>おすすめ練習</div>
-          {diag == null ? (
-            <div className={styles.muted}>見ているよ…</div>
-          ) : recSlots.length === 0 ? (
-            <div className={styles.muted}>
-              {diag.verdict === "perfect" ? "完璧！大きな弱点はなし"
-                : diag.verdict === "no_specific" ? "大きな弱点はなし。この調子！"
-                : diag.verdict === "unavailable" ? "今回は見きれなかったよ"
-                : "今回のおすすめ教材は準備中です"}
-            </div>
-          ) : (
-            <div className={styles.recs}>
-              {recSlots.map((s) => {
-                const m = s.materials[0]
-                return (
-                  <Link key={s.subtaskName} href={`/${userId}/practice/${m.category}/${m.id}?from=${scoreId}`} className={styles.rec} onClick={onClose}>
-                    <span className={`${styles.recTag} ${s.tree === "pitch" ? styles.tagPitch : styles.tagRhythm}`}>{s.tree === "pitch" ? "音程" : "リズム"}</span>
-                    <span className={styles.recBody}><span className={styles.recSub}>{s.subtaskName}</span><span className={styles.recMat}>{m.title}</span></span>
-                    <span className={styles.recGo}>→</span>
-                  </Link>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
         <div className={styles.actions}>
-          <Link href={`/${userId}/progress`} onClick={onClose} className={styles.ghost} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5 }}><Sprout size={13} /> カルテで成長記録をみる</Link>
+          <Link href={`/${userId}/progress`} onClick={onClose} className={styles.ghost} style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>カルテで成長記録をみる</Link>
           <button type="button" className={styles.ghost} onClick={() => setShareOpen(true)}><span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Share2 size={13} /> シェア</span></button>
           {/* 👂 先生に聴いてもらう (2026-08-06 案1簡素版): ワンタップ送信・シート無し */}
           {hasTeacher && (
