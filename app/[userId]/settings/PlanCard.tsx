@@ -67,7 +67,7 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
             </span>
           </div>
           <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 10px", lineHeight: 1.6 }}>
-            AI採点は無制限で使えます。
+            アルコの採点は無制限で使えます。
             {planStatus === "trialing" && endDate && <>無料期間は {endDate} までです。</>}
             {planStatus === "active" && endDate && <>次回の更新日は {endDate} です。</>}
             {planStatus === "past_due" && <>カード情報をご確認ください (このままだと無料プランに戻ります)。</>}
@@ -84,7 +84,7 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
       ) : (
         <>
           <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 10px", lineHeight: 1.7 }}>
-            <b style={{ color: "var(--text-ink)" }}><Sparkles size={13} style={{ verticalAlign: -1 }} /> アルコプラス</b> — AI採点が無制限になり、全ての基礎練・学びレッスン・
+            <b style={{ color: "var(--text-ink)" }}><Sparkles size={13} style={{ verticalAlign: -1 }} /> アルコプラス</b> — アルコの採点が無制限になり、全ての基礎練・学びレッスン・
             おすすめ練習・部分練習・くわしい数字が使えるようになります。
             {trialEligible && <><br /><b style={{ color: "var(--text-master)" }}>はじめての方は14日間無料</b>で試せます。</>}
           </p>

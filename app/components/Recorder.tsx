@@ -695,11 +695,11 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
             disabled={disabled}
           >
             <span className={styles.ctaDot} />
-            <span>録音して AI 採点</span>
+            <span>録音して、アルコに採点してもらう</span>
           </button>
           {quota && !quota.unlimited && (
             <div className={styles.quotaLine} data-testid="recorder-quota">
-              今週のAI採点 {Math.min(quota.used, quota.limit)}/{quota.limit}回
+              今週の採点 {Math.min(quota.used, quota.limit)}/{quota.limit}回
             </div>
           )}
         </div>

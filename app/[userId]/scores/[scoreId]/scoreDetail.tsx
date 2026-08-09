@@ -779,6 +779,9 @@ function ScoreViewer({
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [error, setError] = useState<string | null>(null)
+  // 長い譜面は既定で 4 段までに畳む (アコーディオン)。全部見るで展開。
+  const [scoreExpanded, setScoreExpanded] = useState(false)
+  const [collapsedH, setCollapsedH] = useState<number | null>(null)
   const onScoreClickRef = useRef(onScoreClick)
   onScoreClickRef.current = onScoreClick
   const osmdInstanceRef = useRef<OpenSheetMusicDisplay | null>(null)
@@ -829,6 +832,15 @@ function ScoreViewer({
       onOsmdReadyRef.current(osmd)
       const pageCount = osmd.GraphicSheet?.MusicPages?.length ?? 1
       setTotalPages(pageCount)
+      // 4段(system)を超える長い譜面のみ、4段ぶんの高さで畳む
+      const systems = osmd.GraphicSheet?.MusicPages?.[0]?.MusicSystems ?? []
+      const svg = container.querySelector("svg")
+      if (svg && systems.length > 4) {
+        const totalH = svg.getBoundingClientRect().height
+        setCollapsedH(Math.round((totalH / systems.length) * 4) + 14)
+      } else {
+        setCollapsedH(null)
+      }
     }
 
     // autoResize: true のとき OSMD はリサイズ時に内部で render() を呼び SVG を再生成する。
@@ -920,7 +932,28 @@ function ScoreViewer({
           <div style={{ color: "var(--text-error)", padding: "20px 0" }}>{error}</div>
         ) : (
           <>
-            <div id="osmd-container" className={styles.osmdContainer} onClick={(e) => onScoreClickRef.current?.(e)} style={{ cursor: "pointer" }} />
+            <div style={{ position: "relative" }}>
+              <div
+                id="osmd-container"
+                className={styles.osmdContainer}
+                onClick={(e) => onScoreClickRef.current?.(e)}
+                style={{ cursor: "pointer", ...(!scoreExpanded && collapsedH != null ? { maxHeight: collapsedH, overflowY: "hidden" } : {}) }}
+              />
+              {!scoreExpanded && collapsedH != null && (
+                <div aria-hidden style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 48, background: "linear-gradient(transparent,#fff 82%)", pointerEvents: "none", borderRadius: "0 0 12px 12px" }} />
+              )}
+            </div>
+            {collapsedH != null && (
+              <div style={{ textAlign: "center", marginTop: 8 }}>
+                <button
+                  type="button"
+                  onClick={() => setScoreExpanded((v) => !v)}
+                  style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-link)", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "7px 18px", cursor: "pointer" }}
+                >
+                  {scoreExpanded ? "折りたたむ ▲" : "全部見る ▼"}
+                </button>
+              </div>
+            )}
             {totalPages > 1 && (
               <div className={styles.scoreNav}>
                 <button disabled={currentPage === 0} onClick={() => goToPage(currentPage - 1)}>
@@ -3172,7 +3205,7 @@ function ScoreDetailInner({
               style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", padding: "14px 16px", background: "linear-gradient(100deg,#e5392b,#f0603a)", color: "var(--text-on-accent)", border: "none", borderRadius: 12, fontSize: "var(--fs-subhead)", fontWeight: 800, cursor: "pointer" }}
             >
               <span aria-hidden style={{ width: 10, height: 10, borderRadius: "50%", background: "#fff", display: "inline-block" }} />
-              録音して AI 採点
+              録音して、アルコに採点してもらう
             </button>
           </div>
         ) : (
