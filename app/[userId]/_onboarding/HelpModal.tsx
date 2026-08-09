@@ -209,7 +209,8 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
 
   return (
     <>
-      {createPortal(modalContent, document.body)}
+      {/* スライド再生中はヘルプ本体(z2100)を隠す。出さないと再生スライド(z2000)が裏に回り「何も起きない」ように見える */}
+      {!welcomeReplayOpen && createPortal(modalContent, document.body)}
       {welcomeReplayOpen && (
         <WelcomeSlides
           forceOpen

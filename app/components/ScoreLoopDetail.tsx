@@ -63,7 +63,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
     <div className={styles.container} role="tabpanel" id="score-detail-tab-panel-loop">
       {/* ── 1. 達成/マスター進捗 (共通部品 GoalTracker) ── */}
       <section className={styles.summarySection}>
-        <h2 className={styles.sectionTitle} style={{ display: "flex", alignItems: "center", gap: 6 }}><Trophy size={18} color="#b58a1e" /> この曲のゴール</h2>
+        <h2 className={styles.sectionTitle} style={{ display: "flex", alignItems: "center", gap: 6 }}><Trophy size={18} color="#b58a1e" /> ゴール</h2>
         <GoalTracker achv={achv} userId={userId} />
       </section>
 

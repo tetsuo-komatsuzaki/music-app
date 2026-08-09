@@ -53,14 +53,10 @@ function GoalRibbon({ stage }: { stage: 1 | 2 | 3 }) {
   )
 }
 
-function StepHead({ n, title, sub, tone }: { n: string; title: string; sub: string; tone: "s1" | "s2" }) {
-  const pillBg = tone === "s1" ? "#e9f7ef" : "#fbf0da"
-  const pillCol = tone === "s1" ? "#2e8b57" : "#b5651d"
+function StepHead({ title }: { title: string }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", margin: "0 0 8px" }}>
-      <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: pillBg, color: pillCol }}>{n}</span>
+    <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", margin: "0 0 8px" }}>
       {title}
-      {sub && <span style={{ fontWeight: 600, color: "var(--text-muted)", fontSize: "var(--fs-caption)" }}>{sub}</span>}
     </div>
   )
 }
@@ -153,7 +149,7 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
       ) : stage === 1 ? (
         // 達成前: STEP1 (弾けるように) だけ
         <>
-          <StepHead n="STEP 1" title="まずは弾けるように" sub="" tone="s1" />
+          <StepHead title="まずは弾けるように" />
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             {condDone >= condTotal
               ? <GoalRing full />
@@ -165,13 +161,13 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
             </div>
           </div>
           <div style={{ ...goalCheer(), display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
-            あと {condTotal - condDone}つ で達成！
+            あと {condTotal - condDone}つ で、この曲が弾けるように！
           </div>
         </>
       ) : (
         // 達成済・マスター挑戦中: STEP1はリボンの緑「弾けた」に畳み、STEP2 (弾きこなそう) を主役に
         <>
-          <StepHead n="STEP 2" title="曲を弾きこなそう" sub="" tone="s2" />
+          <StepHead title="曲を弾きこなそう" />
           <div>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 8, margin: "2px 0 12px" }}>
               <span style={{ fontSize: "var(--fs-display)", fontWeight: 900, lineHeight: 0.9, color: "var(--text-master)" }}>

@@ -84,7 +84,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
         </Link>
 
         {/* 🏆 この曲のゴール (達成/マスター。曲詳細と同じ GoalTracker を流用。体験上の重要要素・削除しない) */}
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)", margin: "14px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#b58a1e" /> この曲のゴール</div>
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)", margin: "14px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#b58a1e" /> ゴール</div>
         {ach ? (
           <GoalTracker achv={ach} userId={userId} />
         ) : (
