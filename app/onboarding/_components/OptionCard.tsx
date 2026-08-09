@@ -4,12 +4,13 @@
 //  (a) アイコン+ラベル / (b) ラベルのみ / (c) ラベル+右補助 / (d) 複数選択(チェックボックス)
 //  2行拡張(tall): 1行目=ラベル、2行目=動作説明 (G2/G4ゲート用)
 
+import type { ReactNode } from "react"
 import styles from "../onboarding.module.css"
 
 export type OptionCardProps = {
   label: string
-  /** (a)(d)型: 左アイコン(絵文字) */
-  icon?: string
+  /** (a)(d)型: 左アイコン(SVGアイコン等) */
+  icon?: ReactNode
   /** (c)型: 右補助テキスト */
   sub?: string
   /** 2行拡張: 2行目の動作説明 (高さ 8.7%H) */

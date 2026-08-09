@@ -12,6 +12,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { HelpCircle, Music, Mic, Users, Sparkles, Coffee, Star, Trophy, Timer } from "lucide-react"
 import styles from "./onboarding.module.css"
 import {
   OnboardingProvider,
@@ -368,7 +369,7 @@ function Scr08A() {
           />
         ))}
         <OptionCard
-          icon="🤔"
+          icon={<HelpCircle size={20} />}
           label="まだ決まってない"
           selected={s.ans.q4cat === "undecided"}
           onClick={() => s.setAns({ q4cat: "undecided" })}
@@ -401,7 +402,7 @@ function Scr08B() {
         {songs.map(([name, st]) => (
           <OptionCard
             key={name}
-            icon="🎵"
+            icon={<Music size={20} />}
             label={name}
             sub={`⭐︎${st}`}
             selected={s.ans.q4song === name}
@@ -509,12 +510,12 @@ function Scr09() {
 /* ── SCR-11 Q8 最終ゴール Epic Win(§27-7-2 5択) ── */
 function Scr11() {
   const s = useOnboarding()
-  const OPTS: Array<[string, string]> = [
-    ["人前で演奏したい", "🎤"],
-    ["家族や友人に聴かせたい", "👨‍👩‍👧"],
-    ["憧れのあの曲を完璧に弾きたい", "🌟"],
-    ["オーケストラ・アンサンブルに参加したい", "🎻"],
-    ["趣味として長く楽しみたい", "☕"],
+  const OPTS: Array<[string, React.ReactNode]> = [
+    ["人前で演奏したい", <Mic key="i" size={20} />],
+    ["家族や友人に聴かせたい", <Users key="i" size={20} />],
+    ["憧れのあの曲を完璧に弾きたい", <Sparkles key="i" size={20} />],
+    ["オーケストラ・アンサンブルに参加したい", <Music key="i" size={20} />],
+    ["趣味として長く楽しみたい", <Coffee key="i" size={20} />],
   ]
   const confirm = () => {
     if (s.ans.q8 === "人前で演奏したい") s.go("SCR11B")
@@ -681,11 +682,12 @@ function Scr12() {
           <ArcoChan poseKey="bravo" />
         </div>
         <div className={`${styles.mapNode} ${styles.mapNodeNow}`} style={{ left: "9.7%", top: "79%" }}>
-          <div className={styles.mapCircle}>🎻</div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <div className={styles.mapCircle}><img src="/Icon.png" alt="" aria-hidden width={22} height={22} style={{ borderRadius: 5 }} /></div>
           <div className={styles.mapLbl}>いま ★{star}</div>
         </div>
         <div className={styles.mapNode} style={{ left: "40.5%", top: "48%" }}>
-          <div className={styles.mapCircle}>⭐️</div>
+          <div className={styles.mapCircle}><Star size={22} fill="#f2b807" color="#f2b807" /></div>
           <div className={styles.mapLbl}>
             {s.ans.q4song ?? "目標曲"} ⭐︎{s.ans.q4star ?? ""}
           </div>
@@ -694,11 +696,11 @@ function Scr12() {
           </div>
         </div>
         <div className={styles.mapNode} style={{ left: "70.8%", top: "31%" }}>
-          <div className={styles.mapCircle}>✨</div>
+          <div className={styles.mapCircle}><Sparkles size={22} color="#f2b807" /></div>
           <div className={styles.mapLbl}>星を積み上げる</div>
         </div>
         <div className={`${styles.mapNode} ${styles.mapNodeGoal}`} style={{ left: "88.5%", top: "16.5%" }}>
-          <div className={styles.mapCircle}>🏆</div>
+          <div className={styles.mapCircle}><Trophy size={22} color="#b58a1e" /></div>
           <div className={styles.mapLbl}>{goalLbl}</div>
         </div>
       </div>
@@ -706,7 +708,8 @@ function Scr12() {
       {/* プランサマリー3枚(c型流用・実回答バインド。予測はSCR-08cと同値=同一関数) */}
       <div className={styles.plan}>
         <div className={styles.card}>
-          <span className={styles.cardIco}>🎻</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <span className={styles.cardIco}><img src="/Icon.png" alt="" aria-hidden width={20} height={20} style={{ borderRadius: 5 }} /></span>
           <span className={styles.cardMain}>
             {s.ans.q4song}{" "}
             <span style={{ color: "var(--primary)", fontSize: "0.8em" }}>⭐︎{s.ans.q4star}</span>
@@ -714,12 +717,12 @@ function Scr12() {
           <span className={styles.cardSub}>{period}で到達</span>
         </div>
         <div className={styles.card}>
-          <span className={styles.cardIco}>⏱️</span>
+          <span className={styles.cardIco}><Timer size={20} /></span>
           <span className={styles.cardMain}>{s.ans.q6}</span>
           <span className={styles.cardSub}>{Q6_LABEL[s.ans.q6 ?? ""] ?? ""}</span>
         </div>
         <div className={styles.card}>
-          <span className={styles.cardIco}>🏆</span>
+          <span className={styles.cardIco}><Trophy size={20} color="#b58a1e" /></span>
           <span className={styles.cardMain}>{s.ans.q8}</span>
           <span className={styles.cardSub}>{s.ans.goalDate ?? ""}</span>
         </div>

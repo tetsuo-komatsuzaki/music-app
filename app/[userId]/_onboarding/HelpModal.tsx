@@ -148,9 +148,11 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
           <section ref={pageGuidesRef} id="help-pageGuides" className={styles.section}>
             <h3 className={styles.sectionTitle}>③ {HELP_CONTENT.pageGuides.title}</h3>
             <div className={styles.pageGuideList}>
-              {HELP_CONTENT.pageGuides.items.map(item => (
+              {HELP_CONTENT.pageGuides.items.map(item => {
+                const Icon = item.icon
+                return (
                 <div key={item.pageKey} className={styles.pageGuideCard}>
-                  <span className={styles.pageGuideIcon}>{item.icon}</span>
+                  <span className={styles.pageGuideIcon}><Icon size={20} /></span>
                   <div className={styles.pageGuideText}>
                     <span className={styles.pageGuideName}>{item.name}</span>
                     <span className={styles.pageGuideDescription}>{item.description}</span>
@@ -165,7 +167,8 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
                     {HELP_CONTENT.pageGuides.buttonLabel}
                   </button>
                 </div>
-              ))}
+                )
+              })}
             </div>
             <p className={styles.pageGuideNote}>{HELP_CONTENT.pageGuides.note}</p>
           </section>

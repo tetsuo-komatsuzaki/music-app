@@ -1,4 +1,5 @@
-// 純データのみ ("use client" 不要)
+// 純データ + アイコン参照 ("use client" 不要)
+import { Home, Library, FileMusic, Dumbbell, Music, ClipboardList, NotebookPen } from "lucide-react"
 
 export const HELP_CONTENT = {
   // ① はじめてガイド
@@ -26,14 +27,14 @@ export const HELP_CONTENT = {
   pageGuides: {
     title: "ページごとの使い方",
     items: [
-      { pageKey: "home",         icon: "🏠", name: "ホーム",          description: "続きから練習・履歴・アルコの案内",      pathTemplate: "/" },
-      { pageKey: "scores",       icon: "🎵", name: "マイライブラリー",  description: "アップロードした楽譜の一覧",            pathTemplate: "/scores" },
-      { pageKey: "scoreDetail",  icon: "🎼", name: "スコア詳細",      description: "譜面を見て、再生・録音する",            pathTemplate: null },
-      { pageKey: "practice",     icon: "🎯", name: "練習メニュー",    description: "あなた向けのおすすめ練習",              pathTemplate: "/practice" },
-      { pageKey: "pieces",       icon: "🎶", name: "練習曲",          description: "☆別・ジャンル別に弾く曲を選ぶ",         pathTemplate: "/practice/pieces" },
-      { pageKey: "categoryList", icon: "📋", name: "カテゴリ一覧",    description: "種類をしぼって練習を探す",              pathTemplate: null },
-      { pageKey: "practiceItem", icon: "🎻", name: "練習アイテム詳細", description: "練習を再生・録音する（操作はスコア詳細と同じ）", pathTemplate: null },
-      { pageKey: "progress",     icon: "📖", name: "成長カルテ",      description: "練習の実態・安定マップ・所見・成長の物語", pathTemplate: "/progress" },
+      { pageKey: "home",         icon: Home,          name: "ホーム",          description: "続きから練習・履歴・アルコの案内",      pathTemplate: "/" },
+      { pageKey: "scores",       icon: Library,       name: "マイライブラリー",  description: "アップロードした楽譜の一覧",            pathTemplate: "/scores" },
+      { pageKey: "scoreDetail",  icon: FileMusic,     name: "スコア詳細",      description: "譜面を見て、再生・録音する",            pathTemplate: null },
+      { pageKey: "practice",     icon: Dumbbell,      name: "練習メニュー",    description: "あなた向けのおすすめ練習",              pathTemplate: "/practice" },
+      { pageKey: "pieces",       icon: Music,         name: "練習曲",          description: "☆別・ジャンル別に弾く曲を選ぶ",         pathTemplate: "/practice/pieces" },
+      { pageKey: "categoryList", icon: ClipboardList, name: "カテゴリ一覧",    description: "種類をしぼって練習を探す",              pathTemplate: null },
+      { pageKey: "practiceItem", icon: Music,         name: "練習アイテム詳細", description: "練習を再生・録音する（操作はスコア詳細と同じ）", pathTemplate: null },
+      { pageKey: "progress",     icon: NotebookPen,   name: "成長カルテ",      description: "練習の実態・安定マップ・所見・成長の物語", pathTemplate: "/progress" },
     ],
     buttonLabel: "ガイドを再生",
     note: "スコア詳細・カテゴリ一覧・練習アイテム詳細は、そのページを開いてからガイドを再生できます。",

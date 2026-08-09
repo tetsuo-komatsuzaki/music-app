@@ -172,7 +172,7 @@ export default function SharePublicView({
       {/* ── アプリへの導線 ── */}
       <div style={{ textAlign: "center" }}>
         <div style={{ fontSize: 12.5, fontWeight: 800, color: "#8a7c62", marginBottom: 10 }}>
-          アルコは、AIの先生といっしょに上達するバイオリン練習アプリです🎻
+          アルコは、AIの先生といっしょに上達するバイオリン練習アプリです。
         </div>
         <Link href="/" style={{
           display: "inline-block", fontSize: 14, fontWeight: 900, color: "#fff",

@@ -4,6 +4,7 @@
 // 名前はデフォルトなし・入れる場合だけ入力 (シェア時選択の確定仕様)。
 import { useState } from "react"
 import { createPortal } from "react-dom"
+import { Share2, MessageCircle, Camera, Check, Link2, Download } from "lucide-react"
 import { createShareCard } from "@/app/actions/shareCards"
 import { type ShareKind, type SharePayload, shareText, SHARE_KIND_META } from "@/app/_libs/shareCard"
 
@@ -114,8 +115,8 @@ export default function ShareSheet({
         padding: "16px 16px calc(16px + env(safe-area-inset-bottom))", boxShadow: "0 -6px 30px rgba(40,30,10,.25)",
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <div style={{ fontSize: 14, fontWeight: 900, color: "#3a3428" }}>
-            📤 {SHARE_KIND_META[kind].label}をシェア
+          <div style={{ fontSize: 14, fontWeight: 900, color: "#3a3428", display: "flex", alignItems: "center", gap: 6 }}>
+            <Share2 size={16} /> {SHARE_KIND_META[kind].label}をシェア
           </div>
           <button type="button" onClick={onClose} aria-label="閉じる"
             style={{ border: "none", background: "none", fontSize: 16, color: "#9a8c74", cursor: "pointer" }}>✕</button>
@@ -140,14 +141,14 @@ export default function ShareSheet({
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           <button type="button" style={{ ...btn, gridColumn: "1 / -1", background: "linear-gradient(135deg,#c9a227,#a97b1f)", color: "#fff", border: "none" }}
             onClick={openShare} disabled={creating}>
-            {creating ? "作成中…" : "📤 シェアする"}
+            {creating ? "作成中…" : <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Share2 size={15} /> シェアする</span>}
           </button>
           <button type="button" style={btn} onClick={openX} disabled={creating}>𝕏 でポスト</button>
-          <button type="button" style={btn} onClick={openLine} disabled={creating}>💬 LINEで送る</button>
-          <button type="button" style={btn} onClick={openInstagram} disabled={creating}>📷 Instagram</button>
-          <button type="button" style={btn} onClick={copyLink} disabled={creating}>{copied ? "✅ コピーした！" : "🔗 リンクをコピー"}</button>
-          <button type="button" style={btn} onClick={() => saveImage(false)} disabled={creating}>💾 画像を保存（横）</button>
-          <button type="button" style={btn} onClick={() => saveImage(true)} disabled={creating}>💾 画像を保存（縦）</button>
+          <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={openLine} disabled={creating}><MessageCircle size={15} /> LINEで送る</button>
+          <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={openInstagram} disabled={creating}><Camera size={15} /> Instagram</button>
+          <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={copyLink} disabled={creating}>{copied ? <><Check size={15} /> コピーした！</> : <><Link2 size={15} /> リンクをコピー</>}</button>
+          <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={() => saveImage(false)} disabled={creating}><Download size={15} /> 画像を保存（横）</button>
+          <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={() => saveImage(true)} disabled={creating}><Download size={15} /> 画像を保存（縦）</button>
         </div>
 
         {error && <div style={{ marginTop: 8, fontSize: 11.5, fontWeight: 800, color: "#c0473a" }}>{error}</div>}

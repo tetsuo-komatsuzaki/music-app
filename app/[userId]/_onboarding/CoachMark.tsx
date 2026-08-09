@@ -2,6 +2,7 @@
 
 import { useEffect, useState, ReactNode } from "react"
 import { createPortal } from "react-dom"
+import { Hand } from "lucide-react"
 import { useTargetRect } from "./hooks/useTargetRect"
 import { useOnboarding } from "./hooks/useOnboarding"
 import { CoachMarkBody } from "./content/coachMarks"
@@ -252,7 +253,7 @@ export default function CoachMark({
             left: Math.min(Math.max(rect.left + rect.width / 2, 60), viewport.w - 60),
           }}
         >
-          👆 {awaitTapHint}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Hand size={15} /> {awaitTapHint}</span>
         </div>
       )}
       <div

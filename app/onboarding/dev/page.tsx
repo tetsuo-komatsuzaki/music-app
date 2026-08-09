@@ -4,6 +4,7 @@
 // 指示書 C1 の検証用。本番フローからはリンクしない。
 
 import { useState } from "react"
+import { Clapperboard } from "lucide-react"
 import styles from "../onboarding.module.css"
 import OptionCard from "../_components/OptionCard"
 import CtaButton from "../_components/CtaButton"
@@ -58,7 +59,7 @@ export default function DevPage() {
       {section === "カード" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "1.6cqh" }}>
           <div className={styles.shead}>(a) アイコン+ラベル</div>
-          <OptionCard icon="🎬" label="映画・アニメの曲" selected={sel === "a"} onClick={() => setSel("a")} />
+          <OptionCard icon={<Clapperboard size={20} />} label="映画・アニメの曲" selected={sel === "a"} onClick={() => setSel("a")} />
           <div className={styles.shead}>(b) ラベルのみ</div>
           <OptionCard label="これから始める" selected={sel === "b"} onClick={() => setSel("b")} />
           <div className={styles.shead}>(c) ラベル+右補助</div>
