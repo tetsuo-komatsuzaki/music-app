@@ -5,6 +5,7 @@
 // 「カルテを返す」で該当曲の👂依頼も自動解決・生徒に通知。
 import Link from "next/link"
 import { useCallback, useState } from "react"
+import { Palette, MessageCircle } from "lucide-react"
 import AnnotatableScore from "@/app/components/AnnotatableScore"
 import { getFeedbackAsTeacher, saveFeedback } from "@/app/actions/teacherFeedback"
 import { returnGradingKarte } from "@/app/actions/gradingKarte"
@@ -61,7 +62,7 @@ export default function AnnotateClient({
 
       {/* ── 採点カルテ: 添削以外の記入欄 ── */}
       <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: "13px 15px", marginTop: 14 }}>
-        <label style={{ ...lbl, marginTop: 0 }}>🎨 表現クリア認定（任意）
+        <label style={{ ...lbl, marginTop: 0 }}><Palette size={13} style={{ verticalAlign: -1, marginRight: 4 }} />表現クリア認定（任意）
           <select value={moodTagId} onChange={(e) => setMoodTagId(e.target.value)} style={inp}>
             <option value="">認定しない</option>
             {MOOD_TAG_DEFS.map((t) => (
@@ -71,7 +72,7 @@ export default function AnnotateClient({
           <span style={{ fontSize: 10, color: "#9aa6b3" }}>認定すると、この曲の★がそのまま {studentName} さんの表現力レベルになります</span>
         </label>
 
-        <label style={lbl}>💬 ひとこと（生徒に届きます）
+        <label style={lbl}><MessageCircle size={13} style={{ verticalAlign: -1, marginRight: 4 }} />ひとこと（生徒に届きます）
           <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} maxLength={500}
             placeholder="例: フレーズの終わりがふわっと収まって、とても良かった！"
             style={{ ...inp, resize: "vertical" }} />

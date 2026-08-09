@@ -3,6 +3,7 @@
 // 先生とのやりとり UI (2026-07-28)。タブ: すべて/宿題/添削/メッセージ。
 // Phase 1: すべて(これまでのやりとり)・宿題は実データ。添削・メッセージは準備中(Phase 1.5)。
 import { useState, useTransition } from "react"
+import { GraduationCap, Calendar, History, MessageCircle, PartyPopper, Headphones, NotebookPen, Pin, Upload, ClipboardList, UserRound, type LucideIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { unlinkTeacher, sendMessage } from "@/app/actions/teacherActions"
@@ -10,7 +11,11 @@ import { bookLesson, cancelMyBooking } from "@/app/actions/teacherLessons"
 import AssignmentSubmit from "@/app/components/AssignmentSubmit"
 import { goalLabel, dueInfo, DUE_COLOR, goalResult } from "@/app/_libs/assignmentGoal"
 
-type TimelineEv = { when: string; kind: "hw" | "comment"; text: string; href?: string | null }
+type TimelineEv = { when: string; kind: "hw" | "comment"; text: string; href?: string | null; icon?: string }
+
+const TIMELINE_ICON: Record<string, LucideIcon> = {
+  pin: Pin, message: MessageCircle, upload: Upload, you: UserRound, clipboard: ClipboardList,
+}
 type Homework = {
   id: string; title: string; detail: string; comment: string | null
   dueDate: string | null; goalType: string | null; targetScore: number | null
@@ -59,7 +64,7 @@ export default function MyTeacherClient({
       {/* 先生カード */}
       <div style={card()}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ width: 40, height: 40, borderRadius: "50%", background: "#eafaf0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flex: "none" }}>👩‍🏫</span>
+          <span style={{ width: 40, height: 40, borderRadius: "50%", background: "#eafaf0", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}><GraduationCap size={22} color="#2e8b57" /></span>
           <span style={{ minWidth: 0 }}>
             <span style={{ display: "block", fontSize: 14.5, fontWeight: 800, color: INK }}>{teacherName} 先生</span>
             <span style={{ display: "block", fontSize: 11.5, color: SUB }}>つながって {since} から</span>
@@ -67,7 +72,7 @@ export default function MyTeacherClient({
         </div>
         {nextLessonLabel && (
           <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #f1f3f5", fontSize: 12.5, color: INK }}>
-            📅 次回レッスン：<b>{nextLessonLabel}</b>
+<span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Calendar size={13} /> 次回レッスン：<b>{nextLessonLabel}</b></span>
           </div>
         )}
       </div>
@@ -103,18 +108,22 @@ function AllTab({ timeline }: { timeline: TimelineEv[] }) {
   if (timeline.length === 0) return <Empty note="まだやりとりはありません。先生からの宿題やコメントがここに並びます。" />
   return (
     <div style={card()}>
-      <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", marginBottom: 10 }}>🕐 これまでのやりとり</div>
+      <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", marginBottom: 10, display: "flex", alignItems: "center", gap: 5 }}><History size={13} /> これまでのやりとり</div>
       <div style={{ position: "relative", paddingLeft: 16, display: "flex", flexDirection: "column", gap: 11 }}>
         <span style={{ position: "absolute", left: 4, top: 4, bottom: 4, width: 2, background: "#e7eaee" }} />
         {timeline.map((e, i) => (
           <div key={i} style={{ position: "relative" }}>
             <span style={{ position: "absolute", left: -16, top: 3, width: 9, height: 9, borderRadius: "50%", background: e.kind === "hw" ? "#2e8b57" : ACCENT, border: "2px solid #fff" }} />
             <div style={{ fontSize: 10, color: "#9aa6b3", fontWeight: 700 }}>{e.when}</div>
-            {e.href ? (
-              <Link href={e.href} style={{ fontSize: 12.5, color: INK, textDecoration: "none" }}>{e.text} <span style={{ color: ACCENT, fontWeight: 800 }}>›</span></Link>
-            ) : (
-              <div style={{ fontSize: 12.5, color: INK }}>{e.text}</div>
-            )}
+            {(() => {
+              const Ic = e.icon ? TIMELINE_ICON[e.icon] : null
+              const body = <span style={{ display: "inline-flex", alignItems: "flex-start", gap: 5 }}>{Ic && <Ic size={13} style={{ flex: "none", marginTop: 2 }} />} <span>{e.text}</span></span>
+              return e.href ? (
+                <Link href={e.href} style={{ fontSize: 12.5, color: INK, textDecoration: "none" }}>{body} <span style={{ color: ACCENT, fontWeight: 800 }}>›</span></Link>
+              ) : (
+                <div style={{ fontSize: 12.5, color: INK }}>{body}</div>
+              )
+            })()}
           </div>
         ))}
       </div>
@@ -167,7 +176,7 @@ function HwCard({ h }: { h: Homework }) {
         </div>
       )}
       <div style={{ fontSize: 12, color: SUB, marginTop: 5 }}>{h.detail || "（詳細指定なし）"}</div>
-      {h.comment && <div style={{ fontSize: 12.5, color: INK, marginTop: 4 }}>💬 {h.comment}</div>}
+      {h.comment && <div style={{ fontSize: 12.5, color: INK, marginTop: 4, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{h.comment}</span></div>}
       {!h.submitted && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 9 }}>
           <Link href={h.href} style={{ textAlign: "center", background: "#f7f8fa", color: SUB, border: "1px solid #e7eaee", fontSize: 12, fontWeight: 800, borderRadius: 9, padding: "8px 0", textDecoration: "none" }}>録音する</Link>
@@ -217,7 +226,7 @@ function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[
                 background: "linear-gradient(135deg,#fdf3df,#fdeef2)", border: "1px solid #eecfa0",
                 borderRadius: 14, padding: "13px 14px",
               }}>
-                <div style={{ fontSize: 19, lineHeight: 1 }}>🎉</div>
+                <div style={{ display: "flex", justifyContent: "center", lineHeight: 1 }}><PartyPopper size={20} color="#8a5a10" /></div>
                 <div style={{ fontSize: 13, fontWeight: 800, color: "#8a5a10", marginTop: 5, lineHeight: 1.6 }}>{m.body}</div>
                 <div style={{ fontSize: 10, color: "#c4a97a", marginTop: 4 }}>先生からのお祝い ・ {m.time}</div>
               </div>
@@ -234,7 +243,7 @@ function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[
                   href={m.perf.href}
                   style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10.5, fontWeight: 800, textDecoration: "none", marginBottom: 4, padding: "2px 7px", borderRadius: 999, background: m.fromTeacher ? "#eef0fc" : "rgba(255,255,255,.22)", color: m.fromTeacher ? "#5b6b9e" : "#fff" }}
                 >
-                  🎧 {m.perf.title} の演奏について →
+                  <Headphones size={12} /> {m.perf.title} の演奏について →
                 </Link>
               )}
               <div>{m.body}</div>
@@ -292,7 +301,7 @@ function LessonTab({ lessons }: { lessons: Lessons }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {lessons.booked.map((l) => (
               <div key={l.id} style={{ border: "1px solid #cbe8d6", background: "#f4fbf7", borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ fontSize: 13.5, fontWeight: 800, color: INK }}>📅 {l.when}</div>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: INK, display: "flex", alignItems: "center", gap: 5 }}><Calendar size={14} /> {l.when}</div>
                 <div style={{ fontSize: 11.5, color: SUB, marginTop: 2 }}>{meta(l)}</div>
                 <button type="button" onClick={() => cancel(l.id)} disabled={pending}
                   style={{ marginTop: 8, border: "1px solid #e2e6ea", background: "#fff", color: "#c0473a", borderRadius: 8, padding: "5px 12px", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>予約を取り消す</button>
@@ -334,7 +343,7 @@ function ReviewTab({ userId, feedbacks }: { userId: string; feedbacks: Feedback[
         <Link key={f.scoreId} href={`/${userId}/scores/${f.scoreId}`}
           style={{ ...card(), display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit" }}>
           <span style={{ minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: INK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>📝 {f.title}</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13.5, fontWeight: 800, color: INK, overflow: "hidden" }}><NotebookPen size={14} style={{ flex: "none" }} /> <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.title}</span></span>
             <span style={{ display: "block", fontSize: 11, color: SUB }}>{f.date} に更新</span>
           </span>
           <span style={{ fontSize: 12, fontWeight: 800, color: ACCENT, flex: "none" }}>譜面で見る →</span>

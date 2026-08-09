@@ -3,6 +3,7 @@
 // 先生プロフィール編集フォーム (2026-08-01 Phase2)。
 import { useEffect, useRef, useState, useTransition } from "react"
 import Link from "next/link"
+import { GraduationCap } from "lucide-react"
 import { getMyProfile, saveMyProfile, type ProfileData } from "@/app/actions/teacherProfile"
 import { uploadTeacherPhoto, removeTeacherPhoto } from "@/app/actions/uploadTeacherPhoto"
 
@@ -80,7 +81,7 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
             {p.photoUrl
               // eslint-disable-next-line @next/next/no-img-element
               ? <img src={p.photoUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              : <span style={{ fontSize: 22 }}>👩‍🏫</span>}
+              : <GraduationCap size={24} color="#8ba0c4" />}
           </span>
           <input
             ref={fileRef}

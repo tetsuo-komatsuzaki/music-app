@@ -1,6 +1,7 @@
 // 先生ホーム = 生徒一覧 + 招待コード (2026-07-28)。MVPではホームと一覧を統合。
 // role!==teacher は生徒ホームへ redirect。別シェル(TeacherShell)内で描画される。
 import Link from "next/link"
+import { UserRound } from "lucide-react"
 import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
@@ -94,7 +95,7 @@ export default async function TeacherHomePage({
               }}
             >
               <span style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                <span aria-hidden style={{ fontSize: 22 }}>👤</span>
+                <UserRound size={22} color="#8ba0c4" aria-hidden style={{ flex: "none" }} />
                 <span style={{ fontSize: 14, fontWeight: 800, color: "#2b3742", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {l.student.name}
                 </span>

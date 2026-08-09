@@ -4,6 +4,7 @@
 // 将来の先生メニュー(予約/添削/売上)はこのシェルのナビに足す。各画面のback導線は各ページ側。
 import { ReactNode } from "react"
 import Link from "next/link"
+import { GraduationCap } from "lucide-react"
 import { useParams } from "next/navigation"
 
 export default function TeacherShell({ children }: { children: ReactNode }) {
@@ -17,7 +18,7 @@ export default function TeacherShell({ children }: { children: ReactNode }) {
           background: "#2b3742", color: "#fff",
         }}
       >
-        <span style={{ fontSize: 13.5, fontWeight: 800, letterSpacing: ".02em" }}>🎓 先生モード</span>
+        <span style={{ fontSize: 13.5, fontWeight: 800, letterSpacing: ".02em", display: "inline-flex", alignItems: "center", gap: 5 }}><GraduationCap size={15} /> 先生モード</span>
         <Link
           href={`/${userId}`}
           style={{

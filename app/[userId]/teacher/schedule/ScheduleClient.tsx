@@ -3,6 +3,7 @@
 // 先生: レッスン枠の作成・一覧 (2026-08-01 Phase3)。
 import { useState, useTransition } from "react"
 import Link from "next/link"
+import { Laptop, MapPin } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createLessonSlot, cancelLesson } from "@/app/actions/teacherLessons"
 
@@ -55,8 +56,8 @@ export default function ScheduleClient({ userId, lessons }: { userId: string; le
                 {[15, 30, 45, 60].map((d) => <option key={d} value={d}>{d}分</option>)}
               </select>
             </label>
-            <button type="button" onClick={() => setOnline((v) => !v)} style={{ ...inp, cursor: "pointer", fontWeight: 800, background: online ? "#eef1f4" : "#fff", color: "#2b3742" }}>
-              {online ? "💻 オンライン" : "📍 対面"}
+            <button type="button" onClick={() => setOnline((v) => !v)} style={{ ...inp, cursor: "pointer", fontWeight: 800, background: online ? "#eef1f4" : "#fff", color: "#2b3742", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+              {online ? <><Laptop size={13} /> オンライン</> : <><MapPin size={13} /> 対面</>}
             </button>
           </div>
           <input value={place} onChange={(e) => setPlace(e.target.value)} placeholder={online ? "ビデオURL等（任意）" : "場所（任意）"} style={inp} maxLength={200} />

@@ -2,6 +2,7 @@
 
 // 先生を探す UI (2026-08-01 Phase2)。AI相性でおすすめ→カード一覧→つながる。招待コードも。
 import { useMemo, useState, useTransition } from "react"
+import { Bot, Mail, GraduationCap, Baby, Laptop, MapPin, Clock, NotebookPen } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { connectToTeacher, linkWithInviteCode } from "@/app/actions/teacherActions"
 
@@ -81,14 +82,14 @@ export default function FindTeacherClient({
 
       {weakAxis && (
         <div style={{ ...card, borderColor: "#d3d9f5", marginBottom: 12 }}>
-          <div style={{ fontSize: 11.5, fontWeight: 800, color: ACCENT, marginBottom: 3 }}>🤖 AI相性マッチング</div>
+          <div style={{ fontSize: 11.5, fontWeight: 800, color: ACCENT, marginBottom: 3, display: "flex", alignItems: "center", gap: 5 }}><Bot size={14} /> AI相性マッチング</div>
           <div style={{ fontSize: 12.5, color: INK }}>いまのあなたは <b>{weakAxis}</b> が伸びしろ。<b>{weakAxis}</b>が得意な先生を上に出しています。</div>
         </div>
       )}
 
       {/* 招待コード */}
       <div style={{ ...card, marginBottom: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: INK, marginBottom: 6 }}>📮 先生から招待コードをもらっている場合</div>
+        <div style={{ fontSize: 12, fontWeight: 800, color: INK, marginBottom: 6, display: "flex", alignItems: "center", gap: 5 }}><Mail size={14} /> 先生から招待コードをもらっている場合</div>
         <div style={{ display: "flex", gap: 8 }}>
           <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="コード" maxLength={12}
             style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 11px", fontSize: 14, letterSpacing: ".1em", fontFamily: "ui-monospace, Menlo, Consolas, monospace" }} />
@@ -119,7 +120,7 @@ export default function FindTeacherClient({
                   {t.photoUrl
                     // eslint-disable-next-line @next/next/no-img-element
                     ? <img src={t.photoUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    : "👩‍🏫"}
+                    : <GraduationCap size={22} color={ACCENT} />}
                 </span>
                 <span style={{ minWidth: 0, flex: 1 }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -132,15 +133,15 @@ export default function FindTeacherClient({
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 9, fontSize: 11, color: SUB }}>
                 {t.genres.length > 0 && <span>ジャンル：{t.genres.join("・")}</span>}
-                {t.forKids && <span>👦 子どもOK</span>}
-                {t.online && <span>💻 オンライン</span>}
-                {t.area && <span>📍 {t.area}</span>}
-                {t.availability && <span>🕒 {t.availability}</span>}
+                {t.forKids && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Baby size={12} /> 子どもOK</span>}
+                {t.online && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Laptop size={12} /> オンライン</span>}
+                {t.area && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><MapPin size={12} /> {t.area}</span>}
+                {t.availability && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Clock size={12} /> {t.availability}</span>}
               </div>
 
               {t.bio && <div style={{ fontSize: 12, color: "#4a5766", marginTop: 8, lineHeight: 1.55 }}>{t.bio}</div>}
-              {t.career && <div style={{ fontSize: 11.5, color: SUB, marginTop: 6, lineHeight: 1.5 }}>🎓 {t.career}</div>}
-              {t.lessonStyle && <div style={{ fontSize: 11.5, color: SUB, marginTop: 4, lineHeight: 1.5 }}>📝 {t.lessonStyle}</div>}
+              {t.career && <div style={{ fontSize: 11.5, color: SUB, marginTop: 6, lineHeight: 1.5, display: "flex", gap: 5 }}><GraduationCap size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{t.career}</span></div>}
+              {t.lessonStyle && <div style={{ fontSize: 11.5, color: SUB, marginTop: 4, lineHeight: 1.5, display: "flex", gap: 5 }}><NotebookPen size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{t.lessonStyle}</span></div>}
 
               <div style={{ display: "flex", gap: 7, marginTop: 11 }}>
                 {t.sampleUrl && (

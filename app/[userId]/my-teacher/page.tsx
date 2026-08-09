@@ -143,14 +143,15 @@ export default async function MyTeacherPage({
   }))
 
   // 「すべて＝これまでのやりとり」: いまは宿題とそのコメントをイベント化して時系列に
-  type Ev = { at: number; when: string; kind: "hw" | "comment"; text: string; href?: string }
+  type Ev = { at: number; when: string; kind: "hw" | "comment"; text: string; href?: string; icon?: string }
   const events: Ev[] = []
   for (const a of assignments) {
     events.push({
       at: a.createdAt.getTime(),
       when: a.createdAt.toLocaleDateString("ja-JP"),
       kind: "hw",
-      text: `📌 宿題「${a.score?.title ?? a.practiceItem?.title ?? "課題"}」${[a.targetMeasures && `第${a.targetMeasures}小節`, a.reps && `×${a.reps}`].filter(Boolean).join(" ")}`,
+      icon: "pin",
+      text: `宿題「${a.score?.title ?? a.practiceItem?.title ?? "課題"}」${[a.targetMeasures && `第${a.targetMeasures}小節`, a.reps && `×${a.reps}`].filter(Boolean).join(" ")}`,
       href: hw.find((h) => h.id === a.id)?.href,
     })
     if (a.comment) {
@@ -158,7 +159,8 @@ export default async function MyTeacherPage({
         at: a.createdAt.getTime() + 1,
         when: a.createdAt.toLocaleDateString("ja-JP"),
         kind: "comment",
-        text: `💬 ${a.comment}`,
+        icon: "message",
+        text: `${a.comment}`,
       })
     }
     if (a.submittedAt) {
@@ -166,7 +168,8 @@ export default async function MyTeacherPage({
         at: a.submittedAt.getTime(),
         when: a.submittedAt.toLocaleDateString("ja-JP"),
         kind: "hw",
-        text: `📤 「${a.score?.title ?? a.practiceItem?.title ?? "課題"}」を提出${a.submittedScore != null ? `（${a.submittedScore}点）` : ""}`,
+        icon: "upload",
+        text: `「${a.score?.title ?? a.practiceItem?.title ?? "課題"}」を提出${a.submittedScore != null ? `（${a.submittedScore}点）` : ""}`,
       })
     }
   }
@@ -175,7 +178,8 @@ export default async function MyTeacherPage({
       at: m.createdAt.getTime(),
       when: m.createdAt.toLocaleDateString("ja-JP"),
       kind: "comment",
-      text: `${m.fromTeacher ? "💬 先生" : "🙋 あなた"}：${m.body}`,
+      icon: m.fromTeacher ? "message" : "you",
+      text: `${m.fromTeacher ? "先生" : "あなた"}：${m.body}`,
     })
   }
 
@@ -195,7 +199,8 @@ export default async function MyTeacherPage({
         at: o.createdAt.getTime(),
         when: o.createdAt.toLocaleDateString("ja-JP"),
         kind: "comment",
-        text: `📋 先生の所見${sev}：${body}`,
+        icon: "clipboard",
+        text: `先生の所見${sev}：${body}`,
       })
     }
   } catch { /* テーブル未整備時は無視 */ }
