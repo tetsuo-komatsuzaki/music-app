@@ -160,9 +160,6 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
               ))}
             </div>
           </div>
-          <div style={{ ...goalCheer(), display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
-            あと {condTotal - condDone}つ で、この曲が弾けるように！
-          </div>
         </>
       ) : (
         // 達成済・マスター挑戦中: STEP1はリボンの緑「弾けた」に畳み、STEP2 (弾きこなそう) を主役に
