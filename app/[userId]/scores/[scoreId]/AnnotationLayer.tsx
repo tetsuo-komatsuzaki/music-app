@@ -17,8 +17,8 @@ import styles from "./AnnotationLayer.module.css"
 type Tool = null | "highlight" | "text" | "flat" | "sharp" | "tempo" | "hard" | "erase"
 
 const WARN_PRESETS: Record<string, { label: string; icon: string; cls: string }> = {
-  flat: { label: "低い", icon: "♭", cls: "wFlat" },
-  sharp: { label: "高い", icon: "♯", cls: "wSharp" },
+  flat: { label: "低い", icon: "↓", cls: "wFlat" },
+  sharp: { label: "高い", icon: "↑", cls: "wSharp" },
   tempo: { label: "テンポ", icon: "♩", cls: "wTempo" },
   hard: { label: "難所", icon: "!", cls: "wHard" },
 }
@@ -373,8 +373,8 @@ export default function AnnotationLayer({
         <div className={styles.tools}>
           {toolBtn("highlight", "▬", "ハイライト")}
           {toolBtn("text", <Pencil size={14} />, "メモ")}
-          {toolBtn("flat", "♭", "低い")}
-          {toolBtn("sharp", "♯", "高い")}
+          {toolBtn("flat", "↓", "低い")}
+          {toolBtn("sharp", "↑", "高い")}
           {toolBtn("tempo", "♩", "テンポ")}
           {toolBtn("hard", "!", "難所")}
           <button
