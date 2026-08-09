@@ -61,6 +61,8 @@ type Props = {
   filterOptions: { keys: string[]; positions: string[] }
   currentFilters: { key?: string; position?: string }
   stats: PracticeStats
+  /** ユーザーの現在★。奏法/調の選択可否は「開いたタブ」ではなくこのレベルで判定する */
+  userStar?: number | null
 }
 
 type ViewType = "star" | "group"
@@ -379,11 +381,12 @@ function FamilyView({
 type StarTab = number | "none"
 
 function StarView({
-  items, userId, category,
+  items, userId, category, userStar,
 }: {
   items: PracticeItemDTO[]
   userId: string
   category: string
+  userStar?: number | null
 }) {
   const starValues = Array.from(
     new Set(items.map((i) => i.star).filter((s): s is number => s != null)),
@@ -432,7 +435,8 @@ function StarView({
         <p className={styles.cardContextEmpty}>この難しさの教材はまだないよ</p>
       ) : isFamilyCategory(category) ? (
         // 音階/アルペジオ: 族カード + 調シート (オクターブ見出しは廃止し族が兼ねる)
-        <FamilyView items={filtered} allItems={items} baseStar={baseStar} userId={userId} category={category} />
+        // 選択可否(gate)は「開いたタブ」ではなくユーザーの現在★で判定 (userStar優先)。
+        <FamilyView items={filtered} allItems={items} baseStar={userStar ?? baseStar} userId={userId} category={category} />
       ) : (
         subGroups.map((sg, idx) => (
           <section key={sg.label || idx} className={styles.railSection}>
@@ -636,7 +640,7 @@ function GroupView({
 // ────────────────────────────────────────────────────────────
 
 export default function PracticeList({
-  userId, category, categoryTitle, items, filterOptions: _filterOptions, currentFilters: _currentFilters, stats: _stats,
+  userId, category, categoryTitle, items, filterOptions: _filterOptions, currentFilters: _currentFilters, stats: _stats, userStar = null,
 }: Props) {
   void _filterOptions
   void _currentFilters
@@ -684,7 +688,7 @@ export default function PracticeList({
       </div>
 
       {activeView === "star" && (
-        <StarView items={items} userId={userId} category={category} />
+        <StarView items={items} userId={userId} category={category} userStar={userStar} />
       )}
       {activeView === "group" && (
         <GroupView items={items} userId={userId} category={category} />

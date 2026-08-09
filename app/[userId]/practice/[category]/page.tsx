@@ -169,6 +169,13 @@ export default async function CategoryPage({
   const keys = [...new Set(allItemsForFilter.map((i) => `${i.keyTonic}_${i.keyMode}`))]
   const positions = [...new Set(allItemsForFilter.flatMap((i) => i.positions))]
 
+  // 奏法/調の選択可否は「開いたタブ」ではなくユーザーの現在★で判定する (2026-08-09)
+  const starRow = await prisma.userStarProgress.findUnique({
+    where: { userId: dbUserId },
+    select: { currentStar: true },
+  })
+  const userStar = starRow?.currentStar ?? null
+
   return (
     <PracticeList
       userId={authUserId}
@@ -178,6 +185,7 @@ export default async function CategoryPage({
       filterOptions={{ keys, positions }}
       currentFilters={sp}
       stats={stats}
+      userStar={userStar}
     />
   )
 }
