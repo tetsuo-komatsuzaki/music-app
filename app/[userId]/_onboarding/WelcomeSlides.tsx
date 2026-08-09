@@ -26,18 +26,16 @@ const MARK_COLORS = [
   { key: "green",  label: "ばっちり" },
   { key: "red",    label: "音程" },
   { key: "orange", label: "リズム" },
-  { key: "gray",   label: "拾えず" },
 ] as const
 const MK_FILL: Record<string, [string, string]> = {
   green: ["#6fdc7e", "#2fae52"],
   red: ["#ff8a80", "#e5392b"],
   orange: ["#ffc16b", "#f08a1d"],
-  gray: ["#d7dce0", "#a7afb6"],
 }
-// 譜面上の音符 [x, y, 評価色]
+// 譜面上の音符 [x, y, 評価色] (グレー=拾えずはガイドに出さない)
 const EVAL_NOTES: ReadonlyArray<readonly [number, number, string]> = [
   [40, 74, "green"], [74, 62, "green"], [108, 68, "orange"], [142, 56, "green"],
-  [176, 74, "red"], [210, 62, "green"], [244, 68, "gray"],
+  [176, 74, "red"], [210, 62, "green"], [244, 68, "green"],
 ]
 const TREND_DOTS: ReadonlyArray<readonly [number, number, number]> = [
   [22, 112, 0.3], [68, 104, 0.6], [114, 86, 0.9], [160, 62, 1.1],
@@ -179,17 +177,17 @@ function renderVisual(visual: SlideVisual): ReactNode {
           <svg viewBox="0 0 260 142" fill="none">
             <defs>
               <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#4a7fa3" stopOpacity="0.26" />
-                <stop offset="1" stopColor="#4a7fa3" stopOpacity="0" />
+                <stop offset="0" stopColor="#e6a94a" stopOpacity="0.30" />
+                <stop offset="1" stopColor="#e6a94a" stopOpacity="0" />
               </linearGradient>
             </defs>
             <path d="M22,112 L68,104 L114,86 L160,62 L206,32 L206,128 L22,128 Z" fill="url(#tg)" />
             <polyline
               className={styles.tline}
               points="22,112 68,104 114,86 160,62 206,32"
-              stroke="#4a7fa3" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+              stroke="#d19a2b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
             />
-            <g fill="#4a7fa3">
+            <g fill="#d19a2b">
               {TREND_DOTS.map(([x, y, d], i) => (
                 <circle key={i} className={styles.tdot} style={{ animationDelay: `${d}s` }} cx={x} cy={y} r="3.4" />
               ))}

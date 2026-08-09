@@ -18,7 +18,6 @@ export const HELP_CONTENT = {
       { key: "green",  name: "緑",       meaning: "ばっちり",         detail: "音程もタイミングも合っている音" },
       { key: "red",    name: "赤",       meaning: "音程がズレた",     detail: "楽譜と違う高さで弾いた音" },
       { key: "orange", name: "オレンジ", meaning: "タイミングがズレた", detail: "楽譜より早い・遅く弾いた音" },
-      { key: "gray",   name: "グレー",   meaning: "拾えなかった",     detail: "音が小さい・短いなどで検出できなかった音" },
     ],
     note: "音程とタイミングが両方ズレた音は、赤で表示します。まずは赤（音程）から直すのが、上達への近道です。",
   },

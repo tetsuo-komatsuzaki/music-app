@@ -271,7 +271,6 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
             { color: "green",  label: "緑",       meaning: "ばっちり" },
             { color: "red",    label: "赤",       meaning: "音程がズレた" },
             { color: "orange", label: "オレンジ", meaning: "リズムがズレた" },
-            { color: "gray",   label: "グレー",   meaning: "拾えなかった" },
           ],
           note: "わかるから直せる。直せるから、上達する。",
         },
