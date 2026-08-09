@@ -5,7 +5,7 @@
 
 import Link from "next/link"
 import type { ReactNode } from "react"
-import { BookOpen, Music, Trophy, Sparkles, Lock } from "lucide-react"
+import { BookOpen, Music, Trophy } from "lucide-react"
 import type { DailyLesson } from "../_libs/dailyLessons"
 
 // achievement-status API レスポンス (route.ts と同期)
@@ -26,16 +26,29 @@ export type AchievementStatus = {
   totalPerformanceCount: number
 }
 
-type NodeOn = "a" | "m" | ""
-
-function TrackNode({ em, label, on }: { em: ReactNode; label: string; on: NodeOn }) {
-  const bg = on === "a" ? "#e9f7ef" : on === "m" ? "#fbf0da" : "#f1f4f8"
-  const col = on === "a" ? "#2e8b57" : on === "m" ? "#b5651d" : "#9aa6b3"
-  const bd = on === "a" ? "#bfe6cf" : on === "m" ? "#eecfa0" : "transparent"
+// 進捗リボン (2026-08-09 案03): 道の帯を3分割の細バーに凝縮した全体地図。
+// stage 1 = STEP1中 / 2 = 達成済(STEP2中) / 3 = マスター済。
+function GoalRibbon({ stage }: { stage: 1 | 2 | 3 }) {
+  const GRAY = "#e6eaef"
+  const bars = [
+    stage >= 2 ? "#2e8b57" : "#7cc39a",
+    stage >= 2 ? "#2e8b57" : GRAY,
+    stage === 3 ? "#b5651d" : stage === 2 ? "linear-gradient(90deg,#e6a94a,#b5651d)" : GRAY,
+  ]
+  const labels = ["はじめ", stage >= 2 ? "弾けた" : "弾ける", "マスター"]
+  const labCol = ["#2e8b57", stage >= 2 ? "#2e8b57" : "#8b97a3", stage >= 2 ? "#b5651d" : "#8b97a3"]
   return (
-    <div style={{ flex: 1, textAlign: "center", fontSize: 11, fontWeight: 800, padding: "7px 4px", borderRadius: 10, background: bg, color: col, border: `1.5px solid ${bd}` }}>
-      <span style={{ display: "flex", justifyContent: "center", lineHeight: 1.1, marginBottom: 1, filter: on ? "none" : "grayscale(1) opacity(.5)" }}>{em}</span>
-      {label}
+    <div style={{ margin: "2px 0 14px" }}>
+      <div style={{ display: "flex", gap: 4 }}>
+        {bars.map((bg, i) => (
+          <div key={i} style={{ flex: 1, height: 7, borderRadius: 3, background: bg }} />
+        ))}
+      </div>
+      <div style={{ display: "flex", marginTop: 5 }}>
+        {labels.map((l, i) => (
+          <span key={i} style={{ flex: 1, textAlign: "center", fontSize: 9.5, fontWeight: 800, color: labCol[i] }}>{l}</span>
+        ))}
+      </div>
     </div>
   )
 }
@@ -127,28 +140,18 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
   const needMore = achv.master.scoredCount < achv.master.requiredCount
   const remainingRuns = achv.master.requiredCount - achv.master.scoredCount
 
-  const n1On: NodeOn = achv.mastered ? "a" : achv.achieved ? "" : "a"
-  const n1Label = !achv.achieved && !achv.mastered ? "いま挑戦中" : "スタート"
-  const n2On: NodeOn = achv.achieved || achv.mastered ? "a" : ""
-  const n2Label = achv.mastered ? "弾ける" : achv.achieved ? "弾けた" : "弾ける"
-  const n3On: NodeOn = achv.mastered ? "m" : ""
-  const n3Label = achv.mastered ? "マスター！" : "マスター"
+  // STEP出し分け (2026-08-09 案03): 進捗で「今の1ステップ」だけ表示し、同時に両方は出さない。
+  const stage: 1 | 2 | 3 = achv.mastered ? 3 : achv.achieved ? 2 : 1
 
   return (
     <>
-      {/* 道: スタート → 達成 → マスター */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "2px 0 14px" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <TrackNode em={<img src="/Icon-green.png" alt="" aria-hidden width={18} height={18} style={{ borderRadius: 4 }} />} label={n1Label} on={n1On} />
-        <span style={{ color: "#c4ccd6", fontWeight: 900 }}>›</span>
-        <TrackNode em={<Music size={18} />} label={n2Label} on={n2On} />
-        <span style={{ color: "#c4ccd6", fontWeight: 900 }}>›</span>
-        <TrackNode em={<Trophy size={18} color="#b58a1e" />} label={n3Label} on={n3On} />
-      </div>
+      <GoalRibbon stage={stage} />
 
-      {achv.mastered ? (
+      {stage === 3 ? (
+        // マスター済: お祝いだけ
         <div style={{ ...goalCheer(true), display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><Trophy size={16} color="#b58a1e" /> この曲をマスター！ おつかれさま、すごい！</div>
-      ) : (
+      ) : stage === 1 ? (
+        // 達成前: STEP1 (弾けるように) だけ
         <>
           <StepHead n="STEP 1" title="まずは弾けるように" sub="" tone="s1" />
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -162,45 +165,40 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
             </div>
           </div>
           <div style={{ ...goalCheer(), display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
-            {achv.achieved ? <><Sparkles size={14} /> 達成ずみ！「弾ける」認定</> : `あと ${condTotal - condDone}つ で達成！`}
+            あと {condTotal - condDone}つ で達成！
           </div>
         </>
-      )}
-
-      <div style={{ height: 1, background: "#eef1f4", margin: "14px 0" }} />
-
-      <StepHead n="STEP 2" title="曲を弾きこなそう" sub="" tone="s2" />
-      {!achv.achieved && !achv.mastered ? (
-        <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#f4f6f9", borderRadius: 12, padding: "12px 14px", color: "#9aa6b3", fontSize: 12.5, fontWeight: 700 }}>
-          <Lock size={15} style={{ flex: "none" }} /> 達成すると挑戦できるよ
-        </div>
       ) : (
-        <div>
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 8, margin: "2px 0 12px" }}>
-            <span style={{ fontSize: 34, fontWeight: 900, lineHeight: 0.9, color: "#b5651d" }}>
-              {avg != null ? avg.toFixed(0) : "—"}<small style={{ fontSize: 14, fontWeight: 800 }}>点</small>
-            </span>
-            <span style={{ fontSize: 11.5, color: "#9aa6b3", fontWeight: 700, paddingBottom: 3 }}>
-              {achv.mastered ? "直近5回の平均" : avg != null && avg < 90 ? `あと ${Math.max(1, Math.ceil(90 - avg))}点！` : "いまの平均"}
-            </span>
-          </div>
-          <div style={{ position: "relative", paddingTop: 16 }}>
-            <div style={{ position: "absolute", top: 0, left: "90%", transform: "translateX(-50%)", fontSize: 10, fontWeight: 900, color: "#b5651d" }}>
-              90
-              <div style={{ width: 2, height: 8, background: "#b5651d", margin: "1px auto 0" }} />
+        // 達成済・マスター挑戦中: STEP1はリボンの緑「弾けた」に畳み、STEP2 (弾きこなそう) を主役に
+        <>
+          <StepHead n="STEP 2" title="曲を弾きこなそう" sub="" tone="s2" />
+          <div>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 8, margin: "2px 0 12px" }}>
+              <span style={{ fontSize: 34, fontWeight: 900, lineHeight: 0.9, color: "#b5651d" }}>
+                {avg != null ? avg.toFixed(0) : "—"}<small style={{ fontSize: 14, fontWeight: 800 }}>点</small>
+              </span>
+              <span style={{ fontSize: 11.5, color: "#9aa6b3", fontWeight: 700, paddingBottom: 3 }}>
+                {avg != null && avg < 90 ? `あと ${Math.max(1, Math.ceil(90 - avg))}点！` : "いまの平均"}
+              </span>
             </div>
-            <div style={{ height: 12, borderRadius: 8, background: "#eef1f5", overflow: "hidden" }}>
-              <div style={{ height: "100%", borderRadius: 8, width: `${avgPct}%`, background: "linear-gradient(90deg,#e6a94a,#b5651d)" }} />
+            <div style={{ position: "relative", paddingTop: 16 }}>
+              <div style={{ position: "absolute", top: 0, left: "90%", transform: "translateX(-50%)", fontSize: 10, fontWeight: 900, color: "#b5651d" }}>
+                90
+                <div style={{ width: 2, height: 8, background: "#b5651d", margin: "1px auto 0" }} />
+              </div>
+              <div style={{ height: 12, borderRadius: 8, background: "#eef1f5", overflow: "hidden" }}>
+                <div style={{ height: "100%", borderRadius: 8, width: `${avgPct}%`, background: "linear-gradient(90deg,#e6a94a,#b5651d)" }} />
+              </div>
             </div>
+            <p style={{ margin: "9px 0 0", fontSize: 11.5, color: "#9aa6b3", fontWeight: 600, lineHeight: 1.6 }}>
+              {avg == null
+                ? "まだ演奏がないよ"
+                : needMore
+                ? `5回ぶん演奏すると判定できるよ（いま${achv.master.scoredCount}回・あと${remainingRuns}回）`
+                : "直近5回の平均で判定中"}
+            </p>
           </div>
-          <p style={{ margin: "9px 0 0", fontSize: 11.5, color: "#9aa6b3", fontWeight: 600, lineHeight: 1.6 }}>
-            {avg == null
-              ? "まだ演奏がないよ"
-              : needMore
-              ? `5回ぶん演奏すると判定できるよ（いま${achv.master.scoredCount}回・あと${remainingRuns}回）`
-              : "直近5回の平均で判定中"}
-          </p>
-        </div>
+        </>
       )}
     </>
   )
