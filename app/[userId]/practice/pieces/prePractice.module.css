@@ -28,7 +28,7 @@
 .grab { width: 40px; height: 5px; border-radius: 3px; background: #e0dde0; margin: 2px auto 8px; }
 .close {
   position: absolute; top: 14px; right: 16px; width: 34px; height: 34px; border-radius: 50%;
-  background: #f2f1f4; border: none; cursor: pointer; color: #5a545c; display: grid; place-items: center;
+  background: #f2f1f4; border: none; cursor: pointer; color: var(--text-body); display: grid; place-items: center;
 }
 
 .hero { display: flex; gap: 15px; align-items: center; margin: 6px 0 8px; }
@@ -38,11 +38,11 @@
 }
 .cover img { width: 100%; height: 100%; object-fit: cover; }
 .info { min-width: 0; }
-.title { font-size: 19px; font-weight: 800; line-height: 1.3; color: #201c22; }
-.composer { font-size: 13px; color: #8a8288; margin-top: 3px; }
-.best { font-size: 12px; font-weight: 700; color: #c98a16; margin-top: 5px; }
+.title { font-size: var(--fs-head); font-weight: 800; line-height: 1.3; color: var(--text-ink); }
+.composer { font-size: var(--fs-body); color: var(--text-sub); margin-top: 3px; }
+.best { font-size: var(--fs-body); font-weight: 700; color: var(--text-master); margin-top: 5px; }
 
-.slab { font-size: 12.5px; font-weight: 800; color: #3f3a40; margin: 18px 2px 10px; }
+.slab { font-size: var(--fs-body); font-weight: 800; color: var(--text-ink); margin: 18px 2px 10px; }
 
 .difs { border: 1px solid #eee; border-radius: 14px; overflow: hidden; }
 .dif {
@@ -53,13 +53,13 @@
 .dif:last-child { border-bottom: none; }
 .difOn { background: #f4f6ff; }
 .difDisabled { opacity: .55; cursor: default; background: #fafafb; }
-.soon { font-size: 10.5px; font-weight: 700; color: #a8a2a8; margin-left: auto; border: 1px solid #e6e2e8; border-radius: 6px; padding: 1.5px 8px; }
+.soon { font-size: var(--fs-caption); font-weight: 700; color: var(--text-muted); margin-left: auto; border: 1px solid #e6e2e8; border-radius: 6px; padding: 1.5px 8px; }
 .dot { width: 13px; height: 13px; border-radius: 50%; flex: 0 0 auto; }
-.difName { font-size: 15px; font-weight: 800; color: #2c2830; flex: 1; }
-.difName small { display: block; font-size: 11px; font-weight: 600; color: #a09aa0; margin-top: 1px; }
-.difBest { font-size: 11.5px; font-weight: 700; color: #c98a16; margin-right: 8px; font-variant-numeric: tabular-nums; }
+.difName { font-size: var(--fs-subhead); font-weight: 800; color: var(--text-ink); flex: 1; }
+.difName small { display: block; font-size: var(--fs-caption); font-weight: 600; color: var(--text-muted); margin-top: 1px; }
+.difBest { font-size: var(--fs-caption); font-weight: 700; color: var(--text-master); margin-right: 8px; font-variant-numeric: tabular-nums; }
 /* 登録時の難易度⭐︎ (star 1-10) */
-.difStar { font-size: 12px; font-weight: 800; color: #5b62c9; margin-right: 10px; font-variant-numeric: tabular-nums; }
+.difStar { font-size: var(--fs-body); font-weight: 800; color: var(--text-link); margin-right: 10px; font-variant-numeric: tabular-nums; }
 .radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #d4d1d6; flex: 0 0 auto; display: grid; place-items: center; }
 .radio[data-on="true"] { border-color: #4a6cf7; }
 .radio[data-on="true"]::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #4a6cf7; }
@@ -68,7 +68,7 @@
 .previewWrap { margin: 14px 0 2px; }
 .modelBtn {
   display: inline-flex; align-items: center; gap: 7px; border: 1px solid #dfe3fb; background: #eef1fd;
-  color: #3b56d4; font-family: inherit; font-size: 12.5px; font-weight: 800; padding: 8px 14px;
+  color: var(--text-link); font-family: inherit; font-size: var(--fs-body); font-weight: 800; padding: 8px 14px;
   border-radius: 999px; cursor: pointer; transition: filter .15s;
 }
 .modelBtn:disabled { opacity: .5; cursor: default; }
@@ -77,12 +77,12 @@
   margin-top: 10px; border: 1px solid #eee; border-radius: 12px; background: #fff;
   max-height: 156px; overflow: hidden auto; position: relative;
 }
-.previewNote { padding: 26px 12px; text-align: center; font-size: 12px; color: #a8a2a8; }
+.previewNote { padding: 26px 12px; text-align: center; font-size: var(--fs-body); color: var(--text-muted); }
 .osmdBox { padding: 6px 4px; }
 .osmdBox svg { max-width: 100%; height: auto; }
 .expandHint {
   position: absolute; right: 8px; bottom: 8px; display: inline-flex; align-items: center; gap: 4px;
-  font-size: 10.5px; font-weight: 700; color: #6b6f8a; background: rgba(255,255,255,.86);
+  font-size: var(--fs-caption); font-weight: 700; color: var(--text-sub); background: rgba(255,255,255,.86);
   border: 1px solid #eceaef; border-radius: 8px; padding: 3px 8px; pointer-events: none;
 }
 /* 全画面譜面 */
@@ -93,7 +93,7 @@
 }
 .fsClose {
   position: fixed; top: 14px; right: 16px; z-index: 2001; width: 40px; height: 40px; border-radius: 50%;
-  background: #f2f1f4; border: none; cursor: pointer; color: #3a343c; display: grid; place-items: center;
+  background: #f2f1f4; border: none; cursor: pointer; color: var(--text-ink); display: grid; place-items: center;
   box-shadow: 0 2px 8px rgba(0,0,0,.12);
 }
 .fsSheet { width: 100%; max-width: 1000px; padding: 60px 14px 40px; }
@@ -101,24 +101,24 @@
 
 /* この曲に必要な技術タグ (未習得表示) */
 .skillsWrap { margin: 14px 0 2px; }
-.skillsLab { font-size: 12px; font-weight: 800; color: #3f3a40; margin: 0 2px 9px; display: flex; align-items: center; gap: 8px; }
-.skillsWarn { font-size: 10.5px; font-weight: 800; color: #c0396a; background: #fdeef1; border-radius: 6px; padding: 2px 8px; }
+.skillsLab { font-size: var(--fs-body); font-weight: 800; color: var(--text-ink); margin: 0 2px 9px; display: flex; align-items: center; gap: 8px; }
+.skillsWarn { font-size: var(--fs-caption); font-weight: 800; color: #c0396a; background: #fdeef1; border-radius: 6px; padding: 2px 8px; }
 .skillsChips { display: flex; flex-wrap: wrap; gap: 7px; }
 .skillChip {
-  display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700;
-  color: #4a4650; background: #f2f1f4; border: 1px solid #eceaef; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 5px; font-size: var(--fs-body); font-weight: 700;
+  color: var(--text-body); background: #f2f1f4; border: 1px solid #eceaef; border-radius: 999px;
   padding: 5px 11px; text-decoration: none;
 }
 .skillUnlearned {
   color: #b83a5e; background: #fdeef1; border-color: #f5cdd8;
 }
-.skillBadge { font-size: 9.5px; font-weight: 800; color: #fff; background: #d6547a; border-radius: 5px; padding: 1px 6px; }
+.skillBadge { font-size: var(--fs-label); font-weight: 800; color: var(--text-on-accent); background: #d6547a; border-radius: 5px; padding: 1px 6px; }
 a.skillChip:active { filter: brightness(.97); }
-.skillsNone { font-size: 12px; color: #9a949a; background: #f7f7f9; border: 1px solid #eee; border-radius: 10px; padding: 9px 12px; }
+.skillsNone { font-size: var(--fs-body); color: var(--text-sub); background: #f7f7f9; border: 1px solid #eee; border-radius: 10px; padding: 9px 12px; }
 
 .cta {
   width: 100%; border: none; cursor: pointer; border-radius: 16px; padding: 16px; margin-top: 20px;
-  font-family: inherit; font-size: 16px; font-weight: 800; color: #fff; letter-spacing: 0.02em;
+  font-family: inherit; font-size: var(--fs-subhead); font-weight: 800; color: var(--text-on-accent); letter-spacing: 0.02em;
   background: linear-gradient(100deg, #4a6cf7, #6a5cf0);
   box-shadow: 0 12px 26px -10px rgba(74, 108, 247, 0.55); transition: transform 0.15s;
 }

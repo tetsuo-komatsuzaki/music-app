@@ -64,8 +64,8 @@ export default function GoalCard() {
     })
   }
 
-  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: 13.5, marginTop: 5 }
-  const lbl: React.CSSProperties = { fontSize: 12, fontWeight: 800, color: "#2b3742", display: "block", marginTop: 12 }
+  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: "var(--fs-body)", marginTop: 5 }
+  const lbl: React.CSSProperties = { fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", display: "block", marginTop: 12 }
 
   return (
     <section className={styles.card}>
@@ -75,20 +75,20 @@ export default function GoalCard() {
         <>
           {goal?.songName ? (
             <div>
-              <div style={{ fontSize: 14.5, fontWeight: 800, color: "#22303c" }}>
+              <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)" }}>
                 {goal.songName}
-                {goal.songStar != null && <span style={{ fontSize: 11.5, fontWeight: 800, color: "#b7823a", marginLeft: 6 }}>★{goal.songStar}</span>}
+                {goal.songStar != null && <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", marginLeft: 6 }}>★{goal.songStar}</span>}
               </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 5, fontSize: 12, color: "#8a9099" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 5, fontSize: "var(--fs-body)", color: "var(--text-sub)" }}>
                 {goal.goalDate && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Calendar size={12} /> {goal.goalDate}</span>}
                 {goal.epicWin && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Sparkles size={12} /> {goal.epicWin}</span>}
               </div>
             </div>
           ) : (
-            <div style={{ fontSize: 12.5, color: "#8a9099" }}>目標が未設定です。目標を決めると、ホームのおすすめや先生への共有に使われます。</div>
+            <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)" }}>目標が未設定です。目標を決めると、ホームのおすすめや先生への共有に使われます。</div>
           )}
           <button type="button" onClick={openEdit}
-            style={{ marginTop: 10, fontSize: 12, fontWeight: 800, color: "#2b3742", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 9, padding: "8px 14px", cursor: "pointer" }}>
+            style={{ marginTop: 10, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 9, padding: "8px 14px", cursor: "pointer" }}>
             {goal?.songName ? "目標を変更" : "目標を設定"}
           </button>
         </>
@@ -105,7 +105,7 @@ export default function GoalCard() {
                 </optgroup>
               ))}
             </select>
-            {options.length === 0 && <div style={{ fontSize: 11, color: "#9aa6b3", marginTop: 4 }}>候補を読み込み中…</div>}
+            {options.length === 0 && <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 4 }}>候補を読み込み中…</div>}
           </label>
           <label style={lbl}>目標時期（任意）
             <input value={goalDate} onChange={(e) => setGoalDate(e.target.value)} placeholder="例: 2026年12月 / 発表会まで" style={inp} maxLength={40} />
@@ -115,16 +115,16 @@ export default function GoalCard() {
           </label>
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
             <button type="button" onClick={() => setEditing(false)}
-              style={{ flex: 1, fontSize: 12.5, fontWeight: 800, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 9, padding: 10, cursor: "pointer" }}>キャンセル</button>
+              style={{ flex: 1, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 9, padding: 10, cursor: "pointer" }}>キャンセル</button>
             <button type="button" onClick={save} disabled={pending}
-              style={{ flex: 2, fontSize: 12.5, fontWeight: 800, color: "#fff", background: "#2b3742", border: "none", borderRadius: 9, padding: 10, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+              style={{ flex: 2, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#2b3742", border: "none", borderRadius: 9, padding: 10, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
               {pending ? "保存中…" : "保存する"}
             </button>
           </div>
         </div>
       )}
 
-      {msg && <div style={{ fontSize: 12, marginTop: 8, color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
+      {msg && <div style={{ fontSize: "var(--fs-body)", marginTop: 8, color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
     </section>
   )
 }

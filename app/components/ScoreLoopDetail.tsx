@@ -97,8 +97,8 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
       </section>
 
       {/* 達成/マスターの仕組み (詳しく) — 折りたたみ。最下部に置く */}
-      <details style={{ marginBottom: 14, fontSize: 13, color: "#555" }}>
-        <summary style={{ cursor: "pointer", fontWeight: 600, color: "#4a90d9" }}>
+      <details style={{ marginBottom: 14, fontSize: "var(--fs-body)", color: "var(--text-body)" }}>
+        <summary style={{ cursor: "pointer", fontWeight: 600, color: "var(--text-link)" }}>
           ？ 達成・マスターの仕組み
         </summary>
         <div style={{ marginTop: 8, lineHeight: 1.8, padding: "0 4px" }}>

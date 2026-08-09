@@ -128,7 +128,7 @@ export default function LessonScoreCard({
 
   return (
     <div ref={hostRef} className={className ?? styles.osmdCardBox}>
-      {failed && <span style={{ fontSize: "1.4cqh", color: "#afafaf" }}>楽譜がうまく開けなかったよ</span>}
+      {failed && <span style={{ fontSize: "1.4cqh", color: "var(--text-muted)" }}>楽譜がうまく開けなかったよ</span>}
     </div>
   )
 }

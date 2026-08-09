@@ -104,8 +104,8 @@ export default function ShareSheet({
 
   const btn: React.CSSProperties = {
     display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-    fontSize: 12.5, fontWeight: 800, borderRadius: 12, padding: "11px 10px",
-    border: "1px solid #e2ddce", background: "#fbf8f0", color: "#4a4234", cursor: "pointer",
+    fontSize: "var(--fs-body)", fontWeight: 800, borderRadius: 12, padding: "11px 10px",
+    border: "1px solid #e2ddce", background: "#fbf8f0", color: "var(--text-ink)", cursor: "pointer",
   }
 
   return createPortal(
@@ -115,18 +115,18 @@ export default function ShareSheet({
         padding: "16px 16px calc(16px + env(safe-area-inset-bottom))", boxShadow: "0 -6px 30px rgba(40,30,10,.25)",
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <div style={{ fontSize: 14, fontWeight: 900, color: "#3a3428", display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: "var(--text-ink)", display: "flex", alignItems: "center", gap: 6 }}>
             <Share2 size={16} /> {SHARE_KIND_META[kind].label}をシェア
           </div>
           <button type="button" onClick={onClose} aria-label="閉じる"
-            style={{ border: "none", background: "none", fontSize: 16, color: "#9a8c74", cursor: "pointer" }}>✕</button>
+            style={{ border: "none", background: "none", fontSize: "var(--fs-subhead)", color: "var(--text-sub)", cursor: "pointer" }}>✕</button>
         </div>
 
         {/* 名前 (任意・デフォルトなし) */}
         <div style={{ marginBottom: 10 }}>
           <input value={name} onChange={(e) => { setName(e.target.value) }} maxLength={20}
             placeholder="名前を入れる（任意・画像に表示されます）"
-            style={{ width: "100%", boxSizing: "border-box", fontSize: 12.5, border: "1px solid #e2ddce", borderRadius: 10, padding: "9px 12px", background: "#fff" }} />
+            style={{ width: "100%", boxSizing: "border-box", fontSize: "var(--fs-body)", border: "1px solid #e2ddce", borderRadius: 10, padding: "9px 12px", background: "#fff" }} />
         </div>
 
         {/* プレビュー (作成後に実画像) */}
@@ -139,7 +139,7 @@ export default function ShareSheet({
         )}
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-          <button type="button" style={{ ...btn, gridColumn: "1 / -1", background: "linear-gradient(135deg,#c9a227,#a97b1f)", color: "#fff", border: "none" }}
+          <button type="button" style={{ ...btn, gridColumn: "1 / -1", background: "linear-gradient(135deg,#c9a227,#a97b1f)", color: "var(--text-on-accent)", border: "none" }}
             onClick={openShare} disabled={creating}>
             {creating ? "作成中…" : <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Share2 size={15} /> シェアする</span>}
           </button>
@@ -151,8 +151,8 @@ export default function ShareSheet({
           <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={() => saveImage(true)} disabled={creating}><Download size={15} /> 画像を保存（縦）</button>
         </div>
 
-        {error && <div style={{ marginTop: 8, fontSize: 11.5, fontWeight: 800, color: "#c0473a" }}>{error}</div>}
-        <div style={{ marginTop: 8, fontSize: 10, color: "#9a8c74", lineHeight: 1.6 }}>
+        {error && <div style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-error)" }}>{error}</div>}
+        <div style={{ marginTop: 8, fontSize: "var(--fs-label)", color: "var(--text-sub)", lineHeight: 1.6 }}>
           シェアすると、この記録だけが載った公開ページ（リンクを知っている人のみ閲覧可）が作られます。名前を入れない限り個人情報は含まれません。
         </div>
       </div>

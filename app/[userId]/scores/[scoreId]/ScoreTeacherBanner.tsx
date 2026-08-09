@@ -38,20 +38,20 @@ export default function ScoreTeacherBanner({ scoreId }: { scoreId: string; userI
         const di = dueInfo(assignment.dueDate)
         const gr = goalResult(assignment.goalType, { achieved: assignment.achieved, mastered: assignment.mastered })
         const metChip = gr && assignment.goalType !== "score" && gr.met ? gr.label : null
-        const chip = { fontSize: 11, fontWeight: 800 as const, borderRadius: 8, padding: "4px 9px", display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" as const, lineHeight: 1 }
+        const chip = { fontSize: "var(--fs-caption)", fontWeight: 800 as const, borderRadius: 8, padding: "4px 9px", display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" as const, lineHeight: 1 }
         return (
           <div style={{ display: "flex", background: "#fff", border: "1px solid #eceef2", borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 3px rgba(20,25,40,.04)" }}>
             <div style={{ width: 4, background: "#c98a2a", flex: "none" }} aria-hidden />
             <div style={{ flex: 1, minWidth: 0, padding: "13px 15px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 12.5, fontWeight: 800, color: "#8a5a10", display: "inline-flex", alignItems: "center", gap: 5 }}><Pin size={14} /> 先生からの宿題</span>
-                <span style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 700, color: "#b0a184" }}>{teacherName} 先生</span>
+                <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-master)", display: "inline-flex", alignItems: "center", gap: 5 }}><Pin size={14} /> 先生からの宿題</span>
+                <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-muted)" }}>{teacherName} 先生</span>
               </div>
 
               {(goalChip || di || assignment.targetTempo || metChip) && (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 10 }}>
                   {goalChip && (
-                    <span style={{ ...chip, color: "#4a5bd0", background: "#eef0fc", border: "1px solid #d7dcf6" }}><GoalChipIcon size={12} /> {goalChip}</span>
+                    <span style={{ ...chip, color: "var(--text-link)", background: "#eef0fc", border: "1px solid #d7dcf6" }}><GoalChipIcon size={12} /> {goalChip}</span>
                   )}
                   {di && (
                     <span style={{ ...chip, color: DUE_COLOR[di.state].fg, background: DUE_COLOR[di.state].bg, border: `1px solid ${DUE_COLOR[di.state].border}` }}>
@@ -59,21 +59,21 @@ export default function ScoreTeacherBanner({ scoreId }: { scoreId: string; userI
                     </span>
                   )}
                   {assignment.targetTempo && (
-                    <span style={{ ...chip, color: "#6b7885", background: "#f1f4f8", border: "1px solid #e2e6ea" }}>♩={assignment.targetTempo}</span>
+                    <span style={{ ...chip, color: "var(--text-sub)", background: "#f1f4f8", border: "1px solid #e2e6ea" }}>♩={assignment.targetTempo}</span>
                   )}
                   {metChip && (
-                    <span style={{ ...chip, color: "#2e8b57", background: "#e9f7ef", border: "1px solid #cbe8d6" }}>{metChip}</span>
+                    <span style={{ ...chip, color: "var(--text-good)", background: "#e9f7ef", border: "1px solid #cbe8d6" }}>{metChip}</span>
                   )}
                 </div>
               )}
 
               {assignment.comment && (
-                <div style={{ fontSize: 12.5, color: "#4a4650", marginTop: 8, lineHeight: 1.55, display: "flex", gap: 5 }}><MessageCircle size={14} style={{ flex: "none", marginTop: 2 }} /> <span>{assignment.comment}</span></div>
+                <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", marginTop: 8, lineHeight: 1.55, display: "flex", gap: 5 }}><MessageCircle size={14} style={{ flex: "none", marginTop: 2 }} /> <span>{assignment.comment}</span></div>
               )}
 
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
                 {assignment.submitted ? (
-                  <span style={{ fontSize: 12, fontWeight: 800, color: "#2e8b57" }}>提出ずみ ✓</span>
+                  <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-good)" }}>提出ずみ ✓</span>
                 ) : (
                   <AssignmentSubmit
                     assignmentId={assignment.id}

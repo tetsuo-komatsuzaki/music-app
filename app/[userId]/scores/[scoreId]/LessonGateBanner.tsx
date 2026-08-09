@@ -32,10 +32,10 @@ export default function LessonGateBanner({
     >
       <GraduationCap size={26} color="#5a8a2e" aria-hidden style={{ flex: "none" }} />
       <div style={{ flex: 1, minWidth: 200 }}>
-        <div style={{ fontWeight: 800, color: "#3c5a1e", fontSize: 14 }}>
+        <div style={{ fontWeight: 800, color: "var(--text-good)", fontSize: "var(--fs-subhead)" }}>
           この曲には <b>{names}</b> が出てくるよ
         </div>
-        <div style={{ fontSize: 12, color: "#5f7a44", marginTop: 2 }}>
+        <div style={{ fontSize: "var(--fs-body)", color: "var(--text-good)", marginTop: 2 }}>
           まだ練習していないから、先に学びレッスンでいっしょにやってみよう!（1本2〜3分）
         </div>
       </div>
@@ -47,9 +47,9 @@ export default function LessonGateBanner({
             style={{
               background: "#58CC02",
               boxShadow: "0 3px 0 #58A700",
-              color: "#fff",
+              color: "var(--text-on-accent)",
               fontWeight: 800,
-              fontSize: 13,
+              fontSize: "var(--fs-body)",
               borderRadius: 12,
               padding: "8px 14px",
               textDecoration: "none",

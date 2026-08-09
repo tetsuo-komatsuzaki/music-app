@@ -78,25 +78,25 @@ export default function FindTeacherClient({
 
   return (
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "16px 14px 60px" }}>
-      <h1 style={{ fontSize: 18, fontWeight: 900, margin: "0 0 6px" }}>先生を探す</h1>
+      <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "0 0 6px" }}>先生を探す</h1>
 
       {weakAxis && (
         <div style={{ ...card, borderColor: "#d3d9f5", marginBottom: 12 }}>
-          <div style={{ fontSize: 11.5, fontWeight: 800, color: ACCENT, marginBottom: 3, display: "flex", alignItems: "center", gap: 5 }}><Bot size={14} /> AI相性マッチング</div>
-          <div style={{ fontSize: 12.5, color: INK }}>いまのあなたは <b>{weakAxis}</b> が伸びしろ。<b>{weakAxis}</b>が得意な先生を上に出しています。</div>
+          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: ACCENT, marginBottom: 3, display: "flex", alignItems: "center", gap: 5 }}><Bot size={14} /> AI相性マッチング</div>
+          <div style={{ fontSize: "var(--fs-body)", color: INK }}>いまのあなたは <b>{weakAxis}</b> が伸びしろ。<b>{weakAxis}</b>が得意な先生を上に出しています。</div>
         </div>
       )}
 
       {/* 招待コード */}
       <div style={{ ...card, marginBottom: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: INK, marginBottom: 6, display: "flex", alignItems: "center", gap: 5 }}><Mail size={14} /> 先生から招待コードをもらっている場合</div>
+        <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: INK, marginBottom: 6, display: "flex", alignItems: "center", gap: 5 }}><Mail size={14} /> 先生から招待コードをもらっている場合</div>
         <div style={{ display: "flex", gap: 8 }}>
           <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="コード" maxLength={12}
-            style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 11px", fontSize: 14, letterSpacing: ".1em", fontFamily: "ui-monospace, Menlo, Consolas, monospace" }} />
+            style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 11px", fontSize: "var(--fs-subhead)", letterSpacing: ".1em", fontFamily: "ui-monospace, Menlo, Consolas, monospace" }} />
           <button type="button" onClick={useCode} disabled={pending || code.trim().length < 4}
-            style={{ border: "none", borderRadius: 8, padding: "0 16px", fontSize: 12.5, fontWeight: 800, color: "#fff", background: INK, cursor: "pointer", opacity: pending || code.trim().length < 4 ? 0.5 : 1 }}>つながる</button>
+            style={{ border: "none", borderRadius: 8, padding: "0 16px", fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: INK, cursor: "pointer", opacity: pending || code.trim().length < 4 ? 0.5 : 1 }}>つながる</button>
         </div>
-        {codeMsg && <div style={{ fontSize: 12, color: "#c0392b", marginTop: 7 }}>{codeMsg}</div>}
+        {codeMsg && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-error)", marginTop: 7 }}>{codeMsg}</div>}
       </div>
 
       {/* フィルタ */}
@@ -105,10 +105,10 @@ export default function FindTeacherClient({
         <FilterChip on={fOnline} onClick={() => setFOnline((v) => !v)}>オンライン</FilterChip>
       </div>
 
-      {err && <div style={{ fontSize: 12.5, color: "#c0392b", marginBottom: 10 }}>{err}</div>}
+      {err && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-error)", marginBottom: 10 }}>{err}</div>}
 
       {filtered.length === 0 ? (
-        <div style={{ ...card, textAlign: "center", color: SUB, fontSize: 13 }}>
+        <div style={{ ...card, textAlign: "center", color: SUB, fontSize: "var(--fs-body)" }}>
           {teachers.length === 0 ? "いまは先生が見つからないみたい。もう少し待ってね" : "条件に合う先生がいないみたい"}
         </div>
       ) : (
@@ -116,7 +116,7 @@ export default function FindTeacherClient({
           {filtered.map((t) => (
             <div key={t.teacherId} style={card}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                <span style={{ width: 42, height: 42, borderRadius: "50%", background: "#eaedfb", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 21, flex: "none" }}>
+                <span style={{ width: 42, height: 42, borderRadius: "50%", background: "#eaedfb", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "var(--fs-title)", flex: "none" }}>
                   {t.photoUrl
                     // eslint-disable-next-line @next/next/no-img-element
                     ? <img src={t.photoUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -124,14 +124,14 @@ export default function FindTeacherClient({
                 </span>
                 <span style={{ minWidth: 0, flex: 1 }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <b style={{ fontSize: 14.5, color: INK }}>{t.name} 先生</b>
-                    <span style={{ fontSize: 10.5, fontWeight: 800, color: ACCENT, background: "#eaedfb", border: "1px solid #d3d9f5", borderRadius: 999, padding: "1px 8px" }}>相性 {t.match}%</span>
+                    <b style={{ fontSize: "var(--fs-subhead)", color: INK }}>{t.name} 先生</b>
+                    <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: ACCENT, background: "#eaedfb", border: "1px solid #d3d9f5", borderRadius: 999, padding: "1px 8px" }}>相性 {t.match}%</span>
                   </span>
-                  {t.headline && <span style={{ display: "block", fontSize: 12.5, color: INK, marginTop: 3 }}>{t.headline}</span>}
+                  {t.headline && <span style={{ display: "block", fontSize: "var(--fs-body)", color: INK, marginTop: 3 }}>{t.headline}</span>}
                 </span>
               </div>
 
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 9, fontSize: 11, color: SUB }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 9, fontSize: "var(--fs-caption)", color: SUB }}>
                 {t.genres.length > 0 && <span>ジャンル：{t.genres.join("・")}</span>}
                 {t.forKids && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Baby size={12} /> 子どもOK</span>}
                 {t.online && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Laptop size={12} /> オンライン</span>}
@@ -139,17 +139,17 @@ export default function FindTeacherClient({
                 {t.availability && <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Clock size={12} /> {t.availability}</span>}
               </div>
 
-              {t.bio && <div style={{ fontSize: 12, color: "#4a5766", marginTop: 8, lineHeight: 1.55 }}>{t.bio}</div>}
-              {t.career && <div style={{ fontSize: 11.5, color: SUB, marginTop: 6, lineHeight: 1.5, display: "flex", gap: 5 }}><GraduationCap size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{t.career}</span></div>}
-              {t.lessonStyle && <div style={{ fontSize: 11.5, color: SUB, marginTop: 4, lineHeight: 1.5, display: "flex", gap: 5 }}><NotebookPen size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{t.lessonStyle}</span></div>}
+              {t.bio && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", marginTop: 8, lineHeight: 1.55 }}>{t.bio}</div>}
+              {t.career && <div style={{ fontSize: "var(--fs-caption)", color: SUB, marginTop: 6, lineHeight: 1.5, display: "flex", gap: 5 }}><GraduationCap size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{t.career}</span></div>}
+              {t.lessonStyle && <div style={{ fontSize: "var(--fs-caption)", color: SUB, marginTop: 4, lineHeight: 1.5, display: "flex", gap: 5 }}><NotebookPen size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{t.lessonStyle}</span></div>}
 
               <div style={{ display: "flex", gap: 7, marginTop: 11 }}>
                 {t.sampleUrl && (
                   <a href={t.sampleUrl} target="_blank" rel="noopener noreferrer"
-                    style={{ flex: 1, textAlign: "center", background: "#f7f8fa", color: SUB, border: "1px solid #e7eaee", borderRadius: 9, padding: "9px 0", fontSize: 12, fontWeight: 800, textDecoration: "none" }}>▶ 演奏サンプル</a>
+                    style={{ flex: 1, textAlign: "center", background: "#f7f8fa", color: SUB, border: "1px solid #e7eaee", borderRadius: 9, padding: "9px 0", fontSize: "var(--fs-body)", fontWeight: 800, textDecoration: "none" }}>▶ 演奏サンプル</a>
                 )}
                 <button type="button" onClick={() => connect(t)} disabled={pending && busyId === t.teacherId}
-                  style={{ flex: 2, background: ACCENT, color: "#fff", border: "none", borderRadius: 9, padding: "9px 0", fontSize: 12.5, fontWeight: 800, cursor: "pointer", opacity: pending && busyId === t.teacherId ? 0.6 : 1 }}>
+                  style={{ flex: 2, background: ACCENT, color: "var(--text-on-accent)", border: "none", borderRadius: 9, padding: "9px 0", fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", opacity: pending && busyId === t.teacherId ? 0.6 : 1 }}>
                   この先生とつながる
                 </button>
               </div>
@@ -164,7 +164,7 @@ export default function FindTeacherClient({
 function FilterChip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button type="button" onClick={onClick}
-      style={{ fontSize: 11.5, fontWeight: 700, borderRadius: 999, padding: "6px 13px", cursor: "pointer",
+      style={{ fontSize: "var(--fs-caption)", fontWeight: 700, borderRadius: 999, padding: "6px 13px", cursor: "pointer",
         border: "1px solid", borderColor: on ? "#4f63c6" : "#e2e6ea", background: on ? "#4f63c6" : "#fff", color: on ? "#fff" : "#6b7885" }}>
       {children}
     </button>

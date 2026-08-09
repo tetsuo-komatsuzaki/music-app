@@ -31,8 +31,8 @@
   align-self: flex-start;
   background: transparent;
   border: none;
-  color: #5a7fdf;
-  font-size: 12px;
+  color: var(--text-link);
+  font-size: var(--fs-body);
   font-weight: 600;
   cursor: pointer;
   padding: 6px 8px;
@@ -64,9 +64,9 @@
 }
 
 .historyTransition {
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   font-weight: 600;
-  color: #2d2d2d;
+  color: var(--text-ink);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -74,12 +74,12 @@
 }
 
 .arrow {
-  color: #5a7fdf;
+  color: var(--text-link);
   font-weight: 700;
   margin: 0 2px;
 }
 
 .historyDate {
-  font-size: 12px;
-  color: #5a6473;
+  font-size: var(--fs-body);
+  color: var(--text-body);
 }

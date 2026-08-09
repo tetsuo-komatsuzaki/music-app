@@ -48,14 +48,14 @@ export default function AnnotateClient({
     if (r.ok) { setClearedStar(r.clearedStar); setState("done") } else setState("error")
   }
 
-  const lbl: React.CSSProperties = { fontSize: 11.5, fontWeight: 800, color: "#6b7885", display: "block", marginTop: 12 }
-  const inp: React.CSSProperties = { width: "100%", boxSizing: "border-box", border: "1px solid #dfe3e8", borderRadius: 9, padding: "8px 11px", fontSize: 12.5, marginTop: 4 }
+  const lbl: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", display: "block", marginTop: 12 }
+  const inp: React.CSSProperties = { width: "100%", boxSizing: "border-box", border: "1px solid #dfe3e8", borderRadius: 9, padding: "8px 11px", fontSize: "var(--fs-body)", marginTop: 4 }
 
   return (
     <div>
-      <Link href={`/${userId}/teacher/students/${studentId}`} style={{ fontSize: 12, color: "#6b7885", textDecoration: "none" }}>← {studentName} さんのカルテ</Link>
-      <h1 style={{ fontSize: 17, fontWeight: 900, margin: "6px 0 2px" }}>採点カルテ：{scoreTitle}</h1>
-      <p style={{ fontSize: 12, color: "#6b7885", margin: "0 0 12px" }}>
+      <Link href={`/${userId}/teacher/students/${studentId}`} style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", textDecoration: "none" }}>← {studentName} さんのカルテ</Link>
+      <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "6px 0 2px" }}>採点カルテ：{scoreTitle}</h1>
+      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 12px" }}>
         譜面の書き込みは自動保存。コメントと表現の認定を添えて「カルテを返す」と、{studentName} さんに1枚のカルテとして届きます。
       </p>
       <AnnotatableScore buildUrl={buildUrl} scoreId={scoreId} loadOverride={load} saveOverride={save} />
@@ -69,7 +69,7 @@ export default function AnnotateClient({
               <option key={t.id} value={t.id}>{moodTagLabel(t.id)}</option>
             ))}
           </select>
-          <span style={{ fontSize: 10, color: "#9aa6b3" }}>認定すると、この曲の★がそのまま {studentName} さんの表現力レベルになります</span>
+          <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>認定すると、この曲の★がそのまま {studentName} さんの表現力レベルになります</span>
         </label>
 
         <label style={lbl}><MessageCircle size={13} style={{ verticalAlign: -1, marginRight: 4 }} />ひとこと（生徒に届きます）
@@ -79,16 +79,16 @@ export default function AnnotateClient({
         </label>
 
         {state === "done" ? (
-          <div style={{ marginTop: 12, fontSize: 12.5, fontWeight: 800, color: "#2e8b57" }}>
+          <div style={{ marginTop: 12, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-good)" }}>
             ✓ カルテを返しました{clearedStar != null ? `（表現力 ★${clearedStar} に認定）` : ""}。この曲の「聴いてほしい」も対応済みになりました。
           </div>
         ) : (
           <button type="button" onClick={submit} disabled={state === "sending"}
-            style={{ width: "100%", marginTop: 12, border: "none", borderRadius: 11, padding: 12, fontSize: 13, fontWeight: 900, color: "#fff", background: "#8a5a1f", cursor: "pointer", opacity: state === "sending" ? 0.6 : 1 }}>
+            style={{ width: "100%", marginTop: 12, border: "none", borderRadius: 11, padding: 12, fontSize: "var(--fs-body)", fontWeight: 900, color: "var(--text-on-accent)", background: "#8a5a1f", cursor: "pointer", opacity: state === "sending" ? 0.6 : 1 }}>
             {state === "sending" ? "返却中…" : "カルテを返す"}
           </button>
         )}
-        {state === "error" && <div style={{ marginTop: 6, fontSize: 11.5, color: "#c0392b" }}>返却に失敗しました。もう一度ためしてください。</div>}
+        {state === "error" && <div style={{ marginTop: 6, fontSize: "var(--fs-caption)", color: "var(--text-error)" }}>返却に失敗しました。もう一度ためしてください。</div>}
       </div>
     </div>
   )

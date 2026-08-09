@@ -71,7 +71,7 @@ export default async function Page({
         <h2>{score.title}</h2>
         {isError ? (
           <>
-            <p style={{ color: "#c00", marginTop: "1rem" }}>
+            <p style={{ color: "var(--text-error)", marginTop: "1rem" }}>
               楽譜の準備がうまくいかなかったよ
             </p>
             {score.errorMessage && (
@@ -79,21 +79,21 @@ export default async function Page({
                 style={{
                   marginTop: "0.5rem",
                   fontSize: "0.875rem",
-                  color: "#666",
+                  color: "var(--text-body)",
                   whiteSpace: "pre-wrap",
                 }}
               >
                 {score.errorMessage}
               </pre>
             )}
-            <p style={{ marginTop: "1rem", fontSize: "0.875rem", color: "#999" }}>
+            <p style={{ marginTop: "1rem", fontSize: "0.875rem", color: "var(--text-muted)" }}>
               時間をおいて再度お試しください
             </p>
           </>
         ) : (
           <>
             <p style={{ marginTop: "1rem" }}>アルコが、楽譜を準備しているよ</p>
-            <p style={{ marginTop: "0.5rem", fontSize: "0.75rem", color: "#999" }}>
+            <p style={{ marginTop: "0.5rem", fontSize: "0.75rem", color: "var(--text-muted)" }}>
               自動で最新にするから、そのまま待っててね
             </p>
           </>

@@ -103,9 +103,9 @@ const TREE_LABELS: Record<"pitch" | "rhythm", string> = {
 
 // 案E (2026-08-01): ミス率の重症度→色。赤=要練習 / 橙=あと少し / 緑=good。
 function severity(rate: number): { color: string; bg: string; label: string } {
-  if (rate >= 0.55) return { color: "#d64f5c", bg: "#fdecec", label: "要練習" }
-  if (rate >= 0.35) return { color: "#e0872b", bg: "#fdf2e4", label: "あと少し" }
-  return { color: "#4a9d6a", bg: "#e9f6ee", label: "いい調子" }
+  if (rate >= 0.55) return { color: "var(--text-error)", bg: "#fdecec", label: "要練習" }
+  if (rate >= 0.35) return { color: "var(--text-master)", bg: "#fdf2e4", label: "あと少し" }
+  return { color: "var(--text-good)", bg: "#e9f6ee", label: "いい調子" }
 }
 
 // ─── スロット表示（fetch済みデータを渡す版。累積窓など親がデータを持つ場合用） ───

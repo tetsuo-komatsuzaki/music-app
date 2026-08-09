@@ -107,10 +107,10 @@ export default function KeepsakeCard({ keepsake }: { keepsake: Keepsake }) {
       {/* 表示用の見た目(canvasは共有用に隠す) */}
       <div style={{ position: "relative", background: "#fff", borderRadius: 16, padding: 16, boxShadow: "0 6px 18px rgba(30,45,70,.16)", border: `2px solid ${keepsake.themeHex}` }}>
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 40 }} aria-hidden>{keepsake.emoji}</div>
-          <div style={{ fontSize: 18, fontWeight: 900, color: keepsake.themeHex, marginTop: 2 }}>{keepsake.tierLabel}</div>
-          <div style={{ fontSize: 15, fontWeight: 800, color: "#2b3742", marginTop: 4 }}>{keepsake.pieceName}</div>
-          <div style={{ fontSize: 11, color: "#b3bcc6", marginTop: 6 }}>
+          <div style={{ fontSize: "var(--fs-display)" }} aria-hidden>{keepsake.emoji}</div>
+          <div style={{ fontSize: "var(--fs-head)", fontWeight: 900, color: keepsake.themeHex, marginTop: 2 }}>{keepsake.tierLabel}</div>
+          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)", marginTop: 4 }}>{keepsake.pieceName}</div>
+          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 6 }}>
             {keepsake.star != null ? `☆${keepsake.star} ・ ` : ""}{keepsake.dateLabel}
           </div>
         </div>
@@ -118,7 +118,7 @@ export default function KeepsakeCard({ keepsake }: { keepsake: Keepsake }) {
       <button
         type="button"
         onClick={onShare}
-        style={{ marginTop: 10, width: "100%", border: "none", borderRadius: 12, padding: 11, fontSize: 12.5, fontWeight: 800, background: "rgba(255,255,255,.85)", color: "#55616e", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+        style={{ marginTop: 10, width: "100%", border: "none", borderRadius: 12, padding: 11, fontSize: "var(--fs-body)", fontWeight: 800, background: "rgba(255,255,255,.85)", color: "var(--text-body)", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}
       >
         <Gift size={15} /> 家族に送る
       </button>

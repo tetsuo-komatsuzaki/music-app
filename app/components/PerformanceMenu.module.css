@@ -11,10 +11,10 @@
   border-radius: 6px;
   width: 32px;
   height: 32px;
-  font-size: 18px;
+  font-size: var(--fs-head);
   line-height: 1;
   cursor: pointer;
-  color: #555;
+  color: var(--text-body);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -49,9 +49,9 @@
   width: 100%;
   text-align: left;
   padding: 8px 12px;
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   font-weight: 500;
-  color: #c44a4a;
+  color: var(--text-error);
   cursor: pointer;
   border-radius: 4px;
   transition: background 0.15s;

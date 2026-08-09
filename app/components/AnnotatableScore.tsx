@@ -67,10 +67,10 @@ export default function AnnotatableScore({
   }, [buildUrl])
 
   if (!buildUrl) {
-    return <div style={{ fontSize: 13, color: "#9aa6b3", textAlign: "center", padding: "30px 0" }}>楽譜がまだ準備できていません。</div>
+    return <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", textAlign: "center", padding: "30px 0" }}>楽譜がまだ準備できていません。</div>
   }
   if (error) {
-    return <div style={{ fontSize: 13, color: "#c0392b", textAlign: "center", padding: "30px 0" }}>{error}</div>
+    return <div style={{ fontSize: "var(--fs-body)", color: "var(--text-error)", textAlign: "center", padding: "30px 0" }}>{error}</div>
   }
 
   return (

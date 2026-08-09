@@ -136,13 +136,13 @@ export default function ArcoResultOverlay({
             display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             margin: "8px 2px 0", padding: "7px 10px", borderRadius: 10,
             background: "#f2faf5", border: "1px solid #cfe6d8",
-            fontSize: 12, fontWeight: 800, color: "#2e8b57",
+            fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-good)",
           }}>
             <Sprout size={14} style={{ flex: "none" }} /> {growth.label}が伸びてる！ 安定度 {growth.from}%
-            <span style={{ fontSize: 11, color: "#7aa98c" }}>→</span>
-            <b style={{ fontSize: 14 }}>{growth.to}%</b>
+            <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>→</span>
+            <b style={{ fontSize: "var(--fs-subhead)" }}>{growth.to}%</b>
             <Link href={`/${userId}/progress`} onClick={onClose}
-              style={{ marginLeft: 4, fontSize: 10, fontWeight: 800, color: "#4a5bd0", textDecoration: "underline" }}>
+              style={{ marginLeft: 4, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-link)", textDecoration: "underline" }}>
               カルテで見る
             </Link>
           </div>
@@ -150,8 +150,8 @@ export default function ArcoResultOverlay({
 
         {/* 💪 先生の強みリンク (案5・2026-08-03): 入口だけ置き、詳細はカルテの表現セクションへ */}
         {strengthCount > 0 && (
-          <div style={{ margin: "6px 4px 0", fontSize: 11.5, fontWeight: 800 }}>
-            <Link href={`/${userId}/progress`} onClick={onClose} style={{ color: "#4a5bd0", textDecoration: "underline" }}>
+          <div style={{ margin: "6px 4px 0", fontSize: "var(--fs-caption)", fontWeight: 800 }}>
+            <Link href={`/${userId}/progress`} onClick={onClose} style={{ color: "var(--text-link)", textDecoration: "underline" }}>
               <Palette size={13} style={{ verticalAlign: -2 }} /> 先生が認定したきみの表現（{strengthCount}個）を見る →
             </Link>
           </div>
@@ -163,7 +163,7 @@ export default function ArcoResultOverlay({
           {!ach ? (
             <div className={styles.muted}>集計してるよ…</div>
           ) : ach.mastered ? (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 13, fontWeight: 800, color: "#2e8b57", padding: "6px 0" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-good)", padding: "6px 0" }}>
               <Trophy size={15} color="#b58a1e" /> この曲はマスター済み！{avg != null ? ` いまの平均 ${avg}点` : ""}
             </div>
           ) : (
@@ -175,20 +175,20 @@ export default function ArcoResultOverlay({
                   <div style={{ position: "relative", height: 14, borderRadius: 7, background: "#eef0f4", margin: "26px 4px 6px" }}>
                     <span style={{ position: "absolute", inset: "0 auto 0 0", width: `${Math.min(avg, 100)}%`, borderRadius: 7, background: "linear-gradient(90deg,#7a8ce0,#5b6b9e)" }} />
                     <span style={{ position: "absolute", top: -7, bottom: -7, left: "90%", width: 3, borderRadius: 2, background: "#c9a227" }}>
-                      <span style={{ position: "absolute", top: -19, right: -4, fontSize: 9, fontWeight: 800, color: "#c9a227", whiteSpace: "nowrap" }}>90点=マスターライン</span>
+                      <span style={{ position: "absolute", top: -19, right: -4, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-master)", whiteSpace: "nowrap" }}>90点=マスターライン</span>
                     </span>
-                    <span style={{ position: "absolute", top: -24, left: `${Math.min(avg, 100)}%`, transform: "translateX(-50%)", fontSize: 10, fontWeight: 900, color: "#5b6b9e", whiteSpace: "nowrap", animation: "aroHop 1.2s ease-in-out infinite" }}>
+                    <span style={{ position: "absolute", top: -24, left: `${Math.min(avg, 100)}%`, transform: "translateX(-50%)", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)", whiteSpace: "nowrap", animation: "aroHop 1.2s ease-in-out infinite" }}>
                       きみ {avg}点
-                      <span style={{ display: "block", textAlign: "center", fontSize: 8 }}>▼</span>
+                      <span style={{ display: "block", textAlign: "center", fontSize: "var(--fs-label)" }}>▼</span>
                     </span>
                   </div>
-                  <div style={{ textAlign: "center", fontSize: 13, fontWeight: 900, marginTop: 10 }}>
+                  <div style={{ textAlign: "center", fontSize: "var(--fs-body)", fontWeight: 900, marginTop: 10 }}>
                     {avg >= 90
                       ? <>90点ラインを超えてるよ！</>
-                      : <>あと <b style={{ color: "#d64541", fontSize: 16 }}>{Math.max(1, Math.ceil(90 - avg))}点</b> で90点ライン！</>}
+                      : <>あと <b style={{ color: "var(--text-error)", fontSize: "var(--fs-subhead)" }}>{Math.max(1, Math.ceil(90 - avg))}点</b> で90点ライン！</>}
                   </div>
                   {ach.master.scoredCount < ach.master.requiredCount && (
-                    <div style={{ textAlign: "center", fontSize: 10, color: "#9aa6b3", marginTop: 3 }}>
+                    <div style={{ textAlign: "center", fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 3 }}>
                       ※ 直近{ach.master.requiredCount}回の平均で判定（いま{ach.master.scoredCount}回）
                     </div>
                   )}
@@ -201,11 +201,11 @@ export default function ArcoResultOverlay({
                   {chips.map((c) => (
                     !c.done && c.href ? (
                       <Link key={c.label} href={c.href} onClick={onClose}
-                        style={{ fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "3px 9px", border: "1px solid #d7dcf6", color: "#4a5bd0", background: "#eef0fc", textDecoration: "none" }}>
+                        style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "3px 9px", border: "1px solid #d7dcf6", color: "var(--text-link)", background: "#eef0fc", textDecoration: "none" }}>
                         {c.label} →
                       </Link>
                     ) : (
-                      <span key={c.label} style={{ fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "3px 9px", border: `1px solid ${c.done ? "#cfe6d8" : "#eef1f4"}`, color: c.done ? "#2e8b57" : "#8a9099", background: c.done ? "#f2faf5" : "transparent" }}>
+                      <span key={c.label} style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "3px 9px", border: `1px solid ${c.done ? "#cfe6d8" : "#eef1f4"}`, color: c.done ? "#2e8b57" : "#8a9099", background: c.done ? "#f2faf5" : "transparent" }}>
                         {c.label}
                       </span>
                     )
@@ -294,28 +294,28 @@ export function ScoringFeedbackNote({ performanceId, kind }: { performanceId: st
   }
 
   return (
-    <div style={{ margin: "10px 2px 0", fontSize: 10.5, color: "#9aa6b3", lineHeight: 1.7 }}>
+    <div style={{ margin: "10px 2px 0", fontSize: "var(--fs-caption)", color: "var(--text-muted)", lineHeight: 1.7 }}>
       <Wrench size={12} style={{ verticalAlign: -2, marginRight: 4 }} />アルコの採点は、これからどんどん正確になっていくよ。
       {state === "done" ? (
-        <span style={{ color: "#2e8b57", fontWeight: 800 }}> フィードバックありがとう！べんきょうします</span>
+        <span style={{ color: "var(--text-good)", fontWeight: 800 }}> フィードバックありがとう！べんきょうします</span>
       ) : (
         <>
           「この点数、おかしいな？」と思ったら{" "}
           <button type="button" onClick={() => setOpen((v) => !v)}
-            style={{ font: "inherit", fontWeight: 800, color: "#4a5bd0", background: "none", border: "none", padding: 0, cursor: "pointer", textDecoration: "underline" }}>
+            style={{ font: "inherit", fontWeight: 800, color: "var(--text-link)", background: "none", border: "none", padding: 0, cursor: "pointer", textDecoration: "underline" }}>
             教えてね
           </button>
           {open && (
             <span style={{ display: "flex", gap: 6, marginTop: 6 }}>
               <input value={text} onChange={(e) => setText(e.target.value)} placeholder="例: 本当はもっと弾けていたと思う" maxLength={1000}
-                style={{ flex: 1, minWidth: 0, fontSize: 11.5, border: "1px solid #dfe3e8", borderRadius: 8, padding: "7px 10px" }} />
+                style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-caption)", border: "1px solid #dfe3e8", borderRadius: 8, padding: "7px 10px" }} />
               <button type="button" onClick={send} disabled={state === "sending" || !text.trim()}
-                style={{ flex: "none", fontSize: 11, fontWeight: 800, color: "#fff", background: "#4a5bd0", border: "none", borderRadius: 8, padding: "7px 12px", cursor: "pointer", opacity: state === "sending" ? 0.6 : 1 }}>
+                style={{ flex: "none", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#4a5bd0", border: "none", borderRadius: 8, padding: "7px 12px", cursor: "pointer", opacity: state === "sending" ? 0.6 : 1 }}>
                 {state === "sending" ? "送信中…" : "おくる"}
               </button>
             </span>
           )}
-          {state === "error" && <span style={{ color: "#c0473a" }}> 送信できなかった…もう一度ためしてね</span>}
+          {state === "error" && <span style={{ color: "var(--text-error)" }}> 送信できなかった…もう一度ためしてね</span>}
         </>
       )}
     </div>

@@ -46,7 +46,7 @@ function GoalRibbon({ stage }: { stage: 1 | 2 | 3 }) {
       </div>
       <div style={{ display: "flex", marginTop: 5 }}>
         {labels.map((l, i) => (
-          <span key={i} style={{ flex: 1, textAlign: "center", fontSize: 9.5, fontWeight: 800, color: labCol[i] }}>{l}</span>
+          <span key={i} style={{ flex: 1, textAlign: "center", fontSize: "var(--fs-label)", fontWeight: 800, color: labCol[i] }}>{l}</span>
         ))}
       </div>
     </div>
@@ -57,10 +57,10 @@ function StepHead({ n, title, sub, tone }: { n: string; title: string; sub: stri
   const pillBg = tone === "s1" ? "#e9f7ef" : "#fbf0da"
   const pillCol = tone === "s1" ? "#2e8b57" : "#b5651d"
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 800, color: "#22303c", margin: "0 0 8px" }}>
-      <span style={{ fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: pillBg, color: pillCol }}>{n}</span>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", margin: "0 0 8px" }}>
+      <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: pillBg, color: pillCol }}>{n}</span>
       {title}
-      {sub && <span style={{ fontWeight: 600, color: "#94a0ad", fontSize: 11 }}>{sub}</span>}
+      {sub && <span style={{ fontWeight: 600, color: "var(--text-muted)", fontSize: "var(--fs-caption)" }}>{sub}</span>}
     </div>
   )
 }
@@ -68,13 +68,13 @@ function StepHead({ n, title, sub, tone }: { n: string; title: string; sub: stri
 function GoalRing({ full, pct, done, total }: { full?: boolean; pct?: number; done?: number; total?: number }) {
   const base = { position: "relative" as const, width: 72, height: 72, flex: "none" as const, borderRadius: "50%", display: "grid", placeItems: "center" }
   if (full) {
-    return <div style={{ ...base, background: "#34a06a" }}><b style={{ fontSize: 30, fontWeight: 900, color: "#fff", lineHeight: 1 }}>✓</b></div>
+    return <div style={{ ...base, background: "#34a06a" }}><b style={{ fontSize: "var(--fs-display)", fontWeight: 900, color: "var(--text-on-accent)", lineHeight: 1 }}>✓</b></div>
   }
   return (
     <div style={{ ...base, background: `conic-gradient(#34a06a ${pct ?? 0}%, #e2ebe5 0)` }}>
       <div style={{ position: "absolute", inset: 8, background: "#fff", borderRadius: "50%" }} />
-      <b style={{ position: "relative", zIndex: 1, fontSize: 18, fontWeight: 900, color: "#2e8b57", lineHeight: 1 }}>
-        {done}<small style={{ fontSize: 11, fontWeight: 800, color: "#7bad92" }}>/{total}</small>
+      <b style={{ position: "relative", zIndex: 1, fontSize: "var(--fs-head)", fontWeight: 900, color: "var(--text-good)", lineHeight: 1 }}>
+        {done}<small style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)" }}>/{total}</small>
       </b>
     </div>
   )
@@ -85,19 +85,19 @@ function GoalDot({ icon, name, done, st, href }: { icon: ReactNode; name: string
     <>
       <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", background: done ? "#e3f5ea" : "#eef1f5", filter: done ? "none" : "grayscale(.4) opacity(.7)" }}>{icon}</span>
       <span style={{ fontWeight: 700, color: done ? "#1f7a4d" : "#3a4653" }}>{name}</span>
-      <span style={{ marginLeft: "auto", fontSize: 11.5, fontWeight: 700, color: done ? "#34a06a" : "#9aa6b3" }}>{st}</span>
-      {!done && href && <span style={{ fontSize: 11, fontWeight: 800, color: "#4a5bd0" }}>やる →</span>}
+      <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 700, color: done ? "#34a06a" : "#9aa6b3" }}>{st}</span>
+      {!done && href && <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)" }}>やる →</span>}
     </>
   )
   // 未クリアで行き先があるものはタップでそのまま飛べる (2026-08-02 行き止まり解消)
   if (!done && href) {
     return (
-      <Link href={href} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, textDecoration: "none", background: "#f7f8fd", border: "1px solid #e3e7f6", borderRadius: 9, padding: "5px 8px", margin: "-3px -4px" }}>
+      <Link href={href} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-body)", textDecoration: "none", background: "#f7f8fd", border: "1px solid #e3e7f6", borderRadius: 9, padding: "5px 8px", margin: "-3px -4px" }}>
         {body}
       </Link>
     )
   }
-  return <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12.5 }}>{body}</div>
+  return <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-body)" }}>{body}</div>
 }
 
 const goalCheer = (gold?: boolean) => ({
@@ -174,15 +174,15 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
           <StepHead n="STEP 2" title="曲を弾きこなそう" sub="" tone="s2" />
           <div>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 8, margin: "2px 0 12px" }}>
-              <span style={{ fontSize: 34, fontWeight: 900, lineHeight: 0.9, color: "#b5651d" }}>
-                {avg != null ? avg.toFixed(0) : "—"}<small style={{ fontSize: 14, fontWeight: 800 }}>点</small>
+              <span style={{ fontSize: "var(--fs-display)", fontWeight: 900, lineHeight: 0.9, color: "var(--text-master)" }}>
+                {avg != null ? avg.toFixed(0) : "—"}<small style={{ fontSize: "var(--fs-subhead)", fontWeight: 800 }}>点</small>
               </span>
-              <span style={{ fontSize: 11.5, color: "#9aa6b3", fontWeight: 700, paddingBottom: 3 }}>
+              <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", fontWeight: 700, paddingBottom: 3 }}>
                 {avg != null && avg < 90 ? `あと ${Math.max(1, Math.ceil(90 - avg))}点！` : "いまの平均"}
               </span>
             </div>
             <div style={{ position: "relative", paddingTop: 16 }}>
-              <div style={{ position: "absolute", top: 0, left: "90%", transform: "translateX(-50%)", fontSize: 10, fontWeight: 900, color: "#b5651d" }}>
+              <div style={{ position: "absolute", top: 0, left: "90%", transform: "translateX(-50%)", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-master)" }}>
                 90
                 <div style={{ width: 2, height: 8, background: "#b5651d", margin: "1px auto 0" }} />
               </div>
@@ -190,7 +190,7 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
                 <div style={{ height: "100%", borderRadius: 8, width: `${avgPct}%`, background: "linear-gradient(90deg,#e6a94a,#b5651d)" }} />
               </div>
             </div>
-            <p style={{ margin: "9px 0 0", fontSize: 11.5, color: "#9aa6b3", fontWeight: 600, lineHeight: 1.6 }}>
+            <p style={{ margin: "9px 0 0", fontSize: "var(--fs-caption)", color: "var(--text-muted)", fontWeight: 600, lineHeight: 1.6 }}>
               {avg == null
                 ? "まだ演奏がないよ"
                 : needMore

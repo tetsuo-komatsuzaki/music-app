@@ -13,7 +13,7 @@ export default function TeacherLoading() {
         justifyContent: "center",
         gap: 12,
         padding: "60px 0",
-        color: "#6b7885",
+        color: "var(--text-sub)",
       }}
     >
       <span
@@ -27,7 +27,7 @@ export default function TeacherLoading() {
           animation: "teacherspin 0.8s linear infinite",
         }}
       />
-      <span style={{ fontSize: 12.5, fontWeight: 700 }}>読み込み中…</span>
+      <span style={{ fontSize: "var(--fs-body)", fontWeight: 700 }}>読み込み中…</span>
       <style>{`@keyframes teacherspin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )

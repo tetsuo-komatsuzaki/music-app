@@ -63,22 +63,22 @@ export default async function TeacherHomePage({
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-        <h1 style={{ fontSize: 18, fontWeight: 900, margin: "4px 0 2px" }}>生徒</h1>
+        <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "4px 0 2px" }}>生徒</h1>
         <span style={{ display: "flex", gap: 6 }}>
-          <Link href={`/${userId}/teacher/schedule`} style={{ fontSize: 12, fontWeight: 700, color: "#2b3742", background: "#eef1f4", border: "1px solid #e2e6ea", borderRadius: 999, padding: "5px 12px", textDecoration: "none" }}>
+          <Link href={`/${userId}/teacher/schedule`} style={{ fontSize: "var(--fs-body)", fontWeight: 700, color: "var(--text-ink)", background: "#eef1f4", border: "1px solid #e2e6ea", borderRadius: 999, padding: "5px 12px", textDecoration: "none" }}>
             レッスン枠
           </Link>
-          <Link href={`/${userId}/teacher/profile`} style={{ fontSize: 12, fontWeight: 700, color: "#2b3742", background: "#eef1f4", border: "1px solid #e2e6ea", borderRadius: 999, padding: "5px 12px", textDecoration: "none" }}>
+          <Link href={`/${userId}/teacher/profile`} style={{ fontSize: "var(--fs-body)", fontWeight: 700, color: "var(--text-ink)", background: "#eef1f4", border: "1px solid #e2e6ea", borderRadius: 999, padding: "5px 12px", textDecoration: "none" }}>
             プロフィール
           </Link>
         </span>
       </div>
-      <p style={{ fontSize: 12.5, color: "#6b7885", margin: "0 0 16px" }}>
+      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 16px" }}>
         担当している生徒の一覧です。タップでカルテ（練習の様子・宿題）を開きます。
       </p>
 
       {links.length === 0 ? (
-        <div style={{ fontSize: 13, color: "#9aa6b3", padding: "18px 0", textAlign: "center" }}>
+        <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: "18px 0", textAlign: "center" }}>
           まだ生徒がいません。下の招待コードを生徒に伝えてください。
         </div>
       ) : (
@@ -96,11 +96,11 @@ export default async function TeacherHomePage({
             >
               <span style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
                 <UserRound size={22} color="#8ba0c4" aria-hidden style={{ flex: "none" }} />
-                <span style={{ fontSize: 14, fontWeight: 800, color: "#2b3742", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {l.student.name}
                 </span>
               </span>
-              <span style={{ fontSize: 11.5, color: "#9aa6b3", flex: "none" }}>
+              <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", flex: "none" }}>
                 直近 {daysAgoLabel(lastByStudent.get(l.student.id) ?? null)} →
               </span>
             </Link>

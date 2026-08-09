@@ -1,10 +1,10 @@
 /* WeaknessDiagnosisCard.module.css — 工程C-6a 弱点＋推薦教材カード（中間型） */
 
 .heading {
-  font-size: 15px;
+  font-size: var(--fs-subhead);
   font-weight: 600;
   margin: 0 0 10px;
-  color: #333;
+  color: var(--text-ink);
 }
 
 .slotList {
@@ -28,15 +28,15 @@
 }
 
 .groupHeadLabel {
-  font-size: 12px;
+  font-size: var(--fs-body);
   font-weight: 800;
-  color: #333;
+  color: var(--text-ink);
 }
 
 .groupCount {
   margin-left: auto;
-  font-size: 10.5px;
-  color: #9aa2ad;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
   font-weight: 700;
 }
 
@@ -61,9 +61,9 @@
   border-radius: 6px;
   display: grid;
   place-items: center;
-  font-size: 11px;
+  font-size: var(--fs-caption);
   font-weight: 800;
-  color: #fff;
+  color: var(--text-on-accent);
 }
 
 .slotBody {
@@ -80,9 +80,9 @@
 
 .miniLabel {
   flex: none;
-  font-size: 11px;
+  font-size: var(--fs-caption);
   font-weight: 800;
-  color: #9aa2ad;
+  color: var(--text-muted);
 }
 
 .miniTrack {
@@ -102,15 +102,15 @@
 
 .miniPct {
   flex: none;
-  font-size: 12px;
+  font-size: var(--fs-body);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 
 .miniCount {
   flex: none;
-  font-size: 11px;
-  color: #9aa2ad;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -122,9 +122,9 @@
 }
 
 .treeBadge {
-  font-size: 11px;
+  font-size: var(--fs-caption);
   font-weight: 600;
-  color: #5a7fdf;
+  color: var(--text-link);
   background: #eef2fd;
   border-radius: 999px;
   padding: 2px 8px;
@@ -132,20 +132,20 @@
 }
 
 .slotTitle {
-  font-size: 13.5px;
+  font-size: var(--fs-body);
   font-weight: 600;
-  color: #222;
+  color: var(--text-ink);
   line-height: 1.45;
 }
 
 .slotStats {
-  font-size: 12px;
-  color: #777;
+  font-size: var(--fs-body);
+  color: var(--text-sub);
 }
 
 .breakdown {
-  font-size: 12px;
-  color: #666;
+  font-size: var(--fs-body);
+  color: var(--text-body);
   margin: 6px 0 0 4px;
 }
 
@@ -156,8 +156,8 @@
 }
 
 .materialsLabel {
-  font-size: 11px;
-  color: #999;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
   margin-bottom: 6px;
 }
 
@@ -181,22 +181,22 @@
 }
 
 .materialTitle {
-  font-size: 13px;
-  color: #333;
+  font-size: var(--fs-body);
+  color: var(--text-ink);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .materialMeta {
-  font-size: 11px;
-  color: #888;
+  font-size: var(--fs-caption);
+  color: var(--text-sub);
 }
 
 .practiceLink {
-  font-size: 12px;
+  font-size: var(--fs-body);
   font-weight: 600;
-  color: #fff;
+  color: var(--text-on-accent);
   background: #5a7fdf;
   border-radius: 6px;
   padding: 6px 12px;
@@ -210,8 +210,8 @@
 }
 
 .practiceLinkDisabled {
-  font-size: 11px;
-  color: #aaa;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -221,13 +221,13 @@
   border-radius: 6px;
   background: #fafafa;
   border: 1px dashed #d1d5db;
-  font-size: 12px;
-  color: #888;
+  font-size: var(--fs-body);
+  color: var(--text-sub);
   text-align: center;
 }
 
 .cumulativeIntro {
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   line-height: 1.7;
   margin-bottom: 10px;
 }
@@ -237,8 +237,8 @@
   border-radius: 8px;
   background: #f5f5f5;
   text-align: center;
-  font-size: 13px;
-  color: #666;
+  font-size: var(--fs-body);
+  color: var(--text-body);
 }
 
 .perfectBox {
@@ -246,9 +246,9 @@
   border-radius: 10px;
   background: linear-gradient(135deg, #eef7ee, #e8f2fd);
   text-align: center;
-  font-size: 16px;
+  font-size: var(--fs-subhead);
   font-weight: 700;
-  color: #2c6e49;
+  color: var(--text-good);
 }
 
 .perfectEmoji {

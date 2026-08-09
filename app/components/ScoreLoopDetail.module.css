@@ -11,23 +11,23 @@
 .error {
   padding: 32px;
   text-align: center;
-  color: #5a6473;
-  font-size: 14px;
+  color: var(--text-body);
+  font-size: var(--fs-subhead);
 }
 .error {
-  color: #c0392b;
+  color: var(--text-error);
 }
 
 .sectionTitle {
-  font-size: 16px;
+  font-size: var(--fs-subhead);
   font-weight: 700;
-  color: #2d2d2d;
+  color: var(--text-ink);
   margin: 0 0 12px 0;
 }
 
 .emptyHint {
-  font-size: 13px;
-  color: #888;
+  font-size: var(--fs-body);
+  color: var(--text-sub);
   margin: 4px 0;
 }
 
@@ -60,14 +60,14 @@
 }
 
 .statLabel {
-  font-size: 11px;
-  color: #5a6473;
+  font-size: var(--fs-caption);
+  color: var(--text-body);
   font-weight: 600;
 }
 
 .statValue {
-  font-size: 16px;
-  color: #2d2d2d;
+  font-size: var(--fs-subhead);
+  color: var(--text-ink);
   font-weight: 700;
 }
 
@@ -109,9 +109,9 @@
 }
 
 .cardTitle {
-  font-size: 15px;
+  font-size: var(--fs-subhead);
   font-weight: 700;
-  color: #2d2d2d;
+  color: var(--text-ink);
   margin: 0;
 }
 
@@ -120,33 +120,33 @@
   align-items: center;
   padding: 2px 10px;
   border-radius: 12px;
-  font-size: 11px;
+  font-size: var(--fs-caption);
   font-weight: 700;
   background: #d4dae3;
-  color: #2d2d2d;
+  color: var(--text-ink);
 }
 
 .status_active {
   background: #fff3cd;
-  color: #856404;
+  color: var(--text-master);
 }
 .status_improving {
   background: #cfe2ff;
-  color: #1758c3;
+  color: var(--text-link);
 }
 .status_cleared {
   background: #d4edda;
-  color: #155724;
+  color: var(--text-good);
 }
 
 .cardScore {
   margin: 4px 0 12px 0;
-  font-size: 13px;
-  color: #5a6473;
+  font-size: var(--fs-body);
+  color: var(--text-body);
 }
 .cardScore strong {
-  color: #2d2d2d;
-  font-size: 15px;
+  color: var(--text-ink);
+  font-size: var(--fs-subhead);
 }
 
 .subTaskList {
@@ -172,17 +172,17 @@
 }
 
 .subTaskTitle {
-  font-size: 13px;
+  font-size: var(--fs-body);
   font-weight: 600;
-  color: #2d2d2d;
+  color: var(--text-ink);
 }
 
 .subTaskStatus {
-  font-size: 12px;
-  color: #b0b6c0;
+  font-size: var(--fs-body);
+  color: var(--text-muted);
 }
 .subTaskCleared {
-  color: #4caf50;
+  color: var(--text-good);
   font-weight: 700;
 }
 
@@ -200,8 +200,8 @@
   border-radius: 999px;
   background: #fff;
   border: 1px solid #d4dae3;
-  font-size: 11px;
-  color: #2d2d2d;
+  font-size: var(--fs-caption);
+  color: var(--text-ink);
   text-decoration: none;
   transition: background 0.15s, border-color 0.15s;
 }
@@ -214,16 +214,16 @@
 .assignmentMastered {
   background: #d4edda;
   border-color: #4caf50;
-  color: #155724;
+  color: var(--text-good);
 }
 
 .assignmentCat {
   font-weight: 700;
-  font-size: 10px;
-  color: #5a6473;
+  font-size: var(--fs-label);
+  color: var(--text-body);
 }
 .assignmentMastered .assignmentCat {
-  color: #155724;
+  color: var(--text-good);
 }
 
 .assignmentTitle {
@@ -234,7 +234,7 @@
 }
 
 .assignmentMark {
-  color: #4caf50;
+  color: var(--text-good);
   font-weight: 700;
 }
 
@@ -248,8 +248,8 @@
 
 .flagHint {
   margin: 0 0 8px 0;
-  font-size: 13px;
-  color: #856404;
+  font-size: var(--fs-body);
+  color: var(--text-master);
 }
 
 .flagList {
@@ -266,7 +266,7 @@
   background: #fff;
   padding: 1px 6px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--fs-body);
   font-family: ui-monospace, monospace;
-  color: #856404;
+  color: var(--text-master);
 }

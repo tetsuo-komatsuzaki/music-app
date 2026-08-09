@@ -19,15 +19,15 @@ export default function InviteCodeCard() {
 
   return (
     <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: "14px 16px" }}>
-      <div style={{ fontSize: 13, fontWeight: 800, color: "#2b3742", marginBottom: 4 }}>生徒を招待する</div>
-      <p style={{ fontSize: 12, color: "#6b7885", margin: "0 0 12px" }}>
+      <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", marginBottom: 4 }}>生徒を招待する</div>
+      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 12px" }}>
         このコードを生徒に伝えてください。生徒はアプリの「設定 &gt; 先生とつながる」でコードを入力すると、あなたと繋がります。
       </p>
       {code ? (
         <div
           style={{
-            fontFamily: "ui-monospace, Menlo, Consolas, monospace", fontSize: 26, fontWeight: 800,
-            letterSpacing: ".18em", textAlign: "center", color: "#2b3742",
+            fontFamily: "ui-monospace, Menlo, Consolas, monospace", fontSize: "var(--fs-display)", fontWeight: 800,
+            letterSpacing: ".18em", textAlign: "center", color: "var(--text-ink)",
             background: "#f6f7f9", border: "1px dashed #cbd3db", borderRadius: 10, padding: "12px 0",
           }}
         >
@@ -39,14 +39,14 @@ export default function InviteCodeCard() {
           onClick={reveal}
           disabled={loading}
           style={{
-            width: "100%", border: "none", borderRadius: 10, padding: 12, fontSize: 13, fontWeight: 800,
-            color: "#fff", background: "#2b3742", cursor: "pointer", opacity: loading ? 0.6 : 1,
+            width: "100%", border: "none", borderRadius: 10, padding: 12, fontSize: "var(--fs-body)", fontWeight: 800,
+            color: "var(--text-on-accent)", background: "#2b3742", cursor: "pointer", opacity: loading ? 0.6 : 1,
           }}
         >
           {loading ? "発行中…" : "招待コードを表示"}
         </button>
       )}
-      {err && <div style={{ fontSize: 12, color: "#c0392b", marginTop: 8 }}>{err}</div>}
+      {err && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-error)", marginTop: 8 }}>{err}</div>}
     </div>
   )
 }

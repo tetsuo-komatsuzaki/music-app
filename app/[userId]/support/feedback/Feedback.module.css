@@ -9,15 +9,15 @@
 }
 
 .title {
-  font-size: 24px;
+  font-size: var(--fs-title);
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-ink);
   margin: 0;
 }
 
 .intro {
-  font-size: 14px;
-  color: #555;
+  font-size: var(--fs-subhead);
+  color: var(--text-body);
   line-height: 1.7;
   margin: 0;
 }
@@ -39,20 +39,20 @@
 }
 
 .label {
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-ink);
 }
 
 .required {
-  color: #c0392b;
-  font-size: 12px;
+  color: var(--text-error);
+  font-size: var(--fs-body);
   margin-left: 4px;
 }
 
 .optional {
-  color: #888;
-  font-size: 12px;
+  color: var(--text-sub);
+  font-size: var(--fs-body);
   font-weight: 400;
   margin-left: 4px;
 }
@@ -68,10 +68,10 @@
   border-radius: 8px;
   width: 44px;
   height: 44px;
-  font-size: 22px;
+  font-size: var(--fs-title);
   cursor: pointer;
   transition: 0.15s;
-  color: #ccc;
+  color: var(--text-muted);
 }
 
 .starButton:hover {
@@ -79,19 +79,19 @@
 }
 
 .starButton.starActive {
-  color: #f5a623;
+  color: var(--text-master);
   border-color: #f5a623;
 }
 
 .select,
 .input,
 .textarea {
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   padding: 10px 12px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   background: #fff;
-  color: #1a1a1a;
+  color: var(--text-ink);
   font-family: inherit;
 }
 
@@ -109,18 +109,18 @@
 }
 
 .charCount {
-  font-size: 12px;
-  color: #888;
+  font-size: var(--fs-body);
+  color: var(--text-sub);
   text-align: right;
 }
 
 .charCountOver {
-  color: #c0392b;
+  color: var(--text-error);
 }
 
 .helperText {
-  font-size: 12px;
-  color: #777;
+  font-size: var(--fs-body);
+  color: var(--text-sub);
   line-height: 1.5;
   margin: 0;
 }
@@ -133,11 +133,11 @@
 
 .submitButton {
   background: #4a7fa3;
-  color: #fff;
+  color: var(--text-on-accent);
   border: none;
   border-radius: 8px;
   padding: 10px 24px;
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   font-weight: 600;
   cursor: pointer;
   transition: 0.15s;
@@ -155,18 +155,18 @@
 .message {
   padding: 12px 14px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--fs-body);
   line-height: 1.6;
 }
 
 .success {
   background: #e8f5e9;
-  color: #2e7d32;
+  color: var(--text-good);
   border: 1px solid #c8e6c9;
 }
 
 .error {
   background: #fdecea;
-  color: #c0392b;
+  color: var(--text-error);
   border: 1px solid #f5c6c0;
 }

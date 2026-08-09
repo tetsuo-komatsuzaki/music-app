@@ -23,9 +23,9 @@ export default function ReviewClient({
 
   return (
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "16px 14px 60px" }}>
-      <Link href={`/${userId}/my-teacher`} style={{ fontSize: 12, color: "#6b7885", textDecoration: "none" }}>← 先生とのやりとり</Link>
-      <h1 style={{ fontSize: 17, fontWeight: 900, margin: "6px 0 2px" }}>先生の添削：{scoreTitle}</h1>
-      <p style={{ fontSize: 12, color: "#6b7885", margin: "0 0 12px" }}>先生が譜面に書き込んだハイライトやメモです。</p>
+      <Link href={`/${userId}/my-teacher`} style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", textDecoration: "none" }}>← 先生とのやりとり</Link>
+      <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "6px 0 2px" }}>先生の添削：{scoreTitle}</h1>
+      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 12px" }}>先生が譜面に書き込んだハイライトやメモです。</p>
       <AnnotatableScore buildUrl={buildUrl} scoreId={scoreId} readOnly loadOverride={load} />
     </div>
   )

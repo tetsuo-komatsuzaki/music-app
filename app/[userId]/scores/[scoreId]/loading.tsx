@@ -11,8 +11,8 @@ export default function ScoreDetailLoading() {
         style={{
           position: "fixed", left: "50%", top: "50%", transform: "translate(-50%,-50%)",
           display: "flex", alignItems: "center", gap: 10, padding: "14px 22px",
-          background: "rgba(26,32,44,0.92)", color: "#fff", borderRadius: 999,
-          fontSize: 14, fontWeight: 700, boxShadow: "0 8px 28px rgba(0,0,0,0.35)", zIndex: 50,
+          background: "rgba(26,32,44,0.92)", color: "var(--text-on-accent)", borderRadius: 999,
+          fontSize: "var(--fs-subhead)", fontWeight: 700, boxShadow: "0 8px 28px rgba(0,0,0,0.35)", zIndex: 50,
         }}
       >
         <span style={{ width: 15, height: 15, border: "2px solid rgba(255,255,255,0.35)", borderTopColor: "#fff", borderRadius: "50%", animation: "arcoLoadSpin 0.7s linear infinite" }} />

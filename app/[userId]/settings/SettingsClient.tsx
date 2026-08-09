@@ -165,8 +165,8 @@ export default function SettingsClient({
           <h2 className={styles.sectionTitle}>通知</h2>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#22303c" }}>先生からの通知メール</div>
-              <div style={{ fontSize: 12, color: "#8a9099", marginTop: 3, lineHeight: 1.6 }}>
+              <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 700, color: "var(--text-ink)" }}>先生からの通知メール</div>
+              <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginTop: 3, lineHeight: 1.6 }}>
                 先生から宿題・添削・メッセージが届いたとき、登録メールにお知らせします。
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function SettingsClient({
               <span style={{ position: "absolute", top: 3, left: emailOff ? 3 : 22, width: 21, height: 21, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 2px rgba(0,0,0,.25)", transition: "left .15s" }} />
             </button>
           </div>
-          <div style={{ fontSize: 11.5, color: "#9aa6b3", marginTop: 8 }}>
+          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 8 }}>
             {emailOff ? "いまはオフ（メールは届きません）" : "いまはオン（メールが届きます）"}
           </div>
         </section>
@@ -401,21 +401,21 @@ function FeedbackCard() {
   }
   return (
     <section style={{ background: "#fff", border: "1px solid #eceff3", borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
-      <h2 style={{ fontSize: 15, fontWeight: 800, margin: "0 0 4px", color: "#22303c", display: "flex", alignItems: "center", gap: 5 }}><MessageCircle size={16} /> ご意見・要望</h2>
-      <p style={{ fontSize: 12, color: "#8a9099", margin: "0 0 10px", lineHeight: 1.6 }}>
+      <h2 style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, margin: "0 0 4px", color: "var(--text-ink)", display: "flex", alignItems: "center", gap: 5 }}><MessageCircle size={16} /> ご意見・要望</h2>
+      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 10px", lineHeight: 1.6 }}>
         「こうだったらいいのに」「採点がおかしい気がする」— なんでも運営に届きます。アプリはみなさんの声で良くなります。
       </p>
       {state === "done" ? (
-        <div style={{ fontSize: 12.5, fontWeight: 800, color: "#2e8b57" }}>届きました！ありがとうございます</div>
+        <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-good)" }}>届きました！ありがとうございます</div>
       ) : (
         <>
           <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} maxLength={2000}
             placeholder="例: 演奏履歴の点数が実際より低い気がする / こんな機能がほしい"
-            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 11px", fontSize: 13, resize: "vertical" }} />
+            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 11px", fontSize: "var(--fs-body)", resize: "vertical" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
-            {state === "error" && <span style={{ fontSize: 11.5, color: "#c0392b" }}>送信できませんでした。時間をおいて試してください</span>}
+            {state === "error" && <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-error)" }}>送信できませんでした。時間をおいて試してください</span>}
             <button type="button" onClick={send} disabled={pending || !text.trim()}
-              style={{ marginLeft: "auto", fontSize: 12.5, fontWeight: 800, color: "#fff", background: "#3555d4", border: "none", borderRadius: 9, padding: "9px 20px", cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
+              style={{ marginLeft: "auto", fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#3555d4", border: "none", borderRadius: 9, padding: "9px 20px", cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
               {pending ? "送信中…" : "送信する"}
             </button>
           </div>

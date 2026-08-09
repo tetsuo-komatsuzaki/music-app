@@ -44,7 +44,7 @@ function Stat({ value, unit, label, color }: { value: string; unit?: string; lab
       <div style={{ fontSize: "3.75cqw", fontWeight: 900, color, fontVariantNumeric: "tabular-nums" }}>
         {value}{unit && <span style={{ fontSize: "1.88cqw" }}>{unit}</span>}
       </div>
-      <div style={{ fontSize: "1.41cqw", fontWeight: 800, color: "#9a8c74", whiteSpace: "nowrap" }}>{label}</div>
+      <div style={{ fontSize: "1.41cqw", fontWeight: 800, color: "var(--text-sub)", whiteSpace: "nowrap" }}>{label}</div>
     </div>
   )
 }
@@ -115,7 +115,7 @@ export default function SharePublicView({
               </svg>
               {NOTES.map((n, i) => (
                 <span key={i} className="share-anim" style={{
-                  position: "absolute", top: n.top, left: "106%", fontSize: `${n.fs}cqw`, color: "#d8c48e",
+                  position: "absolute", top: n.top, left: "106%", fontSize: `${n.fs}cqw`, color: "var(--text-master)",
                   animation: `shareNoteFlow ${n.dur}s linear ${n.delay}s infinite`,
                 }}>{n.ch}</span>
               ))}
@@ -126,16 +126,16 @@ export default function SharePublicView({
         {/* 本文 */}
         <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", padding: "0 8%", gap: "5%", zIndex: 1 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: "1.88cqw", fontWeight: 900, color: "#a98b2f", letterSpacing: ".14em", whiteSpace: "nowrap" }}>{eyebrow}</div>
-            <div style={{ fontSize: headlineCqw, fontWeight: 900, color: "#1a2028", margin: "0.31cqw 0 1.88cqw", lineHeight: 1.25 }}>{headline}</div>
+            <div style={{ fontSize: "1.88cqw", fontWeight: 900, color: "var(--text-master)", letterSpacing: ".14em", whiteSpace: "nowrap" }}>{eyebrow}</div>
+            <div style={{ fontSize: headlineCqw, fontWeight: 900, color: "var(--text-ink)", margin: "0.31cqw 0 1.88cqw", lineHeight: 1.25 }}>{headline}</div>
             {kind === "rank_up" ? (
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "1.88cqw" }}>
-                  <span style={{ fontSize: "3.75cqw", color: "#c9bfa8" }}>{"★".repeat(Math.max(1, p.fromStar ?? 1))}</span>
-                  <span style={{ fontSize: "2.34cqw", fontWeight: 900, color: "#b8a982" }}>→</span>
-                  <span style={{ fontSize: "5.31cqw", color: "#e3a51f", textShadow: "0 0 2.19cqw #f5df9e" }}>{"★".repeat(Math.max(1, p.star ?? 2))}</span>
+                  <span style={{ fontSize: "3.75cqw", color: "var(--text-muted)" }}>{"★".repeat(Math.max(1, p.fromStar ?? 1))}</span>
+                  <span style={{ fontSize: "2.34cqw", fontWeight: 900, color: "var(--text-muted)" }}>→</span>
+                  <span style={{ fontSize: "5.31cqw", color: "var(--text-master)", textShadow: "0 0 2.19cqw #f5df9e" }}>{"★".repeat(Math.max(1, p.star ?? 2))}</span>
                 </div>
-                <div style={{ fontSize: "1.88cqw", fontWeight: 800, color: "#8a7c62", marginTop: "0.94cqw" }}>レベルが 1つ 上がったよ</div>
+                <div style={{ fontSize: "1.88cqw", fontWeight: 800, color: "var(--text-sub)", marginTop: "0.94cqw" }}>レベルが 1つ 上がったよ</div>
               </div>
             ) : (
               <div style={{ display: "flex", gap: "3.44cqw" }}>
@@ -157,25 +157,25 @@ export default function SharePublicView({
                 </>}
               </div>
             )}
-            <div style={{ fontSize: "1.72cqw", fontWeight: 800, color: "#9a8c74", marginTop: "2.19cqw" }}>{footer}</div>
+            <div style={{ fontSize: "1.72cqw", fontWeight: 800, color: "var(--text-sub)", marginTop: "2.19cqw" }}>{footer}</div>
           </div>
           <div style={{ flex: "none", textAlign: "center", position: "relative", width: "22cqw" }}>
             <div style={{ position: "absolute", inset: "-2.81cqw", borderRadius: "50%", background: "radial-gradient(circle,#f5df9e66 0%,transparent 68%)" }} />
             <div style={{ position: "relative", width: "100%", aspectRatio: "290/275" }}>
               <ArcoChan pose={pose} />
             </div>
-            <div style={{ position: "relative", fontSize: "1.56cqw", fontWeight: 800, color: "#c9a227", marginTop: "0.62cqw" }}>{POSE_NOTE[kind]}</div>
+            <div style={{ position: "relative", fontSize: "1.56cqw", fontWeight: 800, color: "var(--text-master)", marginTop: "0.62cqw" }}>{POSE_NOTE[kind]}</div>
           </div>
         </div>
       </div>
 
       {/* ── アプリへの導線 ── */}
       <div style={{ textAlign: "center" }}>
-        <div style={{ fontSize: 12.5, fontWeight: 800, color: "#8a7c62", marginBottom: 10 }}>
+        <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 10 }}>
           アルコは、AIの先生といっしょに上達するバイオリン練習アプリです。
         </div>
         <Link href="/" style={{
-          display: "inline-block", fontSize: 14, fontWeight: 900, color: "#fff",
+          display: "inline-block", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "var(--text-on-accent)",
           background: "linear-gradient(135deg,#c9a227,#a97b1f)", borderRadius: 999,
           padding: "12px 28px", textDecoration: "none", boxShadow: "0 3px 10px rgba(160,120,30,.35)",
         }}>

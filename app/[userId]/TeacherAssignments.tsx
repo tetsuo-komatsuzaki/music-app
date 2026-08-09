@@ -46,12 +46,12 @@ const DUE_CALM = {
   normal: { fg: "#5a636e", bg: "#f2f4f7", bd: "#e6e9ee" },
 }
 const chip: React.CSSProperties = {
-  display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 800,
+  display: "inline-flex", alignItems: "center", gap: 5, fontSize: "var(--fs-caption)", fontWeight: 800,
   borderRadius: 8, padding: "4px 9px", whiteSpace: "nowrap", lineHeight: 1,
 }
-const softChip: React.CSSProperties = { ...chip, color: "#5a636e", background: "#f2f4f7", border: "1px solid #e6e9ee" }
+const softChip: React.CSSProperties = { ...chip, color: "var(--text-body)", background: "#f2f4f7", border: "1px solid #e6e9ee" }
 const badge: React.CSSProperties = {
-  fontSize: 11, fontWeight: 800, color: "#5a636e", background: "#f2f4f7",
+  fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-body)", background: "#f2f4f7",
   border: "1px solid #e6e9ee", borderRadius: 999, padding: "2px 9px",
 }
 
@@ -88,13 +88,13 @@ export default function TeacherAssignments({
         aria-expanded={open}
         style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", padding: 0, cursor: "pointer", font: "inherit", textAlign: "left" }}
       >
-        <span style={{ fontSize: 12.5, fontWeight: 800, color: "#2b3742", display: "inline-flex", alignItems: "center", gap: 5 }}><GraduationCap size={15} /> 先生から</span>
+        <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", display: "inline-flex", alignItems: "center", gap: 5 }}><GraduationCap size={15} /> 先生から</span>
         {summary?.unreadCelebration && (
-          <span style={{ ...chip, color: "#8a5a10", background: "linear-gradient(135deg,#fdf3df,#fdeef2)", border: "1px solid #eecfa0", display: "inline-flex", alignItems: "center", gap: 4 }}><PartyPopper size={12} /> お祝いが届いてるよ！</span>
+          <span style={{ ...chip, color: "var(--text-master)", background: "linear-gradient(135deg,#fdf3df,#fdeef2)", border: "1px solid #eecfa0", display: "inline-flex", alignItems: "center", gap: 4 }}><PartyPopper size={12} /> お祝いが届いてるよ！</span>
         )}
         {hwCount > 0 && <span style={badge}>宿題{hwCount}</span>}
         {unread > 0 && <span style={badge}>未読{unread}</span>}
-        {recentObs > 0 && <span style={{ ...chip, color: "#4a5bd0", background: "#eef0fc", border: "1px solid #d7dcf6", display: "inline-flex", alignItems: "center", gap: 4 }}><ClipboardList size={12} /> 新しい所見</span>}
+        {recentObs > 0 && <span style={{ ...chip, color: "var(--text-link)", background: "#eef0fc", border: "1px solid #d7dcf6", display: "inline-flex", alignItems: "center", gap: 4 }}><ClipboardList size={12} /> 新しい所見</span>}
         {headerDue && (() => {
           const c = DUE_CALM[headerDue.state]
           return (
@@ -103,20 +103,20 @@ export default function TeacherAssignments({
             </span>
           )
         })()}
-        <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 800, color: "#9aa6b3" }}>{open ? "▲ 閉じる" : "▼ 開く"}</span>
+        <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)" }}>{open ? "▲ 閉じる" : "▼ 開く"}</span>
       </button>
 
       {open && (
         <>
           {/* メッセージ / 添削 への導線 */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
-            <Link href={`/${userId}/my-teacher`} style={{ fontSize: 11.5, fontWeight: 800, color: "#5b6b9e", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}><MessageCircle size={13} /> メッセージ{unread > 0 ? `（${unread}）` : ""}</Link>
-            <span style={{ color: "#dfe3e8" }}>|</span>
-            <Link href={`/${userId}/my-teacher`} style={{ fontSize: 11.5, fontWeight: 800, color: "#5b6b9e", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}><PenLine size={13} /> 添削{feedback > 0 ? `（${feedback}）` : ""}</Link>
+            <Link href={`/${userId}/my-teacher`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}><MessageCircle size={13} /> メッセージ{unread > 0 ? `（${unread}）` : ""}</Link>
+            <span style={{ color: "var(--text-muted)" }}>|</span>
+            <Link href={`/${userId}/my-teacher`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}><PenLine size={13} /> 添削{feedback > 0 ? `（${feedback}）` : ""}</Link>
             {recentObs > 0 && (
               <>
-                <span style={{ color: "#dfe3e8" }}>|</span>
-                <Link href={`/${userId}/progress`} style={{ fontSize: 11.5, fontWeight: 800, color: "#4a5bd0", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}><ClipboardList size={13} /> 先生の所見 → 癖マップ</Link>
+                <span style={{ color: "var(--text-muted)" }}>|</span>
+                <Link href={`/${userId}/progress`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}><ClipboardList size={13} /> 先生の所見 → 癖マップ</Link>
               </>
             )}
           </div>
@@ -130,9 +130,9 @@ export default function TeacherAssignments({
               const metLabel = gr && a.goalType !== "score" && gr.met ? gr.label : null
               return (
                 <Link key={a.id} href={a.href} style={{ display: "block", border: "1px solid #eef1f4", borderRadius: 10, padding: "9px 11px", textDecoration: "none", color: "inherit" }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: "#2b3742" }}>
+                  <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)" }}>
                     {a.title}
-                    <span style={{ fontSize: 10, color: "#aab2bb", fontWeight: 700, marginLeft: 6 }}>{a.kind === "score" ? "曲" : "基礎練"}</span>
+                    <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 700, marginLeft: 6 }}>{a.kind === "score" ? "曲" : "基礎練"}</span>
                   </div>
                   {(goal || di || metLabel) && (
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
@@ -142,16 +142,16 @@ export default function TeacherAssignments({
                         const c = DUE_CALM[di.state]
                         return <span style={{ ...chip, color: c.fg, background: c.bg, border: `1px solid ${c.bd}`, display: "inline-flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}</span>
                       })()}
-                      {metLabel && <span style={{ ...chip, color: "#2e8b57", background: "#eaf5ee", border: "1px solid #cfe6d8" }}>{metLabel}</span>}
+                      {metLabel && <span style={{ ...chip, color: "var(--text-good)", background: "#eaf5ee", border: "1px solid #cfe6d8" }}>{metLabel}</span>}
                     </div>
                   )}
                   {a.moodTagId && (
-                    <div style={{ fontSize: 11.5, fontWeight: 800, color: "#8a5a1f", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6 }}>
+                    <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6 }}>
                       <Palette size={12} /> {moodTagGoalText(a.moodTagId)}
                     </div>
                   )}
-                  {a.comment && <div style={{ fontSize: 12, color: "#4a4650", marginTop: 6, lineHeight: 1.5, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{a.comment}</span></div>}
-                  <div style={{ fontSize: 10.5, color: "#aab2bb", marginTop: 7 }}>{a.teacherName} 先生</div>
+                  {a.comment && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", marginTop: 6, lineHeight: 1.5, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{a.comment}</span></div>}
+                  <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 7 }}>{a.teacherName} 先生</div>
                 </Link>
               )
             })}

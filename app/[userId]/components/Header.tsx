@@ -22,7 +22,7 @@ export default function Header({ role }: { role?: string }) {
             <Link
               href={`/${userId}/teacher`}
               style={{
-                fontSize: 11.5, fontWeight: 700, color: "#2b3742", textDecoration: "none",
+                fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-ink)", textDecoration: "none",
                 background: "#eef1f4", border: "1px solid #e2e6ea", borderRadius: 999, padding: "4px 10px",
                 display: "inline-flex", alignItems: "center", gap: 4,
               }}

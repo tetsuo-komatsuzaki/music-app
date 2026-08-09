@@ -28,14 +28,14 @@ export default function CelebrationBanner({ name, onOpen }: { name: string; onOp
         <ArcoChan pose={normalPose()} />
       </span>
       <span style={{ minWidth: 0, flex: 1 }}>
-        <span style={{ display: "block", fontSize: 12.5, fontWeight: 800, color: "#2b3742" }}>
+        <span style={{ display: "block", fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)" }}>
           {truncateBannerName(name)}の採点、できあがったよ！
         </span>
-        <span style={{ display: "block", fontSize: 11, color: "#9aa6b3", marginTop: 1 }}>
+        <span style={{ display: "block", fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 1 }}>
           ここから確認してね
         </span>
       </span>
-      <span style={{ fontSize: 14, fontWeight: 800, color: "#c3ccd6" }} aria-hidden>→</span>
+      <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-muted)" }} aria-hidden>→</span>
     </button>
   )
 }

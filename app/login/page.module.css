@@ -9,8 +9,8 @@
   text-align: center;
   position: relative;
   margin: 0 0 1.5rem 0;
-  font-size: 13px;
-  color: #9ca3af;
+  font-size: var(--fs-body);
+  color: var(--text-muted);
 }
 
 .divider::before,
@@ -43,12 +43,12 @@
   height: 48px;
 
   background-color: #ffffff;
-  color: #333;
+  color: var(--text-ink);
 
   border: 1px solid #ddd;
   border-radius: 8px;
 
-  font-size: 15px;
+  font-size: var(--fs-subhead);
   font-weight: 500;
 
   cursor: pointer;
@@ -83,7 +83,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: bold;
-  font-size: 18px;
+  font-size: var(--fs-head);
 }
 
 /* ホバー */
@@ -114,7 +114,7 @@
 .subtitle {
   font-size: 0.875rem;
   text-align: center;
-  color: #6b7280;
+  color: var(--text-sub);
   margin-bottom: 2rem;   /* ← 少し広げる */
 }
 
@@ -143,13 +143,13 @@
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #111827; /* gray-900 */
+  color: var(--text-link); /* gray-900 */
 }
 
 .input {
   background-color: #f9fafb; /* gray-50 */
   border: 1px solid #d1d5db; /* gray-300 */
-  color: #111827;
+  color: var(--text-link);
   font-size: 0.875rem;
   border-radius: 0.5rem;
   padding: 0.625rem;
@@ -166,7 +166,7 @@
 .button {
   width: 100%;
   background-color: #1d4ed8; /* blue-700 */
-  color: white;
+  color: var(--text-on-accent);
   font-weight: 500;
   border-radius: 0.5rem;
   padding: 0.625rem 1.25rem;
@@ -191,14 +191,14 @@
 }
 
 .link {
-  color: #2563eb;              /* 青 */
+  color: var(--text-link);              /* 青 */
   text-decoration: underline;  /* 下線 */
   font-weight: 500;
   transition: color 0.2s ease; /* ホバー時の滑らかさ */
 }
 
 .link:hover {
-  color: #1e40af;              /* 少し濃い青 */
+  color: var(--text-link);              /* 少し濃い青 */
 }
 
 .passwordLabelRow {

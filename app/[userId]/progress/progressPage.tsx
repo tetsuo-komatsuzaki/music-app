@@ -23,9 +23,9 @@ const GOLD = "#b58a1e"
 const WARN = "#c9752e"
 const tnum: React.CSSProperties = { fontVariantNumeric: "tabular-nums" }
 
-const kicker: React.CSSProperties = { fontSize: 9, fontWeight: 900, letterSpacing: ".24em", color: "#b99b45" }
-const chapTitle: React.CSSProperties = { fontSize: 15, fontWeight: 900, marginTop: 1 }
-const chapNote: React.CSSProperties = { fontSize: 9.5, color: SUB, fontWeight: 700 }
+const kicker: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 900, letterSpacing: ".24em", color: "var(--text-master)" }
+const chapTitle: React.CSSProperties = { fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 1 }
+const chapNote: React.CSSProperties = { fontSize: "var(--fs-label)", color: SUB, fontWeight: 700 }
 const railCard: React.CSSProperties = {
   flex: "none", width: 150, scrollSnapAlign: "start", borderRadius: 15, padding: "12px 13px",
   boxSizing: "border-box", background: "rgba(255,255,255,.8)", border: "1px solid #efe5cc",
@@ -76,7 +76,7 @@ export default function ProgressPage({ userId, data, readOnly = false }: {
     <div style={{ maxWidth: 520, margin: "0 auto", padding: readOnly ? "4px 0 30px" : "18px 14px 60px", fontFamily: "inherit", color: INK }}>
       {weeklyShare && <ShareSheet kind="weekly" onClose={() => setWeeklyShare(false)} />}
       {readOnly && (
-        <div style={{ fontSize: 9.5, fontWeight: 800, color: "#8a9099", margin: "0 0 10px" }}>生徒に見えているのと同じカルテ（直近30日）</div>
+        <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", margin: "0 0 10px" }}>生徒に見えているのと同じカルテ（直近30日）</div>
       )}
 
       {/* ═ 1枚のクリームの紙 ═ */}
@@ -121,13 +121,13 @@ function Hero({ data, readOnly, onShare }: { data: KarteData; readOnly: boolean;
       <div style={{ position: "relative" }}>
         <div style={{ display: "flex", alignItems: "baseline" }}>
           <div>
-            <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: ".22em", color: "#a98b2f" }}>GROWTH KARTE</div>
-            <div style={{ fontSize: 20, fontWeight: 900 }}>きみの成長カルテ</div>
-            <div style={{ fontSize: 10.5, color: "#8a7c62", fontWeight: 700 }}>直近30日のきろく</div>
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, letterSpacing: ".22em", color: "var(--text-master)" }}>GROWTH KARTE</div>
+            <div style={{ fontSize: "var(--fs-head)", fontWeight: 900 }}>きみの成長カルテ</div>
+            <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 700 }}>直近30日のきろく</div>
           </div>
           {!readOnly && (
             <button type="button" onClick={onShare}
-              style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 800, color: GOLD, background: "rgba(255,255,255,.7)", border: "1px solid #eee0bd", borderRadius: 999, padding: "4px 11px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 800, color: GOLD, background: "rgba(255,255,255,.7)", border: "1px solid #eee0bd", borderRadius: 999, padding: "4px 11px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
               <Share2 size={12} /> 今週をシェア
             </button>
           )}
@@ -135,12 +135,12 @@ function Hero({ data, readOnly, onShare }: { data: KarteData; readOnly: boolean;
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/Icon.png" alt="" aria-hidden width={42} height={42} style={{ flex: "none", borderRadius: 9, filter: "drop-shadow(0 3px 6px rgba(160,120,30,.25))" }} />
-          <span style={{ flex: 1, background: "rgba(255,255,255,.75)", border: "1px solid #eee0bd", borderRadius: 13, borderTopLeftRadius: 4, padding: "9px 12px", fontSize: 11.5, fontWeight: 700, color: "#4a4030" }}>
+          <span style={{ flex: 1, background: "rgba(255,255,255,.75)", border: "1px solid #eee0bd", borderRadius: 13, borderTopLeftRadius: 4, padding: "9px 12px", fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-ink)" }}>
             {data.v2.arcoLine}
           </span>
         </div>
         <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-          <div style={kpiBox}><b style={{ ...kpiNum, color: ACC }}>{k.starDone}<small style={{ fontSize: 11, color: "#9aa6b3" }}>/{k.starRequired}</small></b><span style={kpiLbl}>★{k.star}の達成曲</span></div>
+          <div style={kpiBox}><b style={{ ...kpiNum, color: ACC }}>{k.starDone}<small style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)" }}>/{k.starRequired}</small></b><span style={kpiLbl}>★{k.star}の達成曲</span></div>
           <div style={kpiBox}><b style={{ ...kpiNum, color: k.basicsWeek > 0 ? GOOD : SUB }}>{k.basicsWeek > 0 ? `+${k.basicsWeek}` : "±0"}</b><span style={kpiLbl}>今週の基礎練</span></div>
           <div style={kpiBox}><b style={{ ...kpiNum, color: k.skillsWeek > 0 ? GOLD : SUB }}>{k.skillsWeek > 0 ? `+${k.skillsWeek}` : "±0"}</b><span style={kpiLbl}>今週のわざ</span></div>
         </div>
@@ -149,8 +149,8 @@ function Hero({ data, readOnly, onShare }: { data: KarteData; readOnly: boolean;
   )
 }
 const kpiBox: React.CSSProperties = { flex: 1, textAlign: "center", background: "rgba(255,255,255,.65)", border: "1px solid #efe5cc", borderRadius: 13, padding: "10px 4px 8px" }
-const kpiNum: React.CSSProperties = { display: "block", fontSize: 23, fontWeight: 900, lineHeight: 1.1, ...tnum }
-const kpiLbl: React.CSSProperties = { fontSize: 8.5, fontWeight: 800, color: "#9a8c74" }
+const kpiNum: React.CSSProperties = { display: "block", fontSize: "var(--fs-title)", fontWeight: 900, lineHeight: 1.1, ...tnum }
+const kpiLbl: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)" }
 
 /* ═ わざの地図: 俯瞰ミニマップ + 横スライド (タップ不要・情報常時表示) ═ */
 function SkillsChapter({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
@@ -160,13 +160,13 @@ function SkillsChapter({ userId, data, readOnly }: { userId: string; data: Karte
       <div style={{ padding: "20px 18px 4px", textAlign: "center" }}>
         <div style={kicker}>SKILLS</div>
         <div style={chapTitle}>わざの地図</div>
-        <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
+        <div style={{ fontSize: "var(--fs-body)", color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
           スラーやビブラートなど「わざ」の習得と安定が一目でわかる地図。<br />
           先生が気づいた癖を体の場所で見られる「からだの癖」も。<br />
           <b>先生とつながると開放</b>されます。
         </div>
         <Link href={`/${userId}/find-teacher`}
-          style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none", marginBottom: 12 }}>
+          style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none", marginBottom: 12 }}>
           <Search size={14} /> 先生を探す →
         </Link>
       </div>
@@ -197,7 +197,7 @@ function SkillsChapter({ userId, data, readOnly }: { userId: string; data: Karte
     <Reveal>
       <div style={{ padding: "18px 18px 0" }}>
         <div style={kicker}>SKILLS</div>
-        <div style={chapTitle}>わざの地図 <span style={{ fontSize: 10, fontWeight: 800, color: SUB }}>いまの★{currentStar}</span></div>
+        <div style={chapTitle}>わざの地図 <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: SUB }}>いまの★{currentStar}</span></div>
         <div style={chapNote}>15のわざ ・ {litCount}つ点灯 ・ 横にスライドでくわしく</div>
         {/* 俯瞰ミニマップ: 点灯状況が3秒でわかる (地図性) */}
         <div style={{ display: "flex", gap: 5, marginTop: 8, flexWrap: "wrap" }}>{nodes.map(tile)}</div>
@@ -208,16 +208,16 @@ function SkillsChapter({ userId, data, readOnly }: { userId: string; data: Karte
           const locked = n.state === "locked"
           return (
             <div key={n.id} style={{ ...railCard, ...(lit ? litCard : {}), ...(locked ? dimCard : {}) }}>
-              <div style={{ fontSize: 12, fontWeight: 900, lineHeight: 1.4 }}>
+              <div style={{ fontSize: "var(--fs-body)", fontWeight: 900, lineHeight: 1.4 }}>
                 {n.label}
-                {n.isNew && <span style={{ fontSize: 7.5, fontWeight: 900, color: "#fff", background: BAD, borderRadius: 999, padding: "1px 6px", marginLeft: 5, verticalAlign: 2 }}>NEW</span>}
+                {n.isNew && <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-on-accent)", background: BAD, borderRadius: 999, padding: "1px 6px", marginLeft: 5, verticalAlign: 2 }}>NEW</span>}
               </div>
               {n.pct != null ? (
                 <>
-                  <div style={{ ...tnum, fontSize: 25, fontWeight: 900, lineHeight: 1.15, marginTop: 4, color: n.state === "wobble" ? WARN : GOOD }}>
-                    {n.pct}<span style={{ fontSize: 11 }}>%</span>
+                  <div style={{ ...tnum, fontSize: "var(--fs-title)", fontWeight: 900, lineHeight: 1.15, marginTop: 4, color: n.state === "wobble" ? WARN : GOOD }}>
+                    {n.pct}<span style={{ fontSize: "var(--fs-caption)" }}>%</span>
                   </div>
-                  <div style={{ fontSize: 9, fontWeight: 800, color: SUB, marginTop: 2 }}>
+                  <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: SUB, marginTop: 2 }}>
                     {n.weekDelta != null && n.weekDelta !== 0
                       ? `先週より ${n.weekDelta > 0 ? `+${n.weekDelta}` : n.weekDelta}`
                       : n.state === "wobble" ? "ゆらぎ中 ・ 練習しどき" : "安定してきた"}
@@ -231,15 +231,15 @@ function SkillsChapter({ userId, data, readOnly }: { userId: string; data: Karte
                   )}
                   {!readOnly && (
                     <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                      <Link href={`/${userId}/progress/skill/${n.id}`} style={{ fontSize: 9.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>くわしく →</Link>
-                      {n.practiceHref && <Link href={n.practiceHref} style={{ fontSize: 9.5, fontWeight: 800, color: WARN, textDecoration: "none" }}>練習する →</Link>}
+                      <Link href={`/${userId}/progress/skill/${n.id}`} style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: ACC, textDecoration: "none" }}>くわしく →</Link>
+                      {n.practiceHref && <Link href={n.practiceHref} style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: WARN, textDecoration: "none" }}>練習する →</Link>}
                     </div>
                   )}
                 </>
               ) : (
                 <>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: "#c0b598", marginTop: 4 }}>—</div>
-                  <div style={{ fontSize: 9, fontWeight: 800, color: SUB, marginTop: 2 }}>
+                  <div style={{ fontSize: "var(--fs-title)", fontWeight: 900, color: "var(--text-muted)", marginTop: 4 }}>—</div>
+                  <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: SUB, marginTop: 2 }}>
                     {n.state === "acquired_nodata" ? "習得ずみ ・ データ集め中"
                       : n.state === "ready" ? "つぎに挑戦できる"
                       : `★${n.star} で出会う`}
@@ -263,12 +263,12 @@ function ExprChapter({ userId, data, readOnly }: { userId: string; data: KarteDa
         <div style={{ padding: "18px 18px 14px", textAlign: "center" }}>
           <div style={kicker}>ESPRESSIONE</div>
           <div style={chapTitle}>表現のレベル</div>
-          <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
+          <div style={{ fontSize: "var(--fs-body)", color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
             「優しく（Dolce）」「歌うように（Cantabile）」— きみの表現を先生が認定してくれる場所。<br />
             <b>先生とつながると開放</b>されます。
           </div>
           <Link href={`/${userId}/find-teacher`}
-            style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none" }}>
+            style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none" }}>
             <Search size={14} /> 先生を探す →
           </Link>
         </div>
@@ -295,17 +295,17 @@ function ExprChapter({ userId, data, readOnly }: { userId: string; data: KarteDa
           const it = (n.label.match(/（(.+)）$/)?.[1] ?? "").toUpperCase()
           return (
             <div key={n.tagId} style={{ ...railCard, ...(lit ? litCard : dimCard) }}>
-              <div style={{ fontSize: 12, fontWeight: 900, lineHeight: 1.4 }}>
+              <div style={{ fontSize: "var(--fs-body)", fontWeight: 900, lineHeight: 1.4 }}>
                 {jp}
-                {n.isNew && <span style={{ fontSize: 7.5, fontWeight: 900, color: "#fff", background: BAD, borderRadius: 999, padding: "1px 6px", marginLeft: 5, verticalAlign: 2 }}>NEW</span>}
+                {n.isNew && <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-on-accent)", background: BAD, borderRadius: 999, padding: "1px 6px", marginLeft: 5, verticalAlign: 2 }}>NEW</span>}
               </div>
-              {it && <div style={{ fontSize: 8, fontWeight: 800, letterSpacing: ".1em", color: SUB, marginTop: 1 }}>{it}</div>}
-              <div style={{ fontSize: 20, fontWeight: 900, marginTop: 5, color: lit ? "#c9820e" : "#c0b598" }}>
+              {it && <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, letterSpacing: ".1em", color: SUB, marginTop: 1 }}>{it}</div>}
+              <div style={{ fontSize: "var(--fs-head)", fontWeight: 900, marginTop: 5, color: lit ? "#c9820e" : "#c0b598" }}>
                 {lit
-                  ? <>{"★".repeat(Math.min(5, n.star))}<span style={{ color: "#ecdcb2" }}>{"★".repeat(Math.max(0, 5 - n.star))}</span></>
+                  ? <>{"★".repeat(Math.min(5, n.star))}<span style={{ color: "var(--text-master)" }}>{"★".repeat(Math.max(0, 5 - n.star))}</span></>
                   : "☆☆☆☆☆"}
               </div>
-              <div style={{ fontSize: 9, fontWeight: 800, color: SUB, marginTop: 3, lineHeight: 1.5 }}>
+              <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: SUB, marginTop: 3, lineHeight: 1.5 }}>
                 {lit ? `${latest?.title ?? ""}で認定` : "これから出会う表現"}
               </div>
             </div>
@@ -328,7 +328,7 @@ function FormChapter({ data }: { data: KarteData }) {
       </div>
       <div style={{ padding: "10px 18px 16px" }}>
         {data.bodyObs.length === 0 ? (
-          <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>
+          <div style={{ fontSize: "var(--fs-caption)", color: SUB, lineHeight: 1.7 }}>
             先生がレッスンで気づいた癖を記録すると、ここに「体のどこの癖か」が表示されます。
           </div>
         ) : (
@@ -351,22 +351,22 @@ function DiscoveryChapter({ userId, data, readOnly }: { userId: string; data: Ka
         <div style={{ display: "flex", alignItems: "baseline" }}>
           <div style={chapTitle}>いちばんの発見</div>
           {!readOnly && (
-            <Link href={`/${userId}/progress/numbers`} style={{ marginLeft: "auto", fontSize: 10, fontWeight: 800, color: ACC, textDecoration: "none" }}>数字のへや →</Link>
+            <Link href={`/${userId}/progress/numbers`} style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: ACC, textDecoration: "none" }}>数字のへや →</Link>
           )}
         </div>
       </div>
       <div style={{ margin: "10px 18px 16px" }}>
         {!hasFinding ? (
-          <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>録音がたまると、苦手な調・音域・音がここに見えてくるよ。</div>
+          <div style={{ fontSize: "var(--fs-caption)", color: SUB, lineHeight: 1.7 }}>録音がたまると、苦手な調・音域・音がここに見えてくるよ。</div>
         ) : (
           <div style={{ background: "rgba(255,255,255,.8)", border: "1px solid #efe5cc", borderRadius: 16, padding: "13px 15px" }}>
             {d.lens ? (
               <>
-                <div style={{ fontSize: 9.5, fontWeight: 800, color: "#a4527a", display: "flex", alignItems: "center", gap: 4 }}><Search size={11} /> 30日の録音ぜんぶから見つけた</div>
-                <div style={{ fontSize: 27, fontWeight: 900, marginTop: 2 }}>
-                  {d.lens.note} <span style={{ fontSize: 12, color: "#8a7c62", fontWeight: 800 }}>{d.lens.hand ? `${d.lens.hand}・推定` : d.lens.raw}</span>
+                <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-expression)", display: "flex", alignItems: "center", gap: 4 }}><Search size={11} /> 30日の録音ぜんぶから見つけた</div>
+                <div style={{ fontSize: "var(--fs-display)", fontWeight: 900, marginTop: 2 }}>
+                  {d.lens.note} <span style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", fontWeight: 800 }}>{d.lens.hand ? `${d.lens.hand}・推定` : d.lens.raw}</span>
                 </div>
-                <div style={{ fontSize: 10.5, color: "#6a5f48", marginTop: 4, lineHeight: 1.7 }}>
+                <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-body)", marginTop: 4, lineHeight: 1.7 }}>
                   成功 <b style={tnum}>{d.lens.successPct}%</b>。{d.lens.type}
                   {d.lens.cents != null && <>（平均 {d.lens.cents > 0 ? "+" : ""}{d.lens.cents}セント）</>}。
                   {d.lens.fromNote && <>とくに<b>「{d.lens.fromNote}」から動いてきた時</b>にずれやすい。</>}
@@ -374,7 +374,7 @@ function DiscoveryChapter({ userId, data, readOnly }: { userId: string; data: Ka
                 </div>
               </>
             ) : (
-              <div style={{ fontSize: 12, lineHeight: 1.7 }}>
+              <div style={{ fontSize: "var(--fs-body)", lineHeight: 1.7 }}>
                 いまの苦手:
                 {d.keyWorst && <> <b style={{ color: BAD }}>{d.keyWorst.label} <span style={tnum}>{d.keyWorst.pct}%</span></b></>}
                 {d.keyWorst && d.registerWorst && " ・ "}
@@ -382,19 +382,19 @@ function DiscoveryChapter({ userId, data, readOnly }: { userId: string; data: Ka
               </div>
             )}
             {d.lens && (d.keyWorst || d.registerWorst) && (
-              <div style={{ fontSize: 10, color: SUB, marginTop: 7 }}>
+              <div style={{ fontSize: "var(--fs-label)", color: SUB, marginTop: 7 }}>
                 苦手な調: {d.keyWorst ? `${d.keyWorst.label} ${d.keyWorst.pct}%` : "—"}
                 {d.registerWorst && ` ・ ${BAND_LABEL[d.registerWorst.band]} ${d.registerWorst.pct}%`}
               </div>
             )}
             <details style={{ marginTop: 9 }}>
-              <summary style={{ fontSize: 10, fontWeight: 800, color: SUB, cursor: "pointer" }}>▸ もっと見る（練習の実態・調・奏法）</summary>
-              <div style={{ fontSize: 11, color: "#5a5140", lineHeight: 1.9, marginTop: 7 }}>
+              <summary style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: SUB, cursor: "pointer" }}>▸ もっと見る（練習の実態・調・奏法）</summary>
+              <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-body)", lineHeight: 1.9, marginTop: 7 }}>
                 練習 <b style={tnum}>{data.practiceDays}日</b> ・ 録音 <b style={tnum}>{data.recordingCount}回</b> ・ れんぞく <b style={tnum}>{data.streak}日</b> <Flame size={13} color="#e8743b" style={{ verticalAlign: -2 }} />
                 {data.keyRows.length > 0 && (
                   <div style={{ marginTop: 4 }}>
                     {data.keyRows.slice(0, 5).map((kk) => (
-                      <div key={kk.label} style={{ display: "flex", gap: 8, fontSize: 10.5 }}>
+                      <div key={kk.label} style={{ display: "flex", gap: 8, fontSize: "var(--fs-caption)" }}>
                         <span style={{ width: 92, flex: "none" }}>{kk.label}</span>
                         <span style={{ color: SUB }}>{kk.count}回</span>
                         {kk.avgPitch != null && <span style={{ ...tnum, marginLeft: "auto", fontWeight: 800 }}>{kk.avgPitch}%</span>}
@@ -407,7 +407,7 @@ function DiscoveryChapter({ userId, data, readOnly }: { userId: string; data: Ka
                     {data.techRows.slice(0, 4).map((t) => {
                       const pct = Math.max(0, Math.round(100 - (t.miss / Math.max(1, t.target)) * 100))
                       return (
-                        <div key={t.label} style={{ display: "flex", gap: 8, fontSize: 10.5 }}>
+                        <div key={t.label} style={{ display: "flex", gap: 8, fontSize: "var(--fs-caption)" }}>
                           <span style={{ width: 92, flex: "none" }}>{t.label}</span>
                           <span style={{ flex: 1, alignSelf: "center", height: 5, borderRadius: 3, background: "#efe9da", overflow: "hidden" }}>
                             <span style={{ display: "block", width: `${pct}%`, height: "100%", background: pct < 70 ? WARN : GOOD }} />
@@ -418,7 +418,7 @@ function DiscoveryChapter({ userId, data, readOnly }: { userId: string; data: Ka
                     })}
                   </div>
                 )}
-                <div style={{ fontSize: 9, color: "#c0b598", marginTop: 5 }}>※ アルコが、録音の音程・リズムから見ているよ</div>
+                <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 5 }}>※ アルコが、録音の音程・リズムから見ているよ</div>
               </div>
             </details>
           </div>
@@ -435,15 +435,15 @@ function HistorySection({ data }: { data: KarteData }) {
   const [active, setActive] = useState(0)
 
   const CAT: Record<string, { label: string; color: string }> = {
-    "🏆": { label: "マスター", color: "#b58a1e" },
-    "⭐": { label: "ランクアップ", color: "#b58a1e" },
-    "✨": { label: "タッセイ", color: "#2e8b57" },
-    "🎓": { label: "ワザ", color: "#4a63c8" },
-    "🎨": { label: "ヒョウゲン", color: "#a4527a" },
-    "💪": { label: "ヒョウゲン", color: "#a4527a" },
-    "🌱": { label: "クセこくふく", color: "#5f9c6e" },
-    "👩‍🏫": { label: "センセイ", color: "#8a6fb8" },
-    "🎙": { label: "ハジマリ", color: "#9aa3ae" },
+    "🏆": { label: "マスター", color: "var(--text-master)" },
+    "⭐": { label: "ランクアップ", color: "var(--text-master)" },
+    "✨": { label: "タッセイ", color: "var(--text-good)" },
+    "🎓": { label: "ワザ", color: "var(--text-link)" },
+    "🎨": { label: "ヒョウゲン", color: "var(--text-expression)" },
+    "💪": { label: "ヒョウゲン", color: "var(--text-expression)" },
+    "🌱": { label: "クセこくふく", color: "var(--text-sub)" },
+    "👩‍🏫": { label: "センセイ", color: "var(--text-teacher)" },
+    "🎙": { label: "ハジマリ", color: "var(--text-muted)" },
   }
   const isBig = (icon: string) => icon === "🏆" || icon === "⭐"
 
@@ -469,7 +469,7 @@ function HistorySection({ data }: { data: KarteData }) {
       <div style={{ padding: "18px 18px 16px" }}>
         <div style={kicker}>STORY</div>
         <div style={chapTitle}>きみの歴史</div>
-        <div style={{ fontSize: 11.5, color: SUB, marginTop: 6 }}>最初の録音をすると、ここにきみの歴史が刻まれはじめるよ。</div>
+        <div style={{ fontSize: "var(--fs-caption)", color: SUB, marginTop: 6 }}>最初の録音をすると、ここにきみの歴史が刻まれはじめるよ。</div>
       </div>
     )
   }
@@ -530,14 +530,14 @@ function HistorySection({ data }: { data: KarteData }) {
                 filter: activeCard ? "none" : "saturate(.6)",
                 transition: "transform .35s cubic-bezier(.2,.8,.3,1), opacity .35s, filter .35s",
               }}>
-                <div style={{ fontSize: 8.5, fontWeight: 900, letterSpacing: ".16em", color: cat.color }}>
+                <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, letterSpacing: ".16em", color: cat.color }}>
                   {cat.label} ・ {m.date}
                 </div>
                 <div style={{ fontSize: big ? 14.5 : 13, fontWeight: 900, lineHeight: 1.5, marginTop: 3 }}>
                   {m.text}
                 </div>
                 {i === N - 1 && (
-                  <div style={{ fontSize: 10, color: "#9a9384", marginTop: 4 }}>ここから物語がはじまった</div>
+                  <div style={{ fontSize: "var(--fs-label)", color: "var(--text-sub)", marginTop: 4 }}>ここから物語がはじまった</div>
                 )}
               </div>
             )

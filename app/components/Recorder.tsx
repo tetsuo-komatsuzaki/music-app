@@ -31,12 +31,12 @@ function AnalysisWaiting() {
           }} />
         ))}
       </span>
-      <div style={{ fontSize: 14.5, fontWeight: 800, color: "#4a3f2e", marginTop: 11 }}>
+      <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)", marginTop: 11 }}>
         <span aria-hidden style={{ display: "inline-block", verticalAlign: 2, marginRight: 7, width: 9, height: 9, borderRadius: "50%", background: "#d64541", animation: "recBlink 1.1s steps(1) infinite" }} />
         アルコが採点ちゅう…
       </div>
-      <div style={{ fontSize: 11.5, color: "#9a8c74", marginTop: 5 }}>できあがりまで 約1〜2分</div>
-      <div style={{ fontSize: 10.5, color: "#9a8c74", marginTop: 7 }}>待っているあいだに、もう一回練習してもOK！</div>
+      <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 5 }}>できあがりまで 約1〜2分</div>
+      <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 7 }}>待っているあいだに、もう一回練習してもOK！</div>
     </div>
   )
 }
@@ -55,10 +55,10 @@ function getScoreRank(score: number): ScoreRank {
 }
 
 const rankLabels: Record<ScoreRank, { label: string; color: string; bg: string }> = {
-  excellent:     { label: "ばっちり",   color: "#085041", bg: "#E1F5EE" },
-  good:          { label: "いい調子",   color: "#0C447C", bg: "#E6F1FB" },
-  ok:            { label: "あと少し",   color: "#633806", bg: "#FAEEDA" },
-  needsPractice: { label: "練習しよう", color: "#791F1F", bg: "#FCEBEB" },
+  excellent:     { label: "ばっちり",   color: "var(--text-good)", bg: "#E1F5EE" },
+  good:          { label: "いい調子",   color: "var(--text-link)", bg: "#E6F1FB" },
+  ok:            { label: "あと少し",   color: "var(--text-master)", bg: "#FAEEDA" },
+  needsPractice: { label: "練習しよう", color: "var(--text-error)", bg: "#FCEBEB" },
 }
 
 type Feedback = {
@@ -794,7 +794,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
               <div style={{ width: "100%", height: 5, background: "#eee5cc", borderRadius: 3, overflow: "hidden" }}>
                 <div style={{ width: `${uploadProgress}%`, height: "100%", background: "#c9a227", transition: "width 0.2s ease" }} />
               </div>
-              <div style={{ fontSize: 10, color: "#9a8c74", marginTop: 3, textAlign: "center" }}>録音をおくっています… {uploadProgress}%</div>
+              <div style={{ fontSize: "var(--fs-label)", color: "var(--text-sub)", marginTop: 3, textAlign: "center" }}>録音をおくっています… {uploadProgress}%</div>
             </div>
           )}
         </div>

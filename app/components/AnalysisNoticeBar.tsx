@@ -68,13 +68,13 @@ export default function AnalysisNoticeBar({ userId, notices }: { userId: string;
           onClick={() => { markSeen(n.id); setSeen((s) => [...(s ?? []), n.id]) }}
           style={{ ...CARD, display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "11px 14px" }}
         >
-          <span style={{ flex: "none", fontSize: 12, fontWeight: 900, letterSpacing: ".08em", color: "#2e8b57", border: "2.5px solid #2e8b57", borderRadius: 7, padding: "3px 9px", display: "inline-block", animation: "anbStamp .5s ease-out" }}>
+          <span style={{ flex: "none", fontSize: "var(--fs-body)", fontWeight: 900, letterSpacing: ".08em", color: "var(--text-good)", border: "2.5px solid #2e8b57", borderRadius: 7, padding: "3px 9px", display: "inline-block", animation: "anbStamp .5s ease-out" }}>
             できたよ！
           </span>
-          <span style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 800, color: "#4a3f2e", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <span style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             「{n.title}」
           </span>
-          <span style={{ flex: "none", fontSize: 11.5, fontWeight: 800, color: "#fff", background: "#2e8b57", borderRadius: 999, padding: "7px 13px" }}>
+          <span style={{ flex: "none", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#2e8b57", borderRadius: 999, padding: "7px 13px" }}>
             結果を見る →
           </span>
         </Link>
@@ -84,9 +84,9 @@ export default function AnalysisNoticeBar({ userId, notices }: { userId: string;
       {pending.length > 0 && (
         <div style={{ ...CARD, display: "flex", alignItems: "center", gap: 9, padding: "10px 14px" }}>
           <span aria-hidden style={{ flex: "none", width: 9, height: 9, borderRadius: "50%", background: "#d64541", animation: "anbBlink 1.1s steps(1) infinite" }} />
-          <span style={{ fontSize: 12, fontWeight: 800, color: "#4a3f2e", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             「{pending[0].title}」を採点ちゅう…{pending.length > 1 ? ` ほか${pending.length - 1}件` : ""}
-            <span style={{ color: "#9a8c74", fontWeight: 600 }}>（約1〜2分）</span>
+            <span style={{ color: "var(--text-sub)", fontWeight: 600 }}>（約1〜2分）</span>
           </span>
           <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 2.5, height: 14, marginLeft: "auto", flex: "none" }} aria-hidden>
             {VU_BARS.map((h, i) => (

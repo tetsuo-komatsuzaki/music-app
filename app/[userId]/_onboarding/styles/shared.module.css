@@ -26,11 +26,11 @@
 /* オンボーディングのプライマリボタン (既存 .primaryButton 系のトーン踏襲) */
 .primaryButton {
   background: #4a7fa3;
-  color: #fff;
+  color: var(--text-on-accent);
   border: none;
   border-radius: 8px;
   padding: 10px 20px;
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   font-weight: 600;
   cursor: pointer;
   transition: 0.15s;
@@ -48,11 +48,11 @@
 /* セカンダリボタン */
 .secondaryButton {
   background: transparent;
-  color: #4a7fa3;
+  color: var(--text-link);
   border: 1px solid #4a7fa3;
   border-radius: 8px;
   padding: 10px 20px;
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   font-weight: 600;
   cursor: pointer;
   transition: 0.15s;
@@ -66,12 +66,12 @@
 .textButton {
   background: transparent;
   border: none;
-  color: #666;
-  font-size: 13px;
+  color: var(--text-body);
+  font-size: var(--fs-body);
   cursor: pointer;
   padding: 8px 12px;
 }
 
 .textButton:hover {
-  color: #1a1a1a;
+  color: var(--text-ink);
 }

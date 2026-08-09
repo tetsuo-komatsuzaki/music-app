@@ -39,7 +39,7 @@ export default function DailyLessons({
 }) {
   if (!lessons.length) {
     return (
-      <div style={{ fontSize: 12.5, color: "#9aa6b3", padding: "8px 0" }}>
+      <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: "8px 0" }}>
         きょうの基礎練を準備中…
       </div>
     )
@@ -69,15 +69,15 @@ export default function DailyLessons({
             <span style={{ flex: 1, minWidth: 0, padding: "13px 14px", display: "flex", flexDirection: "column", gap: 11 }}>
               {/* 名前 + 理由チップ */}
               <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 14, fontWeight: 800, color: "#22252b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>
+                <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>
                   {l.label}
                 </span>
-                <span style={{ marginLeft: "auto", flex: "none", fontSize: 10, fontWeight: 800, padding: "2px 8px", borderRadius: 999, background: col.bg, color: col.c, whiteSpace: "nowrap" }}>
+                <span style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, padding: "2px 8px", borderRadius: 999, background: col.bg, color: col.c, whiteSpace: "nowrap" }}>
                   {SLOT_NOTE[l.slot]}
                 </span>
               </span>
               {/* 練習ボタン (カード全体がリンク・見た目のボタン) */}
-              <span style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 800, color: "#fff", background: col.c, borderRadius: 9, padding: "8px 14px" }}>
+              <span style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 5, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: col.c, borderRadius: 9, padding: "8px 14px" }}>
                 練習する →
               </span>
             </span>

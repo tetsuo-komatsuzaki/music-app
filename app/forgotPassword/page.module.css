@@ -37,7 +37,7 @@
 
 .button {
   background-color: #1d4ed8;
-  color: white;
+  color: var(--text-on-accent);
   border-radius: 0.5rem;
   padding: 0.625rem;
   border: none;
@@ -51,19 +51,19 @@
 .link {
   text-align: center;
   font-size: 0.875rem;
-  color: #2563eb;
+  color: var(--text-link);
   text-decoration: underline;
 }
 
 .message {
   font-size: 0.875rem;
   text-align: center;
-  color: #16a34a;
+  color: var(--text-good);
 }
 
 .subtitle {
   font-size: 0.875rem;
   text-align: center;
-  color: #6b7280; /* gray-500 */
+  color: var(--text-sub); /* gray-500 */
   text-align: center;
 }

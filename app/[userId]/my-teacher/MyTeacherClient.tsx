@@ -59,19 +59,19 @@ export default function MyTeacherClient({
 
   return (
     <div style={{ maxWidth: 640, margin: "0 auto", padding: "16px 14px 60px" }}>
-      <h1 style={{ fontSize: 18, fontWeight: 900, margin: "0 0 12px" }}>先生とのやりとり</h1>
+      <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "0 0 12px" }}>先生とのやりとり</h1>
 
       {/* 先生カード */}
       <div style={card()}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ width: 40, height: 40, borderRadius: "50%", background: "#eafaf0", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}><GraduationCap size={22} color="#2e8b57" /></span>
           <span style={{ minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: 14.5, fontWeight: 800, color: INK }}>{teacherName} 先生</span>
-            <span style={{ display: "block", fontSize: 11.5, color: SUB }}>つながって {since} から</span>
+            <span style={{ display: "block", fontSize: "var(--fs-subhead)", fontWeight: 800, color: INK }}>{teacherName} 先生</span>
+            <span style={{ display: "block", fontSize: "var(--fs-caption)", color: SUB }}>つながって {since} から</span>
           </span>
         </div>
         {nextLessonLabel && (
-          <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #f1f3f5", fontSize: 12.5, color: INK }}>
+          <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #f1f3f5", fontSize: "var(--fs-body)", color: INK }}>
 <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Calendar size={13} /> 次回レッスン：<b>{nextLessonLabel}</b></span>
           </div>
         )}
@@ -81,7 +81,7 @@ export default function MyTeacherClient({
       <div style={{ display: "flex", gap: 3, background: "#fff", border: "1px solid #eef1f4", borderRadius: 10, padding: 3, margin: "12px 0" }}>
         {([["all", "すべて"], ["hw", "宿題"], ["review", "添削"], ["msg", "メッセージ"], ["lesson", "レッスン"]] as const).map(([k, label]) => (
           <button key={k} type="button" onClick={() => setTab(k)}
-            style={{ flex: 1, border: "none", background: tab === k ? ACCENT : "transparent", color: tab === k ? "#fff" : SUB, borderRadius: 8, padding: "7px 0", fontSize: 10.5, fontWeight: 800, cursor: "pointer" }}>
+            style={{ flex: 1, border: "none", background: tab === k ? ACCENT : "transparent", color: tab === k ? "#fff" : SUB, borderRadius: 8, padding: "7px 0", fontSize: "var(--fs-caption)", fontWeight: 800, cursor: "pointer" }}>
             {label}
           </button>
         ))}
@@ -96,7 +96,7 @@ export default function MyTeacherClient({
       {/* 解約 */}
       <div style={{ ...card(), marginTop: 18 }}>
         <button type="button" onClick={doUnlink} disabled={pending}
-          style={{ width: "100%", border: "1px solid #e2e6ea", background: "#fff", color: "#c0473a", borderRadius: 10, padding: 11, fontSize: 12.5, fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+          style={{ width: "100%", border: "1px solid #e2e6ea", background: "#fff", color: "var(--text-error)", borderRadius: 10, padding: 11, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
           先生を解約する
         </button>
       </div>
@@ -108,20 +108,20 @@ function AllTab({ timeline }: { timeline: TimelineEv[] }) {
   if (timeline.length === 0) return <Empty note="まだやりとりはありません。先生からの宿題やコメントがここに並びます。" />
   return (
     <div style={card()}>
-      <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", marginBottom: 10, display: "flex", alignItems: "center", gap: 5 }}><History size={13} /> これまでのやりとり</div>
+      <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 10, display: "flex", alignItems: "center", gap: 5 }}><History size={13} /> これまでのやりとり</div>
       <div style={{ position: "relative", paddingLeft: 16, display: "flex", flexDirection: "column", gap: 11 }}>
         <span style={{ position: "absolute", left: 4, top: 4, bottom: 4, width: 2, background: "#e7eaee" }} />
         {timeline.map((e, i) => (
           <div key={i} style={{ position: "relative" }}>
             <span style={{ position: "absolute", left: -16, top: 3, width: 9, height: 9, borderRadius: "50%", background: e.kind === "hw" ? "#2e8b57" : ACCENT, border: "2px solid #fff" }} />
-            <div style={{ fontSize: 10, color: "#9aa6b3", fontWeight: 700 }}>{e.when}</div>
+            <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 700 }}>{e.when}</div>
             {(() => {
               const Ic = e.icon ? TIMELINE_ICON[e.icon] : null
               const body = <span style={{ display: "inline-flex", alignItems: "flex-start", gap: 5 }}>{Ic && <Ic size={13} style={{ flex: "none", marginTop: 2 }} />} <span>{e.text}</span></span>
               return e.href ? (
-                <Link href={e.href} style={{ fontSize: 12.5, color: INK, textDecoration: "none" }}>{body} <span style={{ color: ACCENT, fontWeight: 800 }}>›</span></Link>
+                <Link href={e.href} style={{ fontSize: "var(--fs-body)", color: INK, textDecoration: "none" }}>{body} <span style={{ color: ACCENT, fontWeight: 800 }}>›</span></Link>
               ) : (
-                <div style={{ fontSize: 12.5, color: INK }}>{body}</div>
+                <div style={{ fontSize: "var(--fs-body)", color: INK }}>{body}</div>
               )
             })()}
           </div>
@@ -150,11 +150,11 @@ function HwCard({ h }: { h: Homework }) {
   return (
     <div style={card()}>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-        <span style={{ fontSize: 13.5, fontWeight: 800, color: INK }}>{h.title}</span>
+        <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: INK }}>{h.title}</span>
         {h.submitted ? (
-          <span style={{ fontSize: 11, fontWeight: 800, color: "#2e8b57", flex: "none" }}>提出済{h.submittedScore != null ? ` ${h.submittedScore}点` : ""}</span>
+          <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)", flex: "none" }}>提出済{h.submittedScore != null ? ` ${h.submittedScore}点` : ""}</span>
         ) : (
-          <span style={{ fontSize: 11, fontWeight: 700, color: "#b7823a", flex: "none" }}>未提出</span>
+          <span style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-master)", flex: "none" }}>未提出</span>
         )}
       </div>
       {(di || goal || showGr) && (
@@ -162,30 +162,30 @@ function HwCard({ h }: { h: Homework }) {
           {di && (() => {
             const c = DUE_COLOR[di.state]
             return (
-              <span style={{ fontSize: 10.5, fontWeight: 800, color: c.fg, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 999, padding: "2px 8px" }}>
+              <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: c.fg, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 999, padding: "2px 8px" }}>
                 期限 {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}
               </span>
             )
           })()}
           {goal && (
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: "#3b56d4", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "2px 8px" }}>{goal}</span>
+            <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "2px 8px" }}>{goal}</span>
           )}
           {showGr && gr && (
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: gr.met ? "#2e8b57" : "#9aa6b3", background: gr.met ? "#e9f7ef" : "#f1f4f8", border: `1px solid ${gr.met ? "#cbe8d6" : "#e2e6ea"}`, borderRadius: 999, padding: "2px 8px" }}>{gr.label}</span>
+            <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: gr.met ? "#2e8b57" : "#9aa6b3", background: gr.met ? "#e9f7ef" : "#f1f4f8", border: `1px solid ${gr.met ? "#cbe8d6" : "#e2e6ea"}`, borderRadius: 999, padding: "2px 8px" }}>{gr.label}</span>
           )}
         </div>
       )}
-      <div style={{ fontSize: 12, color: SUB, marginTop: 5 }}>{h.detail || "（詳細指定なし）"}</div>
-      {h.comment && <div style={{ fontSize: 12.5, color: INK, marginTop: 4, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{h.comment}</span></div>}
+      <div style={{ fontSize: "var(--fs-body)", color: SUB, marginTop: 5 }}>{h.detail || "（詳細指定なし）"}</div>
+      {h.comment && <div style={{ fontSize: "var(--fs-body)", color: INK, marginTop: 4, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{h.comment}</span></div>}
       {!h.submitted && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 9 }}>
-          <Link href={h.href} style={{ textAlign: "center", background: "#f7f8fa", color: SUB, border: "1px solid #e7eaee", fontSize: 12, fontWeight: 800, borderRadius: 9, padding: "8px 0", textDecoration: "none" }}>録音する</Link>
+          <Link href={h.href} style={{ textAlign: "center", background: "#f7f8fa", color: SUB, border: "1px solid #e7eaee", fontSize: "var(--fs-body)", fontWeight: 800, borderRadius: 9, padding: "8px 0", textDecoration: "none" }}>録音する</Link>
           <AssignmentSubmit assignmentId={h.id} goalType={h.goalType} targetScore={h.targetScore} onDone={() => router.refresh()} />
         </div>
       )}
       {h.submitted && (
         <div style={{ marginTop: 9 }}>
-          <Link href={h.href} style={{ display: "inline-block", background: "#f7f8fa", color: SUB, border: "1px solid #e7eaee", fontSize: 12, fontWeight: 800, borderRadius: 9, padding: "8px 16px", textDecoration: "none" }}>もう一度練習する →</Link>
+          <Link href={h.href} style={{ display: "inline-block", background: "#f7f8fa", color: SUB, border: "1px solid #e7eaee", fontSize: "var(--fs-body)", fontWeight: 800, borderRadius: 9, padding: "8px 16px", textDecoration: "none" }}>もう一度練習する →</Link>
         </div>
       )}
     </div>
@@ -214,7 +214,7 @@ function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[
     <div style={card()}>
       <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 12, maxHeight: 360, overflowY: "auto" }}>
         {messages.length === 0 ? (
-          <div style={{ fontSize: 12.5, color: SUB, textAlign: "center", padding: "12px 0" }}>
+          <div style={{ fontSize: "var(--fs-body)", color: SUB, textAlign: "center", padding: "12px 0" }}>
             まだメッセージはありません。{teacherName} 先生に質問してみよう。
           </div>
         ) : (
@@ -227,8 +227,8 @@ function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[
                 borderRadius: 14, padding: "13px 14px",
               }}>
                 <div style={{ display: "flex", justifyContent: "center", lineHeight: 1 }}><PartyPopper size={20} color="#8a5a10" /></div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#8a5a10", marginTop: 5, lineHeight: 1.6 }}>{m.body}</div>
-                <div style={{ fontSize: 10, color: "#c4a97a", marginTop: 4 }}>先生からのお祝い ・ {m.time}</div>
+                <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-master)", marginTop: 5, lineHeight: 1.6 }}>{m.body}</div>
+                <div style={{ fontSize: "var(--fs-label)", color: "var(--text-master)", marginTop: 4 }}>先生からのお祝い ・ {m.time}</div>
               </div>
             ) : (
             <div key={m.id} style={{
@@ -236,18 +236,18 @@ function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[
               background: m.fromTeacher ? "#fff" : ACCENT, color: m.fromTeacher ? INK : "#fff",
               border: m.fromTeacher ? "1px solid #e7eaee" : "none", borderRadius: 12,
               borderBottomLeftRadius: m.fromTeacher ? 3 : 12, borderBottomRightRadius: m.fromTeacher ? 12 : 3,
-              padding: "7px 11px", fontSize: 12.5, lineHeight: 1.45,
+              padding: "7px 11px", fontSize: "var(--fs-body)", lineHeight: 1.45,
             }}>
               {m.perf && (
                 <Link
                   href={m.perf.href}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10.5, fontWeight: 800, textDecoration: "none", marginBottom: 4, padding: "2px 7px", borderRadius: 999, background: m.fromTeacher ? "#eef0fc" : "rgba(255,255,255,.22)", color: m.fromTeacher ? "#5b6b9e" : "#fff" }}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: "var(--fs-caption)", fontWeight: 800, textDecoration: "none", marginBottom: 4, padding: "2px 7px", borderRadius: 999, background: m.fromTeacher ? "#eef0fc" : "rgba(255,255,255,.22)", color: m.fromTeacher ? "#5b6b9e" : "#fff" }}
                 >
                   <Headphones size={12} /> {m.perf.title} の演奏について →
                 </Link>
               )}
               <div>{m.body}</div>
-              <div style={{ fontSize: 9.5, opacity: 0.7, marginTop: 3, textAlign: "right" }}>{m.time}</div>
+              <div style={{ fontSize: "var(--fs-label)", opacity: 0.7, marginTop: 3, textAlign: "right" }}>{m.time}</div>
             </div>
             )
           ))
@@ -260,14 +260,14 @@ function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[
           maxLength={1000}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) send() }}
           placeholder="メッセージを書く…"
-          style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: 13 }}
+          style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: "var(--fs-body)" }}
         />
         <button type="button" onClick={send} disabled={pending || !text.trim()}
-          style={{ border: "none", borderRadius: 9, padding: "0 16px", fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACCENT, cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
+          style={{ border: "none", borderRadius: 9, padding: "0 16px", fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: ACCENT, cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
           送る
         </button>
       </div>
-      {err && <div style={{ fontSize: 11.5, color: "#c0392b", marginTop: 6 }}>{err}</div>}
+      {err && <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-error)", marginTop: 6 }}>{err}</div>}
     </div>
   )
 }
@@ -294,17 +294,17 @@ function LessonTab({ lessons }: { lessons: Lessons }) {
   return (
     <>
       <div style={{ ...card(), marginBottom: 10 }}>
-        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", marginBottom: 8 }}>予約中のレッスン</div>
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 8 }}>予約中のレッスン</div>
         {lessons.booked.length === 0 ? (
-          <div style={{ fontSize: 12.5, color: SUB }}>予約中のレッスンはありません。</div>
+          <div style={{ fontSize: "var(--fs-body)", color: SUB }}>予約中のレッスンはありません。</div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {lessons.booked.map((l) => (
               <div key={l.id} style={{ border: "1px solid #cbe8d6", background: "#f4fbf7", borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ fontSize: 13.5, fontWeight: 800, color: INK, display: "flex", alignItems: "center", gap: 5 }}><Calendar size={14} /> {l.when}</div>
-                <div style={{ fontSize: 11.5, color: SUB, marginTop: 2 }}>{meta(l)}</div>
+                <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: INK, display: "flex", alignItems: "center", gap: 5 }}><Calendar size={14} /> {l.when}</div>
+                <div style={{ fontSize: "var(--fs-caption)", color: SUB, marginTop: 2 }}>{meta(l)}</div>
                 <button type="button" onClick={() => cancel(l.id)} disabled={pending}
-                  style={{ marginTop: 8, border: "1px solid #e2e6ea", background: "#fff", color: "#c0473a", borderRadius: 8, padding: "5px 12px", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>予約を取り消す</button>
+                  style={{ marginTop: 8, border: "1px solid #e2e6ea", background: "#fff", color: "var(--text-error)", borderRadius: 8, padding: "5px 12px", fontSize: "var(--fs-caption)", fontWeight: 800, cursor: "pointer" }}>予約を取り消す</button>
               </div>
             ))}
           </div>
@@ -312,20 +312,20 @@ function LessonTab({ lessons }: { lessons: Lessons }) {
       </div>
 
       <div style={card()}>
-        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", marginBottom: 8 }}>予約できる枠</div>
-        {err && <div style={{ fontSize: 12, color: "#c0392b", marginBottom: 8 }}>{err}</div>}
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 8 }}>予約できる枠</div>
+        {err && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-error)", marginBottom: 8 }}>{err}</div>}
         {lessons.open.length === 0 ? (
-          <div style={{ fontSize: 12.5, color: SUB }}>いまは空き枠がありません。先生が枠を出すと予約できます。</div>
+          <div style={{ fontSize: "var(--fs-body)", color: SUB }}>いまは空き枠がありません。先生が枠を出すと予約できます。</div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {lessons.open.map((l) => (
               <div key={l.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, border: "1px solid #eef1f4", borderRadius: 10, padding: "10px 12px" }}>
                 <span style={{ minWidth: 0 }}>
-                  <span style={{ display: "block", fontSize: 13, fontWeight: 800, color: INK }}>{l.when}</span>
-                  <span style={{ display: "block", fontSize: 11, color: SUB }}>{meta(l)}</span>
+                  <span style={{ display: "block", fontSize: "var(--fs-body)", fontWeight: 800, color: INK }}>{l.when}</span>
+                  <span style={{ display: "block", fontSize: "var(--fs-caption)", color: SUB }}>{meta(l)}</span>
                 </span>
                 <button type="button" onClick={() => book(l.id)} disabled={pending}
-                  style={{ flex: "none", border: "none", background: ACCENT, color: "#fff", borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>予約する</button>
+                  style={{ flex: "none", border: "none", background: ACCENT, color: "var(--text-on-accent)", borderRadius: 8, padding: "8px 14px", fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>予約する</button>
               </div>
             ))}
           </div>
@@ -343,10 +343,10 @@ function ReviewTab({ userId, feedbacks }: { userId: string; feedbacks: Feedback[
         <Link key={f.scoreId} href={`/${userId}/scores/${f.scoreId}`}
           style={{ ...card(), display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit" }}>
           <span style={{ minWidth: 0 }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13.5, fontWeight: 800, color: INK, overflow: "hidden" }}><NotebookPen size={14} style={{ flex: "none" }} /> <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.title}</span></span>
-            <span style={{ display: "block", fontSize: 11, color: SUB }}>{f.date} に更新</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: "var(--fs-body)", fontWeight: 800, color: INK, overflow: "hidden" }}><NotebookPen size={14} style={{ flex: "none" }} /> <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.title}</span></span>
+            <span style={{ display: "block", fontSize: "var(--fs-caption)", color: SUB }}>{f.date} に更新</span>
           </span>
-          <span style={{ fontSize: 12, fontWeight: 800, color: ACCENT, flex: "none" }}>譜面で見る →</span>
+          <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: ACCENT, flex: "none" }}>譜面で見る →</span>
         </Link>
       ))}
     </div>
@@ -354,7 +354,7 @@ function ReviewTab({ userId, feedbacks }: { userId: string; feedbacks: Feedback[
 }
 
 function Empty({ note }: { note: string }) {
-  return <div style={{ ...card(), textAlign: "center", fontSize: 12.5, color: SUB }}>{note}</div>
+  return <div style={{ ...card(), textAlign: "center", fontSize: "var(--fs-body)", color: SUB }}>{note}</div>
 }
 
 function card(): React.CSSProperties {

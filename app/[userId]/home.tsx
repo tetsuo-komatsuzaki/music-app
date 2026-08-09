@@ -122,25 +122,25 @@ export default function HomeClient({
           おすすめ1曲だけをドンと出す。弾き始めたら消えて「いま練習している曲」に世代交代 */}
       {!ending && starterPick && recentPieces.length === 0 && (
         <div style={{ position: "relative", overflow: "hidden", background: "#fff", border: "1px solid #eef1f4", borderRadius: 16, padding: 16, boxShadow: "0 1px 3px rgba(30,45,70,.05)" }}>
-          <span style={{ position: "absolute", top: 14, right: -34, transform: "rotate(38deg)", background: "#c9a227", color: "#fff", fontSize: 10, fontWeight: 900, letterSpacing: ".1em", padding: "4px 40px" }}>きみへ</span>
+          <span style={{ position: "absolute", top: 14, right: -34, transform: "rotate(38deg)", background: "#c9a227", color: "var(--text-on-accent)", fontSize: "var(--fs-label)", fontWeight: 900, letterSpacing: ".1em", padding: "4px 40px" }}>きみへ</span>
           <div style={{ display: "flex", gap: 13, alignItems: "center" }}>
-            <div style={{ flex: "none", width: 74, aspectRatio: "1", borderRadius: 12, background: "linear-gradient(140deg,#dde5f2,#c6d2e6)", display: "grid", placeItems: "center", fontSize: 30, overflow: "hidden" }}>
+            <div style={{ flex: "none", width: 74, aspectRatio: "1", borderRadius: 12, background: "linear-gradient(140deg,#dde5f2,#c6d2e6)", display: "grid", placeItems: "center", fontSize: "var(--fs-display)", overflow: "hidden" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {starterPick.cover ? <img src={starterPick.cover} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <Music size={30} color="#8ba0c4" aria-hidden />}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#8a9099", display: "inline-flex", alignItems: "center", gap: 4 }}><Sparkles size={13} /> さいしょの1曲</div>
+              <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", display: "inline-flex", alignItems: "center", gap: 4 }}><Sparkles size={13} /> さいしょの1曲</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 7, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 18, fontWeight: 900, color: "#2b3742", lineHeight: 1.35 }}>{starterPick.title}</span>
+                <span style={{ fontSize: "var(--fs-head)", fontWeight: 900, color: "var(--text-ink)", lineHeight: 1.35 }}>{starterPick.title}</span>
                 {starterPick.star != null && (
-                  <span style={{ flex: "none", fontSize: 11, fontWeight: 800, color: "#b7823a", background: "#faf1e1", border: "1px solid #ecdfc8", borderRadius: 999, padding: "2px 9px" }}>★{starterPick.star}</span>
+                  <span style={{ flex: "none", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", background: "#faf1e1", border: "1px solid #ecdfc8", borderRadius: 999, padding: "2px 9px" }}>★{starterPick.star}</span>
                 )}
               </div>
-              <div style={{ fontSize: 11.5, color: "#8a9099", marginTop: 1 }}>{starterPick.reason}</div>
+              <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 1 }}>{starterPick.reason}</div>
             </div>
           </div>
           <Link href={starterPick.href}
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 13, padding: "13px 16px", background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "#fff", borderRadius: 12, textDecoration: "none", fontWeight: 800, fontSize: 14.5 }}>
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 13, padding: "13px 16px", background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "var(--text-on-accent)", borderRadius: 12, textDecoration: "none", fontWeight: 800, fontSize: "var(--fs-subhead)" }}>
             <span aria-hidden>♪</span> この曲をひく →
           </Link>
         </div>
@@ -180,7 +180,7 @@ export default function HomeClient({
           href={`/${userId}/practice/pieces`}
           data-onboarding="home.startCta"
           onClick={() => setOnboardingEnding(false)}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 16px", background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "#fff", borderRadius: 14, textDecoration: "none", fontWeight: 800, fontSize: 15 }}
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 16px", background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "var(--text-on-accent)", borderRadius: 14, textDecoration: "none", fontWeight: 800, fontSize: "var(--fs-subhead)" }}
         >
           <span aria-hidden>♪</span> さっそく1曲、弾いてみよう
         </Link>
@@ -219,14 +219,14 @@ function SkillLitBanner({ userId, lits }: { userId: string; lits: { key: string;
       borderRadius: 12, background: "linear-gradient(135deg,#fdf6e0,#f9ecc8)", border: "1px solid #eed9a0",
     }}>
       <Sparkles size={18} color="#c9a227" style={{ flex: "none" }} />
-      <div style={{ flex: 1, minWidth: 0, fontSize: 12, fontWeight: 800, color: "#7a6420", lineHeight: 1.5 }}>
+      <div style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-master)", lineHeight: 1.5 }}>
         わざ{labels}が点灯したよ！
-        <Link href={`/${userId}/progress`} style={{ marginLeft: 6, color: "#4a5bd0", textDecoration: "underline", fontWeight: 800 }}>
+        <Link href={`/${userId}/progress`} style={{ marginLeft: 6, color: "var(--text-link)", textDecoration: "underline", fontWeight: 800 }}>
           カルテの技術マップで見る
         </Link>
       </div>
       <button type="button" onClick={dismiss} aria-label="とじる"
-        style={{ flex: "none", border: "none", background: "none", color: "#b8a260", fontSize: 14, cursor: "pointer", padding: 4 }}>
+        style={{ flex: "none", border: "none", background: "none", color: "var(--text-master)", fontSize: "var(--fs-subhead)", cursor: "pointer", padding: 4 }}>
         ✕
       </button>
     </div>
@@ -238,8 +238,8 @@ function ExprShelf({ userId, shelf }: { userId: string; shelf: Props["exprShelf"
   if (!shelf) return null
   return (
     <div style={{ margin: "0 0 12px" }}>
-      <div style={{ fontSize: 13, fontWeight: 900, color: "#3a3428", display: "inline-flex", alignItems: "center", gap: 5 }}><Palette size={15} /> きみの表現が活きる曲</div>
-      <div style={{ fontSize: 10.5, fontWeight: 800, color: "#8a5a1f", margin: "1px 0 7px" }}>
+      <div style={{ fontSize: "var(--fs-body)", fontWeight: 900, color: "var(--text-ink)", display: "inline-flex", alignItems: "center", gap: 5 }}><Palette size={15} /> きみの表現が活きる曲</div>
+      <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", margin: "1px 0 7px" }}>
         {shelf.tagLabel} ★{shelf.star} の きみへ
       </div>
       <div style={{ display: "flex", gap: 9, overflowX: "auto", paddingBottom: 4 }}>
@@ -249,12 +249,12 @@ function ExprShelf({ userId, shelf }: { userId: string; shelf: Props["exprShelf"
             <div style={{
               height: 64, borderRadius: 9, overflow: "hidden",
               background: s.cover ? `url(${s.cover}) center/cover` : "linear-gradient(150deg,#e8c96a,#c9932a)",
-              display: "grid", placeItems: "center", fontSize: 20,
+              display: "grid", placeItems: "center", fontSize: "var(--fs-head)",
             }}>{s.cover ? null : <Music size={20} color="#fff" aria-hidden />}</div>
-            <div style={{ fontSize: 10.5, fontWeight: 800, marginTop: 3, lineHeight: 1.4, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+            <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, marginTop: 3, lineHeight: 1.4, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
               {s.title}
             </div>
-            {s.star != null && <div style={{ fontSize: 9.5, fontWeight: 800, color: "#a97b1f" }}>★{s.star}</div>}
+            {s.star != null && <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-master)" }}>★{s.star}</div>}
           </Link>
         ))}
       </div>

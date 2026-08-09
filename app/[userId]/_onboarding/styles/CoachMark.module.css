@@ -68,9 +68,9 @@
 }
 
 .headline {
-  font-size: 15px;
+  font-size: var(--fs-subhead);
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-ink);
   margin: 0;
   line-height: 1.45;
   /* 日本語を不自然な位置で折らない: 文節優先(対応ブラウザ)+ 禁則 + 長語のはみ出し防止 */
@@ -80,8 +80,8 @@
 }
 
 .bodyText {
-  font-size: 13px;
-  color: #444;
+  font-size: var(--fs-body);
+  color: var(--text-ink);
   line-height: 1.8;
   margin: 0;
   word-break: auto-phrase;
@@ -92,9 +92,9 @@
 /* 凡例表 (マーク 3 用) */
 .legendNote {
   margin: 0;
-  font-size: 12.5px;
+  font-size: var(--fs-body);
   font-weight: 700;
-  color: #3b56d4;
+  color: var(--text-link);
   line-height: 1.6;
 }
 
@@ -112,7 +112,7 @@
   padding: 6px 10px;
   background: #f7f9fc;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--fs-body);
 }
 
 /* 絵文字をやめ、譜面マーカーと同じ質感のカラードットで表示 */
@@ -131,11 +131,11 @@
 
 .legendName {
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-ink);
 }
 
 .legendMeaning {
-  color: #555;
+  color: var(--text-body);
 }
 
 /* フッター */
@@ -175,8 +175,8 @@
   gap: 10px;
   padding: 14px 22px;
   background: rgba(26, 32, 44, 0.92);
-  color: #fff;
-  font-size: 14px;
+  color: var(--text-on-accent);
+  font-size: var(--fs-subhead);
   font-weight: 700;
   border-radius: 999px;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
@@ -205,8 +205,8 @@
   z-index: 1903;
   pointer-events: none;
   background: #ffd166;
-  color: #4a3410;
-  font-size: 12px;
+  color: var(--text-master);
+  font-size: var(--fs-body);
   font-weight: 800;
   border-radius: 999px;
   padding: 5px 13px;
@@ -214,9 +214,9 @@
   white-space: nowrap;
 }
 .awaitLabel {
-  font-size: 12px;
+  font-size: var(--fs-body);
   font-weight: 700;
-  color: #b07d12;
+  color: var(--text-master);
   background: #fff6e0;
   border: 1px solid #f2dfae;
   border-radius: 999px;
@@ -234,8 +234,8 @@
 }
 
 .stepIndicator {
-  font-size: 11px;
-  color: #888;
+  font-size: var(--fs-caption);
+  color: var(--text-sub);
 }
 
 .actions {
@@ -249,8 +249,8 @@
   align-items: center;
   gap: 6px;
   padding: 6px 18px 4px 18px;
-  font-size: 12px;
-  color: #666;
+  font-size: var(--fs-body);
+  color: var(--text-body);
 }
 
 .dismissAllRow input {
@@ -264,23 +264,23 @@
 .skipButton {
   background: transparent;
   border: none;
-  color: #888;
-  font-size: 12px;
+  color: var(--text-sub);
+  font-size: var(--fs-body);
   cursor: pointer;
   padding: 6px 8px;
 }
 
 .skipButton:hover {
-  color: #444;
+  color: var(--text-ink);
 }
 
 .navButton {
   background: transparent;
   border: 1px solid #d0d8e0;
-  color: #444;
+  color: var(--text-ink);
   border-radius: 6px;
   padding: 6px 12px;
-  font-size: 13px;
+  font-size: var(--fs-body);
   cursor: pointer;
 }
 
@@ -295,11 +295,11 @@
 
 .primaryButton {
   background: #4a7fa3;
-  color: #fff;
+  color: var(--text-on-accent);
   border: none;
   border-radius: 6px;
   padding: 7px 14px;
-  font-size: 13px;
+  font-size: var(--fs-body);
   font-weight: 600;
   cursor: pointer;
 }

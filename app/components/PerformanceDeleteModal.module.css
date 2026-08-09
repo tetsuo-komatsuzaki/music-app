@@ -32,25 +32,25 @@
 }
 
 .title {
-  font-size: 18px;
+  font-size: var(--fs-head);
   font-weight: 700;
   margin: 0 0 16px;
-  color: #2d2d2d;
+  color: var(--text-ink);
 }
 
 .message {
-  font-size: 14px;
-  color: #555;
+  font-size: var(--fs-subhead);
+  color: var(--text-body);
   line-height: 1.6;
   margin: 0 0 20px;
 }
 
 .errorBox {
   background: #fdecec;
-  color: #c44a4a;
+  color: var(--text-error);
   padding: 10px 12px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--fs-body);
   line-height: 1.4;
   margin: 0 0 16px;
 }
@@ -65,7 +65,7 @@
 .deleteButton {
   padding: 10px 20px;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
@@ -79,7 +79,7 @@
 
 .cancelButton {
   background: #f0f0f0;
-  color: #333;
+  color: var(--text-ink);
 }
 .cancelButton:hover:not(:disabled) {
   background: #e2e2e2;
@@ -87,7 +87,7 @@
 
 .deleteButton {
   background: #c44a4a;
-  color: #fff;
+  color: var(--text-on-accent);
 }
 .deleteButton:hover:not(:disabled) {
   background: #a83d3d;

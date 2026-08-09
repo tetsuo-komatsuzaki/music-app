@@ -47,13 +47,13 @@ export default async function RecordsPage({ params }: { params: Promise<{ userId
 
   return (
     <div style={{ maxWidth: 720, margin: "0 auto", padding: "18px 16px 60px" }}>
-      <h1 style={{ fontSize: 18, fontWeight: 900, margin: "0 0 4px" }}>成長の記録</h1>
-      <p style={{ fontSize: 12.5, color: "#6b7885", margin: "0 0 18px" }}>
+      <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "0 0 4px" }}>成長の記録</h1>
+      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 18px" }}>
         これまでに達成・マスターした曲の記念カード。
       </p>
 
       {cards.length === 0 ? (
-        <div style={{ fontSize: 13, color: "#9aa6b3", padding: "24px 0", textAlign: "center" }}>
+        <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: "24px 0", textAlign: "center" }}>
           まだ記録がないよ。曲を達成すると、ここに記念カードがならぶよ
         </div>
       ) : (
@@ -64,7 +64,7 @@ export default async function RecordsPage({ params }: { params: Promise<{ userId
               href={c.href}
               style={{ textDecoration: "none", color: "inherit", background: "#fff", border: `1.5px solid ${c.mastered ? "#eecfa0" : "#cbe8d6"}`, borderRadius: 14, overflow: "hidden", boxShadow: "0 1px 3px rgba(30,45,70,.05)" }}
             >
-              <div style={{ height: 96, background: c.mastered ? "linear-gradient(135deg,#fdf3df,#f7e3b8)" : "linear-gradient(135deg,#eafaf0,#d3f0df)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 34 }}>
+              <div style={{ height: 96, background: c.mastered ? "linear-gradient(135deg,#fdf3df,#f7e3b8)" : "linear-gradient(135deg,#eafaf0,#d3f0df)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "var(--fs-display)" }}>
                 {c.cover ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={c.cover} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} loading="lazy" />
@@ -73,13 +73,13 @@ export default async function RecordsPage({ params }: { params: Promise<{ userId
                 )}
               </div>
               <div style={{ padding: "9px 10px 11px" }}>
-                <div style={{ fontSize: 10.5, fontWeight: 800, color: c.mastered ? "#b5651d" : "#2e8b57", display: "flex", alignItems: "center", gap: 4 }}>
+                <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: c.mastered ? "#b5651d" : "#2e8b57", display: "flex", alignItems: "center", gap: 4 }}>
                   {c.mastered ? <><Trophy size={12} /> マスター</> : <><Sparkles size={12} /> 達成</>}
                 </div>
-                <div style={{ fontSize: 12.5, fontWeight: 800, color: "#2b3742", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {c.title}
                 </div>
-                <div style={{ fontSize: 10.5, color: "#b3bcc6", marginTop: 3 }}>
+                <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 3 }}>
                   {c.star != null ? `☆${c.star} ・ ` : ""}{c.date}
                 </div>
               </div>

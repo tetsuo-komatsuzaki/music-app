@@ -6,7 +6,7 @@
   margin: 0 auto;
   padding: 32px 40px;
   font-family: "Helvetica Neue", sans-serif;
-  color: #1a1a1a;
+  color: var(--text-ink);
 }
 
 .header {
@@ -19,7 +19,7 @@
 }
 
 .title {
-  font-size: 24px;
+  font-size: var(--fs-title);
   font-weight: 700;
 }
 
@@ -52,7 +52,7 @@
 
 .card h3 {
   margin: 0 0 12px;
-  font-size: 15px;
+  font-size: var(--fs-subhead);
   font-weight: 600;
 }
 
@@ -61,11 +61,11 @@
    ============================== */
 .recordBtn {
   background: #2e7dff;
-  color: #fff;
+  color: var(--text-on-accent);
   border: none;
   border-radius: 8px;
   padding: 10px 20px;
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   cursor: pointer;
 }
 
@@ -87,7 +87,7 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 8px 16px;
-  font-size: 13px;
+  font-size: var(--fs-body);
   cursor: pointer;
 }
 
@@ -102,10 +102,10 @@
   gap: 6px;
   background: #fff;
   border: 1px solid #e53935;
-  color: #e53935;
+  color: var(--text-error);
   border-radius: 8px;
   padding: 8px 16px;
-  font-size: 13px;
+  font-size: var(--fs-body);
   cursor: pointer;
 }
 
@@ -164,7 +164,7 @@
   border-radius: 6px;
   padding: 6px 14px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--fs-body);
 }
 
 .scoreNav button:disabled {
@@ -185,24 +185,24 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  font-size: var(--fs-subhead);
 }
 
 .evalLabel {
-  color: #555;
+  color: var(--text-body);
 }
 
 .evalValue {
   font-weight: 700;
-  font-size: 18px;
+  font-size: var(--fs-head);
 }
 
 .evalLegend {
   display: flex;
   gap: 12px;
   margin-top: 8px;
-  font-size: 12px;
-  color: #888;
+  font-size: var(--fs-body);
+  color: var(--text-sub);
   flex-wrap: wrap;
 }
 
@@ -228,8 +228,8 @@
 }
 
 .evalWarning {
-  font-size: 12px;
-  color: #795548;
+  font-size: var(--fs-body);
+  color: var(--text-body);
   line-height: 1.5;
 }
 
@@ -247,9 +247,9 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--fs-body);
   font-weight: 700;
-  color: #7c8894;
+  color: var(--text-sub);
   background: #f5f7fa;
   border-radius: 10px;
   padding: 10px;
@@ -259,7 +259,7 @@
 }
 .allTakesSummary::after {
   content: "▾";
-  font-size: 11px;
+  font-size: var(--fs-caption);
 }
 .allTakes[open] .allTakesSummary::after {
   content: "▴";
@@ -273,7 +273,7 @@
   border: 1px solid #eceef2;
   box-shadow: 0 1px 2px rgba(20, 25, 40, 0.03);
   transition: background 0.15s, box-shadow 0.15s, border-color 0.15s;
-  font-size: 13px;
+  font-size: var(--fs-body);
 }
 
 .historyItem:hover {
@@ -290,28 +290,28 @@
   display: flex;
   gap: 8px;
   margin-top: 4px;
-  font-size: 11px;
-  color: #999;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
   align-items: center;
 }
 
 .historyBadge {
   background: #e8f5e9;
-  color: #388e3c;
+  color: var(--text-good);
   padding: 1px 8px;
   border-radius: 4px;
-  font-size: 10px;
+  font-size: var(--fs-label);
   font-weight: 600;
 }
 
 .historyName {
   font-weight: 600;
-  color: #333;
-  font-size: 13px;
+  color: var(--text-ink);
+  font-size: var(--fs-body);
 }
 
 .historyNameInput {
-  font-size: 13px;
+  font-size: var(--fs-body);
   padding: 2px 6px;
   border: 1px solid #b4c4ff;
   border-radius: 4px;
@@ -325,8 +325,8 @@
 }
 
 .historyDate {
-  color: #999;
-  font-size: 11px;
+  color: var(--text-muted);
+  font-size: var(--fs-caption);
   flex: none;
 }
 
@@ -338,22 +338,22 @@
 }
 .histScore {
   flex: none;
-  font-size: 29px;
+  font-size: var(--fs-display);
   font-weight: 800;
   line-height: 0.9;
   font-variant-numeric: tabular-nums;
 }
 .histScoreUnit {
-  font-size: 12px;
+  font-size: var(--fs-body);
   font-weight: 700;
 }
 .histScoreNa {
   flex: none;
   width: 40px;
   text-align: center;
-  font-size: 20px;
+  font-size: var(--fs-head);
   font-weight: 700;
-  color: #c4c9d2;
+  color: var(--text-muted);
 }
 .histMid {
   flex: 1;
@@ -393,9 +393,9 @@
 .histMiniLabel {
   flex: none;
   width: 30px;
-  font-size: 9.5px;
+  font-size: var(--fs-label);
   font-weight: 800;
-  color: #9aa2ad;
+  color: var(--text-muted);
 }
 .histBarTrack {
   flex: 1;
@@ -414,17 +414,17 @@
   flex: none;
   width: 22px;
   text-align: right;
-  font-size: 11px;
+  font-size: var(--fs-caption);
   font-weight: 800;
-  color: #444;
+  color: var(--text-ink);
   font-variant-numeric: tabular-nums;
 }
 .histStatusRow {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
-  color: #999;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
 }
 .histRight {
   flex: none;
@@ -435,8 +435,8 @@
 }
 .histChev {
   flex: none;
-  font-size: 12px;
-  color: #c4c9d2;
+  font-size: var(--fs-body);
+  color: var(--text-muted);
 }
 .histEditRow {
   display: flex;
@@ -459,32 +459,32 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--fs-body);
   padding: 2px 6px;
   border-radius: 4px;
-  color: #888;
+  color: var(--text-sub);
   line-height: 1;
 }
 
 .historyEditBtn:hover {
   background: #eef2ff;
-  color: #4257ff;
+  color: var(--text-link);
 }
 
 .historyActionBtn {
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: var(--fs-caption);
   padding: 2px 8px;
   cursor: pointer;
-  color: #444;
+  color: var(--text-ink);
 }
 
 .historyActionBtn:hover:not(:disabled) {
   background: #f5f7ff;
   border-color: #b4c4ff;
-  color: #4257ff;
+  color: var(--text-link);
 }
 
 .historyActionBtn:disabled {
@@ -494,8 +494,8 @@
 
 .historyError {
   margin-top: 4px;
-  font-size: 11px;
-  color: #c62828;
+  font-size: var(--fs-caption);
+  color: var(--text-error);
 }
 
 .historyPager {
@@ -504,23 +504,23 @@
   align-items: center;
   gap: 12px;
   margin-top: 12px;
-  font-size: 12px;
+  font-size: var(--fs-body);
 }
 
 .historyPagerBtn {
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--fs-body);
   padding: 4px 12px;
   cursor: pointer;
-  color: #444;
+  color: var(--text-ink);
 }
 
 .historyPagerBtn:hover:not(:disabled) {
   background: #eef2ff;
   border-color: #b4c4ff;
-  color: #4257ff;
+  color: var(--text-link);
 }
 
 .historyPagerBtn:disabled {
@@ -529,7 +529,7 @@
 }
 
 .historyPagerInfo {
-  color: #666;
+  color: var(--text-body);
   min-width: 40px;
   text-align: center;
 }
@@ -537,7 +537,7 @@
 .rankBadgeSmall {
   padding: 2px 10px;
   border-radius: 10px;
-  font-size: 11px;
+  font-size: var(--fs-caption);
   font-weight: 500;
   white-space: nowrap;
   flex: none;
@@ -575,27 +575,27 @@
 /* 過去の演奏セレクタ (譜面上・フィードバック表示 + スコア + リネーム) 2026-07-18 */
 .perfSelectRow { display: flex; align-items: center; gap: 8px; }
 .perfSelect {
-  flex: 1; min-width: 0; font-family: inherit; font-size: 13px; font-weight: 700; color: #2c2830;
+  flex: 1; min-width: 0; font-family: inherit; font-size: var(--fs-body); font-weight: 700; color: var(--text-ink);
   background: #fff; border: 1px solid #e0dde3; border-radius: 10px; padding: 10px 12px; cursor: pointer;
 }
-.perfSelectScore { flex: 0 0 auto; font-size: 22px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
-.perfSelectScore small { font-size: 12px; font-weight: 600; margin-left: 1px; }
+.perfSelectScore { flex: 0 0 auto; font-size: var(--fs-title); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.perfSelectScore small { font-size: var(--fs-body); font-weight: 600; margin-left: 1px; }
 .perfRenameBtn {
   flex: 0 0 auto; width: 38px; height: 38px; border-radius: 9px; border: 1px solid #e0dde3;
-  background: #f7f6f9; color: #6a6470; cursor: pointer; font-size: 15px; display: grid; place-items: center;
+  background: #f7f6f9; color: var(--text-body); cursor: pointer; font-size: var(--fs-subhead); display: grid; place-items: center;
 }
 .perfRenameBtn:active { filter: brightness(0.96); }
 .perfRenameInput {
-  flex: 1; min-width: 0; font-family: inherit; font-size: 14px; font-weight: 700; color: #201c22;
+  flex: 1; min-width: 0; font-family: inherit; font-size: var(--fs-subhead); font-weight: 700; color: var(--text-ink);
   border: 1px solid #4a6cf7; border-radius: 10px; padding: 10px 12px; outline: none;
 }
 .perfSaveBtn, .perfCancelBtn {
-  flex: 0 0 auto; font-family: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer;
+  flex: 0 0 auto; font-family: inherit; font-size: var(--fs-body); font-weight: 800; cursor: pointer;
   border-radius: 9px; padding: 10px 13px; border: 1px solid transparent;
 }
-.perfSaveBtn { color: #fff; background: #4a6cf7; }
+.perfSaveBtn { color: var(--text-on-accent); background: #4a6cf7; }
 .perfSaveBtn:disabled { opacity: 0.5; cursor: default; }
-.perfCancelBtn { color: #5a545c; background: #f2f1f4; border-color: #eceaef; }
+.perfCancelBtn { color: var(--text-body); background: #f2f1f4; border-color: #eceaef; }
 
 /* 演奏タブ 単一カラム (UX刷新 Step 3: 譜面ヒーロー) 2026-07-18 */
 .playStack {
@@ -629,18 +629,18 @@
   border: none;
   border-right: 1px solid #f1f0f2;
   font-family: inherit;
-  color: #4a4650;
+  color: var(--text-body);
   cursor: pointer;
   transition: background 0.14s, color 0.14s;
 }
 .barCell:last-child { border-right: none; }
 .barCell:disabled { opacity: 0.4; cursor: default; }
 .barCell:active { background: #f6f6f8; }
-.barLabel { font-size: 11px; font-weight: 800; letter-spacing: 0.02em; white-space: nowrap; }
-.barTempo { font-size: 16px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
-.barCellOn { color: #fff; background: linear-gradient(160deg, #4a6cf7, #6a5cf0); }
+.barLabel { font-size: var(--fs-caption); font-weight: 800; letter-spacing: 0.02em; white-space: nowrap; }
+.barTempo { font-size: var(--fs-subhead); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.barCellOn { color: var(--text-on-accent); background: linear-gradient(160deg, #4a6cf7, #6a5cf0); }
 .barCellOn:active { background: linear-gradient(160deg, #4460ea, #5f52e6); }
-.barCellActive { color: #3b56d4; background: #eef1fd; }
+.barCellActive { color: var(--text-link); background: #eef1fd; }
 .barPanel { padding: 12px; border-top: 1px solid #f1f0f2; background: #fbfbfd; }
 .barPanel .tempoControl { margin: 0; border: none; background: transparent; padding: 0; }
 .barPanel .rangeBody { margin: 0; }
@@ -658,29 +658,29 @@
 .rangeBody { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
 .rangeSelectBtn {
   align-self: flex-start;
-  font-family: inherit; font-size: 13px; font-weight: 800; cursor: pointer;
-  color: #3b56d4; background: #eef1fd; border: 1px solid #dfe3fb;
+  font-family: inherit; font-size: var(--fs-body); font-weight: 800; cursor: pointer;
+  color: var(--text-link); background: #eef1fd; border: 1px solid #dfe3fb;
   border-radius: 999px; padding: 9px 16px; transition: filter .14s;
 }
 .rangeSelectBtn:active { filter: brightness(.96); }
-.rangeSelectOn { color: #fff; background: linear-gradient(100deg, #4a6cf7, #6a5cf0); border-color: transparent; }
-.rangeHint { margin: 0; font-size: 12.5px; color: #6b6f8a; line-height: 1.55; }
-.rangeHint b { color: #3b56d4; }
+.rangeSelectOn { color: var(--text-on-accent); background: linear-gradient(100deg, #4a6cf7, #6a5cf0); border-color: transparent; }
+.rangeHint { margin: 0; font-size: var(--fs-body); color: var(--text-sub); line-height: 1.55; }
+.rangeHint b { color: var(--text-link); }
 .rangeActions { display: flex; gap: 8px; flex-wrap: wrap; }
 .rangePlayBtn, .rangeStopBtn, .rangeClearBtn {
-  font-family: inherit; font-size: 13px; font-weight: 800; cursor: pointer;
+  font-family: inherit; font-size: var(--fs-body); font-weight: 800; cursor: pointer;
   border-radius: 10px; padding: 9px 14px; border: 1px solid transparent; transition: filter .14s;
 }
-.rangePlayBtn { color: #fff; background: linear-gradient(100deg, #4a6cf7, #6a5cf0); box-shadow: 0 8px 18px -9px rgba(74,108,247,.6); }
-.rangeStopBtn { color: #fff; background: #d6547a; }
-.rangeClearBtn { color: #5a545c; background: #f2f1f4; border-color: #eceaef; }
+.rangePlayBtn { color: var(--text-on-accent); background: linear-gradient(100deg, #4a6cf7, #6a5cf0); box-shadow: 0 8px 18px -9px rgba(74,108,247,.6); }
+.rangeStopBtn { color: var(--text-on-accent); background: #d6547a; }
+.rangeClearBtn { color: var(--text-body); background: #f2f1f4; border-color: #eceaef; }
 .rangePlayBtn:active, .rangeStopBtn:active, .rangeClearBtn:active { filter: brightness(.96); }
 /* この区間を録音（部分採点） */
 .rangeRecordBtn {
   width: 100%;
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  font-family: inherit; font-size: 13.5px; font-weight: 800; cursor: pointer;
-  color: #fff; background: #d6547a; border: 1px solid transparent; border-radius: 11px;
+  font-family: inherit; font-size: var(--fs-body); font-weight: 800; cursor: pointer;
+  color: var(--text-on-accent); background: #d6547a; border: 1px solid transparent; border-radius: 11px;
   padding: 11px 14px; margin-top: 4px; box-shadow: 0 8px 18px -10px rgba(214, 84, 122, 0.6);
 }
 .rangeRecordBtn::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #fff; flex: 0 0 auto; }
@@ -688,7 +688,7 @@
 .rangeRecordBtn:active { filter: brightness(0.96); }
 /* 履歴カードの「区間」タグ (区間演奏の識別) */
 .rangeTag {
-  font-size: 10px; font-weight: 800; color: #b83a5e; background: #fdeef1;
+  font-size: var(--fs-label); font-weight: 800; color: #b83a5e; background: #fdeef1;
   border: 1px solid #f5cdd8; border-radius: 6px; padding: 1.5px 7px; flex: 0 0 auto; white-space: nowrap;
 }
 
@@ -698,7 +698,7 @@
 /* テンポ・メトロノーム 共通カード見出し (2026-07-18 一本化) */
 .tempoCardHead { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
 .tempoCardTitle { margin: 0; }
-.tempoCardSub { font-size: 11.5px; font-weight: 700; color: #9a949a; }
+.tempoCardSub { font-size: var(--fs-caption); font-weight: 700; color: var(--text-sub); }
 
 /* テンポUI刷新 (2026-07-18) + メトロノーム */
 .tempoControl {
@@ -717,11 +717,11 @@
   margin-bottom: 10px;
 }
 
-.tempoLabel { font-size: 12.5px; font-weight: 800; color: #4a4650; }
+.tempoLabel { font-size: var(--fs-body); font-weight: 800; color: var(--text-body); }
 
 .metroBtn {
   display: inline-flex; align-items: center; gap: 6px;
-  font-size: 11.5px; font-weight: 800; color: #8b8289;
+  font-size: var(--fs-caption); font-weight: 800; color: var(--text-sub);
   background: #fff; border: 1px solid #e6e2e8; border-radius: 999px;
   padding: 5px 12px; cursor: pointer; transition: .15s;
 }
@@ -733,20 +733,20 @@
 .tempoMain { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .stepBtn {
   width: 40px; height: 40px; flex: 0 0 auto; border-radius: 50%;
-  border: 1px solid #e2dfe6; background: #fff; color: #3a343c; font-size: 22px; font-weight: 600;
+  border: 1px solid #e2dfe6; background: #fff; color: var(--text-ink); font-size: var(--fs-title); font-weight: 600;
   cursor: pointer; display: grid; place-items: center; transition: .12s;
 }
 .stepBtn:hover:not(:disabled) { background: #f3f2f6; }
 .stepBtn:disabled { opacity: .4; cursor: not-allowed; }
 
 .tempoCenter { display: flex; align-items: baseline; gap: 6px; }
-.tempoNum { font-size: 30px; font-weight: 800; color: #201c22; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
-.tempoUnit { font-size: 12px; font-weight: 700; color: #a8a2a8; }
+.tempoNum { font-size: var(--fs-display); font-weight: 800; color: var(--text-ink); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.tempoUnit { font-size: var(--fs-body); font-weight: 700; color: var(--text-muted); }
 .resetBtn {
   align-self: center; width: 26px; height: 26px; margin-left: 4px; border-radius: 50%;
-  border: none; background: #f0eef3; color: #6a636c; cursor: pointer; display: grid; place-items: center; transition: .12s;
+  border: none; background: #f0eef3; color: var(--text-body); cursor: pointer; display: grid; place-items: center; transition: .12s;
 }
-.resetBtn:hover:not(:disabled) { background: #e6e3ea; color: #3a343c; }
+.resetBtn:hover:not(:disabled) { background: #e6e3ea; color: var(--text-ink); }
 .resetBtn:disabled { opacity: .4; cursor: not-allowed; }
 
 .tempoSlider {
@@ -762,15 +762,15 @@
   width: 18px; height: 18px; background: #fff; border: 3px solid var(--tempo-accent); border-radius: 50%; cursor: pointer;
 }
 .tempoSlider:disabled { opacity: .5; cursor: not-allowed; }
-.tempoScale { display: flex; justify-content: space-between; font-size: 10.5px; font-weight: 600; color: #b3adb3; margin-top: 5px; font-variant-numeric: tabular-nums; }
+.tempoScale { display: flex; justify-content: space-between; font-size: var(--fs-caption); font-weight: 600; color: var(--text-muted); margin-top: 5px; font-variant-numeric: tabular-nums; }
 
 .tempoPresets { display: flex; gap: 6px; margin-top: 12px; }
 .tempoPresetBtn {
   flex: 1; background: #fff; border: 1px solid #e6e2e8; border-radius: 9px;
-  padding: 7px 0; font-size: 12px; font-weight: 700; color: #6a636c; cursor: pointer; transition: .15s;
+  padding: 7px 0; font-size: var(--fs-body); font-weight: 700; color: var(--text-body); cursor: pointer; transition: .15s;
 }
 .tempoPresetBtn:hover:not(:disabled) { border-color: color-mix(in srgb, var(--tempo-accent) 40%, #e6e2e8); }
-.tempoPresetActive { background: var(--tempo-accent); color: #fff; border-color: var(--tempo-accent); }
+.tempoPresetActive { background: var(--tempo-accent); color: var(--text-on-accent); border-color: var(--tempo-accent); }
 .tempoPresetBtn:disabled { opacity: .45; cursor: not-allowed; }
 
 /* ==============================
@@ -783,7 +783,7 @@
   border-radius: 10px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
   padding: 12px 16px;
-  font-size: 13px;
+  font-size: var(--fs-body);
   min-width: 180px;
   max-width: 240px;
   border-left: 4px solid;
@@ -827,8 +827,8 @@
   border: 1px dashed #c7d0db;
   border-radius: 8px;
   padding: 16px;
-  font-size: 13px;
-  color: #5a6473;
+  font-size: var(--fs-body);
+  color: var(--text-body);
   text-align: center;
   line-height: 1.5;
 }
@@ -840,10 +840,10 @@
   left: 50%;
   transform: translateX(-50%);
   background: #2d2d2d;
-  color: #fff;
+  color: var(--text-on-accent);
   padding: 12px 20px;
   border-radius: 24px;
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   font-weight: 500;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   z-index: 1100;

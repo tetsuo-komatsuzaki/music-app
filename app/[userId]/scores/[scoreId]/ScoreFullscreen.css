@@ -44,7 +44,7 @@ body[data-fullscreen="true"] [data-section="right-column"] {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  font-size: 14px !important;
+  font-size: var(--fs-subhead) !important;
   font-weight: 500 !important;
   letter-spacing: 0.02em !important;
   padding: 0 14px !important;
@@ -58,14 +58,14 @@ body[data-fullscreen="true"] [data-section="right-column"] {
    Recorder 本体は leftColumn 内で display:none のため、ここに露出させた停止ボタンで
    内部の停止処理 (triggerStopRecording → 隠れた stop ボタンを click) を叩く。 */
 [data-section="fullscreen-bar"] [data-fs-hint] {
-  font-size: 13px !important; opacity: .92 !important; white-space: nowrap !important;
+  font-size: var(--fs-body) !important; opacity: .92 !important; white-space: nowrap !important;
   overflow: hidden !important; text-overflow: ellipsis !important;
 }
 [data-section="fullscreen-bar"] [data-fs-stop] {
   display: inline-flex !important; align-items: center !important; gap: 7px !important;
   background: #E5484D !important; color: #fff !important; border: none !important;
   border-radius: 10px !important; padding: 9px 20px !important;
-  font-size: 15px !important; font-weight: 800 !important; line-height: 1 !important;
+  font-size: var(--fs-subhead) !important; font-weight: 800 !important; line-height: 1 !important;
   cursor: pointer !important; flex: none !important; box-shadow: 0 2px 8px rgba(0,0,0,.28) !important;
 }
 [data-section="fullscreen-bar"] [data-fs-stop]:active { background: #C93B40 !important; transform: scale(.97) !important; }
@@ -110,7 +110,7 @@ body[data-fullscreen="true"] [data-recorder-panel="recording"] > div:nth-of-type
 body[data-fullscreen="true"] [data-recorder-element="timer"] {
   margin-right: auto !important;
   font-family: "Courier New", monospace !important;
-  font-size: 18px !important;
+  font-size: var(--fs-head) !important;
   color: #FFFFFF !important;
 }
 
@@ -118,7 +118,7 @@ body[data-fullscreen="true"] [data-recorder-element="timer"] .timer,
 body[data-fullscreen="true"] [data-recorder-element="timer"] span {
   color: #FFFFFF !important;
   font-family: "Courier New", monospace !important;
-  font-size: 18px !important;
+  font-size: var(--fs-head) !important;
 }
 
 /* 停止ボタン (赤背景) */
@@ -128,7 +128,7 @@ body[data-fullscreen="true"] [data-testid="recorder-stop-button"] {
   border: none !important;
   border-radius: 4px !important;
   padding: 8px 16px !important;
-  font-size: 14px !important;
+  font-size: var(--fs-subhead) !important;
   font-weight: 600 !important;
 }
 

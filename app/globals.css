@@ -3,6 +3,28 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* ── タイポグラフィ・スケール (2026-08-09 承認: 42種→7段。丸めは収まり優先で下寄せ) ── */
+  --fs-label: 10px;    /* 極小ラベル/バッジ/eyebrow */
+  --fs-caption: 11.5px;/* 補足・注記・キャプション */
+  --fs-body: 12.5px;   /* 本文（標準）・ボタン・リスト */
+  --fs-subhead: 15px;  /* 小見出し・カードタイトル */
+  --fs-head: 18px;     /* 見出し・モーダルタイトル */
+  --fs-title: 22px;    /* ページタイトル・大見出し */
+  --fs-display: 30px;  /* スコア・大きな数字 (44px超heroは個別指定) */
+
+  /* ── 文字色トークン (217種→9+2。似たグレーを意味で集約) ── */
+  --text-ink: #22303c;       /* 見出し・タイトル・強調 */
+  --text-body: #4a5766;      /* 本文 */
+  --text-sub: #6b7885;       /* 副次・ラベル・メタ */
+  --text-muted: #9aa6b3;     /* 補助・注記・プレースホルダ */
+  --text-on-accent: #ffffff; /* 色地の上の文字 */
+  --text-link: #2563eb;      /* リンク・ブランド青 */
+  --text-master: #b5651d;    /* マスター・金 */
+  --text-good: #2e8b57;      /* 達成・成功 */
+  --text-error: #c0392b;     /* エラー・警告 */
+  --text-expression: #a4527a;/* カルテ: 表現 (アクセント) */
+  --text-teacher: #8a6fb8;   /* カルテ: 先生 (アクセント) */
 }
 
 @theme inline {

@@ -12,8 +12,8 @@ export default function ViolinDevPage() {
   const tech = BOWING_TECHNIQUES.find((t) => t.id === id)
   return (
     <div style={{ padding: 24, maxWidth: 900, margin: "0 auto", fontFamily: "sans-serif" }}>
-      <h1 style={{ fontSize: 18, fontWeight: 800 }}>運弓モーション確認 (L1)</h1>
-      <p style={{ fontSize: 12, color: "#888" }}>
+      <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 800 }}>運弓モーション確認 (L1)</h1>
+      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)" }}>
         8技法 / 2ビュー。下段は同一ページ複数配置のID衝突確認用 (常にスピッカート)。
       </p>
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", margin: "12px 0" }}>
@@ -28,7 +28,7 @@ export default function ViolinDevPage() {
               background: id === t.id ? "#463527" : "#fff",
               color: id === t.id ? "#fff" : "#463527",
               fontWeight: 700,
-              fontSize: 12,
+              fontSize: "var(--fs-body)",
               cursor: "pointer",
             }}
           >
@@ -36,7 +36,7 @@ export default function ViolinDevPage() {
           </button>
         ))}
       </div>
-      <div style={{ fontSize: 13, fontWeight: 800, margin: "6px 0" }}>
+      <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, margin: "6px 0" }}>
         {tech?.name} — {tech?.desc}
       </div>
       {/* 2ビュー横並び (図解アセット仕様書v1.2 §10 の並びを簡易再現) */}
@@ -55,7 +55,7 @@ export default function ViolinDevPage() {
           opacity: 0.85,
         }}
       >
-        <div style={{ fontSize: 11, color: "#999", marginBottom: 6 }}>
+        <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginBottom: 6 }}>
           2つ目のインスタンス (ID衝突チェック・spiccato固定)
         </div>
         <div className="l1demo2">

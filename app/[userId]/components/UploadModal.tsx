@@ -162,11 +162,11 @@ export default function UploadModal({
             >
               {selectedFile ? (
                 <>
-                  <div className={styles.uploadIcon} style={{ color: "#16a34a" }}>✅</div>
-                  <p style={{ margin: "4px 0", fontWeight: 600, color: "#166534" }}>
+                  <div className={styles.uploadIcon} style={{ color: "var(--text-good)" }}>✅</div>
+                  <p style={{ margin: "4px 0", fontWeight: 600, color: "var(--text-good)" }}>
                     {selectedFile.name}
                   </p>
-                  <p style={{ margin: 0, fontSize: 12, color: "#475569" }}>
+                  <p style={{ margin: 0, fontSize: "var(--fs-body)", color: "var(--text-body)" }}>
                     {formatSize(selectedFile.size)} ・ クリック / ドラッグで変更
                   </p>
                 </>
@@ -178,7 +178,7 @@ export default function UploadModal({
                       ? "ここにドロップしてください"
                       : "MusicXMLをドラッグ or クリック"}
                   </p>
-                  <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>
+                  <p style={{ margin: 0, fontSize: "var(--fs-body)", color: "var(--text-sub)" }}>
                     .xml / .musicxml / .mxl ・ 5MB 以下
                   </p>
                 </>
@@ -207,8 +207,8 @@ export default function UploadModal({
                 background: "#fef2f2",
                 border: "1px solid #fecaca",
                 borderRadius: 8,
-                color: "#b91c1c",
-                fontSize: 13,
+                color: "var(--text-error)",
+                fontSize: "var(--fs-body)",
               }}
             >
               {error}
@@ -222,8 +222,8 @@ export default function UploadModal({
                 background: "#eff6ff",
                 border: "1px solid #bfdbfe",
                 borderRadius: 8,
-                color: "#1e40af",
-                fontSize: 13,
+                color: "var(--text-link)",
+                fontSize: "var(--fs-body)",
                 display: "flex",
                 alignItems: "center",
                 gap: 10,

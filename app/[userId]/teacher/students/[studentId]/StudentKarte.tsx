@@ -49,19 +49,19 @@ function ObsProgressButtons({ studentId, tag }: { studentId: string; tag: BodyOb
       else setErr(r.error)
     })
   }
-  const b: React.CSSProperties = { fontSize: 10, fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1px solid #e2e6ea", background: "#fff", color: "#6b7885" }
+  const b: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1px solid #e2e6ea", background: "#fff", color: "var(--text-sub)" }
 
   return (
     <div style={{ display: "flex", gap: 5, flexWrap: "wrap", alignItems: "center", opacity: pending ? 0.5 : 1 }}>
       <button type="button" disabled={pending} onClick={() => record("still")} style={b}>まだある</button>
-      <button type="button" disabled={pending} onClick={() => record("improving")} style={{ ...b, color: "#2e8b57", borderColor: "#cfe6d8", display: "inline-flex", alignItems: "center", gap: 4 }}><Leaf size={12} /> 良くなってきた</button>
+      <button type="button" disabled={pending} onClick={() => record("improving")} style={{ ...b, color: "var(--text-good)", borderColor: "#cfe6d8", display: "inline-flex", alignItems: "center", gap: 4 }}><Leaf size={12} /> 良くなってきた</button>
       {confirmResolve ? (
         <button type="button" disabled={pending} onClick={() => record("resolved")}
-          style={{ ...b, color: "#fff", background: "#2e8b57", borderColor: "#2e8b57", display: "inline-flex", alignItems: "center", gap: 4 }}><Sprout size={12} /> 克服にする（もう一度押して確定）</button>
+          style={{ ...b, color: "var(--text-on-accent)", background: "#2e8b57", borderColor: "#2e8b57", display: "inline-flex", alignItems: "center", gap: 4 }}><Sprout size={12} /> 克服にする（もう一度押して確定）</button>
       ) : (
-        <button type="button" disabled={pending} onClick={() => setConfirmResolve(true)} style={{ ...b, color: "#2e8b57", borderColor: "#cfe6d8", display: "inline-flex", alignItems: "center", gap: 4 }}><Sprout size={12} /> 克服</button>
+        <button type="button" disabled={pending} onClick={() => setConfirmResolve(true)} style={{ ...b, color: "var(--text-good)", borderColor: "#cfe6d8", display: "inline-flex", alignItems: "center", gap: 4 }}><Sprout size={12} /> 克服</button>
       )}
-      {err && <span style={{ fontSize: 10, color: "#c0392b" }}>{err}</span>}
+      {err && <span style={{ fontSize: "var(--fs-label)", color: "var(--text-error)" }}>{err}</span>}
     </div>
   )
 }
@@ -140,11 +140,11 @@ export default function StudentKarte({
     // 生徒カルテ ペーパーデザイン (2026-08-06 Tetsuo確定B: 成長カルテv3と同じ世界観に全面統一)
     <div style={{
       background: "linear-gradient(165deg,#fffdf6,#faf4e4)", border: "1px solid #eee6d0",
-      borderRadius: 18, padding: "16px 14px 14px", color: "#241f14",
+      borderRadius: 18, padding: "16px 14px 14px", color: "var(--text-master)",
     }}>
-      <Link href={`/${userId}/teacher`} style={{ fontSize: 12, color: "#9a8c74", textDecoration: "none" }}>← 生徒一覧</Link>
-      <div style={{ fontSize: 9, fontWeight: 900, letterSpacing: ".22em", color: "#a98b2f", marginTop: 6 }}>STUDENT KARTE</div>
-      <h1 style={{ fontSize: 18, fontWeight: 900, margin: "0 0 10px" }}>{studentName}</h1>
+      <Link href={`/${userId}/teacher`} style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", textDecoration: "none" }}>← 生徒一覧</Link>
+      <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, letterSpacing: ".22em", color: "var(--text-master)", marginTop: 6 }}>STUDENT KARTE</div>
+      <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "0 0 10px" }}>{studentName}</h1>
 
       <div style={{ display: "flex", gap: 4, marginBottom: 14, background: "rgba(255,255,255,.55)", border: "1px solid #efe5cc", borderRadius: 12, padding: 3 }}>
         {([["overview", "概要"], ["practice", "練習"], ["karte", "カルテ"], ["homework", "宿題"], ["review", "採点カルテ"], ["message", "メッセージ"]] as const).map(([k, label]) => (
@@ -157,7 +157,7 @@ export default function StudentKarte({
               background: tab === k ? "linear-gradient(150deg,#f5df9e,#e3b93c)" : "transparent",
               color: tab === k ? "#4a3a12" : "#9a8c74",
               boxShadow: tab === k ? "0 1px 3px rgba(200,160,40,.3)" : "none",
-              borderRadius: 9, padding: "8px 0", fontSize: 10.5, fontWeight: 900, cursor: "pointer",
+              borderRadius: 9, padding: "8px 0", fontSize: "var(--fs-caption)", fontWeight: 900, cursor: "pointer",
             }}
           >
             {label}
@@ -171,7 +171,7 @@ export default function StudentKarte({
         karte ? (
           <ProgressPage userId={studentSupabaseUserId ?? ""} data={karte} readOnly />
         ) : (
-          <Card><div style={{ fontSize: 12.5, color: "#9aa6b3" }}>カルテを読み込めませんでした。</div></Card>
+          <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>カルテを読み込めませんでした。</div></Card>
         )
       )}
       {tab === "homework" && (
@@ -195,24 +195,24 @@ function FeedbackTab({ userId, studentId, scoreTargets, listenRequests = [], ass
     `/${userId}/teacher/students/${studentId}/annotate/${scoreId}${mood ? `?mood=${encodeURIComponent(mood)}` : ""}`
   return (
     <Card>
-      <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>
+      <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>
         <Inbox size={14} /> 採点カルテ {pendingCount > 0 && (
-          <span style={{ fontSize: 10.5, fontWeight: 800, color: "#8a5a1f", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "1px 8px" }}>未対応 {pendingCount}</span>
+          <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "1px 8px" }}>未対応 {pendingCount}</span>
         )}
       </div>
-      <p style={{ fontSize: 12, color: "#9aa6b3", margin: "0 0 10px" }}>
+      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", margin: "0 0 10px" }}>
         演奏を聴いて、譜面添削・コメント・表現の認定を1枚のカルテで返せます。
       </p>
 
       {/* 👂 聴いてほしい依頼 */}
       {listenRequests.map((r) => (
         <div key={r.id} style={{ border: "1px solid #eed9a0", background: "#fdfaf2", borderRadius: 11, padding: "9px 12px", marginBottom: 7 }}>
-          <div style={{ fontSize: 12.5 }}>
-            <span style={{ fontSize: 9, fontWeight: 900, color: "#8a5a1f", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "1px 8px", marginRight: 6, display: "inline-flex", alignItems: "center", gap: 3 }}><Ear size={10} /> 聴いてほしい</span>
+          <div style={{ fontSize: "var(--fs-body)" }}>
+            <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-master)", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "1px 8px", marginRight: 6, display: "inline-flex", alignItems: "center", gap: 3 }}><Ear size={10} /> 聴いてほしい</span>
             <b>{r.title}</b>
-            <span style={{ fontSize: 10.5, color: "#6b7885", marginLeft: 6 }}>{r.avg != null ? `${r.avg}点 ・ ` : ""}{r.date}</span>
+            <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginLeft: 6 }}>{r.avg != null ? `${r.avg}点 ・ ` : ""}{r.date}</span>
           </div>
-          <Link href={annotateHref(r.scoreId)} style={{ display: "inline-block", marginTop: 6, fontSize: 11, fontWeight: 800, color: "#fff", background: "#8a5a1f", borderRadius: 999, padding: "5px 13px", textDecoration: "none" }}>
+          <Link href={annotateHref(r.scoreId)} style={{ display: "inline-block", marginTop: 6, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#8a5a1f", borderRadius: 999, padding: "5px 13px", textDecoration: "none" }}>
             採点カルテを書く →
           </Link>
         </div>
@@ -221,13 +221,13 @@ function FeedbackTab({ userId, studentId, scoreTargets, listenRequests = [], ass
       {/* 📚 提出済み宿題 */}
       {submittedHw.map((a) => (
         <div key={a.id} style={{ border: "1px solid #d6ddff", background: "#fbfcff", borderRadius: 11, padding: "9px 12px", marginBottom: 7 }}>
-          <div style={{ fontSize: 12.5 }}>
-            <span style={{ fontSize: 9, fontWeight: 900, color: "#3b56d4", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "1px 8px", marginRight: 6, display: "inline-flex", alignItems: "center", gap: 3 }}><Library size={10} /> 宿題の提出</span>
+          <div style={{ fontSize: "var(--fs-body)" }}>
+            <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-link)", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "1px 8px", marginRight: 6, display: "inline-flex", alignItems: "center", gap: 3 }}><Library size={10} /> 宿題の提出</span>
             <b>{a.targetTitle}</b>
-            <span style={{ fontSize: 10.5, color: "#6b7885", marginLeft: 6 }}>{a.submittedScore != null ? `${a.submittedScore}点` : "提出済み"}</span>
+            <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginLeft: 6 }}>{a.submittedScore != null ? `${a.submittedScore}点` : "提出済み"}</span>
           </div>
-          {a.moodTagId && <div style={{ fontSize: 9.5, fontWeight: 800, color: "#8a5a1f", margin: "3px 0 0", display: "flex", alignItems: "center", gap: 4 }}><Palette size={11} /> 目標: {moodTagPhrase(a.moodTagId)}</div>}
-          <Link href={annotateHref(a.scoreId!, a.moodTagId)} style={{ display: "inline-block", marginTop: 6, fontSize: 11, fontWeight: 800, color: "#fff", background: "#3b56d4", borderRadius: 999, padding: "5px 13px", textDecoration: "none" }}>
+          {a.moodTagId && <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-master)", margin: "3px 0 0", display: "flex", alignItems: "center", gap: 4 }}><Palette size={11} /> 目標: {moodTagPhrase(a.moodTagId)}</div>}
+          <Link href={annotateHref(a.scoreId!, a.moodTagId)} style={{ display: "inline-block", marginTop: 6, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#3b56d4", borderRadius: 999, padding: "5px 13px", textDecoration: "none" }}>
             採点カルテを書く →
           </Link>
         </div>
@@ -235,16 +235,16 @@ function FeedbackTab({ userId, studentId, scoreTargets, listenRequests = [], ass
 
       {/* 自分で選ぶ */}
       <div style={{ borderTop: "1px dashed #e2e6ea", marginTop: 4, paddingTop: 10 }}>
-        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", marginBottom: 6 }}>自分で曲をえらんで書く</div>
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 6 }}>自分で曲をえらんで書く</div>
         {scoreTargets.length === 0 ? (
-          <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>この生徒はまだ曲の演奏がありません。</div>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>この生徒はまだ曲の演奏がありません。</div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {scoreTargets.map((s) => (
               <Link key={s.id} href={annotateHref(s.id)}
                 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit", border: "1px solid #eef1f4", borderRadius: 10, padding: "10px 12px" }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: "#2b3742", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.title}</span>
-                <span style={{ fontSize: 11.5, fontWeight: 800, color: "#4f63c6", flex: "none" }}>カルテを書く →</span>
+                <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.title}</span>
+                <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)", flex: "none" }}>カルテを書く →</span>
               </Link>
             ))}
           </div>
@@ -269,18 +269,18 @@ function RecCommentBox({ studentId, performanceId, kind }: { studentId: string; 
       if (r.ok) { setDone(true); setText(""); setOpen(false); router.refresh() }
     })
   }
-  if (done) return <div style={{ fontSize: 11, fontWeight: 800, color: "#2e8b57", marginTop: 8 }}>この演奏にコメントを送りました ✓</div>
-  const btn: React.CSSProperties = { fontSize: 11, fontWeight: 800, borderRadius: 8, padding: "6px 12px", cursor: "pointer" }
+  if (done) return <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)", marginTop: 8 }}>この演奏にコメントを送りました ✓</div>
+  const btn: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 8, padding: "6px 12px", cursor: "pointer" }
   return (
     <div style={{ marginTop: 8 }}>
       {!open ? (
-        <button type="button" onClick={() => setOpen(true)} style={{ ...btn, color: "#5b6b9e", background: "#eef0fc", border: "1px solid #d7dcf6", display: "inline-flex", alignItems: "center", gap: 5 }}><MessageCircle size={13} /> この演奏にコメント</button>
+        <button type="button" onClick={() => setOpen(true)} style={{ ...btn, color: "var(--text-sub)", background: "#eef0fc", border: "1px solid #d7dcf6", display: "inline-flex", alignItems: "center", gap: 5 }}><MessageCircle size={13} /> この演奏にコメント</button>
       ) : (
         <div>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={1000} placeholder="この演奏へのコメント（生徒に届きます）" style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 12.5, resize: "vertical" }} />
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={1000} placeholder="この演奏へのコメント（生徒に届きます）" style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", resize: "vertical" }} />
           <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-            <button type="button" onClick={() => { setOpen(false); setText("") }} style={{ ...btn, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea" }}>やめる</button>
-            <button type="button" onClick={send} disabled={pending} style={{ ...btn, color: "#fff", background: "#8a5a1f", border: "none", opacity: pending ? 0.6 : 1 }}>{pending ? "送信中…" : "送る"}</button>
+            <button type="button" onClick={() => { setOpen(false); setText("") }} style={{ ...btn, color: "var(--text-sub)", background: "#fff", border: "1px solid #e2e6ea" }}>やめる</button>
+            <button type="button" onClick={send} disabled={pending} style={{ ...btn, color: "var(--text-on-accent)", background: "#8a5a1f", border: "none", opacity: pending ? 0.6 : 1 }}>{pending ? "送信中…" : "送る"}</button>
           </div>
         </div>
       )}
@@ -293,18 +293,18 @@ function PracticeTab({ studentId, working, recordings }: { studentId: string; wo
   return (
     <>
       <Card>
-        <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 8 }}>取り組んでいる曲・教材</div>
+        <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 8 }}>取り組んでいる曲・教材</div>
         {working.length === 0 ? (
-          <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>まだ録音がありません。</div>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ録音がありません。</div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {working.map((w, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, fontSize: 13 }}>
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, fontSize: "var(--fs-body)" }}>
                 <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: "#6b7885", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", marginRight: 6 }}>{w.cat}</span>
-                  <b style={{ color: "#2b3742" }}>{w.title}</b>
+                  <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", marginRight: 6 }}>{w.cat}</span>
+                  <b style={{ color: "var(--text-ink)" }}>{w.title}</b>
                 </span>
-                <span style={{ fontSize: 12, fontWeight: 800, color: scoreColor(w.avg), flex: "none" }}>{w.avg}点</span>
+                <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: scoreColor(w.avg), flex: "none" }}>{w.avg}点</span>
               </div>
             ))}
           </div>
@@ -312,31 +312,31 @@ function PracticeTab({ studentId, working, recordings }: { studentId: string; wo
       </Card>
 
       <Card>
-        <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 8 }}>直近の録音（アルコの聴きとりつき）</div>
+        <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 8 }}>直近の録音（アルコの聴きとりつき）</div>
         {recordings.length === 0 ? (
-          <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>まだ録音がありません。</div>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ録音がありません。</div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {recordings.map((r) => (
               <div key={r.id} style={{ border: "1px solid #eef1f4", borderRadius: 10, padding: "9px 11px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
                   <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    <span style={{ fontSize: 9.5, fontWeight: 800, color: "#6b7885", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{r.cat}</span>
-                    <b style={{ fontSize: 13, color: "#2b3742" }}>{r.title}</b>
+                    <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{r.cat}</span>
+                    <b style={{ fontSize: "var(--fs-body)", color: "var(--text-ink)" }}>{r.title}</b>
                   </span>
-                  <span style={{ fontSize: 11, color: "#9aa6b3", flex: "none" }}>{r.date}</span>
+                  <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", flex: "none" }}>{r.date}</span>
                 </div>
-                <div style={{ display: "flex", gap: 12, fontSize: 11.5, marginTop: 5 }}>
-                  <span style={{ color: "#6b7885" }}>音程 <b style={{ color: scoreColor(r.pitch) }}>{r.pitch}</b></span>
-                  <span style={{ color: "#6b7885" }}>リズム <b style={{ color: scoreColor(r.timing) }}>{r.timing}</b></span>
-                  <span style={{ color: "#6b7885" }}>平均 <b style={{ color: scoreColor(r.avg) }}>{r.avg}</b></span>
+                <div style={{ display: "flex", gap: 12, fontSize: "var(--fs-caption)", marginTop: 5 }}>
+                  <span style={{ color: "var(--text-sub)" }}>音程 <b style={{ color: scoreColor(r.pitch) }}>{r.pitch}</b></span>
+                  <span style={{ color: "var(--text-sub)" }}>リズム <b style={{ color: scoreColor(r.timing) }}>{r.timing}</b></span>
+                  <span style={{ color: "var(--text-sub)" }}>平均 <b style={{ color: scoreColor(r.avg) }}>{r.avg}</b></span>
                 </div>
                 {r.weak.length > 0 && (
                   <div style={{ marginTop: 7, display: "flex", flexDirection: "column", gap: 3 }}>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: "#9aa6b3" }}>崩れやすかった所</div>
+                    <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>崩れやすかった所</div>
                     {r.weak.map((w, i) => (
-                      <div key={i} style={{ fontSize: 11.5, color: "#4a5766" }}>
-                        <span style={{ fontSize: 9.5, fontWeight: 800, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{w.tree}</span>
+                      <div key={i} style={{ fontSize: "var(--fs-caption)", color: "var(--text-body)" }}>
+                        <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{w.tree}</span>
                         {/* 生徒側と同じ「成功率」の向きで表示 (2026-08-02 会話の温度を揃える)。詳細は括弧で補足 */}
                         {w.name} 成功率{Math.max(0, Math.round(100 - (w.miss / Math.max(1, w.target)) * 100))}%（{w.target}音中{w.miss}ミス）
                       </div>
@@ -347,7 +347,7 @@ function PracticeTab({ studentId, working, recordings }: { studentId: string; wo
                   // eslint-disable-next-line jsx-a11y/media-has-caption
                   <audio controls preload="none" src={r.audioUrl} style={{ width: "100%", height: 34, marginTop: 8 }} />
                 ) : (
-                  <div style={{ fontSize: 11, color: "#b3bcc6", marginTop: 6 }}>音声を読み込めませんでした</div>
+                  <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 6 }}>音声を読み込めませんでした</div>
                 )}
                 <RecCommentBox studentId={studentId} performanceId={r.id} kind={r.kind} />
               </div>
@@ -381,7 +381,7 @@ function Messages({ studentId, studentName, messages }: { studentId: string; stu
     <Card>
       <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 12, maxHeight: 380, overflowY: "auto" }}>
         {messages.length === 0 ? (
-          <div style={{ fontSize: 12.5, color: "#9aa6b3", textAlign: "center", padding: "12px 0" }}>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", textAlign: "center", padding: "12px 0" }}>
             {studentName} さんとのメッセージはまだありません。
           </div>
         ) : (
@@ -391,10 +391,10 @@ function Messages({ studentId, studentName, messages }: { studentId: string; stu
               background: m.fromTeacher ? "#2b3742" : "#fff", color: m.fromTeacher ? "#fff" : "#2b3742",
               border: m.fromTeacher ? "none" : "1px solid #e7eaee", borderRadius: 12,
               borderBottomRightRadius: m.fromTeacher ? 3 : 12, borderBottomLeftRadius: m.fromTeacher ? 12 : 3,
-              padding: "7px 11px", fontSize: 12.5, lineHeight: 1.45,
+              padding: "7px 11px", fontSize: "var(--fs-body)", lineHeight: 1.45,
             }}>
               {m.body}
-              <div style={{ fontSize: 9.5, opacity: 0.7, marginTop: 3, textAlign: "right" }}>{m.time}</div>
+              <div style={{ fontSize: "var(--fs-label)", opacity: 0.7, marginTop: 3, textAlign: "right" }}>{m.time}</div>
             </div>
           ))
         )}
@@ -403,13 +403,13 @@ function Messages({ studentId, studentName, messages }: { studentId: string; stu
         <input value={text} onChange={(e) => setText(e.target.value)} maxLength={1000}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) send() }}
           placeholder={`${studentName} さんへ返信…`}
-          style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: 13 }} />
+          style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: "var(--fs-body)" }} />
         <button type="button" onClick={send} disabled={pending || !text.trim()}
-          style={{ border: "none", borderRadius: 9, padding: "0 16px", fontSize: 12.5, fontWeight: 800, color: "#fff", background: "#8a5a1f", cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
+          style={{ border: "none", borderRadius: 9, padding: "0 16px", fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#8a5a1f", cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
           送る
         </button>
       </div>
-      {err && <div style={{ fontSize: 11.5, color: "#c0392b", marginTop: 6 }}>{err}</div>}
+      {err && <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-error)", marginTop: 6 }}>{err}</div>}
     </Card>
   )
 }
@@ -429,12 +429,12 @@ function Overview({ b, studentId, observations, expressions = [], scoreTargets =
       {/* 生徒の目標 (目標共有・2026-08-02) */}
       {b.goal && (
         <Card>
-          <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 8, display: "flex", alignItems: "center", gap: 5 }}><Target size={14} /> 生徒の目標</div>
-          <div style={{ fontSize: 14.5, fontWeight: 800, color: "#2b3742" }}>
+          <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 8, display: "flex", alignItems: "center", gap: 5 }}><Target size={14} /> 生徒の目標</div>
+          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)" }}>
             {b.goal.songName}
-            {b.goal.songStar != null && <span style={{ fontSize: 11.5, fontWeight: 800, color: "#b7823a", marginLeft: 6 }}>★{b.goal.songStar}</span>}
+            {b.goal.songStar != null && <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", marginLeft: 6 }}>★{b.goal.songStar}</span>}
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 6, fontSize: 11.5, color: "#6b7885" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 6, fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>
             {b.goal.goalDate && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> 目標時期 {b.goal.goalDate}</span>}
             {b.goal.epicWin && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Sparkles size={12} /> かなえたいこと：{b.goal.epicWin}</span>}
           </div>
@@ -442,22 +442,22 @@ function Overview({ b, studentId, observations, expressions = [], scoreTargets =
       )}
 
       <Card>
-        <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 6 }}>レッスン前ブリーフィング</div>
-        <div style={{ fontSize: 14, color: "#2b3742" }}>
+        <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 6 }}>レッスン前ブリーフィング</div>
+        <div style={{ fontSize: "var(--fs-subhead)", color: "var(--text-ink)" }}>
           直近7日の練習：<b>{b.practiceCount7d}</b> 回
         </div>
       </Card>
 
       <Card>
-        <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 8 }}>直近の演奏</div>
+        <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 8 }}>直近の演奏</div>
         {b.recent5.length === 0 ? (
-          <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>まだ評価済みの演奏がありません。</div>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ評価済みの演奏がありません。</div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {b.recent5.map((r, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
-                <span style={{ color: "#2b3742", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title}</span>
-                <span style={{ color: "#6b7885", flex: "none", marginLeft: 8 }}>{r.avg}点 ・ {r.date}</span>
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "var(--fs-body)" }}>
+                <span style={{ color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title}</span>
+                <span style={{ color: "var(--text-sub)", flex: "none", marginLeft: 8 }}>{r.avg}点 ・ {r.date}</span>
               </div>
             ))}
           </div>
@@ -465,14 +465,14 @@ function Overview({ b, studentId, observations, expressions = [], scoreTargets =
       </Card>
 
       <Card>
-        <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 8 }}>達成・マスター</div>
+        <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 8 }}>達成・マスター</div>
         {b.achievements.length === 0 ? (
-          <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>まだ達成した曲はありません。</div>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ達成した曲はありません。</div>
         ) : (
           <>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {b.achievements.map((a, i) => (
-                <span key={i} style={{ fontSize: 12, fontWeight: 700, color: a.mastered ? "#b5651d" : "#2e8b57", background: a.mastered ? "#fdf3df" : "#eafaf0", border: "1px solid", borderColor: a.mastered ? "#eecfa0" : "#cbe8d6", borderRadius: 999, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                <span key={i} style={{ fontSize: "var(--fs-body)", fontWeight: 700, color: a.mastered ? "#b5651d" : "#2e8b57", background: a.mastered ? "#fdf3df" : "#eafaf0", border: "1px solid", borderColor: a.mastered ? "#eecfa0" : "#cbe8d6", borderRadius: 999, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 4 }}>
                   {a.mastered ? <Trophy size={12} color="#b5651d" /> : <Sparkles size={12} color="#2e8b57" />} {a.title}
                 </span>
               ))}
@@ -510,7 +510,7 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
 
   const tagChip = (t: { id: string; label: string }) => (
     <button key={t.id} type="button" onClick={() => toggleTag(t.id)}
-      style={{ fontSize: 11.5, fontWeight: 700, borderRadius: 9, padding: "6px 11px", cursor: "pointer", border: "1px solid", borderColor: selected.has(t.id) ? "#4a5bd0" : "#e2e6ea", background: selected.has(t.id) ? "#eef0fc" : "#fff", color: selected.has(t.id) ? "#4a5bd0" : "#4a5766" }}>
+      style={{ fontSize: "var(--fs-caption)", fontWeight: 700, borderRadius: 9, padding: "6px 11px", cursor: "pointer", border: "1px solid", borderColor: selected.has(t.id) ? "#4a5bd0" : "#e2e6ea", background: selected.has(t.id) ? "#eef0fc" : "#fff", color: selected.has(t.id) ? "#4a5bd0" : "#4a5766" }}>
       {t.label}
     </button>
   )
@@ -544,10 +544,10 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
   return (
     <Card>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", display: "inline-flex", alignItems: "center", gap: 5 }}><ClipboardList size={14} /> 先生の所見（癖の記録）</span>
+        <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", display: "inline-flex", alignItems: "center", gap: 5 }}><ClipboardList size={14} /> 先生の所見（癖の記録）</span>
         {!open && (
           <button type="button" onClick={() => { setOpen(true); setMsg(null) }}
-            style={{ marginLeft: "auto", fontSize: 11.5, fontWeight: 800, color: "#2b3742", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 8, padding: "6px 12px", cursor: "pointer" }}>
+            style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 8, padding: "6px 12px", cursor: "pointer" }}>
             ＋ 記録する
           </button>
         )}
@@ -561,7 +561,7 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
               const on = mode.kind === "view" && mode.view === v.id
               return (
                 <button key={v.id} type="button" onClick={() => { setMode({ kind: "view", view: v.id }); setSpotId(null) }}
-                  style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  style={{ fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885", display: "inline-flex", alignItems: "center", gap: 4 }}>
                   <v.Icon size={12} /> {v.short}
                 </button>
               )
@@ -570,13 +570,13 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
               const on = mode.kind === "cat" && mode.catId === c.id
               return (
                 <button key={c.id} type="button" onClick={() => setMode({ kind: "cat", catId: c.id })}
-                  style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  style={{ fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885", display: "inline-flex", alignItems: "center", gap: 4 }}>
                   <c.Icon size={12} /> {c.label}
                 </button>
               )
             })}
             <button type="button" onClick={() => setMode({ kind: "all" })}
-              style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px dashed", borderColor: mode.kind === "all" ? "#2b3742" : "#cdd3d9", background: mode.kind === "all" ? "#2b3742" : "#fff", color: mode.kind === "all" ? "#fff" : "#8a95a1", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              style={{ fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px dashed", borderColor: mode.kind === "all" ? "#2b3742" : "#cdd3d9", background: mode.kind === "all" ? "#2b3742" : "#fff", color: mode.kind === "all" ? "#fff" : "#8a95a1", display: "inline-flex", alignItems: "center", gap: 4 }}>
               <FileText size={12} /> 全タグ
             </button>
           </div>
@@ -595,13 +595,13 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
                     const on = spotId === s.id
                     return (
                       <button key={s.id} type="button" onClick={() => setSpotId((cur) => (cur === s.id ? null : s.id))}
-                        style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, transform: "translate(-50%, -50%)", fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1.5px solid", borderColor: on ? "#4a5bd0" : cnt > 0 ? "#4a5bd0" : "#c9a87c", background: on ? "#4a5bd0" : "#fff", color: on ? "#fff" : cnt > 0 ? "#4a5bd0" : "#7a6a55", boxShadow: "0 1px 4px rgba(60,50,30,.18)", whiteSpace: "nowrap" }}>
+                        style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, transform: "translate(-50%, -50%)", fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1.5px solid", borderColor: on ? "#4a5bd0" : cnt > 0 ? "#4a5bd0" : "#c9a87c", background: on ? "#4a5bd0" : "#fff", color: on ? "#fff" : cnt > 0 ? "#4a5bd0" : "#7a6a55", boxShadow: "0 1px 4px rgba(60,50,30,.18)", whiteSpace: "nowrap" }}>
                         {s.label}{cnt > 0 ? ` ${cnt}` : ""}
                       </button>
                     )
                   })}
                 </div>
-                <div style={{ fontSize: 10, color: "#9aa6b3", marginTop: 5 }}>{view.caption} — 気になる場所をタップ</div>
+                <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 5 }}>{view.caption} — 気になる場所をタップ</div>
                 {/* タップした部位のタグ */}
                 {activeSpot && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
@@ -623,7 +623,7 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
               <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 8 }}>
                 {OBSERVATION_CATALOG.map((c) => (
                   <button key={c.id} type="button" onClick={() => setAllCatId(c.id)}
-                    style={{ fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1px solid", borderColor: allCatId === c.id ? "#4a5bd0" : "#e2e6ea", background: allCatId === c.id ? "#eef0fc" : "#fff", color: allCatId === c.id ? "#4a5bd0" : "#6b7885", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    style={{ fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1px solid", borderColor: allCatId === c.id ? "#4a5bd0" : "#e2e6ea", background: allCatId === c.id ? "#eef0fc" : "#fff", color: allCatId === c.id ? "#4a5bd0" : "#6b7885", display: "inline-flex", alignItems: "center", gap: 4 }}>
                     <c.Icon size={12} /> {c.label}
                   </button>
                 ))}
@@ -635,7 +635,7 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
           )}
           {/* 選択中 (他分類も含む) */}
           {selected.size > 0 && (
-            <div style={{ fontSize: 10.5, color: "#6b7885", marginTop: 8 }}>
+            <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 8 }}>
               選択中: {[...selected].map((id) => OBSERVATION_TAG_BY_ID[id]?.label).filter(Boolean).join("・")}
             </div>
           )}
@@ -643,25 +643,25 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
           <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
             {OBSERVATION_SEVERITIES.map((s) => (
               <button key={s.id} type="button" onClick={() => setSeverity((cur) => (cur === s.id ? "" : s.id))}
-                style={{ flex: 1, fontSize: 11.5, fontWeight: 800, borderRadius: 8, padding: "7px 0", cursor: "pointer", border: "1px solid", borderColor: severity === s.id ? "#2b3742" : "#e2e6ea", background: severity === s.id ? "#2b3742" : "#fff", color: severity === s.id ? "#fff" : "#6b7885" }}>
+                style={{ flex: 1, fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 8, padding: "7px 0", cursor: "pointer", border: "1px solid", borderColor: severity === s.id ? "#2b3742" : "#e2e6ea", background: severity === s.id ? "#2b3742" : "#fff", color: severity === s.id ? "#fff" : "#6b7885" }}>
                 {s.label}
               </button>
             ))}
           </div>
           <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} maxLength={500}
             placeholder="補足コメント（任意・「その他」の内容もここに）"
-            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 12.5, marginTop: 10, resize: "vertical" }} />
+            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", marginTop: 10, resize: "vertical" }} />
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
             <button type="button" onClick={() => setOpen(false)}
-              style={{ flex: 1, fontSize: 12, fontWeight: 800, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 9, padding: 9, cursor: "pointer" }}>キャンセル</button>
+              style={{ flex: 1, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 9, padding: 9, cursor: "pointer" }}>キャンセル</button>
             <button type="button" onClick={save} disabled={pending}
-              style={{ flex: 2, fontSize: 12, fontWeight: 800, color: "#fff", background: "#8a5a1f", border: "none", borderRadius: 9, padding: 9, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+              style={{ flex: 2, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#8a5a1f", border: "none", borderRadius: 9, padding: 9, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
               {pending ? "保存中…" : "記録する"}
             </button>
           </div>
         </div>
       )}
-      {msg && <div style={{ fontSize: 12, margin: "0 0 8px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
+      {msg && <div style={{ fontSize: "var(--fs-body)", margin: "0 0 8px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
 
       {/* 癖マップ (レッスン前後のひと目確認): タグごとに最新の所見を体の場所で表示。
           レッスン直後はここから経過をワンタップ記録 (まだ/🌿良くなってきた/🌱克服) */}
@@ -674,7 +674,7 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
 
       {/* 履歴 */}
       {observations.length === 0 ? (
-        !open && <div style={{ fontSize: 12, color: "#9aa6b3" }}>まだ所見はありません。レッスン後に気づいた癖を記録すると、生徒に届き、カルテに蓄積されます。</div>
+        !open && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ所見はありません。レッスン後に気づいた癖を記録すると、生徒に届き、カルテに蓄積されます。</div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {observations.slice(0, 10).map((o) => {
@@ -682,15 +682,15 @@ function ObservationSection({ studentId, observations }: { studentId: string; ob
             return (
               <div key={o.id} style={{ border: "1px solid #eef1f4", borderRadius: 10, padding: "9px 11px" }}>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 5, alignItems: "center" }}>
-                  {sev && <span style={{ fontSize: 10, fontWeight: 800, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "2px 8px" }}>{sev.l}</span>}
+                  {sev && <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "2px 8px" }}>{sev.l}</span>}
                   {o.tagIds.map((t) => (
-                    <span key={t} style={{ fontSize: 10.5, fontWeight: 700, color: "#4a5bd0", background: "#eef0fc", border: "1px solid #d7dcf6", borderRadius: 8, padding: "3px 8px" }}>
+                    <span key={t} style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-link)", background: "#eef0fc", border: "1px solid #d7dcf6", borderRadius: 8, padding: "3px 8px" }}>
                       {OBSERVATION_TAG_BY_ID[t]?.label ?? t}
                     </span>
                   ))}
-                  <span style={{ marginLeft: "auto", fontSize: 10, color: "#aab2bb" }}>{o.date}</span>
+                  <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>{o.date}</span>
                 </div>
-                {o.comment && <div style={{ fontSize: 12, color: "#4a5766", marginTop: 5, lineHeight: 1.55, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{o.comment}</span></div>}
+                {o.comment && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", marginTop: 5, lineHeight: 1.55, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{o.comment}</span></div>}
               </div>
             )
           })}
@@ -708,17 +708,17 @@ function ExpressionSection({ studentId, expressions, scoreTargets }: { studentId
   const past = expressions.filter((e) => e.comment)
   return (
     <Card>
-      <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}><Palette size={14} /> 表現の認定</div>
-      <div style={{ fontSize: 11, color: "#9aa6b3", marginBottom: 4 }}>
+      <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}><Palette size={14} /> 表現の認定</div>
+      <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginBottom: 4 }}>
         「この曲でこの表現ができていた」を認定すると、曲の★がそのまま生徒の表現力レベルになります。
       </div>
       <ExprClearBox studentId={studentId} scoreTargets={scoreTargets} />
       {past.length > 0 && (
         <div style={{ marginTop: 10 }}>
-          <div style={{ fontSize: 10.5, fontWeight: 800, color: "#9aa6b3" }}>これまでの表現メモ（旧記録）</div>
+          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)" }}>これまでの表現メモ（旧記録）</div>
           {past.slice(0, 3).map((e) => (
-            <div key={e.id} style={{ fontSize: 11, color: "#8a9099", marginTop: 3 }}>
-              {expressionLabel(e.tagId)}: 「{e.comment}」 <span style={{ fontSize: 9.5 }}>{e.date}</span>
+            <div key={e.id} style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 3 }}>
+              {expressionLabel(e.tagId)}: 「{e.comment}」 <span style={{ fontSize: "var(--fs-label)" }}>{e.date}</span>
             </div>
           ))}
         </div>
@@ -747,17 +747,17 @@ function ExprClearBox({ studentId, scoreTargets }: { studentId: string; scoreTar
     })
   }
 
-  const sel: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "7px 10px", fontSize: 12, marginTop: 6 }
+  const sel: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "7px 10px", fontSize: "var(--fs-body)", marginTop: 6 }
   return (
     <div style={{ marginTop: 12, borderTop: "1px dashed #e2e6ea", paddingTop: 10 }}>
       {!open ? (
         <button type="button" onClick={() => { setOpen(true); setMsg(null) }}
-          style={{ width: "100%", border: "1px dashed #d8c9a4", background: "#fdfaf2", color: "#8a5a1f", borderRadius: 10, padding: 9, fontSize: 12, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+          style={{ width: "100%", border: "1px dashed #d8c9a4", background: "#fdfaf2", color: "var(--text-master)", borderRadius: 10, padding: 9, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
           <Palette size={13} /> 表現クリアを認定する（曲の★が表現力レベルになります）
         </button>
       ) : (
         <div>
-          <div style={{ fontSize: 11.5, fontWeight: 800, color: "#6b7885" }}>この曲で、この表現ができていた:</div>
+          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)" }}>この曲で、この表現ができていた:</div>
           <select value={tag} onChange={(e) => setTag(e.target.value)} style={sel}>
             <option value="">表現をえらぶ</option>
                           {MOOD_TAG_DEFS.map((t) => (
@@ -770,15 +770,15 @@ function ExprClearBox({ studentId, scoreTargets }: { studentId: string; scoreTar
           </select>
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <button type="button" onClick={() => setOpen(false)}
-              style={{ flex: 1, fontSize: 12, fontWeight: 800, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 9, padding: 8, cursor: "pointer" }}>キャンセル</button>
+              style={{ flex: 1, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 9, padding: 8, cursor: "pointer" }}>キャンセル</button>
             <button type="button" onClick={submit} disabled={pending || !tag || !scoreId}
-              style={{ flex: 2, fontSize: 12, fontWeight: 800, color: "#fff", background: "#8a5a1f", border: "none", borderRadius: 9, padding: 8, cursor: "pointer", opacity: pending || !tag || !scoreId ? 0.5 : 1 }}>
+              style={{ flex: 2, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#8a5a1f", border: "none", borderRadius: 9, padding: 8, cursor: "pointer", opacity: pending || !tag || !scoreId ? 0.5 : 1 }}>
               {pending ? "記録中…" : <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Palette size={13} /> クリア認定</span>}
             </button>
           </div>
         </div>
       )}
-      {msg && <div style={{ fontSize: 12, marginTop: 6, color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
+      {msg && <div style={{ fontSize: "var(--fs-body)", marginTop: 6, color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
     </div>
   )
 }
@@ -788,7 +788,7 @@ function AssignmentExprClearButton({ studentId, moodTagId, scoreId }: { studentI
   const [state, setState] = useState<"idle" | "saving" | "done" | "error">("idle")
   const [star, setStar] = useState<number | null>(null)
   if (state === "done") {
-    return <span style={{ fontSize: 10.5, fontWeight: 800, color: "#2e8b57" }}>✓ 表現クリア認定{star != null ? `（★${star}相当）` : ""}</span>
+    return <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)" }}>✓ 表現クリア認定{star != null ? `（★${star}相当）` : ""}</span>
   }
   return (
     <button type="button" disabled={state === "saving"}
@@ -797,7 +797,7 @@ function AssignmentExprClearButton({ studentId, moodTagId, scoreId }: { studentI
         const r = await recordExpressionClear({ studentId, moodTagId, scoreId })
         if (r.ok) { setStar(r.star); setState("done") } else setState("error")
       }}
-      style={{ fontSize: 10.5, fontWeight: 800, color: "#fff", background: "#8a5a1f", border: "none", borderRadius: 999, padding: "3px 10px", cursor: "pointer", opacity: state === "saving" ? 0.6 : 1 }}>
+      style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#8a5a1f", border: "none", borderRadius: 999, padding: "3px 10px", cursor: "pointer", opacity: state === "saving" ? 0.6 : 1 }}>
       {state === "saving" ? "記録中…" : state === "error" ? "失敗・もう一度" : "表現できていた → クリア認定"}
     </button>
   )
@@ -823,28 +823,28 @@ function CelebrateBox({ studentId, latest }: { studentId: string; latest: { titl
     })
   }
 
-  if (done) return <div style={{ fontSize: 12, fontWeight: 800, color: "#2e8b57", marginTop: 10, display: "flex", alignItems: "center", gap: 5 }}><PartyPopper size={14} /> お祝いを送りました！生徒に届きます。</div>
+  if (done) return <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-good)", marginTop: 10, display: "flex", alignItems: "center", gap: 5 }}><PartyPopper size={14} /> お祝いを送りました！生徒に届きます。</div>
 
   return (
     <div style={{ marginTop: 10 }}>
       {!open ? (
         <button type="button" onClick={() => setOpen(true)}
-          style={{ fontSize: 12, fontWeight: 800, color: "#b5651d", background: "#fdf3df", border: "1px solid #eecfa0", borderRadius: 9, padding: "7px 14px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5 }}>
+          style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-master)", background: "#fdf3df", border: "1px solid #eecfa0", borderRadius: 9, padding: "7px 14px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5 }}>
           <PartyPopper size={13} /> 一緒に祝う（お祝いを送る）
         </button>
       ) : (
         <div>
           <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={500} placeholder={defaultMsg}
-            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 12.5, resize: "vertical" }} />
+            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", resize: "vertical" }} />
           <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
             <button type="button" onClick={() => { setOpen(false); setText("") }}
-              style={{ fontSize: 11.5, fontWeight: 800, color: "#6b7885", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 8, padding: "6px 12px", cursor: "pointer" }}>やめる</button>
+              style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 8, padding: "6px 12px", cursor: "pointer" }}>やめる</button>
             <button type="button" onClick={send} disabled={pending}
-              style={{ fontSize: 11.5, fontWeight: 800, color: "#fff", background: "#b5651d", border: "none", borderRadius: 8, padding: "6px 14px", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+              style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#b5651d", border: "none", borderRadius: 8, padding: "6px 14px", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
               {pending ? "送信中…" : <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><PartyPopper size={13} /> 送る</span>}
             </button>
           </div>
-          {err && <div style={{ fontSize: 11, color: "#c0392b", marginTop: 5 }}>{err}</div>}
+          {err && <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-error)", marginTop: 5 }}>{err}</div>}
         </div>
       )}
     </div>
@@ -883,8 +883,8 @@ function SendScoreBox({ studentId }: { studentId: string }) {
     })
   }
 
-  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 13, marginTop: 4 }
-  const lbl: React.CSSProperties = { fontSize: 11.5, fontWeight: 700, color: "#6b7885" }
+  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", marginTop: 4 }
+  const lbl: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-sub)" }
 
   return (
     <>
@@ -892,13 +892,13 @@ function SendScoreBox({ studentId }: { studentId: string }) {
         <button
           type="button"
           onClick={() => { setOpen(true); setMsg(null) }}
-          style={{ width: "100%", border: "1px dashed #b7c0ca", background: "#fff", color: "#2b3742", borderRadius: 12, padding: 12, fontSize: 13, fontWeight: 800, cursor: "pointer", marginBottom: 14, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+          style={{ width: "100%", border: "1px dashed #b7c0ca", background: "#fff", color: "var(--text-ink)", borderRadius: 12, padding: 12, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", marginBottom: 14, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}
         >
           <FileMusic size={15} /> 楽譜を渡す（MusicXML）
         </button>
       ) : (
         <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: 16, marginBottom: 14 }}>
-          <div style={{ fontSize: 12.5, fontWeight: 800, color: "#2b3742", marginBottom: 10, display: "flex", alignItems: "center", gap: 5 }}><FileMusic size={14} /> 楽譜を渡す</div>
+          <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", marginBottom: 10, display: "flex", alignItems: "center", gap: 5 }}><FileMusic size={14} /> 楽譜を渡す</div>
           <label style={lbl}>MusicXMLファイル（.xml / .musicxml / .mxl・5MBまで）
             <input type="file" accept=".xml,.musicxml,.mxl" style={{ ...inp, padding: "7px 8px" }}
               onChange={(e) => {
@@ -917,14 +917,14 @@ function SendScoreBox({ studentId }: { studentId: string }) {
             <input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="例: 次のレッスンまでに1ページ目をさらっておいてね" style={inp} maxLength={200} />
           </label>
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-            <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, border: "1px solid #e2e6ea", background: "#fff", color: "#6b7885", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>キャンセル</button>
-            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "#8a5a1f", color: "#fff", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+            <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, border: "1px solid #e2e6ea", background: "#fff", color: "var(--text-sub)", borderRadius: 10, padding: 10, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer" }}>キャンセル</button>
+            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "#8a5a1f", color: "var(--text-on-accent)", borderRadius: 10, padding: 10, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
               {pending ? "アップロード中…" : "生徒に渡す"}
             </button>
           </div>
         </div>
       )}
-      {msg && <div style={{ fontSize: 12, margin: "0 0 10px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
+      {msg && <div style={{ fontSize: "var(--fs-body)", margin: "0 0 10px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
     </>
   )
 }
@@ -988,8 +988,8 @@ function Homework({
     })
   }
 
-  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: 13, marginTop: 4 }
-  const lbl: React.CSSProperties = { fontSize: 11.5, fontWeight: 700, color: "#6b7885" }
+  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", marginTop: 4 }
+  const lbl: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-sub)" }
 
   return (
     <>
@@ -998,7 +998,7 @@ function Homework({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          style={{ width: "100%", border: "1px dashed #b7c0ca", background: "#fff", color: "#2b3742", borderRadius: 12, padding: 12, fontSize: 13, fontWeight: 800, cursor: "pointer", marginBottom: 14 }}
+          style={{ width: "100%", border: "1px dashed #b7c0ca", background: "#fff", color: "var(--text-ink)", borderRadius: 12, padding: 12, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", marginBottom: 14 }}
         >
           ＋ 宿題を出す
         </button>
@@ -1007,7 +1007,7 @@ function Homework({
           <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
             {([["score", "曲"], ["item", "教材"]] as const).map(([k, label]) => (
               <button key={k} type="button" onClick={() => { setKind(k); setTargetId(""); setFilter("") }}
-                style={{ flex: 1, border: "1px solid", borderColor: kind === k ? "#8a5a1f" : "#e8e0cc", background: kind === k ? "#8a5a1f" : "rgba(255,255,255,.7)", color: kind === k ? "#fff" : "#9a8c74", borderRadius: 8, padding: "6px 0", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>
+                style={{ flex: 1, border: "1px solid", borderColor: kind === k ? "#8a5a1f" : "#e8e0cc", background: kind === k ? "#8a5a1f" : "rgba(255,255,255,.7)", color: kind === k ? "#fff" : "#9a8c74", borderRadius: 8, padding: "6px 0", fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer" }}>
                 {label}
               </button>
             ))}
@@ -1030,7 +1030,7 @@ function Homework({
             </select>
           </label>
           {targets.length === 0 && (
-            <div style={{ fontSize: 11.5, color: "#9aa6b3", marginTop: 4 }}>選べる{kind === "score" ? "曲" : "教材"}がありません。</div>
+            <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 4 }}>選べる{kind === "score" ? "曲" : "教材"}がありません。</div>
           )}
 
           <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
@@ -1049,7 +1049,7 @@ function Homework({
                 key={g}
                 type="button"
                 onClick={() => setGoalType((cur) => (cur === g ? "" : g))}
-                style={{ flex: 1, border: "1px solid", borderColor: goalType === g ? "#8a5a1f" : "#e8e0cc", background: goalType === g ? "#8a5a1f" : "rgba(255,255,255,.7)", color: goalType === g ? "#fff" : "#9a8c74", borderRadius: 8, padding: "6px 0", fontSize: 12, fontWeight: 800, cursor: "pointer" }}
+                style={{ flex: 1, border: "1px solid", borderColor: goalType === g ? "#8a5a1f" : "#e8e0cc", background: goalType === g ? "#8a5a1f" : "rgba(255,255,255,.7)", color: goalType === g ? "#fff" : "#9a8c74", borderRadius: 8, padding: "6px 0", fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer" }}
               >
                 {label}
               </button>
@@ -1061,7 +1061,7 @@ function Homework({
             </label>
           )}
           {goalType === "master" && (
-            <div style={{ fontSize: 11, color: "#9aa6b3", marginTop: 6 }}>マスター＝達成＋直近5回の平均90点以上（曲のみ）</div>
+            <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 6 }}>マスター＝達成＋直近5回の平均90点以上（曲のみ）</div>
           )}
 
           {/* 意識する表現 (2026-08-05): 統一雰囲気タグから1つ。「この曲では◯◯を意識しよう」 */}
@@ -1078,33 +1078,33 @@ function Homework({
             <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} maxLength={500} placeholder="例: 移弦を先に準備しよう" style={{ ...inp, resize: "vertical" }} />
           </label>
 
-          {err && <div style={{ fontSize: 12, color: "#c0392b", marginTop: 8 }}>{err}</div>}
+          {err && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-error)", marginTop: 8 }}>{err}</div>}
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-            <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, border: "1px solid #e2e6ea", background: "#fff", color: "#6b7885", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>キャンセル</button>
-            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "#8a5a1f", color: "#fff", borderRadius: 10, padding: 10, fontSize: 12.5, fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+            <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, border: "1px solid #e2e6ea", background: "#fff", color: "var(--text-sub)", borderRadius: 10, padding: 10, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer" }}>キャンセル</button>
+            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "#8a5a1f", color: "var(--text-on-accent)", borderRadius: 10, padding: 10, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
               {pending ? "送信中…" : "宿題を出す"}
             </button>
           </div>
         </div>
       )}
 
-      <div style={{ fontSize: 12, fontWeight: 800, color: "#6b7885", margin: "4px 0 8px" }}>これまでの宿題</div>
+      <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", margin: "4px 0 8px" }}>これまでの宿題</div>
       {assignments.length === 0 ? (
-        <div style={{ fontSize: 12.5, color: "#9aa6b3" }}>まだ宿題はありません。</div>
+        <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ宿題はありません。</div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {assignments.map((a) => (
             <div key={a.id} style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 12, padding: "10px 12px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline" }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: "#2b3742" }}>{a.targetTitle}</span>
+                <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)" }}>{a.targetTitle}</span>
                 {(() => {
-                  if (!a.submitted) return <span style={{ fontSize: 11, fontWeight: 800, color: "#b7823a", flex: "none" }}>未提出</span>
+                  if (!a.submitted) return <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", flex: "none" }}>未提出</span>
                   const passed = scorePassed(a.goalType, a.targetScore, a.submittedScore)
                   const base = `提出済${a.submittedScore != null ? ` ${a.submittedScore}点` : ""}`
-                  return <span style={{ fontSize: 11, fontWeight: 800, color: passed === false ? "#c0392b" : "#2e8b57", flex: "none" }}>{base}{passed === true ? " ・合格" : passed === false ? " ・あと少し" : ""}</span>
+                  return <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: passed === false ? "#c0392b" : "#2e8b57", flex: "none" }}>{base}{passed === true ? " ・合格" : passed === false ? " ・あと少し" : ""}</span>
                 })()}
               </div>
-              <div style={{ fontSize: 12, color: "#6b7885", marginTop: 3 }}>
+              <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginTop: 3 }}>
                 {[a.reps && `×${a.reps}`, a.targetTempo && `♩=${a.targetTempo}`].filter(Boolean).join(" ・ ") || "（詳細指定なし）"}
               </div>
               {(dueInfo(a.dueDate) || goalLabel(a.goalType, a.targetScore)) && (
@@ -1114,13 +1114,13 @@ function Homework({
                     if (!di) return null
                     const c = DUE_COLOR[di.state]
                     return (
-                      <span style={{ fontSize: 10.5, fontWeight: 800, color: c.fg, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 999, padding: "2px 8px" }}>
+                      <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: c.fg, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 999, padding: "2px 8px" }}>
                         期限 {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}
                       </span>
                     )
                   })()}
                   {goalLabel(a.goalType, a.targetScore) && (
-                    <span style={{ fontSize: 10.5, fontWeight: 800, color: "#3b56d4", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "2px 8px" }}>
+                    <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "2px 8px" }}>
                       {goalLabel(a.goalType, a.targetScore)}
                     </span>
                   )}
@@ -1128,18 +1128,18 @@ function Homework({
                     const gr = goalResult(a.goalType, { achieved: a.achieved, mastered: a.mastered })
                     if (!gr || a.goalType === "score") return null
                     return (
-                      <span style={{ fontSize: 10.5, fontWeight: 800, color: gr.met ? "#2e8b57" : "#9aa6b3", background: gr.met ? "#e9f7ef" : "#f1f4f8", border: `1px solid ${gr.met ? "#cbe8d6" : "#e2e6ea"}`, borderRadius: 999, padding: "2px 8px" }}>
+                      <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: gr.met ? "#2e8b57" : "#9aa6b3", background: gr.met ? "#e9f7ef" : "#f1f4f8", border: `1px solid ${gr.met ? "#cbe8d6" : "#e2e6ea"}`, borderRadius: 999, padding: "2px 8px" }}>
                         {gr.label}
                       </span>
                     )
                   })()}
                 </div>
               )}
-              {a.comment && <div style={{ fontSize: 12.5, color: "#2b3742", marginTop: 4, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{a.comment}</span></div>}
+              {a.comment && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-ink)", marginTop: 4, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{a.comment}</span></div>}
               {/* 🎨 意識する表現 (2026-08-06・案C 宿題側入口): 提出済みなら聴いてクリア認定できる */}
               {a.moodTagId && (
                 <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
-                  <span style={{ fontSize: 10.5, fontWeight: 800, color: "#8a5a1f", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "2px 8px", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "2px 8px", display: "inline-flex", alignItems: "center", gap: 4 }}>
                     <Palette size={11} /> {moodTagPhrase(a.moodTagId)}
                   </span>
                   {a.submitted && a.scoreId && (
@@ -1147,7 +1147,7 @@ function Homework({
                   )}
                 </div>
               )}
-              <div style={{ fontSize: 10.5, color: "#b3bcc6", marginTop: 4 }}>{a.createdAt}</div>
+              <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 4 }}>{a.createdAt}</div>
             </div>
           ))}
         </div>

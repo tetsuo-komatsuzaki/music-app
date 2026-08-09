@@ -212,10 +212,10 @@ function getScoreRank(score: number): ScoreRank {
 }
 
 const rankLabels: Record<ScoreRank, { label: string; color: string; bg: string }> = {
-  excellent:     { label: "ばっちり",   color: "#085041", bg: "#E1F5EE" },
-  good:          { label: "いい調子",   color: "#0C447C", bg: "#E6F1FB" },
-  ok:            { label: "あと少し",   color: "#633806", bg: "#FAEEDA" },
-  needsPractice: { label: "練習しよう", color: "#791F1F", bg: "#FCEBEB" },
+  excellent:     { label: "ばっちり",   color: "var(--text-good)", bg: "#E1F5EE" },
+  good:          { label: "いい調子",   color: "var(--text-link)", bg: "#E6F1FB" },
+  ok:            { label: "あと少し",   color: "var(--text-master)", bg: "#FAEEDA" },
+  needsPractice: { label: "練習しよう", color: "var(--text-error)", bg: "#FCEBEB" },
 }
 
 // 演奏スコア = 音程・リズム正確率の平均。総合点(overallScore)廃止に伴う曲の代表点。
@@ -269,21 +269,21 @@ function saveOriginalColors(el: Element) {
 
 function NotePopoverContent({ note }: { note: ComparisonNote }) {
   if (note.evaluation_status === "not_detected") {
-    return <div style={{ fontSize: 16, fontWeight: 700 }}>この音は聞きとれなかったよ</div>
+    return <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 700 }}>この音は聞きとれなかったよ</div>
   }
   if (note.evaluation_status === "not_evaluated" || note.evaluation_status === "section_missing") {
-    return <div style={{ fontSize: 16, fontWeight: 700 }}>採点なし</div>
+    return <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 700 }}>採点なし</div>
   }
   const expected = note.note_name
   const detected = note.detected_pitch_hz ? hzToNoteName(note.detected_pitch_hz) : null
   return (
     <>
-      <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>
+      <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 700, marginBottom: 4 }}>
         {note.pitch_ok
           ? `${expected} 正確`
           : `${expected} → ${detected ?? "?"}`}
       </div>
-      <div style={{ fontSize: 12, color: "#666", lineHeight: 1.6 }}>
+      <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.6 }}>
         {note.pitch_cents_error != null && !note.pitch_ok && (
           <div>
             {centsToLabel(note.pitch_cents_error)}（{note.pitch_cents_error > 0 ? "+" : ""}
@@ -324,7 +324,7 @@ function EvaluationSummaryCard({
   return (
     <div>
       {showEval && (
-        <div style={{ fontSize: 11, color: "#9aa6b3", fontWeight: 600 }}>
+        <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", fontWeight: 600 }}>
           採点した音 {performance.evaluatedNotes}{totalNotes != null ? ` / ${totalNotes}` : ""}
         </div>
       )}
@@ -419,7 +419,7 @@ function PerformanceHistory({
       {loading ? (
         <PerformanceSkeleton count={Math.min(performanceCount, 5)} />
       ) : performances.length === 0 ? (
-        <div style={{ fontSize: 13, color: "#999" }}>まだ演奏がないよ。録音してみよう！</div>
+        <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ演奏がないよ。録音してみよう！</div>
       ) : (
         <>
           {pageItems.map((p) => {
@@ -620,8 +620,8 @@ function seriesPoints(values: number[], w: number, h: number, pad: number, minV:
 function TrajStat({ v, l }: { v: string; l: string }) {
   return (
     <div style={{ flex: 1, background: "#f7f9fc", borderRadius: 11, padding: "9px 4px", textAlign: "center" }}>
-      <div style={{ fontSize: 16, fontWeight: 800, color: "#2b3742", fontVariantNumeric: "tabular-nums" }}>{v}</div>
-      <div style={{ fontSize: 10, color: "#9aa6b3", fontWeight: 700, marginTop: 2 }}>{l}</div>
+      <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)", fontVariantNumeric: "tabular-nums" }}>{v}</div>
+      <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 700, marginTop: 2 }}>{l}</div>
     </div>
   )
 }
@@ -680,7 +680,7 @@ function ProgressTrajectory({
       onClick={() => setAxis(key)}
       style={{
         flex: 1, border: "none", background: axis === key ? "#fff" : "transparent",
-        fontSize: 11.5, fontWeight: 800, color: axis === key ? TRAJ_COLOR[key] : "#8b97a3",
+        fontSize: "var(--fs-caption)", fontWeight: 800, color: axis === key ? TRAJ_COLOR[key] : "#8b97a3",
         padding: "6px 0", borderRadius: 8, cursor: "pointer",
         boxShadow: axis === key ? "0 1px 2px rgba(30,45,70,.08)" : "none",
       }}
@@ -691,22 +691,22 @@ function ProgressTrajectory({
 
   return (
     <div className={styles.card}>
-      <h3 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 800 }}>{title ?? "上達のようす"}</h3>
+      <h3 style={{ margin: "0 0 14px", fontSize: "var(--fs-subhead)", fontWeight: 800 }}>{title ?? "上達のようす"}</h3>
 
       <div style={{ display: "flex", alignItems: "flex-end", gap: 12, marginBottom: 12 }}>
         <div>
           <div>
-            <span style={{ fontSize: 40, fontWeight: 800, lineHeight: .95, color, fontVariantNumeric: "tabular-nums" }}>{latest}</span>
-            <span style={{ fontSize: 15, fontWeight: 700, color }}>点</span>
+            <span style={{ fontSize: "var(--fs-display)", fontWeight: 800, lineHeight: .95, color, fontVariantNumeric: "tabular-nums" }}>{latest}</span>
+            <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 700, color }}>点</span>
           </div>
         </div>
         <span style={{
-          display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 800,
+          display: "inline-flex", alignItems: "center", gap: 4, fontSize: "var(--fs-body)", fontWeight: 800,
           color: delta >= 0 ? "#2e8b57" : "#cc5470", background: delta >= 0 ? "#e9f7ef" : "#fdeef0",
           borderRadius: 999, padding: "4px 10px", marginBottom: 4,
         }}>
           {delta >= 0 ? "▲" : "▼"} {delta >= 0 ? "+" : ""}{delta}
-          <span style={{ color: "#9aa6b3", fontWeight: 700 }}>直近{recent5.length}回</span>
+          <span style={{ color: "var(--text-muted)", fontWeight: 700 }}>直近{recent5.length}回</span>
         </span>
       </div>
 
@@ -728,12 +728,12 @@ function ProgressTrajectory({
           <circle cx={lastPt[0]} cy={lastPt[1]} r="4.4" fill={color} stroke="#fff" strokeWidth="2" />
         </svg>
         {goalY > PAD && goalY < H - PAD && (
-          <span style={{ position: "absolute", right: 2, top: Math.max(0, goalY * (120 / H) - 14), fontSize: 9.5, fontWeight: 800, color: "#b5651d" }}>
+          <span style={{ position: "absolute", right: 2, top: Math.max(0, goalY * (120 / H) - 14), fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-master)" }}>
             達成 {GOAL_SCORE}点
           </span>
         )}
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#b3bcc6", marginTop: 2 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 2 }}>
         <span>{new Date(evaluated[0].uploadedAt).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}</span>
         <span>いま</span>
       </div>
@@ -917,7 +917,7 @@ function ScoreViewer({
       <h3>楽譜</h3>
       <div className={styles.scoreMock}>
         {error ? (
-          <div style={{ color: "#c62828", padding: "20px 0" }}>{error}</div>
+          <div style={{ color: "var(--text-error)", padding: "20px 0" }}>{error}</div>
         ) : (
           <>
             <div id="osmd-container" className={styles.osmdContainer} onClick={(e) => onScoreClickRef.current?.(e)} style={{ cursor: "pointer" }} />
@@ -952,7 +952,7 @@ function AudioPlayer({
 }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "2px 0" }}>
-      <span style={{ fontSize: 12, fontWeight: 600, color: "#555", whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 5 }}><Volume2 size={14} /> この演奏を聴く</span>
+      <span style={{ fontSize: "var(--fs-body)", fontWeight: 600, color: "var(--text-body)", whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 5 }}><Volume2 size={14} /> この演奏を聴く</span>
       <audio
         key={performanceId}
         controls
@@ -1003,10 +1003,10 @@ class ScoreCrashBoundary extends Component<{ children: ReactNode }, { epoch: num
       // 自動復旧が連続で失敗 → 無限ループを避けて手動リロードを案内
       return (
         <div style={{ padding: "40px 20px", textAlign: "center" }}>
-          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 8 }}>画面の表示に問題が起きました</div>
-          <div style={{ fontSize: 12, color: "#8a9099", marginBottom: 14 }}>録音データは保存されています。ページを再読み込みしてください。</div>
+          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, marginBottom: 8 }}>画面の表示に問題が起きました</div>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginBottom: 14 }}>録音データは保存されています。ページを再読み込みしてください。</div>
           <button type="button" onClick={() => window.location.reload()}
-            style={{ fontSize: 13, fontWeight: 800, color: "#fff", background: "#2b3742", border: "none", borderRadius: 9, padding: "10px 22px", cursor: "pointer" }}>
+            style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#2b3742", border: "none", borderRadius: 9, padding: "10px 22px", cursor: "pointer" }}>
             再読み込み
           </button>
         </div>
@@ -2761,7 +2761,7 @@ function ScoreDetailInner({
             右に各パートの自己ベスト。おすすめ非表示・点数のみは振り返り側の仕様 (2026-07-26)。 */}
         {isScoreMode && parts.length > 0 && analysis && (
           <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 12, padding: "11px 13px", marginBottom: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 800, color: "#3a4653", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}><Target size={14} color="#2563EB" /> パート練習</div>
+            <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}><Target size={14} color="#2563EB" /> パート練習</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
               <button
                 type="button"
@@ -2769,7 +2769,7 @@ function ScoreDetailInner({
                 style={{
                   border: `1.5px solid ${selectedPartId == null ? "#2e8b57" : "#e3e9f0"}`,
                   background: selectedPartId == null ? "#eef7f1" : "#fff",
-                  color: "#2b3742", borderRadius: 999, padding: "6px 12px", fontSize: 12.5, fontWeight: 700, cursor: "pointer",
+                  color: "var(--text-ink)", borderRadius: 999, padding: "6px 12px", fontSize: "var(--fs-body)", fontWeight: 700, cursor: "pointer",
                 }}
               >
                 通し
@@ -2789,21 +2789,21 @@ function ScoreDetailInner({
                       border: `1.5px solid ${on ? "#2e8b57" : "#e3e9f0"}`,
                       background: on ? "#eef7f1" : "#fff",
                       color: resolvable ? "#2b3742" : "#b3bcc6",
-                      borderRadius: 999, padding: "6px 12px", fontSize: 12.5, fontWeight: 700,
+                      borderRadius: 999, padding: "6px 12px", fontSize: "var(--fs-body)", fontWeight: 700,
                       cursor: resolvable ? "pointer" : "not-allowed",
                       display: "inline-flex", alignItems: "center", gap: 7,
                     }}
                   >
                     <span>{p.name}</span>
                     {best != null && (
-                      <span style={{ fontSize: 11, fontWeight: 800, color: "#2e8b57" }}>{best}点</span>
+                      <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)" }}>{best}点</span>
                     )}
                   </button>
                 )
               })}
             </div>
             {selectedPartId != null && (
-              <div style={{ fontSize: 11, color: "#9aa6b3", marginTop: 7, lineHeight: 1.6 }}>
+              <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 7, lineHeight: 1.6 }}>
                 パート練習は「できるまでくり返す」ための練習モード。<b>あえて採点はひかえめ</b>にして、
                 点数や曲の達成には数えないよ（記録はこのパートの自己ベストにだけ残る）。
               </div>
@@ -2859,7 +2859,7 @@ function ScoreDetailInner({
                       {sc != null ? (
                         <span style={{ color: rankLabels[getScoreRank(sc)].color }}>{sc}<small>点</small></span>
                       ) : (
-                        <span style={{ fontSize: 12, color: "#999" }}>採点中…</span>
+                        <span style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>採点中…</span>
                       )}
                     </span>
                   )
@@ -2925,10 +2925,10 @@ function ScoreDetailInner({
         {/* 採点カルテのひとこと (2026-08-06統一): 先生が「カルテを返す」で書いたコメント */}
         {teacherComment && (
           <div style={{ border: "1.5px solid #eed9a0", background: "linear-gradient(150deg,#fffdf6,#fdf6e6)", borderRadius: 12, padding: "9px 13px", margin: "10px 0 4px" }}>
-            <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: ".12em", color: "#a98b2f", display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, letterSpacing: ".12em", color: "var(--text-master)", display: "flex", alignItems: "center", gap: 5 }}>
               <PenLine size={12} /> {teacherNameForKarte ? `${teacherNameForKarte}先生` : "先生"}の採点カルテ
             </div>
-            <div style={{ fontSize: 12.5, color: "#4a4030", marginTop: 3, lineHeight: 1.7 }}>「{teacherComment}」</div>
+            <div style={{ fontSize: "var(--fs-body)", color: "var(--text-ink)", marginTop: 3, lineHeight: 1.7 }}>「{teacherComment}」</div>
           </div>
         )}
 
@@ -2940,7 +2940,7 @@ function ScoreDetailInner({
             aria-pressed={showTeacherFeedback}
             style={{
               display: "inline-flex", alignItems: "center", gap: 6, margin: "0 0 8px",
-              fontSize: 12, fontWeight: 800, cursor: "pointer",
+              fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer",
               color: showTeacherFeedback ? "#fff" : "#3b56d4",
               background: showTeacherFeedback ? "#4a6cf7" : "#eef1fe",
               border: `1px solid ${showTeacherFeedback ? "#4a6cf7" : "#d6ddff"}`,
@@ -3140,14 +3140,14 @@ function ScoreDetailInner({
             }}
           >
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <span style={{ fontSize: 12, color: "#666" }}>現在のレベル</span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: rankLabels[getScoreRank(recentLevel.avg)].color }}>
+              <span style={{ fontSize: "var(--fs-body)", color: "var(--text-body)" }}>現在のレベル</span>
+              <span style={{ fontSize: "var(--fs-body)", fontWeight: 600, color: rankLabels[getScoreRank(recentLevel.avg)].color }}>
                 {rankLabels[getScoreRank(recentLevel.avg)].label}
               </span>
             </div>
-            <div style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, color: rankLabels[getScoreRank(recentLevel.avg)].color }}>
+            <div style={{ fontSize: "var(--fs-display)", fontWeight: 700, lineHeight: 1, color: rankLabels[getScoreRank(recentLevel.avg)].color }}>
               {recentLevel.avg}
-              <span style={{ fontSize: 14, fontWeight: 500 }}>点</span>
+              <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 500 }}>点</span>
             </div>
           </div>
         )}
@@ -3155,12 +3155,12 @@ function ScoreDetailInner({
         {/* 履歴レビュー中(演奏を選択中)は録音ボタンを隠し、演奏モードへ戻すリードを表示 */}
         {selected ? (
           <div style={{ textAlign: "center", padding: "18px 16px", background: "linear-gradient(135deg,#F0F7FF,#FDF8E7)", border: "1px solid #DCE7F5", borderRadius: 14 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#1a1a1a", marginBottom: 4, display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
+            <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 700, color: "var(--text-ink)", marginBottom: 4, display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/Icon.png" alt="" aria-hidden width={20} height={20} style={{ borderRadius: 5 }} /> もう一度演奏してみよう！
             </div>
-            <div style={{ fontSize: 13, color: "#666", marginBottom: 14 }}>この演奏をふまえて、もう一度チャレンジ</div>
-            <button type="button" onClick={() => selectPerformanceById(null)} style={{ background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "#fff", border: "none", borderRadius: 10, padding: "11px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>演奏する</button>
+            <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", marginBottom: 14 }}>この演奏をふまえて、もう一度チャレンジ</div>
+            <button type="button" onClick={() => selectPerformanceById(null)} style={{ background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "var(--text-on-accent)", border: "none", borderRadius: 10, padding: "11px 28px", fontSize: "var(--fs-subhead)", fontWeight: 700, cursor: "pointer" }}>演奏する</button>
           </div>
         ) : onboardingRecordStep ? (
           // オンボの録音ステップだけ、実録音せず「ふりかえり(見本)へ進むだけ」のボタンに差し替える。
@@ -3169,7 +3169,7 @@ function ScoreDetailInner({
             <button
               type="button"
               onClick={() => handleTabChange("review")}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", padding: "14px 16px", background: "linear-gradient(100deg,#e5392b,#f0603a)", color: "#fff", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: "pointer" }}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", padding: "14px 16px", background: "linear-gradient(100deg,#e5392b,#f0603a)", color: "var(--text-on-accent)", border: "none", borderRadius: 12, fontSize: "var(--fs-subhead)", fontWeight: 800, cursor: "pointer" }}
             >
               <span aria-hidden style={{ width: 10, height: 10, borderRadius: "50%", background: "#fff", display: "inline-block" }} />
               録音して AI 採点

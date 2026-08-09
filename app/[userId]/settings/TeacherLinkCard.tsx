@@ -21,8 +21,8 @@ export default function TeacherLinkCard() {
 
   return (
     <section style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: "16px 18px", margin: "0 0 16px" }}>
-      <h2 style={{ fontSize: 15, fontWeight: 800, color: "#2b3742", margin: "0 0 4px" }}>先生とつながる</h2>
-      <p style={{ fontSize: 12.5, color: "#6b7885", margin: "0 0 12px" }}>
+      <h2 style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)", margin: "0 0 4px" }}>先生とつながる</h2>
+      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 12px" }}>
         先生からもらった招待コードを入力すると、先生とつながって宿題を受け取れます。
       </p>
       <div style={{ display: "flex", gap: 8 }}>
@@ -31,19 +31,19 @@ export default function TeacherLinkCard() {
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           placeholder="コード"
           maxLength={12}
-          style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 8, padding: "9px 12px", fontSize: 14, letterSpacing: ".1em", fontFamily: "ui-monospace, Menlo, Consolas, monospace" }}
+          style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 8, padding: "9px 12px", fontSize: "var(--fs-subhead)", letterSpacing: ".1em", fontFamily: "ui-monospace, Menlo, Consolas, monospace" }}
         />
         <button
           type="button"
           onClick={connect}
           disabled={pending || code.trim().length < 4}
-          style={{ border: "none", borderRadius: 8, padding: "0 18px", fontSize: 13, fontWeight: 800, color: "#fff", background: "#2b3742", cursor: "pointer", opacity: pending || code.trim().length < 4 ? 0.5 : 1 }}
+          style={{ border: "none", borderRadius: 8, padding: "0 18px", fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#2b3742", cursor: "pointer", opacity: pending || code.trim().length < 4 ? 0.5 : 1 }}
         >
           {pending ? "…" : "つながる"}
         </button>
       </div>
       {msg && (
-        <div style={{ fontSize: 12.5, marginTop: 10, color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>
+        <div style={{ fontSize: "var(--fs-body)", marginTop: 10, color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>
       )}
     </section>
   )

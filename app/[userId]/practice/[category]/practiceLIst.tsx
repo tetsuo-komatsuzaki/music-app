@@ -138,7 +138,7 @@ function TechChips({ names }: { names: string[] }) {
     <>
       {names.slice(0, 2).map((n) => (
         <span key={n} style={{
-          fontSize: 9, fontWeight: 800, color: "#7a6420", background: "#fdf3d8",
+          fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-master)", background: "#fdf3d8",
           border: "1px solid #eed9a0", borderRadius: 999, padding: "1px 7px", whiteSpace: "nowrap",
         }}>⭐ {n}</span>
       ))}
@@ -670,7 +670,7 @@ export default function PracticeList({
     <div className={styles.container}>
       <div className={styles.listHeader}>
         <h1 className={styles.pageTitle}>{categoryTitle}</h1>
-        <Link href={`/${userId}/practice`} style={{ fontSize: 13, color: "#4a90d9" }}>
+        <Link href={`/${userId}/practice`} style={{ fontSize: "var(--fs-body)", color: "var(--text-link)" }}>
           ← 練習メニュー
         </Link>
       </div>

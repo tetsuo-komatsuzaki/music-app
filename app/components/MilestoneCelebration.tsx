@@ -124,15 +124,15 @@ export default function MilestoneCelebration(props: MilestoneCelebrationProps) {
         <div style={{ position: "relative", width: 96, height: 96, margin: "2px auto 6px", animation: reduced ? undefined : "mc-hop 1.1s ease-in-out infinite" }}>
           <ArcoChan pose={poseByCat(spec.arcoPose)} />
         </div>
-        <div style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase", color: theme.main, marginBottom: 2 }}>
+        <div style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: 5, fontSize: "var(--fs-caption)", fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase", color: theme.main, marginBottom: 2 }}>
           {(() => { const Ic = TYPE_ICON[ev.type] ?? Sparkles; return <Ic size={13} /> })()} {TIER_LABEL[ev.type]}
         </div>
-        <div style={{ position: "relative", fontSize: 22, fontWeight: 900, color: theme.main, marginBottom: 4, animation: reduced ? undefined : "mc-pop .5s cubic-bezier(.2,1.4,.4,1)" }}>
+        <div style={{ position: "relative", fontSize: "var(--fs-title)", fontWeight: 900, color: theme.main, marginBottom: 4, animation: reduced ? undefined : "mc-pop .5s cubic-bezier(.2,1.4,.4,1)" }}>
           {copy.title}
         </div>
-        <div style={{ position: "relative", fontSize: 12.5, color: "#4a5766", marginBottom: 14, opacity: 0.95 }}>{copy.sub}</div>
+        <div style={{ position: "relative", fontSize: "var(--fs-body)", color: "var(--text-body)", marginBottom: 14, opacity: 0.95 }}>{copy.sub}</div>
         {sel.absorbedBest && step === 0 && (
-          <div style={{ position: "relative", fontSize: 11.5, fontWeight: 800, color: "#3f74c4", background: "#eef4fc", borderRadius: 999, padding: "4px 10px", display: "inline-block", margin: "0 auto 12px" }}>
+          <div style={{ position: "relative", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)", background: "#eef4fc", borderRadius: 999, padding: "4px 10px", display: "inline-block", margin: "0 auto 12px" }}>
 <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><TrendingUp size={13} /> 自己ベストも更新！</span>
           </div>
         )}
@@ -172,5 +172,5 @@ export default function MilestoneCelebration(props: MilestoneCelebrationProps) {
   )
 }
 
-const primaryBtn: React.CSSProperties = { border: "none", borderRadius: 12, padding: 12, fontSize: 12.5, fontWeight: 800, color: "#fff", cursor: "pointer" }
-const ghostBtn: React.CSSProperties = { border: "none", borderRadius: 12, padding: 11, fontSize: 12.5, fontWeight: 800, background: "rgba(255,255,255,.85)", color: "#55616e", cursor: "pointer" }
+const primaryBtn: React.CSSProperties = { border: "none", borderRadius: 12, padding: 12, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", cursor: "pointer" }
+const ghostBtn: React.CSSProperties = { border: "none", borderRadius: 12, padding: 11, fontSize: "var(--fs-body)", fontWeight: 800, background: "rgba(255,255,255,.85)", color: "var(--text-body)", cursor: "pointer" }

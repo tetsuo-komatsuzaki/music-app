@@ -64,15 +64,15 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
         <div style={{ position: "relative", padding: "20px 18px 14px", textAlign: "center", background: ACCENT_SOFT, borderRadius: "20px 20px 0 0" }}>
           <button
             type="button" onClick={onClose} aria-label="閉じる"
-            style={{ position: "absolute", top: 12, right: 12, border: "none", background: "transparent", fontSize: 22, lineHeight: 1, cursor: "pointer", color: "#9aa6b3" }}
+            style={{ position: "absolute", top: 12, right: 12, border: "none", background: "transparent", fontSize: "var(--fs-title)", lineHeight: 1, cursor: "pointer", color: "var(--text-muted)" }}
           >
             ×
           </button>
           <div style={{ width: 72, height: 72, margin: "0 auto 6px" }}>
             <ArcoChan pose={pose as unknown as Parameters<typeof ArcoChan>[0]["pose"]} />
           </div>
-          <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0, color: INK }}>上達のしくみ</h2>
-          <p style={{ fontSize: 13, fontWeight: 700, color: ACCENT, margin: "6px 0 0", lineHeight: 1.5 }}>
+          <h2 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: 0, color: INK }}>上達のしくみ</h2>
+          <p style={{ fontSize: "var(--fs-body)", fontWeight: 700, color: ACCENT, margin: "6px 0 0", lineHeight: 1.5 }}>
             弾いて、どこが苦手か“目で見て”わかる。<br />だから直せる、だから上達する。
           </p>
         </div>
@@ -82,14 +82,14 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
           <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
             {STEPS.map((s, i) => (
               <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 11 }}>
-                <span style={{ flex: "0 0 auto", width: 26, height: 26, borderRadius: "50%", background: ACCENT, color: "#fff", fontSize: 12.5, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center", marginTop: 1 }}>
+                <span style={{ flex: "0 0 auto", width: 26, height: 26, borderRadius: "50%", background: ACCENT, color: "var(--text-on-accent)", fontSize: "var(--fs-body)", fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center", marginTop: 1 }}>
                   {i + 1}
                 </span>
                 <span style={{ minWidth: 0 }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14.5, fontWeight: 800, color: INK }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "var(--fs-subhead)", fontWeight: 800, color: INK }}>
                     <s.Icon size={16} color={ACCENT} /> {s.title}
                   </span>
-                  <span style={{ display: "block", fontSize: 12.5, color: SUB, lineHeight: 1.55, marginTop: 2 }}>
+                  <span style={{ display: "block", fontSize: "var(--fs-body)", color: SUB, lineHeight: 1.55, marginTop: 2 }}>
                     {s.desc}
                   </span>
                 </span>
@@ -98,24 +98,24 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
           </div>
 
           {/* 締めの一言 */}
-          <div style={{ background: ACCENT_SOFT, border: `1px solid #cbe8d6`, borderRadius: 12, padding: "11px 14px", textAlign: "center", fontSize: 13.5, fontWeight: 800, color: ACCENT, marginBottom: 20 }}>
+          <div style={{ background: ACCENT_SOFT, border: `1px solid #cbe8d6`, borderRadius: 12, padding: "11px 14px", textAlign: "center", fontSize: "var(--fs-body)", fontWeight: 800, color: ACCENT, marginBottom: 20 }}>
             わかるから直せる。直せるから、上達する。
           </div>
 
           {/* ことば */}
-          <h3 style={{ fontSize: 12, fontWeight: 800, margin: "0 0 8px", color: SUB }}>ことばの意味</h3>
+          <h3 style={{ fontSize: "var(--fs-body)", fontWeight: 800, margin: "0 0 8px", color: SUB }}>ことばの意味</h3>
           <dl style={{ margin: 0 }}>
             {TERMS.map((t) => (
               <div key={t.term} style={{ marginBottom: 8 }}>
-                <dt style={{ fontSize: 13, fontWeight: 800, color: INK }}>{t.term}</dt>
-                <dd style={{ fontSize: 12.5, color: SUB, margin: "2px 0 0", lineHeight: 1.5 }}>{t.desc}</dd>
+                <dt style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: INK }}>{t.term}</dt>
+                <dd style={{ fontSize: "var(--fs-body)", color: SUB, margin: "2px 0 0", lineHeight: 1.5 }}>{t.desc}</dd>
               </div>
             ))}
           </dl>
 
           <button
             type="button" onClick={onClose}
-            style={{ marginTop: 16, width: "100%", padding: "11px 0", borderRadius: 12, border: "none", background: INK, color: "#fff", fontSize: 14, fontWeight: 800, cursor: "pointer" }}
+            style={{ marginTop: 16, width: "100%", padding: "11px 0", borderRadius: 12, border: "none", background: INK, color: "var(--text-on-accent)", fontSize: "var(--fs-subhead)", fontWeight: 800, cursor: "pointer" }}
           >
             とじる
           </button>

@@ -7,7 +7,7 @@
   padding: 6px 14px;
   border-radius: 999px;
   border: 1px solid;
-  font-size: 13px;
+  font-size: var(--fs-body);
   font-weight: 600;
   white-space: nowrap;
   line-height: 1.3;
@@ -31,7 +31,7 @@ button.badge:focus-visible {
 }
 
 .emoji {
-  font-size: 16px;
+  font-size: var(--fs-subhead);
   line-height: 1;
 }
 
@@ -43,13 +43,13 @@ button.badge:focus-visible {
 .badge_BEGINNER {
   background: #e8f5e9;
   border-color: #a5d6a7;
-  color: #2e7d32;
+  color: var(--text-good);
 }
 
 .badge_INTERMEDIATE {
   background: #e3f2fd;
   border-color: #90caf9;
-  color: #1565c0;
+  color: var(--text-link);
 }
 
 .badge_ADVANCED {
@@ -61,13 +61,13 @@ button.badge:focus-visible {
 .badge_MASTER {
   background: #fff8e1;
   border-color: #ffe082;
-  color: #b8860b;
+  color: var(--text-master);
 }
 
 /* v1.6 Phase 4-2 Q1=a-1: ★10 Master 到達演出 (金色 + 🌟) */
 .badgeMasterAchieved {
   background: linear-gradient(135deg, #fff3b8 0%, #ffd700 50%, #ffb300 100%);
   border-color: #ffa000;
-  color: #6d4c00;
+  color: var(--text-master);
   box-shadow: 0 2px 8px rgba(255, 179, 0, 0.4);
 }

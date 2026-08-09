@@ -6,12 +6,12 @@
 /* トースト — Animation 7: slide-in from top */
 .toast {
   position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-  padding: 10px 24px; border-radius: 24px; font-size: 14px; font-weight: 500;
+  padding: 10px 24px; border-radius: 24px; font-size: var(--fs-subhead); font-weight: 500;
   animation: toastSlide 4s ease forwards; z-index: 10; white-space: nowrap;
 }
-.toastSuccess { background: #E1F5EE; color: #085041; }
-.toastError { background: #FCEBEB; color: #791F1F; }
-.toastRing { background: #EEEDFE; color: #3C3489; }
+.toastSuccess { background: #E1F5EE; color: var(--text-good); }
+.toastError { background: #FCEBEB; color: var(--text-error); }
+.toastRing { background: #EEEDFE; color: var(--text-link); }
 @keyframes toastSlide {
   0%   { opacity: 0; transform: translateX(-50%) translateY(-16px); }
   10%  { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -22,12 +22,12 @@
 /* ① 待機 */
 .idlePanel { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 /* 課金 Phase 1: 無料ユーザーの週次採点カウント (制限発動前は情報表示のみ) */
-.quotaLine { font-size: 11.5px; color: #9aa3ae; letter-spacing: 0.02em; }
+.quotaLine { font-size: var(--fs-caption); color: var(--text-muted); letter-spacing: 0.02em; }
 .mainCta {
   display: flex; align-items: center; gap: 10px;
   padding: 16px 36px; background: #fff;
   border: 2px solid #E24B4A; border-radius: 36px;
-  color: #E24B4A; font-size: 17px; font-weight: 500; cursor: pointer;
+  color: var(--text-error); font-size: var(--fs-head); font-weight: 500; cursor: pointer;
   transition: all 0.15s;
   animation: ctaPulse 2.4s ease-in-out infinite;
 }
@@ -39,8 +39,8 @@
   50%       { box-shadow: 0 0 0 8px rgba(226,75,74,0.15); }
 }
 .ctaDot { width: 14px; height: 14px; border-radius: 50%; background: #E24B4A; }
-.safetyMsg { font-size: 12px; color: #999; }
-.prevScore { font-size: 13px; color: #666; margin-top: 2px; }
+.safetyMsg { font-size: var(--fs-body); color: var(--text-muted); }
+.prevScore { font-size: var(--fs-body); color: var(--text-body); margin-top: 2px; }
 
 /* ② 録音中 */
 .recordingPanel {
@@ -48,12 +48,12 @@
   padding: 24px 32px; background: #FFF5F5; border-radius: 20px;
   border: 1.5px solid #E24B4A; min-width: 300px;
 }
-.recordingTitle { font-size: 15px; font-weight: 500; color: #333; }
+.recordingTitle { font-size: var(--fs-subhead); font-weight: 500; color: var(--text-ink); }
 .meterContainer { width: 100%; }
 .meterTrack { height: 10px; background: #fce4ec; border-radius: 5px; overflow: hidden; }
 .meterFill { height: 100%; background: #E24B4A; border-radius: 5px; transition: width 0.08s ease-out; }
 /* Animation 2: hint fade-in on change */
-.realtimeHint { font-size: 13px; color: #666; min-height: 20px; animation: hintFade 0.3s ease; }
+.realtimeHint { font-size: var(--fs-body); color: var(--text-body); min-height: 20px; animation: hintFade 0.3s ease; }
 @keyframes hintFade {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -64,13 +64,13 @@
   animation: pulse 1s infinite;
 }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-.timer { font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; min-width: 56px; }
-.timerMax { font-size: 13px; color: #999; }
-.recHint { font-size: 12px; color: #BA7517; }
+.timer { font-size: var(--fs-title); font-weight: 500; font-variant-numeric: tabular-nums; min-width: 56px; }
+.timerMax { font-size: var(--fs-body); color: var(--text-muted); }
+.recHint { font-size: var(--fs-body); color: var(--text-master); }
 .stopBtn {
   display: flex; align-items: center; gap: 8px;
   padding: 12px 28px; background: #E24B4A; border: none;
-  border-radius: 28px; color: white; font-size: 15px; font-weight: 500; cursor: pointer;
+  border-radius: 28px; color: var(--text-on-accent); font-size: var(--fs-subhead); font-weight: 500; cursor: pointer;
 }
 .stopBtn:hover { background: #C62828; }
 .stopSquare { width: 12px; height: 12px; border-radius: 2px; background: white; }
@@ -81,7 +81,7 @@
   padding: 32px; min-width: 300px;
 }
 .countdownNum {
-  font-size: 72px; font-weight: 700; color: #E24B4A;
+  font-size: 72px; font-weight: 700; color: var(--text-error);
   animation: countdownPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   line-height: 1;
 }
@@ -90,11 +90,11 @@
   to   { opacity: 1; transform: scale(1); }
 }
 .countdownLabel {
-  font-size: 14px; color: #999; font-weight: 500;
+  font-size: var(--fs-subhead); color: var(--text-muted); font-weight: 500;
 }
 .cancelBtn {
   padding: 8px 20px; background: #fff; border: 1px solid #ddd;
-  border-radius: 20px; color: #888; font-size: 13px; cursor: pointer;
+  border-radius: 20px; color: var(--text-sub); font-size: var(--fs-body); cursor: pointer;
 }
 .cancelBtn:hover { background: #f5f5f5; }
 
@@ -108,17 +108,17 @@
 
 /* 品質チェック表示 */
 .qualityOk {
-  font-size: 14px; font-weight: 500; color: #085041;
+  font-size: var(--fs-subhead); font-weight: 500; color: var(--text-good);
   padding: 8px 16px; background: #E1F5EE; border-radius: 12px;
   width: 100%; text-align: center;
 }
 .qualityClipping {
-  font-size: 14px; font-weight: 500; color: #633806;
+  font-size: var(--fs-subhead); font-weight: 500; color: var(--text-master);
   padding: 8px 16px; background: #FAEEDA; border-radius: 12px;
   width: 100%; text-align: center;
 }
 .qualitySilent {
-  font-size: 14px; font-weight: 500; color: #791F1F;
+  font-size: var(--fs-subhead); font-weight: 500; color: var(--text-error);
   padding: 8px 16px; background: #FCEBEB; border-radius: 12px;
   width: 100%; text-align: center;
 }
@@ -131,25 +131,25 @@
 
 /* 録音時間 */
 .previewDuration {
-  font-size: 13px; color: #666;
+  font-size: var(--fs-body); color: var(--text-body);
 }
 
 .previewActions { display: flex; gap: 10px; }
 .retryBtn {
   padding: 10px 20px; background: #fff; border: 1.5px solid #888;
-  border-radius: 24px; color: #555; font-size: 14px; font-weight: 500; cursor: pointer;
+  border-radius: 24px; color: var(--text-body); font-size: var(--fs-subhead); font-weight: 500; cursor: pointer;
 }
 .retryBtn:hover { background: #f5f5f5; }
 .submitBtn {
   padding: 10px 24px; background: #1D9E75; border: none;
-  border-radius: 24px; color: white; font-size: 14px; font-weight: 500; cursor: pointer;
+  border-radius: 24px; color: var(--text-on-accent); font-size: var(--fs-subhead); font-weight: 500; cursor: pointer;
 }
 .submitBtn:hover { background: #0F6E56; }
 
 /* ④ 解析中 */
 .uploadingPanel {
   display: flex; align-items: center; gap: 10px;
-  padding: 16px 28px; color: #666; font-size: 15px;
+  padding: 16px 28px; color: var(--text-body); font-size: var(--fs-subhead);
 }
 .spinner {
   width: 20px; height: 20px; border: 2.5px solid #ddd; border-top-color: #4a90d9;
@@ -170,7 +170,7 @@
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 .personalBest {
-  font-size: 15px; font-weight: 500; color: #1D9E75;
+  font-size: var(--fs-subhead); font-weight: 500; color: var(--text-good);
   padding: 6px 20px; background: #E1F5EE; border-radius: 20px;
   animation: personalBestPop 0.5s 0.1s cubic-bezier(0.34,1.56,0.64,1) both;
 }
@@ -180,24 +180,24 @@
 }
 .scoreRow { display: flex; gap: 32px; }
 .scoreItem { text-align: center; }
-.scoreLabel { font-size: 12px; color: #999; margin-bottom: 4px; }
+.scoreLabel { font-size: var(--fs-body); color: var(--text-muted); margin-bottom: 4px; }
 .scoreValue {
-  font-size: 28px; font-weight: 500; color: #333;
+  font-size: var(--fs-display); font-weight: 500; color: var(--text-ink);
   animation: scoreCountUp 0.6s 0.15s ease both;
 }
 @keyframes scoreCountUp {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.scoreDiffUp   { font-size: 16px; color: #1D9E75; margin-left: 6px; animation: diffBadge 0.4s 0.4s ease both; }
-.scoreDiffDown { font-size: 16px; color: #E24B4A; margin-left: 6px; animation: diffBadge 0.4s 0.4s ease both; }
-.scoreDiffSame { font-size: 16px; color: #999; margin-left: 6px; animation: diffBadge 0.4s 0.4s ease both; }
+.scoreDiffUp   { font-size: var(--fs-subhead); color: var(--text-good); margin-left: 6px; animation: diffBadge 0.4s 0.4s ease both; }
+.scoreDiffDown { font-size: var(--fs-subhead); color: var(--text-error); margin-left: 6px; animation: diffBadge 0.4s 0.4s ease both; }
+.scoreDiffSame { font-size: var(--fs-subhead); color: var(--text-muted); margin-left: 6px; animation: diffBadge 0.4s 0.4s ease both; }
 @keyframes diffBadge {
   from { opacity: 0; transform: translateX(-6px); }
   to   { opacity: 1; transform: translateX(0); }
 }
 .resultMessage {
-  font-size: 14px; color: #555; text-align: center; min-height: 20px;
+  font-size: var(--fs-subhead); color: var(--text-body); text-align: center; min-height: 20px;
   animation: resultMsg 0.4s 0.3s ease both;
 }
 @keyframes resultMsg {
@@ -216,19 +216,19 @@
 .rankBadge {
   padding: 4px 16px;
   border-radius: 16px;
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   font-weight: 500;
 }
 
 .overallValue {
-  font-size: 36px;
+  font-size: var(--fs-display);
   font-weight: 500;
-  color: #333;
+  color: var(--text-ink);
   animation: scoreCountUp 0.6s 0.15s ease both;
 }
 .overallUnit {
-  font-size: 16px;
-  color: #999;
+  font-size: var(--fs-subhead);
+  color: var(--text-muted);
   margin-left: 2px;
 }
 
@@ -242,15 +242,15 @@
   text-align: center;
 }
 .subLabel {
-  font-size: 12px;
-  color: #999;
+  font-size: var(--fs-body);
+  color: var(--text-muted);
   display: block;
   margin-bottom: 2px;
 }
 .subValue {
-  font-size: 18px;
+  font-size: var(--fs-head);
   font-weight: 500;
-  color: #555;
+  color: var(--text-body);
 }
 
 /* 課題フィードバックカード */
@@ -268,14 +268,14 @@
   flex: 1;
 }
 .feedbackIssue {
-  font-size: 13px;
+  font-size: var(--fs-body);
   font-weight: 500;
-  color: #333;
+  color: var(--text-ink);
   margin-bottom: 4px;
 }
 .feedbackAdvice {
-  font-size: 12px;
-  color: #666;
+  font-size: var(--fs-body);
+  color: var(--text-body);
   line-height: 1.5;
 }
 
@@ -283,12 +283,12 @@
 .retryBtnStrong {
   flex: 1;
   padding: 14px 24px; background: #E24B4A; border: none;
-  border-radius: 28px; color: white; font-size: 15px; font-weight: 500; cursor: pointer;
+  border-radius: 28px; color: var(--text-on-accent); font-size: var(--fs-subhead); font-weight: 500; cursor: pointer;
 }
 .retryBtnStrong:hover { background: #C62828; }
 .doneBtn {
   padding: 12px 20px; background: #fff; border: 1px solid #ddd;
-  border-radius: 28px; color: #666; font-size: 14px; cursor: pointer;
+  border-radius: 28px; color: var(--text-body); font-size: var(--fs-subhead); cursor: pointer;
   opacity: 0.6;
 }
 .doneBtn:hover { opacity: 1; background: #f5f5f5; }
@@ -300,8 +300,8 @@
   background: #eaf3ff;
   border: 1px solid #5a7fdf;
   border-radius: 10px;
-  color: #1758c3;
-  font-size: 13px;
+  color: var(--text-link);
+  font-size: var(--fs-body);
   font-weight: 600;
   cursor: pointer;
   margin-top: 4px;
@@ -309,7 +309,7 @@
 }
 .loopLinkBtn:hover {
   background: #5a7fdf;
-  color: #fff;
+  color: var(--text-on-accent);
 }
 
 /* ───── アクセシビリティ ───── */

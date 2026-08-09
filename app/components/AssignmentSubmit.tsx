@@ -53,7 +53,7 @@ export default function AssignmentSubmit({
     })
   }
 
-  if (done) return <span style={{ fontSize: 12, fontWeight: 800, color: "#2e8b57" }}>{done}</span>
+  if (done) return <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-good)" }}>{done}</span>
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -62,13 +62,13 @@ export default function AssignmentSubmit({
           type="button"
           onClick={openPicker}
           disabled={pending}
-          style={{ fontSize: 12.5, fontWeight: 800, color: "#fff", background: "#e0a02f", border: "none", borderRadius: 9, padding: "8px 16px", cursor: "pointer", alignSelf: "flex-start" }}
+          style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#e0a02f", border: "none", borderRadius: 9, padding: "8px 16px", cursor: "pointer", alignSelf: "flex-start" }}
         >
           {pending ? "…" : "先生に提出する"}
         </button>
       ) : (
         <div style={{ border: "1px solid #e2e6ea", borderRadius: 10, padding: 10, background: "#fff" }}>
-          <div style={{ fontSize: 11.5, fontWeight: 800, color: "#6b7885", margin: "0 0 8px" }}>どの録音を提出する？</div>
+          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", margin: "0 0 8px" }}>どの録音を提出する？</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 220, overflowY: "auto" }}>
             {items?.map((it) => (
               <button
@@ -78,8 +78,8 @@ export default function AssignmentSubmit({
                 disabled={pending}
                 style={{ display: "flex", alignItems: "center", gap: 8, textAlign: "left", border: "1px solid #eef1f4", borderRadius: 9, padding: "8px 10px", background: "#fff", cursor: "pointer", fontFamily: "inherit" }}
               >
-                <span style={{ fontSize: 12.5, fontWeight: 800, color: "#2b3742" }}>{it.name}</span>
-                <span style={{ marginLeft: "auto", fontSize: 11.5, color: "#6b7885", fontVariantNumeric: "tabular-nums" }}>
+                <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)" }}>{it.name}</span>
+                <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontVariantNumeric: "tabular-nums" }}>
                   {it.score != null ? `${it.score}点` : "—"} ・ {it.date}
                 </span>
               </button>
@@ -88,13 +88,13 @@ export default function AssignmentSubmit({
           <button
             type="button"
             onClick={() => setPicking(false)}
-            style={{ marginTop: 8, fontSize: 11.5, fontWeight: 700, color: "#6b7885", background: "none", border: "none", cursor: "pointer" }}
+            style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-sub)", background: "none", border: "none", cursor: "pointer" }}
           >
             キャンセル
           </button>
         </div>
       )}
-      {err && <span style={{ fontSize: 11, color: "#cc5470" }}>{err}</span>}
+      {err && <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-error)" }}>{err}</span>}
     </div>
   )
 }

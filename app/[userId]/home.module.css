@@ -58,13 +58,13 @@
 }
 
 .arcoIcon {
-  font-size: 22px;
+  font-size: var(--fs-title);
 }
 
 .arcoName {
-  font-size: 13px;
+  font-size: var(--fs-body);
   font-weight: 600;
-  color: #4F6B91;
+  color: var(--text-link);
   letter-spacing: 0.02em;
 }
 
@@ -81,39 +81,39 @@
   display: flex;
   align-items: baseline;
   gap: 6px;
-  font-size: 11px;
+  font-size: var(--fs-caption);
   white-space: nowrap;
 }
 
 .arcoStatLabel {
-  color: #4F6B91;
+  color: var(--text-link);
   font-weight: 500;
 }
 
 .arcoStatValue {
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-ink);
 }
 
 .arcoStatGoal {
-  font-size: 11px;
+  font-size: var(--fs-caption);
   font-weight: 400;
-  color: #999;
+  color: var(--text-muted);
   margin-left: 1px;
 }
 
 .arcoGreeting {
-  font-size: 17px;
+  font-size: var(--fs-head);
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-ink);
   margin-bottom: 6px;
   line-height: 1.4;
 }
 
 .arcoCheer {
-  font-size: 14px;
-  color: #444;
+  font-size: var(--fs-subhead);
+  color: var(--text-ink);
   line-height: 1.6;
   margin-bottom: 16px;
 }
@@ -162,29 +162,29 @@
   grid-template-columns: repeat(5, auto);
   grid-auto-rows: auto;
   gap: 4px 6px;
-  font-size: 18px;
+  font-size: var(--fs-head);
   line-height: 1;
 }
 
 .starFilled {
-  color: #f4b400;
+  color: var(--text-master);
 }
 
 .starEmpty {
-  color: #d4dae3;
+  color: var(--text-muted);
 }
 
 .starCountdown {
-  font-size: 12px;
+  font-size: var(--fs-body);
   font-weight: 600;
-  color: #4f6b91;
+  color: var(--text-link);
   white-space: nowrap;
 }
 
 .arcoRecommendLabel {
-  font-size: 11px;
+  font-size: var(--fs-caption);
   font-weight: 600;
-  color: #4F6B91;
+  color: var(--text-link);
   margin-bottom: 8px;
   letter-spacing: 0.04em;
 }
@@ -197,7 +197,7 @@
 }
 
 .arcoRecommendIcon {
-  font-size: 24px;
+  font-size: var(--fs-title);
   flex-shrink: 0;
 }
 
@@ -207,25 +207,25 @@
 }
 
 .arcoRecommendTitle {
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-ink);
   margin-bottom: 2px;
 }
 
 .arcoRecommendReason {
-  font-size: 12px;
-  color: #666;
+  font-size: var(--fs-body);
+  color: var(--text-body);
 }
 
 .arcoCta {
   display: inline-block;
   background: #1d4ed8;
-  color: #fff;
+  color: var(--text-on-accent);
   text-decoration: none;
   padding: 8px 18px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--fs-body);
   font-weight: 500;
   transition: background 0.15s;
 }
@@ -248,19 +248,19 @@
 }
 
 .streakDays {
-  font-size: 28px;
+  font-size: var(--fs-display);
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-ink);
 }
 
 .streakLabel {
-  font-size: 13px;
-  color: #666;
+  font-size: var(--fs-body);
+  color: var(--text-body);
 }
 
 .streakSub {
-  font-size: 12px;
-  color: #999;
+  font-size: var(--fs-body);
+  color: var(--text-muted);
 }
 
 /* 週間カード */
@@ -271,20 +271,20 @@
 }
 
 .weeklyTitle {
-  font-size: 12px;
-  color: #666;
+  font-size: var(--fs-body);
+  color: var(--text-body);
   font-weight: 500;
 }
 
 .weeklyCount {
-  font-size: 24px;
+  font-size: var(--fs-title);
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--text-ink);
 }
 
 .weeklyGoal {
-  font-size: 12px;
-  color: #999;
+  font-size: var(--fs-body);
+  color: var(--text-muted);
 }
 
 .weeklyBar {
@@ -319,8 +319,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
-  color: #555;
+  font-size: var(--fs-caption);
+  color: var(--text-body);
 }
 
 .ringDot {
@@ -352,8 +352,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 14px;
+  color: var(--text-on-accent);
+  font-size: var(--fs-subhead);
   flex-shrink: 0;
 }
 
@@ -362,20 +362,20 @@
 }
 
 .continueTitle {
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-ink);
 }
 
 .continueMeta {
-  font-size: 12px;
-  color: #999;
+  font-size: var(--fs-body);
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
 .continueArrow {
-  color: #ccc;
-  font-size: 18px;
+  color: var(--text-muted);
+  font-size: var(--fs-head);
 }
 
 /* ───── デイリーチャレンジ ───── */
@@ -392,24 +392,24 @@
 }
 
 .challengeBadge {
-  font-size: 11px;
+  font-size: var(--fs-caption);
   font-weight: 600;
-  color: #0a6640;
+  color: var(--text-good);
   background: #c2e8d5;
   padding: 2px 8px;
   border-radius: 20px;
 }
 
 .challengeTitle {
-  font-size: 15px;
+  font-size: var(--fs-subhead);
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-ink);
   margin-bottom: 4px;
 }
 
 .challengeMeta {
-  font-size: 12px;
-  color: #666;
+  font-size: var(--fs-body);
+  color: var(--text-body);
   margin-bottom: 12px;
 }
 
@@ -417,9 +417,9 @@
   display: inline-block;
   padding: 8px 20px;
   background: #1D9E75;
-  color: #fff;
+  color: var(--text-on-accent);
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--fs-body);
   font-weight: 600;
   text-decoration: none;
   transition: background 0.15s;
@@ -431,9 +431,9 @@
 
 /* ───── おすすめ練習 ───── */
 .sectionTitle {
-  font-size: 13px;
+  font-size: var(--fs-body);
   font-weight: 600;
-  color: #666;
+  color: var(--text-body);
   margin-bottom: 10px;
 }
 
@@ -460,7 +460,7 @@
 }
 
 .recommendIcon {
-  font-size: 18px;
+  font-size: var(--fs-head);
   width: 32px;
   text-align: center;
   flex-shrink: 0;
@@ -471,20 +471,20 @@
 }
 
 .recommendTitle {
-  font-size: 13px;
+  font-size: var(--fs-body);
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--text-ink);
 }
 
 .recommendReason {
-  font-size: 11px;
-  color: #999;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
   margin-top: 1px;
 }
 
 .recommendArrow {
-  color: #ccc;
-  font-size: 16px;
+  color: var(--text-muted);
+  font-size: var(--fs-subhead);
 }
 
 /* ───── 直近の練習 (Continue バー風レイアウト、複数バーを縦積み + 区切り線) ───── */
@@ -504,7 +504,7 @@
   .page { padding: 14px; gap: 16px; }
   .arcoCard { padding: 16px 16px; }
   .card { padding: 14px 14px; }
-  .arcoGreeting { font-size: 16px; }
+  .arcoGreeting { font-size: var(--fs-subhead); }
 }
 @media (max-width: 430px) {
   /* 上段の小型statカードは狭幅で1列に */

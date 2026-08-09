@@ -694,7 +694,7 @@ export default function LessonPlayer({
             </div>
             <div className={styles.plScore}>
               <div ref={osmdHostRef} className={styles.osmdBox} />
-              {!osmdReady && <span style={{ fontSize: "1.6cqh", color: "#afafaf" }}>楽譜を準備中…</span>}
+              {!osmdReady && <span style={{ fontSize: "1.6cqh", color: "var(--text-muted)" }}>楽譜を準備中…</span>}
             </div>
             <div className={styles.tempoLbl}>
               ♩= {guideBpm} ・ カウント{COUNT_IN_BEATS}拍のあとにスタート(採点はしないよ)

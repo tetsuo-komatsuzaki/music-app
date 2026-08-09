@@ -76,7 +76,7 @@ export default async function PracticeDetailPage({
         <h2>{item.title}</h2>
         {isError ? (
           <>
-            <p style={{ color: "#c00", marginTop: "1rem" }}>
+            <p style={{ color: "var(--text-error)", marginTop: "1rem" }}>
               楽譜の準備がうまくいかなかったよ
             </p>
             {item.errorMessage && (
@@ -84,21 +84,21 @@ export default async function PracticeDetailPage({
                 style={{
                   marginTop: "0.5rem",
                   fontSize: "0.875rem",
-                  color: "#666",
+                  color: "var(--text-body)",
                   whiteSpace: "pre-wrap",
                 }}
               >
                 {item.errorMessage}
               </pre>
             )}
-            <p style={{ marginTop: "1rem", fontSize: "0.875rem", color: "#999" }}>
+            <p style={{ marginTop: "1rem", fontSize: "0.875rem", color: "var(--text-muted)" }}>
               時間をおいて再度お試しください
             </p>
           </>
         ) : (
           <>
             <p style={{ marginTop: "1rem" }}>アルコが、楽譜を準備しているよ</p>
-            <p style={{ marginTop: "0.5rem", fontSize: "0.75rem", color: "#999" }}>
+            <p style={{ marginTop: "0.5rem", fontSize: "0.75rem", color: "var(--text-muted)" }}>
               自動で最新にするから、そのまま待っててね
             </p>
           </>
@@ -178,7 +178,7 @@ export default async function PracticeDetailPage({
       {/* パンくず */}
       <div data-section="breadcrumb" style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 24px 0" }}>
         <a href={`/${authUserId}/practice/${category}`}
-           style={{ fontSize: 13, color: "#4a90d9", textDecoration: "none" }}>
+           style={{ fontSize: "var(--fs-body)", color: "var(--text-link)", textDecoration: "none" }}>
           ← {categoryLabels[category] || category}
         </a>
       </div>
@@ -189,8 +189,8 @@ export default async function PracticeDetailPage({
           <a href={`/${authUserId}/scores/${fromScore.id}`}
              style={{ display: "flex", alignItems: "center", gap: 9, background: "#fff", border: "1px solid #dce7f5", borderRadius: 12, padding: "10px 14px", textDecoration: "none" }}>
             <Music size={15} color="#2563EB" aria-hidden style={{ flex: "none" }} />
-            <span style={{ fontSize: 12.5, color: "#4a5766", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              練習がおわったら<b style={{ color: "#2563EB" }}>「{fromScore.title}」にもどる →</b>
+            <span style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              練習がおわったら<b style={{ color: "var(--text-link)" }}>「{fromScore.title}」にもどる →</b>
             </span>
           </a>
         </div>

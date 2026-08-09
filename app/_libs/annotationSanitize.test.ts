@@ -4,7 +4,7 @@ import { sanitizeAnnotationData } from "./annotationSanitize"
 describe("sanitizeAnnotationData", () => {
   it("正常なデータはそのまま通す", () => {
     const d = {
-      highlight: [{ fromNote: 0, toNote: 3, color: "#ff0000" }],
+      highlight: [{ fromNote: 0, toNote: 3, color: "var(--text-error)" }],
       warnings: [{ noteIndex: 2, dy: 1, kind: "text", text: "気をつけて" }],
       notation: [{ noteIndex: 5, kind: "dynamic", value: "ff" }],
     }

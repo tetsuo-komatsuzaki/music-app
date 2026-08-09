@@ -27,7 +27,7 @@ export default function ShareToTeacherButton({
   }
 
   if (done) {
-    return <span style={{ fontSize: 11.5, fontWeight: 800, color: "#2e8b57" }}>先生に共有しました ✓</span>
+    return <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)" }}>先生に共有しました ✓</span>
   }
 
   return (
@@ -36,11 +36,11 @@ export default function ShareToTeacherButton({
         type="button"
         onClick={click}
         disabled={pending}
-        style={{ fontSize: 11.5, fontWeight: 800, color: "#3b56d4", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 8, padding: "6px 12px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5 }}
+        style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 8, padding: "6px 12px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5 }}
       >
         {pending ? "共有中…" : <><Headphones size={13} /> 先生に共有</>}
       </button>
-      {err && <span style={{ fontSize: 11, color: "#cc5470" }}>{err}</span>}
+      {err && <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-error)" }}>{err}</span>}
     </span>
   )
 }

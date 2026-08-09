@@ -37,7 +37,7 @@ export default async function AdminSongRequestsPage() {
   return (
     <div style={{ maxWidth: 720, margin: "0 auto", padding: 24 }}>
       <h1 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: 4 }}>曲リクエスト</h1>
-      <p style={{ fontSize: "0.85rem", color: "#666", marginBottom: 20 }}>
+      <p style={{ fontSize: "0.85rem", color: "var(--text-body)", marginBottom: 20 }}>
         オンボーディングで「弾きたい曲がリストにない」と入力された曲名の集計
         （{grouped.length}曲 / のべ{total}件）。教材追加の需要調査用。
       </p>
@@ -47,7 +47,7 @@ export default async function AdminSongRequestsPage() {
           style={{
             padding: 40,
             textAlign: "center",
-            color: "#888",
+            color: "var(--text-sub)",
             background: "#fafafa",
             borderRadius: 12,
           }}
@@ -70,7 +70,7 @@ export default async function AdminSongRequestsPage() {
                 <td style={{ padding: "10px 12px", textAlign: "right" }}>
                   {g._count.songName}
                 </td>
-                <td style={{ padding: "10px 12px", color: "#666" }}>
+                <td style={{ padding: "10px 12px", color: "var(--text-body)" }}>
                   {fmt(g._max.createdAt)}
                 </td>
               </tr>

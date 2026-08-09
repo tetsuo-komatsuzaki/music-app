@@ -62,17 +62,17 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
     })
   }
 
-  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: 13.5, marginTop: 5 }
-  const lbl: React.CSSProperties = { fontSize: 12, fontWeight: 800, color: "#2b3742" }
+  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: "var(--fs-body)", marginTop: 5 }
+  const lbl: React.CSSProperties = { fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)" }
   const card: React.CSSProperties = { background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: "14px 16px", marginBottom: 12, boxShadow: "0 1px 3px rgba(30,45,70,.05)" }
 
-  if (!loaded) return <div style={{ fontSize: 13, color: "#9aa6b3", padding: 20 }}>読み込み中…</div>
+  if (!loaded) return <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: 20 }}>読み込み中…</div>
 
   return (
     <div>
-      <Link href={`/${userId}/teacher`} style={{ fontSize: 12, color: "#6b7885", textDecoration: "none" }}>← 先生ホーム</Link>
-      <h1 style={{ fontSize: 18, fontWeight: 900, margin: "6px 0 2px" }}>プロフィール</h1>
-      <p style={{ fontSize: 12, color: "#6b7885", margin: "0 0 14px" }}>「先生を探す」に載る、あなたの紹介です（{teacherName}）。</p>
+      <Link href={`/${userId}/teacher`} style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", textDecoration: "none" }}>← 先生ホーム</Link>
+      <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "6px 0 2px" }}>プロフィール</h1>
+      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 14px" }}>「先生を探す」に載る、あなたの紹介です（{teacherName}）。</p>
 
       <div style={card}>
         <div style={lbl}>顔写真（任意）</div>
@@ -91,18 +91,18 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
             onChange={(e) => { onPhotoPick(e.target.files?.[0] ?? null); e.target.value = "" }}
           />
           <button type="button" onClick={() => fileRef.current?.click()} disabled={photoPending}
-            style={{ fontSize: 12, fontWeight: 800, color: "#2b3742", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 9, padding: "8px 14px", cursor: "pointer", opacity: photoPending ? 0.6 : 1 }}>
+            style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 9, padding: "8px 14px", cursor: "pointer", opacity: photoPending ? 0.6 : 1 }}>
             {photoPending ? "アップロード中…" : p.photoUrl ? "写真を変更" : "写真をアップロード"}
           </button>
           {p.photoUrl && !photoPending && (
             <button type="button" onClick={onPhotoRemove}
-              style={{ fontSize: 12, fontWeight: 700, color: "#c0392b", background: "none", border: "none", cursor: "pointer" }}>
+              style={{ fontSize: "var(--fs-body)", fontWeight: 700, color: "var(--text-error)", background: "none", border: "none", cursor: "pointer" }}>
               削除
             </button>
           )}
         </div>
-        {photoMsg && <div style={{ fontSize: 11.5, color: "#c0392b", marginTop: 6 }}>{photoMsg}</div>}
-        <p style={{ fontSize: 10.5, color: "#9aa6b3", margin: "6px 0 0" }}>JPEG / PNG / WebP・5MBまで。アップロードするとすぐ反映されます。</p>
+        {photoMsg && <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-error)", marginTop: 6 }}>{photoMsg}</div>}
+        <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", margin: "6px 0 0" }}>JPEG / PNG / WebP・5MBまで。アップロードするとすぐ反映されます。</p>
 
         <label style={{ ...lbl, display: "block", marginTop: 14 }}>一言キャッチ
           <input value={p.headline} onChange={(e) => setP((s) => ({ ...s, headline: e.target.value }))} placeholder="例: 移弦とリズムが得意。初心者歓迎！" style={inp} maxLength={60} />
@@ -143,12 +143,12 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
 
       <div style={{ ...card, borderColor: p.published ? "#cbe8d6" : "#eef1f4" }}>
         <Toggle label="「先生を探す」に掲載する" on={p.published} onClick={() => toggle("published")} />
-        <p style={{ fontSize: 11.5, color: "#9aa6b3", margin: "6px 0 0" }}>ONにすると、生徒の「先生を探す」に表示されます。OFFの間は非公開です。</p>
+        <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", margin: "6px 0 0" }}>ONにすると、生徒の「先生を探す」に表示されます。OFFの間は非公開です。</p>
       </div>
 
-      {msg && <div style={{ fontSize: 12.5, margin: "0 0 10px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
+      {msg && <div style={{ fontSize: "var(--fs-body)", margin: "0 0 10px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
       <button type="button" onClick={save} disabled={pending}
-        style={{ width: "100%", border: "none", borderRadius: 12, padding: 13, fontSize: 14, fontWeight: 800, color: "#fff", background: "#2b3742", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+        style={{ width: "100%", border: "none", borderRadius: 12, padding: 13, fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-on-accent)", background: "#2b3742", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
         {pending ? "保存中…" : "保存する"}
       </button>
     </div>
@@ -158,7 +158,7 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
 function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button type="button" onClick={onClick}
-      style={{ fontSize: 12, fontWeight: 700, borderRadius: 999, padding: "6px 13px", cursor: "pointer",
+      style={{ fontSize: "var(--fs-body)", fontWeight: 700, borderRadius: 999, padding: "6px 13px", cursor: "pointer",
         border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885" }}>
       {children}
     </button>
@@ -169,7 +169,7 @@ function Toggle({ label, on, onClick }: { label: string; on: boolean; onClick: (
   return (
     <button type="button" onClick={onClick}
       style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", background: "transparent", border: "none", padding: "7px 0", cursor: "pointer" }}>
-      <span style={{ fontSize: 13, fontWeight: 700, color: "#2b3742" }}>{label}</span>
+      <span style={{ fontSize: "var(--fs-body)", fontWeight: 700, color: "var(--text-ink)" }}>{label}</span>
       <span style={{ width: 40, height: 23, borderRadius: 999, background: on ? "#2e8b57" : "#d7dce0", position: "relative", flex: "none", transition: "background .15s" }}>
         <span style={{ position: "absolute", top: 2, left: on ? 19 : 2, width: 19, height: 19, borderRadius: "50%", background: "#fff", transition: "left .15s", boxShadow: "0 1px 2px rgba(0,0,0,.2)" }} />
       </span>

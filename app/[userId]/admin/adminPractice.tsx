@@ -561,16 +561,16 @@ export default function AdminPractice({
           {/* 工程G (2026-07-11): スタッカート系曖昧記号の確認キュー */}
           <Link
             href={missingItemsHref.replace(/\/missing-items$/, "/confirmations")}
-            style={{ fontSize: "0.9rem", color: "#2563eb" }}
+            style={{ fontSize: "0.9rem", color: "var(--text-link)" }}
           >
             奏法の確認 →
           </Link>
-          <Link href={missingItemsHref} style={{ fontSize: "0.9rem", color: "#2563eb" }}>
+          <Link href={missingItemsHref} style={{ fontSize: "0.9rem", color: "var(--text-link)" }}>
             不足教材フラグ →
           </Link>
           <Link
             href={missingItemsHref.replace(/\/missing-items$/, "/song-requests")}
-            style={{ fontSize: "0.9rem", color: "#2563eb" }}
+            style={{ fontSize: "0.9rem", color: "var(--text-link)" }}
           >
             曲リクエスト →
           </Link>
@@ -678,7 +678,7 @@ export default function AdminPractice({
             {isScoreCategory && (
               <div className={styles.field}>
                 <label>パート分け（任意・小節範囲）</label>
-                <div style={{ fontSize: 12, color: "#888", marginBottom: 6 }}>
+                <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginBottom: 6 }}>
                   サビ・難所など練習させたい区間を「◯小節〜◯小節」で登録。曲(グループ)共通・難易度に依存しません。
                 </div>
                 {parts.map((p) => (
@@ -702,13 +702,13 @@ export default function AdminPractice({
                       onChange={(e) => updatePartRow(p.id, { endMeasure: e.target.value })}
                       style={{ width: 64 }}
                     />
-                    <span style={{ fontSize: 11, color: "#999" }}>小節</span>
+                    <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)" }}>小節</span>
                     <button type="button" onClick={() => removePartRow(p.id)} style={{ padding: "2px 8px" }}>
                       削除
                     </button>
                   </div>
                 ))}
-                <button type="button" onClick={addPartRow} style={{ padding: "4px 10px", fontSize: 13 }}>
+                <button type="button" onClick={addPartRow} style={{ padding: "4px 10px", fontSize: "var(--fs-body)" }}>
                   ＋ パートを追加
                 </button>
               </div>
@@ -729,7 +729,7 @@ export default function AdminPractice({
                     </select>
                   </div>
                   {["scale", "arpeggio", "fingering"].includes(category) && (
-                    <label style={{ display: "block", marginTop: 8, fontSize: 13 }}>
+                    <label style={{ display: "block", marginTop: 8, fontSize: "var(--fs-body)" }}>
                       <input
                         type="checkbox"
                         checked={expandAllKeys}
@@ -740,7 +740,7 @@ export default function AdminPractice({
                     </label>
                   )}
                   {["scale", "arpeggio", "bowing", "fingering", "position_shift"].includes(category) && (
-                    <label style={{ display: "block", marginTop: 6, fontSize: 13 }}>
+                    <label style={{ display: "block", marginTop: 6, fontSize: "var(--fs-body)" }}>
                       <input
                         type="checkbox"
                         checked={stdArticulations}
@@ -819,7 +819,7 @@ export default function AdminPractice({
                       if (visibleSubIds.length === 0) return null
                       return (
                         <div key={axis.id} style={{ marginLeft: 12, marginTop: 4 }}>
-                          <div style={{ fontSize: 11, color: "#888", marginBottom: 2 }}>
+                          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginBottom: 2 }}>
                             {axis.name}
                           </div>
                           <div className={styles.tagList}>
@@ -1004,10 +1004,10 @@ export default function AdminPractice({
                         </select>
                         {/* 2026-07-14: ポジション欄 (学びレッスンのポジション教材で必須) */}
                         <div style={{ marginTop: 6 }}>
-                          <div style={{ fontSize: 11, color: "#888", marginBottom: 2 }}>ポジション</div>
+                          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginBottom: 2 }}>ポジション</div>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                             {positionOptions.map((pos) => (
-                              <label key={pos} style={{ fontSize: 12, display: "inline-flex", alignItems: "center", gap: 2 }}>
+                              <label key={pos} style={{ fontSize: "var(--fs-body)", display: "inline-flex", alignItems: "center", gap: 2 }}>
                                 <input
                                   type="checkbox"
                                   checked={editPositions.includes(pos)}
@@ -1055,7 +1055,7 @@ export default function AdminPractice({
                           )
                           .map(taskId => (
                           <div key={taskId} style={{ marginBottom: 8 }}>
-                            <div style={{ fontSize: 12, fontWeight: 600, color: "#666", marginBottom: 4 }}>
+                            <div style={{ fontSize: "var(--fs-body)", fontWeight: 600, color: "var(--text-body)", marginBottom: 4 }}>
                               {TASK_NAMES[taskId]}
                             </div>
                             {AXES.filter(ax => ax.parentTaskId === taskId).map(axis => {
@@ -1063,7 +1063,7 @@ export default function AdminPractice({
                               if (visibleSubIds.length === 0) return null
                               return (
                                 <div key={axis.id} style={{ marginLeft: 12, marginTop: 2 }}>
-                                  <div style={{ fontSize: 11, color: "#888", marginBottom: 2 }}>
+                                  <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginBottom: 2 }}>
                                     {axis.name}
                                   </div>
                                   <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
@@ -1089,7 +1089,7 @@ export default function AdminPractice({
                         {/* 雰囲気タグ (2026-08-05・曲のみ): 曲を聴いて手動設定。統一語彙台帳 */}
                         {item.type === "score" && (
                           <div style={{ marginTop: 10, borderTop: "1px dashed #ddd", paddingTop: 8 }}>
-                            <div style={{ fontSize: 12, fontWeight: 600, color: "#666", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>
+                            <div style={{ fontSize: "var(--fs-body)", fontWeight: 600, color: "var(--text-body)", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>
                               <Palette size={14} /> 雰囲気タグ（曲を聴いて設定）
                             </div>
                             <div style={{ marginLeft: 12, marginTop: 2, display: "flex", flexWrap: "wrap", gap: 4 }}>
@@ -1148,7 +1148,7 @@ export default function AdminPractice({
                       item.type === "score" ? (
                         // Score は単一テンポ (defaultTempo)。最小値欄を流用。
                         <div className={styles.inlineGroup}>
-                          <span style={{ fontSize: 12 }}>♩=</span>
+                          <span style={{ fontSize: "var(--fs-body)" }}>♩=</span>
                           <input type="number" min={1} max={400} value={editTempoMin}
                             onChange={(e) => setEditTempoMin(e.target.value)}
                             placeholder="120" style={{ width: 70 }} />

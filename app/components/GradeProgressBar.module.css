@@ -29,8 +29,8 @@
 }
 
 .count {
-  font-size: 12px;
-  color: #555;
+  font-size: var(--fs-body);
+  color: var(--text-body);
   font-weight: 600;
   white-space: nowrap;
   min-width: 44px;
@@ -38,16 +38,16 @@
 }
 
 .remaining {
-  font-size: 12px;
-  color: #5a6473;
+  font-size: var(--fs-body);
+  color: var(--text-body);
   text-align: right;
   font-weight: 500;
 }
 
 /* v1.6 Phase 4-2 Q5=c: GradeProgressBar 直下のヒント文 */
 .hint {
-  font-size: 11px;
-  color: #888;
+  font-size: var(--fs-caption);
+  color: var(--text-sub);
   font-style: italic;
   margin-top: 2px;
   line-height: 1.4;
@@ -65,11 +65,11 @@
 }
 
 .masterIcon {
-  font-size: 18px;
+  font-size: var(--fs-head);
 }
 
 .masterText {
-  font-size: 13px;
+  font-size: var(--fs-body);
   font-weight: 700;
-  color: #b8860b;
+  color: var(--text-master);
 }

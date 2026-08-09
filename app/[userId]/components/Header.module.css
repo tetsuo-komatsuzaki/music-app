@@ -1,7 +1,7 @@
 
 .header {
   background: #1E3A8A;
-  color: white;
+  color: var(--text-on-accent);
   padding: 12px 20px;
   display: flex;
   justify-content: flex-end;
@@ -23,12 +23,12 @@
   border-radius: 50%;
   width: 32px;
   height: 32px;
-  font-size: 14px;
+  font-size: var(--fs-subhead);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--text-on-accent);
   padding: 0;
   transition: 0.15s;
 }

@@ -115,7 +115,7 @@ export default function Sidebar() {
                   {item.path === "my-teacher" && unread > 0 && (
                     <span
                       aria-label={`未読${unread}件`}
-                      style={{ marginLeft: "auto", minWidth: 18, height: 18, padding: "0 5px", borderRadius: 999, background: "#e5484d", color: "#fff", fontSize: 11, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                      style={{ marginLeft: "auto", minWidth: 18, height: 18, padding: "0 5px", borderRadius: 999, background: "#e5484d", color: "var(--text-on-accent)", fontSize: "var(--fs-caption)", fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
                     >
                       {unread}
                     </span>

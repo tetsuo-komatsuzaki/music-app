@@ -20,7 +20,7 @@
 
 .navLink {
   font-size: 0.9rem;
-  color: #2563eb;
+  color: var(--text-link);
   text-decoration: none;
 }
 .navLink:hover {
@@ -31,7 +31,7 @@
   margin: 12px 0 16px;
   font-size: 0.9rem;
   line-height: 1.7;
-  color: #444;
+  color: var(--text-ink);
 }
 
 .toggle {
@@ -46,7 +46,7 @@
 .message {
   background: #ecfdf5;
   border: 1px solid #6ee7b7;
-  color: #065f46;
+  color: var(--text-good);
   padding: 10px 14px;
   border-radius: 8px;
   font-size: 0.9rem;
@@ -56,7 +56,7 @@
 .empty {
   padding: 48px 16px;
   text-align: center;
-  color: #6b7280;
+  color: var(--text-sub);
   font-size: 0.95rem;
 }
 
@@ -122,14 +122,14 @@
 .subTasks,
 .scores {
   font-size: 0.82rem;
-  color: #6b7280;
+  color: var(--text-sub);
   word-break: break-word;
 }
 
 .resolveBtn {
   flex-shrink: 0;
   background: #2563eb;
-  color: #fff;
+  color: var(--text-on-accent);
   border: none;
   border-radius: 8px;
   padding: 8px 14px;
@@ -149,6 +149,6 @@
   flex-shrink: 0;
   align-self: center;
   font-size: 0.8rem;
-  color: #059669;
+  color: var(--text-good);
   font-weight: 600;
 }

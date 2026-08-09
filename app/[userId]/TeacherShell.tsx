@@ -15,14 +15,14 @@ export default function TeacherShell({ children }: { children: ReactNode }) {
         style={{
           position: "sticky", top: 0, zIndex: 20, display: "flex", alignItems: "center",
           justifyContent: "space-between", gap: 8, padding: "10px 14px",
-          background: "#2b3742", color: "#fff",
+          background: "#2b3742", color: "var(--text-on-accent)",
         }}
       >
-        <span style={{ fontSize: 13.5, fontWeight: 800, letterSpacing: ".02em", display: "inline-flex", alignItems: "center", gap: 5 }}><GraduationCap size={15} /> 先生モード</span>
+        <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, letterSpacing: ".02em", display: "inline-flex", alignItems: "center", gap: 5 }}><GraduationCap size={15} /> 先生モード</span>
         <Link
           href={`/${userId}`}
           style={{
-            fontSize: 12, fontWeight: 700, color: "#fff", textDecoration: "none",
+            fontSize: "var(--fs-body)", fontWeight: 700, color: "var(--text-on-accent)", textDecoration: "none",
             background: "rgba(255,255,255,.14)", borderRadius: 999, padding: "5px 12px",
           }}
         >

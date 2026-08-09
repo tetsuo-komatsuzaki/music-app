@@ -64,8 +64,8 @@ function GroupCard({
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-        <span style={{ fontWeight: 700, fontSize: 15 }}>{group.title}</span>
-        <span style={{ fontSize: 12, color: "#888" }}>
+        <span style={{ fontWeight: 700, fontSize: "var(--fs-subhead)" }}>{group.title}</span>
+        <span style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)" }}>
           {group.targetType === "score"
             ? "曲"
             : categoryLabel(group.category ?? "")}
@@ -74,9 +74,9 @@ function GroupCard({
         {group.status === "confirmed" && group.resolvedTag && (
           <span
             style={{
-              fontSize: 12,
+              fontSize: "var(--fs-body)",
               fontWeight: 600,
-              color: "#1d5c38",
+              color: "var(--text-good)",
               background: "#e3f3e9",
               borderRadius: 999,
               padding: "2px 10px",
@@ -87,12 +87,12 @@ function GroupCard({
         )}
       </div>
 
-      <div style={{ fontSize: 13, color: "#555", margin: "8px 0 10px" }}>
+      <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", margin: "8px 0 10px" }}>
         {group.patterns.map((p) => (
           <div key={p.pattern}>
             {PATTERN_LABELS[p.pattern] ?? p.pattern}: {p.noteCount}音
             {p.measures.length > 0 && (
-              <span style={{ color: "#999" }}>
+              <span style={{ color: "var(--text-muted)" }}>
                 {" "}
                 (第{p.measures.slice(0, 8).join(",")}
                 {p.measures.length > 8 ? "…" : ""}小節)
@@ -114,7 +114,7 @@ function GroupCard({
               style={{
                 padding: "8px 14px",
                 borderRadius: 8,
-                fontSize: 13,
+                fontSize: "var(--fs-body)",
                 fontWeight: 600,
                 cursor: pending ? "wait" : "pointer",
                 border: active ? "2px solid #2e8b57" : "1px solid #cbd5e1",
@@ -128,7 +128,7 @@ function GroupCard({
         })}
       </div>
       {error && (
-        <div style={{ marginTop: 8, fontSize: 12, color: "#b91c1c" }}>{error}</div>
+        <div style={{ marginTop: 8, fontSize: "var(--fs-body)", color: "var(--text-error)" }}>{error}</div>
       )}
     </div>
   )
@@ -146,19 +146,19 @@ export default function AdminConfirmations({
 
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "24px 16px" }}>
-      <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>
+      <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 700, marginBottom: 4 }}>
         奏法の確認
       </h1>
-      <p style={{ fontSize: 13, color: "#666", marginBottom: 20 }}>
+      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", marginBottom: 20 }}>
         楽譜のスタッカート点(・)は記号だけでは奏法が確定できません。
         曲ごとに正しい奏法を選んで確定してください（達成要件・推薦に反映されます）。
       </p>
 
-      <h2 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 10px" }}>
+      <h2 style={{ fontSize: "var(--fs-subhead)", fontWeight: 700, margin: "0 0 10px" }}>
         未確認 ({pending.length}件)
       </h2>
       {pending.length === 0 ? (
-        <p style={{ fontSize: 13, color: "#888", marginBottom: 20 }}>
+        <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginBottom: 20 }}>
           未確認の曖昧記号はありません
         </p>
       ) : (
@@ -170,7 +170,7 @@ export default function AdminConfirmations({
       {confirmed.length > 0 && (
         <details style={{ marginTop: 24 }}>
           <summary
-            style={{ cursor: "pointer", fontSize: 14, fontWeight: 600, color: "#4a90d9" }}
+            style={{ cursor: "pointer", fontSize: "var(--fs-subhead)", fontWeight: 600, color: "var(--text-link)" }}
           >
             確認済み ({confirmed.length}件) — 選び直しもここから
           </summary>

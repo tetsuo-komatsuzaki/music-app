@@ -5,13 +5,13 @@
 .modeBtn {
   align-self: flex-start;
   display: inline-flex; align-items: center; gap: 7px;
-  font-family: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: .01em; cursor: pointer;
-  color: #4a4650; background: #fbfbfd; border: 1px solid #e6e3ea;
+  font-family: inherit; font-size: var(--fs-body); font-weight: 700; letter-spacing: .01em; cursor: pointer;
+  color: var(--text-body); background: #fbfbfd; border: 1px solid #e6e3ea;
   border-radius: 999px; padding: 8px 15px; transition: all .16s ease;
 }
 .modeBtn:hover { background: #f5f4f8; }
 .modeOn {
-  color: #fff; border-color: transparent;
+  color: var(--text-on-accent); border-color: transparent;
   background: linear-gradient(120deg, #2b2b33, #454550);
   box-shadow: 0 6px 16px -8px rgba(40, 40, 55, .6);
 }
@@ -23,25 +23,25 @@
 }
 .toolBtn {
   display: inline-flex; align-items: center; gap: 5px;
-  font-family: inherit; font-size: 12px; font-weight: 700; letter-spacing: .01em; cursor: pointer;
-  color: #55515c; background: #fff; border: 1px solid #e8e6ec;
+  font-family: inherit; font-size: var(--fs-body); font-weight: 700; letter-spacing: .01em; cursor: pointer;
+  color: var(--text-body); background: #fff; border: 1px solid #e8e6ec;
   border-radius: 9px; padding: 6px 11px; transition: all .13s ease;
 }
 .toolBtn:hover { border-color: #d5d2db; }
-.toolBtn .g { font-size: 13px; line-height: 1; opacity: .9; }
+.toolBtn .g { font-size: var(--fs-body); line-height: 1; opacity: .9; }
 .toolOn {
-  color: #fff; border-color: transparent; background: #4a6cf7;
+  color: var(--text-on-accent); border-color: transparent; background: #4a6cf7;
   box-shadow: 0 4px 12px -5px rgba(74, 108, 247, .6);
 }
 .toolOn .g { opacity: 1; }
 .clearBtn {
-  font-family: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer;
+  font-family: inherit; font-size: var(--fs-caption); font-weight: 700; cursor: pointer;
   color: #a2455f; background: transparent; border: 1px solid transparent;
   border-radius: 9px; padding: 6px 10px; margin-left: auto;
 }
 .clearBtn:hover { background: #fbecf0; }
-.hint { margin: 0 2px; font-size: 11.5px; color: #8a8690; line-height: 1.5; }
-.hint b { color: #4a6cf7; font-weight: 700; }
+.hint { margin: 0 2px; font-size: var(--fs-caption); color: var(--text-sub); line-height: 1.5; }
+.hint b { color: var(--text-link); font-weight: 700; }
 
 /* ============================================================
    オーバーレイ (命令的に #osmd-container へ append)
@@ -71,26 +71,26 @@
   position: absolute;
   transform: translateX(-50%);
   display: inline-flex; align-items: center; gap: 4px;
-  font-size: 10px; font-weight: 800; line-height: 1; letter-spacing: .02em;
+  font-size: var(--fs-label); font-weight: 800; line-height: 1; letter-spacing: .02em;
   padding: 3px 8px; border-radius: 7px; white-space: nowrap;
   pointer-events: none; z-index: 9;
   box-shadow: 0 2px 7px -2px rgba(24, 18, 40, .28);
   -webkit-backdrop-filter: saturate(1.2); backdrop-filter: saturate(1.2);
 }
 .badge .g {
-  font-size: 11px; font-weight: 900; line-height: 1;
+  font-size: var(--fs-caption); font-weight: 900; line-height: 1;
   display: inline-grid; place-items: center;
 }
 
 /* 注意系: トーンを落とした上品カラー (ティント地 + 濃色文字 + 同系リング) */
-.wFlat  { color: #29508f; background: #e4edfb; box-shadow: 0 2px 7px -2px rgba(40,90,160,.32), 0 0 0 1px rgba(58,110,190,.28) inset; }
-.wSharp { color: #a53b52; background: #fbe6ea; box-shadow: 0 2px 7px -2px rgba(180,70,95,.30), 0 0 0 1px rgba(200,80,105,.26) inset; }
-.wTempo { color: #8a6510; background: #f7ecd2; box-shadow: 0 2px 7px -2px rgba(160,120,30,.30), 0 0 0 1px rgba(190,150,60,.30) inset; }
+.wFlat  { color: var(--text-link); background: #e4edfb; box-shadow: 0 2px 7px -2px rgba(40,90,160,.32), 0 0 0 1px rgba(58,110,190,.28) inset; }
+.wSharp { color: var(--text-error); background: #fbe6ea; box-shadow: 0 2px 7px -2px rgba(180,70,95,.30), 0 0 0 1px rgba(200,80,105,.26) inset; }
+.wTempo { color: var(--text-master); background: #f7ecd2; box-shadow: 0 2px 7px -2px rgba(160,120,30,.30), 0 0 0 1px rgba(190,150,60,.30) inset; }
 .wHard  { color: #5b3ba0; background: #ece3fb; box-shadow: 0 2px 7px -2px rgba(105,70,175,.30), 0 0 0 1px rgba(120,85,190,.26) inset; }
 
 /* テキストメモ: 付箋でなく、控えめな吹き出しタグ */
 .badgeText {
-  color: #35313c; background: #ffffff; font-weight: 700; letter-spacing: 0;
+  color: var(--text-ink); background: #ffffff; font-weight: 700; letter-spacing: 0;
   box-shadow: 0 2px 8px -2px rgba(24,18,40,.28), 0 0 0 1px #ece9f0 inset;
 }
 
@@ -98,13 +98,13 @@
 .stampGlyph {
   position: absolute;
   transform: translateX(-50%);
-  color: #26232b;
+  color: var(--text-ink);
   pointer-events: none;
   z-index: 9;
   display: inline-grid; place-items: center;
   line-height: 1;
 }
-.stampGlyph .txt { font-size: 14px; line-height: 1; }
+.stampGlyph .txt { font-size: var(--fs-subhead); line-height: 1; }
 .stampGlyph svg { display: block; }
 
 /* スタンプ・パレット */
@@ -113,14 +113,14 @@
   padding: 11px 12px; border: 1px solid #ecebf0; border-radius: 13px; background: #fbfbfd;
 }
 .palGroup { display: flex; flex-direction: column; gap: 5px; }
-.palLabel { font-size: 9.5px; font-weight: 800; color: #9a949f; letter-spacing: .05em; padding-left: 1px; }
+.palLabel { font-size: var(--fs-label); font-weight: 800; color: var(--text-muted); letter-spacing: .05em; padding-left: 1px; }
 .palItems { display: flex; gap: 5px; flex-wrap: wrap; }
 .stampBtn {
   width: 33px; height: 33px; display: grid; place-items: center; cursor: pointer;
-  color: #35313c; background: #fff; border: 1px solid #e8e6ec; border-radius: 8px;
+  color: var(--text-ink); background: #fff; border: 1px solid #e8e6ec; border-radius: 8px;
   transition: all .12s ease;
 }
 .stampBtn:hover { border-color: #c9c4d2; }
-.stampBtn .txt { font-size: 14px; line-height: 1; }
+.stampBtn .txt { font-size: var(--fs-subhead); line-height: 1; }
 .stampBtn svg { display: block; }
-.stampOn { color: #fff; background: #4a6cf7; border-color: transparent; box-shadow: 0 3px 9px -4px rgba(74, 108, 247, .7); }
+.stampOn { color: var(--text-on-accent); background: #4a6cf7; border-color: transparent; box-shadow: 0 3px 9px -4px rgba(74, 108, 247, .7); }
