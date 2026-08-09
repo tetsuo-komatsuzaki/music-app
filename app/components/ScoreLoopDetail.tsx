@@ -9,6 +9,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Trophy, Target } from "lucide-react"
 import styles from "./ScoreLoopDetail.module.css"
 import GuideSampleReview from "./GuideSampleReview"
 import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
@@ -62,13 +63,13 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
     <div className={styles.container} role="tabpanel" id="score-detail-tab-panel-loop">
       {/* ── 1. 達成/マスター進捗 (共通部品 GoalTracker) ── */}
       <section className={styles.summarySection}>
-        <h2 className={styles.sectionTitle}>🏆 この曲のゴール</h2>
+        <h2 className={styles.sectionTitle} style={{ display: "flex", alignItems: "center", gap: 6 }}><Trophy size={18} color="#b58a1e" /> この曲のゴール</h2>
         <GoalTracker achv={achv} userId={userId} />
       </section>
 
       {/* ── 2. 学びのポイント (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホームと共通ロジック) ── */}
       <section className={styles.cardSection}>
-        <h2 className={styles.sectionTitle}>🎯 学びのポイント</h2>
+        <h2 className={styles.sectionTitle} style={{ display: "flex", alignItems: "center", gap: 6 }}><Target size={18} color="#2563EB" /> 学びのポイント</h2>
         <DailyLessons lessons={achv.dailyLessons ?? []} userId={userId} fromScoreId={scoreId} />
       </section>
 
@@ -104,7 +105,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
           <strong>達成</strong>＝この曲を「弾ける」の認定。点数は関係なく、
           学びレッスン＋エチュード（対象がある場合）＋<strong>破綻せず3回弾き切る</strong>こと。
           <br />
-          <strong>🏆 マスター</strong>＝達成に加えて<strong>直近5回の演奏スコア平均90点以上</strong>。
+          <strong style={{ display: "inline-flex", alignItems: "center", gap: 3, verticalAlign: "-3px" }}><Trophy size={14} color="#b58a1e" /> マスター</strong>＝達成に加えて<strong>直近5回の演奏スコア平均90点以上</strong>。
           達成した曲が同じ★で10曲たまると、次の★へ昇格します。
         </div>
       </details>

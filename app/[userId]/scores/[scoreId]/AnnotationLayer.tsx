@@ -5,7 +5,8 @@
 // 命令的オーバーレイ(cursor/区間帯と同方式)で描画。OSMD再レイアウト/zoom/スクロールに追従。
 // 記譜スタンプ①(MusicXML互換)は Phase 2。
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
+import { Pencil } from "lucide-react"
 import {
   getScoreAnnotation,
   saveScoreAnnotation,
@@ -342,7 +343,7 @@ export default function AnnotationLayer({
     if (window.confirm("この譜面の注釈をすべて消去しますか？")) commit({})
   }
 
-  const toolBtn = (t: Tool, glyph: string, label: string) => (
+  const toolBtn = (t: Tool, glyph: ReactNode, label: string) => (
     <button
       type="button"
       className={`${styles.toolBtn} ${tool === t ? styles.toolOn : ""}`}
@@ -365,13 +366,13 @@ export default function AnnotationLayer({
           onClick={() => { setActive((v) => !v); setTool(null); setHlStart(null) }}
           aria-pressed={active}
         >
-          <span className={styles.g}>✎</span> 譜面に書き込む
+          <span className={styles.g}><Pencil size={14} /></span> 譜面に書き込む
         </button>
       </div>
       {active && (
         <div className={styles.tools}>
           {toolBtn("highlight", "▬", "ハイライト")}
-          {toolBtn("text", "✎", "メモ")}
+          {toolBtn("text", <Pencil size={14} />, "メモ")}
           {toolBtn("flat", "♭", "低い")}
           {toolBtn("sharp", "♯", "高い")}
           {toolBtn("tempo", "♩", "テンポ")}

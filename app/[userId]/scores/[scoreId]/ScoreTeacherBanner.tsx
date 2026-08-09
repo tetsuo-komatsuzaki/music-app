@@ -4,6 +4,7 @@
 // 先生あり生徒だけに、この曲の「宿題(提出)」を曲の上部に埋め込む。
 // 添削は別画面に遷移せず、演奏モードの譜面にインライン表示する(scoreDetail 側)。
 import { useEffect, useState } from "react"
+import { Target, Repeat, Pin, Calendar, MessageCircle } from "lucide-react"
 import { getScoreTeacherView, type ScoreTeacherView } from "@/app/actions/teacherStudentViews"
 import AssignmentSubmit from "@/app/components/AssignmentSubmit"
 import { goalLabel, dueInfo, DUE_COLOR, goalResult } from "@/app/_libs/assignmentGoal"
@@ -29,10 +30,11 @@ export default function ScoreTeacherBanner({ scoreId }: { scoreId: string; userI
         // 案A: 左アクセントバー。目標に回数を統合、達成/マスターは達成時のみチップ表示。
         const goal = goalLabel(assignment.goalType, assignment.targetScore)
         const goalChip = goal
-          ? `🎯 ${goal}${assignment.reps ? ` ・ ${assignment.reps}回` : ""}`
+          ? `${goal}${assignment.reps ? ` ・ ${assignment.reps}回` : ""}`
           : assignment.reps
-            ? `🔁 ${assignment.reps}回`
+            ? `${assignment.reps}回`
             : null
+        const GoalChipIcon = goal ? Target : Repeat
         const di = dueInfo(assignment.dueDate)
         const gr = goalResult(assignment.goalType, { achieved: assignment.achieved, mastered: assignment.mastered })
         const metChip = gr && assignment.goalType !== "score" && gr.met ? gr.label : null
@@ -42,18 +44,18 @@ export default function ScoreTeacherBanner({ scoreId }: { scoreId: string; userI
             <div style={{ width: 4, background: "#c98a2a", flex: "none" }} aria-hidden />
             <div style={{ flex: 1, minWidth: 0, padding: "13px 15px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 12.5, fontWeight: 800, color: "#8a5a10" }}>📌 先生からの宿題</span>
+                <span style={{ fontSize: 12.5, fontWeight: 800, color: "#8a5a10", display: "inline-flex", alignItems: "center", gap: 5 }}><Pin size={14} /> 先生からの宿題</span>
                 <span style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 700, color: "#b0a184" }}>{teacherName} 先生</span>
               </div>
 
               {(goalChip || di || assignment.targetTempo || metChip) && (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 10 }}>
                   {goalChip && (
-                    <span style={{ ...chip, color: "#4a5bd0", background: "#eef0fc", border: "1px solid #d7dcf6" }}>{goalChip}</span>
+                    <span style={{ ...chip, color: "#4a5bd0", background: "#eef0fc", border: "1px solid #d7dcf6" }}><GoalChipIcon size={12} /> {goalChip}</span>
                   )}
                   {di && (
                     <span style={{ ...chip, color: DUE_COLOR[di.state].fg, background: DUE_COLOR[di.state].bg, border: `1px solid ${DUE_COLOR[di.state].border}` }}>
-                      📅 期限 {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}
+                      <Calendar size={12} /> 期限 {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}
                     </span>
                   )}
                   {assignment.targetTempo && (
@@ -66,7 +68,7 @@ export default function ScoreTeacherBanner({ scoreId }: { scoreId: string; userI
               )}
 
               {assignment.comment && (
-                <div style={{ fontSize: 12.5, color: "#4a4650", marginTop: 8, lineHeight: 1.55 }}>💬 {assignment.comment}</div>
+                <div style={{ fontSize: 12.5, color: "#4a4650", marginTop: 8, lineHeight: 1.55, display: "flex", gap: 5 }}><MessageCircle size={14} style={{ flex: "none", marginTop: 2 }} /> <span>{assignment.comment}</span></div>
               )}
 
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12, flexWrap: "wrap" }}>

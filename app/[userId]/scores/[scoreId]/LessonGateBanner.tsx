@@ -2,6 +2,7 @@
 // この曲に出てくる技術のうち、公開中レッスンがあり未習得(クリアも自己申告もない)
 // ものを案内する。サーバーコンポーネント (計算は page.tsx 側)。
 import Link from "next/link"
+import { GraduationCap } from "lucide-react"
 
 export default function LessonGateBanner({
   userId,
@@ -29,7 +30,7 @@ export default function LessonGateBanner({
         flexWrap: "wrap",
       }}
     >
-      <span style={{ fontSize: 24 }}>🎓</span>
+      <GraduationCap size={26} color="#5a8a2e" aria-hidden style={{ flex: "none" }} />
       <div style={{ flex: 1, minWidth: 200 }}>
         <div style={{ fontWeight: 800, color: "#3c5a1e", fontSize: 14 }}>
           この曲には <b>{names}</b> が出てくるよ

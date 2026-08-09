@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
 import { ArcoChan, POSES } from "./ArcoChan"
+import { Sprout, Palette, Trophy, Share2, Ear, Wrench } from "lucide-react"
 import { sendScoringFeedback } from "@/app/actions/scoringFeedback"
 import ShareSheet from "./ShareSheet"
 import { createListenRequest } from "@/app/actions/listenRequests"
@@ -35,9 +36,9 @@ function pickPose(score: number) {
 }
 
 function headline(score: number, mastered: boolean): string {
-  if (mastered) return "この曲、マスター達成〜！🎉"
-  if (score >= 90) return "すごい！演奏マスター級だね✨"
-  if (score >= 75) return "いい演奏！あと少しで完璧🎵"
+  if (mastered) return "この曲、マスター達成〜！"
+  if (score >= 90) return "すごい！演奏マスター級だね"
+  if (score >= 75) return "いい演奏！あと少しで完璧"
   if (score >= 60) return "その調子！ここを直すともっと良くなるよ"
   return "だいじょうぶ、いっしょに練習していこう"
 }
@@ -137,7 +138,7 @@ export default function ArcoResultOverlay({
             background: "#f2faf5", border: "1px solid #cfe6d8",
             fontSize: 12, fontWeight: 800, color: "#2e8b57",
           }}>
-            🌱 {growth.label}が伸びてる！ 安定度 {growth.from}%
+            <Sprout size={14} style={{ flex: "none" }} /> {growth.label}が伸びてる！ 安定度 {growth.from}%
             <span style={{ fontSize: 11, color: "#7aa98c" }}>→</span>
             <b style={{ fontSize: 14 }}>{growth.to}%</b>
             <Link href={`/${userId}/progress`} onClick={onClose}
@@ -151,19 +152,19 @@ export default function ArcoResultOverlay({
         {strengthCount > 0 && (
           <div style={{ margin: "6px 4px 0", fontSize: 11.5, fontWeight: 800 }}>
             <Link href={`/${userId}/progress`} onClick={onClose} style={{ color: "#4a5bd0", textDecoration: "underline" }}>
-              🎨 先生が認定したきみの表現（{strengthCount}個）を見る →
+              <Palette size={13} style={{ verticalAlign: -2 }} /> 先生が認定したきみの表現（{strengthCount}個）を見る →
             </Link>
           </div>
         )}
 
         {/* 🏆 マスターまで (案2: 点数ゲージ+90点ライン+条件チップ・2026-08-02確定) */}
         <div className={styles.sec}>
-          <div className={styles.secH}>🏆 マスターまで</div>
+          <div className={styles.secH} style={{ display: "flex", alignItems: "center", gap: 6 }}><Trophy size={15} color="#b58a1e" /> マスターまで</div>
           {!ach ? (
             <div className={styles.muted}>集計してるよ…</div>
           ) : ach.mastered ? (
-            <div style={{ textAlign: "center", fontSize: 13, fontWeight: 800, color: "#2e8b57", padding: "6px 0" }}>
-              🏆 この曲はマスター済み！{avg != null ? ` いまの平均 ${avg}点` : ""}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 13, fontWeight: 800, color: "#2e8b57", padding: "6px 0" }}>
+              <Trophy size={15} color="#b58a1e" /> この曲はマスター済み！{avg != null ? ` いまの平均 ${avg}点` : ""}
             </div>
           ) : (
             <div>
@@ -183,7 +184,7 @@ export default function ArcoResultOverlay({
                   </div>
                   <div style={{ textAlign: "center", fontSize: 13, fontWeight: 900, marginTop: 10 }}>
                     {avg >= 90
-                      ? <>90点ラインを超えてるよ！🎉</>
+                      ? <>90点ラインを超えてるよ！</>
                       : <>あと <b style={{ color: "#d64541", fontSize: 16 }}>{Math.max(1, Math.ceil(90 - avg))}点</b> で90点ライン！</>}
                   </div>
                   {ach.master.scoredCount < ach.master.requiredCount && (
@@ -222,7 +223,7 @@ export default function ArcoResultOverlay({
             <div className={styles.muted}>見ているよ…</div>
           ) : recSlots.length === 0 ? (
             <div className={styles.muted}>
-              {diag.verdict === "perfect" ? "完璧！大きな弱点はなし🎉"
+              {diag.verdict === "perfect" ? "完璧！大きな弱点はなし"
                 : diag.verdict === "no_specific" ? "大きな弱点はなし。この調子！"
                 : diag.verdict === "unavailable" ? "今回は見きれなかったよ"
                 : "今回のおすすめ教材は準備中です"}
@@ -248,7 +249,7 @@ export default function ArcoResultOverlay({
 
         <div className={styles.actions}>
           {onGoReview && <button type="button" className={styles.ghost} onClick={onGoReview}>ふりかえりで詳しく</button>}
-          <button type="button" className={styles.ghost} onClick={() => setShareOpen(true)}>📤 シェア</button>
+          <button type="button" className={styles.ghost} onClick={() => setShareOpen(true)}><span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Share2 size={13} /> シェア</span></button>
           {/* 👂 先生に聴いてもらう (2026-08-06 案1簡素版): ワンタップ送信・シート無し */}
           {hasTeacher && (
             <button type="button" className={styles.ghost} disabled={listenState === "sending" || listenState === "done"}
@@ -257,7 +258,9 @@ export default function ArcoResultOverlay({
                 const r = await createListenRequest(perf.id)
                 setListenState(r.ok ? "done" : "error")
               }}>
-              {listenState === "done" ? "✓ 先生に届けたよ" : listenState === "sending" ? "送信中…" : listenState === "error" ? "👂 もう一度" : "👂 先生に聴いてもらう"}
+              {listenState === "done" ? "✓ 先生に届けたよ" : listenState === "sending" ? "送信中…" : (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Ear size={13} /> {listenState === "error" ? "もう一度" : "先生に聴いてもらう"}</span>
+              )}
             </button>
           )}
           <button type="button" className={styles.primary} onClick={onClose}>とじる</button>
@@ -292,9 +295,9 @@ export function ScoringFeedbackNote({ performanceId, kind }: { performanceId: st
 
   return (
     <div style={{ margin: "10px 2px 0", fontSize: 10.5, color: "#9aa6b3", lineHeight: 1.7 }}>
-      🔧 アルコの採点は、これからどんどん正確になっていくよ。
+      <Wrench size={12} style={{ verticalAlign: -2, marginRight: 4 }} />アルコの採点は、これからどんどん正確になっていくよ。
       {state === "done" ? (
-        <span style={{ color: "#2e8b57", fontWeight: 800 }}> フィードバックありがとう！べんきょうします🎻</span>
+        <span style={{ color: "#2e8b57", fontWeight: 800 }}> フィードバックありがとう！べんきょうします</span>
       ) : (
         <>
           「この点数、おかしいな？」と思ったら{" "}

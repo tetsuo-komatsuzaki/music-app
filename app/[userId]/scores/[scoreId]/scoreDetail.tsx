@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo, Component, type ReactNode, type ErrorInfo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { Pencil, Volume2, Target, PenLine } from "lucide-react"
 import ScoreDetailTabs, { type ScoreDetailTabId } from "@/app/components/ScoreDetailTabs"
 import MasterBadge from "@/app/components/MasterBadge"
 import FavoriteButton from "@/app/components/FavoriteButton"
@@ -539,7 +540,8 @@ function PerformanceHistory({
                           onClick={(e) => { e.stopPropagation(); onReplayArco(p) }}
                           title="アルコの結果をもう一度"
                         >
-                          🎻 結果をもう一度
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src="/Icon.png" alt="" aria-hidden width={13} height={13} style={{ borderRadius: 3, verticalAlign: "-2px", marginRight: 4 }} />結果をもう一度
                         </button>
                       )}
                       <button
@@ -548,7 +550,7 @@ function PerformanceHistory({
                         onClick={(e) => startEdit(p, e)}
                         title="名前を編集"
                       >
-                        ✏ 名前を変更
+                        <Pencil size={12} style={{ verticalAlign: "-2px", marginRight: 4 }} />名前を変更
                       </button>
                       {canShareToTeacher && (
                         <ShareToTeacherButton performanceId={p.id} kind={kind} />
@@ -950,7 +952,7 @@ function AudioPlayer({
 }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "2px 0" }}>
-      <span style={{ fontSize: 12, fontWeight: 600, color: "#555", whiteSpace: "nowrap" }}>🔊 この演奏を聴く</span>
+      <span style={{ fontSize: 12, fontWeight: 600, color: "#555", whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 5 }}><Volume2 size={14} /> この演奏を聴く</span>
       <audio
         key={performanceId}
         controls
@@ -2759,7 +2761,7 @@ function ScoreDetailInner({
             右に各パートの自己ベスト。おすすめ非表示・点数のみは振り返り側の仕様 (2026-07-26)。 */}
         {isScoreMode && parts.length > 0 && analysis && (
           <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 12, padding: "11px 13px", marginBottom: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 800, color: "#3a4653", marginBottom: 8 }}>🎯 パート練習</div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#3a4653", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}><Target size={14} color="#2563EB" /> パート練習</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
               <button
                 type="button"
@@ -2843,7 +2845,7 @@ function ScoreDetailInner({
                   value={selected?.id ?? ""}
                   onChange={(e) => selectPerformanceById(e.target.value || null)}
                 >
-                  <option value="">🎻 演奏モード（演奏を選ぶと採点を表示）</option>
+                  <option value="">演奏モード（演奏を選ぶと採点を表示）</option>
                   {performances.map((p) => (
                     <option key={p.id} value={p.id}>
                       {(p.name ?? "Performance")}{p.rangeFromNote != null ? "（区間）" : ""} ・ {new Date(p.uploadedAt).toLocaleDateString("ja-JP")}
@@ -2869,7 +2871,7 @@ function ScoreDetailInner({
                     title="この演奏の名前を編集"
                     aria-label="名前を編集"
                   >
-                    ✎
+                    <Pencil size={13} />
                   </button>
                 )}
               </>
@@ -2923,8 +2925,8 @@ function ScoreDetailInner({
         {/* 採点カルテのひとこと (2026-08-06統一): 先生が「カルテを返す」で書いたコメント */}
         {teacherComment && (
           <div style={{ border: "1.5px solid #eed9a0", background: "linear-gradient(150deg,#fffdf6,#fdf6e6)", borderRadius: 12, padding: "9px 13px", margin: "10px 0 4px" }}>
-            <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: ".12em", color: "#a98b2f" }}>
-              ✍️ {teacherNameForKarte ? `${teacherNameForKarte}先生` : "先生"}の採点カルテ
+            <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: ".12em", color: "#a98b2f", display: "flex", alignItems: "center", gap: 5 }}>
+              <PenLine size={12} /> {teacherNameForKarte ? `${teacherNameForKarte}先生` : "先生"}の採点カルテ
             </div>
             <div style={{ fontSize: 12.5, color: "#4a4030", marginTop: 3, lineHeight: 1.7 }}>「{teacherComment}」</div>
           </div>
@@ -2945,7 +2947,7 @@ function ScoreDetailInner({
               borderRadius: 999, padding: "6px 13px",
             }}
           >
-            ✍️ 先生の添削を{showTeacherFeedback ? "隠す" : "譜面に表示"}
+<PenLine size={13} /> 先生の添削を{showTeacherFeedback ? "隠す" : "譜面に表示"}
           </button>
         )}
         {analysis && showTeacherFeedback && (
@@ -3153,7 +3155,10 @@ function ScoreDetailInner({
         {/* 履歴レビュー中(演奏を選択中)は録音ボタンを隠し、演奏モードへ戻すリードを表示 */}
         {selected ? (
           <div style={{ textAlign: "center", padding: "18px 16px", background: "linear-gradient(135deg,#F0F7FF,#FDF8E7)", border: "1px solid #DCE7F5", borderRadius: 14 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#1a1a1a", marginBottom: 4 }}>🎻 もう一度演奏してみよう！</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#1a1a1a", marginBottom: 4, display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/Icon.png" alt="" aria-hidden width={20} height={20} style={{ borderRadius: 5 }} /> もう一度演奏してみよう！
+            </div>
             <div style={{ fontSize: 13, color: "#666", marginBottom: 14 }}>この演奏をふまえて、もう一度チャレンジ</div>
             <button type="button" onClick={() => selectPerformanceById(null)} style={{ background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "#fff", border: "none", borderRadius: 10, padding: "11px 28px", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>演奏する</button>
           </div>

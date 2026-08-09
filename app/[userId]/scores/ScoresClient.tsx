@@ -7,6 +7,7 @@ import Link from "next/link"
 import UploadModal from "../components/UploadModal"
 import { uploadScore } from "@/app/actions/uploadScore"
 import { updateScoreTitle } from "@/app/actions/updateScore"
+import { Music } from "lucide-react"
 import { deleteScore } from "@/app/actions/deleteScore"
 import { ScoreView } from "@/app/types/score"
 import OnboardingTrigger from "../_onboarding/OnboardingTrigger"
@@ -149,8 +150,9 @@ export default function ScoresClient({
 
         {/* ===== EMPTY STATE ===== */}
         {scores.length === 0 && (
-          <div className={styles.emptyState}>
-            🎻 弾きたい曲を、ここに集めよう
+          <div className={styles.emptyState} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/Icon.png" alt="" aria-hidden width={22} height={22} style={{ borderRadius: 5 }} /> 弾きたい曲を、ここに集めよう
           </div>
         )}
 
@@ -162,7 +164,7 @@ export default function ScoresClient({
               <div key={score.id} className={styles.card}>
 
                 <div className={styles.cardLeft}>
-                  🎼
+                  <Music size={26} color="#8ba0c4" aria-hidden />
                 </div>
 
                 <div className={styles.cardContent}>

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { Crown } from "lucide-react"
 import styles from "../practice.module.css"
 import { SONG_GENRES } from "@/app/_libs/songGenre"
 import PrePracticeSheet, { type SheetVariant } from "./PrePracticeSheet"
@@ -40,7 +41,7 @@ function Cover({ badge, cover }: { badge?: "mastered" | "achieved" | null; cover
           <circle cx="15.5" cy="16" r="2.5" />
         </svg>
       )}
-      {badge === "mastered" && <span className={styles.matCrown} aria-label="マスター">👑</span>}
+      {badge === "mastered" && <span className={styles.matCrown} aria-label="マスター"><Crown size={14} color="#fff" fill="#fff" /></span>}
       {badge === "achieved" && (
         <span className={styles.matCrown} aria-label="達成">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>

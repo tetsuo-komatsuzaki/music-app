@@ -4,6 +4,7 @@ import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import ScoreDetail from "@/app/[userId]/scores/[scoreId]/scoreDetail"
 import { uploadPracticeRecord } from "@/app/actions/uploadPracticeRecord"
+import { Music } from "lucide-react"
 import styles from "../../practice.module.css"
 
 export async function generateMetadata({
@@ -187,7 +188,7 @@ export default async function PracticeDetailPage({
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "10px 24px 0" }}>
           <a href={`/${authUserId}/scores/${fromScore.id}`}
              style={{ display: "flex", alignItems: "center", gap: 9, background: "#fff", border: "1px solid #dce7f5", borderRadius: 12, padding: "10px 14px", textDecoration: "none" }}>
-            <span aria-hidden style={{ fontSize: 15 }}>🎵</span>
+            <Music size={15} color="#2563EB" aria-hidden style={{ flex: "none" }} />
             <span style={{ fontSize: 12.5, color: "#4a5766", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               練習がおわったら<b style={{ color: "#2563EB" }}>「{fromScore.title}」にもどる →</b>
             </span>
