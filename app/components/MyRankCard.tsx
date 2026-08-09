@@ -63,7 +63,12 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
           <div className={`${styles.stamp} ${styles.now}`}>♪<span className={styles.nring} /></div>
         )}
         {s.kind === "empty" && <div className={`${styles.stamp} ${styles.empty}`}>{s.i + 1}</div>}
-        {s.kind === "goal" && <div className={`${styles.stamp} ${styles.goal}`}><Trophy size={18} color="#b58a1e" /></div>}
+        {s.kind === "goal" && (
+          <div className={`${styles.stamp} ${styles.goal}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 0, lineHeight: 1 }}>
+            <Trophy size={15} color="#b58a1e" />
+            <span style={{ fontSize: 8.5, fontWeight: 900, color: "#b58a1e" }}>☆{nextStar}</span>
+          </div>
+        )}
 
         {s.kind === "done" && stamp ? (
           <div className={styles.slabel}>
@@ -72,9 +77,9 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
             {rank && <span className={`${styles.rk} ${styles[rank]}`}>{rank.toUpperCase()} {stamp.best}</span>}
           </div>
         ) : s.kind === "now" ? (
-          <div className={`${styles.slabel} ${styles.slabelNow}`}>次はここ</div>
+          <div className={`${styles.slabel} ${styles.slabelNow}`} />
         ) : s.kind === "goal" ? (
-          <div className={styles.slabel}><b style={{ color: "var(--accent)" }}>{required}曲で☆{nextStar}!</b></div>
+          <div className={styles.slabel} />
         ) : (
           <div className={`${styles.slabel} ${styles.slabelMuted}`}>？</div>
         )}
@@ -143,7 +148,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
               <div className={styles.rankhead}>
                 <div className={styles.rankbig}><span className={styles.from}>☆{currentStar}</span> → <span className={styles.to}>☆{nextStar}</span></div>
                 <div className={styles.r}>
-                  <div className={styles.need}>ランクアップまで あと <b>{remaining}曲</b></div>
+                  <div className={styles.need}>まで あと <b>{remaining}曲</b></div>
                   <div className={styles.pips}>
                     {slots.map((s, i) => (
                       <span key={i} className={`${styles.pip} ${i < achievedCount ? styles.on : i === achievedCount ? styles.cur : ""}`} />
