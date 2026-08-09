@@ -4,6 +4,8 @@
 // データ元は GET /api/scores/[scoreId]/achievement-status。
 
 import Link from "next/link"
+import type { ReactNode } from "react"
+import { BookOpen, Music, Trophy, Sparkles, Lock } from "lucide-react"
 import type { DailyLesson } from "../_libs/dailyLessons"
 
 // achievement-status API レスポンス (route.ts と同期)
@@ -26,13 +28,13 @@ export type AchievementStatus = {
 
 type NodeOn = "a" | "m" | ""
 
-function TrackNode({ em, label, on }: { em: string; label: string; on: NodeOn }) {
+function TrackNode({ em, label, on }: { em: ReactNode; label: string; on: NodeOn }) {
   const bg = on === "a" ? "#e9f7ef" : on === "m" ? "#fbf0da" : "#f1f4f8"
   const col = on === "a" ? "#2e8b57" : on === "m" ? "#b5651d" : "#9aa6b3"
   const bd = on === "a" ? "#bfe6cf" : on === "m" ? "#eecfa0" : "transparent"
   return (
     <div style={{ flex: 1, textAlign: "center", fontSize: 11, fontWeight: 800, padding: "7px 4px", borderRadius: 10, background: bg, color: col, border: `1.5px solid ${bd}` }}>
-      <span style={{ display: "block", fontSize: 17, lineHeight: 1.1, marginBottom: 1, filter: on ? "none" : "grayscale(1) opacity(.5)" }}>{em}</span>
+      <span style={{ display: "flex", justifyContent: "center", lineHeight: 1.1, marginBottom: 1, filter: on ? "none" : "grayscale(1) opacity(.5)" }}>{em}</span>
       {label}
     </div>
   )
@@ -65,10 +67,10 @@ function GoalRing({ full, pct, done, total }: { full?: boolean; pct?: number; do
   )
 }
 
-function GoalDot({ icon, name, done, st, href }: { icon: string; name: string; done: boolean; st: string; href?: string | null }) {
+function GoalDot({ icon, name, done, st, href }: { icon: ReactNode; name: string; done: boolean; st: string; href?: string | null }) {
   const body = (
     <>
-      <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", fontSize: 14, background: done ? "#e3f5ea" : "#eef1f5", filter: done ? "none" : "grayscale(.4) opacity(.7)" }}>{icon}</span>
+      <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", background: done ? "#e3f5ea" : "#eef1f5", filter: done ? "none" : "grayscale(.4) opacity(.7)" }}>{icon}</span>
       <span style={{ fontWeight: 700, color: done ? "#1f7a4d" : "#3a4653" }}>{name}</span>
       <span style={{ marginLeft: "auto", fontSize: 11.5, fontWeight: 700, color: done ? "#34a06a" : "#9aa6b3" }}>{st}</span>
       {!done && href && <span style={{ fontSize: 11, fontWeight: 800, color: "#4a5bd0" }}>やる →</span>}
@@ -93,10 +95,10 @@ const goalCheer = (gold?: boolean) => ({
 export default function GoalTracker({ achv, userId }: { achv: AchievementStatus; userId?: string }) {
   // 達成条件（対象がある曲だけ・通し演奏は常に）→ リング進捗。
   // userId があれば未クリア条件はタップでそのまま飛べる (行き止まり解消 2026-08-02)
-  const condItems: { icon: string; name: string; done: boolean; st: string; href?: string | null }[] = [
+  const condItems: { icon: ReactNode; name: string; done: boolean; st: string; href?: string | null }[] = [
     ...(achv.lessons.total > 0
       ? [{
-          icon: "📘", name: "学びレッスン",
+          icon: <BookOpen size={14} />, name: "学びレッスン",
           done: achv.lessons.cleared >= achv.lessons.total,
           st: achv.lessons.cleared >= achv.lessons.total ? "✓" : `${achv.lessons.cleared}/${achv.lessons.total}`,
           href: userId ? (achv.lessons.nextLessonId ? `/${userId}/lessons/${achv.lessons.nextLessonId}` : `/${userId}/lessons`) : null,
@@ -104,14 +106,14 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
       : []),
     ...(achv.etude.required
       ? [{
-          icon: "🎼", name: "エチュード",
+          icon: <Music size={14} />, name: "エチュード",
           done: achv.etude.achieved === true,
           st: achv.etude.achieved ? "✓" : "まだ",
           href: userId && achv.etude.id ? `/${userId}/practice/etude/${achv.etude.id}` : null,
         }]
       : []),
     {
-      icon: "🎻", name: "通して弾く",
+      icon: <Music size={14} />, name: "通して弾く",
       done: achv.cleanRuns.count >= achv.cleanRuns.required,
       st: achv.cleanRuns.count >= achv.cleanRuns.required ? "✓" : `${achv.cleanRuns.count}/${achv.cleanRuns.required}回`,
     },
@@ -128,7 +130,7 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
   const n1On: NodeOn = achv.mastered ? "a" : achv.achieved ? "" : "a"
   const n1Label = !achv.achieved && !achv.mastered ? "いま挑戦中" : "スタート"
   const n2On: NodeOn = achv.achieved || achv.mastered ? "a" : ""
-  const n2Label = achv.mastered ? "弾ける" : achv.achieved ? "弾けた✨" : "弾ける"
+  const n2Label = achv.mastered ? "弾ける" : achv.achieved ? "弾けた" : "弾ける"
   const n3On: NodeOn = achv.mastered ? "m" : ""
   const n3Label = achv.mastered ? "マスター！" : "マスター"
 
@@ -136,15 +138,16 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
     <>
       {/* 道: スタート → 達成 → マスター */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "2px 0 14px" }}>
-        <TrackNode em="🎻" label={n1Label} on={n1On} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <TrackNode em={<img src="/Icon.png" alt="" aria-hidden width={18} height={18} style={{ borderRadius: 4 }} />} label={n1Label} on={n1On} />
         <span style={{ color: "#c4ccd6", fontWeight: 900 }}>›</span>
-        <TrackNode em="🎵" label={n2Label} on={n2On} />
+        <TrackNode em={<Music size={18} />} label={n2Label} on={n2On} />
         <span style={{ color: "#c4ccd6", fontWeight: 900 }}>›</span>
-        <TrackNode em="🏆" label={n3Label} on={n3On} />
+        <TrackNode em={<Trophy size={18} color="#b58a1e" />} label={n3Label} on={n3On} />
       </div>
 
       {achv.mastered ? (
-        <div style={goalCheer(true)}>🏆 この曲をマスター！ おつかれさま、すごい！</div>
+        <div style={{ ...goalCheer(true), display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}><Trophy size={16} color="#b58a1e" /> この曲をマスター！ おつかれさま、すごい！</div>
       ) : (
         <>
           <StepHead n="STEP 1" title="まずは弾けるように" sub="" tone="s1" />
@@ -158,8 +161,8 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
               ))}
             </div>
           </div>
-          <div style={goalCheer()}>
-            {achv.achieved ? "✨ 達成ずみ！「弾ける」認定" : `あと ${condTotal - condDone}つ で達成！`}
+          <div style={{ ...goalCheer(), display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+            {achv.achieved ? <><Sparkles size={14} /> 達成ずみ！「弾ける」認定</> : `あと ${condTotal - condDone}つ で達成！`}
           </div>
         </>
       )}
@@ -169,7 +172,7 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
       <StepHead n="STEP 2" title="マスター" sub="平均90点で認定" tone="s2" />
       {!achv.achieved && !achv.mastered ? (
         <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#f4f6f9", borderRadius: 12, padding: "12px 14px", color: "#9aa6b3", fontSize: 12.5, fontWeight: 700 }}>
-          🔒 達成すると、マスターへの挑戦がはじまるよ
+          <Lock size={15} style={{ flex: "none" }} /> 達成すると、マスターへの挑戦がはじまるよ
         </div>
       ) : (
         <div>

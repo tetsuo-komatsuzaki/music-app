@@ -8,6 +8,7 @@
 "use client"
 
 import { ArcoChan, POSES } from "./ArcoChan"
+import { Music, Mic, Rainbow, Target, Repeat, CircleCheckBig, Star, type LucideIcon } from "lucide-react"
 
 type Props = {
   open: boolean
@@ -20,19 +21,19 @@ const ACCENT = "#2e8b57"
 const ACCENT_SOFT = "#eafaf0"
 
 // 体験の流れ (コーチガイドの軸をそのまま)
-const STEPS: { emoji: string; title: string; desc: string }[] = [
-  { emoji: "🎵", title: "弾きたい曲を選ぶ", desc: "やさしい☆から。むずかしければパートごとに分けてもOK。" },
-  { emoji: "🎤", title: "一度、通して弾く", desc: "ゆっくりからで大丈夫。完璧じゃなくていい。" },
-  { emoji: "🌈", title: "アルコが見てくれる", desc: "音符ひとつずつ色がついて、どこが苦手か“目で見て”わかる。" },
-  { emoji: "🎯", title: "苦手に効く練習が届く", desc: "音階・運指・ボウイングなど目的別。知らない技法は「学びのレッスン」で基礎から。" },
-  { emoji: "🔁", title: "練習したら、また曲へ", desc: "弾く → わかる → 直す。この行き来でうまくなっていく。" },
-  { emoji: "✅", title: "達成 → 🏆 マスター", desc: "通しで弾ききれたら「達成」。音程とリズムの平均が90点以上で「マスター」。" },
-  { emoji: "⭐️", title: "★アップ → ランクアップ", desc: "同じ★の曲を10曲マスターすると次のレベルへ。もっとむずかしい曲に挑戦できる。" },
+const STEPS: { Icon: LucideIcon; title: string; desc: string }[] = [
+  { Icon: Music, title: "弾きたい曲を選ぶ", desc: "やさしい☆から。むずかしければパートごとに分けてもOK。" },
+  { Icon: Mic, title: "一度、通して弾く", desc: "ゆっくりからで大丈夫。完璧じゃなくていい。" },
+  { Icon: Rainbow, title: "アルコが見てくれる", desc: "音符ひとつずつ色がついて、どこが苦手か“目で見て”わかる。" },
+  { Icon: Target, title: "苦手に効く練習が届く", desc: "音階・運指・ボウイングなど目的別。知らない技法は「学びのレッスン」で基礎から。" },
+  { Icon: Repeat, title: "練習したら、また曲へ", desc: "弾く → わかる → 直す。この行き来でうまくなっていく。" },
+  { Icon: CircleCheckBig, title: "達成 → マスター", desc: "通しで弾ききれたら「達成」。音程とリズムの平均が90点以上で「マスター」。" },
+  { Icon: Star, title: "★アップ → ランクアップ", desc: "同じ★の曲を10曲マスターすると次のレベルへ。もっとむずかしい曲に挑戦できる。" },
 ]
 
 const TERMS: { term: string; desc: string }[] = [
   { term: "達成", desc: "その曲を通しで弾ききれた印。" },
-  { term: "マスター🏆", desc: "その曲の音程×リズムの平均が90点以上。" },
+  { term: "マスター", desc: "その曲の音程×リズムの平均が90点以上。" },
   { term: "★（レベル）", desc: "曲のむずかしさ。同じ★を10曲マスターで次へ。" },
   { term: "ランク", desc: "★に応じた称号（初級者→中級者→上級者→マスター）。" },
 ]
@@ -85,8 +86,8 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
                   {i + 1}
                 </span>
                 <span style={{ minWidth: 0 }}>
-                  <span style={{ display: "block", fontSize: 14.5, fontWeight: 800, color: INK }}>
-                    {s.emoji} {s.title}
+                  <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14.5, fontWeight: 800, color: INK }}>
+                    <s.Icon size={16} color={ACCENT} /> {s.title}
                   </span>
                   <span style={{ display: "block", fontSize: 12.5, color: SUB, lineHeight: 1.55, marginTop: 2 }}>
                     {s.desc}

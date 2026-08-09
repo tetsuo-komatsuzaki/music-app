@@ -10,6 +10,7 @@
 
 "use client"
 
+import { Trophy } from "lucide-react"
 import styles from "./GradeProgressBar.module.css"
 
 type Props = {
@@ -47,7 +48,7 @@ export default function GradeProgressBar({
     return (
       <div className={styles.wrapper}>
         <div className={styles.masterRow}>
-          <span className={styles.masterIcon} aria-hidden="true">🏆</span>
+          <span className={styles.masterIcon} aria-hidden="true"><Trophy size={18} color="#b58a1e" /></span>
           <span className={styles.masterText}>
             {masterReachedAt
               ? `マスター達成: ${formatJpDate(masterReachedAt)}`

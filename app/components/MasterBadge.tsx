@@ -6,6 +6,7 @@
 // マスターは達成を含むため表示は常に上位1つだけ。
 // UI 上の曲名表示箇所すべてで共通利用する。
 
+import { Trophy, Sparkles } from "lucide-react"
 import type { AchievementBadgeKind } from "@/app/_libs/starProgress"
 
 type Props = {
@@ -47,7 +48,7 @@ export default function MasterBadge({ kind, mastered, size = "sm" }: Props) {
         verticalAlign: "middle",
       }}
     >
-      {isMaster ? "🏆 マスター" : "✨ 達成"}
+      {isMaster ? <><Trophy size={isMd ? 14 : 12} /> マスター</> : <><Sparkles size={isMd ? 14 : 12} /> 達成</>}
     </span>
   )
 }

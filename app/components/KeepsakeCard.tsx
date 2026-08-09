@@ -4,6 +4,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { Gift } from "lucide-react"
 
 export type Keepsake = {
   pieceName: string
@@ -117,9 +118,9 @@ export default function KeepsakeCard({ keepsake }: { keepsake: Keepsake }) {
       <button
         type="button"
         onClick={onShare}
-        style={{ marginTop: 10, width: "100%", border: "none", borderRadius: 12, padding: 11, fontSize: 12.5, fontWeight: 800, background: "rgba(255,255,255,.85)", color: "#55616e", cursor: "pointer" }}
+        style={{ marginTop: 10, width: "100%", border: "none", borderRadius: 12, padding: 11, fontSize: 12.5, fontWeight: 800, background: "rgba(255,255,255,.85)", color: "#55616e", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}
       >
-        🎁 家族に送る
+        <Gift size={15} /> 家族に送る
       </button>
       <canvas ref={canvasRef} style={{ display: "none" }} aria-hidden />
     </div>

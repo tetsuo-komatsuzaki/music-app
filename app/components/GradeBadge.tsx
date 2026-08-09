@@ -24,7 +24,7 @@ type Props = {
 export default function GradeBadge({ currentStar, currentGrade, onTap }: Props) {
   const isMaster = currentGrade === "MASTER"
   const label = isMaster ? "マスター達成" : GRADE_NAMES[currentGrade]
-  const starText = isMaster ? "🌟" : `☆${currentStar ?? 1}`
+  const starText = isMaster ? "★" : `☆${currentStar ?? 1}`
   const className = `${styles.badge} ${styles[`badge_${currentGrade}`]} ${
     isMaster ? styles.badgeMasterAchieved : ""
   }`

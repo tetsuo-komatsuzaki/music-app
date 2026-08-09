@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { Trophy, Sparkles, Target } from "lucide-react"
 import styles from "../[userId]/homeBlocks.module.css"
 import GoalTracker, { type AchievementStatus } from "./GoalTracker"
 import DailyLessons from "./DailyLessons"
@@ -66,8 +67,8 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
         {pieces.length > 1 && (
           <div className={styles.tabs}>
             {pieces.map((p, i) => (
-              <button key={p.id} type="button" onClick={() => setActive(i)} className={`${styles.tab} ${active === i ? styles.tabOn : ""}`}>
-                {p.badge === "mastered" ? "🏆 " : p.badge === "achieved" ? "✨ " : ""}{p.title}
+              <button key={p.id} type="button" onClick={() => setActive(i)} className={`${styles.tab} ${active === i ? styles.tabOn : ""}`} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                {p.badge === "mastered" ? <Trophy size={13} color="#b58a1e" /> : p.badge === "achieved" ? <Sparkles size={13} color="#2e8b57" /> : null}{p.title}
               </button>
             ))}
           </div>
@@ -83,7 +84,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
         </Link>
 
         {/* 🏆 この曲のゴール (達成/マスター。曲詳細と同じ GoalTracker を流用。体験上の重要要素・削除しない) */}
-        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "14px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}>🏆 この曲のゴール</div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "14px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#b58a1e" /> この曲のゴール</div>
         {ach ? (
           <GoalTracker achv={ach} userId={userId} />
         ) : (
@@ -91,7 +92,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
         )}
 
         {/* 毎日の基礎練 (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホーム/曲詳細で共通) */}
-        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "16px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11 }}>🎯 毎日の基礎練</div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#9aa6b3", margin: "16px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Target size={13} color="#2563EB" /> 毎日の基礎練</div>
         {ach ? (
           <DailyLessons lessons={ach.dailyLessons ?? []} userId={userId} />
         ) : (

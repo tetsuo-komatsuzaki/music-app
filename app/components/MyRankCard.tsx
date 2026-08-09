@@ -3,6 +3,7 @@
 import { useEffect, useState, type CSSProperties } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
+import { Trophy, PartyPopper } from "lucide-react"
 import styles from "./MyRankCard.module.css"
 import { ArcoChan, POSES } from "./ArcoChan"
 import {
@@ -62,7 +63,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
           <div className={`${styles.stamp} ${styles.now}`}>♪<span className={styles.nring} /></div>
         )}
         {s.kind === "empty" && <div className={`${styles.stamp} ${styles.empty}`}>{s.i + 1}</div>}
-        {s.kind === "goal" && <div className={`${styles.stamp} ${styles.goal}`}>🏆</div>}
+        {s.kind === "goal" && <div className={`${styles.stamp} ${styles.goal}`}><Trophy size={18} color="#b58a1e" /></div>}
 
         {s.kind === "done" && stamp ? (
           <div className={styles.slabel}>
@@ -160,7 +161,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
               <div className={styles.cheer}>
                 <div className={styles.av}><ArcoChan pose={POSE_JOY} /></div>
                 <div className={styles.bwrap}>
-                  <span className={styles.cheertag}>{achievedCount}曲達成{remaining === 0 ? " 🎉" : ""}</span>
+                  <span className={styles.cheertag} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>{achievedCount}曲達成{remaining === 0 ? <PartyPopper size={12} /> : null}</span>
                   <div className={styles.bubble}>{cheerForCount(achievedCount, required)}</div>
                 </div>
               </div>

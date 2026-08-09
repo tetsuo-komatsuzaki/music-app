@@ -6,6 +6,7 @@
 //   mild(気になる) / focus(要重点) / improving(🌿良くなってきた) / resolved(🌱克服=卒業)
 // renderTagActions を渡すと各タグ行に操作UIが出る (先生の経過記録用)。
 import { useState, type ReactNode } from "react"
+import { Sprout } from "lucide-react"
 import { BODY_VIEWS, SPOT_BY_TAG, spotsOf, type BodyViewId } from "@/app/_libs/bodyMap"
 import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
 import BodyFigure from "@/app/components/BodyFigure"
@@ -21,7 +22,7 @@ const SUB = "#8a9099"
 
 function sevPill(s: string | null) {
   if (s === "focus") return { l: "要重点", c: BAD.c, bg: BAD.bg, bd: BAD.bd }
-  if (s === "improving") return { l: "🌿 良くなってきた", c: "#2e8b57", bg: "#e9f5ee", bd: "#cfe6d8" }
+  if (s === "improving") return { l: "良くなってきた", c: "#2e8b57", bg: "#e9f5ee", bd: "#cfe6d8" }
   return { l: "気になる", c: "#b7823a", bg: "#faf1e1", bd: "#ecdfc8" }
 }
 
@@ -131,7 +132,7 @@ export default function BodyObsMap({ tags, renderTagActions }: {
       {/* 🌱 克服した癖 (卒業リスト) */}
       {resolved.length > 0 && (
         <div style={{ marginTop: 10 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, color: "#2e8b57", marginBottom: 6 }}>🌱 克服した癖</div>
+          <div style={{ fontSize: 11, fontWeight: 800, color: "#2e8b57", marginBottom: 6, display: "flex", alignItems: "center", gap: 5 }}><Sprout size={13} /> 克服した癖</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {resolved.map((t) => (
               <span key={t.tagId} style={{ fontSize: 10.5, fontWeight: 700, color: "#7b8a80", background: "#f2f6f3", border: "1px solid #dbe6de", borderRadius: 999, padding: "4px 10px", textDecoration: "line-through" }}>

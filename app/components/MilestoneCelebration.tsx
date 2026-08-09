@@ -4,6 +4,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
+import { Sparkles, Trophy, Star, Award, TrendingUp, Share2, type LucideIcon } from "lucide-react"
 import { ArcoChan, POSES } from "./ArcoChan"
 import KeepsakeCard, { type Keepsake } from "./KeepsakeCard"
 import ShareSheet from "./ShareSheet"
@@ -21,8 +22,13 @@ const THEME: Record<string, { main: string; grad: string }> = {
   teal: { main: "#2e8b57", grad: "linear-gradient(160deg,#eafaf3,#cfeede)" },
   blue: { main: "#3f74c4", grad: "linear-gradient(160deg,#eef4fc,#dbe8fa)" },
 }
+// keepsake の絵柄はキャンバス(ctx.fillText)描画のため絵文字文字列のまま保持する
 const TYPE_EMOJI: Record<string, string> = {
   achieve: "✨", master: "🏆", rank_up: "⭐", material_clear: "🏅", personal_best: "📈",
+}
+// HTML表示用の見出しアイコン
+const TYPE_ICON: Record<string, LucideIcon> = {
+  achieve: Sparkles, master: Trophy, rank_up: Star, material_clear: Award, personal_best: TrendingUp,
 }
 const TIER_LABEL: Record<string, string> = {
   achieve: "達成", master: "マスター", rank_up: "ランクアップ", material_clear: "課題クリア", personal_best: "自己ベスト更新",
@@ -118,8 +124,8 @@ export default function MilestoneCelebration(props: MilestoneCelebrationProps) {
         <div style={{ position: "relative", width: 96, height: 96, margin: "2px auto 6px", animation: reduced ? undefined : "mc-hop 1.1s ease-in-out infinite" }}>
           <ArcoChan pose={poseByCat(spec.arcoPose)} />
         </div>
-        <div style={{ position: "relative", fontSize: 11, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase", color: theme.main, marginBottom: 2 }}>
-          {emoji} {TIER_LABEL[ev.type]}
+        <div style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 800, letterSpacing: ".12em", textTransform: "uppercase", color: theme.main, marginBottom: 2 }}>
+          {(() => { const Ic = TYPE_ICON[ev.type] ?? Sparkles; return <Ic size={13} /> })()} {TIER_LABEL[ev.type]}
         </div>
         <div style={{ position: "relative", fontSize: 22, fontWeight: 900, color: theme.main, marginBottom: 4, animation: reduced ? undefined : "mc-pop .5s cubic-bezier(.2,1.4,.4,1)" }}>
           {copy.title}
@@ -127,7 +133,7 @@ export default function MilestoneCelebration(props: MilestoneCelebrationProps) {
         <div style={{ position: "relative", fontSize: 12.5, color: "#4a5766", marginBottom: 14, opacity: 0.95 }}>{copy.sub}</div>
         {sel.absorbedBest && step === 0 && (
           <div style={{ position: "relative", fontSize: 11.5, fontWeight: 800, color: "#3f74c4", background: "#eef4fc", borderRadius: 999, padding: "4px 10px", display: "inline-block", margin: "0 auto 12px" }}>
-            📈 自己ベストも更新！
+<span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><TrendingUp size={13} /> 自己ベストも更新！</span>
           </div>
         )}
 
@@ -140,7 +146,7 @@ export default function MilestoneCelebration(props: MilestoneCelebrationProps) {
         <div style={{ position: "relative", marginTop: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
           {/* シェア: rank_up はいつでも / master は subject の scoreId があるとき */}
           {(ev.type === "rank_up" || (ev.type === "master" && ev.subject?.id)) && (
-            <button type="button" onClick={() => setShareOpen(true)} style={ghostBtn}>📤 シェアする</button>
+            <button type="button" onClick={() => setShareOpen(true)} style={{ ...ghostBtn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}><Share2 size={14} /> シェアする</button>
           )}
           {isLast && ev.type === "rank_up" && onNewPieces && (
             <button type="button" onClick={onNewPieces} style={ghostBtn}>新しい曲を見る</button>

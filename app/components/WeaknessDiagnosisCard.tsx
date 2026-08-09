@@ -14,6 +14,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { PartyPopper } from "lucide-react"
 import styles from "./WeaknessDiagnosisCard.module.css"
 import { formatKey } from "@/app/_libs/musicNotation"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
@@ -68,7 +69,7 @@ export function DiagnosisBody({
   if (data.verdict === "perfect") {
     return (
       <div className={styles.perfectBox}>
-        <span className={styles.perfectEmoji}>🎉</span>
+        <span className={styles.perfectEmoji}><PartyPopper size={20} /></span>
         完璧な演奏です！
       </div>
     )
