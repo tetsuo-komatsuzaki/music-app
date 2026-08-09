@@ -74,14 +74,17 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
           </div>
         )}
 
-        {/* いま練習している曲 = このカードの主役。1つのまとまりとして際立たせる */}
-        <Link href={piece.href} className={styles.piece} style={{ textDecoration: "none", color: "inherit", background: "#fbfcfe", border: "1px solid #e8eef6", borderRadius: 13, padding: "11px 12px", gap: 12 }}>
-          <div className={`${styles.thumb} ${styles.thumbGoal}`} style={{ width: 48, height: 48, fontSize: "var(--fs-title)" }}>{piece.cover ? <img src={piece.cover} alt="" loading="lazy" /> : "♪"}</div>
+        {/* いま練習している曲 = このカードの主役。背景・文字色を変えてスポットライトに */}
+        <Link href={piece.href} className={styles.piece} style={{ textDecoration: "none", color: "inherit", background: "linear-gradient(135deg,#fdf7ea,#fbeed4)", border: "1px solid #ecd7a0", borderRadius: 14, padding: "12px 13px", gap: 12, boxShadow: "0 2px 10px rgba(160,120,30,.12)" }}>
+          <div className={styles.thumb} style={{ width: 50, height: 50, fontSize: "var(--fs-title)", background: "#fff", border: "1px solid #f0e0b8", color: "#b58a1e" }}>{piece.cover ? <img src={piece.cover} alt="" loading="lazy" /> : "♪"}</div>
           <div className={styles.g}>
-            <div className={styles.title} style={{ fontSize: "var(--fs-head)", color: "var(--text-ink)" }}>{piece.title}</div>
-            <div className={styles.meta} style={{ fontSize: "var(--fs-body)", marginTop: 1 }}>{piece.star != null ? `☆${piece.star} ・ ` : ""}直近 {piece.latest}点</div>
+            <div className={styles.title} style={{ fontSize: "var(--fs-head)", color: "#4a3612" }}>{piece.title}</div>
+            <div className={styles.meta} style={{ fontSize: "var(--fs-body)", color: "#9a7b3f", fontWeight: 700, marginTop: 1 }}>{piece.star != null ? `☆${piece.star} ・ ` : ""}直近 {piece.latest}点</div>
           </div>
-          <span className={`${styles.chip} ${styles.chipGoal}`} style={{ fontSize: "var(--fs-caption)", alignSelf: "flex-start" }}>{chipLabel}</span>
+          <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", justifyContent: "space-between", alignSelf: "stretch", flex: "none", gap: 6 }}>
+            <span className={styles.chip} style={{ fontSize: "var(--fs-caption)", background: "#fff", color: "#8a5a1f", border: "1px solid #eed9a0" }}>{chipLabel}</span>
+            <span aria-hidden style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#b58a1e", lineHeight: 1 }}>→</span>
+          </span>
         </Link>
 
         {/* 🏆 この曲のゴール (達成/マスター。曲詳細と同じ GoalTracker を流用。体験上の重要要素・削除しない) */}
