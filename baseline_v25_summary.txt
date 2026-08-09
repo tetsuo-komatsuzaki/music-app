@@ -1,0 +1,1 @@
+evaluatedNotes=51 pitch=75 rhythm=26.6

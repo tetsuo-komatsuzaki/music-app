@@ -7,6 +7,7 @@
 // 30日固定 (期間切替は数字のへや)。次の一歩はホームの領分 (カルテには置かない)。
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
+import { Share2, Search } from "lucide-react"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import type { KarteData, SkillNode } from "@/app/_libs/growthKarte"
 import BodyObsMap from "@/app/components/BodyObsMap"
@@ -126,13 +127,14 @@ function Hero({ data, readOnly, onShare }: { data: KarteData; readOnly: boolean;
           </div>
           {!readOnly && (
             <button type="button" onClick={onShare}
-              style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 800, color: GOLD, background: "rgba(255,255,255,.7)", border: "1px solid #eee0bd", borderRadius: 999, padding: "4px 11px", cursor: "pointer" }}>
-              📤 今週をシェア
+              style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 800, color: GOLD, background: "rgba(255,255,255,.7)", border: "1px solid #eee0bd", borderRadius: 999, padding: "4px 11px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <Share2 size={12} /> 今週をシェア
             </button>
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
-          <span style={{ flex: "none", fontSize: 42, filter: "drop-shadow(0 3px 6px rgba(160,120,30,.25))" }} aria-hidden>🎻</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/Icon.png" alt="" aria-hidden width={42} height={42} style={{ flex: "none", borderRadius: 9, filter: "drop-shadow(0 3px 6px rgba(160,120,30,.25))" }} />
           <span style={{ flex: 1, background: "rgba(255,255,255,.75)", border: "1px solid #eee0bd", borderRadius: 13, borderTopLeftRadius: 4, padding: "9px 12px", fontSize: 11.5, fontWeight: 700, color: "#4a4030" }}>
             {data.v2.arcoLine}
           </span>
@@ -282,7 +284,7 @@ function ExprChapter({ userId, data, readOnly }: { userId: string; data: KarteDa
         <div style={chapTitle}>表現のレベル</div>
         <div style={chapNote}>
           先生の認定 ・ ★は認定された曲のレベル
-          {litCount === 0 && " ・ 曲で表現して「👂 先生に聴いてもらう」と認定してもらえるよ"}
+          {litCount === 0 && " ・ 曲で表現して「先生に聴いてもらう」と認定してもらえるよ"}
         </div>
       </div>
       <div style={railStyle}>
@@ -360,7 +362,7 @@ function DiscoveryChapter({ userId, data, readOnly }: { userId: string; data: Ka
           <div style={{ background: "rgba(255,255,255,.8)", border: "1px solid #efe5cc", borderRadius: 16, padding: "13px 15px" }}>
             {d.lens ? (
               <>
-                <div style={{ fontSize: 9.5, fontWeight: 800, color: "#a4527a" }}>🔍 30日の録音ぜんぶから見つけた</div>
+                <div style={{ fontSize: 9.5, fontWeight: 800, color: "#a4527a", display: "flex", alignItems: "center", gap: 4 }}><Search size={11} /> 30日の録音ぜんぶから見つけた</div>
                 <div style={{ fontSize: 27, fontWeight: 900, marginTop: 2 }}>
                   {d.lens.note} <span style={{ fontSize: 12, color: "#8a7c62", fontWeight: 800 }}>{d.lens.hand ? `${d.lens.hand}・推定` : d.lens.raw}</span>
                 </div>

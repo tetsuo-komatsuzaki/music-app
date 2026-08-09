@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>OSMD inspect</title>
+<script src="https://unpkg.com/opensheetmusicdisplay@1.8.7/build/opensheetmusicdisplay.min.js"></script>
+<style>
+  body { font: 13px monospace; }
+  #osmd-container { width: 800px; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+<select id="zoomSel">
+  <option value="0.45">0.45 (mobile <400)</option>
+  <option value="0.6">0.6 (<700)</option>
+  <option value="0.75">0.75 (<1000)</option>
+  <option value="0.85" selected>0.85 (desktop)</option>
+</select>
+<select id="widthSel">
+  <option value="350">350 mobile</option>
+  <option value="500">500</option>
+  <option value="800" selected>800 tablet</option>
+  <option value="1200">1200 desktop</option>
+</select>
+<button id="go">Render</button>
+<div id="osmd-container"></div>
+<pre id="report" style="white-space:pre-wrap"></pre>
+<script>
+let osmd
+async function render() {
+  const zoom = parseFloat(document.getElementById('zoomSel').value)
+  const width = parseInt(document.getElementById('widthSel').value)
+  const container = document.getElementById('osmd-container')
+  container.style.width = width + 'px'
+  container.innerHTML = ''
+  const r = document.getElementById('report')
+  r.textContent = ''
+  const log = (m) => { r.textContent += m + '\n' }
+
+  log(`zoom=${zoom} width=${width}`)
+  const xml = await (await fetch('./aria.musicxml')).text()
+  osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay(container, {
+    autoResize: true, backend: 'svg', drawTitle: false, drawPartNames: false,
+    pageFormat: 'Endless', newPageFromXML: false, renderSingleHorizontalStaffline: false,
+    pageBackgroundColor: '#ffffff', followCursor: false,
+  })
+  await osmd.load(xml)
+  osmd.zoom = zoom
+  osmd.render()
+
+  log(`container.scrollHeight: ${container.scrollHeight}`)
+  log(`container.clientHeight: ${container.clientHeight}`)
+  log(`container.children: ${container.children.length}`)
+
+  const pages = osmd.GraphicSheet?.MusicPages ?? []
+  log(`MusicPages: ${pages.length}`)
+  for (let p = 0; p < pages.length; p++) {
+    const systems = pages[p].MusicSystems
+    log(`  page[${p}]: ${systems.length} systems`)
+    for (let s = 0; s < systems.length; s++) {
+      const sys = systems[s]
+      const y = sys.PositionAndShape.AbsolutePosition.y
+      const measures = Array.isArray(sys.GraphicalMeasures[0]) ? sys.GraphicalMeasures.flat() : sys.GraphicalMeasures
+      let beats = 0
+      for (const m of measures) {
+        const d = m?.parentSourceMeasure?.Duration
+        if (d) beats += d.RealValue * 4
+      }
+      const predictedPx = y * 10 * zoom
+      // Get actual rendered position
+      log(`    system[${s}]: yOsmd=${y.toFixed(2)} predictedPx=${predictedPx.toFixed(1)} measures=${measures.length} beats=${beats}`)
+    }
+  }
+
+  // Also check actual SVG element bounding boxes
+  const svgs = container.querySelectorAll('svg')
+  log(`\nactual SVG count: ${svgs.length}`)
+  svgs.forEach((s, i) => {
+    const r = s.getBoundingClientRect()
+    log(`  svg[${i}]: bbox h=${r.height.toFixed(1)} w=${r.width.toFixed(1)} viewBox=${s.getAttribute('viewBox')}`)
+  })
+
+  // Compute predicted totalHeightPx
+  const allSys = []
+  for (const p of pages) for (const s of p.MusicSystems) allSys.push(s.PositionAndShape.AbsolutePosition.y)
+  if (allSys.length >= 2) {
+    const last = allSys[allSys.length-1] * 10 * zoom
+    const prev = allSys[allSys.length-2] * 10 * zoom
+    const lastH = last - prev
+    log(`\npredicted totalHeightPx = ${(last + lastH).toFixed(1)}`)
+    log(`actual scrollHeight     = ${container.scrollHeight}`)
+    log(`DIFFERENCE: ${(container.scrollHeight - (last + lastH)).toFixed(1)} px (positive = actual is taller)`)
+  }
+  log('[DONE]')
+}
+document.getElementById('go').onclick = render
+render()
+</script>
+</body>
+</html>

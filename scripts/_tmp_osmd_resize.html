@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>OSMD resize test</title>
+<script src="https://unpkg.com/opensheetmusicdisplay@1.8.7/build/opensheetmusicdisplay.min.js"></script>
+</head>
+<body>
+<div id="osmd-container" style="border: 1px solid #ccc; width: 800px;"></div>
+<pre id="report" style="white-space:pre-wrap;font:13px monospace;"></pre>
+<script type="text/javascript">
+window.results = {}
+function L(m) {
+  document.getElementById('report').textContent += m + '\n'
+  console.log(m)
+}
+function inspectPlan(osmd, zoom, label) {
+  var container = document.getElementById('osmd-container')
+  var pages = (osmd.GraphicSheet && osmd.GraphicSheet.MusicPages) || []
+  var allSys = []
+  var totalBeats = 0
+  for (var p = 0; p < pages.length; p++) {
+    var systems = pages[p].MusicSystems
+    for (var s = 0; s < systems.length; s++) {
+      var sys = systems[s]
+      var y = sys.PositionAndShape.AbsolutePosition.y
+      var measuresRaw = sys.GraphicalMeasures
+      var measures = Array.isArray(measuresRaw[0]) ? measuresRaw.flat() : measuresRaw
+      var beats = 0
+      for (var i = 0; i < measures.length; i++) {
+        var d = measures[i] && measures[i].parentSourceMeasure && measures[i].parentSourceMeasure.Duration
+        if (d) beats += d.RealValue * 4
+      }
+      allSys.push({ y: y, measures: measures.length, beats: beats })
+      totalBeats += beats
+    }
+  }
+  var UNIT = 10 * zoom
+  var totalH = 0
+  if (allSys.length >= 2) {
+    var last = allSys[allSys.length-1].y * UNIT
+    var prev = allSys[allSys.length-2].y * UNIT
+    totalH = last + (last - prev)
+  }
+  L('[' + label + ']')
+  L('  clientWidth=' + container.clientWidth + ' zoom=' + zoom)
+  L('  systems=' + allSys.length + ' totalBeats=' + totalBeats)
+  L('  predictedTotalHeightPx=' + totalH.toFixed(1))
+  L('  actualScrollHeight=' + container.scrollHeight)
+  L('  diff=' + (container.scrollHeight - totalH).toFixed(1))
+  return { totalH: totalH, scrollH: container.scrollHeight, systems: allSys.length, beats: totalBeats }
+}
+async function main() {
+  var container = document.getElementById('osmd-container')
+  var xml = await (await fetch('./aria.musicxml')).text()
+  var osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay(container, {
+    autoResize: true, backend: 'svg', drawTitle: false, drawPartNames: false,
+    pageFormat: 'Endless', newPageFromXML: false, renderSingleHorizontalStaffline: false,
+    pageBackgroundColor: '#ffffff', followCursor: false,
+  })
+  await osmd.load(xml)
+  osmd.zoom = 0.75
+  osmd.render()
+  await new Promise(function(r){setTimeout(r, 200)})
+  var before = inspectPlan(osmd, 0.75, 'BEFORE-fullscreen')
+
+  L('--- simulate fullscreen padding 0 5% ---')
+  container.style.padding = '0 5%'
+  await new Promise(function(r){setTimeout(r, 500)})
+  L('after padding change, before manual re-render')
+  L('  clientWidth=' + container.clientWidth)
+  L('  scrollHeight=' + container.scrollHeight)
+
+  osmd.render()
+  await new Promise(function(r){setTimeout(r, 200)})
+  var after = inspectPlan(osmd, 0.75, 'AFTER-fullscreen')
+
+  L('--- COMPARE ---')
+  L('scrollHeight ' + before.scrollH + ' -> ' + after.scrollH + ' diff=' + (after.scrollH - before.scrollH))
+  L('systems ' + before.systems + ' -> ' + after.systems)
+  L('beats ' + before.beats + ' -> ' + after.beats)
+  L('predicted ' + before.totalH.toFixed(1) + ' -> ' + after.totalH.toFixed(1))
+  if (after.scrollH > before.totalH) {
+    L('BUG: actual scrollHeight (' + after.scrollH + ') > old scrollPlan.totalHeightPx (' + before.totalH.toFixed(1) + ')')
+    L('  hidden range: ' + (after.scrollH - before.totalH).toFixed(1) + ' px')
+  } else {
+    L('no significant size diff between before and after')
+  }
+  L('[DONE]')
+  window.results = { before: before, after: after }
+}
+main().catch(function(e){ L('ERR: ' + e.message) })
+</script>
+</body>
+</html>
