@@ -133,7 +133,7 @@ export default function AdminMissingItems({
         <div className={styles.empty}>
           {showResolved
             ? "フラグはありません。"
-            : "未解決の不足教材フラグはありません 🎉"}
+            : "未解決の不足教材フラグはありません"}
         </div>
       ) : (
         <ul className={styles.groupList}>

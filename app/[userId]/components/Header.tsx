@@ -3,6 +3,7 @@
 import styles from "./Header.module.css"
 import Image from "next/image"
 import Link from "next/link"
+import { GraduationCap } from "lucide-react"
 import { useParams } from "next/navigation"
 import { useOnboarding } from "../_onboarding/hooks/useOnboarding"
 
@@ -23,9 +24,10 @@ export default function Header({ role }: { role?: string }) {
               style={{
                 fontSize: 11.5, fontWeight: 700, color: "#2b3742", textDecoration: "none",
                 background: "#eef1f4", border: "1px solid #e2e6ea", borderRadius: 999, padding: "4px 10px",
+                display: "inline-flex", alignItems: "center", gap: 4,
               }}
             >
-              🎓 先生モード
+              <GraduationCap size={13} /> 先生モード
             </Link>
           )}
           <button

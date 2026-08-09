@@ -159,7 +159,7 @@ export default function AdminConfirmations({
       </h2>
       {pending.length === 0 ? (
         <p style={{ fontSize: 13, color: "#888", marginBottom: 20 }}>
-          未確認の曖昧記号はありません 🎉
+          未確認の曖昧記号はありません
         </p>
       ) : (
         pending.map((g) => (

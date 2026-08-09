@@ -218,9 +218,9 @@ function SkillLitBanner({ userId, lits }: { userId: string; lits: { key: string;
       display: "flex", alignItems: "center", gap: 8, margin: "0 0 10px", padding: "10px 12px",
       borderRadius: 12, background: "linear-gradient(135deg,#fdf6e0,#f9ecc8)", border: "1px solid #eed9a0",
     }}>
-      <span style={{ fontSize: 18 }}>⭐</span>
+      <Sparkles size={18} color="#c9a227" style={{ flex: "none" }} />
       <div style={{ flex: 1, minWidth: 0, fontSize: 12, fontWeight: 800, color: "#7a6420", lineHeight: 1.5 }}>
-        わざ{labels}が点灯したよ！🎉
+        わざ{labels}が点灯したよ！
         <Link href={`/${userId}/progress`} style={{ marginLeft: 6, color: "#4a5bd0", textDecoration: "underline", fontWeight: 800 }}>
           カルテの技術マップで見る
         </Link>

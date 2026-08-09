@@ -1101,7 +1101,7 @@ function Homework({
                   if (!a.submitted) return <span style={{ fontSize: 11, fontWeight: 800, color: "#b7823a", flex: "none" }}>未提出</span>
                   const passed = scorePassed(a.goalType, a.targetScore, a.submittedScore)
                   const base = `提出済${a.submittedScore != null ? ` ${a.submittedScore}点` : ""}`
-                  return <span style={{ fontSize: 11, fontWeight: 800, color: passed === false ? "#c0392b" : "#2e8b57", flex: "none" }}>{base}{passed === true ? " ・合格🎉" : passed === false ? " ・あと少し" : ""}</span>
+                  return <span style={{ fontSize: 11, fontWeight: 800, color: passed === false ? "#c0392b" : "#2e8b57", flex: "none" }}>{base}{passed === true ? " ・合格" : passed === false ? " ・あと少し" : ""}</span>
                 })()}
               </div>
               <div style={{ fontSize: 12, color: "#6b7885", marginTop: 3 }}>

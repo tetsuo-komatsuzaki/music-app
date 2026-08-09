@@ -2,6 +2,7 @@
 // フラグOFF時は導線非表示 + 直リンク404。曲のみ表示・group集約(マスター優先)。認可は [userId] レイアウト踏襲。
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import { Trophy, Sparkles } from "lucide-react"
 import { prisma } from "@/app/_libs/prisma"
 
 export default async function RecordsPage({ params }: { params: Promise<{ userId: string }> }) {
@@ -68,12 +69,12 @@ export default async function RecordsPage({ params }: { params: Promise<{ userId
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={c.cover} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} loading="lazy" />
                 ) : (
-                  <span aria-hidden>{c.mastered ? "🏆" : "✨"}</span>
+                  <span aria-hidden>{c.mastered ? <Trophy size={34} color="#b5651d" /> : <Sparkles size={34} color="#2e8b57" />}</span>
                 )}
               </div>
               <div style={{ padding: "9px 10px 11px" }}>
-                <div style={{ fontSize: 10.5, fontWeight: 800, color: c.mastered ? "#b5651d" : "#2e8b57" }}>
-                  {c.mastered ? "🏆 マスター" : "✨ 達成"}
+                <div style={{ fontSize: 10.5, fontWeight: 800, color: c.mastered ? "#b5651d" : "#2e8b57", display: "flex", alignItems: "center", gap: 4 }}>
+                  {c.mastered ? <><Trophy size={12} /> マスター</> : <><Sparkles size={12} /> 達成</>}
                 </div>
                 <div style={{ fontSize: 12.5, fontWeight: 800, color: "#2b3742", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {c.title}

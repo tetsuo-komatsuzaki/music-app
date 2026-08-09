@@ -7,7 +7,7 @@
 // 30日固定 (期間切替は数字のへや)。次の一歩はホームの領分 (カルテには置かない)。
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { Share2, Search } from "lucide-react"
+import { Share2, Search, Flame } from "lucide-react"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import type { KarteData, SkillNode } from "@/app/_libs/growthKarte"
 import BodyObsMap from "@/app/components/BodyObsMap"
@@ -166,8 +166,8 @@ function SkillsChapter({ userId, data, readOnly }: { userId: string; data: Karte
           <b>先生とつながると開放</b>されます。
         </div>
         <Link href={`/${userId}/find-teacher`}
-          style={{ display: "inline-block", fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none", marginBottom: 12 }}>
-          🔎 先生を探す →
+          style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none", marginBottom: 12 }}>
+          <Search size={14} /> 先生を探す →
         </Link>
       </div>
     )
@@ -268,8 +268,8 @@ function ExprChapter({ userId, data, readOnly }: { userId: string; data: KarteDa
             <b>先生とつながると開放</b>されます。
           </div>
           <Link href={`/${userId}/find-teacher`}
-            style={{ display: "inline-block", fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none" }}>
-            🔎 先生を探す →
+            style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none" }}>
+            <Search size={14} /> 先生を探す →
           </Link>
         </div>
       </Reveal>
@@ -390,7 +390,7 @@ function DiscoveryChapter({ userId, data, readOnly }: { userId: string; data: Ka
             <details style={{ marginTop: 9 }}>
               <summary style={{ fontSize: 10, fontWeight: 800, color: SUB, cursor: "pointer" }}>▸ もっと見る（練習の実態・調・奏法）</summary>
               <div style={{ fontSize: 11, color: "#5a5140", lineHeight: 1.9, marginTop: 7 }}>
-                練習 <b style={tnum}>{data.practiceDays}日</b> ・ 録音 <b style={tnum}>{data.recordingCount}回</b> ・ れんぞく <b style={tnum}>{data.streak}日</b>🔥
+                練習 <b style={tnum}>{data.practiceDays}日</b> ・ 録音 <b style={tnum}>{data.recordingCount}回</b> ・ れんぞく <b style={tnum}>{data.streak}日</b> <Flame size={13} color="#e8743b" style={{ verticalAlign: -2 }} />
                 {data.keyRows.length > 0 && (
                   <div style={{ marginTop: 4 }}>
                     {data.keyRows.slice(0, 5).map((kk) => (

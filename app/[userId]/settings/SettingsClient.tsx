@@ -406,7 +406,7 @@ function FeedbackCard() {
         「こうだったらいいのに」「採点がおかしい気がする」— なんでも運営に届きます。アプリはみなさんの声で良くなります。
       </p>
       {state === "done" ? (
-        <div style={{ fontSize: 12.5, fontWeight: 800, color: "#2e8b57" }}>届きました！ありがとうございます🎻</div>
+        <div style={{ fontSize: 12.5, fontWeight: 800, color: "#2e8b57" }}>届きました！ありがとうございます</div>
       ) : (
         <>
           <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} maxLength={2000}

@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useRef, ChangeEvent, DragEvent, FormEvent } from "react"
 import { useRouter } from "next/navigation"
+import { FolderOpen } from "lucide-react"
 import styles from "../scores/page.module.css"
 
 type UploadResult = { success?: boolean; error?: string }
@@ -171,7 +172,7 @@ export default function UploadModal({
                 </>
               ) : (
                 <>
-                  <div className={styles.uploadIcon}>📁</div>
+                  <div className={styles.uploadIcon}><FolderOpen size={30} /></div>
                   <p style={{ margin: "4px 0" }}>
                     {isDragging
                       ? "ここにドロップしてください"

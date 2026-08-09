@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState, useTransition } from "react"
+import { Palette } from "lucide-react"
 import {
   SUB_TASK_IDS,
   SUB_TASK_NAMES,
@@ -1088,8 +1089,8 @@ export default function AdminPractice({
                         {/* 雰囲気タグ (2026-08-05・曲のみ): 曲を聴いて手動設定。統一語彙台帳 */}
                         {item.type === "score" && (
                           <div style={{ marginTop: 10, borderTop: "1px dashed #ddd", paddingTop: 8 }}>
-                            <div style={{ fontSize: 12, fontWeight: 600, color: "#666", marginBottom: 4 }}>
-                              🎨 雰囲気タグ（曲を聴いて設定）
+                            <div style={{ fontSize: 12, fontWeight: 600, color: "#666", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>
+                              <Palette size={14} /> 雰囲気タグ（曲を聴いて設定）
                             </div>
                             <div style={{ marginLeft: 12, marginTop: 2, display: "flex", flexWrap: "wrap", gap: 4 }}>
                               {MOOD_TAG_DEFS.map((t) => (

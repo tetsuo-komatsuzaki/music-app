@@ -10,6 +10,7 @@
 "use client"
 
 import Link from "next/link"
+import { Settings, LifeBuoy } from "lucide-react"
 import GradeProgressDetail, {
   type GradeProgressDetailData,
 } from "@/app/components/GradeProgressDetail"
@@ -51,11 +52,11 @@ export default function MyPage({
 
       {/* プロフィール / 設定リンク */}
       <nav className={styles.footerNav}>
-        <Link href={`/${userId}/settings`} className={styles.footerLink}>
-          🛠️ 設定
+        <Link href={`/${userId}/settings`} className={styles.footerLink} style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <Settings size={15} /> 設定
         </Link>
-        <Link href={`/${userId}/support`} className={styles.footerLink}>
-          ❓ サポート
+        <Link href={`/${userId}/support`} className={styles.footerLink} style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+          <LifeBuoy size={15} /> サポート
         </Link>
       </nav>
     </div>
