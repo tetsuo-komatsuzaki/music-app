@@ -3,6 +3,7 @@
 // 技術の詳細分析 UI (モック743beec0準拠)。
 // ①指導注釈つき推移グラフ ②先生の指導履歴 ③聴き比べ ④処方箋。
 import Link from "next/link"
+import { TrendingUp, GraduationCap, MessageCircle, Headphones, Lightbulb, Target, ClipboardList, Sprout } from "lucide-react"
 import type { SkillDetailData } from "@/app/_libs/growthKarte"
 
 const INK = "#2b3742"
@@ -18,9 +19,9 @@ const card: React.CSSProperties = {
 const secTtl: React.CSSProperties = { fontSize: 12.5, fontWeight: 800, margin: "0 0 10px" }
 
 const GLYPH: Record<string, string> = {
-  slur: "〰️", staccato: "•", portato: "‿", bow_staccato: "•••", tremolo: "🌀",
-  pizzicato: "🤏", spiccato: "✨", ricochet: "🎯",
-  position: "↕️", double: "♬", trill: "tr", mordent: "≈", vibrato: "🫨",
+  slur: "〰", staccato: "•", portato: "‿", bow_staccato: "•••", tremolo: "≋",
+  pizzicato: "pz", spiccato: "sp", ricochet: "ric",
+  position: "↕", double: "♬", trill: "tr", mordent: "≈", vibrato: "∿",
   glissando: "⤴", harmonic: "◯",
 }
 
@@ -66,7 +67,7 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
 
       {/* ① 推移 + 指導注釈 */}
       <div style={card}>
-        <div style={secTtl}>📈 安定度の推移と、指導の効果</div>
+        <div style={{ ...secTtl, display: "flex", alignItems: "center", gap: 6 }}><TrendingUp size={15} color={ACCENT} /> 安定度の推移と、指導の効果</div>
         {data.series.length < 2 ? (
           <div style={{ fontSize: 12, color: SUB, lineHeight: 1.7 }}>
             この技術が出てくる録音がまだ{data.series.length}回です。録音がたまると、推移と指導の効果がここに描かれます。
@@ -77,7 +78,7 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
         {data.effect && (
           <div style={{ marginTop: 12, border: `1px solid ${data.effect.delta >= 0 ? "#cfe6d8" : "#f0d4d0"}`, background: data.effect.delta >= 0 ? "#e9f5ee" : "#fbecea", borderRadius: 10, padding: "9px 12px", fontSize: 11.5, fontWeight: 700, color: data.effect.delta >= 0 ? "#2e6b47" : "#8a4a44", lineHeight: 1.6 }}>
             {data.effect.delta >= 5
-              ? `🌱 ${data.effect.label}のあと、安定度が +${data.effect.delta}。指導が効いています！`
+              ? <><Sprout size={13} style={{ verticalAlign: -2 }} /> {`${data.effect.label}のあと、安定度が +${data.effect.delta}。指導が効いています！`}</>
               : data.effect.delta <= -5
                 ? `${data.effect.label}のあと、安定度が ${data.effect.delta}。次のレッスンで相談してみよう。`
                 : `${data.effect.label}のあとの安定度は ${data.effect.delta >= 0 ? "+" : ""}${data.effect.delta}（大きな変化はまだ）`}
@@ -87,7 +88,7 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
 
       {/* ② 先生からの指導 */}
       <div style={card}>
-        <div style={secTtl}>👩‍🏫 先生からの指導（この技術に関わる所見）</div>
+        <div style={{ ...secTtl, display: "flex", alignItems: "center", gap: 6 }}><GraduationCap size={15} color={ACCENT} /> 先生からの指導（この技術に関わる所見）</div>
         {data.guidance.length === 0 ? (
           <div style={{ fontSize: 12, color: SUB }}>この技術について、先生の所見はまだないよ</div>
         ) : (
@@ -104,7 +105,7 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
                   ))}
                 </div>
                 {g.comment && (
-                  <div style={{ fontSize: 12, color: "#4a5766", lineHeight: 1.65, background: "#fafbfc", border: "1px solid #eceef2", borderRadius: 9, padding: "8px 10px", marginTop: 4 }}>💬 {g.comment}</div>
+                  <div style={{ fontSize: 12, color: "#4a5766", lineHeight: 1.65, background: "#fafbfc", border: "1px solid #eceef2", borderRadius: 9, padding: "8px 10px", marginTop: 4, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{g.comment}</span></div>
                 )}
               </div>
             ))}
@@ -115,7 +116,7 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
       {/* ③ 聴き比べ */}
       {data.listen && (
         <div style={card}>
-          <div style={secTtl}>🎧 聴き比べ — 耳でわかる成長</div>
+          <div style={{ ...secTtl, display: "flex", alignItems: "center", gap: 6 }}><Headphones size={15} color={ACCENT} /> 聴き比べ — 耳でわかる成長</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             {[
               { l: `はじめの頃（${data.listen.old.date}）`, it: data.listen.old, c: SUB },
@@ -142,7 +143,7 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
       {/* ④ 処方箋 */}
       <div style={{ ...card, marginBottom: 0 }}>
         <div style={{ border: "1px solid #ecdcb6", background: "#fbf4e6", borderRadius: 12, padding: "11px 13px" }}>
-          <div style={{ fontSize: 11, fontWeight: 800, color: "#8a5a10", marginBottom: 5 }}>💡 いまの処方箋</div>
+          <div style={{ fontSize: 11, fontWeight: 800, color: "#8a5a10", marginBottom: 5, display: "flex", alignItems: "center", gap: 5 }}><Lightbulb size={13} /> いまの処方箋</div>
           <div style={{ fontSize: 12, color: "#4a5766", lineHeight: 1.7 }}>
             {data.state === "wobble"
               ? `①ゆっくりのテンポで「${data.label}」の部分だけ取り出して練習 ②教材で形を確かめる ③安定したら曲に戻る`
@@ -200,7 +201,7 @@ function Chart({ data }: { data: SkillDetailData }) {
             background: "#fff", border: "1px solid #eceef2", borderRadius: 6, padding: "1px 6px",
             boxShadow: "0 1px 3px rgba(30,45,70,.12)",
           }}>
-            {a.kind === "lesson_clear" ? "🎯 " : "📋 "}{a.label.slice(0, 12)}
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>{a.kind === "lesson_clear" ? <Target size={10} /> : <ClipboardList size={10} />}{a.label.slice(0, 12)}</span>
           </span>
         ))}
       </div>
@@ -209,8 +210,8 @@ function Chart({ data }: { data: SkillDetailData }) {
         <span>{last.date}</span>
       </div>
       <div style={{ display: "flex", gap: 12, marginTop: 6, fontSize: 9.5, color: SUB, fontWeight: 700 }}>
-        <span>📋 = 先生の所見</span>
-        <span>🎯 = レッスンクリア</span>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><ClipboardList size={11} /> = 先生の所見</span>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Target size={11} /> = レッスンクリア</span>
         <span>点 = 録音ごとの安定度</span>
       </div>
     </div>

@@ -1,6 +1,7 @@
 // 数字のへや (Phase2 D3・2026-08-03)。カルテ⑤の詳細画面: 調→音域→テンポ→音の
 // 掘れるツリー全体 + 得意も苦手も一覧 + 今週うごいた枝。
 import Link from "next/link"
+import { BarChart3, Sparkles, Music, AudioLines, Timer, Search, ArrowLeftRight } from "lucide-react"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { buildNumbersRoom, type KartePeriod } from "@/app/_libs/growthKarte"
 
@@ -49,7 +50,7 @@ export default async function NumbersRoomPage({
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", color: "#1a2028" }}>
       <Link href={`/${authUserId}/progress`} style={{ fontSize: 12, color: SUB, textDecoration: "none" }}>← 成長カルテ</Link>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "8px 0 10px" }}>
-        <h1 style={{ fontSize: 17, fontWeight: 900, margin: 0 }}>📊 数字のへや</h1>
+        <h1 style={{ fontSize: 17, fontWeight: 900, margin: 0, display: "inline-flex", alignItems: "center", gap: 6 }}><BarChart3 size={18} color="#3555d4" /> 数字のへや</h1>
         <span style={{ fontSize: 10, fontWeight: 800, color: SUB }}>得意も苦手もぜんぶ</span>
       </div>
       {/* 期間切替 (2026-08-06: カルテ本体から移設。期間が効くのはこの部屋だけ) */}
@@ -73,7 +74,7 @@ export default async function NumbersRoomPage({
         <>
           {d.weekMoved.length > 0 && (
             <div style={{ ...card, borderColor: "#d8dcf0" }}>
-              <div style={ttl}>🌟 今週うごいた枝</div>
+              <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><Sparkles size={14} color="#3555d4" /> 今週うごいた枝</div>
               <div style={{ fontSize: 12, lineHeight: 2 }}>
                 {d.weekMoved.map((w) => (
                   <span key={w.label} style={{ marginRight: 14, whiteSpace: "nowrap" }}>
@@ -86,21 +87,21 @@ export default async function NumbersRoomPage({
 
           {d.keys.length > 0 && (
             <div style={card}>
-              <div style={ttl}>🎼 調べつ <span style={{ fontSize: 9.5, color: SUB, fontWeight: 800 }}>演奏スコア平均・低い順</span></div>
+              <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><Music size={14} /> 調べつ <span style={{ fontSize: 9.5, color: SUB, fontWeight: 800 }}>演奏スコア平均・低い順</span></div>
               {d.keys.map((k) => <Row key={k.label} label={k.label} sub={`${k.count}回`} pct={k.pct} />)}
             </div>
           )}
 
           {d.registers.length > 0 && (
             <div style={card}>
-              <div style={ttl}>🎹 音域べつ <span style={{ fontSize: 9.5, color: SUB, fontWeight: 800 }}>音単位の成功率</span></div>
+              <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><AudioLines size={14} /> 音域べつ <span style={{ fontSize: 9.5, color: SUB, fontWeight: 800 }}>音単位の成功率</span></div>
               {d.registers.map((r) => <Row key={r.band} label={REG_LABEL[r.band]} sub={`${r.target}音`} pct={r.pct} />)}
             </div>
           )}
 
           {d.tempoBands.length > 0 && (
             <div style={card}>
-              <div style={ttl}>⏱ テンポ帯べつ <span style={{ fontSize: 9.5, color: SUB, fontWeight: 800 }}>曲のテンポで分類</span></div>
+              <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><Timer size={14} /> テンポ帯べつ <span style={{ fontSize: 9.5, color: SUB, fontWeight: 800 }}>曲のテンポで分類</span></div>
               {d.tempoBands.map((t) => <Row key={t.label} label={t.label} sub={`${t.count}回`} pct={t.pct} />)}
               <div style={{ fontSize: 9.5, color: "#b3bcc6", marginTop: 4 }}>※ 録音がたまるほど、アルコの見方がくわしくなるよ</div>
             </div>
@@ -108,7 +109,7 @@ export default async function NumbersRoomPage({
 
           {d.worstNotes.length > 0 && (
             <div style={card}>
-              <div style={ttl}>🔍 音のじっくり表 <span style={{ fontSize: 9.5, color: SUB, fontWeight: 800 }}>にがて順</span></div>
+              <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><Search size={14} /> 音のじっくり表 <span style={{ fontSize: 9.5, color: SUB, fontWeight: 800 }}>にがて順</span></div>
               {d.worstNotes.map((n) => (
                 <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: 11.5, marginBottom: 5, flexWrap: "wrap" }}>
                   <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
@@ -121,7 +122,7 @@ export default async function NumbersRoomPage({
               ))}
               {d.bestNotes.length > 0 && (
                 <div style={{ fontSize: 10.5, color: GOOD, marginTop: 6 }}>
-                  💮 とくいな音: {d.bestNotes.map((n) => `${n.kana} ${n.pct}%`).join(" ・ ")}
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Sparkles size={12} /> とくいな音:</span> {d.bestNotes.map((n) => `${n.kana} ${n.pct}%`).join(" ・ ")}
                 </div>
               )}
             </div>
@@ -129,7 +130,7 @@ export default async function NumbersRoomPage({
 
           {d.transitions.length > 0 && (
             <div style={{ ...card, marginBottom: 0 }}>
-              <div style={ttl}>↔ 動きのにがて <span style={{ fontSize: 9.5, color: SUB, fontWeight: 800 }}>前の音 → この音</span></div>
+              <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><ArrowLeftRight size={14} /> 動きのにがて <span style={{ fontSize: 9.5, color: SUB, fontWeight: 800 }}>前の音 → この音</span></div>
               {d.transitions.map((t, i) => (
                 <div key={i} style={{ display: "flex", gap: 8, fontSize: 11.5, marginBottom: 4 }}>
                   <span style={{ fontWeight: 700 }}>{t.from} → {t.to}</span>

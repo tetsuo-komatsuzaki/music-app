@@ -2,6 +2,7 @@
 // ③この表現に合う曲 ④アルコのひと言。先生あり特典 (無し/データ無しは /progress へ)。
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import { Award, Sprout, Flame } from "lucide-react"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { buildExpressionDetail } from "@/app/_libs/growthKarte"
 import { prisma } from "@/app/_libs/prisma"
@@ -28,15 +29,17 @@ export default async function ExpressionDetailPage({ params }: { params: Promise
   const matches = await matchSongsForExpr(tagId, starRow?.currentStar ?? 1)
   const tag = tagId
 
-  const statusLabel = d.status === "strength" ? "💪 きみのとくい" : d.status === "improving" ? "🌿 良くなってきた" : "🔥 挑戦中"
-  const stepLabel = (s: string) => (s === "strength" ? "💪 とくいに！" : s === "improving" ? "🌿 良くなってきた" : "🔥 課題として記録")
+  const statusMeta = (s: string) => (s === "strength" ? { Icon: Award, color: GOLD } : s === "improving" ? { Icon: Sprout, color: GOOD } : { Icon: Flame, color: ACC })
+  const HeadIcon = statusMeta(d.status).Icon
+  const statusText = d.status === "strength" ? "きみのとくい" : d.status === "improving" ? "良くなってきた" : "挑戦中"
+  const stepText = (s: string) => (s === "strength" ? "とくいに！" : s === "improving" ? "良くなってきた" : "課題として記録")
 
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", color: "#1a2028" }}>
       <Link href={`/${authUserId}/progress`} style={{ fontSize: 12, color: SUB, textDecoration: "none" }}>← 成長カルテ</Link>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "8px 0 12px" }}>
-        <h1 style={{ fontSize: 17, fontWeight: 900, margin: 0 }}>{d.status === "strength" ? "💪" : "🔥"} {d.label}</h1>
-        <span style={{ fontSize: 10, fontWeight: 800, color: d.status === "strength" ? GOLD : ACC }}>{statusLabel}</span>
+        <h1 style={{ fontSize: 17, fontWeight: 900, margin: 0, display: "inline-flex", alignItems: "center", gap: 6 }}><HeadIcon size={18} color={statusMeta(d.status).color} /> {d.label}</h1>
+        <span style={{ fontSize: 10, fontWeight: 800, color: d.status === "strength" ? GOLD : ACC, display: "inline-flex", alignItems: "center", gap: 4 }}><HeadIcon size={11} /> {statusText}</span>
       </div>
 
       {/* ① 子ども語の説明 */}
@@ -53,7 +56,7 @@ export default async function ExpressionDetailPage({ params }: { params: Promise
         {d.history.map((h, i) => (
           <div key={i} style={{ borderLeft: `3px solid ${h.status === "strength" ? "#e8d9ae" : h.status === "improving" ? "#cfe6d8" : "#d8dcf0"}`, borderRadius: "0 8px 8px 0", background: "#fafbfc", padding: "7px 11px", marginBottom: i === d.history.length - 1 ? 0 : 7 }}>
             <div style={{ fontSize: 10.5, fontWeight: 800, color: h.status === "strength" ? GOLD : h.status === "improving" ? GOOD : ACC }}>
-              {stepLabel(h.status)} <span style={{ color: "#aab2bb", fontWeight: 700 }}>{h.date}</span>
+              {(() => { const { Icon } = statusMeta(h.status); return <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Icon size={11} /> {stepText(h.status)}</span> })()} <span style={{ color: "#aab2bb", fontWeight: 700 }}>{h.date}</span>
             </div>
             {h.comment && <div style={{ fontSize: 12, lineHeight: 1.75, marginTop: 3 }}>「{h.comment}」<span style={{ fontSize: 10, color: SUB }}> — 先生</span></div>}
           </div>
@@ -92,7 +95,8 @@ export default async function ExpressionDetailPage({ params }: { params: Promise
 
       {/* ④ アルコのひと言 */}
       <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-        <span style={{ fontSize: 21, flex: "none" }} aria-hidden>🎻</span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/Icon.png" alt="" aria-hidden width={21} height={21} style={{ flex: "none", borderRadius: 5 }} />
         <span style={{ flex: 1, background: "#eef1fc", borderRadius: 10, borderTopLeftRadius: 3, padding: "8px 11px", fontSize: 11.5, fontWeight: 700, lineHeight: 1.7 }}>
           {d.arcoLine}
         </span>
