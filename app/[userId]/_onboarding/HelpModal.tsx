@@ -115,8 +115,7 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
         <div className={styles.content}>
           {/* ① はじめてガイド */}
           <section ref={welcomeRef} id="help-welcome" className={styles.section}>
-            <h3 className={styles.sectionTitle}>① {HELP_CONTENT.welcome.title}</h3>
-            <p className={styles.sectionIntro}>{HELP_CONTENT.welcome.description}</p>
+            <h3 className={styles.sectionTitle}>{HELP_CONTENT.welcome.title}</h3>
             <button
               type="button"
               className={styles.welcomeReplayButton}
@@ -128,7 +127,7 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
 
           {/* ② マーカー凡例 */}
           <section ref={markersRef} id="help-markers" className={styles.section}>
-            <h3 className={styles.sectionTitle}>② {HELP_CONTENT.markerLegend.title}</h3>
+            <h3 className={styles.sectionTitle}>{HELP_CONTENT.markerLegend.title}</h3>
             <p className={styles.sectionIntro}>{HELP_CONTENT.markerLegend.intro}</p>
             <div className={styles.legendList}>
               {HELP_CONTENT.markerLegend.rows.map(row => (
@@ -146,7 +145,7 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
 
           {/* ③ ページごとの使い方 */}
           <section ref={pageGuidesRef} id="help-pageGuides" className={styles.section}>
-            <h3 className={styles.sectionTitle}>③ {HELP_CONTENT.pageGuides.title}</h3>
+            <h3 className={styles.sectionTitle}>{HELP_CONTENT.pageGuides.title}</h3>
             <div className={styles.pageGuideList}>
               {HELP_CONTENT.pageGuides.items.map(item => {
                 const Icon = item.icon
@@ -161,8 +160,6 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
                     type="button"
                     className={styles.pageGuideButton}
                     onClick={() => handlePageGuideReplay(item.pageKey, item.pathTemplate)}
-                    disabled={!item.pathTemplate}
-                    title={item.pathTemplate ? "" : "対象ページにアクセスしてからご利用ください"}
                   >
                     {HELP_CONTENT.pageGuides.buttonLabel}
                   </button>
@@ -170,12 +167,11 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
                 )
               })}
             </div>
-            <p className={styles.pageGuideNote}>{HELP_CONTENT.pageGuides.note}</p>
           </section>
 
           {/* ④ FAQ */}
           <section ref={faqRef} id="help-faq" className={styles.section}>
-            <h3 className={styles.sectionTitle}>④ よくある質問</h3>
+            <h3 className={styles.sectionTitle}>よくある質問</h3>
             <div className={styles.faqList}>
               {HELP_CONTENT.faq.map((item, i) => (
                 <details key={i} className={styles.faqItem}>
@@ -191,7 +187,7 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
 
           {/* ⑤ うまくいかないとき */}
           <section ref={troubleshootingRef} id="help-troubleshooting" className={styles.section}>
-            <h3 className={styles.sectionTitle}>⑤ うまくいかないとき</h3>
+            <h3 className={styles.sectionTitle}>うまくいかないとき</h3>
             <div className={styles.troubleshootList}>
               {HELP_CONTENT.troubleshooting.map((item, i) => (
                 <div key={i} className={styles.troubleshootItem}>
@@ -200,7 +196,6 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
                 </div>
               ))}
             </div>
-            <p className={styles.footerNote}>{HELP_CONTENT.footerNote}</p>
           </section>
         </div>
       </div>

@@ -74,13 +74,14 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
           </div>
         )}
 
-        <Link href={piece.href} className={styles.piece} style={{ textDecoration: "none", color: "inherit" }}>
-          <div className={`${styles.thumb} ${styles.thumbGoal}`}>{piece.cover ? <img src={piece.cover} alt="" loading="lazy" /> : "♪"}</div>
+        {/* いま練習している曲 = このカードの主役。1つのまとまりとして際立たせる */}
+        <Link href={piece.href} className={styles.piece} style={{ textDecoration: "none", color: "inherit", background: "#fbfcfe", border: "1px solid #e8eef6", borderRadius: 13, padding: "11px 12px", gap: 12 }}>
+          <div className={`${styles.thumb} ${styles.thumbGoal}`} style={{ width: 48, height: 48, fontSize: "var(--fs-title)" }}>{piece.cover ? <img src={piece.cover} alt="" loading="lazy" /> : "♪"}</div>
           <div className={styles.g}>
-            <div className={styles.title}>{piece.title}</div>
-            <div className={styles.meta}>{piece.star != null ? `☆${piece.star} ・ ` : ""}直近 {piece.latest}点</div>
+            <div className={styles.title} style={{ fontSize: "var(--fs-head)", color: "var(--text-ink)" }}>{piece.title}</div>
+            <div className={styles.meta} style={{ fontSize: "var(--fs-body)", marginTop: 1 }}>{piece.star != null ? `☆${piece.star} ・ ` : ""}直近 {piece.latest}点</div>
           </div>
-          <span className={`${styles.chip} ${styles.chipGoal}`}>{chipLabel}</span>
+          <span className={`${styles.chip} ${styles.chipGoal}`} style={{ fontSize: "var(--fs-caption)", alignSelf: "flex-start" }}>{chipLabel}</span>
         </Link>
 
         {/* 🏆 この曲のゴール (達成/マスター。曲詳細と同じ GoalTracker を流用。体験上の重要要素・削除しない) */}

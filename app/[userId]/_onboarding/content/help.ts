@@ -1,11 +1,10 @@
 // 純データ + アイコン参照 ("use client" 不要)
-import { Home, Library, FileMusic, Dumbbell, Music, ClipboardList, NotebookPen } from "lucide-react"
+import { Home, Library, Dumbbell, Music, NotebookPen } from "lucide-react"
 
 export const HELP_CONTENT = {
   // ① はじめてガイド
   welcome: {
     title: "はじめてガイドをもう一度見る",
-    description: "弾きたい曲に挑戦して、上手くなっていく流れを7枚のスライドで紹介します。",
     buttonLabel: "スライドを再生する",
   },
 
@@ -22,21 +21,17 @@ export const HELP_CONTENT = {
     note: "音程とタイミングが両方ズレた音は、赤で表示します。まずは赤（音程）から直すのが、上達への近道です。",
   },
 
-  // ③ ページごとの使い方 (簡潔な一行紹介、詳しくは /support/help)
+  // ③ ページごとの使い方 (「ガイドを再生」でそのページへ移動して再生する)
   pageGuides: {
     title: "ページごとの使い方",
     items: [
-      { pageKey: "home",         icon: Home,          name: "ホーム",          description: "続きから練習・履歴・アルコの案内",      pathTemplate: "/" },
-      { pageKey: "scores",       icon: Library,       name: "マイライブラリー",  description: "アップロードした楽譜の一覧",            pathTemplate: "/scores" },
-      { pageKey: "scoreDetail",  icon: FileMusic,     name: "スコア詳細",      description: "譜面を見て、再生・録音する",            pathTemplate: null },
-      { pageKey: "practice",     icon: Dumbbell,      name: "練習メニュー",    description: "あなた向けのおすすめ練習",              pathTemplate: "/practice" },
-      { pageKey: "pieces",       icon: Music,         name: "練習曲",          description: "☆別・ジャンル別に弾く曲を選ぶ",         pathTemplate: "/practice/pieces" },
-      { pageKey: "categoryList", icon: ClipboardList, name: "カテゴリ一覧",    description: "種類をしぼって練習を探す",              pathTemplate: null },
-      { pageKey: "practiceItem", icon: Music,         name: "練習アイテム詳細", description: "練習を再生・録音する（操作はスコア詳細と同じ）", pathTemplate: null },
-      { pageKey: "progress",     icon: NotebookPen,   name: "成長カルテ",      description: "練習の実態・安定マップ・所見・成長の物語", pathTemplate: "/progress" },
+      { pageKey: "home",     icon: Home,        name: "ホーム",          description: "続きから練習・履歴・アルコの案内",  pathTemplate: "/" },
+      { pageKey: "scores",   icon: Library,     name: "マイライブラリー",  description: "アップロードした楽譜の一覧",        pathTemplate: "/scores" },
+      { pageKey: "practice", icon: Dumbbell,    name: "練習メニュー",    description: "あなた向けのおすすめ練習",          pathTemplate: "/practice" },
+      { pageKey: "pieces",   icon: Music,       name: "練習曲",          description: "☆別・ジャンル別に弾く曲を選ぶ",     pathTemplate: "/practice/pieces" },
+      { pageKey: "progress", icon: NotebookPen, name: "成長カルテ",      description: "練習の実態・安定マップ・所見・成長の物語", pathTemplate: "/progress" },
     ],
     buttonLabel: "ガイドを再生",
-    note: "スコア詳細・カテゴリ一覧・練習アイテム詳細は、そのページを開いてからガイドを再生できます。",
   },
 
   // ④ よくある質問 (5 件以内、完全版は /support/help)
@@ -65,6 +60,7 @@ export const HELP_CONTENT = {
 
   fullHelpLink: "/support/help",
   fullHelpLinkLabel: "もっと詳しく見る (FAQ完全版)",
+  // footerNote は削除 (サポート導線は別途)
 
   // ⑤ うまくいかないとき
   troubleshooting: [
@@ -85,6 +81,4 @@ export const HELP_CONTENT = {
       body: "譜面と違う曲を弾くと、正しく判定できません。同じ楽譜を見ながら弾いてみてください。",
     },
   ],
-
-  footerNote: "※ サポート窓口は「お問い合わせ」 (/support/contact) からどうぞ。",
 } as const

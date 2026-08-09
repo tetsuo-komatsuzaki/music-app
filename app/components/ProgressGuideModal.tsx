@@ -17,8 +17,8 @@ type Props = {
 
 const INK = "#2b3742"
 const SUB = "#6b7885"
-const ACCENT = "#2e8b57"
-const ACCENT_SOFT = "#eafaf0"
+const ACCENT = "#b5651d"
+const ACCENT_SOFT = "#fbf0da"
 
 // 体験の流れ (コーチガイドの軸をそのまま)
 const STEPS: { Icon: LucideIcon; title: string; desc: string }[] = [
@@ -98,7 +98,7 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
           </div>
 
           {/* 締めの一言 */}
-          <div style={{ background: ACCENT_SOFT, border: `1px solid #cbe8d6`, borderRadius: 12, padding: "11px 14px", textAlign: "center", fontSize: "var(--fs-body)", fontWeight: 800, color: ACCENT, marginBottom: 20 }}>
+          <div style={{ background: ACCENT_SOFT, border: `1px solid #eed9a0`, borderRadius: 12, padding: "11px 14px", textAlign: "center", fontSize: "var(--fs-body)", fontWeight: 800, color: ACCENT, marginBottom: 20 }}>
             わかるから直せる。直せるから、上達する。
           </div>
 
