@@ -14,15 +14,16 @@ const SLOT_NOTE: Record<DailyLesson["slot"], string> = {
 }
 
 // 案C: カテゴリごとの色 (左のカラーバンド・チップ・ボタンに使う)
+// 予約色は使わない: 達成の緑(#2e8b57系) / 世界観のブランド青(#2563EB・#4a6cf7系)。
 const CAT_COLOR: Record<string, { c: string; bg: string }> = {
-  scale: { c: "#2f9e6a", bg: "#e8f6ee" },
-  fingering: { c: "#4a6cf7", bg: "#eef1fe" },
-  arpeggio: { c: "#8b5cf6", bg: "#f2edfe" },
-  etude: { c: "#e0872b", bg: "#fdf2e4" },
-  bowing: { c: "#0ea5a5", bg: "#e6f7f6" },
-  position_shift: { c: "#d6547a", bg: "#fdeef2" },
-  double_stop: { c: "#6366f1", bg: "#eef0fe" },
-  lesson: { c: "#d6547a", bg: "#fdeef2" },
+  scale: { c: "#c0891f", bg: "#f7efd9" },        // アンバー
+  fingering: { c: "#7159e8", bg: "#eeebfd" },    // バイオレット
+  arpeggio: { c: "#8b5cf6", bg: "#f2edfe" },     // パープル
+  etude: { c: "#e0872b", bg: "#fdf2e4" },        // オレンジ
+  bowing: { c: "#0ea5a5", bg: "#e6f7f6" },       // ティール
+  position_shift: { c: "#d6547a", bg: "#fdeef2" }, // ローズ
+  double_stop: { c: "#be3a8e", bg: "#fbe9f4" },  // マゼンタ
+  lesson: { c: "#c0453a", bg: "#fbeceb" },       // クリムゾン
 }
 const DEFAULT_COLOR = { c: "#6b7480", bg: "#eef1f4" }
 
