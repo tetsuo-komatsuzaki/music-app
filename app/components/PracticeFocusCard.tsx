@@ -63,7 +63,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
 
   return (
     <div className={styles.root}>
-      <div className={styles.card} data-onboarding="home.focusCard">
+      <div className={styles.card} data-onboarding="home.focusCard" style={{ overflow: "hidden" }}>
         {pieces.length > 1 && (
           <div className={styles.tabs}>
             {pieces.map((p, i) => (
@@ -74,12 +74,12 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
           </div>
         )}
 
-        {/* いま練習している曲 = このカードの主役。世界観カラー(青)の濃色反転でスポットライト化 */}
-        <Link href={piece.href} className={styles.piece} style={{ textDecoration: "none", color: "inherit", background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", border: "none", borderRadius: 14, padding: "12px 13px", gap: 12, boxShadow: "0 4px 14px rgba(30,50,110,.28)" }}>
+        {/* いま練習している曲 = このカードの主役。世界観カラー(青)反転を、外側カードいっぱいの全幅バナーに */}
+        <Link href={piece.href} className={styles.piece} style={{ textDecoration: "none", color: "inherit", background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", border: "none", padding: "13px 15px", gap: 12, margin: pieces.length > 1 ? "0 -15px" : "-14px -15px 0", borderRadius: pieces.length > 1 ? 0 : "18px 18px 0 0" }}>
           <div className={styles.thumb} style={{ width: 50, height: 50, fontSize: "var(--fs-title)", background: "rgba(255,255,255,.16)", color: "#fff" }}>{piece.cover ? <img src={piece.cover} alt="" loading="lazy" /> : "♪"}</div>
           <div className={styles.g}>
-            <div className={styles.title} style={{ fontSize: "var(--fs-head)", color: "#fff" }}>{piece.title}</div>
-            <div className={styles.meta} style={{ fontSize: "var(--fs-body)", color: "#cdd9f2", fontWeight: 700, marginTop: 1 }}>{piece.star != null ? `☆${piece.star} ・ ` : ""}直近 {piece.latest}点</div>
+            <div className={styles.title} style={{ fontSize: piece.title.length <= 8 ? "var(--fs-head)" : piece.title.length <= 13 ? "var(--fs-subhead)" : piece.title.length <= 20 ? "var(--fs-body)" : "var(--fs-caption)", color: "#fff", whiteSpace: "normal", overflow: "visible", textOverflow: "clip", lineHeight: 1.25, wordBreak: "break-word" }}>{piece.title}</div>
+            <div className={styles.meta} style={{ fontSize: "var(--fs-body)", color: "#cdd9f2", fontWeight: 700, marginTop: 2 }}>{piece.star != null ? `☆${piece.star} ・ ` : ""}直近 {piece.latest}点</div>
           </div>
           <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", justifyContent: "space-between", alignSelf: "stretch", flex: "none", gap: 6 }}>
             <span className={styles.chip} style={{ fontSize: "var(--fs-caption)", background: "#fff", color: "#2b5bc4" }}>{chipLabel}</span>

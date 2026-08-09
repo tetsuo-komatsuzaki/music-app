@@ -1,41 +1,72 @@
 // app/components/ProgressGuideModal.tsx
 //
 // 「上達のしくみ」ガイドモーダル。ホームのランクカードから開く。
-// 内容はコーチガイド(_onboarding/content/coachMarks.ts)の体験に一致させる (2026-07-28 刷新)。
-// 軸: 「弾いて、どこが苦手か目で見てわかる。だから直せる、だから上達する」。
-// アルコちゃん + 現行配色で、採点ルールの羅列ではなく"体験の流れ"を伝える。
+// 円環サイクル (演奏する → フィードバック → 練習する) を主役に置き、
+// 各ステップを1枚のカードで説明。カードごとに「このアプリの強み」を1行添え、
+// なぜ上達するのか＝真髄を伝える。締めに「達成→マスター→ランクUP」。
+// アルコちゃんがコーチ。絵文字ゼロ・線画・ゴールド/クリームの世界観で統一 (2026-08-09 刷新)。
 
 "use client"
 
 import { ArcoChan, POSES } from "./ArcoChan"
-import { Music, Mic, Rainbow, Target, Repeat, CircleCheckBig, Star, type LucideIcon } from "lucide-react"
+import { Music, MessageSquareText, Target, type LucideIcon } from "lucide-react"
 
 type Props = {
   open: boolean
   onClose: () => void
 }
 
-const INK = "#2b3742"
-const SUB = "#6b7885"
-const ACCENT = "#b5651d"
-const ACCENT_SOFT = "#fbf0da"
+// ゴールド/クリームの世界観 (マスター・ランクの金)
+const GOLD = "#b5651d"
+const GOLD_LT = "#e6a94a"
+const GOLD_BG = "#fbf3e3"
+const GOLD_BD = "#eed9a0"
+const GOLD_INK = "#8a5a1f"
+const APP_INK = "#22303c"
+const APP_SUB = "#8b8577"
 
-// 体験の流れ (コーチガイドの軸をそのまま)
-const STEPS: { Icon: LucideIcon; title: string; desc: string }[] = [
-  { Icon: Music, title: "弾きたい曲を選ぶ", desc: "やさしい☆から。むずかしければパートごとに分けてもOK。" },
-  { Icon: Mic, title: "一度、通して弾く", desc: "ゆっくりからで大丈夫。完璧じゃなくていい。" },
-  { Icon: Rainbow, title: "アルコが見てくれる", desc: "音符ひとつずつ色がついて、どこが苦手か“目で見て”わかる。" },
-  { Icon: Target, title: "苦手に効く練習が届く", desc: "音階・運指・ボウイングなど目的別。知らない技法は「学びのレッスン」で基礎から。" },
-  { Icon: Repeat, title: "練習したら、また曲へ", desc: "弾く → わかる → 直す。この行き来でうまくなっていく。" },
-  { Icon: CircleCheckBig, title: "達成 → マスター", desc: "通しで弾ききれたら「達成」。音程とリズムの平均が90点以上で「マスター」。" },
-  { Icon: Star, title: "★アップ → ランクアップ", desc: "同じ★の曲を10曲マスターすると次のレベルへ。もっとむずかしい曲に挑戦できる。" },
+// 円環の3ノード (位置は 250×250 のボックス基準)
+const NODES: { Icon: LucideIcon; label: string; left: string; top: string }[] = [
+  { Icon: Music, label: "演奏する", left: "50%", top: "12%" },
+  { Icon: MessageSquareText, label: "フィードバック", left: "85%", top: "72%" },
+  { Icon: Target, label: "練習する", left: "15%", top: "72%" },
 ]
 
-const TERMS: { term: string; desc: string }[] = [
-  { term: "達成", desc: "その曲を通しで弾ききれた印。" },
-  { term: "マスター", desc: "その曲の音程×リズムの平均が90点以上。" },
-  { term: "★（レベル）", desc: "曲のむずかしさ。同じ★を10曲マスターで次へ。" },
-  { term: "ランク", desc: "★に応じた称号（初級者→中級者→上級者→マスター）。" },
+// 各ステップの説明カード (何が起きるか + このアプリならではの強み)
+const STEPS: { Icon: LucideIcon; no: string; title: string; what: string; strength: React.ReactNode }[] = [
+  {
+    Icon: Music,
+    no: "STEP 1",
+    title: "演奏する",
+    what: "弾きたい曲が、そのまま録音される。",
+    strength: (
+      <>
+        <b>あなたの“いま”の演奏を、何度でも記録</b>できるのが、上達の起点。
+      </>
+    ),
+  },
+  {
+    Icon: MessageSquareText,
+    no: "STEP 2",
+    title: "フィードバック",
+    what: "アルコちゃんが音程・リズムを評価し、あなたの演奏の強みと弱みを見つける。",
+    strength: (
+      <>
+        独学の一番の壁「演奏のどこが悪いか分からない」を、<b>アルコちゃんが見つけて解いてくれる</b>。先生とつながれば、先生の添削も届く。
+      </>
+    ),
+  },
+  {
+    Icon: Target,
+    no: "STEP 3",
+    title: "練習する",
+    what: "アルコちゃんが、あなたに合った練習メニューを教えてくれる。",
+    strength: (
+      <>
+        <b>あなたの強み・弱みに根ざした“練習方法”が提案される</b>から、ひとりでも迷わず進める。
+      </>
+    ),
+  },
 ]
 
 export default function ProgressGuideModal({ open, onClose }: Props) {
@@ -56,66 +87,84 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#fff", borderRadius: 20, maxWidth: 460, width: "100%",
-          maxHeight: "88vh", overflowY: "auto", boxShadow: "0 14px 40px rgba(0,0,0,0.28)",
+          background: "#fffdf8", borderRadius: 20, maxWidth: 460, width: "100%",
+          maxHeight: "88vh", overflowY: "auto", boxShadow: "0 14px 40px rgba(60,40,10,0.28)",
+          border: "1px solid #e7dcc6",
         }}
       >
         {/* ヘッダー: アルコ + タイトル */}
-        <div style={{ position: "relative", padding: "20px 18px 14px", textAlign: "center", background: ACCENT_SOFT, borderRadius: "20px 20px 0 0" }}>
+        <div style={{ position: "relative", padding: "16px 18px 14px", textAlign: "center", background: "linear-gradient(180deg,#fdf6e8,#fffdf8)", borderBottom: "1px solid #f0e6d0", borderRadius: "20px 20px 0 0" }}>
           <button
             type="button" onClick={onClose} aria-label="閉じる"
             style={{ position: "absolute", top: 12, right: 12, border: "none", background: "transparent", fontSize: "var(--fs-title)", lineHeight: 1, cursor: "pointer", color: "var(--text-muted)" }}
           >
             ×
           </button>
-          <div style={{ width: 72, height: 72, margin: "0 auto 6px" }}>
+          <div style={{ width: 60, height: 60, margin: "0 auto 4px" }}>
             <ArcoChan pose={pose as unknown as Parameters<typeof ArcoChan>[0]["pose"]} />
           </div>
-          <h2 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: 0, color: INK }}>上達のしくみ</h2>
-          <p style={{ fontSize: "var(--fs-body)", fontWeight: 700, color: ACCENT, margin: "6px 0 0", lineHeight: 1.5 }}>
-            弾いて、どこが苦手か“目で見て”わかる。<br />だから直せる、だから上達する。
-          </p>
+          <div style={{ fontSize: "var(--fs-label)", letterSpacing: ".2em", fontWeight: 900, color: GOLD_LT }}>HOW IT WORKS</div>
+          <h2 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "2px 0 0", color: APP_INK }}>上達のサイクル</h2>
         </div>
 
-        <div style={{ padding: "16px 18px 20px" }}>
-          {/* 体験の流れ */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+        <div style={{ padding: "18px 16px 20px" }}>
+          {/* 円環サイクル */}
+          <div style={{ position: "relative", width: 250, height: 250, margin: "2px auto 6px" }}>
+            <svg viewBox="0 0 250 250" width="250" height="250" style={{ position: "absolute", inset: 0, display: "block" }}>
+              <circle cx="125" cy="125" r="92" fill="none" stroke="#eddfc2" strokeWidth="2.5" strokeDasharray="2.5 10" strokeLinecap="round" />
+              <g fill="#dbc084">
+                <path d="M217 119 l-6 11 12 0 z" transform="rotate(28 217 125)" />
+                <path d="M125 217 l-6 -11 12 0 z" transform="rotate(150 125 217)" />
+                <path d="M33 119 l-6 11 12 0 z" transform="rotate(272 33 125)" />
+              </g>
+            </svg>
+            {NODES.map((n, i) => (
+              <div key={i} style={{ position: "absolute", left: n.left, top: n.top, width: 80, transform: "translate(-50%,-50%)", textAlign: "center" }}>
+                <div style={{ position: "relative", width: 50, height: 50, borderRadius: 16, margin: "0 auto 4px", background: "#fff", border: `1.5px solid ${GOLD_BD}`, display: "grid", placeItems: "center", color: GOLD, boxShadow: "0 3px 10px rgba(160,120,30,.14)" }}>
+                  <span style={{ position: "absolute", top: -6, left: -6, width: 19, height: 19, borderRadius: "50%", background: GOLD, color: "#fff", fontSize: 10, fontWeight: 900, display: "grid", placeItems: "center", boxShadow: "0 1px 3px rgba(120,80,10,.35)" }}>{i + 1}</span>
+                  <n.Icon size={24} strokeWidth={1.9} />
+                </div>
+                <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: APP_INK }}>{n.label}</div>
+              </div>
+            ))}
+            <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", textAlign: "center", width: 96 }}>
+              <span style={{ display: "block", fontSize: 9.5, color: APP_SUB, fontWeight: 800, marginBottom: 1 }}>回すほど</span>
+              <b style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: GOLD_INK, letterSpacing: ".02em" }}>ランクUP</b>
+              <span style={{ display: "block", fontSize: 9, color: APP_SUB, fontWeight: 800, marginTop: 1 }}>上手くなる</span>
+            </div>
+          </div>
+
+          {/* 各ステップ 説明カード */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {STEPS.map((s, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 11 }}>
-                <span style={{ flex: "0 0 auto", width: 26, height: 26, borderRadius: "50%", background: ACCENT, color: "var(--text-on-accent)", fontSize: "var(--fs-body)", fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center", marginTop: 1 }}>
-                  {i + 1}
-                </span>
-                <span style={{ minWidth: 0 }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "var(--fs-subhead)", fontWeight: 800, color: INK }}>
-                    <s.Icon size={16} color={ACCENT} /> {s.title}
-                  </span>
-                  <span style={{ display: "block", fontSize: "var(--fs-body)", color: SUB, lineHeight: 1.55, marginTop: 2 }}>
-                    {s.desc}
-                  </span>
-                </span>
+              <div key={i} style={{ display: "flex", gap: 11, padding: "12px 13px", border: "1px solid #efe6d2", borderRadius: 14, background: "#fff", position: "relative", overflow: "hidden" }}>
+                <span aria-hidden style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: `linear-gradient(180deg,${GOLD_LT},${GOLD})` }} />
+                <div style={{ width: 38, height: 38, flex: "none", borderRadius: 11, background: GOLD_BG, border: `1px solid ${GOLD_BD}`, display: "grid", placeItems: "center", color: GOLD }}>
+                  <s.Icon size={20} strokeWidth={1.9} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+                    <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: GOLD, letterSpacing: ".05em" }}>{s.no}</span>
+                    <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: APP_INK }}>{s.title}</span>
+                  </div>
+                  <div style={{ fontSize: "var(--fs-caption)", color: APP_SUB, fontWeight: 700, marginTop: 2, lineHeight: 1.55 }}>{s.what}</div>
+                  <div style={{ marginTop: 7, display: "flex", gap: 6, alignItems: "flex-start", background: GOLD_BG, borderRadius: 9, padding: "7px 9px" }}>
+                    <span style={{ flex: "none", fontSize: 8.5, fontWeight: 900, letterSpacing: ".04em", color: "#fff", background: GOLD, borderRadius: 5, padding: "2px 6px", marginTop: 1 }}>強み</span>
+                    <span style={{ fontSize: "var(--fs-caption)", color: "#5a4a2e", fontWeight: 700, lineHeight: 1.55 }}>{s.strength}</span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
 
-          {/* 締めの一言 */}
-          <div style={{ background: ACCENT_SOFT, border: `1px solid #eed9a0`, borderRadius: 12, padding: "11px 14px", textAlign: "center", fontSize: "var(--fs-body)", fontWeight: 800, color: ACCENT, marginBottom: 20 }}>
-            わかるから直せる。直せるから、上達する。
+          {/* 締め: 積み上がってランクへ */}
+          <div style={{ marginTop: 14, textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 800, color: APP_SUB, background: "linear-gradient(180deg,#fffdf8,#fdf6e8)", border: "1px solid #f0e6d0", borderRadius: 12, padding: 11, lineHeight: 1.7 }}>
+            1曲、また1曲。<b style={{ color: GOLD_INK }}>達成</b>と<b style={{ color: GOLD_INK }}>マスター</b>を重ねるほど、<b style={{ color: GOLD_INK }}>あなたのランクは自然と上へ</b>。
           </div>
-
-          {/* ことば */}
-          <h3 style={{ fontSize: "var(--fs-body)", fontWeight: 800, margin: "0 0 8px", color: SUB }}>ことばの意味</h3>
-          <dl style={{ margin: 0 }}>
-            {TERMS.map((t) => (
-              <div key={t.term} style={{ marginBottom: 8 }}>
-                <dt style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: INK }}>{t.term}</dt>
-                <dd style={{ fontSize: "var(--fs-body)", color: SUB, margin: "2px 0 0", lineHeight: 1.5 }}>{t.desc}</dd>
-              </div>
-            ))}
-          </dl>
 
           <button
             type="button" onClick={onClose}
-            style={{ marginTop: 16, width: "100%", padding: "11px 0", borderRadius: 12, border: "none", background: INK, color: "var(--text-on-accent)", fontSize: "var(--fs-subhead)", fontWeight: 800, cursor: "pointer" }}
+            style={{ marginTop: 16, width: "100%", padding: "11px 0", borderRadius: 12, border: "none", background: GOLD_INK, color: "var(--text-on-accent)", fontSize: "var(--fs-subhead)", fontWeight: 800, cursor: "pointer" }}
           >
             とじる
           </button>
