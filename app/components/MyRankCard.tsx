@@ -3,7 +3,7 @@
 import { useEffect, useState, type CSSProperties } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
-import { Trophy, PartyPopper } from "lucide-react"
+import { Trophy } from "lucide-react"
 import styles from "./MyRankCard.module.css"
 import { ArcoChan, POSES } from "./ArcoChan"
 import {
@@ -115,7 +115,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
           </div>
           <div className={styles.rcBody}>
             <div className={styles.rcEyebrow}>ランクカード</div>
-            <div className={styles.rcRank}>☆{currentStar} <small>{rankName(currentStar)}</small></div>
+            <div className={styles.rcRank}>{rankName(currentStar)}</div>
             <div className={styles.rcNeed}>☆{nextStar}まで あと <b>{remaining}曲</b></div>
             <div className={styles.rcPips}>
               {Array.from({ length: required }, (_, i) => (
@@ -153,7 +153,6 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
               </div>
 
               <div className={styles.board}>
-                <div className={styles.boardttl}>☆{currentStar} の曲を {required}曲マスターで ☆{nextStar} へ</div>
                 <div className={styles.rrow}>{row1.map(renderSlot)}</div>
                 <div className={`${styles.rrow} ${styles.rrowRev}`}>{row2.map(renderSlot)}</div>
               </div>
@@ -161,7 +160,6 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
               <div className={styles.cheer}>
                 <div className={styles.av}><ArcoChan pose={POSE_JOY} /></div>
                 <div className={styles.bwrap}>
-                  <span className={styles.cheertag} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>{achievedCount}曲達成{remaining === 0 ? <PartyPopper size={12} /> : null}</span>
                   <div className={styles.bubble}>{cheerForCount(achievedCount, required)}</div>
                 </div>
               </div>

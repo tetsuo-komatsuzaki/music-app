@@ -139,7 +139,7 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
       {/* 道: スタート → 達成 → マスター */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "2px 0 14px" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <TrackNode em={<img src="/Icon.png" alt="" aria-hidden width={18} height={18} style={{ borderRadius: 4 }} />} label={n1Label} on={n1On} />
+        <TrackNode em={<img src="/Icon-green.png" alt="" aria-hidden width={18} height={18} style={{ borderRadius: 4 }} />} label={n1Label} on={n1On} />
         <span style={{ color: "#c4ccd6", fontWeight: 900 }}>›</span>
         <TrackNode em={<Music size={18} />} label={n2Label} on={n2On} />
         <span style={{ color: "#c4ccd6", fontWeight: 900 }}>›</span>
