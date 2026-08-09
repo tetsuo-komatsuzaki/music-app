@@ -443,6 +443,100 @@
   align-items: center;
   gap: 6px;
 }
+
+/* ── 再設計 (2026-08-09): 案1 点数ピル / 案10 最新テイクのヒーロー / 名前タップ編集 ── */
+.histNameWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  cursor: pointer;
+}
+.histNameEditIcon {
+  flex: none;
+  color: var(--text-muted);
+  opacity: 0.65;
+}
+.histScorePill {
+  flex: none;
+  align-self: center;
+  font-size: var(--fs-subhead);
+  font-weight: 900;
+  line-height: 1;
+  border-radius: 9px;
+  padding: 4px 9px;
+  font-variant-numeric: tabular-nums;
+}
+.histScorePill small {
+  font-size: 0.62em;
+  font-weight: 800;
+  margin-left: 1px;
+}
+.histHero {
+  background: linear-gradient(135deg, #1f3d78, #2b5bc4);
+  border-radius: 12px;
+  padding: 12px 13px;
+  color: #fff;
+}
+.histHeroTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.histHeroEyebrow {
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #bcd0f5;
+}
+.histHeroName {
+  font-size: var(--fs-subhead);
+  font-weight: 800;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.histHeroDate {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: #cdd9f2;
+  margin-top: 1px;
+}
+.histHeroScore {
+  flex: none;
+  font-size: var(--fs-title);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.histHeroScore small {
+  font-size: 0.5em;
+  font-weight: 800;
+  color: #cdd9f2;
+  margin-left: 1px;
+}
+.histHeroStats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.histHeroChip {
+  font-size: var(--fs-caption);
+  font-weight: 800;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  padding: 4px 9px;
+}
+.histChevHero {
+  margin-left: auto;
+  color: #cdd9f2;
+  font-size: var(--fs-body);
+}
 .histDetailActions {
   display: flex;
   flex-wrap: wrap;

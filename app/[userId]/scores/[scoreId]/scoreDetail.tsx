@@ -346,6 +346,15 @@ function EvaluationSummaryCard({
 const HISTORY_PAGE_SIZE = 10
 const PERFORMANCE_NAME_MAX = 10
 
+// 演奏履歴の点数ピルの配色 (再設計 2026-08-09)。ブランド配色に準拠し、
+// 低得点でも「赤=エラー」を出さない: 低=グレー / 通常=藍(世界観) / 好=緑 / 90+=金(マスター域)。
+function scoreTone(s: number): { ink: string; bg: string } {
+  if (s >= 90) return { ink: "#8a5a1f", bg: "#fbf3e3" }
+  if (s >= 75) return { ink: "#2e8b57", bg: "#e9f6ee" }
+  if (s >= 50) return { ink: "#2b5bc4", bg: "#eef2fb" }
+  return { ink: "#64748b", bg: "#f1f4f8" }
+}
+
 function PerformanceHistory({
   performances,
   selectedId,
@@ -422,13 +431,16 @@ function PerformanceHistory({
         <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ演奏がないよ。録音してみよう！</div>
       ) : (
         <>
-          {pageItems.map((p) => {
+          {pageItems.map((p, idx) => {
             const isEditing = editingId === p.id
             const dateLabel = new Date(p.uploadedAt).toLocaleDateString("ja-JP")
             // 既定名は録音回数の連番 "#N"。旧既定名 "Performance #N" も表示時に "#N" へ変換
             const nameMatch = /^Performance #?(\d+)$/i.exec(p.name ?? "")
             const displayName = nameMatch ? `#${nameMatch[1]}` : (p.name ?? "録音")
             const score = performanceScore(p)
+            const tone = score != null ? scoreTone(score) : null
+            // 最新テイク(1ページ目の先頭・採点済み)は世界観カラーのヒーローに (再設計 案10)
+            const isHero = safePage === 0 && idx === 0 && score != null && !isEditing
             const statusLabel =
               score != null
                 ? `${score}点`
@@ -445,21 +457,10 @@ function PerformanceHistory({
                 className={`${styles.historyItem} ${selectedId === p.id ? styles.historyActive : ""}`}
                 onClick={() => !isEditing && onSelect(p)}
               >
-                <div className={styles.histMain}>
-                  {/* 左: 点数 (ランク色)。無ければプレースホルダ */}
-                  {!isEditing &&
-                    (score != null ? (
-                      <div className={styles.histScore} style={{ color: rankLabels[getScoreRank(score)].color }}>
-                        {score}
-                        <span className={styles.histScoreUnit}>点</span>
-                      </div>
-                    ) : (
-                      <div className={styles.histScoreNa} aria-hidden>—</div>
-                    ))}
-
-                  {/* 中: 名前・ランク・日付 + 音程/リズムバー (無評価時は状態) */}
-                  <div className={styles.histMid}>
-                    {isEditing ? (
+                {isEditing ? (
+                  /* 名前編集: 白カードのインライン入力 (名前タップで入る) */
+                  <div className={styles.histMain}>
+                    <div className={styles.histMid}>
                       <div className={styles.histEditRow}>
                         <input
                           type="text"
@@ -478,84 +479,104 @@ function PerformanceHistory({
                         <button type="button" className={styles.historyActionBtn} onClick={(e) => submitEdit(p.id, e)} disabled={saving} aria-label="保存">{saving ? "..." : "保存"}</button>
                         <button type="button" className={styles.historyActionBtn} onClick={cancelEdit} disabled={saving} aria-label="キャンセル">取消</button>
                       </div>
-                    ) : (
-                      <>
-                        <div className={styles.histTop}>
-                          <span className={styles.historyName}>{displayName}</span>
+                      {saveError && <div className={styles.historyError}>{saveError}</div>}
+                    </div>
+                  </div>
+                ) : isHero ? (
+                  /* 最新テイク = 世界観カラーのヒーロー (再設計 案10)。点数は白文字で圧を出さない */
+                  <div className={styles.histHero}>
+                    <div className={styles.histHeroTop}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div className={styles.histHeroEyebrow}>最新テイク</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+                          <span className={styles.histNameWrap} onClick={(e) => startEdit(p, e)} title="タップで名前を変更">
+                            <span className={styles.histHeroName}>{displayName}</span>
+                            <Pencil size={11} aria-hidden style={{ flex: "none", color: "#bcd0f5" }} />
+                          </span>
                           {p.rangeFromNote != null && (
                             <span className={styles.rangeTag} title="区間だけを録音した部分練習（曲のスコアには非算入）">区間</span>
                           )}
-                          <span className={styles.historyDate}>{dateLabel}</span>
                         </div>
-                        {score != null ? (
-                          <div className={styles.histSubs}>
-                            <div className={styles.histBar}>
-                              <span className={styles.histDot} style={{ background: "#4a6cf7" }} />
-                              <span className={styles.histMiniLabel}>音程</span>
-                              <span className={styles.histBarTrack}>
-                                <span className={styles.histBarFill} style={{ width: `${Math.round(p.pitchAccuracy!)}%`, background: "#4a6cf7" }} />
-                              </span>
-                              <b className={styles.histBarVal}>{Math.round(p.pitchAccuracy!)}</b>
-                            </div>
-                            <div className={styles.histBar}>
-                              <span className={styles.histDot} style={{ background: "#e0872b" }} />
-                              <span className={styles.histMiniLabel}>リズム</span>
-                              <span className={styles.histBarTrack}>
-                                <span className={styles.histBarFill} style={{ width: `${Math.round(p.timingAccuracy!)}%`, background: "#e0872b" }} />
-                              </span>
-                              <b className={styles.histBarVal}>{Math.round(p.timingAccuracy!)}</b>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className={styles.histStatusRow}>
-                            <span>{statusLabel}</span>
-                            {showEvalBadge && <span className={styles.historyBadge}>採点ずみ</span>}
-                          </div>
-                        )}
-                      </>
-                    )}
-                    {isEditing && saveError && (
-                      <div className={styles.historyError}>{saveError}</div>
-                    )}
+                        <div className={styles.histHeroDate}>{dateLabel}</div>
+                      </div>
+                      <div className={styles.histHeroScore}>{score}<small>点</small></div>
+                    </div>
+                    <div className={styles.histHeroStats}>
+                      <span className={styles.histHeroChip}>音程 {Math.round(p.pitchAccuracy!)}</span>
+                      <span className={styles.histHeroChip}>リズム {Math.round(p.timingAccuracy!)}</span>
+                      <span aria-hidden className={styles.histChevHero}>{selectedId === p.id ? "▲" : "▼"}</span>
+                    </div>
                   </div>
-
-                  {/* 右: 開閉のみ (操作は展開後に表示してモックの簡潔な行に合わせる) */}
-                  {!isEditing && (
-                    <span aria-hidden className={styles.histChev}>
-                      {selectedId === p.id ? "▲" : "▼"}
-                    </span>
-                  )}
-                </div>
+                ) : (
+                  /* 通常テイク: 点数は小さなピルに降格 (案1)、名前タップで編集 */
+                  <div className={styles.histMain}>
+                    <div className={styles.histMid}>
+                      <div className={styles.histTop}>
+                        <span className={styles.histNameWrap} onClick={(e) => startEdit(p, e)} title="タップで名前を変更">
+                          <span className={styles.historyName}>{displayName}</span>
+                          <Pencil size={11} aria-hidden className={styles.histNameEditIcon} />
+                        </span>
+                        {p.rangeFromNote != null && (
+                          <span className={styles.rangeTag} title="区間だけを録音した部分練習（曲のスコアには非算入）">区間</span>
+                        )}
+                        <span className={styles.historyDate}>{dateLabel}</span>
+                      </div>
+                      {score != null ? (
+                        <div className={styles.histSubs}>
+                          <div className={styles.histBar}>
+                            <span className={styles.histDot} style={{ background: "#2b5bc4" }} />
+                            <span className={styles.histMiniLabel}>音程</span>
+                            <span className={styles.histBarTrack}>
+                              <span className={styles.histBarFill} style={{ width: `${Math.round(p.pitchAccuracy!)}%`, background: "#2b5bc4" }} />
+                            </span>
+                            <b className={styles.histBarVal}>{Math.round(p.pitchAccuracy!)}</b>
+                          </div>
+                          <div className={styles.histBar}>
+                            <span className={styles.histDot} style={{ background: "#e6a94a" }} />
+                            <span className={styles.histMiniLabel}>リズム</span>
+                            <span className={styles.histBarTrack}>
+                              <span className={styles.histBarFill} style={{ width: `${Math.round(p.timingAccuracy!)}%`, background: "#e6a94a" }} />
+                            </span>
+                            <b className={styles.histBarVal}>{Math.round(p.timingAccuracy!)}</b>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className={styles.histStatusRow}>
+                          <span>{statusLabel}</span>
+                          {showEvalBadge && <span className={styles.historyBadge}>採点ずみ</span>}
+                        </div>
+                      )}
+                    </div>
+                    {score != null && tone && (
+                      <span className={styles.histScorePill} style={{ color: tone.ink, background: tone.bg }}>{score}<small>点</small></span>
+                    )}
+                    <span aria-hidden className={styles.histChev}>{selectedId === p.id ? "▲" : "▼"}</span>
+                  </div>
+                )}
                 {/* アコーディオン展開: 操作(結果/名前) + 再生 / 得点 / 判定内容 */}
                 {!isEditing && selectedId === p.id && (
                   <div
                     style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 12 }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <div className={styles.histDetailActions}>
-                      {score != null && onReplayArco && (
-                        <button
-                          type="button"
-                          className={styles.historyActionBtn}
-                          onClick={(e) => { e.stopPropagation(); onReplayArco(p) }}
-                          title="アルコの結果をもう一度"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src="/Icon.png" alt="" aria-hidden width={13} height={13} style={{ borderRadius: 3, verticalAlign: "-2px", marginRight: 4 }} />結果をもう一度
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        className={styles.historyActionBtn}
-                        onClick={(e) => startEdit(p, e)}
-                        title="名前を編集"
-                      >
-                        <Pencil size={12} style={{ verticalAlign: "-2px", marginRight: 4 }} />名前を変更
-                      </button>
-                      {canShareToTeacher && (
-                        <ShareToTeacherButton performanceId={p.id} kind={kind} />
-                      )}
-                    </div>
+                    {((score != null && onReplayArco) || canShareToTeacher) && (
+                      <div className={styles.histDetailActions}>
+                        {score != null && onReplayArco && (
+                          <button
+                            type="button"
+                            className={styles.historyActionBtn}
+                            onClick={(e) => { e.stopPropagation(); onReplayArco(p) }}
+                            title="アルコの結果をもう一度"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src="/Icon.png" alt="" aria-hidden width={13} height={13} style={{ borderRadius: 3, verticalAlign: "-2px", marginRight: 4 }} />結果をもう一度
+                          </button>
+                        )}
+                        {canShareToTeacher && (
+                          <ShareToTeacherButton performanceId={p.id} kind={kind} />
+                        )}
+                      </div>
+                    )}
                     {renderDetail && renderDetail(p)}
                   </div>
                 )}
