@@ -537,6 +537,52 @@
   color: #cdd9f2;
   font-size: var(--fs-body);
 }
+
+/* ── 履歴カード v2 (2026-08-09): 畳んでも押せる再生 + 開くと結果カード + 削除は右上 ── */
+.histPlay {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(135deg, #1f3d78, #2b5bc4);
+  box-shadow: 0 2px 7px rgba(30, 50, 110, 0.25);
+}
+.histPlay:active { filter: brightness(0.95); }
+.histResult {
+  margin-top: 11px;
+  border: 1px solid #e7ebf0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+.histResultHead {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  background: linear-gradient(135deg, #1f3d78, #2b5bc4);
+  color: #fff;
+}
+.histResultHead b {
+  font-size: var(--fs-body);
+  font-weight: 900;
+}
+.histResultMenu {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+}
+.histResultBody {
+  padding: 11px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
 .histDetailActions {
   display: flex;
   flex-wrap: wrap;

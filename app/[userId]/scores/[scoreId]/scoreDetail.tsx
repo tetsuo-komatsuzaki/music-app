@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo, Component, type ReactNode, type ErrorInfo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Pencil, Volume2, Target, PenLine } from "lucide-react"
+import { Pencil, Play, Pause, Trash2, Target, PenLine } from "lucide-react"
 import ScoreDetailTabs, { type ScoreDetailTabId } from "@/app/components/ScoreDetailTabs"
 import MasterBadge from "@/app/components/MasterBadge"
 import FavoriteButton from "@/app/components/FavoriteButton"
@@ -21,7 +21,7 @@ import "./ScoreFullscreen.css"
 import Recorder, { type Status as RecorderStatus } from "@/app/components/Recorder"
 import { buildScrollPlan, locateInPlan, type ScrollPlan } from "@/app/_libs/scoreScroll"
 import PerformanceSkeleton from "@/app/components/PerformanceSkeleton"
-import PerformanceSkillDetail from "@/app/components/PerformanceSkillDetail"
+import PerformanceDeleteModal from "@/app/components/PerformanceDeleteModal"
 import { getSignedUploadUrl } from "@/app/actions/getSignedUploadUrl"
 import { renamePerformance } from "@/app/actions/renamePerformance"
 import { resolvePartToNoteRange, type Part } from "@/app/_libs/materialParts"
@@ -366,6 +366,7 @@ function PerformanceHistory({
   renderDetail,
   onReplayArco,
   canShareToTeacher,
+  renderRowMenu,
 }: {
   performances: PerformanceDTO[]
   selectedId: string | null
@@ -374,18 +375,31 @@ function PerformanceHistory({
   performanceCount: number
   kind: "score" | "practice"
   onRenamed: (performanceId: string, newName: string) => void
-  /** 開いたカード内に収納する評価詳細 (再生 / 得点 / 判定内容) を描画する */
+  /** 開いたカード内に収納する評価詳細 (得点内訳 / 判定内容) を描画する */
   renderDetail?: (p: PerformanceDTO) => React.ReactNode
   /** アルコ結果オーバーレイを再表示する (スコアモードのみ) */
   onReplayArco?: (p: PerformanceDTO) => void
   /** D: 先生あり生徒のとき、各録音に「先生に共有」ボタンを出す */
   canShareToTeacher?: boolean
+  /** 結果カード右上に置く操作 (削除など) */
+  renderRowMenu?: (p: PerformanceDTO) => React.ReactNode
 }) {
   const [page, setPage] = useState(0)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [draftName, setDraftName] = useState("")
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  // 畳んでいても押せる再生: カード共通の <audio> を1つ持ち、再生中の演奏IDを持つ
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [playingId, setPlayingId] = useState<string | null>(null)
+  const togglePlay = (p: PerformanceDTO, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const a = audioRef.current
+    if (!a || !p.audioUrl) return
+    if (playingId === p.id) { a.pause(); setPlayingId(null); return }
+    a.src = p.audioUrl
+    a.play().then(() => setPlayingId(p.id)).catch(() => setPlayingId(null))
+  }
 
   const totalPages = Math.max(1, Math.ceil(performances.length / HISTORY_PAGE_SIZE))
   const safePage = Math.min(page, totalPages - 1)
@@ -425,13 +439,15 @@ function PerformanceHistory({
   return (
     <div className={styles.card}>
       <h3>演奏履歴</h3>
+      {/* カード共通の再生用 audio (畳んでいても再生ボタンから鳴らせる) */}
+      <audio ref={audioRef} onEnded={() => setPlayingId(null)} hidden />
       {loading ? (
         <PerformanceSkeleton count={Math.min(performanceCount, 5)} />
       ) : performances.length === 0 ? (
         <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ演奏がないよ。録音してみよう！</div>
       ) : (
         <>
-          {pageItems.map((p, idx) => {
+          {pageItems.map((p) => {
             const isEditing = editingId === p.id
             const dateLabel = new Date(p.uploadedAt).toLocaleDateString("ja-JP")
             // 既定名は録音回数の連番 "#N"。旧既定名 "Performance #N" も表示時に "#N" へ変換
@@ -439,8 +455,6 @@ function PerformanceHistory({
             const displayName = nameMatch ? `#${nameMatch[1]}` : (p.name ?? "録音")
             const score = performanceScore(p)
             const tone = score != null ? scoreTone(score) : null
-            // 最新テイク(1ページ目の先頭・採点済み)は世界観カラーのヒーローに (再設計 案10)
-            const isHero = safePage === 0 && idx === 0 && score != null && !isEditing
             const statusLabel =
               score != null
                 ? `${score}点`
@@ -482,34 +496,19 @@ function PerformanceHistory({
                       {saveError && <div className={styles.historyError}>{saveError}</div>}
                     </div>
                   </div>
-                ) : isHero ? (
-                  /* 最新テイク = 世界観カラーのヒーロー (再設計 案10)。点数は白文字で圧を出さない */
-                  <div className={styles.histHero}>
-                    <div className={styles.histHeroTop}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div className={styles.histHeroEyebrow}>最新テイク</div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
-                          <span className={styles.histNameWrap} onClick={(e) => startEdit(p, e)} title="タップで名前を変更">
-                            <span className={styles.histHeroName}>{displayName}</span>
-                            <Pencil size={11} aria-hidden style={{ flex: "none", color: "#bcd0f5" }} />
-                          </span>
-                          {p.rangeFromNote != null && (
-                            <span className={styles.rangeTag} title="区間だけを録音した部分練習（曲のスコアには非算入）">区間</span>
-                          )}
-                        </div>
-                        <div className={styles.histHeroDate}>{dateLabel}</div>
-                      </div>
-                      <div className={styles.histHeroScore}>{score}<small>点</small></div>
-                    </div>
-                    <div className={styles.histHeroStats}>
-                      <span className={styles.histHeroChip}>音程 {Math.round(p.pitchAccuracy!)}</span>
-                      <span className={styles.histHeroChip}>リズム {Math.round(p.timingAccuracy!)}</span>
-                      <span aria-hidden className={styles.histChevHero}>{selectedId === p.id ? "▲" : "▼"}</span>
-                    </div>
-                  </div>
                 ) : (
-                  /* 通常テイク: 点数は小さなピルに降格 (案1)、名前タップで編集 */
+                  /* 全カード均一 (案01): 左に再生 → 名前/バー → 点数ピル → 開閉。名前タップで編集 */
                   <div className={styles.histMain}>
+                    {p.audioUrl && (
+                      <button
+                        type="button"
+                        className={styles.histPlay}
+                        onClick={(e) => togglePlay(p, e)}
+                        aria-label={playingId === p.id ? "一時停止" : "この演奏を聴く"}
+                      >
+                        {playingId === p.id ? <Pause size={13} fill="#fff" /> : <Play size={13} fill="#fff" style={{ marginLeft: 1 }} />}
+                      </button>
+                    )}
                     <div className={styles.histMid}>
                       <div className={styles.histTop}>
                         <span className={styles.histNameWrap} onClick={(e) => startEdit(p, e)} title="タップで名前を変更">
@@ -553,31 +552,36 @@ function PerformanceHistory({
                     <span aria-hidden className={styles.histChev}>{selectedId === p.id ? "▲" : "▼"}</span>
                   </div>
                 )}
-                {/* アコーディオン展開: 操作(結果/名前) + 再生 / 得点 / 判定内容 */}
+                {/* アコーディオン展開 = アルコの採点「結果カード」。削除は右上に。 */}
                 {!isEditing && selectedId === p.id && (
-                  <div
-                    style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 12 }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {((score != null && onReplayArco) || canShareToTeacher) && (
-                      <div className={styles.histDetailActions}>
-                        {score != null && onReplayArco && (
-                          <button
-                            type="button"
-                            className={styles.historyActionBtn}
-                            onClick={(e) => { e.stopPropagation(); onReplayArco(p) }}
-                            title="アルコの結果をもう一度"
-                          >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src="/Icon.png" alt="" aria-hidden width={13} height={13} style={{ borderRadius: 3, verticalAlign: "-2px", marginRight: 4 }} />結果をもう一度
-                          </button>
-                        )}
-                        {canShareToTeacher && (
-                          <ShareToTeacherButton performanceId={p.id} kind={kind} />
-                        )}
-                      </div>
-                    )}
-                    {renderDetail && renderDetail(p)}
+                  <div className={styles.histResult} onClick={(e) => e.stopPropagation()}>
+                    <div className={styles.histResultHead}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/Icon.png" alt="" aria-hidden width={18} height={18} style={{ borderRadius: 4, flex: "none" }} />
+                      <b>アルコの採点</b>
+                      {renderRowMenu && <span className={styles.histResultMenu}>{renderRowMenu(p)}</span>}
+                    </div>
+                    <div className={styles.histResultBody}>
+                      {renderDetail && renderDetail(p)}
+                      {((score != null && onReplayArco) || canShareToTeacher) && (
+                        <div className={styles.histDetailActions}>
+                          {score != null && onReplayArco && (
+                            <button
+                              type="button"
+                              className={styles.historyActionBtn}
+                              onClick={(e) => { e.stopPropagation(); onReplayArco(p) }}
+                              title="アルコの結果をもう一度"
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src="/Icon.png" alt="" aria-hidden width={13} height={13} style={{ borderRadius: 3, verticalAlign: "-2px", marginRight: 4 }} />結果をもう一度
+                            </button>
+                          )}
+                          {canShareToTeacher && (
+                            <ShareToTeacherButton performanceId={p.id} kind={kind} />
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -994,26 +998,39 @@ function ScoreViewer({
 }
 
 // =========================================================
-// サブコンポーネント: AudioPlayer
+// サブコンポーネント: RowDeleteButton
+// 演奏履歴カード右上の「削除」ラベル (旧 ⋯ メニューを置き換え・2026-08-09)。
+// PerformanceDeleteModal を直接開く。
 // =========================================================
 
-function AudioPlayer({
-  audioUrl,
+function RowDeleteButton({
   performanceId,
+  kind,
+  onDeleted,
 }: {
-  audioUrl: string | null
-  performanceId: string | undefined
+  performanceId: string
+  kind: "score" | "practice"
+  onDeleted: (performanceId: string) => void
 }) {
+  const [open, setOpen] = useState(false)
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "2px 0" }}>
-      <span style={{ fontSize: "var(--fs-body)", fontWeight: 600, color: "var(--text-body)", whiteSpace: "nowrap", display: "inline-flex", alignItems: "center", gap: 5 }}><Volume2 size={14} /> この演奏を聴く</span>
-      <audio
-        key={performanceId}
-        controls
-        src={audioUrl ?? undefined}
-        style={{ flex: 1, minWidth: 0, height: 36 }}
+    <>
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); setOpen(true) }}
+        aria-label="この録音を削除"
+        style={{ display: "inline-flex", alignItems: "center", gap: 3, border: "none", background: "transparent", cursor: "pointer", color: "#cdd9f2", fontSize: "var(--fs-label)", fontWeight: 800, padding: 2 }}
+      >
+        <Trash2 size={12} /> 削除
+      </button>
+      <PerformanceDeleteModal
+        performanceId={performanceId}
+        open={open}
+        onClose={() => setOpen(false)}
+        onDeleted={onDeleted}
+        kind={kind}
       />
-    </div>
+    </>
   )
 }
 
@@ -2742,20 +2759,16 @@ function ScoreDetailInner({
         canShareToTeacher={studentHasTeacher}
         onReplayArco={practiceItemId ? undefined : (p) => setArcoResult(p)}
         renderDetail={(p) => (
-          <>
-            <AudioPlayer audioUrl={p.audioUrl ?? null} performanceId={p.id} />
-            {(p.pitchAccuracy != null || p.timingAccuracy != null) && (
-              <EvaluationSummaryCard performance={p} warnings={p.comparisonWarnings ?? []} />
-            )}
-            {!practiceItemId && (
-              <PerformanceSkillDetail
-                performanceId={p.id}
-                kind="score"
-                onDeleted={handlePerformanceDeleted}
-                userId={userId}
-              />
-            )}
-          </>
+          (p.pitchAccuracy != null || p.timingAccuracy != null)
+            ? <EvaluationSummaryCard performance={p} warnings={p.comparisonWarnings ?? []} />
+            : null
+        )}
+        renderRowMenu={(p) => (
+          <RowDeleteButton
+            performanceId={p.id}
+            kind={practiceItemId ? "practice" : "score"}
+            onDeleted={handlePerformanceDeleted}
+          />
         )}
       />
     </div>
