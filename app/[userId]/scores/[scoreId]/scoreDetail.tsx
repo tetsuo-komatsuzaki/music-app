@@ -3235,7 +3235,7 @@ function ScoreDetailInner({
               style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", padding: "14px 16px", background: "linear-gradient(100deg,#e5392b,#f0603a)", color: "var(--text-on-accent)", border: "none", borderRadius: 12, fontSize: "var(--fs-subhead)", fontWeight: 800, cursor: "pointer" }}
             >
               <span aria-hidden style={{ width: 10, height: 10, borderRadius: "50%", background: "#fff", display: "inline-block" }} />
-              録音して、アルコに採点してもらう
+              録音して採点
             </button>
           </div>
         ) : (

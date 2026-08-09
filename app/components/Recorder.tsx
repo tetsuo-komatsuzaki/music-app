@@ -695,7 +695,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
             disabled={disabled}
           >
             <span className={styles.ctaDot} />
-            <span>録音して、アルコに採点してもらう</span>
+            <span>録音して採点</span>
           </button>
           {quota && !quota.unlimited && (
             <div className={styles.quotaLine} data-testid="recorder-quota">

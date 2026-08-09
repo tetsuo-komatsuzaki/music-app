@@ -81,6 +81,11 @@
   padding: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
+/* 中身が無い(診断 unavailable で WeaknessDiagnosisCard が null 等)ときに
+   空の白カードが残るのを防ぐ。h2 見出しを持つ「学びのポイント」は常に非空なので対象外。 */
+.cardSection:empty {
+  display: none;
+}
 
 .cardGrid {
   display: grid;
