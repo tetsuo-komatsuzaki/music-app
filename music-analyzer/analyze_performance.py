@@ -2037,7 +2037,15 @@ try:
     # フロントがストレージの比較JSONを都度読まずに「音の虫めがね」「音域別」「遷移分析」を
     # 表示できるようにする (feasibility監査 2026-08-02 の推奨実装)。
     try:
-        note_stats = {"version": 1, "notes": {}, "registers": {}, "transitions": {}}
+        note_stats = {"version": 1, "notes": {}, "registers": {}, "transitions": {}, "positions": {}}
+        # 成長フィードバック②(2026-08-09): note_index → 解決済みポジション。
+        # analysis.json の "position" (注釈優先→無ければ最低ポジ推定)。古い analysis.json は
+        # position 未収載 → None で自然に除外 (再解析で反映)。
+        pos_by_idx = {
+            int(n["note_index"]): n.get("position")
+            for n in all_notes
+            if n.get("type") == "note" and n.get("note_index") is not None
+        }
         prev_name = None
         for r in results:  # results は楽譜順
             name = r.get("note_name") or None
@@ -2070,6 +2078,17 @@ try:
                         b["pitch_miss"] += 1
                     if timing_miss:
                         b["timing_miss"] += 1
+                # ポジション別 (成長フィードバック②): 1 / 2 / 3 / 4plus に束ねて成功率合算
+                _pos = pos_by_idx.get(int(r.get("note_index", -1)))
+                if _pos is not None:
+                    pb = "1" if _pos <= 1 else "2" if _pos == 2 else "3" if _pos == 3 else "4plus"
+                    pp = note_stats["positions"].setdefault(
+                        pb, {"target": 0, "pitch_miss": 0, "timing_miss": 0})
+                    pp["target"] += 1
+                    if pitch_miss:
+                        pp["pitch_miss"] += 1
+                    if timing_miss:
+                        pp["timing_miss"] += 1
                 # 遷移: 前の音 → この音 (この音のミスを帰属)
                 if prev_name:
                     key = f"{prev_name}>{name}"
@@ -2086,7 +2105,7 @@ try:
         note_stats["transitions"] = {
             k: v for k, v in note_stats["transitions"].items() if v["target"] >= 2}
         analysis_summary["noteStats"] = note_stats
-        print(f"  noteStats: notes={len(note_stats['notes'])} registers={len(note_stats['registers'])} transitions={len(note_stats['transitions'])}")
+        print(f"  noteStats: notes={len(note_stats['notes'])} registers={len(note_stats['registers'])} transitions={len(note_stats['transitions'])} positions={note_stats['positions']}")
     except Exception as e:
         print(f"  noteStats skipped: {e}")
 

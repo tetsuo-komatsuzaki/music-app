@@ -600,6 +600,7 @@ try:
             # 推定は violin_position (音名算術)。元記号<fingering>があれば指優先で弦/ポジ導出。
             disp_finger: Optional[int] = None       # 表示する指番号 or None
             disp_string_num: Optional[int] = None   # 表示する弦番号(1-4) or None
+            _pos_resolved: Optional[int] = None     # 解決済みポジション番号 (成長フィードバック②用・2026-08-09)
             if not is_chord_flag and len(element.pitches) == 1:
                 _p = element.pitches[0]
                 _midi = int(_p.midi)
@@ -621,6 +622,7 @@ try:
                         _s_id, _pos, _finger, _ = _r
                     else:
                         _s_id, _pos, _finger = None, None, None
+                _pos_resolved = _pos  # 成長フィードバック②: 注釈優先→無ければ最低ポジ推定の解決値
                 # 表示ルール適用
                 _fp = VIOLIN_FIRST_POSITION_MAP.get(_midi)
                 _fp_string = _fp[0] if _fp else None
@@ -728,6 +730,7 @@ try:
                 "has_lyric": bool(getattr(element, "lyrics", None)),
                 "display_finger": disp_finger,
                 "display_string_num": disp_string_num,
+                "position": _pos_resolved,
                 "dynamic": dyn,
                 "is_tied": is_tied,
                 "is_tremolo": is_tremolo,
