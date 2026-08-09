@@ -3314,7 +3314,6 @@ function ScoreDetailInner({
           userId={userId}
           perf={{ id: arcoResult.id, pitchAccuracy: arcoResult.pitchAccuracy ?? null, timingAccuracy: arcoResult.timingAccuracy ?? null }}
           onClose={() => { setArcoResult(null); if (isScoreMode) handleTabChange("review") }}
-          onGoReview={isScoreMode ? () => { setArcoResult(null); handleTabChange("review") } : undefined}
         />
       )}
 

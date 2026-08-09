@@ -4,8 +4,7 @@ import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
 import { ArcoChan, POSES } from "./ArcoChan"
-import { Sprout, Palette, Trophy, Share2, Ear, Wrench } from "lucide-react"
-import { sendScoringFeedback } from "@/app/actions/scoringFeedback"
+import { Sprout, Palette, Trophy, Share2, Ear } from "lucide-react"
 import ShareSheet from "./ShareSheet"
 import { createListenRequest } from "@/app/actions/listenRequests"
 import styles from "./ArcoResultOverlay.module.css"
@@ -48,13 +47,12 @@ function rankOf(score: number): string {
 }
 
 export default function ArcoResultOverlay({
-  scoreId, userId, perf, onClose, onGoReview,
+  scoreId, userId, perf, onClose,
 }: {
   scoreId: string
   userId: string
   perf: { id: string; pitchAccuracy: number | null; timingAccuracy: number | null }
   onClose: () => void
-  onGoReview?: () => void
 }) {
   const [mounted, setMounted] = useState(false)
   const [ach, setAch] = useState<Ach | null>(null)
@@ -92,16 +90,10 @@ export default function ArcoResultOverlay({
   // 未クリアで行き先があるチップはタップでそのまま飛べる (行き止まり解消)
   const chips: { done: boolean; label: string; href?: string | null }[] = []
   if (ach) {
-    chips.push({ done: ach.cleanRuns.count >= ach.cleanRuns.required, label: `通し ${ach.cleanRuns.count}/${ach.cleanRuns.required}` })
     if (ach.etude.required) chips.push({
       done: !!ach.etude.achieved,
       label: ach.etude.achieved ? "エチュード ✓" : "エチュード 未",
       href: ach.etude.id ? `/${userId}/practice/etude/${ach.etude.id}?from=${scoreId}` : null,
-    })
-    if (ach.lessons.total > 0) chips.push({
-      done: ach.lessons.cleared >= ach.lessons.total,
-      label: `レッスン ${ach.lessons.cleared}/${ach.lessons.total}`,
-      href: ach.lessons.nextLessonId ? `/${userId}/lessons/${ach.lessons.nextLessonId}` : `/${userId}/lessons`,
     })
   }
 
@@ -175,7 +167,7 @@ export default function ArcoResultOverlay({
                   <div style={{ position: "relative", height: 14, borderRadius: 7, background: "#eef0f4", margin: "26px 4px 6px" }}>
                     <span style={{ position: "absolute", inset: "0 auto 0 0", width: `${Math.min(avg, 100)}%`, borderRadius: 7, background: "linear-gradient(90deg,#7a8ce0,#5b6b9e)" }} />
                     <span style={{ position: "absolute", top: -7, bottom: -7, left: "90%", width: 3, borderRadius: 2, background: "#c9a227" }}>
-                      <span style={{ position: "absolute", top: -19, right: -4, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-master)", whiteSpace: "nowrap" }}>90点=マスターライン</span>
+                      <span style={{ position: "absolute", top: -19, right: -4, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-master)", whiteSpace: "nowrap" }}>90点</span>
                     </span>
                     <span style={{ position: "absolute", top: -24, left: `${Math.min(avg, 100)}%`, transform: "translateX(-50%)", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)", whiteSpace: "nowrap", animation: "aroHop 1.2s ease-in-out infinite" }}>
                       きみ {avg}点
@@ -244,11 +236,7 @@ export default function ArcoResultOverlay({
           )}
         </div>
 
-        {/* 採点の正直な注記 + その場フィードバック (2026-08-03) */}
-        <ScoringFeedbackNote performanceId={perf.id} kind="score" />
-
         <div className={styles.actions}>
-          {onGoReview && <button type="button" className={styles.ghost} onClick={onGoReview}>ふりかえりで詳しく</button>}
           <button type="button" className={styles.ghost} onClick={() => setShareOpen(true)}><span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Share2 size={13} /> シェア</span></button>
           {/* 👂 先生に聴いてもらう (2026-08-06 案1簡素版): ワンタップ送信・シート無し */}
           {hasTeacher && (
@@ -263,7 +251,6 @@ export default function ArcoResultOverlay({
               )}
             </button>
           )}
-          <button type="button" className={styles.primary} onClick={onClose}>とじる</button>
         </div>
 
         {/* シェア: マスター済みなら🏆マスターカード、通常は🎵きょうの演奏カード */}
@@ -277,47 +264,5 @@ export default function ArcoResultOverlay({
       </div>
     </div>,
     document.body,
-  )
-}
-
-/** 「採点は勉強中」の正直な注記 + ワンタップで運営へ届くフィードバック */
-export function ScoringFeedbackNote({ performanceId, kind }: { performanceId: string; kind: "score" | "practice" }) {
-  const [open, setOpen] = useState(false)
-  const [text, setText] = useState("")
-  const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle")
-
-  const send = async () => {
-    if (!text.trim()) return
-    setState("sending")
-    const r = await sendScoringFeedback({ performanceId, kind, message: text })
-    setState(r.ok ? "done" : "error")
-  }
-
-  return (
-    <div style={{ margin: "10px 2px 0", fontSize: "var(--fs-caption)", color: "var(--text-muted)", lineHeight: 1.7 }}>
-      <Wrench size={12} style={{ verticalAlign: -2, marginRight: 4 }} />アルコの採点は、これからどんどん正確になっていくよ。
-      {state === "done" ? (
-        <span style={{ color: "var(--text-good)", fontWeight: 800 }}> フィードバックありがとう！べんきょうします</span>
-      ) : (
-        <>
-          「この点数、おかしいな？」と思ったら{" "}
-          <button type="button" onClick={() => setOpen((v) => !v)}
-            style={{ font: "inherit", fontWeight: 800, color: "var(--text-link)", background: "none", border: "none", padding: 0, cursor: "pointer", textDecoration: "underline" }}>
-            教えてね
-          </button>
-          {open && (
-            <span style={{ display: "flex", gap: 6, marginTop: 6 }}>
-              <input value={text} onChange={(e) => setText(e.target.value)} placeholder="例: 本当はもっと弾けていたと思う" maxLength={1000}
-                style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-caption)", border: "1px solid #dfe3e8", borderRadius: 8, padding: "7px 10px" }} />
-              <button type="button" onClick={send} disabled={state === "sending" || !text.trim()}
-                style={{ flex: "none", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#4a5bd0", border: "none", borderRadius: 8, padding: "7px 12px", cursor: "pointer", opacity: state === "sending" ? 0.6 : 1 }}>
-                {state === "sending" ? "送信中…" : "おくる"}
-              </button>
-            </span>
-          )}
-          {state === "error" && <span style={{ color: "var(--text-error)" }}> 送信できなかった…もう一度ためしてね</span>}
-        </>
-      )}
-    </div>
   )
 }
