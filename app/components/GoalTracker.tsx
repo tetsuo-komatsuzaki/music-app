@@ -169,10 +169,10 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
 
       <div style={{ height: 1, background: "#eef1f4", margin: "14px 0" }} />
 
-      <StepHead n="STEP 2" title="マスター" sub="平均90点で認定" tone="s2" />
+      <StepHead n="STEP 2" title="曲を弾きこなそう" sub="" tone="s2" />
       {!achv.achieved && !achv.mastered ? (
         <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#f4f6f9", borderRadius: 12, padding: "12px 14px", color: "#9aa6b3", fontSize: 12.5, fontWeight: 700 }}>
-          <Lock size={15} style={{ flex: "none" }} /> 達成すると、マスターへの挑戦がはじまるよ
+          <Lock size={15} style={{ flex: "none" }} /> 達成すると挑戦できるよ
         </div>
       ) : (
         <div>
