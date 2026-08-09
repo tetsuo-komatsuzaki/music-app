@@ -1,12 +1,13 @@
 "use client"
 
-// 先生とのやりとり UI (2026-07-28)。タブ: すべて/宿題/添削/メッセージ。
-// Phase 1: すべて(これまでのやりとり)・宿題は実データ。添削・メッセージは準備中(Phase 1.5)。
+// 先生とのやりとり UI (2026-07-28)。タブ: すべて/宿題/添削/レッスン。
+// 自由チャットの「メッセージ」タブは廃止 (2026-08-09)。先生コメントは演奏・曲に紐づく形へ一本化し、
+// お祝い・演奏コメントは「すべて」タイムラインに集約表示する。
 import { useState, useTransition } from "react"
-import { GraduationCap, Calendar, History, MessageCircle, PartyPopper, Headphones, NotebookPen, Pin, Upload, ClipboardList, UserRound, type LucideIcon } from "lucide-react"
+import { GraduationCap, Calendar, History, MessageCircle, PartyPopper, NotebookPen, Pin, Upload, ClipboardList, UserRound, type LucideIcon } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { unlinkTeacher, sendMessage } from "@/app/actions/teacherActions"
+import { unlinkTeacher } from "@/app/actions/teacherActions"
 import { bookLesson, cancelMyBooking } from "@/app/actions/teacherLessons"
 import AssignmentSubmit from "@/app/components/AssignmentSubmit"
 import { goalLabel, dueInfo, DUE_COLOR, goalResult } from "@/app/_libs/assignmentGoal"
@@ -14,7 +15,7 @@ import { goalLabel, dueInfo, DUE_COLOR, goalResult } from "@/app/_libs/assignmen
 type TimelineEv = { when: string; kind: "hw" | "comment"; text: string; href?: string | null; icon?: string }
 
 const TIMELINE_ICON: Record<string, LucideIcon> = {
-  pin: Pin, message: MessageCircle, upload: Upload, you: UserRound, clipboard: ClipboardList,
+  pin: Pin, message: MessageCircle, upload: Upload, you: UserRound, clipboard: ClipboardList, party: PartyPopper,
 }
 type Homework = {
   id: string; title: string; detail: string; comment: string | null
@@ -22,7 +23,6 @@ type Homework = {
   achieved: boolean; mastered: boolean
   done: boolean; submitted: boolean; submittedScore: number | null; date: string; href: string
 }
-type Msg = { id: string; fromTeacher: boolean; body: string; time: string; perf?: { title: string; href: string } | null; kind?: string | null }
 type Feedback = { scoreId: string; title: string; date: string }
 type LessonDTO = { id: string; when: string; durationMin: number; online: boolean; locationNote: string | null }
 type Lessons = { open: LessonDTO[]; booked: LessonDTO[] }
@@ -32,19 +32,18 @@ const INK = "#26303a"
 const SUB = "#6b7885"
 
 export default function MyTeacherClient({
-  userId, teacherName, since, timeline, homework, messages, feedbacks, lessons, nextLessonLabel,
+  userId, teacherName, since, timeline, homework, feedbacks, lessons, nextLessonLabel,
 }: {
   userId: string
   teacherName: string
   since: string
   timeline: TimelineEv[]
   homework: Homework[]
-  messages: Msg[]
   feedbacks: Feedback[]
   lessons: Lessons
   nextLessonLabel: string | null
 }) {
-  const [tab, setTab] = useState<"all" | "hw" | "review" | "msg" | "lesson">("all")
+  const [tab, setTab] = useState<"all" | "hw" | "review" | "lesson">("all")
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
@@ -79,7 +78,7 @@ export default function MyTeacherClient({
 
       {/* タブ */}
       <div style={{ display: "flex", gap: 3, background: "#fff", border: "1px solid #eef1f4", borderRadius: 10, padding: 3, margin: "12px 0" }}>
-        {([["all", "すべて"], ["hw", "宿題"], ["review", "添削"], ["msg", "メッセージ"], ["lesson", "レッスン"]] as const).map(([k, label]) => (
+        {([["all", "すべて"], ["hw", "宿題"], ["review", "添削"], ["lesson", "レッスン"]] as const).map(([k, label]) => (
           <button key={k} type="button" onClick={() => setTab(k)}
             style={{ flex: 1, border: "none", background: tab === k ? ACCENT : "transparent", color: tab === k ? "#fff" : SUB, borderRadius: 8, padding: "7px 0", fontSize: "var(--fs-caption)", fontWeight: 800, cursor: "pointer" }}>
             {label}
@@ -90,7 +89,6 @@ export default function MyTeacherClient({
       {tab === "all" && <AllTab timeline={timeline} />}
       {tab === "hw" && <HwTab homework={homework} />}
       {tab === "review" && <ReviewTab userId={userId} feedbacks={feedbacks} />}
-      {tab === "msg" && <MsgTab teacherName={teacherName} messages={messages} />}
       {tab === "lesson" && <LessonTab lessons={lessons} />}
 
       {/* 解約 */}
@@ -188,86 +186,6 @@ function HwCard({ h }: { h: Homework }) {
           <Link href={h.href} style={{ display: "inline-block", background: "#f7f8fa", color: SUB, border: "1px solid #e7eaee", fontSize: "var(--fs-body)", fontWeight: 800, borderRadius: 9, padding: "8px 16px", textDecoration: "none" }}>もう一度練習する →</Link>
         </div>
       )}
-    </div>
-  )
-}
-
-function MsgTab({ teacherName, messages }: { teacherName: string; messages: Msg[] }) {
-  const router = useRouter()
-  const [text, setText] = useState("")
-  const [pending, startTransition] = useTransition()
-  const [err, setErr] = useState<string | null>(null)
-
-  const send = () => {
-    const body = text.trim()
-    if (!body) return
-    setErr(null)
-    startTransition(async () => {
-      const r = await sendMessage(body)
-      if (!r.ok) { setErr(r.error); return }
-      setText("")
-      router.refresh()
-    })
-  }
-
-  return (
-    <div style={card()}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 12, maxHeight: 360, overflowY: "auto" }}>
-        {messages.length === 0 ? (
-          <div style={{ fontSize: "var(--fs-body)", color: SUB, textAlign: "center", padding: "12px 0" }}>
-            まだメッセージはありません。{teacherName} 先生に質問してみよう。
-          </div>
-        ) : (
-          messages.map((m) => (
-            m.kind === "celebration" ? (
-              // お祝いメッセージ (2026-08-02): 特別なお祝いカードで表示
-              <div key={m.id} style={{
-                alignSelf: "stretch", textAlign: "center",
-                background: "linear-gradient(135deg,#fdf3df,#fdeef2)", border: "1px solid #eecfa0",
-                borderRadius: 14, padding: "13px 14px",
-              }}>
-                <div style={{ display: "flex", justifyContent: "center", lineHeight: 1 }}><PartyPopper size={20} color="#8a5a10" /></div>
-                <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-master)", marginTop: 5, lineHeight: 1.6 }}>{m.body}</div>
-                <div style={{ fontSize: "var(--fs-label)", color: "var(--text-master)", marginTop: 4 }}>先生からのお祝い ・ {m.time}</div>
-              </div>
-            ) : (
-            <div key={m.id} style={{
-              maxWidth: "84%", alignSelf: m.fromTeacher ? "flex-start" : "flex-end",
-              background: m.fromTeacher ? "#fff" : ACCENT, color: m.fromTeacher ? INK : "#fff",
-              border: m.fromTeacher ? "1px solid #e7eaee" : "none", borderRadius: 12,
-              borderBottomLeftRadius: m.fromTeacher ? 3 : 12, borderBottomRightRadius: m.fromTeacher ? 12 : 3,
-              padding: "7px 11px", fontSize: "var(--fs-body)", lineHeight: 1.45,
-            }}>
-              {m.perf && (
-                <Link
-                  href={m.perf.href}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: "var(--fs-caption)", fontWeight: 800, textDecoration: "none", marginBottom: 4, padding: "2px 7px", borderRadius: 999, background: m.fromTeacher ? "#eef0fc" : "rgba(255,255,255,.22)", color: m.fromTeacher ? "#5b6b9e" : "#fff" }}
-                >
-                  <Headphones size={12} /> {m.perf.title} の演奏について →
-                </Link>
-              )}
-              <div>{m.body}</div>
-              <div style={{ fontSize: "var(--fs-label)", opacity: 0.7, marginTop: 3, textAlign: "right" }}>{m.time}</div>
-            </div>
-            )
-          ))
-        )}
-      </div>
-      <div style={{ display: "flex", gap: 7 }}>
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          maxLength={1000}
-          onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) send() }}
-          placeholder="メッセージを書く…"
-          style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: "var(--fs-body)" }}
-        />
-        <button type="button" onClick={send} disabled={pending || !text.trim()}
-          style={{ border: "none", borderRadius: 9, padding: "0 16px", fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: ACCENT, cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
-          送る
-        </button>
-      </div>
-      {err && <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-error)", marginTop: 6 }}>{err}</div>}
     </div>
   )
 }

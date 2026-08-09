@@ -96,7 +96,6 @@ type AssignmentRow = {
   createdAt: string
 }
 
-type Msg = { id: string; fromTeacher: boolean; body: string; time: string }
 type ObservationRow = { id: string; tagIds: string[]; severity: string | null; comment: string | null; date: string }
 type ExpressionRow = { id: string; tagId: string; severity: string | null; comment: string | null; date: string }
 type WorkItem = { title: string; cat: string; avg: number }
@@ -106,7 +105,7 @@ type Recording = { id: string; kind: "score" | "practice"; title: string; cat: s
 
 export default function StudentKarte({
   userId, studentId, studentName, briefing, scoreTargets, itemTargets, listenRequests = [],
-  allScoreTargets, allItemTargets, working, recordings, assignments, messages,
+  allScoreTargets, allItemTargets, working, recordings, assignments,
   observations = [],
   expressions = [],
   karte = null,
@@ -126,7 +125,6 @@ export default function StudentKarte({
   working: WorkItem[]
   recordings: Recording[]
   assignments: AssignmentRow[]
-  messages: Msg[]
   /** 先生の所見 (癖タグ) 履歴 */
   observations?: ObservationRow[]
   /** 表現の評価 (expr_*) 履歴 (2026-08-03 Phase0-3) */
@@ -135,7 +133,7 @@ export default function StudentKarte({
   karte?: KarteData | null
   studentSupabaseUserId?: string | null
 }) {
-  const [tab, setTab] = useState<"overview" | "practice" | "homework" | "review" | "message" | "karte">("overview")
+  const [tab, setTab] = useState<"overview" | "practice" | "homework" | "review" | "karte">("overview")
   return (
     // 生徒カルテ ペーパーデザイン (2026-08-06 Tetsuo確定B: 成長カルテv3と同じ世界観に全面統一)
     <div style={{
@@ -147,7 +145,7 @@ export default function StudentKarte({
       <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "0 0 10px" }}>{studentName}</h1>
 
       <div style={{ display: "flex", gap: 4, marginBottom: 14, background: "rgba(255,255,255,.55)", border: "1px solid #efe5cc", borderRadius: 12, padding: 3 }}>
-        {([["overview", "概要"], ["practice", "練習"], ["karte", "カルテ"], ["homework", "宿題"], ["review", "採点カルテ"], ["message", "メッセージ"]] as const).map(([k, label]) => (
+        {([["overview", "概要"], ["practice", "練習"], ["karte", "カルテ"], ["homework", "宿題"], ["review", "採点カルテ"]] as const).map(([k, label]) => (
           <button
             key={k}
             type="button"
@@ -178,7 +176,6 @@ export default function StudentKarte({
         <Homework studentId={studentId} scoreTargets={allScoreTargets} itemTargets={allItemTargets} assignments={assignments} />
       )}
       {tab === "review" && <FeedbackTab userId={userId} studentId={studentId} scoreTargets={scoreTargets} listenRequests={listenRequests} assignments={assignments} />}
-      {tab === "message" && <Messages studentId={studentId} studentName={studentName} messages={messages} />}
     </div>
   )
 }
@@ -356,61 +353,6 @@ function PracticeTab({ studentId, working, recordings }: { studentId: string; wo
         )}
       </Card>
     </>
-  )
-}
-
-function Messages({ studentId, studentName, messages }: { studentId: string; studentName: string; messages: Msg[] }) {
-  const router = useRouter()
-  const [text, setText] = useState("")
-  const [err, setErr] = useState<string | null>(null)
-  const [pending, startTransition] = useTransition()
-
-  const send = () => {
-    const body = text.trim()
-    if (!body) return
-    setErr(null)
-    startTransition(async () => {
-      const r = await sendMessageToStudent(studentId, body)
-      if (!r.ok) { setErr(r.error); return }
-      setText("")
-      router.refresh()
-    })
-  }
-
-  return (
-    <Card>
-      <div style={{ display: "flex", flexDirection: "column", gap: 7, marginBottom: 12, maxHeight: 380, overflowY: "auto" }}>
-        {messages.length === 0 ? (
-          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", textAlign: "center", padding: "12px 0" }}>
-            {studentName} さんとのメッセージはまだありません。
-          </div>
-        ) : (
-          messages.map((m) => (
-            <div key={m.id} style={{
-              maxWidth: "84%", alignSelf: m.fromTeacher ? "flex-end" : "flex-start",
-              background: m.fromTeacher ? "#2b3742" : "#fff", color: m.fromTeacher ? "#fff" : "#2b3742",
-              border: m.fromTeacher ? "none" : "1px solid #e7eaee", borderRadius: 12,
-              borderBottomRightRadius: m.fromTeacher ? 3 : 12, borderBottomLeftRadius: m.fromTeacher ? 12 : 3,
-              padding: "7px 11px", fontSize: "var(--fs-body)", lineHeight: 1.45,
-            }}>
-              {m.body}
-              <div style={{ fontSize: "var(--fs-label)", opacity: 0.7, marginTop: 3, textAlign: "right" }}>{m.time}</div>
-            </div>
-          ))
-        )}
-      </div>
-      <div style={{ display: "flex", gap: 7 }}>
-        <input value={text} onChange={(e) => setText(e.target.value)} maxLength={1000}
-          onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) send() }}
-          placeholder={`${studentName} さんへ返信…`}
-          style={{ flex: 1, border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: "var(--fs-body)" }} />
-        <button type="button" onClick={send} disabled={pending || !text.trim()}
-          style={{ border: "none", borderRadius: 9, padding: "0 16px", fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#8a5a1f", cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
-          送る
-        </button>
-      </div>
-      {err && <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-error)", marginTop: 6 }}>{err}</div>}
-    </Card>
   )
 }
 

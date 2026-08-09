@@ -167,7 +167,7 @@ export default function SettingsClient({
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 700, color: "var(--text-ink)" }}>先生からの通知メール</div>
               <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginTop: 3, lineHeight: 1.6 }}>
-                先生から宿題・添削・メッセージが届いたとき、登録メールにお知らせします。
+                先生から宿題・添削・コメントが届いたとき、登録メールにお知らせします。
               </div>
             </div>
             <button

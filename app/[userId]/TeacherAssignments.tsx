@@ -108,9 +108,9 @@ export default function TeacherAssignments({
 
       {open && (
         <>
-          {/* メッセージ / 添削 への導線 */}
+          {/* やりとり / 添削 への導線 */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
-            <Link href={`/${userId}/my-teacher`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}><MessageCircle size={13} /> メッセージ{unread > 0 ? `（${unread}）` : ""}</Link>
+            <Link href={`/${userId}/my-teacher`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}><MessageCircle size={13} /> やりとり{unread > 0 ? `（${unread}）` : ""}</Link>
             <span style={{ color: "var(--text-muted)" }}>|</span>
             <Link href={`/${userId}/my-teacher`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}><PenLine size={13} /> 添削{feedback > 0 ? `（${feedback}）` : ""}</Link>
             {recentObs > 0 && (

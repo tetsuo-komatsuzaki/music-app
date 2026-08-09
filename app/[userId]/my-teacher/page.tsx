@@ -173,13 +173,19 @@ export default async function MyTeacherPage({
       })
     }
   }
+  // 先生コメント (演奏紐づき) / お祝い は「すべて」タイムラインに集約して見せる
+  // (自由チャットの「メッセージ」タブは廃止・2026-08-09。コメントは成果物に紐づく形へ一本化)
   for (const m of messages) {
+    const perf = m.performanceId ? perfMap.get(m.performanceId) : null
     events.push({
       at: m.createdAt.getTime(),
       when: m.createdAt.toLocaleDateString("ja-JP"),
       kind: "comment",
-      icon: m.fromTeacher ? "message" : "you",
-      text: `${m.fromTeacher ? "先生" : "あなた"}：${m.body}`,
+      icon: m.kind === "celebration" ? "party" : m.fromTeacher ? "message" : "you",
+      text: m.kind === "celebration"
+        ? `先生からのお祝い：${m.body}`
+        : `${m.fromTeacher ? "先生" : "あなた"}：${m.body}${perf ? `（${perf.title} の演奏へ）` : ""}`,
+      href: perf?.href,
     })
   }
 
@@ -214,14 +220,6 @@ export default async function MyTeacherPage({
       since={link.createdAt.toLocaleDateString("ja-JP")}
       timeline={events.map(({ when, kind, text, href }) => ({ when, kind, text, href }))}
       homework={hw}
-      messages={messages.map((m) => ({
-        id: m.id,
-        fromTeacher: m.fromTeacher,
-        body: m.body,
-        time: m.createdAt.toLocaleDateString("ja-JP"),
-        perf: m.performanceId ? (perfMap.get(m.performanceId) ?? null) : null,
-        kind: m.kind,
-      }))}
       feedbacks={feedbacks}
       lessons={lessons}
       nextLessonLabel={nextLessonLabel}
