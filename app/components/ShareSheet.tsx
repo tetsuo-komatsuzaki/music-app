@@ -1,10 +1,11 @@
 "use client"
 
-// シェアシート (2026-08-03): カード作成 → OSシェア / X / LINE / Instagram(画像) / 保存 / リンクコピー。
-// 名前はデフォルトなし・入れる場合だけ入力 (シェア時選択の確定仕様)。
-import { useState } from "react"
+// シェアシート (2026-08-11 作り替え): カードをシート表示時に先に作成しておき、
+// 共有はタップ時に同期実行 (navigator.share/clipboard) — await後に開くと
+// ジェスチャ文脈が切れてブロックされる不具合を解消。名前欄は廃止・OS共有シートを主に。
+import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
-import { Share2, MessageCircle, Camera, Check, Link2 } from "lucide-react"
+import { Share2, Check, Link2, RefreshCw } from "lucide-react"
 import { createShareCard } from "@/app/actions/shareCards"
 import { type ShareKind, type SharePayload, shareText, SHARE_KIND_META } from "@/app/_libs/shareCard"
 
@@ -15,80 +16,54 @@ export default function ShareSheet({
   refId?: string
   onClose: () => void
 }) {
-  const [name, setName] = useState("")
-  const [creating, setCreating] = useState(false)
+  const [token, setToken] = useState<string | null>(null)
+  const [creating, setCreating] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [created, setCreated] = useState<{ token: string; withName: string } | null>(null)
   const [copied, setCopied] = useState(false)
+  const [attempt, setAttempt] = useState(0)
 
-  const url = created ? `${window.location.origin}/s/${created.token}` : null
-  // 文言はサーバー payload と同型のダミーで組む必要はない — 作成後はカード種の定型文で十分
+  const url = token ? `${typeof window !== "undefined" ? window.location.origin : ""}/s/${token}` : null
   const text = shareText(kind, {} as SharePayload).replace("「」を", "").replace("音程-点・リズム-点", "")
 
-  const ensureCard = async (): Promise<string | null> => {
-    // 名前を変えて作り直した場合は再作成 (tokenは名前込みのスナップショット)
-    if (created && created.withName === name.trim()) return created.token
+  // シート表示時にカードを先に作成 (名前なし)。ジェスチャ不要な処理はここで済ませる。
+  useEffect(() => {
+    let aborted = false
     setCreating(true)
     setError(null)
-    const r = await createShareCard({ kind, refId, displayName: name.trim() || null })
-    setCreating(false)
-    if (!r.ok) { setError(r.error); return null }
-    setCreated({ token: r.token, withName: name.trim() })
-    return r.token
-  }
+    ;(async () => {
+      try {
+        const r = await createShareCard({ kind, refId, displayName: null })
+        if (aborted) return
+        if (r.ok) setToken(r.token)
+        else setError(r.error)
+      } catch {
+        if (!aborted) setError("作成に失敗しました。時間をおいて試してください")
+      } finally {
+        if (!aborted) setCreating(false)
+      }
+    })()
+    return () => { aborted = true }
+  }, [kind, refId, attempt])
 
-  const openShare = async () => {
-    const token = await ensureCard()
-    if (!token) return
-    const u = `${window.location.origin}/s/${token}`
+  // 以下はすべてタップ時に同期実行 (token は準備済み) — ジェスチャが切れず確実に開く
+  const shareNative = () => {
+    if (!url) return
     if (navigator.share) {
-      try { await navigator.share({ text, url: u }) } catch { /* キャンセルは無視 */ }
+      navigator.share({ text, url }).catch(() => { /* キャンセルは無視 */ })
     } else {
-      await navigator.clipboard?.writeText(`${text} ${u}`).catch(() => {})
-      setCopied(true)
+      copyLink()
     }
   }
-
-  const openX = async () => {
-    const token = await ensureCard()
-    if (!token) return
-    const u = `${window.location.origin}/s/${token}`
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(u)}`, "_blank", "noopener")
-  }
-
-  const openLine = async () => {
-    const token = await ensureCard()
-    if (!token) return
-    const u = `${window.location.origin}/s/${token}`
-    window.open(`https://line.me/R/share?text=${encodeURIComponent(`${text} ${u}`)}`, "_blank", "noopener")
-  }
-
-  const openInstagram = async () => {
-    const token = await ensureCard()
-    if (!token) return
-    try {
-      const blob = await fetch(`/s/${token}/ig-image`).then((r) => { if (!r.ok) throw new Error(); return r.blob() })
-      const file = new File([blob], "arcoda-share.png", { type: "image/png" })
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] }).catch(() => {})
-        return
-      }
-    } catch { /* fallthrough */ }
-    // ファイル共有非対応 (PC等) → 縦画像を開いて手動保存
-    window.open(`/s/${token}/ig-image`, "_blank", "noopener")
-  }
-
-  const copyLink = async () => {
-    const token = await ensureCard()
-    if (!token) return
-    await navigator.clipboard?.writeText(`${window.location.origin}/s/${token}`).catch(() => {})
+  const copyLink = () => {
+    if (!url) return
+    navigator.clipboard?.writeText(url).catch(() => {})
     setCopied(true)
     setTimeout(() => setCopied(false), 1800)
   }
 
   const btn: React.CSSProperties = {
     display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-    fontSize: "var(--fs-body)", fontWeight: 800, borderRadius: 12, padding: "11px 10px",
+    fontSize: "var(--fs-body)", fontWeight: 800, borderRadius: 12, padding: "12px 10px",
     border: "1px solid #e2ddce", background: "#fbf8f0", color: "var(--text-ink)", cursor: "pointer",
   }
 
@@ -98,7 +73,7 @@ export default function ShareSheet({
         width: "min(100%, 480px)", background: "#fffdf6", borderRadius: "18px 18px 0 0",
         padding: "16px 16px calc(16px + env(safe-area-inset-bottom))", boxShadow: "0 -6px 30px rgba(40,30,10,.25)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: "var(--text-ink)", display: "flex", alignItems: "center", gap: 6 }}>
             <Share2 size={16} /> {SHARE_KIND_META[kind].label}をシェア
           </div>
@@ -106,34 +81,40 @@ export default function ShareSheet({
             style={{ border: "none", background: "none", fontSize: "var(--fs-subhead)", color: "var(--text-sub)", cursor: "pointer" }}>✕</button>
         </div>
 
-        {/* 名前 (任意・デフォルトなし) */}
-        <div style={{ marginBottom: 10 }}>
-          <input value={name} onChange={(e) => { setName(e.target.value) }} maxLength={20}
-            placeholder="名前を入れる（任意・画像に表示されます）"
-            style={{ width: "100%", boxSizing: "border-box", fontSize: "var(--fs-body)", border: "1px solid #e2ddce", borderRadius: 10, padding: "9px 12px", background: "#fff" }} />
-        </div>
-
         {/* プレビュー (作成後に実画像) */}
-        {created && (
-          <div style={{ marginBottom: 10 }}>
+        {token && (
+          <div style={{ marginBottom: 12 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/s/${created.token}/opengraph-image`} alt="シェア画像プレビュー"
+            <img src={`/s/${token}/opengraph-image`} alt="シェア画像プレビュー"
               style={{ width: "100%", borderRadius: 12, border: "1px solid #eee5d0", display: "block" }} />
           </div>
         )}
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-          <button type="button" style={{ ...btn, gridColumn: "1 / -1", background: "linear-gradient(135deg,#c9a227,#a97b1f)", color: "var(--text-on-accent)", border: "none" }}
-            onClick={openShare} disabled={creating}>
-            {creating ? "作成中…" : <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><Share2 size={15} /> シェアする</span>}
-          </button>
-          <button type="button" style={btn} onClick={openX} disabled={creating}>𝕏 でポスト</button>
-          <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={openLine} disabled={creating}><MessageCircle size={15} /> LINEで送る</button>
-          <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={openInstagram} disabled={creating}><Camera size={15} /> Instagram</button>
-          <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={copyLink} disabled={creating}>{copied ? <><Check size={15} /> コピーした！</> : <><Link2 size={15} /> リンクをコピー</>}</button>
-        </div>
+        {creating && (
+          <div style={{ padding: "18px 0", textAlign: "center", fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)" }}>
+            シェアカードを準備中…
+          </div>
+        )}
 
-        {error && <div style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-error)" }}>{error}</div>}
+        {error && (
+          <div style={{ padding: "10px 0 4px", textAlign: "center" }}>
+            <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-error)", marginBottom: 10 }}>{error}</div>
+            <button type="button" style={{ ...btn, width: "100%" }} onClick={() => setAttempt((a) => a + 1)}>
+              <RefreshCw size={15} /> もう一度ためす
+            </button>
+          </div>
+        )}
+
+        {token && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <button type="button" style={{ ...btn, background: "linear-gradient(135deg,#c9a227,#a97b1f)", color: "var(--text-on-accent)", border: "none" }} onClick={shareNative}>
+              <Share2 size={15} /> {typeof navigator !== "undefined" && "share" in navigator ? "共有する" : "リンクをコピー"}
+            </button>
+            <button type="button" style={btn} onClick={copyLink}>
+              {copied ? <><Check size={15} /> コピーした！</> : <><Link2 size={15} /> リンクをコピー</>}
+            </button>
+          </div>
+        )}
       </div>
     </div>,
     document.body,

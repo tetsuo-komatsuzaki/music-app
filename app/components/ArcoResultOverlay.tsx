@@ -222,8 +222,12 @@ export default function ArcoResultOverlay({
             <button type="button" className={styles.ghost} disabled={listenState === "sending" || listenState === "done"}
               onClick={async () => {
                 setListenState("sending")
-                const r = await createListenRequest(perf.id)
-                setListenState(r.ok ? "done" : "error")
+                try {
+                  const r = await createListenRequest(perf.id)
+                  setListenState(r.ok ? "done" : "error")
+                } catch {
+                  setListenState("error")
+                }
               }}>
               {listenState === "done" ? "✓ 先生に届けたよ" : listenState === "sending" ? "送信中…" : (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Ear size={13} /> {listenState === "error" ? "もう一度" : "先生に聴いてもらう"}</span>

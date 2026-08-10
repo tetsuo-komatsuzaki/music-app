@@ -50,18 +50,20 @@ body {
 /* ── グローバルなタップ感フィードバック (2026-08-11) ──
    全操作要素が「押した瞬間に軽く沈む」。transform ベースでレイアウトは動かさない。
    崩れる要素が出たら、その要素に .noPress を付けて除外する。 */
-button, [role="button"], .pressable {
-  transition: transform 0.1s ease, opacity 0.1s ease;
+button, [role="button"], a, .pressable {
+  transition: transform 0.09s ease, opacity 0.09s ease;
 }
-button, [role="button"], a.pressable, .pressable, summary, label[role="button"] {
+button, [role="button"], a, .pressable, summary, label[role="button"] {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
+/* a も対象: transform は仕様上インライン文中リンクには効かず、ボタン風リンク(inline-flex/block)だけが沈む */
 button:active:not(:disabled),
 [role="button"]:active,
+a:active,
 .pressable:active {
-  transform: scale(0.97);
-  opacity: 0.92;
+  transform: scale(0.955);
+  opacity: 0.9;
 }
 /* 除外用: 既に transform を持つ / 絶対配置トグル等で崩れる要素に付与 */
 .noPress:active { transform: none !important; opacity: 1 !important; }
@@ -72,11 +74,12 @@ button:active:not(:disabled),
 }
 
 @media (prefers-reduced-motion: reduce) {
-  button, [role="button"], .pressable {
+  button, [role="button"], a, .pressable {
     transition: none;
   }
   button:active:not(:disabled),
   [role="button"]:active,
+  a:active,
   .pressable:active {
     transform: none;
   }
