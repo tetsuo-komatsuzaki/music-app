@@ -159,9 +159,9 @@ function SkillsChapter({ userId, data, readOnly }: { userId: string; data: Karte
     return (
       <div style={{ padding: "20px 18px 4px", textAlign: "center" }}>
         <div style={kicker}>SKILLS</div>
-        <div style={chapTitle}>わざの地図</div>
+        <div style={chapTitle}>わざのレベル</div>
         <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
-          スラーやビブラートなど「わざ」の習得と安定が一目でわかる地図。<br />
+          スラーやビブラートなど「わざ」の習得と安定が一目でわかるレベル表。<br />
           先生が気づいた癖を体の場所で見られる「からだの癖」も。<br />
           <b>先生とつながると開放</b>されます。
         </div>
@@ -173,10 +173,6 @@ function SkillsChapter({ userId, data, readOnly }: { userId: string; data: Karte
     )
   }
   const { nodes, currentStar } = data.skillMap
-  // 並び: 実測あり → 習得済み(データ待ち) → 挑戦できる → まだ先
-  const order = (n: SkillNode) =>
-    n.pct != null ? 0 : n.state === "acquired_nodata" ? 1 : n.state === "ready" ? 2 : 3
-  const sorted = [...nodes].sort((a, b) => order(a) - order(b) || a.star - b.star)
   const litCount = nodes.filter((n) => n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata").length
 
   const tile = (n: SkillNode) => {
@@ -195,60 +191,18 @@ function SkillsChapter({ userId, data, readOnly }: { userId: string; data: Karte
 
   return (
     <Reveal>
-      <div style={{ padding: "18px 18px 0" }}>
+      <div style={{ padding: "18px 18px 16px" }}>
         <div style={kicker}>SKILLS</div>
-        <div style={chapTitle}>わざの地図 <span style={{ fontSize: 10, fontWeight: 800, color: SUB }}>いまの★{currentStar}</span></div>
-        <div style={chapNote}>15のわざ ・ {litCount}つ点灯 ・ 横にスライドでくわしく</div>
-        {/* 俯瞰ミニマップ: 点灯状況が3秒でわかる (地図性) */}
+        <div style={chapTitle}>わざのレベル <span style={{ fontSize: 10, fontWeight: 800, color: SUB }}>いまの★{currentStar}</span></div>
+        <div style={chapNote}>15のわざ ・ {litCount}つ点灯</div>
+        {/* 俯瞰ミニマップ: 点灯状況が3秒でわかる */}
         <div style={{ display: "flex", gap: 5, marginTop: 8, flexWrap: "wrap" }}>{nodes.map(tile)}</div>
-      </div>
-      <div style={railStyle}>
-        {sorted.map((n) => {
-          const lit = n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata"
-          const locked = n.state === "locked"
-          return (
-            <div key={n.id} style={{ ...railCard, ...(lit ? litCard : {}), ...(locked ? dimCard : {}) }}>
-              <div style={{ fontSize: 12, fontWeight: 900, lineHeight: 1.4 }}>
-                {n.label}
-                {n.isNew && <span style={{ fontSize: 7.5, fontWeight: 900, color: "#fff", background: BAD, borderRadius: 999, padding: "1px 6px", marginLeft: 5, verticalAlign: 2 }}>NEW</span>}
-              </div>
-              {n.pct != null ? (
-                <>
-                  <div style={{ ...tnum, fontSize: 25, fontWeight: 900, lineHeight: 1.15, marginTop: 4, color: n.state === "wobble" ? WARN : GOOD }}>
-                    {n.pct}<span style={{ fontSize: 11 }}>%</span>
-                  </div>
-                  <div style={{ fontSize: 9, fontWeight: 800, color: SUB, marginTop: 2 }}>
-                    {n.weekDelta != null && n.weekDelta !== 0
-                      ? `先週より ${n.weekDelta > 0 ? `+${n.weekDelta}` : n.weekDelta}`
-                      : n.state === "wobble" ? "ゆらぎ中 ・ 練習しどき" : "安定してきた"}
-                  </div>
-                  {n.series.length >= 2 && (
-                    <div style={{ display: "flex", alignItems: "flex-end", gap: 2.5, height: 24, marginTop: 8 }} aria-hidden>
-                      {n.series.slice(-8).map((v, i, arr) => (
-                        <span key={i} style={{ flex: 1, height: `${Math.max(12, v)}%`, borderRadius: "2px 2px 0 0", background: i === arr.length - 1 ? "#c9a227" : "linear-gradient(180deg,#e3c96a,#d8b34e)" }} />
-                      ))}
-                    </div>
-                  )}
-                  {!readOnly && (
-                    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                      <Link href={`/${userId}/progress/skill/${n.id}`} style={{ fontSize: 9.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>くわしく →</Link>
-                      {n.practiceHref && <Link href={n.practiceHref} style={{ fontSize: 9.5, fontWeight: 800, color: WARN, textDecoration: "none" }}>練習する →</Link>}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: "#c0b598", marginTop: 4 }}>—</div>
-                  <div style={{ fontSize: 9, fontWeight: 800, color: SUB, marginTop: 2 }}>
-                    {n.state === "acquired_nodata" ? "習得ずみ ・ データ集め中"
-                      : n.state === "ready" ? "つぎに挑戦できる"
-                      : `★${n.star} で出会う`}
-                  </div>
-                </>
-              )}
-            </div>
-          )
-        })}
+        {!readOnly && (
+          <Link href={`/${userId}/progress/skills`}
+            style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 12, fontSize: 11.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>
+            わざのレベルを詳しくみる →
+          </Link>
+        )}
       </div>
     </Reveal>
   )
