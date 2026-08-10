@@ -7,6 +7,7 @@ import { ArcoChan, POSES } from "./ArcoChan"
 import { Sprout, Palette, Trophy, Share2, Ear } from "lucide-react"
 import ShareSheet from "./ShareSheet"
 import { createListenRequest } from "@/app/actions/listenRequests"
+import { useDragToDismiss } from "@/app/_hooks/useDragToDismiss"
 import styles from "./ArcoResultOverlay.module.css"
 
 type Ach = {
@@ -57,6 +58,8 @@ export default function ArcoResultOverlay({
   const [strengthCount, setStrengthCount] = useState(0)
   const [hasTeacher, setHasTeacher] = useState(false)
   const [listenState, setListenState] = useState<"idle" | "sending" | "done" | "error">("idle")
+  // 下スワイプで閉じる (シート上部/ハンドル、または一番上までスクロール時のみ)
+  const drag = useDragToDismiss(onClose)
   useEffect(() => setMounted(true), [])
 
   useEffect(() => {
@@ -95,7 +98,12 @@ export default function ArcoResultOverlay({
 
   return createPortal(
     <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
+      <div className={styles.sheet} ref={drag.ref} {...drag.handlers} onClick={(e) => e.stopPropagation()}>
+        <div
+          data-drag-handle
+          aria-hidden
+          style={{ width: 40, height: 5, borderRadius: 3, background: "rgba(0,0,0,.14)", margin: "-4px auto 8px", cursor: "grab", touchAction: "none" }}
+        />
         <button type="button" className={styles.close} aria-label="閉じる" onClick={onClose}>✕</button>
 
         {/* アルコ + 見出し */}

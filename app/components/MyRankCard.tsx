@@ -108,7 +108,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
         role="button"
         tabIndex={0}
         data-onboarding="home.rankCard"
-        className={`${styles.rankcard} ${styles[cardTier(currentStar)]}`}
+        className={`${styles.rankcard} ${styles[cardTier(currentStar)]} pressable`}
         onClick={() => setOpen(true)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true) } }}
       >

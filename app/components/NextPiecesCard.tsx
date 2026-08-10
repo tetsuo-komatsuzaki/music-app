@@ -11,7 +11,7 @@ export default function NextPiecesCard({ pieces }: { pieces: SongRecommendation[
       <div className={styles.card}>
         <div className={styles.cardTitle}>次の曲にチャレンジ</div>
         {pieces.slice(0, 3).map((p) => (
-          <Link key={p.practiceItem.id} href={p.href} className={styles.mat}>
+          <Link key={p.practiceItem.id} href={p.href} className={`${styles.mat} pressable`}>
             <div className={`${styles.thumb} ${styles.thumbGoal}`}>{p.practiceItem.cover ? <img src={p.practiceItem.cover} alt="" loading="lazy" /> : "♪"}</div>
             <div className={styles.g}>
               <div className={styles.title}>{p.practiceItem.title}</div>

@@ -22,6 +22,8 @@ import Recorder, { type Status as RecorderStatus } from "@/app/components/Record
 import { buildScrollPlan, locateInPlan, type ScrollPlan } from "@/app/_libs/scoreScroll"
 import PerformanceSkeleton from "@/app/components/PerformanceSkeleton"
 import PerformanceDeleteModal from "@/app/components/PerformanceDeleteModal"
+import PressMenu from "@/app/components/ui/PressMenu"
+import { useLongPress, type LongPressPos } from "@/app/_hooks/useLongPress"
 import { getSignedUploadUrl } from "@/app/actions/getSignedUploadUrl"
 import { renamePerformance } from "@/app/actions/renamePerformance"
 import { resolvePartToNoteRange, type Part } from "@/app/_libs/materialParts"
@@ -369,6 +371,7 @@ function PerformanceHistory({
   onReplayArco,
   canShareToTeacher,
   renderRowMenu,
+  onPerformanceDeleted,
 }: {
   performances: PerformanceDTO[]
   selectedId: string | null
@@ -385,6 +388,8 @@ function PerformanceHistory({
   canShareToTeacher?: boolean
   /** 結果カード右上に置く操作 (削除など) */
   renderRowMenu?: (p: PerformanceDTO) => React.ReactNode
+  /** 長押しメニューの「削除」で使う削除完了ハンドラ */
+  onPerformanceDeleted?: (performanceId: string) => void
 }) {
   const [page, setPage] = useState(0)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -411,12 +416,20 @@ function PerformanceHistory({
   const pageStart = safePage * HISTORY_PAGE_SIZE
   const pageItems = rest.slice(pageStart, pageStart + HISTORY_PAGE_SIZE)
 
-  const startEdit = (p: PerformanceDTO, e: React.MouseEvent) => {
-    e.stopPropagation()
+  const beginRename = (p: PerformanceDTO) => {
     setEditingId(p.id)
     setDraftName(p.name ?? "")
     setSaveError(null)
   }
+  const startEdit = (p: PerformanceDTO, e: React.MouseEvent) => {
+    e.stopPropagation()
+    beginRename(p)
+  }
+
+  // (1) 長押しメニュー: カードを長押しで「名前を変更 / 削除」。既存タップは維持する。
+  const [pressMenu, setPressMenu] = useState<{ p: PerformanceDTO; pos: LongPressPos } | null>(null)
+  const [deleteFor, setDeleteFor] = useState<PerformanceDTO | null>(null)
+  const longPress = useLongPress<PerformanceDTO>((p, pos) => setPressMenu({ p, pos }))
 
   const cancelEdit = (e?: React.MouseEvent | React.KeyboardEvent) => {
     e?.stopPropagation()
@@ -463,8 +476,9 @@ function PerformanceHistory({
     return (
       <div
         key={p.id}
-        className={`${styles.historyItem} ${selectedId === p.id ? styles.historyActive : ""}`}
-        onClick={() => !isEditing && onSelect(p)}
+        className={`${styles.historyItem} ${selectedId === p.id ? styles.historyActive : ""} pressable`}
+        onClick={() => { if (longPress.suppressNextClick()) return; if (!isEditing) onSelect(p) }}
+        {...longPress.bind(p)}
       >
         {isEditing ? (
           /* 名前編集: 白カードのインライン入力 (名前タップで入る) */
@@ -622,8 +636,9 @@ function PerformanceHistory({
             return (
               <div
                 key={p.id}
-                className={`${styles.historyItem} ${selectedId === p.id ? styles.historyActive : ""}`}
-                onClick={() => !isEditing && onSelect(p)}
+                className={`${styles.historyItem} ${selectedId === p.id ? styles.historyActive : ""} pressable`}
+                onClick={() => { if (longPress.suppressNextClick()) return; if (!isEditing) onSelect(p) }}
+                {...longPress.bind(p)}
               >
                 {isEditing ? (
                   /* 名前編集: 白カードのインライン入力 (名前タップで入る) */
@@ -768,6 +783,27 @@ function PerformanceHistory({
             </details>
           )}
         </>
+      )}
+
+      {/* (1) 長押しメニュー */}
+      {pressMenu && (
+        <PressMenu
+          anchor={pressMenu.pos}
+          onClose={() => setPressMenu(null)}
+          items={[
+            { label: "名前を変更", icon: Pencil, onSelect: () => beginRename(pressMenu.p) },
+            { label: "削除", icon: Trash2, danger: true, onSelect: () => setDeleteFor(pressMenu.p) },
+          ]}
+        />
+      )}
+      {deleteFor && (
+        <PerformanceDeleteModal
+          performanceId={deleteFor.id}
+          open={true}
+          kind={kind}
+          onClose={() => setDeleteFor(null)}
+          onDeleted={(id) => { onPerformanceDeleted?.(id); setDeleteFor(null) }}
+        />
       )}
     </div>
   )
@@ -3183,6 +3219,7 @@ function ScoreDetailInner({
             onDeleted={handlePerformanceDeleted}
           />
         )}
+        onPerformanceDeleted={handlePerformanceDeleted}
       />
     </div>
   )

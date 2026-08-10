@@ -47,13 +47,24 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-button {
+/* ── グローバルなタップ感フィードバック (2026-08-11) ──
+   全操作要素が「押した瞬間に軽く沈む」。transform ベースでレイアウトは動かさない。
+   崩れる要素が出たら、その要素に .noPress を付けて除外する。 */
+button, [role="button"], .pressable {
   transition: transform 0.1s ease, opacity 0.1s ease;
 }
-
-button:active:not(:disabled) {
-  transform: scale(0.95);
+button, [role="button"], a.pressable, .pressable, summary, label[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
+button:active:not(:disabled),
+[role="button"]:active,
+.pressable:active {
+  transform: scale(0.97);
+  opacity: 0.92;
+}
+/* 除外用: 既に transform を持つ / 絶対配置トグル等で崩れる要素に付与 */
+.noPress:active { transform: none !important; opacity: 1 !important; }
 
 @keyframes skeleton-pulse {
   0%, 100% { opacity: 0.4; }
@@ -61,12 +72,24 @@ button:active:not(:disabled) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  button {
+  button, [role="button"], .pressable {
     transition: none;
   }
-  button:active:not(:disabled) {
+  button:active:not(:disabled),
+  [role="button"]:active,
+  .pressable:active {
     transform: none;
   }
+}
+
+/* ── Apple Music 風ジェスチャ用ユーティリティ ── */
+/* 押下フィードバック (個別適用したい要素用・グローバル規則と同義) */
+.pressable {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pressable:active { transform: none; }
 }
 
 /* 点滅根治 (2026-08-06): スクロールバーの出入りで幅が変わると OSMD が譜面を白紙から
