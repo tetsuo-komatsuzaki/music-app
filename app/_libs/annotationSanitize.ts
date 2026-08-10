@@ -7,6 +7,8 @@ export type AnnotationData = {
   highlight?: Array<{ fromNote: number; toNote: number; color?: string }>
   warnings?: Array<{ noteIndex: number; dy?: number; kind: string; text?: string }>
   notation?: Array<{ noteIndex: number; kind: string; value?: string }>
+  // Phase 3 (2026-08-10): 範囲スパナ (slur/cresc/decresc/gliss)。音符 from→to をまたぐ記号。
+  spans?: Array<{ fromNote: number; toNote: number; kind: string }>
 }
 
 const MAX_ITEMS = 500 // 各配列の最大件数 (1曲の音符数を大きく超えない範囲)
@@ -21,7 +23,8 @@ export function sanitizeAnnotationData(d: AnnotationData): AnnotationData {
   if (Array.isArray(d.highlight)) {
     out.highlight = d.highlight.slice(0, MAX_ITEMS).flatMap((h) => {
       const from = num(h?.fromNote), to = num(h?.toNote)
-      return from == null || to == null ? [] : [{ fromNote: from, toNote: to, color: str(h?.color, 16) }]
+      // 色は24字上限: rgba(255,213,74,.46)=20字 / var(--text-error)=17字 を切らずに通す (CSS注入の間口は絞る)
+      return from == null || to == null ? [] : [{ fromNote: from, toNote: to, color: str(h?.color, 24) }]
     })
   }
   if (Array.isArray(d.warnings)) {
@@ -34,6 +37,12 @@ export function sanitizeAnnotationData(d: AnnotationData): AnnotationData {
     out.notation = d.notation.slice(0, MAX_ITEMS).flatMap((n) => {
       const i = num(n?.noteIndex), kind = str(n?.kind, 24)
       return i == null || !kind ? [] : [{ noteIndex: i, kind, value: str(n?.value, 8) }]
+    })
+  }
+  if (Array.isArray(d.spans)) {
+    out.spans = d.spans.slice(0, MAX_ITEMS).flatMap((s) => {
+      const from = num(s?.fromNote), to = num(s?.toNote), kind = str(s?.kind, 12)
+      return from == null || to == null || !kind ? [] : [{ fromNote: from, toNote: to, kind }]
     })
   }
   return out

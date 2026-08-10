@@ -104,6 +104,15 @@
 .stampGlyph .txt { font-size: var(--fs-subhead); line-height: 1; }
 .stampGlyph svg { display: block; }
 
+/* 範囲スパナ (Phase 3): スラー弧 / ヘアピン(<>) / グリッサンド線。素の線・背景なし */
+.spanGlyph {
+  position: absolute;
+  pointer-events: none;
+  z-index: 8;
+  color: var(--text-ink);
+}
+.spanGlyph svg { display: block; overflow: visible; }
+
 /* スタンプ・パレット */
 .palette {
   display: flex; flex-wrap: wrap; gap: 13px;

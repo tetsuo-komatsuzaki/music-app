@@ -47,8 +47,32 @@ describe("sanitizeAnnotationData", () => {
     expect(out.notation).toBeUndefined()
   })
 
-  it("color は16字に丸める (CSS注入の間口を狭める)", () => {
+  it("color は24字に丸める (CSS注入の間口を狭めつつ rgba/var を切らない)", () => {
     const out = sanitizeAnnotationData({ highlight: [{ fromNote: 0, toNote: 1, color: "x".repeat(100) }] })
-    expect(out.highlight![0].color!.length).toBe(16)
+    expect(out.highlight![0].color!.length).toBe(24)
+  })
+
+  it("rgba/var の色は切られずに通る (Phase3 色バグ修正)", () => {
+    const out = sanitizeAnnotationData({
+      highlight: [
+        { fromNote: 0, toNote: 1, color: "rgba(255,213,74,.46)" },
+        { fromNote: 2, toNote: 3, color: "var(--text-error)" },
+      ],
+    })
+    expect(out.highlight![0].color).toBe("rgba(255,213,74,.46)")
+    expect(out.highlight![1].color).toBe("var(--text-error)")
+  })
+
+  it("spans を通し、不正要素は捨てる (Phase3 範囲スパナ)", () => {
+    const out = sanitizeAnnotationData({
+      spans: [
+        { fromNote: 0, toNote: 4, kind: "slur" },
+        // @ts-expect-error 不正 (from が数値でない)
+        { fromNote: "x", toNote: 4, kind: "cresc" },
+        { fromNote: 1, toNote: 2, kind: "" }, // kind 空 → 捨てる
+      ],
+    })
+    expect(out.spans).toHaveLength(1)
+    expect(out.spans![0]).toEqual({ fromNote: 0, toNote: 4, kind: "slur" })
   })
 })

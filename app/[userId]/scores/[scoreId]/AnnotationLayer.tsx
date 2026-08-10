@@ -14,7 +14,36 @@ import {
 } from "@/app/actions/scoreAnnotations"
 import styles from "./AnnotationLayer.module.css"
 
-type Tool = null | "highlight" | "text" | "flat" | "sharp" | "tempo" | "hard" | "erase"
+// 範囲スパナ (Phase 3): 音符 from→to をまたぐ記号。ハイライトと同じ二点タップで配置。
+type SpanKind = "slur" | "cresc" | "decresc" | "gliss"
+type Tool = null | "highlight" | "text" | "flat" | "sharp" | "tempo" | "hard" | "erase" | SpanKind
+const SPAN_DEFS: { kind: SpanKind; label: string }[] = [
+  { kind: "slur", label: "スラー" },
+  { kind: "cresc", label: "クレッシェンド" },
+  { kind: "decresc", label: "デクレッシェンド" },
+  { kind: "gliss", label: "グリッサンド" },
+]
+const SPAN_KIND_SET = new Set<string>(SPAN_DEFS.map((s) => s.kind))
+const isSpan = (t: Tool): t is SpanKind => t != null && SPAN_KIND_SET.has(t)
+
+// 範囲スパナの SVG (弧/ヘアピン/斜線)。パレットのボタンにもオーバーレイにも使う (w,h 可変)。
+function spanSvg(kind: SpanKind, w: number, h: number): string {
+  const wrap = (inner: string, sw = 1.6) =>
+    `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`
+  switch (kind) {
+    case "slur": return wrap(`<path d="M2 ${h - 2} Q ${w / 2} 0 ${w - 2} ${h - 2}"/>`)
+    case "cresc": return wrap(`<path d="M1 ${h / 2} L ${w - 1} 1.5 M1 ${h / 2} L ${w - 1} ${h - 1.5}"/>`, 1.5)
+    case "decresc": return wrap(`<path d="M1 1.5 L ${w - 1} ${h / 2} M1 ${h - 1.5} L ${w - 1} ${h / 2}"/>`, 1.5)
+    case "gliss": return wrap(`<path d="M2 ${h - 3} L ${w - 2} 3"/>`, 1.4)
+  }
+}
+// オーバーレイ配置 (帯 {l,r,t,b} に対する left/top/幅/高さ)。kind ごとに音符の上/下/上に置く。
+function spanPlacement(kind: SpanKind, g: { l: number; r: number; t: number; b: number }) {
+  const w = g.r - g.l
+  if (kind === "slur") return { left: g.l - 4, top: g.t - 16, width: w + 8, height: 14 }
+  if (kind === "gliss") return { left: g.l, top: g.t, width: w, height: Math.max(10, g.b - g.t) }
+  return { left: g.l, top: g.b + 1, width: w, height: 9 } // cresc / decresc は音符の下
+}
 
 const WARN_PRESETS: Record<string, { label: string; icon: string; cls: string }> = {
   flat: { label: "低い", icon: "↓", cls: "wFlat" },
@@ -147,6 +176,7 @@ export default function AnnotationLayer({
   const stampRef = useRef<StampDef | null>(null)
   stampRef.current = stamp
   const [showPalette, setShowPalette] = useState(false)
+  const [showRange, setShowRange] = useState(false)
 
   const overlayNodesRef = useRef<HTMLElement[]>([])
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -205,9 +235,8 @@ export default function AnnotationLayer({
     const els = noteElementsRef.current
     const d = dataRef.current
 
-    // ハイライト帯 (行またぎ対応: x が左に戻ったら次行)
-    for (const h of d.highlight ?? []) {
-      const lo = Math.min(h.fromNote, h.toNote), hi = Math.max(h.fromNote, h.toNote)
+    // 音符 lo..hi を行ごとの帯にまとめる (行またぎ対応: x が左に戻ったら次行)。ハイライト/範囲スパナ共通。
+    const bandsOf = (lo: number, hi: number): Array<{ l: number; r: number; t: number; b: number }> => {
       let cur: { l: number; r: number; t: number; b: number } | null = null
       let prevCx = -Infinity
       const bands: Array<{ l: number; r: number; t: number; b: number }> = []
@@ -222,6 +251,12 @@ export default function AnnotationLayer({
         else { cur.l = Math.min(cur.l, l); cur.r = Math.max(cur.r, rr); cur.t = Math.min(cur.t, t); cur.b = Math.max(cur.b, b) }
         prevCx = cx
       }
+      return bands
+    }
+
+    // ハイライト帯
+    for (const h of d.highlight ?? []) {
+      const bands = bandsOf(Math.min(h.fromNote, h.toNote), Math.max(h.fromNote, h.toNote))
       for (const g of bands) {
         const node = document.createElement("div")
         node.className = styles.hlBand
@@ -230,6 +265,26 @@ export default function AnnotationLayer({
         node.style.top = `${g.t - 12}px`
         node.style.width = `${g.r - g.l + 10}px`
         node.style.height = `${g.b - g.t + 24}px`
+        container.appendChild(node)
+        overlayNodesRef.current.push(node)
+      }
+    }
+
+    // 範囲スパナ (Phase 3): スラー弧 / ヘアピン / グリッサンド。行ごとの帯に SVG を配置
+    for (const s of d.spans ?? []) {
+      const kind = s.kind as SpanKind
+      if (!SPAN_KIND_SET.has(kind)) continue
+      const bands = bandsOf(Math.min(s.fromNote, s.toNote), Math.max(s.fromNote, s.toNote))
+      for (const g of bands) {
+        const p = spanPlacement(kind, g)
+        if (p.width <= 0) continue
+        const node = document.createElement("div")
+        node.className = styles.spanGlyph
+        node.style.left = `${p.left}px`
+        node.style.top = `${p.top}px`
+        node.style.width = `${p.width}px`
+        node.style.height = `${p.height}px`
+        node.innerHTML = spanSvg(kind, p.width, p.height)
         container.appendChild(node)
         overlayNodesRef.current.push(node)
       }
@@ -318,11 +373,22 @@ export default function AnnotationLayer({
           commit({ ...d, highlight: [...(d.highlight ?? []), { fromNote: lo, toNote: hi, color: hlColorRef.current }] })
           setHlStart(null)
         }
+      } else if (isSpan(t)) {
+        // 範囲スパナも二点タップ (開始→終了)
+        const start = hlStartRef.current
+        if (start === null) { setHlStart(idx) }
+        else {
+          const lo = Math.min(start, idx), hi = Math.max(start, idx)
+          commit({ ...d, spans: [...(d.spans ?? []), { fromNote: lo, toNote: hi, kind: t }] })
+          setHlStart(null)
+        }
       } else if (t === "erase") {
-        // このノートに関わる注釈を削除
+        // このノートに関わる注釈を削除 (範囲系は範囲内に含めば消す)
+        const inRange = (from: number, to: number) => idx >= Math.min(from, to) && idx <= Math.max(from, to)
         commit({
           ...d,
-          highlight: (d.highlight ?? []).filter((h) => idx < Math.min(h.fromNote, h.toNote) || idx > Math.max(h.fromNote, h.toNote)),
+          highlight: (d.highlight ?? []).filter((h) => !inRange(h.fromNote, h.toNote)),
+          spans: (d.spans ?? []).filter((s) => !inRange(s.fromNote, s.toNote)),
           warnings: (d.warnings ?? []).filter((w) => w.noteIndex !== idx),
           notation: (d.notation ?? []).filter((n) => n.noteIndex !== idx),
         })
@@ -347,7 +413,7 @@ export default function AnnotationLayer({
     <button
       type="button"
       className={`${styles.toolBtn} ${tool === t ? styles.toolOn : ""}`}
-      onClick={() => { setTool(tool === t ? null : t); setHlStart(null); setStamp(null); setShowPalette(false) }}
+      onClick={() => { setTool(tool === t ? null : t); setHlStart(null); setStamp(null); setShowPalette(false); setShowRange(false) }}
     >
       {glyph && <span className={styles.g}>{glyph}</span>}
       {label}
@@ -380,9 +446,16 @@ export default function AnnotationLayer({
           <button
             type="button"
             className={`${styles.toolBtn} ${showPalette || stamp ? styles.toolOn : ""}`}
-            onClick={() => { setShowPalette((v) => !v); setTool(null); setHlStart(null) }}
+            onClick={() => { setShowPalette((v) => !v); setShowRange(false); setTool(null); setHlStart(null); setStamp(null) }}
           >
             <span className={styles.g}>♪</span>記譜
+          </button>
+          <button
+            type="button"
+            className={`${styles.toolBtn} ${showRange || isSpan(tool) ? styles.toolOn : ""}`}
+            onClick={() => { setShowRange((v) => !v); setShowPalette(false); setTool(null); setHlStart(null); setStamp(null) }}
+          >
+            <span className={styles.g}>⌒</span>範囲
           </button>
           {toolBtn("erase", "✕", "消す")}
           <button type="button" className={styles.clearBtn} onClick={clearAll}>全消去</button>
@@ -412,6 +485,31 @@ export default function AnnotationLayer({
           ))}
         </div>
       )}
+      {active && showRange && (
+        <div className={styles.palette}>
+          <div className={styles.palGroup}>
+            <span className={styles.palLabel}>範囲</span>
+            <div className={styles.palItems}>
+              {SPAN_DEFS.map((s) => (
+                <button
+                  key={s.kind}
+                  type="button"
+                  className={`${styles.stampBtn} ${tool === s.kind ? styles.stampOn : ""}`}
+                  title={s.label}
+                  onClick={() => { setTool(tool === s.kind ? null : s.kind); setStamp(null); setHlStart(null) }}
+                  dangerouslySetInnerHTML={{ __html: spanSvg(s.kind, 26, 14) }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      {active && isSpan(tool) && (
+        <p className={styles.hint}>
+          <b>{SPAN_DEFS.find((s) => s.kind === tool)?.label}</b>：
+          {hlStart === null ? "開始の音符をタップ → 終了の音符をタップ" : "終了の音符をタップ"}
+        </p>
+      )}
       {active && stamp && (
         <p className={styles.hint}><b>{stamp.label}</b> を置く音符をタップ</p>
       )}
@@ -434,7 +532,7 @@ export default function AnnotationLayer({
           </p>
         </>
       )}
-      {active && tool && tool !== "highlight" && tool !== "erase" && (
+      {active && tool && tool !== "highlight" && tool !== "erase" && !isSpan(tool) && (
         <p className={styles.hint}>音符をタップして配置</p>
       )}
       {active && tool === "erase" && (
