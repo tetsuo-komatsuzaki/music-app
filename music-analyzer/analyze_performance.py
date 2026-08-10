@@ -1372,8 +1372,13 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
             start_diff = seg_start - expected_pos
             start_ok = abs(start_diff) <= timing_tolerance
 
+            # tied 後半は held tone なので timing 不問 → pitch_only。
+            # tremolo/trill は明確な再アタックがあり timing 実測値が存在するため
+            # evaluated のまま「開始タイミング」を採点する (2026-08-10, project_tremolo_trill_separate_status)。
+            # ※ 音符マッチングの onset 除外 (use_onsets) は据え置き: 内部連打で偽 onset が多発するため。
+            #    内部品質 (連打速度/トリル幅/均一性) の評価は別課題 (evenness 軸・実録音待ち) で対象外。
             eval_status = "evaluated"
-            if is_tied or is_tremolo or is_trill:
+            if is_tied:
                 eval_status = "pitch_only"
 
             # onset ガード用: 前ノートの終了位置を記録 (find_note_segment guard1 で使用)
@@ -1971,8 +1976,8 @@ try:
     # 同音連続救済 (pitch_only, start_ok=true 固定) が「timing NG」として加算されて
     # UI 緑表示と乖離 (例: 62/64 緑 = 96.9% のはずが、56.2% と表示) していた。
     # pitch_only も timing 集計に含めることで UI と整合。
-    # (tremolo/trill が pitch_only に倒れて timing 実測値が無視される件は別 issue
-    #  [[tremolo-trill-separate-status]] として将来改善予定)
+    # (2026-08-10 解決: tremolo/trill は eval_status を evaluated に戻し、開始タイミングを
+    #  timing 集計に算入するようにした。pitch_only は tied のみ。project_tremolo_trill_separate_status)
     timing_evaluated = evaluated
     timing_ok_count = sum(1 for r in timing_evaluated if r["start_ok"] is True)
 
