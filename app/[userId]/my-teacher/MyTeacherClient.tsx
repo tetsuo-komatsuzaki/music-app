@@ -43,7 +43,7 @@ export default function MyTeacherClient({
   lessons: Lessons
   nextLessonLabel: string | null
 }) {
-  const [tab, setTab] = useState<"all" | "hw" | "review" | "lesson">("all")
+  const [tab, setTab] = useState<"all" | "hw" | "review">("all")
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
@@ -78,7 +78,7 @@ export default function MyTeacherClient({
 
       {/* タブ */}
       <div style={{ display: "flex", gap: 3, background: "#fff", border: "1px solid #eef1f4", borderRadius: 10, padding: 3, margin: "12px 0" }}>
-        {([["all", "すべて"], ["hw", "宿題"], ["review", "添削"], ["lesson", "レッスン"]] as const).map(([k, label]) => (
+        {([["all", "すべて"], ["hw", "宿題"], ["review", "添削"]] as const).map(([k, label]) => (
           <button key={k} type="button" onClick={() => setTab(k)}
             style={{ flex: 1, border: "none", background: tab === k ? ACCENT : "transparent", color: tab === k ? "#fff" : SUB, borderRadius: 8, padding: "7px 0", fontSize: "var(--fs-caption)", fontWeight: 800, cursor: "pointer" }}>
             {label}
@@ -89,7 +89,6 @@ export default function MyTeacherClient({
       {tab === "all" && <AllTab timeline={timeline} />}
       {tab === "hw" && <HwTab homework={homework} />}
       {tab === "review" && <ReviewTab userId={userId} feedbacks={feedbacks} />}
-      {tab === "lesson" && <LessonTab lessons={lessons} />}
 
       {/* 解約 */}
       <div style={{ ...card(), marginTop: 18 }}>
@@ -177,7 +176,7 @@ function HwCard({ h }: { h: Homework }) {
       {h.comment && <div style={{ fontSize: "var(--fs-body)", color: INK, marginTop: 4, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{h.comment}</span></div>}
       {!h.submitted && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 9 }}>
-          <Link href={h.href} style={{ textAlign: "center", background: "#f7f8fa", color: SUB, border: "1px solid #e7eaee", fontSize: "var(--fs-body)", fontWeight: 800, borderRadius: 9, padding: "8px 0", textDecoration: "none" }}>録音する</Link>
+          <Link href={h.href} className="pressable" style={{ textAlign: "center", background: ACCENT, color: "var(--text-on-accent)", border: "none", fontSize: "var(--fs-body)", fontWeight: 800, borderRadius: 9, padding: "9px 0", textDecoration: "none" }}>演奏する</Link>
           <AssignmentSubmit assignmentId={h.id} goalType={h.goalType} targetScore={h.targetScore} onDone={() => router.refresh()} />
         </div>
       )}
@@ -187,69 +186,6 @@ function HwCard({ h }: { h: Homework }) {
         </div>
       )}
     </div>
-  )
-}
-
-function LessonTab({ lessons }: { lessons: Lessons }) {
-  const router = useRouter()
-  const [pending, startTransition] = useTransition()
-  const [err, setErr] = useState<string | null>(null)
-
-  const book = (id: string) => {
-    setErr(null)
-    startTransition(async () => {
-      const r = await bookLesson(id)
-      if (!r.ok) { setErr(r.error); return }
-      router.refresh()
-    })
-  }
-  const cancel = (id: string) => {
-    if (!window.confirm("このレッスンの予約を取り消しますか？")) return
-    startTransition(async () => { await cancelMyBooking(id); router.refresh() })
-  }
-  const meta = (l: LessonDTO) => `${l.durationMin}分 ・ ${l.online ? "オンライン" : "対面"}${l.locationNote ? ` ・ ${l.locationNote}` : ""}`
-
-  return (
-    <>
-      <div style={{ ...card(), marginBottom: 10 }}>
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 8 }}>予約中のレッスン</div>
-        {lessons.booked.length === 0 ? (
-          <div style={{ fontSize: "var(--fs-body)", color: SUB }}>予約中のレッスンはありません。</div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {lessons.booked.map((l) => (
-              <div key={l.id} style={{ border: "1px solid #cbe8d6", background: "#f4fbf7", borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: INK, display: "flex", alignItems: "center", gap: 5 }}><Calendar size={14} /> {l.when}</div>
-                <div style={{ fontSize: "var(--fs-caption)", color: SUB, marginTop: 2 }}>{meta(l)}</div>
-                <button type="button" onClick={() => cancel(l.id)} disabled={pending}
-                  style={{ marginTop: 8, border: "1px solid #e2e6ea", background: "#fff", color: "var(--text-error)", borderRadius: 8, padding: "5px 12px", fontSize: "var(--fs-caption)", fontWeight: 800, cursor: "pointer" }}>予約を取り消す</button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div style={card()}>
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 8 }}>予約できる枠</div>
-        {err && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-error)", marginBottom: 8 }}>{err}</div>}
-        {lessons.open.length === 0 ? (
-          <div style={{ fontSize: "var(--fs-body)", color: SUB }}>いまは空き枠がありません。先生が枠を出すと予約できます。</div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {lessons.open.map((l) => (
-              <div key={l.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, border: "1px solid #eef1f4", borderRadius: 10, padding: "10px 12px" }}>
-                <span style={{ minWidth: 0 }}>
-                  <span style={{ display: "block", fontSize: "var(--fs-body)", fontWeight: 800, color: INK }}>{l.when}</span>
-                  <span style={{ display: "block", fontSize: "var(--fs-caption)", color: SUB }}>{meta(l)}</span>
-                </span>
-                <button type="button" onClick={() => book(l.id)} disabled={pending}
-                  style={{ flex: "none", border: "none", background: ACCENT, color: "var(--text-on-accent)", borderRadius: 8, padding: "8px 14px", fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>予約する</button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </>
   )
 }
 
