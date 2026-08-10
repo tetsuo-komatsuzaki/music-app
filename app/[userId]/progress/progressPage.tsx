@@ -37,6 +37,14 @@ const railStyle: React.CSSProperties = {
   padding: "12px 18px 16px", scrollbarWidth: "none",
 }
 
+// わざの分類 (SkillsLevelClient と同一。id は SkillNode.id と一致)
+const SKILL_CATEGORIES: { label: string; ids: string[] }[] = [
+  { label: "弓（ボーイング）", ids: ["slur", "staccato", "portato", "bow_staccato", "tremolo", "spiccato", "ricochet", "pizzicato"] },
+  { label: "フィンガリング（左手）", ids: ["position", "double"] },
+  { label: "装飾", ids: ["trill", "mordent", "glissando"] },
+  { label: "音色・特殊", ids: ["vibrato", "harmonic"] },
+]
+
 /** 金の罫線 (章区切り) */
 const Rule = () => (
   <div style={{ height: 1, margin: "16px 18px 0", background: "linear-gradient(90deg,#e3c96a,#f2ead2 70%,transparent)" }} />
@@ -152,14 +160,14 @@ const kpiBox: React.CSSProperties = { flex: 1, textAlign: "center", background: 
 const kpiNum: React.CSSProperties = { display: "block", fontSize: 23, fontWeight: 900, lineHeight: 1.1, ...tnum }
 const kpiLbl: React.CSSProperties = { fontSize: 8.5, fontWeight: 800, color: "#9a8c74" }
 
-/* ═ わざの地図: 俯瞰ミニマップ + 横スライド (タップ不要・情報常時表示) ═ */
+/* ═ わざの習得状況: 分類ごとの進み具合バー (タップ不要・情報常時表示) ═ */
 function SkillsChapter({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
   if (!data.skillMap) {
     if (readOnly) return null
     return (
       <div style={{ padding: "20px 18px 4px", textAlign: "center" }}>
         <div style={kicker}>SKILLS</div>
-        <div style={chapTitle}>わざのレベル</div>
+        <div style={chapTitle}>わざの習得状況</div>
         <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
           スラーやビブラートなど「わざ」の習得と安定が一目でわかるレベル表。<br />
           先生が気づいた癖を体の場所で見られる「からだの癖」も。<br />
@@ -173,34 +181,37 @@ function SkillsChapter({ userId, data, readOnly }: { userId: string; data: Karte
     )
   }
   const { nodes, currentStar } = data.skillMap
-  const litCount = nodes.filter((n) => n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata").length
-
-  const tile = (n: SkillNode) => {
-    const lit = n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata"
-    const style: React.CSSProperties = {
-      width: 21, height: 21, borderRadius: 7, boxSizing: "border-box",
-      background: lit
-        ? "linear-gradient(150deg,#ffe9a8,#e3b93c)"
-        : n.state === "ready" ? "#f6edd6" : "#efe9da",
-      border: n.state === "ready" ? "1.5px solid #e3c96a" : "none",
-      boxShadow: lit ? "0 1px 3px rgba(200,160,40,.35)" : "none",
-      opacity: n.state === "wobble" ? 0.85 : 1,
-    }
-    return <span key={n.id} style={style} title={n.label} />
-  }
+  const litOf = (n: SkillNode) => n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata"
+  const litCount = nodes.filter(litOf).length
+  const byId = new Map(nodes.map((n) => [n.id, n]))
+  // 分類ごとの進み具合。総数0の分類は非表示。
+  const cats = SKILL_CATEGORIES.map((c) => {
+    const items = c.ids.map((id) => byId.get(id)).filter((n): n is SkillNode => !!n)
+    return { label: c.label, total: items.length, lit: items.filter(litOf).length }
+  }).filter((c) => c.total > 0)
 
   return (
     <Reveal>
       <div style={{ padding: "18px 18px 16px" }}>
         <div style={kicker}>SKILLS</div>
-        <div style={chapTitle}>わざのレベル <span style={{ fontSize: 10, fontWeight: 800, color: SUB }}>いまの★{currentStar}</span></div>
+        <div style={chapTitle}>わざの習得状況 <span style={{ fontSize: 10, fontWeight: 800, color: SUB }}>いまの★{currentStar}</span></div>
         <div style={chapNote}>15のわざ ・ {litCount}つ点灯</div>
-        {/* 俯瞰ミニマップ: 点灯状況が3秒でわかる */}
-        <div style={{ display: "flex", gap: 5, marginTop: 8, flexWrap: "wrap" }}>{nodes.map(tile)}</div>
+        {/* 分類ごとの進み具合バー */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
+          {cats.map((c) => (
+            <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ flex: "none", width: 116, fontSize: 10.5, fontWeight: 800, color: INK }}>{c.label}</span>
+              <div style={{ flex: 1, height: 8, borderRadius: 999, background: "rgba(150,130,90,.16)", overflow: "hidden" }}>
+                <div style={{ width: `${(c.lit / c.total) * 100}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#e3c96a,#d8b34e)" }} />
+              </div>
+              <span style={{ ...tnum, flex: "none", width: 34, textAlign: "right", fontSize: 10.5, fontWeight: 900, color: SUB }}>{c.lit}/{c.total}</span>
+            </div>
+          ))}
+        </div>
         {!readOnly && (
           <Link href={`/${userId}/progress/skills`}
             style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 12, fontSize: 11.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>
-            わざのレベルを詳しくみる →
+            わざの習得状況を詳しくみる →
           </Link>
         )}
       </div>

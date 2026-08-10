@@ -5,6 +5,7 @@
 // 各わざを1枚の紙カードに: 大きな安定度% / 状態ラベル / NEW / 今週差 /
 // スパークライン(series) / 音程・リズム2本バー(pitchPct・rhythmPct) / くわしく・練習リンク。
 // 絵文字は使わず lucide / インラインSVG のみ。
+import { useState } from "react"
 import Link from "next/link"
 import { ArrowLeft, Search } from "lucide-react"
 import type { SkillMapData, SkillNode } from "@/app/_libs/growthKarte"
@@ -43,7 +44,7 @@ export default function SkillsLevelClient({ userId, skillMap }: { userId: string
           borderRadius: 18, padding: "24px 18px", textAlign: "center",
         }}>
           <div style={kicker}>SKILLS</div>
-          <div style={{ fontSize: 15, fontWeight: 900, marginTop: 1 }}>わざのレベル</div>
+          <div style={{ fontSize: 15, fontWeight: 900, marginTop: 1 }}>わざの習得状況</div>
           <div style={{ fontSize: 12, color: SUB, margin: "8px 0 14px", lineHeight: 1.7 }}>
             スラーやビブラートなど「わざ」の習得と安定が一目でわかるレベル表。<br />
             先生が気づいた癖を体の場所で見られる「からだの癖」も。<br />
@@ -63,7 +64,7 @@ export default function SkillsLevelClient({ userId, skillMap }: { userId: string
   const order = (n: SkillNode) =>
     n.pct != null ? 0 : n.state === "acquired_nodata" ? 1 : n.state === "ready" ? 2 : 3
   const byId = new Map(nodes.map((n) => [n.id, n]))
-  // 分類ごとにグループ化。各セクション内は従来の並び (order → star 昇順)。空セクションは非表示。
+  // 分類ごとにグループ化。各分類内は従来の並び (order → star 昇順)。空分類は非表示。
   const sections = SKILL_CATEGORIES.map((c) => ({
     label: c.label,
     items: c.ids
@@ -71,6 +72,18 @@ export default function SkillsLevelClient({ userId, skillMap }: { userId: string
       .filter((n): n is SkillNode => !!n)
       .sort((a, b) => order(a) - order(b) || a.star - b.star),
   })).filter((s) => s.items.length > 0)
+
+  return <SkillsTabs userId={userId} currentStar={currentStar} sections={sections} />
+}
+
+/* ═ 分類タブ + アクティブ分類の横スクロールレール ═ */
+function SkillsTabs({ userId, currentStar, sections }: {
+  userId: string
+  currentStar: number
+  sections: { label: string; items: SkillNode[] }[]
+}) {
+  const [activeTab, setActiveTab] = useState(sections[0]?.label ?? "")
+  const active = sections.find((s) => s.label === activeTab) ?? sections[0]
 
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", fontFamily: "inherit", color: INK }}>
@@ -83,22 +96,45 @@ export default function SkillsLevelClient({ userId, skillMap }: { userId: string
         <div style={kicker}>SKILLS</div>
       </div>
       <h1 style={{ fontSize: 20, fontWeight: 900, margin: "1px 0 0" }}>
-        わざのレベル
+        わざの習得状況
         <span style={{ fontSize: 11, fontWeight: 800, color: SUB, marginLeft: 8 }}>いまの★{currentStar}</span>
       </h1>
 
-      {/* 分類ごとのセクション (案7カード群) */}
-      {sections.map((s) => (
-        <section key={s.label} style={{ marginTop: 22 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-            <h2 style={{ fontSize: 13, fontWeight: 900, margin: 0 }}>{s.label}</h2>
-            <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg,#e3c96a,#f2ead2 70%,transparent)" }} />
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {s.items.map((n) => <SkillCard key={n.id} userId={userId} n={n} />)}
-          </div>
-        </section>
-      ))}
+      {/* 分類タブ (横スクロール・非空分類のみ) */}
+      <div style={{ display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none", margin: "16px -14px 0", padding: "0 14px" }}>
+        {sections.map((s) => {
+          const on = s.label === active?.label
+          return (
+            <button key={s.label} type="button" onClick={() => setActiveTab(s.label)}
+              style={{
+                flex: "none", display: "inline-flex", alignItems: "center", gap: 5,
+                fontSize: 12, fontWeight: 900, cursor: "pointer",
+                borderRadius: 999, padding: "7px 14px", whiteSpace: "nowrap",
+                color: on ? "#fff" : INK,
+                background: on ? INK : "rgba(255,255,255,.8)",
+                border: `1px solid ${on ? INK : "#efe5cc"}`,
+              }}>
+              {s.label}
+              <span style={{
+                fontSize: 9.5, fontWeight: 900, borderRadius: 999, padding: "0 6px", ...tnum,
+                color: on ? "#fff" : SUB,
+                background: on ? "rgba(255,255,255,.22)" : "rgba(150,130,90,.14)",
+              }}>{s.items.length}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* アクティブ分類のカード (横スクロールレール) */}
+      {active && (
+        <div style={{
+          display: "flex", gap: 12, overflowX: "auto", scrollSnapType: "x mandatory",
+          scrollbarWidth: "none", touchAction: "pan-y",
+          margin: "14px -14px 0", padding: "2px 14px 6px",
+        }}>
+          {active.items.map((n) => <SkillCard key={n.id} userId={userId} n={n} />)}
+        </div>
+      )}
     </div>
   )
 }
@@ -110,7 +146,8 @@ function SkillCard({ userId, n }: { userId: string; n: SkillNode }) {
   const hasPct = n.pct != null
 
   const card: React.CSSProperties = {
-    borderRadius: 15, padding: "14px 15px", boxSizing: "border-box",
+    flex: "none", width: 158, scrollSnapAlign: "start",
+    borderRadius: 15, padding: "14px 14px", boxSizing: "border-box",
     background: lit ? "linear-gradient(155deg,#fffdf4,#fdf2d2)" : "rgba(255,255,255,.8)",
     border: `1px solid ${lit ? "#e3c96a" : "#efe5cc"}`,
     ...(locked ? { opacity: 0.6, filter: "saturate(.5)" } : {}),
@@ -127,36 +164,36 @@ function SkillCard({ userId, n }: { userId: string; n: SkillNode }) {
 
   return (
     <div style={card}>
-      {/* 上段: 大きな% + 名前・状態・NEW・今週差 */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{ flex: "none", width: 74, textAlign: "center" }}>
-          {hasPct ? (
-            <div style={{ ...tnum, fontSize: 30, fontWeight: 900, lineHeight: 1.05, color: pctColor }}>
-              {n.pct}<span style={{ fontSize: 13 }}>%</span>
-            </div>
-          ) : (
-            <div style={{ fontSize: 28, fontWeight: 900, color: "#c0b598", lineHeight: 1.05 }}>—</div>
-          )}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 900, lineHeight: 1.35 }}>
-            {n.label}
-            {n.isNew && (
-              <span style={{ fontSize: 8, fontWeight: 900, color: "#fff", background: BAD, borderRadius: 999, padding: "1px 6px", marginLeft: 6, verticalAlign: 2 }}>NEW</span>
-            )}
-          </div>
-          <div style={{ fontSize: 10.5, fontWeight: 800, color: SUB, marginTop: 2 }}>{stateLabel}</div>
-          {n.weekDelta != null && n.weekDelta !== 0 && (
-            <div style={{ fontSize: 10, fontWeight: 800, color: n.weekDelta > 0 ? GOOD : WARN, marginTop: 2 }}>
-              先週より {n.weekDelta > 0 ? `+${n.weekDelta}` : n.weekDelta}
-            </div>
-          )}
-        </div>
+      {/* 名前 + NEW */}
+      <div style={{ fontSize: 13, fontWeight: 900, lineHeight: 1.3 }}>
+        {n.label}
+        {n.isNew && (
+          <span style={{ fontSize: 8, fontWeight: 900, color: "#fff", background: BAD, borderRadius: 999, padding: "1px 6px", marginLeft: 5, verticalAlign: 2 }}>NEW</span>
+        )}
       </div>
+
+      {/* 大きな安定度% */}
+      <div style={{ marginTop: 6 }}>
+        {hasPct ? (
+          <div style={{ ...tnum, fontSize: 32, fontWeight: 900, lineHeight: 1, color: pctColor }}>
+            {n.pct}<span style={{ fontSize: 14 }}>%</span>
+          </div>
+        ) : (
+          <div style={{ fontSize: 30, fontWeight: 900, color: "#c0b598", lineHeight: 1 }}>—</div>
+        )}
+      </div>
+
+      {/* 状態ラベル + 今週差 */}
+      <div style={{ fontSize: 10, fontWeight: 800, color: SUB, marginTop: 5, lineHeight: 1.4 }}>{stateLabel}</div>
+      {n.weekDelta != null && n.weekDelta !== 0 && (
+        <div style={{ fontSize: 10, fontWeight: 800, color: n.weekDelta > 0 ? GOOD : WARN, marginTop: 2 }}>
+          先週より {n.weekDelta > 0 ? `+${n.weekDelta}` : n.weekDelta}
+        </div>
+      )}
 
       {/* スパークライン (推移) */}
       {n.series.length >= 2 && (
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 30, marginTop: 12 }} aria-hidden>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 2.5, height: 28, marginTop: 10 }} aria-hidden>
           {n.series.slice(-8).map((v, i, arr) => (
             <span key={i} style={{
               flex: 1, height: `${Math.max(12, v)}%`, borderRadius: "2px 2px 0 0",
@@ -168,14 +205,14 @@ function SkillCard({ userId, n }: { userId: string; n: SkillNode }) {
 
       {/* 音程 / リズムの2本バー */}
       {hasPct && (n.pitchPct != null || n.rhythmPct != null) && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 10 }}>
           {n.pitchPct != null && <MiniBar label="音程" pct={n.pitchPct} />}
           {n.rhythmPct != null && <MiniBar label="リズム" pct={n.rhythmPct} />}
         </div>
       )}
 
       {/* 下段リンク */}
-      <div style={{ display: "flex", gap: 14, marginTop: 12 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 12px", marginTop: 12 }}>
         <Link href={`/${userId}/progress/skill/${n.id}`} style={{ fontSize: 10.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>くわしく →</Link>
         {n.practiceHref && <Link href={n.practiceHref} style={{ fontSize: 10.5, fontWeight: 800, color: WARN, textDecoration: "none" }}>練習する →</Link>}
       </div>

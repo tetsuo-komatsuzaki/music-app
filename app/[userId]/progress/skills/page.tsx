@@ -8,7 +8,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { buildKarteData, type KartePeriod } from "@/app/_libs/growthKarte"
 import SkillsLevelClient from "./SkillsLevelClient"
 
-export const metadata = { title: "わざのレベル" }
+export const metadata = { title: "わざの習得状況" }
 
 type PageProps = {
   params: Promise<{ userId: string }>
