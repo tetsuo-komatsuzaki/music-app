@@ -348,7 +348,7 @@ export async function submitAssignment(
   }
 }
 
-export type SubmittablePerformance = { id: string; name: string; score: number | null; date: string }
+export type SubmittablePerformance = { id: string; name: string; score: number | null; pitch: number | null; timing: number | null; date: string }
 
 /** 生徒: この宿題に提出できる演奏(評価済み)の一覧。提出時に選ばせるために使う。 */
 export async function listSubmittablePerformances(
@@ -363,6 +363,7 @@ export async function listSubmittablePerformances(
   }
   const toScore = (pitch: number | null, timing: number | null) =>
     pitch != null && timing != null ? Math.round((pitch + timing) / 2) : null
+  const rnd = (v: number | null) => (v != null ? Math.round(v) : null)
   try {
     const a = await prisma.assignment.findUnique({
       where: { id: assignmentId },
@@ -376,7 +377,7 @@ export async function listSubmittablePerformances(
         orderBy: { uploadedAt: "desc" }, take: 20,
         select: { id: true, name: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true },
       })
-      return { ok: true, items: rows.map((p) => ({ id: p.id, name: dispName(p.name), score: toScore(p.pitchAccuracy, p.timingAccuracy), date: p.uploadedAt.toLocaleDateString("ja-JP") })) }
+      return { ok: true, items: rows.map((p) => ({ id: p.id, name: dispName(p.name), score: toScore(p.pitchAccuracy, p.timingAccuracy), pitch: rnd(p.pitchAccuracy), timing: rnd(p.timingAccuracy), date: p.uploadedAt.toLocaleDateString("ja-JP") })) }
     }
     if (a.practiceItemId) {
       const rows = await prisma.practicePerformance.findMany({
@@ -384,7 +385,7 @@ export async function listSubmittablePerformances(
         orderBy: { uploadedAt: "desc" }, take: 20,
         select: { id: true, name: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true },
       })
-      return { ok: true, items: rows.map((p) => ({ id: p.id, name: dispName(p.name), score: toScore(p.pitchAccuracy, p.timingAccuracy), date: p.uploadedAt.toLocaleDateString("ja-JP") })) }
+      return { ok: true, items: rows.map((p) => ({ id: p.id, name: dispName(p.name), score: toScore(p.pitchAccuracy, p.timingAccuracy), pitch: rnd(p.pitchAccuracy), timing: rnd(p.timingAccuracy), date: p.uploadedAt.toLocaleDateString("ja-JP") })) }
     }
     return { ok: true, items: [] }
   } catch {
