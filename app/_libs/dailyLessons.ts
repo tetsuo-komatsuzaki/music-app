@@ -25,7 +25,7 @@ const CAT_LABEL: Record<string, string> = {
 }
 
 export type DailyLesson = {
-  slot: "scale" | "fingering" | "rec"
+  slot: "scale" | "fingering" | "bowing" | "rec"
   category: string
   /** 項目名 = カテゴリ名 (教材名は出さない) */
   label: string
@@ -40,6 +40,9 @@ type TaggedItem = {
   category: string
   techNames: string[]
   acqFeatureKeys: string[] // "category:name" (習得系のみ)
+  primaryBowing: string | null
+  primaryPosition: number | null
+  keyTonic: string | null
 }
 
 /** 選定に必要な曲情報 (achievement-status route が渡す) */
@@ -51,6 +54,9 @@ export type ScoreForDaily = {
   positions: number[]
   techNames: string[]
   acqFeatureKeys: string[]
+  /** 主属性 (2026-08-10): ②③の照合に使う */
+  primaryBowing: string | null
+  primaryPosition: number | null
 }
 
 function overlapCount(item: TaggedItem, piece: ScoreForDaily): number {
@@ -100,6 +106,9 @@ async function fetchTagged(where: Record<string, unknown>): Promise<TaggedItem[]
       id: true,
       star: true,
       category: true,
+      keyTonic: true,
+      primaryBowing: true,
+      primaryPosition: true,
       techniques: { select: { techniqueTag: { select: { name: true } } } },
       featureTags: { select: { featureTag: { select: { category: true, name: true, isAcquisition: true } } } },
     },
@@ -108,6 +117,9 @@ async function fetchTagged(where: Record<string, unknown>): Promise<TaggedItem[]
     id: r.id,
     star: r.star,
     category: r.category,
+    keyTonic: r.keyTonic,
+    primaryBowing: r.primaryBowing,
+    primaryPosition: r.primaryPosition,
     techNames: r.techniques.map((t) => t.techniqueTag.name),
     acqFeatureKeys: r.featureTags
       .filter((f) => f.featureTag.isAcquisition)
@@ -126,6 +138,41 @@ async function isMaterialCleared(userId: string, itemId: string): Promise<boolea
   if (recent.length < MASTER_RECENT) return false
   const avg = recent.reduce((s, p) => s + (((p.pitchAccuracy ?? 0) + (p.timingAccuracy ?? 0)) / 2), 0) / recent.length
   return avg >= MASTER_AVG
+}
+
+/** ② フィンガリング: 曲の主ポジション駆動 (2026-08-10)。
+ *  優先: 主ポジション一致 → ★近 → 主ポジション近さ → 調一致 → id。
+ *  曲が1st前提(primaryPosition=null)なら、1st前提(primaryPosition=null)の基本フィンガリングを優先。 */
+async function pickFingering(score: ScoreForDaily, userStar: number): Promise<TaggedItem | null> {
+  const pool = await fetchTagged({ category: "fingering" })
+  if (!pool.length) return null
+  const target = score.star ?? userStar
+  const wp = score.primaryPosition
+  const posMatch = (p: TaggedItem) =>
+    wp != null ? (p.primaryPosition === wp ? 0 : 1) : (p.primaryPosition == null ? 0 : 1)
+  return pool.slice().sort((a, b) =>
+    posMatch(a) - posMatch(b) ||
+    Math.abs((a.star ?? 99) - target) - Math.abs((b.star ?? 99) - target) ||
+    Math.abs((a.primaryPosition ?? 1) - (wp ?? 1)) - Math.abs((b.primaryPosition ?? 1) - (wp ?? 1)) ||
+    (a.keyTonic === score.keyTonic ? 0 : 1) - (b.keyTonic === score.keyTonic ? 0 : 1) ||
+    a.id.localeCompare(b.id),
+  )[0]
+}
+
+/** ③ ボーイング: 曲の主弓奏法駆動 (2026-08-10)。曲に主弓奏法が無ければ出さない(null)。
+ *  優先: 主弓奏法一致 → ★近 → id。在庫ゼロなら 別の弓技法(スラー由来=null除く) → ★近。無ければ null。 */
+async function pickBowing(score: ScoreForDaily, userStar: number): Promise<TaggedItem | null> {
+  const wb = score.primaryBowing
+  if (!wb) return null
+  const pool = await fetchTagged({ category: "bowing" })
+  if (!pool.length) return null
+  const target = score.star ?? userStar
+  const byStar = (a: TaggedItem, b: TaggedItem) =>
+    Math.abs((a.star ?? 99) - target) - Math.abs((b.star ?? 99) - target) || a.id.localeCompare(b.id)
+  const match = pool.filter((p) => p.primaryBowing === wb)
+  if (match.length) return match.sort(byStar)[0]
+  const alt = pool.filter((p) => p.primaryBowing != null && p.primaryBowing !== "スラー")
+  return alt.length ? alt.sort(byStar)[0] : null
 }
 
 export async function selectDailyLessons(opts: {
@@ -158,10 +205,13 @@ export async function selectDailyLessons(opts: {
   if (!scale) scale = pickBest(await fetchTagged({ category: "scale" }), score, userStar)
   push("scale", scale)
 
-  // ② フィンガリング (★のみ)
-  push("fingering", pickBest(await fetchTagged({ category: "fingering" }), score, userStar))
+  // ② フィンガリング (曲の主ポジション駆動・2026-08-10)
+  push("fingering", await pickFingering(score, userStar))
 
-  // ③④ 推薦上位2 (音階はプール除外済み・未クリアを上位から2つ)
+  // ③ ボーイング (曲の主弓奏法駆動・常時。主弓奏法が無ければ出さない)
+  push("bowing", await pickBowing(score, userStar))
+
+  // ④ 診断 (1つ): 直近演奏の弱点に効く エチュード or 重音 のみ。未クリアを1つ。
   if (latestPerformanceId) {
     const perf = await prisma.performance.findUnique({
       where: { id: latestPerformanceId },
@@ -178,28 +228,13 @@ export async function selectDailyLessons(opts: {
         positions: score.positions,
       }
       const slots = await recommendForPerformance(diag, ctx)
-      // おすすめ度順 = スロット順(弱点の重い順) × スロット内の順位
       const flat = slots.flatMap((s) => s.materials)
-      // カテゴリの偏り防止 (2026-08-01 Tetsuo): まず①②や互いと「違うカテゴリ」を優先。
-      // それで2つに満たない時だけ同一カテゴリも許容 (例: アルペジオが2つ並ぶのを避ける)。
-      const recCats = new Set(out.map((o) => o.category))
-      let added = 0
       for (const m of flat) {
-        if (added >= 2) break
-        if (usedIds.has(m.id) || recCats.has(m.category)) continue
+        if (m.category !== "etude" && m.category !== "double_stop") continue
+        if (usedIds.has(m.id)) continue
         if (await isMaterialCleared(userId, m.id)) continue
         push("rec", { id: m.id, category: m.category })
-        recCats.add(m.category)
-        added++
-      }
-      if (added < 2) {
-        for (const m of flat) {
-          if (added >= 2) break
-          if (usedIds.has(m.id)) continue
-          if (await isMaterialCleared(userId, m.id)) continue
-          push("rec", { id: m.id, category: m.category })
-          added++
-        }
+        break // 1つだけ
       }
     }
   }

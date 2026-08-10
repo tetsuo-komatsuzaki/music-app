@@ -13,7 +13,8 @@ import type { DailyLesson } from "@/app/_libs/dailyLessons"
 // スロット由来の一言 (なぜ選ばれたか) をやさしく添える
 const SLOT_NOTE: Record<DailyLesson["slot"], string> = {
   scale: "調にあわせて",
-  fingering: "レベルにあわせて",
+  fingering: "ポジションにあわせて",
+  bowing: "弓の奏法にあわせて",
   rec: "学びポイントに効く",
 }
 

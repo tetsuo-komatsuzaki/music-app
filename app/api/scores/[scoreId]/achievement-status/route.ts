@@ -43,6 +43,8 @@ export async function GET(
       keyMode: true,
       defaultTempo: true,
       positions: true,
+      primaryBowing: true,
+      primaryPosition: true,
       scoreTechniqueTags: { select: { techniqueTag: { select: { name: true } } } },
       featureTags: {
         select: { featureTag: { select: { category: true, name: true, isAcquisition: true } } },
@@ -243,6 +245,8 @@ export async function GET(
       keyMode: score.keyMode,
       defaultTempo: score.defaultTempo,
       positions: score.positions.filter((n) => n >= 2),
+      primaryBowing: score.primaryBowing,
+      primaryPosition: score.primaryPosition,
       techNames: score.scoreTechniqueTags.map((t) => t.techniqueTag.name),
       acqFeatureKeys: score.featureTags
         .filter((f) => f.featureTag.isAcquisition)
