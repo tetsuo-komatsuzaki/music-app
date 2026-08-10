@@ -8,7 +8,23 @@ import { useState } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
 import { ArcoChan, POSES } from "./ArcoChan"
+import { formatKey } from "@/app/_libs/musicNotation"
 import type { DailyLesson } from "@/app/_libs/dailyLessons"
+
+// 主要ポジションの表示ラベル (1st/2nd/3rd/Nth ポジション)
+function posLabel(n: number): string {
+  const suffix = n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"
+  return `${n}${suffix}ポジション`
+}
+
+// モーダルのメタ行: ★難易度 ・ 主要な調 ・ 主要なポジション (空値は非表示)
+function metaChips(l: DailyLesson): string[] {
+  const chips: string[] = []
+  if (l.star != null) chips.push(`★${l.star}`)
+  if (l.keyTonic) chips.push(formatKey(l.keyTonic, l.keyMode))
+  if (l.primaryPosition != null) chips.push(posLabel(l.primaryPosition))
+  return chips
+}
 
 // スロット由来の一言 (なぜ選ばれたか) をやさしく添える
 const SLOT_NOTE: Record<DailyLesson["slot"], string> = {
@@ -190,6 +206,15 @@ function IntroModal({ lesson, href, onClose }: { lesson: DailyLesson; href: stri
             <span style={{ display: "block", fontSize: "var(--fs-label)", fontWeight: 800, color: col.c }}>{SLOT_NOTE[lesson.slot]}</span>
           </span>
         </div>
+
+        {/* メタ行: ★難易度 ・ 主要な調 ・ 主要なポジション (空値は非表示) */}
+        {metaChips(lesson).length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, padding: "0 15px 10px" }}>
+            {metaChips(lesson).map((m, i) => (
+              <span key={i} style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: col.c, background: col.bg, borderRadius: 999, padding: "3px 10px", whiteSpace: "nowrap" }}>{m}</span>
+            ))}
+          </div>
+        )}
 
         {/* 本体: アルコの吹き出し + 要点 */}
         <div style={{ padding: "0 15px 4px" }}>

@@ -33,6 +33,11 @@ export type DailyLesson = {
   itemId: string
   reason: string      // 出し分け理由コード
   detail: string | null  // 差し込む値(調名/奏法名など)
+  // モーダルのメタ行 (2026-08-10): ★難易度 ・ 主要な調 ・ 主要なポジション
+  star: number | null
+  keyTonic: string | null
+  keyMode: string | null
+  primaryPosition: number | null
   // href はクライアント側で `/${urlUserId}/practice/${category}/${itemId}` を組む
 }
 
@@ -49,6 +54,7 @@ type TaggedItem = {
   primaryBowing: string | null
   primaryPosition: number | null
   keyTonic: string | null
+  keyMode: string | null
 }
 
 /** 選定に必要な曲情報 (achievement-status route が渡す) */
@@ -113,6 +119,7 @@ async function fetchTagged(where: Record<string, unknown>): Promise<TaggedItem[]
       star: true,
       category: true,
       keyTonic: true,
+      keyMode: true,
       primaryBowing: true,
       primaryPosition: true,
       techniques: { select: { techniqueTag: { select: { name: true } } } },
@@ -124,6 +131,7 @@ async function fetchTagged(where: Record<string, unknown>): Promise<TaggedItem[]
     star: r.star,
     category: r.category,
     keyTonic: r.keyTonic,
+    keyMode: r.keyMode,
     primaryBowing: r.primaryBowing,
     primaryPosition: r.primaryPosition,
     techNames: r.techniques.map((t) => t.techniqueTag.name),
@@ -197,12 +205,18 @@ export async function selectDailyLessons(opts: {
 
   const push = (
     slot: DailyLesson["slot"],
-    item: TaggedItem | { id: string; category: string } | null,
+    item:
+      | TaggedItem
+      | { id: string; category: string; star?: number | null; keyTonic?: string | null; keyMode?: string | null; primaryPosition?: number | null }
+      | null,
     reason: string,
     detail: string | null,
   ) => {
     if (!item || usedIds.has(item.id)) return
     usedIds.add(item.id)
+    const meta = item as {
+      star?: number | null; keyTonic?: string | null; keyMode?: string | null; primaryPosition?: number | null
+    }
     out.push({
       slot,
       category: item.category,
@@ -210,6 +224,10 @@ export async function selectDailyLessons(opts: {
       itemId: item.id,
       reason,
       detail,
+      star: meta.star ?? null,
+      keyTonic: meta.keyTonic ?? null,
+      keyMode: meta.keyMode ?? null,
+      primaryPosition: meta.primaryPosition ?? null,
     })
   }
 
@@ -274,7 +292,7 @@ export async function selectDailyLessons(opts: {
           } else {
             reason = "rec_etude"
           }
-          push("rec", { id: m.id, category: m.category }, reason, detail)
+          push("rec", { id: m.id, category: m.category, star: m.star, keyTonic: m.keyTonic, keyMode: m.keyMode }, reason, detail)
           done = true
           break // 1つだけ
         }
