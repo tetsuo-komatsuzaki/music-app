@@ -4,6 +4,7 @@
 // ③④ 推薦上位2 : 弱点推薦(音階はプール除外済)のおすすめ度上位から、未クリア(直近5回平均90点未満)を2つ。
 // 表記は「項目名=カテゴリ名」のみ。ホームの曲カードと曲詳細ふりかえりで共通利用。
 import { prisma } from "./prisma"
+import { formatKey } from "@/app/_libs/musicNotation"
 import {
   recommendForPerformance,
   type DiagnosisJson,
@@ -30,8 +31,13 @@ export type DailyLesson = {
   /** 項目名 = カテゴリ名 (教材名は出さない) */
   label: string
   itemId: string
+  reason: string      // 出し分け理由コード
+  detail: string | null  // 差し込む値(調名/奏法名など)
   // href はクライアント側で `/${urlUserId}/practice/${category}/${itemId}` を組む
 }
+
+const TECH_SUFFIX_LABEL: Record<string, string> = { slur: "スラー", staccato: "スタッカート", portato: "ポルタート", bow_staccato: "連続スタッカート", tremolo: "トレモロ", pizzicato: "ピチカート", spiccato: "スピッカート", ricochet: "リコシェ", trill: "トリル", mordent: "モルデント", vibrato: "ビブラート", glissando: "グリッサンド", harmonic: "ハーモニクス" }
+const posBucket = (n: number): string => (n <= 2 ? "2" : n === 3 ? "3" : "4plus")
 
 /** タグ比較用に整形した教材候補 */
 type TaggedItem = {
@@ -143,25 +149,28 @@ async function isMaterialCleared(userId: string, itemId: string): Promise<boolea
 /** ② フィンガリング: 曲の主ポジション駆動 (2026-08-10)。
  *  優先: 主ポジション一致 → ★近 → 主ポジション近さ → 調一致 → id。
  *  曲が1st前提(primaryPosition=null)なら、1st前提(primaryPosition=null)の基本フィンガリングを優先。 */
-async function pickFingering(score: ScoreForDaily, userStar: number): Promise<TaggedItem | null> {
+async function pickFingering(score: ScoreForDaily, userStar: number): Promise<{ item: TaggedItem; reason: string; detail: string | null } | null> {
   const pool = await fetchTagged({ category: "fingering" })
   if (!pool.length) return null
   const target = score.star ?? userStar
   const wp = score.primaryPosition
   const posMatch = (p: TaggedItem) =>
     wp != null ? (p.primaryPosition === wp ? 0 : 1) : (p.primaryPosition == null ? 0 : 1)
-  return pool.slice().sort((a, b) =>
+  const item = pool.slice().sort((a, b) =>
     posMatch(a) - posMatch(b) ||
     Math.abs((a.star ?? 99) - target) - Math.abs((b.star ?? 99) - target) ||
     Math.abs((a.primaryPosition ?? 1) - (wp ?? 1)) - Math.abs((b.primaryPosition ?? 1) - (wp ?? 1)) ||
     (a.keyTonic === score.keyTonic ? 0 : 1) - (b.keyTonic === score.keyTonic ? 0 : 1) ||
     a.id.localeCompare(b.id),
   )[0]
+  if (wp != null && item.primaryPosition === wp) return { item, reason: "fing_exact", detail: posBucket(wp) }
+  if (wp != null && item.primaryPosition !== wp) return { item, reason: "fing_near", detail: null }
+  return { item, reason: "fing_basic", detail: null }
 }
 
 /** ③ ボーイング: 曲の主弓奏法駆動 (2026-08-10)。曲に主弓奏法が無ければ出さない(null)。
  *  優先: 主弓奏法一致 → ★近 → id。在庫ゼロなら 別の弓技法(スラー由来=null除く) → ★近。無ければ null。 */
-async function pickBowing(score: ScoreForDaily, userStar: number): Promise<TaggedItem | null> {
+async function pickBowing(score: ScoreForDaily, userStar: number): Promise<{ item: TaggedItem; reason: string; detail: string | null } | null> {
   const wb = score.primaryBowing
   if (!wb) return null
   const pool = await fetchTagged({ category: "bowing" })
@@ -170,9 +179,9 @@ async function pickBowing(score: ScoreForDaily, userStar: number): Promise<Tagge
   const byStar = (a: TaggedItem, b: TaggedItem) =>
     Math.abs((a.star ?? 99) - target) - Math.abs((b.star ?? 99) - target) || a.id.localeCompare(b.id)
   const match = pool.filter((p) => p.primaryBowing === wb)
-  if (match.length) return match.sort(byStar)[0]
+  if (match.length) return { item: match.sort(byStar)[0], reason: "bow_match", detail: score.primaryBowing }
   const alt = pool.filter((p) => p.primaryBowing != null && p.primaryBowing !== "スラー")
-  return alt.length ? alt.sort(byStar)[0] : null
+  return alt.length ? { item: alt.sort(byStar)[0], reason: "bow_alt", detail: null } : null
 }
 
 export async function selectDailyLessons(opts: {
@@ -186,7 +195,12 @@ export async function selectDailyLessons(opts: {
   const out: DailyLesson[] = []
   const usedIds = new Set<string>()
 
-  const push = (slot: DailyLesson["slot"], item: TaggedItem | { id: string; category: string } | null) => {
+  const push = (
+    slot: DailyLesson["slot"],
+    item: TaggedItem | { id: string; category: string } | null,
+    reason: string,
+    detail: string | null,
+  ) => {
     if (!item || usedIds.has(item.id)) return
     usedIds.add(item.id)
     out.push({
@@ -194,6 +208,8 @@ export async function selectDailyLessons(opts: {
       category: item.category,
       label: CAT_LABEL[item.category] ?? item.category,
       itemId: item.id,
+      reason,
+      detail,
     })
   }
 
@@ -201,15 +217,21 @@ export async function selectDailyLessons(opts: {
   const keyWhere = score.keyTonic
     ? { keyTonic: score.keyTonic, ...(score.keyMode ? { keyMode: score.keyMode } : {}) }
     : {}
-  let scale = pickBest(await fetchTagged({ category: "scale", ...keyWhere }), score, userStar)
-  if (!scale) scale = pickBest(await fetchTagged({ category: "scale" }), score, userStar)
-  push("scale", scale)
+  const scaleKeyed = pickBest(await fetchTagged({ category: "scale", ...keyWhere }), score, userStar)
+  if (scaleKeyed) {
+    push("scale", scaleKeyed, "scale_key", formatKey(score.keyTonic, score.keyMode))
+  } else {
+    const scaleAny = pickBest(await fetchTagged({ category: "scale" }), score, userStar)
+    push("scale", scaleAny, "scale_nokey", null)
+  }
 
   // ② フィンガリング (曲の主ポジション駆動・2026-08-10)
-  push("fingering", await pickFingering(score, userStar))
+  const f = await pickFingering(score, userStar)
+  if (f) push("fingering", f.item, f.reason, f.detail)
 
   // ③ ボーイング (曲の主弓奏法駆動・常時。主弓奏法が無ければ出さない)
-  push("bowing", await pickBowing(score, userStar))
+  const b = await pickBowing(score, userStar)
+  if (b) push("bowing", b.item, b.reason, b.detail)
 
   // ④ 診断 (1つ): 直近演奏の弱点に効く エチュード or 重音 のみ。未クリアを1つ。
   if (latestPerformanceId) {
@@ -228,13 +250,34 @@ export async function selectDailyLessons(opts: {
         positions: score.positions,
       }
       const slots = await recommendForPerformance(diag, ctx)
-      const flat = slots.flatMap((s) => s.materials)
-      for (const m of flat) {
-        if (m.category !== "etude" && m.category !== "double_stop") continue
-        if (usedIds.has(m.id)) continue
-        if (await isMaterialCleared(userId, m.id)) continue
-        push("rec", { id: m.id, category: m.category })
-        break // 1つだけ
+      let done = false
+      for (const slot of slots) {
+        if (done) break
+        for (const m of slot.materials) {
+          if (m.category !== "etude" && m.category !== "double_stop") continue
+          if (usedIds.has(m.id)) continue
+          if (await isMaterialCleared(userId, m.id)) continue
+          const sid = slot.subtaskId
+          let reason: string
+          let detail: string | null = null
+          if (m.category === "double_stop") {
+            reason = "rec_double"
+          } else if (sid.includes("_tech_")) {
+            reason = "rec_tech"
+            detail = TECH_SUFFIX_LABEL[sid.replace(/^(pitch|rhythm)_tech_/, "")] ?? "その奏法"
+          } else if (sid.includes("_posshift_")) {
+            reason = "rec_posshift"
+          } else if (sid.includes("_interval_")) {
+            reason = "rec_interval"
+          } else if (sid.includes("_value_") || sid.includes("_tuplet_") || sid.includes("_entry_")) {
+            reason = "rec_rhythm"
+          } else {
+            reason = "rec_etude"
+          }
+          push("rec", { id: m.id, category: m.category }, reason, detail)
+          done = true
+          break // 1つだけ
+        }
       }
     }
   }

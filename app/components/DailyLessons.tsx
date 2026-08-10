@@ -32,19 +32,61 @@ const CAT_COLOR: Record<string, { c: string; bg: string }> = {
 }
 const DEFAULT_COLOR = { c: "#6b7480", bg: "#eef1f4" }
 
-// カテゴリ別の「練習紹介」文章 (アルコの一言 + やることの要点2つ)。
-// 文言は後から調整しやすいよう一箇所に集約 (2026-08-09)。
-const INTRO_COPY: Record<string, { bubble: string; points: string[] }> = {
-  scale: { bubble: "この曲と同じ調で、指の形と音程をならしておこう。ゆっくり・正確にがコツだよ！", points: ["音程の土台をつくる", "左手の形を安定させる"] },
-  arpeggio: { bubble: "和音のならびを、弓と左手でなめらかに。音の跳びに慣れておこう！", points: ["和音の指の形をつかむ", "弦をまたぐ動きに慣れる"] },
-  fingering: { bubble: "指づかいを固めると、曲がスッと弾けるようになるよ。", points: ["指の順番を体で覚える", "迷わず押さえられるように"] },
-  etude: { bubble: "この曲に出てくる難しい形を、練習曲で先にならそう。", points: ["苦手な形を取り出して練習", "曲での再現につなげる"] },
-  bowing: { bubble: "弓の使い方を練習しよう。音の粒や長さがそろうよ。", points: ["弓の配分をつかむ", "音のはじまりをそろえる"] },
-  position_shift: { bubble: "ポジション移動をなめらかに。着地の音程をピタッと合わせよう！", points: ["移動のタイミングをつかむ", "移動後の音程を合わせる"] },
-  double_stop: { bubble: "2つの音を同時に。まず1音ずつ確かめてから重ねよう。", points: ["2音の音程を合わせる", "弓を2弦にのせる"] },
-  lesson: { bubble: "新しいわざを基礎から学ぼう。ここが分かると、弾ける曲が広がるよ！", points: ["わざの仕組みを知る", "やり方を身につける"] },
+// 「練習紹介」文章 (アルコの一言 + やることの要点2つ) を、選定の理由コード(reason)と
+// 差し込み値(detail: 調名/奏法名/ポジション)から返す。文言は一箇所に集約 (2026-08-10)。
+type IntroCopy = { bubble: string; points: string[] }
+const DEFAULT_COPY: IntroCopy = { bubble: "この練習で、弾く力の土台をつくろう。ゆっくり・正確にがコツだよ！", points: ["苦手をひとつ克服する", "曲につながる力をつける"] }
+
+function copyFor(reason: string, detail: string | null): IntroCopy {
+  switch (reason) {
+    case "scale_key":
+      return { bubble: `この曲と同じ${detail ?? "調"}で、指の形と音程をならしておこう。`, points: ["音程の土台をつくる", "左手の形を安定させる"] }
+    case "scale_nokey":
+      return { bubble: "近い調の音階で、指の形と音程をならしておこう。", points: ["音程の土台をつくる", "左手の形を安定させる"] }
+    case "fing_exact":
+      if (detail === "2") return { bubble: "この曲は2ndポジションを使うよ。手をひとつ上へ動かす指づかいを固めよう。", points: ["2ndの音の位置を覚える", "移動を正確に"] }
+      if (detail === "3") return { bubble: "この曲は3rdポジションを使うよ。よく使う定番ポジションの指づかいをならそう。", points: ["3rdの手の形をつかむ", "1st⇄3rdの移動を安定"] }
+      return { bubble: "この曲は高いポジション（4th以上）を使うよ。高音域の指づかいに慣れよう。", points: ["目印のない高音域を、耳で音程をとる", "手全体をなめらかに運ぶ（親指も一緒に）"] }
+    case "fing_near":
+      return { bubble: "ぴったりの教材がないので、近いポジションの指づかいで練習しよう。", points: ["近い手の形をつかむ", "曲のポジションに橋渡し"] }
+    case "fing_basic":
+      return { bubble: "まずは1stポジションの基本の指づかいを固めよう。", points: ["指の間隔（全音・半音）を手で覚える", "最短の動きで正確に押さえる"] }
+    case "bow_match":
+      switch (detail) {
+        case "スタッカート":
+          return { bubble: "この曲はスタッカートを使うよ。音を短くはっきり切る弓を練習しよう。", points: ["弓を止めて音を短く切る", "切っても音程と粒をそろえる"] }
+        case "スピッカート":
+          return { bubble: "この曲はスピッカートを使うよ。弓を弾ませて軽く跳ねる音を練習しよう。", points: ["弓の重さで自然に弾ませる", "跳ねる位置と速さをそろえる"] }
+        case "ポルタート":
+          return { bubble: "この曲はポルタートを使うよ。弓を止めずに、やわらかく音を分けよう。", points: ["つなげつつ一音ずつ表す", "弓圧の抜き差しをなめらかに"] }
+        case "連続スタッカート":
+          return { bubble: "この曲は連続スタッカートを使うよ。一弓の中で連続して切る弓を練習しよう。", points: ["一弓で粒をそろえて連ねる", "弓を配分して最後までもたせる"] }
+        case "トレモロ":
+          return { bubble: "この曲はトレモロを使うよ。弓を細かく速く動かす反復を練習しよう。", points: ["手首をやわらかく速く動かす", "音量と速さを一定に保つ"] }
+        case "ピチカート":
+          return { bubble: "この曲はピチカートを使うよ。指で弦をはじく音を練習しよう。", points: ["はじく指の位置と力をつかむ", "音程と響きをそろえる"] }
+        case "リコシェ":
+          return { bubble: "この曲はリコシェを使うよ。弓を跳ねさせて連続する音を練習しよう。", points: ["弓を落として自然に跳ねさせる", "跳ねる回数をコントロール"] }
+        default:
+          return { bubble: "ぴったりの教材がないので、別の弓の技で弓の使い方をならそう。", points: ["弓の基本の動きをつかむ", "音の粒・長さをそろえる"] }
+      }
+    case "bow_alt":
+      return { bubble: "ぴったりの教材がないので、別の弓の技で弓の使い方をならそう。", points: ["弓の基本の動きをつかむ", "音の粒・長さをそろえる"] }
+    case "rec_tech":
+      return { bubble: `直近の演奏で「${detail ?? "その奏法"}」がまだ不安定だったよ。エチュードで取り出して練習しよう。`, points: ["奏法の形を固める", "曲の中で再現する"] }
+    case "rec_posshift":
+      return { bubble: "直近の演奏でポジション移動がつまずいたよ。移動をエチュードでならそう。", points: ["移動のタイミングをつかむ", "移動後の音程を合わせる"] }
+    case "rec_interval":
+      return { bubble: "直近の演奏で大きな跳躍／移弦がずれたよ。エチュードでならそう。", points: ["跳ぶ距離を耳で測る", "弦をまたぐ動きを最小に"] }
+    case "rec_rhythm":
+      return { bubble: "直近の演奏でリズムがつまずいたよ。エチュードで整えよう。", points: ["拍を体で感じる", "音の長さを正確に"] }
+    case "rec_double":
+      return { bubble: "直近の演奏で重音がつまずいたよ。2音を合わせる練習をしよう。", points: ["2音の音程を合わせる", "弓を2弦にのせる"] }
+    case "rec_etude":
+    default:
+      return DEFAULT_COPY
+  }
 }
-const DEFAULT_COPY = { bubble: "この練習で、弾く力の土台をつくろう。ゆっくり・正確にがコツだよ！", points: ["苦手をひとつ克服する", "曲につながる力をつける"] }
 
 export default function DailyLessons({
   lessons,
@@ -122,7 +164,7 @@ export default function DailyLessons({
 // 練習紹介モーダル (案1: アルコのひとこと + 要点 → スコアに進む)
 function IntroModal({ lesson, href, onClose }: { lesson: DailyLesson; href: string; onClose: () => void }) {
   const col = CAT_COLOR[lesson.category] ?? DEFAULT_COLOR
-  const copy = INTRO_COPY[lesson.category] ?? DEFAULT_COPY
+  const copy = copyFor(lesson.reason, lesson.detail)
   const pose = POSES.find((p) => p.cat === "説明") ?? POSES[0]
 
   return createPortal(
