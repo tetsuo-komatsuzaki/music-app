@@ -1392,9 +1392,22 @@ function ScoreDetailInner({
   const [rangeStart, setRangeStart] = useState<number | null>(null) // note index
   const [rangeEnd, setRangeEnd] = useState<number | null>(null)     // note index
   const [isRangeLooping, setIsRangeLooping] = useState(false)
-  const rangeBandsRef = useRef<HTMLDivElement[]>([])         // オーバーレイのハイライト帯
-  // 演奏バー(Step 2)の展開パネル: テンポ / 区間 のどちらを開いているか
+  const rangeBandsRef = useRef<HTMLDivElement[]>([])         // オーバーレイのハイライト帯 + 両端ハンドル
+  // 演奏バー(Step 2)の展開パネル: テンポ (区間は録音起点フローへ移設したので tempo のみ)
   const [openPanel, setOpenPanel] = useState<null | "tempo" | "range">(null)
+  // 区間録音UX (2026-08-10): 録音ボタン起点の入口メニュー開閉。
+  const [recordMenuOpen, setRecordMenuOpen] = useState(false)
+  // 選択のポインタ操作 (なぞり/ハンドル/タップ) 用の作業 refs。
+  // rangeStart/rangeEnd の最新値をリスナ内から読むためのミラー。
+  const rangeStartRef = useRef<number | null>(null)
+  const rangeEndRef = useRef<number | null>(null)
+  const awaitingEndTapRef = useRef(false)                    // 開始タップ済み→終了タップ待ち
+  const dragModeRef = useRef<null | "new" | "extend" | "start" | "end">(null)
+  const dragAnchorRef = useRef<number>(0)                    // なぞり/タップの起点音符index
+  const dragMovedRef = useRef(false)                         // 閾値超えの移動があったか(=なぞり)
+  const dragDownXYRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
+  useEffect(() => { rangeStartRef.current = rangeStart }, [rangeStart])
+  useEffect(() => { rangeEndRef.current = rangeEnd }, [rangeEnd])
   // 区間録音 (部分練習 Phase 2b): この録音が区間演奏か。pending=録音開始トリガ直前にステージ、
   // recording=進行中の録音に確定した区間 (アップロード時に読む)。null = 通常の全体録音。
   const pendingRangeRef = useRef<{ from: number; to: number } | null>(null)
@@ -1426,6 +1439,8 @@ function ScoreDetailInner({
 
   // ▼ 録音状態 (F-1 のフルスクリーン化トリガ用)。Recorder 内の status を最小限ミラー
   const [recordingState, setRecordingState] = useState<RecorderStatus>("idle")
+  // idle を離れたら入口メニューは閉じる (録音/カウントイン中に残らないように)
+  useEffect(() => { if (recordingState !== "idle") setRecordMenuOpen(false) }, [recordingState])
 
   // ▼ F-1: 録音中 (countdown / recording) は body に data-fullscreen を付与
   // 親ページ (practice の breadcrumb 等) も含めて全画面化したいので body 経由
@@ -1927,6 +1942,58 @@ function ScoreDetailInner({
     return best
   }, [comparison])
 
+  // 小節スナップ用マップ (2026-08-10):
+  // noteElements の index は analysis.notes の index と 1:1 (analysisIdxToOsmdIdx と同前提。
+  // VexFlow は休符も vf-stavenote として描画するため index が一致する)。よって
+  // analysis.notes[i].measure_number をそのまま note index → 小節番号 の対応に使える。
+  // 全音符に measure_number があるときのみ ok=true とし、なぞり選択の端を小節境界へ寄せる。
+  const measureMap = useMemo(() => {
+    if (!analysis) return null
+    const noteToMeasure: (number | null)[] = []
+    const first = new Map<number, number>()
+    const last = new Map<number, number>()
+    let ok = true
+    analysis.notes.forEach((n, i) => {
+      const m = n.measure_number
+      if (typeof m === "number") {
+        noteToMeasure[i] = m
+        if (!first.has(m)) first.set(m, i)
+        last.set(m, i)
+      } else {
+        noteToMeasure[i] = null
+        if (n.type === "note") ok = false
+      }
+    })
+    return { noteToMeasure, first, last, ok }
+  }, [analysis])
+
+  // なぞり端 → 小節先頭/末尾の音符index へスナップ (小節データが無ければ素通し)
+  const snapStart = useCallback((idx: number): number => {
+    if (!measureMap?.ok) return idx
+    const m = measureMap.noteToMeasure[idx]
+    return m != null ? (measureMap.first.get(m) ?? idx) : idx
+  }, [measureMap])
+  const snapEnd = useCallback((idx: number): number => {
+    if (!measureMap?.ok) return idx
+    const m = measureMap.noteToMeasure[idx]
+    return m != null ? (measureMap.last.get(m) ?? idx) : idx
+  }, [measureMap])
+
+  // クリック/ポインタ座標 → 最近傍の音符index (距離も返す)。ヒットテストの唯一の実装。
+  const nearestNoteIdx = useCallback((clientX: number, clientY: number): { idx: number; dist: number } => {
+    const els = noteElementsRef.current
+    let bi = 0, bd = Infinity
+    for (let i = 0; i < els.length; i++) {
+      const r = els[i].getBoundingClientRect()
+      if (r.width === 0 && r.height === 0) continue
+      const cx = r.left + r.width / 2
+      const cy = r.top + r.height / 2
+      const d = (clientX - cx) ** 2 + (clientY - cy) ** 2
+      if (d < bd) { bd = d; bi = i }
+    }
+    return { idx: bi, dist: Math.sqrt(bd) }
+  }, [])
+
   // リサイズ後の再レンダリング検知用（インクリメントで applyComparisonColors を再トリガー）
   const [noteElementsVersion, setNoteElementsVersion] = useState(0)
 
@@ -2216,14 +2283,33 @@ function ScoreDetailInner({
   const renderRangeOverlay = useCallback(() => {
     const container = document.getElementById("osmd-container")
     if (!container) return
-    // 既存の帯を除去
+    // 既存の帯・ハンドル・マーカーを除去
     rangeBandsRef.current.forEach((b) => b.remove())
     rangeBandsRef.current = []
-    if (rangeStart === null || rangeEnd === null) return
+    if (rangeStart === null) return
 
     container.style.position = "relative"
     const cRect = container.getBoundingClientRect()
     const scrollTop = container.scrollTop
+
+    // 開始タップのみ (終了待ち): 開始位置に細いバイオレットのマーカーを出して手応えを返す
+    if (rangeEnd === null) {
+      const el = noteElementsRef.current[rangeStart]
+      if (el && container.contains(el)) {
+        const r = el.getBoundingClientRect()
+        if (r.width !== 0 || r.height !== 0) {
+          const mark = document.createElement("div")
+          mark.className = styles.rangeStartMark
+          mark.style.left = `${(r.left + r.right) / 2 - cRect.left}px`
+          mark.style.top = `${r.top - cRect.top + scrollTop - 9}px`
+          mark.style.height = `${r.height + 18}px`
+          container.appendChild(mark)
+          rangeBandsRef.current.push(mark)
+        }
+      }
+      return
+    }
+
     const lo = Math.min(rangeStart, rangeEnd)
     const hi = Math.max(rangeStart, rangeEnd)
 
@@ -2257,7 +2343,7 @@ function ScoreDetailInner({
     const padY = 9
     for (const g of bands) {
       const b = document.createElement("div")
-      b.className = styles.rangeBand
+      b.className = styles.rangeBandSel
       b.style.left = `${g.left - padX}px`
       b.style.top = `${g.top - padY}px`
       b.style.width = `${g.right - g.left + padX * 2}px`
@@ -2265,7 +2351,27 @@ function ScoreDetailInner({
       container.appendChild(b)
       rangeBandsRef.current.push(b)
     }
-  }, [rangeStart, rangeEnd])
+
+    // 両端の丸ハンドル (選択モード中のみ)。開始=先頭音符の左端中央 / 終了=末尾音符の右端中央。
+    // ドラッグで各端を伸縮できる。pointerdown はコンテナのリスナが data-range-handle で拾う。
+    if (rangeMode) {
+      const mkHandle = (idx: number, which: "start" | "end") => {
+        const el = noteElementsRef.current[idx]
+        if (!el || !container.contains(el)) return
+        const r = el.getBoundingClientRect()
+        if (r.width === 0 && r.height === 0) return
+        const h = document.createElement("div")
+        h.className = styles.rangeHandle
+        h.setAttribute("data-range-handle", which)
+        h.style.left = `${(which === "start" ? r.left : r.right) - cRect.left}px`
+        h.style.top = `${(r.top + r.bottom) / 2 - cRect.top + scrollTop}px`
+        container.appendChild(h)
+        rangeBandsRef.current.push(h)
+      }
+      mkHandle(lo, "start")
+      mkHandle(hi, "end")
+    }
+  }, [rangeStart, rangeEnd, rangeMode])
 
   // 選択変化・再描画(zoom等)・スクロール・リサイズで区間ハイライトを再配置
   useEffect(() => {
@@ -2445,44 +2551,17 @@ function ScoreDetailInner({
   const handleScoreClick = useCallback(async (e: React.MouseEvent) => {
     if (!analysis) return
     if (recGuideAnimRef.current !== null) return // 録音中は無視
+    // 区間選択モード中は、なぞり/ハンドル/タップを専用の pointer リスナ (下部) が担う。
+    // クリック起点の再生ジャンプ/ポップオーバーは抑止する。
+    if (rangeMode) return
 
     const elements = noteElementsRef.current
     if (elements.length === 0) return
 
     // 1. クリック座標に最も近いノート要素を特定
-    const clickX = e.clientX
-    const clickY = e.clientY
-    let closestIdx = 0
-    let closestDist = Infinity
-    for (let i = 0; i < elements.length; i++) {
-      const rect = elements[i].getBoundingClientRect()
-      const cx = rect.left + rect.width / 2
-      const cy = rect.top + rect.height / 2
-      const dist = Math.sqrt((clickX - cx) ** 2 + (clickY - cy) ** 2)
-      if (dist < closestDist) {
-        closestDist = dist
-        closestIdx = i
-      }
-    }
+    const { idx: closestIdx, dist: closestDist } = nearestNoteIdx(e.clientX, e.clientY)
 
     const HIT_RADIUS = 40
-
-    // 1.5 区間選択モード: 開始→終了の音符を順にタップして区間を確定 (部分練習 Phase 1)
-    if (rangeMode && closestDist <= HIT_RADIUS) {
-      if (rangeStart === null || rangeEnd !== null) {
-        // 新しい選択を開始
-        setRangeStart(closestIdx)
-        setRangeEnd(null)
-      } else {
-        // 終了を確定 (開始 > 終了 なら入れ替え)
-        const a = Math.min(rangeStart, closestIdx)
-        const b = Math.max(rangeStart, closestIdx)
-        setRangeStart(a)
-        setRangeEnd(b)
-      }
-      setPopover(null)
-      return
-    }
 
     // 1.7 記号ガイド: 「譜面をタップして調べる」ON のときは再生ジャンプより優先。
     //    OFF (既定) では従来動作のままなので、通常の操作感は変わらない。
@@ -2528,7 +2607,179 @@ function ScoreDetailInner({
     }
 
     await setupPart(startSec)
-  }, [analysis, playbackState, comparison, getTempoRatio, setupPart, stopVisualSync, rangeMode, rangeStart, rangeEnd])
+  }, [analysis, playbackState, comparison, getTempoRatio, setupPart, stopVisualSync, rangeMode, nearestNoteIdx])
+
+  // --- 区間選択のポインタ操作 (なぞり=主 / 両端ハンドル / タップ) 2026-08-10 ---
+  // rangeMode 中だけ #osmd-container に pointer リスナを張る。選択の"値"は既存の音符index
+  // (rangeStart/rangeEnd) を使い、描画は既存の区間オーバーレイ (renderRangeOverlay) が担う。
+  useEffect(() => {
+    if (!rangeMode) return
+    const container = document.getElementById("osmd-container")
+    if (!container) return
+
+    const MOVE_THRESH_SQ = 64 // 8px^2: これを超えたら「なぞり」とみなす
+    const prevTouchAction = container.style.touchAction
+    container.style.touchAction = "none" // ドラッグ中の縦スクロールを止める
+
+    const onDown = (e: PointerEvent) => {
+      const handleEl = (e.target as HTMLElement | null)?.closest?.("[data-range-handle]")
+      dragMovedRef.current = false
+      dragDownXYRef.current = { x: e.clientX, y: e.clientY }
+      if (handleEl) {
+        // 両端ハンドルの微調整ドラッグ (音符index単位・スナップなし)
+        dragModeRef.current = handleEl.getAttribute("data-range-handle") === "start" ? "start" : "end"
+      } else if (awaitingEndTapRef.current && rangeStartRef.current != null) {
+        // 開始タップ済み → 今回の操作で終了を決める (なぞれば開始からドラッグ)
+        dragModeRef.current = "extend"
+        dragAnchorRef.current = rangeStartRef.current
+      } else {
+        // 新規の選択開始
+        const { idx } = nearestNoteIdx(e.clientX, e.clientY)
+        dragModeRef.current = "new"
+        dragAnchorRef.current = idx
+        setRangeStart(idx)
+        setRangeEnd(null)
+        awaitingEndTapRef.current = false
+      }
+      try { container.setPointerCapture(e.pointerId) } catch { /* noop */ }
+      e.preventDefault()
+    }
+
+    const onMove = (e: PointerEvent) => {
+      const mode = dragModeRef.current
+      if (!mode) return
+      const dx = e.clientX - dragDownXYRef.current.x
+      const dy = e.clientY - dragDownXYRef.current.y
+      if (dx * dx + dy * dy > MOVE_THRESH_SQ) dragMovedRef.current = true
+      const { idx } = nearestNoteIdx(e.clientX, e.clientY)
+      if (mode === "new" || mode === "extend") {
+        if (!dragMovedRef.current) return // なぞりと確定するまで帯を出さない (タップ判定を優先)
+        const a = dragAnchorRef.current
+        const lo = Math.min(a, idx)
+        const hi = Math.max(a, idx)
+        // なぞり = 小節境界へスナップ (musically clean)
+        setRangeStart(snapStart(lo))
+        setRangeEnd(snapEnd(hi))
+      } else if (mode === "start") {
+        const end = rangeEndRef.current ?? idx
+        setRangeStart(Math.min(idx, end))
+      } else if (mode === "end") {
+        const start = rangeStartRef.current ?? idx
+        setRangeEnd(Math.max(idx, start))
+      }
+      e.preventDefault()
+    }
+
+    const onUp = (e: PointerEvent) => {
+      const mode = dragModeRef.current
+      dragModeRef.current = null
+      try { container.releasePointerCapture(e.pointerId) } catch { /* noop */ }
+      if (!mode) return
+      if (mode === "new" && !dragMovedRef.current) {
+        // 単タップ = 開始タップ (次のタップで終了を決める)
+        awaitingEndTapRef.current = true
+      } else if (mode === "extend" && !dragMovedRef.current) {
+        // 2度目のタップ = 終了確定 (タップは音符index単位・スナップなし)
+        const a = dragAnchorRef.current
+        const { idx } = nearestNoteIdx(e.clientX, e.clientY)
+        setRangeStart(Math.min(a, idx))
+        setRangeEnd(Math.max(a, idx))
+        awaitingEndTapRef.current = false
+      } else {
+        // なぞり確定 / ハンドル確定
+        awaitingEndTapRef.current = false
+      }
+    }
+
+    container.addEventListener("pointerdown", onDown)
+    container.addEventListener("pointermove", onMove)
+    container.addEventListener("pointerup", onUp)
+    container.addEventListener("pointercancel", onUp)
+    return () => {
+      container.style.touchAction = prevTouchAction
+      container.removeEventListener("pointerdown", onDown)
+      container.removeEventListener("pointermove", onMove)
+      container.removeEventListener("pointerup", onUp)
+      container.removeEventListener("pointercancel", onUp)
+    }
+  }, [rangeMode, isOsmdReady, noteElementsVersion, nearestNoteIdx, snapStart, snapEnd])
+
+  // 「この1行」プリセット: いま画面中央にいちばん近い譜表の行を選ぶ。
+  // 行の切れ目は各音符 rect の top が現在行の下端より下へ落ちたところで検出 (幾何ベースの推定)。
+  const selectCurrentLine = useCallback(() => {
+    const els = noteElementsRef.current
+    if (els.length === 0) return
+    type Row = { first: number; last: number; top: number; bottom: number }
+    const rows: Row[] = []
+    let cur: Row | null = null
+    for (let i = 0; i < els.length; i++) {
+      const r = els[i].getBoundingClientRect()
+      if (r.width === 0 && r.height === 0) continue
+      if (!cur || r.top > cur.bottom - 4) {
+        cur = { first: i, last: i, top: r.top, bottom: r.bottom }
+        rows.push(cur)
+      } else {
+        cur.last = i
+        cur.top = Math.min(cur.top, r.top)
+        cur.bottom = Math.max(cur.bottom, r.bottom)
+      }
+    }
+    if (rows.length === 0) return
+    const vpCenter = window.innerHeight / 2
+    let best = rows[0]
+    let bestD = Infinity
+    for (const row of rows) {
+      const d = Math.abs((row.top + row.bottom) / 2 - vpCenter)
+      if (d < bestD) { bestD = d; best = row }
+    }
+    if (isRangeLooping) stopPlayback()
+    awaitingEndTapRef.current = false
+    setRangeStart(best.first)
+    setRangeEnd(best.last)
+  }, [isRangeLooping, stopPlayback])
+
+  // 区間録音フローに入る (入口メニューの「区間録音」)。譜面を選択可能にし、下部シートを出す。
+  const enterRangeFlow = useCallback(() => {
+    setRecordMenuOpen(false)
+    if (isRangeLooping) stopPlayback()
+    awaitingEndTapRef.current = false
+    setRangeStart(null)
+    setRangeEnd(null)
+    setRangeMode(true)
+    setOpenPanel(null)
+    // 選択対象の譜面を画面内へ寄せる
+    document.getElementById("osmd-container")?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }, [isRangeLooping, stopPlayback])
+
+  // 区間録音フローを抜ける
+  const exitRangeFlow = useCallback(() => {
+    if (isRangeLooping) stopPlayback()
+    awaitingEndTapRef.current = false
+    setRangeMode(false)
+    setRangeStart(null)
+    setRangeEnd(null)
+  }, [isRangeLooping, stopPlayback])
+
+  // 「この区間を採点」: 既存の区間録音経路 (pendingRangeRef → recorder-start-button 合成クリック) を流用。
+  const recordSelectedRange = useCallback(() => {
+    if (rangeStartRef.current === null || rangeEndRef.current === null) return
+    const lo = Math.min(rangeStartRef.current, rangeEndRef.current)
+    const hi = Math.max(rangeStartRef.current, rangeEndRef.current)
+    if (isRangeLooping) stopPlayback()
+    pendingRangeRef.current = { from: lo, to: hi }
+    noteElementsRef.current[lo]?.scrollIntoView({ behavior: "smooth", block: "center" })
+    setRangeMode(false) // 録音に入るので選択UIは畳む (recordingRangeRef は onIdleRecordClick で確定)
+    const btn = document.querySelector('[data-testid="recorder-start-button"]') as HTMLButtonElement | null
+    btn?.click()
+  }, [isRangeLooping, stopPlayback])
+
+  // 入口メニューの「全て録音 (通し)」: 従来の通し録音経路をそのまま呼ぶ (pendingRange=null)。
+  const recordFull = useCallback(() => {
+    setRecordMenuOpen(false)
+    pendingRangeRef.current = null
+    const btn = document.querySelector('[data-testid="recorder-start-button"]') as HTMLButtonElement | null
+    btn?.click()
+  }, [])
 
   // --- 録音中ガイドカーソル ---
   const recGuideAnimRef = useRef<number | null>(null)
@@ -3147,7 +3398,7 @@ function ScoreDetailInner({
             onScoreClick={handleScoreClick}
             onPageChange={() => setPopover(null)}
             singleStaffLine={singleStaffLine}
-            forceExpand={isFullscreen}
+            forceExpand={isFullscreen || rangeMode}
           />
           {popover && (
             <div
@@ -3276,17 +3527,8 @@ function ScoreDetailInner({
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 21h12L15 4H9L6 21z" /><path d="M12 8l4 8" /></svg>
                 <span className={styles.barLabel}>メトロ{metronomeOn ? "・ON" : ""}</span>
               </button>
-
-              <button
-                type="button"
-                className={`${styles.barCell} ${openPanel === "range" || rangeMode || (rangeStart !== null && rangeEnd !== null) ? styles.barCellActive : ""}`}
-                onClick={() => setOpenPanel((p) => (p === "range" ? null : "range"))}
-                aria-expanded={openPanel === "range"}
-                aria-label="区間ループ"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M17 2l4 4-4 4" /><path d="M3 11V10a4 4 0 0 1 4-4h14" /><path d="M7 22l-4-4 4-4" /><path d="M21 13v1a4 4 0 0 1-4 4H3" /></svg>
-                <span className={styles.barLabel}>区間</span>
-              </button>
+              {/* 区間ループ/採点は「録音ボタン → 区間録音」フローへ移設 (2026-08-10)。
+                  ここの区間セル+二重パネルは撤去した。 */}
             </div>
 
             {openPanel === "tempo" && (
@@ -3324,114 +3566,6 @@ function ScoreDetailInner({
               </div>
             )}
 
-            {openPanel === "range" && (
-              <div className={styles.barPanel}>
-                <div className={styles.rangeBody}>
-                  {/* プリセット行: ワンタップで区間を設定 (音符2回タップの回避) */}
-                  <div className={styles.rangePresetRow}>
-                    <button
-                      type="button"
-                      className={styles.rangePresetBtn}
-                      disabled={noteElementsRef.current.length === 0}
-                      onClick={() => {
-                        if (isRangeLooping) stopPlayback()
-                        setRangeStart(0)
-                        setRangeEnd(noteElementsRef.current.length - 1)
-                        setRangeMode(false)
-                      }}
-                    >
-                      全体
-                    </button>
-                    {hardestRange && (
-                      <button
-                        type="button"
-                        className={`${styles.rangePresetBtn} ${styles.rangePresetHard}`}
-                        onClick={() => {
-                          if (isRangeLooping) stopPlayback()
-                          setRangeStart(hardestRange.from)
-                          setRangeEnd(hardestRange.to)
-                          setRangeMode(false)
-                        }}
-                        title="直近の採点で崩れた箇所"
-                      >
-                        難所
-                      </button>
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    className={`${styles.rangeSelectBtn} ${rangeMode ? styles.rangeSelectOn : ""}`}
-                    onClick={() => setRangeMode((v) => !v)}
-                    aria-pressed={rangeMode}
-                  >
-                    {rangeMode ? "選択モード中（もう一度で終了）" : "区間を選ぶ"}
-                  </button>
-
-                  {!rangeMode && rangeStart === null && (
-                    <p className={styles.rangeHint}>上の<b>プリセットで選ぶ</b>か、「区間を選ぶ」を押して譜面で <b>開始→終了</b> をタップ</p>
-                  )}
-                  {rangeMode && rangeStart === null && (
-                    <p className={styles.rangeHint}>楽譜で <b>開始の音符</b> をタップ → 次に <b>終了の音符</b> をタップ</p>
-                  )}
-                  {rangeMode && rangeStart !== null && rangeEnd === null && (
-                    <p className={styles.rangeHint}>次に <b>終了の音符</b> をタップ</p>
-                  )}
-
-                  {rangeStart !== null && rangeEnd !== null && (
-                    <>
-                      {/* 練習: ループ再生 (青系・落ち着いた色) */}
-                      <div className={styles.rangeSection}>
-                        <div className={styles.rangeSectionLabel}>練習</div>
-                        <div className={styles.rangeActions}>
-                          {!isRangeLooping ? (
-                            <button className={styles.rangePlayBtn} onClick={startRangeLoop}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M8 5v14l11-7z" /></svg>
-                              区間をループ再生
-                            </button>
-                          ) : (
-                            <button className={styles.rangeStopBtn} onClick={stopPlayback}>
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden><rect x="6" y="6" width="12" height="12" rx="1.5" /></svg>
-                              ループ停止
-                            </button>
-                          )}
-                          <button
-                            className={styles.rangeClearBtn}
-                            onClick={() => { if (isRangeLooping) stopPlayback(); setRangeStart(null); setRangeEnd(null) }}
-                          >
-                            解除
-                          </button>
-                        </div>
-                      </div>
-                      {/* 採点: 区間録音 (主アクション・赤系で強調) */}
-                      {isScoreMode && (
-                        <div className={`${styles.rangeSection} ${styles.rangeSectionScore}`}>
-                          <div className={styles.rangeSectionLabel}>採点</div>
-                          <button
-                            type="button"
-                            className={styles.rangeRecordBtn}
-                            disabled={recordingState !== "idle"}
-                            onClick={() => {
-                              if (rangeStart === null || rangeEnd === null) return
-                              const lo = Math.min(rangeStart, rangeEnd)
-                              const hi = Math.max(rangeStart, rangeEnd)
-                              if (isRangeLooping) stopPlayback()
-                              pendingRangeRef.current = { from: lo, to: hi }
-                              // 区間先頭を画面内へ入れてから録音CTAをトリガ (Recorderのidleボタンを click)
-                              noteElementsRef.current[lo]?.scrollIntoView({ behavior: "smooth", block: "center" })
-                              const btn = document.querySelector('[data-testid="recorder-start-button"]') as HTMLButtonElement | null
-                              btn?.click()
-                            }}
-                          >
-                            この区間を録音（部分採点）
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         )}
 
@@ -3486,6 +3620,109 @@ function ScoreDetailInner({
           </div>
         ) : (
         <div data-onboarding="scoreDetail.recordButton">
+          {/* 入口: 録音ボタン → 「全て録音 / 区間録音」の小メニュー (idle かつ 選択フロー外) */}
+          {recordingState === "idle" && !rangeMode && (
+            <div className={styles.recordEntry}>
+              {recordMenuOpen && (
+                <div className={styles.recordMenuBackdrop} onClick={() => setRecordMenuOpen(false)} />
+              )}
+              <button
+                type="button"
+                className={styles.recordEntryBtn}
+                onClick={() => setRecordMenuOpen((v) => !v)}
+                aria-haspopup="menu"
+                aria-expanded={recordMenuOpen}
+              >
+                <span className={styles.recordEntryDot} />
+                <span>録音して採点</span>
+                <svg className={`${styles.recordEntryChev} ${recordMenuOpen ? styles.recordEntryChevOpen : ""}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 9l6 6 6-6" /></svg>
+              </button>
+              {recordMenuOpen && (
+                <div className={styles.recordMenu} role="menu">
+                  <button type="button" role="menuitem" className={styles.recordMenuItem} onClick={recordFull}>
+                    <span className={`${styles.recordMenuIcon} ${styles.recordMenuIconAll}`}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden><circle cx="12" cy="12" r="7" /></svg>
+                    </span>
+                    <span className={styles.recordMenuText}>
+                      <span className={styles.recordMenuTitle}>全て録音（通し）</span>
+                      <span className={styles.recordMenuDesc}>曲を通して弾いて採点</span>
+                    </span>
+                  </button>
+                  <button type="button" role="menuitem" className={styles.recordMenuItem} onClick={enterRangeFlow}>
+                    <span className={`${styles.recordMenuIcon} ${styles.recordMenuIconRange}`}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 7h16" /><path d="M9 7v10" /><path d="M15 7v10" /></svg>
+                    </span>
+                    <span className={styles.recordMenuText}>
+                      <span className={styles.recordMenuTitle}>区間録音（部分）</span>
+                      <span className={styles.recordMenuDesc}>譜面をなぞって一部だけ{isScoreMode ? "採点" : "練習"}</span>
+                    </span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 区間録音フロー: 下部シート (プリセット / ループ練習=紺 / この区間を採点=赤) */}
+          {recordingState === "idle" && rangeMode && (
+            <div className={styles.rangeSheet} role="dialog" aria-label="区間を選ぶ">
+              <div className={styles.rangeSheetHead}>
+                <span className={styles.rangeSheetTitle}><span className={styles.rangeSheetDot} />区間を選ぶ</span>
+                <button type="button" className={styles.rangeSheetClose} onClick={exitRangeFlow} aria-label="区間録音をやめる">✕</button>
+              </div>
+              <div className={styles.rangePresetRow}>
+                <button type="button" className={styles.rangePresetBtn} disabled={noteElementsRef.current.length === 0} onClick={selectCurrentLine}>この1行</button>
+                {hardestRange && (
+                  <button
+                    type="button"
+                    className={`${styles.rangePresetBtn} ${styles.rangePresetHard}`}
+                    onClick={() => { if (isRangeLooping) stopPlayback(); awaitingEndTapRef.current = false; setRangeStart(hardestRange.from); setRangeEnd(hardestRange.to) }}
+                    title="直近の採点で崩れた箇所"
+                  >
+                    難所
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className={styles.rangePresetBtn}
+                  disabled={noteElementsRef.current.length === 0}
+                  onClick={() => { if (isRangeLooping) stopPlayback(); awaitingEndTapRef.current = false; setRangeStart(0); setRangeEnd(noteElementsRef.current.length - 1) }}
+                >
+                  全体
+                </button>
+              </div>
+              {rangeStart === null && (
+                <p className={styles.rangeSheetHint}>譜面を <b>なぞって</b> 区間を選ぶ（<b>タップ</b>で開始→終了、プリセットでもOK）</p>
+              )}
+              {rangeStart !== null && rangeEnd === null && (
+                <p className={styles.rangeSheetHint}>次に <b>終了</b> をタップ、または <b>なぞって</b>ください</p>
+              )}
+              {rangeStart !== null && rangeEnd !== null && (
+                <>
+                  <p className={styles.rangeSheetHint}>両端の <b>◯</b> をドラッグで微調整できます</p>
+                  <div className={styles.rangeSheetActions}>
+                    {!isRangeLooping ? (
+                      <button type="button" className={styles.sheetLoopBtn} onClick={startRangeLoop}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M8 5v14l11-7z" /></svg>
+                        ループ練習
+                      </button>
+                    ) : (
+                      <button type="button" className={styles.sheetLoopStopBtn} onClick={stopPlayback}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden><rect x="6" y="6" width="12" height="12" rx="1.5" /></svg>
+                        ループ停止
+                      </button>
+                    )}
+                    {isScoreMode && (
+                      <button type="button" className={styles.sheetScoreBtn} disabled={recordingState !== "idle"} onClick={recordSelectedRange}>
+                        この区間を採点
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          <div className={styles.recorderHost}>
           <Recorder
             onRecordingComplete={handleRecordingComplete}
             previousBestScore={bestPitchScore}
@@ -3531,6 +3768,7 @@ function ScoreDetailInner({
               }
             }}
           />
+          </div>
         </div>
         )}
       </div>

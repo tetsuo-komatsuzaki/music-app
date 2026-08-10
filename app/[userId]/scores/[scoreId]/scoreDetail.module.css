@@ -1015,3 +1015,117 @@
   from { opacity: 0; transform: translate(-50%, 8px); }
   to { opacity: 1; transform: translate(-50%, 0); }
 }
+
+/* =========================================================
+   区間録音UX (2026-08-10): 録音ボタン起点フロー
+   入口メニュー(全て録音/区間録音) + なぞり選択 + 両端ハンドル + 下部シート
+   色役割: 練習=紺 / 採点=赤 / 選択=バイオレット
+   ========================================================= */
+
+/* --- 入口: 録音ボタン → 小メニュー --- */
+.recordEntry { position: relative; }
+.recordEntryBtn {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-family: inherit; font-size: var(--fs-subhead); font-weight: 800; cursor: pointer;
+  color: var(--text-on-accent); border: none; border-radius: 14px; padding: 15px 16px;
+  background: linear-gradient(100deg, #e5392b, #f0603a);
+  box-shadow: 0 12px 24px -12px rgba(229, 57, 43, 0.6);
+  transition: filter .14s;
+}
+.recordEntryBtn:active { filter: brightness(0.96); }
+.recordEntryDot { width: 12px; height: 12px; border-radius: 50%; background: #fff; flex: 0 0 auto; }
+.recordEntryChev { margin-left: 2px; opacity: .85; transition: transform .16s; }
+.recordEntryChevOpen { transform: rotate(180deg); }
+
+.recordMenuBackdrop { position: fixed; inset: 0; z-index: 40; background: transparent; }
+.recordMenu {
+  position: absolute; left: 0; right: 0; bottom: calc(100% + 8px); z-index: 41;
+  background: #fff; border: 1px solid #eceaef; border-radius: 14px;
+  box-shadow: 0 16px 40px -12px rgba(20, 15, 40, 0.32);
+  padding: 6px; display: flex; flex-direction: column; gap: 4px;
+  animation: recordMenuIn .14s ease forwards;
+}
+@keyframes recordMenuIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.recordMenuItem {
+  display: flex; align-items: center; gap: 12px; text-align: left; width: 100%;
+  font-family: inherit; cursor: pointer; border: none; background: transparent;
+  border-radius: 10px; padding: 12px 12px; transition: background .12s;
+}
+.recordMenuItem:active { background: #f6f6f8; }
+.recordMenuIcon {
+  width: 34px; height: 34px; border-radius: 10px; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center; color: #fff;
+}
+.recordMenuIconAll { background: linear-gradient(135deg, #e5392b, #f0603a); }
+.recordMenuIconRange { background: linear-gradient(135deg, #7c4dff, #9061ff); }
+.recordMenuText { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.recordMenuTitle { font-size: var(--fs-body); font-weight: 800; color: var(--text-ink); }
+.recordMenuDesc { font-size: var(--fs-label); color: var(--text-sub); }
+
+/* Recorder の既定 idle CTA は、区間録音UXでは自前メニューに置き換えるため隠す。
+   (DOM には残すので data-testid=recorder-start-button への合成クリックは従来通り機能する) */
+.recorderHost :global([data-testid="recorder-start-button"]) { display: none !important; }
+
+/* --- 選択オーバーレイ: 帯=バイオレット / 両端ハンドル / 開始マーカー --- */
+.rangeBandSel {
+  position: absolute;
+  background: rgba(124, 77, 255, 0.15);
+  border: 1.5px solid rgba(124, 77, 255, 0.55);
+  border-radius: 7px;
+  pointer-events: none;
+  z-index: 8;
+}
+.rangeHandle {
+  position: absolute;
+  width: 24px; height: 24px; margin: -12px 0 0 -12px;
+  border-radius: 50%;
+  background: #7c4dff; border: 3px solid #fff;
+  box-shadow: 0 3px 10px -2px rgba(124, 77, 255, 0.7);
+  z-index: 10; cursor: ew-resize; touch-action: none;
+}
+.rangeStartMark {
+  position: absolute; width: 3px; margin-left: -1.5px;
+  background: #7c4dff; border-radius: 2px; pointer-events: none; z-index: 9;
+}
+
+/* --- 下部シート: 区間選択の操作パネル --- */
+.rangeSheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+  background: #fff; border-top: 1px solid #ece8f6;
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -14px 40px -18px rgba(30, 15, 60, 0.4);
+  padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; gap: 11px;
+  animation: rangeSheetIn .18s ease forwards;
+}
+@keyframes rangeSheetIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.rangeSheetHead { display: flex; align-items: center; gap: 8px; }
+.rangeSheetTitle {
+  font-size: var(--fs-subhead); font-weight: 800; color: var(--text-ink);
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.rangeSheetDot { width: 10px; height: 10px; border-radius: 50%; background: #7c4dff; flex: 0 0 auto; }
+.rangeSheetClose {
+  margin-left: auto; border: none; background: #f2f1f4; color: var(--text-body);
+  width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.rangeSheetClose:active { filter: brightness(.96); }
+.rangeSheetHint { margin: 0; font-size: var(--fs-body); color: var(--text-sub); line-height: 1.5; }
+.rangeSheetHint b { color: #7c4dff; }
+
+.rangeSheetActions { display: flex; gap: 10px; }
+.sheetLoopBtn, .sheetLoopStopBtn, .sheetScoreBtn {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: inherit; font-size: var(--fs-body); font-weight: 800; cursor: pointer;
+  border: none; border-radius: 12px; padding: 13px 12px; transition: filter .14s;
+}
+/* 練習=紺 */
+.sheetLoopBtn { color: #fff; background: linear-gradient(100deg, #1e3a8a, #2b4fb0); box-shadow: 0 10px 22px -12px rgba(30, 58, 138, .7); }
+.sheetLoopStopBtn { color: #fff; background: #3a4a72; }
+/* 採点=赤 */
+.sheetScoreBtn { color: #fff; background: linear-gradient(100deg, #e5392b, #f0603a); box-shadow: 0 10px 22px -12px rgba(229, 57, 43, .6); }
+.sheetScoreBtn::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #fff; flex: 0 0 auto; }
+.sheetLoopBtn:active, .sheetLoopStopBtn:active, .sheetScoreBtn:active { filter: brightness(.95); }
+.sheetScoreBtn:disabled { opacity: .5; cursor: default; box-shadow: none; }
