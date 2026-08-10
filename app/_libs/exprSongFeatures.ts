@@ -14,7 +14,6 @@ export type ExprFeatures = {
   staccatoDensity: number // スタッカート系音符率
   dynamicsVariety: number // 強弱記号の種類数 (p/f/mf…)
   hairpinCount: number // クレッシェンド/デクレッシェンド区間数
-  longToneRate: number // 2拍以上 (half/whole/breve) の音符率
   lowRegisterRate: number // 低音域 (<440Hz = G/D線帯) の音符率
   vibratoTag: boolean // 曲にビブラート指示があるか
   // ── v2: 雰囲気タグ用 ──
@@ -29,7 +28,6 @@ export type ExprFeatures = {
   tempoMarkCount: number // テンポ指示の数
 }
 
-const LONG_TYPES = new Set(["half", "whole", "breve"])
 const STACCATO_ARTS = new Set(["staccato", "staccatissimo", "spiccato"])
 
 export function computeExprFeatures(analysis: SymbolSourceAnalysis): ExprFeatures {
@@ -53,7 +51,6 @@ export function computeExprFeatures(analysis: SymbolSourceAnalysis): ExprFeature
   const toMidi = (hz: number) => 69 + 12 * Math.log2(hz / 440)
 
   let staccato = 0
-  let longTone = 0
   let low = 0
   let vibrato = false
   let loud = 0
@@ -70,7 +67,6 @@ export function computeExprFeatures(analysis: SymbolSourceAnalysis): ExprFeature
   for (const n of notes) {
     if (n.articulations?.some((a) => STACCATO_ARTS.has(a))) staccato++
     if (n.articulations?.some((a) => /accent|marcato/i.test(a))) accent++
-    if (n.type && LONG_TYPES.has(n.type)) longTone++
     if (n.is_trill || n.is_mordent) ornament++
     const hz = n.pitches?.[0]
     if (typeof hz === "number" && hz > 0) {
@@ -104,7 +100,6 @@ export function computeExprFeatures(analysis: SymbolSourceAnalysis): ExprFeature
     staccatoDensity: r(staccato),
     dynamicsVariety: dynamics.size,
     hairpinCount: (analysis.spanners?.hairpins ?? []).length,
-    longToneRate: r(longTone),
     lowRegisterRate: r(low),
     vibratoTag: vibrato,
     loudRate: r(loud),

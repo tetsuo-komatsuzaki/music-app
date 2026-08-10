@@ -31,7 +31,6 @@ describe("computeExprFeatures", () => {
     }
     const f = computeExprFeatures(a)
     expect(f.staccatoDensity).toBe(0.125)
-    expect(f.longToneRate).toBe(0.125)
     expect(f.lowRegisterRate).toBe(0.125)
     expect(f.dynamicsVariety).toBe(2)
     expect(f.hairpinCount).toBe(1)
@@ -54,7 +53,7 @@ describe("percentileThreshold (上位5%)", () => {
 describe("rankSongsForExpr (相対順位)", () => {
   const feat = (over: Partial<ExprFeatures>): ExprFeatures => ({
     v: 2, notes: 100, slurDensity: 0, longSlurRate: 0, staccatoDensity: 0,
-    dynamicsVariety: 0, hairpinCount: 0, longToneRate: 0, lowRegisterRate: 0, vibratoTag: false,
+    dynamicsVariety: 0, hairpinCount: 0, lowRegisterRate: 0, vibratoTag: false,
     loudRate: 0, softRate: 0, accentRate: 0, ornamentRate: 0, highRegisterRate: 0,
     leapRate: 0, rangeSemitones: 0, keyChangeCount: 0, tempoMarkCount: 0, ...over,
   })
