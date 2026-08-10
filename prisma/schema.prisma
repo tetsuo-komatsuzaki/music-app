@@ -154,6 +154,11 @@ model Score {
   pitchMin  Int? // 音域下限 (MIDI)。analyze_musicxml 層1拡張(工程A)で投入
   pitchMax  Int? // 音域上限 (MIDI)
   positions Int[] @default([]) // 音高的に必要なポジション構成(推定) §19-1
+  // 主属性 (毎日の基礎練の②③照合用・2026-08-10)。解析器が notes から算出。
+  // primaryBowing: スラー除外→技術★最大→同★は最頻。無ければ null。
+  // primaryPosition: 非1stの最頻(同数は高い方)。無ければ null。
+  primaryBowing   String? // 主弓奏法 (TechniqueTag名。例 "スタッカート")
+  primaryPosition Int? // 主ポジション (2以上)
 
   createdAt    DateTime      @default(now())
   deletedAt    DateTime? // 論理削除フラグ (NULL=有効、値あり=削除済み)
@@ -373,6 +378,9 @@ model PracticeItem {
   // ▼ 工程F: 音域 (2026-07-10, 設計書§19-1)
   pitchMin Int? // MIDI。工程Aで投入
   pitchMax Int?
+  // 主属性 (毎日の基礎練の②③照合用・2026-08-10)。Score と同ルールで解析器が算出。
+  primaryBowing   String? // 主弓奏法 (TechniqueTag名)
+  primaryPosition Int? // 主ポジション (2以上)
 
   originalXmlPath  String
   generatedXmlPath String?

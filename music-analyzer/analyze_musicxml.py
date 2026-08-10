@@ -1115,6 +1115,39 @@ try:
             import uuid as _uuid
             _ft_names = piece_summary.get("feature_tags") or []
             _tt_names = piece_summary.get("technique_tags") or []
+
+            # 主属性 (毎日の基礎練②③照合用・2026-08-10)。karte_notes の
+            # technique_tags / position から算出して Score/PracticeItem に保存。
+            #  - primaryBowing: スラー除外 → 技術★最大 → 同★は最頻 → id
+            #  - primaryPosition: 非1stの最頻 → 同数は高い方
+            _BOW_STAR = {"スラー": 1, "スタッカート": 2, "ポルタート": 2, "連続スタッカート": 2,
+                         "トレモロ": 2, "ピチカート": 2, "スピッカート": 3, "リコシェ": 4}
+            _bow_freq: dict = {}
+            _pos_freq: dict = {}
+            for _n in karte_notes:
+                for _t in (getattr(_n, "technique_tags", None) or []):
+                    if _t in _BOW_STAR:
+                        _bow_freq[_t] = _bow_freq.get(_t, 0) + 1
+                _p = getattr(_n, "position", None)
+                if isinstance(_p, int) and _p >= 2:
+                    _pos_freq[_p] = _pos_freq.get(_p, 0) + 1
+            _bow_cand = {t: c for t, c in _bow_freq.items() if t != "スラー"}
+            _primary_bowing = (
+                sorted(_bow_cand.keys(), key=lambda t: (-_BOW_STAR[t], -_bow_cand[t], t))[0]
+                if _bow_cand else None
+            )
+            _primary_position = (
+                sorted(_pos_freq.keys(), key=lambda p: (-_pos_freq[p], -p))[0]
+                if _pos_freq else None
+            )
+            _pa_table = "PracticeItem" if IS_PRACTICE_ITEM else "Score"
+            _pa_id = PRACTICE_ITEM_ID if IS_PRACTICE_ITEM else SCORE_ID
+            cur.execute(
+                f'UPDATE "{_pa_table}" SET "primaryBowing"=%s, "primaryPosition"=%s WHERE id=%s',
+                (_primary_bowing, _primary_position, _pa_id),
+            )
+            print(f"[analyze_musicxml] 主属性: bowing={_primary_bowing} position={_primary_position}")
+
             if IS_PRACTICE_ITEM:
                 cur.execute(
                     'UPDATE "PracticeItem" SET "pitchMin"=%s, "pitchMax"=%s WHERE id=%s',
