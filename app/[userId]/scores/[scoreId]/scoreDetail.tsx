@@ -13,7 +13,7 @@ import { getFeedbackAsStudent } from "@/app/actions/teacherFeedback"
 import type { AnnotationData } from "@/app/actions/scoreAnnotations"
 import ShareToTeacherButton from "./ShareToTeacherButton"
 import SymbolGuide, { type SymbolGuideHandle } from "./SymbolGuide"
-import { extractScoreSymbols } from "@/app/_libs/scoreSymbols"
+import { extractScoreSymbols, BASIC_READING_SYMBOL_IDS, BASIC_SYMBOL_HIDE_STAR } from "@/app/_libs/scoreSymbols"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
 import * as Tone from "tone"
 import styles from "./scoreDetail.module.css"
@@ -119,6 +119,8 @@ type Props = {
   uploadAction: (params: { performanceId: string; recordingBpm?: number; rangeFromNote?: number; rangeToNote?: number; partId?: string }) => Promise<any>
   performanceCount: number
   latestPitchAccuracy: number | null
+  /** ユーザーのランク (currentStar)。★4+ では基礎の読譜記号の説明を省く (2026-08-10) */
+  currentStar?: number
   infoSlot?: React.ReactNode
   singleStaffLine?: boolean
   /** practice用: score-performancesの代わりにpractice-performancesを使う */
@@ -1262,6 +1264,7 @@ function ScoreDetailInner({
   buildUrl,
   performanceCount,
   latestPitchAccuracy,
+  currentStar = 1,
   infoSlot,
   singleStaffLine,
   practiceItemId,
@@ -1937,7 +1940,18 @@ function ScoreDetailInner({
 
   // --- 記号ガイド: 譜面に出てくる記号・技法 (2026-07-25) ---
   // analysis.json に既にある情報から抽出するだけなので追加の通信は無い。
-  const scoreSymbols = useMemo(() => extractScoreSymbols(analysis), [analysis])
+  // ランク出し分け (2026-08-10): ★4+ (中級者以上) には基礎の読譜記号(調号/拍子/臨時記号/反復/とび先/8va)を出さない。
+  const scoreSymbols = useMemo(() => {
+    const raw = extractScoreSymbols(analysis)
+    if (currentStar < BASIC_SYMBOL_HIDE_STAR) return raw
+    const list = raw.list.filter((s) => !BASIC_READING_SYMBOL_IDS.has(s.id))
+    const byNote = new Map<number, string[]>()
+    for (const [ni, ids] of raw.byNote) {
+      const kept = ids.filter((id) => !BASIC_READING_SYMBOL_IDS.has(id))
+      if (kept.length) byNote.set(ni, kept)
+    }
+    return { list, byNote }
+  }, [analysis, currentStar])
   const [symbolTapMode, setSymbolTapMode] = useState(false)
   const symbolGuideRef = useRef<SymbolGuideHandle | null>(null)
   const symbolTapModeRef = useRef(false)

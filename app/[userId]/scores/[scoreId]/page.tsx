@@ -49,6 +49,13 @@ export default async function Page({
     return <div>この曲はいま見られないよ</div>
   }
 
+  // ランク出し分け用 (2026-08-10): ★4+(中級者以上) では記号ガイドの基礎読譜記号を省く
+  const starProgress = await prisma.userStarProgress.findUnique({
+    where: { userId: dbUser.id },
+    select: { currentStar: true },
+  })
+  const currentStar = starProgress?.currentStar ?? 1
+
   // パート分け (2026-07-26): パートは曲(グループ)単位に保存されている。
   const groupParts = score.groupId
     ? parseParts(
@@ -232,6 +239,7 @@ export default async function Page({
         buildUrl={buildUrl}
         performanceCount={performanceCount}
         latestPitchAccuracy={latestPerf?.pitchAccuracy ?? null}
+        currentStar={currentStar}
         initialFavorite={!!favRow}
       />
     </>

@@ -92,6 +92,18 @@ export type ScoreSymbol = Omit<SymbolDef, "match"> & {
   noteIndices: number[]
 }
 
+/** 基礎の読譜記号 (中級者★4+ には説明を出さない・2026-08-10 Tetsuo確定)。
+ *  調号 / 拍子系 / 臨時記号(基本♯♭♮) / 反復 / とび先 / オクターブ(8va)。
+ *  ダブル♯・微分音・異名同音などの応用臨時記号、奏法・装飾・強弱・親切記号は含めない(残す)。 */
+export const BASIC_READING_SYMBOL_IDS: ReadonlySet<string> = new Set([
+  "key_signature", "key_change",
+  "time_signature", "time_change", "time_symbol", "senza_misura",
+  "accidental",
+  "repeat_bar", "navigation", "ottava",
+])
+/** 基礎記号を隠し始めるユーザーランク (currentStar)。★4=中級者以上。 */
+export const BASIC_SYMBOL_HIDE_STAR = 4
+
 export const SYMBOL_CATEGORIES = DATA.categories as Record<SymbolCategoryId, { label: string }>
 /** 語彙の全件 (「記号を全部見る」UI や検証で使う) */
 export const ALL_SYMBOLS = DATA.symbols as unknown as SymbolDef[]
