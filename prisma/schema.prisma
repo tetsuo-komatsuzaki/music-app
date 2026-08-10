@@ -1402,3 +1402,17 @@ model ListenRequest {
   @@unique([studentId, performanceId]) // 同じ演奏の重複依頼は1回
   @@index([teacherId, status, createdAt])
 }
+
+// ④診断おすすめのピン (2026-08-10): ホーム毎日の基礎練の④枠を (userId×scoreId) で固定。
+// 録音のたびに変わらないよう、選んだ推薦教材を保存する。クリア/非公開時に削除→再計算。
+model ScoreRecPin {
+  id             String   @id @default(cuid())
+  userId         String
+  scoreId        String
+  practiceItemId String
+  subtaskId      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, scoreId])
+}

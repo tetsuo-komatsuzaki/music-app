@@ -10,6 +10,7 @@ import {
   type DiagnosisJson,
   type RecommendContext,
 } from "./weaknessRecommendation"
+import { SUBTASK_BY_ID } from "./subtaskCatalog.generated"
 
 const MASTER_RECENT = 5
 const MASTER_AVG = 90
@@ -154,6 +155,69 @@ async function isMaterialCleared(userId: string, itemId: string): Promise<boolea
   return avg >= MASTER_AVG
 }
 
+// ④ 診断おすすめ (2026-08-10): 直近3回の通し演奏を集計して固定(ピン)する。
+const AGG_RECENT = 3     // 集計する通し演奏の回数
+const AGG_MIN_TARGET = 3 // 合算 target がこの値未満の小課題は選抜対象外
+
+/** 推薦スロットの subtaskId + 教材カテゴリ → ④の理由コードと差し込み値。
+ *  ピン解決・再計算の両方で使う (旧④の出し分けと同一ロジック)。 */
+function subtaskToReason(sid: string, category: string): { reason: string; detail: string | null } {
+  if (category === "double_stop") return { reason: "rec_double", detail: null }
+  if (sid.includes("_tech_")) {
+    return { reason: "rec_tech", detail: TECH_SUFFIX_LABEL[sid.replace(/^(pitch|rhythm)_tech_/, "")] ?? "その奏法" }
+  }
+  if (sid.includes("_posshift_")) return { reason: "rec_posshift", detail: null }
+  if (sid.includes("_interval_")) return { reason: "rec_interval", detail: null }
+  if (sid.includes("_value_") || sid.includes("_tuplet_") || sid.includes("_entry_")) {
+    return { reason: "rec_rhythm", detail: null }
+  }
+  return { reason: "rec_etude", detail: null }
+}
+
+/** 直近3回の通し演奏(rangeFromNote=null)の per_subtask を合算し、
+ *  各tree(pitch/rhythm)のミス率上位2件(diagnosable かつ 合算target>=3)で合成 DiagnosisJson を作る。
+ *  両treeとも空なら null (=④を出さない)。 */
+async function buildAggregatedDiag(userId: string, scoreId: string): Promise<DiagnosisJson | null> {
+  const perfs = await prisma.performance.findMany({
+    where: { userId, scoreId, rangeFromNote: null },
+    orderBy: { uploadedAt: "desc" },
+    take: AGG_RECENT,
+    select: { analysisSummary: true },
+  })
+  const agg: Record<string, { miss: number; target: number }> = {}
+  for (const p of perfs) {
+    const summary = p.analysisSummary as { diagnosis?: DiagnosisJson } | null
+    const per = summary?.diagnosis?.per_subtask
+    if (!per) continue
+    for (const [sid, v] of Object.entries(per)) {
+      if (!v) continue
+      const cur = agg[sid] ?? { miss: 0, target: 0 }
+      cur.miss += v.miss ?? 0
+      cur.target += v.target ?? 0
+      agg[sid] = cur
+    }
+  }
+  const byTree: Record<"pitch" | "rhythm", string[]> = { pitch: [], rhythm: [] }
+  for (const tree of ["pitch", "rhythm"] as const) {
+    byTree[tree] = Object.entries(agg)
+      .filter(([sid, v]) => {
+        const def = SUBTASK_BY_ID[sid]
+        return def?.diagnosable === true && def.tree === tree && v.target >= AGG_MIN_TARGET
+      })
+      .map(([sid, v]) => ({ sid, rate: v.miss / v.target }))
+      .sort((a, b) => b.rate - a.rate || a.sid.localeCompare(b.sid))
+      .slice(0, 2)
+      .map((c) => c.sid)
+  }
+  if (byTree.pitch.length === 0 && byTree.rhythm.length === 0) return null
+  return {
+    version: 1,
+    map_available: true,
+    per_subtask: agg,
+    diagnosis: { pitch: byTree.pitch, rhythm: byTree.rhythm },
+  }
+}
+
 /** ② フィンガリング: 曲の主ポジション駆動 (2026-08-10)。
  *  優先: 主ポジション一致 → ★近 → 主ポジション近さ → 調一致 → id。
  *  曲が1st前提(primaryPosition=null)なら、1st前提(primaryPosition=null)の基本フィンガリングを優先。 */
@@ -197,9 +261,12 @@ export async function selectDailyLessons(opts: {
   userId: string
   score: ScoreForDaily
   userStar: number
-  latestPerformanceId: string | null
+  /** ④診断の集計・ピン保存のキー */
+  scoreId: string
+  /** 曲マスター済みなら④(診断おすすめ)を抑制する */
+  songMastered: boolean
 }): Promise<DailyLesson[]> {
-  const { userId, score, userStar, latestPerformanceId } = opts
+  const { userId, score, userStar, scoreId, songMastered } = opts
   const out: DailyLesson[] = []
   const usedIds = new Set<string>()
 
@@ -251,50 +318,66 @@ export async function selectDailyLessons(opts: {
   const b = await pickBowing(score, userStar)
   if (b) push("bowing", b.item, b.reason, b.detail)
 
-  // ④ 診断 (1つ): 直近演奏の弱点に効く エチュード or 重音 のみ。未クリアを1つ。
-  if (latestPerformanceId) {
-    const perf = await prisma.performance.findUnique({
-      where: { id: latestPerformanceId },
-      select: { analysisSummary: true },
+  // ④ 診断 (1つ): 直近3回集計の弱点に効く エチュード or 重音 のみ。未クリアを1つ。
+  // 曲マスター時は抑制。ピン(userId×scoreId)で固定し、録音しても変わらない。
+  // クリア/非公開・削除でピンが無効になったら削除→直近3回から再計算して新ピン保存。
+  if (!songMastered) {
+    const ctx: RecommendContext = {
+      star: score.star,
+      keyTonic: score.keyTonic,
+      keyMode: score.keyMode,
+      tempo: score.defaultTempo,
+      positions: score.positions,
+    }
+
+    // (1) ピン解決: 未クリアの間はピンを優先表示
+    let pinned = false
+    const pin = await prisma.scoreRecPin.findUnique({
+      where: { userId_scoreId: { userId, scoreId } },
     })
-    const summary = perf?.analysisSummary as { diagnosis?: DiagnosisJson } | null
-    const diag = summary?.diagnosis
-    if (diag?.diagnosis) {
-      const ctx: RecommendContext = {
-        star: score.star,
-        keyTonic: score.keyTonic,
-        keyMode: score.keyMode,
-        tempo: score.defaultTempo,
-        positions: score.positions,
+    if (pin) {
+      const item = await prisma.practiceItem.findFirst({
+        where: {
+          id: pin.practiceItemId,
+          isPublished: true,
+          ownerUserId: null,
+          analysisStatus: "done",
+          category: { in: ["etude", "double_stop"] },
+        },
+        select: { id: true, category: true, star: true, keyTonic: true, keyMode: true },
+      })
+      if (item && !(await isMaterialCleared(userId, item.id))) {
+        const { reason, detail } = subtaskToReason(pin.subtaskId ?? "", item.category)
+        push("rec", { id: item.id, category: item.category, star: item.star, keyTonic: item.keyTonic, keyMode: item.keyMode }, reason, detail)
+        pinned = true
+      } else {
+        // クリア済み or 非公開/削除 → ピンを外して再計算へ
+        await prisma.scoreRecPin.delete({ where: { userId_scoreId: { userId, scoreId } } })
       }
-      const slots = await recommendForPerformance(diag, ctx)
-      let done = false
-      for (const slot of slots) {
-        if (done) break
-        for (const m of slot.materials) {
-          if (m.category !== "etude" && m.category !== "double_stop") continue
-          if (usedIds.has(m.id)) continue
-          if (await isMaterialCleared(userId, m.id)) continue
-          const sid = slot.subtaskId
-          let reason: string
-          let detail: string | null = null
-          if (m.category === "double_stop") {
-            reason = "rec_double"
-          } else if (sid.includes("_tech_")) {
-            reason = "rec_tech"
-            detail = TECH_SUFFIX_LABEL[sid.replace(/^(pitch|rhythm)_tech_/, "")] ?? "その奏法"
-          } else if (sid.includes("_posshift_")) {
-            reason = "rec_posshift"
-          } else if (sid.includes("_interval_")) {
-            reason = "rec_interval"
-          } else if (sid.includes("_value_") || sid.includes("_tuplet_") || sid.includes("_entry_")) {
-            reason = "rec_rhythm"
-          } else {
-            reason = "rec_etude"
+    }
+
+    // (2) 再計算: 直近3回集計→合成diag→推薦→最初の未クリア etude/double_stop をピン保存
+    if (!pinned) {
+      const aggDiag = await buildAggregatedDiag(userId, scoreId)
+      if (aggDiag) {
+        const slots = await recommendForPerformance(aggDiag, ctx)
+        let done = false
+        for (const slot of slots) {
+          if (done) break
+          for (const m of slot.materials) {
+            if (m.category !== "etude" && m.category !== "double_stop") continue
+            if (usedIds.has(m.id)) continue
+            if (await isMaterialCleared(userId, m.id)) continue
+            const { reason, detail } = subtaskToReason(slot.subtaskId, m.category)
+            await prisma.scoreRecPin.upsert({
+              where: { userId_scoreId: { userId, scoreId } },
+              create: { userId, scoreId, practiceItemId: m.id, subtaskId: slot.subtaskId },
+              update: { practiceItemId: m.id, subtaskId: slot.subtaskId },
+            })
+            push("rec", { id: m.id, category: m.category, star: m.star, keyTonic: m.keyTonic, keyMode: m.keyMode }, reason, detail)
+            done = true
+            break // 1つだけ
           }
-          push("rec", { id: m.id, category: m.category, star: m.star, keyTonic: m.keyTonic, keyMode: m.keyMode }, reason, detail)
-          done = true
-          break // 1つだけ
         }
       }
     }

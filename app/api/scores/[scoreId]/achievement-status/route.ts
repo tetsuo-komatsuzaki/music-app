@@ -238,7 +238,8 @@ export async function GET(
   const dailyLessons = await selectDailyLessons({
     userId: dbUserId,
     userStar,
-    latestPerformanceId: latestPerf?.id ?? null,
+    scoreId,
+    songMastered: achievement?.masteredAt != null && achievement?.masteredAt !== undefined,
     score: {
       star: score.star,
       keyTonic: score.keyTonic,
