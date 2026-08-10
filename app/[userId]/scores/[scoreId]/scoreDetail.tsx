@@ -950,6 +950,7 @@ function ScoreViewer({
   onScoreClick,
   onPageChange,
   singleStaffLine,
+  forceExpand,
 }: {
   buildUrl: string | null
   onNoteElementsReady: (elements: Element[]) => void
@@ -957,6 +958,8 @@ function ScoreViewer({
   onScoreClick?: (e: React.MouseEvent) => void
   onPageChange?: () => void
   singleStaffLine?: boolean
+  /** 録音中(フルスクリーン)は畳みを解除して全譜面を出す。auto-scrollが4段で切れるのを防ぐ (2026-08-10) */
+  forceExpand?: boolean
 }) {
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
@@ -1119,13 +1122,13 @@ function ScoreViewer({
                 id="osmd-container"
                 className={styles.osmdContainer}
                 onClick={(e) => onScoreClickRef.current?.(e)}
-                style={{ cursor: "pointer", ...(!scoreExpanded && collapsedH != null ? { maxHeight: collapsedH, overflowY: "hidden" } : {}) }}
+                style={{ cursor: "pointer", ...(!scoreExpanded && collapsedH != null && !forceExpand ? { maxHeight: collapsedH, overflowY: "hidden" } : {}) }}
               />
-              {!scoreExpanded && collapsedH != null && (
+              {!scoreExpanded && collapsedH != null && !forceExpand && (
                 <div aria-hidden style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 48, background: "linear-gradient(transparent,#fff 82%)", pointerEvents: "none", borderRadius: "0 0 12px 12px" }} />
               )}
             </div>
-            {collapsedH != null && (
+            {collapsedH != null && !forceExpand && (
               <div style={{ textAlign: "center", marginTop: 8 }}>
                 <button
                   type="button"
@@ -3120,6 +3123,7 @@ function ScoreDetailInner({
             onScoreClick={handleScoreClick}
             onPageChange={() => setPopover(null)}
             singleStaffLine={singleStaffLine}
+            forceExpand={isFullscreen}
           />
           {popover && (
             <div
