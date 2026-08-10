@@ -893,56 +893,13 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
   // ⑥きみの歴史 (節目のみ)
   const milestones: Milestone[] = []
   const pushMs = (at: Date, icon: string, text: string) => milestones.push({ at: at.getTime(), date: fmtJp(at), icon, text })
-  {
-    const allDates = [...allPerfDates, ...allPracDates].map((r) => r.uploadedAt)
-    if (allDates.length) pushMs(new Date(Math.min(...allDates.map((d) => d.getTime()))), "🎙", "はじめての録音")
-  }
-  if (teacherLink) pushMs(teacherLink.since, "👩‍🏫", "先生とつながった日")
+  // 曲の達成/マスターのみを歴史に刻む (2026-08-11 Tetsuo確定)。
+  // 初録音/★昇格/わざ習得/癖克服/表現認定/先生とつながった 等の粒度は出さない。
   for (const a of achievements) {
     pushMs(a.achievedAt, "✨", `「${a.score.title}」を達成`)
     if (a.masteredAt) pushMs(a.masteredAt, "🏆", `「${a.score.title}」をマスター`)
   }
-  {
-    // ★昇格: 同★の10個目の達成日 = 昇格日
-    const byStar = new Map<number, Date[]>()
-    for (const a of achievements) {
-      const arr = byStar.get(a.starAtAchievement) ?? []
-      arr.push(a.achievedAt)
-      byStar.set(a.starAtAchievement, arr)
-    }
-    for (const [star, dates] of byStar.entries()) {
-      if (dates.length >= 10) {
-        dates.sort((x, y) => x.getTime() - y.getTime())
-        pushMs(dates[9], "⭐", `★${star + 1} に昇格！`)
-      }
-    }
-  }
-  {
-    // わざ習得 (レッスンクリアのみ節目扱い。オンボ一括の仮習得はノイズになるため除く)
-    const POS_LABEL: Record<string, string> = { "2": "2ndポジション", "3": "3rdポジション", "4": "4thポジション", "5": "5thポジション", "6": "6thポジション以上" }
-    for (const sd of skillDates) {
-      if (sd.kind !== "clear") continue
-      const label = sd.tagType === "technique" ? sd.tagKey
-        : sd.tagType === "position" ? (POS_LABEL[sd.tagKey] ?? `${sd.tagKey}ポジション`)
-        : sd.tagKey === "連続重音" ? "連続重音" : `重音(${sd.tagKey})`
-      pushMs(sd.at, "🎓", `わざ「${label}」を習得`)
-    }
-  }
-  for (const rk of resolvedKuse) pushMs(rk.at, "🌱", `癖「${OBSERVATION_TAG_BY_ID[rk.label]?.label ?? rk.label}」を克服`)
-  for (const se of strengthExpr) pushMs(se.at, "💪", `表現「${expressionLabel(se.label)}」が強みに`)
-  // 表現クリア認定 (2026-08-06統一): 初認定と★更新を節目に
-  {
-    const bestSoFar = new Map<string, number>()
-    for (const r of exprClearRows) {
-      const prev = bestSoFar.get(r.moodTagId) ?? 0
-      if (r.starAtClear > prev) {
-        bestSoFar.set(r.moodTagId, r.starAtClear)
-        pushMs(r.clearedAt, "🎨", prev === 0
-          ? `表現「${moodTagPhrase(r.moodTagId)}」を先生が認定（★${r.starAtClear}）`
-          : `表現「${moodTagPhrase(r.moodTagId)}」が★${r.starAtClear}に`)
-      }
-    }
-  }
+  void resolvedKuse; void strengthExpr // 歴史では未使用に (克服/表現の節目は出さない)
   milestones.sort((a, b) => b.at - a.at)
 
   // アルコのひと言 (ルールベース)
