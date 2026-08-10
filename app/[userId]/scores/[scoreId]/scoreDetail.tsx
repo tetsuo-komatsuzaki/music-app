@@ -2704,40 +2704,6 @@ function ScoreDetailInner({
     }
   }, [rangeMode, isOsmdReady, noteElementsVersion, nearestNoteIdx, snapStart, snapEnd])
 
-  // 「この1行」プリセット: いま画面中央にいちばん近い譜表の行を選ぶ。
-  // 行の切れ目は各音符 rect の top が現在行の下端より下へ落ちたところで検出 (幾何ベースの推定)。
-  const selectCurrentLine = useCallback(() => {
-    const els = noteElementsRef.current
-    if (els.length === 0) return
-    type Row = { first: number; last: number; top: number; bottom: number }
-    const rows: Row[] = []
-    let cur: Row | null = null
-    for (let i = 0; i < els.length; i++) {
-      const r = els[i].getBoundingClientRect()
-      if (r.width === 0 && r.height === 0) continue
-      if (!cur || r.top > cur.bottom - 4) {
-        cur = { first: i, last: i, top: r.top, bottom: r.bottom }
-        rows.push(cur)
-      } else {
-        cur.last = i
-        cur.top = Math.min(cur.top, r.top)
-        cur.bottom = Math.max(cur.bottom, r.bottom)
-      }
-    }
-    if (rows.length === 0) return
-    const vpCenter = window.innerHeight / 2
-    let best = rows[0]
-    let bestD = Infinity
-    for (const row of rows) {
-      const d = Math.abs((row.top + row.bottom) / 2 - vpCenter)
-      if (d < bestD) { bestD = d; best = row }
-    }
-    if (isRangeLooping) stopPlayback()
-    awaitingEndTapRef.current = false
-    setRangeStart(best.first)
-    setRangeEnd(best.last)
-  }, [isRangeLooping, stopPlayback])
-
   // 区間録音フローに入る (入口メニューの「区間録音」)。譜面を選択可能にし、下部シートを出す。
   const enterRangeFlow = useCallback(() => {
     setRecordMenuOpen(false)
@@ -3669,9 +3635,8 @@ function ScoreDetailInner({
                 <span className={styles.rangeSheetTitle}><span className={styles.rangeSheetDot} />区間を選ぶ</span>
                 <button type="button" className={styles.rangeSheetClose} onClick={exitRangeFlow} aria-label="区間録音をやめる">✕</button>
               </div>
-              <div className={styles.rangePresetRow}>
-                <button type="button" className={styles.rangePresetBtn} disabled={noteElementsRef.current.length === 0} onClick={selectCurrentLine}>この1行</button>
-                {hardestRange && (
+              {hardestRange && (
+                <div className={styles.rangePresetRow}>
                   <button
                     type="button"
                     className={`${styles.rangePresetBtn} ${styles.rangePresetHard}`}
@@ -3680,18 +3645,7 @@ function ScoreDetailInner({
                   >
                     難所
                   </button>
-                )}
-                <button
-                  type="button"
-                  className={styles.rangePresetBtn}
-                  disabled={noteElementsRef.current.length === 0}
-                  onClick={() => { if (isRangeLooping) stopPlayback(); awaitingEndTapRef.current = false; setRangeStart(0); setRangeEnd(noteElementsRef.current.length - 1) }}
-                >
-                  全体
-                </button>
-              </div>
-              {rangeStart === null && (
-                <p className={styles.rangeSheetHint}>譜面を <b>なぞって</b> 区間を選ぶ（<b>タップ</b>で開始→終了、プリセットでもOK）</p>
+                </div>
               )}
               {rangeStart !== null && rangeEnd === null && (
                 <p className={styles.rangeSheetHint}>次に <b>終了</b> をタップ、または <b>なぞって</b>ください</p>
