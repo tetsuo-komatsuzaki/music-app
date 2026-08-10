@@ -21,6 +21,14 @@ const tnum: React.CSSProperties = { fontVariantNumeric: "tabular-nums" }
 
 const kicker: React.CSSProperties = { fontSize: 9, fontWeight: 900, letterSpacing: ".24em", color: "#b99b45" }
 
+// わざの分類セクション (id は SKILL_DEFS の id = SkillNode.id と一致)
+const SKILL_CATEGORIES: { label: string; ids: string[] }[] = [
+  { label: "弓（ボーイング）", ids: ["slur", "staccato", "portato", "bow_staccato", "tremolo", "spiccato", "ricochet", "pizzicato"] },
+  { label: "フィンガリング（左手）", ids: ["position", "double"] },
+  { label: "装飾", ids: ["trill", "mordent", "glissando"] },
+  { label: "音色・特殊", ids: ["vibrato", "harmonic"] },
+]
+
 export default function SkillsLevelClient({ userId, skillMap }: { userId: string; skillMap: SkillMapData | null }) {
   // 先生未連携: トップのティーザーと同等の導線
   if (!skillMap) {
@@ -54,7 +62,15 @@ export default function SkillsLevelClient({ userId, skillMap }: { userId: string
   // 並び (progressPage の order と同じ): 実測あり → 習得ずみ(データ待ち) → 挑戦できる → まだ先
   const order = (n: SkillNode) =>
     n.pct != null ? 0 : n.state === "acquired_nodata" ? 1 : n.state === "ready" ? 2 : 3
-  const sorted = [...nodes].sort((a, b) => order(a) - order(b) || a.star - b.star)
+  const byId = new Map(nodes.map((n) => [n.id, n]))
+  // 分類ごとにグループ化。各セクション内は従来の並び (order → star 昇順)。空セクションは非表示。
+  const sections = SKILL_CATEGORIES.map((c) => ({
+    label: c.label,
+    items: c.ids
+      .map((id) => byId.get(id))
+      .filter((n): n is SkillNode => !!n)
+      .sort((a, b) => order(a) - order(b) || a.star - b.star),
+  })).filter((s) => s.items.length > 0)
 
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", fontFamily: "inherit", color: INK }}>
@@ -71,10 +87,18 @@ export default function SkillsLevelClient({ userId, skillMap }: { userId: string
         <span style={{ fontSize: 11, fontWeight: 800, color: SUB, marginLeft: 8 }}>いまの★{currentStar}</span>
       </h1>
 
-      {/* 案7カード群 */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 14 }}>
-        {sorted.map((n) => <SkillCard key={n.id} userId={userId} n={n} />)}
-      </div>
+      {/* 分類ごとのセクション (案7カード群) */}
+      {sections.map((s) => (
+        <section key={s.label} style={{ marginTop: 22 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+            <h2 style={{ fontSize: 13, fontWeight: 900, margin: 0 }}>{s.label}</h2>
+            <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg,#e3c96a,#f2ead2 70%,transparent)" }} />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {s.items.map((n) => <SkillCard key={n.id} userId={userId} n={n} />)}
+          </div>
+        </section>
+      ))}
     </div>
   )
 }
