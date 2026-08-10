@@ -1903,6 +1903,30 @@ function ScoreDetailInner({
     [selected]
   )
 
+  // 区間プリセット「難所」: 直近採点(選択中の演奏)の comparison から、
+  // pitch/timing いずれかが NG の音符が連続する最長区間を [from,to] (音符index) で返す。
+  // NG が無い/採点データが無い場合は null → 「難所」プリセットは表示しない。
+  const hardestRange = useMemo<{ from: number; to: number } | null>(() => {
+    if (!comparison || comparison.length === 0) return null
+    const sorted = [...comparison].sort((a, b) => a.note_index - b.note_index)
+    const isNG = (c: ComparisonNote) => c.pitch_ok === false || c.start_ok === false
+    let best: { from: number; to: number } | null = null
+    let runStart: number | null = null
+    let runEnd: number | null = null
+    for (const c of sorted) {
+      if (isNG(c)) {
+        if (runStart === null) runStart = c.note_index
+        runEnd = c.note_index
+        const len = runEnd - runStart + 1
+        if (!best || len > best.to - best.from + 1) best = { from: runStart, to: runEnd }
+      } else {
+        runStart = null
+        runEnd = null
+      }
+    }
+    return best
+  }, [comparison])
+
   // リサイズ後の再レンダリング検知用（インクリメントで applyComparisonColors を再トリガー）
   const [noteElementsVersion, setNoteElementsVersion] = useState(0)
 
@@ -3303,6 +3327,38 @@ function ScoreDetailInner({
             {openPanel === "range" && (
               <div className={styles.barPanel}>
                 <div className={styles.rangeBody}>
+                  {/* プリセット行: ワンタップで区間を設定 (音符2回タップの回避) */}
+                  <div className={styles.rangePresetRow}>
+                    <button
+                      type="button"
+                      className={styles.rangePresetBtn}
+                      disabled={noteElementsRef.current.length === 0}
+                      onClick={() => {
+                        if (isRangeLooping) stopPlayback()
+                        setRangeStart(0)
+                        setRangeEnd(noteElementsRef.current.length - 1)
+                        setRangeMode(false)
+                      }}
+                    >
+                      全体
+                    </button>
+                    {hardestRange && (
+                      <button
+                        type="button"
+                        className={`${styles.rangePresetBtn} ${styles.rangePresetHard}`}
+                        onClick={() => {
+                          if (isRangeLooping) stopPlayback()
+                          setRangeStart(hardestRange.from)
+                          setRangeEnd(hardestRange.to)
+                          setRangeMode(false)
+                        }}
+                        title="直近の採点で崩れた箇所"
+                      >
+                        難所
+                      </button>
+                    )}
+                  </div>
+
                   <button
                     type="button"
                     className={`${styles.rangeSelectBtn} ${rangeMode ? styles.rangeSelectOn : ""}`}
@@ -3312,6 +3368,9 @@ function ScoreDetailInner({
                     {rangeMode ? "選択モード中（もう一度で終了）" : "区間を選ぶ"}
                   </button>
 
+                  {!rangeMode && rangeStart === null && (
+                    <p className={styles.rangeHint}>上の<b>プリセットで選ぶ</b>か、「区間を選ぶ」を押して譜面で <b>開始→終了</b> をタップ</p>
+                  )}
                   {rangeMode && rangeStart === null && (
                     <p className={styles.rangeHint}>楽譜で <b>開始の音符</b> をタップ → 次に <b>終了の音符</b> をタップ</p>
                   )}
@@ -3321,38 +3380,52 @@ function ScoreDetailInner({
 
                   {rangeStart !== null && rangeEnd !== null && (
                     <>
-                      <div className={styles.rangeActions}>
-                        {!isRangeLooping ? (
-                          <button className={styles.rangePlayBtn} onClick={startRangeLoop}>▶ 区間をループ再生</button>
-                        ) : (
-                          <button className={styles.rangeStopBtn} onClick={stopPlayback}>■ ループ停止</button>
-                        )}
-                        <button
-                          className={styles.rangeClearBtn}
-                          onClick={() => { if (isRangeLooping) stopPlayback(); setRangeStart(null); setRangeEnd(null) }}
-                        >
-                          解除
-                        </button>
+                      {/* 練習: ループ再生 (青系・落ち着いた色) */}
+                      <div className={styles.rangeSection}>
+                        <div className={styles.rangeSectionLabel}>練習</div>
+                        <div className={styles.rangeActions}>
+                          {!isRangeLooping ? (
+                            <button className={styles.rangePlayBtn} onClick={startRangeLoop}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M8 5v14l11-7z" /></svg>
+                              区間をループ再生
+                            </button>
+                          ) : (
+                            <button className={styles.rangeStopBtn} onClick={stopPlayback}>
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden><rect x="6" y="6" width="12" height="12" rx="1.5" /></svg>
+                              ループ停止
+                            </button>
+                          )}
+                          <button
+                            className={styles.rangeClearBtn}
+                            onClick={() => { if (isRangeLooping) stopPlayback(); setRangeStart(null); setRangeEnd(null) }}
+                          >
+                            解除
+                          </button>
+                        </div>
                       </div>
+                      {/* 採点: 区間録音 (主アクション・赤系で強調) */}
                       {isScoreMode && (
-                        <button
-                          type="button"
-                          className={styles.rangeRecordBtn}
-                          disabled={recordingState !== "idle"}
-                          onClick={() => {
-                            if (rangeStart === null || rangeEnd === null) return
-                            const lo = Math.min(rangeStart, rangeEnd)
-                            const hi = Math.max(rangeStart, rangeEnd)
-                            if (isRangeLooping) stopPlayback()
-                            pendingRangeRef.current = { from: lo, to: hi }
-                            // 区間先頭を画面内へ入れてから録音CTAをトリガ (Recorderのidleボタンを click)
-                            noteElementsRef.current[lo]?.scrollIntoView({ behavior: "smooth", block: "center" })
-                            const btn = document.querySelector('[data-testid="recorder-start-button"]') as HTMLButtonElement | null
-                            btn?.click()
-                          }}
-                        >
-                          ● この区間を録音（部分採点）
-                        </button>
+                        <div className={`${styles.rangeSection} ${styles.rangeSectionScore}`}>
+                          <div className={styles.rangeSectionLabel}>採点</div>
+                          <button
+                            type="button"
+                            className={styles.rangeRecordBtn}
+                            disabled={recordingState !== "idle"}
+                            onClick={() => {
+                              if (rangeStart === null || rangeEnd === null) return
+                              const lo = Math.min(rangeStart, rangeEnd)
+                              const hi = Math.max(rangeStart, rangeEnd)
+                              if (isRangeLooping) stopPlayback()
+                              pendingRangeRef.current = { from: lo, to: hi }
+                              // 区間先頭を画面内へ入れてから録音CTAをトリガ (Recorderのidleボタンを click)
+                              noteElementsRef.current[lo]?.scrollIntoView({ behavior: "smooth", block: "center" })
+                              const btn = document.querySelector('[data-testid="recorder-start-button"]') as HTMLButtonElement | null
+                              btn?.click()
+                            }}
+                          >
+                            この区間を録音（部分採点）
+                          </button>
+                        </div>
                       )}
                     </>
                   )}
