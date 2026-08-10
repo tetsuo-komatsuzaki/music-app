@@ -4,7 +4,7 @@
 // 名前はデフォルトなし・入れる場合だけ入力 (シェア時選択の確定仕様)。
 import { useState } from "react"
 import { createPortal } from "react-dom"
-import { Share2, MessageCircle, Camera, Check, Link2, Download } from "lucide-react"
+import { Share2, MessageCircle, Camera, Check, Link2 } from "lucide-react"
 import { createShareCard } from "@/app/actions/shareCards"
 import { type ShareKind, type SharePayload, shareText, SHARE_KIND_META } from "@/app/_libs/shareCard"
 
@@ -78,22 +78,6 @@ export default function ShareSheet({
     window.open(`/s/${token}/ig-image`, "_blank", "noopener")
   }
 
-  const saveImage = async (vertical: boolean) => {
-    const token = await ensureCard()
-    if (!token) return
-    const path = vertical ? `/s/${token}/ig-image` : `/s/${token}/opengraph-image`
-    try {
-      const blob = await fetch(path).then((r) => { if (!r.ok) throw new Error(); return r.blob() })
-      const a = document.createElement("a")
-      a.href = URL.createObjectURL(blob)
-      a.download = vertical ? "arcoda-share-tate.png" : "arcoda-share.png"
-      a.click()
-      URL.revokeObjectURL(a.href)
-    } catch {
-      window.open(path, "_blank", "noopener")
-    }
-  }
-
   const copyLink = async () => {
     const token = await ensureCard()
     if (!token) return
@@ -147,14 +131,9 @@ export default function ShareSheet({
           <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={openLine} disabled={creating}><MessageCircle size={15} /> LINEで送る</button>
           <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={openInstagram} disabled={creating}><Camera size={15} /> Instagram</button>
           <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={copyLink} disabled={creating}>{copied ? <><Check size={15} /> コピーした！</> : <><Link2 size={15} /> リンクをコピー</>}</button>
-          <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={() => saveImage(false)} disabled={creating}><Download size={15} /> 画像を保存（横）</button>
-          <button type="button" style={{ ...btn, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }} onClick={() => saveImage(true)} disabled={creating}><Download size={15} /> 画像を保存（縦）</button>
         </div>
 
         {error && <div style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-error)" }}>{error}</div>}
-        <div style={{ marginTop: 8, fontSize: "var(--fs-label)", color: "var(--text-sub)", lineHeight: 1.6 }}>
-          シェアすると、この記録だけが載った公開ページ（リンクを知っている人のみ閲覧可）が作られます。名前を入れない限り個人情報は含まれません。
-        </div>
       </div>
     </div>,
     document.body,

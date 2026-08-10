@@ -1,18 +1,17 @@
 "use client"
 
-// 生徒ホームの「先生から」= 受信箱 (2026-08-10 再設計)。
-// 畳まず直接表示: 宿題=手紙カード / 添削・お祝い=届いたカード / やりとり・所見=参照リンク。
-// 並び=重要度(宿題→添削→お祝い→リンク)。タップで対象へ。連絡ゼロなら非表示。
-import { useState } from "react"
+// 生徒ホームの「先生から」= 省スペース版 (2026-08-11 再設計)。
+// カテゴリタブ(宿題/添削/お祝い) + 横スワイプ + アコーディオン(全体を畳む)。
+// 常にコンパクト(開いても約120px/畳めば1行)。1枚に1件集中。参照系(やりとり/所見)は下に小リンク。
+import { useEffect, useRef, useState } from "react"
 import { GraduationCap, PartyPopper, ClipboardList, Calendar, MessageCircle, PenLine, Target, Palette, ChevronRight, ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { moodTagGoalText } from "@/app/_libs/moodTags"
 import { useParams } from "next/navigation"
-import { goalLabel, dueInfo, goalResult } from "@/app/_libs/assignmentGoal"
+import { goalLabel, dueInfo } from "@/app/_libs/assignmentGoal"
 
 export type StudentAssignment = {
   id: string
-  /** 対象が曲(score)か、曲以外(基礎練・教材)か */
   kind: "score" | "practice"
   teacherName: string
   title: string
@@ -23,7 +22,6 @@ export type StudentAssignment = {
   dueDate: string | null
   goalType: string | null
   targetScore: number | null
-  /** 意識する表現 (統一雰囲気タグID・任意) */
   moodTagId?: string | null
   achieved: boolean
   mastered: boolean
@@ -33,25 +31,21 @@ export type TeacherHomeSummary = {
   teacherName: string | null
   unreadMessages: number
   feedbackCount: number
-  /** 未読のお祝いメッセージがある (2026-08-02) */
   unreadCelebration?: boolean
-  /** 直近7日の先生の所見(癖)件数 (既読概念が無いため期間で新着扱い・2026-08-02) */
   recentObservations?: number
 }
 
-// 期限チップの控えめな色 (近い/過ぎた時だけ弱く色づけ)
 const DUE_CALM = {
   overdue: { fg: "#b0524c", bg: "#f7ebea", bd: "#eed6d3" },
   soon: { fg: "#a9762f", bg: "#f7f1e6", bd: "#ecdfc8" },
   normal: { fg: "#5a636e", bg: "#f2f4f7", bd: "#e6e9ee" },
 }
-const chip: React.CSSProperties = {
-  display: "inline-flex", alignItems: "center", gap: 5, fontSize: "var(--fs-caption)", fontWeight: 800,
-  borderRadius: 8, padding: "4px 9px", whiteSpace: "nowrap", lineHeight: 1,
-}
+const chip: React.CSSProperties = { display: "inline-flex", alignItems: "center", gap: 4, fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 6, padding: "2px 7px", whiteSpace: "nowrap", lineHeight: 1.2 }
 const goalChip: React.CSSProperties = { ...chip, color: "#1f3d78", background: "#eaf0fc" }
-const softChip: React.CSSProperties = { ...chip, color: "var(--text-body)", background: "#f2f4f7", border: "1px solid #e6e9ee" }
 const exprChip: React.CSSProperties = { ...chip, color: "#c0891f", background: "#f9f0d8", border: "1px solid #ecd8a4" }
+
+type Cat = "hw" | "fb" | "cel"
+type Slide = { cat: Cat; node: React.ReactNode }
 
 export default function TeacherAssignments({
   assignments,
@@ -61,176 +55,205 @@ export default function TeacherAssignments({
   summary?: TeacherHomeSummary
 }) {
   const { userId } = useParams<{ userId: string }>()
-  // 既定は畳んでトップを占拠しない。タップで受信箱を展開 (2026-08-10 占拠改悪の修正)。
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
+  const [idx, setIdx] = useState(0)
+  const vpRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const drag = useRef<{ x: number; dx: number; on: boolean }>({ x: 0, dx: 0, on: false })
+  const [w, setW] = useState(0)
+
+  // ── カルーセル位置 (imperative transform)。フックは早期returnより前に置く ──
+  const applyT = (i: number, animate: boolean) => {
+    const t = trackRef.current
+    if (!t) return
+    t.style.transition = animate ? "transform .28s cubic-bezier(.22,1,.36,1)" : "none"
+    t.style.transform = `translateX(${-i * w}px)`
+  }
+  useEffect(() => {
+    if (!open) return
+    const measure = () => setW(vpRef.current?.clientWidth ?? 0)
+    measure()
+    window.addEventListener("resize", measure)
+    return () => window.removeEventListener("resize", measure)
+  }, [open])
+  useEffect(() => { applyT(idx, false) }, [w, open]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const unread = summary?.unreadMessages ?? 0
   const feedback = summary?.feedbackCount ?? 0
   const recentObs = summary?.recentObservations ?? 0
   const celebration = !!summary?.unreadCelebration
   const hwCount = assignments.length
-  // 連絡が何も無ければ出さない
   if (hwCount === 0 && unread === 0 && feedback === 0 && recentObs === 0 && !celebration) return null
 
-  // 畳んだ見出しに出す「一番近い期限の宿題」
+  // 畳んだ見出しの要約 = 一番近い期限の宿題
   const withDue = assignments.filter((a) => a.dueDate)
   const nearest = withDue.length
     ? withDue.reduce((a, b) => (new Date(a.dueDate as string).getTime() <= new Date(b.dueDate as string).getTime() ? a : b))
     : assignments[0] ?? null
   const nearestDi = nearest?.dueDate ? dueInfo(nearest.dueDate) : null
 
-  // 宿題 = 手紙カード
-  const letter = (a: StudentAssignment) => {
+  // ── スライド (宿題→添削→お祝いの順) ──
+  const slides: Slide[] = []
+  for (const a of assignments) {
     const di = dueInfo(a.dueDate)
     const goal = goalLabel(a.goalType, a.targetScore)
-    const gr = goalResult(a.goalType, { achieved: a.achieved, mastered: a.mastered })
-    const metLabel = gr && a.goalType !== "score" && gr.met ? gr.label : null
     const initial = (a.teacherName ?? "先").trim().charAt(0) || "先"
-    return (
-      <Link
-        key={a.id}
-        href={a.href}
-        style={{
-          display: "block", background: "#fbf8f1", border: "1px solid #ece3d0", borderRadius: 14,
-          overflow: "hidden", textDecoration: "none", color: "inherit", boxShadow: "0 1px 3px rgba(30,45,70,.05)",
-        }}
-      >
-        {/* 封筒の口 */}
-        <div style={{ height: 7, background: "repeating-linear-gradient(135deg,#d6547a 0 13px,#e57a97 13px 26px)", opacity: 0.85 }} />
-        <div style={{ padding: "12px 13px 13px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-            <span style={{ flex: "none", width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg,#d6547a,#e57a97)", color: "#fff", fontWeight: 900, fontSize: "var(--fs-body)", display: "grid", placeItems: "center" }}>{initial}</span>
-            <span style={{ minWidth: 0 }}>
-              <span style={{ display: "block", fontSize: "var(--fs-caption)", color: "var(--text-muted)", fontWeight: 700, lineHeight: 1.1 }}>先生から</span>
-              <span style={{ display: "block", fontSize: "var(--fs-body)", color: "var(--text-ink)", fontWeight: 900 }}>{a.teacherName} 先生</span>
+    slides.push({
+      cat: "hw",
+      node: (
+        <Link href={a.href} className="pressable" style={cardStyle}>
+          <span style={{ ...av, background: "linear-gradient(135deg,#d6547a,#e57a97)", color: "#fff" }}>{initial}</span>
+          <span style={cbody}>
+            <span style={who}>{a.teacherName} 先生{a.kind === "score" ? " ・ 曲" : " ・ 基礎練"}</span>
+            <span style={title}>{a.title}</span>
+            <span style={chips}>
+              {goal && <span style={{ ...goalChip }}><Target size={11} /> {goal}{a.reps ? `・${a.reps}回` : ""}</span>}
+              {a.targetTempo && <span style={{ ...chip, color: "var(--text-body)", background: "#f2f4f7", border: "1px solid #e6e9ee" }}>♩={a.targetTempo}</span>}
+              {a.moodTagId && <span style={exprChip}><Palette size={11} /> {moodTagGoalText(a.moodTagId)}</span>}
+              {di && (() => { const c = DUE_CALM[di.state]; return <span style={{ ...chip, color: c.fg, background: c.bg, border: `1px solid ${c.bd}` }}><Calendar size={11} /> {di.label}{di.state === "overdue" ? "（過ぎ）" : di.state === "soon" ? "（もうすぐ）" : ""}</span> })()}
             </span>
-            <span style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#d6547a", border: "1px solid #d6547a", borderRadius: 999, padding: "2px 8px" }}>宿題</span>
-          </div>
-
-          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: "var(--text-ink)", marginTop: 10, lineHeight: 1.25 }}>
-            {a.title}
-            <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 700, marginLeft: 6 }}>{a.kind === "score" ? "曲" : "基礎練"}</span>
-          </div>
-
-          {a.comment && (
-            <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", marginTop: 8, padding: "8px 11px", background: "rgba(214,84,122,.06)", borderLeft: "3px solid #d6547a", borderRadius: "0 8px 8px 0", lineHeight: 1.5 }}>
-              {a.comment}
-            </div>
-          )}
-
-          {(goal || a.targetTempo || a.moodTagId || di || metLabel) && (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
-              {goal && <span style={{ ...goalChip, display: "inline-flex", alignItems: "center", gap: 4 }}><Target size={12} /> {goal}{a.reps ? ` ・ ${a.reps}回` : ""}</span>}
-              {a.targetTempo && <span style={softChip}>♩={a.targetTempo}</span>}
-              {a.moodTagId && <span style={{ ...exprChip, display: "inline-flex", alignItems: "center", gap: 4 }}><Palette size={12} /> {moodTagGoalText(a.moodTagId)}</span>}
-              {di && (() => {
-                const c = DUE_CALM[di.state]
-                return <span style={{ ...chip, color: c.fg, background: c.bg, border: `1px solid ${c.bd}`, display: "inline-flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}</span>
-              })()}
-              {metLabel && <span style={{ ...chip, color: "var(--text-good)", background: "#eaf5ee", border: "1px solid #cfe6d8" }}>{metLabel}</span>}
-            </div>
-          )}
-        </div>
-      </Link>
-    )
+          </span>
+          <ChevronRight size={18} style={{ flex: "none", color: "var(--text-muted)" }} />
+        </Link>
+      ),
+    })
+  }
+  if (feedback > 0) {
+    slides.push({
+      cat: "fb",
+      node: (
+        <Link href={`/${userId}/my-teacher`} className="pressable" style={cardStyle}>
+          <span style={{ ...av, background: "#e2f5f4", color: "#0e9c9c" }}><PenLine size={17} /></span>
+          <span style={cbody}>
+            <span style={who}>{summary?.teacherName ?? "先生"}</span>
+            <span style={title}>先生が添削してくれたよ（{feedback}件）</span>
+            <span style={chips}><span style={{ ...chip, color: "#0e9c9c", background: "#e2f5f4" }}>コメントを見る</span></span>
+          </span>
+          <ChevronRight size={18} style={{ flex: "none", color: "var(--text-muted)" }} />
+        </Link>
+      ),
+    })
+  }
+  if (celebration) {
+    slides.push({
+      cat: "cel",
+      node: (
+        <Link href={`/${userId}/my-teacher`} className="pressable" style={cardStyle}>
+          <span style={{ ...av, background: "#f9f0d8", color: "#c0891f" }}><PartyPopper size={17} /></span>
+          <span style={cbody}>
+            <span style={who}>{summary?.teacherName ?? "先生"}</span>
+            <span style={{ ...title, color: "#c0891f" }}>お祝いが届いたよ！</span>
+            <span style={chips}><span style={{ ...chip, color: "#c0891f", background: "#f9f0d8", border: "1px solid #ecd8a4" }}>メッセージを見る</span></span>
+          </span>
+          <ChevronRight size={18} style={{ flex: "none", color: "var(--text-muted)" }} />
+        </Link>
+      ),
+    })
   }
 
-  // 添削・お祝い = 届いたカード (件数/有無のみのため汎用文)
-  const noticeCard = (opts: { href: string; icon: React.ReactNode; iconBg: string; iconFg: string; title: string; sub: string; accent?: boolean }) => (
-    <Link href={opts.href} style={{
-      display: "flex", alignItems: "center", gap: 11, textDecoration: "none", color: "inherit",
-      background: opts.accent ? "linear-gradient(135deg,#f9f0d8,#fdeef2)" : "#fff",
-      border: `1px solid ${opts.accent ? "#ecd8a4" : "#eef1f4"}`, borderRadius: 13, padding: "11px 13px",
-      boxShadow: "0 1px 3px rgba(30,45,70,.05)",
-    }}>
-      <span style={{ flex: "none", width: 38, height: 38, borderRadius: 11, background: opts.iconBg, color: opts.iconFg, display: "grid", placeItems: "center" }}>{opts.icon}</span>
-      <span style={{ minWidth: 0, flex: 1 }}>
-        <span style={{ display: "block", fontSize: "var(--fs-body)", fontWeight: 900, color: opts.accent ? "#c0891f" : "var(--text-ink)" }}>{opts.title}</span>
-        <span style={{ display: "block", fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 700, marginTop: 1 }}>{opts.sub}</span>
-      </span>
-      <ChevronRight size={17} style={{ flex: "none", color: "var(--text-muted)" }} />
-    </Link>
-  )
+  const N = slides.length
+  const cats = slides.map((s) => s.cat)
+  const CAT_LABEL: Record<Cat, string> = { hw: "宿題", fb: "添削", cel: "お祝い" }
+  const tabCats = [...new Set(cats)]
+  const catCount = (c: Cat) => cats.filter((x) => x === c).length
+  const curCat = cats[idx] ?? "hw"
+  const groupIdxs = slides.map((_, i) => i).filter((i) => cats[i] === curCat)
 
-  // 畳み見出しのバッジ (件数のあるものだけ)
-  const heads: string[] = []
-  if (hwCount > 0) heads.push(`宿題${hwCount}`)
-  if (feedback > 0) heads.push(`添削${feedback}`)
-  if (celebration) heads.push("お祝い")
+  const settle = (i: number) => { const c = Math.max(0, Math.min(N - 1, i)); applyT(c, true); setIdx(c) }
 
   return (
-    <section style={{ margin: "0 0 14px" }}>
-      {/* 畳んだ見出し = トグル。既定はこの1枚だけ (占拠しない) */}
+    <section style={{ margin: "0 0 14px", background: "#fff", border: "1px solid #eef1f4", borderRadius: 16, padding: "4px 4px 6px", boxShadow: "0 1px 3px rgba(30,45,70,.04)" }}>
+      {/* アコーディオン見出し */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        style={{
-          width: "100%", display: "flex", alignItems: "center", gap: 10, textAlign: "left",
-          background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: "10px 13px",
-          cursor: "pointer", font: "inherit", boxShadow: "0 1px 3px rgba(30,45,70,.04)",
-        }}
+        style={{ width: "100%", display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", padding: "9px 10px", cursor: "pointer", font: "inherit", textAlign: "left" }}
       >
-        <span style={{ flex: "none", width: 30, height: 30, borderRadius: "50%", background: "#f7edf1", color: "#d6547a", display: "grid", placeItems: "center" }}>
-          <GraduationCap size={16} />
+        <span style={{ flex: "none", width: 28, height: 28, borderRadius: "50%", background: "#f7edf1", color: "#d6547a", display: "grid", placeItems: "center" }}><GraduationCap size={15} /></span>
+        <span style={{ fontSize: "var(--fs-body)", fontWeight: 900, color: "var(--text-ink)", display: "inline-flex", alignItems: "center", gap: 5, flex: "none" }}>
+          先生から{N > 0 && <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#fff", background: "#2b5bc4", borderRadius: 999, padding: "1px 7px" }}>{N}</span>}
         </span>
-        <span style={{ minWidth: 0, flex: 1 }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "var(--fs-body)", fontWeight: 900, color: "var(--text-ink)" }}>
-            先生から
-            {heads.length > 0 && <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)" }}>{heads.join(" ・ ")}</span>}
+        {!open && nearest && (
+          <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>
+            {nearest.title}{nearestDi ? ` ・ ${nearestDi.label}${nearestDi.state === "overdue" ? "（過ぎ）" : nearestDi.state === "soon" ? "（もうすぐ）" : ""}` : ""}
           </span>
-          {nearest && !open && (
-            <span style={{ display: "block", fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 1 }}>
-              {nearest.title}{nearestDi ? ` ・ ${nearestDi.label}${nearestDi.state === "overdue" ? "（過ぎています）" : nearestDi.state === "soon" ? "（もうすぐ）" : ""}` : ""}
-            </span>
-          )}
-        </span>
-        <ChevronDown size={18} style={{ flex: "none", color: "var(--text-muted)", transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
+        )}
+        <ChevronDown size={18} style={{ marginLeft: open ? "auto" : 0, flex: "none", color: "var(--text-muted)", transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
       </button>
 
-      {!open && celebration && (
-        <div style={{ margin: "6px 4px 0", fontSize: "var(--fs-caption)", fontWeight: 800, color: "#c0891f", display: "inline-flex", alignItems: "center", gap: 4 }}>
-          <PartyPopper size={13} /> お祝いが届いてるよ！
-        </div>
-      )}
-
       {open && (
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 10 }}>
-        {/* 宿題 (手紙カード) */}
-        {assignments.map(letter)}
+        <div style={{ padding: "0 6px 4px" }}>
+          {/* カテゴリタブ */}
+          {tabCats.length > 1 && (
+            <div style={{ display: "flex", gap: 6, padding: "2px 2px 8px" }}>
+              {tabCats.map((c) => {
+                const on = curCat === c
+                const cnt = catCount(c)
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    className="pressable"
+                    onClick={() => { const first = cats.indexOf(c); if (first >= 0) settle(first) }}
+                    style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 12px", border: `1px solid ${on ? "transparent" : "#e4e9f1"}`, background: on ? "var(--text-ink)" : "#fff", color: on ? "#fff" : "var(--text-sub)", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}
+                  >
+                    {CAT_LABEL[c]}{cnt > 1 && <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 999, padding: "0 5px", background: on ? "rgba(255,255,255,.25)" : "#eef2f8", color: on ? "#fff" : "var(--text-muted)" }}>{cnt}</span>}
+                  </button>
+                )
+              })}
+            </div>
+          )}
 
-        {/* 添削 (届いたカード) */}
-        {feedback > 0 && noticeCard({
-          href: `/${userId}/my-teacher`,
-          icon: <PenLine size={19} />, iconBg: "#e2f5f4", iconFg: "#0e9c9c",
-          title: `先生が添削してくれたよ（${feedback}件）`, sub: "きみの演奏へのコメントを見よう",
-        })}
-
-        {/* お祝い (届いたカード) */}
-        {celebration && noticeCard({
-          href: `/${userId}/my-teacher`,
-          icon: <PartyPopper size={19} />, iconBg: "#fff", iconFg: "#c0891f",
-          title: "先生からお祝いが届いたよ！", sub: "メッセージを見てみよう", accent: true,
-        })}
-
-        {/* 参照リンク (やりとり / 所見) */}
-        {(unread > 0 || recentObs > 0) && (
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", padding: "2px 4px" }}>
-            {unread > 0 && (
-              <Link href={`/${userId}/my-teacher`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                <MessageCircle size={14} /> やりとり（{unread}）
-              </Link>
-            )}
-            {unread > 0 && recentObs > 0 && <span style={{ color: "var(--text-muted)" }}>|</span>}
-            {recentObs > 0 && (
-              <Link href={`/${userId}/progress`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                <ClipboardList size={14} /> 先生の所見 → 癖マップ
-              </Link>
-            )}
+          {/* 横スワイプ カルーセル */}
+          <div ref={vpRef} style={{ overflow: "hidden", borderRadius: 14 }}>
+            <div
+              ref={trackRef}
+              style={{ display: "flex", touchAction: "pan-y", transform: `translateX(${-idx * w}px)` }}
+              onPointerDown={(e) => { drag.current = { x: e.clientX, dx: 0, on: true }; if (trackRef.current) trackRef.current.style.transition = "none"; try { e.currentTarget.setPointerCapture(e.pointerId) } catch { /* noop */ } }}
+              onPointerMove={(e) => { const d = drag.current; if (!d.on) return; d.dx = e.clientX - d.x; if (trackRef.current) trackRef.current.style.transform = `translateX(${-idx * w + d.dx}px)` }}
+              onPointerUp={() => { const d = drag.current; if (!d.on) return; d.on = false; settle(Math.abs(d.dx) > w * 0.18 ? idx + (d.dx < 0 ? 1 : -1) : idx) }}
+              onPointerCancel={() => { const d = drag.current; if (!d.on) return; d.on = false; settle(idx) }}
+            >
+              {slides.map((s, i) => (
+                <div key={i} style={{ flex: "0 0 100%", minWidth: 0, padding: 1 }}>{s.node}</div>
+              ))}
+            </div>
           </div>
-        )}
-      </div>
+
+          {/* 同カテゴリ複数のドット */}
+          {groupIdxs.length > 1 && (
+            <div style={{ display: "flex", gap: 4, justifyContent: "center", marginTop: 7 }}>
+              {groupIdxs.map((gi) => (
+                <span key={gi} style={{ width: gi === idx ? 13 : 5, height: 5, borderRadius: gi === idx ? 3 : "50%", background: gi === idx ? "#2b5bc4" : "#e4e9f1", transition: "all .2s" }} />
+              ))}
+            </div>
+          )}
+
+          {/* 参照リンク */}
+          {(unread > 0 || recentObs > 0) && (
+            <div style={{ display: "flex", gap: 12, margin: "9px 4px 2px", flexWrap: "wrap" }}>
+              {unread > 0 && (
+                <Link href={`/${userId}/my-teacher`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <MessageCircle size={13} /> やりとり（{unread}）
+                </Link>
+              )}
+              {recentObs > 0 && (
+                <Link href={`/${userId}/progress`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <ClipboardList size={13} /> 先生の所見 → 癖マップ
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
       )}
     </section>
   )
 }
+
+const cardStyle: React.CSSProperties = { display: "flex", alignItems: "center", gap: 10, background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: "11px 13px", textDecoration: "none", color: "inherit", minHeight: 60 }
+const av: React.CSSProperties = { flex: "none", width: 34, height: 34, borderRadius: "50%", display: "grid", placeItems: "center", fontWeight: 900, fontSize: "var(--fs-body)" }
+const cbody: React.CSSProperties = { minWidth: 0, flex: 1 }
+const who: React.CSSProperties = { display: "block", fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 700, lineHeight: 1.1 }
+const title: React.CSSProperties = { display: "block", fontSize: "var(--fs-body)", fontWeight: 900, color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 2 }
+const chips: React.CSSProperties = { display: "flex", gap: 5, marginTop: 3, flexWrap: "wrap" }
