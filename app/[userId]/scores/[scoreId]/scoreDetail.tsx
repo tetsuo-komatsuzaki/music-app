@@ -3654,7 +3654,8 @@ function ScoreDetailInner({
                 <>
                   <p className={styles.rangeSheetHint}>両端の <b>◯</b> をドラッグで微調整できます</p>
                   <div className={styles.rangeSheetActions}>
-                    {!isRangeLooping ? (
+                    {/* 曲は採点が目的なのでループ練習ボタンは出さない。基礎練は採点非対応のためループを残す */}
+                    {!isScoreMode && (!isRangeLooping ? (
                       <button type="button" className={styles.sheetLoopBtn} onClick={startRangeLoop}>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M8 5v14l11-7z" /></svg>
                         ループ練習
@@ -3664,7 +3665,7 @@ function ScoreDetailInner({
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden><rect x="6" y="6" width="12" height="12" rx="1.5" /></svg>
                         ループ停止
                       </button>
-                    )}
+                    ))}
                     {isScoreMode && (
                       <button type="button" className={styles.sheetScoreBtn} disabled={recordingState !== "idle"} onClick={recordSelectedRange}>
                         この区間を採点
