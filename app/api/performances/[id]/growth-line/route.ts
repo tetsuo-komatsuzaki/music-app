@@ -14,6 +14,7 @@ import { requireAuthApi } from "@/app/_libs/requireAuth"
 import { SKILL_SUB_DEFS } from "@/app/_libs/growthKarte"
 import { SUBTASK_CATALOG } from "@/app/_libs/subtaskCatalog.generated"
 import { buildSubMap, computeGrowthLine, growthWindows, type SkillSubDef } from "@/app/_libs/growthLine"
+import { selectPraise } from "@/app/_libs/praiseFeedback"
 
 // 成長1行の候補: わざ系 (技術マップと同語彙・優先) + 基礎系 (診断カタログの diagnosable のみ。
 // 「変化なし箱」(diagnosable=false) は診断と同じく文脈扱いで出さない)
@@ -68,9 +69,19 @@ export async function GET(
     }),
   ])
 
-  const now = buildSubMap([...nowPerfs, ...nowPracs].map((r) => r.analysisSummary))
-  const base = buildSubMap([...basePerfs, ...basePracs].map((r) => r.analysisSummary))
+  const nowSummaries = [...nowPerfs, ...nowPracs].map((r) => r.analysisSummary)
+  const baseSummaries = [...basePerfs, ...basePracs].map((r) => r.analysisSummary)
+  const now = buildSubMap(nowSummaries)
+  const base = buildSubMap(baseSummaries)
   const line = computeGrowthLine(now, base, GROWTH_DEFS)
+
+  // ほめフィードバック (2026-08-10): 成長1行を置き換える「今日よくできたこと」1件。
+  // 苦手突破→伸び→最高 の順で1つ。ランク差はユーザー★で出し分け。
+  const starRow = await prisma.userStarProgress.findUnique({
+    where: { userId: dbUserId },
+    select: { currentStar: true },
+  })
+  const praise = selectPraise(nowSummaries, baseSummaries, starRow?.currentStar ?? 1)
 
   // 先生の強み (2026-08-06統一): 認定された表現 (UserExpressionClear) の種類数。
   // 結果画面には件数リンクだけ出し、詳細はカルテの表現マップで見る (癖は出さない線引き)
@@ -86,5 +97,5 @@ export async function GET(
     strengthCount = new Set(clears.map((c) => c.moodTagId)).size
   } catch { strengthCount = 0 }
 
-  return NextResponse.json({ line, strengthCount, hasTeacher })
+  return NextResponse.json({ line, praise, strengthCount, hasTeacher })
 }

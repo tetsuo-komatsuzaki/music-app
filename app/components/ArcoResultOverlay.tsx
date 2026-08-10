@@ -17,7 +17,7 @@ type Ach = {
   achieved: boolean
   mastered: boolean
 }
-type GrowthLine = { label: string; from: number; to: number }
+import type { Praise } from "@/app/_libs/praiseFeedback"
 
 // 点数帯でアルコのポーズ(気分)を選ぶ
 function pickPose(score: number) {
@@ -53,7 +53,7 @@ export default function ArcoResultOverlay({
   const [mounted, setMounted] = useState(false)
   const [ach, setAch] = useState<Ach | null>(null)
   const [shareOpen, setShareOpen] = useState(false)
-  const [growth, setGrowth] = useState<GrowthLine | null>(null)
+  const [praise, setPraise] = useState<Praise | null>(null)
   const [strengthCount, setStrengthCount] = useState(0)
   const [hasTeacher, setHasTeacher] = useState(false)
   const [listenState, setListenState] = useState<"idle" | "sending" | "done" | "error">("idle")
@@ -70,7 +70,7 @@ export default function ArcoResultOverlay({
     Promise.all([
       fetch(`/api/scores/${scoreId}/achievement-status`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
       fetch(`/api/performances/${perf.id}/growth-line`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-    ]).then(([a, g]) => { if (!aborted) { setAch(a); setGrowth(g?.line ?? null); setStrengthCount(g?.strengthCount ?? 0); setHasTeacher(!!g?.hasTeacher) } })
+    ]).then(([a, g]) => { if (!aborted) { setAch(a); setPraise(g?.praise ?? null); setStrengthCount(g?.strengthCount ?? 0); setHasTeacher(!!g?.hasTeacher) } })
     return () => { aborted = true }
   }, [scoreId, perf.id])
 
@@ -125,17 +125,16 @@ export default function ArcoResultOverlay({
           </div>
         </div>
 
-        {/* 🌱 成長1行 (案3・編み込み): この演奏で伸びたわざを直近30日比で1つだけ。無い日は出さない */}
-        {growth && (
+        {/* ほめフィードバック (2026-08-10): 今日よくできたこと1件。苦手突破→伸び→最高。無い日は出さない */}
+        {praise && (
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-            margin: "8px 2px 0", padding: "7px 10px", borderRadius: 10,
+            margin: "8px 2px 0", padding: "8px 12px", borderRadius: 10,
             background: "#f2faf5", border: "1px solid #cfe6d8",
             fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-good)",
+            lineHeight: 1.45, textAlign: "center",
           }}>
-            <Sprout size={14} style={{ flex: "none" }} /> {growth.label}が伸びてる！ 安定度 {growth.from}%
-            <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>→</span>
-            <b style={{ fontSize: "var(--fs-subhead)" }}>{growth.to}%</b>
+            <Sprout size={15} style={{ flex: "none" }} /> {praise.text}
           </div>
         )}
 
