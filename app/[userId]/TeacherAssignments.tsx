@@ -4,7 +4,7 @@
 // 畳まず直接表示: 宿題=手紙カード / 添削・お祝い=届いたカード / やりとり・所見=参照リンク。
 // 並び=重要度(宿題→添削→お祝い→リンク)。タップで対象へ。連絡ゼロなら非表示。
 import { useState } from "react"
-import { GraduationCap, PartyPopper, ClipboardList, Calendar, MessageCircle, PenLine, Target, Palette, ChevronRight } from "lucide-react"
+import { GraduationCap, PartyPopper, ClipboardList, Calendar, MessageCircle, PenLine, Target, Palette, ChevronRight, ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { moodTagGoalText } from "@/app/_libs/moodTags"
 import { useParams } from "next/navigation"
@@ -61,7 +61,8 @@ export default function TeacherAssignments({
   summary?: TeacherHomeSummary
 }) {
   const { userId } = useParams<{ userId: string }>()
-  const [showAll, setShowAll] = useState(false)
+  // 既定は畳んでトップを占拠しない。タップで受信箱を展開 (2026-08-10 占拠改悪の修正)。
+  const [open, setOpen] = useState(false)
 
   const unread = summary?.unreadMessages ?? 0
   const feedback = summary?.feedbackCount ?? 0
@@ -71,10 +72,12 @@ export default function TeacherAssignments({
   // 連絡が何も無ければ出さない
   if (hwCount === 0 && unread === 0 && feedback === 0 && recentObs === 0 && !celebration) return null
 
-  // 宿題は最新2件を直接表示、それ以上は「ほか◯件」で展開
-  const VISIBLE = 2
-  const visible = showAll ? assignments : assignments.slice(0, VISIBLE)
-  const hiddenCount = assignments.length - visible.length
+  // 畳んだ見出しに出す「一番近い期限の宿題」
+  const withDue = assignments.filter((a) => a.dueDate)
+  const nearest = withDue.length
+    ? withDue.reduce((a, b) => (new Date(a.dueDate as string).getTime() <= new Date(b.dueDate as string).getTime() ? a : b))
+    : assignments[0] ?? null
+  const nearestDi = nearest?.dueDate ? dueInfo(nearest.dueDate) : null
 
   // 宿題 = 手紙カード
   const letter = (a: StudentAssignment) => {
@@ -149,25 +152,52 @@ export default function TeacherAssignments({
     </Link>
   )
 
+  // 畳み見出しのバッジ (件数のあるものだけ)
+  const heads: string[] = []
+  if (hwCount > 0) heads.push(`宿題${hwCount}`)
+  if (feedback > 0) heads.push(`添削${feedback}`)
+  if (celebration) heads.push("お祝い")
+
   return (
     <section style={{ margin: "0 0 14px" }}>
-      {/* 見出し */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 4px 9px", fontSize: "var(--fs-body)", fontWeight: 900, color: "var(--text-ink)" }}>
-        <GraduationCap size={16} /> 先生から
-      </div>
+      {/* 畳んだ見出し = トグル。既定はこの1枚だけ (占拠しない) */}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        style={{
+          width: "100%", display: "flex", alignItems: "center", gap: 10, textAlign: "left",
+          background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: "10px 13px",
+          cursor: "pointer", font: "inherit", boxShadow: "0 1px 3px rgba(30,45,70,.04)",
+        }}
+      >
+        <span style={{ flex: "none", width: 30, height: 30, borderRadius: "50%", background: "#f7edf1", color: "#d6547a", display: "grid", placeItems: "center" }}>
+          <GraduationCap size={16} />
+        </span>
+        <span style={{ minWidth: 0, flex: 1 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "var(--fs-body)", fontWeight: 900, color: "var(--text-ink)" }}>
+            先生から
+            {heads.length > 0 && <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)" }}>{heads.join(" ・ ")}</span>}
+          </span>
+          {nearest && !open && (
+            <span style={{ display: "block", fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginTop: 1 }}>
+              {nearest.title}{nearestDi ? ` ・ ${nearestDi.label}${nearestDi.state === "overdue" ? "（過ぎています）" : nearestDi.state === "soon" ? "（もうすぐ）" : ""}` : ""}
+            </span>
+          )}
+        </span>
+        <ChevronDown size={18} style={{ flex: "none", color: "var(--text-muted)", transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
+      </button>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {!open && celebration && (
+        <div style={{ margin: "6px 4px 0", fontSize: "var(--fs-caption)", fontWeight: 800, color: "#c0891f", display: "inline-flex", alignItems: "center", gap: 4 }}>
+          <PartyPopper size={13} /> お祝いが届いてるよ！
+        </div>
+      )}
+
+      {open && (
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 10 }}>
         {/* 宿題 (手紙カード) */}
-        {visible.map(letter)}
-        {hiddenCount > 0 && (
-          <button
-            type="button"
-            onClick={() => setShowAll(true)}
-            style={{ border: "1px dashed #e0dcd0", background: "transparent", borderRadius: 11, padding: "9px 0", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", cursor: "pointer" }}
-          >
-            ほか {hiddenCount} 件の宿題をみる
-          </button>
-        )}
+        {assignments.map(letter)}
 
         {/* 添削 (届いたカード) */}
         {feedback > 0 && noticeCard({
@@ -200,6 +230,7 @@ export default function TeacherAssignments({
           </div>
         )}
       </div>
+      )}
     </section>
   )
 }
