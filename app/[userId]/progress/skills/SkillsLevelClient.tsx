@@ -30,14 +30,18 @@ const SKILL_CATEGORIES: { label: string; ids: string[] }[] = [
   { label: "音色・特殊", ids: ["vibrato", "harmonic"] },
 ]
 
-export default function SkillsLevelClient({ userId, skillMap }: { userId: string; skillMap: SkillMapData | null }) {
+export default function SkillsLevelClient({ userId, skillMap, backHref, backLabel = "カルテにもどる", hideDetailLinks = false }: {
+  userId: string; skillMap: SkillMapData | null
+  /** 先生ビュー用 (2026-08-11): 戻り先/ラベルの差し替えと、生徒ルートへの詳細リンク非表示 */
+  backHref?: string; backLabel?: string; hideDetailLinks?: boolean
+}) {
   // 2026-08-11 Tetsuo確定: 先生なしでも全ユーザーに開放 (nullは集計エラー時のみ)
   if (!skillMap) {
     return (
       <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", fontFamily: "inherit", color: INK }}>
-        <Link href={`/${userId}/progress`}
+        <Link href={backHref ?? `/${userId}/progress`}
           style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 800, color: SUB, textDecoration: "none" }}>
-          <ArrowLeft size={13} /> カルテにもどる
+          <ArrowLeft size={13} /> {backLabel}
         </Link>
         <div style={{
           marginTop: 12, background: "#f2f7fd", border: "1px solid #dbe7f6",
@@ -67,14 +71,15 @@ export default function SkillsLevelClient({ userId, skillMap }: { userId: string
       .sort((a, b) => order(a) - order(b) || a.star - b.star),
   })).filter((s) => s.items.length > 0)
 
-  return <SkillsTabs userId={userId} currentStar={currentStar} sections={sections} />
+  return <SkillsTabs userId={userId} currentStar={currentStar} sections={sections} backHref={backHref} backLabel={backLabel} hideDetailLinks={hideDetailLinks} />
 }
 
 /* ═ 分類タブ + アクティブ分類の横スクロールレール ═ */
-function SkillsTabs({ userId, currentStar, sections }: {
+function SkillsTabs({ userId, currentStar, sections, backHref, backLabel, hideDetailLinks }: {
   userId: string
   currentStar: number
   sections: { label: string; items: SkillNode[] }[]
+  backHref?: string; backLabel?: string; hideDetailLinks?: boolean
 }) {
   const [activeTab, setActiveTab] = useState(sections[0]?.label ?? "")
   const active = sections.find((s) => s.label === activeTab) ?? sections[0]
@@ -82,9 +87,9 @@ function SkillsTabs({ userId, currentStar, sections }: {
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", fontFamily: "inherit", color: INK }}>
       {/* ヘッダ */}
-      <Link href={`/${userId}/progress`}
+      <Link href={backHref ?? `/${userId}/progress`}
         style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 800, color: SUB, textDecoration: "none" }}>
-        <ArrowLeft size={13} /> カルテにもどる
+        <ArrowLeft size={13} /> {backLabel}
       </Link>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 8 }}>
         <div style={kicker}>SKILLS</div>
@@ -126,7 +131,7 @@ function SkillsTabs({ userId, currentStar, sections }: {
           scrollbarWidth: "thin",
           margin: "14px -14px 0", padding: "2px 14px 6px",
         }}>
-          {active.items.map((n) => <SkillCard key={n.id} userId={userId} n={n} />)}
+          {active.items.map((n) => <SkillCard key={n.id} userId={userId} n={n} hideDetailLinks={hideDetailLinks} />)}
         </div>
       )}
     </div>
@@ -134,7 +139,7 @@ function SkillsTabs({ userId, currentStar, sections }: {
 }
 
 /* ═ 案7カード ═ */
-function SkillCard({ userId, n }: { userId: string; n: SkillNode }) {
+function SkillCard({ userId, n, hideDetailLinks }: { userId: string; n: SkillNode; hideDetailLinks?: boolean }) {
   const lit = n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata"
   const locked = n.state === "locked"
   const hasPct = n.pct != null
@@ -207,7 +212,7 @@ function SkillCard({ userId, n }: { userId: string; n: SkillNode }) {
 
       {/* 下段リンク */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 12px", marginTop: 12 }}>
-        <Link href={`/${userId}/progress/skill/${n.id}`} style={{ fontSize: 10.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>くわしく →</Link>
+        {!hideDetailLinks && <Link href={`/${userId}/progress/skill/${n.id}`} style={{ fontSize: 10.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>くわしく →</Link>}
         {/* 「練習する→」は削除 (2026-08-11 Tetsuo確定: 導線はくわしく→のおすすめ練習に一本化) */}
       </div>
     </div>

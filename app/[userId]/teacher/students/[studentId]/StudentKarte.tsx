@@ -145,7 +145,7 @@ export default function StudentKarte({
         karte ? (
           <>
             <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", margin: "0 2px 8px" }}>生徒に見えている成長カルテ（参考・直近30日）</div>
-            <ProgressPage userId={studentSupabaseUserId ?? ""} data={karte} readOnly />
+            <ProgressPage userId={studentSupabaseUserId ?? ""} data={karte} readOnly detailBase={`/${userId}/teacher/students/${studentId}/growth`} />
           </>
         ) : (
           <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>成長カルテを読み込めませんでした。</div></Card>
@@ -177,8 +177,6 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
   const submittedHw = assignments.filter((a) => a.submitted && !a.done && a.scoreId)
   const achvMap = new Map(briefing.achievements.map((a) => [a.title, a.mastered]))
   // 見える化4軸 (曲/技術/癖/表現)
-  const songAvgs = working.filter((w) => w.kind === "score").map((w) => w.avg)
-  const songAvg = songAvgs.length ? Math.round(songAvgs.reduce((s, n) => s + n, 0) / songAvgs.length) : null
   const skillLit = karte?.skillMap ? karte.skillMap.nodes.filter((n) => n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata").length : null
   const skillTotal = karte?.skillMap?.nodes.length ?? 0
   const exprLit = karte ? karte.v2.exprMap.nodes.filter((n) => n.star > 0).length : null
@@ -263,10 +261,6 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
       {/* 上達の見える化 4軸 (曲/技術/癖/表現) */}
       <div style={kSec}>上達の見える化<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>くわしくは成長カルテへ</span></div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-        <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
-          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>平均スコア</div>
-          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 3, color: songAvg != null ? kScoreColor(songAvg) : "var(--text-muted)" }}>{songAvg ?? "—"}<span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}> 点</span></div>
-        </div>
         <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
           <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>技術（わざ）</div>
           <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 3, color: "#22346b" }}>{skillLit ?? "—"}<span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>{skillLit != null ? ` /${skillTotal} 点灯` : ""}</span></div>

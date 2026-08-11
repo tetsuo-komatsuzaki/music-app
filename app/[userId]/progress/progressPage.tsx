@@ -71,10 +71,12 @@ function Reveal({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default function ProgressPage({ userId, data, readOnly = false }: {
+export default function ProgressPage({ userId, data, readOnly = false, detailBase }: {
   userId: string
   data: KarteData
   readOnly?: boolean
+  /** 先生ビュー (2026-08-11): readOnlyでも詳細へ遷移できるリンク土台 (例 /uid/teacher/students/sid/growth) */
+  detailBase?: string
 }) {
   const [weeklyShare, setWeeklyShare] = useState(false)
   return (
@@ -89,11 +91,11 @@ export default function ProgressPage({ userId, data, readOnly = false }: {
         background: "#f2f7fd", border: "1px solid #dbe7f6",
         borderRadius: 18, overflow: "hidden", position: "relative",
       }}>
-        <Hero userId={userId} data={data} readOnly={readOnly} onShare={() => setWeeklyShare(true)} />
+        <Hero userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} onShare={() => setWeeklyShare(true)} />
         <Rule />
-        <SkillsChapter userId={userId} data={data} readOnly={readOnly} />
+        <SkillsChapter userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} />
         <Rule />
-        <ExprChapter userId={userId} data={data} readOnly={readOnly} />
+        <ExprChapter userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} />
         {data.bodyObs && <Rule />}
         <FormChapter data={data} />
         <Rule />
@@ -106,7 +108,7 @@ export default function ProgressPage({ userId, data, readOnly = false }: {
 }
 
 /* ═ ヒーロー: 五線譜 + アルコ + KPI大数字 ═ */
-function Hero({ userId, data, readOnly, onShare }: { userId: string; data: KarteData; readOnly: boolean; onShare: () => void }) {
+function Hero({ userId, data, readOnly, detailBase, onShare }: { userId: string; data: KarteData; readOnly: boolean; detailBase?: string; onShare: () => void }) {
   const k = data.v2.kpi
   return (
     // P3: 青グラデのヒーロー + 白テキスト (2026-08-11 Tetsuo確定)
@@ -128,8 +130,8 @@ function Hero({ userId, data, readOnly, onShare }: { userId: string; data: Karte
           <div style={kpiBox}><b style={{ ...kpiNum, color: k.basicsWeek > 0 ? "#fff" : "#bcd0f5" }}>{k.basicsWeek > 0 ? `+${k.basicsWeek}` : "±0"}</b><span style={kpiLbl}>今週の基礎練</span></div>
           <div style={kpiBox}><b style={{ ...kpiNum, color: k.skillsWeek > 0 ? "#fff" : "#bcd0f5" }}>{k.skillsWeek > 0 ? `+${k.skillsWeek}` : "±0"}</b><span style={kpiLbl}>今週のわざ</span></div>
         </div>
-        {!readOnly && (
-          <Link href={`/${userId}/progress/numbers`} style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 12, fontSize: 10.5, fontWeight: 800, color: "#cfe0ff", textDecoration: "none" }}>
+        {(!readOnly || detailBase) && (
+          <Link href={detailBase ? `${detailBase}/numbers` : `/${userId}/progress/numbers`} style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 12, fontSize: 10.5, fontWeight: 800, color: "#cfe0ff", textDecoration: "none" }}>
             <Search size={11} /> きろくを詳しくみる（記録の分析）→
           </Link>
         )}
@@ -142,7 +144,7 @@ const kpiNum: React.CSSProperties = { display: "block", fontSize: 23, fontWeight
 const kpiLbl: React.CSSProperties = { fontSize: 8.5, fontWeight: 800, color: "#bcd0f5" }
 
 /* ═ わざの習得状況: 分類ごとの進み具合バー (タップ不要・情報常時表示) ═ */
-function SkillsChapter({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
+function SkillsChapter({ userId, data, readOnly, detailBase }: { userId: string; data: KarteData; readOnly: boolean; detailBase?: string }) {
   // 2026-08-11 Tetsuo確定: わざの習得状況は先生なしでも全ユーザーに開放 (nullは集計エラー時のみ)
   if (!data.skillMap) {
     if (readOnly) return null
@@ -184,8 +186,8 @@ function SkillsChapter({ userId, data, readOnly }: { userId: string; data: Karte
             </div>
           ))}
         </div>
-        {!readOnly && (
-          <Link href={`/${userId}/progress/skills`}
+        {(!readOnly || detailBase) && (
+          <Link href={detailBase ? `${detailBase}/skills` : `/${userId}/progress/skills`}
             style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 12, fontSize: 11.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>
             わざの習得状況を詳しくみる →
           </Link>
@@ -196,7 +198,7 @@ function SkillsChapter({ userId, data, readOnly }: { userId: string; data: Karte
 }
 
 /* ═ 表現の習得状況: 概要=系統バー + 詳細ページへの導線 (詳細は /progress/expression) ═ */
-function ExprChapter({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
+function ExprChapter({ userId, data, readOnly, detailBase }: { userId: string; data: KarteData; readOnly: boolean; detailBase?: string }) {
   if (!data.v2.expression) {
     if (readOnly) return null
     return (
@@ -247,8 +249,8 @@ function ExprChapter({ userId, data, readOnly }: { userId: string; data: KarteDa
             </div>
           ))}
         </div>
-        {!readOnly && (
-          <Link href={`/${userId}/progress/expression`}
+        {(!readOnly || detailBase) && (
+          <Link href={detailBase ? `${detailBase}/expression` : `/${userId}/progress/expression`}
             style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 12, fontSize: 11.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>
             表現の習得状況を詳しくみる →
           </Link>

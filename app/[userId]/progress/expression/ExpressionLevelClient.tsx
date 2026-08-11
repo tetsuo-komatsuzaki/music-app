@@ -28,18 +28,20 @@ const EXPR_CATEGORIES: { label: string; ids: string[] }[] = [
 
 type Song = { id: string; title: string; star: number | null }
 
-export default function ExpressionLevelClient({ userId, exprMap, unlocked }: {
+export default function ExpressionLevelClient({ userId, exprMap, unlocked, backHref, backLabel = "カルテにもどる", hideSongLinks = false }: {
   userId: string
   exprMap: ExprMapData
   unlocked: boolean
+  /** 先生ビュー用 (2026-08-11) */
+  backHref?: string; backLabel?: string; hideSongLinks?: boolean
 }) {
   // 先生未連携: トップのティーザーと同等の導線
   if (!unlocked) {
     return (
       <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", fontFamily: "inherit", color: INK }}>
-        <Link href={`/${userId}/progress`}
+        <Link href={backHref ?? `/${userId}/progress`}
           style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 800, color: SUB, textDecoration: "none" }}>
-          <ArrowLeft size={13} /> カルテにもどる
+          <ArrowLeft size={13} /> {backLabel}
         </Link>
         <div style={{
           marginTop: 12, background: "#f2f7fd", border: "1px solid #dbe7f6",
@@ -72,15 +74,16 @@ export default function ExpressionLevelClient({ userId, exprMap, unlocked }: {
       .sort((a, b) => (b.star > 0 ? 1 : 0) - (a.star > 0 ? 1 : 0) || b.star - a.star),
   })).filter((s) => s.items.length > 0)
 
-  return <ExpressionTabs userId={userId} litCount={litCount} sections={sections} songsByTag={songsByTag} />
+  return <ExpressionTabs userId={userId} litCount={litCount} sections={sections} songsByTag={songsByTag} backHref={backHref} backLabel={backLabel} hideSongLinks={hideSongLinks} />
 }
 
 /* ═ 系統タブ + アクティブ系統の横スクロールレール ═ */
-function ExpressionTabs({ userId, litCount, sections, songsByTag }: {
+function ExpressionTabs({ userId, litCount, sections, songsByTag, backHref, backLabel, hideSongLinks }: {
   userId: string
   litCount: number
   sections: { label: string; items: ExprNode[] }[]
   songsByTag: Record<string, Song[]>
+  backHref?: string; backLabel?: string; hideSongLinks?: boolean
 }) {
   const [activeTab, setActiveTab] = useState(sections[0]?.label ?? "")
   const active = sections.find((s) => s.label === activeTab) ?? sections[0]
@@ -88,9 +91,9 @@ function ExpressionTabs({ userId, litCount, sections, songsByTag }: {
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", fontFamily: "inherit", color: INK }}>
       {/* ヘッダ */}
-      <Link href={`/${userId}/progress`}
+      <Link href={backHref ?? `/${userId}/progress`}
         style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 800, color: SUB, textDecoration: "none" }}>
-        <ArrowLeft size={13} /> カルテにもどる
+        <ArrowLeft size={13} /> {backLabel}
       </Link>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 8 }}>
         <div style={kicker}>ESPRESSIONE</div>
@@ -132,7 +135,7 @@ function ExpressionTabs({ userId, litCount, sections, songsByTag }: {
           scrollbarWidth: "thin",
           margin: "14px -14px 0", padding: "2px 14px 6px",
         }}>
-          {active.items.map((n) => <ExprCard key={n.tagId} userId={userId} n={n} songs={songsByTag[n.tagId] ?? []} />)}
+          {active.items.map((n) => <ExprCard key={n.tagId} userId={userId} n={n} songs={hideSongLinks ? [] : (songsByTag[n.tagId] ?? [])} />)}
         </div>
       )}
     </div>
