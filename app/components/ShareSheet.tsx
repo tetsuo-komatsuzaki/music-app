@@ -46,10 +46,19 @@ export default function ShareSheet({
   }, [kind, refId, attempt])
 
   // 以下はすべてタップ時に同期実行 (token は準備済み) — ジェスチャが切れず確実に開く
+  // 2026-08-11 修正: share が開けない環境 (アプリ内ブラウザ等の壊れた実装・権限拒否) で
+  // 何も起きないバグ → 失敗を検知してリンクコピーに自動フォールバックする
   const shareNative = () => {
     if (!url) return
-    if (navigator.share) {
-      navigator.share({ text, url }).catch(() => { /* キャンセルは無視 */ })
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      try {
+        navigator.share({ text, url }).catch((e: unknown) => {
+          const name = (e as { name?: string } | null)?.name
+          if (name !== "AbortError") copyLink() // キャンセル以外の失敗はコピーで代替
+        })
+      } catch {
+        copyLink() // 同期例外 (壊れたWebView実装) もコピーで代替
+      }
     } else {
       copyLink()
     }
