@@ -6,7 +6,7 @@
 import { useState, useTransition } from "react"
 import { GraduationCap, Calendar, History, MessageCircle, PartyPopper, NotebookPen, Pin, Upload, ClipboardList, UserRound, type LucideIcon } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { unlinkTeacher } from "@/app/actions/teacherActions"
 import { bookLesson, cancelMyBooking } from "@/app/actions/teacherLessons"
 import AssignmentSubmit from "@/app/components/AssignmentSubmit"
@@ -46,7 +46,10 @@ export default function MyTeacherClient({
   lessons: Lessons
   nextLessonLabel: string | null
 }) {
-  const [tab, setTab] = useState<"all" | "hw" | "karte" | "review">("all")
+  // ?tab=karte 等の初期タブ指定 (ホームの「練習後カルテが届いたよ」通知から)
+  const sp = useSearchParams()
+  const initTab = (["all", "hw", "karte", "review"] as const).find((t) => t === sp.get("tab")) ?? "all"
+  const [tab, setTab] = useState<"all" | "hw" | "karte" | "review">(initTab)
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
