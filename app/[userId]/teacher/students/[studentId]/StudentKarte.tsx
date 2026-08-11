@@ -190,7 +190,7 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
         <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "#2b3d6b" }}>この生徒の今週</div>
         <div style={{ display: "flex", gap: 14, marginTop: 5, fontSize: "var(--fs-caption)", color: "#3a4a68", flexWrap: "wrap" }}>
           <span>直近7日の練習 <b style={{ color: "#1a2740" }}>{briefing.practiceCount7d}</b>回</span>
-          <span>カルテ <b style={{ color: "#1a2740" }}>{recordings.length}</b>枚</span>
+          <span>2週間のカルテ <b style={{ color: "#1a2740" }}>{working.reduce((s, w) => s + w.count, 0)}</b>枚</span>
           <span>達成 <b style={{ color: "#1a2740" }}>{briefing.achievements.length}</b></span>
         </div>
       </div>
@@ -444,21 +444,9 @@ function KarteBySong({ userId, studentId, recordings, worstNotes }: { userId: st
   }
   return (
     <>
-      {/* 全体のカルテ傾向 (曲をまたいだ弱点。数字のへやと同じ土俵) */}
-      {worstNotes.length > 0 && (
-        <div style={{ border: "1px solid #e3d8f7", borderRadius: 13, overflow: "hidden", marginBottom: 11 }}>
-          <div style={{ background: "linear-gradient(135deg,#5a3fa8,#7a4dd6)", color: "#fff", padding: "8px 12px", fontSize: "var(--fs-caption)", fontWeight: 900 }}>全体のカルテ傾向（曲をまたいで・直近2週間）</div>
-          <div style={{ background: "#fff", padding: "9px 12px" }}>
-            {worstNotes.slice(0, 3).map((n) => (
-              <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 4 }}>
-                <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
-                <span style={{ fontSize: "var(--fs-label)", color: "var(--text-sub)" }}>{n.hand ? `${n.hand}（推定）` : n.string ? `${n.string}（推定）` : n.raw}・{n.target}音</span>
-                <b style={{ marginLeft: "auto", flex: "none", fontWeight: 900, fontVariantNumeric: "tabular-nums", color: kScoreColor(n.pct) }}>{n.pct}%</b>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* 全体のカルテ傾向 (曲をまたいだ弱点)。音単位(worstNotes)がまだ薄い時は
+          カルテの崩れ集計にフォールバックし、常にカードを出す (2026-08-11 修正) */}
+      <GlobalTrendCard recordings={recordings} worstNotes={worstNotes} />
 
       <div style={kSec}>曲<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>カルテ回数・直近</span></div>
       {songs.length === 0 ? (
@@ -471,6 +459,44 @@ function KarteBySong({ userId, studentId, recordings, worstNotes }: { userId: st
         </>
       )}
     </>
+  )
+}
+
+/* ═ 全体のカルテ傾向カード (曲をまたいだ弱点。worstNotesが薄ければ崩れ集計にフォールバック) ═ */
+function GlobalTrendCard({ recordings, worstNotes }: { recordings: Recording[]; worstNotes: WorstNote[] }) {
+  // フォールバック: 全カルテの崩れを合算 (成功率の低い順・上位3)
+  const agg = new Map<string, { tree: "音程" | "リズム"; miss: number; target: number; count: number }>()
+  for (const r of recordings) for (const w of r.weak) {
+    const e = agg.get(w.name) ?? { tree: w.tree, miss: 0, target: 0, count: 0 }
+    e.miss += w.miss; e.target += w.target; e.count++
+    agg.set(w.name, e)
+  }
+  const weakAgg = [...agg.entries()]
+    .map(([name, e]) => ({ name, tree: e.tree, count: e.count, pct: Math.max(0, Math.round(100 - (e.miss / Math.max(1, e.target)) * 100)) }))
+    .sort((a, b) => a.pct - b.pct || b.count - a.count).slice(0, 3)
+  if (worstNotes.length === 0 && weakAgg.length === 0) return null
+  return (
+    <div style={{ border: "1px solid #e3d8f7", borderRadius: 13, overflow: "hidden", marginBottom: 11 }}>
+      <div style={{ background: "linear-gradient(135deg,#5a3fa8,#7a4dd6)", color: "#fff", padding: "8px 12px", fontSize: "var(--fs-caption)", fontWeight: 900 }}>全体のカルテ傾向（曲をまたいで）</div>
+      <div style={{ background: "#fff", padding: "9px 12px" }}>
+        {worstNotes.length > 0 ? (
+          worstNotes.slice(0, 3).map((n) => (
+            <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 4 }}>
+              <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
+              <span style={{ fontSize: "var(--fs-label)", color: "var(--text-sub)" }}>{n.hand ? `${n.hand}（推定）` : n.string ? `${n.string}（推定）` : n.raw}・{n.target}音</span>
+              <b style={{ marginLeft: "auto", flex: "none", fontWeight: 900, fontVariantNumeric: "tabular-nums", color: kScoreColor(n.pct) }}>{n.pct}%</b>
+            </div>
+          ))
+        ) : (
+          weakAgg.map((w) => (
+            <div key={w.name} style={{ fontSize: "var(--fs-caption)", color: "#3a3550", lineHeight: 1.7 }}>
+              <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{w.tree}</span>
+              <b>{w.name}</b> 成功率 <b style={{ color: kScoreColor(w.pct) }}>{w.pct}%</b> ・ {w.count}回崩れ
+            </div>
+          ))
+        )}
+      </div>
+    </div>
   )
 }
 

@@ -83,7 +83,7 @@ export default async function KarteDetailPage({
     if (!p) redirect(backHref)
     title = p.score?.title ?? "曲"; star = p.score?.star ?? null; cat = p.rangeFromNote != null ? "曲（区間）" : "曲"
     pitch = Math.round(p.pitchAccuracy ?? 0); timing = Math.round(p.timingAccuracy ?? 0); avg = avg2(p.pitchAccuracy, p.timingAccuracy)
-    weak = topWeak(p.analysisSummary); audioPath = p.audioPath; date = p.uploadedAt.toLocaleDateString("ja-JP")
+    weak = topWeak(p.analysisSummary); audioPath = p.audioPath; date = `${p.uploadedAt.getMonth() + 1}/${p.uploadedAt.getDate()}`
     scoreId = p.scoreId
   } else {
     const p = await prisma.practicePerformance.findFirst({
@@ -94,7 +94,7 @@ export default async function KarteDetailPage({
     title = p.practiceItem?.title ?? "教材"; star = p.practiceItem?.star ?? null
     cat = p.practiceItem?.category ? categoryLabel(p.practiceItem.category) : "基礎練"
     pitch = Math.round(p.pitchAccuracy ?? 0); timing = Math.round(p.timingAccuracy ?? 0); avg = avg2(p.pitchAccuracy, p.timingAccuracy)
-    weak = topWeak(p.analysisSummary); audioPath = p.audioPath; date = p.uploadedAt.toLocaleDateString("ja-JP")
+    weak = topWeak(p.analysisSummary); audioPath = p.audioPath; date = `${p.uploadedAt.getMonth() + 1}/${p.uploadedAt.getDate()}`
   }
 
   const audioUrl = audioPath

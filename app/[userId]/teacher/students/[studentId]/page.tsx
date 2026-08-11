@@ -3,8 +3,6 @@
 import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
-import { storageAdmin } from "@/app/_libs/storageAdmin"
-import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { getAchievementFlags } from "@/app/_libs/achievementFlags"
 import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
@@ -216,43 +214,44 @@ export default async function StudentKartePage({
   }
 
   // ── 練習タブ (§5-1 拡充): 取り組んでいる曲/教材 + 直近の録音(分析結果 + 音声) ──
+  // 曲ごとの横スライドに履歴が並ぶよう 36×2 まで取得 (2026-08-11 修正: 旧12件では曲別が1〜2枚でスライド不能だった)
   const [scorePerfs, pracPerfs] = await Promise.all([
     prisma.performance.findMany({
       where: { userId: studentId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
-      orderBy: { uploadedAt: "desc" }, take: 12,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, rangeFromNote: true, analysisSummary: true, score: { select: { title: true, star: true } } },
+      orderBy: { uploadedAt: "desc" }, take: 36,
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, rangeFromNote: true, analysisSummary: true, score: { select: { title: true, star: true } } },
     }),
     prisma.practicePerformance.findMany({
       where: { userId: studentId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
-      orderBy: { uploadedAt: "desc" }, take: 12,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, practiceItem: { select: { title: true, category: true, star: true } } },
+      orderBy: { uploadedAt: "desc" }, take: 36,
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, analysisSummary: true, practiceItem: { select: { title: true, category: true, star: true } } },
     }),
   ])
   const avg2 = (p: number | null, t: number | null) => Math.round(((p ?? 0) + (t ?? 0)) / 2)
-  type RecRaw = { id: string; kind: "score" | "practice"; at: number; title: string; cat: string; star: number | null; pitch: number; timing: number; avg: number; audioPath: string; weak: WeakSlot[] }
+  // 日付はロケール依存の toLocaleDateString を使わない (サーバlocale次第で「31.5.2026」式に崩れる)
+  const fmtMD = (at: number) => { const d = new Date(at); return `${d.getMonth() + 1}/${d.getDate()}` }
+  type RecRaw = { id: string; kind: "score" | "practice"; at: number; title: string; cat: string; star: number | null; pitch: number; timing: number; avg: number; weak: WeakSlot[] }
   const recRaw: RecRaw[] = [
     ...scorePerfs.map((p) => ({
       id: p.id, kind: "score" as const, at: p.uploadedAt.getTime(), title: p.score?.title ?? "曲",
       cat: p.rangeFromNote != null ? "曲（区間）" : "曲", star: p.score?.star ?? null,
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
-      audioPath: p.audioPath, weak: topWeak(p.analysisSummary),
+      weak: topWeak(p.analysisSummary),
     })),
     ...pracPerfs.map((p) => ({
       id: p.id, kind: "practice" as const, at: p.uploadedAt.getTime(), title: p.practiceItem?.title ?? "教材",
       cat: p.practiceItem?.category ? categoryLabel(p.practiceItem.category) : "基礎練", star: p.practiceItem?.star ?? null,
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
-      audioPath: p.audioPath, weak: topWeak(p.analysisSummary),
+      weak: topWeak(p.analysisSummary),
     })),
-  ].sort((a, b) => b.at - a.at).slice(0, 12)
+  ].sort((a, b) => b.at - a.at)
 
-  // 音声の署名URL (先生が聴ける)
-  const recordings = await Promise.all(recRaw.map(async (r) => ({
+  // 音声は一覧では再生しない (詳細画面で署名URLを発行)。ここでの一括署名URL生成は廃止
+  const recordings = recRaw.map((r) => ({
     id: r.id, kind: r.kind, title: r.title, cat: r.cat, star: r.star, pitch: r.pitch, timing: r.timing, avg: r.avg, weak: r.weak,
-    date: new Date(r.at).toLocaleDateString("ja-JP"),
-    audioUrl: r.audioPath
-      ? await storageAdmin.storage.from("performances").createSignedUrl(r.audioPath, 600).then((x) => encodeSignedUrl(x.data?.signedUrl)).catch(() => null)
-      : null,
-  })))
+    date: fmtMD(r.at),
+    audioUrl: null as string | null,
+  }))
 
   // 取り組んでいる曲・教材 (直近2週間に練習したもの・点数で絞らず・重複除去)。
   // 上達状況表示用に 期間内の最古スコア(first)・枚数(count)・最新演奏へのリンク(perfId/kind) も持つ。
