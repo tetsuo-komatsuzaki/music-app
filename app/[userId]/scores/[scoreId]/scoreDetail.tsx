@@ -1797,7 +1797,10 @@ function ScoreDetailInner({
     if (p && p.analysisStatus === "done" && p.pitchAccuracy != null && p.timingAccuracy != null) {
       justRecordedRef.current = null
       try { sessionStorage.removeItem("arcoPending") } catch {}
-      // 祝い体験 v2.0 (§2): 自動全画面は廃止し、バナー → 振り返りで祝う方式に統一(自動オーバーレイは出さない)。
+      // 2026-08-12 Tetsuo指摘の二段表示バグ修正: Recorder自身の結果パネル(カルテ導線なし)が先に見え、
+      // あとからアルコ結果が出る2段階になっていた → 解析完了と同時にアルコ結果を自動で開く。
+      // (同一レンダリングで開くため、背後のRecorderパネルは見えない)
+      setArcoResult(p)
     }
   }, [performances])
 
