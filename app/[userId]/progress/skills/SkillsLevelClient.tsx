@@ -123,7 +123,7 @@ function SkillsTabs({ userId, currentStar, sections }: {
       {active && (
         <div style={{
           display: "flex", gap: 12, overflowX: "auto", scrollSnapType: "x mandatory",
-          scrollbarWidth: "none", touchAction: "pan-y",
+          scrollbarWidth: "thin",
           margin: "14px -14px 0", padding: "2px 14px 6px",
         }}>
           {active.items.map((n) => <SkillCard key={n.id} userId={userId} n={n} />)}

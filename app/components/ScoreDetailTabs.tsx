@@ -8,11 +8,12 @@
 
 import styles from "./StatusTab.module.css"
 
-export type ScoreDetailTabId = "play" | "review"
+export type ScoreDetailTabId = "play" | "review" | "karte"
 
 const TAB_DEFS: { id: ScoreDetailTabId; label: string }[] = [
   { id: "play", label: "演奏" },
   { id: "review", label: "ふりかえり" },
+  { id: "karte", label: "練習後カルテ" },
 ]
 
 type Props = {

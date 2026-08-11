@@ -1330,9 +1330,11 @@ function ScoreDetailInner({
   // ▼ 上達ループタブ (Phase 4-1、Score 演奏のみ。practice 経路では非表示)
   const isScoreMode = !practiceItemId
   const urlTab: ScoreDetailTabId =
-    ["review", "loop"].includes(searchParams.get("tab") ?? "")
-      ? "review"
-      : "play"
+    searchParams.get("tab") === "karte"
+      ? "karte"
+      : ["review", "loop"].includes(searchParams.get("tab") ?? "")
+        ? "review"
+        : "play"
   const [activeTab, setActiveTab] = useState<ScoreDetailTabId>(urlTab)
   // URL の ?tab= が外部から変わったら追従する (画面ガイドのタブ誘導 targetUrl など)。
   // タブ操作自体は setActiveTab で即時反映し、router.replace の完了を待たない。
@@ -1346,8 +1348,8 @@ function ScoreDetailInner({
     (next: ScoreDetailTabId) => {
       setActiveTab(next)
       const params = new URLSearchParams(searchParams.toString())
-      if (next === "review") {
-        params.set("tab", "review")
+      if (next === "review" || next === "karte") {
+        params.set("tab", next)
       } else {
         params.delete("tab")
       }
@@ -3784,10 +3786,15 @@ function ScoreDetailInner({
           個別演奏の一覧は「すべての演奏を見る」で畳み、気になる人だけ展開する (2026-07-25 案1拡張)。 */}
       {activeTab === "review" && (
         <div data-section="review" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {deleteHintBlock}
           {trajectoryBlock}
           {isScoreMode && <ScoreLoopDetail scoreId={score.id} userId={userId} />}
-          {/* 最新1枚 + 「すべての演奏を見る」アコーディオンは PerformanceHistory 内で完結 */}
+        </div>
+      )}
+
+      {/* 練習後カルテタブ (2026-08-11 Tetsuo確定: ふりかえりから独立)。演奏ごとのカルテ一覧 */}
+      {activeTab === "karte" && (
+        <div data-section="karte" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {deleteHintBlock}
           {performanceHistoryBlock}
         </div>
       )}

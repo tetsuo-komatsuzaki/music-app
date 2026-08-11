@@ -390,7 +390,7 @@ function KarteBySong({ userId, studentId, recordings, worstNotes }: { userId: st
       </summary>
       <div style={{ padding: "0 13px 12px" }}>
         <SongTrendCard g={g} />
-        <div style={{ display: "flex", gap: 9, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none", touchAction: "pan-y", paddingBottom: 4 }}>
+        <div style={{ display: "flex", gap: 9, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "thin", paddingBottom: 4 }}>
           {g.recs.map((r) => <MiniKarte key={r.id} userId={userId} studentId={studentId} r={r} />)}
         </div>
       </div>

@@ -129,7 +129,7 @@ function ExpressionTabs({ userId, litCount, sections, songsByTag }: {
       {active && (
         <div style={{
           display: "flex", gap: 12, overflowX: "auto", scrollSnapType: "x mandatory",
-          scrollbarWidth: "none", touchAction: "pan-y",
+          scrollbarWidth: "thin",
           margin: "14px -14px 0", padding: "2px 14px 6px",
         }}>
           {active.items.map((n) => <ExprCard key={n.tagId} userId={userId} n={n} songs={songsByTag[n.tagId] ?? []} />)}
