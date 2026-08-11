@@ -110,25 +110,21 @@ function Hero({ userId, data, readOnly, onShare }: { userId: string; data: Karte
   const k = data.v2.kpi
   return (
     <div style={{ position: "relative", padding: "22px 18px 18px" }}>
-      {/* 背景の五線譜: 正しい5本線＋ト音記号＋音符 (xMidYMid slice で歪ませない) */}
-      <svg viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} aria-hidden>
-        <g stroke="#e2d3a6" strokeWidth="1" opacity=".6">
-          <line x1="-20" y1="30" x2="420" y2="30" />
-          <line x1="-20" y1="42" x2="420" y2="42" />
-          <line x1="-20" y1="54" x2="420" y2="54" />
-          <line x1="-20" y1="66" x2="420" y2="66" />
-          <line x1="-20" y1="78" x2="420" y2="78" />
+      {/* 背景の五線譜: ヘッダー最上部の細い帯だけに配置 (記録=KPIとは重ねない) */}
+      <svg viewBox="0 0 400 40" preserveAspectRatio="xMidYMid slice" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 40 }} aria-hidden>
+        <g stroke="#e2d3a6" strokeWidth="1" opacity=".5">
+          <line x1="-20" y1="8" x2="420" y2="8" />
+          <line x1="-20" y1="16" x2="420" y2="16" />
+          <line x1="-20" y1="24" x2="420" y2="24" />
+          <line x1="-20" y1="32" x2="420" y2="32" />
+          <line x1="-20" y1="40" x2="420" y2="40" />
         </g>
-        {/* ト音記号 (簡略化した渦巻き) */}
-        <path d="M30 84 C20 80 20 66 30 62 C42 57 46 44 40 36 C34 28 24 34 24 44 C24 58 40 66 44 78 C47 88 38 96 30 92 C25 89 25 82 30 82"
-          fill="none" stroke="#d3bd82" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" opacity=".55" />
-        {/* 音符 (五線上の四分音符) */}
-        <g fill="#d3bd82" opacity=".5">
-          <g transform="translate(96,66)"><ellipse rx="5" ry="3.6" transform="rotate(-22)" /><rect x="4" y="-19" width="1.4" height="19" rx=".7" /></g>
-          <g transform="translate(148,54)"><ellipse rx="5" ry="3.6" transform="rotate(-22)" /><rect x="4" y="-19" width="1.4" height="19" rx=".7" /></g>
-          <g transform="translate(200,60)"><ellipse rx="5" ry="3.6" transform="rotate(-22)" /><rect x="4" y="-19" width="1.4" height="19" rx=".7" /></g>
-          <g transform="translate(252,42)"><ellipse rx="5" ry="3.6" transform="rotate(-22)" /><rect x="4" y="-19" width="1.4" height="19" rx=".7" /></g>
-          <g transform="translate(312,54)"><ellipse rx="5" ry="3.6" transform="rotate(-22)" /><rect x="4" y="-19" width="1.4" height="19" rx=".7" /></g>
+        <path d="M22 38 C16 35 16 27 22 24 C29 21 31 15 28 11 C24 7 19 10 19 15 C19 23 29 27 31 35 C33 40 27 44 22 41"
+          fill="none" stroke="#d3bd82" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" opacity=".5" />
+        <g fill="#d3bd82" opacity=".42">
+          <g transform="translate(250,24)"><ellipse rx="3.6" ry="2.6" transform="rotate(-22)" /><rect x="2.8" y="-13" width="1.1" height="13" rx=".5" /></g>
+          <g transform="translate(300,16)"><ellipse rx="3.6" ry="2.6" transform="rotate(-22)" /><rect x="2.8" y="-13" width="1.1" height="13" rx=".5" /></g>
+          <g transform="translate(350,24)"><ellipse rx="3.6" ry="2.6" transform="rotate(-22)" /><rect x="2.8" y="-13" width="1.1" height="13" rx=".5" /></g>
         </g>
       </svg>
       <div style={{ position: "relative" }}>
