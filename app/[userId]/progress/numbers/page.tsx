@@ -45,6 +45,8 @@ export default async function NumbersRoomPage({
   const d = await buildNumbersRoom(dbUserId, period)
   const REG_LABEL: Record<string, string> = { low: "低い弦域（G・D線）", mid: "まん中（A線域）", high: "高い弦域（E線域）" }
   const empty = d.keys.length === 0 && d.registers.length === 0 && d.worstNotes.length === 0
+  const periodLabel = period === "7d" ? "今週" : period === "all" ? "全期間" : "直近30日"
+  const lens = d.worstNotes[0] ?? null // 旧カルテ「いちばんの発見(虫めがね)」をここに集約
 
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", color: "var(--text-ink)" }}>
@@ -72,6 +74,19 @@ export default async function NumbersRoomPage({
         <div style={card}><div style={{ fontSize: "var(--fs-body)", color: SUB, lineHeight: 1.8 }}>この期間の録音がまだ少ないよ。録音がたまると、調・音域・音ごとの数字がここに並びます。</div></div>
       ) : (
         <>
+          {lens && (
+            <div style={{ ...card, borderColor: "#e7b8d0", background: "linear-gradient(155deg,#fff,#fdf1f6)" }}>
+              <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#a4527a", display: "inline-flex", alignItems: "center", gap: 4 }}><Search size={12} /> {periodLabel}の録音ぜんぶから見つけた</div>
+              <div style={{ fontSize: 27, fontWeight: 900, marginTop: 2, lineHeight: 1.15 }}>
+                {lens.kana} <span style={{ fontSize: "var(--fs-caption)", color: SUB, fontWeight: 800 }}>{lens.hand ? `${lens.hand}・推定` : lens.raw}</span>
+              </div>
+              <div style={{ fontSize: "var(--fs-caption)", color: "#6a5f48", marginTop: 4, lineHeight: 1.7 }}>
+                成功 <b style={{ ...tnum, color: pctColor(lens.pct) }}>{lens.pct}%</b>。この期間でいちばんずれやすい音だよ。
+                {lens.cents != null && Math.abs(lens.cents) >= 15 && <>（平均 {lens.cents < 0 ? `ぶら下がり ${lens.cents}` : `上ずり +${lens.cents}`}セント）</>}
+                <span style={{ color: GOLD, fontWeight: 800 }}> 処方はホームのおすすめに出しておくね。</span>
+              </div>
+            </div>
+          )}
           {d.weekMoved.length > 0 && (
             <div style={{ ...card, borderColor: "#d8dcf0" }}>
               <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><Sparkles size={14} color="#3555d4" /> 今週うごいた枝</div>

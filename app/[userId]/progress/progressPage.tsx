@@ -19,7 +19,6 @@ const INK = "#241f14"
 const SUB = "#9a8c74"
 const ACC = "#3555d4"
 const GOOD = "#0f8a4f"
-const BAD = "#d0453a"
 const GOLD = "#b58a1e"
 const WARN = "#c9752e"
 const tnum: React.CSSProperties = { fontVariantNumeric: "tabular-nums" }
@@ -27,16 +26,6 @@ const tnum: React.CSSProperties = { fontVariantNumeric: "tabular-nums" }
 const kicker: React.CSSProperties = { fontSize: 9, fontWeight: 900, letterSpacing: ".24em", color: "#b99b45" }
 const chapTitle: React.CSSProperties = { fontSize: 15, fontWeight: 900, marginTop: 1 }
 const chapNote: React.CSSProperties = { fontSize: 9.5, color: SUB, fontWeight: 700 }
-const railCard: React.CSSProperties = {
-  flex: "none", width: 150, scrollSnapAlign: "start", borderRadius: 15, padding: "12px 13px",
-  boxSizing: "border-box", background: "rgba(255,255,255,.8)", border: "1px solid #efe5cc",
-}
-const litCard: React.CSSProperties = { borderColor: "#e3c96a", background: "linear-gradient(155deg,#fffdf4,#fdf2d2)" }
-const dimCard: React.CSSProperties = { opacity: 0.55, filter: "saturate(.5)" }
-const railStyle: React.CSSProperties = {
-  display: "flex", gap: 10, overflowX: "auto", scrollSnapType: "x mandatory",
-  padding: "12px 18px 16px", scrollbarWidth: "none",
-}
 
 // わざの分類 (SkillsLevelClient と同一。id は SkillNode.id と一致)
 const SKILL_CATEGORIES: { label: string; ids: string[] }[] = [
@@ -44,6 +33,14 @@ const SKILL_CATEGORIES: { label: string; ids: string[] }[] = [
   { label: "フィンガリング（左手）", ids: ["position", "double"] },
   { label: "装飾", ids: ["trill", "mordent", "glissando"] },
   { label: "音色・特殊", ids: ["vibrato", "harmonic"] },
+]
+
+// 表現の分類 (ExpressionLevelClient と同一。id は moodTags の tagId と一致・2026-08-11 Tetsuo承認の4系統)
+const EXPR_CATEGORIES: { label: string; ids: string[] }[] = [
+  { label: "やさしい・歌う", ids: ["mood_dolce", "mood_cantabile", "mood_amoroso", "mood_delicato", "mood_tranquillo"] },
+  { label: "華やか・軽快", ids: ["mood_brillante", "mood_grazioso", "mood_leggiero", "mood_giocoso"] },
+  { label: "力強い・堂々", ids: ["mood_energico", "mood_appassionato", "mood_maestoso", "mood_nobile"] },
+  { label: "表情・幻想", ids: ["mood_espressivo", "mood_misterioso"] },
 ]
 
 /** 金の罫線 (章区切り) */
@@ -235,7 +232,7 @@ function SkillsChapter({ userId, data, readOnly }: { userId: string; data: Karte
   )
 }
 
-/* ═ 表現のレベル: 認定★の横スライド ═ */
+/* ═ 表現の習得状況: 概要=系統バー + 詳細ページへの導線 (詳細は /progress/expression) ═ */
 function ExprChapter({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
   if (!data.v2.expression) {
     if (readOnly) return null
@@ -243,7 +240,7 @@ function ExprChapter({ userId, data, readOnly }: { userId: string; data: KarteDa
       <Reveal>
         <div style={{ padding: "18px 18px 14px", textAlign: "center" }}>
           <div style={kicker}>ESPRESSIONE</div>
-          <div style={chapTitle}>表現のレベル</div>
+          <div style={chapTitle}>表現の習得状況</div>
           <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
             「優しく（Dolce）」「歌うように（Cantabile）」— きみの表現を先生が認定してくれる場所。<br />
             <b>先生とつながると開放</b>されます。
@@ -257,41 +254,42 @@ function ExprChapter({ userId, data, readOnly }: { userId: string; data: KarteDa
     )
   }
   const nodes = data.v2.exprMap.nodes
-  const litCount = nodes.filter((n) => n.star > 0).length
+  const litOf = (n: { star: number }) => n.star > 0
+  const litCount = nodes.filter(litOf).length
+  const byId = new Map(nodes.map((n) => [n.tagId, n]))
+  // 系統ごとの認定ぐあい。総数0の系統は非表示 (実質は常に全4系統)。
+  const cats = EXPR_CATEGORIES.map((c) => {
+    const items = c.ids.map((id) => byId.get(id)).filter((n): n is (typeof nodes)[number] => !!n)
+    return { label: c.label, total: items.length, lit: items.filter(litOf).length }
+  }).filter((c) => c.total > 0)
+
   return (
     <Reveal>
-      <div style={{ padding: "18px 18px 0" }}>
+      <div style={{ padding: "18px 18px 16px" }}>
         <div style={kicker}>ESPRESSIONE</div>
-        <div style={chapTitle}>表現のレベル</div>
+        <div style={chapTitle}>表現の習得状況</div>
         <div style={chapNote}>
-          先生の認定 ・ ★は認定された曲のレベル
-          {litCount === 0 && " ・ 曲で表現して「先生に聴いてもらう」と認定してもらえるよ"}
+          15の表現 ・ {litCount}つ認定
+          {litCount === 0 && " ・ 曲で表現して「先生に聴いてもらう」と認定されるよ"}
         </div>
-      </div>
-      <div style={railStyle}>
-        {nodes.map((n) => {
-          const lit = n.star > 0
-          const latest = n.history[n.history.length - 1]
-          const jp = n.label.replace(/（.+）$/, "")
-          const it = (n.label.match(/（(.+)）$/)?.[1] ?? "").toUpperCase()
-          return (
-            <div key={n.tagId} style={{ ...railCard, ...(lit ? litCard : dimCard) }}>
-              <div style={{ fontSize: 12, fontWeight: 900, lineHeight: 1.4 }}>
-                {jp}
-                {n.isNew && <span style={{ fontSize: 7.5, fontWeight: 900, color: "#fff", background: BAD, borderRadius: 999, padding: "1px 6px", marginLeft: 5, verticalAlign: 2 }}>NEW</span>}
+        {/* 系統ごとの認定ぐあいバー */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
+          {cats.map((c) => (
+            <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ flex: "none", width: 116, fontSize: 10.5, fontWeight: 800, color: INK }}>{c.label}</span>
+              <div style={{ flex: 1, height: 8, borderRadius: 999, background: "rgba(150,130,90,.16)", overflow: "hidden" }}>
+                <div style={{ width: `${(c.lit / c.total) * 100}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#e3c96a,#d8b34e)" }} />
               </div>
-              {it && <div style={{ fontSize: 8, fontWeight: 800, letterSpacing: ".1em", color: SUB, marginTop: 1 }}>{it}</div>}
-              <div style={{ fontSize: 20, fontWeight: 900, marginTop: 5, color: lit ? "#c9820e" : "#c0b598" }}>
-                {lit
-                  ? <>{"★".repeat(Math.min(5, n.star))}<span style={{ color: "#ecdcb2" }}>{"★".repeat(Math.max(0, 5 - n.star))}</span></>
-                  : "☆☆☆☆☆"}
-              </div>
-              <div style={{ fontSize: 9, fontWeight: 800, color: SUB, marginTop: 3, lineHeight: 1.5 }}>
-                {lit ? `${latest?.title ?? ""}で認定` : "これから出会う表現"}
-              </div>
+              <span style={{ ...tnum, flex: "none", width: 34, textAlign: "right", fontSize: 10.5, fontWeight: 900, color: SUB }}>{c.lit}/{c.total}</span>
             </div>
-          )
-        })}
+          ))}
+        </div>
+        {!readOnly && (
+          <Link href={`/${userId}/progress/expression`}
+            style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 12, fontSize: 11.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>
+            表現の習得状況を詳しくみる →
+          </Link>
+        )}
       </div>
     </Reveal>
   )

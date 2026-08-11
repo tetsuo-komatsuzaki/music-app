@@ -81,6 +81,20 @@ export interface SkillMapData {
   nodes: SkillNode[]
 }
 
+// 表現マップ (15語) の1ノード。状態=点灯(★N)/未開拓のみ・バッジ=NEWのみ。
+export interface ExprNode {
+  tagId: string
+  label: string
+  star: number // 0=未開拓
+  isNew: boolean // 7日以内の初認定/★昇格
+  history: { title: string; star: number; date: string; teacher: string }[]
+}
+export interface ExprMapData {
+  nodes: ExprNode[]
+  /** この表現に挑戦する曲 (Score.moodTags 手動タグ・★昇順・最大3) */
+  songsByTag: Record<string, { id: string; title: string; star: number | null }[]>
+}
+
 // 技術定義: 登録star は §2-2b 確定値 ([[project_technique_star_source_of_truth]])
 // tagKeys = UserLessonClear/UserTagAcquisition の tagKey 候補 (v72改名等の揺れを吸収)
 const SKILL_DEFS: Array<{
@@ -173,16 +187,7 @@ export interface KarteV2 {
   /** 表現力レベル (2026-08-06): 先生のクリア認定 → タグごとの最高★ (統一雰囲気タグ台帳) */
   exprLevels: { tagId: string; label: string; star: number; count: number }[]
   /** 表現マップ (2026-08-06確定): 15語全ノード。状態=点灯(★N)/未開拓のみ・バッジ=NEWのみ */
-  exprMap: {
-    nodes: {
-      tagId: string; label: string
-      star: number // 0=未開拓
-      isNew: boolean // 7日以内の初認定/★昇格
-      history: { title: string; star: number; date: string; teacher: string }[]
-    }[]
-    /** この表現に挑戦する曲 (Score.moodTags 手動タグ・★昇順・最大3) */
-    songsByTag: Record<string, { id: string; title: string; star: number | null }[]>
-  }
+  exprMap: ExprMapData
   /** ⑤くわしい数字の表面 = いちばんの発見 + 🔍虫めがね */
   discovery: {
     keyWorst: { label: string; pct: number } | null
