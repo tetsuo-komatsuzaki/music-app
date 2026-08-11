@@ -7,7 +7,21 @@ import { UserRound } from "lucide-react"
 import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
+import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
 import InviteCodeCard from "./InviteCodeCard"
+
+// 直近演奏1件から、いちばんの課題(診断サブタスク名)を1つ取り出す (AIの一言用・軽量)
+function topWeakName(analysisSummary: unknown): string | null {
+  const dj = (analysisSummary as { diagnosis?: { map_available?: boolean; diagnosis?: { pitch?: string[]; rhythm?: string[] } } })?.diagnosis
+  if (!dj?.map_available) return null
+  for (const tree of ["pitch", "rhythm"] as const) {
+    for (const sid of dj.diagnosis?.[tree] ?? []) {
+      const def = SUBTASK_BY_ID[sid]
+      if (def?.diagnosable) return def.name
+    }
+  }
+  return null
+}
 
 export const metadata = { title: "先生モード" }
 
@@ -78,6 +92,26 @@ export default async function TeacherHomePage({
   }
   const totalWait = [...waitCount.values()].reduce((s, n) => s + n, 0)
 
+  // AIの一言 (ルールベース・生徒1人あたり追加1クエリ): 直近演奏の課題 + 返し待ちアクション
+  const aiLine = new Map<string, string>()
+  await Promise.all(studentIds.map(async (id) => {
+    const week = weekCount.get(id) ?? 0
+    const wait = waitCount.get(id) ?? 0
+    if (week === 0) { aiLine.set(id, "今週はまだ練習なし。声をかけてみよう。"); return }
+    let weakName: string | null = null
+    try {
+      const p = await prisma.performance.findFirst({
+        where: { userId: id, pitchAccuracy: { not: null } },
+        orderBy: { uploadedAt: "desc" },
+        select: { analysisSummary: true },
+      })
+      weakName = p ? topWeakName(p.analysisSummary) : null
+    } catch { weakName = null }
+    const head = weakName ? `「${weakName}」が課題。` : "今週も練習中。順調そう。"
+    const tail = wait > 0 ? " 返し待ちがあるよ。" : ""
+    aiLine.set(id, `今週：${head}${tail}`)
+  }))
+
   return (
     <div>
       {/* 紺ヘッダー (モック画面1) */}
@@ -125,6 +159,11 @@ export default async function TeacherHomePage({
                 <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 5 }}>
                   今週 練習 <b style={{ color: "var(--text-ink)" }}>{week}</b>回 ・ 直近 {daysAgoLabel(lastByStudent.get(l.student.id) ?? null)}
                 </div>
+                {aiLine.get(l.student.id) && (
+                  <div style={{ fontSize: "var(--fs-caption)", color: "#4a4066", background: "#f6f4ff", border: "1px solid #e7dcfb", borderRadius: 8, padding: "6px 9px", marginTop: 7, lineHeight: 1.55 }}>
+                    {aiLine.get(l.student.id)}
+                  </div>
+                )}
                 <Link href={`/${userId}/teacher/students/${l.student.id}`}
                   style={{ display: "block", textAlign: "center", marginTop: 9, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: NAVY, borderRadius: 9, padding: "9px 0", textDecoration: "none" }}>
                   カルテを見る →
