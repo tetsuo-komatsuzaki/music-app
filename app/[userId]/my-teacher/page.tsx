@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { getAchievementFlags } from "@/app/_libs/achievementFlags"
+import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
 import MyTeacherClient from "./MyTeacherClient"
 
@@ -126,9 +127,9 @@ export default async function MyTeacherPage({
     select: {
       id: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
       dueDate: true, goalType: true, targetScore: true,
-      doneAt: true, submittedAt: true, submittedScore: true, createdAt: true,
-      score: { select: { id: true, title: true } },
-      practiceItem: { select: { id: true, title: true, category: true } },
+      doneAt: true, passedAt: true, submittedAt: true, submittedScore: true, createdAt: true,
+      score: { select: { id: true, title: true, star: true } },
+      practiceItem: { select: { id: true, title: true, category: true, star: true } },
     },
   })
 
@@ -147,6 +148,7 @@ export default async function MyTeacherPage({
     achieved: a.score?.id ? (hwAchFlags.get(a.score.id)?.achieved ?? false) : false,
     mastered: a.score?.id ? (hwAchFlags.get(a.score.id)?.mastered ?? false) : false,
     done: a.doneAt != null,
+    passed: a.passedAt != null,
     submitted: a.submittedAt != null,
     submittedScore: a.submittedScore,
     date: a.createdAt.toLocaleDateString("ja-JP"),
@@ -156,6 +158,18 @@ export default async function MyTeacherPage({
         ? `/${userId}/practice/${a.practiceItem.category}/${a.practiceItem.id}`
         : `/${userId}`,
   }))
+
+  // 合格の履歴 (2026-08-11): カテゴリ→★でまとめる共有ビュー用
+  const md = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`
+  const passedItems = assignments
+    .filter((a) => a.passedAt != null)
+    .map((a) => ({
+      title: a.score?.title ?? a.practiceItem?.title ?? "課題",
+      cat: a.score ? "曲" : a.practiceItem ? categoryLabel(a.practiceItem.category) : "その他",
+      star: a.score?.star ?? a.practiceItem?.star ?? null,
+      when: md(a.passedAt as Date),
+      score: a.submittedScore,
+    }))
 
   // 「すべて＝これまでのやりとり」: いまは宿題とそのコメントをイベント化して時系列に
   type Ev = { at: number; when: string; kind: "hw" | "comment"; text: string; href?: string; icon?: string }
@@ -236,6 +250,7 @@ export default async function MyTeacherPage({
       timeline={events.map(({ when, kind, text, href }) => ({ when, kind, text, href }))}
       homework={hw}
       karteItems={karteItems}
+      passedItems={passedItems}
       feedbacks={feedbacks}
       lessons={lessons}
       nextLessonLabel={nextLessonLabel}

@@ -87,8 +87,8 @@ export default async function StudentKartePage({
       select: {
         id: true, scoreId: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
         dueDate: true, goalType: true, targetScore: true, moodTagId: true,
-        doneAt: true, submittedAt: true, submittedScore: true, createdAt: true,
-        score: { select: { title: true } }, practiceItem: { select: { title: true } },
+        doneAt: true, passedAt: true, submittedAt: true, submittedScore: true, createdAt: true,
+        score: { select: { title: true, star: true } }, practiceItem: { select: { title: true, category: true, star: true } },
       },
     }),
   ])
@@ -280,9 +280,22 @@ export default async function StudentKartePage({
   let numbers: NumbersRoomData | null = null
   try { numbers = await buildNumbersRoom(studentId, "14d") } catch { numbers = null }
 
+  // 合格の履歴 (2026-08-11): カテゴリ→★でまとめる共有ビュー用
+  const mdP = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`
+  const passedItems = assignments
+    .filter((a) => a.passedAt != null)
+    .map((a) => ({
+      title: a.score?.title ?? a.practiceItem?.title ?? "課題",
+      cat: a.score ? "曲" : a.practiceItem?.category ? categoryLabel(a.practiceItem.category) : "その他",
+      star: a.score?.star ?? a.practiceItem?.star ?? null,
+      when: mdP(a.passedAt as Date),
+      score: a.submittedScore,
+    }))
+
   return (
     <StudentKarte
       remarks={remarks}
+      passedItems={passedItems}
       worstNotes={numbers?.worstNotes ?? []}
       bestNotes={numbers?.bestNotes ?? []}
       userId={userId}
@@ -323,6 +336,7 @@ export default async function StudentKartePage({
         achieved: a.scoreId ? (achFlags.get(a.scoreId)?.achieved ?? false) : false,
         mastered: a.scoreId ? (achFlags.get(a.scoreId)?.mastered ?? false) : false,
         done: a.doneAt != null,
+        passed: a.passedAt != null,
         submitted: a.submittedAt != null,
         submittedScore: a.submittedScore,
         createdAt: a.createdAt.toLocaleDateString("ja-JP"),

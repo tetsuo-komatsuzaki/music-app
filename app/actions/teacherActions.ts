@@ -296,6 +296,28 @@ export async function sendCelebration(
 }
 
 /** 生徒: 宿題を提出する。performanceId 指定でその演奏を、未指定なら最新の評価済み演奏を紐付ける。 */
+/** 宿題を合格にする (2026-08-11): クリア=提出→先生の合格。提出前は不可 */
+export async function passAssignment(assignmentId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  if (auth.user.dbUser.role !== "teacher") return { ok: false, error: "先生アカウントが必要です" }
+  try {
+    const a = await prisma.assignment.findFirst({
+      where: { id: assignmentId, teacherId: auth.user.dbUser.id },
+      select: { id: true, submittedAt: true, passedAt: true, studentId: true, score: { select: { title: true } }, practiceItem: { select: { title: true } } },
+    })
+    if (!a) return { ok: false, error: "宿題が見つかりません" }
+    if (!a.submittedAt) return { ok: false, error: "まだ提出されていません" }
+    if (a.passedAt) return { ok: true }
+    await prisma.assignment.update({ where: { id: a.id }, data: { passedAt: new Date(), doneAt: new Date() } })
+    const title = a.score?.title ?? a.practiceItem?.title ?? "宿題"
+    await notifyStudent(a.studentId, auth.user.dbUser.id, "assignment", `宿題「${title}」に合格！`)
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "保存に失敗しました" }
+  }
+}
+
 export async function submitAssignment(
   assignmentId: string,
   performanceId?: string,

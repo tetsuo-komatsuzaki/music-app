@@ -7,9 +7,10 @@ import { Ear, Library, Palette, MessageCircle, FileMusic } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MOOD_TAG_DEFS, moodTagPhrase, moodTagLabel } from "@/app/_libs/moodTags"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
-import { createAssignment, sendMessageToStudent } from "@/app/actions/teacherActions"
+import { createAssignment, sendMessageToStudent, passAssignment } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
 import ProgressPage from "@/app/[userId]/progress/progressPage"
+import PassedHwHistory, { type PassedHwItem } from "@/app/components/PassedHwHistory"
 import type { KarteData, RemarkTrack, NumbersRoomData } from "@/app/_libs/growthKarte"
 
 // 数値入力を打った瞬間に上限へ収める (2026-08-08)。サーバーのクランプと一致させ、
@@ -45,6 +46,7 @@ type AssignmentRow = {
   achieved: boolean
   mastered: boolean
   done: boolean
+  passed: boolean
   submitted: boolean
   submittedScore: number | null
   createdAt: string
@@ -67,6 +69,7 @@ export default function StudentKarte({
   karte = null,
   studentSupabaseUserId = null,
   remarks = [],
+  passedItems = [],
   worstNotes = [],
   bestNotes = [],
 }: {
@@ -93,13 +96,15 @@ export default function StudentKarte({
   studentSupabaseUserId?: string | null
   /** 指摘トラッキング (v3第2段③) */
   remarks?: RemarkTrack[]
+  /** 宿題 合格の履歴 (2026-08-11) */
+  passedItems?: PassedHwItem[]
   /** 強み・弱み (記録の分析=音×成功率と同じ土俵・直近2週間) */
   worstNotes?: WorstNote[]
   bestNotes?: BestNote[]
 }) {
   // 先生カルテ v3 (2026-08-11 再設計・最終モック=3タブ): 主役=まとめ(理解の統合)＋練習後カルテ(曲別)。成長カルテは脇役。
   // 旧「宿題・指導」タブは廃止: 依頼/返し待ち/宿題を出す/認定は「まとめ」に統合、癖は練習後カルテ詳細で書く。
-  const [tab, setTab] = useState<"summary" | "karte" | "growth">("summary")
+  const [tab, setTab] = useState<"summary" | "karte" | "growth" | "passed">("summary")
   return (
     // 先生カルテv3 (2026-08-11): モック(teacher-all-screens)準拠のダッシュボード基調。
     // 紺ヘッダー + 白タブバー + ソフトグレー地。
@@ -110,7 +115,7 @@ export default function StudentKarte({
       </div>
 
       <div style={{ display: "flex", gap: 4, background: "#eef1f6", borderBottom: "1px solid #e6e9ef", padding: "7px 10px" }}>
-        {([["summary", "まとめ"], ["karte", "練習後カルテ"], ["growth", "成長カルテ"]] as const).map(([k, label]) => (
+        {([["summary", "まとめ"], ["karte", "練習後カルテ"], ["growth", "成長カルテ"], ["passed", "合格の履歴"]] as const).map(([k, label]) => (
           <button
             key={k}
             type="button"
@@ -151,6 +156,7 @@ export default function StudentKarte({
           <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>成長カルテを読み込めませんでした。</div></Card>
         )
       )}
+      {tab === "passed" && <PassedHwHistory items={passedItems} />}
       </div>
     </div>
   )
@@ -216,9 +222,12 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
             <span style={{ marginLeft: "auto", flex: "none", fontWeight: 900, color: a.submittedScore != null ? kScoreColor(a.submittedScore) : "var(--text-muted)" }}>{a.submittedScore != null ? `${a.submittedScore}点` : "提出済み"}</span>
           </div>
           {a.moodTagId && <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#a9741c", marginTop: 3 }}>目標: {moodTagPhrase(a.moodTagId)}</div>}
-          <Link href={annotateHref(a.scoreId!, a.moodTagId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#3b56d4", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
-            採点カルテを書いて返す →
-          </Link>
+          <div style={{ display: "flex", gap: 7, marginTop: 8 }}>
+            <Link href={annotateHref(a.scoreId!, a.moodTagId)} style={{ flex: 1.4, textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#3b56d4", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
+              採点カルテを書いて返す →
+            </Link>
+            <PassButton assignmentId={a.id} />
+          </div>
         </div>
       ))}
 
@@ -352,6 +361,27 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
   )
 }
 
+
+/* ═ 宿題を合格にする (2026-08-11: クリア=提出→先生の合格) ═ */
+function PassButton({ assignmentId }: { assignmentId: string }) {
+  const router = useRouter()
+  const [pending, start] = useTransition()
+  const [err, setErr] = useState(false)
+  const pass = () => {
+    if (!window.confirm("この宿題を合格にしますか？（生徒に「合格！」が届きます）")) return
+    start(async () => {
+      const r = await passAssignment(assignmentId)
+      if (r.ok) router.refresh()
+      else setErr(true)
+    })
+  }
+  return (
+    <button type="button" onClick={pass} disabled={pending}
+      style={{ flex: 1, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#158253", border: "none", borderRadius: 8, padding: "8px 0", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+      {pending ? "…" : err ? "失敗" : "合格にする"}
+    </button>
+  )
+}
 
 /* ═ 主役②: 練習後カルテ (曲別。曲→この曲のカルテを横スライド) ═ */
 type SongGroup = { title: string; cat: string; kind: "score" | "practice"; star: number | null; recs: Recording[]; count: number; latest: Recording; trend: number }
@@ -741,27 +771,11 @@ function Homework({
             <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} style={inp} />
           </label>
 
-          <div style={{ ...lbl, marginTop: 10 }}>合格の目安（任意）</div>
-          <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
-            {([["score", "点数"], ["achieve", "達成"], ["master", "マスター"]] as const).map(([g, label]) => (
-              <button
-                key={g}
-                type="button"
-                onClick={() => setGoalType((cur) => (cur === g ? "" : g))}
-                style={{ flex: 1, border: "1px solid", borderColor: goalType === g ? "#8a5a1f" : "#e8e0cc", background: goalType === g ? "#8a5a1f" : "rgba(255,255,255,.7)", color: goalType === g ? "#fff" : "#9a8c74", borderRadius: 8, padding: "6px 0", fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer" }}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          {goalType === "score" && (
-            <label style={{ ...lbl, display: "block", marginTop: 8 }}>合格ライン（点）
-              <input value={targetScore} onChange={(e) => setTargetScore(clampNumStr(e.target.value, 100))} placeholder="80" style={inp} inputMode="numeric" />
-            </label>
-          )}
-          {goalType === "master" && (
-            <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 6 }}>マスター＝達成＋直近5回の平均90点以上（曲のみ）</div>
-          )}
+          {/* 2026-08-11 Tetsuo確定: ゴール=先生が設定する点数のみ。クリア=提出→先生の合格 */}
+          <label style={{ ...lbl, display: "block", marginTop: 10 }}>ゴール（合格ラインの点数・任意）
+            <input value={targetScore} onChange={(e) => { setTargetScore(clampNumStr(e.target.value, 100)); setGoalType(e.target.value ? "score" : "") }} placeholder="80" style={inp} inputMode="numeric" />
+          </label>
+          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 4 }}>クリアは、生徒の提出をあなたが「合格」にしたときです。</div>
 
           {/* 意識する表現 (2026-08-05): 統一雰囲気タグから1つ。「この曲では◯◯を意識しよう」 */}
           <label style={{ ...lbl, display: "block", marginTop: 10 }}><Palette size={12} style={{ verticalAlign: -1, marginRight: 4 }} />意識する表現（任意）

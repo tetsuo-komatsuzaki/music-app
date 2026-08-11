@@ -11,6 +11,7 @@ import { unlinkTeacher } from "@/app/actions/teacherActions"
 import { bookLesson, cancelMyBooking } from "@/app/actions/teacherLessons"
 import AssignmentSubmit from "@/app/components/AssignmentSubmit"
 import { goalLabel, dueInfo, DUE_COLOR, goalResult } from "@/app/_libs/assignmentGoal"
+import PassedHwHistory, { type PassedHwItem } from "@/app/components/PassedHwHistory"
 
 type TimelineEv = { when: string; kind: "hw" | "comment"; text: string; href?: string | null; icon?: string }
 
@@ -34,7 +35,7 @@ const INK = "#26303a"
 const SUB = "#6b7885"
 
 export default function MyTeacherClient({
-  userId, teacherName, since, timeline, homework, karteItems = [], feedbacks, lessons, nextLessonLabel,
+  userId, teacherName, since, timeline, homework, karteItems = [], passedItems = [], feedbacks, lessons, nextLessonLabel,
 }: {
   userId: string
   teacherName: string
@@ -42,14 +43,15 @@ export default function MyTeacherClient({
   timeline: TimelineEv[]
   homework: Homework[]
   karteItems?: KarteItem[]
+  passedItems?: PassedHwItem[]
   feedbacks: Feedback[]
   lessons: Lessons
   nextLessonLabel: string | null
 }) {
   // ?tab=karte 等の初期タブ指定 (ホームの「練習後カルテが届いたよ」通知から)
   const sp = useSearchParams()
-  const initTab = (["all", "hw", "karte", "review"] as const).find((t) => t === sp.get("tab")) ?? "all"
-  const [tab, setTab] = useState<"all" | "hw" | "karte" | "review">(initTab)
+  const initTab = (["all", "hw", "karte", "passed", "review"] as const).find((t) => t === sp.get("tab")) ?? "all"
+  const [tab, setTab] = useState<"all" | "hw" | "karte" | "passed" | "review">(initTab)
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
@@ -84,7 +86,7 @@ export default function MyTeacherClient({
 
       {/* タブ */}
       <div style={{ display: "flex", gap: 3, background: "#fff", border: "1px solid #eef1f4", borderRadius: 10, padding: 3, margin: "12px 0" }}>
-        {([["all", "すべて"], ["hw", "宿題"], ["karte", "練習後カルテ"], ["review", "添削"]] as const).map(([k, label]) => (
+        {([["all", "すべて"], ["hw", "宿題"], ["karte", "練習後カルテ"], ["passed", "合格の履歴"], ["review", "添削"]] as const).map(([k, label]) => (
           <button key={k} type="button" onClick={() => setTab(k)}
             style={{ flex: 1, border: "none", background: tab === k ? ACCENT : "transparent", color: tab === k ? "#fff" : SUB, borderRadius: 8, padding: "7px 0", fontSize: "var(--fs-caption)", fontWeight: 800, cursor: "pointer" }}>
             {label}
@@ -95,6 +97,7 @@ export default function MyTeacherClient({
       {tab === "all" && <AllTab timeline={timeline} />}
       {tab === "hw" && <HwTab homework={homework} />}
       {tab === "karte" && <KarteTab items={karteItems} />}
+      {tab === "passed" && <PassedHwHistory items={passedItems} />}
       {tab === "review" && <ReviewTab userId={userId} feedbacks={feedbacks} />}
 
       {/* 解約 */}
