@@ -7,9 +7,11 @@ import { useRouter } from "next/navigation"
 import { ArrowLeft, MessageCircle, Check } from "lucide-react"
 import { sendMessageToStudent } from "@/app/actions/teacherActions"
 import { createObservation } from "@/app/actions/teacherObservations"
+import { saveMaterialNote } from "@/app/actions/teacherMaterialNotes"
 import { OBSERVATION_CATALOG, OBSERVATION_SEVERITIES } from "@/app/_libs/observationCatalog"
 
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
+type MaterialRow = { itemId: string; label: string; category: string; star: number | null; point: string }
 const scoreColor = (n: number) => (n >= 90 ? "#2e8b57" : n >= 70 ? "#b7823a" : "#c0473a")
 
 export default function KarteDetailClient(props: {
@@ -17,8 +19,9 @@ export default function KarteDetailClient(props: {
   title: string; cat: string; star: number | null; date: string
   pitch: number; timing: number; avg: number; weak: WeakSlot[]
   audioUrl: string | null; aiTags: { id: string; label: string }[]
+  materials?: MaterialRow[]
 }) {
-  const { backHref, studentId, perfId, kind, title, cat, star, date, pitch, timing, avg, weak, audioUrl, aiTags } = props
+  const { backHref, studentId, perfId, kind, title, cat, star, date, pitch, timing, avg, weak, audioUrl, aiTags, materials = [] } = props
   const router = useRouter()
 
   // コメント
@@ -116,6 +119,19 @@ export default function KarteDetailClient(props: {
         )}
       </div>
 
+      {/* この曲のおすすめ練習 (生徒のホームに表示中) + 練習ポイント */}
+      {materials.length > 0 && (
+        <div style={card}>
+          <div style={lab}>この曲のおすすめ練習（生徒のホームに表示中）</div>
+          <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", margin: "-4px 0 10px", lineHeight: 1.5 }}>
+            「毎日の基礎練」として生徒に出ている教材です。練習ポイントを書くと、生徒がその教材を開いたときに表示されます（宿題にはなりません）。
+          </div>
+          {materials.map((m) => (
+            <MaterialPointRow key={m.itemId} studentId={studentId} m={m} />
+          ))}
+        </div>
+      )}
+
       {/* 癖 */}
       <div style={{ ...card, marginBottom: 0 }}>
         <div style={lab}>癖を記録（選ぶ＋重さ＋自由記述）</div>
@@ -161,6 +177,38 @@ export default function KarteDetailClient(props: {
           </>
         )}
       </div>
+    </div>
+  )
+}
+
+/* ═ おすすめ教材1行: 練習ポイントの記入 (upsert・空で削除) ═ */
+function MaterialPointRow({ studentId, m }: { studentId: string; m: MaterialRow }) {
+  const [text, setText] = useState(m.point)
+  const [saved, setSaved] = useState<null | boolean>(null)
+  const [pending, start] = useTransition()
+  const save = () => {
+    start(async () => {
+      const r = await saveMaterialNote({ studentId, practiceItemId: m.itemId, point: text })
+      setSaved(r.ok)
+    })
+  }
+  const dirty = text.trim() !== m.point.trim() && saved !== true
+  return (
+    <div style={{ border: "1px solid #eef1f4", borderRadius: 10, padding: "9px 11px", marginBottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+        <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", flex: "none" }}>{m.label}</span>
+        {m.star != null && <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#b58a1e", flex: "none" }}>★{m.star}</span>}
+        {m.point && saved == null && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-good)", flex: "none" }}>ポイント記入済み</span>}
+        {saved === true && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-good)", flex: "none", display: "inline-flex", alignItems: "center", gap: 3 }}><Check size={12} /> 保存しました</span>}
+        {saved === false && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "#c0473a", flex: "none" }}>保存に失敗</span>}
+      </div>
+      <textarea value={text} onChange={(e) => { setText(e.target.value); setSaved(null) }} rows={2}
+        placeholder="練習ポイント（例：4の指の音程をよく聴いて。ゆっくりから）"
+        style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box", marginTop: 7 }} />
+      <button type="button" onClick={save} disabled={pending || !dirty}
+        style={{ marginTop: 6, fontSize: "var(--fs-label)", fontWeight: 800, color: "#fff", background: "#3b56d4", border: "none", borderRadius: 8, padding: "6px 14px", cursor: "pointer", opacity: pending || !dirty ? 0.45 : 1 }}>
+        {pending ? "保存中…" : m.point && !text.trim() ? "ポイントを消す" : "ポイントを保存"}
+      </button>
     </div>
   )
 }

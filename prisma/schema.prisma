@@ -93,6 +93,8 @@ model User {
   lessonsAsStudent    Lesson[]          @relation("lessonStudent")
   observationsAsTeacher TeacherObservation[] @relation("obsTeacher")
   observationsAsStudent TeacherObservation[] @relation("obsStudent")
+  materialNotesAsTeacher TeacherMaterialNote[] @relation("matNoteTeacher")
+  materialNotesAsStudent TeacherMaterialNote[] @relation("matNoteStudent")
   exprClearsAsTeacher   UserExpressionClear[] @relation("exprClearTeacher")
   exprClearsAsStudent   UserExpressionClear[] @relation("exprClearStudent")
   listenRequestsAsTeacher ListenRequest[] @relation("listenReqTeacher")
@@ -428,6 +430,7 @@ model PracticeItem {
   // ▼ お気に入り (2026-07-20)
   favorites   Favorite[]
   assignments Assignment[] // 先生機能: この教材を対象にした宿題
+  teacherMaterialNotes TeacherMaterialNote[] // 先生の練習ポイント (宿題ではない・2026-08-11)
 
   @@index([category, keyTonic, keyMode])
   @@index([category, isPublished, sortOrder])
@@ -1275,6 +1278,26 @@ model TeacherObservation {
 
   @@index([studentId, createdAt])
   @@index([teacherId, studentId, createdAt])
+}
+
+// 先生の練習ポイント (2026-08-11 先生カルテv3)。ホームの「毎日の基礎練」に出ている
+// おすすめ教材へ、先生が一言を添える。宿題(Assignment)ではない軽いメモ。
+// 先生×生徒×教材で1件 (upsert=あとから編集)。生徒の教材ページに表示。
+model TeacherMaterialNote {
+  id             String   @id @default(cuid())
+  teacherId      String
+  studentId      String
+  practiceItemId String
+  point          String // 練習ポイント本文
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  teacher      User         @relation("matNoteTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  student      User         @relation("matNoteStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, studentId, practiceItemId])
+  @@index([studentId, practiceItemId])
 }
 
 // 先生プロフィール (2026-08-01 Phase2)。先生が自分で編集。「先生を探す」ページに掲載。

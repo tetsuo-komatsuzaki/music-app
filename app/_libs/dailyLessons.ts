@@ -385,3 +385,44 @@ export async function selectDailyLessons(opts: {
 
   return out
 }
+
+// ── 先生カルテv3 (2026-08-11): ある生徒×曲の「毎日の基礎練」をサーバー側から取得 ──
+// achievement-status route (app/api/scores/[scoreId]/achievement-status) と同じ配線。
+// 生徒のホームに実際に出ている4教材と同一の結果を返す。route側の配線を変えたらここも同期。
+export async function getDailyLessonsForUserScore(
+  dbUserId: string, scoreId: string,
+): Promise<DailyLesson[]> {
+  const score = await prisma.score.findUnique({
+    where: { id: scoreId },
+    select: {
+      star: true, keyTonic: true, keyMode: true, defaultTempo: true,
+      positions: true, primaryBowing: true, primaryPosition: true,
+      scoreTechniqueTags: { select: { techniqueTag: { select: { name: true } } } },
+      featureTags: { select: { featureTag: { select: { category: true, name: true, isAcquisition: true } } } },
+    },
+  })
+  if (!score) return []
+  const [starProgress, achievement] = await Promise.all([
+    prisma.userStarProgress.findUnique({ where: { userId: dbUserId }, select: { currentStar: true } }),
+    prisma.userScoreAchievement.findUnique({
+      where: { userId_scoreId: { userId: dbUserId, scoreId } },
+      select: { masteredAt: true },
+    }),
+  ])
+  return selectDailyLessons({
+    userId: dbUserId,
+    userStar: starProgress?.currentStar ?? score.star ?? 1,
+    scoreId,
+    songMastered: achievement?.masteredAt != null,
+    score: {
+      star: score.star, keyTonic: score.keyTonic, keyMode: score.keyMode,
+      defaultTempo: score.defaultTempo,
+      positions: score.positions.filter((n) => n >= 2),
+      primaryBowing: score.primaryBowing, primaryPosition: score.primaryPosition,
+      techNames: score.scoreTechniqueTags.map((t) => t.techniqueTag.name),
+      acqFeatureKeys: score.featureTags
+        .filter((f) => f.featureTag.isAcquisition)
+        .map((f) => `${f.featureTag.category}:${f.featureTag.name}`),
+    },
+  })
+}

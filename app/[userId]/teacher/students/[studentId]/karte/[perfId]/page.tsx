@@ -8,6 +8,7 @@ import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
 import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
+import { getDailyLessonsForUserScore } from "@/app/_libs/dailyLessons"
 import KarteDetailClient from "./KarteDetailClient"
 
 export const metadata = { title: "練習後カルテ" }
@@ -72,16 +73,18 @@ export default async function KarteDetailPage({
   let title = "演奏"; let cat = "曲"; let star: number | null = null
   let pitch = 0; let timing = 0; let avg = 0; let weak: WeakSlot[] = []
   let audioPath: string | null = null; let date = ""
+  let scoreId: string | null = null
 
   if (kind === "score") {
     const p = await prisma.performance.findFirst({
       where: { id: perfId, userId: studentId },
-      select: { uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, rangeFromNote: true, score: { select: { title: true, star: true } } },
+      select: { uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, rangeFromNote: true, scoreId: true, score: { select: { title: true, star: true } } },
     })
     if (!p) redirect(backHref)
     title = p.score?.title ?? "曲"; star = p.score?.star ?? null; cat = p.rangeFromNote != null ? "曲（区間）" : "曲"
     pitch = Math.round(p.pitchAccuracy ?? 0); timing = Math.round(p.timingAccuracy ?? 0); avg = avg2(p.pitchAccuracy, p.timingAccuracy)
     weak = topWeak(p.analysisSummary); audioPath = p.audioPath; date = p.uploadedAt.toLocaleDateString("ja-JP")
+    scoreId = p.scoreId
   } else {
     const p = await prisma.practicePerformance.findFirst({
       where: { id: perfId, userId: studentId },
@@ -98,8 +101,30 @@ export default async function KarteDetailPage({
     ? await storageAdmin.storage.from("performances").createSignedUrl(audioPath, 600).then((x) => encodeSignedUrl(x.data?.signedUrl)).catch(() => null)
     : null
 
+  // この曲について生徒のホームに出ている「毎日の基礎練」(4教材) + 既存の練習ポイント
+  // (migration未適用環境でも落ちないよう read防御)
+  let materials: { itemId: string; label: string; category: string; star: number | null; point: string }[] = []
+  if (kind === "score" && scoreId) {
+    try {
+      const lessons = await getDailyLessonsForUserScore(studentId, scoreId)
+      let noteMap = new Map<string, string>()
+      try {
+        const notes = await prisma.teacherMaterialNote.findMany({
+          where: { teacherId: me.id, studentId, practiceItemId: { in: lessons.map((l) => l.itemId) } },
+          select: { practiceItemId: true, point: true },
+        })
+        noteMap = new Map(notes.map((n) => [n.practiceItemId, n.point]))
+      } catch { noteMap = new Map() }
+      materials = lessons.map((l) => ({
+        itemId: l.itemId, label: l.label, category: l.category, star: l.star,
+        point: noteMap.get(l.itemId) ?? "",
+      }))
+    } catch { materials = [] }
+  }
+
   return (
     <KarteDetailClient
+      materials={materials}
       backHref={backHref}
       studentId={studentId}
       perfId={perfId}

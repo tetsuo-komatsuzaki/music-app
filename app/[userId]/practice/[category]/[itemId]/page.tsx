@@ -173,6 +173,17 @@ export default async function PracticeDetailPage({
     })
   } catch { favRow = null }
 
+  // 先生の練習ポイント (2026-08-11 先生カルテv3)。migration未適用環境でも落ちないよう read防御
+  let teacherNote: { point: string; teacherName: string } | null = null
+  try {
+    const n = await prisma.teacherMaterialNote.findFirst({
+      where: { studentId: dbUserId, practiceItemId: item.id },
+      orderBy: { updatedAt: "desc" },
+      select: { point: true, teacher: { select: { name: true } } },
+    })
+    if (n) teacherNote = { point: n.point, teacherName: n.teacher.name }
+  } catch { teacherNote = null }
+
   return (
     <div>
       {/* パンくず */}
@@ -193,6 +204,20 @@ export default async function PracticeDetailPage({
               練習がおわったら<b style={{ color: "var(--text-link)" }}>「{fromScore.title}」にもどる →</b>
             </span>
           </a>
+        </div>
+      )}
+
+      {/* 先生の練習ポイント (宿題ではない・おすすめ教材への一言) */}
+      {teacherNote && (
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "10px 24px 0" }}>
+          <div style={{ background: "#fdfaf2", border: "1px solid #eed9a0", borderRadius: 12, padding: "11px 14px" }}>
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-master)" }}>
+              {teacherNote.teacherName}先生の練習ポイント
+            </div>
+            <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.65, marginTop: 4, whiteSpace: "pre-wrap" }}>
+              {teacherNote.point}
+            </div>
+          </div>
         </div>
       )}
 
