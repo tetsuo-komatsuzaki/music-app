@@ -3,18 +3,12 @@
 // 生徒カルテ UI (2026-07-28)。タブ = 概要 / 宿題。将来タブ(診断/添削)はここに足すだけ。
 import { useState, useTransition } from "react"
 import Link from "next/link"
-import { Leaf, Sprout, Inbox, Ear, Library, Palette, MessageCircle, Target, Calendar, Sparkles, Trophy, ClipboardList, FileText, PartyPopper, FileMusic } from "lucide-react"
+import { Ear, Library, Palette, MessageCircle, FileMusic } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MOOD_TAG_DEFS, moodTagPhrase, moodTagLabel } from "@/app/_libs/moodTags"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
-import { createAssignment, sendMessageToStudent, sendCelebration } from "@/app/actions/teacherActions"
+import { createAssignment, sendMessageToStudent } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
-import { createObservation, recordObservationProgress } from "@/app/actions/teacherObservations"
-import { EXPRESSION_TAGS, expressionLabel } from "@/app/_libs/expressionCatalog"
-import { OBSERVATION_CATALOG, OBSERVATION_TAG_BY_ID, OBSERVATION_SEVERITIES } from "@/app/_libs/observationCatalog"
-import { BODY_VIEWS, NON_BODY_CATEGORIES, spotsOf, type BodyViewId } from "@/app/_libs/bodyMap"
-import BodyFigure from "@/app/components/BodyFigure"
-import BodyObsMap, { type BodyObsItem } from "@/app/components/BodyObsMap"
 import ProgressPage from "@/app/[userId]/progress/progressPage"
 import type { KarteData, RemarkTrack, NumbersRoomData } from "@/app/_libs/growthKarte"
 
@@ -25,46 +19,6 @@ function clampNumStr(raw: string, max: number): string {
   return d === "" ? "" : String(Math.min(max, Number(d)))
 }
 
-/** 履歴(新しい順)からタグごとに最新の所見1件を取り出す (癖マップ表示用) */
-function latestPerTag(observations: ObservationRow[]): BodyObsItem[] {
-  const m = new Map<string, BodyObsItem>()
-  for (const o of observations) {
-    for (const t of o.tagIds) if (!m.has(t)) m.set(t, { tagId: t, severity: o.severity, date: o.date })
-  }
-  return [...m.values()]
-}
-
-/** レッスン直後の経過記録 (まだ / 🌿良くなってきた / 🌱克服)。克服だけ二度押し確認 */
-function ObsProgressButtons({ studentId, tag }: { studentId: string; tag: BodyObsItem }) {
-  const router = useRouter()
-  const [pending, start] = useTransition()
-  const [confirmResolve, setConfirmResolve] = useState(false)
-  const [err, setErr] = useState<string | null>(null)
-
-  const record = (status: "still" | "improving" | "resolved") => {
-    setErr(null)
-    start(async () => {
-      const r = await recordObservationProgress({ studentId, tagId: tag.tagId, status })
-      if (r.ok) { setConfirmResolve(false); router.refresh() }
-      else setErr(r.error)
-    })
-  }
-  const b: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1px solid #e2e6ea", background: "#fff", color: "var(--text-sub)" }
-
-  return (
-    <div style={{ display: "flex", gap: 5, flexWrap: "wrap", alignItems: "center", opacity: pending ? 0.5 : 1 }}>
-      <button type="button" disabled={pending} onClick={() => record("still")} style={b}>まだある</button>
-      <button type="button" disabled={pending} onClick={() => record("improving")} style={{ ...b, color: "var(--text-good)", borderColor: "#cfe6d8", display: "inline-flex", alignItems: "center", gap: 4 }}><Leaf size={12} /> 良くなってきた</button>
-      {confirmResolve ? (
-        <button type="button" disabled={pending} onClick={() => record("resolved")}
-          style={{ ...b, color: "var(--text-on-accent)", background: "#2e8b57", borderColor: "#2e8b57", display: "inline-flex", alignItems: "center", gap: 4 }}><Sprout size={12} /> 克服にする（もう一度押して確定）</button>
-      ) : (
-        <button type="button" disabled={pending} onClick={() => setConfirmResolve(true)} style={{ ...b, color: "var(--text-good)", borderColor: "#cfe6d8", display: "inline-flex", alignItems: "center", gap: 4 }}><Sprout size={12} /> 克服</button>
-      )}
-      {err && <span style={{ fontSize: "var(--fs-label)", color: "var(--text-error)" }}>{err}</span>}
-    </div>
-  )
-}
 import { goalLabel, dueInfo, DUE_COLOR, scorePassed, goalResult } from "@/app/_libs/assignmentGoal"
 
 type Target = { id: string; title: string; group?: string }
@@ -98,7 +52,7 @@ type AssignmentRow = {
 
 type ObservationRow = { id: string; tagIds: string[]; severity: string | null; comment: string | null; date: string }
 type ExpressionRow = { id: string; tagId: string; severity: string | null; comment: string | null; date: string }
-type WorkItem = { title: string; cat: string; avg: number }
+type WorkItem = { title: string; cat: string; kind: "score" | "practice"; avg: number; first: number; count: number; perfId: string }
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
 type ListenReq = { id: string; scoreId: string; title: string; avg: number | null; date: string }
 type Recording = { id: string; kind: "score" | "practice"; title: string; cat: string; star: number | null; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[] }
@@ -143,8 +97,9 @@ export default function StudentKarte({
   worstNotes?: WorstNote[]
   bestNotes?: BestNote[]
 }) {
-  // 先生カルテ v3 (2026-08-11 再設計): 主役=まとめ(理解の統合)＋練習後カルテ(曲別一覧)。成長カルテは脇役。宿題・指導は当面タブ維持(将来インライン化)。
-  const [tab, setTab] = useState<"summary" | "karte" | "teach" | "growth">("summary")
+  // 先生カルテ v3 (2026-08-11 再設計・最終モック=3タブ): 主役=まとめ(理解の統合)＋練習後カルテ(曲別)。成長カルテは脇役。
+  // 旧「宿題・指導」タブは廃止: 依頼/返し待ち/宿題を出す/認定は「まとめ」に統合、癖は練習後カルテ詳細で書く。
+  const [tab, setTab] = useState<"summary" | "karte" | "growth">("summary")
   return (
     // 先生カルテv3 (2026-08-11): モック(teacher-all-screens)準拠のダッシュボード基調。
     // 紺ヘッダー + 白タブバー + ソフトグレー地。
@@ -155,7 +110,7 @@ export default function StudentKarte({
       </div>
 
       <div style={{ display: "flex", gap: 4, background: "#eef1f6", borderBottom: "1px solid #e6e9ef", padding: "7px 10px" }}>
-        {([["summary", "まとめ"], ["karte", "練習後カルテ"], ["teach", "宿題・指導"], ["growth", "成長カルテ"]] as const).map(([k, label]) => (
+        {([["summary", "まとめ"], ["karte", "練習後カルテ"], ["growth", "成長カルテ"]] as const).map(([k, label]) => (
           <button
             key={k}
             type="button"
@@ -176,10 +131,15 @@ export default function StudentKarte({
       <div style={{ padding: "12px 12px 14px" }}>
 
       {tab === "summary" && (
-        <SummaryTab briefing={briefing} working={working} recordings={recordings} remarks={remarks} worstNotes={worstNotes} bestNotes={bestNotes} onGoKarte={() => setTab("karte")} />
+        <SummaryTab
+          userId={userId} studentId={studentId} briefing={briefing} working={working} recordings={recordings}
+          remarks={remarks} worstNotes={worstNotes} bestNotes={bestNotes}
+          listenRequests={listenRequests} assignments={assignments} karte={karte}
+          allScoreTargets={allScoreTargets} allItemTargets={allItemTargets} observations={observations}
+        />
       )}
       {tab === "karte" && (
-        <KarteBySong userId={userId} studentId={studentId} recordings={recordings} />
+        <KarteBySong userId={userId} studentId={studentId} recordings={recordings} worstNotes={worstNotes} />
       )}
       {tab === "growth" && (
         karte ? (
@@ -191,13 +151,6 @@ export default function StudentKarte({
           <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>成長カルテを読み込めませんでした。</div></Card>
         )
       )}
-      {tab === "teach" && (
-        <>
-          <FeedbackTab userId={userId} studentId={studentId} scoreTargets={scoreTargets} listenRequests={listenRequests} assignments={assignments} />
-          <Overview b={briefing} studentId={studentId} observations={observations} expressions={expressions} scoreTargets={allScoreTargets} listenRequests={listenRequests} />
-          <Homework studentId={studentId} scoreTargets={allScoreTargets} itemTargets={allItemTargets} assignments={assignments} />
-        </>
-      )}
       </div>
     </div>
   )
@@ -208,14 +161,28 @@ const kSec: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 9
 const kCat: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", flex: "none" }
 
 /* ═ 主役①: まとめ (上達状況＋アルコの診断)。強み/弱みは生徒側「数字のへや」と同じ土俵=音×成功率・直近2週間 ═ */
-function SummaryTab({ briefing, working, recordings, remarks, worstNotes, bestNotes, onGoKarte }: {
-  briefing: Briefing; working: WorkItem[]; recordings: Recording[]; remarks: RemarkTrack[]; worstNotes: WorstNote[]; bestNotes: BestNote[]; onGoKarte: () => void
+function SummaryTab({ userId, studentId, briefing, working, recordings, remarks, worstNotes, bestNotes, listenRequests, assignments, karte, allScoreTargets, allItemTargets, observations }: {
+  userId: string; studentId: string
+  briefing: Briefing; working: WorkItem[]; recordings: Recording[]; remarks: RemarkTrack[]; worstNotes: WorstNote[]; bestNotes: BestNote[]
+  listenRequests: ListenReq[]; assignments: AssignmentRow[]; karte: KarteData | null
+  allScoreTargets: Target[]; allItemTargets: Target[]; observations: ObservationRow[]
 }) {
   const weak3 = worstNotes.slice(0, 3)
   const best3 = bestNotes.slice(0, 3)
   const rmView = (s: RemarkTrack["status"]) => s === "improved" ? { mk: "✓", c: "#158253", t: "直ってきた" } : s === "improving" ? { mk: "△", c: "#c07a1e", t: "改善中" } : s === "stalled" ? { mk: "×", c: "#bb3a2e", t: "停滞" } : { mk: "…", c: "#8b97a8", t: "判定中" }
   const noteSub: React.CSSProperties = { fontSize: "var(--fs-label)", color: "var(--text-sub)" }
   const notePct: React.CSSProperties = { marginLeft: "auto", flex: "none", fontWeight: 900, fontVariantNumeric: "tabular-nums" }
+  const annotateHref = (scoreId: string, mood?: string | null) =>
+    `/${userId}/teacher/students/${studentId}/annotate/${scoreId}${mood ? `?mood=${encodeURIComponent(mood)}` : ""}`
+  const submittedHw = assignments.filter((a) => a.submitted && !a.done && a.scoreId)
+  const achvMap = new Map(briefing.achievements.map((a) => [a.title, a.mastered]))
+  // 見える化4軸 (曲/技術/癖/表現)
+  const songAvgs = working.filter((w) => w.kind === "score").map((w) => w.avg)
+  const songAvg = songAvgs.length ? Math.round(songAvgs.reduce((s, n) => s + n, 0) / songAvgs.length) : null
+  const skillLit = karte?.skillMap ? karte.skillMap.nodes.filter((n) => n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata").length : null
+  const skillTotal = karte?.skillMap?.nodes.length ?? 0
+  const exprLit = karte ? karte.v2.exprMap.nodes.filter((n) => n.star > 0).length : null
+  const kuseCount = new Set(observations.slice(0, 8).flatMap((o) => o.tagIds)).size
 
   return (
     <>
@@ -228,18 +195,91 @@ function SummaryTab({ briefing, working, recordings, remarks, worstNotes, bestNo
         </div>
       </div>
 
-      <div style={kSec}>練習曲・宿題の上達状況<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>直近2週間</span></div>
+      {/* 生徒が「見てほしい」と送った演奏 (丁寧に聴いて返す) */}
+      {listenRequests.map((r) => (
+        <div key={r.id} style={{ background: "#fff8ec", border: "1px solid #f0dcb4", borderRadius: 12, padding: "10px 12px", marginTop: 10 }}>
+          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#a9741c", display: "flex", alignItems: "center", gap: 5 }}><Ear size={12} /> 生徒が「見てほしい」と送った演奏</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 6 }}>
+            <b style={{ fontSize: "var(--fs-body)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title}</b>
+            <span style={{ marginLeft: "auto", flex: "none", fontWeight: 900, color: r.avg != null ? kScoreColor(r.avg) : "var(--text-muted)" }}>{r.avg ?? "—"}</span>
+          </div>
+          <Link href={annotateHref(r.scoreId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#a9741c", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
+            丁寧に聴いて返す →
+          </Link>
+        </div>
+      ))}
+
+      {/* 返し待ちの宿題 (出した→生徒がやった→先生が返す番) */}
+      {submittedHw.map((a) => (
+        <div key={a.id} style={{ background: "#fbfcff", border: "1px solid #d6e0f5", borderRadius: 12, padding: "10px 12px", marginTop: 10 }}>
+          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#3b56d4", display: "flex", alignItems: "center", gap: 5 }}><Library size={12} /> 宿題の提出 ・ 先生が返す番</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 6 }}>
+            <b style={{ fontSize: "var(--fs-body)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.targetTitle}</b>
+            <span style={{ marginLeft: "auto", flex: "none", fontWeight: 900, color: a.submittedScore != null ? kScoreColor(a.submittedScore) : "var(--text-muted)" }}>{a.submittedScore != null ? `${a.submittedScore}点` : "提出済み"}</span>
+          </div>
+          {a.moodTagId && <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#a9741c", marginTop: 3 }}>目標: {moodTagPhrase(a.moodTagId)}</div>}
+          <Link href={annotateHref(a.scoreId!, a.moodTagId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#3b56d4", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
+            採点カルテを書いて返す →
+          </Link>
+        </div>
+      ))}
+
+      <div style={kSec}>練習曲・宿題の上達状況<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>直近2週間 ・ タップで練習後カルテ</span></div>
       {working.length === 0 ? (
         <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>直近2週間の録音がありません。</div></Card>
       ) : (
-        working.map((w, i) => (
-          <div key={i} style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 12px", marginBottom: 7, display: "flex", alignItems: "center", gap: 9 }}>
-            <span style={kCat}>{w.cat}</span>
-            <b style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-ink)" }}>{w.title}</b>
-            <span style={{ marginLeft: "auto", fontSize: "var(--fs-subhead)", fontWeight: 900, color: kScoreColor(w.avg), flex: "none" }}>{w.avg}</span>
-          </div>
-        ))
+        working.map((w, i) => {
+          const mastered = achvMap.get(w.title)
+          const delta = w.avg - w.first
+          const badge = mastered === true
+            ? { t: "マスター", c: "#b5651d", bg: "#fdf3df" }
+            : mastered === false
+              ? { t: "達成", c: "#158253", bg: "#e9f8f0" }
+              : w.count >= 2 && delta >= 3
+                ? { t: "改善 ↑", c: "#158253", bg: "#e9f8f0" }
+                : w.count >= 2 && delta <= -3
+                  ? { t: "下降 ↓", c: "#bb3a2e", bg: "#fdeceb" }
+                  : null
+          return (
+            <Link key={i} href={`/${userId}/teacher/students/${studentId}/karte/${w.perfId}?kind=${w.kind}`}
+              style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 12px", marginBottom: 7, display: "flex", alignItems: "center", gap: 9, textDecoration: "none", color: "var(--text-ink)" }}>
+              <span style={kCat}>{w.cat}</span>
+              <span style={{ minWidth: 0 }}>
+                <b style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{w.title}</b>
+                {w.count >= 2 && (
+                  <span style={{ fontSize: "var(--fs-label)", color: "var(--text-sub)", fontWeight: 700 }}>
+                    {w.first} → <b style={{ color: "var(--text-ink)" }}>{w.avg}</b>{delta !== 0 ? `（${delta > 0 ? "+" : ""}${delta}）` : ""} ・ {w.count}枚
+                  </span>
+                )}
+              </span>
+              {badge && <span style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: badge.c, background: badge.bg, borderRadius: 999, padding: "2px 9px" }}>{badge.t}</span>}
+              <span style={{ marginLeft: badge ? 0 : "auto", fontSize: "var(--fs-subhead)", fontWeight: 900, color: kScoreColor(w.avg), flex: "none" }}>{w.avg}</span>
+              <span style={{ flex: "none", color: "#b6bfca" }}>›</span>
+            </Link>
+          )
+        })
       )}
+
+      {/* 上達の見える化 4軸 (曲/技術/癖/表現) */}
+      <div style={kSec}>上達の見える化<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>くわしくは成長カルテへ</span></div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
+          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>曲の上達</div>
+          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 3, color: songAvg != null ? kScoreColor(songAvg) : "var(--text-muted)" }}>{songAvg ?? "—"}<span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}> 平均</span></div>
+        </div>
+        <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
+          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>技術（わざ）</div>
+          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 3, color: "#22346b" }}>{skillLit ?? "—"}<span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>{skillLit != null ? ` /${skillTotal} 点灯` : ""}</span></div>
+        </div>
+        <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
+          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>癖</div>
+          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 3, color: kuseCount > 0 ? "#c07a1e" : "var(--text-muted)" }}>{kuseCount}<span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}> 記録中</span></div>
+        </div>
+        <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
+          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>表現</div>
+          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 3, color: "#7a4dd6" }}>{exprLit ?? "—"}<span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}> 認定</span></div>
+        </div>
+      </div>
 
       {/* アルコの診断レポート (モック画面2: 紫グラデヘッダー) */}
       <div style={{ border: "1px solid #e3d8f7", borderRadius: 15, overflow: "hidden", marginTop: 14, boxShadow: "0 4px 16px -8px rgba(110,60,190,.3)" }}>
@@ -297,28 +337,73 @@ function SummaryTab({ briefing, working, recordings, remarks, worstNotes, bestNo
             </div>
           </>
         )}
-        {/* 提案 */}
-        <div style={{ marginTop: 11, background: "#f0f7f3", border: "1px solid #cfe9db", borderRadius: 9, padding: "9px 11px" }}>
-          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#136647" }}>今週の指導提案</div>
-          <div style={{ fontSize: "var(--fs-caption)", color: "#1f3a2e", lineHeight: 1.65, marginTop: 3 }}>
-            {weak3.length > 0
-              ? <>まずは<b>「{weak3[0].kana}」</b>を重点に。ゆっくりのテンポで音程から合わせ、できたら少しずつ速くしていこう。</>
-              : <>今の流れは良好。得意を伸ばしつつ、新しいわざに挑戦できる曲を渡してみよう。</>}
-          </div>
-        </div>
-        <button type="button" onClick={onGoKarte}
-          style={{ marginTop: 11, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#fff", background: "#3b56d4", border: "none", borderRadius: 9, padding: "8px 14px", cursor: "pointer" }}>
-          練習後カルテ（曲別）を見る →
-        </button>
+        {/* 今週の指導提案: AI下書き → 先生が直して「これで返す」(生徒へメッセージ送信) */}
+        <ProposalSendBox
+          studentId={studentId}
+          draft={weak3.length > 0
+            ? `今週は「${weak3[0].kana}」を重点にしよう。ゆっくりのテンポで音程から合わせて、できたら少しずつ速くしていこう。`
+            : "今の流れはとても良いよ。得意を伸ばしつつ、新しいわざに挑戦できる曲もやってみよう。"}
+        />
         </div>
       </div>
+
+      {/* 指導メニュー (宿題を出す / 表現の認定)。旧タブから移設・折りたたみ */}
+      <div style={kSec}>指導メニュー</div>
+      <details style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 12, marginBottom: 8 }}>
+        <summary style={{ cursor: "pointer", padding: "11px 13px", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#22346b" }}>宿題を出す・やりとり中の宿題</summary>
+        <div style={{ padding: "0 6px 6px" }}>
+          <Homework studentId={studentId} scoreTargets={allScoreTargets} itemTargets={allItemTargets} assignments={assignments} />
+        </div>
+      </details>
+      <details style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 12, marginBottom: 8 }}>
+        <summary style={{ cursor: "pointer", padding: "11px 13px", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#22346b" }}>表現クリアを認定する</summary>
+        <div style={{ padding: "0 13px 12px" }}>
+          <ExprClearBox studentId={studentId} scoreTargets={allScoreTargets} />
+        </div>
+      </details>
+      {briefing.goal && (
+        <div style={{ fontSize: "var(--fs-label)", color: "var(--text-sub)", margin: "2px 2px 0", fontWeight: 700 }}>
+          生徒の目標: <b style={{ color: "var(--text-ink)" }}>{briefing.goal.songName}</b>{briefing.goal.songStar != null ? ` ★${briefing.goal.songStar}` : ""}{briefing.goal.goalDate ? ` ・ ${briefing.goal.goalDate}まで` : ""}
+        </div>
+      )}
     </>
+  )
+}
+
+/* ═ 今週の指導提案の送信ボックス (AI下書き→先生が編集して1本で返す) ═ */
+function ProposalSendBox({ studentId, draft }: { studentId: string; draft: string }) {
+  const [text, setText] = useState(draft)
+  const [done, setDone] = useState(false)
+  const [pending, start] = useTransition()
+  const send = () => {
+    const t = text.trim(); if (!t) return
+    start(async () => {
+      const r = await sendMessageToStudent(studentId, t)
+      if (r.ok) setDone(true)
+    })
+  }
+  return (
+    <div style={{ marginTop: 11, background: "#f0f7f3", border: "1px solid #cfe9db", borderRadius: 9, padding: "9px 11px" }}>
+      <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#136647" }}>今週の指導提案（AIの下書き → 直して1本で返す）</div>
+      {done ? (
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "#158253", marginTop: 6 }}>生徒に送りました ✓</div>
+      ) : (
+        <>
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3}
+            style={{ width: "100%", border: "1px solid #cfe9db", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-caption)", lineHeight: 1.6, resize: "vertical", boxSizing: "border-box", marginTop: 6, background: "#fff", color: "#1f3a2e" }} />
+          <button type="button" onClick={send} disabled={pending || !text.trim()}
+            style={{ marginTop: 7, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#158253", border: "none", borderRadius: 8, padding: "8px 16px", cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
+            {pending ? "送信中…" : "これで返す"}
+          </button>
+        </>
+      )}
+    </div>
   )
 }
 
 /* ═ 主役②: 練習後カルテ (曲別。曲→この曲のカルテを横スライド) ═ */
 type SongGroup = { title: string; cat: string; kind: "score" | "practice"; star: number | null; recs: Recording[]; count: number; latest: Recording; trend: number }
-function KarteBySong({ userId, studentId, recordings }: { userId: string; studentId: string; recordings: Recording[] }) {
+function KarteBySong({ userId, studentId, recordings, worstNotes }: { userId: string; studentId: string; recordings: Recording[]; worstNotes: WorstNote[] }) {
   const order: string[] = []
   const groups = new Map<string, Recording[]>()
   for (const r of recordings) {
@@ -346,11 +431,7 @@ function KarteBySong({ userId, studentId, recordings }: { userId: string; studen
         <span style={{ flex: "none", fontSize: "var(--fs-subhead)", fontWeight: 900, color: kScoreColor(g.latest.avg) }}>{g.latest.avg}</span>
       </summary>
       <div style={{ padding: "0 13px 12px" }}>
-        {g.count >= 2 && (
-          <div style={{ fontSize: "var(--fs-label)", color: "#4a4066", background: "#f4f7fc", borderRadius: 8, padding: "6px 9px", marginBottom: 8, fontWeight: 700 }}>
-            この曲のカルテ {g.count}枚 ・ {g.recs[g.recs.length - 1].avg} → {g.latest.avg}（{g.trend > 2 ? `改善 +${g.trend}` : g.trend < -2 ? `${g.trend}` : "横ばい"}）
-          </div>
-        )}
+        <SongTrendCard g={g} />
         <div style={{ display: "flex", gap: 9, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none", touchAction: "pan-y", paddingBottom: 4 }}>
           {g.recs.map((r) => <MiniKarte key={r.id} userId={userId} studentId={studentId} r={r} />)}
         </div>
@@ -363,6 +444,22 @@ function KarteBySong({ userId, studentId, recordings }: { userId: string; studen
   }
   return (
     <>
+      {/* 全体のカルテ傾向 (曲をまたいだ弱点。数字のへやと同じ土俵) */}
+      {worstNotes.length > 0 && (
+        <div style={{ border: "1px solid #e3d8f7", borderRadius: 13, overflow: "hidden", marginBottom: 11 }}>
+          <div style={{ background: "linear-gradient(135deg,#5a3fa8,#7a4dd6)", color: "#fff", padding: "8px 12px", fontSize: "var(--fs-caption)", fontWeight: 900 }}>全体のカルテ傾向（曲をまたいで・直近2週間）</div>
+          <div style={{ background: "#fff", padding: "9px 12px" }}>
+            {worstNotes.slice(0, 3).map((n) => (
+              <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 4 }}>
+                <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
+                <span style={{ fontSize: "var(--fs-label)", color: "var(--text-sub)" }}>{n.hand ? `${n.hand}（推定）` : n.string ? `${n.string}（推定）` : n.raw}・{n.target}音</span>
+                <b style={{ marginLeft: "auto", flex: "none", fontWeight: 900, fontVariantNumeric: "tabular-nums", color: kScoreColor(n.pct) }}>{n.pct}%</b>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div style={kSec}>曲<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>カルテ回数・直近</span></div>
       {songs.length === 0 ? (
         <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>曲の演奏がまだありません。</div></Card>
@@ -374,6 +471,42 @@ function KarteBySong({ userId, studentId, recordings }: { userId: string; studen
         </>
       )}
     </>
+  )
+}
+
+/* ═ この曲の傾向カード (カルテN枚の推移 + よく崩れる所 + AI提案文) ═ */
+function SongTrendCard({ g }: { g: SongGroup }) {
+  // この曲の全カルテから崩れを合算 (成功率の低い順・上位2)
+  const agg = new Map<string, { tree: "音程" | "リズム"; miss: number; target: number }>()
+  for (const r of g.recs) for (const w of r.weak) {
+    const e = agg.get(w.name) ?? { tree: w.tree, miss: 0, target: 0 }
+    e.miss += w.miss; e.target += w.target
+    agg.set(w.name, e)
+  }
+  const topWeak = [...agg.entries()]
+    .map(([name, e]) => ({ name, tree: e.tree, pct: Math.max(0, Math.round(100 - (e.miss / Math.max(1, e.target)) * 100)) }))
+    .sort((a, b) => a.pct - b.pct).slice(0, 2)
+  if (g.count < 2 && topWeak.length === 0) return null
+  return (
+    <div style={{ background: "#faf7ff", border: "1px solid #e7dcfb", borderRadius: 10, padding: "9px 11px", marginBottom: 9 }}>
+      <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#7a4dd6" }}>この曲の傾向</div>
+      {g.count >= 2 && (
+        <div style={{ fontSize: "var(--fs-caption)", color: "#3a3550", marginTop: 4, fontWeight: 700 }}>
+          カルテ{g.count}枚で {g.recs[g.recs.length - 1].avg} → <b>{g.latest.avg}</b>（{g.trend > 2 ? `改善 +${g.trend}` : g.trend < -2 ? `${g.trend}` : "横ばい"}）
+        </div>
+      )}
+      {topWeak.map((w) => (
+        <div key={w.name} style={{ fontSize: "var(--fs-caption)", color: "#3a3550", marginTop: 3, lineHeight: 1.55 }}>
+          <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{w.tree}</span>
+          {w.name} 成功率{w.pct}%
+        </div>
+      ))}
+      {topWeak.length > 0 && (
+        <div style={{ fontSize: "var(--fs-label)", color: "#136647", fontWeight: 800, marginTop: 5, lineHeight: 1.55 }}>
+          提案：まず「{topWeak[0].name}」をゆっくり取り出して。合ってきたら通しで確認しよう。
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -403,110 +536,7 @@ function MiniKarte({ userId, studentId, r }: { userId: string; studentId: string
   )
 }
 
-function FeedbackTab({ userId, studentId, scoreTargets, listenRequests = [], assignments = [] }: {
-  userId: string; studentId: string; scoreTargets: Target[]
-  listenRequests?: ListenReq[]; assignments?: AssignmentRow[]
-}) {
-  // 採点カルテの依頼箱 (2026-08-06 統一・モック103dcadf):
-  // 👂聴いてほしい依頼 + 📚提出済み宿題 + 自分で選ぶ、を1本に。書くものはどれも同じ採点カルテ。
-  const submittedHw = assignments.filter((a) => a.submitted && !a.done && a.scoreId)
-  const pendingCount = listenRequests.length + submittedHw.length
-  const annotateHref = (scoreId: string, mood?: string | null) =>
-    `/${userId}/teacher/students/${studentId}/annotate/${scoreId}${mood ? `?mood=${encodeURIComponent(mood)}` : ""}`
-  return (
-    <Card>
-      <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>
-        <Inbox size={14} /> 採点カルテ {pendingCount > 0 && (
-          <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "1px 8px" }}>未対応 {pendingCount}</span>
-        )}
-      </div>
-      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", margin: "0 0 10px" }}>
-        演奏を聴いて、譜面添削・コメント・表現の認定を1枚のカルテで返せます。
-      </p>
 
-      {/* 👂 聴いてほしい依頼 */}
-      {listenRequests.map((r) => (
-        <div key={r.id} style={{ border: "1px solid #eed9a0", background: "#fdfaf2", borderRadius: 11, padding: "9px 12px", marginBottom: 7 }}>
-          <div style={{ fontSize: "var(--fs-body)" }}>
-            <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-master)", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "1px 8px", marginRight: 6, display: "inline-flex", alignItems: "center", gap: 3 }}><Ear size={10} /> 聴いてほしい</span>
-            <b>{r.title}</b>
-            <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginLeft: 6 }}>{r.avg != null ? `${r.avg}点 ・ ` : ""}{r.date}</span>
-          </div>
-          <Link href={annotateHref(r.scoreId)} style={{ display: "inline-block", marginTop: 6, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#8a5a1f", borderRadius: 999, padding: "5px 13px", textDecoration: "none" }}>
-            採点カルテを書く →
-          </Link>
-        </div>
-      ))}
-
-      {/* 📚 提出済み宿題 */}
-      {submittedHw.map((a) => (
-        <div key={a.id} style={{ border: "1px solid #d6ddff", background: "#fbfcff", borderRadius: 11, padding: "9px 12px", marginBottom: 7 }}>
-          <div style={{ fontSize: "var(--fs-body)" }}>
-            <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-link)", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "1px 8px", marginRight: 6, display: "inline-flex", alignItems: "center", gap: 3 }}><Library size={10} /> 宿題の提出</span>
-            <b>{a.targetTitle}</b>
-            <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginLeft: 6 }}>{a.submittedScore != null ? `${a.submittedScore}点` : "提出済み"}</span>
-          </div>
-          {a.moodTagId && <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-master)", margin: "3px 0 0", display: "flex", alignItems: "center", gap: 4 }}><Palette size={11} /> 目標: {moodTagPhrase(a.moodTagId)}</div>}
-          <Link href={annotateHref(a.scoreId!, a.moodTagId)} style={{ display: "inline-block", marginTop: 6, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#3b56d4", borderRadius: 999, padding: "5px 13px", textDecoration: "none" }}>
-            採点カルテを書く →
-          </Link>
-        </div>
-      ))}
-
-      {/* 自分で選ぶ */}
-      <div style={{ borderTop: "1px dashed #e2e6ea", marginTop: 4, paddingTop: 10 }}>
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 6 }}>自分で曲をえらんで書く</div>
-        {scoreTargets.length === 0 ? (
-          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>この生徒はまだ曲の演奏がありません。</div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {scoreTargets.map((s) => (
-              <Link key={s.id} href={annotateHref(s.id)}
-                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit", border: "1px solid #eef1f4", borderRadius: 10, padding: "10px 12px" }}>
-                <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.title}</span>
-                <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)", flex: "none" }}>カルテを書く →</span>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-    </Card>
-  )
-}
-
-function RecCommentBox({ studentId, performanceId, kind }: { studentId: string; performanceId: string; kind: "score" | "practice" }) {
-  const router = useRouter()
-  const [open, setOpen] = useState(false)
-  const [text, setText] = useState("")
-  const [pending, start] = useTransition()
-  const [done, setDone] = useState(false)
-
-  const send = () => {
-    const t = text.trim()
-    if (!t) return
-    start(async () => {
-      const r = await sendMessageToStudent(studentId, t, performanceId, kind)
-      if (r.ok) { setDone(true); setText(""); setOpen(false); router.refresh() }
-    })
-  }
-  if (done) return <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)", marginTop: 8 }}>この演奏にコメントを送りました ✓</div>
-  const btn: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 8, padding: "6px 12px", cursor: "pointer" }
-  return (
-    <div style={{ marginTop: 8 }}>
-      {!open ? (
-        <button type="button" onClick={() => setOpen(true)} style={{ ...btn, color: "var(--text-sub)", background: "#eef0fc", border: "1px solid #d7dcf6", display: "inline-flex", alignItems: "center", gap: 5 }}><MessageCircle size={13} /> この演奏にコメント</button>
-      ) : (
-        <div>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={1000} placeholder="この演奏へのコメント（生徒に届きます）" style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", resize: "vertical" }} />
-          <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-            <button type="button" onClick={() => { setOpen(false); setText("") }} style={{ ...btn, color: "var(--text-sub)", background: "#fff", border: "1px solid #e2e6ea" }}>やめる</button>
-            <button type="button" onClick={send} disabled={pending} style={{ ...btn, color: "var(--text-on-accent)", background: "#8a5a1f", border: "none", opacity: pending ? 0.6 : 1 }}>{pending ? "送信中…" : "送る"}</button>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
 function Card({ children }: { children: React.ReactNode }) {
   // ペーパーデザイン (2026-08-06): クリームの紙の上の半透明カード (成長カルテv3と同トークン)
   return (
@@ -516,291 +546,8 @@ function Card({ children }: { children: React.ReactNode }) {
   )
 }
 
-function Overview({ b, studentId, observations, expressions = [], scoreTargets = [], listenRequests = [] }: { b: Briefing; studentId: string; observations: ObservationRow[]; expressions?: ExpressionRow[]; scoreTargets?: Target[]; listenRequests?: ListenReq[] }) {
-  return (
-    <>
-      {/* 生徒の目標 + 直近7日の練習を1枚に集約 (2026-08-11: カード分割を廃してコンパクト化)。「直近の演奏」カードは削除 */}
-      <Card>
-        {b.goal ? (
-          <>
-            <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 8, display: "flex", alignItems: "center", gap: 5 }}><Target size={14} /> 生徒の目標</div>
-            <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)" }}>
-              {b.goal.songName}
-              {b.goal.songStar != null && <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", marginLeft: 6 }}>★{b.goal.songStar}</span>}
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 6, fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> 直近7日 <b style={{ color: "var(--text-ink)" }}>{b.practiceCount7d}</b>回練習</span>
-              {b.goal.goalDate && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>目標 {b.goal.goalDate}</span>}
-              {b.goal.epicWin && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Sparkles size={12} /> {b.goal.epicWin}</span>}
-            </div>
-          </>
-        ) : (
-          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", display: "inline-flex", alignItems: "center", gap: 5 }}><Calendar size={14} /> 直近7日の練習 <b style={{ color: "var(--text-ink)" }}>{b.practiceCount7d}</b> 回</div>
-        )}
-      </Card>
 
-      <Card>
-        <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 8 }}>達成・マスター</div>
-        {b.achievements.length === 0 ? (
-          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ達成した曲はありません。</div>
-        ) : (
-          <>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {b.achievements.map((a, i) => (
-                <span key={i} style={{ fontSize: "var(--fs-body)", fontWeight: 700, color: a.mastered ? "#b5651d" : "#2e8b57", background: a.mastered ? "#fdf3df" : "#eafaf0", border: "1px solid", borderColor: a.mastered ? "#eecfa0" : "#cbe8d6", borderRadius: 999, padding: "3px 10px", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  {a.mastered ? <Trophy size={12} color="#b5651d" /> : <Sparkles size={12} color="#2e8b57" />} {a.title}
-                </span>
-              ))}
-            </div>
-            <CelebrateBox studentId={studentId} latest={b.achievements[0]} />
-          </>
-        )}
-      </Card>
 
-      {/* 👂リクエストは採点カルテタブの依頼箱に一本化 (2026-08-06統一) */}
-      {/* 所見 (癖タグ・2026-08-02): 選択式で記録→生徒にも表示・集計してアドバイスに活用 */}
-      <ObservationSection studentId={studentId} observations={observations} />
-
-      {/* 表現の評価 (2026-08-03 Phase0-3): 💪とくい/🔥挑戦中/🌿。強みは曲の推薦にも使われる(変換表実装後) */}
-      <ExpressionSection studentId={studentId} expressions={expressions} scoreTargets={scoreTargets} />
-    </>
-  )
-}
-
-function ObservationSection({ studentId, observations }: { studentId: string; observations: ObservationRow[] }) {
-  const router = useRouter()
-  const [open, setOpen] = useState(false)
-  // 選び方 (2026-08-02 人体マップ化): 体のビュー / 体で表せない分類(リズム・習慣) / 全タグ一覧
-  const [mode, setMode] = useState<{ kind: "view"; view: BodyViewId } | { kind: "cat"; catId: string } | { kind: "all" }>({ kind: "view", view: "body" })
-  const [spotId, setSpotId] = useState<string | null>(null)
-  const [allCatId, setAllCatId] = useState(OBSERVATION_CATALOG[0].id)
-  const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [severity, setSeverity] = useState<"" | "mild" | "focus">("")
-  const [comment, setComment] = useState("")
-  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
-  const [pending, start] = useTransition()
-
-  const toggleTag = (id: string) =>
-    setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n })
-
-  const tagChip = (t: { id: string; label: string }) => (
-    <button key={t.id} type="button" onClick={() => toggleTag(t.id)}
-      style={{ fontSize: "var(--fs-caption)", fontWeight: 700, borderRadius: 9, padding: "6px 11px", cursor: "pointer", border: "1px solid", borderColor: selected.has(t.id) ? "#4a5bd0" : "#e2e6ea", background: selected.has(t.id) ? "#eef0fc" : "#fff", color: selected.has(t.id) ? "#4a5bd0" : "#4a5766" }}>
-      {t.label}
-    </button>
-  )
-
-  const save = () => {
-    setMsg(null)
-    start(async () => {
-      const r = await createObservation({
-        studentId,
-        tagIds: [...selected],
-        severity: severity || null,
-        comment: comment || null,
-      })
-      if (r.ok) {
-        setMsg({ ok: true, text: "所見を記録しました（生徒にも届きます）" })
-        setSelected(new Set()); setSeverity(""); setComment(""); setOpen(false)
-        router.refresh()
-      } else {
-        setMsg({ ok: false, text: r.error })
-      }
-    })
-  }
-
-  const sevColor = (s: string | null) =>
-    s === "focus" ? { c: "#c0473a", bg: "#fbecea", bd: "#f0d4d0", l: "要重点" }
-    : s === "mild" ? { c: "#b7823a", bg: "#faf1e1", bd: "#ecdfc8", l: "気になる" }
-    : s === "improving" ? { c: "#2e8b57", bg: "#e9f5ee", bd: "#cfe6d8", l: "良くなってきた" }
-    : s === "resolved" ? { c: "#2e8b57", bg: "#e9f5ee", bd: "#cfe6d8", l: "克服" }
-    : null
-
-  return (
-    <Card>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-        <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", display: "inline-flex", alignItems: "center", gap: 5 }}><ClipboardList size={14} /> 先生の所見（癖の記録）</span>
-        {!open && (
-          <button type="button" onClick={() => { setOpen(true); setMsg(null) }}
-            style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 8, padding: "6px 12px", cursor: "pointer" }}>
-            ＋ 記録する
-          </button>
-        )}
-      </div>
-
-      {open && (
-        <div style={{ border: "1px solid #eef1f4", borderRadius: 12, padding: 12, marginBottom: 10 }}>
-          {/* ビュー切替 (人体マップ) + 体で表せない分類 + 全タグ */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 9 }}>
-            {BODY_VIEWS.map((v) => {
-              const on = mode.kind === "view" && mode.view === v.id
-              return (
-                <button key={v.id} type="button" onClick={() => { setMode({ kind: "view", view: v.id }); setSpotId(null) }}
-                  style={{ fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <v.Icon size={12} /> {v.short}
-                </button>
-              )
-            })}
-            {OBSERVATION_CATALOG.filter((c) => (NON_BODY_CATEGORIES as readonly string[]).includes(c.id)).map((c) => {
-              const on = mode.kind === "cat" && mode.catId === c.id
-              return (
-                <button key={c.id} type="button" onClick={() => setMode({ kind: "cat", catId: c.id })}
-                  style={{ fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <c.Icon size={12} /> {c.label}
-                </button>
-              )
-            })}
-            <button type="button" onClick={() => setMode({ kind: "all" })}
-              style={{ fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 999, padding: "5px 10px", cursor: "pointer", border: "1px dashed", borderColor: mode.kind === "all" ? "#2b3742" : "#cdd3d9", background: mode.kind === "all" ? "#2b3742" : "#fff", color: mode.kind === "all" ? "#fff" : "#8a95a1", display: "inline-flex", alignItems: "center", gap: 4 }}>
-              <FileText size={12} /> 全タグ
-            </button>
-          </div>
-
-          {mode.kind === "view" && (() => {
-            const view = BODY_VIEWS.find((v) => v.id === mode.view)!
-            const spots = spotsOf(mode.view)
-            const activeSpot = spots.find((s) => s.id === spotId) ?? null
-            return (
-              <div>
-                {/* イラスト + 部位ボタン */}
-                <div style={{ position: "relative", background: "#fdfaf4", border: "1px solid #f0e9db", borderRadius: 12, padding: 6 }}>
-                  <BodyFigure view={mode.view} className="" />
-                  {spots.map((s) => {
-                    const cnt = s.tagIds.filter((t) => selected.has(t)).length
-                    const on = spotId === s.id
-                    return (
-                      <button key={s.id} type="button" onClick={() => setSpotId((cur) => (cur === s.id ? null : s.id))}
-                        style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, transform: "translate(-50%, -50%)", fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1.5px solid", borderColor: on ? "#4a5bd0" : cnt > 0 ? "#4a5bd0" : "#c9a87c", background: on ? "#4a5bd0" : "#fff", color: on ? "#fff" : cnt > 0 ? "#4a5bd0" : "#7a6a55", boxShadow: "0 1px 4px rgba(60,50,30,.18)", whiteSpace: "nowrap" }}>
-                        {s.label}{cnt > 0 ? ` ${cnt}` : ""}
-                      </button>
-                    )
-                  })}
-                </div>
-                <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 5 }}>{view.caption} — 気になる場所をタップ</div>
-                {/* タップした部位のタグ */}
-                {activeSpot && (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-                    {activeSpot.tagIds.filter((id) => OBSERVATION_TAG_BY_ID[id]).map((id) => tagChip({ id, label: OBSERVATION_TAG_BY_ID[id].label }))}
-                  </div>
-                )}
-              </div>
-            )
-          })()}
-
-          {mode.kind === "cat" && (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {(OBSERVATION_CATALOG.find((c) => c.id === mode.catId)?.tags ?? []).map((t) => tagChip(t))}
-            </div>
-          )}
-
-          {mode.kind === "all" && (
-            <div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 8 }}>
-                {OBSERVATION_CATALOG.map((c) => (
-                  <button key={c.id} type="button" onClick={() => setAllCatId(c.id)}
-                    style={{ fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 999, padding: "4px 9px", cursor: "pointer", border: "1px solid", borderColor: allCatId === c.id ? "#4a5bd0" : "#e2e6ea", background: allCatId === c.id ? "#eef0fc" : "#fff", color: allCatId === c.id ? "#4a5bd0" : "#6b7885", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                    <c.Icon size={12} /> {c.label}
-                  </button>
-                ))}
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {(OBSERVATION_CATALOG.find((c) => c.id === allCatId) ?? OBSERVATION_CATALOG[0]).tags.map((t) => tagChip(t))}
-              </div>
-            </div>
-          )}
-          {/* 選択中 (他分類も含む) */}
-          {selected.size > 0 && (
-            <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 8 }}>
-              選択中: {[...selected].map((id) => OBSERVATION_TAG_BY_ID[id]?.label).filter(Boolean).join("・")}
-            </div>
-          )}
-          {/* 程度 */}
-          <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-            {OBSERVATION_SEVERITIES.map((s) => (
-              <button key={s.id} type="button" onClick={() => setSeverity((cur) => (cur === s.id ? "" : s.id))}
-                style={{ flex: 1, fontSize: "var(--fs-caption)", fontWeight: 800, borderRadius: 8, padding: "7px 0", cursor: "pointer", border: "1px solid", borderColor: severity === s.id ? "#2b3742" : "#e2e6ea", background: severity === s.id ? "#2b3742" : "#fff", color: severity === s.id ? "#fff" : "#6b7885" }}>
-                {s.label}
-              </button>
-            ))}
-          </div>
-          <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} maxLength={500}
-            placeholder="補足コメント（任意・「その他」の内容もここに）"
-            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", marginTop: 10, resize: "vertical" }} />
-          <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-            <button type="button" onClick={() => setOpen(false)}
-              style={{ flex: 1, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 9, padding: 9, cursor: "pointer" }}>キャンセル</button>
-            <button type="button" onClick={save} disabled={pending}
-              style={{ flex: 2, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#8a5a1f", border: "none", borderRadius: 9, padding: 9, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
-              {pending ? "保存中…" : "記録する"}
-            </button>
-          </div>
-        </div>
-      )}
-      {msg && <div style={{ fontSize: "var(--fs-body)", margin: "0 0 8px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
-
-      {/* 癖マップ (レッスン前後のひと目確認): タグごとに最新の所見を体の場所で表示。
-          レッスン直後はここから経過をワンタップ記録 (まだ/🌿良くなってきた/🌱克服) */}
-      {!open && observations.length > 0 && (
-        <div style={{ marginBottom: 12 }}>
-          <BodyObsMap tags={latestPerTag(observations)}
-            renderTagActions={(t) => <ObsProgressButtons studentId={studentId} tag={t} />} />
-        </div>
-      )}
-
-      {/* 履歴 */}
-      {observations.length === 0 ? (
-        !open && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ所見はありません。レッスン後に気づいた癖を記録すると、生徒に届き、カルテに蓄積されます。</div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {observations.slice(0, 10).map((o) => {
-            const sev = sevColor(o.severity)
-            return (
-              <div key={o.id} style={{ border: "1px solid #eef1f4", borderRadius: 10, padding: "9px 11px" }}>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, alignItems: "center" }}>
-                  {sev && <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "2px 8px" }}>{sev.l}</span>}
-                  {o.tagIds.map((t) => (
-                    <span key={t} style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-link)", background: "#eef0fc", border: "1px solid #d7dcf6", borderRadius: 8, padding: "3px 8px" }}>
-                      {OBSERVATION_TAG_BY_ID[t]?.label ?? t}
-                    </span>
-                  ))}
-                  <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>{o.date}</span>
-                </div>
-                {o.comment && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", marginTop: 5, lineHeight: 1.55, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{o.comment}</span></div>}
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </Card>
-  )
-}
-
-/** 表現の評価 (2026-08-03 Phase0-3): 7語彙+自由入力から選び 💪/🔥/🌿 で記録。
- *  現在状態 = タグごとの最新行。挑戦中→🌿→💪の昇格が時系列で残り、カルテ表現章(Phase1)に流れる */
-function ExpressionSection({ studentId, expressions, scoreTargets }: { studentId: string; expressions: ExpressionRow[]; scoreTargets: Target[] }) {
-  // 2026-08-06統一: 旧4語彙の評価フォーム(💪🌿🔥)は廃止。表現=統一15語のクリア認定に一本化。
-  // 過去の旧評価はコメント付きの記録として表示だけ残す (入力は不可)
-  const past = expressions.filter((e) => e.comment)
-  return (
-    <Card>
-      <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}><Palette size={14} /> 表現の認定</div>
-      <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginBottom: 4 }}>
-        「この曲でこの表現ができていた」を認定すると、曲の★がそのまま生徒の表現力レベルになります。
-      </div>
-      <ExprClearBox studentId={studentId} scoreTargets={scoreTargets} />
-      {past.length > 0 && (
-        <div style={{ marginTop: 10 }}>
-          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)" }}>これまでの表現メモ（旧記録）</div>
-          {past.slice(0, 3).map((e) => (
-            <div key={e.id} style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 3 }}>
-              {expressionLabel(e.tagId)}: 「{e.comment}」 <span style={{ fontSize: "var(--fs-label)" }}>{e.date}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </Card>
-  )
-}
 
 /** 表現クリア認定ボックス (2026-08-06): 統一雰囲気タグ × 曲 → UserExpressionClear */
 function ExprClearBox({ studentId, scoreTargets }: { studentId: string; scoreTargets: Target[] }) {
@@ -878,53 +625,6 @@ function AssignmentExprClearButton({ studentId, moodTagId, scoreId }: { studentI
   )
 }
 
-/** 一緒に祝う (2026-08-02): 生徒の達成に、先生からお祝いメッセージを送る */
-function CelebrateBox({ studentId, latest }: { studentId: string; latest: { title: string; mastered: boolean } }) {
-  const [open, setOpen] = useState(false)
-  const [text, setText] = useState("")
-  const [done, setDone] = useState(false)
-  const [err, setErr] = useState<string | null>(null)
-  const [pending, start] = useTransition()
-
-  const defaultMsg = `「${latest.title}」${latest.mastered ? "マスター" : "達成"}おめでとう！がんばったね！`
-
-  const send = () => {
-    const body = (text.trim() || defaultMsg)
-    setErr(null)
-    start(async () => {
-      const r = await sendCelebration(studentId, body)
-      if (r.ok) { setDone(true); setOpen(false) }
-      else setErr(r.error)
-    })
-  }
-
-  if (done) return <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-good)", marginTop: 10, display: "flex", alignItems: "center", gap: 5 }}><PartyPopper size={14} /> お祝いを送りました！生徒に届きます。</div>
-
-  return (
-    <div style={{ marginTop: 10 }}>
-      {!open ? (
-        <button type="button" onClick={() => setOpen(true)}
-          style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-master)", background: "#fdf3df", border: "1px solid #eecfa0", borderRadius: 9, padding: "7px 14px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 5 }}>
-          <PartyPopper size={13} /> 一緒に祝う（お祝いを送る）
-        </button>
-      ) : (
-        <div>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} maxLength={500} placeholder={defaultMsg}
-            style={{ width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", resize: "vertical" }} />
-          <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-            <button type="button" onClick={() => { setOpen(false); setText("") }}
-              style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 8, padding: "6px 12px", cursor: "pointer" }}>やめる</button>
-            <button type="button" onClick={send} disabled={pending}
-              style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#b5651d", border: "none", borderRadius: 8, padding: "6px 14px", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
-              {pending ? "送信中…" : <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><PartyPopper size={13} /> 送る</span>}
-            </button>
-          </div>
-          {err && <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-error)", marginTop: 5 }}>{err}</div>}
-        </div>
-      )}
-    </div>
-  )
-}
 
 /** 楽譜を渡す (2026-08-02): 先生が MusicXML をアップロード → 生徒のライブラリーに追加される */
 function SendScoreBox({ studentId }: { studentId: string }) {
@@ -1003,6 +703,7 @@ function SendScoreBox({ studentId }: { studentId: string }) {
     </>
   )
 }
+
 
 function Homework({
   studentId, scoreTargets, itemTargets, assignments,

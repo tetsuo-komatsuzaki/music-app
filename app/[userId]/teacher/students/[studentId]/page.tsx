@@ -254,13 +254,18 @@ export default async function StudentKartePage({
       : null,
   })))
 
-  // 取り組んでいる曲・教材 (直近2週間に練習したもの・点数で絞らず・重複除去・最新スコア)
+  // 取り組んでいる曲・教材 (直近2週間に練習したもの・点数で絞らず・重複除去)。
+  // 上達状況表示用に 期間内の最古スコア(first)・枚数(count)・最新演奏へのリンク(perfId/kind) も持つ。
   const twoWeeksAgoMs = Date.now() - 14 * 864e5
-  const seenWork = new Set<string>()
-  const working = recRaw
-    .filter((r) => r.at >= twoWeeksAgoMs)
-    .filter((r) => { const k = `${r.cat}:${r.title}`; if (seenWork.has(k)) return false; seenWork.add(k); return true })
-    .slice(0, 10).map((r) => ({ title: r.title, cat: r.cat, avg: r.avg }))
+  const rec2w = recRaw.filter((r) => r.at >= twoWeeksAgoMs)
+  const workMap = new Map<string, { title: string; cat: string; kind: "score" | "practice"; avg: number; first: number; count: number; perfId: string }>()
+  for (const r of rec2w) {
+    const k = `${r.cat}:${r.title}`
+    const e = workMap.get(k)
+    if (!e) workMap.set(k, { title: r.title, cat: r.cat, kind: r.kind, avg: r.avg, first: r.avg, count: 1, perfId: r.id })
+    else { e.first = r.avg; e.count++ } // recRawは新しい順 → 最後に見た値が期間内最古
+  }
+  const working = [...workMap.values()].slice(0, 10)
 
   // カルテタブ (2026-08-02): 生徒に見えているのと同じ成長カルテ(直近30日)を読み取り専用で先生にも
   let karte = null

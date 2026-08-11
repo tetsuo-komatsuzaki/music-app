@@ -15,6 +15,10 @@ const NAVY = "#22346b"
 const SOFT = "#f5f7fa"
 const LINE = "#e6e9ef"
 
+function sinceDays(days: number): Date {
+  return new Date(Date.now() - days * 86400000)
+}
+
 function daysAgoLabel(d: Date | null): string {
   if (!d) return "まだ練習なし"
   const ms = Date.now() - d.getTime()
@@ -48,7 +52,7 @@ export default async function TeacherHomePage({
   const studentIds = links.map((l) => l.student.id)
 
   // 生徒ごとの 今週(7日)の練習/カルテ枚数・直近活動・返し待ち をまとめて取得
-  const weekAgo = new Date(Date.now() - 7 * 86400000)
+  const weekAgo = sinceDays(7)
   const lastByStudent = new Map<string, Date | null>()
   const weekCount = new Map<string, number>()
   const waitCount = new Map<string, number>()
