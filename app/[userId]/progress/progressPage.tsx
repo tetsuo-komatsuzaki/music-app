@@ -110,23 +110,7 @@ function Hero({ userId, data, readOnly, onShare }: { userId: string; data: Karte
   const k = data.v2.kpi
   return (
     <div style={{ position: "relative", padding: "22px 18px 18px" }}>
-      {/* 背景の五線譜: ヘッダー最上部の細い帯だけに配置 (記録=KPIとは重ねない) */}
-      <svg viewBox="0 0 400 40" preserveAspectRatio="xMidYMid slice" style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 40 }} aria-hidden>
-        <g stroke="#e2d3a6" strokeWidth="1" opacity=".5">
-          <line x1="-20" y1="8" x2="420" y2="8" />
-          <line x1="-20" y1="16" x2="420" y2="16" />
-          <line x1="-20" y1="24" x2="420" y2="24" />
-          <line x1="-20" y1="32" x2="420" y2="32" />
-          <line x1="-20" y1="40" x2="420" y2="40" />
-        </g>
-        <path d="M22 38 C16 35 16 27 22 24 C29 21 31 15 28 11 C24 7 19 10 19 15 C19 23 29 27 31 35 C33 40 27 44 22 41"
-          fill="none" stroke="#d3bd82" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" opacity=".5" />
-        <g fill="#d3bd82" opacity=".42">
-          <g transform="translate(250,24)"><ellipse rx="3.6" ry="2.6" transform="rotate(-22)" /><rect x="2.8" y="-13" width="1.1" height="13" rx=".5" /></g>
-          <g transform="translate(300,16)"><ellipse rx="3.6" ry="2.6" transform="rotate(-22)" /><rect x="2.8" y="-13" width="1.1" height="13" rx=".5" /></g>
-          <g transform="translate(350,24)"><ellipse rx="3.6" ry="2.6" transform="rotate(-22)" /><rect x="2.8" y="-13" width="1.1" height="13" rx=".5" /></g>
-        </g>
-      </svg>
+      {/* 五線譜は削除 (2026-08-11 Tetsuo確定: 形が崩れるため装飾なしに) */}
       <div style={{ position: "relative" }}>
         <div style={{ display: "flex", alignItems: "baseline" }}>
           <div>
@@ -159,21 +143,16 @@ const kpiLbl: React.CSSProperties = { fontSize: 8.5, fontWeight: 800, color: "#9
 
 /* ═ わざの習得状況: 分類ごとの進み具合バー (タップ不要・情報常時表示) ═ */
 function SkillsChapter({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
+  // 2026-08-11 Tetsuo確定: わざの習得状況は先生なしでも全ユーザーに開放 (nullは集計エラー時のみ)
   if (!data.skillMap) {
     if (readOnly) return null
     return (
-      <div style={{ padding: "20px 18px 4px", textAlign: "center" }}>
+      <div style={{ padding: "20px 18px 4px" }}>
         <div style={kicker}>SKILLS</div>
         <div style={chapTitle}>わざの習得状況</div>
         <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
-          スラーやビブラートなど「わざ」の習得と安定が一目でわかるレベル表。<br />
-          先生が気づいた癖を体の場所で見られる「からだの癖」も。<br />
-          <b>先生とつながると開放</b>されます。
+          いまは集計を準備中。録音してわざを練習すると、ここに習得状況が表示されます。
         </div>
-        <Link href={`/${userId}/find-teacher`}
-          style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none", marginBottom: 12 }}>
-          <Search size={14} /> 先生を探す →
-        </Link>
       </div>
     )
   }

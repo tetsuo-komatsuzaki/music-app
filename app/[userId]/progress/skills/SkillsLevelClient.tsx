@@ -7,7 +7,7 @@
 // 絵文字は使わず lucide / インラインSVG のみ。
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Search } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import type { SkillMapData, SkillNode } from "@/app/_libs/growthKarte"
 
 // ── ペーパートークン (progressPage v3 と同じ) ──
@@ -31,7 +31,7 @@ const SKILL_CATEGORIES: { label: string; ids: string[] }[] = [
 ]
 
 export default function SkillsLevelClient({ userId, skillMap }: { userId: string; skillMap: SkillMapData | null }) {
-  // 先生未連携: トップのティーザーと同等の導線
+  // 2026-08-11 Tetsuo確定: 先生なしでも全ユーザーに開放 (nullは集計エラー時のみ)
   if (!skillMap) {
     return (
       <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", fontFamily: "inherit", color: INK }}>
@@ -45,15 +45,9 @@ export default function SkillsLevelClient({ userId, skillMap }: { userId: string
         }}>
           <div style={kicker}>SKILLS</div>
           <div style={{ fontSize: 15, fontWeight: 900, marginTop: 1 }}>わざの習得状況</div>
-          <div style={{ fontSize: 12, color: SUB, margin: "8px 0 14px", lineHeight: 1.7 }}>
-            スラーやビブラートなど「わざ」の習得と安定が一目でわかるレベル表。<br />
-            先生が気づいた癖を体の場所で見られる「からだの癖」も。<br />
-            <b>先生とつながると開放</b>されます。
+          <div style={{ fontSize: 12, color: SUB, margin: "8px 0 4px", lineHeight: 1.7 }}>
+            いまは集計を準備中。録音してわざを練習すると、ここに習得状況が表示されます。
           </div>
-          <Link href={`/${userId}/find-teacher`}
-            style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none" }}>
-            <Search size={14} /> 先生を探す →
-          </Link>
         </div>
       </div>
     )

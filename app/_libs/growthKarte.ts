@@ -611,10 +611,10 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
   } catch { /* 先生機能未整備でも物語は出す */ }
   events.sort((a, b) => b.at - a.at)
 
-  // ── 技術マップ (先生ありユーザーのみ・spec: project_skill_map_spec) ──
+  // ── 技術マップ (2026-08-11 Tetsuo確定: 先生なしでも全ユーザーに開放。癖マップ=bodyObsは先生特典のまま) ──
   let skillMap: SkillMapData | null = null
   let skillDates: Array<{ tagType: string; tagKey: string; at: Date; kind: "clear" | "acq" }> = []
-  if (teacherLink) {
+  {
     try {
       const [clears, acqs, starRow] = await Promise.all([
         prisma.userLessonClear.findMany({
