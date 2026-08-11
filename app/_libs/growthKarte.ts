@@ -234,6 +234,21 @@ export function noteToHand(name: string): string | null {
   return finger === 0 ? `${open.s}・開放` : `${open.s}・${finger}の指`
 }
 
+/** "F#4" → 弦のみの推定 (G/D/A/E線)。上位ポジションも含め常に返す。範囲外(G3未満)は null */
+export function noteToString(name: string): string | null {
+  const m = /^([A-G])(#|b)?(\d)$/.exec(name)
+  if (!m) return null
+  const SEMIS: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }
+  const midi = (parseInt(m[3], 10) + 1) * 12 + SEMIS[m[1]] + (m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0)
+  const OPENS = [
+    { s: "G線", m: 55 }, { s: "D線", m: 62 }, { s: "A線", m: 69 }, { s: "E線", m: 76 },
+  ]
+  if (midi < OPENS[0].m) return null
+  let open = OPENS[0]
+  for (const o of OPENS) if (midi >= o.m) open = o
+  return open.s
+}
+
 type SubEntry = { miss: number; target: number }
 /** analysisSummary列から per_subtask 合算マップを作る */
 function subMapOf(rows: Array<{ analysisSummary: unknown }>): Map<string, SubEntry> {
@@ -1033,9 +1048,11 @@ export interface NumbersRoomData {
   keys: Array<{ label: string; count: number; pct: number }>
   registers: Array<{ band: "low" | "mid" | "high"; target: number; pct: number }>
   tempoBands: Array<{ label: string; count: number; pct: number }>
-  worstNotes: Array<{ kana: string; raw: string; hand: string | null; target: number; pct: number; cents: number | null }>
+  worstNotes: Array<{ kana: string; raw: string; hand: string | null; string: string | null; target: number; pct: number; cents: number | null }>
   bestNotes: Array<{ kana: string; raw: string; target: number; pct: number }>
-  transitions: Array<{ from: string; to: string; target: number; missRate: number }>
+  transitions: Array<{ from: string; to: string; fromString: string | null; toString: string | null; target: number; missRate: number }>
+  /** ポジション移動べつ (第N→第M・成功率昇順=にがて順) */
+  posShifts: Array<{ label: string; target: number; pct: number }>
   weekMoved: Array<{ label: string; delta: number }>
 }
 
@@ -1131,7 +1148,7 @@ export async function buildNumbersRoom(
   const noteRows = [...nsNotes.entries()]
     .filter(([, e]) => e.target >= 4)
     .map(([raw, e]) => ({
-      raw, kana: kanaNote(raw), hand: noteToHand(raw), target: e.target,
+      raw, kana: kanaNote(raw), hand: noteToHand(raw), string: noteToString(raw), target: e.target,
       pct: success2(e.miss, e.target),
       cents: e.centsN ? Math.round((e.centsSum / e.centsN) * 10) / 10 : null,
     }))
@@ -1143,7 +1160,11 @@ export async function buildNumbersRoom(
     .filter(([, e]) => e.target >= 3 && e.miss > 0)
     .map(([k, e]) => {
       const [from, to] = k.split(">")
-      return { from: kanaNote(from), to: kanaNote(to), target: e.target, missRate: round((e.miss / e.target) * 100) }
+      return {
+        from: kanaNote(from), to: kanaNote(to),
+        fromString: noteToString(from), toString: noteToString(to),
+        target: e.target, missRate: round((e.miss / e.target) * 100),
+      }
     })
     .sort((a, b) => b.missRate - a.missRate)
     .slice(0, 5)
@@ -1194,7 +1215,33 @@ export async function buildNumbersRoom(
     weekMoved.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
   }
 
-  return { period, keys, registers, tempoBands, worstNotes, bestNotes, transitions, weekMoved: weekMoved.slice(0, 6) }
+  // ポジション移動べつ (diagnosis.per_subtask の posshift_<from>_<to>・from≠to を pitch+rhythm 合算)
+  const posAgg = new Map<string, { target: number; miss: number }>()
+  const posShiftRe = /^(?:pitch|rhythm)_posshift_([0-9a-z]+)_([0-9a-z]+)$/
+  for (const r of rows) {
+    const d = (r.analysisSummary as { diagnosis?: { per_subtask?: Record<string, { miss?: number; target?: number }> } } | null)?.diagnosis
+    if (!d?.per_subtask) continue
+    for (const [sid, v] of Object.entries(d.per_subtask)) {
+      const m = posShiftRe.exec(sid)
+      if (!m || m[1] === m[2]) continue
+      if (typeof v?.miss !== "number" || typeof v?.target !== "number") continue
+      const key = `${m[1]}_${m[2]}`
+      const e = posAgg.get(key) ?? { target: 0, miss: 0 }
+      e.target += v.target; e.miss += v.miss
+      posAgg.set(key, e)
+    }
+  }
+  const posToken = (t: string) => (t === "5plus" ? "5以上" : t)
+  const posShifts = [...posAgg.entries()]
+    .filter(([, e]) => e.target >= 4)
+    .map(([key, e]) => {
+      const [a, b] = key.split("_")
+      return { label: `第${posToken(a)} → 第${posToken(b)}`, target: e.target, pct: Math.max(0, round(100 - (e.miss / e.target) * 100)) }
+    })
+    .sort((a, b) => a.pct - b.pct)
+    .slice(0, 6)
+
+  return { period, keys, registers, tempoBands, worstNotes, bestNotes, transitions, posShifts, weekMoved: weekMoved.slice(0, 6) }
 }
 
 /** 技術1つの詳細分析 (全期間)。先生なし/不明IDは null (呼び手でリダイレクト)。 */

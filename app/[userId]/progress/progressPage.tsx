@@ -12,7 +12,6 @@ import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import type { KarteData, SkillNode } from "@/app/_libs/growthKarte"
 import BodyObsMap from "@/app/components/BodyObsMap"
 import ShareSheet from "@/app/components/ShareSheet"
-import { ArcoChan, POSES } from "@/app/components/ArcoChan"
 
 // ── ペーパートークン ──
 const INK = "#241f14"
@@ -82,7 +81,7 @@ export default function ProgressPage({ userId, data, readOnly = false }: {
     <div style={{ maxWidth: 520, margin: "0 auto", padding: readOnly ? "4px 0 30px" : "18px 14px 60px", fontFamily: "inherit", color: INK }}>
       {weeklyShare && <ShareSheet kind="weekly" onClose={() => setWeeklyShare(false)} />}
       {readOnly && (
-        <div style={{ fontSize: 9.5, fontWeight: 800, color: "#8a9099", margin: "0 0 10px" }}>生徒に見えているのと同じカルテ（直近30日）</div>
+        <div style={{ fontSize: 9.5, fontWeight: 800, color: "#8a9099", margin: "0 0 10px" }}>生徒に見えているのと同じカルテ</div>
       )}
 
       {/* ═ 1枚のクリームの紙 ═ */}
@@ -109,7 +108,6 @@ export default function ProgressPage({ userId, data, readOnly = false }: {
 /* ═ ヒーロー: 五線譜 + アルコ + KPI大数字 ═ */
 function Hero({ userId, data, readOnly, onShare }: { userId: string; data: KarteData; readOnly: boolean; onShare: () => void }) {
   const k = data.v2.kpi
-  const arcoPose = POSES.find((p) => p.cat === "説明") ?? POSES[0]
   return (
     <div style={{ position: "relative", padding: "22px 18px 18px" }}>
       {/* 背景の五線譜: 正しい5本線＋ト音記号＋音符 (xMidYMid slice で歪ませない) */}
@@ -137,8 +135,6 @@ function Hero({ userId, data, readOnly, onShare }: { userId: string; data: Karte
         <div style={{ display: "flex", alignItems: "baseline" }}>
           <div>
             <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: ".22em", color: "#a98b2f" }}>GROWTH KARTE</div>
-            <div style={{ fontSize: 20, fontWeight: 900 }}>きみの成長カルテ</div>
-            <div style={{ fontSize: 10.5, color: "#8a7c62", fontWeight: 700 }}>直近30日のきろく</div>
           </div>
           {!readOnly && (
             <button type="button" onClick={onShare}
@@ -146,14 +142,6 @@ function Hero({ userId, data, readOnly, onShare }: { userId: string; data: Karte
               <Share2 size={12} /> 今週をシェア
             </button>
           )}
-        </div>
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 8, marginTop: 12 }}>
-          <div style={{ flex: "none", width: 46, height: 46, filter: "drop-shadow(0 3px 6px rgba(160,120,30,.22))" }}>
-            <ArcoChan pose={arcoPose as unknown as Parameters<typeof ArcoChan>[0]["pose"]} />
-          </div>
-          <span style={{ flex: 1, background: "rgba(255,255,255,.78)", border: "1px solid #eee0bd", borderRadius: 13, borderBottomLeftRadius: 4, padding: "9px 12px", fontSize: 11.5, fontWeight: 700, color: "#4a4030" }}>
-            {data.v2.arcoLine}
-          </span>
         </div>
         <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
           <div style={kpiBox}><b style={{ ...kpiNum, color: ACC }}>{k.starDone}<small style={{ fontSize: 11, color: "#9aa6b3" }}>/{k.starRequired}</small></b><span style={kpiLbl}>★{k.star}の達成曲</span></div>
@@ -318,41 +306,15 @@ function FormChapter({ data }: { data: KarteData }) {
   )
 }
 
-/* ═ きみの歴史: 縦スライド + 時間の道 (2026-08-06確定・デモ0edb9f66) ═ */
+/* ═ きみの歴史: 曲の達成/マスターを縦スクロールのタイムラインで (2026-08-11 Tetsuo確定) ═ */
 function HistorySection({ data }: { data: KarteData }) {
   const ms = data.v2.milestones
-  const railRef = useRef<HTMLDivElement | null>(null)
-  const [active, setActive] = useState(0)
 
   const CAT: Record<string, { label: string; color: string }> = {
     "🏆": { label: "マスター", color: "#b58a1e" },
-    "⭐": { label: "ランクアップ", color: "#b58a1e" },
     "✨": { label: "タッセイ", color: "#2e8b57" },
-    "🎓": { label: "ワザ", color: "#4a63c8" },
-    "🎨": { label: "ヒョウゲン", color: "#a4527a" },
-    "💪": { label: "ヒョウゲン", color: "#a4527a" },
-    "🌱": { label: "クセこくふく", color: "#5f9c6e" },
-    "👩‍🏫": { label: "センセイ", color: "#8a6fb8" },
-    "🎙": { label: "ハジマリ", color: "#9aa3ae" },
   }
-  const isBig = (icon: string) => icon === "🏆" || icon === "⭐"
-
-  const onScroll = () => {
-    const rail = railRef.current
-    if (!rail) return
-    requestAnimationFrame(() => {
-      const mid = rail.scrollTop + rail.clientHeight / 2
-      let best = 0
-      let bestDist = Infinity
-      Array.from(rail.children).forEach((c, i) => {
-        const el = c as HTMLElement
-        const center = el.offsetTop + el.offsetHeight / 2
-        const dd = Math.abs(center - mid)
-        if (dd < bestDist) { bestDist = dd; best = i }
-      })
-      setActive(best)
-    })
-  }
+  const isBig = (icon: string) => icon === "🏆"
 
   if (ms.length === 0) {
     return (
@@ -376,49 +338,28 @@ function HistorySection({ data }: { data: KarteData }) {
         <div style={chapNote}>{first.date}にはじまって {days}日間 ・ {N}つの節目</div>
       </div>
 
-      <div style={{ display: "flex", gap: 12, padding: "10px 18px 16px" }}>
-        {/* 時間の道 (縦): 上=いま / 下=はじまり */}
-        <div style={{ position: "relative", width: 22, flex: "none" }}>
-          <div style={{ position: "absolute", top: 0, bottom: 0, left: 9, width: 2, borderRadius: 1, background: "#ece8db" }} />
-          <div style={{
-            position: "absolute", top: 0, left: 9, width: 2, borderRadius: 1,
-            background: "linear-gradient(180deg,#e3c96a,#d8b34e)",
-            height: `${(active / Math.max(1, N - 1)) * 100}%`, transition: "height .3s ease",
-          }} />
-          {ms.map((m, i) => {
-            const frac = i / Math.max(1, N - 1)
-            const cur = i === active
-            return (
-              <span key={`${m.at}-${i}`} style={{
-                position: "absolute", left: isBig(m.icon) ? 5 : 6, top: `calc(${frac * 100}% - 4px)`,
-                width: isBig(m.icon) ? 10 : 8, height: isBig(m.icon) ? 10 : 8, borderRadius: "50%",
-                boxSizing: "border-box", background: cur ? "#fdf3d8" : "#fff",
-                border: `2px solid ${cur ? "#c9a227" : i <= active ? "#d8b34e" : "#ded8c6"}`,
-                transform: cur ? "scale(1.5)" : "none", transition: "border-color .3s, transform .3s",
-              }} />
-            )
-          })}
-        </div>
-
-        {/* 縦スナップのカードレール */}
-        <div ref={railRef} onScroll={onScroll} style={{
-          flex: 1, minWidth: 0, height: 280, overflowY: "auto",
-          scrollSnapType: "y mandatory", scrollbarWidth: "none",
-          display: "flex", flexDirection: "column", gap: 10, padding: "56px 2px",
-        }}>
-          {ms.map((m, i) => {
-            const cat = CAT[m.icon] ?? { label: "セツメ", color: SUB }
-            const big = isBig(m.icon)
-            const activeCard = i === active
-            return (
-              <div key={`${m.at}-${i}`} style={{
-                flex: "none", scrollSnapAlign: "center", borderRadius: 14, padding: "13px 15px",
+      {/* 上=いま / 下=はじまり の縦タイムライン (素直な縦スクロール) */}
+      <div style={{ padding: "12px 18px 16px" }}>
+        {ms.map((m, i) => {
+          const cat = CAT[m.icon] ?? { label: "セツメ", color: SUB }
+          const big = isBig(m.icon)
+          const isLast = i === N - 1
+          return (
+            <div key={`${m.at}-${i}`} style={{ display: "flex", gap: 12 }}>
+              {/* 左: 縦線 + 節目ドット */}
+              <div style={{ position: "relative", width: 14, flex: "none" }}>
+                {!isLast && <div style={{ position: "absolute", top: 14, bottom: -10, left: 6, width: 2, borderRadius: 1, background: "#ece8db" }} />}
+                <span style={{
+                  position: "absolute", top: 3, left: big ? 2 : 3,
+                  width: big ? 10 : 8, height: big ? 10 : 8, borderRadius: "50%", boxSizing: "border-box",
+                  background: big ? "#fdf3d8" : "#fff", border: `2px solid ${cat.color}`,
+                }} />
+              </div>
+              {/* 右: 節目カード */}
+              <div style={{
+                flex: 1, minWidth: 0, marginBottom: 10, borderRadius: 14, padding: "12px 14px",
                 background: big ? "linear-gradient(155deg,#fffdf4,#fbf2d8)" : "rgba(255,255,255,.8)",
                 border: `1px solid ${big ? "#ecd9a2" : "#eee9da"}`,
-                transform: activeCard ? "scale(1)" : "scale(.94)",
-                opacity: activeCard ? 1 : 0.55,
-                filter: activeCard ? "none" : "saturate(.6)",
-                transition: "transform .35s cubic-bezier(.2,.8,.3,1), opacity .35s, filter .35s",
               }}>
                 <div style={{ fontSize: 8.5, fontWeight: 900, letterSpacing: ".16em", color: cat.color }}>
                   {cat.label} ・ {m.date}
@@ -426,13 +367,13 @@ function HistorySection({ data }: { data: KarteData }) {
                 <div style={{ fontSize: big ? 14.5 : 13, fontWeight: 900, lineHeight: 1.5, marginTop: 3 }}>
                   {m.text}
                 </div>
-                {i === N - 1 && (
+                {isLast && (
                   <div style={{ fontSize: 10, color: "#9a9384", marginTop: 4 }}>ここから物語がはじまった</div>
                 )}
               </div>
-            )
-          })}
-        </div>
+            </div>
+          )
+        })}
       </div>
     </Reveal>
   )

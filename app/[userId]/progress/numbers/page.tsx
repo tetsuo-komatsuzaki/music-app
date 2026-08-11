@@ -1,7 +1,7 @@
 // 数字のへや (Phase2 D3・2026-08-03)。カルテ⑤の詳細画面: 調→音域→テンポ→音の
 // 掘れるツリー全体 + 得意も苦手も一覧 + 今週うごいた枝。
 import Link from "next/link"
-import { BarChart3, Sparkles, Music, AudioLines, Timer, Search, ArrowLeftRight } from "lucide-react"
+import { BarChart3, Sparkles, Music, Timer, Search, ArrowLeftRight } from "lucide-react"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { buildNumbersRoom, type KartePeriod } from "@/app/_libs/growthKarte"
 
@@ -43,7 +43,6 @@ export default async function NumbersRoomPage({
   const { authUserId, dbUserId } = await getUserIdsFromParams(p)
   const period: KartePeriod = sp.period === "7d" ? "7d" : sp.period === "all" ? "all" : "30d"
   const d = await buildNumbersRoom(dbUserId, period)
-  const REG_LABEL: Record<string, string> = { low: "低い弦域（G・D線）", mid: "まん中（A線域）", high: "高い弦域（E線域）" }
   const empty = d.keys.length === 0 && d.registers.length === 0 && d.worstNotes.length === 0
   const periodLabel = period === "7d" ? "今週" : period === "all" ? "全期間" : "直近30日"
   const lens = d.worstNotes[0] ?? null // 旧カルテ「いちばんの発見(虫めがね)」をここに集約
@@ -53,7 +52,6 @@ export default async function NumbersRoomPage({
       <Link href={`/${authUserId}/progress`} style={{ fontSize: "var(--fs-body)", color: SUB, textDecoration: "none" }}>← 成長カルテ</Link>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "8px 0 10px" }}>
         <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: 0, display: "inline-flex", alignItems: "center", gap: 6 }}><BarChart3 size={18} color="#3555d4" /> 数字のへや</h1>
-        <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: SUB }}>得意も苦手もぜんぶ</span>
       </div>
       {/* 期間切替 (2026-08-06: カルテ本体から移設。期間が効くのはこの部屋だけ) */}
       <div style={{ display: "flex", gap: 4, background: "#eceef2", borderRadius: 10, padding: 3, marginBottom: 12 }}>
@@ -78,7 +76,7 @@ export default async function NumbersRoomPage({
             <div style={{ ...card, borderColor: "#e7b8d0", background: "linear-gradient(155deg,#fff,#fdf1f6)" }}>
               <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#a4527a", display: "inline-flex", alignItems: "center", gap: 4 }}><Search size={12} /> {periodLabel}の録音ぜんぶから見つけた</div>
               <div style={{ fontSize: 27, fontWeight: 900, marginTop: 2, lineHeight: 1.15 }}>
-                {lens.kana} <span style={{ fontSize: "var(--fs-caption)", color: SUB, fontWeight: 800 }}>{lens.hand ? `${lens.hand}・推定` : lens.raw}</span>
+                {lens.kana} <span style={{ fontSize: "var(--fs-caption)", color: SUB, fontWeight: 800 }}>{lens.hand ? `${lens.hand}・推定` : lens.string ? `${lens.string}・推定` : lens.raw}</span>
               </div>
               <div style={{ fontSize: "var(--fs-caption)", color: "#6a5f48", marginTop: 4, lineHeight: 1.7 }}>
                 成功 <b style={{ ...tnum, color: pctColor(lens.pct) }}>{lens.pct}%</b>。この期間でいちばんずれやすい音だよ。
@@ -107,13 +105,6 @@ export default async function NumbersRoomPage({
             </div>
           )}
 
-          {d.registers.length > 0 && (
-            <div style={card}>
-              <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><AudioLines size={14} /> 音域べつ <span style={{ fontSize: "var(--fs-label)", color: SUB, fontWeight: 800 }}>音単位の成功率</span></div>
-              {d.registers.map((r) => <Row key={r.band} label={REG_LABEL[r.band]} sub={`${r.target}音`} pct={r.pct} />)}
-            </div>
-          )}
-
           {d.tempoBands.length > 0 && (
             <div style={card}>
               <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><Timer size={14} /> テンポ帯べつ <span style={{ fontSize: "var(--fs-label)", color: SUB, fontWeight: 800 }}>曲のテンポで分類</span></div>
@@ -128,7 +119,7 @@ export default async function NumbersRoomPage({
               {d.worstNotes.map((n) => (
                 <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 5, flexWrap: "wrap" }}>
                   <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
-                  <span style={{ fontSize: "var(--fs-label)", color: SUB }}>{n.hand ? `${n.hand}（推定）` : n.raw}・{n.target}音</span>
+                  <span style={{ fontSize: "var(--fs-label)", color: SUB }}>{n.hand ? `${n.hand}（推定）` : n.string ? `${n.string}（推定）` : n.raw}・{n.target}音</span>
                   {n.cents != null && Math.abs(n.cents) >= 15 && (
                     <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: GOLD }}>{n.cents < 0 ? `ぶら下がり ${n.cents}c` : `上ずり +${n.cents}c`}</span>
                   )}
@@ -144,15 +135,25 @@ export default async function NumbersRoomPage({
           )}
 
           {d.transitions.length > 0 && (
-            <div style={{ ...card, marginBottom: 0 }}>
+            <div style={card}>
               <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><ArrowLeftRight size={14} /> 動きのにがて <span style={{ fontSize: "var(--fs-label)", color: SUB, fontWeight: 800 }}>前の音 → この音</span></div>
               {d.transitions.map((t, i) => (
-                <div key={i} style={{ display: "flex", gap: 8, fontSize: "var(--fs-caption)", marginBottom: 4 }}>
-                  <span style={{ fontWeight: 700 }}>{t.from} → {t.to}</span>
+                <div key={i} style={{ display: "flex", gap: 8, fontSize: "var(--fs-caption)", marginBottom: 4, flexWrap: "wrap" }}>
+                  <span style={{ fontWeight: 700 }}>
+                    {t.from}{t.fromString && <span style={{ color: SUB, fontWeight: 700 }}>（{t.fromString}）</span>} → {t.to}{t.toString && <span style={{ color: SUB, fontWeight: 700 }}>（{t.toString}）</span>}
+                  </span>
                   <span style={{ fontSize: "var(--fs-label)", color: SUB, alignSelf: "center" }}>{t.target}回中</span>
                   <b style={{ ...tnum, marginLeft: "auto", color: BAD }}>ミス率 {t.missRate}%</b>
                 </div>
               ))}
+            </div>
+          )}
+
+          {d.posShifts.length > 0 && (
+            <div style={{ ...card, marginBottom: 0 }}>
+              <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><ArrowLeftRight size={14} /> ポジション移動べつ <span style={{ fontSize: "var(--fs-label)", color: SUB, fontWeight: 800 }}>左手の移動・にがて順</span></div>
+              {d.posShifts.map((p) => <Row key={p.label} label={p.label} sub={`${p.target}回`} pct={p.pct} />)}
+              <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 4 }}>※ ポジション移動をふくむ曲・教材を弾くと集計されるよ</div>
             </div>
           )}
         </>
