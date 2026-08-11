@@ -7,11 +7,12 @@
 // 30日固定 (期間切替は数字のへや)。次の一歩はホームの領分 (カルテには置かない)。
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { Share2, Search, Flame } from "lucide-react"
+import { Share2, Search } from "lucide-react"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import type { KarteData, SkillNode } from "@/app/_libs/growthKarte"
 import BodyObsMap from "@/app/components/BodyObsMap"
 import ShareSheet from "@/app/components/ShareSheet"
+import { ArcoChan, POSES } from "@/app/components/ArcoChan"
 
 // ── ペーパートークン ──
 const INK = "#241f14"
@@ -92,15 +93,13 @@ export default function ProgressPage({ userId, data, readOnly = false }: {
         background: "linear-gradient(165deg,#fffdf6,#faf4e4)", border: "1px solid #eee6d0",
         borderRadius: 18, overflow: "hidden", position: "relative",
       }}>
-        <Hero data={data} readOnly={readOnly} onShare={() => setWeeklyShare(true)} />
+        <Hero userId={userId} data={data} readOnly={readOnly} onShare={() => setWeeklyShare(true)} />
         <Rule />
         <SkillsChapter userId={userId} data={data} readOnly={readOnly} />
         <Rule />
         <ExprChapter userId={userId} data={data} readOnly={readOnly} />
         {data.bodyObs && <Rule />}
         <FormChapter data={data} />
-        <Rule />
-        <DiscoveryChapter userId={userId} data={data} readOnly={readOnly} />
         <Rule />
         <HistorySection data={data} />
       </div>
@@ -111,19 +110,30 @@ export default function ProgressPage({ userId, data, readOnly = false }: {
 }
 
 /* ═ ヒーロー: 五線譜 + アルコ + KPI大数字 ═ */
-function Hero({ data, readOnly, onShare }: { data: KarteData; readOnly: boolean; onShare: () => void }) {
+function Hero({ userId, data, readOnly, onShare }: { userId: string; data: KarteData; readOnly: boolean; onShare: () => void }) {
   const k = data.v2.kpi
+  const arcoPose = POSES.find((p) => p.cat === "説明") ?? POSES[0]
   return (
     <div style={{ position: "relative", padding: "22px 18px 18px" }}>
-      <svg viewBox="0 0 400 200" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} aria-hidden>
-        <g stroke="#e3d5ac" strokeWidth="1.4" fill="none" opacity=".5">
-          <path d="M-10,36 C100,26 260,48 410,30" />
-          <path d="M-10,52 C100,42 260,64 410,46" />
-          <path d="M-10,68 C100,58 260,80 410,62" />
+      {/* 背景の五線譜: 正しい5本線＋ト音記号＋音符 (xMidYMid slice で歪ませない) */}
+      <svg viewBox="0 0 400 120" preserveAspectRatio="xMidYMid slice" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} aria-hidden>
+        <g stroke="#e2d3a6" strokeWidth="1" opacity=".6">
+          <line x1="-20" y1="30" x2="420" y2="30" />
+          <line x1="-20" y1="42" x2="420" y2="42" />
+          <line x1="-20" y1="54" x2="420" y2="54" />
+          <line x1="-20" y1="66" x2="420" y2="66" />
+          <line x1="-20" y1="78" x2="420" y2="78" />
         </g>
-        <g transform="translate(330,26) rotate(-6)" opacity=".8">
-          <ellipse cx="0" cy="0" rx="5.5" ry="4" fill="#d8c48e" transform="rotate(-20)" />
-          <rect x="4" y="-17" width="1.4" height="17" rx=".7" fill="#d8c48e" />
+        {/* ト音記号 (簡略化した渦巻き) */}
+        <path d="M30 84 C20 80 20 66 30 62 C42 57 46 44 40 36 C34 28 24 34 24 44 C24 58 40 66 44 78 C47 88 38 96 30 92 C25 89 25 82 30 82"
+          fill="none" stroke="#d3bd82" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" opacity=".55" />
+        {/* 音符 (五線上の四分音符) */}
+        <g fill="#d3bd82" opacity=".5">
+          <g transform="translate(96,66)"><ellipse rx="5" ry="3.6" transform="rotate(-22)" /><rect x="4" y="-19" width="1.4" height="19" rx=".7" /></g>
+          <g transform="translate(148,54)"><ellipse rx="5" ry="3.6" transform="rotate(-22)" /><rect x="4" y="-19" width="1.4" height="19" rx=".7" /></g>
+          <g transform="translate(200,60)"><ellipse rx="5" ry="3.6" transform="rotate(-22)" /><rect x="4" y="-19" width="1.4" height="19" rx=".7" /></g>
+          <g transform="translate(252,42)"><ellipse rx="5" ry="3.6" transform="rotate(-22)" /><rect x="4" y="-19" width="1.4" height="19" rx=".7" /></g>
+          <g transform="translate(312,54)"><ellipse rx="5" ry="3.6" transform="rotate(-22)" /><rect x="4" y="-19" width="1.4" height="19" rx=".7" /></g>
         </g>
       </svg>
       <div style={{ position: "relative" }}>
@@ -140,10 +150,11 @@ function Hero({ data, readOnly, onShare }: { data: KarteData; readOnly: boolean;
             </button>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Icon.png" alt="" aria-hidden width={42} height={42} style={{ flex: "none", borderRadius: 9, filter: "drop-shadow(0 3px 6px rgba(160,120,30,.25))" }} />
-          <span style={{ flex: 1, background: "rgba(255,255,255,.75)", border: "1px solid #eee0bd", borderRadius: 13, borderTopLeftRadius: 4, padding: "9px 12px", fontSize: 11.5, fontWeight: 700, color: "#4a4030" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 8, marginTop: 12 }}>
+          <div style={{ flex: "none", width: 46, height: 46, filter: "drop-shadow(0 3px 6px rgba(160,120,30,.22))" }}>
+            <ArcoChan pose={arcoPose as unknown as Parameters<typeof ArcoChan>[0]["pose"]} />
+          </div>
+          <span style={{ flex: 1, background: "rgba(255,255,255,.78)", border: "1px solid #eee0bd", borderRadius: 13, borderBottomLeftRadius: 4, padding: "9px 12px", fontSize: 11.5, fontWeight: 700, color: "#4a4030" }}>
             {data.v2.arcoLine}
           </span>
         </div>
@@ -152,6 +163,11 @@ function Hero({ data, readOnly, onShare }: { data: KarteData; readOnly: boolean;
           <div style={kpiBox}><b style={{ ...kpiNum, color: k.basicsWeek > 0 ? GOOD : SUB }}>{k.basicsWeek > 0 ? `+${k.basicsWeek}` : "±0"}</b><span style={kpiLbl}>今週の基礎練</span></div>
           <div style={kpiBox}><b style={{ ...kpiNum, color: k.skillsWeek > 0 ? GOLD : SUB }}>{k.skillsWeek > 0 ? `+${k.skillsWeek}` : "±0"}</b><span style={kpiLbl}>今週のわざ</span></div>
         </div>
+        {!readOnly && (
+          <Link href={`/${userId}/progress/numbers`} style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 11, fontSize: 10.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>
+            <Search size={11} /> きろくを詳しくみる（数字のへや）→
+          </Link>
+        )}
       </div>
     </div>
   )
@@ -298,95 +314,6 @@ function FormChapter({ data }: { data: KarteData }) {
           </div>
         ) : (
           <BodyObsMap tags={data.bodyObs} />
-        )}
-      </div>
-    </Reveal>
-  )
-}
-
-/* ═ いちばんの発見 (虫めがね・大数字の1枚) ═ */
-function DiscoveryChapter({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
-  const d = data.v2.discovery
-  const BAND_LABEL: Record<string, string> = { low: "低い弦域（G・D線）", mid: "まん中（A線域）", high: "高い弦域（E線域）" }
-  const hasFinding = d.keyWorst || d.registerWorst || d.lens
-  return (
-    <Reveal>
-      <div style={{ padding: "18px 18px 0" }}>
-        <div style={kicker}>DISCOVERY</div>
-        <div style={{ display: "flex", alignItems: "baseline" }}>
-          <div style={chapTitle}>いちばんの発見</div>
-          {!readOnly && (
-            <Link href={`/${userId}/progress/numbers`} style={{ marginLeft: "auto", fontSize: 10, fontWeight: 800, color: ACC, textDecoration: "none" }}>数字のへや →</Link>
-          )}
-        </div>
-      </div>
-      <div style={{ margin: "10px 18px 16px" }}>
-        {!hasFinding ? (
-          <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>録音がたまると、苦手な調・音域・音がここに見えてくるよ。</div>
-        ) : (
-          <div style={{ background: "rgba(255,255,255,.8)", border: "1px solid #efe5cc", borderRadius: 16, padding: "13px 15px" }}>
-            {d.lens ? (
-              <>
-                <div style={{ fontSize: 9.5, fontWeight: 800, color: "#a4527a", display: "flex", alignItems: "center", gap: 4 }}><Search size={11} /> 30日の録音ぜんぶから見つけた</div>
-                <div style={{ fontSize: 27, fontWeight: 900, marginTop: 2 }}>
-                  {d.lens.note} <span style={{ fontSize: 12, color: "#8a7c62", fontWeight: 800 }}>{d.lens.hand ? `${d.lens.hand}・推定` : d.lens.raw}</span>
-                </div>
-                <div style={{ fontSize: 10.5, color: "#6a5f48", marginTop: 4, lineHeight: 1.7 }}>
-                  成功 <b style={tnum}>{d.lens.successPct}%</b>。{d.lens.type}
-                  {d.lens.cents != null && <>（平均 {d.lens.cents > 0 ? "+" : ""}{d.lens.cents}セント）</>}。
-                  {d.lens.fromNote && <>とくに<b>「{d.lens.fromNote}」から動いてきた時</b>にずれやすい。</>}
-                  <span style={{ color: GOLD, fontWeight: 800 }}> 処方はホームのおすすめに出しておくね。</span>
-                </div>
-              </>
-            ) : (
-              <div style={{ fontSize: 12, lineHeight: 1.7 }}>
-                いまの苦手:
-                {d.keyWorst && <> <b style={{ color: BAD }}>{d.keyWorst.label} <span style={tnum}>{d.keyWorst.pct}%</span></b></>}
-                {d.keyWorst && d.registerWorst && " ・ "}
-                {d.registerWorst && <>とくに<b>{BAND_LABEL[d.registerWorst.band]}</b> <span style={{ ...tnum, color: BAD, fontWeight: 800 }}>{d.registerWorst.pct}%</span></>}
-              </div>
-            )}
-            {d.lens && (d.keyWorst || d.registerWorst) && (
-              <div style={{ fontSize: 10, color: SUB, marginTop: 7 }}>
-                苦手な調: {d.keyWorst ? `${d.keyWorst.label} ${d.keyWorst.pct}%` : "—"}
-                {d.registerWorst && ` ・ ${BAND_LABEL[d.registerWorst.band]} ${d.registerWorst.pct}%`}
-              </div>
-            )}
-            <details style={{ marginTop: 9 }}>
-              <summary style={{ fontSize: 10, fontWeight: 800, color: SUB, cursor: "pointer" }}>▸ もっと見る（練習の実態・調・奏法）</summary>
-              <div style={{ fontSize: 11, color: "#5a5140", lineHeight: 1.9, marginTop: 7 }}>
-                練習 <b style={tnum}>{data.practiceDays}日</b> ・ 録音 <b style={tnum}>{data.recordingCount}回</b> ・ れんぞく <b style={tnum}>{data.streak}日</b> <Flame size={13} color="#e8743b" style={{ verticalAlign: -2 }} />
-                {data.keyRows.length > 0 && (
-                  <div style={{ marginTop: 4 }}>
-                    {data.keyRows.slice(0, 5).map((kk) => (
-                      <div key={kk.label} style={{ display: "flex", gap: 8, fontSize: 10.5 }}>
-                        <span style={{ width: 92, flex: "none" }}>{kk.label}</span>
-                        <span style={{ color: SUB }}>{kk.count}回</span>
-                        {kk.avgPitch != null && <span style={{ ...tnum, marginLeft: "auto", fontWeight: 800 }}>{kk.avgPitch}%</span>}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {data.techRows.length > 0 && (
-                  <div style={{ marginTop: 6 }}>
-                    {data.techRows.slice(0, 4).map((t) => {
-                      const pct = Math.max(0, Math.round(100 - (t.miss / Math.max(1, t.target)) * 100))
-                      return (
-                        <div key={t.label} style={{ display: "flex", gap: 8, fontSize: 10.5 }}>
-                          <span style={{ width: 92, flex: "none" }}>{t.label}</span>
-                          <span style={{ flex: 1, alignSelf: "center", height: 5, borderRadius: 3, background: "#efe9da", overflow: "hidden" }}>
-                            <span style={{ display: "block", width: `${pct}%`, height: "100%", background: pct < 70 ? WARN : GOOD }} />
-                          </span>
-                          <b style={{ ...tnum, width: 36, textAlign: "right" }}>{pct}%</b>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
-                <div style={{ fontSize: 9, color: "#c0b598", marginTop: 5 }}>※ アルコが、録音の音程・リズムから見ているよ</div>
-              </div>
-            </details>
-          </div>
         )}
       </div>
     </Reveal>
