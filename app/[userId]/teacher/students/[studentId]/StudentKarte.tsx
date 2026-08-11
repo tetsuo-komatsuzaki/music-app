@@ -168,7 +168,7 @@ export default function StudentKarte({
         <SummaryTab briefing={briefing} working={working} recordings={recordings} observations={observations} onGoKarte={() => setTab("karte")} />
       )}
       {tab === "karte" && (
-        <KarteBySong studentId={studentId} recordings={recordings} />
+        <KarteBySong userId={userId} studentId={studentId} recordings={recordings} />
       )}
       {tab === "growth" && (
         karte ? (
@@ -298,7 +298,7 @@ function SummaryTab({ briefing, working, recordings, observations, onGoKarte }: 
 
 /* ═ 主役②: 練習後カルテ (曲別。曲→この曲のカルテを横スライド) ═ */
 type SongGroup = { title: string; cat: string; kind: "score" | "practice"; star: number | null; recs: Recording[]; count: number; latest: Recording; trend: number }
-function KarteBySong({ studentId, recordings }: { studentId: string; recordings: Recording[] }) {
+function KarteBySong({ userId, studentId, recordings }: { userId: string; studentId: string; recordings: Recording[] }) {
   const order: string[] = []
   const groups = new Map<string, Recording[]>()
   for (const r of recordings) {
@@ -332,7 +332,7 @@ function KarteBySong({ studentId, recordings }: { studentId: string; recordings:
           </div>
         )}
         <div style={{ display: "flex", gap: 9, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none", touchAction: "pan-y", paddingBottom: 4 }}>
-          {g.recs.map((r) => <MiniKarte key={r.id} studentId={studentId} r={r} />)}
+          {g.recs.map((r) => <MiniKarte key={r.id} userId={userId} studentId={studentId} r={r} />)}
         </div>
       </div>
     </details>
@@ -357,10 +357,11 @@ function KarteBySong({ studentId, recordings }: { studentId: string; recordings:
   )
 }
 
-/* ═ 曲別の横スライド1枚 (練習後カルテ・コメント可) ═ */
-function MiniKarte({ studentId, r }: { studentId: string; r: Recording }) {
+/* ═ 曲別の横スライド1枚 (タップで練習後カルテ詳細=書く場へ) ═ */
+function MiniKarte({ userId, studentId, r }: { userId: string; studentId: string; r: Recording }) {
   return (
-    <div style={{ flex: "none", width: 216, scrollSnapAlign: "start", background: "#fff", border: "1px solid #eef1f4", borderRadius: 12, padding: "11px 12px", boxSizing: "border-box" }}>
+    <Link href={`/${userId}/teacher/students/${studentId}/karte/${r.id}?kind=${r.kind}`}
+      style={{ flex: "none", width: 200, scrollSnapAlign: "start", background: "#fff", border: "1px solid #eef1f4", borderRadius: 12, padding: "11px 12px", boxSizing: "border-box", textDecoration: "none", color: "var(--text-master)", display: "block" }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
         <span style={{ fontSize: "var(--fs-title)", fontWeight: 900, color: kScoreColor(r.avg), lineHeight: 1 }}>{r.avg}</span>
         <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>{r.date}</span>
@@ -377,11 +378,8 @@ function MiniKarte({ studentId, r }: { studentId: string; r: Recording }) {
           ))}
         </div>
       )}
-      {r.audioUrl ? (
-        <audio controls preload="none" src={r.audioUrl} style={{ width: "100%", height: 30, marginTop: 8 }} />
-      ) : null}
-      <RecCommentBox studentId={studentId} performanceId={r.id} kind={r.kind} />
-    </div>
+      <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#3b56d4", marginTop: 8 }}>ひらいて 癖・コメントを書く →</div>
+    </Link>
   )
 }
 
