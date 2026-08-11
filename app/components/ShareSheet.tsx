@@ -37,7 +37,7 @@ export default function ShareSheet({
         if (r.ok) setToken(r.token)
         else setError(r.error)
       } catch {
-        if (!aborted) setError("作成に失敗しました。時間をおいて試してください")
+        if (!aborted) setError("通信に失敗しました。ページを再読み込みしてもう一度お試しください") // action呼び出し自体の失敗 (デプロイ直後の古いタブ等)。サーバー例外とは別文言で切り分け
       } finally {
         if (!aborted) setCreating(false)
       }
