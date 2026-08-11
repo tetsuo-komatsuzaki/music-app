@@ -156,22 +156,8 @@ export default function TeacherAssignments({
       ),
     })
   }
-  if (feedback > 0) {
-    slides.push({
-      cat: "fb",
-      node: (
-        <Link href={`/${userId}/my-teacher`} className="pressable" style={cardStyle}>
-          <span style={{ ...av, background: "#e2f5f4", color: "#0e9c9c" }}><PenLine size={17} /></span>
-          <span style={cbody}>
-            <span style={who}>{summary?.teacherName ?? "先生"}</span>
-            <span style={title}>先生が添削してくれたよ・{feedback}件</span>
-            <span style={chips}><span style={{ ...chip, color: "#0e9c9c", background: "#e2f5f4" }}>コメントを見る</span></span>
-          </span>
-          <ChevronRight size={18} style={{ flex: "none", color: "var(--text-muted)" }} />
-        </Link>
-      ),
-    })
-  }
+  // 添削通知は削除 (2026-08-11 Tetsuo指示: 添削機能の廃止にともない通知も不要)
+  void feedback
   if (celebration) {
     slides.push({
       cat: "cel",

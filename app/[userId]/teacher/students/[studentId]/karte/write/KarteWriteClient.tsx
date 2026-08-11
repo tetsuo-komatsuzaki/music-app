@@ -12,7 +12,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, MessageCircle, Check } from "lucide-react"
 import { savePracticeKarte, saveFingerboardMark, removeFingerboardMark, passAssignment } from "@/app/actions/teacherActions"
-import { createObservation } from "@/app/actions/teacherObservations"
+import { createObservation, recordObservationProgress } from "@/app/actions/teacherObservations"
 import { saveMaterialNote } from "@/app/actions/teacherMaterialNotes"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
 import { MOOD_TAG_DEFS, moodTagLabel } from "@/app/_libs/moodTags"
@@ -38,7 +38,7 @@ function targetLabel(id: string): string {
 
 export default function KarteWriteClient({
   backHref, userId, studentId, kind, targetId, title, cat, star, performances, aiTags, materials,
-  heatmap, marks: initialMarks = [], hw = null, sheetUrl = null,
+  heatmap, marks: initialMarks = [], hw = null, sheetUrl = null, pastKuse = [],
 }: {
   backHref: string; userId: string; studentId: string
   kind: "score" | "practice"; targetId: string
@@ -52,6 +52,8 @@ export default function KarteWriteClient({
   hw?: { id: string; targetScore: number | null; submittedScore: number | null } | null
   /** 採点スコアモーダル用の楽譜URL */
   sheetUrl?: string | null
+  /** 以前指摘した癖 (未克服)。「直った」チェック用 */
+  pastKuse?: { tagId: string; label: string; date: string }[]
 }) {
   const router = useRouter()
 
@@ -85,6 +87,8 @@ export default function KarteWriteClient({
     setKuse((prev) => ({ ...prev, [id]: { ...(prev[id] ?? EMPTY_DRAFT), ...patch } }))
   const toggleIn = (arr: string[], v: string) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v])
 
+  // 以前の癖の「直った」チェック (2026-08-11 Tetsuo指示)
+  const [resolvedTags, setResolvedTags] = useState<string[]>([])
   const [exprTag, setExprTag] = useState("")
   const [points, setPoints] = useState<Record<string, string>>(() => Object.fromEntries(materials.map((m) => [m.itemId, m.point])))
 
@@ -104,7 +108,7 @@ export default function KarteWriteClient({
     return !before || before.note !== m.note
   })
   const markRemoves = initialMarks.filter((m) => !marks.some((x) => x.cellId === m.cellId))
-  const sendCount = (body.trim() ? 1 : 0) + kuseEntries.length + (exprTag ? 1 : 0) + dirtyPoints.length + markAdds.length + markRemoves.length + (passHw ? 1 : 0)
+  const sendCount = (body.trim() ? 1 : 0) + kuseEntries.length + resolvedTags.length + (exprTag ? 1 : 0) + dirtyPoints.length + markAdds.length + markRemoves.length + (passHw ? 1 : 0)
 
   const submitAll = () => {
     if (!body.trim()) { setResult({ ok: false, text: "カルテ本文を書いてください・本文だけは必須です" }); return }
@@ -123,6 +127,11 @@ export default function KarteWriteClient({
           skillIds: id === "general" ? [] : [id, ...d.feats].slice(0, 4),
         })
         if (!r.ok) errs.push(`癖の記録・${targetLabel(id)}`)
+      }
+      // 以前の癖の克服 (直った→ resolved 記録+生徒に「克服！」通知)
+      for (const tagId of resolvedTags) {
+        const r = await recordObservationProgress({ studentId, tagId, status: "resolved" })
+        if (!r.ok) errs.push("癖の克服チェック")
       }
       if (exprTag && kind === "score") {
         const r = await recordExpressionClear({ studentId, moodTagId: exprTag, scoreId: targetId })
@@ -398,6 +407,31 @@ export default function KarteWriteClient({
         )}
       </div>
 
+      {/* 以前指摘した癖・直ったかチェック (2026-08-11 Tetsuo指示) */}
+      {pastKuse.length > 0 && (
+        <div style={card}>
+          <div style={lab}>以前指摘した癖・直った？{optBadge}</div>
+          <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", margin: "-4px 0 8px", lineHeight: 1.5 }}>
+            「直った」にすると、生徒に「癖を克服！」の通知が届きます。
+          </div>
+          {pastKuse.map((k) => {
+            const on = resolvedTags.includes(k.tagId)
+            return (
+              <div key={k.tagId} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 0", borderTop: "1px dashed #eef1f4" }}>
+                <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", minWidth: 0 }}>{k.label}</span>
+                <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", flex: "none" }}>{k.date}に指摘</span>
+                <button type="button" disabled={done}
+                  onClick={() => setResolvedTags((prev) => (on ? prev.filter((x) => x !== k.tagId) : [...prev, k.tagId]))}
+                  style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 999, padding: "5px 13px", cursor: "pointer", border: "1px solid",
+                    color: on ? "#fff" : "#158253", background: on ? "#158253" : "#fff", borderColor: on ? "#158253" : "#bfe3d0" }}>
+                  {on ? "直った ✓" : "直った"}
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
       {kind === "score" && (
         <div style={card}>
           <div style={lab}>表現クリアを認定{optBadge}</div>
@@ -438,6 +472,7 @@ export default function KarteWriteClient({
           送る内容：
           {body.trim() && <span> カルテ本文</span>}
           {kuseEntries.length > 0 && <span> ・癖の記録{kuseEntries.length}件・{kuseEntries.map(([id]) => targetLabel(id)).join(" ")}</span>}
+          {resolvedTags.length > 0 && <span> ・癖の克服{resolvedTags.length}件</span>}
           {exprTag && <span> ・表現クリア認定</span>}
           {dirtyPoints.length > 0 && <span> ・練習ポイント{dirtyPoints.length}件</span>}
           {(markAdds.length > 0 || markRemoves.length > 0) && <span> ・指板マーク{markAdds.length + markRemoves.length}件</span>}

@@ -291,76 +291,8 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
         })
       )}
 
-      {/* 上達の見える化 4軸 (曲/技術/癖/表現) */}
-      <div style={kSec}>上達の見える化<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>くわしくは成長カルテへ</span></div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-        <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
-          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>技術</div>
-          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 3, color: "#22346b" }}>{skillLit ?? "—"}<span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>{skillLit != null ? ` /${skillTotal} 点灯` : ""}</span></div>
-        </div>
-        <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
-          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>癖</div>
-          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 3, color: kuseCount > 0 ? "#c07a1e" : "var(--text-muted)" }}>{kuseCount}<span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}> 記録中</span></div>
-        </div>
-        <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
-          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>表現</div>
-          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 3, color: "#7a4dd6" }}>{exprLit ?? "—"}<span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}> 認定</span></div>
-        </div>
-      </div>
-
-      {/* アルコの診断レポート (モック画面2: 紫グラデヘッダー) */}
-      <div style={{ border: "1px solid #e3d8f7", borderRadius: 15, overflow: "hidden", marginTop: 14, boxShadow: "0 4px 16px -8px rgba(110,60,190,.3)" }}>
-        <div style={{ background: "linear-gradient(135deg,#5a3fa8,#7a4dd6)", color: "#fff", padding: "10px 14px" }}>
-          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900 }}>アルコの診断レポート</div>
-          <div style={{ fontSize: "var(--fs-label)", color: "#e2d6fb", marginTop: 2 }}>音程マップ・直近2週間 {heatmap ? `${heatmap.perfCount}演奏分` : ""}</div>
-        </div>
-        <div style={{ background: "#fff", padding: "12px 14px" }}>
-        {/* 音程 = 指板ヒートマップ (2026-08-11 Tetsuo確定: 文章のにがて/とくい一覧を指板に置換)。
-            リズム系は指板で表現できないため下のリズム欄が残る */}
-        {heatmap ? (
-          <FingerboardPanel cells={heatmap.cells} details={heatmap.details} marks={fbMarks}
-            emptyText="直近2週間はまだ判定できる音が少ないよ・同じ音を5回以上ひくと色がつきます。" />
-        ) : (
-          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>音程マップを読み込めませんでした。</div>
-        )}
-        {/* リズムのにがて (指板は音程専用のため、リズム由来の崩れだけ文章で残す) */}
-        {weak3.length > 0 && (
-          <div style={{ marginTop: 10 }}>
-            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#b7823a" }}>リズムもふくめた にがて上位</div>
-            <div style={{ marginTop: 4 }}>
-              {weak3.map((n) => (
-                <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 4, flexWrap: "wrap" }}>
-                  <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
-                  <span style={noteSub}>{n.hand ? `${n.hand}` : n.string ? `${n.string}` : n.raw}・{n.target}音</span>
-                  <b style={{ ...notePct, color: kScoreColor(n.pct) }}>{n.pct}%</b>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {/* 指摘トラッキング: 前に指摘したこと、直った? */}
-        {remarks.length > 0 && (
-          <>
-            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#a9741c", marginTop: 10 }}>前に指摘したこと、直った？</div>
-            <div style={{ marginTop: 4 }}>
-              {remarks.map((rm, i) => {
-                const st = rmView(rm.status)
-                return (
-                  <div key={i} style={{ fontSize: "var(--fs-caption)", color: "#3a3550", lineHeight: 1.6, marginBottom: 5 }}>
-                    <span style={{ color: st.c, fontWeight: 900, marginRight: 5 }}>{st.mk}</span>
-                    <b>{rm.label}</b> <span style={{ color: st.c, fontWeight: 800 }}>{st.t}</span>
-                    {rm.from != null && rm.to != null && <span style={{ color: "var(--text-sub)" }}> ・{rm.from}→{rm.to}%</span>}
-                    {rm.recommend && <div style={{ fontSize: "var(--fs-label)", color: "#3b56d4", fontWeight: 800, marginLeft: 17, marginTop: 1 }}>◇ おすすめ：{rm.recommend}</div>}
-                  </div>
-                )
-              })}
-            </div>
-          </>
-        )}
-        {/* 指導提案は廃止 (2026-08-11 Tetsuo確定: 指導=練習後カルテへの返し+宿題がその役割) */}
-        </div>
-      </div>
-
+      {/* 上達の見える化・アルコの診断レポートは削除 (2026-08-11 Tetsuo指示)。
+          音程マップはカルテタブのふりかえる側・成長カルテ詳細で見る */}
       {/* 指導メニュー (宿題を出す)。表現認定は「その曲の練習後カルテ詳細」に移設 (2026-08-11 Tetsuo指摘) */}
       <div style={kSec}>指導メニュー</div>
       <details style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 12, marginBottom: 8 }}>

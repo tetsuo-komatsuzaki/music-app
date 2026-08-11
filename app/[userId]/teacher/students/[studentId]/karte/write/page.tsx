@@ -146,6 +146,25 @@ export default async function KarteWritePage({
     })).map((m) => ({ cellId: m.cellId, note: m.note }))
   } catch { marks = [] }
 
+  // 以前指摘した癖 (未克服) の一覧: 「直った」チェック用 (2026-08-11 Tetsuo指示)。
+  // タグごとの最新記録の severity が resolved 以外のものを出す
+  let pastKuse: { tagId: string; label: string; date: string }[] = []
+  try {
+    const rows = await prisma.teacherObservation.findMany({
+      where: { teacherId: me.id, studentId },
+      orderBy: { createdAt: "desc" }, take: 40,
+      select: { tagIds: true, severity: true, createdAt: true },
+    })
+    const latest = new Map<string, { severity: string | null; at: Date }>()
+    for (const r of rows) for (const t of r.tagIds) {
+      if (!latest.has(t)) latest.set(t, { severity: r.severity, at: r.createdAt })
+    }
+    pastKuse = [...latest.entries()]
+      .filter(([t, v]) => v.severity !== "resolved" && OBSERVATION_TAG_BY_ID[t])
+      .map(([t, v]) => ({ tagId: t, label: OBSERVATION_TAG_BY_ID[t].label, date: fmtMD(v.at) }))
+      .slice(0, 8)
+  } catch { pastKuse = [] }
+
   // この曲/教材が提出済み・未合格の宿題なら、合格判断の項目を出す (2026-08-11 Tetsuo指示)
   let hw: { id: string; targetScore: number | null; submittedScore: number | null } | null = null
   try {
@@ -198,6 +217,7 @@ export default async function KarteWritePage({
       marks={marks}
       hw={hw}
       sheetUrl={sheetUrl}
+      pastKuse={pastKuse}
     />
   )
 }
