@@ -124,9 +124,6 @@ const SKILL_DEFS: Array<{
   { id: "harmonic", label: "ハーモニクス", lane: "left", star: 5, tagType: "technique", tagKeys: ["ナチュラル・ハーモニクス", "ハーモニクス"], subIds: ["pitch_tech_harmonic", "rhythm_tech_harmonic"], practiceCat: null, obsTagIds: [] },
 ]
 
-// 癖記録の「関係するわざ」選択肢 (2026-08-11): 練習後カルテ入力とバリデーションで使用
-export const SKILL_ID_LABELS = SKILL_DEFS.map((d) => ({ id: d.id, label: d.label, lane: d.lane }))
-
 // 成長1行 (growthLine.ts)・選曲理由 (編み込み案1) 用: わざ→per_subtask 対応の軽量ビュー (SKILL_DEFS と単一ソース)
 export const SKILL_SUB_DEFS = SKILL_DEFS
   .filter((d) => d.subIds.length > 0)

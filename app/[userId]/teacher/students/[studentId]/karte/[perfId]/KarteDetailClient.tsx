@@ -11,7 +11,7 @@ import { saveMaterialNote } from "@/app/actions/teacherMaterialNotes"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
 import { MOOD_TAG_DEFS, moodTagLabel } from "@/app/_libs/moodTags"
 import { OBSERVATION_CATALOG, OBSERVATION_SEVERITIES } from "@/app/_libs/observationCatalog"
-import { SKILL_ID_LABELS } from "@/app/_libs/growthKarte"
+import { SKILL_ID_LABELS } from "@/app/_libs/skillCatalog"
 
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
 type MaterialRow = { itemId: string; label: string; category: string; star: number | null; point: string }

@@ -6,7 +6,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { requireAuthAction } from "@/app/_libs/requireAuth"
 import { notifyStudent } from "@/app/_libs/teacherEmailNotify"
 import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
-import { SKILL_ID_LABELS } from "@/app/_libs/growthKarte"
+import { SKILL_ID_LABELS } from "@/app/_libs/skillCatalog"
 
 const SKILL_ID_SET = new Set(SKILL_ID_LABELS.map((s) => s.id))
 
