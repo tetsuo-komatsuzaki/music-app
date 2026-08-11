@@ -363,6 +363,7 @@ function scoreTone(s: number): { ink: string; bg: string } {
 
 function PerformanceHistory({
   performances,
+  karteMode = false,
   selectedId,
   onSelect,
   loading,
@@ -376,6 +377,8 @@ function PerformanceHistory({
   onPerformanceDeleted,
 }: {
   performances: PerformanceDTO[]
+  /** 練習後カルテモード (2026-08-11): 先生の返しがある演奏だけを「先生からの練習後カルテ」として表示 */
+  karteMode?: boolean
   selectedId: string | null
   onSelect: (p: PerformanceDTO) => void
   loading: boolean
@@ -612,14 +615,13 @@ function PerformanceHistory({
 
   return (
     <div className={styles.card}>
-      <h3>練習後カルテ</h3>
-      <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 700, margin: "-2px 0 8px" }}>弾くたびに1枚たまるよ。先生はこのカルテに添削してくれる。</div>
+      <h3>{karteMode ? "先生からの練習後カルテ" : "演奏履歴"}</h3>
       {/* カード共通の再生用 audio (畳んでいても再生ボタンから鳴らせる) */}
       <audio ref={audioRef} onEnded={() => setPlayingId(null)} hidden />
       {loading ? (
         <PerformanceSkeleton count={Math.min(performanceCount, 5)} />
       ) : performances.length === 0 ? (
-        <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ演奏がないよ。録音してみよう！</div>
+        <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>{karteMode ? "まだ先生からの練習後カルテはありません。演奏に先生がコメントすると、ここに届きます。" : "まだ演奏がないよ。録音してみよう！"}</div>
       ) : (
         <>
           {/* 最新の1枚は常に表示 */}
@@ -3786,16 +3788,36 @@ function ScoreDetailInner({
           個別演奏の一覧は「すべての演奏を見る」で畳み、気になる人だけ展開する (2026-07-25 案1拡張)。 */}
       {activeTab === "review" && (
         <div data-section="review" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {deleteHintBlock}
           {trajectoryBlock}
           {isScoreMode && <ScoreLoopDetail scoreId={score.id} userId={userId} />}
+          {performanceHistoryBlock}
         </div>
       )}
 
-      {/* 練習後カルテタブ (2026-08-11 Tetsuo確定: ふりかえりから独立)。演奏ごとのカルテ一覧 */}
+      {/* 練習後カルテタブ (2026-08-11 Tetsuo確定): 先生から送られた返しがある演奏だけを表示 */}
       {activeTab === "karte" && (
         <div data-section="karte" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {deleteHintBlock}
-          {performanceHistoryBlock}
+          <div data-onboarding="scoreDetail.teacherKarte">
+            <PerformanceHistory
+              karteMode
+              performances={performances.filter((p) => (p.teacherComments?.length ?? 0) > 0)}
+              selectedId={selected?.id ?? null}
+              onSelect={handleSelectPerformance}
+              loading={perfLoading}
+              performanceCount={performanceCount}
+              kind={practiceItemId ? "practice" : "score"}
+              onRenamed={handleRenamed}
+              canShareToTeacher={studentHasTeacher}
+              onReplayArco={practiceItemId ? undefined : (p) => setArcoResult(p)}
+              renderDetail={(p) => (
+                (p.pitchAccuracy != null || p.timingAccuracy != null)
+                  ? <EvaluationSummaryCard performance={p} warnings={p.comparisonWarnings ?? []} />
+                  : null
+              )}
+              onPerformanceDeleted={handlePerformanceDeleted}
+            />
+          </div>
         </div>
       )}
 
