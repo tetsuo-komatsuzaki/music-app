@@ -52,7 +52,7 @@ export function HandShape({
 }: {
   d: number;
   behindNeck?: boolean;
-  /** true のとき transform は CSS 側が与える（二重変換の防止） */
+  /** true のとき transform は CSS 側が与える */
   animated?: boolean;
   className?: string;
 }) {
@@ -117,7 +117,7 @@ export function FingersShape({
   pattern: FingerPatternId;
   /** ミスパターン用: 指の軸の傾きを反転させる */
   reverseTilt?: boolean;
-  /** true のとき transform は CSS 側が与える（二重変換の防止） */
+  /** true のとき transform は CSS 側が与える */
   animated?: boolean;
   className?: string;
   opacity?: number;
@@ -174,7 +174,7 @@ export function MissHandShape({
   className,
 }: {
   target: PositionId;
-  /** 移動進捗 0-1（1 = 到達した崩れた形） */
+  /** 移動進捗 0-1・1 = 到達した崩れた形 */
   s?: number;
   className?: string;
 }) {

@@ -36,7 +36,7 @@ export default function LessonGateBanner({
           この曲には <b>{names}</b> が出てくるよ
         </div>
         <div style={{ fontSize: "var(--fs-body)", color: "var(--text-good)", marginTop: 2 }}>
-          まだ練習していないから、先に学びレッスンでいっしょにやってみよう!（1本2〜3分）
+          まだ練習していないから、先に学びレッスンでいっしょにやってみよう!・1本2〜3分
         </div>
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

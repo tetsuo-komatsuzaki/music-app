@@ -151,7 +151,7 @@ export default function AdminConfirmations({
       </h1>
       <p style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", marginBottom: 20 }}>
         楽譜のスタッカート点(・)は記号だけでは奏法が確定できません。
-        曲ごとに正しい奏法を選んで確定してください（達成要件・推薦に反映されます）。
+        曲ごとに正しい奏法を選んで確定してください。
       </p>
 
       <h2 style={{ fontSize: "var(--fs-subhead)", fontWeight: 700, margin: "0 0 10px" }}>

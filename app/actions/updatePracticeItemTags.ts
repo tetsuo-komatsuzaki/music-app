@@ -87,11 +87,11 @@ export async function updatePracticeItemTags(
   }
   if (payload.keyTonic !== undefined) {
     const k = payload.keyTonic.trim()
-    if (k.length === 0) return { error: "調(主音)を指定してください" }
+    if (k.length === 0) return { error: "調を指定してください" }
     data.keyTonic = k
   }
   if (payload.keyMode !== undefined) {
-    if (!VALID_KEY_MODES.has(payload.keyMode)) return { error: "調(長短)が不正です" }
+    if (!VALID_KEY_MODES.has(payload.keyMode)) return { error: "調が不正です" }
     data.keyMode = payload.keyMode
   }
   for (const [key, val] of [["tempoMin", payload.tempoMin], ["tempoMax", payload.tempoMax]] as const) {
@@ -113,7 +113,7 @@ export async function updatePracticeItemTags(
       !Array.isArray(payload.positions) ||
       payload.positions.some((p) => typeof p !== "string" || !/^\d+(st|nd|rd|th)$/.test(p))
     ) {
-      return { error: "ポジションの形式が不正です (例: 1st, 3rd)" }
+      return { error: "ポジションの形式が不正です・例: 1st, 3rd" }
     }
     data.positions = Array.from(new Set(payload.positions))
   }

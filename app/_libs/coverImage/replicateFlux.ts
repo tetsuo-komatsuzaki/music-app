@@ -19,7 +19,7 @@ export interface FluxOptions {
   outputFormat?: string
   /** 生成解像度(百万画素)。1 で 1024px相当 */
   megapixels?: string
-  /** 高速モード（安く速い。品質重視なら false で flux 本来の精度） */
+  /** 高速モード */
   goFast?: boolean
   /** 出力品質(jpeg/webp) 0-100 */
   outputQuality?: number
@@ -42,7 +42,7 @@ interface Prediction {
 /** Flux で1枚生成し、生成画像の URL を返す */
 export async function generateFluxImage(prompt: string, opts: FluxOptions = {}): Promise<string> {
   const token = process.env.REPLICATE_API_TOKEN
-  if (!token) throw new Error("REPLICATE_API_TOKEN が未設定です（.env などに設定してください）")
+  if (!token) throw new Error("REPLICATE_API_TOKEN が未設定です")
 
   const input: Record<string, unknown> = {
     prompt,
@@ -103,6 +103,6 @@ export async function generateFluxImage(prompt: string, opts: FluxOptions = {}):
     throw new Error(`生成失敗: ${pred.error ?? "unknown"}`)
   }
   const url = Array.isArray(pred.output) ? pred.output[0] : pred.output
-  if (!url) throw new Error(`出力URLがありません（status=${pred.status}）`)
+  if (!url) throw new Error(`出力URLがありません・status=${pred.status}`)
   return url
 }

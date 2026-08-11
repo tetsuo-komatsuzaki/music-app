@@ -116,7 +116,7 @@ export default function LessonScoreCard({
       try {
         decorate(osmd, host, lessonId, hi)
       } catch (e) {
-        console.error("[lesson] score decorate failed (譜面は表示継続):", e)
+        console.error("[lesson] score decorate failed:", e)
       }
     })()
     return () => {

@@ -72,10 +72,10 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
     <div>
       <Link href={`/${userId}/teacher`} style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", textDecoration: "none" }}>← 先生ホーム</Link>
       <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "6px 0 2px" }}>プロフィール</h1>
-      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 14px" }}>「先生を探す」に載る、あなたの紹介です（{teacherName}）。</p>
+      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 14px" }}>「先生を探す」に載る、あなたの紹介です・{teacherName}。</p>
 
       <div style={card}>
-        <div style={lbl}>顔写真（任意）</div>
+        <div style={lbl}>顔写真</div>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 8 }}>
           <span style={{ width: 56, height: 56, borderRadius: "50%", flex: "none", overflow: "hidden", background: "#f2f4f7", border: "1px solid #e6e9ee", display: "grid", placeItems: "center" }}>
             {p.photoUrl
@@ -130,13 +130,13 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
       <div style={card}>
         <Toggle label="子どもの指導OK" on={p.forKids} onClick={() => toggle("forKids")} />
         <Toggle label="オンライン対応" on={p.online} onClick={() => toggle("online")} />
-        <label style={{ ...lbl, display: "block", marginTop: 12 }}>対応地域・場所（対面の目安）
+        <label style={{ ...lbl, display: "block", marginTop: 12 }}>対応地域・場所
           <input value={p.area} onChange={(e) => setP((s) => ({ ...s, area: e.target.value }))} placeholder="例: 東京23区 / オンライン全国" style={inp} maxLength={200} />
         </label>
-        <label style={{ ...lbl, display: "block", marginTop: 12 }}>対応できる曜日・時間帯（目安）
+        <label style={{ ...lbl, display: "block", marginTop: 12 }}>対応できる曜日・時間帯
           <input value={p.availability} onChange={(e) => setP((s) => ({ ...s, availability: e.target.value }))} placeholder="例: 平日夜・土日午前" style={inp} maxLength={200} />
         </label>
-        <label style={{ ...lbl, display: "block", marginTop: 12 }}>演奏サンプル・動画URL（任意）
+        <label style={{ ...lbl, display: "block", marginTop: 12 }}>演奏サンプル・動画URL
           <input value={p.sampleUrl} onChange={(e) => setP((s) => ({ ...s, sampleUrl: e.target.value }))} placeholder="https://…" style={inp} maxLength={500} inputMode="url" />
         </label>
       </div>

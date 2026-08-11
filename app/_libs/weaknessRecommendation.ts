@@ -27,7 +27,7 @@ import {
 
 // ── 型 ──────────────────────────────────────────────────────────────
 
-/** Python lib/diagnosis.py が analysisSummary.diagnosis に保存する形（version 2） */
+/** Python lib/diagnosis.py が analysisSummary.diagnosis に保存する形・version 2 */
 export interface DiagnosisJson {
   version: number
   map_available: boolean
@@ -39,13 +39,13 @@ export interface DiagnosisJson {
   }
 }
 
-/** 推薦の基準となる文脈（演奏直後窓では診断元の曲、累積窓ではユーザー水準） */
+/** 推薦の基準となる文脈 */
 export interface RecommendContext {
   star: number | null
   keyTonic: string | null
   keyMode: string | null
   tempo: number | null
-  /** 診断元の曲で使うポジション（Score.positions Int[]）。前提条件フィルタに使用 */
+  /** 診断元の曲で使うポジション。前提条件フィルタに使用 */
   positions: number[] | null
 }
 
@@ -71,7 +71,7 @@ export interface RecommendationSlot {
   target: number
   missRate: number
   materials: MaterialCandidate[]
-  /** 在庫0でスキップされた場合 true（UI は「教材準備中」表示を想定） */
+  /** 在庫0でスキップされた場合 true */
   noStock: boolean
 }
 
@@ -83,7 +83,7 @@ export const CUMULATIVE_MIN_TARGET = 10
 
 let inventoryCache: { at: number; items: MaterialCandidate[] } | null = null
 
-/** "1st"/"3rd" 形式 → ポジション番号（工程A の Int[] 移行見送りのための変換） */
+/** "1st"/"3rd" 形式 → ポジション番号 */
 function parsePosition(p: string): number | null {
   const m = /^(\d+)/.exec(p)
   return m ? parseInt(m[1], 10) : null
@@ -160,7 +160,7 @@ function applyPositionPrecondition(
   return filtered.length > 0 ? filtered : candidates
 }
 
-/** 順位付け: ①star近い → ②調一致 → ③テンポ近い（小さいほど良いスコア） */
+/** 順位付け: ①star近い → ②調一致 → ③テンポ近い */
 function rankScore(item: MaterialCandidate, ctx: RecommendContext): number {
   const starDist =
     ctx.star !== null && item.star !== null ? Math.abs(item.star - ctx.star) : 5
@@ -194,7 +194,7 @@ function selectMaterials(
     candidates.sort((a, b) => rankScore(a, ctx) - rankScore(b, ctx))
     const picked: MaterialCandidate[] = []
     for (const c of candidates) {
-      if (usedIds.has(c.id)) continue // スロット間の教材重複排除（次点繰り上げ）
+      if (usedIds.has(c.id)) continue // スロット間の教材重複排除・次点繰り上げ
       picked.push(c)
       usedIds.add(c.id)
       if (picked.length >= MATERIALS_PER_SLOT) break

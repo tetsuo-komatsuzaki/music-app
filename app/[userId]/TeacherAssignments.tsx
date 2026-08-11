@@ -116,7 +116,7 @@ export default function TeacherAssignments({
               {a.targetTempo && <span style={{ ...chip, color: "var(--text-body)", background: "#f2f4f7", border: "1px solid #e6e9ee" }}>♩={a.targetTempo}</span>}
               {a.moodTagId && <span style={exprChip}><Palette size={11} /> {MOOD_TAG_BY_ID[a.moodTagId]?.label ?? a.moodTagId}</span>}
               {a.submitted && <span style={{ ...chip, color: "#158253", background: "#e9f8f0", border: "1px solid #c8ecd8" }}>提出ずみ ・ 先生の合格待ち</span>}
-              {di && (() => { const c = DUE_CALM[di.state]; return <span style={{ ...chip, color: c.fg, background: c.bg, border: `1px solid ${c.bd}` }}><Calendar size={11} /> {di.label}{di.state === "overdue" ? "（過ぎ）" : di.state === "soon" ? "（もうすぐ）" : ""}</span> })()}
+              {di && (() => { const c = DUE_CALM[di.state]; return <span style={{ ...chip, color: c.fg, background: c.bg, border: `1px solid ${c.bd}` }}><Calendar size={11} /> {di.label}{di.state === "overdue" ? "" : di.state === "soon" ? "" : ""}</span> })()}
             </span>
           </span>
           <ChevronRight size={18} style={{ flex: "none", color: "var(--text-muted)" }} />
@@ -132,7 +132,7 @@ export default function TeacherAssignments({
           <span style={{ ...av, background: "#e2f5ea", color: "#158253" }}><PartyPopper size={17} /></span>
           <span style={cbody}>
             <span style={who}>{summary?.teacherName ?? "先生"}</span>
-            <span style={{ ...title, color: "#158253" }}>宿題に合格したよ！（{unreadPassed}件）</span>
+            <span style={{ ...title, color: "#158253" }}>宿題に合格したよ！・{unreadPassed}件</span>
             <span style={chips}><span style={{ ...chip, color: "#158253", background: "#e2f5ea", border: "1px solid #c8ecd8" }}>合格の履歴を見る</span></span>
           </span>
           <ChevronRight size={18} style={{ flex: "none", color: "var(--text-muted)" }} />
@@ -148,7 +148,7 @@ export default function TeacherAssignments({
           <span style={{ ...av, background: "#e8effc", color: "#2b5bc4" }}><FileText size={17} /></span>
           <span style={cbody}>
             <span style={who}>{summary?.teacherName ?? "先生"}</span>
-            <span style={{ ...title, color: "#2b5bc4" }}>練習後カルテが届いたよ（{unreadKarte}件）</span>
+            <span style={{ ...title, color: "#2b5bc4" }}>練習後カルテが届いたよ・{unreadKarte}件</span>
             <span style={chips}><span style={{ ...chip, color: "#2b5bc4", background: "#e8effc", border: "1px solid #d3e0f7" }}>先生の返しを見る</span></span>
           </span>
           <ChevronRight size={18} style={{ flex: "none", color: "var(--text-muted)" }} />
@@ -164,7 +164,7 @@ export default function TeacherAssignments({
           <span style={{ ...av, background: "#e2f5f4", color: "#0e9c9c" }}><PenLine size={17} /></span>
           <span style={cbody}>
             <span style={who}>{summary?.teacherName ?? "先生"}</span>
-            <span style={title}>先生が添削してくれたよ（{feedback}件）</span>
+            <span style={title}>先生が添削してくれたよ・{feedback}件</span>
             <span style={chips}><span style={{ ...chip, color: "#0e9c9c", background: "#e2f5f4" }}>コメントを見る</span></span>
           </span>
           <ChevronRight size={18} style={{ flex: "none", color: "var(--text-muted)" }} />
@@ -214,7 +214,7 @@ export default function TeacherAssignments({
         </span>
         {!open && nearest && (
           <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, flex: 1 }}>
-            {nearest.title}{nearestDi ? ` ・ ${nearestDi.label}${nearestDi.state === "overdue" ? "（過ぎ）" : nearestDi.state === "soon" ? "（もうすぐ）" : ""}` : ""}
+            {nearest.title}{nearestDi ? ` ・ ${nearestDi.label}${nearestDi.state === "overdue" ? "" : nearestDi.state === "soon" ? "" : ""}` : ""}
           </span>
         )}
         <ChevronDown size={18} style={{ marginLeft: open ? "auto" : 0, flex: "none", color: "var(--text-muted)", transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
@@ -273,7 +273,7 @@ export default function TeacherAssignments({
             <div style={{ display: "flex", gap: 12, margin: "9px 4px 2px", flexWrap: "wrap" }}>
               {unread > 0 && (
                 <Link href={`/${userId}/my-teacher`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <MessageCircle size={13} /> やりとり（{unread}）
+                  <MessageCircle size={13} /> やりとり・{unread}
                 </Link>
               )}
               {recentObs > 0 && (

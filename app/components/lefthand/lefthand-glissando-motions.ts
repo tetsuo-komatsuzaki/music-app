@@ -49,9 +49,9 @@ export interface GlissandoDef {
   to: PositionId;
   /** 滑走の速度プロファイル */
   profile: SpeedSegment[];
-  /** 滑走そのものに使う時間（ループ全体に占める割合） */
+  /** 滑走そのものに使う時間 */
   slideSpan: number;
-  /** 1 ループの長さ（秒） */
+  /** 1 ループの長さ */
   dur: number;
   description: string;
 }
@@ -78,7 +78,7 @@ export const PROFILE_UNEVEN: SpeedSegment[] = [
    確定データ
    ============================================================ */
 
-const SLIDE_SPAN = 0.34; // 標準の滑走時間（ループの 34%）
+const SLIDE_SPAN = 0.34; // 標準の滑走時間・ループの 34%
 
 function gliss(
   id: string,
@@ -94,17 +94,17 @@ function gliss(
 
 export const GLISSANDOS: Record<string, GlissandoDef> = {
   "6th-1st-even": gliss(
-    "6th-1st-even", "グリッサンド 6th → 1st（等速）", "6th", "1st",
+    "6th-1st-even", "グリッサンド 6th → 1st", "6th", "1st",
     PROFILE_EVEN, SLIDE_SPAN,
     "押さえたまま等速で下降する。グリッサンドは滑りが均一なのが原則。",
   ),
   "6th-1st-fast": gliss(
-    "6th-1st-fast", "グリッサンド 6th → 1st（倍速）", "6th", "1st",
+    "6th-1st-fast", "グリッサンド 6th → 1st", "6th", "1st",
     PROFILE_EVEN, SLIDE_SPAN / 2,
     "同じ距離を半分の時間で滑る。速度は倍。",
   ),
   "6th-1st-uneven": gliss(
-    "6th-1st-uneven", "グリッサンド 6th → 1st（速度ムラ・ミス例）", "6th", "1st",
+    "6th-1st-uneven", "グリッサンド 6th → 1st", "6th", "1st",
     PROFILE_UNEVEN, SLIDE_SPAN,
     "滑走時間は等速と同じだが、速くなったり遅くなったりする。滑りが不均一なミス。",
   ),
@@ -135,7 +135,7 @@ const T0 = 0.12;
 export interface GlissKeyframe {
   /** 0-1 */
   t: number;
-  /** シフト量（px） */
+  /** シフト量 */
   d: number;
   /** 1=押弦 / 0=浮かせ */
   press: number;
@@ -169,7 +169,7 @@ export function glissKeyframes(g: GlissandoDef): GlissKeyframe[] {
       t: Math.round(tAcc * 1e4) / 1e4,
       d: Math.round((dFrom + total * dAcc) * 100) / 100,
       press: 1,
-      ease: "linear", // ⚠️ 滑走にイージングを入れてはならない（速度が勝手に変わる）
+      ease: "linear", // ⚠️ 滑走にイージングを入れてはならない
     });
   }
   kf.push({ t: holdEnd, d: dTo, press: 1, ease: "linear" });
@@ -180,13 +180,13 @@ export function glissKeyframes(g: GlissandoDef): GlissKeyframe[] {
   return kf;
 }
 
-/** 区間ごとの速度（px/秒）。検証・表示用 */
+/** 区間ごとの速度。検証・表示用 */
 export function glissSpeeds(g: GlissandoDef): number[] {
   const total = Math.abs(POSITIONS[g.to].d - POSITIONS[g.from].d);
   return g.profile.map((s) => (total * s.distance) / (g.dur * g.slideSpan * s.time));
 }
 
-/** 滑走中に逆走しないことを検証する（テスト用） */
+/** 滑走中に逆走しないことを検証する */
 export function assertMonotone(g: GlissandoDef): void {
   const kf = glissKeyframes(g);
   const dir = Math.sign(POSITIONS[g.to].d - POSITIONS[g.from].d);

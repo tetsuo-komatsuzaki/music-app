@@ -214,7 +214,7 @@ export default async function MyTeacherPage({
         when: a.submittedAt.toLocaleDateString("ja-JP"),
         kind: "hw",
         icon: "upload",
-        text: `「${a.score?.title ?? a.practiceItem?.title ?? "課題"}」を提出${a.submittedScore != null ? `（${a.submittedScore}点）` : ""}`,
+        text: `「${a.score?.title ?? a.practiceItem?.title ?? "課題"}」を提出${a.submittedScore != null ? `・${a.submittedScore}点` : ""}`,
       })
     }
   }
@@ -229,7 +229,7 @@ export default async function MyTeacherPage({
       icon: m.kind === "celebration" ? "party" : m.fromTeacher ? "message" : "you",
       text: m.kind === "celebration"
         ? `先生からのお祝い：${m.body}`
-        : `${m.fromTeacher ? "先生" : "あなた"}：${m.body}${perf ? `（${perf.title} の演奏へ）` : ""}`,
+        : `${m.fromTeacher ? "先生" : "あなた"}：${m.body}${perf ? `・${perf.title} の演奏へ` : ""}`,
       href: perf?.href,
     })
   }

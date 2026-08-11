@@ -167,7 +167,7 @@ export async function aggregateHeatmap(perfs: PerfRef[]): Promise<HeatmapData> {
         let badgeKind: "shift" | "info" | null = null
         if (contiguous) {
           const pv = prev!.sk
-          label = `${midiKana(pv.midi)}（${pv.s}線${pv.n === 0 ? "・開放" : pv.position != null ? `・${posLabel(pv.position)}` : ""}）`
+          label = `${midiKana(pv.midi)}・${pv.s}線${pv.n === 0 ? "・開放" : pv.position != null ? `・${posLabel(pv.position)}` : ""}`
           if (shift) { badge = `${posLabel(pv.position!)}→${posLabel(sk.position!)}`; badgeKind = "shift" }
           else if (pv.s !== sk.s) { badge = "移弦のみ"; badgeKind = "info" }
           else { badge = "同じ弦"; badgeKind = "info" }

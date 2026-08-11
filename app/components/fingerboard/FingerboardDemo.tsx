@@ -117,7 +117,7 @@ export function Board({ g }: { g: Geo }) {
         );
       })}
       {([[2, "1st"], [5, "3rd"], [8, "5th"], [12, "8va"]] as const).map(([n, lab]) => {
-        const d = Math.round(dist(n) * 10) / 10; // 同上（hydration 一致のため丸め）
+        const d = Math.round(dist(n) * 10) / 10; // 同上
         return g.h ? (
           <text key={lab} x={H_NUT + d} y={lo - 16} fontSize={20} fill="#8a6a54"
                 textAnchor="middle" fontFamily={F}>{lab}</text>

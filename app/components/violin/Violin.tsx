@@ -176,7 +176,7 @@ export function Violin({
 }: {
   viewBox?: string;
   className?: string;
-  /** 注釈など。素の縦座標系で渡すこと（回転が適用される） */
+  /** 注釈など。素の縦座標系で渡すこと・回転が適用される */
   children?: ReactNode;
   title?: string;
 }) {

@@ -28,9 +28,9 @@ const GLYPH: Record<string, string> = {
 const STATE_LABEL: Record<SkillDetailData["state"], string> = {
   stable: "習得済み・安定",
   wobble: "習得済み・ゆらぎ中",
-  acquired_nodata: "習得済み（データ集め中）",
+  acquired_nodata: "習得済み",
   ready: "これから挑戦",
-  locked: "まだ先（★が足りない）",
+  locked: "まだ先",
 }
 
 export default function SkillDetailClient({ userId, data }: { userId: string; data: SkillDetailData }) {
@@ -61,7 +61,7 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
           )}
         </div>
         {data.pct != null && (
-          <div style={{ fontSize: "var(--fs-label)", color: SUB, marginTop: 8 }}>※ この技術が出てくる音（全期間 {data.target}音）の音程・リズムから算出</div>
+          <div style={{ fontSize: "var(--fs-label)", color: SUB, marginTop: 8 }}>※ この技術が出てくる音・全期間 {data.target}音の音程・リズムから算出</div>
         )}
       </div>
 
@@ -81,7 +81,7 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
               ? <><Sprout size={13} style={{ verticalAlign: -2 }} /> {`${data.effect.label}のあと、安定度が +${data.effect.delta}。指導が効いています！`}</>
               : data.effect.delta <= -5
                 ? `${data.effect.label}のあと、安定度が ${data.effect.delta}。次のレッスンで相談してみよう。`
-                : `${data.effect.label}のあとの安定度は ${data.effect.delta >= 0 ? "+" : ""}${data.effect.delta}（大きな変化はまだ）`}
+                : `${data.effect.label}のあとの安定度は ${data.effect.delta >= 0 ? "+" : ""}${data.effect.delta}`}
           </div>
         )}
       </div>
@@ -89,7 +89,7 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
       {/* ② 先生が気づいた癖 (2026-08-11 改名: 実体は癖記録の技術別抜粋。ゼロ件なら非表示) */}
       {data.guidance.length > 0 && (
       <div style={card}>
-        <div style={{ ...secTtl, display: "flex", alignItems: "center", gap: 6 }}><GraduationCap size={15} color={ACCENT} /> 先生が気づいた癖（この技術に関わるもの）</div>
+        <div style={{ ...secTtl, display: "flex", alignItems: "center", gap: 6 }}><GraduationCap size={15} color={ACCENT} /> 先生が気づいた癖</div>
         {(
           <div style={{ borderLeft: "3px solid #d7dcf6", paddingLeft: 12 }}>
             {data.guidance.map((g, i) => (
@@ -119,8 +119,8 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
           <div style={{ ...secTtl, display: "flex", alignItems: "center", gap: 6 }}><Headphones size={15} color={ACCENT} /> 聴き比べ — 耳でわかる成長</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             {[
-              { l: `はじめの頃（${data.listen.old.date}）`, it: data.listen.old, c: SUB },
-              { l: `いま（${data.listen.new.date}）`, it: data.listen.new, c: GOOD },
+              { l: `はじめの頃・${data.listen.old.date}`, it: data.listen.old, c: SUB },
+              { l: `いま・${data.listen.new.date}`, it: data.listen.new, c: GOOD },
             ].map(({ l, it, c }) => (
               <div key={l} style={{ border: "1px solid #eceef2", background: "#fafbfc", borderRadius: 12, padding: 10 }}>
                 <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: SUB, marginBottom: 6 }}>{l}</div>

@@ -29,9 +29,9 @@ import { contactPoint, HARMONIC_NODES, HARMONIC_COLORS, type FingerState } from 
 export interface HarmonicKeyframe {
   /** 0-100 (%) */
   t: number;
-  /** シフト量（px）。1st = 0 */
+  /** シフト量。1st = 0 */
   d: number;
-  /** 接触レイヤ／注釈の不透明度（0=構え / 1=指が弦に乗っている） */
+  /** 接触レイヤ／注釈の不透明度・0=構え / 1=指が弦に乗っている */
   on: number;
   ease?: "ease" | "linear";
 }
@@ -39,7 +39,7 @@ export interface HarmonicKeyframe {
 export interface HarmonicMotion {
   id: string;
   label: string;
-  /** 到着後に対象の指が取る状態（正: touch / 誤: press・hover） */
+  /** 到着後に対象の指が取る状態 */
   state: FingerState;
   dur: number;
   keyframes: HarmonicKeyframe[];
@@ -69,7 +69,7 @@ const TIMELINE: HarmonicKeyframe[] = [
   k(100, 0, 0),
 ];
 
-/** 胴オーバーレイの立ち上げ／落とし（出発直後・帰着直前） */
+/** 胴オーバーレイの立ち上げ／落とし */
 export const OVERLAY_T_OUT = 10;
 export const OVERLAY_T_BACK = 88;
 export const OVERLAY_RAMP = 3;
@@ -77,7 +77,7 @@ export const OVERLAY_RAMP = 3;
 export const HARMONIC_MOTIONS: Record<string, HarmonicMotion> = {
   "half-ok": {
     id: "half-ok",
-    label: "1/2点ハーモニクス（正）",
+    label: "1/2点ハーモニクス",
     state: "touch",
     dur: 8.0,
     keyframes: TIMELINE,
@@ -101,7 +101,7 @@ export const HARMONIC_MOTIONS: Record<string, HarmonicMotion> = {
    ============================================================ */
 const EASE = "cubic-bezier(0.42, 0, 0.58, 1)";
 
-/** CSS 用に px を付ける（SVG 属性用の文字列をそのまま使うと無効になる） */
+/** CSS 用に px を付ける */
 const cssTransform = (t: string) =>
   t.replace(/translate\(([-\d.]+), ([-\d.]+)\)/, (_m, a, b) => `translate(${a}px, ${b}px)`);
 
@@ -117,7 +117,7 @@ export const fingerKeyframes = (m: HarmonicMotion) =>
 export const handKeyframes = (m: HarmonicMotion) =>
   block(m, (f) => `transform:${cssTransform(handTransform(f.d))};`);
 
-/** 構えレイヤ（全指浮き） */
+/** 構えレイヤ */
 export const baseOpacityKeyframes = (m: HarmonicMotion) => block(m, (f) => `opacity:${1 - f.on};`);
 /** 接触レイヤ＋注釈 */
 export const onOpacityKeyframes = (m: HarmonicMotion) => block(m, (f) => `opacity:${f.on};`);

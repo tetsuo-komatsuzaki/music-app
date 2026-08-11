@@ -26,7 +26,7 @@ import { InstrumentShape, FingersShape, HandShape, BodyOverlay } from "./LeftHan
 export interface PositionShiftDemoProps {
   /** "1st-2nd" | "1st-3rd" | "1st-4th" | "1st-5th" | "1st-5th-6th" */
   shift: string;
-  /** 移動後に押さえる指のパターン（既定: 1の指のみ） */
+  /** 移動後に押さえる指のパターン・既定: 1の指のみ */
   pattern?: FingerPatternId;
   playing?: boolean;
   className?: string;

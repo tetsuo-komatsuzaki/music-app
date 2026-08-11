@@ -159,7 +159,7 @@ export async function requestAccountDeletion(
 `.trim(),
     })
   } catch (e) {
-    console.error("退会完了メール送信失敗 (退会自体は成功):", e)
+    console.error("退会完了メール送信失敗:", e)
   }
 
   console.log(JSON.stringify({

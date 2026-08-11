@@ -43,7 +43,7 @@ export function generateArcoMessage(ctx: ArcoContext): ArcoMessage {
   if (streak === 0 && daysSince >= 3) {
     return {
       greeting,
-      cheer: `お久しぶりです（${daysSince}日ぶり）。今日が再スタートの日です。短時間でもいいので始めましょう！`,
+      cheer: `お久しぶりです・${daysSince}日ぶり。今日が再スタートの日です。短時間でもいいので始めましょう！`,
     }
   }
 

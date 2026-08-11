@@ -62,13 +62,13 @@ function copyFor(reason: string, detail: string | null): IntroCopy {
     case "fing_exact":
       if (detail === "2") return { bubble: "この曲は2ndポジションを使うよ。手をひとつ上へ動かす指づかいを固めよう。", points: ["2ndの音の位置を覚える", "移動を正確に"] }
       if (detail === "3") return { bubble: "この曲は3rdポジションを使うよ。よく使う定番ポジションの指づかいをならそう。", points: ["3rdの手の形をつかむ", "1st⇄3rdの移動を安定"] }
-      return { bubble: "この曲は高いポジション（4th以上）を使うよ。高音域の指づかいに慣れよう。", points: ["目印のない高音域を、耳で音程をとる", "手全体をなめらかに運ぶ（親指も一緒に）"] }
+      return { bubble: "この曲は高いポジション・4th以上を使うよ。高音域の指づかいに慣れよう。", points: ["目印のない高音域を、耳で音程をとる", "手全体をなめらかに運ぶ"] }
     case "fing_transition":
       return { bubble: `この曲で「${detail ?? "音の移動"}」のうごきがにがてだったよ。この教材でねらって練習しよう。`, points: ["ゆっくり正しい音程で", "できたら少しずつ速く"] }
     case "fing_near":
       return { bubble: "ぴったりの教材がないので、近いポジションの指づかいで練習しよう。", points: ["近い手の形をつかむ", "曲のポジションに橋渡し"] }
     case "fing_basic":
-      return { bubble: "まずは1stポジションの基本の指づかいを固めよう。", points: ["指の間隔（全音・半音）を手で覚える", "最短の動きで正確に押さえる"] }
+      return { bubble: "まずは1stポジションの基本の指づかいを固めよう。", points: ["指の間隔を手で覚える", "最短の動きで正確に押さえる"] }
     case "bow_match":
       switch (detail) {
         case "スタッカート":

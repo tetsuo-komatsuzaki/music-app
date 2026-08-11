@@ -239,7 +239,7 @@ export default async function StudentKartePage({
     ...scorePerfs.map((p) => ({
       id: p.id, kind: "score" as const, at: p.uploadedAt.getTime(), title: p.score?.title ?? "曲",
       targetId: p.scoreId,
-      cat: p.rangeFromNote != null ? "曲（区間）" : "曲", star: p.score?.star ?? null,
+      cat: p.rangeFromNote != null ? "曲" : "曲", star: p.score?.star ?? null,
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
       weak: topWeak(p.analysisSummary),
     })),

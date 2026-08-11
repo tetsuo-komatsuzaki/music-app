@@ -69,7 +69,7 @@ export default async function AdminConfirmationsPage({
       groups.set(key, {
         targetType: r.targetType as "score" | "practice",
         targetId: r.targetId,
-        title: meta?.title ?? "(削除済み)",
+        title: meta?.title ?? "",
         star: meta?.star ?? null,
         category:
           r.targetType === "practice"

@@ -80,7 +80,7 @@ export async function recordLessonPlay(
   for (const key of posKeys) itemTags.push({ tagType: "position", tagKey: key })
 
   if (!itemTags.some((t) => tagId(t) === tagId(lesson.tag))) {
-    return { ok: false, error: "教材とレッスンのタグが一致しません(教材のタグ付けを確認してください)" }
+    return { ok: false, error: "教材とレッスンのタグが一致しません" }
   }
   const tags: LessonTagRef[] = [lesson.tag]
 

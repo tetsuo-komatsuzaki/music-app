@@ -31,16 +31,16 @@ import {
 export interface ShiftKeyframe {
   /** 0-100 (%) */
   t: number;
-  /** シフト量（px）。1st = 0 */
+  /** シフト量。1st = 0 */
   d: number;
-  /** 1の指が弦を押さえているか（0=浮かせ / 1=押弦）。中間値はクロスフェード */
+  /** 1の指が弦を押さえているか・0=浮かせ / 1=押弦。中間値はクロスフェード */
   press: number;
   /**
    * 親指がネック裏に回っているか（0=手前・1=裏）。
    * 中間値は持ち替えのクロスフェードを表す。
    */
   behind: number;
-  /** イージング（この点から次の点までの区間に適用） */
+  /** イージング・この点から次の点までの区間に適用 */
   ease?: "ease" | "linear";
 }
 
@@ -49,14 +49,14 @@ export interface PositionShift {
   label: string;
   /** 最終的に到達するポジション */
   target: PositionId;
-  /** 経由するポジション（6th は 5th を経由する） */
+  /** 経由するポジション・6th は 5th を経由する */
   via?: PositionId;
-  /** 1 ループの長さ（秒） */
+  /** 1 ループの長さ */
   dur: number;
   keyframes: ShiftKeyframe[];
-  /** 親指の持ち替えを伴うか（5th/6th） */
+  /** 親指の持ち替えを伴うか・5th/6th */
   hasThumbSwitch: boolean;
-  /** ネック裏形状を描くときの d（手は動かないが指は d で動く） */
+  /** ネック裏形状を描くときの d */
   behindHandD: number;
   description: string;
 }
@@ -79,7 +79,7 @@ const k = (
       往路は移動距離の 72%〜100%、復路は 0%〜28% の区間に割り当てる。
    ============================================================ */
 
-/** 単一移動（1st → 目標）の共通タイムライン */
+/** 単一移動・1st → 目標の共通タイムライン */
 function simpleShift(
   target: PositionId,
   label: string,
@@ -130,22 +130,22 @@ export const POSITION_SHIFTS: Record<string, PositionShift> = {
   "1st-2nd": simpleShift(
     "2nd",
     "1st → 2nd",
-    "指幅1本分（68px）右へスライド。親指もネックに沿って同時に移動する。",
+    "指幅1本分・68px右へスライド。親指もネックに沿って同時に移動する。",
   ),
   "1st-3rd": simpleShift(
     "3rd",
     "1st → 3rd",
-    "掌が胴に達するため、胴が掌の手前に来る（胴オーバーレイ）。",
+    "掌が胴に達するため、胴が掌の手前に来る。",
   ),
   "1st-4th": simpleShift("4th", "1st → 4th", "手が胴に深く回り込む。"),
   "1st-5th": simpleShift(
     "5th",
     "1st → 5th",
-    "移動の終盤で親指がネックの裏へ回る（持ち替え）。ハイポジションの要。",
+    "移動の終盤で親指がネックの裏へ回る。ハイポジションの要。",
     true,
   ),
 
-  /** 6th は 5th を経由する（5th → 6th では手は動かず、指だけが先へ伸びる） */
+  /** 6th は 5th を経由する・5th → 6th では手は動かず、指だけが先へ伸びる */
   "1st-5th-6th": {
     id: "1st-5th-6th",
     label: "1st → 5th → 6th",
@@ -205,23 +205,23 @@ const kfBlock = (shift: PositionShift, decl: (f: ShiftKeyframe) => string) =>
 // ここは絶対値のまま px 化すればよい (2026-07-13 統合時の互換対応)。
 const withPx = (t: string) => t.replace(/(-?\d[\d.]*)/g, "$1px");
 
-/** 指系（指塊・爪・指しわ） */
+/** 指系 */
 export const fingerKeyframes = (s: PositionShift) =>
   kfBlock(s, (f) => `transform: ${withPx(fingerTransform(f.d))};`);
 
-/** 手系（掌・親指・前腕・手しわ） */
+/** 手系 */
 export const handKeyframes = (s: PositionShift) =>
   kfBlock(s, (f) => `transform: ${withPx(handTransform(f.d))};`);
 
-/** 通常形状の手の不透明度（持ち替え時にフェードアウト） */
+/** 通常形状の手の不透明度 */
 export const handFrontOpacityKeyframes = (s: PositionShift) =>
   kfBlock(s, (f) => `opacity: ${1 - f.behind};`);
 
-/** ネック裏形状の手の不透明度（持ち替え時にフェードイン） */
+/** ネック裏形状の手の不透明度 */
 export const handBehindOpacityKeyframes = (s: PositionShift) =>
   kfBlock(s, (f) => `opacity: ${f.behind};`);
 
-/** 開放弦（全指浮き）レイヤの不透明度 */
+/** 開放弦レイヤの不透明度 */
 export const fingersOpenOpacityKeyframes = (s: PositionShift) =>
   kfBlock(s, (f) => `opacity: ${1 - f.press};`);
 
@@ -246,7 +246,7 @@ export function overlayOpacityKeyframes(s: PositionShift): string {
   const iBack = kfs.findIndex((f, i) => f.d === 0 && i > kfs.length / 2);
   const tOut = kfs[iOut].t;
   const tBack = kfs[iBack].t;
-  const ramp = 3; // 出発直後の 3% で不透明化しきる（持ち替えより十分手前）
+  const ramp = 3; // 出発直後の 3% で不透明化しきる
 
   return [
     `  0% { opacity: 0; ${LINEAR ? "animation-timing-function: linear;" : ""} }`,

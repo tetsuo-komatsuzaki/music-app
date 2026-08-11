@@ -61,7 +61,7 @@ export default function UpdatePasswordPage() {
         </div>
 
         <div className={styles.field}>
-          <label className={styles.label}>パスワード（確認）</label>
+          <label className={styles.label}>パスワード</label>
           <input
             type="password"
             required

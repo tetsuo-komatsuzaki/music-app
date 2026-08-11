@@ -28,15 +28,15 @@ export type TrillLiftStyle = "hover" | "raised";
 export interface TrillDef {
   id: string;
   label: string;
-  /** トリルを行うポジション（手は動かない） */
+  /** トリルを行うポジション */
   position: PositionId;
-  /** 主音（指が弦に触れている側） */
+  /** 主音 */
   lower: FingerPatternId;
-  /** 補助音（指を上げた側）。liftStyle ごとに 2 種類持つ */
+  /** 補助音。liftStyle ごとに 2 種類持つ */
   upper: Record<TrillLiftStyle, FingerPatternId>;
-  /** 交替回数（上げ下げを 1 回と数える） */
+  /** 交替回数・上げ下げを 1 回と数える */
   alternations: number;
-  /** 1 ループの長さ（秒） */
+  /** 1 ループの長さ */
   dur: number;
   description: string;
 }
@@ -69,7 +69,7 @@ export function getTrill(id: string): TrillDef | undefined {
   return TRILLS[id];
 }
 
-/** そのトリルで手が置かれる d（トリル中は不変） */
+/** そのトリルで手が置かれる d */
 export const trillD = (t: TrillDef) => POSITIONS[t.position].d;
 
 /* ============================================================
@@ -79,7 +79,7 @@ export const trillD = (t: TrillDef) => POSITIONS[t.position].d;
    ⚠️ transform は一切アニメーションさせない（手も指塊も動かない）。
    ============================================================ */
 
-/** 前後の「溜め」（主音を保持する時間）の割合 */
+/** 前後の「溜め」の割合 */
 const HOLD = 0.18;
 
 /** 交替の keyframes を作る。phase=0 が主音、phase=1 が補助音 */

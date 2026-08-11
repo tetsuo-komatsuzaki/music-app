@@ -133,11 +133,11 @@ export interface CoverPromptInput {
   composer?: string | null
   category?: string | null
   keyMode?: string | null
-  /** 任意: 英語テーマ語（例 "a moonlit summer forest"）。あれば情景に上書き反映 */
+  /** 任意: 英語テーマ語。あれば情景に上書き反映 */
   themeHint?: string | null
   /** 任意: 季節を明示。無ければ教材ごとに決定的に割り当て */
   season?: Season | null
-  /** 任意: 年代を明示。無ければ作曲者から自動判定（曲のみ） */
+  /** 任意: 年代を明示。無ければ作曲者から自動判定 */
   era?: Era | null
 }
 

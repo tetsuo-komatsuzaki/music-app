@@ -645,19 +645,19 @@ export default function AdminPractice({
                     .filter((g) => g.category === category)
                     .map((g) => (
                       <option key={g.id} value={g.id}>
-                        {g.title}{g.composer ? ` / ${g.composer}` : ""}（変種{g.variantCount}）
+                        {g.title}{g.composer ? ` / ${g.composer}` : ""}・変種{g.variantCount}
                       </option>
                     ))}
                 </select>
               )}
               <div className={styles.hint}>
-                同じ曲/エクササイズの難易度・奏法違いは「既存グループに追加」で束ねます（カバーはグループ共通）。
+                同じ曲/エクササイズの難易度・奏法違いは「既存グループに追加」で束ねます。
               </div>
             </div>
 
             {usesDifficulty(category) && (
               <div className={styles.field}>
-                <label>難易度（変種の軸）</label>
+                <label>難易度</label>
                 <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
                   <option value="">未設定</option>
                   {DIFFICULTIES.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
@@ -666,9 +666,9 @@ export default function AdminPractice({
             )}
             {usesArticulation(category) && (
               <div className={styles.field}>
-                <label>奏法バリエーション（変種の軸）</label>
+                <label>奏法バリエーション</label>
                 <select value={articulation} onChange={(e) => setArticulation(e.target.value)}>
-                  <option value="">未設定（基本／レガート）</option>
+                  <option value="">未設定</option>
                   {ARTICULATIONS.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
                 </select>
               </div>
@@ -677,14 +677,14 @@ export default function AdminPractice({
             {/* パート分け (曲のみ・任意・小節範囲・グループ共通)。2026-07-26 */}
             {isScoreCategory && (
               <div className={styles.field}>
-                <label>パート分け（任意・小節範囲）</label>
+                <label>パート分け</label>
                 <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginBottom: 6 }}>
                   サビ・難所など練習させたい区間を「◯小節〜◯小節」で登録。曲(グループ)共通・難易度に依存しません。
                 </div>
                 {parts.map((p) => (
                   <div key={p.id} style={{ display: "flex", gap: 6, marginBottom: 6, alignItems: "center" }}>
                     <input
-                      placeholder="名前(例: サビ)"
+                      placeholder="名前"
                       value={p.name}
                       onChange={(e) => updatePartRow(p.id, { name: e.target.value })}
                       style={{ flex: 1, minWidth: 0 }}
@@ -736,7 +736,7 @@ export default function AdminPractice({
                         disabled={keyMode !== "major"}
                         onChange={(e) => setExpandAllKeys(e.target.checked)}
                       />{" "}
-                      全調で自動生成（長調ソース→12長調＋12自然的短調＝24件。奏法も選ぶと掛け合わせ）
+                      全調で自動生成・長調ソース→12長調＋12自然的短調＝24件。奏法も選ぶと掛け合わせ
                     </label>
                   )}
                   {["scale", "arpeggio", "bowing", "fingering", "position_shift"].includes(category) && (
@@ -746,7 +746,7 @@ export default function AdminPractice({
                         checked={stdArticulations}
                         onChange={(e) => setStdArticulations(e.target.checked)}
                       />{" "}
-                      通常技法パターンで6奏法を一括生成（レガート/スタッカート/スピッカート/マルテレ/ポルタート/トレモロ）
+                      通常技法パターンで6奏法を一括生成
                     </label>
                   )}
                 </div>
@@ -880,8 +880,8 @@ export default function AdminPractice({
                 ))}
                 <div className={styles.hint}>
                   {isScoreCategory
-                    ? "クリック: 選択/解除  ダブルクリック: ● (楽曲の主要技法を指定、完全習得判定 §2-6 で参照)"
-                    : "クリック: 選択/解除  ダブルクリック: ● (この練習教材の主目的の技法)"}
+                    ? "クリック: 選択/解除  ダブルクリック: ●・楽曲の主要技法を指定、完全習得判定 §2-6 で参照"
+                    : "クリック: 選択/解除  ダブルクリック: ●"}
                 </div>
               </div>
             </div>
@@ -903,7 +903,7 @@ export default function AdminPractice({
                 </div>
 
                 <div className={styles.field}>
-                  <label>短い説明（一覧表示用）</label>
+                  <label>短い説明</label>
                   <input value={descriptionShort} onChange={(e) => setDescriptionShort(e.target.value)} maxLength={200}
                     placeholder="2の指と3の指の間隔に注意" />
                 </div>
@@ -1090,7 +1090,7 @@ export default function AdminPractice({
                         {item.type === "score" && (
                           <div style={{ marginTop: 10, borderTop: "1px dashed #ddd", paddingTop: 8 }}>
                             <div style={{ fontSize: "var(--fs-body)", fontWeight: 600, color: "var(--text-body)", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>
-                              <Palette size={14} /> 雰囲気タグ（曲を聴いて設定）
+                              <Palette size={14} /> 雰囲気タグ
                             </div>
                             <div style={{ marginLeft: 12, marginTop: 2, display: "flex", flexWrap: "wrap", gap: 4 }}>
                               {MOOD_TAG_DEFS.map((t) => (

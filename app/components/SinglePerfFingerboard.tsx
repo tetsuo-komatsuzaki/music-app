@@ -52,7 +52,7 @@ export default function SinglePerfFingerboard({
       let badgeKind: "shift" | "info" | null = null
       if (prev) {
         const shift = prev.p != null && fn.p != null && prev.p !== fn.p
-        label = `${kanaOf(prev)}（${prev.s}線${prev.n === 0 ? "・開放" : prev.p != null ? `・${posLabel(prev.p)}` : ""}）`
+        label = `${kanaOf(prev)}・${prev.s}線${prev.n === 0 ? "・開放" : prev.p != null ? `・${posLabel(prev.p)}` : ""}`
         if (shift) { badge = `${posLabel(prev.p!)}→${posLabel(fn.p!)}`; badgeKind = "shift" }
         else if (prev.s !== fn.s) { badge = "移弦のみ"; badgeKind = "info" }
         else { badge = "同じ弦"; badgeKind = "info" }
@@ -89,7 +89,7 @@ export default function SinglePerfFingerboard({
   return (
     <div style={{ marginTop: 10 }}>
       <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)", marginBottom: 5 }}>
-        この演奏の音程マップ（実測）
+        この演奏の音程マップ
       </div>
       <FingerboardPanel cells={cells} details={details} stack />
     </div>

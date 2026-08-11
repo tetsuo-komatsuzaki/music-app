@@ -27,16 +27,16 @@ export interface FbNote {
   finger: number;
   /** 開放からの半音数 */
   off: number;
-  /** カタカナ音名（表示用） */
+  /** カタカナ音名 */
   name: string;
 }
 
 export interface FbEvent {
-  /** 開始秒（テンポ90・MusicXML の音価から機械算出） */
+  /** 開始秒・テンポ90・MusicXML の音価から機械算出 */
   t: number;
   dur: number;
   kind: "note" | "gliss-start" | "gliss-stop";
-  /** ポジション区間（SEG_COLORS の添字） */
+  /** ポジション区間 */
   seg: number;
   notes: FbNote[];
 }
@@ -44,9 +44,9 @@ export interface FbEvent {
 export interface FbLesson {
   id: string;
   title: string;
-  /** true = 横長（単音・技法） / false = 縦型（重音） */
+  /** true = 横長 / false = 縦型 */
   horizontal: boolean;
-  /** 演奏の全長（秒）。ループはこれ + 0.6s の間 */
+  /** 演奏の全長。ループはこれ + 0.6s の間 */
   total: number;
   events: FbEvent[];
 }
@@ -208,7 +208,7 @@ export const FB_LESSONS: Record<string, FbLesson> = {
 
 export const getFbLesson = (id: string): FbLesson | undefined => FB_LESSONS[id];
 
-/** ループ全長（末尾に 0.6 秒の間） */
+/** ループ全長・末尾に 0.6 秒の間 */
 export const fbLoop = (l: FbLesson) => l.total + 0.6;
 
 /* ============================================================
@@ -248,6 +248,6 @@ export function assertFbLesson(l: FbLesson): void {
     if (!stop || stop.notes[0].string !== g.notes[0].string) {
       throw new Error(`${l.id}: グリッサンドが弦をまたいでいる`);
     }
-    if (g.notes[0].finger !== 1) throw new Error(`${l.id}: グリッサンドは1の指（監修指定）`);
+    if (g.notes[0].finger !== 1) throw new Error(`${l.id}: グリッサンドは1の指`);
   }
 }

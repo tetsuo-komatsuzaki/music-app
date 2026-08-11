@@ -47,7 +47,7 @@ import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 // (Phase F で表現追加するまで、新値は既存 UI の中立色で描画される)。
 import type { EvaluationStatus } from "@/app/types/comparisonResult"
 
-/** v2 正規化済みの比較結果（コンポーネント内で扱う唯一の型） */
+/** v2 正規化済みの比較結果 */
 type ComparisonNote = {
   note_index: number
   measure_number: number
@@ -191,7 +191,7 @@ function getComparisonColor(r: ComparisonNote): string {
 // 間違い音符オーバーレイ + ポップオーバー用ヘルパー
 // =========================================================
 
-/** Hz → 音名（例: 277.2 → "C#4"） */
+/** Hz → 音名・例: 277.2 → "C#4" */
 function hzToNoteName(hz: number): string {
   const names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
   const midi = Math.round(12 * Math.log2(hz / 440) + 69)
@@ -301,8 +301,8 @@ function NotePopoverContent({ note }: { note: ComparisonNote }) {
       <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.6 }}>
         {note.pitch_cents_error != null && !note.pitch_ok && (
           <div>
-            {centsToLabel(note.pitch_cents_error)}（{note.pitch_cents_error > 0 ? "+" : ""}
-            {Math.round(note.pitch_cents_error)} cents）
+            {centsToLabel(note.pitch_cents_error)}・{note.pitch_cents_error > 0 ? "+" : ""}
+            {Math.round(note.pitch_cents_error)} cents
           </div>
         )}
         {note.evaluation_status === "evaluated" && note.start_diff_sec != null && (
@@ -536,7 +536,7 @@ function PerformanceHistory({
                   <Pencil size={11} aria-hidden className={styles.histNameEditIcon} />
                 </span>
                 {p.rangeFromNote != null && (
-                  <span className={styles.rangeTag} title="区間だけを録音した部分練習（曲のスコアには非算入）">区間</span>
+                  <span className={styles.rangeTag} title="区間だけを録音した部分練習">区間</span>
                 )}
                 <span className={styles.historyDate}>{dateLabel}</span>
               </div>
@@ -697,7 +697,7 @@ function PerformanceHistory({
                           <Pencil size={11} aria-hidden className={styles.histNameEditIcon} />
                         </span>
                         {p.rangeFromNote != null && (
-                          <span className={styles.rangeTag} title="区間だけを録音した部分練習（曲のスコアには非算入）">区間</span>
+                          <span className={styles.rangeTag} title="区間だけを録音した部分練習">区間</span>
                         )}
                         <span className={styles.historyDate}>{dateLabel}</span>
                       </div>
@@ -3343,7 +3343,7 @@ function ScoreDetailInner({
             {selectedPartId != null && (
               <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 7, lineHeight: 1.6 }}>
                 パート練習は「できるまでくり返す」ための練習モード。<b>あえて採点はひかえめ</b>にして、
-                点数や曲の達成には数えないよ（記録はこのパートの自己ベストにだけ残る）。
+                点数や曲の達成には数えないよ。
               </div>
             )}
           </div>
@@ -3383,10 +3383,10 @@ function ScoreDetailInner({
                   value={selected?.id ?? ""}
                   onChange={(e) => selectPerformanceById(e.target.value || null)}
                 >
-                  <option value="">演奏モード（演奏を選ぶと採点を表示）</option>
+                  <option value="">演奏モード・演奏を選ぶと採点を表示</option>
                   {performances.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {(p.name ?? "Performance")}{p.rangeFromNote != null ? "（区間）" : ""} ・ {new Date(p.uploadedAt).toLocaleDateString("ja-JP")}
+                      {(p.name ?? "Performance")}{p.rangeFromNote != null ? "" : ""} ・ {new Date(p.uploadedAt).toLocaleDateString("ja-JP")}
                     </option>
                   ))}
                 </select>
@@ -3672,7 +3672,7 @@ function ScoreDetailInner({
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden><circle cx="12" cy="12" r="7" /></svg>
                     </span>
                     <span className={styles.recordMenuText}>
-                      <span className={styles.recordMenuTitle}>全て録音（通し）</span>
+                      <span className={styles.recordMenuTitle}>全て録音</span>
                       <span className={styles.recordMenuDesc}>曲を通して弾いて採点</span>
                     </span>
                   </button>
@@ -3681,7 +3681,7 @@ function ScoreDetailInner({
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 7h16" /><path d="M9 7v10" /><path d="M15 7v10" /></svg>
                     </span>
                     <span className={styles.recordMenuText}>
-                      <span className={styles.recordMenuTitle}>区間録音（部分）</span>
+                      <span className={styles.recordMenuTitle}>区間録音</span>
                       <span className={styles.recordMenuDesc}>譜面をなぞって一部だけ{isScoreMode ? "採点" : "練習"}</span>
                     </span>
                   </button>

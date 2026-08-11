@@ -107,10 +107,10 @@ export default function GoalCard() {
             </select>
             {options.length === 0 && <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 4 }}>候補を読み込み中…</div>}
           </label>
-          <label style={lbl}>目標時期（任意）
+          <label style={lbl}>目標時期
             <input value={goalDate} onChange={(e) => setGoalDate(e.target.value)} placeholder="例: 2026年12月 / 発表会まで" style={inp} maxLength={40} />
           </label>
-          <label style={lbl}>かなえたいこと（任意）
+          <label style={lbl}>かなえたいこと
             <input value={epicWin} onChange={(e) => setEpicWin(e.target.value)} placeholder="例: 家族の前で最後まで弾く" style={inp} maxLength={200} />
           </label>
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>

@@ -24,7 +24,7 @@ export const EXPRESSION_TAGS: ExpressionTag[] = [
 
 // 削除済み語彙のラベル互換 (過去に記録された評価のカルテ表示を壊さない)
 export const LEGACY_EXPRESSION_LABELS: Record<string, string> = {
-  expr_rubato: "テンポの揺らし（ルバート）",
+  expr_rubato: "テンポの揺らし",
   expr_phrasing: "フレーズの呼吸",
   expr_vibrato: "ビブラートの表情",
 }
@@ -33,9 +33,9 @@ export const EXPRESSION_TAG_BY_ID: Record<string, ExpressionTag> =
   Object.fromEntries(EXPRESSION_TAGS.map((t) => [t.id, t]))
 
 export const EXPRESSION_STATUSES = [
-  { id: "strength", label: "とくい（強み）" },
+  { id: "strength", label: "とくい" },
   { id: "improving", label: "良くなってきた" },
-  { id: "challenge", label: "挑戦中（課題）" },
+  { id: "challenge", label: "挑戦中" },
 ] as const
 export type ExpressionStatus = (typeof EXPRESSION_STATUSES)[number]["id"]
 

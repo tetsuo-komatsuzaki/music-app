@@ -26,10 +26,10 @@ import {
 /** 弓単体ビュー：接触点の x */
 const C_SIDE = 250;
 
-/** バイオリンビュー：弓の拡大率（実寸比に近づける） */
+/** バイオリンビュー：弓の拡大率 */
 const BOW_SCALE = 1.35;
 
-/** バイオリンビュー：接触点の表示 x（駒 405 と指板端 262 の間） */
+/** バイオリンビュー：接触点の表示 x・駒 405 と指板端 262 の間 */
 const BOW_CONTACT_X = 360;
 
 /**
@@ -52,7 +52,7 @@ export interface BowingDemoProps {
   playing?: boolean;
   /** どのビューを描くか */
   view?: "side" | "violin" | "both";
-  /** 弓く対象の弦（既定 = A線） */
+  /** 弓く対象の弦 */
   targetString?: StringIndex;
   className?: string;
 }
@@ -128,7 +128,7 @@ function SideView({
       viewBox="-60 0 660 120"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
-      aria-label={`${tech.name}の運弓（弓のみ）`}
+      aria-label={`${tech.name}の運弓`}
     >
       <style>{css}</style>
       {/* 弦（模式） */}
@@ -212,7 +212,7 @@ function ViolinView({
       viewBox="-10 -120 514 530"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
-      aria-label={`${tech.name}の運弓（バイオリンと弓）`}
+      aria-label={`${tech.name}の運弓`}
     >
       <style>{css}</style>
       <g transform={VIOLIN_ROTATE}>

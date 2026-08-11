@@ -18,7 +18,7 @@ const ALLOWED_CONTENT_TYPES = new Set<string>([
   "audio/ogg",
   "audio/wav",
   "audio/x-wav",
-  "audio/mp4",    // Safari/iOS 対応（Recorder.tsx で使用確認済）
+  "audio/mp4",    // Safari/iOS 対応
 ])
 
 // TODO(Phase 1-2): マジックバイト検証を追加（Content-Type 偽装対策）

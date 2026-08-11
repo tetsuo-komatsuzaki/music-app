@@ -9,7 +9,7 @@
  */
 
 export type CellStatus =
-  | 'insufficient' // データ不足（n < nMin）
+  | 'insufficient' // データ不足
   | 'stable' // 安定
   | 'sharp' // 高方向優勢
   | 'flat' // 低方向優勢
@@ -27,13 +27,13 @@ export interface CellSample {
 export interface ClassifyParams {
   /** 最小サンプル数。未満はデータ不足 */
   nMin: number;
-  /** 安定/不安定の境界ミス率（例 0.20 = 20%） */
+  /** 安定/不安定の境界ミス率・例 0.20 = 20% */
   thetaOk: number;
-  /** 方向優勢比（一方が他方の k 倍以上で優勢） */
+  /** 方向優勢比 */
   dominanceK: number;
 }
 
-/** 純関数（単体テスト対象、仕様書 §4-2 判定表の忠実な実装） */
+/** 純関数・単体テスト対象、仕様書 §4-2 判定表の忠実な実装 */
 export function classifyCell(sample: CellSample, p: ClassifyParams): CellStatus {
   if (sample.n < p.nMin) return 'insufficient';
   const rHigh = sample.high / sample.n;
@@ -45,7 +45,7 @@ export function classifyCell(sample: CellSample, p: ClassifyParams): CellStatus 
   return 'unstable';
 }
 
-/** ミス率 → 濃度段階（0..2）。§4-2「濃度はr_missで段階変化」 */
+/** ミス率 → 濃度段階・0..2。§4-2「濃度はr_missで段階変化」 */
 export function intensityLevel(rMiss: number, thetaOk: number): 0 | 1 | 2 {
   if (rMiss < thetaOk * 2) return 0;
   if (rMiss < thetaOk * 3) return 1;

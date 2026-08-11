@@ -127,7 +127,7 @@ export default function FingerboardPanel({
           </div>
           {!hasData && (
             <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 6 }}>
-              {emptyText ?? "まだ判定できる音がありません（同じ音を5回以上ひくと色がつきます）。"}
+              {emptyText ?? "まだ判定できる音がありません・同じ音を5回以上ひくと色がつきます。"}
             </div>
           )}
         </div>
@@ -139,7 +139,7 @@ export default function FingerboardPanel({
           ) : marking && markable ? (
             <MarkEditor
               key={sel}
-              cellLabel={`${selKana}（${selStrN?.[1]}線）`}
+              cellLabel={`${selKana}・${selStrN?.[1]}線`}
               existing={markSet.get(sel) ?? null}
               note={markNote}
               setNote={setMarkNote}
@@ -150,7 +150,7 @@ export default function FingerboardPanel({
           ) : (
             <>
               <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
-                <b style={{ fontSize: "var(--fs-body)" }}>{selKana}（{selStrN?.[1]}線{selStrN?.[2] === "00" ? "・開放" : ""}）</b>
+                <b style={{ fontSize: "var(--fs-body)" }}>{selKana}・{selStrN?.[1]}線{selStrN?.[2] === "00" ? "・開放" : ""}</b>
                 {selCell && (
                   <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#fff", background: STATUS_INK[selCell.status], borderRadius: 999, padding: "1px 8px" }}>
                     {STATUS_LABEL[selCell.status]}
@@ -162,7 +162,7 @@ export default function FingerboardPanel({
                   <div style={{ color: "var(--text-sub)", marginTop: 3 }}>
                     {selDetail.high + selDetail.low === 0
                       ? `${selDetail.n}回ひいて 音が正確`
-                      : `${selDetail.n}回中${selDetail.high + selDetail.low}回ずれた（音が高い${selDetail.high}回・音が低い${selDetail.low}回）`}
+                      : `${selDetail.n}回中${selDetail.high + selDetail.low}回ずれた・音が高い${selDetail.high}回・音が低い${selDetail.low}回`}
                   </div>
 
                   {/* ポジションべつの安定度 (v2) */}
@@ -177,7 +177,7 @@ export default function FingerboardPanel({
                             {p.finger != null && <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>{p.finger === 0 ? "開放" : `${p.finger}の指`}</span>}
                             <span style={barOuter}><span style={barInner(pct)} /></span>
                             <span style={{ fontWeight: 900, flex: "none", color: pctInk(pct), fontVariantNumeric: "tabular-nums" }}>
-                              {p.n}回中{p.miss}回{p.miss > 0 ? ` ${DIR_LABEL[p.dir]}` : "・音が正確"}（{pct}%）
+                              {p.n}回中{p.miss}回{p.miss > 0 ? ` ${DIR_LABEL[p.dir]}` : "・音が正確"}・{pct}%
                             </span>
                           </div>
                         )
@@ -327,7 +327,7 @@ function MarkEditor({ cellLabel, existing, note, setNote, pending, onSave, onRem
           マーク済み{existing ? `：${existing}` : ""}
         </div>
       )}
-      <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="一言（例：低くなりやすい。移弦のあと指の準備を）"
+      <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="一言"
         style={{ width: "100%", boxSizing: "border-box", border: "1px solid #dce6f2", borderRadius: 8, padding: "7px 9px", fontSize: "var(--fs-caption)", resize: "vertical", marginTop: 7, background: "#fff" }} />
       <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
         <button type="button" disabled={pending} onClick={onSave}

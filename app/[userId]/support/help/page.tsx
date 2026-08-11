@@ -15,7 +15,7 @@ const CATEGORIES: Category[] = [
     title: "はじめに",
     items: [
       {
-        q: "Arcoda（アルコ）ってなに?",
+        q: "Arcodaってなに?",
         a: (
           <p>
             楽譜と録音をアップロードすると、AIの先生アルコが演奏を聴いて、いいところ・伸ばすところを教えてくれます。

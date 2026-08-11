@@ -7,7 +7,7 @@ import { prisma } from "@/app/_libs/prisma"
 /** 括弧書き(全角/半角)と空白を除去して照合キー化 */
 export function normalizeSongName(s: string): string {
   return s
-    .replace(/[（(][^）)]*[）)]/g, "")
+    .replace(/[)]*[）)]/g, "")
     .replace(/\s+/g, "")
     .trim()
     .toLowerCase()

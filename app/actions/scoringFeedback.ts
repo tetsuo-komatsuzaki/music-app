@@ -76,7 +76,7 @@ export async function sendScoringFeedback(input: {
     await resend.emails.send({
       from,
       to: OPERATOR_EMAIL,
-      subject: `【採点FB】${title} (音程${perf.pitchAccuracy ?? "-"}/リズム${perf.timingAccuracy ?? "-"})`,
+      subject: `【採点FB】${title}・音程${perf.pitchAccuracy ?? "-"}/リズム${perf.timingAccuracy ?? "-"}`,
       text: [
         `ユーザー: ${dbUser.id} (${dbUser.role})`,
         `対象: ${input.kind} / ${title}`,

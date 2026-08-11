@@ -25,7 +25,7 @@ export default function MasterBadge({ kind, mastered, size = "sm" }: Props) {
   const isMaster = resolved === "mastered"
   return (
     <span
-      title={isMaster ? "この曲をマスターしました（達成＋平均90点）" : "この曲を達成しました（弾ける認定）"}
+      title={isMaster ? "この曲をマスターしました・達成＋平均90点" : "この曲を達成しました"}
       style={{
         display: "inline-flex",
         alignItems: "center",

@@ -59,7 +59,7 @@ export async function notifyStudent(
     const lines = [`${teacherName}から${NOUN[kind]}が届きました。`]
     if (trimmed) lines.push("", `「${trimmed}${(preview ?? "").length > 140 ? "…" : ""}」`)
     if (link) lines.push("", `▼ アプリで確認`, link)
-    lines.push("", "――", "Arcoda（アルコダ）", "※通知が不要な場合は、アプリの「設定 > 通知」からオフにできます。")
+    lines.push("", "――", "Arcoda", "※通知が不要な場合は、アプリの「設定 > 通知」からオフにできます。")
 
     const resend = new Resend(apiKey)
     await resend.emails.send({
@@ -69,6 +69,6 @@ export async function notifyStudent(
       text: lines.join("\n"),
     })
   } catch (e) {
-    console.error("[teacherEmailNotify] 送信失敗(処理は継続):", e)
+    console.error("[teacherEmailNotify] 送信失敗:", e)
   }
 }

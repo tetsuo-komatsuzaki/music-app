@@ -86,7 +86,7 @@ export default function AnalysisNoticeBar({ userId, notices }: { userId: string;
           <span aria-hidden style={{ flex: "none", width: 9, height: 9, borderRadius: "50%", background: "#d64541", animation: "anbBlink 1.1s steps(1) infinite" }} />
           <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             「{pending[0].title}」を採点ちゅう…{pending.length > 1 ? ` ほか${pending.length - 1}件` : ""}
-            <span style={{ color: "var(--text-sub)", fontWeight: 600 }}>（約1〜2分）</span>
+            <span style={{ color: "var(--text-sub)", fontWeight: 600 }}>・約1〜2分</span>
           </span>
           <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 2.5, height: 14, marginLeft: "auto", flex: "none" }} aria-hidden>
             {VU_BARS.map((h, i) => (

@@ -55,7 +55,7 @@ async function generateVariantGroup(opts: {
     const child = await prisma.practiceItem.create({
       data: {
         category: opts.category as PracticeCategory,
-        title: `${opts.title}（${v.titleSuffix}）`,
+        title: `${opts.title}・${v.titleSuffix}`,
         composer: opts.composer,
         description: opts.description,
         descriptionShort: opts.descriptionShort,

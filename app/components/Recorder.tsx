@@ -209,7 +209,7 @@ type Props = {
     error?: string
     result?: PerfResult
   }>
-  previousBestScore?: number       // ピッチベスト（録音後フィードバック比較用）
+  previousBestScore?: number       // ピッチベスト
   disabled?: boolean
   bpm?: number
   onRecordingStart?: () => void
@@ -639,7 +639,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     if (gap <= 0) return "完璧！もう一度！"
     if (gap <= 3) return `あと+${gap}で自己ベスト`
     if (gap <= 10) return `あと+${gap}でかなり良くなる`
-    return "もう一回挑戦！(+10点くらい)"
+    return "もう一回挑戦！・+10点くらい"
   }
 
   useEffect(() => {

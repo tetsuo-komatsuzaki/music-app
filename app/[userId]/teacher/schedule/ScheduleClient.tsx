@@ -60,7 +60,7 @@ export default function ScheduleClient({ userId, lessons }: { userId: string; le
               {online ? <><Laptop size={13} /> オンライン</> : <><MapPin size={13} /> 対面</>}
             </button>
           </div>
-          <input value={place} onChange={(e) => setPlace(e.target.value)} placeholder={online ? "ビデオURL等（任意）" : "場所（任意）"} style={inp} maxLength={200} />
+          <input value={place} onChange={(e) => setPlace(e.target.value)} placeholder={online ? "ビデオURL等" : "場所"} style={inp} maxLength={200} />
           {err && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-error)" }}>{err}</div>}
           <button type="button" onClick={add} disabled={pending}
             style={{ border: "none", borderRadius: 9, padding: 11, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#2b3742", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>

@@ -466,7 +466,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     insights.push({
       tone: "warn",
       title: `「${dirL}に大きく跳ぶ音」が苦手。アルペジオ不足の可能性`,
-      evidence: `跳躍のミス率 ${round(rate(worstLeap) * 100)}%（${worstLeap.target}音中${worstLeap.miss}ミス）× アルペジオ練習は全体の ${arpPct}%。跳躍の基礎はアルペジオで作られる。`,
+      evidence: `跳躍のミス率 ${round(rate(worstLeap) * 100)}%・${worstLeap.target}音中${worstLeap.miss}ミス× アルペジオ練習は全体の ${arpPct}%。跳躍の基礎はアルペジオで作られる。`,
       action: { label: "アルペジオを練習する →", href: `${pref}/arpeggio` },
     })
   }
@@ -485,7 +485,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
       insights.push({
         tone: "warn",
         title: `${worstKey.label}だけ音程が崩れる。調の基礎が追いついていない`,
-        evidence: `${worstKey.label}の音程 ${worstKey.avgPitch}点（他の調より${round(otherAvg - (worstKey.avgPitch ?? 0))}点低い）× ${worstKey.label}の音階練習はこの期間 ${scaleInKey}回。`,
+        evidence: `${worstKey.label}の音程 ${worstKey.avgPitch}点・他の調より${round(otherAvg - (worstKey.avgPitch ?? 0))}点低い× ${worstKey.label}の音階練習はこの期間 ${scaleInKey}回。`,
         action: { label: `${worstKey.label}の音階から →`, href: `${pref}/scale` },
       })
     }
@@ -497,7 +497,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     insights.push({
       tone: "warn",
       title: `「${worstTech.label}」で崩れやすい`,
-      evidence: `${worstTech.label}のミス率 ${round((worstTech.miss / worstTech.target) * 100)}%（${worstTech.target}音中${worstTech.miss}ミス）。`,
+      evidence: `${worstTech.label}のミス率 ${round((worstTech.miss / worstTech.target) * 100)}%・${worstTech.target}音中${worstTech.miss}ミス。`,
       action: { label: "練習メニューを見る →", href: pref },
     })
   }
@@ -572,7 +572,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
       }
       for (const s of subs) if (s.submittedAt) events.push({
         at: s.submittedAt.getTime(), date: fmtJp(s.submittedAt), kind: "submit",
-        text: `「${s.score?.title ?? s.practiceItem?.title ?? "課題"}」を提出${s.submittedScore != null ? `（${s.submittedScore}点）` : ""}`,
+        text: `「${s.score?.title ?? s.practiceItem?.title ?? "課題"}」を提出${s.submittedScore != null ? `・${s.submittedScore}点` : ""}`,
       })
       for (const f of fbs) events.push({
         at: f.updatedAt.getTime(), date: fmtJp(f.updatedAt), kind: "feedback",
@@ -894,8 +894,8 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
     }
     if (worst) {
       const cents = worst.e.centsN ? round((worst.e.centsSum / worst.e.centsN) * 10) / 10 : null
-      const type = cents != null && cents <= -15 ? "ぶら下がり型（ビミョウに低い）"
-        : cents != null && cents >= 15 ? "上ずり型（ビミョウに高い）" : "ミスが多め"
+      const type = cents != null && cents <= -15 ? "ぶら下がり型"
+        : cents != null && cents >= 15 ? "上ずり型" : "ミスが多め"
       let fromNote: string | null = null
       let fromRate = 0
       for (const [k, t] of nsTrans.entries()) {
@@ -1137,7 +1137,7 @@ export async function buildNumbersRoom(
   const tempoAgg = new Map<string, { count: number; sum: number; n: number }>()
   for (const r of rows) {
     if (r.tempo == null) continue
-    const label = r.tempo <= 80 ? "〜♩80 (ゆっくり)" : r.tempo < 100 ? "♩81〜99" : "♩100〜 (はやい)"
+    const label = r.tempo <= 80 ? "〜♩80" : r.tempo < 100 ? "♩81〜99" : "♩100〜"
     const e = tempoAgg.get(label) ?? { count: 0, sum: 0, n: 0 }
     e.count++
     if (r.pitchAccuracy != null && r.timingAccuracy != null) { e.sum += (r.pitchAccuracy + r.timingAccuracy) / 2; e.n++ }

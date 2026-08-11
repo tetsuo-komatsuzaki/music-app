@@ -24,8 +24,8 @@ const kicker: React.CSSProperties = { fontSize: 9, fontWeight: 900, letterSpacin
 
 // わざの分類セクション (id は SKILL_DEFS の id = SkillNode.id と一致)
 const SKILL_CATEGORIES: { label: string; ids: string[] }[] = [
-  { label: "弓（ボーイング）", ids: ["slur", "staccato", "portato", "bow_staccato", "tremolo", "spiccato", "ricochet", "pizzicato"] },
-  { label: "フィンガリング（左手）", ids: ["position", "double"] },
+  { label: "弓", ids: ["slur", "staccato", "portato", "bow_staccato", "tremolo", "spiccato", "ricochet", "pizzicato"] },
+  { label: "フィンガリング", ids: ["position", "double"] },
   { label: "装飾", ids: ["trill", "mordent", "glissando"] },
   { label: "音色・特殊", ids: ["vibrato", "harmonic"] },
 ]

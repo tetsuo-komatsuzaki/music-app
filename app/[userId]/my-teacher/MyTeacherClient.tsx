@@ -56,7 +56,7 @@ export default function MyTeacherClient({
   const [pending, startTransition] = useTransition()
 
   const doUnlink = () => {
-    if (!window.confirm(`${teacherName} 先生との、つながりを解除しますか？\n（また「設定 > 先生とつながる」からつなぎ直せます）`)) return
+    if (!window.confirm(`${teacherName} 先生との、つながりを解除しますか？\n`)) return
     startTransition(async () => {
       await unlinkTeacher()
       router.push(`/${userId}`)
@@ -170,7 +170,7 @@ function HwCard({ h }: { h: Homework }) {
             const c = DUE_COLOR[di.state]
             return (
               <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: c.fg, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 999, padding: "2px 8px" }}>
-                期限 {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}
+                期限 {di.label}{di.state === "overdue" ? "" : di.state === "soon" ? "" : ""}
               </span>
             )
           })()}
@@ -182,7 +182,7 @@ function HwCard({ h }: { h: Homework }) {
           )}
         </div>
       )}
-      <div style={{ fontSize: "var(--fs-body)", color: SUB, marginTop: 5 }}>{h.detail || "（詳細指定なし）"}</div>
+      <div style={{ fontSize: "var(--fs-body)", color: SUB, marginTop: 5 }}>{h.detail || ""}</div>
       {h.comment && <div style={{ fontSize: "var(--fs-body)", color: INK, marginTop: 4, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{h.comment}</span></div>}
       {!h.submitted && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 9 }}>

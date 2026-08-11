@@ -32,7 +32,7 @@ import { InstrumentShape, FingersShape, HandShape, BodyOverlay } from "./LeftHan
 export interface GlissandoDemoProps {
   /** "6th-1st-even" | "6th-1st-fast" | "6th-1st-uneven" */
   glissando: string;
-  /** 滑走に使う指のパターン（既定: 1の指） */
+  /** 滑走に使う指のパターン・既定: 1の指 */
   pattern?: FingerPatternId;
   playing?: boolean;
   className?: string;

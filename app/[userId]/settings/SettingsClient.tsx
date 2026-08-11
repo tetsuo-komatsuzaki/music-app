@@ -77,7 +77,7 @@ export default function SettingsClient({
       return
     }
     if (newPassword !== confirmPassword) {
-      setPasswordMessage({ type: "error", text: "新しいパスワード (確認) が一致しません" })
+      setPasswordMessage({ type: "error", text: "新しいパスワード が一致しません" })
       return
     }
 
@@ -182,7 +182,7 @@ export default function SettingsClient({
             </button>
           </div>
           <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 8 }}>
-            {emailOff ? "いまはオフ（メールは届きません）" : "いまはオン（メールが届きます）"}
+            {emailOff ? "いまはオフ" : "いまはオン"}
           </div>
         </section>
       )}
@@ -297,7 +297,7 @@ export default function SettingsClient({
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="新しいパスワード (8文字以上)"
+                placeholder="新しいパスワード・8文字以上"
                 className={styles.input}
                 disabled={isPasswordPending}
                 autoComplete="new-password"
@@ -306,7 +306,7 @@ export default function SettingsClient({
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="新しいパスワード (確認)"
+                placeholder="新しいパスワード"
                 className={styles.input}
                 disabled={isPasswordPending}
                 autoComplete="new-password"

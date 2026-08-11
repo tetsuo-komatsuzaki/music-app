@@ -40,7 +40,7 @@ import {
 export interface VibratoDemoProps {
   /** "3rd-ok" | "3rd-stiff-hand" */
   vibrato: string;
-  /** 揺らす指（既定: 1の指） */
+  /** 揺らす指・既定: 1の指 */
   pattern?: FingerPatternId;
   playing?: boolean;
   className?: string;

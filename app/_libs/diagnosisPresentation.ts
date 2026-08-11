@@ -35,7 +35,7 @@ export interface DiagnosisSlotView {
   miss: number
   target: number
   missRate: number
-  /** miss_patterns から生成した一言内訳（確信が持てないとき null） */
+  /** miss_patterns から生成した一言内訳 */
   breakdown: string | null
   materials: RecommendationSlot["materials"]
   noStock: boolean
@@ -138,7 +138,7 @@ function buildBreakdown(sid: string, patterns: MissPattern[]): string | null {
   return top.text
 }
 
-/** 診断JSON + 推薦文脈 → 画面表示用の形（演奏直後窓①） */
+/** 診断JSON + 推薦文脈 → 画面表示用の形 */
 export async function buildDiagnosisView(
   diagnosis: DiagnosisJson | null | undefined,
   ctx: RecommendContext
@@ -189,7 +189,7 @@ export async function buildDiagnosisView(
   return { verdict, slots, collapse, totals }
 }
 
-/** 累積スロット（窓②）を同じ画面形に整形（内訳は演奏単位の情報なので無し） */
+/** 累積スロットを同じ画面形に整形 */
 export function toSlotViews(recSlots: RecommendationSlot[]): DiagnosisSlotView[] {
   return recSlots
     .filter((s) => SUBTASK_BY_ID[s.subtaskId])

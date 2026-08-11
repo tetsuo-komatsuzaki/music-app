@@ -32,7 +32,7 @@ export default function BodyFigure({ view, className }: { view: BodyViewId; clas
 
   if (view === "body") {
     return (
-      <svg {...common} role="img" aria-label="全身（正面）と横すがた">
+      <svg {...common} role="img" aria-label="全身と横すがた">
         {/* ── 正面 ── */}
         <circle cx={82} cy={30} r={17} fill={SKIN} />
         {/* 胴体 */}
@@ -153,7 +153,7 @@ export default function BodyFigure({ view, className }: { view: BodyViewId; clas
 
   // strings: 弓と弦の接点 (上=指板 / 下=駒)
   return (
-    <svg {...common} role="img" aria-label="弦の上（弓と弦の接点）">
+    <svg {...common} role="img" aria-label="弦の上・弓と弦の接点">
       {/* 指板の端 (上) */}
       <path d="M60 10 L180 10 L172 34 L68 34 Z" fill="#5d4a38" stroke={WOOD_D} />
       {/* 駒 (下) */}

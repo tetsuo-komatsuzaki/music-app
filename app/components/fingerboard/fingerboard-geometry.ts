@@ -19,10 +19,10 @@ export const STRING_WIDTH: Record<StringName, number> = { G: 3.4, D: 2.9, A: 2.4
 export const K = 1150;
 export const dist = (n: number) => K * (1 - 2 ** (-n / 12));
 
-/** 縦型（重音レッスン用）: ナット上・弦は左から G D A E */
+/** 縦型: ナット上・弦は左から G D A E */
 export const V_STR: Record<StringName, number> = { G: 130, D: 200, A: 270, E: 340 };
 export const V_NUT = 120;
-/** 横長（それ以外）: ナット左・弦は上から E A D G（仕様書の正面図と同じ並び） */
+/** 横長: ナット左・弦は上から E A D G */
 export const H_STR: Record<StringName, number> = { E: 130, A: 200, D: 270, G: 340 };
 export const H_NUT = 130;
 
@@ -32,7 +32,7 @@ export const H_NUT = 130;
  */
 export const SEG_COLORS = ["#14A6A0", "#E0762E", "#8E5BB8"] as const;
 
-/** マーカーの寸法（監修済みの見やすさ調整。縮めてはならない） */
+/** マーカーの寸法 */
 export const DOT_R = 28;          // 押弦の丸
 export const DOT_FONT = 37;       // 指番号
 export const PILL_FONT = 31;      // 音名バッジ

@@ -131,12 +131,12 @@ function Callout({ text, color }: { text: string; color: string }) {
    HarmonicMotionDemo
    ============================================================ */
 export interface HarmonicMotionDemoProps {
-  /** "half-ok" | "half-press"（HARMONIC_MOTIONS のキー） */
+  /** "half-ok" | "half-press" */
   motion?: "half-ok" | "half-press";
   /** 再生中か */
   playing?: boolean;
   className?: string;
-  /** レッスンカード用のクロップ viewBox（省略時は全体） */
+  /** レッスンカード用のクロップ viewBox */
   crop?: string;
 }
 

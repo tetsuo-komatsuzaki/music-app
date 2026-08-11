@@ -28,8 +28,8 @@ const chapNote: React.CSSProperties = { fontSize: 9.5, color: SUB, fontWeight: 7
 
 // わざの分類 (SkillsLevelClient と同一。id は SkillNode.id と一致)
 const SKILL_CATEGORIES: { label: string; ids: string[] }[] = [
-  { label: "弓（ボーイング）", ids: ["slur", "staccato", "portato", "bow_staccato", "tremolo", "spiccato", "ricochet", "pizzicato"] },
-  { label: "フィンガリング（左手）", ids: ["position", "double"] },
+  { label: "弓", ids: ["slur", "staccato", "portato", "bow_staccato", "tremolo", "spiccato", "ricochet", "pizzicato"] },
+  { label: "フィンガリング", ids: ["position", "double"] },
   { label: "装飾", ids: ["trill", "mordent", "glissando"] },
   { label: "音色・特殊", ids: ["vibrato", "harmonic"] },
 ]
@@ -132,7 +132,7 @@ function Hero({ userId, data, readOnly, detailBase, onShare }: { userId: string;
         </div>
         {(!readOnly || detailBase) && (
           <Link href={detailBase ? `${detailBase}/numbers` : `/${userId}/progress/numbers`} style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 12, fontSize: 10.5, fontWeight: 800, color: "#cfe0ff", textDecoration: "none" }}>
-            <Search size={11} /> きろくを詳しくみる（記録の分析）→
+            <Search size={11} /> きろくを詳しくみる→
           </Link>
         )}
       </div>
@@ -207,7 +207,7 @@ function ExprChapter({ userId, data, readOnly, detailBase }: { userId: string; d
           <div style={kicker}>ESPRESSIONE</div>
           <div style={chapTitle}>表現の習得状況</div>
           <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
-            「優しく（Dolce）」「歌うように（Cantabile）」— きみの表現を先生が認定してくれる場所。<br />
+            「優しく」「歌うように」— きみの表現を先生が認定してくれる場所。<br />
             <b>先生とつながると開放</b>されます。
           </div>
           <Link href={`/${userId}/find-teacher`}

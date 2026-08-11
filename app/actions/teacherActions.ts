@@ -214,7 +214,7 @@ export async function sendMessage(body: string): Promise<{ ok: true } | { ok: fa
   if (!auth.ok) return { ok: false, error: auth.error }
   const text = (body || "").trim()
   if (!text) return { ok: false, error: "メッセージを入力してください" }
-  if (text.length > 1000) return { ok: false, error: "長すぎます（1000文字まで）" }
+  if (text.length > 1000) return { ok: false, error: "長すぎます・1000文字まで" }
   const rl = await checkMessageRate(auth.user.dbUser.id, false)
   if (!rl.ok) return { ok: false, error: rateLimitMessage(rl) }
   try {
@@ -243,7 +243,7 @@ export async function sendMessageToStudent(
   if (auth.user.dbUser.role !== "teacher") return { ok: false, error: "先生アカウントが必要です" }
   const text = (body || "").trim()
   if (!text) return { ok: false, error: "メッセージを入力してください" }
-  if (text.length > 1000) return { ok: false, error: "長すぎます（1000文字まで）" }
+  if (text.length > 1000) return { ok: false, error: "長すぎます・1000文字まで" }
   const rl = await checkMessageRate(auth.user.dbUser.id, true)
   if (!rl.ok) return { ok: false, error: rateLimitMessage(rl) }
   try {
@@ -279,7 +279,7 @@ export async function savePracticeKarte(
   if (auth.user.dbUser.role !== "teacher") return { ok: false, error: "先生アカウントが必要です" }
   const text = (body || "").trim()
   if (!text) return { ok: false, error: "カルテを入力してください" }
-  if (text.length > 2000) return { ok: false, error: "長すぎます（2000文字まで）" }
+  if (text.length > 2000) return { ok: false, error: "長すぎます・2000文字まで" }
   if (!target.scoreId === !target.practiceItemId) return { ok: false, error: "対象の曲または教材を指定してください" }
   const rl = await checkMessageRate(auth.user.dbUser.id, true)
   if (!rl.ok) return { ok: false, error: rateLimitMessage(rl) }
@@ -324,7 +324,7 @@ export async function saveFingerboardMark(
       where: { teacherId_studentId_cellId: { teacherId: auth.user.dbUser.id, studentId, cellId } },
       select: { id: true },
     })
-    if (!exists && count >= 5) return { ok: false, error: "マークは5個までです（先にはずしてください）" }
+    if (!exists && count >= 5) return { ok: false, error: "マークは5個までです" }
     await prisma.teacherMarkedCell.upsert({
       where: { teacherId_studentId_cellId: { teacherId: auth.user.dbUser.id, studentId, cellId } },
       create: { teacherId: auth.user.dbUser.id, studentId, cellId, note: text },
@@ -363,7 +363,7 @@ export async function sendCelebration(
   if (auth.user.dbUser.role !== "teacher") return { ok: false, error: "先生アカウントが必要です" }
   const text = (body || "").trim()
   if (!text) return { ok: false, error: "お祝いメッセージを入力してください" }
-  if (text.length > 500) return { ok: false, error: "長すぎます（500文字まで）" }
+  if (text.length > 500) return { ok: false, error: "長すぎます・500文字まで" }
   const rl = await checkMessageRate(auth.user.dbUser.id, true)
   if (!rl.ok) return { ok: false, error: rateLimitMessage(rl) }
   try {
@@ -566,7 +566,7 @@ export async function sharePerformanceWithTeacher(
 
     const body =
       `「${title}」${label ? `${label} ` : ""}の演奏を見てほしいです` +
-      (score != null ? `（${score}点）` : "")
+      (score != null ? `・${score}点` : "")
     await prisma.message.create({
       data: { teacherId: link.teacherId, studentId: me, fromTeacher: false, body },
     })

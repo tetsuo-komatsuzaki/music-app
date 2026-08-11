@@ -202,7 +202,7 @@ export function CumulativeWeaknessPanel({
 }: {
   /** URL パラメータの userId (Supabase ID)。API 認可と「練習する →」リンクに使用 */
   userId: string
-  /** 累積弱点が無い(データ不足含む)ときに出す代替表示（例: 次の曲にチャレンジ） */
+  /** 累積弱点が無い(データ不足含む)ときに出す代替表示 */
   emptyFallback: React.ReactNode
 }) {
   const [slots, setSlots] = useState<WeaknessSlot[] | null>(null)

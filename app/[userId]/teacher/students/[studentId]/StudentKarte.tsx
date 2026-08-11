@@ -172,7 +172,7 @@ export default function StudentKarte({
       {tab === "growth" && (
         karte ? (
           <>
-            <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", margin: "0 2px 8px" }}>生徒に見えている成長カルテ（参考・直近30日）</div>
+            <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", margin: "0 2px 8px" }}>生徒に見えている成長カルテ・参考・直近30日</div>
             <ProgressPage userId={studentSupabaseUserId ?? ""} data={karte} readOnly detailBase={`/${userId}/teacher/students/${studentId}/growth`} />
           </>
         ) : (
@@ -279,7 +279,7 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
                 <b style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{w.title}</b>
                 {w.count >= 2 && (
                   <span style={{ fontSize: "var(--fs-label)", color: "var(--text-sub)", fontWeight: 700 }}>
-                    {w.first} → <b style={{ color: "var(--text-ink)" }}>{w.avg}</b>{delta !== 0 ? `（${delta > 0 ? "+" : ""}${delta}）` : ""} ・ {w.count}枚
+                    {w.first} → <b style={{ color: "var(--text-ink)" }}>{w.avg}</b>{delta !== 0 ? `・${delta > 0 ? "+" : ""}${delta}` : ""} ・ {w.count}枚
                   </span>
                 )}
               </span>
@@ -295,7 +295,7 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
       <div style={kSec}>上達の見える化<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>くわしくは成長カルテへ</span></div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
-          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>技術（わざ）</div>
+          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>技術</div>
           <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 3, color: "#22346b" }}>{skillLit ?? "—"}<span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>{skillLit != null ? ` /${skillTotal} 点灯` : ""}</span></div>
         </div>
         <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
@@ -312,26 +312,26 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
       <div style={{ border: "1px solid #e3d8f7", borderRadius: 15, overflow: "hidden", marginTop: 14, boxShadow: "0 4px 16px -8px rgba(110,60,190,.3)" }}>
         <div style={{ background: "linear-gradient(135deg,#5a3fa8,#7a4dd6)", color: "#fff", padding: "10px 14px" }}>
           <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900 }}>アルコの診断レポート</div>
-          <div style={{ fontSize: "var(--fs-label)", color: "#e2d6fb", marginTop: 2 }}>音程マップ（指板）・直近2週間 {heatmap ? `${heatmap.perfCount}演奏分` : ""}</div>
+          <div style={{ fontSize: "var(--fs-label)", color: "#e2d6fb", marginTop: 2 }}>音程マップ・直近2週間 {heatmap ? `${heatmap.perfCount}演奏分` : ""}</div>
         </div>
         <div style={{ background: "#fff", padding: "12px 14px" }}>
         {/* 音程 = 指板ヒートマップ (2026-08-11 Tetsuo確定: 文章のにがて/とくい一覧を指板に置換)。
             リズム系は指板で表現できないため下のリズム欄が残る */}
         {heatmap ? (
           <FingerboardPanel cells={heatmap.cells} details={heatmap.details} marks={fbMarks}
-            emptyText="直近2週間はまだ判定できる音が少ないよ（同じ音を5回以上ひくと色がつきます）。" />
+            emptyText="直近2週間はまだ判定できる音が少ないよ・同じ音を5回以上ひくと色がつきます。" />
         ) : (
           <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>音程マップを読み込めませんでした。</div>
         )}
         {/* リズムのにがて (指板は音程専用のため、リズム由来の崩れだけ文章で残す) */}
         {weak3.length > 0 && (
           <div style={{ marginTop: 10 }}>
-            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#b7823a" }}>リズムもふくめた にがて上位（参考）</div>
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#b7823a" }}>リズムもふくめた にがて上位</div>
             <div style={{ marginTop: 4 }}>
               {weak3.map((n) => (
                 <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 4, flexWrap: "wrap" }}>
                   <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
-                  <span style={noteSub}>{n.hand ? `${n.hand}（推定）` : n.string ? `${n.string}（推定）` : n.raw}・{n.target}音</span>
+                  <span style={noteSub}>{n.hand ? `${n.hand}` : n.string ? `${n.string}` : n.raw}・{n.target}音</span>
                   <b style={{ ...notePct, color: kScoreColor(n.pct) }}>{n.pct}%</b>
                 </div>
               ))}
@@ -349,7 +349,7 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
                   <div key={i} style={{ fontSize: "var(--fs-caption)", color: "#3a3550", lineHeight: 1.6, marginBottom: 5 }}>
                     <span style={{ color: st.c, fontWeight: 900, marginRight: 5 }}>{st.mk}</span>
                     <b>{rm.label}</b> <span style={{ color: st.c, fontWeight: 800 }}>{st.t}</span>
-                    {rm.from != null && rm.to != null && <span style={{ color: "var(--text-sub)" }}> （{rm.from}→{rm.to}%）</span>}
+                    {rm.from != null && rm.to != null && <span style={{ color: "var(--text-sub)" }}> ・{rm.from}→{rm.to}%</span>}
                     {rm.recommend && <div style={{ fontSize: "var(--fs-label)", color: "#3b56d4", fontWeight: 800, marginLeft: 17, marginTop: 1 }}>◇ おすすめ：{rm.recommend}</div>}
                   </div>
                 )
@@ -415,7 +415,7 @@ function KarteBySong({ userId, studentId, recordings, kartes, worstNotes }: { us
     return (
       <>
         <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#22346b", margin: "2px 0 6px" }}>
-          練習後カルテ（{ks.length}枚）
+          練習後カルテ・{ks.length}枚
         </div>
         {ks.length === 0 ? (
           <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginBottom: 8 }}>まだカルテがありません。下のボタンから書けます。</div>
@@ -435,7 +435,7 @@ function KarteBySong({ userId, studentId, recordings, kartes, worstNotes }: { us
         {targetId && (
           <Link href={`/${userId}/teacher/students/${studentId}/karte/write?kind=${kind}&target=${targetId}`}
             style={{ display: "block", textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#22346b", borderRadius: 10, padding: "10px 0", textDecoration: "none" }}>
-            練習後カルテを書く（癖・認定・練習ポイントもここから）→
+            練習後カルテを書く→
           </Link>
         )}
       </>
@@ -463,7 +463,7 @@ function KarteBySong({ userId, studentId, recordings, kartes, worstNotes }: { us
   }
 
   if (recordings.length === 0 && kartes.length === 0) {
-    return <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ演奏がありません（生徒が録音するとここに曲が並びます）。</div></Card>
+    return <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ演奏がありません。</div></Card>
   }
   return (
     <>
@@ -510,13 +510,13 @@ function GlobalTrendCard({ recordings, worstNotes }: { recordings: Recording[]; 
   if (worstNotes.length === 0 && weakAgg.length === 0) return null
   return (
     <div style={{ border: "1px solid #e3d8f7", borderRadius: 13, overflow: "hidden", marginBottom: 11 }}>
-      <div style={{ background: "linear-gradient(135deg,#5a3fa8,#7a4dd6)", color: "#fff", padding: "8px 12px", fontSize: "var(--fs-caption)", fontWeight: 900 }}>全体のカルテ傾向（曲をまたいで）</div>
+      <div style={{ background: "linear-gradient(135deg,#5a3fa8,#7a4dd6)", color: "#fff", padding: "8px 12px", fontSize: "var(--fs-caption)", fontWeight: 900 }}>全体のカルテ傾向</div>
       <div style={{ background: "#fff", padding: "9px 12px" }}>
         {worstNotes.length > 0 ? (
           worstNotes.slice(0, 3).map((n) => (
             <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 4 }}>
               <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
-              <span style={{ fontSize: "var(--fs-label)", color: "var(--text-sub)" }}>{n.hand ? `${n.hand}（推定）` : n.string ? `${n.string}（推定）` : n.raw}・{n.target}音</span>
+              <span style={{ fontSize: "var(--fs-label)", color: "var(--text-sub)" }}>{n.hand ? `${n.hand}` : n.string ? `${n.string}` : n.raw}・{n.target}音</span>
               <b style={{ marginLeft: "auto", flex: "none", fontWeight: 900, fontVariantNumeric: "tabular-nums", color: kScoreColor(n.pct) }}>{n.pct}%</b>
             </div>
           ))
@@ -551,7 +551,7 @@ function SongTrendCard({ g }: { g: SongGroup }) {
       <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#7a4dd6" }}>この曲の傾向</div>
       {g.count >= 2 && (
         <div style={{ fontSize: "var(--fs-caption)", color: "#3a3550", marginTop: 4, fontWeight: 700 }}>
-          カルテ{g.count}枚で {g.recs[g.recs.length - 1].avg} → <b>{g.latest.avg}</b>（{g.trend > 2 ? `改善 +${g.trend}` : g.trend < -2 ? `${g.trend}` : "横ばい"}）
+          カルテ{g.count}枚で {g.recs[g.recs.length - 1].avg} → <b>{g.latest.avg}</b>・{g.trend > 2 ? `改善 +${g.trend}` : g.trend < -2 ? `${g.trend}` : "横ばい"}
         </div>
       )}
       {topWeak.map((w) => (
@@ -588,7 +588,7 @@ function AssignmentExprClearButton({ studentId, moodTagId, scoreId }: { studentI
   const [state, setState] = useState<"idle" | "saving" | "done" | "error">("idle")
   const [star, setStar] = useState<number | null>(null)
   if (state === "done") {
-    return <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)" }}>✓ 表現クリア認定{star != null ? `（★${star}相当）` : ""}</span>
+    return <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)" }}>✓ 表現クリア認定{star != null ? `・★${star}相当` : ""}</span>
   }
   return (
     <button type="button" disabled={state === "saving"}
@@ -647,12 +647,12 @@ function SendScoreBox({ studentId }: { studentId: string }) {
           onClick={() => { setOpen(true); setMsg(null) }}
           style={{ width: "100%", border: "1px dashed #b7c0ca", background: "#fff", color: "var(--text-ink)", borderRadius: 12, padding: 12, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", marginBottom: 14, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}
         >
-          <FileMusic size={15} /> 楽譜を渡す（MusicXML）
+          <FileMusic size={15} /> 楽譜を渡す
         </button>
       ) : (
         <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: 16, marginBottom: 14 }}>
           <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", marginBottom: 10, display: "flex", alignItems: "center", gap: 5 }}><FileMusic size={14} /> 楽譜を渡す</div>
-          <label style={lbl}>MusicXMLファイル（.xml / .musicxml / .mxl・5MBまで）
+          <label style={lbl}>MusicXMLファイル・.xml / .musicxml / .mxl・5MBまで
             <input type="file" accept=".xml,.musicxml,.mxl" style={{ ...inp, padding: "7px 8px" }}
               onChange={(e) => {
                 const f = e.target.files?.[0] ?? null
@@ -663,10 +663,10 @@ function SendScoreBox({ studentId }: { studentId: string }) {
           <label style={{ ...lbl, display: "block", marginTop: 10 }}>曲名
             <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例: きらきら星 変奏曲" style={inp} maxLength={100} />
           </label>
-          <label style={{ ...lbl, display: "block", marginTop: 10 }}>作曲者（任意）
+          <label style={{ ...lbl, display: "block", marginTop: 10 }}>作曲者
             <input value={composer} onChange={(e) => setComposer(e.target.value)} placeholder="例: モーツァルト" style={inp} maxLength={100} />
           </label>
-          <label style={{ ...lbl, display: "block", marginTop: 10 }}>ひとこと（任意・メッセージで届きます）
+          <label style={{ ...lbl, display: "block", marginTop: 10 }}>ひとこと
             <input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="例: 次のレッスンまでに1ページ目をさらっておいてね" style={inp} maxLength={200} />
           </label>
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
@@ -767,7 +767,7 @@ function Homework({
             ))}
           </div>
 
-          <label style={lbl}>対象の{kind === "score" ? "曲" : "教材"}を選ぶ（最近以外もOK）
+          <label style={lbl}>対象の{kind === "score" ? "曲" : "教材"}を選ぶ
             <input
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
@@ -775,7 +775,7 @@ function Homework({
               style={inp}
             />
             <select value={targetId} onChange={(e) => setTargetId(e.target.value)} style={{ ...inp, marginTop: 6 }}>
-              <option value="">選択してください（{filtered.length}件）</option>
+              <option value="">選択してください・{filtered.length}件</option>
               {[...grouped.entries()].map(([g, items]) => (
                 <optgroup key={g} label={g}>
                   {items.map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
@@ -788,18 +788,18 @@ function Homework({
           )}
 
           {/* 回数・目標♩は廃止 (2026-08-11 Tetsuo確定: 設定不要) */}
-          <label style={{ ...lbl, display: "block", marginTop: 10 }}>提出期限（任意）
+          <label style={{ ...lbl, display: "block", marginTop: 10 }}>提出期限
             <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} style={inp} />
           </label>
 
           {/* 2026-08-11 Tetsuo確定: ゴール=先生が設定する点数のみ。クリア=提出→先生の合格 */}
-          <label style={{ ...lbl, display: "block", marginTop: 10 }}>ゴール（合格ラインの点数・任意）
+          <label style={{ ...lbl, display: "block", marginTop: 10 }}>ゴール・合格ラインの点数・任意
             <input value={targetScore} onChange={(e) => { setTargetScore(clampNumStr(e.target.value, 100)); setGoalType(e.target.value ? "score" : "") }} placeholder="80" style={inp} inputMode="numeric" />
           </label>
           <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 4 }}>クリアは、生徒の提出をあなたが「合格」にしたときです。</div>
 
           {/* 意識する表現 (2026-08-05): 統一雰囲気タグから1つ。「この曲では◯◯を意識しよう」 */}
-          <label style={{ ...lbl, display: "block", marginTop: 10 }}><Palette size={12} style={{ verticalAlign: -1, marginRight: 4 }} />意識する表現（任意）
+          <label style={{ ...lbl, display: "block", marginTop: 10 }}><Palette size={12} style={{ verticalAlign: -1, marginRight: 4 }} />意識する表現
             <select value={moodTagId} onChange={(e) => setMoodTagId(e.target.value)} style={inp}>
               <option value="">なし</option>
                             {MOOD_TAG_DEFS.map((t) => (
@@ -839,7 +839,7 @@ function Homework({
                 })()}
               </div>
               <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginTop: 3 }}>
-                {[a.reps && `×${a.reps}`, a.targetTempo && `♩=${a.targetTempo}`].filter(Boolean).join(" ・ ") || "（詳細指定なし）"}
+                {[a.reps && `×${a.reps}`, a.targetTempo && `♩=${a.targetTempo}`].filter(Boolean).join(" ・ ") || ""}
               </div>
               {(dueInfo(a.dueDate) || goalLabel(a.goalType, a.targetScore)) && (
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
@@ -849,7 +849,7 @@ function Homework({
                     const c = DUE_COLOR[di.state]
                     return (
                       <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: c.fg, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 999, padding: "2px 8px" }}>
-                        期限 {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}
+                        期限 {di.label}{di.state === "overdue" ? "" : di.state === "soon" ? "" : ""}
                       </span>
                     )
                   })()}

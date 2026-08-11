@@ -63,7 +63,7 @@ export function BowShape() {
   );
 }
 
-/** 単体表示用（先=左・フロッグ=右の横長） */
+/** 単体表示用 */
 export function Bow({
   className,
   viewBox = BOW_VIEWBOX,

@@ -78,7 +78,7 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
             disabled={pending != null}
             style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-body)", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 18px", cursor: "pointer", opacity: pending ? 0.5 : 1 }}
           >
-            {pending === "portal" ? "開いています…" : "契約を管理 (解約・カード変更)"}
+            {pending === "portal" ? "開いています…" : "契約を管理"}
           </button>
         </>
       ) : (
@@ -103,7 +103,7 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
               disabled={pending != null}
               style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-master)", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 9, padding: "10px 20px", cursor: "pointer", opacity: pending ? 0.5 : 1 }}
             >
-              {pending === "year" ? "開いています…" : "年額 9,800円 (2ヶ月分お得)"}
+              {pending === "year" ? "開いています…" : "年額 9,800円・2ヶ月分お得"}
             </button>
           </div>
           <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", margin: "8px 0 0" }}>

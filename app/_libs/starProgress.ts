@@ -16,7 +16,7 @@ export function gradeFromStar(star: number): GradeLevel {
   return "BEGINNER"
 }
 
-/** 曲リストのバッジ種別（マスター ≻ 達成 ≻ なし。上位1つだけ表示 = Tetsuo確定） */
+/** 曲リストのバッジ種別・マスター ≻ 達成 ≻ なし。上位1つだけ表示 = Tetsuo確定 */
 export type AchievementBadgeKind = "mastered" | "achieved" | null
 
 export function badgeKind(a: {

@@ -153,7 +153,7 @@ function GateG1() {
     <>
       <Header />
       <YesNoGate
-        question="スラー(2つの音を1弓でつなげる)はできる?"
+        question="スラー・2つの音を1弓でつなげるはできる?"
         yesLabel="はい、できる"
         onAnswer={(v) => {
           s.setLadder({ g1: v })
@@ -226,7 +226,7 @@ function GateG3S() {
     <>
       <Header />
       <YesNoGate
-        question="ポジション移動(3rd)はできる?"
+        question="ポジション移動・3rdはできる?"
         onAnswer={(v) => {
           s.setLadder({ g3sup: v })
           finalize({ g3sup: v })
@@ -302,7 +302,7 @@ function GateG6() {
           { value: "2nd", desc: "2ndポジション" },
           { value: "4th", desc: "4thポジション" },
           { value: "6th+", desc: "6thポジション以上" },
-          { value: "連続重音", desc: "重音(2本の弦を同時に)をつづけて弾く" },
+          { value: "連続重音", desc: "重音・2本の弦を同時にをつづけて弾く" },
         ]}
         noneLabel="どれもまだできない"
         onConfirm={(sel) => {

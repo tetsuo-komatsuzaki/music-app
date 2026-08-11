@@ -64,7 +64,7 @@ import {
         改めて換算し直すこと。定数を流用してはならない。**
    ============================================================ */
 
-/** そのポジション付近の px/セント（隣接ポジション間 = 全音 = 200セント として算出） */
+/** そのポジション付近の px/セント・隣接ポジション間 = 全音 = 200セント として算出 */
 export function pxPerCent(p: PositionId): number {
   const order: PositionId[] = ["1st", "2nd", "3rd", "4th", "5th", "6th"];
   const i = order.indexOf(p);
@@ -82,11 +82,11 @@ export function pxPerCent(p: PositionId): number {
 export interface VibratoDef {
   id: string;
   label: string;
-  /** 基準音のポジション（＝ d の上端） */
+  /** 基準音のポジション */
   position: PositionId;
-  /** 揺れ幅（セント。基準音より下へ） */
+  /** 揺れ幅 */
   cents: number;
-  /** 速さ（Hz） */
+  /** 速さ */
   rate: number;
   /**
    * 掌の振幅 / 指の振幅。**親指はどちらの場合も不動**（支点）。
@@ -112,7 +112,7 @@ export interface VibratoDef {
 export const VIBRATOS: Record<string, VibratoDef> = {
   "3rd-ok": {
     id: "3rd-ok",
-    label: "ビブラート（3rdポジション・正解）",
+    label: "ビブラート・3rdポジション・正解",
     position: "3rd",
     cents: 30,        // ±30セント
     rate: 4.5,        // 4.5Hz
@@ -123,9 +123,9 @@ export const VIBRATOS: Record<string, VibratoDef> = {
   },
   "3rd-stiff-hand": {
     id: "3rd-stiff-hand",
-    label: "ビブラート（ミス：手が固まって指だけが動く）",
+    label: "ビブラート",
     position: "3rd",
-    cents: 60,         // ② 指を滑らせて音程を作るので揺れすぎる（正解の2倍）
+    cents: 60,         // ② 指を滑らせて音程を作るので揺れすぎる・正解の2倍
     rate: 7,           // ③ 手首が使えず、指の小さい筋肉だけで振るので速く硬い
     handRatio: 0,      // ① ミスの本体：手が完全に静止する
     waveform: "sharp", // ④ 折り返しが鋭く、こわばって見える
@@ -139,18 +139,18 @@ export function getVibrato(id: string): VibratoDef | undefined {
   return VIBRATOS[id];
 }
 
-/** 基準音の d（＝ d の上端） */
+/** 基準音の d */
 export const vibratoNoteD = (v: VibratoDef) => POSITIONS[v.position].d;
 
-/** 指の揺れ幅（px） */
+/** 指の揺れ幅 */
 export const vibratoAmplitude = (v: VibratoDef) =>
   Math.round(v.cents * pxPerCent(v.position));
 
-/** 掌の揺れ幅（px）。handRatio = 0 のミスでは 0。**親指は常に 0** */
+/** 掌の揺れ幅。handRatio = 0 のミスでは 0。**親指は常に 0** */
 export const vibratoHandAmplitude = (v: VibratoDef) =>
   vibratoAmplitude(v) * v.handRatio;
 
-/** 1 周期の長さ（秒） */
+/** 1 周期の長さ */
 export const vibratoDuration = (v: VibratoDef) => 1 / v.rate;
 
 /* ============================================================
@@ -167,9 +167,9 @@ const STEPS = 24;
 export interface VibratoKeyframe {
   /** 0-1 */
   t: number;
-  /** 指のシフト量（px・絶対） */
+  /** 指のシフト量 */
   finger: number;
-  /** 掌のずれ量（px・基準音からの相対）。0 = 基準音の位置。ミスでは常に 0 */
+  /** 掌のずれ量。0 = 基準音の位置。ミスでは常に 0 */
   palm: number;
 }
 
@@ -196,7 +196,7 @@ export function vibratoKeyframes(v: VibratoDef): VibratoKeyframe[] {
     return {
       t: Math.round(t * 1e4) / 1e4,
       finger: wave(noteD, amp, t, v.waveform),
-      palm: wave(0, handAmp, t, v.waveform),   // 基準音からの相対（0 または負）
+      palm: wave(0, handAmp, t, v.waveform),   // 基準音からの相対・0 または負
     };
   });
 }
@@ -214,7 +214,7 @@ export function assertVibrato(v: VibratoDef): void {
   // 1. 指も掌も基準音を超えて上に行かない（上ずり禁止）
   if (Math.max(...fs) > noteD + 1e-6) {
     throw new Error(
-      `${v.id}: 指の d が基準音（${noteD}）を超えている。ビブラートは基準音から下へ揺れる。`,
+      `${v.id}: 指の d が基準音・${noteD}を超えている。ビブラートは基準音から下へ揺れる。`,
     );
   }
   if (Math.max(...ps) > 1e-6) {
@@ -227,12 +227,12 @@ export function assertVibrato(v: VibratoDef): void {
   // 3. 指の揺れ幅が指定どおり
   const amp = vibratoAmplitude(v);
   if (Math.abs(noteD - Math.min(...fs) - amp) > 0.5) {
-    throw new Error(`${v.id}: 指の揺れ幅が ${v.cents}セント（${amp}px）と一致していない。`);
+    throw new Error(`${v.id}: 指の揺れ幅が ${v.cents}セント・${amp}pxと一致していない。`);
   }
   // 4. handRatio は 0〜1
   if (v.handRatio < 0 || v.handRatio > 1) {
     throw new Error(
-      `${v.id}: handRatio は 0〜1。手が指より大きく動くことはない（1 を超えると腕が先走る）。`,
+      `${v.id}: handRatio は 0〜1。手が指より大きく動くことはない・1 を超えると腕が先走る。`,
     );
   }
   // 5. 掌は指を追い越さない
@@ -241,7 +241,7 @@ export function assertVibrato(v: VibratoDef): void {
   }
   // 6. 親指は支点。追従率 0 の節点が存在しなければならない
   if (!Object.values(THUMB_PIVOT_FOLLOW).includes(0)) {
-    throw new Error("親指の支点（追従率 0 の節点）が失われている。親指が動いてしまう。");
+    throw new Error("親指の支点・追従率 0 の節点が失われている。親指が動いてしまう。");
   }
   // 7. 指の揺れが単一の谷（山が 2 つあると二重振動になる）
   const lowIdx = fs.indexOf(Math.min(...fs));
@@ -279,7 +279,7 @@ export function smilTiming(v: VibratoDef): SmilTiming {
   };
 }
 
-/** 指の translate（"x y" のペア） */
+/** 指の translate */
 export const fingerValues = (v: VibratoDef) =>
   vibratoKeyframes(v)
     .map((f) => {
@@ -288,10 +288,10 @@ export const fingerValues = (v: VibratoDef) =>
     })
     .join(";");
 
-/** 手のパス（親指は不動・掌だけがずれる） */
+/** 手のパス */
 export const handPathValues = (v: VibratoDef) =>
   vibratoKeyframes(v).map((f) => handPathPivotThumb(f.palm)).join(";");
 
-/** 手のしわ（i 番目） */
+/** 手のしわ */
 export const handCreaseValues = (v: VibratoDef, i: number) =>
   vibratoKeyframes(v).map((f) => handCreasesPivotThumb(f.palm)[i]).join(";");

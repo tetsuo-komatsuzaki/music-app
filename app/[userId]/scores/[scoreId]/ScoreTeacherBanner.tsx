@@ -55,7 +55,7 @@ export default function ScoreTeacherBanner({ scoreId }: { scoreId: string; userI
                   )}
                   {di && (
                     <span style={{ ...chip, color: DUE_COLOR[di.state].fg, background: DUE_COLOR[di.state].bg, border: `1px solid ${DUE_COLOR[di.state].border}` }}>
-                      <Calendar size={12} /> 期限 {di.label}{di.state === "overdue" ? "（過ぎています）" : di.state === "soon" ? "（もうすぐ）" : ""}
+                      <Calendar size={12} /> 期限 {di.label}{di.state === "overdue" ? "" : di.state === "soon" ? "" : ""}
                     </span>
                   )}
                   {assignment.targetTempo && (

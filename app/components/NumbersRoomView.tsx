@@ -79,7 +79,7 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
               </div>
               <div style={{ fontSize: "var(--fs-caption)", color: "#6a5f48", marginTop: 4, lineHeight: 1.7 }}>
                 成功 <b style={{ ...tnum, color: pctColor(lens.pct) }}>{lens.pct}%</b>。この期間でいちばんずれやすい音だよ。
-                {lens.cents != null && Math.abs(lens.cents) >= 15 && <>（平均 {lens.cents < 0 ? `ぶら下がり ${lens.cents}` : `上ずり +${lens.cents}`}セント）</>}
+                {lens.cents != null && Math.abs(lens.cents) >= 15 && <>・平均 {lens.cents < 0 ? `ぶら下がり ${lens.cents}` : `上ずり +${lens.cents}`}セント</>}
                 <span style={{ color: GOLD, fontWeight: 800 }}> 処方はホームのおすすめに出しておくね。</span>
               </div>
             </div>
@@ -119,7 +119,7 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
             <div style={card}>
               <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><Search size={14} /> 音程マップ <span style={{ fontSize: "var(--fs-label)", color: SUB, fontWeight: 800 }}>{periodLabel}・タップで くわしく</span></div>
               <FingerboardPanel cells={heatmap.cells} details={heatmap.details} marks={fbMarks}
-                emptyText={`${periodLabel}はまだ判定できる音が少ないよ（同じ音を5回以上ひくと色がつくよ）。`} />
+                emptyText={`${periodLabel}はまだ判定できる音が少ないよ・同じ音を5回以上ひくと色がつくよ。`} />
               {fbMarks.length > 0 && (
                 <div style={{ fontSize: "var(--fs-label)", color: "#6b4a12", marginTop: 6 }}>
                   橙の旗 = 先生の「気をつける音」だよ。タップすると一言が読めるよ。

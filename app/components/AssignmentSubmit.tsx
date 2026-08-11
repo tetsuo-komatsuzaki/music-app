@@ -50,7 +50,7 @@ export default function AssignmentSubmit({
       const passed =
         goalType === "score" && targetScore != null && r.score != null ? r.score >= targetScore : null
       setDone(
-        `提出しました！${r.score != null ? `（${r.score}点）` : ""}` +
+        `提出しました！${r.score != null ? `・${r.score}点` : ""}` +
         (passed === true ? " 合格！" : passed === false ? " 合格ラインまであと少し" : ""),
       )
       setPicking(false)

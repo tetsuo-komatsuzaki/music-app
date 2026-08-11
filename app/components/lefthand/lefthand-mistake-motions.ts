@@ -42,9 +42,9 @@ export interface MistakeKeyframe {
   t: number;
   /** 移動進捗 0-1 */
   s: number;
-  /** 1の指が弦を押さえているか（0=浮かせ / 1=押弦） */
+  /** 1の指が弦を押さえているか・0=浮かせ / 1=押弦 */
   press: number;
-  /** 崩れた手形の不透明度（0=正しい手 / 1=ミス手） */
+  /** 崩れた手形の不透明度・0=正しい手 / 1=ミス手 */
   miss: number;
   /** 胴オーバーレイの不透明度 */
   overlay: number;
@@ -178,22 +178,22 @@ export const missShearTranslateValues = (m: MistakeShift) =>
 export const missSkewValues = (m: MistakeShift) =>
   m.keyframes.map((f) => missSkew(f.s)).join(";");
 
-/** 崩れた手の平行移動（掌の遅れを含む） */
+/** 崩れた手の平行移動 */
 export const missHandValues = (m: MistakeShift) =>
   m.keyframes.map((f) => pair(missHandTranslate(m.target, f.s))).join(";");
 
-/** 崩れた手の d（親指の遅れ） */
+/** 崩れた手の d */
 export const missPathValues = (m: MistakeShift) =>
   m.keyframes.map((f) => missHandPathAt(m.target, f.s)).join(";");
 
-/** 正しい手の平行移動（崩れる前に見えている手） */
+/** 正しい手の平行移動 */
 export const okHandValues = (m: MistakeShift) =>
   m.keyframes.map((f) => pair(okHandTranslate(m.target, f.s))).join(";");
 
 export const opacityValues = (m: MistakeShift, pick: (f: MistakeKeyframe) => number) =>
   m.keyframes.map(pick).join(";");
 
-/** 親指・掌の絶対x が単調増加し、最終値を超えないことを検証する（テスト用） */
+/** 親指・掌の絶対x が単調増加し、最終値を超えないことを検証する */
 export function assertMonotone(m: MistakeShift): void {
   const D = POSITIONS[m.target].d;
   const lag = missLag(m.target);
@@ -210,5 +210,5 @@ export function assertMonotone(m: MistakeShift): void {
   }
 }
 
-/** 取り残される先（表示用） */
+/** 取り残される先 */
 export const mistakeThumbStaysAt = (m: MistakeShift) => PREV_POSITION[m.target];

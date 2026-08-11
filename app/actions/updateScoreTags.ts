@@ -83,7 +83,7 @@ export async function updateScoreTags(
   }
   if (payload.keyMode !== undefined) {
     if (payload.keyMode != null && !VALID_KEY_MODES.has(payload.keyMode)) {
-      return { error: "調(長短)が不正です" }
+      return { error: "調が不正です" }
     }
     data.keyMode = payload.keyMode ?? null
   }

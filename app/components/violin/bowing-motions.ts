@@ -15,7 +15,7 @@
 export interface BowKeyframe {
   /** 0-100 (%) */
   t: number;
-  /** 毛のどの位置が弦に接しているか（局所x） */
+  /** 毛のどの位置が弦に接しているか */
   h: number;
   /** 離弦量。0 = 接弦 */
   lift: number;
@@ -23,12 +23,12 @@ export interface BowKeyframe {
 
 export interface BowingTechnique {
   id: string;
-  /** 技術タグ名（第三層ロジックツリーの技術タグと対応） */
+  /** 技術タグ名 */
   name: string;
   desc: string;
   /** 1周期の秒数 */
   duration: number;
-  /** true = 往復再生（alternate） */
+  /** true = 往復再生 */
   alternate: boolean;
   /** 離弦がある技法。接触点マーカーを点滅させる */
   hasBounce?: boolean;
@@ -144,7 +144,7 @@ export const BOWING_TECHNIQUES: BowingTechnique[] = [
      */
     id: "ricochet",
     name: "リコシェ",
-    desc: "ダウン4跳ね(減衰)→空中で返してアップ4跳ね(減衰)",
+    desc: "ダウン4跳ね→空中で返してアップ4跳ね",
     duration: 3.2,
     alternate: false,
     hasBounce: true,
@@ -215,17 +215,17 @@ export const getTechnique = (id: string) =>
    キーフレーム → CSS
    ============================================================ */
 
-/** 弓単体ビュー用（軸方向 + 離弦） */
+/** 弓単体ビュー用 */
 export const sideKeyframes = (t: BowingTechnique) =>
   t.keyframes
     .map(({ t: p, h, lift }) => `${p}%{transform:translate(${-h}px,${-lift}px)}`)
     .join("");
 
-/** バイオリン+弓ビュー用（軸方向のみ。正面図では離弦を描けない） */
+/** バイオリン+弓ビュー用 */
 export const violinKeyframes = (t: BowingTechnique) =>
   t.keyframes.map(({ t: p, h }) => `${p}%{transform:translate(${-h}px,0)}`).join("");
 
-/** 接触点マーカー用（離弦中は薄くする） */
+/** 接触点マーカー用 */
 export const contactKeyframes = (t: BowingTechnique) =>
   t.keyframes
     .map(({ t: p, lift }) => `${p}%{opacity:${lift > 0 ? 0.12 : 1}}`)

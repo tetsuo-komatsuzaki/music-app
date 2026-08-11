@@ -50,7 +50,7 @@ export default function ExpressionLevelClient({ userId, exprMap, unlocked, backH
           <div style={kicker}>ESPRESSIONE</div>
           <div style={{ fontSize: 15, fontWeight: 900, marginTop: 1 }}>表現の習得状況</div>
           <div style={{ fontSize: 12, color: SUB, margin: "8px 0 14px", lineHeight: 1.7 }}>
-            「優しく（Dolce）」「歌うように（Cantabile）」— きみの表現を先生が認定してくれる場所。<br />
+            「優しく」「歌うように」— きみの表現を先生が認定してくれる場所。<br />
             <b>先生とつながると開放</b>されます。
           </div>
           <Link href={`/${userId}/find-teacher`}
@@ -146,8 +146,8 @@ function ExpressionTabs({ userId, litCount, sections, songsByTag, backHref, back
 function ExprCard({ userId, n, songs }: { userId: string; n: ExprNode; songs: Song[] }) {
   const lit = n.star > 0
   const latest = n.history[n.history.length - 1]
-  const jp = n.label.replace(/（.+）$/, "")
-  const it = (n.label.match(/（(.+)）$/)?.[1] ?? "").toUpperCase()
+  const jp = n.label.replace(/$/, "")
+  const it = (n.label.match(/$/)?.[1] ?? "").toUpperCase()
   const stars = Math.max(0, Math.min(5, n.star))
 
   const card: React.CSSProperties = {

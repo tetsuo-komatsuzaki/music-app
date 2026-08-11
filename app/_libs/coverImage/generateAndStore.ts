@@ -15,7 +15,7 @@ import { generateFluxImage } from "./replicateFlux"
 
 const BUCKET = "covers"
 
-/** 公開バケットが無ければ作る（冪等） */
+/** 公開バケットが無ければ作る */
 async function ensureBucket(): Promise<void> {
   const { data } = await storageAdmin.storage.getBucket(BUCKET)
   if (data) return

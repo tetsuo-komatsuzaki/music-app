@@ -3,7 +3,7 @@
 
 export type PerfRank = "s" | "a" | "b" | "c"
 
-/**ごとのランク名（表示用。文言は調整可）。 */
+/**ごとのランク名。 */
 const RANK_NAMES: Record<number, string> = {
   1: "はじまりの奏者",
   2: "かけだしの奏者",
@@ -24,7 +24,7 @@ export function rankName(star: number): string {
 
 export type CardTier = "bronze" | "silver" | "gold" | "holo"
 
-/**でカードの豪華さ段階を変える（グレード帯と一致: 1-3/4-6/7-9/10）。 */
+/**でカードの豪華さ段階を変える・グレード帯と一致: 1-3/4-6/7-9/10。 */
 export function cardTier(star: number): CardTier {
   if (star >= 10) return "holo"
   if (star >= 7) return "gold"
@@ -41,7 +41,7 @@ export function perfRank(score: number | null | undefined): PerfRank | null {
   return "c"
 }
 
-/** ランク章 → 達成時のアルコの一言（曲別データが無いためランクから生成）。 */
+/** ランク章 → 達成時のアルコの一言。 */
 export function stampComment(rank: PerfRank | null): string {
   switch (rank) {
     case "s": return "アルコ「文句なしの演奏！すごい」"

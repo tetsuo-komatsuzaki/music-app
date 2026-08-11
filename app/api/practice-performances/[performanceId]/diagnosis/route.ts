@@ -10,7 +10,7 @@ import { requireAuthApi } from "@/app/_libs/requireAuth"
 import { buildDiagnosisView } from "@/app/_libs/diagnosisPresentation"
 import type { DiagnosisJson } from "@/app/_libs/weaknessRecommendation"
 
-/** "1st"/"3rd" 形式 → ポジション番号（PracticeItem.positions は String[] のまま） */
+/** "1st"/"3rd" 形式 → ポジション番号 */
 function parsePositions(positions: string[]): number[] {
   return positions
     .map((p) => {

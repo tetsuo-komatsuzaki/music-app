@@ -101,7 +101,7 @@ export async function uploadScoreForStudent(
         errorMessage: e instanceof Error ? e.message.slice(0, 300) : String(e).slice(0, 300),
       },
     })
-    return { ok: false, error: "解析の開始に失敗しました (楽譜は保存済み)" }
+    return { ok: false, error: "解析の開始に失敗しました" }
   }
 
   // 生徒へお知らせ (メッセージ + メール)

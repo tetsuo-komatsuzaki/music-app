@@ -35,17 +35,17 @@ import { POSITIONS, type FingerPatternId, type PositionId } from "./lefthand-geo
 export interface OrnamentDef {
   id: string;
   label: string;
-  /** 手が置かれるポジション（装飾中も動かない） */
+  /** 手が置かれるポジション */
   position: PositionId;
   /** 主音の指パターン */
   main: FingerPatternId;
   /** 装飾音の指パターン */
   ornament: FingerPatternId;
-  /** 拍頭から装飾に入るまで（秒） */
+  /** 拍頭から装飾に入るまで */
   onset: number;
-  /** 装飾音を保つ時間（秒） */
+  /** 装飾音を保つ時間 */
   hold: number;
-  /** 1 音（＝ 1 ループ）の長さ（秒） */
+  /** 1 音・＝ 1 ループの長さ */
   dur: number;
   /** ミスかどうか */
   isMistake: boolean;
@@ -72,7 +72,7 @@ const NOTE_DUR = 2.0;
  *    これ以上速くしてはならない（見えなくなる）。実速に「修正」してもならない。
  */
 const OK = { onset: 0.1, hold: 0.2 };
-/** ミス（装飾音が遅い・長すぎる）のタイミング */
+/** ミスのタイミング */
 const SLOW = { onset: 0.15, hold: 0.4 };
 
 function ornament(
@@ -100,21 +100,21 @@ function ornament(
 
 export const ORNAMENTS: Record<string, OrnamentDef> = {
   "pralltriller-ok": ornament(
-    "pralltriller-ok", "プラルトリラー（正解）", "f12", "f123", OK, false,
+    "pralltriller-ok", "プラルトリラー", "f12", "f123", OK, false,
     "ド → レ → ド。3の指を落とす。拍頭でただちに、すばやく装飾する。",
   ),
   "pralltriller-slow": ornament(
     // ミス: 待機中に 3 の指を高く立てて構える（f12_up3）。立てているぶん落とすのが遅れる
-    "pralltriller-slow", "プラルトリラー（ミス：指を立てるため装飾が遅い）", "f12_up3", "f123", SLOW, true,
+    "pralltriller-slow", "プラルトリラー", "f12_up3", "f123", SLOW, true,
     "3の指を高く立てて構えるため、装飾に入るのが遅く長すぎる。装飾ではなく1つの音符に聞こえる。",
   ),
   "mordent-ok": ornament(
-    "mordent-ok", "モルデント（正解）", "f12", "f1", OK, false,
+    "mordent-ok", "モルデント", "f12", "f1", OK, false,
     "ド → シ → ド。2の指を上げる。拍頭でただちに、すばやく装飾する。",
   ),
   "mordent-slow": ornament(
     // ミス: 外した 2 の指が高く跳ね上がる（f1_up2）。高く上げたぶん戻すのが遅れる
-    "mordent-slow", "モルデント（ミス：指を立てるため装飾が遅い）", "f12", "f1_up2", SLOW, true,
+    "mordent-slow", "モルデント", "f12", "f1_up2", SLOW, true,
     "外した2の指が高く跳ね上がるため、装飾が長すぎる。装飾ではなく1つの音符に聞こえる。",
   ),
 };
@@ -123,14 +123,14 @@ export function getOrnament(id: string): OrnamentDef | undefined {
   return ORNAMENTS[id];
 }
 
-/** 手が置かれる d（装飾中も不変） */
+/** 手が置かれる d */
 export const ornamentD = (o: OrnamentDef) => POSITIONS[o.position].d;
 
 /* ============================================================
    計測（検証・表示用）
    ============================================================ */
 
-/** 装飾音が 1 音に占める割合（%）。大きいほど「もたついている」 */
+/** 装飾音が 1 音に占める割合・%。大きいほど「もたついている」 */
 export const ornamentShare = (o: OrnamentDef) => (o.hold / o.dur) * 100;
 
 /** 正解に対する遅さの倍率 */
@@ -160,15 +160,15 @@ export function assertOrnament(o: OrnamentDef): void {
   };
   const delta = (fingersOf[o.ornament] ?? 0) - (fingersOf[o.main] ?? 0);
   if (o.id.startsWith("pralltriller") && delta <= 0) {
-    throw new Error(`${o.id}: プラルトリラーは**上**。装飾音で指を足すこと（f12 → f123）。`);
+    throw new Error(`${o.id}: プラルトリラーは**上**。装飾音で指を足すこと・f12 → f123。`);
   }
   if (o.id.startsWith("mordent") && delta >= 0) {
-    throw new Error(`${o.id}: モルデントは**下**。装飾音で指を外すこと（f12 → f1）。`);
+    throw new Error(`${o.id}: モルデントは**下**。装飾音で指を外すこと・f12 → f1。`);
   }
   // 4. 正解は装飾音が十分に短い（0.3倍速の監修調整後で 1 音の 10%）
   if (!o.isMistake && ornamentShare(o) > 10) {
     throw new Error(
-      `${o.id}: 装飾音が長すぎる（1音の ${ornamentShare(o).toFixed(1)}%）。` +
+      `${o.id}: 装飾音が長すぎる・1音の ${ornamentShare(o).toFixed(1)}%。` +
         `装飾は瞬間的でなければ、装飾に聞こえない。`,
     );
   }

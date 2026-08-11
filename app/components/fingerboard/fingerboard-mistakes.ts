@@ -23,7 +23,7 @@ export interface PullVictim { event: number; note: number; dir: 1 | -1 }
 export interface LateVictim { event: number; note: number }
 export interface FbMistakeSet { lesson: string; pull: PullVictim[]; late: LateVictim[] }
 
-/** event = 発音イベントの連番（休符を除く）。note = そのイベント内の音の添字 */
+/** event = 発音イベントの連番。note = そのイベント内の音の添字 */
 export const FB_MISTAKES: Record<string, FbMistakeSet> = {
   "double-3rd": {
     lesson: "double-3rd",
@@ -71,11 +71,11 @@ export function assertFbMistakes(): void {
     for (const v of ms.pull) {
       const ns = pitched[v.event].notes;
       const open = ns.some((n) => n.finger === 0);
-      if (open && v.dir !== -1) throw new Error(`${ms.lesson}: 開放を含む和音は届かず下がる(−1)`);
+      if (open && v.dir !== -1) throw new Error(`${ms.lesson}: 開放を含む和音は届かず下がる・−1`);
       if (!open) {
         const minF = Math.min(...ns.map((n) => n.finger));
         if (v.dir !== 1 || ns[v.note].finger !== minF)
-          throw new Error(`${ms.lesson}: 両方押弦なら小さい指が上ずる(+1)`);
+          throw new Error(`${ms.lesson}: 両方押弦なら小さい指が上ずる・+1`);
       }
     }
     // 3. late は番号の大きい指

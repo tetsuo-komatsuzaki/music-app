@@ -48,7 +48,7 @@ import {
 export interface PositionMistakeDemoProps {
   /** "miss-1st-2nd" | "miss-1st-3rd" | "miss-1st-4th" */
   shift: string;
-  /** 移動後に押さえる指のパターン（既定: 1の指のみ） */
+  /** 移動後に押さえる指のパターン・既定: 1の指のみ */
   pattern?: FingerPatternId;
   playing?: boolean;
   className?: string;
@@ -99,7 +99,7 @@ export function PositionMistakeDemo({
 
       {/* 指: 移動＋剪断を s から導出。
           ⚠️ 剪断は matrix では補間できないため、additive="sum" の3本に分解している。
-          順序を入れ替えてはならない（translate → translate → skewX）。 */}
+          順序を入れ替えてはならない。 */}
       <g>
         <animateTransform attributeName="transform" type="translate" {...tp}
           values={missFingerTranslateValues(m)} />
@@ -161,7 +161,7 @@ export function PositionMistakeDemo({
         </g>
       )}
 
-      <title>{`${m.label}（親指は ${PREV_POSITION[m.target]} に取り残される）`}</title>
+      <title>{`${m.label}・親指は ${PREV_POSITION[m.target]} に取り残される`}</title>
     </svg>
   );
 }

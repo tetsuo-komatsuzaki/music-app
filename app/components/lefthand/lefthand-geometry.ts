@@ -41,13 +41,13 @@ export const NECK_X0 = 345;
 export const NECK_Y0 = 365;
 export const NECK_SLOPE = 0.0519;
 
-/** 弦の傾き（指の移動に使う） */
+/** 弦の傾き */
 export const STRING_SLOPE = 0.0497;
 
-/** 指幅 1 本分 = 68px（2nd への移動量） */
+/** 指幅 1 本分 = 68px・2nd への移動量 */
 export const FINGER_WIDTH = 68;
 
-/** 指系・手系の基準オフセット（1st = d0 の位置） */
+/** 指系・手系の基準オフセット・1st = d0 の位置 */
 export const FINGER_ORIGIN_X = -34;
 export const FINGER_ORIGIN_Y = -1.69;
 export const HAND_ORIGIN_X = -49;
@@ -71,7 +71,7 @@ export function handTransform(d: number): string {
   return `translate(${x}, ${y})`;
 }
 
-/** SMIL の animateTransform に渡す数値ペア（transform 文字列ではなく [x, y]） */
+/** SMIL の animateTransform に渡す数値ペア */
 export function fingerTranslate(d: number): [number, number] {
   return [FINGER_ORIGIN_X + d, round2(FINGER_ORIGIN_Y + d * STRING_SLOPE)];
 }
@@ -86,11 +86,11 @@ export function handTranslate(d: number): [number, number] {
 export type PositionId = "1st" | "2nd" | "3rd" | "4th" | "5th" | "6th";
 
 export interface PositionDef {
-  /** シフト量（px・1st を 0 とする） */
+  /** シフト量・px・1st を 0 とする */
   d: number;
   /** 掌が胴と重なるため、胴を手前に再描画する必要があるか */
   bodyOverlay: boolean;
-  /** 親指がネック裏に回る専用形状か（handTransform では作れない） */
+  /** 親指がネック裏に回る専用形状か */
   thumbBehindNeck: boolean;
   label: string;
 }
@@ -104,15 +104,15 @@ export const POSITIONS: Record<PositionId, PositionDef> = {
   "6th": { d: 391, bodyOverlay: true,  thumbBehindNeck: true,  label: "6thポジション" },
 };
 
-/** 胴オーバーレイが必要になる最小の d（3rd の手前） */
+/** 胴オーバーレイが必要になる最小の d・3rd の手前 */
 export const BODY_OVERLAY_MIN_D = POSITIONS["3rd"].d;
 
 /* ============================================================
    指パターン
    ============================================================ */
 export type FingerPatternId =
-  | "open"        // どの指も押さえていない（開放弦）
-  | "up1"         // 1の指を立てる（トリル「0の指 ⇔ 1の指」の上側）
+  | "open"        // どの指も押さえていない
+  | "up1"         // 1の指を立てる・トリル「0の指 ⇔ 1の指」の上側
   | "f1"          // 1の指のみ押弦
   | "f12"         // 1〜2の指
   | "f123"        // 1〜3の指
@@ -127,13 +127,13 @@ export type FingerPatternId =
       掌上縁とネック下縁の「一本線」を成立させている。**削ってはならない。**
    ============================================================ */
 
-/** 掌＋親指＋手首＋前腕（1st〜4th 共通・単一クローズドパス） */
+/** 掌＋親指＋手首＋前腕・1st〜4th 共通・単一クローズドパス */
 export const HAND_PATH = `M 363,342 C 382,374 398,404 420,440 C 444,472 486,492 520,498 C 546,502 566,506 576,514
   L 689,627 Q 695,633 702,630 L 788,580 Q 795,576 794,569 L 682,464 C 675,437 668,410
   662,382 L 458,371 C 462,380 464,390 466,398 C 444,376 420,350 397,322 C 390,310 372,314
   363,342 Z`;
 
-/** 手のしわ（母指球・手首・親指の付け根） */
+/** 手のしわ */
 export const HAND_CREASES = [
   "M 472,408 C 478,436 486,460 494,480",
   "M 624,568 C 642,550 660,532 678,514",
@@ -171,21 +171,21 @@ export const BODY_OVERLAY_STROKE = `M 692,383 C 694,428 702,460 716,464 L 1000,4
    正しい手は60点・ミス手は70点なので、**両者は形状補間できない**。
    ============================================================ */
 
-/** 親指が取り残される先（1つ前のポジション） */
+/** 親指が取り残される先・1つ前のポジション */
 export const PREV_POSITION: Record<PositionId, PositionId> = {
   "1st": "1st", "2nd": "1st", "3rd": "2nd", "4th": "3rd", "5th": "4th", "6th": "5th",
 };
 
-/** ミス手の掌が引っ込んでいる量（元絵に焼き込まれた定数） */
+/** ミス手の掌が引っ込んでいる量 */
 export const MISS_PALM_LAG = 68;
 
-/** 指の逆傾き（剪断）。⚠️ 鏡映 scale(-1,1) は禁止（指の並び順まで反転する） */
+/** 指の逆傾き。⚠️ 鏡映 scale(-1,1) は禁止 */
 export const MISS_SHEAR_MATRIX = "matrix(1,0,-0.42,1,128.1,0)";
 /** 上記をアニメーション可能な形に分解: translate(TX,0) skewX(DEG) */
 export const MISS_SHEAR_TX = 128.1;
 export const MISS_SKEW_DEG = -22.78241;   // atan(-0.42) → tan = -0.420000
 
-/** ミス手パスの基準形（遅れ量 lag = MISS_PALM_LAG のとき。= 2nd-miss の元絵） */
+/** ミス手パスの基準形・遅れ量 lag = MISS_PALM_LAG のとき。= 2nd-miss の元絵 */
 export const MISS_HAND_PATH_BASE = `M 295,339 C 314,371 330,401 352,437 C 376,471 418,491 452,497 C 458,501 472,506 480,516 Q
   486,524 490,532 L 597,626 Q 603,632 610,629 L 696,579 Q 703,575 702,568 L 616,486 C 606,478
   598,468 594,456 C 612,432 640,410 646,381 L 422,370 C 414,374 406,378 398,383 C 376,373
@@ -197,19 +197,19 @@ export const MISS_HAND_PATH_BASE = `M 295,339 C 314,371 330,401 352,437 C 376,47
  */
 export const MISS_HAND_THUMB_INDICES = [0, 2, 4, 6, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68] as const;
 
-/** ミス手のしわ（遅れ量によらず不変） */
+/** ミス手のしわ */
 export const MISS_HAND_CREASES = [
   "M 436,404 C 464,424 474,452 476,480",
   "M 516,386 C 528,420 552,440 582,444",
   "M 414,372 C 421,380 426,388 428,396",
 ] as const;
 
-/** そのポジションで親指が取り残される量（px） */
+/** そのポジションで親指が取り残される量 */
 export function missLag(p: PositionId): number {
   return POSITIONS[p].d - POSITIONS[PREV_POSITION[p]].d;
 }
 
-/** 遅れ量 lag のミス手パスを生成する（親指側 x を -(lag - 68) だけずらす） */
+/** 遅れ量 lag のミス手パスを生成する・親指側 x を -(lag - 68) だけずらす */
 export function missHandPath(lag: number): string {
   const off = -(lag - MISS_PALM_LAG);
   const idx = new Set<number>(MISS_HAND_THUMB_INDICES as readonly number[]);
@@ -236,19 +236,19 @@ export function missHandPath(lag: number): string {
       ずらすと **親指が逆戻りする**。
    ------------------------------------------------------------ */
 
-/** 静止画用: 指の transform 文字列（剪断込み） */
+/** 静止画用: 指の transform 文字列 */
 export function missFingerTransform(target: PositionId, s: number): string {
   const [x, y] = fingerTranslate(POSITIONS[target].d * s);
   return `translate(${x}, ${y}) translate(${round2(MISS_SHEAR_TX * s)}, 0)`
     + ` skewX(${(MISS_SKEW_DEG * s).toFixed(5)})`;
 }
 
-/** 静止画用: 崩れた手の transform 文字列（掌の遅れ込み） */
+/** 静止画用: 崩れた手の transform 文字列 */
 export function missHandTransform(target: PositionId, s: number): string {
   return handTransform(POSITIONS[target].d * s + MISS_PALM_LAG * (1 - s));
 }
 
-/** 崩れた手のパス（親指の遅れ込み） */
+/** 崩れた手のパス */
 export function missHandPathAt(target: PositionId, s: number): string {
   return missHandPath(MISS_PALM_LAG - (MISS_PALM_LAG - missLag(target)) * s);
 }
@@ -273,7 +273,7 @@ export const missSkew = (s: number): number =>
 export const missHandTranslate = (target: PositionId, s: number) =>
   handTranslate(POSITIONS[target].d * s + MISS_PALM_LAG * (1 - s));
 
-/** 正しい手（崩れる前に見えている手）の平行移動 */
+/** 正しい手の平行移動 */
 export const okHandTranslate = (target: PositionId, s: number) =>
   handTranslate(POSITIONS[target].d * s);
 
@@ -326,7 +326,7 @@ export function bodyOverlayAt(d: number): number {
       x だけずらすと掌がネック下縁から浮き、「一本線」の不変条件が壊れる。
    ============================================================ */
 
-/** HAND_PATH の節点ごとの追従率（未指定は 1.0 = 掌・前腕） */
+/** HAND_PATH の節点ごとの追従率・未指定は 1.0 = 掌・前腕 */
 export const THUMB_PIVOT_FOLLOW: Record<number, number> = {
   0: 0, 1: 0, 2: 0.25, 3: 0.6, 4: 0.9,
   24: 0.9, 25: 0.6, 26: 0.25, 27: 0, 28: 0, 29: 0,
@@ -364,7 +364,7 @@ export function handCreasesPivotThumb(delta: number): string[] {
    検証用の不変条件（改変後は必ず確認すること）
    ============================================================ */
 export const INVARIANTS = {
-  /** 掌上縁がこの直線に載る（残差 ≤3px）。崩れると手が楽器から浮いて見える */
+  /** 掌上縁がこの直線に載る・残差 ≤3px。崩れると手が楽器から浮いて見える */
   neckLine: (x: number) => NECK_Y0 + (x - NECK_X0) * NECK_SLOPE,
   neckLineTolerance: 3,
   /** 指先が弦の上に着地している / 浮かせ指の直下に背景の空白がない / 手が単一の連結成分 */

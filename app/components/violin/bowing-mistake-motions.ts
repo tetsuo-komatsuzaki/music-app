@@ -23,7 +23,7 @@ const k = (t: number, h: number, lift = 0): BowKeyframe => ({ t, h, lift });
    ============================================================ */
 
 export interface BowingMistake extends BowingTechnique {
-  /** 何の技法のミスか（正しい方の id） */
+  /** 何の技法のミスか */
   correctOf: string;
   /** 何が崩れているか */
   faults: string[];
@@ -67,12 +67,12 @@ export const BOWING_MISTAKES: BowingMistake[] = [
   {
     id: "tremolo-unstable",
     correctOf: "tremolo",
-    name: "トレモロ（弓の位置が定まらない）",
+    name: "トレモロ",
     desc: "使う場所も、ストロークの長さも、速さもバラバラ",
     faults: [
-      "中弓位置が 63px ドリフトする（正しくは 172 に固定）",
-      "振幅が 6〜60px でばらつく（正しくは 12px 一定）",
-      "弓速が 90〜330 px/秒でばらつく（正しくは 92 px/秒 一定）",
+      "中弓位置が 63px ドリフトする・正しくは 172 に固定",
+      "振幅が 6〜60px でばらつく・正しくは 12px 一定",
+      "弓速が 90〜330 px/秒でばらつく・正しくは 92 px/秒 一定",
     ],
     lesson:
       "トレモロは中弓の狭い一点で、一定の振幅・一定の速さで刻む。" +
@@ -100,11 +100,11 @@ export const getBowingMistake = (id: string): BowingMistake | undefined =>
    これがないと、ミスの度合いが恣意的になる。
    ============================================================ */
 
-/** 各ストロークの振幅（px） */
+/** 各ストロークの振幅 */
 export const strokeSpans = (t: BowingTechnique): number[] =>
   t.keyframes.slice(1).map((f, i) => Math.abs(f.h - t.keyframes[i].h));
 
-/** 各ストロークの弓速（px/秒） */
+/** 各ストロークの弓速 */
 export const strokeSpeeds = (t: BowingTechnique): number[] =>
   t.keyframes.slice(1).map((f, i) => {
     const prev = t.keyframes[i];
@@ -112,17 +112,17 @@ export const strokeSpeeds = (t: BowingTechnique): number[] =>
     return sec > 0 ? Math.abs(f.h - prev.h) / sec : 0;
   });
 
-/** 各ストロークの中点（＝そのとき弓のどこを使っているか） */
+/** 各ストロークの中点 */
 export const strokeCenters = (t: BowingTechnique): number[] =>
   t.keyframes.slice(1).map((f, i) => (f.h + t.keyframes[i].h) / 2);
 
-/** 中弓位置のドリフト幅（px）。0 = 常に同じ場所を使っている */
+/** 中弓位置のドリフト幅。0 = 常に同じ場所を使っている */
 export const centerDrift = (t: BowingTechnique): number => {
   const c = strokeCenters(t);
   return Math.max(...c) - Math.min(...c);
 };
 
-/** 音符密度（音/秒）。1 ストローク = 1 音 */
+/** 音符密度。1 ストローク = 1 音 */
 export const noteRate = (t: BowingTechnique): number =>
   (t.keyframes.length - 1) / t.duration;
 
@@ -139,7 +139,7 @@ export function assertBowingMistake(m: BowingMistake): void {
   const hs = m.keyframes.map((f) => f.h);
   if (Math.min(...hs) < HAIR_VISIBLE_MIN || Math.max(...hs) > HAIR_VISIBLE_MAX) {
     throw new Error(
-      `${m.id}: 接触点が毛の可視範囲（${HAIR_VISIBLE_MIN}〜${HAIR_VISIBLE_MAX}）を外れている。`,
+      `${m.id}: 接触点が毛の可視範囲・${HAIR_VISIBLE_MIN}〜${HAIR_VISIBLE_MAX}を外れている。`,
     );
   }
   // 3. ループの継ぎ目で弓が跳ばない
@@ -152,7 +152,7 @@ export function assertBowingMistake(m: BowingMistake): void {
     if (Math.sign(deltas[i]) === Math.sign(deltas[i - 1])) {
       throw new Error(
         `${m.id}: ストローク ${i} で弓を返していない。` +
-          `トレモロではなく連続スタッカート（id: bow-staccato）の動きになっている。`,
+          `トレモロではなく連続スタッカートの動きになっている。`,
       );
     }
   }

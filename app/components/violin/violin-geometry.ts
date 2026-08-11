@@ -77,7 +77,7 @@ export const BRIDGE_Y = 405;
 export const BODY_TOP = 199;
 export const FINGERBOARD_END = 262;
 
-/** 露出ネック長（ナット〜胴体上端）。初期設計 84 を 1.3 倍した確定値 */
+/** 露出ネック長。初期設計 84 を 1.3 倍した確定値 */
 export const EXPOSED_NECK = BODY_TOP - NUT_Y; // = 109
 
 /** 弦インデックス。素の縦座標系で左→右。回転後は上から E, A, D, G になる */
@@ -87,14 +87,14 @@ export type StringIndex = 0 | 1 | 2 | 3;
 export const STRING_WIDTHS = [1.9, 1.6, 1.3, 1.05] as const;
 export const STRING_LABELS = ["G", "D", "A", "E"] as const;
 
-/** 弦のx座標（ナットで狭く、駒で広がる） */
+/** 弦のx座標 */
 export const nutX = (i: number) => 120 + (i - 1.5) * 6.4;
 export const bridgeX = (i: number) => 120 + (i - 1.5) * 11.4;
 
 export const stringX = (i: number, y: number) =>
   nutX(i) + (bridgeX(i) - nutX(i)) * ((y - NUT_Y) / (BRIDGE_Y - NUT_Y));
 
-/** 素の点 (x,y) を表示座標へ変換（回転を数値で再現する必要がある場合に使う） */
+/** 素の点 (x,y) を表示座標へ変換・回転を数値で再現する必要がある場合に使う */
 export const toDisplay = (x: number, y: number): [number, number] => [y, 240 - x];
 
 /** 表示座標における、位置 y での弦の表示y */
@@ -113,11 +113,11 @@ const FINGER_RATIO: Record<PositionNo, Record<FingerNo, number>> = {
   3: { 1: 0.348, 2: 0.403, 3: 0.455, 4: 0.503 },
 };
 
-/** 指の押さえ位置（素の縦座標系の y） */
+/** 指の押さえ位置 */
 export const fingerY = (pos: PositionNo, finger: FingerNo) =>
   NUT_Y + FINGER_RATIO[pos][finger] * (BRIDGE_Y - NUT_Y);
 
-/** 指の押さえ位置（素の縦座標系の x, y） */
+/** 指の押さえ位置 */
 export const fingerPoint = (
   s: StringIndex,
   pos: PositionNo,
@@ -154,7 +154,7 @@ export const VIOLIN_PATHS = {
   pegboxInner: "M 112,29 L 128,29 L 129,79 L 111,79 Z",
   scroll: "M 108,21 C 104,9 108,-3 120,-5 C 132,-3 136,9 132,21 Z",
 
-  /** f字孔（片側）。右は translate(158,340)、左は translate(82,340) scale(-1,1) */
+  /** f字孔。右は translate(158,340)、左は translate(82,340) scale(-1,1) */
   fHole:
     "M 0,0 c -5,9 -8,17 -6,26 c 1,6 5,9 5,14 c 0,5 -5,8 -6,14 c -2,10 1,18 7,24",
   fHoleNotch: "M -6,38 l -5,0 M -6,46 l -5,0",
@@ -178,10 +178,10 @@ export const VIOLIN_PATHS = {
 
 export const BOW_VIEWBOX = "0 0 384 84";
 
-/** 毛の高さ（局所y）。フロッグ斜面の最下部 (317,57) を通る */
+/** 毛の高さ。フロッグ斜面の最下部 (317,57) を通る */
 export const HAIR_Y = 57;
 
-/** 毛の可視範囲（局所x）。両端はヘッド／フロッグに覆われる */
+/** 毛の可視範囲。両端はヘッド／フロッグに覆われる */
 export const HAIR_VISIBLE_MIN = 30; // 先端側
 export const HAIR_VISIBLE_MAX = 316; // フロッグ側
 
@@ -206,7 +206,7 @@ export const BOW_PATHS = {
     "M 302,43.7 Q 168,46.7 30,40 L 12,55 L 16.5,61 L 28,59.5 " +
     "C 32,54 34,49 37,44.9 Q 168,51.3 302,48.3 Z",
 
-  /** 象牙プレート：先端の下面（毛と同じ側） */
+  /** 象牙プレート：先端の下面 */
   tipPlate: "M 12,55 L 16.5,61 L 21,59.3 L 16.5,53.3 Z",
 
   /** フロッグ：斜面 (308,45)→(317,57)。最下部から毛が出る。頂点の下も body が続く */

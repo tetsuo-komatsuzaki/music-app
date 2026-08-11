@@ -36,11 +36,11 @@ export function isMoodTagId(v: unknown): v is string {
   return typeof v === "string" && v in MOOD_TAG_BY_ID
 }
 
-/** 表示ラベル: 「優しく（Dolce）」(日本語主+イタリア語補足) */
+/** 表示ラベル: 「優しく」(日本語主+イタリア語補足) */
 export function moodTagLabel(id: string): string {
   const t = MOOD_TAG_BY_ID[id]
   if (!t) return id
-  return `${t.label}（${t.italian}）`
+  return `${t.label}・${t.italian}`
 }
 
 /** 名詞つきフレーズ (カルテ・チップ用) — ラベルと同形 */
@@ -48,7 +48,7 @@ export function moodTagPhrase(id: string): string {
   return moodTagLabel(id)
 }
 
-/** 宿題の目標文: 「優しく（Dolce）の音色を表現しよう」 */
+/** 宿題の目標文: 「優しくの音色を表現しよう」 */
 export function moodTagGoalText(id: string): string {
   const t = MOOD_TAG_BY_ID[id]
   if (!t) return id

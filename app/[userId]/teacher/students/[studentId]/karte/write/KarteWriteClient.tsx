@@ -98,7 +98,7 @@ export default function KarteWriteClient({
       {/* 直近の演奏を聴く (カルテは演奏に紐づかない。いろいろ聴いて1枚書く)。
           場所をとらないよう プルダウンで1件えらんで再生する方式 (2026-08-11 Tetsuo指定) */}
       <div style={card}>
-        <div style={lab}>直近の演奏を聴く（えらんで再生・聴きながら下にカルテを書けます）</div>
+        <div style={lab}>直近の演奏を聴く</div>
         {performances.length === 0 ? (
           <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)" }}>まだ演奏がありません。</div>
         ) : (
@@ -106,7 +106,7 @@ export default function KarteWriteClient({
             <select value={selPerfId ?? ""} onChange={(e) => setSelPerfId(e.target.value)}
               style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", background: "#fff", boxSizing: "border-box" }}>
               {performances.map((p) => (
-                <option key={p.id} value={p.id}>{p.date} ・ {p.avg}点（音程{p.pitch}／リズム{p.timing}）</option>
+                <option key={p.id} value={p.id}>{p.date} ・ {p.avg}点・音程{p.pitch}／リズム{p.timing}</option>
               ))}
             </select>
             {selPerf && (
@@ -117,14 +117,7 @@ export default function KarteWriteClient({
                 ) : (
                   <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>音声なし</div>
                 )}
-                {selPerf.weak.length > 0 && (
-                  <div style={{ fontSize: "var(--fs-label)", color: "var(--text-body)", marginTop: 5, lineHeight: 1.5 }}>
-                    <span style={{ fontWeight: 800, color: "var(--text-muted)" }}>崩れ：</span>
-                    {selPerf.weak.slice(0, 2).map((w, i) => (
-                      <span key={i}>{i > 0 ? " / " : ""}<span style={{ color: w.tree === "音程" ? "#c0473a" : "#b7823a", fontWeight: 800 }}>{w.tree}</span>{w.name}</span>
-                    ))}
-                  </div>
-                )}
+                {/* 崩れの文章表示は削除 (2026-08-11 Tetsuo指示: 音程は指板マップで見る) */}
               </div>
             )}
           </>
@@ -134,7 +127,7 @@ export default function KarteWriteClient({
       {/* 指板ヒートマップ (案5: 音程FBは文章ではなく指板。マーキングモードで「気をつける音」を渡す) */}
       {heatmap && (
         <div style={card}>
-          <div style={lab}>音程マップ（この{kind === "score" ? "曲" : "教材"}の全演奏 {heatmap.perfCount}回分）</div>
+          <div style={lab}>音程マップ・この{kind === "score" ? "曲" : "教材"}の全演奏 {heatmap.perfCount}回分</div>
           <FingerboardPanel
             cells={heatmap.cells}
             details={heatmap.details}
@@ -156,7 +149,7 @@ export default function KarteWriteClient({
 
       {/* カルテ本文 */}
       <div style={card}>
-        <div style={{ ...lab, display: "flex", alignItems: "center", gap: 5 }}><MessageCircle size={13} /> カルテ本文（保存すると生徒に届きます）</div>
+        <div style={{ ...lab, display: "flex", alignItems: "center", gap: 5 }}><MessageCircle size={13} /> カルテ本文</div>
         {bodyDone ? (
           <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)", display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={14} /> カルテを渡しました</div>
         ) : (
@@ -175,9 +168,9 @@ export default function KarteWriteClient({
       {/* この曲のおすすめ練習 (生徒のホームに表示中) + 練習ポイント → 生徒の教材ページに連動 */}
       {materials.length > 0 && (
         <div style={card}>
-          <div style={lab}>この曲のおすすめ練習（生徒のホームに表示中）</div>
+          <div style={lab}>この曲のおすすめ練習</div>
           <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", margin: "-4px 0 10px", lineHeight: 1.5 }}>
-            「毎日の基礎練」として生徒に出ている教材です。練習ポイントを書くと、生徒がその教材を開いたときに表示されます（宿題にはなりません）。
+            「毎日の基礎練」として生徒に出ている教材です。練習ポイントを書くと、生徒がその教材を開いたときに表示されます。
           </div>
           {materials.map((m) => (
             <MaterialPointRow key={m.itemId} userId={userId} studentId={studentId} m={m} />
@@ -204,7 +197,7 @@ export default function KarteWriteClient({
               <button type="button" onClick={() => { setSkillSel("general"); setTags(new Set()) }}
                 style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px dashed",
                   color: skillSel === "general" ? "#fff" : "#8b97a8", background: skillSel === "general" ? "#8b97a8" : "#fff", borderColor: "#c9d0da" }}>
-                わざ以外（姿勢・かまえ）
+                わざ以外
               </button>
             </div>
 
@@ -246,11 +239,11 @@ export default function KarteWriteClient({
                       </button>
                     ))}
                   </div>
-                  <textarea value={kuseComment} onChange={(e) => setKuseComment(e.target.value)} rows={2} placeholder="自由記述：レッスンで見た様子（例：移弦の瞬間に肩が上がる）"
+                  <textarea value={kuseComment} onChange={(e) => setKuseComment(e.target.value)} rows={2} placeholder="自由記述：レッスンで見た様子"
                     style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 9, padding: "9px 11px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box", marginTop: 8 }} />
                   <button type="button" onClick={saveKuse} disabled={savingK || (tags.size === 0 && !kuseComment.trim())}
                     style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#fff", background: "#8a5a1f", border: "none", borderRadius: 9, padding: "8px 16px", cursor: "pointer", opacity: savingK || (tags.size === 0 && !kuseComment.trim()) ? 0.5 : 1 }}>
-                    {savingK ? "記録中…" : `このわざの癖として記録${tags.size > 0 ? `（${tags.size}）` : ""}`}
+                    {savingK ? "記録中…" : `このわざの癖として記録${tags.size > 0 ? `・${tags.size}` : ""}`}
                   </button>
                 </div>
               )

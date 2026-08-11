@@ -109,7 +109,7 @@ export default function KarteDetailClient(props: {
             {weak.map((w, i) => (
               <div key={i} style={{ fontSize: "var(--fs-caption)", color: "var(--text-body)", lineHeight: 1.7 }}>
                 <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{w.tree}</span>
-                {w.name} 成功率{Math.max(0, Math.round(100 - (w.miss / Math.max(1, w.target)) * 100))}%（{w.target}音中{w.miss}ミス）
+                {w.name} 成功率{Math.max(0, Math.round(100 - (w.miss / Math.max(1, w.target)) * 100))}%・{w.target}音中{w.miss}ミス
               </div>
             ))}
           </div>
@@ -119,13 +119,13 @@ export default function KarteDetailClient(props: {
       {/* 採点カルテ(添削)は廃止 (2026-08-11 Tetsuo確定)。代わりに演奏ふりかえりへの導線 */}
       <Link href={`/${userId}/teacher/students/${studentId}?tab=karte`}
         style={{ display: "block", textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#22346b", background: "#fff", border: "1px solid #d3dce9", borderRadius: 10, padding: "11px 0", textDecoration: "none", marginBottom: 11 }}>
-        この曲の演奏ふりかえりを見る（推移・過去のカルテ）→
+        この曲の演奏ふりかえりを見る→
       </Link>
 
       {/* 練習後カルテを書く (演奏コメント廃止→曲にたまるカルテに一本化) */}
       {karteTarget && (
         <div style={card}>
-          <div style={{ ...lab, display: "flex", alignItems: "center", gap: 5 }}><MessageCircle size={13} /> 練習後カルテを書く（この{kind === "score" ? "曲" : "教材"}にたまります）</div>
+          <div style={{ ...lab, display: "flex", alignItems: "center", gap: 5 }}><MessageCircle size={13} /> 練習後カルテを書く・この{kind === "score" ? "曲" : "教材"}にたまります</div>
           {commentDone ? (
             <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)", display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={14} /> カルテを渡しました</div>
           ) : (
@@ -144,9 +144,9 @@ export default function KarteDetailClient(props: {
       {/* この曲のおすすめ練習 (生徒のホームに表示中) + 練習ポイント */}
       {materials.length > 0 && (
         <div style={card}>
-          <div style={lab}>この曲のおすすめ練習（生徒のホームに表示中）</div>
+          <div style={lab}>この曲のおすすめ練習</div>
           <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", margin: "-4px 0 10px", lineHeight: 1.5 }}>
-            「毎日の基礎練」として生徒に出ている教材です。練習ポイントを書くと、生徒がその教材を開いたときに表示されます（宿題にはなりません）。
+            「毎日の基礎練」として生徒に出ている教材です。練習ポイントを書くと、生徒がその教材を開いたときに表示されます。
           </div>
           {materials.map((m) => (
             <MaterialPointRow key={m.itemId} userId={userId} studentId={studentId} m={m} />
@@ -174,7 +174,7 @@ export default function KarteDetailClient(props: {
               <button type="button" onClick={() => { setSkillSel("general"); setTags(new Set()) }}
                 style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px dashed",
                   color: skillSel === "general" ? "#fff" : "#8b97a8", background: skillSel === "general" ? "#8b97a8" : "#fff", borderColor: "#c9d0da" }}>
-                わざ以外（姿勢・かまえ）
+                わざ以外
               </button>
             </div>
 
@@ -217,11 +217,11 @@ export default function KarteDetailClient(props: {
                       </button>
                     ))}
                   </div>
-                  <textarea value={kuseComment} onChange={(e) => setKuseComment(e.target.value)} rows={2} placeholder="自由記述：レッスンで見た様子（例：移弦の瞬間に肩が上がる）"
+                  <textarea value={kuseComment} onChange={(e) => setKuseComment(e.target.value)} rows={2} placeholder="自由記述：レッスンで見た様子"
                     style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 9, padding: "9px 11px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box", marginTop: 8 }} />
                   <button type="button" onClick={saveKuse} disabled={savingK || (tags.size === 0 && !kuseComment.trim())}
                     style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#fff", background: "#8a5a1f", border: "none", borderRadius: 9, padding: "8px 16px", cursor: "pointer", opacity: savingK || (tags.size === 0 && !kuseComment.trim()) ? 0.5 : 1 }}>
-                    {savingK ? "記録中…" : `このわざの癖として記録${tags.size > 0 ? `（${tags.size}）` : ""}`}
+                    {savingK ? "記録中…" : `このわざの癖として記録${tags.size > 0 ? `・${tags.size}` : ""}`}
                   </button>
                 </div>
               )
@@ -251,7 +251,7 @@ function HwPassBox({ hw, avg, cardStyle }: { hw: { id: string; targetScore: numb
   const [done, setDone] = useState(hw.passed)
   const [err, setErr] = useState(false)
   const pass = () => {
-    if (!window.confirm("この宿題を合格にしますか？（生徒に「合格！」が届きます）")) return
+    if (!window.confirm("この宿題を合格にしますか？")) return
     start(async () => {
       const r = await passAssignment(hw.id)
       if (r.ok) { setDone(true); router.refresh() } else setErr(true)
@@ -261,10 +261,10 @@ function HwPassBox({ hw, avg, cardStyle }: { hw: { id: string; targetScore: numb
     <div style={{ ...cardStyle, border: "1px solid #cfe9db", background: "#f4faf7" }}>
       <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "#136647", marginBottom: 6 }}>宿題の合格</div>
       <div style={{ fontSize: "var(--fs-caption)", color: "#1f3a2e", lineHeight: 1.6 }}>
-        この演奏は宿題の提出です。今回 <b>{avg}点</b>{hw.targetScore != null && <>（ゴール {hw.targetScore}点）</>}。
+        この演奏は宿題の提出です。今回 <b>{avg}点</b>{hw.targetScore != null && <>・ゴール {hw.targetScore}点</>}。
       </div>
       {done ? (
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "#158253", marginTop: 8, display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={14} /> 合格ずみ（生徒に届きました）</div>
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "#158253", marginTop: 8, display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={14} /> 合格ずみ</div>
       ) : (
         <button type="button" onClick={pass} disabled={pending}
           style={{ marginTop: 9, width: "100%", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#158253", border: "none", borderRadius: 9, padding: "10px 0", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
@@ -293,7 +293,7 @@ export function ExprCertifyBox({ studentId, scoreId, cardStyle, labStyle }: {
   }
   return (
     <div style={cardStyle}>
-      <div style={labStyle}>表現クリアを認定（この曲で、この表現ができていた）</div>
+      <div style={labStyle}>表現クリアを認定</div>
       <div style={{ display: "flex", gap: 7 }}>
         <select value={tag} onChange={(e) => { setTag(e.target.value); setMsg(null) }}
           style={{ flex: 1, border: "1px solid #dfe3ea", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", background: "#fff" }}>
@@ -305,7 +305,7 @@ export function ExprCertifyBox({ studentId, scoreId, cardStyle, labStyle }: {
           {pending ? "認定中…" : "認定する"}
         </button>
       </div>
-      <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 6 }}>認定すると、曲の★がそのまま生徒の表現力レベルになります（成長カルテに反映）。</div>
+      <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 6 }}>認定すると、曲の★がそのまま生徒の表現力レベルになります。</div>
       {msg && <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, marginTop: 6, color: msg.ok ? "#158253" : "#c0473a" }}>{msg.text}</div>}
     </div>
   )
@@ -337,7 +337,7 @@ export function MaterialPointRow({ userId, studentId, m }: { userId: string; stu
         {saved === false && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "#c0473a", flex: "none" }}>保存に失敗</span>}
       </div>
       <textarea value={text} onChange={(e) => { setText(e.target.value); setSaved(null) }} rows={2}
-        placeholder="練習ポイント（例：4の指の音程をよく聴いて。ゆっくりから）"
+        placeholder="練習ポイント・例：4の指の音程をよく聴いて。ゆっくりから"
         style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box", marginTop: 7 }} />
       <button type="button" onClick={save} disabled={pending || !dirty}
         style={{ marginTop: 6, fontSize: "var(--fs-label)", fontWeight: 800, color: "#fff", background: "#3b56d4", border: "none", borderRadius: 8, padding: "6px 14px", cursor: "pointer", opacity: pending || !dirty ? 0.45 : 1 }}>

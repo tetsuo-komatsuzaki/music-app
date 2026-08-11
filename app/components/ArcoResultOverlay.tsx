@@ -150,7 +150,7 @@ export default function ArcoResultOverlay({
         {strengthCount > 0 && (
           <div style={{ margin: "6px 4px 0", fontSize: "var(--fs-caption)", fontWeight: 800 }}>
             <Link href={`/${userId}/progress`} onClick={onClose} style={{ color: "var(--text-link)", textDecoration: "underline" }}>
-              <Palette size={13} style={{ verticalAlign: -2 }} /> 先生が認定したきみの表現（{strengthCount}個）を見る →
+              <Palette size={13} style={{ verticalAlign: -2 }} /> 先生が認定したきみの表現・{strengthCount}個を見る →
             </Link>
           </div>
         )}
@@ -187,7 +187,7 @@ export default function ArcoResultOverlay({
                   </div>
                   {ach.master.scoredCount < ach.master.requiredCount && (
                     <div style={{ textAlign: "center", fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 3 }}>
-                      ※ 直近{ach.master.requiredCount}回の平均で判定（いま{ach.master.scoredCount}回）
+                      ※ 直近{ach.master.requiredCount}回の平均で判定・いま{ach.master.scoredCount}回
                     </div>
                   )}
                 </>

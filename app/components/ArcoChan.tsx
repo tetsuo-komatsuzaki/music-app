@@ -522,7 +522,7 @@ export function ArcoChan({ pose, playing = true }) {
   const bowStill = bowEl && !bowInWaver;
 
   const wavingArm = <ArmPath d={p.arms[0]} />;  // 画面左＝アルコの右手
-  const stillArm = <ArmPath d={p.arms[1]} />;   // 画面右＝アルコの左手（バイオリン側）
+  const stillArm = <ArmPath d={p.arms[1]} />;   // 画面右＝アルコの左手
   const handEl = <HandPoint at={p.hand} />;
 
   return (

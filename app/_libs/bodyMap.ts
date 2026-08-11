@@ -17,12 +17,12 @@ export interface BodyView {
 }
 
 export const BODY_VIEWS: BodyView[] = [
-  { id: "body", label: "全身", short: "全身", Icon: PersonStanding, caption: "全身（正面）＋横すがた（猫背・目線）" },
-  { id: "left_out", label: "左手（指板の右側から）", short: "左手·右", Icon: Hand, caption: "指のかたち・1〜4指の音程" },
-  { id: "left_in", label: "左手（指板の左側から）", short: "左手·左", Icon: Hand, caption: "手首の折れ・親指・押さえすぎ" },
-  { id: "bow_frog", label: "右手・弓（元弓）", short: "元弓", Icon: Move, caption: "元弓（フロッグ寄り）の手と肘" },
-  { id: "bow_tip", label: "右手・弓（先弓）", short: "先弓", Icon: Move, caption: "先弓（先端寄り）の手と肘" },
-  { id: "strings", label: "弦の上（弓と弦の接点）", short: "弦の上", Icon: Music, caption: "弓の通り道・接点の音" },
+  { id: "body", label: "全身", short: "全身", Icon: PersonStanding, caption: "全身＋横すがた" },
+  { id: "left_out", label: "左手", short: "左手·右", Icon: Hand, caption: "指のかたち・1〜4指の音程" },
+  { id: "left_in", label: "左手", short: "左手·左", Icon: Hand, caption: "手首の折れ・親指・押さえすぎ" },
+  { id: "bow_frog", label: "右手・弓", short: "元弓", Icon: Move, caption: "元弓の手と肘" },
+  { id: "bow_tip", label: "右手・弓", short: "先弓", Icon: Move, caption: "先弓の手と肘" },
+  { id: "strings", label: "弦の上・弓と弦の接点", short: "弦の上", Icon: Music, caption: "弓の通り道・接点の音" },
 ]
 
 export interface BodySpot {

@@ -112,7 +112,7 @@ export default function BodyObsMap({ tags, renderTagActions }: {
       {/* 体で表せない癖 (リズム・習慣など) */}
       {nonBody.length > 0 && (
         <div style={{ marginTop: 10 }}>
-          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: SUB, marginBottom: 6 }}>体の外の癖（リズム・習慣など）</div>
+          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: SUB, marginBottom: 6 }}>体の外の癖</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {nonBody.map((t) => {
               const sev = sevPill(t.severity)

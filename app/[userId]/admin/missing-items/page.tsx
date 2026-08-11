@@ -108,7 +108,7 @@ export default async function AdminMissingItemsPage({
     if (f.resolvedAt === null) {
       c.unresolvedCount += 1
       c.allResolved = false
-      c.scores.set(f.scoreId, f.score?.title ?? "(不明)")
+      c.scores.set(f.scoreId, f.score?.title ?? "")
     } else {
       c.resolvedCount += 1
     }

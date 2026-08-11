@@ -18,7 +18,7 @@ export const HELP_CONTENT = {
       { key: "red",    name: "赤",       meaning: "音程がズレた",     detail: "楽譜と違う高さで弾いた音" },
       { key: "orange", name: "オレンジ", meaning: "タイミングがズレた", detail: "楽譜より早い・遅く弾いた音" },
     ],
-    note: "音程とタイミングが両方ズレた音は、赤で表示します。まずは赤（音程）から直すのが、上達への近道です。",
+    note: "音程とタイミングが両方ズレた音は、赤で表示します。まずは赤から直すのが、上達への近道です。",
   },
 
   // ③ ページごとの使い方 (「ガイドを再生」でそのページへ移動して再生する)
@@ -46,7 +46,7 @@ export const HELP_CONTENT = {
     },
     {
       q: "どんな楽譜ファイルを使えますか？",
-      a: "MusicXML（.xml / .musicxml / .mxl）を使えます。1ファイル5MBまでです。",
+      a: "MusicXMLを使えます。1ファイル5MBまでです。",
     },
     {
       q: "MusicXMLはどこで手に入りますか？",
@@ -59,14 +59,14 @@ export const HELP_CONTENT = {
   ],
 
   fullHelpLink: "/support/help",
-  fullHelpLinkLabel: "もっと詳しく見る (FAQ完全版)",
+  fullHelpLinkLabel: "もっと詳しく見る",
   // footerNote は削除 (サポート導線は別途)
 
   // ⑤ うまくいかないとき
   troubleshooting: [
     {
       title: "マイクが反応しない",
-      body: "ブラウザでマイクを「許可」にしてください。\n・PC（Chrome / Edge）：URLバー左の鍵アイコン → マイクを許可\n・iPhone（Safari）：設定アプリ → Safari → マイク → 許可",
+      body: "ブラウザでマイクを「許可」にしてください。\n・PC：URLバー左の鍵アイコン → マイクを許可\n・iPhone：設定アプリ → Safari → マイク → 許可",
     },
     {
       title: "録音できるのに分析されない・止まる",
@@ -74,7 +74,7 @@ export const HELP_CONTENT = {
     },
     {
       title: "楽譜のアップロードでエラーが出る",
-      body: "形式（.xml / .musicxml / .mxl）と容量（5MB以下）を確認してください。ソフトによっては「MusicXMLで書き出し」が必要です。",
+      body: "形式と容量・5MB以下を確認してください。ソフトによっては「MusicXMLで書き出し」が必要です。",
     },
     {
       title: "分析しても色がつかない",
