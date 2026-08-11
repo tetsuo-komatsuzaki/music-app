@@ -49,6 +49,7 @@ type AssignmentRow = {
   passed: boolean
   submitted: boolean
   submittedScore: number | null
+  submittedPerformanceId?: string | null
   createdAt: string
 }
 
@@ -56,7 +57,7 @@ type ObservationRow = { id: string; tagIds: string[]; severity: string | null; c
 type ExpressionRow = { id: string; tagId: string; severity: string | null; comment: string | null; date: string }
 type WorkItem = { title: string; cat: string; kind: "score" | "practice"; avg: number; first: number; count: number; perfId: string }
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
-type ListenReq = { id: string; scoreId: string; title: string; avg: number | null; date: string }
+type ListenReq = { id: string; scoreId: string; performanceId: string; title: string; avg: number | null; date: string }
 type Recording = { id: string; kind: "score" | "practice"; title: string; cat: string; star: number | null; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[] }
 type WorstNote = NumbersRoomData["worstNotes"][number]
 type BestNote = NumbersRoomData["bestNotes"][number]
@@ -68,6 +69,7 @@ export default function StudentKarte({
   expressions = [],
   karte = null,
   studentSupabaseUserId = null,
+  initialTab,
   remarks = [],
   passedItems = [],
   worstNotes = [],
@@ -94,6 +96,7 @@ export default function StudentKarte({
   /** 生徒の成長カルテ (2026-08-02): 生徒に見えているのと同じもの (30日) を読み取り専用で */
   karte?: KarteData | null
   studentSupabaseUserId?: string | null
+  initialTab?: "summary" | "karte" | "growth" | "passed"
   /** 指摘トラッキング (v3第2段③) */
   remarks?: RemarkTrack[]
   /** 宿題 合格の履歴 (2026-08-11) */
@@ -104,7 +107,7 @@ export default function StudentKarte({
 }) {
   // 先生カルテ v3 (2026-08-11 再設計・最終モック=3タブ): 主役=まとめ(理解の統合)＋練習後カルテ(曲別)。成長カルテは脇役。
   // 旧「宿題・指導」タブは廃止: 依頼/返し待ち/宿題を出す/認定は「まとめ」に統合、癖は練習後カルテ詳細で書く。
-  const [tab, setTab] = useState<"summary" | "karte" | "growth" | "passed">("summary")
+  const [tab, setTab] = useState<"summary" | "karte" | "growth" | "passed">(initialTab ?? "summary")
   return (
     // 先生カルテv3 (2026-08-11): モック(teacher-all-screens)準拠のダッシュボード基調。
     // 紺ヘッダー + 白タブバー + ソフトグレー地。
@@ -186,8 +189,8 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
   const rmView = (s: RemarkTrack["status"]) => s === "improved" ? { mk: "✓", c: "#158253", t: "直ってきた" } : s === "improving" ? { mk: "△", c: "#c07a1e", t: "改善中" } : s === "stalled" ? { mk: "×", c: "#bb3a2e", t: "停滞" } : { mk: "…", c: "#8b97a8", t: "判定中" }
   const noteSub: React.CSSProperties = { fontSize: "var(--fs-label)", color: "var(--text-sub)" }
   const notePct: React.CSSProperties = { marginLeft: "auto", flex: "none", fontWeight: 900, fontVariantNumeric: "tabular-nums" }
-  const annotateHref = (scoreId: string, mood?: string | null) =>
-    `/${userId}/teacher/students/${studentId}/annotate/${scoreId}${mood ? `?mood=${encodeURIComponent(mood)}` : ""}`
+  // 採点カルテ(添削)は廃止 (2026-08-11 Tetsuo確定)。返しはすべて練習後カルテ詳細で行う
+  const karteHref = (perfId: string) => `/${userId}/teacher/students/${studentId}/karte/${perfId}?kind=score`
   const submittedHw = assignments.filter((a) => a.submitted && !a.done && a.scoreId)
   const achvMap = new Map(briefing.achievements.map((a) => [a.title, a.mastered]))
   // 見える化4軸 (曲/技術/癖/表現)
@@ -215,8 +218,8 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
             <b style={{ fontSize: "var(--fs-body)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title}</b>
             <span style={{ marginLeft: "auto", flex: "none", fontWeight: 900, color: r.avg != null ? kScoreColor(r.avg) : "var(--text-muted)" }}>{r.avg ?? "—"}</span>
           </div>
-          <Link href={annotateHref(r.scoreId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#a9741c", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
-            丁寧に聴いて返す →
+          <Link href={karteHref(r.performanceId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#a9741c", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
+            練習後カルテを書いて渡す →
           </Link>
         </div>
       ))}
@@ -230,12 +233,12 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
             <span style={{ marginLeft: "auto", flex: "none", fontWeight: 900, color: a.submittedScore != null ? kScoreColor(a.submittedScore) : "var(--text-muted)" }}>{a.submittedScore != null ? `${a.submittedScore}点` : "提出済み"}</span>
           </div>
           {a.moodTagId && <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#a9741c", marginTop: 3 }}>目標: {moodTagPhrase(a.moodTagId)}</div>}
-          <div style={{ display: "flex", gap: 7, marginTop: 8 }}>
-            <Link href={annotateHref(a.scoreId!, a.moodTagId)} style={{ flex: 1.4, textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#3b56d4", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
-              採点カルテを書いて返す →
+          {/* 合格ボタンはここに置かない (演奏詳細を見ないと判断できない)。合格は練習後カルテ最下部で */}
+          {a.submittedPerformanceId && (
+            <Link href={karteHref(a.submittedPerformanceId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#3b56d4", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
+              練習後カルテを書いて渡す →
             </Link>
-            <PassButton assignmentId={a.id} />
-          </div>
+          )}
         </div>
       ))}
 
@@ -369,27 +372,6 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
   )
 }
 
-
-/* ═ 宿題を合格にする (2026-08-11: クリア=提出→先生の合格) ═ */
-function PassButton({ assignmentId }: { assignmentId: string }) {
-  const router = useRouter()
-  const [pending, start] = useTransition()
-  const [err, setErr] = useState(false)
-  const pass = () => {
-    if (!window.confirm("この宿題を合格にしますか？（生徒に「合格！」が届きます）")) return
-    start(async () => {
-      const r = await passAssignment(assignmentId)
-      if (r.ok) router.refresh()
-      else setErr(true)
-    })
-  }
-  return (
-    <button type="button" onClick={pass} disabled={pending}
-      style={{ flex: 1, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#158253", border: "none", borderRadius: 8, padding: "8px 0", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
-      {pending ? "…" : err ? "失敗" : "合格にする"}
-    </button>
-  )
-}
 
 /* ═ 主役②: 練習後カルテ (曲別。曲→この曲のカルテを横スライド) ═ */
 type SongGroup = { title: string; cat: string; kind: "score" | "practice"; star: number | null; recs: Recording[]; count: number; latest: Recording; trend: number }

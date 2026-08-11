@@ -33,11 +33,13 @@ function topWeak(analysisSummary: unknown): WeakSlot[] {
 export const metadata = { title: "生徒カルテ" }
 
 export default async function StudentKartePage({
-  params,
+  params, searchParams,
 }: {
   params: Promise<{ userId: string; studentId: string }>
+  searchParams: Promise<{ tab?: string }>
 }) {
   const { userId, studentId } = await params
+  const { tab: urlTab } = await searchParams
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || user.id !== userId) redirect(`/${userId}`)
@@ -87,7 +89,7 @@ export default async function StudentKartePage({
       select: {
         id: true, scoreId: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
         dueDate: true, goalType: true, targetScore: true, moodTagId: true,
-        doneAt: true, passedAt: true, submittedAt: true, submittedScore: true, createdAt: true,
+        doneAt: true, passedAt: true, submittedAt: true, submittedScore: true, submittedPerformanceId: true, createdAt: true,
         score: { select: { title: true, star: true } }, practiceItem: { select: { title: true, category: true, star: true } },
       },
     }),
@@ -158,7 +160,7 @@ export default async function StudentKartePage({
     const avg = pf?.pitchAccuracy != null && pf?.timingAccuracy != null
       ? Math.round((pf.pitchAccuracy + pf.timingAccuracy) / 2) : null
     return {
-      id: r.id, scoreId: r.scoreId,
+      id: r.id, scoreId: r.scoreId, performanceId: r.performanceId,
       title: pf?.score.title ?? "演奏", avg,
       date: r.createdAt.toLocaleDateString("ja-JP"),
     }
@@ -294,6 +296,7 @@ export default async function StudentKartePage({
 
   return (
     <StudentKarte
+      initialTab={urlTab === "karte" || urlTab === "growth" || urlTab === "passed" ? urlTab : undefined}
       remarks={remarks}
       passedItems={passedItems}
       worstNotes={numbers?.worstNotes ?? []}
@@ -337,6 +340,7 @@ export default async function StudentKartePage({
         mastered: a.scoreId ? (achFlags.get(a.scoreId)?.mastered ?? false) : false,
         done: a.doneAt != null,
         passed: a.passedAt != null,
+        submittedPerformanceId: a.submittedPerformanceId,
         submitted: a.submittedAt != null,
         submittedScore: a.submittedScore,
         createdAt: a.createdAt.toLocaleDateString("ja-JP"),

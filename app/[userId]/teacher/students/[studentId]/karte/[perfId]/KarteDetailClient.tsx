@@ -5,7 +5,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, MessageCircle, Check } from "lucide-react"
-import { sendMessageToStudent } from "@/app/actions/teacherActions"
+import { sendMessageToStudent, passAssignment } from "@/app/actions/teacherActions"
 import { createObservation } from "@/app/actions/teacherObservations"
 import { saveMaterialNote } from "@/app/actions/teacherMaterialNotes"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
@@ -23,8 +23,10 @@ export default function KarteDetailClient(props: {
   pitch: number; timing: number; avg: number; weak: WeakSlot[]
   audioUrl: string | null; aiTags: { id: string; label: string }[]
   materials?: MaterialRow[]
+  /** この演奏が提出された宿題 (あれば最下部に合格セクション) */
+  hwForPerf?: { id: string; targetScore: number | null; passed: boolean } | null
 }) {
-  const { backHref, userId, scoreId, studentId, perfId, kind, title, cat, star, date, pitch, timing, avg, weak, audioUrl, aiTags, materials = [] } = props
+  const { backHref, userId, scoreId, studentId, perfId, kind, title, cat, star, date, pitch, timing, avg, weak, audioUrl, aiTags, materials = [], hwForPerf = null } = props
   const router = useRouter()
 
   // コメント
@@ -113,13 +115,11 @@ export default function KarteDetailClient(props: {
         )}
       </div>
 
-      {/* 採点カルテ(添削) = 評価はここが正 (譜面に書き込む別画面)。詳細からの導線 */}
-      {kind === "score" && scoreId && (
-        <Link href={`/${userId}/teacher/students/${studentId}/annotate/${scoreId}`}
-          style={{ display: "block", textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#8a5a1f", borderRadius: 10, padding: "11px 0", textDecoration: "none", marginBottom: 11 }}>
-          採点カルテ（譜面添削）を書く →
-        </Link>
-      )}
+      {/* 採点カルテ(添削)は廃止 (2026-08-11 Tetsuo確定)。代わりに演奏ふりかえりへの導線 */}
+      <Link href={`/${userId}/teacher/students/${studentId}?tab=karte`}
+        style={{ display: "block", textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#22346b", background: "#fff", border: "1px solid #d3dce9", borderRadius: 10, padding: "11px 0", textDecoration: "none", marginBottom: 11 }}>
+        この曲の演奏ふりかえりを見る（推移・過去のカルテ）→
+      </Link>
 
       {/* コメント */}
       <div style={card}>
@@ -229,9 +229,45 @@ export default function KarteDetailClient(props: {
 
       {/* 表現クリア認定 (この曲で・2026-08-11 まとめから移設: 認定は演奏を聴くこの場で行う) */}
       {kind === "score" && scoreId && (
-        <ExprCertifyBox studentId={studentId} scoreId={scoreId} cardStyle={{ ...card, marginBottom: 0 }} labStyle={lab} />
+        <ExprCertifyBox studentId={studentId} scoreId={scoreId} cardStyle={hwForPerf ? card : { ...card, marginBottom: 0 }} labStyle={lab} />
+      )}
+
+      {/* 合格 (2026-08-11 Tetsuo確定: 提出された宿題は、演奏詳細を見たこの場の最下部で合格にする) */}
+      {hwForPerf && (
+        <HwPassBox hw={hwForPerf} avg={avg} cardStyle={{ ...card, marginBottom: 0 }} />
       )}
       </div>
+    </div>
+  )
+}
+
+/* ═ 宿題の合格 (提出演奏の詳細を見たうえで、ここで合格にする) ═ */
+function HwPassBox({ hw, avg, cardStyle }: { hw: { id: string; targetScore: number | null; passed: boolean }; avg: number; cardStyle: React.CSSProperties }) {
+  const router = useRouter()
+  const [pending, start] = useTransition()
+  const [done, setDone] = useState(hw.passed)
+  const [err, setErr] = useState(false)
+  const pass = () => {
+    if (!window.confirm("この宿題を合格にしますか？（生徒に「合格！」が届きます）")) return
+    start(async () => {
+      const r = await passAssignment(hw.id)
+      if (r.ok) { setDone(true); router.refresh() } else setErr(true)
+    })
+  }
+  return (
+    <div style={{ ...cardStyle, border: "1px solid #cfe9db", background: "#f4faf7" }}>
+      <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "#136647", marginBottom: 6 }}>宿題の合格</div>
+      <div style={{ fontSize: "var(--fs-caption)", color: "#1f3a2e", lineHeight: 1.6 }}>
+        この演奏は宿題の提出です。今回 <b>{avg}点</b>{hw.targetScore != null && <>（ゴール {hw.targetScore}点）</>}。
+      </div>
+      {done ? (
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "#158253", marginTop: 8, display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={14} /> 合格ずみ（生徒に届きました）</div>
+      ) : (
+        <button type="button" onClick={pass} disabled={pending}
+          style={{ marginTop: 9, width: "100%", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#158253", border: "none", borderRadius: 9, padding: "10px 0", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+          {pending ? "…" : err ? "失敗・もう一度" : "合格にする"}
+        </button>
+      )}
     </div>
   )
 }

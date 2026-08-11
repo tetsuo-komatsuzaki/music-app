@@ -122,8 +122,20 @@ export default async function KarteDetailPage({
     } catch { materials = [] }
   }
 
+  // この演奏が「提出された宿題」なら、最下部に合格セクションを出す (2026-08-11 Tetsuo確定)
+  let hwForPerf: { id: string; targetScore: number | null; passed: boolean } | null = null
+  try {
+    const hw = await prisma.assignment.findFirst({
+      where: { teacherId: me.id, studentId, submittedPerformanceId: perfId },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, targetScore: true, passedAt: true },
+    })
+    if (hw) hwForPerf = { id: hw.id, targetScore: hw.targetScore, passed: hw.passedAt != null }
+  } catch { hwForPerf = null }
+
   return (
     <KarteDetailClient
+      hwForPerf={hwForPerf}
       materials={materials}
       backHref={backHref}
       userId={userId}
