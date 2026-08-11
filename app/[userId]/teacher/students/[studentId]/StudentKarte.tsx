@@ -146,16 +146,15 @@ export default function StudentKarte({
   // 先生カルテ v3 (2026-08-11 再設計): 主役=まとめ(理解の統合)＋練習後カルテ(曲別一覧)。成長カルテは脇役。宿題・指導は当面タブ維持(将来インライン化)。
   const [tab, setTab] = useState<"summary" | "karte" | "teach" | "growth">("summary")
   return (
-    // 生徒カルテ ペーパーデザイン (2026-08-06 Tetsuo確定B: 成長カルテv3と同じ世界観に全面統一)
-    <div style={{
-      background: "linear-gradient(165deg,#fffdf6,#faf4e4)", border: "1px solid #eee6d0",
-      borderRadius: 18, padding: "16px 14px 14px", color: "var(--text-master)",
-    }}>
-      <Link href={`/${userId}/teacher`} style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", textDecoration: "none" }}>← 生徒一覧</Link>
-      <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, letterSpacing: ".22em", color: "var(--text-master)", marginTop: 6 }}>STUDENT KARTE</div>
-      <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "0 0 10px" }}>{studentName}</h1>
+    // 先生カルテv3 (2026-08-11): モック(teacher-all-screens)準拠のダッシュボード基調。
+    // 紺ヘッダー + 白タブバー + ソフトグレー地。
+    <div style={{ background: "#f5f7fa", border: "1px solid #e6e9ef", borderRadius: 18, overflow: "hidden", color: "var(--text-ink)" }}>
+      <div style={{ background: "#22346b", color: "#eaf0fb", padding: "13px 15px 12px" }}>
+        <Link href={`/${userId}/teacher`} style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", textDecoration: "none" }}>← 生徒一覧</Link>
+        <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "3px 0 0", color: "#fff" }}>{studentName} <span style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", letterSpacing: ".12em", marginLeft: 6 }}>STUDENT</span></h1>
+      </div>
 
-      <div style={{ display: "flex", gap: 4, marginBottom: 14, background: "rgba(255,255,255,.55)", border: "1px solid #efe5cc", borderRadius: 12, padding: 3 }}>
+      <div style={{ display: "flex", gap: 4, background: "#eef1f6", borderBottom: "1px solid #e6e9ef", padding: "7px 10px" }}>
         {([["summary", "まとめ"], ["karte", "練習後カルテ"], ["teach", "宿題・指導"], ["growth", "成長カルテ"]] as const).map(([k, label]) => (
           <button
             key={k}
@@ -163,16 +162,18 @@ export default function StudentKarte({
             onClick={() => setTab(k)}
             style={{
               flex: 1, border: "none",
-              background: tab === k ? "linear-gradient(150deg,#f5df9e,#e3b93c)" : "transparent",
-              color: tab === k ? "#4a3a12" : "#9a8c74",
-              boxShadow: tab === k ? "0 1px 3px rgba(200,160,40,.3)" : "none",
-              borderRadius: 9, padding: "8px 0", fontSize: "var(--fs-caption)", fontWeight: 900, cursor: "pointer",
+              background: tab === k ? "#fff" : "transparent",
+              color: tab === k ? "#22346b" : "#8b97a8",
+              boxShadow: tab === k ? "0 1px 3px rgba(30,40,70,.12)" : "none",
+              borderRadius: 8, padding: "7px 0", fontSize: "var(--fs-caption)", fontWeight: 900, cursor: "pointer",
             }}
           >
             {label}
           </button>
         ))}
       </div>
+
+      <div style={{ padding: "12px 12px 14px" }}>
 
       {tab === "summary" && (
         <SummaryTab briefing={briefing} working={working} recordings={recordings} remarks={remarks} worstNotes={worstNotes} bestNotes={bestNotes} onGoKarte={() => setTab("karte")} />
@@ -197,6 +198,7 @@ export default function StudentKarte({
           <Homework studentId={studentId} scoreTargets={allScoreTargets} itemTargets={allItemTargets} assignments={assignments} />
         </>
       )}
+      </div>
     </div>
   )
 }
@@ -231,7 +233,7 @@ function SummaryTab({ briefing, working, recordings, remarks, worstNotes, bestNo
         <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>直近2週間の録音がありません。</div></Card>
       ) : (
         working.map((w, i) => (
-          <div key={i} style={{ background: "rgba(255,255,255,.85)", border: "1px solid #efe5cc", borderRadius: 11, padding: "9px 12px", marginBottom: 7, display: "flex", alignItems: "center", gap: 9 }}>
+          <div key={i} style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 12px", marginBottom: 7, display: "flex", alignItems: "center", gap: 9 }}>
             <span style={kCat}>{w.cat}</span>
             <b style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-ink)" }}>{w.title}</b>
             <span style={{ marginLeft: "auto", fontSize: "var(--fs-subhead)", fontWeight: 900, color: kScoreColor(w.avg), flex: "none" }}>{w.avg}</span>
@@ -239,8 +241,13 @@ function SummaryTab({ briefing, working, recordings, remarks, worstNotes, bestNo
         ))
       )}
 
-      <div style={kSec}>アルコの診断<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>音×成功率・直近2週間（生徒の数字のへやと同じ）</span></div>
-      <div style={{ background: "#f6f4ff", border: "1px solid #e7dcfb", borderRadius: 12, padding: "12px 14px" }}>
+      {/* アルコの診断レポート (モック画面2: 紫グラデヘッダー) */}
+      <div style={{ border: "1px solid #e3d8f7", borderRadius: 15, overflow: "hidden", marginTop: 14, boxShadow: "0 4px 16px -8px rgba(110,60,190,.3)" }}>
+        <div style={{ background: "linear-gradient(135deg,#5a3fa8,#7a4dd6)", color: "#fff", padding: "10px 14px" }}>
+          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900 }}>アルコの診断レポート</div>
+          <div style={{ fontSize: "var(--fs-label)", color: "#e2d6fb", marginTop: 2 }}>音×成功率・直近2週間（生徒の数字のへやと同じ土俵）</div>
+        </div>
+        <div style={{ background: "#fff", padding: "12px 14px" }}>
         {/* にがて (弱み) — 数字のへや「音のじっくり表」と同じ土俵 */}
         <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#c0473a" }}>にがて（直したい所）・成功率の低い順</div>
         {weak3.length === 0 ? (
@@ -303,6 +310,7 @@ function SummaryTab({ briefing, working, recordings, remarks, worstNotes, bestNo
           style={{ marginTop: 11, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#fff", background: "#3b56d4", border: "none", borderRadius: 9, padding: "8px 14px", cursor: "pointer" }}>
           練習後カルテ（曲別）を見る →
         </button>
+        </div>
       </div>
     </>
   )
@@ -328,7 +336,7 @@ function KarteBySong({ userId, studentId, recordings }: { userId: string; studen
   const basics = gs.filter((g) => g.kind === "practice").sort((a, b) => (a.star ?? 99) - (b.star ?? 99))
 
   const renderGroup = (g: SongGroup) => (
-    <details key={g.title} style={{ background: "rgba(255,255,255,.85)", border: "1px solid #efe5cc", borderRadius: 13, marginBottom: 8 }}>
+    <details key={g.title} style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 13, marginBottom: 8 }}>
       <summary style={{ listStyle: "none", cursor: "pointer", padding: "11px 13px", display: "flex", alignItems: "center", gap: 9 }}>
         {g.star != null
           ? <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "#b58a1e" }}>★{g.star}</span>
@@ -502,7 +510,7 @@ function RecCommentBox({ studentId, performanceId, kind }: { studentId: string; 
 function Card({ children }: { children: React.ReactNode }) {
   // ペーパーデザイン (2026-08-06): クリームの紙の上の半透明カード (成長カルテv3と同トークン)
   return (
-    <div style={{ background: "rgba(255,255,255,.8)", border: "1px solid #efe5cc", borderRadius: 15, padding: "14px 16px", marginBottom: 12 }}>
+    <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 15, padding: "14px 16px", marginBottom: 12 }}>
       {children}
     </div>
   )

@@ -51,7 +51,7 @@ export default function KarteDetailClient(props: {
     })
   }
 
-  const card: React.CSSProperties = { background: "rgba(255,255,255,.85)", border: "1px solid #efe5cc", borderRadius: 14, padding: "13px 15px", marginBottom: 11 }
+  const card: React.CSSProperties = { background: "#fff", border: "1px solid #e6e9ef", borderRadius: 14, padding: "13px 15px", marginBottom: 11 }
   const lab: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-sub)", marginBottom: 8 }
   const chip = (on: boolean): React.CSSProperties => ({
     fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px solid",
@@ -59,22 +59,26 @@ export default function KarteDetailClient(props: {
   })
 
   return (
-    <div style={{ background: "linear-gradient(165deg,#fffdf6,#faf4e4)", border: "1px solid #eee6d0", borderRadius: 18, padding: "14px 14px 16px", color: "var(--text-master)" }}>
-      <Link href={backHref} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: "var(--fs-body)", color: "var(--text-sub)", textDecoration: "none" }}>
-        <ArrowLeft size={14} /> {title}のカルテ
-      </Link>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 8, margin: "8px 0 12px" }}>
-        <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)" }}>
-            {star != null ? `★${star} ・ ` : ""}{cat} ・ {date}
+    // 練習後カルテ1枚 (モック画面5: 紺ヘッダー + ダッシュボード基調)
+    <div style={{ background: "#f5f7fa", border: "1px solid #e6e9ef", borderRadius: 18, overflow: "hidden", color: "var(--text-ink)" }}>
+      <div style={{ background: "#22346b", color: "#eaf0fb", padding: "13px 15px 13px" }}>
+        <Link href={backHref} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", textDecoration: "none" }}>
+          <ArrowLeft size={13} /> {title}のカルテ
+        </Link>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 8, marginTop: 5 }}>
+          <div style={{ minWidth: 0 }}>
+            <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: 0, color: "#fff" }}>{title}</h1>
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", marginTop: 2 }}>
+              {star != null ? `★${star} ・ ` : ""}{cat} ・ {date}
+            </div>
           </div>
-          <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "1px 0 0" }}>{title}</h1>
-        </div>
-        <div style={{ marginLeft: "auto", textAlign: "center", flex: "none" }}>
-          <div style={{ fontSize: "var(--fs-title)", fontWeight: 900, lineHeight: 1, color: scoreColor(avg) }}>{avg}</div>
-          <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>平均</div>
+          <div style={{ marginLeft: "auto", textAlign: "center", flex: "none" }}>
+            <div style={{ fontSize: "var(--fs-display)", fontWeight: 900, lineHeight: 1, color: "#fff" }}>{avg}</div>
+            <div style={{ fontSize: "var(--fs-label)", color: "#9fb2dd", fontWeight: 800 }}>平均</div>
+          </div>
         </div>
       </div>
+      <div style={{ padding: "12px 13px 14px" }}>
 
       {/* 録音+分析 */}
       <div style={card}>
@@ -176,6 +180,7 @@ export default function KarteDetailClient(props: {
             </button>
           </>
         )}
+      </div>
       </div>
     </div>
   )

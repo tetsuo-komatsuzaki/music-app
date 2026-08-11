@@ -1,4 +1,6 @@
 // 先生ホーム = 生徒一覧 + 招待コード (2026-07-28)。MVPではホームと一覧を統合。
+// 2026-08-11 先生カルテv3: モック(teacher-all-screens 画面1)準拠のダッシュボード基調に刷新。
+// 生徒ごとに 今週の練習/カルテ枚数 + 返し待ちバッジ(宿題提出+聴いてほしい依頼) + カルテを見るボタン。
 // role!==teacher は生徒ホームへ redirect。別シェル(TeacherShell)内で描画される。
 import Link from "next/link"
 import { UserRound } from "lucide-react"
@@ -8,6 +10,10 @@ import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import InviteCodeCard from "./InviteCodeCard"
 
 export const metadata = { title: "先生モード" }
+
+const NAVY = "#22346b"
+const SOFT = "#f5f7fa"
+const LINE = "#e6e9ef"
 
 function daysAgoLabel(d: Date | null): string {
   if (!d) return "まだ練習なし"
@@ -41,41 +47,55 @@ export default async function TeacherHomePage({
   })
   const studentIds = links.map((l) => l.student.id)
 
-  // 直近活動 (曲/教材の演奏の最新 uploadedAt) をまとめて取得
+  // 生徒ごとの 今週(7日)の練習/カルテ枚数・直近活動・返し待ち をまとめて取得
+  const weekAgo = new Date(Date.now() - 7 * 86400000)
   const lastByStudent = new Map<string, Date | null>()
+  const weekCount = new Map<string, number>()
+  const waitCount = new Map<string, number>()
   if (studentIds.length) {
-    const [perf, prac] = await Promise.all([
-      prisma.performance.groupBy({
-        by: ["userId"], where: { userId: { in: studentIds } }, _max: { uploadedAt: true },
-      }),
-      prisma.practicePerformance.groupBy({
-        by: ["userId"], where: { userId: { in: studentIds } }, _max: { uploadedAt: true },
-      }),
+    const [perfMax, pracMax, perf7, prac7, hwWait, listenWait] = await Promise.all([
+      prisma.performance.groupBy({ by: ["userId"], where: { userId: { in: studentIds } }, _max: { uploadedAt: true } }),
+      prisma.practicePerformance.groupBy({ by: ["userId"], where: { userId: { in: studentIds } }, _max: { uploadedAt: true } }),
+      prisma.performance.groupBy({ by: ["userId"], where: { userId: { in: studentIds }, uploadedAt: { gte: weekAgo } }, _count: { _all: true } }),
+      prisma.practicePerformance.groupBy({ by: ["userId"], where: { userId: { in: studentIds }, uploadedAt: { gte: weekAgo } }, _count: { _all: true } }),
+      // 返し待ち = 提出済みで未完了の宿題
+      prisma.assignment.groupBy({ by: ["studentId"], where: { teacherId: me.id, studentId: { in: studentIds }, submittedAt: { not: null }, doneAt: null }, _count: { _all: true } }),
+      // + 未対応の「聴いてほしい」依頼
+      prisma.listenRequest.groupBy({ by: ["studentId"], where: { teacherId: me.id, studentId: { in: studentIds }, status: "pending" }, _count: { _all: true } }),
     ])
     for (const id of studentIds) {
-      const a = perf.find((p) => p.userId === id)?._max.uploadedAt ?? null
-      const b = prac.find((p) => p.userId === id)?._max.uploadedAt ?? null
+      const a = perfMax.find((p) => p.userId === id)?._max.uploadedAt ?? null
+      const b = pracMax.find((p) => p.userId === id)?._max.uploadedAt ?? null
       const latest = [a, b].filter(Boolean).sort((x, y) => (y as Date).getTime() - (x as Date).getTime())[0] ?? null
       lastByStudent.set(id, latest as Date | null)
+      weekCount.set(id, (perf7.find((p) => p.userId === id)?._count._all ?? 0) + (prac7.find((p) => p.userId === id)?._count._all ?? 0))
+      waitCount.set(id, (hwWait.find((p) => p.studentId === id)?._count._all ?? 0) + (listenWait.find((p) => p.studentId === id)?._count._all ?? 0))
     }
   }
+  const totalWait = [...waitCount.values()].reduce((s, n) => s + n, 0)
 
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-        <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "4px 0 2px" }}>生徒</h1>
-        <span style={{ display: "flex", gap: 6 }}>
-          <Link href={`/${userId}/teacher/schedule`} style={{ fontSize: "var(--fs-body)", fontWeight: 700, color: "var(--text-ink)", background: "#eef1f4", border: "1px solid #e2e6ea", borderRadius: 999, padding: "5px 12px", textDecoration: "none" }}>
-            レッスン枠
-          </Link>
-          <Link href={`/${userId}/teacher/profile`} style={{ fontSize: "var(--fs-body)", fontWeight: 700, color: "var(--text-ink)", background: "#eef1f4", border: "1px solid #e2e6ea", borderRadius: 999, padding: "5px 12px", textDecoration: "none" }}>
-            プロフィール
-          </Link>
-        </span>
+      {/* 紺ヘッダー (モック画面1) */}
+      <div style={{ background: NAVY, color: "#eaf0fb", borderRadius: 16, padding: "14px 16px 13px", marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", letterSpacing: ".08em" }}>ARCODA 先生</div>
+            <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "2px 0 0", color: "#fff" }}>生徒一覧</h1>
+            <div style={{ fontSize: "var(--fs-label)", color: "#9fb2dd", marginTop: 2 }}>
+              今週 ・ 返し待ち 合計 <b style={{ color: totalWait > 0 ? "#ffd9a8" : "#9fb2dd" }}>{totalWait}</b>
+            </div>
+          </div>
+          <span style={{ marginLeft: "auto", display: "flex", gap: 6, flex: "none" }}>
+            <Link href={`/${userId}/teacher/schedule`} style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#dbe4f2", background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.18)", borderRadius: 999, padding: "5px 11px", textDecoration: "none" }}>
+              レッスン枠
+            </Link>
+            <Link href={`/${userId}/teacher/profile`} style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#dbe4f2", background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.18)", borderRadius: 999, padding: "5px 11px", textDecoration: "none" }}>
+              プロフィール
+            </Link>
+          </span>
+        </div>
       </div>
-      <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", margin: "0 0 16px" }}>
-        担当している生徒の一覧です。タップでカルテ（練習の様子・宿題）を開きます。
-      </p>
 
       {links.length === 0 ? (
         <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: "18px 0", textAlign: "center" }}>
@@ -83,32 +103,37 @@ export default async function TeacherHomePage({
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 22 }}>
-          {links.map((l) => (
-            <Link
-              key={l.student.id}
-              href={`/${userId}/teacher/students/${l.student.id}`}
-              style={{
-                display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
-                background: "#fff", border: "1px solid #eef1f4", borderRadius: 14,
-                padding: "12px 14px", textDecoration: "none", color: "inherit",
-                boxShadow: "0 1px 3px rgba(30,45,70,.05)",
-              }}
-            >
-              <span style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                <UserRound size={22} color="#8ba0c4" aria-hidden style={{ flex: "none" }} />
-                <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {l.student.name}
-                </span>
-              </span>
-              <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", flex: "none" }}>
-                直近 {daysAgoLabel(lastByStudent.get(l.student.id) ?? null)} →
-              </span>
-            </Link>
-          ))}
+          {links.map((l) => {
+            const wait = waitCount.get(l.student.id) ?? 0
+            const week = weekCount.get(l.student.id) ?? 0
+            return (
+              <div key={l.student.id}
+                style={{ background: "#fff", border: `1px solid ${LINE}`, borderRadius: 14, padding: "12px 14px", boxShadow: "0 1px 3px rgba(30,45,70,.05)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <UserRound size={20} color="#8ba0c4" aria-hidden style={{ flex: "none" }} />
+                  <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: "var(--text-ink)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {l.student.name}
+                  </span>
+                  {wait > 0 && (
+                    <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "#fff", background: "#cf4638", borderRadius: 999, padding: "1px 8px" }}>返し待ち{wait}</span>
+                  )}
+                </div>
+                <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 5 }}>
+                  今週 練習 <b style={{ color: "var(--text-ink)" }}>{week}</b>回 ・ 直近 {daysAgoLabel(lastByStudent.get(l.student.id) ?? null)}
+                </div>
+                <Link href={`/${userId}/teacher/students/${l.student.id}`}
+                  style={{ display: "block", textAlign: "center", marginTop: 9, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: NAVY, borderRadius: 9, padding: "9px 0", textDecoration: "none" }}>
+                  カルテを見る →
+                </Link>
+              </div>
+            )
+          })}
         </div>
       )}
 
-      <InviteCodeCard />
+      <div style={{ background: SOFT, borderRadius: 14, padding: 2 }}>
+        <InviteCodeCard />
+      </div>
     </div>
   )
 }
