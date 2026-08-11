@@ -30,6 +30,10 @@ export default function KarteWriteClient({
 }) {
   const router = useRouter()
 
+  // 直近の演奏 (プルダウンで1件えらんで再生。初期値=最新)
+  const [selPerfId, setSelPerfId] = useState<string | null>(performances[0]?.id ?? null)
+  const selPerf = performances.find((p) => p.id === selPerfId) ?? null
+
   // カルテ本文 (保存すると曲/教材にたまり、生徒に届く)
   const [body, setBody] = useState("")
   const [bodyDone, setBodyDone] = useState(false)
@@ -84,35 +88,40 @@ export default function KarteWriteClient({
       </div>
       <div style={{ padding: "12px 13px 14px" }}>
 
-      {/* 直近の演奏を聴く (カルテは演奏に紐づかない。いろいろ聴いて1枚書く) */}
+      {/* 直近の演奏を聴く (カルテは演奏に紐づかない。いろいろ聴いて1枚書く)。
+          場所をとらないよう プルダウンで1件えらんで再生する方式 (2026-08-11 Tetsuo指定) */}
       <div style={card}>
-        <div style={lab}>直近の演奏を聴く（聴きながら下にカルテを書けます）</div>
+        <div style={lab}>直近の演奏を聴く（えらんで再生・聴きながら下にカルテを書けます）</div>
         {performances.length === 0 ? (
           <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)" }}>まだ演奏がありません。</div>
-        ) : performances.map((p) => (
-          <div key={p.id} style={{ border: "1px solid #eef1f4", borderRadius: 10, padding: "8px 11px", marginBottom: 7 }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 10, fontSize: "var(--fs-caption)" }}>
-              <b style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: scoreColor(p.avg) }}>{p.avg}</b>
-              <span style={{ color: "var(--text-sub)" }}>音程 <b style={{ color: scoreColor(p.pitch) }}>{p.pitch}</b></span>
-              <span style={{ color: "var(--text-sub)" }}>リズム <b style={{ color: scoreColor(p.timing) }}>{p.timing}</b></span>
-              <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>{p.date}</span>
-            </div>
-            {p.audioUrl ? (
-              // eslint-disable-next-line jsx-a11y/media-has-caption
-              <audio controls preload="none" src={p.audioUrl} style={{ width: "100%", height: 32, marginTop: 6 }} />
-            ) : (
-              <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 4 }}>音声なし</div>
-            )}
-            {p.weak.length > 0 && (
-              <div style={{ fontSize: "var(--fs-label)", color: "var(--text-body)", marginTop: 5, lineHeight: 1.5 }}>
-                <span style={{ fontWeight: 800, color: "var(--text-muted)" }}>崩れ：</span>
-                {p.weak.slice(0, 2).map((w, i) => (
-                  <span key={i}>{i > 0 ? " / " : ""}<span style={{ color: w.tree === "音程" ? "#c0473a" : "#b7823a", fontWeight: 800 }}>{w.tree}</span>{w.name}</span>
-                ))}
+        ) : (
+          <>
+            <select value={selPerfId ?? ""} onChange={(e) => setSelPerfId(e.target.value)}
+              style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", background: "#fff", boxSizing: "border-box" }}>
+              {performances.map((p) => (
+                <option key={p.id} value={p.id}>{p.date} ・ {p.avg}点（音程{p.pitch}／リズム{p.timing}）</option>
+              ))}
+            </select>
+            {selPerf && (
+              <div style={{ marginTop: 8 }}>
+                {selPerf.audioUrl ? (
+                  // eslint-disable-next-line jsx-a11y/media-has-caption
+                  <audio key={selPerf.id} controls preload="none" src={selPerf.audioUrl} style={{ width: "100%", height: 32 }} />
+                ) : (
+                  <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>音声なし</div>
+                )}
+                {selPerf.weak.length > 0 && (
+                  <div style={{ fontSize: "var(--fs-label)", color: "var(--text-body)", marginTop: 5, lineHeight: 1.5 }}>
+                    <span style={{ fontWeight: 800, color: "var(--text-muted)" }}>崩れ：</span>
+                    {selPerf.weak.slice(0, 2).map((w, i) => (
+                      <span key={i}>{i > 0 ? " / " : ""}<span style={{ color: w.tree === "音程" ? "#c0473a" : "#b7823a", fontWeight: 800 }}>{w.tree}</span>{w.name}</span>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        ))}
+          </>
+        )}
       </div>
 
       {/* カルテ本文 */}
