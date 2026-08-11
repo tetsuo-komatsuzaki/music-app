@@ -226,7 +226,7 @@ export default async function Page({
       fetchSkillNotes("score", score.id),
       buildTargetHeatmap(dbUser.id, "score", score.id, 20),
     ])
-    fingerNotes = Object.fromEntries([...sk.entries()].map(([i, v]) => [i, { s: v.s, n: v.n }]))
+    fingerNotes = Object.fromEntries([...sk.entries()].map(([i, v]) => [i, { s: v.s, n: v.n, p: v.position }]))
     songHeatmap = hm
   } catch { fingerNotes = {}; songHeatmap = null }
 

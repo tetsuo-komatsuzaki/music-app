@@ -138,8 +138,8 @@ type Props = {
   parts?: Part[]
   /** 練習後カルテ (2026-08-11 Tetsuo確定): 曲/教材にぶら下がる先生からのカルテ一覧 */
   teacherKartes?: { id: string; body: string; date: string; teacherName: string }[]
-  /** 指板の実測塗り用: note_index → 指板セル (musicxml_skill_info 由来・2026-08-11) */
-  fingerNotes?: Record<number, { s: "G" | "D" | "A" | "E"; n: number }>
+  /** 指板の実測塗り用: note_index → 指板セル+ポジション (musicxml_skill_info 由来・2026-08-11) */
+  fingerNotes?: Record<number, { s: "G" | "D" | "A" | "E"; n: number; p?: number | null }>
   /** ふりかえりタブ「上達のようす」直下: この曲の全演奏合算の音程マップ (2026-08-11) */
   songHeatmap?: HeatmapData | null
 }

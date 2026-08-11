@@ -16,7 +16,8 @@ export type FingerboardMark = { cellId: string; note: string }
 const rot = (p: readonly (readonly [number, number])[]) => p.map(([x, y]) => [y, -x] as const)
 const pts = (p: readonly (readonly [number, number])[]) => p.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ")
 
-const DIR_LABEL = { high: "高く", low: "低く", mixed: "高低にブレ" } as const
+// 基準がわかる言い方に統一 (2026-08-11 Tetsuo指示): 音が低い / 音が高い / (ミス0=) 音が正確
+const DIR_LABEL = { high: "音が高い", low: "音が低い", mixed: "高低にブレ" } as const
 const STATUS_LABEL: Record<CellStatus, string> = {
   insufficient: "", stable: "安定", sharp: "高すぎ", flat: "低すぎ", unstable: "両方にブレる",
 }
@@ -25,7 +26,7 @@ const STATUS_INK: Record<CellStatus, string> = {
 }
 
 export default function FingerboardPanel({
-  cells, details, marks = [], markable = false, onSaveMark, onRemoveMark, emptyText,
+  cells, details, marks = [], markable = false, onSaveMark, onRemoveMark, emptyText, stack = false,
 }: {
   cells: Record<string, HeatCellOut>
   details: Record<string, CellDetail>
@@ -36,6 +37,8 @@ export default function FingerboardPanel({
   onSaveMark?: (cellId: string, note: string) => Promise<boolean>
   onRemoveMark?: (cellId: string) => Promise<boolean>
   emptyText?: string
+  /** 縦積みレイアウト (演奏履歴カード内など狭い場所用: 指板を全幅で大きく) */
+  stack?: boolean
 }) {
   const [sel, setSel] = useState<string | null>(null)
   const [zoom, setZoom] = useState(false) // クリックでモーダル拡大 (2026-08-11 Tetsuo指示)
@@ -111,8 +114,8 @@ export default function FingerboardPanel({
             style={modeBtn(marking)}>気をつける音をマークする</button>
         </div>
       )}
-      <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
-        <div style={{ flex: inModal ? "1 1 100%" : "1.6 1 260px", minWidth: 0, background: "#fbfdff", border: "1px solid #dce6f2", borderRadius: 12, padding: "8px 10px", overflow: "hidden" }}>
+      <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap", flexDirection: stack && !inModal ? "column" : undefined }}>
+        <div style={{ flex: inModal || stack ? "1 1 100%" : "1.6 1 260px", width: stack && !inModal ? "100%" : undefined, boxSizing: "border-box", minWidth: 0, background: "#fbfdff", border: "1px solid #dce6f2", borderRadius: 12, padding: "8px 10px", overflow: "hidden" }}>
           {/* 指板クリック(セル以外の余白も含む)でモーダル拡大。セルタップは stopPropagation 済みではないので
               セル選択と拡大が両立するよう、拡大は専用ボタンではなく図全体のクリックで開く (セルはonClickが先に走る) */}
           <div onClick={inModal ? undefined : () => setZoom(true)} style={{ cursor: inModal ? "default" : "zoom-in" }}>
@@ -157,7 +160,9 @@ export default function FingerboardPanel({
               {selDetail ? (
                 <>
                   <div style={{ color: "var(--text-sub)", marginTop: 3 }}>
-                    {selDetail.n}回中{selDetail.high + selDetail.low}回ミス（高{selDetail.high}・低{selDetail.low}）
+                    {selDetail.high + selDetail.low === 0
+                      ? `${selDetail.n}回ひいて 音が正確`
+                      : `${selDetail.n}回中${selDetail.high + selDetail.low}回ずれた（音が高い${selDetail.high}回・音が低い${selDetail.low}回）`}
                   </div>
 
                   {/* ポジションべつの安定度 (v2) */}
@@ -172,7 +177,7 @@ export default function FingerboardPanel({
                             {p.finger != null && <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>{p.finger === 0 ? "開放" : `${p.finger}の指`}</span>}
                             <span style={barOuter}><span style={barInner(pct)} /></span>
                             <span style={{ fontWeight: 900, flex: "none", color: pctInk(pct), fontVariantNumeric: "tabular-nums" }}>
-                              {p.n}回中{p.miss}回{p.miss > 0 ? ` ${DIR_LABEL[p.dir]}` : ""}（{pct}%）
+                              {p.n}回中{p.miss}回{p.miss > 0 ? ` ${DIR_LABEL[p.dir]}` : "・音が正確"}（{pct}%）
                             </span>
                           </div>
                         )
@@ -194,7 +199,7 @@ export default function FingerboardPanel({
                               <span style={shiftBadge}>シフト直後</span>
                               <span style={barOuter}><span style={barInner(pctA)} /></span>
                               <span style={{ fontWeight: 900, flex: "none", color: pctInk(pctA), fontVariantNumeric: "tabular-nums" }}>
-                                {sp.after.n}回中{sp.after.miss}回{sp.after.miss > 0 ? ` ${DIR_LABEL[sp.after.dir]}` : ""}
+                                {sp.after.n}回中{sp.after.miss}回{sp.after.miss > 0 ? ` ${DIR_LABEL[sp.after.dir]}` : "・音が正確"}
                               </span>
                             </div>
                             {pctN != null && (
@@ -202,7 +207,7 @@ export default function FingerboardPanel({
                                 <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", flex: "none" }}>移動なし</span>
                                 <span style={barOuter}><span style={barInner(pctN)} /></span>
                                 <span style={{ fontWeight: 900, flex: "none", color: pctInk(pctN), fontVariantNumeric: "tabular-nums" }}>
-                                  {sp.normal.n}回中{sp.normal.miss}回
+                                  {sp.normal.n}回中{sp.normal.miss}回{sp.normal.miss === 0 ? "・音が正確" : ""}
                                 </span>
                               </div>
                             )}
@@ -222,7 +227,7 @@ export default function FingerboardPanel({
                             <span style={t.badgeKind === "shift" ? shiftBadge : { fontSize: "var(--fs-label)", color: "var(--text-muted)", flex: "none" }}>{t.badge}</span>
                           )}
                           <span style={{ marginLeft: "auto", fontWeight: 900, color: t.miss === 0 ? "#2e8b57" : t.miss / t.n >= 0.4 ? "#bb3a2e" : "#b7823a" }}>
-                            {t.n}回中{t.miss}回{t.miss > 0 ? ` ${DIR_LABEL[t.dir]}` : ""}
+                            {t.n}回中{t.miss}回{t.miss > 0 ? ` ${DIR_LABEL[t.dir]}` : "・音が正確"}
                           </span>
                         </div>
                       ))}
