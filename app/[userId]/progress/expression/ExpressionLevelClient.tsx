@@ -11,12 +11,12 @@ import { ArrowLeft, Search } from "lucide-react"
 import type { ExprMapData, ExprNode } from "@/app/_libs/growthKarte"
 
 // ── ペーパートークン (progressPage v3 / SkillsLevelClient と同じ) ──
-const INK = "#241f14"
-const SUB = "#9a8c74"
-const ACC = "#3555d4"
+const INK = "#1c2b4d"
+const SUB = "#7f8ea9"
+const ACC = "#2b5bc4"
 const BAD = "#d0453a"
 const tnum: React.CSSProperties = { fontVariantNumeric: "tabular-nums" }
-const kicker: React.CSSProperties = { fontSize: 9, fontWeight: 900, letterSpacing: ".24em", color: "#b99b45" }
+const kicker: React.CSSProperties = { fontSize: 9, fontWeight: 900, letterSpacing: ".24em", color: "#7f97c4" }
 
 // 表現の分類 (progressPage の EXPR_CATEGORIES と同一。id は moodTags の tagId と一致)
 const EXPR_CATEGORIES: { label: string; ids: string[] }[] = [
@@ -42,7 +42,7 @@ export default function ExpressionLevelClient({ userId, exprMap, unlocked }: {
           <ArrowLeft size={13} /> カルテにもどる
         </Link>
         <div style={{
-          marginTop: 12, background: "linear-gradient(165deg,#fffdf6,#faf4e4)", border: "1px solid #eee6d0",
+          marginTop: 12, background: "#f2f7fd", border: "1px solid #dbe7f6",
           borderRadius: 18, padding: "24px 18px", textAlign: "center",
         }}>
           <div style={kicker}>ESPRESSIONE</div>
@@ -111,14 +111,14 @@ function ExpressionTabs({ userId, litCount, sections, songsByTag }: {
                 fontSize: 12, fontWeight: 900, cursor: "pointer",
                 borderRadius: 999, padding: "7px 14px", whiteSpace: "nowrap",
                 color: on ? "#fff" : INK,
-                background: on ? INK : "rgba(255,255,255,.8)",
-                border: `1px solid ${on ? INK : "#efe5cc"}`,
+                background: on ? "#1f3d78" : "#fff",
+                border: `1px solid ${on ? "#1f3d78" : "#e0e9f6"}`,
               }}>
               {s.label}
               <span style={{
                 fontSize: 9.5, fontWeight: 900, borderRadius: 999, padding: "0 6px", ...tnum,
                 color: on ? "#fff" : SUB,
-                background: on ? "rgba(255,255,255,.22)" : "rgba(150,130,90,.14)",
+                background: on ? "rgba(255,255,255,.22)" : "#dfe9f8",
               }}>{s.items.filter((n) => n.star > 0).length}/{s.items.length}</span>
             </button>
           )
@@ -150,8 +150,8 @@ function ExprCard({ userId, n, songs }: { userId: string; n: ExprNode; songs: So
   const card: React.CSSProperties = {
     flex: "none", width: 168, scrollSnapAlign: "start",
     borderRadius: 15, padding: "14px 14px", boxSizing: "border-box",
-    background: lit ? "linear-gradient(155deg,#fffdf4,#fdf2d2)" : "rgba(255,255,255,.8)",
-    border: `1px solid ${lit ? "#e3c96a" : "#efe5cc"}`,
+    background: lit ? "#eef5ff" : "#fff",
+    border: `1px solid ${lit ? "#b9d4f2" : "#e0e9f6"}`,
     ...(lit ? {} : { opacity: 0.82 }),
   }
 
@@ -167,9 +167,9 @@ function ExprCard({ userId, n, songs }: { userId: string; n: ExprNode; songs: So
       {it && <div style={{ fontSize: 8.5, fontWeight: 800, letterSpacing: ".1em", color: SUB, marginTop: 1 }}>{it}</div>}
 
       {/* 認定★ */}
-      <div style={{ fontSize: 21, fontWeight: 900, marginTop: 7, letterSpacing: 1, color: lit ? "#c9820e" : "#c8bd9f" }}>
+      <div style={{ fontSize: 21, fontWeight: 900, marginTop: 7, letterSpacing: 1, color: lit ? "#c9820e" : "#b8c6dd" }}>
         {lit
-          ? <>{"★".repeat(stars)}<span style={{ color: "#ecdcb2" }}>{"★".repeat(5 - stars)}</span></>
+          ? <>{"★".repeat(stars)}<span style={{ color: "#dbe7f6" }}>{"★".repeat(5 - stars)}</span></>
           : "☆☆☆☆☆"}
       </div>
 
@@ -181,7 +181,7 @@ function ExprCard({ userId, n, songs }: { userId: string; n: ExprNode; songs: So
       {/* この表現に挑戦する曲 */}
       {songs.length > 0 && (
         <div style={{ marginTop: 11, borderTop: "1px solid rgba(150,130,90,.18)", paddingTop: 9 }}>
-          <div style={{ fontSize: 8.5, fontWeight: 900, letterSpacing: ".08em", color: "#b99b45" }}>この表現の曲</div>
+          <div style={{ fontSize: 8.5, fontWeight: 900, letterSpacing: ".08em", color: "#7f97c4" }}>この表現の曲</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 5 }}>
             {songs.slice(0, 3).map((s) => (
               <Link key={s.id} href={`/${userId}/scores/${s.id}`}

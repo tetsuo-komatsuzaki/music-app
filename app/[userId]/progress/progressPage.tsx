@@ -13,16 +13,16 @@ import type { KarteData, SkillNode } from "@/app/_libs/growthKarte"
 import BodyObsMap from "@/app/components/BodyObsMap"
 import ShareSheet from "@/app/components/ShareSheet"
 
-// ── ペーパートークン ──
-const INK = "#241f14"
-const SUB = "#9a8c74"
-const ACC = "#3555d4"
+// ── P3 ライトブルートークン (2026-08-11 Tetsuo確定: クリーム紙→青基調に刷新) ──
+const INK = "#1c2b4d"
+const SUB = "#7f8ea9"
+const ACC = "#2b5bc4"
 const GOOD = "#0f8a4f"
 const GOLD = "#b58a1e"
 const WARN = "#c9752e"
 const tnum: React.CSSProperties = { fontVariantNumeric: "tabular-nums" }
 
-const kicker: React.CSSProperties = { fontSize: 9, fontWeight: 900, letterSpacing: ".24em", color: "#b99b45" }
+const kicker: React.CSSProperties = { fontSize: 9, fontWeight: 900, letterSpacing: ".24em", color: "#7f97c4" }
 const chapTitle: React.CSSProperties = { fontSize: 15, fontWeight: 900, marginTop: 1 }
 const chapNote: React.CSSProperties = { fontSize: 9.5, color: SUB, fontWeight: 700 }
 
@@ -42,9 +42,9 @@ const EXPR_CATEGORIES: { label: string; ids: string[] }[] = [
   { label: "表情・幻想", ids: ["mood_espressivo", "mood_misterioso"] },
 ]
 
-/** 金の罫線 (章区切り) */
+/** 章区切りの罫線 (P3: 淡青) */
 const Rule = () => (
-  <div style={{ height: 1, margin: "16px 18px 0", background: "linear-gradient(90deg,#e3c96a,#f2ead2 70%,transparent)" }} />
+  <div style={{ height: 1, margin: "16px 18px 0", background: "#e3ecf9" }} />
 )
 
 /** スクロールで現れる (IntersectionObserver・reduced-motion対応) */
@@ -84,9 +84,9 @@ export default function ProgressPage({ userId, data, readOnly = false }: {
         <div style={{ fontSize: 9.5, fontWeight: 800, color: "#8a9099", margin: "0 0 10px" }}>生徒に見えているのと同じカルテ</div>
       )}
 
-      {/* ═ 1枚のクリームの紙 ═ */}
+      {/* ═ P3 ライトブルーの1枚 ═ */}
       <div style={{
-        background: "linear-gradient(165deg,#fffdf6,#faf4e4)", border: "1px solid #eee6d0",
+        background: "#f2f7fd", border: "1px solid #dbe7f6",
         borderRadius: 18, overflow: "hidden", position: "relative",
       }}>
         <Hero userId={userId} data={data} readOnly={readOnly} onShare={() => setWeeklyShare(true)} />
@@ -109,27 +109,27 @@ export default function ProgressPage({ userId, data, readOnly = false }: {
 function Hero({ userId, data, readOnly, onShare }: { userId: string; data: KarteData; readOnly: boolean; onShare: () => void }) {
   const k = data.v2.kpi
   return (
-    <div style={{ position: "relative", padding: "22px 18px 18px" }}>
-      {/* 五線譜は削除 (2026-08-11 Tetsuo確定: 形が崩れるため装飾なしに) */}
+    // P3: 青グラデのヒーロー + 白テキスト (2026-08-11 Tetsuo確定)
+    <div style={{ position: "relative", padding: "20px 18px 18px", background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", color: "#eaf1ff" }}>
       <div style={{ position: "relative" }}>
         <div style={{ display: "flex", alignItems: "baseline" }}>
           <div>
-            <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: ".22em", color: "#a98b2f" }}>GROWTH KARTE</div>
+            <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: ".22em", color: "#a9c3f2" }}>GROWTH KARTE</div>
           </div>
           {!readOnly && (
             <button type="button" onClick={onShare}
-              style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 800, color: GOLD, background: "rgba(255,255,255,.7)", border: "1px solid #eee0bd", borderRadius: 999, padding: "4px 11px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 800, color: "#fff", background: "rgba(255,255,255,.16)", border: "1px solid rgba(255,255,255,.2)", borderRadius: 999, padding: "4px 11px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
               <Share2 size={12} /> 今週をシェア
             </button>
           )}
         </div>
         <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-          <div style={kpiBox}><b style={{ ...kpiNum, color: ACC }}>{k.starDone}<small style={{ fontSize: 11, color: "#9aa6b3" }}>/{k.starRequired}</small></b><span style={kpiLbl}>★{k.star}の達成曲</span></div>
-          <div style={kpiBox}><b style={{ ...kpiNum, color: k.basicsWeek > 0 ? GOOD : SUB }}>{k.basicsWeek > 0 ? `+${k.basicsWeek}` : "±0"}</b><span style={kpiLbl}>今週の基礎練</span></div>
-          <div style={kpiBox}><b style={{ ...kpiNum, color: k.skillsWeek > 0 ? GOLD : SUB }}>{k.skillsWeek > 0 ? `+${k.skillsWeek}` : "±0"}</b><span style={kpiLbl}>今週のわざ</span></div>
+          <div style={kpiBox}><b style={{ ...kpiNum, color: "#fff" }}>{k.starDone}<small style={{ fontSize: 11, color: "#bcd0f5" }}>/{k.starRequired}</small></b><span style={kpiLbl}>★{k.star}の達成曲</span></div>
+          <div style={kpiBox}><b style={{ ...kpiNum, color: k.basicsWeek > 0 ? "#fff" : "#bcd0f5" }}>{k.basicsWeek > 0 ? `+${k.basicsWeek}` : "±0"}</b><span style={kpiLbl}>今週の基礎練</span></div>
+          <div style={kpiBox}><b style={{ ...kpiNum, color: k.skillsWeek > 0 ? "#fff" : "#bcd0f5" }}>{k.skillsWeek > 0 ? `+${k.skillsWeek}` : "±0"}</b><span style={kpiLbl}>今週のわざ</span></div>
         </div>
         {!readOnly && (
-          <Link href={`/${userId}/progress/numbers`} style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 11, fontSize: 10.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>
+          <Link href={`/${userId}/progress/numbers`} style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 12, fontSize: 10.5, fontWeight: 800, color: "#cfe0ff", textDecoration: "none" }}>
             <Search size={11} /> きろくを詳しくみる（記録の分析）→
           </Link>
         )}
@@ -137,9 +137,9 @@ function Hero({ userId, data, readOnly, onShare }: { userId: string; data: Karte
     </div>
   )
 }
-const kpiBox: React.CSSProperties = { flex: 1, textAlign: "center", background: "rgba(255,255,255,.65)", border: "1px solid #efe5cc", borderRadius: 13, padding: "10px 4px 8px" }
+const kpiBox: React.CSSProperties = { flex: 1, textAlign: "center", background: "rgba(255,255,255,.14)", border: "1px solid rgba(255,255,255,.16)", borderRadius: 13, padding: "10px 4px 8px" }
 const kpiNum: React.CSSProperties = { display: "block", fontSize: 23, fontWeight: 900, lineHeight: 1.1, ...tnum }
-const kpiLbl: React.CSSProperties = { fontSize: 8.5, fontWeight: 800, color: "#9a8c74" }
+const kpiLbl: React.CSSProperties = { fontSize: 8.5, fontWeight: 800, color: "#bcd0f5" }
 
 /* ═ わざの習得状況: 分類ごとの進み具合バー (タップ不要・情報常時表示) ═ */
 function SkillsChapter({ userId, data, readOnly }: { userId: string; data: KarteData; readOnly: boolean }) {
@@ -177,8 +177,8 @@ function SkillsChapter({ userId, data, readOnly }: { userId: string; data: Karte
           {cats.map((c) => (
             <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ flex: "none", width: 116, fontSize: 10.5, fontWeight: 800, color: INK }}>{c.label}</span>
-              <div style={{ flex: 1, height: 8, borderRadius: 999, background: "rgba(150,130,90,.16)", overflow: "hidden" }}>
-                <div style={{ width: `${(c.lit / c.total) * 100}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#e3c96a,#d8b34e)" }} />
+              <div style={{ flex: 1, height: 8, borderRadius: 999, background: "#dfe9f8", overflow: "hidden" }}>
+                <div style={{ width: `${(c.lit / c.total) * 100}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#2b5bc4,#59a7ff)" }} />
               </div>
               <span style={{ ...tnum, flex: "none", width: 34, textAlign: "right", fontSize: 10.5, fontWeight: 900, color: SUB }}>{c.lit}/{c.total}</span>
             </div>
@@ -240,8 +240,8 @@ function ExprChapter({ userId, data, readOnly }: { userId: string; data: KarteDa
           {cats.map((c) => (
             <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ flex: "none", width: 116, fontSize: 10.5, fontWeight: 800, color: INK }}>{c.label}</span>
-              <div style={{ flex: 1, height: 8, borderRadius: 999, background: "rgba(150,130,90,.16)", overflow: "hidden" }}>
-                <div style={{ width: `${(c.lit / c.total) * 100}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#e3c96a,#d8b34e)" }} />
+              <div style={{ flex: 1, height: 8, borderRadius: 999, background: "#dfe9f8", overflow: "hidden" }}>
+                <div style={{ width: `${(c.lit / c.total) * 100}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#2b5bc4,#59a7ff)" }} />
               </div>
               <span style={{ ...tnum, flex: "none", width: 34, textAlign: "right", fontSize: 10.5, fontWeight: 900, color: SUB }}>{c.lit}/{c.total}</span>
             </div>
@@ -323,7 +323,7 @@ function HistorySection({ data }: { data: KarteData }) {
             <div key={`${m.at}-${i}`} style={{ display: "flex", gap: 12 }}>
               {/* 左: 縦線 + 節目ドット */}
               <div style={{ position: "relative", width: 14, flex: "none" }}>
-                {!isLast && <div style={{ position: "absolute", top: 14, bottom: -10, left: 6, width: 2, borderRadius: 1, background: "#ece8db" }} />}
+                {!isLast && <div style={{ position: "absolute", top: 14, bottom: -10, left: 6, width: 2, borderRadius: 1, background: "#dbe7f6" }} />}
                 <span style={{
                   position: "absolute", top: 3, left: big ? 2 : 3,
                   width: big ? 10 : 8, height: big ? 10 : 8, borderRadius: "50%", boxSizing: "border-box",
@@ -333,8 +333,8 @@ function HistorySection({ data }: { data: KarteData }) {
               {/* 右: 節目カード */}
               <div style={{
                 flex: 1, minWidth: 0, marginBottom: 10, borderRadius: 14, padding: "12px 14px",
-                background: big ? "linear-gradient(155deg,#fffdf4,#fbf2d8)" : "rgba(255,255,255,.8)",
-                border: `1px solid ${big ? "#ecd9a2" : "#eee9da"}`,
+                background: big ? "#eef5ff" : "#fff",
+                border: `1px solid ${big ? "#cfe0f7" : "#e0e9f6"}`,
               }}>
                 <div style={{ fontSize: 8.5, fontWeight: 900, letterSpacing: ".16em", color: cat.color }}>
                   {cat.label} ・ {m.date}
@@ -343,7 +343,7 @@ function HistorySection({ data }: { data: KarteData }) {
                   {m.text}
                 </div>
                 {isLast && (
-                  <div style={{ fontSize: 10, color: "#9a9384", marginTop: 4 }}>ここから物語がはじまった</div>
+                  <div style={{ fontSize: 10, color: "#7f8ea9", marginTop: 4 }}>ここから物語がはじまった</div>
                 )}
               </div>
             </div>

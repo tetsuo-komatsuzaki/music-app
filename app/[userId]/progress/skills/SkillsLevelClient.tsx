@@ -11,16 +11,16 @@ import { ArrowLeft } from "lucide-react"
 import type { SkillMapData, SkillNode } from "@/app/_libs/growthKarte"
 
 // ── ペーパートークン (progressPage v3 と同じ) ──
-const INK = "#241f14"
-const SUB = "#9a8c74"
-const ACC = "#3555d4"
+const INK = "#1c2b4d"
+const SUB = "#7f8ea9"
+const ACC = "#2b5bc4"
 const GOOD = "#0f8a4f"
 const BAD = "#d0453a"
 const GOLD = "#b58a1e"
 const WARN = "#c9752e"
 const tnum: React.CSSProperties = { fontVariantNumeric: "tabular-nums" }
 
-const kicker: React.CSSProperties = { fontSize: 9, fontWeight: 900, letterSpacing: ".24em", color: "#b99b45" }
+const kicker: React.CSSProperties = { fontSize: 9, fontWeight: 900, letterSpacing: ".24em", color: "#7f97c4" }
 
 // わざの分類セクション (id は SKILL_DEFS の id = SkillNode.id と一致)
 const SKILL_CATEGORIES: { label: string; ids: string[] }[] = [
@@ -40,7 +40,7 @@ export default function SkillsLevelClient({ userId, skillMap }: { userId: string
           <ArrowLeft size={13} /> カルテにもどる
         </Link>
         <div style={{
-          marginTop: 12, background: "linear-gradient(165deg,#fffdf6,#faf4e4)", border: "1px solid #eee6d0",
+          marginTop: 12, background: "#f2f7fd", border: "1px solid #dbe7f6",
           borderRadius: 18, padding: "24px 18px", textAlign: "center",
         }}>
           <div style={kicker}>SKILLS</div>
@@ -105,14 +105,14 @@ function SkillsTabs({ userId, currentStar, sections }: {
                 fontSize: 12, fontWeight: 900, cursor: "pointer",
                 borderRadius: 999, padding: "7px 14px", whiteSpace: "nowrap",
                 color: on ? "#fff" : INK,
-                background: on ? INK : "rgba(255,255,255,.8)",
-                border: `1px solid ${on ? INK : "#efe5cc"}`,
+                background: on ? "#1f3d78" : "#fff",
+                border: `1px solid ${on ? "#1f3d78" : "#e0e9f6"}`,
               }}>
               {s.label}
               <span style={{
                 fontSize: 9.5, fontWeight: 900, borderRadius: 999, padding: "0 6px", ...tnum,
                 color: on ? "#fff" : SUB,
-                background: on ? "rgba(255,255,255,.22)" : "rgba(150,130,90,.14)",
+                background: on ? "rgba(255,255,255,.22)" : "#dfe9f8",
               }}>{s.items.length}</span>
             </button>
           )
@@ -142,8 +142,8 @@ function SkillCard({ userId, n }: { userId: string; n: SkillNode }) {
   const card: React.CSSProperties = {
     flex: "none", width: 158, scrollSnapAlign: "start",
     borderRadius: 15, padding: "14px 14px", boxSizing: "border-box",
-    background: lit ? "linear-gradient(155deg,#fffdf4,#fdf2d2)" : "rgba(255,255,255,.8)",
-    border: `1px solid ${lit ? "#e3c96a" : "#efe5cc"}`,
+    background: lit ? "#eef5ff" : "#fff",
+    border: `1px solid ${lit ? "#b9d4f2" : "#e0e9f6"}`,
     ...(locked ? { opacity: 0.6, filter: "saturate(.5)" } : {}),
   }
 
@@ -173,7 +173,7 @@ function SkillCard({ userId, n }: { userId: string; n: SkillNode }) {
             {n.pct}<span style={{ fontSize: 14 }}>%</span>
           </div>
         ) : (
-          <div style={{ fontSize: 30, fontWeight: 900, color: "#c0b598", lineHeight: 1 }}>—</div>
+          <div style={{ fontSize: 30, fontWeight: 900, color: "#b8c6dd", lineHeight: 1 }}>—</div>
         )}
       </div>
 
@@ -191,7 +191,7 @@ function SkillCard({ userId, n }: { userId: string; n: SkillNode }) {
           {n.series.slice(-8).map((v, i, arr) => (
             <span key={i} style={{
               flex: 1, height: `${Math.max(12, v)}%`, borderRadius: "2px 2px 0 0",
-              background: i === arr.length - 1 ? "#c9a227" : "linear-gradient(180deg,#e3c96a,#d8b34e)",
+              background: i === arr.length - 1 ? "#1f3d78" : "linear-gradient(180deg,#59a7ff,#2b5bc4)",
             }} />
           ))}
         </div>
@@ -220,7 +220,7 @@ function MiniBar({ label, pct }: { label: string; pct: number }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
       <span style={{ flex: "none", width: 34, fontSize: 9.5, fontWeight: 800, color: SUB }}>{label}</span>
-      <div style={{ flex: 1, height: 7, borderRadius: 999, background: "rgba(150,130,90,.16)", overflow: "hidden" }}>
+      <div style={{ flex: 1, height: 7, borderRadius: 999, background: "#dfe9f8", overflow: "hidden" }}>
         <div style={{ width: `${Math.max(4, Math.min(100, pct))}%`, height: "100%", borderRadius: 999, background: color }} />
       </div>
       <span style={{ ...tnum, flex: "none", width: 30, textAlign: "right", fontSize: 10, fontWeight: 900, color }}>{pct}</span>
