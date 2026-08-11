@@ -30,8 +30,6 @@ import { resolvePartToNoteRange, type Part } from "@/app/_libs/materialParts"
 import { CELEBRATION_SINCE_MS } from "@/app/_libs/featureFlags"
 import { parseMilestoneEvents } from "@/app/_libs/celebration"
 import CelebrationBanner from "@/app/components/CelebrationBanner"
-import MilestoneCelebration from "@/app/components/MilestoneCelebration"
-import CelebrationBoundary from "@/app/components/CelebrationBoundary"
 import SinglePerfFingerboard from "@/app/components/SinglePerfFingerboard"
 import FingerboardPanel from "@/app/components/FingerboardPanel"
 import StudentKarteCards, { type StudentKarteCard } from "@/app/components/StudentKarteCards"
@@ -3201,7 +3199,7 @@ function ScoreDetailInner({
     return { perf, events }
   }, [performances])
   const celebrationPerf = celebration.perf
-  const celebEvents = celebration.events
+  // celebEvents は全画面祝い削除により未使用 (2026-08-12)
   const celebAlreadyShown = !celebrationPerf || celebShown.has(celebrationPerf.id)
   const closeCelebration = useCallback(() => {
     const perf = celebrationPerf
@@ -3838,21 +3836,9 @@ function ScoreDetailInner({
         />
       )}
 
-      {/* 祝いオーバーレイ (§2.2): 振り返りを開いた瞬間に発動。Error Boundary で通常結果に必ずフォールバック。 */}
-      {activeTab === "review" && celebrationPerf && !celebAlreadyShown && celebEvents.length > 0 && (
-        <CelebrationBoundary>
-          <MilestoneCelebration
-            events={celebEvents}
-            tone="child"
-            subjectName={score.title}
-            star={null}
-            dateLabel={new Date(celebrationPerf.uploadedAt).toLocaleDateString("ja-JP").replace(/\//g, ".")}
-            onClose={closeCelebration}
-            onSeeRecords={() => { closeCelebration(); router.push(`/${userId}/records`) }}
-            onNewPieces={() => { closeCelebration(); router.push(`/${userId}/practice/pieces`) }}
-          />
-        </CelebrationBoundary>
-      )}
+      {/* 全画面の祝いカード(MilestoneCelebration)は削除 (2026-08-12 Tetsuo指示:
+          共有ありカルテ導線なしのカードがアルコ結果の前に出る二段表示の正体。
+          祝いの見せ場はアルコ結果カード(マスター達成〜！見出し)に集約) */}
 
       <OnboardingTrigger pageKey={practiceItemId ? "practiceItem" : "scoreDetail"} />
     </div>
