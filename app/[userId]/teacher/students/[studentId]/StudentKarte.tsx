@@ -133,8 +133,8 @@ export default function StudentKarte({
   karte?: KarteData | null
   studentSupabaseUserId?: string | null
 }) {
-  // 案1 カルテ・フィード (2026-08-11 再設計): 練習後カルテを背骨に。カルテ(フィード)を主役、成長カルテは参照、指導ツールは集約。
-  const [tab, setTab] = useState<"feed" | "growth" | "teach">("feed")
+  // 先生カルテ v3 (2026-08-11 再設計): 主役=まとめ(理解の統合)＋練習後カルテ(曲別一覧)。成長カルテは脇役。宿題・指導は当面タブ維持(将来インライン化)。
+  const [tab, setTab] = useState<"summary" | "karte" | "teach" | "growth">("summary")
   return (
     // 生徒カルテ ペーパーデザイン (2026-08-06 Tetsuo確定B: 成長カルテv3と同じ世界観に全面統一)
     <div style={{
@@ -146,7 +146,7 @@ export default function StudentKarte({
       <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "0 0 10px" }}>{studentName}</h1>
 
       <div style={{ display: "flex", gap: 4, marginBottom: 14, background: "rgba(255,255,255,.55)", border: "1px solid #efe5cc", borderRadius: 12, padding: 3 }}>
-        {([["feed", "カルテ"], ["growth", "成長カルテ"], ["teach", "宿題・指導"]] as const).map(([k, label]) => (
+        {([["summary", "まとめ"], ["karte", "練習後カルテ"], ["teach", "宿題・指導"], ["growth", "成長カルテ"]] as const).map(([k, label]) => (
           <button
             key={k}
             type="button"
@@ -164,8 +164,11 @@ export default function StudentKarte({
         ))}
       </div>
 
-      {tab === "feed" && (
-        <KarteFeed userId={userId} studentId={studentId} briefing={briefing} working={working} recordings={recordings} onGoTeach={() => setTab("teach")} />
+      {tab === "summary" && (
+        <SummaryTab briefing={briefing} working={working} recordings={recordings} observations={observations} onGoKarte={() => setTab("karte")} />
+      )}
+      {tab === "karte" && (
+        <KarteBySong studentId={studentId} recordings={recordings} />
       )}
       {tab === "growth" && (
         karte ? (
@@ -188,76 +191,194 @@ export default function StudentKarte({
   )
 }
 
-/* ═ 案1: カルテ・フィード (練習後カルテを新しい順に。各カルテの上で指導へ) ═ */
-function KarteFeed({ userId, studentId, briefing, working, recordings, onGoTeach }: {
-  userId: string; studentId: string; briefing: Briefing; working: WorkItem[]; recordings: Recording[]; onGoTeach: () => void
+const kScoreColor = (n: number) => (n >= 90 ? "#2e8b57" : n >= 70 ? "#b7823a" : "#c0473a")
+const kSec: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-master)", margin: "14px 2px 8px", display: "flex", alignItems: "center", gap: 6 }
+const kCat: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", flex: "none" }
+
+/* ═ 主役①: まとめ (上達状況＋アルコの診断=既存データ集計。全自動AI生成は第2段) ═ */
+function SummaryTab({ briefing, working, recordings, observations, onGoKarte }: {
+  briefing: Briefing; working: WorkItem[]; recordings: Recording[]; observations: ObservationRow[]; onGoKarte: () => void
 }) {
-  void userId
-  const scoreColor = (n: number) => (n >= 90 ? "#2e8b57" : n >= 70 ? "#b7823a" : "#c0473a")
-  const catChip: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", marginRight: 6 }
-  const actBtn: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, border: "1px solid #d8dee8", background: "#fff", color: "#33405a", borderRadius: 8, padding: "6px 10px", cursor: "pointer" }
+  // 傾向: 全カルテの崩れを集計 (成功率の低い順)
+  const weakAgg = new Map<string, { tree: "音程" | "リズム"; miss: number; target: number; count: number }>()
+  for (const r of recordings) for (const w of r.weak) {
+    const e = weakAgg.get(w.name) ?? { tree: w.tree, miss: 0, target: 0, count: 0 }
+    e.miss += w.miss; e.target += w.target; e.count++
+    weakAgg.set(w.name, e)
+  }
+  const topWeak = [...weakAgg.entries()]
+    .map(([name, e]) => ({ name, tree: e.tree, count: e.count, pct: Math.max(0, Math.round(100 - (e.miss / Math.max(1, e.target)) * 100)) }))
+    .sort((a, b) => a.pct - b.pct || b.count - a.count).slice(0, 3)
+  // 強み: 平均85以上の曲/教材
+  const strengths = working.filter((w) => w.avg >= 85).slice(0, 4)
+  // 前に記録した癖 (最近・重複除去)
+  const recentKuse = [...new Set(observations.slice(0, 6).flatMap((o) => o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter((s): s is string => !!s)))].slice(0, 4)
+  const pill: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "3px 9px" }
+
   return (
     <>
-      {/* 前回から (背骨のサマリー) */}
-      <div style={{ background: "#eef2fb", border: "1px solid #dbe4f5", borderRadius: 12, padding: "10px 13px", marginBottom: 12 }}>
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "#2b3d6b" }}>この生徒の練習後カルテ</div>
+      <div style={{ background: "#eef2fb", border: "1px solid #dbe4f5", borderRadius: 12, padding: "10px 13px", marginBottom: 4 }}>
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "#2b3d6b" }}>この生徒の今週</div>
         <div style={{ display: "flex", gap: 14, marginTop: 5, fontSize: "var(--fs-caption)", color: "#3a4a68", flexWrap: "wrap" }}>
           <span>直近7日の練習 <b style={{ color: "#1a2740" }}>{briefing.practiceCount7d}</b>回</span>
           <span>カルテ <b style={{ color: "#1a2740" }}>{recordings.length}</b>枚</span>
           <span>達成 <b style={{ color: "#1a2740" }}>{briefing.achievements.length}</b></span>
         </div>
-        {working.length > 0 && (
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 7 }}>
-            {working.slice(0, 4).map((w, i) => (
-              <span key={i} style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#3a4a68", background: "#fff", border: "1px solid #dbe4f5", borderRadius: 999, padding: "2px 9px" }}>
-                {w.title} <b style={{ color: scoreColor(w.avg) }}>{w.avg}</b>
-              </span>
-            ))}
-          </div>
-        )}
       </div>
 
-      {recordings.length === 0 ? (
-        <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ練習後カルテがありません（録音するとここに1枚ずつ増えます）。</div></Card>
+      <div style={kSec}>練習曲・宿題の上達状況</div>
+      {working.length === 0 ? (
+        <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ録音がありません。</div></Card>
       ) : (
-        recordings.map((r) => (
-          <div key={r.id} style={{ background: "rgba(255,255,255,.85)", border: "1px solid #efe5cc", borderRadius: 14, padding: "12px 14px", marginBottom: 10 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline" }}>
-              <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                <span style={catChip}>{r.cat}</span>
-                <b style={{ color: "var(--text-ink)" }}>{r.title}</b>
-              </span>
-              <span style={{ flex: "none", fontSize: "var(--fs-subhead)", fontWeight: 900, color: scoreColor(r.avg) }}>{r.avg}</span>
-            </div>
-            <div style={{ display: "flex", gap: 12, fontSize: "var(--fs-caption)", marginTop: 4 }}>
-              <span style={{ color: "var(--text-sub)" }}>音程 <b style={{ color: scoreColor(r.pitch) }}>{r.pitch}</b></span>
-              <span style={{ color: "var(--text-sub)" }}>リズム <b style={{ color: scoreColor(r.timing) }}>{r.timing}</b></span>
-              <span style={{ marginLeft: "auto", color: "var(--text-muted)" }}>{r.date}</span>
-            </div>
-            {r.weak.length > 0 && (
-              <div style={{ background: "#f4f7fc", borderRadius: 8, padding: "7px 9px", marginTop: 8 }}>
-                <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 2 }}>アルコの聴きとり・崩れやすかった所</div>
-                {r.weak.map((w, i) => (
-                  <div key={i} style={{ fontSize: "var(--fs-caption)", color: "var(--text-body)" }}>
-                    <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{w.tree}</span>
-                    {w.name} 成功率{Math.max(0, Math.round(100 - (w.miss / Math.max(1, w.target)) * 100))}%（{w.target}音中{w.miss}ミス）
-                  </div>
-                ))}
-              </div>
-            )}
-            {r.audioUrl ? (
-              <audio controls preload="none" src={r.audioUrl} style={{ width: "100%", height: 32, marginTop: 8 }} />
-            ) : null}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 9 }}>
-              <button type="button" onClick={onGoTeach} style={actBtn}>この曲に宿題</button>
-              <button type="button" onClick={onGoTeach} style={actBtn}>癖として記録</button>
-              <button type="button" onClick={onGoTeach} style={{ ...actBtn, color: "#a9741c", borderColor: "#f0dcb4" }}>表現を認定</button>
-            </div>
-            <RecCommentBox studentId={studentId} performanceId={r.id} kind={r.kind} />
+        working.map((w, i) => (
+          <div key={i} style={{ background: "rgba(255,255,255,.85)", border: "1px solid #efe5cc", borderRadius: 11, padding: "9px 12px", marginBottom: 7, display: "flex", alignItems: "center", gap: 9 }}>
+            <span style={kCat}>{w.cat}</span>
+            <b style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-ink)" }}>{w.title}</b>
+            <span style={{ marginLeft: "auto", fontSize: "var(--fs-subhead)", fontWeight: 900, color: kScoreColor(w.avg), flex: "none" }}>{w.avg}</span>
           </div>
         ))
       )}
+
+      <div style={kSec}>アルコの診断（曲・宿題・基礎練ぜんぶから）</div>
+      <div style={{ background: "#f6f4ff", border: "1px solid #e7dcfb", borderRadius: 12, padding: "12px 14px" }}>
+        {/* 傾向 */}
+        <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#7a4dd6" }}>傾向</div>
+        {topWeak.length === 0 ? (
+          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 3 }}>まだ崩れの目立つ所は少ないよ。録音がたまるほど傾向がはっきりします。</div>
+        ) : (
+          <div style={{ marginTop: 4 }}>
+            {topWeak.map((w) => (
+              <div key={w.name} style={{ fontSize: "var(--fs-caption)", color: "#3a3550", lineHeight: 1.7 }}>
+                <span style={{ ...pill, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", marginRight: 5 }}>{w.tree}</span>
+                <b>{w.name}</b> 成功率 <b style={{ color: kScoreColor(w.pct) }}>{w.pct}%</b> ・ {w.count}回崩れ
+              </div>
+            ))}
+          </div>
+        )}
+        {/* 強み */}
+        {strengths.length > 0 && (
+          <>
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#158253", marginTop: 10 }}>強み</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 4 }}>
+              {strengths.map((w, i) => (
+                <span key={i} style={{ ...pill, color: "#158253", background: "#e9f8f0", border: "1px solid #c8ecd8" }}>{w.title} {w.avg}</span>
+              ))}
+            </div>
+          </>
+        )}
+        {/* 前に記録した癖 (指摘トラッキングは第2段) */}
+        {recentKuse.length > 0 && (
+          <>
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#a9741c", marginTop: 10 }}>前に記録した癖</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 4 }}>
+              {recentKuse.map((label, i) => (
+                <span key={i} style={{ ...pill, color: "#a9741c", background: "#fff3e2", border: "1px solid #f0dcb4" }}>{label}</span>
+              ))}
+            </div>
+            <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 5 }}>※「直ったか」の自動判定は近日（録音の推移から）</div>
+          </>
+        )}
+        {/* 提案 */}
+        <div style={{ marginTop: 11, background: "#f0f7f3", border: "1px solid #cfe9db", borderRadius: 9, padding: "9px 11px" }}>
+          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#136647" }}>今週の指導提案</div>
+          <div style={{ fontSize: "var(--fs-caption)", color: "#1f3a2e", lineHeight: 1.65, marginTop: 3 }}>
+            {topWeak.length > 0
+              ? <>まずは<b>「{topWeak[0].name}」</b>を重点に。ゆっくりのテンポで音程から合わせ、できたら少しずつ速くしていこう。</>
+              : <>今の流れは良好。得意を伸ばしつつ、新しいわざに挑戦できる曲を渡してみよう。</>}
+          </div>
+        </div>
+        <button type="button" onClick={onGoKarte}
+          style={{ marginTop: 11, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#fff", background: "#3b56d4", border: "none", borderRadius: 9, padding: "8px 14px", cursor: "pointer" }}>
+          練習後カルテ（曲別）を見る →
+        </button>
+      </div>
     </>
+  )
+}
+
+/* ═ 主役②: 練習後カルテ (曲別。曲→この曲のカルテを横スライド) ═ */
+type SongGroup = { title: string; cat: string; kind: "score" | "practice"; recs: Recording[]; count: number; latest: Recording; trend: number }
+function KarteBySong({ studentId, recordings }: { studentId: string; recordings: Recording[] }) {
+  const order: string[] = []
+  const groups = new Map<string, Recording[]>()
+  for (const r of recordings) {
+    if (!groups.has(r.title)) { groups.set(r.title, []); order.push(r.title) }
+    groups.get(r.title)!.push(r)
+  }
+  const gs: SongGroup[] = order.map((title) => {
+    const recs = groups.get(title)!
+    const latest = recs[0]
+    const earliest = recs[recs.length - 1]
+    return { title, cat: latest.cat, kind: latest.kind, recs, count: recs.length, latest, trend: latest.avg - earliest.avg }
+  })
+  const songs = gs.filter((g) => g.kind === "score")
+  const basics = gs.filter((g) => g.kind === "practice")
+
+  const renderGroup = (g: SongGroup) => (
+    <details key={g.title} style={{ background: "rgba(255,255,255,.85)", border: "1px solid #efe5cc", borderRadius: 13, marginBottom: 8 }}>
+      <summary style={{ listStyle: "none", cursor: "pointer", padding: "11px 13px", display: "flex", alignItems: "center", gap: 9 }}>
+        <span style={kCat}>{g.cat}</span>
+        <b style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-ink)" }}>{g.title}</b>
+        <span style={{ marginLeft: "auto", flex: "none", textAlign: "right", fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800, lineHeight: 1.35 }}>{g.count}枚<br />{g.latest.date}</span>
+        <span style={{ flex: "none", fontSize: "var(--fs-subhead)", fontWeight: 900, color: kScoreColor(g.latest.avg) }}>{g.latest.avg}</span>
+      </summary>
+      <div style={{ padding: "0 13px 12px" }}>
+        {g.count >= 2 && (
+          <div style={{ fontSize: "var(--fs-label)", color: "#4a4066", background: "#f4f7fc", borderRadius: 8, padding: "6px 9px", marginBottom: 8, fontWeight: 700 }}>
+            この曲のカルテ {g.count}枚 ・ {g.recs[g.recs.length - 1].avg} → {g.latest.avg}（{g.trend > 2 ? `改善 +${g.trend}` : g.trend < -2 ? `${g.trend}` : "横ばい"}）
+          </div>
+        )}
+        <div style={{ display: "flex", gap: 9, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "none", touchAction: "pan-y", paddingBottom: 4 }}>
+          {g.recs.map((r) => <MiniKarte key={r.id} studentId={studentId} r={r} />)}
+        </div>
+      </div>
+    </details>
+  )
+
+  if (recordings.length === 0) {
+    return <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ練習後カルテがありません（録音するとここに1枚ずつ増えます）。</div></Card>
+  }
+  return (
+    <>
+      <div style={kSec}>曲<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>カルテ回数・直近</span></div>
+      {songs.length === 0 ? (
+        <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>曲の演奏がまだありません。</div></Card>
+      ) : songs.map(renderGroup)}
+      {basics.length > 0 && (
+        <>
+          <div style={kSec}>基礎練・教材<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>カルテ回数・直近</span></div>
+          {basics.map(renderGroup)}
+        </>
+      )}
+    </>
+  )
+}
+
+/* ═ 曲別の横スライド1枚 (練習後カルテ・コメント可) ═ */
+function MiniKarte({ studentId, r }: { studentId: string; r: Recording }) {
+  return (
+    <div style={{ flex: "none", width: 216, scrollSnapAlign: "start", background: "#fff", border: "1px solid #eef1f4", borderRadius: 12, padding: "11px 12px", boxSizing: "border-box" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+        <span style={{ fontSize: "var(--fs-title)", fontWeight: 900, color: kScoreColor(r.avg), lineHeight: 1 }}>{r.avg}</span>
+        <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>{r.date}</span>
+      </div>
+      <div style={{ display: "flex", gap: 10, fontSize: "var(--fs-label)", marginTop: 4 }}>
+        <span style={{ color: "var(--text-sub)" }}>音程 <b style={{ color: kScoreColor(r.pitch) }}>{r.pitch}</b></span>
+        <span style={{ color: "var(--text-sub)" }}>リズム <b style={{ color: kScoreColor(r.timing) }}>{r.timing}</b></span>
+      </div>
+      {r.weak.length > 0 && (
+        <div style={{ fontSize: "var(--fs-label)", color: "var(--text-body)", marginTop: 6, lineHeight: 1.5 }}>
+          <span style={{ fontWeight: 800, color: "var(--text-muted)" }}>崩れ：</span>
+          {r.weak.slice(0, 2).map((w, i) => (
+            <span key={i}>{i > 0 ? " / " : ""}<span style={{ color: w.tree === "音程" ? "#c0473a" : "#b7823a", fontWeight: 800 }}>{w.tree}</span>{w.name}</span>
+          ))}
+        </div>
+      )}
+      {r.audioUrl ? (
+        <audio controls preload="none" src={r.audioUrl} style={{ width: "100%", height: 30, marginTop: 8 }} />
+      ) : null}
+      <RecCommentBox studentId={studentId} performanceId={r.id} kind={r.kind} />
+    </div>
   )
 }
 
