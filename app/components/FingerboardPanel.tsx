@@ -4,6 +4,7 @@
 // 横向き表示 (ナット左・E線上・右=高ポジション)。n<5セルは無色(白)。
 // markable=true (先生カルテ入力=案5) で「気をつける音をマークする」モードが使える。
 import { useMemo, useState, useTransition } from "react"
+import { createPortal } from "react-dom"
 import {
   STRINGS, type ViolinString, N_END, H_OPEN, Y_END, colX, cellPolygon, cellId, yOf,
 } from "@/app/_libs/fingerboard/geometry"
@@ -250,27 +251,39 @@ export default function FingerboardPanel({
     </div>
   )
 
+  // モーダルは document.body へポータル描画する (2026-08-11 バグ修正)。
+  // 真因: 演奏履歴カードの行が .pressable を持ち、グローバルCSSの :active { transform: scale(.955) } が
+  // 押下中に祖先へかかる → transform を持つ祖先は position:fixed の基準になる (CSS仕様) →
+  // 行div内に描いたモーダルが押下のたびに行基準へ転移・縮小し、セルのクリックが成立しなかった。
+  // body 直下ならどの画面のどの祖先の transform/overflow の影響も受けない。
+  const modal = zoom && typeof document !== "undefined"
+    ? createPortal(
+      <div
+        onClick={() => setZoom(false)}
+        onPointerDown={(e) => e.stopPropagation()}
+        onPointerUp={(e) => e.stopPropagation()}
+        style={{ position: "fixed", inset: 0, background: "rgba(15,25,50,.55)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}
+      >
+        <div onClick={(e) => e.stopPropagation()}
+          style={{ background: "#fff", borderRadius: 16, padding: "13px 16px 16px", width: "min(960px, 96vw)", maxHeight: "92vh", overflowY: "auto", boxSizing: "border-box" }}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
+            <b style={{ fontSize: "var(--fs-body)", color: "var(--text-ink)" }}>音程マップ</b>
+            <button type="button" onClick={() => setZoom(false)}
+              style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-muted)", background: "#f1f4f8", border: "none", borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}>
+              とじる ×
+            </button>
+          </div>
+          {renderBody(true)}
+        </div>
+      </div>,
+      document.body,
+    )
+    : null
+
   return (
     <>
       {renderBody(false)}
-      {zoom && (
-        <div
-          onClick={() => setZoom(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(15,25,50,.55)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}
-        >
-          <div onClick={(e) => e.stopPropagation()}
-            style={{ background: "#fff", borderRadius: 16, padding: "13px 16px 16px", width: "min(960px, 96vw)", maxHeight: "92vh", overflowY: "auto", boxSizing: "border-box" }}>
-            <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
-              <b style={{ fontSize: "var(--fs-body)", color: "var(--text-ink)" }}>音程マップ</b>
-              <button type="button" onClick={() => setZoom(false)}
-                style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-muted)", background: "#f1f4f8", border: "none", borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}>
-                とじる ×
-              </button>
-            </div>
-            {renderBody(true)}
-          </div>
-        </div>
-      )}
+      {modal}
     </>
   )
 }
