@@ -264,8 +264,8 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
       <div style={kSec}>上達の見える化<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>くわしくは成長カルテへ</span></div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
-          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>曲の上達</div>
-          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 3, color: songAvg != null ? kScoreColor(songAvg) : "var(--text-muted)" }}>{songAvg ?? "—"}<span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}> 平均</span></div>
+          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>曲の平均点（2週間）</div>
+          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 3, color: songAvg != null ? kScoreColor(songAvg) : "var(--text-muted)" }}>{songAvg ?? "—"}<span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}> 点</span></div>
         </div>
         <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
           <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>技術（わざ）</div>
@@ -347,18 +347,12 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
         </div>
       </div>
 
-      {/* 指導メニュー (宿題を出す / 表現の認定)。旧タブから移設・折りたたみ */}
+      {/* 指導メニュー (宿題を出す)。表現認定は「その曲の練習後カルテ詳細」に移設 (2026-08-11 Tetsuo指摘) */}
       <div style={kSec}>指導メニュー</div>
       <details style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 12, marginBottom: 8 }}>
         <summary style={{ cursor: "pointer", padding: "11px 13px", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#22346b" }}>宿題を出す・やりとり中の宿題</summary>
         <div style={{ padding: "0 6px 6px" }}>
           <Homework studentId={studentId} scoreTargets={allScoreTargets} itemTargets={allItemTargets} assignments={assignments} />
-        </div>
-      </details>
-      <details style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 12, marginBottom: 8 }}>
-        <summary style={{ cursor: "pointer", padding: "11px 13px", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#22346b" }}>表現クリアを認定する</summary>
-        <div style={{ padding: "0 13px 12px" }}>
-          <ExprClearBox studentId={studentId} scoreTargets={allScoreTargets} />
         </div>
       </details>
       {briefing.goal && (
@@ -575,61 +569,6 @@ function Card({ children }: { children: React.ReactNode }) {
 
 
 
-/** 表現クリア認定ボックス (2026-08-06): 統一雰囲気タグ × 曲 → UserExpressionClear */
-function ExprClearBox({ studentId, scoreTargets }: { studentId: string; scoreTargets: Target[] }) {
-  const router = useRouter()
-  const [open, setOpen] = useState(false)
-  const [tag, setTag] = useState("")
-  const [scoreId, setScoreId] = useState("")
-  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
-  const [pending, start] = useTransition()
-
-  const submit = () => {
-    if (!tag || !scoreId) return
-    start(async () => {
-      const r = await recordExpressionClear({ studentId, moodTagId: tag, scoreId })
-      if (!r.ok) { setMsg({ ok: false, text: r.error }); return }
-      setMsg({ ok: true, text: `認定しました！ この表現の到達レベルは ★${r.star} 相当になります` })
-      setTag(""); setScoreId(""); setOpen(false)
-      router.refresh()
-    })
-  }
-
-  const sel: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "7px 10px", fontSize: "var(--fs-body)", marginTop: 6 }
-  return (
-    <div style={{ marginTop: 12, borderTop: "1px dashed #e2e6ea", paddingTop: 10 }}>
-      {!open ? (
-        <button type="button" onClick={() => { setOpen(true); setMsg(null) }}
-          style={{ width: "100%", border: "1px dashed #d8c9a4", background: "#fdfaf2", color: "var(--text-master)", borderRadius: 10, padding: 9, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
-          <Palette size={13} /> 表現クリアを認定する（曲の★が表現力レベルになります）
-        </button>
-      ) : (
-        <div>
-          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)" }}>この曲で、この表現ができていた:</div>
-          <select value={tag} onChange={(e) => setTag(e.target.value)} style={sel}>
-            <option value="">表現をえらぶ</option>
-                          {MOOD_TAG_DEFS.map((t) => (
-                <option key={t.id} value={t.id}>{moodTagLabel(t.id)}</option>
-              ))}
-          </select>
-          <select value={scoreId} onChange={(e) => setScoreId(e.target.value)} style={sel}>
-            <option value="">曲をえらぶ</option>
-            {scoreTargets.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
-          </select>
-          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-            <button type="button" onClick={() => setOpen(false)}
-              style={{ flex: 1, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 9, padding: 8, cursor: "pointer" }}>キャンセル</button>
-            <button type="button" onClick={submit} disabled={pending || !tag || !scoreId}
-              style={{ flex: 2, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#8a5a1f", border: "none", borderRadius: 9, padding: 8, cursor: "pointer", opacity: pending || !tag || !scoreId ? 0.5 : 1 }}>
-              {pending ? "記録中…" : <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Palette size={13} /> クリア認定</span>}
-            </button>
-          </div>
-        </div>
-      )}
-      {msg && <div style={{ fontSize: "var(--fs-body)", marginTop: 6, color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
-    </div>
-  )
-}
 
 /** 宿題カード内の表現クリア認定ボタン (2026-08-06・案C 宿題側入口) */
 function AssignmentExprClearButton({ studentId, moodTagId, scoreId }: { studentId: string; moodTagId: string; scoreId: string }) {

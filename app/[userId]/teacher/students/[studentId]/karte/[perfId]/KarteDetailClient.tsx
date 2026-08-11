@@ -8,6 +8,8 @@ import { ArrowLeft, MessageCircle, Check } from "lucide-react"
 import { sendMessageToStudent } from "@/app/actions/teacherActions"
 import { createObservation } from "@/app/actions/teacherObservations"
 import { saveMaterialNote } from "@/app/actions/teacherMaterialNotes"
+import { recordExpressionClear } from "@/app/actions/expressionClears"
+import { MOOD_TAG_DEFS, moodTagLabel } from "@/app/_libs/moodTags"
 import { OBSERVATION_CATALOG, OBSERVATION_SEVERITIES } from "@/app/_libs/observationCatalog"
 
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
@@ -15,13 +17,13 @@ type MaterialRow = { itemId: string; label: string; category: string; star: numb
 const scoreColor = (n: number) => (n >= 90 ? "#2e8b57" : n >= 70 ? "#b7823a" : "#c0473a")
 
 export default function KarteDetailClient(props: {
-  backHref: string; studentId: string; perfId: string; kind: "score" | "practice"
+  backHref: string; userId: string; scoreId: string | null; studentId: string; perfId: string; kind: "score" | "practice"
   title: string; cat: string; star: number | null; date: string
   pitch: number; timing: number; avg: number; weak: WeakSlot[]
   audioUrl: string | null; aiTags: { id: string; label: string }[]
   materials?: MaterialRow[]
 }) {
-  const { backHref, studentId, perfId, kind, title, cat, star, date, pitch, timing, avg, weak, audioUrl, aiTags, materials = [] } = props
+  const { backHref, userId, scoreId, studentId, perfId, kind, title, cat, star, date, pitch, timing, avg, weak, audioUrl, aiTags, materials = [] } = props
   const router = useRouter()
 
   // コメント
@@ -106,6 +108,14 @@ export default function KarteDetailClient(props: {
         )}
       </div>
 
+      {/* 採点カルテ(添削) = 評価はここが正 (譜面に書き込む別画面)。詳細からの導線 */}
+      {kind === "score" && scoreId && (
+        <Link href={`/${userId}/teacher/students/${studentId}/annotate/${scoreId}`}
+          style={{ display: "block", textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#8a5a1f", borderRadius: 10, padding: "11px 0", textDecoration: "none", marginBottom: 11 }}>
+          採点カルテ（譜面添削）を書く →
+        </Link>
+      )}
+
       {/* コメント */}
       <div style={card}>
         <div style={{ ...lab, display: "flex", alignItems: "center", gap: 5 }}><MessageCircle size={13} /> この演奏にコメント</div>
@@ -131,13 +141,13 @@ export default function KarteDetailClient(props: {
             「毎日の基礎練」として生徒に出ている教材です。練習ポイントを書くと、生徒がその教材を開いたときに表示されます（宿題にはなりません）。
           </div>
           {materials.map((m) => (
-            <MaterialPointRow key={m.itemId} studentId={studentId} m={m} />
+            <MaterialPointRow key={m.itemId} userId={userId} studentId={studentId} m={m} />
           ))}
         </div>
       )}
 
       {/* 癖 */}
-      <div style={{ ...card, marginBottom: 0 }}>
+      <div style={card}>
         <div style={lab}>癖を記録（選ぶ＋重さ＋自由記述）</div>
         {kuseDone ? (
           <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)", display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={14} /> 癖を記録しました</div>
@@ -181,13 +191,54 @@ export default function KarteDetailClient(props: {
           </>
         )}
       </div>
+
+      {/* 表現クリア認定 (この曲で・2026-08-11 まとめから移設: 認定は演奏を聴くこの場で行う) */}
+      {kind === "score" && scoreId && (
+        <ExprCertifyBox studentId={studentId} scoreId={scoreId} cardStyle={{ ...card, marginBottom: 0 }} labStyle={lab} />
+      )}
       </div>
     </div>
   )
 }
 
-/* ═ おすすめ教材1行: 練習ポイントの記入 (upsert・空で削除) ═ */
-function MaterialPointRow({ studentId, m }: { studentId: string; m: MaterialRow }) {
+/* ═ 表現クリア認定 (この曲でこの表現ができていた → 曲の★が表現力レベルに) ═ */
+function ExprCertifyBox({ studentId, scoreId, cardStyle, labStyle }: {
+  studentId: string; scoreId: string; cardStyle: React.CSSProperties; labStyle: React.CSSProperties
+}) {
+  const [tag, setTag] = useState("")
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  const [pending, start] = useTransition()
+  const certify = () => {
+    if (!tag) return
+    start(async () => {
+      const r = await recordExpressionClear({ studentId, moodTagId: tag, scoreId })
+      if (!r.ok) { setMsg({ ok: false, text: r.error }); return }
+      setMsg({ ok: true, text: `認定しました。この表現の到達レベルは ★${r.star} 相当になります` })
+      setTag("")
+    })
+  }
+  return (
+    <div style={cardStyle}>
+      <div style={labStyle}>表現クリアを認定（この曲で、この表現ができていた）</div>
+      <div style={{ display: "flex", gap: 7 }}>
+        <select value={tag} onChange={(e) => { setTag(e.target.value); setMsg(null) }}
+          style={{ flex: 1, border: "1px solid #dfe3ea", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", background: "#fff" }}>
+          <option value="">表現をえらぶ</option>
+          {MOOD_TAG_DEFS.map((t) => <option key={t.id} value={t.id}>{moodTagLabel(t.id)}</option>)}
+        </select>
+        <button type="button" onClick={certify} disabled={pending || !tag}
+          style={{ flex: "none", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#7a4dd6", border: "none", borderRadius: 8, padding: "8px 16px", cursor: "pointer", opacity: pending || !tag ? 0.5 : 1 }}>
+          {pending ? "認定中…" : "認定する"}
+        </button>
+      </div>
+      <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 6 }}>認定すると、曲の★がそのまま生徒の表現力レベルになります（成長カルテに反映）。</div>
+      {msg && <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, marginTop: 6, color: msg.ok ? "#158253" : "#c0473a" }}>{msg.text}</div>}
+    </div>
+  )
+}
+
+/* ═ おすすめ教材1行: 教材の中身を見てから練習ポイントを記入 (upsert・空で削除) ═ */
+function MaterialPointRow({ userId, studentId, m }: { userId: string; studentId: string; m: MaterialRow }) {
   const [text, setText] = useState(m.point)
   const [saved, setSaved] = useState<null | boolean>(null)
   const [pending, start] = useTransition()
@@ -200,9 +251,13 @@ function MaterialPointRow({ studentId, m }: { studentId: string; m: MaterialRow 
   const dirty = text.trim() !== m.point.trim() && saved !== true
   return (
     <div style={{ border: "1px solid #eef1f4", borderRadius: 10, padding: "9px 11px", marginBottom: 8 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
         <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", flex: "none" }}>{m.label}</span>
         {m.star != null && <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#b58a1e", flex: "none" }}>★{m.star}</span>}
+        <Link href={`/${userId}/practice/${m.category}/${m.itemId}`} target="_blank"
+          style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#3b56d4", textDecoration: "none", flex: "none" }}>
+          教材の中身を見る ↗
+        </Link>
         {m.point && saved == null && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-good)", flex: "none" }}>ポイント記入済み</span>}
         {saved === true && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-good)", flex: "none", display: "inline-flex", alignItems: "center", gap: 3 }}><Check size={12} /> 保存しました</span>}
         {saved === false && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "#c0473a", flex: "none" }}>保存に失敗</span>}

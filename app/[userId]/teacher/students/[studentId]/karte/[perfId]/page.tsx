@@ -126,6 +126,8 @@ export default async function KarteDetailPage({
     <KarteDetailClient
       materials={materials}
       backHref={backHref}
+      userId={userId}
+      scoreId={scoreId}
       studentId={studentId}
       perfId={perfId}
       kind={kind}
