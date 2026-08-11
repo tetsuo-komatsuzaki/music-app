@@ -15,6 +15,8 @@ export async function createObservation(input: {
   tagIds: string[]
   /** 関係するわざ (2026-08-11): 先生が明示的に選ぶ。自動マッピングは廃止 */
   skillIds?: string[]
+  /** 一緒に送られた練習後カルテ (案A・2026-08-11) */
+  karteId?: string | null
   severity?: "mild" | "focus" | null
   comment?: string | null
 }): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -38,7 +40,7 @@ export async function createObservation(input: {
     if (!link) return { ok: false, error: "担当していない生徒です" }
 
     await prisma.teacherObservation.create({
-      data: { teacherId, studentId: input.studentId, tagIds, skillIds, severity, comment },
+      data: { teacherId, studentId: input.studentId, tagIds, skillIds, severity, comment, karteId: input.karteId ?? null },
     })
 
     const preview = tagIds.map((t) => OBSERVATION_TAG_BY_ID[t].label).join("・") || comment || ""

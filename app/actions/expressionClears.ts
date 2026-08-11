@@ -14,6 +14,8 @@ export async function recordExpressionClear(input: {
   studentId: string
   moodTagId: string
   scoreId: string
+  /** 一緒に送られた練習後カルテ (案A・2026-08-11) */
+  karteId?: string | null
 }): Promise<{ ok: true; star: number } | { ok: false; error: string }> {
   const auth = await requireAuthAction()
   if (!auth.ok) return { ok: false, error: auth.error }
@@ -46,8 +48,9 @@ export async function recordExpressionClear(input: {
       create: {
         userId: input.studentId, teacherId: teacher.id,
         moodTagId: input.moodTagId, scoreId: input.scoreId, starAtClear: star,
+        karteId: input.karteId ?? null,
       },
-      update: {},
+      update: input.karteId ? { karteId: input.karteId } : {},
     })
     await notifyStudent(input.studentId, teacher.id, "expression", `${score.title}での表現を認定`)
     return { ok: true, star }

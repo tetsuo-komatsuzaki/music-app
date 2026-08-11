@@ -274,7 +274,7 @@ export async function savePracticeKarte(
   target: { scoreId?: string; practiceItemId?: string },
   body: string,
   context?: "lesson" | "audio",
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: true; karteId: string } | { ok: false; error: string }> {
   const auth = await requireAuthAction()
   if (!auth.ok) return { ok: false, error: auth.error }
   if (auth.user.dbUser.role !== "teacher") return { ok: false, error: "先生アカウントが必要です" }
@@ -290,16 +290,17 @@ export async function savePracticeKarte(
       select: { id: true },
     })
     if (!link) return { ok: false, error: "担当していない生徒です" }
-    await prisma.practiceKarte.create({
+    const created = await prisma.practiceKarte.create({
       data: {
         teacherId: auth.user.dbUser.id, studentId,
         scoreId: target.scoreId ?? null, practiceItemId: target.practiceItemId ?? null,
         body: text,
         context: context === "lesson" || context === "audio" ? context : null,
       },
+      select: { id: true },
     })
     await notifyStudent(studentId, auth.user.dbUser.id, "karte", text)
-    return { ok: true }
+    return { ok: true, karteId: created.id }
   } catch {
     return { ok: false, error: "保存に失敗しました" }
   }
@@ -308,7 +309,7 @@ export async function savePracticeKarte(
 /** 先生: 指板の「気をつける音」をマーク/更新 (2026-08-11 指板ヒートマップ案5)。
  *  cellId は "cell-G-05" 形式。note空でもマーク自体は残る。 */
 export async function saveFingerboardMark(
-  studentId: string, cellId: string, note: string,
+  studentId: string, cellId: string, note: string, karteId?: string | null,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const auth = await requireAuthAction()
   if (!auth.ok) return { ok: false, error: auth.error }
@@ -329,8 +330,8 @@ export async function saveFingerboardMark(
     if (!exists && count >= 5) return { ok: false, error: "マークは5個までです" }
     await prisma.teacherMarkedCell.upsert({
       where: { teacherId_studentId_cellId: { teacherId: auth.user.dbUser.id, studentId, cellId } },
-      create: { teacherId: auth.user.dbUser.id, studentId, cellId, note: text },
-      update: { note: text },
+      create: { teacherId: auth.user.dbUser.id, studentId, cellId, note: text, karteId: karteId ?? null },
+      update: { note: text, ...(karteId ? { karteId } : {}) },
     })
     return { ok: true }
   } catch {

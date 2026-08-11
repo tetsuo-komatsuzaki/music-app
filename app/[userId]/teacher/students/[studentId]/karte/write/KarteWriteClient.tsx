@@ -116,6 +116,7 @@ export default function KarteWriteClient({
       const errs: string[] = []
       const r1 = await savePracticeKarte(studentId, kind === "score" ? { scoreId: targetId } : { practiceItemId: targetId }, body.trim(), ctx)
       if (!r1.ok) { setResult({ ok: false, text: `カルテ本文の送信に失敗・${r1.error}` }); return }
+      const karteId = r1.karteId // 案A: 以降の項目をこのカルテに紐づける
       if (passHw && hw) {
         const r = await passAssignment(hw.id)
         if (!r.ok) errs.push("宿題の合格")
@@ -125,6 +126,7 @@ export default function KarteWriteClient({
         const r = await createObservation({
           studentId, tagIds: d.tags, severity: "mild", comment: d.comment.trim() || null,
           skillIds: id === "general" ? [] : [id, ...d.feats].slice(0, 4),
+          karteId,
         })
         if (!r.ok) errs.push(`癖の記録・${targetLabel(id)}`)
       }
@@ -134,7 +136,7 @@ export default function KarteWriteClient({
         if (!r.ok) errs.push("癖の克服チェック")
       }
       if (exprTag && kind === "score") {
-        const r = await recordExpressionClear({ studentId, moodTagId: exprTag, scoreId: targetId })
+        const r = await recordExpressionClear({ studentId, moodTagId: exprTag, scoreId: targetId, karteId })
         if (!r.ok) errs.push("表現クリア認定")
       }
       for (const m of dirtyPoints) {
@@ -142,7 +144,7 @@ export default function KarteWriteClient({
         if (!r.ok) errs.push(`練習ポイント・${m.label}`)
       }
       for (const m of markAdds) {
-        const r = await saveFingerboardMark(studentId, m.cellId, m.note)
+        const r = await saveFingerboardMark(studentId, m.cellId, m.note, karteId)
         if (!r.ok) errs.push("指板マーク")
       }
       for (const m of markRemoves) {

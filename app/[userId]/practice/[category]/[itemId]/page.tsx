@@ -197,18 +197,36 @@ export default async function PracticeDetailPage({
     songHeatmap = hm
   } catch { fingerNotes = {}; songHeatmap = null }
 
-  // 練習後カルテ (2026-08-11 Tetsuo確定): 教材にぶら下がる先生からのカルテ一覧 (read防御)
-  let teacherKartes: { id: string; body: string; date: string; teacherName: string }[] = []
+  // 練習後カルテ (2026-08-11 案A): カルテごとに「一緒に送られた癖・旗」をセットで表示 (read防御)
+  let teacherKartes: import("@/app/components/StudentKarteCards").StudentKarteCard[] = []
   try {
     const rows = await prisma.practiceKarte.findMany({
       where: { studentId: dbUserId, practiceItemId: item.id },
       orderBy: { createdAt: "desc" }, take: 50,
-      select: { id: true, body: true, createdAt: true, teacher: { select: { name: true } } },
+      select: { id: true, body: true, createdAt: true, context: true, readAt: true, teacher: { select: { name: true } } },
     })
+    const ids = rows.map((k) => k.id)
+    const [obsRows, markRows] = ids.length
+      ? await Promise.all([
+        prisma.teacherObservation.findMany({ where: { studentId: dbUserId, karteId: { in: ids } }, select: { karteId: true, tagIds: true, skillIds: true } }).catch(() => []),
+        prisma.teacherMarkedCell.findMany({ where: { studentId: dbUserId, karteId: { in: ids } }, select: { karteId: true, cellId: true, note: true } }).catch(() => []),
+      ])
+      : [[], []]
+    const { SKILL_ID_LABELS, FEATURE_ID_LABELS } = await import("@/app/_libs/skillCatalog")
+    const { OBSERVATION_TAG_BY_ID } = await import("@/app/_libs/observationCatalog")
+    const skillLabel = (id: string) => SKILL_ID_LABELS.find((x) => x.id === id)?.label ?? FEATURE_ID_LABELS[id] ?? null
     teacherKartes = rows.map((k) => ({
       id: k.id, body: k.body,
       date: `${k.createdAt.getMonth() + 1}/${k.createdAt.getDate()}`,
       teacherName: k.teacher?.name ?? "先生",
+      context: (k.context === "lesson" || k.context === "audio" ? k.context : null) as "lesson" | "audio" | null,
+      read: k.readAt != null,
+      kuse: obsRows.filter((o) => o.karteId === k.id).map((o) => ({
+        targets: (o.skillIds ?? []).map(skillLabel).filter((x): x is string => !!x),
+        tags: o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter((x): x is string => !!x),
+      })),
+      marks: markRows.filter((m) => m.karteId === k.id).map((m) => ({ cellId: m.cellId, note: m.note })),
+      exprs: [],
     }))
   } catch { teacherKartes = [] }
 

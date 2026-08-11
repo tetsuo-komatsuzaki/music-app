@@ -1288,6 +1288,9 @@ model TeacherObservation {
 
   @@index([studentId, createdAt])
   @@index([teacherId, studentId, createdAt])
+  karteId String? // 一緒に送られた練習後カルテ (2026-08-11 案A: カルテごとのセット表示用)
+
+  @@index([karteId])
 }
 
 // 先生の練習ポイント (2026-08-11 先生カルテv3)。ホームの「毎日の基礎練」に出ている
@@ -1310,6 +1313,9 @@ model TeacherMarkedCell {
 
   @@unique([teacherId, studentId, cellId])
   @@index([studentId])
+  karteId String? // 一緒に送られた練習後カルテ (2026-08-11 案A)
+
+  @@index([karteId])
 }
 
 // 練習後カルテ (2026-08-11 Tetsuo確定): 曲/教材にぶら下がる独立エンティティ (演奏履歴には紐づかない)。
@@ -1457,6 +1463,9 @@ model UserExpressionClear {
 
   @@unique([userId, moodTagId, scoreId])
   @@index([userId, moodTagId])
+  karteId String? // 一緒に送られた練習後カルテ (2026-08-11 案A)
+
+  @@index([karteId])
 }
 
 // 聴いてもらうリクエスト (2026-08-06 案1簡素版): 生徒が採点直後にワンタップで先生へ演奏を届ける。

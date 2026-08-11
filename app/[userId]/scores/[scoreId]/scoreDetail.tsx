@@ -34,6 +34,7 @@ import MilestoneCelebration from "@/app/components/MilestoneCelebration"
 import CelebrationBoundary from "@/app/components/CelebrationBoundary"
 import SinglePerfFingerboard from "@/app/components/SinglePerfFingerboard"
 import FingerboardPanel from "@/app/components/FingerboardPanel"
+import StudentKarteCards, { type StudentKarteCard } from "@/app/components/StudentKarteCards"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
@@ -136,8 +137,8 @@ type Props = {
   initialFavorite?: boolean
   /** パート分け (2026-07-26): 曲(グループ)共通のパート範囲リスト。空=分割なし(通しのみ) */
   parts?: Part[]
-  /** 練習後カルテ (2026-08-11 Tetsuo確定): 曲/教材にぶら下がる先生からのカルテ一覧 */
-  teacherKartes?: { id: string; body: string; date: string; teacherName: string }[]
+  /** 練習後カルテ (2026-08-11 案A): カルテごとに癖・旗・表現をセットで表示 */
+  teacherKartes?: StudentKarteCard[]
   /** 指板の実測塗り用: note_index → 指板セル+ポジション (musicxml_skill_info 由来・2026-08-11) */
   fingerNotes?: Record<number, { s: "G" | "D" | "A" | "E"; n: number; p?: number | null }>
   /** ふりかえりタブ「上達のようす」直下: この曲の全演奏合算の音程マップ (2026-08-11) */
@@ -3819,23 +3820,7 @@ function ScoreDetailInner({
           <div data-onboarding="scoreDetail.teacherKarte">
             <section style={{ background: "var(--surface-card, #fff)", border: "1px solid var(--line-soft, #e5e9f0)", borderRadius: 16, padding: "16px 18px" }}>
               <h3 style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, margin: "0 0 10px", color: "var(--text-ink)" }}>先生からの練習後カルテ</h3>
-              {teacherKartes.length === 0 ? (
-                <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>
-                  まだ先生からの練習後カルテはありません。先生がこの曲のカルテを書くと、ここに届きます。
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {teacherKartes.map((k) => (
-                    <div key={k.id} style={{ background: "#fbfcfe", border: "1px solid #e2e8f2", borderRadius: 12, padding: "10px 13px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-label)", fontWeight: 800 }}>
-                        <span style={{ color: "var(--text-master)" }}>{k.teacherName}先生から</span>
-                        <span style={{ marginLeft: "auto", color: "var(--text-muted)" }}>{k.date}</span>
-                      </div>
-                      <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.7, marginTop: 5, whiteSpace: "pre-wrap" }}>{k.body}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <StudentKarteCards kartes={teacherKartes} />
             </section>
           </div>
         </div>
