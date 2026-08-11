@@ -264,7 +264,7 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
       <div style={kSec}>上達の見える化<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>くわしくは成長カルテへ</span></div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
-          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>曲の平均点（2週間）</div>
+          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)" }}>平均スコア</div>
           <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, marginTop: 3, color: songAvg != null ? kScoreColor(songAvg) : "var(--text-muted)" }}>{songAvg ?? "—"}<span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}> 点</span></div>
         </div>
         <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 11px" }}>
@@ -337,13 +337,7 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
             </div>
           </>
         )}
-        {/* 今週の指導提案: AI下書き → 先生が直して「これで返す」(生徒へメッセージ送信) */}
-        <ProposalSendBox
-          studentId={studentId}
-          draft={weak3.length > 0
-            ? `今週は「${weak3[0].kana}」を重点にしよう。ゆっくりのテンポで音程から合わせて、できたら少しずつ速くしていこう。`
-            : "今の流れはとても良いよ。得意を伸ばしつつ、新しいわざに挑戦できる曲もやってみよう。"}
-        />
+        {/* 指導提案は廃止 (2026-08-11 Tetsuo確定: 指導=練習後カルテへの返し+宿題がその役割) */}
         </div>
       </div>
 
@@ -364,36 +358,6 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
   )
 }
 
-/* ═ 今週の指導提案の送信ボックス (AI下書き→先生が編集して1本で返す) ═ */
-function ProposalSendBox({ studentId, draft }: { studentId: string; draft: string }) {
-  const [text, setText] = useState(draft)
-  const [done, setDone] = useState(false)
-  const [pending, start] = useTransition()
-  const send = () => {
-    const t = text.trim(); if (!t) return
-    start(async () => {
-      const r = await sendMessageToStudent(studentId, t)
-      if (r.ok) setDone(true)
-    })
-  }
-  return (
-    <div style={{ marginTop: 11, background: "#f0f7f3", border: "1px solid #cfe9db", borderRadius: 9, padding: "9px 11px" }}>
-      <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#136647" }}>今週の指導提案（AIの下書き → 直して1本で返す）</div>
-      {done ? (
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "#158253", marginTop: 6 }}>生徒に送りました ✓</div>
-      ) : (
-        <>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3}
-            style={{ width: "100%", border: "1px solid #cfe9db", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-caption)", lineHeight: 1.6, resize: "vertical", boxSizing: "border-box", marginTop: 6, background: "#fff", color: "#1f3a2e" }} />
-          <button type="button" onClick={send} disabled={pending || !text.trim()}
-            style={{ marginTop: 7, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#158253", border: "none", borderRadius: 8, padding: "8px 16px", cursor: "pointer", opacity: pending || !text.trim() ? 0.5 : 1 }}>
-            {pending ? "送信中…" : "これで返す"}
-          </button>
-        </>
-      )}
-    </div>
-  )
-}
 
 /* ═ 主役②: 練習後カルテ (曲別。曲→この曲のカルテを横スライド) ═ */
 type SongGroup = { title: string; cat: string; kind: "score" | "practice"; star: number | null; recs: Recording[]; count: number; latest: Recording; trend: number }
