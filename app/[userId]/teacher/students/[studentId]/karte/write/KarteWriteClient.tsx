@@ -67,14 +67,19 @@ export default function KarteWriteClient({
   // 癖: 対象は複数選択可。対象ごとに独立した下書き (feats/tags/comment) を持つ
   const [skillSels, setSkillSels] = useState<string[]>([])
   const [kuse, setKuse] = useState<Record<string, KuseDraft>>({})
-  const toggleSkill = (id: string) => {
+  // 表示中の対象 (2026-08-11 Tetsuo指示: ブロックを縦に積まず、同じ場所の入力エリアを切り替える)
+  const [activeSkill, setActiveSkill] = useState<string | null>(null)
+  const selectSkill = (id: string) => {
+    setSkillSels((prev) => (prev.includes(id) ? prev : [...prev, id]))
+    setActiveSkill(id)
+  }
+  const removeSkill = (id: string) => {
     setSkillSels((prev) => {
-      if (prev.includes(id)) {
-        setKuse((k) => { const n = { ...k }; delete n[id]; return n })
-        return prev.filter((x) => x !== id)
-      }
-      return [...prev, id]
+      const next = prev.filter((x) => x !== id)
+      setActiveSkill((cur) => (cur === id ? (next[next.length - 1] ?? null) : cur))
+      return next
     })
+    setKuse((k) => { const n = { ...k }; delete n[id]; return n })
   }
   const updKuse = (id: string, patch: Partial<KuseDraft>) =>
     setKuse((prev) => ({ ...prev, [id]: { ...(prev[id] ?? EMPTY_DRAFT), ...patch } }))
@@ -175,9 +180,9 @@ export default function KarteWriteClient({
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
           <b style={{ fontSize: "var(--fs-caption)", color: "#22346b" }}>{targetLabel(id)}の癖</b>
           {filled && <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#b58a1e" }}>下書き</span>}
-          <button type="button" onClick={() => toggleSkill(id)}
+          <button type="button" onClick={() => removeSkill(id)}
             style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "#8b97a8", background: "#f1f4f8", border: "none", borderRadius: 999, padding: "2px 10px", cursor: "pointer" }}>
-            はずす
+            この対象をはずす
           </button>
         </div>
         {subs && (
@@ -346,29 +351,47 @@ export default function KarteWriteClient({
         <div style={lab}>癖を記録{optBadge}</div>
         <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 5 }}>どの対象の癖？・複数えらべます</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-          {SKILL_ID_LABELS.map((sk) => (
-            <button key={sk.id} type="button" onClick={() => toggleSkill(sk.id)}
-              style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px solid",
-                color: skillSels.includes(sk.id) ? "#fff" : "#33405a", background: skillSels.includes(sk.id) ? "#22346b" : "#fff", borderColor: skillSels.includes(sk.id) ? "#22346b" : "#dfe3ea" }}>
-              {sk.label}
-            </button>
-          ))}
-          {FEATURE_TARGETS.map((ft) => (
-            <button key={ft.id} type="button" onClick={() => toggleSkill(ft.id)}
-              style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px solid",
-                color: skillSels.includes(ft.id) ? "#fff" : "#6b4a9e", background: skillSels.includes(ft.id) ? "#7a4dd6" : "#faf7ff", borderColor: skillSels.includes(ft.id) ? "#7a4dd6" : "#e0d0f5" }}>
-              {ft.label}
-            </button>
-          ))}
-          <button type="button" onClick={() => toggleSkill("general")}
-            style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px dashed",
-              color: skillSels.includes("general") ? "#fff" : "#8b97a8", background: skillSels.includes("general") ? "#8b97a8" : "#fff", borderColor: "#c9d0da" }}>
-            わざ以外・姿勢 かまえ
+          {SKILL_ID_LABELS.map((sk) => {
+            const on = skillSels.includes(sk.id)
+            const act = activeSkill === sk.id
+            const draft = (kuse[sk.id]?.tags.length ?? 0) > 0 || (kuse[sk.id]?.comment.trim().length ?? 0) > 0
+            return (
+              <button key={sk.id} type="button" onClick={() => selectSkill(sk.id)}
+                style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer",
+                  border: act ? "2px solid #10203f" : "1px solid",
+                  color: on ? "#fff" : "#33405a", background: on ? "#22346b" : "#fff", borderColor: act ? "#10203f" : on ? "#22346b" : "#dfe3ea" }}>
+                {sk.label}{draft ? " ●" : ""}
+              </button>
+            )
+          })}
+          {FEATURE_TARGETS.map((ft) => {
+            const on = skillSels.includes(ft.id)
+            const act = activeSkill === ft.id
+            const draft = (kuse[ft.id]?.tags.length ?? 0) > 0 || (kuse[ft.id]?.comment.trim().length ?? 0) > 0
+            return (
+              <button key={ft.id} type="button" onClick={() => selectSkill(ft.id)}
+                style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer",
+                  border: act ? "2px solid #4a2d8f" : "1px solid",
+                  color: on ? "#fff" : "#6b4a9e", background: on ? "#7a4dd6" : "#faf7ff", borderColor: act ? "#4a2d8f" : on ? "#7a4dd6" : "#e0d0f5" }}>
+                {ft.label}{draft ? " ●" : ""}
+              </button>
+            )
+          })}
+          <button type="button" onClick={() => selectSkill("general")}
+            style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer",
+              border: activeSkill === "general" ? "2px solid #6b7788" : "1px dashed",
+              color: skillSels.includes("general") ? "#fff" : "#8b97a8", background: skillSels.includes("general") ? "#8b97a8" : "#fff", borderColor: activeSkill === "general" ? "#6b7788" : "#c9d0da" }}>
+            わざ以外・姿勢 かまえ{((kuse["general"]?.tags.length ?? 0) > 0 || (kuse["general"]?.comment.trim().length ?? 0) > 0) ? " ●" : ""}
           </button>
         </div>
 
-        {/* 対象ごとの癖ブロック (選んだ順に並ぶ・それぞれ独立して登録される) */}
-        {skillSels.map(kuseBlock)}
+        {/* 表示中の対象の癖だけを1か所に表示 (チップタップで切替。下書き=●つきチップに保持) */}
+        {skillSels.length > 1 && (
+          <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 6 }}>
+            選択中 {skillSels.length}件・チップをタップすると入力が切り替わります。●=下書きあり。送信で全件まとめて登録されます
+          </div>
+        )}
+        {activeSkill && kuseBlock(activeSkill)}
 
         {(skillSels.includes("feat_dynamics") || Object.values(kuse).some((d) => d.feats.includes("feat:rhy:sync"))) && (
           <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 6 }}>※ 音の強弱・シンコペーションは自動判定の対象外です。指摘トラッキングでは「判定中」のままになります</div>
