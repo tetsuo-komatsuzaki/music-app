@@ -368,41 +368,23 @@ function Card({ children }: { children: React.ReactNode }) {
 function Overview({ b, studentId, observations, expressions = [], scoreTargets = [], listenRequests = [] }: { b: Briefing; studentId: string; observations: ObservationRow[]; expressions?: ExpressionRow[]; scoreTargets?: Target[]; listenRequests?: ListenReq[] }) {
   return (
     <>
-      {/* 生徒の目標 (目標共有・2026-08-02) */}
-      {b.goal && (
-        <Card>
-          <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 8, display: "flex", alignItems: "center", gap: 5 }}><Target size={14} /> 生徒の目標</div>
-          <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)" }}>
-            {b.goal.songName}
-            {b.goal.songStar != null && <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", marginLeft: 6 }}>★{b.goal.songStar}</span>}
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 6, fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>
-            {b.goal.goalDate && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> 目標時期 {b.goal.goalDate}</span>}
-            {b.goal.epicWin && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Sparkles size={12} /> かなえたいこと：{b.goal.epicWin}</span>}
-          </div>
-        </Card>
-      )}
-
+      {/* 生徒の目標 + 直近7日の練習を1枚に集約 (2026-08-11: カード分割を廃してコンパクト化)。「直近の演奏」カードは削除 */}
       <Card>
-        <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 6 }}>レッスン前ブリーフィング</div>
-        <div style={{ fontSize: "var(--fs-subhead)", color: "var(--text-ink)" }}>
-          直近7日の練習：<b>{b.practiceCount7d}</b> 回
-        </div>
-      </Card>
-
-      <Card>
-        <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 8 }}>直近の演奏</div>
-        {b.recent5.length === 0 ? (
-          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ評価済みの演奏がありません。</div>
+        {b.goal ? (
+          <>
+            <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 8, display: "flex", alignItems: "center", gap: 5 }}><Target size={14} /> 生徒の目標</div>
+            <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-ink)" }}>
+              {b.goal.songName}
+              {b.goal.songStar != null && <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", marginLeft: 6 }}>★{b.goal.songStar}</span>}
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 6, fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Calendar size={12} /> 直近7日 <b style={{ color: "var(--text-ink)" }}>{b.practiceCount7d}</b>回練習</span>
+              {b.goal.goalDate && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>目標 {b.goal.goalDate}</span>}
+              {b.goal.epicWin && <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Sparkles size={12} /> {b.goal.epicWin}</span>}
+            </div>
+          </>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {b.recent5.map((r, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "var(--fs-body)" }}>
-                <span style={{ color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title}</span>
-                <span style={{ color: "var(--text-sub)", flex: "none", marginLeft: 8 }}>{r.avg}点 ・ {r.date}</span>
-              </div>
-            ))}
-          </div>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", display: "inline-flex", alignItems: "center", gap: 5 }}><Calendar size={14} /> 直近7日の練習 <b style={{ color: "var(--text-ink)" }}>{b.practiceCount7d}</b> 回</div>
         )}
       </Card>
 
