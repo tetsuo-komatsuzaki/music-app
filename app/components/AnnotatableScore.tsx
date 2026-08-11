@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from "react"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
 import AnnotationLayer from "@/app/[userId]/scores/[scoreId]/AnnotationLayer"
-import type { AnnotationData } from "@/app/actions/scoreAnnotations"
+import type { AnnotationData } from "@/app/_libs/annotationSanitize"
 
 const CID = "annot-osmd-container"
 

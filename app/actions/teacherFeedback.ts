@@ -6,7 +6,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { requireAuthAction } from "@/app/_libs/requireAuth"
 import { isValidCuid } from "@/app/_libs/validators"
 import { notifyStudent } from "@/app/_libs/teacherEmailNotify"
-import type { AnnotationData } from "@/app/actions/scoreAnnotations"
+import type { AnnotationData } from "@/app/_libs/annotationSanitize"
 
 type Target = { scoreId?: string; practiceItemId?: string }
 

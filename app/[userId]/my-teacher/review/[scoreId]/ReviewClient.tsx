@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useCallback } from "react"
 import AnnotatableScore from "@/app/components/AnnotatableScore"
 import { getFeedbackAsStudent } from "@/app/actions/teacherFeedback"
-import type { AnnotationData } from "@/app/actions/scoreAnnotations"
+import type { AnnotationData } from "@/app/_libs/annotationSanitize"
 
 export default function ReviewClient({
   userId, scoreId, scoreTitle, buildUrl,

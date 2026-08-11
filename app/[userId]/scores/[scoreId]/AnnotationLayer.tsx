@@ -10,8 +10,8 @@ import { Pencil } from "lucide-react"
 import {
   getScoreAnnotation,
   saveScoreAnnotation,
-  type AnnotationData,
 } from "@/app/actions/scoreAnnotations"
+import type { AnnotationData } from "@/app/_libs/annotationSanitize"
 import styles from "./AnnotationLayer.module.css"
 
 // 範囲スパナ (Phase 3): 音符 from→to をまたぐ記号。ハイライトと同じ二点タップで配置。

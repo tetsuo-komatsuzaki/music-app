@@ -7,7 +7,10 @@ import { sanitizeAnnotationData, type AnnotationData } from "@/app/_libs/annotat
 
 // 譜面注釈 (Phase 1, 2026-07-19)。音符アンカーのハイライト/テキスト/注意メモ。
 // data 形状: { highlight: [...], warnings: [...], notation: [...] }。型/サニタイズは annotationSanitize に集約。
-export type { AnnotationData }
+// 型の再エクスポートは削除 (2026-08-12): "use server" ファイルの export type は
+// Turbopack ビルドで実行時エクスポートとして残り、action呼び出し時のモジュール評価が
+// ReferenceError で全滅する (本番の全server action 500 の真因)。
+// AnnotationData は @/app/_libs/annotationSanitize から直接 import すること。
 
 type Target = { scoreId?: string; practiceItemId?: string }
 
