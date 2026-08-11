@@ -533,8 +533,8 @@ export default async function HomePage({ params }: PageProps) {
           },
         }),
         prisma.message.count({ where: { studentId: internalUserId, teacherId: link.teacherId, fromTeacher: true, readAt: null } }),
-        // 練習後カルテの新着 (2026-08-11): 演奏に紐づく未読コメント
-        prisma.message.count({ where: { studentId: internalUserId, teacherId: link.teacherId, fromTeacher: true, readAt: null, performanceId: { not: null } } }),
+        // 練習後カルテの新着 (2026-08-11 Tetsuo確定): カルテ=曲/教材にぶら下がる独立エンティティ (PracticeKarte)
+        prisma.practiceKarte.count({ where: { studentId: internalUserId, teacherId: link.teacherId, readAt: null } }).catch(() => 0),
         // 宿題合格の新着 (2026-08-11)
         prisma.message.count({ where: { studentId: internalUserId, teacherId: link.teacherId, fromTeacher: true, readAt: null, kind: "hw_passed" } }),
         prisma.teacherFeedback.count({ where: { teacherId: link.teacherId, studentId: internalUserId } }),

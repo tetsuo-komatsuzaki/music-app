@@ -7,9 +7,10 @@ import { Resend } from "resend"
 import { prisma } from "./prisma"
 import { supabaseAdmin } from "./supabaseAdmin"
 
-export type NotifyKind = "message" | "feedback" | "assignment" | "celebration" | "observation" | "expression"
+export type NotifyKind = "message" | "feedback" | "assignment" | "celebration" | "observation" | "expression" | "karte"
 
 const SUBJECT: Record<NotifyKind, string> = {
+  karte: "先生から練習後カルテが届きました",
   message: "先生からメッセージが届きました",
   feedback: "先生の添削が届きました",
   assignment: "先生から新しい宿題が届きました",
@@ -18,6 +19,7 @@ const SUBJECT: Record<NotifyKind, string> = {
   expression: "先生から表現の評価が届きました",
 }
 const NOUN: Record<NotifyKind, string> = {
+  karte: "練習後カルテ",
   message: "メッセージ",
   feedback: "添削",
   assignment: "宿題",

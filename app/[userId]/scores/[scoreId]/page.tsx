@@ -216,6 +216,21 @@ export default async function Page({
     })
   } catch { favRow = null }
 
+  // 練習後カルテ (2026-08-11 Tetsuo確定): 曲にぶら下がる先生からのカルテ一覧 (read防御)
+  let teacherKartes: { id: string; body: string; date: string; teacherName: string }[] = []
+  try {
+    const rows = await prisma.practiceKarte.findMany({
+      where: { studentId: dbUser.id, scoreId: score.id },
+      orderBy: { createdAt: "desc" }, take: 50,
+      select: { id: true, body: true, createdAt: true, teacher: { select: { name: true } } },
+    })
+    teacherKartes = rows.map((k) => ({
+      id: k.id, body: k.body,
+      date: `${k.createdAt.getMonth() + 1}/${k.createdAt.getDate()}`,
+      teacherName: k.teacher?.name ?? "先生",
+    }))
+  } catch { teacherKartes = [] }
+
   return (
     <>
       {pendingLessons.length > 0 && (
@@ -241,6 +256,7 @@ export default async function Page({
         latestPitchAccuracy={latestPerf?.pitchAccuracy ?? null}
         currentStar={currentStar}
         initialFavorite={!!favRow}
+        teacherKartes={teacherKartes}
       />
     </>
   )

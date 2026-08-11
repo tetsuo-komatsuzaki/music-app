@@ -95,6 +95,8 @@ model User {
   observationsAsStudent TeacherObservation[] @relation("obsStudent")
   materialNotesAsTeacher TeacherMaterialNote[] @relation("matNoteTeacher")
   materialNotesAsStudent TeacherMaterialNote[] @relation("matNoteStudent")
+  practiceKartesAsTeacher PracticeKarte[] @relation("pkTeacher")
+  practiceKartesAsStudent PracticeKarte[] @relation("pkStudent")
   exprClearsAsTeacher   UserExpressionClear[] @relation("exprClearTeacher")
   exprClearsAsStudent   UserExpressionClear[] @relation("exprClearStudent")
   listenRequestsAsTeacher ListenRequest[] @relation("listenReqTeacher")
@@ -165,6 +167,7 @@ model Score {
   createdAt    DateTime      @default(now())
   deletedAt    DateTime? // 論理削除フラグ (NULL=有効、値あり=削除済み)
   performances Performance[]
+  practiceKartes PracticeKarte[] // 練習後カルテ (曲にぶら下がる・2026-08-11)
 
   // ▼ v1.3 上達ループエンジン (back-references)
   songMasteries            SongMastery[]
@@ -431,6 +434,7 @@ model PracticeItem {
   favorites   Favorite[]
   assignments Assignment[] // 先生機能: この教材を対象にした宿題
   teacherMaterialNotes TeacherMaterialNote[] // 先生の練習ポイント (宿題ではない・2026-08-11)
+  practiceKartes       PracticeKarte[] // 練習後カルテ (教材にぶら下がる・2026-08-11)
 
   @@index([category, keyTonic, keyMode])
   @@index([category, isPublished, sortOrder])
@@ -1287,6 +1291,28 @@ model TeacherObservation {
 // 先生の練習ポイント (2026-08-11 先生カルテv3)。ホームの「毎日の基礎練」に出ている
 // おすすめ教材へ、先生が一言を添える。宿題(Assignment)ではない軽いメモ。
 // 先生×生徒×教材で1件 (upsert=あとから編集)。生徒の教材ページに表示。
+// 練習後カルテ (2026-08-11 Tetsuo確定): 曲/教材にぶら下がる独立エンティティ (演奏履歴には紐づかない)。
+// 先生が生徒の演奏をいろいろ聴きながら1枚書く。曲:カルテ=1:N。コメント機能はこれに一本化。
+model PracticeKarte {
+  id             String    @id @default(cuid())
+  teacherId      String
+  studentId      String
+  scoreId        String? // 曲 (どちらか一方)
+  practiceItemId String? // 教材
+  body           String // カルテ本文
+  readAt         DateTime? // 生徒が読んだ時刻 (新着通知用)
+  createdAt      DateTime  @default(now())
+
+  teacher      User          @relation("pkTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  student      User          @relation("pkStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  score        Score?        @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+  practiceItem PracticeItem? @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, scoreId, createdAt])
+  @@index([studentId, practiceItemId, createdAt])
+  @@index([teacherId, studentId, createdAt])
+}
+
 model TeacherMaterialNote {
   id             String   @id @default(cuid())
   teacherId      String

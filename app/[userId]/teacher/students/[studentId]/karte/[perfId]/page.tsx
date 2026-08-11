@@ -74,6 +74,7 @@ export default async function KarteDetailPage({
   let pitch = 0; let timing = 0; let avg = 0; let weak: WeakSlot[] = []
   let audioPath: string | null = null; let date = ""
   let scoreId: string | null = null
+  let itemId: string | null = null
 
   if (kind === "score") {
     const p = await prisma.performance.findFirst({
@@ -88,10 +89,11 @@ export default async function KarteDetailPage({
   } else {
     const p = await prisma.practicePerformance.findFirst({
       where: { id: perfId, userId: studentId },
-      select: { uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, practiceItem: { select: { title: true, category: true, star: true } } },
+      select: { uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, practiceItemId: true, practiceItem: { select: { title: true, category: true, star: true } } },
     })
     if (!p) redirect(backHref)
     title = p.practiceItem?.title ?? "教材"; star = p.practiceItem?.star ?? null
+    itemId = p.practiceItemId
     cat = p.practiceItem?.category ? categoryLabel(p.practiceItem.category) : "基礎練"
     pitch = Math.round(p.pitchAccuracy ?? 0); timing = Math.round(p.timingAccuracy ?? 0); avg = avg2(p.pitchAccuracy, p.timingAccuracy)
     weak = topWeak(p.analysisSummary); audioPath = p.audioPath; date = `${p.uploadedAt.getMonth() + 1}/${p.uploadedAt.getDate()}`
@@ -140,6 +142,7 @@ export default async function KarteDetailPage({
       backHref={backHref}
       userId={userId}
       scoreId={scoreId}
+      itemId={itemId}
       studentId={studentId}
       perfId={perfId}
       kind={kind}

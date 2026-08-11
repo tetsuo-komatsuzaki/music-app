@@ -133,6 +133,8 @@ type Props = {
   initialFavorite?: boolean
   /** パート分け (2026-07-26): 曲(グループ)共通のパート範囲リスト。空=分割なし(通しのみ) */
   parts?: Part[]
+  /** 練習後カルテ (2026-08-11 Tetsuo確定): 曲/教材にぶら下がる先生からのカルテ一覧 */
+  teacherKartes?: { id: string; body: string; date: string; teacherName: string }[]
 }
 
 // =========================================================
@@ -363,7 +365,6 @@ function scoreTone(s: number): { ink: string; bg: string } {
 
 function PerformanceHistory({
   performances,
-  karteMode = false,
   selectedId,
   onSelect,
   loading,
@@ -377,8 +378,6 @@ function PerformanceHistory({
   onPerformanceDeleted,
 }: {
   performances: PerformanceDTO[]
-  /** 練習後カルテモード (2026-08-11): 先生の返しがある演奏だけを「先生からの練習後カルテ」として表示 */
-  karteMode?: boolean
   selectedId: string | null
   onSelect: (p: PerformanceDTO) => void
   loading: boolean
@@ -566,17 +565,7 @@ function PerformanceHistory({
             <span aria-hidden className={styles.histChev}>{selectedId === p.id ? "▲" : "▼"}</span>
           </div>
         )}
-        {/* 先生の返し (演奏へのコメント) を練習後カルテに貼り付け (2026-08-11 Tetsuo確定) */}
-        {!isEditing && (p.teacherComments?.length ?? 0) > 0 && (
-          <div style={{ margin: "8px 10px 10px", background: "#fdfaf2", border: "1px solid #eed9a0", borderRadius: 10, padding: "8px 11px" }} onClick={(e) => e.stopPropagation()}>
-            {p.teacherComments!.map((c, i) => (
-              <div key={i} style={{ marginTop: i > 0 ? 6 : 0 }}>
-                <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-master)" }}>{c.teacherName}先生から</div>
-                <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.6, marginTop: 2, whiteSpace: "pre-wrap" }}>{c.body}</div>
-              </div>
-            ))}
-          </div>
-        )}
+        {/* 演奏へのコメント表示は廃止 (2026-08-11 Tetsuo確定): 先生の返しは曲にぶら下がる練習後カルテに一本化 */}
         {/* アコーディオン展開 = アルコの採点「結果カード」。削除は右上に。 */}
         {!isEditing && selectedId === p.id && (
           <div className={styles.histResult} onClick={(e) => e.stopPropagation()}>
@@ -615,13 +604,13 @@ function PerformanceHistory({
 
   return (
     <div className={styles.card}>
-      <h3>{karteMode ? "先生からの練習後カルテ" : "演奏履歴"}</h3>
+      <h3>演奏履歴</h3>
       {/* カード共通の再生用 audio (畳んでいても再生ボタンから鳴らせる) */}
       <audio ref={audioRef} onEnded={() => setPlayingId(null)} hidden />
       {loading ? (
         <PerformanceSkeleton count={Math.min(performanceCount, 5)} />
       ) : performances.length === 0 ? (
-        <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>{karteMode ? "まだ先生からの練習後カルテはありません。演奏に先生がコメントすると、ここに届きます。" : "まだ演奏がないよ。録音してみよう！"}</div>
+        <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ演奏がないよ。録音してみよう！</div>
       ) : (
         <>
           {/* 最新の1枚は常に表示 */}
@@ -1325,6 +1314,7 @@ function ScoreDetailInner({
   practiceItemId,
   initialFavorite,
   parts = [],
+  teacherKartes = [],
 }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -3795,28 +3785,31 @@ function ScoreDetailInner({
         </div>
       )}
 
-      {/* 練習後カルテタブ (2026-08-11 Tetsuo確定): 先生から送られた返しがある演奏だけを表示 */}
+      {/* 練習後カルテタブ (2026-08-11 Tetsuo確定): カルテは曲にぶら下がる独立エンティティ。
+          先生が書いたカルテの一覧を新しい順に表示 (演奏履歴とは別物) */}
       {activeTab === "karte" && (
         <div data-section="karte" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div data-onboarding="scoreDetail.teacherKarte">
-            <PerformanceHistory
-              karteMode
-              performances={performances.filter((p) => (p.teacherComments?.length ?? 0) > 0)}
-              selectedId={selected?.id ?? null}
-              onSelect={handleSelectPerformance}
-              loading={perfLoading}
-              performanceCount={performanceCount}
-              kind={practiceItemId ? "practice" : "score"}
-              onRenamed={handleRenamed}
-              canShareToTeacher={studentHasTeacher}
-              onReplayArco={practiceItemId ? undefined : (p) => setArcoResult(p)}
-              renderDetail={(p) => (
-                (p.pitchAccuracy != null || p.timingAccuracy != null)
-                  ? <EvaluationSummaryCard performance={p} warnings={p.comparisonWarnings ?? []} />
-                  : null
+            <section style={{ background: "var(--surface-card, #fff)", border: "1px solid var(--line-soft, #e5e9f0)", borderRadius: 16, padding: "16px 18px" }}>
+              <h3 style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, margin: "0 0 10px", color: "var(--text-ink)" }}>先生からの練習後カルテ</h3>
+              {teacherKartes.length === 0 ? (
+                <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>
+                  まだ先生からの練習後カルテはありません。先生がこの曲のカルテを書くと、ここに届きます。
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {teacherKartes.map((k) => (
+                    <div key={k.id} style={{ background: "#fbfcfe", border: "1px solid #e2e8f2", borderRadius: 12, padding: "10px 13px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-label)", fontWeight: 800 }}>
+                        <span style={{ color: "var(--text-master)" }}>{k.teacherName}先生から</span>
+                        <span style={{ marginLeft: "auto", color: "var(--text-muted)" }}>{k.date}</span>
+                      </div>
+                      <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.7, marginTop: 5, whiteSpace: "pre-wrap" }}>{k.body}</div>
+                    </div>
+                  ))}
+                </div>
               )}
-              onPerformanceDeleted={handlePerformanceDeleted}
-            />
+            </section>
           </div>
         </div>
       )}

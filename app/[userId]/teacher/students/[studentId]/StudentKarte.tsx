@@ -7,7 +7,7 @@ import { Ear, Library, Palette, MessageCircle, FileMusic } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MOOD_TAG_DEFS, moodTagPhrase, moodTagLabel } from "@/app/_libs/moodTags"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
-import { createAssignment, sendMessageToStudent, passAssignment } from "@/app/actions/teacherActions"
+import { createAssignment, savePracticeKarte } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
 import ProgressPage from "@/app/[userId]/progress/progressPage"
 import PassedHwHistory, { type PassedHwItem } from "@/app/components/PassedHwHistory"
@@ -58,13 +58,15 @@ type ExpressionRow = { id: string; tagId: string; severity: string | null; comme
 type WorkItem = { title: string; cat: string; kind: "score" | "practice"; avg: number; first: number; count: number; perfId: string }
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
 type ListenReq = { id: string; scoreId: string; performanceId: string; title: string; avg: number | null; date: string }
-type Recording = { id: string; kind: "score" | "practice"; title: string; cat: string; star: number | null; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[] }
+type Recording = { id: string; kind: "score" | "practice"; title: string; cat: string; star: number | null; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[]; targetId: string | null }
+/** 練習後カルテ (2026-08-11 Tetsuo確定): 曲/教材にぶら下がる独立エンティティ (演奏には紐づかない) */
+type KarteRow = { id: string; targetId: string; kind: "score" | "practice"; title: string; body: string; date: string; read: boolean }
 type WorstNote = NumbersRoomData["worstNotes"][number]
 type BestNote = NumbersRoomData["bestNotes"][number]
 
 export default function StudentKarte({
   userId, studentId, studentName, briefing, scoreTargets, itemTargets, listenRequests = [],
-  allScoreTargets, allItemTargets, working, recordings, assignments,
+  allScoreTargets, allItemTargets, working, recordings, kartes = [], assignments,
   observations = [],
   expressions = [],
   karte = null,
@@ -88,6 +90,8 @@ export default function StudentKarte({
   allItemTargets: Target[]
   working: WorkItem[]
   recordings: Recording[]
+  /** 書かれた練習後カルテ一覧 (曲/教材にぶら下がる) */
+  kartes?: KarteRow[]
   assignments: AssignmentRow[]
   /** 先生の所見 (癖タグ) 履歴 */
   observations?: ObservationRow[]
@@ -155,7 +159,7 @@ export default function StudentKarte({
         />
       )}
       {tab === "karte" && (
-        <KarteBySong userId={userId} studentId={studentId} recordings={recordings} worstNotes={worstNotes} />
+        <KarteBySong studentId={studentId} recordings={recordings} kartes={kartes} worstNotes={worstNotes} />
       )}
       {tab === "growth" && (
         karte ? (
@@ -375,12 +379,19 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
 
 /* ═ 主役②: 練習後カルテ (曲別。曲→この曲のカルテを横スライド) ═ */
 type SongGroup = { title: string; cat: string; kind: "score" | "practice"; star: number | null; recs: Recording[]; count: number; latest: Recording; trend: number }
-function KarteBySong({ userId, studentId, recordings, worstNotes }: { userId: string; studentId: string; recordings: Recording[]; worstNotes: WorstNote[] }) {
+function KarteBySong({ studentId, recordings, kartes, worstNotes }: { studentId: string; recordings: Recording[]; kartes: KarteRow[]; worstNotes: WorstNote[] }) {
+  // カルテ再設計 (2026-08-11 Tetsuo確定): カルテは曲にぶら下がる独立エンティティ (演奏には紐づかない)。
+  // 曲を開く = 書かれたカルテ一覧 + その場で書くフォーム。演奏履歴カードはここには出さない。
   const order: string[] = []
   const groups = new Map<string, Recording[]>()
   for (const r of recordings) {
     if (!groups.has(r.title)) { groups.set(r.title, []); order.push(r.title) }
     groups.get(r.title)!.push(r)
+  }
+  const kartesByTitle = new Map<string, KarteRow[]>()
+  for (const k of kartes) {
+    if (!kartesByTitle.has(k.title)) kartesByTitle.set(k.title, [])
+    kartesByTitle.get(k.title)!.push(k)
   }
   const gs: SongGroup[] = order.map((title) => {
     const recs = groups.get(title)!
@@ -388,31 +399,64 @@ function KarteBySong({ userId, studentId, recordings, worstNotes }: { userId: st
     const earliest = recs[recs.length - 1]
     return { title, cat: latest.cat, kind: latest.kind, star: latest.star, recs, count: recs.length, latest, trend: latest.avg - earliest.avg }
   })
+  // 演奏が36件枠から落ちてもカルテがある曲は出す (カルテだけのグループ)
+  const karteOnly: { title: string; kind: "score" | "practice"; targetId: string }[] = []
+  for (const [title, ks] of kartesByTitle) {
+    if (!groups.has(title)) karteOnly.push({ title, kind: ks[0].kind, targetId: ks[0].targetId })
+  }
   // 曲は難易度★の低い順 (未設定は末尾)、同★は最新の点の高い順
   const songs = gs.filter((g) => g.kind === "score").sort((a, b) => (a.star ?? 99) - (b.star ?? 99) || b.latest.avg - a.latest.avg)
   const basics = gs.filter((g) => g.kind === "practice").sort((a, b) => (a.star ?? 99) - (b.star ?? 99))
 
-  const renderGroup = (g: SongGroup) => (
-    <details key={g.title} style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 13, marginBottom: 8 }}>
-      <summary style={{ listStyle: "none", cursor: "pointer", padding: "11px 13px", display: "flex", alignItems: "center", gap: 9 }}>
-        {g.star != null
-          ? <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "#b58a1e" }}>★{g.star}</span>
-          : <span style={kCat}>{g.cat}</span>}
-        <b style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-ink)" }}>{g.title}</b>
-        <span style={{ marginLeft: "auto", flex: "none", textAlign: "right", fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800, lineHeight: 1.35 }}>{g.count}枚<br />{g.latest.date}</span>
-        <span style={{ flex: "none", fontSize: "var(--fs-subhead)", fontWeight: 900, color: kScoreColor(g.latest.avg) }}>{g.latest.avg}</span>
-      </summary>
-      <div style={{ padding: "0 13px 12px" }}>
-        <SongTrendCard g={g} />
-        <div style={{ display: "flex", gap: 9, overflowX: "auto", scrollSnapType: "x mandatory", scrollbarWidth: "thin", paddingBottom: 4 }}>
-          {g.recs.map((r) => <MiniKarte key={r.id} userId={userId} studentId={studentId} r={r} />)}
+  const renderKarteList = (title: string, kind: "score" | "practice", targetId: string | null) => {
+    const ks = kartesByTitle.get(title) ?? []
+    return (
+      <>
+        <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#22346b", margin: "2px 0 6px" }}>
+          練習後カルテ（{ks.length}枚）
         </div>
-      </div>
-    </details>
-  )
+        {ks.length === 0 ? (
+          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginBottom: 8 }}>まだカルテがありません。下のフォームから書けます。</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 8 }}>
+            {ks.map((k) => (
+              <div key={k.id} style={{ background: "#fbfcfe", border: "1px solid #e6e9ef", borderRadius: 10, padding: "8px 11px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)" }}>{k.date}</span>
+                  <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: k.read ? "#2f9e63" : "#b58a1e" }}>{k.read ? "既読" : "未読"}</span>
+                </div>
+                <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-body)", marginTop: 4, lineHeight: 1.65, whiteSpace: "pre-wrap" }}>{k.body}</div>
+              </div>
+            ))}
+          </div>
+        )}
+        {targetId && <KarteWriteBox studentId={studentId} kind={kind} targetId={targetId} />}
+      </>
+    )
+  }
 
-  if (recordings.length === 0) {
-    return <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ練習後カルテがありません（録音するとここに1枚ずつ増えます）。</div></Card>
+  const renderGroup = (g: SongGroup) => {
+    const kCount = (kartesByTitle.get(g.title) ?? []).length
+    return (
+      <details key={g.title} style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 13, marginBottom: 8 }}>
+        <summary style={{ listStyle: "none", cursor: "pointer", padding: "11px 13px", display: "flex", alignItems: "center", gap: 9 }}>
+          {g.star != null
+            ? <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "#b58a1e" }}>★{g.star}</span>
+            : <span style={kCat}>{g.cat}</span>}
+          <b style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-ink)" }}>{g.title}</b>
+          <span style={{ marginLeft: "auto", flex: "none", textAlign: "right", fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800, lineHeight: 1.35 }}>カルテ{kCount}枚<br />{g.latest.date}</span>
+          <span style={{ flex: "none", fontSize: "var(--fs-subhead)", fontWeight: 900, color: kScoreColor(g.latest.avg) }}>{g.latest.avg}</span>
+        </summary>
+        <div style={{ padding: "0 13px 12px" }}>
+          <SongTrendCard g={g} />
+          {renderKarteList(g.title, g.kind, g.latest.targetId)}
+        </div>
+      </details>
+    )
+  }
+
+  if (recordings.length === 0 && kartes.length === 0) {
+    return <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ演奏がありません（生徒が録音するとここに曲が並びます）。</div></Card>
   }
   return (
     <>
@@ -420,17 +464,62 @@ function KarteBySong({ userId, studentId, recordings, worstNotes }: { userId: st
           カルテの崩れ集計にフォールバックし、常にカードを出す (2026-08-11 修正) */}
       <GlobalTrendCard recordings={recordings} worstNotes={worstNotes} />
 
-      <div style={kSec}>曲<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>カルテ回数・直近</span></div>
+      <div style={kSec}>曲<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>カルテ枚数・直近</span></div>
       {songs.length === 0 ? (
         <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>曲の演奏がまだありません。</div></Card>
       ) : songs.map(renderGroup)}
       {basics.length > 0 && (
         <>
-          <div style={kSec}>基礎練・教材<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>カルテ回数・直近</span></div>
+          <div style={kSec}>基礎練・教材<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>カルテ枚数・直近</span></div>
           {basics.map(renderGroup)}
         </>
       )}
+      {karteOnly.map((g) => (
+        <details key={g.title} style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 13, marginBottom: 8 }}>
+          <summary style={{ listStyle: "none", cursor: "pointer", padding: "11px 13px", display: "flex", alignItems: "center", gap: 9 }}>
+            <b style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-ink)" }}>{g.title}</b>
+            <span style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>カルテ{(kartesByTitle.get(g.title) ?? []).length}枚</span>
+          </summary>
+          <div style={{ padding: "0 13px 12px" }}>{renderKarteList(g.title, g.kind, g.targetId)}</div>
+        </details>
+      ))}
     </>
+  )
+}
+
+/** 練習後カルテのインライン記入フォーム (曲を開いたその場で書く。「新しいカルテを書く」ボタンは置かない) */
+function KarteWriteBox({ studentId, kind, targetId }: { studentId: string; kind: "score" | "practice"; targetId: string }) {
+  const router = useRouter()
+  const [body, setBody] = useState("")
+  const [state, setState] = useState<"idle" | "saving" | "error">("idle")
+  const [errMsg, setErrMsg] = useState("")
+  return (
+    <div style={{ background: "#f0f4fb", border: "1px solid #d6e0f0", borderRadius: 10, padding: "9px 11px" }}>
+      <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#22346b", marginBottom: 5 }}>カルテを書く（保存すると生徒に届きます）</div>
+      <textarea
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+        rows={3}
+        placeholder="演奏を聴いて気づいたこと・次に意識してほしいこと"
+        style={{ width: "100%", boxSizing: "border-box", fontSize: "var(--fs-caption)", lineHeight: 1.6, border: "1px solid #c9d6ea", borderRadius: 8, padding: "8px 10px", resize: "vertical", background: "#fff", color: "var(--text-ink)" }}
+      />
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
+        {state === "error" && <span style={{ fontSize: "var(--fs-label)", color: "#c0473a", fontWeight: 800 }}>{errMsg || "保存に失敗しました"}</span>}
+        <button
+          type="button"
+          disabled={state === "saving" || !body.trim()}
+          onClick={async () => {
+            setState("saving")
+            const r = await savePracticeKarte(studentId, kind === "score" ? { scoreId: targetId } : { practiceItemId: targetId }, body)
+            if (r.ok) { setBody(""); setState("idle"); router.refresh() }
+            else { setErrMsg(r.error); setState("error") }
+          }}
+          style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#22346b", border: "none", borderRadius: 999, padding: "7px 16px", cursor: "pointer", opacity: state === "saving" || !body.trim() ? 0.55 : 1 }}
+        >
+          {state === "saving" ? "保存中…" : "カルテを渡す"}
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -505,32 +594,6 @@ function SongTrendCard({ g }: { g: SongGroup }) {
         </div>
       )}
     </div>
-  )
-}
-
-/* ═ 曲別の横スライド1枚 (タップで練習後カルテ詳細=書く場へ) ═ */
-function MiniKarte({ userId, studentId, r }: { userId: string; studentId: string; r: Recording }) {
-  return (
-    <Link href={`/${userId}/teacher/students/${studentId}/karte/${r.id}?kind=${r.kind}`}
-      style={{ flex: "none", width: 200, scrollSnapAlign: "start", background: "#fff", border: "1px solid #eef1f4", borderRadius: 12, padding: "11px 12px", boxSizing: "border-box", textDecoration: "none", color: "var(--text-master)", display: "block" }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-        <span style={{ fontSize: "var(--fs-title)", fontWeight: 900, color: kScoreColor(r.avg), lineHeight: 1 }}>{r.avg}</span>
-        <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>{r.date}</span>
-      </div>
-      <div style={{ display: "flex", gap: 10, fontSize: "var(--fs-label)", marginTop: 4 }}>
-        <span style={{ color: "var(--text-sub)" }}>音程 <b style={{ color: kScoreColor(r.pitch) }}>{r.pitch}</b></span>
-        <span style={{ color: "var(--text-sub)" }}>リズム <b style={{ color: kScoreColor(r.timing) }}>{r.timing}</b></span>
-      </div>
-      {r.weak.length > 0 && (
-        <div style={{ fontSize: "var(--fs-label)", color: "var(--text-body)", marginTop: 6, lineHeight: 1.5 }}>
-          <span style={{ fontWeight: 800, color: "var(--text-muted)" }}>崩れ：</span>
-          {r.weak.slice(0, 2).map((w, i) => (
-            <span key={i}>{i > 0 ? " / " : ""}<span style={{ color: w.tree === "音程" ? "#c0473a" : "#b7823a", fontWeight: 800 }}>{w.tree}</span>{w.name}</span>
-          ))}
-        </div>
-      )}
-      <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#3b56d4", marginTop: 8 }}>ひらいて 癖・コメントを書く →</div>
-    </Link>
   )
 }
 

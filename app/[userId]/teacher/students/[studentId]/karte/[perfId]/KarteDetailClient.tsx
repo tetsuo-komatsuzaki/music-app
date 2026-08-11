@@ -5,7 +5,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, MessageCircle, Check } from "lucide-react"
-import { sendMessageToStudent, passAssignment } from "@/app/actions/teacherActions"
+import { savePracticeKarte, passAssignment } from "@/app/actions/teacherActions"
 import { createObservation } from "@/app/actions/teacherObservations"
 import { saveMaterialNote } from "@/app/actions/teacherMaterialNotes"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
@@ -18,7 +18,7 @@ type MaterialRow = { itemId: string; label: string; category: string; star: numb
 const scoreColor = (n: number) => (n >= 90 ? "#2e8b57" : n >= 70 ? "#b7823a" : "#c0473a")
 
 export default function KarteDetailClient(props: {
-  backHref: string; userId: string; scoreId: string | null; studentId: string; perfId: string; kind: "score" | "practice"
+  backHref: string; userId: string; scoreId: string | null; itemId?: string | null; studentId: string; perfId: string; kind: "score" | "practice"
   title: string; cat: string; star: number | null; date: string
   pitch: number; timing: number; avg: number; weak: WeakSlot[]
   audioUrl: string | null; aiTags: { id: string; label: string }[]
@@ -26,17 +26,18 @@ export default function KarteDetailClient(props: {
   /** この演奏が提出された宿題 (あれば最下部に合格セクション) */
   hwForPerf?: { id: string; targetScore: number | null; passed: boolean } | null
 }) {
-  const { backHref, userId, scoreId, studentId, perfId, kind, title, cat, star, date, pitch, timing, avg, weak, audioUrl, aiTags, materials = [], hwForPerf = null } = props
+  const { backHref, userId, scoreId, itemId = null, studentId, perfId, kind, title, cat, star, date, pitch, timing, avg, weak, audioUrl, aiTags, materials = [], hwForPerf = null } = props
   const router = useRouter()
 
-  // コメント
+  // 練習後カルテ (2026-08-11 Tetsuo確定: 演奏コメントは廃止し、曲にぶら下がるカルテに一本化)
   const [comment, setComment] = useState("")
   const [commentDone, setCommentDone] = useState(false)
   const [sendingC, startC] = useTransition()
+  const karteTarget = kind === "score" ? (scoreId ? { scoreId } : null) : (itemId ? { practiceItemId: itemId } : null)
   const sendComment = () => {
-    const t = comment.trim(); if (!t) return
+    const t = comment.trim(); if (!t || !karteTarget) return
     startC(async () => {
-      const r = await sendMessageToStudent(studentId, t, perfId, kind)
+      const r = await savePracticeKarte(studentId, karteTarget, t)
       if (r.ok) { setCommentDone(true); setComment("") }
     })
   }
@@ -121,22 +122,24 @@ export default function KarteDetailClient(props: {
         この曲の演奏ふりかえりを見る（推移・過去のカルテ）→
       </Link>
 
-      {/* コメント */}
-      <div style={card}>
-        <div style={{ ...lab, display: "flex", alignItems: "center", gap: 5 }}><MessageCircle size={13} /> この演奏にコメント</div>
-        {commentDone ? (
-          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)", display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={14} /> コメントを送りました</div>
-        ) : (
-          <>
-            <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} placeholder="例：ファ♯、移弦のあとに少し下がるね。移弦の前に指を準備しよう。"
-              style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 9, padding: "9px 11px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box" }} />
-            <button type="button" onClick={sendComment} disabled={sendingC || !comment.trim()}
-              style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#fff", background: "#3b56d4", border: "none", borderRadius: 9, padding: "8px 16px", cursor: "pointer", opacity: sendingC || !comment.trim() ? 0.5 : 1 }}>
-              {sendingC ? "送信中…" : "コメントを送る"}
-            </button>
-          </>
-        )}
-      </div>
+      {/* 練習後カルテを書く (演奏コメント廃止→曲にたまるカルテに一本化) */}
+      {karteTarget && (
+        <div style={card}>
+          <div style={{ ...lab, display: "flex", alignItems: "center", gap: 5 }}><MessageCircle size={13} /> 練習後カルテを書く（この{kind === "score" ? "曲" : "教材"}にたまります）</div>
+          {commentDone ? (
+            <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)", display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={14} /> カルテを渡しました</div>
+          ) : (
+            <>
+              <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} placeholder="例：ファ♯、移弦のあとに少し下がるね。移弦の前に指を準備しよう。"
+                style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 9, padding: "9px 11px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box" }} />
+              <button type="button" onClick={sendComment} disabled={sendingC || !comment.trim()}
+                style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#fff", background: "#3b56d4", border: "none", borderRadius: 9, padding: "8px 16px", cursor: "pointer", opacity: sendingC || !comment.trim() ? 0.5 : 1 }}>
+                {sendingC ? "送信中…" : "カルテを渡す"}
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       {/* この曲のおすすめ練習 (生徒のホームに表示中) + 練習ポイント */}
       {materials.length > 0 && (

@@ -266,6 +266,43 @@ export async function sendMessageToStudent(
   }
 }
 
+/** 先生: 練習後カルテを書く (2026-08-11 Tetsuo確定)。
+ *  カルテは曲/教材にぶら下がる独立エンティティ (演奏履歴には紐づかない)。
+ *  先生は生徒の演奏をいろいろ聴きながら1枚書く。演奏コメントはこれに一本化。 */
+export async function savePracticeKarte(
+  studentId: string,
+  target: { scoreId?: string; practiceItemId?: string },
+  body: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  if (auth.user.dbUser.role !== "teacher") return { ok: false, error: "先生アカウントが必要です" }
+  const text = (body || "").trim()
+  if (!text) return { ok: false, error: "カルテを入力してください" }
+  if (text.length > 2000) return { ok: false, error: "長すぎます（2000文字まで）" }
+  if (!target.scoreId === !target.practiceItemId) return { ok: false, error: "対象の曲または教材を指定してください" }
+  const rl = await checkMessageRate(auth.user.dbUser.id, true)
+  if (!rl.ok) return { ok: false, error: rateLimitMessage(rl) }
+  try {
+    const link = await prisma.teacherStudent.findUnique({
+      where: { teacherId_studentId: { teacherId: auth.user.dbUser.id, studentId } },
+      select: { id: true },
+    })
+    if (!link) return { ok: false, error: "担当していない生徒です" }
+    await prisma.practiceKarte.create({
+      data: {
+        teacherId: auth.user.dbUser.id, studentId,
+        scoreId: target.scoreId ?? null, practiceItemId: target.practiceItemId ?? null,
+        body: text,
+      },
+    })
+    await notifyStudent(studentId, auth.user.dbUser.id, "karte", text)
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "保存に失敗しました" }
+  }
+}
+
 /** 先生: 生徒の達成を一緒に祝う (お祝いメッセージ・kind=celebration)。
  *  生徒側では特別なお祝い表示になり、メールも祝い件名で届く。 */
 export async function sendCelebration(

@@ -221,27 +221,29 @@ export default async function StudentKartePage({
     prisma.performance.findMany({
       where: { userId: studentId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: 36,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, rangeFromNote: true, analysisSummary: true, score: { select: { title: true, star: true } } },
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, rangeFromNote: true, analysisSummary: true, scoreId: true, score: { select: { title: true, star: true } } },
     }),
     prisma.practicePerformance.findMany({
       where: { userId: studentId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: 36,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, analysisSummary: true, practiceItem: { select: { title: true, category: true, star: true } } },
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, analysisSummary: true, practiceItemId: true, practiceItem: { select: { title: true, category: true, star: true } } },
     }),
   ])
   const avg2 = (p: number | null, t: number | null) => Math.round(((p ?? 0) + (t ?? 0)) / 2)
   // 日付はロケール依存の toLocaleDateString を使わない (サーバlocale次第で「31.5.2026」式に崩れる)
   const fmtMD = (at: number) => { const d = new Date(at); return `${d.getMonth() + 1}/${d.getDate()}` }
-  type RecRaw = { id: string; kind: "score" | "practice"; at: number; title: string; cat: string; star: number | null; pitch: number; timing: number; avg: number; weak: WeakSlot[] }
+  type RecRaw = { id: string; kind: "score" | "practice"; at: number; title: string; cat: string; star: number | null; pitch: number; timing: number; avg: number; weak: WeakSlot[]; targetId: string | null }
   const recRaw: RecRaw[] = [
     ...scorePerfs.map((p) => ({
       id: p.id, kind: "score" as const, at: p.uploadedAt.getTime(), title: p.score?.title ?? "曲",
+      targetId: p.scoreId,
       cat: p.rangeFromNote != null ? "曲（区間）" : "曲", star: p.score?.star ?? null,
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
       weak: topWeak(p.analysisSummary),
     })),
     ...pracPerfs.map((p) => ({
       id: p.id, kind: "practice" as const, at: p.uploadedAt.getTime(), title: p.practiceItem?.title ?? "教材",
+      targetId: p.practiceItemId,
       cat: p.practiceItem?.category ? categoryLabel(p.practiceItem.category) : "基礎練", star: p.practiceItem?.star ?? null,
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
       weak: topWeak(p.analysisSummary),
@@ -251,9 +253,30 @@ export default async function StudentKartePage({
   // 音声は一覧では再生しない (詳細画面で署名URLを発行)。ここでの一括署名URL生成は廃止
   const recordings = recRaw.map((r) => ({
     id: r.id, kind: r.kind, title: r.title, cat: r.cat, star: r.star, pitch: r.pitch, timing: r.timing, avg: r.avg, weak: r.weak,
+    targetId: r.targetId,
     date: fmtMD(r.at),
     audioUrl: null as string | null,
   }))
+
+  // 練習後カルテ (2026-08-11 Tetsuo確定): 曲/教材にぶら下がる独立エンティティ。
+  // 曲別タブで「書かれたカルテ一覧」を見せる (migration未適用でも落ちない read防御)
+  let kartes: { id: string; targetId: string; kind: "score" | "practice"; title: string; body: string; date: string; read: boolean }[] = []
+  try {
+    const rows = await prisma.practiceKarte.findMany({
+      where: { teacherId: me.id, studentId },
+      orderBy: { createdAt: "desc" }, take: 100,
+      select: { id: true, body: true, createdAt: true, readAt: true, scoreId: true, practiceItemId: true, score: { select: { title: true } }, practiceItem: { select: { title: true } } },
+    })
+    kartes = rows.map((k) => ({
+      id: k.id,
+      targetId: (k.scoreId ?? k.practiceItemId)!,
+      kind: k.scoreId ? ("score" as const) : ("practice" as const),
+      title: k.score?.title ?? k.practiceItem?.title ?? "曲",
+      body: k.body,
+      date: fmtMD(k.createdAt.getTime()),
+      read: k.readAt != null,
+    })).filter((k) => k.targetId)
+  } catch { kartes = [] }
 
   // 取り組んでいる曲・教材 (直近2週間に練習したもの・点数で絞らず・重複除去)。
   // 上達状況表示用に 期間内の最古スコア(first)・枚数(count)・最新演奏へのリンク(perfId/kind) も持つ。
@@ -323,6 +346,7 @@ export default async function StudentKartePage({
       allItemTargets={allItemTargets}
       working={working}
       recordings={recordings}
+      kartes={kartes}
       listenRequests={listenRequests}
       assignments={assignments.map((a) => ({
         id: a.id,

@@ -184,6 +184,21 @@ export default async function PracticeDetailPage({
     if (n) teacherNote = { point: n.point, teacherName: n.teacher.name }
   } catch { teacherNote = null }
 
+  // 練習後カルテ (2026-08-11 Tetsuo確定): 教材にぶら下がる先生からのカルテ一覧 (read防御)
+  let teacherKartes: { id: string; body: string; date: string; teacherName: string }[] = []
+  try {
+    const rows = await prisma.practiceKarte.findMany({
+      where: { studentId: dbUserId, practiceItemId: item.id },
+      orderBy: { createdAt: "desc" }, take: 50,
+      select: { id: true, body: true, createdAt: true, teacher: { select: { name: true } } },
+    })
+    teacherKartes = rows.map((k) => ({
+      id: k.id, body: k.body,
+      date: `${k.createdAt.getMonth() + 1}/${k.createdAt.getDate()}`,
+      teacherName: k.teacher?.name ?? "先生",
+    }))
+  } catch { teacherKartes = [] }
+
   return (
     <div>
       {/* パンくず */}
@@ -232,6 +247,7 @@ export default async function PracticeDetailPage({
         singleStaffLine={item.category === "scale" || item.category === "arpeggio"}
         practiceItemId={item.id}
         initialFavorite={!!favRow}
+        teacherKartes={teacherKartes}
       />
     </div>
   )

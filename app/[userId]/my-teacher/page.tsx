@@ -35,11 +35,17 @@ export default async function MyTeacherPage({
   })
   if (!link) redirect(`/${userId}`)
 
-  // 先生からの未読メッセージを既読化 (開いた時点)
+  // 先生からの未読メッセージ・練習後カルテを既読化 (開いた時点)
   await prisma.message.updateMany({
     where: { studentId: me.id, teacherId: link.teacher.id, fromTeacher: true, readAt: null },
     data: { readAt: new Date() },
   })
+  try {
+    await prisma.practiceKarte.updateMany({
+      where: { studentId: me.id, teacherId: link.teacher.id, readAt: null },
+      data: { readAt: new Date() },
+    })
+  } catch { /* migration未適用でも画面は出す */ }
   const messages = await prisma.message.findMany({
     where: { studentId: me.id, teacherId: link.teacher.id },
     orderBy: { createdAt: "asc" },
@@ -66,20 +72,30 @@ export default async function MyTeacherPage({
     if (p.practiceItem) perfMap.set(p.id, { title: p.practiceItem.title, href: `/${userId}/practice/${p.practiceItem.category}/${p.practiceItem.id}` })
   }
 
-  // 練習後カルテタブ (2026-08-11 Tetsuo確定): 先生からの演奏への返し(コメント)を新しい順に。
+  // 練習後カルテタブ (2026-08-11 Tetsuo確定): カルテ=曲/教材にぶら下がる独立エンティティ (PracticeKarte)。
   // 曲はスコア画面の練習後カルテタブへ、教材は教材ページへリンク。
-  const karteItems = messages
-    .filter((m) => m.fromTeacher && m.performanceId && perfMap.has(m.performanceId))
-    .map((m) => {
-      const p = perfMap.get(m.performanceId as string)!
-      return {
-        when: m.createdAt.toISOString(),
-        title: p.title,
-        href: m.performanceKind === "score" ? `${p.href}?tab=karte` : p.href,
-        body: m.body,
-      }
+  let karteItems: { when: string; title: string; href: string; body: string }[] = []
+  try {
+    const karteRows = await prisma.practiceKarte.findMany({
+      where: { studentId: me.id, teacherId: link.teacher.id },
+      orderBy: { createdAt: "desc" }, take: 100,
+      select: {
+        id: true, body: true, createdAt: true,
+        score: { select: { id: true, title: true } },
+        practiceItem: { select: { id: true, title: true, category: true } },
+      },
     })
-    .reverse()
+    karteItems = karteRows
+      .filter((k) => k.score || k.practiceItem)
+      .map((k) => ({
+        when: k.createdAt.toISOString(),
+        title: k.score?.title ?? k.practiceItem!.title,
+        href: k.score
+          ? `/${userId}/scores/${k.score.id}?tab=karte`
+          : `/${userId}/practice/${k.practiceItem!.category}/${k.practiceItem!.id}`,
+        body: k.body,
+      }))
+  } catch { karteItems = [] }
 
   // 添削 (先生が譜面に書き込んだもの)。曲単位。TeacherFeedback は score リレーションを持たないので別引き。
   const feedbackRows = await prisma.teacherFeedback.findMany({
