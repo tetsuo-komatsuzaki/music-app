@@ -10,6 +10,8 @@ import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
 import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
 import { getDailyLessonsForUserScore } from "@/app/_libs/dailyLessons"
+import { buildTargetHeatmap } from "@/app/_libs/fingerboard/aggregate"
+import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import KarteWriteClient from "./KarteWriteClient"
 
 export const metadata = { title: "練習後カルテを書く" }
@@ -119,6 +121,18 @@ export default async function KarteWritePage({
   // AI候補 (全演奏の弱点を合算して推定)
   const aiTags = suggestObs(perfs.flatMap((p) => p.weak))
 
+  // 指板ヒートマップ (2026-08-11 Tetsuo確定・案5): この曲/教材の全演奏を合算。
+  // 音程FBは文章ではなく指板で見せる。先生はセルをマークして「気をつける音」を渡せる
+  let heatmap: HeatmapData = { cells: {}, details: {}, perfCount: 0 }
+  try { heatmap = await buildTargetHeatmap(studentId, kind, target) } catch { /* storage不通でも画面は出す */ }
+  let marks: { cellId: string; note: string }[] = []
+  try {
+    marks = (await prisma.teacherMarkedCell.findMany({
+      where: { teacherId: me.id, studentId },
+      select: { cellId: true, note: true },
+    })).map((m) => ({ cellId: m.cellId, note: m.note }))
+  } catch { marks = [] }
+
   // この曲について生徒のホームに出ている「毎日の基礎練」+ 既存の練習ポイント (曲のみ)
   let materials: { itemId: string; label: string; category: string; star: number | null; point: string }[] = []
   if (kind === "score") {
@@ -152,6 +166,8 @@ export default async function KarteWritePage({
       performances={performances}
       aiTags={aiTags}
       materials={materials}
+      heatmap={heatmap}
+      marks={marks}
     />
   )
 }

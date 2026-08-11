@@ -3,6 +3,8 @@
 import Link from "next/link"
 import { BarChart3, Sparkles, Music, Timer, Search, ArrowLeftRight } from "lucide-react"
 import type { NumbersRoomData, KartePeriod } from "@/app/_libs/growthKarte"
+import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
+import FingerboardPanel, { type FingerboardMark } from "@/app/components/FingerboardPanel"
 
 const SUB = "#8a9099"
 const GOOD = "#0f8a4f"
@@ -29,13 +31,16 @@ function Row({ label, sub, pct }: { label: string; sub?: string; pct: number }) 
   )
 }
 
-export default function NumbersRoomView({ d, period, baseHref, backHref, backLabel }: {
+export default function NumbersRoomView({ d, period, baseHref, backHref, backLabel, heatmap = null, fbMarks = [] }: {
   d: NumbersRoomData
   period: KartePeriod
   /** 期間切替リンクの土台 (例: /uid/progress/numbers) */
   baseHref: string
   backHref: string
   backLabel: string
+  /** 指板ヒートマップ (2026-08-11 Tetsuo確定: 音のじっくり表/動きのにがて文章の代替・期間タブ連動) */
+  heatmap?: HeatmapData | null
+  fbMarks?: FingerboardMark[]
 }) {
   const empty = d.keys.length === 0 && d.registers.length === 0 && d.worstNotes.length === 0
   const periodLabel = period === "7d" ? "今週" : period === "all" ? "全期間" : "直近30日"
@@ -107,39 +112,19 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
             </div>
           )}
 
-          {d.worstNotes.length > 0 && (
+          {/* 音程マップ = 指板ヒートマップ (2026-08-11 Tetsuo確定):
+              旧「音のじっくり表」「動きのにがて」の文章一覧を指板に置換。
+              動き(遷移)はセルをタップした詳細に出る。リズム系は上のカードのまま */}
+          {heatmap && (
             <div style={card}>
-              <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><Search size={14} /> 音のじっくり表 <span style={{ fontSize: "var(--fs-label)", color: SUB, fontWeight: 800 }}>にがて順</span></div>
-              {d.worstNotes.map((n) => (
-                <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 5, flexWrap: "wrap" }}>
-                  <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
-                  <span style={{ fontSize: "var(--fs-label)", color: SUB }}>{n.hand ? `${n.hand}（推定）` : n.string ? `${n.string}（推定）` : n.raw}・{n.target}音</span>
-                  {n.cents != null && Math.abs(n.cents) >= 15 && (
-                    <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: GOLD }}>{n.cents < 0 ? `ぶら下がり ${n.cents}c` : `上ずり +${n.cents}c`}</span>
-                  )}
-                  <b style={{ ...tnum, marginLeft: "auto", color: pctColor(n.pct) }}>{n.pct}%</b>
-                </div>
-              ))}
-              {d.bestNotes.length > 0 && (
-                <div style={{ fontSize: "var(--fs-caption)", color: GOOD, marginTop: 6 }}>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><Sparkles size={12} /> とくいな音:</span> {d.bestNotes.map((n) => `${n.kana} ${n.pct}%`).join(" ・ ")}
+              <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><Search size={14} /> 音程マップ <span style={{ fontSize: "var(--fs-label)", color: SUB, fontWeight: 800 }}>{periodLabel}・タップで くわしく</span></div>
+              <FingerboardPanel cells={heatmap.cells} details={heatmap.details} marks={fbMarks}
+                emptyText={`${periodLabel}はまだ判定できる音が少ないよ（同じ音を5回以上ひくと色がつくよ）。`} />
+              {fbMarks.length > 0 && (
+                <div style={{ fontSize: "var(--fs-label)", color: "#6b4a12", marginTop: 6 }}>
+                  橙の旗 = 先生の「気をつける音」だよ。タップすると一言が読めるよ。
                 </div>
               )}
-            </div>
-          )}
-
-          {d.transitions.length > 0 && (
-            <div style={card}>
-              <div style={{ ...ttl, display: "flex", alignItems: "center", gap: 6 }}><ArrowLeftRight size={14} /> 動きのにがて <span style={{ fontSize: "var(--fs-label)", color: SUB, fontWeight: 800 }}>前の音 → この音</span></div>
-              {d.transitions.map((t, i) => (
-                <div key={i} style={{ display: "flex", gap: 8, fontSize: "var(--fs-caption)", marginBottom: 4, flexWrap: "wrap" }}>
-                  <span style={{ fontWeight: 700 }}>
-                    {t.from}{t.fromString && <span style={{ color: SUB, fontWeight: 700 }}>（{t.fromString}）</span>} → {t.to}{t.toString && <span style={{ color: SUB, fontWeight: 700 }}>（{t.toString}）</span>}
-                  </span>
-                  <span style={{ fontSize: "var(--fs-label)", color: SUB, alignSelf: "center" }}>{t.target}回中</span>
-                  <b style={{ ...tnum, marginLeft: "auto", color: BAD }}>ミス率 {t.missRate}%</b>
-                </div>
-              ))}
             </div>
           )}
 

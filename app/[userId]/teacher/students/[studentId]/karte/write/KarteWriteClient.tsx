@@ -7,10 +7,12 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, MessageCircle, Check } from "lucide-react"
-import { savePracticeKarte } from "@/app/actions/teacherActions"
+import { savePracticeKarte, saveFingerboardMark, removeFingerboardMark } from "@/app/actions/teacherActions"
 import { createObservation } from "@/app/actions/teacherObservations"
 import { OBSERVATION_CATALOG, OBSERVATION_SEVERITIES } from "@/app/_libs/observationCatalog"
 import { SKILL_ID_LABELS } from "@/app/_libs/skillCatalog"
+import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
+import FingerboardPanel, { type FingerboardMark } from "@/app/components/FingerboardPanel"
 import { ExprCertifyBox, MaterialPointRow } from "../[perfId]/KarteDetailClient"
 
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
@@ -20,6 +22,7 @@ const scoreColor = (n: number) => (n >= 90 ? "#2e8b57" : n >= 70 ? "#b7823a" : "
 
 export default function KarteWriteClient({
   backHref, userId, studentId, kind, targetId, title, cat, star, performances, aiTags, materials,
+  heatmap, marks: initialMarks = [],
 }: {
   backHref: string; userId: string; studentId: string
   kind: "score" | "practice"; targetId: string
@@ -27,8 +30,12 @@ export default function KarteWriteClient({
   performances: PerfRow[]
   aiTags: { id: string; label: string }[]
   materials: MaterialRow[]
+  /** 指板ヒートマップ (この曲/教材の全演奏合算・案5) */
+  heatmap?: HeatmapData
+  marks?: FingerboardMark[]
 }) {
   const router = useRouter()
+  const [marks, setMarks] = useState<FingerboardMark[]>(initialMarks)
 
   // 直近の演奏 (プルダウンで1件えらんで再生。初期値=最新)
   const [selPerfId, setSelPerfId] = useState<string | null>(performances[0]?.id ?? null)
@@ -123,6 +130,29 @@ export default function KarteWriteClient({
           </>
         )}
       </div>
+
+      {/* 指板ヒートマップ (案5: 音程FBは文章ではなく指板。マーキングモードで「気をつける音」を渡す) */}
+      {heatmap && (
+        <div style={card}>
+          <div style={lab}>音程マップ（この{kind === "score" ? "曲" : "教材"}の全演奏 {heatmap.perfCount}回分）</div>
+          <FingerboardPanel
+            cells={heatmap.cells}
+            details={heatmap.details}
+            marks={marks}
+            markable
+            onSaveMark={async (cellId, note) => {
+              const r = await saveFingerboardMark(studentId, cellId, note)
+              if (r.ok) setMarks((prev) => [...prev.filter((m) => m.cellId !== cellId), { cellId, note }])
+              return r.ok
+            }}
+            onRemoveMark={async (cellId) => {
+              const r = await removeFingerboardMark(studentId, cellId)
+              if (r.ok) setMarks((prev) => prev.filter((m) => m.cellId !== cellId))
+              return r.ok
+            }}
+          />
+        </div>
+      )}
 
       {/* カルテ本文 */}
       <div style={card}>

@@ -1,0 +1,242 @@
+"use client"
+
+// 指板ヒートマップ表示パネル (2026-08-11 Tetsuo確定: 案4=2カラム・タップで右の詳細が切替)
+// 横向き表示 (ナット左・E線上・右=高ポジション)。n<5セルは無色(白)。
+// markable=true (先生カルテ入力=案5) で「気をつける音をマークする」モードが使える。
+import { useMemo, useState, useTransition } from "react"
+import {
+  STRINGS, type ViolinString, N_END, H_OPEN, Y_END, colX, cellPolygon, cellId, yOf,
+} from "@/app/_libs/fingerboard/geometry"
+import { CELL_FILLS, type CellStatus } from "@/app/_libs/fingerboard/colors"
+import type { HeatCellOut, CellDetail } from "@/app/_libs/fingerboard/heatmapTypes"
+
+export type FingerboardMark = { cellId: string; note: string }
+
+// (x,y) -> (y,-x): ナット左・E線(右端カラム)が上になる横向き変換
+const rot = (p: readonly (readonly [number, number])[]) => p.map(([x, y]) => [y, -x] as const)
+const pts = (p: readonly (readonly [number, number])[]) => p.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ")
+
+const DIR_LABEL = { high: "高く", low: "低く", mixed: "高低にブレ" } as const
+const STATUS_LABEL: Record<CellStatus, string> = {
+  insufficient: "", stable: "安定", sharp: "高すぎ", flat: "低すぎ", unstable: "両方にブレる",
+}
+const STATUS_INK: Record<CellStatus, string> = {
+  insufficient: "#8b97a8", stable: "#2e8b57", sharp: "#c0473a", flat: "#2b5bc4", unstable: "#7a4dd6",
+}
+
+export default function FingerboardPanel({
+  cells, details, marks = [], markable = false, onSaveMark, onRemoveMark, emptyText,
+}: {
+  cells: Record<string, HeatCellOut>
+  details: Record<string, CellDetail>
+  /** 先生の「気をつける音」マーク (生徒側は表示のみ) */
+  marks?: FingerboardMark[]
+  /** 案5: マーキングモードを出す (先生カルテ入力画面のみ) */
+  markable?: boolean
+  onSaveMark?: (cellId: string, note: string) => Promise<boolean>
+  onRemoveMark?: (cellId: string) => Promise<boolean>
+  emptyText?: string
+}) {
+  const [sel, setSel] = useState<string | null>(null)
+  const [marking, setMarking] = useState(false)
+  const [markNote, setMarkNote] = useState("")
+  const [pending, start] = useTransition()
+  const markSet = useMemo(() => new Map(marks.map((m) => [m.cellId, m.note])), [marks])
+  const hasData = Object.keys(cells).length > 0
+
+  const selDetail = sel ? details[sel] : null
+  const selCell = sel ? cells[sel] : null
+
+  const svg = useMemo(() => {
+    const nodes: React.ReactNode[] = []
+    for (let n = 0; n <= N_END; n++) {
+      STRINGS.forEach((s, si) => {
+        const id = cellId(s, n)
+        const cell = cells[id]
+        // n<5(無色)は白。開放弦帯だけデータ無しでも薄グレーで区別
+        const fill = cell ? CELL_FILLS[cell.status][cell.level] : n === 0 ? "#f4f4f4" : "#ffffff"
+        nodes.push(
+          <polygon
+            key={id}
+            points={pts(rot(cellPolygon(si, n)))}
+            fill={fill}
+            stroke={sel === id ? "#111" : "#c9cdd4"}
+            strokeWidth={sel === id ? 1.1 : 0.3}
+            onClick={() => setSel(id)}
+            style={{ cursor: "pointer" }}
+          />,
+        )
+      })
+    }
+    // マーク (橙枠+旗)
+    for (const [id] of markSet) {
+      const m = /^cell-([GDAE])-(\d{2})$/.exec(id)
+      if (!m) continue
+      const si = STRINGS.indexOf(m[1] as ViolinString)
+      const n = Number(m[2])
+      if (si < 0 || n > N_END) continue
+      const p = rot(cellPolygon(si, n))
+      nodes.push(<polygon key={`mk-${id}`} points={pts(p)} fill="none" stroke="#e07f10" strokeWidth={1.3} pointerEvents="none" />)
+      nodes.push(<circle key={`mkf-${id}`} cx={(p[0][0] + p[1][0]) / 2} cy={p[0][1] - 2.4} r={2.2} fill="#e07f10" pointerEvents="none" />)
+    }
+    const edge = rot([
+      [colX(0, 0), 0], [colX(0, 4), 0], [colX(Y_END, 4), Y_END], [colX(Y_END, 0), Y_END],
+    ] as const)
+    return (
+      <svg viewBox="-24 -27 300 58" role="img" aria-label="指板ヒートマップ" style={{ width: "100%", height: "auto", fontFamily: "sans-serif", display: "block" }}>
+        <g>{nodes}</g>
+        <polygon points={pts(edge)} fill="none" stroke="#333" strokeWidth={0.8} pointerEvents="none" />
+        <line x1={0} y1={-colX(0, 0)} x2={0} y2={-colX(0, 4)} stroke="#111" strokeWidth={1.6} pointerEvents="none" />
+        {STRINGS.map((s, si) => (
+          <text key={s} x={-H_OPEN - 4} y={-(colX(-H_OPEN, si) + colX(-H_OPEN, si + 1)) / 2 + 2.2} fontSize={6.5} textAnchor="middle" fill="#333">{s}</text>
+        ))}
+        {([[1, "1st"], [5, "3rd"], [8, "5th"]] as const).map(([n, lab]) => (
+          <text key={lab} x={yOf(n)} y={26.5} fontSize={4.5} textAnchor="middle" fill="#98a0ab">{lab}</text>
+        ))}
+      </svg>
+    )
+  }, [cells, sel, markSet])
+
+  const selKana = sel ? (selDetail?.kana ?? cellKana(sel)) : null
+  const selStrN = sel ? /^cell-([GDAE])-(\d{2})$/.exec(sel) : null
+
+  return (
+    <div>
+      {markable && (
+        <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+          <button type="button" onClick={() => setMarking(false)}
+            style={modeBtn(!marking)}>ヒートマップを見る</button>
+          <button type="button" onClick={() => setMarking(true)}
+            style={modeBtn(marking)}>気をつける音をマークする</button>
+        </div>
+      )}
+      <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div style={{ flex: "1.6 1 260px", minWidth: 0, background: "#fbfdff", border: "1px solid #dce6f2", borderRadius: 12, padding: "8px 10px", overflow: "hidden" }}>
+          {svg}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 9, fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 5 }}>
+            <Leg c="#e26a5d" t="高すぎ" /><Leg c="#5e97dd" t="低すぎ" /><Leg c="#b478cf" t="両方にブレる" /><Leg c="#d9efd9" t="安定" />
+            <span>白=まだデータが足りない音</span>
+          </div>
+          {!hasData && (
+            <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 6 }}>
+              {emptyText ?? "まだ判定できる音がありません（同じ音を5回以上ひくと色がつきます）。"}
+            </div>
+          )}
+        </div>
+
+        {/* 右: 詳細パネル (案4: タップで切替) */}
+        <div style={{ flex: "1 1 220px", minWidth: 200, background: "#f7fafd", border: "1px solid #dce6f2", borderRadius: 10, padding: "10px 12px", fontSize: "var(--fs-caption)" }}>
+          {!sel ? (
+            <div style={{ color: "var(--text-muted)" }}>指板の色がついた音をタップすると、ここに「どこからの移動でずれたか」が出ます。</div>
+          ) : marking && markable ? (
+            <MarkEditor
+              key={sel}
+              cellLabel={`${selKana}（${selStrN?.[1]}線）`}
+              existing={markSet.get(sel) ?? null}
+              note={markNote}
+              setNote={setMarkNote}
+              pending={pending}
+              onSave={() => { if (onSaveMark && sel) start(async () => { if (await onSaveMark(sel, markNote.trim())) setMarkNote("") }) }}
+              onRemove={() => { if (onRemoveMark && sel) start(async () => { await onRemoveMark(sel) }) }}
+            />
+          ) : (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                <b style={{ fontSize: "var(--fs-body)" }}>{selKana}（{selStrN?.[1]}線{selStrN?.[2] === "00" ? "・開放" : ""}）</b>
+                {selCell && (
+                  <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#fff", background: STATUS_INK[selCell.status], borderRadius: 999, padding: "1px 8px" }}>
+                    {STATUS_LABEL[selCell.status]}
+                  </span>
+                )}
+              </div>
+              {selDetail ? (
+                <>
+                  <div style={{ color: "var(--text-sub)", marginTop: 3 }}>
+                    {selDetail.n}回中{selDetail.high + selDetail.low}回ミス（高{selDetail.high}・低{selDetail.low}）
+                  </div>
+                  {selDetail.transitions.length > 0 && (
+                    <div style={{ marginTop: 7 }}>
+                      <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)" }}>どこからの移動でずれた？</div>
+                      {selDetail.transitions.map((t, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 6, padding: "4px 0", borderTop: i > 0 ? "1px dashed #e2e9f2" : "none", flexWrap: "wrap" }}>
+                          <b>{t.fromLabel}</b>
+                          {t.shift && <span style={{ fontSize: "var(--fs-label)", color: "#a9741c", fontWeight: 800 }}>シフトあり</span>}
+                          <span style={{ marginLeft: "auto", fontWeight: 900, color: t.miss === 0 ? "#2e8b57" : t.miss / t.n >= 0.4 ? "#bb3a2e" : "#b7823a" }}>
+                            {t.n}回中{t.miss}回{t.miss > 0 ? ` ${DIR_LABEL[t.dir]}` : ""}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div style={{ color: "var(--text-muted)", marginTop: 3 }}>この音はまだ5回弾いていないので判定していません。</div>
+              )}
+              {markSet.has(sel) && (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff8ee", border: "1px solid #f0d9b4", borderRadius: 8, padding: "6px 9px", marginTop: 8 }}>
+                  <span style={{ width: 9, height: 9, borderRadius: "50%", background: "#e07f10", flex: "none" }} />
+                  <span style={{ fontSize: "var(--fs-label)", color: "#6b4a12", fontWeight: 700 }}>先生のマーク{markSet.get(sel) ? `：${markSet.get(sel)}` : ""}</span>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function cellKana(id: string): string {
+  const m = /^cell-([GDAE])-(\d{2})$/.exec(id)
+  if (!m) return ""
+  const open: Record<string, number> = { G: 55, D: 62, A: 69, E: 76 }
+  const midi = open[m[1]] + Number(m[2])
+  const KANA = ["ド", "ド♯", "レ", "レ♯", "ミ", "ファ", "ファ♯", "ソ", "ソ♯", "ラ", "ラ♯", "シ"]
+  return KANA[midi % 12]
+}
+
+function modeBtn(on: boolean): React.CSSProperties {
+  return {
+    fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 8, padding: "6px 13px", cursor: "pointer",
+    border: `1px solid ${on ? "#22346b" : "#dce6f2"}`, color: on ? "#fff" : "var(--text-muted)", background: on ? "#22346b" : "#fff",
+  }
+}
+
+function Leg({ c, t }: { c: string; t: string }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+      <span style={{ width: 10, height: 10, borderRadius: 3, background: c, display: "inline-block" }} />{t}
+    </span>
+  )
+}
+
+function MarkEditor({ cellLabel, existing, note, setNote, pending, onSave, onRemove }: {
+  cellLabel: string; existing: string | null
+  note: string; setNote: (v: string) => void
+  pending: boolean; onSave: () => void; onRemove: () => void
+}) {
+  return (
+    <div>
+      <div style={{ fontWeight: 900 }}>{cellLabel} をマーク</div>
+      {existing != null && (
+        <div style={{ fontSize: "var(--fs-label)", color: "#6b4a12", background: "#fff8ee", border: "1px solid #f0d9b4", borderRadius: 8, padding: "5px 8px", marginTop: 5 }}>
+          マーク済み{existing ? `：${existing}` : ""}
+        </div>
+      )}
+      <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="一言（例：低くなりやすい。移弦のあと指の準備を）"
+        style={{ width: "100%", boxSizing: "border-box", border: "1px solid #dce6f2", borderRadius: 8, padding: "7px 9px", fontSize: "var(--fs-caption)", resize: "vertical", marginTop: 7, background: "#fff" }} />
+      <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+        <button type="button" disabled={pending} onClick={onSave}
+          style={{ flex: 1, fontSize: "var(--fs-label)", fontWeight: 900, color: "#fff", background: "#e07f10", border: "none", borderRadius: 8, padding: "7px 0", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+          {existing != null ? "マークを更新" : "マークする"}
+        </button>
+        {existing != null && (
+          <button type="button" disabled={pending} onClick={onRemove}
+            style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, color: "#8b97a8", background: "#fff", border: "1px solid #dce6f2", borderRadius: 8, padding: "7px 11px", cursor: "pointer" }}>
+            はずす
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}

@@ -97,6 +97,8 @@ model User {
   materialNotesAsStudent TeacherMaterialNote[] @relation("matNoteStudent")
   practiceKartesAsTeacher PracticeKarte[] @relation("pkTeacher")
   practiceKartesAsStudent PracticeKarte[] @relation("pkStudent")
+  markedCellsAsTeacher    TeacherMarkedCell[] @relation("mcTeacher")
+  markedCellsAsStudent    TeacherMarkedCell[] @relation("mcStudent")
   exprClearsAsTeacher   UserExpressionClear[] @relation("exprClearTeacher")
   exprClearsAsStudent   UserExpressionClear[] @relation("exprClearStudent")
   listenRequestsAsTeacher ListenRequest[] @relation("listenReqTeacher")
@@ -1291,6 +1293,25 @@ model TeacherObservation {
 // 先生の練習ポイント (2026-08-11 先生カルテv3)。ホームの「毎日の基礎練」に出ている
 // おすすめ教材へ、先生が一言を添える。宿題(Assignment)ではない軽いメモ。
 // 先生×生徒×教材で1件 (upsert=あとから編集)。生徒の教材ページに表示。
+// 指板の「気をつける音」マーク (2026-08-11 Tetsuo確定・指板ヒートマップ案5):
+// 先生がカルテ入力画面の指板でセルを指定し一言を添える。生徒側の指板に旗として表示。
+// ヒートマップ本体はread-only射影のままにするため、マークだけ別テーブル (案A)。
+model TeacherMarkedCell {
+  id        String   @id @default(cuid())
+  teacherId String
+  studentId String
+  cellId    String // "cell-G-05" 形式 (fingerboard/geometry.ts cellId)
+  note      String   @default("") // 一言 (例: 低くなりやすい。移弦のあと指の準備を)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  teacher User @relation("mcTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  student User @relation("mcStudent", fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, studentId, cellId])
+  @@index([studentId])
+}
+
 // 練習後カルテ (2026-08-11 Tetsuo確定): 曲/教材にぶら下がる独立エンティティ (演奏履歴には紐づかない)。
 // 先生が生徒の演奏をいろいろ聴きながら1枚書く。曲:カルテ=1:N。コメント機能はこれに一本化。
 model PracticeKarte {

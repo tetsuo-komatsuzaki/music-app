@@ -5,6 +5,8 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { buildKarteData, buildNumbersRoom, type KartePeriod } from "@/app/_libs/growthKarte"
+import { buildUserHeatmap } from "@/app/_libs/fingerboard/aggregate"
+import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import SkillsLevelClient from "@/app/[userId]/progress/skills/SkillsLevelClient"
 import ExpressionLevelClient from "@/app/[userId]/progress/expression/ExpressionLevelClient"
 import NumbersRoomView from "@/app/components/NumbersRoomView"
@@ -39,6 +41,16 @@ export default async function TeacherGrowthDetailPage({
   if (view === "numbers") {
     const period: KartePeriod = sp.period === "7d" ? "7d" : sp.period === "all" ? "all" : "30d"
     const d = await buildNumbersRoom(studentId, period)
+    const days = period === "7d" ? 7 : period === "all" ? 365 : 30
+    let heatmap: HeatmapData = { cells: {}, details: {}, perfCount: 0 }
+    try { heatmap = await buildUserHeatmap(studentId, days) } catch { /* storage不通でも画面は出す */ }
+    let fbMarks: { cellId: string; note: string }[] = []
+    try {
+      fbMarks = (await prisma.teacherMarkedCell.findMany({
+        where: { teacherId: me.id, studentId },
+        select: { cellId: true, note: true },
+      })).map((m) => ({ cellId: m.cellId, note: m.note }))
+    } catch { fbMarks = [] }
     return (
       <NumbersRoomView
         d={d}
@@ -46,6 +58,8 @@ export default async function TeacherGrowthDetailPage({
         baseHref={`/${userId}/teacher/students/${studentId}/growth/numbers`}
         backHref={backHref}
         backLabel={backLabel}
+        heatmap={heatmap}
+        fbMarks={fbMarks}
       />
     )
   }

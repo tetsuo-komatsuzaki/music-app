@@ -303,6 +303,56 @@ export async function savePracticeKarte(
   }
 }
 
+/** 先生: 指板の「気をつける音」をマーク/更新 (2026-08-11 指板ヒートマップ案5)。
+ *  cellId は "cell-G-05" 形式。note空でもマーク自体は残る。 */
+export async function saveFingerboardMark(
+  studentId: string, cellId: string, note: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  if (auth.user.dbUser.role !== "teacher") return { ok: false, error: "先生アカウントが必要です" }
+  if (!/^cell-[GDAE]-\d{2}$/.test(cellId)) return { ok: false, error: "セルが不正です" }
+  const text = (note || "").trim().slice(0, 200)
+  try {
+    const link = await prisma.teacherStudent.findUnique({
+      where: { teacherId_studentId: { teacherId: auth.user.dbUser.id, studentId } },
+      select: { id: true },
+    })
+    if (!link) return { ok: false, error: "担当していない生徒です" }
+    const count = await prisma.teacherMarkedCell.count({ where: { teacherId: auth.user.dbUser.id, studentId } })
+    const exists = await prisma.teacherMarkedCell.findUnique({
+      where: { teacherId_studentId_cellId: { teacherId: auth.user.dbUser.id, studentId, cellId } },
+      select: { id: true },
+    })
+    if (!exists && count >= 5) return { ok: false, error: "マークは5個までです（先にはずしてください）" }
+    await prisma.teacherMarkedCell.upsert({
+      where: { teacherId_studentId_cellId: { teacherId: auth.user.dbUser.id, studentId, cellId } },
+      create: { teacherId: auth.user.dbUser.id, studentId, cellId, note: text },
+      update: { note: text },
+    })
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "保存に失敗しました" }
+  }
+}
+
+/** 先生: 指板マークをはずす */
+export async function removeFingerboardMark(
+  studentId: string, cellId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const auth = await requireAuthAction()
+  if (!auth.ok) return { ok: false, error: auth.error }
+  if (auth.user.dbUser.role !== "teacher") return { ok: false, error: "先生アカウントが必要です" }
+  try {
+    await prisma.teacherMarkedCell.deleteMany({
+      where: { teacherId: auth.user.dbUser.id, studentId, cellId },
+    })
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "削除に失敗しました" }
+  }
+}
+
 /** 先生: 生徒の達成を一緒に祝う (お祝いメッセージ・kind=celebration)。
  *  生徒側では特別なお祝い表示になり、メールも祝い件名で届く。 */
 export async function sendCelebration(

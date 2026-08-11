@@ -11,6 +11,8 @@ import { createAssignment } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
 import ProgressPage from "@/app/[userId]/progress/progressPage"
 import PassedHwHistory, { type PassedHwItem } from "@/app/components/PassedHwHistory"
+import FingerboardPanel, { type FingerboardMark } from "@/app/components/FingerboardPanel"
+import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import type { KarteData, RemarkTrack, NumbersRoomData } from "@/app/_libs/growthKarte"
 
 // 数値入力を打った瞬間に上限へ収める (2026-08-08)。サーバーのクランプと一致させ、
@@ -76,6 +78,8 @@ export default function StudentKarte({
   passedItems = [],
   worstNotes = [],
   bestNotes = [],
+  heatmap = null,
+  fbMarks = [],
 }: {
   userId: string
   studentId: string
@@ -108,6 +112,9 @@ export default function StudentKarte({
   /** 強み・弱み (記録の分析=音×成功率と同じ土俵・直近2週間) */
   worstNotes?: WorstNote[]
   bestNotes?: BestNote[]
+  /** 指板ヒートマップ (直近2週間・診断レポートの音程パート) */
+  heatmap?: HeatmapData | null
+  fbMarks?: FingerboardMark[]
 }) {
   // 先生カルテ v3 (2026-08-11 再設計・最終モック=3タブ): 主役=まとめ(理解の統合)＋練習後カルテ(曲別)。成長カルテは脇役。
   // 旧「宿題・指導」タブは廃止: 依頼/返し待ち/宿題を出す/認定は「まとめ」に統合、癖は練習後カルテ詳細で書く。
@@ -154,6 +161,7 @@ export default function StudentKarte({
         <SummaryTab
           userId={userId} studentId={studentId} briefing={briefing} working={working} recordings={recordings}
           remarks={remarks} worstNotes={worstNotes} bestNotes={bestNotes}
+          heatmap={heatmap} fbMarks={fbMarks}
           listenRequests={listenRequests} assignments={assignments} karte={karte}
           allScoreTargets={allScoreTargets} allItemTargets={allItemTargets} observations={observations}
         />
@@ -182,14 +190,15 @@ const kSec: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 9
 const kCat: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", flex: "none" }
 
 /* ═ 主役①: まとめ (上達状況＋アルコの診断)。強み/弱みは生徒側「記録の分析」と同じ土俵=音×成功率・直近2週間 ═ */
-function SummaryTab({ userId, studentId, briefing, working, recordings, remarks, worstNotes, bestNotes, listenRequests, assignments, karte, allScoreTargets, allItemTargets, observations }: {
+function SummaryTab({ userId, studentId, briefing, working, recordings, remarks, worstNotes, bestNotes, heatmap, fbMarks, listenRequests, assignments, karte, allScoreTargets, allItemTargets, observations }: {
   userId: string; studentId: string
   briefing: Briefing; working: WorkItem[]; recordings: Recording[]; remarks: RemarkTrack[]; worstNotes: WorstNote[]; bestNotes: BestNote[]
+  heatmap: HeatmapData | null; fbMarks: FingerboardMark[]
   listenRequests: ListenReq[]; assignments: AssignmentRow[]; karte: KarteData | null
   allScoreTargets: Target[]; allItemTargets: Target[]; observations: ObservationRow[]
 }) {
   const weak3 = worstNotes.slice(0, 3)
-  const best3 = bestNotes.slice(0, 3)
+  void bestNotes // とくい一覧は指板ヒートマップに置換 (緑セル=とくい)
   const rmView = (s: RemarkTrack["status"]) => s === "improved" ? { mk: "✓", c: "#158253", t: "直ってきた" } : s === "improving" ? { mk: "△", c: "#c07a1e", t: "改善中" } : s === "stalled" ? { mk: "×", c: "#bb3a2e", t: "停滞" } : { mk: "…", c: "#8b97a8", t: "判定中" }
   const noteSub: React.CSSProperties = { fontSize: "var(--fs-label)", color: "var(--text-sub)" }
   const notePct: React.CSSProperties = { marginLeft: "auto", flex: "none", fontWeight: 900, fontVariantNumeric: "tabular-nums" }
@@ -303,38 +312,31 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
       <div style={{ border: "1px solid #e3d8f7", borderRadius: 15, overflow: "hidden", marginTop: 14, boxShadow: "0 4px 16px -8px rgba(110,60,190,.3)" }}>
         <div style={{ background: "linear-gradient(135deg,#5a3fa8,#7a4dd6)", color: "#fff", padding: "10px 14px" }}>
           <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900 }}>アルコの診断レポート</div>
-          <div style={{ fontSize: "var(--fs-label)", color: "#e2d6fb", marginTop: 2 }}>音×成功率・直近2週間（生徒の記録の分析と同じ土俵）</div>
+          <div style={{ fontSize: "var(--fs-label)", color: "#e2d6fb", marginTop: 2 }}>音程マップ（指板）・直近2週間 {heatmap ? `${heatmap.perfCount}演奏分` : ""}</div>
         </div>
         <div style={{ background: "#fff", padding: "12px 14px" }}>
-        {/* にがて (弱み) — 記録の分析「音のじっくり表」と同じ土俵 */}
-        <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#c0473a" }}>にがて（直したい所）・成功率の低い順</div>
-        {weak3.length === 0 ? (
-          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 3 }}>直近2週間はまだ崩れの目立つ音が少ないよ。録音がたまるほどはっきりします。</div>
+        {/* 音程 = 指板ヒートマップ (2026-08-11 Tetsuo確定: 文章のにがて/とくい一覧を指板に置換)。
+            リズム系は指板で表現できないため下のリズム欄が残る */}
+        {heatmap ? (
+          <FingerboardPanel cells={heatmap.cells} details={heatmap.details} marks={fbMarks}
+            emptyText="直近2週間はまだ判定できる音が少ないよ（同じ音を5回以上ひくと色がつきます）。" />
         ) : (
-          <div style={{ marginTop: 5 }}>
-            {weak3.map((n) => (
-              <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 5, flexWrap: "wrap" }}>
-                <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
-                <span style={noteSub}>{n.hand ? `${n.hand}（推定）` : n.string ? `${n.string}（推定）` : n.raw}・{n.target}音</span>
-                <b style={{ ...notePct, color: kScoreColor(n.pct) }}>{n.pct}%</b>
-              </div>
-            ))}
-          </div>
+          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>音程マップを読み込めませんでした。</div>
         )}
-        {/* とくい (強み) — 同じ土俵で対に */}
-        {best3.length > 0 && (
-          <>
-            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#158253", marginTop: 11 }}>とくい（強み）・成功率の高い順</div>
-            <div style={{ marginTop: 5 }}>
-              {best3.map((n) => (
-                <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 5 }}>
+        {/* リズムのにがて (指板は音程専用のため、リズム由来の崩れだけ文章で残す) */}
+        {weak3.length > 0 && (
+          <div style={{ marginTop: 10 }}>
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#b7823a" }}>リズムもふくめた にがて上位（参考）</div>
+            <div style={{ marginTop: 4 }}>
+              {weak3.map((n) => (
+                <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 4, flexWrap: "wrap" }}>
                   <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
-                  <span style={noteSub}>{n.target}音</span>
-                  <b style={{ ...notePct, color: "#2e8b57" }}>{n.pct}%</b>
+                  <span style={noteSub}>{n.hand ? `${n.hand}（推定）` : n.string ? `${n.string}（推定）` : n.raw}・{n.target}音</span>
+                  <b style={{ ...notePct, color: kScoreColor(n.pct) }}>{n.pct}%</b>
                 </div>
               ))}
             </div>
-          </>
+          </div>
         )}
         {/* 指摘トラッキング: 前に指摘したこと、直った? */}
         {remarks.length > 0 && (

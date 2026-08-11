@@ -7,6 +7,8 @@ import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { getAchievementFlags } from "@/app/_libs/achievementFlags"
 import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
 import { buildKarteData, buildRemarkTracking, buildNumbersRoom, type RemarkTrack, type NumbersRoomData } from "@/app/_libs/growthKarte"
+import { buildUserHeatmap } from "@/app/_libs/fingerboard/aggregate"
+import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import StudentKarte from "./StudentKarte"
 
 // 演奏の analysisSummary.diagnosis から上位の弱点パターンを抽出 (§5-1: ミス集中箇所・原因候補)
@@ -305,6 +307,17 @@ export default async function StudentKartePage({
   let numbers: NumbersRoomData | null = null
   try { numbers = await buildNumbersRoom(studentId, "14d") } catch { numbers = null }
 
+  // 指板ヒートマップ (2026-08-11 Tetsuo確定): 診断レポートのにがて/とくい文章の代替。直近2週間
+  let heatmap: HeatmapData = { cells: {}, details: {}, perfCount: 0 }
+  try { heatmap = await buildUserHeatmap(studentId, 14) } catch { /* storage不通でも画面は出す */ }
+  let fbMarks: { cellId: string; note: string }[] = []
+  try {
+    fbMarks = (await prisma.teacherMarkedCell.findMany({
+      where: { teacherId: me.id, studentId },
+      select: { cellId: true, note: true },
+    })).map((m) => ({ cellId: m.cellId, note: m.note }))
+  } catch { fbMarks = [] }
+
   // 合格の履歴 (2026-08-11): カテゴリ→★でまとめる共有ビュー用
   const mdP = (d: Date) => `${d.getMonth() + 1}/${d.getDate()}`
   const passedItems = assignments
@@ -324,6 +337,8 @@ export default async function StudentKartePage({
       passedItems={passedItems}
       worstNotes={numbers?.worstNotes ?? []}
       bestNotes={numbers?.bestNotes ?? []}
+      heatmap={heatmap}
+      fbMarks={fbMarks}
       userId={userId}
       studentId={studentId}
       studentName={student.name}
