@@ -16,7 +16,7 @@ import { BODY_VIEWS, NON_BODY_CATEGORIES, spotsOf, type BodyViewId } from "@/app
 import BodyFigure from "@/app/components/BodyFigure"
 import BodyObsMap, { type BodyObsItem } from "@/app/components/BodyObsMap"
 import ProgressPage from "@/app/[userId]/progress/progressPage"
-import type { KarteData, RemarkTrack } from "@/app/_libs/growthKarte"
+import type { KarteData, RemarkTrack, NumbersRoomData } from "@/app/_libs/growthKarte"
 
 // 数値入力を打った瞬間に上限へ収める (2026-08-08)。サーバーのクランプと一致させ、
 // 「打った値と保存される値が違う」サイレントな食い違いを無くす。空欄は空のまま許可。
@@ -102,6 +102,8 @@ type WorkItem = { title: string; cat: string; avg: number }
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
 type ListenReq = { id: string; scoreId: string; title: string; avg: number | null; date: string }
 type Recording = { id: string; kind: "score" | "practice"; title: string; cat: string; star: number | null; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[] }
+type WorstNote = NumbersRoomData["worstNotes"][number]
+type BestNote = NumbersRoomData["bestNotes"][number]
 
 export default function StudentKarte({
   userId, studentId, studentName, briefing, scoreTargets, itemTargets, listenRequests = [],
@@ -111,6 +113,8 @@ export default function StudentKarte({
   karte = null,
   studentSupabaseUserId = null,
   remarks = [],
+  worstNotes = [],
+  bestNotes = [],
 }: {
   userId: string
   studentId: string
@@ -135,6 +139,9 @@ export default function StudentKarte({
   studentSupabaseUserId?: string | null
   /** 指摘トラッキング (v3第2段③) */
   remarks?: RemarkTrack[]
+  /** 強み・弱み (数字のへや=音×成功率と同じ土俵・直近2週間) */
+  worstNotes?: WorstNote[]
+  bestNotes?: BestNote[]
 }) {
   // 先生カルテ v3 (2026-08-11 再設計): 主役=まとめ(理解の統合)＋練習後カルテ(曲別一覧)。成長カルテは脇役。宿題・指導は当面タブ維持(将来インライン化)。
   const [tab, setTab] = useState<"summary" | "karte" | "teach" | "growth">("summary")
@@ -168,7 +175,7 @@ export default function StudentKarte({
       </div>
 
       {tab === "summary" && (
-        <SummaryTab briefing={briefing} working={working} recordings={recordings} remarks={remarks} onGoKarte={() => setTab("karte")} />
+        <SummaryTab briefing={briefing} working={working} recordings={recordings} remarks={remarks} worstNotes={worstNotes} bestNotes={bestNotes} onGoKarte={() => setTab("karte")} />
       )}
       {tab === "karte" && (
         <KarteBySong userId={userId} studentId={studentId} recordings={recordings} />
@@ -198,24 +205,15 @@ const kScoreColor = (n: number) => (n >= 90 ? "#2e8b57" : n >= 70 ? "#b7823a" : 
 const kSec: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-master)", margin: "14px 2px 8px", display: "flex", alignItems: "center", gap: 6 }
 const kCat: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", flex: "none" }
 
-/* ═ 主役①: まとめ (上達状況＋アルコの診断=既存データ集計。全自動AI生成は第2段) ═ */
-function SummaryTab({ briefing, working, recordings, remarks, onGoKarte }: {
-  briefing: Briefing; working: WorkItem[]; recordings: Recording[]; remarks: RemarkTrack[]; onGoKarte: () => void
+/* ═ 主役①: まとめ (上達状況＋アルコの診断)。強み/弱みは生徒側「数字のへや」と同じ土俵=音×成功率・直近2週間 ═ */
+function SummaryTab({ briefing, working, recordings, remarks, worstNotes, bestNotes, onGoKarte }: {
+  briefing: Briefing; working: WorkItem[]; recordings: Recording[]; remarks: RemarkTrack[]; worstNotes: WorstNote[]; bestNotes: BestNote[]; onGoKarte: () => void
 }) {
-  // 傾向: 全カルテの崩れを集計 (成功率の低い順)
-  const weakAgg = new Map<string, { tree: "音程" | "リズム"; miss: number; target: number; count: number }>()
-  for (const r of recordings) for (const w of r.weak) {
-    const e = weakAgg.get(w.name) ?? { tree: w.tree, miss: 0, target: 0, count: 0 }
-    e.miss += w.miss; e.target += w.target; e.count++
-    weakAgg.set(w.name, e)
-  }
-  const topWeak = [...weakAgg.entries()]
-    .map(([name, e]) => ({ name, tree: e.tree, count: e.count, pct: Math.max(0, Math.round(100 - (e.miss / Math.max(1, e.target)) * 100)) }))
-    .sort((a, b) => a.pct - b.pct || b.count - a.count).slice(0, 3)
-  // 強み: 平均85以上の曲/教材
-  const strengths = working.filter((w) => w.avg >= 85).slice(0, 4)
-  const pill: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "3px 9px" }
+  const weak3 = worstNotes.slice(0, 3)
+  const best3 = bestNotes.slice(0, 3)
   const rmView = (s: RemarkTrack["status"]) => s === "improved" ? { mk: "✓", c: "#158253", t: "直ってきた" } : s === "improving" ? { mk: "△", c: "#c07a1e", t: "改善中" } : s === "stalled" ? { mk: "×", c: "#bb3a2e", t: "停滞" } : { mk: "…", c: "#8b97a8", t: "判定中" }
+  const noteSub: React.CSSProperties = { fontSize: "var(--fs-label)", color: "var(--text-sub)" }
+  const notePct: React.CSSProperties = { marginLeft: "auto", flex: "none", fontWeight: 900, fontVariantNumeric: "tabular-nums" }
 
   return (
     <>
@@ -228,9 +226,9 @@ function SummaryTab({ briefing, working, recordings, remarks, onGoKarte }: {
         </div>
       </div>
 
-      <div style={kSec}>練習曲・宿題の上達状況</div>
+      <div style={kSec}>練習曲・宿題の上達状況<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>直近2週間</span></div>
       {working.length === 0 ? (
-        <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ録音がありません。</div></Card>
+        <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>直近2週間の録音がありません。</div></Card>
       ) : (
         working.map((w, i) => (
           <div key={i} style={{ background: "rgba(255,255,255,.85)", border: "1px solid #efe5cc", borderRadius: 11, padding: "9px 12px", marginBottom: 7, display: "flex", alignItems: "center", gap: 9 }}>
@@ -241,29 +239,34 @@ function SummaryTab({ briefing, working, recordings, remarks, onGoKarte }: {
         ))
       )}
 
-      <div style={kSec}>アルコの診断（曲・宿題・基礎練ぜんぶから）</div>
+      <div style={kSec}>アルコの診断<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>音×成功率・直近2週間（生徒の数字のへやと同じ）</span></div>
       <div style={{ background: "#f6f4ff", border: "1px solid #e7dcfb", borderRadius: 12, padding: "12px 14px" }}>
-        {/* 傾向 */}
-        <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#7a4dd6" }}>傾向</div>
-        {topWeak.length === 0 ? (
-          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 3 }}>まだ崩れの目立つ所は少ないよ。録音がたまるほど傾向がはっきりします。</div>
+        {/* にがて (弱み) — 数字のへや「音のじっくり表」と同じ土俵 */}
+        <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#c0473a" }}>にがて（直したい所）・成功率の低い順</div>
+        {weak3.length === 0 ? (
+          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 3 }}>直近2週間はまだ崩れの目立つ音が少ないよ。録音がたまるほどはっきりします。</div>
         ) : (
-          <div style={{ marginTop: 4 }}>
-            {topWeak.map((w) => (
-              <div key={w.name} style={{ fontSize: "var(--fs-caption)", color: "#3a3550", lineHeight: 1.7 }}>
-                <span style={{ ...pill, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", marginRight: 5 }}>{w.tree}</span>
-                <b>{w.name}</b> 成功率 <b style={{ color: kScoreColor(w.pct) }}>{w.pct}%</b> ・ {w.count}回崩れ
+          <div style={{ marginTop: 5 }}>
+            {weak3.map((n) => (
+              <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 5, flexWrap: "wrap" }}>
+                <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
+                <span style={noteSub}>{n.hand ? `${n.hand}（推定）` : n.string ? `${n.string}（推定）` : n.raw}・{n.target}音</span>
+                <b style={{ ...notePct, color: kScoreColor(n.pct) }}>{n.pct}%</b>
               </div>
             ))}
           </div>
         )}
-        {/* 強み */}
-        {strengths.length > 0 && (
+        {/* とくい (強み) — 同じ土俵で対に */}
+        {best3.length > 0 && (
           <>
-            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#158253", marginTop: 10 }}>強み</div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 4 }}>
-              {strengths.map((w, i) => (
-                <span key={i} style={{ ...pill, color: "#158253", background: "#e9f8f0", border: "1px solid #c8ecd8" }}>{w.title} {w.avg}</span>
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#158253", marginTop: 11 }}>とくい（強み）・成功率の高い順</div>
+            <div style={{ marginTop: 5 }}>
+              {best3.map((n) => (
+                <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 5 }}>
+                  <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
+                  <span style={noteSub}>{n.target}音</span>
+                  <b style={{ ...notePct, color: "#2e8b57" }}>{n.pct}%</b>
+                </div>
               ))}
             </div>
           </>
@@ -291,8 +294,8 @@ function SummaryTab({ briefing, working, recordings, remarks, onGoKarte }: {
         <div style={{ marginTop: 11, background: "#f0f7f3", border: "1px solid #cfe9db", borderRadius: 9, padding: "9px 11px" }}>
           <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#136647" }}>今週の指導提案</div>
           <div style={{ fontSize: "var(--fs-caption)", color: "#1f3a2e", lineHeight: 1.65, marginTop: 3 }}>
-            {topWeak.length > 0
-              ? <>まずは<b>「{topWeak[0].name}」</b>を重点に。ゆっくりのテンポで音程から合わせ、できたら少しずつ速くしていこう。</>
+            {weak3.length > 0
+              ? <>まずは<b>「{weak3[0].kana}」</b>を重点に。ゆっくりのテンポで音程から合わせ、できたら少しずつ速くしていこう。</>
               : <>今の流れは良好。得意を伸ばしつつ、新しいわざに挑戦できる曲を渡してみよう。</>}
           </div>
         </div>

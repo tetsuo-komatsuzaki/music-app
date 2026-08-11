@@ -8,7 +8,7 @@ import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { getAchievementFlags } from "@/app/_libs/achievementFlags"
 import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
-import { buildKarteData, buildRemarkTracking, type RemarkTrack } from "@/app/_libs/growthKarte"
+import { buildKarteData, buildRemarkTracking, buildNumbersRoom, type RemarkTrack, type NumbersRoomData } from "@/app/_libs/growthKarte"
 import StudentKarte from "./StudentKarte"
 
 // 演奏の analysisSummary.diagnosis から上位の弱点パターンを抽出 (§5-1: ミス集中箇所・原因候補)
@@ -254,9 +254,12 @@ export default async function StudentKartePage({
       : null,
   })))
 
-  // 取り組んでいる曲・教材 (直近の録音から重複除去・最新スコア)
+  // 取り組んでいる曲・教材 (直近2週間に練習したもの・点数で絞らず・重複除去・最新スコア)
+  const twoWeeksAgoMs = Date.now() - 14 * 864e5
   const seenWork = new Set<string>()
-  const working = recRaw.filter((r) => { const k = `${r.cat}:${r.title}`; if (seenWork.has(k)) return false; seenWork.add(k); return true })
+  const working = recRaw
+    .filter((r) => r.at >= twoWeeksAgoMs)
+    .filter((r) => { const k = `${r.cat}:${r.title}`; if (seenWork.has(k)) return false; seenWork.add(k); return true })
     .slice(0, 10).map((r) => ({ title: r.title, cat: r.cat, avg: r.avg }))
 
   // カルテタブ (2026-08-02): 生徒に見えているのと同じ成長カルテ(直近30日)を読み取り専用で先生にも
@@ -269,9 +272,15 @@ export default async function StudentKartePage({
   let remarks: RemarkTrack[] = []
   try { remarks = await buildRemarkTracking(studentId) } catch { remarks = [] }
 
+  // 強み・弱み (生徒側「数字のへや」と同じ土俵=音×成功率・直近2週間)。にがて順+とくい
+  let numbers: NumbersRoomData | null = null
+  try { numbers = await buildNumbersRoom(studentId, "14d") } catch { numbers = null }
+
   return (
     <StudentKarte
       remarks={remarks}
+      worstNotes={numbers?.worstNotes ?? []}
+      bestNotes={numbers?.bestNotes ?? []}
       userId={userId}
       studentId={studentId}
       studentName={student.name}
