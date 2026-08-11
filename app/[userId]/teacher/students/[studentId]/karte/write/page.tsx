@@ -77,36 +77,45 @@ export default async function KarteWritePage({
 
   // 対象 (曲 or 教材) と、聴きながら書くための直近の演奏 (音声つき・5件)
   let title = "曲"; let cat = "曲"; let star: number | null = null
-  type PerfRow = { id: string; date: string; pitch: number; timing: number; avg: number; audioPath: string | null; weak: WeakSlot[] }
+  type PerfRow = { id: string; date: string; pitch: number; timing: number; avg: number; audioPath: string | null; weak: WeakSlot[]; comparisonResultPath: string | null }
   let perfs: PerfRow[] = []
 
+  let sheetUrl: string | null = null
   if (kind === "score") {
-    const score = await prisma.score.findUnique({ where: { id: target }, select: { title: true, star: true } })
+    const score = await prisma.score.findUnique({ where: { id: target }, select: { title: true, star: true, buildStatus: true, generatedXmlPath: true } })
     if (!score) redirect(backHref)
     title = score.title; star = score.star ?? null
+    if (score.buildStatus === "done" && score.generatedXmlPath) {
+      sheetUrl = await storageAdmin.storage.from("musicxml").createSignedUrl(score.generatedXmlPath, 1800)
+        .then((x) => encodeSignedUrl(x.data?.signedUrl)).catch(() => null)
+    }
     const rows = await prisma.performance.findMany({
       where: { userId: studentId, scoreId: target, pitchAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: 5,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true },
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, comparisonResultPath: true },
     })
     perfs = rows.map((p) => ({
       id: p.id, date: fmtMD(p.uploadedAt),
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
-      audioPath: p.audioPath, weak: topWeak(p.analysisSummary),
+      audioPath: p.audioPath, weak: topWeak(p.analysisSummary), comparisonResultPath: p.comparisonResultPath,
     }))
   } else {
-    const item = await prisma.practiceItem.findUnique({ where: { id: target }, select: { title: true, category: true, star: true } })
+    const item = await prisma.practiceItem.findUnique({ where: { id: target }, select: { title: true, category: true, star: true, buildStatus: true, generatedXmlPath: true } })
     if (!item) redirect(backHref)
     title = item.title; star = item.star ?? null; cat = categoryLabel(item.category)
+    if (item.buildStatus === "done" && item.generatedXmlPath) {
+      sheetUrl = await storageAdmin.storage.from("musicxml").createSignedUrl(item.generatedXmlPath, 1800)
+        .then((x) => encodeSignedUrl(x.data?.signedUrl)).catch(() => null)
+    }
     const rows = await prisma.practicePerformance.findMany({
       where: { userId: studentId, practiceItemId: target, pitchAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: 5,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true },
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, comparisonResultPath: true },
     })
     perfs = rows.map((p) => ({
       id: p.id, date: fmtMD(p.uploadedAt),
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
-      audioPath: p.audioPath, weak: topWeak(p.analysisSummary),
+      audioPath: p.audioPath, weak: topWeak(p.analysisSummary), comparisonResultPath: p.comparisonResultPath,
     }))
   }
 
@@ -115,6 +124,10 @@ export default async function KarteWritePage({
     id: p.id, date: p.date, pitch: p.pitch, timing: p.timing, avg: p.avg, weak: p.weak,
     audioUrl: p.audioPath
       ? await storageAdmin.storage.from("performances").createSignedUrl(p.audioPath, 600).then((x) => encodeSignedUrl(x.data?.signedUrl)).catch(() => null)
+      : null,
+    // 採点スコアモーダル用: この演奏の comparison_result 署名URL
+    comparisonUrl: p.comparisonResultPath
+      ? await storageAdmin.storage.from("performances").createSignedUrl(p.comparisonResultPath, 1800).then((x) => encodeSignedUrl(x.data?.signedUrl)).catch(() => null)
       : null,
   })))
 
@@ -132,6 +145,21 @@ export default async function KarteWritePage({
       select: { cellId: true, note: true },
     })).map((m) => ({ cellId: m.cellId, note: m.note }))
   } catch { marks = [] }
+
+  // この曲/教材が提出済み・未合格の宿題なら、合格判断の項目を出す (2026-08-11 Tetsuo指示)
+  let hw: { id: string; targetScore: number | null; submittedScore: number | null } | null = null
+  try {
+    const row = await prisma.assignment.findFirst({
+      where: {
+        teacherId: me.id, studentId,
+        ...(kind === "score" ? { scoreId: target } : { practiceItemId: target }),
+        submittedAt: { not: null }, passedAt: null,
+      },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, targetScore: true, submittedScore: true },
+    })
+    if (row) hw = { id: row.id, targetScore: row.targetScore, submittedScore: row.submittedScore }
+  } catch { hw = null }
 
   // この曲について生徒のホームに出ている「毎日の基礎練」+ 既存の練習ポイント (曲のみ)
   let materials: { itemId: string; label: string; category: string; star: number | null; point: string }[] = []
@@ -168,6 +196,8 @@ export default async function KarteWritePage({
       materials={materials}
       heatmap={heatmap}
       marks={marks}
+      hw={hw}
+      sheetUrl={sheetUrl}
     />
   )
 }

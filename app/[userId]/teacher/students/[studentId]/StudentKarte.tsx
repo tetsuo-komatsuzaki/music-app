@@ -458,7 +458,7 @@ function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }
           <span style={{ flex: "none", fontSize: "var(--fs-subhead)", fontWeight: 900, color: kScoreColor(g.latest.avg) }}>{g.latest.avg}</span>
         </summary>
         <div style={{ padding: "0 13px 12px" }}>
-          <SongTrendCard g={g} />
+          {/* この曲の傾向カードは削除 (2026-08-11 Tetsuo指示: 演奏ベースの傾向文は不要) */}
           {renderKarteList(g.title, g.kind, g.latest.targetId)}
         </div>
       </details>
@@ -602,43 +602,6 @@ function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }
         </>
       )}
     </>
-  )
-}
-
-
-/* ═ この曲の傾向カード (カルテN枚の推移 + よく崩れる所 + AI提案文) ═ */
-function SongTrendCard({ g }: { g: SongGroup }) {
-  // この曲の全カルテから崩れを合算 (成功率の低い順・上位2)
-  const agg = new Map<string, { tree: "音程" | "リズム"; miss: number; target: number }>()
-  for (const r of g.recs) for (const w of r.weak) {
-    const e = agg.get(w.name) ?? { tree: w.tree, miss: 0, target: 0 }
-    e.miss += w.miss; e.target += w.target
-    agg.set(w.name, e)
-  }
-  const topWeak = [...agg.entries()]
-    .map(([name, e]) => ({ name, tree: e.tree, pct: Math.max(0, Math.round(100 - (e.miss / Math.max(1, e.target)) * 100)) }))
-    .sort((a, b) => a.pct - b.pct).slice(0, 2)
-  if (g.count < 2 && topWeak.length === 0) return null
-  return (
-    <div style={{ background: "#faf7ff", border: "1px solid #e7dcfb", borderRadius: 10, padding: "9px 11px", marginBottom: 9 }}>
-      <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#7a4dd6" }}>この曲の傾向</div>
-      {g.count >= 2 && (
-        <div style={{ fontSize: "var(--fs-caption)", color: "#3a3550", marginTop: 4, fontWeight: 700 }}>
-          カルテ{g.count}枚で {g.recs[g.recs.length - 1].avg} → <b>{g.latest.avg}</b>・{g.trend > 2 ? `改善 +${g.trend}` : g.trend < -2 ? `${g.trend}` : "横ばい"}
-        </div>
-      )}
-      {topWeak.map((w) => (
-        <div key={w.name} style={{ fontSize: "var(--fs-caption)", color: "#3a3550", marginTop: 3, lineHeight: 1.55 }}>
-          <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{w.tree}</span>
-          {w.name} 成功率{w.pct}%
-        </div>
-      ))}
-      {topWeak.length > 0 && (
-        <div style={{ fontSize: "var(--fs-label)", color: "#136647", fontWeight: 800, marginTop: 5, lineHeight: 1.55 }}>
-          提案：まず「{topWeak[0].name}」をゆっくり取り出して。合ってきたら通しで確認しよう。
-        </div>
-      )}
-    </div>
   )
 }
 

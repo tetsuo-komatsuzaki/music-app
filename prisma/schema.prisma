@@ -1321,6 +1321,7 @@ model PracticeKarte {
   scoreId        String? // 曲 (どちらか一方)
   practiceItemId String? // 教材
   body           String // カルテ本文
+  context        String? // 書いた状況: "lesson"=レッスン直後 / "audio"=演奏音声のみ (2026-08-11)
   readAt         DateTime? // 生徒が読んだ時刻 (新着通知用)
   createdAt      DateTime  @default(now())
 

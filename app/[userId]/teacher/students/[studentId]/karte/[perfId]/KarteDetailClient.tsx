@@ -2,6 +2,7 @@
 
 // 練習後カルテ1枚 (先生が書く場)。録音+分析を見て、コメント・癖を返す。2026-08-11 v3第2段②。
 import { useState, useTransition } from "react"
+import { createPortal } from "react-dom"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, MessageCircle, Check } from "lucide-react"
@@ -245,6 +246,36 @@ export default function KarteDetailClient(props: {
 }
 
 /* ═ 宿題の合格 (提出演奏の詳細を見たうえで、ここで合格にする) ═ */
+/** 教材の中身をページ遷移せずモーダル(iframe)で見る (2026-08-11 Tetsuo指示) */
+export function MaterialPreviewLink({ href, label }: { href: string; label: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)}
+        style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#3b56d4", background: "none", border: "none", padding: 0, cursor: "pointer", flex: "none" }}>
+        教材の中身を見る
+      </button>
+      {open && typeof document !== "undefined" && createPortal(
+        <div onClick={() => setOpen(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(15,25,50,.55)", zIndex: 1300, display: "flex", alignItems: "center", justifyContent: "center", padding: 10 }}>
+          <div onClick={(e) => e.stopPropagation()}
+            style={{ background: "#fff", borderRadius: 15, width: "min(760px, 96vw)", height: "88vh", display: "flex", flexDirection: "column", overflow: "hidden", boxSizing: "border-box" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", borderBottom: "1px solid #e6e9ef" }}>
+              <b style={{ fontSize: "var(--fs-caption)", color: "var(--text-ink)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</b>
+              <button type="button" onClick={() => setOpen(false)}
+                style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)", background: "#f1f4f8", border: "none", borderRadius: 999, padding: "5px 13px", cursor: "pointer" }}>
+                とじる ×
+              </button>
+            </div>
+            <iframe src={href} title={label} style={{ flex: 1, border: "none", width: "100%" }} />
+          </div>
+        </div>,
+        document.body,
+      )}
+    </>
+  )
+}
+
 function HwPassBox({ hw, avg, cardStyle }: { hw: { id: string; targetScore: number | null; passed: boolean }; avg: number; cardStyle: React.CSSProperties }) {
   const router = useRouter()
   const [pending, start] = useTransition()
@@ -328,10 +359,7 @@ export function MaterialPointRow({ userId, studentId, m }: { userId: string; stu
       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
         <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", flex: "none" }}>{m.label}</span>
         {m.star != null && <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#b58a1e", flex: "none" }}>★{m.star}</span>}
-        <Link href={`/${userId}/practice/${m.category}/${m.itemId}`} target="_blank"
-          style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#3b56d4", textDecoration: "none", flex: "none" }}>
-          教材の中身を見る ↗
-        </Link>
+        <MaterialPreviewLink href={`/${userId}/practice/${m.category}/${m.itemId}`} label={m.label} />
         {m.point && saved == null && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-good)", flex: "none" }}>ポイント記入済み</span>}
         {saved === true && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-good)", flex: "none", display: "inline-flex", alignItems: "center", gap: 3 }}><Check size={12} /> 保存しました</span>}
         {saved === false && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "#c0473a", flex: "none" }}>保存に失敗</span>}

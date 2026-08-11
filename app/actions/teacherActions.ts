@@ -273,6 +273,7 @@ export async function savePracticeKarte(
   studentId: string,
   target: { scoreId?: string; practiceItemId?: string },
   body: string,
+  context?: "lesson" | "audio",
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const auth = await requireAuthAction()
   if (!auth.ok) return { ok: false, error: auth.error }
@@ -294,6 +295,7 @@ export async function savePracticeKarte(
         teacherId: auth.user.dbUser.id, studentId,
         scoreId: target.scoreId ?? null, practiceItemId: target.practiceItemId ?? null,
         body: text,
+        context: context === "lesson" || context === "audio" ? context : null,
       },
     })
     await notifyStudent(studentId, auth.user.dbUser.id, "karte", text)
