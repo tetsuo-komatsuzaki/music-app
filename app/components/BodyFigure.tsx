@@ -1,4 +1,5 @@
 import type { BodyViewId } from "@/app/_libs/bodyMap"
+import BodyFigureZenshin, { ZENSHIN_VIEWBOX } from "./BodyFigureZenshin"
 
 // 癖の人体マップ用イラスト (線画SVG)。モックv2 (1349ea3b) の構図。
 // 座標系は app/_libs/bodyMap.ts の部位 % 座標と対応 (viewBox を変えるときは両方直す)。
@@ -9,7 +10,7 @@ const WOOD = "#c9a87c" // 楽器
 const WOOD_D = "#a9825a"
 
 export const BODY_VIEWBOX: Record<BodyViewId, string> = {
-  body: "0 0 300 200",
+  body: ZENSHIN_VIEWBOX, // 2026-08-11 差し替え (正面+よこ・アンカー検証済)
   left_out: "0 0 240 190",
   left_in: "0 0 240 190",
   bow_frog: "0 0 240 190",
@@ -18,6 +19,8 @@ export const BODY_VIEWBOX: Record<BodyViewId, string> = {
 }
 
 export default function BodyFigure({ view, className }: { view: BodyViewId; className?: string }) {
+  // 全身は新イラスト (2026-08-11 Tetsuo提供ジェネレータ) に差し替え。他ビューは従来線画
+  if (view === "body") return <BodyFigureZenshin className={className} />
   const common = {
     className,
     viewBox: BODY_VIEWBOX[view],
@@ -30,42 +33,7 @@ export default function BodyFigure({ view, className }: { view: BodyViewId; clas
     strokeLinejoin: "round" as const,
   }
 
-  if (view === "body") {
-    return (
-      <svg {...common} role="img" aria-label="全身と横すがた">
-        {/* ── 正面 ── */}
-        <circle cx={82} cy={30} r={17} fill={SKIN} />
-        {/* 胴体 */}
-        <path d="M60 62 Q82 52 104 62 L110 128 Q82 138 54 128 Z" fill={SKIN} />
-        {/* 脚 */}
-        <path d="M68 132 L64 185 M96 132 L100 185" />
-        {/* 右腕(弓): 肩→肘→手 */}
-        <path d="M58 66 Q40 84 44 106" />
-        {/* 弓 */}
-        <path d="M30 112 L128 76" strokeWidth={3} stroke={WOOD_D} />
-        <circle cx={44} cy={107} r={5} fill={SKIN} />
-        {/* 左腕(楽器側) */}
-        <path d="M106 66 Q126 76 130 92" />
-        {/* バイオリン (左肩上) */}
-        <g stroke={WOOD_D}>
-          <path d="M96 52 L146 76 Q152 86 142 90 Q132 96 124 88 L88 62 Q90 54 96 52 Z" fill={WOOD} />
-          <path d="M146 76 L166 66" strokeWidth={4} />
-        </g>
-        {/* ── 横すがた ── */}
-        <circle cx={212} cy={32} r={15} fill={SKIN} />
-        {/* 背中の丸まり(猫背ライン) */}
-        <path d="M206 48 Q196 66 200 92 L202 128 Q214 134 226 128 L228 88 Q230 62 220 48 Z" fill={SKIN} />
-        <path d="M203 52 Q193 72 198 96" strokeDasharray="4 4" stroke="#c98f5f" />
-        {/* 脚 */}
-        <path d="M206 132 L204 185 M222 132 L224 185" />
-        {/* 目線 */}
-        <path d="M226 30 L246 26" strokeDasharray="3 4" strokeWidth={1.6} />
-        <text x={64} y={198} fontSize={11} fill={INK} stroke="none">正面</text>
-        <text x={200} y={198} fontSize={11} fill={INK} stroke="none">よこ</text>
-      </svg>
-    )
-  }
-
+  // 旧・全身線画は削除 (2026-08-11 新イラストへ差し替え済)
   if (view === "left_out") {
     // 指板を右側から見る: 指のかたちが主役
     return (

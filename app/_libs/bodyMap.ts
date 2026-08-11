@@ -36,12 +36,12 @@ export interface BodySpot {
 }
 
 export const BODY_SPOTS: BodySpot[] = [
-  // 全身 (viewBox 300x200)
-  { id: "right_shoulder", view: "body", label: "右肩", x: 16, y: 33, tagIds: ["posture_right_shoulder_up"] },
-  { id: "left_shoulder", view: "body", label: "左肩", x: 38, y: 30, tagIds: ["posture_left_shoulder_tense"] },
-  { id: "neck", view: "body", label: "首", x: 27, y: 12, tagIds: ["posture_head_tilt"] },
-  { id: "violin", view: "body", label: "楽器", x: 40, y: 40, tagIds: ["posture_violin_drops"] },
-  { id: "back", view: "body", label: "背中", x: 69, y: 34, tagIds: ["posture_slouch"] },
+  // 全身 (2026-08-11 新イラスト・viewBox -52 -15 188 132。座標は anc-* アンカーの%換算)
+  { id: "right_shoulder", view: "body", label: "右肩", x: 22.1, y: 26.9, tagIds: ["posture_right_shoulder_up"] },
+  { id: "left_shoulder", view: "body", label: "左肩", x: 33.2, y: 26.9, tagIds: ["posture_left_shoulder_tense"] },
+  { id: "neck", view: "body", label: "首", x: 27.7, y: 16.1, tagIds: ["posture_head_tilt"] },
+  { id: "violin", view: "body", label: "楽器", x: 50.2, y: 28.8, tagIds: ["posture_violin_drops"] },
+  { id: "back", view: "body", label: "背中", x: 77.9, y: 35.6, tagIds: ["posture_slouch"] },
   // 左手・右側から (viewBox 240x190)
   {
     id: "fingers", view: "left_out", label: "指", x: 52, y: 22,
