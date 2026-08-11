@@ -16,7 +16,7 @@ import { BODY_VIEWS, NON_BODY_CATEGORIES, spotsOf, type BodyViewId } from "@/app
 import BodyFigure from "@/app/components/BodyFigure"
 import BodyObsMap, { type BodyObsItem } from "@/app/components/BodyObsMap"
 import ProgressPage from "@/app/[userId]/progress/progressPage"
-import type { KarteData } from "@/app/_libs/growthKarte"
+import type { KarteData, RemarkTrack } from "@/app/_libs/growthKarte"
 
 // 数値入力を打った瞬間に上限へ収める (2026-08-08)。サーバーのクランプと一致させ、
 // 「打った値と保存される値が違う」サイレントな食い違いを無くす。空欄は空のまま許可。
@@ -110,6 +110,7 @@ export default function StudentKarte({
   expressions = [],
   karte = null,
   studentSupabaseUserId = null,
+  remarks = [],
 }: {
   userId: string
   studentId: string
@@ -132,6 +133,8 @@ export default function StudentKarte({
   /** 生徒の成長カルテ (2026-08-02): 生徒に見えているのと同じもの (30日) を読み取り専用で */
   karte?: KarteData | null
   studentSupabaseUserId?: string | null
+  /** 指摘トラッキング (v3第2段③) */
+  remarks?: RemarkTrack[]
 }) {
   // 先生カルテ v3 (2026-08-11 再設計): 主役=まとめ(理解の統合)＋練習後カルテ(曲別一覧)。成長カルテは脇役。宿題・指導は当面タブ維持(将来インライン化)。
   const [tab, setTab] = useState<"summary" | "karte" | "teach" | "growth">("summary")
@@ -165,7 +168,7 @@ export default function StudentKarte({
       </div>
 
       {tab === "summary" && (
-        <SummaryTab briefing={briefing} working={working} recordings={recordings} observations={observations} onGoKarte={() => setTab("karte")} />
+        <SummaryTab briefing={briefing} working={working} recordings={recordings} remarks={remarks} onGoKarte={() => setTab("karte")} />
       )}
       {tab === "karte" && (
         <KarteBySong userId={userId} studentId={studentId} recordings={recordings} />
@@ -196,8 +199,8 @@ const kSec: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 9
 const kCat: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", flex: "none" }
 
 /* ═ 主役①: まとめ (上達状況＋アルコの診断=既存データ集計。全自動AI生成は第2段) ═ */
-function SummaryTab({ briefing, working, recordings, observations, onGoKarte }: {
-  briefing: Briefing; working: WorkItem[]; recordings: Recording[]; observations: ObservationRow[]; onGoKarte: () => void
+function SummaryTab({ briefing, working, recordings, remarks, onGoKarte }: {
+  briefing: Briefing; working: WorkItem[]; recordings: Recording[]; remarks: RemarkTrack[]; onGoKarte: () => void
 }) {
   // 傾向: 全カルテの崩れを集計 (成功率の低い順)
   const weakAgg = new Map<string, { tree: "音程" | "リズム"; miss: number; target: number; count: number }>()
@@ -211,9 +214,8 @@ function SummaryTab({ briefing, working, recordings, observations, onGoKarte }: 
     .sort((a, b) => a.pct - b.pct || b.count - a.count).slice(0, 3)
   // 強み: 平均85以上の曲/教材
   const strengths = working.filter((w) => w.avg >= 85).slice(0, 4)
-  // 前に記録した癖 (最近・重複除去)
-  const recentKuse = [...new Set(observations.slice(0, 6).flatMap((o) => o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter((s): s is string => !!s)))].slice(0, 4)
   const pill: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "3px 9px" }
+  const rmView = (s: RemarkTrack["status"]) => s === "improved" ? { mk: "✓", c: "#158253", t: "直ってきた" } : s === "improving" ? { mk: "△", c: "#c07a1e", t: "改善中" } : s === "stalled" ? { mk: "×", c: "#bb3a2e", t: "停滞" } : { mk: "…", c: "#8b97a8", t: "判定中" }
 
   return (
     <>
@@ -266,16 +268,23 @@ function SummaryTab({ briefing, working, recordings, observations, onGoKarte }: 
             </div>
           </>
         )}
-        {/* 前に記録した癖 (指摘トラッキングは第2段) */}
-        {recentKuse.length > 0 && (
+        {/* 指摘トラッキング: 前に指摘したこと、直った? */}
+        {remarks.length > 0 && (
           <>
-            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#a9741c", marginTop: 10 }}>前に記録した癖</div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 4 }}>
-              {recentKuse.map((label, i) => (
-                <span key={i} style={{ ...pill, color: "#a9741c", background: "#fff3e2", border: "1px solid #f0dcb4" }}>{label}</span>
-              ))}
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#a9741c", marginTop: 10 }}>前に指摘したこと、直った？</div>
+            <div style={{ marginTop: 4 }}>
+              {remarks.map((rm, i) => {
+                const st = rmView(rm.status)
+                return (
+                  <div key={i} style={{ fontSize: "var(--fs-caption)", color: "#3a3550", lineHeight: 1.6, marginBottom: 5 }}>
+                    <span style={{ color: st.c, fontWeight: 900, marginRight: 5 }}>{st.mk}</span>
+                    <b>{rm.label}</b> <span style={{ color: st.c, fontWeight: 800 }}>{st.t}</span>
+                    {rm.from != null && rm.to != null && <span style={{ color: "var(--text-sub)" }}> （{rm.from}→{rm.to}%）</span>}
+                    {rm.recommend && <div style={{ fontSize: "var(--fs-label)", color: "#3b56d4", fontWeight: 800, marginLeft: 17, marginTop: 1 }}>◇ おすすめ：{rm.recommend}</div>}
+                  </div>
+                )
+              })}
             </div>
-            <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 5 }}>※「直ったか」の自動判定は近日（録音の推移から）</div>
           </>
         )}
         {/* 提案 */}

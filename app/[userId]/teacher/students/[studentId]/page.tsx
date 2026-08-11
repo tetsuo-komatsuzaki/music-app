@@ -8,7 +8,7 @@ import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { getAchievementFlags } from "@/app/_libs/achievementFlags"
 import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
-import { buildKarteData } from "@/app/_libs/growthKarte"
+import { buildKarteData, buildRemarkTracking, type RemarkTrack } from "@/app/_libs/growthKarte"
 import StudentKarte from "./StudentKarte"
 
 // 演奏の analysisSummary.diagnosis から上位の弱点パターンを抽出 (§5-1: ミス集中箇所・原因候補)
@@ -265,8 +265,13 @@ export default async function StudentKartePage({
     if (student?.supabaseUserId) karte = await buildKarteData(studentId, student.supabaseUserId, "30d")
   } catch { karte = null }
 
+  // 指摘トラッキング (v3第2段③): 先生の癖記録が直ったかを成功率推移で判定
+  let remarks: RemarkTrack[] = []
+  try { remarks = await buildRemarkTracking(studentId) } catch { remarks = [] }
+
   return (
     <StudentKarte
+      remarks={remarks}
       userId={userId}
       studentId={studentId}
       studentName={student.name}

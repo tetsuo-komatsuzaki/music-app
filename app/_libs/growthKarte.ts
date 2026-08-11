@@ -1244,6 +1244,66 @@ export async function buildNumbersRoom(
   return { period, keys, registers, tempoBands, worstNotes, bestNotes, transitions, posShifts, weekMoved: weekMoved.slice(0, 6) }
 }
 
+// ── 指摘トラッキング (2026-08-11 v3第2段③) ────────────────────────
+export interface RemarkTrack {
+  label: string
+  status: "improved" | "improving" | "stalled" | "pending"
+  from: number | null
+  to: number | null
+  recommend: string | null
+  date: string
+}
+/** 先生の癖記録を、関連技術のper_subtask成功率推移で「直ったか」判定。新テーブル不要 (既存TeacherObservation+分析) */
+export async function buildRemarkTracking(userId: string): Promise<RemarkTrack[]> {
+  const obs = await prisma.teacherObservation.findMany({
+    where: { studentId: userId },
+    orderBy: { createdAt: "desc" }, take: 12,
+    select: { tagIds: true, createdAt: true },
+  })
+  if (obs.length === 0) return []
+  const since = new Date(Date.now() - 60 * 864e5)
+  const [perfs, pracs] = await Promise.all([
+    prisma.performance.findMany({ where: { userId, uploadedAt: { gte: since } }, select: { uploadedAt: true, analysisSummary: true } }),
+    prisma.practicePerformance.findMany({ where: { userId, uploadedAt: { gte: since } }, select: { uploadedAt: true, analysisSummary: true } }),
+  ])
+  const allPerfs = [...perfs, ...pracs]
+  const successIn = (subIds: Set<string>, from: Date, to: Date): { pct: number | null; target: number } => {
+    let miss = 0, target = 0
+    for (const p of allPerfs) {
+      if (p.uploadedAt < from || p.uploadedAt > to) continue
+      const per = (p.analysisSummary as { diagnosis?: { per_subtask?: Record<string, { miss: number; target: number }> } } | null)?.diagnosis?.per_subtask
+      if (!per) continue
+      for (const sid of subIds) { const c = per[sid]; if (c) { miss += c.miss; target += c.target } }
+    }
+    return { pct: target >= 4 ? Math.max(0, Math.round(100 - (miss / target) * 100)) : null, target }
+  }
+  const now = new Date()
+  const seen = new Set<string>()
+  const out: RemarkTrack[] = []
+  for (const o of obs) {
+    for (const tagId of o.tagIds) {
+      if (seen.has(tagId)) continue
+      const skills = SKILL_DEFS.filter((d) => d.obsTagIds.includes(tagId))
+      const subIds = new Set<string>(skills.flatMap((s) => s.subIds))
+      if (subIds.size === 0) continue
+      seen.add(tagId)
+      const label = OBSERVATION_TAG_BY_ID[tagId]?.label ?? tagId
+      const baseline = successIn(subIds, new Date(o.createdAt.getTime() - 21 * 864e5), o.createdAt)
+      const recent = successIn(subIds, new Date(now.getTime() - 14 * 864e5), now)
+      let status: RemarkTrack["status"] = "pending"
+      let recommend: string | null = null
+      if (baseline.pct != null && recent.pct != null) {
+        const delta = recent.pct - baseline.pct
+        if (recent.pct >= 85 && delta >= 0) status = "improved"
+        else if (delta >= 5) status = "improving"
+        else { status = "stalled"; recommend = skills[0] ? `${skills[0].label}のエチュードで取り出して練習` : null }
+      }
+      out.push({ label, status, from: baseline.pct, to: recent.pct, recommend, date: fmtJp(o.createdAt) })
+    }
+  }
+  return out.slice(0, 5)
+}
+
 /** 技術1つの詳細分析 (全期間)。先生なし/不明IDは null (呼び手でリダイレクト)。 */
 export async function buildSkillDetail(
   userId: string, supabaseUserId: string, techId: string,
