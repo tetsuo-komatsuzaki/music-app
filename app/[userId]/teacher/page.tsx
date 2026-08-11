@@ -90,7 +90,6 @@ export default async function TeacherHomePage({
       waitCount.set(id, (hwWait.find((p) => p.studentId === id)?._count._all ?? 0) + (listenWait.find((p) => p.studentId === id)?._count._all ?? 0))
     }
   }
-  const totalWait = [...waitCount.values()].reduce((s, n) => s + n, 0)
 
   // AIの一言 (ルールベース・生徒1人あたり追加1クエリ): 直近演奏の課題 + 返し待ちアクション
   const aiLine = new Map<string, string>()
@@ -120,9 +119,7 @@ export default async function TeacherHomePage({
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", letterSpacing: ".08em" }}>ARCODA 先生</div>
             <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "2px 0 0", color: "#fff" }}>生徒一覧</h1>
-            <div style={{ fontSize: "var(--fs-label)", color: "#9fb2dd", marginTop: 2 }}>
-              今週 ・ 返し待ち 合計 <b style={{ color: totalWait > 0 ? "#ffd9a8" : "#9fb2dd" }}>{totalWait}</b>
-            </div>
+
           </div>
           <span style={{ marginLeft: "auto", display: "flex", gap: 6, flex: "none" }}>
             <Link href={`/${userId}/teacher/schedule`} style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#dbe4f2", background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.18)", borderRadius: 999, padding: "5px 11px", textDecoration: "none" }}>
@@ -152,9 +149,7 @@ export default async function TeacherHomePage({
                   <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: "var(--text-ink)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {l.student.name}
                   </span>
-                  {wait > 0 && (
-                    <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "#fff", background: "#cf4638", borderRadius: 999, padding: "1px 8px" }}>返し待ち{wait}</span>
-                  )}
+                  {/* 返し待ちバッジは個別の生徒カルテへ移設 (2026-08-11 Tetsuo確定) */}
                 </div>
                 <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 5 }}>
                   今週 練習 <b style={{ color: "var(--text-ink)" }}>{week}</b>回 ・ 直近 {daysAgoLabel(lastByStudent.get(l.student.id) ?? null)}

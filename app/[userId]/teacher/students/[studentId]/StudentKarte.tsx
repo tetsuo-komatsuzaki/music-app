@@ -111,7 +111,14 @@ export default function StudentKarte({
     <div style={{ background: "#f5f7fa", border: "1px solid #e6e9ef", borderRadius: 18, overflow: "hidden", color: "var(--text-ink)" }}>
       <div style={{ background: "#22346b", color: "#eaf0fb", padding: "13px 15px 12px" }}>
         <Link href={`/${userId}/teacher`} style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", textDecoration: "none" }}>← 生徒一覧</Link>
-        <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "3px 0 0", color: "#fff" }}>{studentName} <span style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", letterSpacing: ".12em", marginLeft: 6 }}>STUDENT</span></h1>
+        <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "3px 0 0", color: "#fff", display: "flex", alignItems: "center", gap: 8 }}>
+          {studentName} <span style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", letterSpacing: ".12em" }}>STUDENT</span>
+          {(assignments.filter((a) => a.submitted && !a.done && a.scoreId).length + listenRequests.length) > 0 && (
+            <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "#fff", background: "#cf4638", borderRadius: 999, padding: "2px 9px" }}>
+              返し待ち{assignments.filter((a) => a.submitted && !a.done && a.scoreId).length + listenRequests.length}
+            </span>
+          )}
+        </h1>
       </div>
 
       <div style={{ display: "flex", gap: 4, background: "#eef1f6", borderBottom: "1px solid #e6e9ef", padding: "7px 10px" }}>
