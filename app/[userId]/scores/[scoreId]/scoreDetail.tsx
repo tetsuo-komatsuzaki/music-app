@@ -33,6 +33,8 @@ import CelebrationBanner from "@/app/components/CelebrationBanner"
 import MilestoneCelebration from "@/app/components/MilestoneCelebration"
 import CelebrationBoundary from "@/app/components/CelebrationBoundary"
 import SinglePerfFingerboard from "@/app/components/SinglePerfFingerboard"
+import FingerboardPanel from "@/app/components/FingerboardPanel"
+import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 
@@ -138,6 +140,8 @@ type Props = {
   teacherKartes?: { id: string; body: string; date: string; teacherName: string }[]
   /** 指板の実測塗り用: note_index → 指板セル (musicxml_skill_info 由来・2026-08-11) */
   fingerNotes?: Record<number, { s: "G" | "D" | "A" | "E"; n: number }>
+  /** ふりかえりタブ「上達のようす」直下: この曲の全演奏合算の音程マップ (2026-08-11) */
+  songHeatmap?: HeatmapData | null
 }
 
 // =========================================================
@@ -1319,6 +1323,7 @@ function ScoreDetailInner({
   parts = [],
   teacherKartes = [],
   fingerNotes,
+  songHeatmap = null,
 }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -3792,6 +3797,16 @@ function ScoreDetailInner({
         <div data-section="review" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {deleteHintBlock}
           {trajectoryBlock}
+          {/* この曲の音程マップ (2026-08-11 Tetsuo確定): 上達のようすの下に曲全体の音の傾向 */}
+          {songHeatmap && Object.keys(songHeatmap.cells).length > 0 && (
+            <section style={{ background: "var(--surface-card, #fff)", border: "1px solid var(--line-soft, #e5e9f0)", borderRadius: 16, padding: "14px 16px" }}>
+              <h3 style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, margin: "0 0 4px", color: "var(--text-ink)" }}>この曲の音程マップ</h3>
+              <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginBottom: 8 }}>
+                いままでの演奏 {songHeatmap.perfCount}回分から。色がついた音をタップすると くわしく見られるよ。
+              </div>
+              <FingerboardPanel cells={songHeatmap.cells} details={songHeatmap.details} />
+            </section>
+          )}
           {isScoreMode && <ScoreLoopDetail scoreId={score.id} userId={userId} />}
           {performanceHistoryBlock}
         </div>

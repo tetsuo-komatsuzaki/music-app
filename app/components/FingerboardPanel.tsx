@@ -38,6 +38,7 @@ export default function FingerboardPanel({
   emptyText?: string
 }) {
   const [sel, setSel] = useState<string | null>(null)
+  const [zoom, setZoom] = useState(false) // クリックでモーダル拡大 (2026-08-11 Tetsuo指示)
   const [marking, setMarking] = useState(false)
   const [markNote, setMarkNote] = useState("")
   const [pending, start] = useTransition()
@@ -100,7 +101,7 @@ export default function FingerboardPanel({
   const selKana = sel ? (selDetail?.kana ?? cellKana(sel)) : null
   const selStrN = sel ? /^cell-([GDAE])-(\d{2})$/.exec(sel) : null
 
-  return (
+  const renderBody = (inModal: boolean) => (
     <div>
       {markable && (
         <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
@@ -111,11 +112,15 @@ export default function FingerboardPanel({
         </div>
       )}
       <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
-        <div style={{ flex: "1.6 1 260px", minWidth: 0, background: "#fbfdff", border: "1px solid #dce6f2", borderRadius: 12, padding: "8px 10px", overflow: "hidden" }}>
-          {svg}
+        <div style={{ flex: inModal ? "1 1 100%" : "1.6 1 260px", minWidth: 0, background: "#fbfdff", border: "1px solid #dce6f2", borderRadius: 12, padding: "8px 10px", overflow: "hidden" }}>
+          {/* 指板クリック(セル以外の余白も含む)でモーダル拡大。セルタップは stopPropagation 済みではないので
+              セル選択と拡大が両立するよう、拡大は専用ボタンではなく図全体のクリックで開く (セルはonClickが先に走る) */}
+          <div onClick={inModal ? undefined : () => setZoom(true)} style={{ cursor: inModal ? "default" : "zoom-in" }}>
+            {svg}
+          </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 9, fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 5 }}>
             <Leg c="#e26a5d" t="高すぎ" /><Leg c="#5e97dd" t="低すぎ" /><Leg c="#b478cf" t="両方にブレる" /><Leg c="#d9efd9" t="安定" />
-            <span>白=まだデータが足りない音</span>
+            {!inModal && <span style={{ marginLeft: "auto", fontWeight: 800, color: "#3b56d4" }}>タップで大きく表示</span>}
           </div>
           {!hasData && (
             <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 6 }}>
@@ -238,6 +243,30 @@ export default function FingerboardPanel({
         </div>
       </div>
     </div>
+  )
+
+  return (
+    <>
+      {renderBody(false)}
+      {zoom && (
+        <div
+          onClick={() => setZoom(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(15,25,50,.55)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}
+        >
+          <div onClick={(e) => e.stopPropagation()}
+            style={{ background: "#fff", borderRadius: 16, padding: "13px 16px 16px", width: "min(960px, 96vw)", maxHeight: "92vh", overflowY: "auto", boxSizing: "border-box" }}>
+            <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
+              <b style={{ fontSize: "var(--fs-body)", color: "var(--text-ink)" }}>音程マップ</b>
+              <button type="button" onClick={() => setZoom(false)}
+                style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-muted)", background: "#f1f4f8", border: "none", borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}>
+                とじる ×
+              </button>
+            </div>
+            {renderBody(true)}
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

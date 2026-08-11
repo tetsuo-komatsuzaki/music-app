@@ -186,11 +186,16 @@ export default async function PracticeDetailPage({
 
   // 指板の実測塗り用 (2026-08-11): note_index → 弦/半音セル (skill_info由来)
   let fingerNotes: Record<number, { s: "G" | "D" | "A" | "E"; n: number }> = {}
+  let songHeatmap = null as import("@/app/_libs/fingerboard/heatmapTypes").HeatmapData | null
   try {
-    const { fetchSkillNotes } = await import("@/app/_libs/fingerboard/aggregate")
-    const sk = await fetchSkillNotes("practice", item.id)
+    const { fetchSkillNotes, buildTargetHeatmap } = await import("@/app/_libs/fingerboard/aggregate")
+    const [sk, hm] = await Promise.all([
+      fetchSkillNotes("practice", item.id),
+      buildTargetHeatmap(dbUserId, "practice", item.id, 20),
+    ])
     fingerNotes = Object.fromEntries([...sk.entries()].map(([i, v]) => [i, { s: v.s, n: v.n }]))
-  } catch { fingerNotes = {} }
+    songHeatmap = hm
+  } catch { fingerNotes = {}; songHeatmap = null }
 
   // 練習後カルテ (2026-08-11 Tetsuo確定): 教材にぶら下がる先生からのカルテ一覧 (read防御)
   let teacherKartes: { id: string; body: string; date: string; teacherName: string }[] = []
@@ -257,6 +262,7 @@ export default async function PracticeDetailPage({
         initialFavorite={!!favRow}
         teacherKartes={teacherKartes}
         fingerNotes={fingerNotes}
+        songHeatmap={songHeatmap}
       />
     </div>
   )
