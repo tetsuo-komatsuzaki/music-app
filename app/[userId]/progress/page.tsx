@@ -20,7 +20,7 @@ type PageProps = {
 }
 
 // カルテ本体は30日固定 (2026-08-06 Tetsuo確定: 期間タブは①⑤にしか効かず嘘のシグナルだった)。
-// 期間切替は「数字のへや」(numbers) にだけ残す。
+// 期間切替は「記録の分析」(numbers) にだけ残す。
 export default async function ProgressServerPage({ params }: PageProps) {
   const { userId } = await params
   const period: KartePeriod = "30d"

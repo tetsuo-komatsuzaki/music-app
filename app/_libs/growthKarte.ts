@@ -1043,7 +1043,7 @@ export async function buildExpressionDetail(
   }
 }
 
-// ══ Phase2 D3: 数字のへや (2026-08-03) ═══════════════════════════════════
+// ══ Phase2 D3: 記録の分析 (2026-08-03) ═══════════════════════════════════
 export interface NumbersRoomData {
   period: KartePeriod
   keys: Array<{ label: string; count: number; pct: number }>

@@ -69,6 +69,8 @@ type PerformanceDTO = {
   pitchAccuracy?: number | null
   timingAccuracy?: number | null
   evaluatedNotes?: number | null
+  /** 先生の返し (演奏へのコメント)。練習後カルテに貼り付け表示 (2026-08-11) */
+  teacherComments?: { body: string; teacherName: string }[]
   analysisSummary?: any
   // 区間録音 (部分練習 Phase 2): 非null = 区間演奏。曲の公式スコアには非算入・履歴で「区間」表示。
   rangeFromNote?: number | null
@@ -559,6 +561,17 @@ function PerformanceHistory({
               <span className={styles.histScorePill} style={{ color: tone.ink, background: tone.bg }}>{score}<small>点</small></span>
             )}
             <span aria-hidden className={styles.histChev}>{selectedId === p.id ? "▲" : "▼"}</span>
+          </div>
+        )}
+        {/* 先生の返し (演奏へのコメント) を練習後カルテに貼り付け (2026-08-11 Tetsuo確定) */}
+        {!isEditing && (p.teacherComments?.length ?? 0) > 0 && (
+          <div style={{ margin: "8px 10px 10px", background: "#fdfaf2", border: "1px solid #eed9a0", borderRadius: 10, padding: "8px 11px" }} onClick={(e) => e.stopPropagation()}>
+            {p.teacherComments!.map((c, i) => (
+              <div key={i} style={{ marginTop: i > 0 ? 6 : 0 }}>
+                <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-master)" }}>{c.teacherName}先生から</div>
+                <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.6, marginTop: 2, whiteSpace: "pre-wrap" }}>{c.body}</div>
+              </div>
+            ))}
           </div>
         )}
         {/* アコーディオン展開 = アルコの採点「結果カード」。削除は右上に。 */}

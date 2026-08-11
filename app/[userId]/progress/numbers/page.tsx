@@ -1,11 +1,11 @@
-// 数字のへや (Phase2 D3・2026-08-03)。カルテ⑤の詳細画面: 調→音域→テンポ→音の
+// 記録の分析 (Phase2 D3・2026-08-03)。カルテ⑤の詳細画面: 調→音域→テンポ→音の
 // 掘れるツリー全体 + 得意も苦手も一覧 + 今週うごいた枝。
 import Link from "next/link"
 import { BarChart3, Sparkles, Music, Timer, Search, ArrowLeftRight } from "lucide-react"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { buildNumbersRoom, type KartePeriod } from "@/app/_libs/growthKarte"
 
-export const metadata = { title: "数字のへや" }
+export const metadata = { title: "記録の分析" }
 
 const SUB = "#8a9099"
 const GOOD = "#0f8a4f"
@@ -51,7 +51,7 @@ export default async function NumbersRoomPage({
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", color: "var(--text-ink)" }}>
       <Link href={`/${authUserId}/progress`} style={{ fontSize: "var(--fs-body)", color: SUB, textDecoration: "none" }}>← 成長カルテ</Link>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "8px 0 10px" }}>
-        <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: 0, display: "inline-flex", alignItems: "center", gap: 6 }}><BarChart3 size={18} color="#3555d4" /> 数字のへや</h1>
+        <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: 0, display: "inline-flex", alignItems: "center", gap: 6 }}><BarChart3 size={18} color="#3555d4" /> 記録の分析</h1>
       </div>
       {/* 期間切替 (2026-08-06: カルテ本体から移設。期間が効くのはこの部屋だけ) */}
       <div style={{ display: "flex", gap: 4, background: "#eceef2", borderRadius: 10, padding: 3, marginBottom: 12 }}>

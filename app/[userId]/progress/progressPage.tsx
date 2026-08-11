@@ -4,7 +4,7 @@
 // 白カードの羅列を廃止し「1枚のクリームの紙」に章を刻む。シェアカードの世界観
 // (五線譜・金・アルコ・大きな数字) で統一。操作はスクロールと横スライドのみ —
 // クリック依存ゼロ (リンクは補助導線のみ)。章はスクロールで順に現れる。
-// 30日固定 (期間切替は数字のへや)。次の一歩はホームの領分 (カルテには置かない)。
+// 30日固定 (期間切替は記録の分析)。次の一歩はホームの領分 (カルテには置かない)。
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { Share2, Search } from "lucide-react"
@@ -130,7 +130,7 @@ function Hero({ userId, data, readOnly, onShare }: { userId: string; data: Karte
         </div>
         {!readOnly && (
           <Link href={`/${userId}/progress/numbers`} style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 11, fontSize: 10.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>
-            <Search size={11} /> きろくを詳しくみる（数字のへや）→
+            <Search size={11} /> きろくを詳しくみる（記録の分析）→
           </Link>
         )}
       </div>

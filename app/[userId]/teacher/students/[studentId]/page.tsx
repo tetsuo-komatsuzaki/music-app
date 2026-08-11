@@ -276,7 +276,7 @@ export default async function StudentKartePage({
   let remarks: RemarkTrack[] = []
   try { remarks = await buildRemarkTracking(studentId) } catch { remarks = [] }
 
-  // 強み・弱み (生徒側「数字のへや」と同じ土俵=音×成功率・直近2週間)。にがて順+とくい
+  // 強み・弱み (生徒側「記録の分析」と同じ土俵=音×成功率・直近2週間)。にがて順+とくい
   let numbers: NumbersRoomData | null = null
   try { numbers = await buildNumbersRoom(studentId, "14d") } catch { numbers = null }
 

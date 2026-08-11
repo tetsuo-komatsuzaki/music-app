@@ -93,7 +93,7 @@ export default function StudentKarte({
   studentSupabaseUserId?: string | null
   /** 指摘トラッキング (v3第2段③) */
   remarks?: RemarkTrack[]
-  /** 強み・弱み (数字のへや=音×成功率と同じ土俵・直近2週間) */
+  /** 強み・弱み (記録の分析=音×成功率と同じ土俵・直近2週間) */
   worstNotes?: WorstNote[]
   bestNotes?: BestNote[]
 }) {
@@ -160,7 +160,7 @@ const kScoreColor = (n: number) => (n >= 90 ? "#2e8b57" : n >= 70 ? "#b7823a" : 
 const kSec: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-master)", margin: "14px 2px 8px", display: "flex", alignItems: "center", gap: 6 }
 const kCat: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", flex: "none" }
 
-/* ═ 主役①: まとめ (上達状況＋アルコの診断)。強み/弱みは生徒側「数字のへや」と同じ土俵=音×成功率・直近2週間 ═ */
+/* ═ 主役①: まとめ (上達状況＋アルコの診断)。強み/弱みは生徒側「記録の分析」と同じ土俵=音×成功率・直近2週間 ═ */
 function SummaryTab({ userId, studentId, briefing, working, recordings, remarks, worstNotes, bestNotes, listenRequests, assignments, karte, allScoreTargets, allItemTargets, observations }: {
   userId: string; studentId: string
   briefing: Briefing; working: WorkItem[]; recordings: Recording[]; remarks: RemarkTrack[]; worstNotes: WorstNote[]; bestNotes: BestNote[]
@@ -285,10 +285,10 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
       <div style={{ border: "1px solid #e3d8f7", borderRadius: 15, overflow: "hidden", marginTop: 14, boxShadow: "0 4px 16px -8px rgba(110,60,190,.3)" }}>
         <div style={{ background: "linear-gradient(135deg,#5a3fa8,#7a4dd6)", color: "#fff", padding: "10px 14px" }}>
           <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900 }}>アルコの診断レポート</div>
-          <div style={{ fontSize: "var(--fs-label)", color: "#e2d6fb", marginTop: 2 }}>音×成功率・直近2週間（生徒の数字のへやと同じ土俵）</div>
+          <div style={{ fontSize: "var(--fs-label)", color: "#e2d6fb", marginTop: 2 }}>音×成功率・直近2週間（生徒の記録の分析と同じ土俵）</div>
         </div>
         <div style={{ background: "#fff", padding: "12px 14px" }}>
-        {/* にがて (弱み) — 数字のへや「音のじっくり表」と同じ土俵 */}
+        {/* にがて (弱み) — 記録の分析「音のじっくり表」と同じ土俵 */}
         <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#c0473a" }}>にがて（直したい所）・成功率の低い順</div>
         {weak3.length === 0 ? (
           <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 3 }}>直近2週間はまだ崩れの目立つ音が少ないよ。録音がたまるほどはっきりします。</div>

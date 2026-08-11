@@ -40,6 +40,22 @@ export async function GET(request: NextRequest) {
     },
   })
 
+  // 先生の返し (演奏へのコメント) を練習後カルテに貼り付ける (2026-08-11 Tetsuo確定)
+  let teacherNoteMap = new Map<string, { body: string; teacherName: string }[]>()
+  try {
+    const msgs = await prisma.message.findMany({
+      where: { studentId: dbUserId, fromTeacher: true, performanceId: { in: performances.map((p) => p.id) } },
+      orderBy: { createdAt: "asc" },
+      select: { performanceId: true, body: true, teacher: { select: { name: true } } },
+    })
+    for (const m of msgs) {
+      if (!m.performanceId) continue
+      const arr = teacherNoteMap.get(m.performanceId) ?? []
+      arr.push({ body: m.body, teacherName: m.teacher.name })
+      teacherNoteMap.set(m.performanceId, arr)
+    }
+  } catch { teacherNoteMap = new Map() }
+
   const results = await Promise.all(
     performances.map(async (p) => {
       const audioUrl = await storageAdmin.storage
@@ -58,6 +74,7 @@ export async function GET(request: NextRequest) {
           pitchAccuracy: p.pitchAccuracy,
           timingAccuracy: p.timingAccuracy,
           evaluatedNotes: p.evaluatedNotes,
+          teacherComments: teacherNoteMap.get(p.id) ?? [],
           analysisSummary: p.analysisSummary,
           rangeFromNote: p.rangeFromNote,
           rangeToNote: p.rangeToNote,
@@ -113,6 +130,7 @@ export async function GET(request: NextRequest) {
         pitchAccuracy,
         timingAccuracy,
         evaluatedNotes: p.evaluatedNotes,
+          teacherComments: teacherNoteMap.get(p.id) ?? [],
         analysisSummary: p.analysisSummary,
         rangeFromNote: p.rangeFromNote,
         rangeToNote: p.rangeToNote,
