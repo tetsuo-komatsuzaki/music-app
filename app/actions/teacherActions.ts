@@ -366,7 +366,8 @@ export async function submitAssignment(
     const now = new Date()
     await prisma.assignment.update({
       where: { id: assignmentId },
-      data: { submittedPerformanceId: perfId, submittedScore: score, submittedAt: now, doneAt: now },
+      // 2026-08-11 合格制: 提出では完了にしない (完了=先生がpassAssignmentで合格にした時のみ)
+      data: { submittedPerformanceId: perfId, submittedScore: score, submittedAt: now },
     })
     return { ok: true, score }
   } catch {

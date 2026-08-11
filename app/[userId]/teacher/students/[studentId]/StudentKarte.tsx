@@ -114,9 +114,10 @@ export default function StudentKarte({
         <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "3px 0 0", color: "#fff", display: "flex", alignItems: "center", gap: 8 }}>
           {studentName} <span style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", letterSpacing: ".12em" }}>STUDENT</span>
           {(assignments.filter((a) => a.submitted && !a.done && a.scoreId).length + listenRequests.length) > 0 && (
-            <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "#fff", background: "#cf4638", borderRadius: 999, padding: "2px 9px" }}>
+            <button type="button" onClick={() => setTab("summary")}
+              style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "#fff", background: "#cf4638", border: "none", borderRadius: 999, padding: "2px 9px", cursor: "pointer" }}>
               返し待ち{assignments.filter((a) => a.submitted && !a.done && a.scoreId).length + listenRequests.length}
-            </span>
+            </button>
           )}
         </h1>
       </div>

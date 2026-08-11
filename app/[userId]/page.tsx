@@ -526,7 +526,7 @@ export default async function HomePage({ params }: PageProps) {
           take: 5,
           select: {
             id: true, targetMeasures: true, reps: true, targetTempo: true, comment: true,
-            dueDate: true, goalType: true, targetScore: true, moodTagId: true,
+            dueDate: true, goalType: true, targetScore: true, moodTagId: true, submittedAt: true,
             teacher: { select: { name: true } },
             score: { select: { id: true, title: true } },
             practiceItem: { select: { id: true, title: true, category: true } },
@@ -557,6 +557,7 @@ export default async function HomePage({ params }: PageProps) {
         goalType: a.goalType,
         targetScore: a.targetScore,
         moodTagId: a.moodTagId,
+        submitted: a.submittedAt != null,
         achieved: a.score?.id ? (homeAchFlags.get(a.score.id)?.achieved ?? false) : false,
         mastered: a.score?.id ? (homeAchFlags.get(a.score.id)?.mastered ?? false) : false,
         href: a.score

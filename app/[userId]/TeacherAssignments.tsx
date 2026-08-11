@@ -23,6 +23,7 @@ export type StudentAssignment = {
   goalType: string | null
   targetScore: number | null
   moodTagId?: string | null
+  submitted?: boolean
   achieved: boolean
   mastered: boolean
 }
@@ -114,6 +115,7 @@ export default function TeacherAssignments({
               {goal && <span style={{ ...goalChip }}><Target size={11} /> {goal}{a.reps ? `・${a.reps}回` : ""}</span>}
               {a.targetTempo && <span style={{ ...chip, color: "var(--text-body)", background: "#f2f4f7", border: "1px solid #e6e9ee" }}>♩={a.targetTempo}</span>}
               {a.moodTagId && <span style={exprChip}><Palette size={11} /> {MOOD_TAG_BY_ID[a.moodTagId]?.label ?? a.moodTagId}</span>}
+              {a.submitted && <span style={{ ...chip, color: "#158253", background: "#e9f8f0", border: "1px solid #c8ecd8" }}>提出ずみ ・ 先生の合格待ち</span>}
               {di && (() => { const c = DUE_CALM[di.state]; return <span style={{ ...chip, color: c.fg, background: c.bg, border: `1px solid ${c.bd}` }}><Calendar size={11} /> {di.label}{di.state === "overdue" ? "（過ぎ）" : di.state === "soon" ? "（もうすぐ）" : ""}</span> })()}
             </span>
           </span>
