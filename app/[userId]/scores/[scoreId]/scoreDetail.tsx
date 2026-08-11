@@ -599,7 +599,8 @@ function PerformanceHistory({
 
   return (
     <div className={styles.card}>
-      <h3>演奏履歴</h3>
+      <h3>練習後カルテ</h3>
+      <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 700, margin: "-2px 0 8px" }}>弾くたびに1枚たまるよ。先生はこのカルテに添削してくれる。</div>
       {/* カード共通の再生用 audio (畳んでいても再生ボタンから鳴らせる) */}
       <audio ref={audioRef} onEnded={() => setPlayingId(null)} hidden />
       {loading ? (
