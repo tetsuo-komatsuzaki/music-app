@@ -7,7 +7,7 @@ import { Ear, Library, Palette, MessageCircle, FileMusic } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MOOD_TAG_DEFS, moodTagPhrase, moodTagLabel } from "@/app/_libs/moodTags"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
-import { createAssignment, savePracticeKarte } from "@/app/actions/teacherActions"
+import { createAssignment } from "@/app/actions/teacherActions"
 import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
 import ProgressPage from "@/app/[userId]/progress/progressPage"
 import PassedHwHistory, { type PassedHwItem } from "@/app/components/PassedHwHistory"
@@ -159,7 +159,7 @@ export default function StudentKarte({
         />
       )}
       {tab === "karte" && (
-        <KarteBySong studentId={studentId} recordings={recordings} kartes={kartes} worstNotes={worstNotes} />
+        <KarteBySong userId={userId} studentId={studentId} recordings={recordings} kartes={kartes} worstNotes={worstNotes} />
       )}
       {tab === "growth" && (
         karte ? (
@@ -379,9 +379,9 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
 
 /* ═ 主役②: 練習後カルテ (曲別。曲→この曲のカルテを横スライド) ═ */
 type SongGroup = { title: string; cat: string; kind: "score" | "practice"; star: number | null; recs: Recording[]; count: number; latest: Recording; trend: number }
-function KarteBySong({ studentId, recordings, kartes, worstNotes }: { studentId: string; recordings: Recording[]; kartes: KarteRow[]; worstNotes: WorstNote[] }) {
+function KarteBySong({ userId, studentId, recordings, kartes, worstNotes }: { userId: string; studentId: string; recordings: Recording[]; kartes: KarteRow[]; worstNotes: WorstNote[] }) {
   // カルテ再設計 (2026-08-11 Tetsuo確定): カルテは曲にぶら下がる独立エンティティ (演奏には紐づかない)。
-  // 曲を開く = 書かれたカルテ一覧 + その場で書くフォーム。演奏履歴カードはここには出さない。
+  // 曲を開く = 書かれたカルテ一覧 + 入力画面(癖・認定・練習ポイント込み)への遷移ボタン。演奏履歴カードはここには出さない。
   const order: string[] = []
   const groups = new Map<string, Recording[]>()
   for (const r of recordings) {
@@ -416,7 +416,7 @@ function KarteBySong({ studentId, recordings, kartes, worstNotes }: { studentId:
           練習後カルテ（{ks.length}枚）
         </div>
         {ks.length === 0 ? (
-          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginBottom: 8 }}>まだカルテがありません。下のフォームから書けます。</div>
+          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginBottom: 8 }}>まだカルテがありません。下のボタンから書けます。</div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 8 }}>
             {ks.map((k) => (
@@ -430,7 +430,12 @@ function KarteBySong({ studentId, recordings, kartes, worstNotes }: { studentId:
             ))}
           </div>
         )}
-        {targetId && <KarteWriteBox studentId={studentId} kind={kind} targetId={targetId} />}
+        {targetId && (
+          <Link href={`/${userId}/teacher/students/${studentId}/karte/write?kind=${kind}&target=${targetId}`}
+            style={{ display: "block", textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#22346b", borderRadius: 10, padding: "10px 0", textDecoration: "none" }}>
+            練習後カルテを書く（癖・認定・練習ポイントもここから）→
+          </Link>
+        )}
       </>
     )
   }
@@ -487,41 +492,6 @@ function KarteBySong({ studentId, recordings, kartes, worstNotes }: { studentId:
   )
 }
 
-/** 練習後カルテのインライン記入フォーム (曲を開いたその場で書く。「新しいカルテを書く」ボタンは置かない) */
-function KarteWriteBox({ studentId, kind, targetId }: { studentId: string; kind: "score" | "practice"; targetId: string }) {
-  const router = useRouter()
-  const [body, setBody] = useState("")
-  const [state, setState] = useState<"idle" | "saving" | "error">("idle")
-  const [errMsg, setErrMsg] = useState("")
-  return (
-    <div style={{ background: "#f0f4fb", border: "1px solid #d6e0f0", borderRadius: 10, padding: "9px 11px" }}>
-      <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#22346b", marginBottom: 5 }}>カルテを書く（保存すると生徒に届きます）</div>
-      <textarea
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        rows={3}
-        placeholder="演奏を聴いて気づいたこと・次に意識してほしいこと"
-        style={{ width: "100%", boxSizing: "border-box", fontSize: "var(--fs-caption)", lineHeight: 1.6, border: "1px solid #c9d6ea", borderRadius: 8, padding: "8px 10px", resize: "vertical", background: "#fff", color: "var(--text-ink)" }}
-      />
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
-        {state === "error" && <span style={{ fontSize: "var(--fs-label)", color: "#c0473a", fontWeight: 800 }}>{errMsg || "保存に失敗しました"}</span>}
-        <button
-          type="button"
-          disabled={state === "saving" || !body.trim()}
-          onClick={async () => {
-            setState("saving")
-            const r = await savePracticeKarte(studentId, kind === "score" ? { scoreId: targetId } : { practiceItemId: targetId }, body)
-            if (r.ok) { setBody(""); setState("idle"); router.refresh() }
-            else { setErrMsg(r.error); setState("error") }
-          }}
-          style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#22346b", border: "none", borderRadius: 999, padding: "7px 16px", cursor: "pointer", opacity: state === "saving" || !body.trim() ? 0.55 : 1 }}
-        >
-          {state === "saving" ? "保存中…" : "カルテを渡す"}
-        </button>
-      </div>
-    </div>
-  )
-}
 
 /* ═ 全体のカルテ傾向カード (曲をまたいだ弱点。worstNotesが薄ければ崩れ集計にフォールバック) ═ */
 function GlobalTrendCard({ recordings, worstNotes }: { recordings: Recording[]; worstNotes: WorstNote[] }) {

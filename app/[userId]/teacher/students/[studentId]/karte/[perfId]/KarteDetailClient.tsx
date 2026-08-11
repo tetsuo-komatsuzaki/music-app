@@ -276,7 +276,7 @@ function HwPassBox({ hw, avg, cardStyle }: { hw: { id: string; targetScore: numb
 }
 
 /* ═ 表現クリア認定 (この曲でこの表現ができていた → 曲の★が表現力レベルに) ═ */
-function ExprCertifyBox({ studentId, scoreId, cardStyle, labStyle }: {
+export function ExprCertifyBox({ studentId, scoreId, cardStyle, labStyle }: {
   studentId: string; scoreId: string; cardStyle: React.CSSProperties; labStyle: React.CSSProperties
 }) {
   const [tag, setTag] = useState("")
@@ -312,7 +312,7 @@ function ExprCertifyBox({ studentId, scoreId, cardStyle, labStyle }: {
 }
 
 /* ═ おすすめ教材1行: 教材の中身を見てから練習ポイントを記入 (upsert・空で削除) ═ */
-function MaterialPointRow({ userId, studentId, m }: { userId: string; studentId: string; m: MaterialRow }) {
+export function MaterialPointRow({ userId, studentId, m }: { userId: string; studentId: string; m: MaterialRow }) {
   const [text, setText] = useState(m.point)
   const [saved, setSaved] = useState<null | boolean>(null)
   const [pending, start] = useTransition()
