@@ -510,7 +510,7 @@ export default async function HomePage({ params }: PageProps) {
     id: string; kind: "score" | "practice"; teacherName: string; title: string; reps: number | null; targetTempo: number | null; comment: string | null; href: string
     dueDate: string | null; goalType: string | null; targetScore: number | null; achieved: boolean; mastered: boolean
   }[] = []
-  let teacherSummary: { teacherName: string | null; unreadMessages: number; unreadKarte: number; feedbackCount: number; unreadCelebration: boolean; recentObservations: number } | undefined
+  let teacherSummary: { teacherName: string | null; unreadMessages: number; unreadKarte: number; unreadPassed: number; feedbackCount: number; unreadCelebration: boolean; recentObservations: number } | undefined
   try {
     // 先生を登録している生徒のみ「先生から」を出す (解約したら消える)
     const link = await prisma.teacherStudent.findFirst({
@@ -519,7 +519,7 @@ export default async function HomePage({ params }: PageProps) {
       select: { teacherId: true, teacher: { select: { name: true } } },
     })
     if (link) {
-      const [rows, unreadMessages, unreadKarte, feedbackCount, unreadCelebrationCount, recentObservations] = await Promise.all([
+      const [rows, unreadMessages, unreadKarte, unreadPassed, feedbackCount, unreadCelebrationCount, recentObservations] = await Promise.all([
         prisma.assignment.findMany({
           where: { studentId: internalUserId, doneAt: null },
           orderBy: { createdAt: "desc" },
@@ -535,6 +535,8 @@ export default async function HomePage({ params }: PageProps) {
         prisma.message.count({ where: { studentId: internalUserId, teacherId: link.teacherId, fromTeacher: true, readAt: null } }),
         // 練習後カルテの新着 (2026-08-11): 演奏に紐づく未読コメント
         prisma.message.count({ where: { studentId: internalUserId, teacherId: link.teacherId, fromTeacher: true, readAt: null, performanceId: { not: null } } }),
+        // 宿題合格の新着 (2026-08-11)
+        prisma.message.count({ where: { studentId: internalUserId, teacherId: link.teacherId, fromTeacher: true, readAt: null, kind: "hw_passed" } }),
         prisma.teacherFeedback.count({ where: { teacherId: link.teacherId, studentId: internalUserId } }),
         prisma.message.count({ where: { studentId: internalUserId, teacherId: link.teacherId, fromTeacher: true, readAt: null, kind: "celebration" } }),
         // 所見(癖)の新着: 既読概念が無いため直近7日を新着扱い (週1レッスンの起点を塞ぐ・2026-08-02)
@@ -563,7 +565,7 @@ export default async function HomePage({ params }: PageProps) {
             ? `/${userId}/practice/${a.practiceItem.category}/${a.practiceItem.id}`
             : `/${userId}`,
       }))
-      teacherSummary = { teacherName: link.teacher.name, unreadMessages, unreadKarte, feedbackCount, unreadCelebration: unreadCelebrationCount > 0, recentObservations }
+      teacherSummary = { teacherName: link.teacher.name, unreadMessages, unreadKarte, unreadPassed, feedbackCount, unreadCelebration: unreadCelebrationCount > 0, recentObservations }
     }
   } catch {
     teacherAssignments = []

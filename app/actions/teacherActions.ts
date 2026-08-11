@@ -311,6 +311,10 @@ export async function passAssignment(assignmentId: string): Promise<{ ok: true }
     if (a.passedAt) return { ok: true }
     await prisma.assignment.update({ where: { id: a.id }, data: { passedAt: new Date(), doneAt: new Date() } })
     const title = a.score?.title ?? a.practiceItem?.title ?? "宿題"
+    // 画面通知 (2026-08-11): 未読メッセージとしてホームの「先生から」スライドに出す
+    await prisma.message.create({
+      data: { teacherId: auth.user.dbUser.id, studentId: a.studentId, fromTeacher: true, kind: "hw_passed", body: `宿題「${title}」に合格！` },
+    })
     await notifyStudent(a.studentId, auth.user.dbUser.id, "assignment", `宿題「${title}」に合格！`)
     return { ok: true }
   } catch {

@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from "react"
 import { GraduationCap, PartyPopper, ClipboardList, Calendar, MessageCircle, PenLine, Target, Palette, ChevronRight, ChevronDown, FileText } from "lucide-react"
 import Link from "next/link"
-import { moodTagGoalText } from "@/app/_libs/moodTags"
+import { MOOD_TAG_BY_ID } from "@/app/_libs/moodTags"
 import { useParams } from "next/navigation"
 import { goalLabel, dueInfo } from "@/app/_libs/assignmentGoal"
 
@@ -29,6 +29,7 @@ export type StudentAssignment = {
 
 export type TeacherHomeSummary = {
   unreadKarte?: number
+  unreadPassed?: number
   teacherName: string | null
   unreadMessages: number
   feedbackCount: number
@@ -45,7 +46,7 @@ const chip: React.CSSProperties = { display: "inline-flex", alignItems: "center"
 const goalChip: React.CSSProperties = { ...chip, color: "#1f3d78", background: "#eaf0fc" }
 const exprChip: React.CSSProperties = { ...chip, color: "#c0891f", background: "#f9f0d8", border: "1px solid #ecd8a4" }
 
-type Cat = "hw" | "karte" | "fb" | "cel"
+type Cat = "hw" | "pass" | "karte" | "fb" | "cel"
 type Slide = { cat: Cat; node: React.ReactNode }
 
 export default function TeacherAssignments({
@@ -81,11 +82,12 @@ export default function TeacherAssignments({
 
   const unread = summary?.unreadMessages ?? 0
   const unreadKarte = summary?.unreadKarte ?? 0
+  const unreadPassed = summary?.unreadPassed ?? 0
   const feedback = summary?.feedbackCount ?? 0
   const recentObs = summary?.recentObservations ?? 0
   const celebration = !!summary?.unreadCelebration
   const hwCount = assignments.length
-  if (hwCount === 0 && unread === 0 && unreadKarte === 0 && feedback === 0 && recentObs === 0 && !celebration) return null
+  if (hwCount === 0 && unread === 0 && unreadKarte === 0 && unreadPassed === 0 && feedback === 0 && recentObs === 0 && !celebration) return null
 
   // 畳んだ見出しの要約 = 一番近い期限の宿題
   const withDue = assignments.filter((a) => a.dueDate)
@@ -111,9 +113,25 @@ export default function TeacherAssignments({
             <span style={chips}>
               {goal && <span style={{ ...goalChip }}><Target size={11} /> {goal}{a.reps ? `・${a.reps}回` : ""}</span>}
               {a.targetTempo && <span style={{ ...chip, color: "var(--text-body)", background: "#f2f4f7", border: "1px solid #e6e9ee" }}>♩={a.targetTempo}</span>}
-              {a.moodTagId && <span style={exprChip}><Palette size={11} /> {moodTagGoalText(a.moodTagId)}</span>}
+              {a.moodTagId && <span style={exprChip}><Palette size={11} /> {MOOD_TAG_BY_ID[a.moodTagId]?.label ?? a.moodTagId}</span>}
               {di && (() => { const c = DUE_CALM[di.state]; return <span style={{ ...chip, color: c.fg, background: c.bg, border: `1px solid ${c.bd}` }}><Calendar size={11} /> {di.label}{di.state === "overdue" ? "（過ぎ）" : di.state === "soon" ? "（もうすぐ）" : ""}</span> })()}
             </span>
+          </span>
+          <ChevronRight size={18} style={{ flex: "none", color: "var(--text-muted)" }} />
+        </Link>
+      ),
+    })
+  }
+  if (unreadPassed > 0) {
+    slides.push({
+      cat: "pass",
+      node: (
+        <Link href={`/${userId}/my-teacher?tab=passed`} className="pressable" style={cardStyle}>
+          <span style={{ ...av, background: "#e2f5ea", color: "#158253" }}><PartyPopper size={17} /></span>
+          <span style={cbody}>
+            <span style={who}>{summary?.teacherName ?? "先生"}</span>
+            <span style={{ ...title, color: "#158253" }}>宿題に合格したよ！（{unreadPassed}件）</span>
+            <span style={chips}><span style={{ ...chip, color: "#158253", background: "#e2f5ea", border: "1px solid #c8ecd8" }}>合格の履歴を見る</span></span>
           </span>
           <ChevronRight size={18} style={{ flex: "none", color: "var(--text-muted)" }} />
         </Link>
@@ -171,7 +189,7 @@ export default function TeacherAssignments({
 
   const N = slides.length
   const cats = slides.map((s) => s.cat)
-  const CAT_LABEL: Record<Cat, string> = { hw: "宿題", karte: "練習後カルテ", fb: "添削", cel: "お祝い" }
+  const CAT_LABEL: Record<Cat, string> = { hw: "宿題", pass: "合格", karte: "練習後カルテ", fb: "添削", cel: "お祝い" }
   const tabCats = [...new Set(cats)]
   const catCount = (c: Cat) => cats.filter((x) => x === c).length
   const curCat = cats[idx] ?? "hw"
