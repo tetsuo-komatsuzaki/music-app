@@ -220,26 +220,26 @@ export default async function StudentKartePage({
     prisma.performance.findMany({
       where: { userId: studentId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: 12,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, rangeFromNote: true, analysisSummary: true, score: { select: { title: true } } },
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, rangeFromNote: true, analysisSummary: true, score: { select: { title: true, star: true } } },
     }),
     prisma.practicePerformance.findMany({
       where: { userId: studentId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: 12,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, practiceItem: { select: { title: true, category: true } } },
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, practiceItem: { select: { title: true, category: true, star: true } } },
     }),
   ])
   const avg2 = (p: number | null, t: number | null) => Math.round(((p ?? 0) + (t ?? 0)) / 2)
-  type RecRaw = { id: string; kind: "score" | "practice"; at: number; title: string; cat: string; pitch: number; timing: number; avg: number; audioPath: string; weak: WeakSlot[] }
+  type RecRaw = { id: string; kind: "score" | "practice"; at: number; title: string; cat: string; star: number | null; pitch: number; timing: number; avg: number; audioPath: string; weak: WeakSlot[] }
   const recRaw: RecRaw[] = [
     ...scorePerfs.map((p) => ({
       id: p.id, kind: "score" as const, at: p.uploadedAt.getTime(), title: p.score?.title ?? "曲",
-      cat: p.rangeFromNote != null ? "曲（区間）" : "曲",
+      cat: p.rangeFromNote != null ? "曲（区間）" : "曲", star: p.score?.star ?? null,
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
       audioPath: p.audioPath, weak: topWeak(p.analysisSummary),
     })),
     ...pracPerfs.map((p) => ({
       id: p.id, kind: "practice" as const, at: p.uploadedAt.getTime(), title: p.practiceItem?.title ?? "教材",
-      cat: p.practiceItem?.category ? categoryLabel(p.practiceItem.category) : "基礎練",
+      cat: p.practiceItem?.category ? categoryLabel(p.practiceItem.category) : "基礎練", star: p.practiceItem?.star ?? null,
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
       audioPath: p.audioPath, weak: topWeak(p.analysisSummary),
     })),
@@ -247,7 +247,7 @@ export default async function StudentKartePage({
 
   // 音声の署名URL (先生が聴ける)
   const recordings = await Promise.all(recRaw.map(async (r) => ({
-    id: r.id, kind: r.kind, title: r.title, cat: r.cat, pitch: r.pitch, timing: r.timing, avg: r.avg, weak: r.weak,
+    id: r.id, kind: r.kind, title: r.title, cat: r.cat, star: r.star, pitch: r.pitch, timing: r.timing, avg: r.avg, weak: r.weak,
     date: new Date(r.at).toLocaleDateString("ja-JP"),
     audioUrl: r.audioPath
       ? await storageAdmin.storage.from("performances").createSignedUrl(r.audioPath, 600).then((x) => encodeSignedUrl(x.data?.signedUrl)).catch(() => null)

@@ -101,7 +101,7 @@ type ExpressionRow = { id: string; tagId: string; severity: string | null; comme
 type WorkItem = { title: string; cat: string; avg: number }
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
 type ListenReq = { id: string; scoreId: string; title: string; avg: number | null; date: string }
-type Recording = { id: string; kind: "score" | "practice"; title: string; cat: string; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[] }
+type Recording = { id: string; kind: "score" | "practice"; title: string; cat: string; star: number | null; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[] }
 
 export default function StudentKarte({
   userId, studentId, studentName, briefing, scoreTargets, itemTargets, listenRequests = [],
@@ -297,7 +297,7 @@ function SummaryTab({ briefing, working, recordings, observations, onGoKarte }: 
 }
 
 /* ═ 主役②: 練習後カルテ (曲別。曲→この曲のカルテを横スライド) ═ */
-type SongGroup = { title: string; cat: string; kind: "score" | "practice"; recs: Recording[]; count: number; latest: Recording; trend: number }
+type SongGroup = { title: string; cat: string; kind: "score" | "practice"; star: number | null; recs: Recording[]; count: number; latest: Recording; trend: number }
 function KarteBySong({ studentId, recordings }: { studentId: string; recordings: Recording[] }) {
   const order: string[] = []
   const groups = new Map<string, Recording[]>()
@@ -309,15 +309,18 @@ function KarteBySong({ studentId, recordings }: { studentId: string; recordings:
     const recs = groups.get(title)!
     const latest = recs[0]
     const earliest = recs[recs.length - 1]
-    return { title, cat: latest.cat, kind: latest.kind, recs, count: recs.length, latest, trend: latest.avg - earliest.avg }
+    return { title, cat: latest.cat, kind: latest.kind, star: latest.star, recs, count: recs.length, latest, trend: latest.avg - earliest.avg }
   })
-  const songs = gs.filter((g) => g.kind === "score")
-  const basics = gs.filter((g) => g.kind === "practice")
+  // 曲は難易度★の低い順 (未設定は末尾)、同★は最新の点の高い順
+  const songs = gs.filter((g) => g.kind === "score").sort((a, b) => (a.star ?? 99) - (b.star ?? 99) || b.latest.avg - a.latest.avg)
+  const basics = gs.filter((g) => g.kind === "practice").sort((a, b) => (a.star ?? 99) - (b.star ?? 99))
 
   const renderGroup = (g: SongGroup) => (
     <details key={g.title} style={{ background: "rgba(255,255,255,.85)", border: "1px solid #efe5cc", borderRadius: 13, marginBottom: 8 }}>
       <summary style={{ listStyle: "none", cursor: "pointer", padding: "11px 13px", display: "flex", alignItems: "center", gap: 9 }}>
-        <span style={kCat}>{g.cat}</span>
+        {g.star != null
+          ? <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "#b58a1e" }}>★{g.star}</span>
+          : <span style={kCat}>{g.cat}</span>}
         <b style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-ink)" }}>{g.title}</b>
         <span style={{ marginLeft: "auto", flex: "none", textAlign: "right", fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800, lineHeight: 1.35 }}>{g.count}枚<br />{g.latest.date}</span>
         <span style={{ flex: "none", fontSize: "var(--fs-subhead)", fontWeight: 900, color: kScoreColor(g.latest.avg) }}>{g.latest.avg}</span>
