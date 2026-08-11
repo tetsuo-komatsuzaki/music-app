@@ -62,7 +62,7 @@ type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; targ
 type ListenReq = { id: string; scoreId: string; performanceId: string; title: string; avg: number | null; date: string }
 type Recording = { id: string; kind: "score" | "practice"; title: string; cat: string; star: number | null; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[]; targetId: string | null }
 /** 練習後カルテ (2026-08-11 Tetsuo確定): 曲/教材にぶら下がる独立エンティティ (演奏には紐づかない) */
-type KarteRow = { id: string; targetId: string; kind: "score" | "practice"; title: string; body: string; date: string; read: boolean }
+type KarteRow = { id: string; targetId: string; kind: "score" | "practice"; title: string; cat: string; body: string; date: string; monthKey: string; monthLabel: string; read: boolean }
 type WorstNote = NumbersRoomData["worstNotes"][number]
 type BestNote = NumbersRoomData["bestNotes"][number]
 
@@ -167,7 +167,7 @@ export default function StudentKarte({
         />
       )}
       {tab === "karte" && (
-        <KarteBySong userId={userId} studentId={studentId} recordings={recordings} kartes={kartes} worstNotes={worstNotes} />
+        <KarteBySong userId={userId} studentId={studentId} recordings={recordings} kartes={kartes} heatmap={heatmap} fbMarks={fbMarks} />
       )}
       {tab === "growth" && (
         karte ? (
@@ -381,9 +381,12 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
 
 /* ═ 主役②: 練習後カルテ (曲別。曲→この曲のカルテを横スライド) ═ */
 type SongGroup = { title: string; cat: string; kind: "score" | "practice"; star: number | null; recs: Recording[]; count: number; latest: Recording; trend: number }
-function KarteBySong({ userId, studentId, recordings, kartes, worstNotes }: { userId: string; studentId: string; recordings: Recording[]; kartes: KarteRow[]; worstNotes: WorstNote[] }) {
-  // カルテ再設計 (2026-08-11 Tetsuo確定): カルテは曲にぶら下がる独立エンティティ (演奏には紐づかない)。
-  // 曲を開く = 書かれたカルテ一覧 + 入力画面(癖・認定・練習ポイント込み)への遷移ボタン。演奏履歴カードはここには出さない。
+function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }: { userId: string; studentId: string; recordings: Recording[]; kartes: KarteRow[]; heatmap: HeatmapData | null; fbMarks: FingerboardMark[] }) {
+  // カルテ再設計 (2026-08-11 Tetsuo確定・案2): サブタブで「カルテを書く」と「カルテをふりかえる」を分離。
+  // 書く = 曲一覧(書くための入口)。ふりかえる = 全体の分析(音程マップ) + 今までのカルテ(月別・概要カード横スライド)。
+  const [kmode, setKmode] = useState<"write" | "review">("write")
+  const [karteFilter, setKarteFilter] = useState<string>("all")
+  const [openKarte, setOpenKarte] = useState<KarteRow | null>(null)
   const order: string[] = []
   const groups = new Map<string, Recording[]>()
   for (const r of recordings) {
@@ -465,73 +468,143 @@ function KarteBySong({ userId, studentId, recordings, kartes, worstNotes }: { us
   if (recordings.length === 0 && kartes.length === 0) {
     return <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだ演奏がありません。</div></Card>
   }
+
+  // ふりかえる: 月別グループ (新しい順) + 曲フィルタ
+  const filtered = karteFilter === "all" ? kartes : kartes.filter((k) => k.title === karteFilter)
+  const months: { key: string; label: string; rows: KarteRow[] }[] = []
+  for (const k of filtered) {
+    let m = months.find((x) => x.key === k.monthKey)
+    if (!m) { m = { key: k.monthKey, label: k.monthLabel, rows: [] }; months.push(m) }
+    m.rows.push(k)
+  }
+  const filterTitles = [...new Set(kartes.map((k) => k.title))]
+
+  const subTab = (k: "write" | "review", label: string) => (
+    <button key={k} type="button" onClick={() => setKmode(k)}
+      style={{ flex: 1, border: "none", borderRadius: 7, padding: "7px 0", fontSize: "var(--fs-caption)", fontWeight: 900, cursor: "pointer",
+        background: kmode === k ? "#fff" : "transparent", color: kmode === k ? "#22346b" : "#8b97a8",
+        boxShadow: kmode === k ? "0 1px 3px rgba(30,40,70,.12)" : "none" }}>
+      {label}
+    </button>
+  )
+
   return (
     <>
-      {/* 全体のカルテ傾向 (曲をまたいだ弱点)。音単位(worstNotes)がまだ薄い時は
-          カルテの崩れ集計にフォールバックし、常にカードを出す (2026-08-11 修正) */}
-      <GlobalTrendCard recordings={recordings} worstNotes={worstNotes} />
+      {/* サブタブ: 書く / ふりかえる (2026-08-11 Tetsuo確定・案2) */}
+      <div style={{ display: "flex", gap: 4, background: "#e7ebf2", borderRadius: 9, padding: 4, marginBottom: 11 }}>
+        {subTab("write", "カルテを書く")}
+        {subTab("review", "カルテをふりかえる")}
+      </div>
 
-      <div style={kSec}>曲<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>カルテ枚数・直近</span></div>
-      {songs.length === 0 ? (
-        <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>曲の演奏がまだありません。</div></Card>
-      ) : songs.map(renderGroup)}
-      {basics.length > 0 && (
+      {kmode === "write" ? (
         <>
-          <div style={kSec}>基礎練・教材<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>カルテ枚数・直近</span></div>
-          {basics.map(renderGroup)}
+          <div style={kSec}>曲をえらんでカルテを書く<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>カルテ枚数・直近</span></div>
+          {songs.length === 0 ? (
+            <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>曲の演奏がまだありません。</div></Card>
+          ) : songs.map(renderGroup)}
+          {basics.length > 0 && (
+            <>
+              <div style={kSec}>基礎練・教材<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>カルテ枚数・直近</span></div>
+              {basics.map(renderGroup)}
+            </>
+          )}
+          {karteOnly.map((g) => (
+            <details key={g.title} style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 13, marginBottom: 8 }}>
+              <summary style={{ listStyle: "none", cursor: "pointer", padding: "11px 13px", display: "flex", alignItems: "center", gap: 9 }}>
+                <b style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-ink)" }}>{g.title}</b>
+                <span style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>カルテ{(kartesByTitle.get(g.title) ?? []).length}枚</span>
+              </summary>
+              <div style={{ padding: "0 13px 12px" }}>{renderKarteList(g.title, g.kind, g.targetId)}</div>
+            </details>
+          ))}
+        </>
+      ) : (
+        <>
+          {/* 全体の分析 (音程マップ) = ふりかえりの一部 */}
+          <div style={{ border: "1px solid #e3d8f7", borderRadius: 13, overflow: "hidden", marginBottom: 11 }}>
+            <div style={{ background: "linear-gradient(135deg,#5a3fa8,#7a4dd6)", color: "#fff", padding: "8px 12px" }}>
+              <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900 }}>全体の分析・曲をまたいで</div>
+              <div style={{ fontSize: "var(--fs-label)", color: "#e2d6fb", marginTop: 1 }}>音程マップ・直近2週間{heatmap ? `・${heatmap.perfCount}演奏分` : ""}・タップでくわしく</div>
+            </div>
+            <div style={{ background: "#fff", padding: "9px 12px" }}>
+              {heatmap ? (
+                <FingerboardPanel cells={heatmap.cells} details={heatmap.details} marks={fbMarks}
+                  emptyText="直近2週間はまだ判定できる音が少ないよ・同じ音を5回以上ひくと色がつきます。" />
+              ) : (
+                <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)" }}>音程マップを読み込めませんでした。</div>
+              )}
+            </div>
+          </div>
+
+          {/* 今までのカルテ (月別・概要カード横スライド・タップで全文) */}
+          <div style={kSec}>今までのカルテ<span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>{kartes.length}枚・タップで全文</span></div>
+          {kartes.length === 0 ? (
+            <Card><div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)" }}>まだカルテがありません。「カルテを書く」から1枚目を書けます。</div></Card>
+          ) : (
+            <>
+              {filterTitles.length > 1 && (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 9 }}>
+                  {[["all", "すべて"] as const, ...filterTitles.map((t) => [t, t] as const)].map(([v, label]) => (
+                    <button key={v} type="button" onClick={() => setKarteFilter(v)}
+                      style={{ fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 999, padding: "4px 12px", cursor: "pointer",
+                        border: `1px solid ${karteFilter === v ? "#22346b" : "#e6e9ef"}`,
+                        background: karteFilter === v ? "#22346b" : "#fff", color: karteFilter === v ? "#fff" : "#8b97a8",
+                        maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {months.map((m) => (
+                <div key={m.key}>
+                  <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)", margin: "8px 2px 5px", letterSpacing: ".04em" }}>{m.label}・{m.rows.length}枚</div>
+                  <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 6, scrollbarWidth: "thin" }}>
+                    {m.rows.map((k) => (
+                      <div key={k.id} onClick={() => setOpenKarte(k)}
+                        style={{ flex: "none", width: 150, background: "#fff", border: "1px solid #e6e9ef", borderRadius: 12, padding: "9px 11px", boxSizing: "border-box", cursor: "pointer" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>
+                          <b style={{ color: "var(--text-ink)" }}>{k.date}</b>
+                          <span style={{ marginLeft: "auto", color: k.read ? "#2f9e63" : "#b58a1e" }}>{k.read ? "既読" : "未読"}</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 4, minWidth: 0 }}>
+                          <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)", background: "#f2f4f8", border: "1px solid #e6eaf1", borderRadius: 5, padding: "0 5px" }}>{k.cat}</span>
+                          <span style={{ fontWeight: 900, color: "#2f66c4", fontSize: "var(--fs-label)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.title}</span>
+                        </div>
+                        <div style={{ marginTop: 7, fontSize: "var(--fs-label)", fontWeight: 900, color: "#8b97a8", textAlign: "right" }}>タップで全文 →</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+
+          {/* 全文モーダル */}
+          {openKarte && (
+            <div onClick={() => setOpenKarte(null)}
+              style={{ position: "fixed", inset: 0, background: "rgba(15,25,50,.55)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 14 }}>
+              <div onClick={(e) => e.stopPropagation()}
+                style={{ background: "#fff", borderRadius: 15, padding: "13px 16px 16px", width: "min(560px, 94vw)", maxHeight: "84vh", overflowY: "auto", boxSizing: "border-box" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>
+                  <b style={{ color: "var(--text-ink)", fontSize: "var(--fs-caption)" }}>{openKarte.date}</b>
+                  <span style={{ flex: "none", background: "#f2f4f8", border: "1px solid #e6eaf1", borderRadius: 5, padding: "0 5px", fontWeight: 900 }}>{openKarte.cat}</span>
+                  <span style={{ fontWeight: 900, color: "#2f66c4", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{openKarte.title}</span>
+                  <button type="button" onClick={() => setOpenKarte(null)}
+                    style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)", background: "#f1f4f8", border: "none", borderRadius: 999, padding: "5px 12px", cursor: "pointer" }}>
+                    とじる ×
+                  </button>
+                </div>
+                <div style={{ marginTop: 9, fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{openKarte.body}</div>
+                <div style={{ marginTop: 8, fontSize: "var(--fs-label)", fontWeight: 800, color: openKarte.read ? "#2f9e63" : "#b58a1e" }}>{openKarte.read ? "既読・生徒が読みました" : "未読・まだ生徒は読んでいません"}</div>
+              </div>
+            </div>
+          )}
         </>
       )}
-      {karteOnly.map((g) => (
-        <details key={g.title} style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 13, marginBottom: 8 }}>
-          <summary style={{ listStyle: "none", cursor: "pointer", padding: "11px 13px", display: "flex", alignItems: "center", gap: 9 }}>
-            <b style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-ink)" }}>{g.title}</b>
-            <span style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>カルテ{(kartesByTitle.get(g.title) ?? []).length}枚</span>
-          </summary>
-          <div style={{ padding: "0 13px 12px" }}>{renderKarteList(g.title, g.kind, g.targetId)}</div>
-        </details>
-      ))}
     </>
   )
 }
 
-
-/* ═ 全体のカルテ傾向カード (曲をまたいだ弱点。worstNotesが薄ければ崩れ集計にフォールバック) ═ */
-function GlobalTrendCard({ recordings, worstNotes }: { recordings: Recording[]; worstNotes: WorstNote[] }) {
-  // フォールバック: 全カルテの崩れを合算 (成功率の低い順・上位3)
-  const agg = new Map<string, { tree: "音程" | "リズム"; miss: number; target: number; count: number }>()
-  for (const r of recordings) for (const w of r.weak) {
-    const e = agg.get(w.name) ?? { tree: w.tree, miss: 0, target: 0, count: 0 }
-    e.miss += w.miss; e.target += w.target; e.count++
-    agg.set(w.name, e)
-  }
-  const weakAgg = [...agg.entries()]
-    .map(([name, e]) => ({ name, tree: e.tree, count: e.count, pct: Math.max(0, Math.round(100 - (e.miss / Math.max(1, e.target)) * 100)) }))
-    .sort((a, b) => a.pct - b.pct || b.count - a.count).slice(0, 3)
-  if (worstNotes.length === 0 && weakAgg.length === 0) return null
-  return (
-    <div style={{ border: "1px solid #e3d8f7", borderRadius: 13, overflow: "hidden", marginBottom: 11 }}>
-      <div style={{ background: "linear-gradient(135deg,#5a3fa8,#7a4dd6)", color: "#fff", padding: "8px 12px", fontSize: "var(--fs-caption)", fontWeight: 900 }}>全体のカルテ傾向</div>
-      <div style={{ background: "#fff", padding: "9px 12px" }}>
-        {worstNotes.length > 0 ? (
-          worstNotes.slice(0, 3).map((n) => (
-            <div key={n.raw} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginBottom: 4 }}>
-              <b style={{ width: 44, flex: "none" }}>{n.kana}</b>
-              <span style={{ fontSize: "var(--fs-label)", color: "var(--text-sub)" }}>{n.hand ? `${n.hand}` : n.string ? `${n.string}` : n.raw}・{n.target}音</span>
-              <b style={{ marginLeft: "auto", flex: "none", fontWeight: 900, fontVariantNumeric: "tabular-nums", color: kScoreColor(n.pct) }}>{n.pct}%</b>
-            </div>
-          ))
-        ) : (
-          weakAgg.map((w) => (
-            <div key={w.name} style={{ fontSize: "var(--fs-caption)", color: "#3a3550", lineHeight: 1.7 }}>
-              <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{w.tree}</span>
-              <b>{w.name}</b> 成功率 <b style={{ color: kScoreColor(w.pct) }}>{w.pct}%</b> ・ {w.count}回崩れ
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  )
-}
 
 /* ═ この曲の傾向カード (カルテN枚の推移 + よく崩れる所 + AI提案文) ═ */
 function SongTrendCard({ g }: { g: SongGroup }) {

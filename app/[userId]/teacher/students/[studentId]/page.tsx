@@ -262,22 +262,30 @@ export default async function StudentKartePage({
 
   // 練習後カルテ (2026-08-11 Tetsuo確定): 曲/教材にぶら下がる独立エンティティ。
   // 曲別タブで「書かれたカルテ一覧」を見せる (migration未適用でも落ちない read防御)
-  let kartes: { id: string; targetId: string; kind: "score" | "practice"; title: string; body: string; date: string; read: boolean }[] = []
+  let kartes: { id: string; targetId: string; kind: "score" | "practice"; title: string; cat: string; body: string; date: string; monthKey: string; monthLabel: string; read: boolean }[] = []
   try {
     const rows = await prisma.practiceKarte.findMany({
       where: { teacherId: me.id, studentId },
       orderBy: { createdAt: "desc" }, take: 100,
-      select: { id: true, body: true, createdAt: true, readAt: true, scoreId: true, practiceItemId: true, score: { select: { title: true } }, practiceItem: { select: { title: true } } },
+      select: { id: true, body: true, createdAt: true, readAt: true, scoreId: true, practiceItemId: true, score: { select: { title: true } }, practiceItem: { select: { title: true, category: true } } },
     })
-    kartes = rows.map((k) => ({
-      id: k.id,
-      targetId: (k.scoreId ?? k.practiceItemId)!,
-      kind: k.scoreId ? ("score" as const) : ("practice" as const),
-      title: k.score?.title ?? k.practiceItem?.title ?? "曲",
-      body: k.body,
-      date: fmtMD(k.createdAt.getTime()),
-      read: k.readAt != null,
-    })).filter((k) => k.targetId)
+    const nowYear = new Date().getFullYear()
+    kartes = rows.map((k) => {
+      const y = k.createdAt.getFullYear()
+      const m = k.createdAt.getMonth() + 1
+      return {
+        id: k.id,
+        targetId: (k.scoreId ?? k.practiceItemId)!,
+        kind: k.scoreId ? ("score" as const) : ("practice" as const),
+        title: k.score?.title ?? k.practiceItem?.title ?? "曲",
+        cat: k.score ? "曲" : k.practiceItem?.category ? categoryLabel(k.practiceItem.category) : "教材",
+        body: k.body,
+        date: fmtMD(k.createdAt.getTime()),
+        monthKey: `${y}-${String(m).padStart(2, "0")}`,
+        monthLabel: y === nowYear ? `${m}月` : `${y}年${m}月`,
+        read: k.readAt != null,
+      }
+    }).filter((k) => k.targetId)
   } catch { kartes = [] }
 
   // 取り組んでいる曲・教材 (直近2週間に練習したもの・点数で絞らず・重複除去)。
