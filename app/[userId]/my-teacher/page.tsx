@@ -65,6 +65,21 @@ export default async function MyTeacherPage({
     if (p.practiceItem) perfMap.set(p.id, { title: p.practiceItem.title, href: `/${userId}/practice/${p.practiceItem.category}/${p.practiceItem.id}` })
   }
 
+  // 練習後カルテタブ (2026-08-11 Tetsuo確定): 先生からの演奏への返し(コメント)を新しい順に。
+  // 曲はスコア画面の練習後カルテタブへ、教材は教材ページへリンク。
+  const karteItems = messages
+    .filter((m) => m.fromTeacher && m.performanceId && perfMap.has(m.performanceId))
+    .map((m) => {
+      const p = perfMap.get(m.performanceId as string)!
+      return {
+        when: m.createdAt.toISOString(),
+        title: p.title,
+        href: m.performanceKind === "score" ? `${p.href}?tab=karte` : p.href,
+        body: m.body,
+      }
+    })
+    .reverse()
+
   // 添削 (先生が譜面に書き込んだもの)。曲単位。TeacherFeedback は score リレーションを持たないので別引き。
   const feedbackRows = await prisma.teacherFeedback.findMany({
     where: { studentId: me.id, teacherId: link.teacher.id, scoreId: { not: null } },
@@ -220,6 +235,7 @@ export default async function MyTeacherPage({
       since={link.createdAt.toLocaleDateString("ja-JP")}
       timeline={events.map(({ when, kind, text, href }) => ({ when, kind, text, href }))}
       homework={hw}
+      karteItems={karteItems}
       feedbacks={feedbacks}
       lessons={lessons}
       nextLessonLabel={nextLessonLabel}

@@ -24,6 +24,8 @@ type Homework = {
   done: boolean; submitted: boolean; submittedScore: number | null; date: string; href: string
 }
 type Feedback = { scoreId: string; title: string; date: string }
+/** 先生からの練習後カルテ (演奏への返し・2026-08-11) */
+type KarteItem = { when: string; title: string; href: string; body: string }
 type LessonDTO = { id: string; when: string; durationMin: number; online: boolean; locationNote: string | null }
 type Lessons = { open: LessonDTO[]; booked: LessonDTO[] }
 
@@ -32,18 +34,19 @@ const INK = "#26303a"
 const SUB = "#6b7885"
 
 export default function MyTeacherClient({
-  userId, teacherName, since, timeline, homework, feedbacks, lessons, nextLessonLabel,
+  userId, teacherName, since, timeline, homework, karteItems = [], feedbacks, lessons, nextLessonLabel,
 }: {
   userId: string
   teacherName: string
   since: string
   timeline: TimelineEv[]
   homework: Homework[]
+  karteItems?: KarteItem[]
   feedbacks: Feedback[]
   lessons: Lessons
   nextLessonLabel: string | null
 }) {
-  const [tab, setTab] = useState<"all" | "hw" | "review">("all")
+  const [tab, setTab] = useState<"all" | "hw" | "karte" | "review">("all")
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
@@ -78,7 +81,7 @@ export default function MyTeacherClient({
 
       {/* タブ */}
       <div style={{ display: "flex", gap: 3, background: "#fff", border: "1px solid #eef1f4", borderRadius: 10, padding: 3, margin: "12px 0" }}>
-        {([["all", "すべて"], ["hw", "宿題"], ["review", "添削"]] as const).map(([k, label]) => (
+        {([["all", "すべて"], ["hw", "宿題"], ["karte", "練習後カルテ"], ["review", "添削"]] as const).map(([k, label]) => (
           <button key={k} type="button" onClick={() => setTab(k)}
             style={{ flex: 1, border: "none", background: tab === k ? ACCENT : "transparent", color: tab === k ? "#fff" : SUB, borderRadius: 8, padding: "7px 0", fontSize: "var(--fs-caption)", fontWeight: 800, cursor: "pointer" }}>
             {label}
@@ -88,6 +91,7 @@ export default function MyTeacherClient({
 
       {tab === "all" && <AllTab timeline={timeline} />}
       {tab === "hw" && <HwTab homework={homework} />}
+      {tab === "karte" && <KarteTab items={karteItems} />}
       {tab === "review" && <ReviewTab userId={userId} feedbacks={feedbacks} />}
 
       {/* 解約 */}
@@ -185,6 +189,26 @@ function HwCard({ h }: { h: Homework }) {
           <Link href={h.href} style={{ display: "inline-block", background: "#f7f8fa", color: SUB, border: "1px solid #e7eaee", fontSize: "var(--fs-body)", fontWeight: 800, borderRadius: 9, padding: "8px 16px", textDecoration: "none" }}>もう一度練習する →</Link>
         </div>
       )}
+    </div>
+  )
+}
+
+/* 先生からの練習後カルテ (演奏への返し)。タップでその演奏の練習後カルテへ */
+function KarteTab({ items }: { items: KarteItem[] }) {
+  if (items.length === 0) return <Empty note="まだ先生からの練習後カルテはありません。演奏に先生がコメントすると、ここに届きます。" />
+  const md = (iso: string) => { const d = new Date(iso); return `${d.getMonth() + 1}/${d.getDate()}` }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      {items.map((k, i) => (
+        <Link key={i} href={k.href} style={{ ...card(), textDecoration: "none", color: INK, display: "block" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+            <b style={{ fontSize: "var(--fs-body)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.title}</b>
+            <span style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", color: SUB, fontWeight: 700 }}>{md(k.when)}</span>
+          </div>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.6, marginTop: 5, whiteSpace: "pre-wrap" }}>{k.body}</div>
+          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: ACCENT, marginTop: 7 }}>この演奏の練習後カルテをひらく →</div>
+        </Link>
+      ))}
     </div>
   )
 }

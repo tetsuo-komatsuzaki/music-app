@@ -86,12 +86,11 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
         )}
       </div>
 
-      {/* ② 先生からの指導 */}
+      {/* ② 先生が気づいた癖 (2026-08-11 改名: 実体は癖記録の技術別抜粋。ゼロ件なら非表示) */}
+      {data.guidance.length > 0 && (
       <div style={card}>
-        <div style={{ ...secTtl, display: "flex", alignItems: "center", gap: 6 }}><GraduationCap size={15} color={ACCENT} /> 先生からの指導（この技術に関わる所見）</div>
-        {data.guidance.length === 0 ? (
-          <div style={{ fontSize: "var(--fs-body)", color: SUB }}>この技術について、先生の所見はまだないよ</div>
-        ) : (
+        <div style={{ ...secTtl, display: "flex", alignItems: "center", gap: 6 }}><GraduationCap size={15} color={ACCENT} /> 先生が気づいた癖（この技術に関わるもの）</div>
+        {(
           <div style={{ borderLeft: "3px solid #d7dcf6", paddingLeft: 12 }}>
             {data.guidance.map((g, i) => (
               <div key={i} style={{ marginBottom: 12 }}>
@@ -112,6 +111,7 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
           </div>
         )}
       </div>
+      )}
 
       {/* ③ 聴き比べ */}
       {data.listen && (
@@ -140,22 +140,30 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
         </div>
       )}
 
-      {/* ④ 処方箋 */}
+      {/* ④ おすすめ練習 (2026-08-11 改名+推薦エンジン連携: ホーム④と同じロジックからこの技術に効く教材) */}
       <div style={{ ...card, marginBottom: 0 }}>
-        <div style={{ border: "1px solid #ecdcb6", background: "#fbf4e6", borderRadius: 12, padding: "11px 13px" }}>
-          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", marginBottom: 5, display: "flex", alignItems: "center", gap: 5 }}><Lightbulb size={13} /> いまの処方箋</div>
-          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.7 }}>
-            {data.state === "wobble"
-              ? `①ゆっくりのテンポで「${data.label}」の部分だけ取り出して練習 ②教材で形を確かめる ③安定したら曲に戻る`
-              : data.state === "stable"
-                ? `安定しています。テンポを上げる・より長いフレーズで維持できるか試してみよう`
-                : data.state === "ready"
-                  ? `挑戦できる技術です。まずは教材でフォームから始めよう`
-                  : `録音がたまると、この技術に合わせた処方箋が出ます`}
-          </div>
+        <div style={{ border: "1px solid #d7dcf6", background: "#f4f7fd", borderRadius: 12, padding: "11px 13px" }}>
+          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: ACCENT, marginBottom: 5, display: "flex", alignItems: "center", gap: 5 }}><Lightbulb size={13} /> おすすめ練習</div>
+          {data.recommended.length > 0 ? (
+            <>
+              <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginBottom: 7 }}>きみの録音の弱点から、この技術に効く教材を選んだよ。</div>
+              {data.recommended.map((m) => (
+                <Link key={m.id} href={`/${userId}/practice/${m.category}/${m.id}`}
+                  style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", border: "1px solid #e0e9f6", borderRadius: 10, padding: "9px 11px", marginBottom: 6, textDecoration: "none", color: "var(--text-ink)" }}>
+                  {m.star != null && <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "#b58a1e" }}>★{m.star}</span>}
+                  <b style={{ fontSize: "var(--fs-body)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.title}</b>
+                  <span style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-caption)", fontWeight: 800, color: ACCENT }}>ひらく →</span>
+                </Link>
+              ))}
+            </>
+          ) : (
+            <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.7 }}>
+              録音がたまると、きみの弱点に合わせた教材がここに出ます。
+            </div>
+          )}
           <Link href={data.practiceHref}
-            style={{ display: "inline-block", marginTop: 9, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#c98a2a", borderRadius: 8, padding: "7px 14px", textDecoration: "none" }}>
-            {data.label}の教材を練習する →
+            style={{ display: "inline-block", marginTop: 6, fontSize: "var(--fs-caption)", fontWeight: 800, color: ACCENT, textDecoration: "none" }}>
+            {data.label}の教材いちらんを見る →
           </Link>
         </div>
       </div>

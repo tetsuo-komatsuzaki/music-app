@@ -208,7 +208,7 @@ function SkillCard({ userId, n }: { userId: string; n: SkillNode }) {
       {/* 下段リンク */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 12px", marginTop: 12 }}>
         <Link href={`/${userId}/progress/skill/${n.id}`} style={{ fontSize: 10.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>くわしく →</Link>
-        {n.practiceHref && <Link href={n.practiceHref} style={{ fontSize: 10.5, fontWeight: 800, color: WARN, textDecoration: "none" }}>練習する →</Link>}
+        {/* 「練習する→」は削除 (2026-08-11 Tetsuo確定: 導線はくわしく→のおすすめ練習に一本化) */}
       </div>
     </div>
   )

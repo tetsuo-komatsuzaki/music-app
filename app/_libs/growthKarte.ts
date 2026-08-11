@@ -1001,6 +1001,8 @@ export interface SkillDetailData {
   effect: { label: string; delta: number } | null
   listen: { old: SkillListenItem; new: SkillListenItem } | null
   guidance: SkillGuidance[]
+  /** おすすめ練習 (2026-08-11): 弱点推薦エンジンからこの技術のサブタスクに効く教材を抽出 */
+  recommended: { id: string; title: string; category: string; star: number | null }[]
 }
 
 // ══ Phase2 D2: 表現の詳細 (2026-08-03) ═══════════════════════════════════
@@ -1472,6 +1474,25 @@ export async function buildSkillDetail(
       comment: o.comment,
     }))
 
+  // おすすめ練習 (2026-08-11 Tetsuo確定): ホーム④と同じ弱点推薦エンジン(recommendCumulative)から
+  // この技術のサブタスクに対応するスロットの教材を上位2件。データ不足時は空(=UIは教材一覧リンクにフォールバック)
+  let recommended: SkillDetailData["recommended"] = []
+  try {
+    const { recommendCumulative } = await import("./weaknessRecommendation")
+    const slots = await recommendCumulative(userId)
+    const seen = new Set<string>()
+    for (const slot of slots) {
+      if (!inScope(slot.subtaskId)) continue
+      for (const m of slot.materials) {
+        if (seen.has(m.id)) continue
+        seen.add(m.id)
+        recommended.push({ id: m.id, title: m.title, category: m.category, star: m.star })
+        if (recommended.length >= 2) break
+      }
+      if (recommended.length >= 2) break
+    }
+  } catch { recommended = [] }
+
   return {
     id: def.id,
     label: def.label,
@@ -1488,5 +1509,6 @@ export async function buildSkillDetail(
     effect,
     listen,
     guidance,
+    recommended,
   }
 }
