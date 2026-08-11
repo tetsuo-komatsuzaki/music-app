@@ -32,6 +32,7 @@ import { parseMilestoneEvents } from "@/app/_libs/celebration"
 import CelebrationBanner from "@/app/components/CelebrationBanner"
 import MilestoneCelebration from "@/app/components/MilestoneCelebration"
 import CelebrationBoundary from "@/app/components/CelebrationBoundary"
+import SinglePerfFingerboard from "@/app/components/SinglePerfFingerboard"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 
@@ -135,6 +136,8 @@ type Props = {
   parts?: Part[]
   /** 練習後カルテ (2026-08-11 Tetsuo確定): 曲/教材にぶら下がる先生からのカルテ一覧 */
   teacherKartes?: { id: string; body: string; date: string; teacherName: string }[]
+  /** 指板の実測塗り用: note_index → 指板セル (musicxml_skill_info 由来・2026-08-11) */
+  fingerNotes?: Record<number, { s: "G" | "D" | "A" | "E"; n: number }>
 }
 
 // =========================================================
@@ -1315,6 +1318,7 @@ function ScoreDetailInner({
   initialFavorite,
   parts = [],
   teacherKartes = [],
+  fingerNotes,
 }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -3217,7 +3221,15 @@ function ScoreDetailInner({
         onReplayArco={practiceItemId ? undefined : (p) => setArcoResult(p)}
         renderDetail={(p) => (
           (p.pitchAccuracy != null || p.timingAccuracy != null)
-            ? <EvaluationSummaryCard performance={p} warnings={p.comparisonWarnings ?? []} />
+            ? (
+              <>
+                <EvaluationSummaryCard performance={p} warnings={p.comparisonWarnings ?? []} />
+                {/* この演奏の実測塗り指板 (2026-08-11): 統計判定なし・高低正をそのまま塗る */}
+                {fingerNotes && (p.comparisonResult?.length ?? 0) > 0 && (
+                  <SinglePerfFingerboard fingerNotes={fingerNotes} comparison={p.comparisonResult!} />
+                )}
+              </>
+            )
             : null
         )}
         renderRowMenu={(p) => (

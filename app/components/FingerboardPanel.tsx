@@ -8,7 +8,7 @@ import {
   STRINGS, type ViolinString, N_END, H_OPEN, Y_END, colX, cellPolygon, cellId, yOf,
 } from "@/app/_libs/fingerboard/geometry"
 import { CELL_FILLS, type CellStatus } from "@/app/_libs/fingerboard/colors"
-import type { HeatCellOut, CellDetail } from "@/app/_libs/fingerboard/heatmapTypes"
+import { posLabel, type HeatCellOut, type CellDetail } from "@/app/_libs/fingerboard/heatmapTypes"
 
 export type FingerboardMark = { cellId: string; note: string }
 
@@ -154,13 +154,68 @@ export default function FingerboardPanel({
                   <div style={{ color: "var(--text-sub)", marginTop: 3 }}>
                     {selDetail.n}回中{selDetail.high + selDetail.low}回ミス（高{selDetail.high}・低{selDetail.low}）
                   </div>
+
+                  {/* ポジションべつの安定度 (v2) */}
+                  {(selDetail.positions?.length ?? 0) > 0 && (
+                    <div style={{ marginTop: 8 }}>
+                      <div style={secHead}>ポジションべつの安定度</div>
+                      {selDetail.positions.map((p, i) => {
+                        const pct = Math.round(((p.n - p.miss) / p.n) * 100)
+                        return (
+                          <div key={i} style={rowStyle(i)}>
+                            <span style={posBadge}>{posLabel(p.position)}</span>
+                            {p.finger != null && <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>{p.finger === 0 ? "開放" : `${p.finger}の指`}</span>}
+                            <span style={barOuter}><span style={barInner(pct)} /></span>
+                            <span style={{ fontWeight: 900, flex: "none", color: pctInk(pct), fontVariantNumeric: "tabular-nums" }}>
+                              {p.n}回中{p.miss}回{p.miss > 0 ? ` ${DIR_LABEL[p.dir]}` : ""}（{pct}%）
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* シフト直後 vs 移動なし (v2) */}
+                  {selDetail.shiftSplit && (
+                    <div style={{ marginTop: 8 }}>
+                      <div style={secHead}>ポジション移動のあとかどうか</div>
+                      {(() => {
+                        const sp = selDetail.shiftSplit!
+                        const pctA = Math.round(((sp.after.n - sp.after.miss) / sp.after.n) * 100)
+                        const pctN = sp.normal.n > 0 ? Math.round(((sp.normal.n - sp.normal.miss) / sp.normal.n) * 100) : null
+                        return (
+                          <>
+                            <div style={rowStyle(0)}>
+                              <span style={shiftBadge}>シフト直後</span>
+                              <span style={barOuter}><span style={barInner(pctA)} /></span>
+                              <span style={{ fontWeight: 900, flex: "none", color: pctInk(pctA), fontVariantNumeric: "tabular-nums" }}>
+                                {sp.after.n}回中{sp.after.miss}回{sp.after.miss > 0 ? ` ${DIR_LABEL[sp.after.dir]}` : ""}
+                              </span>
+                            </div>
+                            {pctN != null && (
+                              <div style={rowStyle(1)}>
+                                <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", flex: "none" }}>移動なし</span>
+                                <span style={barOuter}><span style={barInner(pctN)} /></span>
+                                <span style={{ fontWeight: 900, flex: "none", color: pctInk(pctN), fontVariantNumeric: "tabular-nums" }}>
+                                  {sp.normal.n}回中{sp.normal.miss}回
+                                </span>
+                              </div>
+                            )}
+                          </>
+                        )
+                      })()}
+                    </div>
+                  )}
+
                   {selDetail.transitions.length > 0 && (
-                    <div style={{ marginTop: 7 }}>
-                      <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)" }}>どこからの移動でずれた？</div>
+                    <div style={{ marginTop: 8 }}>
+                      <div style={secHead}>どこからの移動でずれた？</div>
                       {selDetail.transitions.map((t, i) => (
-                        <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 6, padding: "4px 0", borderTop: i > 0 ? "1px dashed #e2e9f2" : "none", flexWrap: "wrap" }}>
+                        <div key={i} style={rowStyle(i)}>
                           <b>{t.fromLabel}</b>
-                          {t.shift && <span style={{ fontSize: "var(--fs-label)", color: "#a9741c", fontWeight: 800 }}>シフトあり</span>}
+                          {t.badge && (
+                            <span style={t.badgeKind === "shift" ? shiftBadge : { fontSize: "var(--fs-label)", color: "var(--text-muted)", flex: "none" }}>{t.badge}</span>
+                          )}
                           <span style={{ marginLeft: "auto", fontWeight: 900, color: t.miss === 0 ? "#2e8b57" : t.miss / t.n >= 0.4 ? "#bb3a2e" : "#b7823a" }}>
                             {t.n}回中{t.miss}回{t.miss > 0 ? ` ${DIR_LABEL[t.dir]}` : ""}
                           </span>
@@ -184,6 +239,21 @@ export default function FingerboardPanel({
       </div>
     </div>
   )
+}
+
+/* v2 詳細パネルの共通スタイル */
+const secHead: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)" }
+const posBadge: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 900, color: "#22346b", background: "#e9eefb", border: "1px solid #ccd8f0", borderRadius: 6, padding: "1px 7px", flex: "none" }
+const shiftBadge: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 900, color: "#a9741c", background: "#fff3e0", border: "1px solid #f0dcb4", borderRadius: 6, padding: "1px 7px", flex: "none" }
+const barOuter: React.CSSProperties = { flex: 1, minWidth: 40, height: 6, borderRadius: 3, background: "#e8edf5", overflow: "hidden", alignSelf: "center" }
+function barInner(pct: number): React.CSSProperties {
+  return { display: "block", height: "100%", width: `${Math.max(3, pct)}%`, background: pct >= 85 ? "#2e8b57" : pct >= 70 ? "#b7823a" : "#bb3a2e" }
+}
+function pctInk(pct: number): string {
+  return pct >= 85 ? "#2e8b57" : pct >= 70 ? "#b7823a" : "#bb3a2e"
+}
+function rowStyle(i: number): React.CSSProperties {
+  return { display: "flex", alignItems: "baseline", gap: 6, padding: "4px 0", borderTop: i > 0 ? "1px dashed #e2e9f2" : "none", flexWrap: "wrap", fontSize: "var(--fs-caption)" }
 }
 
 function cellKana(id: string): string {

@@ -13,7 +13,7 @@ import { prisma } from "../prisma"
 import { storageAdmin } from "../storageAdmin"
 import { classifyCell, intensityLevel } from "./colors"
 import { cellId, type ViolinString } from "./geometry"
-import type { HeatCellOut, CellDetail, HeatmapData, TransitionRow } from "./heatmapTypes"
+import { posLabel, type HeatCellOut, type CellDetail, type HeatmapData, type TransitionRow } from "./heatmapTypes"
 
 export type { HeatCellOut, CellDetail, HeatmapData, TransitionRow }
 
@@ -21,7 +21,7 @@ export const CLASSIFY_PARAMS = { nMin: 5, thetaOk: 0.2, dominanceK: 2.0 } // §9
 
 const OPEN_MIDI: Record<ViolinString, number> = { G: 55, D: 62, A: 69, E: 76 }
 
-type SkillNote = { s: ViolinString; n: number; midi: number; isRest: boolean; position: number | null }
+type SkillNote = { s: ViolinString; n: number; midi: number; isRest: boolean; position: number | null; finger: number | null }
 
 const KANA = ["ド", "ド♯", "レ", "レ♯", "ミ", "ファ", "ファ♯", "ソ", "ソ♯", "ラ", "ラ♯", "シ"] as const
 function midiKana(midi: number): string {
@@ -34,13 +34,13 @@ function toSkillNotes(sj: unknown): Map<number, SkillNote> {
   const map = new Map<number, SkillNote>()
   if (!Array.isArray(notes)) return map
   for (const raw of notes) {
-    const nt = raw as { note_index?: number; string_id?: string | null; midi?: number | null; is_rest?: boolean; position?: number | null }
+    const nt = raw as { note_index?: number; string_id?: string | null; midi?: number | null; is_rest?: boolean; position?: number | null; finger?: number | null }
     if (nt.note_index == null || nt.is_rest) continue
     const s = nt.string_id as ViolinString | null | undefined
     if (!s || !(s in OPEN_MIDI) || nt.midi == null) continue
     const n = nt.midi - OPEN_MIDI[s]
     if (n < 0 || n > 30) continue
-    map.set(nt.note_index, { s, n, midi: nt.midi, isRest: false, position: nt.position ?? null })
+    map.set(nt.note_index, { s, n, midi: nt.midi, isRest: false, position: nt.position ?? null, finger: nt.finger ?? null })
   }
   return map
 }
@@ -89,7 +89,15 @@ export type PerfRef = { kind: "score" | "practice"; targetId: string; ownerId?: 
  */
 export async function aggregateHeatmap(perfs: PerfRef[]): Promise<HeatmapData> {
   const skillCache = new Map<string, Map<number, SkillNote>>()
-  type Agg = { n: number; high: number; low: number; midi: number; trans: Map<string, { n: number; miss: number; high: number; low: number; label: string; shift: boolean }> }
+  type TransAgg = { n: number; miss: number; high: number; low: number; label: string; badge: string | null; badgeKind: "shift" | "info" | null }
+  type PosAgg = { position: number; finger: number | null; n: number; miss: number; high: number; low: number }
+  type Agg = {
+    n: number; high: number; low: number; midi: number
+    trans: Map<string, TransAgg>
+    pos: Map<string, PosAgg>
+    shiftAfter: { n: number; miss: number; high: number; low: number }
+    shiftNormal: { n: number; miss: number }
+  }
   const agg = new Map<string, Agg>()
 
   let used = 0
@@ -119,24 +127,53 @@ export async function aggregateHeatmap(perfs: PerfRef[]): Promise<HeatmapData> {
         if (r.pitch_ok == null) { prev = { sk, idx: r.note_index }; continue } // 判定不能は集計除外(遷移元にはなる)
         const id = cellId(sk.s, sk.n)
         let e = agg.get(id)
-        if (!e) { e = { n: 0, high: 0, low: 0, midi: sk.midi, trans: new Map() }; agg.set(id, e) }
+        if (!e) {
+          e = { n: 0, high: 0, low: 0, midi: sk.midi, trans: new Map(), pos: new Map(), shiftAfter: { n: 0, miss: 0, high: 0, low: 0 }, shiftNormal: { n: 0, miss: 0 } }
+          agg.set(id, e)
+        }
         const cents = r.pitch_cents_error
         const miss = r.pitch_ok === false
         const dirHigh = miss && cents != null && cents > 0
         const dirLow = miss && cents != null && cents < 0
+        const counted = !miss || dirHigh || dirLow // 向き不明のミスは全カウントから除外 (方向別ミス率の定義)
         e.n++
         if (dirHigh) e.high++
         if (dirLow) e.low++
-        // 遷移元グループ (直前音が同一演奏内で連続している場合のみ)
-        const fromKey = prev && prev.idx === r.note_index - 1
-          ? `${prev.sk.s}:${prev.sk.n}`
-          : "__start__"
-        const label = prev && prev.idx === r.note_index - 1
-          ? `${midiKana(prev.sk.midi)}（${prev.sk.s}線${prev.sk.n === 0 ? "・開放" : ""}）`
-          : "弾き始め・休符のあと"
-        const shift = prev != null && prev.idx === r.note_index - 1 && prev.sk.position != null && sk.position != null && prev.sk.position !== sk.position
+        // ポジションべつの安定度 (タップ詳細v2)
+        if (sk.position != null && counted) {
+          const pk = `${sk.position}|${sk.finger ?? ""}`
+          let pe = e.pos.get(pk)
+          if (!pe) { pe = { position: sk.position, finger: sk.finger, n: 0, miss: 0, high: 0, low: 0 }; e.pos.set(pk, pe) }
+          pe.n++
+          if (dirHigh || dirLow) { pe.miss++; if (dirHigh) pe.high++; else pe.low++ }
+        }
+        // 遷移の判定材料 (直前音が同一演奏内で連続している場合のみ)
+        const contiguous = prev != null && prev.idx === r.note_index - 1
+        const shift = contiguous && prev!.sk.position != null && sk.position != null && prev!.sk.position !== sk.position
+        // シフト直後 vs 移動なし (弾き始め・休符あとは比較から除外)
+        if (contiguous && counted) {
+          if (shift) {
+            e.shiftAfter.n++
+            if (dirHigh || dirLow) { e.shiftAfter.miss++; if (dirHigh) e.shiftAfter.high++; else e.shiftAfter.low++ }
+          } else {
+            e.shiftNormal.n++
+            if (dirHigh || dirLow) e.shiftNormal.miss++
+          }
+        }
+        // 遷移元グループ (ポジション差分バッジつき)
+        const fromKey = contiguous ? `${prev!.sk.s}:${prev!.sk.n}` : "__start__"
+        let label = "弾き始め・休符のあと"
+        let badge: string | null = null
+        let badgeKind: "shift" | "info" | null = null
+        if (contiguous) {
+          const pv = prev!.sk
+          label = `${midiKana(pv.midi)}（${pv.s}線${pv.n === 0 ? "・開放" : pv.position != null ? `・${posLabel(pv.position)}` : ""}）`
+          if (shift) { badge = `${posLabel(pv.position!)}→${posLabel(sk.position!)}`; badgeKind = "shift" }
+          else if (pv.s !== sk.s) { badge = "移弦のみ"; badgeKind = "info" }
+          else { badge = "同じ弦"; badgeKind = "info" }
+        }
         let t = e.trans.get(fromKey)
-        if (!t) { t = { n: 0, miss: 0, high: 0, low: 0, label, shift }; e.trans.set(fromKey, t) }
+        if (!t) { t = { n: 0, miss: 0, high: 0, low: 0, label, badge, badgeKind }; e.trans.set(fromKey, t) }
         t.n++
         if (miss && (dirHigh || dirLow)) { t.miss++; if (dirHigh) t.high++; else t.low++ }
         prev = { sk, idx: r.note_index }
@@ -154,17 +191,30 @@ export async function aggregateHeatmap(perfs: PerfRef[]): Promise<HeatmapData> {
     cells[id] = { status, level: status === "stable" ? 0 : intensityLevel(rMiss, CLASSIFY_PARAMS.thetaOk) }
     details[id] = {
       n: e.n, high: e.high, low: e.low, kana: midiKana(e.midi),
+      // ポジションべつ: 3回以上のポジションだけ (少数サンプルの断定を防ぐ)。回数の多い順
+      positions: [...e.pos.values()]
+        .filter((p) => p.n >= 3)
+        .map((p) => ({ position: p.position, finger: p.finger, n: p.n, miss: p.miss, dir: dirOf(p.high, p.low) }))
+        .sort((a, b) => b.n - a.n),
+      // シフト直後 vs 移動なし: シフト直後が2回以上ある時だけ
+      shiftSplit: e.shiftAfter.n >= 2
+        ? { after: { n: e.shiftAfter.n, miss: e.shiftAfter.miss, dir: dirOf(e.shiftAfter.high, e.shiftAfter.low) }, normal: { n: e.shiftNormal.n, miss: e.shiftNormal.miss } }
+        : null,
       transitions: [...e.trans.values()]
         .filter((t) => t.n >= 2)
         .map((t) => ({
-          fromLabel: t.label, shift: t.shift, n: t.n, miss: t.miss,
-          dir: (t.high >= 2 * t.low ? "high" : t.low >= 2 * t.high ? "low" : "mixed") as "high" | "low" | "mixed",
+          fromLabel: t.label, badge: t.badge, badgeKind: t.badgeKind, n: t.n, miss: t.miss,
+          dir: dirOf(t.high, t.low),
         }))
         .sort((a, b) => b.miss / b.n - a.miss / a.n)
         .slice(0, 6),
     }
   }
   return { cells, details, perfCount: used }
+}
+
+function dirOf(high: number, low: number): "high" | "low" | "mixed" {
+  return high >= 2 * low ? "high" : low >= 2 * high ? "low" : "mixed"
 }
 
 /** 生徒の直近期間の演奏 (曲+教材) を集計 — 記録の分析(期間タブ)・先生診断レポート用 */
