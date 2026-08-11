@@ -8,6 +8,7 @@ import { getAchievementFlags } from "@/app/_libs/achievementFlags"
 import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
 import { buildKarteData, buildRemarkTracking, buildNumbersRoom, type RemarkTrack, type NumbersRoomData } from "@/app/_libs/growthKarte"
 import { buildUserHeatmap } from "@/app/_libs/fingerboard/aggregate"
+import { buildWeeklySummary, type WeeklySummaryData } from "@/app/_libs/weeklySummary"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import StudentKarte from "./StudentKarte"
 
@@ -315,6 +316,10 @@ export default async function StudentKartePage({
   let numbers: NumbersRoomData | null = null
   try { numbers = await buildNumbersRoom(studentId, "14d") } catch { numbers = null }
 
+  // アルコの週間サマリー (2026-08-11): 今週ストリップの置き換え
+  let weekly: WeeklySummaryData | null = null
+  try { weekly = await buildWeeklySummary(studentId) } catch { weekly = null }
+
   // 指板ヒートマップ (2026-08-11 Tetsuo確定): 診断レポートのにがて/とくい文章の代替。直近2週間
   let heatmap: HeatmapData = { cells: {}, details: {}, perfCount: 0 }
   try { heatmap = await buildUserHeatmap(studentId, 14) } catch { /* storage不通でも画面は出す */ }
@@ -347,6 +352,7 @@ export default async function StudentKartePage({
       bestNotes={numbers?.bestNotes ?? []}
       heatmap={heatmap}
       fbMarks={fbMarks}
+      weekly={weekly}
       userId={userId}
       studentId={studentId}
       studentName={student.name}

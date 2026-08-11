@@ -12,6 +12,8 @@ import { uploadScoreForStudent } from "@/app/actions/uploadScoreForStudent"
 import ProgressPage from "@/app/[userId]/progress/progressPage"
 import PassedHwHistory, { type PassedHwItem } from "@/app/components/PassedHwHistory"
 import FingerboardPanel, { type FingerboardMark } from "@/app/components/FingerboardPanel"
+import WeeklySummaryCard from "./WeeklySummaryCard"
+import type { WeeklySummaryData } from "@/app/_libs/weeklySummary"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import type { KarteData, RemarkTrack, NumbersRoomData } from "@/app/_libs/growthKarte"
 
@@ -80,6 +82,7 @@ export default function StudentKarte({
   bestNotes = [],
   heatmap = null,
   fbMarks = [],
+  weekly = null,
 }: {
   userId: string
   studentId: string
@@ -115,6 +118,8 @@ export default function StudentKarte({
   /** 指板ヒートマップ (直近2週間・診断レポートの音程パート) */
   heatmap?: HeatmapData | null
   fbMarks?: FingerboardMark[]
+  /** アルコの週間サマリー (2026-08-11) */
+  weekly?: WeeklySummaryData | null
 }) {
   // 先生カルテ v3 (2026-08-11 再設計・最終モック=3タブ): 主役=まとめ(理解の統合)＋練習後カルテ(曲別)。成長カルテは脇役。
   // 旧「宿題・指導」タブは廃止: 依頼/返し待ち/宿題を出す/認定は「まとめ」に統合、癖は練習後カルテ詳細で書く。
@@ -161,7 +166,7 @@ export default function StudentKarte({
         <SummaryTab
           userId={userId} studentId={studentId} briefing={briefing} working={working} recordings={recordings}
           remarks={remarks} worstNotes={worstNotes} bestNotes={bestNotes}
-          heatmap={heatmap} fbMarks={fbMarks}
+          heatmap={heatmap} fbMarks={fbMarks} weekly={weekly}
           listenRequests={listenRequests} assignments={assignments} karte={karte}
           allScoreTargets={allScoreTargets} allItemTargets={allItemTargets} observations={observations}
         />
@@ -190,10 +195,10 @@ const kSec: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 9
 const kCat: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", flex: "none" }
 
 /* ═ 主役①: まとめ (上達状況＋アルコの診断)。強み/弱みは生徒側「記録の分析」と同じ土俵=音×成功率・直近2週間 ═ */
-function SummaryTab({ userId, studentId, briefing, working, recordings, remarks, worstNotes, bestNotes, heatmap, fbMarks, listenRequests, assignments, karte, allScoreTargets, allItemTargets, observations }: {
+function SummaryTab({ userId, studentId, briefing, working, recordings, remarks, worstNotes, bestNotes, heatmap, fbMarks, weekly, listenRequests, assignments, karte, allScoreTargets, allItemTargets, observations }: {
   userId: string; studentId: string
   briefing: Briefing; working: WorkItem[]; recordings: Recording[]; remarks: RemarkTrack[]; worstNotes: WorstNote[]; bestNotes: BestNote[]
-  heatmap: HeatmapData | null; fbMarks: FingerboardMark[]
+  heatmap: HeatmapData | null; fbMarks: FingerboardMark[]; weekly: WeeklySummaryData | null
   listenRequests: ListenReq[]; assignments: AssignmentRow[]; karte: KarteData | null
   allScoreTargets: Target[]; allItemTargets: Target[]; observations: ObservationRow[]
 }) {
@@ -214,14 +219,14 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
 
   return (
     <>
-      <div style={{ background: "#eef2fb", border: "1px solid #dbe4f5", borderRadius: 12, padding: "10px 13px", marginBottom: 4 }}>
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "#2b3d6b" }}>この生徒の今週</div>
-        <div style={{ display: "flex", gap: 14, marginTop: 5, fontSize: "var(--fs-caption)", color: "#3a4a68", flexWrap: "wrap" }}>
-          <span>直近7日の練習 <b style={{ color: "#1a2740" }}>{briefing.practiceCount7d}</b>回</span>
-          <span>2週間のカルテ <b style={{ color: "#1a2740" }}>{working.reduce((s, w) => s + w.count, 0)}</b>枚</span>
-          <span>達成 <b style={{ color: "#1a2740" }}>{briefing.achievements.length}</b></span>
+      {/* アルコの週間サマリー (2026-08-11 Tetsuo承認: 今週ストリップを統合・置き換え) */}
+      {weekly ? (
+        <WeeklySummaryCard data={weekly} karteTabHref={`/${userId}/teacher/students/${studentId}?tab=karte`} />
+      ) : (
+        <div style={{ background: "#eef2fb", border: "1px solid #dbe4f5", borderRadius: 12, padding: "10px 13px", marginBottom: 4 }}>
+          <div style={{ fontSize: "var(--fs-caption)", color: "#3a4a68" }}>直近7日の練習 <b>{briefing.practiceCount7d}</b>回</div>
         </div>
-      </div>
+      )}
 
       {/* 生徒が「見てほしい」と送った演奏 (丁寧に聴いて返す) */}
       {listenRequests.map((r) => (

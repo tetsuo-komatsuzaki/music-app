@@ -219,15 +219,20 @@ function dirOf(high: number, low: number): "high" | "low" | "mixed" {
 
 /** 生徒の直近期間の演奏 (曲+教材) を集計 — 記録の分析(期間タブ)・先生診断レポート用 */
 export async function buildUserHeatmap(userId: string, sinceDays: number, maxPerfs = 30): Promise<HeatmapData> {
-  const since = new Date(Date.now() - sinceDays * 864e5)
+  return buildUserHeatmapRange(userId, new Date(Date.now() - sinceDays * 864e5), null, maxPerfs)
+}
+
+/** 期間 [from, to) 指定版 — 週間サマリーの週次差分用 (2026-08-11) */
+export async function buildUserHeatmapRange(userId: string, from: Date, to: Date | null, maxPerfs = 30): Promise<HeatmapData> {
+  const uploadedAt = to ? { gte: from, lt: to } : { gte: from }
   const [scorePerfs, pracPerfs] = await Promise.all([
     prisma.performance.findMany({
-      where: { userId, uploadedAt: { gte: since }, comparisonResultPath: { not: null }, pitchAccuracy: { not: null } },
+      where: { userId, uploadedAt, comparisonResultPath: { not: null }, pitchAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: maxPerfs,
       select: { comparisonResultPath: true, scoreId: true, score: { select: { createdById: true } } },
     }),
     prisma.practicePerformance.findMany({
-      where: { userId, uploadedAt: { gte: since }, comparisonResultPath: { not: null }, pitchAccuracy: { not: null } },
+      where: { userId, uploadedAt, comparisonResultPath: { not: null }, pitchAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: maxPerfs,
       select: { comparisonResultPath: true, practiceItemId: true },
     }),
