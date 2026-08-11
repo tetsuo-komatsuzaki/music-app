@@ -762,11 +762,7 @@ function Homework({
             <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 4 }}>選べる{kind === "score" ? "曲" : "教材"}がありません。</div>
           )}
 
-          <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-            <label style={{ ...lbl, flex: 1 }}>回数<input value={reps} onChange={(e) => setReps(clampNumStr(e.target.value, 999))} placeholder="5" style={inp} inputMode="numeric" /></label>
-            <label style={{ ...lbl, flex: 1 }}>目標♩<input value={tempo} onChange={(e) => setTempo(clampNumStr(e.target.value, 400))} placeholder="80" style={inp} inputMode="numeric" /></label>
-          </div>
-
+          {/* 回数・目標♩は廃止 (2026-08-11 Tetsuo確定: 設定不要) */}
           <label style={{ ...lbl, display: "block", marginTop: 10 }}>提出期限（任意）
             <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} style={inp} />
           </label>
