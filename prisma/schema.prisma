@@ -1269,6 +1269,9 @@ model TeacherObservation {
   teacherId String
   studentId String
   tagIds    String[] // observationCatalog のタグID (複数)
+  // 関係するわざ (2026-08-11): 先生が明示的に選んだ SKILL_DEFS の id。
+  // 旧・癖タグ→技術の自動マッピングは廃止 (先生の意図を勝手に翻訳しない)
+  skillIds  String[] @default([])
   severity  String? // "mild"=気になる / "focus"=要重点
   comment   String? // 任意の補足 (「その他」タグの内容もここ)
   createdAt DateTime @default(now())

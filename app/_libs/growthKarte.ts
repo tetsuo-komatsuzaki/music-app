@@ -124,6 +124,9 @@ const SKILL_DEFS: Array<{
   { id: "harmonic", label: "ハーモニクス", lane: "left", star: 5, tagType: "technique", tagKeys: ["ナチュラル・ハーモニクス", "ハーモニクス"], subIds: ["pitch_tech_harmonic", "rhythm_tech_harmonic"], practiceCat: null, obsTagIds: [] },
 ]
 
+// 癖記録の「関係するわざ」選択肢 (2026-08-11): 練習後カルテ入力とバリデーションで使用
+export const SKILL_ID_LABELS = SKILL_DEFS.map((d) => ({ id: d.id, label: d.label, lane: d.lane }))
+
 // 成長1行 (growthLine.ts)・選曲理由 (編み込み案1) 用: わざ→per_subtask 対応の軽量ビュー (SKILL_DEFS と単一ソース)
 export const SKILL_SUB_DEFS = SKILL_DEFS
   .filter((d) => d.subIds.length > 0)
@@ -1261,7 +1264,7 @@ export async function buildRemarkTracking(userId: string): Promise<RemarkTrack[]
   const obs = await prisma.teacherObservation.findMany({
     where: { studentId: userId },
     orderBy: { createdAt: "desc" }, take: 12,
-    select: { tagIds: true, createdAt: true },
+    select: { tagIds: true, skillIds: true, createdAt: true },
   })
   if (obs.length === 0) return []
   const since = new Date(Date.now() - 60 * 864e5)
@@ -1283,14 +1286,17 @@ export async function buildRemarkTracking(userId: string): Promise<RemarkTrack[]
   const now = new Date()
   const seen = new Set<string>()
   const out: RemarkTrack[] = []
+  // 2026-08-11 Tetsuo確定: 自動マッピング廃止。先生が明示した skillIds のみトラッキング
   for (const o of obs) {
-    for (const tagId of o.tagIds) {
-      if (seen.has(tagId)) continue
-      const skills = SKILL_DEFS.filter((d) => d.obsTagIds.includes(tagId))
-      const subIds = new Set<string>(skills.flatMap((s) => s.subIds))
+    for (const skillId of o.skillIds ?? []) {
+      if (seen.has(skillId)) continue
+      const skill = SKILL_DEFS.find((d) => d.id === skillId)
+      if (!skill) continue
+      const skills = [skill]
+      const subIds = new Set<string>(skill.subIds)
       if (subIds.size === 0) continue
-      seen.add(tagId)
-      const label = OBSERVATION_TAG_BY_ID[tagId]?.label ?? tagId
+      seen.add(skillId)
+      const label = `${skill.label}: ${o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).join("・") || "癖"}`
       const baseline = successIn(subIds, new Date(o.createdAt.getTime() - 21 * 864e5), o.createdAt)
       const recent = successIn(subIds, new Date(now.getTime() - 14 * 864e5), now)
       let status: RemarkTrack["status"] = "pending"
@@ -1339,7 +1345,7 @@ export async function buildSkillDetail(
       where: { studentId: userId, teacherId: link.teacherId },
       orderBy: { createdAt: "asc" },
       take: 50,
-      select: { createdAt: true, tagIds: true, severity: true, comment: true },
+      select: { createdAt: true, tagIds: true, skillIds: true, severity: true, comment: true },
     }),
   ])
 
@@ -1410,9 +1416,10 @@ export async function buildSkillDetail(
   }
 
   // 注釈: 関連する所見 + この技術のレッスンクリア
-  const related = obsRows.filter((o) => o.tagIds.some((t) => def.obsTagIds.includes(t)))
+  // 2026-08-11 Tetsuo確定: 癖タグ→技術の自動マッピングを廃止。先生が明示的に選んだ skillIds のみ
+  const related = obsRows.filter((o) => (o.skillIds ?? []).includes(def.id))
   const annotations: SkillAnnotation[] = related.map((o) => {
-    const base = o.tagIds.filter((t) => def.obsTagIds.includes(t)).map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).join("・") || "所見"
+    const base = o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).join("・") || "所見"
     const prefix = o.severity === "resolved" ? "克服 " : ""
     return {
       at: o.createdAt.getTime(),

@@ -11,6 +11,7 @@ import { saveMaterialNote } from "@/app/actions/teacherMaterialNotes"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
 import { MOOD_TAG_DEFS, moodTagLabel } from "@/app/_libs/moodTags"
 import { OBSERVATION_CATALOG, OBSERVATION_SEVERITIES } from "@/app/_libs/observationCatalog"
+import { SKILL_ID_LABELS } from "@/app/_libs/growthKarte"
 
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
 type MaterialRow = { itemId: string; label: string; category: string; star: number | null; point: string }
@@ -38,7 +39,8 @@ export default function KarteDetailClient(props: {
     })
   }
 
-  // 癖
+  // 癖 (2026-08-11 Tetsuo確定: わざを先に選んでから、その癖を選ぶ)
+  const [skillSel, setSkillSel] = useState<string | null>(null) // SKILL id または "general"(わざ以外)
   const [tags, setTags] = useState<Set<string>>(new Set())
   const [severity, setSeverity] = useState<"mild" | "focus">("mild")
   const [kuseComment, setKuseComment] = useState("")
@@ -48,8 +50,11 @@ export default function KarteDetailClient(props: {
   const saveKuse = () => {
     if (tags.size === 0 && !kuseComment.trim()) return
     startK(async () => {
-      const r = await createObservation({ studentId, tagIds: [...tags], severity, comment: kuseComment.trim() || null })
-      if (r.ok) { setKuseDone(true); setTags(new Set()); setKuseComment(""); router.refresh() }
+      const r = await createObservation({
+        studentId, tagIds: [...tags], severity, comment: kuseComment.trim() || null,
+        skillIds: skillSel && skillSel !== "general" ? [skillSel] : [],
+      })
+      if (r.ok) { setKuseDone(true); setTags(new Set()); setKuseComment(""); setSkillSel(null); router.refresh() }
     })
   }
 
@@ -146,48 +151,78 @@ export default function KarteDetailClient(props: {
         </div>
       )}
 
-      {/* 癖 */}
+      {/* 癖 (わざ先行フロー: ①わざを選ぶ → ②その癖を選ぶ + 重さ + 自由記述) */}
       <div style={card}>
-        <div style={lab}>癖を記録（選ぶ＋重さ＋自由記述）</div>
+        <div style={lab}>癖を記録</div>
         {kuseDone ? (
           <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)", display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={14} /> 癖を記録しました</div>
         ) : (
           <>
-            {aiTags.length > 0 && (
-              <div style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#7a4dd6", marginBottom: 5 }}>◇ この演奏から考えられる癖（タップで採用）</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {aiTags.map((t) => (
-                    <button key={t.id} type="button" onClick={() => toggle(t.id)} style={{ ...chip(tags.has(t.id)), borderStyle: tags.has(t.id) ? "solid" : "dashed" }}>{t.label} ＋</button>
-                  ))}
-                </div>
-              </div>
-            )}
-            {OBSERVATION_CATALOG.map((c) => (
-              <div key={c.id} style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 4 }}>{c.label}</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {c.tags.map((t) => (
-                    <button key={t.id} type="button" onClick={() => toggle(t.id)} style={chip(tags.has(t.id))}>{t.label}</button>
-                  ))}
-                </div>
-              </div>
-            ))}
-            <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-              {OBSERVATION_SEVERITIES.map((s) => (
-                <button key={s.id} type="button" onClick={() => setSeverity(s.id as "mild" | "focus")}
-                  style={{ flex: 1, fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 8, padding: "7px 2px", cursor: "pointer", border: "1px solid",
-                    color: severity === s.id ? "#c0473a" : "#8b97a8", background: severity === s.id ? "#fbecea" : "#fff", borderColor: severity === s.id ? "#f0cfcb" : "#e3e7ee" }}>
-                  {s.label}
+            {/* ① どのわざの癖か (必須・先に選ぶ) */}
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 5 }}>① どのわざの癖？</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {SKILL_ID_LABELS.map((sk) => (
+                <button key={sk.id} type="button" onClick={() => { setSkillSel(sk.id); setTags(new Set()) }}
+                  style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px solid",
+                    color: skillSel === sk.id ? "#fff" : "#33405a", background: skillSel === sk.id ? "#22346b" : "#fff", borderColor: skillSel === sk.id ? "#22346b" : "#dfe3ea" }}>
+                  {sk.label}
                 </button>
               ))}
+              <button type="button" onClick={() => { setSkillSel("general"); setTags(new Set()) }}
+                style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px dashed",
+                  color: skillSel === "general" ? "#fff" : "#8b97a8", background: skillSel === "general" ? "#8b97a8" : "#fff", borderColor: "#c9d0da" }}>
+                わざ以外（姿勢・かまえ）
+              </button>
             </div>
-            <textarea value={kuseComment} onChange={(e) => setKuseComment(e.target.value)} rows={2} placeholder="自由記述：レッスンで見た様子（例：移弦の瞬間に肩が上がる）"
-              style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 9, padding: "9px 11px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box", marginTop: 8 }} />
-            <button type="button" onClick={saveKuse} disabled={savingK || (tags.size === 0 && !kuseComment.trim())}
-              style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#fff", background: "#8a5a1f", border: "none", borderRadius: 9, padding: "8px 16px", cursor: "pointer", opacity: savingK || (tags.size === 0 && !kuseComment.trim()) ? 0.5 : 1 }}>
-              {savingK ? "記録中…" : `癖を記録${tags.size > 0 ? `（${tags.size}）` : ""}`}
-            </button>
+
+            {/* ② そのわざの癖を選ぶ (わざ選択後に表示。右手わざ=右手タグ / 左手わざ=左手タグ / わざ以外=姿勢+音色) */}
+            {skillSel && (() => {
+              const lane = SKILL_ID_LABELS.find((sk) => sk.id === skillSel)?.lane
+              const catIds = skillSel === "general" ? ["posture", "tone"] : lane === "bow" ? ["bow"] : ["left"]
+              const cats = OBSERVATION_CATALOG.filter((c) => catIds.includes(c.id))
+              const allowed = new Set(cats.flatMap((c) => c.tags.map((t) => t.id)))
+              const ai = aiTags.filter((t) => allowed.has(t.id))
+              return (
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 5 }}>② どんな癖？</div>
+                  {ai.length > 0 && (
+                    <div style={{ marginBottom: 8 }}>
+                      <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#7a4dd6", marginBottom: 4 }}>◇ この演奏から考えられる癖</div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {ai.map((t) => (
+                          <button key={t.id} type="button" onClick={() => toggle(t.id)} style={{ ...chip(tags.has(t.id)), borderStyle: tags.has(t.id) ? "solid" : "dashed" }}>{t.label} ＋</button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {cats.map((c) => (
+                    <div key={c.id} style={{ marginBottom: 8 }}>
+                      <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 4 }}>{c.label}</div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {c.tags.map((t) => (
+                          <button key={t.id} type="button" onClick={() => toggle(t.id)} style={chip(tags.has(t.id))}>{t.label}</button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                  <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+                    {OBSERVATION_SEVERITIES.map((s) => (
+                      <button key={s.id} type="button" onClick={() => setSeverity(s.id as "mild" | "focus")}
+                        style={{ flex: 1, fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 8, padding: "7px 2px", cursor: "pointer", border: "1px solid",
+                          color: severity === s.id ? "#c0473a" : "#8b97a8", background: severity === s.id ? "#fbecea" : "#fff", borderColor: severity === s.id ? "#f0cfcb" : "#e3e7ee" }}>
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                  <textarea value={kuseComment} onChange={(e) => setKuseComment(e.target.value)} rows={2} placeholder="自由記述：レッスンで見た様子（例：移弦の瞬間に肩が上がる）"
+                    style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 9, padding: "9px 11px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box", marginTop: 8 }} />
+                  <button type="button" onClick={saveKuse} disabled={savingK || (tags.size === 0 && !kuseComment.trim())}
+                    style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#fff", background: "#8a5a1f", border: "none", borderRadius: 9, padding: "8px 16px", cursor: "pointer", opacity: savingK || (tags.size === 0 && !kuseComment.trim()) ? 0.5 : 1 }}>
+                    {savingK ? "記録中…" : `このわざの癖として記録${tags.size > 0 ? `（${tags.size}）` : ""}`}
+                  </button>
+                </div>
+              )
+            })()}
           </>
         )}
       </div>
