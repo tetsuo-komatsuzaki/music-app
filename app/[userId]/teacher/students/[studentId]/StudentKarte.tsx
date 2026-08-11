@@ -57,7 +57,7 @@ type AssignmentRow = {
 
 type ObservationRow = { id: string; tagIds: string[]; severity: string | null; comment: string | null; date: string }
 type ExpressionRow = { id: string; tagId: string; severity: string | null; comment: string | null; date: string }
-type WorkItem = { title: string; cat: string; kind: "score" | "practice"; avg: number; first: number; count: number; perfId: string }
+type WorkItem = { title: string; cat: string; kind: "score" | "practice"; avg: number; first: number; count: number; perfId: string; targetId: string | null }
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
 type ListenReq = { id: string; scoreId: string; performanceId: string; title: string; avg: number | null; date: string }
 type Recording = { id: string; kind: "score" | "practice"; title: string; cat: string; star: number | null; pitch: number; timing: number; avg: number; date: string; audioUrl: string | null; weak: WeakSlot[]; targetId: string | null }
@@ -202,8 +202,8 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
   const rmView = (s: RemarkTrack["status"]) => s === "improved" ? { mk: "✓", c: "#158253", t: "直ってきた" } : s === "improving" ? { mk: "△", c: "#c07a1e", t: "改善中" } : s === "stalled" ? { mk: "×", c: "#bb3a2e", t: "停滞" } : { mk: "…", c: "#8b97a8", t: "判定中" }
   const noteSub: React.CSSProperties = { fontSize: "var(--fs-label)", color: "var(--text-sub)" }
   const notePct: React.CSSProperties = { marginLeft: "auto", flex: "none", fontWeight: 900, fontVariantNumeric: "tabular-nums" }
-  // 採点カルテ(添削)は廃止 (2026-08-11 Tetsuo確定)。返しはすべて練習後カルテ詳細で行う
-  const karteHref = (perfId: string) => `/${userId}/teacher/students/${studentId}/karte/${perfId}?kind=score`
+  // すべての「カルテを書く」導線はカルテ入力画面 (karte/write) に統一 (2026-08-11 Tetsuo指摘)
+  const writeHref = (kind: "score" | "practice", targetId: string) => `/${userId}/teacher/students/${studentId}/karte/write?kind=${kind}&target=${targetId}`
   const submittedHw = assignments.filter((a) => a.submitted && !a.done && a.scoreId)
   const achvMap = new Map(briefing.achievements.map((a) => [a.title, a.mastered]))
   // 見える化4軸 (曲/技術/癖/表現)
@@ -231,7 +231,7 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
             <b style={{ fontSize: "var(--fs-body)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title}</b>
             <span style={{ marginLeft: "auto", flex: "none", fontWeight: 900, color: r.avg != null ? kScoreColor(r.avg) : "var(--text-muted)" }}>{r.avg ?? "—"}</span>
           </div>
-          <Link href={karteHref(r.performanceId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#a9741c", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
+          <Link href={writeHref("score", r.scoreId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#a9741c", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
             練習後カルテを書いて渡す →
           </Link>
         </div>
@@ -247,8 +247,8 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
           </div>
           {a.moodTagId && <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#a9741c", marginTop: 3 }}>目標: {moodTagPhrase(a.moodTagId)}</div>}
           {/* 合格ボタンはここに置かない (演奏詳細を見ないと判断できない)。合格は練習後カルテ最下部で */}
-          {a.submittedPerformanceId && (
-            <Link href={karteHref(a.submittedPerformanceId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#3b56d4", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
+          {a.scoreId && (
+            <Link href={writeHref("score", a.scoreId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#3b56d4", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
               練習後カルテを書いて渡す →
             </Link>
           )}
@@ -272,7 +272,7 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
                   ? { t: "下降 ↓", c: "#bb3a2e", bg: "#fdeceb" }
                   : null
           return (
-            <Link key={i} href={`/${userId}/teacher/students/${studentId}/karte/${w.perfId}?kind=${w.kind}`}
+            <Link key={i} href={w.targetId ? writeHref(w.kind, w.targetId) : `/${userId}/teacher/students/${studentId}?tab=karte`}
               style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 12px", marginBottom: 7, display: "flex", alignItems: "center", gap: 9, textDecoration: "none", color: "var(--text-ink)" }}>
               <span style={kCat}>{w.cat}</span>
               <span style={{ minWidth: 0 }}>

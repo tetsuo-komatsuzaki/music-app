@@ -15,7 +15,7 @@ import { saveMaterialNote } from "@/app/actions/teacherMaterialNotes"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
 import { MOOD_TAG_DEFS, moodTagLabel } from "@/app/_libs/moodTags"
 import { OBSERVATION_CATALOG, OBSERVATION_SEVERITIES } from "@/app/_libs/observationCatalog"
-import { SKILL_ID_LABELS } from "@/app/_libs/skillCatalog"
+import { SKILL_ID_LABELS, FEATURE_TARGETS, SUB_TARGETS } from "@/app/_libs/skillCatalog"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import FingerboardPanel, { type FingerboardMark } from "@/app/components/FingerboardPanel"
 import ColoredSheetModal from "@/app/components/ColoredSheetModal"
@@ -54,6 +54,7 @@ export default function KarteWriteClient({
   // ②かく (すべて下書き)
   const [body, setBody] = useState("")
   const [skillSel, setSkillSel] = useState<string | null>(null)
+  const [featSel, setFeatSel] = useState<Set<string>>(new Set()) // 細目 (特徴タグ・任意)
   const [tags, setTags] = useState<Set<string>>(new Set())
   const [severity, setSeverity] = useState<"mild" | "focus">("mild")
   const [kuseComment, setKuseComment] = useState("")
@@ -89,7 +90,7 @@ export default function KarteWriteClient({
       if (kuseDirty) {
         const r = await createObservation({
           studentId, tagIds: [...tags], severity, comment: kuseComment.trim() || null,
-          skillIds: skillSel && skillSel !== "general" ? [skillSel] : [],
+          skillIds: skillSel && skillSel !== "general" ? [skillSel, ...featSel].slice(0, 4) : [],
         })
         if (!r.ok) errs.push("癖の記録")
       }
@@ -254,25 +255,54 @@ export default function KarteWriteClient({
 
       <div style={card}>
         <div style={lab}>癖を記録{optBadge}</div>
-        <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 5 }}>① どのわざの癖？</div>
+        <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 5 }}>① どの対象の癖？</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {SKILL_ID_LABELS.map((sk) => (
-            <button key={sk.id} type="button" onClick={() => { setSkillSel(sk.id); setTags(new Set()) }}
+            <button key={sk.id} type="button" onClick={() => { setSkillSel(sk.id); setTags(new Set()); setFeatSel(new Set()) }}
               style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px solid",
                 color: skillSel === sk.id ? "#fff" : "#33405a", background: skillSel === sk.id ? "#22346b" : "#fff", borderColor: skillSel === sk.id ? "#22346b" : "#dfe3ea" }}>
               {sk.label}
             </button>
           ))}
-          <button type="button" onClick={() => { setSkillSel("general"); setTags(new Set()) }}
+          {/* 曲の特徴 (2026-08-11 Tetsuo確定: 特徴タグ由来の対象を追加) */}
+          {FEATURE_TARGETS.map((ft) => (
+            <button key={ft.id} type="button" onClick={() => { setSkillSel(ft.id); setTags(new Set()); setFeatSel(new Set()) }}
+              style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px solid",
+                color: skillSel === ft.id ? "#fff" : "#6b4a9e", background: skillSel === ft.id ? "#7a4dd6" : "#faf7ff", borderColor: skillSel === ft.id ? "#7a4dd6" : "#e0d0f5" }}>
+              {ft.label}
+            </button>
+          ))}
+          <button type="button" onClick={() => { setSkillSel("general"); setTags(new Set()); setFeatSel(new Set()) }}
             style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px dashed",
               color: skillSel === "general" ? "#fff" : "#8b97a8", background: skillSel === "general" ? "#8b97a8" : "#fff", borderColor: "#c9d0da" }}>
             わざ以外・姿勢 かまえ
           </button>
         </div>
 
+        {/* 細目 (特徴タグ・任意): ポジション移動/重音/リズム/強弱を選んだときだけ出る */}
+        {skillSel && SUB_TARGETS[skillSel] && (
+          <div style={{ marginTop: 9 }}>
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 4 }}>くわしく・どれの癖？（任意・未選択=全般）</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {SUB_TARGETS[skillSel].map((sub) => (
+                <button key={sub.id} type="button"
+                  onClick={() => setFeatSel((prev) => { const n = new Set(prev); n.has(sub.id) ? n.delete(sub.id) : n.add(sub.id); return n })}
+                  style={{ fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 7, padding: "4px 10px", cursor: "pointer", border: "1px solid",
+                    color: featSel.has(sub.id) ? "#22346b" : "var(--text-muted)", background: featSel.has(sub.id) ? "#e9eefb" : "#fff", borderColor: featSel.has(sub.id) ? "#ccd8f0" : "#e3e7ee" }}>
+                  {sub.label}
+                </button>
+              ))}
+            </div>
+            {(skillSel === "feat_dynamics" || featSel.has("feat:rhy:sync")) && (
+              <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 4 }}>※ この対象は自動判定の対象外です。指摘トラッキングでは「判定中」のままになります</div>
+            )}
+          </div>
+        )}
+
         {skillSel && (() => {
           const lane = SKILL_ID_LABELS.find((sk) => sk.id === skillSel)?.lane
-          const catIds = skillSel === "general" ? ["posture", "tone"] : lane === "bow" ? ["bow"] : ["left"]
+          // リズム/強弱は体のどちら由来か決めつけられないため右手+左手の両タグを表示
+          const catIds = skillSel === "general" ? ["posture", "tone"] : skillSel.startsWith("feat_") ? ["bow", "left"] : lane === "bow" ? ["bow"] : ["left"]
           const cats = OBSERVATION_CATALOG.filter((c) => catIds.includes(c.id))
           const allowed = new Set(cats.flatMap((c) => c.tags.map((t) => t.id)))
           const ai = aiTags.filter((t) => allowed.has(t.id))

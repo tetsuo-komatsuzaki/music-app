@@ -7,6 +7,8 @@ import { storageAdmin } from "./storageAdmin"
 import { encodeSignedUrl } from "./encodeSignedUrl"
 import { formatKey } from "./musicNotation"
 import { categoryLabel } from "./practiceConstants"
+import { SUBTASK_BY_ID } from "./subtaskCatalog.generated"
+import { featureSubtaskRegex, FEATURE_ID_LABELS } from "./skillCatalog"
 import { OBSERVATION_TAG_BY_ID } from "./observationCatalog"
 import { expressionLabel } from "./expressionCatalog"
 import { moodTagPhrase } from "./moodTags"
@@ -1284,16 +1286,26 @@ export async function buildRemarkTracking(userId: string): Promise<RemarkTrack[]
   const seen = new Set<string>()
   const out: RemarkTrack[] = []
   // 2026-08-11 Tetsuo確定: 自動マッピング廃止。先生が明示した skillIds のみトラッキング
+  // feat系 (曲の特徴・細目) と position/double 全般は正規表現→全サブタスクID照合で解決 (2026-08-11)
+  const allSubIds = Object.keys(SUBTASK_BY_ID)
+  const subIdsFor = (skillId: string): { subIds: Set<string>; label: string; practiceLabel: string | null } | null => {
+    const skill = SKILL_DEFS.find((d) => d.id === skillId)
+    if (skill && skill.subIds.length > 0) return { subIds: new Set(skill.subIds), label: skill.label, practiceLabel: skill.label }
+    const re = featureSubtaskRegex(skillId)
+    const label = skill?.label ?? FEATURE_ID_LABELS[skillId]
+    if (!label) return null
+    if (!re) return { subIds: new Set(), label, practiceLabel: null } // 対応サブタスク無し→判定中のまま
+    return { subIds: new Set(allSubIds.filter((sid) => re.test(sid))), label, practiceLabel: skill?.label ?? null }
+  }
   for (const o of obs) {
     for (const skillId of o.skillIds ?? []) {
       if (seen.has(skillId)) continue
-      const skill = SKILL_DEFS.find((d) => d.id === skillId)
-      if (!skill) continue
-      const skills = [skill]
-      const subIds = new Set<string>(skill.subIds)
-      if (subIds.size === 0) continue
+      const resolved = subIdsFor(skillId)
+      if (!resolved) continue
+      const subIds = resolved.subIds
+      const skills = [{ label: resolved.practiceLabel ?? resolved.label }]
       seen.add(skillId)
-      const label = `${skill.label}: ${o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).join("・") || "癖"}`
+      const label = `${resolved.label}: ${o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).join("・") || "癖"}`
       const baseline = successIn(subIds, new Date(o.createdAt.getTime() - 21 * 864e5), o.createdAt)
       const recent = successIn(subIds, new Date(now.getTime() - 14 * 864e5), now)
       let status: RemarkTrack["status"] = "pending"

@@ -292,11 +292,11 @@ export default async function StudentKartePage({
   // 上達状況表示用に 期間内の最古スコア(first)・枚数(count)・最新演奏へのリンク(perfId/kind) も持つ。
   const twoWeeksAgoMs = Date.now() - 14 * 864e5
   const rec2w = recRaw.filter((r) => r.at >= twoWeeksAgoMs)
-  const workMap = new Map<string, { title: string; cat: string; kind: "score" | "practice"; avg: number; first: number; count: number; perfId: string }>()
+  const workMap = new Map<string, { title: string; cat: string; kind: "score" | "practice"; avg: number; first: number; count: number; perfId: string; targetId: string | null }>()
   for (const r of rec2w) {
     const k = `${r.cat}:${r.title}`
     const e = workMap.get(k)
-    if (!e) workMap.set(k, { title: r.title, cat: r.cat, kind: r.kind, avg: r.avg, first: r.avg, count: 1, perfId: r.id })
+    if (!e) workMap.set(k, { title: r.title, cat: r.cat, kind: r.kind, avg: r.avg, first: r.avg, count: 1, perfId: r.id, targetId: r.targetId })
     else { e.first = r.avg; e.count++ } // recRawは新しい順 → 最後に見た値が期間内最古
   }
   const working = [...workMap.values()].slice(0, 10)
