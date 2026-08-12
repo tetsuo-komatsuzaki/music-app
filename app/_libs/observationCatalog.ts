@@ -36,6 +36,11 @@ export const OBSERVATION_CATALOG: ObservationCategory[] = [
       { id: "bow_distribution", label: "弓の配分が悪い" },
       { id: "bow_elbow_lag", label: "移弦で肘が遅れる" },
       { id: "bow_crooked", label: "弓が斜めに走る" },
+      // 2026-08-12 Tetsuo確定追加 (プロ目線の網羅性レビューより): 持ち方系・跳ね・肘
+      { id: "bow_grip_tense", label: "弓を握り込んでいる" },
+      { id: "bow_pinky_straight", label: "右小指が伸びている" },
+      { id: "bow_bounce", label: "弓が跳ねる・浮く" },
+      { id: "bow_elbow_moving", label: "肘を動かしながら弾いている" },
       { id: "bow_other", label: "その他" },
     ],
   },
