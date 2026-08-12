@@ -15,6 +15,8 @@ export interface BodyObsItem {
   tagId: string
   severity: string | null
   date: string
+  /** どんな時の癖か (対象わざのラベル・2026-08-12 Tetsuo指摘: 項目の概念が無く何の癖か不明だった) */
+  targets?: string[]
 }
 
 const BAD = { c: "#c0473a", bg: "#fbecea", bd: "#f0d4d0" }
@@ -96,6 +98,11 @@ export default function BodyObsMap({ tags, renderTagActions }: {
                     <div key={t.tagId} style={{ border: "1px solid #eef1f4", borderRadius: 9, padding: "7px 10px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
                         <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "2px 7px" }}>{sev.l}</span>
+                        {(t.targets?.length ?? 0) > 0 && (
+                          <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#3b56d4", background: "#eef2fb", border: "1px solid #d6e0f5", borderRadius: 6, padding: "1px 7px" }}>
+                            {t.targets!.join("・")}のとき
+                          </span>
+                        )}
                         <span style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-ink)" }}>{OBSERVATION_TAG_BY_ID[t.tagId]?.label ?? t.tagId}</span>
                         <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>{t.date}</span>
                       </div>
@@ -118,6 +125,11 @@ export default function BodyObsMap({ tags, renderTagActions }: {
               const sev = sevPill(t.severity)
               return (
                 <div key={t.tagId} style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+                  {(t.targets?.length ?? 0) > 0 && (
+                    <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#3b56d4", background: "#eef2fb", border: "1px solid #d6e0f5", borderRadius: 6, padding: "1px 7px" }}>
+                      {t.targets!.join("・")}のとき
+                    </span>
+                  )}
                   <span style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "4px 10px" }}>
                     {OBSERVATION_TAG_BY_ID[t.tagId]?.label ?? t.tagId}
                   </span>

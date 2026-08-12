@@ -8,7 +8,7 @@ import { encodeSignedUrl } from "./encodeSignedUrl"
 import { formatKey } from "./musicNotation"
 import { categoryLabel } from "./practiceConstants"
 import { SUBTASK_BY_ID } from "./subtaskCatalog.generated"
-import { featureSubtaskRegex, FEATURE_ID_LABELS } from "./skillCatalog"
+import { featureSubtaskRegex, FEATURE_ID_LABELS, SKILL_ID_LABELS } from "./skillCatalog"
 import { OBSERVATION_TAG_BY_ID } from "./observationCatalog"
 import { expressionLabel } from "./expressionCatalog"
 import { moodTagPhrase } from "./moodTags"
@@ -161,6 +161,8 @@ export interface BodyObsTag {
   tagId: string
   severity: string | null
   date: string
+  /** どんな時の癖か (対象わざ/特徴のラベル・2026-08-12) 例: ["リコシェ","トリル"] */
+  targets?: string[]
 }
 
 // ── カルテv2 (2026-08-03 Phase1・確定モック7c74b97d) ──────────────────────
@@ -558,7 +560,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
         prisma.teacherObservation.findMany({
           where: { studentId: userId, teacherId: link.teacherId },
           orderBy: { createdAt: "desc" }, take: 60, // 経過+表現で行が増えるためタグ最新状態の網羅用に多めに
-          select: { createdAt: true, tagIds: true, severity: true, comment: true },
+          select: { createdAt: true, tagIds: true, severity: true, comment: true, skillIds: true },
         }),
         prisma.message.findMany({
           where: { studentId: userId, teacherId: link.teacherId, fromTeacher: true, kind: "celebration" },
@@ -592,8 +594,11 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
           for (const t of kuseTagIds) resolvedKuse.push({ at: o.createdAt, label: t })
         }
         if (kuseTagIds.length === 0 && o.tagIds.length > 0) continue
+        const targetLabels = ((o as { skillIds?: string[] }).skillIds ?? [])
+          .map((id) => SKILL_ID_LABELS.find((x) => x.id === id)?.label ?? FEATURE_ID_LABELS[id])
+          .filter((x): x is string => !!x)
         for (const t of kuseTagIds) {
-          if (!bodyObsMap.has(t)) bodyObsMap.set(t, { tagId: t, severity: o.severity, date: fmtJp(o.createdAt) })
+          if (!bodyObsMap.has(t)) bodyObsMap.set(t, { tagId: t, severity: o.severity, date: fmtJp(o.createdAt), targets: targetLabels })
         }
         if (oi >= 15) continue // 物語に流すのは直近15件まで (残りは状態把握のみ)
         const tags = kuseTagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).slice(0, 3).join("・")
