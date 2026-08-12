@@ -64,27 +64,7 @@ export default function BodyFigure({ view, className }: { view: BodyViewId; clas
     )
   }
 
-  if (view === "left_in") {
-    // 指板を左側から見る: 手首・親指が主役
-    return (
-      <svg {...common} role="img" aria-label="左手を指板の左側から見た図">
-        <g stroke={WOOD_D}>
-          <rect x={112} y={12} width={30} height={168} rx={6} fill={WOOD} />
-          <rect x={120} y={12} width={14} height={168} rx={4} fill="#5d4a38" stroke="none" />
-        </g>
-        {/* ネックを支える親指 */}
-        <path d="M100 66 Q92 52 102 46 Q112 42 116 54 L116 66 Z" fill={SKIN} />
-        {/* 手のひら (手前) */}
-        <path d="M64 108 Q60 78 84 66 Q104 58 112 72 L112 104 Q96 120 78 118 Q68 116 64 108 Z" fill={SKIN} />
-        {/* 手首→腕: 折れやすいポイント */}
-        <path d="M76 118 Q68 140 72 160 Q76 176 88 182" />
-        <path d="M96 120 Q92 142 96 160" />
-        {/* 手首の注意ライン */}
-        <path d="M64 132 Q80 128 100 132" strokeDasharray="4 4" stroke="#c98f5f" strokeWidth={1.8} />
-      </svg>
-    )
-  }
-
+  // 旧・左手(左)線画は削除 (2026-08-12 新イラストへ差し替え済)
   if (view === "bow_frog" || view === "bow_tip") {
     const frog = view === "bow_frog"
     // 弓は左(元)→右(先)。元弓=手が左寄り・肘が畳まれる / 先弓=手が右寄り・腕が伸びる
