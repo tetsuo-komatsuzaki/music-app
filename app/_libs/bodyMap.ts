@@ -52,8 +52,9 @@ export const BODY_SPOTS: BodySpot[] = [
     ],
   },
   // 左手・左側から (viewBox 240x190)
-  { id: "left_wrist", view: "left_in", label: "手首", x: 44, y: 76, tagIds: ["left_wrist_collapse", "left_shift_tense", "pitch_after_shift", "tone_vibrato"] },
-  { id: "left_thumb", view: "left_in", label: "親指", x: 48, y: 30, tagIds: ["left_thumb_position", "left_press_hard"] },
+  // 2026-08-12 新イラスト (viewBox 0 0 1000 1000・anc-lhl-*アンカーの%換算)
+  { id: "left_wrist", view: "left_in", label: "手首", x: 69.0, y: 59.6, tagIds: ["left_wrist_collapse", "left_shift_press", "pitch_after_shift", "tone_vibrato"] },
+  { id: "left_thumb", view: "left_in", label: "親指", x: 34.8, y: 31.9, tagIds: ["left_thumb_position", "left_press_hard", "left_shift_thumb"] },
   // 元弓 (viewBox 240x190)
   { id: "frog_hand", view: "bow_frog", label: "手", x: 40, y: 42, tagIds: ["bow_pressure_heavy", "bow_distribution"] },
   { id: "frog_elbow", view: "bow_frog", label: "肘", x: 17, y: 76, tagIds: ["bow_elbow_lag"] },

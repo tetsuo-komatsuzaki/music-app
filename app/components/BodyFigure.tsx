@@ -1,5 +1,6 @@
 import type { BodyViewId } from "@/app/_libs/bodyMap"
 import BodyFigureZenshin, { ZENSHIN_VIEWBOX } from "./BodyFigureZenshin"
+import BodyFigureHidariteHidari, { HIDARITE_HIDARI_VIEWBOX } from "./BodyFigureHidariteHidari"
 
 // 癖の人体マップ用イラスト (線画SVG)。モックv2 (1349ea3b) の構図。
 // 座標系は app/_libs/bodyMap.ts の部位 % 座標と対応 (viewBox を変えるときは両方直す)。
@@ -12,7 +13,7 @@ const WOOD_D = "#a9825a"
 export const BODY_VIEWBOX: Record<BodyViewId, string> = {
   body: ZENSHIN_VIEWBOX, // 2026-08-11 差し替え (正面+よこ・アンカー検証済)
   left_out: "0 0 240 190",
-  left_in: "0 0 240 190",
+  left_in: HIDARITE_HIDARI_VIEWBOX, // 2026-08-12 差し替え (手のひら側・アンカー検証済)
   bow_frog: "0 0 240 190",
   bow_tip: "0 0 240 190",
   strings: "0 0 240 140",
@@ -21,6 +22,7 @@ export const BODY_VIEWBOX: Record<BodyViewId, string> = {
 export default function BodyFigure({ view, className }: { view: BodyViewId; className?: string }) {
   // 全身は新イラスト (2026-08-11 Tetsuo提供ジェネレータ) に差し替え。他ビューは従来線画
   if (view === "body") return <BodyFigureZenshin className={className} />
+  if (view === "left_in") return <BodyFigureHidariteHidari className={className} />
   const common = {
     className,
     viewBox: BODY_VIEWBOX[view],
