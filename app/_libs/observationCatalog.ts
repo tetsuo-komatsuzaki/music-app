@@ -51,9 +51,8 @@ export const OBSERVATION_CATALOG: ObservationCategory[] = [
       { id: "left_press_hard", label: "指の押さえすぎ" },
       { id: "left_finger_flat", label: "指が寝る" },
       { id: "left_finger_high", label: "指が高く上がりすぎる" },
-      { id: "left_thumb_position", label: "親指の位置" },
+      { id: "left_thumb_position", label: "親指の位置がずれる・深すぎる" },
       { id: "left_pinky_straight", label: "小指が伸びきる" },
-      { id: "left_shift_tense", label: "ポジション移動で力む" },
       { id: "left_other", label: "その他" },
     ],
   },
@@ -105,13 +104,19 @@ export const OBSERVATION_CATALOG: ObservationCategory[] = [
   },
 ]
 
-/** タグID→ラベルの逆引き (表示用) */
+/** 選択肢から外した旧タグ (2026-08-12〜)。過去の記録の表示用にIDは解決できるまま残す */
+const LEGACY_OBSERVATION_TAGS: { id: string; label: string; category: string; categoryLabel: string }[] = [
+  { id: "left_shift_tense", label: "ポジション移動で力む", category: "left", categoryLabel: "左手" },
+]
+
+/** タグID→ラベルの逆引き (表示用・レガシー含む) */
 export const OBSERVATION_TAG_BY_ID: Record<string, { label: string; category: string; categoryLabel: string }> =
-  Object.fromEntries(
-    OBSERVATION_CATALOG.flatMap((c) =>
-      c.tags.map((t) => [t.id, { label: t.label, category: c.id, categoryLabel: c.label }]),
+  Object.fromEntries([
+    ...OBSERVATION_CATALOG.flatMap((c) =>
+      c.tags.map((t) => [t.id, { label: t.label, category: c.id, categoryLabel: c.label }] as const),
     ),
-  )
+    ...LEGACY_OBSERVATION_TAGS.map((t) => [t.id, { label: t.label, category: t.category, categoryLabel: t.categoryLabel }] as const),
+  ])
 
 export const OBSERVATION_SEVERITIES = [
   { id: "mild", label: "気になる" },
