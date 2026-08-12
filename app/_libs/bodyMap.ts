@@ -21,7 +21,7 @@ export const BODY_VIEWS: BodyView[] = [
   { id: "left_out", label: "左手", short: "左手·右", Icon: Hand, caption: "指のかたち・1〜4指の音程" },
   { id: "left_in", label: "左手", short: "左手·左", Icon: Hand, caption: "手首の折れ・親指・押さえすぎ" },
   { id: "bow_frog", label: "右手・弓", short: "元弓", Icon: Move, caption: "元弓の手と肘" },
-  { id: "bow_tip", label: "右手・弓", short: "先弓", Icon: Move, caption: "先弓の手と肘" },
+  { id: "bow_tip", label: "弓を持つ手", short: "弓を持つ手", Icon: Move, caption: "弓の持ち方・手首・指" },
   { id: "strings", label: "バイオリン上部", short: "バイオリン上部", Icon: Music, caption: "弓の通り道・接点の音" },
 ]
 
@@ -36,12 +36,12 @@ export interface BodySpot {
 }
 
 export const BODY_SPOTS: BodySpot[] = [
-  // 全身 (2026-08-11 新イラスト・viewBox -52 -15 188 132。座標は anc-* アンカーの%換算)
-  { id: "right_shoulder", view: "body", label: "右肩", x: 22.1, y: 26.9, tagIds: ["posture_right_shoulder_up"] },
-  { id: "left_shoulder", view: "body", label: "左肩", x: 33.2, y: 26.9, tagIds: ["posture_left_shoulder_tense"] },
-  { id: "neck", view: "body", label: "首", x: 27.7, y: 16.1, tagIds: ["posture_head_tilt"] },
-  { id: "violin", view: "body", label: "楽器", x: 50.2, y: 28.8, tagIds: ["posture_violin_drops"] },
-  { id: "back", view: "body", label: "背中", x: 77.9, y: 35.6, tagIds: ["posture_slouch"] },
+  // 全身 (2026-08-13 立ち姿イラスト standing.webp・900x1203)
+  { id: "right_shoulder", view: "body", label: "右肩", x: 33, y: 24, tagIds: ["posture_right_shoulder_up"] },
+  { id: "left_shoulder", view: "body", label: "左肩", x: 56, y: 21, tagIds: ["posture_left_shoulder_tense"] },
+  { id: "neck", view: "body", label: "首", x: 45, y: 17, tagIds: ["posture_head_tilt"] },
+  { id: "violin", view: "body", label: "楽器", x: 62, y: 20, tagIds: ["posture_violin_drops"] },
+  { id: "back", view: "body", label: "背中", x: 29, y: 34, tagIds: ["posture_slouch"] },
   // 左手・右側から (viewBox 240x190)
   {
     id: "fingers", view: "left_out", label: "指", x: 52, y: 22,
@@ -59,10 +59,11 @@ export const BODY_SPOTS: BodySpot[] = [
   { id: "frog_hand", view: "bow_frog", label: "手", x: 40, y: 42, tagIds: ["bow_pressure_heavy", "bow_distribution"] },
   { id: "frog_elbow", view: "bow_frog", label: "肘", x: 17, y: 76, tagIds: ["bow_elbow_lag"] },
   // 先弓 (viewBox 240x190)
-  { id: "tip_hand", view: "bow_tip", label: "手", x: 76, y: 44, tagIds: ["bow_wrist_stiff", "bow_pressure_light"] },
-  { id: "tip_elbow", view: "bow_tip", label: "肘", x: 44, y: 78, tagIds: ["bow_short_stroke"] },
+  // 2026-08-13 新イラスト (弓を持つ手・1000x585 webp)。持ち方系の新タグをここに集約
+  { id: "tip_hand", view: "bow_tip", label: "手", x: 55, y: 33, tagIds: ["bow_wrist_stiff", "bow_pressure_light", "bow_grip_tense", "bow_pinky_straight"] },
+  { id: "tip_elbow", view: "bow_tip", label: "うで", x: 83, y: 13, tagIds: ["bow_short_stroke", "bow_elbow_moving"] },
   // 弦の上 (viewBox 240x140)
-  { id: "contact", view: "strings", label: "弓", x: 38.8, y: 44.0, tagIds: ["bow_drift_fingerboard", "bow_drift_bridge", "bow_crooked", "tone_crossing_noise", "tone_scratchy", "tone_weak", "tone_speed_uneven"] },
+  { id: "contact", view: "strings", label: "弓", x: 42, y: 46, tagIds: ["bow_drift_fingerboard", "bow_drift_bridge", "bow_crooked", "tone_crossing_noise", "tone_scratchy", "tone_weak", "tone_speed_uneven"] },
 ]
 
 /** タグID → 部位 (体で表せないタグは undefined) */

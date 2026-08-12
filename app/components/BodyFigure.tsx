@@ -1,7 +1,5 @@
 import type { BodyViewId } from "@/app/_libs/bodyMap"
-import BodyFigureZenshin, { ZENSHIN_VIEWBOX } from "./BodyFigureZenshin"
 import BodyFigureHidariteHidari, { HIDARITE_HIDARI_VIEWBOX } from "./BodyFigureHidariteHidari"
-import BodyFigureGennoue, { GENNOUE_VIEWBOX } from "./BodyFigureGennoue"
 
 // 癖の人体マップ用イラスト (線画SVG)。モックv2 (1349ea3b) の構図。
 // 座標系は app/_libs/bodyMap.ts の部位 % 座標と対応 (viewBox を変えるときは両方直す)。
@@ -12,19 +10,26 @@ const WOOD = "#c9a87c" // 楽器
 const WOOD_D = "#a9825a"
 
 export const BODY_VIEWBOX: Record<BodyViewId, string> = {
-  body: ZENSHIN_VIEWBOX, // 2026-08-11 差し替え (正面+よこ・アンカー検証済)
+  body: "raster", // 2026-08-13 ラスターイラスト (standing.webp)
   left_out: "0 0 240 190",
   left_in: HIDARITE_HIDARI_VIEWBOX, // 2026-08-12 差し替え (手のひら側・アンカー検証済)
   bow_frog: "0 0 240 190",
   bow_tip: "0 0 240 190",
-  strings: GENNOUE_VIEWBOX, // 2026-08-12 差し替え (バイオリン上部・実測値ベース)
+  strings: "raster", // 2026-08-13 ラスターイラスト (violin-top.webp)
 }
 
 export default function BodyFigure({ view, className }: { view: BodyViewId; className?: string }) {
-  // 全身は新イラスト (2026-08-11 Tetsuo提供ジェネレータ) に差し替え。他ビューは従来線画
-  if (view === "body") return <BodyFigureZenshin className={className} />
+  // 差し替え済みビュー (2026-08-13): body/strings/bow_tip=ラスターイラスト、left_in=生成SVG
+  // eslint-disable-next-line @next/next/no-img-element
+  if (view === "body") return <img src="/body/standing.webp" alt="立ち姿" className={className} style={{ display: "block", width: "100%", height: "auto", borderRadius: 6 }} />
   if (view === "left_in") return <BodyFigureHidariteHidari className={className} />
-  if (view === "strings") return <BodyFigureGennoue className={className} />
+  // eslint-disable-next-line @next/next/no-img-element
+  if (view === "strings") return <img src="/body/violin-top.webp" alt="バイオリン上部" className={className} style={{ display: "block", width: "100%", height: "auto", borderRadius: 6 }} />
+  // 弓を持つ手 (2026-08-13 差し替え: Tetsuo提供イラスト・ラスター画像)
+  if (view === "bow_tip") {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src="/body/bow-hold.webp" alt="弓を持つ手" className={className} style={{ display: "block", width: "100%", height: "auto", borderRadius: 6 }} />
+  }
   const common = {
     className,
     viewBox: BODY_VIEWBOX[view],
@@ -67,7 +72,7 @@ export default function BodyFigure({ view, className }: { view: BodyViewId; clas
   }
 
   // 旧・左手(左)線画は削除 (2026-08-12 新イラストへ差し替え済)
-  if (view === "bow_frog" || view === "bow_tip") {
+  if (view === "bow_frog") {
     const frog = view === "bow_frog"
     // 弓は左(元)→右(先)。元弓=手が左寄り・肘が畳まれる / 先弓=手が右寄り・腕が伸びる
     return (
