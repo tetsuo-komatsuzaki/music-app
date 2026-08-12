@@ -53,6 +53,8 @@ export const OBSERVATION_CATALOG: ObservationCategory[] = [
       { id: "left_finger_high", label: "指が高く上がりすぎる" },
       { id: "left_thumb_position", label: "親指の位置がずれる・深すぎる" },
       { id: "left_pinky_straight", label: "小指が伸びきる" },
+      // 2026-08-12 Tetsuo確定追加: ポジション移動のありがちなミス
+      { id: "left_shift_thumb", label: "親指を残したままシフトする" },
       { id: "left_other", label: "その他" },
     ],
   },
