@@ -55,6 +55,7 @@ export const OBSERVATION_CATALOG: ObservationCategory[] = [
       { id: "left_pinky_straight", label: "小指が伸びきる" },
       // 2026-08-12 Tetsuo確定追加: ポジション移動のありがちなミス
       { id: "left_shift_thumb", label: "親指を残したままシフトする" },
+      { id: "left_shift_press", label: "ギュッと押さえたまま移動している" },
       { id: "left_other", label: "その他" },
     ],
   },
