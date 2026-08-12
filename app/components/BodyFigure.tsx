@@ -1,6 +1,7 @@
 import type { BodyViewId } from "@/app/_libs/bodyMap"
 import BodyFigureZenshin, { ZENSHIN_VIEWBOX } from "./BodyFigureZenshin"
 import BodyFigureHidariteHidari, { HIDARITE_HIDARI_VIEWBOX } from "./BodyFigureHidariteHidari"
+import BodyFigureGennoue, { GENNOUE_VIEWBOX } from "./BodyFigureGennoue"
 
 // 癖の人体マップ用イラスト (線画SVG)。モックv2 (1349ea3b) の構図。
 // 座標系は app/_libs/bodyMap.ts の部位 % 座標と対応 (viewBox を変えるときは両方直す)。
@@ -16,13 +17,14 @@ export const BODY_VIEWBOX: Record<BodyViewId, string> = {
   left_in: HIDARITE_HIDARI_VIEWBOX, // 2026-08-12 差し替え (手のひら側・アンカー検証済)
   bow_frog: "0 0 240 190",
   bow_tip: "0 0 240 190",
-  strings: "0 0 240 140",
+  strings: GENNOUE_VIEWBOX, // 2026-08-12 差し替え (バイオリン上部・実測値ベース)
 }
 
 export default function BodyFigure({ view, className }: { view: BodyViewId; className?: string }) {
   // 全身は新イラスト (2026-08-11 Tetsuo提供ジェネレータ) に差し替え。他ビューは従来線画
   if (view === "body") return <BodyFigureZenshin className={className} />
   if (view === "left_in") return <BodyFigureHidariteHidari className={className} />
+  if (view === "strings") return <BodyFigureGennoue className={className} />
   const common = {
     className,
     viewBox: BODY_VIEWBOX[view],
@@ -101,24 +103,6 @@ export default function BodyFigure({ view, className }: { view: BodyViewId; clas
     )
   }
 
-  // strings: 弓と弦の接点 (上=指板 / 下=駒)
-  return (
-    <svg {...common} role="img" aria-label="弦の上・弓と弦の接点">
-      {/* 指板の端 (上) */}
-      <path d="M60 10 L180 10 L172 34 L68 34 Z" fill="#5d4a38" stroke={WOOD_D} />
-      {/* 駒 (下) */}
-      <path d="M84 112 Q120 96 156 112 L152 128 L88 128 Z" fill={WOOD} stroke={WOOD_D} />
-      {/* 弦4本 */}
-      <path d="M92 34 L96 112 M108 34 L110 112 M126 34 L128 112 M142 34 L146 112" strokeWidth={1.6} stroke="#e8ddc8" />
-      {/* 弓 (接点を横切る) */}
-      <g stroke={WOOD_D}>
-        <path d="M20 72 L224 62" strokeWidth={4} />
-        <path d="M20 78 L224 68" strokeWidth={1.4} opacity={0.6} />
-      </g>
-      {/* 通り道ゾーン (指板寄り⇄駒寄り) */}
-      <path d="M64 46 L176 40 M74 100 L168 96" strokeDasharray="4 5" strokeWidth={1.4} stroke="#c98f5f" />
-      <text x={184} y={48} fontSize={10} fill={INK} stroke="none">指板寄り</text>
-      <text x={176} y={102} fontSize={10} fill={INK} stroke="none">駒寄り</text>
-    </svg>
-  )
+  // 旧・弦の上線画は削除 (2026-08-12 バイオリン上部イラストへ差し替え済)
+  return null
 }

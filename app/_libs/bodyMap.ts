@@ -22,7 +22,7 @@ export const BODY_VIEWS: BodyView[] = [
   { id: "left_in", label: "左手", short: "左手·左", Icon: Hand, caption: "手首の折れ・親指・押さえすぎ" },
   { id: "bow_frog", label: "右手・弓", short: "元弓", Icon: Move, caption: "元弓の手と肘" },
   { id: "bow_tip", label: "右手・弓", short: "先弓", Icon: Move, caption: "先弓の手と肘" },
-  { id: "strings", label: "弦の上・弓と弦の接点", short: "弦の上", Icon: Music, caption: "弓の通り道・接点の音" },
+  { id: "strings", label: "バイオリン上部", short: "バイオリン上部", Icon: Music, caption: "弓の通り道・接点の音" },
 ]
 
 export interface BodySpot {
@@ -62,7 +62,7 @@ export const BODY_SPOTS: BodySpot[] = [
   { id: "tip_hand", view: "bow_tip", label: "手", x: 76, y: 44, tagIds: ["bow_wrist_stiff", "bow_pressure_light"] },
   { id: "tip_elbow", view: "bow_tip", label: "肘", x: 44, y: 78, tagIds: ["bow_short_stroke"] },
   // 弦の上 (viewBox 240x140)
-  { id: "contact", view: "strings", label: "弓", x: 45, y: 48, tagIds: ["bow_drift_fingerboard", "bow_drift_bridge", "bow_crooked", "tone_crossing_noise", "tone_scratchy", "tone_weak", "tone_speed_uneven"] },
+  { id: "contact", view: "strings", label: "弓", x: 38.8, y: 44.0, tagIds: ["bow_drift_fingerboard", "bow_drift_bridge", "bow_crooked", "tone_crossing_noise", "tone_scratchy", "tone_weak", "tone_speed_uneven"] },
 ]
 
 /** タグID → 部位 (体で表せないタグは undefined) */
