@@ -1,113 +1,30 @@
 import type { BodyViewId } from "@/app/_libs/bodyMap"
-import BodyFigureHidariteHidari, { HIDARITE_HIDARI_VIEWBOX } from "./BodyFigureHidariteHidari"
 
-// 癖の人体マップ用イラスト (線画SVG)。モックv2 (1349ea3b) の構図。
-// 座標系は app/_libs/bodyMap.ts の部位 % 座標と対応 (viewBox を変えるときは両方直す)。
-
-const INK = "#8b7d6b" // 線
-const SKIN = "#f7efe2" // 面
-const WOOD = "#c9a87c" // 楽器
-const WOOD_D = "#a9825a"
+// 癖の人体マップ用イラスト。2026-08-13 全ビューをTetsuo提供のラスターイラストに統一。
+// ピン座標は app/_libs/bodyMap.ts の部位 % 座標と対応 (画像を変えるときは両方直す)。
 
 export const BODY_VIEWBOX: Record<BodyViewId, string> = {
-  body: "raster", // 2026-08-13 ラスターイラスト (standing.webp)
-  left_out: "0 0 240 190",
-  left_in: HIDARITE_HIDARI_VIEWBOX, // 2026-08-12 差し替え (手のひら側・アンカー検証済)
-  bow_frog: "0 0 240 190",
-  bow_tip: "0 0 240 190",
-  strings: "raster", // 2026-08-13 ラスターイラスト (violin-top.webp)
+  body: "raster", // standing.webp 900x1203
+  left_out: "raster", // left-out.webp 1000x750
+  left_in: "raster", // left-in.webp 1000x800
+  bow_frog: "raster", // frog-pose.webp 1000x667
+  bow_tip: "raster", // tip-pose.webp 1000x667
+  bow_hold: "raster", // bow-hold.webp 1000x585
+  strings: "raster", // violin-top.webp 1000x1000
+}
+
+const SRC: Record<BodyViewId, { src: string; alt: string }> = {
+  body: { src: "/body/standing.webp", alt: "立ち姿" },
+  left_out: { src: "/body/left-out.webp", alt: "左手・右" },
+  left_in: { src: "/body/left-in.webp", alt: "左手・左" },
+  bow_frog: { src: "/body/frog-pose.webp", alt: "元弓のポーズ" },
+  bow_tip: { src: "/body/tip-pose.webp", alt: "先弓のポーズ" },
+  bow_hold: { src: "/body/bow-hold.webp", alt: "弓の持ち方" },
+  strings: { src: "/body/violin-top.webp", alt: "バイオリン上部" },
 }
 
 export default function BodyFigure({ view, className }: { view: BodyViewId; className?: string }) {
-  // 差し替え済みビュー (2026-08-13): body/strings/bow_tip=ラスターイラスト、left_in=生成SVG
+  const { src, alt } = SRC[view]
   // eslint-disable-next-line @next/next/no-img-element
-  if (view === "body") return <img src="/body/standing.webp" alt="立ち姿" className={className} style={{ display: "block", width: "100%", height: "auto", borderRadius: 6 }} />
-  if (view === "left_in") return <BodyFigureHidariteHidari className={className} />
-  // eslint-disable-next-line @next/next/no-img-element
-  if (view === "strings") return <img src="/body/violin-top.webp" alt="バイオリン上部" className={className} style={{ display: "block", width: "100%", height: "auto", borderRadius: 6 }} />
-  // 弓を持つ手 (2026-08-13 差し替え: Tetsuo提供イラスト・ラスター画像)
-  if (view === "bow_tip") {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img src="/body/bow-hold.webp" alt="弓を持つ手" className={className} style={{ display: "block", width: "100%", height: "auto", borderRadius: 6 }} />
-  }
-  const common = {
-    className,
-    viewBox: BODY_VIEWBOX[view],
-    width: "100%",
-    style: { display: "block", height: "auto" } as const,
-    fill: "none",
-    stroke: INK,
-    strokeWidth: 2.5,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-  }
-
-  // 旧・全身線画は削除 (2026-08-11 新イラストへ差し替え済)
-  if (view === "left_out") {
-    // 指板を右側から見る: 指のかたちが主役
-    return (
-      <svg {...common} role="img" aria-label="左手を指板の右側から見た図">
-        {/* ネック+指板 */}
-        <g stroke={WOOD_D}>
-          <rect x={96} y={12} width={30} height={168} rx={6} fill={WOOD} />
-          <rect x={104} y={12} width={14} height={168} rx={4} fill="#5d4a38" stroke="none" />
-        </g>
-        {/* 弦 */}
-        <path d="M108 14 L108 178 M114 14 L114 178" strokeWidth={1.2} stroke="#e8ddc8" />
-        {/* 手のひら (右奥から) */}
-        <path d="M150 120 Q186 116 196 86 Q200 66 184 58 Q166 52 152 62 L140 74 Q132 96 138 112 Q142 120 150 120 Z" fill={SKIN} />
-        {/* 腕 */}
-        <path d="M158 122 Q176 150 186 178" />
-        {/* 指1〜4 (弦上へ丸く) */}
-        <path d="M146 62 Q126 52 116 44" />
-        <circle cx={115} cy={42} r={6} fill={SKIN} />
-        <path d="M150 72 Q128 66 117 58" />
-        <circle cx={116} cy={57} r={6} fill={SKIN} />
-        <path d="M150 84 Q130 80 118 74" />
-        <circle cx={117} cy={72} r={6} fill={SKIN} />
-        <path d="M148 96 Q132 94 120 88" />
-        <circle cx={119} cy={87} r={5.5} fill={SKIN} />
-      </svg>
-    )
-  }
-
-  // 旧・左手(左)線画は削除 (2026-08-12 新イラストへ差し替え済)
-  if (view === "bow_frog") {
-    const frog = view === "bow_frog"
-    // 弓は左(元)→右(先)。元弓=手が左寄り・肘が畳まれる / 先弓=手が右寄り・腕が伸びる
-    return (
-      <svg {...common} role="img" aria-label={frog ? "右手・元弓" : "右手・先弓"}>
-        {/* 弦(縦・簡略) */}
-        <path d="M120 16 L120 174 M132 16 L132 174" strokeWidth={1.4} stroke="#cbbfa8" />
-        {/* 弓 */}
-        <g stroke={WOOD_D}>
-          <path d="M22 84 L218 76" strokeWidth={3.5} />
-          <rect x={frog ? 26 : 190} y={frog ? 78 : 70} width={16} height={12} rx={2} fill="#4c3b2c" stroke="none" />
-        </g>
-        {frog ? (
-          <g>
-            {/* 手 (元弓: フロッグ上) */}
-            <path d="M84 66 Q104 58 112 72 Q116 84 104 92 Q88 98 78 88 Q74 74 84 66 Z" fill={SKIN} />
-            <path d="M86 90 Q78 84 72 86 M94 94 Q88 90 82 92" strokeWidth={2} />
-            {/* 腕: 手→肘(低め・畳む)→肩(右上へ) */}
-            <path d="M82 94 Q56 110 42 142 Q60 150 78 146 Q96 122 104 96" fill={SKIN} />
-            <path d="M44 144 Q30 132 26 118" strokeDasharray="4 4" stroke="#c98f5f" strokeWidth={1.8} />
-          </g>
-        ) : (
-          <g>
-            {/* 手 (先弓: 先端寄り) */}
-            <path d="M172 68 Q192 62 200 74 Q204 86 192 94 Q176 100 168 90 Q164 76 172 68 Z" fill={SKIN} />
-            {/* 腕: 伸びるライン (肘は中央下) */}
-            <path d="M170 92 Q136 116 108 146 Q124 156 140 152 Q166 122 186 98" fill={SKIN} />
-            {/* 小指・手首のしなり */}
-            <path d="M196 66 Q202 58 210 56" strokeWidth={2} />
-            <path d="M110 148 Q96 142 88 132" strokeDasharray="4 4" stroke="#c98f5f" strokeWidth={1.8} />
-          </g>
-        )}
-      </svg>
-    )
-  }
-
-  // 旧・弦の上線画は削除 (2026-08-12 バイオリン上部イラストへ差し替え済)
-  return null
+  return <img src={src} alt={alt} className={className} style={{ display: "block", width: "100%", height: "auto", borderRadius: 6 }} />
 }

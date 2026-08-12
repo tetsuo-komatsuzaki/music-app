@@ -6,7 +6,7 @@
 
 import { PersonStanding, Hand, Move, Music, type LucideIcon } from "lucide-react"
 
-export type BodyViewId = "body" | "left_out" | "left_in" | "bow_frog" | "bow_tip" | "strings"
+export type BodyViewId = "body" | "left_out" | "left_in" | "bow_frog" | "bow_tip" | "bow_hold" | "strings"
 
 export interface BodyView {
   id: BodyViewId
@@ -21,7 +21,8 @@ export const BODY_VIEWS: BodyView[] = [
   { id: "left_out", label: "左手", short: "左手·右", Icon: Hand, caption: "指のかたち・1〜4指の音程" },
   { id: "left_in", label: "左手", short: "左手·左", Icon: Hand, caption: "手首の折れ・親指・押さえすぎ" },
   { id: "bow_frog", label: "右手・弓", short: "元弓", Icon: Move, caption: "元弓の手と肘" },
-  { id: "bow_tip", label: "弓を持つ手", short: "弓を持つ手", Icon: Move, caption: "弓の持ち方・手首・指" },
+  { id: "bow_tip", label: "右手・弓", short: "先弓", Icon: Move, caption: "先弓の手と腕" },
+  { id: "bow_hold", label: "弓の持ち方", short: "弓の持ち方", Icon: Hand, caption: "弓の持ち方・手首・指" },
   { id: "strings", label: "バイオリン上部", short: "バイオリン上部", Icon: Music, caption: "弓の通り道・接点の音" },
 ]
 
@@ -44,7 +45,7 @@ export const BODY_SPOTS: BodySpot[] = [
   { id: "back", view: "body", label: "背中", x: 29, y: 34, tagIds: ["posture_slouch"] },
   // 左手・右側から (viewBox 240x190)
   {
-    id: "fingers", view: "left_out", label: "指", x: 52, y: 22,
+    id: "fingers", view: "left_out", label: "指", x: 52, y: 28, // 2026-08-13 イラスト画像 (left-out.webp 1000x750)
     tagIds: [
       "left_finger_flat", "left_finger_high", "left_pinky_straight",
       "pitch_finger1_low", "pitch_finger2_high", "pitch_finger3_low", "pitch_finger4_short",
@@ -52,16 +53,18 @@ export const BODY_SPOTS: BodySpot[] = [
     ],
   },
   // 左手・左側から (viewBox 240x190)
-  // 2026-08-12 新イラスト (viewBox 0 0 1000 1000・anc-lhl-*アンカーの%換算)
-  { id: "left_wrist", view: "left_in", label: "手首", x: 69.0, y: 59.6, tagIds: ["left_wrist_collapse", "left_shift_press", "pitch_after_shift", "tone_vibrato"] },
-  { id: "left_thumb", view: "left_in", label: "親指", x: 34.8, y: 31.9, tagIds: ["left_thumb_position", "left_press_hard", "left_shift_thumb"] },
-  // 元弓 (viewBox 240x190)
-  { id: "frog_hand", view: "bow_frog", label: "手", x: 40, y: 42, tagIds: ["bow_pressure_heavy", "bow_distribution"] },
-  { id: "frog_elbow", view: "bow_frog", label: "肘", x: 17, y: 76, tagIds: ["bow_elbow_lag"] },
-  // 先弓 (viewBox 240x190)
-  // 2026-08-13 新イラスト (弓を持つ手・1000x585 webp)。持ち方系の新タグをここに集約
-  { id: "tip_hand", view: "bow_tip", label: "手", x: 55, y: 33, tagIds: ["bow_wrist_stiff", "bow_pressure_light", "bow_grip_tense", "bow_pinky_straight"] },
-  { id: "tip_elbow", view: "bow_tip", label: "うで", x: 83, y: 13, tagIds: ["bow_short_stroke", "bow_elbow_moving"] },
+  // 2026-08-13 イラスト画像 (left-in.webp 1000x800)
+  { id: "left_wrist", view: "left_in", label: "手首", x: 76, y: 76, tagIds: ["left_wrist_collapse", "left_shift_press", "pitch_after_shift", "tone_vibrato"] },
+  { id: "left_thumb", view: "left_in", label: "親指", x: 43, y: 52, tagIds: ["left_thumb_position", "left_press_hard", "left_shift_thumb"] },
+  // 元弓 (2026-08-13 イラスト画像 frog-pose.webp 1000x667)
+  { id: "frog_hand", view: "bow_frog", label: "手", x: 52, y: 44, tagIds: ["bow_pressure_heavy", "bow_distribution"] },
+  { id: "frog_elbow", view: "bow_frog", label: "肘", x: 30, y: 72, tagIds: ["bow_elbow_lag"] },
+  // 先弓 (2026-08-13 イラスト画像 tip-pose.webp 1000x667)
+  { id: "tip_hand", view: "bow_tip", label: "手", x: 41, y: 80, tagIds: ["bow_wrist_stiff", "bow_pressure_light"] },
+  { id: "tip_elbow", view: "bow_tip", label: "うで", x: 56, y: 58, tagIds: ["bow_short_stroke", "bow_elbow_moving"] },
+  // 弓の持ち方 (2026-08-13 新設ビュー bow-hold.webp 1000x585)。持ち方系タグを集約
+  { id: "hold_fingers", view: "bow_hold", label: "指", x: 44, y: 42, tagIds: ["bow_grip_tense", "bow_pinky_straight"] },
+  { id: "hold_wrist", view: "bow_hold", label: "手首", x: 78, y: 30, tagIds: ["bow_bounce"] },
   // 弦の上 (viewBox 240x140)
   { id: "contact", view: "strings", label: "弓", x: 42, y: 46, tagIds: ["bow_drift_fingerboard", "bow_drift_bridge", "bow_crooked", "tone_crossing_noise", "tone_scratchy", "tone_weak", "tone_speed_uneven"] },
 ]
