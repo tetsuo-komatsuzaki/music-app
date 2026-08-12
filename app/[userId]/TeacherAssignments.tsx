@@ -47,7 +47,7 @@ const chip: React.CSSProperties = { display: "inline-flex", alignItems: "center"
 const goalChip: React.CSSProperties = { ...chip, color: "#1f3d78", background: "#eaf0fc" }
 const exprChip: React.CSSProperties = { ...chip, color: "#c0891f", background: "#f9f0d8", border: "1px solid #ecd8a4" }
 
-type Cat = "hw" | "pass" | "karte" | "fb" | "cel"
+type Cat = "hw" | "pass" | "karte" | "fb" | "cel" | "obs"
 type Slide = { cat: Cat; node: React.ReactNode }
 
 export default function TeacherAssignments({
@@ -158,6 +158,24 @@ export default function TeacherAssignments({
   }
   // 添削通知は削除 (2026-08-11 Tetsuo指示: 添削機能の廃止にともない通知も不要)
   void feedback
+  // 癖の所見スライド (2026-08-12 Tetsuo指示: リンクからスライドへ昇格。
+  // 既読の仕組みが無いため「直近7日は表示」ルールで消える)
+  if (recentObs > 0) {
+    slides.push({
+      cat: "obs",
+      node: (
+        <Link href={`/${userId}/progress`} className="pressable" style={cardStyle}>
+          <span style={{ ...av, background: "#f6f4ff", color: "#7a4dd6" }}><ClipboardList size={17} /></span>
+          <span style={cbody}>
+            <span style={who}>{summary?.teacherName ?? "先生"}</span>
+            <span style={title}>先生が癖を記録したよ</span>
+            <span style={chips}><span style={{ ...chip, color: "#7a4dd6", background: "#f6f4ff", border: "1px solid #e3d8f7" }}>癖マップで見る</span></span>
+          </span>
+          <ChevronRight size={18} style={{ flex: "none", color: "var(--text-muted)" }} />
+        </Link>
+      ),
+    })
+  }
   if (celebration) {
     slides.push({
       cat: "cel",
@@ -177,7 +195,7 @@ export default function TeacherAssignments({
 
   const N = slides.length
   const cats = slides.map((s) => s.cat)
-  const CAT_LABEL: Record<Cat, string> = { hw: "宿題", pass: "合格", karte: "練習後カルテ", fb: "添削", cel: "お祝い" }
+  const CAT_LABEL: Record<Cat, string> = { hw: "宿題", pass: "合格", karte: "練習後カルテ", fb: "添削", cel: "お祝い", obs: "癖" }
   const tabCats = [...new Set(cats)]
   const catCount = (c: Cat) => cats.filter((x) => x === c).length
   const curCat = cats[idx] ?? "hw"
@@ -255,18 +273,12 @@ export default function TeacherAssignments({
           )}
 
           {/* 参照リンク */}
-          {(unread > 0 || recentObs > 0) && (
+          {/* 所見はスライドへ昇格 (2026-08-12)。参照リンクはやりとりのみ */}
+          {unread > 0 && (
             <div style={{ display: "flex", gap: 12, margin: "9px 4px 2px", flexWrap: "wrap" }}>
-              {unread > 0 && (
-                <Link href={`/${userId}/my-teacher`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <MessageCircle size={13} /> やりとり・{unread}
-                </Link>
-              )}
-              {recentObs > 0 && (
-                <Link href={`/${userId}/progress`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  <ClipboardList size={13} /> 先生の所見 → 癖マップ
-                </Link>
-              )}
+              <Link href={`/${userId}/my-teacher`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                <MessageCircle size={13} /> やりとり・{unread}
+              </Link>
             </div>
           )}
         </div>
