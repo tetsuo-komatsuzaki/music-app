@@ -6,13 +6,16 @@ import { requireAuthAction } from "@/app/_libs/requireAuth"
 import { isValidCuid } from "@/app/_libs/validators"
 import { evaluateRateLimit, rateLimitMessage, RECORDING_LIMIT } from "@/app/_libs/rateLimit"
 
-const ALLOWED_MIME = ["audio/webm", "audio/ogg", "audio/mp4"] as const
+// flac/wav はアプリ版ネイティブ録音用 (ARC-SPEC-NATIVE-1.0 Phase 0。wavはFLACエンコード不能時のフォールバック)
+const ALLOWED_MIME = ["audio/webm", "audio/ogg", "audio/mp4", "audio/flac", "audio/wav"] as const
 type AllowedMime = typeof ALLOWED_MIME[number]
 
 const EXT_BY_MIME: Record<AllowedMime, string> = {
   "audio/webm": "webm",
   "audio/ogg":  "ogg",
   "audio/mp4":  "mp4",
+  "audio/flac": "flac",
+  "audio/wav":  "wav",
 }
 
 export type GetSignedUploadUrlParams =

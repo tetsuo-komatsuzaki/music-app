@@ -21,6 +21,9 @@ describe("isKnownAudioMagic", () => {
   it("WAV (RIFF..WAVE) を認識", () => {
     expect(isKnownAudioMagic(withHeader([...str("RIFF"), 0, 0, 0, 0, ...str("WAVE")]))).toBe(true)
   })
+  it("FLAC (fLaC) を認識", () => {
+    expect(isKnownAudioMagic(withHeader(str("fLaC")))).toBe(true)
+  })
   it("非音声(実行ファイル MZ / PNG)は拒否", () => {
     expect(isKnownAudioMagic(withHeader(str("MZ")))).toBe(false)
     expect(isKnownAudioMagic(withHeader([0x89, 0x50, 0x4e, 0x47]))).toBe(false)

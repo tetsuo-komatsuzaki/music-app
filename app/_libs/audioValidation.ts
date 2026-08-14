@@ -4,8 +4,8 @@
 // 解析(Cloud Run)を起動する前に、実ファイルの先頭バイト(magic number)とサイズを検証し、
 // 音声でない/巨大なファイルを弾く → 解析コストの無駄・アナライザのクラッシュ・ストレージ肥大を防ぐ。
 
-/** 録音の最大バイト数 (実利用は数MB。30MBで十分な余裕・巨大ファイルは拒否) */
-export const MAX_AUDIO_BYTES = 30 * 1024 * 1024
+/** 録音の最大バイト数。アプリ版のWAVフォールバック10分(48kHz/16bit/mono≈58MB)が上限規定 (ARC-SPEC-NATIVE-1.0) */
+export const MAX_AUDIO_BYTES = 64 * 1024 * 1024
 
 const ascii = (b: Uint8Array, start: number, s: string): boolean => {
   for (let i = 0; i < s.length; i++) if (b[start + i] !== s.charCodeAt(i)) return false
@@ -14,8 +14,8 @@ const ascii = (b: Uint8Array, start: number, s: string): boolean => {
 
 /**
  * 先頭バイトから対応音声フォーマットか判定 (純関数・テスト対象)。
- * 対応: WebM/Matroska(EBML) / Ogg / MP4(ftyp) / WAV(RIFF..WAVE)。
- * getSignedUploadUrl の ALLOWED_MIME (webm/ogg/mp4) + 変換後WAV を網羅。
+ * 対応: WebM/Matroska(EBML) / Ogg / MP4(ftyp) / WAV(RIFF..WAVE) / FLAC(fLaC)。
+ * getSignedUploadUrl の ALLOWED_MIME (webm/ogg/mp4/flac/wav) + 変換後WAV を網羅。
  */
 export function isKnownAudioMagic(bytes: Uint8Array): boolean {
   if (bytes.length < 12) return false
@@ -27,6 +27,8 @@ export function isKnownAudioMagic(bytes: Uint8Array): boolean {
   if (ascii(bytes, 4, "ftyp")) return true
   // WAV: "RIFF"...."WAVE"
   if (ascii(bytes, 0, "RIFF") && ascii(bytes, 8, "WAVE")) return true
+  // FLAC: "fLaC" (アプリ版ネイティブ録音)
+  if (ascii(bytes, 0, "fLaC")) return true
   return false
 }
 

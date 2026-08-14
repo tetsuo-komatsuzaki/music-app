@@ -1733,14 +1733,14 @@ try:
         tmp_input_path = tmp.name
         tmp.write(audio_bytes)
 
-    # WebM/MP4/OGG (browser MediaRecorder 出力) は FFmpeg で WAV 変換。
+    # WebM/MP4/OGG (browser MediaRecorder 出力) / FLAC (アプリ版ネイティブ録音) は FFmpeg で WAV 変換。
     # 旧 /api/convert-audio と同等の処理: 44.1kHz mono PCM s16。
     # WAV 入力はそのまま librosa に渡す (後方互換)。
     # tmp_input_path / tmp_wav_path は finally で必ず cleanup する。
     tmp_wav_path: Optional[str] = None
     audio_to_load = tmp_input_path
     try:
-        if ext in (".webm", ".mp4", ".ogg"):
+        if ext in (".webm", ".mp4", ".ogg", ".flac"):
             tmp_wav_path = tmp_input_path + ".wav"
             result = subprocess.run(
                 ["ffmpeg", "-y", "-i", tmp_input_path,
