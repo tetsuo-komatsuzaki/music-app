@@ -6,6 +6,8 @@ import styles from "./page.module.css"
 import Link from "next/link"
 import Image from "next/image"
 import { signUpAction } from "../actions/signUpAction"
+import { isNativeApp } from "@/app/_libs/isNativeApp"
+import { openAuthBrowser } from "@/app/_libs/arcodaAuthBrowser"
 
 
 
@@ -61,6 +63,20 @@ export default function loginPage() {
 
   const handleGoogleContinue = async () => {
     const supabase = createSupabaseClient()
+
+    // アプリ版 (§9b): ログイン画面と同じくアプリ内認証ブラウザ経由 (復帰は NativeChrome)
+    if (isNativeApp()) {
+      const { data } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: "arcoda://auth-callback", skipBrowserRedirect: true },
+      })
+      if (data?.url) {
+        const opened = await openAuthBrowser(data.url)
+        if (opened) return
+        window.location.href = data.url
+      }
+      return
+    }
 
     await supabase.auth.signInWithOAuth({
       provider: "google",

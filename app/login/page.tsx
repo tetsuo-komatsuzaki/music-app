@@ -6,6 +6,8 @@ import styles from "./page.module.css"
 import Link from "next/link";
 import Image from "next/image";
 import { createBrowserSupabaseClient } from "@/app/_libs/supabaseBrowser"
+import { isNativeApp } from "@/app/_libs/isNativeApp"
+import { openAuthBrowser } from "@/app/_libs/arcodaAuthBrowser"
 
 
 
@@ -45,7 +47,23 @@ const supabase = createBrowserSupabaseClient()
   }
 
   const handleGoogleLogin = async () => {
-const supabase = createBrowserSupabaseClient()
+    const supabase = createBrowserSupabaseClient()
+
+    // アプリ版 (§9b): WebView内でGoogleへ行くとSafariに逃げるため、認証専用の
+    // アプリ内ブラウザで開き arcoda:// でアプリに戻す (復帰処理は NativeChrome)
+    if (isNativeApp()) {
+      const { data } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: "arcoda://auth-callback", skipBrowserRedirect: true },
+      })
+      if (data?.url) {
+        const opened = await openAuthBrowser(data.url)
+        if (opened) return
+        // プラグイン不在の古い殻では従来どおり遷移にフォールバック
+        window.location.href = data.url
+      }
+      return
+    }
 
     await supabase.auth.signInWithOAuth({
       provider: "google",

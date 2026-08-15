@@ -5,11 +5,14 @@
 
 import { useEffect } from "react"
 import { isNativeApp } from "@/app/_libs/isNativeApp"
+import { listenAuthCallback } from "@/app/_libs/arcodaAuthBrowser"
 
 export default function NativeChrome() {
   useEffect(() => {
     if (isNativeApp()) {
       document.documentElement.setAttribute("data-native-app", "true")
+      // Googleログインのアプリ復帰 (arcoda://auth-callback) を監視 (§9b)
+      listenAuthCallback()
     }
   }, [])
   return null
