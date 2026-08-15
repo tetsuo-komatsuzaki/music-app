@@ -167,9 +167,6 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
               <span style={{ fontSize: "var(--fs-display)", fontWeight: 900, lineHeight: 0.9, color: "var(--text-master)" }}>
                 {avg != null ? avg.toFixed(0) : "—"}<small style={{ fontSize: "var(--fs-subhead)", fontWeight: 800 }}>点</small>
               </span>
-              <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", fontWeight: 700, paddingBottom: 3 }}>
-                いまの平均
-              </span>
             </div>
             <div style={{ position: "relative", paddingTop: 16 }}>
               <div style={{ position: "absolute", top: 0, left: "90%", transform: "translateX(-50%)", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-master)" }}>
