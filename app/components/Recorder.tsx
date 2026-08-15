@@ -232,7 +232,6 @@ type PerfResult = {
     primaryAdvice?: string
     [key: string]: any
   }
-  ringStatus?: { record: boolean; remaining: number }
 }
 
 type Props = {
@@ -313,7 +312,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       }
     })
   }, [resolvedResult])
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "ring" } | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
   const [volumeLevel, setVolumeLevel] = useState(0)
   const [realtimeHint, setRealtimeHint] = useState("")
 
@@ -376,7 +375,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     }
   }, [bpm, onRecordingBpmChange])
 
-  const showToast = (message: string, type: "success" | "error" | "ring") => {
+  const showToast = (message: string, type: "success" | "error") => {
     setToast({ message, type })
     setTimeout(() => setToast(null), 4000)
   }
@@ -802,16 +801,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
           showToast(`音程 ${r.pitchAccuracy}%`, "success")
         }
 
-        if (r?.ringStatus?.record) {
-          setTimeout(() => {
-            showToast(
-              r.ringStatus!.remaining > 0
-                ? `録音リング達成！あと${r.ringStatus!.remaining}つで今日ぶん`
-                : `今日のリング全て達成！`,
-              "ring"
-            )
-          }, 2000)
-        }
+        // 旧「録音リング」トーストは機能廃止に伴い撤去 (2026-08-15)
       }
     } catch (e: any) {
       showToast(`送信エラー: ${e.message}`, "error")
@@ -907,7 +897,6 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       {toast && (
         <div className={`${styles.toast} ${
           toast.type === "error" ? styles.toastError :
-          toast.type === "ring" ? styles.toastRing :
           styles.toastSuccess
         }`}>
           {toast.message}

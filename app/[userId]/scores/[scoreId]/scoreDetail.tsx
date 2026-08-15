@@ -1778,7 +1778,6 @@ function ScoreDetailInner({
           previousScore: (previous?.pitchAccuracy ?? bestPitchScore) ?? undefined,
           previousOverall: prevOverall ?? undefined,
           analysisSummary: latest?.analysisSummary,
-          ringStatus: { record: true, remaining: 1 },
         },
       }
     } catch {

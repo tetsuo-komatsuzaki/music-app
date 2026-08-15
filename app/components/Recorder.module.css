@@ -11,7 +11,6 @@
 }
 .toastSuccess { background: #E1F5EE; color: var(--text-good); }
 .toastError { background: #FCEBEB; color: var(--text-error); }
-.toastRing { background: #EEEDFE; color: var(--text-link); }
 @keyframes toastSlide {
   0%   { opacity: 0; transform: translateX(-50%) translateY(-16px); }
   10%  { opacity: 1; transform: translateX(-50%) translateY(0); }
