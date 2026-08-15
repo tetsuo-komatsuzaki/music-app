@@ -128,3 +128,8 @@ html[data-native-app] body::before {
 html[data-native-app] body {
   background: #F8FAFC;
 }
+
+/* 最外殻(html)も同色に塗る: ページ末尾のホームインジケータ帯で露出する白枠の最終層 (2026-08-16) */
+html[data-native-app] {
+  background: #F8FAFC;
+}
