@@ -28,14 +28,13 @@ export type AchievementStatus = {
 
 // 進捗リボン (2026-08-09 案03): 道の帯を3分割の細バーに凝縮した全体地図。
 // stage 1 = STEP1中 / 2 = 達成済(STEP2中) / 3 = マスター済。
-// stage2のマスターバーは全塗りだと達成済みに見える (2026-08-16 Tetsuo指摘) ため、
-// 90点への到達度ぶんだけ塗る部分進捗表示にする。
-function GoalRibbon({ stage, masterPct = 0 }: { stage: 1 | 2 | 3; masterPct?: number }) {
+// マスターバーはマスター済みのときだけオレンジ。未マスターは灰色
+// (2026-08-16 Tetsuo指定: 部分塗りも廃止し、達成済みと誤認しない見た目に)
+function GoalRibbon({ stage }: { stage: 1 | 2 | 3 }) {
   const GRAY = "#e6eaef"
-  const pct = Math.max(0, Math.min(100, Math.round(masterPct)))
   const bars = [
     stage >= 2 ? "#2e8b57" : "#7cc39a",
-    stage === 3 ? "#b5651d" : stage === 2 ? `linear-gradient(90deg,#e6a94a 0 ${pct}%,${GRAY} ${pct}% 100%)` : GRAY,
+    stage === 3 ? "#b5651d" : GRAY,
   ]
   const labels = [stage >= 2 ? "弾けた" : "弾ける", "マスター"]
   const labCol = ["#2e8b57", stage === 3 ? "#b5651d" : "#8b97a3"]
@@ -140,7 +139,7 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
 
   return (
     <>
-      <GoalRibbon stage={stage} masterPct={avg != null ? (avg / achv.master.threshold) * 100 : 0} />
+      <GoalRibbon stage={stage} />
 
       {stage === 3 ? (
         // マスター済: お祝いだけ
