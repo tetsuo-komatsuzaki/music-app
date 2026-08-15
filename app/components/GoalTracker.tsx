@@ -85,7 +85,8 @@ function GoalDot({ icon, name, done, href }: { icon: ReactNode; name: string; do
   // 0/1・まだ 等のステータス文字も削除。クリア済みの ✓ だけ残す
   const body = (
     <>
-      <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", background: "#e7edfb" }}>{icon}</span>
+      {/* クリア済みは濃い青の丸+白いアイコン線で一目でわかるように (2026-08-16 Tetsuo指定) */}
+      <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", background: done ? "#2b5bc4" : "#e7edfb", color: done ? "#fff" : "#1f3d78" }}>{icon}</span>
       <span style={{ fontWeight: 700, color: "#1f3d78" }}>{name}</span>
       {done && <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 700, color: "#2b5bc4" }}>✓</span>}
       {!done && href && <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)" }}>やる →</span>}
