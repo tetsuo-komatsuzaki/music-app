@@ -30,7 +30,8 @@ function totalScore(p: TrajectoryPerformance): number {
 }
 
 type TrajAxis = "total" | "pitch" | "rhythm"
-const TRAJ_COLOR: Record<TrajAxis, string> = { total: "#2e8b57", pitch: "#3f74c4", rhythm: "#cc5470" }
+// 2026-08-16 Tetsuo指定: 総合=青 / 音程=オレンジ / リズム=緑
+const TRAJ_COLOR: Record<TrajAxis, string> = { total: "#2b5bc4", pitch: "#e0872b", rhythm: "#2e8b57" }
 
 /** 数値系列を viewBox 内の polyline points 文字列にする */
 function seriesPoints(values: number[], w: number, h: number, pad: number, minV: number, maxV: number): string {
@@ -156,7 +157,7 @@ export default function ProgressTrajectory({
             <line x1={PAD - 2} y1={goalY} x2={W - PAD + 2} y2={goalY} stroke="#e7c9a0" strokeWidth="1.2" strokeDasharray="4 4" />
           )}
           {axis === "total" && (
-            <path d={`M${pts} L${lastPt[0]},${H} L${PAD},${H} Z`} fill="#e9f7ef" />
+            <path d={`M${pts} L${lastPt[0]},${H} L${PAD},${H} Z`} fill="#e7edfb" />
           )}
           <polyline points={pts} fill="none" stroke={color} strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round" />
           <circle cx={lastPt[0]} cy={lastPt[1]} r="4.4" fill={color} stroke="#fff" strokeWidth="2" />
