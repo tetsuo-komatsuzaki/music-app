@@ -1087,6 +1087,10 @@ function ScoreViewer({
     const osmd = new OpenSheetMusicDisplay(container, {
       autoResize: true,
       backend: "svg",
+      // 1行1小節問題の対処 (2026-08-16): 音符密度の高い曲で行に1小節しか入らない事象を
+      // コンパクト描画で解消。実曲6曲の実測で「1小節行」20→1に激減・音符サイズは不変
+      // (docs/native-app-9a-implementation-plan.md 手法: Playwright+OSMD単体で変種比較)
+      drawingParameters: "compacttight",
       drawTitle: false,
       drawPartNames: false,
       pageFormat: "Endless",
@@ -3444,7 +3448,7 @@ function ScoreDetailInner({
       {/* F-1: フルスクリーン中の操作ガイドバー (Recorder の停止ボタンは leftColumn 内で非表示のため、戻るボタンを案内) */}
       {isFullscreen && (
         <div data-section="fullscreen-bar">
-          <span data-fs-hint>録音中… 弾き終えたら停止{recBandRequested ? " ・b7" : ""}</span>
+          <span data-fs-hint>録音中… 弾き終えたら停止{recBandRequested ? " ・b8" : ""}</span>
           <button type="button" data-fs-stop onClick={triggerStopRecording} aria-label="録音を停止">
             <span data-fs-sq /> 停止
           </button>
