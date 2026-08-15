@@ -30,9 +30,10 @@
 }
 .rcEmblem svg { width:48px; height:48px; overflow:visible; }
 .lv {
+  /* 囲いなしの文字だけ表示 (2026-08-16 Tetsuo指定)。暗い地でも読めるよう金色+輪郭影 */
   position:absolute; bottom:-7px; left:50%; transform:translateX(-50%);
-  background:var(--tierChip); color:var(--text-master); font-size:var(--fs-label); font-weight:900;
-  border-radius:999px; padding:1px 8px; border:1.5px solid #241a10;
+  color:#ffd77a; font-size:var(--fs-label); font-weight:900;
+  text-shadow:0 1px 3px rgba(0,0,0,.55);
 }
 .rcBody { flex:1; min-width:0; position:relative; z-index:1; }
 .rcEyebrow { font-size:var(--fs-label); letter-spacing:.22em; color:var(--tierAccent); font-weight:800; text-transform:uppercase; }
