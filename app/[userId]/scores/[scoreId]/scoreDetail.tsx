@@ -1055,6 +1055,9 @@ function ScoreViewer({
       drawPartNames: false,
       pageFormat: "Endless",
       newPageFromXML: false,
+      // 注意: singleStaffLine プロップは教材ページから渡されているが歴史的に未結線 (常にfalse)。
+      // ここで結線するとWeb版の音階/アルペジオ譜面の見た目が突然変わるため、9a横画面モードでは
+      // 専用の描画切替 (録音時のみ) として実装する。このオプションは固定のまま。
       renderSingleHorizontalStaffline: false,
       pageBackgroundColor: "#ffffff",
       followCursor: false,
