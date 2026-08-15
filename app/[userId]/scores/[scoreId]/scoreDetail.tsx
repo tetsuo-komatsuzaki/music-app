@@ -128,7 +128,6 @@ type Props = {
   /** ユーザーのランク (currentStar)。★4+ では基礎の読譜記号の説明を省く (2026-08-10) */
   currentStar?: number
   infoSlot?: React.ReactNode
-  singleStaffLine?: boolean
   /** practice用: score-performancesの代わりにpractice-performancesを使う */
   practiceItemId?: string
   /** お気に入り初期状態 (曲/教材) */
@@ -1029,7 +1028,6 @@ function ScoreViewer({
   onOsmdReady,
   onScoreClick,
   onPageChange,
-  singleStaffLine,
   forceExpand,
   expandMode,
   onToggleExpand,
@@ -1040,7 +1038,6 @@ function ScoreViewer({
   onOsmdReady: (osmd: OpenSheetMusicDisplay) => void
   onScoreClick?: (e: React.MouseEvent) => void
   onPageChange?: () => void
-  singleStaffLine?: boolean
   /** 録音中(フルスクリーン)は畳みを解除して全譜面を出す。auto-scrollが4段で切れるのを防ぐ (2026-08-10) */
   forceExpand?: boolean
   /** 拡大ビュー (2026-08-15): 縦のまま譜面だけの全画面。CSSは body[data-score-expand] で制御 */
@@ -1095,9 +1092,7 @@ function ScoreViewer({
       drawPartNames: false,
       pageFormat: "Endless",
       newPageFromXML: false,
-      // 注意: singleStaffLine プロップは教材ページから渡されているが歴史的に未結線 (常にfalse)。
-      // 安易な結線はWeb版の音階/アルペジオ譜面の見た目を変えるため、9a帯モード (bandMode=録音時のみ)
-      // だけが1本帯を有効化する。
+      // 9a帯モード (bandMode=録音時のみ) だけが1本帯を有効化する
       renderSingleHorizontalStaffline: bandMode ?? false,
       // 帯モード: クレジット文字と上下余白を消し、SVG高さ≈五線高さにする (縦中央配置の精度)
       ...(bandMode ? { drawComposer: false, drawCredits: false, drawLyricist: false } : {}),
@@ -1110,7 +1105,6 @@ function ScoreViewer({
       osmd.EngravingRules.PageBottomMargin = 1
     }
 
-    console.log('[DEBUG-XML] buildUrl:', buildUrl)
 
     const collectElements = () => {
       const stavenotes = container.querySelectorAll("g.vf-stavenote")
@@ -1172,7 +1166,7 @@ function ScoreViewer({
       try { osmd.clear() } catch { /* noop */ }
       osmdInstanceRef.current = null
     }
-  }, [buildUrl, showPage, singleStaffLine, bandMode])
+  }, [buildUrl, showPage, bandMode])
 
   // ウィンドウ幅変化に追従して zoom を再計算する。
   // 端末回転や PC でのウィンドウリサイズに対応。OSMD の autoResize は描画幅追従のみで
@@ -1405,7 +1399,6 @@ function ScoreDetailInner({
   latestPitchAccuracy,
   currentStar = 1,
   infoSlot,
-  singleStaffLine,
   practiceItemId,
   initialFavorite,
   parts = [],
@@ -1573,7 +1566,6 @@ function ScoreDetailInner({
   const recordingBpmRef = useRef(analysis?.bpm ?? 90)
   const [recordingBpm, setRecordingBpm] = useState<number | null>(null)
   const handleRecordingBpmChange = useCallback((v: number) => {
-    console.log("[F-1/diag] handleRecordingBpmChange", v)
     recordingBpmRef.current = v
     setRecordingBpm(v)
   }, [])
@@ -3626,7 +3618,6 @@ function ScoreDetailInner({
             onOsmdReady={handleOsmdReady}
             onScoreClick={handleScoreClick}
             onPageChange={() => setPopover(null)}
-            singleStaffLine={singleStaffLine}
             forceExpand={isFullscreen || rangeMode || scoreExpand}
             expandMode={scoreExpand}
             onToggleExpand={() => setScoreExpand((v) => !v)}

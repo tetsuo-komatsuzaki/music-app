@@ -18,8 +18,7 @@ body[data-fullscreen="true"] [data-section="score-detail-root"] {
 
 /* scoreDetail の祖先要素 (breadcrumb 等) と内部の不要セクションを隠す */
 body[data-fullscreen="true"] [data-section="breadcrumb"],
-body[data-fullscreen="true"] [data-section="header"],
-body[data-fullscreen="true"] [data-section="left-column"] {
+body[data-fullscreen="true"] [data-section="header"] {
   display: none !important;
 }
 
@@ -31,14 +30,6 @@ body[data-fullscreen="true"] header,
 body[data-fullscreen="true"] [data-section="score-tabs"],
 body[data-fullscreen="true"] [data-fullscreen-hide] {
   display: none !important;
-}
-
-/* 右カラムを画面いっぱいに */
-body[data-fullscreen="true"] [data-section="right-column"] {
-  width: 100% !important;
-  height: 100% !important;
-  flex: 1 !important;
-  min-width: 0 !important;
 }
 
 /* 上部ガイドバー (戻るボタン案内) — Recorder UI は leftColumn 内で非表示のため、独立した固定バーで停止操作を案内
@@ -85,9 +76,9 @@ body[data-fullscreen="true"] [data-section="right-column"] {
   background: #fff !important; display: inline-block !important;
 }
 
-/* 以下 recordingPanel / countdownPanel 系のルールは leftColumn の display:none により
-   現状は適用されない (要素自体がレンダリングされない)。将来 leftColumn を残しつつ
-   Recorder を露出させる構成に変えた際の保険として残置。 */
+/* 以下 recordingPanel / countdownPanel 系のルールは現行DOMでも適用される (2026-08-16確認:
+   旧コメントの「レンダリングされない」は誤り。left-column廃止後もRecorderは描画され、
+   これらのルールがカウントイン中央表示などを担っている)。 */
 /* recordingPanel を上部バー風に */
 body[data-fullscreen="true"] [data-recorder-panel="recording"] {
   position: fixed !important;

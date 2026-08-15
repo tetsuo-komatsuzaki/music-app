@@ -275,7 +275,6 @@ export default async function PracticeDetailPage({
         buildUrl={buildUrl}
         performanceCount={performanceCount}
         latestPitchAccuracy={latestPerf?.pitchAccuracy ?? null}
-        singleStaffLine={item.category === "scale" || item.category === "arpeggio"}
         practiceItemId={item.id}
         initialFavorite={!!favRow}
         teacherKartes={teacherKartes}
