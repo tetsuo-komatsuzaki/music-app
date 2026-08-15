@@ -991,6 +991,23 @@ function computeResponsiveZoom(containerWidth: number): number {
   return 0.85
 }
 
+// 9a帯モード: 「画面幅に約5小節」を狙って倍率を合わせる (2026-08-15 Tetsuo指定)。
+// 現在の描画から1小節あたりの幅を実測し、目標小節数から逆算する。
+const BAND_MEASURES_PER_SCREEN = 5
+function applyBandZoom(osmd: OpenSheetMusicDisplay, container: HTMLElement) {
+  const svg = container.querySelector("svg")
+  const measureCount = osmd.GraphicSheet?.MeasureList?.length ?? 0
+  if (!svg || measureCount === 0) return
+  const currentZoom = osmd.zoom || 1
+  const avgMeasureWidthAtZoom1 = svg.getBoundingClientRect().width / currentZoom / measureCount
+  if (!isFinite(avgMeasureWidthAtZoom1) || avgMeasureWidthAtZoom1 <= 0) return
+  const target = Math.min(3.0, Math.max(0.8, container.clientWidth / (BAND_MEASURES_PER_SCREEN * avgMeasureWidthAtZoom1)))
+  if (Math.abs(target - currentZoom) > 0.02) {
+    osmd.zoom = target
+    osmd.render()
+  }
+}
+
 function ScoreViewer({
   buildUrl,
   onNoteElementsReady,
@@ -1102,9 +1119,10 @@ function ScoreViewer({
     osmd
       .load(buildUrl)
       .then(() => {
-        // 帯モードは横に無限に伸びるため幅基準のzoomは使わず、判読性優先の固定倍率
-        osmd.zoom = bandMode ? 0.9 : computeResponsiveZoom(container.clientWidth)
+        osmd.zoom = bandMode ? 1.0 : computeResponsiveZoom(container.clientWidth)
         osmd.render()
+        // 帯モード: 実測にもとづき「画面幅≈5小節」へ倍率を合わせて再render
+        if (bandMode) applyBandZoom(osmd, container)
 
         setCurrentPage(0)
         showPage(container, 0)
@@ -1136,7 +1154,11 @@ function ScoreViewer({
         const osmd = osmdInstanceRef.current
         const container = document.getElementById("osmd-container")
         if (!osmd || !container) return
-        const newZoom = bandMode ? 0.9 : computeResponsiveZoom(container.clientWidth)
+        if (bandMode) {
+          applyBandZoom(osmd, container)
+          return
+        }
+        const newZoom = computeResponsiveZoom(container.clientWidth)
         if (Math.abs(newZoom - osmd.zoom) < 1e-6) return
         osmd.zoom = newZoom
         osmd.render()
