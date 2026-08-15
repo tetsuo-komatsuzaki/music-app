@@ -1,0 +1,5 @@
+# アプリの殻 (Capacitor) は Web のビルドに一切関与しない。
+# ルートの package.json では native/node_modules が入らないため、
+# 型検査に巻き込まれると @capacitor/cli を解決できずビルドが落ちる。
+# 型検査からは tsconfig.json の exclude で、配布物からはここで外す。
+native/
