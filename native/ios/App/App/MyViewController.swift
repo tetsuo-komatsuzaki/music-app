@@ -20,5 +20,12 @@ class MyViewController: CAPBridgeViewController {
         webView?.scrollView.decelerationRate = UIScrollView.DecelerationRate.normal
         // 端まで来たときの引っ張り返し。無いとスクロール終端が硬く感じる。
         webView?.scrollView.bounces = true
+
+        // ページ末尾やバウンスで WebView 自体の白背景が覗くのを防ぐ。
+        // Web 本文と同じ #F8FAFC を敷いて、境目を見えなくする。
+        let pageBackground = UIColor(red: 0.973, green: 0.980, blue: 0.988, alpha: 1)
+        webView?.isOpaque = false
+        webView?.backgroundColor = pageBackground
+        webView?.scrollView.backgroundColor = pageBackground
     }
 }
