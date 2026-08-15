@@ -31,8 +31,9 @@
 .rcEmblem svg { width:48px; height:48px; overflow:visible; }
 .lv {
   /* 囲いなしの文字だけ表示 (2026-08-16 Tetsuo指定)。暗い地でも読めるよう金色+輪郭影 */
-  position:absolute; bottom:-7px; left:50%; transform:translateX(-50%);
-  color:#ffd77a; font-size:33px; font-weight:900; line-height:1;
+  /* 大きさ半分・アルコに重ねない (2026-08-16 Tetsuo指定): アバター枠の下に完全に出す */
+  position:absolute; bottom:-19px; left:50%; transform:translateX(-50%);
+  color:#ffd77a; font-size:16px; font-weight:900; line-height:1;
   text-shadow:0 1px 3px rgba(0,0,0,.55);
 }
 .rcBody { flex:1; min-width:0; position:relative; z-index:1; }
