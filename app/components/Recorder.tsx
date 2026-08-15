@@ -2,6 +2,9 @@
 
 import { useState, useRef, useCallback, useEffect } from "react"
 import styles from "./Recorder.module.css"
+import Link from "next/link"
+import { useParams } from "next/navigation"
+import { canShowBillingEntryPoint } from "@/app/_libs/isNativeApp"
 import {
   addInterruptionListener,
   addLevelListener,
@@ -279,6 +282,7 @@ export type Status = "idle" | "tempo-select" | "countdown" | "recording" | "prev
 
 export default function Recorder({ onRecordingComplete, previousBestScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, uploadProgress, onShowLoop, onIdleRecordClick, resolvedResult }: Props) {
   const [status, setStatus] = useState<Status>("idle")
+  const params = useParams<{ userId?: string }>()
 
   // 課金 Phase 1 (2026-08-07): 無料ユーザーへの週次採点カウント表示 (制限はまだ発動しない)。
   // idle に戻るたびに再取得 (採点1回で消費が増えるため)。無制限 (プラス/先生接続) は非表示。
@@ -754,13 +758,14 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   }, [])
 
   const retryRecording = useCallback(() => {
-    if (audioUrl) URL.revokeObjectURL(audioUrl)
-    discardNativeFile()
+    // 防御 (2026-08-16): 後片付けで例外が出ても必ず idle に戻す (録音ボタン消失の予防)
+    setStatus("idle")
+    try { if (audioUrl) URL.revokeObjectURL(audioUrl) } catch { /* noop */ }
+    try { discardNativeFile() } catch { /* noop */ }
     setAudioUrl(null)
     setBlobRef(null)
     setPerfResult(null)
     setQualityResult(null)
-    setStatus("idle")
   }, [audioUrl, discardNativeFile])
 
   const submitRecording = useCallback(async () => {
@@ -907,16 +912,29 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       {status === "idle" && (
         <div className={styles.idlePanel}>
           {/* テンポは共通の「テンポ・メトロノーム」で設定 → ここは直接カウントインへ (2026-07-18 一本化) */}
-          <button
-            className={styles.mainCta}
-            data-testid="recorder-start-button"
-            onClick={() => { if (onIdleRecordClick?.()) return; startCountdown() }}
-            disabled={disabled}
-          >
-            <span className={styles.ctaDot} />
-            <span>録音して採点</span>
-          </button>
-          {quota && !quota.unlimited && (
+          {quota && !quota.unlimited && quota.used >= quota.limit ? (
+            /* Phase 3 (2026-08-16発動): 無料は週7回まで。上限到達時は録音ボタンを畳んで案内カード */
+            <div data-testid="recorder-quota-limit" style={{ textAlign: "center", background: "#f3f6fb", border: "1px solid #d9e3f4", borderRadius: 12, padding: "16px 14px" }}>
+              <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "#1f3d78" }}>今週の無料採点はここまで</div>
+              <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginTop: 4 }}>月曜日にまた7回できるよ</div>
+              {canShowBillingEntryPoint() && params?.userId && (
+                <Link href={`/${params.userId}/settings`} style={{ display: "inline-block", marginTop: 10, fontSize: "var(--fs-body)", fontWeight: 800, color: "#2b5bc4", textDecoration: "none" }}>
+                  アルコプラスなら無制限・14日間無料 →
+                </Link>
+              )}
+            </div>
+          ) : (
+            <button
+              className={styles.mainCta}
+              data-testid="recorder-start-button"
+              onClick={() => { if (onIdleRecordClick?.()) return; startCountdown() }}
+              disabled={disabled}
+            >
+              <span className={styles.ctaDot} />
+              <span>録音して採点</span>
+            </button>
+          )}
+          {quota && !quota.unlimited && quota.used < quota.limit && (
             <div className={styles.quotaLine} data-testid="recorder-quota">
               今週の採点 {Math.min(quota.used, quota.limit)}/{quota.limit}回
             </div>

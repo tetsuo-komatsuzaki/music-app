@@ -74,19 +74,21 @@ function GoalRing({ full, pct, done, total }: { full?: boolean; pct?: number; do
   )
 }
 
-function GoalDot({ icon, name, done, st, href }: { icon: ReactNode; name: string; done: boolean; st: string; href?: string | null }) {
+function GoalDot({ icon, name, done, href }: { icon: ReactNode; name: string; done: boolean; st?: string; href?: string | null }) {
+  // 2026-08-16 Tetsuo指定: 未クリアの枠囲い・背景色分け・グレースケールを廃止 (ごちゃつき解消)。
+  // 0/1・まだ 等のステータス文字も削除。クリア済みの ✓ だけ残す
   const body = (
     <>
-      <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", background: done ? "#e7edfb" : "#eef1f5", filter: done ? "none" : "grayscale(.4) opacity(.7)" }}>{icon}</span>
-      <span style={{ fontWeight: 700, color: done ? "#1f3d78" : "#3a4653" }}>{name}</span>
-      <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 700, color: done ? "#2b5bc4" : "#9aa6b3" }}>{st}</span>
-      {!done && href && <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)" }}>やる →</span>}
+      <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", background: "#e7edfb" }}>{icon}</span>
+      <span style={{ fontWeight: 700, color: "#1f3d78" }}>{name}</span>
+      {done && <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 700, color: "#2b5bc4" }}>✓</span>}
+      {!done && href && <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)" }}>やる →</span>}
     </>
   )
   // 未クリアで行き先があるものはタップでそのまま飛べる (2026-08-02 行き止まり解消)
   if (!done && href) {
     return (
-      <Link href={href} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-body)", textDecoration: "none", background: "#f7f8fd", border: "1px solid #e3e7f6", borderRadius: 9, padding: "5px 8px", margin: "-3px -4px" }}>
+      <Link href={href} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-body)", textDecoration: "none" }}>
         {body}
       </Link>
     )

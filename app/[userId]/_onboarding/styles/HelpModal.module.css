@@ -40,6 +40,12 @@
   flex-shrink: 0;
 }
 
+/* アプリ殻: ステータスバー帯 (時計・電波) に使い方の見出しと閉じるが被らないよう、
+   トップ画面と同じセーフエリア規約で下げる (2026-08-16 Tetsuo指定) */
+:global(html[data-native-app]) .header {
+  padding-top: calc(14px + env(safe-area-inset-top, 0px));
+}
+
 .title {
   font-size: var(--fs-head);
   font-weight: 700;

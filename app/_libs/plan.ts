@@ -21,7 +21,7 @@ export const PLUS_PRICE_YEARLY_JPY = 9800
  * 制限の発動スイッチ (Phase 3 で true にする)。
  * false の間はカウント表示のみで、上限に達しても採点をブロックしない。
  */
-export const ENFORCE_LIMITS = false
+export const ENFORCE_LIMITS = true // Phase 3発動 (2026-08-16 Tetsuo指示: 無料は週7回まで・8回目以降ブロック)
 
 /**
  * 制限開始日 (Phase 3 リリース時に設定)。

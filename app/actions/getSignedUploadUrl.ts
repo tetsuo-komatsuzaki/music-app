@@ -5,6 +5,7 @@ import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { requireAuthAction } from "@/app/_libs/requireAuth"
 import { isValidCuid } from "@/app/_libs/validators"
 import { evaluateRateLimit, rateLimitMessage, RECORDING_LIMIT } from "@/app/_libs/rateLimit"
+import { getGradingQuota } from "@/app/_libs/plan"
 
 // flac/wav はアプリ版ネイティブ録音用 (ARC-SPEC-NATIVE-1.0 Phase 0。wavはFLACエンコード不能時のフォールバック)
 const ALLOWED_MIME = ["audio/webm", "audio/ogg", "audio/mp4", "audio/flac", "audio/wav"] as const
@@ -68,6 +69,13 @@ export async function getSignedUploadUrl(
     const ts = [...perf.map((p) => p.createdAt.getTime()), ...prac.map((p) => p.uploadedAt.getTime())]
     const rl = evaluateRateLimit(ts, Date.now(), RECORDING_LIMIT)
     if (!rl.ok) return { ok: false, error: rateLimitMessage(rl) }
+  }
+
+  // === 1.5 週次採点クォータ (Phase 3・2026-08-16発動): 無料は週7回まで。
+  //     UI側でもボタンを畳むが、ここが権威 (直APIやUI飛ばしを防ぐ) ===
+  const quota = await getGradingQuota(dbUserId)
+  if (!quota.allowed) {
+    return { ok: false, error: "今週の無料採点は上限に達しました。月曜日にリセットされます" }
   }
 
   // === 2. mimeType allowlist (codec suffix を剥がして正規化) ===

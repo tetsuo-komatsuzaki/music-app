@@ -97,7 +97,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
         )}
 
         {/* 毎日の基礎練 (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホーム/曲詳細で共通) */}
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "16px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Target size={13} color="#2563EB" /> 毎日の基礎練</div>
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "16px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Target size={13} color="#2563EB" /> {piece.title}のための毎日の基礎練</div>
         {ach ? (
           <DailyLessons lessons={ach.dailyLessons ?? []} userId={userId} />
         ) : (
