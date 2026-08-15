@@ -254,13 +254,38 @@ remote URL 方式で WebView に入るのは Capacitor の**注入ブリッジ
 - 横向きのセーフエリアは左右inset (ノッチが横に来る)
 - 実装順: 共通抽出→帯+横スクロール(通し)→区間/パート→注釈/添削座標→UI/回転遷移
 
-分担:
-- **Mac側**: `@capacitor/screen-orientation` を殻に追加し、arcodaRecorder.ts と同様の
-  型付きクライアント `app/_libs/arcodaOrientation.ts` を作る。契約:
-  `lockLandscape(): Promise<void>` / `unlock(): Promise<void>` (プラグイン不在時はNOOPで解決)。
-  Info.plist の対応向きも landscape 追加。実機再インストールまで
-- **Windows側**: Recorder/scoreDetail の横画面モード本体 (単一帯譜面・横スクロール計画・
-  ガイド線10%・横レイアウトCSS)。arcodaOrientation.ts のNOOP版を先に置いて開発を進める
+分担 (2026-08-15改訂: Mac側のネイティブコード実装をゼロにし出戻りを封じる):
+
+**Mac側 = プラグイン同梱と設定のみ。app/ 配下は一切触らない。判断が必要な事項なし**
+```
+cd native
+npm install @capacitor/screen-orientation @capacitor/browser @capacitor/app
+npx cap sync ios
+```
+Info.plist (native/ios/App/App/Info.plist) の変更 2点:
+1. UISupportedInterfaceOrientations に UIInterfaceOrientationLandscapeLeft /
+   UIInterfaceOrientationLandscapeRight を追加 (Portrait は残す)。
+   ~ipad キーがある場合は同様に追加
+2. CFBundleURLTypes に URLスキーム登録:
+   CFBundleURLSchemes = ["arcoda"], CFBundleURLName = "com.arcodaviolin.app.auth"
+iPad注意: 向きロックAPIはマルチタスキング対応アプリでは効かないため、
+   UIRequiresFullScreen = YES を追加する (iPad検証対象のため必須)
+受け入れ確認 (Mac側の完了条件):
+- シミュレータビルドが通る
+- 実機で https://arcodaviolin.com/api/health 等を開いた状態の Safari Web インスペクタで
+  `window.Capacitor.Plugins.ScreenOrientation` と `window.Capacitor.Plugins.Browser`
+  と `window.Capacitor.Plugins.App` が定義されていること
+- 実機再インストール後、既存のネイティブ録音(FLAC)が退行していないこと
+完了したら commit/push し「殻v2完了」と報告する
+
+**Windows側 = ロジック全部**:
+- `app/_libs/arcodaOrientation.ts`: window.Capacitor.Plugins.ScreenOrientation を直接呼ぶ
+  型付きクライアント (lockLandscape/unlock、プラグイン不在時はNOOP解決) — arcodaRecorder.tsと同型
+- `app/_libs/arcodaAuthBrowser.ts`: Browser.open / App.addListener("appUrlOpen") の
+  型付きクライアント。appUrlOpen で arcoda://auth-callback?code=... を受けたら
+  JS側で /auth/native-callback へ遷移 (ネイティブ側の結線は不要)
+- Recorder/scoreDetail の横画面モード本体 (単一帯譜面・横スクロール計画・
+  ガイド線10%・横レイアウトCSS・区間/パート/注釈の帯対応)
 
 ### 9b. Googleログインのアプリ対応 (ペンディング解除)
 
@@ -268,9 +293,8 @@ remote URL 方式で WebView に入るのは Capacitor の**注入ブリッジ
 
 方式 (Capacitor+Supabaseの定石):
 - Web側: `isNativeApp()` のとき `signInWithOAuth({ skipBrowserRedirect: true, redirectTo: "arcoda://auth-callback" })` でURLだけ取得し、認証専用のアプリ内ブラウザで開く (PKCE)
-- Mac側: `@capacitor/browser` 追加 + URLスキーム `arcoda://` をInfo.plistに登録 +
-  appUrlOpen で `arcoda://auth-callback?code=...` を受けたら WebView に
-  `https://arcodaviolin.com/auth/native-callback?code=...` を読み込ませる
+- Mac側: プラグイン同梱とURLスキーム登録のみ (§9a分担に統合済)。appUrlOpenの処理は
+  Web側JSが担当するためネイティブコードは書かない
 - Web側: `/auth/native-callback` ページで `exchangeCodeForSession(code)` →ホームへ
 - Supabaseダッシュボード: Redirect URLs に `arcoda://auth-callback` を追加 (Tetsuo操作・後日)
 
