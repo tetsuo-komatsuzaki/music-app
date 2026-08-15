@@ -70,6 +70,10 @@ enum ArcodaRecorderEvent {
     case routeChange(route: String)
     /// 上限時間に達したので録音を確定した (JS は stop() を呼べば結果を受け取れる)
     case maxDuration(durationMs: Double)
+    /// 録音中の入力レベル (0...1)。Recorder の音量メーターとリアルタイム助言に使う。
+    /// Web 版は AnalyserNode から取るが、アプリ版は MediaStream を持たないので
+    /// 入力タップの実データからここで作って送る。
+    case level(rms: Double, peak: Double)
     case failure(code: String, message: String)
 }
 
@@ -87,6 +91,8 @@ final class ArcodaRecorder {
     /// APP_CONFIG.recording.maxDurationSec と同じ 600 秒。暴走防止のハードキャップ。
     static let defaultMaxDurationSec: Double = 600
     private static let startTimeoutSec: Double = 5
+    /// レベル通知の間隔。UI の滑らかさとブリッジ負荷の折り合いで 20fps。
+    private static let levelIntervalSec: Double = 0.05
 
     /// 状態とファイル書き込みはすべてこのシリアルキュー上で行う。
     /// タップのコールバックはリアルタイム音声スレッドなので、
@@ -111,6 +117,9 @@ final class ArcodaRecorder {
     /// mach 時刻 → 壁時計 (JS の Date.now() と比較可能な ms) への写像の基準点
     private var hostRefSeconds: Double = 0
     private var wallRefMs: Double = 0
+
+    /// レベル通知の最終送出時刻 (秒)。WebView への往復を毎バッファ起こさないよう間引く。
+    private var lastLevelAtSec: Double = 0
 
     private var pendingStart: ((Result<Double, Error>) -> Void)?
     private var startTimeoutItem: DispatchWorkItem?
@@ -327,7 +336,52 @@ final class ArcodaRecorder {
             deliverStart(pending, .success(startedAtMs))
         }
 
+        reportLevel(buffer)
         write(buffer)
+    }
+
+    /// 入力バッファの RMS / ピークを 0...1 で通知する (spec §2 のメーター用)。
+    /// 変換前の生の入力を見るので、書き出しフォーマットの影響を受けない。
+    private func reportLevel(_ buffer: AVAudioPCMBuffer) {
+        let now = Date().timeIntervalSince1970
+        guard now - lastLevelAtSec >= ArcodaRecorder.levelIntervalSec else { return }
+        lastLevelAtSec = now
+
+        let frames = Int(buffer.frameLength)
+        guard frames > 0 else { return }
+        let channels = Int(buffer.format.channelCount)
+        var sumSq = 0.0
+        var peak = 0.0
+        var counted = 0
+
+        if let float = buffer.floatChannelData {
+            for channel in 0..<channels {
+                let data = float[channel]
+                for frame in 0..<frames {
+                    let value = Double(data[frame])
+                    sumSq += value * value
+                    peak = max(peak, abs(value))
+                }
+                counted += frames
+            }
+        } else if let int16 = buffer.int16ChannelData {
+            let scale = 1.0 / 32768.0
+            for channel in 0..<channels {
+                let data = int16[channel]
+                for frame in 0..<frames {
+                    let value = Double(data[frame]) * scale
+                    sumSq += value * value
+                    peak = max(peak, abs(value))
+                }
+                counted += frames
+            }
+        } else {
+            return
+        }
+
+        guard counted > 0 else { return }
+        let rms = (sumSq / Double(counted)).squareRoot()
+        emit(.level(rms: min(rms, 1), peak: min(peak, 1)))
     }
 
     private func write(_ buffer: AVAudioPCMBuffer) {

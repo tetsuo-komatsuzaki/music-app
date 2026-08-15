@@ -19,7 +19,41 @@
 - **Xcode 26 以上** — Capacitor 8.5 が配布する `Capacitor.xcframework` は Swift 6.2
   でビルドされており、Xcode 16 系ではブリッジ API (`call.reject` など) が
   「存在しない」扱いになってビルドが通らない。
+  **Intel Mac でも動く**: Xcode 26.1 の実行バイナリは `x86_64 arm64` の
+  ユニバーサルで、要求は macOS 15.6 以上。開発機 (MacBook Pro 15-inch 2019 /
+  Core i7-9750H / macOS 15.7.9) で iOS 26.1 SDK・arm64 / x86_64 とも
+  ビルド確認済み (2026-08-15)。
 - Node.js 22 系
+
+Mac に複数の Xcode が入っている場合、`xcode-select -p` が 26 系を指しているか
+確かめること。指していなければコマンドラインからのビルドは古い方で走る。
+
+```bash
+xcode-select -p                                   # 現在の向き先
+sudo xcode-select -s /Applications/Xcode.app      # 26 系に向ける
+# 切り替えずに一度だけ試すなら:
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer npx cap sync ios
+```
+
+### コマンドラインでのビルド確認
+
+Xcode を開かずにプラグインまで通るか確かめたいときは、署名なしでシミュレータ向けに
+ビルドすればよい (実機は不要)。
+
+```bash
+cd native/ios/App
+xcodebuild -project App.xcodeproj -scheme App -sdk iphonesimulator \
+  -destination 'generic/platform=iOS Simulator' -configuration Debug \
+  CODE_SIGNING_ALLOWED=NO build
+```
+
+プラグインが本当に組み込まれたかは、生成物のシンボルで確認できる
+(Debug ビルドの実体は `App` ではなく `App.debug.dylib` 側にある)。
+
+```bash
+nm -a -arch x86_64 <DerivedData>/Build/Products/Debug-iphonesimulator/App.app/App.debug.dylib \
+  | grep -c -i arcoda
+```
 
 ## セットアップ
 
@@ -92,6 +126,6 @@ Next.js 側に `@capacitor/core` は入れていない。Capacitor が WebView �
 
 ## 次のフェーズ
 
-- **Phase 2**: `Recorder.tsx` にネイティブ経路を統合し、実機で録れ音を実採点比較
+- **Phase 2**: `Recorder.tsx` の統合は完了 (設計書 §7-2)。残りは実機での録れ音の実採点比較
 - **Phase 3**: プッシュ通知、アプリアイコン / スプラッシュ
 - **Phase 4**: TestFlight 配布 → 本審査提出

@@ -41,6 +41,8 @@ public class ArcodaRecorderPlugin: CAPPlugin, CAPBridgedPlugin {
                 self.notifyListeners("routeChange", data: ["routeUsed": route])
             case .maxDuration(let durationMs):
                 self.notifyListeners("maxDuration", data: ["durationMs": durationMs])
+            case .level(let rms, let peak):
+                self.notifyListeners("level", data: ["rms": rms, "peak": peak])
             case .failure(let code, let message):
                 self.notifyListeners("recordingError", data: ["code": code, "message": message])
             }

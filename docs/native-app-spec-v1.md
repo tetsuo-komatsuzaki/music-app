@@ -1,6 +1,6 @@
 # ARC-SPEC-NATIVE-1.0 アプリ版（iOS先行）設計書
 
-作成: 2026-08-14 / 状態: レビュー中（実装未着手）
+作成: 2026-08-14 / 更新: 2026-08-15 / 状態: Phase 0-2 実装済み
 
 ## 0. 目的
 
@@ -85,7 +85,7 @@ Supabase転送量が約3倍ペースに（FLAC 3MB/分）。無料枠5GB/月は�
 
 - **Phase 0**: ✅ サーバーFLAC対応＋E2E（アプリなしで完結・Web版に影響なし）
 - **Phase 1**: ✅ Capacitor土台＋録音プラグイン実装（native/配下。Macでビルド）→ §7
-- **Phase 2**: Recorder統合＋Tetsuo実機で録音品質検証（measurementの録れ音を実採点比較）
+- **Phase 2**: 🔶 Recorder統合 ✅ → §7-2 / Tetsuo実機での録音品質検証（measurementの録れ音を実採点比較）は未実施
 - **Phase 3**: プッシュ通知（審査4.2対策＋教育的価値）、アプリアイコン/スプラッシュ
 - **Phase 4**: TestFlight配布→本審査提出
 
@@ -122,14 +122,59 @@ Supabase転送量が約3倍ペースに（FLAC 3MB/分）。無料枠5GB/月は�
 **Xcode 26 以上が必要。** Capacitor 8.5 が配布する `Capacitor.xcframework` は Swift 6.2
 でビルドされており、`.swiftinterface` 内の `call.reject` 等が `$NonescapableTypes` で
 囲まれている。Xcode 16 系（Swift 6.0）ではこれらが「存在しないAPI」と判定されて
-プラグインがビルドできない。Phase 4 の審査提出でも新しいXcodeは必要になるため、
-Xcode を上げる方針とする（Capacitor 7 に落とせば Xcode 16 でも通るが、後で上げ直しになる）。
+プラグインがビルドできない。
+
+**Intel Mac でも動く（2026-08-15 実測）。** 開発機は MacBook Pro 15-inch 2019
+（Core i7-9750H / x86_64・macOS 15.7.9）。Xcode 26.1 (17B55) の実行バイナリは
+`x86_64 arm64` のユニバーサルで、要求は macOS 15.6 以上。この環境で
+iOS 26.1 SDK・arm64 / x86_64 の両スライスとも **BUILD SUCCEEDED**、
+`App.debug.dylib` に `ArcodaRecorderPlugin` のシンボルとJSメソッド名が
+含まれていることまで確認済み。「Xcode 26 は Apple Silicon 専用」ではない。
+
+Capacitor 7 への降格（プランB）は**採らない**。Cap 7 には Cap 8 が生成する
+`SceneDelegate` / `SceneDelegateProxy` が存在せず、iOSプロジェクトの作り直しが要る。
+Xcode 26 が使えている以上、得るものがない。
+
+`xcode-select` が古い方を指していると 16 系でビルドされてしまうので、
+コマンドラインからビルドするときは `DEVELOPER_DIR` か `xcode-select -s` で
+26.1 を指していることを確認する。
 
 ### 検証済み / 未検証
 
-- 検証済み: Xcodeプロジェクト生成、プラグインのSPM認識、Swift 2ファイルのコンパイル
-  （Capacitor 7 SPM に対する型検査でBUILD SUCCEEDED）、Web側3ファイルの tsc / eslint / vitest
-- 未検証: 実機での録音そのもの（Phase 2 で Tetsuo 実機・Xcode 26 環境にて）
+- 検証済み: Xcodeプロジェクト生成、プラグインのSPM認識、Swift のコンパイルと
+  リンク（Xcode 26.1 / iOS 26.1 SDK で BUILD SUCCEEDED・プラグインのシンボルが
+  実行バイナリに存在）、Web側の tsc / eslint / vitest（445件パス）
+- 未検証: **実機での録音そのもの**（録れ音の品質・`startedAtMs` の同期精度・
+  FLACのdecodeAudioData可否は実機でしか確認できない）
+
+## 7-2. Phase 2 実装メモ（2026-08-15 完了）
+
+`Recorder.tsx` にネイティブ録音経路を統合した。Web版の挙動は変えず、
+`nativeReadyRef`（= `isNativeRecorderAvailable()`）が真のときだけ分岐する。
+
+| 局面 | Web版（変更なし） | アプリ版（新規） |
+|---|---|---|
+| 権限取得 | `getUserMedia` | `checkPermission` → `requestPermission`。**`getUserMedia` は呼ばない**（WebView が入力を掴むと `.measurement` が崩れ、加工なし録音という価値の本体が失われる） |
+| 録音 | `MediaRecorder` | `startNativeRecording({ sampleRate: 48000, maxDurationSec: 600 })` |
+| 音量メーター | `AnalyserNode` | プラグインの **`level` イベント**（新設） |
+| 停止 | `recorder.stop()` | `stopNativeRecording()` → `readNativeRecordingBlob()` |
+| 中断・上限 | なし | `interruption` / `maxDuration` を購読し、そこまでを preview に載せる |
+| 後片付け | Blob を捨てるだけ | アップロード成功・撮り直し・破棄で `deleteNativeRecording()` |
+
+### 設計からの差分（Phase 2）
+
+| 項目 | 設計時 | 実装 | 理由 |
+|---|---|---|---|
+| 音量メーター | 言及なし | プラグインに `level` イベントを新設 | アプリ版は MediaStream を持たないので AnalyserNode が使えない。入力タップの生バッファから RMS/ピークを 20fps で送り、Web版と同じメーター表示にした |
+| 停止の合流点 | 停止ボタンのみ | `finalizeNative()` に停止・上限10分・中断を合流 | 3経路が同時に来ても二重に stop() しないよう `nativeFinalizingRef` で一本化 |
+| 品質チェック | 言及なし | `decodeAudioData` 失敗時は波形と判定を諦めて preview へ進む | FLAC をデコードできない環境でも録音とアップロードは通す（採点はサーバー側で行う） |
+
+### 残っている接続（Phase 3 以降）
+
+`start()` が返す `startedAtMs`（最初のサンプルが実際に録れた壁時計ms）は
+`nativeStartedAtRef` に保持しているが、**まだアップロードに載せていない**。
+`onRecordingComplete(blob)` が Blob しか受け取らない契約で、変更すると
+`scoreDetail.tsx` 側の署名も動くため、タイミング採点の同期改善は次フェーズに送る。
 
 ## 8. やらないこと（明示）
 

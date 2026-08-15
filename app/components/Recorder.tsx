@@ -2,6 +2,21 @@
 
 import { useState, useRef, useCallback, useEffect } from "react"
 import styles from "./Recorder.module.css"
+import {
+  addInterruptionListener,
+  addLevelListener,
+  addMaxDurationListener,
+  addRecordingErrorListener,
+  cancelNativeRecording,
+  checkMicPermission,
+  deleteNativeRecording,
+  isNativeRecorderAvailable,
+  readNativeRecordingBlob,
+  requestMicPermission,
+  startNativeRecording,
+  stopNativeRecording,
+  type NativeStopResult,
+} from "@/app/_libs/arcodaRecorder"
 
 // =========================================================
 // 解析待ちカード (2026-08-02 案2改・Tetsuo確定デザイン):
@@ -102,6 +117,23 @@ function generateFeedback(
 // =========================================================
 // 音声品質チェック
 // =========================================================
+
+/** ネイティブ経路の reject は Error とは限らないので、表示用に安全に文字列化する。 */
+function nativeErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message
+  if (typeof err === "object" && err !== null && "message" in err) {
+    return String((err as { message?: unknown }).message)
+  }
+  return String(err)
+}
+
+/** Capacitor が reject に載せる code (PERMISSION_DENIED 等)。無ければ空文字。 */
+function nativeErrorCode(err: unknown): string {
+  if (typeof err === "object" && err !== null && "code" in err) {
+    return String((err as { code?: unknown }).code)
+  }
+  return ""
+}
 
 type QualityResult = {
   status: "ok" | "silent" | "clipping"
@@ -293,6 +325,20 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   const [qualityResult, setQualityResult] = useState<QualityResult | null>(null)
   const waveformCanvasRef = useRef<HTMLCanvasElement | null>(null)
 
+  // ARC-SPEC-NATIVE-1.0 §2 — アプリ版のネイティブ録音経路。
+  // 使えるときだけ getUserMedia + MediaRecorder の代わりに ArcodaRecorder を使う。
+  // Web版ブラウザでは nativeReadyRef が false のままなので、以下は一切通らない。
+  const nativeReadyRef = useRef(false)
+  /** この録音がネイティブ経路かどうか (停止・後片付けの分岐に使う) */
+  const usingNativeRef = useRef(false)
+  /** アップロード成功後にローカル録音を消すための stop() 結果 */
+  const nativeResultRef = useRef<NativeStopResult | null>(null)
+  /** 最初のサンプルが実際に録れた壁時計ms (テンポガイドとの同期照合用) */
+  const nativeStartedAtRef = useRef<number | null>(null)
+  const nativeListenersRef = useRef<Array<() => void>>([])
+  /** 停止処理の二重実行 (停止ボタンと maxDuration イベントの競合) を防ぐ */
+  const nativeFinalizingRef = useRef(false)
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
   const timerRef = useRef<NodeJS.Timeout | null>(null)
@@ -357,30 +403,60 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     } catch { /* ignore */ }
   }, [])
 
+  // アプリ版の殻の中にいて、録音プラグインが組み込まれているかを一度だけ調べる。
+  // Web版では常に false のまま = 既存の getUserMedia 経路。
+  useEffect(() => {
+    let alive = true
+    void isNativeRecorderAvailable().then((available) => {
+      if (alive) nativeReadyRef.current = available
+    })
+    return () => { alive = false }
+  }, [])
+
   // マイク許可を先に取得し、準備できたらカウントダウン（4→3→2→1）を開始
   const streamRef = useRef<MediaStream | null>(null)
 
   const startCountdown = useCallback(async () => {
-    // 1. マイク許可を先に取得（ブラウザの許可ダイアログはここで出る）
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false,
-          sampleRate: 44100,
+    // 1. マイク許可を先に取得
+    if (nativeReadyRef.current) {
+      // アプリ版: OS のマイク許可ダイアログはここで出る。
+      // getUserMedia は呼ばない (WebView 側で入力を掴むと AVAudioSession の
+      // .measurement 設定が崩れ、加工なし録音という価値の本体が失われる)。
+      try {
+        let permission = await checkMicPermission()
+        if (permission.status === "prompt") permission = await requestMicPermission()
+        if (!permission.granted) {
+          showToast("マイクの使用が許可されていません", "error")
+          return
         }
-      })
-      streamRef.current = stream
-    } catch (err: any) {
-      if (err.name === "NotAllowedError") {
-        showToast("マイクの使用が許可されていません", "error")
-      } else if (err.name === "NotFoundError") {
-        showToast("マイクが見つかりません", "error")
-      } else {
-        showToast(`マイクエラー: ${err.message}`, "error")
+      } catch (err) {
+        showToast(`マイクエラー: ${nativeErrorMessage(err)}`, "error")
+        return
       }
-      return
+      // 録音中イベント (レベル・中断・上限・失敗) はカウントイン中に繋いでおく。
+      // 録音開始の直前に繋ぐと、その往復ぶん最初の音を取りこぼす。
+      await attachNativeListeners()
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+            sampleRate: 44100,
+          }
+        })
+        streamRef.current = stream
+      } catch (err: any) {
+        if (err.name === "NotAllowedError") {
+          showToast("マイクの使用が許可されていません", "error")
+        } else if (err.name === "NotFoundError") {
+          showToast("マイクが見つかりません", "error")
+        } else {
+          showToast(`マイクエラー: ${err.message}`, "error")
+        }
+        return
+      }
     }
 
     // 2. AudioContextをユーザージェスチャー内で初期化
@@ -414,16 +490,9 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   // 録音
   // =========================================================
 
-  const updateVolumeMeter = useCallback(() => {
-    if (!analyserRef.current) return
-    const data = new Uint8Array(analyserRef.current.fftSize)
-    analyserRef.current.getByteTimeDomainData(data)
-    let sum = 0
-    for (let i = 0; i < data.length; i++) {
-      const v = (data[i] - 128) / 128
-      sum += v * v
-    }
-    const rms = Math.sqrt(sum / data.length)
+  // メーターと助言の出し方は Web版 / アプリ版で同一にする。
+  // 入力が AnalyserNode か ArcodaRecorder の level イベントかだけが違う。
+  const applyLevel = useCallback((rms: number) => {
     const level = Math.min(rms * 5, 1)
     setVolumeLevel(level)
 
@@ -436,16 +505,174 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     } else {
       setRealtimeHint("安定しています")
     }
+  }, [])
+
+  const updateVolumeMeter = useCallback(() => {
+    if (!analyserRef.current) return
+    const data = new Uint8Array(analyserRef.current.fftSize)
+    analyserRef.current.getByteTimeDomainData(data)
+    let sum = 0
+    for (let i = 0; i < data.length; i++) {
+      const v = (data[i] - 128) / 128
+      sum += v * v
+    }
+    const rms = Math.sqrt(sum / data.length)
+    applyLevel(rms)
 
     animFrameRef.current = requestAnimationFrame(updateVolumeMeter)
+  }, [applyLevel])
+
+  // 録音できた Blob を preview へ渡すまでの共通処理 (Web版 / アプリ版で同一)。
+  const presentRecordedBlob = useCallback(async (blob: Blob) => {
+    if (blob.size === 0) {
+      setStatus("idle")
+      return
+    }
+    const url = URL.createObjectURL(blob)
+    setAudioUrl(url)
+    setBlobRef(blob)
+
+    // 品質チェック
+    try {
+      const { quality, audioBuffer } = await checkAudioQuality(blob)
+      setQualityResult(quality)
+      setStatus("preview")
+      // 波形描画（次フレームでcanvasが存在してから）
+      requestAnimationFrame(() => {
+        if (waveformCanvasRef.current) {
+          drawWaveform(waveformCanvasRef.current, audioBuffer)
+        }
+      })
+    } catch {
+      // FLAC を decodeAudioData できない環境では波形と品質判定を諦める
+      // (録音そのものは成功しているのでアップロードは通す)
+      setQualityResult({ status: "ok", message: "録音できました" })
+      setStatus("preview")
+    }
   }, [])
+
+  const detachNativeListeners = useCallback(() => {
+    nativeListenersRef.current.forEach((remove) => remove())
+    nativeListenersRef.current = []
+  }, [])
+
+  /**
+   * ネイティブ録音を確定して preview へ進める。
+   * 停止ボタン・上限10分到達・電話等の中断のどれからでもここに合流する
+   * (中断のときはネイティブ側で既にファイルが確定していて、stop() は取り出すだけ)。
+   */
+  const finalizeNative = useCallback(async () => {
+    if (nativeFinalizingRef.current) return
+    nativeFinalizingRef.current = true
+
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
+    setVolumeLevel(0)
+    setRealtimeHint("")
+
+    try {
+      const result = await stopNativeRecording()
+      nativeResultRef.current = result
+      nativeStartedAtRef.current = result.startedAtMs
+      detachNativeListeners()
+      usingNativeRef.current = false
+      onRecordingStop?.()
+
+      const blob = await readNativeRecordingBlob(result)
+      await presentRecordedBlob(blob)
+    } catch (err) {
+      detachNativeListeners()
+      usingNativeRef.current = false
+      onRecordingStop?.()
+      showToast(`録音エラー: ${nativeErrorMessage(err)}`, "error")
+      setStatus("idle")
+    } finally {
+      nativeFinalizingRef.current = false
+    }
+  }, [detachNativeListeners, onRecordingStop, presentRecordedBlob])
+
+  const attachNativeListeners = useCallback(async () => {
+    detachNativeListeners()
+    const removers = await Promise.all([
+      addLevelListener((event) => applyLevel(event.rms)),
+      // 上限10分: ネイティブ側は既に確定済みなので、そのまま preview へ送る
+      addMaxDurationListener(() => {
+        showToast("10分に達したので録音を止めました", "error")
+        void finalizeNative()
+      }),
+      // 電話・アラーム等。自動再開はせず、そこまでを保存するか本人に選ばせる
+      addInterruptionListener((event) => {
+        if (event.type !== "began") return
+        showToast("録音が中断されました。ここまでを保存できます", "error")
+        void finalizeNative()
+      }),
+      addRecordingErrorListener((event) => {
+        showToast(`録音エラー: ${event.message}`, "error")
+        detachNativeListeners()
+        usingNativeRef.current = false
+        if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
+        setVolumeLevel(0)
+        setRealtimeHint("")
+        void cancelNativeRecording()
+        onRecordingStop?.()
+        setStatus("idle")
+      }),
+    ])
+    nativeListenersRef.current = removers
+  }, [applyLevel, detachNativeListeners, finalizeNative, onRecordingStop])
 
   const stopRecording = useCallback(() => {
+    if (usingNativeRef.current) {
+      void finalizeNative()
+      return
+    }
     if (mediaRecorderRef.current?.state === "recording") mediaRecorderRef.current.stop()
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
-  }, [])
+  }, [finalizeNative])
 
   const actuallyStartRecording = useCallback(async () => {
+    // アプリ版: MediaRecorder ではなくネイティブ録音を回す。
+    // 加工なし (AGC/ノイズ抑制/EQ オフ) の 48kHz FLAC がネイティブ側で直接書き出される。
+    if (nativeReadyRef.current) {
+      try {
+        nativeResultRef.current = null
+        nativeStartedAtRef.current = null
+        nativeFinalizingRef.current = false
+        usingNativeRef.current = true
+
+        const started = await startNativeRecording({
+          sampleRate: 48000,
+          maxDurationSec: MAX_DURATION,
+        })
+        // 最初のサンプルが実際に録れた時刻。テンポガイドとの同期照合に使う。
+        nativeStartedAtRef.current = started.startedAtMs
+
+        setStatus("recording")
+        setElapsed(0)
+        setPerfResult(null)
+        setQualityResult(null)
+        onRecordingStart?.()
+
+        timerRef.current = setInterval(() => {
+          setElapsed(prev => {
+            if (prev + 1 >= MAX_DURATION) { stopRecording(); return MAX_DURATION }
+            return prev + 1
+          })
+        }, 1000)
+      } catch (err) {
+        usingNativeRef.current = false
+        detachNativeListeners()
+        void cancelNativeRecording()
+        showToast(
+          nativeErrorCode(err) === "PERMISSION_DENIED"
+            ? "マイクの使用が許可されていません"
+            : `録音エラー: ${nativeErrorMessage(err)}`,
+          "error",
+        )
+        setStatus("idle")
+      }
+      return
+    }
+
     try {
       // マイクはカウントダウン前に取得済み
       const stream = streamRef.current
@@ -488,30 +715,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
 
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" })
         chunksRef.current = []
-
-        if (blob.size > 0) {
-          const url = URL.createObjectURL(blob)
-          setAudioUrl(url)
-          setBlobRef(blob)
-
-          // 品質チェック
-          try {
-            const { quality, audioBuffer } = await checkAudioQuality(blob)
-            setQualityResult(quality)
-            setStatus("preview")
-            // 波形描画（次フレームでcanvasが存在してから）
-            requestAnimationFrame(() => {
-              if (waveformCanvasRef.current) {
-                drawWaveform(waveformCanvasRef.current, audioBuffer)
-              }
-            })
-          } catch {
-            setQualityResult({ status: "ok", message: "録音できました" })
-            setStatus("preview")
-          }
-        } else {
-          setStatus("idle")
-        }
+        await presentRecordedBlob(blob)
       }
 
       mediaRecorderRef.current = recorder
@@ -540,16 +744,25 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       }
       setStatus("idle")
     }
-  }, [updateVolumeMeter, stopRecording])
+  }, [updateVolumeMeter, stopRecording, presentRecordedBlob, detachNativeListeners, onRecordingStart])
+
+  /** 送信せずに捨てる録音のローカルファイルを消す (アプリ版のみ・取りこぼしても24hで自動削除)。 */
+  const discardNativeFile = useCallback(() => {
+    const result = nativeResultRef.current
+    if (!result) return
+    nativeResultRef.current = null
+    void deleteNativeRecording(result.path)
+  }, [])
 
   const retryRecording = useCallback(() => {
     if (audioUrl) URL.revokeObjectURL(audioUrl)
+    discardNativeFile()
     setAudioUrl(null)
     setBlobRef(null)
     setPerfResult(null)
     setQualityResult(null)
     setStatus("idle")
-  }, [audioUrl])
+  }, [audioUrl, discardNativeFile])
 
   const submitRecording = useCallback(async () => {
     if (!blobRef) return
@@ -560,6 +773,13 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
         showToast(res.error, "error")
         setStatus("preview")
       } else {
+        // アップロード済みなのでローカルの録音ファイルはもう要らない
+        const uploaded = nativeResultRef.current
+        if (uploaded) {
+          nativeResultRef.current = null
+          void deleteNativeRecording(uploaded.path)
+        }
+
         const r = res?.result
         setPerfResult(r || null)
         setStatus("result")
@@ -599,12 +819,14 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     }
   }, [blobRef, onRecordingComplete])
 
+
   const continueToNext = useCallback(() => {
     if (audioUrl) URL.revokeObjectURL(audioUrl)
+    discardNativeFile()
     setAudioUrl(null)
     setBlobRef(null)
     setStatus("idle")
-  }, [audioUrl])
+  }, [audioUrl, discardNativeFile])
 
   const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`
 
@@ -655,6 +877,14 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   // マイク・MediaRecorder・AudioContext を確実に解放する (リーク & マイク点灯継続 防止)。
   useEffect(() => {
     return () => {
+      // アプリ版: 録音中に画面が消えたらネイティブ側も止める (マイク点灯継続の防止)
+      nativeListenersRef.current.forEach((remove) => remove())
+      nativeListenersRef.current = []
+      if (usingNativeRef.current) {
+        usingNativeRef.current = false
+        void cancelNativeRecording()
+      }
+
       const rec = mediaRecorderRef.current
       if (rec && rec.state !== "inactive") {
         // 停止すると onstop が発火し stream/recAudioCtx を解放 + onRecordingStop で親stateも復帰

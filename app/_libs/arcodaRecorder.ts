@@ -71,6 +71,16 @@ export interface NativeRecordingErrorEvent {
   message: string
 }
 
+/**
+ * 録音中の入力レベル (0...1)。既定 20fps。
+ * アプリ版は MediaStream を持たないので、Web版で AnalyserNode が担っている
+ * 音量メーターの入力をこのイベントで置き換える。
+ */
+export interface NativeLevelEvent {
+  rms: number
+  peak: number
+}
+
 interface PluginHandle {
   isAvailable(): Promise<{ available: boolean; platform: string; osVersion: string }>
   checkPermission(): Promise<MicPermissionResult>
@@ -190,6 +200,10 @@ export function addMaxDurationListener(handler: (event: NativeMaxDurationEvent) 
 
 export function addRecordingErrorListener(handler: (event: NativeRecordingErrorEvent) => void) {
   return addListener<NativeRecordingErrorEvent>("recordingError", handler)
+}
+
+export function addLevelListener(handler: (event: NativeLevelEvent) => void) {
+  return addListener<NativeLevelEvent>("level", handler)
 }
 
 async function addListener<T>(eventName: string, handler: (event: T) => void): Promise<() => void> {

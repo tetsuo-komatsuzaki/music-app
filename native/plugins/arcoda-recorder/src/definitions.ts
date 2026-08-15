@@ -94,6 +94,16 @@ export interface RecordingErrorEvent {
   message: string
 }
 
+/**
+ * 録音中の入力レベル (0...1)。既定 20fps で送られる。
+ * Web 版は AnalyserNode から同じ値を作るので、Recorder 側は
+ * どちらの経路でも同じメーター表示になる。
+ */
+export interface LevelEvent {
+  rms: number
+  peak: number
+}
+
 export interface ArcodaRecorderPlugin {
   isAvailable(): Promise<ArcodaRecorderAvailability>
   checkPermission(): Promise<MicPermissionResult>
