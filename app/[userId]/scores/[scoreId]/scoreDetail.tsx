@@ -3395,7 +3395,7 @@ function ScoreDetailInner({
       {/* F-1: フルスクリーン中の操作ガイドバー (Recorder の停止ボタンは leftColumn 内で非表示のため、戻るボタンを案内) */}
       {isFullscreen && (
         <div data-section="fullscreen-bar">
-          <span data-fs-hint>録音中… 弾き終えたら停止</span>
+          <span data-fs-hint>録音中… 弾き終えたら停止{recBandRequested ? " ・b3" : ""}</span>
           <button type="button" data-fs-stop onClick={triggerStopRecording} aria-label="録音を停止">
             <span data-fs-sq /> 停止
           </button>
