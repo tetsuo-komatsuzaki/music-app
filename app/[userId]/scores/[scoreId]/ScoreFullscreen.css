@@ -174,3 +174,78 @@ body[data-fullscreen="true"][data-short-score="true"] #osmd-container {
   flex-direction: column !important;
   justify-content: flex-start !important;
 }
+
+/* ============================================================
+   拡大ビュー (2026-08-15): 縦のまま譜面だけの全画面。
+   録音全画面 (data-fullscreen) とは独立したモード。
+   ============================================================ */
+
+body[data-score-expand="true"] [data-section="score-detail-root"] {
+  position: fixed !important;
+  inset: 0 !important;
+  background: #FFFFFF !important;
+  z-index: 1000 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+/* 画面上の他の要素を全て隠す */
+body[data-score-expand="true"] header,
+body[data-score-expand="true"] [data-section="breadcrumb"],
+body[data-score-expand="true"] [data-section="header"],
+body[data-score-expand="true"] [data-section="score-tabs"],
+body[data-score-expand="true"] [data-section="play-tab"] > *:not([data-section="score-hero"]) {
+  display: none !important;
+}
+
+/* 譜面カードの装飾を外し、閉じるバーぶん下げてスクロール領域化 */
+body[data-score-expand="true"] [data-section="score-hero"] {
+  position: fixed !important;
+  inset: 0 !important;
+  overflow-y: auto !important;
+  background: #FFFFFF !important;
+  padding-top: calc(44px + env(safe-area-inset-top, 0px)) !important;
+}
+body[data-score-expand="true"] [data-score-card] {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 4px !important;
+  background: #FFFFFF !important;
+}
+/* 楽譜見出し+ひろげるボタンの行は閉じるバーに置き換わるので隠す */
+body[data-score-expand="true"] [data-expand-header] {
+  display: none !important;
+}
+
+/* 閉じるバー */
+[data-section="expand-bar"] {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: calc(44px + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) 12px 0 16px;
+  background: #1F3A5F;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1002;
+  font-size: var(--fs-subhead);
+}
+[data-section="expand-bar"] button {
+  background: rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: var(--fs-label);
+  cursor: pointer;
+}
+
+/* 録音全画面中はひろげるボタンを出さない */
+body[data-fullscreen="true"] [data-expand-btn] {
+  display: none !important;
+}

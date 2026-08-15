@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo, Component, type ReactNode, type ErrorInfo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Pencil, Play, Pause, Trash2, Target, PenLine } from "lucide-react"
+import { Pencil, Play, Pause, Trash2, Target, PenLine, Maximize2 } from "lucide-react"
 import ScoreDetailTabs, { type ScoreDetailTabId } from "@/app/components/ScoreDetailTabs"
 import MasterBadge from "@/app/components/MasterBadge"
 import FavoriteButton from "@/app/components/FavoriteButton"
@@ -999,6 +999,8 @@ function ScoreViewer({
   onPageChange,
   singleStaffLine,
   forceExpand,
+  expandMode,
+  onToggleExpand,
 }: {
   buildUrl: string | null
   onNoteElementsReady: (elements: Element[]) => void
@@ -1008,6 +1010,9 @@ function ScoreViewer({
   singleStaffLine?: boolean
   /** 録音中(フルスクリーン)は畳みを解除して全譜面を出す。auto-scrollが4段で切れるのを防ぐ (2026-08-10) */
   forceExpand?: boolean
+  /** 拡大ビュー (2026-08-15): 縦のまま譜面だけの全画面。CSSは body[data-score-expand] で制御 */
+  expandMode?: boolean
+  onToggleExpand?: () => void
 }) {
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
@@ -1158,8 +1163,31 @@ function ScoreViewer({
   }
 
   return (
-    <div className={styles.card}>
-      <h3>楽譜</h3>
+    <div className={styles.card} data-score-card>
+      {expandMode && (
+        <div data-section="expand-bar">
+          <span>楽譜</span>
+          <button type="button" onClick={onToggleExpand}>とじる</button>
+        </div>
+      )}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }} data-expand-header>
+        <h3 style={{ margin: 0 }}>楽譜</h3>
+        {onToggleExpand && !expandMode && (
+          <button
+            type="button"
+            onClick={onToggleExpand}
+            data-expand-btn
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              border: "1px solid var(--border, #d8d2c4)", borderRadius: 8,
+              background: "transparent", color: "var(--text-sub, #6f6758)",
+              fontSize: "var(--fs-label)", padding: "4px 10px", cursor: "pointer",
+            }}
+          >
+            <Maximize2 size={14} />ひろげる
+          </button>
+        )}
+      </div>
       <div className={styles.scoreMock}>
         {error ? (
           <div style={{ color: "var(--text-error)", padding: "20px 0" }}>{error}</div>
@@ -1508,6 +1536,22 @@ function ScoreDetailInner({
       document.body.removeAttribute("data-fullscreen")
     }
   }, [isFullscreen])
+
+  // ▼ 拡大ビュー (2026-08-15): 縦のまま譜面だけの全画面。録音全画面が始まったら自動で閉じる
+  const [scoreExpand, setScoreExpand] = useState(false)
+  useEffect(() => {
+    if (isFullscreen && scoreExpand) setScoreExpand(false)
+  }, [isFullscreen, scoreExpand])
+  useEffect(() => {
+    if (scoreExpand) {
+      document.body.setAttribute("data-score-expand", "true")
+    } else {
+      document.body.removeAttribute("data-score-expand")
+    }
+    return () => {
+      document.body.removeAttribute("data-score-expand")
+    }
+  }, [scoreExpand])
 
   // ▼ アップロード進捗 (0-100、未開始時は null)
   const [uploadProgress, setUploadProgress] = useState<number | null>(null)
@@ -3430,7 +3474,9 @@ function ScoreDetailInner({
             onScoreClick={handleScoreClick}
             onPageChange={() => setPopover(null)}
             singleStaffLine={singleStaffLine}
-            forceExpand={isFullscreen || rangeMode}
+            forceExpand={isFullscreen || rangeMode || scoreExpand}
+            expandMode={scoreExpand}
+            onToggleExpand={() => setScoreExpand((v) => !v)}
           />
           {popover && (
             <div
