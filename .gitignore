@@ -43,3 +43,5 @@ Thumbs.db
 
 # AIカバー試作の出力(コミット不要)
 cover-samples/
+
+.vercel
