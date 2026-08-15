@@ -249,3 +249,26 @@ body[data-score-expand="true"] [data-expand-header] {
 body[data-fullscreen="true"] [data-expand-btn] {
   display: none !important;
 }
+
+/* ============================================================
+   9a 帯モード (横画面録音): body[data-rec-band] は録音全画面
+   (data-fullscreen) と同時にのみ立つ。横スクロール+帯の縦中央配置。
+   ============================================================ */
+
+body[data-rec-band="true"] #osmd-container {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+  /* 自動追従スクロールと手動スワイプの喧嘩を防ぐ (録音中のタップは元々無効) */
+  touch-action: none !important;
+  scrollbar-width: none;
+}
+body[data-rec-band="true"] #osmd-container::-webkit-scrollbar { display: none; }
+
+/* 横向き時はノッチが左右に来る */
+body[data-rec-band="true"] [data-section="fullscreen-bar"] {
+  padding-left: max(14px, env(safe-area-inset-left, 0px)) !important;
+  padding-right: max(14px, env(safe-area-inset-right, 0px)) !important;
+}

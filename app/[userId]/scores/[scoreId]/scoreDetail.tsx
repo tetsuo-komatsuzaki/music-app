@@ -1001,6 +1001,7 @@ function ScoreViewer({
   forceExpand,
   expandMode,
   onToggleExpand,
+  bandMode,
 }: {
   buildUrl: string | null
   onNoteElementsReady: (elements: Element[]) => void
@@ -1013,6 +1014,8 @@ function ScoreViewer({
   /** 拡大ビュー (2026-08-15): 縦のまま譜面だけの全画面。CSSは body[data-score-expand] で制御 */
   expandMode?: boolean
   onToggleExpand?: () => void
+  /** 9a帯モード: 録音中のみ折り返し無しの1本帯で描画 (横画面録音モード) */
+  bandMode?: boolean
 }) {
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
@@ -1056,9 +1059,9 @@ function ScoreViewer({
       pageFormat: "Endless",
       newPageFromXML: false,
       // 注意: singleStaffLine プロップは教材ページから渡されているが歴史的に未結線 (常にfalse)。
-      // ここで結線するとWeb版の音階/アルペジオ譜面の見た目が突然変わるため、9a横画面モードでは
-      // 専用の描画切替 (録音時のみ) として実装する。このオプションは固定のまま。
-      renderSingleHorizontalStaffline: false,
+      // 安易な結線はWeb版の音階/アルペジオ譜面の見た目を変えるため、9a帯モード (bandMode=録音時のみ)
+      // だけが1本帯を有効化する。
+      renderSingleHorizontalStaffline: bandMode ?? false,
       pageBackgroundColor: "#ffffff",
       followCursor: false,
     })
@@ -1099,7 +1102,8 @@ function ScoreViewer({
     osmd
       .load(buildUrl)
       .then(() => {
-        osmd.zoom = computeResponsiveZoom(container.clientWidth)
+        // 帯モードは横に無限に伸びるため幅基準のzoomは使わず、判読性優先の固定倍率
+        osmd.zoom = bandMode ? 0.9 : computeResponsiveZoom(container.clientWidth)
         osmd.render()
 
         setCurrentPage(0)
@@ -1119,7 +1123,7 @@ function ScoreViewer({
       if (mutationTimer) clearTimeout(mutationTimer)
       osmdInstanceRef.current = null
     }
-  }, [buildUrl, showPage, singleStaffLine])
+  }, [buildUrl, showPage, singleStaffLine, bandMode])
 
   // ウィンドウ幅変化に追従して zoom を再計算する。
   // 端末回転や PC でのウィンドウリサイズに対応。OSMD の autoResize は描画幅追従のみで
@@ -1132,7 +1136,7 @@ function ScoreViewer({
         const osmd = osmdInstanceRef.current
         const container = document.getElementById("osmd-container")
         if (!osmd || !container) return
-        const newZoom = computeResponsiveZoom(container.clientWidth)
+        const newZoom = bandMode ? 0.9 : computeResponsiveZoom(container.clientWidth)
         if (Math.abs(newZoom - osmd.zoom) < 1e-6) return
         osmd.zoom = newZoom
         osmd.render()
@@ -1145,7 +1149,7 @@ function ScoreViewer({
       window.removeEventListener("resize", handleResize)
       window.removeEventListener("orientationchange", handleResize)
     }
-  }, [])
+  }, [bandMode])
 
   const goToPage = (page: number) => {
     if (page < 0 || page >= totalPages) return
@@ -1539,6 +1543,24 @@ function ScoreDetailInner({
       document.body.removeAttribute("data-fullscreen")
     }
   }, [isFullscreen])
+
+  // ▼ 9a帯モード (横画面録音): 開発スイッチ ?recband=1 で有効化。
+  // アプリの向きロック結線 (isNativeApp) は殻v2反映後に追加する。
+  // 録音全画面中のみ帯レイアウト+横スクロール。Web版はスイッチ無しでは一切不変。
+  const [recBandRequested] = useState(() =>
+    typeof window !== "undefined" && new URLSearchParams(window.location.search).has("recband"),
+  )
+  const recBand = isFullscreen && recBandRequested
+  useEffect(() => {
+    if (recBand) {
+      document.body.setAttribute("data-rec-band", "true")
+    } else {
+      document.body.removeAttribute("data-rec-band")
+    }
+    return () => {
+      document.body.removeAttribute("data-rec-band")
+    }
+  }, [recBand])
 
   // ▼ 拡大ビュー (2026-08-15): 縦のまま譜面だけの全画面。録音全画面が始まったら自動で閉じる
   const [scoreExpand, setScoreExpand] = useState(false)
@@ -2947,6 +2969,8 @@ function ScoreDetailInner({
   // ▼ F-1 Commit 3: 録音中の自動スクロール (短い譜面はスキップ、analysis null もスキップ)
   useEffect(() => {
     if (recordingState !== "recording") return
+    // 9a帯モード中は縦スクロールは無意味 (横追従effectが担当)
+    if (recBand) return
     // 区間録音では曲全体スクロールを止める (区間はハイライトで可視・カーソルは区間内で動く)。
     if (recordingRangeRef.current) return
     if (!scrollPlan || scrollPlan.isShortScore) return
@@ -2990,7 +3014,42 @@ function ScoreDetailInner({
     return () => {
       if (rafId) cancelAnimationFrame(rafId)
     }
-  }, [recordingState, scrollPlan, analysis, triggerStopRecording])
+  }, [recordingState, scrollPlan, analysis, triggerStopRecording, recBand])
+
+  // ▼ 9a帯モード: ガイドカーソルのxに追従して横スクロールし、ガイド線を画面左10%に固定する。
+  // カーソルは区間録音のオフセットも既に処理しているため、通し/区間/パートすべてこの1本で動く。
+  // 通し録音の自動停止もここが担う (縦のscrollPlan経路は帯レイアウトではisShortScoreで無効のため)。
+  useEffect(() => {
+    if (!recBand || recordingState !== "recording") return
+    const container = document.getElementById("osmd-container")
+    if (!container) return
+
+    let rafId = 0
+    const GUIDE_RATIO = 0.10 // ガイド線の固定位置 = 画面左から10% (2026-08-15 Tetsuo指定)
+    const TAIL_BUFFER_SEC = 1.5
+
+    const tick = () => {
+      const cursor = cursorRef.current
+      if (cursor && cursor.style.display !== "none") {
+        const x = parseFloat(cursor.style.left || "0")
+        const target = x - container.clientWidth * GUIDE_RATIO
+        const max = Math.max(0, container.scrollWidth - container.clientWidth)
+        container.scrollLeft = Math.max(0, Math.min(target, max))
+      }
+      if (!recordingRangeRef.current && scrollPlan && scrollPlan.totalDurationSec > 0 && recGuideStartRef.current) {
+        const elapsedSec = (performance.now() - recGuideStartRef.current) / 1000
+        if (elapsedSec >= scrollPlan.totalDurationSec + TAIL_BUFFER_SEC) {
+          triggerStopRecording()
+          return
+        }
+      }
+      rafId = requestAnimationFrame(tick)
+    }
+    rafId = requestAnimationFrame(tick)
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [recBand, recordingState, scrollPlan, triggerStopRecording])
 
   // 録音中のガイドラインを前後ノート間で線形補間して横スライドさせる
   const updateRecordingCursor = useCallback((currentSec: number) => {
@@ -3042,10 +3101,12 @@ function ScoreDetailInner({
 
     const containerRect = container.getBoundingClientRect()
     // cursor は position:absolute でコンテナ内配置 → top/left はコンテンツ座標
-    // viewport 相対の rect を + scrollTop でコンテンツ相対に変換 (横スクロールはこのアプリで発生しないので scrollLeft は使わない)
+    // viewport 相対の rect を + scrollTop / + scrollLeft でコンテンツ相対に変換
+    // (scrollLeft は縦レイアウトでは常に0=挙動不変。9a帯モードの横スクロールで必要)
     const scrollTop = container.scrollTop
+    const scrollLeft = container.scrollLeft
     const prevRect = prevSvg.getBoundingClientRect()
-    const prevX = prevRect.left + prevRect.width / 2 - containerRect.left
+    const prevX = prevRect.left + prevRect.width / 2 - containerRect.left + scrollLeft
 
     // 前後ノートが同じ段なら x を線形補間、改段を跨ぐなら prev 位置に固定
     let x = prevX
@@ -3057,7 +3118,7 @@ function ScoreDetailInner({
         const nextRect = nextSvg.getBoundingClientRect()
         const sameRow = Math.abs(prevRect.top - nextRect.top) < 20
         if (sameRow) {
-          const nextX = nextRect.left + nextRect.width / 2 - containerRect.left
+          const nextX = nextRect.left + nextRect.width / 2 - containerRect.left + scrollLeft
           const progress = Math.max(0, Math.min(1, (currentSec - prevTime) / (nextTime - prevTime)))
           x = prevX + (nextX - prevX) * progress
         }
@@ -3480,6 +3541,7 @@ function ScoreDetailInner({
             forceExpand={isFullscreen || rangeMode || scoreExpand}
             expandMode={scoreExpand}
             onToggleExpand={() => setScoreExpand((v) => !v)}
+            bandMode={recBand}
           />
           {popover && (
             <div
