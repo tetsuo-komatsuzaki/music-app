@@ -27,41 +27,6 @@
   display: flex;
 }
 
-.sidebar {
-  width: 220px;
-  background: #0B1E3A;
-  color: var(--text-on-accent);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  /* スクロールしても画面に固定 (2026-08-16 Tetsuo指定)。
-     100dvh=実際に見えている高さ基準。サイドバー自身が長い場合は内部スクロール */
-  position: sticky;
-  top: 0;
-  align-self: flex-start;
-  height: 100dvh;
-  overflow-y: auto;
-}
-
-.navItem {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: 0.2s;
-}
-
-.navItem:hover {
-  background: #1E40AF;
-}
-
-.navItemActive {
-  background: #1E40AF;
-  border-left: 4px solid #3B82F6;
-}
-
 .main {
   flex: 1;
   min-width: 0;

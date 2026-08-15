@@ -5,7 +5,7 @@
 // タップ → 振り返り(結果)画面へ。親要素は position:relative であること。
 "use client"
 
-export default function CelebrationBanner({ onOpen }: { name?: string; onOpen: () => void }) {
+export default function CelebrationBanner({ onOpen }: { onOpen: () => void }) {
   return (
     <button
       type="button"

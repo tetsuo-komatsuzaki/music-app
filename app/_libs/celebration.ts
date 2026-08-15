@@ -133,8 +133,3 @@ export function parseMilestoneEvents(analysisSummary: unknown): MilestoneEvent[]
 }
 
 /** バナー用の曲名/教材名の省略(§2.1: 全角12〜15文字で「…」省略)。 */
-export function truncateBannerName(name: string, max = 15): string {
-  const s = name.trim()
-  if (s.length <= max) return s
-  return s.slice(0, max - 1) + "…"
-}

@@ -3471,9 +3471,10 @@ function ScoreDetailInner({
 
       {/* タブ (演奏 / ふりかえり): 曲・練習アイテムの両方で表示。
           演奏履歴はふりかえり側に集約。上達ループは曲のみ (下の isScoreMode ガード)。 */}
-      <div data-section="score-tabs" style={{ marginBottom: 12, position: "relative", marginTop: celebrationPerf && !celebAlreadyShown ? 34 : 0 }}>
-        {/* 祝い吹き出し (§2.1 2026-08-16 吹き出し化): ふりかえりタブの真上にコンパクト表示 */}
-        {celebrationPerf && !celebAlreadyShown && (
+      <div data-section="score-tabs" style={{ marginBottom: 12, position: "relative", marginTop: celebrationPerf && !celebAlreadyShown && activeTab !== "review" ? 34 : 0 }}>
+        {/* 祝い吹き出し (§2.1 2026-08-16 吹き出し化): ふりかえりタブの真上にコンパクト表示。
+            ふりかえりタブを開いている間は非表示 (開けば祝い演出→closeCelebrationで既読化される) */}
+        {celebrationPerf && !celebAlreadyShown && activeTab !== "review" && (
           <CelebrationBanner onOpen={() => handleTabChange("review")} />
         )}
         <ScoreDetailTabs activeTab={activeTab} onChange={handleTabChange} />

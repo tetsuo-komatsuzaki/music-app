@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest"
 import {
   selectCelebrations,
   parseMilestoneEvents,
-  truncateBannerName,
   type MilestoneEvent,
 } from "./celebration"
 
@@ -79,16 +78,3 @@ describe("parseMilestoneEvents", () => {
   })
 })
 
-describe("truncateBannerName", () => {
-  it("max以下はそのまま", () => {
-    expect(truncateBannerName("メヌエット")).toBe("メヌエット")
-    expect(truncateBannerName("あ".repeat(15))).toBe("あ".repeat(15))
-  })
-  it("超過は max-1 + …", () => {
-    const long = "あ".repeat(20)
-    const r = truncateBannerName(long)
-    expect(r.length).toBe(15)
-    expect(r.endsWith("…")).toBe(true)
-    expect(r).toBe("あ".repeat(14) + "…")
-  })
-})

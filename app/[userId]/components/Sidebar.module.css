@@ -9,6 +9,13 @@
   gap: 16px;
   transition: width 0.2s ease, padding 0.2s ease;
   flex-shrink: 0;
+  /* スクロールしても画面に固定 (2026-08-16 Tetsuo指定)。100dvh=実際に見えている高さ。
+     サイドバー自身が長いときは内部スクロール */
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100dvh;
+  overflow-y: auto;
 }
 
 .sidebarOpen {
