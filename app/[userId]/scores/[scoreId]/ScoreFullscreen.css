@@ -272,3 +272,18 @@ body[data-rec-band="true"] [data-section="fullscreen-bar"] {
   padding-left: max(14px, env(safe-area-inset-left, 0px)) !important;
   padding-right: max(14px, env(safe-area-inset-right, 0px)) !important;
 }
+
+/* 9a真因修正 (2026-08-15): scoreDetail.module.css の .osmdContainer svg { max-width:100% }
+   が帯SVG(約2700px)をコンテナ幅へ約0.31倍に縮小し、zoom設定を完全に打ち消していた。
+   帯モードでは縮小禁止=自然幅で描画し、横スクロールさせる */
+body[data-rec-band="true"] #osmd-container svg {
+  max-width: none !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* Safari の 100vh はURLバー分を含み帯が視覚中央より下に落ちるため、
+   実際に見えている高さ(dvh)を優先する (非対応ブラウザは直前のvh宣言が生きる) */
+body[data-fullscreen="true"] #osmd-container {
+  height: calc(100dvh - 56px - env(safe-area-inset-top, 0px)) !important;
+}
