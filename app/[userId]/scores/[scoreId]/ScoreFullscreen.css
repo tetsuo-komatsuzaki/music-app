@@ -287,3 +287,16 @@ body[data-rec-band="true"] #osmd-container svg {
 body[data-fullscreen="true"] #osmd-container {
   height: calc(100dvh - 56px - env(safe-area-inset-top, 0px)) !important;
 }
+
+/* 9a真因#3 (2026-08-15 診断表示で確定): 帯はscrollPlanが構造上つねにisShortScore=trueとなり、
+   既存の body[data-short-score] 規則 (flex-direction:column) が発動。band側のalign-items:center
+   と組み合わさり「横中央寄せ」として作用し、巨大SVGの左半分 (W-画面幅)/2=931px が到達不能に。
+   実測: cur=-231.69px は理論値 (1小節目x≈700) - 931.4 = -231.4 と一致し証明完了。
+   帯では 横並び・左起点・縦中央 を最高優先で強制する */
+body[data-fullscreen="true"][data-rec-band="true"] #osmd-container,
+body[data-fullscreen="true"][data-short-score="true"][data-rec-band="true"] #osmd-container {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+}
