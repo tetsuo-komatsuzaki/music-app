@@ -9,8 +9,11 @@
     "doctor": "cap doctor"
   },
   "dependencies": {
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/browser": "^8.0.4",
     "@capacitor/core": "^8.5.0",
     "@capacitor/ios": "^8.5.0",
+    "@capacitor/screen-orientation": "^8.0.1",
     "arcoda-recorder": "file:./plugins/arcoda-recorder"
   },
   "devDependencies": {

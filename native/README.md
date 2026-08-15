@@ -13,6 +13,7 @@
 | 表示名 | アルコ |
 | 最低 iOS | 15.0 |
 | Capacitor | 8.5 (iOS 連携は SPM。CocoaPods 不要) |
+| 同梱プラグイン | ArcodaRecorder (自作) / ScreenOrientation / Browser / App |
 
 ## 必要な環境
 
@@ -114,6 +115,19 @@ Next.js 側に `@capacitor/core` は入れていない。Capacitor が WebView �
 - 録音ファイルはアプリのキャッシュ領域に置き、アップロード成功後に
   `deleteNativeRecording()` で削除する。取りこぼしても 24 時間で自動削除される。
 
+## 同梱プラグイン
+
+| プラグイン | 用途 | 呼ぶ側 |
+|---|---|---|
+| `arcoda-recorder` (自作) | 加工なしのネイティブ録音 (spec §2) | `app/_libs/arcodaRecorder.ts` |
+| `@capacitor/screen-orientation` | 横画面録音モードの向きロック (spec §9a) | `app/_libs/arcodaOrientation.ts` |
+| `@capacitor/browser` | Googleログインの認証用アプリ内ブラウザ (spec §9b) | Web側 |
+| `@capacitor/app` | `appUrlOpen` で `arcoda://auth-callback` を受ける (spec §9b) | Web側 |
+
+ネイティブ側に書くコードは無い (殻に同梱するだけ)。呼び出しは全て Web 側の JS が
+注入ブリッジ経由で行う。`registerPlugin` は注入ブリッジに無いので
+`nativePromise` / `addListener` を使うこと (spec §7-2 の真因を参照)。
+
 ## Info.plist の手当て
 
 `cap add ios` の生成物に対して以下を追記済み。プロジェクトを作り直したら再度必要。
@@ -123,6 +137,11 @@ Next.js 側に `@capacitor/core` は入れていない。Capacitor が WebView �
 | `NSMicrophoneUsageDescription` | バイオリンの演奏を録音して採点するためにマイクを使用します | マイク権限 (審査必須) |
 | `UIBackgroundModes` | `audio` | 画面ロック中も録音を継続する |
 | `ITSAppUsesNonExemptEncryption` | `false` | TestFlight 配布時の輸出コンプライアンス質問を省略 |
+| `CFBundleURLTypes` | scheme `arcoda` / name `com.arcodaviolin.app.auth` | Googleログイン後に `arcoda://auth-callback` でアプリへ戻す (spec §9b) |
+| `UIRequiresFullScreen` | `true` | iPad はマルチタスキング対応だと向きロックAPIが効かないため (spec §9a) |
+
+横向き (`UIInterfaceOrientationLandscapeLeft` / `Right`) は Capacitor の生成
+テンプレートに最初から入っているので追記不要。`~ipad` 側も同様。
 
 ## 次のフェーズ
 
