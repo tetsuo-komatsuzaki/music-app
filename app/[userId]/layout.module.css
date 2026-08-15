@@ -1,5 +1,7 @@
 .container {
-  height: 100vh;
+  /* height固定だとsticky(ヘッダー/サイドバー)の固定範囲が1画面で切れる (2026-08-16真因)。
+     min-heightでコンテンツと共に伸ばし、固定を全ページで有効にする */
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }

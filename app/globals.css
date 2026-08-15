@@ -101,3 +101,25 @@ a:active,
 html {
   scrollbar-gutter: stable;
 }
+
+/* ============================================================
+   アプリ殻のステータスバー帯 (ARC-SPEC-NATIVE-1.0 2026-08-16)
+   NativeChrome が <html> に data-native-app を立てる (アプリ表示時のみ)。
+   コンテンツはステータスバー下まで流し、時計・電波の帯には
+   全画面共通の半透明ぼかし層を敷く (Tetsuo指定の見た目)。
+   Webブラウザでは env()=0 のため一切影響しない。
+   ============================================================ */
+html[data-native-app] body {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+html[data-native-app] body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background: rgba(248, 249, 251, 0.55);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  z-index: 500;
+  pointer-events: none;
+}
