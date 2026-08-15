@@ -18,6 +18,13 @@
   overflow-y: auto;
 }
 
+/* アプリ版: 固定ヘッダー+ステータスバー帯の裏にレール上端(ハンバーガー)が潜らないよう、
+   固定位置をヘッダー下端に合わせる (2026-08-16) */
+:global(html[data-native-app]) .sidebar {
+  top: calc(env(safe-area-inset-top, 0px) + 44px);
+  height: calc(100dvh - env(safe-area-inset-top, 0px) - 44px);
+}
+
 .sidebarOpen {
   width: 180px;                   /* 展開時 (2026-07-20: 220→180 に短縮し本体幅を確保) */
   padding: 20px 14px;

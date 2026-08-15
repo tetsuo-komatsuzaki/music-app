@@ -1,7 +1,7 @@
 /* ホーム本体ブロック (いま練習している曲 / アルコ / 次の曲) — モック忠実移植 */
 .root {
-  --panel:#FFFFFF; --ink:#2A2420; --inkSoft:#6B6258; --inkFaint:#9A9187; --line:#EAE3D8;
-  --accent:#B5762E; --accentSoft:#F3E6D2; --good:#3E8E7E; --goodSoft:#DCEEEA;
+  --panel:#FFFFFF; --ink:#2A2420; --inkSoft:#6B6258; --inkFaint:#9A9187; --line:#D9E3F4;
+  --accent:#2b5bc4; --accentSoft:#F3E6D2; --good:#3E8E7E; --goodSoft:#DCEEEA;
   --goal:#6C6BA8; --goalSoft:#E6E5F1; --warn:#C25A3C; --warnSoft:#F6E2DA; --ground:#FAF7F2;
   --radius:18px;
 }
@@ -18,7 +18,7 @@
 
 /* 練習中の曲が無いときの導線 */
 .startLead { font-size:var(--fs-body); color:var(--inkSoft); line-height:1.7; margin:0 0 11px; font-weight:600; }
-.startCta { display:flex; align-items:center; gap:11px; text-decoration:none; color:var(--text-on-accent); padding:12px 13px; border-radius:14px; background:linear-gradient(105deg,var(--accent),#96601f); box-shadow:0 5px 14px -6px rgba(181,118,46,.7); }
+.startCta { display:flex; align-items:center; gap:11px; text-decoration:none; color:var(--text-on-accent); padding:12px 13px; border-radius:14px; background:linear-gradient(105deg,var(--accent),#1f3d78); box-shadow:0 5px 14px -6px rgba(43,91,196,.6); }
 .startCta:active { filter:brightness(.96); }
 .startIcon { width:36px; height:36px; flex:none; display:grid; place-items:center; font-size:var(--fs-head); border-radius:11px; background:rgba(255,255,255,.18); }
 .startBody { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
