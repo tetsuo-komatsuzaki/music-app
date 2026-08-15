@@ -168,7 +168,7 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
                 {avg != null ? avg.toFixed(0) : "—"}<small style={{ fontSize: "var(--fs-subhead)", fontWeight: 800 }}>点</small>
               </span>
               <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", fontWeight: 700, paddingBottom: 3 }}>
-                {avg != null && avg < 90 ? `あと ${Math.max(1, Math.ceil(90 - avg))}点！` : "いまの平均"}
+                いまの平均
               </span>
             </div>
             <div style={{ position: "relative", paddingTop: 16 }}>
