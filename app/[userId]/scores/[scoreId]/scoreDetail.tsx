@@ -982,11 +982,12 @@ function ProgressTrajectory({
 // =========================================================
 
 // コンテナ幅に応じた OSMD zoom 値を返す。
-// 狭い画面で1小節しか表示されない問題を回避するため、幅に応じて段階的に縮小する。
+// 2026-08-15 スマホの譜面が小さすぎる指摘(アプリ実機)で狭幅の倍率を引き上げ。
+// 1行あたりの小節数は減るが、音符の判読性を優先する。
 function computeResponsiveZoom(containerWidth: number): number {
-  if (containerWidth < 400) return 0.45
-  if (containerWidth < 700) return 0.6
-  if (containerWidth < 1000) return 0.75
+  if (containerWidth < 400) return 0.62
+  if (containerWidth < 700) return 0.7
+  if (containerWidth < 1000) return 0.78
   return 0.85
 }
 
@@ -3293,7 +3294,9 @@ function ScoreDetailInner({
 
         {/* 祝いバナー (§2.1): done演奏に対し常に同一・節目を読まない。タップで振り返りへ。 */}
         {celebrationPerf && !celebAlreadyShown && (
-          <CelebrationBanner name={score.title} onOpen={() => handleTabChange("review")} />
+          <div data-fullscreen-hide>
+            <CelebrationBanner name={score.title} onOpen={() => handleTabChange("review")} />
+          </div>
         )}
 
         {/* パート練習 (曲にパートがある時のみ)。選ぶとその範囲だけを録音・部分採点し partId を付与。
@@ -3359,7 +3362,7 @@ function ScoreDetailInner({
 
         {/* 過去の演奏セレクタ: 選ぶと譜面にその演奏のフィードバックを色表示 + 右にスコア。名前編集も。 */}
         {performances.length > 0 && (
-          <div className={styles.perfSelectRow}>
+          <div className={styles.perfSelectRow} data-fullscreen-hide>
             {renamingId && selected && renamingId === selected.id ? (
               <>
                 <input

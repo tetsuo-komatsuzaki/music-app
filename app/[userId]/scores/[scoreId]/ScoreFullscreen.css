@@ -23,6 +23,16 @@ body[data-fullscreen="true"] [data-section="left-column"] {
   display: none !important;
 }
 
+/* アプリ版で発覚した隠し漏れ (2026-08-15):
+   - グローバルヘッダー (userShell の <header>) が全画面の上に残っていた
+   - 採点できあがったバナー・過去の演奏セレクタが録音中も見えていた
+   data-fullscreen-hide は録音全画面で隠したい要素に付ける汎用フック */
+body[data-fullscreen="true"] header,
+body[data-fullscreen="true"] [data-section="score-tabs"],
+body[data-fullscreen="true"] [data-fullscreen-hide] {
+  display: none !important;
+}
+
 /* 右カラムを画面いっぱいに */
 body[data-fullscreen="true"] [data-section="right-column"] {
   width: 100% !important;
@@ -38,7 +48,8 @@ body[data-fullscreen="true"] [data-section="right-column"] {
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
-  height: 56px !important;
+  /* ノッチ端末のアプリ殻: ステータスバーの帯までバーの背景で覆う (viewport-fit=cover 前提) */
+  height: calc(56px + env(safe-area-inset-top, 0px)) !important;
   background: #1F3A5F !important;
   color: #FFFFFF !important;
   display: flex !important;
@@ -47,7 +58,7 @@ body[data-fullscreen="true"] [data-section="right-column"] {
   font-size: var(--fs-subhead) !important;
   font-weight: 500 !important;
   letter-spacing: 0.02em !important;
-  padding: 0 14px !important;
+  padding: env(safe-area-inset-top, 0px) 14px 0 14px !important;
   border-bottom: 1px solid #163050 !important;
   z-index: 1002 !important;
   /* transform/filter/will-change を持たせない (持つと子の position:fixed の含有ブロックが変わる)。
@@ -149,11 +160,11 @@ body[data-fullscreen="true"] [data-recorder-panel="countdown"] {
   text-align: center !important;
 }
 
-/* 譜面コンテナを上部バーぶんオフセット + 左右5%パディング */
+/* 譜面コンテナを上部バーぶんオフセット。左右余白は最小化して譜面を画面幅いっぱいに使う */
 body[data-fullscreen="true"] #osmd-container {
-  margin-top: 56px !important;
-  padding: 0 5% !important;
-  height: calc(100vh - 56px) !important;
+  margin-top: calc(56px + env(safe-area-inset-top, 0px)) !important;
+  padding: 0 4px !important;
+  height: calc(100vh - 56px - env(safe-area-inset-top, 0px)) !important;
   overflow-y: auto !important;
 }
 

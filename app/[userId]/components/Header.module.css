@@ -2,7 +2,9 @@
 .header {
   background: #1E3A8A;
   color: var(--text-on-accent);
-  padding: 12px 20px;
+  /* アプリ殻(ノッチ端末)では時計・電波の帯にヘッダーが食い込むため、セーフエリアぶん下げる。
+     通常ブラウザでは env() = 0 で従来どおり */
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 20px 12px;
   display: flex;
   justify-content: flex-end;
 }
