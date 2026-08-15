@@ -230,3 +230,38 @@ remote URL 方式で WebView に入るのは Capacitor の**注入ブリッジ
 - PWA化（録音が改善しないため価値なし）
 - UIのネイティブ書き直し（remote URL方式で共通化）
 - Android版（iOS検証完了後に同設計で着手。UNPROCESSED→VOICE_RECOGNITION階段）
+
+## 9. 承認済み追加パッケージ (2026-08-15 Tetsuo全承認)
+
+### 9a. 横画面録音モード (アプリ限定・モック承認済 v2)
+
+確定仕様:
+- 録音開始→画面横固定→カウントイン4拍→録音。終了/キャンセルで縦に戻す。Web版は対象外
+- 譜面は renderSingleHorizontalStaffline で1本の帯。右→左へ自動フロー
+- **ガイド線 = 画面左から10%固定** (25%案から変更・Tetsuo指定)。視覚ビート+クリックは現行仕様のままガイド線上
+- 同期はネイティブ録音 startedAtMs 基準。上部バーは 録音中表示・経過・BPM・停止 の最小構成
+
+分担:
+- **Mac側**: `@capacitor/screen-orientation` を殻に追加し、arcodaRecorder.ts と同様の
+  型付きクライアント `app/_libs/arcodaOrientation.ts` を作る。契約:
+  `lockLandscape(): Promise<void>` / `unlock(): Promise<void>` (プラグイン不在時はNOOPで解決)。
+  Info.plist の対応向きも landscape 追加。実機再インストールまで
+- **Windows側**: Recorder/scoreDetail の横画面モード本体 (単一帯譜面・横スクロール計画・
+  ガイド線10%・横レイアウトCSS)。arcodaOrientation.ts のNOOP版を先に置いて開発を進める
+
+### 9b. Googleログインのアプリ対応 (ペンディング解除)
+
+問題: 殻は外部ドメイン(accounts.google.com)をSafariで開くため、ログイン後Web版に着地する。
+
+方式 (Capacitor+Supabaseの定石):
+- Web側: `isNativeApp()` のとき `signInWithOAuth({ skipBrowserRedirect: true, redirectTo: "arcoda://auth-callback" })` でURLだけ取得し、認証専用のアプリ内ブラウザで開く (PKCE)
+- Mac側: `@capacitor/browser` 追加 + URLスキーム `arcoda://` をInfo.plistに登録 +
+  appUrlOpen で `arcoda://auth-callback?code=...` を受けたら WebView に
+  `https://arcodaviolin.com/auth/native-callback?code=...` を読み込ませる
+- Web側: `/auth/native-callback` ページで `exchangeCodeForSession(code)` →ホームへ
+- Supabaseダッシュボード: Redirect URLs に `arcoda://auth-callback` を追加 (Tetsuo操作・後日)
+
+### 9c. Phase 3 (プッシュ通知+アイコン) は 9a/9b の後。アイコン素材はTetsuoと相談
+
+### 実装順 (2026-08-15 合意)
+1. Windows: 9aのWeb側 → 2. Mac: 9aの殻+9bの殻 → 3. Windows: 9bのWeb側 → 4. 実機検証 → 5. Phase 3
