@@ -8,7 +8,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = scene as? UIWindowScene else { return }
 
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = CAPBridgeViewController()
+        // スクロールの手触りを Safari に合わせるためのカスタム VC (MyViewController.swift)。
+        // Capacitor 8 の殻は storyboard ではなくここで root を作るので、差し替えはこの行が本体。
+        window?.rootViewController = MyViewController()
         window?.makeKeyAndVisible()
 
         SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)
