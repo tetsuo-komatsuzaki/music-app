@@ -64,7 +64,8 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
       {/* ── 1. 達成/マスター進捗 (共通部品 GoalTracker) ── */}
       <section className={styles.summarySection}>
         <h2 className={styles.sectionTitle} style={{ display: "flex", alignItems: "center", gap: 6 }}><Trophy size={18} color="#b58a1e" /> {goalHeadline(achv)}</h2>
-        <GoalTracker achv={achv} userId={userId} scoreId={scoreId} />
+        {/* scoreIdは渡さない: ふりかえりタブには上達のようすが同一ページにあり、リンクが重複するため (2026-08-16 Tetsuo指定) */}
+        <GoalTracker achv={achv} userId={userId} />
       </section>
 
       {/* ── 2. 学びのポイント (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホームと共通ロジック) ── */}
