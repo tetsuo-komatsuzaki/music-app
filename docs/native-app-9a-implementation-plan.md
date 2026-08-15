@@ -101,3 +101,26 @@
 5. 横レイアウトUI (バー・左右セーフエリア・リサイズ再構築) = B8-B11
 6. arcodaOrientation.ts (NOOP動作) + isNativeApp結線
 7. Mac殻v2 (プラグイン+plist) → 実機C/D
+
+## 5. CSS全数監査 (2026-08-15 実施・Tetsuo指示)
+
+録音全画面・譜面コンテナ (#osmd-container) とその内容物に作用しうる従来CSSを全ファイル
+(scoreDetail.module.css / ScoreFullscreen.css / globals.css / AnnotationLayer.module.css /
+SymbolGuide.module.css) から洗い出し、帯モードへの影響を1件ずつ判定した。
+
+| 既存ルール | 帯への影響 | 処置 |
+|---|---|---|
+| .osmdContainer svg { max-width:100% } | **衝突**: 帯SVGを0.31倍に縮小 (真因#2) | 帯専用スタイルで解除済 (b4) |
+| 短譜面の縦積み body[data-short-score] { flex-direction:column } | **衝突**: 帯で誤発動し横中央寄せ化・左931px到達不能 (真因#3) | :not([data-rec-band]) で適用条件を排他化 (b7)。縦レイアウトの既存挙動は不変 |
+| .osmdContainer { overflow両方向auto / scrollbar-gutter } | 競合しうる | 帯で横スクロール専用に上書き済 (b3) |
+| .scoreMock { min-height/padding 10px } | 軽微 (縦オフセット10px) | 実機目視で問題あれば詰める |
+| .playbackCursor { absolute / transition left 50ms } | 無害 (絶対配置=フレックス外・遷移は平滑化に寄与) | 変更なし |
+| .beatBall | 無害 (カーソルに随伴) | 変更なし |
+| fullscreen-bar (fixed・transform禁止設計) | 共用 | 帯で左右セーフエリアのみ追加済 |
+| 全画面の隠し系 (header/tabs/fullscreen-hide/短譜面以外) | 共用で正しく動作 | 変更なし |
+| globals.css の button/.pressable transform | 無害 (バーはtransform禁止設計・カーソルは対象外) | 変更なし |
+| AnnotationLayer/SymbolGuide のオーバーレイ | 無害 (absolute=フレックス外)。座標妥当性はB6で実測 | 変更なし |
+| 拡大ビュー (data-score-expand) | 排他 (録音開始で自動クローズ+属性が別) | 変更なし |
+
+結論: 帯モードに影響する従来ルールは2件 (svg縮小・短譜面縦積み) で、いずれも
+「優先度の上書き」ではなく「適用条件の排他化 or 帯専用シートでの明示上書き」として処置済み。
