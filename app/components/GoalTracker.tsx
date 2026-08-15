@@ -235,7 +235,7 @@ export default function GoalTracker({ achv, userId, scoreId }: { achv: Achieveme
                 ? "まだ演奏がないよ"
                 : needMore
                 ? `5回ぶん演奏すると判定できるよ・いま${achv.master.scoredCount}回・あと${remainingRuns}回`
-                : "直近5回の平均で判定中"}
+                : null}
               {scoreId && avg != null && (
                 <button
                   type="button"
