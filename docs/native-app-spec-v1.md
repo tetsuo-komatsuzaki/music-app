@@ -23,8 +23,8 @@ music-app/music-app
 - **remote URL方式**: アプリはarcodaviolin.comを表示する殻。UI更新はVercelデプロイだけで
   Web/アプリ同時反映。審査再提出は殻・プラグイン変更時のみ。
 - 判定スイッチ `isNativeApp()` を app/_libs に1つ新設し、アプリ内分岐はすべてこれに集約。
-- Bundle ID（案）: `com.arcodaviolin.app`（要Tetsuo承認）
-- アプリ表示名（案）: 「アルコ」
+- Bundle ID: `com.arcodaviolin.app`（2026-08-15 確定）
+- アプリ表示名: 「アルコ」（2026-08-15 確定）
 
 ## 2. ネイティブ録音プラグイン仕様（ArcodaRecorder）
 
@@ -83,8 +83,8 @@ Supabase転送量が約3倍ペースに（FLAC 3MB/分）。無料枠5GB/月は�
 
 ## 4. フェーズ計画
 
-- **Phase 0**: サーバーFLAC対応＋E2E（アプリなしで完結・Web版に影響なし）
-- **Phase 1**: Capacitor土台＋録音プラグイン実装（native/配下。Macでビルド）
+- **Phase 0**: ✅ サーバーFLAC対応＋E2E（アプリなしで完結・Web版に影響なし）
+- **Phase 1**: ✅ Capacitor土台＋録音プラグイン実装（native/配下。Macでビルド）→ §7
 - **Phase 2**: Recorder統合＋Tetsuo実機で録音品質検証（measurementの録れ音を実採点比較）
 - **Phase 3**: プッシュ通知（審査4.2対策＋教育的価値）、アプリアイコン/スプラッシュ
 - **Phase 4**: TestFlight配布→本審査提出
@@ -98,13 +98,40 @@ Supabase転送量が約3倍ペースに（FLAC 3MB/分）。無料枠5GB/月は�
   安全側の初期方針: `isNativeApp()` でアプリ内はプラン加入導線を非表示
   （既加入者の機能は全て使える）。スマホ新法の運用状況を見て開放を判断。
 
-## 6. 未決事項（Tetsuo判断待ち）
+## 6. 決定事項（2026-08-15 Tetsuo確定）
 
-1. Bundle ID `com.arcodaviolin.app` でよいか
-2. アプリ表示名「アルコ」でよいか
-3. 課金導線の初期方針（上記の安全側=非表示 で開始してよいか）
+1. Bundle ID = `com.arcodaviolin.app`
+2. アプリ表示名 = 「アルコ」
+3. 課金導線は初回審査では**非表示**（安全側で開始。既加入者の機能は全て使える）
 
-## 7. やらないこと（明示）
+## 7. Phase 1 実装メモ（2026-08-15 完了）
+
+実体は `native/` 配下。手順とトラブルシュートは [`native/README.md`](../native/README.md)。
+
+### 設計からの差分（いずれも意図的）
+
+| 項目 | 設計時 | 実装 | 理由 |
+|---|---|---|---|
+| Blob化 | Capacitor Filesystem で読み出し | プラグイン自身の `readChunk()` で分割読み | 最大64MBを一括base64化するとWebViewのメモリを圧迫する。分割で継ぎ足す方が安全で、依存も1つ減る |
+| iOS連携 | CocoaPods 想定 | **SPM**（Capacitor 8 の既定） | CocoaPods 不要になり環境構築が軽い。podspec も残してあるので戻せる |
+| イベント | `interruption` のみ | `interruption` / `maxDuration` / `routeChange` / `recordingError` | 上限10分到達・録音中の経路変更・書き込み失敗を Recorder 側が区別して扱えるようにするため |
+| `start()` の解決 | 呼び出し直後 | **最初の音声バッファ到着時** | `startedAtMs` を「実際に最初のサンプルが録れた時刻」にしないとテンポガイドとの同期がずれる。5秒来なければ START_TIMEOUT で失敗させる |
+
+### 環境要件（重要）
+
+**Xcode 26 以上が必要。** Capacitor 8.5 が配布する `Capacitor.xcframework` は Swift 6.2
+でビルドされており、`.swiftinterface` 内の `call.reject` 等が `$NonescapableTypes` で
+囲まれている。Xcode 16 系（Swift 6.0）ではこれらが「存在しないAPI」と判定されて
+プラグインがビルドできない。Phase 4 の審査提出でも新しいXcodeは必要になるため、
+Xcode を上げる方針とする（Capacitor 7 に落とせば Xcode 16 でも通るが、後で上げ直しになる）。
+
+### 検証済み / 未検証
+
+- 検証済み: Xcodeプロジェクト生成、プラグインのSPM認識、Swift 2ファイルのコンパイル
+  （Capacitor 7 SPM に対する型検査でBUILD SUCCEEDED）、Web側3ファイルの tsc / eslint / vitest
+- 未検証: 実機での録音そのもの（Phase 2 で Tetsuo 実機・Xcode 26 環境にて）
+
+## 8. やらないこと（明示）
 
 - PWA化（録音が改善しないため価値なし）
 - UIのネイティブ書き直し（remote URL方式で共通化）

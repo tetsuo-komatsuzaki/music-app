@@ -1,0 +1,20 @@
+{
+  "name": "arcoda-native",
+  "version": "0.1.0",
+  "private": true,
+  "description": "アルコ iOS アプリの殻 (Capacitor remote URL 方式) — ARC-SPEC-NATIVE-1.0 Phase 1",
+  "scripts": {
+    "sync": "cap sync ios",
+    "open": "cap open ios",
+    "doctor": "cap doctor"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
+    "arcoda-recorder": "file:./plugins/arcoda-recorder"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.0",
+    "typescript": "^5"
+  }
+}

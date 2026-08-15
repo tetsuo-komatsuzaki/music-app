@@ -1,0 +1,19 @@
+node_modules/
+
+# CocoaPods / SPM の取得物 (cap sync で再生成される)
+ios/App/Pods/
+ios/App/Podfile.lock
+ios/App/public/
+
+# Xcode のローカル状態・ビルド成果物
+ios/App/build/
+ios/App/DerivedData/
+ios/App/App.xcodeproj/xcuserdata/
+ios/App/App.xcodeproj/project.xcworkspace/xcuserdata/
+ios/App/App.xcworkspace/xcuserdata/
+*.xcuserstate
+
+# 署名関連 (絶対にコミットしない)
+*.mobileprovision
+*.p12
+*.cer
