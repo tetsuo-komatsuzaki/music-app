@@ -85,7 +85,7 @@ Supabase転送量が約3倍ペースに（FLAC 3MB/分）。無料枠5GB/月は�
 
 - **Phase 0**: ✅ サーバーFLAC対応＋E2E（アプリなしで完結・Web版に影響なし）
 - **Phase 1**: ✅ Capacitor土台＋録音プラグイン実装（native/配下。Macでビルド）→ §7
-- **Phase 2**: 🔶 Recorder統合 ✅ → §7-2 / Tetsuo実機での録音品質検証（measurementの録れ音を実採点比較）は未実施
+- **Phase 2**: ✅ Recorder統合＋実機でのネイティブ録音→FLAC→採点が本番で動作（2026-08-15）→ §7-2
 - **Phase 3**: プッシュ通知（審査4.2対策＋教育的価値）、アプリアイコン/スプラッシュ
 - **Phase 4**: TestFlight配布→本審査提出
 
@@ -144,8 +144,9 @@ Xcode 26 が使えている以上、得るものがない。
 - 検証済み: Xcodeプロジェクト生成、プラグインのSPM認識、Swift のコンパイルと
   リンク（Xcode 26.1 / iOS 26.1 SDK で BUILD SUCCEEDED・プラグインのシンボルが
   実行バイナリに存在）、Web側の tsc / eslint / vitest（445件パス）
-- 未検証: **実機での録音そのもの**（録れ音の品質・`startedAtMs` の同期精度・
-  FLACのdecodeAudioData可否は実機でしか確認できない）
+- 検証済み（2026-08-15 実機・本番）: ネイティブ録音→FLAC書き出し→アップロード→
+  ローカル削除までの全経路（§7-2）
+- 未検証: 録れ音の**品質そのもの**（Web版との実採点比較）・`startedAtMs` の同期精度
 
 ## 7-2. Phase 2 実装メモ（2026-08-15 完了）
 
@@ -168,6 +169,54 @@ Xcode 26 が使えている以上、得るものがない。
 | 音量メーター | 言及なし | プラグインに `level` イベントを新設 | アプリ版は MediaStream を持たないので AnalyserNode が使えない。入力タップの生バッファから RMS/ピークを 20fps で送り、Web版と同じメーター表示にした |
 | 停止の合流点 | 停止ボタンのみ | `finalizeNative()` に停止・上限10分・中断を合流 | 3経路が同時に来ても二重に stop() しないよう `nativeFinalizingRef` で一本化 |
 | 品質チェック | 言及なし | `decodeAudioData` 失敗時は波形と判定を諦めて preview へ進む | FLAC をデコードできない環境でも録音とアップロードは通す（採点はサーバー側で行う） |
+
+### 実機検証の結果（2026-08-15 本番で成功）
+
+Tetsuo の iPhone 17 + 本番サイトで、ネイティブ録音の全経路が通った。
+
+```
+JS→isAvailable() → checkPermission() granted → addListener ×4 → JS→start()
+configureSession(): hw=48000Hz in=MicrophoneBuiltIn out=Speaker otherAudioPlaying=true
+startEngine(): inputFormat 48000Hz ch=1 → engine.start() 成功
+consume(): 最初のバッファ到着                    ← START_TIMEOUT せず
+finalize(): flac 986789bytes 26173ms fallback=false
+readChunk(): offset=0 read=986789 total=986789 eof=true
+deleteFile → {"deleted":true}                    ← アップロード成功後の削除
+```
+
+**48kHz / モノ / FLAC・26.2秒・約987KB・WAVフォールバックなし。**
+
+### 真因だった不具合: `registerPlugin` は注入ブリッジに無い
+
+Phase 2 の統合後もアプリ内の録音がすべて webm になっていた。原因は
+`getPlugin()` が `window.Capacitor.registerPlugin` の存在を要求していたこと。
+
+remote URL 方式で WebView に入るのは Capacitor の**注入ブリッジ
+(`native-bridge.js`) だけ**で、`registerPlugin` は `@capacitor/core`
+(JS ランタイム) 側の API なので生えない。結果 `getPlugin()` が常に null を返し、
+アプリ内でも従来の MediaRecorder 経路へ静かに落ちていた。
+
+注入ブリッジが公開しているのは以下。プラグインを呼ぶときはこれを使う。
+
+| API | 用途 |
+|---|---|
+| `nativePromise(plugin, method, options)` | メソッド呼び出し (options は `{}` を必ず渡す) |
+| `addListener(plugin, event, cb)` | イベント購読。戻り値は `{ remove }` |
+| `isPluginAvailable(name)` | `Capacitor.Plugins` にキーがあるかを見るだけ |
+
+`isPluginAvailable` は true を返すのに呼び出しができない、という紛らわしい状態に
+なるので注意。**Android 版でも同じ罠を踏む**ので、同設計で着手するときは
+最初からこの形で書くこと。
+
+### 検証で分かった「起きなかったこと」
+
+事前に疑っていた2点は、実機ログで**どちらも起きないことが確認された**。
+
+- **WebView の AudioContext と AVAudioSession の取り合い**: カウントイン音を
+  WebAudio で鳴らした直後に `start()` しても、`otherAudioPlaying=true` のまま
+  `engine.start()` は成功し最初のバッファも届く。両者は共存できる
+- **stop 後の readChunk / Blob 化**: 約987KB を1回で読み切り `eof=true`。
+  分割読みの仕組みは効いているが、この規模では分割自体が発生しない
 
 ### 残っている接続（Phase 3 以降）
 

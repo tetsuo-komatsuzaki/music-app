@@ -1,7 +1,6 @@
 import Capacitor
 import Foundation
 import UIKit
-import os
 
 /// ARC-SPEC-NATIVE-1.0 §2 — WebView (arcodaviolin.com) から呼ばれる橋渡し層。
 /// 実際の録音処理は `ArcodaRecorder` にあり、ここは引数検証と
@@ -29,7 +28,6 @@ public class ArcodaRecorderPlugin: CAPPlugin, CAPBridgedPlugin {
     private let recorder = ArcodaRecorder()
 
     override public func load() {
-        arcodaLog.info("plugin load(): 診断ログ有効")
         ArcodaRecorder.purgeStaleRecordings()
         recorder.onEvent = { [weak self] event in
             guard let self else { return }
@@ -52,7 +50,6 @@ public class ArcodaRecorderPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func isAvailable(_ call: CAPPluginCall) {
-        arcodaLog.info("JS→isAvailable() — Phase2のJSが動いている証拠")
         call.resolve([
             "available": true,
             "platform": "ios",
@@ -61,7 +58,6 @@ public class ArcodaRecorderPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func checkPermission(_ call: CAPPluginCall) {
-        arcodaLog.info("JS→checkPermission() status=\(ArcodaRecorder.permissionStatus(), privacy: .public)")
         call.resolve([
             "granted": ArcodaRecorder.permissionGranted(),
             "status": ArcodaRecorder.permissionStatus(),
@@ -69,7 +65,6 @@ public class ArcodaRecorderPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func requestPermission(_ call: CAPPluginCall) {
-        arcodaLog.info("JS→requestPermission()")
         ArcodaRecorder.requestPermission { granted in
             call.resolve([
                 "granted": granted,
@@ -79,7 +74,6 @@ public class ArcodaRecorderPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func start(_ call: CAPPluginCall) {
-        arcodaLog.info("JS→start()")
         let sampleRate = call.getDouble("sampleRate")
         let maxDurationSec = call.getDouble("maxDurationSec")
         recorder.start(sampleRate: sampleRate, maxDurationSec: maxDurationSec) { result in
@@ -96,11 +90,9 @@ public class ArcodaRecorderPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func stop(_ call: CAPPluginCall) {
-        arcodaLog.info("JS→stop()")
         recorder.stop { result in
             switch result {
             case .success(let recording):
-                arcodaLog.info("stop(): JSへ返す \(recording.format, privacy: .public) \(recording.bytes, privacy: .public)bytes")
                 var data: [String: Any] = [
                     "path": recording.url.path,
                     "uri": recording.url.absoluteString,
@@ -127,7 +119,6 @@ public class ArcodaRecorderPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func cancel(_ call: CAPPluginCall) {
-        arcodaLog.info("JS→cancel()")
         recorder.cancel { call.resolve() }
     }
 
@@ -153,7 +144,6 @@ public class ArcodaRecorderPlugin: CAPPlugin, CAPBridgedPlugin {
 
             try handle.seek(toOffset: UInt64(offset))
             let data = try handle.read(upToCount: length) ?? Data()
-            arcodaLog.info("JS→readChunk(): offset=\(offset, privacy: .public) read=\(data.count, privacy: .public) total=\(total, privacy: .public) eof=\(offset + data.count >= total, privacy: .public)")
             call.resolve([
                 "data": data.base64EncodedString(),
                 "bytesRead": data.count,
@@ -161,10 +151,8 @@ public class ArcodaRecorderPlugin: CAPPlugin, CAPBridgedPlugin {
                 "eof": offset + data.count >= total,
             ])
         } catch let error as ArcodaRecorderError {
-            arcodaLog.error("JS→readChunk(): 失敗 \(error.code, privacy: .public)")
             reject(call, error)
         } catch {
-            arcodaLog.error("JS→readChunk(): 失敗 \(error.localizedDescription, privacy: .public)")
             call.reject(error.localizedDescription, ArcodaRecorderError.ioFailed("").code, error)
         }
     }

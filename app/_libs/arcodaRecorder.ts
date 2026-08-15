@@ -151,22 +151,7 @@ function getPlugin(): PluginHandle | null {
  */
 export async function isNativeRecorderAvailable(): Promise<boolean> {
   const plugin = getPlugin()
-  if (!plugin) {
-    // [一時診断] アプリ内でネイティブ経路に入れない原因の切り分け用。
-    // Capacitor が console を実機ログへ転送するので、実機で読める。
-    // 原因が判明したら消す。
-    const capacitor = getCapacitor()
-    console.log(
-      "[native/diag] capacitor=", !!capacitor,
-      "isNativeApp=", isNativeApp(),
-      "platform=", capacitor?.getPlatform?.(),
-      "pluginAvailable=", capacitor?.isPluginAvailable?.(PLUGIN_NAME),
-      "hasRegisterPlugin=", typeof capacitor?.registerPlugin,
-      "hasNativePromise=", typeof capacitor?.nativePromise,
-      "hasAddListener=", typeof capacitor?.addListener,
-    )
-    return false
-  }
+  if (!plugin) return false
   try {
     const result = await plugin.isAvailable()
     return result.available === true
