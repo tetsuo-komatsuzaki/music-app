@@ -1,5 +1,6 @@
 import AVFoundation
 import Foundation
+import os
 
 /// ARC-SPEC-NATIVE-1.0 §2 — 加工なし録音エンジン。
 ///
@@ -76,6 +77,47 @@ enum ArcodaRecorderEvent {
     case level(rms: Double, peak: Double)
     case failure(code: String, message: String)
 }
+
+/// 実機での失敗箇所を切り分けるための診断ログ。
+///
+/// os_log だけだと `devicectl device process launch --console` に流れてこないので
+/// NSLog にも出す。Logger と同じ `\(値, privacy: .public)` 記法をそのまま書けるよう、
+/// 独自の文字列補間を持たせている。
+enum ArcodaLogPrivacy { case `public`, `private` }
+
+struct ArcodaDiagnostics {
+    struct Message: ExpressibleByStringInterpolation {
+        let text: String
+        init(stringLiteral value: String) { text = value }
+        init(stringInterpolation: Interpolation) { text = stringInterpolation.buffer }
+
+        struct Interpolation: StringInterpolationProtocol {
+            var buffer = ""
+            init(literalCapacity: Int, interpolationCount: Int) {
+                buffer.reserveCapacity(literalCapacity + interpolationCount * 8)
+            }
+            mutating func appendLiteral(_ literal: String) { buffer += literal }
+            mutating func appendInterpolation<T>(_ value: T,
+                                                privacy: ArcodaLogPrivacy = .public) {
+                buffer += "\(value)"
+            }
+        }
+    }
+
+    private let logger = Logger(subsystem: "com.arcodaviolin.app", category: "recorder")
+
+    func info(_ message: Message) {
+        logger.info("\(message.text, privacy: .public)")
+        NSLog("[ArcodaRecorder] %@", message.text)
+    }
+
+    func error(_ message: Message) {
+        logger.error("\(message.text, privacy: .public)")
+        NSLog("[ArcodaRecorder][ERROR] %@", message.text)
+    }
+}
+
+let arcodaLog = ArcodaDiagnostics()
 
 final class ArcodaRecorder {
     private enum State {
@@ -180,11 +222,14 @@ final class ArcodaRecorder {
                maxDurationSec: Double?,
                completion: @escaping (Result<Double, Error>) -> Void) {
         queue.async {
+            arcodaLog.info("start(): 要求 sampleRate=\(sampleRate ?? -1, privacy: .public) max=\(maxDurationSec ?? -1, privacy: .public) state=\(String(describing: self.state), privacy: .public)")
             guard self.state == .idle else {
+                arcodaLog.error("start(): BUSY (state=\(String(describing: self.state), privacy: .public))")
                 self.deliverStart(completion, .failure(ArcodaRecorderError.busy))
                 return
             }
             guard ArcodaRecorder.permissionGranted() else {
+                arcodaLog.error("start(): PERMISSION_DENIED")
                 self.deliverStart(completion, .failure(ArcodaRecorderError.permissionDenied))
                 return
             }
@@ -199,17 +244,21 @@ final class ArcodaRecorder {
                 try self.prepareFile()
                 try self.startEngine()
             } catch {
+                arcodaLog.error("start(): 準備に失敗 \(String(describing: error), privacy: .public)")
                 self.teardown(deleteFile: true)
                 self.deliverStart(completion, .failure(error))
                 return
             }
 
+            arcodaLog.info("start(): エンジン起動済み。最初のバッファ待ち (最大\(ArcodaRecorder.startTimeoutSec, privacy: .public)秒)")
             self.state = .starting
             self.pendingStart = completion
 
             // 最初のバッファが来ない = 実質録れていない。無音のまま進ませない。
             let timeout = DispatchWorkItem { [weak self] in
                 guard let self, self.state == .starting else { return }
+                let session = AVAudioSession.sharedInstance()
+                arcodaLog.error("start(): START_TIMEOUT — マイクからバッファが1つも来なかった。category=\(session.category.rawValue, privacy: .public) mode=\(session.mode.rawValue, privacy: .public) otherAudioPlaying=\(session.isOtherAudioPlaying, privacy: .public) inputAvailable=\(session.isInputAvailable, privacy: .public) sampleRate=\(session.sampleRate, privacy: .public)")
                 let pending = self.pendingStart
                 self.pendingStart = nil
                 self.teardown(deleteFile: true)
@@ -278,6 +327,7 @@ final class ArcodaRecorder {
         }
         hardwareSampleRate = session.sampleRate
         routeUsed = ArcodaRecorder.describeRoute(session.currentRoute)
+        arcodaLog.info("configureSession(): OK hw=\(self.hardwareSampleRate, privacy: .public)Hz route=\(self.routeUsed, privacy: .public) otherAudioPlaying=\(session.isOtherAudioPlaying, privacy: .public)")
     }
 
     private func startEngine() throws {
@@ -285,7 +335,9 @@ final class ArcodaRecorder {
         engine = AVAudioEngine()
         let input = engine.inputNode
         let inputFormat = input.outputFormat(forBus: 0)
+        arcodaLog.info("startEngine(): inputFormat \(inputFormat.sampleRate, privacy: .public)Hz ch=\(inputFormat.channelCount, privacy: .public)")
         guard inputFormat.sampleRate > 0, inputFormat.channelCount > 0 else {
+            arcodaLog.error("startEngine(): NO_INPUT (inputFormatが0)")
             throw ArcodaRecorderError.noInput
         }
         guard let file else { throw ArcodaRecorderError.noInput }
@@ -310,7 +362,9 @@ final class ArcodaRecorder {
         do {
             engine.prepare()
             try engine.start()
+            arcodaLog.info("startEngine(): engine.start() 成功")
         } catch {
+            arcodaLog.error("startEngine(): engine.start() 失敗 \(error.localizedDescription, privacy: .public)")
             input.removeTap(onBus: 0)
             throw ArcodaRecorderError.engineFailed(error.localizedDescription)
         }
@@ -328,6 +382,7 @@ final class ArcodaRecorder {
             startedAtMs = hostSeconds.isNaN
                 ? Date().timeIntervalSince1970 * 1000
                 : wallRefMs + (hostSeconds - hostRefSeconds) * 1000
+            arcodaLog.info("consume(): 最初のバッファ到着 startedAtMs=\(self.startedAtMs, privacy: .public)")
             state = .recording
             startTimeoutItem?.cancel()
             startTimeoutItem = nil
@@ -565,13 +620,16 @@ final class ArcodaRecorder {
                 hardwareSampleRate: hwRate,
                 didFallback: fallback
             )
+            arcodaLog.info("finalize(): 確定 \(usedFormat, privacy: .public) \(bytes, privacy: .public)bytes \(ms, privacy: .public)ms fallback=\(fallback, privacy: .public) path=\(url.lastPathComponent, privacy: .public)")
             state = .finalized
         } else {
+            arcodaLog.error("finalize(): ファイルURLが無い (録音ファイルが作られていない)")
             state = .idle
         }
     }
 
     private func fail(_ error: ArcodaRecorderError) {
+        arcodaLog.error("fail(): \(error.code, privacy: .public) — \(error.errorDescription ?? "", privacy: .public)")
         let pending = pendingStart
         pendingStart = nil
         teardown(deleteFile: true)
