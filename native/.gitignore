@@ -11,6 +11,7 @@ ios/App/DerivedData/
 ios/App/App.xcodeproj/xcuserdata/
 ios/App/App.xcodeproj/project.xcworkspace/xcuserdata/
 ios/App/App.xcworkspace/xcuserdata/
+plugins/*/.swiftpm/
 *.xcuserstate
 
 # 署名関連 (絶対にコミットしない)
