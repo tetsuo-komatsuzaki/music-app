@@ -122,13 +122,14 @@ export default function ArcoResultOverlay({
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ width: 34, flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)" }}>音程</span>
-              <span style={{ flex: 1, height: 8, borderRadius: 5, background: "#eef1f5", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(pitch)}%`, background: "#2b5bc4", borderRadius: 5 }} /></span>
-              <b style={{ width: 26, flex: "none", textAlign: "right", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#1f3d78", fontVariantNumeric: "tabular-nums" }}>{Math.round(pitch)}</b>
+              {/* 軸色は上達のようすと統一 (2026-08-16): 音程=オレンジ / リズム=緑 */}
+              <span style={{ flex: 1, height: 8, borderRadius: 5, background: "#eef1f5", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(pitch)}%`, background: "#e0872b", borderRadius: 5 }} /></span>
+              <b style={{ width: 26, flex: "none", textAlign: "right", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#a3591a", fontVariantNumeric: "tabular-nums" }}>{Math.round(pitch)}</b>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ width: 34, flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)" }}>リズム</span>
-              <span style={{ flex: 1, height: 8, borderRadius: 5, background: "#eef1f5", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(timing)}%`, background: "#e6a94a", borderRadius: 5 }} /></span>
-              <b style={{ width: 26, flex: "none", textAlign: "right", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#8a5a1f", fontVariantNumeric: "tabular-nums" }}>{Math.round(timing)}</b>
+              <span style={{ flex: 1, height: 8, borderRadius: 5, background: "#eef1f5", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(timing)}%`, background: "#2e8b57", borderRadius: 5 }} /></span>
+              <b style={{ width: 26, flex: "none", textAlign: "right", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#1e6b42", fontVariantNumeric: "tabular-nums" }}>{Math.round(timing)}</b>
             </div>
           </div>
         </div>
@@ -171,7 +172,7 @@ export default function ArcoResultOverlay({
                 <>
                   {/* ゲージ: 直近5回平均 vs 90点ライン */}
                   <div style={{ position: "relative", height: 14, borderRadius: 7, background: "#eef0f4", margin: "26px 4px 6px" }}>
-                    <span style={{ position: "absolute", inset: "0 auto 0 0", width: `${Math.min(avg, 100)}%`, borderRadius: 7, background: "linear-gradient(90deg,#7a8ce0,#5b6b9e)" }} />
+                    <span style={{ position: "absolute", inset: "0 auto 0 0", width: `${Math.min(avg, 100)}%`, borderRadius: 7, background: "linear-gradient(90deg,#7a9be0,#2b5bc4)" }} />
                     <span style={{ position: "absolute", top: -7, bottom: -7, left: "90%", width: 3, borderRadius: 2, background: "#c9a227" }}>
                       <span style={{ position: "absolute", top: -19, right: -4, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-master)", whiteSpace: "nowrap" }}>90点</span>
                     </span>

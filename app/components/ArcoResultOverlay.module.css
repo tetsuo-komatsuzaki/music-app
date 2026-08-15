@@ -1,6 +1,6 @@
 .overlay {
   position: fixed; inset: 0; z-index: 1000;
-  background: rgba(30, 24, 18, .5);
+  background: rgba(11, 30, 58, .5);
   display: flex; align-items: center; justify-content: center;
   padding: 18px;
   animation: fade .2s ease both;
@@ -8,8 +8,9 @@
 @keyframes fade { from { opacity: 0 } to { opacity: 1 } }
 
 .sheet {
-  --panel:#FFFFFF; --ink:#2A2420; --inkSoft:#6B6258; --inkFaint:#9A9187; --line:#EAE3D8;
-  --accent:#B5762E; --accentSoft:#F3E6D2; --good:#3E8E7E; --goodSoft:#DCEEEA; --ground:#FAF7F2;
+  /* 配色案1 (2026-08-16): 構造=ネイビー一族。金=成果(Sランク/トロフィー/90点ライン)のみ */
+  --panel:#FFFFFF; --ink:#16294f; --inkSoft:#54678f; --inkFaint:#8b97a3; --line:#D9E3F4;
+  --accent:#2b5bc4; --accentSoft:#e7edfb; --good:#2e8b57; --goodSoft:#f2faf5; --ground:#f3f6fb;
   position: relative;
   width: 100%; max-width: 380px; max-height: 92vh; overflow-y: auto;
   background: var(--panel); border-radius: 22px;
@@ -39,10 +40,10 @@
 .bigNum { font-size: var(--fs-display); font-weight: 900; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; }
 .bigUnit { font-size: var(--fs-subhead); font-weight: 700; color: var(--inkSoft); }
 .rank { margin-left: 8px; align-self: center; font-size: var(--fs-body); font-weight: 900; color: var(--text-on-accent); border-radius: 8px; padding: 3px 9px; }
-.rS { background: linear-gradient(120deg,#E7B24A,#C98A1F); }
-.rA { background: #3E8E7E; }
-.rB { background: #6C6BA8; }
-.rC { background: #9A9187; }
+.rS { background: linear-gradient(120deg,#E7B24A,#C98A1F); } /* Sのみ金=成果 */
+.rA { background: #2b5bc4; }
+.rB { background: #5b6b9e; }
+.rC { background: #8a9099; }
 .subs { display: flex; gap: 16px; }
 .sub { display: flex; flex-direction: column; align-items: center; font-size: var(--fs-caption); color: var(--inkSoft); font-weight: 700; }
 .sub b { font-size: var(--fs-head); color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -81,7 +82,7 @@
 
 @media (prefers-color-scheme: dark) {
   .sheet {
-    --panel:#201C17; --ink:#F0EAE0; --inkSoft:#B3AA9C; --inkFaint:#8A8175; --line:#322C24;
-    --accent:#D9A15A; --accentSoft:#3A2E1C; --good:#6FC0AF; --goodSoft:#1E332F; --ground:#16130F;
+    --panel:#141b2b; --ink:#e7edfb; --inkSoft:#a9b6d0; --inkFaint:#7d8aa5; --line:#26314a;
+    --accent:#7a9be8; --accentSoft:#1c2a4a; --good:#6fc0a0; --goodSoft:#1e332b; --ground:#0f1524;
   }
 }
