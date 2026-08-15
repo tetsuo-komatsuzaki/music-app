@@ -991,6 +991,19 @@ function computeResponsiveZoom(containerWidth: number): number {
   return 0.85
 }
 
+// 9aデバッグ計測 (?recband=1 のときのみ画面に表示される内部状態。恒久機能ではない)
+type BandStats = {
+  gen: number; mapSize: number; ok: number; fail: number; lastFail: string
+  cursorLeft: string; cursorTop: string; cursorDisp: string; scrollLeft: number; loopErr: string
+}
+function bandStats(): BandStats {
+  const w = window as unknown as { __arcodaBandStats?: BandStats }
+  if (!w.__arcodaBandStats) {
+    w.__arcodaBandStats = { gen: 0, mapSize: 0, ok: 0, fail: 0, lastFail: "", cursorLeft: "", cursorTop: "", cursorDisp: "", scrollLeft: 0, loopErr: "" }
+  }
+  return w.__arcodaBandStats
+}
+
 // 9a帯モード: 「画面幅に約5小節」を狙って倍率を合わせる (2026-08-15 Tetsuo指定)。
 // 現在の描画から1小節あたりの幅を実測し、目標小節数から逆算する。
 const BAND_MEASURES_PER_SCREEN = 5
@@ -1070,6 +1083,7 @@ function ScoreViewer({
     container.innerHTML = ""
     setError(null)
 
+    bandStats().gen++
     const osmd = new OpenSheetMusicDisplay(container, {
       autoResize: true,
       backend: "svg",
@@ -1148,6 +1162,10 @@ function ScoreViewer({
     return () => {
       mutationObserver.disconnect()
       if (mutationTimer) clearTimeout(mutationTimer)
+      // 重要 (9a真因調査 2026-08-15): OSMDのresizeハンドラは自身のgraphicが存在する限り
+      // 旧インスタンスでも再描画を実行する (autoResizeEnabledフラグはハンドラ内で参照されない
+      // ことをソースで確認)。clear()でgraphicを破棄し、置き換え後の再描画暴発を封じる。
+      try { osmd.clear() } catch { /* noop */ }
       osmdInstanceRef.current = null
     }
   }, [buildUrl, showPage, singleStaffLine, bandMode])
@@ -1582,6 +1600,20 @@ function ScoreDetailInner({
     typeof window !== "undefined" && new URLSearchParams(window.location.search).has("recband"),
   )
   const recBand = isFullscreen && recBandRequested
+  // 9aデバッグ: recband時のみ内部状態を画面に出す (真因特定用・恒久機能ではない)
+  const [bandDebugText, setBandDebugText] = useState("")
+  useEffect(() => {
+    if (!recBandRequested) return
+    const t = setInterval(() => {
+      const s = bandStats()
+      const svgCount = document.getElementById("osmd-container")?.querySelectorAll("svg").length ?? 0
+      setBandDebugText(
+        `gen:${s.gen} map:${s.mapSize} ok:${s.ok} fail:${s.fail} last:${s.lastFail || "-"} ` +
+        `cur:${s.cursorLeft || "-"},${s.cursorTop || "-"},${s.cursorDisp || "-"} sc:${s.scrollLeft} svg:${svgCount} err:${s.loopErr || "-"}`,
+      )
+    }, 400)
+    return () => clearInterval(t)
+  }, [recBandRequested])
   useEffect(() => {
     if (recBand) {
       document.body.setAttribute("data-rec-band", "true")
@@ -2008,8 +2040,10 @@ function ScoreDetailInner({
 
       sortedTimes.current.sort((a, b) => a - b)
       osmd.cursor.hide()
+      bandStats().mapSize = sortedTimes.current.length
     } catch (e) {
       console.warn("buildTimeToGNotesMap failed:", e)
+      bandStats().lastFail = "mapBuild:" + String(e)
     }
   }, [])
 
@@ -3063,9 +3097,12 @@ function ScoreDetailInner({
       const cursor = cursorRef.current
       if (cursor && cursor.style.display !== "none") {
         const x = parseFloat(cursor.style.left || "0")
-        const target = x - container.clientWidth * GUIDE_RATIO
-        const max = Math.max(0, container.scrollWidth - container.clientWidth)
-        container.scrollLeft = Math.max(0, Math.min(target, max))
+        if (isFinite(x)) {
+          const target = x - container.clientWidth * GUIDE_RATIO
+          const max = Math.max(0, container.scrollWidth - container.clientWidth)
+          container.scrollLeft = Math.max(0, Math.min(target, max))
+          bandStats().scrollLeft = Math.round(container.scrollLeft)
+        }
       }
       if (!recordingRangeRef.current && scrollPlan && scrollPlan.totalDurationSec > 0 && recGuideStartRef.current) {
         const elapsedSec = (performance.now() - recGuideStartRef.current) / 1000
@@ -3087,9 +3124,9 @@ function ScoreDetailInner({
     // 毎フレーム ensureCursor: OSMD 再描画で cursor が DOM から消えても
     // ここで自動再生成され、ハードリロード不要で青線が復活する。
     const cursor = ensureCursor()
-    if (!cursor) return
+    if (!cursor) { bandStats().fail++; bandStats().lastFail = "noCursor"; return }
     const times = sortedTimes.current
-    if (times.length === 0) return
+    if (times.length === 0) { bandStats().fail++; bandStats().lastFail = "noTimes"; return }
 
     // 前後のノート index を二分探索
     let lo = 0, hi = times.length - 1
@@ -3105,17 +3142,17 @@ function ScoreDetailInner({
 
     // 層1: 不変 Note 模型を取得 (再描画で不変)
     const prevNote = timeToSourceNote.current.get(prevTime)
-    if (!prevNote) return
+    if (!prevNote) { bandStats().fail++; bandStats().lastFail = "noPrevNote"; return }
 
     const container = document.getElementById("osmd-container")
-    if (!container) return
+    if (!container) { bandStats().fail++; bandStats().lastFail = "noContainer"; return }
 
     const svgs = container.querySelectorAll("svg")
     let activeSvg: SVGSVGElement | null = null
     for (const svg of svgs) {
       if (svg.style.display !== "none") { activeSvg = svg as SVGSVGElement; break }
     }
-    if (!activeSvg) return
+    if (!activeSvg) { bandStats().fail++; bandStats().lastFail = "noActiveSvg"; return }
 
     // 層2: 毎フレーム osmd.rules.GNote(不変Note) で現在の SVG をライブ解決。
     //   再描画されても NoteToGraphicalNoteMap は再構築済のため常に最新を返す。
@@ -3127,6 +3164,8 @@ function ScoreDetailInner({
     // 追加指示1: ライブ解決失敗 (再描画中の数 ms の null 等) は
     //   display:none にせず return → 直前フレームの位置を維持し青線を消さない。
     if (!prevSvg || !activeSvg.contains(prevSvg)) {
+      bandStats().fail++
+      bandStats().lastFail = !prevSvg ? "gnoteResolveFail" : "svgDetached"
       return
     }
 
@@ -3196,6 +3235,11 @@ function ScoreDetailInner({
     cursor.style.left = `${x}px`
     cursor.style.top = `${staffTop}px`
     cursor.style.height = `${staffHeight}px`
+    const bs = bandStats()
+    bs.ok++
+    bs.cursorLeft = cursor.style.left
+    bs.cursorTop = cursor.style.top
+    bs.cursorDisp = cursor.style.display
   }, [ensureCursor])
 
   const startRecordingGuide = useCallback(() => {
@@ -3216,9 +3260,14 @@ function ScoreDetailInner({
       const recBpm = recordingBpmRef.current || analysis.bpm
       // 区間録音では区間先頭ノートの開始秒をオフセットとして加算 → カーソルが区間から始まる
       const scoreTimeSec = recGuideOffsetSecRef.current + elapsedRealSec * (recBpm / analysis.bpm)
-      updateRecordingCursor(scoreTimeSec)
-      // 視覚ビート: 録音テンポの拍で上下 (実経過秒の拍間隔 = 60/recBpm)
-      updateBeatBall(elapsedRealSec, recBpm)
+      // 一過性の例外 (OSMD再描画中のDOM入れ替え等) でRAF連鎖が死ぬとガイドが永久凍結するため隔離する
+      try {
+        updateRecordingCursor(scoreTimeSec)
+        // 視覚ビート: 録音テンポの拍で上下 (実経過秒の拍間隔 = 60/recBpm)
+        updateBeatBall(elapsedRealSec, recBpm)
+      } catch (e) {
+        ;(window as any).__arcodaBandStats && ((window as any).__arcodaBandStats.loopErr = String(e))
+      }
       recGuideAnimRef.current = requestAnimationFrame(loop)
     }
     recGuideAnimRef.current = requestAnimationFrame(loop)
@@ -3395,10 +3444,15 @@ function ScoreDetailInner({
       {/* F-1: フルスクリーン中の操作ガイドバー (Recorder の停止ボタンは leftColumn 内で非表示のため、戻るボタンを案内) */}
       {isFullscreen && (
         <div data-section="fullscreen-bar">
-          <span data-fs-hint>録音中… 弾き終えたら停止{recBandRequested ? " ・b4" : ""}</span>
+          <span data-fs-hint>録音中… 弾き終えたら停止{recBandRequested ? " ・b5" : ""}</span>
           <button type="button" data-fs-stop onClick={triggerStopRecording} aria-label="録音を停止">
             <span data-fs-sq /> 停止
           </button>
+        </div>
+      )}
+      {recBandRequested && isFullscreen && bandDebugText && (
+        <div style={{ position: "fixed", left: 4, bottom: 4, zIndex: 3000, background: "rgba(0,0,0,.72)", color: "#9f9", font: "10px/1.5 monospace", padding: "3px 8px", borderRadius: 6, maxWidth: "96vw", pointerEvents: "none", whiteSpace: "nowrap", overflow: "hidden" }}>
+          {bandDebugText}
         </div>
       )}
       {/* UI-6: 削除完了トースト (3 秒で自動消去) */}
