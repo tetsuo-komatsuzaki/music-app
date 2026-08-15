@@ -68,7 +68,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
           <div className={styles.tabs}>
             {pieces.map((p, i) => (
               <button key={p.id} type="button" onClick={() => setActive(i)} className={`${styles.tab} ${active === i ? styles.tabOn : ""}`} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                {p.badge === "mastered" ? <Trophy size={13} color="#b58a1e" /> : p.badge === "achieved" ? <Sparkles size={13} color="#2e8b57" /> : null}{p.title}
+                {p.badge === "mastered" ? <Trophy size={13} color="#d9a93c" /> : p.badge === "achieved" ? <Sparkles size={13} color="#d9a93c" /> : null}{p.title}
               </button>
             ))}
           </div>
@@ -89,7 +89,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
 
         {/* 🏆 この曲のゴール (達成/マスター。曲詳細と同じ GoalTracker を流用。体験上の重要要素・削除しない)
             見出しは進捗で出し分け (2026-08-16 Tetsuo指定・下の重複見出しはGoalTracker側から削除済) */}
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "14px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#b58a1e" /> {ach ? goalHeadline(ach) : "ゴール"}</div>
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "14px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#d9a93c" /> {ach ? goalHeadline(ach) : "ゴール"}</div>
         {ach ? (
           <GoalTracker achv={ach} userId={userId} />
         ) : (

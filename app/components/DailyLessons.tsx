@@ -34,19 +34,14 @@ const SLOT_NOTE: Record<DailyLesson["slot"], string> = {
   rec: "学びポイントに効く",
 }
 
-// 案C: カテゴリごとの色 (左のカラーバンド・チップ・ボタンに使う)
-// 予約色は使わない: 達成の緑(#2e8b57系) / 世界観のブランド青(#2563EB・#4a6cf7系)。
+// 配色統一 案1 (2026-08-16 Tetsuo確定): カテゴリ色は廃止し全て青一族。
+// 色のルール = 構造/操作は青・金は成果(達成/マスター/ランク)のみ。見分けは文字とアイコンで行う
+const BLUE_CAT = { c: "#2b5bc4", bg: "#e7edfb" }
 const CAT_COLOR: Record<string, { c: string; bg: string }> = {
-  scale: { c: "#c0891f", bg: "#f7efd9" },        // アンバー
-  fingering: { c: "#7159e8", bg: "#eeebfd" },    // バイオレット
-  arpeggio: { c: "#8b5cf6", bg: "#f2edfe" },     // パープル
-  etude: { c: "#e0872b", bg: "#fdf2e4" },        // オレンジ
-  bowing: { c: "#0ea5a5", bg: "#e6f7f6" },       // ティール
-  position_shift: { c: "#d6547a", bg: "#fdeef2" }, // ローズ
-  double_stop: { c: "#be3a8e", bg: "#fbe9f4" },  // マゼンタ
-  lesson: { c: "#c0453a", bg: "#fbeceb" },       // クリムゾン
+  scale: BLUE_CAT, fingering: BLUE_CAT, arpeggio: BLUE_CAT, etude: BLUE_CAT,
+  bowing: BLUE_CAT, position_shift: BLUE_CAT, double_stop: BLUE_CAT, lesson: BLUE_CAT,
 }
-const DEFAULT_COLOR = { c: "#6b7480", bg: "#eef1f4" }
+const DEFAULT_COLOR = BLUE_CAT
 
 // 「練習紹介」文章 (アルコの一言 + やることの要点2つ) を、選定の理由コード(reason)と
 // 差し込み値(detail: 調名/奏法名/ポジション)から返す。文言は一箇所に集約 (2026-08-10)。

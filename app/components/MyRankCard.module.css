@@ -6,10 +6,10 @@
 /* === マイランクカード (★でティア = ゴージャス度が変わる) === */
 .rankcard {
   /* 既定 = gold ティアの変数。tier クラスで上書き */
-  --tierBg:linear-gradient(135deg,#34271b,#231a12);
-  --tierBorder:#E0A73C; --tierAccent:#E7B24A; --tierText:#e8ddc9;
-  --tierChip:linear-gradient(120deg,#E7B24A,#C98A1F);
-  --tierInner:radial-gradient(circle at 40% 30%,#4b3822,#241a10);
+  --tierBg:linear-gradient(135deg,#1b3260,#101f3d);
+  --tierBorder:#2c4a86; --tierAccent:#d9a93c; --tierText:#dbe4f4;
+  --tierChip:linear-gradient(120deg,#d9a93c,#b9871f);
+  --tierInner:radial-gradient(circle at 40% 30%,#264678,#132443);
   --sheen:.16;
   position:relative; border-radius:18px; padding:14px 15px; cursor:pointer; overflow:hidden;
   background:var(--tierBg); border:1.5px solid var(--tierBorder);
@@ -57,20 +57,20 @@
 
 /* --- ティア: 銅 / 銀 / 金 / ホロ --- */
 .bronze {
-  --tierBg:linear-gradient(135deg,#3a2a1c,#241610); --tierBorder:#B0763E; --tierAccent:#CB8B4E; --tierText:#e6d6c2;
-  --tierChip:linear-gradient(120deg,#C88A4A,#8f5f28); --tierInner:radial-gradient(circle at 40% 30%,#4a3826,#231610); --sheen:.07;
+  --tierBg:linear-gradient(135deg,#1b3260,#101f3d); --tierBorder:#2c4a86; --tierAccent:#d9a93c; --tierText:#dbe4f4;
+  --tierChip:linear-gradient(120deg,#d9a93c,#b9871f); --tierInner:radial-gradient(circle at 40% 30%,#264678,#132443); --sheen:.07;
 }
 .silver {
-  --tierBg:linear-gradient(135deg,#2d3038,#1a1d23); --tierBorder:#B9C2CC; --tierAccent:#D6DCE2; --tierText:#dfe3e8;
-  --tierChip:linear-gradient(120deg,#DCE2E8,#9AA4AF); --tierInner:radial-gradient(circle at 40% 30%,#3a3f48,#1c1f26); --sheen:.14;
+  --tierBg:linear-gradient(135deg,#1b3260,#101f3d); --tierBorder:#2c4a86; --tierAccent:#d9a93c; --tierText:#dbe4f4;
+  --tierChip:linear-gradient(120deg,#d9a93c,#b9871f); --tierInner:radial-gradient(circle at 40% 30%,#264678,#132443); --sheen:.14;
 }
 .gold {
-  --tierBg:linear-gradient(135deg,#34271b,#231a12); --tierBorder:#E0A73C; --tierAccent:#E7B24A; --tierText:#e8ddc9;
-  --tierChip:linear-gradient(120deg,#E7B24A,#C98A1F); --tierInner:radial-gradient(circle at 40% 30%,#4b3822,#241a10); --sheen:.18;
+  --tierBg:linear-gradient(135deg,#1b3260,#101f3d); --tierBorder:#2c4a86; --tierAccent:#d9a93c; --tierText:#dbe4f4;
+  --tierChip:linear-gradient(120deg,#d9a93c,#b9871f); --tierInner:radial-gradient(circle at 40% 30%,#264678,#132443); --sheen:.18;
 }
 .holo {
-  --tierAccent:#ffe9a8; --tierText:#f3ecff; --tierChip:linear-gradient(120deg,#ffd86b,#ff9de2);
-  --tierInner:radial-gradient(circle at 40% 30%,#3a2b52,#1c1730); --sheen:.24;
+  --tierAccent:#d9a93c; --tierText:#dbe4f4; --tierChip:linear-gradient(120deg,#d9a93c,#b9871f);
+  --tierInner:radial-gradient(circle at 40% 30%,#264678,#132443); --sheen:.24;
   border:2px solid transparent;
   background:
     linear-gradient(135deg,#3a2350,#241a3a,#123a4a) padding-box,
