@@ -9,7 +9,7 @@
 // Web版ブラウザでは isNativeRecorderAvailable() が false を返すので、
 // 呼び出し側は従来の getUserMedia + MediaRecorder 経路をそのまま使う。
 
-import { getCapacitor, isNativeApp } from "@/app/_libs/isNativeApp"
+import { getCapacitor, isNativeApp, type CapacitorBridge } from "@/app/_libs/isNativeApp"
 
 const PLUGIN_NAME = "ArcodaRecorder"
 
@@ -100,14 +100,48 @@ interface PluginHandle {
 
 let cached: PluginHandle | null = null
 
+/**
+ * 注入ブリッジ (native-bridge.js) の低レベルAPIからプラグインの呼び口を組み立てる。
+ *
+ * remote URL 方式では WebView に入るのは注入ブリッジだけで、
+ * `registerPlugin` は生えない (あれは @capacitor/core 側のAPI)。
+ * 代わりに `nativePromise` と `addListener` が公開されているので、そこから作る。
+ */
+function buildHandleFromBridge(capacitor: CapacitorBridge): PluginHandle | null {
+  const nativePromise = capacitor.nativePromise
+  const addNativeListener = capacitor.addListener
+  if (typeof nativePromise !== "function" || typeof addNativeListener !== "function") return null
+
+  // options を undefined のまま渡すとブリッジ側で落ちるので必ずオブジェクトにする
+  const call = <T>(method: string, options?: unknown): Promise<T> =>
+    nativePromise(PLUGIN_NAME, method, options ?? {}) as Promise<T>
+
+  return {
+    isAvailable: () => call("isAvailable"),
+    checkPermission: () => call("checkPermission"),
+    requestPermission: () => call("requestPermission"),
+    start: (options) => call("start", options),
+    stop: () => call("stop"),
+    cancel: () => call("cancel"),
+    readChunk: (options) => call("readChunk", options),
+    deleteFile: (options) => call("deleteFile", options),
+    addListener: async (eventName, handler) => addNativeListener(PLUGIN_NAME, eventName, handler),
+  }
+}
+
 function getPlugin(): PluginHandle | null {
   if (cached) return cached
   const capacitor = getCapacitor()
   if (!capacitor || !isNativeApp()) return null
   // 殻に組み込まれていないビルド (旧バージョンのアプリ) では登録されていない
   if (capacitor.isPluginAvailable && !capacitor.isPluginAvailable(PLUGIN_NAME)) return null
-  if (typeof capacitor.registerPlugin !== "function") return null
-  cached = capacitor.registerPlugin<PluginHandle>(PLUGIN_NAME)
+
+  // @capacitor/core を積んだ環境ならそちらを優先 (現状のWeb版では積んでいない)
+  if (typeof capacitor.registerPlugin === "function") {
+    cached = capacitor.registerPlugin<PluginHandle>(PLUGIN_NAME)
+    return cached
+  }
+  cached = buildHandleFromBridge(capacitor)
   return cached
 }
 
@@ -126,9 +160,10 @@ export async function isNativeRecorderAvailable(): Promise<boolean> {
       "[native/diag] capacitor=", !!capacitor,
       "isNativeApp=", isNativeApp(),
       "platform=", capacitor?.getPlatform?.(),
-      "hasIsPluginAvailable=", typeof capacitor?.isPluginAvailable,
       "pluginAvailable=", capacitor?.isPluginAvailable?.(PLUGIN_NAME),
       "hasRegisterPlugin=", typeof capacitor?.registerPlugin,
+      "hasNativePromise=", typeof capacitor?.nativePromise,
+      "hasAddListener=", typeof capacitor?.addListener,
     )
     return false
   }

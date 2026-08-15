@@ -9,12 +9,24 @@
 
 export type NativePlatform = "ios" | "android"
 
-interface CapacitorBridge {
+export interface CapacitorBridge {
   getPlatform?: () => string
   isNativePlatform?: () => boolean
   isPluginAvailable?: (name: string) => boolean
-  registerPlugin?: <T>(name: string) => T
   convertFileSrc?: (url: string) => string
+  /**
+   * 以下は WebView に注入されるブリッジ (native-bridge.js) が持つ低レベルAPI。
+   * `registerPlugin` は @capacitor/core 側のAPIで注入ブリッジには**無い**ので、
+   * remote URL 方式でプラグインを呼ぶときはこの2つを使う。
+   */
+  nativePromise?: (pluginName: string, methodName: string, options?: unknown) => Promise<unknown>
+  addListener?: (
+    pluginName: string,
+    eventName: string,
+    callback: (data: never) => void,
+  ) => { remove: () => Promise<void> }
+  /** @capacitor/core を積んだ場合のみ生える */
+  registerPlugin?: <T>(name: string) => T
 }
 
 /** ブリッジ本体。ブラウザ (Web版) では undefined。 */
