@@ -16,6 +16,7 @@ import SymbolGuide, { type SymbolGuideHandle } from "./SymbolGuide"
 import { extractScoreSymbols, BASIC_READING_SYMBOL_IDS, BASIC_SYMBOL_HIDE_STAR } from "@/app/_libs/scoreSymbols"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
 import * as Tone from "tone"
+import { lockLandscape, unlockOrientation } from "@/app/_libs/arcodaOrientation"
 import styles from "./scoreDetail.module.css"
 import "./ScoreFullscreen.css"
 import Recorder, { type Status as RecorderStatus } from "@/app/components/Recorder"
@@ -1595,7 +1596,29 @@ function ScoreDetailInner({
   const [recBandRequested] = useState(() =>
     typeof window !== "undefined" && new URLSearchParams(window.location.search).has("recband"),
   )
-  const recBand = isFullscreen && recBandRequested
+  // アプリ実機: 録音開始 (カウントイン) で横固定を試み、成功したときだけ帯モード。
+  // 失敗・プラグイン不在・Web版は縦のまま (フォールバック)。解除は effect クリーンアップ
+  // (recordingState離脱・アンマウント) + pagehide の全経路で冪等に行う。
+  const [nativeBandOk, setNativeBandOk] = useState(false)
+  useEffect(() => {
+    if (!isFullscreen) return
+    let alive = true
+    void lockLandscape().then((ok) => {
+      if (alive) setNativeBandOk(ok)
+    })
+    return () => {
+      alive = false
+      setNativeBandOk(false)
+      void unlockOrientation()
+    }
+  }, [isFullscreen])
+  useEffect(() => {
+    const onPageHide = () => { void unlockOrientation() }
+    window.addEventListener("pagehide", onPageHide)
+    return () => window.removeEventListener("pagehide", onPageHide)
+  }, [])
+
+  const recBand = isFullscreen && (recBandRequested || nativeBandOk)
   // 9aデバッグ: recband時のみ内部状態を画面に出す (真因特定用・恒久機能ではない)
   const [bandDebugText, setBandDebugText] = useState("")
   useEffect(() => {
@@ -1620,6 +1643,18 @@ function ScoreDetailInner({
       document.body.removeAttribute("data-rec-band")
     }
   }, [recBand])
+
+  // B8: 横バーの経過時間 (録音ガイドと同じ開始基準)。帯モード中のみ計時
+  const [bandElapsedSec, setBandElapsedSec] = useState(0)
+  useEffect(() => {
+    if (!recBand || recordingState !== "recording") { setBandElapsedSec(0); return }
+    const t = setInterval(() => {
+      if (recGuideStartRef.current) {
+        setBandElapsedSec(Math.max(0, Math.floor((performance.now() - recGuideStartRef.current) / 1000)))
+      }
+    }, 500)
+    return () => clearInterval(t)
+  }, [recBand, recordingState])
 
   // ▼ 拡大ビュー (2026-08-15): 縦のまま譜面だけの全画面。録音全画面が始まったら自動で閉じる
   const [scoreExpand, setScoreExpand] = useState(false)
@@ -3440,7 +3475,13 @@ function ScoreDetailInner({
       {/* F-1: フルスクリーン中の操作ガイドバー (Recorder の停止ボタンは leftColumn 内で非表示のため、戻るボタンを案内) */}
       {isFullscreen && (
         <div data-section="fullscreen-bar">
-          <span data-fs-hint>録音中… 弾き終えたら停止{recBandRequested ? " ・b8" : ""}</span>
+          <span data-fs-hint>録音中… 弾き終えたら停止{recBandRequested ? " ・b9" : ""}</span>
+          {recBand && recordingState === "recording" && (
+            <span data-fs-meta style={{ display: "inline-flex", gap: 14, alignItems: "center", fontVariantNumeric: "tabular-nums", flex: "none" }}>
+              <span>{`${Math.floor(bandElapsedSec / 60)}:${String(bandElapsedSec % 60).padStart(2, "0")}`}</span>
+              <span>{recordingBpm} BPM</span>
+            </span>
+          )}
           <button type="button" data-fs-stop onClick={triggerStopRecording} aria-label="録音を停止">
             <span data-fs-sq /> 停止
           </button>
