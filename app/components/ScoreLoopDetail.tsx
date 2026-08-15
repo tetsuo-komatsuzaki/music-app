@@ -14,7 +14,7 @@ import styles from "./ScoreLoopDetail.module.css"
 import GuideSampleReview from "./GuideSampleReview"
 import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 import WeaknessDiagnosisCard from "./WeaknessDiagnosisCard"
-import GoalTracker, { type AchievementStatus } from "./GoalTracker"
+import GoalTracker, { goalHeadline, type AchievementStatus } from "./GoalTracker"
 import DailyLessons from "./DailyLessons"
 
 type Props = {
@@ -63,7 +63,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
     <div className={styles.container} role="tabpanel" id="score-detail-tab-panel-loop">
       {/* ── 1. 達成/マスター進捗 (共通部品 GoalTracker) ── */}
       <section className={styles.summarySection}>
-        <h2 className={styles.sectionTitle} style={{ display: "flex", alignItems: "center", gap: 6 }}><Trophy size={18} color="#b58a1e" /> ゴール</h2>
+        <h2 className={styles.sectionTitle} style={{ display: "flex", alignItems: "center", gap: 6 }}><Trophy size={18} color="#b58a1e" /> {goalHeadline(achv)}</h2>
         <GoalTracker achv={achv} userId={userId} />
       </section>
 

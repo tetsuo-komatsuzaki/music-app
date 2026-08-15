@@ -9,6 +9,11 @@
   justify-content: flex-end;
 }
 
+/* アプリ版はバーが厚く見える (セーフエリア+基準余白) ため基準余白をスリム化 (2026-08-16 Tetsuo指摘) */
+.headerNative {
+  padding: calc(4px + env(safe-area-inset-top, 0px)) 16px 4px;
+}
+
 .headerRight {
   display: flex;
   align-items: center;

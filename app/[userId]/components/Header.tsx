@@ -6,15 +6,17 @@ import Link from "next/link"
 import { GraduationCap } from "lucide-react"
 import { useParams } from "next/navigation"
 import { useOnboarding } from "../_onboarding/hooks/useOnboarding"
+import { useIsNativeApp } from "@/app/_hooks/useIsNativeApp"
 
 
 export default function Header({ role }: { role?: string }) {
   const { openHelp } = useOnboarding()
+  const isNative = useIsNativeApp()
   const { userId } = useParams<{ userId: string }>()
   return (
 <>
       {/* ===== HEADER ===== */}
-      <header className={styles.header}>
+      <header className={`${styles.header} ${isNative ? styles.headerNative : ""}`}>
         <div className={styles.headerRight}>
           <span className={styles.appName}>Arcoda</span>
           {/* 先生アカウントのみ: 先生モードへの切替 (別シェル /teacher へ) */}

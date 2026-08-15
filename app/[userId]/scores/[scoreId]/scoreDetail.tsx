@@ -3471,20 +3471,17 @@ function ScoreDetailInner({
 
       {/* タブ (演奏 / ふりかえり): 曲・練習アイテムの両方で表示。
           演奏履歴はふりかえり側に集約。上達ループは曲のみ (下の isScoreMode ガード)。 */}
-      <div data-section="score-tabs" style={{ marginBottom: 12 }}>
+      <div data-section="score-tabs" style={{ marginBottom: 12, position: "relative", marginTop: celebrationPerf && !celebAlreadyShown ? 34 : 0 }}>
+        {/* 祝い吹き出し (§2.1 2026-08-16 吹き出し化): ふりかえりタブの真上にコンパクト表示 */}
+        {celebrationPerf && !celebAlreadyShown && (
+          <CelebrationBanner onOpen={() => handleTabChange("review")} />
+        )}
         <ScoreDetailTabs activeTab={activeTab} onChange={handleTabChange} />
       </div>
 
       {activeTab === "play" && (
       <div className={styles.playStack} data-section="play-tab">
         {infoSlot}
-
-        {/* 祝いバナー (§2.1): done演奏に対し常に同一・節目を読まない。タップで振り返りへ。 */}
-        {celebrationPerf && !celebAlreadyShown && (
-          <div data-fullscreen-hide>
-            <CelebrationBanner name={score.title} onOpen={() => handleTabChange("review")} />
-          </div>
-        )}
 
         {/* パート練習 (曲にパートがある時のみ)。選ぶとその範囲だけを録音・部分採点し partId を付与。
             右に各パートの自己ベスト。おすすめ非表示・点数のみは振り返り側の仕様 (2026-07-26)。 */}

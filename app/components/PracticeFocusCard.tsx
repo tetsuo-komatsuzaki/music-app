@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Trophy, Sparkles, Target } from "lucide-react"
 import styles from "../[userId]/homeBlocks.module.css"
-import GoalTracker, { type AchievementStatus } from "./GoalTracker"
+import GoalTracker, { goalHeadline, type AchievementStatus } from "./GoalTracker"
 import DailyLessons from "./DailyLessons"
 
 type Piece = {
@@ -87,8 +87,9 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
           </span>
         </Link>
 
-        {/* 🏆 この曲のゴール (達成/マスター。曲詳細と同じ GoalTracker を流用。体験上の重要要素・削除しない) */}
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "14px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#b58a1e" /> ゴール</div>
+        {/* 🏆 この曲のゴール (達成/マスター。曲詳細と同じ GoalTracker を流用。体験上の重要要素・削除しない)
+            見出しは進捗で出し分け (2026-08-16 Tetsuo指定・下の重複見出しはGoalTracker側から削除済) */}
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "14px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#b58a1e" /> {ach ? goalHeadline(ach) : "ゴール"}</div>
         {ach ? (
           <GoalTracker achv={ach} userId={userId} />
         ) : (

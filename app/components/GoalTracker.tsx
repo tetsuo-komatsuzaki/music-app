@@ -52,12 +52,9 @@ function GoalRibbon({ stage }: { stage: 1 | 2 | 3 }) {
   )
 }
 
-function StepHead({ title }: { title: string }) {
-  return (
-    <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", margin: "0 0 8px" }}>
-      {title}
-    </div>
-  )
+/** 見出しの出し分け (2026-08-16 Tetsuo指定): 達成前=通し目標 / 達成後=マスター目標 */
+export function goalHeadline(achv: AchievementStatus): string {
+  return achv.achieved ? "曲をマスターしよう！" : "まずは通しで弾けるようになろう！"
 }
 
 function GoalRing({ full, pct, done, total }: { full?: boolean; pct?: number; done?: number; total?: number }) {
@@ -148,7 +145,6 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
       ) : stage === 1 ? (
         // 達成前: STEP1 (弾けるように) だけ
         <>
-          <StepHead title="まずは弾けるように" />
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             {condDone >= condTotal
               ? <GoalRing full />
@@ -163,7 +159,6 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
       ) : (
         // 達成済・マスター挑戦中: STEP1はリボンの緑「弾けた」に畳み、STEP2 (弾きこなそう) を主役に
         <>
-          <StepHead title="曲を弾きこなそう" />
           <div>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 8, margin: "2px 0 12px" }}>
               <span style={{ fontSize: "var(--fs-display)", fontWeight: 900, lineHeight: 0.9, color: "var(--text-master)" }}>
