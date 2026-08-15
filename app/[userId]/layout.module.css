@@ -27,6 +27,8 @@
 .body {
   flex: 1;
   display: flex;
+  /* サイドバー(sticky箱)の下に続く左列の尾を紺で塗る (ページ最下部の白抜け防止 2026-08-16) */
+  background: #0B1E3A;
 }
 
 .main {

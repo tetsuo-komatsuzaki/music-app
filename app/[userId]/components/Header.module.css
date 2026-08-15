@@ -13,8 +13,11 @@
    スクロールしても画面上部に固定する (2026-08-16 Tetsuo指摘・指定) */
 .headerNative {
   /* アプリはステータスバー帯(ぼかし層 globals.css)の直下に最小余白で固定する。
-     本文側のセーフエリア確保は body[data-native-app] (globals.css) が担う */
-  padding: 2px 14px;
+     本文側のセーフエリア確保は body[data-native-app] (globals.css) が担う。
+     高さ44px固定 = サイドバーの固定位置(env+44px)と面一にして隙間を出さない */
+  padding: 0 14px;
+  height: 44px;
+  align-items: center;
   position: sticky;
   top: env(safe-area-inset-top, 0px);
   z-index: 120;

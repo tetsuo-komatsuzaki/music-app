@@ -123,3 +123,8 @@ html[data-native-app] body::before {
   z-index: 500;
   pointer-events: none;
 }
+
+/* アプリ殻: バウンス(引っ張り)やページ端で露出する背景を本文と同系色にし、白枠を見せない */
+html[data-native-app] body {
+  background: #F8FAFC;
+}
