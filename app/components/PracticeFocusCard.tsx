@@ -91,7 +91,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
             見出しは進捗で出し分け (2026-08-16 Tetsuo指定・下の重複見出しはGoalTracker側から削除済) */}
         <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "14px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#d9a93c" /> {ach ? goalHeadline(ach) : "ゴール"}</div>
         {ach ? (
-          <GoalTracker achv={ach} userId={userId} />
+          <GoalTracker achv={ach} userId={userId} scoreId={piece.id} />
         ) : (
           <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: "8px 0" }}>読み込み中…</div>
         )}

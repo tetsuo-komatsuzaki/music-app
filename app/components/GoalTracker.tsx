@@ -2,11 +2,17 @@
 // 曲詳細(ScoreLoopDetail) と ホーム(PracticeFocusCard) で共通利用する。
 // 見出し・カード枠は呼び手側が用意し、ここは中身 (道バッジ帯 + STEP1達成 + STEP2マスター) のみ描く。
 // データ元は GET /api/scores/[scoreId]/achievement-status。
+// 2026-08-16 #6: scoreId付きで呼ばれた場合「直近5回の平均で判定中」の横に
+// 上達のようすモーダルへのリンクを出す (データは /api/scores/[scoreId]/trajectory を遅延取得)。
+"use client"
 
 import Link from "next/link"
+import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import type { ReactNode } from "react"
-import { BookOpen, Music, Trophy } from "lucide-react"
+import { BookOpen, Music, Trophy, X } from "lucide-react"
 import type { DailyLesson } from "../_libs/dailyLessons"
+import ProgressTrajectory, { trajectoryPointCount, type TrajectoryPerformance } from "./ProgressTrajectory"
 
 // achievement-status API レスポンス (route.ts と同期)
 export type AchievementStatus = {
@@ -101,7 +107,52 @@ const goalCheer = (gold?: boolean) => ({
   color: gold ? "#d9a93c" : "#2b5bc4", background: gold ? "#faf3e0" : "#e7edfb", borderRadius: 10, padding: gold ? 12 : 7,
 })
 
-export default function GoalTracker({ achv, userId }: { achv: AchievementStatus; userId?: string }) {
+/** 上達のようすモーダル (portal直付け: 祖先の.pressable transformでfixedが壊れる既知トラップ回避) */
+function TrajectoryModal({ scoreId, onClose }: { scoreId: string; onClose: () => void }) {
+  const [rows, setRows] = useState<TrajectoryPerformance[] | null>(null)
+  const [failed, setFailed] = useState(false)
+  useEffect(() => {
+    let alive = true
+    fetch(`/api/scores/${scoreId}/trajectory`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => { if (alive) setRows(d.performances ?? []) })
+      .catch(() => { if (alive) setFailed(true) })
+    return () => { alive = false }
+  }, [scoreId])
+
+  return createPortal(
+    <div
+      onClick={onClose}
+      style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(15,25,50,.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+    >
+      <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 420, maxHeight: "86dvh", overflowY: "auto", background: "#fff", borderRadius: 16, position: "relative" }}>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="とじる"
+          style={{ position: "absolute", top: 10, right: 10, zIndex: 1, width: 32, height: 32, borderRadius: "50%", border: "none", background: "#eef1f6", display: "grid", placeItems: "center", cursor: "pointer", color: "#3a4653" }}
+        >
+          <X size={17} />
+        </button>
+        {failed ? (
+          <div style={{ padding: 28, textAlign: "center", color: "var(--text-sub)", fontWeight: 700 }}>いまうまく開けなかったみたい。少し待ってね</div>
+        ) : rows == null ? (
+          <div style={{ padding: 28, textAlign: "center", color: "var(--text-sub)", fontWeight: 700 }}>読み込み中…</div>
+        ) : trajectoryPointCount(rows) < 2 ? (
+          <div style={{ padding: 28, textAlign: "center", color: "var(--text-sub)", fontWeight: 700, lineHeight: 1.8 }}>
+            まだ演奏が少ないよ。<br />2回以上録音すると上達のようすが見られるよ
+          </div>
+        ) : (
+          <ProgressTrajectory performances={rows} />
+        )}
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+export default function GoalTracker({ achv, userId, scoreId }: { achv: AchievementStatus; userId?: string; scoreId?: string }) {
+  const [showTrajectory, setShowTrajectory] = useState(false)
   // 達成条件（対象がある曲だけ・通し演奏は常に）→ リング進捗。
   // userId があれば未クリア条件はタップでそのまま飛べる (行き止まり解消 2026-08-02)
   const condItems: { icon: ReactNode; name: string; done: boolean; st: string; href?: string | null }[] = [
@@ -184,10 +235,20 @@ export default function GoalTracker({ achv, userId }: { achv: AchievementStatus;
                 : needMore
                 ? `5回ぶん演奏すると判定できるよ・いま${achv.master.scoredCount}回・あと${remainingRuns}回`
                 : "直近5回の平均で判定中"}
+              {scoreId && avg != null && (
+                <button
+                  type="button"
+                  onClick={() => setShowTrajectory(true)}
+                  style={{ border: "none", background: "transparent", padding: 0, marginLeft: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#2b5bc4", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}
+                >
+                  上達のようすを見る
+                </button>
+              )}
             </p>
           </div>
         </>
       )}
+      {showTrajectory && scoreId && <TrajectoryModal scoreId={scoreId} onClose={() => setShowTrajectory(false)} />}
     </>
   )
 }
