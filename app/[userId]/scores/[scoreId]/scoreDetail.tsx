@@ -3238,6 +3238,17 @@ function ScoreDetailInner({
     }).catch(() => {})
   }, [celebrationPerf, practiceItemId, score.id])
 
+  // 吹き出しの既読仕様 (2026-08-16 Tetsuo指定): ふりかえりタブを一度でも見たら「採点を見た」
+  // とみなし、タブを離れた時点で既読化する (祝い演出はタブ滞在中に通常どおり動ける)。
+  // 新しい録音の採点完了は別perfIdなので、吹き出しは改めて表示される。
+  const prevTabForCelebRef = useRef(activeTab)
+  useEffect(() => {
+    if (prevTabForCelebRef.current === "review" && activeTab !== "review" && celebrationPerf && !celebAlreadyShown) {
+      closeCelebration()
+    }
+    prevTabForCelebRef.current = activeTab
+  }, [activeTab, celebrationPerf, celebAlreadyShown, closeCelebration])
+
   const trajectoryBlock = <ProgressTrajectory performances={performances} />
   const performanceHistoryBlock = (
     <div data-onboarding="scoreDetail.performanceHistory">
