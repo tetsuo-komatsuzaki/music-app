@@ -85,11 +85,12 @@
 .sectionTitle {
   font-size: var(--fs-subhead);
   font-weight: 800;
-  color: var(--text-master);
+  /* 配色統一 案1 (2026-08-16): 見出しと下線を青基調に */
+  color: #1f3d78;
   letter-spacing: .01em;
   margin: 0;
   padding-bottom: 6px;
-  border-bottom: 1px solid #eee0c4;
+  border-bottom: 1px solid #d9e3f4;
 }
 
 .sectionIntro {
@@ -101,7 +102,7 @@
 
 /* ① はじめてガイド */
 .welcomeReplayButton {
-  background: #4a7fa3;
+  background: #2b5bc4;
   color: var(--text-on-accent);
   border: none;
   border-radius: 8px;
@@ -113,7 +114,7 @@
 }
 
 .welcomeReplayButton:hover {
-  background: #3d6a8a;
+  background: #1f3d78;
 }
 
 /* ② マーカー凡例 */
@@ -224,7 +225,7 @@
 .pageGuideButton {
   background: transparent;
   color: var(--text-link);
-  border: 1px solid #4a7fa3;
+  border: 1px solid #2b5bc4;
   border-radius: 6px;
   padding: 6px 12px;
   font-size: var(--fs-body);

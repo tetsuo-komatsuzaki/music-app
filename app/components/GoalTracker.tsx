@@ -62,12 +62,12 @@ export function goalHeadline(achv: AchievementStatus): string {
 function GoalRing({ full, pct, done, total }: { full?: boolean; pct?: number; done?: number; total?: number }) {
   const base = { position: "relative" as const, width: 72, height: 72, flex: "none" as const, borderRadius: "50%", display: "grid", placeItems: "center" }
   if (full) {
-    return <div style={{ ...base, background: "#34a06a" }}><b style={{ fontSize: "var(--fs-display)", fontWeight: 900, color: "var(--text-on-accent)", lineHeight: 1 }}>✓</b></div>
+    return <div style={{ ...base, background: "#2b5bc4" }}><b style={{ fontSize: "var(--fs-display)", fontWeight: 900, color: "var(--text-on-accent)", lineHeight: 1 }}>✓</b></div>
   }
   return (
-    <div style={{ ...base, background: `conic-gradient(#34a06a ${pct ?? 0}%, #e2ebe5 0)` }}>
+    <div style={{ ...base, background: `conic-gradient(#2b5bc4 ${pct ?? 0}%, #dce3ef 0)` }}>
       <div style={{ position: "absolute", inset: 8, background: "#fff", borderRadius: "50%" }} />
-      <b style={{ position: "relative", zIndex: 1, fontSize: "var(--fs-head)", fontWeight: 900, color: "var(--text-good)", lineHeight: 1 }}>
+      <b style={{ position: "relative", zIndex: 1, fontSize: "var(--fs-head)", fontWeight: 900, color: "#2b5bc4", lineHeight: 1 }}>
         {done}<small style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)" }}>/{total}</small>
       </b>
     </div>
@@ -77,9 +77,9 @@ function GoalRing({ full, pct, done, total }: { full?: boolean; pct?: number; do
 function GoalDot({ icon, name, done, st, href }: { icon: ReactNode; name: string; done: boolean; st: string; href?: string | null }) {
   const body = (
     <>
-      <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", background: done ? "#e3f5ea" : "#eef1f5", filter: done ? "none" : "grayscale(.4) opacity(.7)" }}>{icon}</span>
-      <span style={{ fontWeight: 700, color: done ? "#1f7a4d" : "#3a4653" }}>{name}</span>
-      <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 700, color: done ? "#34a06a" : "#9aa6b3" }}>{st}</span>
+      <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", background: done ? "#e7edfb" : "#eef1f5", filter: done ? "none" : "grayscale(.4) opacity(.7)" }}>{icon}</span>
+      <span style={{ fontWeight: 700, color: done ? "#1f3d78" : "#3a4653" }}>{name}</span>
+      <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 700, color: done ? "#2b5bc4" : "#9aa6b3" }}>{st}</span>
       {!done && href && <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)" }}>やる →</span>}
     </>
   )
