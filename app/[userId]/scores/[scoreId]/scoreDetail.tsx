@@ -996,12 +996,14 @@ function computeResponsiveZoom(containerWidth: number): number {
 const BAND_MEASURES_PER_SCREEN = 5
 function applyBandZoom(osmd: OpenSheetMusicDisplay, container: HTMLElement) {
   const svg = container.querySelector("svg")
-  const measureCount = osmd.GraphicSheet?.MeasureList?.length ?? 0
+  // 小節数は楽譜データの SourceMeasures が正 (GraphicSheet.MeasureList は次元が曖昧で
+  // 1を返すことがあり、平均小節幅が過大→下限0.8倍に張り付くバグの原因だった)
+  const measureCount = osmd.Sheet?.SourceMeasures?.length ?? 0
   if (!svg || measureCount === 0) return
   const currentZoom = osmd.zoom || 1
   const avgMeasureWidthAtZoom1 = svg.getBoundingClientRect().width / currentZoom / measureCount
   if (!isFinite(avgMeasureWidthAtZoom1) || avgMeasureWidthAtZoom1 <= 0) return
-  const target = Math.min(3.0, Math.max(0.8, container.clientWidth / (BAND_MEASURES_PER_SCREEN * avgMeasureWidthAtZoom1)))
+  const target = Math.min(4.0, Math.max(0.8, container.clientWidth / (BAND_MEASURES_PER_SCREEN * avgMeasureWidthAtZoom1)))
   if (Math.abs(target - currentZoom) > 0.02) {
     osmd.zoom = target
     osmd.render()
@@ -1079,9 +1081,16 @@ function ScoreViewer({
       // 安易な結線はWeb版の音階/アルペジオ譜面の見た目を変えるため、9a帯モード (bandMode=録音時のみ)
       // だけが1本帯を有効化する。
       renderSingleHorizontalStaffline: bandMode ?? false,
+      // 帯モード: クレジット文字と上下余白を消し、SVG高さ≈五線高さにする (縦中央配置の精度)
+      ...(bandMode ? { drawComposer: false, drawCredits: false, drawLyricist: false } : {}),
       pageBackgroundColor: "#ffffff",
       followCursor: false,
     })
+    if (bandMode) {
+      // 帯モード: ページ上下余白を最小化 (SVG高さを五線に寄せて縦中央配置を正確に)
+      osmd.EngravingRules.PageTopMargin = 1
+      osmd.EngravingRules.PageBottomMargin = 1
+    }
 
     console.log('[DEBUG-XML] buildUrl:', buildUrl)
 
