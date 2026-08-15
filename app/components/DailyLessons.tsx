@@ -151,7 +151,8 @@ export default function DailyLessons({
             {/* 左: カテゴリ色のバンド */}
             <span style={{ width: 4, alignSelf: "stretch", flex: "none", background: col.c }} aria-hidden />
             <span style={{ flex: 1, minWidth: 0, padding: "9px 11px", display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {/* 2026-08-16 Tetsuo指定: フィンガリング等が途切れないよう省略をやめ折り返しで全文表示 */}
+              <span style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", lineHeight: 1.3, overflowWrap: "anywhere" }}>
                 {l.label}
               </span>
               <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, padding: "2px 8px", borderRadius: 999, background: col.bg, color: col.c, whiteSpace: "nowrap" }}>
