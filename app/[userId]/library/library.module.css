@@ -65,18 +65,14 @@
 .badgeMaster { color: #12203c; background: linear-gradient(135deg, #f0c25c, #d9a93c); }
 .badgeAchieved { color: #2e8b57; background: #eaf6ef; }
 
-/* ホームへの導線 */
-.homeLink {
-  display: flex; flex-direction: column; gap: 4px; text-decoration: none;
-  background: #fff; border: 1px solid #e6ecf5; border-radius: 16px; padding: 16px;
-}
-.homeLinkLabel { font-size: var(--fs-label); font-weight: 800; color: var(--text-muted); letter-spacing: 0.06em; }
-.homeLinkBody { font-size: var(--fs-body); font-weight: 700; color: var(--text-ink); }
-.homeLinkGo { font-size: var(--fs-caption); font-weight: 800; color: #a8791b; align-self: flex-end; }
-
 .sectionTitle {
   font-size: var(--fs-caption); font-weight: 800; color: var(--text-muted);
   letter-spacing: 0.06em; margin: 20px 0 10px;
+}
+/* セグメント直下に置く見出しは上余白を詰める */
+.sectionTitleTop {
+  font-size: var(--fs-caption); font-weight: 800; color: var(--text-muted);
+  letter-spacing: 0.06em; margin: 4px 0 10px;
 }
 
 /* カテゴリ: 掲載数のみ。進捗率は出さない (要件定義 2-3) */

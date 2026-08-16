@@ -136,14 +136,9 @@ export default function LibraryClient({
 
       {tab === "basics" && (
         <section>
-          {/* おすすめはホームに一本化 (A案A)。ここは探す場所に徹する */}
-          <Link href={base} className={styles.homeLink}>
-            <span className={styles.homeLinkLabel}>この曲に効く基礎練はホームに</span>
-            <span className={styles.homeLinkBody}>ホームで、いま弾いている曲に合わせた基礎練が届きます</span>
-            <span className={styles.homeLinkGo}>ホームへ →</span>
-          </Link>
-
-          <h2 className={styles.sectionTitle}>カテゴリから探す</h2>
+          {/* おすすめはホームに一本化 (A案A)。ここは探す場所に徹する。
+              ホームへの誘導カードは不要と判断し置かない (2026-08-17 Tetsuo指定) */}
+          <h2 className={styles.sectionTitleTop}>カテゴリから探す</h2>
           <div className={styles.catGrid}>
             {categories.map((c) => (
               <Link key={c.category} href={`${base}/practice/${c.category}`} className={styles.catCard}>

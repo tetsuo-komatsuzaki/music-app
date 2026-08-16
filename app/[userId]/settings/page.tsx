@@ -50,9 +50,6 @@ export default async function SettingsPage({
   return (
     <SettingsClient
       userId={dbUserId}
-      initialName={dbUser.name}
-      currentEmail={authUser?.email ?? ""}
-      accountDeletionEnabled={process.env.ENABLE_ACCOUNT_DELETION === "true"}
       hasTeacher={hasTeacher}
       teacherEmailOff={dbUser.teacherEmailOff}
       // 課金設計 (project_pricing_plan): アルコプラスは生徒向け。先生には生徒プランの

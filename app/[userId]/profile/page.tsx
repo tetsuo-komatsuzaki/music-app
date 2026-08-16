@@ -1,58 +1,41 @@
-// app/[userId]/profile/page.tsx
-//
-// マイページ (Server Component)。グレード詳細セクション + プロフィール / 設定リンク。
-// C-6b掃除 (2026-07-11): データ源を新判定体系 (UserStarProgress + UserScoreAchievement)
-// に切替 (旧 UserGradeProgress / UserGrade は退役)。
-
+// プロフィール (2026-08-17 ナビ刷新で全面差し替え)。
+// 旧「マイページ」のグレード詳細は廃止 (成長カルテと役割が重複していたため)。
+// 代わりに、設定画面にあった「アカウント情報」「アカウント管理」をここへ移設した。
+// 設定はアプリ設定 (プラン・目標・先生・通知) だけを担う。
+import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
+import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { prisma } from "@/app/_libs/prisma"
-import { gradeFromStar, STAR_UP_ACHIEVEMENTS } from "@/app/_libs/starProgress"
-import MyPage from "./myPage"
+import { redirect } from "next/navigation"
+import AccountInfo from "./AccountInfo"
+import styles from "../settings/Settings.module.css"
 
-export const metadata = { title: "マイページ" }
+export const metadata = { title: "プロフィール" }
 
-type PageProps = {
+export default async function ProfilePage({
+  params,
+}: {
   params: Promise<{ userId: string }>
-}
+}) {
+  const p = await params
+  const { dbUserId } = await getUserIdsFromParams(p)
 
-export default async function ProfilePage({ params }: PageProps) {
-  const { userId } = await params
+  const supabase = await createServerSupabaseClient()
+  const { data: { user: authUser } } = await supabase.auth.getUser()
 
   const dbUser = await prisma.user.findUnique({
-    where: { supabaseUserId: userId },
-    select: { id: true, name: true },
+    where: { id: dbUserId },
+    select: { name: true },
   })
-  if (!dbUser) return <div>User not found</div>
-
-  const internalUserId = dbUser.id
-
-  const [starProgress, achievements] = await Promise.all([
-    prisma.userStarProgress.findUnique({
-      where: { userId: internalUserId },
-      select: { currentStar: true, updatedAt: true },
-    }),
-    prisma.userScoreAchievement.findMany({
-      where: { userId: internalUserId },
-      select: { starAtAchievement: true },
-    }),
-  ])
-
-  const currentStar = starProgress?.currentStar ?? 1
-  const gradeData = {
-    currentStar,
-    currentGrade: gradeFromStar(currentStar),
-    masteredSongCountAtCurrentStar: achievements.filter(
-      (a) => a.starAtAchievement === currentStar,
-    ).length,
-    gradeUpRequired: STAR_UP_ACHIEVEMENTS,
-    masterReachedAt: null,
-    achievedAt: starProgress?.updatedAt?.toISOString() ?? null,
-  }
+  if (!dbUser) redirect("/login")
 
   return (
-    <MyPage
-      userId={userId}
-      userName={dbUser.name ?? ""}
-      gradeData={gradeData}
-    />
+    <div className={styles.page}>
+      <h1 className={styles.title}>プロフィール</h1>
+      <AccountInfo
+        initialName={dbUser.name ?? ""}
+        currentEmail={authUser?.email ?? ""}
+        accountDeletionEnabled={process.env.ENABLE_ACCOUNT_DELETION === "true"}
+      />
+    </div>
   )
 }
