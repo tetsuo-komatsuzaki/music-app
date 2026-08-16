@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import HapticProvider from "./components/HapticProvider";
 import NativeChrome from "./components/NativeChrome";
+import ArcoBootSplash from "./components/ArcoBootSplash";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,10 +38,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
+    <html lang="ja" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* アプリ殻では起動直後(ハイドレーション前)から data-native-app を立てる。
+            Capacitorブリッジは document start で注入済みなので同期判定できる。
+            これで起動スプラッシュ(#arco-boot)とステータスバー帯が最初の描画から効く。 */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'try{var c=window.Capacitor;if(c&&typeof c.isNativePlatform==="function"&&c.isNativePlatform()){document.documentElement.setAttribute("data-native-app","true")}}catch(e){}',
+          }}
+        />
+        <ArcoBootSplash />
         <NativeChrome />
         <HapticProvider />
         {children}

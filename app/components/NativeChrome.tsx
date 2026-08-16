@@ -14,6 +14,13 @@ export default function NativeChrome() {
       // Googleログインのアプリ復帰 (arcoda://auth-callback) を監視 (§9b)
       listenAuthCallback()
     }
+    // 起動スプラッシュ(ArcoBootSplash)を消す: ハイドレーション完了=アプリ操作可能の合図。
+    // Web版ではCSSで非表示だが、DOMごと除去して後始末する。
+    const boot = document.getElementById("arco-boot")
+    if (boot) {
+      boot.classList.add("abOut")
+      window.setTimeout(() => boot.remove(), 500)
+    }
   }, [])
   return null
 }
