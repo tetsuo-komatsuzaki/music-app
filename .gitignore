@@ -45,3 +45,6 @@ Thumbs.db
 cover-samples/
 
 .vercel
+
+# TypeScriptビルドキャッシュ (2026-08-16: rebaseの邪魔になるため追跡外し)
+tsconfig.tsbuildinfo
