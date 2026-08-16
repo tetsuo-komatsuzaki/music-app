@@ -37,12 +37,13 @@ export interface BodySpot {
 }
 
 export const BODY_SPOTS: BodySpot[] = [
-  // 全身 (2026-08-13 立ち姿イラスト standing.webp・900x1203)
+  // 全身 (2026-08-16 Tetsuo FB反復で確定・v4)。首/楽器/背中は削除→タグは体の外リストへ自動で落ちる。
+  // 右肘/右手首/左手首はタグなしの自由記入用 (表示はタグ・自由記入が付くまで出ない)
   { id: "right_shoulder", view: "body", label: "右肩", x: 33, y: 24, tagIds: ["posture_right_shoulder_up"] },
-  { id: "left_shoulder", view: "body", label: "左肩", x: 56, y: 21, tagIds: ["posture_left_shoulder_tense"] },
-  { id: "neck", view: "body", label: "首", x: 45, y: 17, tagIds: ["posture_head_tilt"] },
-  { id: "violin", view: "body", label: "楽器", x: 62, y: 20, tagIds: ["posture_violin_drops"] },
-  { id: "back", view: "body", label: "背中", x: 29, y: 34, tagIds: ["posture_slouch"] },
+  { id: "left_shoulder", view: "body", label: "左肩", x: 50, y: 24, tagIds: ["posture_left_shoulder_tense"] },
+  { id: "body_right_elbow", view: "body", label: "右肘", x: 31, y: 35, tagIds: [] },
+  { id: "body_right_wrist", view: "body", label: "右手首", x: 48, y: 36, tagIds: [] },
+  { id: "body_left_wrist", view: "body", label: "左手首", x: 72, y: 27, tagIds: [] },
   // 左手・右側から (viewBox 240x190)
   {
     id: "fingers", view: "left_out", label: "指", x: 52, y: 28, // 2026-08-13 イラスト画像 (left-out.webp 1000x750)
@@ -56,12 +57,16 @@ export const BODY_SPOTS: BodySpot[] = [
   // 2026-08-13 イラスト画像 (left-in.webp 1000x800)
   { id: "left_wrist", view: "left_in", label: "手首", x: 76, y: 76, tagIds: ["left_wrist_collapse", "left_shift_press", "pitch_after_shift", "tone_vibrato"] },
   { id: "left_thumb", view: "left_in", label: "親指", x: 43, y: 52, tagIds: ["left_thumb_position", "left_press_hard", "left_shift_thumb"] },
-  // 元弓 (2026-08-13 イラスト画像 frog-pose.webp 1000x667)
-  { id: "frog_hand", view: "bow_frog", label: "手", x: 52, y: 44, tagIds: ["bow_pressure_heavy", "bow_distribution"] },
-  { id: "frog_elbow", view: "bow_frog", label: "肘", x: 30, y: 72, tagIds: ["bow_elbow_lag"] },
-  // 先弓 (2026-08-13 イラスト画像 tip-pose.webp 1000x667)
-  { id: "tip_hand", view: "bow_tip", label: "手", x: 41, y: 80, tagIds: ["bow_wrist_stiff", "bow_pressure_light"] },
-  { id: "tip_elbow", view: "bow_tip", label: "うで", x: 56, y: 58, tagIds: ["bow_short_stroke", "bow_elbow_moving"] },
+  // 元弓 (2026-08-16 Tetsuo FB反復で確定: 両手首+両肘の4点構成。手/うで表記は廃止)
+  { id: "frog_right_wrist", view: "bow_frog", label: "右手首", x: 39, y: 48, tagIds: ["bow_pressure_heavy", "bow_distribution"] },
+  { id: "frog_right_elbow", view: "bow_frog", label: "右肘", x: 23, y: 68, tagIds: ["bow_elbow_lag"] },
+  { id: "frog_left_wrist", view: "bow_frog", label: "左手首", x: 79, y: 59, tagIds: [] },
+  { id: "frog_left_elbow", view: "bow_frog", label: "左肘", x: 65, y: 79, tagIds: [] },
+  // 先弓 (2026-08-16 Tetsuo FB反復で確定: 両手首+両肘の4点構成)
+  { id: "tip_right_wrist", view: "bow_tip", label: "右手首", x: 38, y: 77, tagIds: ["bow_wrist_stiff", "bow_pressure_light"] },
+  { id: "tip_right_elbow", view: "bow_tip", label: "右肘", x: 24, y: 67, tagIds: ["bow_short_stroke", "bow_elbow_moving"] },
+  { id: "tip_left_wrist", view: "bow_tip", label: "左手首", x: 74, y: 46, tagIds: [] },
+  { id: "tip_left_elbow", view: "bow_tip", label: "左肘", x: 57, y: 59, tagIds: [] },
   // 弓の持ち方 (2026-08-13 新設ビュー bow-hold.webp 1000x585)。持ち方系タグを集約
   { id: "hold_fingers", view: "bow_hold", label: "指", x: 44, y: 42, tagIds: ["bow_grip_tense", "bow_pinky_straight"] },
   { id: "hold_wrist", view: "bow_hold", label: "手首", x: 78, y: 30, tagIds: ["bow_bounce"] },
