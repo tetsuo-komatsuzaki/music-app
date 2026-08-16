@@ -102,34 +102,29 @@ function copyFor(reason: string, detail: string | null): IntroCopy {
 }
 
 // 項目名の自動縮小 (2026-08-16 Tetsuo指定: 折り返し禁止・全文を1行で見せる)。
-// 置き場所の幅 (ホーム/ふりかえりタブ) に応じて、収まるまで文字を小さくする。
+// リスト内の全項目を一括で測り、いちばん縮みが必要な行に合わせて
+// 全行を同じフォントサイズに統一する (行ごとにサイズが揃わないのはNG・2026-08-16指定)。
 // 最小9pxまで縮めても収まらない場合のみ ellipsis で切る (保険)。
-function AutoFitLabel({ text }: { text: string }) {
-  const ref = useRef<HTMLSpanElement>(null)
+function useUnifiedLabelFit(containerRef: React.RefObject<HTMLDivElement | null>, dep: unknown) {
   useLayoutEffect(() => {
-    const el = ref.current
-    if (!el) return
+    const container = containerRef.current
+    if (!container) return
     const fit = () => {
-      el.style.fontSize = "" // いったんCSS既定 (--fs-caption) に戻してから測る
-      let size = parseFloat(getComputedStyle(el).fontSize)
-      while (el.scrollWidth > el.clientWidth && size > 9) {
+      const els = Array.from(container.querySelectorAll<HTMLElement>("[data-fit-label]"))
+      if (!els.length) return
+      els.forEach((el) => { el.style.fontSize = "" }) // CSS既定 (--fs-caption) に戻してから測る
+      let size = parseFloat(getComputedStyle(els[0]).fontSize)
+      const allFit = () => els.every((el) => el.scrollWidth <= el.clientWidth)
+      while (!allFit() && size > 9) {
         size -= 0.5
-        el.style.fontSize = `${size}px`
+        els.forEach((el) => { el.style.fontSize = `${size}px` })
       }
     }
     fit()
     const ro = new ResizeObserver(fit)
-    ro.observe(el)
+    ro.observe(container)
     return () => ro.disconnect()
-  }, [text])
-  return (
-    <span
-      ref={ref}
-      style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-    >
-      {text}
-    </span>
-  )
+  }, [containerRef, dep])
 }
 
 export default function DailyLessons({
@@ -143,6 +138,8 @@ export default function DailyLessons({
   fromScoreId?: string | null
 }) {
   const [active, setActive] = useState<DailyLesson | null>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+  useUnifiedLabelFit(listRef, lessons)
 
   if (!lessons.length) {
     return (
@@ -156,7 +153,7 @@ export default function DailyLessons({
     `/${userId}/practice/${l.category}/${l.itemId}${fromScoreId ? `?from=${fromScoreId}` : ""}`
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+    <div ref={listRef} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
       {lessons.map((l) => {
         const col = CAT_COLOR[l.category] ?? DEFAULT_COLOR
         return (
@@ -182,7 +179,12 @@ export default function DailyLessons({
             {/* 左: カテゴリ色のバンド */}
             <span style={{ width: 4, alignSelf: "stretch", flex: "none", background: col.c }} aria-hidden />
             <span style={{ flex: 1, minWidth: 0, padding: "9px 11px", display: "flex", alignItems: "center", gap: 8 }}>
-              <AutoFitLabel text={l.label} />
+              <span
+                data-fit-label
+                style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+              >
+                {l.label}
+              </span>
               <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, padding: "2px 8px", borderRadius: 999, background: col.bg, color: col.c, whiteSpace: "nowrap" }}>
                 {SLOT_NOTE[l.slot]}
               </span>
