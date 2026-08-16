@@ -15,7 +15,8 @@ export default function ArcoBootSplash() {
         <div className="abNotes"><span>♪</span><span>♫</span><span>♪</span></div>
       </div>
       <div className="abLogo">Arcoda</div>
-      <div className="abTag">よみこみ中…</div>
+      {/* ローディング中と明確にわかる表示 (2026-08-16 Tetsuo指定): 文字+跳ねるドット */}
+      <div className="abTag">よみこみ中<span className="abDots"><i /><i /><i /></span></div>
     </div>
   )
 }

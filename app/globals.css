@@ -165,7 +165,21 @@ html[data-native-app] #arco-boot.abOut { opacity: 0; pointer-events: none; }
   100% { opacity: 0; transform: translate(-12px, -54px); }
 }
 #arco-boot .abLogo { font-size: 21px; font-weight: 900; letter-spacing: .14em; color: #e7edfb; }
-#arco-boot .abTag { font-size: 11px; color: #8fa3cf; letter-spacing: .08em; }
+#arco-boot .abTag {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 13px; font-weight: 700; color: #c6d2ea; letter-spacing: .08em;
+}
+#arco-boot .abDots { display: inline-flex; gap: 5px; }
+#arco-boot .abDots i {
+  width: 6px; height: 6px; border-radius: 50%; background: #8fa3cf;
+  animation: abDot 1.2s ease-in-out infinite;
+}
+#arco-boot .abDots i:nth-child(2) { animation-delay: .15s; }
+#arco-boot .abDots i:nth-child(3) { animation-delay: .3s; }
+@keyframes abDot {
+  0%, 100% { opacity: .35; transform: translateY(0); }
+  50%      { opacity: 1;   transform: translateY(-4px); }
+}
 @media (prefers-reduced-motion: reduce) {
-  #arco-boot .abNotes span { animation: none; opacity: .8; }
+  #arco-boot .abNotes span, #arco-boot .abDots i { animation: none; opacity: .8; }
 }
