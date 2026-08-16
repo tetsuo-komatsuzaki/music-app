@@ -16,7 +16,7 @@ import { createObservation, recordObservationProgress } from "@/app/actions/teac
 import { saveMaterialNote } from "@/app/actions/teacherMaterialNotes"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
 import { MOOD_TAG_DEFS, moodTagLabel } from "@/app/_libs/moodTags"
-import { OBSERVATION_CATALOG, makeCustomTagId, parseCustomTagId } from "@/app/_libs/observationCatalog"
+import { OBSERVATION_CATALOG, makeCustomTagId, parseCustomTagId, isSelectableObsTag } from "@/app/_libs/observationCatalog"
 import { BODY_VIEWS, SPOT_BY_ID, spotsOf, type BodyViewId } from "@/app/_libs/bodyMap"
 import BodyFigure from "@/app/components/BodyFigure"
 import { SKILL_ID_LABELS, FEATURE_TARGETS, SUB_TARGETS } from "@/app/_libs/skillCatalog"
@@ -300,7 +300,8 @@ export default function KarteWriteClient({
           <div key={c.id} style={{ marginTop: 7 }}>
             <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 4 }}>{c.label}</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {c.tags.map((t) => (
+              {/* その他タグは廃止・自由記入に一本化 (2026-08-16 Q4確定) */}
+              {c.tags.filter((t) => isSelectableObsTag(t.id)).map((t) => (
                 <button key={t.id} type="button" onClick={() => updKuse(id, { tags: toggleIn(d.tags, t.id) })} style={chip(d.tags.includes(t.id))}>{t.label}</button>
               ))}
             </div>

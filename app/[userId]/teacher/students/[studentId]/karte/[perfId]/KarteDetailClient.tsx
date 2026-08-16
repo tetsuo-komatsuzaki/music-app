@@ -11,7 +11,7 @@ import { createObservation } from "@/app/actions/teacherObservations"
 import { saveMaterialNote } from "@/app/actions/teacherMaterialNotes"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
 import { MOOD_TAG_DEFS, moodTagLabel } from "@/app/_libs/moodTags"
-import { OBSERVATION_CATALOG, OBSERVATION_SEVERITIES } from "@/app/_libs/observationCatalog"
+import { OBSERVATION_CATALOG, OBSERVATION_SEVERITIES, isSelectableObsTag } from "@/app/_libs/observationCatalog"
 import { SKILL_ID_LABELS } from "@/app/_libs/skillCatalog"
 
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
@@ -203,7 +203,8 @@ export default function KarteDetailClient(props: {
                     <div key={c.id} style={{ marginBottom: 8 }}>
                       <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 4 }}>{c.label}</div>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                        {c.tags.map((t) => (
+                        {/* その他タグは廃止・自由記入に一本化 (2026-08-16 Q4確定) */}
+                        {c.tags.filter((t) => isSelectableObsTag(t.id)).map((t) => (
                           <button key={t.id} type="button" onClick={() => toggle(t.id)} style={chip(tags.has(t.id))}>{t.label}</button>
                         ))}
                       </div>

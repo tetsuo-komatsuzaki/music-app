@@ -154,6 +154,12 @@ export function resolveObsTag(tagId: string): { label: string; category: string;
   return undefined
 }
 
+/** 入力UIで選ばせてよいタグか (2026-08-16 Q4確定: 「その他」は廃止し自由記入に一本化)。
+    過去データの表示互換のため、カタログ自体からは削除しない。 */
+export function isSelectableObsTag(tagId: string): boolean {
+  return !tagId.endsWith("_other")
+}
+
 export const OBSERVATION_SEVERITIES = [
   { id: "mild", label: "気になる" },
   { id: "focus", label: "要重点" },
