@@ -359,12 +359,18 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   const effectiveBpm = recordingBpm
 
   // S-1: ログアウト時の警告用に録音中フラグをグローバルに公開
-  // Sidebar.handleLogout が参照する。Context 共有を避けた最小実装。
+  // AccountMenu.logout が参照する。Context 共有を避けた最小実装。
+  // あわせて body[data-recording] を立て、ボトムタブをCSSだけで隠す
+  // (2026-08-17 ナビ要件定義 1-2: 録音中の誤タップで演奏が中断されるのを防ぐ)。
   useEffect(() => {
     if (typeof window === "undefined") return
+    const on = status === "recording" || status === "countdown"
     ;(window as { __arcodaIsRecording?: boolean }).__arcodaIsRecording = (status === "recording")
+    if (on) document.body.setAttribute("data-recording", "true")
+    else document.body.removeAttribute("data-recording")
     return () => {
       ;(window as { __arcodaIsRecording?: boolean }).__arcodaIsRecording = false
+      document.body.removeAttribute("data-recording")
     }
   }, [status])
 

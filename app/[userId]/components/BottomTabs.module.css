@@ -12,6 +12,16 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* タブバーを隠す場面 (要件定義 1-2)。CSSだけで完結させ、状態の受け渡しを増やさない。
+   ・録音中/カウントイン中: 誤タップで演奏が中断される
+   ・横画面の録音モード: 帯譜面の表示領域を最大化する
+   ・楽譜の全画面表示: 譜面が主役 */
+:global(body[data-recording="true"]) .bar,
+:global(body[data-rec-band="true"]) .bar,
+:global(body[data-fullscreen="true"]) .bar {
+  display: none;
+}
+
 .inner {
   max-width: 560px;
   margin: 0 auto;

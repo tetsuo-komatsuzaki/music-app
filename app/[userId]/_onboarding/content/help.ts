@@ -26,8 +26,8 @@ export const HELP_CONTENT = {
     title: "ページごとの使い方",
     items: [
       { pageKey: "home",     icon: Home,        name: "ホーム",          description: "続きから練習・履歴・アルコの案内",  pathTemplate: "/" },
-      { pageKey: "scores",   icon: Library,     name: "マイライブラリー",  description: "アップロードした楽譜の一覧",        pathTemplate: "/scores" },
-      { pageKey: "practice", icon: Dumbbell,    name: "練習メニュー",    description: "あなた向けのおすすめ練習",          pathTemplate: "/practice" },
+      { pageKey: "scores",   icon: Library,     name: "ライブラリ",      description: "曲・基礎練・自分の楽譜",            pathTemplate: "/library" },
+      { pageKey: "practice", icon: Dumbbell,    name: "基礎練",          description: "カテゴリから練習をえらぶ",          pathTemplate: "/library?tab=basics" },
       { pageKey: "pieces",   icon: Music,       name: "練習曲",          description: "☆別・ジャンル別に弾く曲を選ぶ",     pathTemplate: "/practice/pieces" },
       { pageKey: "progress", icon: NotebookPen, name: "成長カルテ",      description: "練習の実態・安定マップ・所見・成長の物語", pathTemplate: "/progress" },
     ],
