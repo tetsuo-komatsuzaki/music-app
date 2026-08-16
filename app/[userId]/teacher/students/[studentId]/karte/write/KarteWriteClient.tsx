@@ -16,7 +16,9 @@ import { createObservation, recordObservationProgress } from "@/app/actions/teac
 import { saveMaterialNote } from "@/app/actions/teacherMaterialNotes"
 import { recordExpressionClear } from "@/app/actions/expressionClears"
 import { MOOD_TAG_DEFS, moodTagLabel } from "@/app/_libs/moodTags"
-import { OBSERVATION_CATALOG } from "@/app/_libs/observationCatalog"
+import { OBSERVATION_CATALOG, makeCustomTagId, parseCustomTagId } from "@/app/_libs/observationCatalog"
+import { BODY_VIEWS, SPOT_BY_ID, spotsOf, type BodyViewId } from "@/app/_libs/bodyMap"
+import BodyFigure from "@/app/components/BodyFigure"
 import { SKILL_ID_LABELS, FEATURE_TARGETS, SUB_TARGETS } from "@/app/_libs/skillCatalog"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import FingerboardPanel, { type FingerboardMark } from "@/app/components/FingerboardPanel"
@@ -30,6 +32,79 @@ type MaterialRow = { itemId: string; label: string; category: string; star: numb
 /** 対象1つぶんの癖の下書き */
 type KuseDraft = { feats: string[]; tags: string[]; comment: string }
 const EMPTY_DRAFT: KuseDraft = { feats: [], tags: [], comment: "" }
+
+// 自由記入の癖 (2026-08-16 Tetsuo承認): 文言を書き→体のポイントを1タップで追加。
+// 合成タグID (custom::部位ID::文言) として通常タグと同じ d.tags に入る。
+function CustomKuseAdder({ tags, onAdd, onRemove, disabled }: {
+  tags: string[]
+  onAdd: (tagId: string) => void
+  onRemove: (tagId: string) => void
+  disabled: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const [text, setText] = useState("")
+  const [viewId, setViewId] = useState<BodyViewId>("body")
+  const customs = tags.map((t) => ({ id: t, p: parseCustomTagId(t) })).filter((x) => x.p)
+  return (
+    <div style={{ marginTop: 7 }}>
+      <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 4 }}>あてはまる癖がないとき</div>
+      {customs.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 6 }}>
+          {customs.map(({ id, p }) => (
+            <span key={id} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 7, padding: "4px 8px", border: "1px solid #ccd8f0", color: "#22346b", background: "#e9eefb" }}>
+              {SPOT_BY_ID[p!.spotId]?.label ?? "体"}・{p!.label}
+              {!disabled && (
+                <button type="button" onClick={() => onRemove(id)} aria-label="この記入を削除"
+                  style={{ border: "none", background: "transparent", color: "#8b97a8", cursor: "pointer", fontSize: "var(--fs-caption)", lineHeight: 1, padding: 0 }}>×</button>
+              )}
+            </span>
+          ))}
+        </div>
+      )}
+      {!open ? (
+        <button type="button" disabled={disabled} onClick={() => setOpen(true)}
+          style={{ fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 7, padding: "5px 12px", cursor: "pointer", border: "1px dashed #b9c5dd", color: "#22346b", background: "#fff" }}>
+          ＋ 新しく書く
+        </button>
+      ) : (
+        <div style={{ border: "1px solid #dfe3ea", borderRadius: 10, padding: "9px 10px", background: "#fbfcff" }}>
+          <input value={text} onChange={(e) => setText(e.target.value)} maxLength={40}
+            placeholder="癖を書く・例：弓の持ち替えで力む"
+            style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", boxSizing: "border-box", background: "#fff" }} />
+          <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: text.trim() ? "#22346b" : "var(--text-muted)", margin: "8px 0 5px" }}>
+            {text.trim() ? "体のどのポイントの癖？・タップで追加" : "先に癖を書いてください"}
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 }}>
+            {BODY_VIEWS.map((v) => (
+              <button key={v.id} type="button" onClick={() => setViewId(v.id)}
+                style={{ fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 999, padding: "3px 10px", cursor: "pointer", border: "1px solid",
+                  background: viewId === v.id ? "#22346b" : "#fff", color: viewId === v.id ? "#fff" : "var(--text-muted)", borderColor: viewId === v.id ? "#22346b" : "#dfe3ea" }}>
+                {v.short}
+              </button>
+            ))}
+          </div>
+          <div style={{ position: "relative", maxWidth: 260, margin: "0 auto" }}>
+            <BodyFigure view={viewId} />
+            {spotsOf(viewId).map((s) => (
+              <button key={s.id} type="button" disabled={!text.trim()}
+                onClick={() => { onAdd(makeCustomTagId(s.id, text.trim())); setText(""); setOpen(false) }}
+                style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, transform: "translate(-50%, -50%)",
+                  fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 999, padding: "3px 8px", whiteSpace: "nowrap",
+                  cursor: text.trim() ? "pointer" : "not-allowed", opacity: text.trim() ? 1 : 0.55,
+                  background: "#2b5bc4", color: "#fff", border: "1.5px solid #fff", boxShadow: "0 1px 4px rgba(20,30,60,.3)" }}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+          <button type="button" onClick={() => { setOpen(false); setText("") }}
+            style={{ marginTop: 7, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)", background: "transparent", border: "none", cursor: "pointer", padding: 0 }}>
+            とじる
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
 
 function targetLabel(id: string): string {
   if (id === "general") return "わざ以外・姿勢 かまえ"
@@ -231,6 +306,12 @@ export default function KarteWriteClient({
             </div>
           </div>
         ))}
+        <CustomKuseAdder
+          tags={d.tags}
+          disabled={done}
+          onAdd={(tagId) => { if (!d.tags.includes(tagId)) updKuse(id, { tags: [...d.tags, tagId] }) }}
+          onRemove={(tagId) => updKuse(id, { tags: d.tags.filter((x) => x !== tagId) })}
+        />
         <textarea value={d.comment} onChange={(e) => updKuse(id, { comment: e.target.value })} rows={2}
           placeholder="自由記述・例：移弦の瞬間に肩が上がる" disabled={done}
           style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 9, padding: "9px 11px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box", marginTop: 8 }} />

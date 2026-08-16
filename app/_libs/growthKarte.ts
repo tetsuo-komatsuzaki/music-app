@@ -9,7 +9,7 @@ import { formatKey } from "./musicNotation"
 import { categoryLabel } from "./practiceConstants"
 import { SUBTASK_BY_ID } from "./subtaskCatalog.generated"
 import { featureSubtaskRegex, FEATURE_ID_LABELS, SKILL_ID_LABELS } from "./skillCatalog"
-import { OBSERVATION_TAG_BY_ID } from "./observationCatalog"
+import { resolveObsTag } from "./observationCatalog"
 import { expressionLabel } from "./expressionCatalog"
 import { moodTagPhrase } from "./moodTags"
 import type { DiagnosisJson } from "./weaknessRecommendation"
@@ -601,7 +601,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
           if (!bodyObsMap.has(t)) bodyObsMap.set(t, { tagId: t, severity: o.severity, date: fmtJp(o.createdAt), targets: targetLabels })
         }
         if (oi >= 15) continue // 物語に流すのは直近15件まで (残りは状態把握のみ)
-        const tags = kuseTagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).slice(0, 3).join("・")
+        const tags = kuseTagIds.map((t) => resolveObsTag(t)?.label).filter(Boolean).slice(0, 3).join("・")
         const text =
           o.severity === "resolved" ? `癖を克服：${tags || "コメント"}` :
           o.severity === "improving" ? `癖が良くなってきた：${tags || "コメント"}` :
@@ -756,7 +756,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
           id: d.id, label: d.label, lane: d.lane, star: d.star, state,
           provisional: acquired && !inClear,
           pct, miss: agg.miss, target: agg.target,
-          obsTags: d.obsTagIds.filter((t) => recentObsTagIds.has(t)).map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter((s): s is string => !!s),
+          obsTags: d.obsTagIds.filter((t) => recentObsTagIds.has(t)).map((t) => resolveObsTag(t)?.label).filter((s): s is string => !!s),
           practiceHref: d.practiceCat ? `/${supabaseUserId}/practice/${d.practiceCat}` : `/${supabaseUserId}/practice`,
           pitchPct, rhythmPct, weekDelta, isNew, series: seriesTail,
         }
@@ -1310,7 +1310,7 @@ export async function buildRemarkTracking(userId: string): Promise<RemarkTrack[]
       const subIds = resolved.subIds
       const skills = [{ label: resolved.practiceLabel ?? resolved.label }]
       seen.add(skillId)
-      const label = `${resolved.label}: ${o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).join("・") || "癖"}`
+      const label = `${resolved.label}: ${o.tagIds.map((t) => resolveObsTag(t)?.label).filter(Boolean).join("・") || "癖"}`
       const baseline = successIn(subIds, new Date(o.createdAt.getTime() - 21 * 864e5), o.createdAt)
       const recent = successIn(subIds, new Date(now.getTime() - 14 * 864e5), now)
       let status: RemarkTrack["status"] = "pending"
@@ -1433,7 +1433,7 @@ export async function buildSkillDetail(
   // 2026-08-11 Tetsuo確定: 癖タグ→技術の自動マッピングを廃止。先生が明示的に選んだ skillIds のみ
   const related = obsRows.filter((o) => (o.skillIds ?? []).includes(def.id))
   const annotations: SkillAnnotation[] = related.map((o) => {
-    const base = o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).join("・") || "所見"
+    const base = o.tagIds.map((t) => resolveObsTag(t)?.label).filter(Boolean).join("・") || "所見"
     const prefix = o.severity === "resolved" ? "克服 " : ""
     return {
       at: o.createdAt.getTime(),
@@ -1491,7 +1491,7 @@ export async function buildSkillDetail(
     .map((o) => ({
       date: fmtJp(o.createdAt),
       severity: o.severity,
-      tags: o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter((s): s is string => !!s),
+      tags: o.tagIds.map((t) => resolveObsTag(t)?.label).filter((s): s is string => !!s),
       comment: o.comment,
     }))
 

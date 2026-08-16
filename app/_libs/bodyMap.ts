@@ -5,6 +5,7 @@
 // 座標 x/y は各ビューSVGの viewBox に対する % (BodyFigure と対で管理)。
 
 import { PersonStanding, Hand, Move, Music, type LucideIcon } from "lucide-react"
+import { parseCustomTagId } from "./observationCatalog"
 
 export type BodyViewId = "body" | "left_out" | "left_in" | "bow_frog" | "bow_tip" | "bow_hold" | "strings"
 
@@ -78,6 +79,16 @@ export const BODY_SPOTS: BodySpot[] = [
 export const SPOT_BY_TAG: Record<string, BodySpot> = Object.fromEntries(
   BODY_SPOTS.flatMap((s) => s.tagIds.map((t) => [t, s])),
 )
+
+export const SPOT_BY_ID: Record<string, BodySpot> = Object.fromEntries(BODY_SPOTS.map((s) => [s.id, s]))
+
+/** タグID→部位の両対応版: カタログのマッピング or 自由記入合成ID(custom::部位ID::文言)の埋め込み部位 */
+export function spotOfTag(tagId: string): BodySpot | undefined {
+  const mapped = SPOT_BY_TAG[tagId]
+  if (mapped) return mapped
+  const custom = parseCustomTagId(tagId)
+  return custom ? SPOT_BY_ID[custom.spotId] : undefined
+}
 
 /** ビューごとの部位一覧 */
 export function spotsOf(view: BodyViewId): BodySpot[] {

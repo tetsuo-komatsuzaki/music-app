@@ -8,7 +8,7 @@ import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
-import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
+import { OBSERVATION_TAG_BY_ID, resolveObsTag } from "@/app/_libs/observationCatalog"
 import { getDailyLessonsForUserScore } from "@/app/_libs/dailyLessons"
 import { buildTargetHeatmap } from "@/app/_libs/fingerboard/aggregate"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
@@ -160,8 +160,8 @@ export default async function KarteWritePage({
       if (!latest.has(t)) latest.set(t, { severity: r.severity, at: r.createdAt })
     }
     pastKuse = [...latest.entries()]
-      .filter(([t, v]) => v.severity !== "resolved" && OBSERVATION_TAG_BY_ID[t])
-      .map(([t, v]) => ({ tagId: t, label: OBSERVATION_TAG_BY_ID[t].label, date: fmtMD(v.at) }))
+      .filter(([t, v]) => v.severity !== "resolved" && resolveObsTag(t))
+      .map(([t, v]) => ({ tagId: t, label: resolveObsTag(t)!.label, date: fmtMD(v.at) }))
       .slice(0, 8)
   } catch { pastKuse = [] }
 

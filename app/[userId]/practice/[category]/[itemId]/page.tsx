@@ -213,7 +213,7 @@ export default async function PracticeDetailPage({
       ])
       : [[], []]
     const { SKILL_ID_LABELS, FEATURE_ID_LABELS } = await import("@/app/_libs/skillCatalog")
-    const { OBSERVATION_TAG_BY_ID } = await import("@/app/_libs/observationCatalog")
+    const { resolveObsTag } = await import("@/app/_libs/observationCatalog")
     const skillLabel = (id: string) => SKILL_ID_LABELS.find((x) => x.id === id)?.label ?? FEATURE_ID_LABELS[id] ?? null
     teacherKartes = rows.map((k) => ({
       id: k.id, body: k.body,
@@ -223,7 +223,7 @@ export default async function PracticeDetailPage({
       read: k.readAt != null,
       kuse: obsRows.filter((o) => o.karteId === k.id).map((o) => ({
         targets: (o.skillIds ?? []).map(skillLabel).filter((x): x is string => !!x),
-        tags: o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter((x): x is string => !!x),
+        tags: o.tagIds.map((t) => resolveObsTag(t)?.label).filter((x): x is string => !!x),
       })),
       marks: markRows.filter((m) => m.karteId === k.id).map((m) => ({ cellId: m.cellId, note: m.note })),
       exprs: [],

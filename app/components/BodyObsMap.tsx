@@ -6,9 +6,10 @@
 //   mild(気になる) / focus(要重点) / improving(🌿良くなってきた) / resolved(🌱克服=卒業)
 // renderTagActions を渡すと各タグ行に操作UIが出る (先生の経過記録用)。
 import { useState, type ReactNode } from "react"
+import { createPortal } from "react-dom"
 import { Sprout } from "lucide-react"
-import { BODY_VIEWS, SPOT_BY_TAG, spotsOf, type BodyViewId } from "@/app/_libs/bodyMap"
-import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
+import { BODY_VIEWS, spotOfTag, spotsOf, type BodyViewId } from "@/app/_libs/bodyMap"
+import { resolveObsTag } from "@/app/_libs/observationCatalog"
 import BodyFigure from "@/app/components/BodyFigure"
 
 export interface BodyObsItem {
@@ -33,13 +34,16 @@ export default function BodyObsMap({ tags, renderTagActions }: {
   renderTagActions?: (tag: BodyObsItem) => ReactNode
 }) {
   const [viewId, setViewId] = useState<BodyViewId | null>(null)
+  // タップで拡大 (2026-08-16 Tetsuo指定: 小さい図では癖ポイントが見にくいため)
+  const [zoom, setZoom] = useState(false)
 
-  // 🌱克服したタグはマップから卒業し、下部の「克服した癖」に移る
-  const active = tags.filter((t) => t.severity !== "resolved" && OBSERVATION_TAG_BY_ID[t.tagId])
-  const resolved = tags.filter((t) => t.severity === "resolved" && OBSERVATION_TAG_BY_ID[t.tagId])
+  // 🌱克服したタグはマップから卒業し、下部の「克服した癖」に移る。
+  // resolveObsTag はカタログタグと自由記入タグ (custom::部位::文言) の両対応 (2026-08-16)
+  const active = tags.filter((t) => t.severity !== "resolved" && resolveObsTag(t.tagId))
+  const resolved = tags.filter((t) => t.severity === "resolved" && resolveObsTag(t.tagId))
 
-  const tagsOf = (v: BodyViewId): BodyObsItem[] => active.filter((t) => SPOT_BY_TAG[t.tagId]?.view === v)
-  const nonBody = active.filter((t) => !SPOT_BY_TAG[t.tagId])
+  const tagsOf = (v: BodyViewId): BodyObsItem[] => active.filter((t) => spotOfTag(t.tagId)?.view === v)
+  const nonBody = active.filter((t) => !spotOfTag(t.tagId))
 
   const sel = viewId ? BODY_VIEWS.find((v) => v.id === viewId)! : null
   const selTags = viewId ? tagsOf(viewId) : []
@@ -74,12 +78,13 @@ export default function BodyObsMap({ tags, renderTagActions }: {
             <sel.Icon size={14} /> {sel.label}
           </div>
           <div style={{ padding: 10 }}>
-            <div style={{ position: "relative", background: "#fdfaf4", border: "1px solid #f0e9db", borderRadius: 11, padding: 6 }}>
+            <button type="button" onClick={() => setZoom(true)} aria-label="癖マップを拡大表示"
+              style={{ display: "block", width: "100%", position: "relative", background: "#fdfaf4", border: "1px solid #f0e9db", borderRadius: 11, padding: 6, cursor: "zoom-in", textAlign: "left" }}>
               <BodyFigure view={sel.id} />
               {spotsOf(sel.id).map((s) => {
-                const cnt = selTags.filter((t) => SPOT_BY_TAG[t.tagId]?.id === s.id).length
+                const cnt = selTags.filter((t) => spotOfTag(t.tagId)?.id === s.id).length
                 if (cnt === 0) return null
-                const focus = selTags.some((t) => SPOT_BY_TAG[t.tagId]?.id === s.id && t.severity === "focus")
+                const focus = selTags.some((t) => spotOfTag(t.tagId)?.id === s.id && t.severity === "focus")
                 return (
                   <span key={s.id}
                     style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, transform: "translate(-50%, -50%)", fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 999, padding: "3px 8px", background: focus ? BAD.c : "#c98a2a", color: "var(--text-on-accent)", boxShadow: "0 1px 4px rgba(60,50,30,.25)", whiteSpace: "nowrap" }}>
@@ -87,7 +92,8 @@ export default function BodyObsMap({ tags, renderTagActions }: {
                   </span>
                 )
               })}
-            </div>
+              <span style={{ position: "absolute", right: 9, bottom: 8, fontSize: "var(--fs-label)", fontWeight: 800, color: "#8a9099", background: "rgba(255,255,255,.85)", borderRadius: 999, padding: "2px 9px" }}>タップで拡大</span>
+            </button>
             {selTags.length === 0 ? (
               <div style={{ fontSize: "var(--fs-caption)", color: SUB, marginTop: 8 }}>この場所の癖は記録されていません。いい調子！</div>
             ) : (
@@ -103,7 +109,7 @@ export default function BodyObsMap({ tags, renderTagActions }: {
                             {t.targets!.join("・")}のとき
                           </span>
                         )}
-                        <span style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-ink)" }}>{OBSERVATION_TAG_BY_ID[t.tagId]?.label ?? t.tagId}</span>
+                        <span style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-ink)" }}>{resolveObsTag(t.tagId)?.label ?? t.tagId}</span>
                         <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>{t.date}</span>
                       </div>
                       {renderTagActions && <div style={{ marginTop: 6 }}>{renderTagActions(t)}</div>}
@@ -131,7 +137,7 @@ export default function BodyObsMap({ tags, renderTagActions }: {
                     </span>
                   )}
                   <span style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "4px 10px" }}>
-                    {OBSERVATION_TAG_BY_ID[t.tagId]?.label ?? t.tagId}
+                    {resolveObsTag(t.tagId)?.label ?? t.tagId}
                   </span>
                   {renderTagActions && renderTagActions(t)}
                 </div>
@@ -141,6 +147,45 @@ export default function BodyObsMap({ tags, renderTagActions }: {
         </div>
       )}
 
+      {/* 拡大モーダル (2026-08-16): 図を全画面近くまで広げてピンを見やすく */}
+      {zoom && sel && typeof document !== "undefined" && createPortal(
+        <div onClick={() => setZoom(false)} role="dialog" aria-modal="true" aria-label={`${sel.label}の癖マップ拡大表示`}
+          style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(11,30,58,.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div onClick={(e) => e.stopPropagation()}
+            style={{ position: "relative", width: "100%", maxWidth: 520, maxHeight: "92vh", overflowY: "auto", background: "#fff", borderRadius: 16, padding: 12 }}>
+            <button type="button" onClick={() => setZoom(false)} aria-label="閉じる"
+              style={{ position: "absolute", top: 8, right: 10, zIndex: 2, border: "none", background: "rgba(255,255,255,.9)", borderRadius: 999, width: 30, height: 30, fontSize: "var(--fs-subhead)", color: "#54678f", cursor: "pointer" }}>✕</button>
+            <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-ink)", margin: "2px 0 8px", display: "flex", alignItems: "center", gap: 5 }}>
+              <sel.Icon size={15} /> {sel.label}
+            </div>
+            <div style={{ position: "relative" }}>
+              <BodyFigure view={sel.id} />
+              {spotsOf(sel.id).map((s) => {
+                const cnt = selTags.filter((t) => spotOfTag(t.tagId)?.id === s.id).length
+                if (cnt === 0) return null
+                const focus = selTags.some((t) => spotOfTag(t.tagId)?.id === s.id && t.severity === "focus")
+                return (
+                  <span key={s.id}
+                    style={{ position: "absolute", left: `${s.x}%`, top: `${s.y}%`, transform: "translate(-50%, -50%)", fontSize: "var(--fs-caption)", fontWeight: 900, borderRadius: 999, padding: "5px 11px", background: focus ? BAD.c : "#c98a2a", color: "var(--text-on-accent)", boxShadow: "0 2px 8px rgba(60,50,30,.35)", whiteSpace: "nowrap" }}>
+                    {s.label} {cnt}
+                  </span>
+                )
+              })}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 10 }}>
+              {selTags.map((t) => (
+                <div key={t.tagId} style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-ink)", display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: t.severity === "focus" ? BAD.c : "#c98a2a", flex: "none" }} />
+                  {spotOfTag(t.tagId)?.label && <b style={{ color: "#54678f", fontWeight: 800 }}>{spotOfTag(t.tagId)!.label}</b>}
+                  {resolveObsTag(t.tagId)?.label ?? t.tagId}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
+
       {/* 🌱 克服した癖 (卒業リスト) */}
       {resolved.length > 0 && (
         <div style={{ marginTop: 10 }}>
@@ -148,7 +193,7 @@ export default function BodyObsMap({ tags, renderTagActions }: {
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {resolved.map((t) => (
               <span key={t.tagId} style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-sub)", background: "#f2f6f3", border: "1px solid #dbe6de", borderRadius: 999, padding: "4px 10px", textDecoration: "line-through" }}>
-                {OBSERVATION_TAG_BY_ID[t.tagId]?.label ?? t.tagId}
+                {resolveObsTag(t.tagId)?.label ?? t.tagId}
                 <span style={{ textDecoration: "none", marginLeft: 5, fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>{t.date}</span>
               </span>
             ))}

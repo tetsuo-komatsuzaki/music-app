@@ -6,7 +6,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { getAchievementFlags } from "@/app/_libs/achievementFlags"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
-import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
+import { resolveObsTag } from "@/app/_libs/observationCatalog"
 import MyTeacherClient from "./MyTeacherClient"
 
 export const metadata = { title: "先生とのやりとり" }
@@ -243,7 +243,7 @@ export default async function MyTeacherPage({
       select: { tagIds: true, severity: true, comment: true, createdAt: true },
     })
     for (const o of obsRows) {
-      const tags = o.tagIds.map((t) => OBSERVATION_TAG_BY_ID[t]?.label).filter(Boolean).join("・")
+      const tags = o.tagIds.map((t) => resolveObsTag(t)?.label).filter(Boolean).join("・")
       const sev = o.severity === "focus" ? "【要重点】" : ""
       const body = [tags, o.comment].filter(Boolean).join(" — ")
       events.push({

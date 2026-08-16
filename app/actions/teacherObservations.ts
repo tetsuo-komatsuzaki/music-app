@@ -5,8 +5,15 @@
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthAction } from "@/app/_libs/requireAuth"
 import { notifyStudent } from "@/app/_libs/teacherEmailNotify"
-import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
+import { OBSERVATION_TAG_BY_ID, parseCustomTagId, resolveObsTag, CUSTOM_TAG_LABEL_MAX } from "@/app/_libs/observationCatalog"
+import { SPOT_BY_ID } from "@/app/_libs/bodyMap"
 import { SKILL_ID_LABELS, FEATURE_ID_SET } from "@/app/_libs/skillCatalog"
+
+// 自由記入タグ (custom::部位ID::文言) の受け入れ検証: 実在部位 + 文言長のみ
+function isValidCustomTag(tagId: string): boolean {
+  const c = parseCustomTagId(tagId)
+  return !!c && !!SPOT_BY_ID[c.spotId] && c.label.length <= CUSTOM_TAG_LABEL_MAX
+}
 
 const SKILL_ID_SET = new Set([...SKILL_ID_LABELS.map((s) => s.id), ...FEATURE_ID_SET])
 
@@ -25,8 +32,8 @@ export async function createObservation(input: {
   if (auth.user.dbUser.role !== "teacher") return { ok: false, error: "先生アカウントが必要です" }
   const teacherId = auth.user.dbUser.id
 
-  // カタログに存在するタグだけ受け付ける
-  const tagIds = [...new Set((input.tagIds ?? []).filter((t) => OBSERVATION_TAG_BY_ID[t]))].slice(0, 12)
+  // カタログに存在するタグ + 検証済みの自由記入タグを受け付ける (2026-08-16)
+  const tagIds = [...new Set((input.tagIds ?? []).filter((t) => OBSERVATION_TAG_BY_ID[t] || isValidCustomTag(t)))].slice(0, 12)
   const skillIds = [...new Set((input.skillIds ?? []).filter((id) => SKILL_ID_SET.has(id)))].slice(0, 4)
   const comment = (input.comment ?? "").trim().slice(0, 500) || null
   if (tagIds.length === 0 && !comment) return { ok: false, error: "タグを選ぶかコメントを書いてください" }
@@ -43,7 +50,7 @@ export async function createObservation(input: {
       data: { teacherId, studentId: input.studentId, tagIds, skillIds, severity, comment, karteId: input.karteId ?? null },
     })
 
-    const preview = tagIds.map((t) => OBSERVATION_TAG_BY_ID[t].label).join("・") || comment || ""
+    const preview = tagIds.map((t) => resolveObsTag(t)?.label).filter(Boolean).join("・") || comment || ""
     await notifyStudent(input.studentId, teacherId, "observation", preview)
     return { ok: true }
   } catch {
@@ -66,7 +73,7 @@ export async function recordObservationProgress(input: {
   if (auth.user.dbUser.role !== "teacher") return { ok: false, error: "先生アカウントが必要です" }
   const teacherId = auth.user.dbUser.id
 
-  const tag = OBSERVATION_TAG_BY_ID[input.tagId]
+  const tag = resolveObsTag(input.tagId)
   if (!tag) return { ok: false, error: "不明なタグです" }
   if (!["still", "improving", "resolved"].includes(input.status)) return { ok: false, error: "不明な状態です" }
 

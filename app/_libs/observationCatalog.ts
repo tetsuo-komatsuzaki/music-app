@@ -121,6 +121,39 @@ export const OBSERVATION_TAG_BY_ID: Record<string, { label: string; category: st
     ...LEGACY_OBSERVATION_TAGS.map((t) => [t.id, { label: t.label, category: t.category, categoryLabel: t.categoryLabel }] as const),
   ])
 
+// ============================================================
+// 自由記入の癖 (2026-08-16 Tetsuo承認: 「ポイントに対応する癖を選ぶ、もしくは新しく書く」)。
+// タグIDに部位IDと文言を埋め込んだ合成IDとして tagIds[] に保存する。
+// DBスキーマ変更なしで、既存の所見・経過記録(まだある/良くなってきた/克服)の仕組みにそのまま乗る。
+// 形式: "custom::<bodyMapの部位ID>::<文言>"
+// ============================================================
+export const CUSTOM_TAG_PREFIX = "custom::"
+export const CUSTOM_TAG_LABEL_MAX = 40
+
+export function makeCustomTagId(spotId: string, label: string): string {
+  return `${CUSTOM_TAG_PREFIX}${spotId}::${label.replaceAll("::", ":").trim().slice(0, CUSTOM_TAG_LABEL_MAX)}`
+}
+
+export function parseCustomTagId(tagId: string): { spotId: string; label: string } | null {
+  if (!tagId.startsWith(CUSTOM_TAG_PREFIX)) return null
+  const rest = tagId.slice(CUSTOM_TAG_PREFIX.length)
+  const sep = rest.indexOf("::")
+  if (sep <= 0) return null
+  const spotId = rest.slice(0, sep)
+  const label = rest.slice(sep + 2).trim()
+  if (!label) return null
+  return { spotId, label }
+}
+
+/** カタログタグ・自由記入タグの両対応リゾルバ。未知IDは undefined */
+export function resolveObsTag(tagId: string): { label: string; category: string; categoryLabel: string } | undefined {
+  const cat = OBSERVATION_TAG_BY_ID[tagId]
+  if (cat) return cat
+  const custom = parseCustomTagId(tagId)
+  if (custom) return { label: custom.label, category: "custom", categoryLabel: "先生の記入" }
+  return undefined
+}
+
 export const OBSERVATION_SEVERITIES = [
   { id: "mild", label: "気になる" },
   { id: "focus", label: "要重点" },
