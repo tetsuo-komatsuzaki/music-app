@@ -1,24 +1,28 @@
 // アプリ殻(iOS)同梱用スプラッシュHTMLの生成 (2026-08-16)。
-// Web側の起動スプラッシュ (ArcoBootSplash 案2「演奏するアルコ」) と完全に同じ見た目を
+// Web側の起動スプラッシュ (ArcoBootSplash) と完全に同じ見た目・同じ抽選仕様を
 // 1ファイルの自己完結HTMLに書き出す。Mac側はこれを Xcode バンドルに入れて
 // WKWebView のオーバーレイで表示する (docs/native-splash-mac-instructions.md 参照)。
 //
 // 実行: npx tsx scripts/gen-native-splash.tsx
 // 出力: native/ios-splash/splash.html
-// ArcoChan のポーズやWeb側スプラッシュのデザインを変えたら再実行して再同梱する。
+// ポーズ・文言の正は ArcoBootSplash.tsx (BOOT_POSE_IDS / BOOT_MESSAGES)。
+// 変更したら再実行して Mac 側で再同梱する。
+//
+// 抽選仕様 (2026-08-16 Tetsuo指定): 全ポーズ・全文言を同梱し、表示のたびにJSでランダムに1つ選ぶ。
 import { mkdirSync, writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import React from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import { ArcoChan, POSES } from "../app/components/ArcoChan"
+import { BOOT_MESSAGES, BOOT_POSE_IDS } from "../app/components/ArcoBootSplash"
 
-const pose = (POSES as { id: string }[]).find((p) => p.id === "03B") // 弓を振って応援 = Web側と同一
-if (!pose) throw new Error("pose 03B not found")
+const poseSvgs = BOOT_POSE_IDS.map((id) => {
+  const pose = (POSES as { id: string }[]).find((p) => p.id === id)
+  if (!pose) throw new Error(`pose ${id} not found`)
+  return renderToStaticMarkup(React.createElement(ArcoChan as React.FC<{ pose: unknown }>, { pose }))
+})
 
-const arcoSvg = renderToStaticMarkup(React.createElement(ArcoChan as React.FC<{ pose: unknown }>, { pose }))
-
-// globals.css の #arco-boot ブロックと同一デザイン (色・サイズ・アニメを揃える)
 const html = `<!doctype html>
 <html lang="ja">
 <head>
@@ -32,6 +36,7 @@ const html = `<!doctype html>
   }
   .abStage { position: relative; width: 172px; height: 172px; }
   .abArco { width: 100%; height: 100%; }
+  .abArco .poseOpt { display: none; width: 100%; height: 100%; }
   .abNotes { position: absolute; left: 2px; top: 26px; }
   .abNotes span {
     position: absolute; left: 0; top: 0; font-size: 22px; color: #e7edfb; opacity: 0;
@@ -69,12 +74,22 @@ const html = `<!doctype html>
 <body>
   <div class="boot" aria-hidden="true">
     <div class="abStage">
-      <div class="abArco">${arcoSvg}</div>
+      <div class="abArco">
+${poseSvgs.map((svg) => `        <div class="poseOpt">${svg}</div>`).join("\n")}
+      </div>
       <div class="abNotes"><span>♪</span><span>♫</span><span>♪</span></div>
     </div>
     <div class="abLogo">Arcoda</div>
-    <div class="abTag">よみこみ中<span class="abDots"><i></i><i></i><i></i></span></div>
+    <div class="abTag"><span id="bootMsg"></span><span class="abDots"><i></i><i></i><i></i></span></div>
   </div>
+  <script>
+    (function () {
+      var poses = document.querySelectorAll(".poseOpt");
+      poses[Math.floor(Math.random() * poses.length)].style.display = "block";
+      var msgs = ${JSON.stringify([...BOOT_MESSAGES])};
+      document.getElementById("bootMsg").textContent = msgs[Math.floor(Math.random() * msgs.length)];
+    })();
+  </script>
 </body>
 </html>
 `
@@ -83,4 +98,4 @@ const outDir = join(dirname(fileURLToPath(import.meta.url)), "..", "native", "io
 mkdirSync(outDir, { recursive: true })
 const outPath = join(outDir, "splash.html")
 writeFileSync(outPath, html, "utf8")
-console.log(`generated: ${outPath} (${html.length} bytes)`)
+console.log(`generated: ${outPath} (${html.length} bytes, poses=${poseSvgs.length}, messages=${BOOT_MESSAGES.length})`)
