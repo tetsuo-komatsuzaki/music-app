@@ -12,11 +12,6 @@ import {
 const POSE_ID: Record<ShareKind, string> = {
   master: "02A", rank_up: "02B", weekly: "02C", daily: "01A",
 }
-const POSE_NOTE: Record<ShareKind, string> = {
-  master: "やったね！のポーズ", rank_up: "やったね！のポーズ",
-  weekly: "お疲れさま！のポーズ", daily: "いいね！のポーズ",
-}
-
 const CONFETTI = [
   { left: "6%", w: 1.72, h: 2.34, c: "#e8c96a", dur: 5, delay: 0 },
   { left: "20%", w: 1.25, h: 1.25, c: "#7a8ce0", dur: 6.5, delay: 0.8, round: true },
@@ -164,7 +159,7 @@ export default function SharePublicView({
             <div style={{ position: "relative", width: "100%", aspectRatio: "290/275" }}>
               <ArcoChan pose={pose} />
             </div>
-            <div style={{ position: "relative", fontSize: "1.56cqw", fontWeight: 800, color: "var(--text-master)", marginTop: "0.62cqw" }}>{POSE_NOTE[kind]}</div>
+            {/* ポーズの説明文言はイラストの下に出さない (2026-08-16 Tetsuo指定で削除) */}
           </div>
         </div>
       </div>
