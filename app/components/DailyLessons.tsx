@@ -4,7 +4,7 @@
 // タップ時は即遷移せず「練習紹介モーダル」を挟む (案1・2026-08-09)。
 "use client"
 
-import { useState } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
 import { ArcoChan, POSES } from "./ArcoChan"
@@ -101,6 +101,37 @@ function copyFor(reason: string, detail: string | null): IntroCopy {
   }
 }
 
+// 項目名の自動縮小 (2026-08-16 Tetsuo指定: 折り返し禁止・全文を1行で見せる)。
+// 置き場所の幅 (ホーム/ふりかえりタブ) に応じて、収まるまで文字を小さくする。
+// 最小9pxまで縮めても収まらない場合のみ ellipsis で切る (保険)。
+function AutoFitLabel({ text }: { text: string }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const fit = () => {
+      el.style.fontSize = "" // いったんCSS既定 (--fs-caption) に戻してから測る
+      let size = parseFloat(getComputedStyle(el).fontSize)
+      while (el.scrollWidth > el.clientWidth && size > 9) {
+        size -= 0.5
+        el.style.fontSize = `${size}px`
+      }
+    }
+    fit()
+    const ro = new ResizeObserver(fit)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [text])
+  return (
+    <span
+      ref={ref}
+      style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+    >
+      {text}
+    </span>
+  )
+}
+
 export default function DailyLessons({
   lessons,
   userId,
@@ -151,10 +182,7 @@ export default function DailyLessons({
             {/* 左: カテゴリ色のバンド */}
             <span style={{ width: 4, alignSelf: "stretch", flex: "none", background: col.c }} aria-hidden />
             <span style={{ flex: 1, minWidth: 0, padding: "9px 11px", display: "flex", alignItems: "center", gap: 8 }}>
-              {/* 2026-08-16 Tetsuo指定: 折り返しなし・文字を小さくして全文を1行に収める */}
-              <span style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {l.label}
-              </span>
+              <AutoFitLabel text={l.label} />
               <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, padding: "2px 8px", borderRadius: 999, background: col.bg, color: col.c, whiteSpace: "nowrap" }}>
                 {SLOT_NOTE[l.slot]}
               </span>

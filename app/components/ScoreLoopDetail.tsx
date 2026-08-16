@@ -9,12 +9,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Trophy, Target } from "lucide-react"
+import { Target } from "lucide-react"
 import styles from "./ScoreLoopDetail.module.css"
 import GuideSampleReview from "./GuideSampleReview"
 import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 import WeaknessDiagnosisCard from "./WeaknessDiagnosisCard"
-import GoalTracker, { goalHeadline, type AchievementStatus } from "./GoalTracker"
+import { type AchievementStatus } from "./GoalTracker"
 import DailyLessons from "./DailyLessons"
 
 type Props = {
@@ -61,12 +61,7 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
 
   return (
     <div className={styles.container} role="tabpanel" id="score-detail-tab-panel-loop">
-      {/* ── 1. 達成/マスター進捗 (共通部品 GoalTracker) ── */}
-      <section className={styles.summarySection}>
-        <h2 className={styles.sectionTitle} style={{ display: "flex", alignItems: "center", gap: 6 }}><Trophy size={18} color="#b58a1e" /> {goalHeadline(achv)}</h2>
-        {/* scoreIdは渡さない: ふりかえりタブには上達のようすが同一ページにあり、リンクが重複するため (2026-08-16 Tetsuo指定) */}
-        <GoalTracker achv={achv} userId={userId} />
-      </section>
+      {/* ゴール進捗カード(GoalTracker)は非表示: ホーム側と情報が重複するため (2026-08-16 Tetsuo指定) */}
 
       {/* ── 2. 学びのポイント (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホームと共通ロジック) ── */}
       <section className={styles.cardSection}>
