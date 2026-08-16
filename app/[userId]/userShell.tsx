@@ -3,7 +3,7 @@
 import styles from "./layout.module.css"
 import { ReactNode } from "react"
 import { usePathname } from "next/navigation"
-import Sidebar from "./components/Sidebar"
+import BottomTabs from "./components/BottomTabs"
 import Header from "./components/Header"
 import NavProgress from "./components/NavProgress"
 import OnboardingErrorBoundary from "./_onboarding/OnboardingErrorBoundary"
@@ -27,15 +27,15 @@ export default function UserShell({
   return (
     <OnboardingProvider>
       <NavProgress />
+      {/* ナビ刷新 2026-08-17: サイドバー廃止 → ボトム4タブ + 右上アカウント。
+          全画面幅で同じタブを使い、本文は最大560pxで中央に寄せる (要件定義 SECTION 05) */}
       <div className={styles.container}>
         <Header role={role} />
-        <div className={styles.body}>
-          <Sidebar />
-          {/* ===== PAGE CONTENT ===== */}
-          <main className={styles.main}>
-            {children}
-          </main>
-        </div>
+        {/* ===== PAGE CONTENT ===== */}
+        <main className={styles.main}>
+          <div className={styles.centered}>{children}</div>
+        </main>
+        <BottomTabs />
       </div>
       {/* オーバーレイのクラッシュは ErrorBoundary で吸収、既存 UI に波及させない */}
       <OnboardingErrorBoundary>

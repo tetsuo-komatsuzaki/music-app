@@ -1,0 +1,124 @@
+/* ライブラリ (2026-08-17 ナビ要件定義 SECTION 02) */
+
+.root { display: flex; flex-direction: column; gap: 14px; }
+
+.head { margin-bottom: 2px; }
+.title { font-size: var(--fs-head); font-weight: 900; margin: 0; color: var(--text-ink); }
+.lead { font-size: var(--fs-caption); color: var(--text-muted); margin: 4px 0 0; }
+
+/* 検索 + アップロード */
+.searchRow { display: flex; gap: 10px; }
+.search {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px;
+  background: #fff; border: 1px solid #dfe6f2; border-radius: 14px; padding: 0 14px; height: 48px;
+  color: var(--text-muted);
+}
+.search input {
+  flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+  font-size: var(--fs-body); color: var(--text-ink);
+}
+.addBtn {
+  flex: none; width: 56px; height: 48px; border: none; border-radius: 14px; cursor: pointer;
+  background: linear-gradient(135deg, #f0c25c, #d9a93c 55%, #c99427);
+  color: #12203c; display: grid; place-items: center;
+  box-shadow: 0 6px 16px rgba(217, 169, 60, 0.32);
+}
+
+/* セグメント */
+.segments {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+  background: #eef2f8; border-radius: 14px; padding: 4px;
+}
+.segment {
+  border: none; background: transparent; border-radius: 11px; padding: 10px 0; cursor: pointer;
+  font-size: var(--fs-caption); font-weight: 800; color: var(--text-muted);
+}
+.segmentOn { background: #fff; color: #22346b; box-shadow: 0 1px 3px rgba(20, 30, 60, 0.1); }
+
+/* プラン案内 */
+.notice {
+  position: relative; display: flex; flex-direction: column; gap: 4px;
+  background: #fdf6e6; border: 1px solid #efdcae; border-radius: 14px; padding: 14px 40px 14px 16px;
+  font-size: var(--fs-caption); color: #7a5a12;
+}
+.notice b { font-size: var(--fs-body); color: #6d4f0d; }
+.noticeLink { color: #a8791b; font-weight: 800; text-decoration: underline; }
+.noticeMuted { color: #97803f; }
+.noticeClose {
+  position: absolute; top: 8px; right: 10px; border: none; background: transparent;
+  color: #a08a53; cursor: pointer; font-size: var(--fs-caption);
+}
+
+/* 一覧 */
+.list { display: flex; flex-direction: column; gap: 10px; }
+.row {
+  display: flex; align-items: center; gap: 10px; text-decoration: none;
+  background: #fff; border: 1px solid #e6ecf5; border-radius: 14px; padding: 14px 16px;
+}
+.rowBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.rowTitle { font-size: var(--fs-subhead); font-weight: 800; color: var(--text-ink); }
+.rowSub { font-size: var(--fs-label); color: var(--text-muted); }
+.stars { display: inline-flex; gap: 2px; color: #d9a93c; margin-top: 2px; }
+.badgeMaster, .badgeAchieved {
+  flex: none; font-size: var(--fs-label); font-weight: 800; border-radius: 999px; padding: 3px 10px;
+}
+.badgeMaster { color: #12203c; background: linear-gradient(135deg, #f0c25c, #d9a93c); }
+.badgeAchieved { color: #2e8b57; background: #eaf6ef; }
+
+/* ホームへの導線 */
+.homeLink {
+  display: flex; flex-direction: column; gap: 4px; text-decoration: none;
+  background: #fff; border: 1px solid #e6ecf5; border-radius: 16px; padding: 16px;
+}
+.homeLinkLabel { font-size: var(--fs-label); font-weight: 800; color: var(--text-muted); letter-spacing: 0.06em; }
+.homeLinkBody { font-size: var(--fs-body); font-weight: 700; color: var(--text-ink); }
+.homeLinkGo { font-size: var(--fs-caption); font-weight: 800; color: #a8791b; align-self: flex-end; }
+
+.sectionTitle {
+  font-size: var(--fs-caption); font-weight: 800; color: var(--text-muted);
+  letter-spacing: 0.06em; margin: 20px 0 10px;
+}
+
+/* カテゴリ: 掲載数のみ。進捗率は出さない (要件定義 2-3) */
+.catGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.catCard {
+  position: relative; display: flex; flex-direction: column; gap: 4px; text-decoration: none;
+  background: #fff; border: 1px solid #e6ecf5; border-radius: 14px; padding: 16px;
+}
+.catName { font-size: var(--fs-subhead); font-weight: 800; color: var(--text-ink); }
+.catCount { font-size: var(--fs-label); color: var(--text-muted); }
+.catGo { position: absolute; right: 14px; bottom: 12px; color: #a8791b; font-weight: 800; }
+
+.lessonCard {
+  display: flex; align-items: center; gap: 12px; text-decoration: none; margin-top: 14px;
+  background: #fff; border: 1px solid #e6ecf5; border-radius: 16px; padding: 16px; position: relative;
+}
+.lessonIcon {
+  flex: none; width: 40px; height: 40px; border-radius: 12px; background: #eef3fb; color: #22346b;
+  display: grid; place-items: center;
+}
+.lessonBody { display: flex; flex-direction: column; gap: 2px; }
+.lessonBody b { font-size: var(--fs-body); color: var(--text-ink); }
+.lessonBody span { font-size: var(--fs-label); color: var(--text-muted); }
+
+/* アップロード */
+.uploadBox {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer;
+  background: #fffdf7; border: 2px dashed #e3c980; border-radius: 16px; padding: 22px 16px;
+  color: #a8791b;
+}
+.uploadBox b { font-size: var(--fs-body); }
+.uploadBox span { font-size: var(--fs-label); color: #97803f; }
+.mineEmpty { font-size: var(--fs-caption); color: var(--text-muted); text-align: center; padding: 8px 0; }
+
+/* 空状態 */
+.empty {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
+  background: #fff; border: 1px solid #e6ecf5; border-radius: 16px; padding: 28px 20px;
+}
+.empty b { font-size: var(--fs-subhead); color: var(--text-ink); }
+.empty span { font-size: var(--fs-caption); color: var(--text-muted); }
+.emptyCta {
+  margin-top: 6px; text-decoration: none; font-size: var(--fs-body); font-weight: 800;
+  color: #12203c; background: linear-gradient(135deg, #f0c25c, #d9a93c); border-radius: 12px; padding: 11px 22px;
+}

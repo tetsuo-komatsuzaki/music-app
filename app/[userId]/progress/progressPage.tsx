@@ -102,6 +102,21 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
         <HistorySection data={data} />
       </div>
 
+      {/* 記録とシェアへの導線 (2026-08-17 ナビ刷新)。
+          調査で両ページが被リンクゼロの孤立状態と判明したため、カルテを目次として導線を新設した。 */}
+      {!readOnly && (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 12 }}>
+          <Link href={`/${userId}/records`} style={moreCardStyle}>
+            <span style={moreTitleStyle}>記録</span>
+            <span style={moreSubStyle}>弾いた日と点数のすべて</span>
+          </Link>
+          <Link href={`/${userId}/share`} style={moreCardStyle}>
+            <span style={moreTitleStyle}>シェア</span>
+            <span style={moreSubStyle}>成長を1枚のカードに</span>
+          </Link>
+        </div>
+      )}
+
       {!readOnly && <OnboardingTrigger pageKey="progress" />}
     </div>
   )
@@ -354,4 +369,16 @@ function HistorySection({ data }: { data: KarteData }) {
       </div>
     </Reveal>
   )
+}
+
+/* 記録・シェアへの導線カード (2026-08-17) */
+const moreCardStyle: React.CSSProperties = {
+  display: "flex", flexDirection: "column", gap: 3, textDecoration: "none",
+  background: "#fff", border: "1px solid #e0e9f6", borderRadius: 14, padding: "14px 16px",
+}
+const moreTitleStyle: React.CSSProperties = {
+  fontSize: "var(--fs-subhead)", fontWeight: 900, color: "var(--text-ink)",
+}
+const moreSubStyle: React.CSSProperties = {
+  fontSize: "var(--fs-label)", color: "var(--text-muted)",
 }

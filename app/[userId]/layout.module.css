@@ -24,25 +24,26 @@
   font-weight: 600;
 }
 
-.body {
-  flex: 1;
-  display: flex;
-  /* サイドバー(sticky箱)の下に続く左列の尾を紺で塗る (ページ最下部の白抜け防止 2026-08-16) */
-  background: #0B1E3A;
-}
+/* .body はサイドバー廃止 (2026-08-17) に伴い不要。誤用を防ぐため定義を残さない */
 
 .main {
   flex: 1;
   min-width: 0;
-  padding: 30px;
+  padding: 24px 20px 32px;
   background: #F8FAFC;
 }
 
-/* スマホ: 本文余白を縮小して横幅を確保 (2026-06-08 レスポンシブ修正)。
-   サイドバーは既定56px折りたたみのため main は ~319px 確保できる。 */
+/* 本文は最大560pxで中央に寄せる (ナビ要件定義 SECTION 05・案B)。
+   全画面幅で同じボトムタブを使うため、PCでも中央の1カラムに統一する */
+.centered {
+  max-width: 560px;
+  margin: 0 auto;
+  width: 100%;
+}
+
 @media (max-width: 600px) {
   .main {
-    padding: 16px 12px;
+    padding: 16px 12px 24px;
   }
   .header {
     padding: 10px 14px;

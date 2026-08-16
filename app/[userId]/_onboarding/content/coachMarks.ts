@@ -333,23 +333,13 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         showDismissAllCheckbox: true,
       },
       {
-        // 画面上に専用ボタンを作らず、左サイドバーからホームに戻らせる。
-        // ① メニュー(☰)を開く
-        id: "practiceItem.openMenu",
-        targetKey: "nav.toggle",
+        // ナビ刷新 2026-08-17: サイドバーを開く手順は廃止。下のタブが常時見えるため
+        // 「ホーム」タブを直接タップさせる1ステップに統合した。
+        id: "practiceItem.goHome",
+        targetKey: "tab.home",
         requiresTarget: true,
         headline: "ホームに戻ってみよう",
-        body: "おすすめの練習は、こうやって届くよ。左上の ☰ からメニューを開こう。",
-        awaitTap: { hint: "メニューを開く" },
-        trigger: "page",
-        showDismissAllCheckbox: false,
-      },
-      {
-        // ② 開いたメニューの「ホーム」をタップ (nav.home はメニューを開くと現れる → requiresTarget にしない)
-        id: "practiceItem.goHome",
-        targetKey: "nav.home",
-        headline: "「ホーム」を選ぼう",
-        body: "メニューの「ホーム」をタップすると、ここまでの流れが最後どうつながるか見られるよ。",
+        body: "おすすめの練習は、こうやって届くよ。下の「ホーム」をタップすると、ここまでの流れが最後どうつながるか見られる。",
         awaitTap: { hint: "ホーム" },
         trigger: "page",
         showDismissAllCheckbox: false,
@@ -433,12 +423,12 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
         showDismissAllCheckbox: false,
       },
       {
-        // 専用ボタンは作らず、左サイドバーの「マイライブラリー」を案内する。
+        // ナビ刷新 2026-08-17: 下のタブ「ライブラリ」を案内する。
         id: "homeEnding.upload",
-        targetKey: "nav.toggle",
+        targetKey: "tab.library",
         requiresTarget: true,
         headline: "自分の楽譜も、持ち込める",
-        body: "弾きたい曲があれば、左メニューの「マイライブラリー」からアップロードできるよ。取り込むと、その曲の楽譜が出て、演奏をアルコちゃんが分析してくれる。",
+        body: "弾きたい曲があれば、下の「ライブラリ」からアップロードできるよ。取り込むと、その曲の楽譜が出て、演奏をアルコちゃんが分析してくれる。",
         trigger: "page",
         showDismissAllCheckbox: false,
       },

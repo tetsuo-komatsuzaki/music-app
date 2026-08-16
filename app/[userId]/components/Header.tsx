@@ -1,48 +1,25 @@
 "use client"
 
+// ヘッダー (2026-08-17 ナビ刷新)。
+// サイドバー廃止に伴い、右上はアカウントのドロップダウンに集約する。
+// 先生モードの切替と使い方はドロップダウンの中へ移設した (ここには置かない)。
 import styles from "./Header.module.css"
-import Image from "next/image"
 import Link from "next/link"
-import { GraduationCap } from "lucide-react"
 import { useParams } from "next/navigation"
-import { useOnboarding } from "../_onboarding/hooks/useOnboarding"
 import { useIsNativeApp } from "@/app/_hooks/useIsNativeApp"
-
+import AccountMenu from "./AccountMenu"
 
 export default function Header({ role }: { role?: string }) {
-  const { openHelp } = useOnboarding()
   const isNative = useIsNativeApp()
   const { userId } = useParams<{ userId: string }>()
   return (
-<>
-      {/* ===== HEADER ===== */}
-      <header className={`${styles.header} ${isNative ? styles.headerNative : ""}`}>
-        <div className={styles.headerRight}>
+    <header className={`${styles.header} ${isNative ? styles.headerNative : ""}`}>
+      <div className={styles.inner}>
+        <Link href={userId ? `/${userId}` : "/"} className={styles.brand}>
           <span className={styles.appName}>Arcoda</span>
-          {/* 先生アカウントのみ: 先生モードへの切替 (別シェル /teacher へ) */}
-          {role === "teacher" && userId && (
-            <Link
-              href={`/${userId}/teacher`}
-              style={{
-                fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-ink)", textDecoration: "none",
-                background: "#eef1f4", border: "1px solid #e2e6ea", borderRadius: 999, padding: "4px 10px",
-                display: "inline-flex", alignItems: "center", gap: 4,
-              }}
-            >
-              <GraduationCap size={13} /> 先生モード
-            </Link>
-          )}
-          <button
-            type="button"
-            className={styles.helpButton}
-            onClick={() => openHelp()}
-            aria-label="使い方を開く"
-          >
-            ?
-          </button>
-          <Image src="/Icon.png" alt="icon" width={40} height={40} />
-        </div>
-      </header>
-      </>
+        </Link>
+        <AccountMenu role={role} />
+      </div>
+    </header>
   )
 }

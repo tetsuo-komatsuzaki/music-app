@@ -1,65 +1,54 @@
+/* ヘッダー (2026-08-17 ナビ刷新)。
+   サイドバー廃止に伴い、左にブランド・右にアカウントの2要素だけにする。
+   本文と同じ最大幅で中央に寄せ、ボトムタブと縦のラインを揃える。 */
 
 .header {
-  background: #1E3A8A;
-  color: var(--text-on-accent);
-  /* アプリ殻(ノッチ端末)では時計・電波の帯にヘッダーが食い込むため、セーフエリアぶん下げる。
+  background: #fff;
+  border-bottom: 1px solid #e4e9f2;
+  /* アプリ殻(ノッチ端末)では時計・電波の帯に食い込むため、セーフエリアぶん下げる。
      通常ブラウザでは env() = 0 で従来どおり */
-  padding: calc(12px + env(safe-area-inset-top, 0px)) 20px 12px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* アプリ版はバーが厚く見える (セーフエリア+基準余白) ため基準余白と中身をスリム化し、
-   スクロールしても画面上部に固定する (2026-08-16 Tetsuo指摘・指定) */
-.headerNative {
-  /* アプリはステータスバー帯(ぼかし層 globals.css)の直下に最小余白で固定する。
-     本文側のセーフエリア確保は body[data-native-app] (globals.css) が担う。
-     高さ44px固定 = サイドバーの固定位置(env+44px)と面一にして隙間を出さない */
-  padding: 0 14px;
-  height: 44px;
-  align-items: center;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 20px 10px;
   position: sticky;
-  top: env(safe-area-inset-top, 0px);
+  top: 0;
   z-index: 120;
 }
-.headerNative .appName {
-  font-size: var(--fs-label);
-}
-.headerNative .helpButton {
-  transform: scale(0.85);
-}
-.headerNative img {
-  width: 30px !important;
-  height: 30px !important;
-}
 
-.headerRight {
+.inner {
+  max-width: 560px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
 }
 
-.appName {
-  font-weight: 600;
-}
-
-.helpButton {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  font-size: var(--fs-subhead);
-  cursor: pointer;
+.brand {
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  color: var(--text-on-accent);
-  padding: 0;
-  transition: 0.15s;
 }
 
-.helpButton:hover {
-  background: rgba(255, 255, 255, 0.15);
+.appName {
+  font-weight: 800;
+  font-size: var(--fs-subhead);
+  color: #22346b;
+  letter-spacing: 0.08em;
 }
 
+/* アプリ版はバーをスリム化し、ステータスバー帯の直下に固定する
+   (2026-08-16 Tetsuo指定・高さ44px) */
+.headerNative {
+  padding: 0 14px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  top: env(safe-area-inset-top, 0px);
+}
+
+.headerNative .inner {
+  width: 100%;
+}
+
+.headerNative .appName {
+  font-size: var(--fs-caption);
+}
