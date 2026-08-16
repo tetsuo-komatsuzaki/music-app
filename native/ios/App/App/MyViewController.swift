@@ -12,6 +12,9 @@ class MyViewController: CAPBridgeViewController {
 
     /// 起動直後 (リモートHTMLが届くまで) を覆うスプラッシュ。
     /// 中身は同梱の splash.html で、Web側 ArcoBootSplash と同一デザイン。
+    /// 横方向のずれ止め (KVO で contentOffset.x を監視)
+    private var horizontalLockObservation: NSKeyValueObservation?
+
     private var splashOverlay: WKWebView?
     private var progressObservation: NSKeyValueObservation?
     private var splashTimeoutTimer: Timer?
@@ -33,6 +36,31 @@ class MyViewController: CAPBridgeViewController {
         webView?.isOpaque = false
         webView?.backgroundColor = pageBackground
         webView?.scrollView.backgroundColor = pageBackground
+
+        lockHorizontalScroll()
+    }
+
+    // MARK: - 横方向のずれ止め
+
+    /// 全画面で左右にずれないようにする。
+    ///
+    /// viewport に maximum-scale / user-scalable の指定が無いのでピンチズームが効き、
+    /// ズーム後は横にパンできてしまう。またページ側の要素が画面幅を超えていると
+    /// 素の横スクロールも起きる。等倍のときだけ x を 0 に張り付ける。
+    ///
+    /// 等倍時だけに限定しているのは、譜面の拡大表示を殺さないため
+    /// (ズーム中は自由にパンできる)。要素内の横スクロール (横画面録音モードの
+    /// 帯譜面など) はページ全体のスクロールとは別物なので影響しない。
+    private func lockHorizontalScroll() {
+        guard let scrollView = webView?.scrollView else { return }
+        scrollView.alwaysBounceHorizontal = false
+        scrollView.showsHorizontalScrollIndicator = false
+
+        // WKWebView の scrollView の delegate は WebKit 側が使うので触らず、KVO で観測する。
+        horizontalLockObservation = scrollView.observe(\.contentOffset, options: [.new]) { sv, _ in
+            guard sv.zoomScale <= 1.01, sv.contentOffset.x != 0 else { return }
+            sv.contentOffset.x = 0
+        }
     }
 
     // MARK: - 起動スプラッシュ
