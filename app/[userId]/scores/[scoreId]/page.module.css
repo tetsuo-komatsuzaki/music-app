@@ -213,7 +213,7 @@
 
 .recorderMock {
   height: 200px;
-  background: #F8FAFC;
+  background: #0a1730;
   border-radius: 12px;
   margin: 20px 0;
   display: flex;
@@ -225,7 +225,7 @@
 .closeBtn {
   margin-top: 20px;
   width: 100%;
-  background: #E2E8F0;
+  background: rgba(150,175,225,.16);
   border: none;
   padding: 10px;
   border-radius: 8px;

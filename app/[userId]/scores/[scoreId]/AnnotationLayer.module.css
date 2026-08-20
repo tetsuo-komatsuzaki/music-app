@@ -6,7 +6,7 @@
   align-self: flex-start;
   display: inline-flex; align-items: center; gap: 7px;
   font-family: inherit; font-size: var(--fs-body); font-weight: 700; letter-spacing: .01em; cursor: pointer;
-  color: var(--text-body); background: #fbfbfd; border: 1px solid #e6e3ea;
+  color: var(--text-body); background: var(--card-in); border: 1px solid #e6e3ea;
   border-radius: 999px; padding: 8px 15px; transition: all .16s ease;
 }
 .modeBtn:hover { background: #f5f4f8; }
@@ -19,12 +19,12 @@
 /* --- ツールバー: 洗練チップ --- */
 .tools {
   display: flex; flex-wrap: wrap; gap: 6px;
-  padding: 8px; border: 1px solid #ecebf0; border-radius: 14px; background: #fbfbfd;
+  padding: 8px; border: 1px solid #ecebf0; border-radius: 14px; background: var(--card-in);
 }
 .toolBtn {
   display: inline-flex; align-items: center; gap: 5px;
   font-family: inherit; font-size: var(--fs-body); font-weight: 700; letter-spacing: .01em; cursor: pointer;
-  color: var(--text-body); background: #fff; border: 1px solid #e8e6ec;
+  color: var(--text-body); background: #0d1b33; border: 1px solid #e8e6ec;
   border-radius: 9px; padding: 6px 11px; transition: all .13s ease;
 }
 .toolBtn:hover { border-color: #d5d2db; }
@@ -116,14 +116,14 @@
 /* スタンプ・パレット */
 .palette {
   display: flex; flex-wrap: wrap; gap: 13px;
-  padding: 11px 12px; border: 1px solid #ecebf0; border-radius: 13px; background: #fbfbfd;
+  padding: 11px 12px; border: 1px solid #ecebf0; border-radius: 13px; background: var(--card-in);
 }
 .palGroup { display: flex; flex-direction: column; gap: 5px; }
 .palLabel { font-size: var(--fs-label); font-weight: 800; color: var(--text-muted); letter-spacing: .05em; padding-left: 1px; }
 .palItems { display: flex; gap: 5px; flex-wrap: wrap; }
 .stampBtn {
   width: 33px; height: 33px; display: grid; place-items: center; cursor: pointer;
-  color: var(--text-ink); background: #fff; border: 1px solid #e8e6ec; border-radius: 8px;
+  color: var(--text-ink); background: #0d1b33; border: 1px solid #e8e6ec; border-radius: 8px;
   transition: all .12s ease;
 }
 .stampBtn:hover { border-color: #c9c4d2; }
