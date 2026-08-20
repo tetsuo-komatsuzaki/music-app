@@ -69,14 +69,20 @@ export default function TeacherAssignments({
   for (const a of assignments) {
     const di = dueInfo(a.dueDate)
     const goal = goalLabel(a.goalType, a.targetScore)
+    // 題はモック hwline の形: 「クロイツェル 2番を90点で」
+    const goalPhrase =
+      a.goalType === "score" && a.targetScore != null ? `を${a.targetScore}点で`
+      : a.goalType === "achieve" ? "を達成まで"
+      : a.goalType === "master" ? "をマスターまで"
+      : ""
+    void goal
     rows.push({
-      // 提出ずみは別タブへ (モック parts-04 宿題カード 案1: 宿題/提出ずみ/合格)
       cat: a.submitted ? "提出ずみ" : "宿題",
       dot: "var(--gold)",
-      title: goal ? `${a.title}を${goal}` : a.title,
-      sub: `${di ? `${di.label} ・ ` : ""}${a.teacherName}先生`,
+      title: `${a.title}${goalPhrase}`,
+      sub: di ? di.label : "",             // parts-04: 日付は題と同じ行にインライン
       href: a.href,
-      pill: a.submitted ? "見る" : "出す",
+      pill: a.submitted ? "合格まち" : "出す",
       pillGold: !a.submitted,
     })
   }
@@ -105,7 +111,10 @@ export default function TeacherAssignments({
       pill: "癖マップで見る", pillGold: false,
     })
 
-  const cats = [...new Set(rows.map((r) => r.cat))]
+  // 宿題まわりの3タブは0件でも固定表示 (確定モック parts-04 案1)。他はデータがある時だけ
+  const FIXED: Cat[] = ["宿題", "提出ずみ", "合格"]
+  const extra = [...new Set(rows.map((r) => r.cat))].filter((c) => !FIXED.includes(c))
+  const cats = [...FIXED, ...extra]
   const [cat, setCat] = useState<Cat | null>(null)
   const cur = cat && cats.includes(cat) ? cat : cats[0]
   if (rows.length === 0 && unread === 0) return null
@@ -115,59 +124,63 @@ export default function TeacherAssignments({
 
   return (
     <div className={ds.card} style={{ padding: "12px 14px" }} data-onboarding="home.teacherCard">
+      {/* parts-04 HEAD: ラベルと同じ行の右にタブ。件数は素の文字 (「宿題 2」) */}
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span className={ds.lab} style={{ flex: "none" }}>先生から</span>
-      </div>
-
-      {/* 分類チップ (モック cat_tabs) */}
-      {cats.length > 0 && (
-        <div style={{ display: "flex", gap: 4, marginTop: 8, overflowX: "auto", paddingBottom: 2 }}>
+        <div style={{ flex: 1, display: "flex", gap: 4, justifyContent: "flex-end", overflowX: "auto" }}>
           {cats.map((c) => {
             const on = c === cur
-            const n = count(c)
             return (
               <button
                 key={c}
                 type="button"
                 onClick={() => setCat(c)}
                 style={{
-                  background: on ? "rgba(232,178,60,.16)" : "rgba(150,175,225,.07)",
+                  background: on ? "rgba(232,178,60,.16)" : "transparent",
                   color: on ? "var(--gold)" : "var(--text-sub)",
                   border: on ? "1px solid rgba(232,178,60,.34)" : "1px solid transparent",
-                  fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "4px 9px",
-                  whiteSpace: "nowrap", flex: "none", display: "inline-flex", alignItems: "center",
-                  gap: 4, cursor: "pointer", font: "inherit",
+                  fontSize: 10.5, fontWeight: 800, borderRadius: 999, padding: "3px 9px",
+                  whiteSpace: "nowrap", flex: "none", cursor: "pointer", font: "inherit",
                 }}
               >
-                {c}
-                {n > 1 && (
-                  <span style={{ fontSize: 9, fontWeight: 900, borderRadius: 999, padding: "0 5px", background: on ? "rgba(255,255,255,.22)" : "rgba(150,175,225,.14)" }}>{n}</span>
-                )}
+                {c} {count(c)}
               </button>
             )
           })}
         </div>
-      )}
+      </div>
 
       {/* 行 (モック notif) */}
+      {shown.length === 0 && (
+        <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 10 }}>
+          {cur === "提出ずみ" ? "提出ずみの宿題はまだないよ" : cur === "合格" ? "合格した宿題はまだないよ" : "いまは宿題がないよ"}
+        </div>
+      )}
       {shown.map((r, i) => (
         <Link
           key={`${r.cat}-${i}`}
           href={r.href}
           className="pressable"
-          style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 8, textDecoration: "none", color: "inherit" }}
+          style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 7, textDecoration: "none", color: "inherit" }}
         >
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: r.dot, flex: "none" }} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <b style={{ fontSize: 12.5, display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-ink)" }}>{r.title}</b>
-            <span style={{ fontSize: 10, color: "var(--text-muted)" }}>{r.sub}</span>
+          <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "baseline", gap: 7 }}>
+            <b style={{ fontSize: 12.5, color: "var(--text-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.title}</b>
+            {r.sub && <span style={{ fontSize: 10, color: "var(--text-muted)", flex: "none" }}>{r.sub}</span>}
           </div>
-          <span
-            className={`${ds.pill} ${r.pillGold ? ds.gold : ds.mute}`}
-            style={{ fontSize: 10.5, padding: "3px 10px", flex: "none", ...(r.pillGold ? {} : { color: "var(--text-ink)" }) }}
-          >
-            {r.pill}
-          </span>
+          {r.pill && (
+            <span
+              className={r.pillGold ? `${ds.pill} ${ds.gold}` : undefined}
+              style={
+                r.pillGold
+                  ? { fontSize: 10.5, padding: "3px 10px", flex: "none" }
+                  : { fontSize: 10.5, padding: "3px 10px", flex: "none", borderRadius: 999, fontWeight: 800,
+                      background: "rgba(168,201,127,.14)", color: "var(--green-soft)", border: "1px solid rgba(168,201,127,.3)" }
+              }
+            >
+              {r.pill}
+            </span>
+          )}
         </Link>
       ))}
 
