@@ -1,38 +1,42 @@
 "use client"
 
-// ホーム上部の解析通知 (2026-08-02 案2改・Tetsuo確定デザイン: クリーム×木目)。
-//  - 採点中: 赤ランプ+曲名チップ+金のVUメーター (完了を拾うため15秒ごとに router.refresh)
-//  - 完了: 「できたよ！」スタンプ+曲名+結果ボタンの1行バナー。既読は localStorage。
+// 解析通知 (採点中チップ / 完了バナー) — モック build-parts.py notice() の写経 (2026-08-20)。
+//   採点中: 赤ランプ + 曲名/採点しているよ + 金のVUメーター
+//   完了:   金チェック丸 + できたよ！/曲名 + 金ピル 結果を見る →
+// 挙動 (既読の保存・15秒ポーリング) は従来のまま。
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import ds from "./ds.module.css"
 
 export type AnalysisNotice = {
   id: string
-  status: string // queued | processing | done | error
   scoreId: string
   title: string
-  score: number | null // 現デザインでは未表示 (将来用に温存)
+  status: string          // "queued" | "processing" | "done" (供給側は生の文字列)
+  score?: number | null
 }
 
-const SEEN_KEY = "arcoda_seen_analysis_v1"
-
-function loadSeen(): string[] {
+const SEEN_KEY = "arcoda.analysisNotice.seen"
+const loadSeen = (): string[] => {
   try { return JSON.parse(localStorage.getItem(SEEN_KEY) ?? "[]") } catch { return [] }
 }
-function markSeen(id: string) {
+const markSeen = (id: string) => {
   try {
-    const s = [...new Set([...loadSeen(), id])].slice(-50)
-    localStorage.setItem(SEEN_KEY, JSON.stringify(s))
-  } catch { /* private mode等は諦める */ }
+    const s = loadSeen()
+    if (!s.includes(id)) localStorage.setItem(SEEN_KEY, JSON.stringify([...s, id].slice(-30)))
+  } catch { /* ストレージ不可なら諦める */ }
 }
 
-const CARD: React.CSSProperties = {
-  background: "linear-gradient(150deg,#fdf8ec,#f7efe2)",
-  border: "1.5px solid #e8dcc2",
-  borderRadius: 13,
+const VU = [40, 72, 55, 92, 63, 80, 46, 70]
+
+function Check() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 6L9 17l-5-5" stroke="currentColor" />
+    </svg>
+  )
 }
-const VU_BARS = [11, 18, 14, 9, 15]
 
 export default function AnalysisNoticeBar({ userId, notices }: { userId: string; notices: AnalysisNotice[] }) {
   const router = useRouter()
@@ -53,48 +57,65 @@ export default function AnalysisNoticeBar({ userId, notices }: { userId: string;
   if (pending.length === 0 && done.length === 0) return null
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+    <>
       <style>{`
         @keyframes anbBlink { 0%,100%{ opacity:1 } 50%{ opacity:.15 } }
-        @keyframes anbVu { 0%,100%{ transform:scaleY(.3) } 30%{ transform:scaleY(1) } 60%{ transform:scaleY(.6) } }
-        @keyframes anbStamp { 0%{ transform:scale(2.2) rotate(-6deg); opacity:0 } 60%{ transform:scale(.92) rotate(-6deg); opacity:1 } 100%{ transform:scale(1) rotate(-6deg) } }
+        @keyframes anbVu { 0%,100%{ transform:scaleY(.35) } 30%{ transform:scaleY(1) } 60%{ transform:scaleY(.6) } }
       `}</style>
 
-      {/* 完了バナー: [できたよ！] 曲名 [結果を見る →] の1行構成 */}
+      {/* 完了: モック notice("done") */}
       {done.map((n) => (
         <Link
           key={n.id}
           href={`/${userId}/scores/${n.scoreId}?tab=review`}
           onClick={() => { markSeen(n.id); setSeen((s) => [...(s ?? []), n.id]) }}
-          style={{ ...CARD, display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "11px 14px" }}
+          className={`${ds.card} pressable`}
+          style={{ padding: "12px 14px", display: "block", textDecoration: "none", color: "inherit" }}
         >
-          <span style={{ flex: "none", fontSize: "var(--fs-body)", fontWeight: 900, letterSpacing: ".08em", color: "var(--text-good)", border: "2.5px solid #2e8b57", borderRadius: 7, padding: "3px 9px", display: "inline-block", animation: "anbStamp .5s ease-out" }}>
-            できたよ！
-          </span>
-          <span style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            「{n.title}」
-          </span>
-          <span style={{ flex: "none", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#2e8b57", borderRadius: 999, padding: "7px 13px" }}>
-            結果を見る →
-          </span>
+          <div className={ds.row}>
+            <span className={`${ds.chk} ${ds.gold}`} style={{ color: "var(--gold)" }}><Check /></span>
+            <div className={ds.rowMain}>
+              <b style={{ fontSize: 13.5 }}>できたよ！</b>
+              <span style={{ display: "block", fontSize: 11, color: "var(--text-sub)" }}>{n.title}</span>
+            </div>
+            <span className={`${ds.pill} ${ds.gold}`}>結果を見る →</span>
+          </div>
         </Link>
       ))}
 
-      {/* 採点中チップ: 赤ランプ + 曲名 + VUメーター */}
+      {/* 採点中: モック notice("run") */}
       {pending.length > 0 && (
-        <div style={{ ...CARD, display: "flex", alignItems: "center", gap: 9, padding: "10px 14px" }}>
-          <span aria-hidden style={{ flex: "none", width: 9, height: 9, borderRadius: "50%", background: "#d64541", animation: "anbBlink 1.1s steps(1) infinite" }} />
-          <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            「{pending[0].title}」を採点ちゅう…{pending.length > 1 ? ` ほか${pending.length - 1}件` : ""}
-            <span style={{ color: "var(--text-sub)", fontWeight: 600 }}>・約1〜2分</span>
-          </span>
-          <span style={{ display: "inline-flex", alignItems: "flex-end", gap: 2.5, height: 14, marginLeft: "auto", flex: "none" }} aria-hidden>
-            {VU_BARS.map((h, i) => (
-              <span key={i} style={{ width: 3.5, height: h * 0.78, borderRadius: 2, transformOrigin: "bottom", background: "linear-gradient(180deg,#c9a227,#b8862e)", animation: `anbVu 1s ease-in-out ${i * 0.15}s infinite` }} />
-            ))}
-          </span>
+        <div className={ds.card} style={{ padding: "12px 14px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span
+              aria-hidden
+              style={{
+                width: 9, height: 9, borderRadius: "50%", background: "#e8697a", flex: "none",
+                boxShadow: "0 0 10px rgba(232,105,122,.9)", animation: "anbBlink 1.1s steps(1) infinite",
+              }}
+            />
+            <div className={ds.rowMain}>
+              <b style={{ fontSize: 13.5 }}>
+                {pending[0].title}{pending.length > 1 ? ` ほか${pending.length - 1}件` : ""}
+              </b>
+              <span style={{ display: "block", fontSize: 11, color: "var(--text-sub)" }}>採点しているよ</span>
+            </div>
+            <div style={{ height: 26, width: 54, padding: "4px 5px 0", flex: "none" }} aria-hidden>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 22 }}>
+                {VU.map((h, i) => (
+                  <i
+                    key={i}
+                    style={{
+                      flex: 1, background: "var(--gold)", borderRadius: 1, height: `${h}%`,
+                      transformOrigin: "bottom", animation: `anbVu 1s ease-in-out ${i * 0.13}s infinite`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
