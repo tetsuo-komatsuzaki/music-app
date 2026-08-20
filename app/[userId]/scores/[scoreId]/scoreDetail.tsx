@@ -3849,10 +3849,11 @@ function ScoreDetailInner({
           {deleteHintBlock}
           {trajectoryBlock}
           {/* この曲の音程マップ (2026-08-11 Tetsuo確定): 上達のようすの下に曲全体の音の傾向 */}
+          {/* モック MAP_CARD の写経: DSカード + lab + 注記11px + 指板 (パネル側で inset 化) */}
           {songHeatmap && Object.keys(songHeatmap.cells).length > 0 && (
-            <section style={{ background: "var(--surface-card, #fff)", border: "1px solid var(--line-soft, #e5e9f0)", borderRadius: 16, padding: "14px 16px" }}>
-              <h3 style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, margin: "0 0 4px", color: "var(--text-ink)" }}>この曲の音程マップ</h3>
-              <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginBottom: 8 }}>
+            <section style={{ background: "linear-gradient(180deg,var(--card-a),var(--card-b))", border: "1px solid var(--line)", borderRadius: 20, padding: 16 }}>
+              <h3 style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".16em", margin: 0, color: "var(--text-sub)" }}>この曲の音程マップ</h3>
+              <div style={{ fontSize: 11, color: "var(--text-sub)", margin: "4px 0 10px" }}>
                 いままでの演奏 {songHeatmap.perfCount}回分から。色がついた音をタップすると くわしく見られるよ。
               </div>
               <FingerboardPanel cells={songHeatmap.cells} details={songHeatmap.details} />
@@ -3868,8 +3869,8 @@ function ScoreDetailInner({
       {activeTab === "karte" && (
         <div data-section="karte" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div data-onboarding="scoreDetail.teacherKarte">
-            <section style={{ background: "var(--surface-card, #fff)", border: "1px solid var(--line-soft, #e5e9f0)", borderRadius: 16, padding: "16px 18px" }}>
-              <h3 style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, margin: "0 0 10px", color: "var(--text-ink)" }}>先生からの練習後カルテ</h3>
+            <section style={{ background: "linear-gradient(180deg,var(--card-a),var(--card-b))", border: "1px solid var(--line)", borderRadius: 20, padding: 16 }}>
+              <h3 style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".16em", margin: "0 0 10px", color: "var(--text-sub)" }}>先生からの練習後カルテ</h3>
               <StudentKarteCards kartes={teacherKartes} />
             </section>
           </div>

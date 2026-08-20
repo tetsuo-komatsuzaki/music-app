@@ -9,8 +9,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Target } from "lucide-react"
 import styles from "./ScoreLoopDetail.module.css"
+import ds from "./ds.module.css"
 import GuideSampleReview from "./GuideSampleReview"
 import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 import WeaknessDiagnosisCard from "./WeaknessDiagnosisCard"
@@ -63,22 +63,23 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
     <div className={styles.container} role="tabpanel" id="score-detail-tab-panel-loop">
       {/* ゴール進捗カード(GoalTracker)は非表示: ホーム側と情報が重複するため (2026-08-16 Tetsuo指定) */}
 
-      {/* ── 2. 学びのポイント (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホームと共通ロジック) ── */}
-      <section className={styles.cardSection}>
-        <h2 className={styles.sectionTitle} style={{ display: "flex", alignItems: "center", gap: 6 }}><Target size={18} color="#2563EB" /> 学びのポイント</h2>
+      {/* ── 2. 学びのポイント — モック LEARN_CARD の写経: DSカード + lab + 行 ── */}
+      <section className={ds.card} style={{ marginTop: 0 }}>
+        <h2 className={ds.lab} style={{ margin: 0 }}>学びのポイント</h2>
         <DailyLessons lessons={achv.dailyLessons ?? []} userId={userId} fromScoreId={scoreId} />
       </section>
 
-      {/* ── 3. おすすめ練習 (最新演奏の217診断+弱点推薦) を「マスター」の直下に配置 ──
-          「ゴール → その達成に効く練習」の流れになるよう、仕組み(詳しく)より前に出す。
+      {/* ── 3. 伸びしろポイント — モック GROWTH_CARD の写経 (中身は WeaknessDiagnosisCard) ──
           data-onboarding: 画面ガイドが「おすすめ練習はここ」と指すアンカー。
           演奏記録が無い場合も emptyHint がこの中に出るため、常に存在する。 */}
-      <section className={styles.cardSection} data-onboarding="scoreDetail.recommendation">
+      <section className={ds.card} style={{ marginTop: 0 }} data-onboarding="scoreDetail.recommendation">
+        <h2 className={ds.lab} style={{ margin: "0 0 6px" }}>伸びしろポイント</h2>
         {achv.latestPerformanceId ? (
           <WeaknessDiagnosisCard
             performanceId={achv.latestPerformanceId}
             kind="score"
             userId={userId}
+            hideHeading
             hideMaterials
             fromScoreId={scoreId}
           />

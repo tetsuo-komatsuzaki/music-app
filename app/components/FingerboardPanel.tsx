@@ -116,7 +116,7 @@ export default function FingerboardPanel({
         </div>
       )}
       <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap", flexDirection: stack && !inModal ? "column" : undefined }}>
-        <div style={{ flex: inModal || stack ? "1 1 100%" : "1.6 1 260px", width: stack && !inModal ? "100%" : undefined, boxSizing: "border-box", minWidth: 0, background: "#fbfdff", border: "1px solid #dce6f2", borderRadius: 12, padding: "8px 10px", overflow: "hidden" }}>
+        <div style={{ flex: inModal || stack ? "1 1 100%" : "1.6 1 260px", width: stack && !inModal ? "100%" : undefined, boxSizing: "border-box", minWidth: 0, background: "var(--card-in)", border: "1px solid rgba(150,175,225,.10)", borderRadius: 12, padding: "10px 8px", overflow: "hidden" }}>
           {/* 指板クリック(セル以外の余白も含む)でモーダル拡大。セルタップは stopPropagation 済みではないので
               セル選択と拡大が両立するよう、拡大は専用ボタンではなく図全体のクリックで開く (セルはonClickが先に走る) */}
           <div onClick={inModal ? undefined : () => setZoom(true)} style={{ cursor: inModal ? "default" : "zoom-in" }}>
@@ -124,7 +124,7 @@ export default function FingerboardPanel({
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 9, fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 5 }}>
             <Leg c="#e26a5d" t="高すぎ" /><Leg c="#5e97dd" t="低すぎ" /><Leg c="#b478cf" t="両方にブレる" /><Leg c="#d9efd9" t="安定" />
-            {!inModal && <span style={{ marginLeft: "auto", fontWeight: 800, color: "#3b56d4" }}>タップで大きく表示</span>}
+            {!inModal && <span style={{ marginLeft: "auto", fontWeight: 800, color: "#7aa7ff" }}>タップで大きく表示</span>}
           </div>
           {!hasData && (
             <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 6 }}>
@@ -134,7 +134,7 @@ export default function FingerboardPanel({
         </div>
 
         {/* 右: 詳細パネル (案4: タップで切替) */}
-        <div style={{ flex: "1 1 220px", minWidth: 200, background: "#f7fafd", border: "1px solid #dce6f2", borderRadius: 10, padding: "10px 12px", fontSize: "var(--fs-caption)" }}>
+        <div style={{ flex: "1 1 220px", minWidth: 200, background: "var(--card-in)", border: "1px solid rgba(150,175,225,.10)", borderRadius: 10, padding: "10px 12px", fontSize: "var(--fs-caption)" }}>
           {!sel ? (
             <div style={{ color: "var(--text-muted)" }}>指板の色がついた音をタップすると、ここに「どこからの移動でずれたか」が出ます。</div>
           ) : marking && markable ? (
@@ -227,7 +227,7 @@ export default function FingerboardPanel({
                           {t.badge && (
                             <span style={t.badgeKind === "shift" ? shiftBadge : { fontSize: "var(--fs-label)", color: "var(--text-muted)", flex: "none" }}>{t.badge}</span>
                           )}
-                          <span style={{ marginLeft: "auto", fontWeight: 900, color: t.miss === 0 ? "#2e8b57" : t.miss / t.n >= 0.4 ? "#bb3a2e" : "#b7823a" }}>
+                          <span style={{ marginLeft: "auto", fontWeight: 900, color: t.miss === 0 ? "var(--text-good)" : t.miss / t.n >= 0.4 ? "var(--text-error)" : "#e8b23c" }}>
                             {t.n}回中{t.miss}回{t.miss > 0 ? ` ${DIR_LABEL[t.dir]}` : "・音が正確"}
                           </span>
                         </div>
@@ -239,9 +239,9 @@ export default function FingerboardPanel({
                 <div style={{ color: "var(--text-muted)", marginTop: 3 }}>この音はまだ5回弾いていないので判定していません。</div>
               )}
               {markSet.has(sel) && (
-                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff8ee", border: "1px solid #f0d9b4", borderRadius: 8, padding: "6px 9px", marginTop: 8 }}>
-                  <span style={{ width: 9, height: 9, borderRadius: "50%", background: "#e07f10", flex: "none" }} />
-                  <span style={{ fontSize: "var(--fs-label)", color: "#6b4a12", fontWeight: 700 }}>先生のマーク{markSet.get(sel) ? `：${markSet.get(sel)}` : ""}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(232,178,60,.14)", border: "1px solid rgba(232,178,60,.3)", borderRadius: 8, padding: "6px 9px", marginTop: 8 }}>
+                  <span style={{ width: 9, height: 9, borderRadius: "50%", background: "#e8b23c", flex: "none" }} />
+                  <span style={{ fontSize: "var(--fs-label)", color: "#e8b23c", fontWeight: 700 }}>先生のマーク{markSet.get(sel) ? `：${markSet.get(sel)}` : ""}</span>
                 </div>
               )}
             </>
@@ -262,14 +262,14 @@ export default function FingerboardPanel({
         onClick={() => setZoom(false)}
         onPointerDown={(e) => e.stopPropagation()}
         onPointerUp={(e) => e.stopPropagation()}
-        style={{ position: "fixed", inset: 0, background: "rgba(15,25,50,.55)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}
+        style={{ position: "fixed", inset: 0, background: "rgba(4,8,18,.66)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}
       >
         <div onClick={(e) => e.stopPropagation()}
-          style={{ background: "#fff", borderRadius: 16, padding: "13px 16px 16px", width: "min(960px, 96vw)", maxHeight: "92vh", overflowY: "auto", boxSizing: "border-box" }}>
+          style={{ background: "linear-gradient(180deg,var(--card-a),var(--card-b))", border: "1px solid var(--line)", borderRadius: 16, padding: "13px 16px 16px", width: "min(960px, 96vw)", maxHeight: "92vh", overflowY: "auto", boxSizing: "border-box" }}>
           <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
             <b style={{ fontSize: "var(--fs-body)", color: "var(--text-ink)" }}>音程マップ</b>
             <button type="button" onClick={() => setZoom(false)}
-              style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-muted)", background: "#f1f4f8", border: "none", borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}>
+              style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-muted)", background: "rgba(150,175,225,.12)", border: "none", borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}>
               とじる ×
             </button>
           </div>
@@ -290,14 +290,14 @@ export default function FingerboardPanel({
 
 /* v2 詳細パネルの共通スタイル */
 const secHead: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)" }
-const posBadge: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 900, color: "#22346b", background: "#e9eefb", border: "1px solid #ccd8f0", borderRadius: 6, padding: "1px 7px", flex: "none" }
-const shiftBadge: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 900, color: "#a9741c", background: "#fff3e0", border: "1px solid #f0dcb4", borderRadius: 6, padding: "1px 7px", flex: "none" }
-const barOuter: React.CSSProperties = { flex: 1, minWidth: 40, height: 6, borderRadius: 3, background: "#e8edf5", overflow: "hidden", alignSelf: "center" }
+const posBadge: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 900, color: "#7aa7ff", background: "rgba(43,91,196,.17)", border: "1px solid rgba(122,167,255,.3)", borderRadius: 6, padding: "1px 7px", flex: "none" }
+const shiftBadge: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 900, color: "#e8b23c", background: "rgba(232,178,60,.14)", border: "1px solid rgba(232,178,60,.3)", borderRadius: 6, padding: "1px 7px", flex: "none" }
+const barOuter: React.CSSProperties = { flex: 1, minWidth: 40, height: 6, borderRadius: 3, background: "rgba(150,175,225,.14)", overflow: "hidden", alignSelf: "center" }
 function barInner(pct: number): React.CSSProperties {
-  return { display: "block", height: "100%", width: `${Math.max(3, pct)}%`, background: pct >= 85 ? "#2e8b57" : pct >= 70 ? "#b7823a" : "#bb3a2e" }
+  return { display: "block", height: "100%", width: `${Math.max(3, pct)}%`, background: pct >= 85 ? "var(--text-good)" : pct >= 70 ? "#e8b23c" : "var(--text-error)" }
 }
 function pctInk(pct: number): string {
-  return pct >= 85 ? "#2e8b57" : pct >= 70 ? "#b7823a" : "#bb3a2e"
+  return pct >= 85 ? "var(--text-good)" : pct >= 70 ? "#e8b23c" : "var(--text-error)"
 }
 function rowStyle(i: number): React.CSSProperties {
   return { display: "flex", alignItems: "baseline", gap: 6, padding: "4px 0", borderTop: i > 0 ? "1px dashed #e2e9f2" : "none", flexWrap: "wrap", fontSize: "var(--fs-caption)" }
@@ -315,7 +315,9 @@ function cellKana(id: string): string {
 function modeBtn(on: boolean): React.CSSProperties {
   return {
     fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 8, padding: "6px 13px", cursor: "pointer",
-    border: `1px solid ${on ? "#22346b" : "#dce6f2"}`, color: on ? "#fff" : "var(--text-muted)", background: on ? "#22346b" : "#fff",
+    border: `1px solid ${on ? "rgba(232,178,60,.34)" : "rgba(150,175,225,.14)"}`,
+    color: on ? "var(--gold)" : "var(--text-sub)",
+    background: on ? "rgba(232,178,60,.16)" : "transparent",
   }
 }
 
@@ -336,7 +338,7 @@ function MarkEditor({ cellLabel, existing, note, setNote, pending, onSave, onRem
     <div>
       <div style={{ fontWeight: 900 }}>{cellLabel} をマーク</div>
       {existing != null && (
-        <div style={{ fontSize: "var(--fs-label)", color: "#6b4a12", background: "#fff8ee", border: "1px solid #f0d9b4", borderRadius: 8, padding: "5px 8px", marginTop: 5 }}>
+        <div style={{ fontSize: "var(--fs-label)", color: "#e8b23c", background: "rgba(232,178,60,.14)", border: "1px solid rgba(232,178,60,.3)", borderRadius: 8, padding: "5px 8px", marginTop: 5 }}>
           マーク済み{existing ? `：${existing}` : ""}
         </div>
       )}
@@ -344,7 +346,7 @@ function MarkEditor({ cellLabel, existing, note, setNote, pending, onSave, onRem
         style={{ width: "100%", boxSizing: "border-box", border: "1px solid #dce6f2", borderRadius: 8, padding: "7px 9px", fontSize: "var(--fs-caption)", resize: "vertical", marginTop: 7, background: "#fff" }} />
       <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
         <button type="button" disabled={pending} onClick={onSave}
-          style={{ flex: 1, fontSize: "var(--fs-label)", fontWeight: 900, color: "#fff", background: "#e07f10", border: "none", borderRadius: 8, padding: "7px 0", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+          style={{ flex: 1, fontSize: "var(--fs-label)", fontWeight: 900, color: "#fff", background: "#e8b23c", border: "none", borderRadius: 8, padding: "7px 0", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
           {existing != null ? "マークを更新" : "マークする"}
         </button>
         {existing != null && (

@@ -1,163 +1,128 @@
-/* WeaknessDiagnosisCard.module.css — 工程C-6a 弱点＋推薦教材カード（中間型） */
+/* WeaknessDiagnosisCard.module.css — 伸びしろポイント。
+   見た目 = 確定モック GROWTH_CARD (scratchpad/build-score.py 353-374) の写経 (2026-08-21)。
+   題 15px/900 ・ 補足 11px くすみ ・ 計測行 = ラベル84px 11.5px + バー(桃/青緑 高さ7 角丸5
+   地 rgba(150,175,225,.14)) + クリーム数字 15px + % 9.5px ・ ピルは金/くすみ。
+   軸ごとの束ね (音程/リズム) は機能維持のため残置 (SPEC-CHANGES 記載)。 */
 
 .heading {
-  font-size: var(--fs-subhead);
-  font-weight: 600;
-  margin: 0 0 10px;
-  color: var(--text-ink);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  margin: 0 0 6px;
+  color: var(--text-sub);
 }
 
 .slotList {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
-/* ── 案E: 軸グルーピング＋優先順 (2026-08-01) ── */
 .group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .groupHead {
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 0 2px 1px;
-}
-
-.groupHeadLabel {
-  font-size: var(--fs-body);
-  font-weight: 800;
-  color: var(--text-ink);
 }
 
 .groupCount {
   margin-left: auto;
-  font-size: var(--fs-caption);
+  font-size: 10.5px;
   color: var(--text-muted);
   font-weight: 700;
 }
 
 .slot {
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 12px 14px;
-  background: #fff;
-}
-
-.slotMain {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.rank {
-  flex: none;
-  width: 20px;
-  height: 20px;
-  margin-top: 1px;
-  border-radius: 6px;
-  display: grid;
-  place-items: center;
-  font-size: var(--fs-caption);
-  font-weight: 800;
-  color: var(--text-on-accent);
-}
-
-.slotBody {
-  flex: 1;
-  min-width: 0;
+  border: none;
+  padding: 0;
+  background: none;
 }
 
 .miniRow {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 7px;
+  gap: 10px;
+  margin-top: 8px;
 }
 
 .miniLabel {
   flex: none;
-  font-size: var(--fs-caption);
-  font-weight: 800;
-  color: var(--text-muted);
+  width: 84px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-sub);
 }
 
 .miniTrack {
   flex: 1;
   min-width: 0;
-  height: 6px;
-  border-radius: 3px;
-  background: #eef0f4;
+  height: 7px;
+  border-radius: 5px;
+  background: rgba(150, 175, 225, 0.14);
   overflow: hidden;
 }
 
 .miniFill {
   display: block;
   height: 100%;
-  border-radius: 3px;
+  border-radius: 5px;
 }
 
 .miniPct {
   flex: none;
-  font-size: var(--fs-body);
-  font-weight: 800;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--cream);
+  text-shadow: 0 0 24px rgba(255, 243, 220, 0.28);
   font-variant-numeric: tabular-nums;
 }
 
-.miniCount {
-  flex: none;
-  font-size: var(--fs-caption);
+.miniPctUnit {
+  font-size: 9.5px;
+  font-weight: 700;
   color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.slotHeader {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  text-shadow: none;
+  margin-left: 2px;
 }
 
 .treeBadge {
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  color: var(--text-link);
-  background: #eef2fd;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--text-sub);
+  background: rgba(150, 175, 225, 0.12);
   border-radius: 999px;
-  padding: 2px 8px;
+  padding: 2px 9px;
   flex-shrink: 0;
 }
 
 .slotTitle {
-  font-size: var(--fs-body);
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 900;
   color: var(--text-ink);
   line-height: 1.45;
 }
 
-.slotStats {
-  font-size: var(--fs-body);
-  color: var(--text-sub);
-}
-
 .breakdown {
-  font-size: var(--fs-body);
-  color: var(--text-body);
-  margin: 6px 0 0 4px;
+  font-size: 11px;
+  color: var(--text-sub);
+  margin-top: 3px;
 }
 
 .materials {
-  margin-top: 10px;
-  border-top: 1px solid #f0f0f0;
-  padding-top: 8px;
+  margin-top: 13px;
+  border-top: 1px solid rgba(150, 175, 225, 0.08);
+  padding-top: 10px;
 }
 
 .materialsLabel {
-  font-size: var(--fs-caption);
+  font-size: 10.5px;
   color: var(--text-muted);
+  font-weight: 700;
   margin-bottom: 6px;
 }
 
@@ -170,7 +135,7 @@
 }
 
 .materialRow + .materialRow {
-  border-top: 1px dashed #f0f0f0;
+  border-top: 1px dashed rgba(150, 175, 225, 0.12);
 }
 
 .materialInfo {
@@ -181,7 +146,8 @@
 }
 
 .materialTitle {
-  font-size: var(--fs-body);
+  font-size: 13px;
+  font-weight: 700;
   color: var(--text-ink);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -189,65 +155,63 @@
 }
 
 .materialMeta {
-  font-size: var(--fs-caption);
+  font-size: 11px;
   color: var(--text-sub);
 }
 
 .practiceLink {
-  font-size: var(--fs-body);
-  font-weight: 600;
-  color: var(--text-on-accent);
-  background: #5a7fdf;
-  border-radius: 6px;
-  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--gold);
+  background: rgba(232, 178, 60, 0.15);
+  border-radius: 999px;
+  padding: 4px 11px;
   text-decoration: none;
   flex-shrink: 0;
-  transition: background 0.15s;
-}
-
-.practiceLink:hover {
-  background: #4a6bc4;
 }
 
 .practiceLinkDisabled {
-  font-size: var(--fs-caption);
+  font-size: 11px;
   color: var(--text-muted);
   flex-shrink: 0;
 }
 
 .noStock {
   margin-top: 10px;
-  padding: 8px;
-  border-radius: 6px;
-  background: #fafafa;
-  border: 1px dashed #d1d5db;
-  font-size: var(--fs-body);
+  padding: 9px;
+  border-radius: 10px;
+  background: none;
+  border: 1px dashed rgba(150, 175, 225, 0.18);
+  font-size: 11.5px;
   color: var(--text-sub);
   text-align: center;
 }
 
 .cumulativeIntro {
-  font-size: var(--fs-subhead);
+  font-size: 13.5px;
+  font-weight: 600;
   line-height: 1.7;
+  color: var(--text-body);
   margin-bottom: 10px;
 }
 
 .statusBox {
   padding: 14px;
-  border-radius: 8px;
-  background: #f5f5f5;
+  border-radius: 12px;
+  background: var(--card-in);
   text-align: center;
-  font-size: var(--fs-body);
-  color: var(--text-body);
+  font-size: 12.5px;
+  color: var(--text-sub);
 }
 
 .perfectBox {
   padding: 18px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #eef7ee, #e8f2fd);
+  border-radius: 12px;
+  background: rgba(92, 201, 138, 0.14);
+  border: 1px solid rgba(92, 201, 138, 0.3);
   text-align: center;
-  font-size: var(--fs-subhead);
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 800;
   color: var(--text-good);
 }
 

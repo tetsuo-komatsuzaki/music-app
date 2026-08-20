@@ -101,11 +101,10 @@ const TREE_LABELS: Record<"pitch" | "rhythm", string> = {
   rhythm: "リズム",
 }
 
-// 案E (2026-08-01): ミス率の重症度→色。赤=要練習 / 橙=あと少し / 緑=good。
-function severity(rate: number): { color: string; bg: string; label: string } {
-  if (rate >= 0.55) return { color: "var(--text-error)", bg: "#fdecec", label: "要練習" }
-  if (rate >= 0.35) return { color: "var(--text-master)", bg: "#fdf2e4", label: "あと少し" }
-  return { color: "var(--text-good)", bg: "#e9f6ee", label: "いい調子" }
+// モック GROWTH_CARD: バーの色は軸で決める (音程=桃 / リズム=青緑)。数値はクリーム
+const TREE_BAR: Record<"pitch" | "rhythm", string> = {
+  pitch: "#e89ba8",
+  rhythm: "#7fc4c4",
 }
 
 // ─── スロット表示（fetch済みデータを渡す版。累積窓など親がデータを持つ場合用） ───
@@ -140,8 +139,7 @@ export function WeaknessSlotList({
             <span className={styles.groupCount}>{g.items.length}件</span>
           </div>
           {g.items.map((slot) => {
-            const sev = severity(slot.missRate)
-            // 成功率で前向きに表示 (色分けの重症度はミス率基準のまま)
+            // 成功率で前向きに表示。バーの色は軸色 (モック GROWTH_CARD)
             const successPct = 100 - Math.round(slot.missRate * 100)
             return (
               <div key={slot.subtaskId} className={styles.slot}>
@@ -149,9 +147,9 @@ export function WeaknessSlotList({
                 <div className={styles.miniRow}>
                   <span className={styles.miniLabel}>成功率</span>
                   <span className={styles.miniTrack}>
-                    <span className={styles.miniFill} style={{ width: `${successPct}%`, background: sev.color }} />
+                    <span className={styles.miniFill} style={{ width: `${successPct}%`, background: TREE_BAR[g.tree] }} />
                   </span>
-                  <span className={styles.miniPct} style={{ color: sev.color }}>{successPct}%</span>
+                  <span className={styles.miniPct}>{successPct}<small className={styles.miniPctUnit}>%</small></span>
                 </div>
                 {slot.breakdown && <div className={styles.breakdown}>{slot.breakdown}</div>}
 

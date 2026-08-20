@@ -154,7 +154,7 @@ export default function DailyLessons({
     `/${userId}/practice/${l.category}/${l.itemId}${fromScoreId ? `?from=${fromScoreId}` : ""}`
 
   return (
-    <div ref={listRef} data-anim="items" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div ref={listRef} data-anim="items" style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 10 }}>
       {lessons.map((l, idx) => {
         const col = CAT_COLOR[l.category] ?? DEFAULT_COLOR
         return (
