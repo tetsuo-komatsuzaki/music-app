@@ -73,7 +73,27 @@ export default function RevealMotion() {
   const pathname = usePathname()
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    // 診断バッジ (?rvdebug=1): 実機で「エンジンがどこまで動いたか」を画面に出す。
+    // 原因特定用の一時装備。数値 = 準備/表示。
+    const debug = location.search.includes("rvdebug")
+    const badge = (() => {
+      if (!debug) return null
+      let el = document.getElementById("rv-badge") as HTMLElement | null
+      if (!el) {
+        el = document.createElement("div")
+        el.id = "rv-badge"
+        el.style.cssText = "position:fixed;left:8px;bottom:86px;z-index:99999;background:#000c;color:#7CFC9A;" +
+          "font:11px/1.5 monospace;padding:6px 9px;border-radius:8px;max-width:82vw;white-space:pre-wrap"
+        document.body.appendChild(el)
+      }
+      return el
+    })()
+    const say = (t: string) => { if (badge) badge.textContent = t }
+    if (debug) {
+      window.addEventListener("error", (e) => say("JSエラー: " + String(e.message).slice(0, 160)), { once: true })
+    }
+    say("演出: マウント済み")
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { say("演出: 停止 (視差効果を減らす=ON)"); return }
     if (!document.getElementById("rv-style")) {
       const st = document.createElement("style")
       st.id = "rv-style"
@@ -119,7 +139,20 @@ export default function RevealMotion() {
       io.observe(el)
     }
 
-    const prepareAll = () => main().querySelectorAll<HTMLElement>(SEL).forEach(prepare)
+    const prepareAll = () => {
+      main().querySelectorAll<HTMLElement>(SEL).forEach(prepare)
+      if (debug) {
+        const p2 = document.querySelectorAll("[data-rv]").length
+        const on = document.querySelectorAll("[data-rv].rv-on").length
+        say(`演出: 稼働  準備${p2} 表示${on}
+地の色=${getComputedStyle(document.body).backgroundColor}`)
+        window.setInterval(() => {
+          const a = document.querySelectorAll("[data-rv]").length
+          const b2 = document.querySelectorAll("[data-rv].rv-on").length
+          say(`演出: 稼働  準備${a} 表示${b2}`)
+        }, 1000)
+      }
+    }
     const t0 = window.setTimeout(prepareAll, 40)
 
     // 遅延描画 (fetch後のブロック / data-anim 部品) を拾う
