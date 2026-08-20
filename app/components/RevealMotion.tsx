@@ -137,7 +137,48 @@ export default function RevealMotion() {
       }, Math.min(t, CAP) + 1200))
     }, 60)
 
+    // あとから読み込まれるブロック (fetch後描画のゴール/基礎練など) は
+    // 初回走査に乗らないため、現れた時点で個別に発火させる (再検査 2026-08-20 で発見した穴)
+    const late = new MutationObserver((muts) => {
+      for (const m of muts) {
+        for (const node of m.addedNodes) {
+          if (!(node instanceof HTMLElement)) continue
+          const targets = [
+            ...(node.matches?.('[data-anim]') ? [node] : []),
+            ...node.querySelectorAll?.('[data-anim]') ?? [],
+          ] as HTMLElement[]
+          for (const el of targets) {
+            const kind = el.dataset.anim
+            if (kind === "bar" && !el.classList.contains("rv-go")) {
+              window.setTimeout(() => el.classList.add("rv-go"), 60)
+            } else if (kind === "ring") {
+              const target = el.style.getPropertyValue("--p") || "0%"
+              el.style.setProperty("--p", "0%")
+              window.setTimeout(() => el.style.setProperty("--p", target), 80)
+            } else if (kind === "count" && el.children.length === 0 && !el.dataset.rvCounted) {
+              el.dataset.rvCounted = "1"
+              const txt = (el.textContent ?? "").trim()
+              const m2 = txt.match(/^(\D*)(\d+)(\D*)$/)
+              if (!m2) continue
+              const t2 = +m2[2], pre = m2[1], post = m2[3]
+              const s0 = performance.now(), du = 1150 + Math.min(t2, 100) * 4
+              const step = (now: number) => {
+                const pr = Math.min(1, (now - s0) / du)
+                const q = 1 - Math.pow(1 - pr, 3)
+                el.textContent = pre + Math.round(t2 * q) + post
+                if (pr < 1) requestAnimationFrame(step)
+                else el.textContent = txt
+              }
+              requestAnimationFrame(step)
+            }
+          }
+        }
+      }
+    })
+    late.observe(document.querySelector("main") ?? document.body, { childList: true, subtree: true })
+
     return () => {
+      late.disconnect()
       window.clearTimeout(start)
       timers.forEach((x) => window.clearTimeout(x))
       if (raf) cancelAnimationFrame(raf)

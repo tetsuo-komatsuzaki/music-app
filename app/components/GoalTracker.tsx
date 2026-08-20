@@ -7,6 +7,7 @@
 "use client"
 
 import Link from "next/link"
+import ds from "./ds.module.css"
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import type { ReactNode } from "react"
@@ -217,8 +218,8 @@ export default function GoalTracker({ achv, userId, scoreId }: { achv: Achieveme
         <>
           <div>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 8, margin: "2px 0 12px" }}>
-              <span style={{ fontSize: "var(--fs-display)", fontWeight: 900, lineHeight: 0.9, color: "var(--cream)" }}>
-                <span data-anim="count">{avg != null ? avg.toFixed(0) : "—"}</span><small style={{ fontSize: "var(--fs-subhead)", fontWeight: 800 }}>点</small>
+              <span className={ds.bigN} style={{ fontSize: "var(--fs-display)", lineHeight: 0.9 }}>
+                <span data-anim="count">{avg != null ? avg.toFixed(0) : "—"}</span><small style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-sub)" }}>点</small>
               </span>
             </div>
             <div style={{ position: "relative", paddingTop: 16 }}>
