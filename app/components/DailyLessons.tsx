@@ -222,18 +222,20 @@ function IntroModal({ lesson, href, onClose }: { lesson: DailyLesson; href: stri
       aria-label={`${lesson.label} の練習紹介`}
       style={{ position: "fixed", inset: 0, zIndex: 1000 }}
     >
-      {/* モック SHEET_TOP: 濃い覆い + 下から出るシート (地はカードより一段明るいグラデ) */}
-      <div style={{ position: "absolute", inset: 0, background: "rgba(5,10,22,.72)" }} />
+      {/* モック SHEET_TOP を土台に、背景と同化しないよう分離を強化 (2026-08-20 Tetsuo指示):
+          覆い=深く+すりガラス / シート=一段明るいネイビー面+浮き影。ネイビー一族の中で階調を変える */}
+      <div style={{ position: "absolute", inset: 0, background: "rgba(4,8,18,.66)", backdropFilter: "blur(7px)", WebkitBackdropFilter: "blur(7px)" }} />
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
           position: "absolute", left: 0, right: 0, bottom: 0, top: 108,
-          background: "linear-gradient(180deg,#16264a,#101c36)",
-          borderRadius: "24px 24px 0 0", borderTop: "1px solid rgba(150,175,225,.16)",
+          background: "linear-gradient(180deg,#213459,#14213d)",
+          borderRadius: "24px 24px 0 0", borderTop: "1px solid rgba(150,175,225,.30)",
+          boxShadow: "0 -20px 60px rgba(0,0,0,.6)",
           padding: "0 18px 18px", overflowY: "auto",
         }}
       >
-        <div style={{ position: "sticky", top: 0, background: "#16264a", padding: "10px 0 8px", zIndex: 2 }}>
+        <div style={{ position: "sticky", top: 0, background: "#213459", padding: "10px 0 8px", zIndex: 2 }}>
           <div style={{ width: 38, height: 4, borderRadius: 3, background: "rgba(150,175,225,.28)", margin: "0 auto" }} />
         </div>
 
