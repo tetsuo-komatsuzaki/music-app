@@ -21,8 +21,7 @@ export default function LessonGateBanner({
       style={{
         margin: "10px 12px 0",
         padding: "12px 14px",
-        background: "#F3FBEA",
-        border: "2px solid #CDEEB2",
+        background: "rgba(43,91,196,.17)",   /* 2026-08-20 決定: 緑をやめて紺一族・枠線なし */
         borderRadius: 14,
         display: "flex",
         alignItems: "center",
@@ -30,12 +29,12 @@ export default function LessonGateBanner({
         flexWrap: "wrap",
       }}
     >
-      <GraduationCap size={26} color="#5a8a2e" aria-hidden style={{ flex: "none" }} />
+      <GraduationCap size={26} color="#7aa7ff" aria-hidden style={{ flex: "none" }} />
       <div style={{ flex: 1, minWidth: 200 }}>
-        <div style={{ fontWeight: 800, color: "var(--text-good)", fontSize: "var(--fs-subhead)" }}>
+        <div style={{ fontWeight: 800, color: "#dbe6ff", fontSize: "var(--fs-subhead)" }}>
           この曲には <b>{names}</b> が出てくるよ
         </div>
-        <div style={{ fontSize: "var(--fs-body)", color: "var(--text-good)", marginTop: 2 }}>
+        <div style={{ fontSize: "var(--fs-body)", color: "#dbe6ff", marginTop: 2 }}>
           まだ練習していないから、先に学びレッスンでいっしょにやってみよう!・1本2〜3分
         </div>
       </div>
@@ -45,8 +44,8 @@ export default function LessonGateBanner({
             key={l.id}
             href={`/${userId}/lessons/${l.id}${returnQuery}`}
             style={{
-              background: "#58CC02",
-              boxShadow: "0 3px 0 #58A700",
+              background: "#2b5bc4",
+              boxShadow: "0 3px 0 #1c3f8f",
               color: "var(--text-on-accent)",
               fontWeight: 800,
               fontSize: "var(--fs-body)",
