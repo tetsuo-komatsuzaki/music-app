@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { ArcoChan, POSES } from "./ArcoChan"
-import hb from "../[userId]/homeBlocks.module.css"
+import ds from "./ds.module.css"
 
 /* 30ポーズ それぞれに対応する「今日の一言」。POSES の id と対応。 */
 const COMMENTS: Record<string, string> = {
@@ -76,9 +76,24 @@ export default function ArcoDaily() {
  const comment = COMMENTS[pose.id] ?? "今日もいっしょに練習しよう"
 
   return (
-    <div className={hb.arco} data-onboarding="home.arcoCard" aria-label="アルコちゃんの一言">
-      <div className={hb.ill}><ArcoChan pose={pose} /></div>
-      <div className={hb.bubble}>{comment}</div>
+    // モック 追01 (ARCO_CARD) の写経: カード + ラベル + アルコ92px + 吹き出し
+    <div className={ds.card} data-onboarding="home.arcoCard" aria-label="アルコちゃんの一言">
+      <div className={ds.lab}>アルコちゃんの一言</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 10 }}>
+        <div style={{ width: 92, height: 92, borderRadius: 20, flex: "none", overflow: "hidden" }}>
+          <ArcoChan pose={pose} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              position: "relative", background: "rgba(150,175,225,.10)",
+              border: "1px solid rgba(150,175,225,.14)", borderRadius: 14, padding: "12px 13px",
+            }}
+          >
+            <div style={{ fontSize: 13.5, fontWeight: 800, lineHeight: 1.7, color: "var(--text-ink)" }}>{comment}</div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
