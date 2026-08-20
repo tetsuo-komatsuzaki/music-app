@@ -49,6 +49,8 @@ html.rv-anim [data-rv] [data-rvi] {
               transform .52s cubic-bezier(.18,.9,.22,1) var(--rvd, 0ms);
 }
 html.rv-anim [data-rv].rv-on [data-rvi] { opacity: 1; transform: none; }
+/* v5 noTx: 巻き戻し中は動きを止める。「戻る動きと出る動きが相殺する事故を構造的に防ぐ」(原本コメント) */
+html.rv-anim .rv-notx, html.rv-anim .rv-notx * { transition: none !important; animation: none !important; }
 
 /* ★ 1つずつ灯る */
 html.rv-anim [data-rv] .rv-star { display: inline-block; opacity: 0; transform: scale(.3) rotate(-25deg); }
@@ -300,13 +302,14 @@ export default function RevealMotion() {
           leaf.style.setProperty("--p", "0%")
           leaf.style.setProperty("--rd", `${Math.round(base + 200)}ms`)
         }
-        if (leaf.dataset.anim === "count" && !leaf.dataset.rvOrig) {
-          const txt = (leaf.textContent ?? "").trim()
-          const m = txt.match(/^(\D*)(\d+)(\D*)$/)
-          if (m && leaf.children.length === 0) {
-            leaf.dataset.rvOrig = txt
-            leaf.textContent = m[1] + "0" + m[3]
+        if (leaf.dataset.anim === "count" && leaf.children.length === 0) {
+          // v5 reset と同じく、下ごしらえのたびに数字は 0 から (再生し直しでも巻き戻す)
+          if (!leaf.dataset.rvOrig) {
+            const txt = (leaf.textContent ?? "").trim()
+            if (/^\D*\d+\D*$/.test(txt)) leaf.dataset.rvOrig = txt
           }
+          const m = (leaf.dataset.rvOrig ?? "").match(/^(\D*)(\d+)(\D*)$/)
+          if (m) leaf.textContent = m[1] + "0" + m[3]
         }
       })
       // ★は自分の項目の --base を継ぐ (包んだ直後なので個別に)
@@ -406,12 +409,16 @@ export default function RevealMotion() {
     }
     const t0 = window.setTimeout(prepareAll, 40)
 
-    // 発火済みブロックへ後から入った中身 (fetch後の達成条件・基礎練・リング等) は、
-    // 原本 v5 の play() と同じ流儀で「そのブロックを再生し直す」:
-    // reset (印を全部はがす) → prepare (項目の時差と葉の起点を配り直す) → IOが見えていれば即発火。
-    // 発火だけやり直すと項目の順番出しとリングの 0%→目標 が失われる (2026-08-21 修正)
+    // 発火済みブロックへ後から入った中身 (fetch後の達成条件・基礎練・リング等) は
+    // 「そのブロックを再生し直す」。手順は原本 v5 reset()/play() と1対1 (2026-08-21 是正):
+    //   reset:  ① noTx を付ける (動きを止める)
+    //           ② on を剥がし・印を剥がし・下ごしらえし直す (リング0%・数字0 も含む)
+    //           ③ void offsetWidth (隠れた状態を確定させる)
+    //   play:   ④ rAF → noTx を外す → void offsetWidth (動きを戻してから)
+    //           ⑤ rAF → on を付ける + リング目標 + countUp (出現の合図)
     const replay = (host: HTMLElement) => {
-      host.classList.remove("rv-on")
+      host.classList.add("rv-notx")                                   // ①
+      host.classList.remove("rv-on")                                  // ②
       host.querySelectorAll<HTMLElement>("[data-rvi]").forEach((k) => {
         delete k.dataset.rvi
         delete k.dataset.rvt
@@ -425,6 +432,14 @@ export default function RevealMotion() {
       delete host.dataset.rv
       host.style.removeProperty("--rvd")
       prepare(host, 0)
+      void host.offsetWidth                                           // ③
+      requestAnimationFrame(() => {
+        host.classList.remove("rv-notx")                              // ④
+        void host.offsetWidth
+        requestAnimationFrame(() => {
+          if (host.isConnected) reveal(host)                          // ⑤
+        })
+      })
     }
 
     // 遅延描画 (fetch後のブロック / data-anim 部品) を拾う
