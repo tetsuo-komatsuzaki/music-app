@@ -716,7 +716,7 @@
 .perfSelectRow { display: flex; align-items: center; gap: 8px; }
 .perfSelect {
   flex: 1; min-width: 0; font-family: inherit; font-size: var(--fs-body); font-weight: 700; color: var(--text-ink);
-  background: #0d1b33; border: 1px solid #e0dde3; border-radius: 10px; padding: 10px 12px; cursor: pointer;
+  background: var(--card-in); border: 1px solid rgba(150,175,225,.08); border-radius: 14px; padding: 12px 14px; cursor: pointer;
 }
 .perfSelectScore { flex: 0 0 auto; font-size: var(--fs-title); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
 .perfSelectScore small { font-size: var(--fs-body); font-weight: 600; margin-left: 1px; }
@@ -755,7 +755,7 @@
   overflow: hidden;
   box-shadow: 0 6px 18px -14px rgba(20, 15, 40, 0.35);
 }
-.playBarRow { display: flex; }
+.playBarRow { display: flex; gap: 6px; padding: 8px; }
 .barCell {
   flex: 1;
   min-width: 0;
@@ -763,17 +763,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 11px 4px;
-  background: #0d1b33;
-  border: none;
-  border-right: 1px solid rgba(150,175,225,.16);
+  gap: 2px;
+  padding: 9px 4px;
+  background: var(--card-in);
+  border: 1px solid rgba(150,175,225,.08);
+  border-radius: 14px;
   font-family: inherit;
-  color: var(--text-body);
+  color: var(--text-ink);
   cursor: pointer;
   transition: background 0.14s, color 0.14s;
 }
-.barCell:last-child { border-right: none; }
+.barCell:last-child { border-right: 1px solid rgba(150,175,225,.08); }
 .barCell:disabled { opacity: 0.4; cursor: default; }
 .barCell:active { background: rgba(150,175,225,.14); }
 .barLabel { font-size: var(--fs-caption); font-weight: 800; letter-spacing: 0.02em; white-space: nowrap; }
@@ -1028,13 +1028,14 @@
   width: 100%;
   display: flex; align-items: center; justify-content: center; gap: 10px;
   font-family: inherit; font-size: var(--fs-subhead); font-weight: 800; cursor: pointer;
-  color: var(--text-on-accent); border: none; border-radius: 14px; padding: 15px 16px;
-  background: linear-gradient(100deg, #e5392b, #f0603a);
-  box-shadow: 0 12px 24px -12px rgba(229, 57, 43, 0.6);
+  color: var(--text-on-accent); border: none; border-radius: 16px; padding: 15px;
+  font-weight: 900;
+  background: linear-gradient(180deg, #e05a3c, #c63f26);
+  box-shadow: 0 12px 24px -12px rgba(224, 90, 60, 0.6);
   transition: filter .14s;
 }
 .recordEntryBtn:active { filter: brightness(0.96); }
-.recordEntryDot { width: 12px; height: 12px; border-radius: 50%; background: #0d1b33; flex: 0 0 auto; }
+.recordEntryDot { width: 10px; height: 10px; border-radius: 50%; background: #fff; flex: 0 0 auto; }
 .recordEntryChev { margin-left: 2px; opacity: .85; transition: transform .16s; }
 .recordEntryChevOpen { transform: rotate(180deg); }
 

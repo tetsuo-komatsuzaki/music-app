@@ -3647,37 +3647,42 @@ function ScoreDetailInner({
         {recordingState === "idle" && recentLevel && (
           <div
             style={{
+              // モック level_rec: 窪み(inset) + 状態語 + クリームの大数字
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              gap: 12,
-              padding: "12px 16px",
-              borderRadius: 12,
-              background: rankLabels[getScoreRank(recentLevel.avg)].bg,
+              padding: "12px 15px",
+              marginTop: 14,
+              borderRadius: 14,
+              background: "var(--card-in)",
+              border: "1px solid rgba(150,175,225,.08)",
             }}
           >
-            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <span style={{ fontSize: "var(--fs-body)", color: "var(--text-body)" }}>現在のレベル</span>
-              <span style={{ fontSize: "var(--fs-body)", fontWeight: 600, color: rankLabels[getScoreRank(recentLevel.avg)].color }}>
-                {rankLabels[getScoreRank(recentLevel.avg)].label}
-              </span>
+            <div>
+              <div style={{ fontSize: 11, color: "var(--text-sub)" }}>現在のレベル</div>
+              <b style={{ fontSize: 13, color: "#7fa4e8" }}>{rankLabels[getScoreRank(recentLevel.avg)].label}</b>
             </div>
-            <div style={{ fontSize: "var(--fs-display)", fontWeight: 700, lineHeight: 1, color: rankLabels[getScoreRank(recentLevel.avg)].color }}>
-              {recentLevel.avg}
-              <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 500 }}>点</span>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
+              <span
+                data-anim="count"
+                style={{ fontSize: 30, fontWeight: 900, lineHeight: 1, color: "var(--cream)", fontVariantNumeric: "tabular-nums", textShadow: "0 0 24px rgba(255,243,220,.28)" }}
+              >
+                {recentLevel.avg}
+              </span>
+              <span style={{ fontSize: 11, color: "var(--text-sub)" }}>点</span>
             </div>
           </div>
         )}
 
         {/* 履歴レビュー中(演奏を選択中)は録音ボタンを隠し、演奏モードへ戻すリードを表示 */}
         {selected ? (
-          <div style={{ textAlign: "center", padding: "18px 16px", background: "linear-gradient(135deg,#F0F7FF,#FDF8E7)", border: "1px solid #DCE7F5", borderRadius: 14 }}>
+          <div style={{ textAlign: "center", padding: "18px 16px", background: "linear-gradient(135deg,rgba(122,167,255,.10),rgba(232,178,60,.10))", border: "1px solid var(--line)", borderRadius: 14 }}>
             <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 700, color: "var(--text-ink)", marginBottom: 4, display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/Icon.png" alt="" aria-hidden width={20} height={20} style={{ borderRadius: 5 }} /> もう一度演奏してみよう！
             </div>
             <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", marginBottom: 14 }}>この演奏をふまえて、もう一度チャレンジ</div>
-            <button type="button" onClick={() => selectPerformanceById(null)} style={{ background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "var(--text-on-accent)", border: "none", borderRadius: 10, padding: "11px 28px", fontSize: "var(--fs-subhead)", fontWeight: 700, cursor: "pointer" }}>演奏する</button>
+            <button type="button" onClick={() => selectPerformanceById(null)} style={{ background: "var(--accent)", color: "var(--text-on-accent)", border: "none", borderRadius: 10, padding: "11px 28px", fontSize: "var(--fs-subhead)", fontWeight: 700, cursor: "pointer" }}>演奏する</button>
           </div>
         ) : onboardingRecordStep ? (
           // オンボの録音ステップだけ、実録音せず「ふりかえり(見本)へ進むだけ」のボタンに差し替える。
