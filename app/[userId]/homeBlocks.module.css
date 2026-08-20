@@ -2,7 +2,7 @@
 .root {
   /* ダーク化 段階2 (2026-08-20): 値だけ暗地用に。意味と使い分けは据え置き */
   --panel:var(--card-b); --ink:#EDF1FA; --inkSoft:#8FA0C4; --inkFaint:#5E7099;
-  --line:rgba(150,175,225,.14);
+  --line:rgba(150,175,225,.12);
   --accent:#2b5bc4; --accentSoft:rgba(232,178,60,.16); --good:#5CC98A; --goodSoft:rgba(92,201,138,.14);
   --goal:#B39AE0; --goalSoft:rgba(179,154,224,.16); --warn:#FF8A70; --warnSoft:rgba(255,123,110,.14);
   --ground:var(--card-in);

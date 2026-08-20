@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Trophy, Sparkles, Target } from "lucide-react"
 import styles from "../[userId]/homeBlocks.module.css"
+import ds from "./ds.module.css"
 import GoalTracker, { goalHeadline, type AchievementStatus } from "./GoalTracker"
 import DailyLessons from "./DailyLessons"
 
@@ -63,9 +64,11 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
 
   return (
     <div className={styles.root}>
-      <div className={styles.card} data-onboarding="home.focusCard" style={{ overflow: "hidden" }}>
+      {/* モック nowsong.card の殻: padding0 + ラベル。バナーは全幅 */}
+      <div className={ds.card} data-onboarding="home.focusCard" style={{ overflow: "hidden", padding: 0 }}>
+        <div style={{ padding: "14px 15px 0" }}><div className={ds.lab}>いま練習している曲</div></div>
         {pieces.length > 1 && (
-          <div className={styles.tabs}>
+          <div className={styles.tabs} style={{ margin: "9px 0 12px", padding: "0 15px 2px" }}>
             {pieces.map((p, i) => (
               <button key={p.id} type="button" onClick={() => setActive(i)} className={`${styles.tab} ${active === i ? styles.tabOn : ""}`} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
                 {p.badge === "mastered" ? <Trophy size={13} color="#d9a93c" /> : p.badge === "achieved" ? <Sparkles size={13} color="#d9a93c" /> : null}{p.title}
@@ -75,7 +78,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
         )}
 
         {/* いま練習している曲 = このカードの主役。世界観カラー(青)反転を、外側カードいっぱいの全幅バナーに */}
-        <Link href={piece.href} className={styles.piece} style={{ textDecoration: "none", color: "inherit", background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", border: "none", padding: "13px 15px", gap: 12, margin: pieces.length > 1 ? "0 -15px" : "-14px -15px 0", borderRadius: pieces.length > 1 ? 0 : "18px 18px 0 0" }}>
+        <Link href={piece.href} className={styles.piece} style={{ textDecoration: "none", color: "inherit", background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", border: "none", padding: "13px 15px", gap: 12, margin: 0, borderRadius: 0 }}>
           <div className={styles.thumb} style={{ width: 50, height: 50, fontSize: "var(--fs-title)", background: "rgba(255,255,255,.16)", color: "#fff" }}>{piece.cover ? <img src={piece.cover} alt="" loading="lazy" /> : "♪"}</div>
           <div className={styles.g}>
             <div className={styles.title} style={{ fontSize: piece.title.length <= 8 ? "var(--fs-head)" : piece.title.length <= 13 ? "var(--fs-subhead)" : piece.title.length <= 20 ? "var(--fs-body)" : "var(--fs-caption)", color: "#fff", whiteSpace: "normal", overflow: "visible", textOverflow: "clip", lineHeight: 1.25, wordBreak: "break-word" }}>{piece.title}</div>
@@ -87,6 +90,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
           </span>
         </Link>
 
+        <div style={{ padding: "0 15px 15px" }}>
         {/* 🏆 この曲のゴール (達成/マスター。曲詳細と同じ GoalTracker を流用。体験上の重要要素・削除しない)
             見出しは進捗で出し分け (2026-08-16 Tetsuo指定・下の重複見出しはGoalTracker側から削除済) */}
         <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "14px 0 8px", borderTop: "1px solid var(--line)", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#d9a93c" /> {ach ? goalHeadline(ach) : "ゴール"}</div>
@@ -103,6 +107,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
         ) : (
           <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: "8px 0" }}>読み込み中…</div>
         )}
+        </div>
       </div>
     </div>
   )
