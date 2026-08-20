@@ -9,7 +9,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Search, Plus, Upload, BookOpen, Star } from "lucide-react"
+import { Search, Plus, Upload, BookOpen } from "lucide-react"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { canShowBillingEntryPoint } from "@/app/_libs/isNativeApp"
 import styles from "./library.module.css"
@@ -141,10 +141,12 @@ export default function LibraryClient({
           <h2 className={styles.sectionTitleTop}>カテゴリから探す</h2>
           <div className={styles.catGrid}>
             {categories.map((c) => (
-              <Link key={c.category} href={`${base}/practice/${c.category}`} className={styles.catCard}>
+              <Link key={c.category} href={`${base}/practice/${c.category}`} className={styles.catCard} data-empty={c.count === 0}>
                 <span className={styles.catName}>{categoryLabel(c.category)}</span>
-                <span className={styles.catCount}>{c.count}曲</span>
-                <span className={styles.catGo}>→</span>
+                <span className={styles.catMeta}>
+                  <span className={styles.catCount}>{c.count}曲</span>
+                  <span className={styles.catGo}>→</span>
+                </span>
               </Link>
             ))}
           </div>
@@ -189,9 +191,8 @@ function PieceRow({ p, base }: { p: LibraryPiece; base: string }) {
         </span>
         {p.star != null && (
           <span className={styles.stars} aria-label={`★${p.star}`}>
-            {Array.from({ length: p.star }).map((_, i) => (
-              <Star key={i} size={12} fill="currentColor" strokeWidth={0} />
-            ))}
+            {"★".repeat(Math.min(p.star, 5))}
+            <s>{"★".repeat(Math.max(0, 5 - p.star))}</s>
           </span>
         )}
       </span>

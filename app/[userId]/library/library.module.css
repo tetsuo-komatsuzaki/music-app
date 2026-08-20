@@ -1,120 +1,379 @@
-/* ライブラリ (2026-08-17 ナビ要件定義 SECTION 02) */
+/* ライブラリ — モック build-lib.py の写経 (2026-08-20 ダーク全面刷新)。
+   値は uiv2/app.css と lib-mock のインライン指定をそのまま。変えない。 */
 
-.root { display: flex; flex-direction: column; gap: 14px; }
+.root {
+  display: flex;
+  flex-direction: column;
+}
 
-.head { margin-bottom: 2px; }
-.title { font-size: var(--fs-head); font-weight: 900; margin: 0; color: var(--text-ink); }
-.lead { font-size: var(--fs-caption); color: var(--text-muted); margin: 4px 0 0; }
+/* h1.t / .subT (uiv2/app.css) */
+.head {
+  display: block;
+}
+.title {
+  margin: 0;
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  padding: 6px 2px 0;
+  color: var(--text-ink);
+}
+.lead {
+  margin: 0;
+  color: var(--text-sub);
+  font-size: 13px;
+  padding: 5px 2px 0;
+}
 
-/* 検索 + アップロード */
-.searchRow { display: flex; gap: 10px; }
+/* 検索 = .inset の行 (HEAD) */
+.searchRow {
+  display: flex;
+  gap: 9px;
+  margin-top: 12px;
+  align-items: stretch;
+}
 .search {
-  flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px;
-  background: #fff; border: 1px solid #dfe6f2; border-radius: 14px; padding: 0 14px; height: 48px;
-  color: var(--text-muted);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 13px;
+  background: var(--card-in);
+  border: 1px solid rgba(150, 175, 225, 0.08);
+  border-radius: 14px;
+  color: var(--text-sub);
 }
 .search input {
-  flex: 1; min-width: 0; border: none; outline: none; background: transparent;
-  font-size: var(--fs-body); color: var(--text-ink);
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text-ink);
+  outline: none;
+}
+.search input::placeholder {
+  color: var(--text-muted);
 }
 .addBtn {
-  flex: none; width: 56px; height: 48px; border: none; border-radius: 14px; cursor: pointer;
-  background: linear-gradient(135deg, #f0c25c, #d9a93c 55%, #c99427);
-  color: #12203c; display: grid; place-items: center;
-  box-shadow: 0 6px 16px rgba(217, 169, 60, 0.32);
+  flex: none;
+  width: 44px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #e8b23c, #d2992c);
+  color: #201604;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
 }
 
-/* セグメント */
+/* セグメント = .seg (uiv2/app.css) */
 .segments {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
-  background: #eef2f8; border-radius: 14px; padding: 4px;
+  display: flex;
+  background: #0e1830;
+  border: 1px solid rgba(150, 175, 225, 0.1);
+  border-radius: 14px;
+  padding: 4px;
+  margin-top: 14px;
 }
 .segment {
-  border: none; background: transparent; border-radius: 11px; padding: 10px 0; cursor: pointer;
-  font-size: var(--fs-caption); font-weight: 800; color: var(--text-muted);
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-sub);
+  padding: 9px 0;
+  border-radius: 11px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
 }
-.segmentOn { background: #fff; color: #22346b; box-shadow: 0 1px 3px rgba(20, 30, 60, 0.1); }
+.segmentOn {
+  background: linear-gradient(180deg, #22355e, #182747);
+  color: var(--gold);
+  box-shadow: inset 0 0 0 1px rgba(232, 178, 60, 0.28);
+}
 
-/* プラン案内 */
+/* プラン案内 = PLAN_NOTICE */
 .notice {
-  position: relative; display: flex; flex-direction: column; gap: 4px;
-  background: #fdf6e6; border: 1px solid #efdcae; border-radius: 14px; padding: 14px 40px 14px 16px;
-  font-size: var(--fs-caption); color: #7a5a12;
+  position: relative;
+  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
+  border: 1px solid rgba(232, 178, 60, 0.3);
+  border-radius: 20px;
+  padding: 14px 15px;
+  margin-top: 14px;
+  display: block;
 }
-.notice b { font-size: var(--fs-body); color: #6d4f0d; }
-.noticeLink { color: #a8791b; font-weight: 800; text-decoration: underline; }
-.noticeMuted { color: #97803f; }
+.notice b {
+  font-size: 13.5px;
+  color: var(--gold);
+  display: block;
+}
+.notice > span {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-sub);
+  margin-top: 6px;
+  line-height: 1.8;
+}
+.noticeLink {
+  display: inline-flex;
+  margin-top: 11px;
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 4px 11px;
+  background: rgba(232, 178, 60, 0.15);
+  color: var(--gold);
+  text-decoration: none;
+}
+.noticeMuted {
+  display: block;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 9px;
+}
 .noticeClose {
-  position: absolute; top: 8px; right: 10px; border: none; background: transparent;
-  color: #a08a53; cursor: pointer; font-size: var(--fs-caption);
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: none;
+  color: var(--text-sub);
+  font-size: 13px;
+  cursor: pointer;
 }
 
-/* 一覧 */
-.list { display: flex; flex-direction: column; gap: 10px; }
+/* 曲カード = piece() */
+.list {
+  display: block;
+}
 .row {
-  display: flex; align-items: center; gap: 10px; text-decoration: none;
-  background: #fff; border: 1px solid #e6ecf5; border-radius: 14px; padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 13px 15px;
+  margin-top: 14px;
+  text-decoration: none;
+  color: inherit;
 }
-.rowBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.rowTitle { font-size: var(--fs-subhead); font-weight: 800; color: var(--text-ink); }
-.rowSub { font-size: var(--fs-label); color: var(--text-muted); }
-.stars { display: inline-flex; gap: 2px; color: #d9a93c; margin-top: 2px; }
-.badgeMaster, .badgeAchieved {
-  flex: none; font-size: var(--fs-label); font-weight: 800; border-radius: 999px; padding: 3px 10px;
+.rowBody {
+  flex: 1;
+  min-width: 0;
 }
-.badgeMaster { color: #12203c; background: linear-gradient(135deg, #f0c25c, #d9a93c); }
-.badgeAchieved { color: #2e8b57; background: #eaf6ef; }
+.rowTitle {
+  font-size: 14.5px;
+  font-weight: 800;
+  display: block;
+  color: var(--text-ink);
+}
+.rowSub {
+  font-size: 11px;
+  color: var(--text-sub);
+  display: block;
+}
+.stars {
+  display: block;
+  margin-top: 5px;
+  color: var(--gold);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+}
+.stars s {
+  color: #31406a;
+  text-decoration: none;
+}
+.badgeMaster {
+  flex: none;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 3px 9px;
+  background: rgba(232, 178, 60, 0.15);
+  color: var(--gold);
+}
+.badgeAchieved {
+  flex: none;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 3px 9px;
+  background: rgba(127, 196, 196, 0.16);
+  color: var(--teal);
+  border: 1px solid rgba(127, 196, 196, 0.32);
+}
 
-.sectionTitle {
-  font-size: var(--fs-caption); font-weight: 800; color: var(--text-muted);
-  letter-spacing: 0.06em; margin: 20px 0 10px;
-}
-/* セグメント直下に置く見出しは上余白を詰める */
+/* 基礎練 カテゴリ = grid2 + card */
 .sectionTitleTop {
-  font-size: var(--fs-caption); font-weight: 800; color: var(--text-muted);
-  letter-spacing: 0.06em; margin: 4px 0 10px;
+  font-size: 13px;
+  font-weight: 800;
+  margin: 16px 2px 10px;
+  color: var(--text-ink);
 }
-
-/* カテゴリ: 掲載数のみ。進捗率は出さない (要件定義 2-3) */
-.catGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.catGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
 .catCard {
-  position: relative; display: flex; flex-direction: column; gap: 4px; text-decoration: none;
-  background: #fff; border: 1px solid #e6ecf5; border-radius: 14px; padding: 16px;
+  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  margin: 0;
+  padding: 13px 14px;
+  text-decoration: none;
+  display: block;
 }
-.catName { font-size: var(--fs-subhead); font-weight: 800; color: var(--text-ink); }
-.catCount { font-size: var(--fs-label); color: var(--text-muted); }
-.catGo { position: absolute; right: 14px; bottom: 12px; color: #a8791b; font-weight: 800; }
+.catName {
+  font-size: 13.5px;
+  font-weight: 800;
+  display: block;
+  color: var(--text-ink);
+}
+.catCard[data-empty="true"] .catName {
+  color: var(--text-sub);
+}
+.catMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.catCount {
+  font-size: 11px;
+  color: var(--text-sub);
+}
+.catGo {
+  color: var(--gold);
+  font-weight: 900;
+  font-size: 13px;
+}
+.catCard[data-empty="true"] .catGo {
+  opacity: 0.35;
+}
 
+/* 学びのレッスン カード */
 .lessonCard {
-  display: flex; align-items: center; gap: 12px; text-decoration: none; margin-top: 14px;
-  background: #fff; border: 1px solid #e6ecf5; border-radius: 16px; padding: 16px; position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 16px;
+  margin-top: 14px;
+  text-decoration: none;
+  color: inherit;
 }
 .lessonIcon {
-  flex: none; width: 40px; height: 40px; border-radius: 12px; background: #eef3fb; color: #22346b;
-  display: grid; place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: none;
+  background: rgba(127, 164, 232, 0.14);
+  border: 1px solid rgba(127, 164, 232, 0.26);
+  color: #7fa4e8;
 }
-.lessonBody { display: flex; flex-direction: column; gap: 2px; }
-.lessonBody b { font-size: var(--fs-body); color: var(--text-ink); }
-.lessonBody span { font-size: var(--fs-label); color: var(--text-muted); }
+.lessonBody {
+  flex: 1;
+  min-width: 0;
+}
+.lessonBody b {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--text-ink);
+}
+.lessonBody span {
+  display: block;
+  font-size: 11px;
+  color: var(--text-sub);
+  margin-top: 2px;
+}
 
-/* アップロード */
+/* マイ楽譜 アップロード = UPBOX */
 .uploadBox {
-  display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer;
-  background: #fffdf7; border: 2px dashed #e3c980; border-radius: 16px; padding: 22px 16px;
-  color: #a8791b;
+  width: 100%;
+  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
+  border: 1px dashed rgba(232, 178, 60, 0.4);
+  border-radius: 20px;
+  text-align: center;
+  padding: 26px 16px;
+  margin-top: 14px;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
 }
-.uploadBox b { font-size: var(--fs-body); }
-.uploadBox span { font-size: var(--fs-label); color: #97803f; }
-.mineEmpty { font-size: var(--fs-caption); color: var(--text-muted); text-align: center; padding: 8px 0; }
+.uploadBox svg {
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.uploadBox b {
+  display: block;
+  font-size: 14px;
+  color: var(--text-ink);
+}
+.uploadBox span {
+  display: block;
+  font-size: 11px;
+  color: var(--text-sub);
+  margin-top: 5px;
+}
+.mineEmpty {
+  margin: 14px 0 0;
+  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  text-align: center;
+  padding: 28px 20px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-ink);
+}
 
-/* 空状態 */
+/* 空状態 = PIECES_EMPTY */
 .empty {
-  display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
-  background: #fff; border: 1px solid #e6ecf5; border-radius: 16px; padding: 28px 20px;
+  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  text-align: center;
+  padding: 30px 20px;
+  margin-top: 14px;
 }
-.empty b { font-size: var(--fs-subhead); color: var(--text-ink); }
-.empty span { font-size: var(--fs-caption); color: var(--text-muted); }
+.empty::before {
+  content: "♪";
+  display: block;
+  font-size: 30px;
+  opacity: 0.5;
+}
+.empty b {
+  font-size: 15px;
+  display: block;
+  margin-top: 8px;
+  color: var(--text-ink);
+}
+.empty span {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-sub);
+  margin-top: 7px;
+  line-height: 1.8;
+}
 .emptyCta {
-  margin-top: 6px; text-decoration: none; font-size: var(--fs-body); font-weight: 800;
-  color: #12203c; background: linear-gradient(135deg, #f0c25c, #d9a93c); border-radius: 12px; padding: 11px 22px;
+  display: inline-flex;
+  margin-top: 14px;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 4px 11px;
+  background: rgba(232, 178, 60, 0.15);
+  color: var(--gold);
+  text-decoration: none;
 }
