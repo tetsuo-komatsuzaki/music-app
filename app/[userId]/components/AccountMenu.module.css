@@ -9,9 +9,9 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 1px solid #d9e3f4;
-  background: #fff;
-  color: #22346b;
+  border: 1px solid var(--line);
+  background: #26355c;   /* モック .avatar */
+  color: var(--gold);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -33,10 +33,10 @@
   width: 268px;
   max-height: calc(100dvh - 140px);
   overflow-y: auto;
-  background: #fff;
-  border: 1px solid #dfe6f2;
+  background: var(--card-b);
+  border: 1px solid rgba(150, 175, 225, 0.22);
   border-radius: 16px;
-  box-shadow: 0 20px 48px rgba(16, 30, 60, 0.22);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
   padding: 8px;
 }
 
@@ -48,9 +48,9 @@
   right: 14px;
   width: 12px;
   height: 12px;
-  background: #fff;
-  border-left: 1px solid #dfe6f2;
-  border-top: 1px solid #dfe6f2;
+  background: var(--card-b);
+  border-left: 1px solid rgba(150, 175, 225, 0.22);
+  border-top: 1px solid rgba(150, 175, 225, 0.22);
   transform: rotate(45deg);
 }
 
@@ -72,7 +72,7 @@
 }
 
 .item:hover {
-  background: #f2f6fc;
+  background: rgba(150, 175, 225, 0.10);
 }
 
 .ic {
@@ -80,8 +80,8 @@
   width: 30px;
   height: 30px;
   border-radius: 9px;
-  background: #eef3fb;
-  color: #22346b;
+  background: rgba(150, 175, 225, 0.12);
+  color: var(--text-body);
   display: grid;
   place-items: center;
 }
@@ -92,35 +92,35 @@
 }
 
 .gold .ic {
-  background: #fbf1dc;
-  color: #a8791b;
+  background: rgba(232, 178, 60, 0.16);
+  color: var(--gold);
 }
 
 .gold .label {
-  color: #a8791b;
+  color: var(--gold);
 }
 
 .chip {
   flex: none;
   font-size: var(--fs-label);
   font-weight: 800;
-  color: #a8791b;
-  background: #fbf1dc;
+  color: var(--gold);
+  background: rgba(232, 178, 60, 0.16);
   border-radius: 999px;
   padding: 2px 9px;
 }
 
 .danger .ic {
-  background: #fbeaee;
-  color: #b4485f;
+  background: rgba(214, 96, 122, 0.16);
+  color: #e8879c;
 }
 
 .danger .label {
-  color: #b4485f;
+  color: #e8879c;
 }
 
 .sep {
   height: 1px;
-  background: #e8edf6;
+  background: var(--line);
   margin: 6px 8px;
 }

@@ -1,8 +1,11 @@
 /* ホーム本体ブロック (いま練習している曲 / アルコ / 次の曲) — モック忠実移植 */
 .root {
-  --panel:#FFFFFF; --ink:#2A2420; --inkSoft:#6B6258; --inkFaint:#9A9187; --line:#D9E3F4;
-  --accent:#2b5bc4; --accentSoft:#F3E6D2; --good:#3E8E7E; --goodSoft:#DCEEEA;
-  --goal:#6C6BA8; --goalSoft:#E6E5F1; --warn:#C25A3C; --warnSoft:#F6E2DA; --ground:#FAF7F2;
+  /* ダーク化 段階2 (2026-08-20): 値だけ暗地用に。意味と使い分けは据え置き */
+  --panel:var(--card-b); --ink:#EDF1FA; --inkSoft:#8FA0C4; --inkFaint:#5E7099;
+  --line:rgba(150,175,225,.14);
+  --accent:#2b5bc4; --accentSoft:rgba(232,178,60,.16); --good:#5CC98A; --goodSoft:rgba(92,201,138,.14);
+  --goal:#B39AE0; --goalSoft:rgba(179,154,224,.16); --warn:#FF8A70; --warnSoft:rgba(255,123,110,.14);
+  --ground:var(--card-in);
   --radius:18px;
 }
 
@@ -91,7 +94,7 @@
 .name { font-size:var(--fs-caption); color:var(--accent); font-weight:800; letter-spacing:.03em; margin:0 0 4px; }
 .term { color:var(--good); font-weight:800; }
 .goalw { color:var(--goal); font-weight:800; }
-.guideLink { margin-top:10px; display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:999px; border:1px solid #cfe3fb; background:#f0f7ff; color:var(--text-link); font-size:var(--fs-body); font-weight:700; cursor:pointer; }
+.guideLink { margin-top:10px; display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:999px; border:1px solid rgba(122,167,255,.28); background:rgba(122,167,255,.12); color:var(--text-link); font-size:var(--fs-body); font-weight:700; cursor:pointer; }
 
 /* お気に入り */
 .favEmpty { font-size:var(--fs-caption); color:var(--inkFaint); font-weight:600; padding:6px 2px 2px; line-height:1.5; }

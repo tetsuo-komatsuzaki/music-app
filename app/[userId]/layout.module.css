@@ -7,7 +7,7 @@
 }
 
 .header {
-  background: #1E3A8A;
+  background: var(--bg1);
   color: var(--text-on-accent);
   padding: 12px 20px;
   display: flex;
@@ -30,7 +30,7 @@
   flex: 1;
   min-width: 0;
   padding: 24px 20px 32px;
-  background: #F8FAFC;
+  background: transparent;   /* body の暗地 (奥行きグラデ) をそのまま見せる */
 }
 
 /* 本文は最大560pxで中央に寄せる (ナビ要件定義 SECTION 05・案B)。

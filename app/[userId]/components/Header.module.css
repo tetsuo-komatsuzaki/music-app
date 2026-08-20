@@ -3,8 +3,8 @@
    本文と同じ最大幅で中央に寄せ、ボトムタブと縦のラインを揃える。 */
 
 .header {
-  background: #fff;
-  border-bottom: 1px solid #e4e9f2;
+  background: rgba(10, 17, 34, 0.96);   /* タブバーと同じ層 */
+  border-bottom: 1px solid rgba(150, 175, 225, 0.10);
   /* アプリ殻(ノッチ端末)では時計・電波の帯に食い込むため、セーフエリアぶん下げる。
      通常ブラウザでは env() = 0 で従来どおり */
   padding: calc(10px + env(safe-area-inset-top, 0px)) 20px 10px;
@@ -31,7 +31,7 @@
 .appName {
   font-weight: 800;
   font-size: var(--fs-subhead);
-  color: #22346b;
+  color: var(--text-ink);
   letter-spacing: 0.08em;
 }
 

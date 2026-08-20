@@ -89,7 +89,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
 
         {/* 🏆 この曲のゴール (達成/マスター。曲詳細と同じ GoalTracker を流用。体験上の重要要素・削除しない)
             見出しは進捗で出し分け (2026-08-16 Tetsuo指定・下の重複見出しはGoalTracker側から削除済) */}
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "14px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#d9a93c" /> {ach ? goalHeadline(ach) : "ゴール"}</div>
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "14px 0 8px", borderTop: "1px solid var(--line)", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#d9a93c" /> {ach ? goalHeadline(ach) : "ゴール"}</div>
         {ach ? (
           <GoalTracker achv={ach} userId={userId} scoreId={piece.id} />
         ) : (
@@ -97,7 +97,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
         )}
 
         {/* 毎日の基礎練 (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホーム/曲詳細で共通) */}
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "16px 0 8px", borderTop: "1px solid #eef1f4", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Target size={13} color="#2563EB" /> {piece.title}のための基礎練</div>
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "16px 0 8px", borderTop: "1px solid var(--line)", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Target size={13} color="#7aa7ff" /> {piece.title}のための基礎練</div>
         {ach ? (
           <DailyLessons lessons={ach.dailyLessons ?? []} userId={userId} />
         ) : (

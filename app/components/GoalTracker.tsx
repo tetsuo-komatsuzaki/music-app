@@ -71,8 +71,8 @@ function GoalRing({ full, pct, done, total }: { full?: boolean; pct?: number; do
     return <div style={{ ...base, background: "#2b5bc4" }}><b style={{ fontSize: "var(--fs-display)", fontWeight: 900, color: "var(--text-on-accent)", lineHeight: 1 }}>✓</b></div>
   }
   return (
-    <div style={{ ...base, background: `conic-gradient(#2b5bc4 ${pct ?? 0}%, #dce3ef 0)` }}>
-      <div style={{ position: "absolute", inset: 8, background: "#fff", borderRadius: "50%" }} />
+    <div style={{ ...base, background: `conic-gradient(#2b5bc4 ${pct ?? 0}%, rgba(150,175,225,.18) 0)` }}>
+      <div style={{ position: "absolute", inset: 8, background: "var(--card-b)", borderRadius: "50%" }} />
       <b style={{ position: "relative", zIndex: 1, fontSize: "var(--fs-head)", fontWeight: 900, color: "#2b5bc4", lineHeight: 1 }}>
         {done}<small style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)" }}>/{total}</small>
       </b>
@@ -86,7 +86,7 @@ function GoalDot({ icon, name, done, href }: { icon: ReactNode; name: string; do
   const body = (
     <>
       {/* クリア済みは濃い青の丸+白いアイコン線で一目でわかるように (2026-08-16 Tetsuo指定) */}
-      <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", background: done ? "#2b5bc4" : "#e7edfb", color: done ? "#fff" : "#1f3d78" }}>{icon}</span>
+      <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", background: done ? "#2b5bc4" : "rgba(122,167,255,.14)", color: done ? "#fff" : "#7aa7ff" }}>{icon}</span>
       <span style={{ fontWeight: 700, color: "#1f3d78" }}>{name}</span>
       {done && <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 700, color: "#2b5bc4" }}>✓</span>}
       {!done && href && <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)" }}>やる →</span>}
@@ -105,7 +105,7 @@ function GoalDot({ icon, name, done, href }: { icon: ReactNode; name: string; do
 
 const goalCheer = (gold?: boolean) => ({
   margin: "10px 0 0", fontSize: gold ? 14 : 12.5, fontWeight: 800, textAlign: "center" as const,
-  color: gold ? "#d9a93c" : "#2b5bc4", background: gold ? "#faf3e0" : "#e7edfb", borderRadius: 10, padding: gold ? 12 : 7,
+  color: gold ? "#d9a93c" : "#2b5bc4", background: gold ? "rgba(232,178,60,.14)" : "rgba(122,167,255,.14)", borderRadius: 10, padding: gold ? 12 : 7,
 })
 
 /** 上達のようすモーダル (portal直付け: 祖先の.pressable transformでfixedが壊れる既知トラップ回避) */
@@ -126,7 +126,7 @@ function TrajectoryModal({ scoreId, onClose }: { scoreId: string; onClose: () =>
       onClick={onClose}
       style={{ position: "fixed", inset: 0, zIndex: 2000, background: "rgba(15,25,50,.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
     >
-      <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 420, maxHeight: "86dvh", overflowY: "auto", background: "#fff", borderRadius: 16, position: "relative" }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 420, maxHeight: "86dvh", overflowY: "auto", background: "var(--card-b)", borderRadius: 16, position: "relative" }}>
         <button
           type="button"
           onClick={onClose}

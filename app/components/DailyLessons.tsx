@@ -36,7 +36,7 @@ const SLOT_NOTE: Record<DailyLesson["slot"], string> = {
 
 // 配色統一 案1 (2026-08-16 Tetsuo確定): カテゴリ色は廃止し全て青一族。
 // 色のルール = 構造/操作は青・金は成果(達成/マスター/ランク)のみ。見分けは文字とアイコンで行う
-const BLUE_CAT = { c: "#2b5bc4", bg: "#e7edfb" }
+const BLUE_CAT = { c: "#7aa7ff", bg: "rgba(122,167,255,.14)" }
 const CAT_COLOR: Record<string, { c: string; bg: string }> = {
   scale: BLUE_CAT, fingering: BLUE_CAT, arpeggio: BLUE_CAT, etude: BLUE_CAT,
   bowing: BLUE_CAT, position_shift: BLUE_CAT, double_stop: BLUE_CAT, lesson: BLUE_CAT,
@@ -164,8 +164,8 @@ export default function DailyLessons({
             style={{
               display: "flex",
               alignItems: "center",
-              background: "#fff",
-              border: "1px solid #eceef2",
+              background: "var(--card-in)",
+              border: "1px solid var(--line)",
               borderRadius: 12,
               overflow: "hidden",
               textAlign: "left",
@@ -221,7 +221,7 @@ function IntroModal({ lesson, href, onClose }: { lesson: DailyLesson; href: stri
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{ background: "#fff", borderRadius: 18, width: "100%", maxWidth: 340, overflow: "hidden", boxShadow: "0 18px 44px rgba(20,20,40,.3)" }}
+        style={{ background: "var(--card-b)", borderRadius: 18, width: "100%", maxWidth: 340, overflow: "hidden", boxShadow: "0 18px 44px rgba(20,20,40,.3)" }}
       >
         {/* ヘッダー: アルコ + 練習名 + スロット */}
         <div style={{ position: "relative", padding: "14px 15px", display: "flex", alignItems: "center", gap: 10 }}>

@@ -1,8 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ============================================================
+     ダークプレミアム化 段階0 (2026-08-20 Tetsuo承認・モック142枚が仕様)
+     値は uiv2/app.css (モックのデザインシステム) と承認済みB群モックから。
+     配色ルール: 構造/操作=ネイビー一族・金=成果のみ (2026-08-16 案1)
+     ============================================================ */
+  --background: #0a1122;     /* bg0: 画面のいちばん奥 */
+  --foreground: #edf1fa;
+
+  /* ── 面と線 (モックの端末画面の層) ── */
+  --bg0: #0a1122;
+  --bg1: #0d1730;
+  --card-a: #1e3053;         /* カード: 明るい層 (グラデ上側) */
+  --card-b: #15233f;         /* カード: 基本の層 */
+  --card-in: #111d38;        /* カード内の窪み */
+  --line: rgba(150, 175, 225, 0.12);
+  --gold: #e8b23c;           /* 成果・達成・マスター (それ以外に使わない) */
+  --gold-2: #d9a93c;
+  --cream: #fff3dc;          /* 大きな数字・手紙カード */
+  --accent: #2b5bc4;         /* 操作 (ボタン・選択) = ネイビー一族 */
+  --teal: #7fc4c4; --green-soft: #a8c97f; --pink-soft: #e89ba8;
 
   /* ── タイポグラフィ・スケール (2026-08-09 承認: 42種→7段。丸めは収まり優先で下寄せ) ── */
   --fs-label: 10px;    /* 極小ラベル/バッジ/eyebrow */
@@ -13,18 +31,18 @@
   --fs-title: 22px;    /* ページタイトル・大見出し */
   --fs-display: 30px;  /* スコア・大きな数字 (44px超heroは個別指定) */
 
-  /* ── 文字色トークン (217種→9+2。似たグレーを意味で集約) ── */
-  --text-ink: #22303c;       /* 見出し・タイトル・強調 */
-  --text-body: #4a5766;      /* 本文 */
-  --text-sub: #6b7885;       /* 副次・ラベル・メタ */
-  --text-muted: #9aa6b3;     /* 補助・注記・プレースホルダ */
+  /* ── 文字色トークン (意味は据え置き・値だけ暗地用に) ── */
+  --text-ink: #edf1fa;       /* 見出し・タイトル・強調 */
+  --text-body: #cbd6ee;      /* 本文 */
+  --text-sub: #8fa0c4;       /* 副次・ラベル・メタ */
+  --text-muted: #5e7099;     /* 補助・注記・プレースホルダ */
   --text-on-accent: #ffffff; /* 色地の上の文字 */
-  --text-link: #2563eb;      /* リンク・ブランド青 */
-  --text-master: #b5651d;    /* マスター・金 */
-  --text-good: #2e8b57;      /* 達成・成功 */
-  --text-error: #c0392b;     /* エラー・警告 */
-  --text-expression: #a4527a;/* カルテ: 表現 (アクセント) */
-  --text-teacher: #8a6fb8;   /* カルテ: 先生 (アクセント) */
+  --text-link: #7aa7ff;      /* リンク・ブランド青 */
+  --text-master: #d9a93c;    /* マスター・金 */
+  --text-good: #5cc98a;      /* 達成・成功 */
+  --text-error: #ff7b6e;     /* エラー・警告 */
+  --text-expression: #d68fb4;/* カルテ: 表現 (アクセント) */
+  --text-teacher: #b39ae0;   /* カルテ: 先生 (アクセント) */
 }
 
 @theme inline {
@@ -34,17 +52,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
+  /* モックの端末背景 (uiv2/app.css .phone) と同じ層 */
+  background: radial-gradient(130% 70% at 85% -8%, #1a2c55 0%, var(--bg1) 46%, var(--bg0) 100%)
+    fixed var(--bg0);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic UI", Meiryo,
+    Arial, Helvetica, sans-serif;
 }
 
 /* ── グローバルなタップ感フィードバック (2026-08-11) ──
@@ -117,7 +131,7 @@ html[data-native-app] body::before {
   position: fixed;
   top: 0; left: 0; right: 0;
   height: env(safe-area-inset-top, 0px);
-  background: rgba(248, 249, 251, 0.55);
+  background: rgba(10, 17, 34, 0.55);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   z-index: 500;
@@ -126,12 +140,12 @@ html[data-native-app] body::before {
 
 /* アプリ殻: バウンス(引っ張り)やページ端で露出する背景を本文と同系色にし、白枠を見せない */
 html[data-native-app] body {
-  background: #F8FAFC;
+  background: var(--bg0);
 }
 
 /* 最外殻(html)も同色に塗る: ページ末尾のホームインジケータ帯で露出する白枠の最終層 (2026-08-16) */
 html[data-native-app] {
-  background: #F8FAFC;
+  background: var(--bg0);
 }
 
 /* ============================================================

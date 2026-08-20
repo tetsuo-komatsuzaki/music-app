@@ -13,8 +13,8 @@
 }
 
 .card {
-  background: #fff;
-  border: 0.5px solid #e0e0e0;
+  background: linear-gradient(180deg, var(--card-a), var(--card-b));
+  border: 1px solid var(--line);
   border-radius: 12px;
   padding: 16px 20px;
   animation: cardEnter 0.4s ease both;
@@ -37,8 +37,8 @@
 
 /* ───── アルコちゃんカード (最上部・主役) ───── */
 .arcoCard {
-  background: linear-gradient(135deg, #F0F7FF 0%, #FDF8E7 100%);
-  border: 1px solid #DCE7F5;
+  background: linear-gradient(135deg, rgba(122, 167, 255, 0.10) 0%, rgba(232, 178, 60, 0.10) 100%);
+  border: 1px solid var(--line);
   padding: 20px 24px;
 }
 
@@ -122,7 +122,7 @@
   background: rgba(255, 255, 255, 0.7);
   border-radius: 10px;
   padding: 14px 16px;
-  border: 0.5px solid #E5EDF7;
+  border: 1px solid var(--line);
 }
 
 /* UI-8: グレード表示セクション (アルコちゃんカード内、旧「今日のおすすめ」を置き換え) */
@@ -130,7 +130,7 @@
   background: rgba(255, 255, 255, 0.7);
   border-radius: 10px;
   padding: 14px 16px;
-  border: 0.5px solid #E5EDF7;
+  border: 1px solid var(--line);
 }
 
 .gradeRow {
@@ -153,7 +153,7 @@
   gap: 12px;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 0.5px dashed #d4dae3;
+  border-top: 1px dashed var(--line);
   flex-wrap: wrap;
 }
 
@@ -220,7 +220,7 @@
 
 .arcoCta {
   display: inline-block;
-  background: #1d4ed8;
+  background: var(--accent);
   color: var(--text-on-accent);
   text-decoration: none;
   padding: 8px 18px;
@@ -231,7 +231,7 @@
 }
 
 .arcoCta:hover {
-  background: #1e40af;
+  background: #1c3f8f;
 }
 
 /* ストリークカード */
@@ -289,7 +289,7 @@
 
 .weeklyBar {
   height: 6px;
-  background: #f0f0f0;
+  background: rgba(150, 175, 225, 0.14);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -380,8 +380,8 @@
 
 /* ───── デイリーチャレンジ ───── */
 .challengeCard {
-  background: linear-gradient(135deg, #f0faf5 0%, #e8f4ff 100%);
-  border: 0.5px solid #c8e6d8;
+  background: linear-gradient(135deg, rgba(92, 201, 138, 0.10) 0%, rgba(122, 167, 255, 0.10) 100%);
+  border: 1px solid var(--line);
 }
 
 .challengeHeader {
@@ -395,7 +395,7 @@
   font-size: var(--fs-caption);
   font-weight: 600;
   color: var(--text-good);
-  background: #c2e8d5;
+  background: rgba(92, 201, 138, 0.18);
   padding: 2px 8px;
   border-radius: 20px;
 }
@@ -448,7 +448,7 @@
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  background: #f8f9fa;
+  background: var(--card-in);
   border-radius: 8px;
   text-decoration: none;
   color: inherit;
@@ -456,7 +456,7 @@
 }
 
 .recommendItem:hover {
-  background: #f0f1f3;
+  background: rgba(150, 175, 225, 0.12);
 }
 
 .recommendIcon {
@@ -494,7 +494,7 @@
 }
 
 .historyBarList > :not(:last-child) {
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--line);
   padding-bottom: 14px;
   margin-bottom: 14px;
 }

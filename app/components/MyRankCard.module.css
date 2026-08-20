@@ -1,5 +1,5 @@
 .root {
-  --panel:#FFFFFF; --card:#FFFDF7; --ink:#2A2420; --inkSoft:#6B6258; --inkFaint:#9A9187; --line:#EAE3D8;
+  --panel:var(--card-b); --card:var(--card-in); --ink:#EDF1FA; --inkSoft:#8FA0C4; --inkFaint:#5E7099; --line:rgba(150,175,225,.14);
   --accent:#B5762E; --accentSoft:#F3E6D2; --good:#3E8E7E; --goal:#6C6BA8; --warn:#C25A3C; --gold:#E0A73C;
 }
 
@@ -85,7 +85,7 @@
 /* === modal (bottom sheet) === */
 .modal {
   /* portal で body 直下に出るため、パレット変数をここにも定義 */
-  --panel:#FFFFFF; --card:#FFFDF7; --ink:#2A2420; --inkSoft:#6B6258; --inkFaint:#9A9187; --line:#EAE3D8;
+  --panel:var(--card-b); --card:var(--card-in); --ink:#EDF1FA; --inkSoft:#8FA0C4; --inkFaint:#5E7099; --line:rgba(150,175,225,.14);
   --accent:#B5762E; --accentSoft:#F3E6D2; --good:#3E8E7E; --goal:#6C6BA8; --warn:#C25A3C; --gold:#E0A73C;
   position:fixed; inset:0; background:rgba(20,15,10,.5); display:flex; align-items:flex-end; justify-content:center; z-index:1000;
 }

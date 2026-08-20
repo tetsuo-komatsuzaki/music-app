@@ -7,8 +7,8 @@
   position: sticky;
   bottom: 0;
   z-index: 90;
-  background: #ffffff;
-  border-top: 1px solid #e4e9f2;
+  background: rgba(10, 17, 34, 0.96);   /* モック .tabbar と同値 */
+  border-top: 1px solid rgba(150, 175, 225, 0.10);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -38,13 +38,13 @@
   justify-content: center;
   gap: 4px;
   text-decoration: none;
-  color: #8b97b3;
+  color: var(--text-muted);           /* モック: 非選択 = faint */
   font-weight: 500;
   -webkit-tap-highlight-color: transparent;
 }
 
 .tab.active {
-  color: #b8862b;
+  color: var(--gold);                 /* モック: 選択 = 金 */
   font-weight: 700;
 }
 
@@ -85,5 +85,5 @@
   font-weight: 800;
   line-height: 18px;
   text-align: center;
-  border: 1.5px solid #fff;
+  border: 1.5px solid var(--bg0);
 }
