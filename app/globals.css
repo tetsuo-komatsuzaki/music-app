@@ -79,6 +79,10 @@ body {
 }
 
 /* ── 出現演出の部品 (モック app.v5.motion 相当・RevealMotion が制御) ── */
+/* v3: 最初の描画から main を隠す (layout.tsx のインラインスクリプトが立てる)。
+   モック同様「隠れた状態で始まり時差出現」を成立させるための土台。
+   解除はエンジンの下ごしらえ完了時 or 2.5秒の保険タイマー */
+html.rv-boot main { opacity: 0; }
 @property --p { syntax: "<percentage>"; initial-value: 0%; inherits: false; }
 html.rv-anim [data-anim="ring"] { transition: --p 1.4s cubic-bezier(0.2, 0.8, 0.25, 1) 0.3s; }
 html.rv-anim [data-anim="bar"] > i { width: 0 !important; transition: width 1s cubic-bezier(0.2, 0.8, 0.25, 1) 0.35s; }

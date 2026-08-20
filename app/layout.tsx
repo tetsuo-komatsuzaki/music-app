@@ -61,6 +61,16 @@ export default function RootLayout({
               'try{var c=window.Capacitor;if(c&&typeof c.isNativePlatform==="function"&&c.isNativePlatform()){document.documentElement.setAttribute("data-native-app","true")}}catch(e){}',
           }}
         />
+        {/* 出現演出 v3: サーバー描画が「先に素で見えてしまう」と出現が体感できないため、
+            最初の描画前に main を隠す (rv-boot)。演出エンジンが下ごしらえを終えた瞬間に
+            解除して時差出現に引き継ぐ。対象は生徒画面のみ (UUIDパス、teacher/admin除外)。
+            保険: エンジンが2.5秒来なければ解除して素で表示 (視差効果を減らす=ONも対象外)。 */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches&&/^\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(\\/|$)/.test(location.pathname)&&!/\\/(teacher|admin)(\\/|$)/.test(location.pathname)){var h=document.documentElement;h.classList.add("rv-boot");setTimeout(function(){h.classList.remove("rv-boot")},2500)}}catch(e){}',
+          }}
+        />
         <ArcoBootSplash />
         <NativeChrome />
         <HapticProvider />

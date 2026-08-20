@@ -93,7 +93,11 @@ export default function RevealMotion() {
       window.addEventListener("error", (e) => say("JSエラー: " + String(e.message).slice(0, 160)), { once: true })
     }
     say("演出: マウント済み")
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { say("演出: 停止 (視差効果を減らす=ON)"); return }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.documentElement.classList.remove("rv-boot")
+      say("演出: 停止 (視差効果を減らす=ON)")
+      return
+    }
     if (!document.getElementById("rv-style")) {
       const st = document.createElement("style")
       st.id = "rv-style"
@@ -141,6 +145,9 @@ export default function RevealMotion() {
 
     const prepareAll = () => {
       main().querySelectorAll<HTMLElement>(SEL).forEach(prepare)
+      // v3: ブロックの隠しが効いた次のフレームで rv-boot を解除 → main が現れると同時に
+      // 各ブロックが時差出現する (最初の描画前から隠すのは layout.tsx のインラインスクリプト)
+      requestAnimationFrame(() => document.documentElement.classList.remove("rv-boot"))
       if (debug) {
         const p2 = document.querySelectorAll("[data-rv]").length
         const on = document.querySelectorAll("[data-rv].rv-on").length
@@ -187,6 +194,7 @@ export default function RevealMotion() {
     window.addEventListener("pageshow", onShow)
 
     return () => {
+      document.documentElement.classList.remove("rv-boot")
       window.clearTimeout(t0)
       window.removeEventListener("pageshow", onShow)
       io.disconnect()
