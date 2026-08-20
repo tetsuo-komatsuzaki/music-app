@@ -71,7 +71,7 @@ function GoalRing({ full, pct, done, total }: { full?: boolean; pct?: number; do
     return <div style={{ ...base, background: "#2b5bc4" }}><b style={{ fontSize: "var(--fs-display)", fontWeight: 900, color: "var(--text-on-accent)", lineHeight: 1 }}>✓</b></div>
   }
   return (
-    <div style={{ ...base, background: `conic-gradient(var(--gold) ${pct ?? 0}%, rgba(150,175,225,.14) 0)` }}>
+    <div data-anim="ring" style={{ ...base, ["--p" as string]: `${pct ?? 0}%`, background: `conic-gradient(var(--gold) var(--p, ${pct ?? 0}%), rgba(150,175,225,.14) 0)` }}>
       <div style={{ position: "absolute", inset: 8, background: "var(--card-b)", borderRadius: "50%" }} />
       <b style={{ position: "relative", zIndex: 1, fontSize: "var(--fs-head)", fontWeight: 900, color: "var(--cream)", lineHeight: 1 }}>
         {done}<small style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)" }}>/{total}</small>
@@ -218,7 +218,7 @@ export default function GoalTracker({ achv, userId, scoreId }: { achv: Achieveme
           <div>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 8, margin: "2px 0 12px" }}>
               <span style={{ fontSize: "var(--fs-display)", fontWeight: 900, lineHeight: 0.9, color: "var(--cream)" }}>
-                {avg != null ? avg.toFixed(0) : "—"}<small style={{ fontSize: "var(--fs-subhead)", fontWeight: 800 }}>点</small>
+                <span data-anim="count">{avg != null ? avg.toFixed(0) : "—"}</span><small style={{ fontSize: "var(--fs-subhead)", fontWeight: 800 }}>点</small>
               </span>
             </div>
             <div style={{ position: "relative", paddingTop: 16 }}>
@@ -226,8 +226,8 @@ export default function GoalTracker({ achv, userId, scoreId }: { achv: Achieveme
                 90
                 <div style={{ width: 2, height: 8, background: "#d9a93c", margin: "1px auto 0" }} />
               </div>
-              <div style={{ height: 12, borderRadius: 8, background: "rgba(150,175,225,.14)", overflow: "hidden" }}>
-                <div style={{ height: "100%", borderRadius: 8, width: `${avgPct}%`, background: "#2b5bc4" }} />
+              <div data-anim="bar" style={{ height: 12, borderRadius: 8, background: "rgba(150,175,225,.14)", overflow: "hidden", ["--w" as string]: `${avgPct}%` }}>
+                <i style={{ display: "block", height: "100%", borderRadius: 8, width: `${avgPct}%`, background: "#2b5bc4" }} />
               </div>
             </div>
             <p style={{ margin: "9px 0 0", fontSize: "var(--fs-caption)", color: "var(--text-muted)", fontWeight: 600, lineHeight: 1.6 }}>

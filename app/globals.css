@@ -61,6 +61,13 @@ body {
     Meiryo, Arial, Helvetica, sans-serif;
 }
 
+
+/* ── 出現演出の部品 (モック app.v5.motion 相当・RevealMotion が制御) ── */
+@property --p { syntax: "<percentage>"; initial-value: 0%; inherits: false; }
+html.rv-anim [data-anim="ring"] { transition: --p 1.4s cubic-bezier(0.2, 0.8, 0.25, 1) 0.3s; }
+html.rv-anim [data-anim="bar"] > i { width: 0 !important; transition: width 1s cubic-bezier(0.2, 0.8, 0.25, 1) 0.35s; }
+html.rv-anim [data-anim="bar"].rv-go > i { width: var(--w) !important; }
+
 /* ── グローバルなタップ感フィードバック (2026-08-11) ──
    全操作要素が「押した瞬間に軽く沈む」。transform ベースでレイアウトは動かさない。
    崩れる要素が出たら、その要素に .noPress を付けて除外する。 */

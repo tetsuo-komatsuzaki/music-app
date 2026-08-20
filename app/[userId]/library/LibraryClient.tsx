@@ -107,7 +107,7 @@ export default function LibraryClient({
       </div>
 
       {planNotice && (
-        <div className={styles.notice} role="status">
+        <div className={styles.notice} data-anim="block" role="status">
           <b>楽譜のアップロードはプラス限定の機能です</b>
           <span>自分の楽譜を取り込むと、その曲も採点できるようになります。</span>
           {canShowBillingEntryPoint() ? (
@@ -141,7 +141,7 @@ export default function LibraryClient({
           <h2 className={styles.sectionTitleTop}>カテゴリから探す</h2>
           <div className={styles.catGrid}>
             {categories.map((c) => (
-              <Link key={c.category} href={`${base}/practice/${c.category}`} className={styles.catCard} data-empty={c.count === 0}>
+              <Link key={c.category} href={`${base}/practice/${c.category}`} className={styles.catCard} data-anim="block" data-empty={c.count === 0}>
                 <span className={styles.catName}>{categoryLabel(c.category)}</span>
                 <span className={styles.catMeta}>
                   <span className={styles.catCount}>{c.count}曲</span>
@@ -151,7 +151,7 @@ export default function LibraryClient({
             ))}
           </div>
 
-          <Link href={`${base}/lessons`} className={styles.lessonCard}>
+          <Link href={`${base}/lessons`} className={styles.lessonCard} data-anim="block">
             <span className={styles.lessonIcon}><BookOpen size={19} /></span>
             <span className={styles.lessonBody}>
               <b>学びのレッスン</b>
@@ -164,13 +164,13 @@ export default function LibraryClient({
 
       {tab === "mine" && (
         <section className={styles.list}>
-          <button type="button" className={styles.uploadBox} onClick={onUpload}>
+          <button type="button" className={styles.uploadBox} data-anim="block" onClick={onUpload}>
             <Upload size={22} />
             <b>自分の楽譜をアップロード</b>
             <span>取り込むと、その曲も採点できるようになります</span>
           </button>
           {ownScoreCount === 0 ? (
-            <p className={styles.mineEmpty}>まだ取り込んだ楽譜はありません。</p>
+            <p className={styles.mineEmpty} data-anim="block">まだ取り込んだ楽譜はありません。</p>
           ) : (
             minePieces.map((p) => <PieceRow key={p.id} p={p} base={base} />)
           )}
@@ -182,7 +182,7 @@ export default function LibraryClient({
 
 function PieceRow({ p, base }: { p: LibraryPiece; base: string }) {
   return (
-    <Link href={`${base}/scores/${p.id}`} className={styles.row}>
+    <Link href={`${base}/scores/${p.id}`} className={styles.row} data-anim="block">
       <span className={styles.rowBody}>
         <span className={styles.rowTitle}>{p.title}</span>
         <span className={styles.rowSub}>
@@ -204,7 +204,7 @@ function PieceRow({ p, base }: { p: LibraryPiece; base: string }) {
 
 function EmptyState({ title, body, href, cta }: { title: string; body: string; href: string; cta: string }) {
   return (
-    <div className={styles.empty}>
+    <div className={styles.empty} data-anim="block">
       <b>{title}</b>
       <span>{body}</span>
       <Link href={href} className={styles.emptyCta}>{cta}</Link>

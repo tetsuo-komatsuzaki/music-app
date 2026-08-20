@@ -87,3 +87,8 @@
   text-align: center;
   border: 1.5px solid var(--bg0);
 }
+
+/* 選択タブのアイコンは金のグロー (モック v2 .tabbar a.on svg) */
+.tab.active .iconWrap svg {
+  filter: drop-shadow(0 0 6px rgba(232, 178, 60, 0.7));
+}

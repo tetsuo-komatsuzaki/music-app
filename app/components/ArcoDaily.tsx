@@ -75,9 +75,19 @@ export default function ArcoDaily() {
   const pose = POSES[i]
  const comment = COMMENTS[pose.id] ?? "今日もいっしょに練習しよう"
 
+  const next = () => setI((v) => (v + 1) % POSES.length)
   return (
-    // モック 追01 (ARCO_CARD) の写経: カード + ラベル + アルコ92px + 吹き出し
-    <div className={ds.card} data-onboarding="home.arcoCard" aria-label="アルコちゃんの一言">
+    // モック 追01 (ARCO_CARD) の写経: カード + ラベル + アルコ92px + 吹き出し + タップで次のポーズ
+    <div
+      className={`${ds.card} pressable`}
+      data-onboarding="home.arcoCard"
+      aria-label="アルコちゃんの一言"
+      onClick={next}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); next() } }}
+      style={{ cursor: "pointer" }}
+    >
       <div className={ds.lab}>アルコちゃんの一言</div>
       <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 10 }}>
         <div style={{ width: 92, height: 92, borderRadius: 20, flex: "none", overflow: "hidden" }}>
@@ -92,6 +102,7 @@ export default function ArcoDaily() {
           >
             <div style={{ fontSize: 13.5, fontWeight: 800, lineHeight: 1.7, color: "var(--text-ink)" }}>{comment}</div>
           </div>
+          <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 7 }}>タップで つぎのポーズ</div>
         </div>
       </div>
     </div>

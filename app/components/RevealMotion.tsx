@@ -7,6 +7,7 @@
 // 楽譜 (OSMD) の中はいじらない。
 import { useEffect } from "react"
 import { usePathname } from "next/navigation"
+import ds from "./ds.module.css"
 
 const GAP_BLOCK = 130
 const GAP_ITEM = 95
@@ -25,11 +26,11 @@ html.rv-anim [data-rv].rv-on { opacity: 1; transform: none; }
 }
 `
 
-function isBlock(el: Element): boolean {
-  if (el.tagName === "H1") return true
-  const cls = typeof el.className === "string" ? el.className : ""
-  return /(^|[ _])card|__card|seg|letter/i.test(cls)
-}
+// 対象の決め方 (演出要件v1.1 data-anim方式):
+//   1. data-anim="block" を明示した要素
+//   2. デザインシステムの card / seg (= モックのエンジンが対象にしていたクラスの実体)
+//   3. h1 (見出し)
+// クラス名の部分一致による推測はしない。
 
 export default function RevealMotion() {
   const pathname = usePathname()
@@ -49,9 +50,9 @@ export default function RevealMotion() {
     const start = window.setTimeout(() => {
       const main = document.querySelector("main") ?? document.body
       // 塊: 本文直系のカード・見出し。楽譜の中は対象外
-      const blocks = [...main.querySelectorAll("h1, div, section, a")].filter(
+      const sel = `h1, [data-anim="block"], .${ds.card}, .${ds.seg}`
+      const blocks = [...main.querySelectorAll(sel)].filter(
         (el) =>
-          isBlock(el) &&
           !el.closest("[id^='osmd']") &&
           !el.parentElement?.closest("[data-rv]") &&
           (el as HTMLElement).offsetHeight > 0,
@@ -68,7 +69,10 @@ export default function RevealMotion() {
         t += GAP_BLOCK
         // 項目: 塊の直下の行 (モックの GAP_ITEM)
         const kids = [...el.children].filter(
-          (k) => (k as HTMLElement).offsetHeight > 0 && !k.querySelector("[id^='osmd']"),
+          (k) =>
+            (k as HTMLElement).offsetHeight > 0 &&
+            !k.classList.contains(ds.lab) &&
+            !k.querySelector("[id^='osmd']"),
         ) as HTMLElement[]
         if (kids.length > 1) {
           let ti = t + LEAD_IN
@@ -93,6 +97,33 @@ export default function RevealMotion() {
       raf = requestAnimationFrame(() => {
         raf = requestAnimationFrame(() => {
           for (const el of marked) el.classList.add("rv-on")
+          // リング: --p を 0% から目標へ (globals の transition が効く)
+          main.querySelectorAll<HTMLElement>('[data-anim="ring"]').forEach((r) => {
+            const target = r.style.getPropertyValue("--p") || "0%"
+            r.style.setProperty("--p", "0%")
+            window.setTimeout(() => r.style.setProperty("--p", target), 80)
+          })
+          // バー: 0 → --w
+          main.querySelectorAll<HTMLElement>('[data-anim="bar"]').forEach((el2) => {
+            window.setTimeout(() => el2.classList.add("rv-go"), 60)
+          })
+          // 数字のカウントアップ (子タグ入りは対象外 = Lv.7 の守り)
+          main.querySelectorAll<HTMLElement>('[data-anim="count"]').forEach((n) => {
+            if (n.children.length > 0) return
+            const txt = (n.textContent ?? "").trim()
+            const m2 = txt.match(/^(\D*)(\d+)(\D*)$/)
+            if (!m2) return
+            const t2 = +m2[2], pre = m2[1], post = m2[3]
+            const s0 = performance.now(), du = 1150 + Math.min(t2, 100) * 4
+            const step = (now: number) => {
+              const pr = Math.min(1, (now - s0) / du)
+              const q = 1 - Math.pow(1 - pr, 3)
+              n.textContent = pre + Math.round(t2 * q) + post
+              if (pr < 1) requestAnimationFrame(step)
+              else n.textContent = txt
+            }
+            requestAnimationFrame(step)
+          })
         })
       })
       // 終わったら痕跡を消す (再遷移時に作り直す)

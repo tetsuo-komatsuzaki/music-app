@@ -138,7 +138,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
           <span>つぎのランクまで</span>
           <span style={{ color: "var(--gold)", fontWeight: 800 }}>★{nextStar}をあと{remaining}曲</span>
         </div>
-        <div className={`${ds.bar} ${ds.gold}`} style={{ marginTop: 7 }}>
+        <div className={`${ds.bar} ${ds.gold}`} data-anim="bar" style={{ marginTop: 7, ["--w" as string]: `${Math.round((achievedCount / Math.max(1, required)) * 100)}%` }}>
           <i style={{ width: `${Math.round((achievedCount / Math.max(1, required)) * 100)}%` }} />
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 9 }}>
