@@ -461,11 +461,14 @@ export default function RevealMotion() {
     })
     mo.observe(main(), { childList: true, subtree: true })
 
-    // Safari の Back/Forward キャッシュ復元でも再生し直す
+    // Safari の Back/Forward キャッシュ復元でも再生し直す。
+    // 巻き戻しは原本どおり必ず noTx の中で行う (規約6条: 手順の1対1)
     const onShow = (e: PageTransitionEvent) => {
       if (!e.persisted) return
+      const m0 = main()
+      m0.classList.add("rv-notx")                                     // ① 動きを止める
       document.querySelectorAll<HTMLElement>("[data-rv], [data-rvi]").forEach((el) => {
-        el.classList.remove("rv-on")
+        el.classList.remove("rv-on")                                  // ② 巻き戻し
         delete el.dataset.rv
         delete el.dataset.rvi
         el.style.removeProperty("--rvd")
@@ -475,7 +478,11 @@ export default function RevealMotion() {
         el.classList.remove("rv-go")
       })
       document.querySelectorAll<HTMLElement>(".rv-settled").forEach((el) => el.classList.remove("rv-settled"))
-      window.setTimeout(prepareAll, 40)
+      window.setTimeout(() => {
+        prepareAll()
+        void m0.offsetWidth                                           // ③ 隠れた状態を確定
+        requestAnimationFrame(() => m0.classList.remove("rv-notx"))   // ④ 動きを戻す → IOが⑤発火
+      }, 40)
     }
     window.addEventListener("pageshow", onShow)
 
