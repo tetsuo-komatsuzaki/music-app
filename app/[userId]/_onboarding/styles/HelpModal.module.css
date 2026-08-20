@@ -11,7 +11,7 @@
 }
 
 .dialog {
-  background: #fff;
+  background: #0d1b33;
   width: 100%;
   max-width: 720px;
   max-height: 100vh;
@@ -36,7 +36,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 18px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(150,175,225,.16);
   flex-shrink: 0;
 }
 
@@ -69,7 +69,7 @@
 }
 
 .closeButton:hover {
-  background: #f0f0f0;
+  background: rgba(150,175,225,.16);
 }
 
 .content {
@@ -92,11 +92,11 @@
   font-size: var(--fs-subhead);
   font-weight: 800;
   /* 配色統一 案1 (2026-08-16): 見出しと下線を青基調に */
-  color: #1f3d78;
+  color: #7aa7ff;
   letter-spacing: .01em;
   margin: 0;
   padding-bottom: 6px;
-  border-bottom: 1px solid #d9e3f4;
+  border-bottom: 1px solid rgba(150,175,225,.20);
 }
 
 .sectionIntro {
@@ -126,10 +126,10 @@
 /* ② マーカー凡例 */
 /* 譜面マーカー凡例 — 1枚のカードに行を並べ、色ドット＋意味＋説明 (2026-07-28 刷新) */
 .legendList {
-  border: 1px solid #eef1f4;
+  border: 1px solid rgba(150,175,225,.18);
   border-radius: 14px;
   overflow: hidden;
-  background: #fff;
+  background: #0d1b33;
   box-shadow: 0 1px 3px rgba(30, 45, 70, 0.05);
 }
 
@@ -140,7 +140,7 @@
   padding: 12px 15px;
 }
 .legendCard + .legendCard {
-  border-top: 1px solid #f1f3f5;
+  border-top: 1px solid rgba(150,175,225,.16);
 }
 
 /* 譜面マーカーと同じ質感のカラードット */
@@ -179,7 +179,7 @@
   font-size: var(--fs-body);
   font-weight: 700;
   color: var(--text-body);
-  background: #f4f6f8;
+  background: var(--card-in);
   border: 1px solid #e4e8ec;
   border-radius: 10px;
   padding: 10px 13px;
@@ -199,7 +199,7 @@
   grid-template-columns: 28px 1fr auto;
   gap: 12px;
   padding: 10px 14px;
-  background: #fff;
+  background: #0d1b33;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   align-items: center;
@@ -241,7 +241,7 @@
 }
 
 .pageGuideButton:hover:not(:disabled) {
-  background: #f0f6fa;
+  background: rgba(150,175,225,.12);
 }
 
 .pageGuideButton:disabled {
@@ -263,14 +263,14 @@
 }
 
 .faqItem {
-  background: #fff;
+  background: #0d1b33;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 12px 14px;
 }
 
 .faqItem[open] {
-  background: #f7f9fc;
+  background: #0a1730;
   border-color: #d0d8e0;
 }
 
@@ -325,7 +325,7 @@
 
 .troubleshootItem {
   padding: 10px 14px;
-  background: #fff;
+  background: #0d1b33;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
 }

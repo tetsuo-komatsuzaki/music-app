@@ -32,7 +32,7 @@
 
 .tooltip {
   position: fixed;
-  background: #fff;
+  background: #0d1b33;
   border-radius: 12px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
   z-index: 1902;
@@ -49,7 +49,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #fff;
+  background: #0d1b33;
   border-radius: 12px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
   z-index: 1902;
@@ -110,7 +110,7 @@
   align-items: center;
   gap: 10px;
   padding: 6px 10px;
-  background: #f7f9fc;
+  background: #0a1730;
   border-radius: 6px;
   font-size: var(--fs-body);
 }
@@ -141,7 +141,7 @@
 /* フッター */
 .footer {
   padding: 10px 14px 12px 14px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid rgba(150,175,225,.16);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -204,8 +204,8 @@
   transform: translateX(-50%);
   z-index: 1903;
   pointer-events: none;
-  background: #ffd166;
-  color: var(--text-master);
+  background: rgba(232,178,60,.9);
+  color: #201604;
   font-size: var(--fs-body);
   font-weight: 800;
   border-radius: 999px;
@@ -217,8 +217,8 @@
   font-size: var(--fs-body);
   font-weight: 700;
   color: var(--text-master);
-  background: #fff6e0;
-  border: 1px solid #f2dfae;
+  background: rgba(232,178,60,.16);
+  border: 1px solid rgba(232,178,60,.34);
   border-radius: 999px;
   padding: 7px 13px;
 }
@@ -285,7 +285,7 @@
 }
 
 .navButton:hover:not(:disabled) {
-  background: #f7f9fc;
+  background: #0a1730;
 }
 
 .navButton:disabled {

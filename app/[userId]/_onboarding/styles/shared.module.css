@@ -13,7 +13,7 @@
 
 /* モーダル汎用コンテナ (既存 DeleteAccountModal の .modalContent パターン踏襲) */
 .modalContainer {
-  background: #fff;
+  background: #0d1b33;
   border-radius: 12px;
   max-width: 480px;
   width: 100%;
@@ -59,7 +59,7 @@
 }
 
 .secondaryButton:hover {
-  background: #f0f6fa;
+  background: rgba(150,175,225,.12);
 }
 
 /* テキストボタン (スキップ等) */
