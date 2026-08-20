@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Zen_Kaku_Gothic_New } from "next/font/google";
 import "./globals.css";
 import HapticProvider from "./components/HapticProvider";
 import NativeChrome from "./components/NativeChrome";
@@ -13,6 +13,16 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// モックの書体 (uiv2/app.css --sans)。ダーク全面刷新でアプリ本文もこれに統一
+const zenKaku = Zen_Kaku_Gothic_New({
+  variable: "--font-zen-kaku",
+  weight: ["400", "500", "700", "900"],
+  // 日本語はプリロード対象外のため subsets 指定なし + preload:false で
+  // 全スライスを unicode-range 配信にする (これで漢字かなが Zen Kaku になる)
+  preload: false,
+  display: "swap",
 });
 
 // viewportFit: "cover" はアプリ殻(ノッチ端末)で env(safe-area-inset-*) を有効にするため必須。
@@ -40,7 +50,7 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${zenKaku.variable} antialiased`}
       >
         {/* アプリ殻では起動直後(ハイドレーション前)から data-native-app を立てる。
             Capacitorブリッジは document start で注入済みなので同期判定できる。

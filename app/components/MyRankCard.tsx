@@ -8,7 +8,7 @@ import styles from "./MyRankCard.module.css"
 import ds from "./ds.module.css"
 import { ArcoChan, POSES } from "./ArcoChan"
 import {
-  rankName, perfRank, stampComment, cheerForCount, shortDate, cardTier,
+  rankName, perfRank, stampComment, cheerForCount, shortDate,
   type RankCardData,
 } from "@/app/_libs/rankCard"
 
@@ -109,7 +109,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
         role="button"
         tabIndex={0}
         data-onboarding="home.rankCard"
-        className={`${ds.card} ${styles[cardTier(currentStar)]} pressable`}
+        className={`${ds.card} pressable`}
         onClick={() => setOpen(true)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true) } }}
         style={{ cursor: "pointer" }}

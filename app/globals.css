@@ -57,8 +57,8 @@ body {
   background: radial-gradient(130% 70% at 85% -8%, #1a2c55 0%, var(--bg1) 46%, var(--bg0) 100%)
     fixed var(--bg0);
   color: var(--foreground);
-  font-family: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic UI", Meiryo,
-    Arial, Helvetica, sans-serif;
+  font-family: var(--font-zen-kaku), "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic UI",
+    Meiryo, Arial, Helvetica, sans-serif;
 }
 
 /* ── グローバルなタップ感フィードバック (2026-08-11) ──
