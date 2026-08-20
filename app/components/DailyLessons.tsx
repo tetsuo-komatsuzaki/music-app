@@ -281,7 +281,8 @@ function IntroModal({ lesson, href, onClose }: { lesson: DailyLesson; href: stri
         <Link
           href={href}
           onClick={onClose}
-          style={{ display: "block", marginTop: 14, textAlign: "center", textDecoration: "none", fontSize: 15, fontWeight: 900, color: "#201604", background: "linear-gradient(180deg,#e8b23c,#d2992c)", borderRadius: 20, padding: 15 }}
+          className={ds.cta}
+          style={{ marginTop: 14 }}
         >
           この練習をひらく
         </Link>

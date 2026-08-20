@@ -62,6 +62,22 @@ body {
 }
 
 
+
+/* ── v2演出レイヤーの共有キーフレーム (appv2motion.css の値そのまま) ── */
+@keyframes sweepX { 0%, 55% { left: -60%; } 100% { left: 140%; } }
+@keyframes barPulse {
+  0%, 100% { transform: scaleY(0.82); filter: brightness(0.9); }
+  50% { transform: scaleY(1.06); filter: brightness(1.12); }
+}
+@keyframes hotPulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(232,178,60,.85), 0 0 4px rgba(232,178,60,.9); }
+  50% { box-shadow: 0 0 26px rgba(232,178,60,1), 0 0 8px rgba(232,178,60,1); }
+}
+@keyframes recBreathe {
+  0%, 100% { box-shadow: 0 12px 26px rgba(232,178,60,.35), 0 0 0 0 rgba(232,178,60,.35); }
+  60% { box-shadow: 0 12px 26px rgba(232,178,60,.35), 0 0 0 16px rgba(232,178,60,0); }
+}
+
 /* ── 出現演出の部品 (モック app.v5.motion 相当・RevealMotion が制御) ── */
 @property --p { syntax: "<percentage>"; initial-value: 0%; inherits: false; }
 html.rv-anim [data-anim="ring"] { transition: --p 1.4s cubic-bezier(0.2, 0.8, 0.25, 1) 0.3s; }

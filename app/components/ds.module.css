@@ -90,6 +90,7 @@
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
+  text-shadow: 0 0 24px rgba(255, 243, 220, 0.28); /* v2: クリーム数字の淡いグロー */
 }
 
 .pill {
@@ -109,6 +110,20 @@
   background: #0e1830;
   color: var(--gold);
   border: 1px solid rgba(232, 178, 60, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+/* v2: 金要素の光沢スイープ */
+.pill.ink::after {
+  content: "";
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: -60%;
+  width: 40%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-18deg);
+  animation: sweepX 3.4s ease-in-out infinite;
 }
 
 .bar {
@@ -121,6 +136,16 @@
   display: block;
   height: 100%;
   border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+}
+/* v2: 進捗バーに流れる光 */
+.bar i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.35), transparent 70%);
+  animation: sweepX 2.8s ease-in-out infinite;
 }
 .bar.gold i { background: linear-gradient(90deg, #f0c25c, var(--gold-2)); }
 .bar.teal i { background: var(--teal); }
@@ -180,4 +205,79 @@
   display: grid;
   place-items: center;
   text-align: center;
+}
+
+/* 手紙カード (uiv2 .letter + v2の金縁グロー)。暗地に1枚だけ明るい紙 */
+.letter {
+  background: linear-gradient(180deg, #fff9ec, var(--cream));
+  color: #43351b;
+  border-radius: 18px;
+  padding: 16px 18px;
+  margin-top: 14px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(217, 169, 60, 0.18),
+    0 0 44px rgba(255, 243, 220, 0.07);
+}
+.letter .from {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #a9833b;
+  margin-bottom: 7px;
+}
+.letter p {
+  font-size: 13.5px;
+  line-height: 1.9;
+  font-weight: 600;
+}
+
+/* 波形バーの律動 (v2 barPulse/hotPulse)。.wave の中の i に適用 */
+.wave i {
+  transform-origin: center;
+  animation: barPulse 2.6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.22s);
+}
+.wave i.hot {
+  animation: barPulse 2.6s ease-in-out infinite, hotPulse 1.8s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.22s), 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar i::after, .pill.ink::after, .wave i { animation: none; }
+  .bigN { text-shadow: none; }
+}
+
+/* 金のCTA (モックの「この練習をひらく」等) + v2の光沢スイープ */
+.cta {
+  display: block;
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 900;
+  color: #201604;
+  background: linear-gradient(180deg, #e8b23c, #d2992c);
+  border: none;
+  border-radius: 20px;
+  padding: 15px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  font-family: inherit;
+}
+.cta::after {
+  content: "";
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: -60%;
+  width: 40%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-18deg);
+  animation: sweepX 3.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta::after { animation: none; }
 }

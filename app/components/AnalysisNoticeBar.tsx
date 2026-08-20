@@ -60,7 +60,6 @@ export default function AnalysisNoticeBar({ userId, notices }: { userId: string;
     <>
       <style>{`
         @keyframes anbBlink { 0%,100%{ opacity:1 } 50%{ opacity:.15 } }
-        @keyframes anbVu { 0%,100%{ transform:scaleY(.35) } 30%{ transform:scaleY(1) } 60%{ transform:scaleY(.6) } }
       `}</style>
 
       {/* 完了: モック notice("done") */}
@@ -107,7 +106,8 @@ export default function AnalysisNoticeBar({ userId, notices }: { userId: string;
                     key={i}
                     style={{
                       flex: 1, background: "var(--gold)", borderRadius: 1, height: `${h}%`,
-                      transformOrigin: "bottom", animation: `anbVu 1s ease-in-out ${i * 0.13}s infinite`,
+                      transformOrigin: "center", animation: "barPulse 2.6s ease-in-out infinite",
+                      animationDelay: `${i * -0.22}s`,
                     }}
                   />
                 ))}
