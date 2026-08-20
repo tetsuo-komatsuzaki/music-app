@@ -213,35 +213,52 @@ function IntroModal({ lesson, href, onClose }: { lesson: DailyLesson; href: stri
   const col = CAT_COLOR[lesson.category] ?? DEFAULT_COLOR
   const copy = copyFor(lesson.reason, lesson.detail)
   const pose = POSES.find((p) => p.cat === "説明") ?? POSES[0]
+  // 閉じるときも ぬるっと消えてから外す (2026-08-20 Tetsuo指示)
+  const [closing, setClosing] = useState(false)
+  const close = () => {
+    if (closing) return
+    setClosing(true)
+    window.setTimeout(onClose, 380)
+  }
 
   return createPortal(
     <div
-      onClick={onClose}
+      onClick={close}
       role="dialog"
       aria-modal="true"
       aria-label={`${lesson.label} の練習紹介`}
       style={{ position: "fixed", inset: 0, zIndex: 1000 }}
     >
-      {/* モック SHEET_TOP を土台に、背景と同化しないよう分離を強化 (2026-08-20 Tetsuo指示):
-          覆い=深く+すりガラス / シート=一段明るいネイビー面+浮き影。ネイビー一族の中で階調を変える */}
-      <div style={{ position: "absolute", inset: 0, background: "rgba(4,8,18,.66)", backdropFilter: "blur(7px)", WebkitBackdropFilter: "blur(7px)" }} />
+      {/* 2026-08-20 Tetsuo指示: 画面下と繋がるシートをやめ「浮かぶカード」に。
+          出入りは ぬるっと (フェード + ゆっくり立ち上がる)。覆いは深く+すりガラスで背景と分離 */}
+      <style>{`
+        @keyframes introVeilIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes introCardIn { from { opacity: 0; transform: translateY(34px); } to { opacity: 1; transform: none; } }
+      `}</style>
+      <div
+        style={{
+          position: "absolute", inset: 0, background: "rgba(4,8,18,.66)",
+          backdropFilter: "blur(7px)", WebkitBackdropFilter: "blur(7px)",
+          animation: closing ? "none" : "introVeilIn .5s cubic-bezier(.22,.9,.24,1) both",
+          ...(closing ? { opacity: 0, transition: "opacity .38s ease" } : {}),
+        }}
+      />
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          position: "absolute", left: 0, right: 0, bottom: 0, top: 108,
+          position: "absolute", left: 14, right: 14,
+          bottom: "calc(16px + env(safe-area-inset-bottom))", maxHeight: "76vh",
           background: "linear-gradient(180deg,#213459,#14213d)",
-          borderRadius: "24px 24px 0 0", borderTop: "1px solid rgba(150,175,225,.30)",
-          boxShadow: "0 -20px 60px rgba(0,0,0,.6)",
-          padding: "0 18px 18px", overflowY: "auto",
+          borderRadius: 24, border: "1px solid rgba(150,175,225,.30)",
+          boxShadow: "0 24px 60px rgba(0,0,0,.6)",
+          padding: "16px 18px 18px", overflowY: "auto",
+          animation: closing ? "none" : "introCardIn .55s cubic-bezier(.22,.9,.24,1) both",
+          ...(closing ? { opacity: 0, transform: "translateY(24px)", transition: "opacity .38s ease, transform .38s cubic-bezier(.22,.9,.24,1)" } : {}),
         }}
       >
-        <div style={{ position: "sticky", top: 0, background: "#213459", padding: "10px 0 8px", zIndex: 2 }}>
-          <div style={{ width: 38, height: 4, borderRadius: 3, background: "rgba(150,175,225,.28)", margin: "0 auto" }} />
-        </div>
-
         {/* ヘッダー: アルコ + 練習名 + スロット */}
-        <div style={{ position: "relative", display: "flex", alignItems: "flex-start", gap: 11, marginTop: 6 }}>
-          <button type="button" onClick={onClose} aria-label="閉じる" style={{ position: "absolute", top: 0, right: 0, border: "none", background: "transparent", fontSize: "var(--fs-subhead)", lineHeight: 1, cursor: "pointer", color: "var(--text-muted)" }}>×</button>
+        <div style={{ position: "relative", display: "flex", alignItems: "flex-start", gap: 11 }}>
+          <button type="button" onClick={close} aria-label="閉じる" style={{ position: "absolute", top: 0, right: 0, border: "none", background: "transparent", fontSize: "var(--fs-subhead)", lineHeight: 1, cursor: "pointer", color: "var(--text-muted)" }}>×</button>
           <span style={{ width: 44, height: 44, flex: "none", borderRadius: 13, background: col.bg, display: "grid", placeItems: "center", overflow: "hidden" }}>
             <span style={{ width: 40, height: 40 }}><ArcoChan pose={pose as unknown as Parameters<typeof ArcoChan>[0]["pose"]} /></span>
           </span>
@@ -289,7 +306,7 @@ function IntroModal({ lesson, href, onClose }: { lesson: DailyLesson; href: stri
           この練習をひらく
         </Link>
         <div style={{ textAlign: "center", marginTop: 12 }}>
-          <button type="button" onClick={onClose} style={{ border: "none", background: "transparent", fontSize: 12, fontWeight: 800, color: "var(--text-sub)", cursor: "pointer" }}>とじる</button>
+          <button type="button" onClick={close} style={{ border: "none", background: "transparent", fontSize: 12, fontWeight: 800, color: "var(--text-sub)", cursor: "pointer" }}>とじる</button>
         </div>
       </div>
     </div>,

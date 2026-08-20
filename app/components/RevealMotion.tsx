@@ -1,72 +1,161 @@
 "use client"
 
-// 出現演出 — モックの演出エンジン app.v5.motion.js の移植 v2 (2026-08-20)。
-// 三層の原則 (演出要件v1.1)。値はモックと同じ GAP_ITEM=95 / LEAD_IN=170。
+// 出現演出 — モックの演出エンジンの移植 v4 (2026-08-20)。
+// 原本: uiv2/app.v3.motion.css (葉っぱ層) + app.v5.motion.js (時間軸)。値は変えない。
 //
-// v1 は「読み込み直後に一括再生・一度きり」で、実機で動かない穴が2つあった:
-//   ・Safari の Back/Forward キャッシュ復元では effect が走らず静止のまま
-//   ・画面外のブロックは再生済み扱いになり、スクロールしても動かない
-// v2 はモック同様「ブロックが見えたときに発火」(IntersectionObserver)。
-// 遅延描画 (fetch後のブロック) は MutationObserver で拾って同じ流儀で発火。
-// prefers-reduced-motion では何もしない。楽譜 (OSMD) の中はいじらない。
+// v5 の設計 (原本コメントより):
+//   画面の中身を上から順に一本の時間軸に並べ直す。
+//     ① カードの枠が出る (起き上がり: 22px + scale .985)
+//     ② 中の項目が1つずつ出る (GAP_ITEM=95ms)
+//     ③ その項目の★・チェック・バー・数字が灯る
+//   ★やバーの待ち時間は「自分が乗っている項目が出た時刻 (--base)」起点。
+//   項目より先に中身が光る事故を構造的に防ぐ。
 //
-// 対象の決め方 (演出要件v1.1 data-anim方式):
-//   1. data-anim="block" を明示した要素
-//   2. デザインシステムの card / seg (= モックのエンジンが対象にしていたクラスの実体)
-//   3. h1 (見出し)
-// クラス名の部分一致による推測はしない。
+// 葉っぱの待ち時間 (v5 の後勝ち規則そのまま):
+//   ★ = base+240 + n*105 (1個ずつ・starPop) / 消えた★は starFade
+//   チェック丸 = base+130、✓の線 = base+260 (描かれる)
+//   番号丸 = base+150 / ピル = base+170 + n*70 / バー = base+200
+//   リング = base+200 / 数字のカウント開始 = base+230 (終わりに一度弾む)
+//
+// アプリへの適応 (モックとの差はここだけ):
+//   ・モックは1画面を丸ごと再生。アプリは最初の画面内のブロックに
+//     累積オフセット (GAP_BLOCK=130 + 中身の長さ、上限3200で圧縮) を配り、
+//     スクロールで後から見えたブロックは自分の時間軸 0 から再生 (IntersectionObserver)。
+//   ・折れ線の自動判別 (drawLine/dotA) は本物イラスト (ArcoChan等) を壊すため
+//     data-anim="chart" を付けたSVGだけに限定 (モックの .appfig 除外と同じ意図)。
+//   ・prefers-reduced-motion では何もしない。楽譜 (OSMD) の中はいじらない。
 import { useEffect } from "react"
 import { usePathname } from "next/navigation"
 import ds from "./ds.module.css"
 
 const GAP_ITEM = 95
 const LEAD_IN = 170
+const GAP_BLOCK = 130
+const CAP = 3200
 
 const CSS = `
 html.rv-anim [data-rv] {
   opacity: 0;
-  transform: translateY(16px);
-  transition: opacity .7s ease var(--rvd, 0s), transform .7s cubic-bezier(.2,.8,.25,1) var(--rvd, 0s);
+  transform: translateY(22px) scale(.985);
+  transform-origin: 50% 100%;
+  transition: opacity .62s cubic-bezier(.2,.8,.25,1) var(--rvd, 0ms),
+              transform .72s cubic-bezier(.18,.9,.22,1) var(--rvd, 0ms);
 }
 html.rv-anim [data-rv].rv-on { opacity: 1; transform: none; }
+html.rv-anim [data-rv] [data-rvi] {
+  opacity: 0;
+  transform: translateY(9px);
+  transition: opacity .46s cubic-bezier(.2,.8,.25,1) var(--rvd, 0ms),
+              transform .52s cubic-bezier(.18,.9,.22,1) var(--rvd, 0ms);
+}
+html.rv-anim [data-rv].rv-on [data-rvi] { opacity: 1; transform: none; }
+
+/* ★ 1つずつ灯る */
+html.rv-anim [data-rv] .rv-star { display: inline-block; opacity: 0; transform: scale(.3) rotate(-25deg); }
+html.rv-anim [data-rv].rv-on .rv-star {
+  animation: rvStarPop .52s cubic-bezier(.34,1.56,.64,1) forwards;
+  animation-delay: calc(var(--base, 0ms) + 240ms + var(--si, 0) * 105ms);
+}
+html.rv-anim [data-rv].rv-on .rv-star.rv-off { animation-name: rvStarFade; }
+@keyframes rvStarPop {
+  0% { opacity: 0; transform: scale(.3) rotate(-25deg); }
+  60% { opacity: 1; transform: scale(1.25) rotate(4deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes rvStarFade { to { opacity: 1; transform: scale(1); } }
+
+/* チェック: 丸が開き ✓ が描かれる */
+html.rv-anim [data-rv] .${ds.chk} { transform: scale(.5); opacity: 0; }
+html.rv-anim [data-rv].rv-on .${ds.chk} {
+  animation: rvChkIn .46s cubic-bezier(.34,1.56,.64,1) forwards;
+  animation-delay: calc(var(--base, 0ms) + 130ms);
+}
+@keyframes rvChkIn { to { transform: scale(1); opacity: 1; } }
+html.rv-anim [data-rv] .${ds.chk} svg path, html.rv-anim [data-rv] .${ds.chk} svg polyline { stroke-dasharray: 26; stroke-dashoffset: 26; }
+html.rv-anim [data-rv].rv-on .${ds.chk} svg path, html.rv-anim [data-rv].rv-on .${ds.chk} svg polyline {
+  animation: rvTick .5s cubic-bezier(.2,.9,.25,1) forwards;
+  animation-delay: calc(var(--base, 0ms) + 260ms);
+}
+@keyframes rvTick { to { stroke-dashoffset: 0; } }
+
+/* 未完了の番号: 静かに */
+html.rv-anim [data-rv] .${ds.todo} { opacity: 0; }
+html.rv-anim [data-rv].rv-on .${ds.todo} { animation: rvFadeIn .5s ease calc(var(--base, 0ms) + 150ms) forwards; }
+@keyframes rvFadeIn { to { opacity: 1; } }
+
+/* ピル: ふわり */
+html.rv-anim [data-rv] .${ds.pill} { opacity: 0; transform: translateY(6px); }
+html.rv-anim [data-rv].rv-on .${ds.pill} {
+  animation: rvPillIn .5s cubic-bezier(.2,.9,.25,1) forwards;
+  animation-delay: calc(var(--base, 0ms) + 170ms + var(--pd, 0) * 70ms);
+}
+@keyframes rvPillIn { to { opacity: 1; transform: none; } }
+
+/* 数字: 上げ切ったあとに一度だけ弾む */
+html.rv-anim .rv-settled { animation: rvSettle .42s cubic-bezier(.34,1.56,.64,1); }
+@keyframes rvSettle { 0% { transform: scale(1); } 45% { transform: scale(1.08); } 100% { transform: scale(1); } }
+
+/* 波形: 下から立ち上がってから律動へ */
+html.rv-anim [data-rv] .${ds.wave} i { transform: scaleY(.06); transform-origin: center bottom; animation: none; }
+html.rv-anim [data-rv].rv-on .${ds.wave} i {
+  animation: rvBarRise .62s cubic-bezier(.2,.9,.25,1) calc(var(--base, 0ms) + 180ms + var(--i, 0) * 22ms) forwards,
+             barPulse 2.6s ease-in-out calc(var(--base, 0ms) + 900ms + var(--i, 0) * -220ms) infinite;
+}
+@keyframes rvBarRise { to { transform: scaleY(1); } }
+
+/* 折れ線 (data-anim="chart" のSVGのみ): 左から描かれ、節点が後から打たれる */
+html.rv-anim [data-rv] .rv-line { stroke-dasharray: var(--len, 600); stroke-dashoffset: var(--len, 600); }
+html.rv-anim [data-rv].rv-on .rv-line { animation: rvDrawIn 1.5s cubic-bezier(.25,.8,.3,1) calc(var(--base, 0ms) + 230ms) forwards; }
+@keyframes rvDrawIn { to { stroke-dashoffset: 0; } }
+html.rv-anim [data-rv] .rv-area { opacity: 0; }
+html.rv-anim [data-rv].rv-on .rv-area { animation: rvFadeIn .9s ease calc(var(--base, 0ms) + 780ms) forwards; }
+html.rv-anim [data-rv] .rv-dot { opacity: 0; transform-box: fill-box; transform-origin: center; }
+html.rv-anim [data-rv].rv-on .rv-dot {
+  animation: rvDotPop .42s cubic-bezier(.34,1.56,.64,1) forwards;
+  animation-delay: calc(var(--base, 0ms) + 380ms + var(--di, 0) * 185ms);
+}
+@keyframes rvDotPop {
+  0% { opacity: 0; transform: scale(0); }
+  70% { opacity: 1; transform: scale(1.5); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  html.rv-anim [data-rv] { opacity: 1 !important; transform: none !important; transition: none !important; }
+  html.rv-anim [data-rv], html.rv-anim [data-rv] [data-rvi],
+  html.rv-anim [data-rv] .rv-star, html.rv-anim [data-rv] .${ds.chk},
+  html.rv-anim [data-rv] .${ds.todo}, html.rv-anim [data-rv] .${ds.pill},
+  html.rv-anim [data-rv] .rv-area, html.rv-anim [data-rv] .rv-dot {
+    opacity: 1 !important; transform: none !important; transition: none !important; animation: none !important;
+  }
+  html.rv-anim [data-rv] .rv-line { stroke-dashoffset: 0 !important; animation: none !important; }
+  html.rv-anim [data-rv] .${ds.chk} svg path, html.rv-anim [data-rv] .${ds.chk} svg polyline { stroke-dashoffset: 0 !important; animation: none !important; }
+  html.rv-anim [data-rv] .${ds.wave} i { transform: none !important; animation: none !important; }
 }
 `
 
-function fireInner(el: HTMLElement) {
-  // リング: --p を 0% から目標へ (globals の transition が効く)
-  el.querySelectorAll<HTMLElement>('[data-anim="ring"]').forEach((r) => {
-    if (r.dataset.rvFired) return
-    r.dataset.rvFired = "1"
-    const target = r.style.getPropertyValue("--p") || "0%"
-    r.style.setProperty("--p", "0%")
-    window.setTimeout(() => r.style.setProperty("--p", target), 120)
-  })
-  // バー: 0 → --w
-  el.querySelectorAll<HTMLElement>('[data-anim="bar"]').forEach((b) => {
-    if (b.dataset.rvFired) return
-    b.dataset.rvFired = "1"
-    window.setTimeout(() => b.classList.add("rv-go"), 100)
-  })
-  // 数字のカウントアップ (子タグ入りは対象外 = Lv.7 の守り)
-  el.querySelectorAll<HTMLElement>('[data-anim="count"]').forEach((n) => {
-    if (n.children.length > 0 || n.dataset.rvFired) return
-    n.dataset.rvFired = "1"
-    const txt = (n.textContent ?? "").trim()
-    const m = txt.match(/^(\D*)(\d+)(\D*)$/)
-    if (!m) return
-    const target = +m[2], pre = m[1], post = m[3]
+// 数字を 0 から増やす (v5 countUp と同じ増え方 1150ms + 値*4、終わりに弾む)
+function runCount(n: HTMLElement, baseMs: number) {
+  if (n.children.length > 0 || n.dataset.rvFired) return
+  n.dataset.rvFired = "1"
+  const orig = n.dataset.rvOrig ?? (n.textContent ?? "").trim()
+  const m = orig.match(/^(\D*)(\d+)(\D*)$/)
+  if (!m) return
+  const pre = m[1], target = +m[2], post = m[3]
+  window.setTimeout(() => {
     const s0 = performance.now(), du = 1150 + Math.min(target, 100) * 4
     const step = (now: number) => {
       const pr = Math.min(1, (now - s0) / du)
       const q = 1 - Math.pow(1 - pr, 3)
       n.textContent = pre + Math.round(target * q) + post
       if (pr < 1) requestAnimationFrame(step)
-      else n.textContent = txt
+      else {
+        n.textContent = orig
+        const host = n.closest(`.${ds.bigN}`) ?? n
+        host.classList.add("rv-settled")
+      }
     }
     requestAnimationFrame(step)
-  })
+  }, baseMs + 230)
 }
 
 export default function RevealMotion() {
@@ -98,16 +187,17 @@ export default function RevealMotion() {
       say("演出: 停止 (視差効果を減らす=ON)")
       return
     }
-    if (!document.getElementById("rv-style")) {
-      const st = document.createElement("style")
-      st.id = "rv-style"
-      st.textContent = CSS
-      document.head.appendChild(st)
-    }
+    const st0 = document.getElementById("rv-style")
+    if (st0) st0.remove()
+    const st = document.createElement("style")
+    st.id = "rv-style"
+    st.textContent = CSS
+    document.head.appendChild(st)
     document.documentElement.classList.add("rv-anim")
 
     const main = () => (document.querySelector("main") ?? document.body) as HTMLElement
-    const SEL = `h1, [data-anim="block"], .${ds.card}, .${ds.seg}`
+    const SEL = `h1, [data-anim="block"], .${ds.card}, .${ds.seg}, .${ds.letter}`
+    const LEAF = `.${ds.chk}, .${ds.todo}, .${ds.pill}, [data-anim="ring"], [data-anim="bar"], [data-anim="count"], .${ds.wave}`
 
     // 見えたら発火 (モック v5 と同じ流儀)
     const io = new IntersectionObserver(
@@ -117,42 +207,176 @@ export default function RevealMotion() {
 
     const reveal = (el: HTMLElement) => {
       el.classList.add("rv-on")
-      el.querySelectorAll<HTMLElement>(":scope > [data-rv]").forEach((k) => k.classList.add("rv-on"))
       fireInner(el)
       io.unobserve(el)
     }
 
-    // ブロックの下ごしらえ: 隠して、直下の項目に時差を配る
-    const prepare = (el: HTMLElement) => {
+    // 出現の合図と同時に、値もの (リング/バー/数字) を目標へ動かす。待ち時間はCSSの --base 側
+    const fireInner = (el: HTMLElement) => {
+      el.querySelectorAll<HTMLElement>('[data-anim="ring"]').forEach((r) => {
+        if (r.dataset.rvFired) return
+        r.dataset.rvFired = "1"
+        r.style.setProperty("--p", r.dataset.rvp || "0%")
+      })
+      el.querySelectorAll<HTMLElement>('[data-anim="bar"]').forEach((b) => {
+        if (b.dataset.rvFired) return
+        b.dataset.rvFired = "1"
+        b.classList.add("rv-go")
+      })
+      el.querySelectorAll<HTMLElement>('[data-anim="count"]').forEach((n) => {
+        runCount(n, parseFloat(n.style.getPropertyValue("--base")) || 0)
+      })
+    }
+
+    // ★ を1文字ずつ包む (v5 の下ごしらえ。<s> の中 = 消えた★は静かに)
+    const splitStars = (el: HTMLElement) => {
+      if (el.dataset.rvSplit === "1") return
+      el.dataset.rvSplit = "1"
+      let idx = 0
+      const walk = (node: Node, off: boolean) => {
+        Array.from(node.childNodes).forEach((n) => {
+          if (n.nodeType === 3) {
+            const frag = document.createDocumentFragment()
+            for (const ch of n.textContent ?? "") {
+              if (ch.trim() === "") { frag.appendChild(document.createTextNode(ch)); continue }
+              const s = document.createElement("span")
+              s.className = "rv-star" + (off ? " rv-off" : "")
+              s.style.setProperty("--si", String(idx++))
+              s.textContent = ch
+              frag.appendChild(s)
+            }
+            node.replaceChild(frag, n)
+          } else if (n.nodeType === 1) {
+            walk(n, off || (n as HTMLElement).tagName.toLowerCase() === "s")
+          }
+        })
+      }
+      walk(el, false)
+    }
+
+    // 折れ線 (data-anim="chart" のSVGだけ): 線・面・節点を仕分ける
+    const prepareChart = (svg: SVGSVGElement) => {
+      svg.querySelectorAll<SVGPathElement>("path").forEach((p) => {
+        const d = p.getAttribute("d") || ""
+        const stroke = p.getAttribute("stroke") || ""
+        const filled = p.getAttribute("fill")
+        const isLine = !!stroke && (filled === "none" || filled === null) && (d.match(/[LC]/g) || []).length >= 2
+        const isArea = !!filled && filled !== "none" && d.indexOf("Z") >= 0 && d.length > 40
+        if (isLine && p.getTotalLength) {
+          const len = Math.ceil(p.getTotalLength())
+          if (len > 40) { p.classList.add("rv-line"); p.style.setProperty("--len", String(len)) }
+        } else if (isArea) p.classList.add("rv-area")
+      })
+      if (svg.querySelector(".rv-line")) {
+        svg.querySelectorAll<SVGCircleElement>("circle").forEach((c, i) => {
+          const r = parseFloat(c.getAttribute("r") || "0")
+          const s = getComputedStyle(c).stroke
+          if (r > 0 && r <= 9 && s && s !== "none") {
+            c.classList.add("rv-dot")
+            c.style.setProperty("--di", String(i % 8))
+          }
+        })
+      }
+    }
+
+    // 葉っぱに「乗っている項目の出現時刻」を配る
+    const anchorLeaves = (block: HTMLElement, blockDelay: number) => {
+      block.querySelectorAll<HTMLElement>(`.${ds.stars}`).forEach(splitStars)
+      block.querySelectorAll<SVGSVGElement>('svg[data-anim="chart"]').forEach(prepareChart)
+      const baseOf = (leaf: HTMLElement) => {
+        const host = leaf.closest<HTMLElement>("[data-rvi]")
+        return host && block.contains(host) ? parseFloat(host.dataset.rvt || "0") : blockDelay
+      }
+      block.querySelectorAll<HTMLElement>(LEAF).forEach((leaf) => {
+        const base = baseOf(leaf)
+        leaf.style.setProperty("--base", `${Math.round(base)}ms`)
+        if (leaf.dataset.anim === "ring") {
+          if (!leaf.dataset.rvp) leaf.dataset.rvp = leaf.style.getPropertyValue("--p") || "0%"
+          leaf.style.setProperty("--p", "0%")
+          leaf.style.setProperty("--rd", `${Math.round(base + 200)}ms`)
+        }
+        if (leaf.dataset.anim === "count" && !leaf.dataset.rvOrig) {
+          const txt = (leaf.textContent ?? "").trim()
+          const m = txt.match(/^(\D*)(\d+)(\D*)$/)
+          if (m && leaf.children.length === 0) {
+            leaf.dataset.rvOrig = txt
+            leaf.textContent = m[1] + "0" + m[3]
+          }
+        }
+      })
+      // ★は自分の項目の --base を継ぐ (包んだ直後なので個別に)
+      block.querySelectorAll<HTMLElement>(".rv-star").forEach((s2) => {
+        s2.style.setProperty("--base", `${Math.round(baseOf(s2))}ms`)
+      })
+      // 同じ項目の中でのピルの並び順 (v5 propagate と同じ「内側勝ち」)
+      const boxes = [block, ...block.querySelectorAll<HTMLElement>("[data-rvi]")]
+      boxes.forEach((box) => {
+        box.querySelectorAll<HTMLElement>(`.${ds.pill}`).forEach((p, i) => p.style.setProperty("--pd", String(i)))
+      })
+      block.querySelectorAll<HTMLElement>(`.${ds.wave} i`).forEach((w, i) => {
+        if (!w.style.getPropertyValue("--i")) w.style.setProperty("--i", String(i))
+      })
+    }
+
+    // ブロックの下ごしらえ。offset = 最初の画面内での自分の開始時刻 (スクロール出現は 0)
+    const prepare = (el: HTMLElement, offset = 0) => {
       if (el.dataset.rv !== undefined || el.closest("[id^='osmd']")) return
       if (el.parentElement?.closest("[data-rv]")) return
       el.dataset.rv = ""
-      el.style.setProperty("--rvd", "0ms")
-      const kids = [...el.children].filter(
-        (k) =>
-          (k as HTMLElement).offsetHeight > 0 &&
-          !k.classList.contains(ds.lab) &&
-          !k.querySelector("[id^='osmd']"),
-      ) as HTMLElement[]
-      if (kids.length > 1) {
+      el.style.setProperty("--rvd", `${Math.round(offset)}ms`)
+      // 項目 = card/letter の直下 (lab は枠と一緒に出る)
+      if (el.classList.contains(ds.card) || el.classList.contains(ds.letter)) {
+        const kids = [...el.children].filter(
+          (k) =>
+            (k as HTMLElement).offsetHeight > 0 &&
+            !k.classList.contains(ds.lab) &&
+            !k.querySelector("[id^='osmd']"),
+        ) as HTMLElement[]
         kids.forEach((k, i) => {
-          k.dataset.rv = ""
-          k.style.setProperty("--rvd", `${LEAD_IN + i * GAP_ITEM}ms`)
+          const t = offset + LEAD_IN + i * GAP_ITEM
+          k.dataset.rvi = ""
+          k.dataset.rvt = String(Math.round(t))
+          k.style.setProperty("--rvd", `${Math.round(t)}ms`)
         })
       }
+      anchorLeaves(el, offset)
       io.observe(el)
     }
 
+    // 最初の画面: ブロックに累積の開始時刻を配る (v5 buildTimeline の塊間隔 + CAP圧縮)
     const prepareAll = () => {
-      main().querySelectorAll<HTMLElement>(SEL).forEach(prepare)
+      const blocks = [...main().querySelectorAll<HTMLElement>(SEL)]
+      const vh = window.innerHeight
+      // 一巡目: 画面内ブロックの所要を見積もって上限で圧縮率を決める
+      let total = 0
+      const spans = blocks.map((el) => {
+        if (el.dataset.rv !== undefined) return 0
+        if (el.getBoundingClientRect().top >= vh) return 0
+        let n = 0
+        if (el.classList.contains(ds.card) || el.classList.contains(ds.letter)) {
+          n = [...el.children].filter((k) => (k as HTMLElement).offsetHeight > 0 && !k.classList.contains(ds.lab)).length
+        }
+        const span = GAP_BLOCK + (n > 0 ? LEAD_IN + n * GAP_ITEM + 40 : 0)
+        total += span
+        return span
+      })
+      const k = total > CAP ? CAP / total : 1
+      let t = 0
+      blocks.forEach((el, i) => {
+        if (spans[i] > 0) {
+          prepare(el, t * k)
+          t += spans[i]
+        } else {
+          prepare(el, 0)
+        }
+      })
       // v3: ブロックの隠しが効いた次のフレームで rv-boot を解除 → main が現れると同時に
       // 各ブロックが時差出現する (最初の描画前から隠すのは layout.tsx のインラインスクリプト)
       requestAnimationFrame(() => document.documentElement.classList.remove("rv-boot"))
       if (debug) {
         const p2 = document.querySelectorAll("[data-rv]").length
         const on = document.querySelectorAll("[data-rv].rv-on").length
-        say(`演出: 稼働  準備${p2} 表示${on}
-地の色=${getComputedStyle(document.body).backgroundColor}`)
+        say(`演出: 稼働  準備${p2} 表示${on}`)
         window.setInterval(() => {
           const a = document.querySelectorAll("[data-rv]").length
           const b2 = document.querySelectorAll("[data-rv].rv-on").length
@@ -167,8 +391,9 @@ export default function RevealMotion() {
       for (const m of muts) {
         for (const node of m.addedNodes) {
           if (!(node instanceof HTMLElement)) continue
+          if (node.classList.contains("rv-star")) continue
           if (node.matches?.(SEL)) prepare(node)
-          node.querySelectorAll?.<HTMLElement>(SEL).forEach(prepare)
+          node.querySelectorAll?.<HTMLElement>(SEL).forEach((b) => prepare(b))
           // すでに見えているブロックの中へ後から入った部品は直接発火
           const host = node.closest?.("[data-rv].rv-on")
           if (host) fireInner(host as HTMLElement)
@@ -177,18 +402,20 @@ export default function RevealMotion() {
     })
     mo.observe(main(), { childList: true, subtree: true })
 
-    // Safari の Back/Forward キャッシュ復元でも再生し直す (v1で動かなかった真因のひとつ)
+    // Safari の Back/Forward キャッシュ復元でも再生し直す
     const onShow = (e: PageTransitionEvent) => {
       if (!e.persisted) return
-      document.querySelectorAll<HTMLElement>("[data-rv]").forEach((el) => {
+      document.querySelectorAll<HTMLElement>("[data-rv], [data-rvi]").forEach((el) => {
         el.classList.remove("rv-on")
         delete el.dataset.rv
+        delete el.dataset.rvi
         el.style.removeProperty("--rvd")
       })
       document.querySelectorAll<HTMLElement>("[data-anim]").forEach((el) => {
         delete el.dataset.rvFired
         el.classList.remove("rv-go")
       })
+      document.querySelectorAll<HTMLElement>(".rv-settled").forEach((el) => el.classList.remove("rv-settled"))
       window.setTimeout(prepareAll, 40)
     }
     window.addEventListener("pageshow", onShow)

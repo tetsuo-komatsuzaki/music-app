@@ -1,8 +1,9 @@
 "use client"
 
-// 生徒ホームの「先生から」 — モック 追02 (build-extra.py TEACHER6) の写経 (2026-08-20)。
-// カード + 分類チップ (選択=金) + 行 (色つきの点 + 題/補足 + ピル)。
-// カルーセルとアコーディオンは廃止 (モックが仕様)。
+// 生徒ホームの「先生から」 — モック 追02 parts-04 案1 の写経を土台に、
+// 2026-08-20 Tetsuo指示で2点変更 (モックからの指示逸脱):
+//   ・アコーディオン形式。基本は閉じていて、頭の行に件数の要約だけ出す
+//   ・0件の分類タブは出さない (通知の場なので)
 import { useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -111,23 +112,58 @@ export default function TeacherAssignments({
       pill: "癖マップで見る", pillGold: false,
     })
 
-  // 宿題まわりの3タブは0件でも固定表示 (確定モック parts-04 案1)。他はデータがある時だけ
-  const FIXED: Cat[] = ["宿題", "提出ずみ", "合格"]
-  const extra = [...new Set(rows.map((r) => r.cat))].filter((c) => !FIXED.includes(c))
-  const cats = [...FIXED, ...extra]
+  // 0件の分類は出さない (通知の場)。順序は宿題まわり→その他
+  const ORDER: Cat[] = ["宿題", "提出ずみ", "合格", "カルテ", "お祝い", "癖"]
+  const count = (c: Cat) => rows.filter((r) => r.cat === c).length
+  const cats = ORDER.filter((c) => count(c) > 0)
   const [cat, setCat] = useState<Cat | null>(null)
+  const [open, setOpen] = useState(false)
   const cur = cat && cats.includes(cat) ? cat : cats[0]
   if (rows.length === 0 && unread === 0) return null
 
-  const count = (c: Cat) => rows.filter((r) => r.cat === c).length
   const shown = rows.filter((r) => r.cat === cur)
 
   return (
     <div className={ds.card} style={{ padding: "12px 14px" }} data-onboarding="home.teacherCard">
-      {/* parts-04 HEAD: ラベルと同じ行の右にタブ。件数は素の文字 (「宿題 2」) */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      {/* 頭の行 = アコーディオンの取っ手。閉じたまま件数の要約が読める */}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        style={{
+          display: "flex", alignItems: "center", gap: 8, width: "100%",
+          border: "none", background: "transparent", padding: 0, cursor: "pointer", font: "inherit", textAlign: "left",
+        }}
+      >
         <span className={ds.lab} style={{ flex: "none" }}>先生から</span>
-        <div style={{ flex: 1, display: "flex", gap: 4, justifyContent: "flex-end", overflowX: "auto" }}>
+        <span style={{ flex: 1, display: "flex", gap: 10, justifyContent: "flex-end", overflow: "hidden", whiteSpace: "nowrap" }}>
+          {cats.map((c) => (
+            <span key={c} style={{ fontSize: 10.5, fontWeight: 800, color: c === "宿題" ? "var(--gold)" : "var(--text-sub)" }}>
+              {c} {count(c)}
+            </span>
+          ))}
+        </span>
+        <span
+          aria-hidden
+          style={{
+            color: "var(--text-sub)", fontSize: 10, flex: "none",
+            transform: open ? "rotate(180deg)" : "none", transition: "transform .4s cubic-bezier(.22,.9,.24,1)",
+          }}
+        >▼</span>
+      </button>
+
+      {/* 中身 (ぬるっと開閉) */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateRows: open ? "1fr" : "0fr",
+          transition: "grid-template-rows .45s cubic-bezier(.22,.9,.24,1)",
+        }}
+      >
+      <div style={{ overflow: "hidden" }}>
+      {/* parts-04 HEAD: 分類タブ (選択=金)。0件は出さない */}
+      {cats.length > 1 && (
+        <div style={{ display: "flex", gap: 4, justifyContent: "flex-end", overflowX: "auto", marginTop: 10 }}>
           {cats.map((c) => {
             const on = c === cur
             return (
@@ -148,14 +184,9 @@ export default function TeacherAssignments({
             )
           })}
         </div>
-      </div>
+      )}
 
       {/* 行 (モック notif) */}
-      {shown.length === 0 && (
-        <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 10 }}>
-          {cur === "提出ずみ" ? "提出ずみの宿題はまだないよ" : cur === "合格" ? "合格した宿題はまだないよ" : "いまは宿題がないよ"}
-        </div>
-      )}
       {shown.map((r, i) => (
         <Link
           key={`${r.cat}-${i}`}
@@ -195,6 +226,8 @@ export default function TeacherAssignments({
           </Link>
         </div>
       )}
+      </div>
+      </div>
     </div>
   )
 }

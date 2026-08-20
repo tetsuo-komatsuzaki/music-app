@@ -84,8 +84,9 @@ body {
    解除はエンジンの下ごしらえ完了時 or 2.5秒の保険タイマー */
 html.rv-boot main { opacity: 0; }
 @property --p { syntax: "<percentage>"; initial-value: 0%; inherits: false; }
-html.rv-anim [data-anim="ring"] { transition: --p 1.4s cubic-bezier(0.2, 0.8, 0.25, 1) 0.3s; }
-html.rv-anim [data-anim="bar"] > i { width: 0 !important; transition: width 1s cubic-bezier(0.2, 0.8, 0.25, 1) 0.35s; }
+/* v4: 原本 v3/v5 の値。待ち時間は「乗っている項目の出現時刻 (--base)」起点 */
+html.rv-anim [data-anim="ring"] { transition: --p 1.5s cubic-bezier(0.2, 0.85, 0.25, 1) var(--rd, 450ms); }
+html.rv-anim [data-anim="bar"] > i { width: 0 !important; transition: width 1.15s cubic-bezier(0.2, 0.85, 0.25, 1) calc(var(--base, 0ms) + 200ms); }
 html.rv-anim [data-anim="bar"].rv-go > i { width: var(--w) !important; }
 
 /* ── グローバルなタップ感フィードバック (2026-08-11) ──

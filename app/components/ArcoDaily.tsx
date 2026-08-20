@@ -102,7 +102,6 @@ export default function ArcoDaily() {
           >
             <div style={{ fontSize: 13.5, fontWeight: 800, lineHeight: 1.7, color: "var(--text-ink)" }}>{comment}</div>
           </div>
-          <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 7 }}>タップで つぎのポーズ</div>
         </div>
       </div>
     </div>
