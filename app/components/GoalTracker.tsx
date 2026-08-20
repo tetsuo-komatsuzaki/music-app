@@ -67,41 +67,49 @@ export function goalHeadline(achv: AchievementStatus): string {
 }
 
 function GoalRing({ full, pct, done, total }: { full?: boolean; pct?: number; done?: number; total?: number }) {
-  const base = { position: "relative" as const, width: 72, height: 72, flex: "none" as const, borderRadius: "50%", display: "grid", placeItems: "center" }
+  // モック nowsong.ring: 76px ・ 内円 inset6 #182747 ・ 数字 bigN 20px + /total 12px
+  const base = { position: "relative" as const, width: 76, height: 76, flex: "none" as const, borderRadius: "50%", display: "grid", placeItems: "center" }
   if (full) {
     return <div style={{ ...base, background: "#2b5bc4" }}><b style={{ fontSize: "var(--fs-display)", fontWeight: 900, color: "var(--text-on-accent)", lineHeight: 1 }}>✓</b></div>
   }
   return (
     <div data-anim="ring" style={{ ...base, ["--p" as string]: `${pct ?? 0}%`, background: `conic-gradient(var(--gold) var(--p, ${pct ?? 0}%), rgba(150,175,225,.14) 0)` }}>
-      <div style={{ position: "absolute", inset: 8, background: "var(--card-b)", borderRadius: "50%" }} />
-      <b style={{ position: "relative", zIndex: 1, fontSize: "var(--fs-head)", fontWeight: 900, color: "var(--cream)", lineHeight: 1 }}>
-        {done}<small style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)" }}>/{total}</small>
+      <div style={{ position: "absolute", inset: 6, background: "#182747", borderRadius: "50%" }} />
+      <b className={ds.bigN} style={{ position: "relative", zIndex: 1, fontSize: 20, fontWeight: 900, lineHeight: 1 }}>
+        {done}<span style={{ fontSize: 12, fontWeight: 800, color: "var(--text-sub)", textShadow: "none" }}>/{total}</span>
       </b>
     </div>
   )
 }
 
-function GoalDot({ icon, name, done, href }: { icon: ReactNode; name: string; done: boolean; st?: string; href?: string | null }) {
-  // 2026-08-16 Tetsuo指定: 未クリアの枠囲い・背景色分け・グレースケールを廃止 (ごちゃつき解消)。
-  // 0/1・まだ 等のステータス文字も削除。クリア済みの ✓ だけ残す
+// モック nowsong.cond の写経: 20pxの印 + 名前12.5 + 右に値11px (済=金 / 未=くすみ)。
+// アイコンとやる→は出さない (モックが仕様)。未クリアで行き先があれば行ごとタップで飛べる
+function GoalDot({ name, done, st, href }: { icon?: ReactNode; name: string; done: boolean; st?: string; href?: string | null }) {
   const body = (
     <>
-      {/* クリア済みは濃い青の丸+白いアイコン線で一目でわかるように (2026-08-16 Tetsuo指定) */}
-      <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", background: done ? "rgba(232,178,60,.16)" : "rgba(150,175,225,.10)", color: done ? "var(--gold)" : "var(--text-sub)" }}>{icon}</span>
-      <span style={{ fontWeight: 700, color: done ? "var(--text-ink)" : "var(--text-sub)" }}>{name}</span>
-      {done && <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--gold)" }}>✓</span>}
-      {!done && href && <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)" }}>やる →</span>}
+      {done ? (
+        <span className={`${ds.chk} ${ds.gold}`} style={{ width: 20, height: 20 }}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" stroke="var(--gold)" /></svg>
+        </span>
+      ) : (
+        <span style={{ width: 20, height: 20, flex: "none", borderRadius: "50%", border: "1.5px solid rgba(150,175,225,.24)" }} />
+      )}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <b style={{ fontSize: 12.5, color: done ? "var(--text-ink)" : "var(--text-sub)" }}>{name}</b>
+      </div>
+      <span style={{ fontSize: 11, fontWeight: 800, flex: "none", color: done ? "var(--gold)" : "var(--text-sub)", fontVariantNumeric: "tabular-nums" }}>
+        {done ? (st ?? "✓") : st}
+      </span>
     </>
   )
-  // 未クリアで行き先があるものはタップでそのまま飛べる (2026-08-02 行き止まり解消)
   if (!done && href) {
     return (
-      <Link href={href} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-body)", textDecoration: "none" }}>
+      <Link href={href} style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
         {body}
       </Link>
     )
   }
-  return <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-body)" }}>{body}</div>
+  return <div style={{ display: "flex", alignItems: "center", gap: 9 }}>{body}</div>
 }
 
 const goalCheer = (gold?: boolean) => ({
@@ -206,7 +214,7 @@ export default function GoalTracker({ achv, userId, scoreId }: { achv: Achieveme
             {condDone >= condTotal
               ? <GoalRing full />
               : <GoalRing pct={ringPct} done={condDone} total={condTotal} />}
-            <div data-anim="items" style={{ display: "flex", flexDirection: "column", gap: 7, flex: 1, minWidth: 0 }}>
+            <div data-anim="items" style={{ display: "flex", flexDirection: "column", gap: 9, flex: 1, minWidth: 0 }}>
               {condItems.map((c) => (
                 <GoalDot key={c.name} icon={c.icon} name={c.name} done={c.done} st={c.st} href={c.href} />
               ))}
@@ -218,14 +226,14 @@ export default function GoalTracker({ achv, userId, scoreId }: { achv: Achieveme
         <>
           <div>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 8, margin: "2px 0 12px" }}>
-              <span className={ds.bigN} style={{ fontSize: "var(--fs-display)", lineHeight: 0.9 }}>
-                <span data-anim="count">{avg != null ? avg.toFixed(0) : "—"}</span><small style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-sub)" }}>点</small>
+              <span className={ds.bigN} style={{ fontSize: 38, lineHeight: 0.9 }}>
+                <span data-anim="count">{avg != null ? avg.toFixed(0) : "—"}</span><small style={{ fontSize: 14, fontWeight: 800, color: "var(--text-sub)" }}>点</small>
               </span>
             </div>
-            <div style={{ position: "relative", paddingTop: 16 }}>
-              <div style={{ position: "absolute", top: 0, left: "90%", transform: "translateX(-50%)", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--gold)" }}>
+            <div style={{ position: "relative", paddingTop: 17 }}>
+              <div style={{ position: "absolute", top: 0, left: "90%", transform: "translateX(-50%)", fontSize: 10, fontWeight: 900, color: "var(--gold)", textAlign: "center" }}>
                 90
-                <div style={{ width: 2, height: 8, background: "#d9a93c", margin: "1px auto 0" }} />
+                <div style={{ width: 2, height: 8, background: "var(--gold)", margin: "1px auto 0" }} />
               </div>
               <div data-anim="bar" style={{ height: 12, borderRadius: 8, background: "rgba(150,175,225,.14)", overflow: "hidden", ["--w" as string]: `${avgPct}%` }}>
                 <i style={{ display: "block", height: "100%", borderRadius: 8, width: `${avgPct}%`, background: "#2b5bc4" }} />

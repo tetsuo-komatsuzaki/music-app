@@ -68,10 +68,10 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
       <div className={ds.card} data-onboarding="home.focusCard" style={{ overflow: "hidden", padding: 0 }}>
         <div style={{ padding: "14px 15px 0" }}><div className={ds.lab}>いま練習している曲</div></div>
         {pieces.length > 1 && (
-          <div className={styles.tabs} style={{ margin: "9px 0 12px", padding: "0 15px 2px" }}>
+          <div className={styles.tabs} style={{ margin: "9px 0 12px", padding: "0 15px 2px", gap: 6 }}>
             {pieces.map((p, i) => (
               <button key={p.id} type="button" onClick={() => setActive(i)} className={`${styles.tab} ${active === i ? styles.tabOn : ""}`} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                {p.badge === "mastered" ? <Trophy size={13} color="#d9a93c" /> : p.badge === "achieved" ? <Sparkles size={13} color="#d9a93c" /> : null}{p.title}
+                {p.badge === "mastered" ? <Trophy size={11} color="#e8b23c" /> : p.badge === "achieved" ? <Sparkles size={11} color="#e8b23c" /> : null}{p.title}
               </button>
             ))}
           </div>
@@ -79,13 +79,13 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
 
         {/* いま練習している曲 = このカードの主役。世界観カラー(青)反転を、外側カードいっぱいの全幅バナーに */}
         <Link href={piece.href} className={styles.piece} style={{ textDecoration: "none", color: "inherit", background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", border: "none", padding: "13px 15px", gap: 12, margin: 0, borderRadius: 0 }}>
-          <div className={styles.thumb} style={{ width: 50, height: 50, fontSize: "var(--fs-title)", background: "rgba(255,255,255,.16)", color: "#fff" }}>{piece.cover ? <img src={piece.cover} alt="" loading="lazy" /> : "♪"}</div>
+          <div className={styles.thumb} style={{ width: 50, height: 50, borderRadius: 14, fontSize: 20, background: "rgba(255,255,255,.16)", color: "#fff" }}>{piece.cover ? <img src={piece.cover} alt="" loading="lazy" /> : "♪"}</div>
           <div className={styles.g}>
-            <div className={styles.title} style={{ fontSize: piece.title.length <= 8 ? "var(--fs-head)" : piece.title.length <= 13 ? "var(--fs-subhead)" : piece.title.length <= 20 ? "var(--fs-body)" : "var(--fs-caption)", color: "#fff", whiteSpace: "normal", overflow: "visible", textOverflow: "clip", lineHeight: 1.25, wordBreak: "break-word" }}>{piece.title}</div>
-            <div className={styles.meta} style={{ fontSize: "var(--fs-body)", color: "#cdd9f2", fontWeight: 700, marginTop: 2 }}>{piece.star != null ? `☆${piece.star} ・ ` : ""}直近 {piece.latest}点</div>
+            <div className={styles.title} style={{ fontSize: piece.title.length <= 8 ? 18 : piece.title.length <= 13 ? "var(--fs-subhead)" : piece.title.length <= 20 ? "var(--fs-body)" : "var(--fs-caption)", color: "#fff", whiteSpace: "normal", overflow: "visible", textOverflow: "clip", lineHeight: 1.25, wordBreak: "break-word" }}>{piece.title}</div>
+            <div className={styles.meta} style={{ fontSize: 12, color: "#cdd9f2", fontWeight: 700, marginTop: 2 }}>{piece.star != null ? `☆${piece.star} ・ ` : ""}直近 {piece.latest}点</div>
           </div>
           <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", justifyContent: "space-between", alignSelf: "stretch", flex: "none", gap: 6 }}>
-            <span className={styles.chip} style={{ fontSize: "var(--fs-caption)", background: "#fff", color: "#2b5bc4" }}>{chipLabel}</span>
+            <span className={styles.chip} style={{ fontSize: 10.5, padding: "3px 9px", background: "#fff", color: "#2b5bc4" }}>{chipLabel}</span>
             <span aria-hidden style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#fff", lineHeight: 1 }}>→</span>
           </span>
         </Link>
@@ -93,7 +93,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
         <div style={{ padding: "0 15px 15px" }}>
         {/* 🏆 この曲のゴール (達成/マスター。曲詳細と同じ GoalTracker を流用。体験上の重要要素・削除しない)
             見出しは進捗で出し分け (2026-08-16 Tetsuo指定・下の重複見出しはGoalTracker側から削除済) */}
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "14px 0 8px", borderTop: "1px solid var(--line)", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#d9a93c" /> {ach ? goalHeadline(ach) : "ゴール"}</div>
+        <div style={{ fontSize: 11.5, fontWeight: 800, color: "var(--text-ink)", margin: "14px 0 10px", borderTop: "1px solid rgba(150,175,225,.10)", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#e8b23c" /> {ach ? goalHeadline(ach) : "ゴール"}</div>
         {ach ? (
           <GoalTracker achv={ach} userId={userId} scoreId={piece.id} />
         ) : (
@@ -101,7 +101,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
         )}
 
         {/* 毎日の基礎練 (4教材: ①音階 ②フィンガリング ③④推薦上位2。ホーム/曲詳細で共通) */}
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", margin: "16px 0 8px", borderTop: "1px solid var(--line)", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Target size={13} color="#7aa7ff" /> {piece.title}のための基礎練</div>
+        <div style={{ fontSize: 11.5, fontWeight: 800, color: "var(--text-ink)", margin: "16px 0 2px", borderTop: "1px solid rgba(150,175,225,.10)", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Target size={13} color="#7fa4e8" /> {piece.title}のための基礎練</div>
         {ach ? (
           <DailyLessons lessons={ach.dailyLessons ?? []} userId={userId} />
         ) : (

@@ -1,22 +1,18 @@
 "use client"
 
-import { useEffect, useState, type CSSProperties } from "react"
+import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
-import { Trophy } from "lucide-react"
 import styles from "./MyRankCard.module.css"
 import ds from "./ds.module.css"
 import { ArcoChan, POSES } from "./ArcoChan"
 import {
-  rankName, perfRank, stampComment, cheerForCount, shortDate,
+  rankName, shortDate,
   type RankCardData,
 } from "@/app/_libs/rankCard"
 
-type SlotKind = "done" | "now" | "empty" | "goal"
-const TILTS = ["-6deg", "5deg", "-4deg", "6deg", "-5deg", "4deg", "-7deg", "6deg", "-4deg", "5deg"]
 // ホームの日替わりアルコと同じモーション付きイラストで統一 (2026-07-20)。
 const POSE_EMBLEM = POSES.find((p) => p.cat === "指差し") ?? POSES[0]
-const POSE_JOY = POSES.find((p) => p.cat === "喜び") ?? POSES[0]
 
 export default function MyRankCard(props: RankCardData & { onGuide?: () => void }) {
   const { currentStar, required, achievedCount, stamps, onGuide } = props
@@ -36,71 +32,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
   const remaining = Math.max(0, required - achievedCount)
   const nextStar = currentStar + 1
 
-  // 10スロット構築
-  const slots = Array.from({ length: required }, (_, i) => {
-    let kind: SlotKind
-    if (i < stamps.length) kind = "done"
-    else if (i === required - 1) kind = "goal"
-    else if (i === stamps.length) kind = "now"
-    else kind = "empty"
-    return { i, kind }
-  })
-  const row1 = slots.slice(0, Math.ceil(required / 2))
-  const row2 = slots.slice(Math.ceil(required / 2))
-
-  function renderSlot(s: { i: number; kind: SlotKind }) {
-    const stamp = s.kind === "done" ? stamps[s.i] : null
-    const rank = stamp ? perfRank(stamp.best) : null
-    return (
-      <div
-        key={s.i}
-        className={`${styles.slot} ${openStamp === s.i ? styles.slotOpen : ""}`}
-        onClick={stamp ? () => setOpenStamp(openStamp === s.i ? null : s.i) : undefined}
-      >
-        {s.kind === "done" && (
-          <div className={`${styles.stamp} ${styles.done}`} style={{ "--tilt": TILTS[s.i], "--d": `${s.i * 0.5}s` } as CSSProperties}>♪</div>
-        )}
-        {s.kind === "now" && (
-          <div className={`${styles.stamp} ${styles.now}`}>♪<span className={styles.nring} /></div>
-        )}
-        {s.kind === "empty" && <div className={`${styles.stamp} ${styles.empty}`}>{s.i + 1}</div>}
-        {s.kind === "goal" && (
-          <div className={`${styles.stamp} ${styles.goal}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 0, lineHeight: 1 }}>
-            <Trophy size={15} color="#b58a1e" />
-            <span style={{ fontSize: 8.5, fontWeight: 900, color: "#b58a1e" }}>☆{nextStar}</span>
-          </div>
-        )}
-
-        {s.kind === "done" && stamp ? (
-          <div className={styles.slabel}>
-            {stamp.title.length > 6 ? stamp.title.slice(0, 6) + "…" : stamp.title}
-            <br />
-            {rank && <span className={`${styles.rk} ${styles[rank]}`}>{rank.toUpperCase()} {stamp.best}</span>}
-          </div>
-        ) : s.kind === "now" ? (
-          <div className={`${styles.slabel} ${styles.slabelNow}`} />
-        ) : s.kind === "goal" ? (
-          <div className={styles.slabel} />
-        ) : (
-          <div className={`${styles.slabel} ${styles.slabelMuted}`}>？</div>
-        )}
-
-        {s.kind === "done" && stamp && openStamp === s.i && (
-          <div className={styles.memory} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.mf}><ArcoChan pose={POSE_JOY} /></div>
-            <div className={styles.mbody}>
-              <div className={styles.mtop}>{stamp.title} <span className={styles.mdate}>{shortDate(stamp.achievedAt)}</span></div>
-              <div className={styles.mscore}>
-                ベスト <b>{stamp.best ?? "—"}</b>点 {rank && <span className={`${styles.rk} ${styles[rank]}`}>{rank.toUpperCase()}</span>}
-              </div>
-              <div className={styles.mc}>{stampComment(rank)}</div>
-              <Link className={styles.mlink} href={stamp.href}>この曲の詳細へ →</Link>
-            </div>
-          </div>
-        )}
-      </div>
-    )
-  }
+  const barPct = Math.round((achievedCount / Math.max(1, required)) * 100)
 
   return (
     <div className={styles.root}>
@@ -163,29 +95,83 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
             <div className={styles.grab} />
             <button type="button" className={styles.close} aria-label="閉じる" onClick={() => { setOpen(false); setOpenStamp(null) }}>✕</button>
             <div className={styles.sheetttl}>演奏の軌跡</div>
+            {/* モック trace1 (home-06 コインの列) の写経 */}
+            <div style={{ fontSize: 12.5, fontWeight: 800, color: "var(--text-sub)", marginTop: 2 }}>
+              ★{currentStar}から★{nextStar}まで、あと{remaining}曲
+            </div>
             <div className={styles.sheetbody}>
 
-              <div className={styles.rankhead}>
-                <div className={styles.rankbig}><span className={styles.from}>☆{currentStar}</span> → <span className={styles.to}>☆{nextStar}</span></div>
-                <div className={styles.r}>
-                  <div className={styles.need}>まで あと <b>{remaining}曲</b></div>
-                  <div className={styles.pips}>
-                    {slots.map((s, i) => (
-                      <span key={i} className={`${styles.pip} ${i < achievedCount ? styles.on : i === achievedCount ? styles.cur : ""}`} />
-                    ))}
+              <div className={ds.card}>
+                <div className={ds.lab}>マスターした曲</div>
+                <div style={{ display: "flex", alignItems: "flex-end", gap: 8, marginTop: 6 }}>
+                  <div className={ds.bigN} style={{ fontSize: 52, lineHeight: 1 }}><span data-anim="count">{achievedCount}</span></div>
+                  <div style={{ paddingBottom: 9, fontSize: 12, color: "var(--text-sub)", fontWeight: 800 }}>/ {required}曲</div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", marginTop: 16, overflowX: "auto", padding: "6px 0 8px" }}>
+                  {stamps.map((s, i) => (
+                    <button
+                      key={s.scoreId}
+                      type="button"
+                      aria-label={`${s.title} ベスト${s.best ?? "—"}点`}
+                      onClick={() => setOpenStamp(openStamp === i ? null : i)}
+                      style={{ position: "relative", flex: "none", marginLeft: i ? -14 : 0, zIndex: i, border: "none", background: "transparent", padding: 0, cursor: "pointer" }}
+                    >
+                      <span style={{
+                        width: 56, height: 56, borderRadius: "50%", display: "grid", placeItems: "center",
+                        background: "radial-gradient(circle at 34% 28%,#FFE08A,#E8B23C 52%,#A5761C)",
+                        border: "1.5px solid rgba(255,240,200,.5)", boxShadow: "0 4px 12px rgba(0,0,0,.4)",
+                      }}>
+                        <span style={{ textAlign: "center", color: "#3A2705" }}>
+                          <span style={{ display: "block", fontSize: 16, fontWeight: 900, lineHeight: 1 }}>{s.best ?? "♪"}</span>
+                          {s.best != null && <span style={{ display: "block", fontSize: 7.5, fontWeight: 800, opacity: 0.72, marginTop: -1 }}>点</span>}
+                        </span>
+                      </span>
+                    </button>
+                  ))}
+                  {Array.from({ length: remaining }).map((_, i) => (
+                    <span
+                      key={`e${i}`}
+                      style={{
+                        flex: "none", marginLeft: -14, zIndex: stamps.length + i, width: 56, height: 56,
+                        borderRadius: "50%", background: "rgba(150,175,225,.06)", border: "1.5px dashed rgba(150,175,225,.18)",
+                      }}
+                    />
+                  ))}
+                </div>
+                {openStamp != null && stamps[openStamp] && (
+                  <div style={{ background: "var(--card-in)", borderRadius: 12, padding: "10px 12px", marginBottom: 8, display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <b style={{ fontSize: 12.5, color: "var(--text-ink)" }}>{stamps[openStamp].title}</b>
+                      <span style={{ display: "block", fontSize: 10, color: "var(--text-muted)", marginTop: 1 }}>
+                        {shortDate(stamps[openStamp].achievedAt)} ・ ベスト {stamps[openStamp].best ?? "—"}点
+                      </span>
+                    </div>
+                    <Link href={stamps[openStamp].href} className={`${ds.pill} ${ds.mute}`} style={{ fontSize: 11, color: "var(--text-ink)", flex: "none", textDecoration: "none" }}>
+                      この曲の詳細へ →
+                    </Link>
                   </div>
+                )}
+                <div className={`${ds.bar} ${ds.gold}`} data-anim="bar" style={{ marginTop: 6, ["--w" as string]: `${barPct}%` }}>
+                  <i style={{ width: `${barPct}%` }} />
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 7, fontSize: 10.5, fontWeight: 800 }}>
+                  <span style={{ color: "var(--gold)" }}>☆{currentStar}</span>
+                  <span style={{ color: "var(--text-sub)" }}>☆{nextStar} まであと{remaining}曲</span>
                 </div>
               </div>
 
-              <div className={styles.board}>
-                <div className={styles.rrow}>{row1.map(renderSlot)}</div>
-                <div className={`${styles.rrow} ${styles.rrowRev}`}>{row2.map(renderSlot)}</div>
-              </div>
-
-              <div className={styles.cheer}>
-                <div className={styles.av}><ArcoChan pose={POSE_JOY} /></div>
-                <div className={styles.bwrap}>
-                  <div className={styles.bubble}>{cheerForCount(achievedCount, required)}</div>
+              <div className={ds.card} style={{ padding: "13px 15px" }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {onGuide && (
+                    <button
+                      type="button"
+                      onClick={() => { setOpen(false); setOpenStamp(null); onGuide() }}
+                      className={`${ds.pill} ${ds.mute}`}
+                      style={{ fontSize: 11, border: "none", cursor: "pointer", fontFamily: "inherit" }}
+                    >
+                      上達のしくみを見る
+                    </button>
+                  )}
                 </div>
               </div>
 

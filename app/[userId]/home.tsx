@@ -125,44 +125,49 @@ export default function HomeClient({
         こんにちは、{userName}さん
       </h1>
 
-      {/* ⓪ 解析通知 (採点中チップ / 完了バナー)。該当なしなら何も出ない */}
+      {/* モック home-01 の並び: 先生から → 通知 → ランク (2026-08-21 再写経で是正) */}
+      <TeacherAssignments assignments={teacherAssignments} summary={teacherSummary} />
+
+      {/* 解析通知 (採点中チップ / 完了バナー)。該当なしなら何も出ない */}
       <AnalysisNoticeBar userId={userId} notices={analysisNotices} />
       <SkillLitBanner userId={userId} lits={skillLits} />
       <ExprShelf userId={userId} shelf={exprShelf} />
 
       {/* 🌟 まずはこれから (録音0ユーザーの一等地。旅の地図の後継・案5「きみへのセレクト」確定 2026-08-02):
           おすすめ1曲だけをドンと出す。弾き始めたら消えて「いま練習している曲」に世代交代 */}
+      {/* モック 追03 STARTER の写経: 金ラベル → 青バナー → 注記 → 金CTA → ほかの曲リンク */}
       {!ending && starterPick && recentPieces.length === 0 && (
-        <div style={{ position: "relative", overflow: "hidden", background: "#fff", border: "1px solid #eef1f4", borderRadius: 16, padding: 16, boxShadow: "0 1px 3px rgba(30,45,70,.05)" }}>
-          <span style={{ position: "absolute", top: 14, right: -34, transform: "rotate(38deg)", background: "#c9a227", color: "var(--text-on-accent)", fontSize: "var(--fs-label)", fontWeight: 900, letterSpacing: ".1em", padding: "4px 40px" }}>きみへ</span>
-          <div style={{ display: "flex", gap: 13, alignItems: "center" }}>
-            <div style={{ flex: "none", width: 74, aspectRatio: "1", borderRadius: 12, background: "linear-gradient(140deg,#dde5f2,#c6d2e6)", display: "grid", placeItems: "center", fontSize: "var(--fs-display)", overflow: "hidden" }}>
+        <div className={ds.card} style={{ padding: 0, overflow: "hidden" }}>
+          <div style={{ padding: "14px 15px 0" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 800, color: "var(--gold)" }}>✦ さいしょの1曲</div>
+          </div>
+          <Link href={starterPick.href} style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 15px", marginTop: 9, background: "linear-gradient(135deg,#1F3D78,#2B5BC4)", textDecoration: "none" }}>
+            <div style={{ width: 56, height: 56, borderRadius: 14, flex: "none", display: "grid", placeItems: "center", background: "rgba(255,255,255,.16)", color: "#fff", fontSize: 22, overflow: "hidden" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              {starterPick.cover ? <img src={starterPick.cover} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <Music size={30} color="#8ba0c4" aria-hidden />}
+              {starterPick.cover ? <img src={starterPick.cover} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : "♪"}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)", display: "inline-flex", alignItems: "center", gap: 4 }}><Sparkles size={13} /> さいしょの1曲</div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 7, flexWrap: "wrap" }}>
-                <span style={{ fontSize: "var(--fs-head)", fontWeight: 900, color: "var(--text-ink)", lineHeight: 1.35 }}>{starterPick.title}</span>
-                {starterPick.star != null && (
-                  <span style={{ flex: "none", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", background: "#faf1e1", border: "1px solid #ecdfc8", borderRadius: 999, padding: "2px 9px" }}>★{starterPick.star}</span>
-                )}
+              <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", lineHeight: 1.25 }}>{starterPick.title}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#CDD9F2", marginTop: 2 }}>
+                {starterPick.star != null ? `☆${starterPick.star} ・ ` : ""}{starterPick.reason}
               </div>
-              <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 1 }}>{starterPick.reason}</div>
+            </div>
+            <span style={{ fontSize: 15, fontWeight: 900, color: "#fff", flex: "none" }} aria-hidden>→</span>
+          </Link>
+          <div style={{ padding: "12px 15px 15px" }}>
+            <div style={{ fontSize: 11, color: "var(--text-sub)" }}>☆が小さいほど やさしい曲だよ</div>
+            <Link href={starterPick.href} style={{ display: "block", marginTop: 11, background: "linear-gradient(180deg,#E8B23C,#D2992C)", borderRadius: 14, padding: 13, textAlign: "center", color: "#201604", fontWeight: 900, fontSize: 14, textDecoration: "none" }}>
+              さっそく始めよう
+            </Link>
+            <div style={{ textAlign: "center", marginTop: 9 }}>
+              <Link href={`/${userId}/practice/pieces`} style={{ fontSize: 11, color: "#7FA4E8", fontWeight: 800, textDecoration: "none" }}>ほかの曲を選ぶ</Link>
             </div>
           </div>
-          <Link href={starterPick.href}
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 13, padding: "13px 16px", background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "var(--text-on-accent)", borderRadius: 12, textDecoration: "none", fontWeight: 800, fontSize: "var(--fs-subhead)" }}>
-            <span aria-hidden>♪</span> この曲をひく →
-          </Link>
         </div>
       )}
 
-      {/* ① マイランクカード (タップで演奏の軌跡／上達のしくみを内蔵) */}
+      {/* マイランクカード (タップで演奏の軌跡／上達のしくみを内蔵) */}
       <MyRankCard {...rankCard} onGuide={() => setGuideOpen(true)} />
-
-      {/* 先生から (未完了の宿題があるときだけ表示・先生機能 MVP) */}
-      <TeacherAssignments assignments={teacherAssignments} summary={teacherSummary} />
 
       {/* ② いま練習している曲 ＋〈マスターへのステップ ‖ 毎日の基礎練〉。
           終盤の締めでは、選んだ曲の「弾いたらこう出る」見本カードに差し替える。
@@ -192,7 +197,7 @@ export default function HomeClient({
           href={`/${userId}/practice/pieces`}
           data-onboarding="home.startCta"
           onClick={() => setOnboardingEnding(false)}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 16px", background: "linear-gradient(135deg,#2563EB,#3B82F6)", color: "var(--text-on-accent)", borderRadius: 14, textDecoration: "none", fontWeight: 800, fontSize: "var(--fs-subhead)" }}
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 16px", background: "linear-gradient(105deg,var(--accent),#1f3d78)", boxShadow: "0 5px 14px -6px rgba(43,91,196,.6)", color: "var(--text-on-accent)", borderRadius: 14, textDecoration: "none", fontWeight: 800, fontSize: "var(--fs-subhead)" }}
         >
           <span aria-hidden>♪</span> さっそく1曲、弾いてみよう
         </Link>
@@ -228,17 +233,17 @@ function SkillLitBanner({ userId, lits }: { userId: string; lits: { key: string;
   return (
     <div style={{
       display: "flex", alignItems: "center", gap: 8, margin: "0 0 10px", padding: "10px 12px",
-      borderRadius: 12, background: "linear-gradient(135deg,#fdf6e0,#f9ecc8)", border: "1px solid #eed9a0",
+      borderRadius: 12, background: "rgba(232,178,60,.14)", border: "1px solid rgba(232,178,60,.3)",
     }}>
-      <Sparkles size={18} color="#c9a227" style={{ flex: "none" }} />
-      <div style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-master)", lineHeight: 1.5 }}>
+      <Sparkles size={18} color="var(--gold)" style={{ flex: "none" }} />
+      <div style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--gold)", lineHeight: 1.5 }}>
         わざ{labels}が点灯したよ！
-        <Link href={`/${userId}/progress`} style={{ marginLeft: 6, color: "var(--text-link)", textDecoration: "underline", fontWeight: 800 }}>
+        <Link href={`/${userId}/progress`} style={{ marginLeft: 6, color: "#7aa7ff", textDecoration: "underline", fontWeight: 800 }}>
           カルテの技術マップで見る
         </Link>
       </div>
       <button type="button" onClick={dismiss} aria-label="とじる"
-        style={{ flex: "none", border: "none", background: "none", color: "var(--text-master)", fontSize: "var(--fs-subhead)", cursor: "pointer", padding: 4 }}>
+        style={{ flex: "none", border: "none", background: "none", color: "var(--gold)", fontSize: "var(--fs-subhead)", cursor: "pointer", padding: 4 }}>
         ✕
       </button>
     </div>
