@@ -49,6 +49,8 @@ export default function LibraryClient({
   const [tab, setTab] = useState<Tab>(initialTab)
   const [q, setQ] = useState("")
   const [planNotice, setPlanNotice] = useState(false)
+  // 曲を星ごとに見るタグ (2026-08-20 Tetsuo指示で新設)。null = すべて
+  const [starTag, setStarTag] = useState<number | null>(null)
 
   const base = `/${userId}`
   const selectTab = (t: Tab) => {
@@ -63,6 +65,9 @@ export default function LibraryClient({
     return s.includes(q.trim().toLowerCase())
   })
   const minePieces = filtered.filter((p) => p.mine)
+  // 実データに存在する星の段だけタグにする
+  const starLevels = [...new Set(pieces.filter((p) => p.star != null).map((p) => p.star as number))].sort((a, b) => a - b)
+  const starFiltered = starTag == null ? filtered : filtered.filter((p) => p.star === starTag)
 
   const onUpload = () => {
     if (canUpload) { router.push(`${base}/scores?upload=1`); return }
@@ -121,6 +126,28 @@ export default function LibraryClient({
 
       {tab === "pieces" && (
         <section className={styles.list}>
+          {/* 星ごとに見るタグ (2026-08-20 Tetsuo指示) */}
+          {starLevels.length > 1 && (
+            <div className={styles.starChips} role="group" aria-label="星でしぼる">
+              <button
+                type="button"
+                className={`${styles.starChip} ${starTag == null ? styles.starChipOn : ""}`}
+                onClick={() => setStarTag(null)}
+              >
+                すべて
+              </button>
+              {starLevels.map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  className={`${styles.starChip} ${starTag === n ? styles.starChipOn : ""}`}
+                  onClick={() => setStarTag(starTag === n ? null : n)}
+                >
+                  ★{n}
+                </button>
+              ))}
+            </div>
+          )}
           {filtered.length === 0 ? (
             <EmptyState
               title="弾きたい曲を、さがしてみよう。"
@@ -128,8 +155,10 @@ export default function LibraryClient({
               href={`${base}/practice/pieces`}
               cta="曲をさがす"
             />
+          ) : starFiltered.length === 0 ? (
+            <p className={styles.mineEmpty} data-anim="block">この星の曲は、いまの検索にはないよ。</p>
           ) : (
-            filtered.map((p) => <PieceRow key={p.id} p={p} base={base} />)
+            starFiltered.map((p) => <PieceRow key={p.id} p={p} base={base} />)
           )}
         </section>
       )}

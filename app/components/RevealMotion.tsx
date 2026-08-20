@@ -216,7 +216,12 @@ export default function RevealMotion() {
       el.querySelectorAll<HTMLElement>('[data-anim="ring"]').forEach((r) => {
         if (r.dataset.rvFired) return
         r.dataset.rvFired = "1"
-        r.style.setProperty("--p", r.dataset.rvp || "0%")
+        // 遅延マウント (発火済みブロックへ後から入ったリング) は下ごしらえ前なので、
+        // いまの --p を目標として控えてから 0% に戻す。0%のまま固まる事故の防止
+        if (!r.dataset.rvp) r.dataset.rvp = r.style.getPropertyValue("--p") || "0%"
+        const target = r.dataset.rvp
+        r.style.setProperty("--p", "0%")
+        requestAnimationFrame(() => requestAnimationFrame(() => r.style.setProperty("--p", target)))
       })
       el.querySelectorAll<HTMLElement>('[data-anim="bar"]').forEach((b) => {
         if (b.dataset.rvFired) return
@@ -326,15 +331,28 @@ export default function RevealMotion() {
       el.style.setProperty("--rvd", `${Math.round(offset)}ms`)
       // 項目 = カードの直下 (lab は枠と一緒に出る)。
       // 「すべてのカードが起き上がり、中の項目がその後に順番に起き上がる」(2026-08-20 明文化)。
-      // 独自カード (data-anim="block") も ds.card と同格に扱う
+      // 独自カード (data-anim="block") も ds.card と同格に扱う。
+      // 実DOMで行のリストが入れ物のdivに包まれる場合は、その入れ物に
+      // data-anim="items" を宣言すると中身が項目として順番に出る (要件v1.2)
       if (el.classList.contains(ds.card) || el.classList.contains(ds.letter) || el.dataset.anim === "block") {
-        const kids = [...el.children].filter(
-          (k) =>
-            (k as HTMLElement).offsetHeight > 0 &&
-            !k.classList.contains(ds.lab) &&
-            !k.querySelector("[id^='osmd']"),
-        ) as HTMLElement[]
-        kids.forEach((k, i) => {
+        const pick = (host: HTMLElement) =>
+          [...host.children].filter(
+            (k) =>
+              (k as HTMLElement).offsetHeight > 0 &&
+              !k.classList.contains(ds.lab) &&
+              !k.querySelector("[id^='osmd']"),
+          ) as HTMLElement[]
+        const directs = pick(el)
+        const seq: HTMLElement[] = []
+        for (const k of directs) {
+          if (k.dataset.anim === "items") seq.push(...pick(k))
+          else seq.push(k)
+        }
+        // 深い場所の items 容器 (行の列が入れ子のとき): 中身を時間軸の続きに乗せる
+        el.querySelectorAll<HTMLElement>('[data-anim="items"]').forEach((c) => {
+          if (!directs.includes(c)) seq.push(...pick(c))
+        })
+        seq.forEach((k, i) => {
           const t = offset + LEAD_IN + i * GAP_ITEM
           k.dataset.rvi = ""
           k.dataset.rvt = String(Math.round(t))

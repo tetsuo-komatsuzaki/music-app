@@ -1,11 +1,13 @@
-/* StatusTab.module.css — UI 設計書 v3.1 §7-3 */
+/* StatusTab.module.css — 曲詳細タブ (演奏 / ふりかえり / 練習後カルテ)。
+   2026-08-20 Tetsuo指示: ライブラリの 曲 / 基礎練 / マイ楽譜 と同じUIに統一。
+   値は library.module.css .segments (= uiv2/app.css .seg) と同一 */
 
 .tabBar {
   display: flex;
-  gap: 4px;
+  background: #0e1830;
+  border: 1px solid rgba(150, 175, 225, 0.1);
+  border-radius: 14px;
   padding: 4px;
-  background: #f0f2f5;
-  border-radius: 10px;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -17,35 +19,32 @@
 .tab {
   flex: 1;
   min-height: 44px; /* a11y タップ領域 44×44px 以上 */
-  padding: 8px 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-sub);
+  padding: 9px 0;
+  border-radius: 11px;
   border: none;
-  background: transparent;
-  color: var(--text-body);
-  font-size: var(--fs-body);
-  font-weight: 600;
+  background: none;
   cursor: pointer;
-  border-radius: 8px;
+  font-family: inherit;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   white-space: nowrap;
-  transition: background 0.15s, color 0.15s;
-}
-
-.tab:hover {
-  color: var(--text-ink);
 }
 
 .tab:focus-visible {
-  outline: 2px solid #5a7fdf;
+  outline: 2px solid rgba(232, 178, 60, 0.5);
   outline-offset: -2px;
 }
 
 .tabActive {
-  background: #fff;
-  color: var(--text-ink);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(180deg, #22355e, #182747);
+  color: var(--gold);
+  box-shadow: inset 0 0 0 1px rgba(232, 178, 60, 0.28);
 }
 
 .label {
@@ -60,14 +59,14 @@
   height: 18px;
   padding: 0 6px;
   border-radius: 999px;
-  background: #d4dae3;
-  color: var(--text-body);
+  background: rgba(150, 175, 225, 0.14);
+  color: var(--text-sub);
   font-size: var(--fs-caption);
   font-weight: 700;
   line-height: 1;
 }
 
 .countActive {
-  background: #5a7fdf;
-  color: var(--text-on-accent);
+  background: rgba(232, 178, 60, 0.16);
+  color: var(--gold);
 }

@@ -206,7 +206,7 @@ export default function GoalTracker({ achv, userId, scoreId }: { achv: Achieveme
             {condDone >= condTotal
               ? <GoalRing full />
               : <GoalRing pct={ringPct} done={condDone} total={condTotal} />}
-            <div style={{ display: "flex", flexDirection: "column", gap: 7, flex: 1, minWidth: 0 }}>
+            <div data-anim="items" style={{ display: "flex", flexDirection: "column", gap: 7, flex: 1, minWidth: 0 }}>
               {condItems.map((c) => (
                 <GoalDot key={c.name} icon={c.icon} name={c.name} done={c.done} st={c.st} href={c.href} />
               ))}
