@@ -973,9 +973,10 @@ body { margin:0; background:#070d1a; color:#e7eeff;
 .cnt { font-size:11px; letter-spacing:.06em; color:#6f82ab; font-weight:600; }
 .row { display:flex; gap:22px; overflow-x:auto; padding:14px 30px 16px; align-items:flex-start; }
 .row > div { flex:none; }
-/* オーバーレイ画面の position:fixed ベールを端末の中に封じ込める。
-   transform が fixed の基準を作る (元の便別モックでは浮遊アニメが同じ役をしていた) */
+/* position:fixed の層 (オーバーレイ画面のベール ・ 各便ページのオーロラ背景 body::before の
+   スコープ残骸) を、その画面のかたまりの中に封じ込める。transform が fixed の基準を作る */
 .row .phone { transform: translateZ(0); }
+.row > div { transform: translateZ(0); position: relative; overflow: hidden; }
 .caption { color:#93a4c8; }
 ::-webkit-scrollbar { height:9px; }
 ::-webkit-scrollbar-thumb { background:rgba(150,175,225,.26); border-radius:9px; }
