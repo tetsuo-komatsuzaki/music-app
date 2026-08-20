@@ -4,6 +4,7 @@ import styles from "./layout.module.css"
 import { ReactNode } from "react"
 import { usePathname } from "next/navigation"
 import BottomTabs from "./components/BottomTabs"
+import RevealMotion from "@/app/components/RevealMotion"
 import Header from "./components/Header"
 import NavProgress from "./components/NavProgress"
 import OnboardingErrorBoundary from "./_onboarding/OnboardingErrorBoundary"
@@ -32,7 +33,8 @@ export default function UserShell({
       <div className={styles.container}>
         <Header role={role} />
         {/* ===== PAGE CONTENT ===== */}
-        <main className={styles.main}>
+        <RevealMotion />
+      <main className={styles.main}>
           <div className={styles.centered}>{children}</div>
         </main>
         <BottomTabs />

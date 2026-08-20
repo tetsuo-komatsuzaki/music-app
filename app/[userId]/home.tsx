@@ -113,8 +113,17 @@ export default function HomeClient({
   return (
     <div className={styles.page}>
 
-      {/* 挨拶の大見出し (モック HELLO ・ h1.t) */}
-      <h1 className={ds.t} style={{ paddingTop: 6 }}>こんにちは、{userName}さん</h1>
+      {/* 挨拶の大見出し (モック HELLO ・ h1.t)。名前が長くても1行に収める (2026-08-20 Tetsuo指定) */}
+      <h1
+        className={ds.t}
+        style={{
+          paddingTop: 6,
+          whiteSpace: "nowrap",
+          fontSize: userName.length <= 5 ? 27 : userName.length <= 9 ? 22 : 19,
+        }}
+      >
+        こんにちは、{userName}さん
+      </h1>
 
       {/* ⓪ 解析通知 (採点中チップ / 完了バナー)。該当なしなら何も出ない */}
       <AnalysisNoticeBar userId={userId} notices={analysisNotices} />

@@ -7,6 +7,7 @@
 import { useLayoutEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
+import ds from "./ds.module.css"
 import { ArcoChan, POSES } from "./ArcoChan"
 import { formatKey } from "@/app/_libs/musicNotation"
 import type { DailyLesson } from "@/app/_libs/dailyLessons"
@@ -219,60 +220,73 @@ function IntroModal({ lesson, href, onClose }: { lesson: DailyLesson; href: stri
       role="dialog"
       aria-modal="true"
       aria-label={`${lesson.label} の練習紹介`}
-      style={{ position: "fixed", inset: 0, background: "rgba(18,18,30,0.42)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18, zIndex: 1000 }}
+      style={{ position: "fixed", inset: 0, zIndex: 1000 }}
     >
+      {/* モック SHEET_TOP: 濃い覆い + 下から出るシート (地はカードより一段明るいグラデ) */}
+      <div style={{ position: "absolute", inset: 0, background: "rgba(5,10,22,.72)" }} />
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{ background: "var(--card-b)", borderRadius: 18, width: "100%", maxWidth: 340, overflow: "hidden", boxShadow: "0 18px 44px rgba(20,20,40,.3)" }}
+        style={{
+          position: "absolute", left: 0, right: 0, bottom: 0, top: 108,
+          background: "linear-gradient(180deg,#16264a,#101c36)",
+          borderRadius: "24px 24px 0 0", borderTop: "1px solid rgba(150,175,225,.16)",
+          padding: "0 18px 18px", overflowY: "auto",
+        }}
       >
+        <div style={{ position: "sticky", top: 0, background: "#16264a", padding: "10px 0 8px", zIndex: 2 }}>
+          <div style={{ width: 38, height: 4, borderRadius: 3, background: "rgba(150,175,225,.28)", margin: "0 auto" }} />
+        </div>
+
         {/* ヘッダー: アルコ + 練習名 + スロット */}
-        <div style={{ position: "relative", padding: "14px 15px", display: "flex", alignItems: "center", gap: 10 }}>
-          <button type="button" onClick={onClose} aria-label="閉じる" style={{ position: "absolute", top: 10, right: 12, border: "none", background: "transparent", fontSize: "var(--fs-subhead)", lineHeight: 1, cursor: "pointer", color: "var(--text-muted)" }}>×</button>
-          <span style={{ width: 42, height: 42, flex: "none", borderRadius: "50%", background: col.bg, display: "grid", placeItems: "center", overflow: "hidden" }}>
+        <div style={{ position: "relative", display: "flex", alignItems: "flex-start", gap: 11, marginTop: 6 }}>
+          <button type="button" onClick={onClose} aria-label="閉じる" style={{ position: "absolute", top: 0, right: 0, border: "none", background: "transparent", fontSize: "var(--fs-subhead)", lineHeight: 1, cursor: "pointer", color: "var(--text-muted)" }}>×</button>
+          <span style={{ width: 44, height: 44, flex: "none", borderRadius: 13, background: col.bg, display: "grid", placeItems: "center", overflow: "hidden" }}>
             <span style={{ width: 40, height: 40 }}><ArcoChan pose={pose as unknown as Parameters<typeof ArcoChan>[0]["pose"]} /></span>
           </span>
           <span style={{ minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "var(--text-ink)", lineHeight: 1.25, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{lesson.label}</span>
-            <span style={{ display: "block", fontSize: "var(--fs-label)", fontWeight: 800, color: col.c }}>{SLOT_NOTE[lesson.slot]}</span>
+            <span style={{ display: "block", fontSize: 16, fontWeight: 900, color: "var(--text-ink)", lineHeight: 1.25 }}>{lesson.label}</span>
+            <span style={{ display: "block", fontSize: 11.5, fontWeight: 800, color: col.c, marginTop: 2 }}>{SLOT_NOTE[lesson.slot]}</span>
           </span>
         </div>
 
         {/* メタ行: ★難易度 ・ 主要な調 ・ 主要なポジション (空値は非表示) */}
         {metaChips(lesson).length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, padding: "0 15px 10px" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
             {metaChips(lesson).map((m, i) => (
               <span key={i} style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: col.c, background: col.bg, borderRadius: 999, padding: "3px 10px", whiteSpace: "nowrap" }}>{m}</span>
             ))}
           </div>
         )}
 
-        {/* 本体: アルコの吹き出し + 要点 */}
-        <div style={{ padding: "0 15px 4px" }}>
-          <div style={{ background: col.bg, borderRadius: 12, borderTopLeftRadius: 3, padding: "9px 11px", fontSize: "var(--fs-body)", fontWeight: 700, color: "var(--text-body)", lineHeight: 1.6 }}>
+        {/* 本体: 金縁カードの吹き出し (モック GUIDE) */}
+        <div className={ds.card} style={{ borderColor: "rgba(232,178,60,.3)" }}>
+          <div style={{ background: "rgba(150,175,225,.10)", border: "1px solid rgba(150,175,225,.14)", borderRadius: 13, padding: "11px 12px", fontSize: 12.5, lineHeight: 1.85, color: "var(--text-ink)" }}>
             {copy.bubble}
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 9 }}>
-            {copy.points.map((p, i) => (
-              <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: "var(--fs-body)", fontWeight: 600, color: "var(--text-ink)", lineHeight: 1.5 }}>
-                <span style={{ flex: "none", width: 17, height: 17, borderRadius: "50%", background: col.bg, color: col.c, display: "grid", placeItems: "center", marginTop: 1 }}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
-                </span>
-                <span>{p}</span>
-              </div>
-            ))}
           </div>
         </div>
 
-        {/* CTA */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "12px 15px 15px" }}>
-          <Link
-            href={href}
-            onClick={onClose}
-            style={{ textAlign: "center", textDecoration: "none", fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-on-accent)", background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", borderRadius: 12, padding: "11px 0" }}
-          >
-            スコアに進む
-          </Link>
-          <button type="button" onClick={onClose} style={{ border: "none", background: "transparent", fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", cursor: "pointer", padding: 2 }}>とじる</button>
+        <div className={ds.card}>
+          <div className={ds.lab}>この練習でつかむこと</div>
+          {copy.points.map((p, i) => (
+            <div key={i} className={ds.row} style={{ marginTop: 10 }}>
+              <span className={`${ds.chk} ${ds.gold}`} style={{ color: "var(--gold)" }}>
+                <svg viewBox="0 0 24 24" fill="none" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" stroke="currentColor" /></svg>
+              </span>
+              <div className={ds.rowMain}><b style={{ fontSize: 13 }}>{p}</b></div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA: 金のグラデ (モック) */}
+        <Link
+          href={href}
+          onClick={onClose}
+          style={{ display: "block", marginTop: 14, textAlign: "center", textDecoration: "none", fontSize: 15, fontWeight: 900, color: "#201604", background: "linear-gradient(180deg,#e8b23c,#d2992c)", borderRadius: 20, padding: 15 }}
+        >
+          この練習をひらく
+        </Link>
+        <div style={{ textAlign: "center", marginTop: 12 }}>
+          <button type="button" onClick={onClose} style={{ border: "none", background: "transparent", fontSize: 12, fontWeight: 800, color: "var(--text-sub)", cursor: "pointer" }}>とじる</button>
         </div>
       </div>
     </div>,

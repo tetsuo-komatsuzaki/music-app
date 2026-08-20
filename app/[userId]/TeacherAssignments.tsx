@@ -37,7 +37,7 @@ export type TeacherHomeSummary = {
   recentObservations?: number
 }
 
-type Cat = "宿題" | "合格" | "カルテ" | "お祝い" | "癖"
+type Cat = "宿題" | "提出ずみ" | "合格" | "カルテ" | "お祝い" | "癖"
 type Row = {
   cat: Cat
   dot: string
@@ -70,10 +70,11 @@ export default function TeacherAssignments({
     const di = dueInfo(a.dueDate)
     const goal = goalLabel(a.goalType, a.targetScore)
     rows.push({
-      cat: "宿題",
+      // 提出ずみは別タブへ (モック parts-04 宿題カード 案1: 宿題/提出ずみ/合格)
+      cat: a.submitted ? "提出ずみ" : "宿題",
       dot: "var(--gold)",
       title: goal ? `${a.title}を${goal}` : a.title,
-      sub: `${di ? `${di.label} ・ ` : ""}${a.teacherName}先生${a.submitted ? " ・ 提出ずみ" : ""}`,
+      sub: `${di ? `${di.label} ・ ` : ""}${a.teacherName}先生`,
       href: a.href,
       pill: a.submitted ? "見る" : "出す",
       pillGold: !a.submitted,
@@ -119,7 +120,7 @@ export default function TeacherAssignments({
       </div>
 
       {/* 分類チップ (モック cat_tabs) */}
-      {cats.length > 1 && (
+      {cats.length > 0 && (
         <div style={{ display: "flex", gap: 4, marginTop: 8, overflowX: "auto", paddingBottom: 2 }}>
           {cats.map((c) => {
             const on = c === cur
