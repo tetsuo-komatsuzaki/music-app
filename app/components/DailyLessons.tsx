@@ -154,7 +154,7 @@ export default function DailyLessons({
 
   return (
     <div ref={listRef} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      {lessons.map((l) => {
+      {lessons.map((l, idx) => {
         const col = CAT_COLOR[l.category] ?? DEFAULT_COLOR
         return (
           <button
@@ -162,34 +162,36 @@ export default function DailyLessons({
             type="button"
             onClick={() => setActive(l)}
             style={{
+              // モック nowsong.lesson_row のDOM: 番号丸 + 名前/説明 + →
               display: "flex",
               alignItems: "center",
-              background: "var(--card-in)",
-              border: "1px solid var(--line)",
-              borderRadius: 12,
-              overflow: "hidden",
+              gap: 12,
+              background: "none",
+              border: "none",
               textAlign: "left",
               cursor: "pointer",
               padding: 0,
               font: "inherit",
               color: "inherit",
-              boxShadow: "0 1px 2px rgba(20,25,40,.03)",
+              width: "100%",
             }}
           >
-            {/* 左: カテゴリ色のバンド */}
-            <span style={{ width: 4, alignSelf: "stretch", flex: "none", background: col.c }} aria-hidden />
-            <span style={{ flex: 1, minWidth: 0, padding: "9px 11px", display: "flex", alignItems: "center", gap: 8 }}>
-              <span
-                data-fit-label
-                style={{ flex: 1, minWidth: 0, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-              >
-                {l.label}
-              </span>
-              <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, padding: "2px 8px", borderRadius: 999, background: col.bg, color: col.c, whiteSpace: "nowrap" }}>
-                {SLOT_NOTE[l.slot]}
-              </span>
-              <span style={{ flex: "none", width: 21, height: 21, borderRadius: "50%", background: col.c, color: "var(--text-on-accent)", display: "grid", placeItems: "center", fontSize: "var(--fs-caption)", fontWeight: 900 }} aria-hidden>→</span>
+            <span
+              aria-hidden
+              style={{
+                width: 26, height: 26, borderRadius: "50%", flex: "none",
+                background: "#0e1830", border: "1px solid rgba(150,175,225,.10)",
+                color: "var(--text-muted)", fontSize: 10.5, fontWeight: 800,
+                display: "grid", placeItems: "center", fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              {String(idx + 1).padStart(2, "0")}
             </span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <b data-fit-label style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: "var(--text-ink)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{l.label}</b>
+              <span style={{ display: "block", fontSize: 11, color: "var(--text-sub)", marginTop: 2 }}>{SLOT_NOTE[l.slot]}</span>
+            </span>
+            <span style={{ flex: "none", color: "var(--gold)", fontWeight: 900 }} aria-hidden>→</span>
           </button>
         )
       })}

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import { Trophy } from "lucide-react"
 import styles from "./MyRankCard.module.css"
+import ds from "./ds.module.css"
 import { ArcoChan, POSES } from "./ArcoChan"
 import {
   rankName, perfRank, stampComment, cheerForCount, shortDate, cardTier,
@@ -103,37 +104,56 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
 
   return (
     <div className={styles.root}>
-      {/* マイランクカード (★でティアが変わる) */}
+      {/* マイランクカード 案D2 (モック parts-10 のDOMそのまま。★でティアが変わる) */}
       <div
         role="button"
         tabIndex={0}
         data-onboarding="home.rankCard"
-        className={`${styles.rankcard} ${styles[cardTier(currentStar)]} pressable`}
+        className={`${ds.card} ${styles[cardTier(currentStar)]} pressable`}
         onClick={() => setOpen(true)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true) } }}
+        style={{ cursor: "pointer" }}
       >
-        <span className={styles.rcHint}>タップで軌跡 ▸</span>
-        <div className={styles.rcMain}>
-          <div className={styles.rcEmblem}>
-            <ArcoChan pose={POSE_EMBLEM} />
-            <span className={styles.lv}>☆{currentStar}</span>
-          </div>
-          <div className={styles.rcBody}>
-            <div className={styles.rcEyebrow}>ランクカード</div>
-            <div className={styles.rcRank}>{rankName(currentStar)}</div>
-            <div className={styles.rcNeed}>☆{nextStar}まで あと <b>{remaining}曲</b></div>
-            <div className={styles.rcPips}>
-              {Array.from({ length: required }, (_, i) => (
-                <i key={i} className={i < achievedCount ? styles.on : ""} />
-              ))}
+        <div className={ds.lab}>MY RANK</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginTop: 8 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 17, fontWeight: 900, whiteSpace: "nowrap", letterSpacing: "-0.01em", color: "var(--text-ink)" }}>
+              {rankName(currentStar)}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 7 }}>
+              <div className={ds.stars}>
+                {"★ ".repeat(Math.min(currentStar, 5)).trim()}
+                <s>{" ★".repeat(Math.max(0, 5 - currentStar))}</s>
+              </div>
+              <span className={`${ds.pill} ${ds.mute}`} style={{ fontSize: 11, color: "var(--text-ink)", padding: "2px 8px" }}>
+                Lv.<b>{currentStar}</b>
+              </span>
             </div>
           </div>
+          <div style={{ width: 76, height: 76, borderRadius: 18, flex: "none", marginLeft: 8, overflow: "hidden" }}>
+            <ArcoChan pose={POSE_EMBLEM} />
+          </div>
         </div>
-        {onGuide && (
-          <button type="button" className={styles.guide} onClick={(e) => { e.stopPropagation(); onGuide() }} aria-label="上達のしくみを見る">
-            ？上達のしくみ
-          </button>
-        )}
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-sub)", marginTop: 14 }}>
+          <span>つぎのランクまで</span>
+          <span style={{ color: "var(--gold)", fontWeight: 800 }}>★{nextStar}をあと{remaining}曲</span>
+        </div>
+        <div className={`${ds.bar} ${ds.gold}`} style={{ marginTop: 7 }}>
+          <i style={{ width: `${Math.round((achievedCount / Math.max(1, required)) * 100)}%` }} />
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 9 }}>
+          {onGuide ? (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onGuide() }}
+              aria-label="上達のしくみを見る"
+              style={{ background: "none", border: "none", padding: 0, fontSize: 10.5, fontWeight: 800, color: "var(--gold)", cursor: "pointer" }}
+            >
+              ？上達のしくみ
+            </button>
+          ) : <span />}
+          <span style={{ fontSize: 10.5, color: "var(--text-muted)" }}>タップで演奏の軌跡 ▸</span>
+        </div>
       </div>
 
       {/* ボトムシート: 演奏の軌跡 */}

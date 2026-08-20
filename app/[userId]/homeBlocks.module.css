@@ -16,8 +16,10 @@
 
 /* 曲タブ (複数の練習中曲) */
 .tabs { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; margin-bottom:10px; }
-.tab { flex:0 0 auto; padding:6px 12px; border-radius:999px; border:1px solid var(--line); background:var(--panel); color:var(--inkSoft); font-size:var(--fs-body); cursor:pointer; white-space:nowrap; }
-.tabOn { border-color:var(--accent); background:var(--accent); color:var(--text-on-accent); }
+.tab { flex:0 0 auto; padding:5px 11px; border-radius:999px; border:1px solid transparent;
+  background:rgba(150,175,225,.07); color:var(--inkSoft); font-size:11px; font-weight:800;
+  cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; }
+.tabOn { border-color:rgba(232,178,60,.34); background:rgba(232,178,60,.16); color:var(--gold); }
 
 /* 練習中の曲が無いときの導線 */
 .startLead { font-size:var(--fs-body); color:var(--inkSoft); line-height:1.7; margin:0 0 11px; font-weight:600; }

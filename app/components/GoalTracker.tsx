@@ -37,13 +37,13 @@ export type AchievementStatus = {
 // マスターバーはマスター済みのときだけオレンジ。未マスターは灰色
 // (2026-08-16 Tetsuo指定: 部分塗りも廃止し、達成済みと誤認しない見た目に)
 function GoalRibbon({ stage }: { stage: 1 | 2 | 3 }) {
-  const GRAY = "#e6eaef"
+  const GRAY = "rgba(150,175,225,.14)"
   const bars = [
     stage >= 2 ? "#2b5bc4" : "#9db9e8",
     stage === 3 ? "#d9a93c" : GRAY,
   ]
   const labels = [stage >= 2 ? "弾けた" : "弾ける", "マスター"]
-  const labCol = ["#2b5bc4", stage === 3 ? "#d9a93c" : "#8b97a3"]
+  const labCol = ["#7fa4e8", stage === 3 ? "var(--gold)" : "var(--text-sub)"]
   return (
     <div style={{ margin: "2px 0 14px" }}>
       <div style={{ display: "flex", gap: 4 }}>
@@ -71,9 +71,9 @@ function GoalRing({ full, pct, done, total }: { full?: boolean; pct?: number; do
     return <div style={{ ...base, background: "#2b5bc4" }}><b style={{ fontSize: "var(--fs-display)", fontWeight: 900, color: "var(--text-on-accent)", lineHeight: 1 }}>✓</b></div>
   }
   return (
-    <div style={{ ...base, background: `conic-gradient(#2b5bc4 ${pct ?? 0}%, rgba(150,175,225,.18) 0)` }}>
+    <div style={{ ...base, background: `conic-gradient(var(--gold) ${pct ?? 0}%, rgba(150,175,225,.14) 0)` }}>
       <div style={{ position: "absolute", inset: 8, background: "var(--card-b)", borderRadius: "50%" }} />
-      <b style={{ position: "relative", zIndex: 1, fontSize: "var(--fs-head)", fontWeight: 900, color: "#2b5bc4", lineHeight: 1 }}>
+      <b style={{ position: "relative", zIndex: 1, fontSize: "var(--fs-head)", fontWeight: 900, color: "var(--cream)", lineHeight: 1 }}>
         {done}<small style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-sub)" }}>/{total}</small>
       </b>
     </div>
@@ -86,9 +86,9 @@ function GoalDot({ icon, name, done, href }: { icon: ReactNode; name: string; do
   const body = (
     <>
       {/* クリア済みは濃い青の丸+白いアイコン線で一目でわかるように (2026-08-16 Tetsuo指定) */}
-      <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", background: done ? "#2b5bc4" : "rgba(122,167,255,.14)", color: done ? "#fff" : "#7aa7ff" }}>{icon}</span>
-      <span style={{ fontWeight: 700, color: "#1f3d78" }}>{name}</span>
-      {done && <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 700, color: "#2b5bc4" }}>✓</span>}
+      <span style={{ width: 26, height: 26, flex: "none", borderRadius: "50%", display: "grid", placeItems: "center", background: done ? "rgba(232,178,60,.16)" : "rgba(150,175,225,.10)", color: done ? "var(--gold)" : "var(--text-sub)" }}>{icon}</span>
+      <span style={{ fontWeight: 700, color: done ? "var(--text-ink)" : "var(--text-sub)" }}>{name}</span>
+      {done && <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--gold)" }}>✓</span>}
       {!done && href && <span style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)" }}>やる →</span>}
     </>
   )
@@ -105,7 +105,7 @@ function GoalDot({ icon, name, done, href }: { icon: ReactNode; name: string; do
 
 const goalCheer = (gold?: boolean) => ({
   margin: "10px 0 0", fontSize: gold ? 14 : 12.5, fontWeight: 800, textAlign: "center" as const,
-  color: gold ? "#d9a93c" : "#2b5bc4", background: gold ? "rgba(232,178,60,.14)" : "rgba(122,167,255,.14)", borderRadius: 10, padding: gold ? 12 : 7,
+  color: gold ? "var(--gold)" : "#7fa4e8", background: gold ? "rgba(232,178,60,.14)" : "rgba(122,167,255,.14)", borderRadius: 10, padding: gold ? 12 : 7,
 })
 
 /** 上達のようすモーダル (portal直付け: 祖先の.pressable transformでfixedが壊れる既知トラップ回避) */
@@ -217,16 +217,16 @@ export default function GoalTracker({ achv, userId, scoreId }: { achv: Achieveme
         <>
           <div>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 8, margin: "2px 0 12px" }}>
-              <span style={{ fontSize: "var(--fs-display)", fontWeight: 900, lineHeight: 0.9, color: "#16294f" }}>
+              <span style={{ fontSize: "var(--fs-display)", fontWeight: 900, lineHeight: 0.9, color: "var(--cream)" }}>
                 {avg != null ? avg.toFixed(0) : "—"}<small style={{ fontSize: "var(--fs-subhead)", fontWeight: 800 }}>点</small>
               </span>
             </div>
             <div style={{ position: "relative", paddingTop: 16 }}>
-              <div style={{ position: "absolute", top: 0, left: "90%", transform: "translateX(-50%)", fontSize: "var(--fs-label)", fontWeight: 900, color: "#16294f" }}>
+              <div style={{ position: "absolute", top: 0, left: "90%", transform: "translateX(-50%)", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--gold)" }}>
                 90
                 <div style={{ width: 2, height: 8, background: "#d9a93c", margin: "1px auto 0" }} />
               </div>
-              <div style={{ height: 12, borderRadius: 8, background: "#eef1f5", overflow: "hidden" }}>
+              <div style={{ height: 12, borderRadius: 8, background: "rgba(150,175,225,.14)", overflow: "hidden" }}>
                 <div style={{ height: "100%", borderRadius: 8, width: `${avgPct}%`, background: "#2b5bc4" }} />
               </div>
             </div>
@@ -240,7 +240,7 @@ export default function GoalTracker({ achv, userId, scoreId }: { achv: Achieveme
                 <button
                   type="button"
                   onClick={() => setShowTrajectory(true)}
-                  style={{ border: "none", background: "transparent", padding: 0, marginLeft: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#2b5bc4", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}
+                  style={{ border: "none", background: "transparent", padding: 0, marginLeft: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#7fa4e8", cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}
                 >
                   上達のようすを見る
                 </button>

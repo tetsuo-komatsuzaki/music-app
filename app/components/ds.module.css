@@ -1,0 +1,183 @@
+/* ============================================================
+   Arcoda デザインシステム (モック142枚の生成元 uiv2/app.css の移植)
+   2026-08-20 ダーク全面刷新。モックとの一致が正のため、値は変えない。
+   色は globals.css のトークン (--card-a/--card-b/--line/--gold 等) を参照。
+   ============================================================ */
+
+.t {
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  padding: 6px 2px 0;
+  color: var(--text-ink);
+}
+
+.card {
+  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 16px;
+  margin-top: 14px;
+}
+
+.lab {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--text-sub);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rowMain {
+  flex: 1;
+  min-width: 0;
+}
+.rowMain b {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 800;
+}
+.rowMain span {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-sub);
+  margin-top: 2px;
+}
+
+.chk {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.chk svg {
+  width: 13px;
+  height: 13px;
+}
+.chk.gold { background: rgba(232, 178, 60, 0.16); }
+.chk.gold svg { stroke: var(--gold); }
+.chk.teal { background: rgba(127, 196, 196, 0.16); }
+.chk.teal svg { stroke: var(--teal); }
+.chk.green { background: rgba(168, 201, 127, 0.16); }
+.chk.green svg { stroke: var(--green-soft); }
+.chk.pink { background: rgba(232, 155, 168, 0.16); }
+.chk.pink svg { stroke: var(--pink-soft); }
+
+.todo {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #0e1830;
+  border: 1px solid rgba(150, 175, 225, 0.1);
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.bigN {
+  color: var(--cream);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 4px 11px;
+}
+.pill.gold { background: rgba(232, 178, 60, 0.15); color: var(--gold); }
+.pill.teal { background: rgba(127, 196, 196, 0.15); color: var(--teal); }
+.pill.pink { background: rgba(232, 155, 168, 0.15); color: var(--pink-soft); }
+.pill.mute { background: rgba(150, 175, 225, 0.12); color: var(--text-sub); }
+.pill.ink {
+  background: #0e1830;
+  color: var(--gold);
+  border: 1px solid rgba(232, 178, 60, 0.35);
+}
+
+.bar {
+  height: 7px;
+  border-radius: 5px;
+  background: rgba(150, 175, 225, 0.14);
+  overflow: hidden;
+}
+.bar i {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+}
+.bar.gold i { background: linear-gradient(90deg, #f0c25c, var(--gold-2)); }
+.bar.teal i { background: var(--teal); }
+.bar.green i { background: var(--green-soft); }
+.bar.pink i { background: var(--pink-soft); }
+
+.arrow {
+  color: var(--gold);
+  font-weight: 900;
+}
+
+.stars {
+  color: var(--gold);
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+.stars s {
+  color: #31406a;
+  text-decoration: none;
+}
+
+.seg {
+  display: flex;
+  background: #0e1830;
+  border: 1px solid rgba(150, 175, 225, 0.1);
+  border-radius: 14px;
+  padding: 4px;
+  margin-top: 14px;
+}
+.seg span {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-sub);
+  padding: 9px 0;
+  border-radius: 11px;
+}
+.seg span.on {
+  background: linear-gradient(180deg, #22355e, #182747);
+  color: var(--gold);
+  box-shadow: inset 0 0 0 1px rgba(232, 178, 60, 0.28);
+}
+
+/* リング進捗 (conic)。--p を 0%→目標% にすると描画が進む */
+.ring {
+  border-radius: 50%;
+  background: conic-gradient(var(--gold) var(--p, 0%), rgba(150, 175, 225, 0.14) 0);
+  display: grid;
+  place-items: center;
+}
+.ring .in {
+  width: 78%;
+  height: 78%;
+  border-radius: 50%;
+  background: var(--card-b);
+  display: grid;
+  place-items: center;
+  text-align: center;
+}

@@ -13,6 +13,7 @@ import FavoritesSection, { type FavoriteEntry } from "@/app/components/Favorites
 import TeacherAssignments, { type StudentAssignment, type TeacherHomeSummary } from "./TeacherAssignments"
 import AnalysisNoticeBar, { type AnalysisNotice } from "@/app/components/AnalysisNoticeBar"
 import hb from "./homeBlocks.module.css"
+import ds from "@/app/components/ds.module.css"
 import ProgressGuideModal from "@/app/components/ProgressGuideModal"
 import type { SongRecommendation } from "@/app/components/RecommendationItem"
 import type { GradeLevel } from "@/app/_libs/skillMaster"
@@ -86,7 +87,7 @@ type Props = {
 }
 
 export default function HomeClient({
-  userName: _userName,
+  userName,
   basicPracticeCards,
   recentPieces,
   nextPieceRecommendations,
@@ -99,7 +100,6 @@ export default function HomeClient({
   exprShelf,
   starterPick,
 }: Props) {
-  void _userName
   const { userId } = useParams<{ userId: string }>()
   const { onboardingSamplePiece, onboardingEnding, setOnboardingEnding } = useOnboarding()
   const [guideOpen, setGuideOpen] = useState(false)
@@ -112,6 +112,9 @@ export default function HomeClient({
 
   return (
     <div className={styles.page}>
+
+      {/* 挨拶の大見出し (モック HELLO ・ h1.t) */}
+      <h1 className={ds.t} style={{ paddingTop: 6 }}>こんにちは、{userName}さん</h1>
 
       {/* ⓪ 解析通知 (採点中チップ / 完了バナー)。該当なしなら何も出ない */}
       <AnalysisNoticeBar userId={userId} notices={analysisNotices} />
