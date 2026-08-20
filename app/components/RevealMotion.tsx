@@ -406,19 +406,43 @@ export default function RevealMotion() {
     }
     const t0 = window.setTimeout(prepareAll, 40)
 
+    // 発火済みブロックへ後から入った中身 (fetch後の達成条件・基礎練・リング等) は、
+    // 原本 v5 の play() と同じ流儀で「そのブロックを再生し直す」:
+    // reset (印を全部はがす) → prepare (項目の時差と葉の起点を配り直す) → IOが見えていれば即発火。
+    // 発火だけやり直すと項目の順番出しとリングの 0%→目標 が失われる (2026-08-21 修正)
+    const replay = (host: HTMLElement) => {
+      host.classList.remove("rv-on")
+      host.querySelectorAll<HTMLElement>("[data-rvi]").forEach((k) => {
+        delete k.dataset.rvi
+        delete k.dataset.rvt
+        k.style.removeProperty("--rvd")
+      })
+      host.querySelectorAll<HTMLElement>("[data-anim]").forEach((el) => {
+        delete el.dataset.rvFired
+        el.classList.remove("rv-go")
+      })
+      host.querySelectorAll<HTMLElement>(".rv-settled").forEach((el) => el.classList.remove("rv-settled"))
+      delete host.dataset.rv
+      host.style.removeProperty("--rvd")
+      prepare(host, 0)
+    }
+
     // 遅延描画 (fetch後のブロック / data-anim 部品) を拾う
     const mo = new MutationObserver((muts) => {
+      const hosts = new Set<HTMLElement>()
       for (const m of muts) {
         for (const node of m.addedNodes) {
           if (!(node instanceof HTMLElement)) continue
           if (node.classList.contains("rv-star")) continue
           if (node.matches?.(SEL)) prepare(node)
           node.querySelectorAll?.<HTMLElement>(SEL).forEach((b) => prepare(b))
-          // すでに見えているブロックの中へ後から入った部品は直接発火
-          const host = node.closest?.("[data-rv].rv-on")
-          if (host) fireInner(host as HTMLElement)
+          // data-anim 部品を含む中身が入ったブロックだけ再生し直す
+          // (アルコのポーズ替え等、演出部品を含まない差し替えでは再生しない)
+          const host = node.closest?.("[data-rv].rv-on") as HTMLElement | null
+          if (host && (node.matches?.("[data-anim]") || node.querySelector?.("[data-anim]"))) hosts.add(host)
         }
       }
+      hosts.forEach(replay)
     })
     mo.observe(main(), { childList: true, subtree: true })
 
