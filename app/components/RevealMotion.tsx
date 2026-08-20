@@ -324,8 +324,10 @@ export default function RevealMotion() {
       if (el.parentElement?.closest("[data-rv]")) return
       el.dataset.rv = ""
       el.style.setProperty("--rvd", `${Math.round(offset)}ms`)
-      // 項目 = card/letter の直下 (lab は枠と一緒に出る)
-      if (el.classList.contains(ds.card) || el.classList.contains(ds.letter)) {
+      // 項目 = カードの直下 (lab は枠と一緒に出る)。
+      // 「すべてのカードが起き上がり、中の項目がその後に順番に起き上がる」(2026-08-20 明文化)。
+      // 独自カード (data-anim="block") も ds.card と同格に扱う
+      if (el.classList.contains(ds.card) || el.classList.contains(ds.letter) || el.dataset.anim === "block") {
         const kids = [...el.children].filter(
           (k) =>
             (k as HTMLElement).offsetHeight > 0 &&
@@ -353,7 +355,7 @@ export default function RevealMotion() {
         if (el.dataset.rv !== undefined) return 0
         if (el.getBoundingClientRect().top >= vh) return 0
         let n = 0
-        if (el.classList.contains(ds.card) || el.classList.contains(ds.letter)) {
+        if (el.classList.contains(ds.card) || el.classList.contains(ds.letter) || el.dataset.anim === "block") {
           n = [...el.children].filter((k) => (k as HTMLElement).offsetHeight > 0 && !k.classList.contains(ds.lab)).length
         }
         const span = GAP_BLOCK + (n > 0 ? LEAD_IN + n * GAP_ITEM + 40 : 0)
