@@ -113,7 +113,12 @@ function useUnifiedLabelFit(containerRef: React.RefObject<HTMLDivElement | null>
     const fit = () => {
       const els = Array.from(container.querySelectorAll<HTMLElement>("[data-fit-label]"))
       if (!els.length) return
-      els.forEach((el) => { el.style.fontSize = "" }) // CSS既定 (--fs-caption) に戻してから測る
+      // 基準サイズは初回のインライン指定 (仕様値13.5px) を控えて毎回そこへ戻す。
+      // "" に戻すとインライン指定ごと消えて既定16pxへ落ちる (フローテストで検出 2026-08-21)
+      els.forEach((el) => {
+        if (el.dataset.fitBase == null) el.dataset.fitBase = el.style.fontSize || getComputedStyle(el).fontSize
+        el.style.fontSize = el.dataset.fitBase
+      })
       let size = parseFloat(getComputedStyle(els[0]).fontSize)
       const allFit = () => els.every((el) => el.scrollWidth <= el.clientWidth)
       while (!allFit() && size > 9) {

@@ -81,7 +81,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
         <Link href={piece.href} className={styles.piece} style={{ textDecoration: "none", color: "inherit", background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", border: "none", padding: "13px 15px", gap: 12, margin: 0, borderRadius: 0 }}>
           <div className={styles.thumb} style={{ width: 50, height: 50, borderRadius: 14, fontSize: 20, background: "rgba(255,255,255,.16)", color: "#fff" }}>{piece.cover ? <img src={piece.cover} alt="" loading="lazy" /> : "♪"}</div>
           <div className={styles.g}>
-            <div className={styles.title} style={{ fontSize: piece.title.length <= 8 ? 18 : piece.title.length <= 13 ? "var(--fs-subhead)" : piece.title.length <= 20 ? "var(--fs-body)" : "var(--fs-caption)", color: "#fff", whiteSpace: "normal", overflow: "visible", textOverflow: "clip", lineHeight: 1.25, wordBreak: "break-word" }}>{piece.title}</div>
+            <div className={styles.title} style={{ fontSize: piece.title.length <= 8 ? 18 : piece.title.length <= 13 ? "var(--fs-subhead)" : piece.title.length <= 20 ? "var(--fs-body)" : "var(--fs-caption)", fontWeight: 900, color: "#fff", whiteSpace: "normal", overflow: "visible", textOverflow: "clip", lineHeight: 1.25, wordBreak: "break-word" }}>{piece.title}</div>
             <div className={styles.meta} style={{ fontSize: 12, color: "#cdd9f2", fontWeight: 700, marginTop: 2 }}>{piece.star != null ? `☆${piece.star} ・ ` : ""}直近 {piece.latest}点</div>
           </div>
           <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", justifyContent: "space-between", alignSelf: "stretch", flex: "none", gap: 6 }}>
