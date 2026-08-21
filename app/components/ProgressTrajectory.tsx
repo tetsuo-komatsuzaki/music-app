@@ -140,16 +140,16 @@ export default function ProgressTrajectory({
       {/* モック: bigN 40px + 伸びチップ */}
       <div style={{ display: "flex", alignItems: "flex-end", gap: 10, marginTop: 4 }}>
         <div className={ds.bigN} style={{ fontSize: 40, lineHeight: 1 }}><span data-anim="count">{latest}</span></div>
+        {/* F6 変化量ピル (Motion Edition 正本): 軸色13%薄塗り + ↗/↘ ・ 枠なし */}
         <span
           style={{
             display: "inline-flex", alignItems: "center", gap: 4, marginBottom: 8,
-            fontSize: 11, fontWeight: 800, borderRadius: 999, padding: "3px 10px",
-            background: up ? "rgba(168,201,127,.16)" : "rgba(232,155,168,.16)",
+            fontSize: 11.5, fontWeight: 800, borderRadius: 999, padding: "4px 11px",
+            background: up ? "rgba(168,201,127,.13)" : "rgba(232,155,168,.13)",
             color: up ? "var(--green-soft)" : "var(--pink-soft)",
-            border: up ? "1px solid rgba(168,201,127,.3)" : "1px solid rgba(232,155,168,.3)",
           }}
         >
-          {up ? "▲" : "▼"} {up ? "+" : ""}{delta}
+          {up ? "↗" : "↘"} {up ? "+" : ""}{delta}
         </span>
       </div>
 
