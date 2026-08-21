@@ -60,7 +60,9 @@ export default function TiltEffect() {
     const move = (e: PointerEvent) => {
       if (e.pointerType !== "mouse" && !touching) return
       const under = document.elementFromPoint(e.clientX, e.clientY)
-      const t = (under as HTMLElement | null)?.closest?.(SELC) as HTMLElement | null
+      let t = (under as HTMLElement | null)?.closest?.(SELC) as HTMLElement | null
+      // 横レール内は対象外 (長押しドラッグで上下に傾いて見える事故の防止 2026-08-21)
+      if (t?.closest("[data-no-tilt]")) t = null
       if (t !== cur) {
         if (cur) release(cur)
         cur = t

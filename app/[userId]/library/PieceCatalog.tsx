@@ -64,7 +64,7 @@ export default function PieceCatalog({ userId, pieces }: { userId: string; piece
       {genreGroups.map((grp, idx) => (
         <section key={grp.label || idx} style={{ marginTop: 16 }}>
           <h3 style={{ fontSize: 11, fontWeight: 900, color: "var(--text-sub)", letterSpacing: ".06em", margin: "0 2px 9px" }}>{grp.label}</h3>
-          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 2, scrollSnapType: "x proximity", overscrollBehaviorX: "contain", touchAction: "pan-x pan-y" }} data-onboarding={idx === 0 ? "pieces.rail" : undefined}>
+          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 2, scrollSnapType: "x proximity", overscrollBehaviorX: "contain", touchAction: "pan-x pan-y", userSelect: "none", WebkitUserSelect: "none", WebkitTouchCallout: "none" }} data-no-tilt data-onboarding={idx === 0 ? "pieces.rail" : undefined}>
             {grp.pieces.map(piece => (
               <button
                 key={piece.groupId}
