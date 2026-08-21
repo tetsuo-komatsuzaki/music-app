@@ -4,13 +4,74 @@
 // 曲タブに統合 (2026-08-21 Tetsuo指示: 曲をさがすの別ページ廃止)。
 // カード = 132px ・ サムネ58px角丸11 (ジャケット写真 or 紺グラデ♪) + 題12px + ★10px。
 // タップで練習前シート (難易度・パートのフルラダー)。
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { Crown } from "lucide-react"
 import ds from "@/app/components/ds.module.css"
 import { SONG_GENRES } from "@/app/_libs/songGenre"
 import PrePracticeSheet from "../practice/pieces/PrePracticeSheet"
 import OnboardingTrigger from "../_onboarding/OnboardingTrigger"
 import type { CatalogPiece } from "./loadPieceCatalog"
+
+
+// E5 レールの時差追従 (2026-08-21 Tetsuo提供仕様 ・ リバイス11)。
+// レール全体を一括で動かさず、各カードが「i*28ms 前のスクロール位置」をやわらかく追う。
+// 移動中だけ隣接カードに最大8pxのズレが生まれ、停止すると先頭から順に元位置へ収束する。
+// Framer Motion 未導入のため rAF + 位置履歴で実装 (クリックは一切遅らせない)。
+const STAG_DELAY = 28   // カードごとの時間差 (20〜35msの中庸)
+const STAG_MAX = 8      // 移動中の最大ズレ (6〜10pxの中庸)
+const STAG_SOFT = 0.32  // 収束のやわらかさ (ばね近似 ・ 跳ねさせない)
+function useStaggerRail() {
+  return useCallback((rail: HTMLDivElement | null) => {
+    if (!rail) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    type Sample = { t: number; x: number }
+    const hist: Sample[] = []
+    let raf = 0
+    let idleAt = 0
+    const sample = () => {
+      const now = performance.now()
+      hist.push({ t: now, x: rail.scrollLeft })
+      while (hist.length > 2 && hist[0].t < now - 600) hist.shift()
+    }
+    const at = (t: number) => {
+      // t 時点のスクロール位置を履歴から線形補間
+      if (hist.length === 0) return rail.scrollLeft
+      if (t <= hist[0].t) return hist[0].x
+      for (let i = hist.length - 1; i >= 0; i--) {
+        if (hist[i].t <= t) {
+          const a2 = hist[i], b2 = hist[i + 1]
+          if (!b2) return a2.x
+          const k = (t - a2.t) / Math.max(1, b2.t - a2.t)
+          return a2.x + (b2.x - a2.x) * k
+        }
+      }
+      return hist[hist.length - 1].x
+    }
+    const cards = () => [...rail.children] as HTMLElement[]
+    const shown = new Map<HTMLElement, number>()
+    const tick = () => {
+      sample()
+      const now = performance.now()
+      const cur = rail.scrollLeft
+      let active = false
+      cards().forEach((el, i) => {
+        const target = Math.max(-STAG_MAX, Math.min(STAG_MAX, at(now - i * STAG_DELAY) - cur))
+        const prev = shown.get(el) ?? 0
+        const next = prev + (target - prev) * STAG_SOFT
+        shown.set(el, next)
+        if (Math.abs(next) > 0.3 || Math.abs(target) > 0.3) active = true
+        el.style.transform = Math.abs(next) > 0.3 ? `translateX(${next.toFixed(1)}px)` : ""
+      })
+      if (active || now < idleAt) raf = requestAnimationFrame(tick)
+      else raf = 0
+    }
+    const onScroll = () => {
+      idleAt = performance.now() + 200
+      if (!raf) raf = requestAnimationFrame(tick)
+    }
+    rail.addEventListener("scroll", onScroll, { passive: true })
+  }, [])
+}
 
 // サムネ (原本: 100%×58 ・ 角丸11 ・ 紺グラデ ・ ♪19px #7FA4E8)。ジャケット写真があれば写真。
 // 右上の 👑/✓ は判定バッジ (情報量維持で残置)
@@ -53,6 +114,7 @@ function groupByGenre(pieces: CatalogPiece[]): { label: string; pieces: CatalogP
 
 export default function PieceCatalog({ userId, pieces }: { userId: string; pieces: CatalogPiece[] }) {
   const [sheet, setSheet] = useState<CatalogPiece | null>(null)
+  const staggerRef = useStaggerRail()
   const genreGroups = groupByGenre([...pieces].sort((a, b) => a.title.localeCompare(b.title, "ja")))
 
   const handleTap = (p: CatalogPiece) => {
@@ -64,7 +126,7 @@ export default function PieceCatalog({ userId, pieces }: { userId: string; piece
       {genreGroups.map((grp, idx) => (
         <section key={grp.label || idx} style={{ marginTop: 16 }}>
           <h3 style={{ fontSize: 11, fontWeight: 900, color: "var(--text-sub)", letterSpacing: ".06em", margin: "0 2px 9px" }}>{grp.label}</h3>
-          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 2, scrollSnapType: "x proximity", overscrollBehaviorX: "contain", touchAction: "pan-x pan-y", userSelect: "none", WebkitUserSelect: "none", WebkitTouchCallout: "none" }} data-no-tilt data-onboarding={idx === 0 ? "pieces.rail" : undefined}>
+          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 2, scrollSnapType: "x proximity", overscrollBehaviorX: "contain", touchAction: "pan-x pan-y", userSelect: "none", WebkitUserSelect: "none", WebkitTouchCallout: "none" }} data-no-tilt ref={staggerRef} data-onboarding={idx === 0 ? "pieces.rail" : undefined}>
             {grp.pieces.map(piece => (
               <button
                 key={piece.groupId}

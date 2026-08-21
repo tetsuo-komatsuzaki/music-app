@@ -1,8 +1,13 @@
-/* 練習前シート (Phase C) */
+/* 練習前シート — 確定モック parts-07 PRESHEET / SHEET_BODY (scratchpad/build-parts.py) の写経
+   (2026-08-21)。覆い rgba(5,10,22,.62) ・ シート #16264A→#101C36 角丸24 罫.16 ・
+   つまみ38×4 ・ ✕26px ・ 見出し14/800/18 2 10 ・ 行リスト=inset(罫.09 ・ 選択=金7% ・
+   ラジオ19px金) ・ 準備中/選択不可チップ ・ お手本=金ピル ・ 譜面は紙 #FFF6E4 (例外) ・
+   CTA=金グラデ+光沢スイープ。曲バリアントのジャケット92px/ベスト表示は情報量維持で残置 */
+
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(18, 14, 24, 0.34);
+  background: rgba(5, 10, 22, 0.62);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -15,111 +20,138 @@
   position: relative;
   width: 100%;
   max-width: 520px;
-  background: #fff;
-  border-radius: 22px 22px 0 0;
-  padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
-  box-shadow: 0 -18px 50px -18px rgba(25, 15, 40, 0.4);
+  background: linear-gradient(180deg, #16264a 0%, #101c36 100%);
+  border-top: 1px solid rgba(150, 175, 225, 0.16);
+  border-radius: 24px 24px 0 0;
+  padding: 10px 18px calc(18px + env(safe-area-inset-bottom));
   animation: rise 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
   max-height: 88vh;
   overflow-y: auto;
 }
 @keyframes rise { from { transform: translateY(70%); opacity: 0.5 } to { transform: none; opacity: 1 } }
 
-.grab { width: 40px; height: 5px; border-radius: 3px; background: #e0dde0; margin: 2px auto 8px; }
+.grab { width: 38px; height: 4px; border-radius: 3px; background: rgba(150, 175, 225, 0.28); margin: 2px auto 8px; }
 .close {
-  position: absolute; top: 14px; right: 16px; width: 34px; height: 34px; border-radius: 50%;
-  background: #f2f1f4; border: none; cursor: pointer; color: var(--text-body); display: grid; place-items: center;
+  position: absolute; top: 12px; right: 14px; width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(150, 175, 225, 0.12); border: none; cursor: pointer; color: var(--text-sub);
+  font-size: 13px; display: grid; place-items: center;
 }
 
 .hero { display: flex; gap: 15px; align-items: center; margin: 6px 0 8px; }
 .cover {
   width: 92px; height: 92px; border-radius: 16px; flex: 0 0 auto; overflow: hidden;
-  background: linear-gradient(150deg, #3a4a8c, #6b4f9e); display: grid; place-items: center;
+  background: linear-gradient(150deg, #2a3f6b, #1b2b4c); display: grid; place-items: center;
 }
 .cover img { width: 100%; height: 100%; object-fit: cover; }
 .info { min-width: 0; }
-.title { font-size: var(--fs-head); font-weight: 800; line-height: 1.3; color: var(--text-ink); }
-.composer { font-size: var(--fs-body); color: var(--text-sub); margin-top: 3px; }
-.best { font-size: var(--fs-body); font-weight: 700; color: var(--text-master); margin-top: 5px; }
+.title { font-size: 17px; font-weight: 900; line-height: 1.3; color: var(--text-ink); }
+.composer { font-size: 11.5px; color: var(--text-sub); margin-top: 3px; }
+.best { font-size: var(--fs-body); font-weight: 700; color: var(--gold); margin-top: 5px; }
 
-.slab { font-size: var(--fs-body); font-weight: 800; color: var(--text-ink); margin: 18px 2px 10px; }
+.slab { font-size: 14px; font-weight: 800; color: var(--text-ink); margin: 18px 2px 10px; }
 
-.difs { border: 1px solid #eee; border-radius: 14px; overflow: hidden; }
+/* 行リスト = 原本 .inset (padding0 ・ 罫.09) */
+.difs {
+  background: var(--card-in);
+  border: 1px solid rgba(150, 175, 225, 0.08);
+  border-radius: 14px;
+  overflow: hidden;
+}
 .dif {
-  width: 100%; display: flex; align-items: center; gap: 12px; padding: 13px 14px; cursor: pointer;
-  background: #fff; border: none; border-bottom: 1px solid #f1f0f2; text-align: left; font-family: inherit;
+  width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 13px; cursor: pointer;
+  background: none; border: none; border-top: 1px solid rgba(150, 175, 225, 0.09);
+  text-align: left; font-family: inherit;
   transition: background 0.14s;
 }
-.dif:last-child { border-bottom: none; }
-.difOn { background: #f4f6ff; }
-.difDisabled { opacity: .55; cursor: default; background: #fafafb; }
-.soon { font-size: var(--fs-caption); font-weight: 700; color: var(--text-muted); margin-left: auto; border: 1px solid #e6e2e8; border-radius: 6px; padding: 1.5px 8px; }
+.dif:first-child { border-top: none; }
+.difOn { background: rgba(232, 178, 60, 0.07); }
+.difDisabled { opacity: 0.55; cursor: default; background: none; }
+.soon {
+  font-size: 10.5px; font-weight: 700; color: var(--text-muted); margin-left: auto;
+  border: 1px solid rgba(150, 175, 225, 0.16); border-radius: 6px; padding: 1.5px 8px;
+}
 .dot { width: 13px; height: 13px; border-radius: 50%; flex: 0 0 auto; }
-.difName { font-size: var(--fs-subhead); font-weight: 800; color: var(--text-ink); flex: 1; }
+.difName { font-size: 13.5px; font-weight: 800; color: var(--text-ink); flex: 1; }
 .difName small { display: block; font-size: var(--fs-caption); font-weight: 600; color: var(--text-muted); margin-top: 1px; }
-.difBest { font-size: var(--fs-caption); font-weight: 700; color: var(--text-master); margin-right: 8px; font-variant-numeric: tabular-nums; }
+.difBest { font-size: 10.5px; font-weight: 700; color: var(--teal); margin-right: 8px; font-variant-numeric: tabular-nums; }
 /* 登録時の難易度⭐︎ (star 1-10) */
 .difStar { font-size: var(--fs-body); font-weight: 800; color: var(--text-link); margin-right: 10px; font-variant-numeric: tabular-nums; }
-.radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #d4d1d6; flex: 0 0 auto; display: grid; place-items: center; }
-.radio[data-on="true"] { border-color: #4a6cf7; }
-.radio[data-on="true"]::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #4a6cf7; }
+.radio {
+  width: 19px; height: 19px; border-radius: 50%;
+  border: 2px solid rgba(150, 175, 225, 0.26); flex: 0 0 auto; display: grid; place-items: center;
+}
+.radio[data-on="true"] { border-color: var(--gold); background: rgba(232, 178, 60, 0.16); }
+.radio[data-on="true"]::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
 
-/* 譜面プレビュー + お手本再生 (難易度連動) */
+/* 譜面プレビュー + お手本再生 (難易度連動)。譜面は紙のまま (ダーク化の例外) */
 .previewWrap { margin: 14px 0 2px; }
 .modelBtn {
-  display: inline-flex; align-items: center; gap: 7px; border: 1px solid #dfe3fb; background: #eef1fd;
-  color: var(--text-link); font-family: inherit; font-size: var(--fs-body); font-weight: 800; padding: 8px 14px;
-  border-radius: 999px; cursor: pointer; transition: filter .15s;
+  display: inline-flex; align-items: center; gap: 7px; border: none;
+  background: rgba(232, 178, 60, 0.15); color: var(--gold);
+  font-family: inherit; font-size: var(--fs-body); font-weight: 800; padding: 8px 14px;
+  border-radius: 999px; cursor: pointer; transition: filter 0.15s;
 }
-.modelBtn:disabled { opacity: .5; cursor: default; }
-.modelBtn:active { filter: brightness(.96); }
+.modelBtn:disabled { opacity: 0.5; cursor: default; }
+.modelBtn:active { filter: brightness(0.96); }
 .sheetBox {
-  margin-top: 10px; border: 1px solid #eee; border-radius: 12px; background: #fff;
+  margin-top: 10px; border: none; border-radius: 14px; background: #fff6e4;
   max-height: 156px; overflow: hidden auto; position: relative;
 }
-.previewNote { padding: 26px 12px; text-align: center; font-size: var(--fs-body); color: var(--text-muted); }
+.previewNote { padding: 26px 12px; text-align: center; font-size: var(--fs-body); color: #6f6448; }
 .osmdBox { padding: 6px 4px; }
 .osmdBox svg { max-width: 100%; height: auto; }
 .expandHint {
   position: absolute; right: 8px; bottom: 8px; display: inline-flex; align-items: center; gap: 4px;
-  font-size: var(--fs-caption); font-weight: 700; color: var(--text-sub); background: rgba(255,255,255,.86);
-  border: 1px solid #eceaef; border-radius: 8px; padding: 3px 8px; pointer-events: none;
+  font-size: var(--fs-caption); font-weight: 700; color: #6f6448; background: rgba(255, 255, 255, 0.86);
+  border: 1px solid #e8dfc8; border-radius: 8px; padding: 3px 8px; pointer-events: none;
 }
-/* 全画面譜面 */
+/* 全画面譜面 (紙のまま) */
 .fsOverlay {
   position: fixed; inset: 0; z-index: 2000; background: #fff;
   display: flex; align-items: flex-start; justify-content: center; overflow: auto;
-  animation: fade .18s ease both;
+  animation: fade 0.18s ease both;
 }
 .fsClose {
   position: fixed; top: 14px; right: 16px; z-index: 2001; width: 40px; height: 40px; border-radius: 50%;
-  background: #f2f1f4; border: none; cursor: pointer; color: var(--text-ink); display: grid; place-items: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  background: rgba(22, 41, 79, 0.08); border: none; cursor: pointer; color: #16294f; display: grid; place-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 .fsSheet { width: 100%; max-width: 1000px; padding: 60px 14px 40px; }
 .fsSheet svg { max-width: 100%; height: auto; }
 
-/* この曲に必要な技術タグ (未習得表示) */
+/* この曲に必要な技術タグ (原本: pill mute ・ 未習得=コーラル「まだ」) */
 .skillsWrap { margin: 14px 0 2px; }
 .skillsLab { font-size: var(--fs-body); font-weight: 800; color: var(--text-ink); margin: 0 2px 9px; display: flex; align-items: center; gap: 8px; }
-.skillsWarn { font-size: var(--fs-caption); font-weight: 800; color: #c0396a; background: #fdeef1; border-radius: 6px; padding: 2px 8px; }
+.skillsWarn { font-size: var(--fs-caption); font-weight: 800; color: #e8a78f; background: rgba(232, 138, 111, 0.14); border-radius: 6px; padding: 2px 8px; }
 .skillsChips { display: flex; flex-wrap: wrap; gap: 7px; }
 .skillChip {
   display: inline-flex; align-items: center; gap: 5px; font-size: var(--fs-body); font-weight: 700;
-  color: var(--text-body); background: #f2f1f4; border: 1px solid #eceaef; border-radius: 999px;
+  color: var(--text-ink); background: rgba(150, 175, 225, 0.12); border: none; border-radius: 999px;
   padding: 5px 11px; text-decoration: none;
 }
 .skillUnlearned {
-  color: #b83a5e; background: #fdeef1; border-color: #f5cdd8;
+  color: #e8a78f; background: rgba(232, 138, 111, 0.14); border: 1px solid rgba(232, 138, 111, 0.3);
 }
-.skillBadge { font-size: var(--fs-label); font-weight: 800; color: var(--text-on-accent); background: #d6547a; border-radius: 5px; padding: 1px 6px; }
-a.skillChip:active { filter: brightness(.97); }
-.skillsNone { font-size: var(--fs-body); color: var(--text-sub); background: #f7f7f9; border: 1px solid #eee; border-radius: 10px; padding: 9px 12px; }
+.skillBadge { font-size: var(--fs-label); font-weight: 800; color: #201604; background: var(--gold); border-radius: 5px; padding: 1px 6px; }
+a.skillChip:active { filter: brightness(0.97); }
+.skillsNone { font-size: var(--fs-body); color: var(--text-sub); background: var(--card-in); border: 1px solid rgba(150, 175, 225, 0.08); border-radius: 10px; padding: 9px 12px; }
 
+/* CTA = 原本: 金グラデ ・ #201604 ・ 15px/900 ・ p16 ・ mt20 + D4光沢スイープ */
 .cta {
   width: 100%; border: none; cursor: pointer; border-radius: 16px; padding: 16px; margin-top: 20px;
-  font-family: inherit; font-size: var(--fs-subhead); font-weight: 800; color: var(--text-on-accent); letter-spacing: 0.02em;
-  background: linear-gradient(100deg, #4a6cf7, #6a5cf0);
-  box-shadow: 0 12px 26px -10px rgba(74, 108, 247, 0.55); transition: transform 0.15s;
+  font-family: inherit; font-size: 15px; font-weight: 900; color: #201604; letter-spacing: 0.02em;
+  background: linear-gradient(180deg, #e8b23c, #d2992c);
+  position: relative; overflow: hidden;
 }
-.cta:active { transform: translateY(1px); }
+.cta::after {
+  content: "";
+  position: absolute;
+  top: -10%; bottom: -10%; left: -60%; width: 40%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-18deg);
+  animation: sweepX 3.4s ease-in-out infinite;
+}
+@keyframes sweepX { 0%, 55% { left: -60%; } 100% { left: 140%; } }
+@media (prefers-reduced-motion: reduce) {
+  .cta::after { animation: none; }
+}
