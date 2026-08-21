@@ -118,24 +118,6 @@ body > div { position: relative; z-index: 1; }
 /* ── B群のカード翻案 (2026-08-21 Tetsuo指示・リバイス3) ──
    B1 浮遊: 独自カード (data-anim=block) も同じ 7s/-7px/奇数-3.5s (translate で合成)
    B3 縁グロー: 押下中に銀の外周ライン + 60px の銀グロー (ホバー→押下に翻案) */
-[data-anim="block"],
-button,
-[role="button"],
-a,
-.pressable {
-  animation: cardFloatG 7s ease-in-out infinite;
-}
-[data-anim="block"]:nth-child(odd),
-button:nth-child(odd),
-[role="button"]:nth-child(odd),
-a:nth-child(odd),
-.pressable:nth-child(odd) {
-  animation-delay: -3.5s;
-}
-@keyframes cardFloatG {
-  0%, 100% { translate: 0 0; }
-  50% { translate: 0 -7px; }
-}
 button:active:not(:disabled):not(.noPress),
 [role="button"]:active:not(.noPress),
 a:active:not(.noPress),
@@ -143,10 +125,16 @@ a:active:not(.noPress),
   box-shadow: 0 0 0 1.5px rgba(191, 207, 237, 0.55), 0 14px 40px rgba(10, 16, 40, 0.7),
     0 0 60px rgba(163, 183, 219, 0.16);
 }
-@media (prefers-reduced-motion: reduce) {
-  [data-anim="block"], button, [role="button"], a, .pressable { animation: none; }
+/* B3 は原本どおりホバーでも効かせる (2026-08-21 リバイス6・マウス環境のみ) */
+@media (hover: hover) {
+  button:hover:not(:disabled):not(.noPress),
+  [role="button"]:hover:not(.noPress),
+  a:hover:not(.noPress),
+  .pressable:hover:not(.noPress) {
+    box-shadow: 0 0 0 1.5px rgba(191, 207, 237, 0.55), 0 14px 40px rgba(10, 16, 40, 0.7),
+      0 0 60px rgba(163, 183, 219, 0.16);
+  }
 }
-
 /* ── 出現演出の部品 (モック app.v5.motion 相当・RevealMotion が制御) ── */
 /* v3: 最初の描画から main を隠す (layout.tsx のインラインスクリプトが立てる)。
    モック同様「隠れた状態で始まり時差出現」を成立させるための土台。

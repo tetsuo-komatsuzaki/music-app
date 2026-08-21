@@ -45,26 +45,6 @@
   margin-top: 14px;
 }
 
-/* B1 端末の浮遊 → カードに翻案 (2026-08-21 Tetsuo指示・リバイス3)。
-   原本と同じく translate プロパティで浮かせる (出現演出の transform と独立に合成される)。
-   楽譜入りカードは読譜の妨げになるため浮かせない */
-.card {
-  animation: cardFloat 7s ease-in-out infinite;
-}
-.card:nth-child(odd) {
-  animation-delay: -3.5s;
-}
-.card:has([id^="osmd"]) {
-  animation: none;
-}
-@keyframes cardFloat {
-  0%, 100% { translate: 0 0; }
-  50% { translate: 0 -7px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .card { animation: none; }
-}
-
 .lab {
   font-size: 11px;
   font-weight: 800;
