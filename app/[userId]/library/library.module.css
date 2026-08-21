@@ -1,74 +1,45 @@
-/* ライブラリ — モック build-lib.py の写経 (2026-08-20 ダーク全面刷新)。
-   値は uiv2/app.css と lib-mock のインライン指定をそのまま。変えない。 */
+/* ライブラリ — 確定モック lib-mock (scratchpad/build-lib.py) の写経 (2026-08-21 再写経)。
+   値は原本そのまま: subT 13px/5 2 0 ・ 検索=inset(cardIn/罫.08/角丸14) 11px 13px ・
+   seg=uiv2 .seg ・ カテゴリ grid2 gap12。カード類は ds.card を使う (演出自動継承) */
 
 .root {
   display: flex;
   flex-direction: column;
 }
 
-/* h1.t / .subT (uiv2/app.css) */
-.head {
-  display: block;
-}
-.title {
-  margin: 0;
-  font-size: 27px;
-  font-weight: 900;
-  letter-spacing: 0.01em;
-  padding: 6px 2px 0;
-  color: var(--text-ink);
-}
-.lead {
-  margin: 0;
+.subT {
   color: var(--text-sub);
   font-size: 13px;
   padding: 5px 2px 0;
 }
 
-/* 検索 = .inset の行 (HEAD) */
-.searchRow {
-  display: flex;
-  gap: 9px;
-  margin-top: 12px;
-  align-items: stretch;
-}
+/* 検索 = 原本 HEAD の inset (margin-top:12) */
 .search {
-  flex: 1;
+  margin-top: 12px;
+  background: var(--card-in);
+  border: 1px solid rgba(150, 175, 225, 0.08);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   gap: 9px;
   padding: 11px 13px;
-  background: var(--card-in);
-  border: 1px solid rgba(150, 175, 225, 0.08);
-  border-radius: 14px;
-  color: var(--text-sub);
+  color: var(--text-muted);
 }
 .search input {
   flex: 1;
   min-width: 0;
-  border: none;
   background: none;
-  font: inherit;
-  font-size: 13px;
-  color: var(--text-ink);
+  border: none;
   outline: none;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-ink);
 }
 .search input::placeholder {
   color: var(--text-muted);
 }
-.addBtn {
-  flex: none;
-  width: 44px;
-  border: none;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #e8b23c, #d2992c);
-  color: #201604;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
 
-/* セグメント = .seg (uiv2/app.css) */
+/* セグメント = uiv2 .seg (原本値) */
 .segments {
   display: flex;
   background: #0e1830;
@@ -96,120 +67,8 @@
   box-shadow: inset 0 0 0 1px rgba(232, 178, 60, 0.28);
 }
 
-/* プラン案内 = PLAN_NOTICE */
-.notice {
-  position: relative;
-  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
-  border: 1px solid rgba(232, 178, 60, 0.3);
-  border-radius: 20px;
-  padding: 14px 15px;
-  margin-top: 14px;
-  display: block;
-}
-.notice b {
-  font-size: 13.5px;
-  color: var(--gold);
-  display: block;
-}
-.notice > span {
-  display: block;
-  font-size: 11.5px;
-  color: var(--text-sub);
-  margin-top: 6px;
-  line-height: 1.8;
-}
-.noticeLink {
-  display: inline-flex;
-  margin-top: 11px;
-  font-size: 11px;
-  font-weight: 800;
-  border-radius: 999px;
-  padding: 4px 11px;
-  background: rgba(232, 178, 60, 0.15);
-  color: var(--gold);
-  text-decoration: none;
-}
-.noticeMuted {
-  display: block;
-  font-size: 10px;
-  color: var(--text-muted);
-  margin-top: 9px;
-}
-.noticeClose {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  border: none;
-  background: none;
-  color: var(--text-sub);
-  font-size: 13px;
-  cursor: pointer;
-}
-
-/* 曲カード = piece() */
-.list {
-  display: block;
-}
-.row {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 13px 15px;
-  margin-top: 14px;
-  text-decoration: none;
-  color: inherit;
-}
-.rowBody {
-  flex: 1;
-  min-width: 0;
-}
-.rowTitle {
-  font-size: 14.5px;
-  font-weight: 800;
-  display: block;
-  color: var(--text-ink);
-}
-.rowSub {
-  font-size: 11px;
-  color: var(--text-sub);
-  display: block;
-}
-.stars {
-  display: block;
-  margin-top: 5px;
-  color: var(--gold);
-  font-size: 11px;
-  letter-spacing: 1.5px;
-}
-.stars s {
-  color: #31406a;
-  text-decoration: none;
-}
-.badgeMaster {
-  flex: none;
-  font-size: 10px;
-  font-weight: 800;
-  border-radius: 999px;
-  padding: 3px 9px;
-  background: rgba(232, 178, 60, 0.15);
-  color: var(--gold);
-}
-.badgeAchieved {
-  flex: none;
-  font-size: 10px;
-  font-weight: 800;
-  border-radius: 999px;
-  padding: 3px 9px;
-  background: rgba(127, 196, 196, 0.16);
-  color: var(--teal);
-  border: 1px solid rgba(127, 196, 196, 0.32);
-}
-
-/* 基礎練 カテゴリ = grid2 + card */
-.sectionTitleTop {
+/* 基礎練: カテゴリ見出しと grid2 (原本: 13px/800/16 2 10 ・ 2列 gap12) */
+.sectionTitle {
   font-size: 13px;
   font-weight: 800;
   margin: 16px 2px 10px;
@@ -220,171 +79,14 @@
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-.catCard {
-  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  margin: 0;
-  padding: 13px 14px;
-  text-decoration: none;
-  display: block;
-}
-.catName {
-  font-size: 13.5px;
-  font-weight: 800;
-  display: block;
-  color: var(--text-ink);
-}
-.catCard[data-empty="true"] .catName {
-  color: var(--text-sub);
-}
-.catMeta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 4px;
-}
-.catCount {
-  font-size: 11px;
-  color: var(--text-sub);
-}
-.catGo {
-  color: var(--gold);
-  font-weight: 900;
-  font-size: 13px;
-}
-.catCard[data-empty="true"] .catGo {
-  opacity: 0.35;
-}
 
-/* 学びのレッスン カード */
-.lessonCard {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 16px;
-  margin-top: 14px;
-  text-decoration: none;
-  color: inherit;
-}
-.lessonIcon {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  flex: none;
-  background: rgba(127, 164, 232, 0.14);
-  border: 1px solid rgba(127, 164, 232, 0.26);
-  color: #7fa4e8;
-}
-.lessonBody {
-  flex: 1;
-  min-width: 0;
-}
-.lessonBody b {
-  display: block;
-  font-size: 13.5px;
-  font-weight: 800;
-  color: var(--text-ink);
-}
-.lessonBody span {
-  display: block;
-  font-size: 11px;
-  color: var(--text-sub);
-  margin-top: 2px;
-}
-
-/* マイ楽譜 アップロード = UPBOX */
-.uploadBox {
-  width: 100%;
-  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
-  border: 1px dashed rgba(232, 178, 60, 0.4);
-  border-radius: 20px;
-  text-align: center;
-  padding: 26px 16px;
-  margin-top: 14px;
-  cursor: pointer;
-  color: inherit;
-  font-family: inherit;
-}
-.uploadBox svg {
-  color: var(--gold);
-  margin-bottom: 8px;
-}
-.uploadBox b {
-  display: block;
-  font-size: 14px;
-  color: var(--text-ink);
-}
-.uploadBox span {
-  display: block;
-  font-size: 11px;
-  color: var(--text-sub);
-  margin-top: 5px;
-}
-.mineEmpty {
-  margin: 14px 0 0;
-  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  text-align: center;
-  padding: 28px 20px;
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--text-ink);
-}
-
-/* 空状態 = PIECES_EMPTY */
-.empty {
-  background: linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  text-align: center;
-  padding: 30px 20px;
-  margin-top: 14px;
-}
-.empty::before {
-  content: "♪";
-  display: block;
-  font-size: 30px;
-  opacity: 0.5;
-}
-.empty b {
-  font-size: 15px;
-  display: block;
-  margin-top: 8px;
-  color: var(--text-ink);
-}
-.empty span {
-  display: block;
-  font-size: 11.5px;
-  color: var(--text-sub);
-  margin-top: 7px;
-  line-height: 1.8;
-}
-.emptyCta {
-  display: inline-flex;
-  margin-top: 14px;
-  font-size: 12px;
-  font-weight: 800;
-  border-radius: 999px;
-  padding: 4px 11px;
-  background: rgba(232, 178, 60, 0.15);
-  color: var(--gold);
-  text-decoration: none;
-}
-
-/* 星ごとに見るタグ (2026-08-20 Tetsuo指示で新設) */
+/* 星ごとに見るタグ (SPEC-CHANGES 2026-08-20 新設) */
 .starChips {
   display: flex;
   gap: 6px;
   overflow-x: auto;
   padding-bottom: 2px;
-  margin: 2px 0 4px;
+  margin: 12px 0 0;
 }
 .starChip {
   flex: none;

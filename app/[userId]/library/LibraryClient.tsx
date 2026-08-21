@@ -1,18 +1,20 @@
 "use client"
 
-// ライブラリの本体 (2026-08-17 ナビ要件定義 SECTION 02)。
+// ライブラリの本体 — 確定モック lib-mock (scratchpad/build-lib.py 01〜05) の写経 (2026-08-21 再写経)。
+// 現行フロー適用: 原本 + SPEC-CHANGES (星タグ 2026-08-20) + EFFECTS-CODE 7項目 (DSクラス+data-anim)。
 //  ・セグメント 曲 / 基礎練 / マイ楽譜。選択はURLの ?tab= に持ち、戻る操作で復元する
-//  ・基礎練にはおすすめカードを置かない (A案A決定)。ホームの「曲のための基礎練」に一本化し、
-//    ここは「カテゴリから探す」ことに徹する
-//  ・カテゴリカードは掲載数のみ。進捗率は出さない
-//  ・楽譜アップロードは有料プラン限定。入口は無料でも出し、押した時点で案内する
+//  ・曲/マイ楽譜 = 1曲1カード (b14.5 / 作曲者11 / ★11px ls1.5 5枠 / 判定バッジ=マスター金・達成テール)
+//  ・基礎練 = カテゴリ grid2 (0曲は文字と矢印だけ薄く) + 学びのレッスン行
+//  ・マイ楽譜 = 金破線のアップロード箱。無料プランには PLAN_NOTICE を常設
+//  ・空状態 = ♪ + 見出し + 説明 + 金ピル (原本 04/05)
+// 逸脱申告: 検索行右の + ボタンは原本に無いため廃止 (アップロード導線はマイ楽譜タブに一本化)
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Search, Plus, Upload, BookOpen } from "lucide-react"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { canShowBillingEntryPoint } from "@/app/_libs/isNativeApp"
 import styles from "./library.module.css"
+import ds from "@/app/components/ds.module.css"
 
 export type LibraryPiece = {
   id: string
@@ -48,8 +50,7 @@ export default function LibraryClient({
   const router = useRouter()
   const [tab, setTab] = useState<Tab>(initialTab)
   const [q, setQ] = useState("")
-  const [planNotice, setPlanNotice] = useState(false)
-  // 曲を星ごとに見るタグ (2026-08-20 Tetsuo指示で新設)。null = すべて
+  // 曲を星ごとに見るタグ (SPEC-CHANGES 2026-08-20)。null = すべて
   const [starTag, setStarTag] = useState<number | null>(null)
 
   const base = `/${userId}`
@@ -65,35 +66,28 @@ export default function LibraryClient({
     return s.includes(q.trim().toLowerCase())
   })
   const minePieces = filtered.filter((p) => p.mine)
-  // 実データに存在する星の段だけタグにする
   const starLevels = [...new Set(pieces.filter((p) => p.star != null).map((p) => p.star as number))].sort((a, b) => a - b)
   const starFiltered = starTag == null ? filtered : filtered.filter((p) => p.star === starTag)
 
   const onUpload = () => {
-    if (canUpload) { router.push(`${base}/scores?upload=1`); return }
-    setPlanNotice(true)
+    if (canUpload) router.push(`${base}/scores?upload=1`)
   }
 
   return (
     <div className={styles.root}>
-      <header className={styles.head}>
-        <h1 className={styles.title}>ライブラリ</h1>
-        <p className={styles.lead}>弾くものは、ぜんぶここに。</p>
-      </header>
-
-      <div className={styles.searchRow}>
-        <div className={styles.search}>
-          <Search size={17} />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="曲や教材をさがす"
-            aria-label="曲や教材をさがす"
-          />
-        </div>
-        <button type="button" className={styles.addBtn} onClick={onUpload} aria-label="楽譜をアップロード">
-          <Plus size={22} strokeWidth={2.6} />
-        </button>
+      {/* 原本 HEAD: h1.t + subT + 検索inset */}
+      <h1 className={ds.t} style={{ paddingTop: 6 }}>ライブラリ</h1>
+      <div className={styles.subT}>弾くものは、ぜんぶここに。</div>
+      <div className={styles.search}>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+          <circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" />
+        </svg>
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="曲や教材をさがす"
+          aria-label="曲や教材をさがす"
+        />
       </div>
 
       <div className={styles.segments} role="tablist">
@@ -111,22 +105,9 @@ export default function LibraryClient({
         ))}
       </div>
 
-      {planNotice && (
-        <div className={styles.notice} data-anim="block" role="status">
-          <b>楽譜のアップロードはプラス限定の機能です</b>
-          <span>自分の楽譜を取り込むと、その曲も採点できるようになります。</span>
-          {canShowBillingEntryPoint() ? (
-            <Link href={`${base}/settings`} className={styles.noticeLink}>プランを見る →</Link>
-          ) : (
-            <span className={styles.noticeMuted}>Webのアルコダからプランを確認できます</span>
-          )}
-          <button type="button" className={styles.noticeClose} onClick={() => setPlanNotice(false)} aria-label="閉じる">✕</button>
-        </div>
-      )}
-
       {tab === "pieces" && (
-        <section className={styles.list}>
-          {/* 星ごとに見るタグ (2026-08-20 Tetsuo指示) */}
+        <section>
+          {/* 星ごとに見るタグ (SPEC-CHANGES 2026-08-20) */}
           {starLevels.length > 1 && (
             <div className={styles.starChips} role="group" aria-label="星でしぼる">
               <button
@@ -149,59 +130,110 @@ export default function LibraryClient({
             </div>
           )}
           {filtered.length === 0 ? (
-            <EmptyState
+            <EmptyCard
               title="弾きたい曲を、さがしてみよう。"
-              body="曲をえらぶと、楽譜が出て、演奏をアルコが採点するよ。"
-              href={`${base}/practice/pieces`}
-              cta="曲をさがす"
+              titleSize={15}
+              body={<>曲をえらぶと、楽譜が出て、<br />演奏をアルコが採点するよ。</>}
+              cta={<Link href={`${base}/practice/pieces`} className={`${ds.pill} ${ds.gold}`} style={{ marginTop: 14, fontSize: 12, textDecoration: "none" }}>曲をさがす →</Link>}
             />
           ) : starFiltered.length === 0 ? (
-            <p className={styles.mineEmpty} data-anim="block">この星の曲は、いまの検索にはないよ。</p>
+            <div style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 14 }}>この星の曲は、いまの検索にはないよ。</div>
           ) : (
-            starFiltered.map((p) => <PieceRow key={p.id} p={p} base={base} />)
+            starFiltered.map((p) => <PieceCard key={p.id} p={p} base={base} />)
           )}
         </section>
       )}
 
       {tab === "basics" && (
         <section>
-          {/* おすすめはホームに一本化 (A案A)。ここは探す場所に徹する。
-              ホームへの誘導カードは不要と判断し置かない (2026-08-17 Tetsuo指定) */}
-          <h2 className={styles.sectionTitleTop}>カテゴリから探す</h2>
+          {/* おすすめはホームに一本化 (A案A)。ここは探す場所に徹する */}
+          <h2 className={styles.sectionTitle}>カテゴリから探す</h2>
           <div className={styles.catGrid}>
             {categories.map((c) => (
-              <Link key={c.category} href={`${base}/practice/${c.category}`} className={styles.catCard} data-anim="block" data-empty={c.count === 0}>
-                <span className={styles.catName}>{categoryLabel(c.category)}</span>
-                <span className={styles.catMeta}>
-                  <span className={styles.catCount}>{c.count}曲</span>
-                  <span className={styles.catGo}>→</span>
-                </span>
+              <Link
+                key={c.category}
+                href={`${base}/practice/${c.category}`}
+                className={ds.card}
+                style={{ margin: 0, padding: "13px 14px", textDecoration: "none", color: "inherit" }}
+              >
+                <b style={{ fontSize: 13.5, display: "block", color: c.count === 0 ? "var(--text-sub)" : "var(--text-ink)" }}>
+                  {categoryLabel(c.category)}
+                </b>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
+                  <span style={{ fontSize: 11, color: "var(--text-sub)" }}>{c.count}曲</span>
+                  <span className={ds.arrow} style={{ fontSize: 13, opacity: c.count === 0 ? 0.35 : 1 }} aria-hidden>→</span>
+                </div>
               </Link>
             ))}
           </div>
 
-          <Link href={`${base}/lessons`} className={styles.lessonCard} data-anim="block">
-            <span className={styles.lessonIcon}><BookOpen size={19} /></span>
-            <span className={styles.lessonBody}>
-              <b>学びのレッスン</b>
-              <span>音のしくみを、{lessonTotal}本の短い動画で。</span>
-            </span>
-            <span className={styles.catGo}>→</span>
+          <Link href={`${base}/lessons`} className={ds.card} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+            <div className={ds.row}>
+              <span className={ds.chk} style={{ background: "rgba(127,164,232,.14)", border: "1px solid rgba(127,164,232,.26)", color: "#7fa4e8" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M4 5h7a2 2 0 0 1 2 2v13a1.5 1.5 0 0 0-1.5-1.5H4z" />
+                  <path d="M20 5h-7a2 2 0 0 0-2 2v13a1.5 1.5 0 0 1 1.5-1.5H20z" />
+                </svg>
+              </span>
+              <div className={ds.rowMain}>
+                <b style={{ fontSize: 13.5 }}>学びのレッスン</b>
+                <span>音のしくみを、{lessonTotal}本の短い動画で。</span>
+              </div>
+              <span className={ds.arrow} aria-hidden>→</span>
+            </div>
           </Link>
         </section>
       )}
 
       {tab === "mine" && (
-        <section className={styles.list}>
-          <button type="button" className={styles.uploadBox} data-anim="block" onClick={onUpload}>
-            <Upload size={22} />
-            <b>自分の楽譜をアップロード</b>
-            <span>取り込むと、その曲も採点できるようになります</span>
+        <section>
+          {/* UPBOX (原本: 金破線 ・ 中央 ・ 26px矢印 ・ 26px 16px) */}
+          <button
+            type="button"
+            onClick={onUpload}
+            className={ds.card}
+            style={{ width: "100%", textAlign: "center", padding: "26px 16px", borderStyle: "dashed", borderColor: "rgba(232,178,60,.4)", cursor: "pointer", font: "inherit", color: "inherit", display: "block" }}
+          >
+            <div style={{ color: "var(--gold)", marginBottom: 8 }}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M12 16V4" /><path d="M7 9l5-5 5 5" /><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
+              </svg>
+            </div>
+            <b style={{ fontSize: 14 }}>自分の楽譜をアップロード</b>
+            <span style={{ display: "block", fontSize: 11, color: "var(--text-sub)", marginTop: 5 }}>
+              取り込むと、その曲も採点できるようになります
+            </span>
           </button>
+
+          {/* PLAN_NOTICE (原本 04): 無料プランには常設 */}
+          {!canUpload && (
+            <div className={ds.card} style={{ padding: "14px 15px", borderColor: "rgba(232,178,60,.3)" }} role="status">
+              <b style={{ fontSize: 13.5, color: "var(--gold)" }}>楽譜のアップロードはプラス限定の機能です</b>
+              <span style={{ display: "block", fontSize: 11.5, color: "var(--text-sub)", marginTop: 6, lineHeight: 1.8 }}>
+                自分の楽譜を取り込むと、その曲も採点できるようになります。
+              </span>
+              {canShowBillingEntryPoint() ? (
+                <div style={{ marginTop: 11, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <Link href={`${base}/settings`} className={`${ds.pill} ${ds.gold}`} style={{ fontSize: 11, textDecoration: "none" }}>プランを見る →</Link>
+                </div>
+              ) : (
+                <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 9 }}>Webのアルコダからプランを確認できます</div>
+              )}
+            </div>
+          )}
+
           {ownScoreCount === 0 ? (
-            <p className={styles.mineEmpty} data-anim="block">まだ取り込んだ楽譜はありません。</p>
+            <EmptyCard
+              title="まだ取り込んだ楽譜はありません。"
+              titleSize={14}
+              pad="28px 20px"
+              body={<>自分の楽譜を取り込むと、その曲も<br />採点できるようになります。</>}
+              cta={canUpload ? (
+                <button type="button" onClick={onUpload} className={`${ds.pill} ${ds.gold}`} style={{ marginTop: 14, fontSize: 12, border: "none", cursor: "pointer", fontFamily: "inherit" }}>楽譜をえらぶ →</button>
+              ) : null}
+            />
           ) : (
-            minePieces.map((p) => <PieceRow key={p.id} p={p} base={base} />)
+            minePieces.map((p) => <PieceCard key={p.id} p={p} base={base} />)
           )}
         </section>
       )}
@@ -209,34 +241,52 @@ export default function LibraryClient({
   )
 }
 
-function PieceRow({ p, base }: { p: LibraryPiece; base: string }) {
+/* 曲カード (原本 piece()): card 13px 15px ・ b14.5 ・ 作曲者11 ・ ★11px ls1.5 5枠 ・ バッジ */
+function PieceCard({ p, base }: { p: LibraryPiece; base: string }) {
+  const star = Math.min(p.star ?? 0, 5)
   return (
-    <Link href={`${base}/scores/${p.id}`} className={styles.row} data-anim="block">
-      <span className={styles.rowBody}>
-        <span className={styles.rowTitle}>{p.title}</span>
-        <span className={styles.rowSub}>
-          {p.composer ?? "作曲者不明"}
-          {p.mine ? " ・ 自分の楽譜" : ""}
-        </span>
-        {p.star != null && (
-          <span className={styles.stars} aria-label={`★${p.star}`}>
-            {"★".repeat(Math.min(p.star, 5))}
-            <s>{"★".repeat(Math.max(0, 5 - p.star))}</s>
+    <Link href={`${base}/scores/${p.id}`} className={ds.card} style={{ padding: "13px 15px", textDecoration: "none", color: "inherit", display: "block" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <b style={{ fontSize: 14.5, display: "block", color: "var(--text-ink)" }}>{p.title}</b>
+          <span style={{ fontSize: 11, color: "var(--text-sub)" }}>
+            {p.composer ?? "作曲者不明"}
+            {p.mine ? " ・ 自分の楽譜" : ""}
           </span>
+          {p.star != null && (
+            <div style={{ marginTop: 5 }}>
+              <span className={ds.stars} style={{ fontSize: 11, letterSpacing: "1.5px" }} aria-label={`★${p.star}`}>
+                {"★".repeat(star)}
+                <s>{"★".repeat(5 - star)}</s>
+              </span>
+            </div>
+          )}
+        </div>
+        {p.badge === "mastered" && (
+          <span className={`${ds.pill} ${ds.gold}`} style={{ fontSize: 10, padding: "3px 9px", flex: "none" }}>マスター</span>
         )}
-      </span>
-      {p.badge === "mastered" && <span className={styles.badgeMaster}>マスター</span>}
-      {p.badge === "achieved" && <span className={styles.badgeAchieved}>達成</span>}
+        {p.badge === "achieved" && (
+          <span className={ds.pill} style={{ fontSize: 10, padding: "3px 9px", flex: "none", background: "rgba(127,196,196,.16)", color: "var(--teal)", border: "1px solid rgba(127,196,196,.32)" }}>達成</span>
+        )}
+      </div>
     </Link>
   )
 }
 
-function EmptyState({ title, body, href, cta }: { title: string; body: string; href: string; cta: string }) {
+/* 空状態カード (原本 04/05): 中央 ・ ♪30px 50% ・ 見出し ・ 説明11.5 lh1.8 ・ 金ピル */
+function EmptyCard({ title, titleSize, body, cta, pad = "30px 20px" }: {
+  title: string
+  titleSize: number
+  body: React.ReactNode
+  cta: React.ReactNode
+  pad?: string
+}) {
   return (
-    <div className={styles.empty} data-anim="block">
-      <b>{title}</b>
-      <span>{body}</span>
-      <Link href={href} className={styles.emptyCta}>{cta}</Link>
+    <div className={ds.card} style={{ textAlign: "center", padding: pad }}>
+      <div style={{ fontSize: 30, opacity: 0.5 }} aria-hidden>♪</div>
+      <b style={{ fontSize: titleSize, display: "block", marginTop: 8 }}>{title}</b>
+      <span style={{ display: "block", fontSize: 11.5, color: "var(--text-sub)", marginTop: 7, lineHeight: 1.8 }}>{body}</span>
+      {cta}
     </div>
   )
 }
