@@ -54,7 +54,7 @@ DSクラス (card/bar/pill/bigN/wave/letter/cta) と data-anim 宣言を使え�
 | 10 | 選択タブの金グロー | v2 CSS | 反映 | BottomTabs.module .tab.active svg |
 | 11 | RECボタンの呼吸 | v2 CSS | キーフレーム定義済み | globals recBreathe (録音画面の写経時に適用) |
 | 12 | prefers-reduced-motion 全停止 | v2 CSS | 反映 | 各定義にガード + rv-boot は最初から立てない |
-| 13 | ページ背景オーロラ+グレイン / タイトルの金シーン / 端末の浮遊 | v2 CSS | 対象外 | モックのギャラリーページ専用 (端末の外側) |
+| 13 | ページ背景オーロラ+グレイン (A1/A2) / タイトルの金シーン+光彩 (A3/A4) | v2 CSS | 反映 (2026-08-21 Tetsuo指示) | globals body::before/::after ・ ds.t。端末の浮遊(B1)のみギャラリー専用 |
 | 14 | 3Dチルト / スポットライト | v2 JS+CSS | 復活しない | 2026-08-20 Tetsuo決定 |
 | 15 | 見えたら発火 + 最初の画面は一本の時間軸 | v5 JS | 反映 (v4) | RevealMotion IntersectionObserver + rv-boot (layout.tsx) |
 | 16 | ★が1個ずつ灯る (項目+240ms+n*105ms・消えた★は静かに) | v3 CSS+v5 JS | 反映 (v4) | RevealMotion (ds.stars を自動分割 .rv-star/--si) |

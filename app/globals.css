@@ -78,6 +78,43 @@ body {
   60% { box-shadow: 0 12px 26px rgba(232,178,60,.35), 0 0 0 16px rgba(232,178,60,0); }
 }
 
+/* ── A群 ページ背景の演出 (2026-08-21 Tetsuo指示でアプリ適用。原本 uiv2/app.v2.motion.css 逐語) ──
+   A1 オーロラの呼吸: 紺(左上)・金(右上)・紺(下部中央) 3層 radial ・ 18秒 alternate
+   A2 フィルムグレイン: feTurbulence ・ opacity 5% ・ mix-blend overlay */
+body { position: relative; }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 45% at 18% 8%, rgba(35, 58, 120, 0.55), transparent 70%),
+    radial-gradient(50% 40% at 85% 20%, rgba(217, 169, 60, 0.14), transparent 70%),
+    radial-gradient(55% 45% at 50% 95%, rgba(35, 58, 120, 0.35), transparent 70%),
+    linear-gradient(180deg, #0d1226, #080b17);
+  animation: aurora 18s ease-in-out infinite alternate;
+}
+@keyframes aurora {
+  0% { opacity: 0.85; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.06); }
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="220" height="220" filter="url(%23n)"/></svg>');
+}
+body > div { position: relative; z-index: 1; }
+@keyframes sheenTxt { to { background-position: 220% 0; } }
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+}
+
 /* ── 出現演出の部品 (モック app.v5.motion 相当・RevealMotion が制御) ── */
 /* v3: 最初の描画から main を隠す (layout.tsx のインラインスクリプトが立てる)。
    モック同様「隠れた状態で始まり時差出現」を成立させるための土台。
