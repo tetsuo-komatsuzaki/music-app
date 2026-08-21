@@ -55,7 +55,7 @@ DSクラス (card/bar/pill/bigN/wave/letter/cta) と data-anim 宣言を使え�
 | 11 | RECボタンの呼吸 | v2 CSS | キーフレーム定義済み | globals recBreathe (録音画面の写経時に適用) |
 | 12 | prefers-reduced-motion 全停止 | v2 CSS | 反映 | 各定義にガード + rv-boot は最初から立てない |
 | 13 | ページ背景オーロラ+グレイン (A1/A2) / タイトルの金シーン+光彩 (A3/A4) | v2 CSS | 反映 (2026-08-21 Tetsuo指示) | globals body::before/::after ・ ds.t。端末の浮遊(B1)のみギャラリー専用 |
-| 14 | 3Dチルト / スポットライト | v2 JS+CSS | 復活しない | 2026-08-20 Tetsuo決定 |
+| 14 | スポットライト (E1) | v2 JS+CSS | 対象外のまま | チルトは 2026-08-21 指示で復活 (行22) |
 | 15 | 見えたら発火 + 最初の画面は一本の時間軸 | v5 JS | 反映 (v4) | RevealMotion IntersectionObserver + rv-boot (layout.tsx) |
 | 16 | ★が1個ずつ灯る (項目+240ms+n*105ms・消えた★は静かに) | v3 CSS+v5 JS | 反映 (v4) | RevealMotion (ds.stars を自動分割 .rv-star/--si) |
 | 17 | チェック: 丸が開く(+130ms)→✓が描かれる(+260ms) | v3 CSS | 反映 (v4) | RevealMotion CSS (ds.chk 自動) |
@@ -63,7 +63,7 @@ DSクラス (card/bar/pill/bigN/wave/letter/cta) と data-anim 宣言を使え�
 | 19 | 折れ線: 左から描画(+230ms)→面(+780ms)→節点(+380ms+n*185ms) | v3 CSS | 反映 (2026-08-21) | ProgressTrajectory の svg に data-anim="chart" 宣言 |
 | 20 | タップの沈み込み+ばね戻り (50ms沈み .94/明度1.18 → 260msばね) | E3 (2026-08-21) | 反映 | globals.css (button/role=button/a/.pressable 全体) |
 | 21 | B1 カードの浮遊 (translate 7s/-7px/奇数-3.5s・楽譜カード除外) | B1翻案 (2026-08-21) | 反映 | ds.module .card / globals [data-anim=block] |
-| 22 | B2 カードの3Dチルト (±5°/±7°・戻り0.5s。実機=押下中追従) | B2 (2026-08-21) | 反映 | DeviceMotion.tsx (userShell) |
+| 22 | B2 カードの3Dチルト (±5°/±7°・戻り0.5s。実機=接触中ホバー同様に追従) | B2 (2026-08-21) | 反映 | DeviceMotion.tsx (userShell) |
 | 23 | B3 押下時の銀縁グロー (全操作要素) | B3翻案 (2026-08-21) | 反映 | globals.css |
 | 24 | B4 ベゼル10px+アイランド104×24 | B4 (2026-08-21) | 反映 | DeviceMotion.tsx DeviceFrame |
 

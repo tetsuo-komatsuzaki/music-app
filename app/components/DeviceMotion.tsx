@@ -52,27 +52,27 @@ export default function TiltEffect() {
       }, 520)
     }
 
+    // 原本どおりの「ホバー追従」。実機 (ホバー無し) は「指が触れている間」をホバーとみなし、
+    // 指の下にあるカードを常に追従させる (押した最初のカード固定にしない・2026-08-21 修正)。
+    // タッチ中の pointermove は target が捕捉要素に固定されるため elementFromPoint で引き直す
+    let touching = false
     const move = (e: PointerEvent) => {
-      if (e.pointerType === "mouse") {
-        const t = (e.target as HTMLElement | null)?.closest?.(SELC) as HTMLElement | null
-        if (t !== cur) {
-          if (cur) release(cur)
-          cur = t
-        }
-        if (t) apply(t, e)
-      } else if (cur) {
-        apply(cur, e)
+      if (e.pointerType !== "mouse" && !touching) return
+      const under = document.elementFromPoint(e.clientX, e.clientY)
+      const t = (under as HTMLElement | null)?.closest?.(SELC) as HTMLElement | null
+      if (t !== cur) {
+        if (cur) release(cur)
+        cur = t
       }
+      if (t) apply(t, e)
     }
     const down = (e: PointerEvent) => {
       if (e.pointerType === "mouse") return
-      const t = (e.target as HTMLElement | null)?.closest?.(SELC) as HTMLElement | null
-      if (t) {
-        cur = t
-        apply(t, e)
-      }
+      touching = true
+      move(e)
     }
     const up = () => {
+      touching = false
       if (cur) {
         release(cur)
         cur = null
