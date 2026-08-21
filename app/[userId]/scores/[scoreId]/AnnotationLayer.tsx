@@ -110,7 +110,7 @@ function escHtml(s: string): string {
 function stampInnerHtml(kind: string, value?: string): string {
   const v = escHtml(value ?? "")
   const svg = (inner: string) =>
-    `<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`
+    `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`
   switch (kind) {
     case "down-bow": return svg('<path d="M5 6 H19 V15 H16 V9 H8 V15 H5 Z" fill="currentColor" stroke="none"/>')
     case "up-bow": return svg('<path d="M7 6 L12 17 L17 6"/>')
