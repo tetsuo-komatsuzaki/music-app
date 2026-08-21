@@ -9,6 +9,7 @@ import { LESSON_TOTAL } from "@/app/[userId]/lessons/_lib/content"
 import { badgeKind } from "@/app/_libs/starProgress"
 import { resolveEffectivePlan } from "@/app/_libs/plan"
 import LibraryClient, { type LibraryPiece, type LibraryCategory } from "./LibraryClient"
+import { loadPieceCatalog } from "./loadPieceCatalog"
 
 export const metadata = { title: "ライブラリ" }
 
@@ -27,7 +28,7 @@ export default async function LibraryPage({
 
   const ownerFilter = { OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }] }
 
-  const [scores, counts, achievements, ownScoreCount, me] = await Promise.all([
+  const [scores, counts, achievements, ownScoreCount, me, catalog] = await Promise.all([
     // 曲: 公開曲 + 自分の曲
     prisma.score.findMany({
       where: {
@@ -58,6 +59,8 @@ export default async function LibraryPage({
       where: { id: dbUserId },
       select: { plan: true, planStatus: true, createdAt: true },
     }),
+    // 曲タブ = 曲カタログ (2026-08-21 曲をさがす統合)
+    loadPieceCatalog(dbUserId),
   ])
 
   const canUpload = me
@@ -87,6 +90,7 @@ export default async function LibraryPage({
       userId={authUserId}
       initialTab={tab}
       pieces={pieces}
+      catalog={catalog}
       categories={categories}
       lessonTotal={LESSON_TOTAL}
       ownScoreCount={ownScoreCount}

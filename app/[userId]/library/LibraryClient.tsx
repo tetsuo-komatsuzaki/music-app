@@ -14,6 +14,8 @@ import { useRouter } from "next/navigation"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { canShowBillingEntryPoint } from "@/app/_libs/isNativeApp"
 import styles from "./library.module.css"
+import PieceCatalog from "./PieceCatalog"
+import type { CatalogPiece } from "./loadPieceCatalog"
 import ds from "@/app/components/ds.module.css"
 
 export type LibraryPiece = {
@@ -36,11 +38,13 @@ const TABS: { key: Tab; label: string }[] = [
 ]
 
 export default function LibraryClient({
-  userId, initialTab, pieces, categories, lessonTotal, ownScoreCount, canUpload = false,
+  userId, initialTab, pieces, catalog, categories, lessonTotal, ownScoreCount, canUpload = false,
 }: {
   userId: string
   initialTab: Tab
   pieces: LibraryPiece[]
+  /** 曲タブ = 曲カタログ (補12統合 2026-08-21) */
+  catalog: CatalogPiece[]
   categories: LibraryCategory[]
   lessonTotal: number
   ownScoreCount: number
@@ -60,14 +64,12 @@ export default function LibraryClient({
     router.push(`${base}/library?tab=${t}`, { scroll: false })
   }
 
-  const filtered = pieces.filter((p) => {
-    if (!q.trim()) return true
-    const s = `${p.title} ${p.composer ?? ""}`.toLowerCase()
-    return s.includes(q.trim().toLowerCase())
-  })
-  const minePieces = filtered.filter((p) => p.mine)
-  const starLevels = [...new Set(pieces.filter((p) => p.star != null).map((p) => p.star as number))].sort((a, b) => a - b)
-  const starFiltered = starTag == null ? filtered : filtered.filter((p) => p.star === starTag)
+  const q2 = q.trim().toLowerCase()
+  const minePieces = pieces.filter((p) => p.mine && (!q2 || `${p.title} ${p.composer ?? ""}`.toLowerCase().includes(q2)))
+  // 曲タブ = カタログ (補12統合)。検索と星タグで絞る
+  const catalogQ = catalog.filter((p) => !q2 || `${p.title} ${p.composer ?? ""}`.toLowerCase().includes(q2))
+  const starLevels = [...new Set(catalog.filter((p) => p.star != null).map((p) => p.star as number))].sort((a, b) => a - b)
+  const starFiltered = starTag == null ? catalogQ : catalogQ.filter((p) => p.star === starTag)
 
   const onUpload = () => {
     if (canUpload) router.push(`${base}/scores?upload=1`)
@@ -107,9 +109,9 @@ export default function LibraryClient({
 
       {tab === "pieces" && (
         <section>
-          {/* 星ごとに見るタグ (SPEC-CHANGES 2026-08-20) */}
+          {/* 星ごとに見るタグ (SPEC-CHANGES 2026-08-20)。補12の☆セグはこのタグで代替 */}
           {starLevels.length > 1 && (
-            <div className={styles.starChips} role="group" aria-label="星でしぼる">
+            <div className={styles.starChips} role="group" aria-label="星でしぼる" data-onboarding="pieces.starTabs">
               <button
                 type="button"
                 className={`${styles.starChip} ${starTag == null ? styles.starChipOn : ""}`}
@@ -129,17 +131,22 @@ export default function LibraryClient({
               ))}
             </div>
           )}
-          {filtered.length === 0 ? (
+          {catalog.length === 0 ? (
             <EmptyCard
-              title="弾きたい曲を、さがしてみよう。"
-              titleSize={15}
-              body={<>曲をえらぶと、楽譜が出て、<br />演奏をアルコが採点するよ。</>}
-              cta={<Link href={`${base}/practice/pieces`} className={`${ds.pill} ${ds.gold}`} style={{ marginTop: 14, fontSize: 12, textDecoration: "none" }}>曲をさがす →</Link>}
+              title="練習曲はまだ準備中だよ。もう少し待っててね"
+              titleSize={14}
+              body={null}
+              cta={null}
             />
           ) : starFiltered.length === 0 ? (
-            <div style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 14 }}>この星の曲は、いまの検索にはないよ。</div>
+            <EmptyCard
+              title="この難しさの練習曲はまだないよ"
+              titleSize={14}
+              body={null}
+              cta={null}
+            />
           ) : (
-            starFiltered.map((p) => <PieceCard key={p.id} p={p} base={base} />)
+            <PieceCatalog userId={userId} pieces={starFiltered} />
           )}
         </section>
       )}

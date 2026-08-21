@@ -1,10 +1,23 @@
+// 曲カタログの読込 (2026-08-21 Tetsuo指示: 曲をさがすをライブラリ曲タブへ統合)。
+// 旧 practice/pieces/page.tsx の読込ロジックを共通化したもの。
+// 1グループ=1曲、配下に難易度変種。代表値: ☆=最小 ・ ベスト=最大 ・ バッジ=最上位。
 import { prisma } from "@/app/_libs/prisma"
-import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { badgeKind } from "@/app/_libs/starProgress"
-import PiecesList, { type Piece } from "./piecesList"
-import type { SheetSection } from "./PrePracticeSheet"
+import type { SheetSection, SheetVariant } from "../practice/pieces/PrePracticeSheet"
 
-export const metadata = { title: "練習曲" }
+export type CatalogVariant = SheetVariant & { badge: "mastered" | "achieved" | null }
+
+export type CatalogPiece = {
+  groupId: string
+  title: string
+  composer: string | null
+  star: number | null
+  badge?: "mastered" | "achieved" | null
+  bestScore?: number | null
+  coverImagePath?: string | null
+  genre?: string | null
+  variants: CatalogVariant[]
+}
 
 // Json → SheetSection[] (安全にパース)
 function parseSections(v: unknown): SheetSection[] {
@@ -25,16 +38,7 @@ function parseSections(v: unknown): SheetSection[] {
   return out
 }
 
-// 練習曲一覧 = 公開教材(isShared Score)を持つ SONG グループ。1グループ=1曲、配下に難易度変種。
-export default async function PracticePiecesPage({
-  params,
-}: {
-  params: Promise<{ userId: string }>
-}) {
-  const p = await params
-  const { authUserId, dbUserId } = await getUserIdsFromParams(p)
-
-  // SONG グループ + 共有変種 (Score) を取得
+export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]> {
   const groups = await prisma.materialGroup.findMany({
     where: { kind: "SONG", scores: { some: { isShared: true, deletedAt: null } } },
     orderBy: [{ title: "asc" }],
@@ -50,9 +54,6 @@ export default async function PracticePiecesPage({
 
   const allVariantIds = groups.flatMap((g) => g.scores.map((s) => s.id))
 
-  // C-6b: バッジ (UserScoreAchievement)。
-  // 自己ベスト = 演奏スコア(音程+リズム平均)の最大。overallScore(旧式)廃止に伴い新指標へ移行。
-  // 区間録音(部分練習)は公式指標に非算入 → rangeFromNote: null で除外 (マスター判定と同思想)。
   const [achievements, bestRows] = await Promise.all([
     prisma.userScoreAchievement.findMany({
       where: { userId: dbUserId, scoreId: { in: allVariantIds } },
@@ -70,7 +71,6 @@ export default async function PracticePiecesPage({
       : Promise.resolve([]),
   ])
   const achByScore = new Map(achievements.map((a) => [a.scoreId, a]))
-  // scoreId ごとに (音程+リズム)/2 の最大値 (performanceScore と同一式)
   const bestByScore = new Map<string, number>()
   for (const r of bestRows) {
     const s = Math.round((r.pitchAccuracy! + r.timingAccuracy!) / 2)
@@ -78,7 +78,7 @@ export default async function PracticePiecesPage({
     if (cur == null || s > cur) bestByScore.set(r.scoreId, s)
   }
 
-  const pieces: Piece[] = groups.map((g) => {
+  return groups.map((g) => {
     const variants = g.scores.map((s) => ({
       id: s.id,
       star: s.star,
@@ -87,7 +87,6 @@ export default async function PracticePiecesPage({
       bestScore: bestByScore.get(s.id) != null ? Math.round(bestByScore.get(s.id)!) : null,
       badge: badgeKind(achByScore.get(s.id)),
     }))
-    // グループ代表値: ☆=最小(入門しやすさ), ベスト=最大, バッジ=最上位
     const stars = variants.map((v) => v.star).filter((x): x is number => x != null)
     const bests = variants.map((v) => v.bestScore).filter((x): x is number => x != null)
     const badge = variants.some((v) => v.badge === "mastered")
@@ -107,6 +106,4 @@ export default async function PracticePiecesPage({
       variants,
     }
   })
-
-  return <PiecesList userId={authUserId} pieces={pieces} />
 }

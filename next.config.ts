@@ -2,6 +2,17 @@ import type { NextConfig } from "next";
 import packageJson from "./package.json";
 
 const nextConfig: NextConfig = {
+  // 曲をさがすはライブラリ曲タブへ統合 (2026-08-21)。ページ内redirect()はNext内部Routerの
+  // フック順エラー(#310)を誘発したため、Reactを通らない設定転送にする
+  async redirects() {
+    return [
+      {
+        source: "/:userId/practice/pieces",
+        destination: "/:userId/library?tab=pieces",
+        permanent: false,
+      },
+    ]
+  },
   // S-1 Commit 8: package.json の version を build-time に注入
   // (runtime import は禁止: クライアントバンドルに依存ツリー全体が混入するリスクあり)
   env: {
