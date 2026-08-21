@@ -3,11 +3,11 @@
 .wrap { margin: 12px 0 4px; }
 
 .head { display: flex; align-items: center; gap: 8px; margin: 0 2px 9px; }
-.lab { font-size: var(--fs-body); font-weight: 800; color: var(--text-ink); }
+.lab { font-size: 13.5px; font-weight: 700; color: var(--text-ink); }
 .tapToggle {
   margin-left: auto; appearance: none; cursor: pointer; font-family: inherit;
   font-size: var(--fs-caption); font-weight: 800; color: var(--text-sub);
-  background: #f4f5f9; border: 1px solid #e4e6ef; border-radius: 999px; padding: 4px 11px;
+  background: rgba(150, 175, 225, 0.12); border: none; border-radius: 999px; padding: 4px 11px;
 }
 .tapOn { color: var(--text-on-accent); background: #4a6cf7; border-color: #4a6cf7; }
 

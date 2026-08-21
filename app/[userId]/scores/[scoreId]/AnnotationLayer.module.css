@@ -5,9 +5,9 @@
 .modeBtn {
   align-self: flex-start;
   display: inline-flex; align-items: center; gap: 7px;
-  font-family: inherit; font-size: var(--fs-body); font-weight: 700; letter-spacing: .01em; cursor: pointer;
-  color: var(--text-body); background: var(--card-in); border: 1px solid #e6e3ea;
-  border-radius: 999px; padding: 8px 15px; transition: all .16s ease;
+  font-family: inherit; font-size: 12px; font-weight: 800; letter-spacing: .01em; cursor: pointer;
+  color: var(--text-ink); background: rgba(150, 175, 225, 0.12); border: none;
+  border-radius: 999px; padding: 8px 14px; transition: all .16s ease;
 }
 .modeBtn:hover { background: #f5f4f8; }
 .modeOn {

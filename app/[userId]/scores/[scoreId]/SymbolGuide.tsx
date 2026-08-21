@@ -257,7 +257,7 @@ export default function SymbolGuide({
       >
         <span className={styles.lab}>この曲に出てくる記号</span>
         <span className={styles.spacer} />
-        <span aria-hidden style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)" }}>{open ? "▲ 閉じる" : `▼ 開く・${symbols.length}`}</span>
+        <span aria-hidden style={{ fontSize: 11.5, fontWeight: 800, color: "#7fa4e8" }}>{open ? "▲ 閉じる" : `▼ 開く・${symbols.length}`}</span>
       </button>
 
       {open && (

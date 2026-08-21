@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState, useRef, useEffect, useCallback, useMemo, Component, type ReactNode, type ErrorInfo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Pencil, Play, Pause, Trash2, Target, PenLine, Maximize2 } from "lucide-react"
@@ -1077,9 +1078,9 @@ function ScoreViewer({
             data-expand-btn
             style={{
               display: "inline-flex", alignItems: "center", gap: 5,
-              border: "1px solid var(--border, #d8d2c4)", borderRadius: 8,
-              background: "transparent", color: "var(--text-sub, #6f6758)",
-              fontSize: "var(--fs-label)", padding: "4px 10px", cursor: "pointer",
+              border: "none", borderRadius: 999,
+              background: "rgba(150,175,225,.12)", color: "var(--text-ink)",
+              fontSize: 11, fontWeight: 800, padding: "4px 11px", cursor: "pointer", fontFamily: "inherit",
             }}
           >
             <Maximize2 size={14} />ひろげる
@@ -1107,7 +1108,7 @@ function ScoreViewer({
                 <button
                   type="button"
                   onClick={() => setScoreExpanded((v) => !v)}
-                  style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-link)", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "7px 18px", cursor: "pointer" }}
+                  style={{ fontSize: 11.5, fontWeight: 800, color: "#7fa4e8", background: "rgba(150,175,225,.12)", border: "none", borderRadius: 999, padding: "7px 18px", cursor: "pointer", fontFamily: "inherit" }}
                 >
                   {scoreExpanded ? "折りたたむ ▲" : "全部見る ▼"}
                 </button>
@@ -3324,6 +3325,13 @@ function ScoreDetailInner({
         </div>
       )}
       <div className={styles.header} data-section="header">
+        {/* 原本 HEADER .back: ‹ ライブラリ */}
+        <Link
+          href={`/${userId}/library?tab=${practiceItemId ? "basics" : "pieces"}`}
+          style={{ display: "flex", alignItems: "center", gap: 7, color: "var(--text-sub)", fontSize: 13, fontWeight: 700, padding: "10px 2px 2px", textDecoration: "none" }}
+        >
+          ‹ ライブラリ
+        </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", flex: 1, minWidth: 0 }}>
             <h1 className={styles.title}>{score.title}</h1>
@@ -3587,9 +3595,9 @@ function ScoreDetailInner({
                 aria-label="お手本 再生/一時停止"
               >
                 {playbackState === "playing" ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--gold)" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
                 ) : (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--gold)" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
                 )}
                 <span className={styles.barLabel}>お手本</span>
               </button>
@@ -3611,7 +3619,7 @@ function ScoreDetailInner({
                 aria-pressed={metronomeOn}
                 aria-label="メトロノーム"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 21h12L15 4H9L6 21z" /><path d="M12 8l4 8" /></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-sub)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 21h12L15 4H9L6 21z" /><path d="M12 8l4 8" /></svg>
                 <span className={styles.barLabel}>メトロ{metronomeOn ? "・ON" : ""}</span>
               </button>
               {/* 区間ループ/採点は「録音ボタン → 区間録音」フローへ移設 (2026-08-10)。

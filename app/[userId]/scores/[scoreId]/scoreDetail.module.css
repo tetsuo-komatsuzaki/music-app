@@ -19,8 +19,17 @@
 }
 
 .title {
-  font-size: var(--fs-title);
-  font-weight: 700;
+  /* 原本 HEADER h1.t: 27px/900/字間.01。flex内で縮む */
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  color: var(--text-ink);
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .grid {
@@ -52,8 +61,8 @@
 
 .card h3 {
   margin: 0 0 12px;
-  font-size: var(--fs-subhead);
-  font-weight: 600;
+  font-size: 14px; /* 原本 sheet_card: b14 */
+  font-weight: 700;
 }
 
 /* ==============================
@@ -779,11 +788,11 @@
 .barCell:last-child { border-right: 1px solid rgba(150,175,225,.08); }
 .barCell:disabled { opacity: 0.4; cursor: default; }
 .barCell:active { background: rgba(150,175,225,.14); }
-.barLabel { font-size: var(--fs-caption); font-weight: 800; letter-spacing: 0.02em; white-space: nowrap; }
-.barTempo { font-size: var(--fs-subhead); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.barLabel { font-size: 10px; font-weight: 800; letter-spacing: 0.02em; white-space: nowrap; color: var(--text-sub); }
+.barTempo { font-size: 13px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; color: var(--gold); }
 .barCellOn { color: var(--text-on-accent); background: linear-gradient(160deg, #4a6cf7, #6a5cf0); }
 .barCellOn:active { background: linear-gradient(160deg, #4460ea, #5f52e6); }
-.barCellActive { color: var(--text-link); background: #eef1fd; }
+.barCellActive { border-color: rgba(232, 178, 60, 0.34); background: rgba(232, 178, 60, 0.08); }
 .barPanel { padding: 12px; border-top: 1px solid rgba(150,175,225,.16); background: var(--card-in); }
 .barPanel .tempoControl { margin: 0; border: none; background: transparent; padding: 0; }
 .barPanel .rangeBody { margin: 0; }

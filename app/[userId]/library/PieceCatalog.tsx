@@ -64,14 +64,14 @@ export default function PieceCatalog({ userId, pieces }: { userId: string; piece
       {genreGroups.map((grp, idx) => (
         <section key={grp.label || idx} style={{ marginTop: 16 }}>
           <h3 style={{ fontSize: 11, fontWeight: 900, color: "var(--text-sub)", letterSpacing: ".06em", margin: "0 2px 9px" }}>{grp.label}</h3>
-          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 2 }} data-onboarding={idx === 0 ? "pieces.rail" : undefined}>
+          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 2, scrollSnapType: "x proximity", overscrollBehaviorX: "contain", touchAction: "pan-x pan-y" }} data-onboarding={idx === 0 ? "pieces.rail" : undefined}>
             {grp.pieces.map(piece => (
               <button
                 key={piece.groupId}
                 type="button"
                 onClick={() => handleTap(piece)}
                 className={ds.card}
-                style={{ margin: 0, flex: "none", width: 132, padding: "11px 12px", textAlign: "left", cursor: "pointer", font: "inherit", color: "inherit" }}
+                style={{ margin: 0, flex: "none", width: 132, padding: "11px 12px", textAlign: "left", cursor: "pointer", font: "inherit", color: "inherit", scrollSnapAlign: "start" }}
               >
                 <Cover badge={piece.badge} cover={piece.coverImagePath} />
                 <b style={{ fontSize: 12, display: "block", marginTop: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-ink)" }}>{piece.title}</b>
