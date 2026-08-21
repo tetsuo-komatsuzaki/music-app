@@ -43,6 +43,12 @@
   border-radius: 20px;
   padding: 16px;
   margin-top: 14px;
+  /* F3補強 (2026-08-21 Tetsuo指示「のっぺりして高級感がない」・リバイス9):
+     上辺1pxのハイライト + 近影/深影の二層で立体に。色は変えず光と影のみ */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 2px 6px rgba(4, 10, 28, 0.35),
+    0 14px 34px -8px rgba(4, 10, 28, 0.55);
 }
 
 .lab {
