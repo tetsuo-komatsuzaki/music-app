@@ -71,37 +71,38 @@
   position: absolute;
   transform: translateX(-50%);
   display: inline-flex; align-items: center; gap: 3px;
-  font-size: var(--fs-label); font-weight: 800; line-height: 1; letter-spacing: .02em;
+  font-size: 11.5px; font-weight: 800; line-height: 1; letter-spacing: .02em;
   white-space: nowrap; pointer-events: none; z-index: 9;
   text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 1px 1px rgba(255, 255, 255, .95);
 }
 .badge .g {
-  font-size: var(--fs-label); font-weight: 900; line-height: 1;
+  font-size: 11.5px; font-weight: 900; line-height: 1;
   display: inline-grid; place-items: center;
 }
 
 /* 注意系: 囲いなし・色だけ */
-.wFlat  { color: var(--text-link); }
-.wSharp { color: var(--text-error); }
-.wTempo { color: var(--text-master); }
+.wFlat  { color: #2b5bc4; }
+.wSharp { color: #b44b4b; }
+.wTempo { color: #a06a10; }
 .wHard  { color: #5b3ba0; }
 
 /* テキストメモ: 囲いなし・濃い文字＋白ハローで読みやすく */
 .badgeText {
-  color: var(--text-ink); font-weight: 700; letter-spacing: 0;
+  /* 白紙の上の文字はテーマ非依存の濃紺 (ダーク化でトークンが白くなり不可視だった) */
+  color: #16294f; font-weight: 800; letter-spacing: 0; font-size: 12px;
 }
 
 /* 記譜スタンプ: 音符の上に素の記号 (背景なし・ダーク) */
 .stampGlyph {
   position: absolute;
   transform: translateX(-50%);
-  color: var(--text-ink);
+  color: #16294f; /* 白紙の上は濃紺固定 */
   pointer-events: none;
   z-index: 9;
   display: inline-grid; place-items: center;
   line-height: 1;
 }
-.stampGlyph .txt { font-size: var(--fs-subhead); line-height: 1; }
+.stampGlyph .txt { font-size: 17px; line-height: 1; }
 .stampGlyph svg { display: block; }
 
 /* 範囲スパナ (Phase 3): スラー弧 / ヘアピン(<>) / グリッサンド線。素の線・背景なし */

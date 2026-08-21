@@ -729,6 +729,11 @@
 .perfSelect {
   flex: 1; min-width: 0; font-family: inherit; font-size: var(--fs-body); font-weight: 700; color: var(--text-ink);
   background: var(--card-in); border: 1px solid rgba(150,175,225,.08); border-radius: 14px; padding: 12px 14px; cursor: pointer;
+  color-scheme: dark; /* 展開したリストもダーク配色で描かせる */
+}
+.perfSelect option {
+  background: #15233f;
+  color: #edf1fa;
 }
 .perfSelectScore { flex: 0 0 auto; font-size: var(--fs-title); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
 .perfSelectScore small { font-size: var(--fs-body); font-weight: 600; margin-left: 1px; }
