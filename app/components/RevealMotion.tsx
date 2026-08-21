@@ -198,7 +198,7 @@ export default function RevealMotion() {
     document.documentElement.classList.add("rv-anim")
 
     const main = () => (document.querySelector("main") ?? document.body) as HTMLElement
-    const SEL = `h1, [data-anim="block"], .${ds.card}, .${ds.seg}, .${ds.letter}`
+    const SEL = `h1, [data-anim="block"], [data-anim="rail"], .${ds.card}, .${ds.seg}, .${ds.letter}`
     const LEAF = `.${ds.chk}, .${ds.todo}, .${ds.pill}, [data-anim="ring"], [data-anim="bar"], [data-anim="count"], .${ds.wave}`
 
     // 見えたら発火 (モック v5 と同じ流儀)
@@ -337,7 +337,11 @@ export default function RevealMotion() {
       // 独自カード (data-anim="block") も ds.card と同格に扱う。
       // 実DOMで行のリストが入れ物のdivに包まれる場合は、その入れ物に
       // data-anim="items" を宣言すると中身が項目として順番に出る (要件v1.2)
-      if (el.classList.contains(ds.card) || el.classList.contains(ds.letter) || el.dataset.anim === "block") {
+      // data-anim="rail" = 横レール容器 (2026-08-22): レール全体を1ブロックとして
+      // 発火し、中のカードを項目として順番に出す。カード1枚ずつを独立ブロックに
+      // すると横画面外のカードが IO 未発火 (opacity 0) のまま残るため。
+      // カード面の装飾 (F3/チルト) は付けない (ds.card / data-anim="block" のみが対象)。
+      if (el.classList.contains(ds.card) || el.classList.contains(ds.letter) || el.dataset.anim === "block" || el.dataset.anim === "rail") {
         const pick = (host: HTMLElement) =>
           [...host.children].filter(
             (k) =>
@@ -376,7 +380,7 @@ export default function RevealMotion() {
         if (el.dataset.rv !== undefined) return 0
         if (el.getBoundingClientRect().top >= vh) return 0
         let n = 0
-        if (el.classList.contains(ds.card) || el.classList.contains(ds.letter) || el.dataset.anim === "block") {
+        if (el.classList.contains(ds.card) || el.classList.contains(ds.letter) || el.dataset.anim === "block" || el.dataset.anim === "rail") {
           n = [...el.children].filter((k) => (k as HTMLElement).offsetHeight > 0 && !k.classList.contains(ds.lab)).length
         }
         const span = GAP_BLOCK + (n > 0 ? LEAD_IN + n * GAP_ITEM + 40 : 0)

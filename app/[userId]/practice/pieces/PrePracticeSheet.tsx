@@ -27,7 +27,6 @@ export type SheetGroup = {
   variants: SheetVariant[]
 }
 
-const DIFF_DOT: Record<string, string> = { BEGINNER: "#2e9e6b", INTERMEDIATE: "#e0a02f", ADVANCED: "#e0812f" }
 
 export default function PrePracticeSheet({
   userId, group, onClose, basePath = "/scores", enablePreview = false, previewKind = "score",
@@ -101,61 +100,43 @@ export default function PrePracticeSheet({
         {/* 難易度・パート: 画面ガイドはこの2つをまとめて指す */}
         <div data-onboarding="prePractice.choose">
         <div className={styles.slab}>難易度を選ぶ</div>
-        <div className={styles.segRow}>
+        <select
+          className={styles.sheetSelect}
+          value={diff}
+          onChange={(e) => { setDiff(e.target.value as (typeof DIFFICULTIES)[number]["id"]); setRangeIdx(-1) }}
+        >
           {DIFFICULTIES.map((d) => {
             const v = byDiff.get(d.id)
-            const avail = !!v
+            const suffix = v
+              ? `${v.star != null ? ` ・ ☆${v.star}` : ""}${v.bestScore != null ? ` ・ ベスト ${v.bestScore}` : ""}`
+              : " ・ 準備中"
             return (
-              <button
-                key={d.id}
-                type="button"
-                disabled={!avail}
-                className={`${styles.segBtn} ${diff === d.id ? styles.segOn : ""}`}
-                onClick={() => { if (avail) { setDiff(d.id); setRangeIdx(-1) } }}
-              >
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <span className={styles.dot} style={{ background: DIFF_DOT[d.id], width: 9, height: 9 }} />
-                  {d.label}
-                </span>
-                <span className={styles.segSub}>
-                  {avail
-                    ? <>
-                        {v!.star != null && <span>☆{v!.star}</span>}
-                        {v!.bestScore != null && <span>ベスト {v!.bestScore}</span>}
-                      </>
-                    : "準備中"}
-                </span>
-              </button>
+              <option key={d.id} value={d.id} disabled={!v}>
+                {d.label}{suffix}
+              </option>
             )
           })}
-        </div>
+        </select>
 
         {/* パート: 全部演奏する(現行スコア) + 分割は教材が入れば有効 */}
         <div className={styles.slab}>パートを選ぶ</div>
-        <div className={styles.chipGrid}>
-          <button
-            type="button"
-            className={`${styles.chip} ${rangeIdx === -1 ? styles.chipOn : ""}`}
-            onClick={() => setRangeIdx(-1)}
-          >
-            全部演奏する
-          </button>
+        <select
+          className={styles.sheetSelect}
+          value={rangeIdx}
+          onChange={(e) => setRangeIdx(Number(e.target.value))}
+          disabled={sections.length === 0}
+        >
+          <option value={-1}>全部演奏する</option>
           {sections.length > 0 ? (
             sections.map((s, i) => (
-              <button
-                key={i}
-                type="button"
-                className={`${styles.chip} ${rangeIdx === i ? styles.chipOn : ""}`}
-                onClick={() => setRangeIdx(i)}
-              >
-                {s.name}
-                <span className={styles.chipMeta}>{s.startMeasure}〜{s.endMeasure}</span>
-              </button>
+              <option key={i} value={i}>
+                {s.name} ・ {s.startMeasure}〜{s.endMeasure}小節
+              </option>
             ))
           ) : (
-            <span className={`${styles.chip} ${styles.chipDim}`}>パート別に練習 ・ 準備中</span>
+            <option disabled value="soon">パート別に練習 ・ 準備中</option>
           )}
-        </div>
+        </select>
 
         </div>
 

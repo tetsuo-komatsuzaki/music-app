@@ -8,7 +8,7 @@
 // データは performances(pitchAccuracy/timingAccuracy/uploadedAt) のみで算出。区間録音は非算入。
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import ds from "./ds.module.css"
 
 const GOAL_SCORE = 90 // 達成ライン (曲マスター基準・アプリ全体と統一)
@@ -49,16 +49,42 @@ function seriesXY(values: number[], w: number, h: number, pad: number, minV: num
   })
 }
 
-function TrajStat({ v, l }: { v: string; l: string }) {
+function TrajStat({ v, l, dep }: { v: string; l: string; dep?: boolean }) {
   // 2026-08-21 Tetsuo指示: 統計3枚 (自己ベスト/直近平均/演奏回数) もカウントアップ対象
+  // dep=true は軸切替で値が変わる数字 (切替時にカウントを再生する)
   return (
     <div style={{ flex: 1, background: "var(--card-in)", borderRadius: 11, padding: "9px 4px", textAlign: "center" }}>
       <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--cream)", fontVariantNumeric: "tabular-nums" }}>
-        <span data-anim="count">{v}</span>
+        <span data-anim="count" data-axis-dep={dep ? "1" : undefined}>{v}</span>
       </div>
       <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 700, marginTop: 2 }}>{l}</div>
     </div>
   )
+}
+
+// 軸切替時のカウント再生 (エンジン runCount と同じ増え方: 遅延230ms ・ 1150+値*4ms ・
+// 3乗イーズアウト ・ 終わりに rv-settled の弾み)。連打は世代トークンで巻き取る。
+function replayCount(n: HTMLElement) {
+  const orig = (n.textContent ?? "").trim()
+  const m = orig.match(/^(\D*)(\d+)(\D*)$/)
+  if (!m) return
+  const pre = m[1], target = +m[2], post = m[3]
+  const token = (n.dataset.rvReplay = String(+(n.dataset.rvReplay || 0) + 1))
+  const host = n.closest(`.${ds.bigN}`) ?? n // エンジン runCount と同じ弾み先
+  host.classList.remove("rv-settled")
+  window.setTimeout(() => {
+    if (n.dataset.rvReplay !== token) return
+    const s0 = performance.now(), du = 1150 + Math.min(target, 100) * 4
+    const step = (now: number) => {
+      if (n.dataset.rvReplay !== token) return
+      const pr = Math.min(1, (now - s0) / du)
+      const q = 1 - Math.pow(1 - pr, 3)
+      n.textContent = pre + Math.round(target * q) + post
+      if (pr < 1) requestAnimationFrame(step)
+      else { n.textContent = orig; host.classList.add("rv-settled") }
+    }
+    requestAnimationFrame(step)
+  }, 230)
 }
 
 export default function ProgressTrajectory({
@@ -75,6 +101,41 @@ export default function ProgressTrajectory({
   className?: string
 }) {
   const [axis, setAxis] = useState<TrajAxis>("total")
+
+  // タブ切替のたびに「線が描かれる」モーションを再生する (2026-08-22 Tetsuo指示)。
+  // 初回はRevealMotionの出現が担当。切替時は v5 と同じ手順 (reset → リフロー → 再生) で
+  // エンジンの rv-line/rv-dot 定義 (rvDrawIn 1.5s / rvDotPop 185ms刻み) をそのまま再駆動する。
+  const svgRef = useRef<SVGSVGElement | null>(null)
+  const firstAxis = useRef(true)
+  useEffect(() => {
+    if (firstAxis.current) { firstAxis.current = false; return }
+    const svg = svgRef.current
+    if (!svg) return
+    if (!document.documentElement.classList.contains("rv-anim")) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    // 仕分け (エンジン prepareChart と同じ判定): 折れ線 = stroke あり fill none、節点 = r<=9
+    const lines: SVGPathElement[] = []
+    svg.querySelectorAll<SVGPathElement>("path").forEach((p) => {
+      if (p.getAttribute("fill") === "none" && p.getAttribute("stroke") && p.getTotalLength) {
+        const len = Math.ceil(p.getTotalLength())
+        if (len > 40) { p.classList.add("rv-line"); p.style.setProperty("--len", String(len)); lines.push(p) }
+      }
+    })
+    const dots: SVGCircleElement[] = []
+    svg.querySelectorAll<SVGCircleElement>("circle").forEach((c, i) => {
+      const r = parseFloat(c.getAttribute("r") || "0")
+      if (r > 0 && r <= 9) { c.classList.add("rv-dot"); c.style.setProperty("--di", String(i % 8)); dots.push(c) }
+    })
+    // 切替時は待たせない (初回出現の --base 遅延を 0 に上書き)
+    svg.style.setProperty("--base", "0ms")
+    const all: (SVGPathElement | SVGCircleElement)[] = [...lines, ...dots]
+    all.forEach((el) => { el.style.animation = "none" })   // reset (巻き戻し)
+    void svg.getBoundingClientRect()                        // リフロー
+    all.forEach((el) => { el.style.animation = "" })        // 再生
+    // 軸で値が変わる数字 (大数字/自己ベスト/直近平均) はカウントも再生 (2026-08-22 Tetsuo指示)
+    rootRef.current?.querySelectorAll<HTMLElement>('[data-anim="count"][data-axis-dep]').forEach(replayCount)
+  }, [axis])
+  const rootRef = useRef<HTMLDivElement | null>(null)
 
   // partId指定=そのパートの区間録音のみ / 未指定=通し演奏のみ(区間非算入)。いずれも評価済み・古い順。
   const evaluated = performances
@@ -130,7 +191,7 @@ export default function ProgressTrajectory({
   )
 
   return (
-    <div className={className ?? ds.card} data-anim={className ? "block" : undefined} style={{ marginTop: 0 }}>
+    <div ref={rootRef} className={className ?? ds.card} data-anim={className ? "block" : undefined} style={{ marginTop: 0 }}>
       {/* モック: lab + 直近nピル */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div className={ds.lab}>{title ?? "上達のようす"}</div>
@@ -139,8 +200,9 @@ export default function ProgressTrajectory({
 
       {/* モック: bigN 40px + 伸びチップ */}
       <div style={{ display: "flex", alignItems: "flex-end", gap: 10, marginTop: 4 }}>
-        <div className={ds.bigN} style={{ fontSize: 40, lineHeight: 1 }}><span data-anim="count">{latest}</span></div>
-        {/* F6 変化量ピル (Motion Edition 正本): 軸色13%薄塗り + ↗/↘ ・ 枠なし */}
+        <div className={ds.bigN} style={{ fontSize: 40, lineHeight: 1, color }}><span data-anim="count" data-axis-dep="1">{latest}</span></div>
+        {/* F6 変化量ピル (Motion Edition 正本): 軸色13%薄塗り ・ 枠なし。
+            矢印は文字だとiOSで絵文字描画になるためSVG (2026-08-22 Tetsuo指示) */}
         <span
           style={{
             display: "inline-flex", alignItems: "center", gap: 4, marginBottom: 8,
@@ -149,7 +211,10 @@ export default function ProgressTrajectory({
             color: up ? "var(--green-soft)" : "var(--pink-soft)",
           }}
         >
-          {up ? "↗" : "↘"} {up ? "+" : ""}{delta}
+          <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            {up ? <path d="M2 8L8 2M3.5 2H8v4.5" /> : <path d="M2 2l6 6M8 3.5V8H3.5" />}
+          </svg>
+          {up ? "+" : ""}{delta}
         </span>
       </div>
 
@@ -163,7 +228,7 @@ export default function ProgressTrajectory({
       {/* モック: 格子 + 金の達成破線 + クリーム折れ線 + 節点 */}
       <div style={{ position: "relative" }}>
         {/* data-anim="chart": 線が左から描かれ、節点が後から打たれる (台帳19・v3 drawLine) */}
-        <svg data-anim="chart" viewBox={`0 0 ${W} ${H}`} width="100%" height="118" style={{ marginTop: 8 }} preserveAspectRatio="none">
+        <svg ref={svgRef} data-anim="chart" viewBox={`0 0 ${W} ${H}`} width="100%" height="118" style={{ marginTop: 8 }} preserveAspectRatio="none">
           <g stroke="rgba(150,175,225,.10)" strokeWidth="1">
             <line x1="8" y1="30" x2={W - 8} y2="30" />
             <line x1="8" y1="70" x2={W - 8} y2="70" />
@@ -192,18 +257,18 @@ export default function ProgressTrajectory({
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 10 }}>
         <div style={{ background: "var(--card-in)", borderRadius: 12, padding: "10px 12px" }}>
           <span style={{ fontSize: 11, fontWeight: 800, color: "#e0872b" }}>音程</span>
-          <div className={ds.bigN} style={{ fontSize: 22, marginTop: 2 }}><span data-anim="count">{pitches[pitches.length - 1]}</span></div>
+          <div className={ds.bigN} style={{ fontSize: 22, marginTop: 2, color: "#e0872b" }}><span data-anim="count">{pitches[pitches.length - 1]}</span></div>
         </div>
         <div style={{ background: "var(--card-in)", borderRadius: 12, padding: "10px 12px" }}>
           <span style={{ fontSize: 11, fontWeight: 800, color: "#7fc4c4" }}>リズム</span>
-          <div className={ds.bigN} style={{ fontSize: 22, marginTop: 2 }}><span data-anim="count">{timings[timings.length - 1]}</span></div>
+          <div className={ds.bigN} style={{ fontSize: 22, marginTop: 2, color: "#7fc4c4" }}><span data-anim="count">{timings[timings.length - 1]}</span></div>
         </div>
       </div>
 
       {/* 統計 (機能維持・insetの意匠) */}
       <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-        <TrajStat v={String(best)} l="自己ベスト" />
-        <TrajStat v={String(recentAvg)} l={`直近${recent5.length}回平均`} />
+        <TrajStat v={String(best)} l="自己ベスト" dep />
+        <TrajStat v={String(recentAvg)} l={`直近${recent5.length}回平均`} dep />
         <TrajStat v={String(evaluated.length)} l="演奏回数" />
       </div>
     </div>

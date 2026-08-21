@@ -136,60 +136,45 @@ export default function BasicsPreSheet({
 
         {/* 調: 長調・短調を出し分けて常時表示。族に無い調はグレー */}
         <div className={styles.slab}>調を選ぶ</div>
-        <div className={styles.chipGrid}>
+        <select
+          className={styles.sheetSelect}
+          value={selKey}
+          onChange={(e) => setSelKey(e.target.value)}
+        >
           {keyList.map(({ tonic, mode }) => {
             const cek = ckey(tonic, mode)
             const avail = availKeys.has(cek)
             const v = selVariants.find((x) => vkey(x) === cek)
             const lock = avail ? null : lockKeyStar(tonic, mode)
-            if (!avail) {
-              return (
-                <span key={cek} className={`${styles.chip} ${styles.chipDim}`}>
-                  {keyLabel(tonic, mode)}
-                  <span className={styles.chipMeta}>{lock != null ? `⭐${lock}` : "準備中"}</span>
-                </span>
-              )
-            }
+            const suffix = avail
+              ? (v?.bestScore != null ? ` ・ ベスト ${v.bestScore}` : "")
+              : lock != null ? ` ・ ⭐${lock}で解放` : " ・ 準備中"
             return (
-              <button
-                key={cek}
-                type="button"
-                className={`${styles.chip} ${selKey === cek ? styles.chipOn : ""}`}
-                onClick={() => setSelKey(cek)}
-              >
-                {keyLabel(tonic, mode)}
-                {v?.bestScore != null && <span className={styles.chipMeta}>{v.bestScore}</span>}
-              </button>
+              <option key={cek} value={cek} disabled={!avail}>
+                {keyLabel(tonic, mode)}{suffix}
+              </option>
             )
           })}
-        </div>
+        </select>
 
-        {/* 奏法バリエーション: 基本 + 各奏法。未整備はグレー */}
+        {/* 奏法バリエーション: 基本 + 各奏法。未整備は選択不可 */}
         <div className={styles.slab}>奏法バリエーション</div>
-        <div className={styles.chipGrid}>
+        <select
+          className={styles.sheetSelect}
+          value={selArt}
+          onChange={(e) => setSelArt(e.target.value)}
+        >
           {ART_LADDER.map((a) => {
             const avail = availArts.has(a.id)
             const lock = avail ? null : lockStar(a.id)
-            if (!avail) {
-              return (
-                <span key={a.id} className={`${styles.chip} ${styles.chipDim}`}>
-                  {a.label}
-                  <span className={styles.chipMeta}>{lock != null ? `⭐${lock}` : "準備中"}</span>
-                </span>
-              )
-            }
+            const suffix = avail ? "" : lock != null ? ` ・ ⭐${lock}で解放` : " ・ 準備中"
             return (
-              <button
-                key={a.id}
-                type="button"
-                className={`${styles.chip} ${selArt === a.id ? styles.chipOn : ""}`}
-                onClick={() => setSelArt(a.id)}
-              >
-                {a.label}
-              </button>
+              <option key={a.id} value={a.id} disabled={!avail}>
+                {a.label}{suffix}
+              </option>
             )
           })}
-        </div>
+        </select>
 
         <button className={styles.cta} onClick={start}>練習をはじめる</button>
       </div>

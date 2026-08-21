@@ -26,8 +26,8 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  background: #fff;
-  border: 1px solid #d4dae3;
+  background: linear-gradient(180deg, var(--card-a), var(--card-b));
+  border: 1px solid rgba(150, 175, 225, 0.14);
   border-radius: 8px;
   padding: 12px 14px;
   text-decoration: none;
@@ -36,8 +36,8 @@
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .cardContextItem:hover {
-  border-color: #5a7fdf;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  border-color: rgba(150, 175, 225, 0.28);
+  box-shadow: 0 2px 6px rgba(4, 10, 28, 0.4);
 }
 .cardContextItemTitle {
   font-size: var(--fs-subhead);
@@ -53,26 +53,26 @@
   color: var(--text-body);
   text-align: center;
   padding: 20px;
-  background: #fff;
-  border: 1px dashed #c7d0db;
+  background: linear-gradient(180deg, var(--card-a), var(--card-b));
+  border: 1px dashed rgba(150, 175, 225, 0.25);
   border-radius: 8px;
 }
 
 /* おすすめ */
 .recommendSection { margin-bottom: 32px; }
-.recommendCard { background: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 12px; border-left: 4px solid #4a90d9; }
+.recommendCard { background: var(--card-in); border-radius: 12px; padding: 16px; margin-bottom: 12px; border-left: 4px solid #2b5bc4; }
 .recommendLabel { font-size: var(--fs-subhead); font-weight: 600; margin-bottom: 4px; }
 .recommendReason { font-size: var(--fs-body); color: var(--text-body); margin-bottom: 8px; }
 .recommendItems { display: flex; gap: 8px; flex-wrap: wrap; }
-.recommendChip { display: inline-block; background: #4a90d9; color: var(--text-on-accent); padding: 6px 14px; border-radius: 20px; font-size: var(--fs-body); text-decoration: none; transition: background 0.2s; }
-.recommendChip:hover { background: #3a7bc8; }
+.recommendChip { display: inline-block; background: #2b5bc4; color: var(--text-on-accent); padding: 6px 14px; border-radius: 20px; font-size: var(--fs-body); text-decoration: none; transition: background 0.2s; }
+.recommendChip:hover { background: #24518f; }
 
 /* カテゴリカード */
 .categorySection { margin-top: 8px; }
 /* 横スクロール(レール)。カテゴリ(セクション)は縦積みのまま (2026-07-18 Tetsuo指示) */
 .categoryGrid { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .categoryGrid::-webkit-scrollbar { display: none; }
-.categoryCard { flex: 0 0 auto; width: 116px; display: flex; flex-direction: column; align-items: center; padding: 18px 12px 16px; background: #fff; border: 1px solid #e6e6e6; border-radius: 14px; text-decoration: none; color: inherit; transition: box-shadow 0.2s, transform 0.15s; }
+.categoryCard { flex: 0 0 auto; width: 116px; display: flex; flex-direction: column; align-items: center; padding: 18px 12px 16px; background: linear-gradient(180deg, var(--card-a), var(--card-b)); border: 1px solid rgba(150, 175, 225, 0.14); border-radius: 14px; text-decoration: none; color: inherit; transition: box-shadow 0.2s, transform 0.15s; }
 .categoryCard:hover { box-shadow: 0 6px 16px rgba(60,30,40,0.10); transform: translateY(-2px); }
 /* 色付きSVGアイコンタイル (絵文字置き換え) */
 .catIconTile { width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(60,30,40,.16); }
@@ -86,7 +86,7 @@
 /* 基礎練リストも練習曲(.matList)と同じグリッド幅に揃える (2026-07-18 Tetsuo指示) */
 .itemList { display: grid; grid-template-columns: repeat(auto-fill, minmax(288px, 1fr)); gap: 12px; }
 /* カバー付き行レイアウト (2026-07-15: 練習曲カードと体裁を統一)。高さは曲カードと揃える(中央揃え) */
-.itemCard { display: flex; gap: 13px; align-items: center; padding: 10px 12px; background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; text-decoration: none; color: inherit; transition: box-shadow 0.2s, border-color .15s; }
+.itemCard { display: flex; gap: 13px; align-items: center; padding: 10px 12px; background: linear-gradient(180deg, var(--card-a), var(--card-b)); border: 1px solid rgba(150, 175, 225, 0.14); border-radius: 12px; text-decoration: none; color: inherit; transition: box-shadow 0.2s, border-color .15s; }
 .itemCard:hover { box-shadow: 0 5px 16px rgba(60,20,35,.09); border-color: #c3a9b2; }
 .itemCardBody { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .itemTitle { font-size: var(--fs-subhead); font-weight: 600; margin-bottom: 4px; }
@@ -96,7 +96,7 @@
 .itemHistory { font-size: var(--fs-body); color: var(--text-link); margin-top: 4px; }
 .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: var(--fs-caption); font-weight: 500; }
 .badgeBeginner { background: #e8f5e9; color: var(--text-good); }
-.badgeIntermediate { background: #fff3e0; color: var(--text-error); }
+.badgeIntermediate { background: rgba(224, 135, 43, 0.16); color: var(--text-error); }
 .badgeAdvanced { background: #fce4ec; color: var(--text-error); }
 
 /* カード内レイアウト */
@@ -128,10 +128,10 @@
 .detailHeader { margin-bottom: 16px; }
 .detailTitle { font-size: var(--fs-head); font-weight: 700; }
 .detailMeta { font-size: var(--fs-body); color: var(--text-sub); margin-top: 4px; }
-.detailDescription { font-size: var(--fs-subhead); color: var(--text-body); margin-top: 8px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
+.detailDescription { font-size: var(--fs-subhead); color: var(--text-body); margin-top: 8px; padding: 12px; background: var(--card-in); border-radius: 8px; }
 .historyPanel { margin-top: 16px; }
-.historyItem { padding: 8px 12px; border-bottom: 1px solid #eee; cursor: pointer; }
-.historyItem:hover { background: #f5f5f5; }
+.historyItem { padding: 8px 12px; border-bottom: 1px solid rgba(150, 175, 225, 0.12); cursor: pointer; }
+.historyItem:hover { background: rgba(150, 175, 225, 0.08); }
 .historyActive { background: #e3f2fd; }
 .historyDate { font-size: var(--fs-body); font-weight: 500; }
 .historyScore { font-size: var(--fs-body); color: var(--text-link); }
@@ -140,10 +140,10 @@
 /* ==============================
    3-view tabs
    ============================== */
-.tabRow { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; }
+.tabRow { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 2px solid rgba(150, 175, 225, 0.14); }
 .tab { padding: 8px 18px; font-size: var(--fs-body); font-weight: 500; border: none; background: transparent; cursor: pointer; color: var(--text-sub); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color 0.15s, border-color 0.15s; }
 .tab:hover { color: var(--text-link); }
-.tabActive { color: var(--text-link); border-bottom-color: #4a90d9; }
+.tabActive { color: var(--text-link); border-bottom-color: #2b5bc4; }
 
 /* section wrapper */
 .viewSection { margin-bottom: 28px; }
@@ -183,15 +183,15 @@
   text-align: left;
   cursor: pointer;
   /* 2026-07-18 Tetsuo: カード枠を復活。一番外の線は薄く細く */
-  background: #fff;
-  border: 1px solid #ededed;
+  background: linear-gradient(180deg, var(--card-a), var(--card-b));
+  border: 1px solid rgba(150, 175, 225, 0.14);
   border-radius: 14px;
   padding: 8px 8px 12px;
   transition: box-shadow 0.15s, border-color 0.15s;
 }
 .railCard:hover {
-  box-shadow: 0 4px 12px rgba(60, 20, 35, 0.07);
-  border-color: #e2d8dc;
+  box-shadow: 0 4px 12px rgba(4, 10, 28, 0.4);
+  border-color: rgba(150, 175, 225, 0.28);
 }
 /* カバーはカード内幅いっぱいの正方形に (76px 固定を上書き) */
 .railCard .matCover {
@@ -235,37 +235,38 @@
 .railCard .railBest { margin-top: 3px; font-size: var(--fs-caption); }
 
 /* search */
-.searchInput { width: 100%; max-width: 360px; padding: 7px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: var(--fs-body); margin-bottom: 12px; outline: none; }
-.searchInput:focus { border-color: #4a90d9; }
+.searchInput { width: 100%; max-width: 360px; padding: 8px 12px; background: var(--card-in); color: var(--text-ink); border: 1px solid rgba(150, 175, 225, 0.14); border-radius: 10px; font-size: var(--fs-body); font-family: inherit; margin-bottom: 12px; outline: none; }
+.searchInput::placeholder { color: var(--text-muted); }
+.searchInput:focus { border-color: rgba(150, 175, 225, 0.3); }
 
 /* stats row */
 .statsRow { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-.statCard { flex: 1; min-width: 100px; background: #f8f9fa; border-radius: 10px; padding: 14px 16px; }
+.statCard { flex: 1; min-width: 100px; background: var(--card-in); border-radius: 10px; padding: 14px 16px; }
 .statValue { font-size: var(--fs-title); font-weight: 700; color: var(--text-ink); line-height: 1; }
 .statUnit { font-size: var(--fs-body); font-weight: 400; color: var(--text-sub); }
 .statLabel { font-size: var(--fs-caption); color: var(--text-muted); margin-top: 4px; }
-.statBar { height: 4px; background: #e5e7eb; border-radius: 2px; margin-top: 8px; }
-.statBarFill { height: 100%; background: #4a90d9; border-radius: 2px; }
+.statBar { height: 4px; background: rgba(150, 175, 225, 0.14); border-radius: 2px; margin-top: 8px; }
+.statBarFill { height: 100%; background: #2b5bc4; border-radius: 2px; }
 
 /* recommendation horizontal scroll */
 .recScroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .recScroll::-webkit-scrollbar { display: none; }
-.recCard { display: block; flex-shrink: 0; width: 140px; text-decoration: none; color: inherit; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; transition: box-shadow 0.2s; }
-.recCard:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.09); }
+.recCard { display: block; flex-shrink: 0; width: 140px; text-decoration: none; color: inherit; background: linear-gradient(180deg, var(--card-a), var(--card-b)); border: 1px solid rgba(150, 175, 225, 0.14); border-radius: 10px; overflow: hidden; transition: box-shadow 0.2s; }
+.recCard:hover { box-shadow: 0 3px 10px rgba(4, 10, 28, 0.4); }
 .recCardInner { padding: 12px; display: flex; flex-direction: column; gap: 4px; }
 .recReason { display: inline-block; padding: 2px 7px; border-radius: 8px; font-size: var(--fs-label); font-weight: 600; margin-bottom: 2px; }
 .reasonWeakness { background: #fce4ec; color: var(--text-error); }
 .reasonContinue { background: #e8f5e9; color: var(--text-good); }
 .reasonUntried  { background: #e8eaf6; color: var(--text-link); }
-.reasonSameKey  { background: #fff3e0; color: var(--text-error); }
+.reasonSameKey  { background: rgba(224, 135, 43, 0.16); color: var(--text-error); }
 .recTitle { font-size: var(--fs-subhead); font-weight: 600; color: var(--text-ink); }
 .recSubtitle { font-size: var(--fs-label); color: var(--text-muted); }
 .recLast { font-size: var(--fs-label); color: var(--text-link); margin-top: 2px; }
 
 /* group view: key grid (scale: 4×3) */
 .keyGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.keyCell { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 14px 8px; cursor: pointer; text-align: center; transition: box-shadow 0.15s, transform 0.15s; }
-.keyCell:hover { box-shadow: 0 3px 8px rgba(0,0,0,0.08); transform: translateY(-1px); }
+.keyCell { background: linear-gradient(180deg, var(--card-a), var(--card-b)); border: 1px solid rgba(150, 175, 225, 0.14); border-radius: 8px; padding: 14px 8px; cursor: pointer; text-align: center; transition: box-shadow 0.15s, transform 0.15s; }
+.keyCell:hover { box-shadow: 0 3px 8px rgba(4, 10, 28, 0.4); transform: translateY(-1px); }
 
 /* group view: chord/composer grid */
 .groupGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -279,8 +280,8 @@
   .categoryGrid { grid-template-columns: 1fr; }
   .keyGrid { grid-template-columns: repeat(2, 1fr); }
 }
-.groupCell { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; cursor: pointer; text-align: left; transition: box-shadow 0.15s; }
-.groupCell:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+.groupCell { background: linear-gradient(180deg, var(--card-a), var(--card-b)); border: 1px solid rgba(150, 175, 225, 0.14); border-radius: 10px; padding: 16px; cursor: pointer; text-align: left; transition: box-shadow 0.15s; }
+.groupCell:hover { box-shadow: 0 3px 10px rgba(4, 10, 28, 0.4); }
 .groupCellKey { font-size: var(--fs-subhead); font-weight: 600; color: var(--text-ink); margin-bottom: 4px; }
 .groupCellCount { font-size: var(--fs-body); color: var(--text-sub); }
 
@@ -292,9 +293,9 @@
    詳細ページ: 左パネル型レイアウト
    ============================== */
 .infoPanel {
-  background: #fff;
+  background: linear-gradient(180deg, var(--card-a), var(--card-b));
   border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 4px rgba(4, 10, 28, 0.4);
   padding: 20px;
 }
 
@@ -309,7 +310,7 @@
 }
 .infoPanelCategoryScale { background: #e1f5ee; color: var(--text-good); }
 .infoPanelCategoryArpeggio { background: #e6f1fb; color: var(--text-link); }
-.infoPanelCategoryEtude { background: #eeedfe; color: var(--text-link); }
+.infoPanelCategoryEtude { background: rgba(150, 175, 225, 0.16); color: var(--text-link); }
 
 .infoPanelTitle {
   font-size: var(--fs-subhead);
@@ -334,7 +335,7 @@
 
 .infoPanelDivider {
   border: none;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid rgba(150, 175, 225, 0.14);
   margin: 12px 0;
 }
 
@@ -407,38 +408,33 @@
   padding: 8px 0;
 }
 
-/* 練習曲一覧の ☆ごと横並びタブ */
+/* 星タグ = ライブラリ曲タブ .starChip と同一様式 (2026-08-22 Tetsuo指示「曲と同様に」) */
 .starTabs {
   display: flex;
-  flex-wrap: wrap;
   gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
   margin: 8px 0 14px;
 }
-
 .starTab {
+  flex: none;
   appearance: none;
-  border: 1px solid #d0d0d0;
-  background: #fff;
+  font-size: 11.5px;
+  font-weight: 800;
+  font-family: inherit;
+  letter-spacing: 0.04em;
   border-radius: 999px;
-  padding: 6px 14px;
-  font-size: var(--fs-body);
-  color: var(--text-body);
+  padding: 5px 12px;
+  border: 1px solid transparent;
+  background: rgba(150, 175, 225, 0.1);
+  color: var(--text-sub);
   cursor: pointer;
   white-space: nowrap;
 }
-
-.starTab:hover {
-  background: #f5f5f5;
-}
-
 .starTabActive {
-  background: #4a6cf7;
-  border-color: #4a6cf7;
-  color: var(--text-on-accent);
-}
-
-.starTabActive:hover {
-  background: #4a6cf7;
+  background: rgba(232, 178, 60, 0.16);
+  color: var(--gold);
+  border-color: rgba(232, 178, 60, 0.34);
 }
 
 /* ============================================================
@@ -453,7 +449,7 @@
 .matRow {
   display: flex;
   gap: 13px;
-  background: #fff;
+  background: linear-gradient(180deg, var(--card-a), var(--card-b));
   border: 1px solid #e7e2e4;
   border-radius: 14px;
   padding: 10px;
@@ -583,7 +579,7 @@
 }
 .lastPracticed { font-size: var(--fs-caption); color: var(--text-sub); }
 /* 薄い区切り線 */
-.basicDivider { border-top: 1px solid #eee; margin: 5px 0 4px; }
+.basicDivider { border-top: 1px solid rgba(150, 175, 225, 0.12); margin: 5px 0 4px; }
 /* 左=説明文 / 右下=スコア */
 .basicBottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
 .basicDesc {

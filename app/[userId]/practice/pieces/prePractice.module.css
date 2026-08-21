@@ -157,69 +157,27 @@ a.skillChip:active { filter: brightness(0.97); }
 }
 
 
-/* ── 選択UIの効率化 (2026-08-22 Tetsuo指示: 羅列は冗長 → チップ/セグメント) ── */
-/* 難易度: 3分割セグメント (uiv2 .seg の意匠) */
-.segRow {
-  display: flex;
-  background: #0e1830;
-  border: 1px solid rgba(150, 175, 225, 0.1);
-  border-radius: 14px;
-  padding: 4px;
-  gap: 4px;
-}
-.segBtn {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+/* ── 選択UI = プルダウン (2026-08-22 Tetsuo指示: チップ/セグメントからさらに変更) ──
+   perfSelect (演奏履歴プルダウン) と同じダーク化の作法: color-scheme dark + option色指定 */
+.sheetSelect {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #0e1830;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%237fa4e8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  background-size: 12px;
+  border: 1px solid rgba(150, 175, 225, 0.16);
+  border-radius: 12px;
+  color: var(--text-ink);
+  color-scheme: dark;
   font-family: inherit;
   font-size: 13px;
   font-weight: 800;
-  color: var(--text-sub);
-  padding: 8px 0 7px;
-  border-radius: 11px;
-  border: none;
-  background: none;
+  padding: 12px 38px 12px 13px;
   cursor: pointer;
 }
-.segOn {
-  background: linear-gradient(180deg, #22355e, #182747);
-  color: var(--gold);
-  box-shadow: inset 0 0 0 1px rgba(232, 178, 60, 0.28);
-}
-.segBtn:disabled { opacity: 0.45; cursor: default; }
-.segSub { font-size: 10px; font-weight: 700; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px; }
-.segOn .segSub { color: var(--gold); opacity: 0.85; }
-
-/* 調・奏法・パート: チップグリッド */
-.chipGrid { display: flex; flex-wrap: wrap; gap: 7px; }
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--text-ink);
-  background: rgba(150, 175, 225, 0.12);
-  border: 1px solid transparent;
-  border-radius: 999px;
-  padding: 7px 12px;
-  cursor: pointer;
-}
-.chipOn {
-  background: rgba(232, 178, 60, 0.16);
-  border-color: rgba(232, 178, 60, 0.34);
-  color: var(--gold);
-}
-.chipDim {
-  opacity: 0.5;
-  cursor: default;
-  border: 1px dashed rgba(150, 175, 225, 0.22);
-  background: none;
-  color: var(--text-muted);
-}
-.chipMeta { font-size: 10px; font-weight: 700; color: var(--text-muted); }
-.chipOn .chipMeta { color: var(--gold); opacity: 0.85; }
+.sheetSelect:disabled { opacity: 0.55; cursor: default; }
+.sheetSelect option { background: #101c36; color: #e8eefc; font-weight: 700; }
+.sheetSelect option:disabled { color: rgba(150, 175, 225, 0.45); }

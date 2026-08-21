@@ -394,7 +394,8 @@ function StarView({
   const hasNull = items.some((i) => i.star == null)
   const tabs: StarTab[] = [...starValues, ...(hasNull ? (["none"] as StarTab[]) : [])]
 
-  const [active, setActive] = useState<StarTab | null>(tabs.length ? tabs[0] : null)
+  // 曲タブの星タグと同じ: 既定=すべて、タップで絞り込み (2026-08-22 Tetsuo指示)
+  const [active, setActive] = useState<StarTab | null>(null)
   // 全教材でシートを開く: エチュード=難易度+パート, その他基礎練=調+奏法
   const [songItem, setSongItem] = useState<PracticeItemDTO | null>(null)
   const [basicItem, setBasicItem] = useState<PracticeItemDTO | null>(null)
@@ -409,24 +410,31 @@ function StarView({
     )
   }
 
-  const filtered = items.filter((i) =>
-    active === "none" ? i.star == null : i.star === active,
-  )
+  const filtered = active == null
+    ? items
+    : items.filter((i) => (active === "none" ? i.star == null : i.star === active))
   const subGroups = subGroupItems(filtered, category)
   const baseStar = typeof active === "number" ? active : null
 
   return (
     <div>
       {/* ☆ごとの横並びタブ */}
-      <div className={styles.starTabs}>
+      <div className={styles.starTabs} role="group" aria-label="星でしぼる">
+        <button
+          type="button"
+          className={`${styles.starTab} ${active == null ? styles.starTabActive : ""}`}
+          onClick={() => setActive(null)}
+        >
+          すべて
+        </button>
         {tabs.map((t) => (
           <button
             key={String(t)}
             type="button"
             className={`${styles.starTab} ${active === t ? styles.starTabActive : ""}`}
-            onClick={() => setActive(t)}
+            onClick={() => setActive(active === t ? null : t)}
           >
-            {t === "none" ? "☆未設定" : `☆${t}`}
+            {t === "none" ? "★未設定" : `★${t}`}
           </button>
         ))}
       </div>
