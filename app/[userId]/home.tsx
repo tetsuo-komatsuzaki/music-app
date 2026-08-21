@@ -5,14 +5,12 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { Music, Sparkles, Palette } from "lucide-react"
 import MyRankCard from "@/app/components/MyRankCard"
-import ArcoDaily from "@/app/components/ArcoDaily"
 import PracticeFocusCard from "@/app/components/PracticeFocusCard"
 import GuideSampleFocus from "@/app/components/GuideSampleFocus"
 import NextPiecesCard from "@/app/components/NextPiecesCard"
 import FavoritesSection, { type FavoriteEntry } from "@/app/components/FavoritesSection"
 import TeacherAssignments, { type StudentAssignment, type TeacherHomeSummary } from "./TeacherAssignments"
 import AnalysisNoticeBar, { type AnalysisNotice } from "@/app/components/AnalysisNoticeBar"
-import hb from "./homeBlocks.module.css"
 import ds from "@/app/components/ds.module.css"
 import ProgressGuideModal from "@/app/components/ProgressGuideModal"
 import type { SongRecommendation } from "@/app/components/RecommendationItem"
@@ -178,10 +176,7 @@ export default function HomeClient({
         <PracticeFocusCard pieces={recentPieces} basics={basicPracticeCards} userId={userId} />
       )}
 
-      {/* ③ アルコちゃんカード (全身・モーション付き。今日の一言。タップで次のポーズ) */}
-      <div className={hb.root}>
-        <ArcoDaily />
-      </div>
+      {/* アルコちゃんの一言カードは削除 (2026-08-21 Tetsuo指示・SPEC-CHANGES記載) */}
 
       {/* ④ 次の曲にチャレンジ (同☆の未達成曲)。🌟カード表示中は1位を昇格済みなので残りだけ */}
       <NextPiecesCard pieces={!ending && starterPick && recentPieces.length === 0 ? nextPieceRecommendations.slice(1) : nextPieceRecommendations} />
