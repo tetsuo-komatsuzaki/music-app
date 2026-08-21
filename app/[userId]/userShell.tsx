@@ -5,6 +5,7 @@ import { ReactNode } from "react"
 import { usePathname } from "next/navigation"
 import BottomTabs from "./components/BottomTabs"
 import RevealMotion from "@/app/components/RevealMotion"
+import TiltEffect, { DeviceFrame } from "@/app/components/DeviceMotion"
 import Header from "./components/Header"
 import NavProgress from "./components/NavProgress"
 import OnboardingErrorBoundary from "./_onboarding/OnboardingErrorBoundary"
@@ -34,6 +35,9 @@ export default function UserShell({
         <Header role={role} />
         {/* ===== PAGE CONTENT ===== */}
         <RevealMotion />
+        {/* B群 (2026-08-21 リバイス4): B2チルト + B4ベゼル/アイランド */}
+        <TiltEffect />
+        <DeviceFrame />
       <main className={styles.main}>
           <div className={styles.centered}>{children}</div>
         </main>

@@ -62,6 +62,10 @@ DSクラス (card/bar/pill/bigN/wave/letter/cta) と data-anim 宣言を使え�
 | 18 | 未完了番号ふわり(+150ms) / ピルふわり(+170ms+n*70ms) | v3 CSS | 反映 (v4) | RevealMotion CSS (ds.todo/ds.pill 自動) |
 | 19 | 折れ線: 左から描画(+230ms)→面(+780ms)→節点(+380ms+n*185ms) | v3 CSS | 反映 (2026-08-21) | ProgressTrajectory の svg に data-anim="chart" 宣言 |
 | 20 | タップの沈み込み+ばね戻り (50ms沈み .94/明度1.18 → 260msばね) | E3 (2026-08-21) | 反映 | globals.css (button/role=button/a/.pressable 全体) |
+| 21 | B1 カードの浮遊 (translate 7s/-7px/奇数-3.5s・楽譜カード除外) | B1翻案 (2026-08-21) | 反映 | ds.module .card / globals [data-anim=block] |
+| 22 | B2 カードの3Dチルト (±5°/±7°・戻り0.5s。実機=押下中追従) | B2 (2026-08-21) | 反映 | DeviceMotion.tsx (userShell) |
+| 23 | B3 押下時の銀縁グロー (全操作要素) | B3翻案 (2026-08-21) | 反映 | globals.css |
+| 24 | B4 ベゼル10px+アイランド104×24 | B4 (2026-08-21) | 反映 | DeviceMotion.tsx DeviceFrame |
 
 ## 出現の大原則 (2026-08-20 Tetsuo指示で明文化 ・ 要件v1.2)
 1. **すべてのカードが「起き上がり」の対象。** いま練習している曲カード・おすすめ曲カード・
