@@ -102,7 +102,7 @@
   display: inline-grid; place-items: center;
   line-height: 1;
 }
-.stampGlyph .txt { font-size: 15px; line-height: 1; }
+.stampGlyph .txt { font-size: 13px; line-height: 1; } /* 2026-08-22 Tetsuo指示: まだ大きい → 15→13px */
 .stampGlyph svg { display: block; }
 
 /* 範囲スパナ (Phase 3): スラー弧 / ヘアピン(<>) / グリッサンド線。素の線・背景なし */

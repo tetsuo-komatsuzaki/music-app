@@ -80,6 +80,20 @@ function StaggerRail({ children, onboarding }: { children: React.ReactNode; onbo
       }
       return hist[hist.length - 1].x
     }
+    // 出現演出のアイテム ([data-rvi]) には transition (遅延 --rvd 付き ・ 最大数秒) が
+    // 残るため、そのままインライン transform を書くと「触ってから効くまで時差 ・
+    // 下のレールほど動かない」になる。エンジン v5 の rv-notx と同じ発想で、
+    // レールを駆動する間はカードの transition を無効化する (出現が済んでから触るので安全)。
+    let notx = false
+    const killTransitions = () => {
+      if (notx) return
+      notx = true
+      for (const el of wrap.children) (el as HTMLElement).style.transition = "none"
+    }
+    const restoreTransitions = () => {
+      notx = false
+      for (const el of wrap.children) (el as HTMLElement).style.transition = ""
+    }
     const tick = () => {
       const now = performance.now()
       const dt = lastT ? Math.min(0.032, (now - lastT) / 1000) : 0.016
@@ -100,9 +114,16 @@ function StaggerRail({ children, onboarding }: { children: React.ReactNode; onbo
         const delay = Math.min(order * STEP_DELAY, MAX_STAGGER)
         const target = at(now - delay)
         if (pos[i] === undefined || !Number.isFinite(pos[i])) { pos[i] = railX; vel[i] = 0 }
-        for (let k = 0; k < n; k++) {
-          vel[i] += ((STIFF * (target - pos[i]) - DAMP * vel[i]) / MASS) * h
-          pos[i] += vel[i] * h
+        if (dragging && delay === 0) {
+          // 先頭カード (移動方向の見えている端) は指に 1:1 で追従させ、重さを消す。
+          // 時差はあくまで後続カードの遅れだけで表現する
+          pos[i] = target
+          vel[i] = 0
+        } else {
+          for (let k = 0; k < n; k++) {
+            vel[i] += ((STIFF * (target - pos[i]) - DAMP * vel[i]) / MASS) * h
+            pos[i] += vel[i] * h
+          }
         }
         if (Math.abs(pos[i] - railX) > 0.05 || Math.abs(vel[i]) > 0.5) active = true
         else { pos[i] = railX; vel[i] = 0 }
@@ -111,7 +132,7 @@ function StaggerRail({ children, onboarding }: { children: React.ReactNode; onbo
       if (active) raf = requestAnimationFrame(tick)
       else { raf = 0; lastT = 0 }
     }
-    const wake = () => { if (!raf) { lastT = 0; raf = requestAnimationFrame(tick) } }
+    const wake = () => { killTransitions(); if (!raf) { lastT = 0; raf = requestAnimationFrame(tick) } }
     const setRail = (x: number) => {
       const m = maxX()
       if (x < 0) x = x * ELASTIC
@@ -158,6 +179,8 @@ function StaggerRail({ children, onboarding }: { children: React.ReactNode; onbo
       e.preventDefault()
       setRail(Math.max(0, Math.min(maxX(), railX + e.deltaX)))
     }
+    const onShow = () => restoreTransitions() // bfcache復帰時は出現の再生を優先
+    window.addEventListener("pageshow", onShow)
     wrap.addEventListener("pointerdown", down)
     wrap.addEventListener("pointermove", move)
     wrap.addEventListener("pointerup", up)
@@ -169,6 +192,7 @@ function StaggerRail({ children, onboarding }: { children: React.ReactNode; onbo
       wrap.removeEventListener("pointerup", up)
       wrap.removeEventListener("pointercancel", up)
       wrap.removeEventListener("wheel", wheel)
+      window.removeEventListener("pageshow", onShow)
       if (raf) cancelAnimationFrame(raf)
     }
   }, [])
