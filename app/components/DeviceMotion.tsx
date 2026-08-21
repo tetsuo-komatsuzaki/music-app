@@ -32,8 +32,8 @@ export function DeviceFrame() {
 export default function TiltEffect() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    // B3と同じ範囲 (2026-08-21 Tetsuo指示): カード + クリックして遷移できる全項目
-    const SELC = `.${ds.card}, [data-anim="block"], button, [role="button"], a, .pressable`
+    // リバイス8: チルトはカードのみ。ボタン類の押下は E3' (上品な押下) が担当
+    const SELC = `.${ds.card}, [data-anim="block"]`
     let cur: HTMLElement | null = null
 
     const apply = (el: HTMLElement, e: PointerEvent) => {

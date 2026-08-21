@@ -118,37 +118,7 @@ body > div { position: relative; z-index: 1; }
 /* ── B群のカード翻案 (2026-08-21 Tetsuo指示・リバイス3) ──
    B1 浮遊: 独自カード (data-anim=block) も同じ 7s/-7px/奇数-3.5s (translate で合成)
    B3 縁グロー: 押下中に銀の外周ライン + 60px の銀グロー (ホバー→押下に翻案) */
-button:active:not(:disabled):not(.noPress),
-[role="button"]:active:not(.noPress),
-a:active:not(.noPress),
-.pressable:active:not(.noPress) {
-  box-shadow: 0 0 0 1.5px rgba(191, 207, 237, 0.55), 0 14px 40px rgba(10, 16, 40, 0.7),
-    0 0 60px rgba(163, 183, 219, 0.16);
-}
-/* E4 カード押下で中のボタンが浮き出る (独自カード用・リバイス7) */
-[data-anim="block"]:active :is(button, a, [role="button"]):not(:active) {
-  transform: translateY(-2px) scale(1.06);
-  filter: brightness(1.12);
-  box-shadow: 0 6px 18px rgba(10, 16, 40, 0.5), 0 0 14px rgba(191, 207, 237, 0.35);
-  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease, box-shadow 0.18s ease;
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-anim="block"]:active :is(button, a, [role="button"]):not(:active) {
-    transform: none;
-    filter: none;
-  }
-}
 
-/* B3 は原本どおりホバーでも効かせる (2026-08-21 リバイス6・マウス環境のみ) */
-@media (hover: hover) {
-  button:hover:not(:disabled):not(.noPress),
-  [role="button"]:hover:not(.noPress),
-  a:hover:not(.noPress),
-  .pressable:hover:not(.noPress) {
-    box-shadow: 0 0 0 1.5px rgba(191, 207, 237, 0.55), 0 14px 40px rgba(10, 16, 40, 0.7),
-      0 0 60px rgba(163, 183, 219, 0.16);
-  }
-}
 /* ── 出現演出の部品 (モック app.v5.motion 相当・RevealMotion が制御) ── */
 /* v3: 最初の描画から main を隠す (layout.tsx のインラインスクリプトが立てる)。
    モック同様「隠れた状態で始まり時差出現」を成立させるための土台。
@@ -163,25 +133,42 @@ html.rv-anim [data-anim="bar"].rv-go > i { width: var(--w) !important; }
 /* ── グローバルなタップ感フィードバック (2026-08-11) ──
    全操作要素が「押した瞬間に軽く沈む」。transform ベースでレイアウトは動かさない。
    崩れる要素が出たら、その要素に .noPress を付けて除外する。 */
-/* 2026-08-21 Tetsuo指示「クリック感をしっかり」(演出仕様書 E3):
-   押した瞬間 50ms で 6% 沈み + 明度 1.18 で光る。離すと 260ms のばね
-   (cubic-bezier(.34,1.56,.64,1)) でわずかに弾んで戻る。 */
+/* E3' 上品な押下マイクロインタラクション (2026-08-21 リバイス8 ・ Tetsuo提供仕様に全面置換)
+   ネイビー #16294F ×ゴールド #D9A93C。派手なリップル・過度な拡大・バウンド・発光は使わない。
+   押下: 0.975倍 + 下1px + 影を弱め + わずかに暗く + 薄い金の光を約220msで内側に広げる。
+   戻り: 約200msで滑らかに (ばね無し・CSS transition)。 */
 button, [role="button"], a, .pressable {
-  transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease, filter 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
 }
 button, [role="button"], a, .pressable, summary, label[role="button"] {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 /* a も対象: transform は仕様上インライン文中リンクには効かず、ボタン風リンク(inline-flex/block)だけが沈む */
-button:active:not(:disabled),
-[role="button"]:active,
-a:active,
-.pressable:active {
-  transform: scale(0.94);
-  opacity: 0.88;
-  filter: brightness(1.18);
-  transition: transform 0.05s ease, opacity 0.05s ease, filter 0.05s ease;
+button:active:not(:disabled):not(.noPress),
+[role="button"]:active:not(.noPress),
+a:active:not(.noPress),
+.pressable:active:not(.noPress) {
+  transform: translateY(1px) scale(0.975);
+  filter: brightness(0.96);
+  box-shadow: 0 1px 4px rgba(4, 10, 28, 0.35), inset 0 0 24px rgba(217, 169, 60, 0.18);
+  transition: transform 0.06s ease, filter 0.06s ease, box-shadow 0.22s ease;
+}
+/* ホバー対応端末のみ: 上1px + わずかに明るく (押下より控えめ) */
+@media (hover: hover) {
+  button:hover:not(:disabled):not(.noPress):not(:active),
+  [role="button"]:hover:not(.noPress):not(:active),
+  a:hover:not(.noPress):not(:active),
+  .pressable:hover:not(.noPress):not(:active) {
+    transform: translateY(-1px);
+    filter: brightness(1.04);
+    box-shadow: 0 4px 14px rgba(4, 10, 28, 0.45);
+  }
+}
+/* キーボードでも同じ手応え: フォーカスリングは外側2pxの金 */
+:is(button, [role="button"], a, .pressable):focus-visible {
+  outline: 2px solid #d9a93c;
+  outline-offset: 2px;
 }
 /* 除外用: 既に transform を持つ / 絶対配置トグル等で崩れる要素に付与 */
 .noPress:active { transform: none !important; opacity: 1 !important; filter: none !important; }
@@ -195,12 +182,17 @@ a:active,
   button, [role="button"], a, .pressable {
     transition: none;
   }
+  /* 動きは止め、色と不透明度の変化だけ残す */
   button:active:not(:disabled),
   [role="button"]:active,
   a:active,
   .pressable:active {
     transform: none;
-    filter: none;
+    box-shadow: none;
+  }
+  button:hover, [role="button"]:hover, a:hover, .pressable:hover {
+    transform: none;
+    box-shadow: none;
   }
 }
 
