@@ -11,8 +11,8 @@
   padding: 6px 2px 0;
   color: var(--text-ink);
   /* A3 見出しの光沢流れ + A4 金の光彩 (2026-08-21 Tetsuo指示でアプリ適用。原本 .gallery-title) */
-  text-shadow: 0 2px 30px rgba(174, 187, 210, 0.25);
-  background: linear-gradient(100deg, #edf1fa 30%, #dbe3f0 50%, #edf1fa 70%);
+  text-shadow: 0 2px 30px rgba(163, 183, 219, 0.25);
+  background: linear-gradient(100deg, #edf1fa 30%, #d5e1f6 50%, #edf1fa 70%);
   background-size: 220% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -30,8 +30,8 @@
   50% { transform: scaleY(1.06); filter: brightness(1.12); }
 }
 @keyframes hotPulse {
-  0%, 100% { box-shadow: 0 0 14px rgba(199, 210, 230, 0.85), 0 0 4px rgba(199, 210, 230, 0.9); }
-  50% { box-shadow: 0 0 26px rgba(199, 210, 230, 1), 0 0 8px rgba(199, 210, 230, 1); }
+  0%, 100% { box-shadow: 0 0 14px rgba(191, 207, 237, 0.85), 0 0 4px rgba(191, 207, 237, 0.9); }
+  50% { box-shadow: 0 0 26px rgba(191, 207, 237, 1), 0 0 8px rgba(191, 207, 237, 1); }
 }
 @media (prefers-reduced-motion: reduce) {
   .t { animation: none; }
