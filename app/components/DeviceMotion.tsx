@@ -32,7 +32,8 @@ export function DeviceFrame() {
 export default function TiltEffect() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    const SELC = `.${ds.card}, [data-anim="block"]`
+    // B3と同じ範囲 (2026-08-21 Tetsuo指示): カード + クリックして遷移できる全項目
+    const SELC = `.${ds.card}, [data-anim="block"], button, [role="button"], a, .pressable`
     let cur: HTMLElement | null = null
 
     const apply = (el: HTMLElement, e: PointerEvent) => {
