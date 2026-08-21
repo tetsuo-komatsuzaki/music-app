@@ -78,6 +78,14 @@ body {
   60% { box-shadow: 0 12px 26px rgba(191,207,237,.35), 0 0 0 16px rgba(191,207,237,0); }
 }
 
+/* D3 RECボタンの呼吸 (2026-08-21 適用)。キーフレームは上の recBreathe (銀) */
+.recBreathe {
+  animation: recBreathe 2.4s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .recBreathe { animation: none; }
+}
+
 /* ── A群 ページ背景の演出 (2026-08-21 Tetsuo指示でアプリ適用。原本 uiv2/app.v2.motion.css 逐語) ──
    A1 オーロラの呼吸: 紺(左上)・金(右上)・紺(下部中央) 3層 radial ・ 18秒 alternate
    A2 フィルムグレイン: feTurbulence ・ opacity 5% ・ mix-blend overlay */

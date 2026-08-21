@@ -3707,7 +3707,7 @@ function ScoreDetailInner({
               )}
               <button
                 type="button"
-                className={styles.recordEntryBtn}
+                className={`${styles.recordEntryBtn} recBreathe`}
                 onClick={() => setRecordMenuOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={recordMenuOpen}

@@ -52,7 +52,7 @@ DSクラス (card/bar/pill/bigN/wave/letter/cta) と data-anim 宣言を使え�
 | 8 | 波形バー: 立ち上がり(項目+180ms+n*22ms)→律動+注目バー発光 | v3 CSS | 反映 (v4) | RevealMotion CSS (rvBarRise) + ds .wave i/i.hot |
 | 9 | 手紙カードの金縁グロー | v2 CSS | 反映 | ds .letter (塊としても出現対象) |
 | 10 | 選択タブの金グロー | v2 CSS | 反映 | BottomTabs.module .tab.active svg |
-| 11 | RECボタンの呼吸 | v2 CSS | キーフレーム定義済み | globals recBreathe (録音画面の写経時に適用) |
+| 11 | D3 RECボタンの呼吸 (2.4s・銀リング拡散) | v2 CSS | 反映 (2026-08-21) | globals .recBreathe → scoreDetail 録音ボタン |
 | 12 | prefers-reduced-motion 全停止 | v2 CSS | 反映 | 各定義にガード + rv-boot は最初から立てない |
 | 13 | ページ背景オーロラ+グレイン (A1/A2) / タイトルの金シーン+光彩 (A3/A4) | v2 CSS | 反映 (2026-08-21 Tetsuo指示) | globals body::before/::after ・ ds.t。端末の浮遊(B1)のみギャラリー専用 |
 | 14 | スポットライト (E1) | v2 JS+CSS | 対象外のまま | チルトは 2026-08-21 指示で復活 (行22) |
