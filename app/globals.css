@@ -125,6 +125,20 @@ a:active:not(.noPress),
   box-shadow: 0 0 0 1.5px rgba(191, 207, 237, 0.55), 0 14px 40px rgba(10, 16, 40, 0.7),
     0 0 60px rgba(163, 183, 219, 0.16);
 }
+/* E4 カード押下で中のボタンが浮き出る (独自カード用・リバイス7) */
+[data-anim="block"]:active :is(button, a, [role="button"]):not(:active) {
+  transform: translateY(-2px) scale(1.06);
+  filter: brightness(1.12);
+  box-shadow: 0 6px 18px rgba(10, 16, 40, 0.5), 0 0 14px rgba(191, 207, 237, 0.35);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease, box-shadow 0.18s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-anim="block"]:active :is(button, a, [role="button"]):not(:active) {
+    transform: none;
+    filter: none;
+  }
+}
+
 /* B3 は原本どおりホバーでも効かせる (2026-08-21 リバイス6・マウス環境のみ) */
 @media (hover: hover) {
   button:hover:not(:disabled):not(.noPress),

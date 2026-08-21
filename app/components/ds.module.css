@@ -45,6 +45,21 @@
   margin-top: 14px;
 }
 
+/* E4 カード押下で中のボタンが浮き出る (2026-08-21 Tetsuo指示・リバイス7)。
+   直接押している要素は E3 の沈みが優先 (:not(:active))。離すと E3 のばねで戻る */
+.card:active :is(button, a, [role="button"]):not(:active) {
+  transform: translateY(-2px) scale(1.06);
+  filter: brightness(1.12);
+  box-shadow: 0 6px 18px rgba(10, 16, 40, 0.5), 0 0 14px rgba(191, 207, 237, 0.35);
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease, box-shadow 0.18s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card:active :is(button, a, [role="button"]):not(:active) {
+    transform: none;
+    filter: none;
+  }
+}
+
 .lab {
   font-size: 11px;
   font-weight: 800;

@@ -66,6 +66,7 @@ DSクラス (card/bar/pill/bigN/wave/letter/cta) と data-anim 宣言を使え�
 | 22 | B2 3Dチルト (±5°/±7°・戻り0.5s。実機=接触中追従) 範囲=B3と同一 | B2 (2026-08-21) | 反映 | DeviceMotion.tsx (userShell) |
 | 23 | B3 銀縁グロー (マウス=ホバー / 実機=押下・全操作要素) | B3 (2026-08-21) | 反映 | globals.css |
 | 24 | B4 ベゼル10px+アイランド104×24 | B4 (2026-08-21) | 反映 | DeviceMotion.tsx DeviceFrame |
+| 25 | E4 カード押下で中のボタンが浮き出る (-2px/1.06倍/銀光・0.18sばね) | E4 (2026-08-21) | 反映 | ds.module .card:active / globals [data-anim=block]:active |
 
 ## 出現の大原則 (2026-08-20 Tetsuo指示で明文化 ・ 要件v1.2)
 1. **すべてのカードが「起き上がり」の対象。** いま練習している曲カード・おすすめ曲カード・

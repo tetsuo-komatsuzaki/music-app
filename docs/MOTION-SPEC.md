@@ -76,6 +76,12 @@ CTAボタン・金のランクピル（S）・進捗バーの塗り部分に、�
 transform / filter のみでレイアウトは動かさない。崩れる要素は .noPress で除外。
 prefers-reduced-motion では全て停止。実装: globals.css。
 
+**E4 カード押下でボタンが浮き出る (2026-08-21 リバイス7 追加)**
+カード (ds.card / data-anim=block) を押している間、その中のボタン ・ リンク ・ role=button が
+手前に浮き出る: translateY(-2px) scale(1.06) ＋ 明度 1.12 ＋ 銀の光 (rgba(191,207,237,.35) 14px)。
+入り 0.18s のばね cubic-bezier(.34,1.56,.64,1)。直接押している要素は E3 の沈みが優先。
+離すと E3 のばね (260ms) で戻る。prefers-reduced-motion では停止。
+
 ## F. 光・質感の静的演出（視覚効果として実装）
 
 **F1 クリーム数字のグロー**
