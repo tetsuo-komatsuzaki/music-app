@@ -69,13 +69,13 @@ body {
   0%, 100% { transform: scaleY(0.82); filter: brightness(0.9); }
   50% { transform: scaleY(1.06); filter: brightness(1.12); }
 }
-@keyframes hotPulse {
-  0%, 100% { box-shadow: 0 0 14px rgba(232,178,60,.85), 0 0 4px rgba(232,178,60,.9); }
-  50% { box-shadow: 0 0 26px rgba(232,178,60,1), 0 0 8px rgba(232,178,60,1); }
+@keyframes hotPulse { /* D2: 発光は銀 (2026-08-21) */
+  0%, 100% { box-shadow: 0 0 14px rgba(199,210,230,.85), 0 0 4px rgba(199,210,230,.9); }
+  50% { box-shadow: 0 0 26px rgba(199,210,230,1), 0 0 8px rgba(199,210,230,1); }
 }
 @keyframes recBreathe {
-  0%, 100% { box-shadow: 0 12px 26px rgba(232,178,60,.35), 0 0 0 0 rgba(232,178,60,.35); }
-  60% { box-shadow: 0 12px 26px rgba(232,178,60,.35), 0 0 0 16px rgba(232,178,60,0); }
+  0%, 100% { box-shadow: 0 12px 26px rgba(199,210,230,.35), 0 0 0 0 rgba(199,210,230,.35); }
+  60% { box-shadow: 0 12px 26px rgba(199,210,230,.35), 0 0 0 16px rgba(199,210,230,0); }
 }
 
 /* ── A群 ページ背景の演出 (2026-08-21 Tetsuo指示でアプリ適用。原本 uiv2/app.v2.motion.css 逐語) ──
@@ -90,7 +90,7 @@ body::before {
   pointer-events: none;
   background:
     radial-gradient(60% 45% at 18% 8%, rgba(35, 58, 120, 0.55), transparent 70%),
-    radial-gradient(50% 40% at 85% 20%, rgba(217, 169, 60, 0.14), transparent 70%),
+    radial-gradient(50% 40% at 85% 20%, rgba(174, 187, 210, 0.14), transparent 70%),
     radial-gradient(55% 45% at 50% 95%, rgba(35, 58, 120, 0.35), transparent 70%),
     linear-gradient(180deg, #0d1226, #080b17);
   animation: aurora 18s ease-in-out infinite alternate;
