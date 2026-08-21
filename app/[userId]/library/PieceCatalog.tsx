@@ -17,9 +17,9 @@ import type { CatalogPiece } from "./loadPieceCatalog"
 // レール全体を一括で動かさず、各カードが「i*28ms 前のスクロール位置」をやわらかく追う。
 // 移動中だけ隣接カードに最大8pxのズレが生まれ、停止すると先頭から順に元位置へ収束する。
 // Framer Motion 未導入のため rAF + 位置履歴で実装 (クリックは一切遅らせない)。
-const STAG_DELAY = 28   // カードごとの時間差 (20〜35msの中庸)
-const STAG_MAX = 8      // 移動中の最大ズレ (6〜10pxの中庸)
-const STAG_SOFT = 0.32  // 収束のやわらかさ (ばね近似 ・ 跳ねさせない)
+const STAG_DELAY = 34   // カードごとの時間差 (仕様上限側)
+const STAG_MAX = 10     // 移動中の最大ズレ (仕様上限)
+const STAG_SOFT = 0.22  // 収束のやわらかさ (低いほど尾を引く ・ 跳ねさせない)
 function useStaggerRail() {
   return useCallback((rail: HTMLDivElement | null) => {
     if (!rail) return

@@ -101,7 +101,7 @@ export default function PrePracticeSheet({
         {/* 難易度・パート: 画面ガイドはこの2つをまとめて指す */}
         <div data-onboarding="prePractice.choose">
         <div className={styles.slab}>難易度を選ぶ</div>
-        <div className={styles.difs}>
+        <div className={styles.segRow}>
           {DIFFICULTIES.map((d) => {
             const v = byDiff.get(d.id)
             const avail = !!v
@@ -110,16 +110,21 @@ export default function PrePracticeSheet({
                 key={d.id}
                 type="button"
                 disabled={!avail}
-                className={`${styles.dif} ${diff === d.id ? styles.difOn : ""} ${!avail ? styles.difDisabled : ""}`}
+                className={`${styles.segBtn} ${diff === d.id ? styles.segOn : ""}`}
                 onClick={() => { if (avail) { setDiff(d.id); setRangeIdx(-1) } }}
               >
-                <span className={styles.dot} style={{ background: DIFF_DOT[d.id] }} />
-                <span className={styles.difName}>{d.label}</span>
-                {avail && v!.star != null && <span className={styles.difStar}>☆{v!.star}</span>}
-                {avail
-                  ? (v!.bestScore != null && <span className={styles.difBest}>ベスト {v!.bestScore}</span>)
-                  : <span className={styles.soon}>準備中</span>}
-                {avail && <span className={styles.radio} data-on={diff === d.id} />}
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                  <span className={styles.dot} style={{ background: DIFF_DOT[d.id], width: 9, height: 9 }} />
+                  {d.label}
+                </span>
+                <span className={styles.segSub}>
+                  {avail
+                    ? <>
+                        {v!.star != null && <span>☆{v!.star}</span>}
+                        {v!.bestScore != null && <span>ベスト {v!.bestScore}</span>}
+                      </>
+                    : "準備中"}
+                </span>
               </button>
             )
           })}
@@ -127,32 +132,28 @@ export default function PrePracticeSheet({
 
         {/* パート: 全部演奏する(現行スコア) + 分割は教材が入れば有効 */}
         <div className={styles.slab}>パートを選ぶ</div>
-        <div className={styles.difs}>
+        <div className={styles.chipGrid}>
           <button
             type="button"
-            className={`${styles.dif} ${rangeIdx === -1 ? styles.difOn : ""}`}
+            className={`${styles.chip} ${rangeIdx === -1 ? styles.chipOn : ""}`}
             onClick={() => setRangeIdx(-1)}
           >
-            <span className={styles.difName}>全部演奏する</span>
-            <span className={styles.radio} data-on={rangeIdx === -1} />
+            全部演奏する
           </button>
           {sections.length > 0 ? (
             sections.map((s, i) => (
               <button
                 key={i}
                 type="button"
-                className={`${styles.dif} ${rangeIdx === i ? styles.difOn : ""}`}
+                className={`${styles.chip} ${rangeIdx === i ? styles.chipOn : ""}`}
                 onClick={() => setRangeIdx(i)}
               >
-                <span className={styles.difName}>{s.name}<small>{s.startMeasure}〜{s.endMeasure}小節</small></span>
-                <span className={styles.radio} data-on={rangeIdx === i} />
+                {s.name}
+                <span className={styles.chipMeta}>{s.startMeasure}〜{s.endMeasure}</span>
               </button>
             ))
           ) : (
-            <button type="button" disabled className={`${styles.dif} ${styles.difDisabled}`}>
-              <span className={styles.difName}>パート別に練習</span>
-              <span className={styles.soon}>準備中</span>
-            </button>
+            <span className={`${styles.chip} ${styles.chipDim}`}>パート別に練習 ・ 準備中</span>
           )}
         </div>
 

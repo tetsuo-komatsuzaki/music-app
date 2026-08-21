@@ -136,27 +136,29 @@ export default function BasicsPreSheet({
 
         {/* 調: 長調・短調を出し分けて常時表示。族に無い調はグレー */}
         <div className={styles.slab}>調を選ぶ</div>
-        <div className={styles.difs}>
+        <div className={styles.chipGrid}>
           {keyList.map(({ tonic, mode }) => {
             const cek = ckey(tonic, mode)
             const avail = availKeys.has(cek)
             const v = selVariants.find((x) => vkey(x) === cek)
-            const lock = avail ? null : lockKeyStar(tonic, mode) // number=上位★で存在 / null=教材なし
+            const lock = avail ? null : lockKeyStar(tonic, mode)
+            if (!avail) {
+              return (
+                <span key={cek} className={`${styles.chip} ${styles.chipDim}`}>
+                  {keyLabel(tonic, mode)}
+                  <span className={styles.chipMeta}>{lock != null ? `⭐${lock}` : "準備中"}</span>
+                </span>
+              )
+            }
             return (
               <button
                 key={cek}
                 type="button"
-                disabled={!avail}
-                className={`${styles.dif} ${selKey === cek ? styles.difOn : ""} ${!avail ? styles.difDisabled : ""}`}
-                onClick={() => { if (avail) setSelKey(cek) }}
+                className={`${styles.chip} ${selKey === cek ? styles.chipOn : ""}`}
+                onClick={() => setSelKey(cek)}
               >
-                <span className={styles.difName}>{keyLabel(tonic, mode)}</span>
-                {avail
-                  ? (v?.bestScore != null && <span className={styles.difBest}>ベスト {v.bestScore}</span>)
-                  : lock != null
-                    ? <span className={styles.soon}>選択不可(⭐{lock})</span>
-                    : <span className={styles.soon}>準備中</span>}
-                {avail && <span className={styles.radio} data-on={selKey === cek} />}
+                {keyLabel(tonic, mode)}
+                {v?.bestScore != null && <span className={styles.chipMeta}>{v.bestScore}</span>}
               </button>
             )
           })}
@@ -164,24 +166,26 @@ export default function BasicsPreSheet({
 
         {/* 奏法バリエーション: 基本 + 各奏法。未整備はグレー */}
         <div className={styles.slab}>奏法バリエーション</div>
-        <div className={styles.difs}>
+        <div className={styles.chipGrid}>
           {ART_LADDER.map((a) => {
             const avail = availArts.has(a.id)
-            const lock = avail ? null : lockStar(a.id) // number=上位★で存在 / null=教材なし
+            const lock = avail ? null : lockStar(a.id)
+            if (!avail) {
+              return (
+                <span key={a.id} className={`${styles.chip} ${styles.chipDim}`}>
+                  {a.label}
+                  <span className={styles.chipMeta}>{lock != null ? `⭐${lock}` : "準備中"}</span>
+                </span>
+              )
+            }
             return (
               <button
                 key={a.id}
                 type="button"
-                disabled={!avail}
-                className={`${styles.dif} ${selArt === a.id ? styles.difOn : ""} ${!avail ? styles.difDisabled : ""}`}
-                onClick={() => { if (avail) setSelArt(a.id) }}
+                className={`${styles.chip} ${selArt === a.id ? styles.chipOn : ""}`}
+                onClick={() => setSelArt(a.id)}
               >
-                <span className={styles.difName}>{a.label}</span>
-                {avail
-                  ? <span className={styles.radio} data-on={selArt === a.id} />
-                  : lock != null
-                    ? <span className={styles.soon}>選択不可(⭐{lock})</span>
-                    : <span className={styles.soon}>準備中</span>}
+                {a.label}
               </button>
             )
           })}
