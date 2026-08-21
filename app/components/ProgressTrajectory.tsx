@@ -50,9 +50,12 @@ function seriesXY(values: number[], w: number, h: number, pad: number, minV: num
 }
 
 function TrajStat({ v, l }: { v: string; l: string }) {
+  // 2026-08-21 Tetsuo指示: 統計3枚 (自己ベスト/直近平均/演奏回数) もカウントアップ対象
   return (
     <div style={{ flex: 1, background: "var(--card-in)", borderRadius: 11, padding: "9px 4px", textAlign: "center" }}>
-      <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--cream)", fontVariantNumeric: "tabular-nums" }}>{v}</div>
+      <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--cream)", fontVariantNumeric: "tabular-nums" }}>
+        <span data-anim="count">{v}</span>
+      </div>
       <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 700, marginTop: 2 }}>{l}</div>
     </div>
   )
@@ -159,7 +162,8 @@ export default function ProgressTrajectory({
 
       {/* モック: 格子 + 金の達成破線 + クリーム折れ線 + 節点 */}
       <div style={{ position: "relative" }}>
-        <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="118" style={{ marginTop: 8 }} preserveAspectRatio="none">
+        {/* data-anim="chart": 線が左から描かれ、節点が後から打たれる (台帳19・v3 drawLine) */}
+        <svg data-anim="chart" viewBox={`0 0 ${W} ${H}`} width="100%" height="118" style={{ marginTop: 8 }} preserveAspectRatio="none">
           <g stroke="rgba(150,175,225,.10)" strokeWidth="1">
             <line x1="8" y1="30" x2={W - 8} y2="30" />
             <line x1="8" y1="70" x2={W - 8} y2="70" />
