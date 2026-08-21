@@ -61,6 +61,7 @@ DSクラス (card/bar/pill/bigN/wave/letter/cta) と data-anim 宣言を使え�
 | 17 | チェック: 丸が開く(+130ms)→✓が描かれる(+260ms) | v3 CSS | 反映 (v4) | RevealMotion CSS (ds.chk 自動) |
 | 18 | 未完了番号ふわり(+150ms) / ピルふわり(+170ms+n*70ms) | v3 CSS | 反映 (v4) | RevealMotion CSS (ds.todo/ds.pill 自動) |
 | 19 | 折れ線: 左から描画(+230ms)→面(+780ms)→節点(+380ms+n*185ms) | v3 CSS | 反映 (2026-08-21) | ProgressTrajectory の svg に data-anim="chart" 宣言 |
+| 20 | タップの沈み込み+ばね戻り (50ms沈み .94/明度1.18 → 260msばね) | E3 (2026-08-21) | 反映 | globals.css (button/role=button/a/.pressable 全体) |
 
 ## 出現の大原則 (2026-08-20 Tetsuo指示で明文化 ・ 要件v1.2)
 1. **すべてのカードが「起き上がり」の対象。** いま練習している曲カード・おすすめ曲カード・

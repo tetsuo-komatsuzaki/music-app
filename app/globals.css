@@ -92,8 +92,11 @@ html.rv-anim [data-anim="bar"].rv-go > i { width: var(--w) !important; }
 /* ── グローバルなタップ感フィードバック (2026-08-11) ──
    全操作要素が「押した瞬間に軽く沈む」。transform ベースでレイアウトは動かさない。
    崩れる要素が出たら、その要素に .noPress を付けて除外する。 */
+/* 2026-08-21 Tetsuo指示「クリック感をしっかり」(演出仕様書 E3):
+   押した瞬間 50ms で 6% 沈み + 明度 1.18 で光る。離すと 260ms のばね
+   (cubic-bezier(.34,1.56,.64,1)) でわずかに弾んで戻る。 */
 button, [role="button"], a, .pressable {
-  transition: transform 0.09s ease, opacity 0.09s ease;
+  transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease, filter 0.2s ease;
 }
 button, [role="button"], a, .pressable, summary, label[role="button"] {
   -webkit-tap-highlight-color: transparent;
@@ -104,11 +107,13 @@ button:active:not(:disabled),
 [role="button"]:active,
 a:active,
 .pressable:active {
-  transform: scale(0.955);
-  opacity: 0.9;
+  transform: scale(0.94);
+  opacity: 0.88;
+  filter: brightness(1.18);
+  transition: transform 0.05s ease, opacity 0.05s ease, filter 0.05s ease;
 }
 /* 除外用: 既に transform を持つ / 絶対配置トグル等で崩れる要素に付与 */
-.noPress:active { transform: none !important; opacity: 1 !important; }
+.noPress:active { transform: none !important; opacity: 1 !important; filter: none !important; }
 
 @keyframes skeleton-pulse {
   0%, 100% { opacity: 0.4; }
@@ -124,6 +129,7 @@ a:active,
   a:active,
   .pressable:active {
     transform: none;
+    filter: none;
   }
 }
 
