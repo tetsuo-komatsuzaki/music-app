@@ -422,6 +422,16 @@ function PerformanceHistory({
   // 最新1枚は常に表示し、それ以外は「すべての演奏を見る」アコーディオンに畳む (2026-08-09)
   const latest = performances[0]
   const rest = performances.slice(1)
+  // 原本 hist_row の「ベスト」タグ: 通し演奏の最高点
+  const bestId = (() => {
+    let id: string | null = null, best = -1
+    for (const p of performances) {
+      if (p.rangeFromNote != null) continue
+      const sc = performanceScore(p)
+      if (sc != null && sc > best) { best = sc; id = p.id }
+    }
+    return id
+  })()
   const totalPages = Math.max(1, Math.ceil(rest.length / HISTORY_PAGE_SIZE))
   const safePage = Math.min(page, totalPages - 1)
   const pageStart = safePage * HISTORY_PAGE_SIZE
@@ -526,7 +536,7 @@ function PerformanceHistory({
                 onClick={(e) => togglePlay(p, e)}
                 aria-label={playingId === p.id ? "一時停止" : "この演奏を聴く"}
               >
-                {playingId === p.id ? <Pause size={13} fill="#fff" /> : <Play size={13} fill="#fff" style={{ marginLeft: 1 }} />}
+                {playingId === p.id ? <Pause size={11} fill="#fff" /> : <Play size={11} fill="#fff" style={{ marginLeft: 1 }} />}
               </button>
             )}
             <div className={styles.histMid}>
@@ -538,6 +548,7 @@ function PerformanceHistory({
                 {p.rangeFromNote != null && (
                   <span className={styles.rangeTag} title="区間だけを録音した部分練習">区間</span>
                 )}
+                {p.id === bestId && <span className={styles.histBestTag}>ベスト</span>}
                 <span className={styles.historyDate}>{dateLabel}</span>
               </div>
               {score != null ? (
@@ -567,7 +578,7 @@ function PerformanceHistory({
               )}
             </div>
             {score != null && tone && (
-              <span className={styles.histScorePill} style={{ color: tone.ink, background: tone.bg }}>{score}<small>点</small></span>
+              <span className={styles.histScorePill}>{score}<small>点</small></span>
             )}
             <span aria-hidden className={styles.histChev}>{selectedId === p.id ? "▲" : "▼"}</span>
           </div>
@@ -610,8 +621,8 @@ function PerformanceHistory({
   }
 
   return (
-    <div className={styles.card}>
-      <h3>演奏履歴</h3>
+    <div className={styles.card} style={{ padding: "13px 15px" }}>
+      <h3 className={styles.histHead}>演奏履歴 ・ {performanceCount}回</h3>
       {/* カード共通の再生用 audio (畳んでいても再生ボタンから鳴らせる) */}
       <audio ref={audioRef} onEnded={() => setPlayingId(null)} hidden />
       {loading ? (
@@ -625,7 +636,7 @@ function PerformanceHistory({
           {/* それ以外は「すべての演奏を見る」で畳む */}
           {rest.length > 0 && (
             <details className={styles.allTakes}>
-              <summary className={styles.allTakesSummary}>すべての演奏を見る</summary>
+              <summary className={styles.allTakesSummary}>▼ すべての演奏を見る</summary>
               <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
           {pageItems.map((p) => {
             const isEditing = editingId === p.id
@@ -687,7 +698,7 @@ function PerformanceHistory({
                         onClick={(e) => togglePlay(p, e)}
                         aria-label={playingId === p.id ? "一時停止" : "この演奏を聴く"}
                       >
-                        {playingId === p.id ? <Pause size={13} fill="#fff" /> : <Play size={13} fill="#fff" style={{ marginLeft: 1 }} />}
+                        {playingId === p.id ? <Pause size={11} fill="#fff" /> : <Play size={11} fill="#fff" style={{ marginLeft: 1 }} />}
                       </button>
                     )}
                     <div className={styles.histMid}>
@@ -699,6 +710,7 @@ function PerformanceHistory({
                         {p.rangeFromNote != null && (
                           <span className={styles.rangeTag} title="区間だけを録音した部分練習">区間</span>
                         )}
+                        {p.id === bestId && <span className={styles.histBestTag}>ベスト</span>}
                         <span className={styles.historyDate}>{dateLabel}</span>
                       </div>
                       {score != null ? (
@@ -728,7 +740,7 @@ function PerformanceHistory({
                       )}
                     </div>
                     {score != null && tone && (
-                      <span className={styles.histScorePill} style={{ color: tone.ink, background: tone.bg }}>{score}<small>点</small></span>
+                      <span className={styles.histScorePill}>{score}<small>点</small></span>
                     )}
                     <span aria-hidden className={styles.histChev}>{selectedId === p.id ? "▲" : "▼"}</span>
                   </div>
@@ -792,6 +804,7 @@ function PerformanceHistory({
             </div>
           )}
               </div>
+              <div className={styles.histHint}>▶ を押すと その演奏を聴けるよ ・ 名前はタップで変えられるよ</div>
             </details>
           )}
         </>
