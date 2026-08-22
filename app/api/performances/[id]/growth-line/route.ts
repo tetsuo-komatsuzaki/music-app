@@ -25,7 +25,7 @@ const GROWTH_DEFS: SkillSubDef[] = [
 ]
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id: performanceId } = await params
@@ -49,7 +49,13 @@ export async function GET(
   const firstAt = [firstPerfRow?.uploadedAt, firstPracRow?.uploadedAt]
     .filter((d): d is Date => d != null)
     .sort((a, b) => a.getTime() - b.getTime())[0] ?? perf.uploadedAt
-  const { nowFrom, baseFrom, baseTo } = growthWindows(firstAt, perf.uploadedAt)
+  // scope=single (2026-08-22 Tetsuo指示): 「その日の録音から導き出されたヒント」。
+  // now = この演奏1本だけ / base = その直前30日。窓vs窓だと同期間の点が全部
+  // 同じ文言になるため、上達のようすの点タップ用に演奏単位で比較する。
+  const single = request.nextUrl.searchParams.get("scope") === "single"
+  const { nowFrom, baseFrom, baseTo } = single
+    ? { nowFrom: perf.uploadedAt, baseFrom: new Date(perf.uploadedAt.getTime() - 30 * 864e5), baseTo: perf.uploadedAt }
+    : growthWindows(firstAt, perf.uploadedAt)
   const [nowPerfs, nowPracs, basePerfs, basePracs] = await Promise.all([
     prisma.performance.findMany({
       where: { userId: dbUserId, uploadedAt: { gte: nowFrom, lte: perf.uploadedAt } },
@@ -69,7 +75,9 @@ export async function GET(
     }),
   ])
 
-  const nowSummaries = [...nowPerfs, ...nowPracs].map((r) => r.analysisSummary)
+  const nowSummaries = single
+    ? [perf.analysisSummary]
+    : [...nowPerfs, ...nowPracs].map((r) => r.analysisSummary)
   const baseSummaries = [...basePerfs, ...basePracs].map((r) => r.analysisSummary)
   const now = buildSubMap(nowSummaries)
   const base = buildSubMap(baseSummaries)

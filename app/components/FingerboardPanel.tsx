@@ -174,8 +174,8 @@ export default function FingerboardPanel({
                 <>
                   <div style={{ color: "var(--text-sub)", marginTop: 3 }}>
                     {selDetail.high + selDetail.low === 0
-                      ? `${selDetail.n}回ひいて 音が正確`
-                      : `${selDetail.n}回中${selDetail.high + selDetail.low}回ずれた・音が高い${selDetail.high}回・音が低い${selDetail.low}回`}
+                      ? `音が正確(0回/${selDetail.n}回)`
+                      : `ずれ(${selDetail.high + selDetail.low}回/${selDetail.n}回)・音が高い${selDetail.high}回・音が低い${selDetail.low}回`}
                   </div>
 
                   {/* ポジションべつの安定度 (v2) */}
@@ -190,7 +190,7 @@ export default function FingerboardPanel({
                             {p.finger != null && <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>{p.finger === 0 ? "開放" : `${p.finger}の指`}</span>}
                             <span style={barOuter}><span style={barInner(pct)} /></span>
                             <span style={{ fontWeight: 900, flex: "none", color: pctInk(pct), fontVariantNumeric: "tabular-nums" }}>
-                              {p.n}回中{p.miss}回{p.miss > 0 ? ` ${DIR_LABEL[p.dir]}` : "・音が正確"}・{pct}%
+                              {p.miss > 0 ? DIR_LABEL[p.dir] : "音が正確"}({p.miss}回/{p.n}回)・{pct}%
                             </span>
                           </div>
                         )
@@ -212,7 +212,7 @@ export default function FingerboardPanel({
                               <span style={shiftBadge}>シフト直後</span>
                               <span style={barOuter}><span style={barInner(pctA)} /></span>
                               <span style={{ fontWeight: 900, flex: "none", color: pctInk(pctA), fontVariantNumeric: "tabular-nums" }}>
-                                {sp.after.n}回中{sp.after.miss}回{sp.after.miss > 0 ? ` ${DIR_LABEL[sp.after.dir]}` : "・音が正確"}
+                                {sp.after.miss > 0 ? DIR_LABEL[sp.after.dir] : "音が正確"}({sp.after.miss}回/{sp.after.n}回)
                               </span>
                             </div>
                             {pctN != null && (
@@ -220,7 +220,7 @@ export default function FingerboardPanel({
                                 <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", flex: "none" }}>移動なし</span>
                                 <span style={barOuter}><span style={barInner(pctN)} /></span>
                                 <span style={{ fontWeight: 900, flex: "none", color: pctInk(pctN), fontVariantNumeric: "tabular-nums" }}>
-                                  {sp.normal.n}回中{sp.normal.miss}回{sp.normal.miss === 0 ? "・音が正確" : ""}
+                                  {sp.normal.miss === 0 ? "音が正確" : "ずれ"}({sp.normal.miss}回/{sp.normal.n}回)
                                 </span>
                               </div>
                             )}
@@ -376,13 +376,10 @@ function noteKana(s: string, n: number): string {
 
 function TransRow({ t, to, first }: { t: TransitionRow; to: { s: string; n: number }; first: boolean }) {
   const from = t.from ?? null
+  // 文言 (2026-08-22 Tetsuo指示): 「音名から(弦)」。同じ弦=同一弦 ・ 違う弦=その弦名
   const head = !from
     ? "弾き始め ・ 休符のあと"
-    : t.badgeKind === "shift"
-      ? `${noteKana(from.s, from.n)} から ・ ${t.badge} シフト`
-      : from.s === to.s
-        ? `${noteKana(from.s, from.n)} から ・ 同じ弦`
-        : `${noteKana(from.s, from.n)} ・ ${from.s}線${from.n === 0 ? "開放" : ""} から ・ 移弦`
+    : `${noteKana(from.s, from.n)}から(${from.s === to.s ? "同一弦" : `${from.s}線`})${t.badgeKind === "shift" ? ` ・ ${t.badge}シフト` : ""}`
   const resColor = t.miss === 0 ? "var(--text-good)" : t.miss / t.n >= 0.4 ? "var(--text-error)" : "#e8b23c"
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", borderTop: first ? "none" : "1px dashed rgba(150,175,225,.16)" }}>
@@ -390,7 +387,7 @@ function TransRow({ t, to, first }: { t: TransitionRow; to: { s: string; n: numb
       <div style={{ minWidth: 0 }}>
         <b style={{ fontSize: "var(--fs-caption)", color: "var(--text-ink)" }}>{head}</b>
         <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: resColor, marginTop: 2, fontVariantNumeric: "tabular-nums" }}>
-          {t.n}回中{t.miss}回 ・ {t.miss > 0 ? DIR_LABEL[t.dir] : "音が正確"}
+          {t.miss > 0 ? DIR_LABEL[t.dir] : "音が正確"}({t.miss}回/{t.n}回)
         </div>
       </div>
     </div>

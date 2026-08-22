@@ -201,7 +201,7 @@ export default function ProgressTrajectory({
       const hit = praiseCache.current.get(perf.id)
       if (hit !== undefined) setPraise(hit)
       else {
-        fetch(`/api/performances/${perf.id}/growth-line`)
+        fetch(`/api/performances/${perf.id}/growth-line?scope=single`)
           .then((r) => (r.ok ? r.json() : null))
           .catch(() => null)
           .then((g) => {

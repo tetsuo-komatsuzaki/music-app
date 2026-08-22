@@ -3085,6 +3085,8 @@ function ScoreDetailInner({
   }, [activeTab, celebrationPerf, celebAlreadyShown, closeCelebration])
 
   const trajectoryBlock = <ProgressTrajectory performances={performances} />
+  // 2026-08-22 Tetsuo指示: 演奏履歴カードは画面から撤去 (過去へのアクセスは
+  // 上達のようすのグラフ点タップに一本化)。定義は復帰に備えて保持。
   const performanceHistoryBlock = (
     <div data-onboarding="scoreDetail.performanceHistory">
       <PerformanceHistory
@@ -3696,7 +3698,6 @@ function ScoreDetailInner({
             <SongMapCard kind={isScoreMode ? "score" : "practice"} targetId={isScoreMode ? score.id : practiceItemId!} initial={songHeatmap} />
           )}
           {isScoreMode && <ScoreLoopDetail scoreId={score.id} userId={userId} />}
-          {performanceHistoryBlock}
         </div>
       )}
 
@@ -3751,7 +3752,7 @@ function SongMapCard({ kind, targetId, initial }: {
     const hit = cacheRef.current.get(key)
     if (hit) { setData(hit); return }
     startLoad(async () => {
-      const r = await getSongHeatmapRange(kind, targetId, m === "count" ? { count: c || null } : { sinceDays: d })
+      const r = await getSongHeatmapRange(kind, targetId, m === "count" ? { count: c || null } : { sinceDays: d || null })
       if (r) { cacheRef.current.set(key, r); setData(r) }
     })
   }
@@ -3795,6 +3796,7 @@ function SongMapCard({ kind, targetId, initial }: {
           <>
             <button type="button" style={chip(days === 7)} onClick={() => { setDays(7); load("period", count, 7) }}>直近1週間</button>
             <button type="button" style={chip(days === 30)} onClick={() => { setDays(30); load("period", count, 30) }}>直近1ヶ月</button>
+            <button type="button" style={chip(days === 0)} onClick={() => { setDays(0); load("period", count, 0) }}>全期間</button>
           </>
         )}
       </div>
