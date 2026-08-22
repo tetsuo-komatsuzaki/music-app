@@ -20,13 +20,14 @@ export interface BodyObsItem {
   targets?: string[]
 }
 
-const BAD = { c: "#c0473a", bg: "#fbecea", bd: "#f0d4d0" }
-const SUB = "#8a9099"
+// ダーク化 (2026-08-22 カルテ写経): 構造は承認済み(2026-08-02/16)のまま配色のみ
+const BAD = { c: "#e8a78f", bg: "rgba(232,138,111,.14)", bd: "rgba(232,138,111,.3)" }
+const SUB = "var(--text-sub)"
 
 function sevPill(s: string | null) {
   if (s === "focus") return { l: "要重点", c: BAD.c, bg: BAD.bg, bd: BAD.bd }
-  if (s === "improving") return { l: "良くなってきた", c: "#2e8b57", bg: "#e9f5ee", bd: "#cfe6d8" }
-  return { l: "気になる", c: "#b7823a", bg: "#faf1e1", bd: "#ecdfc8" }
+  if (s === "improving") return { l: "良くなってきた", c: "#a8c97f", bg: "rgba(168,201,127,.14)", bd: "rgba(168,201,127,.35)" }
+  return { l: "気になる", c: "#e0b25c", bg: "rgba(224,160,47,.14)", bd: "rgba(224,160,47,.3)" }
 }
 
 export default function BodyObsMap({ tags, renderTagActions }: {
@@ -58,11 +59,11 @@ export default function BodyObsMap({ tags, renderTagActions }: {
           const on = viewId === v.id
           return (
             <button key={v.id} type="button" onClick={() => setViewId(on ? null : v.id)}
-              style={{ position: "relative", background: "#fdfaf4", border: "1.5px solid", borderColor: on ? "#4a5bd0" : vt.length ? (focus ? BAD.bd : "#ecdfc8") : "#f0e9db", borderRadius: 11, padding: "6px 4px 4px", cursor: "pointer" }}>
+              style={{ position: "relative", background: "var(--card-in)", border: "1.5px solid", borderColor: on ? "#7fa4e8" : vt.length ? (focus ? BAD.bd : "rgba(232,178,60,.3)") : "rgba(150,175,225,.14)", borderRadius: 11, padding: "6px 4px 4px", cursor: "pointer" }}>
               <BodyFigure view={v.id} />
-              <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-body)", marginTop: 2 }}>{v.short}</div>
+              <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-ink)", marginTop: 2 }}>{v.short}</div>
               {vt.length > 0 && (
-                <span style={{ position: "absolute", top: -6, right: -5, minWidth: 17, height: 17, borderRadius: 999, background: focus ? BAD.c : "#c98a2a", color: "var(--text-on-accent)", fontSize: "var(--fs-label)", fontWeight: 900, display: "grid", placeItems: "center", padding: "0 4px", border: "1.5px solid #fff" }}>
+                <span style={{ position: "absolute", top: -6, right: -5, minWidth: 17, height: 17, borderRadius: 999, background: focus ? BAD.c : "#c98a2a", color: "var(--text-on-accent)", fontSize: "var(--fs-label)", fontWeight: 900, display: "grid", placeItems: "center", padding: "0 4px", border: "1.5px solid #101c36" }}>
                   {vt.length}
                 </span>
               )}
@@ -73,13 +74,13 @@ export default function BodyObsMap({ tags, renderTagActions }: {
 
       {/* 選択ビューの詳細 */}
       {sel && (
-        <div style={{ border: "1px solid #eef1f4", borderRadius: 13, marginTop: 10, overflow: "hidden" }}>
-          <div style={{ background: "#f7f4ec", padding: "8px 12px", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-body)", display: "flex", alignItems: "center", gap: 5 }}>
+        <div style={{ border: "1px solid rgba(150,175,225,.12)", borderRadius: 13, marginTop: 10, overflow: "hidden" }}>
+          <div style={{ background: "rgba(150,175,225,.08)", padding: "8px 12px", fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-ink)", display: "flex", alignItems: "center", gap: 5 }}>
             <sel.Icon size={14} /> {sel.label}
           </div>
           <div style={{ padding: 10 }}>
             <button type="button" onClick={() => setZoom(true)} aria-label="癖マップを拡大表示"
-              style={{ display: "block", width: "100%", position: "relative", background: "#fdfaf4", border: "1px solid #f0e9db", borderRadius: 11, padding: 6, cursor: "zoom-in", textAlign: "left" }}>
+              style={{ display: "block", width: "100%", position: "relative", background: "var(--card-in)", border: "1px solid rgba(150,175,225,.14)", borderRadius: 11, padding: 6, cursor: "zoom-in", textAlign: "left" }}>
               <BodyFigure view={sel.id} />
               {spotsOf(sel.id).map((s) => {
                 const cnt = selTags.filter((t) => spotOfTag(t.tagId)?.id === s.id).length
@@ -92,7 +93,7 @@ export default function BodyObsMap({ tags, renderTagActions }: {
                   </span>
                 )
               })}
-              <span style={{ position: "absolute", right: 9, bottom: 8, fontSize: "var(--fs-label)", fontWeight: 800, color: "#8a9099", background: "rgba(255,255,255,.85)", borderRadius: 999, padding: "2px 9px" }}>タップで拡大</span>
+              <span style={{ position: "absolute", right: 9, bottom: 8, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "rgba(16,28,54,.85)", borderRadius: 999, padding: "2px 9px" }}>タップで拡大</span>
             </button>
             {selTags.length === 0 ? (
               <div style={{ fontSize: "var(--fs-caption)", color: SUB, marginTop: 8 }}>この場所の癖は記録されていません。いい調子！</div>
@@ -101,11 +102,11 @@ export default function BodyObsMap({ tags, renderTagActions }: {
                 {selTags.map((t) => {
                   const sev = sevPill(t.severity)
                   return (
-                    <div key={t.tagId} style={{ border: "1px solid #eef1f4", borderRadius: 9, padding: "7px 10px" }}>
+                    <div key={t.tagId} style={{ border: "1px solid rgba(150,175,225,.12)", borderRadius: 9, padding: "7px 10px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
                         <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: sev.c, background: sev.bg, border: `1px solid ${sev.bd}`, borderRadius: 999, padding: "2px 7px" }}>{sev.l}</span>
                         {(t.targets?.length ?? 0) > 0 && (
-                          <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#3b56d4", background: "#eef2fb", border: "1px solid #d6e0f5", borderRadius: 6, padding: "1px 7px" }}>
+                          <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#9db8e8", background: "rgba(43,91,196,.22)", border: "1px solid transparent", borderRadius: 6, padding: "1px 7px" }}>
                             {t.targets!.join("・")}のとき
                           </span>
                         )}
@@ -132,7 +133,7 @@ export default function BodyObsMap({ tags, renderTagActions }: {
               return (
                 <div key={t.tagId} style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
                   {(t.targets?.length ?? 0) > 0 && (
-                    <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#3b56d4", background: "#eef2fb", border: "1px solid #d6e0f5", borderRadius: 6, padding: "1px 7px" }}>
+                    <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#9db8e8", background: "rgba(43,91,196,.22)", border: "1px solid transparent", borderRadius: 6, padding: "1px 7px" }}>
                       {t.targets!.join("・")}のとき
                     </span>
                   )}
@@ -152,9 +153,9 @@ export default function BodyObsMap({ tags, renderTagActions }: {
         <div onClick={() => setZoom(false)} role="dialog" aria-modal="true" aria-label={`${sel.label}の癖マップ拡大表示`}
           style={{ position: "fixed", inset: 0, zIndex: 1200, background: "rgba(11,30,58,.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
           <div onClick={(e) => e.stopPropagation()}
-            style={{ position: "relative", width: "100%", maxWidth: 520, maxHeight: "92vh", overflowY: "auto", background: "#fff", borderRadius: 16, padding: 12 }}>
+            style={{ position: "relative", width: "100%", maxWidth: 520, maxHeight: "92vh", overflowY: "auto", background: "linear-gradient(180deg,#16264a,#101c36)", border: "1px solid rgba(150,175,225,.16)", borderRadius: 16, padding: 12 }}>
             <button type="button" onClick={() => setZoom(false)} aria-label="閉じる"
-              style={{ position: "absolute", top: 8, right: 10, zIndex: 2, border: "none", background: "rgba(255,255,255,.9)", borderRadius: 999, width: 30, height: 30, fontSize: "var(--fs-subhead)", color: "#54678f", cursor: "pointer" }}>✕</button>
+              style={{ position: "absolute", top: 8, right: 10, zIndex: 2, border: "none", background: "rgba(150,175,225,.14)", borderRadius: 999, width: 30, height: 30, fontSize: "var(--fs-subhead)", color: "var(--text-sub)", cursor: "pointer" }}>✕</button>
             <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-ink)", margin: "2px 0 8px", display: "flex", alignItems: "center", gap: 5 }}>
               <sel.Icon size={15} /> {sel.label}
             </div>
@@ -176,7 +177,7 @@ export default function BodyObsMap({ tags, renderTagActions }: {
               {selTags.map((t) => (
                 <div key={t.tagId} style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-ink)", display: "flex", alignItems: "center", gap: 6 }}>
                   <span style={{ width: 8, height: 8, borderRadius: "50%", background: t.severity === "focus" ? BAD.c : "#c98a2a", flex: "none" }} />
-                  {spotOfTag(t.tagId)?.label && <b style={{ color: "#54678f", fontWeight: 800 }}>{spotOfTag(t.tagId)!.label}</b>}
+                  {spotOfTag(t.tagId)?.label && <b style={{ color: "#7fa4e8", fontWeight: 800 }}>{spotOfTag(t.tagId)!.label}</b>}
                   {resolveObsTag(t.tagId)?.label ?? t.tagId}
                 </div>
               ))}
@@ -192,7 +193,7 @@ export default function BodyObsMap({ tags, renderTagActions }: {
           <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)", marginBottom: 6, display: "flex", alignItems: "center", gap: 5 }}><Sprout size={13} /> 克服した癖</div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {resolved.map((t) => (
-              <span key={t.tagId} style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-sub)", background: "#f2f6f3", border: "1px solid #dbe6de", borderRadius: 999, padding: "4px 10px", textDecoration: "line-through" }}>
+              <span key={t.tagId} style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-sub)", background: "rgba(168,201,127,.1)", border: "1px solid rgba(168,201,127,.3)", borderRadius: 999, padding: "4px 10px", textDecoration: "line-through" }}>
                 {resolveObsTag(t.tagId)?.label ?? t.tagId}
                 <span style={{ textDecoration: "none", marginLeft: 5, fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>{t.date}</span>
               </span>

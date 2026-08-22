@@ -1,30 +1,27 @@
 "use client"
 
-// 成長カルテ v3 ビジュアル刷新 (2026-08-06 Tetsuo確定モック 1f527c6d)。
-// 白カードの羅列を廃止し「1枚のクリームの紙」に章を刻む。シェアカードの世界観
-// (五線譜・金・アルコ・大きな数字) で統一。操作はスクロールと横スライドのみ —
-// クリック依存ゼロ (リンクは補助導線のみ)。章はスクロールで順に現れる。
+// 成長カルテ v3 → ダーク写経 (2026-08-22 確定モック build-karte.py K1/K2/K3/NO_TEACHER/TEACHER_VIEW)。
+// 1枚のシート (DSカード padding0) に章を刻む構成は維持し、P3ライトブルーをダークへ:
+//   h1 ds.t「成長カルテ」・ 章罫 rgba(150,175,225,.12) ・ kicker #7F97C4 ・
+//   わざバー=金 / 表現バー=#7FC4C4 (幅74ラベル ・ ds.bar) ・ 章末リンク=pill mute 右寄せ ・
+//   STORY=insetタイムライン (マスター金/タッセイ緑の14pxノード ・ 終端「ここから物語がはじまった」) ・
+//   先生なし=手紙カード (紺グラデ+金罫 ・ 先生をさがす金ピル) ・ MORE=grid2 DSカード。
+// 出現は RevealMotion (ds.card=ブロック ・ 章=項目)。ヒーローは原本どおり (モックが実装値)。
 // 30日固定 (期間切替は記録の分析)。次の一歩はホームの領分 (カルテには置かない)。
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { Share2, Search } from "lucide-react"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import type { KarteData, SkillNode } from "@/app/_libs/growthKarte"
 import BodyObsMap from "@/app/components/BodyObsMap"
 import ShareSheet from "@/app/components/ShareSheet"
+import ds from "@/app/components/ds.module.css"
 
-// ── P3 ライトブルートークン (2026-08-11 Tetsuo確定: クリーム紙→青基調に刷新) ──
-const INK = "#1c2b4d"
-const SUB = "#7f8ea9"
-const ACC = "#2b5bc4"
-const GOOD = "#0f8a4f"
-const GOLD = "#b58a1e"
-const WARN = "#c9752e"
 const tnum: React.CSSProperties = { fontVariantNumeric: "tabular-nums" }
 
 const kicker: React.CSSProperties = { fontSize: 9, fontWeight: 900, letterSpacing: ".24em", color: "#7f97c4" }
-const chapTitle: React.CSSProperties = { fontSize: 15, fontWeight: 900, marginTop: 1 }
-const chapNote: React.CSSProperties = { fontSize: 9.5, color: SUB, fontWeight: 700 }
+const chapTitle: React.CSSProperties = { fontSize: 15, fontWeight: 900, marginTop: 2, color: "var(--text-ink)" }
+const chapNote: React.CSSProperties = { fontSize: 9.5, color: "var(--text-sub)", fontWeight: 700, marginTop: 2 }
 
 // わざの分類 (SkillsLevelClient と同一。id は SkillNode.id と一致)
 const SKILL_CATEGORIES: { label: string; ids: string[] }[] = [
@@ -42,31 +39,32 @@ const EXPR_CATEGORIES: { label: string; ids: string[] }[] = [
   { label: "表情・幻想", ids: ["mood_espressivo", "mood_misterioso"] },
 ]
 
-/** 章区切りの罫線 (P3: 淡青) */
+/** 章区切りの罫線 (原本 RULE) */
 const Rule = () => (
-  <div style={{ height: 1, margin: "16px 18px 0", background: "#e3ecf9" }} />
+  <div style={{ height: 1, margin: "16px 16px 0", background: "rgba(150,175,225,.12)" }} />
 )
 
-/** スクロールで現れる (IntersectionObserver・reduced-motion対応) */
-function Reveal({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement | null>(null)
-  const [inView, setInView] = useState(false)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setInView(true); return }
-    const io = new IntersectionObserver((es) => {
-      es.forEach((e) => { if (e.isIntersecting) setInView(true) })
-    }, { threshold: 0.15 })
-    io.observe(el)
-    return () => io.disconnect()
-  }, [])
+/** 原本 catbar: 幅74ラベル + ds.bar + n/m */
+function CatBar({ label, done, total, col }: { label: string; done: number; total: number; col: string }) {
+  const pct = Math.round((done / Math.max(1, total)) * 100)
   return (
-    <div ref={ref} style={{
-      opacity: inView ? 1 : 0, transform: inView ? "none" : "translateY(14px)",
-      transition: "opacity .5s ease, transform .5s cubic-bezier(.2,.8,.3,1)",
-    }}>
-      {children}
+    <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 9 }}>
+      <span style={{ width: 74, fontSize: 11.5, fontWeight: 800, flex: "none", color: "var(--text-ink)" }}>{label}</span>
+      <div className={ds.bar} style={{ flex: 1 }}>
+        <i style={{ width: `${pct}%`, background: col }} />
+      </div>
+      <span style={{ ...tnum, fontSize: 11, fontWeight: 800, color: "var(--text-sub)", flex: "none" }}>{done}/{total}</span>
+    </div>
+  )
+}
+
+/** 章末の導線 (原本: pill mute 右寄せ) */
+function ChapterLink({ href, label }: { href: string; label: string }) {
+  return (
+    <div style={{ marginTop: 12, textAlign: "right" }}>
+      <Link href={href} className="pressable" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "var(--text-ink)", background: "rgba(150,175,225,.1)", borderRadius: 999, padding: "4px 11px", textDecoration: "none" }}>
+        {label} →
+      </Link>
     </div>
   )
 }
@@ -80,17 +78,19 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
 }) {
   const [weeklyShare, setWeeklyShare] = useState(false)
   return (
-    <div style={{ maxWidth: 520, margin: "0 auto", padding: readOnly ? "4px 0 30px" : "18px 14px 60px", fontFamily: "inherit", color: INK }}>
+    <div style={{ maxWidth: 520, margin: "0 auto", padding: readOnly ? "4px 0 30px" : "0 0 60px" }}>
       {weeklyShare && <ShareSheet kind="weekly" onClose={() => setWeeklyShare(false)} />}
-      {readOnly && (
-        <div style={{ fontSize: 9.5, fontWeight: 800, color: "#8a9099", margin: "0 0 10px" }}>生徒に見えているのと同じカルテ</div>
-      )}
 
-      {/* ═ P3 ライトブルーの1枚 ═ */}
-      <div style={{
-        background: "#f2f7fd", border: "1px solid #dbe7f6",
-        borderRadius: 18, overflow: "hidden", position: "relative",
-      }}>
+      {/* 原本: h1 ds.t (先生ビューは pill mute を添える) */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 2px" }}>
+        <h1 className={ds.t} style={{ paddingTop: 6, flex: 1, minWidth: 0 }}>成長カルテ</h1>
+        {readOnly && (
+          <span style={{ flex: "none", fontSize: 10, fontWeight: 800, color: "var(--text-sub)", background: "rgba(150,175,225,.1)", borderRadius: 999, padding: "4px 11px" }}>生徒に見えているのと同じカルテ</span>
+        )}
+      </div>
+
+      {/* ═ 1枚のシート (原本 sheet = DSカード padding0) ═ */}
+      <div className={ds.card} style={{ padding: 0, overflow: "hidden", marginTop: 12 }}>
         <Hero userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} onShare={() => setWeeklyShare(true)} />
         <Rule />
         <SkillsChapter userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} />
@@ -102,17 +102,16 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
         <HistorySection data={data} />
       </div>
 
-      {/* 記録とシェアへの導線 (2026-08-17 ナビ刷新)。
-          調査で両ページが被リンクゼロの孤立状態と判明したため、カルテを目次として導線を新設した。 */}
+      {/* 記録とシェアへの導線 (原本 MORE = grid2 DSカード) */}
       {!readOnly && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 12 }}>
-          <Link href={`/${userId}/records`} style={moreCardStyle}>
-            <span style={moreTitleStyle}>記録</span>
-            <span style={moreSubStyle}>弾いた日と点数のすべて</span>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
+          <Link href={`/${userId}/records`} className={`${ds.card} pressable`} style={moreCardStyle}>
+            <b style={{ fontSize: 13.5, display: "block", color: "var(--text-ink)" }}>記録</b>
+            <span style={{ fontSize: 10.5, color: "var(--text-sub)" }}>弾いた日と点数のすべて</span>
           </Link>
-          <Link href={`/${userId}/share`} style={moreCardStyle}>
-            <span style={moreTitleStyle}>シェア</span>
-            <span style={moreSubStyle}>成長を1枚のカードに</span>
+          <Link href={`/${userId}/share`} className={`${ds.card} pressable`} style={moreCardStyle}>
+            <b style={{ fontSize: 13.5, display: "block", color: "var(--text-ink)" }}>シェア</b>
+            <span style={{ fontSize: 10.5, color: "var(--text-sub)" }}>成長を1枚のカードに</span>
           </Link>
         </div>
       )}
@@ -121,27 +120,25 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
     </div>
   )
 }
+const moreCardStyle: React.CSSProperties = { margin: 0, padding: 14, textDecoration: "none", display: "block" }
 
-/* ═ ヒーロー: 五線譜 + アルコ + KPI大数字 ═ */
+/* ═ ヒーロー (原本 HERO = 実装値そのまま): 青グラデ + KPI大数字 ═ */
 function Hero({ userId, data, readOnly, detailBase, onShare }: { userId: string; data: KarteData; readOnly: boolean; detailBase?: string; onShare: () => void }) {
   const k = data.v2.kpi
   return (
-    // P3: 青グラデのヒーロー + 白テキスト (2026-08-11 Tetsuo確定)
     <div style={{ position: "relative", padding: "20px 18px 18px", background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", color: "#eaf1ff" }}>
       <div style={{ position: "relative" }}>
         <div style={{ display: "flex", alignItems: "baseline" }}>
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: ".22em", color: "#a9c3f2" }}>GROWTH KARTE</div>
-          </div>
+          <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: ".22em", color: "#a9c3f2" }}>GROWTH KARTE</div>
           {!readOnly && (
-            <button type="button" onClick={onShare}
+            <button type="button" onClick={onShare} className="pressable"
               style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 800, color: "#fff", background: "rgba(255,255,255,.16)", border: "1px solid rgba(255,255,255,.2)", borderRadius: 999, padding: "4px 11px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
               <Share2 size={12} /> 今週をシェア
             </button>
           )}
         </div>
         <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-          <div style={kpiBox}><b style={{ ...kpiNum, color: "#fff" }}>{k.starDone}<small style={{ fontSize: 11, color: "#bcd0f5" }}>/{k.starRequired}</small></b><span style={kpiLbl}>★{k.star}の達成曲</span></div>
+          <div style={kpiBox}><b style={{ ...kpiNum, color: "#fff" }}><span data-anim="count">{k.starDone}</span><small style={{ fontSize: 11, color: "#bcd0f5" }}>/{k.starRequired}</small></b><span style={kpiLbl}>★{k.star}の達成曲</span></div>
           <div style={kpiBox}><b style={{ ...kpiNum, color: k.basicsWeek > 0 ? "#fff" : "#bcd0f5" }}>{k.basicsWeek > 0 ? `+${k.basicsWeek}` : "±0"}</b><span style={kpiLbl}>今週の基礎練</span></div>
           <div style={kpiBox}><b style={{ ...kpiNum, color: k.skillsWeek > 0 ? "#fff" : "#bcd0f5" }}>{k.skillsWeek > 0 ? `+${k.skillsWeek}` : "±0"}</b><span style={kpiLbl}>今週のわざ</span></div>
         </div>
@@ -158,16 +155,16 @@ const kpiBox: React.CSSProperties = { flex: 1, textAlign: "center", background: 
 const kpiNum: React.CSSProperties = { display: "block", fontSize: 23, fontWeight: 900, lineHeight: 1.1, ...tnum }
 const kpiLbl: React.CSSProperties = { fontSize: 8.5, fontWeight: 800, color: "#bcd0f5" }
 
-/* ═ わざの習得状況: 分類ごとの進み具合バー (タップ不要・情報常時表示) ═ */
+/* ═ わざの習得状況 (原本 SKILLS: 金バー + 技術マップへ) ═ */
 function SkillsChapter({ userId, data, readOnly, detailBase }: { userId: string; data: KarteData; readOnly: boolean; detailBase?: string }) {
   // 2026-08-11 Tetsuo確定: わざの習得状況は先生なしでも全ユーザーに開放 (nullは集計エラー時のみ)
   if (!data.skillMap) {
     if (readOnly) return null
     return (
-      <div style={{ padding: "20px 18px 4px" }}>
+      <div style={{ padding: "18px 16px 4px" }}>
         <div style={kicker}>SKILLS</div>
         <div style={chapTitle}>わざの習得状況</div>
-        <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
+        <div style={{ fontSize: 12, color: "var(--text-sub)", margin: "8px 0 12px", lineHeight: 1.7 }}>
           いまは集計を準備中。録音してわざを練習すると、ここに習得状況が表示されます。
         </div>
       </div>
@@ -177,208 +174,148 @@ function SkillsChapter({ userId, data, readOnly, detailBase }: { userId: string;
   const litOf = (n: SkillNode) => n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata"
   const litCount = nodes.filter(litOf).length
   const byId = new Map(nodes.map((n) => [n.id, n]))
-  // 分類ごとの進み具合。総数0の分類は非表示。
   const cats = SKILL_CATEGORIES.map((c) => {
     const items = c.ids.map((id) => byId.get(id)).filter((n): n is SkillNode => !!n)
     return { label: c.label, total: items.length, lit: items.filter(litOf).length }
   }).filter((c) => c.total > 0)
 
   return (
-    <Reveal>
-      <div style={{ padding: "18px 18px 16px" }}>
-        <div style={kicker}>SKILLS</div>
-        <div style={chapTitle}>わざの習得状況 <span style={{ fontSize: 10, fontWeight: 800, color: SUB }}>いまの★{currentStar}</span></div>
-        <div style={chapNote}>15のわざ ・ {litCount}つ点灯</div>
-        {/* 分類ごとの進み具合バー */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
-          {cats.map((c) => (
-            <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ flex: "none", width: 116, fontSize: 10.5, fontWeight: 800, color: INK }}>{c.label}</span>
-              <div style={{ flex: 1, height: 8, borderRadius: 999, background: "#dfe9f8", overflow: "hidden" }}>
-                <div style={{ width: `${(c.lit / c.total) * 100}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#2b5bc4,#59a7ff)" }} />
-              </div>
-              <span style={{ ...tnum, flex: "none", width: 34, textAlign: "right", fontSize: 10.5, fontWeight: 900, color: SUB }}>{c.lit}/{c.total}</span>
-            </div>
-          ))}
-        </div>
-        {(!readOnly || detailBase) && (
-          <Link href={detailBase ? `${detailBase}/skills` : `/${userId}/progress/skills`}
-            style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 12, fontSize: 11.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>
-            わざの習得状況を詳しくみる →
-          </Link>
-        )}
+    <div style={{ padding: "18px 16px 16px" }}>
+      <div style={kicker}>SKILLS</div>
+      <div style={chapTitle}>わざの習得状況 <span style={{ fontSize: 10, fontWeight: 800, color: "var(--text-sub)" }}>いまの★{currentStar}</span></div>
+      <div style={chapNote}>15のわざ ・ {litCount}つ点灯</div>
+      <div style={{ marginTop: 1 }}>
+        {cats.map((c) => <CatBar key={c.label} label={c.label} done={c.lit} total={c.total} col="var(--gold)" />)}
       </div>
-    </Reveal>
+      {(!readOnly || detailBase) && (
+        <ChapterLink href={detailBase ? `${detailBase}/skills` : `/${userId}/progress/skills`} label="技術マップへ" />
+      )}
+    </div>
   )
 }
 
-/* ═ 表現の習得状況: 概要=系統バー + 詳細ページへの導線 (詳細は /progress/expression) ═ */
+/* ═ 表現の習得状況 (原本 EXPR: #7FC4C4バー / 先生なし=手紙カード) ═ */
 function ExprChapter({ userId, data, readOnly, detailBase }: { userId: string; data: KarteData; readOnly: boolean; detailBase?: string }) {
   if (!data.v2.expression) {
     if (readOnly) return null
+    // 原本 NO_TEACHER の手紙: 紺グラデ + 金罫 + 先生をさがす金ピル
     return (
-      <Reveal>
-        <div style={{ padding: "18px 18px 14px", textAlign: "center" }}>
-          <div style={kicker}>ESPRESSIONE</div>
-          <div style={chapTitle}>表現の習得状況</div>
-          <div style={{ fontSize: 12, color: SUB, margin: "8px 0 12px", lineHeight: 1.7 }}>
-            「優しく」「歌うように」— きみの表現を先生が認定してくれる場所。<br />
-            <b>先生とつながると開放</b>されます。
-          </div>
-          <Link href={`/${userId}/find-teacher`}
-            style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none" }}>
-            <Search size={14} /> 先生を探す →
+      <div style={{ margin: "16px 16px 16px", border: "1px solid rgba(232,178,60,.3)", borderRadius: 18, padding: 18, background: "linear-gradient(180deg,#20304f,#16233e)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 900, letterSpacing: ".12em", color: "#a9833b" }}>ESPRESSIONE ・ 先生とつながると開放</div>
+        <div style={{ fontSize: 15, fontWeight: 900, marginTop: 8, color: "var(--cream)" }}>表現は、先生の耳から</div>
+        <div style={{ fontSize: 12.5, color: "var(--text-sub)", marginTop: 7, lineHeight: 1.8 }}>
+          「優しく」「歌うように」— きみの表現を<br />先生が認定すると、ここに刻まれていくよ。
+        </div>
+        <div style={{ marginTop: 14 }}>
+          <Link href={`/${userId}/find-teacher`} className="pressable" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 800, color: "var(--gold)", background: "rgba(232,178,60,.14)", borderRadius: 999, padding: "4px 11px", textDecoration: "none" }}>
+            先生をさがす →
           </Link>
         </div>
-      </Reveal>
+      </div>
     )
   }
   const nodes = data.v2.exprMap.nodes
   const litOf = (n: { star: number }) => n.star > 0
   const litCount = nodes.filter(litOf).length
   const byId = new Map(nodes.map((n) => [n.tagId, n]))
-  // 系統ごとの認定ぐあい。総数0の系統は非表示 (実質は常に全4系統)。
   const cats = EXPR_CATEGORIES.map((c) => {
     const items = c.ids.map((id) => byId.get(id)).filter((n): n is (typeof nodes)[number] => !!n)
     return { label: c.label, total: items.length, lit: items.filter(litOf).length }
   }).filter((c) => c.total > 0)
 
   return (
-    <Reveal>
-      <div style={{ padding: "18px 18px 16px" }}>
-        <div style={kicker}>ESPRESSIONE</div>
-        <div style={chapTitle}>表現の習得状況</div>
-        <div style={chapNote}>
-          15の表現 ・ {litCount}つ認定
-          {litCount === 0 && " ・ 曲で表現して「先生に聴いてもらう」と認定されるよ"}
-        </div>
-        {/* 系統ごとの認定ぐあいバー */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
-          {cats.map((c) => (
-            <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ flex: "none", width: 116, fontSize: 10.5, fontWeight: 800, color: INK }}>{c.label}</span>
-              <div style={{ flex: 1, height: 8, borderRadius: 999, background: "#dfe9f8", overflow: "hidden" }}>
-                <div style={{ width: `${(c.lit / c.total) * 100}%`, height: "100%", borderRadius: 999, background: "linear-gradient(90deg,#2b5bc4,#59a7ff)" }} />
-              </div>
-              <span style={{ ...tnum, flex: "none", width: 34, textAlign: "right", fontSize: 10.5, fontWeight: 900, color: SUB }}>{c.lit}/{c.total}</span>
-            </div>
-          ))}
-        </div>
-        {(!readOnly || detailBase) && (
-          <Link href={detailBase ? `${detailBase}/expression` : `/${userId}/progress/expression`}
-            style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 12, fontSize: 11.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>
-            表現の習得状況を詳しくみる →
-          </Link>
-        )}
+    <div style={{ padding: "18px 16px 16px" }}>
+      <div style={kicker}>ESPRESSIONE</div>
+      <div style={chapTitle}>表現の習得状況</div>
+      <div style={chapNote}>
+        15の表現 ・ {litCount}つ認定
+        {litCount === 0 && " ・ 曲で表現して「先生に聴いてもらう」と認定されるよ"}
       </div>
-    </Reveal>
+      <div style={{ marginTop: 1 }}>
+        {cats.map((c) => <CatBar key={c.label} label={c.label} done={c.lit} total={c.total} col="#7fc4c4" />)}
+      </div>
+      {(!readOnly || detailBase) && (
+        <ChapterLink href={detailBase ? `${detailBase}/expression` : `/${userId}/progress/expression`} label="表現の一覧へ" />
+      )}
+    </div>
   )
 }
 
-/* ═ からだの癖 (先生の目・日々の意識でなおす) ═ */
+/* ═ からだの癖 (原本 FORM。マップ本体は BodyObsMap = 承認済み構造 ・ ダーク化) ═ */
 function FormChapter({ data }: { data: KarteData }) {
   if (!data.bodyObs) return null
   return (
-    <Reveal>
-      <div style={{ padding: "18px 18px 0" }}>
+    <>
+      <div style={{ padding: "18px 16px 0" }}>
         <div style={kicker}>FORM</div>
         <div style={chapTitle}>からだの癖</div>
         <div style={chapNote}>先生の目 ・ 日々の意識でなおす</div>
       </div>
-      <div style={{ padding: "10px 18px 16px" }}>
+      <div style={{ padding: "10px 16px 16px" }}>
         {data.bodyObs.length === 0 ? (
-          <div style={{ fontSize: 11.5, color: SUB, lineHeight: 1.7 }}>
+          <div style={{ fontSize: 11.5, color: "var(--text-sub)", lineHeight: 1.8 }}>
             先生がレッスンで気づいた癖を記録すると、ここに「体のどこの癖か」が表示されます。
           </div>
         ) : (
           <BodyObsMap tags={data.bodyObs} />
         )}
       </div>
-    </Reveal>
+    </>
   )
 }
 
-/* ═ きみの歴史: 曲の達成/マスターを縦スクロールのタイムラインで (2026-08-11 Tetsuo確定) ═ */
+/* ═ きみの歴史 (原本 STORY: insetタイムライン ・ 14pxノード ・ 終端「ここから物語がはじまった」) ═ */
 function HistorySection({ data }: { data: KarteData }) {
   const ms = data.v2.milestones
 
   const CAT: Record<string, { label: string; color: string }> = {
-    "🏆": { label: "マスター", color: "#b58a1e" },
-    "✨": { label: "タッセイ", color: "#2e8b57" },
+    "🏆": { label: "マスター", color: "#e8b23c" },
+    "✨": { label: "タッセイ", color: "#a8c97f" },
   }
-  const isBig = (icon: string) => icon === "🏆"
 
   if (ms.length === 0) {
     return (
-      <div style={{ padding: "18px 18px 16px" }}>
+      <div style={{ padding: "18px 16px 16px" }}>
         <div style={kicker}>STORY</div>
         <div style={chapTitle}>きみの歴史</div>
-        <div style={{ fontSize: 11.5, color: SUB, marginTop: 6 }}>最初の録音をすると、ここにきみの歴史が刻まれはじめるよ。</div>
+        <div style={{ fontSize: 11.5, color: "var(--text-sub)", marginTop: 6 }}>最初の録音をすると、ここにきみの歴史が刻まれはじめるよ。</div>
       </div>
     )
   }
 
-  const N = ms.length
-  const first = ms[N - 1]
-  const days = Math.max(1, Math.round((ms[0].at - first.at) / 864e5))
-
   return (
-    <Reveal>
-      <div style={{ padding: "18px 18px 0" }}>
+    <div>
+      <div style={{ padding: "18px 16px 0" }}>
         <div style={kicker}>STORY</div>
         <div style={chapTitle}>きみの歴史</div>
-        <div style={chapNote}>{first.date}にはじまって {days}日間 ・ {N}つの節目</div>
       </div>
-
-      {/* 上=いま / 下=はじまり の縦タイムライン (素直な縦スクロール) */}
-      <div style={{ padding: "12px 18px 16px" }}>
+      <div style={{ padding: "10px 16px 18px" }}>
         {ms.map((m, i) => {
-          const cat = CAT[m.icon] ?? { label: "セツメ", color: SUB }
-          const big = isBig(m.icon)
-          const isLast = i === N - 1
+          const cat = CAT[m.icon] ?? { label: "セツメ", color: "var(--text-sub)" }
           return (
-            <div key={`${m.at}-${i}`} style={{ display: "flex", gap: 12 }}>
-              {/* 左: 縦線 + 節目ドット */}
-              <div style={{ position: "relative", width: 14, flex: "none" }}>
-                {!isLast && <div style={{ position: "absolute", top: 14, bottom: -10, left: 6, width: 2, borderRadius: 1, background: "#dbe7f6" }} />}
-                <span style={{
-                  position: "absolute", top: 3, left: big ? 2 : 3,
-                  width: big ? 10 : 8, height: big ? 10 : 8, borderRadius: "50%", boxSizing: "border-box",
-                  background: big ? "#fdf3d8" : "#fff", border: `2px solid ${cat.color}`,
-                }} />
+            <div key={`${m.at}-${i}`} style={{ display: "flex", gap: 12, position: "relative", paddingBottom: 14 }}>
+              <div style={{ width: 14, flex: "none", position: "relative" }}>
+                <div style={{ position: "absolute", top: 14, bottom: -14, left: 6, width: 2, borderRadius: 1, background: "rgba(150,175,225,.16)" }} />
+                <div style={{ position: "absolute", top: 3, left: 0, width: 14, height: 14, borderRadius: "50%", background: cat.color, border: "2px solid #101c36", boxSizing: "border-box" }} />
               </div>
-              {/* 右: 節目カード */}
-              <div style={{
-                flex: 1, minWidth: 0, marginBottom: 10, borderRadius: 14, padding: "12px 14px",
-                background: big ? "#eef5ff" : "#fff",
-                border: `1px solid ${big ? "#cfe0f7" : "#e0e9f6"}`,
-              }}>
-                <div style={{ fontSize: 8.5, fontWeight: 900, letterSpacing: ".16em", color: cat.color }}>
-                  {cat.label} ・ {m.date}
+              <div style={{ flex: 1, minWidth: 0, background: "var(--card-in)", border: "1px solid rgba(150,175,225,.08)", borderRadius: 14, padding: "10px 12px" }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+                  <span style={{ fontSize: 11 }}>{m.icon}</span>
+                  <b style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: ".1em", color: cat.color }}>{cat.label}</b>
+                  <span style={{ fontSize: 10, color: "var(--text-muted)", marginLeft: "auto" }}>{m.date}</span>
                 </div>
-                <div style={{ fontSize: big ? 14.5 : 13, fontWeight: 900, lineHeight: 1.5, marginTop: 3 }}>
-                  {m.text}
-                </div>
-                {isLast && (
-                  <div style={{ fontSize: 10, color: "#7f8ea9", marginTop: 4 }}>ここから物語がはじまった</div>
-                )}
+                <div style={{ fontSize: 13, fontWeight: 800, marginTop: 3, color: "var(--text-ink)" }}>{m.text}</div>
               </div>
             </div>
           )
         })}
+        <div style={{ display: "flex", gap: 12 }}>
+          <div style={{ width: 14, flex: "none", position: "relative" }}>
+            <div style={{ position: "absolute", top: 3, left: 0, width: 14, height: 14, borderRadius: "50%", background: "rgba(150,175,225,.2)", border: "2px solid #101c36", boxSizing: "border-box" }} />
+          </div>
+          <div style={{ flex: 1, fontSize: 11, color: "var(--text-muted)", paddingTop: 2 }}>ここから物語がはじまった</div>
+        </div>
       </div>
-    </Reveal>
+    </div>
   )
-}
-
-/* 記録・シェアへの導線カード (2026-08-17) */
-const moreCardStyle: React.CSSProperties = {
-  display: "flex", flexDirection: "column", gap: 3, textDecoration: "none",
-  background: "#fff", border: "1px solid #e0e9f6", borderRadius: 14, padding: "14px 16px",
-}
-const moreTitleStyle: React.CSSProperties = {
-  fontSize: "var(--fs-subhead)", fontWeight: 900, color: "var(--text-ink)",
-}
-const moreSubStyle: React.CSSProperties = {
-  fontSize: "var(--fs-label)", color: "var(--text-muted)",
 }
