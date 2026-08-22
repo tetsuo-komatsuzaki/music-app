@@ -21,10 +21,10 @@
 }
 
 .section {
-  background: #fff;
+  background: linear-gradient(180deg, var(--card-a), var(--card-b));
   border-radius: 12px;
   padding: 16px 14px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 2px 6px rgba(4,10,28,.35);
 }
 
 .sectionTitle {
@@ -65,8 +65,8 @@
   min-height: 44px;
   padding: 12px 14px;
   border-radius: 10px;
-  background: #fff;
-  border: 1px solid #e5e5e5;
+  background: linear-gradient(180deg, var(--card-a), var(--card-b));
+  border: 1px solid rgba(150,175,225,.24);
   color: var(--text-ink);
   font-size: var(--fs-subhead);
   font-weight: 500;
@@ -79,6 +79,6 @@
 }
 
 .footerLink:hover {
-  background: #f7f9fc;
-  border-color: #c7d0db;
+  background: rgba(150,175,225,.10);
+  border-color: rgba(150,175,225,.3);
 }

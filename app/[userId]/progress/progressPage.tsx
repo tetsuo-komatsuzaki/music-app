@@ -90,7 +90,7 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
       </div>
 
       {/* ═ 1枚のシート (原本 sheet = DSカード padding0) ═ */}
-      <div className={ds.card} style={{ padding: 0, overflow: "hidden", marginTop: 12 }}>
+      <div className={ds.card} data-no-tilt style={{ padding: 0, overflow: "hidden", marginTop: 12 }}>
         <Hero userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} onShare={() => setWeeklyShare(true)} />
         <Rule />
         <SkillsChapter userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} />
@@ -98,22 +98,14 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
         <ExprChapter userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} />
         {data.bodyObs && <Rule />}
         <FormChapter data={data} userId={userId} readOnly={readOnly} />
-        <Rule />
-        <HistorySection data={data} />
       </div>
 
-      {/* 記録とシェアへの導線 (原本 MORE = grid2 DSカード) */}
+      {/* 記録への導線 (2026-08-22 Tetsuo指示: シェアカード/シェアページは削除 ・ シェアはヒーローの「今週をシェア」に一本化) */}
       {!readOnly && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
-          <Link href={`/${userId}/records`} className={`${ds.card} pressable`} style={moreCardStyle}>
-            <b style={{ fontSize: 13.5, display: "block", color: "var(--text-ink)" }}>記録</b>
-            <span style={{ fontSize: 10.5, color: "var(--text-sub)" }}>弾いた日と点数のすべて</span>
-          </Link>
-          <Link href={`/${userId}/share`} className={`${ds.card} pressable`} style={moreCardStyle}>
-            <b style={{ fontSize: 13.5, display: "block", color: "var(--text-ink)" }}>シェア</b>
-            <span style={{ fontSize: 10.5, color: "var(--text-sub)" }}>成長を1枚のカードに</span>
-          </Link>
-        </div>
+        <Link href={`/${userId}/records`} className={`${ds.card} pressable`} style={{ ...moreCardStyle, marginTop: 12 }}>
+          <b style={{ fontSize: 13.5, display: "block", color: "var(--text-ink)" }}>記録</b>
+          <span style={{ fontSize: 10.5, color: "var(--text-sub)" }}>弾いた日と点数のすべて</span>
+        </Link>
       )}
 
       {!readOnly && <OnboardingTrigger pageKey="progress" />}
@@ -269,61 +261,5 @@ function FormChapter({ data, userId, readOnly }: { data: KarteData; userId: stri
         )}
       </div>
     </>
-  )
-}
-
-/* ═ きみの歴史 (原本 STORY: insetタイムライン ・ 14pxノード ・ 終端「ここから物語がはじまった」) ═ */
-function HistorySection({ data }: { data: KarteData }) {
-  const ms = data.v2.milestones
-
-  const CAT: Record<string, { label: string; color: string }> = {
-    "🏆": { label: "マスター", color: "#e8b23c" },
-    "✨": { label: "タッセイ", color: "#a8c97f" },
-  }
-
-  if (ms.length === 0) {
-    return (
-      <div style={{ padding: "18px 16px 16px" }}>
-        <div style={kicker}>STORY</div>
-        <div style={chapTitle}>きみの歴史</div>
-        <div style={{ fontSize: 11.5, color: "var(--text-sub)", marginTop: 6 }}>最初の録音をすると、ここにきみの歴史が刻まれはじめるよ。</div>
-      </div>
-    )
-  }
-
-  return (
-    <div>
-      <div style={{ padding: "18px 16px 0" }}>
-        <div style={kicker}>STORY</div>
-        <div style={chapTitle}>きみの歴史</div>
-      </div>
-      <div style={{ padding: "10px 16px 18px" }}>
-        {ms.map((m, i) => {
-          const cat = CAT[m.icon] ?? { label: "セツメ", color: "var(--text-sub)" }
-          return (
-            <div key={`${m.at}-${i}`} style={{ display: "flex", gap: 12, position: "relative", paddingBottom: 14 }}>
-              <div style={{ width: 14, flex: "none", position: "relative" }}>
-                <div style={{ position: "absolute", top: 14, bottom: -14, left: 6, width: 2, borderRadius: 1, background: "rgba(150,175,225,.16)" }} />
-                <div style={{ position: "absolute", top: 3, left: 0, width: 14, height: 14, borderRadius: "50%", background: cat.color, border: "2px solid #101c36", boxSizing: "border-box" }} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0, background: "var(--card-in)", border: "1px solid rgba(150,175,225,.08)", borderRadius: 14, padding: "10px 12px" }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
-                  <span style={{ fontSize: 11 }}>{m.icon}</span>
-                  <b style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: ".1em", color: cat.color }}>{cat.label}</b>
-                  <span style={{ fontSize: 10, color: "var(--text-muted)", marginLeft: "auto" }}>{m.date}</span>
-                </div>
-                <div style={{ fontSize: 13, fontWeight: 800, marginTop: 3, color: "var(--text-ink)" }}>{m.text}</div>
-              </div>
-            </div>
-          )
-        })}
-        <div style={{ display: "flex", gap: 12 }}>
-          <div style={{ width: 14, flex: "none", position: "relative" }}>
-            <div style={{ position: "absolute", top: 3, left: 0, width: 14, height: 14, borderRadius: "50%", background: "rgba(150,175,225,.2)", border: "2px solid #101c36", boxSizing: "border-box" }} />
-          </div>
-          <div style={{ flex: 1, fontSize: 11, color: "var(--text-muted)", paddingTop: 2 }}>ここから物語がはじまった</div>
-        </div>
-      </div>
-    </div>
   )
 }

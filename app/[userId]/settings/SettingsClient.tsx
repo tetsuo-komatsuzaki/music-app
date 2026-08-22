@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import Link from "next/link"
 import { setTeacherEmailOff } from "@/app/actions/updateNotificationPref"
 import TeacherLinkCard from "./TeacherLinkCard"
 import GoalCard from "./GoalCard"
@@ -81,16 +80,6 @@ export default function SettingsClient({
         </section>
       )}
 
-      {/* アカウント情報・アカウント管理は プロフィール へ移設 (2026-08-17 ナビ刷新)。
-          設定はアプリ設定だけを担う。 */}
-      <div className={styles.card} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-        <span style={{ fontSize: "var(--fs-body)", fontWeight: 700, color: "var(--text-ink)" }}>
-          表示名・メール・パスワード
-        </span>
-        <Link href={`/${_userId}/profile`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--gold)", textDecoration: "none", whiteSpace: "nowrap" }}>
-          プロフィールへ →
-        </Link>
-      </div>
 
 </div>
   )

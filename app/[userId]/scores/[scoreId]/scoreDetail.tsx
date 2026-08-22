@@ -3597,23 +3597,20 @@ function ScoreDetailInner({
               {recordMenuOpen && (
                 <div className={styles.recordMenu} role="menu">
                   <button type="button" role="menuitem" className={styles.recordMenuItem} onClick={recordFull}>
-                    <span className={`${styles.recordMenuIcon} ${styles.recordMenuIconAll}`}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden><circle cx="12" cy="12" r="7" /></svg>
-                    </span>
+                    <span className={`${styles.recordMenuIcon} ${styles.recordMenuIconAll}`} aria-hidden>●</span>
                     <span className={styles.recordMenuText}>
-                      <span className={styles.recordMenuTitle}>全て録音</span>
-                      <span className={styles.recordMenuDesc}>曲を通して弾いて採点</span>
+                      <span className={styles.recordMenuTitle}>通しで録音</span>
+                      <span className={styles.recordMenuDesc}>はじめから終わりまで</span>
                     </span>
                   </button>
                   <button type="button" role="menuitem" className={styles.recordMenuItem} onClick={enterRangeFlow}>
-                    <span className={`${styles.recordMenuIcon} ${styles.recordMenuIconRange}`}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M4 7h16" /><path d="M9 7v10" /><path d="M15 7v10" /></svg>
-                    </span>
+                    <span className={`${styles.recordMenuIcon} ${styles.recordMenuIconRange}`} aria-hidden>⌒</span>
                     <span className={styles.recordMenuText}>
-                      <span className={styles.recordMenuTitle}>区間録音</span>
-                      <span className={styles.recordMenuDesc}>譜面をなぞって一部だけ{isScoreMode ? "採点" : "練習"}</span>
+                      <span className={styles.recordMenuTitle}>区間を選ぶ</span>
+                      <span className={styles.recordMenuDesc}>気になるところだけ練習する</span>
                     </span>
                   </button>
+                  <button type="button" className={styles.recordMenuCancel} onClick={() => setRecordMenuOpen(false)}>キャンセル</button>
                 </div>
               )}
             </div>

@@ -16,7 +16,7 @@ type Tab = { key: string; path: string; Icon: LucideIcon; label: string; match: 
 /** ライブラリ配下とみなすパス (曲・練習・レッスンを吸収する) */
 const LIBRARY_PREFIXES = ["/library", "/scores", "/practice", "/lessons"]
 /** カルテ配下とみなすパス */
-const KARTE_PREFIXES = ["/progress", "/records", "/share"]
+const KARTE_PREFIXES = ["/progress", "/records"]
 /** 先生配下とみなすパス */
 const TEACHER_PREFIXES = ["/my-teacher", "/find-teacher"]
 
