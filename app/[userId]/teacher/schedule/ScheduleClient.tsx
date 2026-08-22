@@ -37,8 +37,8 @@ export default function ScheduleClient({ userId, lessons }: { userId: string; le
     startTransition(async () => { await cancelLesson(id); router.refresh() })
   }
 
-  const inp: React.CSSProperties = { border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)" }
-  const card: React.CSSProperties = { background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: "14px 16px", marginBottom: 12, boxShadow: "0 1px 3px rgba(30,45,70,.05)" }
+  const inp: React.CSSProperties = { border: "1px solid rgba(150,175,225,.16)", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)" }
+  const card: React.CSSProperties = { background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 14, padding: "14px 16px", marginBottom: 12, boxShadow: "0 1px 3px rgba(30,45,70,.05)" }
 
   return (
     <div>
@@ -56,14 +56,14 @@ export default function ScheduleClient({ userId, lessons }: { userId: string; le
                 {[15, 30, 45, 60].map((d) => <option key={d} value={d}>{d}分</option>)}
               </select>
             </label>
-            <button type="button" onClick={() => setOnline((v) => !v)} style={{ ...inp, cursor: "pointer", fontWeight: 800, background: online ? "#eef1f4" : "#fff", color: "var(--text-ink)", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
+            <button type="button" onClick={() => setOnline((v) => !v)} style={{ ...inp, cursor: "pointer", fontWeight: 800, background: online ? "rgba(150,175,225,.12)" : "var(--text-on-accent)", color: "var(--text-ink)", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 5 }}>
               {online ? <><Laptop size={13} /> オンライン</> : <><MapPin size={13} /> 対面</>}
             </button>
           </div>
           <input value={place} onChange={(e) => setPlace(e.target.value)} placeholder={online ? "ビデオURL等" : "場所"} style={inp} maxLength={200} />
           {err && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-error)" }}>{err}</div>}
           <button type="button" onClick={add} disabled={pending}
-            style={{ border: "none", borderRadius: 9, padding: 11, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#2b3742", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+            style={{ border: "none", borderRadius: 9, padding: 11, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "var(--text-ink)", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
             枠を追加
           </button>
         </div>
@@ -78,7 +78,7 @@ export default function ScheduleClient({ userId, lessons }: { userId: string; le
             <div key={l.id} style={card}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)" }}>{l.when}</span>
-                <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: l.status === "booked" ? "#2e8b57" : "#b7823a", flex: "none" }}>
+                <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: l.status === "booked" ? "#a8c97f" : "#e0b25c", flex: "none" }}>
                   {l.status === "booked" ? `予約済み・${l.studentName ?? ""}` : "空き"}
                 </span>
               </div>
@@ -86,7 +86,7 @@ export default function ScheduleClient({ userId, lessons }: { userId: string; le
                 {l.durationMin}分 ・ {l.online ? "オンライン" : "対面"}{l.locationNote ? ` ・ ${l.locationNote}` : ""}
               </div>
               <button type="button" onClick={() => remove(l.id, l.status === "booked")}
-                style={{ marginTop: 8, border: "1px solid #e2e6ea", background: "#fff", color: "var(--text-error)", borderRadius: 8, padding: "6px 12px", fontSize: "var(--fs-caption)", fontWeight: 800, cursor: "pointer" }}>
+                style={{ marginTop: 8, border: "1px solid rgba(150,175,225,.14)", background: "var(--card-in)", color: "var(--text-error)", borderRadius: 8, padding: "6px 12px", fontSize: "var(--fs-caption)", fontWeight: 800, cursor: "pointer" }}>
                 取り消す
               </button>
             </div>

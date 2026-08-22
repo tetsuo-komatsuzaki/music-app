@@ -16,7 +16,7 @@ import { SKILL_ID_LABELS } from "@/app/_libs/skillCatalog"
 
 type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
 type MaterialRow = { itemId: string; label: string; category: string; star: number | null; point: string }
-const scoreColor = (n: number) => (n >= 90 ? "#2e8b57" : n >= 70 ? "#b7823a" : "#c0473a")
+const scoreColor = (n: number) => (n >= 90 ? "#a8c97f" : n >= 70 ? "#e0b25c" : "#e8a78f")
 
 export default function KarteDetailClient(props: {
   backHref: string; userId: string; scoreId: string | null; itemId?: string | null; studentId: string; perfId: string; kind: "score" | "practice"
@@ -62,30 +62,30 @@ export default function KarteDetailClient(props: {
     })
   }
 
-  const card: React.CSSProperties = { background: "#fff", border: "1px solid #e6e9ef", borderRadius: 14, padding: "13px 15px", marginBottom: 11 }
+  const card: React.CSSProperties = { background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 14, padding: "13px 15px", marginBottom: 11 }
   const lab: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-sub)", marginBottom: 8 }
   const chip = (on: boolean): React.CSSProperties => ({
     fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px solid",
-    color: on ? "#a9741c" : "#5a6472", background: on ? "#fff3e2" : "#fff", borderColor: on ? "#f0dcb4" : "#dfe3ea",
+    color: on ? "var(--gold)" : "var(--text-sub)", background: on ? "rgba(232,178,60,.16)" : "rgba(150,175,225,.08)", borderColor: on ? "rgba(232,178,60,.34)" : "transparent",
   })
 
   return (
     // 練習後カルテ1枚 (モック画面5: 紺ヘッダー + ダッシュボード基調)
-    <div style={{ background: "#f5f7fa", border: "1px solid #e6e9ef", borderRadius: 18, overflow: "hidden", color: "var(--text-ink)" }}>
-      <div style={{ background: "#22346b", color: "#eaf0fb", padding: "13px 15px 13px" }}>
-        <Link href={backHref} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", textDecoration: "none" }}>
+    <div style={{ background: "#f5f7fa", border: "1px solid rgba(150,175,225,.12)", borderRadius: 18, overflow: "hidden", color: "var(--text-ink)" }}>
+      <div style={{ background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", color: "#eaf0fb", padding: "13px 15px 13px" }}>
+        <Link href={backHref} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: "var(--fs-label)", fontWeight: 700, color: "#a9c3f2", textDecoration: "none" }}>
           <ArrowLeft size={13} /> {title}のカルテ
         </Link>
         <div style={{ display: "flex", alignItems: "flex-end", gap: 8, marginTop: 5 }}>
           <div style={{ minWidth: 0 }}>
-            <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: 0, color: "#fff" }}>{title}</h1>
-            <div style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", marginTop: 2 }}>
+            <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: 0, color: "var(--text-on-accent)" }}>{title}</h1>
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#a9c3f2", marginTop: 2 }}>
               {star != null ? `★${star} ・ ` : ""}{cat} ・ {date}
             </div>
           </div>
           <div style={{ marginLeft: "auto", textAlign: "center", flex: "none" }}>
-            <div style={{ fontSize: "var(--fs-display)", fontWeight: 900, lineHeight: 1, color: "#fff" }}>{avg}</div>
-            <div style={{ fontSize: "var(--fs-label)", color: "#9fb2dd", fontWeight: 800 }}>平均</div>
+            <div style={{ fontSize: "var(--fs-display)", fontWeight: 900, lineHeight: 1, color: "var(--text-on-accent)" }}>{avg}</div>
+            <div style={{ fontSize: "var(--fs-label)", color: "#a9c3f2", fontWeight: 800 }}>平均</div>
           </div>
         </div>
       </div>
@@ -109,7 +109,7 @@ export default function KarteDetailClient(props: {
             <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 3 }}>アルコの聴きとり・崩れやすかった所</div>
             {weak.map((w, i) => (
               <div key={i} style={{ fontSize: "var(--fs-caption)", color: "var(--text-body)", lineHeight: 1.7 }}>
-                <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: w.tree === "音程" ? "#c0473a" : "#b7823a", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{w.tree}</span>
+                <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: w.tree === "音程" ? "#e8a78f" : "#e0b25c", background: w.tree === "音程" ? "#fbecea" : "#fbf1e2", borderRadius: 999, padding: "1px 6px", marginRight: 5 }}>{w.tree}</span>
                 {w.name} 成功率{Math.max(0, Math.round(100 - (w.miss / Math.max(1, w.target)) * 100))}%・{w.target}音中{w.miss}ミス
               </div>
             ))}
@@ -119,7 +119,7 @@ export default function KarteDetailClient(props: {
 
       {/* 採点カルテ(添削)は廃止 (2026-08-11 Tetsuo確定)。代わりに演奏ふりかえりへの導線 */}
       <Link href={`/${userId}/teacher/students/${studentId}?tab=karte`}
-        style={{ display: "block", textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#22346b", background: "#fff", border: "1px solid #d3dce9", borderRadius: 10, padding: "11px 0", textDecoration: "none", marginBottom: 11 }}>
+        style={{ display: "block", textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#9db8e8", background: "var(--card-in)", border: "1px solid rgba(150,175,225,.14)", borderRadius: 10, padding: "11px 0", textDecoration: "none", marginBottom: 11 }}>
         この曲の演奏ふりかえりを見る→
       </Link>
 
@@ -132,9 +132,9 @@ export default function KarteDetailClient(props: {
           ) : (
             <>
               <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} placeholder="例：ファ♯、移弦のあとに少し下がるね。移弦の前に指を準備しよう。"
-                style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 9, padding: "9px 11px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box" }} />
+                style={{ width: "100%", border: "1px solid rgba(150,175,225,.14)", borderRadius: 9, padding: "9px 11px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box" }} />
               <button type="button" onClick={sendComment} disabled={sendingC || !comment.trim()}
-                style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#fff", background: "#3b56d4", border: "none", borderRadius: 9, padding: "8px 16px", cursor: "pointer", opacity: sendingC || !comment.trim() ? 0.5 : 1 }}>
+                style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#7fa4e8", border: "none", borderRadius: 9, padding: "8px 16px", cursor: "pointer", opacity: sendingC || !comment.trim() ? 0.5 : 1 }}>
                 {sendingC ? "送信中…" : "カルテを渡す"}
               </button>
             </>
@@ -168,13 +168,13 @@ export default function KarteDetailClient(props: {
               {SKILL_ID_LABELS.map((sk) => (
                 <button key={sk.id} type="button" onClick={() => { setSkillSel(sk.id); setTags(new Set()) }}
                   style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px solid",
-                    color: skillSel === sk.id ? "#fff" : "#33405a", background: skillSel === sk.id ? "#22346b" : "#fff", borderColor: skillSel === sk.id ? "#22346b" : "#dfe3ea" }}>
+                    color: skillSel === sk.id ? "var(--text-on-accent)" : "#33405a", background: skillSel === sk.id ? "#2b5bc4" : "var(--text-on-accent)", borderColor: skillSel === sk.id ? "#2b5bc4" : "rgba(150,175,225,.14)" }}>
                   {sk.label}
                 </button>
               ))}
               <button type="button" onClick={() => { setSkillSel("general"); setTags(new Set()) }}
                 style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: "1px dashed",
-                  color: skillSel === "general" ? "#fff" : "#8b97a8", background: skillSel === "general" ? "#8b97a8" : "#fff", borderColor: "#c9d0da" }}>
+                  color: skillSel === "general" ? "#101c36" : "var(--text-sub)", background: skillSel === "general" ? "#8fa0c4" : "rgba(150,175,225,.08)", borderColor: "transparent" }}>
                 わざ以外
               </button>
             </div>
@@ -191,7 +191,7 @@ export default function KarteDetailClient(props: {
                   <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", marginBottom: 5 }}>② どんな癖？</div>
                   {ai.length > 0 && (
                     <div style={{ marginBottom: 8 }}>
-                      <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#7a4dd6", marginBottom: 4 }}>◇ この演奏から考えられる癖</div>
+                      <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#7fa4e8", marginBottom: 4 }}>◇ この演奏から考えられる癖</div>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                         {ai.map((t) => (
                           <button key={t.id} type="button" onClick={() => toggle(t.id)} style={{ ...chip(tags.has(t.id)), borderStyle: tags.has(t.id) ? "solid" : "dashed" }}>{t.label} ＋</button>
@@ -214,15 +214,15 @@ export default function KarteDetailClient(props: {
                     {OBSERVATION_SEVERITIES.map((s) => (
                       <button key={s.id} type="button" onClick={() => setSeverity(s.id as "mild" | "focus")}
                         style={{ flex: 1, fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 8, padding: "7px 2px", cursor: "pointer", border: "1px solid",
-                          color: severity === s.id ? "#c0473a" : "#8b97a8", background: severity === s.id ? "#fbecea" : "#fff", borderColor: severity === s.id ? "#f0cfcb" : "#e3e7ee" }}>
+                          color: severity === s.id ? "#e8a78f" : "var(--text-sub)", background: severity === s.id ? "#fbecea" : "var(--text-on-accent)", borderColor: severity === s.id ? "#f0cfcb" : "#e3e7ee" }}>
                         {s.label}
                       </button>
                     ))}
                   </div>
                   <textarea value={kuseComment} onChange={(e) => setKuseComment(e.target.value)} rows={2} placeholder="自由記述：レッスンで見た様子"
-                    style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 9, padding: "9px 11px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box", marginTop: 8 }} />
+                    style={{ width: "100%", border: "1px solid rgba(150,175,225,.14)", borderRadius: 9, padding: "9px 11px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box", marginTop: 8 }} />
                   <button type="button" onClick={saveKuse} disabled={savingK || (tags.size === 0 && !kuseComment.trim())}
-                    style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#fff", background: "#8a5a1f", border: "none", borderRadius: 9, padding: "8px 16px", cursor: "pointer", opacity: savingK || (tags.size === 0 && !kuseComment.trim()) ? 0.5 : 1 }}>
+                    style={{ marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 800, color: "#201604", background: "linear-gradient(180deg,#e8b23c,#d2992c)", border: "none", borderRadius: 9, padding: "8px 16px", cursor: "pointer", opacity: savingK || (tags.size === 0 && !kuseComment.trim()) ? 0.5 : 1 }}>
                     {savingK ? "記録中…" : `このわざの癖として記録${tags.size > 0 ? `・${tags.size}` : ""}`}
                   </button>
                 </div>
@@ -253,15 +253,15 @@ export function MaterialPreviewLink({ href, label }: { href: string; label: stri
   return (
     <>
       <button type="button" onClick={() => setOpen(true)}
-        style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#3b56d4", background: "none", border: "none", padding: 0, cursor: "pointer", flex: "none" }}>
+        style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#7fa4e8", background: "none", border: "none", padding: 0, cursor: "pointer", flex: "none" }}>
         教材の中身を見る
       </button>
       {open && typeof document !== "undefined" && createPortal(
         <div onClick={() => setOpen(false)}
           style={{ position: "fixed", inset: 0, background: "rgba(15,25,50,.55)", zIndex: 1300, display: "flex", alignItems: "center", justifyContent: "center", padding: 10 }}>
           <div onClick={(e) => e.stopPropagation()}
-            style={{ background: "#fff", borderRadius: 15, width: "min(760px, 96vw)", height: "88vh", display: "flex", flexDirection: "column", overflow: "hidden", boxSizing: "border-box" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", borderBottom: "1px solid #e6e9ef" }}>
+            style={{ background: "var(--card-in)", borderRadius: 15, width: "min(760px, 96vw)", height: "88vh", display: "flex", flexDirection: "column", overflow: "hidden", boxSizing: "border-box" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", borderBottom: "1px solid rgba(150,175,225,.12)" }}>
               <b style={{ fontSize: "var(--fs-caption)", color: "var(--text-ink)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</b>
               <button type="button" onClick={() => setOpen(false)}
                 style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)", background: "#f1f4f8", border: "none", borderRadius: 999, padding: "5px 13px", cursor: "pointer" }}>
@@ -290,16 +290,16 @@ function HwPassBox({ hw, avg, cardStyle }: { hw: { id: string; targetScore: numb
     })
   }
   return (
-    <div style={{ ...cardStyle, border: "1px solid #cfe9db", background: "#f4faf7" }}>
-      <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "#136647", marginBottom: 6 }}>宿題の合格</div>
-      <div style={{ fontSize: "var(--fs-caption)", color: "#1f3a2e", lineHeight: 1.6 }}>
+    <div style={{ ...cardStyle, border: "1px solid rgba(168,201,127,.35)", background: "#f4faf7" }}>
+      <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "#a8c97f", marginBottom: 6 }}>宿題の合格</div>
+      <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", lineHeight: 1.6 }}>
         この演奏は宿題の提出です。今回 <b>{avg}点</b>{hw.targetScore != null && <>・ゴール {hw.targetScore}点</>}。
       </div>
       {done ? (
-        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "#158253", marginTop: 8, display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={14} /> 合格ずみ</div>
+        <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: "#a8c97f", marginTop: 8, display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={14} /> 合格ずみ</div>
       ) : (
         <button type="button" onClick={pass} disabled={pending}
-          style={{ marginTop: 9, width: "100%", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#158253", border: "none", borderRadius: 9, padding: "10px 0", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+          style={{ marginTop: 9, width: "100%", fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-on-accent)", background: "#a8c97f", border: "none", borderRadius: 9, padding: "10px 0", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
           {pending ? "…" : err ? "失敗・もう一度" : "合格にする"}
         </button>
       )}
@@ -328,17 +328,17 @@ export function ExprCertifyBox({ studentId, scoreId, cardStyle, labStyle }: {
       <div style={labStyle}>表現クリアを認定</div>
       <div style={{ display: "flex", gap: 7 }}>
         <select value={tag} onChange={(e) => { setTag(e.target.value); setMsg(null) }}
-          style={{ flex: 1, border: "1px solid #dfe3ea", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", background: "#fff" }}>
+          style={{ flex: 1, border: "1px solid rgba(150,175,225,.14)", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", background: "var(--card-in)" }}>
           <option value="">表現をえらぶ</option>
           {MOOD_TAG_DEFS.map((t) => <option key={t.id} value={t.id}>{moodTagLabel(t.id)}</option>)}
         </select>
         <button type="button" onClick={certify} disabled={pending || !tag}
-          style={{ flex: "none", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#7a4dd6", border: "none", borderRadius: 8, padding: "8px 16px", cursor: "pointer", opacity: pending || !tag ? 0.5 : 1 }}>
+          style={{ flex: "none", fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-on-accent)", background: "#7fa4e8", border: "none", borderRadius: 8, padding: "8px 16px", cursor: "pointer", opacity: pending || !tag ? 0.5 : 1 }}>
           {pending ? "認定中…" : "認定する"}
         </button>
       </div>
       <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 6 }}>認定すると、曲の★がそのまま生徒の表現力レベルになります。</div>
-      {msg && <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, marginTop: 6, color: msg.ok ? "#158253" : "#c0473a" }}>{msg.text}</div>}
+      {msg && <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, marginTop: 6, color: msg.ok ? "#a8c97f" : "#e8a78f" }}>{msg.text}</div>}
     </div>
   )
 }
@@ -356,20 +356,20 @@ export function MaterialPointRow({ userId, studentId, m }: { userId: string; stu
   }
   const dirty = text.trim() !== m.point.trim() && saved !== true
   return (
-    <div style={{ border: "1px solid #eef1f4", borderRadius: 10, padding: "9px 11px", marginBottom: 8 }}>
+    <div style={{ border: "1px solid rgba(150,175,225,.12)", borderRadius: 10, padding: "9px 11px", marginBottom: 8 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
-        <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", flex: "none" }}>{m.label}</span>
-        {m.star != null && <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#b58a1e", flex: "none" }}>★{m.star}</span>}
+        <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "rgba(150,175,225,.08)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 999, padding: "1px 7px", flex: "none" }}>{m.label}</span>
+        {m.star != null && <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--gold)", flex: "none" }}>★{m.star}</span>}
         <MaterialPreviewLink href={`/${userId}/practice/${m.category}/${m.itemId}`} label={m.label} />
         {m.point && saved == null && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-good)", flex: "none" }}>ポイント記入済み</span>}
         {saved === true && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-good)", flex: "none", display: "inline-flex", alignItems: "center", gap: 3 }}><Check size={12} /> 保存しました</span>}
-        {saved === false && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "#c0473a", flex: "none" }}>保存に失敗</span>}
+        {saved === false && <span style={{ marginLeft: "auto", fontSize: "var(--fs-label)", fontWeight: 800, color: "#e8a78f", flex: "none" }}>保存に失敗</span>}
       </div>
       <textarea value={text} onChange={(e) => { setText(e.target.value); setSaved(null) }} rows={2}
         placeholder="練習ポイント・例：4の指の音程をよく聴いて。ゆっくりから"
-        style={{ width: "100%", border: "1px solid #dfe3ea", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box", marginTop: 7 }} />
+        style={{ width: "100%", border: "1px solid rgba(150,175,225,.14)", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", resize: "vertical", boxSizing: "border-box", marginTop: 7 }} />
       <button type="button" onClick={save} disabled={pending || !dirty}
-        style={{ marginTop: 6, fontSize: "var(--fs-label)", fontWeight: 800, color: "#fff", background: "#3b56d4", border: "none", borderRadius: 8, padding: "6px 14px", cursor: "pointer", opacity: pending || !dirty ? 0.45 : 1 }}>
+        style={{ marginTop: 6, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-on-accent)", background: "#7fa4e8", border: "none", borderRadius: 8, padding: "6px 14px", cursor: "pointer", opacity: pending || !dirty ? 0.45 : 1 }}>
         {pending ? "保存中…" : m.point && !text.trim() ? "ポイントを消す" : "ポイントを保存"}
       </button>
     </div>

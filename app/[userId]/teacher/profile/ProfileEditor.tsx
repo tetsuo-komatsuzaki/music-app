@@ -62,9 +62,9 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
     })
   }
 
-  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: "var(--fs-body)", marginTop: 5 }
+  const inp: React.CSSProperties = { width: "100%", border: "1px solid rgba(150,175,225,.16)", borderRadius: 9, padding: "9px 12px", fontSize: "var(--fs-body)", marginTop: 5 }
   const lbl: React.CSSProperties = { fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)" }
-  const card: React.CSSProperties = { background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: "14px 16px", marginBottom: 12, boxShadow: "0 1px 3px rgba(30,45,70,.05)" }
+  const card: React.CSSProperties = { background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 14, padding: "14px 16px", marginBottom: 12, boxShadow: "0 1px 3px rgba(30,45,70,.05)" }
 
   if (!loaded) return <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: 20 }}>読み込み中…</div>
 
@@ -77,11 +77,11 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
       <div style={card}>
         <div style={lbl}>顔写真</div>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 8 }}>
-          <span style={{ width: 56, height: 56, borderRadius: "50%", flex: "none", overflow: "hidden", background: "#f2f4f7", border: "1px solid #e6e9ee", display: "grid", placeItems: "center" }}>
+          <span style={{ width: 56, height: 56, borderRadius: "50%", flex: "none", overflow: "hidden", background: "rgba(150,175,225,.08)", border: "1px solid rgba(150,175,225,.12)", display: "grid", placeItems: "center" }}>
             {p.photoUrl
               // eslint-disable-next-line @next/next/no-img-element
               ? <img src={p.photoUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              : <GraduationCap size={24} color="#8ba0c4" />}
+              : <GraduationCap size={24} color="var(--text-sub)" />}
           </span>
           <input
             ref={fileRef}
@@ -91,7 +91,7 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
             onChange={(e) => { onPhotoPick(e.target.files?.[0] ?? null); e.target.value = "" }}
           />
           <button type="button" onClick={() => fileRef.current?.click()} disabled={photoPending}
-            style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 9, padding: "8px 14px", cursor: "pointer", opacity: photoPending ? 0.6 : 1 }}>
+            style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", background: "var(--card-in)", border: "1px solid rgba(150,175,225,.16)", borderRadius: 9, padding: "8px 14px", cursor: "pointer", opacity: photoPending ? 0.6 : 1 }}>
             {photoPending ? "アップロード中…" : p.photoUrl ? "写真を変更" : "写真をアップロード"}
           </button>
           {p.photoUrl && !photoPending && (
@@ -141,14 +141,14 @@ export default function ProfileEditor({ userId, teacherName }: { userId: string;
         </label>
       </div>
 
-      <div style={{ ...card, borderColor: p.published ? "#cbe8d6" : "#eef1f4" }}>
+      <div style={{ ...card, borderColor: p.published ? "rgba(168,201,127,.35)" : "rgba(150,175,225,.12)" }}>
         <Toggle label="「先生を探す」に掲載する" on={p.published} onClick={() => toggle("published")} />
         <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", margin: "6px 0 0" }}>ONにすると、生徒の「先生を探す」に表示されます。OFFの間は非公開です。</p>
       </div>
 
-      {msg && <div style={{ fontSize: "var(--fs-body)", margin: "0 0 10px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
+      {msg && <div style={{ fontSize: "var(--fs-body)", margin: "0 0 10px", color: msg.ok ? "#a8c97f" : "#e8697a" }}>{msg.text}</div>}
       <button type="button" onClick={save} disabled={pending}
-        style={{ width: "100%", border: "none", borderRadius: 12, padding: 13, fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-on-accent)", background: "#2b3742", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+        style={{ width: "100%", border: "none", borderRadius: 12, padding: 13, fontSize: "var(--fs-subhead)", fontWeight: 800, color: "var(--text-on-accent)", background: "var(--text-ink)", cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
         {pending ? "保存中…" : "保存する"}
       </button>
     </div>
@@ -159,7 +159,7 @@ function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; chi
   return (
     <button type="button" onClick={onClick}
       style={{ fontSize: "var(--fs-body)", fontWeight: 700, borderRadius: 999, padding: "6px 13px", cursor: "pointer",
-        border: "1px solid", borderColor: on ? "#2b3742" : "#e2e6ea", background: on ? "#2b3742" : "#fff", color: on ? "#fff" : "#6b7885" }}>
+        border: "1px solid", borderColor: on ? "var(--text-ink)" : "rgba(150,175,225,.14)", background: on ? "var(--text-ink)" : "var(--text-on-accent)", color: on ? "var(--text-on-accent)" : "var(--text-sub)" }}>
       {children}
     </button>
   )
@@ -170,8 +170,8 @@ function Toggle({ label, on, onClick }: { label: string; on: boolean; onClick: (
     <button type="button" onClick={onClick}
       style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", background: "transparent", border: "none", padding: "7px 0", cursor: "pointer" }}>
       <span style={{ fontSize: "var(--fs-body)", fontWeight: 700, color: "var(--text-ink)" }}>{label}</span>
-      <span style={{ width: 40, height: 23, borderRadius: 999, background: on ? "#2e8b57" : "#d7dce0", position: "relative", flex: "none", transition: "background .15s" }}>
-        <span style={{ position: "absolute", top: 2, left: on ? 19 : 2, width: 19, height: 19, borderRadius: "50%", background: "#fff", transition: "left .15s", boxShadow: "0 1px 2px rgba(0,0,0,.2)" }} />
+      <span style={{ width: 40, height: 23, borderRadius: 999, background: on ? "#a8c97f" : "rgba(150,175,225,.16)", position: "relative", flex: "none", transition: "background .15s" }}>
+        <span style={{ position: "absolute", top: 2, left: on ? 19 : 2, width: 19, height: 19, borderRadius: "50%", background: "var(--card-in)", transition: "left .15s", boxShadow: "0 1px 2px rgba(0,0,0,.2)" }} />
       </span>
     </button>
   )
