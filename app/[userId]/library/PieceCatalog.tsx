@@ -80,9 +80,8 @@ export default function PieceCatalog({ userId, pieces }: { userId: string; piece
                 <b style={{ fontSize: 12, display: "block", marginTop: 8, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-ink)" }}>{piece.title}</b>
                 {piece.star != null && (
                   <div style={{ marginTop: 3 }}>
-                    <span className={ds.stars} style={{ fontSize: 10, letterSpacing: "1px" }} aria-label={`★${piece.star}`}>
-                      {"★".repeat(Math.min(piece.star, 5))}
-                      <s>{"★".repeat(Math.max(0, 5 - piece.star))}</s>
+                    <span className={ds.stars} style={{ fontSize: 10 }} aria-label={`★${piece.star}`}>
+                      ★{piece.star}
                     </span>
                   </div>
                 )}

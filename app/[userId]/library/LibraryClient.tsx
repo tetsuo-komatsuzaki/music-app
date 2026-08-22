@@ -3,7 +3,7 @@
 // ライブラリの本体 — 確定モック lib-mock (scratchpad/build-lib.py 01〜05) の写経 (2026-08-21 再写経)。
 // 現行フロー適用: 原本 + SPEC-CHANGES (星タグ 2026-08-20) + EFFECTS-CODE 7項目 (DSクラス+data-anim)。
 //  ・セグメント 曲 / 基礎練 / マイ楽譜。選択はURLの ?tab= に持ち、戻る操作で復元する
-//  ・曲/マイ楽譜 = 1曲1カード (b14.5 / 作曲者11 / ★11px ls1.5 5枠 / 判定バッジ=マスター金・達成テール)
+//  ・曲/マイ楽譜 = 1曲1カード (b14.5 / 作曲者11 / ★11px ls1.5 実数 / 判定バッジ=マスター金・達成テール)
 //  ・基礎練 = カテゴリ grid2 (0曲は文字と矢印だけ薄く) + 学びのレッスン行
 //  ・マイ楽譜 = 金破線のアップロード箱。無料プランには PLAN_NOTICE を常設
 //  ・空状態 = ♪ + 見出し + 説明 + 金ピル (原本 04/05)
@@ -248,9 +248,9 @@ export default function LibraryClient({
   )
 }
 
-/* 曲カード (原本 piece()): card 13px 15px ・ b14.5 ・ 作曲者11 ・ ★11px ls1.5 5枠 ・ バッジ */
+/* 曲カード (原本 piece() ベース ・ ★は5枠→「★n」数字表記に変更 2026-08-22 Tetsuo指示: ★1〜10共通スケール) */
 function PieceCard({ p, base }: { p: LibraryPiece; base: string }) {
-  const star = Math.min(p.star ?? 0, 5)
+  const star = p.star ?? 0
   return (
     <Link href={`${base}/scores/${p.id}`} className={ds.card} style={{ padding: "13px 15px", textDecoration: "none", color: "inherit", display: "block" }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
@@ -262,9 +262,8 @@ function PieceCard({ p, base }: { p: LibraryPiece; base: string }) {
           </span>
           {p.star != null && (
             <div style={{ marginTop: 5 }}>
-              <span className={ds.stars} style={{ fontSize: 11, letterSpacing: "1.5px" }} aria-label={`★${p.star}`}>
-                {"★".repeat(star)}
-                <s>{"★".repeat(5 - star)}</s>
+              <span className={ds.stars} style={{ fontSize: 11 }} aria-label={`★${p.star}`}>
+                ★{star}
               </span>
             </div>
           )}

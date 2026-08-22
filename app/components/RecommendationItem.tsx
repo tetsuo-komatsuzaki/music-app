@@ -33,17 +33,16 @@ type Props = {
   recommendation: SongRecommendation
 }
 
-// 1-10 → ★1-5 にスケール (2 刻みで 1 つ星)。null/0 は表示しない。
+// ★は「★n」数字表記 (2026-08-22 Tetsuo指示: ★1〜10共通スケール ・ 段階圧縮しない)。null/0 は表示しない。
 // v1.3 B-3 follow-up: difficultyStars → formatStarBadge にリネーム (UI 整理)
 function formatStarBadge(d: number | null | undefined): {
   stars: string
   ariaLabel: string
 } | null {
   if (typeof d !== "number" || d <= 0) return null
-  const filled = Math.min(5, Math.max(1, Math.ceil(d / 2)))
   return {
-    stars: "★".repeat(filled) + "☆".repeat(5 - filled),
-    ariaLabel: `難易度 ${d} / 10`,
+    stars: `★${d}`,
+    ariaLabel: `難易度 ★${d}`,
   }
 }
 
