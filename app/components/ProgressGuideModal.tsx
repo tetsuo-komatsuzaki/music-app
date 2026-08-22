@@ -17,13 +17,13 @@ type Props = {
 }
 
 // ゴールド/クリームの世界観 (マスター・ランクの金)
-const GOLD = "#b5651d"
+const GOLD = "var(--gold)"
 const GOLD_LT = "#e6a94a"
-const GOLD_BG = "#fbf3e3"
-const GOLD_BD = "#eed9a0"
-const GOLD_INK = "#8a5a1f"
-const APP_INK = "#22303c"
-const APP_SUB = "#8b8577"
+const GOLD_BG = "rgba(232,178,60,.09)"
+const GOLD_BD = "rgba(232,178,60,.3)"
+const GOLD_INK = "var(--gold)"
+const APP_INK = "var(--text-ink)"
+const APP_SUB = "var(--text-sub)"
 
 // 円環の3ノード (位置は 250×250 のボックス基準)
 const NODES: { Icon: LucideIcon; label: string; left: string; top: string }[] = [
@@ -87,13 +87,13 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#fffdf8", borderRadius: 20, maxWidth: 460, width: "100%",
+          background: "#101c36", borderRadius: 20, maxWidth: 460, width: "100%",
           maxHeight: "88vh", overflowY: "auto", boxShadow: "0 14px 40px rgba(60,40,10,0.28)",
-          border: "1px solid #e7dcc6",
+          border: "1px solid rgba(150,175,225,.16)",
         }}
       >
         {/* ヘッダー: アルコ + タイトル */}
-        <div style={{ position: "relative", padding: "16px 18px 14px", textAlign: "center", background: "linear-gradient(180deg,#fdf6e8,#fffdf8)", borderBottom: "1px solid #f0e6d0", borderRadius: "20px 20px 0 0" }}>
+        <div style={{ position: "relative", padding: "16px 18px 14px", textAlign: "center", background: "linear-gradient(180deg,rgba(232,178,60,.09),#101c36)", borderBottom: "1px solid rgba(150,175,225,.14)", borderRadius: "20px 20px 0 0" }}>
           <button
             type="button" onClick={onClose} aria-label="閉じる"
             style={{ position: "absolute", top: 12, right: 12, border: "none", background: "transparent", fontSize: "var(--fs-title)", lineHeight: 1, cursor: "pointer", color: "var(--text-muted)" }}
@@ -111,8 +111,8 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
           {/* 円環サイクル */}
           <div style={{ position: "relative", width: 250, height: 250, margin: "2px auto 6px" }}>
             <svg viewBox="0 0 250 250" width="250" height="250" style={{ position: "absolute", inset: 0, display: "block" }}>
-              <circle cx="125" cy="125" r="92" fill="none" stroke="#eddfc2" strokeWidth="2.5" strokeDasharray="2.5 10" strokeLinecap="round" />
-              <g fill="#dbc084">
+              <circle cx="125" cy="125" r="92" fill="none" stroke="rgba(150,175,225,.16)" strokeWidth="2.5" strokeDasharray="2.5 10" strokeLinecap="round" />
+              <g fill="rgba(232,178,60,.34)">
                 <path d="M217 119 l-6 11 12 0 z" transform="rotate(28 217 125)" />
                 <path d="M125 217 l-6 -11 12 0 z" transform="rotate(150 125 217)" />
                 <path d="M33 119 l-6 11 12 0 z" transform="rotate(272 33 125)" />
@@ -137,7 +137,7 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
           {/* 各ステップ 説明カード */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {STEPS.map((s, i) => (
-              <div key={i} style={{ display: "flex", gap: 11, padding: "12px 13px", border: "1px solid #efe6d2", borderRadius: 14, background: "#fff", position: "relative", overflow: "hidden" }}>
+              <div key={i} style={{ display: "flex", gap: 11, padding: "12px 13px", border: "1px solid rgba(150,175,225,.14)", borderRadius: 14, background: "#fff", position: "relative", overflow: "hidden" }}>
                 <span aria-hidden style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: `linear-gradient(180deg,${GOLD_LT},${GOLD})` }} />
                 <div style={{ width: 38, height: 38, flex: "none", borderRadius: 11, background: GOLD_BG, border: `1px solid ${GOLD_BD}`, display: "grid", placeItems: "center", color: GOLD }}>
                   <s.Icon size={20} strokeWidth={1.9} />
@@ -150,7 +150,7 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
                   <div style={{ fontSize: "var(--fs-caption)", color: APP_SUB, fontWeight: 700, marginTop: 2, lineHeight: 1.55 }}>{s.what}</div>
                   <div style={{ marginTop: 7, display: "flex", gap: 6, alignItems: "flex-start", background: GOLD_BG, borderRadius: 9, padding: "7px 9px" }}>
                     <span style={{ flex: "none", fontSize: 8.5, fontWeight: 900, letterSpacing: ".04em", color: "#fff", background: GOLD, borderRadius: 5, padding: "2px 6px", marginTop: 1 }}>強み</span>
-                    <span style={{ fontSize: "var(--fs-caption)", color: "#5a4a2e", fontWeight: 700, lineHeight: 1.55 }}>{s.strength}</span>
+                    <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 700, lineHeight: 1.55 }}>{s.strength}</span>
                   </div>
                 </div>
               </div>
@@ -158,7 +158,7 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
           </div>
 
           {/* 締め: 積み上がってランクへ */}
-          <div style={{ marginTop: 14, textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 800, color: APP_SUB, background: "linear-gradient(180deg,#fffdf8,#fdf6e8)", border: "1px solid #f0e6d0", borderRadius: 12, padding: 11, lineHeight: 1.7 }}>
+          <div style={{ marginTop: 14, textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 800, color: APP_SUB, background: "linear-gradient(180deg,#101c36,rgba(232,178,60,.09))", border: "1px solid rgba(150,175,225,.14)", borderRadius: 12, padding: 11, lineHeight: 1.7 }}>
             1曲、また1曲。<b style={{ color: GOLD_INK }}>達成</b>と<b style={{ color: GOLD_INK }}>マスター</b>を重ねるほど、<b style={{ color: GOLD_INK }}>あなたのランクは自然と上へ</b>。
           </div>
 

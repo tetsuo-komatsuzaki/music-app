@@ -73,14 +73,14 @@ export default function ShareSheet({
   const btn: React.CSSProperties = {
     display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
     fontSize: "var(--fs-body)", fontWeight: 800, borderRadius: 12, padding: "12px 10px",
-    border: "1px solid #e2ddce", background: "#fbf8f0", color: "var(--text-ink)", cursor: "pointer",
+    border: "none", background: "rgba(150,175,225,.10)", color: "var(--text-ink)", cursor: "pointer",
   }
 
   return createPortal(
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(30,25,10,.45)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(5,10,22,.72)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
       <div onClick={(e) => e.stopPropagation()} style={{
-        width: "min(100%, 480px)", background: "#fffdf6", borderRadius: "18px 18px 0 0",
-        padding: "16px 16px calc(16px + env(safe-area-inset-bottom))", boxShadow: "0 -6px 30px rgba(40,30,10,.25)",
+        width: "min(100%, 480px)", background: "linear-gradient(180deg,#16264a,#101c36)", borderTop: "1px solid rgba(150,175,225,.16)", borderRadius: "24px 24px 0 0",
+        padding: "16px 16px calc(16px + env(safe-area-inset-bottom))", boxShadow: "0 -6px 30px rgba(4,10,28,.5)",
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <div style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: "var(--text-ink)", display: "flex", alignItems: "center", gap: 6 }}>
@@ -95,7 +95,7 @@ export default function ShareSheet({
           <div style={{ marginBottom: 12 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`/s/${token}/opengraph-image`} alt="シェア画像プレビュー"
-              style={{ width: "100%", borderRadius: 12, border: "1px solid #eee5d0", display: "block" }} />
+              style={{ width: "100%", borderRadius: 12, border: "1px solid rgba(150,175,225,.14)", display: "block" }} />
           </div>
         )}
 
@@ -107,7 +107,7 @@ export default function ShareSheet({
 
         {error && (
           <div style={{ padding: "10px 0 4px", textAlign: "center" }}>
-            <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-error)", marginBottom: 10 }}>{error}</div>
+            <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "#e8a78f", marginBottom: 10 }}>{error}</div>
             <button type="button" style={{ ...btn, width: "100%" }} onClick={() => setAttempt((a) => a + 1)}>
               <RefreshCw size={15} /> もう一度ためす
             </button>
@@ -116,7 +116,7 @@ export default function ShareSheet({
 
         {token && (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <button type="button" style={{ ...btn, background: "linear-gradient(135deg,#c9a227,#a97b1f)", color: "var(--text-on-accent)", border: "none" }} onClick={shareNative}>
+            <button type="button" style={{ ...btn, background: "linear-gradient(180deg,#e8b23c,#d2992c)", color: "#201604", border: "none" }} onClick={shareNative}>
               <Share2 size={15} /> {typeof navigator !== "undefined" && "share" in navigator ? "共有する" : "リンクをコピー"}
             </button>
             <button type="button" style={btn} onClick={copyLink}>

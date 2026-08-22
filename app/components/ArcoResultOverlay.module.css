@@ -1,6 +1,6 @@
 .overlay {
   position: fixed; inset: 0; z-index: 1000;
-  background: rgba(11, 30, 58, .5);
+  background: rgba(5, 10, 22, .86);
   display: flex; align-items: center; justify-content: center;
   padding: 18px;
   animation: fade .2s ease both;
@@ -8,12 +8,13 @@
 @keyframes fade { from { opacity: 0 } to { opacity: 1 } }
 
 .sheet {
-  /* 配色案1 (2026-08-16): 構造=ネイビー一族。金=成果(Sランク/トロフィー/90点ライン)のみ */
-  --panel:#FFFFFF; --ink:#16294f; --inkSoft:#54678f; --inkFaint:#8b97a3; --line:#D9E3F4;
-  --accent:#2b5bc4; --accentSoft:#e7edfb; --good:#2e8b57; --goodSoft:#f2faf5; --ground:#f3f6fb;
+  /* 確定モック misc05 RESULT の写経 (2026-08-22): 紺グラデ+金罫のダーク既定。
+     配色案1 (金=成果のみ) は維持 */
+  --panel:#111d38; --ink:#edf1fa; --inkSoft:#8fa0c4; --inkFaint:#5e7099; --line:rgba(150,175,225,.16);
+  --accent:#7fa4e8; --accentSoft:rgba(43,91,196,.25); --good:#a8c97f; --goodSoft:rgba(168,201,127,.16); --ground:rgba(16,28,54,.55);
   position: relative;
   width: 100%; max-width: 380px; max-height: 92vh; overflow-y: auto;
-  background: var(--panel); border-radius: 22px;
+  background: linear-gradient(160deg,#1f3d78,#16294f); border: 1px solid rgba(232,178,60,.3); border-radius: 22px;
   padding: 18px 18px 16px;
   box-shadow: 0 24px 60px rgba(0,0,0,.32);
   animation: pop .28s cubic-bezier(.34,1.56,.64,1) both;
@@ -79,10 +80,3 @@
 .ghost, .primary { flex: 1; border-radius: 12px; padding: 11px; font-size: var(--fs-body); font-weight: 800; cursor: pointer; border: none; }
 .ghost { background: var(--ground); color: var(--inkSoft); border: 1px solid var(--line); }
 .primary { background: var(--accent); color: var(--text-on-accent); }
-
-@media (prefers-color-scheme: dark) {
-  .sheet {
-    --panel:#141b2b; --ink:#e7edfb; --inkSoft:#a9b6d0; --inkFaint:#7d8aa5; --line:#26314a;
-    --accent:#7a9be8; --accentSoft:#1c2a4a; --good:#6fc0a0; --goodSoft:#1e332b; --ground:#0f1524;
-  }
-}

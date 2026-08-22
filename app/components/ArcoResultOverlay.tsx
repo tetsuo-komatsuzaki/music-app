@@ -123,13 +123,13 @@ export default function ArcoResultOverlay({
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ width: 34, flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)" }}>音程</span>
               {/* 軸色は上達のようすと統一 (2026-08-16): 音程=オレンジ / リズム=緑 */}
-              <span style={{ flex: 1, height: 8, borderRadius: 5, background: "#eef1f5", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(pitch)}%`, background: "#e0872b", borderRadius: 5 }} /></span>
-              <b style={{ width: 26, flex: "none", textAlign: "right", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#a3591a", fontVariantNumeric: "tabular-nums" }}>{Math.round(pitch)}</b>
+              <span style={{ flex: 1, height: 8, borderRadius: 5, background: "rgba(150,175,225,.16)", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(pitch)}%`, background: "#e0872b", borderRadius: 5 }} /></span>
+              <b style={{ width: 26, flex: "none", textAlign: "right", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#e0872b", fontVariantNumeric: "tabular-nums" }}>{Math.round(pitch)}</b>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ width: 34, flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)" }}>リズム</span>
-              <span style={{ flex: 1, height: 8, borderRadius: 5, background: "#eef1f5", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(timing)}%`, background: "#2e8b57", borderRadius: 5 }} /></span>
-              <b style={{ width: 26, flex: "none", textAlign: "right", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#1e6b42", fontVariantNumeric: "tabular-nums" }}>{Math.round(timing)}</b>
+              <span style={{ flex: 1, height: 8, borderRadius: 5, background: "rgba(150,175,225,.16)", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(timing)}%`, background: "#2e8b57", borderRadius: 5 }} /></span>
+              <b style={{ width: 26, flex: "none", textAlign: "right", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#7fc4a0", fontVariantNumeric: "tabular-nums" }}>{Math.round(timing)}</b>
             </div>
           </div>
         </div>
@@ -139,8 +139,8 @@ export default function ArcoResultOverlay({
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             margin: "8px 2px 0", padding: "8px 12px", borderRadius: 10,
-            background: "#f2faf5", border: "1px solid #cfe6d8",
-            fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-good)",
+            background: "rgba(168,201,127,.13)", border: "1px solid rgba(168,201,127,.3)",
+            fontSize: "var(--fs-body)", fontWeight: 800, color: "#a8c97f",
             lineHeight: 1.45, textAlign: "center",
           }}>
             <Sprout size={15} style={{ flex: "none" }} /> {praise.text}
@@ -158,12 +158,12 @@ export default function ArcoResultOverlay({
 
         {/* 🏆 マスターまで (案2: 点数ゲージ+90点ライン+条件チップ・2026-08-02確定) */}
         <div className={styles.sec}>
-          <div className={styles.secH} style={{ display: "flex", alignItems: "center", gap: 6 }}><Trophy size={15} color="#b58a1e" /> マスターまで</div>
+          <div className={styles.secH} style={{ display: "flex", alignItems: "center", gap: 6 }}><Trophy size={15} color="var(--gold)" /> マスターまで</div>
           {!ach ? (
             <div className={styles.muted}>集計してるよ…</div>
           ) : ach.mastered ? (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-good)", padding: "6px 0" }}>
-              <Trophy size={15} color="#b58a1e" /> この曲はマスター済み！{avg != null ? ` いまの平均 ${avg}点` : ""}
+              <Trophy size={15} color="var(--gold)" /> この曲はマスター済み！{avg != null ? ` いまの平均 ${avg}点` : ""}
             </div>
           ) : (
             <div>
@@ -171,9 +171,9 @@ export default function ArcoResultOverlay({
               {avg != null ? (
                 <>
                   {/* ゲージ: 直近5回平均 vs 90点ライン */}
-                  <div style={{ position: "relative", height: 14, borderRadius: 7, background: "#eef0f4", margin: "26px 4px 6px" }}>
+                  <div style={{ position: "relative", height: 14, borderRadius: 7, background: "rgba(150,175,225,.16)", margin: "26px 4px 6px" }}>
                     <span style={{ position: "absolute", inset: "0 auto 0 0", width: `${Math.min(avg, 100)}%`, borderRadius: 7, background: "linear-gradient(90deg,#7a9be0,#2b5bc4)" }} />
-                    <span style={{ position: "absolute", top: -7, bottom: -7, left: "90%", width: 3, borderRadius: 2, background: "#c9a227" }}>
+                    <span style={{ position: "absolute", top: -7, bottom: -7, left: "90%", width: 3, borderRadius: 2, background: "var(--gold)" }}>
                       <span style={{ position: "absolute", top: -19, right: -4, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-master)", whiteSpace: "nowrap" }}>90点</span>
                     </span>
                     <span style={{ position: "absolute", top: -24, left: `${Math.min(avg, 100)}%`, transform: "translateX(-50%)", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)", whiteSpace: "nowrap", animation: "aroHop 1.2s ease-in-out infinite" }}>
@@ -200,11 +200,11 @@ export default function ArcoResultOverlay({
                   {chips.map((c) => (
                     !c.done && c.href ? (
                       <Link key={c.label} href={c.href} onClick={onClose}
-                        style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "3px 9px", border: "1px solid #d7dcf6", color: "var(--text-link)", background: "#eef0fc", textDecoration: "none" }}>
+                        style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "3px 9px", border: "1px solid transparent", color: "#9db8e8", background: "rgba(43,91,196,.22)", textDecoration: "none" }}>
                         {c.label} →
                       </Link>
                     ) : (
-                      <span key={c.label} style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "3px 9px", border: `1px solid ${c.done ? "#cfe6d8" : "#eef1f4"}`, color: c.done ? "#2e8b57" : "#8a9099", background: c.done ? "#f2faf5" : "transparent" }}>
+                      <span key={c.label} style={{ fontSize: "var(--fs-label)", fontWeight: 800, borderRadius: 999, padding: "3px 9px", border: `1px solid ${c.done ? "rgba(168,201,127,.35)" : "rgba(150,175,225,.16)"}`, color: c.done ? "#a8c97f" : "var(--text-sub)", background: c.done ? "rgba(168,201,127,.13)" : "transparent" }}>
                         {c.label}
                       </span>
                     )
