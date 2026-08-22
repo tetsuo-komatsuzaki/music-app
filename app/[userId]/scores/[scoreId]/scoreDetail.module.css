@@ -1272,3 +1272,10 @@ h3.histHead {
   cursor: pointer;
   padding: 0;
 }
+
+/* 原本 .subT (score-15 ITEM): 奏法 ・ ☆n */
+.subT {
+  color: var(--text-sub);
+  font-size: 13px;
+  padding: 5px 2px 0;
+}

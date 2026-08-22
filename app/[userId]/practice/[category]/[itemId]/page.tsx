@@ -1,4 +1,5 @@
 import { prisma } from "@/app/_libs/prisma"
+import { ARTICULATIONS } from "@/app/_libs/materialVariant"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
@@ -197,6 +198,15 @@ export default async function PracticeDetailPage({
     songHeatmap = hm
   } catch { fingerNotes = {}; songHeatmap = null }
 
+  // クリア判定 (score-15 ITEM の pill gold ・ 2026-08-22 写経)
+  let cleared = false
+  try {
+    cleared = (await prisma.userPracticeAchievement.findUnique({
+      where: { userId_practiceItemId: { userId: dbUserId, practiceItemId: item.id } },
+      select: { id: true },
+    })) != null
+  } catch { cleared = false }
+
   // 練習後カルテ (2026-08-11 案A): カルテごとに「一緒に送られた癖・旗」をセットで表示 (read防御)
   let teacherKartes: import("@/app/components/StudentKarteCards").StudentKarteCard[] = []
   try {
@@ -232,35 +242,15 @@ export default async function PracticeDetailPage({
 
   return (
     <div>
-      {/* パンくず */}
-      <div data-section="breadcrumb" style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 24px 0" }}>
-        <a href={`/${authUserId}/practice/${category}`}
-           style={{ fontSize: "var(--fs-body)", color: "var(--text-link)", textDecoration: "none" }}>
-          ← {categoryLabels[category] || category}
-        </a>
-      </div>
-
-      {/* 曲にもどる (曲詳細のおすすめ経由で来た場合のみ): 教材→曲の往復ループを切らない */}
-      {fromScore && (
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "10px 24px 0" }}>
-          <a href={`/${authUserId}/scores/${fromScore.id}`}
-             style={{ display: "flex", alignItems: "center", gap: 9, background: "#fff", border: "1px solid #dce7f5", borderRadius: 12, padding: "10px 14px", textDecoration: "none" }}>
-            <Music size={15} color="#2563EB" aria-hidden style={{ flex: "none" }} />
-            <span style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              練習がおわったら<b style={{ color: "var(--text-link)" }}>「{fromScore.title}」にもどる →</b>
-            </span>
-          </a>
-        </div>
-      )}
-
       {/* 先生の練習ポイント (宿題ではない・おすすめ教材への一言) */}
       {teacherNote && (
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "10px 24px 0" }}>
-          <div style={{ background: "#fdfaf2", border: "1px solid #eed9a0", borderRadius: 12, padding: "11px 14px" }}>
-            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-master)" }}>
+          {/* ダーク化 (2026-08-22 写経): 金は成果専用のため先生の一言は金薄塗りで控えめに */}
+          <div style={{ background: "rgba(232,178,60,.08)", border: "1px solid rgba(232,178,60,.28)", borderRadius: 12, padding: "11px 14px" }}>
+            <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--gold)" }}>
               {teacherNote.teacherName}先生の練習ポイント
             </div>
-            <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.65, marginTop: 4, whiteSpace: "pre-wrap" }}>
+            <div style={{ fontSize: "var(--fs-body)", color: "var(--text-ink)", lineHeight: 1.65, marginTop: 4, whiteSpace: "pre-wrap" }}>
               {teacherNote.point}
             </div>
           </div>
@@ -277,6 +267,16 @@ export default async function PracticeDetailPage({
         latestPitchAccuracy={latestPerf?.pitchAccuracy ?? null}
         practiceItemId={item.id}
         initialFavorite={!!favRow}
+        backHref={`/${authUserId}/practice/${category}`}
+        backLabel={categoryLabels[category] || category}
+        subTitle={[
+          ("articulation" in item && item.articulation && item.articulation !== "basic")
+            ? (ARTICULATIONS.find((a) => a.id === item.articulation)?.label ?? null)
+            : null,
+          item.star != null ? `☆${item.star}` : null,
+        ].filter(Boolean).join(" ・ ") || null}
+        cleared={cleared}
+        fromScore={fromScore ? { id: fromScore.id, title: fromScore.title } : null}
         teacherKartes={teacherKartes}
         fingerNotes={fingerNotes}
         songHeatmap={songHeatmap}

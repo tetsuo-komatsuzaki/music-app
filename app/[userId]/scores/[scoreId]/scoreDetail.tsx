@@ -136,6 +136,15 @@ type Props = {
   practiceItemId?: string
   /** お気に入り初期状態 (曲/教材) */
   initialFavorite?: boolean
+  /** 教材詳細 (score-15 ITEM ・ 2026-08-22 写経): 戻り先とヘッダ固有部 */
+  backHref?: string
+  backLabel?: string
+  /** 原本 .subT: 「スラー ・ ☆3」など (奏法 ・ 星) */
+  subTitle?: string | null
+  /** 原本 pill gold「クリア」 */
+  cleared?: boolean
+  /** 原本「アヴェ・マリアにもどる」カード (学びポイント経由) */
+  fromScore?: { id: string; title: string } | null
   /** パート分け (2026-07-26): 曲(グループ)共通のパート範囲リスト。空=分割なし(通しのみ) */
   parts?: Part[]
   /** 練習後カルテ (2026-08-11 案A): カルテごとに癖・旗・表現をセットで表示 */
@@ -1067,6 +1076,11 @@ function ScoreDetailInner({
   infoSlot,
   practiceItemId,
   initialFavorite,
+  backHref,
+  backLabel,
+  subTitle,
+  cleared,
+  fromScore,
   parts = [],
   teacherKartes = [],
   fingerNotes,
@@ -3148,17 +3162,20 @@ function ScoreDetailInner({
         </div>
       )}
       <div className={styles.header} data-section="header">
-        {/* 原本 HEADER .back: ‹ ライブラリ */}
+        {/* 原本 HEADER .back: ‹ ライブラリ (教材詳細は ‹ カテゴリ名 ・ score-15) */}
         <Link
-          href={`/${userId}/library?tab=${practiceItemId ? "basics" : "pieces"}`}
+          href={backHref ?? `/${userId}/library?tab=${practiceItemId ? "basics" : "pieces"}`}
           style={{ display: "flex", alignItems: "center", gap: 7, color: "var(--text-sub)", fontSize: 13, fontWeight: 700, padding: "10px 2px 2px", textDecoration: "none" }}
         >
-          ‹ ライブラリ
+          ‹ {backLabel ?? "ライブラリ"}
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", flex: 1, minWidth: 0 }}>
             <h1 className={styles.title}>{score.title}</h1>
             <MasterBadge kind={score.badge} size="md" />
+            {cleared && (
+              <span style={{ flex: "none", fontSize: 10, fontWeight: 800, color: "var(--gold)", background: "rgba(232,178,60,.14)", borderRadius: 999, padding: "3px 9px", lineHeight: 1.2 }}>クリア</span>
+            )}
           </div>
           <FavoriteButton
             scoreId={practiceItemId ? undefined : score.id}
@@ -3166,6 +3183,7 @@ function ScoreDetailInner({
             initialOn={!!initialFavorite}
           />
         </div>
+        {subTitle && <div className={styles.subT}>{subTitle}</div>}
       </div>
 
       {/* タブ (演奏 / ふりかえり): 曲・練習アイテムの両方で表示。
@@ -3331,6 +3349,22 @@ function ScoreDetailInner({
             </div>
           )}
         </div>
+
+        {/* 出どころの曲にもどる (原本 score-15 ITEM: 学びポイント経由の往復導線) */}
+        {fromScore && (
+          <Link
+            href={`/${userId}/scores/${fromScore.id}`}
+            className={styles.card + " pressable"}
+            style={{ display: "flex", alignItems: "center", gap: 12, padding: "13px 15px", textDecoration: "none", color: "inherit" }}
+          >
+            <span aria-hidden style={{ width: 30, height: 30, borderRadius: "50%", flex: "none", display: "grid", placeItems: "center", background: "rgba(127,164,232,.14)", border: "1px solid rgba(127,164,232,.26)", color: "#7fa4e8", fontSize: 12 }}>♪</span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <b style={{ fontSize: 13, color: "var(--text-ink)", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fromScore.title}にもどる</b>
+              <span style={{ display: "block", fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>この曲の学びのポイントから来たよ</span>
+            </span>
+            <span aria-hidden style={{ color: "var(--text-sub)", fontWeight: 800 }}>→</span>
+          </Link>
+        )}
 
         {/* 記号ガイド: 譜面に出てくる記号・技法をタップで説明 (2026-07-25) */}
         {analysis && (
