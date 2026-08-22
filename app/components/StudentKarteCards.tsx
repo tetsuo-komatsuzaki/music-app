@@ -42,13 +42,13 @@ export default function StudentKarteCards({ kartes }: { kartes: StudentKarteCard
       {kartes.map((k) => {
         const hasExtras = (k.kuse?.length ?? 0) > 0 || (k.marks?.length ?? 0) > 0 || (k.exprs?.length ?? 0) > 0
         return (
-          <div key={k.id} style={{ background: "#fff", border: "1px solid #dce6f2", borderRadius: 14, padding: "12px 14px" }}>
+          <div key={k.id} style={{ background: "var(--card-in)", border: "1px solid rgba(150,175,225,.14)", borderRadius: 14, padding: "12px 14px" }}>
             {/* ヘッダー: 日付・先生・場面 */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", flexWrap: "wrap" }}>
               <b style={{ color: "var(--text-ink)", fontSize: "var(--fs-caption)" }}>{k.date}</b>
               <span>{k.teacherName}先生</span>
               {k.context && (
-                <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#5a3fa8", background: "#f2ecfd", border: "1px solid #ded0f7", borderRadius: 5, padding: "0 6px" }}>
+                <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#7fa4e8", background: "rgba(127,164,232,.14)", border: "1px solid rgba(127,164,232,.3)", borderRadius: 5, padding: "0 6px" }}>
                   {k.context === "lesson" ? "レッスン直後" : "演奏をきいて"}
                 </span>
               )}
@@ -59,15 +59,15 @@ export default function StudentKarteCards({ kartes }: { kartes: StudentKarteCard
             {/* このとき先生が記録したこと */}
             {hasExtras && (
               <>
-                <div style={{ borderTop: "1px dashed #dce6f2", margin: "10px 0 7px" }} />
+                <div style={{ borderTop: "1px dashed rgba(150,175,225,.16)", margin: "10px 0 7px" }} />
                 <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)", marginBottom: 4 }}>このとき先生が記録したこと</div>
 
                 {(k.kuse?.length ?? 0) > 0 && (
                   <div style={{ marginBottom: 5 }}>
                     {k.kuse!.map((o, i) => (
-                      <span key={i} style={{ display: "inline-block", fontSize: "var(--fs-label)", fontWeight: 800, color: "#a9741c", background: "#fff3e2", border: "1px solid #f0dcb4", borderRadius: 999, padding: "2px 9px", margin: "2px 4px 0 0" }}>
+                      <span key={i} style={{ display: "inline-block", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--gold)", background: "rgba(232,178,60,.12)", border: "1px solid rgba(232,178,60,.3)", borderRadius: 999, padding: "2px 9px", margin: "2px 4px 0 0" }}>
                         {o.targets.length > 0 && (
-                          <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#22346b", background: "#e9eefb", borderRadius: 5, padding: "0 5px", marginRight: 4 }}>{o.targets.join("・")}</span>
+                          <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#a9c3f2", background: "rgba(43,91,196,.28)", borderRadius: 5, padding: "0 5px", marginRight: 4 }}>{o.targets.join("・")}</span>
                         )}
                         {o.tags.join("・") || "癖の記録"}
                       </span>
@@ -79,8 +79,8 @@ export default function StudentKarteCards({ kartes }: { kartes: StudentKarteCard
                   <div style={{ marginBottom: 5 }}>
                     {k.marks!.map((m) => (
                       <div key={m.cellId} style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--fs-caption)", marginTop: 2 }}>
-                        <span style={{ width: 9, height: 9, borderRadius: "50%", background: "#e07f10", flex: "none", alignSelf: "center" }} />
-                        <b>気をつける音：{cellLabel(m.cellId)}</b>
+                        <span style={{ width: 9, height: 9, borderRadius: "50%", background: "#E0872B", flex: "none", alignSelf: "center" }} />
+                        <b style={{ color: "var(--text-ink)" }}>気をつける音：{cellLabel(m.cellId)}</b>
                         {m.note && <span style={{ color: "var(--text-sub)", fontSize: "var(--fs-label)" }}>{m.note}</span>}
                       </div>
                     ))}
@@ -94,7 +94,7 @@ export default function StudentKarteCards({ kartes }: { kartes: StudentKarteCard
                 {(k.exprs?.length ?? 0) > 0 && (
                   <div>
                     {k.exprs!.map((e, i) => (
-                      <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#7a4dd6", background: "#f4edfc", border: "1px solid #e0d0f5", borderRadius: 999, padding: "2px 10px", marginRight: 5 }}>
+                      <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#7fa4e8", background: "rgba(127,164,232,.14)", border: "1px solid rgba(127,164,232,.3)", borderRadius: 999, padding: "2px 10px", marginRight: 5 }}>
                         表現クリア認定・{e.label} ★{e.star}
                       </span>
                     ))}

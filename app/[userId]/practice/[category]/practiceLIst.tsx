@@ -1,5 +1,6 @@
 "use client"
 
+import StaggerRail from "@/app/components/StaggerRail"
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
@@ -198,9 +199,9 @@ function RailCard({ item, userId, category, onOpen }: {
     </>
   )
   if (onOpen) {
-    return <button type="button" className={styles.railCard} onClick={() => onOpen(item)}>{inner}</button>
+    return <button type="button" draggable={false} className={styles.railCard} onClick={() => onOpen(item)}>{inner}</button>
   }
-  return <Link href={`/${userId}/practice/${category}/${item.id}`} className={styles.railCard}>{inner}</Link>
+  return <Link href={`/${userId}/practice/${category}/${item.id}`} draggable={false} className={styles.railCard}>{inner}</Link>
 }
 
 // title からオクターブ数を抽出 (半角/全角/漢数字対応)。無ければ null。
@@ -449,11 +450,11 @@ function StarView({
         subGroups.map((sg, idx) => (
           <section key={sg.label || idx} className={styles.railSection}>
             {sg.label && <h3 className={styles.railLabel}>{sg.label}</h3>}
-            <div className={styles.itemRail}>
+            <StaggerRail gap={16}>
               {sg.items.map((item) => (
                 <RailCard key={item.id} item={item} userId={userId} category={category} onOpen={openItem} />
               ))}
-            </div>
+            </StaggerRail>
           </section>
         ))
       )}
