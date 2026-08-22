@@ -20,6 +20,10 @@ export type TrajectoryPerformance = {
   uploadedAt: string | Date
   partId?: string | null
   rangeFromNote?: number | null
+  /** 点タップ再生+ふりかえり用 (2026-08-22 Tetsuo指示)。呼び手が渡せる場合のみ有効 */
+  id?: string
+  audioUrl?: string | null
+  name?: string | null
 }
 
 /** 推移表示に使える演奏数 (呼び手が「データ不足」表示を出す判定用) */
@@ -102,6 +106,17 @@ export default function ProgressTrajectory({
 }) {
   const [axis, setAxis] = useState<TrajAxis>("total")
 
+  // 点タップ (2026-08-22 Tetsuo指示: 履歴タイムラインの代替):
+  // グラフの点を選ぶと その演奏の録音再生と まとめ振り返り (ほめフィードバック) が出る
+  const [selPt, setSelPt] = useState<number | null>(null)
+  const [playing, setPlaying] = useState(false)
+  const [praise, setPraise] = useState<string | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const selPtRef = useRef<number | null>(null)
+  selPtRef.current = selPt
+  const praiseCache = useRef<Map<string, string | null>>(new Map())
+  useEffect(() => () => { audioRef.current?.pause() }, [])
+
   // タブ切替のたびに「線が描かれる」モーションを再生する (2026-08-22 Tetsuo指示)。
   // 初回はRevealMotionの出現が担当。切替時は v5 と同じ手順 (reset → リフロー → 再生) で
   // エンジンの rv-line/rv-dot 定義 (rvDrawIn 1.5s / rvDotPop 185ms刻み) をそのまま再駆動する。
@@ -174,6 +189,40 @@ export default function ProgressTrajectory({
 
   const up = delta >= 0
 
+  // 点の選択: 再生準備 + ふりかえり (ほめ) の取得。もう一度同じ点で解除
+  const selectPoint = (i: number) => {
+    if (selPt === i) { audioRef.current?.pause(); setPlaying(false); setSelPt(null); setPraise(null); return }
+    setSelPt(i)
+    audioRef.current?.pause()
+    setPlaying(false)
+    setPraise(null)
+    const perf = evaluated[i]
+    if (perf?.id) {
+      const hit = praiseCache.current.get(perf.id)
+      if (hit !== undefined) setPraise(hit)
+      else {
+        fetch(`/api/performances/${perf.id}/growth-line`)
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null)
+          .then((g) => {
+            const text = g?.praise?.text ?? null
+            praiseCache.current.set(perf.id!, text)
+            setPraise((cur) => (selPtRef.current === i ? text : cur))
+          })
+      }
+    }
+  }
+  const togglePlay = () => {
+    const perf = selPt != null ? evaluated[selPt] : null
+    if (!perf?.audioUrl) return
+    if (!audioRef.current) audioRef.current = new Audio()
+    const a = audioRef.current
+    if (playing) { a.pause(); setPlaying(false); return }
+    if (a.src !== perf.audioUrl) a.src = perf.audioUrl
+    a.onended = () => setPlaying(false)
+    a.play().then(() => setPlaying(true)).catch(() => setPlaying(false))
+  }
+
   const seg = (key: TrajAxis, label: string) => (
     <button
       type="button"
@@ -239,7 +288,16 @@ export default function ProgressTrajectory({
           )}
           <path d={line} fill="none" stroke={color} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
           <g stroke={color} strokeWidth="2" fill="#16294f">
-            {xy.map(([x, y], i) => <circle key={i} cx={x} cy={y} r="3.4" />)}
+            {xy.map(([x, y], i) => <circle key={i} cx={x} cy={y} r={selPt === i ? 4.6 : 3.4} />)}
+          </g>
+          {selPt != null && xy[selPt] && (
+            <circle cx={xy[selPt][0]} cy={xy[selPt][1]} r="8" fill="none" stroke={color} strokeWidth="1.2" opacity=".55" pointerEvents="none" />
+          )}
+          {/* タップ判定 (透明・広め)。エンジンの rv-dot 対象にならないよう r=10 */}
+          <g>
+            {xy.map(([x, y], i) => (
+              <circle key={`hit-${i}`} cx={x} cy={y} r="10" fill="transparent" style={{ cursor: "pointer" }} onClick={() => selectPoint(i)} />
+            ))}
           </g>
         </svg>
         {goalY > PAD && goalY < H - PAD && (
@@ -252,6 +310,46 @@ export default function ProgressTrajectory({
         <span>{new Date(evaluated[0].uploadedAt).toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}</span>
         <span>いま</span>
       </div>
+
+      {/* 点タップの詳細: 録音再生 + まとめ振り返り (2026-08-22 Tetsuo指示) */}
+      {selPt == null ? (
+        <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 7, textAlign: "center" }}>
+          グラフの点をタップすると その日の録音と ふりかえりが見られるよ
+        </div>
+      ) : (() => {
+        const perf = evaluated[selPt]
+        const d = new Date(perf.uploadedAt)
+        const nameMatch = /^Performance #?(\d+)$/i.exec(perf.name ?? "")
+        const dispName = nameMatch ? `#${nameMatch[1]}` : (perf.name ?? `${selPt + 1}回目`)
+        return (
+          <div style={{ background: "var(--card-in)", border: "1px solid rgba(150,175,225,.08)", borderRadius: 12, padding: "10px 12px", marginTop: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+              {perf.audioUrl && (
+                <button
+                  type="button"
+                  onClick={togglePlay}
+                  aria-label={playing ? "一時停止" : "この演奏を聴く"}
+                  style={{ width: 28, height: 28, borderRadius: "50%", flex: "none", display: "grid", placeItems: "center", background: "rgba(43,91,196,.35)", color: "#cdddfa", border: "none", cursor: "pointer", padding: 0 }}
+                >
+                  {playing ? (
+                    <svg width="10" height="11" viewBox="0 0 10 12" fill="currentColor"><rect x="1" width="3" height="12" rx="1" /><rect x="6" width="3" height="12" rx="1" /></svg>
+                  ) : (
+                    <svg width="10" height="11" viewBox="0 0 10 12" fill="currentColor" style={{ marginLeft: 2 }}><path d="M0 0l10 6-10 6z" /></svg>
+                  )}
+                </button>
+              )}
+              <b style={{ fontSize: 12, color: "var(--text-ink)" }}>{dispName}</b>
+              <span style={{ fontSize: 10, color: "var(--text-muted)", fontWeight: 700 }}>{d.toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" })}</span>
+              <span style={{ marginLeft: "auto", fontSize: 15, fontWeight: 900, color, fontVariantNumeric: "tabular-nums" }}>{series[selPt]}<small style={{ fontSize: 9, color: "var(--text-sub)" }}>点</small></span>
+            </div>
+            {praise && (
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 6, marginTop: 8, padding: "7px 10px", borderRadius: 9, background: "rgba(127,196,148,.12)", fontSize: 11, fontWeight: 800, color: "#8fd3a8", lineHeight: 1.55 }}>
+                <span aria-hidden style={{ flex: "none" }}>🌱</span>{praise}
+              </div>
+            )}
+          </div>
+        )
+      })()}
 
       {/* モック: 音程/リズムの inset 2枚 (最新値) */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 10 }}>

@@ -245,17 +245,18 @@ export async function buildUserHeatmapRange(userId: string, from: Date, to: Date
 }
 
 /** その曲/教材の全演奏を集計 — 先生カルテ入力画面・曲ふりかえりタブ用 */
-export async function buildTargetHeatmap(userId: string, kind: "score" | "practice", targetId: string, maxPerfs = 50): Promise<HeatmapData> {
+export async function buildTargetHeatmap(userId: string, kind: "score" | "practice", targetId: string, maxPerfs = 50, since?: Date | null): Promise<HeatmapData> {
+  const uploadedAt = since ? { gte: since } : undefined
   if (kind === "score") {
     const perfs = await prisma.performance.findMany({
-      where: { userId, scoreId: targetId, comparisonResultPath: { not: null }, pitchAccuracy: { not: null } },
+      where: { userId, scoreId: targetId, uploadedAt, comparisonResultPath: { not: null }, pitchAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: maxPerfs,
       select: { comparisonResultPath: true, scoreId: true, score: { select: { createdById: true } } },
     })
     return aggregateHeatmap(perfs.map((p) => ({ kind: "score" as const, targetId: p.scoreId, ownerId: p.score?.createdById, comparisonResultPath: p.comparisonResultPath! })))
   }
   const perfs = await prisma.practicePerformance.findMany({
-    where: { userId, practiceItemId: targetId, comparisonResultPath: { not: null }, pitchAccuracy: { not: null } },
+    where: { userId, practiceItemId: targetId, uploadedAt, comparisonResultPath: { not: null }, pitchAccuracy: { not: null } },
     orderBy: { uploadedAt: "desc" }, take: maxPerfs,
     select: { comparisonResultPath: true, practiceItemId: true },
   })

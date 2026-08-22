@@ -191,7 +191,7 @@ export default async function PracticeDetailPage({
     const { fetchSkillNotes, buildTargetHeatmap } = await import("@/app/_libs/fingerboard/aggregate")
     const [sk, hm] = await Promise.all([
       fetchSkillNotes("practice", item.id),
-      buildTargetHeatmap(dbUserId, "practice", item.id, 20),
+      buildTargetHeatmap(dbUserId, "practice", item.id, 10),
     ])
     fingerNotes = Object.fromEntries([...sk.entries()].map(([i, v]) => [i, { s: v.s, n: v.n, p: v.position }]))
     songHeatmap = hm

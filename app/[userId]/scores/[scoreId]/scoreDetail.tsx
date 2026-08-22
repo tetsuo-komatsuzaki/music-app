@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState, useRef, useEffect, useCallback, useMemo, Component, type ReactNode, type ErrorInfo } from "react"
+import { useState, useRef, useEffect, useCallback, useMemo, Component, type ReactNode, type ErrorInfo, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Pencil, Play, Pause, Trash2, Target, PenLine, Maximize2 } from "lucide-react"
 import ScoreDetailTabs, { type ScoreDetailTabId } from "@/app/components/ScoreDetailTabs"
@@ -37,6 +37,7 @@ import SinglePerfFingerboard from "@/app/components/SinglePerfFingerboard"
 import FingerboardPanel from "@/app/components/FingerboardPanel"
 import StudentKarteCards, { type StudentKarteCard } from "@/app/components/StudentKarteCards"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
+import { getSongHeatmapRange } from "@/app/actions/heatmapActions"
 import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 
@@ -615,99 +616,6 @@ function PerformanceHistory({
     )
   }
 
-  // 過去の演奏 1 行 (案1 タイムライン ・ 2026-08-22 Tetsuo確定):
-  // 縦レール+小さな行で最新との階層をつくる。タップで開閉 ・ 名前タップで編集 ・
-  // 再生 ・ 長押しメニュー ・ ベスト=金ノード は従来機能を維持。ページャは廃止し縦スクロール。
-  const renderTimelineRow = (p: PerformanceDTO) => {
-    const isEditing = editingId === p.id
-    const d = new Date(p.uploadedAt)
-    const dateLabel = `${d.getMonth() + 1}/${d.getDate()}`
-    const nameMatch = /^Performance #?(\d+)$/i.exec(p.name ?? "")
-    const displayName = nameMatch ? `#${nameMatch[1]}` : (p.name ?? "録音")
-    const score = performanceScore(p)
-    const statusLabel = score != null ? `${score}点` : p.analysisStatus === "error" ? "採点不可" : p.analysisStatus === "done" ? "採点ずみ" : "採点中…"
-    return (
-      <div
-        key={p.id}
-        className={`${styles.htlItem} ${selectedId === p.id ? styles.historyActive : ""} pressable`}
-        onClick={() => { if (longPress.suppressNextClick()) return; if (!isEditing) onSelect(p) }}
-        {...longPress.bind(p)}
-      >
-        <span className={`${styles.htlDot} ${p.id === bestId ? styles.htlDotBest : ""}`} aria-hidden />
-        {isEditing ? (
-          <div className={styles.histEditRow} style={{ padding: "8px 2px" }}>
-            <input
-              type="text"
-              value={draftName}
-              maxLength={PERFORMANCE_NAME_MAX}
-              autoFocus
-              onChange={(e) => setDraftName(e.target.value)}
-              onClick={(e) => e.stopPropagation()}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") submitEdit(p.id, e)
-                else if (e.key === "Escape") cancelEdit(e)
-              }}
-              className={styles.historyNameInput}
-              disabled={saving}
-            />
-            <button type="button" className={styles.historyActionBtn} onClick={(e) => submitEdit(p.id, e)} disabled={saving} aria-label="保存">{saving ? "..." : "保存"}</button>
-            <button type="button" className={styles.historyActionBtn} onClick={cancelEdit} disabled={saving} aria-label="キャンセル">取消</button>
-            {saveError && <div className={styles.historyError}>{saveError}</div>}
-          </div>
-        ) : (
-          <div className={styles.htlRow}>
-            {p.audioUrl && (
-              <button
-                type="button"
-                className={styles.htlPlayMini}
-                onClick={(e) => togglePlay(p, e)}
-                aria-label={playingId === p.id ? "一時停止" : "この演奏を聴く"}
-              >
-                {playingId === p.id ? <Pause size={9} fill="#fff" /> : <Play size={9} fill="#fff" style={{ marginLeft: 1 }} />}
-              </button>
-            )}
-            <span className={styles.htlRowName} onClick={(e) => startEdit(p, e)} title="タップで名前を変更">{displayName}</span>
-            {p.rangeFromNote != null && <span className={styles.rangeTag} title="区間だけを録音した部分練習">区間</span>}
-            <span className={styles.htlRowDate}>{dateLabel}</span>
-            <span className={`${styles.htlPill} ${p.id === bestId ? styles.htlPillBest : ""}`}>{p.id === bestId ? "★ " : ""}{statusLabel}</span>
-            <span aria-hidden className={styles.histChev}>{selectedId === p.id ? "▲" : "▼"}</span>
-          </div>
-        )}
-        {!isEditing && selectedId === p.id && (
-          <div className={styles.histResult} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.histResultHead}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/Icon.png" alt="" aria-hidden width={18} height={18} style={{ borderRadius: 4, flex: "none" }} />
-              <b>アルコの採点</b>
-              {renderRowMenu && <span className={styles.histResultMenu}>{renderRowMenu(p)}</span>}
-            </div>
-            <div className={styles.histResultBody}>
-              {renderDetail && renderDetail(p)}
-              {((score != null && onReplayArco) || canShareToTeacher) && (
-                <div className={styles.histDetailActions}>
-                  {score != null && onReplayArco && (
-                    <button
-                      type="button"
-                      className={styles.historyActionBtn}
-                      onClick={(e) => { e.stopPropagation(); onReplayArco(p) }}
-                      title="アルコの結果をもう一度"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/Icon.png" alt="" aria-hidden width={13} height={13} style={{ borderRadius: 3, verticalAlign: "-2px", marginRight: 4 }} />結果をもう一度
-                    </button>
-                  )}
-                  {canShareToTeacher && (
-                    <ShareToTeacherButton performanceId={p.id} kind={kind} />
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    )
-  }
-
   return (
     <div className={styles.card} style={{ padding: "13px 15px" }}>
       <h3 className={styles.histHead}>演奏履歴 ・ {performanceCount}回</h3>
@@ -721,17 +629,6 @@ function PerformanceHistory({
         <>
           {/* 最新の1枚は常に表示 */}
           {latest && renderItem(latest)}
-          {/* それ以外は「すべての演奏を見る」で畳む */}
-          {rest.length > 0 && (
-            <details className={styles.allTakes}>
-              <summary className={styles.allTakesSummary}>▼ すべての演奏を見る</summary>
-              <div className={styles.htlList}>
-                <span className={styles.htlLine} aria-hidden />
-                {rest.map((p) => renderTimelineRow(p))}
-              </div>
-              <div className={styles.histHint}>▶ を押すと その演奏を聴けるよ ・ 名前はタップで変えられるよ</div>
-            </details>
-          )}
         </>
       )}
 
@@ -3796,13 +3693,7 @@ function ScoreDetailInner({
           {/* この曲の音程マップ (2026-08-11 Tetsuo確定): 上達のようすの下に曲全体の音の傾向 */}
           {/* モック MAP_CARD の写経: DSカード + lab + 注記11px + 指板 (パネル側で inset 化) */}
           {songHeatmap && Object.keys(songHeatmap.cells).length > 0 && (
-            <section style={{ background: "linear-gradient(180deg,var(--card-a),var(--card-b))", border: "1px solid var(--line)", borderRadius: 20, padding: 16 }}>
-              <h3 style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".16em", margin: 0, color: "var(--text-sub)" }}>この曲の音程マップ</h3>
-              <div style={{ fontSize: 11, color: "var(--text-sub)", margin: "4px 0 10px" }}>
-                いままでの演奏 {songHeatmap.perfCount}回分から。色がついた音をタップすると くわしく見られるよ。
-              </div>
-              <FingerboardPanel cells={songHeatmap.cells} details={songHeatmap.details} />
-            </section>
+            <SongMapCard kind={isScoreMode ? "score" : "practice"} targetId={isScoreMode ? score.id : practiceItemId!} initial={songHeatmap} />
           )}
           {isScoreMode && <ScoreLoopDetail scoreId={score.id} userId={userId} />}
           {performanceHistoryBlock}
@@ -3837,5 +3728,86 @@ function ScoreDetailInner({
 
       <OnboardingTrigger pageKey={practiceItemId ? "practiceItem" : "scoreDetail"} />
     </div>
+  )
+}
+
+// ── この曲の音程マップ ・ 範囲切替つき (2026-08-22 Tetsuo指示) ──
+// 回数で選ぶ (3回/5回/10回/全部) と 期間で選ぶ (1週間/1ヶ月) の2タブ。
+// 初期値 = 直近10回 (サーバ初期描画と一致)。切替時は server action で再集計。
+function SongMapCard({ kind, targetId, initial }: {
+  kind: "score" | "practice"
+  targetId: string
+  initial: HeatmapData
+}) {
+  const [mode, setMode] = useState<"count" | "period">("count")
+  const [count, setCount] = useState<number>(10)   // 0 = 全部
+  const [days, setDays] = useState<number>(7)
+  const [data, setData] = useState<HeatmapData>(initial)
+  const [loading, startLoad] = useTransition()
+  const cacheRef = useRef<Map<string, HeatmapData>>(new Map())
+
+  const load = (m: "count" | "period", c: number, d: number) => {
+    const key = m === "count" ? `c${c}` : `d${d}`
+    const hit = cacheRef.current.get(key)
+    if (hit) { setData(hit); return }
+    startLoad(async () => {
+      const r = await getSongHeatmapRange(kind, targetId, m === "count" ? { count: c || null } : { sinceDays: d })
+      if (r) { cacheRef.current.set(key, r); setData(r) }
+    })
+  }
+
+  const chip = (on: boolean): React.CSSProperties => ({
+    flex: "none", fontSize: 10.5, fontWeight: 800, fontFamily: "inherit", letterSpacing: ".03em",
+    borderRadius: 999, padding: "4px 11px", cursor: "pointer", whiteSpace: "nowrap",
+    border: `1px solid ${on ? "rgba(232,178,60,.34)" : "transparent"}`,
+    background: on ? "rgba(232,178,60,.16)" : "rgba(150,175,225,.1)",
+    color: on ? "var(--gold)" : "var(--text-sub)",
+  })
+  const modeTab = (on: boolean): React.CSSProperties => ({
+    flex: 1, fontSize: 11, fontWeight: 800, fontFamily: "inherit", padding: "6px 0", cursor: "pointer",
+    border: "none", borderRadius: 8,
+    background: on ? "linear-gradient(180deg,#22355e,#182747)" : "transparent",
+    color: on ? "var(--gold)" : "var(--text-sub)",
+    boxShadow: on ? "inset 0 0 0 1px rgba(232,178,60,.28)" : "none",
+  })
+
+  return (
+    <section style={{ background: "linear-gradient(180deg,var(--card-a),var(--card-b))", border: "1px solid var(--line)", borderRadius: 20, padding: 16 }}>
+      <h3 style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".16em", margin: 0, color: "var(--text-sub)" }}>この曲の音程マップ</h3>
+      <div style={{ fontSize: 11, color: "var(--text-sub)", margin: "4px 0 8px" }}>
+        えらんだ範囲の演奏 {data.perfCount}回分から。色がついた音をタップすると くわしく見られるよ。
+      </div>
+
+      {/* 範囲の選び方: 回数 / 期間 */}
+      <div style={{ display: "flex", gap: 4, background: "#0e1830", border: "1px solid rgba(150,175,225,.1)", borderRadius: 10, padding: 3, marginBottom: 7 }}>
+        <button type="button" style={modeTab(mode === "count")} onClick={() => { setMode("count"); load("count", count, days) }}>回数で選ぶ</button>
+        <button type="button" style={modeTab(mode === "period")} onClick={() => { setMode("period"); load("period", count, days) }}>期間で選ぶ</button>
+      </div>
+      <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 2, marginBottom: 9 }}>
+        {mode === "count" ? (
+          <>
+            {[3, 5, 10].map((c) => (
+              <button key={c} type="button" style={chip(count === c)} onClick={() => { setCount(c); load("count", c, days) }}>直近{c}回</button>
+            ))}
+            <button type="button" style={chip(count === 0)} onClick={() => { setCount(0); load("count", 0, days) }}>全部</button>
+          </>
+        ) : (
+          <>
+            <button type="button" style={chip(days === 7)} onClick={() => { setDays(7); load("period", count, 7) }}>直近1週間</button>
+            <button type="button" style={chip(days === 30)} onClick={() => { setDays(30); load("period", count, 30) }}>直近1ヶ月</button>
+          </>
+        )}
+      </div>
+
+      <div style={{ opacity: loading ? 0.45 : 1, transition: "opacity .2s" }}>
+        {Object.keys(data.cells).length > 0 ? (
+          <FingerboardPanel cells={data.cells} details={data.details} />
+        ) : (
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", background: "var(--card-in)", border: "1px solid rgba(150,175,225,.08)", borderRadius: 12, padding: "14px 12px" }}>
+            この範囲には判定できる演奏がまだないよ。範囲を広げてみてね。
+          </div>
+        )}
+      </div>
+    </section>
   )
 }
