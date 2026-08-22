@@ -107,11 +107,18 @@ function SkillsTabs({ userId, currentStar, sections, backHref, backLabel, hideDe
         </div>
       )}
 
-      {/* 脚注 (原本) */}
+      {/* 脚注 (原本) + 5状態ページへの導線 (karte09 ・ 孤立ページ防止で追記) */}
       <div className={ds.card} style={{ padding: "12px 15px" }}>
         <div style={{ fontSize: 10.5, color: "var(--text-muted)", lineHeight: 1.75 }}>
           %は その わざに紐づく個別課題の成功率だよ。<br />判定が8個たまってから出るよ。
         </div>
+        {!hideDetailLinks && (
+          <div style={{ marginTop: 9, textAlign: "right" }}>
+            <Link href={`/${userId}/progress/skills/states`} className="pressable" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "var(--text-ink)", background: "rgba(150,175,225,.1)", borderRadius: 999, padding: "4px 11px", textDecoration: "none" }}>
+              わざの5つの状態 →
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   )

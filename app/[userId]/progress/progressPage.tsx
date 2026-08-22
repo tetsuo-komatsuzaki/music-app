@@ -97,7 +97,7 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
         <Rule />
         <ExprChapter userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} />
         {data.bodyObs && <Rule />}
-        <FormChapter data={data} />
+        <FormChapter data={data} userId={userId} readOnly={readOnly} />
         <Rule />
         <HistorySection data={data} />
       </div>
@@ -242,8 +242,9 @@ function ExprChapter({ userId, data, readOnly, detailBase }: { userId: string; d
 }
 
 /* ═ からだの癖 (原本 FORM。マップ本体は BodyObsMap = 承認済み構造 ・ ダーク化) ═ */
-function FormChapter({ data }: { data: KarteData }) {
+function FormChapter({ data, userId, readOnly }: { data: KarteData; userId: string; readOnly: boolean }) {
   if (!data.bodyObs) return null
+  const overcomeCount = data.bodyObs.filter((t) => t.severity === "resolved").length
   return (
     <>
       <div style={{ padding: "18px 16px 0" }}>
@@ -258,6 +259,13 @@ function FormChapter({ data }: { data: KarteData }) {
           </div>
         ) : (
           <BodyObsMap tags={data.bodyObs} />
+        )}
+        {/* 原本 K2: 克服した癖への導線行 */}
+        {!readOnly && overcomeCount > 0 && (
+          <Link href={`/${userId}/progress/overcome`} className="pressable" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12, paddingTop: 11, borderTop: "1px solid rgba(150,175,225,.10)", textDecoration: "none" }}>
+            <b style={{ fontSize: 12.5, color: "#a8c97f" }}>克服した癖 ・ {overcomeCount}つ</b>
+            <span style={{ color: "var(--text-sub)", fontWeight: 800, fontSize: 12 }}>→</span>
+          </Link>
         )}
       </div>
     </>
