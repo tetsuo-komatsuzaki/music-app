@@ -5,6 +5,8 @@ export type HeatCellOut = { status: CellStatus; level: 0 | 1 | 2 }
 
 export type TransitionRow = {
   fromLabel: string
+  /** 遷移元セル (弦と枠番号)。弾き始め等は null。案Cの弦図に使う (2026-08-22) */
+  from?: { s: string; n: number } | null
   /** 差分バッジ: "1st→3rd"(シフト) / "移弦のみ" / "同じ弦" / null(弾き始め等) */
   badge: string | null
   badgeKind: "shift" | "info" | null

@@ -359,7 +359,6 @@ function EvaluationSummaryCard({
 // サブコンポーネント: PerformanceHistory
 // =========================================================
 
-const HISTORY_PAGE_SIZE = 10
 const PERFORMANCE_NAME_MAX = 10
 
 // 演奏履歴の点数ピルの配色 (再設計 2026-08-09)。ブランド配色に準拠し、
@@ -403,7 +402,6 @@ function PerformanceHistory({
   /** 長押しメニューの「削除」で使う削除完了ハンドラ */
   onPerformanceDeleted?: (performanceId: string) => void
 }) {
-  const [page, setPage] = useState(0)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [draftName, setDraftName] = useState("")
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -433,10 +431,6 @@ function PerformanceHistory({
     }
     return id
   })()
-  const totalPages = Math.max(1, Math.ceil(rest.length / HISTORY_PAGE_SIZE))
-  const safePage = Math.min(page, totalPages - 1)
-  const pageStart = safePage * HISTORY_PAGE_SIZE
-  const pageItems = rest.slice(pageStart, pageStart + HISTORY_PAGE_SIZE)
 
   const beginRename = (p: PerformanceDTO) => {
     setEditingId(p.id)
@@ -498,7 +492,7 @@ function PerformanceHistory({
     return (
       <div
         key={p.id}
-        className={`${styles.historyItem} ${selectedId === p.id ? styles.historyActive : ""} pressable`}
+        className={`${styles.htlFeat} ${selectedId === p.id ? styles.historyActive : ""} pressable`}
         onClick={() => { if (longPress.suppressNextClick()) return; if (!isEditing) onSelect(p) }}
         {...longPress.bind(p)}
       >
@@ -550,7 +544,7 @@ function PerformanceHistory({
                   <span className={styles.rangeTag} title="区間だけを録音した部分練習">区間</span>
                 )}
                 {p.id === bestId && <span className={styles.histBestTag}>ベスト</span>}
-                <span className={styles.historyDate}>{dateLabel}</span>
+                <span className={styles.historyDate}>{dateLabel} ・ 最新</span>
               </div>
               {score != null ? (
                 <div className={styles.histSubs}>
@@ -579,13 +573,106 @@ function PerformanceHistory({
               )}
             </div>
             {score != null && tone && (
-              <span className={styles.histScorePill}>{score}<small>点</small></span>
+              <span className={styles.htlScoreBig}>{score}<small>点</small></span>
             )}
             <span aria-hidden className={styles.histChev}>{selectedId === p.id ? "▲" : "▼"}</span>
           </div>
         )}
         {/* 演奏へのコメント表示は廃止 (2026-08-11 Tetsuo確定): 先生の返しは曲にぶら下がる練習後カルテに一本化 */}
         {/* アコーディオン展開 = アルコの採点「結果カード」。削除は右上に。 */}
+        {!isEditing && selectedId === p.id && (
+          <div className={styles.histResult} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.histResultHead}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/Icon.png" alt="" aria-hidden width={18} height={18} style={{ borderRadius: 4, flex: "none" }} />
+              <b>アルコの採点</b>
+              {renderRowMenu && <span className={styles.histResultMenu}>{renderRowMenu(p)}</span>}
+            </div>
+            <div className={styles.histResultBody}>
+              {renderDetail && renderDetail(p)}
+              {((score != null && onReplayArco) || canShareToTeacher) && (
+                <div className={styles.histDetailActions}>
+                  {score != null && onReplayArco && (
+                    <button
+                      type="button"
+                      className={styles.historyActionBtn}
+                      onClick={(e) => { e.stopPropagation(); onReplayArco(p) }}
+                      title="アルコの結果をもう一度"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/Icon.png" alt="" aria-hidden width={13} height={13} style={{ borderRadius: 3, verticalAlign: "-2px", marginRight: 4 }} />結果をもう一度
+                    </button>
+                  )}
+                  {canShareToTeacher && (
+                    <ShareToTeacherButton performanceId={p.id} kind={kind} />
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // 過去の演奏 1 行 (案1 タイムライン ・ 2026-08-22 Tetsuo確定):
+  // 縦レール+小さな行で最新との階層をつくる。タップで開閉 ・ 名前タップで編集 ・
+  // 再生 ・ 長押しメニュー ・ ベスト=金ノード は従来機能を維持。ページャは廃止し縦スクロール。
+  const renderTimelineRow = (p: PerformanceDTO) => {
+    const isEditing = editingId === p.id
+    const d = new Date(p.uploadedAt)
+    const dateLabel = `${d.getMonth() + 1}/${d.getDate()}`
+    const nameMatch = /^Performance #?(\d+)$/i.exec(p.name ?? "")
+    const displayName = nameMatch ? `#${nameMatch[1]}` : (p.name ?? "録音")
+    const score = performanceScore(p)
+    const statusLabel = score != null ? `${score}点` : p.analysisStatus === "error" ? "採点不可" : p.analysisStatus === "done" ? "採点ずみ" : "採点中…"
+    return (
+      <div
+        key={p.id}
+        className={`${styles.htlItem} ${selectedId === p.id ? styles.historyActive : ""} pressable`}
+        onClick={() => { if (longPress.suppressNextClick()) return; if (!isEditing) onSelect(p) }}
+        {...longPress.bind(p)}
+      >
+        <span className={`${styles.htlDot} ${p.id === bestId ? styles.htlDotBest : ""}`} aria-hidden />
+        {isEditing ? (
+          <div className={styles.histEditRow} style={{ padding: "8px 2px" }}>
+            <input
+              type="text"
+              value={draftName}
+              maxLength={PERFORMANCE_NAME_MAX}
+              autoFocus
+              onChange={(e) => setDraftName(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") submitEdit(p.id, e)
+                else if (e.key === "Escape") cancelEdit(e)
+              }}
+              className={styles.historyNameInput}
+              disabled={saving}
+            />
+            <button type="button" className={styles.historyActionBtn} onClick={(e) => submitEdit(p.id, e)} disabled={saving} aria-label="保存">{saving ? "..." : "保存"}</button>
+            <button type="button" className={styles.historyActionBtn} onClick={cancelEdit} disabled={saving} aria-label="キャンセル">取消</button>
+            {saveError && <div className={styles.historyError}>{saveError}</div>}
+          </div>
+        ) : (
+          <div className={styles.htlRow}>
+            {p.audioUrl && (
+              <button
+                type="button"
+                className={styles.htlPlayMini}
+                onClick={(e) => togglePlay(p, e)}
+                aria-label={playingId === p.id ? "一時停止" : "この演奏を聴く"}
+              >
+                {playingId === p.id ? <Pause size={9} fill="#fff" /> : <Play size={9} fill="#fff" style={{ marginLeft: 1 }} />}
+              </button>
+            )}
+            <span className={styles.htlRowName} onClick={(e) => startEdit(p, e)} title="タップで名前を変更">{displayName}</span>
+            {p.rangeFromNote != null && <span className={styles.rangeTag} title="区間だけを録音した部分練習">区間</span>}
+            <span className={styles.htlRowDate}>{dateLabel}</span>
+            <span className={`${styles.htlPill} ${p.id === bestId ? styles.htlPillBest : ""}`}>{p.id === bestId ? "★ " : ""}{statusLabel}</span>
+            <span aria-hidden className={styles.histChev}>{selectedId === p.id ? "▲" : "▼"}</span>
+          </div>
+        )}
         {!isEditing && selectedId === p.id && (
           <div className={styles.histResult} onClick={(e) => e.stopPropagation()}>
             <div className={styles.histResultHead}>
@@ -638,172 +725,9 @@ function PerformanceHistory({
           {rest.length > 0 && (
             <details className={styles.allTakes}>
               <summary className={styles.allTakesSummary}>▼ すべての演奏を見る</summary>
-              <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
-          {pageItems.map((p) => {
-            const isEditing = editingId === p.id
-            const dateLabel = new Date(p.uploadedAt).toLocaleDateString("ja-JP")
-            // 既定名は録音回数の連番 "#N"。旧既定名 "Performance #N" も表示時に "#N" へ変換
-            const nameMatch = /^Performance #?(\d+)$/i.exec(p.name ?? "")
-            const displayName = nameMatch ? `#${nameMatch[1]}` : (p.name ?? "録音")
-            const score = performanceScore(p)
-            const tone = score != null ? scoreTone(score) : null
-            const statusLabel =
-              score != null
-                ? `${score}点`
-                : p.analysisStatus === "error"
-                  ? "採点できなかったよ"
-                  : p.analysisStatus === "done"
-                    ? "採点ずみ"
-                    : "採点中…"
-            const showEvalBadge = p.comparisonResult || p.pitchAccuracy != null
-
-            return (
-              <div
-                key={p.id}
-                className={`${styles.historyItem} ${selectedId === p.id ? styles.historyActive : ""} pressable`}
-                onClick={() => { if (longPress.suppressNextClick()) return; if (!isEditing) onSelect(p) }}
-                {...longPress.bind(p)}
-              >
-                {isEditing ? (
-                  /* 名前編集: 白カードのインライン入力 (名前タップで入る) */
-                  <div className={styles.histMain}>
-                    <div className={styles.histMid}>
-                      <div className={styles.histEditRow}>
-                        <input
-                          type="text"
-                          value={draftName}
-                          maxLength={PERFORMANCE_NAME_MAX}
-                          autoFocus
-                          onChange={(e) => setDraftName(e.target.value)}
-                          onClick={(e) => e.stopPropagation()}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") submitEdit(p.id, e)
-                            else if (e.key === "Escape") cancelEdit(e)
-                          }}
-                          className={styles.historyNameInput}
-                          disabled={saving}
-                        />
-                        <button type="button" className={styles.historyActionBtn} onClick={(e) => submitEdit(p.id, e)} disabled={saving} aria-label="保存">{saving ? "..." : "保存"}</button>
-                        <button type="button" className={styles.historyActionBtn} onClick={cancelEdit} disabled={saving} aria-label="キャンセル">取消</button>
-                      </div>
-                      {saveError && <div className={styles.historyError}>{saveError}</div>}
-                    </div>
-                  </div>
-                ) : (
-                  /* 全カード均一 (案01): 左に再生 → 名前/バー → 点数ピル → 開閉。名前タップで編集 */
-                  <div className={styles.histMain}>
-                    {p.audioUrl && (
-                      <button
-                        type="button"
-                        className={styles.histPlay}
-                        onClick={(e) => togglePlay(p, e)}
-                        aria-label={playingId === p.id ? "一時停止" : "この演奏を聴く"}
-                      >
-                        {playingId === p.id ? <Pause size={11} fill="#fff" /> : <Play size={11} fill="#fff" style={{ marginLeft: 1 }} />}
-                      </button>
-                    )}
-                    <div className={styles.histMid}>
-                      <div className={styles.histTop}>
-                        <span className={styles.histNameWrap} onClick={(e) => startEdit(p, e)} title="タップで名前を変更">
-                          <span className={styles.historyName}>{displayName}</span>
-                          <Pencil size={11} aria-hidden className={styles.histNameEditIcon} />
-                        </span>
-                        {p.rangeFromNote != null && (
-                          <span className={styles.rangeTag} title="区間だけを録音した部分練習">区間</span>
-                        )}
-                        {p.id === bestId && <span className={styles.histBestTag}>ベスト</span>}
-                        <span className={styles.historyDate}>{dateLabel}</span>
-                      </div>
-                      {score != null ? (
-                        <div className={styles.histSubs}>
-                          <div className={styles.histBar}>
-                            <span className={styles.histDot} style={{ background: "#2b5bc4" }} />
-                            <span className={styles.histMiniLabel}>音程</span>
-                            <span className={styles.histBarTrack}>
-                              <span className={styles.histBarFill} style={{ width: `${Math.round(p.pitchAccuracy!)}%`, background: "#2b5bc4" }} />
-                            </span>
-                            <b className={styles.histBarVal}>{Math.round(p.pitchAccuracy!)}</b>
-                          </div>
-                          <div className={styles.histBar}>
-                            <span className={styles.histDot} style={{ background: "#e6a94a" }} />
-                            <span className={styles.histMiniLabel}>リズム</span>
-                            <span className={styles.histBarTrack}>
-                              <span className={styles.histBarFill} style={{ width: `${Math.round(p.timingAccuracy!)}%`, background: "#e6a94a" }} />
-                            </span>
-                            <b className={styles.histBarVal}>{Math.round(p.timingAccuracy!)}</b>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className={styles.histStatusRow}>
-                          <span>{statusLabel}</span>
-                          {showEvalBadge && <span className={styles.historyBadge}>採点ずみ</span>}
-                        </div>
-                      )}
-                    </div>
-                    {score != null && tone && (
-                      <span className={styles.histScorePill}>{score}<small>点</small></span>
-                    )}
-                    <span aria-hidden className={styles.histChev}>{selectedId === p.id ? "▲" : "▼"}</span>
-                  </div>
-                )}
-                {/* アコーディオン展開 = アルコの採点「結果カード」。削除は右上に。 */}
-                {!isEditing && selectedId === p.id && (
-                  <div className={styles.histResult} onClick={(e) => e.stopPropagation()}>
-                    <div className={styles.histResultHead}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/Icon.png" alt="" aria-hidden width={18} height={18} style={{ borderRadius: 4, flex: "none" }} />
-                      <b>アルコの採点</b>
-                      {renderRowMenu && <span className={styles.histResultMenu}>{renderRowMenu(p)}</span>}
-                    </div>
-                    <div className={styles.histResultBody}>
-                      {renderDetail && renderDetail(p)}
-                      {((score != null && onReplayArco) || canShareToTeacher) && (
-                        <div className={styles.histDetailActions}>
-                          {score != null && onReplayArco && (
-                            <button
-                              type="button"
-                              className={styles.historyActionBtn}
-                              onClick={(e) => { e.stopPropagation(); onReplayArco(p) }}
-                              title="アルコの結果をもう一度"
-                            >
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src="/Icon.png" alt="" aria-hidden width={13} height={13} style={{ borderRadius: 3, verticalAlign: "-2px", marginRight: 4 }} />結果をもう一度
-                            </button>
-                          )}
-                          {canShareToTeacher && (
-                            <ShareToTeacherButton performanceId={p.id} kind={kind} />
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          })}
-          {totalPages > 1 && (
-            <div className={styles.historyPager}>
-              <button
-                type="button"
-                className={styles.historyPagerBtn}
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                disabled={safePage === 0}
-              >
-                戻る
-              </button>
-              <span className={styles.historyPagerInfo}>
-                {safePage + 1} / {totalPages}
-              </span>
-              <button
-                type="button"
-                className={styles.historyPagerBtn}
-                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                disabled={safePage >= totalPages - 1}
-              >
-                次へ
-              </button>
-            </div>
-          )}
+              <div className={styles.htlList}>
+                <span className={styles.htlLine} aria-hidden />
+                {rest.map((p) => renderTimelineRow(p))}
               </div>
               <div className={styles.histHint}>▶ を押すと その演奏を聴けるよ ・ 名前はタップで変えられるよ</div>
             </details>

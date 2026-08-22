@@ -1181,3 +1181,94 @@ h3.histHead {
   color: var(--text-muted);
   text-align: center;
 }
+
+/* ── 演奏履歴 案1 タイムライン (2026-08-22 Tetsuo確定: 最新=主役 ・ 過去=縦レール行) ── */
+.htlFeat {
+  background: var(--card-in);
+  border: 1px solid rgba(150, 175, 225, 0.08);
+  border-radius: 14px;
+  padding: 12px 13px;
+  cursor: pointer;
+}
+.htlScoreBig {
+  flex: none;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 20px rgba(255, 243, 220, 0.22);
+}
+.htlScoreBig small { font-size: 11px; font-weight: 800; color: var(--text-sub); margin-left: 1px; }
+/* 過去の行: 縦レール + 内部縦スクロール (ページャ廃止) */
+.htlList {
+  position: relative;
+  padding-left: 24px;
+  margin-top: 6px;
+  max-height: 340px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.htlLine {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  border-radius: 1px;
+  background: rgba(150, 175, 225, 0.16);
+}
+.htlItem { position: relative; cursor: pointer; }
+.htlDot {
+  position: absolute;
+  left: -17px;
+  top: 15px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(150, 175, 225, 0.4);
+}
+.htlDotBest { background: var(--gold); box-shadow: 0 0 6px rgba(232, 178, 60, 0.5); }
+.htlRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 2px;
+  border-bottom: 1px dashed rgba(150, 175, 225, 0.1);
+}
+.htlItem:last-child .htlRow { border-bottom: none; }
+.htlRowName {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--text-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.htlRowDate { flex: none; font-size: 9.5px; font-weight: 700; color: var(--text-muted); }
+.htlPill {
+  margin-left: auto;
+  flex: none;
+  font-size: 10.5px;
+  font-weight: 900;
+  border-radius: 999px;
+  padding: 3px 9px;
+  color: var(--text-sub);
+  background: rgba(150, 175, 225, 0.1);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.htlPillBest { color: var(--gold); background: rgba(232, 178, 60, 0.14); }
+.htlPlayMini {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex: none;
+  display: grid;
+  place-items: center;
+  background: rgba(43, 91, 196, 0.35);
+  color: #cdddfa;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}

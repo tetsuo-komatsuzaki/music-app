@@ -26,7 +26,7 @@ export default function SinglePerfFingerboard({
   comparison: CompNote[]
 }) {
   const { cells, details } = useMemo(() => {
-    type TransAgg = { n: number; miss: number; high: number; low: number; label: string; badge: string | null; badgeKind: "shift" | "info" | null }
+    type TransAgg = { n: number; miss: number; high: number; low: number; label: string; badge: string | null; badgeKind: "shift" | "info" | null; from: { s: string; n: number } | null }
     const agg = new Map<string, { s: string; midi: number; n: number; ok: number; high: number; low: number; maxAbs: number; trans: Map<string, TransAgg> }>()
     const sorted = [...comparison].filter((r) => r.note_index != null).sort((a, b) => a.note_index! - b.note_index!)
     for (const r of sorted) {
@@ -58,7 +58,7 @@ export default function SinglePerfFingerboard({
         else { badge = "同じ弦"; badgeKind = "info" }
       }
       let t = e.trans.get(fromKey)
-      if (!t) { t = { n: 0, miss: 0, high: 0, low: 0, label, badge, badgeKind }; e.trans.set(fromKey, t) }
+      if (!t) { t = { n: 0, miss: 0, high: 0, low: 0, label, badge, badgeKind, from: prev ? { s: prev.s, n: prev.n } : null }; e.trans.set(fromKey, t) }
       t.n++
       if (isHigh) { t.miss++; t.high++ }
       if (isLow) { t.miss++; t.low++ }
@@ -72,7 +72,7 @@ export default function SinglePerfFingerboard({
       cells[id] = { status, level: level as 0 | 1 | 2 }
       const transitions: TransitionRow[] = [...e.trans.values()]
         .map((t) => ({
-          fromLabel: t.label, badge: t.badge, badgeKind: t.badgeKind, n: t.n, miss: t.miss,
+          fromLabel: t.label, from: t.from ?? null, badge: t.badge, badgeKind: t.badgeKind, n: t.n, miss: t.miss,
           dir: (t.high >= 2 * t.low ? "high" : t.low >= 2 * t.high ? "low" : "mixed") as "high" | "low" | "mixed",
         }))
         .sort((a, b) => b.miss / b.n - a.miss / a.n)

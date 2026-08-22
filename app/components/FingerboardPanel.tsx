@@ -9,7 +9,7 @@ import {
   STRINGS, type ViolinString, N_END, H_OPEN, Y_END, colX, cellPolygon, cellId, yOf,
 } from "@/app/_libs/fingerboard/geometry"
 import { CELL_FILLS, type CellStatus } from "@/app/_libs/fingerboard/colors"
-import { posLabel, type HeatCellOut, type CellDetail } from "@/app/_libs/fingerboard/heatmapTypes"
+import { posLabel, type HeatCellOut, type CellDetail, type TransitionRow } from "@/app/_libs/fingerboard/heatmapTypes"
 
 export type FingerboardMark = { cellId: string; note: string }
 
@@ -71,6 +71,21 @@ export default function FingerboardPanel({
             style={{ cursor: "pointer" }}
           />,
         )
+        // 幹音 (ドレミファソラシ) の音名○ ・ 初見でも何の音か分かるように (2026-08-22 Tetsuo指示。♯♭の枠は描かない)
+        const midi = OPEN_MIDI[s] + n
+        const NATURAL: Record<number, string> = { 0: "ド", 2: "レ", 4: "ミ", 5: "ファ", 7: "ソ", 9: "ラ", 11: "シ" }
+        const kana = NATURAL[midi % 12]
+        if (kana) {
+          const poly = rot(cellPolygon(si, n))
+          const cx = poly.reduce((a2, p2) => a2 + p2[0], 0) / poly.length
+          const cy = poly.reduce((a2, p2) => a2 + p2[1], 0) / poly.length
+          nodes.push(
+            <g key={`nk-${id}`} pointerEvents="none">
+              <circle cx={cx} cy={cy} r={2.7} fill="rgba(255,255,255,.9)" stroke="#c2c8d2" strokeWidth={0.25} />
+              <text x={cx} y={cy + (kana === "ファ" ? 0.8 : 1.05)} fontSize={kana === "ファ" ? 2 : 2.9} textAnchor="middle" fill="#16294f" fontWeight={700}>{kana}</text>
+            </g>,
+          )
+        }
       })
     }
     // マーク (橙枠+旗)
@@ -94,9 +109,6 @@ export default function FingerboardPanel({
         <line x1={0} y1={-colX(0, 0)} x2={0} y2={-colX(0, 4)} stroke="#111" strokeWidth={1.6} pointerEvents="none" />
         {STRINGS.map((s, si) => (
           <text key={s} x={-H_OPEN - 4} y={-(colX(-H_OPEN, si) + colX(-H_OPEN, si + 1)) / 2 + 2.2} fontSize={6.5} textAnchor="middle" fill="#333">{s}</text>
-        ))}
-        {([[1, "1st"], [5, "3rd"], [8, "5th"]] as const).map(([n, lab]) => (
-          <text key={lab} x={yOf(n)} y={26.5} fontSize={4.5} textAnchor="middle" fill="#98a0ab">{lab}</text>
         ))}
       </svg>
     )
@@ -218,19 +230,11 @@ export default function FingerboardPanel({
                     </div>
                   )}
 
-                  {selDetail.transitions.length > 0 && (
+                  {selDetail.transitions.length > 0 && selStrN && (
                     <div style={{ marginTop: 8 }}>
                       <div style={secHead}>どこからの移動でずれた？</div>
                       {selDetail.transitions.map((t, i) => (
-                        <div key={i} style={rowStyle(i)}>
-                          <b>{t.fromLabel}</b>
-                          {t.badge && (
-                            <span style={t.badgeKind === "shift" ? shiftBadge : { fontSize: "var(--fs-label)", color: "var(--text-muted)", flex: "none" }}>{t.badge}</span>
-                          )}
-                          <span style={{ marginLeft: "auto", fontWeight: 900, color: t.miss === 0 ? "var(--text-good)" : t.miss / t.n >= 0.4 ? "var(--text-error)" : "#e8b23c" }}>
-                            {t.n}回中{t.miss}回{t.miss > 0 ? ` ${DIR_LABEL[t.dir]}` : "・音が正確"}
-                          </span>
-                        </div>
+                        <TransRow key={i} t={t} to={{ s: selStrN[1], n: Number(selStrN[2]) }} first={i === 0} />
                       ))}
                     </div>
                   )}
@@ -357,5 +361,76 @@ function MarkEditor({ cellLabel, existing, note, setNote, pending, onSave, onRem
         )}
       </div>
     </div>
+  )
+}
+
+/* ── どこからの移動でずれた？ 案C: 弦の上で見せる (2026-08-22 Tetsuo確定) ──
+   来た音(グレー)→この音(ネイビー)を4本弦のミニ図に置き、破線矢印でつなぐ。
+   文言: 同じ弦=「音名 から ・ 同じ弦」/ 移弦=「音名 ・ 弦 から ・ 移弦」/
+   シフト=「音名 から ・ 1st→3rd シフト」。結果は「n回中m回 ・ 音が低い/高い/正確」 */
+const OPEN_MIDI: Record<string, number> = { G: 55, D: 62, A: 69, E: 76 }
+function noteKana(s: string, n: number): string {
+  const KANA = ["ド", "ド♯", "レ", "レ♯", "ミ", "ファ", "ファ♯", "ソ", "ソ♯", "ラ", "ラ♯", "シ"]
+  return KANA[((OPEN_MIDI[s] ?? 76) + n) % 12]
+}
+
+function TransRow({ t, to, first }: { t: TransitionRow; to: { s: string; n: number }; first: boolean }) {
+  const from = t.from ?? null
+  const head = !from
+    ? "弾き始め ・ 休符のあと"
+    : t.badgeKind === "shift"
+      ? `${noteKana(from.s, from.n)} から ・ ${t.badge} シフト`
+      : from.s === to.s
+        ? `${noteKana(from.s, from.n)} から ・ 同じ弦`
+        : `${noteKana(from.s, from.n)} ・ ${from.s}線${from.n === 0 ? "開放" : ""} から ・ 移弦`
+  const resColor = t.miss === 0 ? "var(--text-good)" : t.miss / t.n >= 0.4 ? "var(--text-error)" : "#e8b23c"
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", borderTop: first ? "none" : "1px dashed rgba(150,175,225,.16)" }}>
+      {from && <TransFig from={from} to={to} />}
+      <div style={{ minWidth: 0 }}>
+        <b style={{ fontSize: "var(--fs-caption)", color: "var(--text-ink)" }}>{head}</b>
+        <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: resColor, marginTop: 2, fontVariantNumeric: "tabular-nums" }}>
+          {t.n}回中{t.miss}回 ・ {t.miss > 0 ? DIR_LABEL[t.dir] : "音が正確"}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function TransFig({ from, to }: { from: { s: string; n: number }; to: { s: string; n: number } }) {
+  const ORDER = ["E", "A", "D", "G"] // 音程マップと同じ E線が上
+  const yOfS = (s: string) => 7 + Math.max(0, ORDER.indexOf(s)) * 12
+  const xOfN = (n: number) => 16 + Math.min(n, 12) * 7
+  const fx = xOfN(from.n), fy = yOfS(from.s), tx = xOfN(to.n), ty = yOfS(to.s)
+  const dx = tx - fx, dy = ty - fy
+  const len = Math.hypot(dx, dy)
+  const sameCell = len < 1
+  const ux = sameCell ? 1 : dx / len, uy = sameCell ? 0 : dy / len
+  const sx2 = fx + ux * 5.5, sy2 = fy + uy * 5.5
+  const tipX = tx - ux * 7, tipY = ty - uy * 7
+  const upNote = OPEN_MIDI[to.s] + to.n > OPEN_MIDI[from.s] + from.n
+  const sameNote = OPEN_MIDI[to.s] + to.n === OPEN_MIDI[from.s] + from.n
+  return (
+    <svg width="104" height="50" viewBox="0 0 104 50" style={{ flex: "none" }} aria-hidden>
+      {ORDER.map((s2) => (
+        <g key={s2}>
+          <text x={2} y={yOfS(s2) + 2.6} fontSize={7} fill="var(--text-muted)">{s2}</text>
+          <line x1={11} y1={yOfS(s2)} x2={102} y2={yOfS(s2)}
+            stroke={s2 === to.s ? "rgba(150,175,225,.4)" : s2 === from.s ? "rgba(150,175,225,.3)" : "rgba(150,175,225,.14)"}
+            strokeWidth={s2 === to.s ? 1.4 : 1} />
+        </g>
+      ))}
+      {!sameCell && (
+        <>
+          <line x1={sx2} y1={sy2} x2={tipX - ux * 4} y2={tipY - uy * 4} stroke="#8fa0c4" strokeWidth={1.4} strokeDasharray="3 3" />
+          <polygon points={`${tipX},${tipY} ${tipX - ux * 5 - uy * 3},${tipY - uy * 5 + ux * 3} ${tipX - ux * 5 + uy * 3},${tipY - uy * 5 - ux * 3}`} fill="#8fa0c4" />
+          {!sameNote && (
+            <text x={(fx + tx) / 2} y={(fy + ty) / 2 - 4.5} fontSize={8} fontWeight={800} fill="#8fa0c4" textAnchor="middle">{upNote ? "↑" : "↓"}</text>
+          )}
+        </>
+      )}
+      <circle cx={fx} cy={fy} r={4} fill="rgba(150,175,225,.5)" />
+      <circle cx={tx} cy={ty} r={5} fill="#2b5bc4" stroke="rgba(255,255,255,.6)" strokeWidth={1} />
+    </svg>
   )
 }

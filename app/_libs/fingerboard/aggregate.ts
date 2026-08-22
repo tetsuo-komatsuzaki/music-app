@@ -89,7 +89,7 @@ export type PerfRef = { kind: "score" | "practice"; targetId: string; ownerId?: 
  */
 export async function aggregateHeatmap(perfs: PerfRef[]): Promise<HeatmapData> {
   const skillCache = new Map<string, Map<number, SkillNote>>()
-  type TransAgg = { n: number; miss: number; high: number; low: number; label: string; badge: string | null; badgeKind: "shift" | "info" | null }
+  type TransAgg = { n: number; miss: number; high: number; low: number; label: string; badge: string | null; badgeKind: "shift" | "info" | null; from: { s: string; n: number } | null }
   type PosAgg = { position: number; finger: number | null; n: number; miss: number; high: number; low: number }
   type Agg = {
     n: number; high: number; low: number; midi: number
@@ -173,7 +173,7 @@ export async function aggregateHeatmap(perfs: PerfRef[]): Promise<HeatmapData> {
           else { badge = "同じ弦"; badgeKind = "info" }
         }
         let t = e.trans.get(fromKey)
-        if (!t) { t = { n: 0, miss: 0, high: 0, low: 0, label, badge, badgeKind }; e.trans.set(fromKey, t) }
+        if (!t) { t = { n: 0, miss: 0, high: 0, low: 0, label, badge, badgeKind, from: contiguous ? { s: prev!.sk.s, n: prev!.sk.n } : null }; e.trans.set(fromKey, t) }
         t.n++
         if (miss && (dirHigh || dirLow)) { t.miss++; if (dirHigh) t.high++; else t.low++ }
         prev = { sk, idx: r.note_index }
@@ -203,7 +203,7 @@ export async function aggregateHeatmap(perfs: PerfRef[]): Promise<HeatmapData> {
       transitions: [...e.trans.values()]
         .filter((t) => t.n >= 2)
         .map((t) => ({
-          fromLabel: t.label, badge: t.badge, badgeKind: t.badgeKind, n: t.n, miss: t.miss,
+          fromLabel: t.label, from: t.from ?? null, badge: t.badge, badgeKind: t.badgeKind, n: t.n, miss: t.miss,
           dir: dirOf(t.high, t.low),
         }))
         .sort((a, b) => b.miss / b.n - a.miss / a.n)
