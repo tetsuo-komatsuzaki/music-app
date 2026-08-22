@@ -209,8 +209,9 @@
 .evalLegend {
   display: flex;
   gap: 12px;
-  margin-top: 8px;
-  font-size: var(--fs-body);
+  margin-top: 10px;
+  justify-content: center; /* 原本 №04: 中央寄せ */
+  font-size: 10.5px;
   color: var(--text-sub);
   flex-wrap: wrap;
 }
@@ -223,8 +224,8 @@
 
 .legendDot {
   display: inline-block;
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
 }
 
@@ -738,7 +739,7 @@
 .perfSelectScore { flex: 0 0 auto; font-size: var(--fs-title); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
 .perfSelectScore small { font-size: var(--fs-body); font-weight: 600; margin-left: 1px; }
 .perfRenameBtn {
-  flex: 0 0 auto; width: 38px; height: 38px; border-radius: 9px; border: 1px solid #e0dde3;
+  flex: 0 0 auto; width: 38px; height: 38px; border-radius: 9px; border: 1px solid rgba(150,175,225,.24);
   background: rgba(150,175,225,.12); color: var(--text-body); cursor: pointer; font-size: var(--fs-subhead); display: grid; place-items: center;
 }
 .perfRenameBtn:active { filter: brightness(0.96); }
@@ -805,9 +806,9 @@
 /* 区間ループ (部分練習 Phase 1) 2026-07-18: 選択区間の半透明ハイライト帯 */
 .rangeBand {
   position: absolute;
-  background: rgba(74, 108, 247, 0.14);
-  border: 1px solid rgba(74, 108, 247, 0.4);
-  border-radius: 7px;
+  background: rgba(232, 178, 60, 0.28); /* 原本 №03: 選択小節=金帯 */
+  border: none;
+  border-radius: 3px;
   pointer-events: none;
   z-index: 8;
 }
@@ -1095,12 +1096,12 @@
    (DOM には残すので data-testid=recorder-start-button への合成クリックは従来通り機能する) */
 .recorderHost :global([data-testid="recorder-start-button"]) { display: none !important; }
 
-/* --- 選択オーバーレイ: 帯=バイオレット / 両端ハンドル / 開始マーカー --- */
+/* --- 選択オーバーレイ: 帯=金 (原本 №03) / 両端ハンドル / 開始マーカー --- */
 .rangeBandSel {
   position: absolute;
-  background: rgba(124, 77, 255, 0.15);
-  border: 1.5px solid rgba(124, 77, 255, 0.55);
-  border-radius: 7px;
+  background: rgba(232, 178, 60, 0.28);
+  border: none;
+  border-radius: 3px;
   pointer-events: none;
   z-index: 8;
 }
@@ -1108,19 +1109,19 @@
   position: absolute;
   width: 24px; height: 24px; margin: -12px 0 0 -12px;
   border-radius: 50%;
-  background: #7c4dff; border: 3px solid var(--card-b);
-  box-shadow: 0 3px 10px -2px rgba(124, 77, 255, 0.7);
+  background: var(--gold); border: 3px solid var(--card-b);
+  box-shadow: 0 3px 10px -2px rgba(232, 178, 60, 0.7);
   z-index: 10; cursor: ew-resize; touch-action: none;
 }
 .rangeStartMark {
   position: absolute; width: 3px; margin-left: -1.5px;
-  background: #7c4dff; border-radius: 2px; pointer-events: none; z-index: 9;
+  background: var(--gold); border-radius: 2px; pointer-events: none; z-index: 9;
 }
 
 /* --- 下部シート: 区間選択の操作パネル --- */
 .rangeSheet {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
-  background: #0d1b33; border-top: 1px solid #ece8f6;
+  background: #0d1b33; border-top: 1px solid rgba(150,175,225,.14);
   border-radius: 18px 18px 0 0;
   box-shadow: 0 -14px 40px -18px rgba(30, 15, 60, 0.4);
   padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px));
@@ -1130,33 +1131,35 @@
 @keyframes rangeSheetIn { from { transform: translateY(100%); } to { transform: translateY(0); } }
 .rangeSheetHead { display: flex; align-items: center; gap: 8px; }
 .rangeSheetTitle {
-  font-size: var(--fs-subhead); font-weight: 800; color: var(--text-ink);
-  display: inline-flex; align-items: center; gap: 7px;
+  font-size: var(--fs-subhead); font-weight: 800; color: var(--gold);
+  display: inline-flex; align-items: center; gap: 9px;
 }
-.rangeSheetDot { width: 10px; height: 10px; border-radius: 50%; background: #7c4dff; flex: 0 0 auto; }
-.rangeSheetClose {
-  margin-left: auto; border: none; background: rgba(150,175,225,.13); color: var(--text-body);
-  width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; line-height: 1;
-  display: flex; align-items: center; justify-content: center;
-}
-.rangeSheetClose:active { filter: brightness(.96); }
+.rangeSheetArc { color: var(--gold); font-size: 14px; flex: 0 0 auto; }
 .rangeSheetHint { margin: 0; font-size: var(--fs-body); color: var(--text-sub); line-height: 1.5; }
-.rangeSheetHint b { color: #7c4dff; }
+.rangeSheetHint b { color: var(--gold); }
 
 .rangeSheetActions { display: flex; gap: 10px; }
 .sheetLoopBtn, .sheetLoopStopBtn, .sheetScoreBtn {
   flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  font-family: inherit; font-size: var(--fs-body); font-weight: 800; cursor: pointer;
-  border: none; border-radius: 12px; padding: 13px 12px; transition: filter .14s;
+  font-family: inherit; font-size: 14px; font-weight: 900; cursor: pointer;
+  border: none; border-radius: 16px; padding: 14px 12px; transition: filter .14s;
 }
-/* 練習=紺 */
-.sheetLoopBtn { color: #fff; background: linear-gradient(100deg, #1e3a8a, #2b4fb0); box-shadow: 0 10px 22px -12px rgba(30, 58, 138, .7); }
+/* 練習=操作紺 (配色ルール2026-08-16) */
+.sheetLoopBtn { color: #fff; background: #2b5bc4; }
 .sheetLoopStopBtn { color: #fff; background: #3a4a72; }
-/* 採点=赤 */
-.sheetScoreBtn { color: #fff; background: linear-gradient(100deg, #e5392b, #f0603a); box-shadow: 0 10px 22px -12px rgba(229, 57, 43, .6); }
-.sheetScoreBtn::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #0d1b33; flex: 0 0 auto; }
+/* 区間録音=赤グラデ (原本 №03) */
+.sheetScoreBtn { color: #fff; background: linear-gradient(180deg, #E05A3C, #C63F26); }
 .sheetLoopBtn:active, .sheetLoopStopBtn:active, .sheetScoreBtn:active { filter: brightness(.95); }
-.sheetScoreBtn:disabled { opacity: .5; cursor: default; box-shadow: none; }
+.sheetLoopBtn:disabled, .sheetScoreBtn:disabled { opacity: .45; cursor: default; }
+/* 取消 (原本: 96px ・ mute地 ・ 13px800) */
+.sheetCancelBtn {
+  width: 96px; flex: none; border: none; border-radius: 16px; padding: 14px 0;
+  background: rgba(150,175,225,.10); color: var(--text-sub);
+  font-family: inherit; font-size: 13px; font-weight: 800; cursor: pointer;
+}
+.sheetCancelBtn:active { filter: brightness(1.1); }
+/* 脚注 (原本: 10.5px faint 中央) */
+.rangeSheetNote { margin: -2px 0 0; text-align: center; font-size: 10.5px; color: var(--text-muted); }
 
 
 /* 原本 HIST ヘッダー: b13.5 + 右に開閉トグル */

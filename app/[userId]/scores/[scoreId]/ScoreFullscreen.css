@@ -291,3 +291,62 @@ body[data-rec-band="true"] #osmd-container {
   justify-content: flex-start !important;
   align-items: center !important;
 }
+
+/* ============================================================
+   帯モードの原本化 (2026-08-22 写経: s04 №07 横画面録音):
+   地=#0A1122 ・ 帯=クリーム紙#FFF6E4角丸14 ・ 操作はボトム列
+   (たて画面にもどす=mute12 ・ 停止=赤グラデ丸66 ・ ♩bpm=金12)
+   ============================================================ */
+
+body[data-rec-band="true"] [data-section="score-detail-root"] {
+  background: #0A1122 !important;
+}
+
+/* 帯の紙: svg 自体に紙色+同色ボーダーで原本の紙余白(14px 10px)を再現 */
+body[data-rec-band="true"] #osmd-container svg {
+  background: #FFF6E4 !important;
+  border: 14px solid #FFF6E4 !important;
+  border-left-width: 10px !important;
+  border-right-width: 10px !important;
+  border-radius: 14px !important;
+  box-sizing: content-box !important;
+}
+body[data-rec-band="true"] #osmd-container {
+  margin-top: 0 !important;
+  height: calc(100dvh - 92px - env(safe-area-inset-bottom, 0px)) !important;
+  padding: 0 14px !important;
+}
+
+/* バーは上帯をやめてボトム操作列に (原本: 左=たて画面にもどす ・ 中=赤丸 ・ 右=♩bpm) */
+body[data-rec-band="true"] [data-section="fullscreen-bar"] {
+  top: auto !important;
+  bottom: 0 !important;
+  height: calc(92px + env(safe-area-inset-bottom, 0px)) !important;
+  background: transparent !important;
+  border-bottom: none !important;
+  padding: 0 max(18px, env(safe-area-inset-right, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px)) !important;
+  align-items: flex-end !important;
+}
+body[data-rec-band="true"] [data-fs-exit] {
+  background: none !important; border: none !important; cursor: pointer !important;
+  font-family: inherit !important; font-size: 12px !important; font-weight: 800 !important;
+  color: #8FA0C4 !important; padding: 10px 0 !important;
+}
+body[data-rec-band="true"] [data-fs-stop] {
+  width: 66px !important; height: 66px !important; border-radius: 50% !important;
+  background: linear-gradient(180deg, #E05A3C, #C63F26) !important;
+  color: #fff !important; font-size: 11px !important; font-weight: 900 !important;
+  padding: 0 !important; display: grid !important; place-items: center !important;
+  box-shadow: 0 4px 14px rgba(224,90,60,.35) !important;
+}
+body[data-rec-band="true"] [data-fs-stop]:active { background: linear-gradient(180deg, #C63F26, #B03620) !important; }
+body[data-rec-band="true"] [data-fs-meta] {
+  display: inline-flex !important; gap: 10px !important; align-items: center !important; padding: 10px 0 !important;
+}
+body[data-rec-band="true"] [data-fs-timer] {
+  font-size: 12px !important; font-weight: 800 !important; color: #8FA0C4 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+body[data-rec-band="true"] [data-fs-bpm] {
+  font-size: 12px !important; font-weight: 800 !important; color: #E8B23C !important;
+}

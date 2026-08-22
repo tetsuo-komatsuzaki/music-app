@@ -178,10 +178,13 @@ function normalizeComparison(raw: any[] | null): ComparisonNote[] | null {
 // 色判定
 // =========================================================
 
-const COLOR_GREEN = "#22aa44"
-const COLOR_ORANGE = "#ee8800"
-const COLOR_RED = "#ee2222"
-const COLOR_GREY = "#aaaaaa"
+// 原本 s04 №04 の凡例色 (クリーム紙用の深色 ・ 記録の分析の枝色と同族):
+// 正確=#2E7D5B ・ 音程ずれ=#D97B2E ・ 聞きとれず=#B44B4B。
+// タイミングずれは原本凡例に無い第4分類 → リズム軸(teal)の深色で区別
+const COLOR_GREEN = "#2E7D5B"
+const COLOR_ORANGE = "#2F8A8A"
+const COLOR_RED = "#D97B2E"
+const COLOR_GREY = "#B44B4B"
 const HIGHLIGHT_COLOR = "#2266ff"
 
 function getComparisonColor(r: ComparisonNote): string {
@@ -2610,6 +2613,19 @@ function ScoreDetailInner({
   }, [isRangeLooping, stopPlayback])
 
   // 「この区間を採点」: 既存の区間録音経路 (pendingRangeRef → recorder-start-button 合成クリック) を流用。
+  // 原本 №03 脚注 「4小節目から 7小節目まで ・ 12秒」: 小節はmeasureMap ・ 秒はstart/end_time_sec
+  const rangeSummary = useMemo(() => {
+    if (rangeStart === null || rangeEnd === null || !analysis) return null
+    const lo = Math.min(rangeStart, rangeEnd)
+    const hi = Math.max(rangeStart, rangeEnd)
+    const secRaw = (analysis.notes[hi]?.end_time_sec ?? 0) - (analysis.notes[lo]?.start_time_sec ?? 0)
+    const sec = Math.max(1, Math.round(secRaw * getTempoRatio()))
+    const mLo = measureMap?.ok ? measureMap.noteToMeasure[lo] : null
+    const mHi = measureMap?.ok ? measureMap.noteToMeasure[hi] : null
+    if (mLo != null && mHi != null) return `${mLo}小節目から ${mHi}小節目まで ・ ${sec}秒`
+    return `えらんだ区間 ・ ${sec}秒`
+  }, [rangeStart, rangeEnd, analysis, measureMap, getTempoRatio])
+
   const recordSelectedRange = useCallback(() => {
     if (rangeStartRef.current === null || rangeEndRef.current === null) return
     const lo = Math.min(rangeStartRef.current, rangeEndRef.current)
@@ -3141,20 +3157,26 @@ function ScoreDetailInner({
   return (
     <div className={styles.container} data-section="score-detail-root">
       {/* F-1: フルスクリーン中の操作ガイドバー (Recorder の停止ボタンは leftColumn 内で非表示のため、戻るボタンを案内) */}
-      {isFullscreen && (
+      {isFullscreen && (recBand ? (
+        /* 帯モード: 原本 s04 №07 のボトム操作列 (たて画面にもどす ・ 赤丸66停止 ・ ♩bpm金) */
+        <div data-section="fullscreen-bar">
+          <button type="button" data-fs-exit onClick={triggerStopRecording}>たて画面にもどす</button>
+          <button type="button" data-fs-stop onClick={triggerStopRecording} aria-label="録音を停止">停止</button>
+          <span data-fs-meta>
+            {recordingState === "recording" && (
+              <span data-fs-timer>{`${Math.floor(bandElapsedSec / 60)}:${String(bandElapsedSec % 60).padStart(2, "0")}`}</span>
+            )}
+            <span data-fs-bpm>♩{recordingBpm}</span>
+          </span>
+        </div>
+      ) : (
         <div data-section="fullscreen-bar">
           <span data-fs-hint>録音中… 弾き終えたら停止</span>
-          {recBand && recordingState === "recording" && (
-            <span data-fs-meta style={{ display: "inline-flex", gap: 14, alignItems: "center", fontVariantNumeric: "tabular-nums", flex: "none" }}>
-              <span>{`${Math.floor(bandElapsedSec / 60)}:${String(bandElapsedSec % 60).padStart(2, "0")}`}</span>
-              <span>{recordingBpm} BPM</span>
-            </span>
-          )}
           <button type="button" data-fs-stop onClick={triggerStopRecording} aria-label="録音を停止">
             <span data-fs-sq /> 停止
           </button>
         </div>
-      )}
+      ))}
       {/* UI-6: 削除完了トースト (3 秒で自動消去) */}
       {deleteToast && (
         <div className={styles.deleteToast} role="status" aria-live="polite">
@@ -3288,6 +3310,7 @@ function ScoreDetailInner({
                   className={styles.perfSelect}
                   value={selected?.id ?? ""}
                   onChange={(e) => selectPerformanceById(e.target.value || null)}
+                  style={selected ? { color: "var(--gold)" } : undefined} /* 原本 №04: 選択中の演奏名=金 */
                 >
                   <option value="">演奏モード・演奏を選ぶと採点を表示</option>
                   {performances.map((p) => (
@@ -3616,15 +3639,13 @@ function ScoreDetailInner({
             </div>
           )}
 
-          {/* 区間録音フロー: 下部シート (プリセット / ループ練習=紺 / この区間を採点=赤) */}
+          {/* 区間録音フロー: 下部シート — 原本 s04 №03 写経 (⌒金タイトル ・ 区間録音=赤グラデ ・ 取消=mute ・ 小節/秒の脚注)。
+              機能は維持: 難所プリセット ・ なぞり/タップ選択 ・ 基礎練のループ練習 */}
           {recordingState === "idle" && rangeMode && (
             <div className={styles.rangeSheet} role="dialog" aria-label="区間を選ぶ">
               <div className={styles.rangeSheetHead}>
-                <span className={styles.rangeSheetTitle}><span className={styles.rangeSheetDot} />区間を選ぶ</span>
-                <button type="button" className={styles.rangeSheetClose} onClick={exitRangeFlow} aria-label="区間録音をやめる">✕</button>
-              </div>
-              {hardestRange && (
-                <div className={styles.rangePresetRow}>
+                <span className={styles.rangeSheetTitle}><span className={styles.rangeSheetArc} aria-hidden>⌒</span>区間を選ぶ</span>
+                {hardestRange && (
                   <button
                     type="button"
                     className={`${styles.rangePresetBtn} ${styles.rangePresetHard}`}
@@ -3633,35 +3654,38 @@ function ScoreDetailInner({
                   >
                     難所
                   </button>
-                </div>
+                )}
+              </div>
+              {rangeStart === null && (
+                <p className={styles.rangeSheetHint}>はじめと おわりの音を タップしてね</p>
               )}
               {rangeStart !== null && rangeEnd === null && (
                 <p className={styles.rangeSheetHint}>次に <b>終了</b> をタップ、または <b>なぞって</b>ください</p>
               )}
               {rangeStart !== null && rangeEnd !== null && (
-                <>
-                  <p className={styles.rangeSheetHint}>両端の <b>◯</b> をドラッグで微調整できます</p>
-                  <div className={styles.rangeSheetActions}>
-                    {/* 曲は採点が目的なのでループ練習ボタンは出さない。基礎練は採点非対応のためループを残す */}
-                    {!isScoreMode && (!isRangeLooping ? (
-                      <button type="button" className={styles.sheetLoopBtn} onClick={startRangeLoop}>
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M8 5v14l11-7z" /></svg>
-                        ループ練習
-                      </button>
-                    ) : (
-                      <button type="button" className={styles.sheetLoopStopBtn} onClick={stopPlayback}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden><rect x="6" y="6" width="12" height="12" rx="1.5" /></svg>
-                        ループ停止
-                      </button>
-                    ))}
-                    {isScoreMode && (
-                      <button type="button" className={styles.sheetScoreBtn} disabled={recordingState !== "idle"} onClick={recordSelectedRange}>
-                        この区間を採点
-                      </button>
-                    )}
-                  </div>
-                </>
+                <p className={styles.rangeSheetHint}>両端の <b>◯</b> をドラッグで微調整できます</p>
               )}
+              <div className={styles.rangeSheetActions}>
+                {/* 曲は採点が目的なのでループ練習ボタンは出さない。基礎練は採点非対応のためループを残す */}
+                {!isScoreMode && (!isRangeLooping ? (
+                  <button type="button" className={styles.sheetLoopBtn} disabled={rangeStart === null || rangeEnd === null} onClick={startRangeLoop}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M8 5v14l11-7z" /></svg>
+                    ループ練習
+                  </button>
+                ) : (
+                  <button type="button" className={styles.sheetLoopStopBtn} onClick={stopPlayback}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden><rect x="6" y="6" width="12" height="12" rx="1.5" /></svg>
+                    ループ停止
+                  </button>
+                ))}
+                {isScoreMode && (
+                  <button type="button" className={styles.sheetScoreBtn} disabled={recordingState !== "idle" || rangeStart === null || rangeEnd === null} onClick={recordSelectedRange}>
+                    区間録音
+                  </button>
+                )}
+                <button type="button" className={styles.sheetCancelBtn} onClick={exitRangeFlow}>取消</button>
+              </div>
+              {rangeSummary && <p className={styles.rangeSheetNote}>{rangeSummary}</p>}
             </div>
           )}
 
