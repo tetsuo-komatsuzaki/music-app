@@ -1,22 +1,34 @@
 "use client"
 
-// 先生とのやりとり UI (2026-07-28)。タブ: すべて/宿題/添削/レッスン。
-// 自由チャットの「メッセージ」タブは廃止 (2026-08-09)。先生コメントは演奏・曲に紐づく形へ一本化し、
-// お祝い・演奏コメントは「すべて」タイムラインに集約表示する。
+// 先生とのやりとり UI — 確定モック 先生03〜05 (build-teacher.py) の写経 (2026-08-22)。
+// 先生カード=青グラデヘッダ (丸アバター52 ・ 名前17px白 ・ つぎのレッスン行 金ドット) ・
+// タブ=金選択チップ (件数バッジ) ・ すべて=色ノードのタイムライン+insetカード ・
+// 宿題=!コーラル/緑✓行+金ピル ・ 0件=✉カード ・ 解除=下部の小さな文字リンク。
+// タブ構成とデータは現行 (すべて/宿題/練習後カルテ/合格の履歴/添削) を維持。
+// 自由チャットの「メッセージ」タブは廃止 (2026-08-09)。
 import { useState, useTransition } from "react"
-import { GraduationCap, Calendar, History, MessageCircle, PartyPopper, NotebookPen, Pin, Upload, ClipboardList, UserRound, type LucideIcon } from "lucide-react"
+import { MessageCircle, NotebookPen, type LucideIcon, Pin, Upload, UserRound, ClipboardList, PartyPopper } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { unlinkTeacher } from "@/app/actions/teacherActions"
-import { bookLesson, cancelMyBooking } from "@/app/actions/teacherLessons"
 import AssignmentSubmit from "@/app/components/AssignmentSubmit"
-import { goalLabel, dueInfo, DUE_COLOR, goalResult } from "@/app/_libs/assignmentGoal"
+import { goalLabel, dueInfo, goalResult } from "@/app/_libs/assignmentGoal"
 import PassedHwHistory, { type PassedHwItem } from "@/app/components/PassedHwHistory"
+import ds from "@/app/components/ds.module.css"
 
 type TimelineEv = { when: string; kind: "hw" | "comment"; text: string; href?: string | null; icon?: string }
 
 const TIMELINE_ICON: Record<string, LucideIcon> = {
   pin: Pin, message: MessageCircle, upload: Upload, you: UserRound, clipboard: ClipboardList, party: PartyPopper,
+}
+// 原本 tl(): 種別ラベルと色ノード
+const TL_META: Record<string, { label: string; color: string }> = {
+  pin: { label: "宿題", color: "#a8c97f" },
+  clipboard: { label: "練習後カルテ", color: "#e8b23c" },
+  message: { label: "添削", color: "#7fa4e8" },
+  party: { label: "お祝い", color: "#e8b23c" },
+  upload: { label: "提出", color: "#8fa0c4" },
+  you: { label: "きみ", color: "#8fa0c4" },
 }
 type Homework = {
   id: string; title: string; detail: string; comment: string | null
@@ -30,12 +42,16 @@ type KarteItem = { when: string; title: string; href: string; body: string }
 type LessonDTO = { id: string; when: string; durationMin: number; online: boolean; locationNote: string | null }
 type Lessons = { open: LessonDTO[]; booked: LessonDTO[] }
 
-const ACCENT = "#4f63c6"
-const INK = "#26303a"
-const SUB = "#6b7885"
+const dueDark = {
+  overdue: { fg: "#e8a78f", bg: "rgba(232, 138, 111, 0.16)" },
+  soon: { fg: "#e0b25c", bg: "rgba(224, 160, 47, 0.16)" },
+  normal: { fg: "var(--text-sub)", bg: "rgba(150, 175, 225, 0.12)" },
+} as const
+
+const goldPill: React.CSSProperties = { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10.5, fontWeight: 800, color: "var(--gold)", background: "rgba(232,178,60,.14)", borderRadius: 999, padding: "4px 11px", textDecoration: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }
 
 export default function MyTeacherClient({
-  userId, teacherName, since, timeline, homework, karteItems = [], passedItems = [], feedbacks, lessons, nextLessonLabel,
+  userId, teacherName, since, timeline, homework, karteItems = [], passedItems = [], feedbacks, lessons: _lessons, nextLessonLabel,
 }: {
   userId: string
   teacherName: string
@@ -64,84 +80,120 @@ export default function MyTeacherClient({
     })
   }
 
-  return (
-    <div style={{ maxWidth: 640, margin: "0 auto", padding: "16px 14px 60px" }}>
-      <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "0 0 12px" }}>先生とのやりとり</h1>
+  const tabs = [
+    ["all", "すべて", 0],
+    ["hw", "宿題", homework.filter((h) => !h.submitted).length],
+    ["karte", "練習後カルテ", karteItems.length],
+    ["passed", "合格", passedItems.length],
+    ["review", "添削", feedbacks.length],
+  ] as const
 
-      {/* 先生カード */}
-      <div style={card()}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ width: 40, height: 40, borderRadius: "50%", background: "#eafaf0", display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}><GraduationCap size={22} color="#2e8b57" /></span>
-          <span style={{ minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: "var(--fs-subhead)", fontWeight: 800, color: INK }}>{teacherName} 先生</span>
-            <span style={{ display: "block", fontSize: "var(--fs-caption)", color: SUB }}>つながって {since} から</span>
-          </span>
+  return (
+    <div style={{ maxWidth: 640, margin: "0 auto", padding: "0 0 60px" }}>
+      <h1 className={ds.t} style={{ paddingTop: 6 }}>先生とのやりとり</h1>
+
+      {/* 先生カード (原本 TEACHER_CARD) */}
+      <div className={ds.card} style={{ padding: 0, overflow: "hidden" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 15px", background: "linear-gradient(135deg,#1f3d78,#2b5bc4)" }}>
+          <div style={{ width: 52, height: 52, borderRadius: "50%", flex: "none", display: "grid", placeItems: "center", background: "rgba(255,255,255,.18)", color: "#fff", fontSize: 18, fontWeight: 900 }}>
+            {teacherName.slice(0, 1)}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 17, fontWeight: 900, color: "#fff" }}>{teacherName}先生</div>
+            <div style={{ fontSize: 11.5, color: "#cdd9f2", marginTop: 2 }}>つながって {since} から</div>
+          </div>
         </div>
         {nextLessonLabel && (
-          <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #f1f3f5", fontSize: "var(--fs-body)", color: INK }}>
-<span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Calendar size={13} /> 次回レッスン：<b>{nextLessonLabel}</b></span>
+          <div style={{ padding: "11px 15px", display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--gold)", flex: "none" }} />
+            <span style={{ fontSize: 12, color: "var(--text-sub)" }}>つぎのレッスン</span>
+            <b style={{ fontSize: 12.5, marginLeft: "auto", color: "var(--text-ink)" }}>{nextLessonLabel}</b>
           </div>
         )}
       </div>
 
-      {/* タブ */}
-      <div style={{ display: "flex", gap: 3, background: "#fff", border: "1px solid #eef1f4", borderRadius: 10, padding: 3, margin: "12px 0" }}>
-        {([["all", "すべて"], ["hw", "宿題"], ["karte", "練習後カルテ"], ["passed", "合格の履歴"], ["review", "添削"]] as const).map(([k, label]) => (
-          <button key={k} type="button" onClick={() => setTab(k)}
-            style={{ flex: 1, border: "none", background: tab === k ? ACCENT : "transparent", color: tab === k ? "#fff" : SUB, borderRadius: 8, padding: "7px 0", fontSize: "var(--fs-caption)", fontWeight: 800, cursor: "pointer" }}>
-            {label}
-          </button>
-        ))}
+      {/* タブ (原本 tcat_tabs: 金選択チップ + 件数) */}
+      <div style={{ display: "flex", gap: 5, overflowX: "auto", marginTop: 12, paddingBottom: 2 }}>
+        {tabs.map(([k, label, cnt]) => {
+          const on = tab === k
+          return (
+            <button key={k} type="button" onClick={() => setTab(k)} className="pressable"
+              style={{
+                flex: "none", display: "inline-flex", alignItems: "center", gap: 4,
+                fontSize: 10.5, fontWeight: 800, fontFamily: "inherit", cursor: "pointer",
+                borderRadius: 999, padding: "4px 9px", whiteSpace: "nowrap",
+                color: on ? "var(--gold)" : "var(--text-sub)",
+                background: on ? "rgba(232,178,60,.16)" : "rgba(150,175,225,.07)",
+                border: `1px solid ${on ? "rgba(232,178,60,.34)" : "transparent"}`,
+              }}>
+              {label}
+              {cnt > 0 && (
+                <span style={{ fontSize: 9, fontWeight: 900, borderRadius: 999, padding: "0 5px", background: on ? "rgba(255,255,255,.22)" : "rgba(150,175,225,.14)", fontVariantNumeric: "tabular-nums" }}>{cnt}</span>
+              )}
+            </button>
+          )
+        })}
       </div>
 
-      {tab === "all" && <AllTab timeline={timeline} />}
-      {tab === "hw" && <HwTab homework={homework} />}
-      {tab === "karte" && <KarteTab items={karteItems} />}
-      {tab === "passed" && <PassedHwHistory items={passedItems} />}
-      {tab === "review" && <ReviewTab userId={userId} feedbacks={feedbacks} />}
+      <div style={{ marginTop: 0 }}>
+        {tab === "all" && <AllTab timeline={timeline} />}
+        {tab === "hw" && <HwTab homework={homework} />}
+        {tab === "karte" && <KarteTab items={karteItems} />}
+        {tab === "passed" && <PassedHwHistory items={passedItems} />}
+        {tab === "review" && <ReviewTab userId={userId} feedbacks={feedbacks} />}
+      </div>
 
-      {/* 解約 */}
-      <div style={{ ...card(), marginTop: 18 }}>
+      {/* 解除 (原本: 下部の小さな文字リンク) */}
+      <div style={{ textAlign: "center", marginTop: 16 }}>
         <button type="button" onClick={doUnlink} disabled={pending}
-          style={{ width: "100%", border: "1px solid #e2e6ea", background: "#fff", color: "var(--text-error)", borderRadius: 10, padding: 11, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
-          先生を解約する
+          style={{ border: "none", background: "none", fontSize: 11, color: "var(--text-muted)", cursor: "pointer", fontFamily: "inherit", opacity: pending ? 0.6 : 1 }}>
+          先生とのつながりを解除する
         </button>
       </div>
     </div>
   )
 }
 
+/* すべて (原本: 色ノードのタイムライン + insetカード) */
 function AllTab({ timeline }: { timeline: TimelineEv[] }) {
-  if (timeline.length === 0) return <Empty note="まだやりとりはありません。先生からの宿題やコメントがここに並びます。" />
+  if (timeline.length === 0) return <Empty note={<>まだやりとりはありません。<br />先生からの宿題やコメントがここに並びます。</>} />
   return (
-    <div style={card()}>
-      <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-muted)", marginBottom: 10, display: "flex", alignItems: "center", gap: 5 }}><History size={13} /> これまでのやりとり</div>
-      <div style={{ position: "relative", paddingLeft: 16, display: "flex", flexDirection: "column", gap: 11 }}>
-        <span style={{ position: "absolute", left: 4, top: 4, bottom: 4, width: 2, background: "#e7eaee" }} />
-        {timeline.map((e, i) => (
-          <div key={i} style={{ position: "relative" }}>
-            <span style={{ position: "absolute", left: -16, top: 3, width: 9, height: 9, borderRadius: "50%", background: e.kind === "hw" ? "#2e8b57" : ACCENT, border: "2px solid #fff" }} />
-            <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 700 }}>{e.when}</div>
-            {(() => {
-              const Ic = e.icon ? TIMELINE_ICON[e.icon] : null
-              const body = <span style={{ display: "inline-flex", alignItems: "flex-start", gap: 5 }}>{Ic && <Ic size={13} style={{ flex: "none", marginTop: 2 }} />} <span>{e.text}</span></span>
-              return e.href ? (
-                <Link href={e.href} style={{ fontSize: "var(--fs-body)", color: INK, textDecoration: "none" }}>{body} <span style={{ color: ACCENT, fontWeight: 800 }}>›</span></Link>
-              ) : (
-                <div style={{ fontSize: "var(--fs-body)", color: INK }}>{body}</div>
-              )
-            })()}
+    <div className={ds.card} style={{ padding: "14px 15px" }}>
+      {timeline.map((e, i) => {
+        const meta = e.kind === "hw"
+          ? { label: "宿題", color: "#a8c97f" }
+          : TL_META[e.icon ?? ""] ?? { label: "コメント", color: "#7fa4e8" }
+        const isLast = i === timeline.length - 1
+        return (
+          <div key={i} style={{ display: "flex", gap: 12, position: "relative", paddingBottom: isLast ? 0 : 13 }}>
+            <div style={{ width: 12, flex: "none", position: "relative" }}>
+              {!isLast && <div style={{ position: "absolute", top: 13, bottom: -13, left: 5, width: 2, borderRadius: 1, background: "rgba(150,175,225,.14)" }} />}
+              <div style={{ position: "absolute", top: 3, left: 0, width: 12, height: 12, borderRadius: "50%", background: meta.color, border: "2px solid #16233e", boxSizing: "border-box" }} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0, background: "var(--card-in)", border: "1px solid rgba(150,175,225,.08)", borderRadius: 14, padding: "10px 12px" }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+                <b style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: ".1em", color: meta.color }}>{meta.label}</b>
+                <span style={{ fontSize: 10, color: "var(--text-muted)", marginLeft: "auto" }}>{e.when}</span>
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 800, marginTop: 3, color: "var(--text-ink)", lineHeight: 1.5 }}>{e.text}</div>
+              {e.href && (
+                <div style={{ marginTop: 8 }}>
+                  <Link href={e.href} className="pressable" style={goldPill}>ひらく →</Link>
+                </div>
+              )}
+            </div>
           </div>
-        ))}
-      </div>
+        )
+      })}
     </div>
   )
 }
 
+/* 宿題 (原本 先生04) */
 function HwTab({ homework }: { homework: Homework[] }) {
   if (homework.length === 0) return <Empty note="いまは宿題がありません。" />
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
       {homework.map((h) => <HwCard key={h.id} h={h} />)}
     </div>
   )
@@ -155,44 +207,43 @@ function HwCard({ h }: { h: Homework }) {
   const showGr = gr && h.goalType !== "score"
 
   return (
-    <div style={card()}>
+    <div className={ds.card} style={{ padding: "13px 15px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-        <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: INK }}>{h.title}</span>
+        <span style={{ fontSize: 13.5, fontWeight: 800, color: "var(--text-ink)" }}>{h.title}</span>
         {h.submitted ? (
-          <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-good)", flex: "none" }}>提出済{h.submittedScore != null ? ` ${h.submittedScore}点` : ""}</span>
+          <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "#8fd3a8", flex: "none" }}>提出済{h.submittedScore != null ? ` ${h.submittedScore}点` : ""}</span>
         ) : (
-          <span style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-master)", flex: "none" }}>未提出</span>
+          <span style={{ fontSize: "var(--fs-caption)", fontWeight: 700, color: "#e8a78f", flex: "none" }}>未提出</span>
         )}
       </div>
       {(di || goal || showGr) && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 5 }}>
-          {di && (() => {
-            const c = DUE_COLOR[di.state]
-            return (
-              <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: c.fg, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 999, padding: "2px 8px" }}>
-                期限 {di.label}{di.state === "overdue" ? "" : di.state === "soon" ? "" : ""}
-              </span>
-            )
-          })()}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+          {di && (
+            <span style={{ fontSize: 10.5, fontWeight: 800, color: dueDark[di.state].fg, background: dueDark[di.state].bg, borderRadius: 999, padding: "3px 9px" }}>
+              期限 {di.label}
+            </span>
+          )}
           {goal && (
-            <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-link)", background: "#eef1fe", border: "1px solid #d6ddff", borderRadius: 999, padding: "2px 8px" }}>{goal}</span>
+            <span style={{ fontSize: 10.5, fontWeight: 800, color: "#9db8e8", background: "rgba(43,91,196,.2)", borderRadius: 999, padding: "3px 9px" }}>{goal}</span>
           )}
           {showGr && gr && (
-            <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: gr.met ? "#2e8b57" : "#9aa6b3", background: gr.met ? "#e9f7ef" : "#f1f4f8", border: `1px solid ${gr.met ? "#cbe8d6" : "#e2e6ea"}`, borderRadius: 999, padding: "2px 8px" }}>{gr.label}</span>
+            <span style={{ fontSize: 10.5, fontWeight: 800, color: gr.met ? "#8fd3a8" : "var(--text-sub)", background: gr.met ? "rgba(127,196,148,.16)" : "rgba(150,175,225,.12)", borderRadius: 999, padding: "3px 9px" }}>{gr.label}</span>
           )}
         </div>
       )}
-      <div style={{ fontSize: "var(--fs-body)", color: SUB, marginTop: 5 }}>{h.detail || ""}</div>
-      {h.comment && <div style={{ fontSize: "var(--fs-body)", color: INK, marginTop: 4, display: "flex", gap: 5 }}><MessageCircle size={13} style={{ flex: "none", marginTop: 2 }} /> <span>{h.comment}</span></div>}
+      {h.detail && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginTop: 5 }}>{h.detail}</div>}
+      {h.comment && (
+        <div style={{ fontSize: 11.5, color: "var(--text-sub)", marginTop: 8, lineHeight: 1.6, paddingLeft: 9, borderLeft: "2px solid rgba(150,175,225,.22)" }}>{h.comment}</div>
+      )}
       {!h.submitted && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 9 }}>
-          <Link href={h.href} className="pressable" style={{ textAlign: "center", background: ACCENT, color: "var(--text-on-accent)", border: "none", fontSize: "var(--fs-body)", fontWeight: 800, borderRadius: 9, padding: "9px 0", textDecoration: "none" }}>演奏する</Link>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
+          <Link href={h.href} className="pressable" style={{ ...goldPill, fontSize: 11 }}>演奏する</Link>
           <AssignmentSubmit assignmentId={h.id} goalType={h.goalType} targetScore={h.targetScore} onDone={() => router.refresh()} />
         </div>
       )}
       {h.submitted && (
-        <div style={{ marginTop: 9 }}>
-          <Link href={h.href} style={{ display: "inline-block", background: "#f7f8fa", color: SUB, border: "1px solid #e7eaee", fontSize: "var(--fs-body)", fontWeight: 800, borderRadius: 9, padding: "8px 16px", textDecoration: "none" }}>もう一度練習する →</Link>
+        <div style={{ marginTop: 10 }}>
+          <Link href={h.href} className="pressable" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "var(--text-ink)", background: "rgba(150,175,225,.1)", borderRadius: 999, padding: "4px 11px", textDecoration: "none" }}>もう一度練習する →</Link>
         </div>
       )}
     </div>
@@ -204,15 +255,15 @@ function KarteTab({ items }: { items: KarteItem[] }) {
   if (items.length === 0) return <Empty note="まだ先生からの練習後カルテはありません。演奏に先生がコメントすると、ここに届きます。" />
   const md = (iso: string) => { const d = new Date(iso); return `${d.getMonth() + 1}/${d.getDate()}` }
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
       {items.map((k, i) => (
-        <Link key={i} href={k.href} style={{ ...card(), textDecoration: "none", color: INK, display: "block" }}>
+        <Link key={i} href={k.href} className={`${ds.card} pressable`} style={{ padding: "13px 15px", textDecoration: "none", color: "inherit", display: "block" }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-            <b style={{ fontSize: "var(--fs-body)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.title}</b>
-            <span style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", color: SUB, fontWeight: 700 }}>{md(k.when)}</span>
+            <b style={{ fontSize: 13, color: "var(--text-ink)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.title}</b>
+            <span style={{ marginLeft: "auto", flex: "none", fontSize: 10, color: "var(--text-muted)", fontWeight: 700 }}>{md(k.when)}</span>
           </div>
-          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.6, marginTop: 5, whiteSpace: "pre-wrap" }}>{k.body}</div>
-          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: ACCENT, marginTop: 7 }}>この演奏の練習後カルテをひらく →</div>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", lineHeight: 1.6, marginTop: 5, whiteSpace: "pre-wrap" }}>{k.body}</div>
+          <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "#7fa4e8", marginTop: 7 }}>この演奏の練習後カルテをひらく →</div>
         </Link>
       ))}
     </div>
@@ -222,25 +273,27 @@ function KarteTab({ items }: { items: KarteItem[] }) {
 function ReviewTab({ userId, feedbacks }: { userId: string; feedbacks: Feedback[] }) {
   if (feedbacks.length === 0) return <Empty note="まだ先生からの添削はありません。先生が譜面に書き込むと、ここに届きます。" />
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
       {feedbacks.map((f) => (
-        <Link key={f.scoreId} href={`/${userId}/scores/${f.scoreId}`}
-          style={{ ...card(), display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit" }}>
+        <Link key={f.scoreId} href={`/${userId}/scores/${f.scoreId}`} className={`${ds.card} pressable`}
+          style={{ padding: "13px 15px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, textDecoration: "none", color: "inherit" }}>
           <span style={{ minWidth: 0 }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: "var(--fs-body)", fontWeight: 800, color: INK, overflow: "hidden" }}><NotebookPen size={14} style={{ flex: "none" }} /> <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.title}</span></span>
-            <span style={{ display: "block", fontSize: "var(--fs-caption)", color: SUB }}>{f.date} に更新</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 800, color: "var(--text-ink)", overflow: "hidden" }}><NotebookPen size={14} style={{ flex: "none", color: "#7fa4e8" }} /> <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{f.title}</span></span>
+            <span style={{ display: "block", fontSize: 11, color: "var(--text-sub)", marginTop: 2 }}>{f.date} に更新</span>
           </span>
-          <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: ACCENT, flex: "none" }}>譜面で見る →</span>
+          <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "#7fa4e8", flex: "none" }}>譜面で見る →</span>
         </Link>
       ))}
     </div>
   )
 }
 
-function Empty({ note }: { note: string }) {
-  return <div style={{ ...card(), textAlign: "center", fontSize: "var(--fs-body)", color: SUB }}>{note}</div>
-}
-
-function card(): React.CSSProperties {
-  return { background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: "13px 15px", boxShadow: "0 1px 3px rgba(30,45,70,.05)" }
+/* 0件 (原本 先生05: ✉カード) */
+function Empty({ note }: { note: React.ReactNode }) {
+  return (
+    <div className={ds.card} style={{ textAlign: "center", padding: "28px 20px" }}>
+      <div style={{ fontSize: 26, opacity: 0.5 }} aria-hidden>✉</div>
+      <span style={{ display: "block", fontSize: 12, color: "var(--text-sub)", marginTop: 9, lineHeight: 1.9 }}>{note}</span>
+    </div>
+  )
 }
