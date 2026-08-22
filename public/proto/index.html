@@ -1,260 +1,248 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Arcoda 5画面プロトタイプ</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
+<title>Arcoda — 5画面 UI</title>
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
 
 <!-- ============================================================
-     画面1: ログイン ・ 対応モック: login-mock.png (クラシック案)
+     画面1：ログイン（login-mock.png 正）
      ============================================================ -->
-<section class="screen login" id="login">
-  <div class="alco-badge">
-    <!-- アルコ: 09B 手をふって挨拶 (ループ ・ 原本名 09B_手をふって挨拶_モーション_ループ.mp4 → 配信用ASCII名) -->
-    <video class="alco-motion" autoplay muted loop playsinline
-           poster="assets/motion/09B_poster.jpg" width="320" height="360" aria-label="相棒のアルコ">
+<section class="screen s-login" id="login">
+  <div class="glow-top"></div>
+
+  <!-- 背景のバイオリン・スクロール線画（左右シンメトリー） -->
+  <svg class="bg-flourish bg-flourish--left" viewBox="0 0 90 150" aria-hidden="true">
+    <path d="M45 10 C20 15 12 38 28 50 C42 60 56 50 52 36 C49 25 34 24 30 34 C27 42 34 48 40 45"/>
+    <path d="M45 60 C45 85 38 110 30 135 M45 60 C48 88 55 112 62 132"/>
+    <path d="M30 135 C24 142 32 150 40 146 M62 132 C70 138 66 148 56 146"/>
+    <path d="M25 78 C33 82 40 82 45 80 M28 100 C36 104 44 104 50 101"/>
+  </svg>
+  <svg class="bg-flourish bg-flourish--right" viewBox="0 0 90 150" aria-hidden="true">
+    <path d="M45 10 C20 15 12 38 28 50 C42 60 56 50 52 36 C49 25 34 24 30 34 C27 42 34 48 40 45"/>
+    <path d="M45 60 C45 85 38 110 30 135 M45 60 C48 88 55 112 62 132"/>
+    <path d="M30 135 C24 142 32 150 40 146 M62 132 C70 138 66 148 56 146"/>
+    <path d="M25 78 C33 82 40 82 45 80 M28 100 C36 104 44 104 50 101"/>
+  </svg>
+
+  <!-- アルコ：白円＋金の二重リング＋はみ出し（モーション：手をふって挨拶） -->
+  <div class="alco-medallion">
+    <!-- 動画版：assets/motion/09B_motion_loop.mp4
+         静止版：<img class="alco-fig" src="アルコ画像" alt="アルコ"> -->
+    <img class="alco-fig is-still" src="assets/motion/09B_poster.jpg" alt="アルコ">
+    <video class="alco-fig" autoplay muted loop playsinline poster="assets/motion/09B_poster.jpg" aria-label="アルコ">
       <source src="assets/motion/09B_motion_loop.mp4" type="video/mp4">
-      <img src="assets/motion/09B_poster.jpg" alt="相棒のアルコ">
     </video>
-    <img class="alco-fallback" src="assets/motion/09B_poster.jpg" alt="相棒のアルコ">
   </div>
 
   <h1 class="login-title">また会えたね、アルコだよ</h1>
   <p class="login-sub">さあ、今日も音を鳴らそう</p>
 
-  <form class="login-form" onsubmit="return false">
-    <label class="input-label" for="mail">メールアドレス</label>
-    <div class="field">
-      <input class="input" id="mail" type="email" placeholder="メールアドレス" autocomplete="email">
+  <form class="login-form">
+    <label class="login-label" for="email">メールアドレス</label>
+    <div class="login-input-wrap">
+      <input class="login-input" id="email" type="email" placeholder="メールアドレス" autocomplete="email">
     </div>
-    <label class="input-label" for="pw" style="margin-top: var(--sp-4)">パスワード</label>
-    <div class="field">
-      <input class="input" id="pw" type="password" placeholder="パスワード" autocomplete="current-password">
-      <button type="button" class="eye" aria-label="パスワードを表示"
-              onclick="const p=document.getElementById('pw');p.type=p.type==='password'?'text':'password'">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>
-      </button>
+    <label class="login-label" for="password">パスワード</label>
+    <div class="login-input-wrap">
+      <input class="login-input" id="password" type="password" placeholder="パスワード" autocomplete="current-password">
+      <svg class="login-eye" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M2 12 C6 6 18 6 22 12 C18 18 6 18 2 12 Z"/><circle cx="12" cy="12" r="3"/>
+      </svg>
     </div>
-    <!-- エラー用スペース (エラー時のみ文言を入れる) -->
-    <p class="form-error" id="loginError" role="alert"></p>
-    <button type="submit" class="btn btn-gold">ログイン</button>
+    <button class="btn-gold btn-gold--light" type="submit">ログイン</button>
   </form>
 
-  <div class="login-links">
-    <a href="#login">パスワードを忘れた方はこちら</a>
-    <span class="vr" aria-hidden="true"></span>
-    <a href="#login">新規登録</a>
-  </div>
-  <hr class="login-hr">
+  <div class="login-divider">または</div>
+
+  <p class="login-links">
+    <a class="gold" href="#">パスワードを忘れた方はこちら</a><span class="sep"></span><a class="white" href="#">新規登録</a>
+  </p>
 </section>
 
 <!-- ============================================================
-     画面2: ローディング ・ 対応モック: loading-mock.png (クラシック案)
+     画面2：ローディング（loading-mock.png 正）
      ============================================================ -->
-<section class="screen loading" id="loading">
-  <div class="progress-ring" id="progressRing" style="--progress: 0">
-    <div class="progress-ring__arc" aria-hidden="true"></div>
-    <div class="progress-ring__inner">
-      <!-- アルコ: 05A 弓を両手で構える (ループ) -->
-      <video class="alco-motion" autoplay muted loop playsinline
-             poster="assets/motion/05A_poster.jpg" width="320" height="360" aria-label="相棒のアルコ">
-        <source src="assets/motion/05A_motion_loop.mp4" type="video/mp4">
-        <img src="assets/motion/05A_poster.jpg" alt="相棒のアルコ">
-      </video>
-      <img class="alco-fallback" src="assets/motion/05A_poster.jpg" alt="相棒のアルコ">
+<section class="screen s-loading" id="loading">
+  <div class="glow-top glow-top--strong"></div>
+
+  <div class="loading-ring" style="--progress: 100">
+    <div class="loading-ring__progress"></div>
+    <!-- ★白四角禁止：alco-disc で円形クリップ（モーション：弓を両手で構える） -->
+    <div class="alco-disc">
+      <img class="alco-fig is-still" src="assets/motion/05A_poster.jpg" alt="アルコ">
+    <video class="alco-fig" autoplay muted loop playsinline poster="assets/motion/05A_poster.jpg" aria-label="アルコ">
+      <source src="assets/motion/05A_motion_loop.mp4" type="video/mp4">
+    </video>
     </div>
   </div>
-  <h1 class="loading-title">音を調えています<span class="dot">・</span><span class="dot">・</span><span class="dot">・</span></h1>
-  <div class="loading-pct" id="progressPct" role="status">0%</div>
-  <div class="loading-brand">Arcoda</div>
+
+  <p class="loading-text">音を調えています<span class="dot">・</span><span class="dot">・</span><span class="dot">・</span></p>
+  <p class="loading-pct" id="pct">100%</p>
+  <p class="loading-logo">Arcoda</p>
+  <p class="loading-note">はじまりまで、あと少し</p>
 </section>
 
 <!-- ============================================================
-     画面3: 採点結果 ・ 対応モック: result-mock.png (水彩ヒーロー案)
+     画面3：採点結果（result-mock.png 正）
      ============================================================ -->
-<section class="screen result" id="result">
-  <div class="result-hero hero-watercolor" id="confettiHero">
-    <!-- 紙吹雪はJSで14個生成 (duration 4〜8s ・ delay 0〜6s を分散) -->
-    <div class="alco-wrap">
-      <!-- アルコ: 06A 両手ぱちぱち (ループ ・ 高さ180px) -->
-      <video class="alco-motion" autoplay muted loop playsinline
-             poster="assets/motion/06A_poster.jpg" width="320" height="360" aria-label="拍手するアルコ">
-        <source src="assets/motion/06A_motion_loop.mp4" type="video/mp4">
-        <img src="assets/motion/06A_poster.jpg" alt="拍手するアルコ">
-      </video>
-      <img class="alco-fallback" src="assets/motion/06A_poster.jpg" alt="拍手するアルコ">
+<section class="screen s-result" id="result">
+  <div class="result-hero">
+    <span class="confetti"></span><span class="confetti"></span><span class="confetti"></span>
+    <span class="confetti"></span><span class="confetti"></span><span class="confetti"></span>
+    <span class="confetti"></span><span class="confetti"></span><span class="confetti"></span>
+    <span class="confetti"></span><span class="confetti"></span><span class="confetti"></span>
+    <!-- 拍手アルコ（モーション：両手ぱちぱち）紙背景に直接・大きく -->
+    <div class="alco-disc">
+      <img class="alco-fig is-still" src="assets/motion/06A_poster.jpg" alt="拍手するアルコ">
+    <video class="alco-fig" autoplay muted loop playsinline poster="assets/motion/06A_poster.jpg" aria-label="拍手するアルコ">
+      <source src="assets/motion/06A_motion_loop.mp4" type="video/mp4">
+    </video>
     </div>
   </div>
 
   <div class="result-sheet">
-    <span class="result-tag">今日の採点</span>
+    <span class="score-pill">今日の採点</span>
+
     <div class="score-row">
-      <div class="score-num">93<small>点</small></div>
-      <div class="rank-col">
-        <div class="rank-badge">S</div>
-        <span class="rank-delta">前回より +4.8</span>
+      <div><span class="score-num">93</span><span class="score-unit">点</span></div>
+      <div class="score-side">
+        <span class="rank-badge">S</span>
+        <span class="score-up">▲ 前回より +4.8</span>
       </div>
     </div>
+
     <div class="meters">
       <div class="meter">
-        <div class="meter__label"><span>音程</span><b>91</b></div>
-        <div class="meter__track"><i class="meter__fill" style="--value: 91%"></i></div>
+        <div class="meter__head"><span class="meter__name">音程</span><span class="meter__value">91</span></div>
+        <div class="meter__track"><div class="meter__fill" style="--value: 91%"></div></div>
       </div>
       <div class="meter">
-        <div class="meter__label"><span>リズム</span><b>95</b></div>
-        <div class="meter__track"><i class="meter__fill" style="--value: 95%"></i></div>
+        <div class="meter__head"><span class="meter__name">リズム</span><span class="meter__value">95</span></div>
+        <div class="meter__track"><div class="meter__fill" style="--value: 95%"></div></div>
       </div>
     </div>
-    <div class="letter-card">
-      <p>とても良くなりました。次は音程の安定に挑戦してみましょう。</p>
-      <div class="sign">―― アルコ</div>
+
+    <!-- アドバイスは紙カード（ダークカード禁止） -->
+    <div class="paper-note">
+      <p>きのうより、音がまっすぐになってきたよ。</p>
+      <p class="from">―― アルコ</p>
     </div>
-    <div class="result-btns">
-      <button type="button" class="btn btn-outline">もう一度</button>
-      <button type="button" class="btn btn-gold">ホームへ</button>
+
+    <div class="result-actions">
+      <button class="btn-outline">もう一度</button>
+      <button class="btn-gold btn-gold--light">ホームへ</button>
     </div>
   </div>
 </section>
 
 <!-- ============================================================
-     画面4: ホーム ・ 対応モック: home-mock.png
-     既存アプリのホーム構成 (挨拶/MY RANK/いま練習している曲) に
-     アルコの写真とひとことを追加。構成は現行アプリのまま。
+     画面4：ホーム（home-mock.png 正）
      ============================================================ -->
-<section class="screen home" id="home">
-  <div class="home-head">
-    <div class="home-greet">
-      <h1>こんにちは、てつおさん</h1>
-      <div class="date">今日も1曲、弾いてみよう。</div>
+<section class="screen s-home" id="home">
+  <div class="glow-top"></div>
+
+  <header class="home-header">
+    <div class="home-logo"><span class="mini-ring"></span>Arcoda</div>
+    <div class="home-user">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20 C4 15 20 15 20 20"/></svg>
     </div>
-    <!-- 追加: 右上のアルコ小バッジ (01C 弓で真上を掲げて指す ・ ループ) -->
-    <div class="alco-badge">
-      <video class="alco-motion" autoplay muted loop playsinline
-             poster="assets/motion/01C_poster.jpg" width="320" height="360" aria-label="相棒のアルコ">
-        <source src="assets/motion/01C_motion_loop.mp4" type="video/mp4">
-        <img src="assets/motion/01C_poster.jpg" alt="相棒のアルコ">
-      </video>
-      <img class="alco-fallback" src="assets/motion/01C_poster.jpg" alt="相棒のアルコ">
+  </header>
+
+  <!-- アルコ：白円＋二重リング（モーション：弓で真上を掲げて指す） -->
+  <div class="alco-medallion">
+    <img class="alco-fig is-still" src="assets/motion/01C_poster.jpg" alt="アルコ">
+    <video class="alco-fig" autoplay muted loop playsinline poster="assets/motion/01C_poster.jpg" aria-label="アルコ">
+      <source src="assets/motion/01C_motion_loop.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <h1 class="home-greet">こんばんは、てつおさん</h1>
+  <p class="home-greet-sub">今日も1曲、弾いてみよう。</p>
+  <p class="home-date">8月22日（土）</p>
+
+  <div class="home-card">
+    <p class="home-card__label">MY RANK</p>
+    <div class="home-card__body">
+      <div>
+        <p class="home-card__title">みならいヴィオリニスト</p>
+        <p class="home-stars"><span class="on">★★</span><span class="off">★★</span></p>
+      </div>
+      <div class="lv-ring"><span>Lv.7</span></div>
     </div>
   </div>
 
-  <div class="home-cards">
-    <!-- 追加: アルコからひとこと -->
-    <div class="quote-card">
-      “きのうより、音がまっすぐになってきたよ。”
-      <span class="who">―― アルコからひとこと</span>
+  <div class="home-card">
+    <p class="home-card__label">いま練習している曲</p>
+    <div class="home-card__body">
+      <p class="home-card__title">アヴェ・マリア</p>
+      <span class="diff-pill">★3</span>
     </div>
+  </div>
 
-    <!-- 既存: MY RANK (現行アプリの構成 ・ ランク名/★/Lv/つぎのランクまで) -->
-    <div class="hcard">
-      <div class="hlabel">MY RANK</div>
-      <div class="rank-row">
-        <div>
-          <div class="rank-name">はじまりの奏者</div>
-          <div class="star-row">★<span class="off"> ★ ★ ★ ★</span></div>
-        </div>
-        <div class="lv-wrap">
-          <span class="lv-ring" style="background: conic-gradient(var(--gold-500) 10%, rgba(217, 169, 60, 0.14) 0)" aria-hidden="true"></span>
-          <span class="lv-text">Lv.1</span>
-        </div>
-      </div>
-      <div class="rank-next"><span>つぎのランクまで</span><b>★2をあと9曲</b></div>
-      <div class="meter__track"><i class="meter__fill" style="--value: 10%"></i></div>
-    </div>
-
-    <!-- 既存: いま練習している曲 -->
-    <div class="hcard">
-      <div class="hlabel">いま練習している曲</div>
-      <div class="song-row">
-        <div class="song-name">アルプス一万尺</div>
-        <span class="star-pill">★1</span>
-      </div>
-      <div class="song-meta">直近 93点 ・ 達成</div>
-    </div>
+  <div class="paper-note">
+    <p>きのうより、音がまっすぐになってきたよ。</p>
+    <p class="from">―― アルコからひとこと</p>
   </div>
 
   <nav class="tabbar">
-    <a href="#home" class="on"><span class="ic">⌂</span>ホーム</a>
-    <a href="#home"><span class="ic">♫</span>ライブラリ</a>
-    <a href="#home"><span class="ic">📖</span>カルテ</a>
-    <a href="#home"><span class="ic">👤</span>先生</a>
+    <a class="tabbar__item is-active" href="#">
+      <svg viewBox="0 0 24 24"><path d="M3 11 L12 3 L21 11 V21 H14 V15 H10 V21 H3 Z"/></svg>ホーム
+    </a>
+    <a class="tabbar__item" href="#">
+      <svg viewBox="0 0 24 24"><path d="M9 18 V6 L20 4 V16"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg>ライブラリ
+    </a>
+    <a class="tabbar__item" href="#">
+      <svg viewBox="0 0 24 24"><path d="M4 20 V10 M10 20 V4 M16 20 V13 M22 20 H2"/></svg>カルテ
+    </a>
+    <a class="tabbar__item" href="#">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20 C4 15 20 15 20 20"/></svg>先生
+    </a>
   </nav>
 </section>
 
 <!-- ============================================================
-     画面5: エラー・空状態 ・ 対応モック: empty-mock.png (水彩ヒーロー案)
-     見出し・本文は data-empty-title / data-empty-body と setEmptyState() で差し替え可能
+     画面5：空状態（empty-mock.png 正）
      ============================================================ -->
-<section class="screen empty" id="empty"
-         data-empty-title="まだ記録がありません"
-         data-empty-body="最初の1曲を、いっしょに録りましょう">
-  <div class="empty-hero hero-watercolor">
-    <div class="alco-wrap">
-      <!-- アルコ: 05C 楽譜を見せる (ループ ・ 高さ200px) -->
-      <video class="alco-motion" autoplay muted loop playsinline
-             poster="assets/motion/05C_poster.jpg" width="320" height="360" aria-label="楽譜を見せるアルコ">
-        <source src="assets/motion/05C_motion_loop.mp4" type="video/mp4">
-        <img src="assets/motion/05C_poster.jpg" alt="楽譜を見せるアルコ">
-      </video>
-      <img class="alco-fallback" src="assets/motion/05C_poster.jpg" alt="楽譜を見せるアルコ">
+<section class="screen s-empty" id="empty">
+  <div class="empty-hero">
+    <!-- 楽譜を見せるアルコ（モーション：05C）紙背景に直接・大きく -->
+    <div class="alco-disc">
+      <img class="alco-fig is-still" src="assets/motion/05C_poster.jpg" alt="楽譜を見せるアルコ">
+    <video class="alco-fig" autoplay muted loop playsinline poster="assets/motion/05C_poster.jpg" aria-label="楽譜を見せるアルコ">
+      <source src="assets/motion/05C_motion_loop.mp4" type="video/mp4">
+    </video>
     </div>
   </div>
-  <div class="empty-panel">
-    <div class="empty-deco" aria-hidden="true"></div>
-    <h1 class="empty-title" id="emptyTitle">まだ記録がありません</h1>
-    <p class="empty-body" id="emptyBody">最初の1曲を、いっしょに録りましょう</p>
-    <button type="button" class="btn btn-gold">練習をはじめる</button>
+
+  <div class="empty-body">
+    <h1 class="empty-title">まだ記録がありません</h1>
+    <p class="empty-text">最初の1曲を、いっしょに録りましょう</p>
+    <button class="btn-gold btn-gold--dark">練習をはじめる</button>
   </div>
 </section>
 
 <script>
-// ── 画面2: 進捗リング (デモ: 3秒で 0→100%) ─────────────────
-// 実運用では requestAnimationFrame ループを外し、実API待ちの進捗率で
-// ring.style.setProperty("--progress", p) / pct.textContent を更新する。
+/* ローディング進捗デモ：--progress を 0→100 へ3秒で更新。
+   本番ではAPI待ちの完了通知に差し替える。 */
 (function () {
-  const ring = document.getElementById("progressRing")
-  const pct = document.getElementById("progressPct")
-  const T = 3000
-  let start = null
-  function tick(now) {
-    if (start === null) start = now
-    const p = Math.min(100, Math.round(((now - start) / T) * 100))
-    ring.style.setProperty("--progress", p)
-    pct.textContent = p + "%"
-    if (p < 100) requestAnimationFrame(tick)
+  var ring = document.querySelector('.loading-ring');
+  var pct = document.getElementById('pct');
+  if (!ring) return;
+  var start = null, DURATION = 3000;
+  function tick(t) {
+    if (!start) start = t;
+    var p = Math.min(100, ((t - start) / DURATION) * 100);
+    ring.style.setProperty('--progress', p);
+    pct.textContent = Math.round(p) + '%';
+    if (p < 100) requestAnimationFrame(tick);
   }
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    ring.style.setProperty("--progress", 100); pct.textContent = "100%"
-  } else requestAnimationFrame(tick)
-})()
-
-// ── 画面3: 紙吹雪を14個生成 (duration 4〜8s ・ delay 0〜6s) ──
-(function () {
-  const hero = document.getElementById("confettiHero")
-  const N = 14
-  for (let i = 0; i < N; i++) {
-    const c = document.createElement("i")
-    c.className = "confetti"
-    c.style.left = (4 + (i * 92) / (N - 1)) + "%"
-    c.style.animationDuration = (4 + (i % 5)) + "s"       // 4〜8s
-    c.style.animationDelay = ((i * 0.45) % 6).toFixed(2) + "s" // 0〜6s
-    hero.appendChild(c)
-  }
-})()
-
-// ── 画面5: 空状態/エラーの文言差し替え ─────────────────────
-// 例: setEmptyState("つながらないみたい", "電波のよいところで、もういちど試してね")
-function setEmptyState(title, body) {
-  const sec = document.getElementById("empty")
-  document.getElementById("emptyTitle").textContent = title ?? sec.dataset.emptyTitle
-  document.getElementById("emptyBody").textContent = body ?? sec.dataset.emptyBody
-}
+  requestAnimationFrame(tick);
+})();
 </script>
+
 </body>
 </html>

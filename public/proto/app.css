@@ -1,513 +1,847 @@
 /* ============================================================
-   Arcoda 5画面プロトタイプ — app.css
-   仕様書: 「Arcoda（アルコダ）5画面 実装依頼【詳細CSS仕様版】」(2026-08-23 Tetsuo)
-   カラー/影/タイポ/余白は仕様書 §0 の定義をそのまま使用
+   Arcoda UI — モック精密再現版 v3（実装差分修正版）
+   モック正：login / loading / result / home / empty の5画面
    ============================================================ */
 
+/* ---------- 0. フォント読み込み（HTMLの<head>でlink読込でも可） ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
 :root {
-  /* === カラーパレット === */
-  --navy-900: #0B1228;   /* ベース背景（最も暗い） */
-  --navy-800: #101B38;   /* 入力欄・タブバー背景 */
-  --navy-700: #16294F;   /* カード・パネル背景 */
-  --navy-600: #1E3560;   /* カードのホバー・押下時 */
-  --gold-500: #D9A93C;   /* アンティークゴールド（主アクセント） */
-  --gold-600: #B8892E;   /* 金ボタンのグラデーション下端 */
-  --gold-300: #F0D98C;   /* 金のハイライト（発光・ホバー） */
-  --gold-line: rgba(217, 169, 60, 0.4);       /* 金の細線ボーダー */
-  --gold-line-soft: rgba(217, 169, 60, 0.18); /* さらに薄い区切り線 */
-  --gold-glow: rgba(217, 169, 60, 0.25);      /* 金の発光エフェクト用 */
-  --cream-100: #F5EFE0;  /* 本文・見出し（クリーム白） */
-  --cream-200: #EDE4CE;  /* 手紙カードの紙色 */
-  --gray-400: #9AA3B8;   /* 補助テキスト */
-  --gray-500: #6B7488;   /* プレースホルダー・非活性 */
-  --ivory-bg: #F7F1E3;   /* 水彩ヒーローエリアの背景 */
-  --error: #E0727A;      /* エラー表示のみ使用 */
-  --success: #7BC496;    /* 前回比プラス表示 */
+  /* === 背景（モック実測値） === */
+  --bg-dark: #0B1220;
+  --bg-deep: #070C17;
+  --bg-sheet: #0A1120;
+  --bg-ivory: #FBFAF7;
+  --ivory-circle: #FAF9F6;
+
+  /* === ゴールド（くすんだアンティーク調。鮮やかな金は禁止） === */
+  --gold-hi: #E8CA84;
+  --gold-mid: #D4AF37;
+  --gold-line: #BCA160;
+  --gold-dark: #9A7A35;
+  --gold-edge-l: #A78038;
+  --gold-edge-r: #96712B;
+  --gold-dim: #6D5F43;
+  --gold-bronze: #8C7B60;
+  --gold-star-off: #4A4231;
+
+  /* === テキスト === */
+  --text-main: #FFFAE8;
+  --text-sub: #E3DAC9;
+  --text-greeting: #FFFDF0;
+  --text-goldsub: #D9CAA3;
+  --text-muted: #A89D85;
+  --text-link: #BCA160;
+  --text-on-gold: #FFFFFF;
+  --text-on-gold-dark: #1C1507;
+  --text-on-paper: #332511;
+  --text-badge: #4A3F29;
+  --text-rank-s: #3A2C0F;
+  --text-score-up: #FFDA73;
+
+  /* === パーツ背景 === */
+  --pill-bg: #EDE6D5;
+  --paper-card: #FCFAF2;
+  --card-from: #141F36;
+  --card-to: #2A2B25;
+  --meter-track: #1E293B;
 
   /* === フォント === */
-  --font-serif: "Noto Serif JP", "Hiragino Mincho ProN", serif;
+  --font-mincho: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
   --font-sans: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+  --font-latin: "Georgia", "Times New Roman", serif;
+}
 
-  /* === タイポグラフィスケール === */
-  --fs-hero: 72px;    /* スコア数字 */
-  --fs-h1: 22px;      /* 画面見出し */
-  --fs-h2: 17px;      /* カード見出し */
-  --fs-body: 14px;    /* 本文 */
-  --fs-small: 12px;   /* 補助・リンク */
-  --fs-tiny: 10px;    /* ラベル・タブ */
-  --lh-tight: 1.4;
-  --lh-body: 1.8;     /* 和文本文の行間 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* === 余白スケール === */
-  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px;
-  --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-8: 48px;
-  --page-x: 20px;     /* 画面左右の安全余白 */
-
-  /* === 角丸 === */
-  --r-sm: 8px;        /* 入力欄 */
-  --r-md: 16px;       /* カード */
-  --r-lg: 24px;       /* 大型シート（水彩画面の下部紺カード） */
-  --r-full: 999px;    /* ボタン・バッジ */
-
-  /* === シャドウ === */
-  --shadow-card:
-    0 8px 24px rgba(0, 0, 0, 0.45),
-    0 2px 6px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(217, 169, 60, 0.08);
-  --shadow-gold-btn:
-    0 4px 14px rgba(217, 169, 60, 0.35),
-    0 2px 4px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
-  --shadow-alco-glow:
-    0 0 0 1px var(--gold-line),
-    0 0 24px var(--gold-glow),
-    0 6px 16px rgba(0, 0, 0, 0.4);
-  --shadow-paper:
-    0 6px 18px rgba(0, 0, 0, 0.35),
-    0 1px 3px rgba(0, 0, 0, 0.25);
-
-  /* === トランジション === */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --dur-fast: 150ms;
-  --dur-med: 300ms;
+body {
+  background: #333;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ============================================================
-   §1 共通
+   1. 画面フレーム（プレビュー用。アプリ実装時は .screen をそのまま使用）
    ============================================================ */
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
-body {
+.screen {
+  position: relative;
+  width: 375px;
+  min-height: 812px;
+  margin: 40px auto;
+  overflow: hidden;
+  border-radius: 28px;
+  background: var(--bg-dark);
+  color: var(--text-main);
+}
+
+/* ============================================================
+   2. 全画面共通：背景グロー（ログイン・ローディング・ホーム）
+   ============================================================ */
+.glow-top {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 45%;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 90% 100% at 50% 0%,
+    rgba(255, 230, 153, 0.20),
+    rgba(212, 175, 55, 0.08) 45%,
+    transparent 75%
+  );
+}
+/* ローディングは光を強める（40%） */
+.glow-top--strong {
+  height: 38%;
+  background: radial-gradient(
+    ellipse 70% 100% at 50% 0%,
+    rgba(255, 242, 204, 0.40),
+    rgba(255, 230, 153, 0.12) 50%,
+    transparent 75%
+  );
+}
+
+/* ============================================================
+   3. ログインのみ：背景のバイオリン・スクロール線画
+   ============================================================ */
+.bg-flourish {
+  position: absolute;
+  top: 36px;
+  width: 90px;
+  height: 150px;
+  stroke: #FFFFFF;
+  fill: none;
+  stroke-width: 1.2;
+  opacity: 0.12;
+  pointer-events: none;
+}
+.bg-flourish--left  { left: 18px; }
+.bg-flourish--right { right: 18px; transform: scaleX(-1); }
+
+/* ============================================================
+   4. アルコ表示：3パターン
+   ============================================================ */
+/* --- パターンA：白円＋金の二重リング（ログイン・ホーム） --- */
+.alco-medallion {
+  position: relative;
+  border-radius: 50%;
+  background: var(--ivory-circle);
+  /* 二重リング：内の太い金＋隙間＋外の細い金 */
+  box-shadow:
+    0 0 0 4px var(--gold-hi),
+    0 0 0 10px var(--bg-dark),
+    0 0 0 11px var(--gold-line),
+    0 12px 32px rgba(0, 0, 0, 0.45);
+}
+/* 内側リングを金属グラデーションにする装飾層 */
+.alco-medallion::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--gold-hi), var(--gold-dark),
+    var(--gold-hi), var(--gold-dark), var(--gold-hi)
+  );
+  z-index: 0;
+}
+/* アルコ本体：円から「はみ出す」のがモックの特徴 */
+.alco-medallion .alco-fig {
+  position: absolute;
+  width: 116%; height: 116%;
+  left: -8%; top: -12%;
+  object-fit: contain;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* --- パターンB：円形クリップのみ（ローディング／白四角の禁止） --- */
+.alco-disc {
+  border-radius: 50%;
+  overflow: hidden;            /* ★ 白い四角を消す：円形にクリップ */
+  background: var(--ivory-circle);
+}
+.alco-disc .alco-fig {
+  width: 100%; height: 100%;
+  object-fit: cover;           /* 円内を絵で埋める */
+  display: block;
+}
+
+/* --- パターンC：紙背景に直接・大きく（結果・空状態） --- */
+.alco-plain {
+  /* 円にも四角にも切らない。ただし素材が四角い紙背景付きの場合は
+     .alco-disc を使い、アイボリー円として紙色に溶け込ませる */
+}
+.alco-plain .alco-fig { width: 100%; height: auto; display: block; }
+
+/* モーション動画版 */
+video.alco-fig { background: transparent; }
+
+/* ============================================================
+   5. ボタン（横方向・金属グラデーション）
+   ============================================================ */
+.btn-gold {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 55px;
+  border: none;
+  border-radius: 27.5px;
+  background: linear-gradient(90deg,
+    var(--gold-edge-l) 0%,
+    var(--gold-hi) 50%,
+    var(--gold-edge-r) 100%);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.30);
+  font-family: var(--font-mincho);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: filter 150ms ease, transform 100ms ease;
+}
+.btn-gold:active { transform: translateY(1px); }
+.btn-gold:hover  { filter: brightness(1.08); }
+
+/* ログイン／ホームへ：白文字 */
+.btn-gold--light {
+  color: var(--text-on-gold);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+/* 空状態「練習をはじめる」：暗色文字＋ほのかな光 */
+.btn-gold--dark {
+  color: var(--text-on-gold-dark);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 6px 20px rgba(232, 202, 132, 0.30),
+    0 2px 6px rgba(0, 0, 0, 0.30);
+}
+
+/* 枠線カプセルボタン（「もう一度」） */
+.btn-outline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  border: 1.5px solid var(--gold-line);
+  border-radius: 26px;
+  background: transparent;
+  color: var(--text-link);
+  font-family: var(--font-mincho);
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+.btn-outline:hover { background: rgba(217, 169, 60, 0.08); }
+
+/* ============================================================
+   6. 手紙カード（アドバイス／ひとこと共通）
+   ============================================================ */
+.paper-note {
+  background: var(--paper-card);
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  padding: 20px 22px;
+}
+.paper-note p {
+  font-family: var(--font-mincho);
+  color: var(--text-on-paper);
+  font-size: 14px;
+  line-height: 1.9;
+}
+.paper-note .from {
+  margin-top: 10px;
+  text-align: right;
+  font-family: var(--font-mincho);
+  font-size: 12px;
+  color: var(--text-on-paper);
+  opacity: 0.75;
+}
+
+/* ============================================================
+   画面1：ログイン
+   ============================================================ */
+.s-login { padding: 0 28px 40px; }
+.s-login .alco-medallion {
+  width: 210px; height: 210px;
+  margin: 88px auto 34px;
+}
+.login-title {
+  font-family: var(--font-mincho);
+  font-size: 23px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-shadow: 0 0 20px rgba(217, 169, 60, 0.15);
+}
+.login-sub {
+  margin-top: 10px;
+  font-family: var(--font-mincho);
+  font-size: 13px;
+  color: var(--text-sub);
+  text-align: center;
+  letter-spacing: 0.08em;
+}
+.login-form { margin-top: 34px; }
+.login-label {
+  display: block;
+  font-family: var(--font-mincho);
+  font-size: 11px;
+  color: var(--text-sub);
+  letter-spacing: 0.12em;
+  margin: 0 0 6px 22px;
+}
+.login-input-wrap { position: relative; margin-bottom: 18px; }
+.login-input {
+  width: 100%;
+  height: 52px;
+  background: transparent;                 /* ★塗りつぶし禁止 */
+  border: 1.5px solid var(--gold-line);
+  border-radius: 26px;
+  padding: 0 48px 0 22px;
+  color: var(--text-main);
   font-family: var(--font-sans);
-  color: var(--cream-100);
-  background: var(--navy-900);
-  /* §1.1 クラシック系画面の背景: 上部からの金のグロー */
-  background-image:
-    radial-gradient(ellipse 120% 45% at 50% -10%, rgba(217, 169, 60, 0.14), transparent 70%),
-    radial-gradient(ellipse 80% 30% at 50% 110%, rgba(30, 53, 96, 0.5), transparent 70%);
-  background-repeat: no-repeat;
-  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
-img, video { max-width: 100%; display: block; }
-button { font-family: inherit; cursor: pointer; }
-p, h1, h2 { margin: 0; }
-
-/* §1.4 フォーカス・押下の統一 */
-:focus-visible {
+.login-input::placeholder { color: var(--gold-dim); }
+.login-input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--navy-900), 0 0 0 4px var(--gold-500);
+  border-color: var(--gold-hi);
+  box-shadow: 0 0 12px rgba(232, 202, 132, 0.25);
 }
-.btn:active {
-  transform: translateY(1px) scale(0.99);
-  transition: transform var(--dur-fast) var(--ease-out);
+.login-eye {
+  position: absolute;
+  right: 20px; top: 50%;
+  transform: translateY(-50%);
+  width: 20px; height: 20px;
+  stroke: var(--gold-line);
+  fill: none; stroke-width: 1.5;
+}
+.login-form .btn-gold { margin-top: 8px; }
+
+/* 「または」区切り */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 26px 0 18px;
+  font-size: 11px;
+  color: var(--text-link);
+}
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+}
+.login-divider::before {
+  background: linear-gradient(90deg, transparent, var(--gold-line));
+}
+.login-divider::after {
+  background: linear-gradient(90deg, var(--gold-line), transparent);
 }
 
-/* §1.5 モーション低減対応 */
+/* 下部リンク：金／白 */
+.login-links {
+  text-align: center;
+  font-size: 12px;
+}
+.login-links a { text-decoration: none; }
+.login-links a.gold { color: var(--text-link); }
+.login-links a.white { color: #FFFFFF; }
+.login-links .sep {
+  display: inline-block;
+  width: 1px; height: 11px;
+  background: rgba(188, 161, 96, 0.4);
+  margin: 0 12px;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   画面2：ローディング
+   ============================================================ */
+.s-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 28px 44px;
+}
+.loading-ring {
+  position: relative;
+  width: 220px; height: 220px;
+  margin: 200px auto 0;
+  border-radius: 50%;
+  border: 2px solid var(--gold-line);      /* 基準の細円 */
+}
+.loading-ring__progress {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--gold-hi) calc(var(--progress, 100) * 1%),
+    transparent 0
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+  filter: drop-shadow(0 0 4px rgba(232, 202, 132, 0.4));
+}
+.loading-ring .alco-disc {
+  position: absolute;
+  inset: 26px;                             /* ★四角ではなく円 */
+}
+.loading-text {
+  margin-top: 36px;
+  font-family: var(--font-mincho);
+  font-size: 19px;
+  color: var(--text-greeting);
+  letter-spacing: 0.08em;
+}
+.loading-text .dot { animation: dotBlink 1.2s infinite; }
+.loading-text .dot:nth-child(2) { animation-delay: 0.2s; }
+.loading-text .dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotBlink { 0%, 60%, 100% { opacity: 0.2; } 30% { opacity: 1; } }
+.loading-pct {
+  margin-top: 14px;
+  font-family: var(--font-latin);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--gold-hi);
+  font-variant-numeric: tabular-nums;
+}
+.loading-logo {
+  margin-top: auto;
+  font-family: var(--font-latin);
+  font-size: 13px;
+  letter-spacing: 0.32em;
+  color: var(--gold-bronze);
+}
+.loading-note {
+  margin-top: 12px;
+  font-family: var(--font-mincho);
+  font-size: 12px;
+  color: var(--text-link);
+}
+
+/* ============================================================
+   画面3：採点結果
+   ============================================================ */
+.s-result { background: var(--bg-sheet); }
+.result-hero {
+  position: relative;
+  height: 340px;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(217, 169, 60, 0.10), transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(22, 41, 79, 0.08), transparent 45%),
+    var(--bg-ivory);
+  overflow: hidden;
+}
+.result-hero .alco-disc {
+  width: 220px; height: 220px;             /* ★大きく */
+  margin: 70px auto 0;
+  background: transparent;                 /* 紙色に溶け込ませる */
+}
+.result-hero .alco-disc .alco-fig { object-fit: contain; }
+
+/* 紙吹雪 */
+.confetti {
+  position: absolute;
+  top: -20px;
+  width: 6px; height: 10px;
+  background: var(--gold-mid);
+  opacity: 0;
+  animation: confetti-fall linear infinite;
+}
+.confetti:nth-child(3n)   { background: #2A3B5E; width: 5px; height: 8px; }
+.confetti:nth-child(3n+1) { background: var(--gold-hi); }
+.confetti:nth-child(4n)   { border-radius: 50%; width: 5px; height: 5px; }
+.confetti:nth-child(1) { left: 8%;  animation-duration: 6s; animation-delay: 0s; }
+.confetti:nth-child(2) { left: 18%; animation-duration: 7.5s; animation-delay: 1.2s; }
+.confetti:nth-child(3) { left: 27%; animation-duration: 5.5s; animation-delay: 2.4s; }
+.confetti:nth-child(4) { left: 36%; animation-duration: 8s; animation-delay: 0.6s; }
+.confetti:nth-child(5) { left: 47%; animation-duration: 6.5s; animation-delay: 3s; }
+.confetti:nth-child(6) { left: 55%; animation-duration: 5s; animation-delay: 1.8s; }
+.confetti:nth-child(7) { left: 64%; animation-duration: 7s; animation-delay: 0.3s; }
+.confetti:nth-child(8) { left: 73%; animation-duration: 6.2s; animation-delay: 2.1s; }
+.confetti:nth-child(9) { left: 82%; animation-duration: 7.8s; animation-delay: 4s; }
+.confetti:nth-child(10) { left: 90%; animation-duration: 5.8s; animation-delay: 1s; }
+.confetti:nth-child(11) { left: 13%; animation-duration: 8.2s; animation-delay: 3.6s; }
+.confetti:nth-child(12) { left: 60%; animation-duration: 6.8s; animation-delay: 4.4s; }
+@keyframes confetti-fall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.9; }
+  100% { transform: translateY(360px) rotate(720deg) translateX(30px); opacity: 0; }
+}
+
+/* 紺シート */
+.result-sheet {
+  position: relative;
+  margin-top: -40px;                        /* ヒーローに重ねる */
+  border-radius: 40px 40px 0 0;
+  border-top: 1px solid rgba(188, 161, 96, 0.35);
+  background: var(--bg-sheet);
+  box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.5);
+  padding: 28px 28px 40px;
+}
+
+/* 「今日の採点」ピル：紙色×濃色文字 */
+.score-pill {
+  display: inline-block;
+  background: var(--pill-bg);
+  color: var(--text-badge);
+  font-family: var(--font-mincho);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  padding: 6px 18px;
+  border-radius: 999px;
+}
+
+/* スコア行 */
+.score-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+.score-num {
+  font-family: var(--font-latin);           /* ★Georgia系・白・特大 */
+  font-size: 88px;
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 0.9;
+}
+.score-unit {
+  font-family: var(--font-mincho);
+  font-size: 22px;
+  color: #FFFFFF;
+  margin-left: 6px;
+}
+.score-side { text-align: right; }
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--gold-hi), var(--gold-mid) 50%, var(--gold-dark));
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  color: var(--text-rank-s);                /* ★濃茶 */
+  font-family: var(--font-latin);
+  font-size: 24px;
+  font-weight: 700;
+}
+.score-up {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 12px;
+  border: 1px solid rgba(255, 218, 115, 0.5);
+  border-radius: 999px;
+  color: var(--text-score-up);
+  font-size: 12px;
+}
+
+/* ゲージ */
+.meters { margin-top: 22px; }
+.meter { margin-bottom: 14px; }
+.meter__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+.meter__name {
+  font-family: var(--font-mincho);          /* ★明朝 */
+  font-size: 14px;
+  color: #FFFFFF;
+}
+.meter__value {
+  font-family: var(--font-latin);           /* ★数字はGeorgia系 */
+  font-size: 16px;
+  color: #FFFFFF;
+  font-variant-numeric: tabular-nums;
+}
+.meter__track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--meter-track);
+  overflow: hidden;
+}
+.meter__fill {
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #FFFFFF, var(--gold-hi));  /* ★白→淡金 */
+  box-shadow: 0 0 8px rgba(232, 202, 132, 0.35);
+  animation: meter-grow 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+}
+@keyframes meter-grow { to { width: var(--value); } }
+
+/* アドバイス：★紙カード（ダークカード禁止） */
+.result-sheet .paper-note { margin-top: 22px; }
+
+/* ボタン2つ */
+.result-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+.result-actions .btn-outline { flex: 1; }
+.result-actions .btn-gold { flex: 1; height: 52px; font-size: 15px; }
+
+/* ============================================================
+   画面4：ホーム
+   ============================================================ */
+.s-home { padding: 0 24px 100px; }
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 26px;
+}
+.home-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-latin);
+  font-size: 17px;
+  letter-spacing: 0.12em;
+  color: #F2E3BE;
+}
+.home-logo .mini-ring {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--gold-hi);
+  box-shadow: 0 0 0 3px var(--bg-dark), 0 0 0 4px var(--gold-line);
+}
+.home-user {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold-line);
+  background: var(--card-from);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold-line);
+}
+
+/* メダリオン（ホームは中サイズ） */
+.s-home .alco-medallion {
+  width: 180px; height: 180px;
+  margin: 36px auto 26px;
+}
+
+/* 挨拶：★1行に収める */
+.home-greet {
+  text-align: center;
+  font-family: var(--font-mincho);
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--text-greeting);
+  letter-spacing: 0.05em;
+  white-space: nowrap;                       /* ★折返し禁止 */
+}
+.home-greet-sub {
+  margin-top: 8px;
+  text-align: center;
+  font-family: var(--font-mincho);
+  font-size: 13px;
+  color: var(--text-goldsub);
+}
+.home-date {
+  margin-top: 6px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* カード：★枠線なし・135°グラデーション */
+.home-card {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--card-from), var(--card-to));
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.home-card__label {
+  font-family: var(--font-sans);             /* ラベルはゴシック */
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--gold-line);
+  margin-bottom: 8px;
+}
+.home-card__body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.home-card__title {
+  font-family: var(--font-mincho);           /* ランク名・曲名は明朝 */
+  font-size: 19px;
+  color: var(--text-main);
+}
+.home-stars { margin-top: 10px; font-size: 18px; letter-spacing: 6px; }
+.home-stars .on  { color: var(--gold-hi); }
+.home-stars .off { color: var(--gold-star-off); }
+
+/* Lv.リング */
+.lv-ring {
+  position: relative;
+  width: 74px; height: 74px;
+  border-radius: 50%;
+  background: conic-gradient(var(--gold-hi) 65%, var(--meter-track) 0);
+  display: flex; align-items: center; justify-content: center;
+}
+.lv-ring::before {
+  content: "";
+  position: absolute; inset: 5px;
+  border-radius: 50%;
+  background: var(--card-from);
+}
+.lv-ring span {
+  position: relative;
+  font-family: var(--font-latin);
+  font-size: 15px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+/* 難易度カプセル */
+.diff-pill {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--gold-hi), var(--gold-dark));
+  color: var(--text-rank-s);
+  font-family: var(--font-mincho);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* ひとこと */
+.s-home .paper-note { margin-top: 18px; }
+
+/* タブバー */
+.tabbar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 64px;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--bg-deep);
+  border-top: 1px solid rgba(188, 161, 96, 0.15);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.tabbar__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #5A6378;
+  font-size: 10px;
+  text-decoration: none;
+}
+.tabbar__item svg {
+  width: 22px; height: 22px;
+  stroke: currentColor;
+  fill: none; stroke-width: 1.6;
+}
+.tabbar__item.is-active { color: var(--gold-hi); }
+.tabbar__item.is-active::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 22%; right: 22%;
+  height: 2px;
+  background: var(--gold-hi);
+}
+.tabbar__item.is-active svg { fill: rgba(232, 202, 132, 0.25); }
+
+/* ============================================================
+   画面5：空状態
+   ============================================================ */
+.s-empty { background: var(--bg-sheet); }
+.empty-hero {
+  height: 58%;
+  min-height: 430px;
+  background:
+    radial-gradient(circle at 25% 30%, rgba(217, 169, 60, 0.08), transparent 40%),
+    var(--bg-ivory);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.empty-hero .alco-disc {
+  width: 240px; height: 240px;               /* ★大きく */
+  background: transparent;
+}
+.empty-hero .alco-disc .alco-fig { object-fit: contain; }
+
+/* 上に凸の曲線で紺エリアへ */
+.empty-body {
+  position: relative;
+  margin-top: -26px;
+  padding: 44px 32px 48px;
+  text-align: center;
+}
+.empty-body::before {
+  content: "";
+  position: absolute;
+  top: -22px; left: 0; right: 0;
+  height: 44px;
+  background: var(--bg-sheet);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0; /* ★上に凸の曲線 */
+}
+.empty-title {
+  position: relative;
+  font-family: var(--font-mincho);
+  font-size: 23px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: 0.08em;
+}
+.empty-title::before {
+  content: "";
+  display: block;
+  width: 32px; height: 2px;
+  margin: 0 auto 18px;
+  background: linear-gradient(90deg, transparent, var(--gold-line), transparent);
+}
+.empty-text {
+  position: relative;
+  margin-top: 14px;
+  font-family: var(--font-mincho);
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--text-muted);
+}
+.s-empty .btn-gold { margin-top: 30px; }
+
+/* ============================================================
+   モーション低減
+   ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
-  video { display: none; } /* ポスター静止画に切替 */
-  .alco-fallback { display: block !important; }
+  video.alco-fig { display: none; }
 }
 
-/* §1.6 モーション付きアルコ */
-.alco-motion {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;          /* 全身を切らない */
-  object-position: center 60%;  /* やや下寄せで耳に余白 */
-  background: transparent;
-}
-.alco-fallback { display: none; width: 100%; height: 100%; object-fit: contain; object-position: center 60%; }
-
-/* §1.2 水彩ヒーロー */
-.hero-watercolor {
-  background:
-    radial-gradient(circle at 20% 30%, rgba(217, 169, 60, 0.10), transparent 40%),
-    radial-gradient(circle at 80% 20%, rgba(22, 41, 79, 0.08), transparent 45%),
-    radial-gradient(circle at 60% 80%, rgba(217, 169, 60, 0.06), transparent 50%),
-    var(--ivory-bg);
-  border-radius: 0 0 var(--r-lg) var(--r-lg);
-}
-
-/* アルコバッジ (金サークル ・ §2 画面1) */
-.alco-badge {
-  width: 120px; height: 120px;
-  border-radius: 50%;
-  border: 1.5px solid var(--gold-500);
-  /* 動画素材が紙地 (クリーム) を含むため、内側はアイボリーで馴染ませる */
-  background: var(--ivory-bg);
-  box-shadow: var(--shadow-alco-glow);
-  padding: 14px; /* 内部のアルコを70〜75%サイズに収める */
-  margin: var(--sp-8) auto var(--sp-5);
-  overflow: hidden;
-}
-
-/* 金ボタン (共通) */
-.btn-gold {
-  width: 100%; height: 52px;
-  border-radius: var(--r-full);
-  background: linear-gradient(180deg, var(--gold-300) 0%, var(--gold-500) 45%, var(--gold-600) 100%);
-  color: var(--navy-900);
-  font-weight: 700; font-size: var(--fs-body); letter-spacing: 0.08em;
-  box-shadow: var(--shadow-gold-btn);
-  border: none;
-}
-.btn-gold:hover {
-  background: linear-gradient(180deg, #F7E3A0 0%, var(--gold-500) 50%, #C49334 100%);
-  box-shadow: 0 6px 20px rgba(217, 169, 60, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-}
-
-/* 画面枠 (レビュー用: 5画面を縦に並べる) */
-.screen {
-  min-height: 100dvh;
-  max-width: 430px;
-  min-width: 320px;
-  margin: 0 auto;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-.screen + .screen { border-top: 6px solid #05080F; }
 
 /* ============================================================
-   §2 画面1: ログイン (login-mock.png 準拠)
+   実装差分 (2026-08-23):
+   ① 動画素材は紙地の正方形を含むため、メダリオン内の動画は円形フィット
+   ② 静止imgは動画のフォールバック — 通常は非表示、モーション低減時のみ表示
    ============================================================ */
-.login { padding: 0 var(--page-x) var(--sp-6); justify-content: center; }
-.login-title {
-  font-family: var(--font-serif);
-  font-size: var(--fs-h1); font-weight: 700;
-  color: var(--cream-100);
-  letter-spacing: 0.05em;
-  line-height: var(--lh-tight);
-  text-align: center;
-  text-shadow: 0 0 20px rgba(217, 169, 60, 0.15); /* 金文字の微かな輝き */
-}
-.login-sub {
-  font-size: var(--fs-small); color: var(--gray-400);
-  text-align: center; margin-top: var(--sp-2);
-}
-.login-form { margin-top: var(--sp-6); }
-.input-label {
-  display: block; font-size: var(--fs-tiny); color: var(--gray-400);
-  letter-spacing: 0.1em; margin: 0 0 var(--sp-1) 2px;
-}
-.input {
-  width: 100%;
-  height: 52px;
-  padding: 0 var(--sp-4);
-  background: var(--navy-800);
-  border: 1px solid rgba(154, 163, 184, 0.25);
-  border-radius: var(--r-sm);
-  color: var(--cream-100);
-  font-family: var(--font-sans);
-  font-size: var(--fs-body);
-  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
-}
-.input::placeholder { color: var(--gray-500); }
-.input:focus {
-  outline: none;
-  border-color: var(--gold-500);
-  box-shadow: 0 0 0 1px var(--gold-500), 0 0 16px var(--gold-glow);
-}
-.field { position: relative; }
-.field + .field-label { margin-top: var(--sp-4); }
-.eye {
-  position: absolute; right: 4px; top: 0; height: 52px;
-  background: none; border: none; color: var(--gray-400); padding: 0 12px; line-height: 0;
-}
-.field .input { padding-right: 46px; }
-/* パスワード欄の下のエラー用スペース */
-.form-error {
-  min-height: 18px;
-  font-size: var(--fs-small); color: var(--error);
-  margin-top: var(--sp-1);
-}
-.login .btn-gold { margin-top: var(--sp-5); }
-.login-links {
-  display: flex; align-items: center; justify-content: center; gap: var(--sp-4);
-  margin-top: var(--sp-4);
-}
-.login-links a {
-  font-size: var(--fs-small); color: var(--gray-400); text-decoration: none;
-  transition: color var(--dur-fast);
-}
-.login-links a:hover { color: var(--gold-500); text-decoration: underline; }
-.login-links .vr { width: 1px; height: 12px; background: var(--gold-line-soft); flex: none; }
-/* 区切り線 + 中央の金二重線装飾 */
-.login-hr {
-  position: relative;
-  border: none; border-top: 1px solid var(--gold-line-soft);
-  width: 100%; margin: var(--sp-5) 0 0;
-}
-.login-hr::after {
-  content: ""; position: absolute; left: 50%; top: -2px; transform: translateX(-50%);
-  width: 24px; height: 3px;
-  border-top: 1px solid var(--gold-500); border-bottom: 1px solid var(--gold-500);
-}
-
-/* ============================================================
-   §2 画面2: ローディング (loading-mock.png 準拠)
-   ============================================================ */
-.loading { justify-content: center; align-items: center; text-align: center; padding: var(--sp-6) var(--page-x); }
-.progress-ring {
-  width: 200px; height: 200px;
-  border-radius: 50%;
-  border: 1px solid var(--gold-line);       /* 外側の二重金枠 */
-  outline: 1px solid var(--gold-line-soft);
-  outline-offset: 5px;
-  position: relative;
-  margin: 0 auto;
-}
-.progress-ring__arc {
-  position: absolute; inset: 6px;
-  border-radius: 50%;
-  background: conic-gradient(
-    var(--gold-500) calc(var(--progress, 0) * 1%),
-    rgba(217, 169, 60, 0.12) 0
-  );
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
-          mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
-  filter: drop-shadow(0 0 4px var(--gold-glow)); /* 進捗先端の光 */
-  transition: background 200ms linear;
-}
-.progress-ring__inner {
-  position: absolute; inset: 20px;
-  border-radius: 50%;
-  background: var(--ivory-bg); /* 動画の紙地と馴染ませる */
-  box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.25);
-  padding: 18px;
-  overflow: hidden;
-}
-.loading-title {
-  font-family: var(--font-serif); font-size: var(--fs-h2); font-weight: 700;
-  color: var(--cream-100); letter-spacing: 0.08em;
-  margin-top: var(--sp-6);
-}
-/* 「…」は点が順に点灯 (0.9s周期 ・ 0.3sずつ遅延) */
-.loading-title .dot { animation: dotBlink 0.9s ease-in-out infinite; }
-.loading-title .dot:nth-child(2) { animation-delay: 0.3s; }
-.loading-title .dot:nth-child(3) { animation-delay: 0.6s; }
-@keyframes dotBlink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
-.loading-pct {
-  font-family: var(--font-sans); font-size: 28px; font-weight: 700;
-  color: var(--gold-500); font-variant-numeric: tabular-nums;
-  margin-top: var(--sp-3);
-}
-.loading-brand {
-  position: absolute; bottom: 40px; left: 0; right: 0;
-  font-family: var(--font-serif); font-size: var(--fs-small);
-  color: var(--gray-500); letter-spacing: 0.3em;
-}
-
-/* ============================================================
-   §2 画面3: 採点結果 (result-mock.png 準拠)
-   ============================================================ */
-.result { background: var(--navy-900); }
-.result-hero {
-  position: relative; height: 40dvh; min-height: 250px;
-  display: grid; place-items: end center;
-  overflow: hidden;
-}
-.result-hero .alco-wrap { height: 180px; width: auto; aspect-ratio: 8 / 9; margin-bottom: var(--sp-8); }
-/* 紙吹雪 (§2 画面3: 12〜16個 ・ 金/紺/クリーム3色) */
-.confetti {
+.alco-medallion video.alco-fig {
   position: absolute;
-  width: 6px; height: 10px;
-  background: var(--gold-500);
-  animation: confetti-fall linear infinite;
-  opacity: 0.9;
-  top: 0;
+  left: 0; top: 0; width: 100%; height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  z-index: 1;
 }
-.confetti:nth-child(3n)   { background: var(--navy-600); width: 5px; height: 8px; }
-.confetti:nth-child(3n+1) { background: var(--gold-300); }
-.confetti:nth-child(4n)   { border-radius: 50%; width: 5px; height: 5px; }
-@keyframes confetti-fall {
-  0%   { transform: translateY(-20px) rotate(0deg) translateX(0); opacity: 0; }
-  10%  { opacity: 0.9; }
-  100% { transform: translateY(110%) rotate(720deg) translateX(30px); opacity: 0; }
+img.alco-fig.is-still { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  img.alco-fig.is-still { display: block; }
 }
-.result-sheet {
-  background: var(--navy-800);
-  border-radius: var(--r-lg) var(--r-lg) 0 0;
-  border-top: 1px solid var(--gold-line);
-  box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.5);
-  margin-top: -40px; /* ヒーローに重ねる */
-  padding: var(--sp-6) var(--page-x) var(--sp-8);
-  position: relative; z-index: 2;
-  flex: 1;
-}
-.result-tag {
-  display: inline-block; font-size: var(--fs-small); font-weight: 700; color: var(--gold-500);
-  border: 1px solid var(--gold-line); border-radius: var(--r-full); padding: 5px 14px;
-}
-.score-row { display: flex; align-items: center; gap: var(--sp-4); margin-top: var(--sp-2); }
-.score-num {
-  font-family: var(--font-serif); font-size: var(--fs-hero); font-weight: 700;
-  color: var(--gold-500); line-height: 1.15;
-  text-shadow: 0 0 30px rgba(217, 169, 60, 0.3);
-  font-variant-numeric: tabular-nums;
-}
-.score-num small { font-family: var(--font-serif); font-size: var(--fs-h2); color: var(--cream-100); font-weight: 700; }
-.rank-col { margin-left: auto; text-align: center; }
-.rank-badge {
-  width: 44px; height: 44px; border-radius: 50%; margin: 0 auto;
-  border: 1.5px solid var(--gold-500);
-  display: grid; place-items: center;
-  font-family: var(--font-serif); font-size: 28px; font-weight: 700; color: var(--gold-500);
-  background: radial-gradient(circle, rgba(217, 169, 60, 0.15), transparent);
-}
-.rank-delta {
-  display: inline-flex; align-items: center; gap: 3px;
-  font-size: var(--fs-small); font-weight: 700; color: var(--success);
-  margin-top: var(--sp-2); font-variant-numeric: tabular-nums;
-}
-.rank-delta::before { content: "▲"; font-size: 0.8em; }
-.meters { display: flex; gap: var(--sp-5); }
-.meter { margin-top: var(--sp-4); flex: 1; }
-.meter__label { display: flex; justify-content: space-between; font-size: var(--fs-small); color: var(--gray-400); }
-.meter__label b { color: var(--cream-100); font-variant-numeric: tabular-nums; }
-.meter__track {
-  height: 6px; border-radius: 3px;
-  background: rgba(154, 163, 184, 0.15);
-  overflow: hidden;
-  margin-top: var(--sp-2);
-}
-.meter__fill {
-  height: 100%;
-  border-radius: 3px;
-  background: linear-gradient(90deg, var(--gold-600), var(--gold-500) 70%, var(--gold-300));
-  box-shadow: 0 0 8px var(--gold-glow); /* バーの発光 */
-  width: 0;
-  animation: meter-grow 1.2s var(--ease-out) 0.3s forwards;
-}
-@keyframes meter-grow { to { width: var(--value); } }
-.letter-card {
-  background: linear-gradient(180deg, #F9F4E8, var(--cream-200));
-  border-radius: var(--r-md);
-  box-shadow: var(--shadow-paper);
-  padding: var(--sp-5);
-  margin-top: var(--sp-5);
-  position: relative;
-  /* 紙の質感: 薄い横筋 */
-  background-image: repeating-linear-gradient(0deg, transparent 0 27px, rgba(22, 41, 79, 0.04) 27px 28px);
-}
-.letter-card::before {
-  content: ""; position: absolute; top: 10px; left: 10px;
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--gold-500);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-.letter-card p {
-  font-family: var(--font-serif);
-  font-size: var(--fs-body); line-height: var(--lh-body);
-  color: #2A3450; /* 紙の上は濃紺インク */
-}
-.letter-card .sign { text-align: right; color: #6B6455; font-size: var(--fs-small); font-family: var(--font-serif); margin-top: var(--sp-1); }
-.result-btns { display: flex; gap: var(--sp-3); margin-top: var(--sp-5); }
-.btn-outline {
-  flex: 1; height: 48px; border-radius: var(--r-full);
-  border: 1px solid var(--gold-line); background: transparent;
-  color: var(--gold-500); font-weight: 700; font-size: var(--fs-body);
-  transition: background var(--dur-fast);
-}
-.btn-outline:hover { background: rgba(217, 169, 60, 0.1); }
-.result-btns .btn-gold { flex: 1; height: 48px; }
-
-/* ============================================================
-   §2 画面4: ホーム (home-mock.png 準拠)
-   ============================================================ */
-.home { padding: 0 0 0; }
-.home-head {
-  display: flex; align-items: flex-start; gap: var(--sp-3);
-  padding: var(--sp-8) var(--page-x) 0;
-}
-.home-greet h1 { font-family: var(--font-serif); font-size: var(--fs-h1); font-weight: 700; color: var(--cream-100); text-wrap: balance; }
-.home-greet .date { font-size: var(--fs-small); color: var(--gray-400); margin-top: var(--sp-1); }
-/* 右上のアルコ小バッジ (88px ・ 01C) */
-.home-head .alco-badge { width: 88px; height: 88px; padding: 10px; margin: 0 0 0 auto; flex: none; }
-.home-cards { padding: var(--sp-5) var(--page-x) 96px; display: flex; flex-direction: column; gap: var(--sp-4); }
-.hcard {
-  background: linear-gradient(160deg, var(--navy-700), var(--navy-800));
-  border: 1px solid var(--gold-line);
-  border-radius: var(--r-md);
-  box-shadow: var(--shadow-card);
-  padding: var(--sp-4) var(--sp-5);
-}
-.hlabel { font-size: var(--fs-tiny); font-weight: 700; letter-spacing: 0.14em; color: var(--gold-500); }
-.rank-row { display: flex; align-items: center; gap: var(--sp-3); }
-.rank-name { font-family: var(--font-serif); font-size: var(--fs-h2); font-weight: 700; margin-top: var(--sp-2); }
-.star-row { color: var(--gold-500); font-size: 18px; letter-spacing: 0.12em; margin-top: var(--sp-2); }
-.star-row .off { color: rgba(154, 163, 184, 0.4); }
-.lv-wrap { margin-left: auto; flex: none; position: relative; width: 70px; height: 70px; }
-.lv-ring {
-  position: absolute; inset: 0; border-radius: 50%;
-  background: conic-gradient(var(--gold-500) 70%, rgba(217, 169, 60, 0.14) 0);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
-          mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
-}
-.lv-text { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-serif); font-weight: 700; font-size: var(--fs-h2); }
-.rank-next { display: flex; justify-content: space-between; font-size: var(--fs-small); color: var(--gray-400); margin-top: var(--sp-3); }
-.rank-next b { color: var(--gold-500); }
-.hcard .meter__track { margin-top: var(--sp-2); }
-.song-meta { font-size: var(--fs-small); color: var(--gray-400); margin-top: var(--sp-2); }
-.song-row { display: flex; align-items: center; gap: var(--sp-3); }
-.song-name { font-family: var(--font-serif); font-size: var(--fs-h2); font-weight: 700; margin-top: var(--sp-2); }
-.star-pill {
-  margin-left: auto; flex: none;
-  background: linear-gradient(180deg, var(--gold-300), var(--gold-500) 60%, var(--gold-600));
-  color: var(--navy-900); font-weight: 700; font-size: var(--fs-small);
-  border-radius: var(--r-full); padding: 6px 12px;
-  box-shadow: var(--shadow-gold-btn);
-}
-.quote-card {
-  background: linear-gradient(180deg, #F9F4E8, var(--cream-200));
-  color: #2A3450;
-  border-radius: var(--r-md); padding: var(--sp-4) var(--sp-5);
-  font-family: var(--font-serif); font-weight: 700; font-size: 15px; line-height: var(--lh-body);
-  box-shadow: var(--shadow-paper);
-}
-.quote-card .who { display: block; text-align: right; font-size: var(--fs-small); color: #6B6455; margin-top: var(--sp-1); }
-.tabbar {
-  position: sticky; bottom: 0; margin-top: auto;
-  display: flex;
-  background: var(--navy-800);
-  border-top: 1px solid var(--gold-line-soft);
-  padding: var(--sp-2) 0 max(var(--sp-2), env(safe-area-inset-bottom));
-}
-.tabbar a { flex: 1; text-align: center; text-decoration: none; color: var(--gray-400); font-size: var(--fs-tiny); font-weight: 700; }
-.tabbar a .ic { display: block; font-size: 19px; line-height: 1.4; }
-.tabbar a.on { color: var(--gold-500); }
-
-/* ============================================================
-   §2 画面5: エラー・空状態 (empty-mock.png 準拠)
-   ============================================================ */
-.empty { background: var(--navy-900); }
-.empty-hero {
-  position: relative; flex: none;
-  display: grid; place-items: center;
-  padding: var(--sp-6) var(--page-x) var(--sp-5);
-  min-height: 46dvh;
-}
-.empty-hero .alco-wrap { height: 200px; aspect-ratio: 1; }
-.empty-panel {
-  flex: 1;
-  background: var(--navy-900);
-  padding: var(--sp-6) var(--sp-5) calc(var(--sp-8) + env(safe-area-inset-bottom));
-  text-align: center;
-}
-/* 見出しの上の装飾: 幅24pxの金二重線 */
-.empty-deco {
-  width: 24px; height: 3px; margin: 0 auto var(--sp-4);
-  border-top: 1px solid var(--gold-500); border-bottom: 1px solid var(--gold-500);
-}
-.empty-title { font-family: var(--font-serif); font-size: var(--fs-h1); font-weight: 700; color: var(--cream-100); text-align: center; }
-.empty-body { font-size: var(--fs-body); color: var(--gray-400); text-align: center; line-height: var(--lh-body); margin-top: var(--sp-3); }
-.empty-panel .btn-gold { max-width: 320px; margin: var(--sp-5) auto 0; display: block; }
-
-/* 画面5のヒーローは水彩 (hero-watercolor を併用) */
-.empty .hero-watercolor { border-radius: 0 0 var(--r-lg) var(--r-lg); }
