@@ -411,7 +411,17 @@ export default function RevealMotion() {
         }, 1000)
       }
     }
-    const t0 = window.setTimeout(prepareAll, 40)
+    // 描画済みの状態から隠すときは v5 と同じく必ず noTx の中で行う (規約6条)。
+    // クライアント遷移では要素が見えたまま data-rv が付くため、素のままだと
+    // 隠し(opacity 0)が transition (0.62s+遅延) 越しにゆっくり効き、隠れる前に
+    // reveal が来て立ち上がりが見えなくなる (2026-08-22 Tetsuo指摘の真因)
+    const t0 = window.setTimeout(() => {
+      const m0 = main()
+      m0.classList.add("rv-notx")
+      prepareAll()
+      void m0.offsetWidth
+      requestAnimationFrame(() => m0.classList.remove("rv-notx"))
+    }, 40)
 
     // 発火済みブロックへ後から入った中身 (fetch後の達成条件・基礎練・リング等) は
     // 「そのブロックを再生し直す」。手順は原本 v5 reset()/play() と1対1 (2026-08-21 是正):
@@ -449,17 +459,26 @@ export default function RevealMotion() {
     // 遅延描画 (fetch後のブロック / data-anim 部品) を拾う
     const mo = new MutationObserver((muts) => {
       const hosts = new Set<HTMLElement>()
+      const fresh: HTMLElement[] = []
       for (const m of muts) {
         for (const node of m.addedNodes) {
           if (!(node instanceof HTMLElement)) continue
           if (node.classList.contains("rv-star")) continue
-          if (node.matches?.(SEL)) prepare(node)
-          node.querySelectorAll?.<HTMLElement>(SEL).forEach((b) => prepare(b))
+          if (node.matches?.(SEL)) fresh.push(node)
+          node.querySelectorAll?.<HTMLElement>(SEL).forEach((b) => fresh.push(b))
           // data-anim 部品を含む中身が入ったブロックだけ再生し直す
           // (アルコのポーズ替え等、演出部品を含まない差し替えでは再生しない)
           const host = node.closest?.("[data-rv].rv-on") as HTMLElement | null
           if (host && (node.matches?.("[data-anim]") || node.querySelector?.("[data-anim]"))) hosts.add(host)
         }
+      }
+      // 遅延描画のブロックも「noTx の中で隠す → 次のフレームで動きを戻す」(手順1対1)
+      if (fresh.length) {
+        const m0 = main()
+        m0.classList.add("rv-notx")
+        fresh.forEach((b) => prepare(b))
+        void m0.offsetWidth
+        requestAnimationFrame(() => m0.classList.remove("rv-notx"))
       }
       hosts.forEach(replay)
     })

@@ -94,16 +94,31 @@ function StaggerRail({ children, onboarding }: { children: React.ReactNode; onbo
       notx = false
       for (const el of wrap.children) (el as HTMLElement).style.transition = ""
     }
+    // フリックの慣性滑走 (2026-08-22 Tetsuo指摘「フリック速度が乗らず重い」で追加 ・
+    // リバイス12追補)。iOS 風の指数減衰 τ=325ms。端で停止 (バウンスなし)。
+    let glideV = 0 // px/s
     const tick = () => {
       const now = performance.now()
       const dt = lastT ? Math.min(0.032, (now - lastT) / 1000) : 0.016
       lastT = now
+      if (!dragging && glideV !== 0) {
+        let x = railX + glideV * dt
+        const m = maxX()
+        if (x <= 0) { x = 0; glideV = 0 }
+        else if (x >= m) { x = m; glideV = 0 }
+        else {
+          glideV *= Math.exp(-dt / 0.325)
+          if (Math.abs(glideV) < 40) glideV = 0
+        }
+        if (x !== railX) dir = x > railX ? 1 : -1
+        railX = x
+      }
       record(railX)
       const cards = [...wrap.children] as HTMLElement[]
       const w = cardW()
       const firstVis = Math.max(0, Math.floor(railX / w))
       const lastVis = Math.min(cards.length - 1, Math.ceil((railX + wrap.clientWidth) / w))
-      let active = dragging
+      let active = dragging || glideV !== 0
       // 硬いばね (減衰係数/質量 = 111/s) は 1 フレーム一括の Euler だと発散するため、
       // 4ms の固定サブステップで積分する (最大 8 回/フレーム)
       const n = Math.max(1, Math.ceil(dt / 0.004))
@@ -139,12 +154,17 @@ function StaggerRail({ children, onboarding }: { children: React.ReactNode; onbo
       else if (x > m) x = m + (x - m) * ELASTIC
       if (x !== railX) dir = x > railX ? 1 : -1
       railX = x
+      // 履歴は tick 任せにしない: 速いフリックは tick が1回も回る前に終わるため、
+      // tick だけの記録だと解放時速度が 0 と誤判定され慣性が乗らない (2026-08-22 実測)
+      record(x)
       wake()
     }
     const down = (e: PointerEvent) => {
       if (e.pointerType === "mouse" && e.button !== 0) return
       pid = e.pointerId; sx = e.clientX; sy = e.clientY
       startRail = railX; decided = false; dragging = false
+      glideV = 0 // 触れたら滑走停止 (iOS流)
+      record(railX) // 速度算出の基準点。move が1発に合体しても履歴が2点になり速度が出る
       suppressClick.current = false
     }
     const move = (e: PointerEvent) => {
@@ -169,8 +189,11 @@ function StaggerRail({ children, onboarding }: { children: React.ReactNode; onbo
       pid = -1
       if (dragging) {
         dragging = false
-        // 慣性なし。端の弾み分だけ枠内へ戻す
+        // 端の弾み分は枠内へ戻し、フリック速度 (直近80msの平均) を慣性滑走に乗せる
         railX = Math.max(0, Math.min(maxX(), railX))
+        const now = performance.now()
+        const v = (railX - at(now - 100)) / 0.1 // 直近100msの平均速度 (iOS相当)
+        glideV = Math.abs(v) > 300 ? v : 0
         wake()
       }
     }
