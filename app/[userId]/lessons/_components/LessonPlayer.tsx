@@ -312,9 +312,10 @@ export default function LessonPlayer({
   }
 
   // ── 画面 ──────────────────────────────────────────────────────────
+  // 2026-08-22 ダーク化 (補02〜11): カテゴリ色をやめ操作の紺一族に固定 (配色ルール 2026-08-16)
   const themeStyle = {
-    "--theme": theme.theme,
-    "--theme-light": theme.light,
+    "--theme": "#2b5bc4",
+    "--theme-light": "rgba(255,255,255,.16)",
   } as React.CSSProperties
 
   // スライド2〜4の仮図解 (S1/S5の譜面はLessonScoreCardが担当)。間違い(❌)はFigMarkで
@@ -463,7 +464,7 @@ export default function LessonPlayer({
     <div className={styles.stage}>
       <div className={styles.frame} style={themeStyle}>
         {screen === "INTRO" && (
-          <div className={styles.pl}>
+          <div className={`${styles.pl} ${styles.plIntro}`}>
             <button
               type="button"
               className={`${styles.backC} ${styles.backCLight}`}
