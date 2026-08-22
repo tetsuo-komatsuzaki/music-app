@@ -3,7 +3,7 @@
 // 生徒ごとに 今週の練習/カルテ枚数 + 返し待ちバッジ(宿題提出+聴いてほしい依頼) + カルテを見るボタン。
 // role!==teacher は生徒ホームへ redirect。別シェル(TeacherShell)内で描画される。
 import Link from "next/link"
-import { UserRound } from "lucide-react"
+import ds from "@/app/components/ds.module.css"
 import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
@@ -25,9 +25,6 @@ function topWeakName(analysisSummary: unknown): string | null {
 
 export const metadata = { title: "先生モード" }
 
-const NAVY = "#22346b"
-const SOFT = "#f5f7fa"
-const LINE = "#e6e9ef"
 
 function sinceDays(days: number): Date {
   return new Date(Date.now() - days * 86400000)
@@ -113,64 +110,66 @@ export default async function TeacherHomePage({
 
   return (
     <div>
-      {/* 紺ヘッダー (モック画面1) */}
-      <div style={{ background: NAVY, color: "#eaf0fb", borderRadius: 16, padding: "14px 16px 13px", marginBottom: 12 }}>
+      {/* 紺グラデヘッダー (原本 先01 HEAD) */}
+      <div style={{ background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", borderRadius: 16, padding: "16px 18px 14px", marginBottom: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", letterSpacing: ".08em" }}>ARCODA 先生</div>
-            <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "2px 0 0", color: "#fff" }}>生徒一覧</h1>
-
-          </div>
-          <span style={{ marginLeft: "auto", display: "flex", gap: 6, flex: "none" }}>
-            <Link href={`/${userId}/teacher/schedule`} style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#dbe4f2", background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.18)", borderRadius: 999, padding: "5px 11px", textDecoration: "none" }}>
-              レッスン枠
-            </Link>
-            <Link href={`/${userId}/teacher/profile`} style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#dbe4f2", background: "rgba(255,255,255,.1)", border: "1px solid rgba(255,255,255,.18)", borderRadius: 999, padding: "5px 11px", textDecoration: "none" }}>
-              プロフィール
-            </Link>
-          </span>
+          <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: ".2em", color: "#a9c3f2" }}>ARCODA 先生</div>
+          <span style={{ marginLeft: "auto", fontSize: 10, fontWeight: 800, color: "#fff", background: "rgba(255,255,255,.16)", border: "1px solid rgba(255,255,255,.2)", borderRadius: 999, padding: "3px 10px", flex: "none" }}>先生モード</span>
         </div>
+        <h1 style={{ fontSize: 22, fontWeight: 900, margin: "2px 0 0", color: "#fff" }}>生徒一覧</h1>
       </div>
 
       {links.length === 0 ? (
-        <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: "18px 0", textAlign: "center" }}>
+        <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", padding: "18px 0", textAlign: "center" }}>
           まだ生徒がいません。下の招待コードを生徒に伝えてください。
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 22 }}>
-          {links.map((l) => {
-            const wait = waitCount.get(l.student.id) ?? 0
-            const week = weekCount.get(l.student.id) ?? 0
-            return (
-              <div key={l.student.id}
-                style={{ background: "#fff", border: `1px solid ${LINE}`, borderRadius: 14, padding: "12px 14px", boxShadow: "0 1px 3px rgba(30,45,70,.05)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <UserRound size={20} color="#8ba0c4" aria-hidden style={{ flex: "none" }} />
-                  <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: "var(--text-ink)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {l.student.name}
+        links.map((l) => {
+          const wait = waitCount.get(l.student.id) ?? 0
+          const week = weekCount.get(l.student.id) ?? 0
+          const state = week === 0 ? "none" : wait > 0 ? "wait" : "ok"
+          const col = state === "ok" ? "#a8c97f" : state === "none" ? "#e8a78f" : "var(--gold)"
+          return (
+            <Link key={l.student.id} href={`/${userId}/teacher/students/${l.student.id}`} className={`${ds.card} pressable`}
+              style={{ display: "block", padding: "13px 15px", textDecoration: "none", color: "inherit" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 11 }}>
+                <span style={{ width: 42, height: 42, borderRadius: "50%", flex: "none", display: "grid", placeItems: "center", background: "linear-gradient(150deg,#2a3f6b,#1b2b4c)", color: "#7fa4e8", fontSize: 15, fontWeight: 900 }}>
+                  {(l.student.name ?? "生").slice(0, 1)}
+                </span>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <b style={{ fontSize: 14.5, display: "block", color: "var(--text-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.student.name}</b>
+                  <span style={{ fontSize: 10.5, color: "var(--text-muted)" }}>
+                    {daysAgoLabel(lastByStudent.get(l.student.id) ?? null)}{week > 0 ? ` ・ ${week}回` : ""}
                   </span>
-                  {/* 返し待ちバッジは個別の生徒カルテへ移設 (2026-08-11 Tetsuo確定) */}
-                </div>
-                <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 5 }}>
-                  今週 練習 <b style={{ color: "var(--text-ink)" }}>{week}</b>回 ・ 直近 {daysAgoLabel(lastByStudent.get(l.student.id) ?? null)}
-                </div>
-                {aiLine.get(l.student.id) && (
-                  <div style={{ fontSize: "var(--fs-caption)", color: "#4a4066", background: "#f6f4ff", border: "1px solid #e7dcfb", borderRadius: 8, padding: "6px 9px", marginTop: 7, lineHeight: 1.55 }}>
-                    {aiLine.get(l.student.id)}
-                  </div>
+                </span>
+                {wait > 0 && (
+                  <span style={{ flex: "none", fontSize: 10, fontWeight: 800, color: "var(--gold)", background: "rgba(232,178,60,.14)", borderRadius: 999, padding: "3px 9px", fontVariantNumeric: "tabular-nums" }}>{wait}</span>
                 )}
-                <Link href={`/${userId}/teacher/students/${l.student.id}`}
-                  style={{ display: "block", textAlign: "center", marginTop: 9, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: NAVY, borderRadius: 9, padding: "9px 0", textDecoration: "none" }}>
-                  カルテを見る →
-                </Link>
-              </div>
-            )
-          })}
-        </div>
+                <span aria-hidden style={{ flex: "none", color: "var(--text-sub)", fontWeight: 800 }}>→</span>
+              </span>
+              <span style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, paddingTop: 9, borderTop: "1px solid rgba(150,175,225,.09)" }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: col, flex: "none" }} />
+                <span style={{ fontSize: 11, color: col, fontWeight: 800, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {aiLine.get(l.student.id) ?? "今週も練習中。順調そう。"}
+                </span>
+              </span>
+            </Link>
+          )
+        })
       )}
 
-      <div style={{ background: SOFT, borderRadius: 14, padding: 2 }}>
-        <InviteCodeCard />
+      <InviteCodeCard />
+
+      {/* プロフィール / レッスン枠 (原本 先01: grid2) */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
+        <Link href={`/${userId}/teacher/profile`} className={`${ds.card} pressable`} style={{ margin: 0, padding: 14, textDecoration: "none", display: "block" }}>
+          <b style={{ fontSize: 13.5, display: "block", color: "var(--text-ink)" }}>プロフィール</b>
+          <span style={{ fontSize: 10.5, color: "var(--text-sub)" }}>先生を探すに載る内容</span>
+        </Link>
+        <Link href={`/${userId}/teacher/schedule`} className={`${ds.card} pressable`} style={{ margin: 0, padding: 14, textDecoration: "none", display: "block" }}>
+          <b style={{ fontSize: 13.5, display: "block", color: "var(--text-ink)" }}>レッスン枠</b>
+          <span style={{ fontSize: 10.5, color: "var(--text-sub)" }}>空き枠と予約</span>
+        </Link>
       </div>
     </div>
   )
