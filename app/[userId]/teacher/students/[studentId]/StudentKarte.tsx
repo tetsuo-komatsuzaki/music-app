@@ -127,21 +127,21 @@ export default function StudentKarte({
   return (
     // 先生カルテv3 (2026-08-11): モック(teacher-all-screens)準拠のダッシュボード基調。
     // 紺ヘッダー + 白タブバー + ソフトグレー地。
-    <div style={{ background: "#f5f7fa", border: "1px solid #e6e9ef", borderRadius: 18, overflow: "hidden", color: "var(--text-ink)" }}>
-      <div style={{ background: "#22346b", color: "#eaf0fb", padding: "13px 15px 12px" }}>
-        <Link href={`/${userId}/teacher`} style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", textDecoration: "none" }}>← 生徒一覧</Link>
+    <div style={{ background: "linear-gradient(180deg, var(--card-a), var(--card-b))", border: "1px solid var(--line)", borderRadius: 18, overflow: "hidden", color: "var(--text-ink)" }}>
+      <div style={{ background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", color: "#eaf0fb", padding: "13px 15px 12px" }}>
+        <Link href={`/${userId}/teacher`} style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#a9c3f2", textDecoration: "none" }}>← 生徒一覧</Link>
         <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 900, margin: "3px 0 0", color: "#fff", display: "flex", alignItems: "center", gap: 8 }}>
-          {studentName} <span style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#9fb2dd", letterSpacing: ".12em" }}>STUDENT</span>
+          {studentName} <span style={{ fontSize: "var(--fs-label)", fontWeight: 700, color: "#a9c3f2", letterSpacing: ".12em" }}>STUDENT</span>
           {(assignments.filter((a) => a.submitted && !a.done && a.scoreId).length + listenRequests.length) > 0 && (
             <button type="button" onClick={() => setTab("summary")}
-              style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "#fff", background: "#cf4638", border: "none", borderRadius: 999, padding: "2px 9px", cursor: "pointer" }}>
+              style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "#fff", background: "#e8697a", border: "none", borderRadius: 999, padding: "2px 9px", cursor: "pointer" }}>
               返し待ち{assignments.filter((a) => a.submitted && !a.done && a.scoreId).length + listenRequests.length}
             </button>
           )}
         </h1>
       </div>
 
-      <div style={{ display: "flex", gap: 4, background: "#eef1f6", borderBottom: "1px solid #e6e9ef", padding: "7px 10px" }}>
+      <div style={{ display: "flex", gap: 4, background: "#0e1830", borderBottom: "1px solid rgba(150,175,225,.12)", padding: "7px 10px" }}>
         {([["summary", "まとめ"], ["karte", "練習後カルテ"], ["growth", "成長カルテ"], ["passed", "合格の履歴"]] as const).map(([k, label]) => (
           <button
             key={k}
@@ -149,9 +149,9 @@ export default function StudentKarte({
             onClick={() => setTab(k)}
             style={{
               flex: 1, border: "none",
-              background: tab === k ? "#fff" : "transparent",
-              color: tab === k ? "#22346b" : "#8b97a8",
-              boxShadow: tab === k ? "0 1px 3px rgba(30,40,70,.12)" : "none",
+              background: tab === k ? "rgba(232,178,60,.16)" : "transparent",
+              color: tab === k ? "var(--gold)" : "var(--text-sub)",
+              boxShadow: tab === k ? "inset 0 0 0 1px rgba(232,178,60,.34)" : "none",
               borderRadius: 8, padding: "7px 0", fontSize: "var(--fs-caption)", fontWeight: 900, cursor: "pointer",
             }}
           >
@@ -190,9 +190,9 @@ export default function StudentKarte({
   )
 }
 
-const kScoreColor = (n: number) => (n >= 90 ? "#2e8b57" : n >= 70 ? "#b7823a" : "#c0473a")
+const kScoreColor = (n: number) => (n >= 90 ? "#a8c97f" : n >= 70 ? "#e0b25c" : "#e8a78f")
 const kSec: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-master)", margin: "14px 2px 8px", display: "flex", alignItems: "center", gap: 6 }
-const kCat: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "#f7f8fa", border: "1px solid #eef1f4", borderRadius: 999, padding: "1px 7px", flex: "none" }
+const kCat: React.CSSProperties = { fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)", background: "rgba(150,175,225,.08)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 999, padding: "1px 7px", flex: "none" }
 
 /* ═ 主役①: まとめ (上達状況＋アルコの診断)。強み/弱みは生徒側「記録の分析」と同じ土俵=音×成功率・直近2週間 ═ */
 function SummaryTab({ userId, studentId, briefing, working, recordings, remarks, worstNotes, bestNotes, heatmap, fbMarks, weekly, listenRequests, assignments, karte, allScoreTargets, allItemTargets, observations }: {
@@ -204,7 +204,7 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
 }) {
   const weak3 = worstNotes.slice(0, 3)
   void bestNotes // とくい一覧は指板ヒートマップに置換 (緑セル=とくい)
-  const rmView = (s: RemarkTrack["status"]) => s === "improved" ? { mk: "✓", c: "#158253", t: "直ってきた" } : s === "improving" ? { mk: "△", c: "#c07a1e", t: "改善中" } : s === "stalled" ? { mk: "×", c: "#bb3a2e", t: "停滞" } : { mk: "…", c: "#8b97a8", t: "判定中" }
+  const rmView = (s: RemarkTrack["status"]) => s === "improved" ? { mk: "✓", c: "#a8c97f", t: "直ってきた" } : s === "improving" ? { mk: "△", c: "#e0b25c", t: "改善中" } : s === "stalled" ? { mk: "×", c: "#e8697a", t: "停滞" } : { mk: "…", c: "var(--text-sub)", t: "判定中" }
   const noteSub: React.CSSProperties = { fontSize: "var(--fs-label)", color: "var(--text-sub)" }
   const notePct: React.CSSProperties = { marginLeft: "auto", flex: "none", fontWeight: 900, fontVariantNumeric: "tabular-nums" }
   // すべての「カルテを書く」導線はカルテ入力画面 (karte/write) に統一 (2026-08-11 Tetsuo指摘)
@@ -224,19 +224,19 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
         <WeeklySummaryCard data={weekly} karteTabHref={`/${userId}/teacher/students/${studentId}?tab=karte`} />
       ) : (
         <div style={{ background: "#eef2fb", border: "1px solid #dbe4f5", borderRadius: 12, padding: "10px 13px", marginBottom: 4 }}>
-          <div style={{ fontSize: "var(--fs-caption)", color: "#3a4a68" }}>直近7日の練習 <b>{briefing.practiceCount7d}</b>回</div>
+          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>直近7日の練習 <b>{briefing.practiceCount7d}</b>回</div>
         </div>
       )}
 
       {/* 生徒が「見てほしい」と送った演奏 (丁寧に聴いて返す) */}
       {listenRequests.map((r) => (
-        <div key={r.id} style={{ background: "#fff8ec", border: "1px solid #f0dcb4", borderRadius: 12, padding: "10px 12px", marginTop: 10 }}>
-          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#a9741c", display: "flex", alignItems: "center", gap: 5 }}><Ear size={12} /> 生徒が「見てほしい」と送った演奏</div>
+        <div key={r.id} style={{ background: "rgba(232,178,60,.09)", border: "1px solid #f0dcb4", borderRadius: 12, padding: "10px 12px", marginTop: 10 }}>
+          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--gold)", display: "flex", alignItems: "center", gap: 5 }}><Ear size={12} /> 生徒が「見てほしい」と送った演奏</div>
           <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 6 }}>
             <b style={{ fontSize: "var(--fs-body)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.title}</b>
             <span style={{ marginLeft: "auto", flex: "none", fontWeight: 900, color: r.avg != null ? kScoreColor(r.avg) : "var(--text-muted)" }}>{r.avg ?? "—"}</span>
           </div>
-          <Link href={writeHref("score", r.scoreId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#a9741c", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
+          <Link href={writeHref("score", r.scoreId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "var(--gold)", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
             練習後カルテを書いて渡す →
           </Link>
         </div>
@@ -244,16 +244,16 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
 
       {/* 返し待ちの宿題 (出した→生徒がやった→先生が返す番) */}
       {submittedHw.map((a) => (
-        <div key={a.id} style={{ background: "#fbfcff", border: "1px solid #d6e0f5", borderRadius: 12, padding: "10px 12px", marginTop: 10 }}>
-          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#3b56d4", display: "flex", alignItems: "center", gap: 5 }}><Library size={12} /> 宿題の提出 ・ 先生が返す番</div>
+        <div key={a.id} style={{ background: "var(--card-in)", border: "1px solid #d6e0f5", borderRadius: 12, padding: "10px 12px", marginTop: 10 }}>
+          <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#7fa4e8", display: "flex", alignItems: "center", gap: 5 }}><Library size={12} /> 宿題の提出 ・ 先生が返す番</div>
           <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 6 }}>
             <b style={{ fontSize: "var(--fs-body)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.targetTitle}</b>
             <span style={{ marginLeft: "auto", flex: "none", fontWeight: 900, color: a.submittedScore != null ? kScoreColor(a.submittedScore) : "var(--text-muted)" }}>{a.submittedScore != null ? `${a.submittedScore}点` : "提出済み"}</span>
           </div>
-          {a.moodTagId && <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#a9741c", marginTop: 3 }}>目標: {moodTagPhrase(a.moodTagId)}</div>}
+          {a.moodTagId && <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--gold)", marginTop: 3 }}>目標: {moodTagPhrase(a.moodTagId)}</div>}
           {/* 合格ボタンはここに置かない (演奏詳細を見ないと判断できない)。合格は練習後カルテ最下部で */}
           {a.scoreId && (
-            <Link href={writeHref("score", a.scoreId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#3b56d4", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
+            <Link href={writeHref("score", a.scoreId)} style={{ display: "block", textAlign: "center", marginTop: 8, fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#7fa4e8", borderRadius: 8, padding: "8px 0", textDecoration: "none" }}>
               練習後カルテを書いて渡す →
             </Link>
           )}
@@ -268,17 +268,17 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
           const mastered = achvMap.get(w.title)
           const delta = w.avg - w.first
           const badge = mastered === true
-            ? { t: "マスター", c: "#b5651d", bg: "#fdf3df" }
+            ? { t: "マスター", c: "var(--gold)", bg: "rgba(232,178,60,.12)" }
             : mastered === false
-              ? { t: "達成", c: "#158253", bg: "#e9f8f0" }
+              ? { t: "達成", c: "#a8c97f", bg: "#e9f8f0" }
               : w.count >= 2 && delta >= 3
-                ? { t: "改善 ↑", c: "#158253", bg: "#e9f8f0" }
+                ? { t: "改善 ↑", c: "#a8c97f", bg: "#e9f8f0" }
                 : w.count >= 2 && delta <= -3
-                  ? { t: "下降 ↓", c: "#bb3a2e", bg: "#fdeceb" }
+                  ? { t: "下降 ↓", c: "#e8697a", bg: "#fdeceb" }
                   : null
           return (
             <Link key={i} href={w.targetId ? writeHref(w.kind, w.targetId) : `/${userId}/teacher/students/${studentId}?tab=karte`}
-              style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 11, padding: "9px 12px", marginBottom: 7, display: "flex", alignItems: "center", gap: 9, textDecoration: "none", color: "var(--text-ink)" }}>
+              style={{ background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 11, padding: "9px 12px", marginBottom: 7, display: "flex", alignItems: "center", gap: 9, textDecoration: "none", color: "var(--text-ink)" }}>
               <span style={kCat}>{w.cat}</span>
               <span style={{ minWidth: 0 }}>
                 <b style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{w.title}</b>
@@ -290,7 +290,7 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
               </span>
               {badge && <span style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: badge.c, background: badge.bg, borderRadius: 999, padding: "2px 9px" }}>{badge.t}</span>}
               <span style={{ marginLeft: badge ? 0 : "auto", fontSize: "var(--fs-subhead)", fontWeight: 900, color: kScoreColor(w.avg), flex: "none" }}>{w.avg}</span>
-              <span style={{ flex: "none", color: "#b6bfca" }}>›</span>
+              <span style={{ flex: "none", color: "var(--text-muted)" }}>›</span>
             </Link>
           )
         })
@@ -300,8 +300,8 @@ function SummaryTab({ userId, studentId, briefing, working, recordings, remarks,
           音程マップはカルテタブのふりかえる側・成長カルテ詳細で見る */}
       {/* 指導メニュー (宿題を出す)。表現認定は「その曲の練習後カルテ詳細」に移設 (2026-08-11 Tetsuo指摘) */}
       <div style={kSec}>指導メニュー</div>
-      <details style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 12, marginBottom: 8 }}>
-        <summary style={{ cursor: "pointer", padding: "11px 13px", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#22346b" }}>宿題を出す・やりとり中の宿題</summary>
+      <details style={{ background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 12, marginBottom: 8 }}>
+        <summary style={{ cursor: "pointer", padding: "11px 13px", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#2b5bc4" }}>宿題を出す・やりとり中の宿題</summary>
         <div style={{ padding: "0 6px 6px" }}>
           <Homework studentId={studentId} scoreTargets={allScoreTargets} itemTargets={allItemTargets} assignments={assignments} />
         </div>
@@ -354,7 +354,7 @@ function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }
     const ks = kartesByTitle.get(title) ?? []
     return (
       <>
-        <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#22346b", margin: "2px 0 6px" }}>
+        <div style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#2b5bc4", margin: "2px 0 6px" }}>
           練習後カルテ・{ks.length}枚
         </div>
         {ks.length === 0 ? (
@@ -362,10 +362,10 @@ function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 8 }}>
             {ks.map((k) => (
-              <div key={k.id} style={{ background: "#fbfcfe", border: "1px solid #e6e9ef", borderRadius: 10, padding: "8px 11px" }}>
+              <div key={k.id} style={{ background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 10, padding: "8px 11px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)" }}>{k.date}</span>
-                  <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: k.read ? "#2f9e63" : "#b58a1e" }}>{k.read ? "既読" : "未読"}</span>
+                  <span style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: k.read ? "#a8c97f" : "var(--gold)" }}>{k.read ? "既読" : "未読"}</span>
                 </div>
                 <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-body)", marginTop: 4, lineHeight: 1.65, whiteSpace: "pre-wrap" }}>{k.body}</div>
               </div>
@@ -374,7 +374,7 @@ function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }
         )}
         {targetId && (
           <Link href={`/${userId}/teacher/students/${studentId}/karte/write?kind=${kind}&target=${targetId}`}
-            style={{ display: "block", textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "#22346b", borderRadius: 10, padding: "10px 0", textDecoration: "none" }}>
+            style={{ display: "block", textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 900, color: "#fff", background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", borderRadius: 10, padding: "10px 0", textDecoration: "none" }}>
             練習後カルテを書く→
           </Link>
         )}
@@ -385,10 +385,10 @@ function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }
   const renderGroup = (g: SongGroup) => {
     const kCount = (kartesByTitle.get(g.title) ?? []).length
     return (
-      <details key={g.title} style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 13, marginBottom: 8 }}>
+      <details key={g.title} style={{ background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 13, marginBottom: 8 }}>
         <summary style={{ listStyle: "none", cursor: "pointer", padding: "11px 13px", display: "flex", alignItems: "center", gap: 9 }}>
           {g.star != null
-            ? <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "#b58a1e" }}>★{g.star}</span>
+            ? <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--gold)" }}>★{g.star}</span>
             : <span style={kCat}>{g.cat}</span>}
           <b style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-ink)" }}>{g.title}</b>
           <span style={{ marginLeft: "auto", flex: "none", textAlign: "right", fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800, lineHeight: 1.35 }}>カルテ{kCount}枚<br />{g.latest.date}</span>
@@ -419,7 +419,7 @@ function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }
   const subTab = (k: "write" | "review", label: string) => (
     <button key={k} type="button" onClick={() => setKmode(k)}
       style={{ flex: 1, border: "none", borderRadius: 7, padding: "7px 0", fontSize: "var(--fs-caption)", fontWeight: 900, cursor: "pointer",
-        background: kmode === k ? "#fff" : "transparent", color: kmode === k ? "#22346b" : "#8b97a8",
+        background: kmode === k ? "#fff" : "transparent", color: kmode === k ? "#2b5bc4" : "var(--text-sub)",
         boxShadow: kmode === k ? "0 1px 3px rgba(30,40,70,.12)" : "none" }}>
       {label}
     </button>
@@ -446,7 +446,7 @@ function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }
             </>
           )}
           {karteOnly.map((g) => (
-            <details key={g.title} style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 13, marginBottom: 8 }}>
+            <details key={g.title} style={{ background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 13, marginBottom: 8 }}>
               <summary style={{ listStyle: "none", cursor: "pointer", padding: "11px 13px", display: "flex", alignItems: "center", gap: 9 }}>
                 <b style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-ink)" }}>{g.title}</b>
                 <span style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>カルテ{(kartesByTitle.get(g.title) ?? []).length}枚</span>
@@ -459,11 +459,11 @@ function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }
         <>
           {/* 全体の分析 (音程マップ) = ふりかえりの一部 */}
           <div style={{ border: "1px solid #e3d8f7", borderRadius: 13, overflow: "hidden", marginBottom: 11 }}>
-            <div style={{ background: "linear-gradient(135deg,#5a3fa8,#7a4dd6)", color: "#fff", padding: "8px 12px" }}>
+            <div style={{ background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", color: "#fff", padding: "8px 12px" }}>
               <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900 }}>全体の分析・曲をまたいで</div>
               <div style={{ fontSize: "var(--fs-label)", color: "#e2d6fb", marginTop: 1 }}>音程マップ・直近2週間{heatmap ? `・${heatmap.perfCount}演奏分` : ""}・タップでくわしく</div>
             </div>
-            <div style={{ background: "#fff", padding: "9px 12px" }}>
+            <div style={{ background: "var(--card-in)", padding: "9px 12px" }}>
               {heatmap ? (
                 <FingerboardPanel cells={heatmap.cells} details={heatmap.details} marks={fbMarks}
                   emptyText="直近2週間はまだ判定できる音が少ないよ・同じ音を5回以上ひくと色がつきます。" />
@@ -484,8 +484,8 @@ function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }
                   {[["all", "すべて"] as const, ...filterTitles.map((t) => [t, t] as const)].map(([v, label]) => (
                     <button key={v} type="button" onClick={() => setKarteFilter(v)}
                       style={{ fontSize: "var(--fs-label)", fontWeight: 900, borderRadius: 999, padding: "4px 12px", cursor: "pointer",
-                        border: `1px solid ${karteFilter === v ? "#22346b" : "#e6e9ef"}`,
-                        background: karteFilter === v ? "#22346b" : "#fff", color: karteFilter === v ? "#fff" : "#8b97a8",
+                        border: `1px solid ${karteFilter === v ? "#2b5bc4" : "rgba(150,175,225,.12)"}`,
+                        background: karteFilter === v ? "#2b5bc4" : "#fff", color: karteFilter === v ? "#fff" : "var(--text-sub)",
                         maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {label}
                     </button>
@@ -498,16 +498,16 @@ function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }
                   <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 6, scrollbarWidth: "thin" }}>
                     {m.rows.map((k) => (
                       <div key={k.id} onClick={() => setOpenKarte(k)}
-                        style={{ flex: "none", width: 150, background: "#fff", border: "1px solid #e6e9ef", borderRadius: 12, padding: "9px 11px", boxSizing: "border-box", cursor: "pointer" }}>
+                        style={{ flex: "none", width: 150, background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 12, padding: "9px 11px", boxSizing: "border-box", cursor: "pointer" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>
                           <b style={{ color: "var(--text-ink)" }}>{k.date}</b>
-                          <span style={{ marginLeft: "auto", color: k.read ? "#2f9e63" : "#b58a1e" }}>{k.read ? "既読" : "未読"}</span>
+                          <span style={{ marginLeft: "auto", color: k.read ? "#a8c97f" : "var(--gold)" }}>{k.read ? "既読" : "未読"}</span>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 4, minWidth: 0 }}>
-                          <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)", background: "#f2f4f8", border: "1px solid #e6eaf1", borderRadius: 5, padding: "0 5px" }}>{k.cat}</span>
-                          <span style={{ fontWeight: 900, color: "#2f66c4", fontSize: "var(--fs-label)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.title}</span>
+                          <span style={{ flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)", background: "rgba(150,175,225,.08)", border: "1px solid #e6eaf1", borderRadius: 5, padding: "0 5px" }}>{k.cat}</span>
+                          <span style={{ fontWeight: 900, color: "#7fa4e8", fontSize: "var(--fs-label)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.title}</span>
                         </div>
-                        <div style={{ marginTop: 7, fontSize: "var(--fs-label)", fontWeight: 900, color: "#8b97a8", textAlign: "right" }}>タップで全文 →</div>
+                        <div style={{ marginTop: 7, fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-sub)", textAlign: "right" }}>タップで全文 →</div>
                       </div>
                     ))}
                   </div>
@@ -521,18 +521,18 @@ function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }
             <div onClick={() => setOpenKarte(null)}
               style={{ position: "fixed", inset: 0, background: "rgba(15,25,50,.55)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 14 }}>
               <div onClick={(e) => e.stopPropagation()}
-                style={{ background: "#fff", borderRadius: 15, padding: "13px 16px 16px", width: "min(560px, 94vw)", maxHeight: "84vh", overflowY: "auto", boxSizing: "border-box" }}>
+                style={{ background: "var(--card-in)", borderRadius: 15, padding: "13px 16px 16px", width: "min(560px, 94vw)", maxHeight: "84vh", overflowY: "auto", boxSizing: "border-box" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-muted)" }}>
                   <b style={{ color: "var(--text-ink)", fontSize: "var(--fs-caption)" }}>{openKarte.date}</b>
-                  <span style={{ flex: "none", background: "#f2f4f8", border: "1px solid #e6eaf1", borderRadius: 5, padding: "0 5px", fontWeight: 900 }}>{openKarte.cat}</span>
-                  <span style={{ fontWeight: 900, color: "#2f66c4", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{openKarte.title}</span>
+                  <span style={{ flex: "none", background: "rgba(150,175,225,.08)", border: "1px solid #e6eaf1", borderRadius: 5, padding: "0 5px", fontWeight: 900 }}>{openKarte.cat}</span>
+                  <span style={{ fontWeight: 900, color: "#7fa4e8", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{openKarte.title}</span>
                   <button type="button" onClick={() => setOpenKarte(null)}
-                    style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)", background: "#f1f4f8", border: "none", borderRadius: 999, padding: "5px 12px", cursor: "pointer" }}>
+                    style={{ marginLeft: "auto", flex: "none", fontSize: "var(--fs-label)", fontWeight: 900, color: "var(--text-muted)", background: "rgba(150,175,225,.10)", border: "none", borderRadius: 999, padding: "5px 12px", cursor: "pointer" }}>
                     とじる ×
                   </button>
                 </div>
                 <div style={{ marginTop: 9, fontSize: "var(--fs-body)", color: "var(--text-body)", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{openKarte.body}</div>
-                <div style={{ marginTop: 8, fontSize: "var(--fs-label)", fontWeight: 800, color: openKarte.read ? "#2f9e63" : "#b58a1e" }}>{openKarte.read ? "既読・生徒が読みました" : "未読・まだ生徒は読んでいません"}</div>
+                <div style={{ marginTop: 8, fontSize: "var(--fs-label)", fontWeight: 800, color: openKarte.read ? "#a8c97f" : "var(--gold)" }}>{openKarte.read ? "既読・生徒が読みました" : "未読・まだ生徒は読んでいません"}</div>
               </div>
             </div>
           )}
@@ -546,7 +546,7 @@ function KarteBySong({ userId, studentId, recordings, kartes, heatmap, fbMarks }
 function Card({ children }: { children: React.ReactNode }) {
   // ペーパーデザイン (2026-08-06): クリームの紙の上の半透明カード (成長カルテv3と同トークン)
   return (
-    <div style={{ background: "#fff", border: "1px solid #e6e9ef", borderRadius: 15, padding: "14px 16px", marginBottom: 12 }}>
+    <div style={{ background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 15, padding: "14px 16px", marginBottom: 12 }}>
       {children}
     </div>
   )
@@ -570,7 +570,7 @@ function AssignmentExprClearButton({ studentId, moodTagId, scoreId }: { studentI
         const r = await recordExpressionClear({ studentId, moodTagId, scoreId })
         if (r.ok) { setStar(r.star); setState("done") } else setState("error")
       }}
-      style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "#8a5a1f", border: "none", borderRadius: 999, padding: "3px 10px", cursor: "pointer", opacity: state === "saving" ? 0.6 : 1 }}>
+      style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-on-accent)", background: "var(--gold)", border: "none", borderRadius: 999, padding: "3px 10px", cursor: "pointer", opacity: state === "saving" ? 0.6 : 1 }}>
       {state === "saving" ? "記録中…" : state === "error" ? "失敗・もう一度" : "表現できていた → クリア認定"}
     </button>
   )
@@ -609,7 +609,7 @@ function SendScoreBox({ studentId }: { studentId: string }) {
     })
   }
 
-  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", marginTop: 4 }
+  const inp: React.CSSProperties = { width: "100%", border: "1px solid rgba(150,175,225,.16)", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", marginTop: 4 }
   const lbl: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-sub)" }
 
   return (
@@ -618,12 +618,12 @@ function SendScoreBox({ studentId }: { studentId: string }) {
         <button
           type="button"
           onClick={() => { setOpen(true); setMsg(null) }}
-          style={{ width: "100%", border: "1px dashed #b7c0ca", background: "#fff", color: "var(--text-ink)", borderRadius: 12, padding: 12, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", marginBottom: 14, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+          style={{ width: "100%", border: "1px dashed var(--text-muted)", background: "var(--card-in)", color: "var(--text-ink)", borderRadius: 12, padding: 12, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", marginBottom: 14, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6 }}
         >
           <FileMusic size={15} /> 楽譜を渡す
         </button>
       ) : (
-        <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: 16, marginBottom: 14 }}>
+        <div style={{ background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 14, padding: 16, marginBottom: 14 }}>
           <div style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", marginBottom: 10, display: "flex", alignItems: "center", gap: 5 }}><FileMusic size={14} /> 楽譜を渡す</div>
           <label style={lbl}>MusicXMLファイル・.xml / .musicxml / .mxl・5MBまで
             <input type="file" accept=".xml,.musicxml,.mxl" style={{ ...inp, padding: "7px 8px" }}
@@ -643,14 +643,14 @@ function SendScoreBox({ studentId }: { studentId: string }) {
             <input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="例: 次のレッスンまでに1ページ目をさらっておいてね" style={inp} maxLength={200} />
           </label>
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-            <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, border: "1px solid #e2e6ea", background: "#fff", color: "var(--text-sub)", borderRadius: 10, padding: 10, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer" }}>キャンセル</button>
-            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "#8a5a1f", color: "var(--text-on-accent)", borderRadius: 10, padding: 10, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+            <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, border: "1px solid rgba(150,175,225,.14)", background: "var(--card-in)", color: "var(--text-sub)", borderRadius: 10, padding: 10, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer" }}>キャンセル</button>
+            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "var(--gold)", color: "var(--text-on-accent)", borderRadius: 10, padding: 10, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
               {pending ? "アップロード中…" : "生徒に渡す"}
             </button>
           </div>
         </div>
       )}
-      {msg && <div style={{ fontSize: "var(--fs-body)", margin: "0 0 10px", color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
+      {msg && <div style={{ fontSize: "var(--fs-body)", margin: "0 0 10px", color: msg.ok ? "#a8c97f" : "#e8697a" }}>{msg.text}</div>}
     </>
   )
 }
@@ -715,7 +715,7 @@ function Homework({
     })
   }
 
-  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", marginTop: 4 }
+  const inp: React.CSSProperties = { width: "100%", border: "1px solid rgba(150,175,225,.16)", borderRadius: 8, padding: "8px 10px", fontSize: "var(--fs-body)", marginTop: 4 }
   const lbl: React.CSSProperties = { fontSize: "var(--fs-caption)", fontWeight: 700, color: "var(--text-sub)" }
 
   return (
@@ -725,16 +725,16 @@ function Homework({
         <button
           type="button"
           onClick={() => setOpen(true)}
-          style={{ width: "100%", border: "1px dashed #b7c0ca", background: "#fff", color: "var(--text-ink)", borderRadius: 12, padding: 12, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", marginBottom: 14 }}
+          style={{ width: "100%", border: "1px dashed var(--text-muted)", background: "var(--card-in)", color: "var(--text-ink)", borderRadius: 12, padding: 12, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", marginBottom: 14 }}
         >
           ＋ 宿題を出す
         </button>
       ) : (
-        <div style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 14, padding: 16, marginBottom: 14 }}>
+        <div style={{ background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 14, padding: 16, marginBottom: 14 }}>
           <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
             {([["score", "曲"], ["item", "教材"]] as const).map(([k, label]) => (
               <button key={k} type="button" onClick={() => { setKind(k); setTargetId(""); setFilter("") }}
-                style={{ flex: 1, border: "1px solid", borderColor: kind === k ? "#8a5a1f" : "#e8e0cc", background: kind === k ? "#8a5a1f" : "rgba(255,255,255,.7)", color: kind === k ? "#fff" : "#9a8c74", borderRadius: 8, padding: "6px 0", fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer" }}>
+                style={{ flex: 1, border: "1px solid", borderColor: kind === k ? "rgba(232,178,60,.34)" : "transparent", background: kind === k ? "rgba(232,178,60,.16)" : "rgba(150,175,225,.08)", color: kind === k ? "var(--gold)" : "var(--text-sub)", borderRadius: 8, padding: "6px 0", fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer" }}>
                 {label}
               </button>
             ))}
@@ -787,8 +787,8 @@ function Homework({
 
           {err && <div style={{ fontSize: "var(--fs-body)", color: "var(--text-error)", marginTop: 8 }}>{err}</div>}
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-            <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, border: "1px solid #e2e6ea", background: "#fff", color: "var(--text-sub)", borderRadius: 10, padding: 10, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer" }}>キャンセル</button>
-            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "#8a5a1f", color: "var(--text-on-accent)", borderRadius: 10, padding: 10, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+            <button type="button" onClick={() => setOpen(false)} style={{ flex: 1, border: "1px solid rgba(150,175,225,.14)", background: "var(--card-in)", color: "var(--text-sub)", borderRadius: 10, padding: 10, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer" }}>キャンセル</button>
+            <button type="button" onClick={submit} disabled={pending} style={{ flex: 2, border: "none", background: "var(--gold)", color: "var(--text-on-accent)", borderRadius: 10, padding: 10, fontSize: "var(--fs-body)", fontWeight: 800, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
               {pending ? "送信中…" : "宿題を出す"}
             </button>
           </div>
@@ -801,14 +801,14 @@ function Homework({
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {assignments.map((a) => (
-            <div key={a.id} style={{ background: "#fff", border: "1px solid #eef1f4", borderRadius: 12, padding: "10px 12px" }}>
+            <div key={a.id} style={{ background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 12, padding: "10px 12px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline" }}>
                 <span style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)" }}>{a.targetTitle}</span>
                 {(() => {
                   if (!a.submitted) return <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", flex: "none" }}>未提出</span>
                   const passed = scorePassed(a.goalType, a.targetScore, a.submittedScore)
                   const base = `提出済${a.submittedScore != null ? ` ${a.submittedScore}点` : ""}`
-                  return <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: passed === false ? "#c0392b" : "#2e8b57", flex: "none" }}>{base}{passed === true ? " ・合格" : passed === false ? " ・あと少し" : ""}</span>
+                  return <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: passed === false ? "#e8697a" : "#a8c97f", flex: "none" }}>{base}{passed === true ? " ・合格" : passed === false ? " ・あと少し" : ""}</span>
                 })()}
               </div>
               <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", marginTop: 3 }}>
@@ -835,7 +835,7 @@ function Homework({
                     const gr = goalResult(a.goalType, { achieved: a.achieved, mastered: a.mastered })
                     if (!gr || a.goalType === "score") return null
                     return (
-                      <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: gr.met ? "#2e8b57" : "#9aa6b3", background: gr.met ? "#e9f7ef" : "#f1f4f8", border: `1px solid ${gr.met ? "#cbe8d6" : "#e2e6ea"}`, borderRadius: 999, padding: "2px 8px" }}>
+                      <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: gr.met ? "#a8c97f" : "var(--text-sub)", background: gr.met ? "rgba(168,201,127,.14)" : "rgba(150,175,225,.1)", border: "1px solid transparent", borderRadius: 999, padding: "2px 8px" }}>
                         {gr.label}
                       </span>
                     )
@@ -846,7 +846,7 @@ function Homework({
               {/* 🎨 意識する表現 (2026-08-06・案C 宿題側入口): 提出済みなら聴いてクリア認定できる */}
               {a.moodTagId && (
                 <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
-                  <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "2px 8px", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", background: "rgba(232,178,60,.12)", border: "1px solid #eed9a0", borderRadius: 999, padding: "2px 8px", display: "inline-flex", alignItems: "center", gap: 4 }}>
                     <Palette size={11} /> {moodTagPhrase(a.moodTagId)}
                   </span>
                   {a.submitted && a.scoreId && (

@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 import packageJson from "./package.json";
 
 const nextConfig: NextConfig = {
+  // OneDrive が .next をロックする問題の回避 (2026-08-22): ローカル検証時のみ
+  // NEXT_DIST_DIR で出力先を切替 (Vercel では未設定=既定 .next のまま)
+  distDir: process.env.NEXT_DIST_DIR || ".next",
+
   // 曲をさがすはライブラリ曲タブへ統合 (2026-08-21)。ページ内redirect()はNext内部Routerの
   // フック順エラー(#310)を誘発したため、Reactを通らない設定転送にする
   async redirects() {
