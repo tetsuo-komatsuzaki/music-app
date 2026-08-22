@@ -51,7 +51,7 @@ const dueDark = {
 const goldPill: React.CSSProperties = { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10.5, fontWeight: 800, color: "var(--gold)", background: "rgba(232,178,60,.14)", borderRadius: 999, padding: "4px 11px", textDecoration: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }
 
 export default function MyTeacherClient({
-  userId, teacherName, since, timeline, homework, karteItems = [], passedItems = [], feedbacks, lessons: _lessons, nextLessonLabel,
+  userId, teacherName, since, timeline: _timeline, homework, karteItems = [], passedItems = [], feedbacks, lessons: _lessons, nextLessonLabel,
 }: {
   userId: string
   teacherName: string
@@ -66,8 +66,8 @@ export default function MyTeacherClient({
 }) {
   // ?tab=karte 等の初期タブ指定 (ホームの「練習後カルテが届いたよ」通知から)
   const sp = useSearchParams()
-  const initTab = (["all", "hw", "karte", "passed", "review"] as const).find((t) => t === sp.get("tab")) ?? "all"
-  const [tab, setTab] = useState<"all" | "hw" | "karte" | "passed" | "review">(initTab)
+  const initTab = (["hw", "karte", "passed", "review"] as const).find((t) => t === sp.get("tab")) ?? "hw"
+  const [tab, setTab] = useState<"hw" | "karte" | "passed" | "review">(initTab)
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
@@ -81,7 +81,6 @@ export default function MyTeacherClient({
   }
 
   const tabs = [
-    ["all", "すべて", 0],
     ["hw", "宿題", homework.filter((h) => !h.submitted).length],
     ["karte", "練習後カルテ", karteItems.length],
     ["passed", "合格", passedItems.length],
@@ -136,7 +135,6 @@ export default function MyTeacherClient({
       </div>
 
       <div style={{ marginTop: 0 }}>
-        {tab === "all" && <AllTab timeline={timeline} />}
         {tab === "hw" && <HwTab homework={homework} />}
         {tab === "karte" && <KarteTab items={karteItems} />}
         {tab === "passed" && <PassedHwHistory items={passedItems} />}
@@ -155,41 +153,6 @@ export default function MyTeacherClient({
 }
 
 /* すべて (原本: 色ノードのタイムライン + insetカード) */
-function AllTab({ timeline }: { timeline: TimelineEv[] }) {
-  if (timeline.length === 0) return <Empty note={<>まだやりとりはありません。<br />先生からの宿題やコメントがここに並びます。</>} />
-  return (
-    <div className={ds.card} style={{ padding: "14px 15px" }}>
-      {timeline.map((e, i) => {
-        const meta = e.kind === "hw"
-          ? { label: "宿題", color: "#a8c97f" }
-          : TL_META[e.icon ?? ""] ?? { label: "コメント", color: "#7fa4e8" }
-        const isLast = i === timeline.length - 1
-        return (
-          <div key={i} style={{ display: "flex", gap: 12, position: "relative", paddingBottom: isLast ? 0 : 13 }}>
-            <div style={{ width: 12, flex: "none", position: "relative" }}>
-              {!isLast && <div style={{ position: "absolute", top: 13, bottom: -13, left: 5, width: 2, borderRadius: 1, background: "rgba(150,175,225,.14)" }} />}
-              <div style={{ position: "absolute", top: 3, left: 0, width: 12, height: 12, borderRadius: "50%", background: meta.color, border: "2px solid #16233e", boxSizing: "border-box" }} />
-            </div>
-            <div style={{ flex: 1, minWidth: 0, background: "var(--card-in)", border: "1px solid rgba(150,175,225,.08)", borderRadius: 14, padding: "10px 12px" }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
-                <b style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: ".1em", color: meta.color }}>{meta.label}</b>
-                <span style={{ fontSize: 10, color: "var(--text-muted)", marginLeft: "auto" }}>{e.when}</span>
-              </div>
-              <div style={{ fontSize: 13, fontWeight: 800, marginTop: 3, color: "var(--text-ink)", lineHeight: 1.5 }}>{e.text}</div>
-              {e.href && (
-                <div style={{ marginTop: 8 }}>
-                  <Link href={e.href} className="pressable" style={goldPill}>ひらく →</Link>
-                </div>
-              )}
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-/* 宿題 (原本 先生04) */
 function HwTab({ homework }: { homework: Homework[] }) {
   if (homework.length === 0) return <Empty note="いまは宿題がありません。" />
   return (

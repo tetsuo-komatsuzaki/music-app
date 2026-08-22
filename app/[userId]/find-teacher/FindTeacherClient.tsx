@@ -154,7 +154,7 @@ export default function FindTeacherClient({
                   style={{ ...mutePill, fontSize: 11, padding: "4px 11px", color: "var(--text-ink)", textDecoration: "none" }}>▶ 演奏サンプル</a>
               )}
               <button type="button" onClick={() => connect(t)} disabled={pending && busyId === t.teacherId} className="pressable"
-                style={{ ...goldPill, opacity: pending && busyId === t.teacherId ? 0.6 : 1 }}>
+                style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12.5, fontWeight: 900, color: "#201604", background: "linear-gradient(180deg,#e8b23c,#d2992c)", borderRadius: 999, padding: "8px 18px", border: "none", cursor: "pointer", fontFamily: "inherit", opacity: pending && busyId === t.teacherId ? 0.6 : 1 }}>
                 つながる
               </button>
             </div>

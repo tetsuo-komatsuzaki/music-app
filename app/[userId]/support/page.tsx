@@ -1,6 +1,6 @@
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import Link from "next/link"
-import { HelpCircle, ScrollText, Lock, MessageCircle, Mail, type LucideIcon } from "lucide-react"
+import { HelpCircle, ScrollText, Lock, Mail, type LucideIcon } from "lucide-react"
 import styles from "./Support.module.css"
 
 const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0"
@@ -33,12 +33,6 @@ export default async function SupportPage({
       Icon: Lock,
       title: "プライバシーポリシー",
       desc: "個人情報の取り扱い",
-    },
-    {
-      href: `/${authUserId}/support/feedback`,
-      Icon: MessageCircle,
-      title: "アルコに意見を送る",
-      desc: "気になったこと、教えてね",
     },
     {
       href: `/${authUserId}/support/contact`,

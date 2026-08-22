@@ -269,8 +269,8 @@ export const PAGE_COACH_MARKS: PageCoachMarksConfig[] = [
           lead: "どこが苦手か、音符ひとつずつ色でわかるよ。",
           rows: [
             { color: "green",  label: "緑",       meaning: "ばっちり" },
-            { color: "red",    label: "赤",       meaning: "音程がズレた" },
-            { color: "orange", label: "オレンジ", meaning: "リズムがズレた" },
+            { color: "red",    label: "だいだい", meaning: "音程がズレた" },
+            { color: "orange", label: "青みどり", meaning: "リズムがズレた" },
           ],
           note: "わかるから直せる。直せるから、上達する。",
         },

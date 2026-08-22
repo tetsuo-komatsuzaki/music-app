@@ -3191,7 +3191,7 @@ function ScoreDetailInner({
         >
           ‹ {backLabel ?? "ライブラリ"}
         </Link>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "1 1 100%", minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", flex: 1, minWidth: 0 }}>
             <h1 className={styles.title}>{score.title}</h1>
             <MasterBadge kind={score.badge} size="md" />

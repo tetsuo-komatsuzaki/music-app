@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react"
 import { setTeacherEmailOff } from "@/app/actions/updateNotificationPref"
 import TeacherLinkCard from "./TeacherLinkCard"
-import GoalCard from "./GoalCard"
 import PlanCard from "./PlanCard"
 import styles from "./Settings.module.css"
 
@@ -45,9 +44,6 @@ export default function SettingsClient({
 
       {/* プラン (課金 Phase 2, 2026-08-07): Stripe 未構成の間は非表示 */}
       {billing && <PlanCard {...billing} />}
-
-      {/* 目標の変更 (2026-08-02): オンボで答えた目標曲/時期/かなえたいこと */}
-      <GoalCard />
 
       {/* 先生とつながる (先生機能 MVP 2026-07-28) */}
       <TeacherLinkCard />

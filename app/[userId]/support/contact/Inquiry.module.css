@@ -26,8 +26,8 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  background: #fff;
-  border: 0.5px solid #e0e0e0;
+  background: var(--card-in);
+  border: 0.5px solid rgba(150,175,225,.24);
   border-radius: 12px;
   padding: 20px;
 }
@@ -55,9 +55,9 @@
 .textarea {
   font-size: var(--fs-subhead);
   padding: 10px 12px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(150,175,225,.24);
   border-radius: 8px;
-  background: #fff;
+  background: var(--card-in);
   color: var(--text-ink);
   font-family: inherit;
 }
@@ -72,7 +72,7 @@
 .input:focus,
 .textarea:focus {
   outline: none;
-  border-color: #4a7fa3;
+  border-color: #2b5bc4;
 }
 
 .charCount {
@@ -99,7 +99,7 @@
 }
 
 .submitButton {
-  background: #4a7fa3;
+  background: #2b5bc4;
   color: var(--text-on-accent);
   border: none;
   border-radius: 8px;
@@ -111,11 +111,11 @@
 }
 
 .submitButton:hover:not(:disabled) {
-  background: #3d6a8a;
+  background: #24518f;
 }
 
 .submitButton:disabled {
-  background: #ccc;
+  background: rgba(150,175,225,.3);
   cursor: not-allowed;
 }
 
@@ -127,13 +127,13 @@
 }
 
 .success {
-  background: #e8f5e9;
+  background: rgba(168,201,127,.14);
   color: var(--text-good);
-  border: 1px solid #c8e6c9;
+  border: 1px solid rgba(168,201,127,.35);
 }
 
 .error {
-  background: #fdecea;
+  background: rgba(232,138,111,.14);
   color: var(--text-error);
-  border: 1px solid #f5c6c0;
+  border: 1px solid rgba(232,138,111,.4);
 }

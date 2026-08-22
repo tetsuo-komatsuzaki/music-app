@@ -25,7 +25,7 @@
 
 /* オンボーディングのプライマリボタン (既存 .primaryButton 系のトーン踏襲) */
 .primaryButton {
-  background: #4a7fa3;
+  background: #2b5bc4;
   color: var(--text-on-accent);
   border: none;
   border-radius: 8px;
@@ -37,11 +37,11 @@
 }
 
 .primaryButton:hover:not(:disabled) {
-  background: #3d6a8a;
+  background: #24518f;
 }
 
 .primaryButton:disabled {
-  background: #ccc;
+  background: rgba(150,175,225,.24);
   cursor: not-allowed;
 }
 
@@ -49,7 +49,7 @@
 .secondaryButton {
   background: transparent;
   color: var(--text-link);
-  border: 1px solid #4a7fa3;
+  border: 1px solid #2b5bc4;
   border-radius: 8px;
   padding: 10px 20px;
   font-size: var(--fs-subhead);

@@ -151,10 +151,10 @@
   flex: none;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.14);
 }
-.legendColor[data-c="green"]  { background: radial-gradient(circle at 35% 30%, #6fdc7e, #2fae52); }
-.legendColor[data-c="red"]    { background: radial-gradient(circle at 35% 30%, #ff8a80, #e5392b); }
-.legendColor[data-c="orange"] { background: radial-gradient(circle at 35% 30%, #ffc16b, #f08a1d); }
-.legendColor[data-c="gray"]   { background: radial-gradient(circle at 35% 30%, #d7dce0, #a7afb6); }
+.legendColor[data-c="green"]  { background: radial-gradient(circle at 35% 30%, #4CA877, #2E7D5B); }
+.legendColor[data-c="red"]    { background: radial-gradient(circle at 35% 30%, #E89A4C, #D97B2E); }
+.legendColor[data-c="orange"] { background: radial-gradient(circle at 35% 30%, #4FA3A3, #2F8A8A); }
+.legendColor[data-c="gray"]   { background: radial-gradient(circle at 35% 30%, #C96A6A, #B44B4B); }
 
 .legendText {
   display: flex;
@@ -180,7 +180,7 @@
   font-weight: 700;
   color: var(--text-body);
   background: var(--card-in);
-  border: 1px solid #e4e8ec;
+  border: 1px solid rgba(150,175,225,.16);
   border-radius: 10px;
   padding: 10px 13px;
   line-height: 1.55;
@@ -200,7 +200,7 @@
   gap: 12px;
   padding: 10px 14px;
   background: #0d1b33;
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(150,175,225,.16);
   border-radius: 8px;
   align-items: center;
 }
@@ -245,7 +245,7 @@
 }
 
 .pageGuideButton:disabled {
-  border-color: #ccc;
+  border-color: rgba(150,175,225,.24);
   color: var(--text-muted);
   cursor: not-allowed;
 }
@@ -264,14 +264,14 @@
 
 .faqItem {
   background: #0d1b33;
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(150,175,225,.16);
   border-radius: 8px;
   padding: 12px 14px;
 }
 
 .faqItem[open] {
   background: #0a1730;
-  border-color: #d0d8e0;
+  border-color: rgba(150,175,225,.3);
 }
 
 .faqSummary {
@@ -297,7 +297,7 @@
 .faqAnswer {
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid rgba(150,175,225,.16);
   font-size: var(--fs-body);
   color: var(--text-ink);
   line-height: 1.7;
@@ -326,7 +326,7 @@
 .troubleshootItem {
   padding: 10px 14px;
   background: #0d1b33;
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(150,175,225,.16);
   border-radius: 8px;
 }
 
