@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>演奏履歴 5案 + 移動詳細 改善案</title>
+<style>
+  /* アプリの実トークン (globals.css より転記) */
+  :root{
+    --card-a:#1e3053; --card-b:#15233f; --card-in:#111d38;
+    --line:rgba(150,175,225,.12); --gold:#e8b23c; --cream:#fff3dc;
+    --teal:#7fc4c4; --green-soft:#a8c97f; --pink-soft:#e89ba8;
+    --ink:#edf1fa; --sub:#8fa0c4; --muted:#5e7099;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:#0b1226;color:var(--ink);font-family:"Zen Kaku Gothic New","Hiragino Sans",system-ui,sans-serif;padding:20px 16px 60px;max-width:430px;margin:0 auto}
+  h1{font-size:17px;font-weight:900;margin:6px 0 4px}
+  .note{font-size:11px;color:var(--sub);line-height:1.7;margin-bottom:18px}
+  h2{font-size:13px;font-weight:900;color:var(--gold);margin:34px 0 4px;letter-spacing:.03em}
+  .desc{font-size:11px;color:var(--sub);line-height:1.65;margin-bottom:10px}
+  .card{background:linear-gradient(180deg,var(--card-a),var(--card-b));border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 2px 6px rgba(4,10,28,.35),0 14px 34px -8px rgba(4,10,28,.55)}
+  .lab{font-size:11px;font-weight:900;color:var(--sub);letter-spacing:.06em;margin-bottom:10px}
+  .num{font-variant-numeric:tabular-nums}
+  .play{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;background:rgba(43,91,196,.35);color:#cdddfa}
+  .play svg{margin-left:2px}
+  .pill{font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 9px;white-space:nowrap}
+  .gold{color:var(--gold);background:rgba(232,178,60,.14)}
+  .mut{color:var(--sub);background:rgba(150,175,225,.1)}
+  .bar{height:5px;border-radius:3px;background:rgba(150,175,225,.14);overflow:hidden;flex:1}
+  .bar i{display:block;height:100%;border-radius:3px}
+  .up{color:var(--green-soft)} .dn{color:var(--pink-soft)}
+  svg{display:block}
+</style></head><body>
+
+<h1>演奏履歴カード ・ 5案</h1>
+<p class="note">データは実画面のもの (#8〜#10 ・ 自己ベスト69)。どの案も 再生 ・ 名前編集 ・ 開閉 の機能は維持する前提。</p>
+
+<!-- ═══ 案1 タイムライン ═══ -->
+<h2>案1 ・ タイムライン</h2>
+<p class="desc">最新だけ大きく主役に。過去は縦の年表レールに小さくぶら下がり、重複感を消す。日付はレール側に一度だけ。</p>
+<div class="card">
+  <div class="lab">演奏履歴 ・ 10回</div>
+  <div style="background:var(--card-in);border-radius:14px;padding:13px 14px;border:1px solid rgba(150,175,225,.08)">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="play"><svg width="11" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg></span>
+      <div style="min-width:0">
+        <b style="font-size:13px">#10 <span style="color:var(--muted);font-weight:700">✎</span></b>
+        <div style="font-size:10px;color:var(--muted);margin-top:1px">2026/8/3 ・ 最新</div>
+      </div>
+      <div style="margin-left:auto;text-align:right">
+        <span class="num" style="font-size:26px;font-weight:900;color:var(--cream);line-height:1">3<small style="font-size:11px;color:var(--sub)">点</small></span>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:10px;font-size:10.5px;font-weight:800;color:var(--sub)">
+      <span style="display:flex;align-items:center;gap:6px;flex:1">音程 <span class="bar"><i style="width:5%;background:#7fa4e8"></i></span> <b class="num" style="color:var(--ink)">5</b></span>
+      <span style="display:flex;align-items:center;gap:6px;flex:1">リズム <span class="bar"><i style="width:1%;background:#e0b25c"></i></span> <b class="num" style="color:var(--ink)">1</b></span>
+    </div>
+  </div>
+  <div style="display:flex;margin-top:4px">
+    <div style="width:26px;flex:none;position:relative">
+      <div style="position:absolute;left:12px;top:6px;bottom:6px;width:2px;background:rgba(150,175,225,.16);border-radius:1px"></div>
+    </div>
+    <div style="flex:1">
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 2px;border-bottom:1px solid rgba(150,175,225,.08);position:relative">
+        <span style="position:absolute;left:-18px;width:7px;height:7px;border-radius:50%;background:var(--gold)"></span>
+        <span style="font-size:11.5px;font-weight:800">#9</span>
+        <span style="font-size:9.5px;color:var(--muted)">8/3</span>
+        <span class="pill gold" style="margin-left:auto">★ 69点</span>
+        <span style="color:var(--muted);font-size:10px">▼</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 2px;position:relative">
+        <span style="position:absolute;left:-18px;width:7px;height:7px;border-radius:50%;background:rgba(150,175,225,.4)"></span>
+        <span style="font-size:11.5px;font-weight:800">#8</span>
+        <span style="font-size:9.5px;color:var(--muted)">8/1</span>
+        <span class="pill mut" style="margin-left:auto">54点</span>
+        <span style="color:var(--muted);font-size:10px">▼</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 案2 ベスト主役 ═══ -->
+<h2>案2 ・ ベストが主役</h2>
+<p class="desc">自己ベスト1枚だけ金の額装で常設。ほかは超コンパクトな行。「どれが良い演奏か」が一目で終わる。</p>
+<div class="card">
+  <div class="lab">演奏履歴 ・ 10回</div>
+  <div style="border:1px solid rgba(232,178,60,.34);background:rgba(232,178,60,.07);border-radius:14px;padding:12px 14px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="play" style="background:rgba(232,178,60,.2);color:var(--gold)"><svg width="11" height="12" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg></span>
+      <div>
+        <span style="font-size:9.5px;font-weight:900;color:var(--gold);letter-spacing:.08em">自己ベスト</span>
+        <div style="font-size:12px;font-weight:800;margin-top:1px">#9 <span style="font-size:9.5px;color:var(--muted);font-weight:700">2026/8/3</span></div>
+      </div>
+      <span class="num" style="margin-left:auto;font-size:30px;font-weight:900;color:var(--gold);line-height:1">69<small style="font-size:11px">点</small></span>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:9px;font-size:10.5px;font-weight:800;color:var(--sub)">
+      <span style="display:flex;align-items:center;gap:6px;flex:1">音程 <span class="bar"><i style="width:77%;background:#7fa4e8"></i></span> <b class="num" style="color:var(--ink)">77</b></span>
+      <span style="display:flex;align-items:center;gap:6px;flex:1">リズム <span class="bar"><i style="width:61%;background:#e0b25c"></i></span> <b class="num" style="color:var(--ink)">61</b></span>
+    </div>
+  </div>
+  <div style="margin-top:10px;background:var(--card-in);border-radius:12px;overflow:hidden;border:1px solid rgba(150,175,225,.08)">
+    <div style="display:flex;align-items:center;gap:8px;padding:8.5px 12px;border-bottom:1px solid rgba(150,175,225,.09)">
+      <span style="color:#cdddfa">▶</span><b style="font-size:11.5px">#10</b><span style="font-size:9.5px;color:var(--muted)">8/3</span>
+      <span class="num" style="margin-left:auto;font-size:13px;font-weight:900;color:var(--sub)">3<small style="font-size:9px">点</small></span>
+      <span style="color:var(--muted);font-size:10px">▼</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8.5px 12px">
+      <span style="color:#cdddfa">▶</span><b style="font-size:11.5px">#8</b><span style="font-size:9.5px;color:var(--muted)">8/1</span>
+      <span class="num" style="margin-left:auto;font-size:13px;font-weight:900;color:var(--sub)">54<small style="font-size:9px">点</small></span>
+      <span style="color:var(--muted);font-size:10px">▼</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 案3 ミニマル+前回比 ═══ -->
+<h2>案3 ・ ミニマル行 + 前回比</h2>
+<p class="desc">バーを捨てて1行を薄く。かわりに前回比の伸び (▲▼) で「流れ」を語らせる。行数が多くても縦に伸びない。</p>
+<div class="card">
+  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+    <span class="lab" style="margin:0">演奏履歴</span>
+    <svg width="72" height="18" viewBox="0 0 72 18" style="margin-left:auto"><polyline points="2,14 14,12 26,9 38,4 50,15 62,16 70,15" fill="none" stroke="var(--cream)" stroke-width="1.8" stroke-linecap="round"/></svg>
+  </div>
+  <div style="display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;gap:9px;padding:9px 2px;border-bottom:1px solid rgba(150,175,225,.08)">
+      <span class="play" style="width:24px;height:24px"><svg width="9" height="10" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg></span>
+      <b style="font-size:12px">#10</b><span style="font-size:9.5px;color:var(--muted)">8/3</span>
+      <span class="num dn" style="margin-left:auto;font-size:10.5px;font-weight:900">▼66</span>
+      <span class="num" style="font-size:16px;font-weight:900;width:44px;text-align:right">3<small style="font-size:9px;color:var(--sub)">点</small></span>
+      <span style="color:var(--muted);font-size:10px">▼</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;padding:9px 2px;border-bottom:1px solid rgba(150,175,225,.08)">
+      <span class="play" style="width:24px;height:24px"><svg width="9" height="10" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg></span>
+      <b style="font-size:12px">#9</b><span style="font-size:9.5px;color:var(--muted)">8/3</span><span class="pill gold" style="padding:2px 7px;font-size:9px">★</span>
+      <span class="num up" style="margin-left:auto;font-size:10.5px;font-weight:900">▲15</span>
+      <span class="num" style="font-size:16px;font-weight:900;width:44px;text-align:right;color:var(--gold)">69<small style="font-size:9px;color:var(--sub)">点</small></span>
+      <span style="color:var(--muted);font-size:10px">▼</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;padding:9px 2px">
+      <span class="play" style="width:24px;height:24px"><svg width="9" height="10" viewBox="0 0 10 12" fill="currentColor"><path d="M0 0l10 6-10 6z"/></svg></span>
+      <b style="font-size:12px">#8</b><span style="font-size:9.5px;color:var(--muted)">8/1</span>
+      <span class="num up" style="margin-left:auto;font-size:10.5px;font-weight:900">▲2</span>
+      <span class="num" style="font-size:16px;font-weight:900;width:44px;text-align:right">54<small style="font-size:9px;color:var(--sub)">点</small></span>
+      <span style="color:var(--muted);font-size:10px">▼</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 案4 日ごとに束ねる ═══ -->
+<h2>案4 ・ 日ごとに束ねる</h2>
+<p class="desc">同じ日の演奏を1つの「練習セッション」に畳む。まず日単位のサマリ (回数 ・ 最高 ・ 伸び)、タップで個別。</p>
+<div class="card">
+  <div class="lab">演奏履歴 ・ 3日間 10回</div>
+  <div style="background:var(--card-in);border:1px solid rgba(150,175,225,.08);border-radius:14px;padding:12px 14px;margin-bottom:8px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <b style="font-size:12.5px">8/3 (月)</b>
+      <span class="pill mut">2回</span>
+      <span class="num" style="margin-left:auto;font-size:20px;font-weight:900;color:var(--gold)">69<small style="font-size:10px;color:var(--sub)">最高</small></span>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:9px">
+      <span class="num" style="flex:1;text-align:center;background:rgba(232,178,60,.09);border:1px solid rgba(232,178,60,.3);border-radius:10px;padding:7px 0;font-size:13px;font-weight:900;color:var(--gold)">#9 ・ 69</span>
+      <span class="num" style="flex:1;text-align:center;background:rgba(150,175,225,.07);border-radius:10px;padding:7px 0;font-size:13px;font-weight:900;color:var(--sub)">#10 ・ 3</span>
+    </div>
+  </div>
+  <div style="background:var(--card-in);border:1px solid rgba(150,175,225,.08);border-radius:14px;padding:12px 14px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <b style="font-size:12.5px">8/1 (土)</b>
+      <span class="pill mut">1回</span>
+      <span class="num" style="margin-left:auto;font-size:20px;font-weight:900;color:var(--cream)">54<small style="font-size:10px;color:var(--sub)">最高</small></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 案5 2列ギャラリー ═══ -->
+<h2>案5 ・ 2列ギャラリー</h2>
+<p class="desc">1回の演奏=1枚の小さな「成績カード」。2列で並べ、点数を主役に。ベストは王冠。縦の長さが半分になる。</p>
+<div class="card">
+  <div class="lab">演奏履歴 ・ 10回</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+    <div style="background:var(--card-in);border:1px solid rgba(150,175,225,.08);border-radius:14px;padding:11px 12px">
+      <div style="display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;color:var(--sub)"><b style="color:var(--ink)">#10</b> 8/3<span style="margin-left:auto;color:#cdddfa">▶</span></div>
+      <div class="num" style="font-size:26px;font-weight:900;margin:6px 0 7px;color:var(--cream)">3<small style="font-size:10px;color:var(--sub)">点</small></div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <span class="bar"><i style="width:5%;background:#7fa4e8"></i></span>
+        <span class="bar"><i style="width:1%;background:#e0b25c"></i></span>
+      </div>
+    </div>
+    <div style="background:rgba(232,178,60,.08);border:1px solid rgba(232,178,60,.32);border-radius:14px;padding:11px 12px">
+      <div style="display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;color:var(--sub)"><b style="color:var(--ink)">#9</b> 8/3<span style="margin-left:auto;color:var(--gold)">👑</span></div>
+      <div class="num" style="font-size:26px;font-weight:900;margin:6px 0 7px;color:var(--gold)">69<small style="font-size:10px;color:var(--sub)">点</small></div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <span class="bar"><i style="width:77%;background:#7fa4e8"></i></span>
+        <span class="bar"><i style="width:61%;background:#e0b25c"></i></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ 移動詳細 ════════════════════════ -->
+<h1 style="margin-top:44px">音程マップ詳細 ・ 「どこからの移動でずれた？」改善案</h1>
+<p class="note">現行は「ファ♯・E線・1st 同じ弦 4回中1回 音が低い」の文字羅列。移動という"動き"を、動きの形で見せる3案。</p>
+
+<!-- ═══ 案A 移動figure ═══ -->
+<h2>案A ・ 移動を図にする</h2>
+<p class="desc">от→до を音名ノード+矢印で描く。矢印の向き=上行/下行、ラベル=度数、二重線=移弦。右は結果だけ色で。</p>
+<div class="card">
+  <div class="lab">ラ ・ E線 への移動</div>
+  <div style="display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px dashed rgba(150,175,225,.16)">
+      <span style="width:34px;height:34px;border-radius:10px;background:rgba(150,175,225,.1);display:grid;place-items:center;font-size:11.5px;font-weight:900;flex:none">ファ♯</span>
+      <svg width="46" height="26" viewBox="0 0 46 26"><line x1="2" y1="16" x2="38" y2="8" stroke="#8fa0c4" stroke-width="1.6"/><path d="M38 8l-6-1.2 2.4 5.4z" fill="#8fa0c4"/><text x="18" y="24" font-size="8.5" fill="#8fa0c4" text-anchor="middle" font-weight="700">↑短3度</text></svg>
+      <span style="width:34px;height:34px;border-radius:10px;background:rgba(43,91,196,.28);display:grid;place-items:center;font-size:12.5px;font-weight:900;flex:none">ラ</span>
+      <span style="font-size:9px;color:var(--muted);font-weight:700">同じ弦</span>
+      <span class="pill" style="margin-left:auto;color:#e0b25c;background:rgba(224,160,47,.14)">1/4 低い</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 2px">
+      <span style="width:34px;height:34px;border-radius:10px;background:rgba(150,175,225,.1);display:grid;place-items:center;font-size:12.5px;font-weight:900;flex:none">シ</span>
+      <svg width="46" height="26" viewBox="0 0 46 26"><line x1="2" y1="8" x2="38" y2="16" stroke="#8fa0c4" stroke-width="1.6"/><path d="M38 16l-6 1.2 2.4-5.4z" fill="#8fa0c4"/><text x="18" y="24" font-size="8.5" fill="#8fa0c4" text-anchor="middle" font-weight="700">↓長2度</text></svg>
+      <span style="width:34px;height:34px;border-radius:10px;background:rgba(43,91,196,.28);display:grid;place-items:center;font-size:12.5px;font-weight:900;flex:none">ラ</span>
+      <span style="font-size:9px;color:var(--muted);font-weight:700">同じ弦</span>
+      <span class="pill" style="margin-left:auto;color:var(--green-soft);background:rgba(168,201,127,.13)">4/4 ✓</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 案B 文をやめて式に ═══ -->
+<h2>案B ・ 式 + 成功ゲージ</h2>
+<p class="desc">「同じ弦 / 移弦」で先にグループ分け。各行は ファ♯→ラ の式と方向チップだけ。回数はドットゲージ (●=ずれ) で読む。</p>
+<div class="card">
+  <div class="lab">ラ ・ E線 への移動</div>
+  <div style="font-size:9.5px;font-weight:900;color:var(--muted);letter-spacing:.08em;margin:2px 0 7px">同じ弦から</div>
+  <div style="background:var(--card-in);border-radius:12px;border:1px solid rgba(150,175,225,.08);overflow:hidden">
+    <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid rgba(150,175,225,.09)">
+      <b style="font-size:12px">ファ♯ <span style="color:var(--muted)">→</span> ラ</b>
+      <span class="pill mut" style="padding:2px 7px;font-size:9px">↑3度</span>
+      <span style="margin-left:auto;display:inline-flex;gap:3px">
+        <i style="width:7px;height:7px;border-radius:50%;background:#e0b25c"></i><i style="width:7px;height:7px;border-radius:50%;background:rgba(168,201,127,.85)"></i><i style="width:7px;height:7px;border-radius:50%;background:rgba(168,201,127,.85)"></i><i style="width:7px;height:7px;border-radius:50%;background:rgba(168,201,127,.85)"></i>
+      </span>
+      <span style="font-size:9.5px;font-weight:800;color:#e0b25c;width:34px;text-align:right">低1</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:9px 12px">
+      <b style="font-size:12px">シ <span style="color:var(--muted)">→</span> ラ</b>
+      <span class="pill mut" style="padding:2px 7px;font-size:9px">↓2度</span>
+      <span style="margin-left:auto;display:inline-flex;gap:3px">
+        <i style="width:7px;height:7px;border-radius:50%;background:rgba(168,201,127,.85)"></i><i style="width:7px;height:7px;border-radius:50%;background:rgba(168,201,127,.85)"></i><i style="width:7px;height:7px;border-radius:50%;background:rgba(168,201,127,.85)"></i><i style="width:7px;height:7px;border-radius:50%;background:rgba(168,201,127,.85)"></i>
+      </span>
+      <span style="font-size:9.5px;font-weight:800;color:var(--green-soft);width:34px;text-align:right">✓</span>
+    </div>
+  </div>
+  <div style="font-size:9.5px;font-weight:900;color:var(--muted);letter-spacing:.08em;margin:12px 0 7px">となりの弦から (移弦)</div>
+  <div style="background:var(--card-in);border-radius:12px;border:1px solid rgba(150,175,225,.08)">
+    <div style="display:flex;align-items:center;gap:8px;padding:9px 12px">
+      <b style="font-size:12px">ラ <span style="color:var(--muted)">⤴</span> ラ</b>
+      <span class="pill mut" style="padding:2px 7px;font-size:9px">A線→E線</span>
+      <span style="margin-left:auto;display:inline-flex;gap:3px">
+        <i style="width:7px;height:7px;border-radius:50%;background:rgba(168,201,127,.85)"></i><i style="width:7px;height:7px;border-radius:50%;background:rgba(168,201,127,.85)"></i><i style="width:7px;height:7px;border-radius:50%;background:rgba(168,201,127,.85)"></i><i style="width:7px;height:7px;border-radius:50%;background:rgba(168,201,127,.85)"></i>
+      </span>
+      <span style="font-size:9.5px;font-weight:800;color:var(--green-soft);width:34px;text-align:right">✓</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 案C 弦の上で見せる ═══ -->
+<h2>案C ・ 弦の上で見せる</h2>
+<p class="desc">4本の弦のミニ図に、来た音→この音を矢印で置く。指板ヒートマップと同じ座標感覚で「指の動き」がそのまま見える。</p>
+<div class="card">
+  <div class="lab">ラ ・ E線 への移動</div>
+  <div style="display:flex;flex-direction:column;gap:9px">
+    <div style="background:var(--card-in);border:1px solid rgba(150,175,225,.08);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:12px">
+      <svg width="120" height="52" viewBox="0 0 120 52">
+        <text x="0" y="12" font-size="8" fill="#5e7099">E</text><line x1="14" y1="9" x2="118" y2="9" stroke="rgba(150,175,225,.28)" stroke-width="1.4"/>
+        <text x="0" y="25" font-size="8" fill="#5e7099">A</text><line x1="14" y1="22" x2="118" y2="22" stroke="rgba(150,175,225,.2)"/>
+        <text x="0" y="38" font-size="8" fill="#5e7099">D</text><line x1="14" y1="35" x2="118" y2="35" stroke="rgba(150,175,225,.2)"/>
+        <text x="0" y="51" font-size="8" fill="#5e7099">G</text><line x1="14" y1="48" x2="118" y2="48" stroke="rgba(150,175,225,.2)"/>
+        <circle cx="52" cy="9" r="6" fill="rgba(150,175,225,.35)"/><text x="52" y="12" font-size="7.5" fill="#0b1226" text-anchor="middle" font-weight="900">F♯</text>
+        <circle cx="92" cy="9" r="7" fill="#2b5bc4"/><text x="92" y="12" font-size="8" fill="#fff" text-anchor="middle" font-weight="900">ラ</text>
+        <line x1="59" y1="9" x2="83" y2="9" stroke="#8fa0c4" stroke-width="1.5" stroke-dasharray="3 3"/><path d="M85 9l-5-2v4z" fill="#8fa0c4"/>
+      </svg>
+      <div style="min-width:0">
+        <b style="font-size:11.5px">ファ♯ から ・ 同じ弦</b>
+        <div style="font-size:10px;color:#e0b25c;font-weight:800;margin-top:3px">4回中1回 ・ 音が低い</div>
+      </div>
+    </div>
+    <div style="background:var(--card-in);border:1px solid rgba(150,175,225,.08);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:12px">
+      <svg width="120" height="52" viewBox="0 0 120 52">
+        <text x="0" y="12" font-size="8" fill="#5e7099">E</text><line x1="14" y1="9" x2="118" y2="9" stroke="rgba(150,175,225,.28)" stroke-width="1.4"/>
+        <text x="0" y="25" font-size="8" fill="#5e7099">A</text><line x1="14" y1="22" x2="118" y2="22" stroke="rgba(150,175,225,.2)"/>
+        <text x="0" y="38" font-size="8" fill="#5e7099">D</text><line x1="14" y1="35" x2="118" y2="35" stroke="rgba(150,175,225,.2)"/>
+        <text x="0" y="51" font-size="8" fill="#5e7099">G</text><line x1="14" y1="48" x2="118" y2="48" stroke="rgba(150,175,225,.2)"/>
+        <circle cx="22" cy="22" r="6" fill="rgba(150,175,225,.35)"/><text x="22" y="25" font-size="7.5" fill="#0b1226" text-anchor="middle" font-weight="900">ラ</text>
+        <circle cx="92" cy="9" r="7" fill="#2b5bc4"/><text x="92" y="12" font-size="8" fill="#fff" text-anchor="middle" font-weight="900">ラ</text>
+        <path d="M29 20 C 55 16, 70 12, 83 10" fill="none" stroke="#8fa0c4" stroke-width="1.5" stroke-dasharray="3 3"/><path d="M85 9l-5-1v4z" fill="#8fa0c4"/>
+      </svg>
+      <div style="min-width:0">
+        <b style="font-size:11.5px">ラ ・ A線開放 から ・ 移弦</b>
+        <div style="font-size:10px;color:var(--green-soft);font-weight:800;margin-top:3px">4回中0回 ・ 音が正確</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="note" style="margin-top:26px">組み合わせも可能 (例: 履歴=案1 × 移動詳細=案B)。番号でご指定ください。</p>
+</body></html>
