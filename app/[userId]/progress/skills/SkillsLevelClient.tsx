@@ -1,26 +1,19 @@
 "use client"
 
-// 「わざのレベル」詳細 (案7=カード+推移)。カルテv3のペーパートークンに準拠。
-// 全15わざを「安定度あり→習得ずみデータ待ち→挑戦できる→ロック」順(同順内★昇順)で並べ、
-// 各わざを1枚の紙カードに: 大きな安定度% / 状態ラベル / NEW / 今週差 /
-// スパークライン(series) / 音程・リズム2本バー(pitchPct・rhythmPct) / くわしく・練習リンク。
-// 絵文字は使わず lucide / インラインSVG のみ。
+// わざの習得状況 (技術マップ) — 確定モック karte07 SKILLMAP (build-karte.py + skillcards.py) の
+// 写経 (2026-08-22)。ライト紙トークン→ダークへ全面変更:
+//   back「‹ カルテにもどる」・ h1 ds.t +「いまの★n」・ 分類タブ=金選択チップ (件数つき) ・
+//   カード=grid2 の DSカード (大きな% 30px=状態色 ・ 状態ラベル ・ NEW ・ 今週差 ・ くわしく→) ・
+//   脚注カード (%の説明)。原本にないスパークライン/音程リズム2本バーは廃止 (原本が正)。
+// 状態色: 安定=#A8C97F / ゆらぎ=#E8A78F / 習得ずみ=金 / 挑戦=#7FA4E8 / まだ先=muted。
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
 import type { SkillMapData, SkillNode } from "@/app/_libs/growthKarte"
+import ds from "@/app/components/ds.module.css"
 
-// ── ペーパートークン (progressPage v3 と同じ) ──
-const INK = "#1c2b4d"
-const SUB = "#7f8ea9"
-const ACC = "#2b5bc4"
-const GOOD = "#0f8a4f"
-const BAD = "#d0453a"
-const GOLD = "#b58a1e"
-const WARN = "#c9752e"
+const GOOD = "#a8c97f"
+const WARN = "#e8a78f"
 const tnum: React.CSSProperties = { fontVariantNumeric: "tabular-nums" }
-
-const kicker: React.CSSProperties = { fontSize: 9, fontWeight: 900, letterSpacing: ".24em", color: "#7f97c4" }
 
 // わざの分類セクション (id は SKILL_DEFS の id = SkillNode.id と一致)
 const SKILL_CATEGORIES: { label: string; ids: string[] }[] = [
@@ -30,6 +23,8 @@ const SKILL_CATEGORIES: { label: string; ids: string[] }[] = [
   { label: "音色・特殊", ids: ["vibrato", "harmonic"] },
 ]
 
+const backStyle: React.CSSProperties = { display: "flex", alignItems: "center", gap: 7, color: "var(--text-sub)", fontSize: 13, fontWeight: 700, padding: "10px 2px 2px", textDecoration: "none" }
+
 export default function SkillsLevelClient({ userId, skillMap, backHref, backLabel = "カルテにもどる", hideDetailLinks = false }: {
   userId: string; skillMap: SkillMapData | null
   /** 先生ビュー用 (2026-08-11): 戻り先/ラベルの差し替えと、生徒ルートへの詳細リンク非表示 */
@@ -38,18 +33,11 @@ export default function SkillsLevelClient({ userId, skillMap, backHref, backLabe
   // 2026-08-11 Tetsuo確定: 先生なしでも全ユーザーに開放 (nullは集計エラー時のみ)
   if (!skillMap) {
     return (
-      <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", fontFamily: "inherit", color: INK }}>
-        <Link href={backHref ?? `/${userId}/progress`}
-          style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 800, color: SUB, textDecoration: "none" }}>
-          <ArrowLeft size={13} /> {backLabel}
-        </Link>
-        <div style={{
-          marginTop: 12, background: "#f2f7fd", border: "1px solid #dbe7f6",
-          borderRadius: 18, padding: "24px 18px", textAlign: "center",
-        }}>
-          <div style={kicker}>SKILLS</div>
-          <div style={{ fontSize: 15, fontWeight: 900, marginTop: 1 }}>わざの習得状況</div>
-          <div style={{ fontSize: 12, color: SUB, margin: "8px 0 4px", lineHeight: 1.7 }}>
+      <div style={{ maxWidth: 520, margin: "0 auto", padding: "0 0 60px" }}>
+        <Link href={backHref ?? `/${userId}/progress`} style={backStyle}>‹ {backLabel}</Link>
+        <div className={ds.card} style={{ padding: "24px 18px", textAlign: "center" }}>
+          <div style={{ fontSize: 15, fontWeight: 900, color: "var(--text-ink)" }}>わざの習得状況</div>
+          <div style={{ fontSize: 12, color: "var(--text-sub)", margin: "8px 0 4px", lineHeight: 1.7 }}>
             いまは集計を準備中。録音してわざを練習すると、ここに習得状況が表示されます。
           </div>
         </div>
@@ -62,7 +50,6 @@ export default function SkillsLevelClient({ userId, skillMap, backHref, backLabe
   const order = (n: SkillNode) =>
     n.pct != null ? 0 : n.state === "acquired_nodata" ? 1 : n.state === "ready" ? 2 : 3
   const byId = new Map(nodes.map((n) => [n.id, n]))
-  // 分類ごとにグループ化。各分類内は従来の並び (order → star 昇順)。空分類は非表示。
   const sections = SKILL_CATEGORIES.map((c) => ({
     label: c.label,
     items: c.ids
@@ -74,7 +61,7 @@ export default function SkillsLevelClient({ userId, skillMap, backHref, backLabe
   return <SkillsTabs userId={userId} currentStar={currentStar} sections={sections} backHref={backHref} backLabel={backLabel} hideDetailLinks={hideDetailLinks} />
 }
 
-/* ═ 分類タブ + アクティブ分類の横スクロールレール ═ */
+/* ═ 分類タブ (原本 cat_tabs: 金選択チップ) + grid2 カード ═ */
 function SkillsTabs({ userId, currentStar, sections, backHref, backLabel, hideDetailLinks }: {
   userId: string
   currentStar: number
@@ -85,150 +72,93 @@ function SkillsTabs({ userId, currentStar, sections, backHref, backLabel, hideDe
   const active = sections.find((s) => s.label === activeTab) ?? sections[0]
 
   return (
-    <div style={{ maxWidth: 520, margin: "0 auto", padding: "18px 14px 60px", fontFamily: "inherit", color: INK }}>
-      {/* ヘッダ */}
-      <Link href={backHref ?? `/${userId}/progress`}
-        style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 800, color: SUB, textDecoration: "none" }}>
-        <ArrowLeft size={13} /> {backLabel}
-      </Link>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 8 }}>
-        <div style={kicker}>SKILLS</div>
+    <div style={{ maxWidth: 520, margin: "0 auto", padding: "0 0 60px" }}>
+      <Link href={backHref ?? `/${userId}/progress`} style={backStyle}>‹ {backLabel}</Link>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 9, padding: "0 2px" }}>
+        <h1 className={ds.t} style={{ padding: 0 }}>わざの習得状況</h1>
+        <span style={{ fontSize: 11.5, color: "var(--text-muted)", fontWeight: 700 }}>いまの★{currentStar}</span>
       </div>
-      <h1 style={{ fontSize: 20, fontWeight: 900, margin: "1px 0 0" }}>
-        わざの習得状況
-        <span style={{ fontSize: 11, fontWeight: 800, color: SUB, marginLeft: 8 }}>いまの★{currentStar}</span>
-      </h1>
 
-      {/* 分類タブ (横スクロール・非空分類のみ) */}
-      <div style={{ display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none", margin: "16px -14px 0", padding: "0 14px" }}>
+      {/* 分類タブ (原本: 金選択チップ + 件数) */}
+      <div style={{ display: "flex", gap: 6, overflowX: "auto", marginTop: 12, paddingBottom: 2 }}>
         {sections.map((s) => {
           const on = s.label === active?.label
           return (
-            <button key={s.label} type="button" onClick={() => setActiveTab(s.label)}
+            <button key={s.label} type="button" onClick={() => setActiveTab(s.label)} className="pressable"
               style={{
                 flex: "none", display: "inline-flex", alignItems: "center", gap: 5,
-                fontSize: 12, fontWeight: 900, cursor: "pointer",
-                borderRadius: 999, padding: "7px 14px", whiteSpace: "nowrap",
-                color: on ? "#fff" : INK,
-                background: on ? "#1f3d78" : "#fff",
-                border: `1px solid ${on ? "#1f3d78" : "#e0e9f6"}`,
+                fontSize: 11.5, fontWeight: 800, fontFamily: "inherit", cursor: "pointer",
+                borderRadius: 999, padding: "6px 13px", whiteSpace: "nowrap",
+                color: on ? "var(--gold)" : "var(--text-sub)",
+                background: on ? "rgba(232,178,60,.16)" : "rgba(150,175,225,.07)",
+                border: `1px solid ${on ? "rgba(232,178,60,.34)" : "transparent"}`,
               }}>
               {s.label}
-              <span style={{
-                fontSize: 9.5, fontWeight: 900, borderRadius: 999, padding: "0 6px", ...tnum,
-                color: on ? "#fff" : SUB,
-                background: on ? "rgba(255,255,255,.22)" : "#dfe9f8",
-              }}>{s.items.length}</span>
+              <span style={{ fontSize: 9.5, opacity: 0.8, ...tnum }}>{s.items.length}</span>
             </button>
           )
         })}
       </div>
 
-      {/* アクティブ分類のカード (横スクロールレール) */}
+      {/* アクティブ分類のカード (原本: grid2) */}
       {active && (
-        <div style={{
-          display: "flex", gap: 12, overflowX: "auto", scrollSnapType: "x mandatory",
-          scrollbarWidth: "thin",
-          margin: "14px -14px 0", padding: "2px 14px 6px",
-        }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
           {active.items.map((n) => <SkillCard key={n.id} userId={userId} n={n} hideDetailLinks={hideDetailLinks} />)}
         </div>
       )}
+
+      {/* 脚注 (原本) */}
+      <div className={ds.card} style={{ padding: "12px 15px" }}>
+        <div style={{ fontSize: 10.5, color: "var(--text-muted)", lineHeight: 1.75 }}>
+          %は その わざに紐づく個別課題の成功率だよ。<br />判定が8個たまってから出るよ。
+        </div>
+      </div>
     </div>
   )
 }
 
-/* ═ 案7カード ═ */
+/* ═ わざカード (原本 skillcards.card) ═ */
 function SkillCard({ userId, n, hideDetailLinks }: { userId: string; n: SkillNode; hideDetailLinks?: boolean }) {
   const lit = n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata"
   const locked = n.state === "locked"
-  const hasPct = n.pct != null
 
-  const card: React.CSSProperties = {
-    flex: "none", width: 158, scrollSnapAlign: "start",
-    borderRadius: 15, padding: "14px 14px", boxSizing: "border-box",
-    background: lit ? "#eef5ff" : "#fff",
-    border: `1px solid ${lit ? "#b9d4f2" : "#e0e9f6"}`,
-    ...(locked ? { opacity: 0.6, filter: "saturate(.5)" } : {}),
-  }
-
-  const stateLabel =
-    n.state === "stable" ? "安定"
-    : n.state === "wobble" ? "ゆらぎ中 ・ 練習しどき"
-    : n.state === "acquired_nodata" ? "習得ずみ ・ データ集め中"
-    : n.state === "ready" ? "つぎに挑戦できる"
-    : `★${n.star} で出会う`
-
-  const pctColor = n.state === "wobble" ? WARN : GOOD
+  const [stateLabel, stateColor] =
+    n.state === "stable" ? ["安定", GOOD]
+    : n.state === "wobble" ? ["ゆらぎ中 ・ 練習しどき", WARN]
+    : n.state === "acquired_nodata" ? ["習得ずみ ・ データ集め中", "var(--gold)"]
+    : n.state === "ready" ? ["つぎに挑戦できる", "#7fa4e8"]
+    : [`★${n.star} で出会う`, "var(--text-muted)"]
 
   return (
-    <div style={card}>
-      {/* 名前 + NEW */}
-      <div style={{ fontSize: 13, fontWeight: 900, lineHeight: 1.3 }}>
-        {n.label}
-        {n.isNew && (
-          <span style={{ fontSize: 8, fontWeight: 900, color: "#fff", background: BAD, borderRadius: 999, padding: "1px 6px", marginLeft: 5, verticalAlign: 2 }}>NEW</span>
-        )}
-      </div>
+    <div className={ds.card} style={{ margin: 0, padding: "12px 13px", ...(locked ? { opacity: 0.55 } : {}) }}>
+      <b style={{ fontSize: 12.5, color: lit ? "var(--text-ink)" : "var(--text-sub)" }}>{n.label}</b>
+      {n.isNew && (
+        <span style={{ fontSize: 8, fontWeight: 900, color: "#fff", background: "#e8697a", borderRadius: 999, padding: "1px 6px", marginLeft: 5, verticalAlign: 2 }}>NEW</span>
+      )}
 
-      {/* 大きな安定度% */}
-      <div style={{ marginTop: 6 }}>
-        {hasPct ? (
-          <div style={{ ...tnum, fontSize: 32, fontWeight: 900, lineHeight: 1, color: pctColor }}>
-            {n.pct}<span style={{ fontSize: 14 }}>%</span>
-          </div>
-        ) : (
-          <div style={{ fontSize: 30, fontWeight: 900, color: "#b8c6dd", lineHeight: 1 }}>—</div>
-        )}
-      </div>
+      {n.pct != null ? (
+        <div style={{ display: "flex", alignItems: "baseline", gap: 2, marginTop: 6 }}>
+          <span className={ds.bigN} style={{ ...tnum, fontSize: 30, lineHeight: 1, color: stateColor }}><span data-anim="count">{n.pct}</span></span>
+          <span style={{ fontSize: 11, color: "var(--text-sub)", fontWeight: 800 }}>%</span>
+        </div>
+      ) : (
+        <div style={{ marginTop: 6 }}>
+          <span style={{ fontSize: 26, lineHeight: 1, color: "var(--text-muted)", fontWeight: 900 }}>—</span>
+        </div>
+      )}
 
-      {/* 状態ラベル + 今週差 */}
-      <div style={{ fontSize: 10, fontWeight: 800, color: SUB, marginTop: 5, lineHeight: 1.4 }}>{stateLabel}</div>
+      <div style={{ fontSize: 10, fontWeight: 800, color: stateColor, marginTop: 3 }}>{stateLabel}</div>
       {n.weekDelta != null && n.weekDelta !== 0 && (
-        <div style={{ fontSize: 10, fontWeight: 800, color: n.weekDelta > 0 ? GOOD : WARN, marginTop: 2 }}>
-          先週より {n.weekDelta > 0 ? `+${n.weekDelta}` : n.weekDelta}
+        <div style={{ fontSize: 10, fontWeight: 800, marginTop: 2, color: n.weekDelta > 0 ? GOOD : WARN }}>
+          今週 {n.weekDelta > 0 ? `+${n.weekDelta}` : n.weekDelta}
         </div>
       )}
 
-      {/* スパークライン (推移) */}
-      {n.series.length >= 2 && (
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 2.5, height: 28, marginTop: 10 }} aria-hidden>
-          {n.series.slice(-8).map((v, i, arr) => (
-            <span key={i} style={{
-              flex: 1, height: `${Math.max(12, v)}%`, borderRadius: "2px 2px 0 0",
-              background: i === arr.length - 1 ? "#1f3d78" : "linear-gradient(180deg,#59a7ff,#2b5bc4)",
-            }} />
-          ))}
+      {!hideDetailLinks && lit && (
+        <div style={{ marginTop: 8, textAlign: "right" }}>
+          <Link href={`/${userId}/progress/skill/${n.id}`} style={{ fontSize: 10.5, color: "#7fa4e8", fontWeight: 800, textDecoration: "none" }}>くわしく →</Link>
         </div>
       )}
-
-      {/* 音程 / リズムの2本バー */}
-      {hasPct && (n.pitchPct != null || n.rhythmPct != null) && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 10 }}>
-          {n.pitchPct != null && <MiniBar label="音程" pct={n.pitchPct} />}
-          {n.rhythmPct != null && <MiniBar label="リズム" pct={n.rhythmPct} />}
-        </div>
-      )}
-
-      {/* 下段リンク */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px 12px", marginTop: 12 }}>
-        {!hideDetailLinks && <Link href={`/${userId}/progress/skill/${n.id}`} style={{ fontSize: 10.5, fontWeight: 800, color: ACC, textDecoration: "none" }}>くわしく →</Link>}
-        {/* 「練習する→」は削除 (2026-08-11 Tetsuo確定: 導線はくわしく→のおすすめ練習に一本化) */}
-      </div>
-    </div>
-  )
-}
-
-/* ═ 音程 / リズムの1本バー ═ */
-function MiniBar({ label, pct }: { label: string; pct: number }) {
-  const color = pct < 70 ? WARN : GOOD
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <span style={{ flex: "none", width: 34, fontSize: 9.5, fontWeight: 800, color: SUB }}>{label}</span>
-      <div style={{ flex: 1, height: 7, borderRadius: 999, background: "#dfe9f8", overflow: "hidden" }}>
-        <div style={{ width: `${Math.max(4, Math.min(100, pct))}%`, height: "100%", borderRadius: 999, background: color }} />
-      </div>
-      <span style={{ ...tnum, flex: "none", width: 30, textAlign: "right", fontSize: 10, fontWeight: 900, color }}>{pct}</span>
     </div>
   )
 }
