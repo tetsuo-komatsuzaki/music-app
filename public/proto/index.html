@@ -11,15 +11,6 @@
 </head>
 <body>
 
-<!-- レビュー用の画面切替ナビ (本実装では削除) -->
-<nav class="devnav" aria-label="画面切替">
-  <a href="#login">ログイン</a>
-  <a href="#loading">起動</a>
-  <a href="#result">採点</a>
-  <a href="#home">ホーム</a>
-  <a href="#empty">空状態</a>
-</nav>
-
 <!-- ============================================================
      画面1: ログイン ・ 対応モック: login-mock.png (クラシック案)
      ============================================================ -->
@@ -132,15 +123,17 @@
 </section>
 
 <!-- ============================================================
-     画面4: ホーム ・ 対応モック: home-mock.png (クラシック案)
+     画面4: ホーム ・ 対応モック: home-mock.png
+     既存アプリのホーム構成 (挨拶/MY RANK/いま練習している曲) に
+     アルコの写真とひとことを追加。構成は現行アプリのまま。
      ============================================================ -->
 <section class="screen home" id="home">
   <div class="home-head">
     <div class="home-greet">
-      <h1>こんばんは、てつおさん</h1>
-      <div class="date">8月22日（土）</div>
+      <h1>こんにちは、てつおさん</h1>
+      <div class="date">今日も1曲、弾いてみよう。</div>
     </div>
-    <!-- 右上のアルコ小バッジ (88px): 01C 弓で真上を掲げて指す (ループ) -->
+    <!-- 追加: 右上のアルコ小バッジ (01C 弓で真上を掲げて指す ・ ループ) -->
     <div class="alco-badge">
       <video class="alco-motion" autoplay muted loop playsinline
              poster="assets/motion/01C_poster.jpg" width="320" height="360" aria-label="相棒のアルコ">
@@ -152,31 +145,37 @@
   </div>
 
   <div class="home-cards">
+    <!-- 追加: アルコからひとこと -->
+    <div class="quote-card">
+      “きのうより、音がまっすぐになってきたよ。”
+      <span class="who">―― アルコからひとこと</span>
+    </div>
+
+    <!-- 既存: MY RANK (現行アプリの構成 ・ ランク名/★/Lv/つぎのランクまで) -->
     <div class="hcard">
       <div class="hlabel">MY RANK</div>
       <div class="rank-row">
         <div>
-          <div class="rank-name">みならい ヴィオリニスト</div>
-          <div class="star-row">★ ★<span class="off"> ★ ★</span></div>
+          <div class="rank-name">はじまりの奏者</div>
+          <div class="star-row">★<span class="off"> ★ ★ ★ ★</span></div>
         </div>
         <div class="lv-wrap">
-          <span class="lv-ring" aria-hidden="true"></span>
-          <span class="lv-text">Lv.7</span>
+          <span class="lv-ring" style="background: conic-gradient(var(--gold-500) 10%, rgba(217, 169, 60, 0.14) 0)" aria-hidden="true"></span>
+          <span class="lv-text">Lv.1</span>
         </div>
       </div>
+      <div class="rank-next"><span>つぎのランクまで</span><b>★2をあと9曲</b></div>
+      <div class="meter__track"><i class="meter__fill" style="--value: 10%"></i></div>
     </div>
 
+    <!-- 既存: いま練習している曲 -->
     <div class="hcard">
       <div class="hlabel">いま練習している曲</div>
       <div class="song-row">
-        <div class="song-name">アヴェ・マリア</div>
-        <span class="star-pill">★3</span>
+        <div class="song-name">アルプス一万尺</div>
+        <span class="star-pill">★1</span>
       </div>
-    </div>
-
-    <div class="quote-card">
-      “きのうより、音がまっすぐになってきたよ。”
-      <span class="who">―― アルコからひとこと</span>
+      <div class="song-meta">直近 93点 ・ 達成</div>
     </div>
   </div>
 

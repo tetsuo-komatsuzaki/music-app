@@ -174,16 +174,6 @@ p, h1, h2 { margin: 0; }
 }
 .screen + .screen { border-top: 6px solid #05080F; }
 
-/* レビュー用の画面切替ナビ (本実装では削除) */
-.devnav {
-  position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
-  z-index: 99; display: flex; gap: 2px;
-  background: rgba(5, 8, 15, 0.85); border: 1px solid var(--gold-line-soft);
-  border-radius: var(--r-full); padding: 4px 6px; backdrop-filter: blur(6px);
-}
-.devnav a { color: var(--gray-400); text-decoration: none; font-size: var(--fs-tiny); font-weight: 700; padding: 5px 8px; border-radius: var(--r-full); }
-.devnav a:hover { color: var(--gold-500); background: rgba(217, 169, 60, 0.12); }
-
 /* ============================================================
    §2 画面1: ログイン (login-mock.png 準拠)
    ============================================================ */
@@ -461,6 +451,10 @@ p, h1, h2 { margin: 0; }
           mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
 }
 .lv-text { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-serif); font-weight: 700; font-size: var(--fs-h2); }
+.rank-next { display: flex; justify-content: space-between; font-size: var(--fs-small); color: var(--gray-400); margin-top: var(--sp-3); }
+.rank-next b { color: var(--gold-500); }
+.hcard .meter__track { margin-top: var(--sp-2); }
+.song-meta { font-size: var(--fs-small); color: var(--gray-400); margin-top: var(--sp-2); }
 .song-row { display: flex; align-items: center; gap: var(--sp-3); }
 .song-name { font-family: var(--font-serif); font-size: var(--fs-h2); font-weight: 700; margin-top: var(--sp-2); }
 .star-pill {
