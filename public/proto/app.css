@@ -1,0 +1,519 @@
+/* ============================================================
+   Arcoda 5画面プロトタイプ — app.css
+   仕様書: 「Arcoda（アルコダ）5画面 実装依頼【詳細CSS仕様版】」(2026-08-23 Tetsuo)
+   カラー/影/タイポ/余白は仕様書 §0 の定義をそのまま使用
+   ============================================================ */
+
+:root {
+  /* === カラーパレット === */
+  --navy-900: #0B1228;   /* ベース背景（最も暗い） */
+  --navy-800: #101B38;   /* 入力欄・タブバー背景 */
+  --navy-700: #16294F;   /* カード・パネル背景 */
+  --navy-600: #1E3560;   /* カードのホバー・押下時 */
+  --gold-500: #D9A93C;   /* アンティークゴールド（主アクセント） */
+  --gold-600: #B8892E;   /* 金ボタンのグラデーション下端 */
+  --gold-300: #F0D98C;   /* 金のハイライト（発光・ホバー） */
+  --gold-line: rgba(217, 169, 60, 0.4);       /* 金の細線ボーダー */
+  --gold-line-soft: rgba(217, 169, 60, 0.18); /* さらに薄い区切り線 */
+  --gold-glow: rgba(217, 169, 60, 0.25);      /* 金の発光エフェクト用 */
+  --cream-100: #F5EFE0;  /* 本文・見出し（クリーム白） */
+  --cream-200: #EDE4CE;  /* 手紙カードの紙色 */
+  --gray-400: #9AA3B8;   /* 補助テキスト */
+  --gray-500: #6B7488;   /* プレースホルダー・非活性 */
+  --ivory-bg: #F7F1E3;   /* 水彩ヒーローエリアの背景 */
+  --error: #E0727A;      /* エラー表示のみ使用 */
+  --success: #7BC496;    /* 前回比プラス表示 */
+
+  /* === フォント === */
+  --font-serif: "Noto Serif JP", "Hiragino Mincho ProN", serif;
+  --font-sans: "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+
+  /* === タイポグラフィスケール === */
+  --fs-hero: 72px;    /* スコア数字 */
+  --fs-h1: 22px;      /* 画面見出し */
+  --fs-h2: 17px;      /* カード見出し */
+  --fs-body: 14px;    /* 本文 */
+  --fs-small: 12px;   /* 補助・リンク */
+  --fs-tiny: 10px;    /* ラベル・タブ */
+  --lh-tight: 1.4;
+  --lh-body: 1.8;     /* 和文本文の行間 */
+
+  /* === 余白スケール === */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px;
+  --sp-4: 16px; --sp-5: 24px; --sp-6: 32px; --sp-8: 48px;
+  --page-x: 20px;     /* 画面左右の安全余白 */
+
+  /* === 角丸 === */
+  --r-sm: 8px;        /* 入力欄 */
+  --r-md: 16px;       /* カード */
+  --r-lg: 24px;       /* 大型シート（水彩画面の下部紺カード） */
+  --r-full: 999px;    /* ボタン・バッジ */
+
+  /* === シャドウ === */
+  --shadow-card:
+    0 8px 24px rgba(0, 0, 0, 0.45),
+    0 2px 6px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(217, 169, 60, 0.08);
+  --shadow-gold-btn:
+    0 4px 14px rgba(217, 169, 60, 0.35),
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  --shadow-alco-glow:
+    0 0 0 1px var(--gold-line),
+    0 0 24px var(--gold-glow),
+    0 6px 16px rgba(0, 0, 0, 0.4);
+  --shadow-paper:
+    0 6px 18px rgba(0, 0, 0, 0.35),
+    0 1px 3px rgba(0, 0, 0, 0.25);
+
+  /* === トランジション === */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 150ms;
+  --dur-med: 300ms;
+}
+
+/* ============================================================
+   §1 共通
+   ============================================================ */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  color: var(--cream-100);
+  background: var(--navy-900);
+  /* §1.1 クラシック系画面の背景: 上部からの金のグロー */
+  background-image:
+    radial-gradient(ellipse 120% 45% at 50% -10%, rgba(217, 169, 60, 0.14), transparent 70%),
+    radial-gradient(ellipse 80% 30% at 50% 110%, rgba(30, 53, 96, 0.5), transparent 70%);
+  background-repeat: no-repeat;
+  -webkit-font-smoothing: antialiased;
+}
+img, video { max-width: 100%; display: block; }
+button { font-family: inherit; cursor: pointer; }
+p, h1, h2 { margin: 0; }
+
+/* §1.4 フォーカス・押下の統一 */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--navy-900), 0 0 0 4px var(--gold-500);
+}
+.btn:active {
+  transform: translateY(1px) scale(0.99);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+/* §1.5 モーション低減対応 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  video { display: none; } /* ポスター静止画に切替 */
+  .alco-fallback { display: block !important; }
+}
+
+/* §1.6 モーション付きアルコ */
+.alco-motion {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;          /* 全身を切らない */
+  object-position: center 60%;  /* やや下寄せで耳に余白 */
+  background: transparent;
+}
+.alco-fallback { display: none; width: 100%; height: 100%; object-fit: contain; object-position: center 60%; }
+
+/* §1.2 水彩ヒーロー */
+.hero-watercolor {
+  background:
+    radial-gradient(circle at 20% 30%, rgba(217, 169, 60, 0.10), transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(22, 41, 79, 0.08), transparent 45%),
+    radial-gradient(circle at 60% 80%, rgba(217, 169, 60, 0.06), transparent 50%),
+    var(--ivory-bg);
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+}
+
+/* アルコバッジ (金サークル ・ §2 画面1) */
+.alco-badge {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold-500);
+  /* 動画素材が紙地 (クリーム) を含むため、内側はアイボリーで馴染ませる */
+  background: var(--ivory-bg);
+  box-shadow: var(--shadow-alco-glow);
+  padding: 14px; /* 内部のアルコを70〜75%サイズに収める */
+  margin: var(--sp-8) auto var(--sp-5);
+  overflow: hidden;
+}
+
+/* 金ボタン (共通) */
+.btn-gold {
+  width: 100%; height: 52px;
+  border-radius: var(--r-full);
+  background: linear-gradient(180deg, var(--gold-300) 0%, var(--gold-500) 45%, var(--gold-600) 100%);
+  color: var(--navy-900);
+  font-weight: 700; font-size: var(--fs-body); letter-spacing: 0.08em;
+  box-shadow: var(--shadow-gold-btn);
+  border: none;
+}
+.btn-gold:hover {
+  background: linear-gradient(180deg, #F7E3A0 0%, var(--gold-500) 50%, #C49334 100%);
+  box-shadow: 0 6px 20px rgba(217, 169, 60, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* 画面枠 (レビュー用: 5画面を縦に並べる) */
+.screen {
+  min-height: 100dvh;
+  max-width: 430px;
+  min-width: 320px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.screen + .screen { border-top: 6px solid #05080F; }
+
+/* レビュー用の画面切替ナビ (本実装では削除) */
+.devnav {
+  position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+  z-index: 99; display: flex; gap: 2px;
+  background: rgba(5, 8, 15, 0.85); border: 1px solid var(--gold-line-soft);
+  border-radius: var(--r-full); padding: 4px 6px; backdrop-filter: blur(6px);
+}
+.devnav a { color: var(--gray-400); text-decoration: none; font-size: var(--fs-tiny); font-weight: 700; padding: 5px 8px; border-radius: var(--r-full); }
+.devnav a:hover { color: var(--gold-500); background: rgba(217, 169, 60, 0.12); }
+
+/* ============================================================
+   §2 画面1: ログイン (login-mock.png 準拠)
+   ============================================================ */
+.login { padding: 0 var(--page-x) var(--sp-6); justify-content: center; }
+.login-title {
+  font-family: var(--font-serif);
+  font-size: var(--fs-h1); font-weight: 700;
+  color: var(--cream-100);
+  letter-spacing: 0.05em;
+  line-height: var(--lh-tight);
+  text-align: center;
+  text-shadow: 0 0 20px rgba(217, 169, 60, 0.15); /* 金文字の微かな輝き */
+}
+.login-sub {
+  font-size: var(--fs-small); color: var(--gray-400);
+  text-align: center; margin-top: var(--sp-2);
+}
+.login-form { margin-top: var(--sp-6); }
+.input-label {
+  display: block; font-size: var(--fs-tiny); color: var(--gray-400);
+  letter-spacing: 0.1em; margin: 0 0 var(--sp-1) 2px;
+}
+.input {
+  width: 100%;
+  height: 52px;
+  padding: 0 var(--sp-4);
+  background: var(--navy-800);
+  border: 1px solid rgba(154, 163, 184, 0.25);
+  border-radius: var(--r-sm);
+  color: var(--cream-100);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+.input::placeholder { color: var(--gray-500); }
+.input:focus {
+  outline: none;
+  border-color: var(--gold-500);
+  box-shadow: 0 0 0 1px var(--gold-500), 0 0 16px var(--gold-glow);
+}
+.field { position: relative; }
+.field + .field-label { margin-top: var(--sp-4); }
+.eye {
+  position: absolute; right: 4px; top: 0; height: 52px;
+  background: none; border: none; color: var(--gray-400); padding: 0 12px; line-height: 0;
+}
+.field .input { padding-right: 46px; }
+/* パスワード欄の下のエラー用スペース */
+.form-error {
+  min-height: 18px;
+  font-size: var(--fs-small); color: var(--error);
+  margin-top: var(--sp-1);
+}
+.login .btn-gold { margin-top: var(--sp-5); }
+.login-links {
+  display: flex; align-items: center; justify-content: center; gap: var(--sp-4);
+  margin-top: var(--sp-4);
+}
+.login-links a {
+  font-size: var(--fs-small); color: var(--gray-400); text-decoration: none;
+  transition: color var(--dur-fast);
+}
+.login-links a:hover { color: var(--gold-500); text-decoration: underline; }
+.login-links .vr { width: 1px; height: 12px; background: var(--gold-line-soft); flex: none; }
+/* 区切り線 + 中央の金二重線装飾 */
+.login-hr {
+  position: relative;
+  border: none; border-top: 1px solid var(--gold-line-soft);
+  width: 100%; margin: var(--sp-5) 0 0;
+}
+.login-hr::after {
+  content: ""; position: absolute; left: 50%; top: -2px; transform: translateX(-50%);
+  width: 24px; height: 3px;
+  border-top: 1px solid var(--gold-500); border-bottom: 1px solid var(--gold-500);
+}
+
+/* ============================================================
+   §2 画面2: ローディング (loading-mock.png 準拠)
+   ============================================================ */
+.loading { justify-content: center; align-items: center; text-align: center; padding: var(--sp-6) var(--page-x); }
+.progress-ring {
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-line);       /* 外側の二重金枠 */
+  outline: 1px solid var(--gold-line-soft);
+  outline-offset: 5px;
+  position: relative;
+  margin: 0 auto;
+}
+.progress-ring__arc {
+  position: absolute; inset: 6px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--gold-500) calc(var(--progress, 0) * 1%),
+    rgba(217, 169, 60, 0.12) 0
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+  filter: drop-shadow(0 0 4px var(--gold-glow)); /* 進捗先端の光 */
+  transition: background 200ms linear;
+}
+.progress-ring__inner {
+  position: absolute; inset: 20px;
+  border-radius: 50%;
+  background: var(--ivory-bg); /* 動画の紙地と馴染ませる */
+  box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.25);
+  padding: 18px;
+  overflow: hidden;
+}
+.loading-title {
+  font-family: var(--font-serif); font-size: var(--fs-h2); font-weight: 700;
+  color: var(--cream-100); letter-spacing: 0.08em;
+  margin-top: var(--sp-6);
+}
+/* 「…」は点が順に点灯 (0.9s周期 ・ 0.3sずつ遅延) */
+.loading-title .dot { animation: dotBlink 0.9s ease-in-out infinite; }
+.loading-title .dot:nth-child(2) { animation-delay: 0.3s; }
+.loading-title .dot:nth-child(3) { animation-delay: 0.6s; }
+@keyframes dotBlink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+.loading-pct {
+  font-family: var(--font-sans); font-size: 28px; font-weight: 700;
+  color: var(--gold-500); font-variant-numeric: tabular-nums;
+  margin-top: var(--sp-3);
+}
+.loading-brand {
+  position: absolute; bottom: 40px; left: 0; right: 0;
+  font-family: var(--font-serif); font-size: var(--fs-small);
+  color: var(--gray-500); letter-spacing: 0.3em;
+}
+
+/* ============================================================
+   §2 画面3: 採点結果 (result-mock.png 準拠)
+   ============================================================ */
+.result { background: var(--navy-900); }
+.result-hero {
+  position: relative; height: 40dvh; min-height: 250px;
+  display: grid; place-items: end center;
+  overflow: hidden;
+}
+.result-hero .alco-wrap { height: 180px; width: auto; aspect-ratio: 8 / 9; margin-bottom: var(--sp-8); }
+/* 紙吹雪 (§2 画面3: 12〜16個 ・ 金/紺/クリーム3色) */
+.confetti {
+  position: absolute;
+  width: 6px; height: 10px;
+  background: var(--gold-500);
+  animation: confetti-fall linear infinite;
+  opacity: 0.9;
+  top: 0;
+}
+.confetti:nth-child(3n)   { background: var(--navy-600); width: 5px; height: 8px; }
+.confetti:nth-child(3n+1) { background: var(--gold-300); }
+.confetti:nth-child(4n)   { border-radius: 50%; width: 5px; height: 5px; }
+@keyframes confetti-fall {
+  0%   { transform: translateY(-20px) rotate(0deg) translateX(0); opacity: 0; }
+  10%  { opacity: 0.9; }
+  100% { transform: translateY(110%) rotate(720deg) translateX(30px); opacity: 0; }
+}
+.result-sheet {
+  background: var(--navy-800);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  border-top: 1px solid var(--gold-line);
+  box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.5);
+  margin-top: -40px; /* ヒーローに重ねる */
+  padding: var(--sp-6) var(--page-x) var(--sp-8);
+  position: relative; z-index: 2;
+  flex: 1;
+}
+.result-tag {
+  display: inline-block; font-size: var(--fs-small); font-weight: 700; color: var(--gold-500);
+  border: 1px solid var(--gold-line); border-radius: var(--r-full); padding: 5px 14px;
+}
+.score-row { display: flex; align-items: center; gap: var(--sp-4); margin-top: var(--sp-2); }
+.score-num {
+  font-family: var(--font-serif); font-size: var(--fs-hero); font-weight: 700;
+  color: var(--gold-500); line-height: 1.15;
+  text-shadow: 0 0 30px rgba(217, 169, 60, 0.3);
+  font-variant-numeric: tabular-nums;
+}
+.score-num small { font-family: var(--font-serif); font-size: var(--fs-h2); color: var(--cream-100); font-weight: 700; }
+.rank-col { margin-left: auto; text-align: center; }
+.rank-badge {
+  width: 44px; height: 44px; border-radius: 50%; margin: 0 auto;
+  border: 1.5px solid var(--gold-500);
+  display: grid; place-items: center;
+  font-family: var(--font-serif); font-size: 28px; font-weight: 700; color: var(--gold-500);
+  background: radial-gradient(circle, rgba(217, 169, 60, 0.15), transparent);
+}
+.rank-delta {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: var(--fs-small); font-weight: 700; color: var(--success);
+  margin-top: var(--sp-2); font-variant-numeric: tabular-nums;
+}
+.rank-delta::before { content: "▲"; font-size: 0.8em; }
+.meters { display: flex; gap: var(--sp-5); }
+.meter { margin-top: var(--sp-4); flex: 1; }
+.meter__label { display: flex; justify-content: space-between; font-size: var(--fs-small); color: var(--gray-400); }
+.meter__label b { color: var(--cream-100); font-variant-numeric: tabular-nums; }
+.meter__track {
+  height: 6px; border-radius: 3px;
+  background: rgba(154, 163, 184, 0.15);
+  overflow: hidden;
+  margin-top: var(--sp-2);
+}
+.meter__fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold-600), var(--gold-500) 70%, var(--gold-300));
+  box-shadow: 0 0 8px var(--gold-glow); /* バーの発光 */
+  width: 0;
+  animation: meter-grow 1.2s var(--ease-out) 0.3s forwards;
+}
+@keyframes meter-grow { to { width: var(--value); } }
+.letter-card {
+  background: linear-gradient(180deg, #F9F4E8, var(--cream-200));
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-paper);
+  padding: var(--sp-5);
+  margin-top: var(--sp-5);
+  position: relative;
+  /* 紙の質感: 薄い横筋 */
+  background-image: repeating-linear-gradient(0deg, transparent 0 27px, rgba(22, 41, 79, 0.04) 27px 28px);
+}
+.letter-card::before {
+  content: ""; position: absolute; top: 10px; left: 10px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold-500);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.letter-card p {
+  font-family: var(--font-serif);
+  font-size: var(--fs-body); line-height: var(--lh-body);
+  color: #2A3450; /* 紙の上は濃紺インク */
+}
+.letter-card .sign { text-align: right; color: #6B6455; font-size: var(--fs-small); font-family: var(--font-serif); margin-top: var(--sp-1); }
+.result-btns { display: flex; gap: var(--sp-3); margin-top: var(--sp-5); }
+.btn-outline {
+  flex: 1; height: 48px; border-radius: var(--r-full);
+  border: 1px solid var(--gold-line); background: transparent;
+  color: var(--gold-500); font-weight: 700; font-size: var(--fs-body);
+  transition: background var(--dur-fast);
+}
+.btn-outline:hover { background: rgba(217, 169, 60, 0.1); }
+.result-btns .btn-gold { flex: 1; height: 48px; }
+
+/* ============================================================
+   §2 画面4: ホーム (home-mock.png 準拠)
+   ============================================================ */
+.home { padding: 0 0 0; }
+.home-head {
+  display: flex; align-items: flex-start; gap: var(--sp-3);
+  padding: var(--sp-8) var(--page-x) 0;
+}
+.home-greet h1 { font-family: var(--font-serif); font-size: var(--fs-h1); font-weight: 700; color: var(--cream-100); text-wrap: balance; }
+.home-greet .date { font-size: var(--fs-small); color: var(--gray-400); margin-top: var(--sp-1); }
+/* 右上のアルコ小バッジ (88px ・ 01C) */
+.home-head .alco-badge { width: 88px; height: 88px; padding: 10px; margin: 0 0 0 auto; flex: none; }
+.home-cards { padding: var(--sp-5) var(--page-x) 96px; display: flex; flex-direction: column; gap: var(--sp-4); }
+.hcard {
+  background: linear-gradient(160deg, var(--navy-700), var(--navy-800));
+  border: 1px solid var(--gold-line);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-card);
+  padding: var(--sp-4) var(--sp-5);
+}
+.hlabel { font-size: var(--fs-tiny); font-weight: 700; letter-spacing: 0.14em; color: var(--gold-500); }
+.rank-row { display: flex; align-items: center; gap: var(--sp-3); }
+.rank-name { font-family: var(--font-serif); font-size: var(--fs-h2); font-weight: 700; margin-top: var(--sp-2); }
+.star-row { color: var(--gold-500); font-size: 18px; letter-spacing: 0.12em; margin-top: var(--sp-2); }
+.star-row .off { color: rgba(154, 163, 184, 0.4); }
+.lv-wrap { margin-left: auto; flex: none; position: relative; width: 70px; height: 70px; }
+.lv-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(var(--gold-500) 70%, rgba(217, 169, 60, 0.14) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+}
+.lv-text { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-serif); font-weight: 700; font-size: var(--fs-h2); }
+.song-row { display: flex; align-items: center; gap: var(--sp-3); }
+.song-name { font-family: var(--font-serif); font-size: var(--fs-h2); font-weight: 700; margin-top: var(--sp-2); }
+.star-pill {
+  margin-left: auto; flex: none;
+  background: linear-gradient(180deg, var(--gold-300), var(--gold-500) 60%, var(--gold-600));
+  color: var(--navy-900); font-weight: 700; font-size: var(--fs-small);
+  border-radius: var(--r-full); padding: 6px 12px;
+  box-shadow: var(--shadow-gold-btn);
+}
+.quote-card {
+  background: linear-gradient(180deg, #F9F4E8, var(--cream-200));
+  color: #2A3450;
+  border-radius: var(--r-md); padding: var(--sp-4) var(--sp-5);
+  font-family: var(--font-serif); font-weight: 700; font-size: 15px; line-height: var(--lh-body);
+  box-shadow: var(--shadow-paper);
+}
+.quote-card .who { display: block; text-align: right; font-size: var(--fs-small); color: #6B6455; margin-top: var(--sp-1); }
+.tabbar {
+  position: sticky; bottom: 0; margin-top: auto;
+  display: flex;
+  background: var(--navy-800);
+  border-top: 1px solid var(--gold-line-soft);
+  padding: var(--sp-2) 0 max(var(--sp-2), env(safe-area-inset-bottom));
+}
+.tabbar a { flex: 1; text-align: center; text-decoration: none; color: var(--gray-400); font-size: var(--fs-tiny); font-weight: 700; }
+.tabbar a .ic { display: block; font-size: 19px; line-height: 1.4; }
+.tabbar a.on { color: var(--gold-500); }
+
+/* ============================================================
+   §2 画面5: エラー・空状態 (empty-mock.png 準拠)
+   ============================================================ */
+.empty { background: var(--navy-900); }
+.empty-hero {
+  position: relative; flex: none;
+  display: grid; place-items: center;
+  padding: var(--sp-6) var(--page-x) var(--sp-5);
+  min-height: 46dvh;
+}
+.empty-hero .alco-wrap { height: 200px; aspect-ratio: 1; }
+.empty-panel {
+  flex: 1;
+  background: var(--navy-900);
+  padding: var(--sp-6) var(--sp-5) calc(var(--sp-8) + env(safe-area-inset-bottom));
+  text-align: center;
+}
+/* 見出しの上の装飾: 幅24pxの金二重線 */
+.empty-deco {
+  width: 24px; height: 3px; margin: 0 auto var(--sp-4);
+  border-top: 1px solid var(--gold-500); border-bottom: 1px solid var(--gold-500);
+}
+.empty-title { font-family: var(--font-serif); font-size: var(--fs-h1); font-weight: 700; color: var(--cream-100); text-align: center; }
+.empty-body { font-size: var(--fs-body); color: var(--gray-400); text-align: center; line-height: var(--lh-body); margin-top: var(--sp-3); }
+.empty-panel .btn-gold { max-width: 320px; margin: var(--sp-5) auto 0; display: block; }
+
+/* 画面5のヒーローは水彩 (hero-watercolor を併用) */
+.empty .hero-watercolor { border-radius: 0 0 var(--r-lg) var(--r-lg); }
