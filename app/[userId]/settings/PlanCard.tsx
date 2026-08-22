@@ -55,14 +55,14 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
     : null
 
   return (
-    <section style={{ background: "#fff", border: "1px solid #eceff3", borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
+    <section style={{ background: "var(--card-in)", border: "1px solid rgba(150,175,225,.12)", borderRadius: 14, padding: "16px 18px", marginBottom: 14 }}>
       <h2 style={{ fontSize: "var(--fs-subhead)", fontWeight: 800, margin: "0 0 4px", color: "var(--text-ink)" }}>プラン</h2>
 
       {isPlus ? (
         <>
           <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "8px 0 4px" }}>
             <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: "var(--text-master)", display: "inline-flex", alignItems: "center", gap: 4 }}><Sparkles size={15} /> アルコプラス</span>
-            <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 999, padding: "2px 10px" }}>
+            <span style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--text-master)", background: "rgba(232,178,60,.12)", border: "1px solid rgba(232,178,60,.3)", borderRadius: 999, padding: "2px 10px" }}>
               {(planStatus && STATUS_LABEL[planStatus]) || "契約中"}
             </span>
           </div>
@@ -76,7 +76,7 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
             type="button"
             onClick={() => jump("portal")}
             disabled={pending != null}
-            style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-body)", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 18px", cursor: "pointer", opacity: pending ? 0.5 : 1 }}
+            style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-body)", background: "var(--card-in)", border: "1px solid rgba(150,175,225,.16)", borderRadius: 9, padding: "9px 18px", cursor: "pointer", opacity: pending ? 0.5 : 1 }}
           >
             {pending === "portal" ? "開いています…" : "契約を管理"}
           </button>
@@ -93,7 +93,7 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
               type="button"
               onClick={() => jump("month")}
               disabled={pending != null}
-              style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#8a5a1f", border: "none", borderRadius: 9, padding: "10px 20px", cursor: "pointer", opacity: pending ? 0.5 : 1 }}
+              style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "var(--gold)", border: "none", borderRadius: 9, padding: "10px 20px", cursor: "pointer", opacity: pending ? 0.5 : 1 }}
             >
               {pending === "month" ? "開いています…" : "月額 980円で始める"}
             </button>
@@ -101,7 +101,7 @@ export default function PlanCard({ billingEnabled, isPlus, planStatus, periodEnd
               type="button"
               onClick={() => jump("year")}
               disabled={pending != null}
-              style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-master)", background: "#fdf3d8", border: "1px solid #eed9a0", borderRadius: 9, padding: "10px 20px", cursor: "pointer", opacity: pending ? 0.5 : 1 }}
+              style={{ fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-master)", background: "rgba(232,178,60,.12)", border: "1px solid rgba(232,178,60,.3)", borderRadius: 9, padding: "10px 20px", cursor: "pointer", opacity: pending ? 0.5 : 1 }}
             >
               {pending === "year" ? "開いています…" : "年額 9,800円・2ヶ月分お得"}
             </button>

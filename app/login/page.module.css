@@ -20,7 +20,7 @@
   top: 50%;
   width: 35%;
   height: 1px;
-  background: #e5e7eb;
+  background: rgba(150,175,225,.20);
 }
 
 .divider::before {
@@ -42,10 +42,10 @@
   max-width: 320px;
   height: 48px;
 
-  background-color: #ffffff;
+  background-color: #0d1b33;
   color: var(--text-ink);
 
-  border: 1px solid #ddd;
+  border: 1px solid rgba(150,175,225,.24);
   border-radius: 8px;
 
   font-size: var(--fs-subhead);
@@ -54,7 +54,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
 
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 6px rgba(4, 10, 28, 0.4);
 }
 
 /* モチベーション画像中央揃え */
@@ -88,14 +88,14 @@
 
 /* ホバー */
 .googleButton:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(4, 10, 28, 0.5);
   transform: translateY(-2px);
 }
 
 /* 押した時 */
 .googleButton:active {
   transform: translateY(0px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(4, 10, 28, 0.4);
 }
 
 .logoContainer {
@@ -143,13 +143,13 @@
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-link); /* gray-900 */
+  color: var(--text-ink);
 }
 
 .input {
-  background-color: #f9fafb; /* gray-50 */
-  border: 1px solid #d1d5db; /* gray-300 */
-  color: var(--text-link);
+  background-color: rgba(150,175,225,.10);
+  border: 1px solid rgba(150,175,225,.24);
+  color: #eaf0ff;
   font-size: 0.875rem;
   border-radius: 0.5rem;
   padding: 0.625rem;
@@ -165,7 +165,7 @@
 
 .button {
   width: 100%;
-  background-color: #1d4ed8; /* blue-700 */
+  background-color: #2b5bc4;
   color: var(--text-on-accent);
   font-weight: 500;
   border-radius: 0.5rem;
@@ -177,7 +177,7 @@
 }
 
 .button:hover {
-  background-color: #1e40af; /* blue-800 */
+  background-color: #24518f;
 }
 
 .button:focus {

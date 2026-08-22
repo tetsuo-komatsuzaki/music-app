@@ -64,7 +64,7 @@ export default function GoalCard() {
     })
   }
 
-  const inp: React.CSSProperties = { width: "100%", border: "1px solid #dfe3e8", borderRadius: 9, padding: "9px 12px", fontSize: "var(--fs-body)", marginTop: 5 }
+  const inp: React.CSSProperties = { width: "100%", border: "1px solid rgba(150,175,225,.16)", borderRadius: 9, padding: "9px 12px", fontSize: "var(--fs-body)", marginTop: 5 }
   const lbl: React.CSSProperties = { fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", display: "block", marginTop: 12 }
 
   return (
@@ -88,7 +88,7 @@ export default function GoalCard() {
             <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)" }}>目標が未設定です。目標を決めると、ホームのおすすめや先生への共有に使われます。</div>
           )}
           <button type="button" onClick={openEdit}
-            style={{ marginTop: 10, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", background: "#fff", border: "1px solid #dfe3e8", borderRadius: 9, padding: "8px 14px", cursor: "pointer" }}>
+            style={{ marginTop: 10, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-ink)", background: "var(--card-in)", border: "1px solid rgba(150,175,225,.16)", borderRadius: 9, padding: "8px 14px", cursor: "pointer" }}>
             {goal?.songName ? "目標を変更" : "目標を設定"}
           </button>
         </>
@@ -115,16 +115,16 @@ export default function GoalCard() {
           </label>
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
             <button type="button" onClick={() => setEditing(false)}
-              style={{ flex: 1, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", background: "#fff", border: "1px solid #e2e6ea", borderRadius: 9, padding: 10, cursor: "pointer" }}>キャンセル</button>
+              style={{ flex: 1, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-sub)", background: "var(--card-in)", border: "1px solid rgba(150,175,225,.14)", borderRadius: 9, padding: 10, cursor: "pointer" }}>キャンセル</button>
             <button type="button" onClick={save} disabled={pending}
-              style={{ flex: 2, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "#2b3742", border: "none", borderRadius: 9, padding: 10, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+              style={{ flex: 2, fontSize: "var(--fs-body)", fontWeight: 800, color: "var(--text-on-accent)", background: "var(--text-ink)", border: "none", borderRadius: 9, padding: 10, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
               {pending ? "保存中…" : "保存する"}
             </button>
           </div>
         </div>
       )}
 
-      {msg && <div style={{ fontSize: "var(--fs-body)", marginTop: 8, color: msg.ok ? "#2e8b57" : "#c0392b" }}>{msg.text}</div>}
+      {msg && <div style={{ fontSize: "var(--fs-body)", marginTop: 8, color: msg.ok ? "#a8c97f" : "#e8697a" }}>{msg.text}</div>}
     </section>
   )
 }

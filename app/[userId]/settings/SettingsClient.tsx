@@ -70,9 +70,9 @@ export default function SettingsClient({
               aria-checked={!emailOff}
               onClick={toggleTeacherEmail}
               disabled={notifyPending}
-              style={{ flex: "none", width: 46, height: 27, borderRadius: 999, border: "none", cursor: "pointer", position: "relative", background: emailOff ? "#cfd4da" : "#34a06a", transition: "background .15s", padding: 0 }}
+              style={{ flex: "none", width: 46, height: 27, borderRadius: 999, border: "none", cursor: "pointer", position: "relative", background: emailOff ? "rgba(150,175,225,.24)" : "#a8c97f", transition: "background .15s", padding: 0 }}
             >
-              <span style={{ position: "absolute", top: 3, left: emailOff ? 3 : 22, width: 21, height: 21, borderRadius: "50%", background: "#fff", boxShadow: "0 1px 2px rgba(0,0,0,.25)", transition: "left .15s" }} />
+              <span style={{ position: "absolute", top: 3, left: emailOff ? 3 : 22, width: 21, height: 21, borderRadius: "50%", background: "var(--card-in)", boxShadow: "0 1px 2px rgba(0,0,0,.25)", transition: "left .15s" }} />
             </button>
           </div>
           <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)", marginTop: 8 }}>
@@ -87,7 +87,7 @@ export default function SettingsClient({
         <span style={{ fontSize: "var(--fs-body)", fontWeight: 700, color: "var(--text-ink)" }}>
           表示名・メール・パスワード
         </span>
-        <Link href={`/${_userId}/profile`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "#a8791b", textDecoration: "none", whiteSpace: "nowrap" }}>
+        <Link href={`/${_userId}/profile`} style={{ fontSize: "var(--fs-caption)", fontWeight: 800, color: "var(--gold)", textDecoration: "none", whiteSpace: "nowrap" }}>
           プロフィールへ →
         </Link>
       </div>

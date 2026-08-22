@@ -32,11 +32,11 @@
 .input {
   padding: 0.625rem;
   border-radius: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(150,175,225,.24);
 }
 
 .button {
-  background-color: #1d4ed8;
+  background-color: #2b5bc4;
   color: var(--text-on-accent);
   border-radius: 0.5rem;
   padding: 0.625rem;
