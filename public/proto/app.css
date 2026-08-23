@@ -518,6 +518,12 @@ video.alco-fig { background: transparent; }
   color: #FFFFFF;
   margin-left: 6px;
 }
+/* 「点」を数字の右横 ・ ベースライン揃えで並べる (2026-08-23指摘: かぶり解消) */
+.score-row > div:first-child {
+  display: flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
 .score-side { text-align: right; }
 .rank-badge {
   display: inline-flex;
