@@ -84,16 +84,15 @@
 .scoreRow { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
 .big { display: flex; align-items: baseline; white-space: nowrap; }
 .bigNum {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 72px; font-weight: 700; line-height: .9;
+  font-size: 72px; font-weight: 900; line-height: .9;
   color: #ffffff; font-variant-numeric: tabular-nums;
 }
-.bigUnit { font-family: var(--font-mincho), serif; font-size: 20px; color: #ffffff; margin-left: 6px; }
+.bigUnit { font-size: 20px; font-weight: 700; color: #ffffff; margin-left: 6px; }
 .side { margin-left: auto; text-align: right; }
 .rank {
   display: inline-flex; align-items: center; justify-content: center;
   width: 44px; height: 44px; border-radius: 50%;
-  font-family: var(--font-mincho), serif; font-size: 24px; font-weight: 700;
+  font-size: 24px; font-weight: 900;
 }
 .rS { border: 1.5px solid var(--goldMid); color: var(--goldMid); background: radial-gradient(circle, rgba(217, 169, 60, .15), transparent); }
 .rA { border: 1.5px solid #7fa4e8; color: #7fa4e8; background: radial-gradient(circle, rgba(127, 164, 232, .14), transparent); }
@@ -132,7 +131,7 @@
   width: 6px; height: 6px; border-radius: 50%;
   background: #d4af37; box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
 }
-.letter p { font-family: var(--font-mincho), serif; font-size: var(--fs-body); line-height: 1.8; color: #2a3450; margin: 0; }
+.letter p { font-size: var(--fs-body); font-weight: 700; line-height: 1.8; color: #2a3450; margin: 0; }
 .letter .sign { text-align: right; color: #6b6455; font-size: var(--fs-caption); margin-top: 4px; }
 
 /* セクション (マスターまで — 機能維持 ・ シート地に馴染むダーク) */

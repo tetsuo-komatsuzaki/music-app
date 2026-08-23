@@ -25,7 +25,6 @@
 }
 
 .title {
-  font-family: var(--font-mincho), serif;
   font-size: 24px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -86,8 +85,7 @@
   border-radius: 999px;
   background: linear-gradient(180deg, #f0d98c 0%, #d4af37 45%, #b8892e 100%);
   color: #0b1220;
-  font-family: var(--font-mincho), serif;
-  font-weight: 700;
+  font-weight: 900;
   font-size: 16px;
   letter-spacing: 0.08em;
   cursor: pointer;

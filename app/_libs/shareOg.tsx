@@ -3,7 +3,8 @@
 // デザイン = 確定モック: お祝い系(master/rank_up)=クリーム金+図形紙吹雪 / 報告系(weekly/daily)=五線譜。
 // アルコちゃんは ArcoChan SVG を data URI で埋め込み (アプリ内と同一キャラ)。
 import type { ReactElement } from "react"
-import { ARCO_SVG } from "@/app/_libs/shareArcoSvg"
+import { readFileSync } from "fs"
+import { join } from "path"
 import {
   type ShareKind, type SharePayload, isCelebrationKind, titleFontPx, SHARE_KIND_META,
 } from "@/app/_libs/shareCard"
@@ -18,11 +19,16 @@ const C = {
   staff: "#e3d5ac", note: "#d8c48e", glow: "#f5df9e66",
 }
 
-// ── ArcoChan → SVG data URI ────────────────────────────
-// ポーズは事前生成 (scripts/gen_share_arco.tsx): master/rank_up=喜び, weekly=お疲れさま, daily=いいね
+// ── 新アルコ (水彩ポスター) → JPEG data URI ────────────────────────────
+// 2026-08-23: 旧SVGアルコ→キットのポスターへ。master/rank_up=喜び, weekly=お疲れさま(ひと息), daily=いいね(拍手)
+const ARCO_KIND_KIT: Record<ShareKind, string> = { master: "02A", rank_up: "02B", weekly: "10A", daily: "06A" }
+const arcoCache: Partial<Record<ShareKind, string>> = {}
 export function arcoDataUri(kind: ShareKind): string {
-  // base64 で埋め込む (utf8 の日本語 aria-label が btoa 経路で InvalidCharacterError になるため)
-  return `data:image/svg+xml;base64,${Buffer.from(ARCO_SVG[kind], "utf8").toString("base64")}`
+  if (!arcoCache[kind]) {
+    const buf = readFileSync(join(process.cwd(), "public", "arco", `${ARCO_KIND_KIT[kind]}.jpg`))
+    arcoCache[kind] = `data:image/jpeg;base64,${buf.toString("base64")}`
+  }
+  return arcoCache[kind]!
 }
 
 // ── 五線譜背景 (報告系) → SVG data URI ─────────────────
@@ -178,7 +184,7 @@ export function ShareOgCard({
         backgroundImage: `radial-gradient(circle, ${C.glow} 0%, rgba(255,255,255,0) 68%)`,
       }} />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={arcoDataUri(kind)} width={arcoSize} height={arcoSize} alt="" />
+      <img src={arcoDataUri(kind)} width={arcoSize} height={arcoSize} alt="" style={{ borderRadius: "50%" }} />
     </div>
   )
 

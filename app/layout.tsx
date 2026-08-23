@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Zen_Kaku_Gothic_New, Noto_Serif_JP } from "next/font/google";
+import { Geist, Geist_Mono, Zen_Kaku_Gothic_New } from "next/font/google";
 import "./globals.css";
 import HapticProvider from "./components/HapticProvider";
 import NativeChrome from "./components/NativeChrome";
@@ -21,14 +21,6 @@ const zenKaku = Zen_Kaku_Gothic_New({
   weight: ["400", "500", "700", "900"],
   // 日本語はプリロード対象外のため subsets 指定なし + preload:false で
   // 全スライスを unicode-range 配信にする (これで漢字かなが Zen Kaku になる)
-  preload: false,
-  display: "swap",
-});
-
-// 明朝 (2026-08-23 proto v3写経: 見出し・スコア数字用 --font-mincho)
-const notoSerif = Noto_Serif_JP({
-  variable: "--font-mincho",
-  weight: ["600", "700"],
   preload: false,
   display: "swap",
 });
@@ -58,7 +50,7 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${zenKaku.variable} ${notoSerif.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${zenKaku.variable} antialiased`}
       >
         {/* アプリ殻では起動直後(ハイドレーション前)から data-native-app を立てる。
             Capacitorブリッジは document start で注入済みなので同期判定できる。

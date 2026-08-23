@@ -568,6 +568,9 @@ const STYLES = `
   @media (prefers-reduced-motion: reduce) { [data-arco] * { animation: none !important; } }
 `
 
+// ── 新アルコ (2026-08-23: 旧SVG→水彩ポスター。poseKey/pose両対応のAPI互換) ──
+const ARCO_IMG_FALLBACK: Record<string, string> = { "06C": "06B" }
+
 export function ArcoChan({
   poseKey,
   pose,
@@ -579,70 +582,18 @@ export function ArcoChan({
   pose?: ArcoPose
   playing?: boolean
 }) {
+  void playing // 静止ポスターのため未使用 (呼び出し互換のため残置)
   const p = pose ?? POSE_BY_ID[POSE_KEY_MAP[poseKey ?? "question"]]
-  const PropFirst = p.propFirst ? PROPS[p.propFirst] : null
-  const Prop = p.prop ? PROPS[p.prop] : null
-
-  /* 振る手 = アルコ本人の右手 = 画面左側 = arms[0]（弓を持つ側）
-     画面右側 = アルコの左手 = バイオリン側 → 常に固定。
-     弓・指差しの手がどちら側にあるかは座標から自動判定し、
-     振る手と同じ側にあるものだけ #waver に入れて一緒に動かす。 */
-  const waving = !!p.wave
-  const CENTER = 100
-
-  const bowEl = p.bow ? <Bow bow={p.bow} /> : null
-  const bowOnWavingSide = !!(p.bow && p.bow.frog[0] < CENTER)
-  const handOnWavingSide = !!(p.hand && p.hand[0] < CENTER)
-
-  const bowInWaver = waving && bowEl && bowOnWavingSide
-  const bowStill = bowEl && !bowInWaver
-
-  const wavingArm = <ArmPath d={p.arms[0]} />
-  const stillArm = <ArmPath d={p.arms[1]} />
-  const handEl = <HandPoint at={p.hand} />
-
+  const id = ARCO_IMG_FALLBACK[p.id] ?? p.id
   return (
-    <svg viewBox="-45 -25 290 275" width="100%" height="100%" data-arco={playing ? p.anim : "static"} role="img" aria-label={`アルコちゃん：${p.label}`}>
-      <style>{STYLES}</style>
-      <g id="root" transform={p.rootRotate ? `rotate(${p.rootRotate} 100 186)` : undefined}>
-        {p.bowFirst && bowStill && bowEl}
-        <Body dy={p.bodyDy || 0} />
-        {PropFirst && <PropFirst />}
-
-        {waving ? (
-          <>
-            <g id="arm-still">
-              {!handOnWavingSide && handEl}
-              {stillArm}
-            </g>
-            {Prop && <Prop />}
-            {!p.bowFirst && bowStill && bowEl}
-            <g id="waver">
-              {handOnWavingSide && handEl}
-              {wavingArm}
-              {bowInWaver && bowEl}
-            </g>
-          </>
-        ) : (
-          <>
-            {handEl}
-            <g id="arms">
-              {wavingArm}
-              {stillArm}
-            </g>
-            {Prop && <Prop />}
-            {!p.bowFirst && bowStill && bowEl}
-          </>
-        )}
-
-        <Head pose={p} />
-        {p.fx && <Effects fx={p.fx} />}
-      </g>
-      {p.fxOutside && (
-        <g id="fx-out">
-          <Effects fx={p.fxOutside} />
-        </g>
-      )}
-    </svg>
+    <span
+      role="img"
+      aria-label={`アルコちゃん：${p.label}`}
+      style={{ display: "block", width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: "#faf9f6" }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={`/arco/${id}.jpg`} alt="" draggable={false}
+        style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />
+    </span>
   )
 }

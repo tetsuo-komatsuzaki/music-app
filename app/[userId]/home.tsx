@@ -133,7 +133,6 @@ export default function HomeClient({
             whiteSpace: "nowrap",
             flex: 1,
             minWidth: 0,
-            fontFamily: "var(--font-mincho), serif",
             fontSize: userName.length <= 5 ? 26 : userName.length <= 9 ? 21 : 18,
           }}
         >
@@ -150,7 +149,7 @@ export default function HomeClient({
         boxShadow: "0 6px 18px rgba(0,0,0,.3), 0 1px 3px rgba(0,0,0,.2)",
       }}>
         <span aria-hidden style={{ position: "absolute", top: 9, left: 9, width: 6, height: 6, borderRadius: "50%", background: "#d4af37", boxShadow: "0 1px 2px rgba(0,0,0,.3)" }} />
-        <p style={{ margin: 0, fontFamily: "var(--font-mincho), serif", fontSize: 14, fontWeight: 700, lineHeight: 1.8, color: "#2a3450" }}>
+        <p style={{ margin: 0, fontSize: 14, fontWeight: 700, lineHeight: 1.8, color: "#2a3450" }}>
           {ARCO_HITOKOTO[new Date().getDate() % ARCO_HITOKOTO.length]}
         </p>
         <span style={{ display: "block", textAlign: "right", fontSize: 11, color: "#6b6455", marginTop: 2 }}>―― アルコからひとこと</span>

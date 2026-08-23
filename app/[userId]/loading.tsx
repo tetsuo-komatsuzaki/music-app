@@ -31,13 +31,13 @@ export default function Loading() {
         <ArcoMotion kit="05A" label="相棒のアルコ" className="arcoLoadDisc" />
         <style>{`.arcoLoadDisc { position: absolute; inset: 10px; }`}</style>
       </div>
-      <p className="arcoLoadDots" style={{ fontFamily: "var(--font-mincho), serif", fontSize: 17, fontWeight: 700, letterSpacing: ".08em", color: "#fffae8", margin: "30px 0 0" }}>
+      <p className="arcoLoadDots" style={{ fontSize: 17, fontWeight: 800, letterSpacing: ".08em", color: "#fffae8", margin: "30px 0 0" }}>
         音を調えています
         <span aria-hidden style={{ animation: "arcoLoadDot .9s ease-in-out infinite" }}>・</span>
         <span aria-hidden style={{ animation: "arcoLoadDot .9s ease-in-out infinite .3s" }}>・</span>
         <span aria-hidden style={{ animation: "arcoLoadDot .9s ease-in-out infinite .6s" }}>・</span>
       </p>
-      <p style={{ fontFamily: "var(--font-mincho), serif", fontSize: 12, letterSpacing: ".3em", color: "#6b7488", margin: "26px 0 0" }}>Arcoda</p>
+      <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".3em", color: "#6b7488", margin: "26px 0 0" }}>Arcoda</p>
     </div>
   )
 }

@@ -161,7 +161,7 @@ export default async function RecordsPage({ params, searchParams }: {
           <ArcoMotion kit="05C" label="楽譜を見せるアルコ" className="recEmptyArco" />
           <style>{`.recEmptyArco { width: 176px; height: 176px; margin: 0 auto; box-shadow: 0 0 0 3px #e8ca84, 0 0 0 8px rgba(11,18,32,.9), 0 0 0 9px #bca160, 0 10px 28px rgba(0,0,0,.45); }`}</style>
           <div aria-hidden style={{ width: 24, height: 3, margin: "22px auto 14px", borderTop: "1px solid #d4af37", borderBottom: "1px solid #d4af37" }} />
-          <b style={{ display: "block", fontFamily: "var(--font-mincho), serif", fontSize: 21, fontWeight: 700, color: "#fffae8" }}>まだ記録がありません</b>
+          <b style={{ display: "block", fontSize: 21, fontWeight: 900, color: "#fffae8" }}>まだ記録がありません</b>
           <span style={{ display: "block", fontSize: 13, color: "#a89d85", marginTop: 10, lineHeight: 1.8 }}>
             最初の1曲を、いっしょに録りましょう
           </span>
@@ -170,7 +170,7 @@ export default async function RecordsPage({ params, searchParams }: {
               display: "inline-flex", alignItems: "center", justifyContent: "center",
               width: "100%", maxWidth: 300, height: 50, borderRadius: 999,
               background: "linear-gradient(180deg, #f0d98c 0%, #d4af37 45%, #b8892e 100%)",
-              color: "#0b1220", fontFamily: "var(--font-mincho), serif", fontWeight: 700, fontSize: 15, letterSpacing: ".08em",
+              color: "#0b1220", fontWeight: 900, fontSize: 15, letterSpacing: ".08em",
               textDecoration: "none",
               boxShadow: "0 4px 14px rgba(217,169,60,.35), 0 2px 4px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.35)",
             }}>
