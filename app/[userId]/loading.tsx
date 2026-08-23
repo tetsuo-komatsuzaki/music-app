@@ -8,9 +8,11 @@ export default function Loading() {
     <div style={{ minHeight: "70dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
       <style>{`
         @keyframes arcoLoadSpin { to { transform: rotate(360deg); } }
+        @keyframes arcoLoadBob { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-6px) rotate(1.5deg); } }
         @keyframes arcoLoadDot { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
         @media (prefers-reduced-motion: reduce) {
           .arcoLoadArc { animation: none !important; }
+          .arcoLoadDisc { animation: none !important; }
           .arcoLoadDots span { animation: none !important; opacity: .6; }
         }
       `}</style>
@@ -29,7 +31,7 @@ export default function Loading() {
           }}
         />
         <ArcoMotion kit="05A" label="相棒のアルコ" className="arcoLoadDisc" />
-        <style>{`.arcoLoadDisc { position: absolute; inset: 10px; }`}</style>
+        <style>{`.arcoLoadDisc { position: absolute; inset: 10px; animation: arcoLoadBob 2.4s ease-in-out infinite; }`}</style>
       </div>
       <p className="arcoLoadDots" style={{ fontSize: 17, fontWeight: 800, letterSpacing: ".08em", color: "#fffae8", margin: "30px 0 0" }}>
         音を調えています

@@ -17,6 +17,7 @@ import styles from "./library.module.css"
 import PieceCatalog from "./PieceCatalog"
 import type { CatalogPiece } from "./loadPieceCatalog"
 import ds from "@/app/components/ds.module.css"
+import ArcoMotion from "@/app/components/ArcoMotion"
 
 export type LibraryPiece = {
   id: string
@@ -78,7 +79,12 @@ export default function LibraryClient({
   return (
     <div className={styles.root}>
       {/* 原本 HEAD: h1.t + subT + 検索inset */}
-      <h1 className={ds.t} style={{ paddingTop: 6 }}>ライブラリ</h1>
+      {/* 見出し+動くアルコ (2026-08-23 Tetsuo指示: 右側に金縁メダリオンの05C) */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <h1 className={ds.t} style={{ paddingTop: 6, flex: 1, minWidth: 0 }}>ライブラリ</h1>
+        <ArcoMotion kit="05C" label="楽譜を見せるアルコ" className="libArcoBadge" />
+        <style>{`.libArcoBadge { width: 64px; height: 64px; flex: none; box-shadow: 0 0 0 3px #e8ca84, 0 0 0 7px rgba(11,18,32,.9), 0 0 0 8px #bca160, 0 8px 22px rgba(0,0,0,.45); }`}</style>
+      </div>
       <div className={styles.subT}>弾くものは、ぜんぶここに。</div>
       <div className={styles.search}>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>

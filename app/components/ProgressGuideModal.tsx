@@ -120,8 +120,8 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
             </svg>
             {NODES.map((n, i) => (
               <div key={i} style={{ position: "absolute", left: n.left, top: n.top, width: 80, transform: "translate(-50%,-50%)", textAlign: "center" }}>
-                <div style={{ position: "relative", width: 50, height: 50, borderRadius: 16, margin: "0 auto 4px", background: "#fff", border: `1.5px solid ${GOLD_BD}`, display: "grid", placeItems: "center", color: GOLD, boxShadow: "0 3px 10px rgba(160,120,30,.14)" }}>
-                  <span style={{ position: "absolute", top: -6, left: -6, width: 19, height: 19, borderRadius: "50%", background: GOLD, color: "#fff", fontSize: 10, fontWeight: 900, display: "grid", placeItems: "center", boxShadow: "0 1px 3px rgba(120,80,10,.35)" }}>{i + 1}</span>
+                <div style={{ position: "relative", width: 50, height: 50, borderRadius: 16, margin: "0 auto 4px", background: "var(--card-in)", border: "1.5px solid rgba(127,164,232,.4)", display: "grid", placeItems: "center", color: "#7fa4e8", boxShadow: "0 3px 10px rgba(4,10,28,.4)" }}>
+                  <span style={{ position: "absolute", top: -6, left: -6, width: 19, height: 19, borderRadius: "50%", background: "#2b5bc4", color: "#fff", fontSize: 10, fontWeight: 900, display: "grid", placeItems: "center", boxShadow: "0 1px 3px rgba(4,10,28,.4)" }}>{i + 1}</span>
                   <n.Icon size={24} strokeWidth={1.9} />
                 </div>
                 <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: APP_INK }}>{n.label}</div>
@@ -137,14 +137,14 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
           {/* 各ステップ 説明カード */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {STEPS.map((s, i) => (
-              <div key={i} style={{ display: "flex", gap: 11, padding: "12px 13px", border: "1px solid rgba(150,175,225,.14)", borderRadius: 14, background: "#fff", position: "relative", overflow: "hidden" }}>
-                <span aria-hidden style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: `linear-gradient(180deg,${GOLD_LT},${GOLD})` }} />
-                <div style={{ width: 38, height: 38, flex: "none", borderRadius: 11, background: GOLD_BG, border: `1px solid ${GOLD_BD}`, display: "grid", placeItems: "center", color: GOLD }}>
+              <div key={i} style={{ display: "flex", gap: 11, padding: "12px 13px", border: "1px solid rgba(150,175,225,.14)", borderRadius: 14, background: "var(--card-in)", position: "relative", overflow: "hidden" }}>
+                <span aria-hidden style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: "linear-gradient(180deg,#7fa4e8,#2b5bc4)" }} />
+                <div style={{ width: 38, height: 38, flex: "none", borderRadius: 11, background: "rgba(43,91,196,.18)", border: "1px solid rgba(127,164,232,.35)", display: "grid", placeItems: "center", color: "#7fa4e8" }}>
                   <s.Icon size={20} strokeWidth={1.9} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
-                    <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: GOLD, letterSpacing: ".05em" }}>{s.no}</span>
+                    <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#7fa4e8", letterSpacing: ".05em" }}>{s.no}</span>
                     <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: APP_INK }}>{s.title}</span>
                   </div>
                   <div style={{ fontSize: "var(--fs-caption)", color: APP_SUB, fontWeight: 700, marginTop: 2, lineHeight: 1.55 }}>{s.what}</div>
@@ -164,7 +164,7 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
 
           <button
             type="button" onClick={onClose}
-            style={{ marginTop: 16, width: "100%", padding: "11px 0", borderRadius: 12, border: "none", background: GOLD_INK, color: "var(--text-on-accent)", fontSize: "var(--fs-subhead)", fontWeight: 800, cursor: "pointer" }}
+            style={{ marginTop: 16, width: "100%", padding: "11px 0", borderRadius: 12, border: "none", background: "linear-gradient(180deg,#e8b23c,#d2992c)", color: "#201604", fontSize: "var(--fs-subhead)", fontWeight: 900, cursor: "pointer" }}
           >
             とじる
           </button>
