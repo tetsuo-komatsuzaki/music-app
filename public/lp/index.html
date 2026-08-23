@@ -632,7 +632,6 @@ body::after{ content:""; position:fixed; inset:0; z-index:60; pointer-events:non
             <div class="solCard p1"><i class="pn">02</i><b>どう練習するか</b><span>きみ専用の練習メニューを、毎日組みます。</span></div>
             <div class="solCard p2"><i class="pn">03</i><b>伸びているか</b><span>演奏はぜんぶカルテに積み上がり、成長が目に見えます。</span></div>
           </div>
-          <div class="solDots" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
           <div class="solTapHint">カードをタップ</div>
         </div>
         </div>
@@ -938,7 +937,7 @@ document.querySelectorAll("form.field").forEach(function (f) {
 (function () {
   var deck = document.querySelector(".solDeck");
   if (!deck) return;
-  var dots = document.querySelectorAll(".solDots i");
+  var dots = [];
   var order = Array.prototype.slice.call(deck.querySelectorAll(".solCard"));
   var front = 0, busy = false;
   deck.addEventListener("click", function () {
@@ -956,7 +955,7 @@ document.querySelectorAll("form.field").forEach(function (f) {
       busy = false;
     }, 820);
     front = (front + 1) % order.length;
-    dots.forEach(function (d, i) { d.classList.toggle("on", i === front); });
+    
   });
 })();
 </script>
