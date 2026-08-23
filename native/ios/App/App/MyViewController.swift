@@ -19,7 +19,9 @@ class MyViewController: CAPBridgeViewController {
     private var progressObservation: NSKeyValueObservation?
     private var splashTimeoutTimer: Timer?
 
-    private static let navy = UIColor(red: 22/255, green: 41/255, blue: 79/255, alpha: 1)
+    /// 起動画面とスプラッシュ (splash.html の html/body) と同じ色。
+    /// ずれると「濃紺→さらに濃い紺」の切り替わりが一瞬見える。
+    private static let splashBackground = UIColor(red: 10/255, green: 17/255, blue: 34/255, alpha: 1)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -91,8 +93,8 @@ class MyViewController: CAPBridgeViewController {
         overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         overlay.isUserInteractionEnabled = false
         overlay.isOpaque = true
-        overlay.backgroundColor = MyViewController.navy
-        overlay.scrollView.backgroundColor = MyViewController.navy
+        overlay.backgroundColor = MyViewController.splashBackground
+        overlay.scrollView.backgroundColor = MyViewController.splashBackground
         overlay.scrollView.isScrollEnabled = false
 
         window.addSubview(overlay)
