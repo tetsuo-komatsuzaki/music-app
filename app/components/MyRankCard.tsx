@@ -5,14 +5,11 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import styles from "./MyRankCard.module.css"
 import ds from "./ds.module.css"
-import { ArcoChan, POSES } from "./ArcoChan"
+import ArcoMotion from "./ArcoMotion"
 import {
   rankName, shortDate,
   type RankCardData,
 } from "@/app/_libs/rankCard"
-
-// ホームの日替わりアルコと同じモーション付きイラストで統一 (2026-07-20)。
-const POSE_EMBLEM = POSES.find((p) => p.cat === "指差し") ?? POSES[0]
 
 export default function MyRankCard(props: RankCardData & { onGuide?: () => void }) {
   const { currentStar, required, achievedCount, stamps, onGuide } = props
@@ -62,8 +59,9 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
               </span>
             </div>
           </div>
-          <div style={{ width: 76, height: 76, borderRadius: 18, flex: "none", marginLeft: 8, overflow: "hidden" }}>
-            <ArcoChan pose={POSE_EMBLEM} />
+          {/* 金縁メダリオンのアルコ (2026-08-23 Tetsuo指示: 挨拶横から移設 ・ 01C ループ動画) */}
+          <div style={{ width: 72, height: 72, flex: "none", marginLeft: 10, borderRadius: "50%", boxShadow: "0 0 0 3px #e8ca84, 0 0 0 7px rgba(11,18,32,.9), 0 0 0 8px #bca160, 0 8px 22px rgba(0,0,0,.45)" }}>
+            <ArcoMotion kit="01C" label="相棒のアルコ" />
           </div>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-sub)", marginTop: 14 }}>

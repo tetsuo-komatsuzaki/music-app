@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
-import ArcoMotion from "@/app/components/ArcoMotion"
 import { Music, Sparkles, Palette } from "lucide-react"
 import MyRankCard from "@/app/components/MyRankCard"
 import PracticeFocusCard from "@/app/components/PracticeFocusCard"
@@ -124,23 +123,17 @@ export default function HomeClient({
     <div className={styles.page}>
 
       {/* 挨拶の大見出し (モック HELLO ・ h1.t)。名前が長くても1行に収める (2026-08-20 Tetsuo指定)。
-          2026-08-23 proto画面4写経: 右にアルコのメダリオン(01C)を追加 ・ 見出しは明朝に */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <h1
-          className={ds.t}
-          style={{
-            paddingTop: 6,
-            whiteSpace: "nowrap",
-            flex: 1,
-            minWidth: 0,
-            fontSize: userName.length <= 5 ? 26 : userName.length <= 9 ? 21 : 18,
-          }}
-        >
-          こんにちは、{userName}さん
-        </h1>
-        <ArcoMotion kit="01C" label="相棒のアルコ" className="homeArcoBadge" />
-        <style>{`.homeArcoBadge { width: 72px; height: 72px; flex: none; box-shadow: 0 0 0 3px #e8ca84, 0 0 0 7px rgba(11,18,32,.9), 0 0 0 8px #bca160, 0 8px 22px rgba(0,0,0,.45); }`}</style>
-      </div>
+          2026-08-23 Tetsuo指示: 挨拶右の金縁アルコは削除し、マイランクカード側へ移設 */}
+      <h1
+        className={ds.t}
+        style={{
+          paddingTop: 6,
+          whiteSpace: "nowrap",
+          fontSize: userName.length <= 5 ? 27 : userName.length <= 9 ? 22 : 19,
+        }}
+      >
+        こんにちは、{userName}さん
+      </h1>
 
       {/* アルコからひとこと (2026-08-23 proto画面4写経: 紙カード ・ 文言は日替わり仮実装) */}
       <div style={{
