@@ -431,6 +431,11 @@ body::after{ content:""; position:fixed; inset:0; z-index:60; pointer-events:non
 .faqSec p { color: #9AA3B8; }
 </style>
 <style id="lpV4">
+/* 悩み: 引用ライン型 (案B ・ 2026-08-23選定) */
+.quoteB { display: flex; flex-direction: column; gap: 26px; margin-top: 6px; }
+.quoteB .q { border-left: 2px solid #D9A93C; padding: 2px 0 2px 18px; font-family: var(--serif, "Noto Serif JP", serif); font-size: 15px; line-height: 2; color: #C9CFDD; }
+.quoteB .q em { font-style: normal; color: #F5EFE0; }
+
 .howLoop { text-align: center; margin-top: 26px; font-size: 13px; font-weight: 700; color: #E8CA84; letter-spacing: .04em; }
 
 /* STORY: 背景に直書き (カード/差し込み画像を廃止) */
@@ -538,9 +543,11 @@ body::after{ content:""; position:fixed; inset:0; z-index:60; pointer-events:non
         </div>
         <div style="height:26px"></div>
         
-        <div class="chat r" data-reveal="2"><div class="balloon">ひとりで弾いていても、何を直せばいいのかわからない</div></div>
-        <div class="chat" data-reveal="3"><div class="balloon">今日なにを練習すればいいのか、毎回迷う</div></div>
-        <div class="chat r" data-reveal="4"><div class="balloon">がんばってるのに実感がなくて、練習がつまらなくなる</div></div>
+        <div class="quoteB">
+          <div class="q" data-reveal>ひとりで弾いていても、<em>何を直せばいいのか</em>わからない。</div>
+          <div class="q" data-reveal="2">今日なにを練習すればいいのか、<em>毎回迷う</em>。</div>
+          <div class="q" data-reveal="3">がんばってるのに実感がなくて、<em>練習がつまらなくなる</em>。</div>
+        </div>
       
     </div>
     <div class="painClose" data-reveal>おうちの練習を、<br><b>アルコが支えます。</b></div>
