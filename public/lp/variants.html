@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LP 見せ方バリエーション</title>
+<style>
+:root { --gold:#D9A93C; --goldhi:#E8CA84; --goldline:rgba(217,169,60,.35); --ink:#F5EFE0; --sub:#C9CFDD; --mut:#8B97B3; }
+* { box-sizing:border-box; }
+body { margin:0; background:#0B1220; color:var(--ink); font-family:"Noto Sans JP","Hiragino Sans",sans-serif; }
+.wrap { max-width:430px; margin:0 auto; padding:34px 22px 90px; }
+h1 { font-size:18px; letter-spacing:.06em; color:var(--goldhi); }
+.varLabel { margin:52px 0 16px; font-size:13px; font-weight:800; letter-spacing:.14em; color:var(--gold); border-bottom:1px solid var(--goldline); padding-bottom:8px; }
+.serif { font-family:"Noto Serif JP","Hiragino Mincho ProN",serif; }
+/* ============ 悩みの見せ方 ============ */
+/* 案A 手書きメモ風 */
+.memoA { display:flex; flex-direction:column; gap:14px; }
+.memoA .m { background:linear-gradient(180deg,#F9F4E8,#EDE4CE); color:#33270F; font-family:"Noto Serif JP",serif; font-weight:600; font-size:13.5px; line-height:1.8; padding:16px 18px; border-radius:4px; box-shadow:0 10px 26px rgba(0,0,0,.4); position:relative; }
+.memoA .m::before { content:""; position:absolute; top:-5px; left:50%; width:7px; height:7px; border-radius:50%; background:var(--gold); box-shadow:0 1px 2px rgba(0,0,0,.4); }
+.memoA .m:nth-child(1){ transform:rotate(-1.6deg); }
+.memoA .m:nth-child(2){ transform:rotate(1.2deg); margin-left:16px; }
+.memoA .m:nth-child(3){ transform:rotate(-.8deg); margin-right:12px; }
+/* 案B 引用ライン型 */
+.quoteB { display:flex; flex-direction:column; gap:26px; }
+.quoteB .q { border-left:2px solid var(--gold); padding:2px 0 2px 18px; font-family:"Noto Serif JP",serif; font-size:15px; line-height:2; color:var(--sub); }
+.quoteB .q em { font-style:normal; color:var(--ink); }
+/* 案C 暗ガラスカード */
+.glassC { display:flex; flex-direction:column; gap:12px; }
+.glassC .g { background:rgba(16,27,56,.55); backdrop-filter:blur(6px); border:1px solid rgba(217,169,60,.22); border-radius:16px; padding:15px 18px; font-size:13.5px; font-weight:700; color:var(--ink); line-height:1.8; box-shadow:inset 0 1px 0 rgba(232,202,132,.12), 0 12px 30px rgba(0,0,0,.35); }
+.glassC .g i { font-style:normal; color:var(--goldhi); margin-right:9px; font-family:"Noto Serif JP",serif; }
+/* 案D 五線譜に載る言葉 */
+.staffD { position:relative; padding:10px 0; }
+.staffD .lines { position:absolute; inset:0; background:repeating-linear-gradient(180deg, transparent 0 26px, rgba(185,168,140,.28) 26px 27px); pointer-events:none; }
+.staffD .s { position:relative; display:flex; align-items:center; gap:11px; padding:14px 2px; font-family:"Noto Serif JP",serif; font-size:14px; color:var(--ink); line-height:1.7; }
+.staffD .s::before { content:"♩"; color:var(--gold); font-size:16px; }
+/* 案E タイプ字幕風 */
+.cineE { text-align:center; display:flex; flex-direction:column; gap:30px; padding:12px 0; }
+.cineE .c { font-family:"Noto Serif JP",serif; font-size:15.5px; letter-spacing:.05em; line-height:2; color:var(--sub); }
+.cineE .c b { color:var(--ink); font-weight:600; }
+.cineE .sep { color:var(--goldline); font-size:11px; letter-spacing:.5em; }
+/* ============ 3問3答の見せ方 ============ */
+/* 案A 余白と明朝 */
+.ansA { display:flex; flex-direction:column; gap:30px; }
+.ansA .a b { display:block; font-family:"Noto Serif JP",serif; font-size:17px; font-weight:600; color:var(--goldhi); letter-spacing:.04em; }
+.ansA .a span { display:block; margin-top:7px; font-size:13px; color:var(--sub); line-height:1.9; }
+/* 案B 大数字エディトリアル */
+.ansB { display:flex; flex-direction:column; gap:8px; }
+.ansB .a { position:relative; padding:20px 4px 20px 66px; border-bottom:1px solid rgba(217,169,60,.16); }
+.ansB .a i { position:absolute; left:0; top:12px; font-style:normal; font-family:Georgia,serif; font-size:44px; color:rgba(217,169,60,.32); font-weight:700; }
+.ansB .a b { display:block; font-size:15px; color:var(--ink); }
+.ansB .a span { display:block; margin-top:5px; font-size:12.5px; color:var(--mut); line-height:1.8; }
+/* 案C 金線3カラム */
+.ansC { display:flex; flex-direction:column; }
+.ansC .a { padding:22px 2px; border-top:1px solid var(--goldline); }
+.ansC .a:last-child { border-bottom:1px solid var(--goldline); }
+.ansC .q { font-size:11px; font-weight:800; letter-spacing:.16em; color:var(--gold); }
+.ansC b { display:block; margin-top:8px; font-family:"Noto Serif JP",serif; font-size:16px; font-weight:600; color:var(--ink); }
+.ansC span { display:block; margin-top:6px; font-size:12.5px; color:var(--sub); line-height:1.8; }
+/* 案D 会話型 (悩み→アルコの答え) */
+.ansD { display:flex; flex-direction:column; gap:18px; }
+.ansD .qa { display:flex; flex-direction:column; gap:8px; }
+.ansD .uq { align-self:flex-start; max-width:86%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); color:var(--sub); border-radius:14px 14px 14px 4px; padding:10px 14px; font-size:12.5px; }
+.ansD .aa { align-self:flex-end; max-width:88%; background:linear-gradient(180deg,#F9F4E8,#EDE4CE); color:#33270F; border-radius:14px 14px 4px 14px; padding:11px 15px; font-size:13px; font-weight:700; line-height:1.75; box-shadow:0 8px 20px rgba(0,0,0,.35); }
+/* 案E 細金線+点灯 */
+.ansE { display:flex; flex-direction:column; gap:0; }
+.ansE .a { display:flex; align-items:baseline; gap:16px; padding:18px 2px; border-bottom:1px solid rgba(217,169,60,.14); }
+.ansE .a::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--gold); box-shadow:0 0 10px rgba(217,169,60,.7); flex:none; align-self:center; }
+.ansE b { flex:none; width:104px; font-size:13.5px; color:var(--ink); }
+.ansE span { flex:1; font-size:12.5px; color:var(--mut); line-height:1.8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>見せ方バリエーション (実文言入り)</h1>
+
+<div class="varLabel">悩み ・ 案A 手書きメモ風 (紙片+金ピン ・ 少し傾く)</div>
+<div class="memoA">
+  <div class="m">ひとりで弾いていても、何を直せばいいのかわからない</div>
+  <div class="m">今日なにを練習すればいいのか、毎回迷う</div>
+  <div class="m">がんばってるのに実感がなくて、練習がつまらなくなる</div>
+</div>
+
+<div class="varLabel">悩み ・ 案B 引用ライン型 (金の縦線+明朝の独白)</div>
+<div class="quoteB">
+  <div class="q">ひとりで弾いていても、<em>何を直せばいいのか</em>わからない。</div>
+  <div class="q">今日なにを練習すればいいのか、<em>毎回迷う</em>。</div>
+  <div class="q">がんばってるのに実感がなくて、<em>練習がつまらなくなる</em>。</div>
+</div>
+
+<div class="varLabel">悩み ・ 案C 暗ガラスカード (ぼかし+金ヘアライン)</div>
+<div class="glassC">
+  <div class="g"><i>一</i>ひとりで弾いていても、何を直せばいいのかわからない</div>
+  <div class="g"><i>二</i>今日なにを練習すればいいのか、毎回迷う</div>
+  <div class="g"><i>三</i>がんばってるのに実感がなくて、練習がつまらなくなる</div>
+</div>
+
+<div class="varLabel">悩み ・ 案D 五線譜に載る言葉 (薄い五線+音符ドット)</div>
+<div class="staffD">
+  <div class="lines"></div>
+  <div class="s">ひとりで弾いていても、何を直せばいいのかわからない</div>
+  <div class="s">今日なにを練習すればいいのか、毎回迷う</div>
+  <div class="s">がんばってるのに実感がなくて、練習がつまらなくなる</div>
+</div>
+
+<div class="varLabel">悩み ・ 案E 字幕風 (中央明朝 ・ 静かな独白)</div>
+<div class="cineE">
+  <div class="c">ひとりで弾いていても、<b>何を直せばいいのかわからない</b>。</div>
+  <div class="sep">・・・</div>
+  <div class="c">今日なにを練習すればいいのか、<b>毎回迷う</b>。</div>
+  <div class="sep">・・・</div>
+  <div class="c">がんばってるのに実感がなくて、<b>練習がつまらなくなる</b>。</div>
+</div>
+
+<div class="varLabel">3問3答 ・ 案A 余白と明朝 (箱なし)</div>
+<div class="ansA">
+  <div class="a"><b>どこを直すか</b><span>弾いた音を1音ずつ採点して、その場で示します。</span></div>
+  <div class="a"><b>どう練習するか</b><span>きみ専用の練習メニューを、毎日組みます。</span></div>
+  <div class="a"><b>伸びているか</b><span>演奏はぜんぶカルテに積み上がり、成長が目に見えます。</span></div>
+</div>
+
+<div class="varLabel">3問3答 ・ 案B 大数字エディトリアル</div>
+<div class="ansB">
+  <div class="a"><i>01</i><b>どこを直すか</b><span>弾いた音を1音ずつ採点して、その場で示します。</span></div>
+  <div class="a"><i>02</i><b>どう練習するか</b><span>きみ専用の練習メニューを、毎日組みます。</span></div>
+  <div class="a"><i>03</i><b>伸びているか</b><span>演奏はぜんぶカルテに積み上がり、成長が目に見えます。</span></div>
+</div>
+
+<div class="varLabel">3問3答 ・ 案C 金線区切り+英字ラベル</div>
+<div class="ansC">
+  <div class="a"><div class="q">WHAT TO FIX</div><b>どこを直すか</b><span>弾いた音を1音ずつ採点して、その場で示します。</span></div>
+  <div class="a"><div class="q">HOW TO PRACTICE</div><b>どう練習するか</b><span>きみ専用の練習メニューを、毎日組みます。</span></div>
+  <div class="a"><div class="q">HOW YOU GROW</div><b>伸びているか</b><span>演奏はぜんぶカルテに積み上がり、成長が目に見えます。</span></div>
+</div>
+
+<div class="varLabel">3問3答 ・ 案D 会話型 (問い=ユーザー ・ 答え=アルコの紙бабブル)</div>
+<div class="ansD">
+  <div class="qa"><div class="uq">どこを直せばいいの?</div><div class="aa">弾いた音を1音ずつ採点して、その場で教えるよ。</div></div>
+  <div class="qa"><div class="uq">どう練習すればいいの?</div><div class="aa">きみ専用の練習メニューを、毎日組むね。</div></div>
+  <div class="qa"><div class="uq">ちゃんと伸びてる?</div><div class="aa">演奏はぜんぶカルテに積んであるよ。伸びは目で見える。</div></div>
+</div>
+
+<div class="varLabel">3問3答 ・ 案E 金点+細線 (最小限)</div>
+<div class="ansE">
+  <div class="a"><b>どこを直すか</b><span>弾いた音を1音ずつ採点して、その場で示します。</span></div>
+  <div class="a"><b>どう練習するか</b><span>きみ専用の練習メニューを、毎日組みます。</span></div>
+  <div class="a"><b>伸びているか</b><span>演奏はぜんぶカルテに積み上がり、成長が目に見えます。</span></div>
+</div>
+
+</div>
+</body>
+</html>
