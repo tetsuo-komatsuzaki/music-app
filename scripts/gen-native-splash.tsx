@@ -1,27 +1,17 @@
-// アプリ殻(iOS)同梱用スプラッシュHTMLの生成 (2026-08-16)。
-// Web側の起動スプラッシュ (ArcoBootSplash) と完全に同じ見た目・同じ抽選仕様を
-// 1ファイルの自己完結HTMLに書き出す。Mac側はこれを Xcode バンドルに入れて
+// アプリ殻(iOS)同梱用スプラッシュHTMLの生成 (2026-08-23 刷新)。
+// Webの待機画面 (音を調えています リング) と同一デザインを、ポスター画像込みの
+// 自己完結HTML 1ファイルに書き出す。Mac側は Xcode バンドルに入れて
 // WKWebView のオーバーレイで表示する (docs/native-splash-mac-instructions.md 参照)。
 //
 // 実行: npx tsx scripts/gen-native-splash.tsx
 // 出力: native/ios-splash/splash.html
-// ポーズ・文言の正は ArcoBootSplash.tsx (BOOT_POSE_IDS / BOOT_MESSAGES)。
-// 変更したら再実行して Mac 側で再同梱する。
-//
-// 抽選仕様 (2026-08-16 Tetsuo指定): 全ポーズ・全文言を同梱し、表示のたびにJSでランダムに1つ選ぶ。
-import { mkdirSync, writeFileSync } from "node:fs"
+// 見た目の正は app/components/ArcoBootSplash.tsx + globals.css (#arco-boot)。
+import { mkdirSync, writeFileSync, readFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
-import React from "react"
-import { renderToStaticMarkup } from "react-dom/server"
-import { ArcoChan, POSES } from "../app/components/ArcoChan"
-import { BOOT_MESSAGES, BOOT_POSE_IDS } from "../app/components/ArcoBootSplash"
 
-const poseSvgs = BOOT_POSE_IDS.map((id) => {
-  const pose = (POSES as { id: string }[]).find((p) => p.id === id)
-  if (!pose) throw new Error(`pose ${id} not found`)
-  return renderToStaticMarkup(React.createElement(ArcoChan as React.FC<{ pose: unknown }>, { pose }))
-})
+const root = join(dirname(fileURLToPath(import.meta.url)), "..")
+const poster = readFileSync(join(root, "public", "arco", "05A.jpg")).toString("base64")
 
 const html = `<!doctype html>
 <html lang="ja">
@@ -29,73 +19,46 @@ const html = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
-  html, body { margin: 0; height: 100%; background: #16294f; overflow: hidden; }
-  .boot {
-    position: fixed; inset: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
-  }
-  .abStage { position: relative; width: 172px; height: 172px; }
-  .abArco { width: 100%; height: 100%; }
-  .abArco .poseOpt { display: none; width: 100%; height: 100%; }
-  .abNotes { position: absolute; left: 2px; top: 26px; }
-  .abNotes span {
-    position: absolute; left: 0; top: 0; font-size: 22px; color: #e7edfb; opacity: 0;
-    font-family: -apple-system, "Hiragino Sans", sans-serif;
-    animation: abNoteUp 2.4s linear infinite;
-  }
-  .abNotes span:nth-child(2) { left: 18px; top: 10px; font-size: 17px; color: #8fa3cf; animation-delay: .8s; }
-  .abNotes span:nth-child(3) { left: -12px; top: 16px; font-size: 15px; animation-delay: 1.6s; }
-  @keyframes abNoteUp {
-    0%   { opacity: 0; transform: translate(0, 0); }
-    12%  { opacity: 1; }
-    70%  { opacity: 1; }
-    100% { opacity: 0; transform: translate(-12px, -54px); }
-  }
-  .abLogo { font-size: 21px; font-weight: 900; letter-spacing: .14em; color: #e7edfb; font-family: -apple-system, "Hiragino Sans", sans-serif; }
-  .abTag {
-    display: flex; align-items: center; gap: 7px;
-    font-size: 13px; font-weight: 700; color: #c6d2ea; letter-spacing: .08em;
-    font-family: -apple-system, "Hiragino Sans", sans-serif;
-  }
-  .abDots { display: inline-flex; gap: 5px; }
-  .abDots i {
-    width: 6px; height: 6px; border-radius: 50%; background: #8fa3cf;
-    animation: abDot 1.2s ease-in-out infinite;
-  }
-  .abDots i:nth-child(2) { animation-delay: .15s; }
-  .abDots i:nth-child(3) { animation-delay: .3s; }
-  @keyframes abDot {
-    0%, 100% { opacity: .35; transform: translateY(0); }
-    50%      { opacity: 1;   transform: translateY(-4px); }
-  }
-  @media (prefers-reduced-motion: reduce) { .abNotes span, .abDots i { animation: none; opacity: .8; } }
+  html, body { margin: 0; height: 100%; background: #0a1122; overflow: hidden; }
+  .boot { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: -apple-system, "Hiragino Sans", sans-serif; }
+  .abRing { position: relative; width: 176px; height: 176px; border-radius: 50%;
+    border: 2px solid rgba(188,161,96,.4); outline: 1px solid rgba(217,169,60,.18); outline-offset: 5px; }
+  .abArc { position: absolute; inset: -2px; border-radius: 50%;
+    background: conic-gradient(#d4af37 18%, transparent 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+    filter: drop-shadow(0 0 4px rgba(217,169,60,.4));
+    animation: abSpin 1.1s linear infinite; }
+  .abDisc { position: absolute; inset: 10px; border-radius: 50%; overflow: hidden; background: #faf9f6;
+    animation: abBob 2.4s ease-in-out infinite; }
+  .abDisc img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .abTitle { margin-top: 30px; font-size: 17px; font-weight: 800; letter-spacing: .08em; color: #fffae8; }
+  .abTitle span { animation: abDotBlink .9s ease-in-out infinite; }
+  .abTitle span:nth-child(2) { animation-delay: .3s; }
+  .abTitle span:nth-child(3) { animation-delay: .6s; }
+  .abLogo { margin-top: 26px; font-size: 12px; font-weight: 700; letter-spacing: .3em; color: #6b7488; }
+  @keyframes abSpin { to { transform: rotate(360deg); } }
+  @keyframes abBob { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-5px) rotate(1.5deg); } }
+  @keyframes abDotBlink { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .abArc, .abDisc, .abTitle span { animation: none; } }
 </style>
 </head>
 <body>
   <div class="boot" aria-hidden="true">
-    <div class="abStage">
-      <div class="abArco">
-${poseSvgs.map((svg) => `        <div class="poseOpt">${svg}</div>`).join("\n")}
-      </div>
-      <div class="abNotes"><span>♪</span><span>♫</span><span>♪</span></div>
+    <div class="abRing">
+      <span class="abArc"></span>
+      <span class="abDisc"><img src="data:image/jpeg;base64,${poster}" alt=""></span>
     </div>
+    <div class="abTitle">音を調えています<span>・</span><span>・</span><span>・</span></div>
     <div class="abLogo">Arcoda</div>
-    <div class="abTag"><span id="bootMsg"></span><span class="abDots"><i></i><i></i><i></i></span></div>
   </div>
-  <script>
-    (function () {
-      var poses = document.querySelectorAll(".poseOpt");
-      poses[Math.floor(Math.random() * poses.length)].style.display = "block";
-      var msgs = ${JSON.stringify([...BOOT_MESSAGES])};
-      document.getElementById("bootMsg").textContent = msgs[Math.floor(Math.random() * msgs.length)];
-    })();
-  </script>
 </body>
 </html>
 `
 
-const outDir = join(dirname(fileURLToPath(import.meta.url)), "..", "native", "ios-splash")
+const outDir = join(root, "native", "ios-splash")
 mkdirSync(outDir, { recursive: true })
 const outPath = join(outDir, "splash.html")
 writeFileSync(outPath, html, "utf8")
-console.log(`generated: ${outPath} (${html.length} bytes, poses=${poseSvgs.length}, messages=${BOOT_MESSAGES.length})`)
+console.log(`generated: ${outPath} (${html.length} bytes)`)
