@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
-import { ArcoChan, POSES } from "./ArcoChan"
-import { Sprout, Palette, Trophy, Share2, Ear } from "lucide-react"
+import ArcoMotion from "./ArcoMotion"
+import { Palette, Trophy, Share2, Ear } from "lucide-react"
 import ShareSheet from "./ShareSheet"
 import { createListenRequest } from "@/app/actions/listenRequests"
 import { useDragToDismiss } from "@/app/_hooks/useDragToDismiss"
@@ -19,17 +19,6 @@ type Ach = {
   mastered: boolean
 }
 import type { Praise } from "@/app/_libs/praiseFeedback"
-
-// 点数帯でアルコのポーズ(気分)を選ぶ
-function pickPose(score: number) {
-  let cats: string[]
-  if (score >= 90) cats = ["称賛", "喜び"]
-  else if (score >= 75) cats = ["励まし", "喜び"]
-  else if (score >= 60) cats = ["励まし", "見守り"]
-  else cats = ["見守り", "しょんぼり"]
-  const pool = (POSES as { cat: string }[]).filter((p) => cats.includes(p.cat))
-  return pool[score % pool.length] ?? POSES[0]
-}
 
 function headline(score: number, mastered: boolean): string {
   if (mastered) return "この曲、マスター達成〜！"
@@ -80,7 +69,6 @@ export default function ArcoResultOverlay({
   const pitch = perf.pitchAccuracy ?? 0
   const timing = perf.timingAccuracy ?? 0
   const overall = Math.round((pitch + timing) / 2)
-  const pose = pickPose(overall)
   const avg = ach?.master?.recentAvg != null ? Math.round(ach.master.recentAvg) : null
 
   // 条件チップ (点数以外の達成条件。案2: ゲージ+チップ構成 2026-08-02)。
@@ -102,50 +90,50 @@ export default function ArcoResultOverlay({
         <div
           data-drag-handle
           aria-hidden
-          style={{ width: 40, height: 5, borderRadius: 3, background: "rgba(0,0,0,.14)", margin: "-4px auto 8px", cursor: "grab", touchAction: "none" }}
+          style={{ position: "absolute", top: 8, left: "50%", transform: "translateX(-50%)", zIndex: 3, width: 40, height: 5, borderRadius: 3, background: "rgba(10,17,32,.35)", cursor: "grab", touchAction: "none" }}
         />
         <button type="button" className={styles.close} aria-label="閉じる" onClick={onClose}>✕</button>
 
-        {/* アルコ + 見出し */}
+        {/* 水彩ヒーロー (原本 №3): 紙吹雪 + 拍手アルコ 06A */}
         <div className={styles.hero}>
-          <div className={styles.arco}><ArcoChan pose={pose} /></div>
-          <div className={styles.bubble}>{headline(overall, !!ach?.mastered)}</div>
+          {Array.from({ length: 12 }).map((_, i) => (
+            <span key={i} className={styles.confetti} aria-hidden
+              style={{ left: `${4 + (i * 92) / 11}%`, animationDuration: `${4 + (i % 5)}s`, animationDelay: `${(i * 0.45) % 6}s` }} />
+          ))}
+          <ArcoMotion kit="06A" label="拍手するアルコ" className={styles.heroArco} />
         </div>
 
-        {/* 採点結果 (案3: 合計を上に、音程/リズムを横棒で) */}
-        <div className={styles.scoreCard}>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 6, justifyContent: "center", marginBottom: 12 }}>
+        <div className={styles.body}>
+        <span className={styles.scorePill}>今日の採点</span>
+
+        {/* 点数行 (原本: 白88px + 点 ・ 右にランクバッジ) */}
+        <div className={styles.scoreRow}>
+          <div className={styles.big}>
             <span className={styles.bigNum}>{overall}</span>
             <span className={styles.bigUnit}>点</span>
-            <span className={`${styles.rank} ${styles["r" + rankOf(overall)]}`} style={{ alignSelf: "center", marginLeft: 4 }}>{rankOf(overall)}</span>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ width: 34, flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)" }}>音程</span>
-              {/* 軸色は上達のようすと統一 (2026-08-16): 音程=オレンジ / リズム=緑 */}
-              <span style={{ flex: 1, height: 8, borderRadius: 5, background: "rgba(150,175,225,.16)", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(pitch)}%`, background: "#e0872b", borderRadius: 5 }} /></span>
-              <b style={{ width: 26, flex: "none", textAlign: "right", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#e0872b", fontVariantNumeric: "tabular-nums" }}>{Math.round(pitch)}</b>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ width: 34, flex: "none", fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-sub)" }}>リズム</span>
-              <span style={{ flex: 1, height: 8, borderRadius: 5, background: "rgba(150,175,225,.16)", overflow: "hidden" }}><span style={{ display: "block", height: "100%", width: `${Math.round(timing)}%`, background: "#2e8b57", borderRadius: 5 }} /></span>
-              <b style={{ width: 26, flex: "none", textAlign: "right", fontSize: "var(--fs-subhead)", fontWeight: 900, color: "#7fc4a0", fontVariantNumeric: "tabular-nums" }}>{Math.round(timing)}</b>
-            </div>
+          <div className={styles.side}>
+            <span className={`${styles.rank} ${styles["r" + rankOf(overall)]}`}>{rankOf(overall)}</span>
           </div>
         </div>
 
-        {/* ほめフィードバック (2026-08-10): 今日よくできたこと1件。苦手突破→伸び→最高。無い日は出さない */}
-        {praise && (
-          <div style={{
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-            margin: "8px 2px 0", padding: "8px 12px", borderRadius: 10,
-            background: "rgba(168,201,127,.13)", border: "1px solid rgba(168,201,127,.3)",
-            fontSize: "var(--fs-body)", fontWeight: 800, color: "#a8c97f",
-            lineHeight: 1.45, textAlign: "center",
-          }}>
-            <Sprout size={15} style={{ flex: "none" }} /> {praise.text}
+        {/* 内訳メーター (原本: 金グラデ+発光) */}
+        <div className={styles.meters}>
+          <div className={styles.meter}>
+            <div className={styles.meterHead}><span>音程</span><b>{Math.round(pitch)}</b></div>
+            <div className={styles.meterTrack}><i className={styles.meterFill} style={{ ["--value" as string]: `${Math.round(pitch)}%` }} /></div>
           </div>
-        )}
+          <div className={styles.meter}>
+            <div className={styles.meterHead}><span>リズム</span><b>{Math.round(timing)}</b></div>
+            <div className={styles.meterTrack}><i className={styles.meterFill} style={{ ["--value" as string]: `${Math.round(timing)}%` }} /></div>
+          </div>
+        </div>
+
+        {/* アルコの手紙 (原本: 紙カード)。ほめフィードバックがあればその文、無ければ点数帯の見出し */}
+        <div className={styles.letter}>
+          <p>{praise?.text ?? headline(overall, !!ach?.mastered)}</p>
+          <div className={styles.sign}>―― アルコ</div>
+        </div>
 
         {/* 💪 先生の強みリンク (案5・2026-08-03): 入口だけ置き、詳細はカルテの表現セクションへ */}
         {strengthCount > 0 && (
@@ -235,6 +223,8 @@ export default function ArcoResultOverlay({
               )}
             </button>
           )}
+        </div>
+
         </div>
 
         {/* シェア: マスター済みなら🏆マスターカード、通常は🎵きょうの演奏カード */}

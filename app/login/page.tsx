@@ -1,36 +1,31 @@
 'use client'
 
+// ログイン — 原本: /proto v3 画面1 (login-mock 正) の写経 (2026-08-23)。
+// メダリオンのアルコ(09B 手をふって挨拶) ・ 明朝見出し ・ 金グラデボタン ・ リンク行+縦区切り。
+// 既存機能は維持: Googleログイン(原本に無いためmute枠) ・ パスワード表示切替 ・ 遷移ロジック。
+// 廃止: モチベーション画像(top.png) ・ 未結線だった「ログイン状態を保持する」チェック。
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css"
 import Link from "next/link";
-import Image from "next/image";
+import ArcoMotion from "@/app/components/ArcoMotion"
 import { createBrowserSupabaseClient } from "@/app/_libs/supabaseBrowser"
 import { isNativeApp } from "@/app/_libs/isNativeApp"
 import { openAuthBrowser } from "@/app/_libs/arcodaAuthBrowser"
 
-
-
-export default function loginPage() {
-
+export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setIsLoading(true)
 
-
-const supabase = createBrowserSupabaseClient()
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
+    const supabase = createBrowserSupabaseClient()
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
       alert('ログインに失敗しました')
@@ -59,7 +54,6 @@ const supabase = createBrowserSupabaseClient()
       if (data?.url) {
         const opened = await openAuthBrowser(data.url)
         if (opened) return
-        // プラグイン不在の古い殻では従来どおり遷移にフォールバック
         window.location.href = data.url
       }
       return
@@ -67,133 +61,76 @@ const supabase = createBrowserSupabaseClient()
 
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${location.origin}/auth/callback`,
-      },
+      options: { redirectTo: `${location.origin}/auth/callback` },
     })
   }
 
-
   return (
-    <>
-      <div className={styles.logoContainer}>
-        <Image
-          src="/Icon.png"
-          alt="アルコのアイコン"
-          width={120}
-          height={120}
-          priority
-        />
-      </div>
-      <h2 className={styles.title}>また会えたね、アルコだよ</h2>
-      <h3 className={styles.subtitle}>
-        さあ、今日も音を鳴らそう
-      </h3>
-      <div className={styles.wrapper}>
-        <form
-          onSubmit={handleSubmit}
-          className={styles.form}
-        >
-          {/* 🎻 モチベーション画像 */}
-          <div className={styles.heroImageWrapper}>
-            <Image
-              src="/top.png"
-              alt="バイオリンを弾く女の子"
-              width={500}
-              height={280}
-              className={styles.heroImage}
-              priority
-            />
-          </div>
+    <div className={styles.page}>
+      <ArcoMotion kit="09B" label="相棒のアルコ" className={styles.medallion} />
 
-          {/* Googleログイン */}
-          <div className={styles.oauthContainer}>
-            <button
-              type="button"
-              className={styles.googleButton}
-              onClick={handleGoogleLogin}
-            >
-              <span className={styles.googleIcon}>G</span>
-              Googleでログイン
-            </button>
-          </div>
+      <h1 className={styles.title}>また会えたね、アルコだよ</h1>
+      <p className={styles.subtitle}>さあ、今日も音を鳴らそう</p>
 
-          {/* 区切り線 */}
-          <div className={styles.divider}>
-            <span>または</span>
-          </div>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <label htmlFor="email" className={styles.label}>メールアドレス</label>
+        <div className={styles.field}>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            value={email}
+            required
+            placeholder="メールアドレス"
+            onChange={(e) => setEmail(e.target.value)}
+            className={styles.input}
+            disabled={isLoading}
+            autoComplete="email"
+          />
+        </div>
 
-          {/* ここからメールログイン */}
-          <div>
-            <label
-              htmlFor="email"
-              className={styles.label}
-            >
-              メールアドレス
-            </label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              value={email}
-              required
-              placeholder="メールアドレス"
-              onChange={(e) => setEmail(e.target.value)}
-              className={styles.input}
-              disabled={isLoading}
-            />
-          </div>
-          <div
-            className={styles.field}>
-            <div className={styles.passwordLabelRow}>
+        <label htmlFor="password" className={styles.label} style={{ marginTop: 16 }}>パスワード</label>
+        <div className={styles.field}>
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            id="password"
+            value={password}
+            placeholder="パスワード"
+            required
+            disabled={isLoading}
+            onChange={(e) => setPassword(e.target.value)}
+            className={styles.input}
+            style={{ paddingRight: 46 }}
+            autoComplete="current-password"
+          />
+          <button
+            type="button"
+            aria-label={showPassword ? "パスワードを隠す" : "パスワードを表示"}
+            onClick={() => setShowPassword((v) => !v)}
+            style={{ position: "absolute", right: 4, top: 0, height: 52, background: "none", border: "none", color: "#a89d85", padding: "0 12px", cursor: "pointer", lineHeight: 0 }}
+          >
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z" /><circle cx="12" cy="12" r="2.6" /></svg>
+          </button>
+        </div>
 
-              <label
-                htmlFor="password"
-                className={styles.label}>
-                パスワード
-              </label>
-              <Link href="/forgotPassword" className={styles.link}>
-                パスワードを忘れた方はこちら
-              </Link>
-            </div>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              value={password}
-              placeholder="••••••••"
-              required
-              disabled={isLoading}
-              onChange={(e) => setPassword(e.target.value)}
-              className={styles.input} />
+        <button className={styles.button} disabled={isLoading}>
+          {isLoading ? "ログイン中…" : "ログイン"}
+        </button>
+      </form>
 
-          </div>
-          <div className={styles.remember}>
-            <input
-              type="checkbox"
-              id="remember"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              disabled={isLoading}
-            />
-            <label htmlFor="remember">
-              ログイン状態を保持する
-            </label>
-          </div>
-          <div
-            className={styles.field}>
-            <button
-              className={styles.button}>
-              {isLoading ? "ログイン中..." : "ログイン"}
-            </button>
-          </div>
-          <div>
-            アカウントをお持ちでない方は<Link href="/signUp" className={styles.link}>新規登録</Link>
-          </div>
-        </form>
+      <div className={styles.divider}>または</div>
 
-      </div>
-    </>
+      <button type="button" className={styles.googleButton} onClick={handleGoogleLogin}>
+        <span className={styles.googleIcon}>G</span>
+        Googleでログイン
+      </button>
+
+      <p className={styles.links}>
+        <Link href="/forgotPassword">パスワードを忘れた方はこちら</Link>
+        <span className={styles.vr} aria-hidden />
+        <Link href="/signUp">新規登録</Link>
+      </p>
+    </div>
   )
-
 }

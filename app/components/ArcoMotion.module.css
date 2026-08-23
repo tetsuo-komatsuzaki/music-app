@@ -1,0 +1,20 @@
+/* モーション付きアルコ (原本: /proto v3 .alco-motion ・ .alco-disc) */
+.wrap {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border-radius: 50%; /* 既定は円形クリップ (白い四角を見せない) */
+  background: #faf9f6; /* 原本 --ivory-circle */
+}
+.video,
+.still {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.still { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .video { display: none; }
+  .still { display: block; }
+}

@@ -4,6 +4,7 @@
 // 平均点ピル ・ →)。旧・記念カード本棚は「きみの歴史」(カルテSTORY) に役割移譲して置換。
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import ArcoMotion from "@/app/components/ArcoMotion"
 import { prisma } from "@/app/_libs/prisma"
 import ds from "@/app/components/ds.module.css"
 
@@ -155,15 +156,25 @@ export default async function RecordsPage({ params, searchParams }: {
 
       {rows.length === 0 ? (
         /* 原本 記録02: 0件 */
-        <div className={ds.card} style={{ textAlign: "center", padding: "30px 20px" }}>
-          <div style={{ fontSize: 28, opacity: 0.5 }} aria-hidden>♪</div>
-          <b style={{ fontSize: 14.5, display: "block", marginTop: 9, color: "var(--text-ink)" }}>まだ 記録がないよ</b>
-          <span style={{ display: "block", fontSize: 11.5, color: "var(--text-sub)", marginTop: 7, lineHeight: 1.8 }}>
-            録音して採点すると、<br />ここに弾いた日と点数が並ぶよ。
+        <div style={{ textAlign: "center", padding: "10px 0 6px" }}>
+          {/* 空状態 — 原本: /proto v3 画面5 (empty-mock 正) の写経 (2026-08-23) */}
+          <ArcoMotion kit="05C" label="楽譜を見せるアルコ" className="recEmptyArco" />
+          <style>{`.recEmptyArco { width: 176px; height: 176px; margin: 0 auto; box-shadow: 0 0 0 3px #e8ca84, 0 0 0 8px rgba(11,18,32,.9), 0 0 0 9px #bca160, 0 10px 28px rgba(0,0,0,.45); }`}</style>
+          <div aria-hidden style={{ width: 24, height: 3, margin: "22px auto 14px", borderTop: "1px solid #d4af37", borderBottom: "1px solid #d4af37" }} />
+          <b style={{ display: "block", fontFamily: "var(--font-mincho), serif", fontSize: 21, fontWeight: 700, color: "#fffae8" }}>まだ記録がありません</b>
+          <span style={{ display: "block", fontSize: 13, color: "#a89d85", marginTop: 10, lineHeight: 1.8 }}>
+            最初の1曲を、いっしょに録りましょう
           </span>
-          <div style={{ marginTop: 13 }}>
-            <Link href={`/${userId}/library?tab=pieces`} className="pressable" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 800, color: "var(--gold)", background: "rgba(232,178,60,.14)", borderRadius: 999, padding: "4px 11px", textDecoration: "none" }}>
-              曲をひらく →
+          <div style={{ marginTop: 22 }}>
+            <Link href={`/${userId}/library?tab=pieces`} className="pressable" style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              width: "100%", maxWidth: 300, height: 50, borderRadius: 999,
+              background: "linear-gradient(180deg, #f0d98c 0%, #d4af37 45%, #b8892e 100%)",
+              color: "#0b1220", fontFamily: "var(--font-mincho), serif", fontWeight: 700, fontSize: 15, letterSpacing: ".08em",
+              textDecoration: "none",
+              boxShadow: "0 4px 14px rgba(217,169,60,.35), 0 2px 4px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.35)",
+            }}>
+              練習をはじめる
             </Link>
           </div>
         </div>

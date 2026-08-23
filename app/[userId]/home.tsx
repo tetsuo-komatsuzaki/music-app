@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
+import ArcoMotion from "@/app/components/ArcoMotion"
 import { Music, Sparkles, Palette } from "lucide-react"
 import MyRankCard from "@/app/components/MyRankCard"
 import PracticeFocusCard from "@/app/components/PracticeFocusCard"
@@ -84,6 +85,17 @@ type Props = {
   exprShelf: { tagLabel: string; star: number; items: { id: string; title: string; star: number | null; cover: string | null }[] } | null
 }
 
+// アルコからひとこと (proto画面4 ・ 日替わり仮実装 2026-08-23。将来は録音の変化から生成)
+const ARCO_HITOKOTO = [
+  "きのうより、音がまっすぐになってきたよ。",
+  "今日の1曲が、あしたの自信になるよ。",
+  "ゆっくりでいいよ。いっしょに鳴らそう。",
+  "きみの音、すこしずつ深くなってるよ。",
+  "むずかしい日は、好きな曲からでいいんだよ。",
+  "弓をかまえたら、もう半分できてるよ。",
+  "小さな1回が、いちばん大きい練習だよ。",
+] as const
+
 export default function HomeClient({
   userName,
   basicPracticeCards,
@@ -111,17 +123,38 @@ export default function HomeClient({
   return (
     <div className={styles.page}>
 
-      {/* 挨拶の大見出し (モック HELLO ・ h1.t)。名前が長くても1行に収める (2026-08-20 Tetsuo指定) */}
-      <h1
-        className={ds.t}
-        style={{
-          paddingTop: 6,
-          whiteSpace: "nowrap",
-          fontSize: userName.length <= 5 ? 27 : userName.length <= 9 ? 22 : 19,
-        }}
-      >
-        こんにちは、{userName}さん
-      </h1>
+      {/* 挨拶の大見出し (モック HELLO ・ h1.t)。名前が長くても1行に収める (2026-08-20 Tetsuo指定)。
+          2026-08-23 proto画面4写経: 右にアルコのメダリオン(01C)を追加 ・ 見出しは明朝に */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <h1
+          className={ds.t}
+          style={{
+            paddingTop: 6,
+            whiteSpace: "nowrap",
+            flex: 1,
+            minWidth: 0,
+            fontFamily: "var(--font-mincho), serif",
+            fontSize: userName.length <= 5 ? 26 : userName.length <= 9 ? 21 : 18,
+          }}
+        >
+          こんにちは、{userName}さん
+        </h1>
+        <ArcoMotion kit="01C" label="相棒のアルコ" className="homeArcoBadge" />
+        <style>{`.homeArcoBadge { width: 72px; height: 72px; flex: none; box-shadow: 0 0 0 3px #e8ca84, 0 0 0 7px rgba(11,18,32,.9), 0 0 0 8px #bca160, 0 8px 22px rgba(0,0,0,.45); }`}</style>
+      </div>
+
+      {/* アルコからひとこと (2026-08-23 proto画面4写経: 紙カード ・ 文言は日替わり仮実装) */}
+      <div style={{
+        position: "relative", borderRadius: 14, padding: "14px 17px", marginTop: 10,
+        background: "repeating-linear-gradient(0deg, transparent 0 27px, rgba(22,41,79,0.04) 27px 28px), linear-gradient(180deg, #f9f4e8, #ede4ce)",
+        boxShadow: "0 6px 18px rgba(0,0,0,.3), 0 1px 3px rgba(0,0,0,.2)",
+      }}>
+        <span aria-hidden style={{ position: "absolute", top: 9, left: 9, width: 6, height: 6, borderRadius: "50%", background: "#d4af37", boxShadow: "0 1px 2px rgba(0,0,0,.3)" }} />
+        <p style={{ margin: 0, fontFamily: "var(--font-mincho), serif", fontSize: 14, fontWeight: 700, lineHeight: 1.8, color: "#2a3450" }}>
+          {ARCO_HITOKOTO[new Date().getDate() % ARCO_HITOKOTO.length]}
+        </p>
+        <span style={{ display: "block", textAlign: "right", fontSize: 11, color: "#6b6455", marginTop: 2 }}>―― アルコからひとこと</span>
+      </div>
 
       {/* モック home-01 の並び: 先生から → 通知 → ランク (2026-08-21 再写経で是正) */}
       <TeacherAssignments assignments={teacherAssignments} summary={teacherSummary} />
