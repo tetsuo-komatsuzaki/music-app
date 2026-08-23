@@ -1500,3 +1500,11 @@ model ScoreRecPin {
 
   @@unique([userId, scoreId])
 }
+
+// LPのウェイティングリスト (2026-08-23): リリース通知希望のメールアドレス
+model WaitlistEntry {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String?  // 登録経路 (lp等)
+  createdAt DateTime @default(now())
+}

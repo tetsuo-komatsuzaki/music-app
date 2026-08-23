@@ -17,6 +17,8 @@ const PUBLIC_API_PATHS: readonly string[] = [
   // 認証は route 内の署名検証 (constructEvent) が担う。ここで遮断すると課金反映が全滅する
   // (2026-08-08 調査Wave2で発見: 401 が返り webhook が一度も到達していなかった)。
   "/api/stripe/webhook",
+  // LPのウェイティングリスト登録 (2026-08-23): 未ログインの訪問者から届く
+  "/api/waitlist",
 ]
 
 function isPublicApiPath(pathname: string): boolean {

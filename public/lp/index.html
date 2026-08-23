@@ -908,7 +908,7 @@ document.querySelectorAll('.arcoBadge video').forEach(v=>{
 /* ウェイトリスト送信 (2026-08-23):
    WAITLIST_ENDPOINT に Formspree 等のURLを設定すると fetch POST で送信。
    未設定の間は mailto 起動の暫定運用 (メールが contact@ に届く)。 */
-var WAITLIST_ENDPOINT = "";
+var WAITLIST_ENDPOINT = "/api/waitlist"; // アプリ同居配信 (arcodaviolin.com/lp) のため相対パス
 document.querySelectorAll("form.field").forEach(function (f) {
   f.addEventListener("submit", function (e) {
     e.preventDefault();
