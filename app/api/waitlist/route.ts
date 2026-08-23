@@ -3,6 +3,7 @@
 // 重複は unique 制約で吸収し、既登録でも ok を返す (登録済みかどうかを外部に漏らさない)。
 import { NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
+import { sendWaitlistThanksEmail } from "@/app/_libs/waitlistThanksEmail"
 
 export const runtime = "nodejs"
 
@@ -38,11 +39,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "invalid_email" }, { status: 400 })
     }
 
-    await prisma.waitlistEntry.upsert({
-      where: { email },
-      update: {},                       // 既登録は何もしない (登録日時を保持)
-      create: { email, source: "lp" },
-    })
+    const existing = await prisma.waitlistEntry.findUnique({ where: { email } })
+    if (!existing) {
+      await prisma.waitlistEntry.create({ data: { email, source: "lp" } })
+      await sendWaitlistThanksEmail(email) // 新規のみ1通 (失敗しても登録は成立)
+    }
     return NextResponse.json({ ok: true })
   } catch {
     return NextResponse.json({ ok: false, error: "server_error" }, { status: 500 })
