@@ -106,12 +106,14 @@ body {
 .bg-flourish {
   position: absolute;
   top: 36px;
-  width: 90px;
-  height: 150px;
-  stroke: #FFFFFF;
+  width: 100px;
+  height: 192px;
+  stroke: var(--gold-line);  /* 金の縁取り (2026-08-23指摘: バイオリン線画) */
   fill: none;
-  stroke-width: 1.2;
-  opacity: 0.12;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.22;
   pointer-events: none;
 }
 .bg-flourish--left  { left: 18px; }
@@ -388,7 +390,7 @@ video.alco-fig { background: transparent; }
 }
 .loading-ring .alco-disc {
   position: absolute;
-  inset: 26px;                             /* ★四角ではなく円 */
+  inset: 10px;                             /* ★四角ではなく円 ・ アルコ大きく (2026-08-23指摘) */
 }
 .loading-text {
   margin-top: 36px;
@@ -663,7 +665,7 @@ video.alco-fig { background: transparent; }
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 .home-card__label {
-  font-family: var(--font-sans);             /* ラベルはゴシック */
+  font-family: var(--font-mincho);           /* 見本準拠: ラベルも明朝 (2026-08-23指摘) */
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.18em;
