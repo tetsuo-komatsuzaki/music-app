@@ -72,7 +72,7 @@ export default function SharePublicView({
       minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center",
       justifyContent: "center", gap: 18, padding: "24px 14px",
       background: "linear-gradient(170deg,#f6f2e8,#efe8d8)",
-      fontFamily: '"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif',
+      fontFamily: 'var(--font-zen-kaku), "Zen Kaku Gothic New", "Hiragino Sans", sans-serif',
     }}>
       <style>{`
         @keyframes shareConfFall { 0%{ top:-8%; transform:rotate(0deg) } 100%{ top:108%; transform:rotate(340deg) } }

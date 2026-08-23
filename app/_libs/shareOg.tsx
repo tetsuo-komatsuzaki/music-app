@@ -76,7 +76,7 @@ const CONFETTI: Conf[] = [
 // ── フォント (Google Fonts から使用文字だけ subset 取得) ──
 async function fetchGoogleFont(text: string, weight: 700 | 900): Promise<ArrayBuffer | null> {
   try {
-    const cssUrl = `https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@${weight}&text=${encodeURIComponent(text)}`
+    const cssUrl = `https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@${weight}&text=${encodeURIComponent(text)}`
     const css = await fetch(cssUrl).then((r) => (r.ok ? r.text() : null))
     if (!css) return null
     const m = css.match(/src: url\((.+?)\) format\('(?:opentype|truetype)'\)/)
@@ -96,8 +96,8 @@ export async function loadShareFonts(kind: ShareKind, p: SharePayload, displayNa
     "アルコちゃんレベル挑戦した回数練習日数録音伸びたわざ音程リズム自己ベスト更新今週も頑張ったね次のステージへつぎ上がったよマスターarcodaviolin.com"
   const [w700, w900] = await Promise.all([fetchGoogleFont(text, 700), fetchGoogleFont(text, 900)])
   const fonts: { name: string; data: ArrayBuffer; weight: 700 | 900 }[] = []
-  if (w700) fonts.push({ name: "NotoSansJP", data: w700, weight: 700 })
-  if (w900) fonts.push({ name: "NotoSansJP", data: w900, weight: 900 })
+  if (w700) fonts.push({ name: "ZenKaku", data: w700, weight: 700 })
+  if (w900) fonts.push({ name: "ZenKaku", data: w900, weight: 900 })
   return fonts
 }
 
@@ -213,7 +213,7 @@ export function ShareOgCard({
     <div style={{
       display: "flex", width, height, position: "relative",
       backgroundImage: `linear-gradient(150deg, ${C.bgFrom}, ${C.bgTo})`,
-      fontFamily: "NotoSansJP",
+      fontFamily: "ZenKaku",
     }}>
       {/* 背景装飾: お祝い系=図形紙吹雪 / 報告系=五線譜 */}
       {celebration ? (

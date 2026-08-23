@@ -11,7 +11,7 @@ export default function ViolinDevPage() {
   const [id, setId] = useState("staccato")
   const tech = BOWING_TECHNIQUES.find((t) => t.id === id)
   return (
-    <div style={{ padding: 24, maxWidth: 900, margin: "0 auto", fontFamily: "sans-serif" }}>
+    <div style={{ padding: 24, maxWidth: 900, margin: "0 auto" }}>
       <h1 style={{ fontSize: "var(--fs-head)", fontWeight: 800 }}>運弓モーション確認 (L1)</h1>
       <p style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)" }}>
         8技法 / 2ビュー。下段は同一ページ複数配置のID衝突確認用 (常にスピッカート)。

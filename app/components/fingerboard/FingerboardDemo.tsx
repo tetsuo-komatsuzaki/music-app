@@ -19,7 +19,7 @@ import {
 } from "./fingerboard-geometry";
 import { getFbLesson, fbLoop, type FbEvent, type FbNote } from "./fingerboard-lessons";
 
-const F = "system-ui, 'Hiragino Sans', 'Noto Sans JP', sans-serif";
+const F = "inherit";
 
 export function Pill({ x, y, text, left = false }: { x: number; y: number; text: string; left?: boolean }) {
   const w = 30 * text.length + 22;

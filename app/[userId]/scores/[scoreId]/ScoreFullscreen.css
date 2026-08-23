@@ -111,7 +111,7 @@ body[data-fullscreen="true"] [data-recorder-panel="recording"] > div:nth-of-type
 /* タイマー (左寄せ・白文字・Courier New 18px) */
 body[data-fullscreen="true"] [data-recorder-element="timer"] {
   margin-right: auto !important;
-  font-family: "Courier New", monospace !important;
+  font-variant-numeric: tabular-nums !important;
   font-size: var(--fs-head) !important;
   color: #FFFFFF !important;
 }
@@ -119,7 +119,7 @@ body[data-fullscreen="true"] [data-recorder-element="timer"] {
 body[data-fullscreen="true"] [data-recorder-element="timer"] .timer,
 body[data-fullscreen="true"] [data-recorder-element="timer"] span {
   color: #FFFFFF !important;
-  font-family: "Courier New", monospace !important;
+  font-variant-numeric: tabular-nums !important;
   font-size: var(--fs-head) !important;
 }
 

@@ -272,6 +272,6 @@
   padding: 1px 6px;
   border-radius: 4px;
   font-size: var(--fs-body);
-  font-family: ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
   color: var(--text-master);
 }

@@ -102,7 +102,7 @@ export function fbFig(o: FbFigOpts, theme: string): string {
   for (const [si, fi] of o.fingers || []) {
     const x = 110 + fi * 26,
       y = SY(si) + 12
-    s += `<circle cx="${x}" cy="${y}" r="11" fill="${t}"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="14" font-weight="900" fill="#FFF" font-family="sans-serif">${fi}</text>`
+    s += `<circle cx="${x}" cy="${y}" r="11" fill="${t}"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="14" font-weight="900" fill="#FFF">${fi}</text>`
   }
   for (const [si, fi] of o.harm || []) {
     const x = 110 + fi * 26,

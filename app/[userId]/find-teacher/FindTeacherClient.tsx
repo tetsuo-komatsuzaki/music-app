@@ -167,7 +167,7 @@ export default function FindTeacherClient({
         <div style={{ fontSize: 11.5, color: "var(--text-sub)", lineHeight: 1.8 }}>先生から招待コードをもらっている場合</div>
         <div style={{ display: "flex", gap: 8, marginTop: 9 }}>
           <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="コードを入力" maxLength={12}
-            style={{ flex: 1, minWidth: 0, background: "var(--card-in)", border: "1px solid rgba(150,175,225,.08)", borderRadius: 14, padding: "11px 13px", fontSize: 13, color: "var(--text-ink)", letterSpacing: ".1em", fontFamily: "ui-monospace, Menlo, Consolas, monospace" }} />
+            style={{ flex: 1, minWidth: 0, background: "var(--card-in)", border: "1px solid rgba(150,175,225,.08)", borderRadius: 14, padding: "11px 13px", fontSize: 13, color: "var(--text-ink)", letterSpacing: ".14em", fontVariantNumeric: "tabular-nums" }} />
           <button type="button" onClick={useCode} disabled={pending || code.trim().length < 4} className="pressable"
             style={{ ...goldPill, opacity: pending || code.trim().length < 4 ? 0.5 : 1 }}>つながる</button>
         </div>

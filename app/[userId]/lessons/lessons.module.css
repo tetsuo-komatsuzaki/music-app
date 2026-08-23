@@ -29,7 +29,6 @@
   --border: rgba(150, 175, 225, 0.28);
   --text-on-accent: #ffffff;
   --gold: #d9a93c;
-  font-family: var(--font-mplus, "M PLUS Rounded 1c"), "Hiragino Maru Gothic ProN", sans-serif;
 }
 
 /* ── 一覧 ── */

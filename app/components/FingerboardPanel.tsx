@@ -103,7 +103,7 @@ export default function FingerboardPanel({
       [colX(0, 0), 0], [colX(0, 4), 0], [colX(Y_END, 4), Y_END], [colX(Y_END, 0), Y_END],
     ] as const)
     return (
-      <svg viewBox="-24 -27 300 58" role="img" aria-label="指板ヒートマップ" style={{ width: "100%", height: "auto", fontFamily: "sans-serif", display: "block" }}>
+      <svg viewBox="-24 -27 300 58" role="img" aria-label="指板ヒートマップ" style={{ width: "100%", height: "auto", fontFamily: "inherit", display: "block" }}>
         <g>{nodes}</g>
         <polygon points={pts(edge)} fill="none" stroke="#333" strokeWidth={0.8} pointerEvents="none" />
         <line x1={0} y1={-colX(0, 0)} x2={0} y2={-colX(0, 4)} stroke="#111" strokeWidth={1.6} pointerEvents="none" />

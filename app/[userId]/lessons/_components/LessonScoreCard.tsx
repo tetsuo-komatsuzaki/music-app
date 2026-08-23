@@ -444,7 +444,7 @@ function decorate(osmd: OpenSheetMusicDisplay, host: HTMLElement, lessonId: stri
       t.setAttribute("text-anchor", "middle")
       t.setAttribute("font-size", String(size))
       t.setAttribute("font-weight", weight)
-      t.setAttribute("font-family", "sans-serif")
+      t.setAttribute("font-family", "inherit")
       t.setAttribute("fill", fill)
       t.textContent = text
       svg.appendChild(t)

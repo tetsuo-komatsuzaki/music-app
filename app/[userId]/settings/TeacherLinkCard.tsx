@@ -31,7 +31,7 @@ export default function TeacherLinkCard() {
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           placeholder="コード"
           maxLength={12}
-          style={{ flex: 1, border: "1px solid rgba(150,175,225,.16)", borderRadius: 8, padding: "9px 12px", fontSize: "var(--fs-subhead)", letterSpacing: ".1em", fontFamily: "ui-monospace, Menlo, Consolas, monospace" }}
+          style={{ flex: 1, border: "1px solid rgba(150,175,225,.16)", borderRadius: 8, padding: "9px 12px", fontSize: "var(--fs-subhead)", letterSpacing: ".14em", fontVariantNumeric: "tabular-nums" }}
         />
         <button
           type="button"
