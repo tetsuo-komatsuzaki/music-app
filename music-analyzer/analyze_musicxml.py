@@ -29,6 +29,7 @@ from music21 import (
     pitch as m21pitch,
 )
 # 運指・弦の推定 (音名算術, v64)。運指表示 (1stポジ以外のみ・弦は既定と異なる時のみ) に使用。
+from lib.difficulty_variant import apply_variant_recipe
 from lib.violin_position import (
     infer_with_finger,
     infer_pitch_only,
@@ -314,7 +315,7 @@ try:
             UPDATE "Score"
             SET "analysisStatus" = 'processing'
             WHERE id = %s AND "createdById" = %s
-            RETURNING "originalXmlPath"
+            RETURNING "originalXmlPath", "variantRecipe"
         """, (SCORE_ID, USER_ID))
 
     row = cur.fetchone()
@@ -323,6 +324,8 @@ try:
         raise Exception("Score not found or unauthorized")
 
     xml_storage_path = row[0]
+    # 曲の難易度変種 (2026-08-24): Score.variantRecipe があれば parse 後に機械変換
+    score_variant_recipe = row[1] if (not IS_PRACTICE_ITEM and len(row) > 1) else None
     # 全調自動生成の変種は metadata.transposeSource を持つ (practice-item のみ)
     pi_metadata = row[1] if (IS_PRACTICE_ITEM and len(row) > 1) else None
     pi_key_tonic = row[2] if (IS_PRACTICE_ITEM and len(row) > 3) else None
@@ -385,6 +388,19 @@ try:
             _t2.close()
             score.write("musicxml", fp=_t2.name)
             tmp_path = _t2.name
+    else:
+        # 曲の難易度変種 (2026-08-24 要件確定): Score.variantRecipe を適用
+        # (小節範囲限定 → 同音2分割 → 音価2倍。移調・オクターブ下げは仕様上禁止)。
+        # 後段 (skill_extractor 等) も変換後を使うよう tmp_path を書き換える。
+        if score_variant_recipe:
+            _derived = apply_variant_recipe(score, score_variant_recipe)
+            if _derived is not score:
+                score = _derived
+                _t2 = tempfile.NamedTemporaryFile(suffix=".musicxml", delete=False)
+                _t2.close()
+                score.write("musicxml", fp=_t2.name)
+                tmp_path = _t2.name
+                print(f"[difficulty-variant] recipe applied: {score_variant_recipe.get('rules')}")
 
     # =========================
     # BPM
