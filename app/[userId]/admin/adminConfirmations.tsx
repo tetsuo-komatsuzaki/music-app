@@ -59,7 +59,7 @@ function GroupCard({
         border: "1px solid #e5e7eb",
         borderRadius: 10,
         padding: "14px 16px",
-        background: "#fff",
+        background: "var(--card-in)",
         marginBottom: 12,
       }}
     >
@@ -77,7 +77,7 @@ function GroupCard({
               fontSize: "var(--fs-body)",
               fontWeight: 600,
               color: "var(--text-good)",
-              background: "#e3f3e9",
+              background: "rgba(46,125,91,.18)",
               borderRadius: 999,
               padding: "2px 10px",
             }}
@@ -118,7 +118,7 @@ function GroupCard({
                 fontWeight: 600,
                 cursor: pending ? "wait" : "pointer",
                 border: active ? "2px solid #2e8b57" : "1px solid #cbd5e1",
-                background: active ? "#e3f3e9" : "#f8fafc",
+                background: active ? "rgba(46,125,91,.18)" : "rgba(150,175,225,.08)",
                 color: active ? "#1d5c38" : "#333",
               }}
             >

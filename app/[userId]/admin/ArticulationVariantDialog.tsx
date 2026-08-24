@@ -30,7 +30,13 @@ export default function ArticulationVariantDialog({ itemId, onClose }: { itemId:
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
 
-  useEffect(() => { getArticulationContext(itemId).then(setCtx) }, [itemId])
+  useEffect(() => {
+    getArticulationContext(itemId).then((c) => {
+      setCtx(c)
+      // エチュードは調変種を持たないので「全部の調に適用」を無効化
+      if (c.ok && c.category === "etude") setApplyAll(false)
+    })
+  }, [itemId])
 
   // 単位内の音符数 (先頭単位で数える)
   const unitNoteCount = useMemo(() => {
@@ -163,10 +169,13 @@ export default function ArticulationVariantDialog({ itemId, onClose }: { itemId:
               type="text" value={name} onChange={(e) => setName(e.target.value)}
               placeholder="例: 前半スラー・後半スタッカート" style={{ width: "100%", padding: "8px 10px" }}
             />
-            <div style={{ marginTop: 8, display: "flex", gap: 12 }}>
-              <label><input type="radio" checked={applyAll} onChange={() => setApplyAll(true)} /> 全部の調に適用</label>
-              <label><input type="radio" checked={!applyAll} onChange={() => setApplyAll(false)} /> この調だけ</label>
-            </div>
+            {/* エチュードは調のパターンを作らない (2026-08-24 Tetsuo指示) ため適用先を出さない */}
+            {ctx.category !== "etude" ? (
+              <div style={{ marginTop: 8, display: "flex", gap: 12 }}>
+                <label><input type="radio" checked={applyAll} onChange={() => setApplyAll(true)} /> 全部の調に適用</label>
+                <label><input type="radio" checked={!applyAll} onChange={() => setApplyAll(false)} /> この調だけ</label>
+              </div>
+            ) : null}
 
             <div style={{ marginTop: 16, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
               <button type="button" disabled={busy || assigns.size === 0 || !name.trim()} onClick={submit}

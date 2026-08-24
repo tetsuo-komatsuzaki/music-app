@@ -2,19 +2,19 @@
 .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
 .pageTitle { font-size: var(--fs-title); font-weight: 700; }
 .sectionTitle { font-size: var(--fs-head); font-weight: 600; margin-bottom: 12px; }
-.message { padding: 12px; margin-bottom: 16px; background: #e3f2fd; border-radius: 8px; font-size: var(--fs-subhead); }
+.message { padding: 12px; margin-bottom: 16px; background: rgba(43,91,196,.18); border-radius: 8px; font-size: var(--fs-subhead); }
 
 /* ボタン */
-.primaryBtn { padding: 8px 20px; background: #4a90d9; color: var(--text-on-accent); border: none; border-radius: 6px; font-size: var(--fs-subhead); cursor: pointer; }
-.primaryBtn:hover { background: #3a7bc8; }
-.primaryBtn:disabled { background: #aaa; cursor: not-allowed; }
+.primaryBtn { padding: 8px 20px; background: #2b5bc4; color: var(--text-on-accent); border: none; border-radius: 6px; font-size: var(--fs-subhead); cursor: pointer; }
+.primaryBtn:hover { background: #3d6fd6; }
+.primaryBtn:disabled { background: rgba(150,175,225,.25); cursor: not-allowed; }
 
 /* フォーム */
-.formCard { background: #f8f9fa; border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid #e0e0e0; }
+.formCard { background: var(--card-b); border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid var(--line); }
 .formTitle { font-size: var(--fs-head); font-weight: 600; margin-bottom: 16px; }
 .formGrid { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
 .field label { display: block; font-size: var(--fs-body); font-weight: 600; margin-bottom: 4px; color: var(--text-ink); }
-.field input, .field select, .field textarea { width: 100%; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: var(--fs-subhead); }
+.field input, .field select, .field textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; font-size: var(--fs-subhead); background: var(--card-in); color: var(--text-ink); }
 .field textarea { resize: vertical; }
 .fieldRow { display: flex; gap: 24px; }
 .fieldRow .field { flex: 1; }
@@ -36,19 +36,19 @@
 .tagCategory { margin-bottom: 8px; }
 .tagCategoryName { font-size: var(--fs-body); font-weight: 600; color: var(--text-body); margin-bottom: 4px; }
 .tagList { display: flex; flex-wrap: wrap; gap: 4px; }
-.tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: var(--fs-body); background: #eee; color: var(--text-body); cursor: pointer; border: 1px solid transparent; transition: all 0.15s; user-select: none; }
-.tag:hover { background: #ddd; }
-.tagSelected { background: #4a90d9; color: var(--text-on-accent); border-color: #4a90d9; }
-.tagPrimary { background: #e65100; color: var(--text-on-accent); border-color: #e65100; }
-.tagSmall { display: inline-block; padding: 1px 6px; border-radius: 8px; font-size: var(--fs-caption); background: #e8f0fe; color: var(--text-link); margin: 1px 2px; }
-.tagSmall.tagPrimary { background: #fce4ec; color: var(--text-error); }
+.tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: var(--fs-body); background: rgba(150,175,225,.12); color: var(--text-body); cursor: pointer; border: 1px solid transparent; transition: all 0.15s; user-select: none; }
+.tag:hover { background: rgba(150,175,225,.2); }
+.tagSelected { background: #2b5bc4; color: var(--text-on-accent); border-color: #2b5bc4; }
+.tagPrimary { background: #c2701a; color: var(--text-on-accent); border-color: #c2701a; }
+.tagSmall { display: inline-block; padding: 1px 6px; border-radius: 8px; font-size: var(--fs-caption); background: rgba(43,91,196,.2); color: var(--text-link); margin: 1px 2px; }
+.tagSmall.tagPrimary { background: rgba(196,68,68,.18); color: var(--text-error); }
 
 /* テーブル */
 .listSection { margin-top: 24px; }
 .table { width: 100%; border-collapse: collapse; font-size: var(--fs-body); }
-.table th { text-align: left; padding: 8px 12px; border-bottom: 2px solid #e0e0e0; font-weight: 600; color: var(--text-body); }
-.table td { padding: 8px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
-.table tr:hover { background: #f5f5f5; }
+.table th { text-align: left; padding: 8px 12px; border-bottom: 2px solid var(--line); font-weight: 600; color: var(--text-body); }
+.table td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.table tr:hover { background: rgba(150,175,225,.08); }
 .itemTitle { font-weight: 500; }
 .itemSub { font-size: var(--fs-caption); color: var(--text-sub); }
 .statusDone { color: var(--text-good); font-size: var(--fs-body); }
@@ -62,14 +62,14 @@
   align-items: center;
   margin-bottom: 12px;
   padding: 10px 12px;
-  background: #f0f2f5;
+  background: var(--card-in);
   border-radius: 8px;
 }
 .filterBtn {
   padding: 6px 12px;
-  border: 1px solid #d4dae3;
+  border: 1px solid var(--line);
   border-radius: 6px;
-  background: #fff;
+  background: var(--card-in);
   color: var(--text-ink);
   font-size: var(--fs-body);
   font-weight: 500;
@@ -79,11 +79,11 @@
   gap: 6px;
   transition: background 0.15s, border-color 0.15s;
 }
-.filterBtn:hover { background: #f7f9fc; border-color: #5a7fdf; }
+.filterBtn:hover { background: rgba(150,175,225,.14); border-color: rgba(127,164,232,.5); }
 .filterBtnActive {
   background: #5a7fdf;
   color: var(--text-on-accent);
-  border-color: #5a7fdf;
+  border-color: rgba(127,164,232,.5);
 }
 .filterCount {
   display: inline-flex;
@@ -102,7 +102,7 @@
 }
 .searchInput {
   padding: 6px 10px;
-  border: 1px solid #d4dae3;
+  border: 1px solid var(--line);
   border-radius: 6px;
   font-size: var(--fs-body);
   margin-left: auto;
@@ -110,10 +110,10 @@
 }
 
 .rowNeedsAttention {
-  background: #fff8e1 !important;
+  background: rgba(217,169,60,.12) !important;
 }
 .rowNeedsAttention:hover {
-  background: #fff3c4 !important;
+  background: rgba(217,169,60,.2) !important;
 }
 
 .missingBadge {
@@ -122,7 +122,7 @@
   border-radius: 999px;
   font-size: var(--fs-caption);
   font-weight: 600;
-  background: #fdecec;
+  background: rgba(196,68,68,.16);
   color: var(--text-error);
 }
 
@@ -136,7 +136,7 @@
   padding: 1px 8px;
   border-radius: 8px;
   font-size: var(--fs-caption);
-  background: #eef2fb;
+  background: rgba(150,175,225,.12);
   color: var(--text-link);
   white-space: nowrap;
 }
@@ -167,32 +167,32 @@
 }
 .secondaryBtn {
   padding: 4px 10px;
-  background: #fff;
-  border: 1px solid #d4dae3;
+  background: var(--card-in);
+  border: 1px solid var(--line);
   color: var(--text-ink);
   border-radius: 6px;
   font-size: var(--fs-body);
   cursor: pointer;
 }
-.secondaryBtn:hover { background: #f7f9fc; }
+.secondaryBtn:hover { background: rgba(150,175,225,.14); }
 .secondaryBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .dangerBtn {
   padding: 4px 10px;
-  background: #fff;
-  border: 1px solid #e3b4b4;
+  background: var(--card-in);
+  border: 1px solid rgba(196,68,68,.4);
   color: var(--text-error);
   border-radius: 6px;
   font-size: var(--fs-body);
   cursor: pointer;
 }
-.dangerBtn:hover { background: #fdf0f0; }
+.dangerBtn:hover { background: rgba(196,68,68,.18); }
 .dangerBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .editError {
   font-size: var(--fs-caption);
   color: var(--text-error);
-  background: #fdecec;
+  background: rgba(196,68,68,.16);
   padding: 4px 6px;
   border-radius: 4px;
 }
@@ -224,7 +224,7 @@
   padding: 24px;
 }
 .techModal {
-  background: #fff;
+  background: var(--card-in);
   border-radius: 12px;
   max-width: 720px;
   width: 100%;
@@ -266,3 +266,18 @@
   gap: 8px;
   margin-top: 16px;
 }
+
+/* 2026-08-24 Tetsuo指摘: 管理画面が白塗りで見にくい。素の入力欄・行ホバーもダークに揃える */
+.container input:not([type="checkbox"]):not([type="radio"]),
+.container select, .container textarea,
+.table input:not([type="checkbox"]):not([type="radio"]),
+.table select, .table textarea {
+  background: var(--card-in);
+  color: var(--text-ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 8px;
+}
+.container option, .table option { background: #15233f; color: var(--text-ink); }
+.table tbody tr:hover { background: rgba(127, 164, 232, 0.10); }
+.table tbody tr:hover td { color: var(--text-ink); }

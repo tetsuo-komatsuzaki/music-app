@@ -48,7 +48,7 @@ export default async function AdminSongRequestsPage() {
             padding: 40,
             textAlign: "center",
             color: "var(--text-sub)",
-            background: "#fafafa",
+            background: "var(--card-in)",
             borderRadius: 12,
           }}
         >
