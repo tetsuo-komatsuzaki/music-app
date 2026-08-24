@@ -170,6 +170,9 @@ _ART_CLS = {
     "spiccato": articulations.Spiccato,
     "martele": articulations.StrongAccent,
     "portato": articulations.DetachedLegato,
+    # 2026-08-24 アップロード改修: 音符ごとの奏法レシピで追加 (テヌート/アクセント)
+    "tenuto": articulations.Tenuto,
+    "accent": articulations.Accent,
 }
 
 
@@ -231,8 +234,27 @@ def _symbol_notehead(el) -> Optional[str]:
     return None
 
 
+def _apply_art_to_note(n, art_id):
+    """1音に奏法を付与する (uniform / per_note 共用)。"""
+    if art_id == "tremolo":
+        t = expressions.Tremolo()
+        try:
+            t.numberOfMarks = 2
+        except Exception:
+            pass
+        n.expressions.append(t)
+    elif art_id in _ART_CLS:
+        n.articulations.append(_ART_CLS[art_id]())
+
+
 def apply_articulation_variant(score, metadata):
-    """metadata.articulationPattern(uniform) があれば全音符に奏法を付与。対象外なら None。"""
+    """metadata.articulationPattern があれば奏法を付与。対象外なら None。
+
+    - type=uniform: 全音符に同一奏法 (2026-07-20 v81)
+    - type=per_note (2026-08-24 アップロード改修): 繰り返し単位 (unitMeasures小節) の中の
+      音符に assignments[{noteIndex(単位内0始まり), articulation}] を割り当て、
+      その規則を譜面全体へ繰り返し適用する。noteIndex は単位内の音符 (休符除く) の並び順。
+    """
     md = metadata
     if isinstance(md, str):
         try:
@@ -240,20 +262,42 @@ def apply_articulation_variant(score, metadata):
         except Exception:
             md = None
     pat = (md or {}).get("articulationPattern") if isinstance(md, dict) else None
-    if not pat or pat.get("type") != "uniform":
+    if not pat:
         return None
-    art_id = pat.get("articulation")
-    for n in score.recurse().notes:
-        if art_id == "tremolo":
-            t = expressions.Tremolo()
+
+    if pat.get("type") == "uniform":
+        art_id = pat.get("articulation")
+        for n in score.recurse().notes:
+            _apply_art_to_note(n, art_id)
+        return score
+
+    if pat.get("type") == "per_note":
+        try:
+            unit = max(1, int(pat.get("unitMeasures") or 1))
+        except (ValueError, TypeError):
+            unit = 1
+        assigns = {}
+        for a in pat.get("assignments") or []:
             try:
-                t.numberOfMarks = 2
-            except Exception:
-                pass
-            n.expressions.append(t)
-        elif art_id in _ART_CLS:
-            n.articulations.append(_ART_CLS[art_id]())
-    return score
+                assigns[int(a["noteIndex"])] = str(a["articulation"])
+            except (KeyError, ValueError, TypeError):
+                continue
+        if not assigns:
+            return None
+        for part in score.parts:
+            measures = list(part.getElementsByClass(stream.Measure))
+            # 繰り返し単位ごとに: 単位内の音符並び (0始まり) に割り当てを適用
+            for u_start in range(0, len(measures), unit):
+                idx = 0
+                for meas in measures[u_start:u_start + unit]:
+                    for n in meas.notes:
+                        art_id = assigns.get(idx)
+                        if art_id:
+                            _apply_art_to_note(n, art_id)
+                        idx += 1
+        return score
+
+    return None
 
 
 # タグ→⭐︎ 正本 (docs/arcoda-design-spec.md §2-2b / 2026-07-20 承認: マルテレ=2, 7thポジ=5)。
