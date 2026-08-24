@@ -1300,13 +1300,7 @@ export default function AdminPractice({
             </div>
             <div className={styles.techModalSub}>
               「{techModalScore.title}」
-              {techModalScore.composer ? ` / ${variantScoreId && (
-        <ScoreVariantDialog scoreId={variantScoreId} onClose={() => setVariantScoreId(null)} />
-      )}
-      {artVariantItemId && (
-        <ArticulationVariantDialog itemId={artVariantItemId} onClose={() => setArtVariantItemId(null)} />
-      )}
-      {techModalScore.composer}` : ""}
+              {techModalScore.composer ? ` / ${techModalScore.composer}` : ""}
             </div>
 
             <div className={styles.tagSection}>
@@ -1363,6 +1357,12 @@ export default function AdminPractice({
             </div>
           </div>
         </div>
+      )}
+      {variantScoreId && (
+        <ScoreVariantDialog scoreId={variantScoreId} onClose={() => setVariantScoreId(null)} />
+      )}
+      {artVariantItemId && (
+        <ArticulationVariantDialog itemId={artVariantItemId} onClose={() => setArtVariantItemId(null)} />
       )}
     </div>
   )
