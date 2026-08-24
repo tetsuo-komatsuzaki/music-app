@@ -627,13 +627,24 @@ try:
                 # 自動推定の運指・弦は、移動コスト式が音階の下行などでありえない
                 # 弦移動を生むため表示しない。楽譜に手書きされたものだけを出す。
                 # (推定値 _pos_resolved は成長フィードバック等の内部判定で引き続き使用)
-                disp_finger = _src_finger  # 元の楽譜に <fingering> があるときだけ表示
+                # 手書き (楽譜の <fingering>/<string>) があればそれを最優先。
+                # 無ければ新ルール (同弦同ポジ > 同弦シフト > 弦移動はシフトなし優先) の
+                # 推定値を表示する。1stポジの当たり前な運指と既定弦は出さない。
                 _src_string = next(
                     (str(a.number) for a in element.articulations
                      if type(a).__name__ == "StringIndication" and getattr(a, "number", None) is not None),
                     None,
                 )
-                disp_string_num = int(_src_string) if _src_string else None
+                _fp = VIOLIN_FIRST_POSITION_MAP.get(_midi)
+                _fp_string = _fp[0] if _fp else None
+                if _src_finger is not None:
+                    disp_finger = _src_finger
+                elif _pos is not None and _pos >= 2 and _finger is not None and _finger >= 1:
+                    disp_finger = _finger
+                if _src_string is not None:
+                    disp_string_num = int(_src_string)
+                elif _s_id is not None and _s_id != _fp_string:
+                    disp_string_num = string_id_to_num(_s_id)
                 # 音脈コンテキスト更新
                 if _s_id is not None:
                     fp_prev_string = _s_id

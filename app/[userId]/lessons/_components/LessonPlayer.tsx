@@ -131,9 +131,6 @@ export default function LessonPlayer({
       pageFormat: "Endless",
       drawingParameters: "compacttight",
     })
-        // 2026-08-24 Tetsuo指示: 自動推定の運指・弦は誤りを含むため描画しない
-    osmd.EngravingRules.RenderFingerings = false
-    osmd.EngravingRules.RenderStringNumbersClassical = false
 ;(async () => {
       try {
         await osmd.load(buildUrl)

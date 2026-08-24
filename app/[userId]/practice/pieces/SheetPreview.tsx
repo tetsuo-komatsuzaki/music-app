@@ -44,9 +44,6 @@ export default function SheetPreview({ scoreId, kind = "score" }: { scoreId: str
             drawTitle: false,
             drawPartNames: false,
           })
-              // 2026-08-24 Tetsuo指示: 自動推定の運指・弦は誤りを含むため描画しない
-    osmd.EngravingRules.RenderFingerings = false
-    osmd.EngravingRules.RenderStringNumbersClassical = false
 await osmd.load(data.buildUrl)
           if (cancelled) return
           osmd.zoom = 0.62

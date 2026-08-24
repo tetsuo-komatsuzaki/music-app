@@ -42,9 +42,6 @@ export default function AnnotatableScore({
       autoResize: false, backend: "svg", drawTitle: false, drawPartNames: false,
       pageFormat: "Endless", pageBackgroundColor: "#ffffff", followCursor: false,
     })
-        // 2026-08-24 Tetsuo指示: 自動推定の運指・弦は誤りを含むため描画しない
-    osmd.EngravingRules.RenderFingerings = false
-    osmd.EngravingRules.RenderStringNumbersClassical = false
 const collect = () => {
       noteElementsRef.current = Array.from(container.querySelectorAll("g.vf-stavenote"))
       setVersion((v) => v + 1)
