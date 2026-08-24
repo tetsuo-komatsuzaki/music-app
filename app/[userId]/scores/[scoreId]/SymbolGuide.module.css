@@ -9,7 +9,7 @@
   font-size: var(--fs-caption); font-weight: 800; color: var(--text-sub);
   background: rgba(150, 175, 225, 0.12); border: none; border-radius: 999px; padding: 4px 11px;
 }
-.tapOn { color: var(--text-on-accent); background: #4a6cf7; border-color: #4a6cf7; }
+.tapOn { color: var(--text-on-accent); background: #7fa4e8; border-color: #7fa4e8; }
 
 .spacer { flex: 1; }
 
@@ -43,10 +43,10 @@
 .chip:active { filter: brightness(.96); }
 .gWrap { display: grid; place-items: center; width: 22px; height: 22px; color: var(--text-ink); flex: none; }
 .gTxt { font-size: var(--fs-body); line-height: 1; }
-.chipLabel { white-space: nowrap; }
+.chipLabel { var(--card-in)-space: nowrap; }
 .chipValue { font-size: var(--fs-caption); font-weight: 800; color: var(--text-link); }
 .chipLesson {
-  font-size: var(--fs-label); font-weight: 800; color: var(--text-on-accent); background: #d6547a;
+  font-size: var(--fs-label); font-weight: 800; color: var(--text-on-accent); background: #e8a78f;
   border-radius: 5px; padding: 1px 6px;
 }
 
@@ -69,7 +69,7 @@
 }
 @keyframes sgRise { from { transform: translateY(60%); opacity: .5 } to { transform: none; opacity: 1 } }
 
-.grab { width: 40px; height: 5px; border-radius: 3px; background: #e0dde0; margin: 2px auto 10px; }
+.grab { width: 40px; height: 5px; border-radius: 3px; background: rgba(150,175,225,.18); margin: 2px auto 10px; }
 .close {
   position: absolute; top: 14px; right: 16px; width: 34px; height: 34px; border-radius: 50%;
   background: rgba(150,175,225,.13); border: none; cursor: pointer; color: var(--text-body); display: grid; place-items: center;
@@ -82,7 +82,7 @@
 .itemHead { display: flex; align-items: center; gap: 12px; margin-bottom: 9px; }
 .gBig {
   width: 46px; height: 46px; flex: none; border-radius: 13px; display: grid; place-items: center;
-  background: #f4f6ff; border: 1px solid #e4e8fb; color: var(--text-ink);
+  background: rgba(150,175,225,.10); border: 1px solid rgba(150,175,225,.20); color: var(--text-ink);
 }
 .gBig svg { width: 26px; height: 26px; }
 .gBig .gTxt { font-size: var(--fs-head); }
@@ -93,11 +93,11 @@
 .what { font-size: var(--fs-body); color: var(--text-ink); line-height: 1.75; margin: 0 0 8px; }
 .tip {
   font-size: var(--fs-body); color: var(--text-body); line-height: 1.7; margin: 0;
-  background: #f7f7f9; border-radius: 10px; padding: 9px 12px;
+  background: rgba(150,175,225,.10); border-radius: 10px; padding: 9px 12px;
 }
 .tip b {
   display: inline-block; font-size: var(--fs-caption); font-weight: 800; color: var(--text-link);
-  background: #eef1fd; border-radius: 5px; padding: 1px 7px; margin-right: 7px;
+  background: rgba(43,91,196,.20); border-radius: 5px; padding: 1px 7px; margin-right: 7px;
 }
 
 .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
@@ -106,7 +106,7 @@
   font-size: var(--fs-body); font-weight: 800; color: var(--text-body);
   background: rgba(150,175,225,.13); border: 1px solid rgba(150,175,225,.20); border-radius: 999px; padding: 8px 14px;
 }
-.actPrimary { color: var(--text-on-accent); background: linear-gradient(100deg, #4a6cf7, #6a5cf0); border-color: transparent; }
+.actPrimary { color: var(--text-on-accent); background: linear-gradient(100deg, #7fa4e8, #9db8e8); border-color: transparent; }
 .act:active { filter: brightness(.97); }
 
 @media (prefers-reduced-motion: reduce) {

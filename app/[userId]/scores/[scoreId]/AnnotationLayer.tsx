@@ -313,14 +313,19 @@ export default function AnnotationLayer({
     }
 
     // 記譜スタンプ (音符の上に素の記号として)
+    // 同じ音符に複数のスタンプが付く場合は縦に積む (2026-08-24 Tetsuo指摘:
+    // 弦の文字とスタッカート等が重なって読めない問題の対処)。
+    const stampStack = new Map<number, number>()
     for (const n of d.notation ?? []) {
       const el = els[n.noteIndex]
       if (!el || !container.contains(el)) continue
       const r = el.getBoundingClientRect()
+      const level = stampStack.get(n.noteIndex) ?? 0
+      stampStack.set(n.noteIndex, level + 1)
       const node = document.createElement("div")
       node.className = styles.stampGlyph
       node.style.left = `${r.left + r.width / 2 - cRect.left}px`
-      node.style.top = `${r.top - cRect.top + scrollTop - 21}px`
+      node.style.top = `${r.top - cRect.top + scrollTop - 21 - level * 14}px`
       node.innerHTML = stampInnerHtml(n.kind, n.value)
       container.appendChild(node)
       overlayNodesRef.current.push(node)
