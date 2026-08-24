@@ -777,6 +777,9 @@ function ScoreViewer({
       pageBackgroundColor: "#ffffff",
       followCursor: false,
     })
+    // 2026-08-24 Tetsuo指示: 自動推定の運指・弦は誤りを含むため描画しない
+    osmd.EngravingRules.RenderFingerings = false
+    osmd.EngravingRules.RenderStringNumbersClassical = false
     if (bandMode) {
       // 帯モード: ページ上下余白を最小化 (SVG高さを五線に寄せて縦中央配置を正確に)
       osmd.EngravingRules.PageTopMargin = 1
