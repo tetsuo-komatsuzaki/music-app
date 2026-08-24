@@ -70,9 +70,6 @@ export default function ColoredSheetModal({
           autoResize: false, backend: "svg", drawTitle: false, drawPartNames: false,
           pageFormat: "Endless", newPageFromXML: false, pageBackgroundColor: "#ffffff", followCursor: false,
         })
-            // 2026-08-24 Tetsuo指示: 自動推定の運指・弦は誤りを含むため描画しない
-    osmd.EngravingRules.RenderFingerings = false
-    osmd.EngravingRules.RenderStringNumbersClassical = false
 await osmd.load(buildUrl)
         if (cancelled) return
         osmd.zoom = 0.62

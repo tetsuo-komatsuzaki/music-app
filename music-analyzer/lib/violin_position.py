@@ -264,17 +264,39 @@ def _pick_candidate(
     prev_string: Optional[str],
     prev_position: Optional[int],
 ) -> tuple[str, int]:
-    """段2: 音脈補正。直前音があれば手の移動最小、無ければ最低ポジション優先。
-    同点は高音弦 (E>A>D>G) を選ぶ (慣用)。"""
-    def cost(c: tuple[str, int]) -> tuple:
-        s, p = c
-        if prev_position is not None and prev_string is not None:
-            move = abs(p - prev_position) * 2 + _string_distance(s, prev_string)
-        else:
-            move = p * 2  # 文脈なし → 低ポジ優先
-        return (move, p, -_STRING_ORDER.index(s))
+    """段2: 音脈補正 (2026-08-24 Tetsuo確定「折衷案」)。
 
-    return min(candidates, key=cost)
+    直前音のポジションが分かっているときの優先順:
+      1. 同じ弦・同じポジション        … 手をまったく動かさない
+      2. 同じ弦のままシフト            … 弦は変えず、ポジションだけ動かす
+                                        (下行の音階などで弦が飛ばないようにする)
+      3. 弦を変える                    … このときは同じポジションのまま渡るのを優先
+                                        (弦移動とシフトの同時発生を避ける)
+    直前音が無いときは最低ポジション優先。同点はいずれも高音弦 (E>A>D>G)。
+
+    旧実装は「移動コスト = |Δポジション|×2 + 弦距離」の一本式で、シフトより
+    弦移動が常に安く評価され、音階の下行で実際にはあり得ない弦またぎ
+    (例: E線7ポジ → A線7ポジ) を選んでいた。
+    """
+    def rank(c: tuple[str, int]) -> tuple:
+        s, p = c
+        if prev_position is None or prev_string is None:
+            return (0, 0, p * 2, p, -_STRING_ORDER.index(s))  # 文脈なし → 低ポジ優先
+        same_string = s == prev_string
+        same_pos = p == prev_position
+        if same_string and same_pos:
+            tier = 0                       # 1. 同弦・同ポジ
+        elif same_string:
+            tier = 1                       # 2. 同弦でシフト
+        else:
+            tier = 2                       # 3. 弦を変える
+        # 弦を変える場合のみ、同ポジション (シフトなし) を優先する
+        cross_shift = 0 if (tier < 2 or same_pos) else 1
+        return (tier, cross_shift,
+                abs(p - prev_position) * 2 + _string_distance(s, prev_string),
+                p, -_STRING_ORDER.index(s))
+
+    return min(candidates, key=rank)
 
 
 def infer_with_finger(

@@ -78,9 +78,6 @@ export default function LessonScoreCard({
       pageFormat: "Endless",
       drawingParameters: "compacttight",
     })
-        // 2026-08-24 Tetsuo指示: 自動推定の運指・弦は誤りを含むため描画しない
-    osmd.EngravingRules.RenderFingerings = false
-    osmd.EngravingRules.RenderStringNumbersClassical = false
 ;(async () => {
       // ① 譜面読込 (署名URLのfetchは一過性の失敗があり得るのでリトライ)
       let loaded = false
