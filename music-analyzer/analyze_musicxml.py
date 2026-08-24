@@ -623,13 +623,13 @@ try:
                     else:
                         _s_id, _pos, _finger = None, None, None
                 _pos_resolved = _pos  # 成長フィードバック②: 注釈優先→無ければ最低ポジ推定の解決値
-                # 表示ルール適用
-                _fp = VIOLIN_FIRST_POSITION_MAP.get(_midi)
-                _fp_string = _fp[0] if _fp else None
-                if _pos is not None and _pos >= 2 and _finger is not None and _finger >= 1:
-                    disp_finger = _finger
-                if _s_id is not None and _s_id != _fp_string:
-                    disp_string_num = string_id_to_num(_s_id)
+                # 表示ルール (2026-08-24 Tetsuo指示で停止):
+                # 自動推定の運指・弦は、移動コスト式が音階の下行などで
+                # ありえない弦移動を生むため、譜面には一切表示しない。
+                # (推定値 _pos_resolved は成長フィードバック等の内部判定で引き続き使用)
+                # 楽譜に手書きで入れた運指・弦を出す運用に切り替える。
+                disp_finger = None
+                disp_string_num = None
                 # 音脈コンテキスト更新
                 if _s_id is not None:
                     fp_prev_string = _s_id
