@@ -30,6 +30,7 @@ from music21 import (
 )
 # 運指・弦の推定 (音名算術, v64)。運指表示 (1stポジ以外のみ・弦は既定と異なる時のみ) に使用。
 from lib.difficulty_variant import apply_variant_recipe
+from lib.rhythm_recipe import apply_rhythm_recipe
 from lib.violin_position import (
     infer_with_finger,
     infer_pitch_only,
@@ -376,14 +377,14 @@ try:
             UPDATE "PracticeItem"
             SET "analysisStatus" = 'processing'
             WHERE id = %s
-            RETURNING "originalXmlPath", "metadata", "keyTonic", "keyMode"
+            RETURNING "originalXmlPath", "metadata", "keyTonic", "keyMode", "rhythmRecipe"
         """, (PRACTICE_ITEM_ID,))
     else:
         cur.execute("""
             UPDATE "Score"
             SET "analysisStatus" = 'processing'
             WHERE id = %s AND "createdById" = %s
-            RETURNING "originalXmlPath", "variantRecipe"
+            RETURNING "originalXmlPath", "variantRecipe", "rhythmRecipe"
         """, (SCORE_ID, USER_ID))
 
     row = cur.fetchone()
@@ -398,6 +399,8 @@ try:
     pi_metadata = row[1] if (IS_PRACTICE_ITEM and len(row) > 1) else None
     pi_key_tonic = row[2] if (IS_PRACTICE_ITEM and len(row) > 3) else None
     pi_key_mode = row[3] if (IS_PRACTICE_ITEM and len(row) > 3) else None
+    # リズムパターン変種 (2026-08-24): 教材・曲どちらも rhythmRecipe で組み替える
+    rhythm_recipe = row[4] if (IS_PRACTICE_ITEM and len(row) > 4) else (row[2] if (not IS_PRACTICE_ITEM and len(row) > 2) else None)
     conn.commit()
 
     # =========================
@@ -451,6 +454,12 @@ try:
             score = _articulated
             _changed = True
             print("[articulation] variant applied")
+        if rhythm_recipe:
+            _rhythm = apply_rhythm_recipe(score, rhythm_recipe)
+            if _rhythm is not score:
+                score = _rhythm
+                _changed = True
+                print(f"[rhythm] recipe applied: {rhythm_recipe.get('name')}")
         if _changed:
             _t2 = tempfile.NamedTemporaryFile(suffix=".musicxml", delete=False)
             _t2.close()
@@ -469,6 +478,15 @@ try:
                 score.write("musicxml", fp=_t2.name)
                 tmp_path = _t2.name
                 print(f"[difficulty-variant] recipe applied: {score_variant_recipe.get('rules')}")
+        if rhythm_recipe:
+            _rhythm = apply_rhythm_recipe(score, rhythm_recipe)
+            if _rhythm is not score:
+                score = _rhythm
+                _t3 = tempfile.NamedTemporaryFile(suffix=".musicxml", delete=False)
+                _t3.close()
+                score.write("musicxml", fp=_t3.name)
+                tmp_path = _t3.name
+                print(f"[rhythm] recipe applied: {rhythm_recipe.get('name')}")
 
     # =========================
     # BPM

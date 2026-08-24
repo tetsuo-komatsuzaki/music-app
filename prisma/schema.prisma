@@ -126,6 +126,7 @@ model Score {
   sections         Json? // 練習範囲 [{name,startMeasure,endMeasure}]
   // ▼ アップロード改修 (2026-08-24 要件確定): 難易度×パートの変種
   partId           String? // MaterialGroup.parts 内のパートid。null=通し
+  rhythmRecipe     Json? // リズムパターン変種 (2026-08-24)。PracticeItem と同形式
   variantRecipe    Json? // 難易度自動変換レシピ {rules:[{type:"double_duration"|"split_repeat"|"measure_range",from?,to?}],sourceScoreId}。手動アップロード変種はnull
   analysisStatus   JobStatus      @default(processing)
   buildStatus      JobStatus      @default(processing)
@@ -379,6 +380,10 @@ model PracticeItem {
   // ▼ アップロード改修 (2026-08-24): 音符ごとの奏法割り当てレシピ
   // {name, unitMeasures, assignments:[{noteIndex, articulation}], appliedKeys:["A"|"all"...], sourceItemId}
   articulationRecipe Json?
+  // ▼ リズムパターン変種 (2026-08-24): くり返し単位のリズムを組み替えて全反復に適用
+  // {name, unitMeasures, notes:[{base:"w|h|q|e|s|t", dot, triplet, pitchNo, articulation, slurId}], sourceItemId}
+  // pitchNo = 単位内の元音符の通し番号 (1始まり) で高さを引き継ぐ
+  rhythmRecipe Json?
   sections     Json? // エチュードの分割 [{name,startMeasure,endMeasure}]
 
   keyTonic   String
