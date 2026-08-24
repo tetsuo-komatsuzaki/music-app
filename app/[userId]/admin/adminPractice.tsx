@@ -35,6 +35,7 @@ import {
 } from "@/app/_libs/materialVariant"
 import ScoreVariantDialog from "./ScoreVariantDialog"
 import ArticulationVariantDialog from "./ArticulationVariantDialog"
+import RhythmVariantDialog from "./RhythmVariantDialog"
 import styles from "./admin.module.css"
 import { MOOD_TAG_DEFS, moodTagLabel } from "@/app/_libs/moodTags"
 
@@ -185,6 +186,7 @@ export default function AdminPractice({
   // 難易度・パート変種ダイアログ (2026-08-24 アップロード改修)
   const [variantScoreId, setVariantScoreId] = useState<string | null>(null)
   const [artVariantItemId, setArtVariantItemId] = useState<string | null>(null)
+  const [rhythmItemId, setRhythmItemId] = useState<string | null>(null)
   // 削除中の id (二重実行防止 + ボタン無効化)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -1234,6 +1236,16 @@ export default function AdminPractice({
                             奏法
                           </button>
                         )}
+                        {item.type === "practice" && item.buildStatus === "done" && (
+                          <button
+                            type="button"
+                            className={styles.secondaryBtn}
+                            onClick={() => setRhythmItemId(item.id)}
+                            title="リズムパターンを変える"
+                          >
+                            リズム
+                          </button>
+                        )}
                         {/* 技法タグ編集モーダル (2026-07-14: Score専用→教材にも開放。
                             学びレッスン教材の自動抽出されない技法の後付け用) */}
                         <button
@@ -1363,6 +1375,9 @@ export default function AdminPractice({
       )}
       {artVariantItemId && (
         <ArticulationVariantDialog itemId={artVariantItemId} onClose={() => setArtVariantItemId(null)} />
+      )}
+      {rhythmItemId && (
+        <RhythmVariantDialog itemId={rhythmItemId} onClose={() => setRhythmItemId(null)} />
       )}
     </div>
   )
