@@ -31,6 +31,7 @@ from music21 import (
 # 運指・弦の推定 (音名算術, v64)。運指表示 (1stポジ以外のみ・弦は既定と異なる時のみ) に使用。
 from lib.difficulty_variant import apply_variant_recipe
 from lib.rhythm_recipe import apply_rhythm_recipe
+from lib.position_pass import resolve_sequence
 from lib.violin_position import (
     infer_with_finger,
     infer_pitch_only,
@@ -617,9 +618,37 @@ try:
     note_results: List[Dict[str, Any]] = []
     directions_out: List[Dict[str, Any]] = []   # 記号ガイド用の文字指示
     note_index = 0
-    # 運指推定の音脈コンテキスト (直前の弦・ポジション)。複数弦候補の選択に使う。
-    fp_prev_string: Optional[str] = None
-    fp_prev_position: Optional[int] = None
+
+    # ── 弦・ポジションの事前解決 (2026-08-25 Tetsuo確定のアンカー方式) ──
+    # 譜面を通しで見て、楽譜に書かれた運指をアンカーとして固定してから、
+    # 間の音を規則で補間する (lib/position_pass.py)。前から順に決める旧方式では
+    # 楽譜の運指が持つ「ここで1stに戻る」という意図を活かせなかった。
+    _seq_notes: List[Dict[str, Any]] = []
+    for _m in performance_part.getElementsByClass("Measure"):
+        for _el in _m.notesAndRests:
+            if float(_el.duration.quarterLength) == 0:
+                continue
+            if isinstance(_el, note.Rest) or getattr(_el, "isChord", False) or len(getattr(_el, "pitches", [])) != 1:
+                _seq_notes.append(None)   # 休符・和音は対象外 (位置合わせのため詰める)
+                continue
+            _pp = _el.pitches[0]
+            _fg = next(
+                (int(a.fingerNumber) for a in _el.articulations
+                 if type(a).__name__ == "Fingering" and getattr(a, "fingerNumber", None) is not None),
+                None,
+            )
+            _seq_notes.append({"midi": int(_pp.midi), "step": _pp.step, "octave": _pp.octave, "finger": _fg})
+    _solvable = [x for x in _seq_notes if x is not None]
+    _solved_list = resolve_sequence(_solvable) if _solvable else []
+    _solved_by_index: Dict[int, Dict[str, Any]] = {}
+    _si = 0
+    for _i, _x in enumerate(_seq_notes):
+        if _x is None:
+            continue
+        if _si < len(_solved_list) and _solved_list[_si] is not None:
+            _solved_by_index[_i] = _solved_list[_si]
+        _si += 1
+    _seq_pos = 0   # ループ内で進める、_seq_notes 上の位置
 
     for measure in performance_part.getElementsByClass("Measure"):
         measure_number = int(measure.number)
@@ -641,6 +670,8 @@ try:
             duration_quarter = float(element.duration.quarterLength)
             if duration_quarter == 0:
                 continue
+            _seq_pos_here = _seq_pos      # この音符に対応する事前パスの位置
+            _seq_pos += 1
 
             # この音符以前に置かれた文字指示を回収する
             _here: List[str] = []
@@ -711,19 +742,12 @@ try:
                      if type(a).__name__ == "Fingering" and getattr(a, "fingerNumber", None) is not None),
                     None,
                 )
-                if _src_finger is not None:
-                    _r = infer_with_finger(_midi, _src_finger, fp_prev_string, fp_prev_position, _p.step, _p.octave)
-                    if _r is not None:
-                        _s_id, _pos, _ = _r
-                    else:
-                        _s_id, _pos = None, None
-                    _finger = _src_finger
+                # 事前パス (アンカー方式) の解決結果を引く
+                _res = _solved_by_index.get(_seq_pos_here)
+                if _res is not None:
+                    _s_id, _pos, _finger = _res["string_id"], _res["position"], _res["finger"]
                 else:
-                    _r = infer_pitch_only(_midi, fp_prev_string, fp_prev_position, _p.step, _p.octave)
-                    if _r is not None:
-                        _s_id, _pos, _finger, _ = _r
-                    else:
-                        _s_id, _pos, _finger = None, None, None
+                    _s_id, _pos, _finger = None, None, _src_finger
                 _pos_resolved = _pos  # 成長フィードバック②: 注釈優先→無ければ最低ポジ推定の解決値
                 # 表示ルール (2026-08-24 Tetsuo指示で変更):
                 # 自動推定の運指・弦は、移動コスト式が音階の下行などでありえない
@@ -747,11 +771,6 @@ try:
                     disp_string_num = int(_src_string)
                 elif _s_id is not None and _s_id != _fp_string:
                     disp_string_num = string_id_to_num(_s_id)
-                # 音脈コンテキスト更新
-                if _s_id is not None:
-                    fp_prev_string = _s_id
-                    if _pos is not None:
-                        fp_prev_position = _pos
 
             dyn = measure_dynamics.get(float(element.offset))
 

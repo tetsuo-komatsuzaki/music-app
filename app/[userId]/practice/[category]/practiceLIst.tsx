@@ -459,23 +459,30 @@ function StarView({
         ))
       )}
 
-      {/* エチュード: 難易度+パートシート */}
+      {/* エチュード: 奏法+パートシート (2026-08-25 Tetsuo確定で難易度→奏法) */}
       {songItem && (
         <PrePracticeSheet
           userId={userId}
           basePath={`/practice/${category}`}
           enablePreview
           previewKind="practice"
+          primaryAxis="articulation"
           group={{
             title: songItem.title.replace(/_/g, "・"),
             composer: songItem.composer,
             genre: null,
             coverImagePath: songItem.coverImagePath ?? null,
-            variants: [{
-              id: songItem.id, star: songItem.star,
-              difficulty: songItem.difficulty ?? "BEGINNER",
-              sections: [], bestScore: songItem.bestScore ?? null,
-            }],
+            // 同じグループの奏法変種をすべて渡す (2026-08-25: エチュードの第1軸=奏法)。
+            // グループが無い単独教材は自分だけ。
+            variants: (songItem.groupId
+              ? items.filter((i) => i.groupId === songItem.groupId)
+              : [songItem]
+            ).map((i) => ({
+              id: i.id, star: i.star,
+              difficulty: i.difficulty ?? null,
+              articulation: i.articulation ?? "legato",
+              sections: [], bestScore: i.bestScore ?? null,
+            })),
           }}
           onClose={() => setSongItem(null)}
         />
