@@ -105,3 +105,17 @@ def test_only_same_rhythm_blocks_are_rewritten():
     assert len(list(ms[0].notes)) == 16      # 同形 → 書き換え
     assert len(list(ms[1].notes)) == 4       # 形が違う → そのまま
     assert len(list(ms[2].notes)) == 16      # 同形 → 書き換え
+
+
+def test_skip_head_tail_and_pinpoint():
+    """先頭・末尾・ピンポイントの対象外指定 (2026-08-24 Tetsuo追加)。"""
+    sc = _src(measures=6)                     # 6小節すべて 8分×8 の同形
+    recipe = {
+        "unitMeasures": 1,
+        "skipHead": 1, "skipTail": 1, "skipMeasures": [4],
+        "notes": [{"base": "s", "pitchNo": i + 1} for i in range(16)],
+    }
+    out = apply_rhythm_recipe(sc, recipe)
+    counts = [len(list(m.notes)) for m in out.parts[0].getElementsByClass(stream.Measure)]
+    # 1小節目=先頭除外 / 4小節目=ピンポイント除外 / 6小節目=末尾除外 → 元の8音のまま
+    assert counts == [8, 16, 16, 8, 16, 8]

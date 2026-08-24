@@ -31,6 +31,9 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
   const [slurMode, setSlurMode] = useState(false)
   const [slurStart, setSlurStart] = useState<number | null>(null)
   const [slurSeq, setSlurSeq] = useState(1)
+  const [skipHead, setSkipHead] = useState(0)
+  const [skipTail, setSkipTail] = useState(0)
+  const [skipMeasures, setSkipMeasures] = useState<Set<number>>(new Set())
   const [name, setName] = useState("")
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
@@ -73,7 +76,10 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
   }
   const submit = async () => {
     setBusy(true); setMsg(null)
-    const r = await createRhythmVariant({ sourceItemId: itemId, name, unitMeasures: unit, notes })
+    const r = await createRhythmVariant({
+      sourceItemId: itemId, name, unitMeasures: unit, notes,
+      skipHead, skipTail, skipMeasures: [...skipMeasures],
+    })
     setBusy(false)
     if (r.ok) { setMsg("変種を作成し、解析を開始しました。続けて別のパターンも作れます。"); setNotes([]); setName(""); setEditing(null) }
     else setMsg(r.error)
@@ -117,6 +123,39 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
               <input type="number" min={1} max={32} value={unit} onChange={(e) => { setUnit(Math.max(1, Math.min(32, Number(e.target.value) || 1))); setNotes([]) }} style={{ width: 62 }} />
               <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>小節</span>
             </div>
+
+            <div style={S.label}>対象外にする小節 (形が違うところ)</div>
+            <div style={S.row}>
+              <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>先頭から</span>
+              <input type="number" min={0} max={ctx.measureCount} value={skipHead}
+                onChange={(e) => setSkipHead(Math.max(0, Number(e.target.value) || 0))} style={{ width: 56 }} />
+              <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>小節 ・ 終わりから</span>
+              <input type="number" min={0} max={ctx.measureCount} value={skipTail}
+                onChange={(e) => setSkipTail(Math.max(0, Number(e.target.value) || 0))} style={{ width: 56 }} />
+              <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>小節</span>
+            </div>
+            <div style={{ ...S.row, marginTop: 8 }}>
+              {Array.from({ length: ctx.measureCount }, (_, i) => i + 1).map((m) => {
+                const auto = m <= skipHead || m > ctx.measureCount - skipTail
+                const on = skipMeasures.has(m) || auto
+                return (
+                  <button key={m} type="button" disabled={auto}
+                    onClick={() => setSkipMeasures((prev) => {
+                      const next = new Set(prev)
+                      if (next.has(m)) next.delete(m); else next.add(m)
+                      return next
+                    })}
+                    style={{ ...btn(on), width: 38, padding: "5px 0", opacity: auto ? 0.55 : 1,
+                      cursor: auto ? "default" : "pointer" }}
+                    title={auto ? "先頭/終わりの指定で対象外" : "タップで対象外にする"}>
+                    {m}
+                  </button>
+                )
+              })}
+            </div>
+            <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 5 }}>
+              光っている小節は対象外です。形が違う小節は自動でも対象外になります。
+            </p>
 
             <div style={S.label}>② 元の音符 (高さの番号)</div>
             <div style={S.row}>

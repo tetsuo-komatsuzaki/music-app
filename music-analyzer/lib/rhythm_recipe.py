@@ -21,6 +21,14 @@ Tetsuo確定仕様:
   }
   base: w=全 h=2分 q=4分 e=8分 s=16分 t=32分 (dot=1.5倍 / triplet=2/3倍)
   pitchNo: その単位内の元音符の通し番号 (1始まり)。範囲外は循環させる。
+
+対象外の指定 (2026-08-24 Tetsuo追加):
+  スコアには冒頭・終わり・途中だけ形が違う小節がある。レシピの
+    "skipHead":  先頭から何小節を対象外にするか
+    "skipTail":  終わりから何小節を対象外にするか
+    "skipMeasures": [3, 7]  対象外にする小節番号 (1始まり) をピンポイントで
+  で除外でき、除外した小節にはルールを適用しない (元のまま残す)。
+  加えて、先頭単位と形の違う単位も自動で対象外になる。
 """
 from __future__ import annotations
 
@@ -85,22 +93,34 @@ def apply_rhythm_recipe(score: stream.Score, recipe: Optional[dict[str, Any]]) -
     except (ValueError, TypeError):
         unit = 1
 
+    skip_head = _as_int(recipe.get("skipHead"), 0)
+    skip_tail = _as_int(recipe.get("skipTail"), 0)
+    skip_set = {_as_int(m, 0) for m in (recipe.get("skipMeasures") or [])}
+    skip_set.discard(0)
+
     out = deepcopy(score)
     applied = skipped = 0
     for part in out.parts:
         measures = list(part.getElementsByClass(stream.Measure))
         if not measures:
             continue
-        # 先頭単位のリズム (音価の並び) を基準にし、同じ形の単位だけを書き換える。
-        # 2026-08-24 Tetsuo確定: 「同じ繰り返しパターンの範囲」だけが対象。
-        # 形の違う小節 (終止小節・休符入りなど) は元のまま残す。
-        head_sig = _block_signature(measures[0:unit])
-        for start in range(0, len(measures), unit):
+        total_m = len(measures)
+        # 対象の起点は「先頭の対象外ぶんを飛ばした位置」。そこの単位を基準の形にする。
+        first = min(skip_head, max(0, total_m - unit))
+        head_sig = _block_signature(measures[first:first + unit])
+        for start in range(first, total_m, unit):
             block = measures[start:start + unit]
             if len(block) < unit:
                 skipped += 1
                 continue
-            if _block_signature(block) != head_sig:
+            nums = list(range(start + 1, start + 1 + unit))          # 1始まりの小節番号
+            if any(n > total_m - skip_tail for n in nums):           # 終わりから何小節かを除外
+                skipped += 1
+                continue
+            if any(n in skip_set for n in nums):                     # ピンポイント除外
+                skipped += 1
+                continue
+            if _block_signature(block) != head_sig:                  # 形が違う単位も自動で除外
                 skipped += 1
                 continue
             src_pitches = [n.pitch for m in block for n in m.notes if isinstance(n, m21note.Note)]
@@ -112,6 +132,13 @@ def apply_rhythm_recipe(score: stream.Score, recipe: Optional[dict[str, Any]]) -
     logger.info("rhythm recipe applied: unit=%d notes=%d blocks=%d skipped=%d",
                 unit, len(specs), applied, skipped)
     return out
+
+
+def _as_int(v: Any, default: int = 0) -> int:
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return default
 
 
 def _block_signature(block: list[stream.Measure]) -> str:

@@ -85,6 +85,10 @@ export async function createRhythmVariant(input: {
   name: string
   unitMeasures: number
   notes: RhythmNote[]
+  /** 対象外の小節 (2026-08-24): 先頭から / 終わりから / ピンポイント (1始まり) */
+  skipHead?: number
+  skipTail?: number
+  skipMeasures?: number[]
 }): Promise<{ ok: true; itemId: string } | { ok: false; error: string }> {
   const gate = await requireAdminAction()
   if (!gate.ok) return { ok: false, error: gate.error }
@@ -126,7 +130,10 @@ export async function createRhythmVariant(input: {
     return { ok: false, error: `拍が合いません (必要 ${need}拍 / いま ${Math.round(total * 1000) / 1000}拍)` }
   }
 
-  const recipe = { name, unitMeasures, notes, sourceItemId: source.id }
+  const skipHead = Math.max(0, Math.trunc(input.skipHead ?? 0))
+  const skipTail = Math.max(0, Math.trunc(input.skipTail ?? 0))
+  const skipMeasures = [...new Set((input.skipMeasures ?? []).map((n) => Math.trunc(n)).filter((n) => n >= 1))].sort((a, b) => a - b)
+  const recipe = { name, unitMeasures, notes, skipHead, skipTail, skipMeasures, sourceItemId: source.id }
   const md = (source.metadata && typeof source.metadata === "object" ? source.metadata : {}) as Record<string, unknown>
   const metadata: Record<string, unknown> = {}
   if (md.transposeSource) metadata.transposeSource = md.transposeSource
