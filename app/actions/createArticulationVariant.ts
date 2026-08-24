@@ -151,14 +151,14 @@ export async function createArticulationVariant(input: {
 
 // ダイアログ用: 元教材の小節数・単位内の音符数を返す (解析済みの note_karte から)
 export async function getArticulationContext(itemId: string): Promise<
-  | { ok: true; title: string; measureCount: number; notesPerMeasure: number[]; existing: { name: string; keys: string }[] }
+  | { ok: true; title: string; category: string; measureCount: number; notesPerMeasure: number[]; existing: { name: string; keys: string }[] }
   | { ok: false; error: string }
 > {
   const gate = await requireAdminAction()
   if (!gate.ok) return { ok: false, error: gate.error }
   const item = await prisma.practiceItem.findUnique({
     where: { id: itemId },
-    select: { id: true, title: true, groupId: true, analysisPath: true },
+    select: { id: true, title: true, category: true, groupId: true, analysisPath: true },
   })
   if (!item) return { ok: false, error: "教材が見つかりません" }
 
@@ -198,5 +198,8 @@ export async function getArticulationContext(itemId: string): Promise<
     existing = [...seen.entries()].map(([name, keys]) => ({ name, keys }))
   }
 
-  return { ok: true, title: item.title, measureCount: notesPerMeasure.length, notesPerMeasure, existing }
+  return {
+    ok: true, title: item.title, category: item.category,
+    measureCount: notesPerMeasure.length, notesPerMeasure, existing,
+  }
 }
