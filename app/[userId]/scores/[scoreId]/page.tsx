@@ -3,6 +3,7 @@ import { badgeKind } from "@/app/_libs/starProgress"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import ScoreDetail from "./scoreDetail"
+import ScoreVariantSwitcher, { type VariantEntry } from "./ScoreVariantSwitcher"
 import ScoreTeacherBanner from "./ScoreTeacherBanner"
 import AutoRefresh from "@/app/components/AutoRefresh"
 import { uploadRecord } from "@/app/actions/uploadRecord"
@@ -67,6 +68,30 @@ export default async function Page({
         )?.parts,
       )
     : []
+
+  // 難易度・パート変種の切り替え (2026-08-24 アップロード改修 Step4)。
+  // 同グループの buildStatus=done の変種を集める (共有曲のみ ・ 自作曲は自分のもののみ)。
+  let variantEntries: VariantEntry[] = []
+  if (score.groupId) {
+    try {
+      const siblings = await prisma.score.findMany({
+        where: {
+          groupId: score.groupId, deletedAt: null, buildStatus: "done",
+          OR: [{ isShared: true }, { createdById: dbUser.id }],
+        },
+        select: { id: true, difficulty: true, partId: true, star: true },
+        orderBy: [{ difficulty: "asc" }, { createdAt: "asc" }],
+      })
+      const partName = (pid: string | null) =>
+        pid ? (groupParts.find((p) => p.id === pid)?.name ?? "パート") : null
+      variantEntries = siblings.map((v) => ({
+        id: v.id, difficulty: v.difficulty, partId: v.partId,
+        partName: partName(v.partId), star: v.star,
+      }))
+      // 自分自身が未完了などで一覧に居なければセレクタは出さない
+      if (!variantEntries.some((v) => v.id === score.id)) variantEntries = []
+    } catch { variantEntries = [] }
+  }
 
   // 解析・ビルド未完了なら準備中 / エラー画面 (3 秒ごとに RSC を再取得)
   if (score.analysisStatus !== "done" || score.buildStatus !== "done") {
@@ -275,6 +300,7 @@ export default async function Page({
         />
       )}
       <ScoreTeacherBanner scoreId={scoreId} userId={userId} />
+      <ScoreVariantSwitcher userId={userId} currentId={score.id} variants={variantEntries} />
       <ScoreDetail
         score={{
           id: score.id,
