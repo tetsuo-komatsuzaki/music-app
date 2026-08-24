@@ -86,18 +86,40 @@ def apply_rhythm_recipe(score: stream.Score, recipe: Optional[dict[str, Any]]) -
         unit = 1
 
     out = deepcopy(score)
+    applied = skipped = 0
     for part in out.parts:
         measures = list(part.getElementsByClass(stream.Measure))
         if not measures:
             continue
+        # 先頭単位のリズム (音価の並び) を基準にし、同じ形の単位だけを書き換える。
+        # 2026-08-24 Tetsuo確定: 「同じ繰り返しパターンの範囲」だけが対象。
+        # 形の違う小節 (終止小節・休符入りなど) は元のまま残す。
+        head_sig = _block_signature(measures[0:unit])
         for start in range(0, len(measures), unit):
             block = measures[start:start + unit]
+            if len(block) < unit:
+                skipped += 1
+                continue
+            if _block_signature(block) != head_sig:
+                skipped += 1
+                continue
             src_pitches = [n.pitch for m in block for n in m.notes if isinstance(n, m21note.Note)]
             if not src_pitches:
+                skipped += 1
                 continue
             _rewrite_block(block, src_pitches, specs)
-    logger.info("rhythm recipe applied: unit=%d notes=%d", unit, len(specs))
+            applied += 1
+    logger.info("rhythm recipe applied: unit=%d notes=%d blocks=%d skipped=%d",
+                unit, len(specs), applied, skipped)
     return out
+
+
+def _block_signature(block: list[stream.Measure]) -> str:
+    """単位のリズム指紋 (小節ごとの音価の並び)。同じ形かどうかの判定に使う。"""
+    parts = []
+    for meas in block:
+        parts.append(",".join(f"{float(n.duration.quarterLength):.4f}" for n in meas.notesAndRests))
+    return "|".join(parts)
 
 
 def _rewrite_block(block: list[stream.Measure], src_pitches: list, specs: list[dict[str, Any]]) -> None:

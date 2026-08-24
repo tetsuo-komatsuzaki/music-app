@@ -83,3 +83,25 @@ def test_noop_when_recipe_empty():
     sc = _src(measures=1)
     assert apply_rhythm_recipe(sc, None) is sc
     assert apply_rhythm_recipe(sc, {"notes": []}) is sc
+
+
+def test_only_same_rhythm_blocks_are_rewritten():
+    """形の違う小節 (終止など) は書き換えない (2026-08-24 確定仕様)。"""
+    part = stream.Part()
+    part.append(meter.TimeSignature("4/4"))
+    for _ in range(8):                      # 1小節目: 8分×8
+        part.append(note.Note("A4", quarterLength=0.5))
+    for _ in range(4):                      # 2小節目: 4分×4 (形が違う)
+        part.append(note.Note("B4", quarterLength=1.0))
+    for _ in range(8):                      # 3小節目: 8分×8 (1小節目と同形)
+        part.append(note.Note("C5", quarterLength=0.5))
+    sc = stream.Score(); sc.append(part)
+    for p in sc.parts:
+        p.makeMeasures(inPlace=True)
+
+    recipe = {"unitMeasures": 1, "notes": [{"base": "s", "pitchNo": i + 1} for i in range(16)]}
+    out = apply_rhythm_recipe(sc, recipe)
+    ms = list(out.parts[0].getElementsByClass(stream.Measure))
+    assert len(list(ms[0].notes)) == 16      # 同形 → 書き換え
+    assert len(list(ms[1].notes)) == 4       # 形が違う → そのまま
+    assert len(list(ms[2].notes)) == 16      # 同形 → 書き換え
