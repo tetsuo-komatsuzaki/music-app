@@ -124,6 +124,9 @@ model Score {
   group            MaterialGroup? @relation(fields: [groupId], references: [id])
   difficulty       Difficulty? // 難易度別アレンジ (BEGINNER/INTERMEDIATE/ADVANCED)
   sections         Json? // 練習範囲 [{name,startMeasure,endMeasure}]
+  // ▼ アップロード改修 (2026-08-24 要件確定): 難易度×パートの変種
+  partId           String? // MaterialGroup.parts 内のパートid。null=通し
+  variantRecipe    Json? // 難易度自動変換レシピ {rules:[{type:"double_duration"|"split_repeat"|"measure_range",from?,to?}],sourceScoreId}。手動アップロード変種はnull
   analysisStatus   JobStatus      @default(processing)
   buildStatus      JobStatus      @default(processing)
   retryCount       Int            @default(0)
@@ -373,6 +376,9 @@ model PracticeItem {
   group        MaterialGroup? @relation(fields: [groupId], references: [id])
   difficulty   Difficulty? // エチュードの難易度
   articulation String? // 基礎練の奏法 (legato/staccato/martele/slur ...)
+  // ▼ アップロード改修 (2026-08-24): 音符ごとの奏法割り当てレシピ
+  // {name, unitMeasures, assignments:[{noteIndex, articulation}], appliedKeys:["A"|"all"...], sourceItemId}
+  articulationRecipe Json?
   sections     Json? // エチュードの分割 [{name,startMeasure,endMeasure}]
 
   keyTonic   String

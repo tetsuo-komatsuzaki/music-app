@@ -29,6 +29,7 @@ from music21 import (
     pitch as m21pitch,
 )
 # 運指・弦の推定 (音名算術, v64)。運指表示 (1stポジ以外のみ・弦は既定と異なる時のみ) に使用。
+from lib.difficulty_variant import apply_variant_recipe
 from lib.violin_position import (
     infer_with_finger,
     infer_pitch_only,
@@ -169,6 +170,9 @@ _ART_CLS = {
     "spiccato": articulations.Spiccato,
     "martele": articulations.StrongAccent,
     "portato": articulations.DetachedLegato,
+    # 2026-08-24 アップロード改修: 音符ごとの奏法レシピで追加 (テヌート/アクセント)
+    "tenuto": articulations.Tenuto,
+    "accent": articulations.Accent,
 }
 
 
@@ -230,8 +234,27 @@ def _symbol_notehead(el) -> Optional[str]:
     return None
 
 
+def _apply_art_to_note(n, art_id):
+    """1音に奏法を付与する (uniform / per_note 共用)。"""
+    if art_id == "tremolo":
+        t = expressions.Tremolo()
+        try:
+            t.numberOfMarks = 2
+        except Exception:
+            pass
+        n.expressions.append(t)
+    elif art_id in _ART_CLS:
+        n.articulations.append(_ART_CLS[art_id]())
+
+
 def apply_articulation_variant(score, metadata):
-    """metadata.articulationPattern(uniform) があれば全音符に奏法を付与。対象外なら None。"""
+    """metadata.articulationPattern があれば奏法を付与。対象外なら None。
+
+    - type=uniform: 全音符に同一奏法 (2026-07-20 v81)
+    - type=per_note (2026-08-24 アップロード改修): 繰り返し単位 (unitMeasures小節) の中の
+      音符に assignments[{noteIndex(単位内0始まり), articulation}] を割り当て、
+      その規則を譜面全体へ繰り返し適用する。noteIndex は単位内の音符 (休符除く) の並び順。
+    """
     md = metadata
     if isinstance(md, str):
         try:
@@ -239,20 +262,42 @@ def apply_articulation_variant(score, metadata):
         except Exception:
             md = None
     pat = (md or {}).get("articulationPattern") if isinstance(md, dict) else None
-    if not pat or pat.get("type") != "uniform":
+    if not pat:
         return None
-    art_id = pat.get("articulation")
-    for n in score.recurse().notes:
-        if art_id == "tremolo":
-            t = expressions.Tremolo()
+
+    if pat.get("type") == "uniform":
+        art_id = pat.get("articulation")
+        for n in score.recurse().notes:
+            _apply_art_to_note(n, art_id)
+        return score
+
+    if pat.get("type") == "per_note":
+        try:
+            unit = max(1, int(pat.get("unitMeasures") or 1))
+        except (ValueError, TypeError):
+            unit = 1
+        assigns = {}
+        for a in pat.get("assignments") or []:
             try:
-                t.numberOfMarks = 2
-            except Exception:
-                pass
-            n.expressions.append(t)
-        elif art_id in _ART_CLS:
-            n.articulations.append(_ART_CLS[art_id]())
-    return score
+                assigns[int(a["noteIndex"])] = str(a["articulation"])
+            except (KeyError, ValueError, TypeError):
+                continue
+        if not assigns:
+            return None
+        for part in score.parts:
+            measures = list(part.getElementsByClass(stream.Measure))
+            # 繰り返し単位ごとに: 単位内の音符並び (0始まり) に割り当てを適用
+            for u_start in range(0, len(measures), unit):
+                idx = 0
+                for meas in measures[u_start:u_start + unit]:
+                    for n in meas.notes:
+                        art_id = assigns.get(idx)
+                        if art_id:
+                            _apply_art_to_note(n, art_id)
+                        idx += 1
+        return score
+
+    return None
 
 
 # タグ→⭐︎ 正本 (docs/arcoda-design-spec.md §2-2b / 2026-07-20 承認: マルテレ=2, 7thポジ=5)。
@@ -314,7 +359,7 @@ try:
             UPDATE "Score"
             SET "analysisStatus" = 'processing'
             WHERE id = %s AND "createdById" = %s
-            RETURNING "originalXmlPath"
+            RETURNING "originalXmlPath", "variantRecipe"
         """, (SCORE_ID, USER_ID))
 
     row = cur.fetchone()
@@ -323,6 +368,8 @@ try:
         raise Exception("Score not found or unauthorized")
 
     xml_storage_path = row[0]
+    # 曲の難易度変種 (2026-08-24): Score.variantRecipe があれば parse 後に機械変換
+    score_variant_recipe = row[1] if (not IS_PRACTICE_ITEM and len(row) > 1) else None
     # 全調自動生成の変種は metadata.transposeSource を持つ (practice-item のみ)
     pi_metadata = row[1] if (IS_PRACTICE_ITEM and len(row) > 1) else None
     pi_key_tonic = row[2] if (IS_PRACTICE_ITEM and len(row) > 3) else None
@@ -385,6 +432,19 @@ try:
             _t2.close()
             score.write("musicxml", fp=_t2.name)
             tmp_path = _t2.name
+    else:
+        # 曲の難易度変種 (2026-08-24 要件確定): Score.variantRecipe を適用
+        # (小節範囲限定 → 同音2分割 → 音価2倍。移調・オクターブ下げは仕様上禁止)。
+        # 後段 (skill_extractor 等) も変換後を使うよう tmp_path を書き換える。
+        if score_variant_recipe:
+            _derived = apply_variant_recipe(score, score_variant_recipe)
+            if _derived is not score:
+                score = _derived
+                _t2 = tempfile.NamedTemporaryFile(suffix=".musicxml", delete=False)
+                _t2.close()
+                score.write("musicxml", fp=_t2.name)
+                tmp_path = _t2.name
+                print(f"[difficulty-variant] recipe applied: {score_variant_recipe.get('rules')}")
 
     # =========================
     # BPM

@@ -33,6 +33,8 @@ import {
   usesDifficulty,
   usesArticulation,
 } from "@/app/_libs/materialVariant"
+import ScoreVariantDialog from "./ScoreVariantDialog"
+import ArticulationVariantDialog from "./ArticulationVariantDialog"
 import styles from "./admin.module.css"
 import { MOOD_TAG_DEFS, moodTagLabel } from "@/app/_libs/moodTags"
 
@@ -180,6 +182,9 @@ export default function AdminPractice({
   const [, startTransition] = useTransition()
   const [editError, setEditError] = useState<string | null>(null)
   const [editSaving, setEditSaving] = useState(false)
+  // 難易度・パート変種ダイアログ (2026-08-24 アップロード改修)
+  const [variantScoreId, setVariantScoreId] = useState<string | null>(null)
+  const [artVariantItemId, setArtVariantItemId] = useState<string | null>(null)
   // 削除中の id (二重実行防止 + ボタン無効化)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -1209,6 +1214,26 @@ export default function AdminPractice({
                         >
                           編集
                         </button>
+                        {item.type === "score" && item.buildStatus === "done" && (
+                          <button
+                            type="button"
+                            className={styles.secondaryBtn}
+                            onClick={() => setVariantScoreId(item.id)}
+                            title="難易度・パート変種を作る"
+                          >
+                            変種
+                          </button>
+                        )}
+                        {item.type === "practice" && item.buildStatus === "done" && (
+                          <button
+                            type="button"
+                            className={styles.secondaryBtn}
+                            onClick={() => setArtVariantItemId(item.id)}
+                            title="奏法バリエーションを追加する"
+                          >
+                            奏法
+                          </button>
+                        )}
                         {/* 技法タグ編集モーダル (2026-07-14: Score専用→教材にも開放。
                             学びレッスン教材の自動抽出されない技法の後付け用) */}
                         <button
@@ -1275,7 +1300,13 @@ export default function AdminPractice({
             </div>
             <div className={styles.techModalSub}>
               「{techModalScore.title}」
-              {techModalScore.composer ? ` / ${techModalScore.composer}` : ""}
+              {techModalScore.composer ? ` / ${variantScoreId && (
+        <ScoreVariantDialog scoreId={variantScoreId} onClose={() => setVariantScoreId(null)} />
+      )}
+      {artVariantItemId && (
+        <ArticulationVariantDialog itemId={artVariantItemId} onClose={() => setArtVariantItemId(null)} />
+      )}
+      {techModalScore.composer}` : ""}
             </div>
 
             <div className={styles.tagSection}>
