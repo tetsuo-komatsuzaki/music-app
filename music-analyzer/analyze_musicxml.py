@@ -623,13 +623,17 @@ try:
                     else:
                         _s_id, _pos, _finger = None, None, None
                 _pos_resolved = _pos  # 成長フィードバック②: 注釈優先→無ければ最低ポジ推定の解決値
-                # 表示ルール (2026-08-24 Tetsuo指示で停止):
-                # 自動推定の運指・弦は、移動コスト式が音階の下行などで
-                # ありえない弦移動を生むため、譜面には一切表示しない。
+                # 表示ルール (2026-08-24 Tetsuo指示で変更):
+                # 自動推定の運指・弦は、移動コスト式が音階の下行などでありえない
+                # 弦移動を生むため表示しない。楽譜に手書きされたものだけを出す。
                 # (推定値 _pos_resolved は成長フィードバック等の内部判定で引き続き使用)
-                # 楽譜に手書きで入れた運指・弦を出す運用に切り替える。
-                disp_finger = None
-                disp_string_num = None
+                disp_finger = _src_finger  # 元の楽譜に <fingering> があるときだけ表示
+                _src_string = next(
+                    (str(a.number) for a in element.articulations
+                     if type(a).__name__ == "StringIndication" and getattr(a, "number", None) is not None),
+                    None,
+                )
+                disp_string_num = int(_src_string) if _src_string else None
                 # 音脈コンテキスト更新
                 if _s_id is not None:
                     fp_prev_string = _s_id
