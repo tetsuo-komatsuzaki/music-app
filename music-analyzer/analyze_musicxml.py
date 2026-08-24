@@ -300,6 +300,30 @@ def apply_articulation_variant(score, metadata):
     return None
 
 
+# 技術タグ名 → 弓の課題タグ (skillSubTaskTags) の対応 (2026-08-24 Tetsuo指示)。
+# 課題タグは v68(C-6b) 以降「弓採点23項目」だけが消費する (app/_libs/skillMaster.ts
+# LIVE_SUB_TASK_IDS / music-analyzer/bowing_score.py)。エチュード等は譜面から
+# 自動抽出した技術タグから機械的に導出し、admin の手入力を不要にする。
+# 手動で設定済み (skillSubTaskTags が空でない) 教材は上書きしない。
+_TT_TO_SUBTASK = {
+    "スタッカート": "bowing_technique_staccato",
+    "連続スタッカート": "bowing_technique_staccato_continuous",
+    "スピッカート": "bowing_technique_spiccato",
+    "ピチカート": "bowing_technique_pizzicato",
+    "トレモロ": "bowing_technique_tremolo",
+    "ポルタート": "bowing_technique_portato",
+    "トリル": "bowing_technique_trill",
+    "グリッサンド": "bowing_technique_glissando",
+    "ナチュラル・ハーモニクス": "bowing_technique_harmonic",
+    # 重音 (piece_summary が chord_intervals から付ける名称)
+    "3度": "bowing_double_stop_2",
+    "6度": "bowing_double_stop_2",
+    "オクターブ": "bowing_double_stop_2",
+    "10度": "bowing_double_stop_2",
+    "連続重音": "bowing_double_stop_continuous",
+}
+
+
 # タグ→⭐︎ 正本 (docs/arcoda-design-spec.md §2-2b / 2026-07-20 承認: マルテレ=2, 7thポジ=5)。
 # 技術タグ13 + ポジション習得系タグ9 + 重音習得系タグ5 を1表に統合。
 # 教材の star = 付いた全タグ(技術+特徴)の⭐︎の最大値(最低1)を自動登録。
@@ -1280,6 +1304,19 @@ try:
                         'ON CONFLICT DO NOTHING',
                         (PRACTICE_ITEM_ID, _name),
                     )
+                # 課題タグ (skillSubTaskTags) の自動導出 (2026-08-24 Tetsuo指示)。
+                # 譜面から抽出した技術タグ由来。未設定 (NULL または空配列) のときだけ入れ、
+                # admin が手で設定した値は温存する。
+                _subtasks = sorted({
+                    _TT_TO_SUBTASK[t] for t in _tt_names if t in _TT_TO_SUBTASK
+                })
+                if _subtasks:
+                    cur.execute(
+                        'UPDATE "PracticeItem" SET "skillSubTaskTags"=%s::jsonb WHERE id=%s '
+                        "AND (\"skillSubTaskTags\" IS NULL OR \"skillSubTaskTags\" = '[]'::jsonb)",
+                        (json.dumps(_subtasks), PRACTICE_ITEM_ID),
+                    )
+                    print(f"[subtask] auto-assigned {_subtasks}")
                 # スラー識別 (2026-07-20): 弓の奏法がスラーのみ(他の奏法技術なし)で articulation 未設定なら
                 # articulation='slur' を補完。奏法バリエーションで「スラー」として識別させる(基本は廃止)。
                 _OTHER_ART_TAGS = {"スタッカート", "スピッカート", "マルテレ", "ポルタート", "トレモロ", "連続スタッカート"}
