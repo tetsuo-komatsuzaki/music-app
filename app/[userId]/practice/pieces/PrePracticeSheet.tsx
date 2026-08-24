@@ -7,6 +7,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import styles from "./prePractice.module.css"
 import { DIFFICULTIES } from "@/app/_libs/materialVariant"
+import { STANDARD_ARTICULATIONS } from "@/app/_libs/articulationPatterns"
 import SheetPreview from "./SheetPreview"
 import SheetSkills from "./SheetSkills"
 import OnboardingTrigger from "../../_onboarding/OnboardingTrigger"
@@ -16,6 +17,8 @@ export type SheetVariant = {
   id: string
   star: number | null
   difficulty: string | null
+  /** 奏法 (エチュードの第1軸。legato/staccato/... ・ 曲では未使用) */
+  articulation?: string | null
   sections: SheetSection[]
   bestScore: number | null
 }
@@ -30,6 +33,7 @@ export type SheetGroup = {
 
 export default function PrePracticeSheet({
   userId, group, onClose, basePath = "/scores", enablePreview = false, previewKind = "score",
+  primaryAxis = "difficulty",
 }: {
   userId: string
   group: SheetGroup
@@ -40,15 +44,23 @@ export default function PrePracticeSheet({
   enablePreview?: boolean
   /** プレビュー取得元。曲=score(既定)、エチュード=practice */
   previewKind?: "score" | "practice"
+  /** 第1軸 (2026-08-25 Tetsuo確定): 曲=難易度 / エチュード=奏法。パートは共通で残す */
+  primaryAxis?: "difficulty" | "articulation"
 }) {
   const router = useRouter()
-  // 難易度 → 変種 (教材の有無)
-  const byDiff = new Map<string, SheetVariant>()
-  for (const v of group.variants) byDiff.set(v.difficulty ?? "BEGINNER", v)
-  const firstAvail = DIFFICULTIES.find((d) => byDiff.has(d.id))?.id ?? "BEGINNER"
+  const byArt = primaryAxis === "articulation"
+  // 第1軸 → 変種。曲=難易度 / エチュード=奏法 (2026-08-25 Tetsuo確定)
+  const byKey = new Map<string, SheetVariant>()
+  for (const v of group.variants) {
+    byKey.set(byArt ? (v.articulation ?? "legato") : (v.difficulty ?? "BEGINNER"), v)
+  }
+  const options: { id: string; label: string }[] = byArt
+    ? STANDARD_ARTICULATIONS.map((a) => ({ id: a.id, label: a.label }))
+    : DIFFICULTIES.map((d) => ({ id: d.id, label: d.label }))
+  const firstAvail = options.find((o) => byKey.has(o.id))?.id ?? options[0].id
 
   const [diff, setDiff] = useState(firstAvail)
-  const variant = byDiff.get(diff)
+  const variant = byKey.get(diff)
   const sections = variant?.sections ?? []
   const [rangeIdx, setRangeIdx] = useState(-1) // -1 = 全部演奏する
 
@@ -99,14 +111,14 @@ export default function PrePracticeSheet({
 
         {/* 難易度・パート: 画面ガイドはこの2つをまとめて指す */}
         <div data-onboarding="prePractice.choose">
-        <div className={styles.slab}>難易度を選ぶ</div>
+        <div className={styles.slab}>{byArt ? "奏法を選ぶ" : "難易度を選ぶ"}</div>
         <select
           className={styles.sheetSelect}
           value={diff}
-          onChange={(e) => { setDiff(e.target.value as (typeof DIFFICULTIES)[number]["id"]); setRangeIdx(-1) }}
+          onChange={(e) => { setDiff(e.target.value); setRangeIdx(-1) }}
         >
-          {DIFFICULTIES.map((d) => {
-            const v = byDiff.get(d.id)
+          {options.map((d) => {
+            const v = byKey.get(d.id)
             const suffix = v
               ? `${v.star != null ? ` ・ ☆${v.star}` : ""}${v.bestScore != null ? ` ・ ベスト ${v.bestScore}` : ""}`
               : " ・ 準備中"
