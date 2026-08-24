@@ -139,18 +139,18 @@ export default function SymbolGuide({
   // 残りの位置はシートの「譜面で光らせる」で確認できる。
   // 同じ符頭に複数の記号が付く場合 (例: マルテレ + 3連符) は丸が重なるため、
   // その音符内での並び順 (slot) と件数 (slotCount) を持たせ、placeMark で横一列に散らす。
+  // 2026-08-24 Tetsuo指示: 同じ符頭に複数の記号が付いても丸は1つだけ。
+  // タップ時はその音符に付く記号をまとめて出す (散らして重ねる旧方式は廃止)。
   const marks = useMemo(() => {
-    const base = symbols
-      .filter((s) => s.noteIndices.length > 0)
-      .map((s) => ({ sym: s, noteIndex: Math.min(...s.noteIndices) }))
-    const counts = new Map<number, number>()
-    for (const m of base) counts.set(m.noteIndex, (counts.get(m.noteIndex) ?? 0) + 1)
-    const seen = new Map<number, number>()
-    return base.map((m) => {
-      const slot = seen.get(m.noteIndex) ?? 0
-      seen.set(m.noteIndex, slot + 1)
-      return { ...m, slot, slotCount: counts.get(m.noteIndex) ?? 1 }
-    })
+    const byNoteIdx = new Map<number, ScoreSymbol[]>()
+    for (const s of symbols) {
+      if (s.noteIndices.length === 0) continue
+      const at = Math.min(...s.noteIndices)
+      const arr = byNoteIdx.get(at)
+      if (arr) arr.push(s)
+      else byNoteIdx.set(at, [s])
+    }
+    return [...byNoteIdx.entries()].map(([noteIndex, syms]) => ({ noteIndex, syms }))
   }, [symbols])
 
   // 目印は譜面ラッパー(安定要素)にぶら下げる。#osmd-container は OSMD が
@@ -159,8 +159,8 @@ export default function SymbolGuide({
 
   // 位置は state に持たず、ref コールバックで直接 style を書く
   // (再描画のたびに state 更新が走るのを避けるため)。
-  const markNodesRef = useRef<Map<string, { node: HTMLElement; noteIndex: number; slot: number; slotCount: number }>>(new Map())
-  const placeMark = useCallback((node: HTMLElement | null, noteIndex: number, slot = 0, slotCount = 1) => {
+  const markNodesRef = useRef<Map<number, { node: HTMLElement; noteIndex: number }>>(new Map())
+  const placeMark = useCallback((node: HTMLElement | null, noteIndex: number) => {
     const host = getHost()
     const container = document.getElementById(CONTAINER_ID)
     const el = noteElementsRef.current[noteIndex] as HTMLElement | undefined
@@ -180,15 +180,13 @@ export default function SymbolGuide({
     node.style.width = `${d}px`
     node.style.height = `${d}px`
     node.style.borderWidth = "1.2px"
-    // 同じ符頭に複数記号が付くときは、丸どうしが重ならないよう横一列に散らす
-    // (中央そろえ。件数1なら玉の中心)。
-    const offsetX = (slot - (slotCount - 1) / 2) * (d * 1.08)
-    node.style.left = `${r.left + r.width / 2 - h.left + offsetX}px`
+    // 丸は常に符頭の中心 (1音符につき1つ)
+    node.style.left = `${r.left + r.width / 2 - h.left}px`
     node.style.top = `${r.top + r.height / 2 - h.top}px`
   }, [noteElementsRef])
 
   const repositionAll = useCallback(() => {
-    markNodesRef.current.forEach(({ node, noteIndex, slot, slotCount }) => placeMark(node, noteIndex, slot, slotCount))
+    markNodesRef.current.forEach(({ node, noteIndex }) => placeMark(node, noteIndex))
   }, [placeMark])
 
   // 譜面のサイズが変わったら (zoom / 端末回転 / フルスクリーン) 位置を取り直す
@@ -228,6 +226,15 @@ export default function SymbolGuide({
   const openSymbol = useCallback((s: ScoreSymbol) => {
     setSheet({ heading: s.label, items: [s] })
     if (s.noteIndices.length > 0) highlight(s.noteIndices)
+  }, [highlight])
+
+  // 譜面の丸タップ: その符頭に付く記号をまとめて出す (2026-08-24 Tetsuo指示)
+  const openMarkNote = useCallback((noteIndex: number, syms: ScoreSymbol[]) => {
+    setSheet({
+      heading: syms.length > 1 ? syms.map((x) => x.label).join(" ・ ") : (syms[0]?.label ?? "記号"),
+      items: syms,
+    })
+    highlight([noteIndex])
   }, [highlight])
 
   // 譜面タップ経由: その音符についている記号をまとめて出す
@@ -301,17 +308,17 @@ export default function SymbolGuide({
         <div key={noteElementsVersion} className={styles.markLayer}>
           {marks.map((m) => (
             <button
-              key={m.sym.id}
+              key={m.noteIndex}
               type="button"
               className={styles.mark}
-              title={m.sym.label}
-              aria-label={`${m.sym.label}の説明を見る`}
+              title={m.syms.map((x) => x.label).join(" ・ ")}
+              aria-label={`${m.syms.map((x) => x.label).join("と")}の説明を見る`}
               ref={(node) => {
-                if (node) markNodesRef.current.set(m.sym.id, { node, noteIndex: m.noteIndex, slot: m.slot, slotCount: m.slotCount })
-                else markNodesRef.current.delete(m.sym.id)
-                placeMark(node, m.noteIndex, m.slot, m.slotCount)
+                if (node) markNodesRef.current.set(m.noteIndex, { node, noteIndex: m.noteIndex })
+                else markNodesRef.current.delete(m.noteIndex)
+                placeMark(node, m.noteIndex)
               }}
-              onClick={(e) => { e.stopPropagation(); openSymbol(m.sym) }}
+              onClick={(e) => { e.stopPropagation(); openMarkNote(m.noteIndex, m.syms) }}
             />
 
 
