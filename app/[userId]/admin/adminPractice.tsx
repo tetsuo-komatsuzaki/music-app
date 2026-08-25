@@ -975,7 +975,6 @@ export default function AdminPractice({
               <th>タイトル</th>
               <th>カテゴリ</th>
               <th>難易度</th>
-              <th>課題タグ</th>
               <th>調</th>
               <th>テンポ</th>
               <th>状態</th>
@@ -1005,6 +1004,31 @@ export default function AdminPractice({
                       <div className={styles.itemTitle}>{item.title}</div>
                     )}
                     {item.composer && <div className={styles.itemSub}>{item.composer}</div>}
+                    {/* 雰囲気タグ (2026-08-05・曲のみ): 曲を聴いて手動設定。統一語彙台帳 */}
+                    {item.type === "score" && (
+                      <div style={{ marginTop: 10, borderTop: "1px dashed #ddd", paddingTop: 8 }}>
+                        <div style={{ fontSize: "var(--fs-body)", fontWeight: 600, color: "var(--text-body)", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>
+                          <Palette size={14} /> 雰囲気タグ
+                        </div>
+                        <div style={{ marginLeft: 12, marginTop: 2, display: "flex", flexWrap: "wrap", gap: 4 }}>
+                          {MOOD_TAG_DEFS.map((t) => (
+                            <label key={t.id} className={styles.editTagLabel}>
+                              <input
+                                type="checkbox"
+                                checked={editMoodTags.has(t.id)}
+                                onChange={() => setEditMoodTags((prev) => {
+                                  const next = new Set(prev)
+                                  if (next.has(t.id)) next.delete(t.id)
+                                  else next.add(t.id)
+                                  return next
+                                })}
+                              />
+                              {moodTagLabel(t.id)}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </td>
                   <td>
                     {isEditing && item.type !== "score" ? (
@@ -1059,86 +1083,6 @@ export default function AdminPractice({
                           </span>
                         )}
                       </span>
-                    )}
-                  </td>
-                  <td>
-                    {isEditing ? (
-                      // 個別課題 v1: 編集モーダルも新規登録フォームと同じく
-                      // 中項目 → 軸 → 項目 の 3 階層グルーピング。現役(弓23項目)のみ表示。
-                      <div className={styles.editTagGrid}>
-                        {(Object.keys(SKILL_TASKS) as TaskId[])
-                          .filter(taskId =>
-                            AXES.some(ax => ax.parentTaskId === taskId && ax.subTaskIds.some(isSelectableSubTask)),
-                          )
-                          .map(taskId => (
-                          <div key={taskId} style={{ marginBottom: 8 }}>
-                            <div style={{ fontSize: "var(--fs-body)", fontWeight: 600, color: "var(--text-body)", marginBottom: 4 }}>
-                              {TASK_NAMES[taskId]}
-                            </div>
-                            {AXES.filter(ax => ax.parentTaskId === taskId).map(axis => {
-                              const visibleSubIds = axis.subTaskIds.filter(isSelectableSubTask)
-                              if (visibleSubIds.length === 0) return null
-                              return (
-                                <div key={axis.id} style={{ marginLeft: 12, marginTop: 2 }}>
-                                  <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginBottom: 2 }}>
-                                    {axis.name}
-                                  </div>
-                                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                                    {visibleSubIds.map(subId => {
-                                      const checked = editSubTasks.has(subId)
-                                      return (
-                                        <label key={subId} className={styles.editTagLabel}>
-                                          <input
-                                            type="checkbox"
-                                            checked={checked}
-                                            onChange={() => toggleEditSubTask(subId)}
-                                          />
-                                          {SUB_TASK_NAMES[subId]}
-                                        </label>
-                                      )
-                                    })}
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        ))}
-                        {/* 雰囲気タグ (2026-08-05・曲のみ): 曲を聴いて手動設定。統一語彙台帳 */}
-                        {item.type === "score" && (
-                          <div style={{ marginTop: 10, borderTop: "1px dashed #ddd", paddingTop: 8 }}>
-                            <div style={{ fontSize: "var(--fs-body)", fontWeight: 600, color: "var(--text-body)", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>
-                              <Palette size={14} /> 雰囲気タグ
-                            </div>
-                            <div style={{ marginLeft: 12, marginTop: 2, display: "flex", flexWrap: "wrap", gap: 4 }}>
-                              {MOOD_TAG_DEFS.map((t) => (
-                                <label key={t.id} className={styles.editTagLabel}>
-                                  <input
-                                    type="checkbox"
-                                    checked={editMoodTags.has(t.id)}
-                                    onChange={() => setEditMoodTags((prev) => {
-                                      const next = new Set(prev)
-                                      if (next.has(t.id)) next.delete(t.id)
-                                      else next.add(t.id)
-                                      return next
-                                    })}
-                                  />
-                                  {moodTagLabel(t.id)}
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : noTags ? (
-                      <span className={styles.missingBadge}>未設定</span>
-                    ) : (
-                      <div className={styles.subTaskChips}>
-                        {item.skillSubTaskTags.map(t => (
-                          <span key={t} className={styles.subTaskChip}>
-                            {tagShortName(t)}
-                          </span>
-                        ))}
-                      </div>
                     )}
                   </td>
                   <td>

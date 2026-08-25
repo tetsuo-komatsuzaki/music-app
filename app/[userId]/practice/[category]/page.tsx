@@ -52,6 +52,10 @@ export default async function CategoryPage({
   const where: any = {
     category: dbCategory as any,
     isPublished: true,
+    // パート教材は一覧に出さない (2026-08-25 Tetsuo確定)。
+    // パートは「教材の選択肢」であって「別の教材」ではないため、練習前シートの中で選ぶ。
+    // これを外すと カイザーNo.1 の Part1〜4 が本体と並んで一覧に出てしまう。
+    partId: null,
     OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }],
   }
   if (sp.key) {
