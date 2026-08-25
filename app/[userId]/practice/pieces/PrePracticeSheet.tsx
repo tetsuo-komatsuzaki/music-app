@@ -7,7 +7,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import styles from "./prePractice.module.css"
 import { DIFFICULTIES } from "@/app/_libs/materialVariant"
-import { STANDARD_ARTICULATIONS } from "@/app/_libs/articulationPatterns"
+import { ARTICULATIONS } from "@/app/_libs/materialVariant"
 import SheetPreview from "./SheetPreview"
 import SheetSkills from "./SheetSkills"
 import OnboardingTrigger from "../../_onboarding/OnboardingTrigger"
@@ -59,8 +59,12 @@ export default function PrePracticeSheet({
   for (const v of group.variants) {
     byKey.set(byArt ? (v.articulation ?? "legato") : (v.difficulty ?? "BEGINNER"), v)
   }
+  // 選択肢は「選択用」の ARTICULATIONS を使う (2026-08-25)。
+  // 生成用の STANDARD_ARTICULATIONS には slur が無く、奏法=slur の教材
+  // (カイザー No.4/6/8/10/12/31/34/35/36) が選択肢に出ず、既定がレガートに落ちて
+  // variant=undefined になり、詳細画面へ遷移できず譜面も出ない状態だった。
   const options: { id: string; label: string }[] = byArt
-    ? STANDARD_ARTICULATIONS.map((a) => ({ id: a.id, label: a.label }))
+    ? ARTICULATIONS.map((a) => ({ id: a.id, label: a.label }))
     : DIFFICULTIES.map((d) => ({ id: d.id, label: d.label }))
   const firstAvail = options.find((o) => byKey.has(o.id))?.id ?? options[0].id
 
@@ -150,7 +154,7 @@ export default function PrePracticeSheet({
         {/* 曲の難易度軸は廃止 (2026-08-25 Tetsuo確定)。
             初級・中級・上級それぞれのスコアを用意するのが現実的でないため、
             曲では軸のセレクタを出さない。エチュード等の奏法軸はそのまま残す。 */}
-        {byArt && <>
+        {byArt && byKey.size > 1 && <>
         <div className={styles.slab}>奏法を選ぶ</div>
         <select
           className={styles.sheetSelect}
@@ -170,6 +174,14 @@ export default function PrePracticeSheet({
           })}
         </select>
         </>}
+        {/* 選択肢が1つしか無い族ではプルダウンを出さない (2026-08-25 Tetsuo「案a」)。
+            エチュード36グループが1件のみで、7つ並んで6つが「準備中」という画面になっていた。
+            制作状況は管理画面で見るものなので、利用者には出さず、奏法名だけ静かに添える。 */}
+        {byArt && byKey.size === 1 && variant?.articulation && (
+          <div className={styles.slab}>
+            {options.find((o) => o.id === variant.articulation)?.label ?? "奏法"}
+          </div>
+        )}
 
         {/* パターン (2026-08-25): 音符ごとの奏法・リズムで作った個別パターン。
             管理画面で名前を付けて作ると、ここに選択肢として並ぶ。 */}
