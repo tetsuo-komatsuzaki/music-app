@@ -24,6 +24,7 @@ from music21 import (
     meter,
     dynamics,
     articulations,
+    expressions,
     spanner,
     layout,
     instrument
@@ -175,6 +176,19 @@ try:
                 for rn in _RENDER_MAP.get(art_name, [art_name]):
                     if hasattr(articulations, rn):
                         n.articulations.append(getattr(articulations, rn)())
+
+            # 装飾記号の復元 (2026-08-25 Tetsuo指摘: No.17 のトリルと装飾音符が消えていた)。
+            # analyze_musicxml が expressions (Trill/Turn/Mordent/Fermata 等) を出しているので
+            # 譜面にも書き戻す。これが無いと元譜面にあった記号が生成譜面から丸ごと落ちる。
+            for _ex in r.get("expressions", []) or []:
+                _base = str(_ex).split(":")[0]          # "Turn:delayed" → "Turn"
+                _cls = getattr(expressions, _base, None)
+                if _cls is None:
+                    continue
+                try:
+                    n.expressions.append(_cls())
+                except Exception:
+                    pass                                # 引数が要る記号は飛ばす
 
             # 運指・弦の表示 (analyze_musicxml がルール適用済: 1stポジ以外の指 / 既定と異なる弦のみ)。
             # music21 → MusicXML <technical><fingering>/<string> → OSMD が描画。

@@ -380,6 +380,10 @@ model PracticeItem {
   // ▼ アップロード改修 (2026-08-24): 音符ごとの奏法割り当てレシピ
   // {name, unitMeasures, assignments:[{noteIndex, articulation}], appliedKeys:["A"|"all"...], sourceItemId}
   articulationRecipe Json?
+  // ▼ パートを独立教材にする (2026-08-25 案B): 小節範囲だけを切り出した実体。
+  // 譜面・解析・採点・カルテのすべてがその範囲だけになる。
+  partId       String? // MaterialGroup.parts 内のパートid。null=通し
+  variantRecipe Json?  // {rules:[{type:"measure_range",from,to}], sourcePartId, sourceItemId}
   // ▼ ★の食い違い検知 (2026-08-25): 譜面の技術タグから機械計算した★。
   // star (人が入れた値) と食い違うと管理画面で警告を出す。star は上書きしない。
   autoStar     Int?

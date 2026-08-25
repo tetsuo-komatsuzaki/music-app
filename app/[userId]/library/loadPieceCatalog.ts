@@ -49,7 +49,7 @@ export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]
       scores: {
         where: { isShared: true, deletedAt: null },
         orderBy: [{ star: "asc" }],
-        select: { id: true, star: true, difficulty: true, sections: true, rhythmRecipe: true },
+        select: { id: true, star: true, difficulty: true, sections: true, rhythmRecipe: true, partId: true },
       },
     },
   })
@@ -89,6 +89,8 @@ export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]
       difficulty: s.difficulty,
       // 個別パターン名 (リズムパターンで付けた名前)。null=標準
       patternName: ((s.rhythmRecipe as { name?: string } | null)?.name) ?? null,
+      partId: s.partId,
+      partName: s.partId ? (groupParts.find((p) => p.id === s.partId)?.name ?? "パート") : null,
       sections: groupParts.length > 0
         ? groupParts.map((p) => ({ id: p.id, name: p.name, startMeasure: p.startMeasure, endMeasure: p.endMeasure }))
         : parseSections(s.sections),

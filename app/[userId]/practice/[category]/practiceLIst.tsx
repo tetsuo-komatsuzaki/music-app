@@ -31,6 +31,9 @@ type PracticeItemDTO = {
   groupParts?: { id: string; name: string; startMeasure: number; endMeasure: number }[]
   /** 個別パターン名 (奏法・リズムレシピで付けた名前) */
   patternName?: string | null
+  /** 実体化されたパート教材 (2026-08-25 案B) */
+  partId?: string | null
+  partName?: string | null
   groupTitle?: string | null
   articulation?: string | null
   /** 難易度 (エチュードシート用) */
@@ -137,16 +140,29 @@ function CategoryCover({ category, cover }: { category: string; cover?: string |
 
 // 編み込み案4/案2 (2026-08-03): 教材わざラベル。技術マップ/わざ点灯バナーと同じ語彙 (TechniqueTag名) を
 // 教材カードに表示し、「この教材はカルテのこのわざを伸ばす」の繋がりを見せる。主タグのみ・最大2つ。
+// ポジションの要約 (2026-08-25 Tetsuo: 一覧でタグが多すぎて見えづらい)。
+// 1st〜8thを全部並べず「1st〜8th」「3rdのみ」の形に畳む。
+function summarizePositions(positions: string[]): string | null {
+  if (!positions || positions.length === 0) return null
+  const order = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"]
+  const sorted = [...positions].sort((a, b) => order.indexOf(a) - order.indexOf(b))
+  if (sorted.length === 1) return sorted[0]
+  return `${sorted[0]}〜${sorted[sorted.length - 1]}`
+}
+
 function TechChips({ names }: { names: string[] }) {
   if (names.length === 0) return null
+  // 1つだけ出して残りは件数で畳む (カードの幅を圧迫しないため)
+  const chip: React.CSSProperties = {
+    fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-master)",
+    background: "rgba(217,169,60,.16)", border: "1px solid rgba(217,169,60,.4)",
+    borderRadius: 999, padding: "1px 7px", whiteSpace: "nowrap",
+    overflow: "hidden", textOverflow: "ellipsis", maxWidth: "10em",
+  }
   return (
     <>
-      {names.slice(0, 2).map((n) => (
-        <span key={n} style={{
-          fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-master)", background: "#fdf3d8",
-          border: "1px solid #eed9a0", borderRadius: 999, padding: "1px 7px", whiteSpace: "nowrap",
-        }}>⭐ {n}</span>
-      ))}
+      <span style={chip}>{names[0]}</span>
+      {names.length > 1 && <span style={{ ...chip, maxWidth: "none" }}>+{names.length - 1}</span>}
     </>
   )
 }
@@ -154,7 +170,7 @@ function TechChips({ names }: { names: string[] }) {
 // 基礎練カード (曲以外): カバー / タイトル / ◯ポジション / 薄い線 / 説明文(左)・スコア or 未練習(右端)。
 // (2026-07-18 Tetsuo指示。「最終練習」表記は撤去し、右端はベストスコア/未練習)
 function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: string; category: string }) {
-  const pos = item.positions.length ? item.positions.join("・") : null
+  const pos = summarizePositions(item.positions)
   return (
     <Link href={`/${userId}/practice/${category}/${item.id}`} className={styles.itemCard}>
       <CategoryCover category={category} cover={item.coverImagePath} />
@@ -186,7 +202,7 @@ function ItemCard({ item, userId, category }: { item: PracticeItemDTO; userId: s
 function RailCard({ item, userId, category, onOpen }: {
   item: PracticeItemDTO; userId: string; category: string; onOpen?: (item: PracticeItemDTO) => void
 }) {
-  const pos = item.positions.length ? item.positions.join("・") : null
+  const pos = summarizePositions(item.positions)
   const inner = (
     <>
       <CategoryCover category={category} cover={item.coverImagePath} />
@@ -486,6 +502,8 @@ function StarView({
               difficulty: i.difficulty ?? null,
               articulation: i.articulation ?? "legato",
               patternName: i.patternName ?? null,
+              partId: i.partId ?? null,
+              partName: i.partName ?? null,
               sections: i.groupParts ?? [],
               bestScore: i.bestScore ?? null,
             })),
