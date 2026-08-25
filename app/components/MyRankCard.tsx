@@ -82,7 +82,6 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
               ？上達のしくみ
             </button>
           ) : <span />}
-          <span style={{ fontSize: 10.5, color: "var(--text-muted)" }}>タップで演奏の軌跡 ▸</span>
         </div>
       </div>
 
@@ -94,9 +93,6 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
             <button type="button" className={styles.close} aria-label="閉じる" onClick={() => { setOpen(false); setOpenStamp(null) }}>✕</button>
             <div className={styles.sheetttl}>演奏の軌跡</div>
             {/* モック trace1 (home-06 コインの列) の写経 */}
-            <div style={{ fontSize: 12.5, fontWeight: 800, color: "var(--text-sub)", marginTop: 2 }}>
-              ★{currentStar}から★{nextStar}まで、あと{remaining}曲
-            </div>
             <div className={styles.sheetbody}>
 
               <div className={ds.card}>
@@ -159,18 +155,6 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
               </div>
 
               <div className={ds.card} style={{ padding: "13px 15px" }}>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {onGuide && (
-                    <button
-                      type="button"
-                      onClick={() => { setOpen(false); setOpenStamp(null); onGuide() }}
-                      className={`${ds.pill} ${ds.mute}`}
-                      style={{ fontSize: 11, border: "none", cursor: "pointer", fontFamily: "inherit" }}
-                    >
-                      上達のしくみを見る
-                    </button>
-                  )}
-                </div>
               </div>
 
             </div>
