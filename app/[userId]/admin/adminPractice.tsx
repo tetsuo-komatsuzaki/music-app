@@ -27,6 +27,7 @@ import { updatePracticeItemTechniques } from "@/app/actions/updatePracticeItemTe
 import { deleteAdminMaterial } from "@/app/actions/deleteAdminMaterial"
 import { CATEGORY_LABELS, PRACTICE_CATEGORIES } from "@/app/_libs/practiceConstants"
 import { SONG_GENRES } from "@/app/_libs/songGenre"
+import { STANDARD_ARTICULATIONS, ARTICULATION_CATEGORIES } from "@/app/_libs/articulationPatterns"
 import {
   DIFFICULTIES,
   ARTICULATIONS,
@@ -57,6 +58,8 @@ type ItemDTO = {
   tempoMin: number | null; tempoMax: number | null; positions: string[]
   isPublished: boolean; analysisStatus: string; buildStatus: string
   star: number | null
+  /** 譜面の技術から機械計算した★ (2026-08-25)。star と食い違うと要確認 */
+  autoStar?: number | null
   skillSubTaskTags: string[]
   /** 雰囲気タグ (2026-08-05・曲のみ手動設定) */
   moodTags?: string[]
@@ -90,13 +93,14 @@ const modeLabels: Record<string, string> = { major: "長調", minor: "短調" }
 const positionOptions = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"]
 const tonicOptions = ["C", "C#", "Db", "D", "Eb", "E", "F", "F#", "Gb", "G", "Ab", "A", "Bb", "B"]
 
-type FilterMode = "all" | "missing_both" | "missing_difficulty" | "missing_tags"
+type FilterMode = "all" | "star_mismatch" | "missing_both" | "missing_difficulty" | "missing_tags"
 
 const FILTER_LABELS: Record<FilterMode, string> = {
   all: "すべて",
   missing_both: "両方未設定",
   missing_difficulty: "難易度未設定",
   missing_tags: "課題タグ未設定",
+  star_mismatch: "★が要確認",
 }
 
 const isSubTaskId = (v: string): v is SubTaskId =>
@@ -124,6 +128,8 @@ export default function AdminPractice({
   // フィルタ
   const [filterMode, setFilterMode] = useState<FilterMode>("all")
   // カテゴリ絞り込み+並び替え (2026-08-25 Tetsuo: 教材が多くスクロールが大変)
+  // 一括生成する奏法の選択 (2026-08-25 Tetsuo: 全部ではなく必要なものだけ作れるように)
+  const [selectedArts, setSelectedArts] = useState<Set<string>>(new Set(STANDARD_ARTICULATIONS.map((a) => a.id)))
   const [catFilter, setCatFilter] = useState<string>("all")
   const [sortMode, setSortMode] = useState<"category" | "title" | "star" | "new">("category")
   const [searchText, setSearchText] = useState("")
@@ -509,6 +515,8 @@ export default function AdminPractice({
         formData.set("keyMode", keyMode)
         formData.set("expandAllKeys", expandAllKeys ? "true" : "false")
         formData.set("standardArticulations", stdArticulations ? "true" : "false")
+        // 選んだ奏法だけを一括生成する (2026-08-25)
+        if (stdArticulations) formData.set("articulationIds", JSON.stringify([...selectedArts]))
         formData.set("tempoMin", tempoMin)
         formData.set("tempoMax", tempoMax)
         formData.set("positions", JSON.stringify(positions))
@@ -545,6 +553,9 @@ export default function AdminPractice({
       // フィルタ
       const noDiff = item.star == null
       const noTags = item.skillSubTaskTags.length === 0
+      // ★の食い違い (2026-08-25): 譜面から計算した★の方が高い = 難しい技術が入っている
+      const starMismatch = item.autoStar != null && item.star != null && item.autoStar > item.star
+      if (filterMode === "star_mismatch" && !starMismatch) return false
       if (filterMode === "missing_both" && !(noDiff && noTags)) return false
       if (filterMode === "missing_difficulty" && !noDiff) return false
       if (filterMode === "missing_tags" && !noTags) return false
@@ -577,7 +588,8 @@ export default function AdminPractice({
     const noDiff = items.filter(it => it.star == null).length
     const noTags = items.filter(it => it.skillSubTaskTags.length === 0).length
     const both = items.filter(it => it.star == null && it.skillSubTaskTags.length === 0).length
-    return { total, noDiff, noTags, both }
+    const starMismatch = items.filter(it => it.autoStar != null && it.star != null && it.autoStar > it.star).length
+    return { total, noDiff, noTags, both, starMismatch }
   }, [items])
 
   return (
@@ -766,15 +778,39 @@ export default function AdminPractice({
                       全調で自動生成・長調ソース→12長調＋12自然的短調＝24件。奏法も選ぶと掛け合わせ
                     </label>
                   )}
-                  {["scale", "arpeggio", "bowing", "fingering", "position_shift"].includes(category) && (
-                    <label style={{ display: "block", marginTop: 6, fontSize: "var(--fs-body)" }}>
-                      <input
-                        type="checkbox"
-                        checked={stdArticulations}
-                        onChange={(e) => setStdArticulations(e.target.checked)}
-                      />{" "}
-                      通常技法パターンで6奏法を一括生成
-                    </label>
+                  {ARTICULATION_CATEGORIES.includes(category) && (
+                    <>
+                      <label style={{ display: "block", marginTop: 6, fontSize: "var(--fs-body)" }}>
+                        <input
+                          type="checkbox"
+                          checked={stdArticulations}
+                          onChange={(e) => setStdArticulations(e.target.checked)}
+                        />{" "}
+                        奏法パターンを一括生成
+                      </label>
+                      {stdArticulations && (
+                        <div style={{ margin: "6px 0 0 22px", display: "flex", flexWrap: "wrap", gap: 8 }}>
+                          {STANDARD_ARTICULATIONS.map((a) => (
+                            <label key={a.id} style={{ fontSize: "var(--fs-body)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                              <input
+                                type="checkbox"
+                                checked={selectedArts.has(a.id)}
+                                onChange={() => setSelectedArts((prev) => {
+                                  const next = new Set(prev)
+                                  if (next.has(a.id)) next.delete(a.id)
+                                  else next.add(a.id)
+                                  return next
+                                })}
+                              />
+                              {a.label}
+                            </label>
+                          ))}
+                          <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>
+                            作りたい奏法だけを選べます ({selectedArts.size}種)
+                          </span>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 
@@ -829,105 +865,14 @@ export default function AdminPractice({
               />
             </div>
 
-            <div className={styles.field}>
-              <label>課題タグ (skillSubTaskTags) ★ループエンジン必須</label>
-              <div className={styles.tagSection}>
-                {/* 個別課題 v1: 中項目 → 軸 → 項目 の 3 階層でグルーピング表示。
-                    2026-07-14: 現役(弓採点23項目)のみ表示。空になった中項目は非表示 */}
-                {(Object.keys(SKILL_TASKS) as TaskId[])
-                  .filter(taskId =>
-                    AXES.some(ax => ax.parentTaskId === taskId && ax.subTaskIds.some(isSelectableSubTask)),
-                  )
-                  .map(taskId => (
-                  <div key={taskId} className={styles.tagCategory}>
-                    <div className={styles.tagCategoryName}>{TASK_NAMES[taskId]}</div>
-                    {AXES.filter(ax => ax.parentTaskId === taskId).map(axis => {
-                      const visibleSubIds = axis.subTaskIds.filter(isSelectableSubTask)
-                      if (visibleSubIds.length === 0) return null
-                      return (
-                        <div key={axis.id} style={{ marginLeft: 12, marginTop: 4 }}>
-                          <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginBottom: 2 }}>
-                            {axis.name}
-                          </div>
-                          <div className={styles.tagList}>
-                            {visibleSubIds.map(subId => {
-                              const checked = selectedSubTasks.has(subId)
-                              return (
-                                <span
-                                  key={subId}
-                                  className={`${styles.tag} ${checked ? styles.tagSelected : ""}`}
-                                  onClick={() => toggleNewSubTask(subId)}
-                                  title="クリックで選択/解除"
-                                >
-                                  {SUB_TASK_NAMES[subId]}
-                                </span>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                ))}
-                <div className={styles.hint}>
-                  この教材で改善できる sub_task を選択。「気になる箇所」検出時にレコメンド対象になる。
-                </div>
-              </div>
-            </div>
+
 
             {/* v1.6 Phase 4-3 (Q4=A): TechniqueTag セレクタは PracticeItem + Score 両方で表示。
                   isPrimary の意味論が異なるので tooltip/hint で区別する (Q3 確定)。 */}
-            <div className={styles.field}>
-              <label>技法タグ</label>
-              <div className={styles.tagSection}>
-                {Object.entries(tagsByCategory).map(([cat, tags]) => (
-                  <div key={cat} className={styles.tagCategory}>
-                    <div className={styles.tagCategoryName}>{cat}</div>
-                    <div className={styles.tagList}>
-                      {tags.map((tag) => {
-                        const sel = selectedTags.find((t) => t.id === tag.id)
-                        return (
-                          <span key={tag.id}
-                            className={`${styles.tag} ${sel ? styles.tagSelected : ""} ${sel?.isPrimary ? styles.tagPrimary : ""}`}
-                            onClick={() => toggleTag(tag.id)}
-                            onDoubleClick={() => { if (sel) togglePrimary(tag.id) }}
-                            title={
-                              isScoreCategory
-                                ? "クリック: 選択/解除  ダブルクリック: 楽曲の主要技法"
-                                : "クリック: 選択/解除  ダブルクリック: 練習の主目的"
-                            }
-                          >
-                            {tag.name}
-                            {sel?.isPrimary && " ●"}
-                          </span>
-                        )
-                      })}
-                    </div>
-                  </div>
-                ))}
-                <div className={styles.hint}>
-                  {isScoreCategory
-                    ? "クリック: 選択/解除  ダブルクリック: ●・楽曲の主要技法を指定、完全習得判定 §2-6 で参照"
-                    : "クリック: 選択/解除  ダブルクリック: ●"}
-                </div>
-              </div>
-            </div>
 
             {/* PracticeItem (scale/arpeggio/etude) のみ表示する項目群 */}
             {!isScoreCategory && (
               <>
-                <div className={styles.field}>
-                  <label>ポジション</label>
-                  <div className={styles.checkboxGroup}>
-                    {positionOptions.map((pos) => (
-                      <label key={pos} className={styles.checkboxLabel}>
-                        <input type="checkbox" checked={positions.includes(pos)}
-                          onChange={() => togglePosition(pos)} />
-                        {pos}
-                      </label>
-                    ))}
-                  </div>
-                </div>
 
                 <div className={styles.field}>
                   <label>短い説明</label>
@@ -958,7 +903,9 @@ export default function AdminPractice({
         <div className={styles.filterBar}>
           {(Object.keys(FILTER_LABELS) as FilterMode[]).map(mode => {
             const c =
-              mode === "missing_both"
+              mode === "star_mismatch"
+                ? counts.starMismatch
+              : mode === "missing_both"
                 ? counts.both
                 : mode === "missing_difficulty"
                   ? counts.noDiff
@@ -1041,8 +988,10 @@ export default function AdminPractice({
               const isEditing = editingId === item.id
               const noDiff = item.star == null
               const noTags = item.skillSubTaskTags.length === 0
+              // ★の食い違い: 譜面から計算した★の方が高い (2026-08-25)
+              const mismatch = item.autoStar != null && item.star != null && item.autoStar > item.star
               return (
-                <tr key={item.id} className={noDiff || noTags ? styles.rowNeedsAttention : ""}>
+                <tr key={item.id} className={mismatch ? styles.rowStarMismatch : (noDiff || noTags ? styles.rowNeedsAttention : "")}>
                   <td>
                     {isEditing ? (
                       <input
@@ -1104,6 +1053,11 @@ export default function AdminPractice({
                     ) : (
                       <span className={noDiff ? styles.missingBadge : ""}>
                         {item.star ?? "未設定"}
+                        {mismatch && (
+                          <span className={styles.starWarn} title="譜面に、この★では習得していない技術が使われています">
+                            要確認 ・ 譜面は★{item.autoStar}
+                          </span>
+                        )}
                       </span>
                     )}
                   </td>

@@ -25,6 +25,10 @@ export async function createArticulationVariant(input: {
   unitMeasures: number             // 繰り返し単位 (小節数)。0=譜面全体で1回 → 大きい値で近似
   assignments: PerNoteAssignment[] // 単位内の音符への割り当て
   applyAllKeys: boolean            // true=グループの全調に適用 / false=元の調のみ
+  /** 対象外の小節 (2026-08-25 ・ リズムパターンと同じ仕様) */
+  skipHead?: number
+  skipTail?: number
+  skipMeasures?: number[]
 }): Promise<{ ok: true; created: number } | { ok: false; error: string }> {
   const gate = await requireAdminAction()
   if (!gate.ok) return { ok: false, error: gate.error }
@@ -90,8 +94,11 @@ export async function createArticulationVariant(input: {
   }
   const keyLabel = (t: string, m: string) => `${KEY_LABEL[t] ?? t}${m === "minor" ? "短調" : "長調"}`
 
+  const skipHead = Math.max(0, Math.trunc(input.skipHead ?? 0))
+  const skipTail = Math.max(0, Math.trunc(input.skipTail ?? 0))
+  const skipMeasures = [...new Set((input.skipMeasures ?? []).map((n) => Math.trunc(n)).filter((n) => n >= 1))].sort((a, b) => a - b)
   const recipe = {
-    name, unitMeasures, assignments,
+    name, unitMeasures, assignments, skipHead, skipTail, skipMeasures,
     appliedKeys: input.applyAllKeys ? "all" : `${source.keyTonic}/${source.keyMode}`,
     sourceItemId: source.id,
   }
@@ -102,7 +109,7 @@ export async function createArticulationVariant(input: {
     const repMd = (rep.metadata && typeof rep.metadata === "object" ? rep.metadata : {}) as Record<string, unknown>
     const metadata: Record<string, unknown> = {}
     if (repMd.transposeSource) metadata.transposeSource = repMd.transposeSource
-    metadata.articulationPattern = { type: "per_note", unitMeasures, assignments }
+    metadata.articulationPattern = { type: "per_note", unitMeasures, assignments, skipHead, skipTail, skipMeasures }
 
     const child = await prisma.practiceItem.create({
       data: {

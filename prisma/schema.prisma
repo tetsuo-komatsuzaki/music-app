@@ -380,6 +380,9 @@ model PracticeItem {
   // ▼ アップロード改修 (2026-08-24): 音符ごとの奏法割り当てレシピ
   // {name, unitMeasures, assignments:[{noteIndex, articulation}], appliedKeys:["A"|"all"...], sourceItemId}
   articulationRecipe Json?
+  // ▼ ★の食い違い検知 (2026-08-25): 譜面の技術タグから機械計算した★。
+  // star (人が入れた値) と食い違うと管理画面で警告を出す。star は上書きしない。
+  autoStar     Int?
   // ▼ リズムパターン変種 (2026-08-24): くり返し単位のリズムを組み替えて全反復に適用
   // {name, unitMeasures, notes:[{base:"w|h|q|e|s|t", dot, triplet, pitchNo, articulation, slurId}], sourceItemId}
   // pitchNo = 単位内の元音符の通し番号 (1始まり) で高さを引き継ぐ

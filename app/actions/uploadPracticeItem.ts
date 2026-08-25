@@ -195,14 +195,24 @@ export async function uploadPracticeItem(formData: FormData) {
       return { error: "全調生成は 音階/アルペジオ/フィンガリング かつ 長調ソース のみ対応です" }
     }
     if (wantStdArt && !ARTICULATION_CATEGORIES.includes(category)) {
-      return { error: "通常技法パターンは 音階/アルペジオ/ボーイング/フィンガリング/ポジション移動 のみ対応です" }
+      return { error: "通常技法パターンは 音階/アルペジオ/エチュード/ボーイング/フィンガリング/ポジション移動 のみ対応です" }
     }
 
     // 調ターゲット × 奏法ターゲット のクロス積で変種を作る (片方だけなら単軸)
     const keys: { keyTonic: string; keyMode: string; label: string | null }[] =
       wantExpand ? allKeyTargets() : [{ keyTonic, keyMode, label: null }]
+    // 選んだ奏法だけを作る (2026-08-25 Tetsuo: 対象外の奏法が必ずあるため)
+    let pickedArts = STANDARD_ARTICULATIONS
+    const artIdsRaw = formData.get("articulationIds") as string | null
+    if (artIdsRaw) {
+      try {
+        const ids = new Set(JSON.parse(artIdsRaw) as string[])
+        const filtered = STANDARD_ARTICULATIONS.filter((a) => ids.has(a.id))
+        if (filtered.length > 0) pickedArts = filtered
+      } catch { /* 不正なら全奏法 */ }
+    }
     const arts: ({ id: string; label: string } | null)[] =
-      wantStdArt ? STANDARD_ARTICULATIONS : [null]
+      wantStdArt ? pickedArts : [null]
 
     const variants: VariantSpec[] = []
     for (const k of keys) {

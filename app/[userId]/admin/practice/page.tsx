@@ -109,6 +109,7 @@ export default async function AdminPracticePage({
       analysisStatus: item.analysisStatus,
       buildStatus: item.buildStatus,
       star: item.star,
+      autoStar: item.autoStar ?? null,
       skillSubTaskTags: tags,
       techniques: item.techniques.map((t) => ({
         id: t.techniqueTag.id,

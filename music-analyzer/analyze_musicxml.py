@@ -286,10 +286,28 @@ def apply_articulation_variant(score, metadata):
                 continue
         if not assigns:
             return None
+        # 対象外の小節 (2026-08-25 Tetsuo: リズムパターンと同じ仕様)。
+        # skipHead=先頭から / skipTail=終わりから / skipMeasures=ピンポイント (1始まり)
+        def _as_int(v, d=0):
+            try:
+                return int(v)
+            except (TypeError, ValueError):
+                return d
+        skip_head = _as_int(pat.get("skipHead"), 0)
+        skip_tail = _as_int(pat.get("skipTail"), 0)
+        skip_set = {_as_int(m, 0) for m in (pat.get("skipMeasures") or [])}
+        skip_set.discard(0)
         for part in score.parts:
             measures = list(part.getElementsByClass(stream.Measure))
+            total_m = len(measures)
+            first = min(skip_head, max(0, total_m - unit))
             # 繰り返し単位ごとに: 単位内の音符並び (0始まり) に割り当てを適用
-            for u_start in range(0, len(measures), unit):
+            for u_start in range(first, total_m, unit):
+                nums = list(range(u_start + 1, u_start + 1 + unit))
+                if any(n > total_m - skip_tail for n in nums):
+                    continue
+                if any(n in skip_set for n in nums):
+                    continue
                 idx = 0
                 for meas in measures[u_start:u_start + unit]:
                     for n in meas.notes:
@@ -1366,6 +1384,9 @@ try:
                 # 変種は毎回上書き / 手動教材は star 未設定のときだけ補完 (監修値を潰さない)。
                 # (_is_variant は上のポジション分岐で算出済み)
                 _star = max([1] + [_TAG_STAR[t] for t in (_tt_names + _ft_all) if t in _TAG_STAR])
+                # autoStar は毎回上書き (2026-08-25): 人が入れた star と食い違うと
+                # 管理画面で「要確認」として警告する。star 自体は勝手に変えない。
+                cur.execute('UPDATE "PracticeItem" SET "autoStar"=%s WHERE id=%s', (_star, PRACTICE_ITEM_ID))
                 if _is_variant:
                     cur.execute('UPDATE "PracticeItem" SET star=%s WHERE id=%s', (_star, PRACTICE_ITEM_ID))
                 else:
