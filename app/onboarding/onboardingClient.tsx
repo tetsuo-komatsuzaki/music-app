@@ -83,7 +83,9 @@ function Scr02() {
   )
 }
 
-/* ── SCR-03 予告「7つのかんたんなステップ(約1分)」 ── */
+/* ── SCR-03 予告 ──
+   2026-08-26: 「7つのかんたんなステップ(約1分)」から変更。7問は初心者パスのみ正しく、
+   「これから始める」以外は★判定ラダーG1〜G6が挟まって最大14問になるため件数を出さない。 */
 function Scr03() {
   const s = useOnboarding()
   return (
@@ -95,7 +97,9 @@ function Scr03() {
         </div>
         <div style={{ marginTop: "3%", display: "flex", width: "100%" }}>
           <AvatarBubble variant="center" tail="up">
-            最初の練習をはじめる前に、<b>7つのかんたんなステップ</b>に答えてね!(約1分)
+            最初の練習をはじめる前に、<b>かんたんな質問</b>に答えてね!
+            <br />
+            1〜2分くらいで終わるよ
           </AvatarBubble>
         </div>
       </div>
@@ -327,7 +331,7 @@ function Scr07() {
         {/* ラダー完了マイクロ演出(§27-9・過剰演出禁止): 初回表示のみ一言 */}
         {isFirst && (
           <>
-            なるほど、君のレベルがわかったよ!
+            なるほど、きみのレベルがわかったよ!
             <br />
           </>
         )}
@@ -395,8 +399,8 @@ function Scr08B() {
       <Header />
       <AvatarBubble poseKey="question">
         {undecided
-          ? `きみ(★${star})にぴったりの3曲だよ。1曲えらんでね!`
-          : `きみ(★${star})にちょうどいい曲だよ。1曲えらんでね!`}
+          ? `★${star}のきみにぴったりの3曲だよ。1曲えらんでね!`
+          : `★${star}のきみにちょうどいい曲だよ。1曲えらんでね!`}
       </AvatarBubble>
       <div className={styles.list}>
         {songs.map(([name, st]) => (
@@ -582,7 +586,11 @@ function Scr11C() {
   return (
     <>
       <Header />
-      <AvatarBubble poseKey="question">その曲の名前を教えて!(なんでもOK)</AvatarBubble>
+      <AvatarBubble poseKey="question">
+        その曲の名前を教えて!
+        <br />
+        なんでもOK
+      </AvatarBubble>
       <div className={styles.list}>
         <input
           className={styles.input}

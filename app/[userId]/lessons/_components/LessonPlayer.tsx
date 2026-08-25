@@ -474,7 +474,7 @@ export default function LessonPlayer({
             </button>
             {/* アルコちゃんを上部中央に大きく (2026-07-13 Tetsuo指示) */}
             <div className={styles.introChar}>
-              <ArcoChan pose={POSE_BY_ID["05B"]} />
+              <ArcoChan plain pose={POSE_BY_ID["05B"]} />
             </div>
             <div className={styles.introGreet}>
               <b>{lesson.name}</b>
@@ -623,7 +623,7 @@ export default function LessonPlayer({
             <div className={styles.sheet}>
               <div className={styles.term}>
                 <div className={styles.termTile}>
-                  <ArcoChan pose={POSE_BY_ID[SLIDE_POSES[slide]]} />
+                  <ArcoChan plain pose={POSE_BY_ID[SLIDE_POSES[slide]]} />
                 </div>
                 <div className={styles.termLbl}>{lesson.terms[slide]}</div>
               </div>
@@ -680,6 +680,7 @@ export default function LessonPlayer({
             <div className={styles.qa}>
               <div className={styles.avatar}>
                 <ArcoChan
+                  plain
                   pose={
                     POSE_BY_ID[
                       recState === "rec" || recState === "analyzing"
@@ -726,7 +727,7 @@ export default function LessonPlayer({
         {screen === "CLEAR" && (
           <div className={styles.clr}>
             <div className={styles.bigChar}>
-              <ArcoChan pose={POSE_BY_ID["06B"]} />
+              <ArcoChan plain pose={POSE_BY_ID["06B"]} />
             </div>
             <div className={styles.clrTitle}>{lesson.name}を習得!</div>
             <div className={styles.clrSub}>

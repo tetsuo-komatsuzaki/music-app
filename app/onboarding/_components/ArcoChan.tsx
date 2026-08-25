@@ -571,29 +571,94 @@ const STYLES = `
 // ── 新アルコ (2026-08-23: 旧SVG→水彩ポスター。poseKey/pose両対応のAPI互換) ──
 const ARCO_IMG_FALLBACK: Record<string, string> = { "06C": "06B" }
 
+/* モーション素材 (arco-motion-kit の *_motion_loop.mp4) を置いてあるポーズ。
+   オンボーディングで実際に使う8ポーズのみ。ここに無いIDは静止ポスターで出る。
+   2026-08-26: JPGは透過を持てないためクリーム地(#FBF8F3)が正方形で残る。
+   円に切っただけでは紺地の上で白い円盤に見えるので、外周をマスクでフェードさせ、
+   同じ位置に地の色の内側シャドウを重ねて縁を消している (--arco-halo)。 */
+const ARCO_MOTION_IDS = new Set(["01C", "05A", "05B", "05C", "06B", "08B", "09A", "09C"])
+
+const ARCO_MASK =
+  "radial-gradient(circle at 50% 50%, #000 0 58%, rgba(0,0,0,.55) 70%, transparent 78%)"
+
+function usePrefersReducedMotion(): boolean {
+  const [reduce, setReduce] = React.useState(false)
+  React.useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const on = () => setReduce(mq.matches)
+    on()
+    mq.addEventListener("change", on)
+    return () => mq.removeEventListener("change", on)
+  }, [])
+  return reduce
+}
+
 export function ArcoChan({
   poseKey,
   pose,
   playing = true,
+  plain = false,
 }: {
   /** オンボーディング9キー (POSE_KEY_MAP) での指定 */
   poseKey?: ArcoPoseKey
   /** 30ポーズを直接指定する場合 (poseKey より優先) */
   pose?: ArcoPose
+  /** false でモーションを止めて静止ポスターにする */
   playing?: boolean
+  /** true で 2026-08-23 までの見た目 (円形クロップ + クリーム地) に固定する。
+      オンボ以外の画面 (レッスン等) は地の色が違うため、こちらを使う。 */
+  plain?: boolean
 }) {
-  void playing // 静止ポスターのため未使用 (呼び出し互換のため残置)
+  const reduce = usePrefersReducedMotion()
   const p = pose ?? POSE_BY_ID[POSE_KEY_MAP[poseKey ?? "question"]]
   const id = ARCO_IMG_FALLBACK[p.id] ?? p.id
+  const poster = `/arco/${id}.jpg`
+  const motion = !plain && playing && !reduce && ARCO_MOTION_IDS.has(id)
+
+  const media: React.CSSProperties = {
+    display: "block",
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    ...(plain ? {} : { WebkitMaskImage: ARCO_MASK, maskImage: ARCO_MASK }),
+  }
+
   return (
     <span
       role="img"
       aria-label={`アルコちゃん：${p.label}`}
-      style={{ display: "block", width: "100%", height: "100%", borderRadius: "50%", overflow: "hidden", background: "#faf9f6" }}
+      style={{
+        display: "block", width: "100%", height: "100%", position: "relative",
+        ...(plain ? { borderRadius: "50%", overflow: "hidden", background: "#faf9f6" } : {}),
+      }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={`/arco/${id}.jpg`} alt="" draggable={false}
-        style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }} />
+      {motion ? (
+        <video
+          key={id}
+          src={`/arco/${id}.mp4`}
+          poster={poster}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          style={media}
+        />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={poster} alt="" draggable={false} style={media} />
+      )}
+      {/* 地の色で縁を焼き消す。--arco-halo を置いた画面はその色、無ければ白 */}
+      {!plain && <span
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: "-6%",
+          borderRadius: "50%",
+          pointerEvents: "none",
+          boxShadow: "inset 0 0 26px 12px var(--arco-halo, #ffffff)",
+        }}
+      />}
     </span>
   )
 }

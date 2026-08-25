@@ -16,6 +16,8 @@
   --sel-text: #1899D6;
   --accent-blue: #1CB0F6;
   --bg: #FFFFFF;
+  /* アルコの縁を焼き消す色 = その画面の地の色。ArcoChan が内側シャドウに使う */
+  --arco-halo: #FFFFFF;
 
   /* §1-2 タイポグラフィ (コンテナ高さ比。max値はプロトタイプ準拠) */
   --fs-question: min(2.2cqh, 19px);

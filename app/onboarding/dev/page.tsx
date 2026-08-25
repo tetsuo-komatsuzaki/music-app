@@ -114,7 +114,9 @@ export default function DevPage() {
           <div className={styles.shead}>center+下しっぽ / center+上しっぽ</div>
           <AvatarBubble variant="center" tail="down">こんにちは!アルコだよ!</AvatarBubble>
           <AvatarBubble variant="center" tail="up">
-            最初の練習をはじめる前に、<b>7つのかんたんなステップ</b>に答えてね!(約1分)
+            最初の練習をはじめる前に、<b>かんたんな質問</b>に答えてね!
+            <br />
+            1〜2分くらいで終わるよ
           </AvatarBubble>
         </div>
       )}
