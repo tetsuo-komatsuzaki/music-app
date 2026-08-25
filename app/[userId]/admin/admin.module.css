@@ -281,3 +281,12 @@
 .container option, .table option { background: #15233f; color: var(--text-ink); }
 .table tbody tr:hover { background: rgba(127, 164, 232, 0.10); }
 .table tbody tr:hover td { color: var(--text-ink); }
+
+/* ★の食い違い (2026-08-25): 人が入れた★より、譜面から計算した★の方が高い行 */
+.rowStarMismatch { background: rgba(196, 68, 68, .10); }
+.rowStarMismatch:hover { background: rgba(196, 68, 68, .16); }
+.starWarn {
+  display: inline-block; margin-left: 7px; padding: 2px 7px; border-radius: 999px;
+  font-size: var(--fs-caption); font-weight: 800; white-space: nowrap;
+  color: #ffd9d9; background: rgba(196, 68, 68, .28); border: 1px solid rgba(196, 68, 68, .5);
+}
