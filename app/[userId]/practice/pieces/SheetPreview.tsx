@@ -7,6 +7,14 @@ import { useEffect, useRef, useState } from "react"
 import { getScorePreview, getPracticeItemPreview, type PreviewNote } from "@/app/actions/getScorePreview"
 import styles from "./prePractice.module.css"
 
+// OSMD の PlacementEnum.Below の実値 (2026-08-25 Tetsuo: 記号の重なり対策)。
+// OSMD はこの enum をパッケージ直下から re-export していないため
+// (build/dist/src/index.d.ts に無く、実行時の 201 exports にも含まれない)、
+// import すると undefined になる。深い相対パスの import はバージョン更新で壊れるので
+// 値だけをここに置く。出典: MusicalScore/VoiceData/Expressions/AbstractExpression
+// (Above=0, Below=1, Left=2, Right=3, NotYetDefined=4, AboveOrBelow=5)
+const OSMD_PLACEMENT_BELOW = 1
+
 export default function SheetPreview({ scoreId, kind = "score" }: { scoreId: string; kind?: "score" | "practice" }) {
   const boxRef = useRef<HTMLDivElement>(null)
   const fsRef = useRef<HTMLDivElement>(null)
@@ -44,7 +52,7 @@ export default function SheetPreview({ scoreId, kind = "score" }: { scoreId: str
             drawTitle: false,
             drawPartNames: false,
           })
-await osmd.load(data.buildUrl)
+          await osmd.load(data.buildUrl)
           if (cancelled) return
           osmd.zoom = 0.62
           osmd.render()
@@ -116,18 +124,22 @@ await osmd.load(data.buildUrl)
         const osmd = new OpenSheetMusicDisplay(fsRef.current, {
           autoResize: true, drawTitle: false, drawPartNames: false,
         })
-        // 記号の重なり対策 (2026-08-25 Tetsuo指摘): 3連符の数字・スラー・弦番号・運指が
-        // 等倍だと衝突するため、縮小して余白を稼ぎ、記号の縦位置も広げる。
+        // 記号の重なり対策 (2026-08-25 Tetsuo確定方針): 記号を上下に振り分ける。
+        // 上=3連符・弓記号・スタッカート / 下=運指・弦番号 (教本の慣例どおり)。
+        // OSMDは種類の違う記号同士の衝突回避をしないうえ、FingeringPosition の既定が
+        // AboveOrBelow(5) で運指を上下どちらにも自動配置するため衝突する。下段に固定する。
         osmd.EngravingRules.FingeringPositionFromXML = false
-        osmd.EngravingRules.FingeringOffsetY = -6
-        osmd.EngravingRules.TupletNumberYOffset = 3
-        osmd.EngravingRules.SlurNoteHeadYOffset = 2
+        osmd.EngravingRules.FingeringPosition = OSMD_PLACEMENT_BELOW
         osmd.EngravingRules.MinimumDistanceBetweenSystems = 12
         await osmd.load(buildUrlRef.current!)
         if (cancelled) return
         osmd.zoom = 0.7
         osmd.render()
-      } catch { /* noop */ }
+      } catch (e) {
+        // 握り潰すと全画面が白いまま原因不明になる (2026-08-25: PlacementEnum が
+        // undefined で TypeError を投げていたのに気付けなかった)。必ずログに出す。
+        console.error("[SheetPreview] 全画面の描画に失敗", e)
+      }
     })()
     return () => { cancelled = true }
   }, [fullscreen])

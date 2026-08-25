@@ -396,7 +396,7 @@ try:
             UPDATE "PracticeItem"
             SET "analysisStatus" = 'processing'
             WHERE id = %s
-            RETURNING "originalXmlPath", "metadata", "keyTonic", "keyMode", "rhythmRecipe"
+            RETURNING "originalXmlPath", "metadata", "keyTonic", "keyMode", "rhythmRecipe", "variantRecipe"
         """, (PRACTICE_ITEM_ID,))
     else:
         cur.execute("""
@@ -412,8 +412,12 @@ try:
         raise Exception("Score not found or unauthorized")
 
     xml_storage_path = row[0]
-    # 曲の難易度変種 (2026-08-24): Score.variantRecipe があれば parse 後に機械変換
-    score_variant_recipe = row[1] if (not IS_PRACTICE_ITEM and len(row) > 1) else None
+    # 難易度変種 (2026-08-24) と パート教材の小節範囲 (2026-08-25) は同じ variantRecipe。
+    # 教材側は RETURNING の末尾に足したので row[5] (既存の添字をずらさないため)。
+    score_variant_recipe = (
+        row[5] if (IS_PRACTICE_ITEM and len(row) > 5)
+        else (row[1] if (not IS_PRACTICE_ITEM and len(row) > 1) else None)
+    )
     # 全調自動生成の変種は metadata.transposeSource を持つ (practice-item のみ)
     pi_metadata = row[1] if (IS_PRACTICE_ITEM and len(row) > 1) else None
     pi_key_tonic = row[2] if (IS_PRACTICE_ITEM and len(row) > 3) else None
@@ -463,6 +467,16 @@ try:
     # 後段(skill_extractor 等)も移調後を使うよう tmp_path を書き換える。
     if IS_PRACTICE_ITEM:
         _changed = False
+        # パート教材 (2026-08-25 Tetsuo「案B」): variantRecipe の measure_range で
+        # 該当小節だけを残す。これが無いと譜面・解析・採点が通しのまま出てしまう。
+        # 範囲を先に切ると後段 (移調・奏法・リズム) が軽くなる。パートの小節番号は
+        # 元教材基準で、後段の変換はどれも小節番号を変えないため順序は安全。
+        if score_variant_recipe:
+            _ranged = apply_variant_recipe(score, score_variant_recipe)
+            if _ranged is not score:
+                score = _ranged
+                _changed = True
+                print(f"[part-variant] recipe applied: {score_variant_recipe.get('rules')}")
         _transposed = transpose_variant(score, pi_metadata, pi_key_tonic, pi_key_mode)
         if _transposed is not None:
             score = _transposed

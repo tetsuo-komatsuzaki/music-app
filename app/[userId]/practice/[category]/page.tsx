@@ -150,7 +150,9 @@ export default async function CategoryPage({
       modeVariant,
       chordType,
       positions: item.positions,
-      techniques: item.techniques.length <= 2 ? item.techniques.map((t) => t.techniqueTag.name) : [],
+      // 案5 以降は件数で間引かない。表示側が「学びポイントに一致するもの」だけを選ぶため、
+      // ここで2個超を捨てると一致する技法まで落ちてしまう (2026-08-25)。
+      techniques: item.techniques.map((t) => t.techniqueTag.name),
       intervals: item.featureTags
         .filter((f) => f.featureTag?.category === "double_stop")
         .map((f) => f.featureTag!.name),
@@ -186,6 +188,16 @@ export default async function CategoryPage({
   })
   const userStar = starRow?.currentStar ?? null
 
+  // 学びポイント (2026-08-25 Tetsuo確定「案5」): 一覧のタグは「いま効くもの」だけ出す。
+  // 全教材に一律のタグ (1st〜8th や技法名) は情報量が無く、多いと逆に読めなくなるため、
+  // カルテ側で「取り組んだが未習得」と判定された技法に一致するものだけを1つ表示する。
+  // 行が存在する = ループエンジンが評価済み、なので未着手の技法は混ざらない。
+  const weakRows = await prisma.userTechniqueMastery.findMany({
+    where: { userId: dbUserId, isMastered: false },
+    select: { techniqueTag: { select: { name: true } } },
+  })
+  const weakTechniques = weakRows.map((r) => r.techniqueTag.name)
+
   return (
     <PracticeList
       userId={authUserId}
@@ -196,6 +208,7 @@ export default async function CategoryPage({
       currentFilters={sp}
       stats={stats}
       userStar={userStar}
+      weakTechniques={weakTechniques}
     />
   )
 }

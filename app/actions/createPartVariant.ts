@@ -47,19 +47,26 @@ export async function createPartVariants(input: {
   const parts = parseParts(g?.parts ?? []).filter((p) => !input.partIds || input.partIds.includes(p.id))
   if (parts.length === 0) return { ok: false, error: "パートが定義されていません" }
 
-  // すでに実体化済みのパートは飛ばす
+  // すでに実体化済みのパートは飛ばす。
+  // 重複判定は「同じパート × 同じ元教材」(2026-08-25 Tetsuo確定):
+  // スタッカート変種のPart1と、通しのPart1は別の教材として共存できる。
   const existing = await prisma.practiceItem.findMany({
     where: { groupId: source.groupId, partId: { not: null } },
-    select: { partId: true },
+    select: { partId: true, variantRecipe: true },
   })
-  const done = new Set(existing.map((e) => e.partId))
+  const done = new Set(existing.map((e) => {
+    const rec = e.variantRecipe as { sourceItemId?: string } | null
+    return `${e.partId}:${rec?.sourceItemId ?? ""}`
+  }))
 
   let created = 0, skipped = 0
   for (const part of parts) {
-    if (done.has(part.id)) { skipped += 1; continue }
+    if (done.has(`${part.id}:${source.id}`)) { skipped += 1; continue }
     const md = (source.metadata && typeof source.metadata === "object" ? source.metadata : {}) as Record<string, unknown>
     const metadata: Record<string, unknown> = {}
     if (md.transposeSource) metadata.transposeSource = md.transposeSource
+    // 奏法変種を元にした場合はそのパターンを引き継ぐ (2026-08-25 Tetsuo:
+    // 「スタッカート奏法を適用した教材のパート分割」→ 奏法つきのまま該当小節だけを切り出す)
     if (md.articulationPattern) metadata.articulationPattern = md.articulationPattern
 
     const child = await prisma.practiceItem.create({
@@ -130,15 +137,20 @@ async function createScorePartVariants(
   const parts = parseParts(g?.parts ?? []).filter((p) => !partIds || partIds.includes(p.id))
   if (parts.length === 0) return { ok: false, error: "パートが定義されていません" }
 
+  // 重複判定は教材側と同じく「同じパート × 同じ元スコア」(2026-08-25 Tetsuo確定)。
+  // 難易度で判定すると、同じ難易度の別変種から作ったPart1が作れなくなる。
   const existing = await prisma.score.findMany({
     where: { groupId: source.groupId, partId: { not: null }, deletedAt: null },
-    select: { partId: true, difficulty: true },
+    select: { partId: true, variantRecipe: true },
   })
-  const done = new Set(existing.map((e) => `${e.difficulty ?? ""}:${e.partId}`))
+  const done = new Set(existing.map((e) => {
+    const rec = e.variantRecipe as { sourceScoreId?: string } | null
+    return `${e.partId}:${rec?.sourceScoreId ?? ""}`
+  }))
 
   let created = 0, skipped = 0
   for (const part of parts) {
-    if (done.has(`${source.difficulty ?? ""}:${part.id}`)) { skipped += 1; continue }
+    if (done.has(`${part.id}:${source.id}`)) { skipped += 1; continue }
     const child = await prisma.score.create({
       data: {
         createdById: dbUserId,

@@ -1,7 +1,7 @@
 "use client"
 
 import StaggerRail from "@/app/components/StaggerRail"
-import { useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import styles from "../practice.module.css"
@@ -71,9 +71,15 @@ type Props = {
   stats: PracticeStats
   /** ユーザーの現在★。奏法/調の選択可否は「開いたタブ」ではなくこのレベルで判定する */
   userStar?: number | null
+  /** カルテで「取り組んだが未習得」と出ている技法名。一覧の学びポイント表示に使う */
+  weakTechniques?: string[]
 }
 
 type ViewType = "star" | "group"
+
+// 学びポイント (2026-08-25「案5」)。カードは StarView/GroupView の下に深く入るため、
+// props を全段に通さずコンテキストで配る。
+const WeakTechniquesContext = createContext<Set<string>>(new Set())
 
 const modeLabels: Record<string, string> = { major: "長調", minor: "短調" }
 
@@ -150,20 +156,23 @@ function summarizePositions(positions: string[]): string | null {
   return `${sorted[0]}〜${sorted[sorted.length - 1]}`
 }
 
+// 学びポイントのチップ (2026-08-25 Tetsuo確定「案5」)。
+// 全教材に一律で付く技法名は情報量が無く、件数畳み(+3)も中身を伝えないため廃止した。
+// カルテで「取り組んだが未習得」の技法に一致するものだけを1つ出し、一致しなければ何も出さない。
+// 色はネイビー一族。金は成果(達成/マスター/ランク)専用なので学びポイントには使わない。
 function TechChips({ names }: { names: string[] }) {
-  if (names.length === 0) return null
-  // 1つだけ出して残りは件数で畳む (カードの幅を圧迫しないため)
-  const chip: React.CSSProperties = {
-    fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--text-master)",
-    background: "rgba(217,169,60,.16)", border: "1px solid rgba(217,169,60,.4)",
-    borderRadius: 999, padding: "1px 7px", whiteSpace: "nowrap",
-    overflow: "hidden", textOverflow: "ellipsis", maxWidth: "10em",
-  }
+  const weak = useContext(WeakTechniquesContext)
+  const hit = names.find((n) => weak.has(n))
+  if (!hit) return null
   return (
-    <>
-      <span style={chip}>{names[0]}</span>
-      {names.length > 1 && <span style={{ ...chip, maxWidth: "none" }}>+{names.length - 1}</span>}
-    </>
+    <span style={{
+      fontSize: "var(--fs-label)", fontWeight: 800, color: "var(--accent)",
+      background: "rgba(43,91,196,.12)", border: "1px solid rgba(43,91,196,.35)",
+      borderRadius: 999, padding: "1px 7px", whiteSpace: "nowrap",
+      overflow: "hidden", textOverflow: "ellipsis", maxWidth: "12em",
+    }}>
+      学びポイント・{hit}
+    </span>
   )
 }
 
@@ -681,6 +690,7 @@ function GroupView({
 
 export default function PracticeList({
   userId, category, categoryTitle, items, filterOptions: _filterOptions, currentFilters: _currentFilters, stats: _stats, userStar = null,
+  weakTechniques,
 }: Props) {
   void _filterOptions
   void _currentFilters
@@ -692,6 +702,7 @@ export default function PracticeList({
     return "star"
   })()
   const [activeView, setActiveView] = useState<ViewType>(initialView)
+  const weakSet = useMemo(() => new Set(weakTechniques ?? []), [weakTechniques])
 
   // URL の ?view= が変化したら state を同期 (オンボーディングからのナビゲーション用)
   useEffect(() => {
@@ -707,6 +718,7 @@ export default function PracticeList({
   ]
 
   return (
+    <WeakTechniquesContext.Provider value={weakSet}>
     <div className={styles.container}>
       <div className={styles.listHeader}>
         <h1 className={styles.pageTitle}>{categoryTitle}</h1>
@@ -736,5 +748,6 @@ export default function PracticeList({
 
       <OnboardingTrigger pageKey="categoryList" />
     </div>
+    </WeakTechniquesContext.Provider>
   )
 }
