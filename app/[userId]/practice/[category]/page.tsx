@@ -1,4 +1,5 @@
 import { prisma } from "@/app/_libs/prisma"
+import { parseParts } from "@/app/_libs/materialParts"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import PracticeList from "./practiceLIst"
 import { getPracticeStats } from "@/app/lib/practice/getPracticeStats"
@@ -77,7 +78,7 @@ export default async function CategoryPage({
             include: { featureTag: { select: { name: true, category: true } } },
           },
           // 族(グループ) 情報 = 音階/アルペジオの調シート用 (Phase C-basics)
-          group: { select: { id: true, title: true } },
+          group: { select: { id: true, title: true, parts: true } },
         },
       }),
       prisma.practiceItem.findMany({
@@ -156,6 +157,11 @@ export default async function CategoryPage({
       // 族(グループ) = 音階/アルペジオの調シート用
       groupId: item.groupId,
       groupTitle: item.group?.title ?? null,
+      // パートはグループ単位 / パターン名はリズム・奏法レシピから (2026-08-25)
+      groupParts: parseParts(item.group?.parts ?? []),
+      patternName: ((item.rhythmRecipe as { name?: string } | null)?.name)
+        ?? ((item.articulationRecipe as { name?: string } | null)?.name)
+        ?? null,
       articulation: item.articulation,
       difficulty: item.difficulty,
       descriptionShort: item.descriptionShort,

@@ -12,13 +12,15 @@ import SheetPreview from "./SheetPreview"
 import SheetSkills from "./SheetSkills"
 import OnboardingTrigger from "../../_onboarding/OnboardingTrigger"
 
-export type SheetSection = { name: string; startMeasure: number; endMeasure: number }
+export type SheetSection = { id?: string; name: string; startMeasure: number; endMeasure: number }
 export type SheetVariant = {
   id: string
   star: number | null
   difficulty: string | null
   /** 奏法 (エチュードの第1軸。legato/staccato/... ・ 曲では未使用) */
   articulation?: string | null
+  /** 個別パターン名 (音符ごとの奏法・リズムを作ったときに付けた名前)。null=標準 */
+  patternName?: string | null
   sections: SheetSection[]
   bestScore: number | null
 }
@@ -60,16 +62,27 @@ export default function PrePracticeSheet({
   const firstAvail = options.find((o) => byKey.has(o.id))?.id ?? options[0].id
 
   const [diff, setDiff] = useState(firstAvail)
-  const variant = byKey.get(diff)
+
+  // 第2軸: 個別パターン (2026-08-25 確定)。第1軸で選んだ変種を親として、
+  // 同じ軸値を持つパターン付き変種を選べるようにする。null = パターンなし (標準)。
+  const sameAxis = group.variants.filter(
+    (v) => (byArt ? (v.articulation ?? "legato") : (v.difficulty ?? "BEGINNER")) === diff,
+  )
+  const patterns = sameAxis.filter((v) => v.patternName)
+  const [patternId, setPatternId] = useState<string>("")
+  const base = sameAxis.find((v) => !v.patternName) ?? byKey.get(diff)
+  const variant = (patternId ? sameAxis.find((v) => v.id === patternId) : base) ?? base
+
   const sections = variant?.sections ?? []
   const [rangeIdx, setRangeIdx] = useState(-1) // -1 = 全部演奏する
 
   const start = () => {
     if (!variant) return
     const q = new URLSearchParams()
-    if (rangeIdx >= 0 && sections[rangeIdx]) {
-      q.set("from", String(sections[rangeIdx].startMeasure))
-      q.set("to", String(sections[rangeIdx].endMeasure))
+    // パートは詳細画面のパート練習UIで初期選択させる (?part=<id>)。
+    // 旧実装は ?from/?to を送っていたが受け取り側が未実装だった (2026-08-25 修正)。
+    if (rangeIdx >= 0 && sections[rangeIdx]?.id) {
+      q.set("part", String(sections[rangeIdx].id))
     }
     const qs = q.toString()
     router.push(`/${userId}${basePath}/${variant.id}${qs ? `?${qs}` : ""}`)
@@ -115,7 +128,7 @@ export default function PrePracticeSheet({
         <select
           className={styles.sheetSelect}
           value={diff}
-          onChange={(e) => { setDiff(e.target.value); setRangeIdx(-1) }}
+          onChange={(e) => { setDiff(e.target.value); setPatternId(""); setRangeIdx(-1) }}
         >
           {options.map((d) => {
             const v = byKey.get(d.id)
@@ -129,6 +142,26 @@ export default function PrePracticeSheet({
             )
           })}
         </select>
+
+        {/* パターン (2026-08-25): 音符ごとの奏法・リズムで作った個別パターン。
+            管理画面で名前を付けて作ると、ここに選択肢として並ぶ。 */}
+        {patterns.length > 0 && (
+          <>
+            <div className={styles.slab}>パターンを選ぶ</div>
+            <select
+              className={styles.sheetSelect}
+              value={patternId}
+              onChange={(e) => { setPatternId(e.target.value); setRangeIdx(-1) }}
+            >
+              <option value="">そのまま弾く</option>
+              {patterns.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.patternName}{v.bestScore != null ? ` ・ ベスト ${v.bestScore}` : ""}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
 
         {/* パート: 全部演奏する(現行スコア) + 分割は教材が入れば有効 */}
         <div className={styles.slab}>パートを選ぶ</div>

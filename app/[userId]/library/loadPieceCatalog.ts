@@ -2,6 +2,7 @@
 // 旧 practice/pieces/page.tsx の読込ロジックを共通化したもの。
 // 1グループ=1曲、配下に難易度変種。代表値: ☆=最小 ・ ベスト=最大 ・ バッジ=最上位。
 import { prisma } from "@/app/_libs/prisma"
+import { parseParts } from "@/app/_libs/materialParts"
 import { badgeKind } from "@/app/_libs/starProgress"
 import type { SheetSection, SheetVariant } from "../practice/pieces/PrePracticeSheet"
 
@@ -44,10 +45,11 @@ export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]
     orderBy: [{ title: "asc" }],
     select: {
       id: true, title: true, composer: true, genre: true, coverImagePath: true,
+      parts: true,   // パート定義はグループ単位 (2026-08-25)
       scores: {
         where: { isShared: true, deletedAt: null },
         orderBy: [{ star: "asc" }],
-        select: { id: true, star: true, difficulty: true, sections: true },
+        select: { id: true, star: true, difficulty: true, sections: true, rhythmRecipe: true },
       },
     },
   })
@@ -79,11 +81,17 @@ export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]
   }
 
   return groups.map((g) => {
+    // パートはグループ単位。個々の変種の sections より優先する (2026-08-25 確定)
+    const groupParts = parseParts(g.parts ?? [])
     const variants = g.scores.map((s) => ({
       id: s.id,
       star: s.star,
       difficulty: s.difficulty,
-      sections: parseSections(s.sections),
+      // 個別パターン名 (リズムパターンで付けた名前)。null=標準
+      patternName: ((s.rhythmRecipe as { name?: string } | null)?.name) ?? null,
+      sections: groupParts.length > 0
+        ? groupParts.map((p) => ({ id: p.id, name: p.name, startMeasure: p.startMeasure, endMeasure: p.endMeasure }))
+        : parseSections(s.sections),
       bestScore: bestByScore.get(s.id) != null ? Math.round(bestByScore.get(s.id)!) : null,
       badge: badgeKind(achByScore.get(s.id)),
     }))

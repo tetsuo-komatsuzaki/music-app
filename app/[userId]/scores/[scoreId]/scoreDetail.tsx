@@ -3038,6 +3038,19 @@ function ScoreDetailInner({
     setRangeStart(nr.rangeFromNote)
     setRangeEnd(nr.rangeToNote)
   }
+
+  // 練習前シートで選んだパートを初期選択する (?part=<id>)。2026-08-25 確定。
+  // 解析データが揃ってから1回だけ実行する。
+  const partAppliedRef = useRef(false)
+  useEffect(() => {
+    if (partAppliedRef.current || !analysis || parts.length === 0) return
+    const want = new URLSearchParams(window.location.search).get("part")
+    if (!want) { partAppliedRef.current = true; return }
+    const hit = parts.find((p) => p.id === want)
+    if (hit) selectPart(hit)
+    partAppliedRef.current = true
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [analysis, parts])
   // パート別 自己ベスト (partId 一致の区間録音の最高点)
   const partBest = (pid: string): number | null => {
     const ss = performances
