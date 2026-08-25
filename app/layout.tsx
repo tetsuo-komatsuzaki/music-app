@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Zen_Kaku_Gothic_New } from "next/font/google";
 import "./globals.css";
 import HapticProvider from "./components/HapticProvider";
+import OrientationLock from "./components/OrientationLock";
 import NativeChrome from "./components/NativeChrome";
 import ArcoBootSplash from "./components/ArcoBootSplash";
 
@@ -74,6 +75,7 @@ export default function RootLayout({
         <ArcoBootSplash />
         <NativeChrome />
         <HapticProvider />
+        <OrientationLock />
         {children}
       </body>
     </html>

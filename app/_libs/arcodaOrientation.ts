@@ -29,6 +29,22 @@ export async function lockLandscape(): Promise<boolean> {
   }
 }
 
+/**
+ * 縦固定を試みる (2026-08-25 Tetsuo「録音のとき以外は横にしない」)。
+ * アプリは横向きレイアウトを持たないため、回ると崩れる。
+ * プラグイン不在・失敗時は false (=OSに任せる)。
+ */
+export async function lockPortrait(): Promise<boolean> {
+  const p = call("lock", { orientation: "portrait" })
+  if (!p) return false
+  try {
+    await p
+    return true
+  } catch {
+    return false
+  }
+}
+
 /** 向きロック解除。冪等・失敗無視。どの終了経路からでも安全に呼べる */
 export async function unlockOrientation(): Promise<void> {
   const p = call("unlock")
