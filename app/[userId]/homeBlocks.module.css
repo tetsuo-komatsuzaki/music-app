@@ -23,8 +23,10 @@
 
 /* 練習中の曲が無いときの導線 */
 .startLead { font-size:var(--fs-body); color:var(--inkSoft); line-height:1.7; margin:0 0 11px; font-weight:600; }
-.startCta { display:flex; align-items:center; gap:11px; text-decoration:none; color:var(--text-on-accent); padding:12px 13px; border-radius:14px; background:linear-gradient(105deg,var(--accent),#1f3d78); box-shadow:0 5px 14px -6px rgba(43,91,196,.6); }
+.startCta { display:flex; align-items:center; gap:11px; text-decoration:none; color:var(--text-on-accent); padding:12px 13px; border-radius:14px; background:linear-gradient(105deg,var(--accent),#1f3d78); box-shadow: 0 5px 14px -6px rgba(43,91,196,.6), 0 4px 0 rgba(0, 0, 0, 0.3); }
+.startCta:disabled { box-shadow: none; }
 .startCta:active { filter:brightness(.96); }
+.startCta:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
 .startIcon { width:36px; height:36px; flex:none; display:grid; place-items:center; font-size:var(--fs-head); border-radius:11px; background:rgba(255,255,255,.18); }
 .startBody { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
 .startTitle { font-size:var(--fs-subhead); font-weight:800; }

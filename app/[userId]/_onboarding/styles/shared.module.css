@@ -34,7 +34,9 @@
   font-weight: 600;
   cursor: pointer;
   transition: 0.15s;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.primaryButton:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
 
 .primaryButton:hover:not(:disabled) {
   background: #24518f;
@@ -42,8 +44,7 @@
 
 .primaryButton:disabled {
   background: rgba(150,175,225,.24);
-  cursor: not-allowed;
-}
+  cursor: not-allowed; box-shadow: none;}
 
 /* セカンダリボタン */
 .secondaryButton {

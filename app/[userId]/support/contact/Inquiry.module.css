@@ -108,7 +108,9 @@
   font-weight: 600;
   cursor: pointer;
   transition: 0.15s;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.submitButton:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
 
 .submitButton:hover:not(:disabled) {
   background: #24518f;
@@ -116,8 +118,7 @@
 
 .submitButton:disabled {
   background: rgba(150,175,225,.3);
-  cursor: not-allowed;
-}
+  cursor: not-allowed; box-shadow: none;}
 
 .message {
   padding: 12px 14px;

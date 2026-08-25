@@ -42,11 +42,12 @@
   padding: 0.625rem;
   border: none;
   cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.button:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
 
 .button:disabled {
-  opacity: 0.6;
-}
+  opacity: 0.6; box-shadow: none;}
 
 .link {
   text-align: center;

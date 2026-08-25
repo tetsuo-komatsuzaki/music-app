@@ -70,7 +70,10 @@
   display: flex; align-items: center; gap: 8px;
   padding: 12px 28px; background: #E24B4A; border: none;
   border-radius: 28px; color: var(--text-on-accent); font-size: var(--fs-subhead); font-weight: 500; cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.stopBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.stopBtn:disabled { box-shadow: none; }
 .stopBtn:hover { background: #C62828; }
 .stopSquare { width: 12px; height: 12px; border-radius: 2px; background: white; }
 
@@ -142,7 +145,10 @@
 .submitBtn {
   padding: 10px 24px; background: #8FD3B0; border: none;
   border-radius: 24px; color: var(--text-on-accent); font-size: var(--fs-subhead); font-weight: 500; cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.submitBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.submitBtn:disabled { box-shadow: none; }
 .submitBtn:hover { background: #8FD3B0; }
 
 /* ④ 解析中 */
@@ -283,7 +289,10 @@
   flex: 1;
   padding: 14px 24px; background: #E24B4A; border: none;
   border-radius: 28px; color: var(--text-on-accent); font-size: var(--fs-subhead); font-weight: 500; cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.retryBtnStrong:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.retryBtnStrong:disabled { box-shadow: none; }
 .retryBtnStrong:hover { background: #C62828; }
 .doneBtn {
   padding: 12px 20px; background: var(--card-in); border: 1px solid var(--line);

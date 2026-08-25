@@ -63,10 +63,12 @@
   border-radius: 10px;
   border: none;
   font-weight: 600;
-  box-shadow: 0 6px 16px rgba(37,99,235,0.3);
+  box-shadow: 0 6px 16px rgba(37,99,235,0.3), 0 4px 0 rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: all 0.25s ease;
 }
+.newButton:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.newButton:disabled { box-shadow: none; }
 
 .newButton:hover {
   background: linear-gradient(135deg, #1E40AF, #2563EB);
@@ -302,7 +304,10 @@
   font-weight: 600;
   text-decoration: none;
   transition: all 0.25s ease;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.practiceBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.practiceBtn:disabled { box-shadow: none; }
 
 .practiceBtn:hover {
   background: linear-gradient(135deg, #1E40AF, #2563EB);

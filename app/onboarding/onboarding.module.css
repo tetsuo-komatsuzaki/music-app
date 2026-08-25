@@ -20,12 +20,12 @@
 @media (min-width: 500px) {
   .frame {
     border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 24px rgba(4, 10, 28, 0.5);
   }
 }
 .stage {
   min-height: 100dvh;
-  background: #f0f0f0;
+  background: var(--surface-out);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -100,14 +100,14 @@
   aspect-ratio: 1;
   flex-shrink: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 88%, #ededed 0 34%, transparent 35%);
+  background: radial-gradient(circle at 50% 88%, var(--avatar-pad) 0 34%, transparent 35%);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .bubble {
   flex: 1;
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 16px;
   padding: 4%;
@@ -126,7 +126,7 @@
   transform: translateY(-50%) rotate(45deg);
   width: 14px;
   height: 14px;
-  background: #fff;
+  background: var(--surface);
   border-left: 2px solid var(--border);
   border-bottom: 2px solid var(--border);
 }
@@ -180,7 +180,7 @@
   border: 2px solid var(--border);
   border-bottom-width: 4px;
   border-radius: 14px;
-  background: #fff;
+  background: var(--surface);
   display: flex;
   align-items: center;
   gap: 3%;
@@ -271,7 +271,7 @@
   right: -4.5%;
   top: -2cqh;
   bottom: -6.5cqh;
-  background: #fff;
+  background: var(--bg);
   border-top: 1px solid var(--border);
   z-index: -1;
 }
@@ -300,7 +300,7 @@
   cursor: default;
 }
 .ctaGhost {
-  background: #fff;
+  background: var(--surface);
   border: 2px solid var(--border);
   box-shadow: none;
   color: var(--primary);
@@ -317,7 +317,7 @@
   font-weight: 700;
   color: var(--text-main);
   width: 100%;
-  background: #fff;
+  background: var(--surface);
 }
 .linkbtn {
   background: none;
@@ -417,14 +417,14 @@
   align-items: center;
   justify-content: center;
   font-size: min(2.5cqh, 22px);
-  background: #fff;
+  background: var(--surface);
   border: 3px solid var(--border);
 }
 .mapNodeNow .mapCircle {
   border-color: var(--primary);
 }
 .mapNodeGoal .mapCircle {
-  border-color: #f7c948;
+  border-color: var(--goal);
 }
 .mapLbl {
   font-size: min(1.4cqh, 12px);

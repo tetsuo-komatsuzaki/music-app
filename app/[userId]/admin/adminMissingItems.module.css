@@ -136,14 +136,15 @@
   font-size: 0.85rem;
   cursor: pointer;
   white-space: nowrap;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.resolveBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
 .resolveBtn:hover:not(:disabled) {
   background: #1d4ed8;
 }
 .resolveBtn:disabled {
   opacity: 0.6;
-  cursor: progress;
-}
+  cursor: progress; box-shadow: none;}
 
 .resolvedBadge {
   flex-shrink: 0;

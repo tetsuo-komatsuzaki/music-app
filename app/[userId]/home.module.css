@@ -229,7 +229,10 @@
   font-size: var(--fs-body);
   font-weight: 500;
   transition: background 0.15s;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.arcoCta:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.arcoCta:disabled { box-shadow: none; }
 
 .arcoCta:hover {
   background: #1c3f8f;
@@ -424,7 +427,10 @@
   font-weight: 600;
   text-decoration: none;
   transition: background 0.15s;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.challengeBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.challengeBtn:disabled { box-shadow: none; }
 
 .challengeBtn:hover {
   background: #178a64;

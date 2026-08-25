@@ -231,7 +231,10 @@
   background: #2b5bc4;
   font-weight: 700;
   padding: 9px 17px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.actionButton:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.actionButton:disabled { box-shadow: none; }
 
 .stepIndicator {
   font-size: var(--fs-caption);
@@ -302,7 +305,10 @@
   font-size: var(--fs-body);
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.primaryButton:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.primaryButton:disabled { box-shadow: none; }
 
 .primaryButton:hover {
   background: #24518f;

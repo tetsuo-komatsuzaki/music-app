@@ -30,7 +30,10 @@
   border: none;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.recordBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.recordBtn:disabled { box-shadow: none; }
 
 .grid {
   display: grid;
@@ -54,7 +57,10 @@
   border-radius: 12px;
   border: none;
   cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.playBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.playBtn:disabled { box-shadow: none; }
 
 .audioMock {
   width: 100%;

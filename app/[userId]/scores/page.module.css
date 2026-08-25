@@ -42,7 +42,9 @@
   font-size: var(--fs-body);
   cursor: pointer;
   transition: background 0.15s;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.renameSubmitBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
 
 .renameSubmitBtn:hover:not(:disabled) {
   background: #1e40af;
@@ -50,8 +52,7 @@
 
 .renameSubmitBtn:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
-}
+  cursor: not-allowed; box-shadow: none;}
 
 .renameCancelBtn {
   background: transparent;
@@ -156,10 +157,12 @@
   border-radius: 10px;
   border: none;
   font-weight: 600;
-  box-shadow: 0 6px 16px rgba(37,99,235,0.3);
+  box-shadow: 0 6px 16px rgba(37,99,235,0.3), 0 4px 0 rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: all 0.25s ease;
 }
+.newButton:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.newButton:disabled { box-shadow: none; }
 
 .newButton:hover {
   background: linear-gradient(135deg, #1E40AF, #2563EB);
@@ -448,7 +451,10 @@
   font-weight: 600;
   text-decoration: none;
   transition: all 0.25s ease;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.practiceBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.practiceBtn:disabled { box-shadow: none; }
 
 .practiceBtn:hover {
   background: linear-gradient(135deg, #1E40AF, #2563EB);
@@ -462,9 +468,11 @@
   border-radius: 999px;
   border: none;
   font-weight: 600;
-  box-shadow: 0 6px 16px rgba(37,99,235,0.3);
+  box-shadow: 0 6px 16px rgba(37,99,235,0.3), 0 4px 0 rgba(0, 0, 0, 0.3);
   transition: all 0.25s ease;
 }
+.primaryBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.primaryBtn:disabled { box-shadow: none; }
 
 .primaryBtn:hover {
   background: linear-gradient(135deg, #1E40AF, #2563EB);
@@ -511,7 +519,10 @@
   font-weight: 600;
   cursor: pointer;
   transition: 0.25s ease;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.uploadButton:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.uploadButton:disabled { box-shadow: none; }
 
 
 .uploadIcon {

@@ -483,8 +483,10 @@
   font-weight: 600;
   cursor: pointer;
   transition: 0.15s;
-  box-shadow: 0 2px 8px rgba(74, 127, 163, 0.25);
+  box-shadow: 0 2px 8px rgba(74, 127, 163, 0.25), 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.primaryButton:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.primaryButton:disabled { box-shadow: none; }
 
 .primaryButton:hover:not(:disabled) {
   background: #24518f;
@@ -510,8 +512,10 @@
   font-weight: 700;
   cursor: pointer;
   transition: 0.15s;
-  box-shadow: 0 4px 14px rgba(74, 127, 163, 0.35);
+  box-shadow: 0 4px 14px rgba(74, 127, 163, 0.35), 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.dualCtaPrimary:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.dualCtaPrimary:disabled { box-shadow: none; }
 
 .dualCtaPrimary:hover {
   background: #24518f;

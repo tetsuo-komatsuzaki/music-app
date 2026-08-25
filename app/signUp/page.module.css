@@ -170,7 +170,9 @@
   border: none;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.button:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
 
 .button:hover {
   background-color: #24518f;
@@ -183,8 +185,7 @@
 
 .button:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
-}
+  cursor: not-allowed; box-shadow: none;}
 
 .link {
   color: var(--text-link);              /* 青 */

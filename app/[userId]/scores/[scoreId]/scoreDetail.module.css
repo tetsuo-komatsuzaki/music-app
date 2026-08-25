@@ -750,8 +750,9 @@
   flex: 0 0 auto; font-family: inherit; font-size: var(--fs-body); font-weight: 800; cursor: pointer;
   border-radius: 9px; padding: 10px 13px; border: 1px solid transparent;
 }
-.perfSaveBtn { color: var(--text-on-accent); background: #4a6cf7; }
-.perfSaveBtn:disabled { opacity: 0.5; cursor: default; }
+.perfSaveBtn { color: var(--text-on-accent); background: #4a6cf7; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3); }
+.perfSaveBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.perfSaveBtn:disabled { opacity: 0.5; cursor: default; box-shadow: none;}
 .perfCancelBtn { color: var(--text-body); background: rgba(150,175,225,.13); border-color: rgba(150,175,225,.20); }
 
 /* 演奏タブ 単一カラム (UX刷新 Step 3: 譜面ヒーロー) 2026-07-18 */
@@ -847,10 +848,12 @@
   font-family: inherit; font-size: var(--fs-body); font-weight: 800; cursor: pointer;
   border-radius: 10px; padding: 9px 14px; border: 1px solid transparent; transition: filter .14s;
 }
-.rangePlayBtn { color: var(--text-on-accent); background: linear-gradient(100deg, #4a6cf7, #6a5cf0); box-shadow: 0 8px 18px -9px rgba(74,108,247,.6); }
+.rangePlayBtn { color: var(--text-on-accent); background: linear-gradient(100deg, #4a6cf7, #6a5cf0); box-shadow: 0 8px 18px -9px rgba(74,108,247,.6), 0 4px 0 rgba(0, 0, 0, 0.3); }
+.rangePlayBtn:disabled { box-shadow: none; }
 .rangeStopBtn { color: var(--text-on-accent); background: #d6547a; }
 .rangeClearBtn { color: var(--text-body); background: rgba(150,175,225,.13); border-color: rgba(150,175,225,.20); }
 .rangePlayBtn:active, .rangeStopBtn:active, .rangeClearBtn:active { filter: brightness(.96); }
+.rangePlayBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
 /* この区間を録音（部分採点） */
 .rangeRecordBtn {
   width: 100%;
@@ -1056,10 +1059,12 @@
   color: var(--text-on-accent); border: none; border-radius: 16px; padding: 15px;
   font-weight: 900;
   background: linear-gradient(180deg, #e05a3c, #c63f26);
-  box-shadow: 0 12px 24px -12px rgba(224, 90, 60, 0.6);
+  box-shadow: 0 12px 24px -12px rgba(224, 90, 60, 0.6), 0 4px 0 rgba(0, 0, 0, 0.3);
   transition: filter .14s;
 }
+.recordEntryBtn:disabled { box-shadow: none; }
 .recordEntryBtn:active { filter: brightness(0.96); }
+.recordEntryBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
 .recordEntryDot { width: 10px; height: 10px; border-radius: 50%; background: #fff; flex: 0 0 auto; }
 .recordEntryChev { margin-left: 2px; opacity: .85; transition: transform .16s; }
 .recordEntryChevOpen { transform: rotate(180deg); }

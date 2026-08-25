@@ -116,7 +116,9 @@
   border-radius: 8px;
   cursor: pointer;
   transition: 0.2s;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.primaryButton:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
 
 .primaryButton:hover:not(:disabled) {
   background: #2b5bc4;
@@ -124,8 +126,7 @@
 
 .primaryButton:disabled {
   background: rgba(150,175,225,.24);
-  cursor: not-allowed;
-}
+  cursor: not-allowed; box-shadow: none;}
 
 .secondaryButton {
   flex: none;
@@ -161,7 +162,9 @@
   cursor: pointer;
   transition: 0.2s;
   align-self: flex-start;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
+.dangerButton:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
 
 .dangerButton:hover:not(:disabled) {
   background: #e8697a;
@@ -169,8 +172,7 @@
 
 .dangerButton:disabled {
   background: rgba(150,175,225,.24);
-  cursor: not-allowed;
-}
+  cursor: not-allowed; box-shadow: none;}
 
 .dangerHint {
   font-size: var(--fs-body);

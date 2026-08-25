@@ -90,13 +90,10 @@
   letter-spacing: 0.08em;
   cursor: pointer;
   margin-top: 24px;
-  box-shadow:
-    0 4px 14px rgba(217, 169, 60, 0.35),
-    0 2px 4px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 14px rgba(217, 169, 60, 0.35), 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 0 rgba(0, 0, 0, 0.3);
 }
-.button:active { transform: translateY(1px) scale(0.99); }
-.button:disabled { opacity: 0.6; cursor: default; }
+.button:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
+.button:disabled { opacity: 0.6; cursor: default; box-shadow: none;}
 
 /* 区切り (原本 .login-divider) */
 .divider {

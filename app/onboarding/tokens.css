@@ -1,23 +1,30 @@
 /* ============================================================
    Arcoda オンボーディング デザイントークン (C1・2026-07-11)
    正本: UI要件定義 v0.3 §1(実測値)。ハードコード禁止 — 必ずこの変数を使う。
+   2026-08-26: ダークプレミアム化。値は globals.css の確定パレットから取る (新色は作らない)。
+   8/23の全面刷新はモック分冊14冊の写経で回したが、オンボの13画面はモックが無く
+   対象リストに入らずそのまま残っていた。緑CTA #58CC02 は配色ルール案1に無い色。
    単位方針(指示書§2): コンテナクエリ単位(cqh/cqw)。vh/vwは大画面で破綻するため禁止。
    ============================================================ */
 .onbRoot {
   /* §1-1 カラー */
-  --primary: #58CC02;          /* CTA・プログレスバー塗り */
-  --primary-shadow: #58A700;   /* CTA下端の3D影 */
-  --text-main: #4B4B4B;
-  --text-sub: #777777;
-  --text-disabled: #AFAFAF;
-  --border: #E5E5E5;
-  --sel-border: #84D7FF;
-  --sel-bg: #DDF4FF;
-  --sel-text: #1899D6;
-  --accent-blue: #1CB0F6;
-  --bg: #FFFFFF;
+  --primary: #2b5bc4;          /* CTA・プログレスバー塗り (操作=ネイビー一族) */
+  --primary-shadow: #1c3f8f;   /* CTA下端の3D影 */
+  --text-main: #edf1fa;        /* globals --text-ink */
+  --text-sub: #8fa0c4;         /* globals --text-sub */
+  --text-disabled: #5e7099;    /* globals --text-muted */
+  --border: rgba(150, 175, 225, 0.16);  /* globals --line */
+  --sel-border: #2b5bc4;
+  --sel-bg: rgba(43, 91, 196, 0.22);
+  --sel-text: #dbe6ff;
+  --accent-blue: #2b5bc4;
+  --bg: #0a1122;               /* globals --bg0 */
+  --surface: #15233f;          /* 吹き出し・カード・CTA下地 (globals --card-b) */
+  --surface-out: #060b16;      /* PC時のフレーム外 */
+  --avatar-pad: rgba(150, 175, 225, 0.10);  /* アバター台座の影 */
+  --goal: #e8b23c;             /* 旅の地図のゴール = 成果なので金 (globals --gold) */
   /* アルコの縁を焼き消す色 = その画面の地の色。ArcoChan が内側シャドウに使う */
-  --arco-halo: #FFFFFF;
+  --arco-halo: #0a1122;
 
   /* §1-2 タイポグラフィ (コンテナ高さ比。max値はプロトタイプ準拠) */
   --fs-question: min(2.2cqh, 19px);
