@@ -12,19 +12,23 @@ export default function PartsDialog({
   itemId, kind, onClose,
 }: { itemId: string; kind: "practice" | "score"; onClose: () => void }) {
   const [ctx, setCtx] = useState<Ctx | null>(null)
-  const [rows, setRows] = useState<PartInput[]>([])
+  // 入力中は空欄を許すため、小節は文字列で保持する (2026-08-25 Tetsuo「1が消せない」)。
+  // Number(...) || 1 で即座に1へ戻していたため、消して打ち直すことができなかった。
+  // 保存・実体化のときだけ数値へ変換する。
+  type Row = { id?: string; name: string; startMeasure: string; endMeasure: string }
+  const [rows, setRows] = useState<Row[]>([])
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
 
   useEffect(() => {
     getPartsContext(itemId, kind).then((c) => {
       setCtx(c)
-      if (c.ok) setRows(c.parts.map((p) => ({ id: p.id, name: p.name, startMeasure: p.startMeasure, endMeasure: p.endMeasure })))
+      if (c.ok) setRows(c.parts.map((p) => ({ id: p.id, name: p.name, startMeasure: String(p.startMeasure), endMeasure: String(p.endMeasure) })))
     })
   }, [itemId, kind])
 
-  const add = () => setRows([...rows, { name: "", startMeasure: 1, endMeasure: 1 }])
-  const patch = (i: number, v: Partial<PartInput>) => setRows(rows.map((r, k) => (k === i ? { ...r, ...v } : r)))
+  const add = () => setRows([...rows, { name: "", startMeasure: "", endMeasure: "" }])
+  const patch = (i: number, v: Partial<Row>) => setRows(rows.map((r, k) => (k === i ? { ...r, ...v } : r)))
   const del = (i: number) => setRows(rows.filter((_, k) => k !== i))
 
   // パートを独立した教材として実体化する (2026-08-25 案B)。
@@ -38,9 +42,24 @@ export default function PartsDialog({
       : r.error)
   }
 
+  // 空欄のまま保存させない。逆転 (終わり < 始まり) もここで弾く。
+  const toParts = (): { parts: PartInput[]; error: string | null } => {
+    const parts: PartInput[] = []
+    for (const [i, r] of rows.entries()) {
+      const a = Number(r.startMeasure), b = Number(r.endMeasure)
+      if (!r.startMeasure || !r.endMeasure) return { parts: [], error: `${i + 1}行目の小節を入力してください` }
+      if (a < 1 || b < 1) return { parts: [], error: `${i + 1}行目の小節は1以上にしてください` }
+      if (b < a) return { parts: [], error: `${i + 1}行目は終わりの小節が始まりより前になっています` }
+      parts.push({ id: r.id, name: r.name, startMeasure: a, endMeasure: b })
+    }
+    return { parts, error: null }
+  }
+
   const save = async () => {
+    const { parts, error } = toParts()
+    if (error) { setMsg(error); return }
     setBusy(true); setMsg(null)
-    const r = await updateMaterialParts({ itemId, kind, parts: rows })
+    const r = await updateMaterialParts({ itemId, kind, parts })
     setBusy(false)
     setMsg(r.ok ? `${r.count}件のパートを保存しました。練習前シートの選択肢に並びます。` : r.error)
   }
@@ -78,11 +97,13 @@ export default function PartsDialog({
                   onChange={(e) => patch(i, { name: e.target.value })}
                   style={{ flex: "1 1 140px", minWidth: 0, padding: "6px 9px" }}
                 />
-                <input type="number" min={1} max={ctx.measureCount || undefined} value={r.startMeasure}
-                  onChange={(e) => patch(i, { startMeasure: Number(e.target.value) || 1 })} style={S.num} />
+                <input type="number" inputMode="numeric" min={1} max={ctx.measureCount || undefined}
+                  value={r.startMeasure} placeholder="1"
+                  onChange={(e) => patch(i, { startMeasure: e.target.value.replace(/[^0-9]/g, "") })} style={S.num} />
                 <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>〜</span>
-                <input type="number" min={1} max={ctx.measureCount || undefined} value={r.endMeasure}
-                  onChange={(e) => patch(i, { endMeasure: Number(e.target.value) || 1 })} style={S.num} />
+                <input type="number" inputMode="numeric" min={1} max={ctx.measureCount || undefined}
+                  value={r.endMeasure} placeholder={String(ctx.measureCount || 1)}
+                  onChange={(e) => patch(i, { endMeasure: e.target.value.replace(/[^0-9]/g, "") })} style={S.num} />
                 <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)" }}>小節</span>
                 <button type="button" onClick={() => del(i)}
                   style={{ padding: "5px 10px", borderRadius: 8, border: "1px solid rgba(196,68,68,.4)", background: "rgba(196,68,68,.14)", color: "#E7B7B7", cursor: "pointer", fontSize: "var(--fs-caption)" }}>

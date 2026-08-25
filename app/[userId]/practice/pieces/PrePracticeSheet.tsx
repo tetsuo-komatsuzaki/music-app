@@ -75,7 +75,10 @@ export default function PrePracticeSheet({
   // 単一奏法のパターンは奏法軸 (第1軸) に載るので、ここには重複させない (2026-08-25)。
   const patterns = sameAxis.filter((v) => v.patternName && (byArt ? !v.articulation : true))
   const [patternId, setPatternId] = useState<string>("")
-  const base = sameAxis.find((v) => !v.patternName) ?? byKey.get(diff)
+  // 軸の値がラダーのどれとも噛み合わない教材があるため、最後に「先頭の変種」へ落とす
+  // (2026-08-25: カイザーNo.10ほか9件が 奏法=slur の単独グループで variant=undefined になり、
+  //  詳細画面へ遷移できず譜面も出ない状態だった。start() が黙って return していて気付けなかった)
+  const base = sameAxis.find((v) => !v.patternName) ?? byKey.get(diff) ?? group.variants[0]
   const variant = (patternId ? sameAxis.find((v) => v.id === patternId) : base) ?? base
 
   // パート: 実体化されたパート教材 (2026-08-25 案B) があればそれを選ぶ。
@@ -86,7 +89,11 @@ export default function PrePracticeSheet({
   const [partPick, setPartPick] = useState("")  // 実体化済みパート教材のid
 
   const start = () => {
-    if (!variant) return
+    if (!variant) {
+      // 握り潰すと「押しても何も起きない」になる。必ず理由を残す。
+      console.error("[PrePracticeSheet] 変種が決まらないため遷移できません", { diff, variants: group.variants.length })
+      return
+    }
     // 実体化済みのパート教材が選ばれていれば、そのまま教材ごと切り替える (案B)
     if (partPick) {
       router.push(`/${userId}${basePath}/${partPick}`)

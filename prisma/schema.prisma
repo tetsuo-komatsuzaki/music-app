@@ -354,6 +354,11 @@ model MaterialGroup {
   // ▼ パート分け (2026-07-26): 曲の「◯小節〜◯小節=Part」の範囲リスト(難易度共通・任意個・任意スポット)。
   // [{ id, name, startMeasure, endMeasure, order }]。null=分割なし(通しのみ)。詳細=materialParts.ts
   parts          Json?
+  // ▼ 軸 (2026-08-25): 族の中を絞り込む物差し。練習前シートのプルダウンになる。
+  // [{ key, label, kind:"select"|"toggle", values:[string] }] 最大2軸。null=軸なし(1件だけの族)。
+  // 例: [{key:"string",label:"弦",kind:"select",values:["G線","D線","A線","E線"]},
+  //       {key:"shape",label:"指の形",kind:"select",values:["1-2-3-1", ...]}]
+  axes           Json?
   scores         Score[]
   practiceItems  PracticeItem[]
   createdAt      DateTime       @default(now())

@@ -310,9 +310,20 @@ function subGroupItems(
   return [{ label: "", items }]
 }
 
-// 音階/アルペジオ = 族(調違いの束)カード + 調シート。他カテゴリは従来のサブグループ。
+// 族カード + シートで選ばせるカテゴリ (2026-08-25 Tetsuo確定)。
+// 一覧には「族」だけを出し、調・奏法・弦・指の形といった変種は練習前シートの中で選ぶ。
+// ボーイング120件→23族 / フィンガリング32件→4族 に畳まれる (グループはbackfill済み)。
 function isFamilyCategory(c: string): boolean {
   return c === "scale" || c === "scales" || c === "arpeggio" || c === "arpeggios"
+    || c === "bowing" || c === "fingering"
+}
+
+// 族カードの2行目。調が族を分ける軸なら「N調」、そうでなければ「N種類」。
+// ボーイング/フィンガリングは弦・指の形・音符の長さで分かれるため、調では数えない。
+function familySubLabel(fam: { items: PracticeItemDTO[] }): string {
+  if (fam.items.length === 1) return keyLabelOf(fam.items[0])
+  const keys = new Set(fam.items.map((it) => `${it.keyTonic ?? ""}:${it.keyMode ?? ""}`))
+  return keys.size > 1 ? `${keys.size}調` : `${fam.items.length}種類`
 }
 
 const TONIC_JA: Record<string, string> = {
@@ -372,7 +383,7 @@ function FamilyView({
             <CategoryCover category={category} cover={fam.cover} />
             <div className={styles.railCardTitle}>{fam.title}</div>
             <div className={styles.railSub}>
-              {fam.items.length > 1 ? `${fam.items.length}調` : keyLabelOf(fam.items[0])}
+              {familySubLabel(fam)}
             </div>
           </button>
         ))}
