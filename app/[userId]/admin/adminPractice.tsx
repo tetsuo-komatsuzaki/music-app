@@ -123,6 +123,9 @@ export default function AdminPractice({
 
   // フィルタ
   const [filterMode, setFilterMode] = useState<FilterMode>("all")
+  // カテゴリ絞り込み+並び替え (2026-08-25 Tetsuo: 教材が多くスクロールが大変)
+  const [catFilter, setCatFilter] = useState<string>("all")
+  const [sortMode, setSortMode] = useState<"category" | "title" | "star" | "new">("category")
   const [searchText, setSearchText] = useState("")
 
   // フォーム state (新規登録用)
@@ -538,7 +541,7 @@ export default function AdminPractice({
   // フィルタ + 検索適用
   const filteredItems = useMemo(() => {
     const lower = searchText.trim().toLowerCase()
-    return items.filter(item => {
+    const list = items.filter(item => {
       // フィルタ
       const noDiff = item.star == null
       const noTags = item.skillSubTaskTags.length === 0
@@ -550,9 +553,24 @@ export default function AdminPractice({
         const hay = `${item.title} ${item.composer ?? ""}`.toLowerCase()
         if (!hay.includes(lower)) return false
       }
+      // カテゴリ絞り込み
+      if (catFilter !== "all" && item.category !== catFilter) return false
       return true
     })
-  }, [items, filterMode, searchText])
+    const catOrder = (c: string) => {
+      const i = [...PRACTICE_CATEGORIES, "lesson", "score"].indexOf(c)
+      return i < 0 ? 999 : i
+    }
+    const sorted = [...list]
+    if (sortMode === "category") {
+      sorted.sort((a, b) => catOrder(a.category) - catOrder(b.category) || a.title.localeCompare(b.title, "ja"))
+    } else if (sortMode === "title") {
+      sorted.sort((a, b) => a.title.localeCompare(b.title, "ja"))
+    } else if (sortMode === "star") {
+      sorted.sort((a, b) => (a.star ?? 99) - (b.star ?? 99) || a.title.localeCompare(b.title, "ja"))
+    }
+    return sorted
+  }, [items, filterMode, searchText, catFilter, sortMode])
 
   const counts = useMemo(() => {
     const total = items.length
@@ -966,6 +984,42 @@ export default function AdminPractice({
             onChange={(e) => setSearchText(e.target.value)}
             className={styles.searchInput}
           />
+        </div>
+
+        {/* カテゴリ絞り込み + 並び替え (2026-08-25: 教材数が多いため) */}
+        <div className={styles.filterBar}>
+          <button
+            type="button"
+            className={`${styles.filterBtn} ${catFilter === "all" ? styles.filterBtnActive : ""}`}
+            onClick={() => setCatFilter("all")}
+          >
+            すべて <span className={styles.filterCount}>{items.length}</span>
+          </button>
+          {[...PRACTICE_CATEGORIES, "lesson", "score"].map((c) => {
+            const n = items.filter((it) => it.category === c).length
+            if (n === 0) return null
+            return (
+              <button
+                key={c}
+                type="button"
+                className={`${styles.filterBtn} ${catFilter === c ? styles.filterBtnActive : ""}`}
+                onClick={() => setCatFilter(c)}
+              >
+                {categoryLabels[c] ?? c} <span className={styles.filterCount}>{n}</span>
+              </button>
+            )
+          })}
+          <select
+            value={sortMode}
+            onChange={(e) => setSortMode(e.target.value as typeof sortMode)}
+            style={{ marginLeft: "auto" }}
+            title="並び替え"
+          >
+            <option value="category">カテゴリ順</option>
+            <option value="title">タイトル順</option>
+            <option value="star">★の低い順</option>
+            <option value="new">登録順</option>
+          </select>
         </div>
 
         <table className={styles.table}>
