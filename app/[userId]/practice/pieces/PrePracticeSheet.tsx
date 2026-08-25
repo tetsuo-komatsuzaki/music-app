@@ -78,7 +78,10 @@ export default function PrePracticeSheet({
   // 軸の値がラダーのどれとも噛み合わない教材があるため、最後に「先頭の変種」へ落とす
   // (2026-08-25: カイザーNo.10ほか9件が 奏法=slur の単独グループで variant=undefined になり、
   //  詳細画面へ遷移できず譜面も出ない状態だった。start() が黙って return していて気付けなかった)
-  const base = sameAxis.find((v) => !v.patternName) ?? byKey.get(diff) ?? group.variants[0]
+  // フォールバックは「どの軸の値にも教材が無い族」だけに効かせる (2026-08-25)。
+  // 常に variants[0] へ落とすと、準備中の奏法を選んでも別の教材へ遷移してしまう。
+  const base = sameAxis.find((v) => !v.patternName) ?? byKey.get(diff)
+    ?? (byKey.size === 0 ? group.variants[0] : undefined)
   const variant = (patternId ? sameAxis.find((v) => v.id === patternId) : base) ?? base
 
   // パート: 実体化されたパート教材 (2026-08-25 案B) があればそれを選ぶ。
@@ -227,7 +230,12 @@ export default function PrePracticeSheet({
 
         </div>
 
-        <button className={styles.cta} onClick={start} data-onboarding="prePractice.start">練習をはじめる</button>
+        {/* 準備中を選んでいるあいだは押せないようにする。押しても何も起きない状態を作らない。 */}
+        <button className={styles.cta} onClick={start} disabled={!variant}
+          style={!variant ? { opacity: .5, cursor: "not-allowed" } : undefined}
+          data-onboarding="prePractice.start">
+          {variant ? "練習をはじめる" : "この奏法はまだ準備中"}
+        </button>
 
         {/* シート自体が開いたときに出るガイド (z-index: シート1000 < マーク1901) */}
         <OnboardingTrigger pageKey="prePractice" />
