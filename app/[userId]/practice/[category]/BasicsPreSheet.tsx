@@ -19,11 +19,16 @@ export type BasicsVariant = {
   bestScore: number | null
   /** この変種の難易度⭐。上位★ロック判定に使う */
   star?: number | null
+  /** 教材名から取り出した軸の値 (族名_軸1_軸2 の 軸1以降) */
+  axisValues?: string[]
 }
+export type GroupAxis = { key: string; label: string; kind: "select" | "toggle"; values: string[] }
 export type BasicsFamily = {
   title: string
   coverImagePath: string | null
   variants: BasicsVariant[]
+  /** 族の軸。あるときは調/奏法のかわりにこのプルダウンを出す (2026-08-25) */
+  axes?: GroupAxis[] | null
   /** いま開いている★タブの難易度。これ以下の★のみ選択可、超過は「選択不可(⭐N)」表示 */
   baseStar?: number | null
 }
@@ -105,6 +110,27 @@ export default function BasicsPreSheet({
 
   const start = () => { if (variant) router.push(`/${userId}/practice/${category}/${variant.id}`) }
 
+  // ── 軸モード (2026-08-25): 族に axes があるときは、調/奏法ではなく軸で選ばせる。
+  // ボーイングなら「弦 × 指の形」、フィンガリングなら「指 × 開放弦から」。
+  // 値の一致は教材名から取り出した axisValues で判定する (族名_軸1_軸2)。
+  const axes = family.axes ?? null
+  const [axisSel, setAxisSel] = useState<string[]>(() =>
+    // 初期値は「実在する最初の教材」の軸値。無ければ軸の先頭。
+    (family.axes ?? []).map((ax, i) => selVariants[0]?.axisValues?.[i] || ax.values[0] || "基本"),
+  )
+  // 「基本」= 教材名に軸2が付いていない状態。空文字と読み替える。
+  // 例: A線を押さえる練習_2の指 は「開放弦から=基本」、_2の指_開放弦から は「開放弦から」。
+  const axVal = (v: BasicsVariant, i: number) => v.axisValues?.[i] || "基本"
+  const axisMatch = (v: BasicsVariant) =>
+    (axes ?? []).every((_, i) => axVal(v, i) === (axisSel[i] ?? ""))
+  const axisVariant = axes ? selVariants.find(axisMatch) ?? null : null
+  const axisHas = (i: number, val: string) =>
+    selVariants.some((v) =>
+      axVal(v, i) === val &&
+      (axes ?? []).every((_, k) => k === i || axVal(v, k) === (axisSel[k] ?? "")),
+    )
+  const startAxis = () => { if (axisVariant) router.push(`/${userId}/practice/${category}/${axisVariant.id}`) }
+
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
@@ -129,12 +155,39 @@ export default function BasicsPreSheet({
         </div>
 
         {/* 譜面プレビュー + お手本再生 (選択中の調変種で出し分け) */}
-        {variant && <SheetPreview key={variant.id} scoreId={variant.id} kind="practice" />}
+        {(axes ? axisVariant : variant) && <SheetPreview key={(axes ? axisVariant : variant)!.id} scoreId={(axes ? axisVariant : variant)!.id} kind="practice" />}
 
         {/* この練習に必要な技術 (未習得表示) */}
         {variant && <SheetSkills key={`sk-${variant.id}`} userId={userId} kind="practice" id={variant.id} />}
 
         {/* 調: 長調・短調を出し分けて常時表示。族に無い調はグレー */}
+        {/* 軸モード (2026-08-25): 族に軸があるときは、調/奏法ではなく軸で選ばせる。
+            存在しない組み合わせは選択不可にする (格子が埋まっていない族があるため)。 */}
+        {axes ? (
+          <>
+            {axes.map((ax, i) => (
+              <div key={ax.key}>
+                <div className={styles.slab}>{ax.label}を選ぶ</div>
+                <select
+                  className={styles.sheetSelect}
+                  value={axisSel[i] ?? ""}
+                  onChange={(e) => setAxisSel((prev) => prev.map((v, k) => (k === i ? e.target.value : v)))}
+                >
+                  {ax.values.map((val) => (
+                    <option key={val} value={val} disabled={!axisHas(i, val)}>
+                      {val}{axisHas(i, val) ? "" : " ・ 準備中"}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
+            <button className={styles.cta} onClick={startAxis} disabled={!axisVariant}
+              style={!axisVariant ? { opacity: .5, cursor: "not-allowed" } : undefined}>
+              {axisVariant ? "練習をはじめる" : "この組み合わせはまだ準備中"}
+            </button>
+          </>
+        ) : (
+          <>
         <div className={styles.slab}>調を選ぶ</div>
         <select
           className={styles.sheetSelect}
@@ -177,6 +230,8 @@ export default function BasicsPreSheet({
         </select>
 
         <button className={styles.cta} onClick={start}>練習をはじめる</button>
+          </>
+        )}
       </div>
     </div>
   )

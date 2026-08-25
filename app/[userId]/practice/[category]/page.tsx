@@ -28,6 +28,8 @@ export async function generateMetadata({
   return { title: categoryTitles[category] ?? "練習" }
 }
 
+type GroupAxis = { key: string; label: string; kind: "select" | "toggle"; values: string[] }
+
 const normalizeCat = (c: string): PracticeCategoryId => {
   if (c === "scales") return "scale"
   if (c === "arpeggios") return "arpeggio"
@@ -82,7 +84,7 @@ export default async function CategoryPage({
             include: { featureTag: { select: { name: true, category: true } } },
           },
           // 族(グループ) 情報 = 音階/アルペジオの調シート用 (Phase C-basics)
-          group: { select: { id: true, title: true, parts: true } },
+          group: { select: { id: true, title: true, parts: true, axes: true } },
         },
       }),
       prisma.practiceItem.findMany({
@@ -163,6 +165,11 @@ export default async function CategoryPage({
       // 族(グループ) = 音階/アルペジオの調シート用
       groupId: item.groupId,
       groupTitle: item.group?.title ?? null,
+      // 族の軸 (2026-08-25): 練習前シートのプルダウンを組み立てる定義。
+      // [{ key, label, kind, values }] 最大2軸。null = 軸なし。
+      groupAxes: (item.group?.axes as GroupAxis[] | null) ?? null,
+      // 教材名から軸の値を取り出す。命名規則は 族名_軸1_軸2 (backfillで統一済み)。
+      axisValues: item.title.split("_").slice(1),
       // パートはグループ単位 / パターン名はリズム・奏法レシピから (2026-08-25)
       groupParts: parseParts(item.group?.parts ?? []),
       patternName: ((item.rhythmRecipe as { name?: string } | null)?.name)

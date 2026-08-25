@@ -29,6 +29,10 @@ type PracticeItemDTO = {
   groupId?: string | null
   /** パート定義 (グループ単位・2026-08-25) */
   groupParts?: { id: string; name: string; startMeasure: number; endMeasure: number }[]
+  /** 族の軸。練習前シートのプルダウンになる (2026-08-25) */
+  groupAxes?: { key: string; label: string; kind: "select" | "toggle"; values: string[] }[] | null
+  /** 教材名から取り出した軸の値。族名_軸1_軸2 の 軸1以降 */
+  axisValues?: string[]
   /** 個別パターン名 (奏法・リズムレシピで付けた名前) */
   patternName?: string | null
   /** 実体化されたパート教材 (2026-08-25 案B) */
@@ -396,6 +400,9 @@ function FamilyView({
             title: sheet.title,
             coverImagePath: sheet.cover,
             baseStar,
+            // 族の軸 (2026-08-25)。ボーイング/フィンガリングは 弦・指の形・音符の長さ で分かれる。
+            // 軸があるときはシートが調/奏法のかわりに軸のプルダウンを出す。
+            axes: siblings.find((it) => it.groupAxes)?.groupAxes ?? null,
             variants: siblings.map((it) => ({
               id: it.id,
               keyTonic: it.keyTonic,
@@ -403,6 +410,7 @@ function FamilyView({
               articulation: it.articulation ?? null,
               bestScore: it.bestScore ?? null,
               star: it.star ?? null,
+              axisValues: it.axisValues ?? [],
             })),
           }}
           onClose={() => setSheet(null)}
