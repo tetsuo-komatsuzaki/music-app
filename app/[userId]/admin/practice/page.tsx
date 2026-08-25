@@ -71,7 +71,7 @@ export default async function AdminPracticePage({
   const groupsRaw = await prisma.materialGroup.findMany({
     orderBy: [{ category: "asc" }, { title: "asc" }],
     select: {
-      id: true, category: true, title: true, composer: true,
+      id: true, category: true, title: true, composer: true, axes: true,
       _count: { select: { scores: true, practiceItems: true } },
     },
   })
@@ -79,6 +79,8 @@ export default async function AdminPracticePage({
     id: g.id,
     category: g.category,
     title: g.title,
+    // 族の軸 (2026-08-25)。既存グループに追加するとき、軸の値を選ばせる
+    axes: (g.axes as { key: string; label: string; kind: string; values: string[] }[] | null) ?? null,
     composer: g.composer,
     variantCount: g._count.scores + g._count.practiceItems,
   }))

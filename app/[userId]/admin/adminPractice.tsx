@@ -66,12 +66,15 @@ type ItemDTO = {
   techniques: { id: string; name: string; isPrimary: boolean }[]
 }
 
+type GroupAxis = { key: string; label: string; kind: string; values: string[] }
 type GroupOption = {
   id: string
   category: string
   title: string
   composer: string | null
   variantCount: number
+  /** 族の軸 (2026-08-25)。既存グループに追加するとき、軸の値を選ばせる */
+  axes?: GroupAxis[] | null
 }
 
 type Props = {
@@ -160,6 +163,11 @@ export default function AdminPractice({
   // 教材グループ・変種 (Phase B): 既存グループに変種として追加するか
   const [groupMode, setGroupMode] = useState<"new" | "existing">("new")
   const [joinGroupId, setJoinGroupId] = useState("")
+  // 族の軸の値 (2026-08-25)。既存グループに追加するとき、その族の軸ぶんだけ選ばせる。
+  // 教材名は「族名_軸1_軸2」で自動生成するので、手打ちの表記ゆれが起きない。
+  const [axisVals, setAxisVals] = useState<string[]>([])
+  const joinedGroup = groups.find((g) => g.id === joinGroupId) ?? null
+  const joinedAxes = joinedGroup?.axes ?? null
   const [difficulty, setDifficulty] = useState("") // 曲/エチュード
   const [articulation, setArticulation] = useState("") // 基礎練
   const isScoreCategory = category === "score"
@@ -474,7 +482,14 @@ export default function AdminPractice({
     formData.set("star", difficultyInput) // v1.3 B-3: DB カラム & formData key 双方 star に統一
     formData.set("skillSubTaskTags", JSON.stringify(Array.from(selectedSubTasks)))
     // 教材グループ・変種 (Phase B): 既存グループに変種追加なら groupId、軸=difficulty/articulation
-    if (groupMode === "existing" && joinGroupId) formData.set("groupId", joinGroupId)
+    if (groupMode === "existing" && joinGroupId) {
+      formData.set("groupId", joinGroupId)
+      // 軸のある族は「族名_軸1_軸2」で教材名を組み立てる (表記ゆれを構造的に防ぐ)
+      if (joinedAxes && joinedAxes.length > 0 && joinedAxes.every((_, i) => axisVals[i])) {
+        const suffix = joinedAxes.map((_, i) => (axisVals[i] === "基本" ? "" : `_${axisVals[i]}`)).join("")
+        formData.set("title", `${joinedGroup?.title ?? ""}${suffix}`)
+      }
+    }
     if (usesDifficulty(category)) formData.set("difficulty", difficulty)
 
     // パート分け (曲のみ): 入力があれば JSON で送る。id は入力時に採番済み(固定)。
@@ -689,8 +704,29 @@ export default function AdminPractice({
                     ))}
                 </select>
               )}
+              {groupMode === "existing" && joinedAxes && joinedAxes.length > 0 && (
+                <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
+                  {joinedAxes.map((ax, i) => (
+                    <label key={ax.key} style={{ fontSize: "var(--fs-body)", display: "flex", flexDirection: "column", gap: 4 }}>
+                      <span style={{ fontWeight: 600 }}>{ax.label}</span>
+                      <select value={axisVals[i] ?? ""}
+                        onChange={(e) => setAxisVals((prev) => {
+                          const next = [...prev]; next[i] = e.target.value; return next
+                        })}>
+                        <option value="">選んでください</option>
+                        {ax.values.map((v) => <option key={v} value={v}>{v}</option>)}
+                      </select>
+                    </label>
+                  ))}
+                  <div className={styles.hint}>
+                    教材名は「{joinedGroup?.title}
+                    {joinedAxes.map((_, i) => `_${axisVals[i] || "…"}`).join("")}」になります。
+                  </div>
+                </div>
+              )}
               <div className={styles.hint}>
                 同じ曲/エクササイズの難易度・奏法違いは「既存グループに追加」で束ねます。
+                軸のある族は、軸を選ぶと教材名が自動で決まります。
               </div>
             </div>
 
