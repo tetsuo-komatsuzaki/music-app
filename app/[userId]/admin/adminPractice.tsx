@@ -36,6 +36,7 @@ import {
 import ScoreVariantDialog from "./ScoreVariantDialog"
 import ArticulationVariantDialog from "./ArticulationVariantDialog"
 import RhythmVariantDialog from "./RhythmVariantDialog"
+import PartsDialog from "./PartsDialog"
 import styles from "./admin.module.css"
 import { MOOD_TAG_DEFS, moodTagLabel } from "@/app/_libs/moodTags"
 
@@ -187,6 +188,7 @@ export default function AdminPractice({
   const [variantScoreId, setVariantScoreId] = useState<string | null>(null)
   const [artVariantItemId, setArtVariantItemId] = useState<string | null>(null)
   const [rhythmItemId, setRhythmItemId] = useState<string | null>(null)
+  const [partsTarget, setPartsTarget] = useState<{ id: string; kind: "practice" | "score" } | null>(null)
   // 削除中の id (二重実行防止 + ボタン無効化)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -1246,6 +1248,16 @@ export default function AdminPractice({
                             リズム
                           </button>
                         )}
+                        {item.buildStatus === "done" && (
+                          <button
+                            type="button"
+                            className={styles.secondaryBtn}
+                            onClick={() => setPartsTarget({ id: item.id, kind: item.type === "score" ? "score" : "practice" })}
+                            title="パートを設定する (何個でも追加できます)"
+                          >
+                            パート
+                          </button>
+                        )}
                         {/* 技法タグ編集モーダル (2026-07-14: Score専用→教材にも開放。
                             学びレッスン教材の自動抽出されない技法の後付け用) */}
                         <button
@@ -1378,6 +1390,9 @@ export default function AdminPractice({
       )}
       {rhythmItemId && (
         <RhythmVariantDialog itemId={rhythmItemId} onClose={() => setRhythmItemId(null)} />
+      )}
+      {partsTarget && (
+        <PartsDialog itemId={partsTarget.id} kind={partsTarget.kind} onClose={() => setPartsTarget(null)} />
       )}
     </div>
   )

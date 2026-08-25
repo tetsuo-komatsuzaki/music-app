@@ -27,6 +27,10 @@ type PracticeItemDTO = {
   intervals?: string[]
   /** 族(グループ)。音階/アルペジオの調シート用 (Phase C-basics) */
   groupId?: string | null
+  /** パート定義 (グループ単位・2026-08-25) */
+  groupParts?: { id: string; name: string; startMeasure: number; endMeasure: number }[]
+  /** 個別パターン名 (奏法・リズムレシピで付けた名前) */
+  patternName?: string | null
   groupTitle?: string | null
   articulation?: string | null
   /** 難易度 (エチュードシート用) */
@@ -481,7 +485,9 @@ function StarView({
               id: i.id, star: i.star,
               difficulty: i.difficulty ?? null,
               articulation: i.articulation ?? "legato",
-              sections: [], bestScore: i.bestScore ?? null,
+              patternName: i.patternName ?? null,
+              sections: i.groupParts ?? [],
+              bestScore: i.bestScore ?? null,
             })),
           }}
           onClose={() => setSongItem(null)}
