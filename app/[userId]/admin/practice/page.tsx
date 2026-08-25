@@ -33,6 +33,7 @@ export default async function AdminPracticePage({
         techniques: {
           include: { techniqueTag: { select: { id: true, name: true } } },
         },
+        group: { select: { id: true, title: true } },
       },
     }),
     // 削除済み (deletedAt != null) は除外
@@ -101,6 +102,9 @@ export default async function AdminPracticePage({
       id: item.id,
       category: item.category as string,
       title: item.title,
+      // 族でまとめて表示するため (2026-08-25 Tetsuo「数が多くて見にくい」)
+      groupId: item.groupId ?? null,
+      groupTitle: item.group?.title ?? null,
       composer: item.composer,
       keyTonic: item.keyTonic,
       keyMode: item.keyMode,

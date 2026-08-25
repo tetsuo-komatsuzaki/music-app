@@ -54,6 +54,7 @@ type ItemType = "practice" | "score"
 type ItemDTO = {
   type: ItemType
   id: string; category: string; title: string; composer: string | null
+  groupId?: string | null; groupTitle?: string | null
   keyTonic: string; keyMode: string
   tempoMin: number | null; tempoMax: number | null; positions: string[]
   isPublished: boolean; analysisStatus: string; buildStatus: string
@@ -135,6 +136,10 @@ export default function AdminPractice({
   const [selectedArts, setSelectedArts] = useState<Set<string>>(new Set(STANDARD_ARTICULATIONS.map((a) => a.id)))
   const [catFilter, setCatFilter] = useState<string>("all")
   const [sortMode, setSortMode] = useState<"category" | "title" | "star" | "new">("category")
+  // 族でまとめる (2026-08-25 Tetsuo「数が多くて見にくい」)。
+  // 824件を族の見出し行に畳み、開いたときだけ変種を出す。
+  const [groupedView, setGroupedView] = useState(true)
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set())
   const [searchText, setSearchText] = useState("")
 
   // フォーム state (新規登録用)
@@ -597,6 +602,28 @@ export default function AdminPractice({
     }
     return sorted
   }, [items, filterMode, searchText, catFilter, sortMode])
+  // 族の見出し + 開いている族の変種、という並びに組み替える。
+  // 族に属さない教材と、1件しかない族はそのまま1行で出す (畳む意味がないため)。
+  type Row = { kind: "family"; key: string; title: string; category: string; items: ItemDTO[] } | { kind: "item"; item: ItemDTO }
+  const displayRows: Row[] = useMemo(() => {
+    if (!groupedView) return filteredItems.map((item) => ({ kind: "item" as const, item }))
+    const order: string[] = []
+    const map = new Map<string, ItemDTO[]>()
+    for (const it of filteredItems) {
+      const k = it.groupId ?? `solo:${it.id}`
+      if (!map.has(k)) { map.set(k, []); order.push(k) }
+      map.get(k)!.push(it)
+    }
+    const out: Row[] = []
+    for (const k of order) {
+      const arr = map.get(k)!
+      if (arr.length === 1) { out.push({ kind: "item", item: arr[0] }); continue }
+      out.push({ kind: "family", key: k, title: arr[0].groupTitle ?? arr[0].title, category: arr[0].category, items: arr })
+      if (openGroups.has(k)) for (const it of arr) out.push({ kind: "item", item: it })
+    }
+    return out
+  }, [filteredItems, groupedView, openGroups])
+
 
   const counts = useMemo(() => {
     const total = items.length
@@ -968,6 +995,10 @@ export default function AdminPractice({
             className={styles.searchInput}
           />
         </div>
+            <label style={{ display: "inline-flex", alignItems: "center", gap: 6, marginLeft: 10, fontSize: "var(--fs-body)", fontWeight: 600, cursor: "pointer" }}>
+              <input type="checkbox" checked={groupedView} onChange={(e) => setGroupedView(e.target.checked)} />
+              族でまとめる
+            </label>
 
         {/* カテゴリ絞り込み + 並び替え (2026-08-25: 教材数が多いため) */}
         <div className={styles.filterBar}>
@@ -1019,7 +1050,28 @@ export default function AdminPractice({
             </tr>
           </thead>
           <tbody>
-            {filteredItems.map((item) => {
+            {displayRows.map((row) => {
+              if (row.kind === "family") {
+                const open = openGroups.has(row.key)
+                const pub = row.items.filter((x) => x.isPublished).length
+                return (
+                  <tr key={`fam-${row.key}`} style={{ cursor: "pointer", background: "rgba(43,91,196,.08)" }}
+                    onClick={() => setOpenGroups((prev) => {
+                      const next = new Set(prev)
+                      if (next.has(row.key)) next.delete(row.key); else next.add(row.key)
+                      return next
+                    })}>
+                    <td colSpan={8} style={{ fontWeight: 700 }}>
+                      <span style={{ display: "inline-block", width: 18 }}>{open ? "▾" : "▸"}</span>
+                      {row.title}
+                      <span style={{ marginLeft: 10, fontWeight: 500, color: "var(--text-sub)", fontSize: "var(--fs-body)" }}>
+                        {categoryLabels[row.category] ?? row.category} ・ 変種{row.items.length}件 ・ 公開{pub}件
+                      </span>
+                    </td>
+                  </tr>
+                )
+              }
+              const item = row.item
               const isEditing = editingId === item.id
               const noDiff = item.star == null
               const noTags = item.skillSubTaskTags.length === 0
