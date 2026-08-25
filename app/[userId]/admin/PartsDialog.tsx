@@ -4,6 +4,7 @@
 // 練習前シートの「パートを選ぶ」の選択肢として並ぶ。曲・エチュード共通。
 import { useEffect, useState } from "react"
 import { getPartsContext, updateMaterialParts, type PartInput } from "@/app/actions/updateMaterialParts"
+import { createPartVariants } from "@/app/actions/createPartVariant"
 
 type Ctx = Awaited<ReturnType<typeof getPartsContext>>
 
@@ -25,6 +26,17 @@ export default function PartsDialog({
   const add = () => setRows([...rows, { name: "", startMeasure: 1, endMeasure: 1 }])
   const patch = (i: number, v: Partial<PartInput>) => setRows(rows.map((r, k) => (k === i ? { ...r, ...v } : r)))
   const del = (i: number) => setRows(rows.filter((_, k) => k !== i))
+
+  // パートを独立した教材として実体化する (2026-08-25 案B)。
+  // 譜面・解析・採点・カルテのすべてがその範囲だけになる。
+  const materialize = async () => {
+    setBusy(true); setMsg(null)
+    const r = await createPartVariants({ sourceItemId: itemId, kind })
+    setBusy(false)
+    setMsg(r.ok
+      ? `${r.created}件のパート教材を作成しました${r.skipped > 0 ? ` (${r.skipped}件は作成済み)` : ""}。解析が終わると練習前シートで選べます。`
+      : r.error)
+  }
 
   const save = async () => {
     setBusy(true); setMsg(null)
@@ -87,6 +99,14 @@ export default function PartsDialog({
               <button type="button" disabled={busy} onClick={save}
                 style={{ padding: "8px 20px", borderRadius: 999, fontWeight: 800, border: "none", cursor: "pointer", background: "#2b5bc4", color: "#fff" }}>
                 {busy ? "保存中…" : "保存する"}
+              </button>
+              <button type="button" disabled={busy || rows.length === 0} onClick={materialize}
+                title="保存したパートを、その小節だけの教材として作ります"
+                style={{ padding: "8px 20px", borderRadius: 999, fontWeight: 800, border: "none",
+                  cursor: rows.length === 0 ? "not-allowed" : "pointer",
+                  background: rows.length === 0 ? "rgba(150,175,225,.2)" : "linear-gradient(180deg,#F0D48A,#D9A93C)",
+                  color: rows.length === 0 ? "var(--text-sub)" : "#0B1220" }}>
+                パート教材を作る
               </button>
               {msg && <span style={{ fontSize: "var(--fs-caption)" }}>{msg}</span>}
             </div>

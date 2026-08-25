@@ -9,8 +9,8 @@
   padding: 10px 24px; border-radius: 24px; font-size: var(--fs-subhead); font-weight: 500;
   animation: toastSlide 4s ease forwards; z-index: 10; white-space: nowrap;
 }
-.toastSuccess { background: #E1F5EE; color: var(--text-good); }
-.toastError { background: #FCEBEB; color: var(--text-error); }
+.toastSuccess { background: rgba(46,125,91,.2); color: var(--text-good); }
+.toastError { background: rgba(196,68,68,.18); color: var(--text-error); }
 @keyframes toastSlide {
   0%   { opacity: 0; transform: translateX(-50%) translateY(-16px); }
   10%  { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -24,13 +24,13 @@
 .quotaLine { font-size: var(--fs-caption); color: var(--text-muted); letter-spacing: 0.02em; }
 .mainCta {
   display: flex; align-items: center; gap: 10px;
-  padding: 16px 36px; background: #fff;
+  padding: 16px 36px; background: var(--card-in);
   border: 2px solid #E24B4A; border-radius: 36px;
   color: var(--text-error); font-size: var(--fs-head); font-weight: 500; cursor: pointer;
   transition: all 0.15s;
   animation: ctaPulse 2.4s ease-in-out infinite;
 }
-.mainCta:hover { background: #FFF5F5; transform: scale(1.03); animation: none; }
+.mainCta:hover { background: rgba(226,75,74,.14); transform: scale(1.03); animation: none; }
 .mainCta:disabled { opacity: 0.4; cursor: not-allowed; transform: none; animation: none; }
 /* Animation 1: CTA breathing pulse */
 @keyframes ctaPulse {
@@ -44,12 +44,12 @@
 /* ② 録音中 */
 .recordingPanel {
   display: flex; flex-direction: column; align-items: center; gap: 12px;
-  padding: 24px 32px; background: #FFF5F5; border-radius: 20px;
+  padding: 24px 32px; background: rgba(226,75,74,.14); border-radius: 20px;
   border: 1.5px solid #E24B4A; min-width: 300px;
 }
 .recordingTitle { font-size: var(--fs-subhead); font-weight: 500; color: var(--text-ink); }
 .meterContainer { width: 100%; }
-.meterTrack { height: 10px; background: #fce4ec; border-radius: 5px; overflow: hidden; }
+.meterTrack { height: 10px; background: rgba(196,68,68,.2); border-radius: 5px; overflow: hidden; }
 .meterFill { height: 100%; background: #E24B4A; border-radius: 5px; transition: width 0.08s ease-out; }
 /* Animation 2: hint fade-in on change */
 .realtimeHint { font-size: var(--fs-body); color: var(--text-body); min-height: 20px; animation: hintFade 0.3s ease; }
@@ -92,15 +92,15 @@
   font-size: var(--fs-subhead); color: var(--text-muted); font-weight: 500;
 }
 .cancelBtn {
-  padding: 8px 20px; background: #fff; border: 1px solid #ddd;
+  padding: 8px 20px; background: var(--card-in); border: 1px solid var(--line);
   border-radius: 20px; color: var(--text-sub); font-size: var(--fs-body); cursor: pointer;
 }
-.cancelBtn:hover { background: #f5f5f5; }
+.cancelBtn:hover { background: rgba(150,175,225,.08); }
 
 /* ③ プレビュー */
 .previewPanel {
   display: flex; flex-direction: column; align-items: center; gap: 14px;
-  padding: 24px 32px; background: #f8f9fa; border-radius: 20px;
+  padding: 24px 32px; background: var(--card-b); border-radius: 20px;
   border: 0.5px solid #e0e0e0; min-width: 300px;
 }
 .audioPlayer { width: 100%; max-width: 340px; }
@@ -108,24 +108,24 @@
 /* 品質チェック表示 */
 .qualityOk {
   font-size: var(--fs-subhead); font-weight: 500; color: var(--text-good);
-  padding: 8px 16px; background: #E1F5EE; border-radius: 12px;
+  padding: 8px 16px; background: rgba(46,125,91,.2); border-radius: 12px;
   width: 100%; text-align: center;
 }
 .qualityClipping {
   font-size: var(--fs-subhead); font-weight: 500; color: var(--text-master);
-  padding: 8px 16px; background: #FAEEDA; border-radius: 12px;
+  padding: 8px 16px; background: rgba(217,169,60,.18); border-radius: 12px;
   width: 100%; text-align: center;
 }
 .qualitySilent {
   font-size: var(--fs-subhead); font-weight: 500; color: var(--text-error);
-  padding: 8px 16px; background: #FCEBEB; border-radius: 12px;
+  padding: 8px 16px; background: rgba(196,68,68,.18); border-radius: 12px;
   width: 100%; text-align: center;
 }
 
 /* 波形キャンバス */
 .waveformCanvas {
   width: 100%; max-width: 320px; height: 60px;
-  border-radius: 8px; border: 1px solid #e0e0e0;
+  border-radius: 8px; border: 1px solid var(--line);
 }
 
 /* 録音時間 */
@@ -135,15 +135,15 @@
 
 .previewActions { display: flex; gap: 10px; }
 .retryBtn {
-  padding: 10px 20px; background: #fff; border: 1.5px solid #888;
+  padding: 10px 20px; background: var(--card-in); border: 1.5px solid #888;
   border-radius: 24px; color: var(--text-body); font-size: var(--fs-subhead); font-weight: 500; cursor: pointer;
 }
-.retryBtn:hover { background: #f5f5f5; }
+.retryBtn:hover { background: rgba(150,175,225,.08); }
 .submitBtn {
-  padding: 10px 24px; background: #1D9E75; border: none;
+  padding: 10px 24px; background: #8FD3B0; border: none;
   border-radius: 24px; color: var(--text-on-accent); font-size: var(--fs-subhead); font-weight: 500; cursor: pointer;
 }
-.submitBtn:hover { background: #0F6E56; }
+.submitBtn:hover { background: #8FD3B0; }
 
 /* ④ 解析中 */
 .uploadingPanel {
@@ -151,7 +151,7 @@
   padding: 16px 28px; color: var(--text-body); font-size: var(--fs-subhead);
 }
 .spinner {
-  width: 20px; height: 20px; border: 2.5px solid #ddd; border-top-color: #4a90d9;
+  width: 20px; height: 20px; border: 2.5px solid var(--line); border-top-color: #7FA4E8;
   border-radius: 50%; animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -160,7 +160,7 @@
 /* Animation 3: result panel entrance */
 .resultPanel {
   display: flex; flex-direction: column; align-items: center; gap: 14px;
-  padding: 24px 32px; background: #f8f9fa; border-radius: 20px;
+  padding: 24px 32px; background: var(--card-b); border-radius: 20px;
   border: 0.5px solid #e0e0e0; min-width: 300px;
   animation: resultReveal 0.4s cubic-bezier(0.22,1,0.36,1);
 }
@@ -170,7 +170,7 @@
 }
 .personalBest {
   font-size: var(--fs-subhead); font-weight: 500; color: var(--text-good);
-  padding: 6px 20px; background: #E1F5EE; border-radius: 20px;
+  padding: 6px 20px; background: rgba(46,125,91,.2); border-radius: 20px;
   animation: personalBestPop 0.5s 0.1s cubic-bezier(0.34,1.56,0.64,1) both;
 }
 @keyframes personalBestPop {
@@ -257,7 +257,7 @@
   display: flex;
   gap: 10px;
   padding: 12px 16px;
-  background: #f8f9fa;
+  background: var(--card-b);
   border-radius: 12px;
   border-left: 3px solid #378ADD;
   width: 100%;
@@ -286,18 +286,18 @@
 }
 .retryBtnStrong:hover { background: #C62828; }
 .doneBtn {
-  padding: 12px 20px; background: #fff; border: 1px solid #ddd;
+  padding: 12px 20px; background: var(--card-in); border: 1px solid var(--line);
   border-radius: 28px; color: var(--text-body); font-size: var(--fs-subhead); cursor: pointer;
   opacity: 0.6;
 }
-.doneBtn:hover { opacity: 1; background: #f5f5f5; }
+.doneBtn:hover { opacity: 1; background: rgba(150,175,225,.08); }
 
 /* Phase 4-1: 上達ループタブへの導線 */
 .loopLinkBtn {
   width: 100%;
   padding: 10px 14px;
-  background: #eaf3ff;
-  border: 1px solid #5a7fdf;
+  background: rgba(43,91,196,.18);
+  border: 1px solid rgba(127,164,232,.5);
   border-radius: 10px;
   color: var(--text-link);
   font-size: var(--fs-body);
@@ -307,7 +307,7 @@
   transition: background 0.15s, color 0.15s;
 }
 .loopLinkBtn:hover {
-  background: #5a7fdf;
+  background: rgba(127,164,232,.5);
   color: var(--text-on-accent);
 }
 

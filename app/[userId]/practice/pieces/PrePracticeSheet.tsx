@@ -21,6 +21,9 @@ export type SheetVariant = {
   articulation?: string | null
   /** 個別パターン名 (音符ごとの奏法・リズムを作ったときに付けた名前)。null=標準 */
   patternName?: string | null
+  /** 実体化されたパート教材 (2026-08-25 案B)。null=通し */
+  partId?: string | null
+  partName?: string | null
   sections: SheetSection[]
   bestScore: number | null
 }
@@ -68,19 +71,29 @@ export default function PrePracticeSheet({
   const sameAxis = group.variants.filter(
     (v) => (byArt ? (v.articulation ?? "legato") : (v.difficulty ?? "BEGINNER")) === diff,
   )
-  const patterns = sameAxis.filter((v) => v.patternName)
+  // パターン軸には「第1軸に載らなかったもの」だけを出す。
+  // 単一奏法のパターンは奏法軸 (第1軸) に載るので、ここには重複させない (2026-08-25)。
+  const patterns = sameAxis.filter((v) => v.patternName && (byArt ? !v.articulation : true))
   const [patternId, setPatternId] = useState<string>("")
   const base = sameAxis.find((v) => !v.patternName) ?? byKey.get(diff)
   const variant = (patternId ? sameAxis.find((v) => v.id === patternId) : base) ?? base
 
+  // パート: 実体化されたパート教材 (2026-08-25 案B) があればそれを選ぶ。
+  // 選ぶと譜面・録音・採点・カルテのすべてがその範囲だけの教材に切り替わる。
+  const partVariants = group.variants.filter((v) => v.partId)
   const sections = variant?.sections ?? []
-  const [rangeIdx, setRangeIdx] = useState(-1) // -1 = 全部演奏する
+  const [rangeIdx, setRangeIdx] = useState(-1) // -1 = 全部演奏する (実体が無いときの旧経路)
+  const [partPick, setPartPick] = useState("")  // 実体化済みパート教材のid
 
   const start = () => {
     if (!variant) return
+    // 実体化済みのパート教材が選ばれていれば、そのまま教材ごと切り替える (案B)
+    if (partPick) {
+      router.push(`/${userId}${basePath}/${partPick}`)
+      return
+    }
     const q = new URLSearchParams()
-    // パートは詳細画面のパート練習UIで初期選択させる (?part=<id>)。
-    // 旧実装は ?from/?to を送っていたが受け取り側が未実装だった (2026-08-25 修正)。
+    // 実体が無い場合の従来経路: 詳細画面のパート練習UIで初期選択させる
     if (rangeIdx >= 0 && sections[rangeIdx]?.id) {
       q.set("part", String(sections[rangeIdx].id))
     }
@@ -165,23 +178,39 @@ export default function PrePracticeSheet({
 
         {/* パート: 全部演奏する(現行スコア) + 分割は教材が入れば有効 */}
         <div className={styles.slab}>パートを選ぶ</div>
-        <select
-          className={styles.sheetSelect}
-          value={rangeIdx}
-          onChange={(e) => setRangeIdx(Number(e.target.value))}
-          disabled={sections.length === 0}
-        >
-          <option value={-1}>全部演奏する</option>
-          {sections.length > 0 ? (
-            sections.map((s, i) => (
-              <option key={i} value={i}>
-                {s.name} ・ {s.startMeasure}〜{s.endMeasure}小節
+        {partVariants.length > 0 ? (
+          // 実体化済み: その小節だけの教材へ切り替える
+          <select
+            className={styles.sheetSelect}
+            value={partPick}
+            onChange={(e) => setPartPick(e.target.value)}
+          >
+            <option value="">全部演奏する</option>
+            {partVariants.map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.partName ?? "パート"}{v.bestScore != null ? ` ・ ベスト ${v.bestScore}` : ""}
               </option>
-            ))
-          ) : (
-            <option disabled value="soon">パート別に練習 ・ 準備中</option>
-          )}
-        </select>
+            ))}
+          </select>
+        ) : (
+          <select
+            className={styles.sheetSelect}
+            value={rangeIdx}
+            onChange={(e) => setRangeIdx(Number(e.target.value))}
+            disabled={sections.length === 0}
+          >
+            <option value={-1}>全部演奏する</option>
+            {sections.length > 0 ? (
+              sections.map((s, i) => (
+                <option key={i} value={i}>
+                  {s.name} ・ {s.startMeasure}〜{s.endMeasure}小節
+                </option>
+              ))
+            ) : (
+              <option disabled value="soon">パート別に練習 ・ 準備中</option>
+            )}
+          </select>
+        )}
 
         </div>
 

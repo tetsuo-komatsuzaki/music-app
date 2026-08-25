@@ -162,6 +162,10 @@ export default async function CategoryPage({
       patternName: ((item.rhythmRecipe as { name?: string } | null)?.name)
         ?? ((item.articulationRecipe as { name?: string } | null)?.name)
         ?? null,
+      partId: item.partId ?? null,
+      partName: item.partId
+        ? (parseParts(item.group?.parts ?? []).find((p) => p.id === item.partId)?.name ?? "パート")
+        : null,
       articulation: item.articulation,
       difficulty: item.difficulty,
       descriptionShort: item.descriptionShort,

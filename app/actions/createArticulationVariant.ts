@@ -13,6 +13,11 @@ import { prisma } from "@/app/_libs/prisma"
 import { requireAdminAction } from "@/app/_libs/requireAuth"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 
+// 音符に割り当てられる奏法 ("" = なし)。登録先の妥当性チェックにも使う。
+const ARTS = new Set([
+  "", "legato", "staccato", "spiccato", "martele", "portato", "tenuto", "accent", "tremolo",
+])
+
 const ARTICULATIONS = new Set([
   "legato", "staccato", "spiccato", "martele", "portato", "tenuto", "tremolo", "accent",
 ])
@@ -25,6 +30,8 @@ export async function createArticulationVariant(input: {
   unitMeasures: number             // 繰り返し単位 (小節数)。0=譜面全体で1回 → 大きい値で近似
   assignments: PerNoteAssignment[] // 単位内の音符への割り当て
   applyAllKeys: boolean            // true=グループの全調に適用 / false=元の調のみ
+  /** 登録先 (2026-08-25): 既存の奏法id を選ぶとその奏法として登録。空=新しい項目として name で追加 */
+  registerAs?: string
   /** 対象外の小節 (2026-08-25 ・ リズムパターンと同じ仕様) */
   skipHead?: number
   skipTail?: number
@@ -103,6 +110,13 @@ export async function createArticulationVariant(input: {
     sourceItemId: source.id,
   }
 
+  // 登録先は作る人が決める (2026-08-25 Tetsuo確定)。
+  //   registerAs = "staccato" 等 → 「奏法を選ぶ」のその項目として登録 (準備中が埋まる)
+  //   registerAs = "" (新しい項目) → 「パターンを選ぶ」に name で追加
+  const singleArt = input.registerAs && ARTS.has(input.registerAs) && input.registerAs !== ""
+    ? input.registerAs
+    : null
+
   let created = 0
   for (const rep of reps) {
     // 代表の metadata から transposeSource を引き継ぎ、articulationPattern を per_note に差し替え
@@ -135,6 +149,7 @@ export async function createArticulationVariant(input: {
         skillSubTaskTags: (rep.skillSubTaskTags ?? source.skillSubTaskTags ?? []) as Prisma.InputJsonValue,
         groupId: source.groupId,
         metadata: metadata as Prisma.InputJsonValue,
+        articulation: singleArt,   // 単一奏法なら奏法軸に載る (null=パターン軸)
         articulationRecipe: recipe as unknown as Prisma.InputJsonValue,
       },
     })

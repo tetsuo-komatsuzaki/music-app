@@ -30,6 +30,8 @@ export default function ArticulationVariantDialog({ itemId, onClose }: { itemId:
   const [assigns, setAssigns] = useState<Map<number, string>>(new Map())
   const [brush, setBrush] = useState("staccato") // いま選んでいる奏法 (タップで塗る)
   const [name, setName] = useState("")
+  // 登録先 (2026-08-25): 既存の奏法を選ぶとその項目に入る / "" = 新しい項目
+  const [registerAs, setRegisterAs] = useState("")
   const [applyAll, setApplyAll] = useState(true)
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
@@ -74,7 +76,7 @@ export default function ArticulationVariantDialog({ itemId, onClose }: { itemId:
     const assignments: PerNoteAssignment[] = [...assigns.entries()].map(([noteIndex, articulation]) => ({ noteIndex, articulation }))
     const r = await createArticulationVariant({
       sourceItemId: itemId, name, unitMeasures: unit <= 0 ? 9999 : unit, assignments, applyAllKeys: applyAll,
-      skipHead, skipTail, skipMeasures: [...skipMeasures],
+      skipHead, skipTail, skipMeasures: [...skipMeasures], registerAs,
     })
     setBusy(false)
     if (r.ok) {
@@ -206,9 +208,24 @@ export default function ArticulationVariantDialog({ itemId, onClose }: { itemId:
               })}
             </div>
 
-            <div style={S.label}>④ 名前を付けて作成</div>
+            <div style={S.label}>④ どこに登録するか</div>
+            <select value={registerAs} onChange={(e) => setRegisterAs(e.target.value)}
+              style={{ width: "100%", padding: "8px 10px" }}>
+              <option value="">新しい項目として追加する</option>
+              {ARTS.map((a) => (
+                <option key={a.id} value={a.id}>{a.label} に登録する</option>
+              ))}
+            </select>
+            <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", margin: "5px 0 0" }}>
+              {registerAs
+                ? `練習前の「奏法を選ぶ」の ${ARTS.find((a) => a.id === registerAs)?.label} が、この内容になります。`
+                : "練習前の「パターンを選ぶ」に、下の名前で追加されます。"}
+            </p>
+
+            <div style={S.label}>{registerAs ? "名前 (一覧の表示用)" : "項目名"}</div>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-              placeholder="例: 前半スラー ・ 後半スタッカート" style={{ width: "100%", padding: "8px 10px" }} />
+              placeholder={registerAs ? "例: スタッカート" : "例: 前半スラー ・ 後半スタッカート"}
+              style={{ width: "100%", padding: "8px 10px" }} />
             {/* エチュードは調のパターンを作らない (2026-08-24 確定) ため適用先を出さない */}
             {ctx.category !== "etude" && (
               <div style={{ ...S.row, marginTop: 8 }}>
@@ -226,7 +243,7 @@ export default function ArticulationVariantDialog({ itemId, onClose }: { itemId:
               {msg && <span style={{ fontSize: "var(--fs-caption)" }}>{msg}</span>}
             </div>
             <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 6 }}>
-              付けた名前が、練習前の「パターンを選ぶ」に並びます。
+              作ったものは、通常のアップロードと同じ形式の教材として保存されます。
             </p>
           </>
         )}

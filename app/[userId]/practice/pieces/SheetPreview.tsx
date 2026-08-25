@@ -116,9 +116,16 @@ await osmd.load(data.buildUrl)
         const osmd = new OpenSheetMusicDisplay(fsRef.current, {
           autoResize: true, drawTitle: false, drawPartNames: false,
         })
+        // 記号の重なり対策 (2026-08-25 Tetsuo指摘): 3連符の数字・スラー・弦番号・運指が
+        // 等倍だと衝突するため、縮小して余白を稼ぎ、記号の縦位置も広げる。
+        osmd.EngravingRules.FingeringPositionFromXML = false
+        osmd.EngravingRules.FingeringOffsetY = -6
+        osmd.EngravingRules.TupletNumberYOffset = 3
+        osmd.EngravingRules.SlurNoteHeadYOffset = 2
+        osmd.EngravingRules.MinimumDistanceBetweenSystems = 12
         await osmd.load(buildUrlRef.current!)
         if (cancelled) return
-        osmd.zoom = 1.0
+        osmd.zoom = 0.7
         osmd.render()
       } catch { /* noop */ }
     })()
