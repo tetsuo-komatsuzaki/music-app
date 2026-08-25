@@ -154,7 +154,9 @@ export default function PrePracticeSheet({
         {/* 曲の難易度軸は廃止 (2026-08-25 Tetsuo確定)。
             初級・中級・上級それぞれのスコアを用意するのが現実的でないため、
             曲では軸のセレクタを出さない。エチュード等の奏法軸はそのまま残す。 */}
-        {byArt && byKey.size > 1 && <>
+        {byArt && <>
+        {/* 選択肢が1つでも隠さない (2026-08-25 Tetsuo「案c」)。
+            まだ作っていない奏法も「準備中」として見せることで、何を作るべきかが分かる。 */}
         <div className={styles.slab}>奏法を選ぶ</div>
         <select
           className={styles.sheetSelect}
@@ -174,14 +176,6 @@ export default function PrePracticeSheet({
           })}
         </select>
         </>}
-        {/* 選択肢が1つしか無い族ではプルダウンを出さない (2026-08-25 Tetsuo「案a」)。
-            エチュード36グループが1件のみで、7つ並んで6つが「準備中」という画面になっていた。
-            制作状況は管理画面で見るものなので、利用者には出さず、奏法名だけ静かに添える。 */}
-        {byArt && byKey.size === 1 && variant?.articulation && (
-          <div className={styles.slab}>
-            {options.find((o) => o.id === variant.articulation)?.label ?? "奏法"}
-          </div>
-        )}
 
         {/* パターン (2026-08-25): 音符ごとの奏法・リズムで作った個別パターン。
             管理画面で名前を付けて作ると、ここに選択肢として並ぶ。 */}
