@@ -142,9 +142,13 @@ export default function PrePracticeSheet({
           </div>
         )}
 
-        {/* 難易度・パート: 画面ガイドはこの2つをまとめて指す */}
+        {/* 奏法・パート: 画面ガイドはこの2つをまとめて指す */}
         <div data-onboarding="prePractice.choose">
-        <div className={styles.slab}>{byArt ? "奏法を選ぶ" : "難易度を選ぶ"}</div>
+        {/* 曲の難易度軸は廃止 (2026-08-25 Tetsuo確定)。
+            初級・中級・上級それぞれのスコアを用意するのが現実的でないため、
+            曲では軸のセレクタを出さない。エチュード等の奏法軸はそのまま残す。 */}
+        {byArt && <>
+        <div className={styles.slab}>奏法を選ぶ</div>
         <select
           className={styles.sheetSelect}
           value={diff}
@@ -162,6 +166,7 @@ export default function PrePracticeSheet({
             )
           })}
         </select>
+        </>}
 
         {/* パターン (2026-08-25): 音符ごとの奏法・リズムで作った個別パターン。
             管理画面で名前を付けて作ると、ここに選択肢として並ぶ。 */}
@@ -205,6 +210,7 @@ export default function PrePracticeSheet({
             value={rangeIdx}
             onChange={(e) => setRangeIdx(Number(e.target.value))}
             disabled={sections.length === 0}
+            title={sections.length === 0 ? "管理画面でパートを登録すると選べます" : undefined}
           >
             <option value={-1}>全部演奏する</option>
             {sections.length > 0 ? (
@@ -214,7 +220,7 @@ export default function PrePracticeSheet({
                 </option>
               ))
             ) : (
-              <option disabled value="soon">パート別に練習 ・ 準備中</option>
+              <option disabled value="soon">パートはまだ登録されていません</option>
             )}
           </select>
         )}
