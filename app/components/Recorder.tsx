@@ -5,7 +5,6 @@ import styles from "./Recorder.module.css"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { canShowBillingEntryPoint } from "@/app/_libs/isNativeApp"
-import { diagReset, diagClick, diagSummary } from "@/app/_libs/recDiag"
 import {
   addInterruptionListener,
   addLevelListener,
@@ -415,7 +414,6 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       gain.connect(ctx.destination)
       osc.start(ctx.currentTime)
       osc.stop(ctx.currentTime + 0.02)
-      diagClick(performance.now())
     } catch { /* ignore */ }
   }, [])
 
@@ -479,8 +477,6 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
       audioCtxRef.current = new AudioContext()
     }
-
-    diagReset(60000 / effectiveBpm)
 
     // 3. カウントダウンの前に準備を済ませる (横固定 + 譜面の組み直し)。
     //    Web版・プラグイン不在では即座に返るので待ち時間は増えない。
@@ -1007,17 +1003,6 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       {/* ④ プレビュー（品質チェック付き） */}
       {status === "preview" && (
         <div className={styles.previewPanel}>
-          {/* 一時装備 (2026-08-26): 録音中のテンポガイドの引っかかりを実機で数字にする。
-              原因が確定したら recDiag ごと削除する。 */}
-          {diagSummary() && (
-            <div style={{
-              fontSize: 10, lineHeight: 1.5, color: "var(--text-muted)",
-              border: "1px solid var(--line)", borderRadius: 8,
-              padding: "6px 8px", marginBottom: 8, wordBreak: "break-all",
-            }}>
-              診断 ・ {diagSummary()}
-            </div>
-          )}
           {/* 品質チェック結果 */}
           {qualityResult && (
             <div className={
