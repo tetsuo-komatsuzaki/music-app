@@ -711,6 +711,7 @@ function ScoreViewer({
   expandMode,
   onToggleExpand,
   bandMode,
+  onBandReady,
 }: {
   buildUrl: string | null
   onNoteElementsReady: (elements: Element[]) => void
@@ -724,6 +725,8 @@ function ScoreViewer({
   onToggleExpand?: () => void
   /** 9a帯モード: 録音中のみ折り返し無しの1本帯で描画 (横画面録音モード) */
   bandMode?: boolean
+  /** 帯モードの描画が完了した合図。カウントダウン開始を待たせるために使う (2026-08-26) */
+  onBandReady?: () => void
 }) {
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
@@ -751,6 +754,8 @@ function ScoreViewer({
   onNoteElementsReadyRef.current = onNoteElementsReady
   const onOsmdReadyRef = useRef(onOsmdReady)
   onOsmdReadyRef.current = onOsmdReady
+  const onBandReadyRef = useRef(onBandReady)
+  onBandReadyRef.current = onBandReady
 
   useEffect(() => {
     if (!buildUrl) return
@@ -760,7 +765,12 @@ function ScoreViewer({
     setError(null)
 
     const osmd = new OpenSheetMusicDisplay(container, {
-      autoResize: true,
+      // 2026-08-26: 帯モード中は OSMD 自身のリサイズ再描画を止める。
+      // アプリ側の handleResize が applyBandZoom を呼ぶため二重に走り、録音中の
+      // 再描画でテンポガイドが固まる原因になっていた。
+      // (OSMD 1.9 の resize ハンドラは先頭で AutoResizeEnabled を見ることを実装で確認済み。
+      //  リポジトリの旧コメント「ハンドラ内で参照されない」は、このバージョンには当たらない)
+      autoResize: !bandMode,
       backend: "svg",
       // 1行1小節問題の対処 (2026-08-16): 音符密度の高い曲で行に1小節しか入らない事象を
       // コンパクト描画で解消。実曲6曲の実測で「1小節行」20→1に激減・音符サイズは不変
@@ -826,6 +836,8 @@ function ScoreViewer({
         setCurrentPage(0)
         showPage(container, 0)
         collectElements()
+        // 帯モードの組み直しが終わった合図。呼び出し側はこれを待ってカウントダウンを始める
+        if (bandMode) onBandReadyRef.current?.()
 
         // 初回 render() 完了後に監視開始（render()中の変化は拾わない）
         mutationObserver.observe(container, { childList: true })
@@ -1282,25 +1294,98 @@ function ScoreDetailInner({
   // 失敗・プラグイン不在・Web版は縦のまま (フォールバック)。解除は effect クリーンアップ
   // (recordingState離脱・アンマウント) + pagehide の全経路で冪等に行う。
   const [nativeBandOk, setNativeBandOk] = useState(false)
-  useEffect(() => {
-    if (!isFullscreen) return
-    let alive = true
-    void lockLandscape().then((ok) => {
-      if (alive) setNativeBandOk(ok)
+  // 2026-08-26: 帯モードの組み直しを「カウントダウンより前」に終わらせるための橋渡し。
+  // 以前は onCountdownStart で isFullscreen→lockLandscape→帯モード→OSMD作り直し という
+  // 順序だったため、4拍のカウントの最中に楽譜の再取得と再描画が2〜4回走り、
+  // テンポガイドの青線が固まって飛ぶ・クリック音の間隔が乱れる原因になっていた。
+  const [bandPrep, setBandPrep] = useState(false)
+  const bandReadyResolveRef = useRef<(() => void) | null>(null)
+  const onBandReady = useCallback(() => {
+    bandReadyResolveRef.current?.()
+    bandReadyResolveRef.current = null
+  }, [])
+
+  /** 端末の回転が落ち着くまで待つ。イベントが来なければ早めに諦める (Web版・既に横 など) */
+  const waitForRotation = useCallback(() => {
+    return new Promise<void>((resolve) => {
+      let settle: ReturnType<typeof setTimeout> | null = null
+      let last = `${window.innerWidth}x${window.innerHeight}`
+      const done = () => {
+        if (settle) clearTimeout(settle)
+        clearTimeout(firstGuard)
+        clearTimeout(hardStop)
+        window.removeEventListener("resize", onChange)
+        window.removeEventListener("orientationchange", onChange)
+        resolve()
+      }
+      const onChange = () => {
+        clearTimeout(firstGuard)
+        const now = `${window.innerWidth}x${window.innerHeight}`
+        if (now !== last) last = now
+        if (settle) clearTimeout(settle)
+        settle = setTimeout(done, 250) // 250ms 変化が無ければ落ち着いたとみなす
+      }
+      // 既に横向きなど回転イベントが来ない場合に備えた見切り (700ms)
+      const firstGuard = setTimeout(done, 700)
+      // 何があっても 1.5 秒で打ち切る (録音を始められない事態を作らない)
+      const hardStop = setTimeout(done, 1500)
+      window.addEventListener("resize", onChange)
+      window.addEventListener("orientationchange", onChange)
     })
-    return () => {
-      alive = false
-      setNativeBandOk(false)
-      void unlockOrientation()
-    }
-  }, [isFullscreen])
+  }, [])
+
+  /** 帯モードの描画完了を待つ。合図が来なければ 4 秒で打ち切る */
+  const waitForBandRender = useCallback(() => {
+    return new Promise<void>((resolve) => {
+      const timer = setTimeout(() => { bandReadyResolveRef.current = null; resolve() }, 4000)
+      bandReadyResolveRef.current = () => { clearTimeout(timer); resolve() }
+    })
+  }, [])
+
+  /**
+   * 録音ボタンを押したあと、カウントダウンを始める前に呼ばれる。
+   * 横固定 → 回転が落ち着くのを待つ → 帯モードで組み直す → 完了を待つ。
+   * 横固定できない環境 (Web版・プラグイン不在) は即座に抜けるので待ち時間は増えない。
+   */
+  const prepareBand = useCallback(async () => {
+    const dev = recBandRequested
+    const ok = dev ? true : await lockLandscape()
+    setNativeBandOk(ok)
+    if (!ok) { setBandPrep(false); return }
+    // 順序が重要: 先に回転を終わらせる。
+    // 組み直しは「そのときの画面幅」で1小節の幅を測って倍率を決めるため、
+    // 縦のまま組み直すと測り直しが必要になり、再描画がもう一度走ってしまう。
+    if (!dev) await waitForRotation()
+    setBandPrep(true)                 // ここで recBand=true → 帯モードの組み直しが始まる
+    await waitForBandRender()
+  }, [recBandRequested, waitForRotation, waitForBandRender])
+
+  // カウントダウンに入ったら橋渡しの役目は終わり (以後は isFullscreen が帯モードを支える)
+  useEffect(() => { if (isFullscreen) setBandPrep(false) }, [isFullscreen])
+
+  // 録音でなくなったら向きロックを解除する。
+  // 「録音中だった → そうでなくなった」の遷移でだけ解除する。無条件に呼ぶと
+  // OrientationLock が掛けた縦固定まで外してしまうため。
+  const bandActive = isFullscreen || bandPrep
+  const bandActiveRef = useRef(false)
+  useEffect(() => {
+    if (bandActive) { bandActiveRef.current = true; return }
+    if (!bandActiveRef.current) return
+    bandActiveRef.current = false
+    setNativeBandOk(false)
+    void unlockOrientation()
+  }, [bandActive])
+  // アンマウント時の取りこぼし防止 (冪等)
+  useEffect(() => () => {
+    if (bandActiveRef.current) { bandActiveRef.current = false; void unlockOrientation() }
+  }, [])
   useEffect(() => {
     const onPageHide = () => { void unlockOrientation() }
     window.addEventListener("pagehide", onPageHide)
     return () => window.removeEventListener("pagehide", onPageHide)
   }, [])
 
-  const recBand = isFullscreen && (recBandRequested || nativeBandOk)
+  const recBand = (isFullscreen || bandPrep) && (recBandRequested || nativeBandOk)
   useEffect(() => {
     if (recBand) {
       document.body.setAttribute("data-rec-band", "true")
@@ -3371,6 +3456,7 @@ function ScoreDetailInner({
             expandMode={scoreExpand}
             onToggleExpand={() => setScoreExpand((v) => !v)}
             bandMode={recBand}
+            onBandReady={onBandReady}
           />
           {popover && (
             <div
@@ -3708,6 +3794,7 @@ function ScoreDetailInner({
             previousBestScore={bestPitchScore}
             bpm={playbackTempo}
             onCountdownStart={() => setRecordingState("countdown")}
+            onPrepare={prepareBand}
             onRecordingStart={() => { setRecordingState("recording"); startRecordingGuide() }}
             onRecordingBpmChange={handleRecordingBpmChange}
             onRecordingStop={() => { setRecordingState("preview"); stopRecordingGuide() }}

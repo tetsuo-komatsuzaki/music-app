@@ -251,6 +251,11 @@ type Props = {
   onRecordingBpmChange?: (bpm: number) => void
   /** countdown 突入時に1回呼ぶ (F-1 のフルスクリーン化トリガ) */
   onCountdownStart?: () => void
+  /** カウントダウンを始める前に済ませたい準備 (2026-08-26)。
+      横画面録音では、ここで画面の横固定と譜面の組み直しを終わらせる。
+      これを待たずにカウントを始めると、4拍の最中に譜面の再描画が走り、
+      テンポガイドが固まる・クリック音の間隔が乱れる。 */
+  onPrepare?: () => Promise<void>
   /** アップロード進捗 (0-100、null は未開始/完了)。v3.3 spec Commit 3 で追加 */
   uploadProgress?: number | null
   /** 採点完了の後追い通知 (2026-08-02): 録音直後は採点未完で点数が無いが、
@@ -278,9 +283,9 @@ type Props = {
   onIdleRecordClick?: () => boolean | void
 }
 
-export type Status = "idle" | "tempo-select" | "countdown" | "recording" | "preview" | "uploading" | "result"
+export type Status = "idle" | "tempo-select" | "preparing" | "countdown" | "recording" | "preview" | "uploading" | "result"
 
-export default function Recorder({ onRecordingComplete, previousBestScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, uploadProgress, onShowLoop, onIdleRecordClick, resolvedResult }: Props) {
+export default function Recorder({ onRecordingComplete, previousBestScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, onPrepare, uploadProgress, onShowLoop, onIdleRecordClick, resolvedResult }: Props) {
   const [status, setStatus] = useState<Status>("idle")
   const params = useParams<{ userId?: string }>()
 
@@ -473,7 +478,14 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       audioCtxRef.current = new AudioContext()
     }
 
-    // 3. カウントダウン開始（4→3→2→1）
+    // 3. カウントダウンの前に準備を済ませる (横固定 + 譜面の組み直し)。
+    //    Web版・プラグイン不在では即座に返るので待ち時間は増えない。
+    setStatus("preparing")
+    try {
+      await onPrepare?.()
+    } catch { /* 準備に失敗しても録音は続行する */ }
+
+    // 4. カウントダウン開始（4→3→2→1）
     setStatus("countdown")
     onCountdownStart?.()
     setCountdownNum(4)
@@ -949,6 +961,13 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       )}
 
       {/* ② カウントイン (キャンセル不可) */}
+      {/* ②' 準備中: 横固定と譜面の組み直しを待つ間。ここを空にすると画面が消えて見える */}
+      {status === "preparing" && (
+        <div className={styles.countdownPanel} data-recorder-panel="preparing">
+          <div className={styles.countdownLabel}>よこ画面にしています</div>
+        </div>
+      )}
+
       {status === "countdown" && (
         <div className={styles.countdownPanel} data-recorder-panel="countdown">
           <div className={styles.countdownNum} key={countdownNum} data-recorder-element="countdown-number">{countdownNum}</div>
