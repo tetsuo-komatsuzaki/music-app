@@ -399,6 +399,22 @@ try:
             RETURNING "originalXmlPath", "metadata", "keyTonic", "keyMode", "rhythmRecipe", "variantRecipe"
         """, (PRACTICE_ITEM_ID,))
     else:
+        # 2026-08-26: ユーザーIDは2種類ある。
+        #   User.id             cuid  cmmm46xn4...  ← Score.createdById とストレージのパスはこちら
+        #   User.supabaseUserId UUID  a0952076-...  ← 認証の auth uid
+        # 呼び出し側がどちらを渡すかブレるため、USER_ID 自体を内部 User.id へ正規化する。
+        # 認可だけでなくストレージのパスにも使うので、ここで揃えないと保存先がずれる。
+        # 2026-08-24 の一括再解析は auth uid(UUID) を渡し、cuid と比較されて曲74件が全滅した。
+        cur.execute(
+            'SELECT id FROM "User" WHERE id = %s OR "supabaseUserId" = %s LIMIT 1',
+            (USER_ID, USER_ID),
+        )
+        _u = cur.fetchone()
+        if not _u:
+            raise Exception(
+                f"User not found: USER_ID={USER_ID!r} (User.id にも supabaseUserId にも一致しない)"
+            )
+        USER_ID = _u[0]
         cur.execute("""
             UPDATE "Score"
             SET "analysisStatus" = 'processing'
@@ -409,7 +425,11 @@ try:
     row = cur.fetchone()
 
     if not row:
-        raise Exception("Score not found or unauthorized")
+        if IS_PRACTICE_ITEM:
+            raise Exception(f"PracticeItem not found: id={PRACTICE_ITEM_ID!r}")
+        raise Exception(
+            f"Score not found or unauthorized: id={SCORE_ID!r} owner={USER_ID!r}"
+        )
 
     xml_storage_path = row[0]
     # 難易度変種 (2026-08-24) と パート教材の小節範囲 (2026-08-25) は同じ variantRecipe。
@@ -1478,19 +1498,23 @@ try:
 
 except Exception as e:
     conn.rollback()
+    # 2026-08-26: errorMessage を必ず残す。これが無いと画面は「楽譜の準備がうまくいかなかったよ」
+    # だけになり、原因が追えない。2026-08-24 の74件全滅に2日間気づけなかった直接の理由。
+    _msg = f"{type(e).__name__}: {e}"[:300]
     if IS_PRACTICE_ITEM:
         cur.execute("""
             UPDATE "PracticeItem"
-            SET "analysisStatus" = 'error'
+            SET "analysisStatus" = 'error', "errorMessage" = %s
             WHERE id = %s
-        """, (PRACTICE_ITEM_ID,))
+        """, (_msg, PRACTICE_ITEM_ID))
     else:
         cur.execute("""
             UPDATE "Score"
-            SET "analysisStatus" = 'error'
+            SET "analysisStatus" = 'error', "errorMessage" = %s
             WHERE id = %s
-        """, (SCORE_ID,))
+        """, (_msg, SCORE_ID))
     conn.commit()
+    print(f"ERROR: {_msg}", file=sys.stderr)
     raise e
 
 finally:
