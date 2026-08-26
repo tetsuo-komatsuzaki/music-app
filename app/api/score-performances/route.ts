@@ -114,8 +114,15 @@ export async function GET(request: NextRequest) {
             const pitchOkSum = evaluated.reduce(
               (sum: number, n: any) => sum + pitchScore(n), 0)
             pitchAccuracy = Math.round((pitchOkSum / totalNotes) * 100)
-            const timingOk = evaluated.filter((n: any) => n.start_ok === true).length
-            timingAccuracy = Math.round((timingOk / totalNotes) * 100)
+            // 2026-08-27: タイミングの分母から測定不能を外す (解析側と同一の規則)。
+            // pitch_only = 同じ音が続く区間 と タイの後半。音が途切れず開始時刻を測れない。
+            // not_detected は「弾かれていない」なので分母に残す。
+            const timingPool = comparisonResult.filter(
+              (n: any) => n.evaluation_status !== "pitch_only")
+            const timingOk = timingPool.filter((n: any) => n.start_ok === true).length
+            timingAccuracy = timingPool.length > 0
+              ? Math.round((timingOk / timingPool.length) * 100)
+              : null
           }
         }
       }

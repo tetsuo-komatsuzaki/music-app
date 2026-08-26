@@ -146,6 +146,70 @@ DIAG_LOG = os.environ.get("ANALYZE_DIAG", "false") == "true"
 def _diag(msg: str) -> None:
     if DIAG_LOG:
         print(f"[DIAG] {msg}", flush=True)
+
+
+# 探索窓の実測 (2026-08-27)。秒で固定された探索半径がテンポに対して
+# 広すぎないかを、実際の録音で確かめるための集計。判定には一切使わない。
+_SEARCH_STATS: dict = {
+    "stage_hits": [0, 0, 0, 0],   # 何段目で見つかったか
+    "not_found": 0,               # どの段でも見つからなかった
+    "same_pitch_total": 0,        # 同音連続だった音符
+    "same_pitch_missed": 0,       # そのうち Stage1 で見つからなかった
+    "offsets_sec": [],            # 見つかった位置 - 期待位置 (秒)
+}
+
+
+def _record_search(stage: int | None, offset_sec: float | None,
+                   same_pitch: bool, found: bool) -> None:
+    if same_pitch:
+        _SEARCH_STATS["same_pitch_total"] += 1
+        if not found:
+            _SEARCH_STATS["same_pitch_missed"] += 1
+    if not found:
+        _SEARCH_STATS["not_found"] += 1
+        return
+    if stage is not None and 0 <= stage < 4:
+        _SEARCH_STATS["stage_hits"][stage] += 1
+    if offset_sec is not None:
+        _SEARCH_STATS["offsets_sec"].append(float(offset_sec))
+
+
+def _print_search_stats(beat_sec: float) -> None:
+    """1拍の長さを渡し、探索のずれを「1拍の何%」でも出す。"""
+    st = _SEARCH_STATS
+    total = sum(st["stage_hits"]) + st["not_found"]
+    if total == 0:
+        return
+    radii = CASCADE_SEARCH_RADII
+    print("")
+    print("[search-stats] 探索窓の実測 ------------------------")
+    print(f"[search-stats] 1拍 = {beat_sec:.3f}秒")
+    for i, n in enumerate(st["stage_hits"]):
+        pct = radii[i] / beat_sec * 100 if beat_sec > 0 else 0
+        print(f"[search-stats]   Stage{i+1} (±{radii[i]:.2f}秒 = 1拍の{pct:.0f}%) で発見: "
+              f"{n}音 ({n/total*100:.1f}%)")
+    print(f"[search-stats]   見つからず: {st['not_found']}音 ({st['not_found']/total*100:.1f}%)")
+    wide = sum(st["stage_hits"][1:])
+    print(f"[search-stats]   Stage2以降を要した: {wide}音 ({wide/total*100:.1f}%)"
+          "  ← ここが0に近ければ探索を狭めても影響しない")
+    sp = st["same_pitch_total"]
+    if sp:
+        print(f"[search-stats]   同音連続: {sp}音 / うち Stage1 で見つからず "
+              f"{st['same_pitch_missed']}音 ({st['same_pitch_missed']/sp*100:.1f}%)")
+    offs = st["offsets_sec"]
+    if offs:
+        arr = sorted(abs(o) for o in offs)
+        def q(p): return arr[min(len(arr) - 1, int(len(arr) * p))]
+        print(f"[search-stats]   ずれの大きさ (絶対値): "
+              f"中央{q(0.5):.3f}秒 / 90%点{q(0.9):.3f}秒 / 最大{arr[-1]:.3f}秒")
+        if beat_sec > 0:
+            print(f"[search-stats]                          "
+                  f"中央{q(0.5)/beat_sec*100:.0f}% / 90%点{q(0.9)/beat_sec*100:.0f}% / "
+                  f"最大{arr[-1]/beat_sec*100:.0f}% (1拍比)")
+        over = sum(1 for o in arr if beat_sec > 0 and o > beat_sec * 0.5)
+        print(f"[search-stats]   半拍を超えてずれた位置で発見: {over}音 ({over/len(arr)*100:.1f}%)"
+              "  ← 別の音を拾った疑い")
+    print("[search-stats] ----------------------------------------")
 ONSET_PITCH_CHANGE_CENTS = 30     # onset 前後のピッチ変化閾値（cents）
 ONSET_PITCH_CHANGE_WINDOW = 0.03  # onset 前後の比較窓（秒）
 
@@ -1300,7 +1364,9 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
             rms=rms, time_all=time_all, note_idx=note_idx,
             search_range_override=stage1_search_range,
         )
+        found_stage = None   # 実測用: 何段目で見つかったか
         if seg is not None:
+            found_stage = 0
             seen_seg_starts.add(round(seg["seg_start"], 3))
             case = _classify_segment(seg, expected_pos, expected_duration,
                                       timing_tolerance, is_short_technique)
@@ -1347,6 +1413,8 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
 
                 case = _classify_segment(seg, expected_pos, expected_duration,
                                           timing_tolerance, is_short_technique)
+                if found_stage is None:
+                    found_stage = stage_idx
                 _diag(f"note={note_idx} cascade stage={stage_idx} radius={radius:.2f} "
                       f"seg={seg['seg_start']:.3f} case={case} conf={seg.get('confidence')}")
 
@@ -1374,6 +1442,14 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
 
         segment = selected_segment
         accepted = segment is not None
+        # 実測 (2026-08-27): 探索窓がテンポに対して広すぎないかを確かめる集計。
+        # 判定には使わない。
+        _record_search(
+            found_stage,
+            (segment["seg_start"] - expected_pos) if accepted else None,
+            same_pitch_local,
+            accepted,
+        )
         if selected_case is not None:
             _diag(f"note={note_idx} cascade RESULT case={selected_case} "
                   f"seg={segment['seg_start'] if segment else None}")
@@ -1490,22 +1566,31 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
                         # 誤った prev 値が孫に伝播する問題を解消。
                         cents_signed = float(cents_diff(window_med, expected_pitch))
                         cents_drift = abs(cents_signed)
-                        if cents_drift <= PITCH_TOLERANCE_CENTS:
-                            _diag(f"note={note_idx} SAME_PITCH_LEGATO_RESCUE "
-                                  f"cents_drift={cents_drift:.1f} → pitch_only (fresh from window_med)")
-                            # cursor の事後更新は dead code (次イテで reset) → 削除
-                            results.append(_make_result(
-                                note_idx, measure_num, note_name, global_shift, expected_pos,
-                                ee + global_shift, expected_pitch,
-                                None,                  # detected_start_sec (sustain 中、開始時刻不明)
-                                window_med,            # detected_pitch_hz (current window から)
-                                None,                  # timing_from_start
-                                cents_signed,          # pitch_cents_error (current window から)
-                                True,                  # pitch_ok (guard 通過したので True)
-                                None, True,            # start_diff_sec, start_ok
-                                0, "pitch_only",
-                                "high"))               # match_confidence (cents_drift <= 50 なので high)
-                            rescued_as_pitch_only = True
+                        # 2026-08-27: 「±50セント以内のときだけ記録する」のをやめた。
+                        # 旧実装は音程が合っていたときだけ pitch_only で残し、外れていたら
+                        # not_detected に落としていた。点数は同じ0点でも、
+                        #   ・画面には「検出できませんでした」と出て「指がずれている」が伝わらない
+                        #   ・何セントずれたかが保存されず、苦手な音の分析に入らない
+                        # という実害があった。常に記録し、合否だけを正直に付ける。
+                        pitch_ok_here = cents_drift <= PITCH_TOLERANCE_CENTS
+                        _diag(f"note={note_idx} SAME_PITCH_LEGATO_RESCUE "
+                              f"cents_drift={cents_drift:.1f} pitch_ok={pitch_ok_here} → pitch_only")
+                        results.append(_make_result(
+                            note_idx, measure_num, note_name, global_shift, expected_pos,
+                            ee + global_shift, expected_pitch,
+                            None,                  # detected_start_sec (sustain 中、開始時刻不明)
+                            window_med,            # detected_pitch_hz (current window から)
+                            None,                  # timing_from_start
+                            cents_signed,          # pitch_cents_error (current window から)
+                            pitch_ok_here,         # pitch_ok (ずれていれば False)
+                            # start_diff_sec / start_ok: 同じ音が続く区間は音響的に境目が無く、
+                            # 開始時刻を測れない。True (正解) ではなく None (測定不能) にする。
+                            # 2026-08-27 の実測で、音量・音色・ピッチのどの手がかりでも
+                            # 音符の途中と区別できないことを確認済み。
+                            None, None,
+                            0, "pitch_only",
+                            "high" if pitch_ok_here else "medium"))
+                        rescued_as_pitch_only = True
 
             if not rescued_as_pitch_only:
                 # ⑤⑧ cursor 事後更新は dead code (次イテで expected_pos 基準にリセット) → 削除
@@ -1935,6 +2020,14 @@ try:
         spectral_noise_floor=spectral_noise_floor,
         rms=rms, time_all=time_all)
 
+    # 探索窓の実測を出す (2026-08-27)。判定には影響しない。
+    # 1拍の長さは録音テンポ基準 (演奏者が見ていた青線と同じものさし)。
+    try:
+        _target_bpm = RECORDING_BPM if (RECORDING_BPM and RECORDING_BPM > 0) else BPM
+        _print_search_stats(60.0 / _target_bpm if _target_bpm else 0.0)
+    except Exception as _e:
+        print(f"[search-stats] 集計に失敗: {_e}")
+
     # v3.2 Commit A (C5 + 致命3): 音量フィールド (avg_volume_db / volume_drop_after) を追加
     # 設計書 §14-2 参照。bowing 系 sub task (string_change_volume / string_change_slur) が依存。
     # 致命3: volume_drop_after の計算で次音符の検出時刻 (detected_start_sec) を優先する。
@@ -2023,11 +2116,18 @@ try:
     # pitch_only も timing 集計に含めることで UI と整合。
     # (2026-08-10 解決: tremolo/trill は eval_status を evaluated に戻し、開始タイミングを
     #  timing 集計に算入するようにした。pitch_only は tied のみ。project_tremolo_trill_separate_status)
-    timing_evaluated = evaluated
-    timing_ok_count = sum(1 for r in timing_evaluated if r["start_ok"] is True)
+    # 2026-08-27: タイミングの分母から「測定不能」を外す。
+    # pitch_only = 同じ音が続く区間 と タイ の後半。どちらも音が途切れないため
+    # 開始時刻を測れない。旧実装は start_ok=True 固定で分子に入れており、
+    # 測っていない音を正解として加算していた (きらきら星で64音中22音)。
+    # not_detected は「弾かれていない/見つからない」なので分母に残す (=不正解)。
+    timing_pool = [r for r in results if r["evaluation_status"] != "pitch_only"]
+    timing_total = len(timing_pool)
+    timing_ok_count = sum(1 for r in timing_pool if r["start_ok"] is True)
+    timing_unmeasurable = total_notes - timing_total
 
     pitch_accuracy = round(pitch_score_sum / total_notes * 100, 1) if total_notes > 0 else None
-    timing_accuracy = round(timing_ok_count / total_notes * 100, 1) if total_notes > 0 else None
+    timing_accuracy = round(timing_ok_count / timing_total * 100, 1) if timing_total > 0 else None
     rhythm_accuracy = timing_accuracy  # v1.5/案 Y: rhythmAccuracy = timingAccuracy 同値で書き込み
     evaluated_notes = len(evaluated)
 
@@ -2159,7 +2259,9 @@ try:
     except Exception as e:
         print(f"  noteStats skipped: {e}")
 
-    print(f"  Summary: pitch={pitch_accuracy}% timing={timing_accuracy}% overall={overall_score}%")
+    print(f"  Summary: pitch={pitch_accuracy}% ({total_notes}音) "
+          f"timing={timing_accuracy}% ({timing_total}音・測定不能{timing_unmeasurable}音) "
+          f"overall={overall_score}%")
     if primary_issue:
         print(f"  Primary issue: {primary_issue}")
 

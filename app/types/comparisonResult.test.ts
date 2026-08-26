@@ -219,8 +219,12 @@ function aggregate(notes: Note[]) {
   if (totalNotes === 0) return { pitchAccuracy: null, timingAccuracy: null }
   const pitchOkSum = evaluated.reduce((sum, n) => sum + pitchScore(n), 0)
   const pitchAccuracy = Math.round((pitchOkSum / totalNotes) * 100)
-  const timingOk = evaluated.filter((n) => n.start_ok === true).length
-  const timingAccuracy = Math.round((timingOk / totalNotes) * 100)
+  // 2026-08-27: タイミングの分母から測定不能 (pitch_only) を外す
+  const timingPool = notes.filter((n) => n.evaluation_status !== "pitch_only")
+  const timingOk = timingPool.filter((n) => n.start_ok === true).length
+  const timingAccuracy = timingPool.length > 0
+    ? Math.round((timingOk / timingPool.length) * 100)
+    : null
   return { pitchAccuracy, timingAccuracy }
 }
 
@@ -278,5 +282,48 @@ describe("route 集計合成 (isEvaluated + pitchScore, route.ts:96-104 相当)"
     expect(intendedPitchAccuracy).toBe(100)
     // 50 !== 100 が乖離の証拠
     expect(actual.pitchAccuracy).not.toBe(intendedPitchAccuracy)
+  })
+})
+
+// =========================================================
+// 2026-08-27: 同じ音が続く区間はタイミングを測れないため、分母から外す。
+// 旧実装は start_ok=true 固定で分子に加算しており、測っていない音を正解にしていた。
+// =========================================================
+describe("タイミングの分母 (測定不能を外す)", () => {
+  it("pitch_only は分母からも分子からも外れる", () => {
+    const notes: Note[] = [
+      { evaluation_status: "evaluated", pitch_ok: true, start_ok: true },
+      { evaluation_status: "evaluated", pitch_ok: true, start_ok: false },
+      { evaluation_status: "pitch_only", pitch_ok: true, start_ok: null },
+      { evaluation_status: "pitch_only", pitch_ok: true, start_ok: null },
+    ]
+    // タイミング: 測れた2音のうち1音が正解 → 50%
+    // 音程: 4音とも記録されている → 100%
+    expect(aggregate(notes)).toEqual({ pitchAccuracy: 100, timingAccuracy: 50 })
+  })
+
+  it("not_detected は分母に残る (弾かれていないので不正解)", () => {
+    const notes: Note[] = [
+      { evaluation_status: "evaluated", pitch_ok: true, start_ok: true },
+      { evaluation_status: "not_detected", pitch_ok: null, start_ok: null },
+    ]
+    // タイミング: 2音中1音が正解 → 50%
+    expect(aggregate(notes).timingAccuracy).toBe(50)
+  })
+
+  it("音程がずれた pitch_only も音程の分母に残る (0点として)", () => {
+    const notes: Note[] = [
+      { evaluation_status: "evaluated", pitch_ok: true, start_ok: true },
+      { evaluation_status: "pitch_only", pitch_ok: false, start_ok: null },
+    ]
+    // 音程: 2音中1音正解 → 50%。タイミング: 測れた1音が正解 → 100%
+    expect(aggregate(notes)).toEqual({ pitchAccuracy: 50, timingAccuracy: 100 })
+  })
+
+  it("全音が測定不能なら タイミングは null", () => {
+    const notes: Note[] = [
+      { evaluation_status: "pitch_only", pitch_ok: true, start_ok: null },
+    ]
+    expect(aggregate(notes).timingAccuracy).toBeNull()
   })
 })
