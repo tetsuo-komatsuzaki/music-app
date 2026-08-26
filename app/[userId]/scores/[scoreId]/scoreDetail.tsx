@@ -126,7 +126,7 @@ type Props = {
    * 現状は呼び出し側 (page.tsx) でアダプター経由の呼び出しを行う。
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  uploadAction: (params: { performanceId: string; recordingBpm?: number; rangeFromNote?: number; rangeToNote?: number; partId?: string }) => Promise<any>
+  uploadAction: (params: { performanceId: string; recordingBpm?: number; guideOffsetSec?: number | null; rangeFromNote?: number; rangeToNote?: number; partId?: string }) => Promise<any>
   performanceCount: number
   latestPitchAccuracy: number | null
   /** ユーザーのランク (currentStar)。★4+ では基礎の読譜記号の説明を省く (2026-08-10) */
@@ -1653,6 +1653,7 @@ function ScoreDetailInner({
     const notifyResult = await uploadAction({
       performanceId: signedRes.performanceId,
       recordingBpm: recordingBpmRef.current,
+      guideOffsetSec: guideOffsetSecRef.current,
       rangeFromNote: activeRange?.from,
       rangeToNote: activeRange?.to,
       partId: activePartId ?? undefined,
@@ -2749,6 +2750,8 @@ function ScoreDetailInner({
   // --- 録音中ガイドカーソル ---
   const recGuideAnimRef = useRef<number | null>(null)
   const recGuideStartRef = useRef<number>(0)
+  /** 1拍目 (楽譜の起点) が録音の何秒目か。アプリ版のみ値が入る (2026-08-27) */
+  const guideOffsetSecRef = useRef<number | null>(null)
 
   // ▼ F-1 Commit 2: 譜面の行構造とスクロール計画
   // 2026-05-30 bugfix: ResizeObserver でコンテナサイズ変化を検知して rebuild。
@@ -3810,6 +3813,9 @@ function ScoreDetailInner({
             previousBestScore={bestPitchScore}
             bpm={playbackTempo}
             onCountdownStart={() => setRecordingState("countdown")}
+            timeNumerator={analysis?.time_signature?.numerator ?? null}
+            timeDenominator={analysis?.time_signature?.denominator ?? null}
+            onGuideOffset={(sec) => { guideOffsetSecRef.current = sec }}
             onPrepare={prepareBand}
             onRecordingStart={() => { setRecordingState("recording"); startRecordingGuide() }}
             onRecordingBpmChange={handleRecordingBpmChange}

@@ -5,6 +5,7 @@ import styles from "./Recorder.module.css"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { canShowBillingEntryPoint } from "@/app/_libs/isNativeApp"
+import { planCountIn } from "@/app/_libs/countIn"
 import {
   addInterruptionListener,
   addLevelListener,
@@ -251,6 +252,12 @@ type Props = {
   onRecordingBpmChange?: (bpm: number) => void
   /** countdown 突入時に1回呼ぶ (F-1 のフルスクリーン化トリガ) */
   onCountdownStart?: () => void
+  /** 拍子 (2026-08-27)。カウントインの回数と刻みをこれで決める。未指定は 4/4 扱い */
+  timeNumerator?: number | null
+  timeDenominator?: number | null
+  /** 1拍目 (楽譜の起点) が録音の何秒目かを1回だけ通知する (2026-08-27)。
+      アプリ版のみ。Web版は録音の実開始時刻が取れないので null を渡す。 */
+  onGuideOffset?: (sec: number | null) => void
   /** カウントダウンを始める前に済ませたい準備 (2026-08-26)。
       横画面録音では、ここで画面の横固定と譜面の組み直しを終わらせる。
       これを待たずにカウントを始めると、4拍の最中に譜面の再描画が走り、
@@ -285,7 +292,7 @@ type Props = {
 
 export type Status = "idle" | "tempo-select" | "preparing" | "countdown" | "recording" | "preview" | "uploading" | "result"
 
-export default function Recorder({ onRecordingComplete, previousBestScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, onPrepare, uploadProgress, onShowLoop, onIdleRecordClick, resolvedResult }: Props) {
+export default function Recorder({ onRecordingComplete, previousBestScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, timeNumerator, timeDenominator, onGuideOffset, onPrepare, uploadProgress, onShowLoop, onIdleRecordClick, resolvedResult }: Props) {
   const [status, setStatus] = useState<Status>("idle")
   const params = useParams<{ userId?: string }>()
 
@@ -343,6 +350,16 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   const nativeResultRef = useRef<NativeStopResult | null>(null)
   /** 最初のサンプルが実際に録れた壁時計ms (テンポガイドとの同期照合用) */
   const nativeStartedAtRef = useRef<number | null>(null)
+  /** 1拍目 (= 楽譜の起点) の壁時計。nativeStartedAtRef との差が録音内の位置になる */
+  const downbeatWallMsRef = useRef<number | null>(null)
+  /** 1拍目に発火させるタイマー */
+  const downbeatTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  /** 使ったカウントインの計画 (中止・再開時の参照用) */
+  const countInPlanRef = useRef<ReturnType<typeof planCountIn> | null>(null)
+  /* startRecording は beginCapture / enterRecordingState より前に定義されるため、
+     宣言順に依存しないよう ref 経由で呼ぶ (関数の実体は下で代入する)。 */
+  const beginCaptureRef = useRef<(() => Promise<boolean>) | null>(null)
+  const enterRecordingStateRef = useRef<(() => void) | null>(null)
   const nativeListenersRef = useRef<Array<() => void>>([])
   /** 停止処理の二重実行 (停止ボタンと maxDuration イベントの競合) を防ぐ */
   const nativeFinalizingRef = useRef(false)
@@ -399,22 +416,38 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   // カウントイン
   // =========================================================
 
-  const playClick = useCallback(() => {
-    try {
-      if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
-        audioCtxRef.current = new AudioContext()
-      }
-      const ctx = audioCtxRef.current
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
-      osc.frequency.value = 440
-      osc.type = "sine"
-      gain.gain.value = 0.3
-      osc.connect(gain)
-      gain.connect(ctx.destination)
-      osc.start(ctx.currentTime)
-      osc.stop(ctx.currentTime + 0.02)
-    } catch { /* ignore */ }
+  /** 予約したクリック音。中止時に止められるよう控えておく */
+  const scheduledClicksRef = useRef<OscillatorNode[]>([])
+
+  /**
+   * クリックを「音の時計」で予約する (2026-08-27)。
+   * 旧実装は setInterval + osc.start(ctx.currentTime) の「今すぐ鳴らして」方式で、
+   * 画面が忙しいと鳴る時刻がずれた。演奏者はこの音を基準に弾き始めるため、
+   * ここがずれると演奏者のせいでないズレを演奏者のズレとして扱ってしまう。
+   * @param at 鳴らす時刻 (AudioContext の時計)
+   */
+  const scheduleClick = useCallback((ctx: AudioContext, at: number) => {
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.frequency.value = 440
+    osc.type = "sine"
+    gain.gain.value = 0.3
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.start(at)
+    osc.stop(at + 0.02)
+    scheduledClicksRef.current.push(osc)
+    osc.onended = () => {
+      scheduledClicksRef.current = scheduledClicksRef.current.filter((o) => o !== osc)
+    }
+  }, [])
+
+  /** 予約済みのクリックを全部取り消す (中止・アンマウント時) */
+  const cancelScheduledClicks = useCallback(() => {
+    for (const osc of scheduledClicksRef.current) {
+      try { osc.stop() } catch { /* 既に鳴り終わっている */ }
+    }
+    scheduledClicksRef.current = []
   }, [])
 
   // アプリ版の殻の中にいて、録音プラグインが組み込まれているかを一度だけ調べる。
@@ -485,27 +518,72 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       await onPrepare?.()
     } catch { /* 準備に失敗しても録音は続行する */ }
 
-    // 4. カウントダウン開始（4→3→2→1）
+    // 4. アプリ版だけ、マイクを先に回し始める (2026-08-27)。
+    //    旧実装は1拍目が来てから録音を頼んでいたため、マイクが立ち上がるまでの
+    //    数十〜数百ミリ秒だけ録れず、時間どおりに弾くと出だしが欠けていた。
+    //    カウントインぶんは余分に録れるが、1拍目の位置を解析へ渡すので除外できる。
+    //    Web版は録音の実開始時刻が取れず位置を渡せないため、前倒しにするとクリック音が
+    //    解析に混ざったまま除外できない。よって従来どおり1拍目で録り始める。
+    const preRoll = nativeReadyRef.current
+    if (preRoll) {
+      const ok = await beginCaptureRef.current?.()
+      if (!ok) return
+    }
+
+    // 5. カウントインを「音の時計」で予約する。
+    //    拍子に応じて回数と刻みを決める (4/4=4回、3/4=3回、6/8=付点四分4回 …)。
+    const ctx = audioCtxRef.current!
+    const plan = planCountIn(effectiveBpm, timeNumerator, timeDenominator)
+    countInPlanRef.current = plan
+
+    // 予約の基準時刻。少し先に置いて、予約処理そのものの時間を吸収する
+    const LEAD_SEC = 0.12
+    const firstClickAt = ctx.currentTime + LEAD_SEC
+    for (let i = 0; i < plan.clicks; i++) {
+      scheduleClick(ctx, firstClickAt + i * plan.intervalSec)
+    }
+    // 1拍目 = 最後のクリックの1拍後。ここが楽譜の起点になる
+    const downbeatAt = firstClickAt + plan.clicks * plan.intervalSec
+
     setStatus("countdown")
     onCountdownStart?.()
-    setCountdownNum(4)
-    playClick()
+    setCountdownNum(plan.clicks)
 
-    const interval = 60000 / effectiveBpm
-    let count = 4
-
+    // 画面の数字は音とは別に進める。数字がずれても音はずれない
+    let shown = plan.clicks
     countdownTimerRef.current = setInterval(() => {
-      count--
-      if (count >= 1) {
-        setCountdownNum(count)
-        playClick()
-      } else {
-        if (countdownTimerRef.current) clearInterval(countdownTimerRef.current)
-        countdownTimerRef.current = null
-        actuallyStartRecording()
+      shown--
+      if (shown >= 1) setCountdownNum(shown)
+    }, plan.intervalSec * 1000)
+
+    // 1拍目ちょうどにガイドを走らせる。音の時計との差を見て残りを setTimeout で待つ
+    const fireAtDownbeat = async () => {
+      if (!preRoll) {
+        // Web版はここで録り始める (従来どおり)
+        const ok = await beginCaptureRef.current?.()
+        if (!ok) return
       }
-    }, interval)
-  }, [effectiveBpm, playClick])
+      if (countdownTimerRef.current) {
+        clearInterval(countdownTimerRef.current)
+        countdownTimerRef.current = null
+      }
+      // 1拍目の壁時計。ネイティブが返す録音開始時刻と突き合わせて位置を出す
+      const wall = Date.now()
+      downbeatWallMsRef.current = wall
+      const startedAt = nativeStartedAtRef.current
+      // アプリ版だけ「1拍目は録音の何秒目か」が出せる。
+      // 負や極端な値は取り違えなので渡さない (解析は従来方式に落ちる)。
+      let offsetSec: number | null = null
+      if (usingNativeRef.current && startedAt != null) {
+        const sec = (wall - startedAt) / 1000
+        if (sec >= 0 && sec <= 60) offsetSec = sec
+      }
+      onGuideOffset?.(offsetSec)
+      enterRecordingStateRef.current?.()
+    }
+    const waitMs = Math.max(0, (downbeatAt - ctx.currentTime) * 1000)
+    downbeatTimerRef.current = setTimeout(() => { void fireAtDownbeat() }, waitMs)
+  }, [effectiveBpm, timeNumerator, timeDenominator, scheduleClick, onGuideOffset])
 
   // =========================================================
   // 録音
@@ -650,7 +728,12 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null }
   }, [finalizeNative])
 
-  const actuallyStartRecording = useCallback(async () => {
+  /**
+   * マイクを回し始める (2026-08-27 でカウントインの前へ移動)。
+   * 「録音中」の見た目にはまだしない。1拍目で enterRecordingState を呼ぶ。
+   * 戻り値 false は開始できなかった場合 (呼び出し側は中断する)。
+   */
+  const beginCapture = useCallback(async (): Promise<boolean> => {
     // アプリ版: MediaRecorder ではなくネイティブ録音を回す。
     // 加工なし (AGC/ノイズ抑制/EQ オフ) の 48kHz FLAC がネイティブ側で直接書き出される。
     if (nativeReadyRef.current) {
@@ -664,44 +747,27 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
           sampleRate: 48000,
           maxDurationSec: MAX_DURATION,
         })
-        // 最初のサンプルが実際に録れた時刻。テンポガイドとの同期照合に使う。
+        // 最初のサンプルが実際に録れた時刻 (Date.now と同じ壁時計)。
+        // 1拍目の壁時計との差が「1拍目は録音の何秒目か」になる。
         nativeStartedAtRef.current = started.startedAtMs
-
-        setStatus("recording")
-        setElapsed(0)
-        setPerfResult(null)
-        setQualityResult(null)
-        onRecordingStart?.()
-
-        timerRef.current = setInterval(() => {
-          setElapsed(prev => {
-            if (prev + 1 >= MAX_DURATION) { stopRecording(); return MAX_DURATION }
-            return prev + 1
-          })
-        }, 1000)
+        return true
       } catch (err) {
         usingNativeRef.current = false
         detachNativeListeners()
         void cancelNativeRecording()
         showToast(
-          nativeErrorCode(err) === "PERMISSION_DENIED"
-            ? "マイクの使用が許可されていません"
-            : `録音エラー: ${nativeErrorMessage(err)}`,
+          err instanceof Error ? `録音を開始できませんでした: ${err.message}` : "録音を開始できませんでした",
           "error",
         )
         setStatus("idle")
+        return false
       }
-      return
     }
 
+    // Web版: MediaRecorder。開始の正確な時刻は取れないので位置は渡さない。
     try {
-      // マイクはカウントダウン前に取得済み
       const stream = streamRef.current
-      if (!stream) {
-        showToast("マイクの準備ができていません", "error")
-        setStatus("idle")
-        return
-      }
+      if (!stream) throw new Error("マイクが使えません")
 
       const recAudioCtx = new AudioContext()
       const source = recAudioCtx.createMediaStreamSource(stream)
@@ -741,31 +807,41 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
 
       mediaRecorderRef.current = recorder
       recorder.start(1000)
-      setStatus("recording")
-      setElapsed(0)
-      setPerfResult(null)
-      setQualityResult(null)
       animFrameRef.current = requestAnimationFrame(updateVolumeMeter)
-      onRecordingStart?.()
-
-      timerRef.current = setInterval(() => {
-        setElapsed(prev => {
-          if (prev + 1 >= MAX_DURATION) { stopRecording(); return MAX_DURATION }
-          return prev + 1
-        })
-      }, 1000)
-
-    } catch (err: any) {
-      if (err.name === "NotAllowedError") {
+      return true
+    } catch (err: unknown) {
+      const e = err as { name?: string; message?: string }
+      if (e.name === "NotAllowedError") {
         showToast("マイクの使用が許可されていません", "error")
-      } else if (err.name === "NotFoundError") {
+      } else if (e.name === "NotFoundError") {
         showToast("マイクが見つかりません", "error")
       } else {
-        showToast(`録音エラー: ${err.message}`, "error")
+        showToast(`録音エラー: ${e.message ?? ""}`, "error")
       }
       setStatus("idle")
+      return false
     }
-  }, [updateVolumeMeter, stopRecording, presentRecordedBlob, detachNativeListeners, onRecordingStart])
+  }, [updateVolumeMeter, presentRecordedBlob, detachNativeListeners, onRecordingStop])
+
+  beginCaptureRef.current = beginCapture
+
+  /** 1拍目に呼ぶ。ここで初めて「録音中」の見た目になり、テンポガイドが走り出す。 */
+  const enterRecordingState = useCallback(() => {
+    setStatus("recording")
+    setElapsed(0)
+    setPerfResult(null)
+    setQualityResult(null)
+    onRecordingStart?.()
+
+    timerRef.current = setInterval(() => {
+      setElapsed(prev => {
+        if (prev + 1 >= MAX_DURATION) { stopRecording(); return MAX_DURATION }
+        return prev + 1
+      })
+    }, 1000)
+  }, [stopRecording, onRecordingStart])
+  enterRecordingStateRef.current = enterRecordingState
+
 
   /** 送信せずに捨てる録音のローカルファイルを消す (アプリ版のみ・取りこぼしても24hで自動削除)。 */
   const discardNativeFile = useCallback(() => {
@@ -881,10 +957,13 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
     return () => {
       if (timerRef.current) clearInterval(timerRef.current)
       if (countdownTimerRef.current) clearInterval(countdownTimerRef.current)
+      // 予約済みのクリックは自分で止めないと、画面を離れたあとも鳴る
+      if (downbeatTimerRef.current) clearTimeout(downbeatTimerRef.current)
+      cancelScheduledClicks()
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
       if (audioUrl) URL.revokeObjectURL(audioUrl)
     }
-  }, [audioUrl])
+  }, [audioUrl, cancelScheduledClicks])
 
   // 真のアンマウント専用: 録音中/カウントイン中にタブ切替等で消えても
   // マイク・MediaRecorder・AudioContext を確実に解放する (リーク & マイク点灯継続 防止)。

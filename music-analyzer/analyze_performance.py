@@ -25,6 +25,9 @@ PERFORMANCE_ID = sys.argv[3]
 IS_PRACTICE = any(a == "practice" for a in sys.argv[4:])
 # --recording-bpm=90 のような引数をパース
 RECORDING_BPM: Optional[float] = None
+# 1拍目 (楽譜の起点) が録音の何秒目か (2026-08-27)。
+# アプリ版のカウントインから算出して渡される。Web版・旧録音では None。
+GUIDE_OFFSET_SEC: Optional[float] = None
 for a in sys.argv[4:]:
     if a.startswith("--recording-bpm="):
         # 非数値でも import 時にクラッシュさせない (行が processing 固着するのを防止)
@@ -32,6 +35,12 @@ for a in sys.argv[4:]:
             RECORDING_BPM = float(a.split("=", 1)[1])
         except (ValueError, IndexError):
             RECORDING_BPM = None
+    elif a.startswith("--guide-offset-sec="):
+        try:
+            _g = float(a.split("=", 1)[1])
+            GUIDE_OFFSET_SEC = _g if 0.0 <= _g <= 60.0 else None
+        except (ValueError, IndexError):
+            GUIDE_OFFSET_SEC = None
 
 # =========================
 # ENV
@@ -215,7 +224,8 @@ def _remove_short_runs(mask: np.ndarray, min_run: int) -> np.ndarray:
 
 
 def apply_noise_gate(rms: np.ndarray, time_all: np.ndarray,
-                     f0: np.ndarray, first_sound_time: float) -> np.ndarray:
+                     f0: np.ndarray, first_sound_time: float,
+                     ignore_before: float = 0.0) -> np.ndarray:
     """
     適応型ノイズゲートを適用し有効フレームの bool マスクを返す。
 
@@ -224,7 +234,9 @@ def apply_noise_gate(rms: np.ndarray, time_all: np.ndarray,
     Stage 3: 最小連続フレーム数フィルタ
     """
     # --- Stage 1: 適応型閾値 ---
-    pre_mask = time_all < (first_sound_time - 0.1)
+    # 2026-08-27: ignore_before より前にはカウントインのクリック音が入っている。
+    # そこを無音とみなすとノイズフロアが過大に出て、本物の演奏まで切られる。
+    pre_mask = (time_all < (first_sound_time - 0.1)) & (time_all >= ignore_before)
     pre_rms  = rms[pre_mask]
 
     if len(pre_rms) >= 20:
@@ -792,11 +804,13 @@ def _estimate_spectral_noise_floor(
     stft_mag: np.ndarray,
     stft_times: np.ndarray,
     first_sound_time: float,
+    ignore_before: float = 0.0,
 ) -> float:
     """演奏前の無音区間 (first_sound_time - 0.1s より前) から
     STFT 全ビン横断のノイズフロア (中央値) を推定。
+    2026-08-27: ignore_before より前はカウントインのクリック音なので除外する。
     """
-    pre_mask = stft_times < max(0.0, first_sound_time - 0.1)
+    pre_mask = (stft_times < max(0.0, first_sound_time - 0.1)) & (stft_times >= ignore_before)
     if pre_mask.sum() >= 3:
         pre = stft_mag[:, pre_mask]
         if pre.size > 0:
@@ -1187,7 +1201,7 @@ def _classify_segment(segment, expected_pos, expected_duration,
     return "reject"
 
 
-def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, onset_times=None, time_scale=1.0, timing_tolerance=TIMING_TOLERANCE_BASE, stft_mag=None, stft_freqs=None, stft_times=None, spectral_noise_floor=None, rms=None, time_all=None):
+def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, judge_start_time=None, onset_times=None, time_scale=1.0, timing_tolerance=TIMING_TOLERANCE_BASE, stft_mag=None, stft_freqs=None, stft_times=None, spectral_noise_floor=None, rms=None, time_all=None):
     results = []
     cursor = performance_start_time
 
@@ -1217,7 +1231,17 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
         is_harmonic = bool(n.get("is_harmonic", False))
         sounding_pitch_hz = n.get("sounding_pitch_hz")
 
+        # 音を探すための基準。位置合わせ (global_shift) から作る。演奏者が遅れても
+        # 追いかけて見つけられるよう、従来どおり探索の結果を使う。
         expected_pos = performance_start_time + (es - first_es) * time_scale
+        # リズムを判定するための基準 (2026-08-27)。カウントインの1拍目で固定する。
+        # 従来は expected_pos が探す用と判定用を兼ねており、演奏者が遅れると
+        # 楽譜ごとずれて「ぴったり」と出ていた (1拍の遅れも ±1.0秒 の探索が飲み込む)。
+        # judge_start_time が無い場合 (Web版・旧録音) は従来どおり expected_pos で判定する。
+        expected_pos_judge = (
+            judge_start_time + (es - first_es) * time_scale
+            if judge_start_time is not None else expected_pos
+        )
 
         # 絶対タイミング前提: cursor を毎ノート expected_pos 基準にリセット。
         # 累積カーソルドリフト (medium 誤検出による seg_end 過剰前進等) を防ぐ。
@@ -1368,8 +1392,10 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
             pitch_cents_error = segment["pitch_cents_error"]
             pitch_ok = abs(pitch_cents_error) <= pitch_tolerance
 
-            # 絶対タイミング評価: expected_pos と直接比較 (前音アンカー方式は撤回)
-            start_diff = seg_start - expected_pos
+            # 絶対タイミング評価: 判定用の基準と直接比較 (前音アンカー方式は撤回)。
+            # 2026-08-27: 比べる相手を expected_pos_judge に変更。
+            # 「いつ鳴ったか (seg_start)」は照合で得た実測値のままで、触っていない。
+            start_diff = seg_start - expected_pos_judge
             start_ok = abs(start_diff) <= timing_tolerance
 
             # tied 後半は held tone なので timing 不問 → pitch_only。
@@ -1813,6 +1839,12 @@ try:
 
     MIN_SUSTAIN = 15
     pitched_loud = (rms > RMS_THRESHOLD * 2) & (~np.isnan(f0[:len(rms)]))
+    # 2026-08-27: アプリ版はカウントインの前からマイクを回すため、録音の頭に
+    # クリック音が入る。そこを「最初の音」と拾うと位置合わせが壊れるので、
+    # 1拍目の少し手前より前は見ない。少しの余裕は早入りのため。
+    if GUIDE_OFFSET_SEC is not None:
+        _scan_from = max(0.0, GUIDE_OFFSET_SEC - 0.3)
+        pitched_loud = pitched_loud & (time_all[:len(pitched_loud)] >= _scan_from)
     first_sound_time = 0.0
     run_count = 0
     for idx in range(len(pitched_loud)):
@@ -1830,8 +1862,13 @@ try:
     print(f"  First sound at: {first_sound_time:.3f}s")
 
     # ノイズゲートを適用して valid_mask / valid_time / valid_f0 を再構築
-    gate_mask  = apply_noise_gate(rms, time_all, f0, first_sound_time)
+    # 2026-08-27: カウントインのクリックは 440Hz の正弦波 (ラの音) なので、
+    # 残しておくと音符として拾われうる。1拍目の手前より前は一律で捨てる。
+    _ignore_before = max(0.0, GUIDE_OFFSET_SEC - 0.3) if GUIDE_OFFSET_SEC is not None else 0.0
+    gate_mask  = apply_noise_gate(rms, time_all, f0, first_sound_time, _ignore_before)
     valid_mask = ~np.isnan(f0) & gate_mask
+    if _ignore_before > 0.0:
+        valid_mask = valid_mask & (time_all >= _ignore_before)
     valid_time = time_all[valid_mask]
     valid_f0   = f0[valid_mask]
 
@@ -1877,13 +1914,21 @@ try:
     stft_times = librosa.frames_to_time(
         np.arange(stft_mag.shape[1]), sr=sr, hop_length=HOP_LENGTH)
     spectral_noise_floor = _estimate_spectral_noise_floor(
-        stft_mag, stft_times, first_sound_time)
+        stft_mag, stft_times, first_sound_time, _ignore_before)
     print(f"  [Spectral] STFT shape={stft_mag.shape} "
           f"noise_floor={spectral_noise_floor:.6f}")
 
+    # リズム判定の起点 (2026-08-27)。カウントインの1拍目 = 楽譜の1音目が鳴るべき位置。
+    # notes_only[0] は通し録音なら曲の1音目、区間録音なら区間の先頭 (ガイドもそこから動く)。
+    judge_start_time = GUIDE_OFFSET_SEC
+    if judge_start_time is not None:
+        print(f"[4/5] judge_start_time: {judge_start_time:.3f}s (カウントインの1拍目)")
+    else:
+        print("[4/5] judge_start_time: なし → 従来どおり位置合わせを判定にも使う")
+
     results = evaluate_notes(
         notes_only, all_notes, valid_time, valid_f0,
-        global_shift, performance_start_time,
+        global_shift, performance_start_time, judge_start_time,
         onset_times=onset_times, time_scale=time_scale,
         timing_tolerance=timing_tolerance,
         stft_mag=stft_mag, stft_freqs=stft_freqs, stft_times=stft_times,

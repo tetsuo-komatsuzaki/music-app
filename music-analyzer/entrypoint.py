@@ -70,6 +70,10 @@ def main() -> None:
         bpm = os.environ.get("RECORDING_BPM")
         if bpm:
             argv.append(f"--recording-bpm={bpm}")
+        # 1拍目 (楽譜の起点) が録音の何秒目か (2026-08-27)。リズム判定の基準に使う
+        guide = os.environ.get("GUIDE_OFFSET_SEC")
+        if guide:
+            argv.append(f"--guide-offset-sec={guide}")
         script = "analyze_performance.py"
 
     else:

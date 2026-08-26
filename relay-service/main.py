@@ -46,6 +46,8 @@ class InvokeRequest(BaseModel):
     performance_id: Optional[str] = None
     is_practice: bool = False
     recording_bpm: Optional[float] = None
+    # 1拍目が録音の何秒目か (2026-08-27)。リズム判定の起点
+    guide_offset_sec: Optional[float] = None
 
     @field_validator("mode")
     @classmethod
@@ -86,6 +88,8 @@ def _env_for_job(req: InvokeRequest) -> dict[str, str]:
         env["IS_PRACTICE"] = "true"
     if req.recording_bpm is not None:
         env["RECORDING_BPM"] = str(req.recording_bpm)
+    if req.guide_offset_sec is not None:
+        env["GUIDE_OFFSET_SEC"] = str(req.guide_offset_sec)
     return env
 
 

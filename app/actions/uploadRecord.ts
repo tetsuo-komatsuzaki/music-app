@@ -21,6 +21,8 @@ import { checkAudioFile } from "@/app/_libs/audioValidation"
 export async function uploadRecord(params: {
   performanceId: string
   recordingBpm?: number
+  /** 1拍目が録音の何秒目か。アプリ版のみ (2026-08-27) */
+  guideOffsetSec?: number | null
   // 区間録音 (部分練習 Phase 2): 選択区間だけを録音した場合の note_index 範囲。
   // 未指定 = 通常の全体演奏。指定時は Python が区間だけを部分採点し、曲の公式スコア/マスターには非算入。
   rangeFromNote?: number
@@ -100,12 +102,23 @@ export async function uploadRecord(params: {
   // 4. invokeAnalysis 起動 (storageUserId = auth.uid() を Python に渡す)
   const bpm = params.recordingBpm
   const validBpm = bpm && bpm > 0 && bpm < 1000 ? bpm : undefined
-  // 録音時bpmをDBにも保存 (カルテv2 Phase0-1: テンポ帯分析用。従来は解析に渡すのみだった)
+  // 1拍目の位置。負や極端な値は取り違えなので採用しない (解析は従来方式に落ちる)
+  const off = params.guideOffsetSec
+  const validOffset = off != null && off >= 0 && off <= 60 ? off : undefined
+  // 録音時bpmと1拍目の位置をDBにも保存。
+  // 解析には引数でも渡すが、あとで一括再解析したときに同じ結果を出すために残す。
   if (validBpm) {
     try {
       await prisma.performance.update({ where: { id: performance.id }, data: { recordingBpm: validBpm } })
     } catch (e) {
       console.error("[uploadRecord] recordingBpm save failed:", e) // 保存失敗でも解析は続行
+    }
+  }
+  if (validOffset !== undefined) {
+    try {
+      await prisma.performance.update({ where: { id: performance.id }, data: { guideOffsetSec: validOffset } })
+    } catch (e) {
+      console.error("[uploadRecord] guideOffsetSec save failed:", e) // 保存失敗でも解析は続行
     }
   }
   try {
@@ -117,6 +130,7 @@ export async function uploadRecord(params: {
       scoreId: performance.scoreId,
       performanceId: performance.id,
       recordingBpm: validBpm,
+      guideOffsetSec: validOffset,
     })
   } catch (e) {
     logError("analysis.invoke", e, { performanceId: performance.id, scoreId: performance.scoreId })

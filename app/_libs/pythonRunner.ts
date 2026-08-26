@@ -32,6 +32,9 @@ export type InvokeAnalysisParams = {
   performanceId?: string
   isPractice?: boolean
   recordingBpm?: number
+  /** 1拍目 (楽譜の起点) が録音の何秒目か (2026-08-27)。アプリ版のみ。
+      リズム判定の基準に使う。未指定なら解析は従来どおり音から起点を推定する。 */
+  guideOffsetSec?: number
 }
 
 export type InvokeAnalysisResult =
@@ -68,6 +71,7 @@ export async function invokeAnalysis(
     performance_id: params.performanceId,
     is_practice: params.isPractice ?? false,
     recording_bpm: params.recordingBpm,
+    guide_offset_sec: params.guideOffsetSec,
   }
 
   const controller = new AbortController()
