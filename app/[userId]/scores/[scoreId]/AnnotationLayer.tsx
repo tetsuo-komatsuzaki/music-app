@@ -232,6 +232,13 @@ export default function AnnotationLayer({
     container.style.position = "relative"
     const cRect = container.getBoundingClientRect()
     const scrollTop = container.scrollTop
+    // 2026-08-27: 横スクロール量。注釈は position:absolute でコンテナ内に置くので、
+    // viewport 相対の rect をコンテナ座標へ直すには scrollTop と同様 scrollLeft も足す。
+    // 縦レイアウトでは常に0なので挙動は不変。9a帯モード (横画面録音) では録音中ずっと
+    // 横スクロールし続けるため、これが無いと注釈だけが音符から取り残されて流れて見える。
+    // テンポガイド (scoreDetail の updateRecordingCursor) は帯モード対応時に
+    // 同じ補正が入っているが、この注釈レイヤーは一緒に直されていなかった。
+    const scrollLeft = container.scrollLeft
     const els = noteElementsRef.current
     const d = dataRef.current
 
@@ -244,7 +251,7 @@ export default function AnnotationLayer({
         const el = els[i]
         if (!el || !container.contains(el)) continue
         const r = el.getBoundingClientRect()
-        const l = r.left - cRect.left, rr = r.right - cRect.left
+        const l = r.left - cRect.left + scrollLeft, rr = r.right - cRect.left + scrollLeft
         const t = r.top - cRect.top + scrollTop, b = r.bottom - cRect.top + scrollTop
         const cx = (l + rr) / 2
         if (!cur || cx < prevCx - 4) { cur = { l, r: rr, t, b }; bands.push(cur) }
@@ -297,7 +304,7 @@ export default function AnnotationLayer({
       const r = el.getBoundingClientRect()
       const node = document.createElement("div")
       node.className = `${styles.badge} ${cls}`
-      node.style.left = `${r.left + r.width / 2 - cRect.left}px`
+      node.style.left = `${r.left + r.width / 2 - cRect.left + scrollLeft}px`
       node.style.top = `${r.top - cRect.top + scrollTop + (dy || 0) - 22}px`
       node.innerHTML = inner
       container.appendChild(node)
@@ -324,7 +331,7 @@ export default function AnnotationLayer({
       stampStack.set(n.noteIndex, level + 1)
       const node = document.createElement("div")
       node.className = styles.stampGlyph
-      node.style.left = `${r.left + r.width / 2 - cRect.left}px`
+      node.style.left = `${r.left + r.width / 2 - cRect.left + scrollLeft}px`
       node.style.top = `${r.top - cRect.top + scrollTop - 21 - level * 14}px`
       node.innerHTML = stampInnerHtml(n.kind, n.value)
       container.appendChild(node)
