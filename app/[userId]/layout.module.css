@@ -41,7 +41,7 @@
   width: 100%;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 639.98px) {  /* Tailwind sm 未満 */
   .main {
     padding: 10px 18px 24px;   /* モック .scr の左右18px に一致させる */
   }

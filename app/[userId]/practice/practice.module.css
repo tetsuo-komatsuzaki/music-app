@@ -264,22 +264,15 @@
 .recLast { font-size: var(--fs-label); color: var(--text-link); margin-top: 2px; }
 
 /* group view: key grid (scale: 4×3) */
-.keyGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+/* 2026-08-27: @media 600px/400px で 3列/2列 に落としていたのをやめ、
+   入るだけ並べる書き方へ。320〜768px で従来と同じ列数になる幅を選んでいる */
+.keyGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
 .keyCell { background: linear-gradient(180deg, var(--card-a), var(--card-b)); border: 1px solid rgba(150, 175, 225, 0.14); border-radius: 8px; padding: 14px 8px; cursor: pointer; text-align: center; transition: box-shadow 0.15s, transform 0.15s; }
 .keyCell:hover { box-shadow: 0 3px 8px rgba(4, 10, 28, 0.4); transform: translateY(-1px); }
 
 /* group view: chord/composer grid */
 .groupGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 
-/* スマホ: 固定カラム数を縮小して潰れを防ぐ (2026-06-08 レスポンシブ修正) */
-@media (max-width: 600px) {
-  .categoryGrid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .keyGrid { grid-template-columns: repeat(3, 1fr); }
-}
-@media (max-width: 400px) {
-  .categoryGrid { grid-template-columns: 1fr; }
-  .keyGrid { grid-template-columns: repeat(2, 1fr); }
-}
 .groupCell { background: linear-gradient(180deg, var(--card-a), var(--card-b)); border: 1px solid rgba(150, 175, 225, 0.14); border-radius: 10px; padding: 16px; cursor: pointer; text-align: left; transition: box-shadow 0.15s; }
 .groupCell:hover { box-shadow: 0 3px 10px rgba(4, 10, 28, 0.4); }
 .groupCellKey { font-size: var(--fs-subhead); font-weight: 600; color: var(--text-ink); margin-bottom: 4px; }

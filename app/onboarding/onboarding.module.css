@@ -17,7 +17,7 @@
   font-weight: 700;
   color: var(--text-main);
 }
-@media (min-width: 500px) {
+@media (min-width: 640px) {  /* Tailwind sm */
   .frame {
     border-radius: 16px;
     box-shadow: 0 4px 24px rgba(4, 10, 28, 0.5);

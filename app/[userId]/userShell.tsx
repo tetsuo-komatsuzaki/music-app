@@ -7,7 +7,6 @@ import BottomTabs from "./components/BottomTabs"
 import RevealMotion from "@/app/components/RevealMotion"
 import TiltEffect, { DeviceFrame } from "@/app/components/DeviceMotion"
 import Header from "./components/Header"
-import NavProgress from "./components/NavProgress"
 import OnboardingErrorBoundary from "./_onboarding/OnboardingErrorBoundary"
 import OnboardingProvider from "./_onboarding/OnboardingProvider"
 import WelcomeSlides from "./_onboarding/WelcomeSlides"
@@ -28,7 +27,12 @@ export default function UserShell({
   }
   return (
     <OnboardingProvider>
-      <NavProgress />
+      {/* 2026-08-27: 画面上部の青い進捗バー (NavProgress) を撤去。
+          ・URL が変わった「あと」に動き出す作りで、読み込みが終わってから
+            「読み込み中」を見せていた (進捗を示していなかった)
+          ・色 #2563EB/#3B82F6 は配色ルールの外 (操作は紺 #2b5bc4)
+          ・Web の作法であり、画面ごと切り替わるアプリには要らない
+          待ち表示はルートごとの loading.tsx (アルコの金のリング) が担う。 */}
       {/* ナビ刷新 2026-08-17: サイドバー廃止 → ボトム4タブ + 右上アカウント。
           全画面幅で同じタブを使い、本文は最大560pxで中央に寄せる (要件定義 SECTION 05) */}
       <div className={styles.container}>

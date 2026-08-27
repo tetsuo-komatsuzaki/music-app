@@ -32,7 +32,9 @@
 /* ───── 上段2カード (ストリーク + 今週) ───── */
 .topRow {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* 2026-08-27: @media (max-width:430px) で1列に落としていたのをやめ、
+     入らなくなったら勝手に1列になる書き方へ。境界値を持たない */
+  grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
   gap: 12px;
 }
 
@@ -507,13 +509,9 @@
 }
 
 /* ───── スマホ向けレスポンシブ (2026-06-08 修正) ───── */
-@media (max-width: 600px) {
+@media (max-width: 639.98px) {  /* Tailwind sm 未満 */
   .page { padding: 0; gap: 0; }
   .arcoCard { padding: 16px 16px; }
   .card { padding: 14px 14px; }
   .arcoGreeting { font-size: var(--fs-subhead); }
-}
-@media (max-width: 430px) {
-  /* 上段の小型statカードは狭幅で1列に */
-  .topRow { grid-template-columns: 1fr; }
 }
