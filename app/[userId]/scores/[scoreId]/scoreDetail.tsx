@@ -17,7 +17,7 @@ import SymbolGuide, { type SymbolGuideHandle } from "./SymbolGuide"
 import { extractScoreSymbols, BASIC_READING_SYMBOL_IDS, BASIC_SYMBOL_HIDE_STAR } from "@/app/_libs/scoreSymbols"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
 import * as Tone from "tone"
-import { getViolin, releaseViolin } from "@/app/_libs/violinSampler"
+import { playNote, preloadFor, releaseViolin } from "@/app/_libs/violinSampler"
 import { lockLandscape, unlockOrientation } from "@/app/_libs/arcodaOrientation"
 import ProgressTrajectory from "@/app/components/ProgressTrajectory"
 import styles from "./scoreDetail.module.css"
@@ -1779,8 +1779,7 @@ function ScoreDetailInner({
 
   // 2026-08-27: 合成 (Tone.Synth + Vibrato) → 実録音のサンプラーへ。
   // 波形1つでは倍音も弓の立ち上がりも胴の響きも無く、機械音の域を出なかった。
-  // 音源は VSCO 2 CE (CC0)。app/_libs/violinSampler.ts に1本化した。
-  const synthRef = useRef<Tone.Sampler | null>(null)
+  // 音源とインスタンスは app/_libs/violinSampler.ts が持つ (奏法ごとに使い分ける)。
   const partRef = useRef<Tone.Part | null>(null)
   const colorTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]) // 比較色付けの遅延タイマー群
   // 視覚ビート(青い線の上で上下に揺れる丸)。表拍=下/裏拍=上
@@ -2456,26 +2455,39 @@ function ScoreDetailInner({
     transport.stop()
     transport.cancel()
 
-    if (!synthRef.current) {
-      // 初回だけ音源を読み込む (15音・計310KB)。以後はモジュール内で使い回す
-      synthRef.current = await getViolin()
-    }
+    // 使う奏法の音源を先に読み込む。途中で読み込むと最初の数音が無音になる
+    await preloadFor(analysis.notes)
 
     const tempoRatio = getTempoRatio()
     activeTempoRatioRef.current = tempoRatio
 
-    const events = analysis.notes
-      .filter((n) => n.type === "note" && n.pitches.length > 0)
-      .map((n) => ({
-        time: Tone.Time(n.start_time_sec * tempoRatio, "s"),
-        duration: Math.max((n.end_time_sec - n.start_time_sec) * tempoRatio, 0.05),
-        frequency: n.pitches[0],
-      }))
+    // 2026-08-27: 奏法を持たせる。スタッカート等は長さ、トリル/トレモロは刻みで表現し、
+    // ピチカートは別音源に切り替わる (violinSampler.playNote が判断する)。
+    const playable = analysis.notes.filter((n) => n.type === "note" && n.pitches.length > 0)
+    const events = playable.map((n, i) => ({
+      time: Tone.Time(n.start_time_sec * tempoRatio, "s"),
+      duration: Math.max((n.end_time_sec - n.start_time_sec) * tempoRatio, 0.05),
+      frequency: n.pitches[0],
+      art: {
+        articulations: n.articulations,
+        is_tremolo: n.is_tremolo,
+        is_trill: n.is_trill,
+        is_mordent: n.is_mordent,
+      },
+      // トリル/モルデントで交互に鳴らす相手 = 次の音符
+      next: playable[i + 1]?.pitches?.[0] ?? null,
+    }))
 
     if (partRef.current) partRef.current.dispose()
     partRef.current = new Tone.Part(
-      (time, value: { frequency: number; duration: number }) => {
-        synthRef.current?.triggerAttackRelease(value.frequency, value.duration, time)
+      (time, value: (typeof events)[number]) => {
+        void playNote(
+          Tone.Frequency(value.frequency).toNote(),
+          value.duration,
+          time,
+          value.art,
+          value.next ? Tone.Frequency(value.next).toNote() : null,
+        )
       },
       events
     ).start(0)
@@ -3110,7 +3122,9 @@ function ScoreDetailInner({
         partRef.current?.dispose(); partRef.current = null
         // サンプラーはモジュールで使い回している共有インスタンス。
         // dispose すると次に開いた画面で無音になるので、鳴っている音を止めるだけにする。
-        releaseViolin(); synthRef.current = null
+        // サンプラーはモジュールで使い回している共有インスタンス。
+        // dispose すると次に開いた画面で無音になるので、鳴っている音を止めるだけにする。
+        releaseViolin()
       } catch { /* ignore */ }
     }
   }, [stopVisualSync])
