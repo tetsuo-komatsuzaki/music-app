@@ -35,7 +35,7 @@ export async function createPartVariants(input: {
       description: true, descriptionShort: true, keyTonic: true, keyMode: true,
       tempoMin: true, tempoMax: true, positions: true, star: true,
       skillSubTaskTags: true, metadata: true, originalXmlPath: true, buildStatus: true,
-      partId: true,
+      partId: true, articulation: true,
     },
   })
   if (!source) return { ok: false, error: "元の教材が見つかりません" }
@@ -91,6 +91,13 @@ export async function createPartVariants(input: {
         skillSubTaskTags: (source.skillSubTaskTags ?? []) as Prisma.InputJsonValue,
         groupId: source.groupId,
         partId: part.id,
+        // 2026-08-28: 奏法は通しから継ぐ。
+        // 写していなかったため空で作られ、解析の自動判定 (analyze_musicxml.py の
+        // 「スラーのみなら articulation='slur'」) が各パートの中身を見て別々に
+        // 付けていた。同じ曲を切っただけなのに Part1 だけ slur、Part2 は空、
+        // という食い違いが起き、奏法を選んでもパートが揃わなくなっていた。
+        // 奏法は「人が選ぶ軸」であって「その抜粋に何が出てくるか」ではない。
+        articulation: source.articulation,
         metadata: metadata as Prisma.InputJsonValue,
         // 小節範囲だけを残す変換 (難易度変換と同じルールを流用)
         variantRecipe: {

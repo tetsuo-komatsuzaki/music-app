@@ -1406,14 +1406,41 @@ try:
                         (json.dumps(_subtasks), PRACTICE_ITEM_ID),
                     )
                     print(f"[subtask] auto-assigned {_subtasks}")
-                # スラー識別 (2026-07-20): 弓の奏法がスラーのみ(他の奏法技術なし)で articulation 未設定なら
-                # articulation='slur' を補完。奏法バリエーションで「スラー」として識別させる(基本は廃止)。
-                _OTHER_ART_TAGS = {"スタッカート", "スピッカート", "マルテレ", "ポルタート", "トレモロ", "連続スタッカート"}
-                if "スラー" in _tt_names and not (_OTHER_ART_TAGS & set(_tt_names)):
+                # 奏法の自動判定 (2026-07-20 スラーのみ → 2026-08-28 全奏法へ拡張)。
+                #
+                # 譜面に出てくる弓の奏法が1種類だけなら、それをその教材の奏法とする。
+                # 2種類以上混ざる曲は「どれか1つ」に決められないので付けない。
+                #
+                # 2026-08-28 の変更点は2つ。
+                #  ① スラーしか見ていなかったのを、スタッカート等すべてに広げた。
+                #     スタッカートだけの曲は何も付かず、練習前シートの奏法軸に
+                #     載らないまま到達不能になっていた。
+                #  ② パート教材 (partId あり) には効かせない。
+                #     パートは通しから奏法を継ぐ (createPartVariant が写す)。
+                #     ここで抜粋の中身を見て判定すると、同じ曲を切っただけなのに
+                #     Part1 だけ slur / Part2 は空、のように軸が割れ、奏法を選んでも
+                #     パートが揃わなくなる。奏法は「人が選ぶ軸」であって
+                #     「その抜粋に何が出てくるか」ではない。
+                _ART_TAG_TO_ID = {
+                    "スラー": "slur",
+                    "スタッカート": "staccato",
+                    "連続スタッカート": "staccato",
+                    "スピッカート": "spiccato",
+                    "マルテレ": "martele",
+                    "ポルタート": "portato",
+                    "トレモロ": "tremolo",
+                }
+                _art_ids = {_ART_TAG_TO_ID[t] for t in _tt_names if t in _ART_TAG_TO_ID}
+                if len(_art_ids) == 1:
+                    _art_id = next(iter(_art_ids))
                     cur.execute(
-                        'UPDATE "PracticeItem" SET articulation=%s WHERE id=%s AND articulation IS NULL',
-                        ("slur", PRACTICE_ITEM_ID),
+                        'UPDATE "PracticeItem" SET articulation=%s '
+                        'WHERE id=%s AND articulation IS NULL AND "partId" IS NULL',
+                        (_art_id, PRACTICE_ITEM_ID),
                     )
+                    print(f"[articulation] auto-assigned {_art_id}")
+                elif len(_art_ids) > 1:
+                    print(f"[articulation] 複数の奏法が混在するため自動判定しない: {sorted(_art_ids)}")
                 # タグの⭐︎最大値(最低1)を star に自動登録 (§2-2b 統合表: 技術+ポジ+重音)。
                 # 変種は毎回上書き / 手動教材は star 未設定のときだけ補完 (監修値を潰さない)。
                 # (_is_variant は上のポジション分岐で算出済み)

@@ -90,7 +90,15 @@ export default function PrePracticeSheet({
 
   // パート: 実体化されたパート教材 (2026-08-25 案B) があればそれを選ぶ。
   // 選ぶと譜面・録音・採点・カルテのすべてがその範囲だけの教材に切り替わる。
-  const partVariants = group.variants.filter((v) => v.partId)
+  //
+  // 2026-08-28: 第1軸 (奏法/難易度) で選んだ値に属するパートだけを出す。
+  // 以前はグループ内のパート教材を軸と無関係に全部並べていたため、
+  // レガートを選んでいてもスラーのパートが選択肢に出て、選ぶと黙って
+  // 奏法まで変わっていた。パートは通しから奏法を継ぐので (createPartVariant)、
+  // 軸で絞れば「その奏法の通しとパートが必ず揃う」形になる。
+  const axisOf = (v: { articulation?: string | null; difficulty?: string | null }) =>
+    byArt ? (v.articulation ?? "legato") : (v.difficulty ?? "BEGINNER")
+  const partVariants = group.variants.filter((v) => v.partId && axisOf(v) === diff)
   const sections = variant?.sections ?? []
   const [rangeIdx, setRangeIdx] = useState(-1) // -1 = 全部演奏する (実体が無いときの旧経路)
   const [partPick, setPartPick] = useState("")  // 実体化済みパート教材のid
