@@ -225,12 +225,23 @@ export default function AnnotationLayer({
 
   // ---- オーバーレイ描画 (ハイライト帯 + テキスト/注意バッジ) ----
   const renderOverlay = useCallback(() => {
+    // 2026-08-28: 印は React の管理外で #osmd-container に直接ぶら下げている。
+    // 以前は「譜面が見つからない」ときに、直前に描いた印を消す処理の手前で return して
+    // いたため、譜面が消えても印だけが DOM に残り、譜面の無い場所に浮いて見えていた。
+    // 譜面が無い・畳まれている・音符が1つも無い、のどれでも必ず消してから戻る。
+    const clearOverlay = () => {
+      overlayNodesRef.current.forEach((n) => n.remove())
+      overlayNodesRef.current = []
+    }
     const container = document.getElementById(containerId)
-    if (!container) return
-    overlayNodesRef.current.forEach((n) => n.remove())
-    overlayNodesRef.current = []
+    if (!container) { clearOverlay(); return }
+    clearOverlay()
     container.style.position = "relative"
     const cRect = container.getBoundingClientRect()
+    // 畳まれている (大きさが無い) なら描かない
+    if (cRect.width < 1 || cRect.height < 1) return
+    // 音符が1つも描かれていないなら譜面は出ていない。座標の当てが無いので描かない
+    if (!noteElementsRef.current.some((el) => container.contains(el))) return
     const scrollTop = container.scrollTop
     // 2026-08-27: 横スクロール量。注釈は position:absolute でコンテナ内に置くので、
     // viewport 相対の rect をコンテナ座標へ直すには scrollTop と同様 scrollLeft も足す。
@@ -351,8 +362,14 @@ export default function AnnotationLayer({
     }
     container.addEventListener("scroll", schedule, { passive: true })
     window.addEventListener("resize", schedule)
+    // 2026-08-28: 譜面が畳まれたことに気づく口が無かった。
+    // scroll と window.resize しか見ていないため、譜面の入れ物が高さ0になっても
+    // 描き直しが走らず、印だけが残っていた。入れ物の大きさ変化そのものを見る。
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(schedule) : null
+    ro?.observe(container)
     return () => {
       if (raf !== null) cancelAnimationFrame(raf)
+      ro?.disconnect()
       container.removeEventListener("scroll", schedule)
       window.removeEventListener("resize", schedule)
     }

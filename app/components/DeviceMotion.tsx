@@ -9,25 +9,9 @@
 import { useEffect } from "react"
 import ds from "./ds.module.css"
 
-export function DeviceFrame() {
-  return (
-    <div aria-hidden style={{ position: "fixed", inset: 0, zIndex: 900, pointerEvents: "none" }}>
-      <div style={{ position: "absolute", inset: 0, border: "10px solid #000", borderRadius: 34 }} />
-      <div
-        style={{
-          position: "absolute",
-          top: "calc(env(safe-area-inset-top, 0px) + 10px)",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: 104,
-          height: 24,
-          background: "#000",
-          borderRadius: 999,
-        }}
-      />
-    </div>
-  )
-}
+/* 2026-08-28: DeviceFrame (黒いベゼル + ノッチの絵) を削除。
+   モックの端末枠を再現する部品だったが、実機の画面の上にもう一台ぶんの
+   スマホの縁とノッチを描いてしまい、四隅が黒く欠けていた。使用箇所なし。 */
 
 export default function TiltEffect() {
   useEffect(() => {
