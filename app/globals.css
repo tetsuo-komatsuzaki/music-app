@@ -162,17 +162,31 @@ button, [role="button"], a, .pressable, summary, label[role="button"] {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
-/* 2026-08-27 長押しでボタンが反応しない不具合の修正。
-   指を置いたまま 500ms ほど経つと、OS が「文字を選ぼうとしている」と判断して
-   選択の吹き出しを出そうとし、その瞬間そのタップは click として成立しなくなる。
-   押した見た目 (:active) だけ出て何も起きない、という症状になっていた。
-   短いタップだけが通り、長く押すほど失敗するのはこのため。
-   ボタンの文字を選べる必要はないので、選択と吹き出しを止める。
-   文中のリンク (素の a) は対象外。リンク先のコピーや文の選択を残す。 */
-button, [role="button"], .pressable, summary, label[role="button"] {
+/* 長押しの挙動を全面的に止める (2026-08-27 着手 → 2026-08-28 全面化)。
+   ① ボタンが反応しない不具合: 指を置いたまま 500ms ほど経つと OS が
+      「文字を選ぼうとしている」と判断し、その瞬間そのタップは click として
+      成立しなくなる。押した見た目 (:active) だけ出て何も起きない。
+      短いタップだけ通り、長く押すほど失敗するのはこのため。
+   ② リンクのプレビュー: リンクや画像を長押しすると
+      「Open Link / Copy Link / Share...」の吹き出しが出る。Web の作法であり、
+      アプリでは起きない。
+   当初はボタンだけを対象にし、文中リンクの選択を残していたが、
+   ①②とも「ありとあらゆる箇所で出さない」方針に変更 (2026-08-28 Tetsuo指示)。
+   根元 (html) に1つだけ置く。両方とも継承するので、これで全要素に効く。
+   入力欄だけは選択できないと編集できないので戻す。 */
+html {
+  -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
-  -webkit-touch-callout: none;
+}
+input, textarea, select, [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+/* 画像の長押しドラッグ (保存メニュー・ゴースト画像) も止める */
+img, svg, picture {
+  -webkit-user-drag: none;
+  user-drag: none;
 }
 /* a も対象: transform は仕様上インライン文中リンクには効かず、ボタン風リンク(inline-flex/block)だけが沈む */
 button:active:not(:disabled):not(.noPress),

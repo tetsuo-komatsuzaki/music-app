@@ -174,6 +174,18 @@ export default function SymbolGuide({
     // (LessonScoreCard と同方式)。玉を輪でかこう配置に使う。
     const head = (el.querySelector(".vf-notehead") as HTMLElement | null) ?? el
     const r = head.getBoundingClientRect()
+    // 2026-08-28: 目印は譜面ラッパーにぶら下げている (OSMD が innerHTML='' で
+    // 消すため #osmd-container には挿せない)。ラッパーは切り取らないので、
+    // 譜面が畳まれているときに入れ物からはみ出した音符の位置へ目印を置くと、
+    // 画面のはるか下に金色の輪が浮き、そのぶんページが下へ伸びてしまう。
+    // 音符が入れ物の見えている範囲に無いときは出さない。
+    if (container) {
+      const c = container.getBoundingClientRect()
+      const outside =
+        r.bottom < c.top - 2 || r.top > c.bottom + 2 ||
+        r.right < c.left - 2 || r.left > c.right + 2
+      if (outside) { node.style.display = "none"; return }
+    }
     node.style.display = ""
     // 大きさは従来 (玉 + 4px) の半分。小さすぎないよう下限8px。線も細く。
     const d = Math.max((Math.max(r.width, r.height) + 4) / 2, 8)
