@@ -1213,11 +1213,10 @@ function ScoreDetailInner({
       }
     }
   }, [])
-  const handlePerformanceDeleted = useCallback((performanceId: string) => {
-    setPerformances(prev => prev.filter(p => p.id !== performanceId))
-    setSelected(prev => (prev?.id === performanceId ? null : prev))
-    setRecentlyDeleted(true)
-    setDeleteToast("演奏を削除しました")
+  /** 画面上部に短い知らせを出す (3秒で消える)。削除完了のほか、
+      押しても進めなかった理由を伝えるのに使う (黙って戻らないため) */
+  const showNotice = useCallback((message: string) => {
+    setDeleteToast(message)
     if (deleteToastTimerRef.current != null) {
       window.clearTimeout(deleteToastTimerRef.current)
     }
@@ -1226,6 +1225,12 @@ function ScoreDetailInner({
       deleteToastTimerRef.current = null
     }, 3000)
   }, [])
+  const handlePerformanceDeleted = useCallback((performanceId: string) => {
+    setPerformances(prev => prev.filter(p => p.id !== performanceId))
+    setSelected(prev => (prev?.id === performanceId ? null : prev))
+    setRecentlyDeleted(true)
+    showNotice("演奏を削除しました")
+  }, [showNotice])
   const [playbackState, setPlaybackState] = useState<"stopped" | "playing" | "paused">("stopped")
   const [playbackTempo, setPlaybackTempo] = useState(analysis?.bpm ?? 90)
   // メトロノーム (お手本再生中に拍を刻む) 2026-07-18
@@ -2531,10 +2536,18 @@ function ScoreDetailInner({
     const hi = Math.max(rangeStart, rangeEnd)
     const s = analysis.notes[lo]
     const e = analysis.notes[hi]
-    if (!s || !e) return
+    // 2026-08-27: 以前はここで黙って戻っていた。押しても何も起きず、理由も分からなかった。
+    // 選んだ区間が譜面と噛み合っていないときなので、選び直しへ促す。
+    if (!s || !e) {
+      showNotice("選んだ区間が見つからなかったよ。もう一度えらんでね")
+      return
+    }
     const startSec = s.start_time_sec * ratio
     const endSec = e.end_time_sec * ratio
-    if (endSec <= startSec) return
+    if (endSec <= startSec) {
+      showNotice("区間の長さが取れなかったよ。少し広くえらんでね")
+      return
+    }
     if (playbackState === "playing") {
       Tone.getTransport().stop()
       Tone.getTransport().cancel()
@@ -2542,7 +2555,7 @@ function ScoreDetailInner({
     }
     setIsRangeLooping(true)
     await setupPart(startSec, { start: startSec, end: endSec })
-  }, [analysis, rangeStart, rangeEnd, getTempoRatio, setupPart, playbackState, stopVisualSync])
+  }, [analysis, rangeStart, rangeEnd, getTempoRatio, setupPart, playbackState, stopVisualSync, showNotice])
 
   // --- スコアクリックで任意位置から再生 / ポップオーバー表示 ---
   const handleScoreClick = useCallback(async (e: React.MouseEvent) => {
