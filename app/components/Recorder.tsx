@@ -252,6 +252,15 @@ type Props = {
   onRecordingBpmChange?: (bpm: number) => void
   /** countdown 突入時に1回呼ぶ (F-1 のフルスクリーン化トリガ) */
   onCountdownStart?: () => void
+  /**
+   * 状態が変わるたびに呼ぶ (2026-08-27)。
+   * 従来は countdown / recording / preview へ進むときだけ個別に通知しており、
+   * 「もう一度録音する」で idle に戻ったことが親に伝わらなかった。
+   * その結果 recordingState が preview のまま固定され、
+   * `recordingState === "idle"` を条件にした録音の入口がすべて消えていた。
+   * 進む向きだけでなく戻る向きも含め、ここで一括して伝える。
+   */
+  onStatusChange?: (status: Status) => void
   /** 拍子 (2026-08-27)。カウントインの回数と刻みをこれで決める。未指定は 4/4 扱い */
   timeNumerator?: number | null
   timeDenominator?: number | null
@@ -292,7 +301,7 @@ type Props = {
 
 export type Status = "idle" | "tempo-select" | "preparing" | "countdown" | "recording" | "preview" | "uploading" | "result"
 
-export default function Recorder({ onRecordingComplete, previousBestScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, timeNumerator, timeDenominator, onGuideOffset, onPrepare, uploadProgress, onShowLoop, onIdleRecordClick, resolvedResult }: Props) {
+export default function Recorder({ onRecordingComplete, previousBestScore, disabled, bpm, onRecordingStart, onRecordingStop, onRecordingBpmChange, onCountdownStart, onStatusChange, timeNumerator, timeDenominator, onGuideOffset, onPrepare, uploadProgress, onShowLoop, onIdleRecordClick, resolvedResult }: Props) {
   const [status, setStatus] = useState<Status>("idle")
   const params = useParams<{ userId?: string }>()
 
@@ -415,6 +424,11 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   // =========================================================
   // カウントイン
   // =========================================================
+
+  // 状態の変化を親へ伝える。戻る向き (preview → idle など) も漏らさない
+  const onStatusChangeRef = useRef(onStatusChange)
+  onStatusChangeRef.current = onStatusChange
+  useEffect(() => { onStatusChangeRef.current?.(status) }, [status])
 
   /** 予約したクリック音。中止時に止められるよう控えておく */
   const scheduledClicksRef = useRef<OscillatorNode[]>([])

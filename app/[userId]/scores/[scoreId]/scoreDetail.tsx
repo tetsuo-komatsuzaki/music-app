@@ -3826,6 +3826,12 @@ function ScoreDetailInner({
             previousBestScore={bestPitchScore}
             bpm={playbackTempo}
             onCountdownStart={() => setRecordingState("countdown")}
+            // 2026-08-27: Recorder の状態をそのまま写す。
+            // 従来は進む向き (countdown / recording / preview) しか受け取っておらず、
+            // 「もう一度録音する」で idle に戻ったことが伝わらなかった。
+            // recordingState が preview のまま固定され、これを条件にしている
+            // 録音の入口・区間録音がすべて消えていた (ページを開き直すまで復帰しない)。
+            onStatusChange={(s) => setRecordingState(s)}
             timeNumerator={analysis?.time_signature?.numerator ?? null}
             timeDenominator={analysis?.time_signature?.denominator ?? null}
             onGuideOffset={(sec) => { guideOffsetSecRef.current = sec }}
