@@ -3,19 +3,23 @@
   gap: 16px; padding: 24px 0; position: relative;
 }
 
-/* トースト — Animation 7: slide-in from top */
+/* トースト (2026-08-27 修正)
+   前は position:absolute で上に重ねていたため、直前の要素と文字が重なっていた。
+   また white-space:nowrap のせいで、長い文言が画面の外まで伸びていた。
+   流れの中に置いて場所を確保し、文言は折り返す。 */
 .toast {
-  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-  padding: 10px 24px; border-radius: 24px; font-size: var(--fs-subhead); font-weight: 500;
-  animation: toastSlide 4s ease forwards; z-index: 10; white-space: nowrap;
+  align-self: center; max-width: 100%;
+  padding: 10px 18px; border-radius: 16px;
+  font-size: var(--fs-body); font-weight: 700; line-height: 1.55; text-align: center;
+  animation: toastSlide 4s ease forwards;
 }
 .toastSuccess { background: rgba(46,125,91,.2); color: var(--text-good); }
 .toastError { background: rgba(196,68,68,.18); color: var(--text-error); }
 @keyframes toastSlide {
-  0%   { opacity: 0; transform: translateX(-50%) translateY(-16px); }
-  10%  { opacity: 1; transform: translateX(-50%) translateY(0); }
-  80%  { opacity: 1; transform: translateX(-50%) translateY(0); }
-  100% { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  0%   { opacity: 0; transform: translateY(-10px); }
+  10%  { opacity: 1; transform: translateY(0); }
+  80%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-6px); }
 }
 
 /* ① 待機 */
@@ -45,7 +49,7 @@
 .recordingPanel {
   display: flex; flex-direction: column; align-items: center; gap: 12px;
   padding: 24px 32px; background: rgba(226,75,74,.14); border-radius: 20px;
-  border: 1.5px solid #E24B4A; min-width: 300px;
+  border: 1.5px solid #E24B4A; min-width: min(300px, 100%); max-width: 100%;
 }
 .recordingTitle { font-size: var(--fs-subhead); font-weight: 500; color: var(--text-ink); }
 .meterContainer { width: 100%; }
@@ -80,7 +84,7 @@
 /* ② カウントイン */
 .countdownPanel {
   display: flex; flex-direction: column; align-items: center; gap: 12px;
-  padding: 32px; min-width: 300px;
+  padding: 32px; min-width: min(300px, 100%); max-width: 100%;
 }
 .countdownNum {
   font-size: 72px; font-weight: 700; color: var(--text-error);
@@ -103,8 +107,8 @@
 /* ③ プレビュー */
 .previewPanel {
   display: flex; flex-direction: column; align-items: center; gap: 14px;
-  padding: 24px 32px; background: var(--card-b); border-radius: 20px;
-  border: 0.5px solid #e0e0e0; min-width: 300px;
+  padding: 24px clamp(14px, 5vw, 32px); background: var(--card-b); border-radius: 20px;
+  border: 0.5px solid #e0e0e0; min-width: min(300px, 100%); max-width: 100%;
 }
 .audioPlayer { width: 100%; max-width: 340px; }
 
@@ -136,20 +140,29 @@
   font-size: var(--fs-body); color: var(--text-body);
 }
 
-.previewActions { display: flex; gap: 10px; }
+/* 2026-08-27: 2つのボタンが並びきらず、右の採点ボタンが画面の外へ出ていた。
+   320px端末で45px、360px端末で5px。親パネルの左右余白 32px×2 が効いている。
+   ボタンは縮んで折り返せるようにし、パネルの余白は画面幅に応じて詰める。 */
+.previewActions {
+  display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%;
+}
+.previewActions > button { flex: 1 1 auto; min-width: 0; }
 .retryBtn {
   padding: 10px 20px; background: var(--card-in); border: 1.5px solid #888;
   border-radius: 24px; color: var(--text-body); font-size: var(--fs-subhead); font-weight: 500; cursor: pointer;
 }
 .retryBtn:hover { background: rgba(150,175,225,.08); }
+/* 2026-08-27: 薄緑 #8FD3B0 に白文字だった。明暗差 1.73:1 で、読める下限 4.5 を大きく下回る。
+   配色ルール (2026-08-16 案1) にも緑は無く、ダーク刷新の取り残しだった。
+   操作の色=ネイビー #2b5bc4 に変更。白文字との明暗差 6.18:1。 */
 .submitBtn {
-  padding: 10px 24px; background: #8FD3B0; border: none;
-  border-radius: 24px; color: var(--text-on-accent); font-size: var(--fs-subhead); font-weight: 500; cursor: pointer;
+  padding: 10px 24px; background: var(--accent); border: none;
+  border-radius: 24px; color: var(--text-on-accent); font-size: var(--fs-subhead); font-weight: 700; cursor: pointer;
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
 }
 .submitBtn:not(:disabled):active { transform: translateY(4px); box-shadow: none; }
 .submitBtn:disabled { box-shadow: none; }
-.submitBtn:hover { background: #8FD3B0; }
+.submitBtn:hover { background: #3d6ed6; }
 
 /* ④ 解析中 */
 .uploadingPanel {
@@ -166,8 +179,8 @@
 /* Animation 3: result panel entrance */
 .resultPanel {
   display: flex; flex-direction: column; align-items: center; gap: 14px;
-  padding: 24px 32px; background: var(--card-b); border-radius: 20px;
-  border: 0.5px solid #e0e0e0; min-width: 300px;
+  padding: 24px clamp(14px, 5vw, 32px); background: var(--card-b); border-radius: 20px;
+  border: 0.5px solid #e0e0e0; min-width: min(300px, 100%); max-width: 100%;
   animation: resultReveal 0.4s cubic-bezier(0.22,1,0.36,1);
 }
 @keyframes resultReveal {
