@@ -6,20 +6,13 @@
   background: rgba(0, 0, 0, 0.4);
   z-index: 1900;
   /*
-   * オンボ中は指示以外の場所をタップしても画面が動かないよう、背景でクリックを止める
-   * (ガイドが途切れるのを防ぐ)。中央表示マークは対象が無いので全面ブロックでよい。
-   * tooltip / awaitTap 対象は上の層 or 穴で引き続き操作できる。
+   * 対象が無く画面中央にマークを出すときの暗幕。目に見える暗幕なので
+   * 「押せないことが見てわかる」。透明な板で覆うのとは別物。
    */
   pointer-events: auto;
 }
-
-/* 指示以外の場所のタップを飲み込む透明ブロッカー (awaitTap では対象の穴を残して周囲だけ) */
-.blocker {
-  position: fixed;
-  z-index: 1900;
-  background: transparent;
-  pointer-events: auto;
-}
+/* 2026-08-27: 透明ブロッカー (.blocker) を撤去。
+   押せる範囲は見えている範囲と一致させる。見えない板で指を止めない。 */
 
 .spotlight {
   position: fixed;

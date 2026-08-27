@@ -637,7 +637,11 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
 
   // 録音できた Blob を preview へ渡すまでの共通処理 (Web版 / アプリ版で同一)。
   const presentRecordedBlob = useCallback(async (blob: Blob) => {
+    // 2026-08-27: ここも黙って idle に戻していた。
+    // 弾き終えて停止したのに、何も言われず録音前の画面に戻るので
+    // 「録音できたはずなのに反応しない」に見える。理由を伝える。
     if (blob.size === 0) {
+      showToast("音が録れていなかったよ。マイクを確かめてもう一度ためしてね", "error")
       setStatus("idle")
       return
     }
@@ -877,7 +881,15 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   }, [audioUrl, discardNativeFile])
 
   const submitRecording = useCallback(async () => {
-    if (!blobRef) return
+    // 2026-08-27: ここは以前 `if (!blobRef) return` で黙って戻っていた。
+    // 録音が手元に無いのに採点ボタンだけ出ている状態になると、押しても
+    // トーストも出ず状態も変わらず、利用者からは「押しても反応しない」に見える。
+    // 何が起きたか伝え、録音し直せる場所まで戻す。
+    if (!blobRef) {
+      showToast("録音が見つからなかったよ。もう一度録音してね", "error")
+      retryRecording()
+      return
+    }
     setStatus("uploading")
     try {
       const res = await onRecordingComplete(blobRef)
@@ -920,7 +932,7 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       showToast(`送信エラー: ${e.message}`, "error")
       setStatus("preview")
     }
-  }, [blobRef, onRecordingComplete])
+  }, [blobRef, onRecordingComplete, retryRecording])
 
 
   const continueToNext = useCallback(() => {
