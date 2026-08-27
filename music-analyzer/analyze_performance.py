@@ -83,8 +83,19 @@ CENTER_RATIO = 0.80
 # ③ 3軸カスケード評価 (2026-05-26)
 # 持続が期待値の何%以内なら "持続◯" 判定とするか
 DURATION_TOLERANCE_RATIO = 0.3  # ±30%
-# 段階拡大の探索半径 (秒)
-CASCADE_SEARCH_RADII = [0.15, 0.5, 1.0, 1.5]
+# 段階拡大の探索半径 (2026-08-27: 秒固定 → 1拍に対する割合)。
+# 旧値 [0.15, 0.5, 1.0, 1.5]秒 は、♩=80 で 0.2/0.7/1.3/2.0拍、
+# ♩=152 で 0.4/1.3/2.5/3.8拍 と、速い曲ほど広がる逆転が起きていた。
+#
+# 幅の決め方:
+#   判定の許容は 1拍の50% (get_timing_tolerance)。探索がそれ以下だと、
+#   「許容を超えて遅れた音」が見つからず「弾いていない」に化ける。
+#   よって最終段は許容の2倍 (1拍) まで見に行き、遅れとして報告できるようにする。
+#   隣の音符に食い込むのは問題ない。演奏者は正規の位置に弾くとは限らず、
+#   遅れた音は隣の領域で鳴る。誤検出は距離ではなく音の高さで防ぐ。
+CASCADE_SEARCH_BEATS = [0.25, 0.50, 1.00]
+# 極端に速い曲で窓が潰れないための下限 (秒)。マイクの遅れ・音の立ち上がり相当
+CASCADE_MIN_SEC = 0.08
 # 短音奏法の note 属性 (これらが True なら持続短くて OK)
 SHORT_TECHNIQUE_ATTRS = ("is_staccato", "is_pizzicato", "is_spiccato",
                           "is_ricochet", "is_bow_staccato")
@@ -120,6 +131,13 @@ HARMONIC_CENTS_OK      = 50     # ハーモニクスのセント許容 (sounding
 TIMING_TOLERANCE_BASE = 0.50
 
 
+def cascade_radii(beat_sec: float) -> list:
+    """1拍の長さから段階探索の半径 (秒) を作る (2026-08-27)。"""
+    if not beat_sec or beat_sec <= 0:
+        beat_sec = 60.0 / 90.0
+    return [max(beat_sec * r, CASCADE_MIN_SEC) for r in CASCADE_SEARCH_BEATS]
+
+
 def get_timing_tolerance(target_bpm: float) -> float:
     """BPM 連動のタイミング許容値 (秒) を返す。"""
     if target_bpm is None or target_bpm <= 0:
@@ -151,11 +169,15 @@ def _diag(msg: str) -> None:
 # 探索窓の実測 (2026-08-27)。秒で固定された探索半径がテンポに対して
 # 広すぎないかを、実際の録音で確かめるための集計。判定には一切使わない。
 _SEARCH_STATS: dict = {
-    "stage_hits": [0, 0, 0, 0],   # 何段目で見つかったか
+    "stage_hits": [0, 0, 0],      # 何段目で見つかったか
     "not_found": 0,               # どの段でも見つからなかった
     "same_pitch_total": 0,        # 同音連続だった音符
     "same_pitch_missed": 0,       # そのうち Stage1 で見つからなかった
     "offsets_sec": [],            # 見つかった位置 - 期待位置 (秒)
+    "candidates": 0,              # 検査した onset 候補の総数
+    "guard1_rejects": 0,          # 前の音がまだ鳴っている
+    "guard3_rejects": 0,          # 立ち上がりでない
+    "pitch_rejects": 0,           # 高さが合わない
 }
 
 
@@ -168,7 +190,7 @@ def _record_search(stage: int | None, offset_sec: float | None,
     if not found:
         _SEARCH_STATS["not_found"] += 1
         return
-    if stage is not None and 0 <= stage < 4:
+    if stage is not None and 0 <= stage < len(_SEARCH_STATS["stage_hits"]):
         _SEARCH_STATS["stage_hits"][stage] += 1
     if offset_sec is not None:
         _SEARCH_STATS["offsets_sec"].append(float(offset_sec))
@@ -180,11 +202,13 @@ def _print_search_stats(beat_sec: float) -> None:
     total = sum(st["stage_hits"]) + st["not_found"]
     if total == 0:
         return
-    radii = CASCADE_SEARCH_RADII
+    radii = cascade_radii(beat_sec)
     print("")
     print("[search-stats] 探索窓の実測 ------------------------")
     print(f"[search-stats] 1拍 = {beat_sec:.3f}秒")
     for i, n in enumerate(st["stage_hits"]):
+        if i >= len(radii):
+            continue
         pct = radii[i] / beat_sec * 100 if beat_sec > 0 else 0
         print(f"[search-stats]   Stage{i+1} (±{radii[i]:.2f}秒 = 1拍の{pct:.0f}%) で発見: "
               f"{n}音 ({n/total*100:.1f}%)")
@@ -209,6 +233,14 @@ def _print_search_stats(beat_sec: float) -> None:
         over = sum(1 for o in arr if beat_sec > 0 and o > beat_sec * 0.5)
         print(f"[search-stats]   半拍を超えてずれた位置で発見: {over}音 ({over/len(arr)*100:.1f}%)"
               "  ← 別の音を拾った疑い")
+    cand = st["candidates"]
+    if cand:
+        print(f"[search-stats]   検査した候補 {cand}件 の内訳:")
+        for k, lab in (("guard1_rejects", "前の音がまだ鳴っている"),
+                       ("guard3_rejects", "立ち上がりでない"),
+                       ("pitch_rejects", "高さが合わない")):
+            n = st[k]
+            print(f"[search-stats]     {lab}: {n}件 ({n/cand*100:.1f}%)")
     print("[search-stats] ----------------------------------------")
 ONSET_PITCH_CHANGE_CENTS = 30     # onset 前後のピッチ変化閾値（cents）
 ONSET_PITCH_CHANGE_WINDOW = 0.03  # onset 前後の比較窓（秒）
@@ -226,8 +258,11 @@ SAME_PITCH_ONSET_RMS_WINDOW = 0.03  # ±30ms (ONSET_PITCH_CHANGE_WINDOW と揃�
 MAX_DURATION_SEC = 660   # 10分 (600s) + 余裕 1分 (Recorder 側 MAX_DURATION = 600s 整合 + 録音前後の無音バッファ吸収)
 MIN_DURATION_SEC = 3
 
-# 開始位置検出
-SEARCH_RANGE_SEC = 1.0
+# 開始位置検出 (曲全体の位置合わせ)。
+# 2026-08-27: 秒固定 → 1拍に対する割合。ここは「演奏がいつ始まったか」を吸収する
+# 役割なので、段階探索より広く取る。1拍以上遅れて弾き始める演奏は普通にある。
+SEARCH_RANGE_BEATS = 1.5
+SEARCH_RANGE_MIN_SEC = 0.5
 SEARCH_STEP_SEC = 0.01
 
 # 楽器別ピッチ範囲
@@ -441,7 +476,7 @@ def upload_to_storage(bucket: str, path: str, data: bytes, content_type: str = "
 # Step 1: 開始位置検出（ピッチスキャン）
 # =========================================================
 
-def find_start_position(notes_only, valid_time, valid_f0, first_sound_time):
+def find_start_position(notes_only, valid_time, valid_f0, first_sound_time, beat_sec=None):
     first_note_start = float(notes_only[0]["start_time_sec"])
     check_notes = notes_only[:min(15, len(notes_only))]
     anchor = first_sound_time - first_note_start
@@ -450,7 +485,9 @@ def find_start_position(notes_only, valid_time, valid_f0, first_sound_time):
     best_matches = 0
 
     if len(valid_time) > 0 and len(check_notes) >= 2:
-        steps = int(SEARCH_RANGE_SEC / SEARCH_STEP_SEC)
+        # 2026-08-27: 拍基準。速い曲ほど広がる逆転を解消
+        _range = max((beat_sec or 0.667) * SEARCH_RANGE_BEATS, SEARCH_RANGE_MIN_SEC)
+        steps = int(_range / SEARCH_STEP_SEC)
         for abs_off in range(0, steps + 1):
             for sign in ([0] if abs_off == 0 else [-1, 1]):
                 candidate = anchor + abs_off * sign * SEARCH_STEP_SEC
@@ -567,6 +604,7 @@ def _try_match_at(t, expected_pitch, expected_duration, valid_time, valid_f0,
 
 
 def find_note_segment(cursor, expected_pitch, expected_duration, valid_time, valid_f0,
+                      expected_pos=None,
                       onset_times=None, prev_expected_pitch=None, next_expected_pitch=None,
                       prev_seg_end=None, rms=None, time_all=None, note_idx=None,
                       search_range_override=None):
@@ -599,23 +637,30 @@ def find_note_segment(cursor, expected_pitch, expected_duration, valid_time, val
         _diag(f"note={note_idx} same_pitch={same_pitch} cursor={cursor:.3f} "
               f"search_end={search_end:.3f} candidates={len(candidate_onsets)} "
               f"prev_seg_end={prev_seg_end if prev_seg_end is not None else 'N/A'}")
+        _SEARCH_STATS["candidates"] += len(candidate_onsets)
         for onset_t in candidate_onsets:
             # ガード1: 前ノートの持続中の偽 onset を無視
             if prev_seg_end is not None and onset_t < prev_seg_end - 0.05:
+                _SEARCH_STATS["guard1_rejects"] += 1
                 _diag(f"note={note_idx} cand t={onset_t:.3f} REJ guard1 prev_seg_end")
                 continue
-            # ガード2: 期待タイミングから大幅に外れた onset は無視
-            timing_gap = abs(onset_t - cursor)
-            if timing_gap > expected_duration * 2.0:
-                _diag(f"note={note_idx} cand t={onset_t:.3f} REJ guard2 "
-                      f"gap={timing_gap:.3f}>{expected_duration*2:.3f}")
-                continue
+            # ガード2 (期待位置から音符の長さ×2 より遠い候補を捨てる) は
+            # 2026-08-27 に削除した。理由:
+            #   ・距離で「別の音符」を弾こうとする発想自体が誤り。演奏者は正規の位置に
+            #     弾くとは限らず、遅れた音は隣の音符の領域で鳴る。そこを見に行かないと
+            #     「遅れ」が「弾いていない」に化ける。
+            #   ・自分の長さを前後に対称に使っていたが、実際の隣までの距離は
+            #     前=前の音符の長さ、後=自分の長さ で非対称。隣の距離を表せていなかった。
+            #   ・判定の許容 (1拍の50%) が既に拍基準。探索だけ音符長基準で締めるのは矛盾。
+            #   ・実測でも候補の 2.9〜8.8% しか捨てておらず、効果は小さかった。
+            # 誤検出は距離ではなく音の高さ (_try_match_at) とガード1・3で防ぐ。
             # ガード3: legitimate な onset か判定。
             # 同音連続時は RMS rise、異音切替時はピッチ変化で判定 (v1+ PDCA)。
             if not _is_legitimate_onset(
                 onset_t, valid_time, valid_f0, rms, time_all,
                 expected_pitch, prev_expected_pitch,
             ):
+                _SEARCH_STATS["guard3_rejects"] += 1
                 _diag(f"note={note_idx} cand t={onset_t:.3f} REJ guard3 (gate)")
                 continue
 
@@ -626,6 +671,7 @@ def find_note_segment(cursor, expected_pitch, expected_duration, valid_time, val
                 _diag(f"note={note_idx} cand t={onset_t:.3f} ACCEPT seg_start={result['seg_start']:.3f}")
                 return result
             else:
+                _SEARCH_STATS["pitch_rejects"] += 1
                 _diag(f"note={note_idx} cand t={onset_t:.3f} REJ _try_match_at returned None")
 
     # === 同音連続 + Phase 1 全却下: Phase 2 をスキップして None を返す ===
@@ -1265,7 +1311,7 @@ def _classify_segment(segment, expected_pos, expected_duration,
     return "reject"
 
 
-def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, judge_start_time=None, onset_times=None, time_scale=1.0, timing_tolerance=TIMING_TOLERANCE_BASE, stft_mag=None, stft_freqs=None, stft_times=None, spectral_noise_floor=None, rms=None, time_all=None):
+def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, performance_start_time, judge_start_time=None, beat_sec=None, onset_times=None, time_scale=1.0, timing_tolerance=TIMING_TOLERANCE_BASE, stft_mag=None, stft_freqs=None, stft_times=None, spectral_noise_floor=None, rms=None, time_all=None):
     results = []
     cursor = performance_start_time
 
@@ -1314,7 +1360,8 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
         # ② vulnerability 解消 (2026-05-26): cursor 計算から prev_seg_end 依存を削除。
         # 同音は v25 で別経路、異音は PITCH_SEARCH_CENTS + Improvement J が前 sustain
         # での false-match を防ぐため、cursor を前ノート末尾で押し出す必要なし。
-        SEARCH_PRE_BUFFER = 0.15
+        # 2026-08-27: 手前余裕も拍基準に (Stage1 と同じ幅)
+        SEARCH_PRE_BUFFER = max(beat_sec * CASCADE_SEARCH_BEATS[0], CASCADE_MIN_SEC)
         cursor = max(expected_pos - SEARCH_PRE_BUFFER, performance_start_time)
 
         # v1.7 Phase D: 重音 (len(pitches)>=2) はスペクトル検証パスへ分岐。
@@ -1353,11 +1400,13 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
         seen_seg_starts = set()
 
         # --- Stage 1 ---
-        stage1_radius = CASCADE_SEARCH_RADII[0]
+        _radii = cascade_radii(beat_sec)
+        stage1_radius = _radii[0]
         stage1_cursor = max(expected_pos - stage1_radius, performance_start_time)
         stage1_search_range = (expected_pos + stage1_radius) - stage1_cursor
         seg = find_note_segment(
             stage1_cursor, expected_pitch, expected_duration, valid_time, valid_f0,
+            expected_pos=expected_pos,
             onset_times=use_onsets,
             prev_expected_pitch=prev_pitch, next_expected_pitch=next_pitch,
             prev_seg_end=prev_seg_end,
@@ -1391,13 +1440,14 @@ def evaluate_notes(notes_only, all_notes, valid_time, valid_f0, global_shift, pe
             and abs(prev_pitch - expected_pitch) < 1e-6
         )
         if selected_segment is None and not same_pitch_local:
-            for stage_idx in range(1, len(CASCADE_SEARCH_RADII)):
-                radius = CASCADE_SEARCH_RADII[stage_idx]
+            for stage_idx in range(1, len(_radii)):
+                radius = _radii[stage_idx]
                 stage_cursor = max(expected_pos - radius, performance_start_time)
                 stage_search_range = (expected_pos + radius) - stage_cursor
 
                 seg = find_note_segment(
                     stage_cursor, expected_pitch, expected_duration, valid_time, valid_f0,
+                    expected_pos=expected_pos,
                     onset_times=use_onsets,
                     prev_expected_pitch=prev_pitch, next_expected_pitch=next_pitch,
                     prev_seg_end=prev_seg_end,
@@ -1957,7 +2007,10 @@ try:
     valid_time = time_all[valid_mask]
     valid_f0   = f0[valid_mask]
 
-    global_shift = find_start_position(notes_only, valid_time, valid_f0, first_sound_time)
+    # 1拍の長さ。録音テンポ優先 (演奏者が見ていた青線と同じものさし)
+    _tb = RECORDING_BPM if (RECORDING_BPM and RECORDING_BPM > 0) else BPM
+    beat_sec = 60.0 / _tb if _tb else 60.0 / 90.0
+    global_shift = find_start_position(notes_only, valid_time, valid_f0, first_sound_time, beat_sec)
     print(f"[4/5] global_shift: {global_shift:.3f}s")
 
     performance_start_time = float(notes_only[0]["start_time_sec"]) + global_shift
@@ -2013,7 +2066,7 @@ try:
 
     results = evaluate_notes(
         notes_only, all_notes, valid_time, valid_f0,
-        global_shift, performance_start_time, judge_start_time,
+        global_shift, performance_start_time, judge_start_time, beat_sec,
         onset_times=onset_times, time_scale=time_scale,
         timing_tolerance=timing_tolerance,
         stft_mag=stft_mag, stft_freqs=stft_freqs, stft_times=stft_times,
@@ -2023,8 +2076,7 @@ try:
     # 探索窓の実測を出す (2026-08-27)。判定には影響しない。
     # 1拍の長さは録音テンポ基準 (演奏者が見ていた青線と同じものさし)。
     try:
-        _target_bpm = RECORDING_BPM if (RECORDING_BPM and RECORDING_BPM > 0) else BPM
-        _print_search_stats(60.0 / _target_bpm if _target_bpm else 0.0)
+        _print_search_stats(beat_sec)
     except Exception as _e:
         print(f"[search-stats] 集計に失敗: {_e}")
 
