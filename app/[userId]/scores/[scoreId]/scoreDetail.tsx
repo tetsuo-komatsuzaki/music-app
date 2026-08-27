@@ -17,6 +17,7 @@ import SymbolGuide, { type SymbolGuideHandle } from "./SymbolGuide"
 import { extractScoreSymbols, BASIC_READING_SYMBOL_IDS, BASIC_SYMBOL_HIDE_STAR } from "@/app/_libs/scoreSymbols"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
 import * as Tone from "tone"
+import { getViolin, releaseViolin } from "@/app/_libs/violinSampler"
 import { lockLandscape, unlockOrientation } from "@/app/_libs/arcodaOrientation"
 import ProgressTrajectory from "@/app/components/ProgressTrajectory"
 import styles from "./scoreDetail.module.css"
@@ -1776,8 +1777,10 @@ function ScoreDetailInner({
   // 再生・ハイライト関連
   // =========================================================
 
-  const synthRef = useRef<Tone.Synth | null>(null)
-  const vibratoRef = useRef<Tone.Vibrato | null>(null)
+  // 2026-08-27: 合成 (Tone.Synth + Vibrato) → 実録音のサンプラーへ。
+  // 波形1つでは倍音も弓の立ち上がりも胴の響きも無く、機械音の域を出なかった。
+  // 音源は VSCO 2 CE (CC0)。app/_libs/violinSampler.ts に1本化した。
+  const synthRef = useRef<Tone.Sampler | null>(null)
   const partRef = useRef<Tone.Part | null>(null)
   const colorTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]) // 比較色付けの遅延タイマー群
   // 視覚ビート(青い線の上で上下に揺れる丸)。表拍=下/裏拍=上
@@ -2454,13 +2457,8 @@ function ScoreDetailInner({
     transport.cancel()
 
     if (!synthRef.current) {
-      if (!vibratoRef.current) {
-        vibratoRef.current = new Tone.Vibrato({ frequency: 5.5, depth: 0.08 }).toDestination()
-      }
-      synthRef.current = new Tone.Synth({
-        oscillator: { type: "sawtooth" },
-        envelope: { attack: 0.08, decay: 0.05, sustain: 0.75, release: 0.35 },
-      }).connect(vibratoRef.current)
+      // 初回だけ音源を読み込む (15音・計310KB)。以後はモジュール内で使い回す
+      synthRef.current = await getViolin()
     }
 
     const tempoRatio = getTempoRatio()
@@ -3110,8 +3108,9 @@ function ScoreDetailInner({
       // Tone.js の音声ノードを破棄 (未破棄だと遷移毎に Destination に接続が残りリーク)
       try {
         partRef.current?.dispose(); partRef.current = null
-        synthRef.current?.dispose(); synthRef.current = null
-        vibratoRef.current?.dispose(); vibratoRef.current = null
+        // サンプラーはモジュールで使い回している共有インスタンス。
+        // dispose すると次に開いた画面で無音になるので、鳴っている音を止めるだけにする。
+        releaseViolin(); synthRef.current = null
       } catch { /* ignore */ }
     }
   }, [stopVisualSync])

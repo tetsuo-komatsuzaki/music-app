@@ -78,40 +78,29 @@ export async function playExemplar(
     onEnd()
     return () => {}
   }
-  const ctx = new AudioContext()
-  await ctx.resume().catch(() => {})
-  const t0 = ctx.currentTime + 0.1
+  // 2026-08-27: 三角波の合成 → 実録音のサンプラーへ。
+  // 旧実装は OscillatorNode(triangle) を1本鳴らすだけで、倍音も弓の立ち上がりも
+  // 胴の響きも無く機械音の域を出なかった。音源は VSCO 2 CE (CC0)。
+  const { getViolin, midiToNoteName, releaseViolin } = await import("@/app/_libs/violinSampler")
+  const Tone = await import("tone")
+  await Tone.start()
+  const violin = await getViolin()
+
   const beatSec = 60 / bpm
+  const t0 = Tone.now() + 0.15
   let endSec = 0
-  const master = ctx.createGain()
-  master.gain.value = 0.5
-  master.connect(ctx.destination)
   for (const n of notes) {
     const start = t0 + n.startBeats * beatSec
-    const dur = Math.max(0.12, n.durBeats * beatSec - 0.06)
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.type = "triangle"
-    osc.frequency.value = 440 * Math.pow(2, (n.midi - 69) / 12)
-    gain.gain.setValueAtTime(0.0001, start)
-    gain.gain.exponentialRampToValueAtTime(0.9, start + 0.02)
-    gain.gain.setValueAtTime(0.9, start + dur * 0.7)
-    gain.gain.exponentialRampToValueAtTime(0.0001, start + dur)
-    osc.connect(gain).connect(master)
-    osc.start(start)
-    osc.stop(start + dur + 0.05)
+    // 弓は音符の間際まで鳴らす。切りすぎるとぶつ切りに聞こえる
+    const dur = Math.max(0.16, n.durBeats * beatSec - 0.03)
+    violin.triggerAttackRelease(midiToNoteName(n.midi), dur, start)
     endSec = Math.max(endSec, n.startBeats * beatSec + n.durBeats * beatSec)
   }
-  const timer = setTimeout(
-    () => {
-      void ctx.close().catch(() => {})
-      onEnd()
-    },
-    (endSec + 0.4) * 1000,
-  )
+
+  const timer = setTimeout(() => { releaseViolin(); onEnd() }, (endSec + 0.8) * 1000)
   return () => {
     clearTimeout(timer)
-    void ctx.close().catch(() => {})
+    releaseViolin()
     onEnd()
   }
 }
