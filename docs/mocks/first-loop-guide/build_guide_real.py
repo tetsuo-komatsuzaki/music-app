@@ -42,7 +42,20 @@ def dots(sid, colors):
     return out
 
 S = {}
-S["home"] = bg(SHOT_HOME)
+# 初期ユーザーのホーム: いま練習している曲は出ない (演奏履歴が材料のため録音0では空)。
+# 代わりに🌟さいしょの1曲カードが出る (home.tsx STARTER の実デザインを再現)
+STARTER = (
+    '<div class="fresh-patch"></div>'
+    '<div class="starter" id="hlStarter">'
+    '<div class="stLbl">&#10022; さいしょの1曲</div>'
+    '<div class="stBanner"><span class="stCover">&#9834;</span>'
+    '<div class="stMeta"><b>きらきら星</b><span>&#9734;1 ・ きみのレベルにぴったり</span></div>'
+    '<span class="stArrow">&#8594;</span></div>'
+    '<div class="stNote">&#9734;が小さいほど やさしい曲だよ</div>'
+    '<div class="stCta">さっそく始めよう</div>'
+    '<div class="stLink">ほかの曲を選ぶ</div>'
+    '</div>')
+S["home"] = bg(SHOT_HOME) + STARTER
 S["home2"] = (bg(SHOT_HOME) +
     '<div class="ptscover">☆1・直近 <b>72点</b></div>')
 S["ctrl"] = (bg(SHOT_CTRL) + '<div class="playchip" id="playchip" hidden>♪ お手本を再生中…</div>')
@@ -117,7 +130,7 @@ S["clear2"] = (bg(SHOT_HOME) + '<div class="flashwrap flashdim">'
 screens_html = "".join('<div class="screen" id="scr_%s">%s</div>' % (k, v) for k, v in S.items())
 
 STEPS_PANEL = [
-    "ホーム: 初期ユーザーは🌟さいしょの1曲カードが出る (撮影は既存アカウントのため、いま練習している曲で代用)。タップで演奏画面へ",
+    "ホーム: 初期ユーザーの実際の見た目 (🌟さいしょの1曲カード・いま練習している曲は出ない) をデモ描画で再現。タップで演奏画面へ",
     "演奏画面: お手本▶ → 本物の音源+再生中表示 → 自動で次へ",
     "演奏画面: 作法カード3行。カードの「わかった」で進む",
     "演奏画面: 「録音して採点」→ 3・2・1 → 録音中 → 採点結果へ",
@@ -273,6 +286,26 @@ h1 { font-size:21px; font-weight:900; margin:0 0 4px; }
 .branchBack { position:absolute; right:4%; top:6.4%; z-index:7; background:rgba(13,24,48,.9);
   border:1px solid rgba(150,175,225,.3); color:#cbd6ee; font-size:12px; font-weight:800;
   border-radius:999px; padding:5px 14px; cursor:pointer; display:none; font-family:inherit; }
+/* 初期ユーザーのホーム再現: 実スクショの下部を地の色で覆い、🌟カードを重ねる */
+.fresh-patch { position:absolute; left:0; right:0; top:28.6%; height:56%; background:#0a1122; }
+.starter { position:absolute; left:4.5%; right:4.5%; top:29.4%;
+  background:linear-gradient(180deg,#1e3053 0%,#15233f 100%); border:1px solid rgba(150,175,225,.12);
+  border-radius:20px; overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 2px 6px rgba(4,10,28,.35), 0 14px 34px -8px rgba(4,10,28,.55); }
+.stLbl { display:inline-flex; align-items:center; gap:.8cqw; font-size:min(1.45cqh,11px); font-weight:800;
+  color:#e8b23c; padding:1.6cqh 4cqw 0; }
+.stBanner { display:flex; align-items:center; gap:3cqw; padding:1.5cqh 4cqw;
+  margin-top:1cqh; background:linear-gradient(135deg,#1F3D78,#2B5BC4); }
+.stCover { width:6cqh; aspect-ratio:1; border-radius:14px; flex:none; display:grid; place-items:center;
+  background:rgba(255,255,255,.16); color:#fff; font-size:min(2.6cqh,22px); }
+.stMeta { flex:1; min-width:0; display:flex; flex-direction:column; }
+.stMeta b { font-size:min(2.3cqh,18px); font-weight:900; color:#fff; }
+.stMeta span { font-size:min(1.5cqh,12px); font-weight:700; color:#CDD9F2; margin-top:.2cqh; }
+.stArrow { font-size:min(1.9cqh,15px); font-weight:900; color:#fff; flex:none; }
+.stNote { font-size:min(1.4cqh,11px); color:#8fa0c4; padding:1.4cqh 4cqw 0; }
+.stCta { margin:1.2cqh 4cqw 0; background:linear-gradient(180deg,#E8B23C,#D2992C); border-radius:14px;
+  padding:1.5cqh; text-align:center; color:#201604; font-weight:900; font-size:min(1.8cqh,14px); }
+.stLink { text-align:center; padding:1cqh 0 1.6cqh; font-size:min(1.4cqh,11px); color:#7FA4E8; font-weight:800; }
 /* パネル */
 .panel { flex:1 1 300px; max-width:420px; min-width:280px; }
 .panel h2 { font-size:14px; font-weight:900; color:#f0d9a6; margin:0 0 8px; }
@@ -352,7 +385,7 @@ function countdownThen(cb){show("recording");where("録音中");spotAt(null);spo
   const iv=setInterval(()=>{n--;if(n>0){el.textContent=n;}else{clearInterval(iv);$("#countod").style.display="none";
     setTimeout(()=>{$("#countod").style.display="";cb();},1500);}},650);}
 const FLOW=[
-  {scr:"home",w:"ホーム",p:0,go:()=>{dim(true);spot2At(null);spotAt(R_SONGCARD);bar("point","まずは1回、弾いてみよう。<br>さいしょの1曲をタップ!",0);},tapSpot:true},
+  {scr:"home",w:"ホーム",p:0,go:()=>{dim(true);spot2At(null);spotAt([4.5,29.4,91,26]);bar("point","まずは1回、弾いてみよう。<br>さいしょの1曲をタップ!",0);},tapSpot:true},
   {scr:"ctrl",w:"演奏画面",p:1,go:()=>{spot2At(null);spotAt(R_EXAMPLE);bar("listen","曲のページに来たよ。<br>まずはお手本を聴いてみよう",0);},tapSpot:true,
    async act(){const pc=$("#playchip");if(pc)pc.hidden=false;
      let ms=2600;try{ms=await phrase();}catch(e){}
@@ -408,7 +441,7 @@ html = ('<title>アルコと最初の1周</title>\n'
         '<h1>アルコと最初の1周・動くプロトタイプ (本番画面ベース)</h1>'
         '<p class="lead"><b>背景はすべて本番アプリの実スクリーンショット</b> (ホーム・きらきら星の演奏画面)。'
         'その上にガイド層 = 暗幕+金の光+アルコの道しるべバーを重ねています。'
-        '光る場所をタップして進んでください。初期ユーザーのホームは「いま練習している曲」の位置に🌟さいしょの1曲カードが出ます (撮影素材は既存アカウントのため代用)。▶では本物の音源が鳴ります。'
+        '光る場所をタップして進んでください。ステップ1のホームは初期ユーザーの実際の見た目 (🌟さいしょの1曲カード) をデモ描画で再現しています。▶では本物の音源が鳴ります。'
         '色丸・点数チップ・ごほうびカード・クエストは新設UIのデモ描画です。</p>'
         '<div class="stage">'
         '<div class="phone" id="phone">'
