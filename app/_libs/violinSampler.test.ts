@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { SAMPLE_SETS } from "./violinSamples.generated"
-import { dynamicToLayer } from "./violinSampler"
+import { dynamicToLayer, artIds, sustainRatio, velocityOf, techniqueOf } from "./violinSampler"
 
 // 2026-08-28: 強弱3層 (pp/mf/ff) × 奏法 (arco/pizz) の6セット構成。
 // 一覧と実ファイルがずれると、その音だけ無音になる (404 はエラーにならない)。
@@ -60,5 +60,42 @@ describe("お手本の音源 (強弱3層)", () => {
     expect(dynamicToLayer("ff")).toBe("ff")
     expect(dynamicToLayer("fz")).toBe("ff")
     expect(dynamicToLayer("sfz")).toBe("ff")
+  })
+})
+
+// 2026-08-28: 解析は music21 のクラス名 ("Staccato") を出すが、再生側の判定は
+// 小文字の奏法ID ("staccato") で書かれている。変換表が欠けると全奏法が黙って
+// 素通りする (実際に一度も発火していなかった)。ここで両方の語彙を突き合わせて守る。
+describe("奏法名の変換 (解析のクラス名 → 再生の奏法ID)", () => {
+  it("解析が出しうるクラス名がすべて再生の語彙に変換される", () => {
+    const table: [string, string][] = [
+      ["Staccato", "staccato"],
+      ["Staccatissimo", "staccato"],
+      ["Spiccato", "spiccato"],
+      ["StrongAccent", "martele"],
+      ["DetachedLegato", "portato"],
+      ["Tenuto", "tenuto"],
+      ["Accent", "accent"],
+      ["Pizzicato", "pizzicato"],
+    ]
+    for (const [cls, id] of table) {
+      expect(artIds({ articulations: [cls] }), cls).toContain(id)
+    }
+  })
+
+  it("クラス名のままの奏法で長さ・強さ・音源の判定が実際に発火する", () => {
+    expect(sustainRatio({ articulations: ["Staccato"] })).toBe(0.45)
+    expect(sustainRatio({ articulations: ["Spiccato"] })).toBe(0.35)
+    expect(sustainRatio({ articulations: ["StrongAccent"] })).toBe(0.55)
+    expect(sustainRatio({ articulations: ["DetachedLegato"] })).toBe(0.75)
+    expect(sustainRatio({ articulations: ["Tenuto"] })).toBe(1.0)
+    expect(velocityOf({ articulations: ["Accent"] })).toBe(0.95)
+    expect(velocityOf({ articulations: ["StrongAccent"] })).toBe(1.0)
+    expect(techniqueOf({ articulations: ["Pizzicato"] })).toBe("pizz")
+  })
+
+  it("スラー内でも明示のスタッカートは短く切る (ポルタート的表現)", () => {
+    expect(sustainRatio({ articulations: ["Staccato"], slur: "mid" })).toBe(0.45)
+    expect(sustainRatio({ articulations: [], slur: "mid" })).toBe(1.0)
   })
 })

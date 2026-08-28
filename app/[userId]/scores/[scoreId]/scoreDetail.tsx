@@ -17,7 +17,7 @@ import SymbolGuide, { type SymbolGuideHandle } from "./SymbolGuide"
 import { extractScoreSymbols, BASIC_READING_SYMBOL_IDS, BASIC_SYMBOL_HIDE_STAR } from "@/app/_libs/scoreSymbols"
 import { OpenSheetMusicDisplay } from "opensheetmusicdisplay"
 import * as Tone from "tone"
-import { playNote, preloadFor, releaseViolin } from "@/app/_libs/violinSampler"
+import { playNote, preloadFor, releaseViolin, type NoteArticulation } from "@/app/_libs/violinSampler"
 import { lockLandscape, unlockOrientation } from "@/app/_libs/arcodaOrientation"
 import ProgressTrajectory from "@/app/components/ProgressTrajectory"
 import styles from "./scoreDetail.module.css"
@@ -2500,12 +2500,29 @@ function ScoreDetailInner({
     // 強弱の持ち越し (2026-08-28): 解析は記号が置かれた音符にだけ dynamic を持つ。
     // それ以降の音符には直前の記号が効き続けるので、ここで持ち越す。記号が来るまでは null (=mf)。
     let carriedDynamic: string | null = null
-    const events = playable.map((n, i) => {
+    const events: {
+      time: ReturnType<typeof Tone.Time>
+      duration: number
+      frequencies: number[]
+      art: NoteArticulation
+      next: number | null
+    }[] = []
+    for (let i = 0; i < playable.length; i++) {
+      const n = playable[i]
       if (n.dynamic) carriedDynamic = n.dynamic
-      return {
+      // タイ (2026-08-28): is_tied は「前の音と繋がった続きの音」。弾き直すと
+      // タイのたびに弓を置き直したように聞こえるので、続きは鳴らさず
+      // 開始音の長さに結合して1回で伸ばす。
+      if (n.is_tied) continue
+      let endSec = n.end_time_sec
+      for (let j = i + 1; j < playable.length && playable[j].is_tied; j++) {
+        endSec = playable[j].end_time_sec
+      }
+      events.push({
         time: Tone.Time(n.start_time_sec * tempoRatio, "s"),
-        duration: Math.max((n.end_time_sec - n.start_time_sec) * tempoRatio, 0.05),
-        frequency: n.pitches[0],
+        duration: Math.max((endSec - n.start_time_sec) * tempoRatio, 0.05),
+        // 重音 (2026-08-28): 全部の音を同時に鳴らす。以前は pitches[0] だけだった
+        frequencies: n.pitches,
         art: {
           articulations: n.articulations,
           is_tremolo: n.is_tremolo,
@@ -2518,21 +2535,23 @@ function ScoreDetailInner({
         },
         // トリル/モルデントで交互に鳴らす相手 = 次の音符
         next: playable[i + 1]?.pitches?.[0] ?? null,
-      }
-    })
+      })
+    }
 
     await preloadFor(events.map((e) => e.art))
 
     if (partRef.current) partRef.current.dispose()
     partRef.current = new Tone.Part(
       (time, value: (typeof events)[number]) => {
-        void playNote(
-          Tone.Frequency(value.frequency).toNote(),
-          value.duration,
-          time,
-          value.art,
-          value.next ? Tone.Frequency(value.next).toNote() : null,
-        )
+        for (const f of value.frequencies) {
+          void playNote(
+            Tone.Frequency(f).toNote(),
+            value.duration,
+            time,
+            value.art,
+            value.next ? Tone.Frequency(value.next).toNote() : null,
+          )
+        }
       },
       events
     ).start(0)

@@ -108,9 +108,32 @@ export type NoteArticulation = {
   gain?: number | null
 }
 
+/**
+ * 解析 (music21) が出す奏法クラス名 → この層が判断に使う奏法ID。
+ * 解析の articulations は "Staccato" のようなクラス名で届くが、下の判定は
+ * "staccato" の語彙で書かれている。この変換を挟まないと全奏法が黙って素通りする
+ * (2026-08-28 に発覚。実装から一度も発火していなかった)。
+ * 対応表は music-analyzer/analyze_musicxml.py の _ART_CLS と対 (リスト2本の罠)。
+ */
+const ART_NAME_TO_ID: Record<string, string> = {
+  Staccato: "staccato",
+  Staccatissimo: "staccato",
+  Spiccato: "spiccato",
+  StrongAccent: "martele",
+  DetachedLegato: "portato",
+  Tenuto: "tenuto",
+  Accent: "accent",
+  Pizzicato: "pizzicato",
+}
+
+/** 音符の奏法を、この層の語彙 (小文字ID) に揃えて返す */
+export function artIds(n: NoteArticulation | null | undefined): string[] {
+  return (n?.articulations ?? []).map((a) => ART_NAME_TO_ID[a] ?? a.toLowerCase())
+}
+
 /** その音を鳴らすのに使う音源 */
 export function techniqueOf(n: NoteArticulation | null | undefined): Technique {
-  const a = n?.articulations ?? []
+  const a = artIds(n)
   return a.includes("pizzicato") || a.includes("pizz") ? "pizz" : "arco"
 }
 
@@ -118,8 +141,8 @@ export function techniqueOf(n: NoteArticulation | null | undefined): Technique {
  * 音符の長さに対して、実際に音を出す割合。
  * 短い奏法は弓を止めるので、次の音との間に隙間ができる。
  */
-function sustainRatio(n: NoteArticulation | null | undefined): number {
-  const a = n?.articulations ?? []
+export function sustainRatio(n: NoteArticulation | null | undefined): number {
+  const a = artIds(n)
   // スラーの中は切らない (2026-08-28 Tetsuo指示: スラーの部分は音を繋げる)。
   // スラー内のスタッカート等 (ポルタート的表現) は弓は返さないが軽く分けるので、
   // 明示の短い奏法だけはスラーより優先する。
@@ -129,14 +152,16 @@ function sustainRatio(n: NoteArticulation | null | undefined): number {
   if (a.includes("staccato")) return 0.45   // 弓を止めて切る
   if (a.includes("martele")) return 0.55    // 強いアタックで切る
   if (a.includes("portato")) return 0.75    // 1弓で軽く分ける
+  if (a.includes("tenuto")) return 1.0      // たっぷり保つ。隙間なし
   if (a.includes("legato")) return 1.0      // なめらかに繋ぐ。隙間なし
   return 0.92                                // 指定なし。わずかに隙間
 }
 
 /** その音の強さの微調整。強弱の主役は層の選択で、こちらは奏法の性格づけのみ */
-function velocityOf(n: NoteArticulation | null | undefined): number {
-  const a = n?.articulations ?? []
+export function velocityOf(n: NoteArticulation | null | undefined): number {
+  const a = artIds(n)
   if (a.includes("martele")) return 1.0     // 強いアタック
+  if (a.includes("accent")) return 0.95     // その音を立てる
   if (a.includes("spiccato")) return 0.92
   if (a.includes("staccato")) return 0.9
   return 0.85
@@ -199,7 +224,7 @@ export async function playNote(
   //    (Sampler の attack エンベロープ。弓を返さない音の入り方に近づく)
   //  ・終わり以外は次の音へ 90ms 重ねる (前の音の余韻の中で次が入る)
   const slur = art?.slur ?? null
-  const shortArt2 = (art?.articulations ?? []).some((a) => a === "spiccato" || a === "staccato" || a === "martele")
+  const shortArt2 = artIds(art).some((a) => a === "spiccato" || a === "staccato" || a === "martele")
   s.attack = slur && slur !== "start" && !shortArt2 ? 0.06 : 0.005
   const overlap = slur && slur !== "end" && !shortArt2 ? 0.09 : 0
   const dur = Math.max(0.08, durSec * sustainRatio(art) + overlap)
