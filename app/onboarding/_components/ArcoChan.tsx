@@ -504,7 +504,8 @@ export const POSE_KEY_MAP = {
   praise: "06C",   // 片手あっぱれ (ラダー完了)
   predict: "01C",  // 真上を掲げて指す (到達予測)
   ready: "05A",    // 弓を両手で構える (SCR-12「いま」ノード)
-  bravo: "06B",    // 紙吹雪ブラボー (SCR-12 ゴールノード)
+  bravo: "06B",    // 紙吹雪ブラボー (旧SCR-12 ゴールノード)
+  play: "08C",     // リズムにのる=左肩に構えて演奏 (SCR-12 はじまりの1枚 2026-08-29)
 } as const
 
 export type ArcoPoseKey = keyof typeof POSE_KEY_MAP
@@ -576,7 +577,7 @@ const ARCO_IMG_FALLBACK: Record<string, string> = { "06C": "06B" }
    2026-08-26: JPGは透過を持てないためクリーム地(#FBF8F3)が正方形で残る。
    円に切っただけでは紺地の上で白い円盤に見えるので、外周をマスクでフェードさせ、
    同じ位置に地の色の内側シャドウを重ねて縁を消している (--arco-halo)。 */
-const ARCO_MOTION_IDS = new Set(["01C", "05A", "05B", "05C", "06B", "08B", "09A", "09C"])
+const ARCO_MOTION_IDS = new Set(["01C", "05A", "05B", "05C", "06B", "08B", "08C", "09A", "09C"])
 
 const ARCO_MASK =
   "radial-gradient(circle at 50% 50%, #000 0 58%, rgba(0,0,0,.55) 70%, transparent 78%)"

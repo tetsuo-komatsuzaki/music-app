@@ -12,7 +12,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { HelpCircle, Music, Mic, Users, Sparkles, Coffee, Star, Trophy, Timer, Clapperboard, TreePine } from "lucide-react"
+import { HelpCircle, Music, Mic, Users, Sparkles, Coffee, Clapperboard, TreePine } from "lucide-react"
 import styles from "./onboarding.module.css"
 import {
   OnboardingProvider,
@@ -617,25 +617,17 @@ function Scr11C() {
   )
 }
 
-/* ── SCR-12 完了画面「旅の地図 + あなたの練習プラン」(C4・モック承認済 v0.4§B) ──
-   いま🎻 ─ 目標曲⭐︎(予測) ─ 星を積み上げる ─ 🏆最終ゴール を登りパスで接続。
-   アルコ2体: 「いま」右下=構え(ready) / ゴール左上=紙吹雪ブラボー(bravo)。
-   CTAの保存接続(サーバー)は C5。ここではペイロードをコンソール証跡出力。 */
-const Q6_LABEL: Record<string, string> = {
-  "5分 / 日": "まずは気軽に",
-  "15分 / 日": "しっかり",
-  "30分 / 日": "本気",
-  "それ以上": "情熱的",
-}
-
+/* ── SCR-12 完了画面「はじまりの1枚」(2026-08-29 Tetsuo確定: パターン2) ──
+   旅の地図+サマリー3枚は廃止 (載る物の種類がバラバラで地図として読めず、
+   ここ一回きりの使い捨て世界観だった)。演奏姿のアルコ (08C・29キット中
+   唯一バイオリンを左肩に構えるポーズ) を大きく置き、文言と開始ボタンだけ。
+   CTAの保存接続(サーバー・冪等)は従来どおり C5。 */
 function Scr12() {
   const s = useOnboarding()
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const star = s.result?.star ?? 1
-  const period = estimatePeriod(star, s.ans.q4star ?? 1, s.ans.q6 ?? "").label
-  const goalLbl = s.ans.goalSong || s.ans.q8 || "最終ゴール"
 
   // C5: サーバー保存(冪等)→ ドラフト破棄 → ホームへ
   const finish = async () => {
@@ -664,86 +656,19 @@ function Scr12() {
 
   return (
     <>
-      <div className={styles.planHead}>あなたの練習プラン</div>
-
-      {/* 旅の地図(登りパス: 破線グレー→最初の一歩のみ緑・描画アニメ) */}
-      <div className={styles.mapArea}>
-        <svg className={styles.mapSvg} viewBox="0 0 370 254" fill="none">
-          <path
-            d="M 36 200 C 100 205, 110 130, 150 122 S 240 105, 262 78 S 312 55, 328 44"
-            stroke="#E5E5E5"
-            strokeWidth="6"
-            strokeLinecap="round"
-            strokeDasharray="1 14"
-          />
-          <path
-            className={styles.mapStep}
-            d="M 36 200 C 60 202, 72 190, 82 178"
-            stroke="#58CC02"
-            strokeWidth="6"
-            strokeLinecap="round"
-          />
-        </svg>
-        <div className={`${styles.mapArco}`} style={{ left: "28%", top: "90%", width: "16%", aspectRatio: 1 }}>
-          <ArcoChan poseKey="ready" />
+      <div className={styles.centerScr}>
+        <div className={styles.finStage}>
+          <div className={styles.finGlow} aria-hidden />
+          <ArcoChan poseKey="play" />
         </div>
-        <div className={`${styles.mapArco}`} style={{ left: "74%", top: "8%", width: "13%", aspectRatio: 1 }}>
-          <ArcoChan poseKey="bravo" />
-        </div>
-        <div className={`${styles.mapNode} ${styles.mapNodeNow}`} style={{ left: "9.7%", top: "79%" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <div className={styles.mapCircle}><img src="/Icon.png" alt="" aria-hidden width={22} height={22} style={{ borderRadius: 5 }} /></div>
-          <div className={styles.mapLbl}>いま ★{star}</div>
-        </div>
-        <div className={styles.mapNode} style={{ left: "40.5%", top: "48%" }}>
-          <div className={styles.mapCircle}><Star size={22} fill="#f2b807" color="#f2b807" /></div>
-          <div className={styles.mapLbl}>
-            {s.ans.q4song ?? "目標曲"} ⭐︎{s.ans.q4star ?? ""}
-          </div>
-          <div className={styles.mapSub}>
-            <b>{period}</b>で到達
-          </div>
-        </div>
-        <div className={styles.mapNode} style={{ left: "70.8%", top: "31%" }}>
-          <div className={styles.mapCircle}><Sparkles size={22} color="#f2b807" /></div>
-          <div className={styles.mapLbl}>星を積み上げる</div>
-        </div>
-        <div className={`${styles.mapNode} ${styles.mapNodeGoal}`} style={{ left: "88.5%", top: "16.5%" }}>
-          <div className={styles.mapCircle}><Trophy size={22} color="#b58a1e" /></div>
-          <div className={styles.mapLbl}>{goalLbl}</div>
+        <div className={styles.finCopy}>
+          あの憧れの曲へ、
+          <br />
+          <b>きょうの一歩</b>から
         </div>
       </div>
-
-      {/* プランサマリー3枚(c型流用・実回答バインド。予測はSCR-08cと同値=同一関数) */}
-      <div className={styles.plan}>
-        <div className={styles.card}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <span className={styles.cardIco}><img src="/Icon.png" alt="" aria-hidden width={20} height={20} style={{ borderRadius: 5 }} /></span>
-          <span className={styles.cardMain}>
-            {s.ans.q4song}{" "}
-            <span style={{ color: "var(--primary)", fontSize: "0.8em" }}>⭐︎{s.ans.q4star}</span>
-          </span>
-          <span className={styles.cardSub}>{period}で到達</span>
-        </div>
-        <div className={styles.card}>
-          <span className={styles.cardIco}><Timer size={20} /></span>
-          <span className={styles.cardMain}>{s.ans.q6}</span>
-          <span className={styles.cardSub}>{Q6_LABEL[s.ans.q6 ?? ""] ?? ""}</span>
-        </div>
-        <div className={styles.card}>
-          <span className={styles.cardIco}><Trophy size={20} color="#b58a1e" /></span>
-          <span className={styles.cardMain}>{s.ans.q8}</span>
-          <span className={styles.cardSub}>{s.ans.goalDate ?? ""}</span>
-        </div>
-      </div>
-
       {error && <div className={styles.doneNote} style={{ color: "#b91c1c" }}>{error}</div>}
-      <CtaButton
-        label={saving ? "保存中…" : "さっそくスタートする"}
-        disabled={saving}
-        divider
-        onClick={finish}
-      />
+      <CtaButton label={saving ? "保存中…" : "はじめよう"} disabled={saving} onClick={finish} />
     </>
   )
 }
