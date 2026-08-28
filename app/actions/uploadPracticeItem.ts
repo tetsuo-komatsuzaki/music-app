@@ -39,7 +39,6 @@ async function generateVariantGroup(opts: {
   positions: string[]
   star: number | null
   skillSubTaskTags: Prisma.InputJsonValue
-  techniques: { id: string; isPrimary: boolean }[]
   buffer: Buffer
   variants: VariantSpec[]
 }): Promise<{ groupId: string; count: number }> {
@@ -86,11 +85,7 @@ async function generateVariantGroup(opts: {
       continue
     }
     await prisma.practiceItem.update({ where: { id: child.id }, data: { originalXmlPath: path } })
-    for (const tech of opts.techniques) {
-      await prisma.practiceItemTechnique.create({
-        data: { practiceItemId: child.id, techniqueTagId: tech.id, isPrimary: tech.isPrimary },
-      })
-    }
+  // 2026-08-28 Tetsuo確定: 技法タグは全自動 (解析が譜面から判定)。手動指定の受け口は廃止。
     createdIds.push(child.id)
   }
   after(async () => {
@@ -138,7 +133,6 @@ export async function uploadPracticeItem(formData: FormData) {
   const tempoMin = parseInt(formData.get("tempoMin") as string) || null
   const tempoMax = parseInt(formData.get("tempoMax") as string) || null
   const positions = JSON.parse(formData.get("positions") as string || "[]")
-  const techniques = JSON.parse(formData.get("techniques") as string || "[]")
   const description = (formData.get("description") as string | null)?.trim() || null
   const descriptionShort = (formData.get("descriptionShort") as string | null)?.trim() || null
 
@@ -239,7 +233,6 @@ export async function uploadPracticeItem(formData: FormData) {
       kind, category, title, composer, description, descriptionShort,
       tempoMin, tempoMax, positions, star,
       skillSubTaskTags: skillSubTaskTags as Prisma.InputJsonValue,
-      techniques: techniques as { id: string; isPrimary: boolean }[],
       buffer, variants,
     })
     revalidatePath("/admin/practice")
@@ -325,16 +318,7 @@ export async function uploadPracticeItem(formData: FormData) {
     })
   }
 
-  // 技法タグを紐づけ
-  for (const tech of techniques as { id: string; isPrimary: boolean }[]) {
-    await prisma.practiceItemTechnique.create({
-      data: {
-        practiceItemId: item.id,
-        techniqueTagId: tech.id,
-        isPrimary: tech.isPrimary,
-      },
-    })
-  }
+  // 2026-08-28 Tetsuo確定: 技法タグは全自動 (解析が譜面から判定)。手動の紐づけは廃止。
 
   // 解析ジョブ起動 (Cloud Run Jobs 経由・非同期)
   // analysis/build のパス更新・status=done 遷移は Python 側 (analyze_musicxml.py /

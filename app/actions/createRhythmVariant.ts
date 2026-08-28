@@ -10,6 +10,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { requireAdminAction } from "@/app/_libs/requireAuth"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 import { noteQl, RHYTHM_ARTICULATIONS, type RhythmNote } from "@/app/_libs/rhythmRecipe"
+import { ARTICULATIONS as AXIS_ARTICULATIONS } from "@/app/_libs/materialVariant"
 
 const ARTS = new Set<string>(RHYTHM_ARTICULATIONS as readonly string[])
 
@@ -21,6 +22,8 @@ export async function getRhythmContext(itemId: string, kind: "practice" | "score
       /** 単位ごとの「同じリズムの単位数」(unit → 件数) */
       sameCountByUnit: Record<number, number>
       srcNames: string[]   // 先頭単位の音名 (高さ番号の表示用)
+      /** 通しの奏法 (2026-08-28 A案)。ダイアログの「奏法をえらぶ」の初期選択に使う */
+      sourceArticulation: string | null
     }
   | { ok: false; error: string }
 > {
@@ -28,7 +31,7 @@ export async function getRhythmContext(itemId: string, kind: "practice" | "score
   if (!gate.ok) return { ok: false, error: gate.error }
 
   const item = kind === "practice"
-    ? await prisma.practiceItem.findUnique({ where: { id: itemId }, select: { id: true, title: true } })
+    ? await prisma.practiceItem.findUnique({ where: { id: itemId }, select: { id: true, title: true, articulation: true } })
     : await prisma.score.findUnique({ where: { id: itemId }, select: { id: true, title: true } })
   if (!item) return { ok: false, error: "見つかりません" }
 
@@ -74,11 +77,16 @@ export async function getRhythmContext(itemId: string, kind: "practice" | "score
     const ts = (j.time_signature ?? {}) as { numerator?: number; denominator?: number }
     const beatsPerMeasure = (ts.numerator ?? 4) * (4 / (ts.denominator ?? 4))
     const srcNames = (byMeasure.get(1)?.names ?? []).slice(0, 64)
-    return { ok: true, title: item.title, beatsPerMeasure, measureCount, notesPerMeasure, unitCandidates, sameCountByUnit, srcNames }
+    return {
+      ok: true, title: item.title, beatsPerMeasure, measureCount, notesPerMeasure, unitCandidates, sameCountByUnit, srcNames,
+      sourceArticulation: kind === "practice" ? ((item as { articulation?: string | null }).articulation ?? null) : null,
+    }
   } catch {
     return { ok: false, error: "解析データの読み込みに失敗しました" }
   }
 }
+
+const AXIS_ARTS = new Set<string>(AXIS_ARTICULATIONS.map((a) => a.id))
 
 export async function createRhythmVariant(input: {
   sourceItemId: string
@@ -89,12 +97,19 @@ export async function createRhythmVariant(input: {
   skipHead?: number
   skipTail?: number
   skipMeasures?: number[]
+  /** 2026-08-28 A案 (Tetsuo確定): このパターンをどの奏法の軸に置くか。人が選ぶ。
+      undefined = 指定なし (通しから継ぐ) / null = 「なし」を明示 / 文字列 = その奏法 */
+  articulation?: string | null
 }): Promise<{ ok: true; itemId: string } | { ok: false; error: string }> {
   const gate = await requireAdminAction()
   if (!gate.ok) return { ok: false, error: gate.error }
 
   const name = input.name.trim().slice(0, 40)
   if (!name) return { ok: false, error: "名前を入れてください" }
+  // 奏法は選択用の正リスト (materialVariant.ARTICULATIONS) にある id だけ受ける
+  if (typeof input.articulation === "string" && !AXIS_ARTS.has(input.articulation)) {
+    return { ok: false, error: "奏法の指定が不正です" }
+  }
   const unitMeasures = Number.isInteger(input.unitMeasures) && input.unitMeasures >= 1 ? input.unitMeasures : 1
   const notes = (input.notes ?? []).filter((n) => noteQl(n) != null && Number.isInteger(n.pitchNo) && n.pitchNo >= 1 && ARTS.has(n.articulation ?? ""))
   if (notes.length === 0) return { ok: false, error: "音符がありません" }
@@ -162,8 +177,9 @@ export async function createRhythmVariant(input: {
       // 2026-08-28 Tetsuo確定: 課題タグは写さない。変種ごとに解析が中身から判定する。
       // 通しから写すと空でなくなり、解析側の「空のときだけ入れる」に阻まれて
       // その抜粋/変種に実際は出てこない課題が残り続けていた。
-      // 奏法は通しから継ぐ (パート変種と同じ扱い)
-      articulation: source.articulation,
+      // 奏法 = 人が選ぶ軸 (2026-08-28 A案)。ダイアログの選択を最優先し、
+      // 未指定なら通しから継ぐ。混在パターンでも人が「どの軸に置くか」を決める。
+      articulation: input.articulation !== undefined ? input.articulation : source.articulation,
       groupId: source.groupId,
       metadata: metadata as Prisma.InputJsonValue,
       rhythmRecipe: recipe as unknown as Prisma.InputJsonValue,

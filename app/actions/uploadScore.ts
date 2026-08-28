@@ -64,32 +64,7 @@ export async function uploadScore(formData: FormData) {
     try { partsInput = parseParts(JSON.parse(partsRaw)) } catch { partsInput = [] }
   }
 
-  // v1.6 Phase 4-3 (Q4=B): admin Score 登録時に ScoreTechniqueTag を作成 (Q4=A 確定で既存セレクタ流用)。
-  // payload: [{ id: string, isPrimary: boolean }, ...] の JSON 文字列。
-  // 不正フォーマットや存在しない techniqueTag は静かにスキップ (admin UI バリデーション側で防ぐ前提)。
-  type TechniqueEntry = { id: string; isPrimary: boolean }
-  let techniques: TechniqueEntry[] = []
-  const techniquesRaw = formData.get("techniques") as string | null
-  if (techniquesRaw) {
-    try {
-      const parsed = JSON.parse(techniquesRaw)
-      if (Array.isArray(parsed)) {
-        const seen = new Set<string>()
-        for (const e of parsed as unknown[]) {
-          if (!e || typeof e !== "object") continue
-          const obj = e as Record<string, unknown>
-          if (typeof obj.id !== "string" || seen.has(obj.id)) continue
-          seen.add(obj.id)
-          techniques.push({
-            id: obj.id,
-            isPrimary: typeof obj.isPrimary === "boolean" ? obj.isPrimary : false,
-          })
-        }
-      }
-    } catch {
-      techniques = []
-    }
-  }
+  // 2026-08-28 Tetsuo確定: 技法タグは全自動 (解析が譜面から判定)。手動指定の受け口は廃止。
 
   if (!title) return { error: "曲名が必要です" }
   if (!file) return { error: "ファイルがありません" }
@@ -138,26 +113,6 @@ export async function uploadScore(formData: FormData) {
     } catch (e) {
       // 結線失敗はアップロード自体を止めない(後から scripts/link-onboarding-songs.ts で再結線可)
       console.error("[uploadScore] onboarding song link failed:", e)
-    }
-  }
-
-  // v1.6 Phase 4-3: ScoreTechniqueTag を作成 (技法 ID の存在チェック後 insert)
-  if (techniques.length > 0) {
-    const requestedIds = techniques.map((t) => t.id)
-    const found = await prisma.techniqueTag.findMany({
-      where: { id: { in: requestedIds } },
-      select: { id: true },
-    })
-    const validIds = new Set(found.map((f) => f.id))
-    const toInsert = techniques.filter((t) => validIds.has(t.id))
-    if (toInsert.length > 0) {
-      await prisma.scoreTechniqueTag.createMany({
-        data: toInsert.map((t) => ({
-          scoreId: score.id,
-          techniqueTagId: t.id,
-          isPrimary: t.isPrimary,
-        })),
-      })
     }
   }
 

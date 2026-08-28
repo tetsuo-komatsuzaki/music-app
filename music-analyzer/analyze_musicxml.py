@@ -1386,6 +1386,22 @@ try:
                         'ON CONFLICT DO NOTHING',
                         (PRACTICE_ITEM_ID, _name),
                     )
+                # 2026-08-28 Tetsuo確定: 技法タグは特徴タグと同じ全自動 (人の編集の口は廃止)。
+                # 「追加のみ」だと譜面を差し替えても古いタグが残るため、検出結果へ貼り替える。
+                # ただし /admin/confirmations で人が4択確定したタグ (resolvedTag) は
+                # 音を聴かないと決められないものなので消さない。
+                cur.execute(
+                    'SELECT "resolvedTag" FROM "TechniqueConfirmation" '
+                    "WHERE \"targetType\"=%s AND \"targetId\"=%s AND status='confirmed' "
+                    'AND "resolvedTag" IS NOT NULL',
+                    ("practice", PRACTICE_ITEM_ID),
+                )
+                _keep_names = sorted(set(_tt_names) | {r[0] for r in cur.fetchall()})
+                cur.execute(
+                    'DELETE FROM "PracticeItemTechnique" WHERE "practiceItemId"=%s AND "techniqueTagId" IN '
+                    '(SELECT id FROM "TechniqueTag" WHERE NOT (name = ANY(%s)))',
+                    (PRACTICE_ITEM_ID, _keep_names),
+                )
                 for _name in _tt_names:
                     cur.execute(
                         'INSERT INTO "PracticeItemTechnique" ("practiceItemId", "techniqueTagId", "isPrimary") '
@@ -1489,6 +1505,22 @@ try:
                         'ON CONFLICT DO NOTHING',
                         (SCORE_ID, _name),
                     )
+                # 2026-08-28 Tetsuo確定: 技法タグは特徴タグと同じ全自動 (人の編集の口は廃止)。
+                # 「追加のみ」だと譜面を差し替えても古いタグが残るため、検出結果へ貼り替える。
+                # ただし /admin/confirmations で人が4択確定したタグ (resolvedTag) は
+                # 音を聴かないと決められないものなので消さない。
+                cur.execute(
+                    'SELECT "resolvedTag" FROM "TechniqueConfirmation" '
+                    "WHERE \"targetType\"=%s AND \"targetId\"=%s AND status='confirmed' "
+                    'AND "resolvedTag" IS NOT NULL',
+                    ("score", SCORE_ID),
+                )
+                _keep_names = sorted(set(_tt_names) | {r[0] for r in cur.fetchall()})
+                cur.execute(
+                    'DELETE FROM "ScoreTechniqueTag" WHERE "scoreId"=%s AND "techniqueTagId" IN '
+                    '(SELECT id FROM "TechniqueTag" WHERE NOT (name = ANY(%s)))',
+                    (SCORE_ID, _keep_names),
+                )
                 for _name in _tt_names:
                     cur.execute(
                         'INSERT INTO "ScoreTechniqueTag" ("scoreId", "techniqueTagId", "isPrimary") '

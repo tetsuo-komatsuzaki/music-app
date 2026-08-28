@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react"
 import { createRhythmVariant, getRhythmContext } from "@/app/actions/createRhythmVariant"
 import { noteQl, type RhythmNote } from "@/app/_libs/rhythmRecipe"
 import StaffPreview from "./StaffPreview"
+import { ARTICULATIONS as AXIS_ARTICULATIONS } from "@/app/_libs/materialVariant"
 
 const BASE = [
   { id: "w", label: "𝅝", sub: "全" }, { id: "h", label: "𝅗𝅥", sub: "2分" },
@@ -35,10 +36,19 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
   const [skipTail, setSkipTail] = useState(0)
   const [skipMeasures, setSkipMeasures] = useState<Set<number>>(new Set())
   const [name, setName] = useState("")
+  // ⑤ 奏法 (軸) の選択 (2026-08-28 A案・Tetsuo確定)。
+  // このパターンを練習前シートのどの奏法の下に置くかを、人が1つ決める。
+  // 初期選択は通しの奏法。null = 「なし」(奏法の軸に載せない)。
+  const [axisArt, setAxisArt] = useState<string | null>(null)
+  const [axisArtTouched, setAxisArtTouched] = useState(false)
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
 
   useEffect(() => { getRhythmContext(itemId).then(setCtx) }, [itemId])
+  // 通しの奏法を初期選択に (人が触ったあとは上書きしない)
+  useEffect(() => {
+    if (ctx?.ok && !axisArtTouched) setAxisArt(ctx.sourceArticulation)
+  }, [ctx, axisArtTouched])
 
   const beatsNeeded = ctx?.ok ? ctx.beatsPerMeasure * unit : 4 * unit
   const srcNames = useMemo(() => {
@@ -79,6 +89,7 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
     const r = await createRhythmVariant({
       sourceItemId: itemId, name, unitMeasures: unit, notes,
       skipHead, skipTail, skipMeasures: [...skipMeasures],
+      articulation: axisArt,
     })
     setBusy(false)
     if (r.ok) { setMsg("変種を作成し、解析を開始しました。続けて別のパターンも作れます。"); setNotes([]); setName(""); setEditing(null) }
@@ -223,6 +234,21 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
 
             <div style={S.label}>④ 五線譜で確認</div>
             <StaffPreview notes={notes.map((n) => ({ ql: noteQl(n) ?? 0, name: srcNames[n.pitchNo - 1] ?? "", art: n.articulation ?? "", slurId: n.slurId ?? null, dot: !!n.dot, triplet: !!n.triplet }))} beats={beatsNeeded} />
+
+            <div style={S.label}>⑤ 奏法をえらぶ (練習前シートのどの奏法の下に置くか)</div>
+            <div style={S.row}>
+              <button type="button" style={btn(axisArt === null)}
+                onClick={() => { setAxisArt(null); setAxisArtTouched(true) }}>なし</button>
+              {AXIS_ARTICULATIONS.map((a) => (
+                <button key={a.id} type="button" style={btn(axisArt === a.id)}
+                  onClick={() => { setAxisArt(a.id); setAxisArtTouched(true) }}>
+                  {a.label}{ctx.sourceArticulation === a.id ? " (通し)" : ""}
+                </button>
+              ))}
+            </div>
+            <p style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 4 }}>
+              通しの奏法をはじめから選んであります。混在パターンはここで置き場所を1つ決めてください。
+            </p>
 
             <div style={{ ...S.row, marginTop: 14 }}>
               <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="例: 16分8つ→8分4つ" style={{ flex: "1 1 220px", minWidth: 0, padding: "8px 10px" }} />
