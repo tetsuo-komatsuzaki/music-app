@@ -8,8 +8,10 @@ import { useEffect, useRef } from "react"
 // ネイティブスクロールの一括移動を廃止し、レール全体の x ドラッグ + カード個別の
 // 硬いばね追従に置換。追従感は「横方向の開始時間の差」だけで表現する:
 // - y移動・回転・拡縮は一切させない (transform は translateX のみ ・ y は常に 0)
-// - ドラッグはレール全体の x のみ。8〜10px 動くまで開始せず、横量が縦量を
+// - ドラッグはレール全体の x のみ。しきい値 (5px) 動くまで開始せず、横量が縦量を
 //   上回ったときだけ開始 (縦優勢は touch-action: pan-y でページ縦スクロールに委ねる)
+// - 初動のランプイン (2026-08-29 Tetsuo承認「初動が重い」対策): 触った直後は
+//   時差0で列全体が指に即応し、60px 動くまでに本来の時差へ立ち上げる
 // - 移動方向の先頭カードから 20〜30ms ずつ遅らせる (合計 100ms まで)。
 //   移動距離と最終停止位置は全カードで一致 = 停止時は間隔が完全に元へ戻る
 // - ばねは硬め (stiffness 700 / damping 50 / mass 0.45 → 減衰比1.4 でオーバー
@@ -21,8 +23,9 @@ const DAMP = 50
 const MASS = 0.45
 const STEP_DELAY = 25   // カードごとの開始時間差 (仕様 20〜30ms)
 const MAX_STAGGER = 100 // 時間差の合計上限
-const DRAG_START = 9    // ドラッグ開始しきい値 (仕様 8〜10px)
+const DRAG_START = 5    // ドラッグ開始しきい値 (2026-08-29 初動を軽く 9→5。縦横判定は別途あるので誤爆しない)
 const ELASTIC = 0.02    // 端の抵抗 (dragElastic 相当)
+const RAMP_PX = 60      // 時差のランプイン距離 (2026-08-29 Tetsuo承認: 触った直後は時差0、60px動くまでに本来値へ)
 
 export default function StaggerRail({ children, onboarding, gap = 10 }: { children: React.ReactNode; onboarding?: string; gap?: number }) {
   const ref = useRef<HTMLDivElement | null>(null)
@@ -44,6 +47,9 @@ export default function StaggerRail({ children, onboarding, gap = 10 }: { childr
     let decided = false
     let pid = -1
     let sx = 0, sy = 0, startRail = 0
+    // ジェスチャ開始からの累計移動量。初動の重さ対策 (2026-08-29):
+    // 静止からの立ち上がりは時差を距離比例で 0→100% に立ち上げ、列全体を即応させる
+    let travel = 0
     let dir = 1 // 1=コンテンツが左へ (次を見る) ・ -1=右へ
     const pos: number[] = []
     const vel: number[] = []
@@ -102,6 +108,7 @@ export default function StaggerRail({ children, onboarding, gap = 10 }: { childr
           if (Math.abs(glideV) < 40) glideV = 0
         }
         if (x !== railX) dir = x > railX ? 1 : -1
+        travel += Math.abs(x - railX)
         railX = x
       }
       record(railX)
@@ -117,10 +124,15 @@ export default function StaggerRail({ children, onboarding, gap = 10 }: { childr
       cards.forEach((el, i) => {
         // 移動方向の先頭 (見えている端のカード) から順に遅らせる
         const order = dir >= 0 ? Math.max(0, i - firstVis) : Math.max(0, lastVis - i)
-        const delay = Math.min(order * STEP_DELAY, MAX_STAGGER)
+        // 初動のランプイン: 触った直後は時差0で列全体が指に即応し、
+        // 流れに乗る (60px) までに本来の時差へ立ち上げる
+        const ramp = Math.min(1, travel / RAMP_PX)
+        const delay = Math.min(order * STEP_DELAY, MAX_STAGGER) * ramp
         const target = at(now - delay)
         if (pos[i] === undefined || !Number.isFinite(pos[i])) { pos[i] = railX; vel[i] = 0 }
-        if (dragging && delay === 0) {
+        if (dragging && delay < 1 && Math.abs(pos[i] - railX) < 2) {
+          // 揃っているカードだけ即応にする。滑走中に掴み直した直後など
+          // 遅れが残るカードはばねで追いつかせ、1フレームの瞬間整列を防ぐ
           // 先頭カード (移動方向の見えている端) は指に 1:1 で追従させ、重さを消す。
           // 時差はあくまで後続カードの遅れだけで表現する
           pos[i] = target
@@ -144,6 +156,7 @@ export default function StaggerRail({ children, onboarding, gap = 10 }: { childr
       if (x < 0) x = x * ELASTIC
       else if (x > m) x = m + (x - m) * ELASTIC
       if (x !== railX) dir = x > railX ? 1 : -1
+      travel += Math.abs(x - railX)
       railX = x
       // 履歴は tick 任せにしない: 速いフリックは tick が1回も回る前に終わるため、
       // tick だけの記録だと解放時速度が 0 と誤判定され慣性が乗らない (2026-08-22 実測)
@@ -154,6 +167,7 @@ export default function StaggerRail({ children, onboarding, gap = 10 }: { childr
       if (e.pointerType === "mouse" && e.button !== 0) return
       pid = e.pointerId; sx = e.clientX; sy = e.clientY
       startRail = railX; decided = false; dragging = false
+      travel = 0 // 新しいジェスチャは毎回「即応」から始める
       glideV = 0 // 触れたら滑走停止 (iOS流)
       record(railX) // 速度算出の基準点。move が1発に合体しても履歴が2点になり速度が出る
       suppressClick.current = false
