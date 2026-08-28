@@ -157,6 +157,15 @@ export function sustainRatio(n: NoteArticulation | null | undefined): number {
   return 0.92                                // 指定なし。わずかに隙間
 }
 
+/**
+ * 音符の長さに比例した膨らみ (立ち上がり) の時間。
+ * 実際に鳴る長さの15%。速いパッセージでも芯が出るよう20ms、
+ * 長い音でも録音の自然な膨らみ (数百ms) を超えないよう500msで留める。
+ */
+export function swellFor(durSec: number): number {
+  return Math.min(0.5, Math.max(0.02, durSec * 0.15))
+}
+
 /** その音の強さの微調整。強弱の主役は層の選択で、こちらは奏法の性格づけのみ */
 export function velocityOf(n: NoteArticulation | null | undefined): number {
   const a = artIds(n)
@@ -192,6 +201,7 @@ export async function playNote(
 
   // トレモロ: 同じ音を高速に刻む。1秒あたり10回前後が実際の速さ
   if (art?.is_tremolo) {
+    s.attack = 0.005   // 直前の音の長い膨らみを引き継がない (attack は共有インスタンスに残る)
     const step = 0.1
     for (let t = 0; t < durSec - 0.02; t += step) {
       s.triggerAttackRelease(note, Math.min(step * 0.85, durSec - t), atSec + t, vel)
@@ -201,6 +211,7 @@ export async function playNote(
 
   // トリル・モルデント: 本来の音と隣の音を素早く交互に
   if (art?.is_trill || art?.is_mordent) {
+    s.attack = 0.005   // 直前の音の長い膨らみを引き継がない
     const other = nextNote ?? Tone.Frequency(note as string).transpose(2).toNote()
     const step = art.is_mordent ? 0.075 : 0.085
     // モルデントは頭で1往復するだけ。トリルは音符の間ずっと
@@ -225,9 +236,16 @@ export async function playNote(
   //  ・終わり以外は次の音へ 90ms 重ねる (前の音の余韻の中で次が入る)
   const slur = art?.slur ?? null
   const shortArt2 = artIds(art).some((a) => a === "spiccato" || a === "staccato" || a === "martele")
-  s.attack = slur && slur !== "start" && !shortArt2 ? 0.06 : 0.005
   const overlap = slur && slur !== "end" && !shortArt2 ? 0.09 : 0
   const dur = Math.max(0.08, durSec * sustainRatio(art) + overlap)
+  // 膨らみの付け直し (2026-08-29 Tetsuo確定): arco の素材は頭の遅い膨らみを
+  // 刈ってあるので、音符の長さに比例した膨らみを音量カーブで付け直す。
+  // 長い音はゆったり、短い音は素早く芯まで届く。スラーの途中は従来どおり
+  // 60ms で滑らかに入り、pizz は弾いた瞬間が命なので付けない。
+  s.attack =
+    tech === "pizz" ? 0.005
+    : slur && slur !== "start" && !shortArt2 ? 0.06
+    : swellFor(dur)
   s.triggerAttackRelease(note, dur, atSec, vel)
 }
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { SAMPLE_SETS } from "./violinSamples.generated"
-import { dynamicToLayer, artIds, sustainRatio, velocityOf, techniqueOf } from "./violinSampler"
+import { dynamicToLayer, artIds, sustainRatio, velocityOf, techniqueOf, swellFor } from "./violinSampler"
 
 // 2026-08-28: 強弱3層 (pp/mf/ff) × 奏法 (arco/pizz) の6セット構成。
 // 一覧と実ファイルがずれると、その音だけ無音になる (404 はエラーにならない)。
@@ -97,5 +97,16 @@ describe("奏法名の変換 (解析のクラス名 → 再生の奏法ID)", () 
   it("スラー内でも明示のスタッカートは短く切る (ポルタート的表現)", () => {
     expect(sustainRatio({ articulations: ["Staccato"], slur: "mid" })).toBe(0.45)
     expect(sustainRatio({ articulations: [], slur: "mid" })).toBe(1.0)
+  })
+})
+
+// 2026-08-29: 素材は頭の遅い膨らみを刈り、再生側が音符の長さに比例した
+// 膨らみを付け直す (Tetsuo確定)。比例の係数と上下限を守る。
+describe("膨らみの付け直し (swellFor)", () => {
+  it("鳴る長さの15%で、20ms〜500msに収まる", () => {
+    expect(swellFor(1.0)).toBeCloseTo(0.15)
+    expect(swellFor(2.0)).toBeCloseTo(0.3)
+    expect(swellFor(0.05)).toBe(0.02)   // 速いパッセージでも即座に芯が出る
+    expect(swellFor(10)).toBe(0.5)      // 長い音でも録音の自然な膨らみ相当で留める
   })
 })
