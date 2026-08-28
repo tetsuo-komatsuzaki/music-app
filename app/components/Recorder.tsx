@@ -2,9 +2,6 @@
 
 import { useState, useRef, useCallback, useEffect } from "react"
 import styles from "./Recorder.module.css"
-// 一時装備 (2026-08-28 再投入): 録音中のテンポガイドの引っかかりを実機で数字にする。
-// カウントインは事前予約になり間隔は設計上正確なので、クリック計測は戻さない。
-import { diagReset, diagSummary } from "@/app/_libs/recDiag"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { canShowBillingEntryPoint } from "@/app/_libs/isNativeApp"
@@ -481,7 +478,6 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
   const streamRef = useRef<MediaStream | null>(null)
 
   const startCountdown = useCallback(async () => {
-    diagReset(60000 / (effectiveBpm || 90))
     // 1. マイク許可を先に取得
     if (nativeReadyRef.current) {
       // アプリ版: OS のマイク許可ダイアログはここで出る。
@@ -1112,17 +1108,6 @@ export default function Recorder({ onRecordingComplete, previousBestScore, disab
       {/* ④ プレビュー（品質チェック付き） */}
       {status === "preview" && (
         <div className={styles.previewPanel}>
-          {/* 一時装備 (2026-08-28): 直前の録音のフレーム落ちを数字で出す。
-              原因が確定したら recDiag ごと削除する。 */}
-          {diagSummary() && (
-            <div style={{
-              fontSize: 10, lineHeight: 1.5, color: "var(--text-muted)",
-              border: "1px solid var(--line)", borderRadius: 8,
-              padding: "6px 8px", width: "100%", wordBreak: "break-all",
-            }}>
-              診断 ・ {diagSummary()}
-            </div>
-          )}
           {/* 品質チェック結果 */}
           {qualityResult && (
             <div className={
