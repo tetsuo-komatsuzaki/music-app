@@ -472,7 +472,8 @@ function Scr08C() {
         <div className={styles.predictBody} style={{ marginTop: "8%" }}>
           「{s.ans.q4song}」⭐︎{s.ans.q4star}なら、
           <br />
-          毎日{s.ans.q6}の練習で<b>{period}</b>で弾けるようになるよ!
+          {/* q6の値は「15分 / 日」形式。「毎日」と重なるので表示では「 / 日」を落とす (2026-08-29 Tetsuo指摘) */}
+          毎日{(s.ans.q6 ?? "").replace(" / 日", "")}の練習で<b>{period}</b>で弾けるようになるよ!
         </div>
       </div>
       <CtaButton
