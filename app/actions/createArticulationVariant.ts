@@ -146,7 +146,9 @@ export async function createArticulationVariant(input: {
         analysisStatus: "queued",
         buildStatus: "queued",
         star: rep.star ?? source.star,
-        skillSubTaskTags: (rep.skillSubTaskTags ?? source.skillSubTaskTags ?? []) as Prisma.InputJsonValue,
+        // 2026-08-28 Tetsuo確定: 課題タグは写さない。変種ごとに解析が中身から判定する。
+        // 通しから写すと空でなくなり、解析側の「空のときだけ入れる」に阻まれて
+        // その抜粋/変種に実際は出てこない課題が残り続けていた。
         groupId: source.groupId,
         metadata: metadata as Prisma.InputJsonValue,
         articulation: singleArt,   // 単一奏法なら奏法軸に載る (null=パターン軸)

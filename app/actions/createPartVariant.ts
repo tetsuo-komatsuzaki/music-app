@@ -88,7 +88,9 @@ export async function createPartVariants(input: {
         analysisStatus: "queued",
         buildStatus: "queued",
         star: source.star,
-        skillSubTaskTags: (source.skillSubTaskTags ?? []) as Prisma.InputJsonValue,
+        // 2026-08-28 Tetsuo確定: 課題タグは写さない。変種ごとに解析が中身から判定する。
+        // 通しから写すと空でなくなり、解析側の「空のときだけ入れる」に阻まれて
+        // その抜粋/変種に実際は出てこない課題が残り続けていた。
         groupId: source.groupId,
         partId: part.id,
         // 2026-08-28: 奏法は通しから継ぐ。
@@ -170,7 +172,9 @@ async function createScorePartVariants(
         difficulty: source.difficulty,
         partId: part.id,
         star: source.star,
-        skillSubTaskTags: (source.skillSubTaskTags ?? []) as Prisma.InputJsonValue,
+        // 2026-08-28 Tetsuo確定: 課題タグは写さない。変種ごとに解析が中身から判定する。
+        // 通しから写すと空でなくなり、解析側の「空のときだけ入れる」に阻まれて
+        // その抜粋/変種に実際は出てこない課題が残り続けていた。
         originalXmlPath: source.originalXmlPath,
         analysisStatus: "queued",
         buildStatus: "queued",

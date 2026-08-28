@@ -106,6 +106,7 @@ export async function createRhythmVariant(input: {
       description: true, descriptionShort: true, keyTonic: true, keyMode: true,
       tempoMin: true, tempoMax: true, positions: true, star: true,
       skillSubTaskTags: true, metadata: true, originalXmlPath: true, buildStatus: true,
+      articulation: true,
     },
   })
   if (!source) return { ok: false, error: "元の教材が見つかりません" }
@@ -158,7 +159,11 @@ export async function createRhythmVariant(input: {
       analysisStatus: "queued",
       buildStatus: "queued",
       star: source.star,
-      skillSubTaskTags: (source.skillSubTaskTags ?? []) as Prisma.InputJsonValue,
+      // 2026-08-28 Tetsuo確定: 課題タグは写さない。変種ごとに解析が中身から判定する。
+      // 通しから写すと空でなくなり、解析側の「空のときだけ入れる」に阻まれて
+      // その抜粋/変種に実際は出てこない課題が残り続けていた。
+      // 奏法は通しから継ぐ (パート変種と同じ扱い)
+      articulation: source.articulation,
       groupId: source.groupId,
       metadata: metadata as Prisma.InputJsonValue,
       rhythmRecipe: recipe as unknown as Prisma.InputJsonValue,

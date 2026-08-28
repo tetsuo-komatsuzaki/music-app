@@ -1431,36 +1431,35 @@ try:
                     "トレモロ": "tremolo",
                 }
                 _art_ids = {_ART_TAG_TO_ID[t] for t in _tt_names if t in _ART_TAG_TO_ID}
+                # 変種 (パート / リズム / 奏法パターン) は通しから奏法を継ぐので、
+                # ここで中身を見て付け直さない (2026-08-28 Tetsuo確定。パートだけでなく
+                # リズム教材にも同じ仕様を適用する)。レシピを持つ = 何かから作られた変種。
+                _NOT_VARIANT = (
+                    '"partId" IS NULL AND "variantRecipe" IS NULL '
+                    'AND "rhythmRecipe" IS NULL AND "articulationRecipe" IS NULL'
+                )
                 if len(_art_ids) == 1:
                     _art_id = next(iter(_art_ids))
                     cur.execute(
                         'UPDATE "PracticeItem" SET articulation=%s '
-                        'WHERE id=%s AND articulation IS NULL AND "partId" IS NULL',
+                        f'WHERE id=%s AND articulation IS NULL AND {_NOT_VARIANT}',
                         (_art_id, PRACTICE_ITEM_ID),
                     )
-                    print(f"[articulation] auto-assigned {_art_id}")
+                    print(f"[articulation] auto-assigned {_art_id} (通しのみ)")
                 elif len(_art_ids) > 1:
                     print(f"[articulation] 複数の奏法が混在するため自動判定しない: {sorted(_art_ids)}")
                 # タグの⭐︎最大値(最低1)を star に自動登録 (§2-2b 統合表: 技術+ポジ+重音)。
-                # 変種は毎回上書き / 手動教材は star 未設定のときだけ補完 (監修値を潰さない)。
-                # (_is_variant は上のポジション分岐で算出済み)
                 _star = max([1] + [_TAG_STAR[t] for t in (_tt_names + _ft_all) if t in _TAG_STAR])
                 # autoStar は毎回上書き (2026-08-25): 人が入れた star と食い違うと
                 # 管理画面で「要確認」として警告する。star 自体は勝手に変えない。
                 cur.execute('UPDATE "PracticeItem" SET "autoStar"=%s WHERE id=%s', (_star, PRACTICE_ITEM_ID))
-                # 2026-08-28 Tetsuo確定: ★は通しとパートで統一する。
-                # パート教材 (partId あり) は通しから継ぐ (createPartVariant が写す) ので、
-                # ここで抜粋の中身から計算し直して上書きしない。
-                # 上書きすると、同じ曲なのに Part1 は★2 / Part3 は★4 のように
-                # 一覧でバラつく。奏法と同じ扱い ("通しの下にぶら下がるものは通しを継ぐ")。
+                # 2026-08-28 Tetsuo確定: ★は通しと変種で統一する。
+                # 以前は変種を毎回上書きしていたため、同じ曲なのに Part1 は★2 /
+                # Part3 は★4 のように一覧でバラついた。変種は作られるときに通しの★を
+                # 写すので、ここでは「まだ入っていないときだけ」入れる。
+                # これで通し・パート・リズム変種のどれも通しの★で揃う。
                 # autoStar には計算値が残るので、食い違いは管理画面で確認できる。
-                if _is_variant:
-                    cur.execute(
-                        'UPDATE "PracticeItem" SET star=%s WHERE id=%s AND "partId" IS NULL',
-                        (_star, PRACTICE_ITEM_ID),
-                    )
-                else:
-                    cur.execute('UPDATE "PracticeItem" SET star=%s WHERE id=%s AND star IS NULL', (_star, PRACTICE_ITEM_ID))
+                cur.execute('UPDATE "PracticeItem" SET star=%s WHERE id=%s AND star IS NULL', (_star, PRACTICE_ITEM_ID))
             else:
                 # 曲は positions を毎回上書き (int[])。ポジションタグもこの値から導出。
                 _score_pos_ints = [int(n) for n in (piece_summary.get("positions") or [])]
