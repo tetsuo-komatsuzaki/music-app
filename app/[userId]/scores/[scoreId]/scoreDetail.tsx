@@ -113,7 +113,10 @@ type AnalysisData = {
   notes: AnalysisNote[]
   key?: { tonic?: string | null; mode?: string | null } | null
   time_signature?: { numerator?: number | null; denominator?: number | null } | null
-  spanners?: { slurs?: { start: number; end: number }[] | null } | null
+  spanners?: {
+    slurs?: { start: number; end: number }[] | null
+    hairpins?: { type: string; start: number; end: number }[] | null
+  } | null
 }
 
 type Props = {
@@ -2469,6 +2472,31 @@ function ScoreDetailInner({
     // 2026-08-27: 奏法を持たせる。スタッカート等は長さ、トリル/トレモロは刻みで表現し、
     // ピチカートは別音源に切り替わる (violinSampler.playNote が判断する)。
     const playable = analysis.notes.filter((n) => n.type === "note" && n.pitches.length > 0)
+    // スラー (2026-08-28 Tetsuo指示: スラーの部分は音を繋げる)。
+    // 解析の spanners.slurs は音符番号の範囲。各音符に start/mid/end を配る。
+    const slurPosOf = new Map<number, "start" | "mid" | "end">()
+    for (const sl of analysis.spanners?.slurs ?? []) {
+      if (!(sl.end > sl.start)) continue
+      for (let k = sl.start; k <= sl.end; k++) {
+        // 重なるスラーは外側優先にしない。後勝ちで十分 (演奏上の差はほぼ無い)
+        slurPosOf.set(k, k === sl.start ? "start" : k === sl.end ? "end" : "mid")
+      }
+    }
+    // クレッシェンド/デクレッシェンド (2026-08-28)。範囲内の音量をなだらかに変える。
+    // cresc = 手前を抑えて到達点で本来の音量へ / dim = 本来から 0.55 倍へ。
+    // 層 (pp/mf/ff) は段階記号でだけ切り替わるので、到達点に f 等があれば
+    // そこで層が変わり、ヘアピンはそこへ向かう坂を作る役になる。
+    const hairGainOf = new Map<number, number>()
+    for (const hp of analysis.spanners?.hairpins ?? []) {
+      const span = hp.end - hp.start
+      if (span <= 0) continue
+      for (let k = hp.start; k <= hp.end; k++) {
+        const t = (k - hp.start) / span
+        const g = hp.type === "crescendo" ? 0.55 + 0.45 * t : 1.0 - 0.45 * t
+        // 重なったら静かな方を採る
+        hairGainOf.set(k, Math.min(hairGainOf.get(k) ?? 1, g))
+      }
+    }
     // 強弱の持ち越し (2026-08-28): 解析は記号が置かれた音符にだけ dynamic を持つ。
     // それ以降の音符には直前の記号が効き続けるので、ここで持ち越す。記号が来るまでは null (=mf)。
     let carriedDynamic: string | null = null
@@ -2485,6 +2513,8 @@ function ScoreDetailInner({
           is_mordent: n.is_mordent,
           // 楽譜の強弱で音源の層 (pp/mf/ff) を選ぶ (2026-08-28 Tetsuo確定)
           dynamic: carriedDynamic,
+          slur: slurPosOf.get(n.note_index) ?? null,
+          gain: hairGainOf.get(n.note_index) ?? null,
         },
         // トリル/モルデントで交互に鳴らす相手 = 次の音符
         next: playable[i + 1]?.pitches?.[0] ?? null,

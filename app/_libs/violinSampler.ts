@@ -102,6 +102,10 @@ export type NoteArticulation = {
   is_mordent?: boolean | null
   /** その音に効いている強弱 (記号の位置から持ち越した値)。無ければ mf */
   dynamic?: string | null
+  /** スラーの中での位置 (2026-08-28)。start=弓の始まり / mid・end=前の音から繋がる */
+  slur?: "start" | "mid" | "end" | null
+  /** クレッシェンド等による音量の倍率 (2026-08-28)。1=変化なし。0.55〜1.0 の範囲で使う */
+  gain?: number | null
 }
 
 /** その音を鳴らすのに使う音源 */
@@ -116,6 +120,11 @@ export function techniqueOf(n: NoteArticulation | null | undefined): Technique {
  */
 function sustainRatio(n: NoteArticulation | null | undefined): number {
   const a = n?.articulations ?? []
+  // スラーの中は切らない (2026-08-28 Tetsuo指示: スラーの部分は音を繋げる)。
+  // スラー内のスタッカート等 (ポルタート的表現) は弓は返さないが軽く分けるので、
+  // 明示の短い奏法だけはスラーより優先する。
+  const shortArt = a.includes("spiccato") || a.includes("staccato") || a.includes("martele")
+  if (n?.slur && !shortArt) return 1.0
   if (a.includes("spiccato")) return 0.35   // 弓を弾ませる。最も短い
   if (a.includes("staccato")) return 0.45   // 弓を止めて切る
   if (a.includes("martele")) return 0.55    // 強いアタックで切る
@@ -152,7 +161,9 @@ export async function playNote(
   const tech = techniqueOf(art)
   const layer = dynamicToLayer(art?.dynamic)
   const s = await getViolin(tech, layer)
-  const vel = velocityOf(art)
+  // ヘアピン (cresc/dim) は音量の倍率でなだらかに付ける。層 (pp/mf/ff) は
+  // 段階記号でしか変えない。到達点に記号があれば、そこで層が切り替わって着地する
+  const vel = Math.min(1, Math.max(0.05, velocityOf(art) * (art?.gain ?? 1)))
 
   // トレモロ: 同じ音を高速に刻む。1秒あたり10回前後が実際の速さ
   if (art?.is_tremolo) {
@@ -181,7 +192,17 @@ export async function playNote(
     return
   }
 
-  const dur = Math.max(0.08, durSec * sustainRatio(art))
+  // スラーの繋ぎ (2026-08-28 Tetsuo指示: スラーの部分は音を繋げる)。
+  // 録音サンプルには弓の立ち上がりが含まれるため、ただ隙間なく並べても
+  // 1音ごとに弓を弾き直したように聞こえる。2つで繋げる:
+  //  ・2音目以降 (mid/end) は立ち上がりを 60ms かけて滑らかに入れる
+  //    (Sampler の attack エンベロープ。弓を返さない音の入り方に近づく)
+  //  ・終わり以外は次の音へ 90ms 重ねる (前の音の余韻の中で次が入る)
+  const slur = art?.slur ?? null
+  const shortArt2 = (art?.articulations ?? []).some((a) => a === "spiccato" || a === "staccato" || a === "martele")
+  s.attack = slur && slur !== "start" && !shortArt2 ? 0.06 : 0.005
+  const overlap = slur && slur !== "end" && !shortArt2 ? 0.09 : 0
+  const dur = Math.max(0.08, durSec * sustainRatio(art) + overlap)
   s.triggerAttackRelease(note, dur, atSec, vel)
 }
 
