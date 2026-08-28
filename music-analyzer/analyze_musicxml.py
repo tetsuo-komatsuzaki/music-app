@@ -1448,8 +1448,17 @@ try:
                 # autoStar は毎回上書き (2026-08-25): 人が入れた star と食い違うと
                 # 管理画面で「要確認」として警告する。star 自体は勝手に変えない。
                 cur.execute('UPDATE "PracticeItem" SET "autoStar"=%s WHERE id=%s', (_star, PRACTICE_ITEM_ID))
+                # 2026-08-28 Tetsuo確定: ★は通しとパートで統一する。
+                # パート教材 (partId あり) は通しから継ぐ (createPartVariant が写す) ので、
+                # ここで抜粋の中身から計算し直して上書きしない。
+                # 上書きすると、同じ曲なのに Part1 は★2 / Part3 は★4 のように
+                # 一覧でバラつく。奏法と同じ扱い ("通しの下にぶら下がるものは通しを継ぐ")。
+                # autoStar には計算値が残るので、食い違いは管理画面で確認できる。
                 if _is_variant:
-                    cur.execute('UPDATE "PracticeItem" SET star=%s WHERE id=%s', (_star, PRACTICE_ITEM_ID))
+                    cur.execute(
+                        'UPDATE "PracticeItem" SET star=%s WHERE id=%s AND "partId" IS NULL',
+                        (_star, PRACTICE_ITEM_ID),
+                    )
                 else:
                     cur.execute('UPDATE "PracticeItem" SET star=%s WHERE id=%s AND star IS NULL', (_star, PRACTICE_ITEM_ID))
             else:
