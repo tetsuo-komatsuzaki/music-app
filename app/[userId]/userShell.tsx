@@ -5,7 +5,6 @@ import { ReactNode } from "react"
 import { usePathname } from "next/navigation"
 import BottomTabs from "./components/BottomTabs"
 import RevealMotion from "@/app/components/RevealMotion"
-import TiltEffect from "@/app/components/DeviceMotion"
 import Header from "./components/Header"
 import OnboardingErrorBoundary from "./_onboarding/OnboardingErrorBoundary"
 import OnboardingProvider from "./_onboarding/OnboardingProvider"
@@ -39,8 +38,8 @@ export default function UserShell({
         <Header role={role} />
         {/* ===== PAGE CONTENT ===== */}
         <RevealMotion />
-        {/* B群 (2026-08-21 リバイス4): B2チルト */}
-        <TiltEffect />
+        {/* 2026-08-29: B2 3Dチルト (TiltEffect) を撤去。カードの端を押すと
+            奥に凹む動きが気持ち悪い (Tetsuo指示)。DeviceMotion.tsx ごと削除。 */}
         {/* 2026-08-28: DeviceFrame (黒いベゼル + ノッチの絵) を撤去。
             モックの端末枠を再現する部品で、実機の画面の上にもう一台ぶんの
             スマホの縁とノッチを描いていた。画面の四隅が黒く欠け、上部に

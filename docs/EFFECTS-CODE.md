@@ -11,7 +11,7 @@
 | 層 | 実装ファイル | 効くもの | ページ側の作業 |
 |---|---|---|---|
 | 1. 全画面共通CSS | app/globals.css | A1/A2/F4背景・E3'押下・D3クラス・独自カードの立体/出現 | なし (自動) |
-| 2. シェル常駐 | app/[userId]/userShell.tsx + DeviceMotion.tsx + layout.tsx(rv-boot) | B2チルト・B4ベゼル・出現エンジン起動 | なし (自動) |
+| 2. シェル常駐 | app/[userId]/userShell.tsx + layout.tsx(rv-boot) | 出現エンジン起動 (B2チルト/B4ベゼルは廃止) | なし (自動) |
 | 3. DS部品CSS | app/components/ds.module.css | カード/★/チェック/ピル/バー/大数字/リング/CTA/波形/見出し | **DSクラスを使うだけ** |
 | 4. 宣言属性 | app/components/RevealMotion.tsx (エンジン正本) | 出現の時間軸・リング/バー/数字/折れ線 | **data-anim を書くだけ** |
 
@@ -426,7 +426,7 @@ a:active:not(.noPress),
   対象=h1 ・ ds.card/seg/letter ・ data-anim=block。項目= card直下+data-anim=items。
   葉の遅延 (★240+105n ・ チェック130/260 ・ 番号150 ・ ピル170+70n ・ バー/リング200 ・ 数字230 ・
   折れ線230/節点380+185n) はエンジン内CSSに記載。再生手順は原本v5 reset/play と1対1
-- **B2チルト + B4ベゼル**: app/components/DeviceMotion.tsx (userShell がマウント)
+- **B2チルト + B4ベゼル**: 廃止 (B4=2026-08-28 / B2=2026-08-29 Tetsuo指示)。DeviceMotion.tsx は削除済み
 - **非同期ボタン**: app/components/AppButton.tsx (二重送信防止/処理中/完了/エラー)
 
 ## 4. シェルに紐づくもの

@@ -213,7 +213,6 @@ export default function StaggerRail({ children, onboarding, gap = 10 }: { childr
   return (
     <div
       ref={ref}
-      data-no-tilt
       data-anim="rail" // レール=1ブロック ・ カードは項目出現 (横画面外カードのIO未発火対策)
       data-onboarding={onboarding}
       onClickCapture={(e) => {

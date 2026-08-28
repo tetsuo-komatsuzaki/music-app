@@ -61,7 +61,7 @@ DSクラス (card/bar/pill/bigN/wave/letter/cta) と data-anim 宣言を使え�
 | 11 | D3 RECボタンの呼吸 (2.4s・銀リング拡散) | v2 CSS | 反映 (2026-08-21) | globals .recBreathe → scoreDetail 録音ボタン |
 | 12 | prefers-reduced-motion 全停止 | v2 CSS | 反映 | 各定義にガード + rv-boot は最初から立てない |
 | 13 | ページ背景オーロラ+グレイン (A1/A2) / タイトルの金シーン+光彩 (A3/A4) | v2 CSS | 反映 (2026-08-21 Tetsuo指示) | globals body::before/::after ・ ds.t。端末の浮遊(B1)のみギャラリー専用 |
-| 14 | スポットライト (E1) | v2 JS+CSS | 対象外のまま | チルトは 2026-08-21 指示で復活 (行22) |
+| 14 | スポットライト (E1) | v2 JS+CSS | 対象外のまま | チルトは行22 (2026-08-29 廃止) |
 | 15 | 見えたら発火 + 最初の画面は一本の時間軸 | v5 JS | 反映 (v4) | RevealMotion IntersectionObserver + rv-boot (layout.tsx) |
 | 16 | ★が1個ずつ灯る (項目+240ms+n*105ms・消えた★は静かに) | v3 CSS+v5 JS | 反映 (v4) | RevealMotion (ds.stars を自動分割 .rv-star/--si) |
 | 17 | チェック: 丸が開く(+130ms)→✓が描かれる(+260ms) | v3 CSS | 反映 (v4) | RevealMotion CSS (ds.chk 自動) |
@@ -69,9 +69,9 @@ DSクラス (card/bar/pill/bigN/wave/letter/cta) と data-anim 宣言を使え�
 | 19 | 折れ線: 左から描画(+230ms)→面(+780ms)→節点(+380ms+n*185ms) | v3 CSS | 反映 (2026-08-21) | ProgressTrajectory の svg に data-anim="chart" 宣言 |
 | 20 | E3' 上品な押下 (0.975倍/下1px/影弱め/暗め/金の内側光220ms・戻り200ms・ホバー上1px・金フォーカスリング) | E3' (2026-08-21 置換) | 反映 | globals.css + AppButton.tsx (非同期状態) |
 | 21 | B1 浮遊 | B1 | **廃止 (2026-08-21 Tetsuo指示)** | — |
-| 22 | B2 3Dチルト (±5°/±7°・戻り0.5s。実機=接触中追従) 範囲=カードのみ | B2 (2026-08-21) | 反映 | DeviceMotion.tsx (userShell) |
+| 22 | B2 3Dチルト | B2 (2026-08-21) | **廃止 (2026-08-29 Tetsuo指示: 端を押すと凹む動きが気持ち悪い)** | — (DeviceMotion.tsx 削除) |
 | 23 | B3 銀縁グロー | B3 | **廃止 (E3'に置換)** | — |
-| 24 | B4 ベゼル10px+アイランド104×24 | B4 (2026-08-21) | 反映 | DeviceMotion.tsx DeviceFrame |
+| 24 | B4 ベゼル10px+アイランド104×24 | B4 (2026-08-21) | **廃止 (2026-08-28 DeviceFrame削除: 実機の上に別の端末枠を描いていた)** | — |
 | 25 | E4 ボタン浮き出し | E4 | **廃止 (E3'に置換)** | — |
 | 26 | F4 右上の青い光彩 (420px円・rgba(72,104,182,.28)) | F4 (2026-08-21) | 反映 | globals body::before 最上層 |
 | 27 | F6 変化量ピル (軸色13%薄塗り+↗/↘) | F6 (2026-08-21) | 反映 | ProgressTrajectory 伸びチップ |

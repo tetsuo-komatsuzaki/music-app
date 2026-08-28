@@ -90,7 +90,7 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
       </div>
 
       {/* ═ 1枚のシート (原本 sheet = DSカード padding0) ═ */}
-      <div className={ds.card} data-no-tilt style={{ padding: 0, overflow: "hidden", marginTop: 12 }}>
+      <div className={ds.card} style={{ padding: 0, overflow: "hidden", marginTop: 12 }}>
         <Hero userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} onShare={() => setWeeklyShare(true)} />
         <Rule />
         <SkillsChapter userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} />
