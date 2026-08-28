@@ -2446,6 +2446,26 @@ function ScoreDetailInner({
     }
   }, [comparison, stopVisualSync, clearHighlight, hideCursor])
 
+  // 画面から離れたら見本の音を強制停止する (2026-08-29 Tetsuo指示)。
+  // Tone の再生時計はアプリ全体で1つなので、止めずに遷移すると他の画面でも鳴り続ける。
+  // 対象: 別画面への遷移 (アンマウント) ・ タブやアプリの切り替え (visibilitychange) ・
+  // ページ離脱 (pagehide)。releaseViolin で鳴りかけの音の余韻ごと切る。
+  // stopPlayback は依存が変わるたび作り直されるため、ref 経由で最新を呼ぶ
+  // (直接依存に入れると比較結果の更新のたびに再生が止まってしまう)。
+  const stopPlaybackRef = useRef(stopPlayback)
+  useEffect(() => { stopPlaybackRef.current = stopPlayback }, [stopPlayback])
+  useEffect(() => {
+    const hardStop = () => { stopPlaybackRef.current(); releaseViolin() }
+    const onHidden = () => { if (document.hidden) hardStop() }
+    document.addEventListener("visibilitychange", onHidden)
+    window.addEventListener("pagehide", hardStop)
+    return () => {
+      document.removeEventListener("visibilitychange", onHidden)
+      window.removeEventListener("pagehide", hardStop)
+      hardStop()
+    }
+  }, [])
+
   // --- 一時停止 ---
   const pausePlayback = useCallback(() => {
     pausedAtRef.current = Tone.getTransport().seconds

@@ -115,6 +115,18 @@ export default function LessonPlayer({
     }
   }
   useEffect(() => () => exemplarStopRef.current?.(), [])
+  // 画面が切り替わったらお手本を強制停止する (2026-08-29 Tetsuo指示)。
+  // アンマウントは上の行が守る。ここはタブ/アプリの切り替えとページ離脱。
+  useEffect(() => {
+    const stopNow = () => exemplarStopRef.current?.()
+    const onHidden = () => { if (document.hidden) stopNow() }
+    document.addEventListener("visibilitychange", onHidden)
+    window.addEventListener("pagehide", stopNow)
+    return () => {
+      document.removeEventListener("visibilitychange", onHidden)
+      window.removeEventListener("pagehide", stopNow)
+    }
+  }, [])
 
   // ── OSMD (弾く画面の譜面 + 期待タイミング抽出) ──────────────────────
   const osmdHostRef = useRef<HTMLDivElement | null>(null)
