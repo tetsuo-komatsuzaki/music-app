@@ -1,0 +1,200 @@
+/* ============================================================
+   「アルコと最初の1周」ガイド層 (2026-08-29)
+   見た目の正 = docs/mocks/first-loop-guide/guide-redesign.html。
+   値はモックの CSS からの転載。実装完了時にモックと誤差ゼロ突き合わせ。
+   z-index: CoachMark(1900) と WelcomeSlides(2000) の間 = 1950 帯
+   ============================================================ */
+
+.dimmer {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 20, 0.55);
+  z-index: 1950;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.dimmerOn { opacity: 1; }
+
+/* 金の光 = 次に押す場所。実要素の矩形に重ねる (要素自体は下でそのまま押せる) */
+.spot {
+  position: fixed;
+  z-index: 1951;
+  border-radius: 18px;
+  pointer-events: none;
+  box-shadow: 0 0 0 3px rgba(232, 178, 60, 0.85), 0 0 26px rgba(232, 178, 60, 0.45);
+  animation: spotBreath 2.2s ease-in-out infinite;
+}
+@keyframes spotBreath {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(232, 178, 60, 0.85), 0 0 26px rgba(232, 178, 60, 0.45); }
+  50% { box-shadow: 0 0 0 3px rgba(232, 178, 60, 1), 0 0 38px rgba(232, 178, 60, 0.7); }
+}
+
+/* 灰枠 = いま見る場所 (押す場所ではない) */
+.spot2 {
+  position: fixed;
+  z-index: 1950;
+  border-radius: 16px;
+  pointer-events: none;
+  box-shadow: 0 0 0 2px rgba(150, 175, 225, 0.55);
+}
+
+/* タップの波紋 */
+.ripple {
+  position: fixed;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border-radius: 50%;
+  background: rgba(232, 178, 60, 0.5);
+  transform: scale(0.2);
+  animation: rippleOut 0.5s ease-out forwards;
+  z-index: 1953;
+  pointer-events: none;
+}
+@keyframes rippleOut { to { transform: scale(2.6); opacity: 0; } }
+
+/* 現在地チップ (左上) */
+.whereChip {
+  position: fixed;
+  left: 4%;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  z-index: 1952;
+  background: rgba(13, 24, 48, 0.85);
+  border: 1px solid rgba(150, 175, 225, 0.2);
+  color: var(--text-sub);
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 4px 12px;
+  letter-spacing: 0.04em;
+}
+
+/* スキップ (右上・常設) */
+.skip {
+  position: fixed;
+  right: 4%;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  z-index: 1952;
+  background: rgba(13, 24, 48, 0.85);
+  border: 1px solid rgba(150, 175, 225, 0.2);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* 道しるべバー (下部) */
+.shirube {
+  position: fixed;
+  left: 3%;
+  right: 3%;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  z-index: 1952;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(13, 24, 48, 0.97);
+  border: 1px solid rgba(150, 175, 225, 0.25);
+  border-radius: 16px;
+  padding: 10px 12px;
+  box-shadow: 0 8px 26px rgba(4, 8, 20, 0.7);
+  transform: translateY(0);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  max-width: 534px;
+  margin: 0 auto;
+}
+.shirubeHidden { transform: translateY(160%); }
+
+.arco {
+  flex: none;
+  width: 52px;
+  aspect-ratio: 1;
+}
+.body { flex: 1; min-width: 0; }
+.text {
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.55;
+  color: var(--text-ink);
+  white-space: pre-line;
+}
+.pips { display: flex; gap: 5px; margin-top: 6px; }
+.pips i {
+  width: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(150, 175, 225, 0.22);
+}
+.pipOn { background: var(--gold-2) !important; }
+.pipNow { background: none !important; border: 1.5px solid var(--gold-2); }
+
+/* ガイドカード (作法・無音・ごほうび等) の共通様式 */
+.gcardWrap {
+  position: fixed;
+  inset: 0;
+  z-index: 1951;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6%;
+  pointer-events: none;
+}
+.gcard {
+  width: 100%;
+  max-width: 480px;
+  background: var(--card-b);
+  border: 1px solid rgba(150, 175, 225, 0.25);
+  border-radius: 16px;
+  padding: 15px 18px;
+  box-shadow: 0 10px 30px rgba(4, 8, 20, 0.6);
+  pointer-events: auto;
+}
+.gcTitle { font-size: 15px; font-weight: 900; color: #f0d9a6; margin-bottom: 9px; }
+.gcTitleRed { color: #ff9d94; }
+.gcRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--text-body);
+  font-weight: 600;
+  line-height: 1.65;
+  margin-top: 7px;
+}
+.gcRow b { color: var(--text-ink); }
+.gcRow i {
+  flex: none;
+  width: 20px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--bg1);
+  border: 1px solid rgba(150, 175, 225, 0.3);
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--text-sub);
+  margin-top: 1px;
+}
+.gcBtn {
+  margin-top: 13px;
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 900;
+  padding: 10px;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spot, .ripple { animation: none; }
+}
