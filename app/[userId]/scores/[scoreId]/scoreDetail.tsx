@@ -2461,7 +2461,7 @@ function ScoreDetailInner({
     transport.cancel()
 
     // 使う奏法の音源を先に読み込む。途中で読み込むと最初の数音が無音になる
-    await preloadFor(analysis.notes)
+    // 音源の先読みは、強弱を持ち越した events を組んだあとに行う (下の events 参照)
 
     const tempoRatio = getTempoRatio()
     activeTempoRatioRef.current = tempoRatio
@@ -2469,19 +2469,29 @@ function ScoreDetailInner({
     // 2026-08-27: 奏法を持たせる。スタッカート等は長さ、トリル/トレモロは刻みで表現し、
     // ピチカートは別音源に切り替わる (violinSampler.playNote が判断する)。
     const playable = analysis.notes.filter((n) => n.type === "note" && n.pitches.length > 0)
-    const events = playable.map((n, i) => ({
-      time: Tone.Time(n.start_time_sec * tempoRatio, "s"),
-      duration: Math.max((n.end_time_sec - n.start_time_sec) * tempoRatio, 0.05),
-      frequency: n.pitches[0],
-      art: {
-        articulations: n.articulations,
-        is_tremolo: n.is_tremolo,
-        is_trill: n.is_trill,
-        is_mordent: n.is_mordent,
-      },
-      // トリル/モルデントで交互に鳴らす相手 = 次の音符
-      next: playable[i + 1]?.pitches?.[0] ?? null,
-    }))
+    // 強弱の持ち越し (2026-08-28): 解析は記号が置かれた音符にだけ dynamic を持つ。
+    // それ以降の音符には直前の記号が効き続けるので、ここで持ち越す。記号が来るまでは null (=mf)。
+    let carriedDynamic: string | null = null
+    const events = playable.map((n, i) => {
+      if (n.dynamic) carriedDynamic = n.dynamic
+      return {
+        time: Tone.Time(n.start_time_sec * tempoRatio, "s"),
+        duration: Math.max((n.end_time_sec - n.start_time_sec) * tempoRatio, 0.05),
+        frequency: n.pitches[0],
+        art: {
+          articulations: n.articulations,
+          is_tremolo: n.is_tremolo,
+          is_trill: n.is_trill,
+          is_mordent: n.is_mordent,
+          // 楽譜の強弱で音源の層 (pp/mf/ff) を選ぶ (2026-08-28 Tetsuo確定)
+          dynamic: carriedDynamic,
+        },
+        // トリル/モルデントで交互に鳴らす相手 = 次の音符
+        next: playable[i + 1]?.pitches?.[0] ?? null,
+      }
+    })
+
+    await preloadFor(events.map((e) => e.art))
 
     if (partRef.current) partRef.current.dispose()
     partRef.current = new Tone.Part(

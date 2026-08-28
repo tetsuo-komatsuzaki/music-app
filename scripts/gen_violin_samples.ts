@@ -1,5 +1,6 @@
 /**
  * public/violin/ にある実ファイルから、サンプラーが読む音名一覧を生成する (2026-08-27)。
+ * 2026-08-28: 強弱3層 (pp/mf/ff) × 奏法 (arco/pizz) の6セット構成に更新。
  *
  * 手で書くと実ファイルとずれる。ずれると Tone.Sampler が 404 を引き、
  * その音だけ無音になる (エラーは出ない)。生成して突き合わせをなくす。
@@ -27,9 +28,6 @@ function collect(dir: string): string[] {
     .sort((a, b) => midiOf(a) - midiOf(b))
 }
 
-const arco = collect(ROOT)
-const pizz = collect(join(ROOT, "pizz"))
-
 const report = (label: string, notes: string[]) => {
   if (notes.length === 0) { console.log(`  ${label}: なし`); return }
   const ms = notes.map(midiOf)
@@ -42,15 +40,25 @@ const report = (label: string, notes: string[]) => {
   console.log(`    半音の抜け ${gaps.length}箇所${gaps.length ? "  " + gaps.join(" ") : ""}`)
 }
 
+const TECHS = ["arco", "pizz"] as const
+const DYNS = ["pp", "mf", "ff"] as const
+
 console.log("public/violin から生成:")
-report("arco", arco)
-report("pizz", pizz)
+const sets: Record<string, string[]> = {}
+for (const t of TECHS) {
+  for (const d of DYNS) {
+    const notes = collect(join(ROOT, t, d))
+    sets[`${t}_${d}`] = notes
+    report(`${t}/${d}`, notes)
+  }
+}
 
 const body = `// 自動生成。手で編集しない。
-// public/violin/ の実ファイルから scripts/gen_violin_samples.ts が作る。
+// public/violin/{arco,pizz}/{pp,mf,ff}/ の実ファイルから scripts/gen_violin_samples.ts が作る。
 // 音源を入れ替えたら再生成すること。
-export const ARCO_NOTES = ${JSON.stringify(arco)} as const
-export const PIZZ_NOTES = ${JSON.stringify(pizz)} as const
+export const SAMPLE_SETS = ${JSON.stringify(sets)} as const
+export type SampleSetKey = keyof typeof SAMPLE_SETS
 `
 writeFileSync(OUT, body)
-console.log(`\n${OUT} を書き出した`)
+console.log(`
+${OUT} を書き出した`)
