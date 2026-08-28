@@ -206,10 +206,22 @@ export default function SymbolGuide({
     if (!showMarks) return
     const container = document.getElementById(CONTAINER_ID)
     if (!container || typeof ResizeObserver === "undefined") return
-    const ro = new ResizeObserver(() => repositionAll())
+    // 録音全画面中は置き直さない (2026-08-28)。
+    // 帯モードは録音中ずっと横スクロールし続けるため、scroll のたびに
+    // 全マークの座標を読み直すこの処理が毎フレーム級に走り、フレーム落ちの
+    // 一因になっていた。目印はスクロールしない外側の箱に付いているので、
+    // 置き直しを止めるだけだと古い位置に浮く。録音中は CSS 側
+    // (.markLayer の data-fullscreen 規則) で層ごと隠す。
+    // 録音が終わると譜面が読み直され noteElementsVersion が変わるので、
+    // この effect が再実行されて置き直される。
+    const reposition = () => {
+      if (document.body.getAttribute("data-fullscreen") === "true") return
+      repositionAll()
+    }
+    const ro = new ResizeObserver(reposition)
     ro.observe(container)
-    container.addEventListener("scroll", repositionAll, { passive: true })
-    return () => { ro.disconnect(); container.removeEventListener("scroll", repositionAll) }
+    container.addEventListener("scroll", reposition, { passive: true })
+    return () => { ro.disconnect(); container.removeEventListener("scroll", reposition) }
   }, [showMarks, repositionAll, noteElementsVersion])
 
   const clearHighlight = useCallback(() => {

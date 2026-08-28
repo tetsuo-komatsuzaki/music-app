@@ -3030,7 +3030,16 @@ function ScoreDetailInner({
       const nextSvg = osmdRules?.GNote?.(nextNote)?.getSVGGElement?.() as SVGGElement | undefined
       if (nextSvg && activeSvg.contains(nextSvg)) {
         const nextRect = nextSvg.getBoundingClientRect()
-        const sameRow = Math.abs(prevRect.top - nextRect.top) < 20
+        // 「同じ段なら補間」の判定 (2026-08-28 修正)。
+        // 従来は音符の絵の上端どうしを比べていたが、絵の上端は音の高さと
+        // 符幹の向きで動くため、20px を超える跳躍があると同じ段なのに
+        // 「改段」と誤判定され、補間が止まっていた。青線が前の音符に張り付き、
+        // 次の音符で一気に跳ぶ → それを追う横スクロールが「止まって飛ぶ」。
+        // 実測 (2026-08-28): 跳躍の大きい曲で録音中の72%が停止・最大75px跳び。
+        // 帯モード (renderSingleHorizontalStaffline) は定義上1段しかないので
+        // 段またぎは起きない = 常に補間してよい。縦レイアウトは従来判定のまま。
+        const bandNow = document.body.getAttribute("data-rec-band") === "true"
+        const sameRow = bandNow || Math.abs(prevRect.top - nextRect.top) < 20
         if (sameRow) {
           const nextX = nextRect.left + nextRect.width / 2 - containerRect.left + scrollLeft
           const progress = Math.max(0, Math.min(1, (currentSec - prevTime) / (nextTime - prevTime)))

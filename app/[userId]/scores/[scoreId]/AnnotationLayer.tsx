@@ -357,6 +357,15 @@ export default function AnnotationLayer({
     if (!container) return
     let raf: number | null = null
     const schedule = () => {
+      // 録音全画面中は再構築しない (2026-08-28)。
+      // 帯モードは録音中ずっと横スクロールし続けるため、scroll のたびに
+      // 全ノードを消して作り直すこの処理が毎フレーム級に走り、フレーム落ちの
+      // 主因になっていた (実測: 記号の多い曲で 100ms 超の引っかかり281回)。
+      // 印は入れ物の中にコンテンツ座標で置いてあり、スクロールには自然に
+      // ついて動くので、録音中に作り直す必要はそもそも無い。
+      // 録音が終わると譜面が縦レイアウトで読み直され noteElementsVersion が
+      // 変わるので、この effect が再実行されて描き直される。
+      if (document.body.getAttribute("data-fullscreen") === "true") return
       if (raf !== null) return
       raf = requestAnimationFrame(() => { raf = null; renderOverlay() })
     }

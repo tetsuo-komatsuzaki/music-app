@@ -13,6 +13,14 @@
 
 .spacer { flex: 1; }
 
+/* 録音全画面中は目印の層ごと隠す (2026-08-28)。
+   目印はスクロールしない外側の箱に付いており、帯モードの横スクロール中は
+   毎フレームの置き直しが要る。録音中は触れないので、置き直しをやめて
+   層ごと隠す方が軽い。録音が終わると data-fullscreen が外れて自然に戻る。 */
+:global(body[data-fullscreen="true"]) .markLayer {
+  display: none;
+}
+
 /* ---- 譜面上の目印 (譜面ラッパーに重ねる) ---- */
 .markLayer {
   position: absolute; inset: 0; pointer-events: none; z-index: 5;
