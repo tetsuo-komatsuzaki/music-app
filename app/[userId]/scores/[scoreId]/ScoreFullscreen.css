@@ -260,6 +260,12 @@ body[data-rec-band="true"] #osmd-container {
 }
 body[data-rec-band="true"] #osmd-container::-webkit-scrollbar { display: none; }
 
+/* 帯モードの停止はボトム操作列の赤丸が担う (原本 s04 №07)。共通ルールで
+   上部バー化した Recorder パネルをそのまま出すと停止ボタンが2個並ぶため隠す
+   (2026-08-29 Tetsuo指摘)。停止処理は隠れたボタンを click する方式なので影響なし。
+   タイマーもボトム操作列の表示が担う。 */
+body[data-rec-band="true"] [data-recorder-panel="recording"] { display: none !important; }
+
 /* 横向き時はノッチが左右に来る */
 body[data-rec-band="true"] [data-section="fullscreen-bar"] {
   padding-left: max(14px, env(safe-area-inset-left, 0px)) !important;
