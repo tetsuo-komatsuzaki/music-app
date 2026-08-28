@@ -87,12 +87,20 @@
   font-family: inherit;
 }
 
-/* 道しるべバー (下部) */
+/* 録音中・全画面中はガイド層ごと消す (BottomTabs と同じ条件) */
+:global(body[data-recording="true"]) .layer,
+:global(body[data-rec-band="true"]) .layer,
+:global(body[data-fullscreen="true"]) .layer {
+  display: none;
+}
+
+/* 道しるべバー: ビューポート下端固定・タブバー(72px)の上。
+   スクロールしてもコンテンツと一緒に流れない */
 .shirube {
   position: fixed;
   left: 3%;
   right: 3%;
-  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(82px + env(safe-area-inset-bottom, 0px));
   z-index: 1952;
   display: flex;
   align-items: center;
@@ -107,7 +115,12 @@
   max-width: 534px;
   margin: 0 auto;
 }
-.shirubeHidden { transform: translateY(160%); }
+.shirubeHidden { transform: translateY(200%); }
+/* 光の対象が画面下部のとき: バーを上へ退避して対象を隠さない */
+.shirubeTop {
+  bottom: auto;
+  top: calc(44px + env(safe-area-inset-top, 0px));
+}
 
 .arco {
   flex: none;

@@ -8,6 +8,15 @@
 //       現在地チップ+スキップ+タップ波紋 の描画のみ。
 // 進行の状態機械 (どのステップか・保存・イベント購読) は呼び出し側が持つ。
 // 対象要素は実画面側の data-guide="<名前>" で指す (guideFlow.ts の spot 名)。
+//
+// 【Tetsuo徹底事項 2026-08-29】
+//  1. 暗幕・光・灰枠は pointer-events:none。タップは常に下の実画面へ素通し。
+//     操作を受けるのはバー内ボタンとガイドカードのボタンだけ。
+//  2. ガイド終了 (step=null) で DOM からアンマウント。透明カバーが残って
+//     タップを妨害する事故を構造的に不可能にする (GuideOverlay.dom.test で担保)。
+//  3. 表示データはすべて本物 (デモ表示→戻す処理は存在しない)。
+//  4. バーはビューポート下端固定 (タブバーの上)。光の対象が画面下部のときは
+//     上部へ退避。録音中・全画面中は層ごと非表示 (CSS)。
 // ============================================================
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
@@ -44,6 +53,7 @@ export default function GuideOverlay({
 }) {
   const [spotRect, setSpotRect] = useState<Rect | null>(null)
   const [spot2Rect, setSpot2Rect] = useState<Rect | null>(null)
+  const [barOnTop, setBarOnTop] = useState(false)
   const rippleHost = useRef<HTMLDivElement | null>(null)
 
   // 対象要素の追跡。スクロール・リサイズ・DOM変化で測り直す
@@ -51,18 +61,26 @@ export default function GuideOverlay({
     if (!step) { setSpotRect(null); setSpot2Rect(null); return }
     let raf = 0
     const measure = () => {
-      setSpotRect(rectOf(findTarget(step.spot)))
+      const r = rectOf(findTarget(step.spot))
+      setSpotRect(r)
       setSpot2Rect(rectOf(findTarget(step.spot2)))
+      // 光の対象が画面下部 (タブバー等) ならバーを上へ退避して対象を隠さない
+      setBarOnTop(!!r && r.top + r.height > window.innerHeight * 0.62)
     }
     const onMove = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(measure) }
     measure()
+    // ステップ開始時、対象を画面内へ寄せる (バーは固定のまま・光は要素に追従)
+    const intoView = setTimeout(() => {
+      const el = findTarget(step.spot)
+      try { el?.scrollIntoView({ block: "center", behavior: "smooth" }) } catch { /* noop */ }
+    }, 250)
     // 描画直後は対象がまだ無いことがある (譜面の読み込み等)。しばらく再測定
     const warm = setInterval(measure, 400)
     const warmStop = setTimeout(() => clearInterval(warm), 6000)
     window.addEventListener("scroll", onMove, { capture: true, passive: true })
     window.addEventListener("resize", onMove)
     return () => {
-      clearInterval(warm); clearTimeout(warmStop); cancelAnimationFrame(raf)
+      clearInterval(warm); clearTimeout(warmStop); clearTimeout(intoView); cancelAnimationFrame(raf)
       window.removeEventListener("scroll", onMove, { capture: true })
       window.removeEventListener("resize", onMove)
     }
@@ -92,7 +110,7 @@ export default function GuideOverlay({
   const pose = POSES.find((p) => p.id === step.pose) ?? POSES[0]
 
   return (
-    <div ref={rippleHost}>
+    <div ref={rippleHost} className={styles.layer} data-guide-overlay>
       <div className={`${styles.dimmer} ${styles.dimmerOn}`} aria-hidden />
       {spotRect && (
         <div
@@ -111,7 +129,7 @@ export default function GuideOverlay({
       <div className={styles.whereChip}>{step.where}</div>
       <button type="button" className={styles.skip} onClick={onSkip}>スキップ</button>
       {children}
-      <div className={styles.shirube} role="status">
+      <div className={`${styles.shirube} ${barOnTop ? styles.shirubeTop : ""}`} role="status">
         <div className={styles.arco}><ArcoChan pose={pose} /></div>
         <div className={styles.body}>
           <div className={styles.text}>{step.text}</div>
