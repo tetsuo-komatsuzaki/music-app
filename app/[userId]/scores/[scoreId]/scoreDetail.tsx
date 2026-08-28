@@ -21,7 +21,7 @@ import { playNote, preloadFor, releaseViolin } from "@/app/_libs/violinSampler"
 import { lockLandscape, unlockOrientation } from "@/app/_libs/arcodaOrientation"
 // 一時装備 (2026-08-28 再投入): 録音中のテンポガイドの引っかかりを実機で数字にする。
 // 8/26 に同じ症状を確定させた装備を 927fb3f から戻した。原因確定後に再び削除する。
-import { diagFrame, diagGuideStart, diagHold, diagMoved, diagRender } from "@/app/_libs/recDiag"
+import { diagFrame, diagGuideStart, diagHold, diagMoved, diagRender, diagScroll } from "@/app/_libs/recDiag"
 import ProgressTrajectory from "@/app/components/ProgressTrajectory"
 import styles from "./scoreDetail.module.css"
 import "./ScoreFullscreen.css"
@@ -701,7 +701,7 @@ function applyBandZoom(osmd: OpenSheetMusicDisplay, container: HTMLElement) {
   const target = Math.min(4.0, Math.max(0.8, container.clientWidth / (BAND_MEASURES_PER_SCREEN * avgMeasureWidthAtZoom1)))
   if (Math.abs(target - currentZoom) > 0.02) {
     osmd.zoom = target
-    diagRender()
+    diagRender("band")
     osmd.render()
   }
 }
@@ -838,7 +838,7 @@ function ScoreViewer({
       .load(buildUrl)
       .then(() => {
         osmd.zoom = bandMode ? 1.0 : computeResponsiveZoom(container.clientWidth)
-        diagRender()
+        diagRender("load")
         osmd.render()
         // 帯モード: 実測にもとづき「画面幅≈5小節」へ倍率を合わせて再render
         if (bandMode) applyBandZoom(osmd, container)
@@ -897,7 +897,7 @@ function ScoreViewer({
         const newZoom = computeResponsiveZoom(container.clientWidth)
         if (Math.abs(newZoom - osmd.zoom) < 1e-6) return
         osmd.zoom = newZoom
-        diagRender()
+        diagRender("resize")
         osmd.render()
       }, 200)
     }
@@ -2945,6 +2945,9 @@ function ScoreDetailInner({
           container.scrollLeft = Math.max(0, Math.min(target, max))
         }
       }
+      // 一時装備 (2026-08-28): 譜面の流れそのものを測る。
+      // ガイドのフレームが滑らかでも、ここが止まって飛べば「カクカク」に見える。
+      diagScroll(container.scrollLeft)
       if (!recordingRangeRef.current && scrollPlan && scrollPlan.totalDurationSec > 0 && recGuideStartRef.current) {
         const elapsedSec = (performance.now() - recGuideStartRef.current) / 1000
         if (elapsedSec >= scrollPlan.totalDurationSec + TAIL_BUFFER_SEC) {
