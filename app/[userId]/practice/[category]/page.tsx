@@ -67,8 +67,15 @@ export default async function CategoryPage({
   }
   if (sp.position) where.positions = { has: sp.position }
 
+  // 2026-08-28: パート教材は一覧からは外すが、練習前シートの「パートを選ぶ」には要る。
+  // 従来は一覧用の1本だけを取り、それをシートの選択肢にも流用していた。
+  // 一覧の除外 (partId: null) がそのままシートにも効き、パートが1件も渡らないため
+  // 「パートはまだ登録されていません」になり、全小節のまま練習・録音していた。
+  // 目的が2つある (並べる / 選ばせる) ので、取得も2本に分ける。
+  const partWhere = { ...where, partId: { not: null } }
+
   const perfStart = performance.now()
-  const [items, allItemsForFilter, stats] =
+  const [items, partItems, allItemsForFilter, stats] =
     await Promise.all([
       prisma.practiceItem.findMany({
         where,
@@ -84,6 +91,16 @@ export default async function CategoryPage({
             include: { featureTag: { select: { name: true, category: true } } },
           },
           // 族(グループ) 情報 = 音階/アルペジオの調シート用 (Phase C-basics)
+          group: { select: { id: true, title: true, parts: true, axes: true } },
+        },
+      }),
+      // 練習前シートの「パートを選ぶ」用。一覧には出さないが選択肢には要る
+      prisma.practiceItem.findMany({
+        where: partWhere,
+        orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+        include: {
+          techniques: { include: { techniqueTag: { select: { name: true } } } },
+          featureTags: { include: { featureTag: { select: { name: true, category: true } } } },
           group: { select: { id: true, title: true, parts: true, axes: true } },
         },
       }),
@@ -135,7 +152,8 @@ export default async function CategoryPage({
     }
   }
 
-  const itemsWithHistory = items.map((item) => {
+  // 2026-08-28: 一覧用とパート用で同じ変換を使う (2箇所に写経しない)
+  const toDto = (item: (typeof items)[number]) => {
     const perf = perfByItem.get(item.id)
     const meta =
       typeof item.metadata === "object" && item.metadata !== null && !Array.isArray(item.metadata)
@@ -187,7 +205,10 @@ export default async function CategoryPage({
       bestScore: perf?.best != null ? Math.round(perf.best) : null,
       coverImagePath: item.coverImagePath,
     }
-  })
+  }
+  const itemsWithHistory = items.map(toDto)
+  // 練習前シートの「パートを選ぶ」用。一覧には出さない
+  const partItemsDto = partItems.map(toDto)
 
   const keys = [...new Set(allItemsForFilter.map((i) => `${i.keyTonic}_${i.keyMode}`))]
   const positions = [...new Set(allItemsForFilter.flatMap((i) => i.positions))]
@@ -215,6 +236,7 @@ export default async function CategoryPage({
       category={category}
       categoryTitle={categoryTitles[category] || category}
       items={itemsWithHistory}
+      partItems={partItemsDto}
       filterOptions={{ keys, positions }}
       currentFilters={sp}
       stats={stats}

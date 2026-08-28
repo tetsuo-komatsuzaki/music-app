@@ -70,6 +70,8 @@ type Props = {
   category: string
   categoryTitle: string
   items: PracticeItemDTO[]
+  /** 練習前シートの「パートを選ぶ」用。一覧には出さないパート教材 (2026-08-28) */
+  partItems?: PracticeItemDTO[]
   filterOptions: { keys: string[]; positions: string[] }
   currentFilters: { key?: string; position?: string }
   stats: PracticeStats
@@ -430,9 +432,11 @@ function FamilyView({
 type StarTab = number | "none"
 
 function StarView({
-  items, userId, category, userStar,
+  items, partItems, userId, category, userStar,
 }: {
   items: PracticeItemDTO[]
+  /** 練習前シートの「パートを選ぶ」用。一覧には出さない (2026-08-28) */
+  partItems: PracticeItemDTO[]
   userId: string
   category: string
   userStar?: number | null
@@ -493,7 +497,7 @@ function StarView({
       ) : isFamilyCategory(category) ? (
         // 音階/アルペジオ: 族カード + 調シート (オクターブ見出しは廃止し族が兼ねる)
         // 選択可否(gate)は「開いたタブ」ではなくユーザーの現在★で判定 (userStar優先)。
-        <FamilyView items={filtered} allItems={items} baseStar={userStar ?? baseStar} userId={userId} category={category} />
+        <FamilyView items={filtered} allItems={[...items, ...partItems]} baseStar={userStar ?? baseStar} userId={userId} category={category} />
       ) : (
         subGroups.map((sg, idx) => (
           <section key={sg.label || idx} className={styles.railSection}>
@@ -522,8 +526,11 @@ function StarView({
             coverImagePath: songItem.coverImagePath ?? null,
             // 同じグループの奏法変種をすべて渡す (2026-08-25: エチュードの第1軸=奏法)。
             // グループが無い単独教材は自分だけ。
+            // 2026-08-28: 一覧はパート教材を除いて取得しているので、
+            // シートの選択肢にはパートを別途混ぜる。混ぜないと partVariants が空になり、
+            // 「パートはまだ登録されていません」のまま全小節で練習・録音してしまう。
             variants: (songItem.groupId
-              ? items.filter((i) => i.groupId === songItem.groupId)
+              ? [...items, ...partItems].filter((i) => i.groupId === songItem.groupId)
               : [songItem]
             ).map((i) => ({
               id: i.id, star: i.star,
@@ -549,7 +556,7 @@ function StarView({
             title: basicItem.groupTitle ?? basicItem.title.replace(/_/g, "・"),
             coverImagePath: basicItem.coverImagePath ?? null,
             baseStar,
-            variants: items
+            variants: [...items, ...partItems]
               .filter((i) => groupKeyOf(i) === groupKeyOf(basicItem))
               .map((i) => ({
                 id: i.id, keyTonic: i.keyTonic, keyMode: i.keyMode ?? null,
@@ -708,7 +715,8 @@ function GroupView({
 // ────────────────────────────────────────────────────────────
 
 export default function PracticeList({
-  userId, category, categoryTitle, items, filterOptions: _filterOptions, currentFilters: _currentFilters, stats: _stats, userStar = null,
+  userId, category, categoryTitle, items, partItems = [],
+  filterOptions: _filterOptions, currentFilters: _currentFilters, stats: _stats, userStar = null,
   weakTechniques,
 }: Props) {
   void _filterOptions
@@ -759,7 +767,7 @@ export default function PracticeList({
       </div>
 
       {activeView === "star" && (
-        <StarView items={items} userId={userId} category={category} userStar={userStar} />
+        <StarView items={items} partItems={partItems} userId={userId} category={category} userStar={userStar} />
       )}
       {activeView === "group" && (
         <GroupView items={items} userId={userId} category={category} />

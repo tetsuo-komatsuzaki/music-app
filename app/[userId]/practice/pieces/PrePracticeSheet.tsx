@@ -102,6 +102,9 @@ export default function PrePracticeSheet({
   const sections = variant?.sections ?? []
   const [rangeIdx, setRangeIdx] = useState(-1) // -1 = 全部演奏する (実体が無いときの旧経路)
   const [partPick, setPartPick] = useState("")  // 実体化済みパート教材のid
+  // プレビューと「はじめる」の行き先は同じものを指す。
+  // パートを選んでいればそのパート教材、選んでいなければ通し。
+  const previewId = partPick || variant?.id || null
 
   const start = () => {
     if (!variant) {
@@ -147,8 +150,13 @@ export default function PrePracticeSheet({
           </div>
         </div>
 
-        {/* 譜面プレビュー + お手本再生 (選択中の難易度変種で出し分け) */}
-        {enablePreview && variant && <SheetPreview key={variant.id} scoreId={variant.id} kind={previewKind} />}
+        {/* 譜面プレビュー + お手本再生。
+            2026-08-28: パートを選んだらその小節だけの譜面を出す。
+            以前は常に通し (variant) を見ていたため、パートを選んでもプレビューが
+            変わらず、「パートごとに機能を提供する」という仕様と食い違っていた。 */}
+        {enablePreview && previewId && (
+          <SheetPreview key={previewId} scoreId={previewId} kind={previewKind} />
+        )}
 
         {/* この曲に必要な技術 (未習得表示) */}
         {variant && (
