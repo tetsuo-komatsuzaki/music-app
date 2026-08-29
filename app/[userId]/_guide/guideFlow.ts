@@ -90,7 +90,7 @@ export const FIRST_LOOP: GuideStep[] = [
     // お手本は必須にしない (Tetsuo確定)。灰枠で「聴けるよ」と紹介するだけ。
     // 作法カードはお手本ボタン行を隠さない位置 (下寄せ・上端固定) に出す
     id: "score_manner", where: "演奏画面", screen: "score", pose: "08B", phase: 1,
-    text: "曲のページに来たよ。お手本も聴けるよ。\n録音の前に、これだけ覚えてね",
+    text: "曲のページにきたよ。\n録音する前に、確認してね！\nお手本も聴けるよ",
     spot2: "score-exemplar", advance: { type: "card" }, // 作法カード (わかった)
   },
   {
