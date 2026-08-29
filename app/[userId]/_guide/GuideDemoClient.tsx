@@ -126,7 +126,7 @@ export default function GuideDemoClient({ initialStep }: { initialStep: number }
   }, [step, next])
 
   return (
-    <div onClickCapture={onCapture} style={{ maxWidth: 402, margin: "0 auto", minHeight: "100dvh", background: "var(--bg, #0a1122)", position: "relative", padding: "0 18px" }}>
+    <div onClickCapture={onCapture} data-guide-tutorial style={{ maxWidth: 402, margin: "0 auto", minHeight: "100dvh", background: "var(--bg, #0a1122)", position: "relative", padding: "0 18px" }}>
       {screenNode}
       {recording && <DemoRecording onDone={() => { setRecording(false); next() }} />}
       <GuideOverlay step={recording || finished ? null : step} onSkip={() => setFinished(true)} onContinue={next} />

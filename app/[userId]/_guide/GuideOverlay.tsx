@@ -29,7 +29,16 @@ type Rect = { left: number; top: number; width: number; height: number }
 
 function findTarget(name: string | undefined): HTMLElement | null {
   if (!name) return null
-  // 同名が複数あるとき (指板の拡大モーダル内の複製など) は後勝ち = 最前面の方を指す
+  // 【真因対策 2026-08-29】本番ではチュートリアル層の背後に本物のホームが同時に
+  // 描画されており、同名の data-guide が二重に存在する。背後の実要素を測ると
+  // デモとレイアウトが違うため枠が大きくズレる。→ まずチュートリアル層
+  // ([data-guide-tutorial]) の中だけを探し、無いときだけ文書全体 (指板拡大
+  // モーダル等の body ポータル) を後勝ちで探す
+  const scope = document.querySelector<HTMLElement>("[data-guide-tutorial]")
+  if (scope) {
+    const inScope = scope.querySelectorAll<HTMLElement>(`[data-guide="${name}"]`)
+    if (inScope.length) return inScope[inScope.length - 1]
+  }
   const all = document.querySelectorAll<HTMLElement>(`[data-guide="${name}"]`)
   return all.length ? all[all.length - 1] : null
 }

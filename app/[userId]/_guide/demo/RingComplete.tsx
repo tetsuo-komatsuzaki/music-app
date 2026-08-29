@@ -13,7 +13,8 @@ import { ArcoChan, POSES } from "@/app/components/ArcoChan"
 import { DemoConfetti } from "./DemoChrome"
 
 export default function RingComplete({ onReceive }: { onReceive: () => void }) {
-  const [phase, setPhase] = useState<"fill" | "card">("fill")
+  // fill=リング満了アニメ中 → ready=ユーザーの達成確認待ち (タップで進む) → card=達成カード
+  const [phase, setPhase] = useState<"fill" | "ready" | "card">("fill")
 
   useEffect(() => {
     // 実物のリング (conic-gradient) を rAF で満了させる。
@@ -36,14 +37,17 @@ export default function RingComplete({ onReceive }: { onReceive: () => void }) {
           // 中央カウンタを 3/3 へ (デモ演出・実装ではデータ更新で同じ見た目になる)
           const num = ring.querySelector("b")
           if (num) num.innerHTML = '3<span style="font-size:12px;font-weight:800;color:var(--text-sub)">/3</span>'
-          setTimeout(() => setPhase("card"), 500)
+          // リング完成をユーザーが確認してから (タップで) 達成カードへ (2026-08-29 Tetsuo指定)
+          setTimeout(() => setPhase("ready"), 350)
         }
       }
       raf = requestAnimationFrame(tick)
     }
     const finder = setInterval(() => {
       waited += 150
-      const ring = document.querySelector<HTMLElement>('[data-guide="home-ring"]')
+      const scope = document.querySelector<HTMLElement>("[data-guide-tutorial]") ?? document
+      const rings = scope.querySelectorAll<HTMLElement>('[data-guide="home-ring"]')
+      const ring = rings.length ? rings[rings.length - 1] : null
       if (ring) {
         clearInterval(finder)
         setTimeout(() => animate(ring), 500)
@@ -60,6 +64,19 @@ export default function RingComplete({ onReceive }: { onReceive: () => void }) {
 
   return (
     <>
+      {phase === "ready" && (
+        <div
+          onClick={() => setPhase("card")}
+          style={{ position: "fixed", inset: 0, zIndex: 1948, cursor: "pointer", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: "calc(200px + env(safe-area-inset-bottom, 0px))" }}
+        >
+          <span style={{
+            background: "linear-gradient(135deg, #d9a93c, #f0cd7c)", color: "#241a05",
+            borderRadius: 999, padding: "10px 26px", fontSize: 13, fontWeight: 900, letterSpacing: "0.04em",
+            animation: "ringChipPulse 1.6s ease-in-out infinite",
+          }}>つづける</span>
+          <style>{`@keyframes ringChipPulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232,178,60,.5); } 50% { transform: scale(1.07); box-shadow: 0 0 0 8px rgba(232,178,60,0); } }`}</style>
+        </div>
+      )}
       {phase === "card" && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1953, background: "rgba(6,10,22,.62)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 15, animation: "achvIn .45s ease" }}>
           <DemoConfetti />
