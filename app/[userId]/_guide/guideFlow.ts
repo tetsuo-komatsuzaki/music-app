@@ -125,17 +125,17 @@ export const FIRST_LOOP: GuideStep[] = [
   },
   {
     id: "home_conditions", where: "ホーム", screen: "home2", pose: "05B", phase: 4,
-    text: "まずは「達成」をめざそう！ レッスン・エチュード・通して3回演奏でクリア。\n今回は、あと、通して1回演奏だね。",
+    text: "まずは「達成」をめざそう！ レッスン・エチュード・通して3回演奏でクリア。\nあと、通して1回演奏してみよう",
     spot2: "home-ring-card", advance: { type: "chip" },
   },
   {
     id: "home_row_links", where: "ホーム", screen: "home2", pose: "05B", phase: 4,
-    text: "学びレッスンとエチュードは、この行をタップすると\nその練習ページに行けるよ",
+    text: "学びレッスンとエチュードは\nこの行をタップすると\nその練習ページにいけるよ",
     spot2: "home-ring-rows", advance: { type: "chip" },
   },
   {
     id: "home_practice_menu", where: "ホーム", screen: "home2", pose: "05B", phase: 4,
-    text: "下の練習メニューには、その曲の上達にあった練習が出るんだ。",
+    text: "基礎練には、その曲の上達にあった練習が出るんだ。",
     spot2: "home-basics", advance: { type: "chip" },
   },
   {
@@ -176,14 +176,14 @@ export const FIRST_LOOP: GuideStep[] = [
   },
   {
     id: "home_master", where: "ホーム", screen: "home3", pose: "05B", phase: 6,
-    text: "つぎの目標は「マスター」。直近5回の平均90点以上で、\nこの曲は完全にきみのものだ",
+    text: "つぎの目標は「マスター」\n直近5回の平均が90点以上で\nこの曲は完全にきみのものだ",
     // 灰枠は「いま練習している曲」カード全体 (直近95点の演奏実績+マスターゲージを含む実カード境界)
     spot2: "home-focus-card", advance: { type: "chip" },
   },
   {
     // 最終ステップ (2026-08-29 Tetsuo追加)。つづけるでガイド終了→通常ホームに着地
     id: "home_next", where: "ホーム", screen: "home3", pose: "08C", phase: 6,
-    text: "次の曲にチャレンジしてもいいよ。10曲達成したらランクアップ！\nいっしょに練習して、いっぱい弾けるようになろう！",
+    text: "つぎは新しい曲にチャレンジ！ 10曲達成でランクアップだ。\nいっしょに、いっぱい弾けるようになろう！",
     spot2: "home-rank-card", advance: { type: "chip" },
   },
 ]

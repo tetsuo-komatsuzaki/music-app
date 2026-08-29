@@ -144,7 +144,8 @@ export const DEMO_HEATMAP: HeatmapData = {
       positions: [{ position: 1, finger: 1, n: 10, miss: 4, dir: "high" }],
       shiftSplit: null,
       transitions: [
-        { fromLabel: "レ", from: { s: "D", n: 0 }, badge: "移弦のみ", badgeKind: "info", n: 6, miss: 4, dir: "high" },
+        // レ=D5 (シより高い音) なので図はシの右側→左斜め前の移動になる (2026-08-29 Tetsuo指摘)
+        { fromLabel: "レ", from: { s: "D", n: 12 }, badge: "移弦のみ", badgeKind: "info", n: 6, miss: 4, dir: "high" },
         { fromLabel: "ラ", from: { s: "A", n: 0 }, badge: "同じ弦", badgeKind: "info", n: 4, miss: 0, dir: "high" },
       ],
     },
