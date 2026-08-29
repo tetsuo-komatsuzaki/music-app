@@ -406,7 +406,9 @@ function TransRow({ t, to, first }: { t: TransitionRow; to: { s: string; n: numb
 function TransFig({ from, to }: { from: { s: string; n: number }; to: { s: string; n: number } }) {
   const ORDER = ["E", "A", "D", "G"] // 音程マップと同じ E線が上
   const yOfS = (s: string) => 7 + Math.max(0, ORDER.indexOf(s)) * 12
-  const xOfN = (n: number) => 16 + Math.min(n, 12) * 7
+  // 開放弦 (n=0) は弦の起点=ナット上に描く。内側に置くと1フレット目の音
+  // (レ開放がミ♭など) に見える (2026-08-29 Tetsuo指摘)
+  const xOfN = (n: number) => (n === 0 ? 11.5 : 16 + Math.min(n, 12) * 7)
   const fx = xOfN(from.n), fy = yOfS(from.s), tx = xOfN(to.n), ty = yOfS(to.s)
   const dx = tx - fx, dy = ty - fy
   const len = Math.hypot(dx, dy)

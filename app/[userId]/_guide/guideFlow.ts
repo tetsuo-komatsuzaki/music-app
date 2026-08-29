@@ -105,7 +105,7 @@ export const FIRST_LOOP: GuideStep[] = [
   },
   {
     id: "review_graph", where: "ふりかえり", screen: "reviewGraph", pose: "08B", phase: 2,
-    text: "ここで点数の伸びをチェック！ 2回以上弾くと出るよ。\nつづいて下の指板をタップ",
+    text: "上のグラフで、点数の伸びをチェック！ 2回以上弾くと出るよ。\nつづいて下の指板をタップ",
     spot: "review-fingerboard", spot2: "review-trajectory", advance: { type: "tap" },
   },
   {
@@ -125,7 +125,7 @@ export const FIRST_LOOP: GuideStep[] = [
   },
   {
     id: "home_conditions", where: "ホーム", screen: "home2", pose: "05B", phase: 4,
-    text: "まずは「達成」をめざそう！ レッスン・エチュード・通し3回でクリア。\n今回は、あと通し1回だね。",
+    text: "まずは「達成」をめざそう！ レッスン・エチュード・通して3回演奏でクリア。\n今回は、あと、通して1回演奏だね。",
     spot2: "home-ring-card", advance: { type: "chip" },
   },
   {
@@ -145,7 +145,7 @@ export const FIRST_LOOP: GuideStep[] = [
   },
   {
     id: "score_retry", where: "演奏画面", screen: "score2", pose: "03B", phase: 5,
-    text: "曲にもどってきたよ。直したところで、\nもう一回「録音して採点」!",
+    text: "曲にもどってきたよ。\nもう一回「録音して採点」!",
     spot: "score-record", advance: { type: "record" },
   },
   {
@@ -175,11 +175,16 @@ export const FIRST_LOOP: GuideStep[] = [
     advance: { type: "chip" },
   },
   {
-    // 最終ステップ (2026-08-29 Tetsuo指示: 完了画面は廃止)。つづけるでガイド終了→通常ホームに着地
     id: "home_master", where: "ホーム", screen: "home3", pose: "05B", phase: 6,
     text: "つぎの目標は「マスター」。直近5回の平均90点以上で、\nこの曲は完全にきみのものだ",
     // 灰枠は「いま練習している曲」カード全体 (直近95点の演奏実績+マスターゲージを含む実カード境界)
     spot2: "home-focus-card", advance: { type: "chip" },
+  },
+  {
+    // 最終ステップ (2026-08-29 Tetsuo追加)。つづけるでガイド終了→通常ホームに着地
+    id: "home_next", where: "ホーム", screen: "home3", pose: "08C", phase: 6,
+    text: "次の曲にチャレンジしてもいいよ。10曲達成したらランクアップ！\nいっしょに練習して、いっぱい弾けるようになろう！",
+    spot2: "home-rank-card", advance: { type: "chip" },
   },
 ]
 

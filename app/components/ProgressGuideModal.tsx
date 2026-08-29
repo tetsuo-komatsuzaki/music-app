@@ -8,6 +8,7 @@
 
 "use client"
 
+import { useState } from "react"
 import { ArcoChan, POSES } from "./ArcoChan"
 import { Music, MessageSquareText, Target, type LucideIcon } from "lucide-react"
 
@@ -70,8 +71,11 @@ const STEPS: { Icon: LucideIcon; no: string; title: string; what: string; streng
 ]
 
 export default function ProgressGuideModal({ open, onClose }: Props) {
+  // 2026-08-29 Tetsuo指示: 1枚が長い → サイクルの絵をタップすると該当の説明だけを表示
+  const [selected, setSelected] = useState(0)
   if (!open) return null
   const pose = POSES.find((p) => p.cat === "説明") ?? POSES[0]
+  const step = STEPS[selected]
 
   return (
     <div
@@ -119,13 +123,19 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
               </g>
             </svg>
             {NODES.map((n, i) => (
-              <div key={i} style={{ position: "absolute", left: n.left, top: n.top, width: 80, transform: "translate(-50%,-50%)", textAlign: "center" }}>
-                <div style={{ position: "relative", width: 50, height: 50, borderRadius: 16, margin: "0 auto 4px", background: "var(--card-in)", border: "1.5px solid rgba(127,164,232,.4)", display: "grid", placeItems: "center", color: "#7fa4e8", boxShadow: "0 3px 10px rgba(4,10,28,.4)" }}>
-                  <span style={{ position: "absolute", top: -6, left: -6, width: 19, height: 19, borderRadius: "50%", background: "#2b5bc4", color: "#fff", fontSize: 10, fontWeight: 900, display: "grid", placeItems: "center", boxShadow: "0 1px 3px rgba(4,10,28,.4)" }}>{i + 1}</span>
+              <button
+                key={i}
+                type="button"
+                onClick={() => setSelected(i)}
+                aria-pressed={selected === i}
+                style={{ position: "absolute", left: n.left, top: n.top, width: 80, transform: "translate(-50%,-50%)", textAlign: "center", background: "transparent", border: "none", padding: 0, cursor: "pointer" }}
+              >
+                <div style={{ position: "relative", width: 50, height: 50, borderRadius: 16, margin: "0 auto 4px", background: "var(--card-in)", border: selected === i ? "1.5px solid rgba(232,178,60,.55)" : "1.5px solid rgba(127,164,232,.4)", display: "grid", placeItems: "center", color: selected === i ? "var(--gold)" : "#7fa4e8", boxShadow: selected === i ? "0 0 0 3px rgba(232,178,60,.22), 0 3px 10px rgba(4,10,28,.4)" : "0 3px 10px rgba(4,10,28,.4)" }}>
+                  <span style={{ position: "absolute", top: -6, left: -6, width: 19, height: 19, borderRadius: "50%", background: selected === i ? "var(--gold)" : "#2b5bc4", color: selected === i ? "#201604" : "#fff", fontSize: 10, fontWeight: 900, display: "grid", placeItems: "center", boxShadow: "0 1px 3px rgba(4,10,28,.4)" }}>{i + 1}</span>
                   <n.Icon size={24} strokeWidth={1.9} />
                 </div>
-                <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: APP_INK }}>{n.label}</div>
-              </div>
+                <div style={{ fontSize: "var(--fs-caption)", fontWeight: 900, color: selected === i ? GOLD_INK : APP_INK }}>{n.label}</div>
+              </button>
             ))}
             <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", textAlign: "center", width: 96 }}>
               <span style={{ display: "block", fontSize: 9.5, color: APP_SUB, fontWeight: 800, marginBottom: 1 }}>回すほど</span>
@@ -134,28 +144,28 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
             </div>
           </div>
 
-          {/* 各ステップ 説明カード */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {STEPS.map((s, i) => (
-              <div key={i} style={{ display: "flex", gap: 11, padding: "12px 13px", border: "1px solid rgba(150,175,225,.14)", borderRadius: 14, background: "var(--card-in)", position: "relative", overflow: "hidden" }}>
-                <span aria-hidden style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: "linear-gradient(180deg,#7fa4e8,#2b5bc4)" }} />
-                <div style={{ width: 38, height: 38, flex: "none", borderRadius: 11, background: "rgba(43,91,196,.18)", border: "1px solid rgba(127,164,232,.35)", display: "grid", placeItems: "center", color: "#7fa4e8" }}>
-                  <s.Icon size={20} strokeWidth={1.9} />
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
-                    <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#7fa4e8", letterSpacing: ".05em" }}>{s.no}</span>
-                    <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: APP_INK }}>{s.title}</span>
-                  </div>
-                  <div style={{ fontSize: "var(--fs-caption)", color: APP_SUB, fontWeight: 700, marginTop: 2, lineHeight: 1.55 }}>{s.what}</div>
-                  <div style={{ marginTop: 7, display: "flex", gap: 6, alignItems: "flex-start", background: GOLD_BG, borderRadius: 9, padding: "7px 9px" }}>
-                    <span style={{ flex: "none", fontSize: 8.5, fontWeight: 900, letterSpacing: ".04em", color: "#fff", background: GOLD, borderRadius: 5, padding: "2px 6px", marginTop: 1 }}>強み</span>
-                    <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 700, lineHeight: 1.55 }}>{s.strength}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+          {/* 選んだステップの説明カード (絵をタップで切替・2026-08-29) */}
+          <div style={{ textAlign: "center", fontSize: "var(--fs-label)", fontWeight: 800, color: APP_SUB, margin: "0 0 8px" }}>
+            サイクルの絵をタップすると、それぞれの説明が見られるよ
           </div>
+          <div key={selected} style={{ display: "flex", gap: 11, padding: "12px 13px", border: "1px solid rgba(150,175,225,.14)", borderRadius: 14, background: "var(--card-in)", position: "relative", overflow: "hidden", animation: "pgFade .22s ease" }}>
+            <span aria-hidden style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: "linear-gradient(180deg,#7fa4e8,#2b5bc4)" }} />
+            <div style={{ width: 38, height: 38, flex: "none", borderRadius: 11, background: "rgba(43,91,196,.18)", border: "1px solid rgba(127,164,232,.35)", display: "grid", placeItems: "center", color: "#7fa4e8" }}>
+              <step.Icon size={20} strokeWidth={1.9} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+                <span style={{ fontSize: "var(--fs-label)", fontWeight: 900, color: "#7fa4e8", letterSpacing: ".05em" }}>{step.no}</span>
+                <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: APP_INK }}>{step.title}</span>
+              </div>
+              <div style={{ fontSize: "var(--fs-caption)", color: APP_SUB, fontWeight: 700, marginTop: 2, lineHeight: 1.55 }}>{step.what}</div>
+              <div style={{ marginTop: 7, display: "flex", gap: 6, alignItems: "flex-start", background: GOLD_BG, borderRadius: 9, padding: "7px 9px" }}>
+                <span style={{ flex: "none", fontSize: 8.5, fontWeight: 900, letterSpacing: ".04em", color: "#fff", background: GOLD, borderRadius: 5, padding: "2px 6px", marginTop: 1 }}>強み</span>
+                <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 700, lineHeight: 1.55 }}>{step.strength}</span>
+              </div>
+            </div>
+          </div>
+          <style>{"@keyframes pgFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }"}</style>
 
           {/* 締め: 積み上がってランクへ */}
           <div style={{ marginTop: 14, textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 800, color: APP_SUB, background: "linear-gradient(180deg,#101c36,rgba(232,178,60,.09))", border: "1px solid rgba(150,175,225,.14)", borderRadius: 12, padding: 11, lineHeight: 1.7 }}>
