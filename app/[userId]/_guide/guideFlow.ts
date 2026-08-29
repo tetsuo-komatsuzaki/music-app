@@ -57,7 +57,6 @@ export type GuideStep = {
     | { type: "tap" }               // spot のデモ要素タップで進む
     | { type: "card" }              // ガイドカード自身のボタン (わかった 等)
     | { type: "auto"; ms: number }  // 自動送り
-    | { type: "listen" }            // お手本再生 (再生終了で自動送り)
     | { type: "record" }            // 弾いたてい (3・2・1→録音中1.5秒→次へ)
 }
 
@@ -69,9 +68,11 @@ export const FIRST_LOOP: GuideStep[] = [
     spot: "home-starter", advance: { type: "tap" },
   },
   {
-    id: "score_listen", where: "演奏画面", screen: "score", pose: "08B", phase: 0,
-    text: "曲のページに来たよ。\nまずはお手本を聴いてみよう",
-    spot: "score-exemplar", advance: { type: "listen" },
+    // お手本は必須にしない (Tetsuo確定 2026-08-29)。灰枠で「聴けるよ」と紹介する
+    // だけで、押せば鳴るが押さなくても自動で先へ進む
+    id: "score_arrival", where: "演奏画面", screen: "score", pose: "08B", phase: 0,
+    text: "曲のページに来たよ。\n▶でお手本も聴けるよ",
+    spot2: "score-exemplar", advance: { type: "auto", ms: 3200 },
   },
   {
     id: "score_manner", where: "演奏画面", screen: "score", pose: "05C", phase: 1,

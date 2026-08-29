@@ -58,7 +58,8 @@ STARTER = (
 S["home"] = bg(SHOT_HOME) + STARTER
 S["home2"] = (bg(SHOT_HOME) +
     '<div class="ptscover">☆1・直近 <b>72点</b></div>')
-S["ctrl"] = (bg(SHOT_CTRL) + '<div class="playchip" id="playchip" hidden>♪ お手本を再生中…</div>')
+S["ctrl"] = (bg(SHOT_CTRL) + '<div class="playchip" id="playchip" hidden>♪ お手本を再生中…</div>'
+    + '<div class="optPlay" data-optplay title="お手本を聴く"></div>')
 S["score72"] = (bg(SHOT_SCORE) + dots("r72", ["g","g","o","g","r","g","g","g","o","g"])
     + '<div class="scorechip" data-ev-chip="r72"><b>72</b>点</div>'
     + '<div class="legend" id="hlLegend"><div class="lgT">色の読みかた</div>'
@@ -131,7 +132,7 @@ screens_html = "".join('<div class="screen" id="scr_%s">%s</div>' % (k, v) for k
 
 STEPS_PANEL = [
     "ホーム: 初期ユーザーの実際の見た目 (🌟さいしょの1曲カード・いま練習している曲は出ない) をデモ描画で再現。タップで演奏画面へ",
-    "演奏画面: お手本▶ → 本物の音源+再生中表示 → 自動で次へ",
+    "演奏画面: お手本は必須にしない。灰枠で「▶で聴けるよ」と紹介だけ (押せば実際に鳴る)。3秒で次へ",
     "演奏画面: 作法カード3行。カードの「わかった」で進む",
     "演奏画面: 「録音して採点」→ 3・2・1 → 録音中 → 採点結果へ",
     "採点結果: 色が灯る (デモ描画)。灰枠=読みかたカード。金の光=ふりかえりタブ → タップ",
@@ -306,6 +307,7 @@ h1 { font-size:21px; font-weight:900; margin:0 0 4px; }
 .stCta { margin:1.2cqh 4cqw 0; background:linear-gradient(180deg,#E8B23C,#D2992C); border-radius:14px;
   padding:1.5cqh; text-align:center; color:#201604; font-weight:900; font-size:min(1.8cqh,14px); }
 .stLink { text-align:center; padding:1cqh 0 1.6cqh; font-size:min(1.4cqh,11px); color:#7FA4E8; font-weight:800; }
+.optPlay { position:absolute; left:10.5%; top:51.5%; width:26.5%; height:8%; cursor:pointer; z-index:3; }
 /* パネル */
 .panel { flex:1 1 300px; max-width:420px; min-width:280px; }
 .panel h2 { font-size:14px; font-weight:900; color:#f0d9a6; margin:0 0 8px; }
@@ -386,10 +388,9 @@ function countdownThen(cb){show("recording");where("録音中");spotAt(null);spo
     setTimeout(()=>{$("#countod").style.display="";cb();},1500);}},650);}
 const FLOW=[
   {scr:"home",w:"ホーム",p:0,go:()=>{dim(true);spot2At(null);spotAt([4.5,21,91,26]);bar("point","まずは1回、弾いてみよう。<br>さいしょの1曲をタップ!",0);},tapSpot:true},
-  {scr:"ctrl",w:"演奏画面",p:1,go:()=>{spot2At(null);spotAt(R_EXAMPLE);bar("listen","曲のページに来たよ。<br>まずはお手本を聴いてみよう",0);},tapSpot:true,
-   async act(){const pc=$("#playchip");if(pc)pc.hidden=false;
-     let ms=2600;try{ms=await phrase();}catch(e){}
-     setTimeout(()=>{if(pc)pc.hidden=true;next();},Math.min(ms+250,3500));return true;}},
+  {scr:"ctrl",w:"演奏画面",p:1,go:()=>{spotAt(null);spot2At(R_EXAMPLE);
+    bar("listen","曲のページに来たよ。<br>▶でお手本も聴けるよ",0);
+    const idx=cur;setTimeout(()=>{if(cur===idx)next();},3200);}},
   {scr:"manner",w:"演奏画面",p:2,go:()=>{spotAt(null);spot2At(null);bar("question","はじめての録音。<br>3つだけ覚えてね",1);}},
   {scr:"ctrl",w:"演奏画面",p:3,go:()=>{spotAt(R_RECBTN);spot2At(null);bar("question","「録音して採点」を押して、<br>いまの音をアルコに聴かせて",1);},tapSpot:true,
    act(){countdownThen(next);return true;}},
@@ -416,6 +417,12 @@ function rippleAtSpot(){const r=spot.getBoundingClientRect(),ph=phone.getBoundin
   phone.appendChild(sp);setTimeout(()=>sp.remove(),600);}
 function run(){const st=FLOW[cur];show(st.scr);if(st.w)where(st.w);panel(st.p);st.go();
   if(st.tapSpot){spot.onclick=async()=>{rippleAtSpot();try{if(st.act){if(await st.act())return;}}catch(e){}next();};}}
+document.addEventListener("click",async(e)=>{
+  if(!e.target.closest("[data-optplay]"))return;
+  const pc=$("#playchip");if(pc)pc.hidden=false;
+  let ms=2600;try{ms=await phrase();}catch(err){}
+  setTimeout(()=>{if(pc)pc.hidden=true;},Math.min(ms+250,3500));
+});
 document.addEventListener("click",(e)=>{if(e.target.closest("[data-adv]"))next();});
 $("#branchBack").addEventListener("click",()=>{$("#branchBack").style.display="none";cur=FLOW.length-1;run();});
 document.addEventListener("click",(e)=>{const j=e.target.closest("[data-jump]");if(!j)return;
