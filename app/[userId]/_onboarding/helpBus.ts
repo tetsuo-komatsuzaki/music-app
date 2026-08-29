@@ -4,7 +4,7 @@
 // 旧 OnboardingProvider のコンテキストに依存せず、CustomEvent で開く。
 // 使い方: AccountMenu 等から openHelp() → userShell の HelpModalHost が受けて表示。
 
-export type HelpSection = "markers" | "faq" | "troubleshooting"
+export type HelpSection = "faq" | "troubleshooting"
 
 const EVENT = "arcoda:open-help"
 

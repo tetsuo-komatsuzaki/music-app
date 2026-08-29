@@ -25,7 +25,6 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
   const params = useParams<{ userId: string }>()
   const userId = (params?.userId as string) ?? ""
 
-  const markersRef = useRef<HTMLElement>(null)
   const faqRef = useRef<HTMLElement>(null)
   const troubleshootingRef = useRef<HTMLElement>(null)
 
@@ -33,7 +32,6 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
   useEffect(() => {
     if (!open || !initialSection) return
     const refMap: Record<HelpSection, React.RefObject<HTMLElement | null>> = {
-      markers: markersRef,
       faq: faqRef,
       troubleshooting: troubleshootingRef,
     }
@@ -114,25 +112,7 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
             </button>
           </section>
 
-          {/* ② マーカー凡例 */}
-          <section ref={markersRef} id="help-markers" className={styles.section}>
-            <h3 className={styles.sectionTitle}>{HELP_CONTENT.markerLegend.title}</h3>
-            <p className={styles.sectionIntro}>{HELP_CONTENT.markerLegend.intro}</p>
-            <div className={styles.legendList}>
-              {HELP_CONTENT.markerLegend.rows.map(row => (
-                <div key={row.name} className={styles.legendCard}>
-                  <span className={styles.legendColor} data-c={row.key} aria-hidden />
-                  <span className={styles.legendText}>
-                    <span className={styles.legendName}>{row.meaning}</span>
-                    <span className={styles.legendDetail}>{row.detail}</span>
-                  </span>
-                </div>
-              ))}
-            </div>
-            <p className={styles.legendNote}>{HELP_CONTENT.markerLegend.note}</p>
-          </section>
-
-          {/* ③ FAQ */}
+          {/* ② FAQ */}
           <section ref={faqRef} id="help-faq" className={styles.section}>
             <h3 className={styles.sectionTitle}>よくある質問</h3>
             <div className={styles.faqList}>
@@ -148,7 +128,7 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
             </Link>
           </section>
 
-          {/* ④ うまくいかないとき */}
+          {/* ③ うまくいかないとき */}
           <section ref={troubleshootingRef} id="help-troubleshooting" className={styles.section}>
             <h3 className={styles.sectionTitle}>うまくいかないとき</h3>
             <div className={styles.troubleshootList}>
