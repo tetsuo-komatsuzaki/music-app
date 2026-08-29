@@ -100,7 +100,7 @@ export const FIRST_LOOP: GuideStep[] = [
   },
   {
     id: "result_first", where: "採点結果", screen: "result80", pose: "08B", phase: 2,
-    text: "80点！ どこがずれたかは楽譜の色でわかるよ。\nつぎは「ふりかえり」をタップ",
+    text: "80点！ 演奏結果は楽譜の色でわかるよ。\nつぎは「ふりかえり」をタップ",
     spot: "score-tab-review", spot2: "result-perf-row", advance: { type: "tap" },
   },
   {
