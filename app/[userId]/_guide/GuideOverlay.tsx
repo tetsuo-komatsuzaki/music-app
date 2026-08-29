@@ -29,18 +29,32 @@ type Rect = { left: number; top: number; width: number; height: number }
 
 function findTarget(name: string | undefined): HTMLElement | null {
   if (!name) return null
-  // 【真因対策 2026-08-29】本番ではチュートリアル層の背後に本物のホームが同時に
-  // 描画されており、同名の data-guide が二重に存在する。背後の実要素を測ると
-  // デモとレイアウトが違うため枠が大きくズレる。→ まずチュートリアル層
-  // ([data-guide-tutorial]) の中だけを探し、無いときだけ文書全体 (指板拡大
-  // モーダル等の body ポータル) を後勝ちで探す
+  // 【真因対策 2026-08-29】同名の data-guide が複数ありうる:
+  //  ・チュートリアル層の背後に本物のホーム (層に覆われて見えない)
+  //  ・指板の拡大モーダル (body ポータル=層の外) と、その裏のインライン指板
+  // どの複製が正かは場面で変わるため、「実際に最前面に見えている方」を
+  // elementFromPoint のヒットテストで選ぶ。ガイドの暗幕・枠は pointer-events:none
+  // なのでヒットテストに映らない。決まらないとき (対象が画面外等) は
+  // チュートリアル層内を優先し、最後は文書全体の後勝ち
+  const all = Array.from(document.querySelectorAll<HTMLElement>(`[data-guide="${name}"]`))
+  if (all.length === 0) return null
+  if (all.length === 1) return all[0]
+  for (let i = all.length - 1; i >= 0; i--) {
+    const el = all[i]
+    const r = el.getBoundingClientRect()
+    if (r.width === 0 || r.height === 0) continue
+    const cx = r.left + r.width / 2
+    const cy = r.top + r.height / 2
+    if (cx < 0 || cy < 0 || cx >= window.innerWidth || cy >= window.innerHeight) continue
+    const hit = document.elementFromPoint(cx, cy)
+    if (hit && (hit === el || el.contains(hit) || hit.contains(el))) return el
+  }
   const scope = document.querySelector<HTMLElement>("[data-guide-tutorial]")
   if (scope) {
-    const inScope = scope.querySelectorAll<HTMLElement>(`[data-guide="${name}"]`)
+    const inScope = all.filter((e) => scope.contains(e))
     if (inScope.length) return inScope[inScope.length - 1]
   }
-  const all = document.querySelectorAll<HTMLElement>(`[data-guide="${name}"]`)
-  return all.length ? all[all.length - 1] : null
+  return all[all.length - 1]
 }
 
 // 対象のスクロールコンテナ (overflow-y が auto/scroll の最近傍祖先)。null=ページ全体 (window)
