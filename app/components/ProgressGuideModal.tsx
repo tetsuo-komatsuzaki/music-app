@@ -33,40 +33,25 @@ const NODES: { Icon: LucideIcon; label: string; left: string; top: string }[] = 
   { Icon: Target, label: "練習する", left: "15%", top: "72%" },
 ]
 
-// 各ステップの説明カード (何が起きるか + このアプリならではの強み)
-const STEPS: { Icon: LucideIcon; no: string; title: string; what: string; strength: React.ReactNode }[] = [
+// 各ステップの説明カード (2026-08-29 Tetsuo確定の文言に刷新・強みボックスは廃止)
+const STEPS: { Icon: LucideIcon; no: string; title: string; what: string }[] = [
   {
     Icon: Music,
     no: "STEP 1",
     title: "演奏する",
-    what: "弾きたい曲が、そのまま録音される。",
-    strength: (
-      <>
-        <b>あなたの“いま”の演奏を、何度でも記録</b>できるのが、上達の起点。
-      </>
-    ),
+    what: "あなたの演奏を録音しよう",
   },
   {
     Icon: MessageSquareText,
     no: "STEP 2",
-    title: "フィードバック",
+    title: "フィードバックを受ける",
     what: "アルコちゃんが音程・リズムを評価し、あなたの演奏の強みと弱みを見つける。",
-    strength: (
-      <>
-        独学の一番の壁「演奏のどこが悪いか分からない」を、<b>アルコちゃんが見つけて解いてくれる</b>。先生とつながれば、先生の添削も届く。
-      </>
-    ),
   },
   {
     Icon: Target,
     no: "STEP 3",
     title: "練習する",
-    what: "アルコちゃんが、あなたに合った練習メニューを教えてくれる。",
-    strength: (
-      <>
-        <b>あなたの強み・弱みに根ざした“練習方法”が提案される</b>から、ひとりでも迷わず進める。
-      </>
-    ),
+    what: "アルコちゃんが教えてくれたあなたに合った練習メニューがあるから、ひとりでも迷わずできる",
   },
 ]
 
@@ -159,10 +144,6 @@ export default function ProgressGuideModal({ open, onClose }: Props) {
                 <span style={{ fontSize: "var(--fs-subhead)", fontWeight: 900, color: APP_INK }}>{step.title}</span>
               </div>
               <div style={{ fontSize: "var(--fs-caption)", color: APP_SUB, fontWeight: 700, marginTop: 2, lineHeight: 1.55 }}>{step.what}</div>
-              <div style={{ marginTop: 7, display: "flex", gap: 6, alignItems: "flex-start", background: GOLD_BG, borderRadius: 9, padding: "7px 9px" }}>
-                <span style={{ flex: "none", fontSize: 8.5, fontWeight: 900, letterSpacing: ".04em", color: "#fff", background: GOLD, borderRadius: 5, padding: "2px 6px", marginTop: 1 }}>強み</span>
-                <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 700, lineHeight: 1.55 }}>{step.strength}</span>
-              </div>
             </div>
           </div>
           <style>{"@keyframes pgFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }"}</style>
