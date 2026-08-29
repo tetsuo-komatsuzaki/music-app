@@ -11,7 +11,6 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Share2, Search } from "lucide-react"
-import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
 import type { KarteData, SkillNode } from "@/app/_libs/growthKarte"
 import BodyObsMap from "@/app/components/BodyObsMap"
 import ShareSheet from "@/app/components/ShareSheet"
@@ -108,7 +107,6 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
         </Link>
       )}
 
-      {!readOnly && <OnboardingTrigger pageKey="progress" />}
     </div>
   )
 }

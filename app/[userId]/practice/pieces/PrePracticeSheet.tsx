@@ -10,7 +10,6 @@ import { DIFFICULTIES } from "@/app/_libs/materialVariant"
 import { ARTICULATIONS } from "@/app/_libs/materialVariant"
 import SheetPreview from "./SheetPreview"
 import SheetSkills from "./SheetSkills"
-import OnboardingTrigger from "../../_onboarding/OnboardingTrigger"
 
 export type SheetSection = { id?: string; name: string; startMeasure: number; endMeasure: number }
 export type SheetVariant = {
@@ -260,7 +259,6 @@ export default function PrePracticeSheet({
         </button>
 
         {/* シート自体が開いたときに出るガイド (z-index: シート1000 < マーク1901) */}
-        <OnboardingTrigger pageKey="prePractice" />
       </div>
     </div>
   )

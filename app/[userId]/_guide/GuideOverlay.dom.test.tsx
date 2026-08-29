@@ -13,32 +13,44 @@ afterEach(cleanup)
 
 describe("GuideOverlay (アルコと最初の1周)", () => {
   it("step=null では何も描画しない (透明カバー残留の禁止)", () => {
-    const { container } = render(<GuideOverlay step={null} onSkip={() => {}} />)
-    expect(container.querySelector("[data-guide-overlay]")).toBeNull()
-    expect(container.innerHTML).toBe("")
+    render(<GuideOverlay step={null} onSkip={() => {}} />)
+    expect(document.querySelector("[data-guide-overlay]")).toBeNull()
   })
 
   it("ガイド終了 (step→null) で層ごと DOM から消える", () => {
-    const { container, rerender } = render(
+    const { rerender } = render(
       <GuideOverlay step={FIRST_LOOP[0]} onSkip={() => {}} />,
     )
-    expect(container.querySelector("[data-guide-overlay]")).not.toBeNull()
+    expect(document.querySelector("[data-guide-overlay]")).not.toBeNull()
     rerender(<GuideOverlay step={null} onSkip={() => {}} />)
-    expect(container.querySelector("[data-guide-overlay]")).toBeNull()
-    expect(container.innerHTML).toBe("")
+    expect(document.querySelector("[data-guide-overlay]")).toBeNull()
   })
 
   it("表示中も操作を受けるのはボタンだけ (暗幕・光は装飾)", () => {
-    const { container } = render(
+    render(
       <GuideOverlay step={FIRST_LOOP[0]} onSkip={() => {}} />,
     )
     // 対話要素は スキップ ボタンのみ (ガイドカードは children で渡された場合のみ増える)
-    const buttons = container.querySelectorAll("button")
+    const layer = document.querySelector("[data-guide-overlay]")!
+    const buttons = layer.querySelectorAll("button")
     expect(buttons.length).toBe(1)
     expect(buttons[0].textContent).toBe("スキップ")
     // 暗幕・光・灰枠は aria-hidden の装飾ノード
-    container.querySelectorAll("[aria-hidden]").forEach((el) => {
+    layer.querySelectorAll("[aria-hidden]").forEach((el) => {
       expect(el.tagName).toBe("DIV")
     })
+  })
+
+  it("説明ステップ (advance: chip) は「つづける」チップを出し、押すと onContinue", () => {
+    const chipStep = FIRST_LOOP.find((s) => s.advance.type === "chip")
+    expect(chipStep).toBeTruthy()
+    let advanced = 0
+    render(
+      <GuideOverlay step={chipStep!} onSkip={() => {}} onContinue={() => { advanced += 1 }} />,
+    )
+    const chip = Array.from(document.querySelectorAll("button")).find((b) => b.textContent === "つづける")
+    expect(chip).toBeTruthy()
+    chip!.click()
+    expect(advanced).toBe(1)
   })
 })

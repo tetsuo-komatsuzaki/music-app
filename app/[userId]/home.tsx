@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import dynamic from "next/dynamic"
 import { Music, Sparkles, Palette } from "lucide-react"
 import MyRankCard from "@/app/components/MyRankCard"
 import PracticeFocusCard from "@/app/components/PracticeFocusCard"
-import GuideSampleFocus from "@/app/components/GuideSampleFocus"
 import NextPiecesCard from "@/app/components/NextPiecesCard"
 import FavoritesSection, { type FavoriteEntry } from "@/app/components/FavoritesSection"
 import TeacherAssignments, { type StudentAssignment, type TeacherHomeSummary } from "./TeacherAssignments"
@@ -16,8 +16,12 @@ import ProgressGuideModal from "@/app/components/ProgressGuideModal"
 import type { SongRecommendation } from "@/app/components/RecommendationItem"
 import type { GradeLevel } from "@/app/_libs/skillMaster"
 import styles from "./home.module.css"
-import OnboardingTrigger from "./_onboarding/OnboardingTrigger"
-import { useOnboarding } from "./_onboarding/hooks/useOnboarding"
+import QuestBoard from "./_guide/QuestBoard"
+import type { QuestProgress } from "./_guide/quests"
+
+// 「アルコと最初の1周」チュートリアル (2026-08-29 本番接続)。
+// 対象ユーザーのときだけ遅延ロードし、通常ユーザーのバンドルを重くしない
+const GuideTutorial = dynamic(() => import("./_guide/GuideTutorial"), { ssr: false })
 
 // v1.6 Phase 4-2 (2026-05-16) — UserGradeProgress 準拠の表示用データ。
 // 仕様書 §3-5-2 必須項目: 現在グレード + ★ + 次の★まで完全習得すべき曲数
@@ -32,6 +36,10 @@ type GradeData = {
 }
 
 type Props = {
+  /** 「アルコと最初の1周」ガイド。active=未完了・未スキップ (先生ロールは常にfalse) */
+  guide: { active: boolean; initialStep: number }
+  /** アルコのクエスト進行 (ガイド完了ユーザーのみ非null) */
+  questProgress: QuestProgress | null
   userName: string
   streak: number
   weeklyDays: number
@@ -96,6 +104,8 @@ const ARCO_HITOKOTO = [
 ] as const
 
 export default function HomeClient({
+  guide,
+  questProgress,
   userName,
   basicPracticeCards,
   recentPieces,
@@ -110,17 +120,21 @@ export default function HomeClient({
   starterPick,
 }: Props) {
   const { userId } = useParams<{ userId: string }>()
-  const { onboardingSamplePiece, onboardingEnding, setOnboardingEnding } = useOnboarding()
+  const router = useRouter()
+  // チュートリアル終了後は層をアンマウントし、ホームのデータを取り直す (コイン等の反映)
+  const [guideDismissed, setGuideDismissed] = useState(false)
+  const showGuide = guide?.active && !guideDismissed
   const [guideOpen, setGuideOpen] = useState(false)
 
-  // オンボ終盤の締め: 練習教材まで来て「締め」が armed のまま、まだ1曲も弾いていない
-  // ユーザーがホームに戻ってきたとき、「弾いたらこう出る」の見本を見せて締めガイドを出す。
-  // サイドバーの「ホーム」からも戻れるよう URL ではなくフラグ (onboardingEnding) で駆動する。
-  // 選んだ曲があればその曲で、無ければ既定の見本で出す。
-  const ending = onboardingEnding && recentPieces.length === 0
 
   return (
     <div className={styles.page}>
+      {showGuide && (
+        <GuideTutorial
+          initialStep={guide.initialStep}
+          onDone={() => { setGuideDismissed(true); router.refresh() }}
+        />
+      )}
 
       {/* 挨拶の大見出し (モック HELLO ・ h1.t)。名前が長くても1行に収める (2026-08-20 Tetsuo指定)。
           2026-08-23 Tetsuo指示: 挨拶右の金縁アルコは削除し、マイランクカード側へ移設 */}
@@ -159,8 +173,12 @@ export default function HomeClient({
       {/* 🌟 まずはこれから (録音0ユーザーの一等地。旅の地図の後継・案5「きみへのセレクト」確定 2026-08-02):
           おすすめ1曲だけをドンと出す。弾き始めたら消えて「いま練習している曲」に世代交代 */}
       {/* モック 追03 STARTER の写経: 金ラベル → 青バナー → 注記 → 金CTA → ほかの曲リンク */}
-      {!ending && starterPick && recentPieces.length === 0 && (
-        <div className={ds.card} style={{ padding: 0, overflow: "hidden" }}>
+      
+      {/* マイランクカード (タップで演奏の軌跡／上達のしくみを内蔵) */}
+      <MyRankCard {...rankCard} onGuide={() => setGuideOpen(true)} />
+
+      {starterPick && recentPieces.length === 0 && (
+        <div className={ds.card} data-guide="home-starter" style={{ padding: 0, overflow: "hidden" }}>
           <div style={{ padding: "14px 15px 0" }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 800, color: "var(--gold)" }}>✦ さいしょの1曲</div>
           </div>
@@ -189,42 +207,26 @@ export default function HomeClient({
         </div>
       )}
 
-      {/* マイランクカード (タップで演奏の軌跡／上達のしくみを内蔵) */}
-      <MyRankCard {...rankCard} onGuide={() => setGuideOpen(true)} />
-
       {/* ② いま練習している曲 ＋〈マスターへのステップ ‖ 毎日の基礎練〉。
           終盤の締めでは、選んだ曲の「弾いたらこう出る」見本カードに差し替える。
           🌟カード表示中は空状態の文言が重複するため、中身が無ければ丸ごと省略 */}
-      {ending ? (
-        <GuideSampleFocus piece={onboardingSamplePiece ?? undefined} />
-      ) : starterPick && recentPieces.length === 0 && basicPracticeCards.length === 0 ? null : (
+      {starterPick && recentPieces.length === 0 && basicPracticeCards.length === 0 ? null : (
         <PracticeFocusCard pieces={recentPieces} basics={basicPracticeCards} userId={userId} />
       )}
+
+      {/* アルコのクエスト (2周目以降=ガイド完了ユーザー)。折り畳みが既定 */}
+      {questProgress && <QuestBoard progress={questProgress} />}
 
       {/* アルコちゃんの一言カードは削除 (2026-08-21 Tetsuo指示・SPEC-CHANGES記載) */}
 
       {/* ④ 次の曲にチャレンジ (同☆の未達成曲)。🌟カード表示中は1位を昇格済みなので残りだけ */}
-      <NextPiecesCard pieces={!ending && starterPick && recentPieces.length === 0 ? nextPieceRecommendations.slice(1) : nextPieceRecommendations} />
+      <NextPiecesCard pieces={starterPick && recentPieces.length === 0 ? nextPieceRecommendations.slice(1) : nextPieceRecommendations} />
 
       {/* ⑤ お気に入り (曲・音階・アルペジオ・エチュード・ボーイング・フィンガリング・重音) */}
       <FavoritesSection favorites={favorites} />
 
-      {/* ⑥ 終盤の締め: さっそく本物の1曲へ (見本ホームからの出口)。
-          自分の楽譜の持ち込みは homeEnding.upload ガイドが左サイドバーの
-          「マイライブラリー」を案内する (専用ボタンは作らない)。 */}
-      {ending && (
-        <Link
-          href={`/${userId}/practice/pieces`}
-          data-onboarding="home.startCta"
-          onClick={() => setOnboardingEnding(false)}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 16px", background: "linear-gradient(105deg,var(--accent),#1f3d78)", boxShadow: "0 5px 14px -6px rgba(43,91,196,.6)", color: "var(--text-on-accent)", borderRadius: 14, textDecoration: "none", fontWeight: 800, fontSize: "var(--fs-subhead)" }}
-        >
-          <span aria-hidden>♪</span> さっそく1曲、弾いてみよう
-        </Link>
-      )}
 
       <ProgressGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
-      <OnboardingTrigger pageKey={ending ? "homeEnding" : "home"} />
     </div>
   )
 }

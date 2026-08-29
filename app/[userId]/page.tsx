@@ -63,7 +63,7 @@ export default async function HomePage({ params }: PageProps) {
 
   const dbUser = await prisma.user.findUnique({
     where: { supabaseUserId: userId },
-    select: { id: true, name: true },
+    select: { id: true, name: true, role: true },
   })
   if (!dbUser) return <div>きみの情報が見つからなかったよ</div>
   console.log(`[PERF] home step1_dbUser: ${(performance.now() - perfStart).toFixed(0)}ms`)
@@ -661,8 +661,24 @@ export default async function HomePage({ params }: PageProps) {
     skillLits = rows.map((r) => ({ key: `${r.tagType}:${r.tagKey}`, label: r.tagKey }))
   } catch { skillLits = [] }
 
+  // 「アルコと最初の1周」ガイド (2026-08-29 本番接続)。
+  // 出す: 未完了かつ未スキップの全ユーザー (既存ユーザー含む)。先生ロールには出さない。
+  // 進行はDB保存 (UserGuideState)。テーブル読取は防御的に (migrate前でも落とさない)
+  let guideState: { firstLoopStep: number; completedAt: Date | null; skippedAt: Date | null; quests: unknown } | null = null
+  try {
+    guideState = await prisma.userGuideState.findUnique({
+      where: { userId: internalUserId },
+      select: { firstLoopStep: true, completedAt: true, skippedAt: true, quests: true },
+    })
+  } catch { /* read防御 */ }
+  const guideActive = dbUser.role !== "teacher" && !guideState?.completedAt && !guideState?.skippedAt
+  const guide = { active: guideActive, initialStep: guideState?.firstLoopStep ?? 0 }
+  const questProgress = (guideState?.completedAt ? (guideState.quests as Record<string, { doneAt: string }>) : null) ?? null
+
   return (
     <HomeClient
+      guide={guide}
+      questProgress={questProgress}
       teacherAssignments={teacherAssignments}
       teacherSummary={teacherSummary}
       analysisNotices={analysisNotices}

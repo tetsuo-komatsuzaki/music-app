@@ -10,7 +10,6 @@ import { updateScoreTitle } from "@/app/actions/updateScore"
 import { Music } from "lucide-react"
 import { deleteScore } from "@/app/actions/deleteScore"
 import { ScoreView } from "@/app/types/score"
-import OnboardingTrigger from "../_onboarding/OnboardingTrigger"
 import MasterBadge from "@/app/components/MasterBadge"
 
 
@@ -276,7 +275,6 @@ export default function ScoresClient({
         onClose={() => setIsOpen(false)}
         action={uploadScore}
       />
-      <OnboardingTrigger pageKey="scores" />
     </div>
   )
 }

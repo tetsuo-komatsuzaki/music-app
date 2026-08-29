@@ -38,6 +38,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
         role="button"
         tabIndex={0}
         data-onboarding="home.rankCard"
+        data-guide="home-rank-card"
         className={`${ds.card} pressable`}
         onClick={() => setOpen(true)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true) } }}
@@ -96,7 +97,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
             <div className={styles.sheetbody}>
 
               <div className={ds.card}>
-                <div className={ds.lab}>マスターした曲</div>
+                <div className={ds.lab}>達成した曲</div>
                 <div style={{ display: "flex", alignItems: "flex-end", gap: 8, marginTop: 6 }}>
                   <div className={ds.bigN} style={{ fontSize: 52, lineHeight: 1 }}><span data-anim="count">{achievedCount}</span></div>
                   <div style={{ paddingBottom: 9, fontSize: 12, color: "var(--text-sub)", fontWeight: 800 }}>/ {required}曲</div>
@@ -110,10 +111,11 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
                       onClick={() => setOpenStamp(openStamp === i ? null : i)}
                       style={{ position: "relative", flex: "none", marginLeft: i ? -14 : 0, zIndex: i, border: "none", background: "transparent", padding: 0, cursor: "pointer" }}
                     >
-                      <span style={{
+                      <span className={styles.coinPop} style={{
                         width: 56, height: 56, borderRadius: "50%", display: "grid", placeItems: "center",
                         background: "radial-gradient(circle at 34% 28%,#FFE08A,#E8B23C 52%,#A5761C)",
                         border: "1.5px solid rgba(255,240,200,.5)", boxShadow: "0 4px 12px rgba(0,0,0,.4)",
+                        animationDelay: `${0.5 + i * 0.12}s`,
                       }}>
                         <span style={{ textAlign: "center", color: "#3A2705" }}>
                           <span style={{ display: "block", fontSize: 16, fontWeight: 900, lineHeight: 1 }}>{s.best ?? "♪"}</span>

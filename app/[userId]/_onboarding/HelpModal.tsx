@@ -1,13 +1,18 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+// 使い方 (ヘルプ) モーダル。
+// 2026-08-29 旧ガイド削除: 「はじめてガイド (7枚スライド)」と「ページごとの使い方
+// (コーチマーク再生)」のセクションを廃止し、代わりに新チュートリアル
+// 「アルコと最初の1周」をもう一度見る導線を置く (Tetsuo確定 2026-08-29)。
+// 旧 OnboardingProvider への依存も外し、helpBus (CustomEvent) で自立して開閉する。
+
+import { useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { HELP_CONTENT } from "./content/help"
-import { useOnboarding } from "./hooks/useOnboarding"
-import type { HelpSection } from "./OnboardingProvider"
-import WelcomeSlides from "./WelcomeSlides"
+import type { HelpSection } from "./helpBus"
+import { resetGuideForReplay } from "@/app/actions/guideState"
 import styles from "./styles/HelpModal.module.css"
 
 type Props = {
@@ -20,13 +25,8 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
   const params = useParams<{ userId: string }>()
   const userId = (params?.userId as string) ?? ""
   const router = useRouter()
-  const { isHydrated, replayPageGuide } = useOnboarding()
 
-  const [welcomeReplayOpen, setWelcomeReplayOpen] = useState(false)
-
-  const welcomeRef = useRef<HTMLElement>(null)
   const markersRef = useRef<HTMLElement>(null)
-  const pageGuidesRef = useRef<HTMLElement>(null)
   const faqRef = useRef<HTMLElement>(null)
   const troubleshootingRef = useRef<HTMLElement>(null)
 
@@ -34,16 +34,11 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
   useEffect(() => {
     if (!open || !initialSection) return
     const refMap: Record<HelpSection, React.RefObject<HTMLElement | null>> = {
-      welcome: welcomeRef,
       markers: markersRef,
-      pageGuides: pageGuidesRef,
       faq: faqRef,
       troubleshooting: troubleshootingRef,
     }
-    const target = refMap[initialSection]
-    if (target?.current) {
-      target.current.scrollIntoView({ behavior: "auto", block: "start" })
-    }
+    refMap[initialSection]?.current?.scrollIntoView({ behavior: "auto", block: "start" })
   }, [open, initialSection])
 
   // ESC で閉じる
@@ -66,22 +61,15 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
     }
   }, [open])
 
-  if (!isHydrated) return null
   if (typeof document === "undefined") return null
   if (!open) return null
 
-  const handleReplayWelcome = () => {
-    setWelcomeReplayOpen(true)
-  }
-
-  const handlePageGuideReplay = (pageKey: string, pathTemplate: string | null) => {
-    if (!pathTemplate) return  // scoreDetail / categoryList / practiceItem は遷移不可
-    replayPageGuide(pageKey)
+  // 「最初の1周をもう一度見る」: 完了/スキップを外してホームへ (ホーム側でチュートリアルが起動)
+  const handleReplayFirstLoop = async () => {
+    await resetGuideForReplay()
     onClose()
-    const fullPath = userId
-      ? (pathTemplate === "/" ? `/${userId}` : `/${userId}${pathTemplate}`)
-      : pathTemplate
-    router.push(fullPath)
+    if (userId) router.push(`/${userId}`)
+    router.refresh()
   }
 
   const fullHelpHref = userId
@@ -113,15 +101,15 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
         </header>
 
         <div className={styles.content}>
-          {/* ① はじめてガイド */}
-          <section ref={welcomeRef} id="help-welcome" className={styles.section}>
-            <h3 className={styles.sectionTitle}>{HELP_CONTENT.welcome.title}</h3>
+          {/* ① アルコと最初の1周 (もう一度見る) */}
+          <section id="help-first-loop" className={styles.section}>
+            <h3 className={styles.sectionTitle}>アルコと最初の1周</h3>
             <button
               type="button"
               className={styles.welcomeReplayButton}
-              onClick={handleReplayWelcome}
+              onClick={handleReplayFirstLoop}
             >
-              {HELP_CONTENT.welcome.buttonLabel}
+              最初の1周をもう一度見る
             </button>
           </section>
 
@@ -143,33 +131,7 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
             <p className={styles.legendNote}>{HELP_CONTENT.markerLegend.note}</p>
           </section>
 
-          {/* ③ ページごとの使い方 */}
-          <section ref={pageGuidesRef} id="help-pageGuides" className={styles.section}>
-            <h3 className={styles.sectionTitle}>{HELP_CONTENT.pageGuides.title}</h3>
-            <div className={styles.pageGuideList}>
-              {HELP_CONTENT.pageGuides.items.map(item => {
-                const Icon = item.icon
-                return (
-                <div key={item.pageKey} className={styles.pageGuideCard}>
-                  <span className={styles.pageGuideIcon}><Icon size={20} /></span>
-                  <div className={styles.pageGuideText}>
-                    <span className={styles.pageGuideName}>{item.name}</span>
-                    <span className={styles.pageGuideDescription}>{item.description}</span>
-                  </div>
-                  <button
-                    type="button"
-                    className={styles.pageGuideButton}
-                    onClick={() => handlePageGuideReplay(item.pageKey, item.pathTemplate)}
-                  >
-                    {HELP_CONTENT.pageGuides.buttonLabel}
-                  </button>
-                </div>
-                )
-              })}
-            </div>
-          </section>
-
-          {/* ④ FAQ */}
+          {/* ③ FAQ */}
           <section ref={faqRef} id="help-faq" className={styles.section}>
             <h3 className={styles.sectionTitle}>よくある質問</h3>
             <div className={styles.faqList}>
@@ -185,7 +147,7 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
             </Link>
           </section>
 
-          {/* ⑤ うまくいかないとき */}
+          {/* ④ うまくいかないとき */}
           <section ref={troubleshootingRef} id="help-troubleshooting" className={styles.section}>
             <h3 className={styles.sectionTitle}>うまくいかないとき</h3>
             <div className={styles.troubleshootList}>
@@ -202,16 +164,5 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
     </div>
   )
 
-  return (
-    <>
-      {/* スライド再生中はヘルプ本体(z2100)を隠す。出さないと再生スライド(z2000)が裏に回り「何も起きない」ように見える */}
-      {!welcomeReplayOpen && createPortal(modalContent, document.body)}
-      {welcomeReplayOpen && (
-        <WelcomeSlides
-          forceOpen
-          onClose={() => setWelcomeReplayOpen(false)}
-        />
-      )}
-    </>
-  )
+  return createPortal(modalContent, document.body)
 }

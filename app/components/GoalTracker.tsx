@@ -73,7 +73,7 @@ function GoalRing({ full, pct, done, total }: { full?: boolean; pct?: number; do
     return <div style={{ ...base, background: "#2b5bc4" }}><b style={{ fontSize: "var(--fs-display)", fontWeight: 900, color: "var(--text-on-accent)", lineHeight: 1 }}>✓</b></div>
   }
   return (
-    <div data-anim="ring" style={{ ...base, ["--p" as string]: `${pct ?? 0}%`, background: `conic-gradient(var(--gold) var(--p, ${pct ?? 0}%), rgba(150,175,225,.14) 0)` }}>
+    <div data-anim="ring" data-guide="home-ring" style={{ ...base, ["--p" as string]: `${pct ?? 0}%`, background: `conic-gradient(var(--gold) var(--p, ${pct ?? 0}%), rgba(150,175,225,.14) 0)` }}>
       <div style={{ position: "absolute", inset: 6, background: "#182747", borderRadius: "50%" }} />
       <b className={ds.bigN} style={{ position: "relative", zIndex: 1, fontSize: 20, fontWeight: 900, lineHeight: 1 }}>
         {done}<span style={{ fontSize: 12, fontWeight: 800, color: "var(--text-sub)", textShadow: "none" }}>/{total}</span>
@@ -215,7 +215,13 @@ export default function GoalTracker({ achv, userId, scoreId }: { achv: Achieveme
               ? <GoalRing full />
               : <GoalRing pct={ringPct} done={condDone} total={condTotal} />}
             <div data-anim="items" style={{ display: "flex", flexDirection: "column", gap: 9, flex: 1, minWidth: 0 }}>
-              {condItems.map((c) => (
+              {/* ガイドの灰枠はレッスン・エチュード行のみ (通して弾く行は含めない・2026-08-29 Tetsuo指定) */}
+              <div data-guide="home-ring-rows" style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+                {condItems.slice(0, -1).map((c) => (
+                  <GoalDot key={c.name} icon={c.icon} name={c.name} done={c.done} st={c.st} href={c.href} />
+                ))}
+              </div>
+              {condItems.slice(-1).map((c) => (
                 <GoalDot key={c.name} icon={c.icon} name={c.name} done={c.done} st={c.st} href={c.href} />
               ))}
             </div>

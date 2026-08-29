@@ -9,12 +9,11 @@ import { useParams } from "next/navigation"
 import { User, Settings, GraduationCap, Wrench, BookOpen, LifeBuoy, LogOut } from "lucide-react"
 import { createBrowserSupabaseClient } from "@/app/_libs/supabaseBrowser"
 import { getUserRole } from "@/app/actions/getUserRole"
-import { useOnboarding } from "../_onboarding/hooks/useOnboarding"
+import { openHelp } from "../_onboarding/helpBus"
 import styles from "./AccountMenu.module.css"
 
 export default function AccountMenu({ role }: { role?: string }) {
   const { userId } = useParams<{ userId: string }>()
-  const { openHelp } = useOnboarding()
   const [open, setOpen] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)

@@ -31,6 +31,7 @@ model User {
   updatedAt      DateTime      @updatedAt
   performances   Performance[]
   scores         Score[]
+  guideState     UserGuideState?
 
   // ▼ 練習メニュー追加分
   practiceItems        PracticeItem[]
@@ -1534,4 +1535,18 @@ model WaitlistEntry {
   email     String   @unique
   source    String?  // 登録経路 (lp等)
   createdAt DateTime @default(now())
+}
+
+// 「アルコと最初の1周」ガイドとクエストの進行 (2026-08-29)。
+// 進行・完了はサーバー保存 (localStorage禁止・端末跨ぎ再表示の欠陥を繰り返さない)。
+// 出す条件: 未完了かつ未スキップ (既存ユーザーにも出す)。先生ロールには出さない。
+model UserGuideState {
+  userId        String    @id
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstLoopStep Int       @default(0) // 途中離脱は続きから再開
+  completedAt   DateTime? // 完了 or スキップが入ったら二度と出さない
+  skippedAt     DateTime?
+  quests        Json      @default("{}") // { questId: { doneAt } } アルコのクエスト進行
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }

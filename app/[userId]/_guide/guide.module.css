@@ -5,6 +5,12 @@
    z-index: CoachMark(1900) と WelcomeSlides(2000) の間 = 1950 帯
    ============================================================ */
 
+/* 層そのもの。globals.css の body > div { z-index:1 } (ポータル先で全部に当たる) を
+   クラス指定で上書きし、実画面側モーダル (z1000帯) より上の 1950 帯に置く。
+   層はタップ素通し (子の操作要素だけ pointer-events を戻す) */
+.layer { position: fixed; inset: 0; z-index: 1950; pointer-events: none; }
+.layer > * { pointer-events: auto; }
+
 .dimmer {
   position: fixed;
   inset: 0;
@@ -210,4 +216,35 @@
 
 @media (prefers-reduced-motion: reduce) {
   .spot, .ripple { animation: none; }
+}
+
+/* 吹き出し (採点できあがったよ！) と重ねない特例: 最上部 (barPos: "high") */
+.shirubeHigh {
+  bottom: auto;
+  top: calc(6px + env(safe-area-inset-top, 0px));
+}
+
+/* 説明ステップの送りチップ (advance: chip)。バー右端で脈動。
+   「タップでつづける」の文言は使わない (2026-08-29 Tetsuo指示) */
+.advChip {
+  flex: none;
+  margin-left: auto;
+  align-self: center;
+  background: linear-gradient(135deg, #d9a93c, #f0cd7c);
+  color: #241a05;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  animation: chipPulse 1.6s ease-in-out infinite;
+}
+@keyframes chipPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232, 178, 60, 0.5); }
+  50% { transform: scale(1.07); box-shadow: 0 0 0 8px rgba(232, 178, 60, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .advChip { animation: none; }
 }

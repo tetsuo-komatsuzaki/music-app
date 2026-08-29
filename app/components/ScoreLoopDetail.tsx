@@ -11,8 +11,6 @@
 import { useEffect, useState } from "react"
 import styles from "./ScoreLoopDetail.module.css"
 import ds from "./ds.module.css"
-import GuideSampleReview from "./GuideSampleReview"
-import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 import WeaknessDiagnosisCard from "./WeaknessDiagnosisCard"
 import { type AchievementStatus } from "./GoalTracker"
 import DailyLessons from "./DailyLessons"
@@ -28,7 +26,6 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
   const [achv, setAchv] = useState<AchievementStatus | null>(null)
   const [error, setError] = useState<string | null>(null)
   // 画面ガイドが見本を出している間だけ true 相当になる
-  const { guideSample } = useOnboarding()
 
   useEffect(() => {
     let cancelled = false
@@ -83,9 +80,6 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
             hideMaterials
             fromScoreId={scoreId}
           />
-        ) : guideSample === "review" ? (
-          // 画面ガイド表示中: まだ演奏が無くても「弾くとこう出る」を見せる
-          <GuideSampleReview userId={userId} />
         ) : (
           <p className={styles.emptyHint}>
             まだ録音がないよ。弾いてみると、ここに練習のヒントが出るよ

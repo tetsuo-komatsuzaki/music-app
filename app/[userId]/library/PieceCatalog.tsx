@@ -10,7 +10,6 @@ import ds from "@/app/components/ds.module.css"
 import { SONG_GENRES } from "@/app/_libs/songGenre"
 import StaggerRail from "@/app/components/StaggerRail"
 import PrePracticeSheet from "../practice/pieces/PrePracticeSheet"
-import OnboardingTrigger from "../_onboarding/OnboardingTrigger"
 import type { CatalogPiece } from "./loadPieceCatalog"
 
 
@@ -98,7 +97,6 @@ export default function PieceCatalog({ userId, pieces }: { userId: string; piece
         </section>
       ))}
 
-      <OnboardingTrigger pageKey="pieces" />
 
       {sheet && (
         <PrePracticeSheet

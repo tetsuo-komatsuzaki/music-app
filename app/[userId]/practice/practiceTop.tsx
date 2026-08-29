@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import styles from "./practice.module.css"
-import OnboardingTrigger from "../_onboarding/OnboardingTrigger"
 import PracticeCatIcon from "./PracticeCatIcon"
 import {
   PRACTICE_TOP_GROUPS,
@@ -88,7 +87,6 @@ export default function PracticeTop({
         </div>
       </section>
 
-      <OnboardingTrigger pageKey="practice" />
     </div>
   )
 }

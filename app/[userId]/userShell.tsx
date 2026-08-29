@@ -6,10 +6,7 @@ import { usePathname } from "next/navigation"
 import BottomTabs from "./components/BottomTabs"
 import RevealMotion from "@/app/components/RevealMotion"
 import Header from "./components/Header"
-import OnboardingErrorBoundary from "./_onboarding/OnboardingErrorBoundary"
-import OnboardingProvider from "./_onboarding/OnboardingProvider"
-import WelcomeSlides from "./_onboarding/WelcomeSlides"
-import HelpModalContainer from "./_onboarding/HelpModalContainer"
+import HelpModalHost from "./_onboarding/HelpModalHost"
 import TeacherShell from "./TeacherShell"
 
 export default function UserShell({
@@ -25,7 +22,7 @@ export default function UserShell({
     return <TeacherShell>{children}</TeacherShell>
   }
   return (
-    <OnboardingProvider>
+    <>
       {/* 2026-08-27: 画面上部の青い進捗バー (NavProgress) を撤去。
           ・URL が変わった「あと」に動き出す作りで、読み込みが終わってから
             「読み込み中」を見せていた (進捗を示していなかった)
@@ -49,11 +46,9 @@ export default function UserShell({
         </main>
         <BottomTabs />
       </div>
-      {/* オーバーレイのクラッシュは ErrorBoundary で吸収、既存 UI に波及させない */}
-      <OnboardingErrorBoundary>
-        <WelcomeSlides />
-        <HelpModalContainer />
-      </OnboardingErrorBoundary>
-    </OnboardingProvider>
+      {/* 旧ガイド (WelcomeSlides/コーチマーク) は 2026-08-29 廃止。
+          後継は「アルコと最初の1周」(home.tsx の GuideTutorial)。ヘルプは自立ホストで表示 */}
+      <HelpModalHost />
+    </>
   )
 }

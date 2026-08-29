@@ -28,6 +28,7 @@ const STATUS_INK: Record<CellStatus, string> = {
 
 export default function FingerboardPanel({
   cells, details, marks = [], markable = false, onSaveMark, onRemoveMark, emptyText, stack = false,
+  initialZoom = false, initialSel = null, guideCellId,
 }: {
   cells: Record<string, HeatCellOut>
   details: Record<string, CellDetail>
@@ -40,9 +41,14 @@ export default function FingerboardPanel({
   emptyText?: string
   /** 縦積みレイアウト (演奏履歴カード内など狭い場所用: 指板を全幅で大きく) */
   stack?: boolean
+  /** ガイドのデモ用: 初期状態で拡大モーダルを開く/セルを選択しておく (通常画面では未使用) */
+  initialZoom?: boolean
+  initialSel?: string | null
+  /** ガイドのデモ用: このセルに data-guide="map-red-cell" を付ける (金枠の対象) */
+  guideCellId?: string
 }) {
-  const [sel, setSel] = useState<string | null>(null)
-  const [zoom, setZoom] = useState(false) // クリックでモーダル拡大 (2026-08-11 Tetsuo指示)
+  const [sel, setSel] = useState<string | null>(initialSel)
+  const [zoom, setZoom] = useState(initialZoom) // クリックでモーダル拡大 (2026-08-11 Tetsuo指示)
   const [marking, setMarking] = useState(false)
   const [markNote, setMarkNote] = useState("")
   const [pending, start] = useTransition()
@@ -63,6 +69,7 @@ export default function FingerboardPanel({
         nodes.push(
           <polygon
             key={id}
+            data-guide={guideCellId && id === guideCellId ? "map-red-cell" : undefined}
             points={pts(rot(cellPolygon(si, n)))}
             fill={fill}
             stroke={sel === id ? "#111" : "#c9cdd4"}
@@ -112,7 +119,7 @@ export default function FingerboardPanel({
         ))}
       </svg>
     )
-  }, [cells, sel, markSet])
+  }, [cells, sel, markSet, guideCellId])
 
   const selKana = sel ? (selDetail?.kana ?? cellKana(sel)) : null
   const selStrN = sel ? /^cell-([GDAE])-(\d{2})$/.exec(sel) : null
@@ -146,7 +153,7 @@ export default function FingerboardPanel({
         </div>
 
         {/* 右: 詳細パネル (案4: タップで切替) */}
-        <div style={{ flex: "1 1 220px", minWidth: 200, background: "var(--card-in)", border: "1px solid rgba(150,175,225,.10)", borderRadius: 10, padding: "10px 12px", fontSize: "var(--fs-caption)" }}>
+        <div data-guide="map-detail-panel" style={{ flex: "1 1 220px", minWidth: 200, background: "var(--card-in)", border: "1px solid rgba(150,175,225,.10)", borderRadius: 10, padding: "10px 12px", fontSize: "var(--fs-caption)" }}>
           {!sel ? (
             <div style={{ color: "var(--text-muted)" }}>指板の色がついた音をタップすると、ここに「どこからの移動でずれたか」が出ます。</div>
           ) : marking && markable ? (
@@ -272,7 +279,7 @@ export default function FingerboardPanel({
           style={{ background: "linear-gradient(180deg,var(--card-a),var(--card-b))", border: "1px solid var(--line)", borderRadius: 16, padding: "13px 16px 16px", width: "min(960px, 96vw)", maxHeight: "92vh", overflowY: "auto", boxSizing: "border-box" }}>
           <div style={{ display: "flex", alignItems: "center", marginBottom: 8 }}>
             <b style={{ fontSize: "var(--fs-body)", color: "var(--text-ink)" }}>音程マップ</b>
-            <button type="button" onClick={() => setZoom(false)}
+            <button type="button" data-guide="map-close" onClick={() => setZoom(false)}
               style={{ marginLeft: "auto", fontSize: "var(--fs-caption)", fontWeight: 900, color: "var(--text-muted)", background: "rgba(150,175,225,.12)", border: "none", borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}>
               とじる ×
             </button>

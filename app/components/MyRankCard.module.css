@@ -87,17 +87,19 @@
   /* portal で body 直下に出るため、パレット変数をここにも定義 */
   --panel:var(--card-b); --card:var(--card-in); --ink:#EDF1FA; --inkSoft:#8FA0C4; --inkFaint:#5E7099; --line:rgba(150,175,225,.12);
   --accent:#B5762E; --accentSoft:#F3E6D2; --good:#3E8E7E; --goal:#6C6BA8; --warn:#C25A3C; --gold:#E0A73C;
-  position:fixed; inset:0; background:rgba(20,15,10,.5); display:flex; align-items:flex-end; justify-content:center; z-index:1000;
+  position:fixed; inset:0; background:rgba(20,15,10,.5); display:flex; align-items:flex-start; justify-content:center; z-index:1000;
 }
 .sheet {
   /* 2026-08-25: #FAF7F2 の白地が残っており、--ink(ほぼ白)の文字と重なって
      「演奏の軌跡」が白塗りに見えていた。ダーク刷新の取り残し。 */
+  /* 2026-08-29 Tetsuo指示: タップしたら画面上部に表示 (下シート→上シートへ変更) */
   width:100%; max-width:440px; max-height:92vh; overflow:auto; background:var(--card-b);
-  border:1px solid rgba(150,175,225,.16); border-bottom:none;
-  border-radius:20px 20px 0 0; box-shadow:0 -8px 30px rgba(0,0,0,.35);
-  animation:sheetup .32s cubic-bezier(.2,1,.3,1); position:relative; padding:0 0 20px;
+  border:1px solid rgba(150,175,225,.16); border-top:none;
+  border-radius:0 0 20px 20px; box-shadow:0 8px 30px rgba(0,0,0,.35);
+  animation:sheetup .32s cubic-bezier(.2,1,.3,1); position:relative;
+  padding:calc(env(safe-area-inset-top, 0px)) 0 20px;
 }
-@keyframes sheetup { from{transform:translateY(40px);opacity:.5} to{transform:translateY(0);opacity:1} }
+@keyframes sheetup { from{transform:translateY(-40px);opacity:.5} to{transform:translateY(0);opacity:1} }
 .grab { width:42px; height:4px; border-radius:3px; background:var(--line); margin:9px auto 2px; }
 .sheetttl { text-align:center; font-size:var(--fs-subhead); font-weight:800; color:var(--ink); margin:2px 0 6px; }
 .close {
@@ -190,3 +192,8 @@
 @media (prefers-reduced-motion:reduce) {
   .rankcard::after, .done::after, .nring, .goal, .av { animation:none; }
 }
+
+/* 達成コインの出現 (2026-08-29 ガイド確定モーション: ポンと埋まる) */
+.coinPop { animation: coinPop .55s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes coinPop { from { transform: scale(0); } 70% { transform: scale(1.18); } to { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .coinPop { animation: none; } }

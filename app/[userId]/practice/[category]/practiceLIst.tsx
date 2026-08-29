@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import styles from "../practice.module.css"
 import type { PracticeStats } from "@/app/lib/practice/getPracticeStats"
-import OnboardingTrigger from "../../_onboarding/OnboardingTrigger"
 import { tonicToJa } from "@/app/_libs/musicNotation"
 import BasicsPreSheet from "./BasicsPreSheet"
 import PrePracticeSheet from "../pieces/PrePracticeSheet"
@@ -773,7 +772,6 @@ export default function PracticeList({
         <GroupView items={items} userId={userId} category={category} />
       )}
 
-      <OnboardingTrigger pageKey="categoryList" />
     </div>
     </WeakTechniquesContext.Provider>
   )

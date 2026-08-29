@@ -39,8 +39,6 @@ import FingerboardPanel from "@/app/components/FingerboardPanel"
 import StudentKarteCards, { type StudentKarteCard } from "@/app/components/StudentKarteCards"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import { getSongHeatmapRange } from "@/app/actions/heatmapActions"
-import OnboardingTrigger from "@/app/[userId]/_onboarding/OnboardingTrigger"
-import { useOnboarding } from "@/app/[userId]/_onboarding/hooks/useOnboarding"
 
 // =========================================================
 // 型定義
@@ -1996,7 +1994,16 @@ function ScoreDetailInner({
 
   // --- オンボーディング: 解析オーバーレイ描画完了を Provider に通知 ---
   // applyComparisonColors の setTimeout 連鎖 (最大 800ms) を待ってから dispatch
-  const { markAnalysisOverlayRendered, activeGuideMarkId, setOnboardingSamplePiece, setOnboardingEnding, allGuidesDismissed, welcomeSlidesShown, pageGuidesSeen } = useOnboarding()
+  // 旧ガイド (WelcomeSlides/コーチマーク) は 2026-08-29 廃止。
+  // 参照だけ残る箇所は「ガイドは全て終了済み」相当の固定値で無効化する
+  // (後継の「アルコと最初の1周」はホーム側のデモで完結し、この画面には関与しない)
+  const markAnalysisOverlayRendered = useCallback(() => {}, [])
+  const activeGuideMarkId: string | null = null
+  const setOnboardingSamplePiece = useCallback((_piece: unknown) => { void _piece }, [])
+  const setOnboardingEnding = useCallback((_v: boolean) => { void _v }, [])
+  const allGuidesDismissed = true
+  const welcomeSlidesShown = true
+  const pageGuidesSeen = { has: (_k: string) => true }
   // オンボの「録音」ステップ表示中だけ、録音ボタンを「ふりかえりへ進むだけのボタン」に差し替える。
   // 実録音は省くという方針 (通常ユーザーの録音ボタンは元のまま)。
   const onboardingRecordStep = isScoreMode && activeGuideMarkId === "scoreDetail.record"
@@ -4024,7 +4031,6 @@ function ScoreDetailInner({
           共有ありカルテ導線なしのカードがアルコ結果の前に出る二段表示の正体。
           祝いの見せ場はアルコ結果カード(マスター達成〜！見出し)に集約) */}
 
-      <OnboardingTrigger pageKey={practiceItemId ? "practiceItem" : "scoreDetail"} />
     </div>
   )
 }
