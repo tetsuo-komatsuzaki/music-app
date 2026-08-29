@@ -70,9 +70,15 @@ S["score85"] = (bg(SHOT_SCORE) + dots("r85", ["g","g","g","g","g","g","g","g","o
     + '<div class="scorechip" data-ev-chip="r85"><b>85</b>点<em>+13</em></div>')
 S["score34"] = (bg(SHOT_SCORE) + dots("rlow", ["r","o","r","r","o","r","o","r","r","o"])
     + '<div class="scorechip" data-ev-chip="rlow"><b>34</b>点</div>')
-S["recording"] = (bg(SHOT_CTRL) +
-    '<div class="recoverlay"><div class="recing"><span class="reddot"></span>録音中…</div></div>'
-    '<div class="countod" id="countod"><b id="countnum">3</b></div>')
+S["recording"] = (
+    '<div class="bandWrap">'
+    '<div class="bandTop"><span class="bandRec"><i></i>REC</span><span class="bandTime">0:02</span></div>'
+    '<div class="bandSheet"><span class="bnLine" style="top:30%"></span><span class="bnLine" style="top:40%"></span><span class="bnLine" style="top:50%"></span><span class="bnLine" style="top:60%"></span><span class="bnLine" style="top:70%"></span><span class="bnNote" style="left:6%;top:34%"></span><span class="bnNote" style="left:12%;top:43%"></span><span class="bnNote" style="left:18%;top:52%"></span><span class="bnNote" style="left:24%;top:61%"></span><span class="bnNote" style="left:30%;top:38%"></span><span class="bnNote" style="left:36%;top:47%"></span><span class="bnNote" style="left:42%;top:56%"></span><span class="bnNote" style="left:48%;top:65%"></span><span class="bnNote" style="left:54%;top:42%"></span><span class="bnNote" style="left:60%;top:51%"></span><span class="bnNote" style="left:66%;top:60%"></span><span class="bnNote" style="left:72%;top:37%"></span><span class="bnNote" style="left:78%;top:46%"></span><span class="bnNote" style="left:84%;top:55%"></span><span class="bnNote" style="left:90%;top:64%"></span><span class="bandCursor"></span></div>'
+    '<div class="bandBar"><span class="bandExit">たて画面にもどす</span>'
+    '<span class="bandStop">停止</span>'
+    '<span class="bandBpm">&#9833;100</span></div>'
+    '</div>'
+    + '<div class="countod" id="countod"><b id="countnum">3</b></div>')
 S["silent"] = (bg(SHOT_CTRL) +
     '<div class="gcardwrap"><div class="gcard" id="hlSilent">'
     '<div class="gcT red">音がうまく録れなかったみたい</div>'
@@ -134,7 +140,7 @@ STEPS_PANEL = [
     "ホーム: 初期ユーザーの実際の見た目 (🌟さいしょの1曲カード・いま練習している曲は出ない) をデモ描画で再現。タップで演奏画面へ",
     "演奏画面: お手本は必須にしない。灰枠で「▶で聴けるよ」と紹介だけ (押せば実際に鳴る)。3秒で次へ",
     "演奏画面: 作法カード3行。カードの「わかった」で進む",
-    "演奏画面: 「録音して採点」→ 3・2・1 → 録音中 → 採点結果へ",
+    "演奏画面: 「録音して採点」→ 3・2・1 → 横画面の帯モード録音デモ3秒 (青線が流れる・赤丸停止) → 採点結果へ",
     "採点結果: 色が灯る (デモ描画)。灰枠=読みかたカード。金の光=ふりかえりタブ → タップ",
     "ふりかえり: 灰枠=伸びしろポイント (67%/75%は実データ)。金の光=ホームタブ → タップ",
     "ホーム: 灰枠=直近72点に更新 (デモ)。金の光=基礎練01音階 → タップ → クリア祝い",
@@ -308,6 +314,26 @@ h1 { font-size:21px; font-weight:900; margin:0 0 4px; }
   padding:1.5cqh; text-align:center; color:#201604; font-weight:900; font-size:min(1.8cqh,14px); }
 .stLink { text-align:center; padding:1cqh 0 1.6cqh; font-size:min(1.4cqh,11px); color:#7FA4E8; font-weight:800; }
 .optPlay { position:absolute; left:10.5%; top:51.5%; width:26.5%; height:8%; cursor:pointer; z-index:3; }
+/* 帯モード録音画面のデモ (横画面を90度回転で見せる) */
+.bandWrap { position:absolute; top:0; left:100%; width:100cqh; height:100cqw;
+  transform:rotate(90deg); transform-origin:0 0; background:#06090f;
+  display:flex; flex-direction:column; }
+.bandTop { display:flex; justify-content:space-between; align-items:center; padding:1.6cqw 3cqh 0; }
+.bandRec { display:inline-flex; align-items:center; gap:.8cqh; color:#ff9d94; font-size:min(1.6cqw,13px); font-weight:900; letter-spacing:.1em; }
+.bandRec i { width:1.4cqw; aspect-ratio:1; border-radius:50%; background:#e5392b; animation:blink 1s infinite; }
+.bandTime { color:#cbd6ee; font-size:min(1.7cqw,14px); font-weight:800; font-variant-numeric:tabular-nums; }
+.bandSheet { position:relative; margin:auto 2.5cqh; height:38%; background:#f7f5ef; border-radius:8px; overflow:hidden; }
+.bnLine { position:absolute; left:2%; right:2%; height:1px; background:#9aa1ac; }
+.bnNote { position:absolute; width:2.4cqw; aspect-ratio:1; border-radius:50%; background:#2c2c2c; }
+.bandCursor { position:absolute; top:6%; bottom:6%; width:2.5px; background:#2b5bc4; border-radius:2px;
+  box-shadow:0 0 8px rgba(43,91,196,.8); animation:bandRun 3s linear forwards; }
+@keyframes bandRun { from { left:8%; } to { left:86%; } }
+.bandBar { display:flex; align-items:flex-end; justify-content:space-between; padding:0 3cqh 2cqw; }
+.bandExit { color:#8FA0C4; font-size:min(1.5cqw,12px); font-weight:800; padding-bottom:1.6cqw; }
+.bandStop { width:8.2cqw; aspect-ratio:1; border-radius:50%; display:grid; place-items:center;
+  background:linear-gradient(180deg,#E05A3C,#C63F26); color:#fff; font-size:min(1.4cqw,11px); font-weight:900;
+  box-shadow:0 4px 14px rgba(224,90,60,.35); }
+.bandBpm { color:#e8b23c; font-size:min(1.6cqw,13px); font-weight:900; padding-bottom:1.6cqw; }
 /* パネル */
 .panel { flex:1 1 300px; max-width:420px; min-width:280px; }
 .panel h2 { font-size:14px; font-weight:900; color:#f0d9a6; margin:0 0 8px; }
@@ -382,10 +408,10 @@ function where(t){$("#whereChip").textContent=t;}
 function spot2At(r){if(!r){spot2.style.display="none";return;}
   spot2.style.display="block";
   spot2.style.left=r[0]+"%";spot2.style.top=r[1]+"%";spot2.style.width=r[2]+"%";spot2.style.height=r[3]+"%";}
-function countdownThen(cb){show("recording");where("録音中");spotAt(null);spot2At(null);bar(null);
+function countdownThen(cb){show("recording");where("録音中・横画面");spotAt(null);spot2At(null);bar(null);
   let n=3;const el=$("#countnum");el.textContent=n;$("#countod").style.display="";
   const iv=setInterval(()=>{n--;if(n>0){el.textContent=n;}else{clearInterval(iv);$("#countod").style.display="none";
-    setTimeout(()=>{$("#countod").style.display="";cb();},1500);}},650);}
+    setTimeout(()=>{$("#countod").style.display="";cb();},3000);}},650);}
 const FLOW=[
   {scr:"home",w:"ホーム",p:0,go:()=>{dim(true);spot2At(null);spotAt([4.5,21,91,26]);bar("point","まずは1回、弾いてみよう。<br>さいしょの1曲をタップ!",0);},tapSpot:true},
   {scr:"ctrl",w:"演奏画面",p:1,go:()=>{spotAt(null);spot2At(R_EXAMPLE);

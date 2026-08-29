@@ -57,7 +57,7 @@ export type GuideStep = {
     | { type: "tap" }               // spot のデモ要素タップで進む
     | { type: "card" }              // ガイドカード自身のボタン (わかった 等)
     | { type: "auto"; ms: number }  // 自動送り
-    | { type: "record" }            // 弾いたてい (3・2・1→録音中1.5秒→次へ)
+    | { type: "record" }            // 弾いたてい (3・2・1→横画面の帯モード録音デモ3秒→次へ)
 }
 
 // 1周目のフロー。モックの FLOW と1対1 (docs/mocks/first-loop-guide/build_guide_real.py)
