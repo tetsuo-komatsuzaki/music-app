@@ -69,7 +69,8 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
   const handleReplayFirstLoop = async () => {
     await resetGuideForReplay()
     onClose()
-    window.location.assign(userId ? `/${userId}` : "/")
+    // クエリでキャッシュを確実に回避 (アプリのWebViewがページを再利用しても新規読込になる)
+    window.location.assign(userId ? `/${userId}?replay=${Date.now()}` : "/")
   }
 
   const fullHelpHref = userId
