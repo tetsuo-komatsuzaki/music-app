@@ -105,7 +105,7 @@ export const FIRST_LOOP: GuideStep[] = [
   },
   {
     id: "review_graph", where: "ふりかえり", screen: "reviewGraph", pose: "08B", phase: 2,
-    text: "上のグラフで、点数の伸びをチェック！ 2回以上弾くと出るよ。\nつづいて下の指板をタップ",
+    text: "上のグラフで、点数の伸びをチェック！\n2回以上弾くと出るよ。\nつづいて下の指板をタップ",
     spot: "review-fingerboard", spot2: "review-trajectory", advance: { type: "tap" },
   },
   {
