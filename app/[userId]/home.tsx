@@ -165,6 +165,9 @@ export default function HomeClient({
       {/* モック home-01 の並び: 先生から → 通知 → ランク (2026-08-21 再写経で是正) */}
       <TeacherAssignments assignments={teacherAssignments} summary={teacherSummary} />
 
+      {/* アルコのクエスト (2周目以降=ガイド完了ユーザー)。折り畳みが既定・先生からカードの下 (2026-08-29 Tetsuo指定) */}
+      {questProgress && <QuestBoard progress={questProgress} />}
+
       {/* 解析通知 (採点中チップ / 完了バナー)。該当なしなら何も出ない */}
       <AnalysisNoticeBar userId={userId} notices={analysisNotices} />
       <SkillLitBanner userId={userId} lits={skillLits} />
@@ -214,8 +217,6 @@ export default function HomeClient({
         <PracticeFocusCard pieces={recentPieces} basics={basicPracticeCards} userId={userId} />
       )}
 
-      {/* アルコのクエスト (2周目以降=ガイド完了ユーザー)。折り畳みが既定 */}
-      {questProgress && <QuestBoard progress={questProgress} />}
 
       {/* アルコちゃんの一言カードは削除 (2026-08-21 Tetsuo指示・SPEC-CHANGES記載) */}
 

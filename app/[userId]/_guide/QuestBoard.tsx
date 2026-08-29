@@ -19,7 +19,7 @@ export default function QuestBoard({ progress }: { progress: QuestProgress }) {
   const doneCount = QUESTS.filter((q) => progress[q.id]).length
 
   return (
-    <div className={ds.card} data-guide="home-quest-board" style={{ padding: "14px 15px" }}>
+    <div className={ds.card} data-guide="home-quest-board" style={{ padding: expanded ? "14px 15px" : "14px 15px 15px" }}>
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
@@ -29,15 +29,9 @@ export default function QuestBoard({ progress }: { progress: QuestProgress }) {
         <span style={{ fontSize: 11.5, fontWeight: 900, color: "var(--gold)", fontVariantNumeric: "tabular-nums" }}>{doneCount}/{QUESTS.length}</span>
         <span aria-hidden style={{ fontSize: 11, fontWeight: 900, color: "var(--text-sub)", transform: expanded ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span>
       </button>
-      {!expanded && (
-        <div style={{ fontSize: 11, color: "var(--text-sub)", marginTop: 6, lineHeight: 1.7 }}>
-          達成するたびに、アルコカードを1枚ゲット。
-        </div>
-      )}
-
       {expanded && <>
-      <div style={{ fontSize: 11, color: "var(--text-sub)", marginTop: 4, lineHeight: 1.7 }}>
-        自分のペースでいい。達成するたびに、アルコカードを1枚ゲット。
+      <div style={{ fontSize: 11, color: "var(--text-sub)", marginTop: 6, lineHeight: 1.7 }}>
+        自分のペースでいい。
       </div>
 
       <div style={{ marginTop: 10 }}>

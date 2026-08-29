@@ -16,28 +16,44 @@ export default function RingComplete({ onReceive }: { onReceive: () => void }) {
   const [phase, setPhase] = useState<"fill" | "card">("fill")
 
   useEffect(() => {
-    // 実物のリング (conic-gradient) を rAF で満了させる
-    const ring = document.querySelector<HTMLElement>('[data-guide="home-ring"]')
-    ring?.scrollIntoView({ block: "center" })
+    // 実物のリング (conic-gradient) を rAF で満了させる。
+    // リングは achievement 読込後に現れるため、出現を待ってから動かす
+    // (先に探すと空振りして即カードが出る・2026-08-29 実機指摘の修正)
     let raf = 0
-    const t0 = performance.now()
-    const DUR = 1100
-    const from = 66.7
-    const tick = (t: number) => {
-      const k = Math.min(1, (t - t0) / DUR)
-      const eased = 1 - (1 - k) * (1 - k)
-      const p = from + (100 - from) * eased
-      ring?.style.setProperty("--p", `${p}%`)
-      if (ring) ring.style.background = `conic-gradient(var(--gold) ${p}%, rgba(150,175,225,.14) 0)`
-      if (k < 1) { raf = requestAnimationFrame(tick) } else {
-        // 中央カウンタを 3/3 へ (デモ演出・実装ではデータ更新で同じ見た目になる)
-        const num = ring?.querySelector("b")
-        if (num) num.innerHTML = '3<span style="font-size:12px;font-weight:800;color:var(--text-sub)">/3</span>'
-        setTimeout(() => setPhase("card"), 500)
+    let waited = 0
+    const animate = (ring: HTMLElement) => {
+      ring.scrollIntoView({ block: "center" })
+      const t0 = performance.now()
+      const DUR = 1100
+      const from = 66.7
+      const tick = (t: number) => {
+        const k = Math.min(1, (t - t0) / DUR)
+        const eased = 1 - (1 - k) * (1 - k)
+        const p = from + (100 - from) * eased
+        ring.style.setProperty("--p", `${p}%`)
+        ring.style.background = `conic-gradient(var(--gold) ${p}%, rgba(150,175,225,.14) 0)`
+        if (k < 1) { raf = requestAnimationFrame(tick) } else {
+          // 中央カウンタを 3/3 へ (デモ演出・実装ではデータ更新で同じ見た目になる)
+          const num = ring.querySelector("b")
+          if (num) num.innerHTML = '3<span style="font-size:12px;font-weight:800;color:var(--text-sub)">/3</span>'
+          setTimeout(() => setPhase("card"), 500)
+        }
       }
+      raf = requestAnimationFrame(tick)
     }
-    const start = setTimeout(() => { raf = requestAnimationFrame(tick) }, 600)
-    return () => { clearTimeout(start); cancelAnimationFrame(raf) }
+    const finder = setInterval(() => {
+      waited += 150
+      const ring = document.querySelector<HTMLElement>('[data-guide="home-ring"]')
+      if (ring) {
+        clearInterval(finder)
+        setTimeout(() => animate(ring), 500)
+      } else if (waited > 8000) {
+        // 万一リングが出ないときも先へ進める (カードは出す)
+        clearInterval(finder)
+        setPhase("card")
+      }
+    }, 150)
+    return () => { clearInterval(finder); cancelAnimationFrame(raf) }
   }, [])
 
   const pose = POSES.find((p) => p.id === "06B") ?? POSES[0]

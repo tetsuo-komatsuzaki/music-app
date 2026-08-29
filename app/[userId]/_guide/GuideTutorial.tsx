@@ -29,7 +29,9 @@ export default function GuideTutorial({ initialStep, onDone }: { initialStep: nu
   const [idx, setIdx] = useState(() => Math.min(Math.max(initialStep, 0), FIRST_LOOP.length - 1))
   const [recording, setRecording] = useState(false)
   const step = FIRST_LOOP[idx]
-  const achAfter = ["ringComplete", "home3", "trace"].includes(step.screen)
+  // ringComplete は達成前 (リング2/3) を描き、リングが満ちてから達成カードを出す
+  // (達成後データを読むとマスター画面になりリングが出ない・2026-08-29 実機指摘の修正)
+  const achAfter = ["home3", "trace"].includes(step.screen)
   const achRef = useRef(achAfter)
   achRef.current = achAfter
 

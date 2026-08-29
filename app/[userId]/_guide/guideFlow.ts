@@ -100,12 +100,12 @@ export const FIRST_LOOP: GuideStep[] = [
   },
   {
     id: "result_first", where: "採点結果", screen: "result80", pose: "08B", phase: 2,
-    text: "弾いた結果は80点。音程83・リズム77。\n次は「ふりかえり」をタップ",
+    text: "弾いた結果は80点！\nスコアに色付けしているよ。次は「ふりかえり」をタップ",
     spot: "score-tab-review", spot2: "result-perf-row", advance: { type: "tap" },
   },
   {
     id: "review_graph", where: "ふりかえり", screen: "reviewGraph", pose: "08B", phase: 2,
-    text: "上達のようすもここ。2回弾くとグラフが出るよ。\n見たら、下の指板をタップして大きくしよう",
+    text: "今までの点数は「上達のようす」のグラフで振り返れるよ！\n2回以上弾くと出るよ。見たら、下の指板をタップ",
     spot: "review-fingerboard", spot2: "review-trajectory", advance: { type: "tap" },
   },
   {
@@ -125,7 +125,7 @@ export const FIRST_LOOP: GuideStep[] = [
   },
   {
     id: "home_conditions", where: "ホーム", screen: "home2", pose: "05B", phase: 4,
-    text: "達成の条件はこの3つ。学びレッスンとエチュード、\n「通して弾く」3回。きみはあと通し1回!",
+    text: "まずは「達成」をめざそう！ 条件は学びレッスンとエチュード、\n「通して弾く」3回。きみはあと通し1回!",
     spot2: "home-ring-card", advance: { type: "chip" },
   },
   {

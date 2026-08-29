@@ -90,6 +90,7 @@ export default function DemoReview({
           details={DEMO_HEATMAP.details}
           stack
           initialZoom={zoomOpen}
+          modalTopOffset={zoomOpen ? 92 : undefined}
           initialSel={selCell ?? null}
           guideCellId="cell-A-02"
         />

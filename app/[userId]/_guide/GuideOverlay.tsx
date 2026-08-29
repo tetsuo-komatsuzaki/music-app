@@ -144,14 +144,15 @@ export default function GuideOverlay({
     // 描画直後と、非同期コンテンツ (achievement等) が入ってレイアウトが確定した後の2回寄せる
     const intoView = setTimeout(recenter, 250)
     const intoView2 = setTimeout(recenter, 1000)
-    // 描画直後は対象がまだ無いことがある (譜面の読み込み等)。しばらく再測定
+    const intoView3 = setTimeout(recenter, 2400)
+    // 対象は遅延ロードで位置が動く (achievement読込等)。ステップ中は測り続ける
+    // (実機で6秒後にズレたまま止まる事故の再発防止・2026-08-29)
     const warm = setInterval(measure, 400)
-    const warmStop = setTimeout(() => clearInterval(warm), 6000)
     window.addEventListener("scroll", onMove, { capture: true, passive: true })
     window.addEventListener("resize", onMove)
     return () => {
       if (padded) padded.style.paddingBottom = prevPad
-      clearInterval(warm); clearTimeout(warmStop); clearTimeout(intoView); clearTimeout(intoView2); cancelAnimationFrame(raf)
+      clearInterval(warm); clearTimeout(intoView); clearTimeout(intoView2); clearTimeout(intoView3); cancelAnimationFrame(raf)
       window.removeEventListener("scroll", onMove, { capture: true })
       window.removeEventListener("resize", onMove)
     }

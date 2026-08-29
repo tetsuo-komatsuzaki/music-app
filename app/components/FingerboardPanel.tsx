@@ -28,7 +28,7 @@ const STATUS_INK: Record<CellStatus, string> = {
 
 export default function FingerboardPanel({
   cells, details, marks = [], markable = false, onSaveMark, onRemoveMark, emptyText, stack = false,
-  initialZoom = false, initialSel = null, guideCellId,
+  initialZoom = false, initialSel = null, guideCellId, modalTopOffset,
 }: {
   cells: Record<string, HeatCellOut>
   details: Record<string, CellDetail>
@@ -46,6 +46,8 @@ export default function FingerboardPanel({
   initialSel?: string | null
   /** ガイドのデモ用: このセルに data-guide="map-red-cell" を付ける (金枠の対象) */
   guideCellId?: string
+  /** ガイドのデモ用: 拡大モーダルを上端から下げる (スキップ等と被らないように) */
+  modalTopOffset?: number
 }) {
   const [sel, setSel] = useState<string | null>(initialSel)
   const [zoom, setZoom] = useState(initialZoom) // クリックでモーダル拡大 (2026-08-11 Tetsuo指示)
@@ -273,7 +275,7 @@ export default function FingerboardPanel({
         onClick={() => setZoom(false)}
         onPointerDown={(e) => e.stopPropagation()}
         onPointerUp={(e) => e.stopPropagation()}
-        style={{ position: "fixed", inset: 0, background: "rgba(4,8,18,.66)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}
+        style={{ position: "fixed", inset: 0, background: "rgba(4,8,18,.66)", zIndex: 1200, display: "flex", alignItems: modalTopOffset ? "flex-start" : "center", justifyContent: "center", padding: 12, paddingTop: modalTopOffset ?? 12 }}
       >
         <div onClick={(e) => e.stopPropagation()}
           style={{ background: "linear-gradient(180deg,var(--card-a),var(--card-b))", border: "1px solid var(--line)", borderRadius: 16, padding: "13px 16px 16px", width: "min(960px, 96vw)", maxHeight: "92vh", overflowY: "auto", boxSizing: "border-box" }}>

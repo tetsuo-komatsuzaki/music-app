@@ -68,7 +68,9 @@ export default function GuideDemoClient({ initialStep }: { initialStep: number }
   }, [])
 
   // 達成後の画面は AFTER を返す。子のフェッチより先に決まるよう描画中に同期設定する
-  const achAfter = ["ringComplete", "home3", "trace"].includes(step.screen)
+  // ringComplete は達成前 (リング2/3) を描き、リングが満ちてから達成カードを出す
+  // (達成後データを読むとマスター画面になりリングが出ない・2026-08-29 実機指摘の修正)
+  const achAfter = ["home3", "trace"].includes(step.screen)
   if (typeof window !== "undefined") window.__guideAch = achAfter ? "after" : "before"
 
   // spot 要素のタップで進む (デモ内では Link の実遷移を抑止する)
