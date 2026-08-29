@@ -135,7 +135,7 @@ export const FIRST_LOOP: GuideStep[] = [
   },
   {
     id: "home_practice_menu", where: "ホーム", screen: "home2", pose: "05B", phase: 4,
-    text: "下の練習メニューには、曲の上達にあった\n練習が出るんだ",
+    text: "下の練習メニューには、その曲の上達にあった練習が出るんだ。",
     spot2: "home-basics", advance: { type: "chip" },
   },
   {

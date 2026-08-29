@@ -35,7 +35,8 @@ export const ACH_AFTER: AchievementStatus = {
   ...ACH_BEFORE,
   cleanRuns: { count: 3, required: 3 },
   achieved: true,
-  master: { recentAvg: 74, scoredCount: 5, requiredCount: 5, threshold: 90 },
+  // 直近5回 = 65+68+74+80+95 → 平均76 (グラフとPerformance履歴に整合)
+  master: { recentAvg: 76, scoredCount: 5, requiredCount: 5, threshold: 90 },
   totalPerformanceCount: 6,
 }
 
@@ -92,7 +93,7 @@ export const HOME_DONE: HomeProps = {
   ...BASE,
   recentPieces: [{
     id: DEMO_SONG_ID, title: "きらきら星", star: 1, cover: null,
-    latest: 95, recentAvg: 74, badge: "achieved", href: `#demo-${DEMO_SONG_ID}`,
+    latest: 95, recentAvg: 76, badge: "achieved", href: `#demo-${DEMO_SONG_ID}`,
   }],
   rankCard: {
     currentStar: 1, required: 10, achievedCount: 1,
