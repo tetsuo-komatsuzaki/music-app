@@ -287,8 +287,8 @@ h1 { font-size:21px; font-weight:900; margin:0 0 4px; }
   border:1px solid rgba(150,175,225,.3); color:#cbd6ee; font-size:12px; font-weight:800;
   border-radius:999px; padding:5px 14px; cursor:pointer; display:none; font-family:inherit; }
 /* 初期ユーザーのホーム再現: 実スクショの下部を地の色で覆い、🌟カードを重ねる */
-.fresh-patch { position:absolute; left:0; right:0; top:28.6%; height:56%; background:#0a1122; }
-.starter { position:absolute; left:4.5%; right:4.5%; top:29.4%;
+.fresh-patch { position:absolute; left:0; right:0; top:19.6%; height:62.5%; background:#0a1122; }
+.starter { position:absolute; left:4.5%; right:4.5%; top:21%;
   background:linear-gradient(180deg,#1e3053 0%,#15233f 100%); border:1px solid rgba(150,175,225,.12);
   border-radius:20px; overflow:hidden;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 2px 6px rgba(4,10,28,.35), 0 14px 34px -8px rgba(4,10,28,.55); }
@@ -385,7 +385,7 @@ function countdownThen(cb){show("recording");where("録音中");spotAt(null);spo
   const iv=setInterval(()=>{n--;if(n>0){el.textContent=n;}else{clearInterval(iv);$("#countod").style.display="none";
     setTimeout(()=>{$("#countod").style.display="";cb();},1500);}},650);}
 const FLOW=[
-  {scr:"home",w:"ホーム",p:0,go:()=>{dim(true);spot2At(null);spotAt([4.5,29.4,91,26]);bar("point","まずは1回、弾いてみよう。<br>さいしょの1曲をタップ!",0);},tapSpot:true},
+  {scr:"home",w:"ホーム",p:0,go:()=>{dim(true);spot2At(null);spotAt([4.5,21,91,26]);bar("point","まずは1回、弾いてみよう。<br>さいしょの1曲をタップ!",0);},tapSpot:true},
   {scr:"ctrl",w:"演奏画面",p:1,go:()=>{spot2At(null);spotAt(R_EXAMPLE);bar("listen","曲のページに来たよ。<br>まずはお手本を聴いてみよう",0);},tapSpot:true,
    async act(){const pc=$("#playchip");if(pc)pc.hidden=false;
      let ms=2600;try{ms=await phrase();}catch(e){}
