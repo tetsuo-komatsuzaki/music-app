@@ -18,7 +18,7 @@ import logging
 from copy import deepcopy
 from typing import Any, Optional
 
-from music21 import note as m21note, stream
+from music21 import note as m21note, repeat as m21repeat, stream
 
 logger = logging.getLogger(__name__)
 
@@ -48,11 +48,46 @@ def apply_variant_recipe(score: stream.Score, recipe: Optional[dict[str, Any]]) 
     return score
 
 
+def _expand_repeats_renumbered(score: stream.Score) -> Optional[stream.Score]:
+    """繰り返しを展開し、小節番号を演奏順の連番 (1..N) に振り直した Score を返す。
+    繰り返しが無い・展開に失敗したときは None。"""
+    has_repeat = any(
+        getattr(b, "direction", None) in ("start", "end")
+        for b in score.recurse().getElementsByClass("Repeat")
+    )
+    if not has_repeat:
+        return None
+    try:
+        expanded = score.expandRepeats()
+    except Exception:
+        try:
+            exp = m21repeat.Expander(score.parts[0])
+            part = exp.process()
+            expanded = stream.Score()
+            expanded.append(part)
+        except Exception:
+            logger.warning("measure_range: 繰り返し展開に失敗。原譜番号で切り出す")
+            return None
+    for part in expanded.parts:
+        for i, meas in enumerate(part.getElementsByClass(stream.Measure)):
+            meas.number = i + 1
+    return expanded
+
+
 def _apply_measure_range(score: stream.Score, m_from: int, m_to: int) -> stream.Score:
-    """from〜to 小節だけを残す。measures() が調号・拍子・クレフを先頭へ引き継ぐ。"""
+    """from〜to 小節だけを残す。measures() が調号・拍子・クレフを先頭へ引き継ぐ。
+
+    【2026-08-29 修正 (カイザーNo.23/24 Tetsuo報告)】
+    パートの小節番号は、アプリの譜面表示と同じ「繰り返し展開後の演奏小節」基準。
+    原譜に繰り返しがあると物理小節番号とずれる (No.23: 物理56小節・演奏70小節。
+    Part4=49-70 が物理49-56の8小節に化けていた)。繰り返しがある場合は先に展開して
+    連番を振り直してから切り出す。展開後は繰り返し記号が消えるため、
+    後段の再展開 (performance_part) はそのまま素通りする。"""
     if m_from < 1 or m_to < m_from:
         return score
-    out = score.measures(m_from, m_to)
+    expanded = _expand_repeats_renumbered(score)
+    src = expanded if expanded is not None else score
+    out = src.measures(m_from, m_to)
     return out
 
 
