@@ -112,11 +112,18 @@ try:
         analysis_path = f"practice/{PRACTICE_ITEM_ID}/analysis.json"
     else:
         analysis_path = f"{USER_ID}/{SCORE_ID}/analysis.json"
-    download_url = f"{SUPABASE_URL}/storage/v1/object/{BUCKET_NAME}/{analysis_path}"
+    # 再ビルド時、直前に analyze が上書きした analysis.json がストレージCDNの
+    # キャッシュ (cacheControl 既定3600s) に負けて旧版が返ることがある
+    # (2026-08-29 カイザーNo.23 Part再ビルドで実測)。クエリでキャッシュを回避する。
+    import uuid as _uuid
+    download_url = f"{SUPABASE_URL}/storage/v1/object/{BUCKET_NAME}/{analysis_path}?cb={_uuid.uuid4().hex}"
 
     res = requests.get(
         download_url,
-        headers={"Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}"}
+        headers={
+            "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+            "Cache-Control": "no-cache",
+        },
     )
 
     if res.status_code != 200:
