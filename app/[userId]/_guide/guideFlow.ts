@@ -151,7 +151,7 @@ export const FIRST_LOOP: GuideStep[] = [
   {
     // 吹き出し (採点できあがったよ！) と重なるため、この画面だけバーを最上部へ
     id: "result_retry", where: "採点結果", screen: "result95", pose: "06B", phase: 5,
-    text: "いい演奏! これで「通して弾く」が3回め。\n下の「ホーム」タブへ",
+    text: "これで「通して弾く」が3回め。\n下の「ホーム」タブへ",
     spot: "tab-home", barPos: "high", advance: { type: "tap" },
   },
   {
