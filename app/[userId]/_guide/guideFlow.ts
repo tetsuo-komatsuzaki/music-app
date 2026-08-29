@@ -163,7 +163,7 @@ export const FIRST_LOOP: GuideStep[] = [
   },
   {
     id: "home_coin_prompt", where: "ホーム", screen: "home3", pose: "06B", phase: 5,
-    text: "達成すると、マイランクに達成コインがたまるよ。\nマイランクカードをタップ!",
+    text: "マイランクにコインがたまるよ。\nマイランクカードをタップ!",
     spot: "home-rank-card", advance: { type: "tap" },
   },
   {
