@@ -125,7 +125,7 @@ export const FIRST_LOOP: GuideStep[] = [
   },
   {
     id: "home_conditions", where: "ホーム", screen: "home2", pose: "05B", phase: 4,
-    text: "まずは「達成」をめざそう！ レッスン・エチュード・通して3回演奏でクリア。\nあと、通して1回演奏してみよう",
+    text: "まずは「達成」をめざそう！\nレッスン・エチュード・通して3回演奏でクリア。\nあと、通して1回演奏してみよう",
     spot2: "home-ring-card", advance: { type: "chip" },
   },
   {
