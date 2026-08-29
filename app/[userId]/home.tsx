@@ -123,6 +123,8 @@ export default function HomeClient({
   const router = useRouter()
   // チュートリアル終了後は層をアンマウントし、ホームのデータを取り直す (コイン等の反映)
   const [guideDismissed, setGuideDismissed] = useState(false)
+  // ヘルプの「もう一度見る」等でガイドが再び有効になったら、閉じたフラグを戻す
+  useEffect(() => { if (guide?.active) setGuideDismissed(false) }, [guide?.active])
   const showGuide = guide?.active && !guideDismissed
   const [guideOpen, setGuideOpen] = useState(false)
 

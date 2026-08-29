@@ -9,7 +9,7 @@
 import { useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import { HELP_CONTENT } from "./content/help"
 import type { HelpSection } from "./helpBus"
 import { resetGuideForReplay } from "@/app/actions/guideState"
@@ -24,7 +24,6 @@ type Props = {
 export default function HelpModal({ open, initialSection, onClose }: Props) {
   const params = useParams<{ userId: string }>()
   const userId = (params?.userId as string) ?? ""
-  const router = useRouter()
 
   const markersRef = useRef<HTMLElement>(null)
   const faqRef = useRef<HTMLElement>(null)
@@ -64,12 +63,13 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
   if (typeof document === "undefined") return null
   if (!open) return null
 
-  // 「最初の1周をもう一度見る」: 完了/スキップを外してホームへ (ホーム側でチュートリアルが起動)
+  // 「最初の1周をもう一度見る」: 完了/スキップを外してホームへ。
+  // ソフト遷移だとホーム滞在中は client 状態が残り再起動しないことがあるため、
+  // フルリロードで確実にチュートリアルを立ち上げる (2026-08-29 実機指摘の修正)
   const handleReplayFirstLoop = async () => {
     await resetGuideForReplay()
     onClose()
-    if (userId) router.push(`/${userId}`)
-    router.refresh()
+    window.location.assign(userId ? `/${userId}` : "/")
   }
 
   const fullHelpHref = userId
