@@ -183,7 +183,7 @@ export const FIRST_LOOP: GuideStep[] = [
   {
     // 最終ステップ (2026-08-29 Tetsuo追加)。つづけるでガイド終了→通常ホームに着地
     id: "home_next", where: "ホーム", screen: "home3", pose: "08C", phase: 6,
-    text: "つぎは新しい曲にチャレンジ！ 10曲達成でランクアップだ。\nいっしょに、いっぱい弾けるようになろう！",
+    text: "ほかの曲にも挑戦してみよう。達成10曲でランクアップ！\nきみのペースで、どんどん上手くなろう！",
     spot2: "home-rank-card", advance: { type: "chip" },
   },
 ]
