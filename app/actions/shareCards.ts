@@ -3,6 +3,7 @@
 // シェア機能 (2026-08-03): シェアカード作成。
 // payload はここ(サーバー)で DB から組み立てる自己完結スナップショット —
 // クライアントの数字は信用しない。公開ページ/OG画像は payload だけで描画できる。
+import { NINTEI_FACES } from "@/app/_libs/treasureCatalog"
 import { randomBytes } from "crypto"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthAction } from "@/app/_libs/requireAuth"
@@ -113,13 +114,59 @@ export async function createShareCard(input: CreateInput): Promise<CreateResult>
       }
     }
 
+    if (input.kind === "cert") {
+      // マスター証明書: マスター済みの曲のみ。番号=マスター順の通し
+      if (!input.refId || !isValidCuid(input.refId)) return { ok: false, error: "対象が不正です" }
+      const ach = await prisma.userScoreAchievement.findUnique({
+        where: { userId_scoreId: { userId: dbUser.id, scoreId: input.refId } },
+        select: { masteredAt: true, starAtAchievement: true, score: { select: { title: true } } },
+      })
+      if (!ach?.masteredAt) return { ok: false, error: "この曲はまだマスターしていません" }
+      const masters = await prisma.userScoreAchievement.findMany({
+        where: { userId: dbUser.id, masteredAt: { not: null } },
+        orderBy: { masteredAt: "asc" }, select: { scoreId: true },
+      })
+      const certNo = masters.findIndex((m) => m.scoreId === input.refId) + 1
+      payload = {
+        title: ach.score.title, star: ach.starAtAchievement,
+        certNo: certNo > 0 ? certNo : undefined, date: fmtMDJst(ach.masteredAt),
+      }
+    }
+
+    if (input.kind === "nintei") {
+      // アルコの認定証: 最難関クエストのクリアが条件。券面文言はカタログの正
+      const face = input.refId ? NINTEI_FACES[input.refId] : undefined
+      if (!face) return { ok: false, error: "対象が不正です" }
+      const clear = await prisma.userQuestClear.findUnique({
+        where: { userId_questId: { userId: dbUser.id, questId: input.refId! } },
+        select: { clearedAt: true },
+      })
+      if (!clear) return { ok: false, error: "この認定証はまだもらっていません" }
+      payload = { big: face.big, kindLine: face.kindLine, date: fmtMDJst(clear.clearedAt) }
+    }
+
+    if (input.kind === "medal") {
+      // メダル: 獲得済み (UserTreasure) のみ
+      const n = Number(input.refId)
+      if (!Number.isInteger(n) || n <= 0) return { ok: false, error: "対象が不正です" }
+      const medal = await prisma.userTreasure.findFirst({
+        where: { userId: dbUser.id, kind: "medal", sourceId: String(n) },
+        select: { earnedAt: true },
+      })
+      if (!medal) return { ok: false, error: "このメダルはまだもらっていません" }
+      payload = { count: n, date: fmtMDJst(medal.earnedAt) }
+    }
+
     if (!payload) return { ok: false, error: "作成できませんでした" }
 
     const token = randomBytes(12).toString("base64url")
-    // 報酬体系: シェアクエスト (No.076) + シェア累計 (No.127/146)
+    // 報酬体系: シェアクエスト (No.076) + 種別クエスト (083/097/098) + シェア累計 (127/146)
     try {
       const { questEventHook, actionCountHook } = await import("@/app/_libs/treasureEngine")
       await questEventHook(dbUser.id, "share_card")
+      if (input.kind === "cert") await questEventHook(dbUser.id, "share_cert")
+      if (input.kind === "nintei") await questEventHook(dbUser.id, "share_nintei")
+      if (input.kind === "medal") await questEventHook(dbUser.id, "share_medal")
       await actionCountHook(dbUser.id, "share")
     } catch { /* noop */ }
     await prisma.shareCard.create({

@@ -12,6 +12,8 @@
 
 import { useState, type ReactNode } from "react"
 import Coin from "@/app/components/Coin"
+import ShareSheet from "@/app/components/ShareSheet"
+import type { ShareKind } from "@/app/_libs/shareCard"
 import { MEDAL_MILESTONES, NINTEI_FACES, QUESTS } from "@/app/_libs/treasureCatalog"
 import { MedalFace, ScrollFace, TreasureFaceStyles } from "./TreasureFaces"
 
@@ -67,6 +69,8 @@ export default function GalleryShelves({
 }) {
   const [tab, setTab] = useState<"coin" | "card" | "honor">("coin")
   const [zoom, setZoom] = useState<ReactNode | null>(null)
+  // 栄誉のシェア (フェーズ3: 証明書/認定証/メダル)
+  const [share, setShare] = useState<{ kind: ShareKind; refId: string } | null>(null)
   const cards = treasures.filter((t) => t.kind === "card")
   const titles = treasures.filter((t) => ["title", "master_card"].includes(t.kind))
   const medals = treasures.filter((t) => t.kind === "medal")
@@ -80,8 +84,27 @@ export default function GalleryShelves({
     { id: "honor" as const, label: "栄誉", n: honorCount },
   ]
 
-  const zoomable = (node: ReactNode, big: ReactNode) => (
-    <button type="button" className="glTreasure" onClick={() => setZoom(big)}>{node}</button>
+  const zoomable = (node: ReactNode, big: ReactNode, shareReq?: { kind: ShareKind; refId: string }) => (
+    <button
+      type="button"
+      className="glTreasure"
+      onClick={() => setZoom(
+        <>
+          {big}
+          {shareReq && (
+            <button
+              type="button"
+              className="glShareBtn"
+              onClick={(e) => { e.stopPropagation(); setZoom(null); setShare(shareReq) }}
+            >
+              シェアする
+            </button>
+          )}
+        </>,
+      )}
+    >
+      {node}
+    </button>
   )
 
   /** 認定証の券面文言 (sourceId=questId → NINTEI_FACES) */
@@ -174,6 +197,7 @@ export default function GalleryShelves({
                   {zoomable(
                     <MedalFace count={Number(t.sourceId) || 0} height={120} />,
                     <div style={{ textAlign: "center" }}><MedalFace count={Number(t.sourceId) || 0} height={320} /><p className="glZoomName">カード{t.sourceId}枚の節目</p></div>,
+                    { kind: "medal", refId: t.sourceId },
                   )}
                   <span className="glPedTag">カード{t.sourceId}枚の節目</span>
                 </span>
@@ -190,6 +214,9 @@ export default function GalleryShelves({
                     {zoomable(
                       <ScrollFace variant={f.variant} piece={f.piece} kindLine={f.kindLine} height={150} />,
                       <div style={{ textAlign: "center" }}><ScrollFace variant={f.variant} piece={f.piece} kindLine={f.kindLine} height={430} /></div>,
+                      f.variant === "gold"
+                        ? { kind: "cert", refId: t.sourceId }
+                        : { kind: "nintei", refId: t.sourceId },
                     )}
                   </span>
                 )
@@ -211,6 +238,9 @@ export default function GalleryShelves({
           {zoom}
           <span className="glZoomHint">タップでもどる</span>
         </div>
+      )}
+      {share != null && (
+        <ShareSheet kind={share.kind} refId={share.refId} onClose={() => setShare(null)} />
       )}
 
       {/* 舞台装置CSS (genspark Museum Edition v3 の移植・gl接頭辞) */}
@@ -322,6 +352,9 @@ export default function GalleryShelves({
 .glZoomName { margin-top:14px; font-size:12px; font-weight:800; color:#edf1fa; text-align:center; }
 .glZoomCard { transform:scale(2.4); transform-origin:center; }
 .glZoomHint { font-size:10px; color:#8fa0c4; letter-spacing:.2em; }
+.glShareBtn { background:linear-gradient(180deg,#3a68c9,#2b5bc4 60%,#1f4196); color:#edf1fa; border:none;
+  border-radius:999px; padding:12px 40px; font-size:13px; font-weight:800; letter-spacing:.14em; cursor:pointer;
+  box-shadow:0 6px 16px rgba(20,40,110,.55), inset 0 1px 1px rgba(255,255,255,.28); font-family:inherit; }
       `}</style>
     </div>
   )

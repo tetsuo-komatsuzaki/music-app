@@ -2,7 +2,7 @@
 // カード4種 = お祝い系(master/rank_up=図形紙吹雪) + 報告系(weekly/daily=五線譜)。
 // デザイン確定モック: share-master(c6e96c58)/starup(edf5f053)/weekly(2d5278f1)/today(3ede2c6c)
 
-export type ShareKind = "master" | "rank_up" | "weekly" | "daily"
+export type ShareKind = "master" | "rank_up" | "weekly" | "daily" | "cert" | "nintei" | "medal"
 
 /** ShareCard.payload の中身 (サーバー生成の自己完結スナップショット) */
 export type SharePayload = {
@@ -21,9 +21,16 @@ export type SharePayload = {
   days?: number // 練習した日数
   recs?: number // 録音した回数
   skills?: number // 伸びたわざ (正式習得=レッスンクリアのみ)
+  // cert (マスター証明書)
+  certNo?: number // 獲得順の通し番号
+  // nintei (アルコの認定証)
+  big?: string // 大見出し (例 100 DAYS)
+  kindLine?: string // 種別行 (例 継続の認定証)
+  // medal
+  count?: number // カード枚数の節目
 }
 
-export const SHARE_KINDS: readonly ShareKind[] = ["master", "rank_up", "weekly", "daily"]
+export const SHARE_KINDS: readonly ShareKind[] = ["master", "rank_up", "weekly", "daily", "cert", "nintei", "medal"]
 
 export function isShareKind(v: unknown): v is ShareKind {
   return typeof v === "string" && (SHARE_KINDS as readonly string[]).includes(v)
@@ -31,7 +38,7 @@ export function isShareKind(v: unknown): v is ShareKind {
 
 /** お祝い系 (紙吹雪) か報告系 (五線譜) か */
 export function isCelebrationKind(kind: ShareKind): boolean {
-  return kind === "master" || kind === "rank_up"
+  return kind === "master" || kind === "rank_up" || kind === "cert" || kind === "nintei" || kind === "medal"
 }
 
 /** カード種別ごとの表示メタ (eyebrow = カード上部の英字ラベル) */
@@ -40,6 +47,9 @@ export const SHARE_KIND_META: Record<ShareKind, { eyebrow: string; label: string
   rank_up: { eyebrow: "⭐ RANK UP", label: "ランクアップ" },
   weekly: { eyebrow: "📅 WEEKLY REPORT", label: "今週のがんばり" },
   daily: { eyebrow: "🎵 TODAY'S PLAY", label: "きょうの演奏" },
+  cert: { eyebrow: "📜 MASTER CERTIFICATE", label: "マスター証明書" },
+  nintei: { eyebrow: "📜 CERTIFICATE", label: "アルコの認定証" },
+  medal: { eyebrow: "🏅 MEDAL", label: "カードのメダル" },
 }
 
 /**
@@ -82,6 +92,12 @@ export function shareText(kind: ShareKind, p: SharePayload): string {
       return `今週は練習${p.days ?? 0}日・録音${p.recs ?? 0}回がんばりました！📅🎻 #アルコ #バイオリン`
     case "daily":
       return `「${p.title ?? ""}」を演奏しました 音程${p.pitch ?? "-"}点・リズム${p.timing ?? "-"}点🎵🎻 #アルコ #バイオリン`
+    case "cert":
+      return `「${p.title ?? ""}」のマスター証明書をもらいました！📜🎻 #アルコ #バイオリン`
+    case "nintei":
+      return `${p.kindLine ?? "認定証"}をもらいました！📜🎻 #アルコ #バイオリン`
+    case "medal":
+      return `カード${p.count ?? ""}枚のメダルをもらいました！🏅🎻 #アルコ #バイオリン`
   }
 }
 
@@ -93,5 +109,8 @@ export function shareOgTitle(kind: ShareKind, p: SharePayload, displayName: stri
     case "rank_up": return `${who}★${p.star ?? ""}ステージにランクアップ！ | アルコ`
     case "weekly": return `${who}今週も練習がんばりました | アルコ`
     case "daily": return `${who}「${p.title ?? ""}」を演奏しました | アルコ`
+    case "cert": return `${who}「${p.title ?? ""}」のマスター証明書を獲得！ | アルコ`
+    case "nintei": return `${who}${p.kindLine ?? "認定証"}を獲得！ | アルコ`
+    case "medal": return `${who}カード${p.count ?? ""}枚のメダルを獲得！ | アルコ`
   }
 }
