@@ -30,12 +30,13 @@ if (typeof window !== "undefined" && !(window as unknown as { __coinStubbed?: bo
   }
 }
 
-export default function CoinDemoClient({ two }: { two?: boolean }) {
+export default function CoinDemoClient({ two, trigger = "run" }: { two?: boolean; trigger?: "run" | "lesson" | "etude" }) {
   const [run, setRun] = useState(1)
   useEffect(() => {
     ;(window as unknown as Record<string, unknown>).__coinReplay = () => setRun((r) => r + 1)
   }, [])
   // two: 複数同時達成 (2枚目=リング省略・中央出現) の検証モード (?two=1)
+  // trigger: 最後にそろった条件の巻き戻し検証 (?trigger=lesson|etude)
   const props = two
     ? {
         ...HOME_DONE,
@@ -45,11 +46,11 @@ export default function CoinDemoClient({ two }: { two?: boolean }) {
         ],
         rankCard: { ...HOME_DONE.rankCard, achievedCount: 2 },
         coinQueue: [
-          { scoreId: DEMO_SONG_ID, star: 1 },
-          { scoreId: "guide-demo-second", star: 1 },
+          { scoreId: DEMO_SONG_ID, star: 1, trigger },
+          { scoreId: "guide-demo-second", star: 1, trigger: "run" as const },
         ],
       }
-    : { ...HOME_DONE, coinQueue: [{ scoreId: DEMO_SONG_ID, star: 1 }] }
+    : { ...HOME_DONE, coinQueue: [{ scoreId: DEMO_SONG_ID, star: 1, trigger }] }
   return (
     <>
       <HomeClient key={run} {...props} coinDemo />

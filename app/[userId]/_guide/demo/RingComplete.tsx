@@ -11,6 +11,7 @@
 import { useEffect, useState } from "react"
 import { ArcoChan, POSES } from "@/app/components/ArcoChan"
 import { DemoConfetti } from "./DemoChrome"
+import { markGoalRowDone } from "../../_coin/CoinCelebration"
 
 export default function RingComplete({ onReceive }: { onReceive: () => void }) {
   // fill=リング満了アニメ中 → ready=ユーザーの達成確認待ち (タップで進む) → card=達成カード
@@ -37,6 +38,8 @@ export default function RingComplete({ onReceive }: { onReceive: () => void }) {
           // 中央カウンタを 3/3 へ (デモ演出・実装ではデータ更新で同じ見た目になる)
           const num = ring.querySelector("b")
           if (num) num.innerHTML = '3<span style="font-size:12px;font-weight:800;color:var(--text-sub)">/3</span>'
+          // 満了と同時に「通して弾く」行✓+チップ達成 (2026-08-30 Tetsuo指定・コイン演出と同一規則)
+          markGoalRowDone(ring, "run")
           // リング完成をユーザーが確認してから (タップで) 達成カードへ (2026-08-29 Tetsuo指定)
           setTimeout(() => setPhase("ready"), 350)
         }

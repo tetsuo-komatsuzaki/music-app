@@ -18,8 +18,9 @@ type Basic = { id: string; title: string; category: string; href: string; recent
 // basics(旧・履歴ベースの3チップ) は当面プロップに残すが未使用。
 export default function PracticeFocusCard({ pieces, basics, userId, coinFocus }: {
   pieces: Piece[]; basics: Basic[]; userId: string
-  /** 達成コイン演出 (2026-08-30): 対象曲へタブを自動切替し、rewind中は達成前の見た目に巻き戻す */
-  coinFocus?: { scoreId: string; rewind: boolean } | null
+  /** 達成コイン演出 (2026-08-30): 対象曲へタブを自動切替し、rewind中は達成前の見た目に巻き戻す。
+   *  trigger = 最後にそろった条件 (その行だけを未了に戻す・Tetsuo指定) */
+  coinFocus?: { scoreId: string; rewind: boolean; trigger?: "run" | "lesson" | "etude" } | null
 }) {
   void basics
   const [active, setActive] = useState(0)
@@ -45,12 +46,24 @@ export default function PracticeFocusCard({ pieces, basics, userId, coinFocus }:
     return () => { aborted = true }
   }, [piece?.id])
 
-  // コイン演出のリング巻き戻し (Q15): データは触らず表示だけ達成前 (通し2/3) に合成する。
-  // リング満了そのものは CoinCelebration が実DOMの conic-gradient を rAF で満たす
+  // コイン演出のリング巻き戻し (Q15): データは触らず、最後にそろった条件 (trigger) の行だけ
+  // 表示を未了に戻す。リング満了そのものは CoinCelebration が実DOMを rAF で満たす。
+  // その曲に無い要件がtriggerに来たら通しに倒す (エチュード免除曲・レッスン要件なし曲の考慮)
   const rewinding = coinFocus?.rewind === true && piece?.id === coinFocus.scoreId
-  const shownAch: AchievementStatus | null = ach && rewinding && ach.achieved
-    ? { ...ach, achieved: false, cleanRuns: { ...ach.cleanRuns, count: Math.max(0, ach.cleanRuns.required - 1) } }
-    : ach
+  const shownAch: AchievementStatus | null = (() => {
+    if (!ach || !rewinding || !ach.achieved) return ach
+    const t = coinFocus?.trigger ?? "run"
+    const eff = t === "lesson" && ach.lessons.total > 0 ? "lesson"
+      : t === "etude" && ach.etude.required ? "etude"
+      : "run"
+    if (eff === "lesson") {
+      return { ...ach, achieved: false, lessons: { ...ach.lessons, cleared: Math.max(0, ach.lessons.total - 1) } }
+    }
+    if (eff === "etude") {
+      return { ...ach, achieved: false, etude: { ...ach.etude, achieved: false } }
+    }
+    return { ...ach, achieved: false, cleanRuns: { ...ach.cleanRuns, count: Math.max(0, ach.cleanRuns.required - 1) } }
+  })()
 
   // 練習している曲がまだ無いユーザー: カードごと消さず、曲選びへ誘導する (2026-07-25)。
   // 「まず1曲を通して弾く」が体験の入口なので、ホーム最上部の次に置く。

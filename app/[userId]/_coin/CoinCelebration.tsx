@@ -19,12 +19,14 @@ import { createPortal } from "react-dom"
 import Coin from "@/app/components/Coin"
 import { markCoinsCelebrated } from "@/app/actions/coinCelebration"
 
-export type CoinQueueItem = { scoreId: string; star: number }
+/** trigger = 最後にそろった達成条件 (2026-08-30 Tetsuo指定: その行を巻き戻して✓を打つ) */
+export type CoinTrigger = "run" | "lesson" | "etude"
+export type CoinQueueItem = { scoreId: string; star: number; trigger?: CoinTrigger }
 
 /** home.tsx へ返す表示調整。rankHold=まだ着地していないコイン数 (ゲージから一時控除) */
 export type CoinFx = {
   rankHold: number
-  focus: { scoreId: string; rewind: boolean } | null
+  focus: { scoreId: string; rewind: boolean; trigger: CoinTrigger } | null
   flashAt: number
 }
 export const COIN_FX_IDLE: CoinFx = { rankHold: 0, focus: null, flashAt: 0 }
@@ -57,13 +59,58 @@ const scrollToY = (sc: HTMLElement | Window, y: number) => {
   else sc.scrollTop = y
 }
 
+const TRIGGER_ROW_NAME: Record<CoinTrigger, string> = {
+  run: "通して弾く",
+  lesson: "学びレッスン",
+  etude: "エチュード",
+}
+
+/** リング満了と同時に、最後にそろった条件の行を✓に・チップを「達成」へ (2026-08-30 Tetsuo指定:
+ *  達成宣言はリング満了の瞬間。カウンタ満了と行未チェックが矛盾したまま
+ *  コインが出る詰め漏れの修正。GoalDot done=true / 達成チップと同じ見た目を実DOMに反映) */
+export function markGoalRowDone(ring: HTMLElement, trigger: CoinTrigger) {
+  const card = ring.closest<HTMLElement>('[data-guide="home-focus-card"]') ?? document
+  const items = card.querySelector('[data-anim="items"]')
+  const findRow = (name: string) => (items ? Array.from(items.children).flatMap((el) => {
+    // 学びレッスン/エチュード行は home-ring-rows 配下・行がリンクのこともある
+    const own = el.textContent?.includes(name) ? [el] : []
+    return el.getAttribute("data-guide") === "home-ring-rows"
+      ? Array.from(el.children).filter((c) => c.textContent?.includes(name))
+      : own
+  })[0] : null)
+  // その曲に trigger の行が無いときは通しに倒す (PracticeFocusCard の巻き戻しと同じフォールバック)
+  const row = findRow(TRIGGER_ROW_NAME[trigger]) ?? findRow(TRIGGER_ROW_NAME.run)
+  if (row) {
+    const circle = row.firstElementChild as HTMLElement | null
+    if (circle && circle.tagName === "SPAN") {
+      circle.outerHTML =
+        '<span style="width:20px;height:20px;flex:none;border-radius:50%;display:grid;place-items:center;background:rgba(232,178,60,.16)">' +
+        '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">' +
+        '<path d="M20 6L9 17l-5-5" stroke="#e8b23c"></path></svg></span>'
+    }
+    const name = row.querySelector("b")
+    if (name) name.style.color = "var(--text-ink)"
+    const st = row.lastElementChild as HTMLElement | null
+    if (st && st.tagName === "SPAN") {
+      st.textContent = "✓"
+      st.style.color = "var(--gold)"
+    }
+  }
+  for (const s of Array.from(card.querySelectorAll<HTMLElement>('[data-guide="home-current-song"] span'))) {
+    if (s.textContent === "挑戦中") { s.textContent = "達成"; break }
+  }
+}
+
 export default function CoinCelebration({
   flying,
+  currentStar,
   demo,
   onFx,
 }: {
   /** 演出対象 (タブに居る曲のみ・最大2枚)。home.tsx が選定済み */
   flying: CoinQueueItem[]
+  /** マイランクの現在★。ゲージ控除(rankHold)は同★のコインだけが対象 */
+  currentStar: number
   /** devハーネス: DB消化をしない */
   demo?: boolean
   onFx: (fx: CoinFx) => void
@@ -133,6 +180,8 @@ export default function CoinCelebration({
             if (b && denom) {
               b.innerHTML = `${denom}<span style="font-size:12px;font-weight:800;color:var(--text-sub);text-shadow:none">/${denom}</span>`
             }
+            // 満了と同時に達成の姿へ: 最後の条件行✓ + チップ「達成」(2026-08-30 Tetsuo指定)
+            markGoalRowDone(ring, flying[0]?.trigger ?? "run")
             res()
           }
         }
@@ -205,10 +254,11 @@ export default function CoinCelebration({
     }
 
     const run = async () => {
-      let hold = flying.length
+      // ゲージから一時控除するのは現在★と同じコインだけ (★違いは数字が動かないため)
+      let hold = flying.filter((c) => c.star === currentStar).length
       // ── 1枚目: タブ切替+リング巻き戻し → 満了 → コイン → 飛翔 ──
       const first = flying[0]
-      onFxRef.current({ rankHold: hold, focus: { scoreId: first.scoreId, rewind: true }, flashAt: 0 })
+      onFxRef.current({ rankHold: hold, focus: { scoreId: first.scoreId, rewind: true, trigger: first.trigger ?? "run" }, flashAt: 0 })
       const ring = await waitForRing()
       if (cancelled.current || !alive) return
       if (ring) {
@@ -218,11 +268,13 @@ export default function CoinCelebration({
         await fillRing(ring)
         await sleep(150, cancelled)
         if (cancelled.current) return
+        if (first.star === currentStar) hold -= 1
         const r = ring.getBoundingClientRect()
-        await popAndFly({ x: r.left + r.width / 2, y: r.top + r.height / 2 }, --hold)
+        await popAndFly({ x: r.left + r.width / 2, y: r.top + r.height / 2 }, hold)
       } else {
         // リングが見つからないときは中央出現に切替 (演出は止めない)
-        await popAndFly({ x: window.innerWidth / 2, y: window.innerHeight * 0.38 }, --hold)
+        if (first.star === currentStar) hold -= 1
+        await popAndFly({ x: window.innerWidth / 2, y: window.innerHeight * 0.38 }, hold)
       }
       if (cancelled.current) return
 
@@ -230,7 +282,8 @@ export default function CoinCelebration({
       if (flying.length > 1) {
         await sleep(350, cancelled)
         if (cancelled.current) return
-        await popAndFly({ x: window.innerWidth / 2, y: window.innerHeight * 0.38 }, --hold)
+        if (flying[1].star === currentStar) hold -= 1
+        await popAndFly({ x: window.innerWidth / 2, y: window.innerHeight * 0.38 }, hold)
         if (cancelled.current) return
       }
       onFxRef.current(COIN_FX_IDLE)

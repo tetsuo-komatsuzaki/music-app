@@ -153,7 +153,7 @@ export default function HomeClient({
     showCoins && flying.length > 0
       ? {
           rankHold: flying.filter((c) => c.star === rankCard.currentStar).length,
-          focus: { scoreId: flying[0].scoreId, rewind: true },
+          focus: { scoreId: flying[0].scoreId, rewind: true, trigger: flying[0].trigger ?? "run" },
           flashAt: 0,
         }
       : COIN_FX_IDLE,
@@ -173,7 +173,7 @@ export default function HomeClient({
       )}
 
       {/* 達成コインの獲得モーション (帰着時1回・タップでスキップ) */}
-      {showCoins && <CoinCelebration flying={flying} demo={coinDemo} onFx={setCoinFx} />}
+      {showCoins && <CoinCelebration flying={flying} currentStar={rankCard.currentStar} demo={coinDemo} onFx={setCoinFx} />}
 
       {/* 挨拶の大見出し (モック HELLO ・ h1.t)。名前が長くても1行に収める (2026-08-20 Tetsuo指定)。
           2026-08-23 Tetsuo指示: 挨拶右の金縁アルコは削除し、マイランクカード側へ移設 */}

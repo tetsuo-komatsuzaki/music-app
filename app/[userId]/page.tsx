@@ -677,16 +677,52 @@ export default async function HomePage({ params }: PageProps) {
 
   // 達成コインの未演出キュー (2026-08-30)。coinCelebratedAt が null = ホーム演出待ち。
   // ガイド中は積んだまま出さない (完了後の帰着で再生・Q11)。先生ロールは対象外 (Q19)。
+  // trigger = 最後にそろった達成条件 (演出で巻き戻す行・2026-08-30 Tetsuo指定)。
+  // 達成レコードは曲演奏の解析時にのみ作られるため、確定演奏より前に崩壊ゼロ3回が
+  // 既にあれば、最後の条件は通しではなくレッスン/エチュード (直近の完了時刻で判別)。
   // 列追加 migration 前でもホームを落とさない read防御
-  let coinQueue: { scoreId: string; star: number }[] = []
+  let coinQueue: { scoreId: string; star: number; trigger: "run" | "lesson" | "etude" }[] = []
   if (dbUser.role !== "teacher" && !guideActive) {
     try {
       const rows = await prisma.userScoreAchievement.findMany({
         where: { userId: internalUserId, coinCelebratedAt: null },
         orderBy: { achievedAt: "asc" },
-        select: { scoreId: true, starAtAchievement: true },
+        select: { scoreId: true, starAtAchievement: true, achievedAt: true, achievedPerformanceId: true },
       })
-      coinQueue = rows.map((r) => ({ scoreId: r.scoreId, star: r.starAtAchievement }))
+      for (const r of rows) {
+        let trigger: "run" | "lesson" | "etude" = "run"
+        const trigPerf = r.achievedPerformanceId
+          ? await prisma.performance.findUnique({
+              where: { id: r.achievedPerformanceId },
+              select: { uploadedAt: true },
+            })
+          : null
+        if (trigPerf) {
+          const cleanBefore = await prisma.performance.count({
+            where: {
+              userId: internalUserId, scoreId: r.scoreId, rangeFromNote: null,
+              uploadedAt: { lt: trigPerf.uploadedAt },
+              analysisSummary: { path: ["diagnosis", "collapse", "is_clean"], equals: true },
+            },
+          })
+          if (cleanBefore >= 3) {
+            const [lastLesson, lastEtude] = await Promise.all([
+              prisma.userLessonClear.findFirst({
+                where: { userId: internalUserId, clearedAt: { lte: r.achievedAt } },
+                orderBy: { clearedAt: "desc" }, select: { clearedAt: true },
+              }),
+              prisma.userPracticeAchievement.findFirst({
+                where: { userId: internalUserId, achievedAt: { lte: r.achievedAt } },
+                orderBy: { achievedAt: "desc" }, select: { achievedAt: true },
+              }),
+            ])
+            const lessonT = lastLesson?.clearedAt.getTime() ?? 0
+            const etudeT = lastEtude?.achievedAt.getTime() ?? 0
+            if (lessonT > 0 || etudeT > 0) trigger = etudeT > lessonT ? "etude" : "lesson"
+          }
+        }
+        coinQueue.push({ scoreId: r.scoreId, star: r.starAtAchievement, trigger })
+      }
     } catch { coinQueue = [] }
   }
 
