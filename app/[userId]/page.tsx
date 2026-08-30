@@ -732,7 +732,10 @@ export default async function HomePage({ params }: PageProps) {
 
   // 報酬体系「ギャラリー」骨組み (2026-08-30): キルスイッチ (REWARD_SYSTEM_LIT=1) 配下。
   // 点灯前の本番では常に空=挙動不変。評価器はカウンター判定→メダル→マスター/称号の遅延発行
-  let treasureQueue: { id: string; kind: string; sourceId: string; catalogNo: number | null; earnedAt: string }[] = []
+  let treasureQueue: {
+    id: string; kind: string; sourceId: string; catalogNo: number | null; earnedAt: string
+    label?: string; stars?: number; certNo?: number
+  }[] = []
   if (dbUser.role !== "teacher" && !guideActive && dbUser.deletedAt == null) {
     try {
       const { rewardSystemLit, evaluateTreasures, getTreasureQueue } = await import("../_libs/treasureEngine")
@@ -743,6 +746,7 @@ export default async function HomePage({ params }: PageProps) {
         treasureQueue = rows.map((r) => ({
           id: r.id, kind: r.kind, sourceId: r.sourceId, catalogNo: r.catalogNo,
           earnedAt: r.earnedAt.toISOString(),
+          label: r.label, stars: r.stars, certNo: r.certNo,
         }))
         console.log(`[PERF] home treasure evaluator: ${(performance.now() - perfT0).toFixed(0)}ms`)
       }

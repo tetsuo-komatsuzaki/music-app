@@ -331,13 +331,62 @@ export async function grantRankUpTitle(userId: string, newStar: number): Promise
 
 /** 帰着キュー (授与待ちの宝物・格順: カード→称号→メダル→記念→証明書) */
 const KIND_ORDER = ["card", "title", "medal", "master_card", "cert"] as const
-export async function getTreasureQueue(userId: string) {
+export type TreasureQueueRow = {
+  id: string
+  kind: string
+  sourceType: string
+  sourceId: string
+  catalogNo: number | null
+  earnedAt: Date
+  /** マスター証明書の券面: 曲名 */
+  label?: string
+  /** マスター証明書の券面: 達成時の★ */
+  stars?: number
+  /** マスター証明書の券面: CERT No (獲得順の通し番号) */
+  certNo?: number
+}
+export async function getTreasureQueue(userId: string): Promise<TreasureQueueRow[]> {
   if (!rewardSystemLit()) return []
-  const rows = await prisma.userTreasure.findMany({
+  const rows: TreasureQueueRow[] = await prisma.userTreasure.findMany({
     where: { userId, awardedAt: null },
     orderBy: { earnedAt: "asc" },
     select: { id: true, kind: true, sourceType: true, sourceId: true, catalogNo: true, earnedAt: true },
   })
+
+  // マスター証明書の券面情報 (曲名・★・通し番号) を解決する。
+  // 通し番号は本人の全マスター証明書を earnedAt 順に並べた獲得順 (授与済み含む・欠番なし)
+  const pending = rows.filter((r) => r.kind === "cert" && r.sourceType === "master")
+  if (pending.length > 0) {
+    try {
+      const [allCerts, scores, achievements] = await Promise.all([
+        prisma.userTreasure.findMany({
+          where: { userId, kind: "cert", sourceType: "master" },
+          orderBy: { earnedAt: "asc" },
+          select: { id: true },
+        }),
+        prisma.score.findMany({
+          where: { id: { in: pending.map((r) => r.sourceId) } },
+          select: { id: true, title: true },
+        }),
+        prisma.userScoreAchievement.findMany({
+          where: { userId, scoreId: { in: pending.map((r) => r.sourceId) } },
+          select: { scoreId: true, starAtAchievement: true },
+        }),
+      ])
+      const certNoById = new Map(allCerts.map((c, i) => [c.id, i + 1]))
+      const titleByScore = new Map(scores.map((s) => [s.id, s.title]))
+      const starByScore = new Map(achievements.map((a) => [a.scoreId, a.starAtAchievement]))
+      for (const r of pending) {
+        r.label = titleByScore.get(r.sourceId)
+        r.stars = starByScore.get(r.sourceId)
+        r.certNo = certNoById.get(r.id)
+      }
+    } catch (e) {
+      // 券面情報が引けなくても授与自体は止めない (フォールバック文言で再生)
+      console.error("[treasure] cert face enrich failed:", e instanceof Error ? e.message : e)
+    }
+  }
+
   return rows.sort((a, b) => KIND_ORDER.indexOf(a.kind as never) - KIND_ORDER.indexOf(b.kind as never))
 }
 

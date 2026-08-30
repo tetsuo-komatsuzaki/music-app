@@ -32,14 +32,22 @@ if (typeof window !== "undefined" && !(window as unknown as { __tqStubbed?: bool
 const T = (kind: string, sourceId: string, catalogNo: number | null): TreasureQueueItem =>
   ({ id: `${kind}:${sourceId}`, kind, sourceId, catalogNo, earnedAt: "2026-08-30T09:00:00.000Z" })
 
+const CERT_DEMO: TreasureQueueItem = {
+  ...T("cert", "master:demo", null),
+  label: "きらきら星",
+  stars: 3,
+  certNo: 1,
+}
+
 const SCENARIOS: Record<string, { coins: boolean; treasures: TreasureQueueItem[] }> = {
   card: { coins: false, treasures: [T("card", "annotate", 2)] },
   mixed: {
     coins: true,
-    treasures: [T("card", "lesson_first", 3), T("card", "rec_10", 34), T("cert", "master:demo", null)],
+    treasures: [T("card", "lesson_first", 3), T("card", "rec_10", 34), CERT_DEMO],
   },
   coins: { coins: true, treasures: [T("card", "annotate", 2)] },
   medal: { coins: false, treasures: [T("medal", "5", null)] },
+  cert: { coins: false, treasures: [CERT_DEMO] },
 }
 
 export default function TreasureDemoClient({ scenario }: { scenario: string }) {

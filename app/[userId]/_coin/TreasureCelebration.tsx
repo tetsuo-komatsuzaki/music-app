@@ -16,6 +16,7 @@ import { consumeTreasures } from "@/app/actions/treasures"
 import { QUEST_BY_ID } from "@/app/_libs/treasureCatalog"
 import CardAwardMotion from "./CardAwardMotion"
 import MedalAwardMotion from "./MedalAwardMotion"
+import CertAwardMotion from "./CertAwardMotion"
 
 export type TreasureQueueItem = {
   id: string
@@ -24,6 +25,12 @@ export type TreasureQueueItem = {
   catalogNo: number | null
   /** 成果成立日 (券面の日付)。ISO文字列 */
   earnedAt?: string
+  /** 券面表示名 (マスター証明書=曲名)。サーバーで解決 */
+  label?: string
+  /** 曲の★数 (マスター証明書用) */
+  stars?: number
+  /** 通し番号 (マスター証明書のCERT No)。サーバー採番 */
+  certNo?: number
 }
 
 function faceDate(iso?: string): string {
@@ -105,6 +112,25 @@ export default function TreasureCelebration({
           sub: q?.sub ?? "",
           no: item.catalogNo,
           date: faceDate(item.earnedAt),
+        }}
+        onDone={next}
+      />,
+      document.body,
+    )
+  }
+
+  // マスター証明書は高級版v6の実装モーション (肉付け済)。
+  // kind "cert" は認定証 (クエストgrade・catalogNoあり) と共用のため、
+  // catalogNo なし=マスター起点のみここで再生する。認定証は高級版ファイル待ちで仮演出のまま
+  if (item.kind === "cert" && item.catalogNo == null) {
+    return createPortal(
+      <CertAwardMotion
+        key={item.id}
+        face={{
+          song: item.label ?? "この曲",
+          stars: item.stars ?? 1,
+          date: faceDate(item.earnedAt),
+          certNo: item.certNo ?? null,
         }}
         onDone={next}
       />,
