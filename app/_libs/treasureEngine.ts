@@ -157,13 +157,15 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
       m.mastered_songs = rows.filter((r) => r.masteredAt != null).length
     }))
   }
-  if (needed.has("score_total") || needed.has("score_pitch") || needed.has("score_timing") || needed.has("best_updates")) {
+  if (["score_total", "score_pitch", "score_timing", "best_updates", "songs_90", "songs_95", "first_take_90"]
+    .some((k) => needed.has(k as CounterMetric))) {
     jobs.push(prisma.performance.findMany({
       where: { userId, rangeFromNote: null, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
       orderBy: { uploadedAt: "asc" },
       select: { scoreId: true, pitchAccuracy: true, timingAccuracy: true },
     }).then((rows) => {
       let maxTotal = 0, maxPitch = 0, maxTiming = 0, bestUpdates = 0
+      let firstTake90 = 0
       const bestBySong = new Map<string, number>()
       for (const r of rows) {
         const total = ((r.pitchAccuracy ?? 0) + (r.timingAccuracy ?? 0)) / 2
@@ -172,6 +174,7 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
         maxTiming = Math.max(maxTiming, r.timingAccuracy ?? 0)
         if (r.scoreId) {
           const prev = bestBySong.get(r.scoreId)
+          if (prev == null && total >= 90) firstTake90 = 1
           if (prev != null && total > prev) bestUpdates++
           if (prev == null || total > prev) bestBySong.set(r.scoreId, total)
         }
@@ -180,6 +183,26 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
       m.score_pitch = maxPitch
       m.score_timing = maxTiming
       m.best_updates = bestUpdates
+      m.songs_90 = [...bestBySong.values()].filter((v) => v >= 90).length
+      m.songs_95 = [...bestBySong.values()].filter((v) => v >= 95).length
+      m.first_take_90 = firstTake90
+    }))
+  }
+  if (needed.has("song_rec_max")) {
+    jobs.push(prisma.performance.groupBy({
+      by: ["scoreId"], where: { userId }, _count: true,
+    }).then((rows) => {
+      m.song_rec_max = rows.reduce((mx, r) => Math.max(mx, r._count), 0)
+    }))
+  }
+  if (["cards_count", "medals_count", "treasures_count"].some((k) => needed.has(k as CounterMetric))) {
+    jobs.push(prisma.userTreasure.groupBy({
+      by: ["kind"], where: { userId }, _count: true,
+    }).then((rows) => {
+      const byKind = new Map(rows.map((r) => [r.kind, r._count]))
+      m.cards_count = byKind.get("card") ?? 0
+      m.medals_count = byKind.get("medal") ?? 0
+      m.treasures_count = rows.reduce((sum, r) => sum + r._count, 0)
     }))
   }
   if (needed.has("distinct_songs")) {
@@ -211,7 +234,9 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
   if (needed.has("annotations")) {
     jobs.push(prisma.scoreAnnotation.count({ where: { userId } }).then((n) => { m.annotations = n }))
   }
-  if (["streak", "week5", "week5_streak", "month20", "total_days"].some((k) => needed.has(k as CounterMetric))) {
+  if (["streak", "week5", "week5_streak", "month20", "total_days",
+    "day_rec5", "day_both", "weekend_both", "morning_rec", "comeback", "anniversary_1y"]
+    .some((k) => needed.has(k as CounterMetric))) {
     // 練習日の集合 (曲+基礎練の全期間。日付のみなので軽量・#1 streak90日窓問題の恒久対応)
     jobs.push(Promise.all([
       prisma.performance.findMany({ where: { userId }, select: { uploadedAt: true } }),
@@ -224,6 +249,40 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
       m.week5_streak = d.week5Streak
       m.month20 = d.month20
       m.total_days = d.totalDays
+
+      // ── 2026-08-31 追加分: 同じ2クエリから派生する日付系メトリクス ──
+      // 1日で5回以上の録音 (曲+基礎練の合算)
+      const perDay = new Map<string, number>()
+      for (const r of [...a, ...b]) {
+        const k = jstDate(r.uploadedAt)
+        perDay.set(k, (perDay.get(k) ?? 0) + 1)
+      }
+      m.day_rec5 = [...perDay.values()].some((n) => n >= 5) ? 1 : 0
+      // 同じ日に曲と基礎練の両方
+      const songDays = new Set(a.map((r) => jstDate(r.uploadedAt)))
+      m.day_both = b.some((r) => songDays.has(jstDate(r.uploadedAt))) ? 1 : 0
+      // 土曜と翌日曜の両方に練習した週がある
+      m.weekend_both = [...dates].some((day) => {
+        const dt = new Date(day + "T00:00:00Z")
+        if (dt.getUTCDay() !== 6) return false
+        const sunday = new Date(dt.getTime() + dayMs).toISOString().slice(0, 10)
+        return dates.has(sunday)
+      }) ? 1 : 0
+      // 朝5-9時 (JST) の録音がある
+      m.morning_rec = [...a, ...b].some((r) => {
+        const h = new Date(r.uploadedAt.getTime() + 9 * 3600_000).getUTCHours()
+        return h >= 5 && h < 9
+      }) ? 1 : 0
+      // 7日以上あけてからの再開 (連続する練習日の間に8日以上の間隔)
+      const sorted = [...dates].sort()
+      m.comeback = sorted.some((day, i) => {
+        if (i === 0) return false
+        const gap = (new Date(day + "T00:00:00Z").getTime() - new Date(sorted[i - 1] + "T00:00:00Z").getTime()) / dayMs
+        return gap >= 8
+      }) ? 1 : 0
+      // はじめての録音から365日
+      m.anniversary_1y = sorted.length > 0 &&
+        (Date.now() + 9 * 3600_000 - new Date(sorted[0] + "T00:00:00Z").getTime()) / dayMs >= 365 ? 1 : 0
     }))
   }
   if (needed.has("etude_runs")) {

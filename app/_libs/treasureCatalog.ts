@@ -40,6 +40,19 @@ export type CounterMetric =
   | "arpeggio_runs"     // アルペジオ教材の録音回数
   | "practice_keys"     // 基礎練で弾いた調の種類数 (閾値2=2つ目の調)
   | "practice_articulations" // 基礎練で弾いた奏法の種類数 (未指定=基本を1種と数える・閾値2)
+  | "songs_90"          // ベスト90点以上の曲数
+  | "songs_95"          // ベスト95点以上の曲数
+  | "first_take_90"     // どれかの曲で最初の録音が90点以上 (閾値1)
+  | "song_rec_max"      // 1曲あたりの録音回数の最大
+  | "day_rec5"          // 1日で5回以上録音した日がある (閾値1)
+  | "day_both"          // 同じ日に曲と基礎練の両方 (閾値1)
+  | "weekend_both"      // 土日どちらも練習した週がある (閾値1)
+  | "morning_rec"       // 朝5-9時の録音がある (閾値1)
+  | "comeback"          // 7日以上あけてから練習を再開した (閾値1)
+  | "anniversary_1y"    // はじめての録音から365日 (閾値1)
+  | "cards_count"       // カード宝物の枚数
+  | "medals_count"      // メダル宝物の個数
+  | "treasures_count"   // 宝物の総数 (全kind)
   | "action"            // UserActionCount の action 累計 (payload.action)
 
 export type QuestDef = {
@@ -120,6 +133,37 @@ export const QUESTS: QuestDef[] = [
   { no: 98, questId: "share_medal", title: "メダルをシェアする", sub: "節目のよろこびを一緒に", category: "シェアする", type: "event", hook: "メダルシェアaction (フェーズ3)" },
   // ── たからものあつめ ──
   { no: 89, questId: "cert_1", title: "はじめての証明書", sub: "マスターの証", category: "たからものあつめ", type: "counter", counter: { metric: "mastered_songs", threshold: 1 } },
+  // ── 追加30件 (2026-08-31 Tetsuo採用 C01-C06/C11-C26/C30/C37/C45-C50・全てカウンター型) ──
+  { no: 99, questId: "master_20", title: "マスター20曲", sub: "殿堂のさらに先", category: "曲の道", type: "counter", counter: { metric: "mastered_songs", threshold: 20 } },
+  { no: 100, questId: "songs90_3", title: "90点を3曲で", sub: "上手が当たり前に", category: "曲の道", type: "counter", counter: { metric: "songs_90", threshold: 3 } },
+  { no: 101, questId: "songs95_3", title: "95点を3曲で", sub: "完成度の職人", category: "曲の道", type: "counter", counter: { metric: "songs_95", threshold: 3 } },
+  { no: 102, questId: "score_100", title: "100点達成", sub: "満点の演奏", category: "曲の道", type: "counter", counter: { metric: "score_total", threshold: 100 } },
+  { no: 103, questId: "first_take_90", title: "一発で90点", sub: "最初の録音でいきなり", category: "曲の道", type: "counter", counter: { metric: "first_take_90", threshold: 1 } },
+  { no: 104, questId: "song_rec_10", title: "同じ曲を10回録音", sub: "1曲をとことん", category: "曲の道", type: "counter", counter: { metric: "song_rec_max", threshold: 10 } },
+  { no: 105, questId: "rec_1000", title: "録音1000回", sub: "伝説の練習量", category: "つみかさねの道", type: "counter", counter: { metric: "recordings", threshold: 1000 } },
+  { no: 106, questId: "basics_250", title: "基礎練250回", sub: "鋼の土台", category: "つみかさねの道", type: "counter", counter: { metric: "practice_runs", threshold: 250 } },
+  { no: 107, questId: "lessons_15", title: "学びのレッスン15", sub: "わざの図鑑ができていく", category: "つみかさねの道", type: "counter", counter: { metric: "lessons_cleared", threshold: 15 } },
+  { no: 108, questId: "scale_10", title: "音階を10回", sub: "音づくりの習慣", category: "つみかさねの道", type: "counter", counter: { metric: "scale_runs", threshold: 10 } },
+  { no: 109, questId: "arpeggio_10", title: "アルペジオを10回", sub: "和音の足腰", category: "つみかさねの道", type: "counter", counter: { metric: "arpeggio_runs", threshold: 10 } },
+  { no: 110, questId: "etude_10", title: "エチュードを10回", sub: "磨きの積み重ね", category: "つみかさねの道", type: "counter", counter: { metric: "etude_runs", threshold: 10 } },
+  { no: 111, questId: "day_rec5", title: "1日に5回録音", sub: "集中練習の日", category: "つみかさねの道", type: "counter", counter: { metric: "day_rec5", threshold: 1 } },
+  { no: 112, questId: "day_both", title: "1日で曲も基礎練も", sub: "バランスのよい練習", category: "つみかさねの道", type: "counter", counter: { metric: "day_both", threshold: 1 } },
+  { no: 113, questId: "streak_200", title: "200日つづける", sub: "道はまだつづく", category: "続ける力", type: "counter", counter: { metric: "streak", threshold: 200 } },
+  { no: 114, questId: "streak_365", title: "365日つづける", sub: "1年の道", category: "続ける力", type: "counter", counter: { metric: "streak", threshold: 365 } },
+  { no: 115, questId: "days_30", title: "のべ30日", sub: "ひと月ぶんの練習日", category: "続ける力", type: "counter", counter: { metric: "total_days", threshold: 30 } },
+  { no: 116, questId: "days_200", title: "のべ200日", sub: "積もる日々", category: "続ける力", type: "counter", counter: { metric: "total_days", threshold: 200 } },
+  { no: 117, questId: "weekend_both", title: "土日どちらも練習", sub: "週末の音楽家", category: "続ける力", type: "counter", counter: { metric: "weekend_both", threshold: 1 } },
+  { no: 118, questId: "morning_rec", title: "朝の練習をする", sub: "1日が音で始まる", category: "続ける力", type: "counter", counter: { metric: "morning_rec", threshold: 1 } },
+  { no: 119, questId: "comeback", title: "おかえり練習", sub: "休んでも戻ってこられた", category: "続ける力", type: "counter", counter: { metric: "comeback", threshold: 1 } },
+  { no: 120, questId: "week5_8", title: "週5日を8週連続", sub: "2ヶ月の充実", category: "続ける力", type: "counter", counter: { metric: "week5_streak", threshold: 8 } },
+  { no: 121, questId: "position_song", title: "ポジション移動の曲", sub: "左手の旅", category: "いろんな曲の旅", type: "counter", counter: { metric: "song_position", threshold: 1 } },
+  { no: 122, questId: "best_10", title: "自己ベストを10回更新", sub: "こえ続ける人", category: "じぶんの音をみがく", type: "counter", counter: { metric: "best_updates", threshold: 10 } },
+  { no: 123, questId: "cards_10", title: "カード10枚", sub: "集まり始めた思い出", category: "たからものあつめ", type: "counter", counter: { metric: "cards_count", threshold: 10 } },
+  { no: 124, questId: "cards_30", title: "カード30枚", sub: "りっぱなコレクション", category: "たからものあつめ", type: "counter", counter: { metric: "cards_count", threshold: 30 } },
+  { no: 125, questId: "medals_3", title: "メダルを3個", sub: "節目をかさねて", category: "たからものあつめ", type: "counter", counter: { metric: "medals_count", threshold: 3 } },
+  { no: 126, questId: "treasures_50", title: "宝物50個", sub: "ギャラリーがにぎやかに", category: "たからものあつめ", type: "counter", counter: { metric: "treasures_count", threshold: 50 } },
+  { no: 127, questId: "share_5", title: "シェア5回", sub: "応援がふえていく", category: "シェアする", type: "counter", counter: { metric: "action", threshold: 5, action: "share" } },
+  { no: 128, questId: "anniversary", title: "アルコ記念日", sub: "はじめての録音から1年", category: "たからものあつめ", type: "counter", counter: { metric: "anniversary_1y", threshold: 1 } },
 ]
 
 
