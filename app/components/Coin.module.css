@@ -1,0 +1,110 @@
+/* 達成コイン (2026-08-30 Tetsuo承認デザイン)。
+   正 = scratchpad/guide/build_coin_mock.py の .coin 一式 (実物寄せ版) の移植。
+   傾き13度+側面の厚み積層+深ベベル+金属粒子+異方性シーン+光沢スイープ。
+   サイズはルートの width/height (inline)、mark の文字は em (ルート font-size=size*0.11)。 */
+
+.coin {
+  position: relative;
+  display: block;
+  perspective: 340px;
+  filter: drop-shadow(0 7px 12px rgba(0, 0, 0, 0.55));
+}
+.tilt {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  transform: rotateX(13deg);
+}
+.edge {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(#8a6215 0deg 4deg, #ecc668 4deg 8deg);
+  box-shadow: inset 0 0 0 1px rgba(70, 48, 8, 0.85),
+    0 1.5px 0 #9a7018, 0 3px 0 #7d5a12, 0 4.5px 0 #64470e, 0 6px 0 #4e370a;
+}
+.face {
+  position: absolute;
+  inset: 6.5%;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: radial-gradient(circle at 32% 26%, #ffeeb0 0%, #f9dc86 16%, #f3c65f 34%, #dca432 58%, #a5761c 84%, #7d5a12 100%);
+  box-shadow: inset 0 3px 5px rgba(255, 246, 214, 0.95), inset 0 -5px 9px rgba(80, 52, 6, 0.7),
+    inset 0 0 2px rgba(70, 46, 6, 0.85);
+}
+.rim {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  border: 1.5px solid rgba(112, 76, 12, 0.6);
+  box-shadow: 0 1.5px 0 rgba(255, 240, 200, 0.65), inset 0 -1.5px 2px rgba(90, 60, 8, 0.5);
+}
+.arco {
+  position: relative;
+  width: 72%;
+  height: 72%;
+  object-fit: cover;
+  border-radius: 50%;
+  filter: grayscale(1) sepia(1) saturate(2.1) brightness(0.92) contrast(1.14);
+  mix-blend-mode: multiply;
+  opacity: 0.92;
+}
+.mark {
+  position: absolute;
+  bottom: 12%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 1em;
+  font-weight: 900;
+  letter-spacing: 0.28em;
+  color: rgba(90, 63, 8, 0.65);
+  text-shadow: 0 1px 0 rgba(255, 240, 200, 0.6);
+  text-transform: uppercase;
+}
+.sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: conic-gradient(from 215deg, rgba(255, 255, 255, 0.14), transparent 22%,
+    rgba(255, 255, 255, 0.05) 48%, transparent 72%, rgba(255, 255, 255, 0.14));
+}
+.grain {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0.2;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="120" height="120" filter="url(%23n)"/></svg>');
+}
+.gloss {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  pointer-events: none;
+}
+.gloss::after {
+  content: "";
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  left: -80%;
+  width: 55%;
+  background: linear-gradient(105deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 100%);
+  transform: rotate(8deg);
+  animation: coinGloss 2.2s 1.2s ease-in-out infinite;
+}
+@keyframes coinGloss {
+  0% { left: -80%; }
+  45% { left: 125%; }
+  100% { left: 125%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gloss::after { animation: none; }
+}

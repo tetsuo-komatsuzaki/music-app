@@ -6,17 +6,27 @@ import Link from "next/link"
 import styles from "./MyRankCard.module.css"
 import ds from "./ds.module.css"
 import ArcoMotion from "./ArcoMotion"
+import Coin from "./Coin"
 import {
   rankName, shortDate,
   type RankCardData,
 } from "@/app/_libs/rankCard"
 
-export default function MyRankCard(props: RankCardData & { onGuide?: () => void }) {
-  const { currentStar, required, achievedCount, stamps, onGuide } = props
+export default function MyRankCard(props: RankCardData & { onGuide?: () => void; flashAt?: number }) {
+  const { currentStar, required, achievedCount, stamps, onGuide, flashAt } = props
   const [open, setOpen] = useState(false)
   const [openStamp, setOpenStamp] = useState<number | null>(null)
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
+
+  // 達成コインの着地フラッシュ (2026-08-30 案A): コイン吸い込みと同時に金の発光+ゲージ+1
+  const [flashing, setFlashing] = useState(false)
+  useEffect(() => {
+    if (!flashAt) return
+    setFlashing(true)
+    const t = setTimeout(() => setFlashing(false), 750)
+    return () => clearTimeout(t)
+  }, [flashAt])
 
   // モーダル表示中は背景スクロールを止める
   useEffect(() => {
@@ -42,7 +52,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
         className={`${ds.card} pressable`}
         onClick={() => setOpen(true)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true) } }}
-        style={{ cursor: "pointer" }}
+        style={{ cursor: "pointer", animation: flashing ? "rankFlash .7s ease" : undefined }}
       >
         <div className={ds.lab}>MY RANK</div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginTop: 8 }}>
@@ -70,8 +80,10 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
           <span style={{ color: "var(--gold)", fontWeight: 800 }}>★{nextStar}をあと{remaining}曲</span>
         </div>
         <div className={`${ds.bar} ${ds.gold}`} data-anim="bar" style={{ marginTop: 7, ["--w" as string]: `${Math.round((achievedCount / Math.max(1, required)) * 100)}%` }}>
-          <i style={{ width: `${Math.round((achievedCount / Math.max(1, required)) * 100)}%` }} />
+          <i style={{ width: `${Math.round((achievedCount / Math.max(1, required)) * 100)}%`, transition: "width .5s ease" }} />
         </div>
+        {/* コイン着地の金フラッシュ (モック aFlash の移植) */}
+        <style>{`@keyframes rankFlash { 30% { box-shadow: 0 0 0 3px rgba(232,178,60,.8), 0 0 30px rgba(232,178,60,.5); } 100% { box-shadow: 0 0 0 3px rgba(232,178,60,0); } }`}</style>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 9 }}>
           {onGuide ? (
             <button
@@ -107,20 +119,13 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
                     <button
                       key={s.scoreId}
                       type="button"
-                      aria-label={`${s.title} ベスト${s.best ?? "—"}点`}
+                      aria-label={s.title}
                       onClick={() => setOpenStamp(openStamp === i ? null : i)}
                       style={{ position: "relative", flex: "none", marginLeft: i ? -14 : 0, zIndex: i, border: "none", background: "transparent", padding: 0, cursor: "pointer" }}
                     >
-                      <span className={styles.coinPop} style={{
-                        width: 56, height: 56, borderRadius: "50%", display: "grid", placeItems: "center",
-                        background: "radial-gradient(circle at 34% 28%,#FFE08A,#E8B23C 52%,#A5761C)",
-                        border: "1.5px solid rgba(255,240,200,.5)", boxShadow: "0 4px 12px rgba(0,0,0,.4)",
-                        animationDelay: `${0.5 + i * 0.12}s`,
-                      }}>
-                        <span style={{ textAlign: "center", color: "#3A2705" }}>
-                          <span style={{ display: "block", fontSize: 16, fontWeight: 900, lineHeight: 1 }}>{s.best ?? "♪"}</span>
-                          {s.best != null && <span style={{ display: "block", fontSize: 7.5, fontWeight: 800, opacity: 0.72, marginTop: -1 }}>点</span>}
-                        </span>
+                      {/* 達成コイン統一デザイン (2026-08-30 Q8: 点数刻印なし・アルコ彫刻) */}
+                      <span className={styles.coinPop} style={{ display: "block", width: 56, height: 56, animationDelay: `${0.5 + i * 0.12}s` }}>
+                        <Coin size={56} />
                       </span>
                     </button>
                   ))}
@@ -139,7 +144,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void 
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <b style={{ fontSize: 12.5, color: "var(--text-ink)" }}>{stamps[openStamp].title}</b>
                       <span style={{ display: "block", fontSize: 10, color: "var(--text-muted)", marginTop: 1 }}>
-                        {shortDate(stamps[openStamp].achievedAt)} ・ ベスト {stamps[openStamp].best ?? "—"}点
+                        {shortDate(stamps[openStamp].achievedAt)} に達成
                       </span>
                     </div>
                     <Link href={stamps[openStamp].href} className={`${ds.pill} ${ds.mute}`} style={{ fontSize: 11, color: "var(--text-ink)", flex: "none", textDecoration: "none" }}>
