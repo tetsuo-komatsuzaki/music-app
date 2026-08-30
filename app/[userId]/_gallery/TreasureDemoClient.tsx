@@ -71,10 +71,13 @@ export default function TreasureDemoClient({ scenario }: { scenario: string }) {
           treasures={[
             { kind: "card", sourceId: "first_loop", catalogNo: 1, earnedAt: "2026-08-30" },
             { kind: "card", sourceId: "annotate", catalogNo: 2, earnedAt: "2026-08-30" },
+            { kind: "card", sourceId: "tempo_change", catalogNo: 12, earnedAt: "2026-08-30" },
             { kind: "title", sourceId: "2", catalogNo: null, earnedAt: "2026-08-30" },
-            { kind: "master_card", sourceId: "card:a", catalogNo: null, earnedAt: "2026-08-30" },
+            { kind: "master_card", sourceId: "card:a", catalogNo: null, earnedAt: "2026-08-30", label: "きらきら星" },
             { kind: "medal", sourceId: "5", catalogNo: null, earnedAt: "2026-08-30" },
-            { kind: "cert", sourceId: "きらきら星", catalogNo: null, earnedAt: "2026-08-30" },
+            { kind: "medal", sourceId: "10", catalogNo: null, earnedAt: "2026-08-30" },
+            { kind: "cert", sourceId: "master:a", catalogNo: null, earnedAt: "2026-08-30", label: "きらきら星" },
+            { kind: "cert", sourceId: "streak_100", catalogNo: 51, earnedAt: "2026-08-30" },
           ]}
         />
       </div>

@@ -120,6 +120,8 @@ type AnalysisData = {
 type Props = {
   score: { id: string; title: string; badge?: "mastered" | "achieved" | null }
   userId: string
+  /** 報酬体系キルスイッチ (宝物予告の文言用・サーバーで解決) */
+  rewardLit?: boolean
   analysis: AnalysisData | null
   buildUrl: string | null
   /**
@@ -1099,6 +1101,7 @@ export default function ScoreDetail(props: Props) {
 function ScoreDetailInner({
   score,
   userId,
+  rewardLit,
   uploadAction,
   analysis,
   buildUrl,
@@ -3320,10 +3323,10 @@ function ScoreDetailInner({
       .slice()
       .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
     const perf = cands[0] ?? null
-    if (!perf) return { perf: null, events: [] }
+    if (!perf) return { perf: null, events: [], bestFlag }
     const events = parseMilestoneEvents(perf.analysisSummary)
     if (bestFlag.get(perf.id)) events.push({ type: "personal_best", tier: "medium", payload: {} })
-    return { perf, events }
+    return { perf, events, bestFlag }
   }, [performances])
   const celebrationPerf = celebration.perf
   // celebEvents は全画面祝い削除により未使用 (2026-08-12)
@@ -4024,6 +4027,15 @@ function ScoreDetailInner({
           scoreId={score.id}
           userId={userId}
           perf={{ id: arcoResult.id, pitchAccuracy: arcoResult.pitchAccuracy ?? null, timingAccuracy: arcoResult.timingAccuracy ?? null }}
+          // 祝い階層 (2026-08-31): この演奏で起きた節目 (milestone+自己ベスト) を渡す
+          events={(() => {
+            const p = performances.find((x) => x.id === arcoResult.id)
+            const ev = p ? parseMilestoneEvents(p.analysisSummary).map((e) => e.type) : []
+            if (celebration.bestFlag?.get(arcoResult.id)) ev.push("personal_best")
+            return ev
+          })()}
+          rewardLit={rewardLit}
+          songTitle={score.title}
           onClose={() => { setArcoResult(null); if (isScoreMode) handleTabChange("review") }}
         />
       )}

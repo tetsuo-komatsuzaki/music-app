@@ -308,6 +308,7 @@ export default async function Page({
           badge: badgeKind(songMastery),
         }}
         userId={userId}
+        rewardLit={process.env.REWARD_SYSTEM_LIT === "1"}
         analysis={analysisData}
         uploadAction={uploadRecord}
         parts={groupParts}
