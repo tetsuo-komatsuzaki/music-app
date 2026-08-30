@@ -13,10 +13,11 @@
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { consumeTreasures } from "@/app/actions/treasures"
-import { QUEST_BY_ID } from "@/app/_libs/treasureCatalog"
+import { NINTEI_FACES, QUEST_BY_ID } from "@/app/_libs/treasureCatalog"
 import CardAwardMotion from "./CardAwardMotion"
 import MedalAwardMotion from "./MedalAwardMotion"
 import CertAwardMotion from "./CertAwardMotion"
+import NinteiAwardMotion from "./NinteiAwardMotion"
 
 export type TreasureQueueItem = {
   id: string
@@ -119,9 +120,31 @@ export default function TreasureCelebration({
     )
   }
 
+  // 認定証は高級版v8の実装モーション (肉付け済)。kind "cert" のうち
+  // catalogNo あり=クエストgrade cert (最難関6件)。券面文言は NINTEI_FACES (草案)
+  if (item.kind === "cert" && item.catalogNo != null) {
+    const q = QUEST_BY_ID.get(item.sourceId)
+    const f = NINTEI_FACES[item.sourceId]
+    return createPortal(
+      <NinteiAwardMotion
+        key={item.id}
+        face={{
+          big: f?.big ?? q?.title ?? "認定証",
+          kindLine: f?.kindLine ?? "アルコの認定証",
+          body1: f?.body1 ?? (q?.sub ?? ""),
+          body2: f?.body2 ?? "",
+          date: faceDate(item.earnedAt),
+          certNo: null,
+        }}
+        onDone={next}
+      />,
+      document.body,
+    )
+  }
+
   // マスター証明書は高級版v6の実装モーション (肉付け済)。
   // kind "cert" は認定証 (クエストgrade・catalogNoあり) と共用のため、
-  // catalogNo なし=マスター起点のみここで再生する。認定証は高級版ファイル待ちで仮演出のまま
+  // catalogNo なし=マスター起点のみここで再生する
   if (item.kind === "cert" && item.catalogNo == null) {
     return createPortal(
       <CertAwardMotion

@@ -155,6 +155,47 @@ export const QUESTS: QuestDef[] = [
 /** メダル = カード枚数の節目 (枚数は草案・観点16: 変更時も番号=枚数は不変) */
 export const MEDAL_MILESTONES = [5, 10, 20, 30, 50] as const
 
+/** 認定証 (grade cert・最難関6件) の券面文言。大見出し/種別行/本文2行 (草案・中身確定で差し替え可) */
+export type NinteiFaceDef = { big: string; kindLine: string; body1: string; body2: string }
+export const NINTEI_FACES: Record<string, NinteiFaceDef> = {
+  master_10: {
+    big: "10 MASTERS",
+    kindLine: "栄冠の認定証",
+    body1: "10曲をマスターしたことを ここに認定します",
+    body2: "その音は もう堂々たる演奏家のものです",
+  },
+  rec_500: {
+    big: "500 TAKES",
+    kindLine: "つみかさねの認定証",
+    body1: "500回の録音を かさねたことを ここに認定します",
+    body2: "ひとつひとつの挑戦が いまの音を作りました",
+  },
+  lessons_all: {
+    big: "ALL LESSONS",
+    kindLine: "わざの認定証",
+    body1: "すべての学びのレッスンを 修めたことを ここに認定します",
+    body2: "身につけたわざは 一生の宝物です",
+  },
+  streak_100: {
+    big: "100 DAYS",
+    kindLine: "継続の認定証",
+    body1: "100日つづけて練習したことを ここに認定します",
+    body2: "続ける力は いちばんの才能です",
+  },
+  songs_20: {
+    big: "20 SONGS",
+    kindLine: "旅の認定証",
+    body1: "20曲の物語を 奏でたことを ここに認定します",
+    body2: "あなたの音楽の世界は 大きく広がりました",
+  },
+  cert_3: {
+    big: "3 CERTIFICATES",
+    kindLine: "誇りの認定証",
+    body1: "マスター証明書を3枚 あつめたことを ここに認定します",
+    body2: "誇りの棚は これからも増えていきます",
+  },
+}
+
 export const QUEST_BY_ID = new Map(QUESTS.map((q) => [q.questId, q]))
 export const EVENT_QUESTS = QUESTS.filter((q) => q.type === "event")
 export const COUNTER_QUESTS = QUESTS.filter((q) => q.type === "counter")

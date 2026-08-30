@@ -48,6 +48,7 @@ const SCENARIOS: Record<string, { coins: boolean; treasures: TreasureQueueItem[]
   coins: { coins: true, treasures: [T("card", "annotate", 2)] },
   medal: { coins: false, treasures: [T("medal", "5", null)] },
   cert: { coins: false, treasures: [CERT_DEMO] },
+  nintei: { coins: false, treasures: [T("cert", "streak_100", 51)] },
 }
 
 export default function TreasureDemoClient({ scenario }: { scenario: string }) {

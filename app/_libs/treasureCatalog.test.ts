@@ -1,7 +1,7 @@
 // カタログの機械検収 (観点14: 文言lint / 観点16: 番号規約)。
 // 中身の変更はこのテストが通る形でのみ許可する。
 import { describe, expect, it } from "vitest"
-import { CLIENT_EVENT_QUEST_IDS, COUNTER_QUESTS, EVENT_QUESTS, MEDAL_MILESTONES, QUESTS } from "./treasureCatalog"
+import { CLIENT_EVENT_QUEST_IDS, COUNTER_QUESTS, EVENT_QUESTS, MEDAL_MILESTONES, NINTEI_FACES, QUESTS } from "./treasureCatalog"
 
 describe("treasureCatalog", () => {
   it("番号とquestIdがユニーク (再利用禁止)", () => {
@@ -38,6 +38,22 @@ describe("treasureCatalog", () => {
   it("認定証は最難関6件のみ", () => {
     expect(QUESTS.filter((q) => q.grade === "cert").map((q) => q.no).sort((a, b) => a - b))
       .toEqual([30, 39, 45, 51, 59, 90])
+  })
+
+  it("認定証の券面はcert 6件と一対一・文言規約に適合", () => {
+    const certIds = QUESTS.filter((q) => q.grade === "cert").map((q) => q.questId).sort()
+    expect(Object.keys(NINTEI_FACES).sort()).toEqual(certIds)
+    const banned = /[()（）]/
+    const emoji = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}]/u
+    for (const [id, f] of Object.entries(NINTEI_FACES)) {
+      for (const text of [f.big, f.kindLine, f.body1, f.body2]) {
+        expect(banned.test(text), `${id} ${text}`).toBe(false)
+        expect(emoji.test(text), `${id} ${text}`).toBe(false)
+      }
+      expect(f.kindLine.endsWith("の認定証"), `${id} 種別行は〜の認定証`).toBe(true)
+      expect(f.body1.length, `${id} body1 too long`).toBeLessThanOrEqual(30)
+      expect(f.body2.length, `${id} body2 too long`).toBeLessThanOrEqual(30)
+    }
   })
 
   it("メダルの節目は昇順ユニーク", () => {
