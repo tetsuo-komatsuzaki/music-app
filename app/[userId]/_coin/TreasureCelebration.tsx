@@ -18,6 +18,8 @@ import CardAwardMotion from "./CardAwardMotion"
 import MedalAwardMotion from "./MedalAwardMotion"
 import CertAwardMotion from "./CertAwardMotion"
 import NinteiAwardMotion from "./NinteiAwardMotion"
+import TitleAwardMotion from "./TitleAwardMotion"
+import { rankName } from "@/app/_libs/rankCard"
 
 export type TreasureQueueItem = {
   id: string
@@ -114,6 +116,19 @@ export default function TreasureCelebration({
           no: item.catalogNo,
           date: faceDate(item.earnedAt),
         }}
+        onDone={next}
+      />,
+      document.body,
+    )
+  }
+
+  // 称号カードは結晶パターンの実装モーション (肉付け済)。sourceId=新しい★
+  if (item.kind === "title") {
+    const star = Number(item.sourceId) || 1
+    return createPortal(
+      <TitleAwardMotion
+        key={item.id}
+        face={{ star, rankName: rankName(star), date: faceDate(item.earnedAt) }}
         onDone={next}
       />,
       document.body,
