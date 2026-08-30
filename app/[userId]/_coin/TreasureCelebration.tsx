@@ -15,6 +15,7 @@ import { createPortal } from "react-dom"
 import { consumeTreasures } from "@/app/actions/treasures"
 import { QUEST_BY_ID } from "@/app/_libs/treasureCatalog"
 import CardAwardMotion from "./CardAwardMotion"
+import MedalAwardMotion from "./MedalAwardMotion"
 
 export type TreasureQueueItem = {
   id: string
@@ -83,6 +84,14 @@ export default function TreasureCelebration({
   const next = () => {
     if (idx + 1 < playQueue.length) setIdx(idx + 1)
     else { setDone(true); onDone?.() }
+  }
+
+  // メダルは高級版v4の実装モーション (肉付け済)
+  if (item.kind === "medal") {
+    return createPortal(
+      <MedalAwardMotion key={item.id} count={Number(item.sourceId) || 0} onDone={next} />,
+      document.body,
+    )
   }
 
   // カードは高級版v3の実装モーション (肉付け済)。他種は券面確定まで仮演出
