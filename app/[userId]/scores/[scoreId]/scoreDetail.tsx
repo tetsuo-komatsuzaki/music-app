@@ -3549,7 +3549,8 @@ function ScoreDetailInner({
                   onChange={(e) => selectPerformanceById(e.target.value || null)}
                   style={selected ? { color: "var(--gold)" } : undefined} /* 原本 №04: 選択中の演奏名=金 */
                 >
-                  <option value="">演奏モード・演奏を選ぶと採点を表示</option>
+                  {/* 「演奏モード」の表記は削除 (2026-08-30 Tetsuo指示) */}
+                  <option value="">演奏を選ぶと採点を表示</option>
                   {performances.map((p) => (
                     <option key={p.id} value={p.id}>
                       {(p.name ?? "Performance")}{p.rangeFromNote != null ? "" : ""} ・ {new Date(p.uploadedAt).toLocaleDateString("ja-JP")}

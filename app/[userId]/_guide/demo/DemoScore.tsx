@@ -26,7 +26,7 @@ export default function DemoScore({
       <DemoScoreTabs active="score" />
 
       <div style={{ marginTop: 12, background: "rgba(16,26,50,.7)", border: "1px solid rgba(150,175,225,.14)", borderRadius: 12, padding: "11px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", color: "var(--text-sub)", fontSize: 12, fontWeight: 700 }}>
-        演奏モード ・ 演奏を選ぶと採点を表示 <ChevronDown size={15} />
+        演奏を選ぶと採点を表示 <ChevronDown size={15} />
       </div>
 
       {/* 楽譜カード */}
