@@ -378,11 +378,29 @@ function thresholdOf(q: QuestDef): number {
 export async function evaluateTreasures(userId: string): Promise<{ silentGranted: number; firstRun: boolean }> {
   if (!rewardSystemLit()) return { silentGranted: 0, firstRun: false }
 
-  const [guideState, cleared] = await Promise.all([
-    prisma.userGuideState.findUnique({ where: { userId }, select: { treasureEvaluatedAt: true } }),
-    prisma.userQuestClear.findMany({ where: { userId }, select: { questId: true } }),
-  ])
+  const guideState = await prisma.userGuideState.findUnique({
+    where: { userId }, select: { treasureEvaluatedAt: true },
+  })
   const firstRun = guideState?.treasureEvaluatedAt == null
+
+  // ── 性能対策 (2026-08-31): 前回評価から練習・宝物・操作累計に変化がなく、
+  // 24時間以内 (日付またぎ系クエストは日次で拾い直す) なら重い集計を丸ごと省く。
+  // 帰着キューは呼び手が getTreasureQueue で別途読むので授与は欠けない
+  const lastEval = guideState?.treasureEvaluatedAt
+  if (!firstRun && lastEval && Date.now() - lastEval.getTime() < 24 * 3600_000) {
+    const [p1, p2, t1, a1] = await Promise.all([
+      prisma.performance.findFirst({ where: { userId, uploadedAt: { gt: lastEval } }, select: { id: true } }),
+      prisma.practicePerformance.findFirst({ where: { userId, uploadedAt: { gt: lastEval } }, select: { id: true } }),
+      prisma.userTreasure.findFirst({ where: { userId, earnedAt: { gt: lastEval } }, select: { id: true } }),
+      prisma.userActionCount.findFirst({ where: { userId, updatedAt: { gt: lastEval } }, select: { action: true } }),
+    ])
+    if (!p1 && !p2 && !t1 && !a1) return { silentGranted: 0, firstRun: false }
+  }
+
+  // この後の発行 (earnedAt) より前の時刻を刻むことで、発行があった場合は次回も
+  // 変化ありと判定→もう1周だけ走ってメタ系 (カード枚数等) を拾い、以後スキップに収束する
+  const evalStartedAt = new Date()
+  const cleared = await prisma.userQuestClear.findMany({ where: { userId }, select: { questId: true } })
   const clearedSet = new Set(cleared.map((c) => c.questId))
   const targets = COUNTER_QUESTS.filter((q) => !clearedSet.has(q.questId))
 
@@ -431,10 +449,11 @@ export async function evaluateTreasures(userId: string): Promise<{ silentGranted
     })
   }
 
+  // 評価済み時刻を毎回刻む (性能対策のスキップ判定が参照する・評価開始時刻)
   await prisma.userGuideState.upsert({
     where: { userId },
-    create: { userId, treasureEvaluatedAt: new Date() },
-    update: firstRun ? { treasureEvaluatedAt: new Date() } : {},
+    create: { userId, treasureEvaluatedAt: evalStartedAt },
+    update: { treasureEvaluatedAt: evalStartedAt },
   })
   return { silentGranted, firstRun }
 }
