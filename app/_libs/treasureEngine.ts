@@ -11,7 +11,7 @@
 
 import { prisma } from "./prisma"
 import {
-  COUNTER_QUESTS, MEDAL_MILESTONES, QUEST_BY_ID,
+  COUNTER_QUESTS, MEDAL_MILESTONES, QUESTS, QUEST_BY_ID,
   type CounterMetric, type QuestDef,
 } from "./treasureCatalog"
 import { LESSONS } from "@/app/[userId]/lessons/_lib/content"
@@ -195,14 +195,19 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
       m.song_rec_max = rows.reduce((mx, r) => Math.max(mx, r._count), 0)
     }))
   }
-  if (["cards_count", "medals_count", "treasures_count"].some((k) => needed.has(k as CounterMetric))) {
+  if (["cards_count", "medals_count", "treasures_count", "titles_count", "nintei_count", "cards_all"]
+    .some((k) => needed.has(k as CounterMetric))) {
     jobs.push(prisma.userTreasure.groupBy({
-      by: ["kind"], where: { userId }, _count: true,
+      by: ["kind", "sourceType"], where: { userId }, _count: true,
     }).then((rows) => {
-      const byKind = new Map(rows.map((r) => [r.kind, r._count]))
-      m.cards_count = byKind.get("card") ?? 0
-      m.medals_count = byKind.get("medal") ?? 0
-      m.treasures_count = rows.reduce((sum, r) => sum + r._count, 0)
+      const sum = (pred: (r: { kind: string; sourceType: string }) => boolean) =>
+        rows.filter(pred).reduce((n, r) => n + r._count, 0)
+      m.cards_count = sum((r) => r.kind === "card")
+      m.medals_count = sum((r) => r.kind === "medal")
+      m.titles_count = sum((r) => r.kind === "title")
+      // 認定証 = クエスト由来のcert (マスター証明書は sourceType "master")
+      m.nintei_count = sum((r) => r.kind === "cert" && r.sourceType === "quest")
+      m.treasures_count = sum(() => true)
     }))
   }
   if (needed.has("distinct_songs")) {
@@ -235,11 +240,12 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
     jobs.push(prisma.scoreAnnotation.count({ where: { userId } }).then((n) => { m.annotations = n }))
   }
   if (["streak", "week5", "week5_streak", "month20", "total_days",
-    "day_rec5", "day_both", "weekend_both", "morning_rec", "comeback", "anniversary_1y"]
+    "day_rec5", "day_both", "weekend_both", "morning_rec", "comeback", "anniversary_1y",
+    "week7", "practice_streak", "day_songs_max"]
     .some((k) => needed.has(k as CounterMetric))) {
-    // 練習日の集合 (曲+基礎練の全期間。日付のみなので軽量・#1 streak90日窓問題の恒久対応)
+    // 練習日の集合 (曲+基礎練の全期間。日付+曲IDのみなので軽量・#1 streak90日窓問題の恒久対応)
     jobs.push(Promise.all([
-      prisma.performance.findMany({ where: { userId }, select: { uploadedAt: true } }),
+      prisma.performance.findMany({ where: { userId }, select: { uploadedAt: true, scoreId: true } }),
       prisma.practicePerformance.findMany({ where: { userId }, select: { uploadedAt: true } }),
     ]).then(([a, b]) => {
       const dates = new Set([...a, ...b].map((r) => jstDate(r.uploadedAt)))
@@ -268,11 +274,13 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
         const sunday = new Date(dt.getTime() + dayMs).toISOString().slice(0, 10)
         return dates.has(sunday)
       }) ? 1 : 0
-      // 朝5-9時 (JST) の録音がある
-      m.morning_rec = [...a, ...b].some((r) => {
+      // 朝5-9時 (JST) に録音した日数 (118=1日 / 130=5日)
+      const morningDays = new Set<string>()
+      for (const r of [...a, ...b]) {
         const h = new Date(r.uploadedAt.getTime() + 9 * 3600_000).getUTCHours()
-        return h >= 5 && h < 9
-      }) ? 1 : 0
+        if (h >= 5 && h < 9) morningDays.add(jstDate(r.uploadedAt))
+      }
+      m.morning_rec = morningDays.size
       // 7日以上あけてからの再開 (連続する練習日の間に8日以上の間隔)
       const sorted = [...dates].sort()
       m.comeback = sorted.some((day, i) => {
@@ -283,6 +291,26 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
       // はじめての録音から365日
       m.anniversary_1y = sorted.length > 0 &&
         (Date.now() + 9 * 3600_000 - new Date(sorted[0] + "T00:00:00Z").getTime()) / dayMs >= 365 ? 1 : 0
+      // 週7日練習した週がある (月曜起点)
+      const weekDays = new Map<string, number>()
+      for (const day of dates) {
+        const dt = new Date(day + "T00:00:00Z")
+        const dow = (dt.getUTCDay() + 6) % 7
+        const monday = new Date(dt.getTime() - dow * dayMs).toISOString().slice(0, 10)
+        weekDays.set(monday, (weekDays.get(monday) ?? 0) + 1)
+      }
+      m.week7 = [...weekDays.values()].some((n) => n >= 7) ? 1 : 0
+      // 基礎練だけの連続日数
+      m.practice_streak = dayMetrics(new Set(b.map((r) => jstDate(r.uploadedAt)))).streak
+      // 1日で弾いた曲数の最大 (distinct scoreId)
+      const daySongs = new Map<string, Set<string>>()
+      for (const r of a) {
+        if (!r.scoreId) continue
+        const k = jstDate(r.uploadedAt)
+        if (!daySongs.has(k)) daySongs.set(k, new Set())
+        daySongs.get(k)!.add(r.scoreId)
+      }
+      m.day_songs_max = [...daySongs.values()].reduce((mx, s2) => Math.max(mx, s2.size), 0)
     }))
   }
   if (needed.has("etude_runs")) {
@@ -300,16 +328,19 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
       where: { userId, practiceItem: { category: "arpeggio" } },
     }).then((n) => { m.arpeggio_runs = n }))
   }
-  if (needed.has("practice_keys") || needed.has("practice_articulations")) {
-    // 弾いたことのある基礎練教材の種類 (distinct practiceItem) から調・奏法の種類数を数える。
+  if (["practice_keys", "practice_articulations", "practice_categories", "etude_distinct"]
+    .some((k) => needed.has(k as CounterMetric))) {
+    // 弾いたことのある基礎練教材の種類 (distinct practiceItem) から調・奏法・カテゴリの種類数を数える。
     // 奏法未指定 (null) は基本の1種と数える → 閾値2=基本以外を1つ試した時点で成立
     jobs.push(prisma.practicePerformance.findMany({
       where: { userId },
       distinct: ["practiceItemId"],
-      select: { practiceItem: { select: { keyTonic: true, keyMode: true, articulation: true } } },
+      select: { practiceItemId: true, practiceItem: { select: { keyTonic: true, keyMode: true, articulation: true, category: true } } },
     }).then((rows) => {
       m.practice_keys = new Set(rows.map((r) => `${r.practiceItem.keyTonic}:${r.practiceItem.keyMode}`)).size
       m.practice_articulations = new Set(rows.map((r) => r.practiceItem.articulation ?? "basic")).size
+      m.practice_categories = new Set(rows.map((r) => r.practiceItem.category)).size
+      m.etude_distinct = new Set(rows.filter((r) => r.practiceItem.category === "etude").map((r) => r.practiceItemId)).size
     }))
   }
   if (neededActions.size > 0) {
@@ -322,6 +353,8 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
 }
 
 function metricValue(m: Metrics, q: QuestDef): number {
+  // cards_all の実体はカード枚数 (閾値側が動的)
+  if (q.counter?.metric === "cards_all") return m.cards_count ?? 0
   const c = q.counter
   if (!c) return 0
   if (c.metric === "action") return m.actions.get(c.action ?? "") ?? 0
@@ -330,6 +363,10 @@ function metricValue(m: Metrics, q: QuestDef): number {
 
 function thresholdOf(q: QuestDef): number {
   if (q.counter?.metric === "lessons_all") return LESSONS.length
+  // カード全制覇: カード格 (認定証以外) のクエスト数 - 1 (自分のカードは達成後に出るため除く)
+  if (q.counter?.metric === "cards_all") {
+    return QUESTS.filter((x) => x.grade !== "cert").length - 1
+  }
   return q.counter?.threshold ?? Infinity
 }
 

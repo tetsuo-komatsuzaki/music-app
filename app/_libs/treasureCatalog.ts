@@ -47,12 +47,20 @@ export type CounterMetric =
   | "day_rec5"          // 1日で5回以上録音した日がある (閾値1)
   | "day_both"          // 同じ日に曲と基礎練の両方 (閾値1)
   | "weekend_both"      // 土日どちらも練習した週がある (閾値1)
-  | "morning_rec"       // 朝5-9時の録音がある (閾値1)
+  | "morning_rec"       // 朝5-9時に録音した日数 (118=1日 / 130=5日)
   | "comeback"          // 7日以上あけてから練習を再開した (閾値1)
   | "anniversary_1y"    // はじめての録音から365日 (閾値1)
   | "cards_count"       // カード宝物の枚数
   | "medals_count"      // メダル宝物の個数
   | "treasures_count"   // 宝物の総数 (全kind)
+  | "week7"             // 週7日練習した週がある (閾値1)
+  | "practice_streak"   // 基礎練だけの連続日数
+  | "day_songs_max"     // 1日で弾いた曲数の最大
+  | "practice_categories" // 基礎練で弾いたカテゴリ種類数 (scale/arpeggio/etude/fingering...)
+  | "etude_distinct"    // 弾いたことのあるエチュード教材の数
+  | "titles_count"      // 称号カードの枚数 (=ランクアップ回数)
+  | "nintei_count"      // 認定証の枚数 (kind cert + sourceType quest)
+  | "cards_all"         // カード全制覇 (閾値は動的=カード格クエスト数-1・自分の分を除く)
   | "action"            // UserActionCount の action 累計 (payload.action)
 
 export type QuestDef = {
@@ -164,6 +172,25 @@ export const QUESTS: QuestDef[] = [
   { no: 126, questId: "treasures_50", title: "宝物50個", sub: "ギャラリーがにぎやかに", category: "たからものあつめ", type: "counter", counter: { metric: "treasures_count", threshold: 50 } },
   { no: 127, questId: "share_5", title: "シェア5回", sub: "応援がふえていく", category: "シェアする", type: "counter", counter: { metric: "action", threshold: 5, action: "share" } },
   { no: 128, questId: "anniversary", title: "アルコ記念日", sub: "はじめての録音から1年", category: "たからものあつめ", type: "counter", counter: { metric: "anniversary_1y", threshold: 1 } },
+  // ── 追加18件 (2026-08-31 Tetsuo採用D案・全てカウンター型) → 計100件 ──
+  { no: 129, questId: "week7", title: "週7日練習する", sub: "パーフェクトな1週間", category: "続ける力", type: "counter", counter: { metric: "week7", threshold: 1 } },
+  { no: 130, questId: "morning_5", title: "朝練を5回", sub: "朝型の音楽家", category: "続ける力", type: "counter", counter: { metric: "morning_rec", threshold: 5 } },
+  { no: 131, questId: "practice_streak7", title: "基礎練を7日つづける", sub: "土台を毎日", category: "続ける力", type: "counter", counter: { metric: "practice_streak", threshold: 7 } },
+  { no: 132, questId: "day_songs3", title: "1日で3曲弾く", sub: "気分はコンサート", category: "つみかさねの道", type: "counter", counter: { metric: "day_songs_max", threshold: 3 } },
+  { no: 133, questId: "practice_cat4", title: "基礎練を4種類", sub: "メニューの使い分け", category: "つみかさねの道", type: "counter", counter: { metric: "practice_categories", threshold: 4 } },
+  { no: 134, questId: "etude_kinds3", title: "エチュードを3種類", sub: "いろんな磨き方", category: "つみかさねの道", type: "counter", counter: { metric: "etude_distinct", threshold: 3 } },
+  { no: 135, questId: "scale_50", title: "音階を50回", sub: "基本をきわめる", category: "つみかさねの道", type: "counter", counter: { metric: "scale_runs", threshold: 50 } },
+  { no: 136, questId: "lessons_20", title: "学びのレッスン20", sub: "わざはかせ", category: "つみかさねの道", type: "counter", counter: { metric: "lessons_cleared", threshold: 20 } },
+  { no: 137, questId: "songs90_5", title: "90点を5曲で", sub: "どの曲もハイレベル", category: "曲の道", type: "counter", counter: { metric: "songs_90", threshold: 5 } },
+  { no: 138, questId: "master_30", title: "マスター30曲", sub: "生きる伝説", category: "曲の道", type: "counter", counter: { metric: "mastered_songs", threshold: 30 } },
+  { no: 139, questId: "best_20", title: "自己ベストを20回更新", sub: "成長がとまらない", category: "じぶんの音をみがく", type: "counter", counter: { metric: "best_updates", threshold: 20 } },
+  { no: 140, questId: "days_365", title: "のべ365日", sub: "1年ぶんの練習日", category: "続ける力", type: "counter", counter: { metric: "total_days", threshold: 365 } },
+  { no: 141, questId: "titles_3", title: "ランクアップを3回", sub: "のぼり続ける人", category: "たからものあつめ", type: "counter", counter: { metric: "titles_count", threshold: 3 } },
+  { no: 142, questId: "nintei_1", title: "はじめての認定証", sub: "最難関のあかし", category: "たからものあつめ", type: "counter", counter: { metric: "nintei_count", threshold: 1 } },
+  { no: 143, questId: "medals_5", title: "メダルを5個全部", sub: "節目の完全制覇", category: "たからものあつめ", type: "counter", counter: { metric: "medals_count", threshold: 5 } },
+  { no: 144, questId: "treasures_100", title: "宝物100個", sub: "あふれるギャラリー", category: "たからものあつめ", type: "counter", counter: { metric: "treasures_count", threshold: 100 } },
+  { no: 145, questId: "cards_all", title: "カードを全部あつめる", sub: "カードコンプリート", category: "たからものあつめ", type: "counter", counter: { metric: "cards_all", threshold: 0 } },
+  { no: 146, questId: "share_10", title: "シェア10回", sub: "応援団がついてる", category: "シェアする", type: "counter", counter: { metric: "action", threshold: 10, action: "share" } },
 ]
 
 
