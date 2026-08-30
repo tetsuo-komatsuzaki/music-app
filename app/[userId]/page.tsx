@@ -673,7 +673,11 @@ export default async function HomePage({ params }: PageProps) {
   } catch { /* read防御 */ }
   const guideActive = dbUser.role !== "teacher" && !guideState?.completedAt && !guideState?.skippedAt
   const guide = { active: guideActive, initialStep: guideState?.firstLoopStep ?? 0 }
-  const questProgress = (guideState?.completedAt ? (guideState.quests as Record<string, { doneAt: string }>) : null) ?? null
+  // 点灯時は旧quests Json読取を廃止し、UserQuestClear ベースの新ボードに差し替える (2026-08-31)
+  const rewardLitHome = process.env.REWARD_SYSTEM_LIT === "1"
+  const questProgress = rewardLitHome
+    ? null
+    : ((guideState?.completedAt ? (guideState.quests as Record<string, { doneAt: string }>) : null) ?? null)
 
   // 達成コインの未演出キュー (2026-08-30)。coinCelebratedAt が null = ホーム演出待ち。
   // ガイド中は積んだまま出さない (完了後の帰着で再生・Q11)。先生ロールは対象外 (Q19)。
@@ -738,6 +742,8 @@ export default async function HomePage({ params }: PageProps) {
   }[] = []
   // ギャラリー3棚の表示データ (2026-08-31 本結線・点灯前はnull=旧軌跡シートのまま)
   let galleryData: import("../_libs/treasureEngine").GalleryData | null = null
+  // 新クエストボード (はじまりの旅) のクリア済みID (点灯時のみ非null)
+  let homeQuestClears: string[] | null = null
   if (dbUser.role !== "teacher" && !guideActive && dbUser.deletedAt == null) {
     try {
       const { rewardSystemLit, evaluateTreasures, getTreasureQueue, getGalleryData } = await import("../_libs/treasureEngine")
@@ -745,6 +751,9 @@ export default async function HomePage({ params }: PageProps) {
         const perfT0 = performance.now()
         await evaluateTreasures(internalUserId)
         galleryData = await getGalleryData(internalUserId)
+        homeQuestClears = (await prisma.userQuestClear.findMany({
+          where: { userId: internalUserId }, select: { questId: true },
+        })).map((c) => c.questId)
         const rows = await getTreasureQueue(internalUserId)
         treasureQueue = rows.map((r) => ({
           id: r.id, kind: r.kind, sourceId: r.sourceId, catalogNo: r.catalogNo,
@@ -760,6 +769,7 @@ export default async function HomePage({ params }: PageProps) {
     <HomeClient
       guide={guide}
       questProgress={questProgress}
+      homeQuestClears={homeQuestClears}
       coinQueue={coinQueue}
       treasureQueue={treasureQueue}
       teacherAssignments={teacherAssignments}

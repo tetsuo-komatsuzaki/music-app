@@ -17,6 +17,7 @@ import type { SongRecommendation } from "@/app/components/RecommendationItem"
 import type { GradeLevel } from "@/app/_libs/skillMaster"
 import styles from "./home.module.css"
 import QuestBoard from "./_guide/QuestBoard"
+import QuestBoardLit from "./_gallery/QuestBoardLit"
 import type { QuestProgress } from "./_guide/quests"
 
 // 「アルコと最初の1周」チュートリアル (2026-08-29 本番接続)。
@@ -48,6 +49,8 @@ type Props = {
   guide: { active: boolean; initialStep: number }
   /** アルコのクエスト進行 (ガイド完了ユーザーのみ非null) */
   questProgress: QuestProgress | null
+  /** 新クエストボードのクリア済みID (報酬体系点灯時のみ非null・旧questProgressと排他) */
+  homeQuestClears?: string[] | null
   /** 達成コインの未演出キュー (2026-08-30)。ガイド中・先生ロールはサーバー側で空 */
   coinQueue?: CoinQueueItem[]
   /** devハーネス (/dev/coin-demo): 消化のDB書込をしない */
@@ -122,6 +125,7 @@ const ARCO_HITOKOTO = [
 export default function HomeClient({
   guide,
   questProgress,
+  homeQuestClears,
   coinQueue,
   coinDemo,
   treasureQueue,
@@ -228,7 +232,9 @@ export default function HomeClient({
       <TeacherAssignments assignments={teacherAssignments} summary={teacherSummary} />
 
       {/* アルコのクエスト (2周目以降=ガイド完了ユーザー)。折り畳みが既定・先生からカードの下 (2026-08-29 Tetsuo指定) */}
-      {questProgress && <QuestBoard progress={questProgress} />}
+      {homeQuestClears != null
+        ? <QuestBoardLit cleared={homeQuestClears} />
+        : questProgress && <QuestBoard progress={questProgress} />}
 
       {/* 解析通知 (採点中チップ / 完了バナー)。該当なしなら何も出ない */}
       <AnalysisNoticeBar userId={userId} notices={analysisNotices} />

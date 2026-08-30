@@ -379,9 +379,22 @@ export async function evaluateTreasures(userId: string): Promise<{ silentGranted
   if (!rewardSystemLit()) return { silentGranted: 0, firstRun: false }
 
   const guideState = await prisma.userGuideState.findUnique({
-    where: { userId }, select: { treasureEvaluatedAt: true },
+    where: { userId }, select: { treasureEvaluatedAt: true, quests: true },
   })
   const firstRun = guideState?.treasureEvaluatedAt == null
+
+  // 初回のみ: 旧チュートリアル進行 (quests Json・2026-08-29世代) をイベント型クエストへ遡及移行。
+  // カウンター型相当 (7日/30日等) は評価器が自力で判定するため対象外
+  if (firstRun && guideState?.quests) {
+    const OLD_TO_NEW: Record<string, string> = {
+      first_loop: "first_loop", annotate: "annotate", lesson: "lesson_first",
+      karte: "karte_view", listen_back: "listen_back",
+    }
+    const oldProgress = guideState.quests as Record<string, unknown>
+    for (const [oldId, newId] of Object.entries(OLD_TO_NEW)) {
+      if (oldProgress[oldId]) await grantQuest(userId, newId, { silent: true })
+    }
+  }
 
   // ── 性能対策 (2026-08-31): 前回評価から練習・宝物・操作累計に変化がなく、
   // 24時間以内 (日付またぎ系クエストは日次で拾い直す) なら重い集計を丸ごと省く。

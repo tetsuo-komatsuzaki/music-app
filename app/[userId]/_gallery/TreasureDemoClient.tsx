@@ -90,6 +90,7 @@ export default function TreasureDemoClient({ scenario }: { scenario: string }) {
       <HomeClient
         key={run}
         {...HOME_DONE}
+        homeQuestClears={["first_loop", "annotate", "lesson_first", "karte_view", "scale_first"]}
         coinQueue={sc.coins ? [{ scoreId: DEMO_SONG_ID, star: 1 }] : []}
         treasureQueue={sc.treasures}
         coinDemo
