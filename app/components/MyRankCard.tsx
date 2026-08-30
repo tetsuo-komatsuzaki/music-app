@@ -142,7 +142,7 @@ export default function MyRankCard(props: RankCardData & {
                     >
                       {/* 達成コイン統一デザイン (2026-08-30 Q8: 点数刻印なし・アルコ彫刻) */}
                       <span className={styles.coinPop} style={{ display: "block", width: 56, height: 56, animationDelay: `${0.5 + i * 0.12}s` }}>
-                        <Coin size={56} />
+                        <Coin size={56} star={currentStar} master={stamps[i]?.mastered} />
                       </span>
                     </button>
                   ))}

@@ -120,7 +120,7 @@ export default function CoinCelebration({
 }) {
   const [mounted, setMounted] = useState(false)
   const [done, setDone] = useState(false)
-  const [coinPos, setCoinPos] = useState<{ x: number; y: number; key: number } | null>(null)
+  const [coinPos, setCoinPos] = useState<{ x: number; y: number; key: number; star?: number } | null>(null)
   const coinRef = useRef<HTMLDivElement | null>(null)
   const cancelled = useRef(false)
   const anims = useRef<Animation[]>([])
@@ -194,7 +194,7 @@ export default function CoinCelebration({
       })
 
     /** コイン出現 (0.45s 720度スピン) → 900ms 後に飛翔 (0.8s) + 自動スクロール → 着地fx */
-    const popAndFly = async (start: { x: number; y: number }, holdAfter: number) => {
+    const popAndFly = async (start: { x: number; y: number; star?: number }, holdAfter: number) => {
       setCoinPos({ ...start, key: Date.now() })
       // React の描画を待って WAAPI を当てる
       await sleep(30, cancelled)
@@ -275,11 +275,11 @@ export default function CoinCelebration({
         if (cancelled.current) return
         if (first.star === currentStar) hold -= 1
         const r = ring.getBoundingClientRect()
-        await popAndFly({ x: r.left + r.width / 2, y: r.top + r.height / 2 }, hold)
+        await popAndFly({ x: r.left + r.width / 2, y: r.top + r.height / 2, star: first.star }, hold)
       } else {
         // リングが見つからないときは中央出現に切替 (演出は止めない)
         if (first.star === currentStar) hold -= 1
-        await popAndFly({ x: window.innerWidth / 2, y: window.innerHeight * 0.38 }, hold)
+        await popAndFly({ x: window.innerWidth / 2, y: window.innerHeight * 0.38, star: first.star }, hold)
       }
       if (cancelled.current) return
 
@@ -288,7 +288,7 @@ export default function CoinCelebration({
         await sleep(350, cancelled)
         if (cancelled.current) return
         if (flying[1].star === currentStar) hold -= 1
-        await popAndFly({ x: window.innerWidth / 2, y: window.innerHeight * 0.38 }, hold)
+        await popAndFly({ x: window.innerWidth / 2, y: window.innerHeight * 0.38, star: flying[1].star }, hold)
         if (cancelled.current) return
       }
       onFxRef.current(COIN_FX_IDLE)
@@ -329,7 +329,7 @@ export default function CoinCelebration({
             willChange: "transform, opacity",
           }}
         >
-          <Coin size={COIN_SIZE} />
+          <Coin size={COIN_SIZE} star={coinPos.star} />
         </div>
       )}
     </div>,

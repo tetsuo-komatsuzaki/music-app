@@ -242,6 +242,7 @@ export default async function HomePage({ params }: PageProps) {
         best: b?.best ?? null,
         achievedAt: a.achievedAt ? a.achievedAt.toISOString() : null,
         href: `/${userId}/scores/${a.scoreId}`,
+        mastered: a.masteredAt != null,
       }
     })
   }

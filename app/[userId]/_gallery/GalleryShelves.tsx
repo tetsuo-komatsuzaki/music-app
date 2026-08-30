@@ -116,10 +116,8 @@ export default function GalleryShelves({
               {coins.map((c) => (
                 <span key={c.scoreId} className="glPed">
                   {zoomable(
-                    <span style={{ filter: c.mastered ? "drop-shadow(0 0 10px rgba(240,205,124,.75))" : undefined, display: "inline-block" }}>
-                      <Coin size={62} />
-                    </span>,
-                    <div style={{ textAlign: "center" }}><Coin size={160} /><p className="glZoomName">{c.title}{c.mastered ? " ・ マスター" : ""}</p></div>,
+                    <Coin size={62} star={c.star} master={c.mastered} />,
+                    <div style={{ textAlign: "center" }}><Coin size={160} star={c.star} master={c.mastered} /><p className="glZoomName">{c.title}{c.mastered ? " ・ マスター" : ""}</p></div>,
                   )}
                   <i className="glPedestal" />
                   <span className="glPedTag">{c.title}</span>
