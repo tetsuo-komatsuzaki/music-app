@@ -71,6 +71,11 @@ export async function uploadRecord(params: {
       where: { id: performance.id },
       data: { rangeFromNote: rf, rangeToNote: rt, partId },
     })
+    // 報酬体系: パート別録音クエスト (No.006・冪等)
+    if (partId) {
+      const { questEventHook } = await import("@/app/_libs/treasureEngine")
+      await questEventHook(dbUser.id, "part_variant")
+    }
   }
 
   // 3.7 アップロード実体の検証 (2026-08-08 P1): 解析(Cloud Run)を起動する前に、

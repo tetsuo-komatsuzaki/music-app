@@ -50,7 +50,11 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void;
         data-onboarding="home.rankCard"
         data-guide="home-rank-card"
         className={`${ds.card} pressable`}
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setOpen(true)
+          // 報酬体系: ギャラリー閲覧クエスト (No.084・シートが3棚ギャラリーに差し替わる)
+          void import("@/app/actions/questEvents").then((m) => m.recordQuestEvent("gallery_open"))
+        }}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true) } }}
         style={{ cursor: "pointer", animation: flashing ? "rankFlash .7s ease" : undefined }}
       >

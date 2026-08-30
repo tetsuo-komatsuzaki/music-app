@@ -51,7 +51,14 @@ export default function RecommendationItem({ recommendation }: Props) {
   const starBadge = formatStarBadge(practiceItem.star)
 
   return (
-    <Link href={href} className={styles.card}>
+    <Link
+      href={href}
+      className={styles.card}
+      onClick={() => {
+        // 報酬体系: おすすめ経由クエスト (No.020)
+        void import("@/app/actions/questEvents").then((m) => m.recordQuestEvent("next_song"))
+      }}
+    >
       <h3 className={styles.title}>{practiceItem.title}</h3>
       {practiceItem.composer && (
         <div className={styles.composer}>{practiceItem.composer}</div>

@@ -116,6 +116,12 @@ export async function createShareCard(input: CreateInput): Promise<CreateResult>
     if (!payload) return { ok: false, error: "作成できませんでした" }
 
     const token = randomBytes(12).toString("base64url")
+    // 報酬体系: シェアクエスト (No.076) + シェア累計 (No.127/146)
+    try {
+      const { questEventHook, actionCountHook } = await import("@/app/_libs/treasureEngine")
+      await questEventHook(dbUser.id, "share_card")
+      await actionCountHook(dbUser.id, "share")
+    } catch { /* noop */ }
     await prisma.shareCard.create({
       data: { token, userId: dbUser.id, kind: input.kind, displayName, payload },
     })
