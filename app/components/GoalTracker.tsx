@@ -123,7 +123,6 @@ function TrajectoryModal({ scoreId, onClose }: { scoreId: string; onClose: () =>
   const [failed, setFailed] = useState(false)
   // 報酬体系 (骨組み): 伸びグラフ閲覧クエスト (点灯前はサーバー側で無視)
   useEffect(() => {
-    void import("@/app/actions/questEvents").then((m) => m.recordQuestEvent("trajectory"))
   }, [])
   useEffect(() => {
     let alive = true

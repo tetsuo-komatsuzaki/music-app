@@ -43,7 +43,7 @@ const SCENARIOS: Record<string, { coins: boolean; treasures: TreasureQueueItem[]
   card: { coins: false, treasures: [T("card", "annotate", 2)] },
   mixed: {
     coins: true,
-    treasures: [T("card", "lesson_first", 3), T("card", "rec_10", 34), CERT_DEMO],
+    treasures: [T("card", "lesson_first", 3), T("card", "tempo_change", 12), CERT_DEMO],
   },
   coins: { coins: true, treasures: [T("card", "annotate", 2)] },
   medal: { coins: false, treasures: [T("medal", "5", null)] },

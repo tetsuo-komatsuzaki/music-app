@@ -31,13 +31,15 @@ describe("treasureCatalog", () => {
     }
   })
 
-  it("操作系 (home表示) はevent型のみ", () => {
-    for (const q of QUESTS.filter((x) => x.home)) expect(q.type).toBe("event")
+  it("ホーム表示 = はじまりの旅カテゴリと一致 (2026-08-31 Tetsuo再編)", () => {
+    for (const q of QUESTS) {
+      expect(!!q.home, `${q.no} ${q.title}`).toBe(q.category === "はじまりの旅")
+    }
   })
 
-  it("認定証は最難関6件のみ", () => {
+  it("認定証は最難関4件のみ", () => {
     expect(QUESTS.filter((q) => q.grade === "cert").map((q) => q.no).sort((a, b) => a - b))
-      .toEqual([30, 39, 45, 51, 59, 90])
+      .toEqual([30, 39, 45, 51])
   })
 
   it("認定証の券面はcert 6件と一対一・文言規約に適合", () => {
@@ -64,8 +66,19 @@ describe("treasureCatalog", () => {
 
   it("欠番の遵守: 削除済み番号が復活していない", () => {
     const nos = new Set(QUESTS.map((q) => q.no))
-    for (const dead of [77, 78, 79, 80, 81, 82, 87, 88, 91]) {
-      expect(nos.has(dead), `no.${dead} は欠番 (再利用禁止)`).toBe(false)
+    // 2026-08-30: 77-82 先生関連 / 87-88 メダル一本化 / 91 章廃止
+    // 2026-08-31 Tetsuo再編で削除: 8-11,13-16,18,21 (操作系の整理・6=パート別に転用),
+    // 23-26,33 (達成の中間), 34,35,40 (回数の下位), 54,55 (続ける力の一部),
+    // 56-65 (いろんな曲の旅ごと), 72-75 (印・聴き返し・カルテ通い), 85,86,90 (重複整理)
+    const dead = [
+      8, 9, 10, 11, 13, 14, 15, 16, 18, 21,
+      23, 24, 25, 26, 33, 34, 35, 40, 54, 55,
+      56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
+      72, 73, 74, 75, 77, 78, 79, 80, 81, 82,
+      85, 86, 87, 88, 90, 91,
+    ]
+    for (const d of dead) {
+      expect(nos.has(d), `no.${d} は欠番 (再利用禁止)`).toBe(false)
     }
   })
 

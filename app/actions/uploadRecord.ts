@@ -71,9 +71,6 @@ export async function uploadRecord(params: {
       where: { id: performance.id },
       data: { rangeFromNote: rf, rangeToNote: rt, partId },
     })
-    // 報酬体系 (骨組み): ループ練習クエストの発火 (区間録音の成立)
-    const { questEventHook } = await import("@/app/_libs/treasureEngine")
-    await questEventHook(dbUser.id, "loop_practice")
   }
 
   // 3.7 アップロード実体の検証 (2026-08-08 P1): 解析(Cloud Run)を起動する前に、

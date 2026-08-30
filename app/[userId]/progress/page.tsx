@@ -33,9 +33,8 @@ export default async function ProgressServerPage({ params }: PageProps) {
 
   // 報酬体系 (骨組み): カルテ閲覧クエスト+閲覧回数カウント (点灯前は不動)
   try {
-    const { questEventHook, actionCountHook } = await import("@/app/_libs/treasureEngine")
+    const { questEventHook } = await import("@/app/_libs/treasureEngine")
     await questEventHook(dbUser.id, "karte_view")
-    await actionCountHook(dbUser.id, "karte_view")
   } catch { /* 発火失敗でカルテを止めない */ }
 
   const data = await buildKarteData(dbUser.id, userId, period)
