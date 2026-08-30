@@ -222,7 +222,7 @@ export default function GalleryShelves({
     radial-gradient(ellipse 130% 42% at 50% -8%, rgba(240,205,124,.07), transparent 55%),
     radial-gradient(ellipse 120% 90% at 50% 110%, rgba(20,32,64,.5), transparent 60%),
     #070b16;
-  margin:-20px -16px 0; padding:6px 16px 40px; border-radius:0 0 18px 18px; }
+  margin:0; padding:6px 14px 34px; border-radius:18px; }
 .glHead { padding:22px 4px 0; text-align:center; animation:glFadeDown .9s ease both; }
 @keyframes glFadeDown { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:none; } }
 .glTitle { font-size:16px; font-weight:900; letter-spacing:.42em; text-indent:.42em;

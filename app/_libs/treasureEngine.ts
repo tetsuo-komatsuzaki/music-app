@@ -513,6 +513,43 @@ export async function getTreasureQueue(userId: string): Promise<TreasureQueueRow
   return rows.sort((a, b) => KIND_ORDER.indexOf(a.kind as never) - KIND_ORDER.indexOf(b.kind as never))
 }
 
+/** ギャラリー3棚の表示データ (2026-08-31 本結線)。lit時のみホームで呼ぶ */
+export type GalleryData = {
+  coins: { scoreId: string; title: string; star: number; mastered: boolean }[]
+  treasures: { kind: string; sourceId: string; catalogNo: number | null; earnedAt: string; label?: string }[]
+}
+export async function getGalleryData(userId: string): Promise<GalleryData> {
+  const [achievements, treasures] = await Promise.all([
+    prisma.userScoreAchievement.findMany({
+      where: { userId },
+      orderBy: { achievedAt: "asc" },
+      select: { scoreId: true, starAtAchievement: true, masteredAt: true, score: { select: { title: true } } },
+    }),
+    prisma.userTreasure.findMany({
+      where: { userId },
+      orderBy: { earnedAt: "asc" },
+      select: { kind: true, sourceType: true, sourceId: true, catalogNo: true, earnedAt: true },
+    }),
+  ])
+
+  // マスター証明書 (sourceId=scoreId) と記念カード (sourceId=card:scoreId) の券面に曲名を引く
+  const titleByScore = new Map(achievements.map((a) => [a.scoreId, a.score.title]))
+  return {
+    coins: achievements.map((a) => ({
+      scoreId: a.scoreId,
+      title: a.score.title,
+      star: a.starAtAchievement,
+      mastered: a.masteredAt != null,
+    })),
+    treasures: treasures.map((t) => {
+      let label: string | undefined
+      if (t.kind === "cert" && t.sourceType === "master") label = titleByScore.get(t.sourceId)
+      if (t.kind === "master_card") label = titleByScore.get(t.sourceId.replace(/^card:/, ""))
+      return { kind: t.kind, sourceId: t.sourceId, catalogNo: t.catalogNo, earnedAt: t.earnedAt.toISOString(), label }
+    }),
+  }
+}
+
 /** 授与消化 (演出開始時点で全消化・コイン規則)。マスター進化の消化も同時に刻む */
 export async function markTreasuresAwarded(userId: string): Promise<void> {
   const now = new Date()

@@ -59,7 +59,7 @@ export default function TreasureDemoClient({ scenario }: { scenario: string }) {
 
   if (scenario === "shelves") {
     return (
-      <div style={{ maxWidth: 402, margin: "0 auto", padding: "20px 16px" }}>
+      <div style={{ maxWidth: 402, margin: "0 auto", padding: "14px 8px" }}>
         <h1 style={{ fontSize: 15, textAlign: "center" }}>ギャラリー (骨組み)</h1>
         <GalleryShelves
           required={10}

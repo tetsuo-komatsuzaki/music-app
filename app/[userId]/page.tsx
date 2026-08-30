@@ -736,12 +736,15 @@ export default async function HomePage({ params }: PageProps) {
     id: string; kind: string; sourceId: string; catalogNo: number | null; earnedAt: string
     label?: string; stars?: number; certNo?: number
   }[] = []
+  // ギャラリー3棚の表示データ (2026-08-31 本結線・点灯前はnull=旧軌跡シートのまま)
+  let galleryData: import("../_libs/treasureEngine").GalleryData | null = null
   if (dbUser.role !== "teacher" && !guideActive && dbUser.deletedAt == null) {
     try {
-      const { rewardSystemLit, evaluateTreasures, getTreasureQueue } = await import("../_libs/treasureEngine")
+      const { rewardSystemLit, evaluateTreasures, getTreasureQueue, getGalleryData } = await import("../_libs/treasureEngine")
       if (rewardSystemLit()) {
         const perfT0 = performance.now()
         await evaluateTreasures(internalUserId)
+        galleryData = await getGalleryData(internalUserId)
         const rows = await getTreasureQueue(internalUserId)
         treasureQueue = rows.map((r) => ({
           id: r.id, kind: r.kind, sourceId: r.sourceId, catalogNo: r.catalogNo,
@@ -773,7 +776,7 @@ export default async function HomePage({ params }: PageProps) {
       basicPracticeCards={basicPracticeCards}
       recentPieces={recentPieces}
       nextPieceRecommendations={nextPieceRecommendations}
-      rankCard={rankCard}
+      rankCard={{ ...rankCard, gallery: galleryData }}
       favorites={favorites}
     />
   )

@@ -89,6 +89,8 @@ type Props = {
     required: number
     achievedCount: number
     stamps: { scoreId: string; title: string; best: number | null; achievedAt: string | null; href: string }[]
+    /** ギャラリー3棚 (点灯時のみ非null。軌跡シートを差し替える) */
+    gallery?: import("@/app/_libs/treasureEngine").GalleryData | null
   }
   /** お気に入り (曲/教材) */
   favorites: FavoriteEntry[]
