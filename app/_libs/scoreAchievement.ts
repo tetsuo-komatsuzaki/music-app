@@ -265,6 +265,9 @@ export async function recordAchievementIfComplete(
         where: { userId },
         data: { currentStar: progress.currentStar + 1 },
       })
+      // 報酬体系 (骨組み): 称号カードの実体刻印 (achievement.py 側と二重書込・ユニーク制約で冪等)
+      const { grantRankUpTitle } = await import("./treasureEngine")
+      await grantRankUpTitle(userId, progress.currentStar + 1)
     }
   } catch (e) {
     console.error("[scoreAchievement] star-up failed:", e instanceof Error ? e.message : e)

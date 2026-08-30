@@ -10,6 +10,7 @@
 import { prisma } from "../_libs/prisma"
 import type { Prisma } from "@/app/generated/prisma/client"
 import { createServerSupabaseClient } from "../_libs/supabaseServer"
+import { questEventHook } from "../_libs/treasureEngine"
 
 async function currentUserId(): Promise<string | null> {
   const supabase = await createServerSupabaseClient()
@@ -50,6 +51,8 @@ export async function completeGuide(): Promise<void> {
       create: { userId, completedAt: now, quests },
       update: { completedAt: now, quests },
     })
+    // 報酬体系 (骨組み・2026-08-30): 新テーブルへも刻む。点灯後は UserQuestClear が正
+    await questEventHook(userId, "first_loop")
   } catch { /* noop */ }
 }
 

@@ -425,6 +425,24 @@ def _check_star_up(cur, user_id: str) -> Optional[int]:
             'WHERE "userId" = %s',
             (current + 1, user_id),
         )
+        # 報酬体系「ギャラリー」(2026-08-30): 称号カードの実体刻印。
+        # UserStarProgress は履歴を持たず導出不能のため、昇格の瞬間に刻む
+        # (TS側 recordAchievementIfComplete と二重書込・ユニーク制約で冪等)。
+        # テーブル未作成環境 (点灯前の移行期) でも昇格処理を落とさない。
+        try:
+            cur.execute("SAVEPOINT rankup_treasure")
+            cur.execute(
+                'INSERT INTO "UserTreasure" (id, "userId", kind, "sourceType", "sourceId") '
+                "VALUES (%s, %s, 'title', 'rank_up', %s) "
+                'ON CONFLICT ("userId", "sourceType", "sourceId") DO NOTHING',
+                (str(uuid.uuid4()), user_id, str(current + 1)),
+            )
+            cur.execute("RELEASE SAVEPOINT rankup_treasure")
+        except Exception:
+            try:
+                cur.execute("ROLLBACK TO SAVEPOINT rankup_treasure")
+            except Exception:
+                pass
         return current + 1
     return None
 

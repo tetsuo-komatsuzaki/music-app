@@ -149,6 +149,9 @@ export async function getSignedUploadUrl(
       },
     })
     performanceId = performance.id
+    // 報酬体系 (骨組み): 基礎練の初回録音クエスト (冪等・2回目以降は無視される)
+    const { questEventHook } = await import("@/app/_libs/treasureEngine")
+    await questEventHook(dbUserId, "basics_first")
   }
 
   // === Step B: path 生成 (auth.uid() ベース) ===

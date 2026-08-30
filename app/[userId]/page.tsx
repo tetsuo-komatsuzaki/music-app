@@ -63,7 +63,7 @@ export default async function HomePage({ params }: PageProps) {
 
   const dbUser = await prisma.user.findUnique({
     where: { supabaseUserId: userId },
-    select: { id: true, name: true, role: true },
+    select: { id: true, name: true, role: true, deletedAt: true },
   })
   if (!dbUser) return <div>きみの情報が見つからなかったよ</div>
   console.log(`[PERF] home step1_dbUser: ${(performance.now() - perfStart).toFixed(0)}ms`)
@@ -730,11 +730,27 @@ export default async function HomePage({ params }: PageProps) {
     } catch { coinQueue = [] }
   }
 
+  // 報酬体系「ギャラリー」骨組み (2026-08-30): キルスイッチ (REWARD_SYSTEM_LIT=1) 配下。
+  // 点灯前の本番では常に空=挙動不変。評価器はカウンター判定→メダル→マスター/称号の遅延発行
+  let treasureQueue: { id: string; kind: string; sourceId: string; catalogNo: number | null }[] = []
+  if (dbUser.role !== "teacher" && !guideActive && dbUser.deletedAt == null) {
+    try {
+      const { rewardSystemLit, evaluateTreasures, getTreasureQueue } = await import("../_libs/treasureEngine")
+      if (rewardSystemLit()) {
+        const perfT0 = performance.now()
+        await evaluateTreasures(internalUserId)
+        treasureQueue = await getTreasureQueue(internalUserId)
+        console.log(`[PERF] home treasure evaluator: ${(performance.now() - perfT0).toFixed(0)}ms`)
+      }
+    } catch { treasureQueue = [] }
+  }
+
   return (
     <HomeClient
       guide={guide}
       questProgress={questProgress}
       coinQueue={coinQueue}
+      treasureQueue={treasureQueue}
       teacherAssignments={teacherAssignments}
       teacherSummary={teacherSummary}
       analysisNotices={analysisNotices}

@@ -11,6 +11,7 @@
 
 import { prisma } from "../_libs/prisma"
 import { recordAchievementIfComplete } from "../_libs/scoreAchievement"
+import { questEventHook } from "../_libs/treasureEngine"
 import { createServerSupabaseClient } from "../_libs/supabaseServer"
 import { positionTagKey, tagId, type LessonTagRef } from "../_libs/lessonStatus"
 import { LESSON_BY_ID } from "@/app/[userId]/lessons/_lib/content"
@@ -145,6 +146,8 @@ export async function recordLessonPlay(
   // このレッスンクリアが「最後の✓」だった曲は、次の曲演奏の解析を待たず
   // その場で達成に昇格させる (コインも次のホーム表示で出る)。失敗してもレッスン結果は返す
   if ("freshCleared" in result && (result.freshCleared ?? 0) > 0) {
+    // 報酬体系 (骨組み): レッスン初回クリアのクエスト発火
+    await questEventHook(dbUser.id, "lesson_first")
     try {
       const [played, achieved] = await Promise.all([
         prisma.performance.findMany({

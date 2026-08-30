@@ -27,6 +27,10 @@ const GuideTutorial = dynamic(() => import("./_guide/GuideTutorial"), { ssr: fal
 const CoinCelebration = dynamic(() => import("./_coin/CoinCelebration"), { ssr: false })
 import { COIN_FX_IDLE, type CoinFx, type CoinQueueItem } from "./_coin/CoinCelebration"
 
+// 報酬体系「ギャラリー」の授与 (骨組み・点灯前はキュー空で不動)
+const TreasureCelebration = dynamic(() => import("./_coin/TreasureCelebration"), { ssr: false })
+import type { TreasureQueueItem } from "./_coin/TreasureCelebration"
+
 // v1.6 Phase 4-2 (2026-05-16) — UserGradeProgress 準拠の表示用データ。
 // 仕様書 §3-5-2 必須項目: 現在グレード + ★ + 次の★まで完全習得すべき曲数
 type GradeData = {
@@ -48,6 +52,8 @@ type Props = {
   coinQueue?: CoinQueueItem[]
   /** devハーネス (/dev/coin-demo): 消化のDB書込をしない */
   coinDemo?: boolean
+  /** 宝物の授与待ちキュー (報酬体系骨組み・点灯前は常に空) */
+  treasureQueue?: TreasureQueueItem[]
   userName: string
   streak: number
   weeklyDays: number
@@ -116,6 +122,7 @@ export default function HomeClient({
   questProgress,
   coinQueue,
   coinDemo,
+  treasureQueue,
   userName,
   basicPracticeCards,
   recentPieces,
@@ -162,6 +169,11 @@ export default function HomeClient({
     ? { ...rankCard, achievedCount: Math.max(0, rankCard.achievedCount - coinFx.rankHold) }
     : rankCard
 
+  // 宝物の授与 (骨組み): コイン工程の完了後に直列で流す (実装仕様§4)
+  const [coinsDone, setCoinsDone] = useState(false)
+  const showTreasures =
+    (treasureQueue?.length ?? 0) > 0 && !showGuide && (!showCoins || coinsDone)
+
 
   return (
     <div className={styles.page}>
@@ -173,7 +185,16 @@ export default function HomeClient({
       )}
 
       {/* 達成コインの獲得モーション (帰着時1回・タップでスキップ) */}
-      {showCoins && <CoinCelebration flying={flying} currentStar={rankCard.currentStar} demo={coinDemo} onFx={setCoinFx} />}
+      {showCoins && <CoinCelebration flying={flying} currentStar={rankCard.currentStar} demo={coinDemo} onFx={setCoinFx} onDone={() => setCoinsDone(true)} />}
+
+      {/* 宝物の授与 (報酬体系骨組み・コイン完了後に直列・点灯前はキュー空) */}
+      {showTreasures && (
+        <TreasureCelebration
+          queue={treasureQueue ?? []}
+          coinMotionCount={showCoins ? Math.min(2, flying.length) : 0}
+          demo={coinDemo}
+        />
+      )}
 
       {/* 挨拶の大見出し (モック HELLO ・ h1.t)。名前が長くても1行に収める (2026-08-20 Tetsuo指定)。
           2026-08-23 Tetsuo指示: 挨拶右の金縁アルコは削除し、マイランクカード側へ移設 */}

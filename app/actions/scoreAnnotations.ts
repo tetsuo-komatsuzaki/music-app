@@ -74,5 +74,9 @@ export async function saveScoreAnnotation(
       throw e
     }
   }
+  // 報酬体系 (骨組み・2026-08-30): 注釈保存のクエスト発火。
+  // 記譜スタンプ (stamp) の種別識別は肉付けフェーズで data の中身を見て分岐する
+  const { questEventHook } = await import("../_libs/treasureEngine")
+  await questEventHook(userId, "annotate")
   return { ok: true }
 }

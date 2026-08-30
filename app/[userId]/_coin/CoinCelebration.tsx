@@ -106,6 +106,7 @@ export default function CoinCelebration({
   currentStar,
   demo,
   onFx,
+  onDone,
 }: {
   /** 演出対象 (タブに居る曲のみ・最大2枚)。home.tsx が選定済み */
   flying: CoinQueueItem[]
@@ -114,6 +115,8 @@ export default function CoinCelebration({
   /** devハーネス: DB消化をしない */
   demo?: boolean
   onFx: (fx: CoinFx) => void
+  /** コイン工程の終了通知 (宝物オーケストレーターの直列起動用・2026-08-30) */
+  onDone?: () => void
 }) {
   const [mounted, setMounted] = useState(false)
   const [done, setDone] = useState(false)
@@ -124,6 +127,8 @@ export default function CoinCelebration({
   const rafs = useRef<number[]>([])
   const onFxRef = useRef(onFx)
   onFxRef.current = onFx
+  const onDoneRef = useRef(onDone)
+  onDoneRef.current = onDone
 
   useEffect(() => setMounted(true), [])
 
@@ -136,7 +141,7 @@ export default function CoinCelebration({
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     if (reduced || flying.length === 0) {
       onFxRef.current(COIN_FX_IDLE)
-      setDone(true)
+      setDone(true); onDoneRef.current?.()
       return
     }
 
@@ -146,7 +151,7 @@ export default function CoinCelebration({
       for (const r of rafs.current) cancelAnimationFrame(r)
       onFxRef.current(COIN_FX_IDLE)
       setCoinPos(null)
-      setDone(true)
+      setDone(true); onDoneRef.current?.()
     }
     ;(window as unknown as Record<string, unknown>).__coinSkip = finish
 
@@ -287,7 +292,7 @@ export default function CoinCelebration({
         if (cancelled.current) return
       }
       onFxRef.current(COIN_FX_IDLE)
-      setDone(true)
+      setDone(true); onDoneRef.current?.()
     }
     void run()
 
