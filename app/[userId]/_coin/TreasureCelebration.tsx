@@ -13,12 +13,22 @@
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { consumeTreasures } from "@/app/actions/treasures"
+import { QUEST_BY_ID } from "@/app/_libs/treasureCatalog"
+import CardAwardMotion from "./CardAwardMotion"
 
 export type TreasureQueueItem = {
   id: string
   kind: string // card / title / medal / master_card / cert
   sourceId: string
   catalogNo: number | null
+  /** 成果成立日 (券面の日付)。ISO文字列 */
+  earnedAt?: string
+}
+
+function faceDate(iso?: string): string {
+  const d = iso ? new Date(iso) : new Date()
+  const jst = new Date(d.getTime() + 9 * 3600_000)
+  return jst.toISOString().slice(0, 10).replaceAll("-", ".")
 }
 
 const KIND_LABEL: Record<string, string> = {
@@ -73,6 +83,24 @@ export default function TreasureCelebration({
   const next = () => {
     if (idx + 1 < playQueue.length) setIdx(idx + 1)
     else { setDone(true); onDone?.() }
+  }
+
+  // カードは高級版v3の実装モーション (肉付け済)。他種は券面確定まで仮演出
+  if (item.kind === "card") {
+    const q = QUEST_BY_ID.get(item.sourceId)
+    return createPortal(
+      <CardAwardMotion
+        key={item.id}
+        face={{
+          title: q?.title ?? "カード",
+          sub: q?.sub ?? "",
+          no: item.catalogNo,
+          date: faceDate(item.earnedAt),
+        }}
+        onDone={next}
+      />,
+      document.body,
+    )
   }
 
   return createPortal(

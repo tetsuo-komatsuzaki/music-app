@@ -30,7 +30,7 @@ if (typeof window !== "undefined" && !(window as unknown as { __tqStubbed?: bool
 }
 
 const T = (kind: string, sourceId: string, catalogNo: number | null): TreasureQueueItem =>
-  ({ id: `${kind}:${sourceId}`, kind, sourceId, catalogNo })
+  ({ id: `${kind}:${sourceId}`, kind, sourceId, catalogNo, earnedAt: "2026-08-30T09:00:00.000Z" })
 
 const SCENARIOS: Record<string, { coins: boolean; treasures: TreasureQueueItem[] }> = {
   card: { coins: false, treasures: [T("card", "annotate", 2)] },

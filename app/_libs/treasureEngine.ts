@@ -336,7 +336,7 @@ export async function getTreasureQueue(userId: string) {
   const rows = await prisma.userTreasure.findMany({
     where: { userId, awardedAt: null },
     orderBy: { earnedAt: "asc" },
-    select: { id: true, kind: true, sourceType: true, sourceId: true, catalogNo: true },
+    select: { id: true, kind: true, sourceType: true, sourceId: true, catalogNo: true, earnedAt: true },
   })
   return rows.sort((a, b) => KIND_ORDER.indexOf(a.kind as never) - KIND_ORDER.indexOf(b.kind as never))
 }
