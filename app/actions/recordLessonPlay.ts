@@ -10,6 +10,7 @@
 // 品質(音程/リズム)は判定しない=点数不問 (achievement.py のレッスンクリア思想と同一)。
 
 import { prisma } from "../_libs/prisma"
+import { recordAchievementIfComplete } from "../_libs/scoreAchievement"
 import { createServerSupabaseClient } from "../_libs/supabaseServer"
 import { positionTagKey, tagId, type LessonTagRef } from "../_libs/lessonStatus"
 import { LESSON_BY_ID } from "@/app/[userId]/lessons/_lib/content"
@@ -136,8 +137,34 @@ export async function recordLessonPlay(
     return {
       playCount: play.playCount,
       cleared: true,
+      freshCleared: fresh.length,
     }
   })
+
+  // 達成 = ゴールカードに表示されている行がすべて✓ (2026-08-30 Tetsuo確定)。
+  // このレッスンクリアが「最後の✓」だった曲は、次の曲演奏の解析を待たず
+  // その場で達成に昇格させる (コインも次のホーム表示で出る)。失敗してもレッスン結果は返す
+  if ("freshCleared" in result && (result.freshCleared ?? 0) > 0) {
+    try {
+      const [played, achieved] = await Promise.all([
+        prisma.performance.findMany({
+          where: { userId: dbUser.id, rangeFromNote: null, score: { deletedAt: null, star: { not: null } } },
+          select: { scoreId: true },
+          distinct: ["scoreId"],
+        }),
+        prisma.userScoreAchievement.findMany({
+          where: { userId: dbUser.id },
+          select: { scoreId: true },
+        }),
+      ])
+      const done = new Set(achieved.map((a) => a.scoreId))
+      for (const p of played) {
+        if (!done.has(p.scoreId)) await recordAchievementIfComplete(dbUser.id, p.scoreId)
+      }
+    } catch (e) {
+      console.error("[recordLessonPlay] achievement cascade failed:", e instanceof Error ? e.message : e)
+    }
+  }
 
   return { ok: true, ...result }
 }

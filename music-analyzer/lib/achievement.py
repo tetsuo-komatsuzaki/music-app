@@ -232,9 +232,16 @@ def resolve_required_etude(cur, score_id: str) -> Optional[dict]:
 # ─── 曲モード（score: 達成 + Star + マスター） ─────────────────────────────
 
 def process_score_achievement(
-    cur, user_id: str, score_id: str, performance_id: str
+    cur, user_id: str, score_id: str, performance_id: Optional[str]
 ) -> dict:
-    """曲演奏完了後の判定。Returns 概要dict（ログ用）。"""
+    """曲の達成/マスター判定。Returns 概要dict（ログ用）。
+
+    達成 = ゴールカードに表示されている行がすべて✓ (2026-08-30 Tetsuo確定)。
+    行の内訳は曲ごとに変わる (レッスン=在庫のあるタグのみ / エチュード=候補なし免除 /
+    通し3回=常時)。曲演奏の解析後のほか、レッスン/エチュード側が最後の✓になった時は
+    cascade_score_achievements 経由で performance_id=None で呼ばれる
+    (achievedPerformanceId が null = コイン演出のトリガー推定の根拠)。
+    """
     result = {"achieved": False, "mastered": False, "star_up": None,
               "clean_runs": 0, "blocked_by": None}
 
@@ -366,6 +373,32 @@ def process_score_achievement(
             result["mastered"] = cur.rowcount > 0
 
     return result
+
+
+def cascade_score_achievements(cur, user_id: str) -> List[str]:
+    """教材側の完了 (エチュード達成 / レッスンクリア) が「最後の✓」だった曲を、
+    次の曲演奏を待たずその場で達成に昇格させる (2026-08-30 Tetsuo確定:
+    達成 = ゴールカード表示行すべて✓)。
+
+    対象 = ユーザーが通しで弾いたことのある未達成曲 (star必須・削除曲除外)。
+    process_score_achievement を performance_id=None で呼ぶだけなので判定式は単一。
+    Returns 昇格した scoreId のリスト。
+    """
+    cur.execute(
+        'SELECT DISTINCT p."scoreId" FROM "Performance" p '
+        'JOIN "Score" s ON s.id = p."scoreId" '
+        'WHERE p."userId" = %s AND p."rangeFromNote" IS NULL '
+        "AND s.star IS NOT NULL AND s.\"deletedAt\" IS NULL "
+        'AND NOT EXISTS (SELECT 1 FROM "UserScoreAchievement" a '
+        '  WHERE a."userId" = p."userId" AND a."scoreId" = p."scoreId")',
+        (user_id,),
+    )
+    promoted: List[str] = []
+    for (score_id,) in cur.fetchall():
+        res = process_score_achievement(cur, user_id, score_id, None)
+        if res.get("achieved"):
+            promoted.append(score_id)
+    return promoted
 
 
 def _check_star_up(cur, user_id: str) -> Optional[int]:

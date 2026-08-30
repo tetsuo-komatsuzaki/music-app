@@ -934,7 +934,8 @@ model UserLessonClear {
   @@index([userId])
 }
 
-// 曲の達成/マスター記録（達成=3回崩壊ゼロ+レッスン+エチュード要件 / マスター=達成+avg90）
+// 曲の達成/マスター記録。達成 = ゴールカード表示行がすべて✓ (2026-08-30 Tetsuo確定:
+// 通し3回=常時 / レッスン=在庫のあるタグのみ / エチュード=候補なしは免除)。マスター=達成+avg90
 model UserScoreAchievement {
   id                    String    @id @default(cuid())
   userId                String

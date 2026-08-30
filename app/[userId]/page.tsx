@@ -690,36 +690,40 @@ export default async function HomePage({ params }: PageProps) {
         select: { scoreId: true, starAtAchievement: true, achievedAt: true, achievedPerformanceId: true },
       })
       for (const r of rows) {
+        // achievedPerformanceId null = レッスン/エチュード起点の昇格 (cascade・2026-08-30)。
+        // 演奏起点なら、その演奏より前に通し3回が既にあった場合のみレッスン/エチュードが最後
         let trigger: "run" | "lesson" | "etude" = "run"
-        const trigPerf = r.achievedPerformanceId
-          ? await prisma.performance.findUnique({
-              where: { id: r.achievedPerformanceId },
-              select: { uploadedAt: true },
-            })
-          : null
-        if (trigPerf) {
-          const cleanBefore = await prisma.performance.count({
-            where: {
-              userId: internalUserId, scoreId: r.scoreId, rangeFromNote: null,
-              uploadedAt: { lt: trigPerf.uploadedAt },
-              analysisSummary: { path: ["diagnosis", "collapse", "is_clean"], equals: true },
-            },
+        let byMaterial = r.achievedPerformanceId == null
+        if (!byMaterial) {
+          const trigPerf = await prisma.performance.findUnique({
+            where: { id: r.achievedPerformanceId as string },
+            select: { uploadedAt: true },
           })
-          if (cleanBefore >= 3) {
-            const [lastLesson, lastEtude] = await Promise.all([
-              prisma.userLessonClear.findFirst({
-                where: { userId: internalUserId, clearedAt: { lte: r.achievedAt } },
-                orderBy: { clearedAt: "desc" }, select: { clearedAt: true },
-              }),
-              prisma.userPracticeAchievement.findFirst({
-                where: { userId: internalUserId, achievedAt: { lte: r.achievedAt } },
-                orderBy: { achievedAt: "desc" }, select: { achievedAt: true },
-              }),
-            ])
-            const lessonT = lastLesson?.clearedAt.getTime() ?? 0
-            const etudeT = lastEtude?.achievedAt.getTime() ?? 0
-            if (lessonT > 0 || etudeT > 0) trigger = etudeT > lessonT ? "etude" : "lesson"
+          if (trigPerf) {
+            const cleanBefore = await prisma.performance.count({
+              where: {
+                userId: internalUserId, scoreId: r.scoreId, rangeFromNote: null,
+                uploadedAt: { lt: trigPerf.uploadedAt },
+                analysisSummary: { path: ["diagnosis", "collapse", "is_clean"], equals: true },
+              },
+            })
+            byMaterial = cleanBefore >= 3
           }
+        }
+        if (byMaterial) {
+          const [lastLesson, lastEtude] = await Promise.all([
+            prisma.userLessonClear.findFirst({
+              where: { userId: internalUserId, clearedAt: { lte: r.achievedAt } },
+              orderBy: { clearedAt: "desc" }, select: { clearedAt: true },
+            }),
+            prisma.userPracticeAchievement.findFirst({
+              where: { userId: internalUserId, achievedAt: { lte: r.achievedAt } },
+              orderBy: { achievedAt: "desc" }, select: { achievedAt: true },
+            }),
+          ])
+          const lessonT = lastLesson?.clearedAt.getTime() ?? 0
+          const etudeT = lastEtude?.achievedAt.getTime() ?? 0
+          if (lessonT > 0 || etudeT > 0) trigger = etudeT > lessonT ? "etude" : "lesson"
         }
         coinQueue.push({ scoreId: r.scoreId, star: r.starAtAchievement, trigger })
       }

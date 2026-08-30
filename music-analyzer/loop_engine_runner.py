@@ -259,6 +259,7 @@ def _run_achievement_v2(
     """
     try:
         from lib.achievement import (
+            cascade_score_achievements,
             process_practice_achievement,
             process_score_achievement,
         )
@@ -269,6 +270,12 @@ def _run_achievement_v2(
                 summary = process_practice_achievement(
                     cur, user_id, practice_item_id, performance_id
                 )
+                # 教材側の完了 (エチュード達成/レッスンクリア) が「最後の✓」だった曲を
+                # その場で達成に昇格 (2026-08-30 Tetsuo確定: 達成=ゴール表示行すべて✓)
+                if summary.get("practice_achieved") or summary.get("lesson_cleared"):
+                    promoted = cascade_score_achievements(cur, user_id)
+                    if promoted:
+                        summary = {**summary, "cascade_achieved": promoted}
             else:
                 summary = process_score_achievement(
                     cur, user_id, score_id, performance_id
