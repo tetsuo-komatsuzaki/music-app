@@ -293,7 +293,7 @@ export default function GalleryShelves({
   transform:translateY(-50%); background:radial-gradient(circle at 35% 30%, #f5d98c, #a5761c); }
 .glPlaque::before { left:7px; } .glPlaque::after { right:7px; }
 .glRow { position:relative; z-index:3; display:flex; justify-content:center; align-items:flex-end; gap:16px; flex-wrap:wrap; }
-.glTreasure { display:block; cursor:pointer; background:none; border:none; padding:0;
+.glTreasure { display:inline-block; cursor:pointer; background:none; border:none; padding:0;
   animation:glTIn .7s cubic-bezier(.3,1.35,.5,1) both; }
 @keyframes glTIn { from { opacity:0; transform:translateY(16px) scale(.92); } to { opacity:1; transform:none; } }
 .glPed { width:96px; text-align:center; }
