@@ -35,6 +35,11 @@ export type CounterMetric =
   | "week5_streak"      // 週5日を連続N週
   | "month20"           // ひと月で20日練習 (閾値1)
   | "total_days"        // 練習した日の累計
+  | "etude_runs"        // エチュード教材の録音回数 (達成でなく実施)
+  | "scale_runs"        // 音階教材の録音回数
+  | "arpeggio_runs"     // アルペジオ教材の録音回数
+  | "practice_keys"     // 基礎練で弾いた調の種類数 (閾値2=2つ目の調)
+  | "practice_articulations" // 基礎練で弾いた奏法の種類数 (未指定=基本を1種と数える・閾値2)
   | "action"            // UserActionCount の action 累計 (payload.action)
 
 export type QuestDef = {
@@ -150,6 +155,12 @@ export const QUESTS: QuestDef[] = [
   { no: 89, questId: "cert_1", title: "はじめての証明書", sub: "マスターの証", category: "たからものあつめ", type: "counter", counter: { metric: "mastered_songs", threshold: 1 } },
   { no: 90, questId: "cert_3", title: "証明書3枚", sub: "誇りの棚", category: "たからものあつめ", type: "counter", grade: "cert", counter: { metric: "mastered_songs", threshold: 3 } },
   // 091 欠番 (章廃止に伴い削除)
+  // ── 追加5件 (2026-08-30 Tetsuo承認: 基礎練の種類別3+変種2。全部カウンター型=配線不要) ──
+  { no: 92, questId: "etude_first", title: "エチュードをやってみる", sub: "わざを磨く1冊を開く", category: "つみかさねの道", type: "counter", counter: { metric: "etude_runs", threshold: 1 } },
+  { no: 93, questId: "scale_first", title: "音階をやってみる", sub: "音づくりの基本の1回", category: "つみかさねの道", type: "counter", counter: { metric: "scale_runs", threshold: 1 } },
+  { no: 94, questId: "arpeggio_first", title: "アルペジオをやってみる", sub: "和音の指づかいに触れる", category: "つみかさねの道", type: "counter", counter: { metric: "arpeggio_runs", threshold: 1 } },
+  { no: 95, questId: "practice_key2", title: "ちがう調で基礎練", sub: "調がかわると景色もかわる", category: "つかいこなしの旅", type: "counter", counter: { metric: "practice_keys", threshold: 2 } },
+  { no: 96, questId: "practice_art2", title: "奏法をかえて基礎練", sub: "スタッカートやスラーで", category: "つかいこなしの旅", type: "counter", counter: { metric: "practice_articulations", threshold: 2 } },
 ]
 
 /** メダル = カード枚数の節目 (枚数は草案・観点16: 変更時も番号=枚数は不変) */

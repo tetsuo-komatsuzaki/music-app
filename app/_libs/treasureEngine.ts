@@ -226,6 +226,33 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
       m.total_days = d.totalDays
     }))
   }
+  if (needed.has("etude_runs")) {
+    jobs.push(prisma.practicePerformance.count({
+      where: { userId, practiceItem: { category: "etude" } },
+    }).then((n) => { m.etude_runs = n }))
+  }
+  if (needed.has("scale_runs")) {
+    jobs.push(prisma.practicePerformance.count({
+      where: { userId, practiceItem: { category: "scale" } },
+    }).then((n) => { m.scale_runs = n }))
+  }
+  if (needed.has("arpeggio_runs")) {
+    jobs.push(prisma.practicePerformance.count({
+      where: { userId, practiceItem: { category: "arpeggio" } },
+    }).then((n) => { m.arpeggio_runs = n }))
+  }
+  if (needed.has("practice_keys") || needed.has("practice_articulations")) {
+    // 弾いたことのある基礎練教材の種類 (distinct practiceItem) から調・奏法の種類数を数える。
+    // 奏法未指定 (null) は基本の1種と数える → 閾値2=基本以外を1つ試した時点で成立
+    jobs.push(prisma.practicePerformance.findMany({
+      where: { userId },
+      distinct: ["practiceItemId"],
+      select: { practiceItem: { select: { keyTonic: true, keyMode: true, articulation: true } } },
+    }).then((rows) => {
+      m.practice_keys = new Set(rows.map((r) => `${r.practiceItem.keyTonic}:${r.practiceItem.keyMode}`)).size
+      m.practice_articulations = new Set(rows.map((r) => r.practiceItem.articulation ?? "basic")).size
+    }))
+  }
   if (neededActions.size > 0) {
     jobs.push(prisma.userActionCount.findMany({
       where: { userId, action: { in: [...neededActions] } },
