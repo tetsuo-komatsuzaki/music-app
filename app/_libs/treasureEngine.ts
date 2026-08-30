@@ -62,6 +62,20 @@ export async function questEventHook(userId: string, questId: string): Promise<v
   await grantQuest(userId, questId)
 }
 
+/** 行動カウントのサーバーフック (userId既知のページ/action用。カルテ閲覧など) */
+export async function actionCountHook(userId: string, action: string): Promise<void> {
+  if (!rewardSystemLit()) return
+  try {
+    await prisma.userActionCount.upsert({
+      where: { userId_action: { userId, action } },
+      create: { userId, action, count: 1 },
+      update: { count: { increment: 1 } },
+    })
+  } catch (e) {
+    console.error("[treasure] actionCountHook failed:", action, e instanceof Error ? e.message : e)
+  }
+}
+
 // ── カウンター評価器 ─────────────────────────────────────────
 
 type Metrics = Partial<Record<CounterMetric, number>> & { actions: Map<string, number> }

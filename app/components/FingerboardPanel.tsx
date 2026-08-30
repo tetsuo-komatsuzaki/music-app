@@ -10,6 +10,7 @@ import {
 } from "@/app/_libs/fingerboard/geometry"
 import { CELL_FILLS, type CellStatus } from "@/app/_libs/fingerboard/colors"
 import { posLabel, type HeatCellOut, type CellDetail, type TransitionRow } from "@/app/_libs/fingerboard/heatmapTypes"
+import { recordQuestEvent } from "@/app/actions/questEvents"
 
 export type FingerboardMark = { cellId: string; note: string }
 
@@ -76,7 +77,7 @@ export default function FingerboardPanel({
             fill={fill}
             stroke={sel === id ? "#111" : "#c9cdd4"}
             strokeWidth={sel === id ? 1.1 : 0.3}
-            onClick={() => setSel(id)}
+            onClick={() => { setSel(id); void recordQuestEvent("pitch_cell") }}
             style={{ cursor: "pointer" }}
           />,
         )
@@ -140,7 +141,7 @@ export default function FingerboardPanel({
         <div style={{ flex: inModal || stack ? "1 1 100%" : "1.6 1 260px", width: stack && !inModal ? "100%" : undefined, boxSizing: "border-box", minWidth: 0, background: "var(--card-in)", border: "1px solid rgba(150,175,225,.10)", borderRadius: 12, padding: "10px 8px", overflow: "hidden" }}>
           {/* 指板クリック(セル以外の余白も含む)でモーダル拡大。セルタップは stopPropagation 済みではないので
               セル選択と拡大が両立するよう、拡大は専用ボタンではなく図全体のクリックで開く (セルはonClickが先に走る) */}
-          <div onClick={inModal ? undefined : () => setZoom(true)} style={{ cursor: inModal ? "default" : "zoom-in" }}>
+          <div onClick={inModal ? undefined : () => { setZoom(true); void recordQuestEvent("fingerboard_zoom") }} style={{ cursor: inModal ? "default" : "zoom-in" }}>
             {svg}
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 9, fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 5 }}>

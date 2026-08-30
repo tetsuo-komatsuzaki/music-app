@@ -8,7 +8,7 @@
 
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ArcoChan, POSES } from "./ArcoChan"
 import { Music, MessageSquareText, Target, type LucideIcon } from "lucide-react"
 
@@ -58,6 +58,10 @@ const STEPS: { Icon: LucideIcon; no: string; title: string; what: string }[] = [
 export default function ProgressGuideModal({ open, onClose }: Props) {
   // 2026-08-29 Tetsuo指示: 1枚が長い → サイクルの絵をタップすると該当の説明だけを表示
   const [selected, setSelected] = useState(0)
+  // 報酬体系 (骨組み): 上達のしくみ閲覧クエスト (点灯前はサーバー側で無視される)
+  useEffect(() => {
+    if (open) void import("@/app/actions/questEvents").then((m) => m.recordQuestEvent("guide_modal"))
+  }, [open])
   if (!open) return null
   const pose = POSES.find((p) => p.cat === "説明") ?? POSES[0]
   const step = STEPS[selected]
