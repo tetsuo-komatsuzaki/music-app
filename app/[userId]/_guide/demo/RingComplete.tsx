@@ -83,13 +83,15 @@ export default function RingComplete({ onReceive }: { onReceive: () => void }) {
       {phase === "card" && (
         <div style={{ position: "fixed", inset: 0, zIndex: 1953, background: "rgba(6,10,22,.62)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 15, animation: "achvIn .45s ease" }}>
           <DemoConfetti />
-          <div style={{ width: "min(310px, 78vw)", background: "linear-gradient(180deg,#182a4e,#101c38)", border: "1.5px solid rgba(232,178,60,.55)", borderRadius: 20, padding: "26px 20px 20px", textAlign: "center", boxShadow: "0 0 60px rgba(232,178,60,.25)" }}>
-            <div style={{ width: 120, height: 120, margin: "0 auto", borderRadius: "50%", overflow: "hidden", background: "#f2efe7" }}>
+          {/* カードv3ファミリー (クリーム+金縁)。カタログNo.001=はじめての1周 (2026-08-31 整合) */}
+          <div style={{ width: "min(280px, 74vw)", background: "linear-gradient(172deg,#faf4e4 0%,#f3ead2 55%,#eadfc2 100%)", border: "2px solid #c99a35", borderRadius: 18, padding: "22px 18px 18px", textAlign: "center", boxShadow: "0 0 60px rgba(232,178,60,.3), 0 18px 40px rgba(0,0,0,.5)" }}>
+            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".14em", color: "#8a6a1a", textAlign: "left" }}>No.001</div>
+            <div style={{ width: 110, height: 110, margin: "10px auto 0", borderRadius: "50%", overflow: "hidden", background: "#f2efe7", border: "2px solid #c99a35" }}>
               <ArcoChan pose={pose} />
             </div>
-            <div style={{ fontSize: 19, fontWeight: 900, color: "var(--cream, #f6ecd4)", marginTop: 14 }}>きらきら星 ・ 達成</div>
-            <div style={{ fontSize: 11.5, color: "var(--text-sub)", marginTop: 6 }}>80→95点 ・ 2026.08.29</div>
-            <div style={{ fontSize: 10, letterSpacing: "0.22em", color: "var(--gold)", fontWeight: 800, marginTop: 10 }}>CARD No.001</div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: "#503a10", marginTop: 14 }}>はじめての1周</div>
+            <div style={{ fontSize: 11.5, color: "#7a5c22", marginTop: 6 }}>成長サイクルを回した</div>
+            <div style={{ fontSize: 9.5, letterSpacing: "0.22em", color: "#a5761c", fontWeight: 800, marginTop: 10 }}>ARCODA CARD</div>
           </div>
           <button type="button" onClick={onReceive} style={{ background: "#2b5bc4", color: "#fff", border: "none", borderRadius: 999, padding: "13px 44px", fontSize: 14, fontWeight: 900, cursor: "pointer" }}>
             うけとる
