@@ -92,7 +92,7 @@ export function TreasureFaceStyles() {
     <style>{`
 .tfBox { position:relative; display:inline-block; overflow:hidden; vertical-align:bottom; }
 .tfStage { position:absolute; width:402px; height:870px; container-type:size; transform-origin:0 0; display:block; }
-.tfBox i, .tfBox span { display:block; }
+:where(.tfBox) i, :where(.tfBox) span { display:block; } /* 詳細度0-0-1: 造形側のflex/gridが勝つ */
 
 /* ---- メダル (MedalAwardMotion v4造形の静止コピー) ---- */
 .tfWrap { position:absolute; left:50%; top:6%; transform:translate(-50%,0); }
