@@ -675,10 +675,26 @@ export default async function HomePage({ params }: PageProps) {
   const guide = { active: guideActive, initialStep: guideState?.firstLoopStep ?? 0 }
   const questProgress = (guideState?.completedAt ? (guideState.quests as Record<string, { doneAt: string }>) : null) ?? null
 
+  // 達成コインの未演出キュー (2026-08-30)。coinCelebratedAt が null = ホーム演出待ち。
+  // ガイド中は積んだまま出さない (完了後の帰着で再生・Q11)。先生ロールは対象外 (Q19)。
+  // 列追加 migration 前でもホームを落とさない read防御
+  let coinQueue: { scoreId: string; star: number }[] = []
+  if (dbUser.role !== "teacher" && !guideActive) {
+    try {
+      const rows = await prisma.userScoreAchievement.findMany({
+        where: { userId: internalUserId, coinCelebratedAt: null },
+        orderBy: { achievedAt: "asc" },
+        select: { scoreId: true, starAtAchievement: true },
+      })
+      coinQueue = rows.map((r) => ({ scoreId: r.scoreId, star: r.starAtAchievement }))
+    } catch { coinQueue = [] }
+  }
+
   return (
     <HomeClient
       guide={guide}
       questProgress={questProgress}
+      coinQueue={coinQueue}
       teacherAssignments={teacherAssignments}
       teacherSummary={teacherSummary}
       analysisNotices={analysisNotices}

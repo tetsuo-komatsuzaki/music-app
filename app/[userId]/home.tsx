@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
@@ -23,6 +23,10 @@ import type { QuestProgress } from "./_guide/quests"
 // 対象ユーザーのときだけ遅延ロードし、通常ユーザーのバンドルを重くしない
 const GuideTutorial = dynamic(() => import("./_guide/GuideTutorial"), { ssr: false })
 
+// 達成コインの獲得モーション (2026-08-30)。未演出コインがある帰着時のみロード
+const CoinCelebration = dynamic(() => import("./_coin/CoinCelebration"), { ssr: false })
+import { COIN_FX_IDLE, type CoinFx, type CoinQueueItem } from "./_coin/CoinCelebration"
+
 // v1.6 Phase 4-2 (2026-05-16) — UserGradeProgress 準拠の表示用データ。
 // 仕様書 §3-5-2 必須項目: 現在グレード + ★ + 次の★まで完全習得すべき曲数
 type GradeData = {
@@ -40,6 +44,10 @@ type Props = {
   guide: { active: boolean; initialStep: number }
   /** アルコのクエスト進行 (ガイド完了ユーザーのみ非null) */
   questProgress: QuestProgress | null
+  /** 達成コインの未演出キュー (2026-08-30)。ガイド中・先生ロールはサーバー側で空 */
+  coinQueue?: CoinQueueItem[]
+  /** devハーネス (/dev/coin-demo): 消化のDB書込をしない */
+  coinDemo?: boolean
   userName: string
   streak: number
   weeklyDays: number
@@ -106,6 +114,8 @@ const ARCO_HITOKOTO = [
 export default function HomeClient({
   guide,
   questProgress,
+  coinQueue,
+  coinDemo,
   userName,
   basicPracticeCards,
   recentPieces,
@@ -128,6 +138,30 @@ export default function HomeClient({
   const showGuide = guide?.active && !guideDismissed
   const [guideOpen, setGuideOpen] = useState(false)
 
+  // ── 達成コインの獲得モーション (2026-08-30 Tetsuo確定・案A) ──
+  // 演出で飛ぶのは「いま練習している曲」タブに居る曲のみ・最大2枚 (Q16/Q3)。
+  // 残りは演出なしでゲージ反映のみ (消化は CoinCelebration がまとめて行う)
+  const queue = coinQueue ?? []
+  const flying = useMemo(
+    () => queue.filter((c) => recentPieces.some((p) => p.id === c.scoreId)).slice(0, 2),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [queue.map((c) => c.scoreId).join(","), recentPieces.map((p) => p.id).join(",")],
+  )
+  const showCoins = queue.length > 0 && !showGuide
+  // 初期状態から巻き戻し+タブ選択を効かせる (マスター表示が一瞬見える事故の防止)
+  const [coinFx, setCoinFx] = useState<CoinFx>(() =>
+    showCoins && flying.length > 0
+      ? {
+          rankHold: flying.filter((c) => c.star === rankCard.currentStar).length,
+          focus: { scoreId: flying[0].scoreId, rewind: true },
+          flashAt: 0,
+        }
+      : COIN_FX_IDLE,
+  )
+  const shownRankCard = coinFx.rankHold > 0
+    ? { ...rankCard, achievedCount: Math.max(0, rankCard.achievedCount - coinFx.rankHold) }
+    : rankCard
+
 
   return (
     <div className={styles.page}>
@@ -137,6 +171,9 @@ export default function HomeClient({
           onDone={() => { setGuideDismissed(true); router.refresh() }}
         />
       )}
+
+      {/* 達成コインの獲得モーション (帰着時1回・タップでスキップ) */}
+      {showCoins && <CoinCelebration flying={flying} demo={coinDemo} onFx={setCoinFx} />}
 
       {/* 挨拶の大見出し (モック HELLO ・ h1.t)。名前が長くても1行に収める (2026-08-20 Tetsuo指定)。
           2026-08-23 Tetsuo指示: 挨拶右の金縁アルコは削除し、マイランクカード側へ移設 */}
@@ -180,7 +217,7 @@ export default function HomeClient({
       {/* モック 追03 STARTER の写経: 金ラベル → 青バナー → 注記 → 金CTA → ほかの曲リンク */}
       
       {/* マイランクカード (タップで演奏の軌跡／上達のしくみを内蔵) */}
-      <MyRankCard {...rankCard} onGuide={() => setGuideOpen(true)} />
+      <MyRankCard {...shownRankCard} flashAt={coinFx.flashAt} onGuide={() => setGuideOpen(true)} />
 
       {starterPick && recentPieces.length === 0 && (
         <div className={ds.card} data-guide="home-starter" style={{ padding: 0, overflow: "hidden" }}>
@@ -216,7 +253,7 @@ export default function HomeClient({
           終盤の締めでは、選んだ曲の「弾いたらこう出る」見本カードに差し替える。
           🌟カード表示中は空状態の文言が重複するため、中身が無ければ丸ごと省略 */}
       {starterPick && recentPieces.length === 0 && basicPracticeCards.length === 0 ? null : (
-        <PracticeFocusCard pieces={recentPieces} basics={basicPracticeCards} userId={userId} />
+        <PracticeFocusCard pieces={recentPieces} basics={basicPracticeCards} userId={userId} coinFocus={coinFx.focus} />
       )}
 
 

@@ -16,11 +16,23 @@ type Basic = { id: string; title: string; category: string; href: string; recent
 
 // 毎日の基礎練は achievement-status API の dailyLessons(4教材) に一本化 (2026-07-25)。
 // basics(旧・履歴ベースの3チップ) は当面プロップに残すが未使用。
-export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: Piece[]; basics: Basic[]; userId: string }) {
+export default function PracticeFocusCard({ pieces, basics, userId, coinFocus }: {
+  pieces: Piece[]; basics: Basic[]; userId: string
+  /** 達成コイン演出 (2026-08-30): 対象曲へタブを自動切替し、rewind中は達成前の見た目に巻き戻す */
+  coinFocus?: { scoreId: string; rewind: boolean } | null
+}) {
   void basics
   const [active, setActive] = useState(0)
   const piece = pieces[active] ?? pieces[0] ?? null
   const [ach, setAch] = useState<AchievementStatus | null>(null)
+
+  // コイン演出: 対象曲のタブへ自動切替 (Q6)
+  useEffect(() => {
+    if (!coinFocus) return
+    const i = pieces.findIndex((p) => p.id === coinFocus.scoreId)
+    if (i >= 0) setActive(i)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [coinFocus?.scoreId])
 
   useEffect(() => {
     if (!piece) return
@@ -32,6 +44,13 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
       .catch(() => {})
     return () => { aborted = true }
   }, [piece?.id])
+
+  // コイン演出のリング巻き戻し (Q15): データは触らず表示だけ達成前 (通し2/3) に合成する。
+  // リング満了そのものは CoinCelebration が実DOMの conic-gradient を rAF で満たす
+  const rewinding = coinFocus?.rewind === true && piece?.id === coinFocus.scoreId
+  const shownAch: AchievementStatus | null = ach && rewinding && ach.achieved
+    ? { ...ach, achieved: false, cleanRuns: { ...ach.cleanRuns, count: Math.max(0, ach.cleanRuns.required - 1) } }
+    : ach
 
   // 練習している曲がまだ無いユーザー: カードごと消さず、曲選びへ誘導する (2026-07-25)。
   // 「まず1曲を通して弾く」が体験の入口なので、ホーム最上部の次に置く。
@@ -60,7 +79,7 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
       </div>
     )
   }
-  const chipLabel = piece.badge === "mastered" ? "マスター" : piece.badge === "achieved" ? "達成" : "挑戦中"
+  const chipLabel = rewinding ? "挑戦中" : piece.badge === "mastered" ? "マスター" : piece.badge === "achieved" ? "達成" : "挑戦中"
 
   return (
     <div className={styles.root}>
@@ -94,9 +113,9 @@ export default function PracticeFocusCard({ pieces, basics, userId }: { pieces: 
         <div data-guide="home-ring-card">
         {/* 🏆 この曲のゴール (達成/マスター。曲詳細と同じ GoalTracker を流用。体験上の重要要素・削除しない)
             見出しは進捗で出し分け (2026-08-16 Tetsuo指定・下の重複見出しはGoalTracker側から削除済) */}
-        <div style={{ fontSize: 11.5, fontWeight: 800, color: "var(--text-ink)", margin: "14px 0 10px", borderTop: "1px solid rgba(150,175,225,.10)", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#e8b23c" /> {ach ? goalHeadline(ach) : "ゴール"}</div>
-        {ach ? (
-          <GoalTracker achv={ach} userId={userId} scoreId={piece.id} />
+        <div style={{ fontSize: 11.5, fontWeight: 800, color: "var(--text-ink)", margin: "14px 0 10px", borderTop: "1px solid rgba(150,175,225,.10)", paddingTop: 11, display: "flex", alignItems: "center", gap: 5 }}><Trophy size={13} color="#e8b23c" /> {shownAch ? goalHeadline(shownAch) : "ゴール"}</div>
+        {shownAch ? (
+          <GoalTracker achv={shownAch} userId={userId} scoreId={piece.id} />
         ) : (
           <div style={{ fontSize: "var(--fs-body)", color: "var(--text-muted)", padding: "8px 0" }}>読み込み中…</div>
         )}

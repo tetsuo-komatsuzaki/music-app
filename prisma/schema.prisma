@@ -946,6 +946,8 @@ model UserScoreAchievement {
   // ▼ 祝い体験 v2.0 (2026-07-26)
   masteredPerformanceId String? // マスターに遷移した演奏ID。masteredAt刻印と同時記録。再解析耐性(ID照合)の根拠
   celebratedAt          DateTime? // 祝いカード閲覧で記録。バナー消滅・端末をまたぐ一回性の根拠
+  // ▼ 達成コインの獲得モーション (2026-08-30)
+  coinCelebratedAt      DateTime? // ホームのコイン演出を消化した時刻。null=未演出 (既存行はmigrationでbackfill済)
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   score Score @relation(fields: [scoreId], references: [id], onDelete: Cascade)
