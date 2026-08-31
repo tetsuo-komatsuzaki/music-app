@@ -13,6 +13,16 @@
 
 import { useEffect, useRef, useState } from "react"
 
+
+/** 主役テキストを1行に収めるフォント倍率 (2026-08-31 仕様: 2行に分かれない) */
+function fitScale(text: string): number {
+  const n = [...text].length
+  if (n <= 8) return 1
+  if (n <= 12) return 0.8
+  if (n <= 16) return 0.64
+  return 0.52
+}
+
 type Phase = "gather" | "crystal" | "recv" | "fly"
 
 export type TitleFace = {
@@ -72,7 +82,10 @@ export default function TitleAwardMotion({ face, onDone }: { face: TitleFace; on
     else if (p === "recv") startFly()
   }
 
-  const stars = "★".repeat(Math.min(Math.max(face.star, 1), 5))
+  // ★列: 所属★を1行5つまで・6以上は2段 (2026-08-31 仕様)
+  const starN = Math.min(Math.max(face.star, 1), 10)
+  const starRow1 = "★".repeat(Math.min(starN, 5))
+  const starRow2 = starN > 5 ? "★".repeat(starN - 5) : ""
 
   return (
     <div onClick={advance} style={{ position: "fixed", inset: 0, zIndex: 941, cursor: "pointer" }} aria-hidden>
@@ -89,9 +102,8 @@ export default function TitleAwardMotion({ face, onDone }: { face: TitleFace; on
               <div className="tiKlabel">称号カード</div>
               <i className="tiKrule" />
               <div className="tiEmblem"><i className="tiEmedal" /><span className="tiEstar">★</span></div>
-              <div className="tiKstars tiFoil">{stars}</div>
-              <div className="tiKrank">{face.rankName}</div>
-              <div className="tiKtitle">ランクアップの称号</div>
+              <div className="tiKstars tiFoil"><span>{starRow1}</span>{starRow2 && <span className="tiKstars2">{starRow2}</span>}</div>
+              <div className="tiKrank" style={{ fontSize: `${(6.2 * fitScale(face.rankName)).toFixed(2)}cqw`, whiteSpace: "nowrap" }}>{face.rankName}</div>
               <div className="tiKdate">{face.date}</div>
             </div>
           </div>
@@ -151,7 +163,7 @@ export default function TitleAwardMotion({ face, onDone }: { face: TitleFace; on
   42% { opacity:1; transform:translate(-50%,-50%) scale(1); }
   74% { opacity:.8; } 100% { opacity:.4; } }
 
-.tiScene { position:absolute; left:50%; top:46%; z-index:6; width:64cqw; height:62cqh;
+.tiScene { position:absolute; left:50%; top:46%; z-index:6; width:64cqw; height:36cqh;
   transform:translate(-50%,-50%); pointer-events:none; }
 .tiCard { position:absolute; inset:0; border-radius:12px; overflow:hidden;
   box-shadow:0 24px 52px rgba(0,0,0,.65); opacity:0;
@@ -181,7 +193,7 @@ export default function TitleAwardMotion({ face, onDone }: { face: TitleFace; on
   background:conic-gradient(from 0deg at 50% 42%, rgba(255,120,120,.22), rgba(255,220,120,.22), rgba(140,255,180,.2), rgba(120,180,255,.22), rgba(220,140,255,.2), rgba(255,120,120,.22));
   animation:tiHoloSpin 9s linear infinite; }
 @keyframes tiHoloSpin { to { transform:rotate(360deg); } }
-.tiSunburst { position:absolute; left:50%; top:33%; width:56cqw; height:56cqw; z-index:1; pointer-events:none; display:block;
+.tiSunburst { position:absolute; left:50%; top:40%; width:56cqw; height:56cqw; z-index:1; pointer-events:none; display:block;
   transform:translate(-50%,-50%); border-radius:50%;
   background:repeating-conic-gradient(from 0deg, rgba(178,134,44,.10) 0 4deg, transparent 4deg 12deg);
   -webkit-mask:radial-gradient(circle, #000 12%, transparent 58%); mask:radial-gradient(circle, #000 12%, transparent 58%); }
@@ -192,7 +204,7 @@ export default function TitleAwardMotion({ face, onDone }: { face: TitleFace; on
 .tiTl { left:8px; top:8px; } .tiTr { right:8px; top:8px; transform:scaleX(-1); }
 .tiBl { left:8px; bottom:8px; transform:scaleY(-1); } .tiBr { right:8px; bottom:8px; transform:scale(-1); }
 .tiWrap { position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; align-items:center;
-  padding:9.5% 8% 7.5%; text-align:center; }
+  padding:6.5% 8% 5.5%; text-align:center; }
 .tiKlabel { font-size:2.6cqw; font-weight:900; letter-spacing:.4em; text-indent:.4em; color:#3d5da8;
   text-shadow:0 1px 0 rgba(255,252,240,.85); }
 .tiKrule { display:block; margin-top:2.6%; width:30cqw; position:relative; height:0; border-top:1.4px solid rgba(61,93,168,.85); }
@@ -200,7 +212,7 @@ export default function TitleAwardMotion({ face, onDone }: { face: TitleFace; on
 .tiKrule::after { content:""; position:absolute; left:50%; top:-3.2px; width:5px; height:5px;
   transform:translateX(-50%) rotate(45deg);
   background:linear-gradient(135deg,#7a9ade,#3d5da8 60%,#25406e); }
-.tiEmblem { position:relative; margin-top:5%; width:27cqw; height:27cqw; }
+.tiEmblem { position:relative; margin-top:3.4%; width:19cqw; height:19cqw; }
 .tiEmedal { position:absolute; inset:0; border-radius:50%; overflow:hidden; display:block;
   background:
     repeating-conic-gradient(from 0deg, rgba(200,220,255,.16) 0 6deg, rgba(20,35,70,.16) 6deg 12deg),
@@ -212,18 +224,18 @@ export default function TitleAwardMotion({ face, onDone }: { face: TitleFace; on
   background:radial-gradient(circle at 40% 32%, rgba(122,154,222,.85), rgba(37,64,110,.45) 60%, transparent);
   border:1px solid rgba(122,154,222,.4); }
 .tiEstar { position:absolute; inset:0; display:grid; place-items:center; z-index:2;
-  font-size:11.5cqw; font-weight:900; color:#eaf1ff;
+  font-size:8.4cqw; font-weight:900; color:#eaf1ff;
   text-shadow:0 1px 0 rgba(255,255,255,.5), 0 -1px 2px rgba(8,14,36,.8), 0 0 14px rgba(140,175,255,.6); }
 .tiFoil { background:linear-gradient(100deg,#b8892e 0%,#f5d98c 25%,#fff6d8 50%,#f5d98c 75%,#b8892e 100%);
   background-size:220% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
   animation:tiFoilK 3.6s linear infinite;
   filter:drop-shadow(0 1px 0 rgba(255,252,240,.9)) drop-shadow(0 -1px 1px rgba(120,88,26,.45)); }
 @keyframes tiFoilK { to { background-position:220% 0; } }
-.tiKstars { margin-top:4.5%; font-size:7.6cqw; line-height:1; letter-spacing:.14em; text-indent:.14em; }
-.tiKrank { margin-top:3.4%; font-size:6.2cqw; font-weight:900; color:#2c2a1a; letter-spacing:.1em; text-indent:.1em;
+.tiKstars { margin-top:3.2%; font-size:6.4cqw; line-height:1.15; letter-spacing:.14em; text-align:center; }
+.tiKstars span { display:block; text-indent:.14em; }
+.tiKstars2 { margin-top:.4cqh; }
+.tiKrank { margin-top:2.6%; font-size:6.2cqw; font-weight:900; color:#2c2a1a; letter-spacing:.1em; text-indent:.1em;
   text-shadow:0 1px 0 rgba(255,252,240,.95), 0 -1px 1px rgba(90,70,30,.4); }
-.tiKtitle { margin-top:2.2%; font-size:3cqw; font-weight:700; letter-spacing:.3em; text-indent:.3em;
-  color:#6b6455; text-shadow:0 1px 0 rgba(255,252,240,.7); }
 .tiKdate { margin-top:auto; font-size:2.3cqw; letter-spacing:.3em; text-indent:.3em; color:#8a7a52;
   text-shadow:0 1px 0 rgba(255,252,240,.7); }
 

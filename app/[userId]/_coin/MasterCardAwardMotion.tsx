@@ -13,6 +13,16 @@
 
 import { useEffect, useRef, useState } from "react"
 
+
+/** 主役テキストを1行に収めるフォント倍率 (2026-08-31 仕様: 2行に分かれない) */
+function fitScale(text: string): number {
+  const n = [...text].length
+  if (n <= 8) return 1
+  if (n <= 12) return 0.8
+  if (n <= 16) return 0.64
+  return 0.52
+}
+
 type Phase = "gather" | "crystal" | "recv" | "fly"
 
 export type MasterCardFace = {
@@ -90,7 +100,7 @@ export default function MasterCardAwardMotion({ face, onDone }: { face: MasterCa
                 <span className="mcWstar mcFoil">★</span>
               </div>
               <div className="mcMword mcFoil">MASTER</div>
-              <div className="mcMpiece">{face.song}</div>
+              <div className="mcMpiece" style={{ fontSize: `${(5.4 * fitScale(face.song)).toFixed(2)}cqw`, whiteSpace: "nowrap" }}>{face.song}</div>
               <div className="mcSealrow">
                 <span className="mcSeal">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -157,7 +167,7 @@ export default function MasterCardAwardMotion({ face, onDone }: { face: MasterCa
   42% { opacity:1; transform:translate(-50%,-50%) scale(1); }
   74% { opacity:.8; } 100% { opacity:.4; } }
 
-.mcScene { position:absolute; left:50%; top:46%; z-index:6; width:64cqw; height:62cqh;
+.mcScene { position:absolute; left:50%; top:46%; z-index:6; width:64cqw; height:36cqh;
   transform:translate(-50%,-50%); pointer-events:none; }
 .mcCard { position:absolute; inset:0; border-radius:12px; overflow:hidden;
   box-shadow:0 24px 52px rgba(0,0,0,.65); opacity:0;
@@ -187,7 +197,7 @@ export default function MasterCardAwardMotion({ face, onDone }: { face: MasterCa
   background:conic-gradient(from 0deg at 50% 42%, rgba(255,120,120,.22), rgba(255,220,120,.22), rgba(140,255,180,.2), rgba(120,180,255,.22), rgba(220,140,255,.2), rgba(255,120,120,.22));
   animation:mcHoloSpin 9s linear infinite; }
 @keyframes mcHoloSpin { to { transform:rotate(360deg); } }
-.mcSunburst { position:absolute; left:50%; top:33%; width:56cqw; height:56cqw; z-index:1; pointer-events:none; display:block;
+.mcSunburst { position:absolute; left:50%; top:40%; width:56cqw; height:56cqw; z-index:1; pointer-events:none; display:block;
   transform:translate(-50%,-50%); border-radius:50%;
   background:repeating-conic-gradient(from 0deg, rgba(178,134,44,.10) 0 4deg, transparent 4deg 12deg);
   -webkit-mask:radial-gradient(circle, #000 12%, transparent 58%); mask:radial-gradient(circle, #000 12%, transparent 58%); }
@@ -198,7 +208,7 @@ export default function MasterCardAwardMotion({ face, onDone }: { face: MasterCa
 .mcTl { left:8px; top:8px; } .mcTr { right:8px; top:8px; transform:scaleX(-1); }
 .mcBl { left:8px; bottom:8px; transform:scaleY(-1); } .mcBr { right:8px; bottom:8px; transform:scale(-1); }
 .mcWrap { position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; align-items:center;
-  padding:9.5% 8% 7.5%; text-align:center; }
+  padding:6.5% 8% 5.5%; text-align:center; }
 .mcKlabel { font-size:2.6cqw; font-weight:900; letter-spacing:.4em; text-indent:.4em; color:#7a5c22;
   text-shadow:0 1px 0 rgba(255,252,240,.85); }
 .mcKrule { display:block; margin-top:2.6%; width:30cqw; position:relative; height:0; border-top:1.4px solid rgba(178,134,44,.85); }
@@ -206,8 +216,8 @@ export default function MasterCardAwardMotion({ face, onDone }: { face: MasterCa
 .mcKrule::after { content:""; position:absolute; left:50%; top:-3.2px; width:5px; height:5px;
   transform:translateX(-50%) rotate(45deg);
   background:linear-gradient(135deg,#f2d48c,#c99a35 60%,#8a6a1a); box-shadow:0 0 5px rgba(232,178,60,.5); }
-.mcWreath { position:relative; margin-top:4.5%; width:30cqw; height:20cqw; }
-.mcLeaf { position:absolute; display:block; width:4.6cqw; height:1.7cqw; border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+.mcWreath { position:relative; margin-top:3%; width:24cqw; height:15cqw; }
+.mcLeaf { position:absolute; display:block; width:3.7cqw; height:1.4cqw; border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
   background:linear-gradient(135deg,#f2d48c,#c99a35 60%,#8a6a1a);
   box-shadow:0 1px 1px rgba(90,62,10,.4), inset 0 1px 0 rgba(255,244,205,.6); }
 .mcWreath .mcLeaf:nth-of-type(1) { left:8%; bottom:6%; transform:rotate(52deg); }
@@ -220,13 +230,13 @@ export default function MasterCardAwardMotion({ face, onDone }: { face: MasterCa
 .mcWreath .mcLeaf:nth-of-type(8) { right:9%; bottom:44%; transform:scaleX(-1) rotate(16deg); }
 .mcWreath .mcLeaf:nth-of-type(9) { right:16%; bottom:62%; transform:scaleX(-1) rotate(-2deg); }
 .mcWreath .mcLeaf:nth-of-type(10) { right:26%; bottom:74%; transform:scaleX(-1) rotate(-18deg); }
-.mcWstar { position:absolute; left:50%; top:-4%; transform:translateX(-50%); z-index:2; font-size:7cqw;
+.mcWstar { position:absolute; left:50%; top:-4%; transform:translateX(-50%); z-index:2; font-size:5.4cqw;
   animation:mcWstarK 2.8s ease-in-out infinite; }
 @keyframes mcWstarK { 0%,100% { filter:drop-shadow(0 0 6px rgba(232,178,60,.5)); } 50% { filter:drop-shadow(0 0 16px rgba(232,178,60,.95)); } }
-.mcMword { margin-top:1%; font-size:8.8cqw; font-weight:900; letter-spacing:.18em; text-indent:.18em; }
+.mcMword { margin-top:.6%; font-size:7cqw; font-weight:900; letter-spacing:.18em; text-indent:.18em; }
 .mcMpiece { margin-top:2.4%; font-size:5.4cqw; font-weight:900; color:#33260a; letter-spacing:.12em; text-indent:.12em;
   text-shadow:0 1px 0 rgba(255,252,240,.95), 0 -1px 1px rgba(90,70,30,.45); }
-.mcSealrow { margin-top:3.2%; display:flex; align-items:center; gap:3cqw; }
+.mcSealrow { margin-top:2.2%; display:flex; align-items:center; gap:3cqw; }
 .mcSeal { width:9cqw; height:9cqw; border-radius:50%; position:relative; display:grid; place-items:center;
   background:radial-gradient(circle at 36% 30%, #a83232, #7e1c1c 55%, #541010 90%);
   box-shadow:0 2px 5px rgba(60,20,10,.45), inset 0 1px 1px rgba(255,180,160,.4), inset 0 -2px 3px rgba(40,8,8,.5); }

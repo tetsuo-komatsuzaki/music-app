@@ -19,6 +19,16 @@ export type CardFace = {
   date: string // YYYY.MM.DD
 }
 
+
+/** 主役テキストを1行に収めるフォント倍率 (2026-08-31 仕様: 2行に分かれない) */
+function fitScale(text: string): number {
+  const n = [...text].length
+  if (n <= 8) return 1
+  if (n <= 12) return 0.8
+  if (n <= 16) return 0.64
+  return 0.52
+}
+
 type Phase = "fall" | "wait" | "flip" | "recv" | "fly"
 
 export default function CardAwardMotion({ face, onDone }: { face: CardFace; onDone: () => void }) {
@@ -95,7 +105,7 @@ export default function CardAwardMotion({ face, onDone }: { face: CardFace; onDo
             <div className="caInner">
               <div className="caBrand">ARCODA</div>
               <div className="caArt" />
-              <div className="caTitle">{face.title}</div>
+              <div className="caTitle" style={{ fontSize: Math.round(16 * fitScale(face.title)), whiteSpace: "nowrap" }}>{face.title}</div>
               <div className="caDesc">{face.sub}</div>
               <div className="caDate">{face.date}</div>
               <div className="caNo">{face.no != null ? `CARD No.${String(face.no).padStart(3, "0")}` : ""}</div>

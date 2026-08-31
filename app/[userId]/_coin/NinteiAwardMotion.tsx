@@ -14,6 +14,16 @@
 
 import { useEffect, useRef, useState } from "react"
 
+
+/** 主役テキストを1行に収めるフォント倍率 (2026-08-31 仕様: 2行に分かれない) */
+function fitScale(text: string): number {
+  const n = [...text].length
+  if (n <= 8) return 1
+  if (n <= 12) return 0.8
+  if (n <= 16) return 0.64
+  return 0.52
+}
+
 type Phase = "fall" | "open" | "recv" | "fly"
 
 export type NinteiFace = {
@@ -104,7 +114,7 @@ export default function NinteiAwardMotion({ face, onDone }: { face: NinteiFace; 
                 <div className="niBrand">ARCODA</div>
                 <div className="niTitle">CERTIFICATE</div>
                 <div className="niRule" />
-                <div className="niPiece">{face.big}</div>
+                <div className="niPiece" style={{ fontSize: `${(6.4 * fitScale(face.big)).toFixed(2)}cqw`, whiteSpace: "nowrap", maxWidth: "none" }}>{face.big}</div>
                 <div className="niKind">{face.kindLine}</div>
                 <div className="niBody">{face.body1}<br />{face.body2}</div>
                 <div className="niSealRow">

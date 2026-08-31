@@ -15,6 +15,16 @@
 
 import { useEffect, useRef, useState } from "react"
 
+
+/** 主役テキストを1行に収めるフォント倍率 (2026-08-31 仕様: 2行に分かれない) */
+function fitScale(text: string): number {
+  const n = [...text].length
+  if (n <= 8) return 1
+  if (n <= 12) return 0.8
+  if (n <= 16) return 0.64
+  return 0.52
+}
+
 type Phase = "fall" | "open" | "recv" | "fly"
 
 export type CertFace = {
@@ -107,7 +117,7 @@ export default function CertAwardMotion({ face, onDone }: { face: CertFace; onDo
                 <div className="ceBrand">ARCODA</div>
                 <div className="ceTitle">MASTER CERTIFICATE</div>
                 <div className="ceRule" />
-                <div className="cePiece">{face.song}</div>
+                <div className="cePiece" style={{ fontSize: `${(5 * fitScale(face.song)).toFixed(2)}cqw`, whiteSpace: "nowrap", maxWidth: "none" }}>{face.song}</div>
                 <div className="ceStars">{starText}</div>
                 <div className="ceBody">この曲を なんども ていねいに 弾きこなしたことを<br />いちばん近くで 聴いてきた わたしが 証明します</div>
                 <div className="ceSealRow">
