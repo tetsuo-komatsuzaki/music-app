@@ -363,9 +363,9 @@ function metricValue(m: Metrics, q: QuestDef): number {
 
 function thresholdOf(q: QuestDef): number {
   if (q.counter?.metric === "lessons_all") return LESSONS.length
-  // カード全制覇: カード格 (認定証以外) のクエスト数 - 1 (自分のカードは達成後に出るため除く)
+  // カード全制覇: カード格 (認定証以外) のクエスト数。cards_all自身は認定証になったため自己除外は不要
   if (q.counter?.metric === "cards_all") {
-    return QUESTS.filter((x) => x.grade !== "cert").length - 1
+    return QUESTS.filter((x) => x.grade !== "cert").length
   }
   return q.counter?.threshold ?? Infinity
 }

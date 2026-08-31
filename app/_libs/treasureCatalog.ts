@@ -4,7 +4,7 @@
 // クエスト定義の正本。中身 (文言・件数・絵柄) は草案v3ベースで【Tetsuo最終確定前】。
 // 構造 (番号・型・カテゴリ・判定メトリクス) の検証が骨組みフェーズの目的。
 // 規約: 番号の再利用禁止 / 欠番はコメントで残す / 文言lintは catalog.test.ts。
-// 授与の格: 通常=カード / 最難関4件=認定証 (grade:"cert") / メダルはカード枚数の節目
+// 授与の格: 通常=カード / 最難関13件=認定証 (grade:"cert") / メダルはカード枚数の節目
 // (クエストではなく MEDAL_MILESTONES)。
 // ============================================================
 
@@ -71,7 +71,7 @@ export type QuestDef = {
   sub: string
   category: string
   type: QuestType
-  /** 授与の格。省略=カード。cert=アルコの認定証 (最難関4件) */
+  /** 授与の格。省略=カード。cert=アルコの認定証 (最難関13件) */
   grade?: "cert"
   /** ホームのボードに出す操作系か */
   home?: true
@@ -142,22 +142,22 @@ export const QUESTS: QuestDef[] = [
   // ── たからものあつめ ──
   { no: 89, questId: "cert_1", title: "はじめての証明書", sub: "マスターの証", category: "たからものあつめ", type: "counter", counter: { metric: "mastered_songs", threshold: 1 } },
   // ── 追加30件 (2026-08-31 Tetsuo採用 C01-C06/C11-C26/C30/C37/C45-C50・全てカウンター型) ──
-  { no: 99, questId: "master_20", title: "マスター20曲", sub: "殿堂のさらに先", category: "曲の道", type: "counter", counter: { metric: "mastered_songs", threshold: 20 } },
+  { no: 99, questId: "master_20", title: "マスター20曲", sub: "殿堂のさらに先", category: "曲の道", type: "counter", grade: "cert", counter: { metric: "mastered_songs", threshold: 20 } },
   { no: 100, questId: "songs90_3", title: "90点を3曲で", sub: "上手が当たり前に", category: "曲の道", type: "counter", counter: { metric: "songs_90", threshold: 3 } },
   { no: 101, questId: "songs95_3", title: "95点を3曲で", sub: "完成度の職人", category: "曲の道", type: "counter", counter: { metric: "songs_95", threshold: 3 } },
-  { no: 102, questId: "score_100", title: "100点達成", sub: "満点の演奏", category: "曲の道", type: "counter", counter: { metric: "score_total", threshold: 100 } },
+  { no: 102, questId: "score_100", title: "100点達成", sub: "満点の演奏", category: "曲の道", type: "counter", grade: "cert", counter: { metric: "score_total", threshold: 100 } },
   { no: 103, questId: "first_take_90", title: "一発で90点", sub: "最初の録音でいきなり", category: "曲の道", type: "counter", counter: { metric: "first_take_90", threshold: 1 } },
   { no: 104, questId: "song_rec_10", title: "同じ曲を10回録音", sub: "1曲をとことん", category: "曲の道", type: "counter", counter: { metric: "song_rec_max", threshold: 10 } },
-  { no: 105, questId: "rec_1000", title: "録音1000回", sub: "伝説の練習量", category: "つみかさねの道", type: "counter", counter: { metric: "recordings", threshold: 1000 } },
-  { no: 106, questId: "basics_250", title: "基礎練250回", sub: "鋼の土台", category: "つみかさねの道", type: "counter", counter: { metric: "practice_runs", threshold: 250 } },
+  { no: 105, questId: "rec_1000", title: "録音1000回", sub: "伝説の練習量", category: "つみかさねの道", type: "counter", grade: "cert", counter: { metric: "recordings", threshold: 1000 } },
+  { no: 106, questId: "basics_250", title: "基礎練250回", sub: "鋼の土台", category: "つみかさねの道", type: "counter", grade: "cert", counter: { metric: "practice_runs", threshold: 250 } },
   { no: 107, questId: "lessons_15", title: "学びのレッスン15", sub: "わざの図鑑ができていく", category: "つみかさねの道", type: "counter", counter: { metric: "lessons_cleared", threshold: 15 } },
   { no: 108, questId: "scale_10", title: "音階を10回", sub: "音づくりの習慣", category: "つみかさねの道", type: "counter", counter: { metric: "scale_runs", threshold: 10 } },
   { no: 109, questId: "arpeggio_10", title: "アルペジオを10回", sub: "和音の足腰", category: "つみかさねの道", type: "counter", counter: { metric: "arpeggio_runs", threshold: 10 } },
   { no: 110, questId: "etude_10", title: "エチュードを10回", sub: "磨きの積み重ね", category: "つみかさねの道", type: "counter", counter: { metric: "etude_runs", threshold: 10 } },
   { no: 111, questId: "day_rec5", title: "1日に5回録音", sub: "集中練習の日", category: "つみかさねの道", type: "counter", counter: { metric: "day_rec5", threshold: 1 } },
   { no: 112, questId: "day_both", title: "1日で曲も基礎練も", sub: "バランスのよい練習", category: "つみかさねの道", type: "counter", counter: { metric: "day_both", threshold: 1 } },
-  { no: 113, questId: "streak_200", title: "200日つづける", sub: "道はまだつづく", category: "続ける力", type: "counter", counter: { metric: "streak", threshold: 200 } },
-  { no: 114, questId: "streak_365", title: "365日つづける", sub: "1年の道", category: "続ける力", type: "counter", counter: { metric: "streak", threshold: 365 } },
+  { no: 113, questId: "streak_200", title: "200日つづける", sub: "道はまだつづく", category: "続ける力", type: "counter", grade: "cert", counter: { metric: "streak", threshold: 200 } },
+  { no: 114, questId: "streak_365", title: "365日つづける", sub: "1年の道", category: "続ける力", type: "counter", grade: "cert", counter: { metric: "streak", threshold: 365 } },
   { no: 115, questId: "days_30", title: "のべ30日", sub: "ひと月ぶんの練習日", category: "続ける力", type: "counter", counter: { metric: "total_days", threshold: 30 } },
   { no: 116, questId: "days_200", title: "のべ200日", sub: "積もる日々", category: "続ける力", type: "counter", counter: { metric: "total_days", threshold: 200 } },
   { no: 117, questId: "weekend_both", title: "土日どちらも練習", sub: "週末の音楽家", category: "続ける力", type: "counter", counter: { metric: "weekend_both", threshold: 1 } },
@@ -182,14 +182,14 @@ export const QUESTS: QuestDef[] = [
   { no: 135, questId: "scale_50", title: "音階を50回", sub: "基本をきわめる", category: "つみかさねの道", type: "counter", counter: { metric: "scale_runs", threshold: 50 } },
   { no: 136, questId: "lessons_20", title: "学びのレッスン20", sub: "わざはかせ", category: "つみかさねの道", type: "counter", counter: { metric: "lessons_cleared", threshold: 20 } },
   { no: 137, questId: "songs90_5", title: "90点を5曲で", sub: "どの曲もハイレベル", category: "曲の道", type: "counter", counter: { metric: "songs_90", threshold: 5 } },
-  { no: 138, questId: "master_30", title: "マスター30曲", sub: "生きる伝説", category: "曲の道", type: "counter", counter: { metric: "mastered_songs", threshold: 30 } },
+  { no: 138, questId: "master_30", title: "マスター30曲", sub: "生きる伝説", category: "曲の道", type: "counter", grade: "cert", counter: { metric: "mastered_songs", threshold: 30 } },
   { no: 139, questId: "best_20", title: "自己ベストを20回更新", sub: "成長がとまらない", category: "じぶんの音をみがく", type: "counter", counter: { metric: "best_updates", threshold: 20 } },
-  { no: 140, questId: "days_365", title: "のべ365日", sub: "1年ぶんの練習日", category: "続ける力", type: "counter", counter: { metric: "total_days", threshold: 365 } },
+  { no: 140, questId: "days_365", title: "のべ365日", sub: "1年ぶんの練習日", category: "続ける力", type: "counter", grade: "cert", counter: { metric: "total_days", threshold: 365 } },
   { no: 141, questId: "titles_3", title: "ランクアップを3回", sub: "のぼり続ける人", category: "たからものあつめ", type: "counter", counter: { metric: "titles_count", threshold: 3 } },
   { no: 142, questId: "nintei_1", title: "はじめての認定証", sub: "最難関のあかし", category: "たからものあつめ", type: "counter", counter: { metric: "nintei_count", threshold: 1 } },
   { no: 143, questId: "medals_5", title: "メダルを5個全部", sub: "節目の完全制覇", category: "たからものあつめ", type: "counter", counter: { metric: "medals_count", threshold: 5 } },
   { no: 144, questId: "treasures_100", title: "宝物100個", sub: "あふれるギャラリー", category: "たからものあつめ", type: "counter", counter: { metric: "treasures_count", threshold: 100 } },
-  { no: 145, questId: "cards_all", title: "カードを全部あつめる", sub: "カードコンプリート", category: "たからものあつめ", type: "counter", counter: { metric: "cards_all", threshold: 0 } },
+  { no: 145, questId: "cards_all", title: "カードを全部あつめる", sub: "カードコンプリート", category: "たからものあつめ", type: "counter", grade: "cert", counter: { metric: "cards_all", threshold: 0 } },
   { no: 146, questId: "share_10", title: "シェア10回", sub: "応援団がついてる", category: "シェアする", type: "counter", counter: { metric: "action", threshold: 10, action: "share" } },
 ]
 
@@ -223,6 +223,60 @@ export const NINTEI_FACES: Record<string, NinteiFaceDef> = {
     kindLine: "継続の認定証",
     body1: "100日つづけて練習したことを ここに認定します",
     body2: "続ける力は いちばんの才能です",
+  },
+  master_20: {
+    big: "20 MASTERS",
+    kindLine: "栄光の認定証",
+    body1: "20曲をマスターしたことを ここに認定します",
+    body2: "きみの音楽は 立派な財産です",
+  },
+  master_30: {
+    big: "30 MASTERS",
+    kindLine: "伝説の認定証",
+    body1: "30曲をマスターしたことを ここに認定します",
+    body2: "その歩みは もう伝説です",
+  },
+  rec_1000: {
+    big: "1000 TAKES",
+    kindLine: "鍛錬の認定証",
+    body1: "1000回の録音を かさねたことを ここに認定します",
+    body2: "積み重ねの力を わたしは知っています",
+  },
+  basics_250: {
+    big: "250 DRILLS",
+    kindLine: "土台の認定証",
+    body1: "基礎練を250回 かさねたことを ここに認定します",
+    body2: "ゆるがない土台が きみの音を支えます",
+  },
+  streak_200: {
+    big: "200 DAYS",
+    kindLine: "不屈の認定証",
+    body1: "200日つづけて練習したことを ここに認定します",
+    body2: "続いた日々そのものが 誇りです",
+  },
+  streak_365: {
+    big: "365 DAYS",
+    kindLine: "1年の認定証",
+    body1: "365日つづけて練習したことを ここに認定します",
+    body2: "音楽が きみの毎日になりました",
+  },
+  days_365: {
+    big: "365 TOTAL",
+    kindLine: "歩みの認定証",
+    body1: "のべ365日の練習を ここに認定します",
+    body2: "1年ぶんの音が きみの中にあります",
+  },
+  score_100: {
+    big: "PERFECT 100",
+    kindLine: "満点の認定証",
+    body1: "100点の演奏を ここに認定します",
+    body2: "完璧な瞬間に 立ち会えました",
+  },
+  cards_all: {
+    big: "ALL CARDS",
+    kindLine: "完集の認定証",
+    body1: "すべてのカードを あつめたことを ここに認定します",
+    body2: "きみの旅の すべてが ここにあります",
   },
 }
 
