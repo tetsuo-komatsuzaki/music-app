@@ -10,12 +10,13 @@
 // 点灯までどの本番画面からも参照しない (ダーク)。
 // ============================================================
 
-import { useState, type ReactNode } from "react"
+import React, { useState, type ReactNode } from "react"
 import Coin from "@/app/components/Coin"
 import ShareSheet from "@/app/components/ShareSheet"
 import type { ShareKind } from "@/app/_libs/shareCard"
 import { MEDAL_MILESTONES, NINTEI_FACES, QUESTS } from "@/app/_libs/treasureCatalog"
 import { MedalFace, ScrollFace, TreasureFaceStyles } from "./TreasureFaces"
+import RankEmblem from "@/app/components/RankEmblem"
 
 export type GalleryCoin = { scoreId: string; title: string; star: number; mastered: boolean }
 export type GalleryTreasure = {
@@ -29,11 +30,15 @@ export type GalleryTreasure = {
 
 const QUEST_TITLE = new Map(QUESTS.map((q) => [q.questId, q.title]))
 
-function MiniCard({ no, title, badge, num }: { no: string; title: string; badge?: "称号" | "記念"; num: string }) {
+function MiniCard({ no, title, badge, num, emblem }: {
+  no: string; title: string; badge?: "称号" | "記念"; num: string
+  /** 数字円のかわりに置く紋章 (称号=RankEmblem) */
+  emblem?: React.ReactNode
+}) {
   return (
     <span className="glMini">
       <span className="glMiniNo">{no}</span>
-      <span className="glMiniNum">{num}</span>
+      {emblem ?? <span className="glMiniNum">{num}</span>}
       <span className="glMiniTitle">{title}</span>
       {badge && <span className={`glMiniBadge ${badge === "称号" ? "glBTitle" : "glBMemo"}`}>{badge}</span>}
     </span>
@@ -176,6 +181,7 @@ export default function GalleryShelves({
                   <MiniCard
                     no={isTitle ? `STAR ${t.sourceId}` : "MASTER"}
                     num={isTitle ? t.sourceId : "M"}
+                    emblem={isTitle ? <span style={{ marginTop: 10 }}><RankEmblem star={Number(t.sourceId) || 1} size="36px" /></span> : undefined}
                     title={isTitle ? "ランクアップ" : (t.label ?? "マスター記念")}
                     badge={isTitle ? "称号" : "記念"}
                   />

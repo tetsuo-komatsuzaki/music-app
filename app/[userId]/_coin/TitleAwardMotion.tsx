@@ -7,11 +7,12 @@
 //   青い光の柱+粒子が中心へ集積 → 閃光+光輪 → カードが光から凝結 → きらめき
 //   → うけとる待ち → マイランクカードへ飛翔 → 完了。
 // 券面: クリーム+金縁のカード族に青の差し色 (称号=青の格式)。
-// 青メダリオン紋章+★ / 金箔の★列 / ランク名 / 日付。ホロとサンバースト。
+// ランク紋章 (RankEmblem・青→銀→金の10段) / 金箔の★列 / ランク名 / 日付。
 // reduced-motion は呼び手 (TreasureCelebration) が演出ごと省略する。
 // ============================================================
 
 import { useEffect, useRef, useState } from "react"
+import RankEmblem from "@/app/components/RankEmblem"
 
 
 /** 主役テキストを1行に収めるフォント倍率 (2026-08-31 仕様: 2行に分かれない) */
@@ -101,7 +102,7 @@ export default function TitleAwardMotion({ face, onDone }: { face: TitleFace; on
             <div className="tiWrap">
               <div className="tiKlabel">称号カード</div>
               <i className="tiKrule" />
-              <div className="tiEmblem"><i className="tiEmedal" /><span className="tiEstar">★</span></div>
+              <div className="tiEmblem"><RankEmblem star={face.star} size="19cqw" /></div>
               <div className="tiKstars tiFoil"><span>{starRow1}</span>{starRow2 && <span className="tiKstars2">{starRow2}</span>}</div>
               <div className="tiKrank" style={{ fontSize: `${(6.2 * fitScale(face.rankName)).toFixed(2)}cqw`, whiteSpace: "nowrap" }}>{face.rankName}</div>
               <div className="tiKdate">{face.date}</div>
@@ -212,20 +213,7 @@ export default function TitleAwardMotion({ face, onDone }: { face: TitleFace; on
 .tiKrule::after { content:""; position:absolute; left:50%; top:-3.2px; width:5px; height:5px;
   transform:translateX(-50%) rotate(45deg);
   background:linear-gradient(135deg,#7a9ade,#3d5da8 60%,#25406e); }
-.tiEmblem { position:relative; margin-top:3.4%; width:19cqw; height:19cqw; }
-.tiEmedal { position:absolute; inset:0; border-radius:50%; overflow:hidden; display:block;
-  background:
-    repeating-conic-gradient(from 0deg, rgba(200,220,255,.16) 0 6deg, rgba(20,35,70,.16) 6deg 12deg),
-    radial-gradient(circle at 36% 28%, #5578c4, #3d5da8 42%, #25406e 82%, #16264a);
-  box-shadow:0 5px 12px rgba(20,35,70,.5), inset 0 2px 3px rgba(200,220,255,.4), inset 0 -3px 6px rgba(8,14,36,.7); }
-.tiEmedal::before { content:""; position:absolute; inset:7%; border-radius:50%;
-  border:1.2px solid rgba(200,220,255,.5); box-shadow:inset 0 1px 2px rgba(200,220,255,.3); }
-.tiEmedal::after { content:""; position:absolute; inset:15%; border-radius:50%;
-  background:radial-gradient(circle at 40% 32%, rgba(122,154,222,.85), rgba(37,64,110,.45) 60%, transparent);
-  border:1px solid rgba(122,154,222,.4); }
-.tiEstar { position:absolute; inset:0; display:grid; place-items:center; z-index:2;
-  font-size:8.4cqw; font-weight:900; color:#eaf1ff;
-  text-shadow:0 1px 0 rgba(255,255,255,.5), 0 -1px 2px rgba(8,14,36,.8), 0 0 14px rgba(140,175,255,.6); }
+.tiEmblem { position:relative; margin-top:5%; width:19cqw; height:19cqw; display:grid; place-items:center; }
 .tiFoil { background:linear-gradient(100deg,#b8892e 0%,#f5d98c 25%,#fff6d8 50%,#f5d98c 75%,#b8892e 100%);
   background-size:220% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
   animation:tiFoilK 3.6s linear infinite;
