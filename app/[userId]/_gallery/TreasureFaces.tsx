@@ -10,6 +10,14 @@
 // ============================================================
 
 const MEDAL_REGION = { x: 125, y: 45, w: 155, h: 350 }
+
+/** 賞状に立つアルコ (静止用ポスター)。モーション側のランダム5種と同じ顔ぶれから決定的に選ぶ */
+const AWARD_ARCO_POSTERS = ["01C", "05C", "06B", "08B", "09A"] as const
+function arcoPoster(seed: string): string {
+  let h = 0
+  for (const ch of seed) h = (h * 31 + ch.charCodeAt(0)) >>> 0
+  return `/proto/assets/motion/${AWARD_ARCO_POSTERS[h % AWARD_ARCO_POSTERS.length]}_poster.jpg`
+}
 const SCROLL_REGION = { x: 56, y: 170, w: 290, h: 480 }
 
 /** メダル (v4造形・静止)。height で大きさ指定 */
@@ -69,12 +77,10 @@ export function ScrollFace({
                 <i className="tfRule" />
                 <span className="tfPiece">{piece}</span>
                 {kindLine && <span className="tfKind">{kindLine}</span>}
-                <span className="tfSealRow">
-                  <span className="tfSeal">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img className="tfSealImg" src="/arco/05B.jpg" alt="" />
-                  </span>
-                  <span className="tfSign">Arco</span>
+                {/* 案2 封印の後継 (静止はポスター画・piece文字列で決定的に選ぶ) */}
+                <span className="tfArco">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={arcoPoster(piece)} alt="" />
                 </span>
               </span>
             </span>
@@ -236,19 +242,9 @@ export function TreasureFaceStyles() {
   text-shadow:0 1px 0 rgba(255,252,240,.95); max-width:54cqw; }
 .tfKind { margin-top:1.1cqh; font-size:2.9cqw; letter-spacing:.34em; text-indent:.34em; color:var(--tfSub); font-weight:700;
   text-shadow:0 1px 0 rgba(255,252,240,.9); }
-.tfSealRow { margin-top:2.6cqh; display:flex; align-items:center; gap:3.4cqw; }
-.tfSeal { position:relative; width:11.4cqw; height:11.4cqw; }
-.tfSeal::before { content:""; position:absolute; inset:-1.1cqw;
-  border-radius:46% 54% 51% 49% / 52% 47% 53% 48%;
-  background:radial-gradient(circle at 36% 30%, #a83232, #7e1c1c 52%, #541010 88%);
-  box-shadow:0 3px 6px rgba(60,20,10,.5), inset 0 2px 3px rgba(255,180,160,.35), inset 0 -3px 5px rgba(40,8,8,.6); }
-.tfSealImg { position:absolute; inset:0.7cqw; width:10cqw; height:10cqw; border-radius:50%; object-fit:cover;
-  box-shadow:inset 0 2px 4px rgba(60,20,10,.55), 0 0 0 1.4px var(--tfA);
-  filter:sepia(.28) saturate(.92); }
-.tfSign { font-size:3.1cqw; font-weight:700; color:#4e3a12; font-style:italic; letter-spacing:.06em;
-  font-family:"Snell Roundhand","Brush Script MT","Zen Kaku Gothic New",cursive;
-  text-shadow:0 1px 0 rgba(255,252,240,.85);
-  transform:rotate(-2.5deg); }
+.tfArco { margin-top:2cqh; width:22cqw; height:22cqw; border-radius:50%; overflow:hidden; display:block;
+  box-shadow:0 3px 8px rgba(60,42,10,.3), 0 0 0 1.4px var(--tfA); }
+.tfArco img { width:100%; height:100%; object-fit:cover; display:block; }
     `}</style>
   )
 }
