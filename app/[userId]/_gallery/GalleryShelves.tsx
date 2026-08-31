@@ -30,17 +30,32 @@ export type GalleryTreasure = {
 
 const QUEST_TITLE = new Map(QUESTS.map((q) => [q.questId, q.title]))
 
-function MiniCard({ no, title, badge, num, emblem }: {
-  no: string; title: string; badge?: "称号" | "記念"; num: string
-  /** 数字円のかわりに置く紋章 (称号=RankEmblem) */
+/** 券面タイトルを1行に収めるフォント倍率 (ミニ96px幅用にモーション版よりきつめ) */
+function miniFit(text: string): number {
+  const n = [...text].length
+  if (n <= 6) return 1
+  if (n <= 9) return 0.75
+  if (n <= 12) return 0.6
+  if (n <= 16) return 0.46
+  return 0.4
+}
+
+// カードv3の券面 (CardAwardMotion.caFront) のミニ静止版。仮置きの数字円をやめ、
+// クリーム地+銀二重縁+ARCODAブランド+アルコ円形写真の正本デザインに揃える。
+function MiniCard({ no, title, badge, emblem }: {
+  no: string; title: string; badge?: "称号" | "記念"
+  /** アルコ写真のかわりに置く紋章 (称号=RankEmblem) */
   emblem?: React.ReactNode
 }) {
   return (
     <span className="glMini">
-      <span className="glMiniNo">{no}</span>
-      {emblem ?? <span className="glMiniNum">{num}</span>}
-      <span className="glMiniTitle">{title}</span>
+      <span className="glMiniBrand">ARCODA</span>
+      {emblem
+        ? <span className="glMiniEmb">{emblem}</span>
+        : <span className="glMiniArt">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/arco/05B.jpg" alt="" /></span>}
+      <span className="glMiniTitle" style={{ fontSize: `${Math.round(90 * miniFit(title)) / 10}px`, whiteSpace: "nowrap" }}>{title}</span>
       {badge && <span className={`glMiniBadge ${badge === "称号" ? "glBTitle" : "glBMemo"}`}>{badge}</span>}
+      <span className="glMiniNo">{no}</span>
     </span>
   )
 }
@@ -132,7 +147,7 @@ export default function GalleryShelves({
         {tabs.map((t) => (
           <button key={t.id} type="button" className={`glTab ${tab === t.id ? "on" : ""}`} onClick={() => setTab(t.id)}>
             <span className="glTName">{t.label}</span>
-            <span className="glTCount">{t.n} しょじ</span>
+            <span className="glTCount">{t.n} 所持</span>
           </button>
         ))}
       </div>
@@ -167,7 +182,7 @@ export default function GalleryShelves({
               {cards.map((t) => {
                 const title = QUEST_TITLE.get(t.sourceId) ?? ""
                 const no = t.catalogNo != null ? `No.${String(t.catalogNo).padStart(3, "0")}` : ""
-                const mini = <MiniCard no={no} num={String(t.catalogNo ?? "")} title={title} />
+                const mini = <MiniCard no={no} title={title} />
                 return <span key={t.sourceId}>{zoomable(mini, <div className="glZoomCard">{mini}</div>)}</span>
               })}
             </div>
@@ -180,8 +195,7 @@ export default function GalleryShelves({
                 const mini = (
                   <MiniCard
                     no={isTitle ? `STAR ${t.sourceId}` : "MASTER"}
-                    num={isTitle ? t.sourceId : "M"}
-                    emblem={isTitle ? <span style={{ marginTop: 10 }}><RankEmblem star={Number(t.sourceId) || 1} size="36px" /></span> : undefined}
+                    emblem={isTitle ? <RankEmblem star={Number(t.sourceId) || 1} size="40px" /> : undefined}
                     title={isTitle ? "ランクアップ" : (t.label ?? "マスター記念")}
                     badge={isTitle ? "称号" : "記念"}
                   />
@@ -236,8 +250,6 @@ export default function GalleryShelves({
           </Case>
         </div>
       )}
-
-      <p className="glFoot">宝物をタップすると おおきく眺められるよ</p>
 
       {zoom != null && (
         <div className="glZoom" onClick={() => setZoom(null)}>
@@ -336,21 +348,27 @@ export default function GalleryShelves({
   box-shadow:0 4px 8px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.1); }
 .glPedTag { display:block; margin-top:8px; font-size:9px; color:#8fa0c4; letter-spacing:.08em; line-height:1.5; }
 .glMini { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-  width:92px; aspect-ratio:3/4.1; border-radius:8px; padding:9px 6px 6px; box-sizing:border-box;
-  background:linear-gradient(172deg,#faf4e4 0%,#f3ead2 55%,#eadfc2 100%);
-  border:1.5px solid #c99a35; box-shadow:0 6px 14px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.7); }
-.glMiniNo { font-size:7.5px; font-weight:800; letter-spacing:.14em; color:#8a6a1a; align-self:flex-start; }
-.glMiniNum { margin-top:8px; width:34px; height:34px; border-radius:50%; display:grid; place-items:center;
-  border:1.4px solid #c99a35; color:#8a6a1a; font-size:15px; font-weight:900;
-  background:radial-gradient(circle at 35% 30%, #fdf6dd, #f3e6bf); }
-.glMiniTitle { margin-top:8px; font-size:9px; font-weight:800; color:#503a10; line-height:1.5; text-align:center; }
-.glMiniBadge { position:absolute; bottom:6px; font-size:7.5px; font-weight:900; border-radius:999px; padding:2px 9px; color:#fff; }
+  width:96px; aspect-ratio:3/4.1; border-radius:9px; padding:11px 6px 8px; box-sizing:border-box; overflow:hidden;
+  background:linear-gradient(160deg, #f9f4e8, #ede4ce 85%);
+  border:1px solid #d7dfee;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.65), inset 0 0 0 3px rgba(148,162,190,.75),
+    inset 0 0 0 5px rgba(249,244,232,.9), inset 0 0 0 6px rgba(148,162,190,.4),
+    0 6px 14px rgba(0,0,0,.5); }
+.glMini::before { content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+  background:repeating-linear-gradient(0deg, transparent 0 3px, rgba(120,110,90,.05) 3px 4px); }
+.glMiniBrand { font-size:6.5px; letter-spacing:.4em; padding-left:.4em; color:#8a7a4e; font-weight:900; }
+.glMiniArt { display:block; width:52%; aspect-ratio:1; margin-top:7px; border-radius:50%; overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(148,162,190,.6), 0 2px 6px rgba(43,51,80,.18); }
+.glMiniArt img { width:100%; height:100%; object-fit:cover; display:block; }
+.glMiniEmb { display:grid; place-items:center; width:52%; aspect-ratio:1; margin-top:7px; }
+.glMiniNo { margin-top:auto; font-size:6.5px; font-weight:700; letter-spacing:.24em; padding-left:.24em; color:#8a93a8; }
+.glMiniTitle { margin-top:7px; max-width:94%; overflow:hidden; font-weight:900; color:#2b3350; line-height:1.4; text-align:center; letter-spacing:.02em; }
+.glMiniBadge { font-size:7.5px; font-weight:900; border-radius:999px; padding:2px 9px; margin-top:4px; color:#fff; }
 .glBTitle { background:#2b5bc4; }
 .glBMemo { background:#a5761c; }
 .glEmpty { position:relative; z-index:3; width:150px; margin:4px auto 6px; aspect-ratio:3/3.6; border-radius:8px;
   border:1.5px dashed rgba(150,175,225,.3); display:grid; place-items:center; padding:12px; box-sizing:border-box; }
 .glEmpty span { font-size:10px; color:#8fa0c4; line-height:1.9; text-align:center; font-weight:700; }
-.glFoot { text-align:center; font-size:9.5px; color:#5d6b8c; letter-spacing:.14em; margin:6px 0 0; }
 .glZoom { position:fixed; inset:0; z-index:960; background:rgba(4,7,14,.9);
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; cursor:pointer;
   animation:glZoomIn .25s ease; }

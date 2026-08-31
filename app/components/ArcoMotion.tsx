@@ -36,13 +36,14 @@ export default function ArcoMotion({ kit, label, className }: {
 
   return (
     <span className={`${styles.wrap} ${className ?? ""}`}>
+      {/* ポスターは常時下敷き (動画のロード中・再生不可端末で白円にしない) */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- 動画のポスターと同一素材のためImage最適化不要 */}
+      <img className={styles.still} src={poster} alt={label} />
       {!stillOnly && (
         <video ref={videoRef} className={styles.video} autoPlay muted loop playsInline poster={poster} aria-label={label}>
           <source src={mp4} type="video/mp4" />
         </video>
       )}
-      {/* eslint-disable-next-line @next/next/no-img-element -- 動画のポスターと同一素材のためImage最適化不要 */}
-      <img className={styles.still} src={poster} alt={label} style={stillOnly ? { display: "block" } : undefined} />
     </span>
   )
 }

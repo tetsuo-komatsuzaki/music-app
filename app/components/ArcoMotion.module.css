@@ -6,15 +6,22 @@
   border-radius: 50%; /* 既定は円形クリップ (白い四角を見せない) */
   background: #faf9f6; /* 原本 --ivory-circle */
 }
-.video,
+/* ポスターを常時下敷きにする (2026-08-31 本番指摘: mp4のロード中や
+   自動再生が描画されない端末で白円のままになる。動画は上に重ねる) */
 .still {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.still { display: none; }
+.video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 @media (prefers-reduced-motion: reduce) {
   .video { display: none; }
-  .still { display: block; }
 }

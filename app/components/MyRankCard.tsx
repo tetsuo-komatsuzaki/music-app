@@ -22,6 +22,8 @@ export default function MyRankCard(props: RankCardData & {
   const { currentStar, required, achievedCount, stamps, onGuide, flashAt, gallery } = props
   const [open, setOpen] = useState(false)
   const [openStamp, setOpenStamp] = useState<number | null>(null)
+  // ギャラリーはシートの差し替えではなく入口ボタンから開く別ビュー (2026-08-31)
+  const [showGallery, setShowGallery] = useState(false)
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
 
@@ -56,11 +58,7 @@ export default function MyRankCard(props: RankCardData & {
         data-onboarding="home.rankCard"
         data-guide="home-rank-card"
         className={`${ds.card} pressable`}
-        onClick={() => {
-          setOpen(true)
-          // 報酬体系: ギャラリー閲覧クエスト (No.084・シートが3棚ギャラリーに差し替わる)
-          void import("@/app/actions/questEvents").then((m) => m.recordQuestEvent("gallery_open"))
-        }}
+        onClick={() => setOpen(true)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true) } }}
         style={{ cursor: "pointer", animation: flashing ? "rankFlash .7s ease" : undefined }}
       >
@@ -110,20 +108,47 @@ export default function MyRankCard(props: RankCardData & {
 
       {/* ボトムシート: 演奏の軌跡 */}
       {mounted && open && createPortal(
-        <div className={styles.modal} onClick={() => { setOpen(false); setOpenStamp(null) }}>
+        <div className={styles.modal} onClick={() => { setOpen(false); setOpenStamp(null); setShowGallery(false) }}>
           <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
             <div className={styles.grab} />
-            <button type="button" className={styles.close} aria-label="閉じる" onClick={() => { setOpen(false); setOpenStamp(null) }}>✕</button>
-            {gallery == null && <div className={styles.sheetttl}>演奏の軌跡</div>}
-            {/* 点灯後: ギャラリー3棚 (Museum Edition) に差し替え。ヘッダは棚側が持つ */}
-            {gallery != null && (
+            <button type="button" className={styles.close} aria-label="閉じる" onClick={() => { setOpen(false); setOpenStamp(null); setShowGallery(false) }}>✕</button>
+            {/* 2026-08-31 本番指摘: ランクカードのシートは演奏の軌跡のまま。
+                ギャラリーは差し替えではなく入口ボタンから開く別ビューにする */}
+            {showGallery && gallery != null ? (
               <div className={styles.sheetbody}>
+                <button
+                  type="button"
+                  onClick={() => setShowGallery(false)}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "none", border: "none", padding: "2px 2px 10px", fontSize: 11.5, fontWeight: 800, color: "var(--text-sub)", cursor: "pointer" }}
+                >
+                  ‹ 演奏の軌跡へもどる
+                </button>
                 <GalleryShelves coins={gallery.coins} required={required} treasures={gallery.treasures} />
               </div>
-            )}
-            {gallery == null && (<>
+            ) : (<>
+            <div className={styles.sheetttl}>演奏の軌跡</div>
             {/* モック trace1 (home-06 コインの列) の写経 */}
             <div className={styles.sheetbody}>
+
+              {gallery != null && (
+                <button
+                  type="button"
+                  className="pressable"
+                  onClick={() => {
+                    setShowGallery(true)
+                    // 報酬体系: ギャラリー閲覧クエスト (No.084)
+                    void import("@/app/actions/questEvents").then((m) => m.recordQuestEvent("gallery_open"))
+                  }}
+                  style={{
+                    width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+                    marginBottom: 12, padding: "11px 12px", cursor: "pointer",
+                    background: "linear-gradient(180deg,#1b2544,#101a34)", border: "1px solid rgba(212,168,72,.45)",
+                    borderRadius: 12, fontSize: 12.5, fontWeight: 900, color: "#f5d98c", letterSpacing: ".08em",
+                  }}
+                >
+                  宝物の棚をひらく →
+                </button>
+              )}
 
               <div className={ds.card}>
                 <div className={ds.lab}>達成した曲</div>

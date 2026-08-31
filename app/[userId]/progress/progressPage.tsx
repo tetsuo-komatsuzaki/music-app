@@ -43,12 +43,12 @@ const Rule = () => (
   <div style={{ height: 1, margin: "16px 16px 0", background: "rgba(150,175,225,.12)" }} />
 )
 
-/** 原本 catbar: 幅74ラベル + ds.bar + n/m */
+/** 原本 catbar: ラベル + ds.bar + n/m。ラベルは7字級 (フィンガリング/やさしい・歌う) でも1行 */
 function CatBar({ label, done, total, col }: { label: string; done: number; total: number; col: string }) {
   const pct = Math.round((done / Math.max(1, total)) * 100)
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 9 }}>
-      <span style={{ width: 74, fontSize: 11.5, fontWeight: 800, flex: "none", color: "var(--text-ink)" }}>{label}</span>
+      <span style={{ width: 88, fontSize: 11, fontWeight: 800, flex: "none", whiteSpace: "nowrap", color: "var(--text-ink)" }}>{label}</span>
       <div className={ds.bar} style={{ flex: 1 }}>
         <i style={{ width: `${pct}%`, background: col }} />
       </div>
@@ -160,9 +160,8 @@ function SkillsChapter({ userId, data, readOnly, detailBase }: { userId: string;
       </div>
     )
   }
-  const { nodes, currentStar } = data.skillMap
+  const { nodes } = data.skillMap
   const litOf = (n: SkillNode) => n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata"
-  const litCount = nodes.filter(litOf).length
   const byId = new Map(nodes.map((n) => [n.id, n]))
   const cats = SKILL_CATEGORIES.map((c) => {
     const items = c.ids.map((id) => byId.get(id)).filter((n): n is SkillNode => !!n)
@@ -172,8 +171,7 @@ function SkillsChapter({ userId, data, readOnly, detailBase }: { userId: string;
   return (
     <div style={{ padding: "18px 16px 16px" }}>
       <div style={kicker}>SKILLS</div>
-      <div style={chapTitle}>わざの習得状況 <span style={{ fontSize: 10, fontWeight: 800, color: "var(--text-sub)" }}>いまの★{currentStar}</span></div>
-      <div style={chapNote}>15のわざ ・ {litCount}つ点灯</div>
+      <div style={chapTitle}>わざの習得状況</div>
       <div style={{ marginTop: 1 }}>
         {cats.map((c) => <CatBar key={c.label} label={c.label} done={c.lit} total={c.total} col="var(--gold)" />)}
       </div>
@@ -217,10 +215,7 @@ function ExprChapter({ userId, data, readOnly, detailBase }: { userId: string; d
     <div style={{ padding: "18px 16px 16px" }}>
       <div style={kicker}>ESPRESSIONE</div>
       <div style={chapTitle}>表現の習得状況</div>
-      <div style={chapNote}>
-        15の表現 ・ {litCount}つ認定
-        {litCount === 0 && " ・ 曲で表現して「先生に聴いてもらう」と認定されるよ"}
-      </div>
+      {litCount === 0 && <div style={chapNote}>曲で表現して「先生に聴いてもらう」と認定されるよ</div>}
       <div style={{ marginTop: 1 }}>
         {cats.map((c) => <CatBar key={c.label} label={c.label} done={c.lit} total={c.total} col="#7fc4c4" />)}
       </div>

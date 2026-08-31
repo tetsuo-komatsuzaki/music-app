@@ -99,7 +99,6 @@ export const QUESTS: QuestDef[] = [
   { no: 92, questId: "etude_first", title: "エチュードをやってみる", sub: "わざを磨く1冊を開く", category: "はじまりの旅", type: "counter", home: true, counter: { metric: "etude_runs", threshold: 1 } },
   { no: 93, questId: "scale_first", title: "音階をやってみる", sub: "音づくりの基本の1回", category: "はじまりの旅", type: "counter", home: true, counter: { metric: "scale_runs", threshold: 1 } },
   { no: 94, questId: "arpeggio_first", title: "アルペジオをやってみる", sub: "和音の指づかいに触れる", category: "はじまりの旅", type: "counter", home: true, counter: { metric: "arpeggio_runs", threshold: 1 } },
-  { no: 76, questId: "share_card", title: "カードをシェアする", sub: "がんばりを見せよう", category: "はじまりの旅", type: "event", home: true, hook: "シェアカード作成action" },
   { no: 84, questId: "gallery_open", title: "ギャラリーを開く", sub: "宝物の家へ", category: "はじまりの旅", type: "event", home: true, hook: "recordQuestEvent (ギャラリー表示)" },
   // ── 曲の道 ──
   { no: 22, questId: "achieve_1", title: "はじめての達成", sub: "1曲を弾けるように", category: "曲の道", type: "counter", counter: { metric: "achieved_songs", threshold: 1 } },
@@ -135,10 +134,6 @@ export const QUESTS: QuestDef[] = [
   { no: 69, questId: "timing_90", title: "リズム90点を達成", sub: "正確な拍", category: "じぶんの音をみがく", type: "counter", counter: { metric: "score_timing", threshold: 90 } },
   { no: 70, questId: "pitch_95", title: "音程95点を達成", sub: "研ぎすまされた音程", category: "じぶんの音をみがく", type: "counter", counter: { metric: "score_pitch", threshold: 95 } },
   { no: 71, questId: "timing_95", title: "リズム95点を達成", sub: "きざむ拍が美しい", category: "じぶんの音をみがく", type: "counter", counter: { metric: "score_timing", threshold: 95 } },
-  // ── シェアする (フェーズ3で配線) ──
-  { no: 83, questId: "share_cert", title: "証明書をシェア", sub: "誇りを届ける", category: "シェアする", type: "event", hook: "証明書シェアaction (フェーズ3)" },
-  { no: 97, questId: "share_nintei", title: "認定証をシェアする", sub: "挑戦のあかしを見せよう", category: "シェアする", type: "event", hook: "認定証シェアaction (フェーズ3)" },
-  { no: 98, questId: "share_medal", title: "メダルをシェアする", sub: "節目のよろこびを一緒に", category: "シェアする", type: "event", hook: "メダルシェアaction (フェーズ3)" },
   // ── たからものあつめ ──
   { no: 89, questId: "cert_1", title: "はじめての証明書", sub: "マスターの証", category: "たからものあつめ", type: "counter", counter: { metric: "mastered_songs", threshold: 1 } },
   // ── 追加30件 (2026-08-31 Tetsuo採用 C01-C06/C11-C26/C30/C37/C45-C50・全てカウンター型) ──
@@ -170,7 +165,6 @@ export const QUESTS: QuestDef[] = [
   { no: 124, questId: "cards_30", title: "カード30枚", sub: "りっぱなコレクション", category: "たからものあつめ", type: "counter", counter: { metric: "cards_count", threshold: 30 } },
   { no: 125, questId: "medals_3", title: "メダルを3個", sub: "節目をかさねて", category: "たからものあつめ", type: "counter", counter: { metric: "medals_count", threshold: 3 } },
   { no: 126, questId: "treasures_50", title: "宝物50個", sub: "ギャラリーがにぎやかに", category: "たからものあつめ", type: "counter", counter: { metric: "treasures_count", threshold: 50 } },
-  { no: 127, questId: "share_5", title: "シェア5回", sub: "応援がふえていく", category: "シェアする", type: "counter", counter: { metric: "action", threshold: 5, action: "share" } },
   { no: 128, questId: "anniversary", title: "アルコ記念日", sub: "はじめての録音から1年", category: "たからものあつめ", type: "counter", counter: { metric: "anniversary_1y", threshold: 1 } },
   // ── 追加18件 (2026-08-31 Tetsuo採用D案・全てカウンター型) → 計100件 ──
   { no: 129, questId: "week7", title: "週7日練習する", sub: "パーフェクトな1週間", category: "続ける力", type: "counter", counter: { metric: "week7", threshold: 1 } },
@@ -190,7 +184,6 @@ export const QUESTS: QuestDef[] = [
   { no: 143, questId: "medals_5", title: "メダルを5個全部", sub: "節目の完全制覇", category: "たからものあつめ", type: "counter", grade: "cert", counter: { metric: "medals_count", threshold: 5 } },
   { no: 144, questId: "treasures_100", title: "宝物100個", sub: "あふれるギャラリー", category: "たからものあつめ", type: "counter", grade: "cert", counter: { metric: "treasures_count", threshold: 100 } },
   { no: 145, questId: "cards_all", title: "カードを全部あつめる", sub: "カードコンプリート", category: "たからものあつめ", type: "counter", grade: "cert", counter: { metric: "cards_all", threshold: 0 } },
-  { no: 146, questId: "share_10", title: "シェア10回", sub: "応援団がついてる", category: "シェアする", type: "counter", counter: { metric: "action", threshold: 10, action: "share" } },
 ]
 
 

@@ -31,10 +31,7 @@ export default function QuestBoardLit({ cleared }: { cleared: string[] }) {
         <span aria-hidden style={{ fontSize: 11, fontWeight: 900, color: "var(--text-sub)", transform: expanded ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span>
       </button>
       {expanded && <>
-        <div style={{ fontSize: 11, color: "var(--text-sub)", marginTop: 6, lineHeight: 1.7 }}>
-          自分のペースでいい。クリアするとカードが届くよ。
-        </div>
-        <div style={{ marginTop: 10 }}>
+        <div style={{ marginTop: 8 }}>
           {HOME_QUESTS.map((q, i) => {
             const done = clearedSet.has(q.questId)
             return (

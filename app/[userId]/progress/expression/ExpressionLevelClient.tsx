@@ -63,7 +63,6 @@ export default function ExpressionLevelClient({ userId, exprMap, unlocked, backH
   }
 
   const { nodes, songsByTag } = exprMap
-  const litCount = nodes.filter((n) => n.star > 0).length
   const byId = new Map(nodes.map((n) => [n.tagId, n]))
   // 系統内は「認定ずみ(★降順) → 未開拓」。空系統は非表示 (実質は常に全4系統)。
   const sections = EXPR_CATEGORIES.map((c) => ({
@@ -74,13 +73,12 @@ export default function ExpressionLevelClient({ userId, exprMap, unlocked, backH
       .sort((a, b) => (b.star > 0 ? 1 : 0) - (a.star > 0 ? 1 : 0) || b.star - a.star),
   })).filter((s) => s.items.length > 0)
 
-  return <ExpressionTabs userId={userId} litCount={litCount} sections={sections} songsByTag={songsByTag} backHref={backHref} backLabel={backLabel} hideSongLinks={hideSongLinks} />
+  return <ExpressionTabs userId={userId} sections={sections} songsByTag={songsByTag} backHref={backHref} backLabel={backLabel} hideSongLinks={hideSongLinks} />
 }
 
 /* ═ 系統タブ + アクティブ系統の横スクロールレール ═ */
-function ExpressionTabs({ userId, litCount, sections, songsByTag, backHref, backLabel, hideSongLinks }: {
+function ExpressionTabs({ userId, sections, songsByTag, backHref, backLabel, hideSongLinks }: {
   userId: string
-  litCount: number
   sections: { label: string; items: ExprNode[] }[]
   songsByTag: Record<string, Song[]>
   backHref?: string; backLabel?: string; hideSongLinks?: boolean
@@ -98,10 +96,7 @@ function ExpressionTabs({ userId, litCount, sections, songsByTag, backHref, back
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 8 }}>
         <div style={kicker}>ESPRESSIONE</div>
       </div>
-      <h1 style={{ fontSize: 20, fontWeight: 900, margin: "1px 0 0" }}>
-        表現の習得状況
-        <span style={{ fontSize: 11, fontWeight: 800, color: SUB, marginLeft: 8 }}>15の表現 ・ {litCount}つ認定</span>
-      </h1>
+      <h1 style={{ fontSize: 20, fontWeight: 900, margin: "1px 0 0" }}>表現の習得状況</h1>
 
       {/* 系統タブ (横スクロール・非空系統のみ) */}
       <div style={{ display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none", margin: "16px -14px 0", padding: "0 14px" }}>

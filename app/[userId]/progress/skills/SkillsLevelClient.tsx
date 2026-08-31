@@ -45,7 +45,7 @@ export default function SkillsLevelClient({ userId, skillMap, backHref, backLabe
     )
   }
 
-  const { nodes, currentStar } = skillMap
+  const { nodes } = skillMap
   // 並び (progressPage の order と同じ): 実測あり → 習得ずみ(データ待ち) → 挑戦できる → まだ先
   const order = (n: SkillNode) =>
     n.pct != null ? 0 : n.state === "acquired_nodata" ? 1 : n.state === "ready" ? 2 : 3
@@ -58,13 +58,12 @@ export default function SkillsLevelClient({ userId, skillMap, backHref, backLabe
       .sort((a, b) => order(a) - order(b) || a.star - b.star),
   })).filter((s) => s.items.length > 0)
 
-  return <SkillsTabs userId={userId} currentStar={currentStar} sections={sections} backHref={backHref} backLabel={backLabel} hideDetailLinks={hideDetailLinks} />
+  return <SkillsTabs userId={userId} sections={sections} backHref={backHref} backLabel={backLabel} hideDetailLinks={hideDetailLinks} />
 }
 
 /* ═ 分類タブ (原本 cat_tabs: 金選択チップ) + grid2 カード ═ */
-function SkillsTabs({ userId, currentStar, sections, backHref, backLabel, hideDetailLinks }: {
+function SkillsTabs({ userId, sections, backHref, backLabel, hideDetailLinks }: {
   userId: string
-  currentStar: number
   sections: { label: string; items: SkillNode[] }[]
   backHref?: string; backLabel?: string; hideDetailLinks?: boolean
 }) {
@@ -74,10 +73,7 @@ function SkillsTabs({ userId, currentStar, sections, backHref, backLabel, hideDe
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "0 0 60px" }}>
       <Link href={backHref ?? `/${userId}/progress`} style={backStyle}>‹ {backLabel}</Link>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 9, padding: "0 2px" }}>
-        <h1 className={ds.t} style={{ padding: 0 }}>わざの習得状況</h1>
-        <span style={{ fontSize: 11.5, color: "var(--text-muted)", fontWeight: 700 }}>いまの★{currentStar}</span>
-      </div>
+      <h1 className={ds.t} style={{ padding: "0 2px" }}>わざの習得状況</h1>
 
       {/* 分類タブ (原本: 金選択チップ + 件数) */}
       <div style={{ display: "flex", gap: 6, overflowX: "auto", marginTop: 12, paddingBottom: 2 }}>

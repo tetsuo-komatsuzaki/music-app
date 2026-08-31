@@ -160,15 +160,7 @@ export async function createShareCard(input: CreateInput): Promise<CreateResult>
     if (!payload) return { ok: false, error: "作成できませんでした" }
 
     const token = randomBytes(12).toString("base64url")
-    // 報酬体系: シェアクエスト (No.076) + 種別クエスト (083/097/098) + シェア累計 (127/146)
-    try {
-      const { questEventHook, actionCountHook } = await import("@/app/_libs/treasureEngine")
-      await questEventHook(dbUser.id, "share_card")
-      if (input.kind === "cert") await questEventHook(dbUser.id, "share_cert")
-      if (input.kind === "nintei") await questEventHook(dbUser.id, "share_nintei")
-      if (input.kind === "medal") await questEventHook(dbUser.id, "share_medal")
-      await actionCountHook(dbUser.id, "share")
-    } catch { /* noop */ }
+    // シェア系クエストは全廃 (2026-08-31 Tetsuo指示)。フックなし
     await prisma.shareCard.create({
       data: { token, userId: dbUser.id, kind: input.kind, displayName, payload },
     })
