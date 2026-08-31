@@ -510,7 +510,7 @@ export async function getTreasureQueue(userId: string): Promise<TreasureQueueRow
 
   // マスター証明書の券面情報 (曲名・★・通し番号) を解決する。
   // 通し番号は本人の全マスター証明書を earnedAt 順に並べた獲得順 (授与済み含む・欠番なし)
-  const pending = rows.filter((r) => r.kind === "cert" && r.sourceType === "master")
+  const pending = rows.filter((r) => r.sourceType === "master" && (r.kind === "cert" || r.kind === "master_card"))
   if (pending.length > 0) {
     try {
       const [allCerts, scores, achievements] = await Promise.all([
@@ -520,11 +520,11 @@ export async function getTreasureQueue(userId: string): Promise<TreasureQueueRow
           select: { id: true },
         }),
         prisma.score.findMany({
-          where: { id: { in: pending.map((r) => r.sourceId) } },
+          where: { id: { in: pending.map((r) => r.sourceId.replace(/^card:/, "")) } },
           select: { id: true, title: true },
         }),
         prisma.userScoreAchievement.findMany({
-          where: { userId, scoreId: { in: pending.map((r) => r.sourceId) } },
+          where: { userId, scoreId: { in: pending.map((r) => r.sourceId.replace(/^card:/, "")) } },
           select: { scoreId: true, starAtAchievement: true },
         }),
       ])
@@ -532,9 +532,12 @@ export async function getTreasureQueue(userId: string): Promise<TreasureQueueRow
       const titleByScore = new Map(scores.map((s) => [s.id, s.title]))
       const starByScore = new Map(achievements.map((a) => [a.scoreId, a.starAtAchievement]))
       for (const r of pending) {
-        r.label = titleByScore.get(r.sourceId)
-        r.stars = starByScore.get(r.sourceId)
-        r.certNo = certNoById.get(r.id)
+        const scoreId = r.sourceId.replace(/^card:/, "")
+        r.label = titleByScore.get(scoreId)
+        if (r.kind === "cert") {
+          r.stars = starByScore.get(scoreId)
+          r.certNo = certNoById.get(r.id)
+        }
       }
     } catch (e) {
       // 券面情報が引けなくても授与自体は止めない (フォールバック文言で再生)

@@ -50,6 +50,7 @@ const SCENARIOS: Record<string, { coins: boolean; treasures: TreasureQueueItem[]
   cert: { coins: false, treasures: [CERT_DEMO] },
   nintei: { coins: false, treasures: [T("cert", "streak_100", 51)] },
   title: { coins: false, treasures: [T("title", "2", null)] },
+  mcard: { coins: false, treasures: [{ ...T("master_card", "card:demo", null), label: "きらきら星" }] },
 }
 
 export default function TreasureDemoClient({ scenario }: { scenario: string }) {

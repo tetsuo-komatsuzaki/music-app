@@ -19,6 +19,7 @@ import MedalAwardMotion from "./MedalAwardMotion"
 import CertAwardMotion from "./CertAwardMotion"
 import NinteiAwardMotion from "./NinteiAwardMotion"
 import TitleAwardMotion from "./TitleAwardMotion"
+import MasterCardAwardMotion from "./MasterCardAwardMotion"
 import { rankName } from "@/app/_libs/rankCard"
 
 export type TreasureQueueItem = {
@@ -129,6 +130,18 @@ export default function TreasureCelebration({
       <TitleAwardMotion
         key={item.id}
         face={{ star, rankName: rankName(star), date: faceDate(item.earnedAt) }}
+        onDone={next}
+      />,
+      document.body,
+    )
+  }
+
+  // マスター記念カードは結晶パターン金族の実装モーション (肉付け済)
+  if (item.kind === "master_card") {
+    return createPortal(
+      <MasterCardAwardMotion
+        key={item.id}
+        face={{ song: item.label ?? "この曲", date: faceDate(item.earnedAt) }}
         onDone={next}
       />,
       document.body,
