@@ -120,6 +120,8 @@ type AnalysisData = {
 type Props = {
   score: { id: string; title: string; badge?: "mastered" | "achieved" | null }
   userId: string
+  /** 報酬体系キルスイッチ (宝物予告の文言用・サーバーで解決) */
+  rewardLit?: boolean
   analysis: AnalysisData | null
   buildUrl: string | null
   /**
@@ -430,7 +432,11 @@ function PerformanceHistory({
     if (!a || !p.audioUrl) return
     if (playingId === p.id) { a.pause(); setPlayingId(null); return }
     a.src = p.audioUrl
-    a.play().then(() => setPlayingId(p.id)).catch(() => setPlayingId(null))
+    a.play().then(() => {
+      setPlayingId(p.id)
+      // 報酬体系: 聴き返しクエスト (No.007・白リスト検証つきの1行)
+      void import("@/app/actions/questEvents").then((m) => m.recordQuestEvent("listen_back"))
+    }).catch(() => setPlayingId(null))
   }
 
   // 最新1枚は常に表示し、それ以外は「すべての演奏を見る」アコーディオンに畳む (2026-08-09)
@@ -1099,6 +1105,7 @@ export default function ScoreDetail(props: Props) {
 function ScoreDetailInner({
   score,
   userId,
+  rewardLit,
   uploadAction,
   analysis,
   buildUrl,
@@ -2601,6 +2608,10 @@ function ScoreDetailInner({
     transport.start()
     startVisualSync()
     setPlaybackState("playing")
+    // 報酬体系: テンポ変更クエスト (No.012・原曲テンポ以外で弾いたら)
+    if (analysis?.bpm != null && playbackTempo !== analysis.bpm) {
+      void import("@/app/actions/questEvents").then((m) => m.recordQuestEvent("tempo_change"))
+    }
   }, [analysis, getTempoRatio, startVisualSync, stopPlayback, ensureCursor, playbackTempo])
 
   // --- 再開 ---
@@ -3320,10 +3331,10 @@ function ScoreDetailInner({
       .slice()
       .sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())
     const perf = cands[0] ?? null
-    if (!perf) return { perf: null, events: [] }
+    if (!perf) return { perf: null, events: [], bestFlag }
     const events = parseMilestoneEvents(perf.analysisSummary)
     if (bestFlag.get(perf.id)) events.push({ type: "personal_best", tier: "medium", payload: {} })
-    return { perf, events }
+    return { perf, events, bestFlag }
   }, [performances])
   const celebrationPerf = celebration.perf
   // celebEvents は全画面祝い削除により未使用 (2026-08-12)
@@ -4024,6 +4035,15 @@ function ScoreDetailInner({
           scoreId={score.id}
           userId={userId}
           perf={{ id: arcoResult.id, pitchAccuracy: arcoResult.pitchAccuracy ?? null, timingAccuracy: arcoResult.timingAccuracy ?? null }}
+          // 祝い階層 (2026-08-31): この演奏で起きた節目 (milestone+自己ベスト) を渡す
+          events={(() => {
+            const p = performances.find((x) => x.id === arcoResult.id)
+            const ev = p ? parseMilestoneEvents(p.analysisSummary).map((e) => e.type) : []
+            if (celebration.bestFlag?.get(arcoResult.id)) ev.push("personal_best")
+            return ev
+          })()}
+          rewardLit={rewardLit}
+          songTitle={score.title}
           onClose={() => { setArcoResult(null); if (isScoreMode) handleTabChange("review") }}
         />
       )}

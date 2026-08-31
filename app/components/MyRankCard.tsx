@@ -7,13 +7,19 @@ import styles from "./MyRankCard.module.css"
 import ds from "./ds.module.css"
 import ArcoMotion from "./ArcoMotion"
 import Coin from "./Coin"
+import GalleryShelves, { type GalleryCoin, type GalleryTreasure } from "@/app/[userId]/_gallery/GalleryShelves"
 import {
   rankName, shortDate,
   type RankCardData,
 } from "@/app/_libs/rankCard"
 
-export default function MyRankCard(props: RankCardData & { onGuide?: () => void; flashAt?: number }) {
-  const { currentStar, required, achievedCount, stamps, onGuide, flashAt } = props
+export default function MyRankCard(props: RankCardData & {
+  onGuide?: () => void
+  flashAt?: number
+  /** ギャラリー3棚 (報酬体系点灯時のみ・軌跡シートを差し替える) */
+  gallery?: { coins: GalleryCoin[]; treasures: GalleryTreasure[] } | null
+}) {
+  const { currentStar, required, achievedCount, stamps, onGuide, flashAt, gallery } = props
   const [open, setOpen] = useState(false)
   const [openStamp, setOpenStamp] = useState<number | null>(null)
   const [mounted, setMounted] = useState(false)
@@ -50,7 +56,11 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void;
         data-onboarding="home.rankCard"
         data-guide="home-rank-card"
         className={`${ds.card} pressable`}
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setOpen(true)
+          // 報酬体系: ギャラリー閲覧クエスト (No.084・シートが3棚ギャラリーに差し替わる)
+          void import("@/app/actions/questEvents").then((m) => m.recordQuestEvent("gallery_open"))
+        }}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true) } }}
         style={{ cursor: "pointer", animation: flashing ? "rankFlash .7s ease" : undefined }}
       >
@@ -104,7 +114,14 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void;
           <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
             <div className={styles.grab} />
             <button type="button" className={styles.close} aria-label="閉じる" onClick={() => { setOpen(false); setOpenStamp(null) }}>✕</button>
-            <div className={styles.sheetttl}>演奏の軌跡</div>
+            {gallery == null && <div className={styles.sheetttl}>演奏の軌跡</div>}
+            {/* 点灯後: ギャラリー3棚 (Museum Edition) に差し替え。ヘッダは棚側が持つ */}
+            {gallery != null && (
+              <div className={styles.sheetbody}>
+                <GalleryShelves coins={gallery.coins} required={required} treasures={gallery.treasures} />
+              </div>
+            )}
+            {gallery == null && (<>
             {/* モック trace1 (home-06 コインの列) の写経 */}
             <div className={styles.sheetbody}>
 
@@ -125,7 +142,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void;
                     >
                       {/* 達成コイン統一デザイン (2026-08-30 Q8: 点数刻印なし・アルコ彫刻) */}
                       <span className={styles.coinPop} style={{ display: "block", width: 56, height: 56, animationDelay: `${0.5 + i * 0.12}s` }}>
-                        <Coin size={56} />
+                        <Coin size={56} star={currentStar} master={stamps[i]?.mastered} />
                       </span>
                     </button>
                   ))}
@@ -165,6 +182,7 @@ export default function MyRankCard(props: RankCardData & { onGuide?: () => void;
               </div>
 
             </div>
+            </>)}
           </div>
         </div>,
         document.body,

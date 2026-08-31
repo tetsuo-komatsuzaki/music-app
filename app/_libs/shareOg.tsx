@@ -21,7 +21,7 @@ const C = {
 
 // ── 新アルコ (水彩ポスター) → JPEG data URI ────────────────────────────
 // 2026-08-23: 旧SVGアルコ→キットのポスターへ。master/rank_up=喜び, weekly=お疲れさま(ひと息), daily=いいね(拍手)
-const ARCO_KIND_KIT: Record<ShareKind, string> = { master: "02A", rank_up: "02B", weekly: "10A", daily: "06A" }
+const ARCO_KIND_KIT: Record<ShareKind, string> = { master: "02A", rank_up: "02B", weekly: "10A", daily: "06A", cert: "02A", nintei: "02C", medal: "02B" }
 const arcoCache: Partial<Record<ShareKind, string>> = {}
 export function arcoDataUri(kind: ShareKind): string {
   if (!arcoCache[kind]) {
@@ -147,13 +147,16 @@ export function ShareOgCard({
   const plainEyebrow = meta.eyebrow.replace(/[^ -~]/g, "").trim()
   const eyebrowText =
     kind === "weekly" ? `${plainEyebrow} ・ ${p.period ?? ""}` :
-    kind === "daily" ? `${plainEyebrow} ・ ${p.date ?? ""}` : plainEyebrow
+    kind === "daily" ? `${plainEyebrow} ・ ${p.date ?? ""}` :
+    kind === "nintei" ? `${plainEyebrow} ・ ${p.kindLine ?? ""}` : plainEyebrow
 
   const headline =
-    kind === "master" || kind === "daily" ? (p.title ?? "") :
+    kind === "master" || kind === "daily" || kind === "cert" ? (p.title ?? "") :
+    kind === "nintei" ? (p.big ?? "") :
+    kind === "medal" ? `カード${p.count ?? 0}枚の節目` :
     kind === "weekly" ? "今週も頑張ったね！" : "つぎのステージへ！"
   const headlineFs =
-    kind === "master" || kind === "daily" ? titleFontPx(headline, px(38)) : px(30)
+    kind === "master" || kind === "daily" || kind === "cert" ? titleFontPx(headline, px(38)) : px(30)
 
   const footer = `${displayName ? `${displayName} ・ ` : ""}アルコ ・ arcodaviolin.com`
 
@@ -173,6 +176,15 @@ export function ShareOgCard({
     } else {
       stats.push(<Stat key="n" value={String(p.attempts ?? 1)} unit="回目" label="挑戦" color={C.blue} fs={px(24)} />)
     }
+  } else if (kind === "cert") {
+    stats.push(<Stat key="s" value={`★${p.star ?? 1}`} label="レベル" color={C.gold} fs={px(24)} />)
+    if (p.certNo != null) stats.push(<Stat key="n" value={`No.${String(p.certNo).padStart(3, "0")}`} label="認定番号" color={C.blue} fs={px(24)} />)
+    stats.push(<Stat key="d" value={p.date ?? ""} label="認定日" color={C.green} fs={px(24)} />)
+  } else if (kind === "nintei") {
+    stats.push(<Stat key="d" value={p.date ?? ""} label="認定日" color={C.green} fs={px(24)} />)
+  } else if (kind === "medal") {
+    stats.push(<Stat key="c" value={String(p.count ?? 0)} unit="枚" label="あつめたカード" color={C.gold} fs={px(24)} />)
+    stats.push(<Stat key="d" value={p.date ?? ""} label="獲得日" color={C.green} fs={px(24)} />)
   }
 
   const arcoSize = vertical ? Math.round(width * 0.38) : Math.round(height * 0.52)

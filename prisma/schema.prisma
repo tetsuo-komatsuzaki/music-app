@@ -32,6 +32,10 @@ model User {
   performances   Performance[]
   scores         Score[]
   guideState     UserGuideState?
+  // ▼ 報酬体系「ギャラリー」骨組み (2026-08-30)
+  questClears  UserQuestClear[]
+  treasures    UserTreasure[]
+  actionCounts UserActionCount[]
 
   // ▼ 練習メニュー追加分
   practiceItems        PracticeItem[]
@@ -949,6 +953,8 @@ model UserScoreAchievement {
   celebratedAt          DateTime? // 祝いカード閲覧で記録。バナー消滅・端末をまたぐ一回性の根拠
   // ▼ 達成コインの獲得モーション (2026-08-30)
   coinCelebratedAt      DateTime? // ホームのコイン演出を消化した時刻。null=未演出 (既存行はmigrationでbackfill済)
+  // ▼ 報酬体系: マスターの授与 (コイン進化+証明書) の消化。null かつ masteredAt 非null = 授与待ち
+  masterCelebratedAt    DateTime?
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   score Score @relation(fields: [scoreId], references: [id], onDelete: Cascade)
@@ -1544,12 +1550,64 @@ model WaitlistEntry {
 // 進行・完了はサーバー保存 (localStorage禁止・端末跨ぎ再表示の欠陥を繰り返さない)。
 // 出す条件: 未完了かつ未スキップ (既存ユーザーにも出す)。先生ロールには出さない。
 model UserGuideState {
-  userId        String    @id
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  firstLoopStep Int       @default(0) // 途中離脱は続きから再開
-  completedAt   DateTime? // 完了 or スキップが入ったら二度と出さない
-  skippedAt     DateTime?
-  quests        Json      @default("{}") // { questId: { doneAt } } アルコのクエスト進行
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  userId           String    @id
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstLoopStep    Int       @default(0) // 途中離脱は続きから再開
+  completedAt      DateTime? // 完了 or スキップが入ったら二度と出さない
+  skippedAt        DateTime?
+  quests           Json      @default("{}") // 旧クエスト進行 (骨組み移行後は UserQuestClear が正・読取廃止予定)
+  treasureNoticeAt    DateTime? // 遡及分「宝物が届いています」お知らせの既読 (報酬体系・2026-08-30)
+  treasureEvaluatedAt DateTime? // カウンター評価器の初回実行時刻。null=未評価 → 初回は遡及扱い (演出なしで棚へ)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+// ============================================================================
+// 報酬体系「ギャラリー」骨組み (2026-08-30 実装仕様v1.3)。
+// 成果→宝物の実体。コインだけは UserScoreAchievement が正 (稼働中実装を移さない)。
+// ============================================================================
+
+// クエスト達成の正本。宝物 (UserTreasure) はクリア時に同Txで刻む。
+// カタログ定義はコード側 (app/_libs/treasureCatalog.ts)。番号の再利用禁止。
+model UserQuestClear {
+  id        String   @id @default(cuid())
+  userId    String
+  questId   String // treasureCatalog の questId
+  clearedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questId])
+  @@index([userId])
+}
+
+// 宝物の実体 (カード/メダル/認定証/称号/マスター記念)。没収しない (成果は事実の記録)。
+// awardedAt null = ホーム帰着の授与演出待ち。遡及分は earnedAt=awardedAt で棚直行。
+model UserTreasure {
+  id         String    @id @default(cuid())
+  userId     String
+  kind       String // card / medal / cert / title / master_card
+  sourceType String // quest / card_milestone / master / rank_up
+  sourceId   String // questId・枚数・scoreId・到達★
+  catalogNo  Int? // カタログ固定番号 (quest系のみ)
+  earnedAt   DateTime  @default(now())
+  awardedAt  DateTime? // 授与消化 (演出開始時点で刻む)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sourceType, sourceId])
+  @@index([userId, awardedAt])
+}
+
+// クライアント内操作の累計 (聴き返し回数など、専用テーブルの無い行動のカウンター)。
+// recordQuestEvent アクションだけが increment する。
+model UserActionCount {
+  userId    String
+  action    String // playback など (treasureCatalog の counterSpec が参照)
+  count     Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, action])
 }

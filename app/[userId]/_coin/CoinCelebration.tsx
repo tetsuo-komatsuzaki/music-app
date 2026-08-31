@@ -106,6 +106,7 @@ export default function CoinCelebration({
   currentStar,
   demo,
   onFx,
+  onDone,
 }: {
   /** 演出対象 (タブに居る曲のみ・最大2枚)。home.tsx が選定済み */
   flying: CoinQueueItem[]
@@ -114,16 +115,20 @@ export default function CoinCelebration({
   /** devハーネス: DB消化をしない */
   demo?: boolean
   onFx: (fx: CoinFx) => void
+  /** コイン工程の終了通知 (宝物オーケストレーターの直列起動用・2026-08-30) */
+  onDone?: () => void
 }) {
   const [mounted, setMounted] = useState(false)
   const [done, setDone] = useState(false)
-  const [coinPos, setCoinPos] = useState<{ x: number; y: number; key: number } | null>(null)
+  const [coinPos, setCoinPos] = useState<{ x: number; y: number; key: number; star?: number } | null>(null)
   const coinRef = useRef<HTMLDivElement | null>(null)
   const cancelled = useRef(false)
   const anims = useRef<Animation[]>([])
   const rafs = useRef<number[]>([])
   const onFxRef = useRef(onFx)
   onFxRef.current = onFx
+  const onDoneRef = useRef(onDone)
+  onDoneRef.current = onDone
 
   useEffect(() => setMounted(true), [])
 
@@ -136,7 +141,7 @@ export default function CoinCelebration({
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     if (reduced || flying.length === 0) {
       onFxRef.current(COIN_FX_IDLE)
-      setDone(true)
+      setDone(true); onDoneRef.current?.()
       return
     }
 
@@ -146,7 +151,7 @@ export default function CoinCelebration({
       for (const r of rafs.current) cancelAnimationFrame(r)
       onFxRef.current(COIN_FX_IDLE)
       setCoinPos(null)
-      setDone(true)
+      setDone(true); onDoneRef.current?.()
     }
     ;(window as unknown as Record<string, unknown>).__coinSkip = finish
 
@@ -189,7 +194,7 @@ export default function CoinCelebration({
       })
 
     /** コイン出現 (0.45s 720度スピン) → 900ms 後に飛翔 (0.8s) + 自動スクロール → 着地fx */
-    const popAndFly = async (start: { x: number; y: number }, holdAfter: number) => {
+    const popAndFly = async (start: { x: number; y: number; star?: number }, holdAfter: number) => {
       setCoinPos({ ...start, key: Date.now() })
       // React の描画を待って WAAPI を当てる
       await sleep(30, cancelled)
@@ -270,11 +275,11 @@ export default function CoinCelebration({
         if (cancelled.current) return
         if (first.star === currentStar) hold -= 1
         const r = ring.getBoundingClientRect()
-        await popAndFly({ x: r.left + r.width / 2, y: r.top + r.height / 2 }, hold)
+        await popAndFly({ x: r.left + r.width / 2, y: r.top + r.height / 2, star: first.star }, hold)
       } else {
         // リングが見つからないときは中央出現に切替 (演出は止めない)
         if (first.star === currentStar) hold -= 1
-        await popAndFly({ x: window.innerWidth / 2, y: window.innerHeight * 0.38 }, hold)
+        await popAndFly({ x: window.innerWidth / 2, y: window.innerHeight * 0.38, star: first.star }, hold)
       }
       if (cancelled.current) return
 
@@ -283,11 +288,11 @@ export default function CoinCelebration({
         await sleep(350, cancelled)
         if (cancelled.current) return
         if (flying[1].star === currentStar) hold -= 1
-        await popAndFly({ x: window.innerWidth / 2, y: window.innerHeight * 0.38 }, hold)
+        await popAndFly({ x: window.innerWidth / 2, y: window.innerHeight * 0.38, star: flying[1].star }, hold)
         if (cancelled.current) return
       }
       onFxRef.current(COIN_FX_IDLE)
-      setDone(true)
+      setDone(true); onDoneRef.current?.()
     }
     void run()
 
@@ -324,7 +329,7 @@ export default function CoinCelebration({
             willChange: "transform, opacity",
           }}
         >
-          <Coin size={COIN_SIZE} />
+          <Coin size={COIN_SIZE} star={coinPos.star} />
         </div>
       )}
     </div>,

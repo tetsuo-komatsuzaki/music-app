@@ -8,6 +8,9 @@ import { renderToStaticMarkup } from "react-dom/server"
 import { ArcoChan, POSES } from "../app/components/ArcoChan"
 
 const POSE_ID: Record<string, string> = {
+  cert: "02A", // マスター証明書 = やったね
+  nintei: "02C", // 認定証
+  medal: "02B", // メダル
   master: "02A", // 両手上げジャンプ = やったね！
   rank_up: "02B", // ダブルガッツ = やったね！
   weekly: "02C", // 両手ほっぺ = お疲れさま！

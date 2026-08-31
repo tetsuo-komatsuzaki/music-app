@@ -69,6 +69,8 @@ export type RankStamp = {
   best: number | null
   achievedAt: string | null
   href: string
+  /** マスター済み (コインが進化して見える・2026-08-31) */
+  mastered?: boolean
 }
 
 export type RankCardData = {

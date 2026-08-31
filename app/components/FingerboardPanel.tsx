@@ -10,6 +10,7 @@ import {
 } from "@/app/_libs/fingerboard/geometry"
 import { CELL_FILLS, type CellStatus } from "@/app/_libs/fingerboard/colors"
 import { posLabel, type HeatCellOut, type CellDetail, type TransitionRow } from "@/app/_libs/fingerboard/heatmapTypes"
+import { recordQuestEvent } from "@/app/actions/questEvents"
 
 export type FingerboardMark = { cellId: string; note: string }
 

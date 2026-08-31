@@ -24,6 +24,12 @@ export default async function SkillsLevelServerPage({ params }: PageProps) {
   })
   if (!dbUser) return <div>User not found</div>
 
+  // 報酬体系: 技術マップ閲覧クエスト (No.017・失敗しても表示は止めない)
+  try {
+    const { questEventHook } = await import("@/app/_libs/treasureEngine")
+    await questEventHook(dbUser.id, "skill_map")
+  } catch { /* noop */ }
+
   const data = await buildKarteData(dbUser.id, userId, period)
 
   return <SkillsLevelClient userId={userId} skillMap={data.skillMap} />

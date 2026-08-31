@@ -17,6 +17,7 @@ import type { SongRecommendation } from "@/app/components/RecommendationItem"
 import type { GradeLevel } from "@/app/_libs/skillMaster"
 import styles from "./home.module.css"
 import QuestBoard from "./_guide/QuestBoard"
+import QuestBoardLit from "./_gallery/QuestBoardLit"
 import type { QuestProgress } from "./_guide/quests"
 
 // 「アルコと最初の1周」チュートリアル (2026-08-29 本番接続)。
@@ -26,6 +27,10 @@ const GuideTutorial = dynamic(() => import("./_guide/GuideTutorial"), { ssr: fal
 // 達成コインの獲得モーション (2026-08-30)。未演出コインがある帰着時のみロード
 const CoinCelebration = dynamic(() => import("./_coin/CoinCelebration"), { ssr: false })
 import { COIN_FX_IDLE, type CoinFx, type CoinQueueItem } from "./_coin/CoinCelebration"
+
+// 報酬体系「ギャラリー」の授与 (骨組み・点灯前はキュー空で不動)
+const TreasureCelebration = dynamic(() => import("./_coin/TreasureCelebration"), { ssr: false })
+import type { TreasureQueueItem } from "./_coin/TreasureCelebration"
 
 // v1.6 Phase 4-2 (2026-05-16) — UserGradeProgress 準拠の表示用データ。
 // 仕様書 §3-5-2 必須項目: 現在グレード + ★ + 次の★まで完全習得すべき曲数
@@ -44,10 +49,14 @@ type Props = {
   guide: { active: boolean; initialStep: number }
   /** アルコのクエスト進行 (ガイド完了ユーザーのみ非null) */
   questProgress: QuestProgress | null
+  /** 新クエストボードのクリア済みID (報酬体系点灯時のみ非null・旧questProgressと排他) */
+  homeQuestClears?: string[] | null
   /** 達成コインの未演出キュー (2026-08-30)。ガイド中・先生ロールはサーバー側で空 */
   coinQueue?: CoinQueueItem[]
   /** devハーネス (/dev/coin-demo): 消化のDB書込をしない */
   coinDemo?: boolean
+  /** 宝物の授与待ちキュー (報酬体系骨組み・点灯前は常に空) */
+  treasureQueue?: TreasureQueueItem[]
   userName: string
   streak: number
   weeklyDays: number
@@ -83,6 +92,8 @@ type Props = {
     required: number
     achievedCount: number
     stamps: { scoreId: string; title: string; best: number | null; achievedAt: string | null; href: string }[]
+    /** ギャラリー3棚 (点灯時のみ非null。軌跡シートを差し替える) */
+    gallery?: import("@/app/_libs/treasureEngine").GalleryData | null
   }
   /** お気に入り (曲/教材) */
   favorites: FavoriteEntry[]
@@ -114,8 +125,10 @@ const ARCO_HITOKOTO = [
 export default function HomeClient({
   guide,
   questProgress,
+  homeQuestClears,
   coinQueue,
   coinDemo,
+  treasureQueue,
   userName,
   basicPracticeCards,
   recentPieces,
@@ -162,6 +175,11 @@ export default function HomeClient({
     ? { ...rankCard, achievedCount: Math.max(0, rankCard.achievedCount - coinFx.rankHold) }
     : rankCard
 
+  // 宝物の授与 (骨組み): コイン工程の完了後に直列で流す (実装仕様§4)
+  const [coinsDone, setCoinsDone] = useState(false)
+  const showTreasures =
+    (treasureQueue?.length ?? 0) > 0 && !showGuide && (!showCoins || coinsDone)
+
 
   return (
     <div className={styles.page}>
@@ -173,7 +191,16 @@ export default function HomeClient({
       )}
 
       {/* 達成コインの獲得モーション (帰着時1回・タップでスキップ) */}
-      {showCoins && <CoinCelebration flying={flying} currentStar={rankCard.currentStar} demo={coinDemo} onFx={setCoinFx} />}
+      {showCoins && <CoinCelebration flying={flying} currentStar={rankCard.currentStar} demo={coinDemo} onFx={setCoinFx} onDone={() => setCoinsDone(true)} />}
+
+      {/* 宝物の授与 (報酬体系骨組み・コイン完了後に直列・点灯前はキュー空) */}
+      {showTreasures && (
+        <TreasureCelebration
+          queue={treasureQueue ?? []}
+          coinMotionCount={showCoins ? Math.min(2, flying.length) : 0}
+          demo={coinDemo}
+        />
+      )}
 
       {/* 挨拶の大見出し (モック HELLO ・ h1.t)。名前が長くても1行に収める (2026-08-20 Tetsuo指定)。
           2026-08-23 Tetsuo指示: 挨拶右の金縁アルコは削除し、マイランクカード側へ移設 */}
@@ -205,7 +232,9 @@ export default function HomeClient({
       <TeacherAssignments assignments={teacherAssignments} summary={teacherSummary} />
 
       {/* アルコのクエスト (2周目以降=ガイド完了ユーザー)。折り畳みが既定・先生からカードの下 (2026-08-29 Tetsuo指定) */}
-      {questProgress && <QuestBoard progress={questProgress} />}
+      {homeQuestClears != null
+        ? <QuestBoardLit cleared={homeQuestClears} />
+        : questProgress && <QuestBoard progress={questProgress} />}
 
       {/* 解析通知 (採点中チップ / 完了バナー)。該当なしなら何も出ない */}
       <AnalysisNoticeBar userId={userId} notices={analysisNotices} />

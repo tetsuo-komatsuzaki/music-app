@@ -31,6 +31,12 @@ export default async function ProgressServerPage({ params }: PageProps) {
   })
   if (!dbUser) return <div>User not found</div>
 
+  // 報酬体系 (骨組み): カルテ閲覧クエスト+閲覧回数カウント (点灯前は不動)
+  try {
+    const { questEventHook } = await import("@/app/_libs/treasureEngine")
+    await questEventHook(dbUser.id, "karte_view")
+  } catch { /* 発火失敗でカルテを止めない */ }
+
   const data = await buildKarteData(dbUser.id, userId, period)
 
   return <ProgressPage userId={userId} data={data} />

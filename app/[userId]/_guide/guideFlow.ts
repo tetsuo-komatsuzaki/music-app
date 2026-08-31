@@ -156,7 +156,7 @@ export const FIRST_LOOP: GuideStep[] = [
   },
   {
     // 画面内演出: リング2/3→満了 (実寸 r71.5/stroke15・1s)→3/3・✓・3/3回→
-    // 紙吹雪+達成カード「きらきら星・達成」出現。「うけとる」で進む
+    // 紙吹雪+クエストカード「No.001 はじめての1周」出現。「うけとる」で進む
     id: "ring_complete", where: "ホーム", screen: "ringComplete", pose: "06B", phase: 5,
     text: "「通して弾く」3回で、弾けるリングが完成!\nこの曲は「達成」だ",
     advance: { type: "card" }, // 達成カード (うけとる)

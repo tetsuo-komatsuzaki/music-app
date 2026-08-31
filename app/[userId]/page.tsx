@@ -63,7 +63,7 @@ export default async function HomePage({ params }: PageProps) {
 
   const dbUser = await prisma.user.findUnique({
     where: { supabaseUserId: userId },
-    select: { id: true, name: true, role: true },
+    select: { id: true, name: true, role: true, deletedAt: true },
   })
   if (!dbUser) return <div>きみの情報が見つからなかったよ</div>
   console.log(`[PERF] home step1_dbUser: ${(performance.now() - perfStart).toFixed(0)}ms`)
@@ -242,6 +242,7 @@ export default async function HomePage({ params }: PageProps) {
         best: b?.best ?? null,
         achievedAt: a.achievedAt ? a.achievedAt.toISOString() : null,
         href: `/${userId}/scores/${a.scoreId}`,
+        mastered: a.masteredAt != null,
       }
     })
   }
@@ -673,7 +674,11 @@ export default async function HomePage({ params }: PageProps) {
   } catch { /* read防御 */ }
   const guideActive = dbUser.role !== "teacher" && !guideState?.completedAt && !guideState?.skippedAt
   const guide = { active: guideActive, initialStep: guideState?.firstLoopStep ?? 0 }
-  const questProgress = (guideState?.completedAt ? (guideState.quests as Record<string, { doneAt: string }>) : null) ?? null
+  // 点灯時は旧quests Json読取を廃止し、UserQuestClear ベースの新ボードに差し替える (2026-08-31)
+  const rewardLitHome = process.env.REWARD_SYSTEM_LIT === "1"
+  const questProgress = rewardLitHome
+    ? null
+    : ((guideState?.completedAt ? (guideState.quests as Record<string, { doneAt: string }>) : null) ?? null)
 
   // 達成コインの未演出キュー (2026-08-30)。coinCelebratedAt が null = ホーム演出待ち。
   // ガイド中は積んだまま出さない (完了後の帰着で再生・Q11)。先生ロールは対象外 (Q19)。
@@ -730,11 +735,44 @@ export default async function HomePage({ params }: PageProps) {
     } catch { coinQueue = [] }
   }
 
+  // 報酬体系「ギャラリー」骨組み (2026-08-30): キルスイッチ (REWARD_SYSTEM_LIT=1) 配下。
+  // 点灯前の本番では常に空=挙動不変。評価器はカウンター判定→メダル→マスター/称号の遅延発行
+  let treasureQueue: {
+    id: string; kind: string; sourceId: string; catalogNo: number | null; earnedAt: string
+    label?: string; stars?: number; certNo?: number
+  }[] = []
+  // ギャラリー3棚の表示データ (2026-08-31 本結線・点灯前はnull=旧軌跡シートのまま)
+  let galleryData: import("../_libs/treasureEngine").GalleryData | null = null
+  // 新クエストボード (はじまりの旅) のクリア済みID (点灯時のみ非null)
+  let homeQuestClears: string[] | null = null
+  if (dbUser.role !== "teacher" && !guideActive && dbUser.deletedAt == null) {
+    try {
+      const { rewardSystemLit, evaluateTreasures, getTreasureQueue, getGalleryData } = await import("../_libs/treasureEngine")
+      if (rewardSystemLit()) {
+        const perfT0 = performance.now()
+        await evaluateTreasures(internalUserId)
+        galleryData = await getGalleryData(internalUserId)
+        homeQuestClears = (await prisma.userQuestClear.findMany({
+          where: { userId: internalUserId }, select: { questId: true },
+        })).map((c) => c.questId)
+        const rows = await getTreasureQueue(internalUserId)
+        treasureQueue = rows.map((r) => ({
+          id: r.id, kind: r.kind, sourceId: r.sourceId, catalogNo: r.catalogNo,
+          earnedAt: r.earnedAt.toISOString(),
+          label: r.label, stars: r.stars, certNo: r.certNo,
+        }))
+        console.log(`[PERF] home treasure evaluator: ${(performance.now() - perfT0).toFixed(0)}ms`)
+      }
+    } catch { treasureQueue = [] }
+  }
+
   return (
     <HomeClient
       guide={guide}
       questProgress={questProgress}
+      homeQuestClears={homeQuestClears}
       coinQueue={coinQueue}
+      treasureQueue={treasureQueue}
       teacherAssignments={teacherAssignments}
       teacherSummary={teacherSummary}
       analysisNotices={analysisNotices}
@@ -749,7 +787,7 @@ export default async function HomePage({ params }: PageProps) {
       basicPracticeCards={basicPracticeCards}
       recentPieces={recentPieces}
       nextPieceRecommendations={nextPieceRecommendations}
-      rankCard={rankCard}
+      rankCard={{ ...rankCard, gallery: galleryData }}
       favorites={favorites}
     />
   )

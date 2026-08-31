@@ -11,6 +11,7 @@ import {
 
 const POSE_ID: Record<ShareKind, string> = {
   master: "02A", rank_up: "02B", weekly: "02C", daily: "01A",
+  cert: "02A", nintei: "02C", medal: "02B",
 }
 const CONFETTI = [
   { left: "6%", w: 1.72, h: 2.34, c: "#e8c96a", dur: 5, delay: 0 },
@@ -59,12 +60,15 @@ export default function SharePublicView({
 
   const eyebrow =
     kind === "weekly" ? `${meta.eyebrow} ・ ${p.period ?? ""}` :
-    kind === "daily" ? `${meta.eyebrow} ・ ${p.date ?? ""}` : meta.eyebrow
+    kind === "daily" ? `${meta.eyebrow} ・ ${p.date ?? ""}` :
+    kind === "nintei" ? `${meta.eyebrow} ・ ${p.kindLine ?? ""}` : meta.eyebrow
   const headline =
-    kind === "master" || kind === "daily" ? (p.title ?? "") :
+    kind === "master" || kind === "daily" || kind === "cert" ? (p.title ?? "") :
+    kind === "nintei" ? (p.big ?? "") :
+    kind === "medal" ? `カード${p.count ?? 0}枚の節目` :
     kind === "weekly" ? "今週も頑張ったね！" : "つぎのステージへ！"
   const headlineCqw =
-    kind === "master" || kind === "daily" ? `${(titleFontPx(headline, 594) / 100).toFixed(2)}cqw` : "4.69cqw"
+    kind === "master" || kind === "daily" || kind === "cert" ? `${(titleFontPx(headline, 594) / 100).toFixed(2)}cqw` : "4.69cqw"
   const footer = `${displayName ? `${displayName} ・ ` : ""}アルコ ・ arcodaviolin.com`
 
   return (
@@ -149,6 +153,18 @@ export default function SharePublicView({
                   {p.bestDelta != null
                     ? <Stat value={`+${p.bestDelta}`} label="自己ベスト更新" color="#4f63c8" />
                     : <Stat value={String(p.attempts ?? 1)} unit="回目" label="挑戦" color="#4f63c8" />}
+                </>}
+                {kind === "cert" && <>
+                  <Stat value={`★${p.star ?? 1}`} label="レベル" color="#a97b1f" />
+                  {p.certNo != null && <Stat value={`No.${String(p.certNo).padStart(3, "0")}`} label="認定番号" color="#4f63c8" />}
+                  <Stat value={p.date ?? ""} label="認定日" color="#0f8a4f" />
+                </>}
+                {kind === "nintei" && <>
+                  <Stat value={p.date ?? ""} label="認定日" color="#0f8a4f" />
+                </>}
+                {kind === "medal" && <>
+                  <Stat value={String(p.count ?? 0)} unit="枚" label="あつめたカード" color="#a97b1f" />
+                  <Stat value={p.date ?? ""} label="獲得日" color="#0f8a4f" />
                 </>}
               </div>
             )}
