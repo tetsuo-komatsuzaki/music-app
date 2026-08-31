@@ -39,5 +39,21 @@ export default async function ProgressServerPage({ params }: PageProps) {
 
   const data = await buildKarteData(dbUser.id, userId, period)
 
-  return <ProgressPage userId={userId} data={data} />
+  // カードアルバム (2026-08-31 Tetsuo確定): クエストカードの置き場はカルテ配下。点灯時のみ章を出す
+  let cardAlbum: { got: number; total: number } | null = null
+  try {
+    const { rewardSystemLit } = await import("@/app/_libs/treasureEngine")
+    if (rewardSystemLit()) {
+      const { QUESTS } = await import("@/app/_libs/treasureCatalog")
+      const cardQuests = QUESTS.filter((q) => q.grade !== "cert")
+      const ids = new Set(cardQuests.map((q) => q.questId))
+      const clears = await prisma.userQuestClear.findMany({
+        where: { userId: dbUser.id },
+        select: { questId: true },
+      })
+      cardAlbum = { got: clears.filter((c) => ids.has(c.questId)).length, total: cardQuests.length }
+    }
+  } catch { /* アルバム集計の失敗でカルテを止めない */ }
+
+  return <ProgressPage userId={userId} data={data} cardAlbum={cardAlbum} />
 }

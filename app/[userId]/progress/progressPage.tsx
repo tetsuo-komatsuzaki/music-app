@@ -68,12 +68,14 @@ function ChapterLink({ href, label }: { href: string; label: string }) {
   )
 }
 
-export default function ProgressPage({ userId, data, readOnly = false, detailBase }: {
+export default function ProgressPage({ userId, data, readOnly = false, detailBase, cardAlbum }: {
   userId: string
   data: KarteData
   readOnly?: boolean
   /** 先生ビュー (2026-08-11): readOnlyでも詳細へ遷移できるリンク土台 (例 /uid/teacher/students/sid/growth) */
   detailBase?: string
+  /** カードアルバムの概況 (2026-08-31・報酬体系点灯時のみ。null=章を出さない) */
+  cardAlbum?: { got: number; total: number } | null
 }) {
   const [weeklyShare, setWeeklyShare] = useState(false)
   return (
@@ -97,6 +99,10 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
         <ExprChapter userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} />
         {data.bodyObs && <Rule />}
         <FormChapter data={data} userId={userId} readOnly={readOnly} />
+        {cardAlbum != null && !readOnly && (<>
+          <Rule />
+          <AlbumChapter userId={userId} got={cardAlbum.got} total={cardAlbum.total} />
+        </>)}
       </div>
 
       {/* 記録への導線 (2026-08-22 Tetsuo指示: シェアカード/シェアページは削除 ・ シェアはヒーローの「今週をシェア」に一本化) */}
@@ -222,6 +228,21 @@ function ExprChapter({ userId, data, readOnly, detailBase }: { userId: string; d
       {(!readOnly || detailBase) && (
         <ChapterLink href={detailBase ? `${detailBase}/expression` : `/${userId}/progress/expression`} label="表現の一覧へ" />
       )}
+    </div>
+  )
+}
+
+/* ═ カードアルバム (2026-08-31 Tetsuo確定: クエストカードの置き場。からだの癖と同じ章文法) ═ */
+function AlbumChapter({ userId, got, total }: { userId: string; got: number; total: number }) {
+  return (
+    <div style={{ padding: "18px 16px 16px" }}>
+      <div style={kicker}>CARD ALBUM</div>
+      <div style={chapTitle}>カードアルバム</div>
+      <div style={chapNote}>クエストのカードが おさまっていく図鑑</div>
+      <div style={{ marginTop: 1 }}>
+        <CatBar label="あつめたカード" done={got} total={total} col="var(--gold)" />
+      </div>
+      <ChapterLink href={`/${userId}/progress/cards`} label="アルバムへ" />
     </div>
   )
 }

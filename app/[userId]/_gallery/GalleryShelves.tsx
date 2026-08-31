@@ -6,7 +6,7 @@
 // Tetsuo指示: コイン/メダル/証明書/認定証の造形は実装済み正本を使う
 //   → Coin部品 + TreasureFaces (モーション造形の静止コピー) を差し込む。
 // 棚 (2026-08-31 Tetsuo確定・案1スナップショーケース):
-//   コイン / カード / 称号 / 賞状 の4カテゴリタブ。
+//   コイン / 称号 / 賞状 の3カテゴリタブ (クエストカードはカルテのカードアルバムへ)。
 //   コイン・称号・賞状は横スナップのカルーセルで、正面に来たものが主役として
 //   スポットライトを浴びて「おさまる」。コイン=アクリルのコインケース入り、
 //   称号・賞状=台座。拡大は中心基準のみで上下位置は絶対に動かさない。
@@ -17,7 +17,7 @@ import React, { useEffect, useRef, useState, type ReactNode } from "react"
 import Coin from "@/app/components/Coin"
 import ShareSheet from "@/app/components/ShareSheet"
 import type { ShareKind } from "@/app/_libs/shareCard"
-import { NINTEI_FACES, QUESTS } from "@/app/_libs/treasureCatalog"
+import { NINTEI_FACES } from "@/app/_libs/treasureCatalog"
 import { ScrollFace, TreasureFaceStyles } from "./TreasureFaces"
 import RankEmblem from "@/app/components/RankEmblem"
 import { rankName } from "@/app/_libs/rankCard"
@@ -30,38 +30,6 @@ export type GalleryTreasure = {
   earnedAt: string
   /** 券面表示名 (マスター証明書=曲名など)。サーバーで解決 */
   label?: string
-}
-
-const QUEST_TITLE = new Map(QUESTS.map((q) => [q.questId, q.title]))
-
-/** 券面タイトルを1行に収めるフォント倍率 (ミニ96px幅用にモーション版よりきつめ) */
-function miniFit(text: string): number {
-  const n = [...text].length
-  if (n <= 6) return 1
-  if (n <= 9) return 0.75
-  if (n <= 12) return 0.6
-  if (n <= 16) return 0.46
-  return 0.4
-}
-
-// カードv3の券面 (CardAwardMotion.caFront) のミニ静止版。仮置きの数字円をやめ、
-// クリーム地+銀二重縁+ARCODAブランド+アルコ円形写真の正本デザインに揃える。
-function MiniCard({ no, title, badge, emblem }: {
-  no: string; title: string; badge?: "称号" | "記念"
-  /** アルコ写真のかわりに置く紋章 (称号=RankEmblem) */
-  emblem?: React.ReactNode
-}) {
-  return (
-    <span className="glMini">
-      <span className="glMiniBrand">ARCODA</span>
-      {emblem
-        ? <span className="glMiniEmb">{emblem}</span>
-        : <span className="glMiniArt">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/arco/05B.jpg" alt="" /></span>}
-      <span className="glMiniTitle" style={{ fontSize: `${Math.round(90 * miniFit(title)) / 10}px`, whiteSpace: "nowrap" }}>{title}</span>
-      {badge && <span className={`glMiniBadge ${badge === "称号" ? "glBTitle" : "glBMemo"}`}>{badge}</span>}
-      <span className="glMiniNo">{no}</span>
-    </span>
-  )
 }
 
 function Case({ jp, en, children, delay = 0 }: { jp: string; en: string; children: ReactNode; delay?: number }) {
@@ -149,18 +117,17 @@ export default function GalleryShelves({
   required: number
   treasures: GalleryTreasure[]
 }) {
-  const [tab, setTab] = useState<"coin" | "card" | "title" | "honor">("coin")
+  const [tab, setTab] = useState<"coin" | "title" | "honor">("coin")
   const [zoom, setZoom] = useState<ReactNode | null>(null)
   // 賞状のシェア (証明書/認定証)
   const [share, setShare] = useState<{ kind: ShareKind; refId: string } | null>(null)
-  const cards = treasures.filter((t) => t.kind === "card")
   const titles = treasures.filter((t) => t.kind === "title")
   const certs = treasures.filter((t) => t.kind === "cert")
 
-  // 2026-08-31 Tetsuo確定: コイン/カード/称号/賞状 を別カテゴリとして見る
+  // 2026-08-31 Tetsuo確定: ギャラリーは コイン/称号/賞状 の3分類。
+  // クエストカードはカルテのカードアルバムへ移籍
   const tabs = [
     { id: "coin" as const, label: "コイン", n: coins.length },
-    { id: "card" as const, label: "カード", n: cards.length },
     { id: "title" as const, label: "称号", n: titles.length },
     { id: "honor" as const, label: "賞状", n: certs.length },
   ]
@@ -232,22 +199,6 @@ export default function GalleryShelves({
                   }))}
                 />
               )}
-          </Case>
-        </div>
-      )}
-
-      {tab === "card" && (
-        <div className="glShelf">
-          <Case jp="クエストカード" en="QUEST CARDS">
-            <div className="glRow">
-              {cards.length === 0 && <EmptySlot text="クエストをクリアすると カードがならぶよ" />}
-              {cards.map((t) => {
-                const title = QUEST_TITLE.get(t.sourceId) ?? "クエストカード" // 廃止クエストの既獲得分は汎用名で残す
-                const no = t.catalogNo != null ? `No.${String(t.catalogNo).padStart(3, "0")}` : ""
-                const mini = <MiniCard no={no} title={title} />
-                return <span key={t.sourceId}>{zoomable(mini, <div className="glZoomCard">{mini}</div>)}</span>
-              })}
-            </div>
           </Case>
         </div>
       )}

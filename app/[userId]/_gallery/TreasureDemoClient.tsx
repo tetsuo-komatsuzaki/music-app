@@ -12,6 +12,7 @@ import { useEffect, useState } from "react"
 import HomeClient from "../home"
 import GalleryShelves from "./GalleryShelves"
 import MyRankCard from "@/app/components/MyRankCard"
+import CardAlbumClient from "../progress/cards/CardAlbumClient"
 import { ACH_AFTER, DEMO_SONG_ID, HOME_DONE } from "../_guide/guideDemoData"
 import type { TreasureQueueItem } from "../_coin/TreasureCelebration"
 
@@ -57,6 +58,17 @@ export default function TreasureDemoClient({ scenario }: { scenario: string }) {
   useEffect(() => {
     ;(window as unknown as Record<string, unknown>).__treasureReplay = () => setRun((r) => r + 1)
   }, [])
+
+  // カードアルバム (カルテ配下の図鑑) の見た目検証
+  if (scenario === "album") {
+    return (
+      <CardAlbumClient
+        userId="demo"
+        cleared={["first_loop", "annotate", "lesson_first", "karte_view", "scale_first", "achieve_1", "rec_50", "streak_3"]
+          .map((questId) => ({ questId, clearedAt: "2026-08-30T09:00:00.000Z" }))}
+      />
+    )
+  }
 
   // 新マイランクカード (案3+質感A+透かし特大) の見た目検証
   if (scenario === "rank") {

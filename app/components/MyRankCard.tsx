@@ -40,8 +40,8 @@ export default function MyRankCard(props: RankCardData & {
 
   const barPct = Math.round((achievedCount / Math.max(1, required)) * 100)
 
-  // 宝物カウント (棚のタブと同じ数え方: カード=card+title / 栄誉=cert)
-  const cardCount = gallery?.treasures.filter((t) => ["card", "title"].includes(t.kind)).length ?? 0
+  // 宝物カウント (ギャラリーの3分類と同じ: コイン/称号/賞状。カードはアルバムへ移籍)
+  const titleCount = gallery?.treasures.filter((t) => t.kind === "title").length ?? 0
   const honorCount = gallery?.treasures.filter((t) => t.kind === "cert").length ?? 0
 
   return (
@@ -76,11 +76,11 @@ export default function MyRankCard(props: RankCardData & {
           {gallery != null && (
             <div className={styles.statRow}>
               <div className={styles.stat}><div className={styles.statN}>{gallery.coins.length}</div><div className={styles.statL}>コイン</div></div>
-              <div className={styles.stat}><div className={styles.statN}>{cardCount}</div><div className={styles.statL}>カード</div></div>
-              <div className={styles.stat}><div className={styles.statN}>{honorCount}</div><div className={styles.statL}>栄誉</div></div>
+              <div className={styles.stat}><div className={styles.statN}>{titleCount}</div><div className={styles.statL}>称号</div></div>
+              <div className={styles.stat}><div className={styles.statN}>{honorCount}</div><div className={styles.statL}>賞状</div></div>
             </div>
           )}
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-sub)", marginTop: 13 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: 11, color: "var(--text-sub)", marginTop: 13 }}>
             <span>{currentStar >= 10 ? "ランク" : "つぎのランクまで"}</span>
             <span style={{ color: "var(--gold)", fontWeight: 800 }}>{currentStar >= 10 ? "最高ランク到達" : `あと${remaining}曲`}</span>
           </div>

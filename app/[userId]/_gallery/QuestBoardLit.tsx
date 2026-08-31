@@ -19,6 +19,9 @@ export default function QuestBoardLit({ cleared }: { cleared: string[] }) {
   const clearedSet = new Set(cleared)
   const doneCount = HOME_QUESTS.filter((q) => clearedSet.has(q.questId)).length
 
+  // 2026-08-31 Tetsuo指示: 全部クリアしたらボードごとトップから消す (カードはアルバムに残る)
+  if (doneCount >= HOME_QUESTS.length) return null
+
   return (
     <div className={ds.card} data-guide="home-quest-board" style={{ padding: "14px 15px" }}>
       <button
