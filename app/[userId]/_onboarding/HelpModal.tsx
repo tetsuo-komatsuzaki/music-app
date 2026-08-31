@@ -6,13 +6,14 @@
 // 「アルコと最初の1周」をもう一度見る導線を置く (Tetsuo確定 2026-08-29)。
 // 旧 OnboardingProvider への依存も外し、helpBus (CustomEvent) で自立して開閉する。
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { HELP_CONTENT } from "./content/help"
 import type { HelpSection } from "./helpBus"
 import { resetGuideForReplay } from "@/app/actions/guideState"
+import ProgressGuideModal from "@/app/components/ProgressGuideModal"
 import styles from "./styles/HelpModal.module.css"
 
 type Props = {
@@ -27,6 +28,8 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
 
   const faqRef = useRef<HTMLElement>(null)
   const troubleshootingRef = useRef<HTMLElement>(null)
+  // 上達のしくみ (ランクカードから移籍・2026-08-31)
+  const [growthOpen, setGrowthOpen] = useState(false)
 
   // 開いた直後に initialSection の位置までスクロール
   useEffect(() => {
@@ -112,6 +115,18 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
             </button>
           </section>
 
+          {/* ①b 上達のしくみ (2026-08-31 ランクカードから移籍) */}
+          <section id="help-growth-guide" className={styles.section}>
+            <h3 className={styles.sectionTitle}>上達のしくみ</h3>
+            <button
+              type="button"
+              className={styles.welcomeReplayButton}
+              onClick={() => setGrowthOpen(true)}
+            >
+              上達のしくみを見る
+            </button>
+          </section>
+
           {/* ② FAQ */}
           <section ref={faqRef} id="help-faq" className={styles.section}>
             <h3 className={styles.sectionTitle}>よくある質問</h3>
@@ -142,6 +157,8 @@ export default function HelpModal({ open, initialSection, onClose }: Props) {
           </section>
         </div>
       </div>
+
+      <ProgressGuideModal open={growthOpen} onClose={() => setGrowthOpen(false)} />
     </div>
   )
 

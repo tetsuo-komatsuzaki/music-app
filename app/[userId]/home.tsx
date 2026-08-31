@@ -12,7 +12,6 @@ import FavoritesSection, { type FavoriteEntry } from "@/app/components/Favorites
 import TeacherAssignments, { type StudentAssignment, type TeacherHomeSummary } from "./TeacherAssignments"
 import AnalysisNoticeBar, { type AnalysisNotice } from "@/app/components/AnalysisNoticeBar"
 import ds from "@/app/components/ds.module.css"
-import ProgressGuideModal from "@/app/components/ProgressGuideModal"
 import type { SongRecommendation } from "@/app/components/RecommendationItem"
 import type { GradeLevel } from "@/app/_libs/skillMaster"
 import styles from "./home.module.css"
@@ -149,7 +148,6 @@ export default function HomeClient({
   // ヘルプの「もう一度見る」等でガイドが再び有効になったら、閉じたフラグを戻す
   useEffect(() => { if (guide?.active) setGuideDismissed(false) }, [guide?.active])
   const showGuide = guide?.active && !guideDismissed
-  const [guideOpen, setGuideOpen] = useState(false)
 
   // ── 達成コインの獲得モーション (2026-08-30 Tetsuo確定・案A) ──
   // 演出で飛ぶのは「いま練習している曲」タブに居る曲のみ・最大2枚 (Q16/Q3)。
@@ -245,8 +243,8 @@ export default function HomeClient({
           おすすめ1曲だけをドンと出す。弾き始めたら消えて「いま練習している曲」に世代交代 */}
       {/* モック 追03 STARTER の写経: 金ラベル → 青バナー → 注記 → 金CTA → ほかの曲リンク */}
       
-      {/* マイランクカード (タップで演奏の軌跡／上達のしくみを内蔵) */}
-      <MyRankCard {...shownRankCard} flashAt={coinFx.flashAt} onGuide={() => setGuideOpen(true)} />
+      {/* マイランクカード (タップで即ギャラリー。上達のしくみは使い方ページへ移籍・2026-08-31) */}
+      <MyRankCard {...shownRankCard} flashAt={coinFx.flashAt} />
 
       {starterPick && recentPieces.length === 0 && (
         <div className={ds.card} data-guide="home-starter" style={{ padding: 0, overflow: "hidden" }}>
@@ -294,8 +292,6 @@ export default function HomeClient({
       {/* ⑤ お気に入り (曲・音階・アルペジオ・エチュード・ボーイング・フィンガリング・重音) */}
       <FavoritesSection favorites={favorites} />
 
-
-      <ProgressGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
     </div>
   )
 }

@@ -9,12 +9,11 @@ import GalleryShelves, { type GalleryCoin, type GalleryTreasure } from "@/app/[u
 import { rankName, type RankCardData } from "@/app/_libs/rankCard"
 
 export default function MyRankCard(props: RankCardData & {
-  onGuide?: () => void
   flashAt?: number
   /** ギャラリー3棚 (報酬体系点灯時のみ・軌跡シートを差し替える) */
   gallery?: { coins: GalleryCoin[]; treasures: GalleryTreasure[] } | null
 }) {
-  const { currentStar, required, achievedCount, onGuide, flashAt, gallery } = props
+  const { currentStar, required, achievedCount, flashAt, gallery } = props
   // タップで即ギャラリーのシートを開く (2026-08-31 Tetsuo確定・演奏の軌跡ビュー廃止)
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -38,7 +37,6 @@ export default function MyRankCard(props: RankCardData & {
   }, [open])
 
   const remaining = Math.max(0, required - achievedCount)
-  const nextStar = currentStar + 1
 
   const barPct = Math.round((achievedCount / Math.max(1, required)) * 100)
 
@@ -84,25 +82,14 @@ export default function MyRankCard(props: RankCardData & {
           )}
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-sub)", marginTop: 13 }}>
             <span>{currentStar >= 10 ? "ランク" : "つぎのランクまで"}</span>
-            <span style={{ color: "var(--gold)", fontWeight: 800 }}>{currentStar >= 10 ? "最高ランク到達" : `★${nextStar}をあと${remaining}曲`}</span>
+            <span style={{ color: "var(--gold)", fontWeight: 800 }}>{currentStar >= 10 ? "最高ランク到達" : `あと${remaining}曲`}</span>
           </div>
           <div className={`${ds.bar} ${ds.gold}`} data-anim="bar" style={{ marginTop: 7, ["--w" as string]: `${currentStar >= 10 ? 100 : barPct}%` }}>
             <i style={{ width: `${currentStar >= 10 ? 100 : barPct}%`, transition: "width .5s ease" }} />
           </div>
-          {/* コイン着地の金フラッシュ (モック aFlash の移植) */}
+          {/* コイン着地の金フラッシュ (モック aFlash の移植)。
+              ？上達のしくみは使い方ページへ移籍 (2026-08-31 Tetsuo指示) */}
           <style>{`@keyframes rankFlash { 30% { box-shadow: 0 0 0 3px rgba(232,178,60,.8), 0 0 30px rgba(232,178,60,.5); } 100% { box-shadow: 0 0 0 3px rgba(232,178,60,0); } }`}</style>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 9 }}>
-            {onGuide ? (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); onGuide() }}
-                aria-label="上達のしくみを見る"
-                style={{ background: "none", border: "none", padding: 0, fontSize: 10.5, fontWeight: 800, color: "var(--gold)", cursor: "pointer" }}
-              >
-                ？上達のしくみ
-              </button>
-            ) : <span />}
-          </div>
         </div>
       </div>
 
