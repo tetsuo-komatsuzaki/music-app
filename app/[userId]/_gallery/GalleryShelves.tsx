@@ -199,7 +199,7 @@ export default function GalleryShelves({
     <div className="glRoot">
       <TreasureFaceStyles />
       <header className="glHead">
-        <div className="glTitle">宝物の棚</div>
+        <div className="glTitle">ギャラリー</div>
         <div className="glSub">TREASURE GALLERY</div>
         <div className="glRule"><i /></div>
       </header>
