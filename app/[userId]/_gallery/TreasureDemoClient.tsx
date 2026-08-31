@@ -11,6 +11,7 @@
 import { useEffect, useState } from "react"
 import HomeClient from "../home"
 import GalleryShelves from "./GalleryShelves"
+import MyRankCard from "@/app/components/MyRankCard"
 import { ACH_AFTER, DEMO_SONG_ID, HOME_DONE } from "../_guide/guideDemoData"
 import type { TreasureQueueItem } from "../_coin/TreasureCelebration"
 
@@ -58,6 +59,35 @@ export default function TreasureDemoClient({ scenario }: { scenario: string }) {
   useEffect(() => {
     ;(window as unknown as Record<string, unknown>).__treasureReplay = () => setRun((r) => r + 1)
   }, [])
+
+  // 新マイランクカード (案3+質感A+透かし特大) の見た目検証
+  if (scenario === "rank") {
+    return (
+      <div style={{ maxWidth: 402, margin: "0 auto", padding: "14px 10px", display: "grid", gap: 14 }}>
+        <h1 style={{ fontSize: 15, textAlign: "center" }}>マイランクカード (刷新)</h1>
+        {[1, 3, 5, 8, 10].map((star) => (
+          <MyRankCard
+            key={star}
+            currentStar={star}
+            required={10}
+            achievedCount={7}
+            stamps={[]}
+            gallery={{
+              coins: [
+                { scoreId: "a", title: "きらきら星", star, mastered: true },
+                { scoreId: "b", title: "ちょうちょう", star, mastered: false },
+              ],
+              treasures: [
+                { kind: "card", sourceId: "first_loop", catalogNo: 1, earnedAt: "2026-08-30" },
+                { kind: "title", sourceId: String(star), catalogNo: null, earnedAt: "2026-08-30" },
+                { kind: "medal", sourceId: "5", catalogNo: null, earnedAt: "2026-08-30" },
+              ],
+            }}
+          />
+        ))}
+      </div>
+    )
+  }
 
   if (scenario === "shelves") {
     return (

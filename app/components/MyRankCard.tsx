@@ -5,8 +5,8 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import styles from "./MyRankCard.module.css"
 import ds from "./ds.module.css"
-import ArcoMotion from "./ArcoMotion"
 import Coin from "./Coin"
+import RankEmblem from "./RankEmblem"
 import GalleryShelves, { type GalleryCoin, type GalleryTreasure } from "@/app/[userId]/_gallery/GalleryShelves"
 import {
   rankName, shortDate,
@@ -49,60 +49,77 @@ export default function MyRankCard(props: RankCardData & {
 
   const barPct = Math.round((achievedCount / Math.max(1, required)) * 100)
 
+  // 宝物カウント (棚のタブと同じ数え方: カード=card+title+master_card / 栄誉=medal+cert)
+  const cardCount = gallery?.treasures.filter((t) => ["card", "title", "master_card"].includes(t.kind)).length ?? 0
+  const honorCount = gallery?.treasures.filter((t) => ["medal", "cert"].includes(t.kind)).length ?? 0
+
   return (
     <div className={styles.root}>
-      {/* マイランクカード 案D2 (モック parts-10 のDOMそのまま。★でティアが変わる) */}
+      {/* マイランクカード 案3+質感A+透かし特大 (2026-08-31 Tetsuo確定・モック rankcard-5plans) */}
       <div
         role="button"
         tabIndex={0}
         data-onboarding="home.rankCard"
         data-guide="home-rank-card"
-        className={`${ds.card} pressable`}
+        className={`${ds.card} pressable ${styles.faceA}`}
         onClick={() => setOpen(true)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true) } }}
         style={{ cursor: "pointer", animation: flashing ? "rankFlash .7s ease" : undefined }}
       >
-        <div className={ds.lab}>MY RANK</div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginTop: 8 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 17, fontWeight: 900, whiteSpace: "nowrap", letterSpacing: "-0.01em", color: "var(--text-ink)" }}>
-              {rankName(currentStar)}
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 9, marginTop: 7 }}>
-              <div className={ds.stars}>
-                {"★ ".repeat(Math.min(currentStar, 5)).trim()}
-                <s>{" ★".repeat(Math.max(0, 5 - currentStar))}</s>
+        <i className={styles.wm} aria-hidden />
+        <div className={styles.faceInner}>
+          <div className={ds.lab}>MY RANK</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 13, marginTop: 10 }}>
+            <RankEmblem star={currentStar} size="52px" />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 17, fontWeight: 900, whiteSpace: "nowrap", letterSpacing: "-0.01em", color: "var(--text-ink)" }}>
+                {rankName(currentStar)}
               </div>
-              <span className={`${ds.pill} ${ds.mute}`} style={{ fontSize: 11, color: "var(--text-ink)", padding: "2px 8px" }}>
-                Lv.<b>{currentStar}</b>
-              </span>
+              <div style={{ marginTop: 4 }}>
+                <span className={`${ds.pill} ${ds.mute}`} style={{ fontSize: 11, color: "var(--text-ink)", padding: "2px 8px" }}>
+                  Lv.<b>{currentStar}</b>
+                </span>
+              </div>
             </div>
           </div>
-          {/* 金縁メダリオンのアルコ (2026-08-23 Tetsuo指示: 挨拶横から移設 ・ 01C ループ動画) */}
-          <div style={{ width: 72, height: 72, flex: "none", marginLeft: 10, borderRadius: "50%", boxShadow: "0 0 0 3px #e8ca84, 0 0 0 7px rgba(11,18,32,.9), 0 0 0 8px #bca160, 0 8px 22px rgba(0,0,0,.45)" }}>
-            <ArcoMotion kit="01C" label="相棒のアルコ" />
+          {gallery != null && (
+            <div className={styles.statRow}>
+              <div className={styles.stat}><div className={styles.statN}>{gallery.coins.length}</div><div className={styles.statL}>コイン</div></div>
+              <div className={styles.stat}><div className={styles.statN}>{cardCount}</div><div className={styles.statL}>カード</div></div>
+              <div className={styles.stat}><div className={styles.statN}>{honorCount}</div><div className={styles.statL}>栄誉</div></div>
+            </div>
+          )}
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-sub)", marginTop: 13 }}>
+            <span>{currentStar >= 10 ? "ランク" : "つぎのランクまで"}</span>
+            <span style={{ color: "var(--gold)", fontWeight: 800 }}>{currentStar >= 10 ? "最高ランク到達" : `★${nextStar}をあと${remaining}曲`}</span>
           </div>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-sub)", marginTop: 14 }}>
-          <span>つぎのランクまで</span>
-          <span style={{ color: "var(--gold)", fontWeight: 800 }}>★{nextStar}をあと{remaining}曲</span>
-        </div>
-        <div className={`${ds.bar} ${ds.gold}`} data-anim="bar" style={{ marginTop: 7, ["--w" as string]: `${Math.round((achievedCount / Math.max(1, required)) * 100)}%` }}>
-          <i style={{ width: `${Math.round((achievedCount / Math.max(1, required)) * 100)}%`, transition: "width .5s ease" }} />
-        </div>
-        {/* コイン着地の金フラッシュ (モック aFlash の移植) */}
-        <style>{`@keyframes rankFlash { 30% { box-shadow: 0 0 0 3px rgba(232,178,60,.8), 0 0 30px rgba(232,178,60,.5); } 100% { box-shadow: 0 0 0 3px rgba(232,178,60,0); } }`}</style>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 9 }}>
-          {onGuide ? (
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); onGuide() }}
-              aria-label="上達のしくみを見る"
-              style={{ background: "none", border: "none", padding: 0, fontSize: 10.5, fontWeight: 800, color: "var(--gold)", cursor: "pointer" }}
-            >
-              ？上達のしくみ
-            </button>
-          ) : <span />}
+          <div className={`${ds.bar} ${ds.gold}`} data-anim="bar" style={{ marginTop: 7, ["--w" as string]: `${currentStar >= 10 ? 100 : barPct}%` }}>
+            <i style={{ width: `${currentStar >= 10 ? 100 : barPct}%`, transition: "width .5s ease" }} />
+          </div>
+          {/* コイン着地の金フラッシュ (モック aFlash の移植) */}
+          <style>{`@keyframes rankFlash { 30% { box-shadow: 0 0 0 3px rgba(232,178,60,.8), 0 0 30px rgba(232,178,60,.5); } 100% { box-shadow: 0 0 0 3px rgba(232,178,60,0); } }`}</style>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 9 }}>
+            {onGuide ? (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onGuide() }}
+                aria-label="上達のしくみを見る"
+                style={{ background: "none", border: "none", padding: 0, fontSize: 10.5, fontWeight: 800, color: "var(--gold)", cursor: "pointer" }}
+              >
+                ？上達のしくみ
+              </button>
+            ) : <span />}
+            {gallery != null && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setOpen(true); setShowGallery(true) }}
+                aria-label="宝物の棚をひらく"
+                style={{ background: "none", border: "none", padding: 0, fontSize: 10.5, fontWeight: 800, color: "#f5d98c", cursor: "pointer" }}
+              >
+                宝物の棚 →
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

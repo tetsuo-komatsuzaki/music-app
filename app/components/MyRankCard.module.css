@@ -197,3 +197,73 @@
 .coinPop { animation: coinPop .55s cubic-bezier(.2,1.6,.4,1) both; }
 @keyframes coinPop { from { transform: scale(0); } 70% { transform: scale(1.18); } to { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .coinPop { animation: none; } }
+
+/* ══ 2026-08-31 Tetsuo確定: 案3 (紋章+宝物カウント) × 質感A (シルクの光沢) × 透かしアルコ特大 ══
+   モック: rankcard-5plans (scratchpad/gen_rankcard_mock.py)。層の順序:
+   地(faceA) → ヘアライン(::before) → 透かし(.wm) → 光帯スイープ(::after) → 内容(.faceInner) */
+.faceA {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 18% -12%, rgba(122, 167, 255, 0.22), transparent 46%),
+    radial-gradient(90% 70% at 108% 112%, rgba(20, 32, 64, 0.75), transparent 55%),
+    linear-gradient(180deg, var(--card-a) 0%, var(--card-b) 100%);
+}
+.faceA::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.5;
+  pointer-events: none;
+  background: repeating-linear-gradient(115deg, transparent 0 5px, rgba(200, 220, 255, 0.035) 5px 6px);
+}
+/* 8秒に1回、絹のつやが左から右へ走る */
+.faceA::after {
+  content: "";
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  left: 0;
+  width: 46%;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(220, 232, 255, 0.10) 42%, rgba(235, 243, 255, 0.16) 50%, rgba(220, 232, 255, 0.10) 58%, transparent);
+  transform: translateX(-120%) skewX(-16deg);
+  animation: rcSweepA 8s ease-in-out 1s infinite;
+}
+@keyframes rcSweepA {
+  0% { transform: translateX(-120%) skewX(-16deg); }
+  22%, 100% { transform: translateX(320%) skewX(-16deg); }
+}
+/* 透かしアルコ特大 (実イラスト05Bの輪郭抽出線画・右側クロップ) */
+.wm {
+  position: absolute;
+  right: -120px;
+  top: 50%;
+  width: 400px;
+  height: 400px;
+  z-index: 1;
+  pointer-events: none;
+  transform: translateY(-46%) rotate(-4deg);
+  opacity: 0.14;
+  background: url(/arco/arco_lineart_05B.png) center/contain no-repeat;
+  -webkit-mask: linear-gradient(100deg, transparent 20%, #000 52%);
+          mask: linear-gradient(100deg, transparent 20%, #000 52%);
+}
+.faceInner { position: relative; z-index: 3; }
+/* 宝物カウント3枠 */
+.statRow { display: flex; gap: 8px; margin-top: 13px; }
+.stat {
+  flex: 1;
+  text-align: center;
+  background: var(--card-in);
+  border: 1px solid rgba(150, 175, 225, 0.14);
+  border-radius: 12px;
+  padding: 8px 4px 7px;
+}
+.statN { font-size: 17px; font-weight: 900; color: var(--cream); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.statL { font-size: 9px; font-weight: 800; color: var(--text-sub); margin-top: 2px; letter-spacing: 0.08em; }
+@media (prefers-reduced-motion: reduce) {
+  .faceA::after { animation: none; }
+}
