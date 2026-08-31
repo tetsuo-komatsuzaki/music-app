@@ -98,6 +98,12 @@ export default function PrePracticeSheet({
   const axisOf = (v: { articulation?: string | null; difficulty?: string | null }) =>
     byArt ? (v.articulation ?? "legato") : (v.difficulty ?? "BEGINNER")
   const partVariants = group.variants.filter((v) => v.partId && axisOf(v) === diff)
+  // 2026-08-31 Tetsuo確定 B案: グループにパート実体があるのに、いま選んでいる軸
+  // (奏法/難易度) の分がまだ無いときは「準備中」で選択不可にする。以前は旧経路
+  // (通し+区間) に黙って落ち、パートを選んだのに全小節の詳細が開いていた
+  const partNamesAllAxes = [...new Map(
+    group.variants.filter((v) => v.partId).map((v) => [v.partId as string, v.partName ?? "パート"]),
+  ).values()]
   const sections = variant?.sections ?? []
   const [rangeIdx, setRangeIdx] = useState(-1) // -1 = 全部演奏する (実体が無いときの旧経路)
   const [partPick, setPartPick] = useState("")  // 実体化済みパート教材のid
@@ -226,6 +232,14 @@ export default function PrePracticeSheet({
               <option key={v.id} value={v.id}>
                 {v.partName ?? "パート"}{v.bestScore != null ? ` ・ ベスト ${v.bestScore}` : ""}
               </option>
+            ))}
+          </select>
+        ) : partNamesAllAxes.length > 0 ? (
+          // この軸のパートは実体化待ち (管理画面を開くと自動補充される)
+          <select className={styles.sheetSelect} value="" onChange={() => {}}>
+            <option value="">全部演奏する</option>
+            {partNamesAllAxes.map((name) => (
+              <option key={name} disabled value={`soon:${name}`}>{name} ・ 準備中</option>
             ))}
           </select>
         ) : (

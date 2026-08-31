@@ -1,6 +1,8 @@
+import { after } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { redirect } from "next/navigation"
+import { sweepPracticePartVariants } from "@/app/_libs/partMaterialize"
 import AdminPractice from "../adminPractice"
 import { uploadPracticeItem } from "@/app/actions/uploadPracticeItem"
 import { uploadScore } from "@/app/actions/uploadScore"
@@ -24,6 +26,18 @@ export default async function AdminPracticePage({
   if (!dbUser || dbUser.role !== "admin")  {
     return <div style={{ padding: 40, textAlign: "center" }}>管理者権限が必要です</div>
   }
+
+  // パート自動実体化スイープ (2026-08-31 Tetsuo確定 A案): 奏法変種など
+  // 解析が済んだ通しにパート実体が欠けていれば、管理画面を開いたついでに補充する。
+  // 冪等 (作成済みの組はスキップ) なので毎回呼んで良い
+  after(async () => {
+    try {
+      const r = await sweepPracticePartVariants()
+      if (r.created > 0) console.log(`[partSweep] パート実体化 ${r.created}件 (skip ${r.skipped})`)
+    } catch (e) {
+      console.error("[partSweep] 失敗:", e instanceof Error ? e.message : e)
+    }
+  })
 
   // 登録済み教材 (PracticeItem + Score) を並列で取得
   const [items, scores, techniqueTags] = await Promise.all([
