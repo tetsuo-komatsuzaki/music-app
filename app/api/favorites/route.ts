@@ -52,11 +52,6 @@ export async function POST(req: Request) {
           update: {},
         })
       }
-      // 報酬体系: お気に入りクエスト (No.019・追加時のみ)
-      try {
-        const { questEventHook } = await import("@/app/_libs/treasureEngine")
-        await questEventHook(userId, "favorite")
-      } catch { /* noop */ }
     } else if (scoreId) {
       await prisma.favorite.deleteMany({ where: { userId, scoreId } })
     } else {

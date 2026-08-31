@@ -2608,10 +2608,6 @@ function ScoreDetailInner({
     transport.start()
     startVisualSync()
     setPlaybackState("playing")
-    // 報酬体系: テンポ変更クエスト (No.012・原曲テンポ以外で弾いたら)
-    if (analysis?.bpm != null && playbackTempo !== analysis.bpm) {
-      void import("@/app/actions/questEvents").then((m) => m.recordQuestEvent("tempo_change"))
-    }
   }, [analysis, getTempoRatio, startVisualSync, stopPlayback, ensureCursor, playbackTempo])
 
   // --- 再開 ---

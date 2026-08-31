@@ -43,7 +43,7 @@ const SCENARIOS: Record<string, { coins: boolean; treasures: TreasureQueueItem[]
   card: { coins: false, treasures: [T("card", "annotate", 2)] },
   mixed: {
     coins: true,
-    treasures: [T("card", "lesson_first", 3), T("card", "tempo_change", 12), CERT_DEMO],
+    treasures: [T("card", "lesson_first", 3), T("card", "annotate", 2), CERT_DEMO],
   },
   coins: { coins: true, treasures: [T("card", "annotate", 2)] },
   medal: { coins: false, treasures: [T("medal", "5", null)] },
@@ -73,7 +73,7 @@ export default function TreasureDemoClient({ scenario }: { scenario: string }) {
           treasures={[
             { kind: "card", sourceId: "first_loop", catalogNo: 1, earnedAt: "2026-08-30" },
             { kind: "card", sourceId: "annotate", catalogNo: 2, earnedAt: "2026-08-30" },
-            { kind: "card", sourceId: "tempo_change", catalogNo: 12, earnedAt: "2026-08-30" },
+            { kind: "card", sourceId: "annotate", catalogNo: 2, earnedAt: "2026-08-30" },
             { kind: "title", sourceId: "2", catalogNo: null, earnedAt: "2026-08-30" },
             { kind: "master_card", sourceId: "card:a", catalogNo: null, earnedAt: "2026-08-30", label: "きらきら星" },
             { kind: "medal", sourceId: "5", catalogNo: null, earnedAt: "2026-08-30" },

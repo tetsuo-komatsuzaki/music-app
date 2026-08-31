@@ -134,11 +134,7 @@ export default function MyRankCard(props: RankCardData & {
                 <button
                   type="button"
                   className="pressable"
-                  onClick={() => {
-                    setShowGallery(true)
-                    // 報酬体系: ギャラリー閲覧クエスト (No.084)
-                    void import("@/app/actions/questEvents").then((m) => m.recordQuestEvent("gallery_open"))
-                  }}
+                  onClick={() => setShowGallery(true)}
                   style={{
                     width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
                     marginBottom: 12, padding: "11px 12px", cursor: "pointer",

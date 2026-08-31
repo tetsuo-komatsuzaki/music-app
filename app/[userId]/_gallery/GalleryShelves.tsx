@@ -180,7 +180,7 @@ export default function GalleryShelves({
             <div className="glRow">
               {cards.length === 0 && <EmptySlot text="クエストをクリアすると カードがならぶよ" />}
               {cards.map((t) => {
-                const title = QUEST_TITLE.get(t.sourceId) ?? ""
+                const title = QUEST_TITLE.get(t.sourceId) ?? "クエストカード" // 廃止クエストの既獲得分は汎用名で残す
                 const no = t.catalogNo != null ? `No.${String(t.catalogNo).padStart(3, "0")}` : ""
                 const mini = <MiniCard no={no} title={title} />
                 return <span key={t.sourceId}>{zoomable(mini, <div className="glZoomCard">{mini}</div>)}</span>
