@@ -23,6 +23,7 @@ from music21 import (
     meter,
     spanner,
     repeat,
+    stream,
     tempo,
     key,
     interval,
