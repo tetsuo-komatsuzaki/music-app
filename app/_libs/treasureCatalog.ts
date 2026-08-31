@@ -4,7 +4,7 @@
 // クエスト定義の正本。中身 (文言・件数・絵柄) は草案v3ベースで【Tetsuo最終確定前】。
 // 構造 (番号・型・カテゴリ・判定メトリクス) の検証が骨組みフェーズの目的。
 // 規約: 番号の再利用禁止 / 欠番はコメントで残す / 文言lintは catalog.test.ts。
-// 授与の格: 通常=カード / 最難関13件=認定証 (grade:"cert") / メダルはカード枚数の節目
+// 授与の格: 通常=カード / 最難関16件=認定証 (grade:"cert") / メダルはカード枚数の節目
 // (クエストではなく MEDAL_MILESTONES)。
 // ============================================================
 
@@ -71,7 +71,7 @@ export type QuestDef = {
   sub: string
   category: string
   type: QuestType
-  /** 授与の格。省略=カード。cert=アルコの認定証 (最難関13件) */
+  /** 授与の格。省略=カード。cert=アルコの認定証 (最難関16件) */
   grade?: "cert"
   /** ホームのボードに出す操作系か */
   home?: true
@@ -163,7 +163,7 @@ export const QUESTS: QuestDef[] = [
   { no: 117, questId: "weekend_both", title: "土日どちらも練習", sub: "週末の音楽家", category: "続ける力", type: "counter", counter: { metric: "weekend_both", threshold: 1 } },
   { no: 118, questId: "morning_rec", title: "朝の練習をする", sub: "1日が音で始まる", category: "続ける力", type: "counter", counter: { metric: "morning_rec", threshold: 1 } },
   { no: 119, questId: "comeback", title: "おかえり練習", sub: "休んでも戻ってこられた", category: "続ける力", type: "counter", counter: { metric: "comeback", threshold: 1 } },
-  { no: 120, questId: "week5_8", title: "週5日を8週連続", sub: "2ヶ月の充実", category: "続ける力", type: "counter", counter: { metric: "week5_streak", threshold: 8 } },
+  { no: 120, questId: "week5_8", title: "週5日を8週連続", sub: "2ヶ月の充実", category: "続ける力", type: "counter", grade: "cert", counter: { metric: "week5_streak", threshold: 8 } },
   { no: 121, questId: "position_song", title: "ポジション移動の曲", sub: "左手の旅", category: "いろんな曲の旅", type: "counter", counter: { metric: "song_position", threshold: 1 } },
   { no: 122, questId: "best_10", title: "自己ベストを10回更新", sub: "こえ続ける人", category: "じぶんの音をみがく", type: "counter", counter: { metric: "best_updates", threshold: 10 } },
   { no: 123, questId: "cards_10", title: "カード10枚", sub: "集まり始めた思い出", category: "たからものあつめ", type: "counter", counter: { metric: "cards_count", threshold: 10 } },
@@ -187,8 +187,8 @@ export const QUESTS: QuestDef[] = [
   { no: 140, questId: "days_365", title: "のべ365日", sub: "1年ぶんの練習日", category: "続ける力", type: "counter", grade: "cert", counter: { metric: "total_days", threshold: 365 } },
   { no: 141, questId: "titles_3", title: "ランクアップを3回", sub: "のぼり続ける人", category: "たからものあつめ", type: "counter", counter: { metric: "titles_count", threshold: 3 } },
   { no: 142, questId: "nintei_1", title: "はじめての認定証", sub: "最難関のあかし", category: "たからものあつめ", type: "counter", counter: { metric: "nintei_count", threshold: 1 } },
-  { no: 143, questId: "medals_5", title: "メダルを5個全部", sub: "節目の完全制覇", category: "たからものあつめ", type: "counter", counter: { metric: "medals_count", threshold: 5 } },
-  { no: 144, questId: "treasures_100", title: "宝物100個", sub: "あふれるギャラリー", category: "たからものあつめ", type: "counter", counter: { metric: "treasures_count", threshold: 100 } },
+  { no: 143, questId: "medals_5", title: "メダルを5個全部", sub: "節目の完全制覇", category: "たからものあつめ", type: "counter", grade: "cert", counter: { metric: "medals_count", threshold: 5 } },
+  { no: 144, questId: "treasures_100", title: "宝物100個", sub: "あふれるギャラリー", category: "たからものあつめ", type: "counter", grade: "cert", counter: { metric: "treasures_count", threshold: 100 } },
   { no: 145, questId: "cards_all", title: "カードを全部あつめる", sub: "カードコンプリート", category: "たからものあつめ", type: "counter", grade: "cert", counter: { metric: "cards_all", threshold: 0 } },
   { no: 146, questId: "share_10", title: "シェア10回", sub: "応援団がついてる", category: "シェアする", type: "counter", counter: { metric: "action", threshold: 10, action: "share" } },
 ]
@@ -277,6 +277,24 @@ export const NINTEI_FACES: Record<string, NinteiFaceDef> = {
     kindLine: "完集の認定証",
     body1: "すべてのカードを あつめたことを ここに認定します",
     body2: "きみの旅の すべてが ここにあります",
+  },
+  week5_8: {
+    big: "8 WEEKS",
+    kindLine: "習慣の認定証",
+    body1: "週5日の練習を 8週つづけたことを ここに認定します",
+    body2: "習慣の力が きみを育てています",
+  },
+  medals_5: {
+    big: "5 MEDALS",
+    kindLine: "制覇の認定証",
+    body1: "すべてのメダルを あつめたことを ここに認定します",
+    body2: "節目のひとつひとつを 乗りこえました",
+  },
+  treasures_100: {
+    big: "100 TREASURES",
+    kindLine: "宝物の認定証",
+    body1: "100個の宝物を あつめたことを ここに認定します",
+    body2: "ギャラリーは きみの歩みの美術館です",
   },
 }
 

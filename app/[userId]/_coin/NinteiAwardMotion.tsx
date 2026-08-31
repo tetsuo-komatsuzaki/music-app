@@ -15,8 +15,8 @@
 import { useEffect, useRef, useState } from "react"
 import ArcoMotion, { type ArcoKit } from "@/app/components/ArcoMotion"
 
-/** 賞状に立つアルコ (2026-08-31 Tetsuo確定: 固定でなくランダム表示・決定5種) */
-const AWARD_ARCO_KITS = ["01C", "05C", "06B", "08B", "09A"] as const
+/** 賞状に立つアルコ (2026-08-31 Tetsuo確定: 固定でなくランダム表示・全18種) */
+const AWARD_ARCO_KITS = ["01A", "01B", "01C", "02A", "02B", "02C", "03A", "03B", "03C", "05C", "06A", "06B", "08A", "08B", "08C", "09A", "09B", "09C"] as const
 
 
 

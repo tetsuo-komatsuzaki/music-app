@@ -10,7 +10,9 @@
 import { useEffect, useRef, useState } from "react"
 import styles from "./ArcoMotion.module.css"
 
-export type ArcoKit = "01C" | "05A" | "05C" | "06A" | "06B" | "08B" | "09A" | "09B"
+export type ArcoKit =
+  | "01A" | "01B" | "01C" | "02A" | "02B" | "02C" | "03A" | "03B" | "03C"
+  | "05A" | "05C" | "06A" | "06B" | "08A" | "08B" | "08C" | "09A" | "09B" | "09C"
 
 export default function ArcoMotion({ kit, label, className }: {
   kit: ArcoKit

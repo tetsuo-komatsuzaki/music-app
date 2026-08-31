@@ -12,7 +12,7 @@
 const MEDAL_REGION = { x: 125, y: 45, w: 155, h: 350 }
 
 /** 賞状に立つアルコ (静止用ポスター)。モーション側のランダム5種と同じ顔ぶれから決定的に選ぶ */
-const AWARD_ARCO_POSTERS = ["01C", "05C", "06B", "08B", "09A"] as const
+const AWARD_ARCO_POSTERS = ["01A", "01B", "01C", "02A", "02B", "02C", "03A", "03B", "03C", "05C", "06A", "06B", "08A", "08B", "08C", "09A", "09B", "09C"] as const
 function arcoPoster(seed: string): string {
   let h = 0
   for (const ch of seed) h = (h * 31 + ch.charCodeAt(0)) >>> 0
