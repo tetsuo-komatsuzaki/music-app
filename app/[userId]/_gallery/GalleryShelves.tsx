@@ -5,8 +5,8 @@
 // 正本: treasure-handoff/gallery-screen-approved-v3.html (舞台装置のCSSはほぼ原文)。
 // Tetsuo指示: コイン/メダル/証明書/認定証の造形は実装済み正本を使う
 //   → Coin部品 + TreasureFaces (モーション造形の静止コピー) を差し込む。
-// 棚: コイン (達成コイン+つぎの宝物) / カード (クエスト+称号と記念) /
-//     栄誉 (メダル+賞状+つぎの栄誉)。タップで拡大表示。
+// 棚: コイン (達成コイン+つぎの宝物) / カード (クエスト+称号) / 栄誉 (賞状)。
+// タップで拡大表示。メダルと記念カードは2026-08-31全廃 (既存行は表示しない)。
 // 点灯までどの本番画面からも参照しない (ダーク)。
 // ============================================================
 
@@ -14,8 +14,8 @@ import React, { useState, type ReactNode } from "react"
 import Coin from "@/app/components/Coin"
 import ShareSheet from "@/app/components/ShareSheet"
 import type { ShareKind } from "@/app/_libs/shareCard"
-import { MEDAL_MILESTONES, NINTEI_FACES, QUESTS } from "@/app/_libs/treasureCatalog"
-import { MedalFace, ScrollFace, TreasureFaceStyles } from "./TreasureFaces"
+import { NINTEI_FACES, QUESTS } from "@/app/_libs/treasureCatalog"
+import { ScrollFace, TreasureFaceStyles } from "./TreasureFaces"
 import RankEmblem from "@/app/components/RankEmblem"
 
 export type GalleryCoin = { scoreId: string; title: string; star: number; mastered: boolean }
@@ -92,11 +92,9 @@ export default function GalleryShelves({
   // 栄誉のシェア (フェーズ3: 証明書/認定証/メダル)
   const [share, setShare] = useState<{ kind: ShareKind; refId: string } | null>(null)
   const cards = treasures.filter((t) => t.kind === "card")
-  const titles = treasures.filter((t) => ["title", "master_card"].includes(t.kind))
-  const medals = treasures.filter((t) => t.kind === "medal")
+  const titles = treasures.filter((t) => t.kind === "title")
   const certs = treasures.filter((t) => t.kind === "cert")
-  const honorCount = medals.length + certs.length
-  const nextMilestone = MEDAL_MILESTONES.find((n) => n > cards.length)
+  const honorCount = certs.length
 
   const tabs = [
     { id: "coin" as const, label: "コイン", n: coins.length },
@@ -187,17 +185,16 @@ export default function GalleryShelves({
               })}
             </div>
           </Case>
-          <Case jp="称号と記念" en="TITLE AND MEMORIAL" delay={0.15}>
+          <Case jp="称号" en="TITLES" delay={0.15}>
             <div className="glRow">
-              {titles.length === 0 && <EmptySlot text="ランクアップやマスターの記念が ここにならぶよ" />}
+              {titles.length === 0 && <EmptySlot text="ランクアップの称号が ここにならぶよ" />}
               {titles.map((t) => {
-                const isTitle = t.kind === "title"
                 const mini = (
                   <MiniCard
-                    no={isTitle ? `STAR ${t.sourceId}` : "MASTER"}
-                    emblem={isTitle ? <RankEmblem star={Number(t.sourceId) || 1} size="40px" /> : undefined}
-                    title={isTitle ? "ランクアップ" : (t.label ?? "マスター記念")}
-                    badge={isTitle ? "称号" : "記念"}
+                    no={`STAR ${t.sourceId}`}
+                    emblem={<RankEmblem star={Number(t.sourceId) || 1} size="40px" />}
+                    title="ランクアップ"
+                    badge="称号"
                   />
                 )
                 return <span key={`${t.kind}:${t.sourceId}`}>{zoomable(mini, <div className="glZoomCard">{mini}</div>)}</span>
@@ -209,22 +206,7 @@ export default function GalleryShelves({
 
       {tab === "honor" && (
         <div className="glShelf">
-          <Case jp="メダル" en="MEDALS">
-            <div className="glRow">
-              {medals.length === 0 && <EmptySlot text="カードがたまると メダルが届くよ" />}
-              {medals.map((t) => (
-                <span key={t.sourceId} className="glPed">
-                  {zoomable(
-                    <MedalFace count={Number(t.sourceId) || 0} height={120} />,
-                    <div style={{ textAlign: "center" }}><MedalFace count={Number(t.sourceId) || 0} height={320} /><p className="glZoomName">カード{t.sourceId}枚の節目</p></div>,
-                    { kind: "medal", refId: t.sourceId },
-                  )}
-                  <span className="glPedTag">カード{t.sourceId}枚の節目</span>
-                </span>
-              ))}
-            </div>
-          </Case>
-          <Case jp="賞状" en="CERTIFICATES" delay={0.15}>
+          <Case jp="賞状" en="CERTIFICATES">
             <div className="glRow">
               {certs.length === 0 && <EmptySlot text="マスターと最難関クエストの賞状が ここにならぶよ" />}
               {certs.map((t) => {
@@ -242,11 +224,6 @@ export default function GalleryShelves({
                 )
               })}
             </div>
-          </Case>
-          <Case jp="つぎの栄誉" en="NEXT HONOR" delay={0.3}>
-            <EmptySlot text={nextMilestone != null
-              ? `あと${nextMilestone - cards.length}枚のカードで あたらしいメダルが届くよ`
-              : "つぎの栄誉を めざそう"} />
           </Case>
         </div>
       )}

@@ -47,11 +47,9 @@ const SCENARIOS: Record<string, { coins: boolean; treasures: TreasureQueueItem[]
     treasures: [T("card", "lesson_first", 3), T("card", "annotate", 2), CERT_DEMO],
   },
   coins: { coins: true, treasures: [T("card", "annotate", 2)] },
-  medal: { coins: false, treasures: [T("medal", "5", null)] },
   cert: { coins: false, treasures: [CERT_DEMO] },
   nintei: { coins: false, treasures: [T("cert", "streak_100", 51)] },
   title: { coins: false, treasures: [T("title", "2", null)] },
-  mcard: { coins: false, treasures: [{ ...T("master_card", "card:demo", null), label: "きらきら星" }] },
 }
 
 export default function TreasureDemoClient({ scenario }: { scenario: string }) {
@@ -80,7 +78,6 @@ export default function TreasureDemoClient({ scenario }: { scenario: string }) {
               treasures: [
                 { kind: "card", sourceId: "first_loop", catalogNo: 1, earnedAt: "2026-08-30" },
                 { kind: "title", sourceId: String(star), catalogNo: null, earnedAt: "2026-08-30" },
-                { kind: "medal", sourceId: "5", catalogNo: null, earnedAt: "2026-08-30" },
               ],
             }}
           />
@@ -105,9 +102,6 @@ export default function TreasureDemoClient({ scenario }: { scenario: string }) {
             { kind: "card", sourceId: "annotate", catalogNo: 2, earnedAt: "2026-08-30" },
             { kind: "card", sourceId: "annotate", catalogNo: 2, earnedAt: "2026-08-30" },
             { kind: "title", sourceId: "2", catalogNo: null, earnedAt: "2026-08-30" },
-            { kind: "master_card", sourceId: "card:a", catalogNo: null, earnedAt: "2026-08-30", label: "きらきら星" },
-            { kind: "medal", sourceId: "5", catalogNo: null, earnedAt: "2026-08-30" },
-            { kind: "medal", sourceId: "10", catalogNo: null, earnedAt: "2026-08-30" },
             { kind: "cert", sourceId: "master:a", catalogNo: null, earnedAt: "2026-08-30", label: "きらきら星" },
             { kind: "cert", sourceId: "streak_100", catalogNo: 51, earnedAt: "2026-08-30" },
           ]}

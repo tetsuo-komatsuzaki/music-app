@@ -145,17 +145,6 @@ export async function createShareCard(input: CreateInput): Promise<CreateResult>
       payload = { big: face.big, kindLine: face.kindLine, date: fmtMDJst(clear.clearedAt) }
     }
 
-    if (input.kind === "medal") {
-      // メダル: 獲得済み (UserTreasure) のみ
-      const n = Number(input.refId)
-      if (!Number.isInteger(n) || n <= 0) return { ok: false, error: "対象が不正です" }
-      const medal = await prisma.userTreasure.findFirst({
-        where: { userId: dbUser.id, kind: "medal", sourceId: String(n) },
-        select: { earnedAt: true },
-      })
-      if (!medal) return { ok: false, error: "このメダルはまだもらっていません" }
-      payload = { count: n, date: fmtMDJst(medal.earnedAt) }
-    }
 
     if (!payload) return { ok: false, error: "作成できませんでした" }
 

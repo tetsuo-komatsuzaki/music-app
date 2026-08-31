@@ -1,7 +1,7 @@
 // カタログの機械検収 (観点14: 文言lint / 観点16: 番号規約)。
 // 中身の変更はこのテストが通る形でのみ許可する。
 import { describe, expect, it } from "vitest"
-import { CLIENT_EVENT_QUEST_IDS, COUNTER_QUESTS, EVENT_QUESTS, MEDAL_MILESTONES, NINTEI_FACES, QUESTS } from "./treasureCatalog"
+import { CLIENT_EVENT_QUEST_IDS, COUNTER_QUESTS, EVENT_QUESTS, NINTEI_FACES, QUESTS } from "./treasureCatalog"
 
 describe("treasureCatalog", () => {
   it("番号とquestIdがユニーク (再利用禁止)", () => {
@@ -37,9 +37,9 @@ describe("treasureCatalog", () => {
     }
   })
 
-  it("認定証は最難関16件のみ (2026-08-31 スライド9+3件を採用)", () => {
+  it("認定証は最難関15件のみ (2026-08-31 メダル系1件廃止後)", () => {
     expect(QUESTS.filter((q) => q.grade === "cert").map((q) => q.no).sort((a, b) => a - b))
-      .toEqual([30, 39, 45, 51, 99, 102, 105, 106, 113, 114, 120, 138, 140, 143, 144, 145])
+      .toEqual([30, 39, 45, 51, 99, 102, 105, 106, 113, 114, 120, 138, 140, 144, 145])
   })
 
   it("認定証の券面はcert 6件と一対一・文言規約に適合", () => {
@@ -58,12 +58,6 @@ describe("treasureCatalog", () => {
     }
   })
 
-  it("メダルの節目は昇順ユニーク", () => {
-    const m = [...MEDAL_MILESTONES]
-    expect([...new Set(m)].length).toBe(m.length)
-    expect(m).toEqual([...m].sort((a, b) => a - b))
-  })
-
   it("欠番の遵守: 削除済み番号が復活していない", () => {
     const nos = new Set(QUESTS.map((q) => q.no))
     // 2026-08-30: 77-82 先生関連 / 87-88 メダル一本化 / 91 章廃止
@@ -72,12 +66,13 @@ describe("treasureCatalog", () => {
     // 56-65 (いろんな曲の旅ごと), 72-75 (印・聴き返し・カルテ通い), 85,86,90 (重複整理)
     // 2026-08-31 点灯後: 76,83,97,98,127,146 (シェア系クエスト全廃)
     // 2026-08-31 はじまりの旅の整理: 5,6,12,19,84,94,95 (しくみ/パート別/テンポ/お気に入り/ギャラリー/アルペジオ/ちがう調)
+    // 2026-08-31 メダル全廃: 125,143 (メダル3個/メダル5個全部)
     const dead = [
       5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 21,
       23, 24, 25, 26, 33, 34, 35, 40, 54, 55,
       56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
       72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82,
-      83, 84, 85, 86, 87, 88, 90, 91, 94, 95, 97, 98, 127, 146,
+      83, 84, 85, 86, 87, 88, 90, 91, 94, 95, 97, 98, 125, 127, 143, 146,
     ]
     for (const d of dead) {
       expect(nos.has(d), `no.${d} は欠番 (再利用禁止)`).toBe(false)

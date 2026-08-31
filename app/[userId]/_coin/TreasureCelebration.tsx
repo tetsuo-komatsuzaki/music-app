@@ -15,16 +15,14 @@ import { createPortal } from "react-dom"
 import { consumeTreasures } from "@/app/actions/treasures"
 import { NINTEI_FACES, QUEST_BY_ID } from "@/app/_libs/treasureCatalog"
 import CardAwardMotion from "./CardAwardMotion"
-import MedalAwardMotion from "./MedalAwardMotion"
 import CertAwardMotion from "./CertAwardMotion"
 import NinteiAwardMotion from "./NinteiAwardMotion"
 import TitleAwardMotion from "./TitleAwardMotion"
-import MasterCardAwardMotion from "./MasterCardAwardMotion"
 import { rankName } from "@/app/_libs/rankCard"
 
 export type TreasureQueueItem = {
   id: string
-  kind: string // card / title / medal / master_card / cert
+  kind: string // card / title / cert
   sourceId: string
   catalogNo: number | null
   /** 成果成立日 (券面の日付)。ISO文字列 */
@@ -46,8 +44,6 @@ function faceDate(iso?: string): string {
 const KIND_LABEL: Record<string, string> = {
   card: "カード",
   title: "称号カード",
-  medal: "メダル",
-  master_card: "マスター記念カード",
   cert: "証明書",
 }
 
@@ -97,14 +93,6 @@ export default function TreasureCelebration({
     else { setDone(true); onDone?.() }
   }
 
-  // メダルは高級版v4の実装モーション (肉付け済)
-  if (item.kind === "medal") {
-    return createPortal(
-      <MedalAwardMotion key={item.id} count={Number(item.sourceId) || 0} onDone={next} />,
-      document.body,
-    )
-  }
-
   // カードは高級版v3の実装モーション (肉付け済)。他種は券面確定まで仮演出
   if (item.kind === "card") {
     const q = QUEST_BY_ID.get(item.sourceId)
@@ -130,18 +118,6 @@ export default function TreasureCelebration({
       <TitleAwardMotion
         key={item.id}
         face={{ star, rankName: rankName(star), date: faceDate(item.earnedAt) }}
-        onDone={next}
-      />,
-      document.body,
-    )
-  }
-
-  // マスター記念カードは結晶パターン金族の実装モーション (肉付け済)
-  if (item.kind === "master_card") {
-    return createPortal(
-      <MasterCardAwardMotion
-        key={item.id}
-        face={{ song: item.label ?? "この曲", date: faceDate(item.earnedAt) }}
         onDone={next}
       />,
       document.body,

@@ -4,8 +4,8 @@
 // クエスト定義の正本。中身 (文言・件数・絵柄) は草案v3ベースで【Tetsuo最終確定前】。
 // 構造 (番号・型・カテゴリ・判定メトリクス) の検証が骨組みフェーズの目的。
 // 規約: 番号の再利用禁止 / 欠番はコメントで残す / 文言lintは catalog.test.ts。
-// 授与の格: 通常=カード / 最難関16件=認定証 (grade:"cert") / メダルはカード枚数の節目
-// (クエストではなく MEDAL_MILESTONES)。
+// 授与の格: 通常=カード / 最難関15件=認定証 (grade:"cert")。
+// メダルとマスター記念カードは2026-08-31に全廃 (リワード過多の整理・入れ子報酬の解消)。
 // ============================================================
 
 export type QuestType = "event" | "counter"
@@ -51,7 +51,6 @@ export type CounterMetric =
   | "comeback"          // 7日以上あけてから練習を再開した (閾値1)
   | "anniversary_1y"    // はじめての録音から365日 (閾値1)
   | "cards_count"       // カード宝物の枚数
-  | "medals_count"      // メダル宝物の個数
   | "treasures_count"   // 宝物の総数 (全kind)
   | "week7"             // 週7日練習した週がある (閾値1)
   | "practice_streak"   // 基礎練だけの連続日数
@@ -156,7 +155,6 @@ export const QUESTS: QuestDef[] = [
   { no: 122, questId: "best_10", title: "自己ベストを10回更新", sub: "こえ続ける人", category: "じぶんの音をみがく", type: "counter", counter: { metric: "best_updates", threshold: 10 } },
   { no: 123, questId: "cards_10", title: "カード10枚", sub: "集まり始めた思い出", category: "たからものあつめ", type: "counter", counter: { metric: "cards_count", threshold: 10 } },
   { no: 124, questId: "cards_30", title: "カード30枚", sub: "りっぱなコレクション", category: "たからものあつめ", type: "counter", counter: { metric: "cards_count", threshold: 30 } },
-  { no: 125, questId: "medals_3", title: "メダルを3個", sub: "節目をかさねて", category: "たからものあつめ", type: "counter", counter: { metric: "medals_count", threshold: 3 } },
   { no: 126, questId: "treasures_50", title: "宝物50個", sub: "ギャラリーがにぎやかに", category: "たからものあつめ", type: "counter", counter: { metric: "treasures_count", threshold: 50 } },
   { no: 128, questId: "anniversary", title: "アルコ記念日", sub: "はじめての録音から1年", category: "たからものあつめ", type: "counter", counter: { metric: "anniversary_1y", threshold: 1 } },
   // ── 追加18件 (2026-08-31 Tetsuo採用D案・全てカウンター型) → 計100件 ──
@@ -174,14 +172,11 @@ export const QUESTS: QuestDef[] = [
   { no: 140, questId: "days_365", title: "のべ365日", sub: "1年ぶんの練習日", category: "続ける力", type: "counter", grade: "cert", counter: { metric: "total_days", threshold: 365 } },
   { no: 141, questId: "titles_3", title: "ランクアップを3回", sub: "のぼり続ける人", category: "たからものあつめ", type: "counter", counter: { metric: "titles_count", threshold: 3 } },
   { no: 142, questId: "nintei_1", title: "はじめての認定証", sub: "最難関のあかし", category: "たからものあつめ", type: "counter", counter: { metric: "nintei_count", threshold: 1 } },
-  { no: 143, questId: "medals_5", title: "メダルを5個全部", sub: "節目の完全制覇", category: "たからものあつめ", type: "counter", grade: "cert", counter: { metric: "medals_count", threshold: 5 } },
   { no: 144, questId: "treasures_100", title: "宝物100個", sub: "あふれるギャラリー", category: "たからものあつめ", type: "counter", grade: "cert", counter: { metric: "treasures_count", threshold: 100 } },
   { no: 145, questId: "cards_all", title: "カードを全部あつめる", sub: "カードコンプリート", category: "たからものあつめ", type: "counter", grade: "cert", counter: { metric: "cards_all", threshold: 0 } },
 ]
 
 
-/** メダル = カード枚数の節目。2026-08-31再編でカード対象が48件になったため上限50→45に調整 (要Tetsuo確認) */
-export const MEDAL_MILESTONES = [5, 10, 20, 30, 45] as const
 
 /** 認定証 (grade cert・最難関6件) の券面文言。大見出し/種別行/本文2行 (草案・中身確定で差し替え可) */
 export type NinteiFaceDef = { big: string; kindLine: string; body1: string; body2: string }
@@ -269,12 +264,6 @@ export const NINTEI_FACES: Record<string, NinteiFaceDef> = {
     kindLine: "習慣の認定証",
     body1: "週5日の練習を 8週つづけたことを ここに認定します",
     body2: "習慣の力が きみを育てています",
-  },
-  medals_5: {
-    big: "5 MEDALS",
-    kindLine: "制覇の認定証",
-    body1: "すべてのメダルを あつめたことを ここに認定します",
-    body2: "節目のひとつひとつを 乗りこえました",
   },
   treasures_100: {
     big: "100 TREASURES",

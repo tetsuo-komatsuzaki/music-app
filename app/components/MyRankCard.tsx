@@ -49,9 +49,9 @@ export default function MyRankCard(props: RankCardData & {
 
   const barPct = Math.round((achievedCount / Math.max(1, required)) * 100)
 
-  // 宝物カウント (棚のタブと同じ数え方: カード=card+title+master_card / 栄誉=medal+cert)
-  const cardCount = gallery?.treasures.filter((t) => ["card", "title", "master_card"].includes(t.kind)).length ?? 0
-  const honorCount = gallery?.treasures.filter((t) => ["medal", "cert"].includes(t.kind)).length ?? 0
+  // 宝物カウント (棚のタブと同じ数え方: カード=card+title / 栄誉=cert)
+  const cardCount = gallery?.treasures.filter((t) => ["card", "title"].includes(t.kind)).length ?? 0
+  const honorCount = gallery?.treasures.filter((t) => t.kind === "cert").length ?? 0
 
   return (
     <div className={styles.root}>

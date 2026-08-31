@@ -11,7 +11,7 @@
 
 import { prisma } from "./prisma"
 import {
-  COUNTER_QUESTS, MEDAL_MILESTONES, QUESTS, QUEST_BY_ID,
+  COUNTER_QUESTS, QUESTS, QUEST_BY_ID,
   type CounterMetric, type QuestDef,
 } from "./treasureCatalog"
 import { LESSONS } from "@/app/[userId]/lessons/_lib/content"
@@ -195,7 +195,7 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
       m.song_rec_max = rows.reduce((mx, r) => Math.max(mx, r._count), 0)
     }))
   }
-  if (["cards_count", "medals_count", "treasures_count", "titles_count", "nintei_count", "cards_all"]
+  if (["cards_count", "treasures_count", "titles_count", "nintei_count", "cards_all"]
     .some((k) => needed.has(k as CounterMetric))) {
     jobs.push(prisma.userTreasure.groupBy({
       by: ["kind", "sourceType"], where: { userId }, _count: true,
@@ -203,7 +203,6 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
       const sum = (pred: (r: { kind: string; sourceType: string }) => boolean) =>
         rows.filter(pred).reduce((n, r) => n + r._count, 0)
       m.cards_count = sum((r) => r.kind === "card")
-      m.medals_count = sum((r) => r.kind === "medal")
       m.titles_count = sum((r) => r.kind === "title")
       // 認定証 = クエスト由来のcert (マスター証明書は sourceType "master")
       m.nintei_count = sum((r) => r.kind === "cert" && r.sourceType === "quest")
@@ -430,20 +429,7 @@ export async function evaluateTreasures(userId: string): Promise<{ silentGranted
     }
   }
 
-  // メダル (カード枚数の節目)。カード=quest由来のcard宝物の枚数
-  const cardCount = await prisma.userTreasure.count({ where: { userId, kind: "card" } })
-  const medalTargets = MEDAL_MILESTONES.filter((n) => cardCount >= n)
-  if (medalTargets.length > 0) {
-    await prisma.userTreasure.createMany({
-      data: medalTargets.map((n) => ({
-        userId, kind: "medal", sourceType: "card_milestone", sourceId: String(n),
-        awardedAt: firstRun ? new Date() : null,
-      })),
-      skipDuplicates: true,
-    })
-  }
-
-  // マスターの遅延発行: 証明書+記念カード。backfill済み (masterCelebratedAt非null) は棚直行
+  // マスターの遅延発行: 証明書のみ (記念カード+メダルは2026-08-31全廃)。backfill済みは棚直行
   const masters = await prisma.userScoreAchievement.findMany({
     where: { userId, masteredAt: { not: null } },
     select: { scoreId: true, masteredAt: true, masterCelebratedAt: true },
@@ -451,12 +437,9 @@ export async function evaluateTreasures(userId: string): Promise<{ silentGranted
   if (masters.length > 0) {
     const now = new Date()
     await prisma.userTreasure.createMany({
-      data: masters.flatMap((a) => {
+      data: masters.map((a) => {
         const silent = firstRun || a.masterCelebratedAt != null
-        return [
-          { userId, kind: "cert", sourceType: "master", sourceId: a.scoreId, earnedAt: a.masteredAt ?? now, awardedAt: silent ? now : null },
-          { userId, kind: "master_card", sourceType: "master", sourceId: `card:${a.scoreId}`, earnedAt: a.masteredAt ?? now, awardedAt: silent ? now : null },
-        ]
+        return { userId, kind: "cert", sourceType: "master", sourceId: a.scoreId, earnedAt: a.masteredAt ?? now, awardedAt: silent ? now : null }
       }),
       skipDuplicates: true,
     })
@@ -484,8 +467,8 @@ export async function grantRankUpTitle(userId: string, newStar: number): Promise
   }
 }
 
-/** 帰着キュー (授与待ちの宝物・格順: カード→称号→メダル→記念→証明書) */
-const KIND_ORDER = ["card", "title", "medal", "master_card", "cert"] as const
+/** 帰着キュー (授与待ちの宝物・格順: カード→称号→証明書)。廃止種 (medal/master_card) の既存行は載せない */
+const KIND_ORDER = ["card", "title", "cert"] as const
 export type TreasureQueueRow = {
   id: string
   kind: string
@@ -503,14 +486,14 @@ export type TreasureQueueRow = {
 export async function getTreasureQueue(userId: string): Promise<TreasureQueueRow[]> {
   if (!rewardSystemLit()) return []
   const rows: TreasureQueueRow[] = await prisma.userTreasure.findMany({
-    where: { userId, awardedAt: null },
+    where: { userId, awardedAt: null, kind: { notIn: ["medal", "master_card"] } },
     orderBy: { earnedAt: "asc" },
     select: { id: true, kind: true, sourceType: true, sourceId: true, catalogNo: true, earnedAt: true },
   })
 
   // マスター証明書の券面情報 (曲名・★・通し番号) を解決する。
   // 通し番号は本人の全マスター証明書を earnedAt 順に並べた獲得順 (授与済み含む・欠番なし)
-  const pending = rows.filter((r) => r.sourceType === "master" && (r.kind === "cert" || r.kind === "master_card"))
+  const pending = rows.filter((r) => r.sourceType === "master" && r.kind === "cert")
   if (pending.length > 0) {
     try {
       const [allCerts, scores, achievements] = await Promise.all([
@@ -561,13 +544,13 @@ export async function getGalleryData(userId: string): Promise<GalleryData> {
       select: { scoreId: true, starAtAchievement: true, masteredAt: true, score: { select: { title: true } } },
     }),
     prisma.userTreasure.findMany({
-      where: { userId },
+      where: { userId, kind: { notIn: ["medal", "master_card"] } },
       orderBy: { earnedAt: "asc" },
       select: { kind: true, sourceType: true, sourceId: true, catalogNo: true, earnedAt: true },
     }),
   ])
 
-  // マスター証明書 (sourceId=scoreId) と記念カード (sourceId=card:scoreId) の券面に曲名を引く
+  // マスター証明書 (sourceId=scoreId) の券面に曲名を引く
   const titleByScore = new Map(achievements.map((a) => [a.scoreId, a.score.title]))
   return {
     coins: achievements.map((a) => ({
@@ -579,7 +562,6 @@ export async function getGalleryData(userId: string): Promise<GalleryData> {
     treasures: treasures.map((t) => {
       let label: string | undefined
       if (t.kind === "cert" && t.sourceType === "master") label = titleByScore.get(t.sourceId)
-      if (t.kind === "master_card") label = titleByScore.get(t.sourceId.replace(/^card:/, ""))
       return { kind: t.kind, sourceId: t.sourceId, catalogNo: t.catalogNo, earnedAt: t.earnedAt.toISOString(), label }
     }),
   }
