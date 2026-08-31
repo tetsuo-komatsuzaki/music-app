@@ -5,18 +5,22 @@
 // 正本: treasure-handoff/gallery-screen-approved-v3.html (舞台装置のCSSはほぼ原文)。
 // Tetsuo指示: コイン/メダル/証明書/認定証の造形は実装済み正本を使う
 //   → Coin部品 + TreasureFaces (モーション造形の静止コピー) を差し込む。
-// 棚: コイン (達成コイン+つぎの宝物) / カード (クエスト+称号) / 栄誉 (賞状)。
+// 棚 (2026-08-31 Tetsuo確定・案1スナップショーケース):
+//   コイン / カード / 称号 / 賞状 の4カテゴリタブ。
+//   コイン・称号・賞状は横スナップのカルーセルで、正面に来たものが主役として
+//   スポットライトを浴びて「おさまる」。コイン=アクリルのコインケース入り、
+//   称号・賞状=台座。拡大は中心基準のみで上下位置は絶対に動かさない。
 // タップで拡大表示。メダルと記念カードは2026-08-31全廃 (既存行は表示しない)。
-// 点灯までどの本番画面からも参照しない (ダーク)。
 // ============================================================
 
-import React, { useState, type ReactNode } from "react"
+import React, { useEffect, useRef, useState, type ReactNode } from "react"
 import Coin from "@/app/components/Coin"
 import ShareSheet from "@/app/components/ShareSheet"
 import type { ShareKind } from "@/app/_libs/shareCard"
 import { NINTEI_FACES, QUESTS } from "@/app/_libs/treasureCatalog"
 import { ScrollFace, TreasureFaceStyles } from "./TreasureFaces"
 import RankEmblem from "@/app/components/RankEmblem"
+import { rankName } from "@/app/_libs/rankCard"
 
 export type GalleryCoin = { scoreId: string; title: string; star: number; mastered: boolean }
 export type GalleryTreasure = {
@@ -78,6 +82,64 @@ function EmptySlot({ text }: { text: string }) {
   return <div className="glEmpty"><span>{text}</span></div>
 }
 
+/** 案1スナップ・ショーケース (2026-08-31確定)。中央判定はスクロール位置から。
+    上下は絶対に動かさない: 変形は中心基準のscaleのみ (translateY禁止)。 */
+function ShelfCarousel({ items, halfW }: {
+  items: { key: string; node: ReactNode; tag: string; base: "slab" | "pedestal" }[]
+  /** アイテム幅の半分 (中央寄せの左右パディング計算用) */
+  halfW: number
+}) {
+  const ref = useRef<HTMLDivElement | null>(null)
+  const [center, setCenter] = useState(items.length - 1)
+  useEffect(() => {
+    // 初期表示は最新 (末尾) を正面に
+    const el = ref.current
+    if (el) el.scrollLeft = el.scrollWidth
+  }, [])
+  const update = () => {
+    const el = ref.current
+    if (!el) return
+    const mid = el.scrollLeft + el.clientWidth / 2
+    let best = 0
+    let bd = Infinity
+    Array.from(el.children).forEach((c, i) => {
+      const h = c as HTMLElement
+      const d = Math.abs(h.offsetLeft + h.offsetWidth / 2 - mid)
+      if (d < bd) { bd = d; best = i }
+    })
+    setCenter(best)
+  }
+  return (
+    <div
+      className="glCar"
+      ref={ref}
+      onScroll={() => requestAnimationFrame(update)}
+      style={{ ["--glpad" as string]: `calc(50% - ${halfW}px)` }}
+    >
+      {items.map((it, i) => (
+        <div key={it.key} className={`glCarItem ${i === center ? "on" : ""}`}>
+          <i className="glSpot" />
+          <i className="glPool" />
+          {it.base === "slab" ? (
+            <span className="glSlab">
+              <i className="glSlabDot glSdTl" /><i className="glSlabDot glSdTr" />
+              <i className="glSlabDot glSdBl" /><i className="glSlabDot glSdBr" />
+              {it.node}
+              <span className="glSlabLabel">ARCODA COIN</span>
+            </span>
+          ) : (
+            <>
+              {it.node}
+              <i className="glPedW" />
+            </>
+          )}
+          <span className="glCarTag">{it.tag}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function GalleryShelves({
   coins,
   required,
@@ -87,19 +149,20 @@ export default function GalleryShelves({
   required: number
   treasures: GalleryTreasure[]
 }) {
-  const [tab, setTab] = useState<"coin" | "card" | "honor">("coin")
+  const [tab, setTab] = useState<"coin" | "card" | "title" | "honor">("coin")
   const [zoom, setZoom] = useState<ReactNode | null>(null)
-  // 栄誉のシェア (フェーズ3: 証明書/認定証/メダル)
+  // 賞状のシェア (証明書/認定証)
   const [share, setShare] = useState<{ kind: ShareKind; refId: string } | null>(null)
   const cards = treasures.filter((t) => t.kind === "card")
   const titles = treasures.filter((t) => t.kind === "title")
   const certs = treasures.filter((t) => t.kind === "cert")
-  const honorCount = certs.length
 
+  // 2026-08-31 Tetsuo確定: コイン/カード/称号/賞状 を別カテゴリとして見る
   const tabs = [
     { id: "coin" as const, label: "コイン", n: coins.length },
-    { id: "card" as const, label: "カード", n: cards.length + titles.length },
-    { id: "honor" as const, label: "栄誉", n: honorCount },
+    { id: "card" as const, label: "カード", n: cards.length },
+    { id: "title" as const, label: "称号", n: titles.length },
+    { id: "honor" as const, label: "賞状", n: certs.length },
   ]
 
   const zoomable = (node: ReactNode, big: ReactNode, shareReq?: { kind: ShareKind; refId: string }) => (
@@ -153,21 +216,22 @@ export default function GalleryShelves({
       {tab === "coin" && (
         <div className="glShelf">
           <Case jp="達成コイン" en="ACHIEVEMENT COINS">
-            <div className="glRow">
-              {coins.map((c) => (
-                <span key={c.scoreId} className="glPed">
-                  {zoomable(
-                    <Coin size={62} star={c.star} master={c.mastered} />,
-                    <div style={{ textAlign: "center" }}><Coin size={160} star={c.star} master={c.mastered} /><p className="glZoomName">{c.title}{c.mastered ? " ・ マスター" : ""}</p></div>,
-                  )}
-                  <i className="glPedestal" />
-                  <span className="glPedTag">{c.title}</span>
-                </span>
-              ))}
-            </div>
-          </Case>
-          <Case jp="つぎの宝物" en="NEXT TREASURE" delay={0.15}>
-            <EmptySlot text={coins.length < required ? "つぎの曲を達成すると ここに届くよ" : "どんどん増えていくよ"} />
+            {coins.length === 0
+              ? <EmptySlot text={coins.length < required ? "つぎの曲を達成すると ここに届くよ" : "どんどん増えていくよ"} />
+              : (
+                <ShelfCarousel
+                  halfW={58}
+                  items={coins.map((c) => ({
+                    key: c.scoreId,
+                    base: "slab" as const,
+                    tag: `${c.title}${c.mastered ? " ・ マスター" : ""}`,
+                    node: zoomable(
+                      <Coin size={70} star={c.star} master={c.mastered} />,
+                      <div style={{ textAlign: "center" }}><Coin size={160} star={c.star} master={c.mastered} /><p className="glZoomName">{c.title}{c.mastered ? " ・ マスター" : ""}</p></div>,
+                    ),
+                  }))}
+                />
+              )}
           </Case>
         </div>
       )}
@@ -185,21 +249,31 @@ export default function GalleryShelves({
               })}
             </div>
           </Case>
-          <Case jp="称号" en="TITLES" delay={0.15}>
-            <div className="glRow">
-              {titles.length === 0 && <EmptySlot text="ランクアップの称号が ここにならぶよ" />}
-              {titles.map((t) => {
-                const mini = (
-                  <MiniCard
-                    no={`STAR ${t.sourceId}`}
-                    emblem={<RankEmblem star={Number(t.sourceId) || 1} size="40px" />}
-                    title="ランクアップ"
-                    badge="称号"
-                  />
-                )
-                return <span key={`${t.kind}:${t.sourceId}`}>{zoomable(mini, <div className="glZoomCard">{mini}</div>)}</span>
-              })}
-            </div>
+        </div>
+      )}
+
+      {tab === "title" && (
+        <div className="glShelf">
+          <Case jp="称号" en="TITLES">
+            {titles.length === 0
+              ? <EmptySlot text="ランクアップの称号が ここにならぶよ" />
+              : (
+                <ShelfCarousel
+                  halfW={44}
+                  items={titles.map((t) => {
+                    const star = Number(t.sourceId) || 1
+                    return {
+                      key: `${t.kind}:${t.sourceId}`,
+                      base: "pedestal" as const,
+                      tag: `STAR ${t.sourceId} ・ ${rankName(star)}`,
+                      node: zoomable(
+                        <span style={{ display: "block", padding: "6px 0 2px" }}><RankEmblem star={star} size="64px" /></span>,
+                        <div style={{ textAlign: "center" }}><RankEmblem star={star} size="150px" /><p className="glZoomName">STAR {t.sourceId} ・ {rankName(star)}</p></div>,
+                      ),
+                    }
+                  })}
+                />
+              )}
           </Case>
         </div>
       )}
@@ -207,23 +281,28 @@ export default function GalleryShelves({
       {tab === "honor" && (
         <div className="glShelf">
           <Case jp="賞状" en="CERTIFICATES">
-            <div className="glRow">
-              {certs.length === 0 && <EmptySlot text="マスターと最難関クエストの賞状が ここにならぶよ" />}
-              {certs.map((t) => {
-                const f = certFace(t)
-                return (
-                  <span key={`${t.kind}:${t.sourceId}`} className="glPed">
-                    {zoomable(
-                      <ScrollFace variant={f.variant} piece={f.piece} kindLine={f.kindLine} height={150} />,
-                      <div style={{ textAlign: "center" }}><ScrollFace variant={f.variant} piece={f.piece} kindLine={f.kindLine} height={430} /></div>,
-                      f.variant === "gold"
-                        ? { kind: "cert", refId: t.sourceId }
-                        : { kind: "nintei", refId: t.sourceId },
-                    )}
-                  </span>
-                )
-              })}
-            </div>
+            {certs.length === 0
+              ? <EmptySlot text="マスターと最難関クエストの賞状が ここにならぶよ" />
+              : (
+                <ShelfCarousel
+                  halfW={48}
+                  items={certs.map((t) => {
+                    const f = certFace(t)
+                    return {
+                      key: `${t.kind}:${t.sourceId}`,
+                      base: "pedestal" as const,
+                      tag: f.variant === "gold" ? `${f.piece} ・ マスター証明書` : f.piece,
+                      node: zoomable(
+                        <ScrollFace variant={f.variant} piece={f.piece} kindLine={f.kindLine} height={150} />,
+                        <div style={{ textAlign: "center" }}><ScrollFace variant={f.variant} piece={f.piece} kindLine={f.kindLine} height={430} /></div>,
+                        f.variant === "gold"
+                          ? { kind: "cert", refId: t.sourceId }
+                          : { kind: "nintei", refId: t.sourceId },
+                      ),
+                    }
+                  })}
+                />
+              )}
           </Case>
         </div>
       )}
@@ -353,6 +432,47 @@ export default function GalleryShelves({
 .glZoomName { margin-top:14px; font-size:12px; font-weight:800; color:#edf1fa; text-align:center; }
 .glZoomCard { transform:scale(2.4); transform-origin:center; }
 .glZoomHint { font-size:10px; color:#8fa0c4; letter-spacing:.2em; }
+/* ── 案1スナップ・ショーケース (2026-08-31確定)。上下固定: 変形は中心基準scaleのみ ── */
+.glCar { display:flex; align-items:center; gap:20px; overflow-x:auto; scroll-snap-type:x mandatory;
+  scrollbar-width:none; position:relative; z-index:3; padding:18px var(--glpad, 40%) 10px; }
+.glCar::-webkit-scrollbar { display:none; }
+.glCarItem { scroll-snap-align:center; position:relative; flex:none;
+  display:flex; flex-direction:column; align-items:center;
+  transform:scale(.74); transform-origin:center center; opacity:.45; filter:saturate(.7);
+  transition:transform .32s ease, opacity .32s ease, filter .32s ease; }
+.glCarItem.on { transform:scale(1); opacity:1; filter:none; }
+.glSpot { position:absolute; left:50%; top:-26px; width:150px; height:200px; transform:translateX(-50%);
+  background:linear-gradient(180deg, rgba(255,236,190,.20), rgba(255,236,190,.05) 60%, transparent);
+  clip-path:polygon(40% 0,60% 0,100% 100%,0 100%); filter:blur(5px); pointer-events:none;
+  opacity:0; transition:opacity .35s; }
+.glPool { position:absolute; left:50%; bottom:16px; width:120px; height:22px; transform:translateX(-50%); border-radius:50%;
+  background:radial-gradient(ellipse, rgba(255,236,190,.16), transparent 70%); filter:blur(3px);
+  opacity:0; transition:opacity .35s; pointer-events:none; }
+.glCarItem.on .glSpot, .glCarItem.on .glPool { opacity:1; }
+.glCarTag { margin-top:8px; font-size:9.5px; color:#8fa0c4; font-weight:800; letter-spacing:.06em;
+  white-space:nowrap; opacity:0; transition:opacity .3s; }
+.glCarItem.on .glCarTag { opacity:1; }
+/* コインケース (アクリルのスラブ) */
+.glSlab { position:relative; width:112px; height:124px; border-radius:12px; display:grid; place-items:center;
+  background:linear-gradient(160deg, rgba(210,228,255,.13), rgba(150,175,225,.05) 55%, rgba(210,228,255,.10));
+  border:1.5px solid rgba(210,228,255,.32);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3), inset 0 -8px 14px rgba(10,17,34,.4), 0 8px 18px rgba(0,0,0,.5); }
+.glSlab::before { content:""; position:absolute; inset:7px; border-radius:8px; border:1px solid rgba(210,228,255,.18); pointer-events:none; }
+.glSlab::after { content:""; position:absolute; top:0; left:14%; width:34%; height:100%; pointer-events:none;
+  background:linear-gradient(100deg, transparent, rgba(235,243,255,.14) 50%, transparent); transform:skewX(-16deg); }
+.glSlabDot { position:absolute; width:5px; height:5px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #f4f8fd, #8fa0c4); }
+.glSdTl { top:5px; left:5px; } .glSdTr { top:5px; right:5px; }
+.glSdBl { bottom:5px; left:5px; } .glSdBr { bottom:5px; right:5px; }
+.glSlabLabel { position:absolute; bottom:8px; left:50%; transform:translateX(-50%);
+  font-size:7.5px; letter-spacing:.14em; color:#aebfe4; font-weight:800; white-space:nowrap; }
+/* 台座 (称号・賞状のカルーセル用の幅広版) */
+.glPedW { display:block; width:88px; height:12px; margin-top:8px; border-radius:4px;
+  background:linear-gradient(180deg,#3a4467,#1c2440 60%,#131a30);
+  box-shadow:0 6px 10px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.12); }
+@media (prefers-reduced-motion: reduce) {
+  .glCarItem, .glSpot, .glPool, .glCarTag { transition:none; }
+}
 .glShareBtn { background:linear-gradient(180deg,#3a68c9,#2b5bc4 60%,#1f4196); color:#edf1fa; border:none;
   border-radius:999px; padding:12px 40px; font-size:13px; font-weight:800; letter-spacing:.14em; cursor:pointer;
   box-shadow:0 6px 16px rgba(20,40,110,.55), inset 0 1px 1px rgba(255,255,255,.28); font-family:inherit; }
