@@ -1,8 +1,12 @@
-// 記録の分析の共有ビュー — 確定モック 追10 NUMBERS (build-tmodeb.py) の写経 (2026-08-22)。
-// back「‹ カルテ」・ ds.t ・ 期間セグ(7日/30日/すべて ・ TRAJセグ様式) ・ DSカード ・
-// 音程マップ(注記=期間タブと連動 ・ 先生の気をつける音) ・ 得意/苦手grid2 ・
-// 今週うごいた枝=▲▼チップ。調/テンポ/移動の各カードは現行のデータ分割を維持しダーク化。
-// 生徒本人ページと先生の生徒閲覧ページで共用。
+"use client"
+
+// 記録の分析 (2026-08-31 Tetsuo確定・案2コックピット計器盤に全面再構成)。
+// モック正本: scratchpad/gen_numbers_redesign.py 案2。
+// 読み筋: 音程マップ+発見1行 → 計器盤 (音程のクセ+いまの平均) → 成長カーブ →
+//         練習バランス → 奏法べつ → ポジション移動べつ (各行から練習へ)。
+// 旧構成 (いちばんの発見カード/得意苦手/今週うごいた枝/調べつ/テンポ帯べつ) は廃止。
+// 生徒本人ページと先生の生徒閲覧ページで共用 (practiceBase=nullで練習導線を隠す)。
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import type { NumbersRoomData, KartePeriod } from "@/app/_libs/growthKarte"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
@@ -19,33 +23,88 @@ function inkColor(pct: number) {
   return pct >= 85 ? "#a8c97f" : pct >= 70 ? "#e0b25c" : "#e8a78f"
 }
 
-function Row({ label, sub, pct }: { label: string; sub?: string; pct: number }) {
+/** バー行 (奏法べつ/ポジション移動べつ共通)。href付きなら行末に練習へ */
+function BarRow({ label, sub, pct, on, href }: { label: string; sub?: string; pct: number; on: boolean; href?: string | null }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "var(--fs-caption)", marginBottom: 6 }}>
-      <span style={{ width: 118, flex: "none", fontWeight: 700, color: "var(--text-ink)" }}>{label}</span>
-      {sub && <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", flex: "none" }}>{sub}</span>}
-      <span className={ds.bar} style={{ flex: 1, height: 6 }}>
-        <i style={{ width: `${pct}%`, background: fillColor(pct) }} />
+    <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 9 }}>
+      <span style={{ width: 104, flex: "none", fontSize: 12, fontWeight: 800, color: "var(--text-ink)" }}>
+        {label}
+        {sub && <span style={{ display: "block", fontSize: 9.5, color: "var(--text-muted)", fontWeight: 700 }}>{sub}</span>}
       </span>
-      <b style={{ ...tnum, width: 40, flex: "none", textAlign: "right", color: inkColor(pct) }}>{pct}%</b>
+      <div className="naBar"><i style={{ width: on ? `${pct}%` : 0, background: fillColor(pct) }} /></div>
+      <b style={{ ...tnum, width: 38, flex: "none", textAlign: "right", fontSize: 12, fontWeight: 900, color: inkColor(pct) }}>{pct}%</b>
+      {href && (
+        <Link href={href} className="naGo pressable">練習へ</Link>
+      )}
     </div>
   )
 }
 
-export default function NumbersRoomView({ d, period, baseHref, backHref, backLabel, heatmap = null, fbMarks = [] }: {
+export default function NumbersRoomView({ d, period, baseHref, backHref, backLabel, heatmap = null, fbMarks = [], practiceBase = null }: {
   d: NumbersRoomData
   period: KartePeriod
   /** 期間切替リンクの土台 (例: /uid/progress/numbers) */
   baseHref: string
   backHref: string
   backLabel: string
-  /** 指板ヒートマップ (2026-08-11 Tetsuo確定: 音のじっくり表/動きのにがて文章の代替・期間タブ連動) */
+  /** 指板ヒートマップ (2026-08-11 Tetsuo確定・期間タブ連動) */
   heatmap?: HeatmapData | null
   fbMarks?: FingerboardMark[]
+  /** 練習導線の土台 (例: /uid/practice)。null=先生ビュー等で導線を出さない */
+  practiceBase?: string | null
 }) {
-  const empty = d.keys.length === 0 && d.registers.length === 0 && d.worstNotes.length === 0
-  const periodLabel = period === "7d" ? "7日" : period === "all" ? "すべて" : "30日"
-  const lens = d.worstNotes[0] ?? null // 旧カルテ「いちばんの発見(虫めがね)」をここに集約
+  // 出現アニメ (マウント後に計器が振れ、バーと線が満ちる)
+  const [on, setOn] = useState(false)
+  useEffect(() => {
+    const t = requestAnimationFrame(() => setOn(true))
+    return () => cancelAnimationFrame(t)
+  }, [])
+
+  const empty = d.curve.length === 0 && d.worstNotes.length === 0 && d.posShifts.length === 0 && d.articulations.length === 0
+  const lens = d.worstNotes[0] ?? null
+
+  // クセメーターの針: セント偏差を±70度へ (±28セントで振り切り)
+  const needleAngle = d.centsBias == null ? 0 : Math.max(-70, Math.min(70, d.centsBias * 2.5))
+  const biasLabel = d.centsBias == null ? null
+    : Math.abs(d.centsBias) < 5 ? { text: "ぴったり", color: "#a8c97f" }
+    : d.centsBias < 0 ? { text: `ぶら下がりぎみ ${d.centsBias}セント`, color: "#e8a78f" }
+    : { text: `上ずりぎみ +${d.centsBias}セント`, color: "#e0b25c" }
+
+  // 成長カーブのSVG (日別平均・金点=自己ベスト更新日)
+  const curveSvg = (() => {
+    if (d.curve.length < 2) return null
+    const W = 360
+    const H = 96
+    const pad = 10
+    const vals = d.curve.map((c) => c.score)
+    const min = Math.min(...vals) - 4
+    const max = Math.max(...vals) + 4
+    const pts = d.curve.map((c, i) => [
+      pad + (i * (W - 2 * pad)) / (d.curve.length - 1),
+      H - pad - ((c.score - min) / Math.max(1, max - min)) * (H - 2 * pad),
+    ] as const)
+    const line = "M " + pts.map((p) => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" L ")
+    const area = `${line} L ${W - pad} ${H - 2} L ${pad} ${H - 2} Z`
+    return (
+      <svg width="100%" viewBox={`0 0 ${W} ${H}`} aria-hidden>
+        <defs>
+          <linearGradient id="naAg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="rgba(122,167,255,.28)" />
+            <stop offset="1" stopColor="rgba(122,167,255,0)" />
+          </linearGradient>
+        </defs>
+        <path d={area} fill="url(#naAg)" style={{ opacity: on ? 1 : 0, transition: "opacity 1s ease .5s" }} />
+        <path d={line} fill="none" stroke="#7aa7ff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+          strokeDasharray={600} strokeDashoffset={on ? 0 : 600} style={{ transition: "stroke-dashoffset 1.6s ease" }} />
+        {d.curve.map((c, i) => c.best && (
+          <g key={c.day + i} style={{ opacity: on ? 1 : 0, transition: `opacity .4s ease ${0.9 + i * 0.08}s` }}>
+            <circle cx={pts[i][0]} cy={pts[i][1]} r="4" fill="#f0cd7c" />
+            <text x={pts[i][0]} y={pts[i][1] - 8} textAnchor="middle" fontSize="9" fontWeight="900" fill="#f0cd7c">{c.score}</text>
+          </g>
+        ))}
+      </svg>
+    )
+  })()
 
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: "0 0 60px" }}>
@@ -58,15 +117,15 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
       {/* 期間セグ (原本: 7日/30日/すべて ・ TRAJセグ様式) */}
       <div style={{ display: "flex", gap: 4, background: "#0e1830", border: "1px solid rgba(150,175,225,.1)", borderRadius: 10, padding: 3, marginTop: 10 }}>
         {([["7d", "7日"], ["30d", "30日"], ["all", "すべて"]] as const).map(([pp, label]) => {
-          const on = period === pp
+          const active = period === pp
           return (
             <Link key={pp} href={`${baseHref}${pp === "30d" ? "" : `?period=${pp}`}`} scroll={false}
               style={{
                 flex: 1, textAlign: "center", fontSize: "var(--fs-caption)", fontWeight: 800, padding: "7px 0", borderRadius: 8,
                 textDecoration: "none",
-                color: on ? "var(--gold)" : "var(--text-sub)",
-                background: on ? "linear-gradient(180deg,#22355e,#182747)" : "transparent",
-                boxShadow: on ? "inset 0 0 0 1px rgba(232,178,60,.28)" : "none",
+                color: active ? "var(--gold)" : "var(--text-sub)",
+                background: active ? "linear-gradient(180deg,#22355e,#182747)" : "transparent",
+                boxShadow: active ? "inset 0 0 0 1px rgba(232,178,60,.28)" : "none",
               }}>
               {label}
             </Link>
@@ -76,11 +135,11 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
 
       {empty ? (
         <div className={ds.card} style={{ padding: "13px 15px" }}>
-          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", lineHeight: 1.8 }}>この期間の録音がまだ少ないよ。録音がたまると、調・音・移動ごとの数字がここに並びます。</div>
+          <div style={{ fontSize: "var(--fs-body)", color: "var(--text-sub)", lineHeight: 1.8 }}>この期間の録音がまだ少ないよ。録音がたまると、クセ・のび・奏法ごとの数字がここに並びます。</div>
         </div>
       ) : (
         <>
-          {/* 音程マップ (原本: 注記=期間タブと連動 ・ 先生の気をつける音) */}
+          {/* 音程マップ + いちばんの発見1行 (旧発見カード/得意苦手を統合) */}
           {heatmap && (
             <div className={ds.card} style={{ padding: "13px 15px" }}>
               <div className={ds.lab}>音程マップ</div>
@@ -89,94 +148,136 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
               </div>
               <FingerboardPanel cells={heatmap.cells} details={heatmap.details} marks={fbMarks}
                 emptyText={`この期間はまだ判定できる音が少ないよ・同じ音を5回以上ひくと色がつくよ。`} />
-            </div>
-          )}
-
-          {/* いちばんの発見 (虫めがね ・ 桃系) */}
-          {lens && (
-            <div className={ds.card} style={{ padding: "13px 15px", borderColor: "rgba(232,155,168,.3)" }}>
-              <div style={{ fontSize: "var(--fs-label)", fontWeight: 800, color: "#e89ba8" }}>{periodLabel}の録音ぜんぶから見つけた</div>
-              <div style={{ fontSize: 27, fontWeight: 900, marginTop: 2, lineHeight: 1.15, color: "var(--text-ink)" }}>
-                {lens.kana} <span style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 800 }}>{lens.hand ? `${lens.hand}・推定` : lens.string ? `${lens.string}・推定` : lens.raw}</span>
-              </div>
-              <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", marginTop: 4, lineHeight: 1.7 }}>
-                成功 <b style={{ ...tnum, color: inkColor(lens.pct) }}>{lens.pct}%</b>。この期間でいちばんずれやすい音だよ。
-                {lens.cents != null && Math.abs(lens.cents) >= 15 && <>・平均 {lens.cents < 0 ? `ぶら下がり ${lens.cents}` : `上ずり +${lens.cents}`}セント</>}
-                <span style={{ color: "var(--gold)", fontWeight: 800 }}> 処方はホームのおすすめに出しておくね。</span>
-              </div>
-            </div>
-          )}
-
-          {/* 得意 / 苦手 (原本 grid2) */}
-          {(d.bestNotes.length > 0 || d.worstNotes.length > 0) && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
-              <div className={ds.card} style={{ margin: 0, padding: "13px 14px" }}>
-                <div className={ds.lab} style={{ color: "#a8c97f" }}>得意</div>
-                <div style={{ fontSize: 12, marginTop: 6, lineHeight: 1.9, color: "var(--text-ink)" }}>
-                  {d.bestNotes.slice(0, 3).map((n) => <span key={n.raw} style={{ display: "block" }}>{n.kana}</span>)}
-                  {d.bestNotes.length === 0 && <span style={{ color: "var(--text-muted)" }}>集計中</span>}
-                </div>
-              </div>
-              <div className={ds.card} style={{ margin: 0, padding: "13px 14px" }}>
-                <div className={ds.lab} style={{ color: "#e8a78f" }}>苦手</div>
-                <div style={{ fontSize: 12, marginTop: 6, lineHeight: 1.9, color: "var(--text-ink)" }}>
-                  {d.worstNotes.slice(0, 3).map((n) => <span key={n.raw} style={{ display: "block" }}>{n.kana}{n.string ? ` ・ ${n.string}` : ""}</span>)}
-                  {d.worstNotes.length === 0 && <span style={{ color: "var(--text-muted)" }}>集計中</span>}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 今週うごいた枝 (原本: ▲▼チップ) */}
-          {d.weekMoved.length > 0 && (
-            <div className={ds.card} style={{ padding: "13px 15px" }}>
-              <div className={ds.lab}>今週うごいた枝</div>
-              {d.weekMoved.map((w, i) => (
-                <div key={w.label} style={{ display: "flex", alignItems: "center", gap: 9, marginTop: i === 0 ? 9 : 8 }}>
-                  <span style={{
-                    ...tnum, fontSize: 10.5, fontWeight: 900, borderRadius: 7, padding: "2px 8px", flex: "none",
-                    background: w.delta > 0 ? "rgba(168,201,127,.16)" : "rgba(232,138,111,.14)",
-                    color: w.delta > 0 ? "#a8c97f" : "#e8a78f",
-                    border: `1px solid ${w.delta > 0 ? "rgba(168,201,127,.3)" : "rgba(232,138,111,.3)"}`,
-                  }}>
-                    {w.delta > 0 ? `▲ +${w.delta}` : `▼ ${w.delta}`}
+              {lens && (
+                <div className="naLens">
+                  <span style={{ flex: 1 }}>
+                    いちばんずれやすいのは <b style={{ color: "var(--text-ink)" }}>{lens.kana}{lens.string ? ` ・ ${lens.string}` : ""}</b> ・ 成功 <b style={{ ...tnum, color: inkColor(lens.pct) }}>{lens.pct}%</b>
+                    {lens.cents != null && Math.abs(lens.cents) >= 15 && <>・{lens.cents < 0 ? `ぶら下がり ${lens.cents}` : `上ずり +${lens.cents}`}セント</>}
                   </span>
-                  <span style={{ fontSize: 12.5, color: "var(--text-ink)" }}>{w.label}</span>
+                  {practiceBase && <Link href={practiceBase} className="naCta pressable">処方の基礎練へ</Link>}
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* 計器盤: 音程のクセ + いまの平均 */}
+          <div className={`${ds.card} naCockpit`} style={{ padding: "13px 15px" }}>
+            <div style={{ display: "flex", alignItems: "stretch", gap: 14 }}>
+              <div style={{ flex: 1, textAlign: "center" }}>
+                <div className={ds.lab}>音程のクセ</div>
+                {d.centsBias == null ? (
+                  <div style={{ fontSize: 10.5, color: "var(--text-muted)", fontWeight: 800, marginTop: 24, lineHeight: 1.8 }}>集計中<br />録音がたまると針が振れるよ</div>
+                ) : (
+                  <>
+                    <svg width="120" height="64" viewBox="0 0 120 64" style={{ marginTop: 6 }} aria-hidden>
+                      <path d="M 12 56 A 48 48 0 0 1 108 56" fill="none" stroke="rgba(150,175,225,.15)" strokeWidth="9" strokeLinecap="round" />
+                      <path d="M 12 56 A 48 48 0 0 1 40 14" fill="none" stroke="rgba(232,138,111,.5)" strokeWidth="9" strokeLinecap="round" />
+                      <path d="M 80 14 A 48 48 0 0 1 108 56" fill="none" stroke="rgba(232,178,60,.5)" strokeWidth="9" strokeLinecap="round" />
+                      {[-60, -30, 0, 30, 60].map((a) => (
+                        <line key={a} x1="60" y1="14" x2="60" y2="20" stroke="rgba(150,175,225,.4)" strokeWidth="2" transform={`rotate(${a} 60 56)`} />
+                      ))}
+                      <line x1="60" y1="56" x2="60" y2="18" stroke="#edf1fa" strokeWidth="3" strokeLinecap="round"
+                        style={{ transformOrigin: "60px 56px", transform: `rotate(${on ? needleAngle : 0}deg)`, transition: "transform 1.1s cubic-bezier(.3,1.2,.4,1)" }} />
+                      <circle cx="60" cy="56" r="5" fill="#edf1fa" />
+                    </svg>
+                    {biasLabel && <div style={{ fontSize: 11, fontWeight: 900, color: biasLabel.color }}>{biasLabel.text}</div>}
+                    <div style={{ fontSize: 9.5, color: "var(--text-muted)", fontWeight: 800, marginTop: 2 }}>左=ぶら下がり ・ 右=上ずり</div>
+                  </>
+                )}
+              </div>
+              <div style={{ flex: 1, textAlign: "center", borderLeft: "1px solid rgba(150,175,225,.12)", paddingLeft: 12 }}>
+                <div className={ds.lab}>いまの平均</div>
+                {d.current == null ? (
+                  <div style={{ fontSize: 10.5, color: "var(--text-muted)", fontWeight: 800, marginTop: 24, lineHeight: 1.8 }}>集計中<br />曲を2回採点すると出るよ</div>
+                ) : (
+                  <>
+                    <div style={{ ...tnum, fontSize: 30, fontWeight: 900, color: "var(--gold)", marginTop: 14, lineHeight: 1 }}>
+                      {d.current.avg}<span style={{ fontSize: 12, color: "var(--text-muted)" }}>点</span>
+                    </div>
+                    {d.current.delta != null && (
+                      <div style={{ ...tnum, fontSize: 10.5, fontWeight: 900, marginTop: 5, color: d.current.delta >= 0 ? "#a8c97f" : "#e8a78f" }}>
+                        {d.current.delta >= 0 ? `▲ +${d.current.delta}` : `▼ ${d.current.delta}`} この{period === "7d" ? "7日" : period === "all" ? "期間" : "30日"}
+                      </div>
+                    )}
+                    <div style={{ fontSize: 9.5, color: "var(--text-muted)", fontWeight: 800, marginTop: 3 }}>直近5回の演奏スコア</div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 成長カーブ */}
+          <div className={`${ds.card} naCockpit`} style={{ padding: "13px 15px" }}>
+            <div className={ds.lab}>成長カーブ</div>
+            {curveSvg == null ? (
+              <div style={{ fontSize: 10.5, color: "var(--text-muted)", fontWeight: 800, margin: "10px 0 4px", lineHeight: 1.8 }}>2日ぶん録音がたまると 線がのびていくよ</div>
+            ) : (
+              <>
+                <div style={{ marginTop: 8 }}>{curveSvg}</div>
+                <div style={{ fontSize: 9.5, color: "var(--text-muted)", fontWeight: 800, marginTop: 3 }}>金の点 = 自己ベスト更新 ・ 点は録音した日の平均</div>
+              </>
+            )}
+          </div>
+
+          {/* 練習バランス */}
+          {d.balance && (
+            <div className={`${ds.card} naCockpit`} style={{ padding: "13px 15px" }}>
+              <div className={ds.lab}>練習バランス</div>
+              <div className="naSplit">
+                <i style={{ width: on ? `${d.balance.songPct}%` : 0, background: "linear-gradient(180deg,#3d5da8,#2c4a86)", color: "#c6d6f5" }}>曲 {d.balance.songPct}%</i>
+                <i style={{ width: on ? `${d.balance.basicPct}%` : 0, background: "linear-gradient(180deg,#c99a35,#8a6a1a)", color: "#fff3dc" }}>基礎 {d.balance.basicPct}%</i>
+              </div>
+              <div style={{ fontSize: 9.5, color: "var(--text-muted)", fontWeight: 800, marginTop: 5 }}>
+                {d.balance.basicPct < 30 ? "曲にかたよりぎみ。基礎練を1日1本まぜよう"
+                  : d.balance.songPct < 30 ? "基礎練はばっちり。曲にも挑戦しよう"
+                  : "いいバランス。この調子"}
+              </div>
+            </div>
+          )}
+
+          {/* 奏法べつ (2026-08-31 Tetsuo確定: 調べつ/テンポ帯べつは廃止) */}
+          {d.articulations.length > 0 && (
+            <div className={ds.card} style={{ padding: "13px 15px" }}>
+              <div className={ds.lab}>奏法べつ <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>基礎練のスコア平均 ・ にがて順</span></div>
+              {d.articulations.map((a) => (
+                <BarRow key={a.label} label={a.label} sub={`${a.count}回`} pct={a.pct} on={on} href={practiceBase} />
               ))}
             </div>
           )}
 
-          {d.keys.length > 0 && (
-            <div className={ds.card} style={{ padding: "13px 15px" }}>
-              <div className={ds.lab}>調べつ <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>演奏スコア平均 ・ 低い順</span></div>
-              <div style={{ marginTop: 9 }}>
-                {d.keys.map((k) => <Row key={k.label} label={k.label} sub={`${k.count}回`} pct={k.pct} />)}
-              </div>
-            </div>
-          )}
-
-          {d.tempoBands.length > 0 && (
-            <div className={ds.card} style={{ padding: "13px 15px" }}>
-              <div className={ds.lab}>テンポ帯べつ <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>曲のテンポで分類</span></div>
-              <div style={{ marginTop: 9 }}>
-                {d.tempoBands.map((t) => <Row key={t.label} label={t.label} sub={`${t.count}回`} pct={t.pct} />)}
-              </div>
-              <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 4 }}>※ 録音がたまるほど、アルコの見方がくわしくなるよ</div>
-            </div>
-          )}
-
+          {/* ポジション移動べつ */}
           {d.posShifts.length > 0 && (
             <div className={ds.card} style={{ padding: "13px 15px" }}>
               <div className={ds.lab}>ポジション移動べつ <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>左手の移動 ・ にがて順</span></div>
-              <div style={{ marginTop: 9 }}>
-                {d.posShifts.map((p) => <Row key={p.label} label={p.label} sub={`${p.target}回`} pct={p.pct} />)}
-              </div>
+              {d.posShifts.map((p) => (
+                <BarRow key={p.label} label={p.label} sub={`${p.target}回`} pct={p.pct} on={on} href={practiceBase ? `${practiceBase}/fingering` : null} />
+              ))}
               <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 4 }}>※ ポジション移動をふくむ曲・教材を弾くと集計されるよ</div>
             </div>
           )}
         </>
       )}
+
+      {/* 案2コックピットの装飾 (モック正本のCSS移植) */}
+      <style>{`
+.naCockpit { background:linear-gradient(180deg,#10182e,#0a1020); border-color:rgba(122,167,255,.2); }
+.naLens { display:flex; align-items:center; gap:10px; margin-top:10px; padding:9px 11px; border-radius:11px;
+  font-size:11px; color:var(--text-sub); line-height:1.7;
+  background:rgba(232,155,168,.08); border:1px solid rgba(232,155,168,.25); }
+.naCta { flex:none; display:inline-block; font-size:10.5px; font-weight:900; color:#0d1730; text-decoration:none;
+  background:linear-gradient(180deg,#f0cd7c,#d9a93c); border-radius:999px; padding:5px 13px;
+  box-shadow:0 3px 10px rgba(232,178,60,.35); }
+.naGo { flex:none; font-size:10px; font-weight:900; color:var(--gold); text-decoration:none;
+  background:rgba(232,178,60,.12); border:1px solid rgba(232,178,60,.35); border-radius:999px; padding:4px 11px; }
+.naBar { height:7px; border-radius:99px; background:rgba(150,175,225,.12); overflow:hidden; flex:1; }
+.naBar i { display:block; height:100%; border-radius:99px; transition:width 1s cubic-bezier(.2,.8,.2,1); }
+.naSplit { display:flex; height:26px; border-radius:9px; overflow:hidden; margin-top:10px; border:1px solid rgba(150,175,225,.16); }
+.naSplit i { display:grid; place-items:center; font-size:10px; font-weight:900; transition:width 1.1s cubic-bezier(.2,.8,.2,1);
+  white-space:nowrap; overflow:hidden; }
+@media (prefers-reduced-motion: reduce) {
+  .naBar i, .naSplit i { transition:none; }
+}
+      `}</style>
     </div>
   )
 }

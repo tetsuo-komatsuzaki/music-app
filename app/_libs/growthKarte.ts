@@ -1064,6 +1064,17 @@ export interface NumbersRoomData {
   /** ポジション移動べつ (第N→第M・成功率昇順=にがて順) */
   posShifts: Array<{ label: string; target: number; pct: number }>
   weekMoved: Array<{ label: string; delta: number }>
+  // ── 2026-08-31 Tetsuo確定 (案2コックピット): クセ/カーブ/バランス/奏法 ──
+  /** 音程のクセ: 全音符のセント偏差の加重平均 (負=ぶら下がり)。対象20音未満はnull */
+  centsBias: number | null
+  /** 成長カーブ: 曲の採点済み演奏の日別平均 (時系列)。best=その日までの最高を更新 */
+  curve: Array<{ day: string; score: number; best: boolean }>
+  /** いまの平均 (直近5回) と期間はじめ5回からの伸び。採点6回未満はdelta=null */
+  current: { avg: number; delta: number | null } | null
+  /** 練習バランス: 期間内の曲録音と基礎練の割合 */
+  balance: { song: number; basic: number; songPct: number; basicPct: number } | null
+  /** 奏法べつ (基礎練の奏法別 演奏スコア平均・にがて順) */
+  articulations: Array<{ label: string; count: number; pct: number }>
 }
 
 export async function buildNumbersRoom(
@@ -1082,7 +1093,7 @@ export async function buildNumbersRoom(
       where: { userId, uploadedAt: { gte: since } },
       select: {
         uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, analysisSummary: true,
-        practiceItem: { select: { keyTonic: true, keyMode: true } },
+        practiceItem: { select: { keyTonic: true, keyMode: true, articulation: true } },
       },
     }),
   ])
@@ -1251,7 +1262,77 @@ export async function buildNumbersRoom(
     .sort((a, b) => a.pct - b.pct)
     .slice(0, 6)
 
-  return { period, keys, registers, tempoBands, worstNotes, bestNotes, transitions, posShifts, weekMoved: weekMoved.slice(0, 6) }
+  // ── 2026-08-31 Tetsuo確定 (案2コックピット) ──
+  // 音程のクセ: 全音符のセント偏差の加重平均 (nsNotes合算・負=ぶら下がり)
+  let biasSum = 0
+  let biasN = 0
+  for (const e of nsNotes.values()) { biasSum += e.centsSum; biasN += e.centsN }
+  const centsBias = biasN >= 20 ? Math.round((biasSum / biasN) * 10) / 10 : null
+
+  // 成長カーブ: 曲の採点済み演奏を日別平均 (JST)。best=その日までの最高を更新した日
+  const scored = perfs
+    .filter((p) => p.pitchAccuracy != null && p.timingAccuracy != null)
+    .map((p) => ({ t: p.uploadedAt, s: ((p.pitchAccuracy as number) + (p.timingAccuracy as number)) / 2 }))
+    .sort((a, b) => a.t.getTime() - b.t.getTime())
+  const dayLabel = (d: Date) => {
+    const j = new Date(d.getTime() + 9 * 3600_000)
+    return `${j.getUTCMonth() + 1}/${j.getUTCDate()}`
+  }
+  const dayAgg: Array<{ day: string; sum: number; n: number }> = []
+  for (const r of scored) {
+    const day = dayLabel(r.t)
+    const last = dayAgg[dayAgg.length - 1]
+    if (last && last.day === day) { last.sum += r.s; last.n++ }
+    else dayAgg.push({ day, sum: r.s, n: 1 })
+  }
+  let runMax = -1
+  const curve = dayAgg.map((e) => {
+    const score = round(e.sum / e.n)
+    const best = score > runMax
+    if (best) runMax = score
+    return { day: e.day, score, best }
+  })
+
+  // いまの平均 (直近5回) と伸び (期間はじめ5回との差)
+  let current: NumbersRoomData["current"] = null
+  if (scored.length >= 2) {
+    const avgOf = (xs: Array<{ s: number }>) => round(xs.reduce((a, x) => a + x.s, 0) / xs.length)
+    const avg = avgOf(scored.slice(-5))
+    const delta = scored.length >= 6 ? avg - avgOf(scored.slice(0, 5)) : null
+    current = { avg, delta }
+  }
+
+  // 練習バランス (曲録音 vs 基礎練の本数)
+  const balance = perfs.length + pracs.length > 0
+    ? (() => {
+        const songPct = round((perfs.length / (perfs.length + pracs.length)) * 100)
+        return { song: perfs.length, basic: pracs.length, songPct, basicPct: 100 - songPct }
+      })()
+    : null
+
+  // 奏法べつ (基礎練の articulation 別スコア平均・にがて順)
+  const { ARTICULATIONS } = await import("./materialVariant")
+  const artLabel = (id: string | null) =>
+    id == null ? "基本の弓" : (ARTICULATIONS.find((a) => a.id === id)?.label ?? id)
+  const artAgg = new Map<string, { count: number; sum: number; n: number }>()
+  for (const p of pracs) {
+    const label = artLabel(p.practiceItem?.articulation ?? null)
+    const e = artAgg.get(label) ?? { count: 0, sum: 0, n: 0 }
+    e.count++
+    if (p.pitchAccuracy != null && p.timingAccuracy != null) { e.sum += (p.pitchAccuracy + p.timingAccuracy) / 2; e.n++ }
+    artAgg.set(label, e)
+  }
+  const articulations = [...artAgg.entries()]
+    .filter(([, e]) => e.n >= 2)
+    .map(([label, e]) => ({ label, count: e.count, pct: round(e.sum / e.n) }))
+    .sort((a, b) => a.pct - b.pct)
+    .slice(0, 6)
+
+  return {
+    period, keys, registers, tempoBands, worstNotes, bestNotes, transitions, posShifts,
+    weekMoved: weekMoved.slice(0, 6),
+    centsBias, curve, current, balance, articulations,
+  }
 }
 
 // ── 指摘トラッキング (2026-08-11 v3第2段③) ────────────────────────

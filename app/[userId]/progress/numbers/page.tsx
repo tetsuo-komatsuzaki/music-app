@@ -46,6 +46,7 @@ export default async function NumbersRoomPage({
       backLabel="成長カルテ"
       heatmap={heatmap}
       fbMarks={fbMarks}
+      practiceBase={`/${authUserId}/practice`}
     />
   )
 }
