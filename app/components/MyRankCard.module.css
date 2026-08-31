@@ -236,20 +236,23 @@
   0% { transform: translateX(-120%) skewX(-16deg); }
   22%, 100% { transform: translateX(320%) skewX(-16deg); }
 }
-/* 透かしアルコ特大 (実イラスト05Bの輪郭抽出線画・右側クロップ) */
+/* 透かしアルコ特大 (実イラスト05Bの輪郭抽出線画・右側クロップ)。
+   2026-08-31 実機指摘: 中央基準 (top50%+translateY) はカード高さの端末差で
+   顔が統計枠の裏に落ちて耳しか見えない。顔 (画像の上1/3) がランク名の右の
+   空きに必ず来るよう上端アンカーの固定値にする */
 .wm {
   position: absolute;
-  right: -120px;
-  top: 50%;
-  width: 400px;
-  height: 400px;
+  right: -80px;
+  top: -56px;
+  width: 340px;
+  height: 340px;
   z-index: 1;
   pointer-events: none;
-  transform: translateY(-46%) rotate(-4deg);
+  transform: rotate(-4deg);
   opacity: 0.14;
   background: url(/arco/arco_lineart_05B.png) center/contain no-repeat;
-  -webkit-mask: linear-gradient(100deg, transparent 20%, #000 52%);
-          mask: linear-gradient(100deg, transparent 20%, #000 52%);
+  -webkit-mask: linear-gradient(100deg, transparent 24%, #000 54%);
+          mask: linear-gradient(100deg, transparent 24%, #000 54%);
 }
 .faceInner { position: relative; z-index: 3; }
 /* 宝物カウント3枠 */
