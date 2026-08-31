@@ -60,7 +60,8 @@ function copyFor(reason: string, detail: string | null): IntroCopy {
       if (detail === "3") return { bubble: "この曲は3rdポジションを使うよ。よく使う定番ポジションの指づかいをならそう。", points: ["3rdの手の形をつかむ", "1st⇄3rdの移動を安定"] }
       return { bubble: "この曲は高いポジション・4th以上を使うよ。高音域の指づかいに慣れよう。", points: ["目印のない高音域を、耳で音程をとる", "手全体をなめらかに運ぶ"] }
     case "fing_transition":
-      return { bubble: `この曲で「${detail ?? "音の移動"}」のうごきがにがてだったよ。この教材でねらって練習しよう。`, points: ["ゆっくり正しい音程で", "できたら少しずつ速く"] }
+      // 2026-08-31 Tetsuo確定: 移動名の差し込みをやめ汎用文に (detailは選定理由としては残る)
+      return { bubble: "きみの演奏から、にがてな指の動きに効く教材を選んだよ。じっくりならそう。", points: ["ゆっくり正しい音程で", "できたら少しずつ速く"] }
     case "fing_near":
       return { bubble: "ぴったりの教材がないので、近いポジションの指づかいで練習しよう。", points: ["近い手の形をつかむ", "曲のポジションに橋渡し"] }
     case "fing_basic":
