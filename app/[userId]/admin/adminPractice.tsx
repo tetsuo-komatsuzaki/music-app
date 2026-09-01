@@ -53,6 +53,8 @@ type ItemDTO = {
   type: ItemType
   id: string; category: string; title: string; composer: string | null
   groupId?: string | null; groupTitle?: string | null
+  /** 奏法別・リズム別・パート別。教材管理では既定で隠す (2026-09-01 Tetsuo確定) */
+  isVariant?: boolean
   keyTonic: string; keyMode: string
   tempoMin: number | null; tempoMax: number | null; positions: string[]
   isPublished: boolean; analysisStatus: string; buildStatus: string
@@ -137,6 +139,9 @@ export default function AdminPractice({
   // 族でまとめる (2026-08-25 Tetsuo「数が多くて見にくい」)。
   // 824件を族の見出し行に畳み、開いたときだけ変種を出す。
   const [groupedView, setGroupedView] = useState(true)
+  // 奏法別・リズム別・パート別を出すか (2026-09-01 Tetsuo確定「量が多すぎて見れなくなる」)。
+  // 既定は隠す。解析の失敗を追うときだけ開く
+  const [showVariants, setShowVariants] = useState(false)
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set())
   const [searchText, setSearchText] = useState("")
 
@@ -489,6 +494,9 @@ export default function AdminPractice({
   const filteredItems = useMemo(() => {
     const lower = searchText.trim().toLowerCase()
     const list = items.filter(item => {
+      // 奏法別・リズム別・パート別は一覧に出さない (2026-09-01 Tetsuo確定)。
+      // 量が多すぎて見えなくなるため、代表の1件だけを並べる。
+      if (item.isVariant && !showVariants) return false
       // フィルタ
       const noDiff = item.star == null
       const noTags = item.skillSubTaskTags.length === 0
@@ -520,7 +528,7 @@ export default function AdminPractice({
       sorted.sort((a, b) => (a.star ?? 99) - (b.star ?? 99) || a.title.localeCompare(b.title, "ja"))
     }
     return sorted
-  }, [items, filterMode, searchText, catFilter, sortMode])
+  }, [items, filterMode, searchText, catFilter, sortMode, showVariants])
   // 族の見出し + 開いている族の変種、という並びに組み替える。
   // 族に属さない教材と、1件しかない族はそのまま1行で出す (畳む意味がないため)。
   type Row = { kind: "family"; key: string; title: string; category: string; items: ItemDTO[] } | { kind: "item"; item: ItemDTO }
@@ -545,7 +553,7 @@ export default function AdminPractice({
 
 
   const counts = useMemo(() => {
-    const total = items.length
+    const total = items.filter(it => !it.isVariant).length
     const noDiff = items.filter(it => it.star == null).length
     const noTags = items.filter(it => it.skillSubTaskTags.length === 0).length
     const both = items.filter(it => it.star == null && it.skillSubTaskTags.length === 0).length
@@ -879,7 +887,13 @@ export default function AdminPractice({
 
       {/* 登録済み一覧 */}
       <div className={styles.listSection}>
-        <h2 className={styles.sectionTitle}>登録済み ({items.length}件)</h2>
+        <h2 className={styles.sectionTitle}>
+          登録済み ({counts.total}件)
+          <label style={{ marginLeft: 14, fontSize: 13, fontWeight: 500, display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <input type="checkbox" checked={showVariants} onChange={(e) => setShowVariants(e.target.checked)} />
+            奏法別・リズム別・パート別も出す
+          </label>
+        </h2>
 
         {/* フィルタ + 検索 */}
         <div className={styles.filterBar}>

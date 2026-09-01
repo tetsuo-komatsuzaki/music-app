@@ -67,6 +67,11 @@ export default async function AdminPracticePage({
         star: true,
         skillSubTaskTags: true,
         moodTags: true,
+        // 変種の判別用 (2026-09-01)
+        groupId: true,
+        partId: true,
+        rhythmRecipe: true,
+        difficulty: true,
         // v1.6 Phase 4-3 (Q4=B): ScoreTechniqueTag を一緒に取得し、
         //   admin UI の編集モーダル初期値に使う。
         scoreTechniqueTags: {
@@ -87,18 +92,45 @@ export default async function AdminPracticePage({
     orderBy: [{ category: "asc" }, { title: "asc" }],
     select: {
       id: true, category: true, title: true, composer: true, axes: true,
-      _count: { select: { scores: true, practiceItems: true } },
     },
   })
-  const groups = groupsRaw.map((g) => ({
-    id: g.id,
-    category: g.category,
-    title: g.title,
-    // 族の軸 (2026-08-25)。既存グループに追加するとき、軸の値を選ばせる
-    axes: (g.axes as { key: string; label: string; kind: string; values: string[] }[] | null) ?? null,
-    composer: g.composer,
-    variantCount: g._count.scores + g._count.practiceItems,
-  }))
+
+  // 一覧に出す「代表」を決める (2026-09-01 Tetsuo確定):
+  // 奏法別・リズム別・パート別は教材管理に並べない。量が多すぎて見えなくなるため。
+  // 同じ族・同じ調・同じ難易度の中で、いちばん素のものを1件だけ代表として出す。
+  // 調や難易度が違うもの (音階の12調、曲の難易度別) は別物なので残る。
+  type VariantKeys = {
+    id: string
+    groupId: string | null
+    keyTonic: string | null
+    keyMode: string | null
+    difficulty: string | null
+    positions?: string[]
+    modeVariant?: string | null
+    chordType?: string | null
+    partId?: string | null
+    articulation?: string | null
+    hasRhythm: boolean
+    hasArtRecipe: boolean
+    title: string
+  }
+  const bucketOf = (v: VariantKeys) => [
+    v.groupId ?? `solo:${v.id}`, v.keyTonic ?? "", v.keyMode ?? "", v.difficulty ?? "",
+    v.modeVariant ?? "", v.chordType ?? "", (v.positions ?? []).join(","),
+  ].join("|")
+  // 素なものほど小さい = 代表になる
+  const plainness = (v: VariantKeys) =>
+    (v.partId ? 8 : 0) + (v.hasRhythm ? 4 : 0) + (v.hasArtRecipe ? 2 : 0) + (v.articulation ? 1 : 0)
+  const pickRepresentatives = (list: VariantKeys[]) => {
+    const best = new Map<string, VariantKeys>()
+    for (const v of list) {
+      const k = bucketOf(v)
+      const cur = best.get(k)
+      if (!cur || plainness(v) < plainness(cur)
+        || (plainness(v) === plainness(cur) && v.title.localeCompare(cur.title, "ja") < 0)) best.set(k, v)
+    }
+    return new Set([...best.values()].map((v) => v.id))
+  }
 
   // カテゴリでグルーピング
   const tagsByCategory: Record<string, typeof techniqueTags> = {}
@@ -107,6 +139,19 @@ export default async function AdminPracticePage({
     tagsByCategory[tag.category].push(tag)
   }
 
+  const itemReps = pickRepresentatives(items.map((item) => {
+    const md = (item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata)
+      ? item.metadata : {}) as Record<string, unknown>
+    return {
+      id: item.id, groupId: item.groupId, keyTonic: item.keyTonic, keyMode: item.keyMode,
+      difficulty: item.difficulty, positions: item.positions,
+      modeVariant: typeof md.modeVariant === "string" ? md.modeVariant : null,
+      chordType: typeof md.chordType === "string" ? md.chordType : null,
+      partId: item.partId, articulation: item.articulation,
+      hasRhythm: item.rhythmRecipe != null, hasArtRecipe: item.articulationRecipe != null,
+      title: item.title,
+    }
+  }))
   const itemDtos = items.map((item) => {
     const tags = Array.isArray(item.skillSubTaskTags)
       ? (item.skillSubTaskTags as unknown[]).filter((v): v is string => typeof v === "string")
@@ -119,6 +164,8 @@ export default async function AdminPracticePage({
       // 族でまとめて表示するため (2026-08-25 Tetsuo「数が多くて見にくい」)
       groupId: item.groupId ?? null,
       groupTitle: item.group?.title ?? null,
+      // 2026-09-01: 奏法別・リズム別・パート別は既定で一覧に出さない
+      isVariant: !itemReps.has(item.id),
       composer: item.composer,
       keyTonic: item.keyTonic,
       keyMode: item.keyMode,
@@ -140,6 +187,11 @@ export default async function AdminPracticePage({
   })
 
   // Score も同形に整形 (PracticeItem に存在しないフィールドは空 / null)
+  const scoreReps = pickRepresentatives(scores.map((s) => ({
+    id: s.id, groupId: s.groupId, keyTonic: s.keyTonic, keyMode: s.keyMode,
+    difficulty: s.difficulty, partId: s.partId, articulation: null,
+    hasRhythm: s.rhythmRecipe != null, hasArtRecipe: false, title: s.title,
+  })))
   const scoreDtos = scores.map((s) => {
     const tags = Array.isArray(s.skillSubTaskTags)
       ? (s.skillSubTaskTags as unknown[]).filter((v): v is string => typeof v === "string")
@@ -149,6 +201,8 @@ export default async function AdminPracticePage({
       id: s.id,
       category: "score" as const,
       title: s.title,
+      groupId: s.groupId ?? null,
+      isVariant: !scoreReps.has(s.id),
       composer: s.composer,
       keyTonic: s.keyTonic ?? "",
       keyMode: s.keyMode ?? "",
@@ -171,6 +225,23 @@ export default async function AdminPracticePage({
 
   // 統合一覧 (PracticeItem 先 + Score 後)
   const allItems = [...itemDtos, ...scoreDtos]
+
+  // 族の変種数は「一覧に出る代表」で数える (2026-09-01 Tetsuo確定)。
+  // リズム別・奏法別・パート別まで数えると、教材1つが数十件に見えてしまう。
+  const repCountByGroup = new Map<string, number>()
+  for (const it of allItems) {
+    if (it.isVariant || !it.groupId) continue
+    repCountByGroup.set(it.groupId, (repCountByGroup.get(it.groupId) ?? 0) + 1)
+  }
+  const groups = groupsRaw.map((g) => ({
+    id: g.id,
+    category: g.category,
+    title: g.title,
+    // 族の軸 (2026-08-25)。既存グループに追加するとき、軸の値を選ばせる
+    axes: (g.axes as { key: string; label: string; kind: string; values: string[] }[] | null) ?? null,
+    composer: g.composer,
+    variantCount: repCountByGroup.get(g.id) ?? 0,
+  }))
 
   return (
     <AdminPractice
