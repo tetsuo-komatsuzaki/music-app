@@ -5,7 +5,6 @@ import type { PracticeCategory } from "@/app/generated/prisma"
 import { getUserLessonState, tagId } from "@/app/_libs/lessonStatus"
 import { LESSONS, LESSON_TOTAL } from "@/app/[userId]/lessons/_lib/content"
 import PracticeTop from "./practiceTop"
-import { pickRepresentatives, toRepresentativeInput } from "@/app/_libs/materialRepresentative"
 
 export const metadata = { title: "練習メニュー" }
 
@@ -29,20 +28,20 @@ export default async function PracticePage({
 
   // カテゴリごとの件数 (運営サンプル + 自分のアイテムのみ): 基礎練6 + エチュード
   const ownerFilter = { OR: [{ ownerUserId: null }, { ownerUserId: dbUserId }] }
-  // 2026-09-01 Tetsuo確定: 奏法別・リズム別・パート別は数に入れない。
-  // 教材1つがパートや奏法の数だけ増えて見えていた (エチュードは256件のうち198件がパート)。
+  // 2026-09-01 Tetsuo確定: 数に入れないのは**パート別だけ**。
+  // 調ごと・奏法・パターンは1項目として数える (一覧には並べないが教材としては別物)。
+  // 以前はパートまで数えていて、エチュードは256件のうち198件がパートだった。
   const counts = await Promise.all(
-    ALL_PRACTICE_CATEGORIES.map(async (cat) => {
-      const rows = await prisma.practiceItem.findMany({
-        where: { category: cat as PracticeCategory, isPublished: true, ...ownerFilter },
-        select: {
-          id: true, title: true, groupId: true, keyTonic: true, keyMode: true, difficulty: true,
-          positions: true, metadata: true, partId: true, articulation: true,
-          rhythmRecipe: true, articulationRecipe: true,
+    ALL_PRACTICE_CATEGORIES.map(cat =>
+      prisma.practiceItem.count({
+        where: {
+          category: cat as PracticeCategory,
+          isPublished: true,
+          partId: null,
+          ...ownerFilter,
         },
-      })
-      return pickRepresentatives(rows.map(toRepresentativeInput)).size
-    }),
+      }),
+    ),
   )
   const categoryCounts: Record<string, number> = {}
   ALL_PRACTICE_CATEGORIES.forEach((cat, i) => {
@@ -50,14 +49,9 @@ export default async function PracticePage({
   })
 
   // 練習曲 = 公開教材 (isShared Score) の件数。一覧は /practice/pieces へ。
-  const pieceRows = await prisma.score.findMany({
-    where: { isShared: true, deletedAt: null },
-    select: {
-      id: true, title: true, groupId: true, keyTonic: true, keyMode: true,
-      difficulty: true, partId: true, rhythmRecipe: true,
-    },
+  const pieceCount = await prisma.score.count({
+    where: { isShared: true, deletedAt: null, partId: null },
   })
-  const pieceCount = pickRepresentatives(pieceRows.map(toRepresentativeInput)).size
 
   // 学びのレッスン進捗 (クリア数 = 正式クリアのみ・確定#5)
   const lessonState = await getUserLessonState(dbUserId)
