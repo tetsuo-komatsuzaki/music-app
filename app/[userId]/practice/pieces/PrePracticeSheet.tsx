@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import styles from "./prePractice.module.css"
 import { DIFFICULTIES } from "@/app/_libs/materialVariant"
 import { ARTICULATIONS } from "@/app/_libs/materialVariant"
+import { STANDARD_ARTICULATIONS } from "@/app/_libs/articulationPatterns"
 import SheetPreview from "./SheetPreview"
 import SheetSkills from "./SheetSkills"
 
@@ -68,8 +69,14 @@ export default function PrePracticeSheet({
   // 生成用の STANDARD_ARTICULATIONS には slur が無く、奏法=slur の教材
   // (カイザー No.4/6/8/10/12/31/34/35/36) が選択肢に出ず、既定がレガートに落ちて
   // variant=undefined になり、詳細画面へ遷移できず譜面も出ない状態だった。
+  // 2026-09-01 Tetsuo確定: これから作れる奏法だけを「準備中」で見せる。
+  // スラー・テヌートは一括生成の対象外 (STANDARD_ARTICULATIONS に無い) なので、
+  // 教材が実在する族でだけ選択肢に出す。No.2 のように作る予定の無いスラーが
+  // ずっと準備中で居座るのを防ぐ。
+  const generatable = new Set<string>(STANDARD_ARTICULATIONS.map((a) => a.id))
   const options: { id: string; label: string }[] = byArt
-    ? ARTICULATIONS.map((a) => ({ id: a.id, label: a.label }))
+    ? ARTICULATIONS.filter((a) => generatable.has(a.id) || byKey.has(a.id))
+        .map((a) => ({ id: a.id, label: a.label }))
     : DIFFICULTIES.map((d) => ({ id: d.id, label: d.label }))
   const firstAvail = options.find((o) => byKey.has(o.id))?.id ?? options[0].id
 

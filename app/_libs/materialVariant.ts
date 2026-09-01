@@ -21,6 +21,9 @@ export const ARTICULATIONS = [
   { id: "slur", label: "スラー" },
   { id: "spiccato", label: "スピッカート" },
   { id: "portato", label: "ポルタート" },
+  // 2026-09-01: テヌートを追加。教材が8件あるのに選択用のこのリストに無く、
+  // 練習前シートから選べなかった (トレモロと同じ穴)。
+  { id: "tenuto", label: "テヌート" },
   // 2026-08-25: トレモロを追加。生成側 (articulationPatterns.STANDARD_ARTICULATIONS) には
   // 元から存在し、音階72件・アルペジオ24件が実在していたのに、選択用のこのリストに無いため
   // 練習前シートに選択肢が出ず、96件が到達不能になっていた。
