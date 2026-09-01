@@ -1,0 +1,15 @@
+import { chromium } from "playwright"
+const b = await chromium.launch()
+const pg = await (await b.newContext({ viewport: { width: 402, height: 870 }, deviceScaleFactor: 2 })).newPage()
+const errs = []
+pg.on("pageerror", (e) => errs.push(String(e)))
+await pg.goto("http://localhost:3200/dev/treasure-demo/demo?s=mcard", { waitUntil: "networkidle" })
+const ov = pg.locator('div[style*="941"]').first()
+await ov.waitFor({ timeout: 15000 })
+await pg.waitForTimeout(2200)
+await pg.screenshot({ path: "C:/Users/tetsu/AppData/Local/Temp/mc_1crystal.png" })
+await ov.click({ position: { x: 201, y: 300 } })
+await pg.waitForTimeout(1700)
+await pg.screenshot({ path: "C:/Users/tetsu/AppData/Local/Temp/mc_2face.png" })
+console.log("errs:", JSON.stringify(errs))
+await b.close()

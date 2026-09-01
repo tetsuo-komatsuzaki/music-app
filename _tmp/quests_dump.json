@@ -1,0 +1,1571 @@
+{
+ "quests": [
+  {
+   "no": 1,
+   "id": "first_loop",
+   "title": "はじめての1周",
+   "sub": "成長サイクルを回した",
+   "cat": "はじまりの旅",
+   "type": "event",
+   "grade": null,
+   "home": true,
+   "hook": "completeGuide (guideState.ts)",
+   "counter": null,
+   "wired": true
+  },
+  {
+   "no": 2,
+   "id": "annotate",
+   "title": "譜面に書き込みしてみる",
+   "sub": "気をつける場所に印を",
+   "cat": "はじまりの旅",
+   "type": "event",
+   "grade": null,
+   "home": true,
+   "hook": "譜面注釈の保存action",
+   "counter": null,
+   "wired": true
+  },
+  {
+   "no": 3,
+   "id": "lesson_first",
+   "title": "学びのレッスンを1つ実施",
+   "sub": "新しい技術のコツ",
+   "cat": "はじまりの旅",
+   "type": "event",
+   "grade": null,
+   "home": true,
+   "hook": "recordLessonPlay (クリア成立時)",
+   "counter": null,
+   "wired": true
+  },
+  {
+   "no": 4,
+   "id": "karte_view",
+   "title": "カルテで成長を見る",
+   "sub": "2周ぶん貯まったら",
+   "cat": "はじまりの旅",
+   "type": "event",
+   "grade": null,
+   "home": true,
+   "hook": "recordQuestEvent (progressページ表示)",
+   "counter": null,
+   "wired": true
+  },
+  {
+   "no": 5,
+   "id": "guide_modal",
+   "title": "上達のしくみを見る",
+   "sub": "成長の地図を知る",
+   "cat": "はじまりの旅",
+   "type": "event",
+   "grade": null,
+   "home": true,
+   "hook": "recordQuestEvent (ProgressGuideModal表示)",
+   "counter": null,
+   "wired": true
+  },
+  {
+   "no": 6,
+   "id": "part_variant",
+   "title": "パート別に録音採点する",
+   "sub": "むずかしい所だけ",
+   "cat": "はじまりの旅",
+   "type": "event",
+   "grade": null,
+   "home": true,
+   "hook": "演奏アップロード処理 (パート変種)",
+   "counter": null,
+   "wired": false
+  },
+  {
+   "no": 7,
+   "id": "listen_back",
+   "title": "自分の演奏を聴き返す",
+   "sub": "自分の音を客観的に",
+   "cat": "はじまりの旅",
+   "type": "event",
+   "grade": null,
+   "home": true,
+   "hook": "recordQuestEvent (録音の再生)",
+   "counter": null,
+   "wired": false
+  },
+  {
+   "no": 12,
+   "id": "tempo_change",
+   "title": "テンポをかえて弾く",
+   "sub": "ゆっくりから確実に",
+   "cat": "はじまりの旅",
+   "type": "event",
+   "grade": null,
+   "home": true,
+   "hook": "recordQuestEvent (テンポ変更録音)",
+   "counter": null,
+   "wired": false
+  },
+  {
+   "no": 17,
+   "id": "skill_map",
+   "title": "技術マップを見る",
+   "sub": "わざの点灯を確かめる",
+   "cat": "はじまりの旅",
+   "type": "event",
+   "grade": null,
+   "home": true,
+   "hook": "recordQuestEvent (技術マップ表示)",
+   "counter": null,
+   "wired": false
+  },
+  {
+   "no": 19,
+   "id": "favorite",
+   "title": "お気に入りに登録",
+   "sub": "よく使うものを手元に",
+   "cat": "はじまりの旅",
+   "type": "event",
+   "grade": null,
+   "home": true,
+   "hook": "お気に入り登録action",
+   "counter": null,
+   "wired": false
+  },
+  {
+   "no": 20,
+   "id": "next_song",
+   "title": "つぎの曲に挑戦",
+   "sub": "レパートリーを広げる",
+   "cat": "はじまりの旅",
+   "type": "event",
+   "grade": null,
+   "home": true,
+   "hook": "recordQuestEvent (おすすめ経由の録音)",
+   "counter": null,
+   "wired": false
+  },
+  {
+   "no": 95,
+   "id": "practice_key2",
+   "title": "ちがう調で基礎練",
+   "sub": "調がかわると景色もかわる",
+   "cat": "はじまりの旅",
+   "type": "counter",
+   "grade": null,
+   "home": true,
+   "hook": null,
+   "counter": {
+    "metric": "practice_keys",
+    "threshold": 2
+   },
+   "wired": null
+  },
+  {
+   "no": 96,
+   "id": "practice_art2",
+   "title": "奏法をかえて基礎練",
+   "sub": "スタッカートやスラーで",
+   "cat": "はじまりの旅",
+   "type": "counter",
+   "grade": null,
+   "home": true,
+   "hook": null,
+   "counter": {
+    "metric": "practice_articulations",
+    "threshold": 2
+   },
+   "wired": null
+  },
+  {
+   "no": 92,
+   "id": "etude_first",
+   "title": "エチュードをやってみる",
+   "sub": "わざを磨く1冊を開く",
+   "cat": "はじまりの旅",
+   "type": "counter",
+   "grade": null,
+   "home": true,
+   "hook": null,
+   "counter": {
+    "metric": "etude_runs",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 93,
+   "id": "scale_first",
+   "title": "音階をやってみる",
+   "sub": "音づくりの基本の1回",
+   "cat": "はじまりの旅",
+   "type": "counter",
+   "grade": null,
+   "home": true,
+   "hook": null,
+   "counter": {
+    "metric": "scale_runs",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 94,
+   "id": "arpeggio_first",
+   "title": "アルペジオをやってみる",
+   "sub": "和音の指づかいに触れる",
+   "cat": "はじまりの旅",
+   "type": "counter",
+   "grade": null,
+   "home": true,
+   "hook": null,
+   "counter": {
+    "metric": "arpeggio_runs",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 76,
+   "id": "share_card",
+   "title": "カードをシェアする",
+   "sub": "がんばりを見せよう",
+   "cat": "はじまりの旅",
+   "type": "event",
+   "grade": null,
+   "home": true,
+   "hook": "シェアカード作成action",
+   "counter": null,
+   "wired": false
+  },
+  {
+   "no": 84,
+   "id": "gallery_open",
+   "title": "ギャラリーを開く",
+   "sub": "宝物の家へ",
+   "cat": "はじまりの旅",
+   "type": "event",
+   "grade": null,
+   "home": true,
+   "hook": "recordQuestEvent (ギャラリー表示)",
+   "counter": null,
+   "wired": false
+  },
+  {
+   "no": 22,
+   "id": "achieve_1",
+   "title": "はじめての達成",
+   "sub": "1曲を弾けるように",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "achieved_songs",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 27,
+   "id": "master_1",
+   "title": "はじめてのマスター",
+   "sub": "完全にきみのもの",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "mastered_songs",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 28,
+   "id": "master_3",
+   "title": "マスターの風格",
+   "sub": "3曲のマスター",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "mastered_songs",
+    "threshold": 3
+   },
+   "wired": null
+  },
+  {
+   "no": 29,
+   "id": "master_5",
+   "title": "マスターの誇り",
+   "sub": "5曲のマスター",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "mastered_songs",
+    "threshold": 5
+   },
+   "wired": null
+  },
+  {
+   "no": 30,
+   "id": "master_10",
+   "title": "マスターの殿堂",
+   "sub": "10曲のマスター",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": "cert",
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "mastered_songs",
+    "threshold": 10
+   },
+   "wired": null
+  },
+  {
+   "no": 31,
+   "id": "score_90",
+   "title": "90点の壁をこえる",
+   "sub": "とても上手な演奏",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "score_total",
+    "threshold": 90
+   },
+   "wired": null
+  },
+  {
+   "no": 32,
+   "id": "score_95",
+   "title": "95点の高み",
+   "sub": "ほぼ完璧な演奏",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "score_total",
+    "threshold": 95
+   },
+   "wired": null
+  },
+  {
+   "no": 36,
+   "id": "rec_50",
+   "title": "録音50回",
+   "sub": "立派な練習量",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "recordings",
+    "threshold": 50
+   },
+   "wired": null
+  },
+  {
+   "no": 37,
+   "id": "rec_100",
+   "title": "録音100回",
+   "sub": "100回の挑戦",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "recordings",
+    "threshold": 100
+   },
+   "wired": null
+  },
+  {
+   "no": 38,
+   "id": "rec_250",
+   "title": "録音250回",
+   "sub": "音がきたえられていく",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "recordings",
+    "threshold": 250
+   },
+   "wired": null
+  },
+  {
+   "no": 39,
+   "id": "rec_500",
+   "title": "録音500回",
+   "sub": "つみかさねの頂",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": "cert",
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "recordings",
+    "threshold": 500
+   },
+   "wired": null
+  },
+  {
+   "no": 41,
+   "id": "basics_50",
+   "title": "基礎練50回",
+   "sub": "強い土台",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "practice_runs",
+    "threshold": 50
+   },
+   "wired": null
+  },
+  {
+   "no": 42,
+   "id": "basics_100",
+   "title": "基礎練100回",
+   "sub": "ゆるがない土台",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "practice_runs",
+    "threshold": 100
+   },
+   "wired": null
+  },
+  {
+   "no": 43,
+   "id": "lessons_5",
+   "title": "学びのレッスン5つ",
+   "sub": "わざが増えていく",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "lessons_cleared",
+    "threshold": 5
+   },
+   "wired": null
+  },
+  {
+   "no": 44,
+   "id": "lessons_10",
+   "title": "学びのレッスン10",
+   "sub": "多彩なわざ",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "lessons_cleared",
+    "threshold": 10
+   },
+   "wired": null
+  },
+  {
+   "no": 45,
+   "id": "lessons_all",
+   "title": "レッスン全制覇",
+   "sub": "すべてのわざを学んだ",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": "cert",
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "lessons_all",
+    "threshold": 0
+   },
+   "wired": null
+  },
+  {
+   "no": 46,
+   "id": "streak_3",
+   "title": "3日つづける",
+   "sub": "続ける力の芽",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "streak",
+    "threshold": 3
+   },
+   "wired": null
+  },
+  {
+   "no": 47,
+   "id": "streak_7",
+   "title": "7日つづける",
+   "sub": "毎日15分の力",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "streak",
+    "threshold": 7
+   },
+   "wired": null
+  },
+  {
+   "no": 48,
+   "id": "streak_14",
+   "title": "14日つづける",
+   "sub": "2週間の継続",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "streak",
+    "threshold": 14
+   },
+   "wired": null
+  },
+  {
+   "no": 49,
+   "id": "streak_30",
+   "title": "30日つづける",
+   "sub": "習慣がいちばんの才能",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "streak",
+    "threshold": 30
+   },
+   "wired": null
+  },
+  {
+   "no": 50,
+   "id": "streak_50",
+   "title": "50日つづける",
+   "sub": "もう止まらない",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "streak",
+    "threshold": 50
+   },
+   "wired": null
+  },
+  {
+   "no": 51,
+   "id": "streak_100",
+   "title": "100日つづける",
+   "sub": "百日の道",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": "cert",
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "streak",
+    "threshold": 100
+   },
+   "wired": null
+  },
+  {
+   "no": 52,
+   "id": "week5_1",
+   "title": "1週間で5日練習する",
+   "sub": "充実の1週間",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "week5",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 53,
+   "id": "week5_4",
+   "title": "週5日を4週連続",
+   "sub": "1ヶ月の充実",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "week5_streak",
+    "threshold": 4
+   },
+   "wired": null
+  },
+  {
+   "no": 66,
+   "id": "best_1",
+   "title": "自己ベスト更新",
+   "sub": "前の自分をこえた",
+   "cat": "じぶんの音をみがく",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "best_updates",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 67,
+   "id": "best_5",
+   "title": "自己ベストを5回更新",
+   "sub": "こえ続ける力",
+   "cat": "じぶんの音をみがく",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "best_updates",
+    "threshold": 5
+   },
+   "wired": null
+  },
+  {
+   "no": 68,
+   "id": "pitch_90",
+   "title": "音程90点を達成",
+   "sub": "正確な左手",
+   "cat": "じぶんの音をみがく",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "score_pitch",
+    "threshold": 90
+   },
+   "wired": null
+  },
+  {
+   "no": 69,
+   "id": "timing_90",
+   "title": "リズム90点を達成",
+   "sub": "正確な拍",
+   "cat": "じぶんの音をみがく",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "score_timing",
+    "threshold": 90
+   },
+   "wired": null
+  },
+  {
+   "no": 70,
+   "id": "pitch_95",
+   "title": "音程95点を達成",
+   "sub": "研ぎすまされた音程",
+   "cat": "じぶんの音をみがく",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "score_pitch",
+    "threshold": 95
+   },
+   "wired": null
+  },
+  {
+   "no": 71,
+   "id": "timing_95",
+   "title": "リズム95点を達成",
+   "sub": "きざむ拍が美しい",
+   "cat": "じぶんの音をみがく",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "score_timing",
+    "threshold": 95
+   },
+   "wired": null
+  },
+  {
+   "no": 83,
+   "id": "share_cert",
+   "title": "証明書をシェア",
+   "sub": "誇りを届ける",
+   "cat": "シェアする",
+   "type": "event",
+   "grade": null,
+   "home": false,
+   "hook": "証明書シェアaction (フェーズ3)",
+   "counter": null,
+   "wired": false
+  },
+  {
+   "no": 97,
+   "id": "share_nintei",
+   "title": "認定証をシェアする",
+   "sub": "挑戦のあかしを見せよう",
+   "cat": "シェアする",
+   "type": "event",
+   "grade": null,
+   "home": false,
+   "hook": "認定証シェアaction (フェーズ3)",
+   "counter": null,
+   "wired": false
+  },
+  {
+   "no": 98,
+   "id": "share_medal",
+   "title": "メダルをシェアする",
+   "sub": "節目のよろこびを一緒に",
+   "cat": "シェアする",
+   "type": "event",
+   "grade": null,
+   "home": false,
+   "hook": "メダルシェアaction (フェーズ3)",
+   "counter": null,
+   "wired": false
+  },
+  {
+   "no": 89,
+   "id": "cert_1",
+   "title": "はじめての証明書",
+   "sub": "マスターの証",
+   "cat": "たからものあつめ",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "mastered_songs",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 99,
+   "id": "master_20",
+   "title": "マスター20曲",
+   "sub": "殿堂のさらに先",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "mastered_songs",
+    "threshold": 20
+   },
+   "wired": null
+  },
+  {
+   "no": 100,
+   "id": "songs90_3",
+   "title": "90点を3曲で",
+   "sub": "上手が当たり前に",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "songs_90",
+    "threshold": 3
+   },
+   "wired": null
+  },
+  {
+   "no": 101,
+   "id": "songs95_3",
+   "title": "95点を3曲で",
+   "sub": "完成度の職人",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "songs_95",
+    "threshold": 3
+   },
+   "wired": null
+  },
+  {
+   "no": 102,
+   "id": "score_100",
+   "title": "100点達成",
+   "sub": "満点の演奏",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "score_total",
+    "threshold": 100
+   },
+   "wired": null
+  },
+  {
+   "no": 103,
+   "id": "first_take_90",
+   "title": "一発で90点",
+   "sub": "最初の録音でいきなり",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "first_take_90",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 104,
+   "id": "song_rec_10",
+   "title": "同じ曲を10回録音",
+   "sub": "1曲をとことん",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "song_rec_max",
+    "threshold": 10
+   },
+   "wired": null
+  },
+  {
+   "no": 105,
+   "id": "rec_1000",
+   "title": "録音1000回",
+   "sub": "伝説の練習量",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "recordings",
+    "threshold": 1000
+   },
+   "wired": null
+  },
+  {
+   "no": 106,
+   "id": "basics_250",
+   "title": "基礎練250回",
+   "sub": "鋼の土台",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "practice_runs",
+    "threshold": 250
+   },
+   "wired": null
+  },
+  {
+   "no": 107,
+   "id": "lessons_15",
+   "title": "学びのレッスン15",
+   "sub": "わざの図鑑ができていく",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "lessons_cleared",
+    "threshold": 15
+   },
+   "wired": null
+  },
+  {
+   "no": 108,
+   "id": "scale_10",
+   "title": "音階を10回",
+   "sub": "音づくりの習慣",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "scale_runs",
+    "threshold": 10
+   },
+   "wired": null
+  },
+  {
+   "no": 109,
+   "id": "arpeggio_10",
+   "title": "アルペジオを10回",
+   "sub": "和音の足腰",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "arpeggio_runs",
+    "threshold": 10
+   },
+   "wired": null
+  },
+  {
+   "no": 110,
+   "id": "etude_10",
+   "title": "エチュードを10回",
+   "sub": "磨きの積み重ね",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "etude_runs",
+    "threshold": 10
+   },
+   "wired": null
+  },
+  {
+   "no": 111,
+   "id": "day_rec5",
+   "title": "1日に5回録音",
+   "sub": "集中練習の日",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "day_rec5",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 112,
+   "id": "day_both",
+   "title": "1日で曲も基礎練も",
+   "sub": "バランスのよい練習",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "day_both",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 113,
+   "id": "streak_200",
+   "title": "200日つづける",
+   "sub": "道はまだつづく",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "streak",
+    "threshold": 200
+   },
+   "wired": null
+  },
+  {
+   "no": 114,
+   "id": "streak_365",
+   "title": "365日つづける",
+   "sub": "1年の道",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "streak",
+    "threshold": 365
+   },
+   "wired": null
+  },
+  {
+   "no": 115,
+   "id": "days_30",
+   "title": "のべ30日",
+   "sub": "ひと月ぶんの練習日",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "total_days",
+    "threshold": 30
+   },
+   "wired": null
+  },
+  {
+   "no": 116,
+   "id": "days_200",
+   "title": "のべ200日",
+   "sub": "積もる日々",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "total_days",
+    "threshold": 200
+   },
+   "wired": null
+  },
+  {
+   "no": 117,
+   "id": "weekend_both",
+   "title": "土日どちらも練習",
+   "sub": "週末の音楽家",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "weekend_both",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 118,
+   "id": "morning_rec",
+   "title": "朝の練習をする",
+   "sub": "1日が音で始まる",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "morning_rec",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 119,
+   "id": "comeback",
+   "title": "おかえり練習",
+   "sub": "休んでも戻ってこられた",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "comeback",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 120,
+   "id": "week5_8",
+   "title": "週5日を8週連続",
+   "sub": "2ヶ月の充実",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "week5_streak",
+    "threshold": 8
+   },
+   "wired": null
+  },
+  {
+   "no": 121,
+   "id": "position_song",
+   "title": "ポジション移動の曲",
+   "sub": "左手の旅",
+   "cat": "いろんな曲の旅",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "song_position",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 122,
+   "id": "best_10",
+   "title": "自己ベストを10回更新",
+   "sub": "こえ続ける人",
+   "cat": "じぶんの音をみがく",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "best_updates",
+    "threshold": 10
+   },
+   "wired": null
+  },
+  {
+   "no": 123,
+   "id": "cards_10",
+   "title": "カード10枚",
+   "sub": "集まり始めた思い出",
+   "cat": "たからものあつめ",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "cards_count",
+    "threshold": 10
+   },
+   "wired": null
+  },
+  {
+   "no": 124,
+   "id": "cards_30",
+   "title": "カード30枚",
+   "sub": "りっぱなコレクション",
+   "cat": "たからものあつめ",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "cards_count",
+    "threshold": 30
+   },
+   "wired": null
+  },
+  {
+   "no": 125,
+   "id": "medals_3",
+   "title": "メダルを3個",
+   "sub": "節目をかさねて",
+   "cat": "たからものあつめ",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "medals_count",
+    "threshold": 3
+   },
+   "wired": null
+  },
+  {
+   "no": 126,
+   "id": "treasures_50",
+   "title": "宝物50個",
+   "sub": "ギャラリーがにぎやかに",
+   "cat": "たからものあつめ",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "treasures_count",
+    "threshold": 50
+   },
+   "wired": null
+  },
+  {
+   "no": 127,
+   "id": "share_5",
+   "title": "シェア5回",
+   "sub": "応援がふえていく",
+   "cat": "シェアする",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "action",
+    "threshold": 5,
+    "action": "share"
+   },
+   "wired": null
+  },
+  {
+   "no": 128,
+   "id": "anniversary",
+   "title": "アルコ記念日",
+   "sub": "はじめての録音から1年",
+   "cat": "たからものあつめ",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "anniversary_1y",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 129,
+   "id": "week7",
+   "title": "週7日練習する",
+   "sub": "パーフェクトな1週間",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "week7",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 130,
+   "id": "morning_5",
+   "title": "朝練を5回",
+   "sub": "朝型の音楽家",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "morning_rec",
+    "threshold": 5
+   },
+   "wired": null
+  },
+  {
+   "no": 131,
+   "id": "practice_streak7",
+   "title": "基礎練を7日つづける",
+   "sub": "土台を毎日",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "practice_streak",
+    "threshold": 7
+   },
+   "wired": null
+  },
+  {
+   "no": 132,
+   "id": "day_songs3",
+   "title": "1日で3曲弾く",
+   "sub": "気分はコンサート",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "day_songs_max",
+    "threshold": 3
+   },
+   "wired": null
+  },
+  {
+   "no": 133,
+   "id": "practice_cat4",
+   "title": "基礎練を4種類",
+   "sub": "メニューの使い分け",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "practice_categories",
+    "threshold": 4
+   },
+   "wired": null
+  },
+  {
+   "no": 134,
+   "id": "etude_kinds3",
+   "title": "エチュードを3種類",
+   "sub": "いろんな磨き方",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "etude_distinct",
+    "threshold": 3
+   },
+   "wired": null
+  },
+  {
+   "no": 135,
+   "id": "scale_50",
+   "title": "音階を50回",
+   "sub": "基本をきわめる",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "scale_runs",
+    "threshold": 50
+   },
+   "wired": null
+  },
+  {
+   "no": 136,
+   "id": "lessons_20",
+   "title": "学びのレッスン20",
+   "sub": "わざはかせ",
+   "cat": "つみかさねの道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "lessons_cleared",
+    "threshold": 20
+   },
+   "wired": null
+  },
+  {
+   "no": 137,
+   "id": "songs90_5",
+   "title": "90点を5曲で",
+   "sub": "どの曲もハイレベル",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "songs_90",
+    "threshold": 5
+   },
+   "wired": null
+  },
+  {
+   "no": 138,
+   "id": "master_30",
+   "title": "マスター30曲",
+   "sub": "生きる伝説",
+   "cat": "曲の道",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "mastered_songs",
+    "threshold": 30
+   },
+   "wired": null
+  },
+  {
+   "no": 139,
+   "id": "best_20",
+   "title": "自己ベストを20回更新",
+   "sub": "成長がとまらない",
+   "cat": "じぶんの音をみがく",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "best_updates",
+    "threshold": 20
+   },
+   "wired": null
+  },
+  {
+   "no": 140,
+   "id": "days_365",
+   "title": "のべ365日",
+   "sub": "1年ぶんの練習日",
+   "cat": "続ける力",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "total_days",
+    "threshold": 365
+   },
+   "wired": null
+  },
+  {
+   "no": 141,
+   "id": "titles_3",
+   "title": "ランクアップを3回",
+   "sub": "のぼり続ける人",
+   "cat": "たからものあつめ",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "titles_count",
+    "threshold": 3
+   },
+   "wired": null
+  },
+  {
+   "no": 142,
+   "id": "nintei_1",
+   "title": "はじめての認定証",
+   "sub": "最難関のあかし",
+   "cat": "たからものあつめ",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "nintei_count",
+    "threshold": 1
+   },
+   "wired": null
+  },
+  {
+   "no": 143,
+   "id": "medals_5",
+   "title": "メダルを5個全部",
+   "sub": "節目の完全制覇",
+   "cat": "たからものあつめ",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "medals_count",
+    "threshold": 5
+   },
+   "wired": null
+  },
+  {
+   "no": 144,
+   "id": "treasures_100",
+   "title": "宝物100個",
+   "sub": "あふれるギャラリー",
+   "cat": "たからものあつめ",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "treasures_count",
+    "threshold": 100
+   },
+   "wired": null
+  },
+  {
+   "no": 145,
+   "id": "cards_all",
+   "title": "カードを全部あつめる",
+   "sub": "カードコンプリート",
+   "cat": "たからものあつめ",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "cards_all",
+    "threshold": 0
+   },
+   "wired": null
+  },
+  {
+   "no": 146,
+   "id": "share_10",
+   "title": "シェア10回",
+   "sub": "応援団がついてる",
+   "cat": "シェアする",
+   "type": "counter",
+   "grade": null,
+   "home": false,
+   "hook": null,
+   "counter": {
+    "metric": "action",
+    "threshold": 10,
+    "action": "share"
+   },
+   "wired": null
+  }
+ ],
+ "medals": [
+  5,
+  10,
+  20,
+  30,
+  45
+ ],
+ "nintei": [
+  "master_10",
+  "rec_500",
+  "lessons_all",
+  "streak_100"
+ ]
+}

@@ -1,0 +1,12 @@
+import { chromium } from "playwright"
+const b = await chromium.launch()
+const pg = await (await b.newContext({ viewport: { width: 402, height: 870 }, deviceScaleFactor: 2 })).newPage()
+await pg.goto("http://localhost:3200/dev/treasure-demo/demo?s=nintei", { waitUntil: "networkidle" })
+const ov = pg.locator('div[style*="94"]').first()
+await ov.waitFor({ timeout: 15000 })
+await pg.waitForTimeout(2400)
+await ov.click({ position: { x: 201, y: 300 } })
+await pg.waitForTimeout(2600)
+await pg.screenshot({ path: "C:/Users/tetsu/AppData/Local/Temp/nintei_face.png" })
+await b.close()
+console.log("done")

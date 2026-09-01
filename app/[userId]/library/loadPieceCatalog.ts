@@ -49,7 +49,7 @@ export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]
       scores: {
         where: { isShared: true, deletedAt: null },
         orderBy: [{ star: "asc" }],
-        select: { id: true, star: true, difficulty: true, sections: true, rhythmRecipe: true, partId: true },
+        select: { id: true, star: true, difficulty: true, sections: true, rhythmRecipe: true, partId: true, variantRecipe: true },
       },
     },
   })
@@ -90,6 +90,8 @@ export async function loadPieceCatalog(dbUserId: string): Promise<CatalogPiece[]
       // 個別パターン名 (リズムパターンで付けた名前)。null=標準
       patternName: ((s.rhythmRecipe as { name?: string } | null)?.name) ?? null,
       partId: s.partId,
+      // 2026-09-01: パートは切り出し元の通し変種と対で扱う (PrePracticeSheet)
+      sourceItemId: ((s.variantRecipe as { sourceItemId?: string } | null)?.sourceItemId) ?? null,
       partName: s.partId ? (groupParts.find((p) => p.id === s.partId)?.name ?? "パート") : null,
       sections: groupParts.length > 0
         ? groupParts.map((p) => ({ id: p.id, name: p.name, startMeasure: p.startMeasure, endMeasure: p.endMeasure }))

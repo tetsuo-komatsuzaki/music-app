@@ -1,0 +1,26 @@
+import { chromium } from "playwright"
+const SP = "C:/Users/tetsu/AppData/Local/Temp/claude/c--Users-tetsu-OneDrive-Desktop-EDSP-practice-shiftb-master/c220253c-6246-4aa2-88c5-4460cc464d09/scratchpad/guide"
+const browser = await chromium.launch()
+const page = await browser.newPage({ viewport: { width: 402, height: 870 } })
+await page.goto("http://localhost:3100/dev/treasure-demo/demo?s=shelves", { waitUntil: "load" })
+await page.waitForTimeout(4500)
+// コイン拡大
+await page.locator(".glTreasure").first().click()
+await page.waitForTimeout(500)
+await page.screenshot({ path: SP + "/shots/z_coin.png" })
+await page.locator(".glZoom").click()
+await page.waitForTimeout(400)
+// 栄誉タブ: メダル+賞状
+await page.getByText("栄誉", { exact: false }).first().click()
+await page.waitForTimeout(700)
+const t = page.locator(".glTreasure")
+await t.nth(0).click(); await page.waitForTimeout(500)
+await page.screenshot({ path: SP + "/shots/z_medal.png" })
+await page.locator(".glZoom").click(); await page.waitForTimeout(400)
+await t.nth(2).click(); await page.waitForTimeout(500)
+await page.screenshot({ path: SP + "/shots/z_cert.png" })
+await page.locator(".glZoom").click(); await page.waitForTimeout(400)
+await t.nth(3).click(); await page.waitForTimeout(500)
+await page.screenshot({ path: SP + "/shots/z_nintei.png" })
+await browser.close()
+console.log("done")

@@ -23,6 +23,8 @@ export type SheetVariant = {
   /** 実体化されたパート教材 (2026-08-25 案B)。null=通し */
   partId?: string | null
   partName?: string | null
+  /** パート教材の切り出し元 (通し変種) のid。2026-09-01: パートの親判定はこれが正 */
+  sourceItemId?: string | null
   sections: SheetSection[]
   bestScore: number | null
 }
@@ -53,9 +55,13 @@ export default function PrePracticeSheet({
 }) {
   const router = useRouter()
   const byArt = primaryAxis === "articulation"
+  // 2026-09-01: 軸の組み立てはパートを除いた「通し変種」だけで行う。
+  // パートを混ぜると byKey が最後のパート教材で上書きされ、パターンも選んでいない
+  // のに「はじめる」の行き先がパートになりうる。
+  const soloVariants = group.variants.filter((v) => !v.partId)
   // 第1軸 → 変種。曲=難易度 / エチュード=奏法 (2026-08-25 Tetsuo確定)
   const byKey = new Map<string, SheetVariant>()
-  for (const v of group.variants) {
+  for (const v of soloVariants) {
     byKey.set(byArt ? (v.articulation ?? "legato") : (v.difficulty ?? "BEGINNER"), v)
   }
   // 選択肢は「選択用」の ARTICULATIONS を使う (2026-08-25)。
@@ -71,7 +77,7 @@ export default function PrePracticeSheet({
 
   // 第2軸: 個別パターン (2026-08-25 確定)。第1軸で選んだ変種を親として、
   // 同じ軸値を持つパターン付き変種を選べるようにする。null = パターンなし (標準)。
-  const sameAxis = group.variants.filter(
+  const sameAxis = soloVariants.filter(
     (v) => (byArt ? (v.articulation ?? "legato") : (v.difficulty ?? "BEGINNER")) === diff,
   )
   // パターン軸には「第1軸に載らなかったもの」だけを出す。
@@ -84,7 +90,7 @@ export default function PrePracticeSheet({
   // フォールバックは「どの軸の値にも教材が無い族」だけに効かせる (2026-08-25)。
   // 常に variants[0] へ落とすと、準備中の奏法を選んでも別の教材へ遷移してしまう。
   const base = sameAxis.find((v) => !v.patternName) ?? byKey.get(diff)
-    ?? (byKey.size === 0 ? group.variants[0] : undefined)
+    ?? (byKey.size === 0 ? soloVariants[0] : undefined)
   const variant = (patternId ? sameAxis.find((v) => v.id === patternId) : base) ?? base
 
   // パート: 実体化されたパート教材 (2026-08-25 案B) があればそれを選ぶ。
@@ -97,15 +103,13 @@ export default function PrePracticeSheet({
   // 軸で絞れば「その奏法の通しとパートが必ず揃う」形になる。
   const axisOf = (v: { articulation?: string | null; difficulty?: string | null }) =>
     byArt ? (v.articulation ?? "legato") : (v.difficulty ?? "BEGINNER")
-  // 2026-09-01: 第2軸 (リズム等のパターン) でも絞る。以前は第1軸だけで絞っていたため、
-  // リズム登録した教材のパートが出ず、パターンを選んでも通しのパートが並んでいた。
-  // パートはパターンを継ぐので (partMaterialize が rhythmRecipe を写す)、
-  // 「選んだパターンと同じ patternName のパート」だけが正しい選択肢になる。
-  const selectedPatternName = patternId
-    ? (sameAxis.find((v) => v.id === patternId)?.patternName ?? null)
-    : null
-  const partVariants = group.variants.filter(
-    (v) => v.partId && axisOf(v) === diff && (v.patternName ?? null) === selectedPatternName,
+  // 2026-09-01: パートは「いま選んでいる通し変種から切り出したもの」だけを出す。
+  // 名前 (奏法/パターン) での突き合わせは、スラーのように 奏法=slur と
+  // リズム名「スラー」を両方持つ変種で必ず食い違う。実体化時に必ず入る
+  // variantRecipe.sourceItemId が唯一の正 (partMaterialize.ts)。
+  // sourceItemId を持たない旧データだけ、従来どおり軸で拾う。
+  const partVariants = group.variants.filter((v) =>
+    v.partId && (v.sourceItemId ? v.sourceItemId === variant?.id : axisOf(v) === diff),
   )
   // 2026-08-31 Tetsuo確定 B案: グループにパート実体があるのに、いま選んでいる軸
   // (奏法/難易度) の分がまだ無いときは「準備中」で選択不可にする。以前は旧経路

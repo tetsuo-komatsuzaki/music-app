@@ -37,6 +37,8 @@ type PracticeItemDTO = {
   /** 実体化されたパート教材 (2026-08-25 案B) */
   partId?: string | null
   partName?: string | null
+  /** パート教材の切り出し元 (通し変種) のid。2026-09-01 */
+  sourceItemId?: string | null
   groupTitle?: string | null
   articulation?: string | null
   /** 難易度 (エチュードシート用) */
@@ -534,9 +536,13 @@ function StarView({
             ).map((i) => ({
               id: i.id, star: i.star,
               difficulty: i.difficulty ?? null,
-              articulation: i.articulation ?? "legato",
+              // 2026-09-01: null を "legato" で埋めない。埋めると
+              // 「奏法軸に載らない変種 (=リズムだけの変種)」の判別が消え、
+              // 16音符のようなリズム登録がパターン欄に一切出なくなる。
+              articulation: i.articulation ?? null,
               patternName: i.patternName ?? null,
               partId: i.partId ?? null,
+              sourceItemId: i.sourceItemId ?? null,
               partName: i.partName ?? null,
               sections: i.groupParts ?? [],
               bestScore: i.bestScore ?? null,

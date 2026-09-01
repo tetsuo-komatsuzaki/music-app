@@ -1,0 +1,16 @@
+import { chromium } from "playwright"
+const G = "C:/Users/tetsu/AppData/Local/Temp/claude/c--Users-tetsu-OneDrive-Desktop-EDSP-practice-shiftb-master/c220253c-6246-4aa2-88c5-4460cc464d09/scratchpad/guide"
+const browser = await chromium.launch()
+const page = await browser.newPage({ viewport: { width: 402, height: 870 }, deviceScaleFactor: 2 })
+await page.goto("http://localhost:3100/dev/quest-demo", { waitUntil: "domcontentloaded", timeout: 240000 })
+await page.waitForTimeout(2200)
+await page.addStyleTag({ content: "nextjs-portal{display:none!important}" })
+await page.screenshot({ path: `${G}/shots/impl/quest_closed.png`, clip: { x: 0, y: 0, width: 402, height: 260 } })
+await page.click("text=アルコのクエスト")
+await page.waitForTimeout(500)
+await page.screenshot({ path: `${G}/shots/impl/quest_board.png` })
+await page.click("text=はじめての1周")
+await page.waitForTimeout(600)
+await page.screenshot({ path: `${G}/shots/impl/quest_card.png` })
+await browser.close()
+console.log("quest captured")

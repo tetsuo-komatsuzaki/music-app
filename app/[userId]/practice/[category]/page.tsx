@@ -194,6 +194,11 @@ export default async function CategoryPage({
         ?? ((item.articulationRecipe as { name?: string } | null)?.name)
         ?? null,
       partId: item.partId ?? null,
+      // 2026-09-01: パートは「どの通し変種から切り出したか」で親に紐づける。
+      // 奏法名やパターン名で突き合わせると、slur のように 奏法=slur と
+      // リズム名「スラー」を両方持つ変種で破綻する (カイザーNo.1のパートが
+      // 準備中のままだった)。実体化時に必ず入る sourceItemId が唯一の正。
+      sourceItemId: ((item.variantRecipe as { sourceItemId?: string } | null)?.sourceItemId) ?? null,
       partName: item.partId
         ? (parseParts(item.group?.parts ?? []).find((p) => p.id === item.partId)?.name ?? "パート")
         : null,
