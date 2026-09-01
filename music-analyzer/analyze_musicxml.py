@@ -488,16 +488,15 @@ try:
     # 後段(skill_extractor 等)も移調後を使うよう tmp_path を書き換える。
     if IS_PRACTICE_ITEM:
         _changed = False
-        # パート教材 (2026-08-25 Tetsuo「案B」): variantRecipe の measure_range で
-        # 該当小節だけを残す。これが無いと譜面・解析・採点が通しのまま出てしまう。
-        # 範囲を先に切ると後段 (移調・奏法・リズム) が軽くなる。パートの小節番号は
-        # 元教材基準で、後段の変換はどれも小節番号を変えないため順序は安全。
-        if score_variant_recipe:
-            _ranged = apply_variant_recipe(score, score_variant_recipe)
-            if _ranged is not score:
-                score = _ranged
-                _changed = True
-                print(f"[part-variant] recipe applied: {score_variant_recipe.get('rules')}")
+        # 適用順 (2026-09-01 修正): 移調 → 奏法 → リズム → パートの範囲切り出し。
+        #
+        # 以前は範囲切り出しが先だった。奏法・リズムは「元教材の小節番号」で
+        # 除外小節 (skipHead/skipTail/skipMeasures) と単位の位相が決まる指定なのに、
+        # 先に切ると残った範囲の1小節目を起点に数え直してしまい、パート教材だけ
+        # 通しと違う結果になっていた。カイザーNo.2・スタッカート (除外=先頭16/末尾6) の
+        # Part2 (17-28小節) は、本来17-22にスタッカートが付くのに1つも付かなかった。
+        # リズムの「同じ形の単位だけ適用する」基準 (head_sig) も切る前後でずれる。
+        # 通しと同じ結果を切り出すのが正しいので、切り出しは最後に回す。
         _transposed = transpose_variant(score, pi_metadata, pi_key_tonic, pi_key_mode)
         if _transposed is not None:
             score = _transposed
@@ -514,6 +513,14 @@ try:
                 score = _rhythm
                 _changed = True
                 print(f"[rhythm] recipe applied: {rhythm_recipe.get('name')}")
+        # パート教材 (2026-08-25 Tetsuo「案B」): variantRecipe の measure_range で
+        # 該当小節だけを残す。これが無いと譜面・解析・採点が通しのまま出てしまう。
+        if score_variant_recipe:
+            _ranged = apply_variant_recipe(score, score_variant_recipe)
+            if _ranged is not score:
+                score = _ranged
+                _changed = True
+                print(f"[part-variant] recipe applied: {score_variant_recipe.get('rules')}")
         if _changed:
             _t2 = tempfile.NamedTemporaryFile(suffix=".musicxml", delete=False)
             _t2.close()
