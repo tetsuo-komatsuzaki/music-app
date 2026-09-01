@@ -9,6 +9,7 @@ import Link from "next/link"
 import { TrendingUp, GraduationCap, MessageCircle, Headphones, Lightbulb, Target, ClipboardList, Sprout } from "lucide-react"
 import type { SkillDetailData } from "@/app/_libs/growthKarte"
 import ds from "@/app/components/ds.module.css"
+import type { SkillMasteryEntry } from "@/app/_libs/skillMastery"
 
 const SUB = "var(--text-sub)"
 const GOOD = "#a8c97f"
@@ -39,7 +40,7 @@ const CAT_OF: Record<string, string> = {
   vibrato: "音色・特殊", harmonic: "音色・特殊",
 }
 
-export default function SkillDetailClient({ userId, data }: { userId: string; data: SkillDetailData }) {
+export default function SkillDetailClient({ userId, data, mastery = null }: { userId: string; data: SkillDetailData; mastery?: SkillMasteryEntry | null }) {
   const wob = data.state === "wobble"
   const col = wob ? BAD : data.state === "stable" ? GOOD : SUB
 
@@ -77,6 +78,58 @@ export default function SkillDetailClient({ userId, data }: { userId: string; da
           </div>
         )}
       </div>
+
+      {/* わざマスターの検定の記録表 (2026-09-01 Tetsuo確定 案4)。
+          ★・課題曲・判定の3列。合格の行に金の合格印+日付。挑戦中は平均点と残り */}
+      {mastery && mastery.ladder.length > 0 && (
+        <div className={ds.card}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div className={ds.lab}>わざマスターの記録</div>
+            {mastery.rank != null && (
+              <span style={{ fontSize: 10, fontWeight: 900, color: "var(--gold)", background: "rgba(232,178,60,.13)", border: "1px solid rgba(232,178,60,.4)", borderRadius: 999, padding: "3px 11px" }}>
+                ★{mastery.rank} マスター
+              </span>
+            )}
+          </div>
+          <div style={{ marginTop: 10, border: "1px solid rgba(150,175,225,.16)", borderRadius: 12, overflow: "hidden" }}>
+            <div style={{ display: "flex", gap: 10, padding: "8px 12px", background: "rgba(150,175,225,.07)", fontSize: 9, fontWeight: 900, letterSpacing: ".14em", color: "var(--text-sub)" }}>
+              <span style={{ width: 40, flex: "none" }}>ランク</span>
+              <span style={{ flex: 1 }}>課題曲</span>
+              <span style={{ width: 92, flex: "none", textAlign: "right" }}>判定</span>
+            </div>
+            {mastery.ladder.map((l) => (
+              <div key={l.star} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: "var(--card-in)", borderTop: "1px solid rgba(150,175,225,.1)", fontSize: 11.5 }}>
+                <span style={{ width: 40, flex: "none", fontWeight: 900, color: l.state === "done" ? "var(--gold)" : l.state === "now" ? "#9fc2ff" : "var(--text-muted)" }}>★{l.star}</span>
+                <span style={{ flex: 1, fontWeight: 800, minWidth: 0 }}>
+                  {l.state === "lock" ? l.title : (
+                    <Link href={`/${userId}/scores/${l.scoreId}`} style={{ color: "var(--text-ink)", textDecoration: "none" }}>{l.title}</Link>
+                  )}
+                  {l.state === "now" && (
+                    <span style={{ display: "block", fontSize: 9, color: "#9fc2ff", fontWeight: 800 }}>
+                      {l.avg != null ? `平均 ${l.avg}点 ・ マスターで★${l.star}` : "この曲をマスターすると★" + l.star}
+                    </span>
+                  )}
+                </span>
+                <span style={{ width: 92, flex: "none", textAlign: "right", fontSize: 10, fontWeight: 900 }}>
+                  {l.state === "done" ? (
+                    <span style={{ display: "inline-block", border: "2px solid rgba(232,178,60,.8)", color: "var(--gold)", borderRadius: 6, padding: "1px 7px", transform: "rotate(-6deg)", fontSize: 9 }}>
+                      合格 {l.masteredAt}
+                    </span>
+                  ) : l.state === "now" ? <span style={{ color: "#9fc2ff" }}>挑戦中</span> : <span style={{ color: "var(--text-muted)" }}>ー</span>}
+                </span>
+              </div>
+            ))}
+          </div>
+          {mastery.ladder.some((l) => l.state === "now") && (
+            <div style={{ marginTop: 12, textAlign: "center" }}>
+              <Link href={`/${userId}/scores/${mastery.ladder.find((l) => l.state === "now")!.scoreId}`} className="pressable"
+                style={{ display: "inline-block", fontSize: 11, fontWeight: 900, color: "#0d1730", background: "linear-gradient(180deg,#f0cd7c,#d9a93c)", borderRadius: 999, padding: "8px 18px", textDecoration: "none", boxShadow: "0 4px 12px rgba(232,178,60,.4)" }}>
+                ★{mastery.ladder.find((l) => l.state === "now")!.star}の課題曲を弾く
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ① 推移 + 指導注釈 (残置 ・ ダーク化) */}
       <div style={card}>

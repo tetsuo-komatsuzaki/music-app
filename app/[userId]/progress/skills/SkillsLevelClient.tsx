@@ -9,6 +9,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import type { SkillMapData, SkillNode } from "@/app/_libs/growthKarte"
+import type { SkillMasteryEntry } from "@/app/_libs/skillMastery"
 import ds from "@/app/components/ds.module.css"
 
 const GOOD = "#a8c97f"
@@ -25,10 +26,12 @@ const SKILL_CATEGORIES: { label: string; ids: string[] }[] = [
 
 const backStyle: React.CSSProperties = { display: "flex", alignItems: "center", gap: 7, color: "var(--text-sub)", fontSize: 13, fontWeight: 700, padding: "10px 2px 2px", textDecoration: "none" }
 
-export default function SkillsLevelClient({ userId, skillMap, backHref, backLabel = "カルテにもどる", hideDetailLinks = false }: {
+export default function SkillsLevelClient({ userId, skillMap, backHref, backLabel = "カルテにもどる", hideDetailLinks = false, mastery = null }: {
   userId: string; skillMap: SkillMapData | null
   /** 先生ビュー用 (2026-08-11): 戻り先/ラベルの差し替えと、生徒ルートへの詳細リンク非表示 */
   backHref?: string; backLabel?: string; hideDetailLinks?: boolean
+  /** わざマスター (2026-09-01 案4): skillId→課題曲ラダー。未設定はnull */
+  mastery?: Record<string, SkillMasteryEntry> | null
 }) {
   // 2026-08-11 Tetsuo確定: 先生なしでも全ユーザーに開放 (nullは集計エラー時のみ)
   if (!skillMap) {
@@ -58,14 +61,15 @@ export default function SkillsLevelClient({ userId, skillMap, backHref, backLabe
       .sort((a, b) => order(a) - order(b) || a.star - b.star),
   })).filter((s) => s.items.length > 0)
 
-  return <SkillsTabs userId={userId} sections={sections} backHref={backHref} backLabel={backLabel} hideDetailLinks={hideDetailLinks} />
+  return <SkillsTabs userId={userId} sections={sections} backHref={backHref} backLabel={backLabel} hideDetailLinks={hideDetailLinks} mastery={mastery} />
 }
 
 /* ═ 分類タブ (原本 cat_tabs: 金選択チップ) + grid2 カード ═ */
-function SkillsTabs({ userId, sections, backHref, backLabel, hideDetailLinks }: {
+function SkillsTabs({ userId, sections, backHref, backLabel, hideDetailLinks, mastery }: {
   userId: string
   sections: { label: string; items: SkillNode[] }[]
   backHref?: string; backLabel?: string; hideDetailLinks?: boolean
+  mastery?: Record<string, SkillMasteryEntry> | null
 }) {
   const [activeTab, setActiveTab] = useState(sections[0]?.label ?? "")
   const active = sections.find((s) => s.label === activeTab) ?? sections[0]
@@ -99,7 +103,7 @@ function SkillsTabs({ userId, sections, backHref, backLabel, hideDetailLinks }: 
       {/* アクティブ分類のカード (原本: grid2) */}
       {active && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 12 }}>
-          {active.items.map((n) => <SkillCard key={n.id} userId={userId} n={n} hideDetailLinks={hideDetailLinks} />)}
+          {active.items.map((n) => <SkillCard key={n.id} userId={userId} n={n} hideDetailLinks={hideDetailLinks} mastery={mastery?.[n.id] ?? null} />)}
         </div>
       )}
 
@@ -121,7 +125,7 @@ function SkillsTabs({ userId, sections, backHref, backLabel, hideDetailLinks }: 
 }
 
 /* ═ わざカード (原本 skillcards.card) ═ */
-function SkillCard({ userId, n, hideDetailLinks }: { userId: string; n: SkillNode; hideDetailLinks?: boolean }) {
+function SkillCard({ userId, n, hideDetailLinks, mastery }: { userId: string; n: SkillNode; hideDetailLinks?: boolean; mastery?: SkillMasteryEntry | null }) {
   const lit = n.state === "stable" || n.state === "wobble" || n.state === "acquired_nodata"
   const locked = n.state === "locked"
 
@@ -151,6 +155,26 @@ function SkillCard({ userId, n, hideDetailLinks }: { userId: string; n: SkillNod
       )}
 
       <div style={{ fontSize: 10, fontWeight: 800, color: stateColor, marginTop: 3 }}>{stateLabel}</div>
+
+      {/* わざマスターの段 (2026-09-01 案4): 課題曲の★セル。金=マスター済 / 青枠=挑戦中 */}
+      {mastery && mastery.ladder.length > 0 && (
+        <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 7 }}>
+          {mastery.ladder.map((l) => (
+            <span key={l.star} style={{
+              width: 19, height: 19, borderRadius: 6, display: "grid", placeItems: "center",
+              fontSize: 8.5, fontWeight: 900, ...tnum,
+              ...(l.state === "done"
+                ? { background: "linear-gradient(160deg,#f7dd9a,#c99a35)", color: "#4a3408" }
+                : l.state === "now"
+                  ? { background: "rgba(159,194,255,.14)", color: "#9fc2ff", border: "1.5px solid rgba(159,194,255,.45)" }
+                  : { background: "rgba(150,175,225,.07)", color: "var(--text-muted)", border: "1px dashed rgba(150,175,225,.22)" }),
+            }}>{l.star}</span>
+          ))}
+          {mastery.rank != null && (
+            <span style={{ fontSize: 9.5, fontWeight: 900, color: "var(--gold)", marginLeft: 3 }}>★{mastery.rank} マスター</span>
+          )}
+        </div>
+      )}
       {n.weekDelta != null && n.weekDelta !== 0 && (
         <div style={{ fontSize: 10, fontWeight: 800, marginTop: 2, color: n.weekDelta > 0 ? GOOD : WARN }}>
           今週 {n.weekDelta > 0 ? `+${n.weekDelta}` : n.weekDelta}

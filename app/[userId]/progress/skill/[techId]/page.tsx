@@ -25,5 +25,9 @@ export default async function SkillDetailPage({
   // 不明ID or 先生なし(特典対象外) はカルテへ戻す
   if (!data) redirect(`/${userId}/progress`)
 
-  return <SkillDetailClient userId={userId} data={data} />
+  // わざマスター (2026-09-01 案4検定の記録表): ★ごとの課題曲の進み
+  const { getSkillMastery } = await import("@/app/_libs/skillMastery")
+  const mastery = (await getSkillMastery(dbUser.id)).get(techId) ?? null
+
+  return <SkillDetailClient userId={userId} data={data} mastery={mastery} />
 }

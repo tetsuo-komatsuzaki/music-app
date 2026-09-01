@@ -126,6 +126,9 @@ const SKILL_DEFS: Array<{
   { id: "harmonic", label: "ハーモニクス", lane: "left", star: 5, tagType: "technique", tagKeys: ["ナチュラル・ハーモニクス", "ハーモニクス"], subIds: ["pitch_tech_harmonic", "rhythm_tech_harmonic"], practiceCat: null, obsTagIds: [] },
 ]
 
+// わざマスターの課題曲設定 (admin) 用の軽量ビュー (SKILL_DEFS と単一ソース・2026-09-01)
+export const SKILL_MASTERY_TARGETS = SKILL_DEFS.map(({ id, label, lane, tagType, tagKeys }) => ({ id, label, lane, tagType, tagKeys }))
+
 // 成長1行 (growthLine.ts)・選曲理由 (編み込み案1) 用: わざ→per_subtask 対応の軽量ビュー (SKILL_DEFS と単一ソース)
 export const SKILL_SUB_DEFS = SKILL_DEFS
   .filter((d) => d.subIds.length > 0)

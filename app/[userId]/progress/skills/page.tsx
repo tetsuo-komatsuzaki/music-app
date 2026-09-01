@@ -32,5 +32,9 @@ export default async function SkillsLevelServerPage({ params }: PageProps) {
 
   const data = await buildKarteData(dbUser.id, userId, period)
 
-  return <SkillsLevelClient userId={userId} skillMap={data.skillMap} />
+  // わざマスター (2026-09-01 案4): ★ごとの課題曲の進み。read防御はlib側
+  const { getSkillMastery } = await import("@/app/_libs/skillMastery")
+  const mastery = await getSkillMastery(dbUser.id)
+
+  return <SkillsLevelClient userId={userId} skillMap={data.skillMap} mastery={Object.fromEntries(mastery)} />
 }
