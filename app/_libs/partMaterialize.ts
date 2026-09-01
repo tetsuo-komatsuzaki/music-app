@@ -22,7 +22,7 @@ export async function materializePracticeParts(sourceItemId: string, opts?: { pa
       description: true, descriptionShort: true, keyTonic: true, keyMode: true,
       tempoMin: true, tempoMax: true, positions: true, star: true,
       skillSubTaskTags: true, metadata: true, originalXmlPath: true, buildStatus: true,
-      partId: true, articulation: true,
+      partId: true, articulation: true, rhythmRecipe: true,
     },
   })
   if (!source) return { ok: false, error: "元の教材が見つかりません" }
@@ -80,6 +80,10 @@ export async function materializePracticeParts(sourceItemId: string, opts?: { pa
         partId: part.id,
         // 2026-08-28: 奏法は通しから継ぐ (人が選ぶ軸。パートごとの自動判定に任せない)
         articulation: source.articulation,
+        // 2026-09-01: リズム変種も同じ理由で継ぐ。写していなかったため、リズム登録した
+        // 教材のパートが「リズムなしの素の抜粋」になり、そもそも作られていなかった。
+        // 解析側は 範囲切り出し→移調→奏法→リズム の順で両方適用できる (analyze_musicxml.py)
+        rhythmRecipe: (source.rhythmRecipe ?? Prisma.DbNull) as Prisma.InputJsonValue,
         metadata: metadata as Prisma.InputJsonValue,
         // 小節範囲だけを残す変換 (難易度変換と同じルールを流用)
         variantRecipe: {

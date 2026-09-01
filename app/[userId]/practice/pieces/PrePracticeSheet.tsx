@@ -97,7 +97,16 @@ export default function PrePracticeSheet({
   // 軸で絞れば「その奏法の通しとパートが必ず揃う」形になる。
   const axisOf = (v: { articulation?: string | null; difficulty?: string | null }) =>
     byArt ? (v.articulation ?? "legato") : (v.difficulty ?? "BEGINNER")
-  const partVariants = group.variants.filter((v) => v.partId && axisOf(v) === diff)
+  // 2026-09-01: 第2軸 (リズム等のパターン) でも絞る。以前は第1軸だけで絞っていたため、
+  // リズム登録した教材のパートが出ず、パターンを選んでも通しのパートが並んでいた。
+  // パートはパターンを継ぐので (partMaterialize が rhythmRecipe を写す)、
+  // 「選んだパターンと同じ patternName のパート」だけが正しい選択肢になる。
+  const selectedPatternName = patternId
+    ? (sameAxis.find((v) => v.id === patternId)?.patternName ?? null)
+    : null
+  const partVariants = group.variants.filter(
+    (v) => v.partId && axisOf(v) === diff && (v.patternName ?? null) === selectedPatternName,
+  )
   // 2026-08-31 Tetsuo確定 B案: グループにパート実体があるのに、いま選んでいる軸
   // (奏法/難易度) の分がまだ無いときは「準備中」で選択不可にする。以前は旧経路
   // (通し+区間) に黙って落ち、パートを選んだのに全小節の詳細が開いていた
@@ -182,7 +191,7 @@ export default function PrePracticeSheet({
         <select
           className={styles.sheetSelect}
           value={diff}
-          onChange={(e) => { setDiff(e.target.value); setPatternId(""); setRangeIdx(-1) }}
+          onChange={(e) => { setDiff(e.target.value); setPatternId(""); setRangeIdx(-1); setPartPick("") }}
         >
           {options.map((d) => {
             const v = byKey.get(d.id)
@@ -206,7 +215,7 @@ export default function PrePracticeSheet({
             <select
               className={styles.sheetSelect}
               value={patternId}
-              onChange={(e) => { setPatternId(e.target.value); setRangeIdx(-1) }}
+              onChange={(e) => { setPatternId(e.target.value); setRangeIdx(-1); setPartPick("") }}
             >
               <option value="">そのまま弾く</option>
               {patterns.map((v) => (

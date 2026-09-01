@@ -45,6 +45,7 @@ async function createScorePartVariants(
       id: true, title: true, composer: true, genre: true, groupId: true, isShared: true,
       ownerScope: true, originalXmlPath: true, star: true, difficulty: true,
       skillSubTaskTags: true, buildStatus: true, deletedAt: true, partId: true,
+      rhythmRecipe: true,
     },
   })
   if (!source || source.deletedAt) return { ok: false, error: "元のスコアが見つかりません" }
@@ -88,6 +89,8 @@ async function createScorePartVariants(
         originalXmlPath: source.originalXmlPath,
         analysisStatus: "queued",
         buildStatus: "queued",
+        // 2026-09-01: リズム変種を継ぐ (教材側と同じ。写さないとリズムが消える)
+        rhythmRecipe: (source.rhythmRecipe ?? Prisma.DbNull) as Prisma.InputJsonValue,
         variantRecipe: {
           rules: [{ type: "measure_range", from: part.startMeasure, to: part.endMeasure }],
           sourcePartId: part.id,
