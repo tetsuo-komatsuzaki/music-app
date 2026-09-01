@@ -42,18 +42,38 @@ const optionTexts = (s: HTMLSelectElement) => Array.from(s.options).map((o) => o
 afterEach(cleanup)
 
 describe("練習前シート (エチュード・奏法軸)", () => {
+  it("既定はそのまま弾く。奏法とパターンが並んで出る", () => {
+    open()
+    expect(screen.getByText("奏法を選ぶ")).toBeTruthy()
+    expect(screen.getByText("パターンを選ぶ")).toBeTruthy()
+    expect(selects()[0].value).toBe("")
+    expect(optionTexts(selects()[0])[0]).toBe("そのまま弾く")
+  })
+
   it("リズム変種がパターン欄に出る", () => {
     open()
-    expect(screen.getByText("パターンを選ぶ")).toBeTruthy()
     const pat = selects()[1]
     expect(optionTexts(pat).some((t) => t.includes("16音符"))).toBe(true)
+  })
+
+  it("奏法を選ぶとパターン欄が消える", () => {
+    open()
+    fireEvent.change(selects()[0], { target: { value: "slur" } })
+    expect(screen.queryByText("パターンを選ぶ")).toBeNull()
+    expect(screen.getByText("奏法を選ぶ")).toBeTruthy()
+  })
+
+  it("パターンを選ぶと奏法欄が消える", () => {
+    open()
+    fireEvent.change(selects()[1], { target: { value: "r16" } })
+    expect(screen.queryByText("奏法を選ぶ")).toBeNull()
+    expect(screen.getByText("パターンを選ぶ")).toBeTruthy()
   })
 
   it("奏法=スラー で スラーのパートが4つ出る (準備中にならない)", () => {
     open()
     fireEvent.change(selects()[0], { target: { value: "slur" } })
     const part = selects().at(-1)!
-    // パート欄が「準備中」の固定文言ではなく、選べるセレクトになっている
     expect(part.options.length).toBeGreaterThan(1)
     expect(optionTexts(part).filter((t) => t.startsWith("Part")).length).toBe(4)
   })

@@ -39,6 +39,8 @@ type PracticeItemDTO = {
   partName?: string | null
   /** パート教材の切り出し元 (通し変種) のid。2026-09-01 */
   sourceItemId?: string | null
+  /** 奏法別・リズム別・パート別。一覧には出さずシートの中で選ぶ (2026-09-01) */
+  isVariant?: boolean
   groupTitle?: string | null
   articulation?: string | null
   /** 難易度 (エチュードシート用) */
@@ -467,7 +469,10 @@ function StarView({
   const filtered = active == null
     ? items
     : items.filter((i) => (active === "none" ? i.star == null : i.star === active))
-  const subGroups = subGroupItems(filtered, category)
+  // 2026-09-01 Tetsuo確定: 奏法別・リズム別を1曲として並べない。
+  // 族カードのカテゴリ (音階等) は元から族で1枚に畳んでいるのでそのまま。
+  const cards = isFamilyCategory(category) ? filtered : filtered.filter((i) => !i.isVariant)
+  const subGroups = subGroupItems(cards, category)
   const baseStar = typeof active === "number" ? active : null
 
   return (

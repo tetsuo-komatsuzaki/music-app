@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { redirect } from "next/navigation"
 import { sweepPracticePartVariants } from "@/app/_libs/partMaterialize"
 import AdminPractice from "../adminPractice"
+import { pickRepresentatives, toRepresentativeInput } from "@/app/_libs/materialRepresentative"
 import { uploadPracticeItem } from "@/app/actions/uploadPracticeItem"
 import { uploadScore } from "@/app/actions/uploadScore"
 
@@ -95,43 +96,6 @@ export default async function AdminPracticePage({
     },
   })
 
-  // 一覧に出す「代表」を決める (2026-09-01 Tetsuo確定):
-  // 奏法別・リズム別・パート別は教材管理に並べない。量が多すぎて見えなくなるため。
-  // 同じ族・同じ調・同じ難易度の中で、いちばん素のものを1件だけ代表として出す。
-  // 調や難易度が違うもの (音階の12調、曲の難易度別) は別物なので残る。
-  type VariantKeys = {
-    id: string
-    groupId: string | null
-    keyTonic: string | null
-    keyMode: string | null
-    difficulty: string | null
-    positions?: string[]
-    modeVariant?: string | null
-    chordType?: string | null
-    partId?: string | null
-    articulation?: string | null
-    hasRhythm: boolean
-    hasArtRecipe: boolean
-    title: string
-  }
-  const bucketOf = (v: VariantKeys) => [
-    v.groupId ?? `solo:${v.id}`, v.keyTonic ?? "", v.keyMode ?? "", v.difficulty ?? "",
-    v.modeVariant ?? "", v.chordType ?? "", (v.positions ?? []).join(","),
-  ].join("|")
-  // 素なものほど小さい = 代表になる
-  const plainness = (v: VariantKeys) =>
-    (v.partId ? 8 : 0) + (v.hasRhythm ? 4 : 0) + (v.hasArtRecipe ? 2 : 0) + (v.articulation ? 1 : 0)
-  const pickRepresentatives = (list: VariantKeys[]) => {
-    const best = new Map<string, VariantKeys>()
-    for (const v of list) {
-      const k = bucketOf(v)
-      const cur = best.get(k)
-      if (!cur || plainness(v) < plainness(cur)
-        || (plainness(v) === plainness(cur) && v.title.localeCompare(cur.title, "ja") < 0)) best.set(k, v)
-    }
-    return new Set([...best.values()].map((v) => v.id))
-  }
-
   // カテゴリでグルーピング
   const tagsByCategory: Record<string, typeof techniqueTags> = {}
   for (const tag of techniqueTags) {
@@ -139,19 +103,7 @@ export default async function AdminPracticePage({
     tagsByCategory[tag.category].push(tag)
   }
 
-  const itemReps = pickRepresentatives(items.map((item) => {
-    const md = (item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata)
-      ? item.metadata : {}) as Record<string, unknown>
-    return {
-      id: item.id, groupId: item.groupId, keyTonic: item.keyTonic, keyMode: item.keyMode,
-      difficulty: item.difficulty, positions: item.positions,
-      modeVariant: typeof md.modeVariant === "string" ? md.modeVariant : null,
-      chordType: typeof md.chordType === "string" ? md.chordType : null,
-      partId: item.partId, articulation: item.articulation,
-      hasRhythm: item.rhythmRecipe != null, hasArtRecipe: item.articulationRecipe != null,
-      title: item.title,
-    }
-  }))
+  const itemReps = pickRepresentatives(items.map(toRepresentativeInput))
   const itemDtos = items.map((item) => {
     const tags = Array.isArray(item.skillSubTaskTags)
       ? (item.skillSubTaskTags as unknown[]).filter((v): v is string => typeof v === "string")
@@ -187,11 +139,7 @@ export default async function AdminPracticePage({
   })
 
   // Score も同形に整形 (PracticeItem に存在しないフィールドは空 / null)
-  const scoreReps = pickRepresentatives(scores.map((s) => ({
-    id: s.id, groupId: s.groupId, keyTonic: s.keyTonic, keyMode: s.keyMode,
-    difficulty: s.difficulty, partId: s.partId, articulation: null,
-    hasRhythm: s.rhythmRecipe != null, hasArtRecipe: false, title: s.title,
-  })))
+  const scoreReps = pickRepresentatives(scores.map(toRepresentativeInput))
   const scoreDtos = scores.map((s) => {
     const tags = Array.isArray(s.skillSubTaskTags)
       ? (s.skillSubTaskTags as unknown[]).filter((v): v is string => typeof v === "string")

@@ -60,9 +60,19 @@ export default function PrePracticeSheet({
   // パートを混ぜると byKey が最後のパート教材で上書きされ、パターンも選んでいない
   // のに「はじめる」の行き先がパートになりうる。
   const soloVariants = group.variants.filter((v) => !v.partId)
+  // 2026-09-01 Tetsuo確定: 奏法とパターンは並列の別軸で、パターンはどの奏法にも
+  // ぶら下がらない。通し (奏法なし・パターンなし) を「そのまま弾く」として基準に置き、
+  //   奏法軸   = articulation を持つ変種
+  //   パターン軸 = articulation を持たずパターン名を持つ変種
+  // に分ける。どちらか一方を選んだら他方の欄は消える (排他)。
+  const baseVariant = byArt
+    ? soloVariants.find((v) => !v.articulation && !v.patternName)
+    : undefined
+  const artVariants = byArt ? soloVariants.filter((v) => v.articulation) : soloVariants
+  const patternVariants = byArt ? soloVariants.filter((v) => !v.articulation && v.patternName) : []
   // 第1軸 → 変種。曲=難易度 / エチュード=奏法 (2026-08-25 Tetsuo確定)
   const byKey = new Map<string, SheetVariant>()
-  for (const v of soloVariants) {
+  for (const v of artVariants) {
     byKey.set(byArt ? (v.articulation ?? "legato") : (v.difficulty ?? "BEGINNER"), v)
   }
   // 選択肢は「選択用」の ARTICULATIONS を使う (2026-08-25)。
@@ -79,26 +89,30 @@ export default function PrePracticeSheet({
         .map((a) => ({ id: a.id, label: a.label }))
     : DIFFICULTIES.map((d) => ({ id: d.id, label: d.label }))
   const firstAvail = options.find((o) => byKey.has(o.id))?.id ?? options[0].id
+  // 「まだ何も選んでいない」状態の値。通しがあれば "" (そのまま弾く)
+  const neutral = baseVariant ? "" : firstAvail
 
-  const [diff, setDiff] = useState(firstAvail)
+  const [diff, setDiff] = useState(neutral)
 
-  // 第2軸: 個別パターン (2026-08-25 確定)。第1軸で選んだ変種を親として、
-  // 同じ軸値を持つパターン付き変種を選べるようにする。null = パターンなし (標準)。
+  // 第2軸: 個別パターン。曲 (難易度軸) は従来どおり選んだ難易度の中から出す。
   const sameAxis = soloVariants.filter(
     (v) => (byArt ? (v.articulation ?? "legato") : (v.difficulty ?? "BEGINNER")) === diff,
   )
-  // パターン軸には「第1軸に載らなかったもの」だけを出す。
-  // 単一奏法のパターンは奏法軸 (第1軸) に載るので、ここには重複させない (2026-08-25)。
-  const patterns = sameAxis.filter((v) => v.patternName && (byArt ? !v.articulation : true))
+  const patterns = byArt ? patternVariants : sameAxis.filter((v) => v.patternName)
   const [patternId, setPatternId] = useState<string>("")
   // 軸の値がラダーのどれとも噛み合わない教材があるため、最後に「先頭の変種」へ落とす
   // (2026-08-25: カイザーNo.10ほか9件が 奏法=slur の単独グループで variant=undefined になり、
   //  詳細画面へ遷移できず譜面も出ない状態だった。start() が黙って return していて気付けなかった)
   // フォールバックは「どの軸の値にも教材が無い族」だけに効かせる (2026-08-25)。
   // 常に variants[0] へ落とすと、準備中の奏法を選んでも別の教材へ遷移してしまう。
-  const base = sameAxis.find((v) => !v.patternName) ?? byKey.get(diff)
-    ?? (byKey.size === 0 ? soloVariants[0] : undefined)
-  const variant = (patternId ? sameAxis.find((v) => v.id === patternId) : base) ?? base
+  const base = byArt
+    ? ((diff === "" ? baseVariant : byKey.get(diff)) ?? (byKey.size === 0 ? soloVariants[0] : undefined))
+    : (sameAxis.find((v) => !v.patternName) ?? byKey.get(diff)
+        ?? (byKey.size === 0 ? soloVariants[0] : undefined))
+  const variant = (patternId ? patterns.find((v) => v.id === patternId) : base) ?? base
+  // 排他: 片方を選んだらもう片方の欄は消す (2026-09-01 Tetsuo確定)
+  const showArtSelect = patternId === ""
+  const showPatternSelect = patterns.length > 0 && (patternId !== "" || diff === neutral)
 
   // パート: 実体化されたパート教材 (2026-08-25 案B) があればそれを選ぶ。
   // 選ぶと譜面・録音・採点・カルテのすべてがその範囲だけの教材に切り替わる。
@@ -195,7 +209,7 @@ export default function PrePracticeSheet({
         {/* 曲の難易度軸は廃止 (2026-08-25 Tetsuo確定)。
             初級・中級・上級それぞれのスコアを用意するのが現実的でないため、
             曲では軸のセレクタを出さない。エチュード等の奏法軸はそのまま残す。 */}
-        {byArt && <>
+        {byArt && showArtSelect && <>
         {/* 選択肢が1つでも隠さない (2026-08-25 Tetsuo「案c」)。
             まだ作っていない奏法も「準備中」として見せることで、何を作るべきかが分かる。 */}
         <div className={styles.slab}>奏法を選ぶ</div>
@@ -204,6 +218,7 @@ export default function PrePracticeSheet({
           value={diff}
           onChange={(e) => { setDiff(e.target.value); setPatternId(""); setRangeIdx(-1); setPartPick("") }}
         >
+          {baseVariant && <option value="">そのまま弾く</option>}
           {options.map((d) => {
             const v = byKey.get(d.id)
             const suffix = v
@@ -220,7 +235,7 @@ export default function PrePracticeSheet({
 
         {/* パターン (2026-08-25): 音符ごとの奏法・リズムで作った個別パターン。
             管理画面で名前を付けて作ると、ここに選択肢として並ぶ。 */}
-        {patterns.length > 0 && (
+        {showPatternSelect && (
           <>
             <div className={styles.slab}>パターンを選ぶ</div>
             <select

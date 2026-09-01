@@ -1,5 +1,6 @@
 import { prisma } from "@/app/_libs/prisma"
 import { parseParts } from "@/app/_libs/materialParts"
+import { pickRepresentatives, toRepresentativeInput } from "@/app/_libs/materialRepresentative"
 import { getUserIdsFromParams } from "@/app/_libs/getUserIdsFromParams"
 import PracticeList from "./practiceLIst"
 import { getPracticeStats } from "@/app/lib/practice/getPracticeStats"
@@ -152,6 +153,10 @@ export default async function CategoryPage({
     }
   }
 
+  // 一覧に並べる代表 (2026-09-01 Tetsuo確定): 奏法別・リズム別・パート別は
+  // 「別の曲」ではなく「同じ曲の選び方」。カードとして並べず、練習前シートの中で選ぶ。
+  const listReps = pickRepresentatives(items.map(toRepresentativeInput))
+
   // 2026-08-28: 一覧用とパート用で同じ変換を使う (2箇所に写経しない)
   const toDto = (item: (typeof items)[number]) => {
     const perf = perfByItem.get(item.id)
@@ -194,6 +199,8 @@ export default async function CategoryPage({
         ?? ((item.articulationRecipe as { name?: string } | null)?.name)
         ?? null,
       partId: item.partId ?? null,
+      // 奏法別・リズム別は一覧に出さない (2026-09-01)。シートには渡す
+      isVariant: !listReps.has(item.id),
       // 2026-09-01: パートは「どの通し変種から切り出したか」で親に紐づける。
       // 奏法名やパターン名で突き合わせると、slur のように 奏法=slur と
       // リズム名「スラー」を両方持つ変種で破綻する (カイザーNo.1のパートが
