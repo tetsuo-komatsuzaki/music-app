@@ -115,6 +115,23 @@ model User {
   @@index([role])
 }
 
+// わざマスターの課題曲 (2026-09-01 Tetsuo確定)。
+// わざ×★ごとに「この曲をマスターしたら、そのわざの★nマスター」となる曲を指定する。
+// 選定方法の記録は memory/project_skill_mastery_criteria.md。adminが差し替え可能。
+model SkillMasterySong {
+  id        String   @id @default(cuid())
+  skillId   String // growthKarte SKILL_DEFS の id (slur / staccato / position ...)
+  star      Int // マスターのランク★ (1..)
+  scoreId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  score Score @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+
+  @@unique([skillId, star])
+  @@index([scoreId])
+}
+
 model Score {
   id               String         @id @default(cuid())
   createdById      String
@@ -200,6 +217,8 @@ model Score {
   // ▼ お気に入り (2026-07-20)
   favorites   Favorite[]
   assignments Assignment[] // 先生機能: この曲を対象にした宿題
+  // ▼ わざマスターの課題曲 (2026-09-01)
+  skillMasterySongs SkillMasterySong[]
 
   createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
 
