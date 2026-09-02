@@ -115,6 +115,12 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
     </div>
   )
 }
+/* これから追加する章の面 (2026-09-02 Tetsuo確定 案4): 斜めのハッチ + 無彩色。
+   青の一族から外して「いまは働いていない」を色で示す。破線はデータ待ちの記号なので避ける */
+const soonChapter: React.CSSProperties = {
+  padding: "18px 16px 16px",
+  background: "repeating-linear-gradient(135deg, rgba(140,146,158,.07) 0 7px, transparent 7px 15px), #1a1d24",
+}
 const moreCardStyle: React.CSSProperties = { margin: 0, padding: 14, textDecoration: "none", display: "block" }
 
 
@@ -159,19 +165,14 @@ function SkillsChapter({ userId, data, readOnly, detailBase }: { userId: string;
 function ExprChapter({ userId, data, readOnly, detailBase }: { userId: string; data: KarteData; readOnly: boolean; detailBase?: string }) {
   if (!data.v2.expression) {
     if (readOnly) return null
-    // 原本 NO_TEACHER の手紙: 紺グラデ + 金罫 + 先生をさがす金ピル
+    // 2026-09-02 Tetsuo確定: 先生機能は未公開。文言は一行だけ、面は斜めのハッチで
+    // 「いま塞がっている」ことを示す。破線はデータ待ちに使っているので使わない。
+    // 先生をさがす導線は、押しても空振りするため置かない。
     return (
-      <div style={{ margin: "16px 16px 16px", border: "1px solid rgba(232,178,60,.3)", borderRadius: 18, padding: 18, background: "linear-gradient(180deg,#20304f,#16233e)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, fontWeight: 900, letterSpacing: ".12em", color: "#a9833b" }}>ESPRESSIONE ・ 先生とつながると開放</div>
-        <div style={{ fontSize: 15, fontWeight: 900, marginTop: 8, color: "var(--cream)" }}>表現は、先生の耳から</div>
-        <div style={{ fontSize: 12.5, color: "var(--text-sub)", marginTop: 7, lineHeight: 1.8 }}>
-          「優しく」「歌うように」— きみの表現を<br />先生が認定すると、ここに刻まれていくよ。
-        </div>
-        <div style={{ marginTop: 14 }}>
-          <Link href={`/${userId}/find-teacher`} className="pressable" style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 800, color: "var(--gold)", background: "rgba(232,178,60,.14)", borderRadius: 999, padding: "4px 11px", textDecoration: "none" }}>
-            先生をさがす →
-          </Link>
-        </div>
+      <div style={{ ...soonChapter }}>
+        <div style={{ ...kicker, color: "#7c8088" }}>ESPRESSIONE</div>
+        <div style={{ ...chapTitle, color: "#a8adb6" }}>表現の習得状況</div>
+        <div style={{ fontSize: 12.5, color: "#8d929b", marginTop: 8 }}>この機能はこれから追加します。</div>
       </div>
     )
   }

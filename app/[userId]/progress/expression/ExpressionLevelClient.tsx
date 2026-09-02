@@ -7,7 +7,7 @@
 // 点灯 = 認定(★>0)。絵文字は使わず lucide / 記号(★☆) のみ。
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, Search } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import type { ExprMapData, ExprNode } from "@/app/_libs/growthKarte"
 
 // ── ペーパートークン (progressPage v3 / SkillsLevelClient と同じ) ──
@@ -44,19 +44,13 @@ export default function ExpressionLevelClient({ userId, exprMap, unlocked, backH
           <ArrowLeft size={13} /> {backLabel}
         </Link>
         <div style={{
-          marginTop: 12, background: "#f2f7fd", border: "1px solid #dbe7f6",
-          borderRadius: 18, padding: "24px 18px", textAlign: "center",
+          marginTop: 12, borderRadius: 18, padding: "34px 18px", textAlign: "center",
+          // 2026-09-02 Tetsuo確定 案4: 斜めのハッチ + 無彩色。カルテの章と揃える
+          background: "repeating-linear-gradient(135deg, rgba(140,146,158,.07) 0 7px, transparent 7px 15px), #1a1d24",
         }}>
-          <div style={kicker}>ESPRESSIONE</div>
-          <div style={{ fontSize: 15, fontWeight: 900, marginTop: 1 }}>表現の習得状況</div>
-          <div style={{ fontSize: 12, color: SUB, margin: "8px 0 14px", lineHeight: 1.7 }}>
-            「優しく」「歌うように」— きみの表現を先生が認定してくれる場所。<br />
-            <b>先生とつながると開放</b>されます。
-          </div>
-          <Link href={`/${userId}/find-teacher`}
-            style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 800, color: "#fff", background: ACC, borderRadius: 9, padding: "9px 18px", textDecoration: "none" }}>
-            <Search size={14} /> 先生を探す →
-          </Link>
+          <div style={{ ...kicker, color: "#7c8088" }}>ESPRESSIONE</div>
+          <div style={{ fontSize: 15, fontWeight: 900, marginTop: 1, color: "#a8adb6" }}>表現の習得状況</div>
+          <div style={{ fontSize: 12.5, color: "#8d929b", marginTop: 8 }}>この機能はこれから追加します。</div>
         </div>
       </div>
     )
