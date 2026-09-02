@@ -63,7 +63,7 @@ export default function SkillDetailClient({ userId, data, mastery = null }: { us
           <>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 10, marginTop: 6 }}>
               <div className={ds.bigN} style={{ fontSize: 38, lineHeight: 1 }}><span data-anim="count">{data.pct}</span></div>
-              <span style={{ paddingBottom: 7, fontSize: 11, color: "var(--text-sub)", fontWeight: 700 }}>% ・ この技術の安定度</span>
+              <span style={{ paddingBottom: 7, fontSize: 11, color: "var(--text-sub)", fontWeight: 700 }}>% ・ この技術の精度</span>
             </div>
             <div className={`${ds.bar} ${ds.gold}`} data-anim="bar" style={{ marginTop: 10, ["--w" as string]: `${data.pct}%` }}>
               <i />
@@ -74,7 +74,7 @@ export default function SkillDetailClient({ userId, data, mastery = null }: { us
           </>
         ) : (
           <div style={{ fontSize: 11.5, color: "var(--text-sub)", marginTop: 8, lineHeight: 1.75 }}>
-            まだ判定できる録音がないよ。この技術が出てくる曲や教材を弾くと、ここに安定度が出るよ。
+            まだ判定できる録音がないよ。この技術が出てくる曲や教材を弾くと、ここに精度が出るよ。
           </div>
         )}
       </div>
@@ -133,7 +133,7 @@ export default function SkillDetailClient({ userId, data, mastery = null }: { us
 
       {/* ① 推移 + 指導注釈 (残置 ・ ダーク化) */}
       <div style={card}>
-        <div style={{ ...secTtl, display: "flex", alignItems: "center", gap: 6 }}><TrendingUp size={15} color={ACCENT} /> 安定度の推移と、指導の効果</div>
+        <div style={{ ...secTtl, display: "flex", alignItems: "center", gap: 6 }}><TrendingUp size={15} color={ACCENT} /> 精度の推移と、指導の効果</div>
         {data.series.length < 2 ? (
           <div style={{ fontSize: "var(--fs-body)", color: SUB, lineHeight: 1.7 }}>
             この技術が出てくる録音がまだ{data.series.length}回です。録音がたまると、推移と指導の効果がここに描かれます。
@@ -144,10 +144,10 @@ export default function SkillDetailClient({ userId, data, mastery = null }: { us
         {data.effect && (
           <div style={{ marginTop: 12, background: data.effect.delta >= 0 ? "rgba(168,201,127,.13)" : "rgba(232,138,111,.13)", borderRadius: 10, padding: "9px 12px", fontSize: "var(--fs-caption)", fontWeight: 700, color: data.effect.delta >= 0 ? GOOD : BAD, lineHeight: 1.6 }}>
             {data.effect.delta >= 5
-              ? <><Sprout size={13} style={{ verticalAlign: -2 }} /> {`${data.effect.label}のあと、安定度が +${data.effect.delta}。指導が効いています！`}</>
+              ? <><Sprout size={13} style={{ verticalAlign: -2 }} /> {`${data.effect.label}のあと、精度が +${data.effect.delta}。指導が効いています！`}</>
               : data.effect.delta <= -5
-                ? `${data.effect.label}のあと、安定度が ${data.effect.delta}。次のレッスンで相談してみよう。`
-                : `${data.effect.label}のあとの安定度は ${data.effect.delta >= 0 ? "+" : ""}${data.effect.delta}`}
+                ? `${data.effect.label}のあと、精度が ${data.effect.delta}。次のレッスンで相談してみよう。`
+                : `${data.effect.label}のあとの精度は ${data.effect.delta >= 0 ? "+" : ""}${data.effect.delta}`}
           </div>
         )}
       </div>
@@ -198,7 +198,7 @@ export default function SkillDetailClient({ userId, data, mastery = null }: { us
                   <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-muted)" }}>音がうまく開けなかったよ</div>
                 )}
                 {it.pct != null && (
-                  <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, marginTop: 6, color: c, fontVariantNumeric: "tabular-nums" }}>{data.label}の安定度 {it.pct}%</div>
+                  <div style={{ fontSize: "var(--fs-caption)", fontWeight: 800, marginTop: 6, color: c, fontVariantNumeric: "tabular-nums" }}>{data.label}の精度 {it.pct}%</div>
                 )}
               </div>
             ))}
@@ -285,7 +285,7 @@ function Chart({ data }: { data: SkillDetailData }) {
       <div style={{ display: "flex", gap: 12, marginTop: 6, fontSize: "var(--fs-label)", color: SUB, fontWeight: 700 }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><ClipboardList size={11} /> = 先生の所見</span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Target size={11} /> = レッスンクリア</span>
-        <span>点 = 録音ごとの安定度</span>
+        <span>点 = 録音ごとの精度</span>
       </div>
     </div>
   )

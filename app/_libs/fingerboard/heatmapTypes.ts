@@ -15,7 +15,7 @@ export type TransitionRow = {
   dir: "high" | "low" | "mixed"
 }
 
-/** ポジションべつの安定度 (タップ詳細v2・2026-08-11 Tetsuo承認) */
+/** ポジションべつの精度 (タップ詳細v2・2026-08-11 Tetsuo承認) */
 export type PositionRow = {
   position: number
   finger: number | null

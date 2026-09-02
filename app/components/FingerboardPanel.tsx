@@ -188,10 +188,10 @@ export default function FingerboardPanel({
                       : `ずれ(${selDetail.high + selDetail.low}回/${selDetail.n}回)・音が高い${selDetail.high}回・音が低い${selDetail.low}回`}
                   </div>
 
-                  {/* ポジションべつの安定度 (v2) */}
+                  {/* ポジションべつの精度 (v2) */}
                   {(selDetail.positions?.length ?? 0) > 0 && (
                     <div style={{ marginTop: 8 }}>
-                      <div style={secHead}>ポジションべつの安定度</div>
+                      <div style={secHead}>ポジションべつの精度</div>
                       {selDetail.positions.map((p, i) => {
                         const pct = Math.round(((p.n - p.miss) / p.n) * 100)
                         return (

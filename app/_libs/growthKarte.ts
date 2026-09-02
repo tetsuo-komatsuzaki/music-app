@@ -46,7 +46,7 @@ export interface KarteEvent {
 
 // ── 技術マップ (先生ありユーザー特典・project_skill_map_spec 準拠) ────────────
 // 習得の正 = UserLessonClear ∪ UserTagAcquisition(state≠REVOKED)。旧UserTechniqueMasteryは不使用。
-// 安定度% = per_subtask(pitch_tech_*/rhythm_tech_*)の実測のみ(音程・リズム由来の代理値)。
+// 精度% = per_subtask(pitch_tech_*/rhythm_tech_*)の実測のみ(音程・リズム由来の代理値)。
 
 export type SkillNodeState = "stable" | "wobble" | "acquired_nodata" | "ready" | "locked"
 
@@ -58,7 +58,7 @@ export interface SkillNode {
   state: SkillNodeState
   /** オンボ自己申告のみで習得扱い (仮習得) */
   provisional: boolean
-  /** 安定度% (100 - ミス率)。データ少は null */
+  /** 精度% (100 - ミス率)。データ少は null */
   pct: number | null
   miss: number
   target: number
@@ -74,7 +74,7 @@ export interface SkillNode {
   weekDelta: number | null
   /** 今週 習得した (NEWバッジ) */
   isNew: boolean
-  /** 録音ごとの安定度% 時系列 (期間内・target>=3 の録音のみ・最大12点。案4パネルのスパークライン) */
+  /** 録音ごとの精度% 時系列 (期間内・target>=3 の録音のみ・最大12点。案4パネルのスパークライン) */
   series: number[]
 }
 
@@ -672,7 +672,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
         }
         const acquired = inClear || inAcq
 
-        // 安定度 (per_subtask 実測のみ)
+        // 精度 (per_subtask 実測のみ)
         const agg = d.subIds.length
           ? d.subIds.reduce((a, sid) => {
               const e = sub.get(sid)
@@ -1007,7 +1007,7 @@ export interface SkillDetailData {
   practiceHref: string
   series: SkillSeriesPoint[]
   annotations: SkillAnnotation[]
-  /** 直近の指導(所見/クリア)前後の安定度変化。null=判定材料不足 */
+  /** 直近の指導(所見/クリア)前後の精度変化。null=判定材料不足 */
   effect: { label: string; delta: number } | null
   listen: { old: SkillListenItem; new: SkillListenItem } | null
   guidance: SkillGuidance[]
@@ -1471,7 +1471,7 @@ export async function buildSkillDetail(
     return { miss, target }
   }
 
-  // 録音ごとの安定度 (対象3音以上のみ点にする) + 聴き比べ候補
+  // 録音ごとの精度 (対象3音以上のみ点にする) + 聴き比べ候補
   type Rec = { at: Date; title: string; audioPath: string | null; agg: { miss: number; target: number } }
   const recs: Rec[] = [
     ...perfs.map((p) => ({ at: p.uploadedAt, title: p.score?.title ?? "曲", audioPath: p.audioPath || null, agg: aggOf(p.analysisSummary) })),

@@ -8,12 +8,9 @@
 //   先生なし=手紙カード (紺グラデ+金罫 ・ 先生をさがす金ピル) ・ MORE=grid2 DSカード。
 // 出現は RevealMotion (ds.card=ブロック ・ 章=項目)。ヒーローは原本どおり (モックが実装値)。
 // 30日固定 (期間切替は記録の分析)。次の一歩はホームの領分 (カルテには置かない)。
-import { useState } from "react"
 import Link from "next/link"
-import { Share2, Search } from "lucide-react"
 import type { KarteData, SkillNode } from "@/app/_libs/growthKarte"
 import BodyObsMap from "@/app/components/BodyObsMap"
-import ShareSheet from "@/app/components/ShareSheet"
 import ds from "@/app/components/ds.module.css"
 import GrowthCurveChapter, { type CurvePoint } from "@/app/components/GrowthCurveChapter"
 
@@ -81,11 +78,8 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
   curve?: CurvePoint[]
   current?: { avg: number; delta: number | null } | null
 }) {
-  const [weeklyShare, setWeeklyShare] = useState(false)
   return (
     <div style={{ maxWidth: 520, margin: "0 auto", padding: readOnly ? "4px 0 30px" : "0 0 60px" }}>
-      {weeklyShare && <ShareSheet kind="weekly" onClose={() => setWeeklyShare(false)} />}
-
       {/* 原本: h1 ds.t (先生ビューは pill mute を添える) */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 2px" }}>
         <h1 className={ds.t} style={{ paddingTop: 6, flex: 1, minWidth: 0 }}>成長カルテ</h1>
@@ -96,8 +90,6 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
 
       {/* ═ 1枚のシート (原本 sheet = DSカード padding0) ═ */}
       <div className={ds.card} style={{ padding: 0, overflow: "hidden", marginTop: 12 }}>
-        <Hero userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} onShare={() => setWeeklyShare(true)} />
-        <Rule />
         <GrowthCurveChapter curve={curve} current={current}
           numbersHref={detailBase ? `${detailBase}/numbers` : `/${userId}/progress/numbers`} />
         <Rule />
@@ -125,38 +117,6 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
 }
 const moreCardStyle: React.CSSProperties = { margin: 0, padding: 14, textDecoration: "none", display: "block" }
 
-/* ═ ヒーロー (原本 HERO = 実装値そのまま): 青グラデ + KPI大数字 ═ */
-function Hero({ userId, data, readOnly, detailBase, onShare }: { userId: string; data: KarteData; readOnly: boolean; detailBase?: string; onShare: () => void }) {
-  const k = data.v2.kpi
-  return (
-    <div style={{ position: "relative", padding: "20px 18px 18px", background: "linear-gradient(135deg,#1f3d78,#2b5bc4)", color: "#eaf1ff" }}>
-      <div style={{ position: "relative" }}>
-        <div style={{ display: "flex", alignItems: "baseline" }}>
-          <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: ".22em", color: "#a9c3f2" }}>GROWTH KARTE</div>
-          {!readOnly && (
-            <button type="button" onClick={onShare} className="pressable"
-              style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 800, color: "#fff", background: "rgba(255,255,255,.16)", border: "1px solid rgba(255,255,255,.2)", borderRadius: 999, padding: "4px 11px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
-              <Share2 size={12} /> 今週をシェア
-            </button>
-          )}
-        </div>
-        <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-          <div style={kpiBox}><b style={{ ...kpiNum, color: "#fff" }}><span data-anim="count">{k.starDone}</span><small style={{ fontSize: 11, color: "#bcd0f5" }}>/{k.starRequired}</small></b><span style={kpiLbl}>★{k.star}の達成曲</span></div>
-          <div style={kpiBox}><b style={{ ...kpiNum, color: k.basicsWeek > 0 ? "#fff" : "#bcd0f5" }}>{k.basicsWeek > 0 ? `+${k.basicsWeek}` : "±0"}</b><span style={kpiLbl}>今週の基礎練</span></div>
-          <div style={kpiBox}><b style={{ ...kpiNum, color: k.skillsWeek > 0 ? "#fff" : "#bcd0f5" }}>{k.skillsWeek > 0 ? `+${k.skillsWeek}` : "±0"}</b><span style={kpiLbl}>今週のわざ</span></div>
-        </div>
-        {(!readOnly || detailBase) && (
-          <Link href={detailBase ? `${detailBase}/numbers` : `/${userId}/progress/numbers`} style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 12, fontSize: 10.5, fontWeight: 800, color: "#cfe0ff", textDecoration: "none" }}>
-            <Search size={11} /> きろくを詳しくみる→
-          </Link>
-        )}
-      </div>
-    </div>
-  )
-}
-const kpiBox: React.CSSProperties = { flex: 1, textAlign: "center", background: "rgba(255,255,255,.14)", border: "1px solid rgba(255,255,255,.16)", borderRadius: 13, padding: "10px 4px 8px" }
-const kpiNum: React.CSSProperties = { display: "block", fontSize: 23, fontWeight: 900, lineHeight: 1.1, ...tnum }
-const kpiLbl: React.CSSProperties = { fontSize: 8.5, fontWeight: 800, color: "#bcd0f5" }
 
 /* ═ わざの習得状況 (原本 SKILLS: 金バー + 技術マップへ) ═ */
 function SkillsChapter({ userId, data, readOnly, detailBase }: { userId: string; data: KarteData; readOnly: boolean; detailBase?: string }) {

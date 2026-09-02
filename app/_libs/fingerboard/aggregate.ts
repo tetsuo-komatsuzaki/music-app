@@ -139,7 +139,7 @@ export async function aggregateHeatmap(perfs: PerfRef[]): Promise<HeatmapData> {
         e.n++
         if (dirHigh) e.high++
         if (dirLow) e.low++
-        // ポジションべつの安定度 (タップ詳細v2)
+        // ポジションべつの精度 (タップ詳細v2)
         if (sk.position != null && counted) {
           const pk = `${sk.position}|${sk.finger ?? ""}`
           let pe = e.pos.get(pk)

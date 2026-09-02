@@ -61,7 +61,8 @@ export default async function ProgressServerPage({ params }: PageProps) {
   let curve: { day: string; score: number; best: boolean }[] = []
   let current: { avg: number; delta: number | null } | null = null
   try {
-    const nr = await buildNumbersRoom(dbUser.id, period)
+    // 成長カーブだけは全期間 (2026-09-02 Tetsuo確定)。カルテ本体は30日固定のまま
+    const nr = await buildNumbersRoom(dbUser.id, "all")
     curve = nr.curve
     current = nr.current
   } catch { /* 集計に失敗してもカルテは出す */ }

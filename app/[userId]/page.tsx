@@ -409,8 +409,8 @@ export default async function HomePage({ params }: PageProps) {
   }))
 
   // 編み込み案1 (2026-08-03): 選曲理由を成長ベースに ([[project_growth_woven_experience]])。
-  // 曲のわざタグ × ユーザーの30日安定度/習得状況 →
-  //   「◯◯が安定してきたから、次はこの曲」(安定度70%以上) >「新しいわざ「◯◯」に挑戦できる曲」(未習得)。
+  // 曲のわざタグ × ユーザーの30日精度/習得状況 →
+  //   「◯◯が安定してきたから、次はこの曲」(精度70%以上) >「新しいわざ「◯◯」に挑戦できる曲」(未習得)。
   // データが無ければ既定文言 (レベル文) のまま — でっち上げない。
   try {
     const recIds = nextPieceRecommendations.map((r) => r.practiceItem.id)
