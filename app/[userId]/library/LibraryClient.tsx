@@ -86,15 +86,30 @@ export default function LibraryClient({
         <div role="dialog" aria-modal="true" aria-label="アルコプラスの案内"
           onClick={() => setPlanModal(false)}
           style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(6,12,24,.72)",
-            display: "grid", placeItems: "center", padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} className={ds.card}
-            style={{ maxWidth: 340, width: "100%", padding: 20, borderColor: "rgba(232,178,60,.34)" }}>
-            <div style={{ fontSize: 10.5, fontWeight: 900, letterSpacing: ".14em", color: "var(--gold)" }}>ARCODA PLUS</div>
-            <b style={{ display: "block", fontSize: 16, marginTop: 7 }}>楽譜のアップロードはプラス限定です</b>
-            <span style={{ display: "block", fontSize: 12.5, color: "var(--text-sub)", marginTop: 8, lineHeight: 1.85 }}>
-              自分の楽譜を取り込むと、その曲も採点できるようになります。
-            </span>
-            <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
+            display: "flex", alignItems: "flex-end" }}>
+          {/* 2026-09-02 Tetsuo確定 案5: 下から出るシートに、プラスでできることを並べる。
+              書くのは実装に課金判定がある2つと、既に案内している無料おためしだけ。
+              設定のプラン欄にある基礎練やレッスンは課金判定が無いので書かない */}
+          <div onClick={(e) => e.stopPropagation()}
+            style={{ width: "100%", background: "var(--card-b, #15233f)",
+              borderTop: "1px solid rgba(232,178,60,.34)", borderRadius: "20px 20px 0 0",
+              padding: "16px 16px calc(20px + env(safe-area-inset-bottom))" }}>
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: "rgba(150,175,225,.28)", margin: "0 auto 12px" }} />
+            <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: ".14em", color: "var(--gold)" }}>ARCODA PLUS</div>
+            <b style={{ display: "block", fontSize: 15.5, marginTop: 7 }}>アルコプラスでできること</b>
+            <div style={{ display: "flex", flexDirection: "column", gap: 7, marginTop: 12 }}>
+              {[
+                ["自分の楽譜を取り込む", "その曲も採点できる"],
+                ["採点が無制限", "週7回の上限が外れる"],
+                ["14日間おためし", "いつでもやめられる"],
+              ].map(([t, sub]) => (
+                <div key={t} style={{ display: "flex", gap: 8, alignItems: "baseline", fontSize: 12, color: "var(--text-sub)" }}>
+                  <span style={{ color: "var(--gold)", fontWeight: 900, flex: "none" }}>+</span>
+                  <span><b style={{ color: "var(--text-ink)", fontWeight: 700 }}>{t}</b> ・ {sub}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 16, alignItems: "center", flexWrap: "wrap" }}>
               {canShowBillingEntryPoint() ? (
                 <Link href={`${base}/settings`} className={`${ds.pill} ${ds.gold}`}
                   style={{ fontSize: 12, textDecoration: "none" }}>プランを見る</Link>
