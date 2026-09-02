@@ -11,6 +11,7 @@ import Link from "next/link"
 import type { NumbersRoomData, KartePeriod } from "@/app/_libs/growthKarte"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import FingerboardPanel, { type FingerboardMark } from "@/app/components/FingerboardPanel"
+import type { FastSwitchData } from "@/app/_libs/fastSwitch"
 import ds from "@/app/components/ds.module.css"
 
 const tnum: React.CSSProperties = { fontVariantNumeric: "tabular-nums" }
@@ -40,7 +41,7 @@ function BarRow({ label, sub, pct, on, href }: { label: string; sub?: string; pc
   )
 }
 
-export default function NumbersRoomView({ d, period, baseHref, backHref, backLabel, heatmap = null, fbMarks = [], practiceBase = null }: {
+export default function NumbersRoomView({ d, period, baseHref, backHref, backLabel, heatmap = null, fbMarks = [], practiceBase = null, fastSwitch = null }: {
   d: NumbersRoomData
   period: KartePeriod
   /** 期間切替リンクの土台 (例: /uid/progress/numbers) */
@@ -52,6 +53,8 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
   fbMarks?: FingerboardMark[]
   /** 練習導線の土台 (例: /uid/practice)。null=先生ビュー等で導線を出さない */
   practiceBase?: string | null
+  /** 速い指の切り替え (2026-09-02 新設)。null=集計できなかった */
+  fastSwitch?: FastSwitchData | null
 }) {
   // 出現アニメ (マウント後に計器が振れ、バーと線が満ちる)
   const [on, setOn] = useState(false)
@@ -242,6 +245,27 @@ export default function NumbersRoomView({ d, period, baseHref, backHref, backLab
               {d.articulations.map((a) => (
                 <BarRow key={a.label} label={a.label} sub={`${a.count}回`} pct={a.pct} on={on} href={practiceBase} />
               ))}
+            </div>
+          )}
+
+          {/* 速い指の切り替え (2026-09-02 Tetsuo確定: 記録の分析に新設)。
+              指を切り替える猶予 = 前の音からこの音までの実時間。テンポと音価が1つの数字にまとまる。
+              開放弦と同音連続は除く (どちらも指を替えないため) */}
+          {fastSwitch && fastSwitch.bands.some((b) => b.pitchPct != null) && (
+            <div className={ds.card} style={{ padding: "13px 15px" }}>
+              <div className={ds.lab}>速い指の切り替え <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", fontWeight: 800 }}>指を替える猶予べつ ・ 音程</span></div>
+              {fastSwitch.bands.map((b) => (
+                b.pitchPct == null
+                  ? (
+                    <div key={b.label} style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 9 }}>
+                      <span style={{ width: 104, flex: "none", fontSize: 12, fontWeight: 800, color: "var(--text-muted)" }}>{b.label}</span>
+                      <span style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>まだ判定できる音が少ないよ ・ {b.notes}音</span>
+                    </div>
+                  )
+                  : <BarRow key={b.label} label={b.label} sub={`${b.notes}音${b.timingPct != null ? ` ・ タイミング${b.timingPct}%` : ""}`}
+                      pct={b.pitchPct} on={on} href={practiceBase ? `${practiceBase}/bowing` : null} />
+              ))}
+              <div style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)", marginTop: 4 }}>※ 開放弦と、同じ音が続くところは数えていないよ</div>
             </div>
           )}
 

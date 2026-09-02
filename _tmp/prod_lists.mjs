@@ -22,7 +22,7 @@ await ctx.addCookies(cookies.map((c) => ({ ...c, domain: ".arcodaviolin.com", pa
 const pg = await ctx.newPage()
 await pg.goto(`${BASE}/`, { waitUntil: "domcontentloaded" }); await pg.waitForTimeout(4000)
 const uid = (pg.url().match(/arcodaviolin\.com\/([^/?#]+)/) || [])[1]
-const PATHS = []
+const PATHS = ["/practice", "/practice/etude"]
 for (const path of PATHS) {
   await pg.goto(`${BASE}/${uid}${path}`, { waitUntil: "domcontentloaded" })
   await pg.waitForTimeout(4000)
@@ -39,21 +39,4 @@ for (const path of PATHS) {
   console.log("  件数らしき表示:", JSON.stringify(counts))
   console.log("  画面テキスト:", JSON.stringify(texts.slice(0, 45)))
 }
-// 練習前シートの排他表示
-await pg.goto(`${BASE}/${uid}/practice/etude`, { waitUntil: "domcontentloaded" })
-await pg.waitForTimeout(4000)
-await pg.locator('text="カイザー 練習曲 Op.20 No.1"').first().click()
-await pg.waitForTimeout(2500)
-const labels = async () => pg.$$eval("div", (ds) => ds.filter((d) => d.children.length === 0 && /を選ぶ/.test(d.textContent || "")).map((d) => d.textContent.trim()))
-const sels = async () => pg.$$eval("select", (ss) => ss.map((s) => ({ v: s.value, o: Array.from(s.options).map((o) => o.textContent.trim()) })))
-console.log("--- 練習前シート 初期 ---"); console.log(" 見出し:", await labels()); console.log(" セレクト:", JSON.stringify(await sels()))
-await pg.selectOption("select >> nth=0", "staccato"); await pg.waitForTimeout(1500)
-console.log("--- 奏法=スタッカート ---"); console.log(" 見出し:", await labels())
-await pg.screenshot({ path: "_tmp/prod_sheet_art.png", fullPage: true })
-await pg.goto(`${BASE}/${uid}/practice/etude`, { waitUntil: "domcontentloaded" }); await pg.waitForTimeout(4000)
-await pg.locator('text="カイザー 練習曲 Op.20 No.1"').first().click(); await pg.waitForTimeout(2500)
-const r16 = await pg.$$eval("select", (ss) => { const o = Array.from(ss[1].options).find((x) => x.textContent.trim() === "16音符"); return o ? o.value : "" })
-await pg.selectOption("select >> nth=1", r16); await pg.waitForTimeout(1500)
-console.log("--- パターン=16音符 ---"); console.log(" 見出し:", await labels()); console.log(" セレクト:", JSON.stringify(await sels()))
-await pg.screenshot({ path: "_tmp/prod_sheet_pattern.png", fullPage: true })
 await b.close()

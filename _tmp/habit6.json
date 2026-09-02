@@ -1,0 +1,478 @@
+[
+ {
+  "uid": "cmlyl3rf20",
+  "total": 22,
+  "tabs": [
+   {
+    "label": "1か月",
+    "ok": false,
+    "n": 1
+   },
+   {
+    "label": "3か月",
+    "ok": false,
+    "n": 1
+   },
+   {
+    "label": "はじめから",
+    "ok": true,
+    "n": 22,
+    "k": 5,
+    "scoreA": 42.1,
+    "scoreB": 15.7,
+    "tempoA": {
+     "early": 4,
+     "late": 0,
+     "n": 5,
+     "bias": 80
+    },
+    "tempoB": {
+     "early": 2,
+     "late": 2,
+     "n": 5,
+     "bias": 0
+    },
+    "centsA": {
+     "cents": -13,
+     "notes": 54
+    },
+    "centsB": {
+     "cents": -11,
+     "notes": 320
+    },
+    "rows": [
+     {
+      "key": "fine",
+      "label": "細かい音",
+      "a": {
+       "rate": 100,
+       "notes": 761
+      },
+      "b": {
+       "rate": 84,
+       "notes": 888
+      }
+     },
+     {
+      "key": "cross",
+      "label": "弦をまたぐ",
+      "a": {
+       "rate": 98,
+       "notes": 630
+      },
+      "b": {
+       "rate": 81,
+       "notes": 528
+      }
+     },
+     {
+      "key": "leap",
+      "label": "跳躍",
+      "a": {
+       "rate": 97,
+       "notes": 580
+      },
+      "b": {
+       "rate": 82,
+       "notes": 664
+      }
+     },
+     {
+      "key": "shift",
+      "label": "ポジション移動",
+      "a": {
+       "rate": null,
+       "notes": 0
+      },
+      "b": {
+       "rate": null,
+       "notes": 16
+      }
+     }
+    ],
+    "songs": [
+     {
+      "title": "G線上のアリア",
+      "n": 5
+     }
+    ],
+    "fromDate": "2026-04-04",
+    "toDate": "2026-08-03"
+   }
+  ]
+ },
+ {
+  "uid": "cmoecf4zv0",
+  "total": 20,
+  "tabs": [
+   {
+    "label": "1か月",
+    "ok": true,
+    "n": 7,
+    "k": 3,
+    "scoreA": 85.9,
+    "scoreB": 62.4,
+    "tempoA": {
+     "early": 2,
+     "late": 0,
+     "n": 3,
+     "bias": 67
+    },
+    "tempoB": {
+     "early": 1,
+     "late": 1,
+     "n": 3,
+     "bias": 0
+    },
+    "centsA": {
+     "cents": -6,
+     "notes": 162
+    },
+    "centsB": {
+     "cents": -7,
+     "notes": 111
+    },
+    "rows": [
+     {
+      "key": "fine",
+      "label": "細かい音",
+      "a": {
+       "rate": 22,
+       "notes": 156
+      },
+      "b": {
+       "rate": 37,
+       "notes": 156
+      }
+     },
+     {
+      "key": "cross",
+      "label": "弦をまたぐ",
+      "a": {
+       "rate": 7,
+       "notes": 72
+      },
+      "b": {
+       "rate": 31,
+       "notes": 72
+      }
+     },
+     {
+      "key": "leap",
+      "label": "跳躍",
+      "a": {
+       "rate": 9,
+       "notes": 78
+      },
+      "b": {
+       "rate": 35,
+       "notes": 78
+      }
+     },
+     {
+      "key": "shift",
+      "label": "ポジション移動",
+      "a": {
+       "rate": null,
+       "notes": 0
+      },
+      "b": {
+       "rate": null,
+       "notes": 0
+      }
+     }
+    ],
+    "songs": [
+     {
+      "title": "アルプス一万尺",
+      "n": 3
+     }
+    ],
+    "fromDate": "2026-08-15",
+    "toDate": "2026-08-15"
+   },
+   {
+    "label": "3か月",
+    "ok": true,
+    "n": 19,
+    "k": 5,
+    "scoreA": 68,
+    "scoreB": 75.6,
+    "tempoA": {
+     "early": 3,
+     "late": 2,
+     "n": 5,
+     "bias": 20
+    },
+    "tempoB": {
+     "early": 1,
+     "late": 1,
+     "n": 5,
+     "bias": 0
+    },
+    "centsA": {
+     "cents": 2,
+     "notes": 166
+    },
+    "centsB": {
+     "cents": -9,
+     "notes": 218
+    },
+    "rows": [
+     {
+      "key": "fine",
+      "label": "細かい音",
+      "a": {
+       "rate": 52,
+       "notes": 60
+      },
+      "b": {
+       "rate": 24,
+       "notes": 260
+      }
+     },
+     {
+      "key": "cross",
+      "label": "弦をまたぐ",
+      "a": {
+       "rate": 31,
+       "notes": 100
+      },
+      "b": {
+       "rate": 20,
+       "notes": 120
+      }
+     },
+     {
+      "key": "leap",
+      "label": "跳躍",
+      "a": {
+       "rate": 38,
+       "notes": 80
+      },
+      "b": {
+       "rate": 21,
+       "notes": 130
+      }
+     },
+     {
+      "key": "shift",
+      "label": "ポジション移動",
+      "a": {
+       "rate": null,
+       "notes": 0
+      },
+      "b": {
+       "rate": null,
+       "notes": 0
+      }
+     }
+    ],
+    "songs": [
+     {
+      "title": "アルプス一万尺",
+      "n": 5
+     }
+    ],
+    "fromDate": "2026-06-07",
+    "toDate": "2026-08-15"
+   },
+   {
+    "label": "はじめから",
+    "ok": true,
+    "n": 20,
+    "k": 5,
+    "scoreA": 48.9,
+    "scoreB": 75.6,
+    "tempoA": {
+     "early": 3,
+     "late": 1,
+     "n": 5,
+     "bias": 40
+    },
+    "tempoB": {
+     "early": 1,
+     "late": 1,
+     "n": 5,
+     "bias": 0
+    },
+    "centsA": {
+     "cents": 4,
+     "notes": 121
+    },
+    "centsB": {
+     "cents": -9,
+     "notes": 218
+    },
+    "rows": [
+     {
+      "key": "fine",
+      "label": "細かい音",
+      "a": {
+       "rate": 85,
+       "notes": 115
+      },
+      "b": {
+       "rate": 24,
+       "notes": 260
+      }
+     },
+     {
+      "key": "cross",
+      "label": "弦をまたぐ",
+      "a": {
+       "rate": 63,
+       "notes": 142
+      },
+      "b": {
+       "rate": 20,
+       "notes": 120
+      }
+     },
+     {
+      "key": "leap",
+      "label": "跳躍",
+      "a": {
+       "rate": 73,
+       "notes": 136
+      },
+      "b": {
+       "rate": 21,
+       "notes": 130
+      }
+     },
+     {
+      "key": "shift",
+      "label": "ポジション移動",
+      "a": {
+       "rate": null,
+       "notes": 0
+      },
+      "b": {
+       "rate": null,
+       "notes": 0
+      }
+     }
+    ],
+    "songs": [
+     {
+      "title": "アルプス一万尺",
+      "n": 5
+     }
+    ],
+    "fromDate": "2026-04-26",
+    "toDate": "2026-08-15"
+   }
+  ]
+ },
+ {
+  "uid": "cmmm46xn40",
+  "total": 15,
+  "tabs": [
+   {
+    "label": "1か月",
+    "ok": false,
+    "n": 0
+   },
+   {
+    "label": "3か月",
+    "ok": false,
+    "n": 0
+   },
+   {
+    "label": "はじめから",
+    "ok": true,
+    "n": 15,
+    "k": 5,
+    "scoreA": 57.3,
+    "scoreB": 63.6,
+    "tempoA": {
+     "early": 3,
+     "late": 1,
+     "n": 5,
+     "bias": 40
+    },
+    "tempoB": {
+     "early": 1,
+     "late": 4,
+     "n": 5,
+     "bias": -60
+    },
+    "centsA": {
+     "cents": 3,
+     "notes": 379
+    },
+    "centsB": {
+     "cents": 0,
+     "notes": 390
+    },
+    "rows": [
+     {
+      "key": "fine",
+      "label": "細かい音",
+      "a": {
+       "rate": 75,
+       "notes": 580
+      },
+      "b": {
+       "rate": 41,
+       "notes": 290
+      }
+     },
+     {
+      "key": "cross",
+      "label": "弦をまたぐ",
+      "a": {
+       "rate": 48,
+       "notes": 104
+      },
+      "b": {
+       "rate": 31,
+       "notes": 212
+      }
+     },
+     {
+      "key": "leap",
+      "label": "跳躍",
+      "a": {
+       "rate": 62,
+       "notes": 420
+      },
+      "b": {
+       "rate": 38,
+       "notes": 172
+      }
+     },
+     {
+      "key": "shift",
+      "label": "ポジション移動",
+      "a": {
+       "rate": 69,
+       "notes": 488
+      },
+      "b": {
+       "rate": 34,
+       "notes": 88
+      }
+     }
+    ],
+    "songs": [
+     {
+      "title": "きらきら星（テスト用）",
+      "n": 3
+     },
+     {
+      "title": "きらきら星",
+      "n": 1
+     },
+     {
+      "title": "G線上のアリア",
+      "n": 1
+     }
+    ],
+    "fromDate": "2026-05-02",
+    "toDate": "2026-05-25"
+   }
+  ]
+ }
+]

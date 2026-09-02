@@ -15,6 +15,7 @@ import type { KarteData, SkillNode } from "@/app/_libs/growthKarte"
 import BodyObsMap from "@/app/components/BodyObsMap"
 import ShareSheet from "@/app/components/ShareSheet"
 import ds from "@/app/components/ds.module.css"
+import GrowthCurveChapter, { type CurvePoint } from "@/app/components/GrowthCurveChapter"
 
 const tnum: React.CSSProperties = { fontVariantNumeric: "tabular-nums" }
 
@@ -68,7 +69,7 @@ function ChapterLink({ href, label }: { href: string; label: string }) {
   )
 }
 
-export default function ProgressPage({ userId, data, readOnly = false, detailBase, cardAlbum }: {
+export default function ProgressPage({ userId, data, readOnly = false, detailBase, cardAlbum, curve = [], current = null }: {
   userId: string
   data: KarteData
   readOnly?: boolean
@@ -76,6 +77,9 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
   detailBase?: string
   /** カードアルバムの概況 (2026-08-31・報酬体系点灯時のみ。null=章を出さない) */
   cardAlbum?: { got: number; total: number } | null
+  /** 成長カーブ (2026-09-02): カルテのトップに置く唯一の数字 */
+  curve?: CurvePoint[]
+  current?: { avg: number; delta: number | null } | null
 }) {
   const [weeklyShare, setWeeklyShare] = useState(false)
   return (
@@ -93,6 +97,9 @@ export default function ProgressPage({ userId, data, readOnly = false, detailBas
       {/* ═ 1枚のシート (原本 sheet = DSカード padding0) ═ */}
       <div className={ds.card} style={{ padding: 0, overflow: "hidden", marginTop: 12 }}>
         <Hero userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} onShare={() => setWeeklyShare(true)} />
+        <Rule />
+        <GrowthCurveChapter curve={curve} current={current}
+          numbersHref={detailBase ? `${detailBase}/numbers` : `/${userId}/progress/numbers`} />
         <Rule />
         <SkillsChapter userId={userId} data={data} readOnly={readOnly} detailBase={detailBase} />
         <Rule />

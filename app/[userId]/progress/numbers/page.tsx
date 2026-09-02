@@ -8,6 +8,7 @@ import { buildNumbersRoom, type KartePeriod } from "@/app/_libs/growthKarte"
 import { buildUserHeatmap } from "@/app/_libs/fingerboard/aggregate"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import NumbersRoomView from "@/app/components/NumbersRoomView"
+import { buildFastSwitch, type FastSwitchData } from "@/app/_libs/fastSwitch"
 
 export const metadata = { title: "記録の分析" }
 
@@ -28,6 +29,10 @@ export default async function NumbersRoomPage({
   let heatmap: HeatmapData = { cells: {}, details: {}, perfCount: 0 }
   try { heatmap = await buildUserHeatmap(dbUserId, days) } catch { /* storage不通でも画面は出す */ }
 
+  // 速い指の切り替え (2026-09-02 新設・期間タブ連動)
+  let fastSwitch: FastSwitchData | null = null
+  try { fastSwitch = await buildFastSwitch(dbUserId, days) } catch { fastSwitch = null }
+
   // 先生の「気をつける音」マーク (担当先生がいれば表示)
   let fbMarks: { cellId: string; note: string }[] = []
   try {
@@ -47,6 +52,7 @@ export default async function NumbersRoomPage({
       heatmap={heatmap}
       fbMarks={fbMarks}
       practiceBase={`/${authUserId}/practice`}
+      fastSwitch={fastSwitch}
     />
   )
 }

@@ -10,7 +10,7 @@
 // 集計は app/_libs/growthKarte.ts (既存データのみ・新テーブル不要)。
 
 import { prisma } from "@/app/_libs/prisma"
-import { buildKarteData, type KartePeriod } from "@/app/_libs/growthKarte"
+import { buildKarteData, buildNumbersRoom, type KartePeriod } from "@/app/_libs/growthKarte"
 import ProgressPage from "./progressPage"
 
 export const metadata = { title: "成長カルテ" }
@@ -55,5 +55,16 @@ export default async function ProgressServerPage({ params }: PageProps) {
     }
   } catch { /* アルバム集計の失敗でカルテを止めない */ }
 
-  return <ProgressPage userId={userId} data={data} cardAlbum={cardAlbum} />
+  // 成長カーブ (2026-09-02 Tetsuo確定): カルテのトップに置くのはこれだけ。
+  // 指板・ポジション移動・速い指の切り替え・奏法べつは記録の分析の担当で、
+  // 同じ絵を2画面に出さない。線の作りは記録の分析の成長カーブと同一 (30日)。
+  let curve: { day: string; score: number; best: boolean }[] = []
+  let current: { avg: number; delta: number | null } | null = null
+  try {
+    const nr = await buildNumbersRoom(dbUser.id, period)
+    curve = nr.curve
+    current = nr.current
+  } catch { /* 集計に失敗してもカルテは出す */ }
+
+  return <ProgressPage userId={userId} data={data} cardAlbum={cardAlbum} curve={curve} current={current} />
 }
