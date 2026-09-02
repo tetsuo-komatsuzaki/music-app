@@ -1418,12 +1418,15 @@ export async function buildSkillDetail(
   const def = SKILL_DEFS.find((d) => d.id === techId)
   if (!def) return null
 
+  // 2026-09-02 Tetsuo確定: 先生がいなくても出せる章は普通に出す。
+  // 先生に依存するのは teacherObservation 由来の2つ (先生が気づいた癖 / 推移の所見注釈) だけで、
+  // 精度・わざマスターの記録表・推移・聴き比べ・おすすめ練習は録音だけで作れる。
+  // 先生がいなければ所見を空にして、該当章は表示側で自動的に消える。
   const link = await prisma.teacherStudent.findFirst({
     where: { studentId: userId },
     orderBy: { createdAt: "asc" },
     select: { teacherId: true },
   })
-  if (!link) return null // 先生あり特典
 
   const [perfs, pracs, clears, acqs, starRow, obsRows] = await Promise.all([
     prisma.performance.findMany({
@@ -1439,12 +1442,12 @@ export async function buildSkillDetail(
     prisma.userLessonClear.findMany({ where: { userId }, select: { tagType: true, tagKey: true, clearedAt: true } }),
     prisma.userTagAcquisition.findMany({ where: { userId, state: { not: "REVOKED" } }, select: { tagType: true, tagKey: true } }),
     prisma.userStarProgress.findUnique({ where: { userId }, select: { currentStar: true } }),
-    prisma.teacherObservation.findMany({
+    link ? prisma.teacherObservation.findMany({
       where: { studentId: userId, teacherId: link.teacherId },
       orderBy: { createdAt: "asc" },
       take: 50,
       select: { createdAt: true, tagIds: true, skillIds: true, severity: true, comment: true },
-    }),
+    }) : Promise.resolve([] as { createdAt: Date; tagIds: string[]; skillIds: string[]; severity: string | null; comment: string | null }[]),
   ])
 
   // この技術の per_subtask 集計対象か

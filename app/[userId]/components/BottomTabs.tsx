@@ -7,7 +7,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useParams } from "next/navigation"
-import { Home, Library, BarChart3, MessageCircle, Search, type LucideIcon } from "lucide-react"
+import { Home, Library, BarChart3, MessageCircle, type LucideIcon } from "lucide-react"
 import { getTeacherStudentSummary } from "@/app/actions/teacherStudentViews"
 import styles from "./BottomTabs.module.css"
 
@@ -44,12 +44,15 @@ export default function BottomTabs() {
   const base = `/${userId}`
   const rest = pathname.startsWith(base) ? pathname.slice(base.length) : pathname
 
-  // 先生タブ: 先生がいれば「先生」、いなければ「先生をさがす」(判定前は先生で仮置きしチラつきを抑える)
-  const teacherTab: Tab = hasTeacher === false
-    ? { key: "teacher", path: "find-teacher", Icon: Search, label: "先生をさがす", match: (r) => startsWithAny(r, TEACHER_PREFIXES) }
+  // 先生タブ (2026-09-02 Tetsuo確定 A案): 先生機能は未公開なので、先生がいないときは
+  // タブごと出さない (3つになる)。以前は「先生をさがす」を出していたが、押しても
+  // 先生が見つからない画面に着くだけで空振りしていた。公開時に4つへ戻す。
+  // 判定前 (null) は先生タブを出す = チラつきを抑える (先生ありユーザーの体験を優先)
+  const teacherTab: Tab | null = hasTeacher === false
+    ? null
     : { key: "teacher", path: "my-teacher", Icon: MessageCircle, label: "先生", match: (r) => startsWithAny(r, TEACHER_PREFIXES) }
 
-  const tabs = [...TABS, teacherTab]
+  const tabs = teacherTab ? [...TABS, teacherTab] : TABS
 
   return (
     <nav className={styles.bar} aria-label="メインナビゲーション">

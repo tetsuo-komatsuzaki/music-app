@@ -72,12 +72,41 @@ export default function LibraryClient({
   const starLevels = [...new Set(catalog.filter((p) => p.star != null).map((p) => p.star as number))].sort((a, b) => a - b)
   const starFiltered = starTag == null ? catalogQ : catalogQ.filter((p) => p.star === starTag)
 
+  // 2026-09-02 Tetsuo確定: 無料ユーザーが押したときは黙って無視せず、プランの案内を出す。
+  // 以前はボタンを出しておいて何も起きず、壊れているように見えていた。
+  const [planModal, setPlanModal] = useState(false)
   const onUpload = () => {
     if (canUpload) router.push(`${base}/scores?upload=1`)
+    else setPlanModal(true)
   }
 
   return (
     <div className={styles.root}>
+      {planModal && (
+        <div role="dialog" aria-modal="true" aria-label="アルコプラスの案内"
+          onClick={() => setPlanModal(false)}
+          style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(6,12,24,.72)",
+            display: "grid", placeItems: "center", padding: 20 }}>
+          <div onClick={(e) => e.stopPropagation()} className={ds.card}
+            style={{ maxWidth: 340, width: "100%", padding: 20, borderColor: "rgba(232,178,60,.34)" }}>
+            <div style={{ fontSize: 10.5, fontWeight: 900, letterSpacing: ".14em", color: "var(--gold)" }}>ARCODA PLUS</div>
+            <b style={{ display: "block", fontSize: 16, marginTop: 7 }}>楽譜のアップロードはプラス限定です</b>
+            <span style={{ display: "block", fontSize: 12.5, color: "var(--text-sub)", marginTop: 8, lineHeight: 1.85 }}>
+              自分の楽譜を取り込むと、その曲も採点できるようになります。
+            </span>
+            <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
+              {canShowBillingEntryPoint() ? (
+                <Link href={`${base}/settings`} className={`${ds.pill} ${ds.gold}`}
+                  style={{ fontSize: 12, textDecoration: "none" }}>プランを見る</Link>
+              ) : (
+                <span style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.7 }}>Webのアルコダからプランを確認できます</span>
+              )}
+              <button type="button" onClick={() => setPlanModal(false)} className={ds.pill}
+                style={{ fontSize: 12, marginLeft: "auto", cursor: "pointer" }}>とじる</button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* 原本 HEAD: h1.t + subT + 検索inset */}
       {/* 見出し+動くアルコ (2026-08-23 Tetsuo指示: 右側に金縁メダリオンの05C) */}
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
