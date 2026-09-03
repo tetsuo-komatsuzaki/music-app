@@ -115,6 +115,14 @@ class SkillInfoNote:
     prev_duration_beats: Optional[float] = None  # 音価変化の判定用
     rest_before_beats: float = 0.0               # 直前休符の合計拍
 
+    # ─── 奏法 (2026-09-04) ───
+    # piece_summary.build_piece_summary が音符ごとに書き戻す。
+    # ここに宣言が無いと dataclasses.asdict() が拾わず、書き出しから静かに落ちる。
+    # 落ちると diagnosis.py が奏法を一切読めず、pitch_tech_* / rhythm_tech_* の
+    # カウンタが永久に0行になる (2026-09-03 に原因特定)。
+    technique_tags: Optional[list] = None    # ["スラー", "スタッカート"] 等。無ければ None
+    technique_ambiguous: bool = False        # 曖昧記号からの仮付与を含むか (§18-2)
+
 
 # ---------------------------------------------------------------------------
 # .mxl / .musicxml のロード

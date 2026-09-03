@@ -176,3 +176,44 @@ def test_expansion_map_count_mismatch():
     mapping, status = build_expansion_map(karte, analysis)
     assert mapping is None
     assert status == "count_mismatch:1"
+
+
+# ─── 奏法の書き出し (2026-09-04 回帰) ────────────────────────────────────
+# build_piece_summary は音符に technique_tags を書き戻すが、SkillInfoNote に
+# その宣言が無いと dataclasses.asdict() が拾わず、書き出しから静かに落ちる。
+# 落ちると diagnosis.py が奏法を読めず pitch_tech_* が永久に0行になる。
+# 上のヘルパは SimpleNamespace なのでこの欠落を検出できない。実体で確かめる。
+
+def test_skillinfonote_serializes_technique_tags():
+    import dataclasses
+    from lib.musicxml_skill_extractor import SkillInfoNote
+
+    fields = {f.name for f in dataclasses.fields(SkillInfoNote)}
+    assert "technique_tags" in fields
+    assert "technique_ambiguous" in fields
+
+    n = SkillInfoNote(note_index=0, measure_index=0, is_rest=False)
+    n.technique_tags = ["スラー"]
+    n.technique_ambiguous = True
+    d = dataclasses.asdict(n)
+    assert d["technique_tags"] == ["スラー"]
+    assert d["technique_ambiguous"] is True
+
+
+def test_build_piece_summary_writes_tags_onto_real_note():
+    """スラー内の音符に、実体の SkillInfoNote でもタグが載り書き出される。"""
+    import dataclasses
+    from lib.musicxml_skill_extractor import SkillInfoNote
+
+    notes = [
+        SkillInfoNote(note_index=i, measure_index=0, is_rest=False, midi=69 + i,
+                      step="A", octave=4, note_type="quarter", duration_beats=1.0,
+                      beat_offset=float(i), is_on_beat=True, position=1,
+                      is_in_slur=(i < 2))
+        for i in range(3)
+    ]
+    summary = build_piece_summary(notes, {"key_fifths": 0}, {"notes": [{} for _ in range(3)]})
+    assert "スラー" in summary["technique_tags"]
+    dumped = [dataclasses.asdict(n) for n in notes]
+    assert dumped[0]["technique_tags"] == ["スラー"]
+    assert dumped[2]["technique_tags"] is None
