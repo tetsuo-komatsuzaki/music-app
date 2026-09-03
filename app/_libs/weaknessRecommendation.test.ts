@@ -198,9 +198,9 @@ describe("recommendForPerformance — 順位付け (rankScore)", () => {
 describe("recommendForPerformance — ポジション前提条件", () => {
   it("ctx.positions 内で弾ける教材に絞る（範囲外は除外・空positionは常に許可）", async () => {
     const { mod } = await loadPerf([
-      invRow({ id: "p1", category: "etude", positions: ["1st"], features: [{ category: "position", name: "2ndポジション" }] }),
-      invRow({ id: "p3", category: "etude", positions: ["3rd"], features: [{ category: "position", name: "2ndポジション" }] }),
-      invRow({ id: "pEmpty", category: "etude", positions: [], features: [{ category: "position", name: "2ndポジション" }] }),
+      invRow({ id: "p1", category: "position_shift", positions: ["1st"] }),
+      invRow({ id: "p3", category: "position_shift", positions: ["3rd"] }),
+      invRow({ id: "pEmpty", category: "position_shift", positions: [] }),
     ])
     const slots = await mod.recommendForPerformance(
       diag(["pitch_posshift_1_2"], []),
@@ -214,8 +214,8 @@ describe("recommendForPerformance — ポジション前提条件", () => {
 
   it("前提で0件になったら緩めて全候補に戻す（空推薦より優先）", async () => {
     const { mod } = await loadPerf([
-      invRow({ id: "p1", category: "etude", positions: ["1st"], features: [{ category: "position", name: "2ndポジション" }] }),
-      invRow({ id: "p3", category: "etude", positions: ["3rd"], features: [{ category: "position", name: "2ndポジション" }] }),
+      invRow({ id: "p1", category: "position_shift", positions: ["1st"] }),
+      invRow({ id: "p3", category: "position_shift", positions: ["3rd"] }),
     ])
     const slots = await mod.recommendForPerformance(
       diag(["pitch_posshift_1_2"], []),

@@ -88,34 +88,23 @@ _DOUBLE_FEATURE = {"third": "3度", "fourth": "4度", "fifth": "5度",
                    "sixth": "6度", "octave": "オクターブ", "other": "その他"}
 
 
-# ポジション移動の教材条件 (2026-09-04 修正)。
-# 旧: _CAT("position_shift")。PracticeItem.category にその値は存在せず
-# (実在は scale/etude/arpeggio/bowing/fingering/lesson/double_stop の7つ)、
-# 20課題すべてが構造的に0件を引いていた。書いた時点で外れていた条件。
-# 新: 移動元と移動先のうち高いほうのポジションの FeatureTag。そのポジションに
-# 手が届く教材でなければ移動は起きないので、これが必要条件になる。
-# 第5以上は 5th/6th/7th の順に緩める。最後はアルペジオへ落とす。
-_POS_FEATURE = {"2": ["2nd"], "3": ["3rd"], "4": ["4th"],
-                "5plus": ["5th", "6th", "7th"]}
-
-
+# ポジション移動の教材条件。
+# 2026-09-04: 一度 ポジションの FeatureTag に置き換えたが撤回した。
+# position_shift は PracticeCategory に実在するカテゴリ (2026-05-31 追加) で、
+# 条件は最初から正しい。教材が1件も無いだけ。条件の誤りではなく在庫の穴。
+# ポジション移動に効く教材のカテゴリは position_shift と fingering
+# (2026-09-04 Tetsuo確定)。position_shift の教材が入るまでこの20課題は0件のまま。
 def _pos_shift(prefix: str):
     out = []
-    order = {"1": 1, "2": 2, "3": 3, "4": 4, "5plus": 5}
     for f_id, f_name in POSITIONS:
         for t_id, t_name in POSITIONS:
             same = f_id == t_id
             # ラベルを平易な文章に (2026-08-01 Tetsuo)
             name = (f"{f_name}ポジションの中だけで弾く" if same
                     else f"左手を{f_name}から{t_name}ポジションへ移す")
-            if same:
-                q = []
-            else:
-                high = f_id if order[f_id] >= order[t_id] else t_id
-                q = [_FEAT("position", f"{p}ポジション") for p in _POS_FEATURE[high]]
-                q.append(_CAT("arpeggio"))
             out.append((f"{prefix}_posshift_{f_id}_{t_id}", "position_shift",
-                        name, not same, q))
+                        name, not same,
+                        [] if same else [_CAT("position_shift"), _CAT("fingering")]))
     return out
 
 
@@ -153,7 +142,10 @@ def _interval(prefix: str):
                 # 判断 (2026-07-25) で推薦の在庫から外れており、条件だけが取り残されて
                 # 恒久的に0件だった。実測では弦をまたぐ順次はエチュードに集中する
                 # (となりの弦=230/256件・弦とばし=該当12〜15件がすべてエチュード)。
-                q = ([_CAT("arpeggio")] if s_id == "leap"
+                # 跳躍はアルペジオ。ただし弦を1本とばす跳躍はアルペジオに
+                # 1件も出てこない (実測: 該当122件はすべてエチュード) ため
+                # エチュードへ落とす (2026-09-04)。
+                q = ([_CAT("arpeggio"), _CAT("etude")] if s_id == "leap"
                      else [_CAT("etude"), _CAT("arpeggio")])
                 name = f"{_ICROSS_TXT[c_id]}{_IMOVE_TXT[(d_id, s_id)]}"
                 out.append((f"{prefix}_interval_{c_id}_{d_id}_{s_id}", "interval_move",

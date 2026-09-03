@@ -21,13 +21,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "2ndポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -40,13 +39,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "3rdポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -59,13 +57,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -78,23 +75,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -107,13 +93,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "2ndポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -135,13 +120,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "3rdポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -154,13 +138,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -173,23 +156,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -202,13 +174,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "3rdポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -221,13 +192,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "3rdポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -249,13 +219,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -268,23 +237,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -297,13 +255,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -316,13 +273,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -335,13 +291,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -363,23 +318,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -392,23 +336,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -421,23 +354,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -450,23 +372,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -479,23 +390,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -977,6 +877,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -1009,6 +913,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -1041,6 +949,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -1073,6 +985,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -1105,6 +1021,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -1137,6 +1057,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -1633,6 +1557,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -1665,6 +1593,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -1697,6 +1629,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -1729,6 +1665,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -1761,6 +1701,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -1793,6 +1737,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -2090,13 +2038,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "2ndポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2109,13 +2056,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "3rdポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2128,13 +2074,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2147,23 +2092,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2176,13 +2110,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "2ndポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2204,13 +2137,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "3rdポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2223,13 +2155,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2242,23 +2173,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2271,13 +2191,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "3rdポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2290,13 +2209,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "3rdポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2318,13 +2236,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2337,23 +2254,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2366,13 +2272,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2385,13 +2290,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2404,13 +2308,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2432,23 +2335,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2461,23 +2353,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2490,23 +2371,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2519,23 +2389,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2548,23 +2407,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -2788,6 +2636,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -2820,6 +2672,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -2852,6 +2708,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -2884,6 +2744,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -2916,6 +2780,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -2948,6 +2816,10 @@
     {
      "type": "category",
      "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -3419,13 +3291,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "2ndポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3438,13 +3309,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "3rdポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3457,13 +3327,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3476,23 +3345,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3505,13 +3363,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "2ndポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3533,13 +3390,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "3rdポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3552,13 +3408,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3571,23 +3426,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3600,13 +3444,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "3rdポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3619,13 +3462,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "3rdポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3647,13 +3489,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3666,23 +3507,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3695,13 +3525,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3714,13 +3543,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3733,13 +3561,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "4thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3761,23 +3588,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3790,23 +3606,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3819,23 +3624,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3848,23 +3642,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },
@@ -3877,23 +3660,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "feature",
-     "category": "position",
-     "name": "5thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "6thポジション"
-    },
-    {
-     "type": "feature",
-     "category": "position",
-     "name": "7thポジション"
+     "type": "category",
+     "category": "position_shift"
     },
     {
      "type": "category",
-     "category": "arpeggio"
+     "category": "fingering"
     }
    ]
   },

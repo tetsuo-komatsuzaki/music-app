@@ -37,6 +37,22 @@ export function tabOf(d: SubtaskDef): RecoCategory | null {
 
 const ORDER: RecoCategory[] = ["pitch", "position", "technique", "fingering"]
 
+/**
+ * タブごとに、どのカテゴリの教材から選ぶか (2026-09-04 Tetsuo確定)。
+ * 絞らないと必ずエチュードが勝つ。エチュードは長いので回数で圧勝し、
+ * ★6以下では31項目すべてでカイザーが出ていた。
+ *   ポジション移動 = position_shift ・ fingering
+ *   わざ           = etude
+ *   フィンガリング   = fingering
+ * 音程は未確定。暫定で音の動きを扱う3カテゴリにしてある。
+ */
+const TAB_CATEGORIES: Record<RecoCategory, string[]> = {
+  pitch: ["scale", "arpeggio", "double_stop"],
+  position: ["position_shift", "fingering"],
+  technique: ["etude"],
+  fingering: ["fingering"],
+}
+
 type Focus = { def: SubtaskDef; successPct: number; total: number }
 
 /** ユーザーの★。オンボの進行を正とし、無ければ演奏実績の最高★ */
@@ -55,14 +71,18 @@ async function userStar(userId: string): Promise<number> {
   return progress?.currentStar ?? perf?.score.star ?? 1
 }
 
-/** その課題がいちばん多く出てくる教材。★以下に絞る */
-async function topMaterial(subtaskId: string, star: number): Promise<RecoMaterial | null> {
+/** その課題がいちばん多く出てくる教材。タブのカテゴリと★以下に絞る */
+async function topMaterial(
+  subtaskId: string,
+  star: number,
+  categories: string[]
+): Promise<RecoMaterial | null> {
   const row = await prisma.practiceItemSubtaskCount.findFirst({
     where: {
       subtaskId,
       practiceItem: {
         isPublished: true,
-        category: { not: "lesson" },
+        category: { in: categories as never },
         star: { not: null, lte: star },
       },
     },
@@ -128,7 +148,7 @@ export async function buildPersonalReco(userId: string): Promise<PersonalReco | 
     ORDER.map(async (key): Promise<RecoTab> => {
       const f = best.get(key)
       if (!f) return { key, focus: null, materials: [], basics: false }
-      const m = await topMaterial(f.def.id, star)
+      const m = await topMaterial(f.def.id, star, TAB_CATEGORIES[key])
       return {
         key,
         focus: { name: f.def.name, successPct: f.successPct },
