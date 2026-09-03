@@ -21,8 +21,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "2ndポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -35,8 +40,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "3rdポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -49,8 +59,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -63,8 +78,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -77,8 +107,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "2ndポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -100,8 +135,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "3rdポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -114,8 +154,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -128,8 +173,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -142,8 +202,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "3rdポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -156,8 +221,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "3rdポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -179,8 +249,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -193,8 +268,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -207,8 +297,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -221,8 +316,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -235,8 +335,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -258,8 +363,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -272,8 +392,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -286,8 +421,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -300,8 +450,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -314,8 +479,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -778,7 +958,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -806,7 +990,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -834,7 +1022,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -862,7 +1054,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -890,7 +1086,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -918,7 +1118,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -950,7 +1154,7 @@
     },
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
     }
    ]
   },
@@ -963,7 +1167,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "basic"
+     "type": "category",
+     "category": "bowing"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -976,7 +1185,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "basic"
+     "type": "category",
+     "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "fingering"
     }
    ]
   },
@@ -989,7 +1203,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "basic"
+     "type": "category",
+     "category": "fingering"
+    },
+    {
+     "type": "category",
+     "category": "bowing"
     }
    ]
   },
@@ -1395,7 +1614,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -1423,7 +1646,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -1451,7 +1678,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -1479,7 +1710,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -1507,7 +1742,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -1535,7 +1774,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -1567,7 +1810,7 @@
     },
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
     }
    ]
   },
@@ -1847,8 +2090,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "2ndポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -1861,8 +2109,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "3rdポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -1875,8 +2128,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -1889,8 +2147,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -1903,8 +2176,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "2ndポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -1926,8 +2204,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "3rdポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -1940,8 +2223,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -1954,8 +2242,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -1968,8 +2271,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "3rdポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -1982,8 +2290,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "3rdポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2005,8 +2318,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2019,8 +2337,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2033,8 +2366,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2047,8 +2385,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2061,8 +2404,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2084,8 +2432,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2098,8 +2461,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2112,8 +2490,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2126,8 +2519,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2140,8 +2548,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2346,7 +2769,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -2374,7 +2801,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -2402,7 +2833,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -2430,7 +2865,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -2458,7 +2897,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -2486,7 +2929,11 @@
    "material_query": [
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
+    },
+    {
+     "type": "category",
+     "category": "arpeggio"
     }
    ]
   },
@@ -2518,7 +2965,7 @@
     },
     {
      "type": "category",
-     "category": "scale"
+     "category": "etude"
     }
    ]
   },
@@ -2531,7 +2978,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "basic"
+     "type": "category",
+     "category": "bowing"
+    },
+    {
+     "type": "category",
+     "category": "etude"
     }
    ]
   },
@@ -2544,7 +2996,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "basic"
+     "type": "category",
+     "category": "arpeggio"
+    },
+    {
+     "type": "category",
+     "category": "fingering"
     }
    ]
   },
@@ -2557,7 +3014,12 @@
    "diagnosable": true,
    "material_query": [
     {
-     "type": "basic"
+     "type": "category",
+     "category": "fingering"
+    },
+    {
+     "type": "category",
+     "category": "bowing"
     }
    ]
   },
@@ -2957,8 +3419,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "2ndポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2971,8 +3438,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "3rdポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2985,8 +3457,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -2999,8 +3476,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3013,8 +3505,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "2ndポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3036,8 +3533,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "3rdポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3050,8 +3552,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3064,8 +3571,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3078,8 +3600,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "3rdポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3092,8 +3619,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "3rdポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3115,8 +3647,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3129,8 +3666,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3143,8 +3695,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3157,8 +3714,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3171,8 +3733,13 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "4thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3194,8 +3761,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3208,8 +3790,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3222,8 +3819,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3236,8 +3848,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },
@@ -3250,8 +3877,23 @@
    "diagnosable": true,
    "material_query": [
     {
+     "type": "feature",
+     "category": "position",
+     "name": "5thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "6thポジション"
+    },
+    {
+     "type": "feature",
+     "category": "position",
+     "name": "7thポジション"
+    },
+    {
      "type": "category",
-     "category": "position_shift"
+     "category": "arpeggio"
     }
    ]
   },

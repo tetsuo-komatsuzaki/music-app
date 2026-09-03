@@ -14,48 +14,15 @@ import { useState } from "react"
 import Link from "next/link"
 import styles from "./PersonalRecoCard.module.css"
 import { formatKey } from "@/app/_libs/musicNotation"
+import {
+  RECO_TAB_LABELS,
+  RECO_TAB_NOTES,
+  type PersonalReco,
+  type RecoCategory,
+  type RecoTab,
+} from "@/app/_libs/personalRecoTypes"
 
-/** タブの分類。記録の分析 / わざの詳細 と同じ切り口に揃える */
-export type RecoCategory = "pitch" | "position" | "technique" | "fingering"
-
-export const RECO_TAB_LABELS: Record<RecoCategory, string> = {
-  pitch: "音程",
-  position: "ポジション移動",
-  technique: "わざ",
-  fingering: "フィンガリング",
-}
-
-/** タブごとの一言。見出しの下に1行だけ出す */
-const RECO_TAB_NOTES: Record<RecoCategory, string> = {
-  pitch: "音の高さがずれやすいところに効く練習",
-  position: "左手を動かしたあとの音に効く練習",
-  technique: "スラーやスタッカートなどのわざに効く練習",
-  fingering: "指を切り替える時間が短い音に効く練習",
-}
-
-export type RecoMaterial = {
-  id: string
-  title: string
-  /** practice のカテゴリ (scale / arpeggio / etude / bowing / fingering / doublestop) */
-  category: string
-  star: number | null
-  keyTonic: string
-  keyMode: string
-}
-
-export type RecoTab = {
-  key: RecoCategory
-  /** いま一番効く課題。null = 判定できる音がまだ足りない */
-  focus: { name: string; successPct: number } | null
-  /** おすすめ教材。空 = 課題は出たが在庫が無い */
-  materials: RecoMaterial[]
-  /** focus が null のときに出す「あと◯回」の残り回数。null = 回数が読めない */
-  remaining: number | null
-}
-
-export type PersonalReco = {
-  tabs: RecoTab[]
-}
+export type { RecoCategory, RecoMaterial, RecoTab, PersonalReco } from "@/app/_libs/personalRecoTypes"
 
 export default function PersonalRecoCard({
   userId,
@@ -97,7 +64,9 @@ export default function PersonalRecoCard({
       </div>
 
       <div className={styles.panel} role="tabpanel">
-        <p className={styles.note}>{RECO_TAB_NOTES[tab.key]}</p>
+        <p className={styles.note}>
+          {tab.basics ? "まずはここからやってみよう" : RECO_TAB_NOTES[tab.key]}
+        </p>
         <TabBody tab={tab} userId={userId} />
       </div>
     </section>
@@ -107,11 +76,7 @@ export default function PersonalRecoCard({
 function TabBody({ tab, userId }: { tab: RecoTab; userId: string }) {
   if (!tab.focus) {
     return (
-      <div className={styles.empty}>
-        {tab.remaining !== null
-          ? `あと${tab.remaining}回録音すると表示`
-          : "録音がたまると表示"}
-      </div>
+      <div className={styles.empty}>録音がたまると表示</div>
     )
   }
 

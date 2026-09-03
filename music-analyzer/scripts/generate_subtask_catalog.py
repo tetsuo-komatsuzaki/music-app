@@ -88,18 +88,34 @@ _DOUBLE_FEATURE = {"third": "3度", "fourth": "4度", "fifth": "5度",
                    "sixth": "6度", "octave": "オクターブ", "other": "その他"}
 
 
+# ポジション移動の教材条件 (2026-09-04 修正)。
+# 旧: _CAT("position_shift")。PracticeItem.category にその値は存在せず
+# (実在は scale/etude/arpeggio/bowing/fingering/lesson/double_stop の7つ)、
+# 20課題すべてが構造的に0件を引いていた。書いた時点で外れていた条件。
+# 新: 移動元と移動先のうち高いほうのポジションの FeatureTag。そのポジションに
+# 手が届く教材でなければ移動は起きないので、これが必要条件になる。
+# 第5以上は 5th/6th/7th の順に緩める。最後はアルペジオへ落とす。
+_POS_FEATURE = {"2": ["2nd"], "3": ["3rd"], "4": ["4th"],
+                "5plus": ["5th", "6th", "7th"]}
+
+
 def _pos_shift(prefix: str):
     out = []
+    order = {"1": 1, "2": 2, "3": 3, "4": 4, "5plus": 5}
     for f_id, f_name in POSITIONS:
         for t_id, t_name in POSITIONS:
             same = f_id == t_id
             # ラベルを平易な文章に (2026-08-01 Tetsuo)
             name = (f"{f_name}ポジションの中だけで弾く" if same
                     else f"左手を{f_name}から{t_name}ポジションへ移す")
+            if same:
+                q = []
+            else:
+                high = f_id if order[f_id] >= order[t_id] else t_id
+                q = [_FEAT("position", f"{p}ポジション") for p in _POS_FEATURE[high]]
+                q.append(_CAT("arpeggio"))
             out.append((f"{prefix}_posshift_{f_id}_{t_id}", "position_shift",
-                        name,
-                        not same,  # 同一ポジ内は診断出力から除外(前提条件へ)
-                        [] if same else [_CAT("position_shift")]))
+                        name, not same, q))
     return out
 
 
@@ -132,13 +148,18 @@ def _interval(prefix: str):
             for s_id, s_name in INTERVAL_DIST:
                 # 同一弦×順次 = メロディの既定動作(広い箱) → 診断出力から除外
                 diag = not (c_id == "same" and s_id == "step")
-                # 順次系→音階 / 跳躍系→アルペジオ (教材タグに移弦軸が無いための近似)
-                q = [_CAT("arpeggio" if s_id == "leap" else "scale")]
+                # 跳躍系→アルペジオ。
+                # 順次系は旧 _CAT("scale") だったが、音階は毎日の基礎練で別枠に出す
+                # 判断 (2026-07-25) で推薦の在庫から外れており、条件だけが取り残されて
+                # 恒久的に0件だった。実測では弦をまたぐ順次はエチュードに集中する
+                # (となりの弦=230/256件・弦とばし=該当12〜15件がすべてエチュード)。
+                q = ([_CAT("arpeggio")] if s_id == "leap"
+                     else [_CAT("etude"), _CAT("arpeggio")])
                 name = f"{_ICROSS_TXT[c_id]}{_IMOVE_TXT[(d_id, s_id)]}"
                 out.append((f"{prefix}_interval_{c_id}_{d_id}_{s_id}", "interval_move",
                             name, diag, q))
     out.append((f"{prefix}_interval_unison_crossing", "interval_move",
-                "弦を移っても同じ高さの音を弾く", True, [_CAT("bowing"), _CAT("scale")]))
+                "弦を移っても同じ高さの音を弾く", True, [_CAT("bowing"), _CAT("etude")]))
     return out
 
 
@@ -149,8 +170,16 @@ def _values(prefix: str):
             q = [_FEAT("rhythm", _VALUE_FEATURE[v_id])]
         elif v_id == "dotted":
             q = [_FEAT("rhythm", "付点")]
-        else:  # whole/half/quarter: 教材タグなし → 基礎に立ち返る
-            q = [_BASIC]
+        else:
+            # whole/half/quarter は教材タグが無い。旧 _BASIC は音階を指すが、
+            # 音階は在庫から外れている (2026-07-25) ため恒久的に0件だった。
+            # 実測の適合率で置き換える。
+            #   全音符  = bowing 8% / etude 13% ・ 長い弓の練習に最多30回
+            #   2分音符 = arpeggio 100% (144件すべてに出る)
+            #   4分音符 = fingering 88% / bowing 66%
+            q = {"whole": [_CAT("bowing"), _CAT("etude")],
+                 "half": [_CAT("arpeggio"), _CAT("fingering")],
+                 "quarter": [_CAT("fingering"), _CAT("bowing")]}[v_id]
         out.append((f"{prefix}_value_{v_id}", "note_value", f"{v_name}のリズム", True, q))
     return out
 

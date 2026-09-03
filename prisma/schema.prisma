@@ -16,26 +16,26 @@ enum JobStatus {
 }
 
 model User {
-  id             String        @id @default(cuid())
-  supabaseUserId String        @unique
+  id             String  @id @default(cuid())
+  supabaseUserId String  @unique
   name           String
-  role           Role          @default(student)
+  role           Role    @default(student)
   plan           String? // "plus" = アルコプラス契約中 (Stripe webhook が正を書く)。null = 無料
 
   // ▼ 課金 (2026-08-07 課金設計確定: フリーミアム/週7回/月980円。Stripe が正・DB は写し)
-  stripeCustomerId     String?   @unique
+  stripeCustomerId     String?           @unique
   stripeSubscriptionId String?
   planStatus           String? // Stripe subscription.status の写し (trialing/active/past_due/canceled 等)
   planCurrentPeriodEnd DateTime? // 現契約期間の終了日 (表示用)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  performances   Performance[]
-  scores         Score[]
-  guideState     UserGuideState?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  performances         Performance[]
+  scores               Score[]
+  guideState           UserGuideState?
   // ▼ 報酬体系「ギャラリー」骨組み (2026-08-30)
-  questClears  UserQuestClear[]
-  treasures    UserTreasure[]
-  actionCounts UserActionCount[]
+  questClears          UserQuestClear[]
+  treasures            UserTreasure[]
+  actionCounts         UserActionCount[]
 
   // ▼ 練習メニュー追加分
   practiceItems        PracticeItem[]
@@ -84,30 +84,30 @@ model User {
   favorites Favorite[]
 
   // ▼ 先生ユーザー機能 MVP (2026-07-28): 先生⇄生徒リンク + 宿題。別シェル /teacher。
-  teacherInviteCode   String?          @unique // 先生が発行する招待コード。生徒が入力して紐付け
-  teacherLinks        TeacherStudent[] @relation("teacherLinks") // 自分が先生として持つ生徒
-  studentLinks        TeacherStudent[] @relation("studentLinks") // 自分が生徒として持つ先生
-  assignmentsGiven    Assignment[]     @relation("assignmentTeacher")
-  assignmentsReceived Assignment[]     @relation("assignmentStudent")
-  messagesAsTeacher   Message[]        @relation("msgTeacher")
-  messagesAsStudent   Message[]        @relation("msgStudent")
-  feedbacksAsTeacher  TeacherFeedback[] @relation("fbTeacher")
-  feedbacksAsStudent  TeacherFeedback[] @relation("fbStudent")
-  teacherProfile      TeacherProfile?   @relation("profileTeacher")
-  lessonsAsTeacher    Lesson[]          @relation("lessonTeacher")
-  lessonsAsStudent    Lesson[]          @relation("lessonStudent")
-  observationsAsTeacher TeacherObservation[] @relation("obsTeacher")
-  observationsAsStudent TeacherObservation[] @relation("obsStudent")
-  materialNotesAsTeacher TeacherMaterialNote[] @relation("matNoteTeacher")
-  materialNotesAsStudent TeacherMaterialNote[] @relation("matNoteStudent")
-  practiceKartesAsTeacher PracticeKarte[] @relation("pkTeacher")
-  practiceKartesAsStudent PracticeKarte[] @relation("pkStudent")
-  markedCellsAsTeacher    TeacherMarkedCell[] @relation("mcTeacher")
-  markedCellsAsStudent    TeacherMarkedCell[] @relation("mcStudent")
-  exprClearsAsTeacher   UserExpressionClear[] @relation("exprClearTeacher")
-  exprClearsAsStudent   UserExpressionClear[] @relation("exprClearStudent")
-  listenRequestsAsTeacher ListenRequest[] @relation("listenReqTeacher")
-  listenRequestsAsStudent ListenRequest[] @relation("listenReqStudent")
+  teacherInviteCode       String?               @unique // 先生が発行する招待コード。生徒が入力して紐付け
+  teacherLinks            TeacherStudent[]      @relation("teacherLinks") // 自分が先生として持つ生徒
+  studentLinks            TeacherStudent[]      @relation("studentLinks") // 自分が生徒として持つ先生
+  assignmentsGiven        Assignment[]          @relation("assignmentTeacher")
+  assignmentsReceived     Assignment[]          @relation("assignmentStudent")
+  messagesAsTeacher       Message[]             @relation("msgTeacher")
+  messagesAsStudent       Message[]             @relation("msgStudent")
+  feedbacksAsTeacher      TeacherFeedback[]     @relation("fbTeacher")
+  feedbacksAsStudent      TeacherFeedback[]     @relation("fbStudent")
+  teacherProfile          TeacherProfile?       @relation("profileTeacher")
+  lessonsAsTeacher        Lesson[]              @relation("lessonTeacher")
+  lessonsAsStudent        Lesson[]              @relation("lessonStudent")
+  observationsAsTeacher   TeacherObservation[]  @relation("obsTeacher")
+  observationsAsStudent   TeacherObservation[]  @relation("obsStudent")
+  materialNotesAsTeacher  TeacherMaterialNote[] @relation("matNoteTeacher")
+  materialNotesAsStudent  TeacherMaterialNote[] @relation("matNoteStudent")
+  practiceKartesAsTeacher PracticeKarte[]       @relation("pkTeacher")
+  practiceKartesAsStudent PracticeKarte[]       @relation("pkStudent")
+  markedCellsAsTeacher    TeacherMarkedCell[]   @relation("mcTeacher")
+  markedCellsAsStudent    TeacherMarkedCell[]   @relation("mcStudent")
+  exprClearsAsTeacher     UserExpressionClear[] @relation("exprClearTeacher")
+  exprClearsAsStudent     UserExpressionClear[] @relation("exprClearStudent")
+  listenRequestsAsTeacher ListenRequest[]       @relation("listenReqTeacher")
+  listenRequestsAsStudent ListenRequest[]       @relation("listenReqStudent")
 
   // ▼ シェア機能 (2026-08-03): SNS公開リンク+OGP動的画像
   shareCards ShareCard[]
@@ -167,7 +167,7 @@ model Score {
   exprFeatures     Json?
   // ▼ 雰囲気タグ (2026-08-05確定): 統一語彙台帳 (moodTags.ts) のID。曲を聴いて admin が手動設定。
   // 曲側=手動 / 演奏側=将来AI判定 (同じ語彙)。手動タグは将来のAI学習の正解データにもなる
-  moodTags         String[] @default([])
+  moodTags         String[]       @default([])
   isShared         Boolean        @default(false) // true=全ユーザー閲覧可のサンプル
 
   // ループエンジン用フィールド (2026-05-10 追加 / v1.3 で difficulty → star リネーム)
@@ -183,18 +183,18 @@ model Score {
   ownerScope String @default("admin")
 
   // ▼ 工程F: 特徴タグ・数値系カラム (2026-07-10, 設計書§14/§19-1)
-  pitchMin  Int? // 音域下限 (MIDI)。analyze_musicxml 層1拡張(工程A)で投入
-  pitchMax  Int? // 音域上限 (MIDI)
-  positions Int[] @default([]) // 音高的に必要なポジション構成(推定) §19-1
+  pitchMin        Int? // 音域下限 (MIDI)。analyze_musicxml 層1拡張(工程A)で投入
+  pitchMax        Int? // 音域上限 (MIDI)
+  positions       Int[]   @default([]) // 音高的に必要なポジション構成(推定) §19-1
   // 主属性 (毎日の基礎練の②③照合用・2026-08-10)。解析器が notes から算出。
   // primaryBowing: スラー除外→技術★最大→同★は最頻。無ければ null。
   // primaryPosition: 非1stの最頻(同数は高い方)。無ければ null。
   primaryBowing   String? // 主弓奏法 (TechniqueTag名。例 "スタッカート")
   primaryPosition Int? // 主ポジション (2以上)
 
-  createdAt    DateTime      @default(now())
-  deletedAt    DateTime? // 論理削除フラグ (NULL=有効、値あり=削除済み)
-  performances Performance[]
+  createdAt      DateTime        @default(now())
+  deletedAt      DateTime? // 論理削除フラグ (NULL=有効、値あり=削除済み)
+  performances   Performance[]
   practiceKartes PracticeKarte[] // 練習後カルテ (曲にぶら下がる・2026-08-11)
 
   // ▼ v1.3 上達ループエンジン (back-references)
@@ -215,8 +215,8 @@ model Score {
   onboardingSongs OnboardingSong[]
 
   // ▼ お気に入り (2026-07-20)
-  favorites   Favorite[]
-  assignments Assignment[] // 先生機能: この曲を対象にした宿題
+  favorites         Favorite[]
+  assignments       Assignment[] // 先生機能: この曲を対象にした宿題
   // ▼ わざマスターの課題曲 (2026-09-01)
   skillMasterySongs SkillMasterySong[]
 
@@ -241,7 +241,7 @@ model Performance {
   performanceDuration  Float?
   recordingBpm         Float? // 録音時のテンポガイドbpm (2026-08-03 カルテv2: テンポ帯分析用。旧録音はnull)
   guideOffsetSec       Float? // 1拍目(楽譜の起点)が録音の何秒目か (2026-08-27)。
-                              // リズム判定の基準。アプリ版のみ・Web版と旧録音はnull
+  // リズム判定の基準。アプリ版のみ・Web版と旧録音はnull
   performanceDate      DateTime?
   uploadedAt           DateTime          @default(now())
   createdAt            DateTime          @default(now())
@@ -404,25 +404,25 @@ model PracticeItem {
 
   // ▼ 教材グループ・変種 (2026-07-18): PracticeItem = エチュード/基礎練の変種。
   // エチュード=難易度+範囲 / 基礎練=調(keyTonic)+奏法(articulation)。
-  groupId      String? // MaterialGroup。backfill で 1:1 付与
-  group        MaterialGroup? @relation(fields: [groupId], references: [id])
-  difficulty   Difficulty? // エチュードの難易度
-  articulation String? // 基礎練の奏法 (legato/staccato/martele/slur ...)
+  groupId            String? // MaterialGroup。backfill で 1:1 付与
+  group              MaterialGroup? @relation(fields: [groupId], references: [id])
+  difficulty         Difficulty? // エチュードの難易度
+  articulation       String? // 基礎練の奏法 (legato/staccato/martele/slur ...)
   // ▼ アップロード改修 (2026-08-24): 音符ごとの奏法割り当てレシピ
   // {name, unitMeasures, assignments:[{noteIndex, articulation}], appliedKeys:["A"|"all"...], sourceItemId}
   articulationRecipe Json?
   // ▼ パートを独立教材にする (2026-08-25 案B): 小節範囲だけを切り出した実体。
   // 譜面・解析・採点・カルテのすべてがその範囲だけになる。
-  partId       String? // MaterialGroup.parts 内のパートid。null=通し
-  variantRecipe Json?  // {rules:[{type:"measure_range",from,to}], sourcePartId, sourceItemId}
+  partId             String? // MaterialGroup.parts 内のパートid。null=通し
+  variantRecipe      Json? // {rules:[{type:"measure_range",from,to}], sourcePartId, sourceItemId}
   // ▼ ★の食い違い検知 (2026-08-25): 譜面の技術タグから機械計算した★。
   // star (人が入れた値) と食い違うと管理画面で警告を出す。star は上書きしない。
-  autoStar     Int?
+  autoStar           Int?
   // ▼ リズムパターン変種 (2026-08-24): くり返し単位のリズムを組み替えて全反復に適用
   // {name, unitMeasures, notes:[{base:"w|h|q|e|s|t", dot, triplet, pitchNo, articulation, slurId}], sourceItemId}
   // pitchNo = 単位内の元音符の通し番号 (1始まり) で高さを引き継ぐ
-  rhythmRecipe Json?
-  sections     Json? // エチュードの分割 [{name,startMeasure,endMeasure}]
+  rhythmRecipe       Json?
+  sections           Json? // エチュードの分割 [{name,startMeasure,endMeasure}]
 
   keyTonic   String
   keyMode    String
@@ -432,8 +432,8 @@ model PracticeItem {
   instrument String   @default("violin")
 
   // ▼ 工程F: 音域 (2026-07-10, 設計書§19-1)
-  pitchMin Int? // MIDI。工程Aで投入
-  pitchMax Int?
+  pitchMin        Int? // MIDI。工程Aで投入
+  pitchMax        Int?
   // 主属性 (毎日の基礎練の②③照合用・2026-08-10)。Score と同ルールで解析器が算出。
   primaryBowing   String? // 主弓奏法 (TechniqueTag名)
   primaryPosition Int? // 主ポジション (2以上)
@@ -482,10 +482,13 @@ model PracticeItem {
   lessonPlays UserLessonPlay[]
 
   // ▼ お気に入り (2026-07-20)
-  favorites   Favorite[]
-  assignments Assignment[] // 先生機能: この教材を対象にした宿題
+  favorites            Favorite[]
+  assignments          Assignment[] // 先生機能: この教材を対象にした宿題
   teacherMaterialNotes TeacherMaterialNote[] // 先生の練習ポイント (宿題ではない・2026-08-11)
   practiceKartes       PracticeKarte[] // 練習後カルテ (教材にぶら下がる・2026-08-11)
+
+  // ▼ おすすめエンジン (2026-09-04): 課題ごとの出現回数
+  subtaskCounts PracticeItemSubtaskCount[]
 
   @@index([category, keyTonic, keyMode])
   @@index([category, isPublished, sortOrder])
@@ -536,7 +539,7 @@ model PracticePerformance {
   performanceDuration  Float?
   recordingBpm         Float? // 録音時のテンポガイドbpm (2026-08-03 カルテv2: テンポ帯分析用。旧録音はnull)
   guideOffsetSec       Float? // 1拍目(楽譜の起点)が録音の何秒目か (2026-08-27)。
-                              // リズム判定の基準。アプリ版のみ・Web版と旧録音はnull
+  // リズム判定の基準。アプリ版のみ・Web版と旧録音はnull
   uploadedAt           DateTime @default(now())
 
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -1250,28 +1253,28 @@ model TeacherStudent {
 // 宿題 (ch5-3)。先生が「曲 or 教材・対象小節・回数・目標テンポ・コメント」を割当。
 // 生徒ホームに出て既存の練習ループへ着地する。将来: 提出/添削は関連テーブルで拡張。
 model Assignment {
-  id             String    @id @default(cuid())
-  teacherId      String
-  studentId      String
-  scoreId        String? // 対象が曲のとき
-  practiceItemId String? // 対象が教材のとき
-  targetMeasures String? // "1-4" 等、対象小節(自由入力)
-  reps           Int? // 練習回数
-  targetTempo    Int? // 目標テンポ(BPM)
-  comment        String? // 生徒へのコメント
+  id                     String    @id @default(cuid())
+  teacherId              String
+  studentId              String
+  scoreId                String? // 対象が曲のとき
+  practiceItemId         String? // 対象が教材のとき
+  targetMeasures         String? // "1-4" 等、対象小節(自由入力)
+  reps                   Int? // 練習回数
+  targetTempo            Int? // 目標テンポ(BPM)
+  comment                String? // 生徒へのコメント
   // ▼ 2026-08-01: 締め切り + 合格条件 (①提出期限 ②目標点数 or 達成)
-  dueDate        DateTime? // 提出期限(任意)
-  goalType       String? // 合格条件の種類: "score"=目標点数 / "achieve"=達成
-  targetScore    Int? // goalType=score のときの合格ライン(0-100)
+  dueDate                DateTime? // 提出期限(任意)
+  goalType               String? // 合格条件の種類: "score"=目標点数 / "achieve"=達成
+  targetScore            Int? // goalType=score のときの合格ライン(0-100)
   // ▼ 2026-08-05: 意識する表現 (統一雰囲気タグ台帳 moodTags.ts のID・1つ)。先生が「この曲では◯◯を意識しよう」と目標を出す
-  moodTagId      String?
-  doneAt         DateTime? // 生徒が完了にした時刻(任意)
-  passedAt       DateTime? // 先生が「合格」にした時刻 (2026-08-11: クリア=提出→先生の合格)
+  moodTagId              String?
+  doneAt                 DateTime? // 生徒が完了にした時刻(任意)
+  passedAt               DateTime? // 先生が「合格」にした時刻 (2026-08-11: クリア=提出→先生の合格)
   // ▼ 提出 (2026-07-29 Phase1.5): 生徒が録音を紐付けて提出。先生に点数ごと届く。
-  submittedAt           DateTime? // 提出時刻
+  submittedAt            DateTime? // 提出時刻
   submittedPerformanceId String? // 提出した演奏ID(Performance or PracticePerformance・ゆるい参照)
-  submittedScore        Float? // 提出時の点数(音程×リズム平均)
-  createdAt      DateTime  @default(now())
+  submittedScore         Float? // 提出時の点数(音程×リズム平均)
+  createdAt              DateTime  @default(now())
 
   teacher      User          @relation("assignmentTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
   student      User          @relation("assignmentStudent", fields: [studentId], references: [id], onDelete: Cascade)
@@ -1284,18 +1287,18 @@ model Assignment {
 
 // 先生⇔生徒の短文メッセージ (2026-07-28 Phase1.5)。fromTeacher で向きを表す。
 model Message {
-  id          String    @id @default(cuid())
-  teacherId   String
-  studentId   String
-  fromTeacher Boolean // true=先生→生徒 / false=生徒→先生(質問)
-  body        String
-  readAt      DateTime? // 受け手が読んだ時刻
+  id              String    @id @default(cuid())
+  teacherId       String
+  studentId       String
+  fromTeacher     Boolean // true=先生→生徒 / false=生徒→先生(質問)
+  body            String
+  readAt          DateTime? // 受け手が読んだ時刻
   // ▼ 2026-08-01: メッセージを生徒の演奏に紐づける(ゆるい参照)。null=通常メッセージ
   performanceId   String? // Performance or PracticePerformance の id
   performanceKind String? // "score" | "practice"
   // ▼ 2026-08-02: メッセージ種別。"celebration"=お祝い(達成を一緒に祝う)。null=通常
-  kind        String?
-  createdAt   DateTime  @default(now())
+  kind            String?
+  createdAt       DateTime  @default(now())
 
   teacher User @relation("msgTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
   student User @relation("msgStudent", fields: [studentId], references: [id], onDelete: Cascade)
@@ -1339,13 +1342,12 @@ model TeacherObservation {
   comment   String? // 任意の補足 (「その他」タグの内容もここ)
   createdAt DateTime @default(now())
 
-  teacher User @relation("obsTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
-  student User @relation("obsStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher User    @relation("obsTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  student User    @relation("obsStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  karteId String? // 一緒に送られた練習後カルテ (2026-08-11 案A: カルテごとのセット表示用)
 
   @@index([studentId, createdAt])
   @@index([teacherId, studentId, createdAt])
-  karteId String? // 一緒に送られた練習後カルテ (2026-08-11 案A: カルテごとのセット表示用)
-
   @@index([karteId])
 }
 
@@ -1364,13 +1366,12 @@ model TeacherMarkedCell {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  teacher User @relation("mcTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
-  student User @relation("mcStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher User    @relation("mcTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  student User    @relation("mcStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  karteId String? // 一緒に送られた練習後カルテ (2026-08-11 案A)
 
   @@unique([teacherId, studentId, cellId])
   @@index([studentId])
-  karteId String? // 一緒に送られた練習後カルテ (2026-08-11 案A)
-
   @@index([karteId])
 }
 
@@ -1416,17 +1417,17 @@ model TeacherMaterialNote {
 
 // 先生プロフィール (2026-08-01 Phase2)。先生が自分で編集。「先生を探す」ページに掲載。
 model TeacherProfile {
-  id          String   @id @default(cuid())
-  teacherId   String   @unique
-  headline    String? // 一言(例: 移弦とリズムが得意)
-  bio         String? // 自己紹介
-  specialties String[] // 得意タグ(例: 移弦/リズム/初心者/ビブラート)
-  levels      String[] // 対応レベル(初級/中級/上級)
-  forKids     Boolean  @default(false) // 子どもOK
-  online      Boolean  @default(true) // オンライン対応
-  priceNote   String? // 料金(自由テキスト)
-  trial       Boolean  @default(false) // 体験レッスン可
-  sampleUrl   String? // 演奏サンプル/動画URL
+  id           String   @id @default(cuid())
+  teacherId    String   @unique
+  headline     String? // 一言(例: 移弦とリズムが得意)
+  bio          String? // 自己紹介
+  specialties  String[] // 得意タグ(例: 移弦/リズム/初心者/ビブラート)
+  levels       String[] // 対応レベル(初級/中級/上級)
+  forKids      Boolean  @default(false) // 子どもOK
+  online       Boolean  @default(true) // オンライン対応
+  priceNote    String? // 料金(自由テキスト)
+  trial        Boolean  @default(false) // 体験レッスン可
+  sampleUrl    String? // 演奏サンプル/動画URL
   // ▼ 2026-08-01 プロフィール充実: 写真/経歴/指導方針/地域/対応時間/対象年齢/ジャンル
   photoUrl     String? // 顔写真(画像URL)
   career       String? // 経歴・実績(指導年数/出身/受賞 等)
@@ -1435,9 +1436,9 @@ model TeacherProfile {
   availability String? // 対応できる曜日・時間帯(目安)
   ages         String[] @default([]) // 対象年齢(未就学/小学生/中高生/大人/シニア)
   genres       String[] @default([]) // ジャンル(クラシック/ポップス/ジャズ 等)
-  published   Boolean  @default(false) // 「先生を探す」に掲載する
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  published    Boolean  @default(false) // 「先生を探す」に掲載する
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   teacher User @relation("profileTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
 
@@ -1513,14 +1514,13 @@ model UserExpressionClear {
   starAtClear Int // クリア時の曲の★ (スナップショット)
   clearedAt   DateTime @default(now())
 
-  student User  @relation("exprClearStudent", fields: [userId], references: [id], onDelete: Cascade)
-  teacher User  @relation("exprClearTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
-  score   Score @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+  student User    @relation("exprClearStudent", fields: [userId], references: [id], onDelete: Cascade)
+  teacher User    @relation("exprClearTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  score   Score   @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+  karteId String? // 一緒に送られた練習後カルテ (2026-08-11 案A)
 
   @@unique([userId, moodTagId, scoreId])
   @@index([userId, moodTagId])
-  karteId String? // 一緒に送られた練習後カルテ (2026-08-11 案A)
-
   @@index([karteId])
 }
 
@@ -1561,7 +1561,7 @@ model ScoreRecPin {
 model WaitlistEntry {
   id        String   @id @default(cuid())
   email     String   @unique
-  source    String?  // 登録経路 (lp等)
+  source    String? // 登録経路 (lp等)
   createdAt DateTime @default(now())
 }
 
@@ -1569,16 +1569,16 @@ model WaitlistEntry {
 // 進行・完了はサーバー保存 (localStorage禁止・端末跨ぎ再表示の欠陥を繰り返さない)。
 // 出す条件: 未完了かつ未スキップ (既存ユーザーにも出す)。先生ロールには出さない。
 model UserGuideState {
-  userId           String    @id
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  firstLoopStep    Int       @default(0) // 途中離脱は続きから再開
-  completedAt      DateTime? // 完了 or スキップが入ったら二度と出さない
-  skippedAt        DateTime?
-  quests           Json      @default("{}") // 旧クエスト進行 (骨組み移行後は UserQuestClear が正・読取廃止予定)
+  userId              String    @id
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstLoopStep       Int       @default(0) // 途中離脱は続きから再開
+  completedAt         DateTime? // 完了 or スキップが入ったら二度と出さない
+  skippedAt           DateTime?
+  quests              Json      @default("{}") // 旧クエスト進行 (骨組み移行後は UserQuestClear が正・読取廃止予定)
   treasureNoticeAt    DateTime? // 遡及分「宝物が届いています」お知らせの既読 (報酬体系・2026-08-30)
   treasureEvaluatedAt DateTime? // カウンター評価器の初回実行時刻。null=未評価 → 初回は遡及扱い (演出なしで棚へ)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 }
 
 // ============================================================================
@@ -1629,4 +1629,26 @@ model UserActionCount {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, action])
+}
+
+/// 教材の中に各課題が何回出てくるか (2026-09-04)。
+/// おすすめの規則 = ユーザーの★以下の教材から、その課題がいちばん多く出てくる1件。
+/// 回数は musicxml_skill_info.json を読まないと出せず、表示のたびに1000件読むのは
+/// 不可能なので事前に数えて置く。数え方は lib/diagnosis.py の _context_suffixes を
+/// そのまま使う (ユーザーの演奏を判定するのと同じ関数)。
+/// 投入: music-analyzer/scripts/build_material_subtask_counts.py
+model PracticeItemSubtaskCount {
+  id             String   @id @default(cuid())
+  practiceItemId String
+  subtaskId      String
+  /// この課題が教材の中に出てくる回数
+  count          Int
+  /// 教材の全音符数 (休符を除く)。密度を出したいときに使う
+  noteTotal      Int
+  updatedAt      DateTime @default(now()) @updatedAt
+
+  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
+
+  @@unique([practiceItemId, subtaskId])
+  @@index([subtaskId, count])
 }

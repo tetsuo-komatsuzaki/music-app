@@ -766,9 +766,22 @@ export default async function HomePage({ params }: PageProps) {
     } catch { treasureQueue = [] }
   }
 
+  // あなた専用のおすすめ練習 (2026-09-04)。曲ではなくユーザーの累積の苦手に効く練習。
+  // ガイド中と先生ロールでは出さない。失敗してもホームは落とさない
+  let personalReco: import("../_libs/personalRecoTypes").PersonalReco | null = null
+  if (dbUser.role !== "teacher" && !guideActive && dbUser.deletedAt == null) {
+    try {
+      const perfT0 = performance.now()
+      const { buildPersonalReco } = await import("../_libs/personalReco")
+      personalReco = await buildPersonalReco(internalUserId)
+      console.log(`[PERF] home personal reco: ${(performance.now() - perfT0).toFixed(0)}ms`)
+    } catch { personalReco = null }
+  }
+
   return (
     <HomeClient
       guide={guide}
+      personalReco={personalReco}
       questProgress={questProgress}
       homeQuestClears={homeQuestClears}
       coinQueue={coinQueue}

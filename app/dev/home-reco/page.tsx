@@ -18,13 +18,13 @@ const FULL: PersonalReco = {
         { id: "m1", title: "アルペジオ 2オクターブ", category: "arpeggio", star: 2, keyTonic: "G", keyMode: "major" },
         { id: "m2", title: "音階 2オクターブ", category: "scale", star: 2, keyTonic: "D", keyMode: "major" },
       ],
-      remaining: null,
+      basics: false,
     },
     {
       key: "position",
       focus: { name: "左手を第2から第3ポジションへ移す", successPct: 95 },
       materials: [],
-      remaining: null,
+      basics: false,
     },
     {
       key: "technique",
@@ -32,7 +32,7 @@ const FULL: PersonalReco = {
       materials: [
         { id: "m3", title: "ボーイング スラー4音", category: "bowing", star: 2, keyTonic: "A", keyMode: "major" },
       ],
-      remaining: null,
+      basics: false,
     },
     {
       key: "fingering",
@@ -41,18 +41,18 @@ const FULL: PersonalReco = {
         { id: "m4", title: "フィンガリング 1-2-3-4 連続", category: "fingering", star: 2, keyTonic: "G", keyMode: "major" },
         { id: "m5", title: "エチュード カイザー No.1", category: "etude", star: 3, keyTonic: "C", keyMode: "major" },
       ],
-      remaining: null,
+      basics: false,
     },
   ],
 }
 
 // 判定できる音がまだ足りない状態
 const EMPTY: PersonalReco = {
-  tabs: (["pitch", "position", "technique", "fingering"] as const).map((key, i) => ({
+  tabs: (["pitch", "position", "technique", "fingering"] as const).map((key) => ({
     key,
     focus: null,
     materials: [],
-    remaining: [2, 4, 6, 3][i],
+    basics: false,
   })),
 }
 
