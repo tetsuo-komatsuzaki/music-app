@@ -192,69 +192,14 @@ export function WeaknessSlotList({
   )
 }
 
-// ─── 累積弱点パネル（ホーム用・窓②）: /api/users/[userId]/weakness を fetch ───
-
-export function CumulativeWeaknessPanel({
-  userId,
-  emptyFallback,
-}: {
-  /** URL パラメータの userId (Supabase ID)。API 認可と「練習する →」リンクに使用 */
-  userId: string
-  /** 累積弱点が無い(データ不足含む)ときに出す代替表示 */
-  emptyFallback: React.ReactNode
-}) {
-  const [slots, setSlots] = useState<WeaknessSlot[] | null>(null)
-  const [error, setError] = useState(false)
-
-  useEffect(() => {
-    let aborted = false
-    fetch(`/api/users/${userId}/weakness`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return (await res.json()) as { slots: WeaknessSlot[] }
-      })
-      .then((json) => {
-        if (!aborted) setSlots(json.slots)
-      })
-      .catch(() => {
-        if (!aborted) setError(true)
-      })
-    return () => {
-      aborted = true
-    }
-  }, [userId])
-
-  if (error || (slots !== null && slots.length === 0)) {
-    return <>{emptyFallback}</>
-  }
-  if (slots === null) {
-    return <div className={styles.statusBox}>アルコがのびしろを探している…</div>
-  }
-  return (
-    <>
-      <div className={styles.cumulativeIntro}>
-        これまでの演奏から、いまののびしろポイントはこれ！
-        <br />
-        クリアに向けてのびしろポイントを練習してみよう！
-      </div>
-      <WeaknessSlotList slots={slots} userId={userId} />
-    </>
-  )
-}
-
-// ─── 演奏直後カード（自分で diagnosis API を fetch する版・窓①） ───
-
 type Props = {
   performanceId: string
-  /** "score" = 曲(Performance) / "practice" = 基礎練(PracticePerformance) */
   kind: "score" | "practice"
-  /** 「練習する →」の遷移に使う URL 用 userId (Supabase ID)。無ければリンク非表示 */
   userId?: string
   /** 見出しを出さない (呼び手が独自の見出しを付ける場合) */
   hideHeading?: boolean
-  /** おすすめ教材の行を出さず診断文のみ (教材は「毎日の基礎練」に一本化・2026-07-25 案B) */
+  /** おすすめ教材の行を出さず診断文のみ */
   hideMaterials?: boolean
-  /** 曲詳細から来た場合の元Score ID (教材ページの「曲にもどる」用・2026-08-02) */
   fromScoreId?: string | null
 }
 

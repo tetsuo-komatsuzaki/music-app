@@ -1088,3 +1088,4 @@ https://react.dev/link/hydration-mismatch
 ✓ Finished filesystem cache database compaction in 12.5s
 ✓ Finished filesystem cache database compaction in 15.3s
 ✓ Compiled in 6.4s
+○ Compiling middleware ...

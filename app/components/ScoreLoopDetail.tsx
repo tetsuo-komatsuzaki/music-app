@@ -61,31 +61,13 @@ export default function ScoreLoopDetail({ scoreId, userId, refetchKey }: Props) 
       {/* ゴール進捗カード(GoalTracker)は非表示: ホーム側と情報が重複するため (2026-08-16 Tetsuo指定) */}
 
       {/* ── 2. 学びのポイント — モック LEARN_CARD の写経: DSカード + lab + 行 ── */}
-      <section className={ds.card} style={{ marginTop: 0 }}>
+      {/* 2026-09-03 Tetsuo確定: 伸びしろポイントの節を削除。中身が学びのポイントと同じ
+          DailyLessons で重複していたため。画面ガイドのアンカーはこの節へ付け替え */}
+      <section className={ds.card} style={{ marginTop: 0 }} data-onboarding="scoreDetail.recommendation">
         <h2 className={ds.lab} style={{ margin: 0 }}>学びのポイント</h2>
         <DailyLessons lessons={achv.dailyLessons ?? []} userId={userId} fromScoreId={scoreId} />
       </section>
 
-      {/* ── 3. 伸びしろポイント — モック GROWTH_CARD の写経 (中身は WeaknessDiagnosisCard) ──
-          data-onboarding: 画面ガイドが「おすすめ練習はここ」と指すアンカー。
-          演奏記録が無い場合も emptyHint がこの中に出るため、常に存在する。 */}
-      <section className={ds.card} style={{ marginTop: 0 }} data-onboarding="scoreDetail.recommendation">
-        <h2 className={ds.lab} style={{ margin: "0 0 6px" }}>伸びしろポイント</h2>
-        {achv.latestPerformanceId ? (
-          <WeaknessDiagnosisCard
-            performanceId={achv.latestPerformanceId}
-            kind="score"
-            userId={userId}
-            hideHeading
-            hideMaterials
-            fromScoreId={scoreId}
-          />
-        ) : (
-          <p className={styles.emptyHint}>
-            まだ録音がないよ。弾いてみると、ここに練習のヒントが出るよ
-          </p>
-        )}
-      </section>
     </div>
   )
 }
