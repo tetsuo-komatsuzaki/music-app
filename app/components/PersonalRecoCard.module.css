@@ -16,12 +16,6 @@
   color: var(--text-ink);
 }
 
-.lead {
-  margin: 4px 0 0;
-  font-size: var(--fs-caption);
-  color: var(--text-sub);
-}
-
 /* ───── タブ ───── */
 /* 4つとも常に見えているのが要件。狭い画面では横に流さず2行に折り返す */
 .tabs {
@@ -122,12 +116,6 @@
 .pctUnit {
   font-size: 9.5px;
   margin-left: 1px;
-}
-
-.notes {
-  margin-top: 5px;
-  font-size: var(--fs-caption);
-  color: var(--text-muted);
 }
 
 /* ───── 教材 ───── */

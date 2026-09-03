@@ -13,7 +13,7 @@ const FULL: PersonalReco = {
   tabs: [
     {
       key: "pitch",
-      focus: { name: "同じ弦で高い音へ大きく跳ぶ", successPct: 51, notes: 134 },
+      focus: { name: "同じ弦で高い音へ大きく跳ぶ", successPct: 51 },
       materials: [
         { id: "m1", title: "アルペジオ 2オクターブ", category: "arpeggio", star: 2, keyTonic: "G", keyMode: "major" },
         { id: "m2", title: "音階 2オクターブ", category: "scale", star: 2, keyTonic: "D", keyMode: "major" },
@@ -22,13 +22,13 @@ const FULL: PersonalReco = {
     },
     {
       key: "position",
-      focus: { name: "左手を第2から第3ポジションへ移す", successPct: 95, notes: 20 },
+      focus: { name: "左手を第2から第3ポジションへ移す", successPct: 95 },
       materials: [],
       remaining: null,
     },
     {
       key: "technique",
-      focus: { name: "スラーの中で音を変える", successPct: 68, notes: 92 },
+      focus: { name: "スラーの中で音を変える", successPct: 68 },
       materials: [
         { id: "m3", title: "ボーイング スラー4音", category: "bowing", star: 2, keyTonic: "A", keyMode: "major" },
       ],
@@ -36,7 +36,7 @@ const FULL: PersonalReco = {
     },
     {
       key: "fingering",
-      focus: { name: "指を切り替える時間が短い音", successPct: 74, notes: 261 },
+      focus: { name: "指を切り替える時間が短い音", successPct: 74 },
       materials: [
         { id: "m4", title: "フィンガリング 1-2-3-4 連続", category: "fingering", star: 2, keyTonic: "G", keyMode: "major" },
         { id: "m5", title: "エチュード カイザー No.1", category: "etude", star: 3, keyTonic: "C", keyMode: "major" },

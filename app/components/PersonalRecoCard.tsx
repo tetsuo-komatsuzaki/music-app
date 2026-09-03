@@ -27,10 +27,10 @@ export const RECO_TAB_LABELS: Record<RecoCategory, string> = {
 
 /** タブごとの一言。見出しの下に1行だけ出す */
 const RECO_TAB_NOTES: Record<RecoCategory, string> = {
-  pitch: "音の高さがずれやすいところに効く練習だよ",
-  position: "左手を動かしたあとの音に効く練習だよ",
-  technique: "スラーやスタッカートなどのわざに効く練習だよ",
-  fingering: "指を切り替える時間が短い音に効く練習だよ",
+  pitch: "音の高さがずれやすいところに効く練習",
+  position: "左手を動かしたあとの音に効く練習",
+  technique: "スラーやスタッカートなどのわざに効く練習",
+  fingering: "指を切り替える時間が短い音に効く練習",
 }
 
 export type RecoMaterial = {
@@ -46,7 +46,7 @@ export type RecoMaterial = {
 export type RecoTab = {
   key: RecoCategory
   /** いま一番効く課題。null = 判定できる音がまだ足りない */
-  focus: { name: string; successPct: number; notes: number } | null
+  focus: { name: string; successPct: number } | null
   /** おすすめ教材。空 = 課題は出たが在庫が無い */
   materials: RecoMaterial[]
   /** focus が null のときに出す「あと◯回」の残り回数。null = 回数が読めない */
@@ -77,7 +77,6 @@ export default function PersonalRecoCard({
   return (
     <section className={styles.card}>
       <h2 className={styles.title}>あなた専用のおすすめ練習</h2>
-      <p className={styles.lead}>いままでの録音ぜんぶから、いま効く練習をえらんでいるよ</p>
 
       <div className={styles.tabs} role="tablist" aria-label="おすすめ練習の分類">
         {tabs.map((t) => {
@@ -110,8 +109,8 @@ function TabBody({ tab, userId }: { tab: RecoTab; userId: string }) {
     return (
       <div className={styles.empty}>
         {tab.remaining !== null
-          ? `あと${tab.remaining}回ろくおんすると、ここに練習が出るよ`
-          : "もうすこし録音がたまると、ここに練習が出るよ"}
+          ? `あと${tab.remaining}回録音すると表示`
+          : "録音がたまると表示"}
       </div>
     )
   }
@@ -130,13 +129,10 @@ function TabBody({ tab, userId }: { tab: RecoTab; userId: string }) {
             <small className={styles.pctUnit}>%</small>
           </span>
         </div>
-        <div className={styles.notes}>これまでに{tab.focus.notes}音</div>
       </div>
 
       {tab.materials.length === 0 ? (
-        <div className={styles.empty}>
-          ぴったりの教材はいま準備中。まずは曲の中で、この部分だけゆっくり弾いてみよう
-        </div>
+        <div className={styles.empty}>教材準備中</div>
       ) : (
         <div className={styles.materials}>
           {tab.materials.map((m) => (
