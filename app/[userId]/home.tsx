@@ -8,6 +8,7 @@ import { Music, Sparkles, Palette } from "lucide-react"
 import MyRankCard from "@/app/components/MyRankCard"
 import PracticeFocusCard from "@/app/components/PracticeFocusCard"
 import NextPiecesCard from "@/app/components/NextPiecesCard"
+import PersonalRecoCard, { type PersonalReco } from "@/app/components/PersonalRecoCard"
 import FavoritesSection, { type FavoriteEntry } from "@/app/components/FavoritesSection"
 import TeacherAssignments, { type StudentAssignment, type TeacherHomeSummary } from "./TeacherAssignments"
 import AnalysisNoticeBar, { type AnalysisNotice } from "@/app/components/AnalysisNoticeBar"
@@ -106,6 +107,9 @@ type Props = {
   starterPick: { title: string; star: number | null; reason: string; href: string; cover: string | null } | null
   /** 編み込み案4 (2026-08-03): 直近7日で点灯したわざ (レッスンクリア=正式習得のみ) */
   skillLits: { key: string; label: string }[]
+  /** あなた専用のおすすめ練習 (2026-09-03 案2 タブ)。null=枠ごと非表示。
+      曲に紐づく毎日の基礎練とは別枠で、累積の苦手そのものに効く練習を出す */
+  personalReco?: PersonalReco | null
   /** 表現の棚 (2026-08-06 案2): きみの表現が活きる曲。null=非表示 (認定なし or タグ付き曲なし) */
   exprShelf: { tagLabel: string; star: number; items: { id: string; title: string; star: number | null; cover: string | null }[] } | null
 }
@@ -140,6 +144,7 @@ export default function HomeClient({
   skillLits,
   exprShelf,
   starterPick,
+  personalReco,
 }: Props) {
   const { userId } = useParams<{ userId: string }>()
   const router = useRouter()
@@ -282,6 +287,10 @@ export default function HomeClient({
       {starterPick && recentPieces.length === 0 && basicPracticeCards.length === 0 ? null : (
         <PracticeFocusCard pieces={recentPieces} basics={basicPracticeCards} userId={userId} coinFocus={coinFx.focus} />
       )}
+
+      {/* ②-2 あなた専用のおすすめ練習 (2026-09-03)。曲ではなくユーザーの累積の苦手に効く練習。
+          おすすめエンジン未接続のあいだは personalReco=null で枠ごと出ない */}
+      {personalReco && <PersonalRecoCard userId={userId} reco={personalReco} />}
 
 
       {/* アルコちゃんの一言カードは削除 (2026-08-21 Tetsuo指示・SPEC-CHANGES記載) */}

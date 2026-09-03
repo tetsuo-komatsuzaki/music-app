@@ -1,0 +1,193 @@
+/* PersonalRecoCard.module.css — ホーム「あなた専用のおすすめ練習」(案2 タブ切り替え)。
+   配色ルール準拠: 構造/操作はネイビー一族。金は成果にしか使わないので、ここでは使わない。 */
+
+.card {
+  background: linear-gradient(180deg, var(--card-a), var(--card-b));
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 14px;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-subhead);
+  font-weight: 900;
+  color: var(--text-ink);
+}
+
+.lead {
+  margin: 4px 0 0;
+  font-size: var(--fs-caption);
+  color: var(--text-sub);
+}
+
+/* ───── タブ ───── */
+/* 4つとも常に見えているのが要件。狭い画面では横に流さず2行に折り返す */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.tab {
+  flex: none;
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--card-in);
+  color: var(--text-sub);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  padding: 7px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab:hover { color: var(--text-body); }
+
+.tabOn {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--text-link);
+  outline-offset: 2px;
+}
+
+/* ───── パネル ───── */
+.panel {
+  margin-top: 14px;
+}
+
+.note {
+  margin: 0;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+}
+
+.focus {
+  margin-top: 10px;
+}
+
+.focusName {
+  font-size: var(--fs-subhead);
+  font-weight: 900;
+  color: var(--text-ink);
+  line-height: 1.45;
+}
+
+.meter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.meterLabel {
+  flex: none;
+  width: 44px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--text-sub);
+}
+
+.track {
+  flex: 1;
+  height: 7px;
+  border-radius: 5px;
+  background: rgba(150, 175, 225, 0.14);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+  background: var(--pink-soft);
+}
+
+.pct {
+  flex: none;
+  font-size: var(--fs-subhead);
+  font-weight: 800;
+  color: var(--cream);
+  font-variant-numeric: tabular-nums;
+}
+
+.pctUnit {
+  font-size: 9.5px;
+  margin-left: 1px;
+}
+
+.notes {
+  margin-top: 5px;
+  font-size: var(--fs-caption);
+  color: var(--text-muted);
+}
+
+/* ───── 教材 ───── */
+.materials {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.materialRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  border-radius: 10px;
+  background: var(--card-in);
+  border: 1px solid var(--line);
+  text-decoration: none;
+}
+
+.materialRow:hover {
+  border-color: rgba(150, 175, 225, 0.26);
+}
+
+.materialInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.materialTitle {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--text-ink);
+}
+
+.materialMeta {
+  font-size: var(--fs-caption);
+  color: var(--text-sub);
+}
+
+.go {
+  margin-left: auto;
+  flex: none;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--text-link);
+  white-space: nowrap;
+}
+
+/* ───── 空 ───── */
+.empty {
+  margin-top: 12px;
+  padding: 13px;
+  border-radius: 10px;
+  background: var(--card-in);
+  border: 1px solid var(--line);
+  font-size: var(--fs-body);
+  line-height: 1.7;
+  color: var(--text-sub);
+}
