@@ -29,8 +29,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import psycopg2  # noqa: E402
 import requests  # noqa: E402
 
-from lib.diagnosis import _context_suffixes  # noqa: E402
-from lib.subtask_catalog import v1_active_ids  # noqa: E402
+from lib.material_counts import compute_counts  # noqa: E402
 
 APPLY = "--apply" in sys.argv
 OUT_JSON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_material_counts.json")
@@ -57,7 +56,6 @@ SERVICE_KEY = ENV["SUPABASE_SERVICE_ROLE_KEY"]
 DB_URL = (ENV.get("DIRECT_URL") or ENV["DATABASE_URL"]).split("?")[0]
 XML_BUCKET = ENV.get("BUCKET_NAME") or "musicxml"
 HEADERS = {"Authorization": f"Bearer {SERVICE_KEY}"}
-ACTIVE = v1_active_ids()
 
 
 def storage_get(path: str):
@@ -79,41 +77,18 @@ def count_item(item_id: str):
     except ValueError:
         return None
     notes = karte.get("notes") or []
-    ordered = [n for n in notes if not n.get("is_rest")]
-    if not ordered:
-        return None
 
-    # 連続重音の判定は diagnose と同じ規則
-    neighbor: dict = {}
-    for i, n in enumerate(ordered):
-        prev_c = i > 0 and ordered[i - 1].get("is_chord")
-        next_c = i + 1 < len(ordered) and ordered[i + 1].get("is_chord")
-        neighbor[n["note_index"]] = bool(n.get("is_chord") and (prev_c or next_c))
-
-    # 教材の skill_info は v121 より前に作られたものが大半で、音符ごとの
-    # technique_tags が入っていない (2026-09-04 に修正したフィールド欠落)。
-    # 教材の作り直しは変種の再適用が要るため別作業。ここでは、ファイルに元から
-    # ある is_in_slur からスラーだけを復元する。piece_summary も is_in_slur から
-    # スラーを付けるので、作り直し後の結果と食い違わない。
-    # スラー以外の奏法は教材を作り直すまで0回のまま。
-    for n in ordered:
+    # スラーの復元 (暫定)。教材の楽譜ファイルが v121 より前に作られたものは
+    # 音符ごとの technique_tags を持たない。ファイルに元からある is_in_slur から
+    # スラーだけ復元する。教材を作り直せばこの分岐は空振りになる。
+    for n in notes:
         if not n.get("technique_tags") and n.get("is_in_slur"):
             n["technique_tags"] = ["スラー"]
 
-    counts: dict = {}
-
-    def bump(sid: str) -> None:
-        if sid in ACTIVE:
-            counts[sid] = counts.get(sid, 0) + 1
-
-    for n in ordered:
-        cx = _context_suffixes(n, neighbor.get(n["note_index"], False), None)
-        for sfx in cx["pitch_ctx"]:
-            bump(f"pitch_{sfx}")
-            bump(f"rhythm_{sfx}")
-        for sfx in cx["rhythm_only_ctx"]:
-            bump(f"rhythm_{sfx}")
-    return len(ordered), counts
+    n_notes, counts = compute_counts(notes)
+    if n_notes == 0:
+        return None
+    return n_notes, counts
 
 
 def main() -> None:
