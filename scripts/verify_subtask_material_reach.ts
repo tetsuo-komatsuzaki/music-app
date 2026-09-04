@@ -39,13 +39,11 @@ const EXPECTED_NO_STOCK: { match: (d: SubtaskDef) => boolean; why: string }[] = 
     why: "その奏法の教材が1件も無い。条件は正しく、在庫の穴",
   },
   {
-    match: (d) =>
-      d.problem === "technique" &&
-      ["portato", "staccato", "spiccato", "pizzicato", "tremolo"]
-        .some((t) => d.id.endsWith(`_tech_${t}`)),
-    why:
-      "教材の楽譜ファイルが v121 より前に作られており、音符ごとの奏法が入っていない。" +
-      "教材を作り直せば引けるようになる一時的な状態。スラーだけは is_in_slur から復元済み",
+    // 2026-09-04: 教材1014件を再解析して portato/staccato/spiccato/tremolo は解消。
+    // ピチカートだけ残る。タグを持つ教材が1件しかなく、その1件の音符に
+    // ピチカートが付いていない (曲名に付いているだけで記号が無い可能性)
+    match: (d) => d.id.endsWith("_tech_pizzicato"),
+    why: "ピチカートのタグを持つ教材が1件だけで、その音符に記号が付いていない。在庫の穴",
   },
   {
     match: (d) => d.problem === "tuplet" && !d.id.endsWith("_tuplet_3"),
