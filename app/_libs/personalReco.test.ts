@@ -110,9 +110,9 @@ describe("personalReco", () => {
   })
 
   it("診断対象でない課題は候補にしない", async () => {
-    // 同じ弦で少しだけ動くのは「変化なし箱」
+    // 同じポジションの中だけで弾くのは「変化なし箱」
     state.counters = [
-      { skillSubTaskId: "pitch_interval_same_up_step", matchedCount: 19, totalCount: 100 },
+      { skillSubTaskId: "pitch_posshift_1_1", matchedCount: 19, totalCount: 100 },
     ]
     expect(await build()).toBeNull()
   })

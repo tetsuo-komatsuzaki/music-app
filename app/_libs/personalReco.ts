@@ -41,10 +41,11 @@ const ORDER: RecoCategory[] = ["pitch", "position", "technique", "fingering"]
  * タブごとに、どのカテゴリの教材から選ぶか (2026-09-04 Tetsuo確定)。
  * 絞らないと必ずエチュードが勝つ。エチュードは長いので回数で圧勝し、
  * ★6以下では31項目すべてでカイザーが出ていた。
+ *   音程           = scale ・ arpeggio ・ double_stop
  *   ポジション移動 = position_shift ・ fingering
  *   わざ           = etude
  *   フィンガリング   = fingering
- * 音程は未確定。暫定で音の動きを扱う3カテゴリにしてある。
+ * 4タブとも 2026-09-04 Tetsuo 確定。
  */
 const TAB_CATEGORIES: Record<RecoCategory, string[]> = {
   pitch: ["scale", "arpeggio", "double_stop"],

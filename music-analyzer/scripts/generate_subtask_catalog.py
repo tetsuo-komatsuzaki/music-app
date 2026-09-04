@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
 """
-generate_subtask_catalog.py — 小課題カタログ217の生成器（工程C-1・2026-07-10）
+generate_subtask_catalog.py — 小課題カタログの生成器（工程C-1・2026-07-10）
 
 §26-4 の粒度定義から決定的に展開して単一ソースを生成する:
   - music-analyzer/lib/subtask_catalog.json  (正本・Python が読む)
   - app/_libs/subtaskCatalog.generated.ts    (TS ミラー・手書き禁止)
 
-内訳 (§26-4 確定):
-  音程の木 63 = D.ポジション移動25 + E.重音12 + F.技術タグ13 + G.音程移動(粗)13
-  リズムの木 80 = b.音価7 + c.リズムパターン4 + f.入り6 + h.技術13 + j.音程移動13 + k.重音12 + l.ポジション移動25
-  音色の木 74 = a.技術13 + f.音程移動13 + h.音価7 + j.リズムパターン4 + k.重音12 + l.ポジション移動25
-  計 217。v1発火 = 音程+リズム = 143 (音色は右手検出未実装のため v1_active=false)
+内訳 (§26-4 確定 → 2026-09-04 Tetsuo 判断で 217→187 に縮小):
+  音程の木 55 = D.ポジション移動25 + E.重音12 + F.技術タグ13 + G.音程移動(粗)5
+  リズムの木 69 = b.音価4 + c.リズムパターン4 + f.入り6 + h.技術13 + j.音程移動5 + k.重音12 + l.ポジション移動25
+  音色の木 63 = a.技術13 + f.音程移動5 + h.音価4 + j.リズムパターン4 + k.重音12 + l.ポジション移動25
+  計 187。v1発火 = 音程+リズム = 124 (音色は右手検出未実装のため v1_active=false)
+
+2026-09-04 に削除した課題 (Tetsuo):
+  - 音程移動の順次 (同じ弦/となりの弦 × 上下 × 少し動く) と 弦を1本とばす移動 (上下 × 順次/跳躍)
+  - 音価の 全音符/2分音符/4分音符
+  理由: 「少し上へ動く」のような箱は抽象的で練習の指示にならない。何の音から何の音への
+  移動でミスしたかは noteStats.transitions に音名ペアで残っており、毎日の基礎練②④は
+  そこから直接おすすめを作っている (dailyLessons.getWeakTransitions)。箱を経由する必要が無い。
 
 再生成: venv\\Scripts\\python.exe scripts\\generate_subtask_catalog.py
 """
@@ -44,6 +51,11 @@ TECHNIQUES = [
 INTERVAL_CROSS = [("same", "同一弦"), ("adj", "隣接移弦"), ("skip", "弦飛ばし")]
 INTERVAL_DIR = [("up", "上行"), ("down", "下行")]
 INTERVAL_DIST = [("step", "順次"), ("leap", "跳躍")]
+# 2026-09-04 削除: 順次(step)は全弦遷移で、弦とばし(skip)は全距離で課題にしない。
+# 残るのは 同じ弦/となりの弦 × 上下 × 跳躍 の4つ + 同じ高さで移弦 の1つ = 5。
+_INTERVAL_DROP = lambda c_id, s_id: s_id == "step" or c_id == "skip"
+# 2026-09-04 削除: 全/2分/4分音符は課題にしない (教材タグも無く、箱として抽象的)
+_VALUE_DROP = frozenset({"whole", "half", "quarter"})
 
 # 学びポイントのラベルを平易な文章にする (2026-08-01 Tetsuo)。
 # 「同一弦・下行・跳躍」等の専門語の並びは伝わらないので、どんな動きのミスかを説明する。
@@ -135,21 +147,13 @@ def _interval(prefix: str):
     for c_id, c_name in INTERVAL_CROSS:
         for d_id, d_name in INTERVAL_DIR:
             for s_id, s_name in INTERVAL_DIST:
-                # 同一弦×順次 = メロディの既定動作(広い箱) → 診断出力から除外
-                diag = not (c_id == "same" and s_id == "step")
-                # 跳躍系→アルペジオ。
-                # 順次系は旧 _CAT("scale") だったが、音階は毎日の基礎練で別枠に出す
-                # 判断 (2026-07-25) で推薦の在庫から外れており、条件だけが取り残されて
-                # 恒久的に0件だった。実測では弦をまたぐ順次はエチュードに集中する
-                # (となりの弦=230/256件・弦とばし=該当12〜15件がすべてエチュード)。
-                # 跳躍はアルペジオ。ただし弦を1本とばす跳躍はアルペジオに
-                # 1件も出てこない (実測: 該当122件はすべてエチュード) ため
-                # エチュードへ落とす (2026-09-04)。
-                q = ([_CAT("arpeggio"), _CAT("etude")] if s_id == "leap"
-                     else [_CAT("etude"), _CAT("arpeggio")])
+                if _INTERVAL_DROP(c_id, s_id):
+                    continue
+                # 跳躍→アルペジオ。無ければエチュードへ落とす。
+                q = [_CAT("arpeggio"), _CAT("etude")]
                 name = f"{_ICROSS_TXT[c_id]}{_IMOVE_TXT[(d_id, s_id)]}"
                 out.append((f"{prefix}_interval_{c_id}_{d_id}_{s_id}", "interval_move",
-                            name, diag, q))
+                            name, True, q))
     out.append((f"{prefix}_interval_unison_crossing", "interval_move",
                 "弦を移っても同じ高さの音を弾く", True, [_CAT("bowing"), _CAT("etude")]))
     return out
@@ -158,22 +162,15 @@ def _interval(prefix: str):
 def _values(prefix: str):
     out = []
     for v_id, v_name in VALUES:
+        if v_id in _VALUE_DROP:
+            continue
         if v_id in _VALUE_FEATURE:
             q = [_FEAT("rhythm", _VALUE_FEATURE[v_id])]
-        elif v_id == "dotted":
-            q = [_FEAT("rhythm", "付点")]
         else:
-            # whole/half/quarter は教材タグが無い。旧 _BASIC は音階を指すが、
-            # 音階は在庫から外れている (2026-07-25) ため恒久的に0件だった。
-            # 実測の適合率で置き換える。
-            #   全音符  = bowing 8% / etude 13% ・ 長い弓の練習に最多30回
-            #   2分音符 = arpeggio 100% (144件すべてに出る)
-            #   4分音符 = fingering 88% / bowing 66%
-            q = {"whole": [_CAT("bowing"), _CAT("etude")],
-                 "half": [_CAT("arpeggio"), _CAT("fingering")],
-                 "quarter": [_CAT("fingering"), _CAT("bowing")]}[v_id]
+            q = [_FEAT("rhythm", "付点")]
         out.append((f"{prefix}_value_{v_id}", "note_value", f"{v_name}のリズム", True, q))
     return out
+
 
 
 def _tuplets(prefix: str):
@@ -204,23 +201,23 @@ def build_catalog():
                 "material_query": material_query,
             })
 
-    # 音程の木 (63)
+    # 音程の木 (55)
     add("pitch", True, _pos_shift("pitch"))    # D 25
     add("pitch", True, _double("pitch"))       # E 12
     add("pitch", True, _tech("pitch"))         # F 13
-    add("pitch", True, _interval("pitch"))     # G 13
-    # リズムの木 (80)
-    add("rhythm", True, _values("rhythm"))     # b 7
+    add("pitch", True, _interval("pitch"))     # G 5
+    # リズムの木 (69)
+    add("rhythm", True, _values("rhythm"))     # b 4
     add("rhythm", True, _tuplets("rhythm"))    # c 4
     add("rhythm", True, _entry("rhythm"))      # f 6
     add("rhythm", True, _tech("rhythm"))       # h 13
-    add("rhythm", True, _interval("rhythm"))   # j 13
+    add("rhythm", True, _interval("rhythm"))   # j 5
     add("rhythm", True, _double("rhythm"))     # k 12
     add("rhythm", True, _pos_shift("rhythm"))  # l 25
-    # 音色の木 (74) — v1 発火不能 (右手検出未実装)
+    # 音色の木 (63) — v1 発火不能 (右手検出未実装)
     add("timbre", False, _tech("timbre"))       # a 13
-    add("timbre", False, _interval("timbre"))   # f 13
-    add("timbre", False, _values("timbre"))     # h 7
+    add("timbre", False, _interval("timbre"))   # f 5
+    add("timbre", False, _values("timbre"))     # h 4
     add("timbre", False, _tuplets("timbre"))    # j 4
     add("timbre", False, _double("timbre"))     # k 12
     add("timbre", False, _pos_shift("timbre"))  # l 25
@@ -234,20 +231,21 @@ def main():
     for e in entries:
         by_tree[e["tree"]] = by_tree.get(e["tree"], 0) + 1
     active = sum(1 for e in entries if e["v1_active"])
-    assert by_tree == {"pitch": 63, "rhythm": 80, "timbre": 74}, by_tree
-    assert len(entries) == 217 and active == 143, (len(entries), active)
+    TOTAL, ACTIVE = 187, 124
+    assert by_tree == {"pitch": 55, "rhythm": 69, "timbre": 63}, by_tree
+    assert len(entries) == TOTAL and active == ACTIVE, (len(entries), active)
     ids = [e["id"] for e in entries]
-    assert len(set(ids)) == 217, "ID重複あり"
-    # C-5: 除外は「同一ポジ内5×木」+「同一弦×順次(上下)2×木」= 木ごと7
+    assert len(set(ids)) == TOTAL, "ID重複あり"
+    # C-5: 除外は「同一ポジ内5×木」= 木ごと5 (同一弦×順次は 2026-09-04 に課題ごと削除)
     non_diag = [e["id"] for e in entries if not e["diagnosable"]]
-    assert len(non_diag) == 7 * 3, non_diag
+    assert len(non_diag) == 5 * 3, non_diag
     # 診断に出るものは必ず教材クエリを持つ
     assert all(e["material_query"] for e in entries if e["diagnosable"])
 
     # 正本 JSON
     json_path = os.path.join(ANALYZER, "lib", "subtask_catalog.json")
     with open(json_path, "w", encoding="utf-8") as f:
-        json.dump({"version": 2, "total": 217, "v1_active": 143, "entries": entries},
+        json.dump({"version": 2, "total": TOTAL, "v1_active": ACTIVE, "entries": entries},
                   f, ensure_ascii=False, indent=1)
 
     # TS ミラー (自動生成・手書き禁止)
@@ -288,7 +286,7 @@ def main():
     with open(ts_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
-    print(f"OK: {json_path} (217件・v1_active 143)")
+    print(f"OK: {json_path} ({TOTAL}件・v1_active {ACTIVE})")
     print(f"OK: {ts_path}")
 
 

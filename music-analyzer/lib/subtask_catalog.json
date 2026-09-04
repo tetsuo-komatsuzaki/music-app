@@ -1,7 +1,7 @@
 {
  "version": 2,
- "total": 217,
- "v1_active": 143,
+ "total": 187,
+ "v1_active": 124,
  "entries": [
   {
    "id": "pitch_posshift_1_1",
@@ -849,24 +849,6 @@
    ]
   },
   {
-   "id": "pitch_interval_same_up_step",
-   "tree": "pitch",
-   "problem": "interval_move",
-   "name": "同じ弦で少し上の音へ動く",
-   "v1_active": true,
-   "diagnosable": false,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
    "id": "pitch_interval_same_up_leap",
    "tree": "pitch",
    "problem": "interval_move",
@@ -881,24 +863,6 @@
     {
      "type": "category",
      "category": "etude"
-    }
-   ]
-  },
-  {
-   "id": "pitch_interval_same_down_step",
-   "tree": "pitch",
-   "problem": "interval_move",
-   "name": "同じ弦で少し下の音へ動く",
-   "v1_active": true,
-   "diagnosable": false,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
     }
    ]
   },
@@ -921,24 +885,6 @@
    ]
   },
   {
-   "id": "pitch_interval_adj_up_step",
-   "tree": "pitch",
-   "problem": "interval_move",
-   "name": "となりの弦に移って少し上の音へ動く",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
    "id": "pitch_interval_adj_up_leap",
    "tree": "pitch",
    "problem": "interval_move",
@@ -957,100 +903,10 @@
    ]
   },
   {
-   "id": "pitch_interval_adj_down_step",
-   "tree": "pitch",
-   "problem": "interval_move",
-   "name": "となりの弦に移って少し下の音へ動く",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
    "id": "pitch_interval_adj_down_leap",
    "tree": "pitch",
    "problem": "interval_move",
    "name": "となりの弦に移って低い音へ大きく跳ぶ",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "arpeggio"
-    },
-    {
-     "type": "category",
-     "category": "etude"
-    }
-   ]
-  },
-  {
-   "id": "pitch_interval_skip_up_step",
-   "tree": "pitch",
-   "problem": "interval_move",
-   "name": "弦を1本とばして少し上の音へ動く",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
-   "id": "pitch_interval_skip_up_leap",
-   "tree": "pitch",
-   "problem": "interval_move",
-   "name": "弦を1本とばして高い音へ大きく跳ぶ",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "arpeggio"
-    },
-    {
-     "type": "category",
-     "category": "etude"
-    }
-   ]
-  },
-  {
-   "id": "pitch_interval_skip_down_step",
-   "tree": "pitch",
-   "problem": "interval_move",
-   "name": "弦を1本とばして少し下の音へ動く",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
-   "id": "pitch_interval_skip_down_leap",
-   "tree": "pitch",
-   "problem": "interval_move",
-   "name": "弦を1本とばして低い音へ大きく跳ぶ",
    "v1_active": true,
    "diagnosable": true,
    "material_query": [
@@ -1079,60 +935,6 @@
     {
      "type": "category",
      "category": "etude"
-    }
-   ]
-  },
-  {
-   "id": "rhythm_value_whole",
-   "tree": "rhythm",
-   "problem": "note_value",
-   "name": "全音符のリズム",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "bowing"
-    },
-    {
-     "type": "category",
-     "category": "etude"
-    }
-   ]
-  },
-  {
-   "id": "rhythm_value_half",
-   "tree": "rhythm",
-   "problem": "note_value",
-   "name": "2分音符のリズム",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "arpeggio"
-    },
-    {
-     "type": "category",
-     "category": "fingering"
-    }
-   ]
-  },
-  {
-   "id": "rhythm_value_quarter",
-   "tree": "rhythm",
-   "problem": "note_value",
-   "name": "4分音符のリズム",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "fingering"
-    },
-    {
-     "type": "category",
-     "category": "bowing"
     }
    ]
   },
@@ -1529,24 +1331,6 @@
    ]
   },
   {
-   "id": "rhythm_interval_same_up_step",
-   "tree": "rhythm",
-   "problem": "interval_move",
-   "name": "同じ弦で少し上の音へ動く",
-   "v1_active": true,
-   "diagnosable": false,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
    "id": "rhythm_interval_same_up_leap",
    "tree": "rhythm",
    "problem": "interval_move",
@@ -1561,24 +1345,6 @@
     {
      "type": "category",
      "category": "etude"
-    }
-   ]
-  },
-  {
-   "id": "rhythm_interval_same_down_step",
-   "tree": "rhythm",
-   "problem": "interval_move",
-   "name": "同じ弦で少し下の音へ動く",
-   "v1_active": true,
-   "diagnosable": false,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
     }
    ]
   },
@@ -1601,24 +1367,6 @@
    ]
   },
   {
-   "id": "rhythm_interval_adj_up_step",
-   "tree": "rhythm",
-   "problem": "interval_move",
-   "name": "となりの弦に移って少し上の音へ動く",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
    "id": "rhythm_interval_adj_up_leap",
    "tree": "rhythm",
    "problem": "interval_move",
@@ -1637,100 +1385,10 @@
    ]
   },
   {
-   "id": "rhythm_interval_adj_down_step",
-   "tree": "rhythm",
-   "problem": "interval_move",
-   "name": "となりの弦に移って少し下の音へ動く",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
    "id": "rhythm_interval_adj_down_leap",
    "tree": "rhythm",
    "problem": "interval_move",
    "name": "となりの弦に移って低い音へ大きく跳ぶ",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "arpeggio"
-    },
-    {
-     "type": "category",
-     "category": "etude"
-    }
-   ]
-  },
-  {
-   "id": "rhythm_interval_skip_up_step",
-   "tree": "rhythm",
-   "problem": "interval_move",
-   "name": "弦を1本とばして少し上の音へ動く",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
-   "id": "rhythm_interval_skip_up_leap",
-   "tree": "rhythm",
-   "problem": "interval_move",
-   "name": "弦を1本とばして高い音へ大きく跳ぶ",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "arpeggio"
-    },
-    {
-     "type": "category",
-     "category": "etude"
-    }
-   ]
-  },
-  {
-   "id": "rhythm_interval_skip_down_step",
-   "tree": "rhythm",
-   "problem": "interval_move",
-   "name": "弦を1本とばして少し下の音へ動く",
-   "v1_active": true,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
-   "id": "rhythm_interval_skip_down_leap",
-   "tree": "rhythm",
-   "problem": "interval_move",
-   "name": "弦を1本とばして低い音へ大きく跳ぶ",
    "v1_active": true,
    "diagnosable": true,
    "material_query": [
@@ -2608,24 +2266,6 @@
    ]
   },
   {
-   "id": "timbre_interval_same_up_step",
-   "tree": "timbre",
-   "problem": "interval_move",
-   "name": "同じ弦で少し上の音へ動く",
-   "v1_active": false,
-   "diagnosable": false,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
    "id": "timbre_interval_same_up_leap",
    "tree": "timbre",
    "problem": "interval_move",
@@ -2640,24 +2280,6 @@
     {
      "type": "category",
      "category": "etude"
-    }
-   ]
-  },
-  {
-   "id": "timbre_interval_same_down_step",
-   "tree": "timbre",
-   "problem": "interval_move",
-   "name": "同じ弦で少し下の音へ動く",
-   "v1_active": false,
-   "diagnosable": false,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
     }
    ]
   },
@@ -2680,24 +2302,6 @@
    ]
   },
   {
-   "id": "timbre_interval_adj_up_step",
-   "tree": "timbre",
-   "problem": "interval_move",
-   "name": "となりの弦に移って少し上の音へ動く",
-   "v1_active": false,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
    "id": "timbre_interval_adj_up_leap",
    "tree": "timbre",
    "problem": "interval_move",
@@ -2716,100 +2320,10 @@
    ]
   },
   {
-   "id": "timbre_interval_adj_down_step",
-   "tree": "timbre",
-   "problem": "interval_move",
-   "name": "となりの弦に移って少し下の音へ動く",
-   "v1_active": false,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
    "id": "timbre_interval_adj_down_leap",
    "tree": "timbre",
    "problem": "interval_move",
    "name": "となりの弦に移って低い音へ大きく跳ぶ",
-   "v1_active": false,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "arpeggio"
-    },
-    {
-     "type": "category",
-     "category": "etude"
-    }
-   ]
-  },
-  {
-   "id": "timbre_interval_skip_up_step",
-   "tree": "timbre",
-   "problem": "interval_move",
-   "name": "弦を1本とばして少し上の音へ動く",
-   "v1_active": false,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
-   "id": "timbre_interval_skip_up_leap",
-   "tree": "timbre",
-   "problem": "interval_move",
-   "name": "弦を1本とばして高い音へ大きく跳ぶ",
-   "v1_active": false,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "arpeggio"
-    },
-    {
-     "type": "category",
-     "category": "etude"
-    }
-   ]
-  },
-  {
-   "id": "timbre_interval_skip_down_step",
-   "tree": "timbre",
-   "problem": "interval_move",
-   "name": "弦を1本とばして少し下の音へ動く",
-   "v1_active": false,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "etude"
-    },
-    {
-     "type": "category",
-     "category": "arpeggio"
-    }
-   ]
-  },
-  {
-   "id": "timbre_interval_skip_down_leap",
-   "tree": "timbre",
-   "problem": "interval_move",
-   "name": "弦を1本とばして低い音へ大きく跳ぶ",
    "v1_active": false,
    "diagnosable": true,
    "material_query": [
@@ -2838,60 +2352,6 @@
     {
      "type": "category",
      "category": "etude"
-    }
-   ]
-  },
-  {
-   "id": "timbre_value_whole",
-   "tree": "timbre",
-   "problem": "note_value",
-   "name": "全音符のリズム",
-   "v1_active": false,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "bowing"
-    },
-    {
-     "type": "category",
-     "category": "etude"
-    }
-   ]
-  },
-  {
-   "id": "timbre_value_half",
-   "tree": "timbre",
-   "problem": "note_value",
-   "name": "2分音符のリズム",
-   "v1_active": false,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "arpeggio"
-    },
-    {
-     "type": "category",
-     "category": "fingering"
-    }
-   ]
-  },
-  {
-   "id": "timbre_value_quarter",
-   "tree": "timbre",
-   "problem": "note_value",
-   "name": "4分音符のリズム",
-   "v1_active": false,
-   "diagnosable": true,
-   "material_query": [
-    {
-     "type": "category",
-     "category": "fingering"
-    },
-    {
-     "type": "category",
-     "category": "bowing"
     }
    ]
   },

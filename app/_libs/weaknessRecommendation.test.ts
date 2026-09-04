@@ -120,18 +120,6 @@ describe("recommendForPerformance — マッチング (matchesQuery)", () => {
     expect(slots[0].materials.map((m) => m.id)).toEqual(["catOnly"])
   })
 
-  // 2026-09-04: whole/half/quarter の条件は basic (=音階) をやめた。音階は
-  // 毎日の基礎練で別枠に出す判断 (2026-07-25) で在庫から外れており、条件だけが
-  // 取り残されて恒久的に0件だったため。いまは弓/アルペジオ/フィンガリングを引く。
-  it("全音符のリズムは弓の教材を引く（音階は在庫から外れているので使わない）", async () => {
-    const { mod } = await loadPerf([
-      invRow({ id: "scaleA", category: "scale" }),
-      invRow({ id: "bowA", category: "bowing" }),
-    ])
-    const slots = await mod.recommendForPerformance(diag([], ["rhythm_value_whole"]), baseCtx)
-    expect(slots[0].materials.map((m) => m.id)).toEqual(["bowA"])
-  })
-
   it("在庫が無ければ noStock=true・materials 空", async () => {
     const { mod } = await loadPerf([
       invRow({ id: "x", category: "etude", techniques: ["トリル"] }),
@@ -274,9 +262,9 @@ describe("recommendForPerformance — スロット間の重複排除と スキ�
       invRow({ id: "scaleA", category: "scale" }),
     ])
     const slots = await mod.recommendForPerformance(
-      diag(["pitch_tech_slur"], ["rhythm_value_whole"], {
+      diag(["pitch_tech_slur"], ["rhythm_value_eighth"], {
         pitch_tech_slur: { miss: 3, target: 12 },
-        rhythm_value_whole: { miss: 0, target: 0 },
+        rhythm_value_eighth: { miss: 0, target: 0 },
       }),
       baseCtx
     )
@@ -284,7 +272,7 @@ describe("recommendForPerformance — スロット間の重複排除と スキ�
     expect(byId["pitch_tech_slur"].miss).toBe(3)
     expect(byId["pitch_tech_slur"].target).toBe(12)
     expect(byId["pitch_tech_slur"].missRate).toBeCloseTo(0.25)
-    expect(byId["rhythm_value_whole"].missRate).toBe(0)
+    expect(byId["rhythm_value_eighth"].missRate).toBe(0)
   })
 
   it("pitch → rhythm の木順でスロットが並ぶ", async () => {
@@ -293,7 +281,7 @@ describe("recommendForPerformance — スロット間の重複排除と スキ�
       invRow({ id: "scaleA", category: "scale" }),
     ])
     const slots = await mod.recommendForPerformance(
-      diag(["pitch_tech_slur"], ["rhythm_value_whole"]),
+      diag(["pitch_tech_slur"], ["rhythm_value_eighth"]),
       baseCtx
     )
     expect(slots.map((s) => s.tree)).toEqual(["pitch", "rhythm"])
