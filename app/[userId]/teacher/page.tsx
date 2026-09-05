@@ -7,21 +7,10 @@ import ds from "@/app/components/ds.module.css"
 import { redirect } from "next/navigation"
 import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
-import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
+import { weakSlotsByPerformance } from "@/app/_libs/diagnosisPresentation"
 import InviteCodeCard from "./InviteCodeCard"
 
-// 直近演奏1件から、いちばんの課題(診断サブタスク名)を1つ取り出す (AIの一言用・軽量)
-function topWeakName(analysisSummary: unknown): string | null {
-  const dj = (analysisSummary as { diagnosis?: { map_available?: boolean; diagnosis?: { pitch?: string[]; rhythm?: string[] } } })?.diagnosis
-  if (!dj?.map_available) return null
-  for (const tree of ["pitch", "rhythm"] as const) {
-    for (const sid of dj.diagnosis?.[tree] ?? []) {
-      const def = SUBTASK_BY_ID[sid]
-      if (def?.diagnosable) return def.name
-    }
-  }
-  return null
-}
+// 直近演奏1件のいちばんの課題 (AIの一言用) は明細から (weakSlotsByPerformance lastN=1・2026-09-05)
 
 export const metadata = { title: "先生モード" }
 
@@ -96,12 +85,8 @@ export default async function TeacherHomePage({
     if (week === 0) { aiLine.set(id, "今週はまだ練習なし。声をかけてみよう。"); return }
     let weakName: string | null = null
     try {
-      const p = await prisma.performance.findFirst({
-        where: { userId: id, pitchAccuracy: { not: null } },
-        orderBy: { uploadedAt: "desc" },
-        select: { analysisSummary: true },
-      })
-      weakName = p ? topWeakName(p.analysisSummary) : null
+      const m = await weakSlotsByPerformance(id, { lastN: 1 }, 1)
+      weakName = [...m.values()][0]?.[0]?.name ?? null
     } catch { weakName = null }
     const head = weakName ? `「${weakName}」が課題。` : "今週も練習中。順調そう。"
     const tail = wait > 0 ? " 返し待ちがあるよ。" : ""

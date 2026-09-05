@@ -14,7 +14,7 @@
 import { prisma } from "./prisma"
 import {
   aggregate, pickWeakest, groupKeysOf, parseKey, prismaSource,
-  type DetailRow, type GroupKey, type MissKind, type NoteStoreSource, type TabKey,
+  type DetailRow, type GroupKey, type MissKind, type NoteStoreSource, type TabKey, type Unit,
 } from "./noteStore"
 import { movementLabel, fastSwitchLabel, positionMoveLabel, techniqueLabel, TECH_LABELS } from "./conditionName"
 
@@ -207,6 +207,37 @@ export async function buildDiagnosisView(input: DiagnosisInput, deps: DiagnosisD
     verdict = collapse.isClean && missRate <= PERFECT_MISS_RATE_MAX ? "perfect" : "no_specific"
   }
   return { verdict, slots, collapse, totals }
+}
+
+/** 先生画面の一覧・練習後カルテ用の軽い弱点行 (旧 topWeak と同じ形) */
+export type WeakSlotLite = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
+
+/** 演奏1回の明細 → 弱点行 (音程側→リズム側の順・最大 limit 件)。診断と同じ束・同じ足切り */
+export function weakSlotsFromRows(rows: DetailRow[], limit = 4): WeakSlotLite[] {
+  const out: WeakSlotLite[] = []
+  for (const [tree, kind] of [["音程", "pitch"], ["リズム", "timing"]] as const) {
+    for (const b of weakestBundles(rows, kind, SLOTS_PER_SIDE, DIAG_MIN_TARGET)) {
+      out.push({ name: bundleName(b.key), tree, miss: b.miss, target: b.target })
+    }
+  }
+  return out.slice(0, limit)
+}
+
+/**
+ * 単位 (ユーザー・期間・曲・演奏1回…) の明細を1回引き、演奏ごとに弱点行を作る。
+ * 先生の生徒ページ (直近72演奏) のように演奏が多くても、明細の読みは1回で済む。
+ */
+export async function weakSlotsByPerformance(userId: string, unit: Omit<Unit, "userId"> = {}, limit = 4, source: NoteStoreSource = prismaSource): Promise<Map<string, WeakSlotLite[]>> {
+  let rows: DetailRow[]
+  try { rows = await source.fetchDetail({ userId, ...unit }) } catch { rows = [] }
+  const byPerf = new Map<string, DetailRow[]>()
+  for (const r of rows) {
+    const list = byPerf.get(r.performanceId)
+    if (list) list.push(r); else byPerf.set(r.performanceId, [r])
+  }
+  const out = new Map<string, WeakSlotLite[]>()
+  for (const [id, list] of byPerf) out.set(id, weakSlotsFromRows(list, limit))
+  return out
 }
 
 // pickWeakest はホームの規則 (1件)。診断は上位2件なので weakestBundles を使う。参照のため残す

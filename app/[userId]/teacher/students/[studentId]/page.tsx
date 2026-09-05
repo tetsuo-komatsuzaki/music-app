@@ -5,33 +5,14 @@ import { prisma } from "@/app/_libs/prisma"
 import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
 import { getAchievementFlags } from "@/app/_libs/achievementFlags"
-import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
+import { weakSlotsByPerformance, type WeakSlotLite as WeakSlot } from "@/app/_libs/diagnosisPresentation"
 import { buildKarteData, buildRemarkTracking, buildNumbersRoom, type RemarkTrack, type NumbersRoomData } from "@/app/_libs/growthKarte"
 import { buildUserHeatmap } from "@/app/_libs/fingerboard/aggregate"
 import { buildWeeklySummary, type WeeklySummaryData } from "@/app/_libs/weeklySummary"
 import type { HeatmapData } from "@/app/_libs/fingerboard/heatmapTypes"
 import StudentKarte from "./StudentKarte"
 
-// 演奏の analysisSummary.diagnosis から上位の弱点パターンを抽出 (§5-1: ミス集中箇所・原因候補)
-type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
-function topWeak(analysisSummary: unknown): WeakSlot[] {
-  const dj = (analysisSummary as { diagnosis?: {
-    map_available?: boolean
-    per_subtask?: Record<string, { miss: number; target: number }>
-    diagnosis?: { pitch?: string[]; rhythm?: string[] }
-  } })?.diagnosis
-  if (!dj || !dj.map_available) return []
-  const out: WeakSlot[] = []
-  for (const tree of ["pitch", "rhythm"] as const) {
-    for (const sid of dj.diagnosis?.[tree] ?? []) {
-      const def = SUBTASK_BY_ID[sid]
-      if (!def || !def.diagnosable) continue
-      const c = dj.per_subtask?.[sid] ?? { miss: 0, target: 0 }
-      out.push({ name: def.name, tree: tree === "pitch" ? "音程" : "リズム", miss: c.miss, target: c.target })
-    }
-  }
-  return out.slice(0, 3)
-}
+// 演奏ごとの上位の弱点 (§5-1: ミス集中箇所・原因候補) は明細から (weakSlotsByPerformance・2026-09-05)
 
 export const metadata = { title: "生徒カルテ" }
 
@@ -224,14 +205,15 @@ export default async function StudentKartePage({
     prisma.performance.findMany({
       where: { userId: studentId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: 36,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, rangeFromNote: true, analysisSummary: true, scoreId: true, score: { select: { title: true, star: true } } },
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, rangeFromNote: true, scoreId: true, score: { select: { title: true, star: true } } },
     }),
     prisma.practicePerformance.findMany({
       where: { userId: studentId, pitchAccuracy: { not: null }, timingAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: 36,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, analysisSummary: true, practiceItemId: true, practiceItem: { select: { title: true, category: true, star: true } } },
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, practiceItemId: true, practiceItem: { select: { title: true, category: true, star: true } } },
     }),
   ])
+  const weakMap = await weakSlotsByPerformance(studentId, {}, 3)
   const avg2 = (p: number | null, t: number | null) => Math.round(((p ?? 0) + (t ?? 0)) / 2)
   // 日付はロケール依存の toLocaleDateString を使わない (サーバlocale次第で「31.5.2026」式に崩れる)
   const fmtMD = (at: number) => { const d = new Date(at); return `${d.getMonth() + 1}/${d.getDate()}` }
@@ -242,14 +224,14 @@ export default async function StudentKartePage({
       targetId: p.scoreId,
       cat: p.rangeFromNote != null ? "曲" : "曲", star: p.score?.star ?? null,
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
-      weak: topWeak(p.analysisSummary),
+      weak: weakMap.get(p.id) ?? [],
     })),
     ...pracPerfs.map((p) => ({
       id: p.id, kind: "practice" as const, at: p.uploadedAt.getTime(), title: p.practiceItem?.title ?? "教材",
       targetId: p.practiceItemId,
       cat: p.practiceItem?.category ? categoryLabel(p.practiceItem.category) : "基礎練", star: p.practiceItem?.star ?? null,
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
-      weak: topWeak(p.analysisSummary),
+      weak: weakMap.get(p.id) ?? [],
     })),
   ].sort((a, b) => b.at - a.at)
 

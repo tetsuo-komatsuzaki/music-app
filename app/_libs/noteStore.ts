@@ -336,6 +336,48 @@ export const prismaSource: NoteStoreSource = {
 }
 
 /** 検査用: その教材に、その束に合う音が何個あるか。写し (MaterialBundleCount) ではなく並び (ScoreNote) を数える ・ 独立した確認 */
+/** 束を最も多く含む ★以下の教材を上位 limit 件 (写し MaterialBundleCount)。findMaterial の複数件版 */
+export async function findMaterialsForKey(key: GroupKey, star: number, shelves: string[], limit: number): Promise<MaterialHit[]> {
+  const rows = await prisma.$queryRaw<{ id: string; c: number }[]>(Prisma.sql`
+    SELECT mb."targetId" AS id, mb.count::int AS c
+    FROM "MaterialBundleCount" mb
+    JOIN "PracticeItem" pi ON pi.id = mb."targetId"
+    WHERE mb."bundleKey" = ${key}
+      AND pi."isPublished" = true AND pi.category::text = ANY(${shelves}) AND pi.star IS NOT NULL AND pi.star <= ${star}
+    ORDER BY mb.count DESC, mb."targetId"
+    LIMIT ${limit}`)
+  return rows.map((r) => ({ itemId: r.id, count: Number(r.c) }))
+}
+
+/** 隣り合う構成音の度数 → 3度 4度 5度 6度 オクターブ その他 (lib/note_store.py chord_interval_label と同じ語) */
+export function chordIntervalLabel(pLow: string, pHigh: string): string {
+  const d = (p: string): number | null => {
+    const m = /^([A-G])[#b]*(-?\d+)$/.exec(p)
+    return m ? "CDEFGAB".indexOf(m[1]) + 7 * parseInt(m[2], 10) : null
+  }
+  const a = d(pLow), b = d(pHigh)
+  if (a === null || b === null) return "その他"
+  const deg = Math.abs(b - a) + 1
+  return ({ 3: "3度", 4: "4度", 5: "5度", 6: "6度", 8: "オクターブ" } as Record<number, string>)[deg] ?? "その他"
+}
+
+/** 重音の束 "chord|5度" を演奏の明細から数える (成功率つき)。ミスは音程 */
+export function aggregateChords(rows: DetailRow[]): Agg {
+  const agg: Agg = new Map()
+  for (const r of rows) {
+    if (r.cur.noteCount <= 1) continue
+    const pitches = [r.cur.pitch1, r.cur.pitch2, r.cur.pitch3, r.cur.pitch4].slice(0, r.cur.noteCount)
+    for (let i = 0; i + 1 < pitches.length; i++) {
+      const k = `chord|${chordIntervalLabel(pitches[i], pitches[i + 1])}`
+      const a = agg.get(k) ?? { target: 0, miss: 0 }
+      a.target += 1
+      if (isMiss(r, "pitch")) a.miss += 1
+      agg.set(k, a)
+    }
+  }
+  return agg
+}
+
 export async function countBundleInMaterial(key: GroupKey, itemId: string): Promise<number> {
   const pred = materialPredicate(key)
   const rows = await prisma.$queryRaw<{ c: number }[]>(Prisma.sql`

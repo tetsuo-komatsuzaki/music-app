@@ -8,7 +8,8 @@ import { storageAdmin } from "./storageAdmin"
 import { encodeSignedUrl } from "./encodeSignedUrl"
 import { formatKey } from "./musicNotation"
 import { categoryLabel } from "./practiceConstants"
-import { derivedSummariesByPerformance, withDerived } from "./noteStoreSummary"
+import { derivedSummariesByPerformance, derivedSummariesFromRows, withDerived } from "./noteStoreSummary"
+import { prismaSource, aggregate, aggregateChords, findMaterialsForKey, type GroupKey } from "./noteStore"
 import { featureSubtaskRegex, FEATURE_ID_LABELS, SKILL_ID_LABELS } from "./skillCatalog"
 import { resolveObsTag } from "./observationCatalog"
 import { expressionLabel } from "./expressionCatalog"
@@ -1438,7 +1439,7 @@ export async function buildSkillDetail(
     select: { teacherId: true },
   })
 
-  const [perfsRaw, pracsRaw, clears, acqs, starRow, obsRows, derivedAll] = await Promise.all([
+  const [perfsRaw, pracsRaw, clears, acqs, starRow, obsRows, rowsAll] = await Promise.all([
     prisma.performance.findMany({
       where: { userId },
       orderBy: { uploadedAt: "asc" },
@@ -1458,8 +1459,9 @@ export async function buildSkillDetail(
       take: 50,
       select: { createdAt: true, tagIds: true, skillIds: true, severity: true, comment: true },
     }) : Promise.resolve([] as { createdAt: Date; tagIds: string[]; skillIds: string[]; severity: string | null; comment: string | null }[]),
-    derivedSummariesByPerformance({ userId }),
+    prismaSource.fetchDetail({ userId }).catch(() => []),
   ])
+  const derivedAll = derivedSummariesFromRows(rowsAll)
 
   const perfs = withDerived(perfsRaw, derivedAll)
   const pracs = withDerived(pracsRaw, derivedAll)
@@ -1595,22 +1597,39 @@ export async function buildSkillDetail(
       comment: o.comment,
     }))
 
-  // おすすめ練習 (2026-08-11 Tetsuo確定): ホーム④と同じ弱点推薦エンジン(recommendCumulative)から
-  // この技術のサブタスクに対応するスロットの教材を上位2件。データ不足時は空(=UIは教材一覧リンクにフォールバック)
+  // おすすめ練習 (2026-08-11 Tetsuo確定 → 2026-09-05 ノート属性ストア): この技術の束を最も多く含む ★以下の教材を上位2件。
+  //  わざ = technique|<id> / ポジション移動 = 累計で成功率が低い position|a|b / 重音 = 累計で成功率が低い chord|度数 (足切り3音・診断と同じ)
+  //  教材側は写し MaterialBundleCount。データ不足時は空 (=UIは教材一覧リンクにフォールバック)
   let recommended: SkillDetailData["recommended"] = []
   try {
-    const { recommendCumulative } = await import("./weaknessRecommendation")
-    const slots = await recommendCumulative(userId)
+    // 束は 成功率の低い順 (足切り3音・診断と同じ)。ミスの無い人は弾いた回数の多い束 (=その人が実際に出会う移動) から
+    const REC_MIN_TARGET = 3
+    const weakestKeys = (agg: Map<GroupKey, { target: number; miss: number }>): GroupKey[] => {
+      const weak = [...agg.entries()]
+        .filter(([, v]) => v.target >= REC_MIN_TARGET && v.miss > 0)
+        .sort((a, b) => (b[1].miss / b[1].target) - (a[1].miss / a[1].target) || b[1].target - a[1].target || a[0].localeCompare(b[0]))
+      const frequent = [...agg.entries()].filter(([, v]) => v.target >= REC_MIN_TARGET).sort((a, b) => b[1].target - a[1].target || a[0].localeCompare(b[0]))
+      return [...new Set([...weak, ...frequent].map(([k]) => k))].slice(0, 4)
+    }
+    let keys: GroupKey[]
+    let shelves: string[]
+    if (def.tagType === "technique") { keys = [`technique|${def.id}`]; shelves = ["etude", "bowing"] }
+    else if (def.id === "position") { keys = weakestKeys(aggregate("position", rowsAll, "pitch")); shelves = ["position_shift", "fingering", "etude"] }
+    else { keys = weakestKeys(aggregateChords(rowsAll)); shelves = ["double_stop", "etude"] }
     const seen = new Set<string>()
-    for (const slot of slots) {
-      if (!inScope(slot.subtaskId)) continue
-      for (const m of slot.materials) {
-        if (seen.has(m.id)) continue
-        seen.add(m.id)
-        recommended.push({ id: m.id, title: m.title, category: m.category, star: m.star })
-        if (recommended.length >= 2) break
+    const hits: string[] = []
+    for (const key of keys) {
+      for (const h of await findMaterialsForKey(key, currentStar, shelves, 2)) {
+        if (seen.has(h.itemId)) continue
+        seen.add(h.itemId); hits.push(h.itemId)
+        if (hits.length >= 2) break
       }
-      if (recommended.length >= 2) break
+      if (hits.length >= 2) break
+    }
+    if (hits.length) {
+      const items = await prisma.practiceItem.findMany({ where: { id: { in: hits } }, select: { id: true, title: true, category: true, star: true } })
+      recommended = hits.map((id) => items.find((m) => m.id === id)).filter((m): m is NonNullable<typeof m> => !!m)
+        .map((m) => ({ id: m.id, title: m.title, category: m.category, star: m.star }))
     }
   } catch { recommended = [] }
 

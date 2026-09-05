@@ -8,6 +8,7 @@
  *   B 読み手 4本 (buildKarteData / buildNumbersRoom / buildRemarkTracking / buildSkillDetail) を
  *     明細の多いユーザー5人で回し、落ちない・中身が出る・時間 を見る
  *   C 成長1行・ほめ文言: 直近の演奏20件で 旧サマリ入力 と 派生サマリ入力 の結果を並べる
+ *   D 先生画面の弱点行 (weakSlotsByPerformance): 旧 topWeak (保存された診断) との有無を並べる
  *
  * 実行: npx tsx scripts/verify_growth.ts
  */
@@ -147,13 +148,16 @@ async function partB() {
       t = performance.now()
       const s = await buildSkillDetail(u.userId, sb, "slur")
       const tS = performance.now() - t
+      const sPos = await buildSkillDetail(u.userId, sb, "position")
+      const sDbl = await buildSkillDetail(u.userId, sb, "double")
       const gridTarget = k.grid.reduce((a, c) => a + c.target, 0)
       const nodesWithPct = k.skillMap?.nodes.filter((x) => x.pct != null).length ?? null
       console.log(`--- ${u.userId.slice(0, 8)} 明細${u.n}音`)
       console.log(`   カルテ ${ms(tK)}: 安定マップ target合計 ${gridTarget} ・ 奏法行 ${k.techRows.length} ・ 所見 ${k.insights.length} ・ 技術マップ精度あり ${nodesWithPct ?? "先生なし"} ・ 虫めがね ${k.v2.discovery.lens?.raw ?? "なし"} ・ 音域 ${k.v2.discovery.registerWorst?.band ?? "なし"}`)
       console.log(`   数字の部屋 ${ms(tN)}: 音域 ${n.registers.length} ・ 音 ${n.worstNotes.length} ・ 遷移 ${n.transitions.length} ・ ポジション移動 ${n.posShifts.length} ・ セント偏差 ${n.centsBias ?? "なし"}`)
       console.log(`   指摘トラッキング ${ms(tR)}: ${r.length}件 ${r.map((x) => `${x.label.slice(0, 12)}=${x.status}`).join(", ")}`)
-      console.log(`   わざ詳細(スラー) ${ms(tS)}: state ${s?.state ?? "なし"} ・ 精度 ${s?.pct ?? "なし"} ・ 点 ${s?.series.length ?? 0} ・ おすすめ ${s?.recommended.length ?? 0}`)
+      console.log(`   わざ詳細(スラー) ${ms(tS)}: state ${s?.state ?? "なし"} ・ 精度 ${s?.pct ?? "なし"} ・ 点 ${s?.series.length ?? 0} ・ おすすめ ${s?.recommended.length ?? 0} [${s?.recommended.map((m) => m.title.slice(0, 10)).join(",")}]`)
+      console.log(`   わざ詳細(ポジション移動): 精度 ${sPos?.pct ?? "なし"} ・ おすすめ ${sPos?.recommended.length ?? 0} [${sPos?.recommended.map((m) => m.title.slice(0, 10)).join(",")}] / (重音): 精度 ${sDbl?.pct ?? "なし"} ・ おすすめ ${sDbl?.recommended.length ?? 0} [${sDbl?.recommended.map((m) => m.title.slice(0, 10)).join(",")}]`)
     } catch (e) {
       failures++
       console.log(`--- ${u.userId.slice(0, 8)} 失敗: ${(e as Error).message}`)
@@ -203,11 +207,37 @@ async function partC() {
   console.log(`成長1行 同じ ${lineSame} ・ 違う ${lineDiff} / ほめ 同じ ${praiseSame} ・ 違う ${praiseDiff}`)
 }
 
+async function partD() {
+  console.log("\n── D 先生画面の弱点行 ・ 直近の演奏 (旧 topWeak は保存された診断・新は明細) ──")
+  const { weakSlotsByPerformance } = await import("../app/_libs/diagnosisPresentation")
+  const perfs = await prisma.performance.findMany({
+    where: { scoreNoteVersion: { not: null } }, orderBy: { uploadedAt: "desc" }, take: 40,
+    select: { id: true, userId: true, analysisSummary: true, score: { select: { title: true } } },
+  })
+  const byUser = new Map<string, typeof perfs>()
+  for (const p of perfs) { const l = byUser.get(p.userId); if (l) l.push(p); else byUser.set(p.userId, [p]) }
+  let both = 0, oldOnly = 0, newOnly = 0, neither = 0, shown = 0
+  for (const [userId, list] of byUser) {
+    const t = performance.now()
+    const m = await weakSlotsByPerformance(userId, {}, 3)
+    const dt = performance.now() - t
+    for (const p of list) {
+      const d = (p.analysisSummary as { diagnosis?: { map_available?: boolean; diagnosis?: { pitch?: string[]; rhythm?: string[] } } } | null)?.diagnosis
+      const oldN = d?.map_available ? (d.diagnosis?.pitch?.length ?? 0) + (d.diagnosis?.rhythm?.length ?? 0) : 0
+      const nw = m.get(p.id) ?? []
+      if (oldN > 0 && nw.length > 0) both++; else if (oldN > 0) oldOnly++; else if (nw.length > 0) newOnly++; else neither++
+      if (shown < 8) { shown++; console.log(`--- ${p.score.title.slice(0, 12)} ${p.id.slice(0, 8)} 旧${oldN}件 新${nw.length}件 ${nw.map((w) => `[${w.tree}] ${w.name} ${w.miss}/${w.target}`).join(" ・ ")} (${ms(dt)}/ユーザー)`) }
+    }
+  }
+  console.log(`弱点行 両方あり ${both} ・ 旧だけ ${oldOnly} ・ 新だけ ${newOnly} ・ どちらも無し ${neither}`)
+}
+
 async function main() {
   const only = process.env.ONLY
-  const a = await partA()
+  const a = only === "BD" ? { perfs: 0, subEq: 0, subDiff: 0, nsEq: 0, nsDiff: 0, trMissing: 0, reasons: {} as Record<string, number> } : await partA()
   const b = only === "A" ? { failures: 0 } : await partB()
-  if (only !== "A") await partC()
+  if (only !== "A") await partD()
+  if (only !== "A" && only !== "BD") await partC()
   await prisma.$disconnect()
   const unexplained = a.reasons["要調査"] ?? 0
   if (b.failures > 0 || a.trMissing > 0 || unexplained > 0) { console.log(`\n判定: 失敗 (要調査 ${unexplained})`); process.exit(1) }

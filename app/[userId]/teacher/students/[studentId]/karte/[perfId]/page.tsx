@@ -6,32 +6,14 @@ import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
-import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
+import { weakSlotsByPerformance, type WeakSlotLite as WeakSlot } from "@/app/_libs/diagnosisPresentation"
 import { OBSERVATION_TAG_BY_ID } from "@/app/_libs/observationCatalog"
 import { getDailyLessonsForUserScore } from "@/app/_libs/dailyLessons"
 import KarteDetailClient from "./KarteDetailClient"
 
 export const metadata = { title: "練習後カルテ" }
 
-type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
-function topWeak(analysisSummary: unknown): WeakSlot[] {
-  const dj = (analysisSummary as { diagnosis?: {
-    map_available?: boolean
-    per_subtask?: Record<string, { miss: number; target: number }>
-    diagnosis?: { pitch?: string[]; rhythm?: string[] }
-  } })?.diagnosis
-  if (!dj || !dj.map_available) return []
-  const out: WeakSlot[] = []
-  for (const tree of ["pitch", "rhythm"] as const) {
-    for (const sid of dj.diagnosis?.[tree] ?? []) {
-      const def = SUBTASK_BY_ID[sid]
-      if (!def || !def.diagnosable) continue
-      const c = dj.per_subtask?.[sid] ?? { miss: 0, target: 0 }
-      out.push({ name: def.name, tree: tree === "pitch" ? "音程" : "リズム", miss: c.miss, target: c.target })
-    }
-  }
-  return out.slice(0, 4)
-}
+// 弱点行は明細から (weakSlotsByPerformance・2026-09-05)
 
 // ルールベースのAI候補: 弱点の語から観測タグ(癖)を推定 (LLM不使用)
 const KEYWORD_OBS: { kw: RegExp; tag: string }[] = [
@@ -79,25 +61,27 @@ export default async function KarteDetailPage({
   if (kind === "score") {
     const p = await prisma.performance.findFirst({
       where: { id: perfId, userId: studentId },
-      select: { uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, rangeFromNote: true, scoreId: true, score: { select: { title: true, star: true } } },
+      select: { uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, rangeFromNote: true, scoreId: true, score: { select: { title: true, star: true } } },
     })
     if (!p) redirect(backHref)
     title = p.score?.title ?? "曲"; star = p.score?.star ?? null; cat = p.rangeFromNote != null ? "曲" : "曲"
     pitch = Math.round(p.pitchAccuracy ?? 0); timing = Math.round(p.timingAccuracy ?? 0); avg = avg2(p.pitchAccuracy, p.timingAccuracy)
-    weak = topWeak(p.analysisSummary); audioPath = p.audioPath; date = `${p.uploadedAt.getMonth() + 1}/${p.uploadedAt.getDate()}`
+    audioPath = p.audioPath; date = `${p.uploadedAt.getMonth() + 1}/${p.uploadedAt.getDate()}`
     scoreId = p.scoreId
   } else {
     const p = await prisma.practicePerformance.findFirst({
       where: { id: perfId, userId: studentId },
-      select: { uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, practiceItemId: true, practiceItem: { select: { title: true, category: true, star: true } } },
+      select: { uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, practiceItemId: true, practiceItem: { select: { title: true, category: true, star: true } } },
     })
     if (!p) redirect(backHref)
     title = p.practiceItem?.title ?? "教材"; star = p.practiceItem?.star ?? null
     itemId = p.practiceItemId
     cat = p.practiceItem?.category ? categoryLabel(p.practiceItem.category) : "基礎練"
     pitch = Math.round(p.pitchAccuracy ?? 0); timing = Math.round(p.timingAccuracy ?? 0); avg = avg2(p.pitchAccuracy, p.timingAccuracy)
-    weak = topWeak(p.analysisSummary); audioPath = p.audioPath; date = `${p.uploadedAt.getMonth() + 1}/${p.uploadedAt.getDate()}`
+    audioPath = p.audioPath; date = `${p.uploadedAt.getMonth() + 1}/${p.uploadedAt.getDate()}`
   }
+
+  weak = (await weakSlotsByPerformance(studentId, { performanceId: perfId }, 4)).get(perfId) ?? []
 
   const audioUrl = audioPath
     ? await storageAdmin.storage.from("performances").createSignedUrl(audioPath, 600).then((x) => encodeSignedUrl(x.data?.signedUrl)).catch(() => null)

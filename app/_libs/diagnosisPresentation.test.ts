@@ -4,7 +4,7 @@
  */
 import { describe, it, expect } from "vitest"
 import type { DetailRow, ProfileRow, NoteStoreSource } from "./noteStore"
-import { buildDiagnosisView, buildBreakdown, weakestBundles, DIAG_MIN_TARGET, DIAG_SHELVES } from "./diagnosisPresentation"
+import { buildDiagnosisView, buildBreakdown, weakestBundles, weakSlotsFromRows, weakSlotsByPerformance, DIAG_MIN_TARGET, DIAG_SHELVES } from "./diagnosisPresentation"
 
 let nextId = 1
 function P(pitch: string, o: Partial<ProfileRow> = {}): ProfileRow {
@@ -111,5 +111,28 @@ describe("weakestBundles", () => {
     const rows = perf(PIECE, [1, 4, 7, 2])
     const w = weakestBundles(rows, "pitch", 2, 3)
     expect(w.map((x) => x.key)).toEqual(["pitch|E4|F#4", "pitch|F#4|G#4"])
+  })
+})
+
+describe("先生画面の弱点行 ・ weakSlotsFromRows / weakSlotsByPerformance", () => {
+  it("音程側→リズム側の順に、診断と同じ束と足切りで、limit 件まで", () => {
+    const rows = perf(PIECE, [1, 4, 7], [2, 5, 8, 11])
+    const slots = weakSlotsFromRows(rows, 4)
+    expect(slots[0]).toEqual({ name: "ミ→ファ♯ の移動", tree: "音程", miss: 3, target: 4 })
+    expect(slots.find((s) => s.tree === "リズム")).toEqual({ name: "ファ♯→ソ♯ の移動", tree: "リズム", miss: 4, target: 4 })
+    expect(weakSlotsFromRows(rows, 1)).toHaveLength(1)
+    expect(weakSlotsFromRows(perf(PIECE), 4)).toEqual([])
+  })
+  it("明細を1回引いて演奏ごとに分ける ・ 読みに失敗したら空", async () => {
+    const a = perf(PIECE, [1, 4, 7]).map((r) => ({ ...r, performanceId: "a" }))
+    const b = perf(PIECE).map((r) => ({ ...r, performanceId: "b" }))
+    const calls: unknown[] = []
+    const s: NoteStoreSource = { fetchDetail: async (u) => { calls.push(u); return [...a, ...b] }, findMaterial: async () => null }
+    const m = await weakSlotsByPerformance("u", { lastN: 5 }, 3, s)
+    expect(calls).toEqual([{ userId: "u", lastN: 5 }])
+    expect(m.get("a")?.[0]?.name).toBe("ミ→ファ♯ の移動")
+    expect(m.get("b")).toEqual([])
+    const bad: NoteStoreSource = { fetchDetail: async () => { throw new Error("x") }, findMaterial: async () => null }
+    expect((await weakSlotsByPerformance("u", {}, 3, bad)).size).toBe(0)
   })
 })

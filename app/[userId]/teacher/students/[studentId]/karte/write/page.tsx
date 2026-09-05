@@ -7,7 +7,7 @@ import { createServerSupabaseClient } from "@/app/_libs/supabaseServer"
 import { storageAdmin } from "@/app/_libs/storageAdmin"
 import { encodeSignedUrl } from "@/app/_libs/encodeSignedUrl"
 import { categoryLabel } from "@/app/_libs/practiceConstants"
-import { SUBTASK_BY_ID } from "@/app/_libs/subtaskCatalog.generated"
+import { weakSlotsByPerformance, type WeakSlotLite as WeakSlot } from "@/app/_libs/diagnosisPresentation"
 import { OBSERVATION_TAG_BY_ID, resolveObsTag } from "@/app/_libs/observationCatalog"
 import { getDailyLessonsForUserScore } from "@/app/_libs/dailyLessons"
 import { buildTargetHeatmap } from "@/app/_libs/fingerboard/aggregate"
@@ -16,25 +16,7 @@ import KarteWriteClient from "./KarteWriteClient"
 
 export const metadata = { title: "練習後カルテを書く" }
 
-type WeakSlot = { name: string; tree: "音程" | "リズム"; miss: number; target: number }
-function topWeak(analysisSummary: unknown): WeakSlot[] {
-  const dj = (analysisSummary as { diagnosis?: {
-    map_available?: boolean
-    per_subtask?: Record<string, { miss: number; target: number }>
-    diagnosis?: { pitch?: string[]; rhythm?: string[] }
-  } })?.diagnosis
-  if (!dj || !dj.map_available) return []
-  const out: WeakSlot[] = []
-  for (const tree of ["pitch", "rhythm"] as const) {
-    for (const sid of dj.diagnosis?.[tree] ?? []) {
-      const def = SUBTASK_BY_ID[sid]
-      if (!def || !def.diagnosable) continue
-      const c = dj.per_subtask?.[sid] ?? { miss: 0, target: 0 }
-      out.push({ name: def.name, tree: tree === "pitch" ? "音程" : "リズム", miss: c.miss, target: c.target })
-    }
-  }
-  return out.slice(0, 4)
-}
+// 弱点行は明細から (weakSlotsByPerformance・2026-09-05)
 
 // ルールベースのAI候補: 弱点の語から観測タグ(癖)を推定 (LLM不使用)
 const KEYWORD_OBS: { kw: RegExp; tag: string }[] = [
@@ -92,12 +74,13 @@ export default async function KarteWritePage({
     const rows = await prisma.performance.findMany({
       where: { userId: studentId, scoreId: target, pitchAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: 5,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, comparisonResultPath: true },
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, comparisonResultPath: true },
     })
+    const weakMap = await weakSlotsByPerformance(studentId, { target: { type: "score", id: target } }, 4)
     perfs = rows.map((p) => ({
       id: p.id, date: fmtMD(p.uploadedAt),
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
-      audioPath: p.audioPath, weak: topWeak(p.analysisSummary), comparisonResultPath: p.comparisonResultPath,
+      audioPath: p.audioPath, weak: weakMap.get(p.id) ?? [], comparisonResultPath: p.comparisonResultPath,
     }))
   } else {
     const item = await prisma.practiceItem.findUnique({ where: { id: target }, select: { title: true, category: true, star: true, buildStatus: true, generatedXmlPath: true } })
@@ -110,12 +93,13 @@ export default async function KarteWritePage({
     const rows = await prisma.practicePerformance.findMany({
       where: { userId: studentId, practiceItemId: target, pitchAccuracy: { not: null } },
       orderBy: { uploadedAt: "desc" }, take: 5,
-      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, analysisSummary: true, comparisonResultPath: true },
+      select: { id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, audioPath: true, comparisonResultPath: true },
     })
+    const weakMap = await weakSlotsByPerformance(studentId, { target: { type: "practice", id: target } }, 4)
     perfs = rows.map((p) => ({
       id: p.id, date: fmtMD(p.uploadedAt),
       pitch: Math.round(p.pitchAccuracy ?? 0), timing: Math.round(p.timingAccuracy ?? 0), avg: avg2(p.pitchAccuracy, p.timingAccuracy),
-      audioPath: p.audioPath, weak: topWeak(p.analysisSummary), comparisonResultPath: p.comparisonResultPath,
+      audioPath: p.audioPath, weak: weakMap.get(p.id) ?? [], comparisonResultPath: p.comparisonResultPath,
     }))
   }
 
