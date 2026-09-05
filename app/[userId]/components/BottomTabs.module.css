@@ -27,7 +27,7 @@
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  height: 72px;
+  height: var(--tabbar-h, 72px);
 }
 
 .tab {

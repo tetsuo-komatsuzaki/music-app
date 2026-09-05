@@ -5,6 +5,7 @@
 // 変換は解析時に Python (lib/rhythm_recipe.py) が行い、生成物は通常アップロードと
 // 同じ形式 (MusicXML + analysis + build_score) になる。
 import { revalidatePath } from "next/cache"
+import { firstPassNotes } from "@/app/_libs/analysisNotes"
 import { Prisma, type PracticeCategory } from "@/app/generated/prisma"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAdminAction } from "@/app/_libs/requireAuth"
@@ -47,7 +48,8 @@ export async function getRhythmContext(itemId: string, kind: "practice" | "score
     const notes = (j.notes ?? j.note_results ?? []) as { type?: string; measure_number?: number; note_name?: string; start_time_sec?: number; end_time_sec?: number }[]
 
     const byMeasure = new Map<number, { count: number; names: string[]; durs: number[] }>()
-    for (const n of notes) {
+    // 繰り返し展開後の解析データを記譜の1回目だけに絞る (2026-09-05 No.16 が1小節24音になっていた)
+    for (const n of firstPassNotes(notes)) {
       if (n.type !== "note" || typeof n.measure_number !== "number") continue
       const m = byMeasure.get(n.measure_number) ?? { count: 0, names: [], durs: [] }
       m.count += 1
