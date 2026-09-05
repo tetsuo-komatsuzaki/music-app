@@ -732,6 +732,9 @@ try:
     # =========================
     note_results: List[Dict[str, Any]] = []
     directions_out: List[Dict[str, Any]] = []   # 記号ガイド用の文字指示
+    # 装飾音 (長さ 0) は採点の音符列 (note_index) には入れない (既存動作)。ただし譜面表示から消えていた
+    # (2026-09-05 Tetsuo報告: No.17 のトリル終止の装飾符が無い) ので、別配列に「次の音符の前に描く」印として残す。
+    grace_out: list[dict[str, Any]] = []
     note_index = 0
 
     # ── 弦・ポジションの事前解決 (2026-08-25 Tetsuo確定のアンカー方式) ──
@@ -784,6 +787,13 @@ try:
         for element in measure.notesAndRests:
             duration_quarter = float(element.duration.quarterLength)
             if duration_quarter == 0:
+                if not isinstance(element, note.Rest) and getattr(element, "pitches", None):
+                    grace_out.append({
+                        "before_note_index": note_index,        # この装飾音の直後に来る本体の音符
+                        "measure_number": measure_number,
+                        "note_name": "/".join(p.nameWithOctave for p in element.pitches),
+                        "slash": bool(getattr(element.duration, "slash", False)),
+                    })
                 continue
             _seq_pos_here = _seq_pos      # この音符に対応する事前パスの位置
             _seq_pos += 1
@@ -1218,6 +1228,7 @@ try:
         "spanners": {"slurs": slurs_out, "hairpins": hairpins_out},
         # 記号ガイド用 (2026-07-25)
         "directions": directions_out,
+        "grace_notes": grace_out,
         "structure": structure,
     }
 

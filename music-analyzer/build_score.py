@@ -136,6 +136,7 @@ try:
     key_info = analysis["key"]
     time_sig_info = analysis["time_signature"]
     spanners_info = analysis.get("spanners", {"slurs": [], "hairpins": []})
+    grace_info: list[dict[str, Any]] = analysis.get("grace_notes", []) or []   # 2026-09-05: 装飾音 (譜面表示専用)
 
     # =========================
     # ▼▼▼ ここから下は一切変更しない ▼▼▼
@@ -153,16 +154,44 @@ try:
         score.metadata.title = "Pseudo Score (Analysis)"
 
         part = stream.Part()
-        part.insert(0, clef.TrebleClef())
-        part.insert(0, key.Key(key_info["tonic"], key_info["mode"]))
-        part.insert(0, meter.TimeSignature(f'{time_sig_info["numerator"]}/{time_sig_info["denominator"]}'))
-        part.insert(0, tempo.MetronomeMark(number=bpm))
-
+        _beats = float(time_sig_info["numerator"]) * 4.0 / float(time_sig_info["denominator"])
+        _head = [
+            clef.TrebleClef(),
+            key.Key(key_info["tonic"], key_info["mode"]),
+            meter.TimeSignature(f'{time_sig_info["numerator"]}/{time_sig_info["denominator"]}'),
+            tempo.MetronomeMark(number=bpm),
+        ]
         seconds_per_quarter = 60.0 / bpm
 
         index_to_element: Dict[int, Any] = {}
 
+        # 小節は解析データの小節番号 (演奏順の並び) どおりに区切る (2026-09-05 Tetsuo報告: No.17 の小節線が1拍ずれる)。
+        # 従来の makeMeasures は音符の長さを積んで拍子ごとに線を引く方式で、弱起 (No.17 は第1小節が1拍) や
+        # 途中で割れた小節があると、そこから先の小節線が全部ずれていた。
+        measures: list[stream.Measure] = []
+        _cur_num: list[Any] = [None]
+
+        def _measure_for(rec):
+            mn = rec.get("measure_number")
+            if not measures or mn != _cur_num[0]:
+                m_new = stream.Measure(number=len(measures) + 1)
+                if not measures:
+                    for h in _head:
+                        m_new.insert(0, h)
+                measures.append(m_new)
+                _cur_num[0] = mn
+            return measures[-1]
+
+        # 装飾音 (長さ 0・採点対象外) は「直後の音符の前」に描く
+        _grace_by_index: dict[int, list[dict[str, Any]]] = {}
+        for g in grace_info:
+            try:
+                _grace_by_index.setdefault(int(g["before_note_index"]), []).append(g)
+            except (KeyError, ValueError, TypeError):
+                continue
+
         for r in note_results:
+            m_cur = _measure_for(r)
             duration_sec = float(r["end_time_sec"]) - float(r["start_time_sec"])
             raw_quarter_length = duration_sec / seconds_per_quarter
             quarter_length = quantize_quarter_length(raw_quarter_length)
@@ -233,9 +262,22 @@ try:
                     pass
 
             if r.get("dynamic"):
-                part.append(dynamics.Dynamic(r["dynamic"]))
+                m_cur.append(dynamics.Dynamic(r["dynamic"]))
 
-            part.append(n)
+            for g in _grace_by_index.get(int(r["note_index"]), []):
+                _gnames = [x for x in (g.get("note_name") or "").split("/") if x]
+                if not _gnames:
+                    continue
+                # 原譜で前の小節の末尾に書かれた装飾音 (トリルの終止など) は、小節線の前に置く
+                _gm = g.get("measure_number")
+                _target = measures[-2] if (_gm is not None and _gm != r.get("measure_number") and len(measures) >= 2) else m_cur
+                try:
+                    _gbase = note.Note(_gnames[0]) if len(_gnames) == 1 else chord.Chord(_gnames)
+                    _target.append(_gbase.getGrace(appoggiatura=not g.get("slash", False)))
+                except Exception as _ge:  # noqa: BLE001 — 装飾音1つの失敗で譜面全体を止めない
+                    print(f"[build_score] grace skipped ({_gnames}): {_ge}")
+
+            m_cur.append(n)
             index_to_element[int(r["note_index"])] = n
 
         for sl in spanners_info.get("slurs", []):
@@ -275,7 +317,14 @@ try:
         # 非 inPlace で part を作り直すと、上で score に挿入したスラー/ヘアピンが
         # 参照する音符が最終ストリームから外れ、MusicXML export 時に
         # <slur>/<wedge> が消える（music21 9.x で実機確認済み）。
-        part.makeMeasures(inPlace=True)
+        for i, m in enumerate(measures):
+            _short = _beats - float(m.duration.quarterLength)
+            if _short > 1e-6:
+                if i == 0:
+                    m.paddingLeft = _short          # 弱起
+                else:
+                    m.paddingRight = _short         # 途中で割れた小節・最終小節
+            part.append(m)
 
         for i, m in enumerate(part.getElementsByClass(stream.Measure)):
             # 4小節ごとに改行
