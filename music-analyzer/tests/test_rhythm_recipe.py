@@ -149,3 +149,41 @@ def test_chord_recipe_three_notes_and_single_when_one_number():
     one = {"unitMeasures": 1, "notes": [{"base": "w", "pitchNo": 2, "pitchNos": [2]}]}
     ns1 = _notes(apply_rhythm_recipe(_src(measures=1), one))
     assert isinstance(ns1[0], note.Note) and ns1[0].pitch.nameWithOctave == "B4"
+
+
+def _src_tail_differs() -> stream.Score:
+    """4/4 ・ 1小節目は8分×8、2小節目は 8分×4 + 4分×2 (後半だけ形が違う)"""
+    part = stream.Part()
+    part.append(meter.TimeSignature("4/4"))
+    names = ["A4", "B4", "C#5", "D5", "E5", "F#5", "G#5", "A5"]
+    for i in range(8):
+        n = note.Note(names[i]); n.duration.quarterLength = 0.5; part.append(n)
+    for i in range(4):
+        n = note.Note(names[i]); n.duration.quarterLength = 0.5; part.append(n)
+    for nm in ["E5", "A5"]:
+        n = note.Note(nm); n.duration.quarterLength = 1.0; part.append(n)
+    sc = stream.Score(); sc.append(part)
+    for p in sc.parts:
+        p.makeMeasures(inPlace=True)
+    return sc
+
+
+def test_partial_apply_to_matching_prefix_only():
+    """2026-09-05 Tetsuo確定: 形が違う単位は、頭から一致する部分 (ここでは前半2拍) にだけ適用し、後半は元のまま"""
+    recipe = {"unitMeasures": 1, "notes": [{"base": "s", "pitchNo": i + 1} for i in range(8)] + [{"base": "q", "pitchNo": 1}, {"base": "q", "pitchNo": 2}]}
+    out = apply_rhythm_recipe(_src_tail_differs(), recipe)
+    ms = list(out.parts[0].getElementsByClass(stream.Measure))
+    m1 = [float(n.duration.quarterLength) for n in ms[0].notes]
+    m2 = [float(n.duration.quarterLength) for n in ms[1].notes]
+    assert m1 == [0.25] * 8 + [1.0, 1.0]                      # 1小節目は全部レシピ
+    assert m2 == [0.25] * 8 + [1.0, 1.0]                      # 2小節目は前半だけレシピ (16分×8)、後半は元の4分×2
+    assert [n.pitch.nameWithOctave for n in ms[1].notes][8:] == ["E5", "A5"]   # 後半のピッチは元のまま
+    assert [n.pitch.nameWithOctave for n in ms[1].notes][:4] == ["A4", "B4", "C#5", "D5"]  # 前半は元の4音から番号で引き継ぐ
+
+
+def test_partial_apply_skipped_when_recipe_boundary_does_not_align():
+    """レシピの区切りが境目 (2拍) に来ないときは、その単位は丸ごと対象外"""
+    recipe = {"unitMeasures": 1, "notes": [{"base": "e", "dot": True, "pitchNo": 1}] * 4 + [{"base": "q", "pitchNo": 1}]}  # 0.75×4=3拍 + 1拍
+    out = apply_rhythm_recipe(_src_tail_differs(), recipe)
+    ms = list(out.parts[0].getElementsByClass(stream.Measure))
+    assert [float(n.duration.quarterLength) for n in ms[1].notes] == [0.5] * 4 + [1.0, 1.0]  # 2小節目は元のまま

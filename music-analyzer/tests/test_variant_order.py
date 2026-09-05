@@ -8,17 +8,15 @@ Part2 (17-28小節) は本来17-22にスタッカートが付くのに1つも付
 ここでは「通しに適用したものを切り出した結果」と一致することを担保する。
 """
 import ast
-import io
 import os
 import sys
 
-import pytest
 from music21 import articulations as m21art
 from music21 import note as m21note
 from music21 import stream
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from lib.difficulty_variant import apply_variant_recipe  # noqa: E402
+from lib.difficulty_variant import apply_variant_recipe
 
 _ROOT = os.path.join(os.path.dirname(__file__), "..")
 
@@ -26,7 +24,7 @@ _ROOT = os.path.join(os.path.dirname(__file__), "..")
 def _load_apply_articulation():
     """analyze_musicxml.py は import 時に引数を要求するスクリプトなので、
     必要な関数と定数だけを取り出して評価する。"""
-    src = io.open(os.path.join(_ROOT, "analyze_musicxml.py"), encoding="utf-8").read()
+    src = open(os.path.join(_ROOT, "analyze_musicxml.py"), encoding="utf-8").read()
     ns: dict = {}
     exec("from music21 import articulations, expressions, spanner, stream", ns)
     for node in ast.parse(src).body:
@@ -90,10 +88,28 @@ def test_パートは通しを切り出したものと一致する():
 
 def test_解析本体も奏法リズムのあとで切り出している():
     """analyze_musicxml.py の適用順そのものを固定する。"""
-    src = io.open(os.path.join(_ROOT, "analyze_musicxml.py"), encoding="utf-8").read()
+    src = open(os.path.join(_ROOT, "analyze_musicxml.py"), encoding="utf-8").read()
     body = src[src.index("if IS_PRACTICE_ITEM:"):src.index("    else:\n        # 曲の難易度変種")]
     i_art = body.index("apply_articulation_variant(score, pi_metadata)")
     i_rhythm = body.index("apply_rhythm_recipe(score, rhythm_recipe)")
     i_range = body.index("apply_variant_recipe(score, score_variant_recipe)")
     assert i_range > i_art, "範囲切り出しは奏法のあとで行うこと"
     assert i_range > i_rhythm, "範囲切り出しはリズムのあとで行うこと"
+
+
+def test_per_note_articulation_applies_only_to_matching_prefix():
+    """2026-09-05 Tetsuo確定: 形が違う単位は頭から一致する音にだけ奏法を付ける (カイザー No.10 型)"""
+    apply = _load_apply_articulation()
+    sc = _score(2, notes_per_measure=8)
+    # 2小節目の後半を 4分×2 に差し替える (前半4音だけ先頭単位と同じ形)
+    m2 = sc.parts[0].getElementsByClass(stream.Measure)[1]
+    for n in list(m2.notes)[4:]:
+        m2.remove(n)
+    for k in range(2):
+        q = m21note.Note("C4", quarterLength=1.0)
+        m2.insert(2.0 + k, q)
+    pat = {"articulationPattern": {"type": "per_note", "unitMeasures": 1,
+                                   "assignments": [{"noteIndex": i, "articulation": "staccato"} for i in range(8)]}}
+    out = apply(sc, pat)
+    stac = _staccato_per_measure(out)
+    assert stac == [8, 4]   # 1小節目は8音全部、2小節目は前半4音だけ

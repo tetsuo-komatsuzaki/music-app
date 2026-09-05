@@ -30,7 +30,9 @@ Tetsuo確定仕様:
     "skipTail":  終わりから何小節を対象外にするか
     "skipMeasures": [3, 7]  対象外にする小節番号 (1始まり) をピンポイントで
   で除外でき、除外した小節にはルールを適用しない (元のまま残す)。
-  加えて、先頭単位と形の違う単位も自動で対象外になる。
+  加えて、先頭単位と形の違う単位は、先頭単位と「頭から一致している部分」にだけ適用し、残りは元のまま残す
+  (2026-09-05 Tetsuo確定。カイザー No.10 の4・8小節目は後半2拍だけ形が違う → 前半にだけ適用)。
+  境目はレシピの音の区切りと一致するときだけ。合わないときはその単位を丸ごと対象外にする。
 """
 from __future__ import annotations
 
@@ -103,7 +105,7 @@ def apply_rhythm_recipe(score: stream.Score, recipe: dict[str, Any] | None) -> s
     skip_set.discard(0)
 
     out = deepcopy(score)
-    applied = skipped = 0
+    applied = skipped = partial = 0
     for part in out.parts:
         measures = list(part.getElementsByClass(stream.Measure))
         if not measures:
@@ -111,7 +113,8 @@ def apply_rhythm_recipe(score: stream.Score, recipe: dict[str, Any] | None) -> s
         total_m = len(measures)
         # 対象の起点は「先頭の対象外ぶんを飛ばした位置」。そこの単位を基準の形にする。
         first = min(skip_head, max(0, total_m - unit))
-        head_sig = _block_signature(measures[first:first + unit])
+        head_block = [deepcopy(m) for m in measures[first:first + unit]]   # 書き換え前の形を保持 (部分適用の比較用)
+        head_sig = _block_signature(head_block)
         for start in range(first, total_m, unit):
             block = measures[start:start + unit]
             if len(block) < unit:
@@ -124,8 +127,13 @@ def apply_rhythm_recipe(score: stream.Score, recipe: dict[str, Any] | None) -> s
             if any(n in skip_set for n in nums):                     # ピンポイント除外
                 skipped += 1
                 continue
-            if _block_signature(block) != head_sig:                  # 形が違う単位も自動で除外
-                skipped += 1
+            if _block_signature(block) != head_sig:
+                # 形が違う単位: 先頭単位と頭から一致している部分 (拍数 P) にだけ適用する
+                prefix_ql = _matching_prefix_ql(head_block, block)
+                if prefix_ql <= 0 or not _rewrite_prefix(block, specs, prefix_ql):
+                    skipped += 1
+                    continue
+                partial += 1
                 continue
             src_pitches = [n.pitch for m in block for n in m.notes if isinstance(n, m21note.Note)]
             if not src_pitches:
@@ -133,8 +141,8 @@ def apply_rhythm_recipe(score: stream.Score, recipe: dict[str, Any] | None) -> s
                 continue
             _rewrite_block(block, src_pitches, specs)
             applied += 1
-    logger.info("rhythm recipe applied: unit=%d notes=%d blocks=%d skipped=%d",
-                unit, len(specs), applied, skipped)
+    logger.info("rhythm recipe applied: unit=%d notes=%d blocks=%d partial=%d skipped=%d",
+                unit, len(specs), applied, partial, skipped)
     return out
 
 
@@ -153,14 +161,71 @@ def _block_signature(block: list[stream.Measure]) -> str:
     return "|".join(parts)
 
 
+def _flat_elements(block: list[stream.Measure]) -> list:
+    """単位の音符・休符を並び順に (小節をまたいで) 返す"""
+    return [el for meas in block for el in meas.notesAndRests]
+
+
+def _matching_prefix_ql(head_block: list[stream.Measure], block: list[stream.Measure]) -> float:
+    """先頭単位と頭から一致している部分の長さ (quarterLength)。音価の並びで比べる。一致なし=0"""
+    a = [float(el.duration.quarterLength) for el in _flat_elements(head_block)]
+    b = [float(el.duration.quarterLength) for el in _flat_elements(block)]
+    total = 0.0
+    for x, y in zip(a, b):
+        if abs(x - y) > 1e-6:
+            break
+        total += x
+    return total
+
+
+def _rewrite_prefix(block: list[stream.Measure], specs: list[dict[str, Any]], prefix_ql: float) -> bool:
+    """単位の先頭 prefix_ql 拍ぶんだけをレシピで書き換え、残りは元のまま残す (2026-09-05 部分適用)。
+    レシピ側の区切りが prefix_ql にちょうど来ないときは何もせず False。"""
+    # レシピの区切りが境目に来るか
+    acc = 0.0
+    cut = None
+    for i, spec in enumerate(specs):
+        ql = note_quarter_length(spec)
+        if ql is None:
+            continue
+        acc += ql
+        if abs(acc - prefix_ql) < 1e-6:
+            cut = i + 1
+            break
+        if acc > prefix_ql + 1e-6:
+            break
+    if cut is None:
+        return False
+    # 元の先頭 prefix_ql 拍ぶんの要素 (音符・休符) を消す。ピッチはその中の音符から引き継ぐ
+    removed_ql = 0.0
+    src_pitches = []
+    for meas in block:
+        for el in list(meas.notesAndRests):
+            if removed_ql + 1e-6 >= prefix_ql:
+                break
+            if isinstance(el, m21note.Note):
+                src_pitches.append(el.pitch)
+            removed_ql += float(el.duration.quarterLength)
+            meas.remove(el)
+        if removed_ql + 1e-6 >= prefix_ql:
+            break
+    if not src_pitches:
+        return False
+    _insert_specs(block, src_pitches, specs[:cut])
+    return True
+
+
 def _rewrite_block(block: list[stream.Measure], src_pitches: list, specs: list[dict[str, Any]]) -> None:
     """単位ぶんの小節群を、レシピどおりの音符列で置き換える (拍割りは順に詰める)。"""
     # 既存の音符・休符を除去 (拍子・調号・小節線などその他の要素は残す)
     for meas in block:
         for el in list(meas.notesAndRests):
             meas.remove(el)
+    _insert_specs(block, src_pitches, specs)
 
-    # レシピの音符を、各小節の容量 (barDuration) に順に詰める
+
+def _insert_specs(block: list[stream.Measure], src_pitches: list, specs: list[dict[str, Any]]) -> None:
+    """レシピの音符を、単位の先頭から各小節の容量 (barDuration) に順に詰める"""
     slur_groups: dict[Any, list[m21note.Note]] = {}
     mi, offset = 0, 0.0
     cap = _capacity(block[0])

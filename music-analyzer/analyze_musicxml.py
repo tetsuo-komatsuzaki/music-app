@@ -319,6 +319,9 @@ def apply_articulation_variant(score, metadata):
             measures = list(part.getElementsByClass(stream.Measure))
             total_m = len(measures)
             first = min(skip_head, max(0, total_m - unit))
+            # 先頭単位の形 (音符の音価の並び)。形が違う単位は、頭から一致している音にだけ割り当てる
+            # (2026-09-05 Tetsuo確定: カイザー No.10 の4・8小節目は後半だけ形が違う → 前半にだけ適用)
+            head_durs = [float(n.duration.quarterLength) for m in measures[first:first + unit] for n in m.notes]
             # 繰り返し単位ごとに: 単位内の音符並び (0始まり) に割り当てを適用
             for u_start in range(first, total_m, unit):
                 nums = list(range(u_start + 1, u_start + 1 + unit))
@@ -326,12 +329,18 @@ def apply_articulation_variant(score, metadata):
                     continue
                 if any(n in skip_set for n in nums):
                     continue
+                durs = [float(n.duration.quarterLength) for m in measures[u_start:u_start + unit] for n in m.notes]
+                match_n = 0
+                for x, y in zip(head_durs, durs):
+                    if abs(x - y) > 1e-6:
+                        break
+                    match_n += 1
                 idx = 0
                 run: list = []      # 連続スタッカートが続く音の並び (単位の中で連続するものを1本のスラーに)
                 runs: list = []
                 for meas in measures[u_start:u_start + unit]:
                     for n in meas.notes:
-                        art_id = assigns.get(idx)
+                        art_id = assigns.get(idx) if idx < match_n else None   # 形が違う部分には付けない
                         if art_id:
                             _apply_art_to_note(n, art_id)
                         if art_id == "bow_staccato":
