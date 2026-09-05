@@ -1273,9 +1273,12 @@ try:
     # 書き込みの失敗は握りつぶさず例外にする (仕様 §11-9)。旧の集計はこれまでどおり別に書く (二重書き)。
     _ns_target_type = "practice" if IS_PRACTICE_ITEM else "score"
     _ns_target_id = PRACTICE_ITEM_ID if IS_PRACTICE_ITEM else SCORE_ID
-    from lib.note_store import build_score_notes, save_score_notes, clear_score_notes
+    from lib.note_store import (build_score_notes, save_score_notes, clear_score_notes,
+                                material_bundle_counts, save_material_bundle_counts, clear_material_bundle_counts)
     if karte_payload is None:
         clear_score_notes(cur, _ns_target_type, _ns_target_id, "カルテ生成に失敗")
+        if IS_PRACTICE_ITEM:
+            clear_material_bundle_counts(cur, _ns_target_id)
     else:
         _ns_expanded = []
         for _m in performance_part.getElementsByClass("Measure"):
@@ -1316,9 +1319,16 @@ try:
         )
         if not _ns_status.startswith("ok"):
             clear_score_notes(cur, _ns_target_type, _ns_target_id, _ns_status)
+            if IS_PRACTICE_ITEM:
+                clear_material_bundle_counts(cur, _ns_target_id)
         else:
             _ns_version = save_score_notes(cur, _ns_target_type, _ns_target_id, _ns_rows, _ns_profiles)
             print(f"[note_store] ScoreNote {len(_ns_rows)}行 ・ かたち {len(_ns_profiles)}種 ・ 版={_ns_version} ・ {_ns_status}")
+            if IS_PRACTICE_ITEM:
+                # 教材側の束の出現回数 (派生表)。楽譜を解析し直したときだけ書き直す
+                _mb = material_bundle_counts(_ns_rows, _ns_profiles)
+                save_material_bundle_counts(cur, _ns_target_id, _mb, len(_ns_rows), _ns_version)
+                print(f"[note_store] MaterialBundleCount {len(_mb)}束")
 
     # ステータス更新（done）
     if IS_PRACTICE_ITEM:

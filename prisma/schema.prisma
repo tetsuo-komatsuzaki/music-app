@@ -1850,3 +1850,31 @@ model PerformanceNote {
   @@id([performanceKind, performanceId, noteIndex])
   @@index([performanceId])
 }
+
+/// 教材側の「束ごとの出現回数」の写し (2026-09-05 Tetsuo: 毎回数えるのはナンセンス。表に持ち、楽譜が変わったときだけ書き直す)。
+/// 正は ScoreNote。教材を解析したときに ScoreNote と同じトランザクションで書き直す。ScoreNote から作り直せる派生物
+/// (music-analyzer/scripts/rebuild_material_bundle_counts.py ・ --check で並びとの一致を守る)。
+///
+/// bundleKey は読み手 (app/_libs/noteStore.ts の groupKeysOf) と同じ文字列。kind/fromValue/toValue はその分解:
+///   pitch      "pitch|G4|C5"        前の音名 → 今の音名
+///   fingering  "fingering|G4|A4"    同上のうち 前の音の秒 < 0.3 ・ 直前に休符なし ・ 両方とも指を押さえる
+///   position   "position|1|3"       前の手のポジション → 今の手のポジション (異なるもの)
+///   technique  "technique|slur"     奏法13種
+///   chord      "chord|5度"          重音の隣り合う構成音の度数 (3度 4度 5度 6度 オクターブ その他)
+///   note       "note|G4"            音名そのもの (音名別の集計・密度用)
+model MaterialBundleCount {
+  targetId         String // PracticeItem.id
+  bundleKey        String
+  kind             String // pitch / fingering / position / technique / chord / note
+  fromValue        String // 前の値。無ければ ""
+  toValue          String // 今の値
+  count            Int // その束に入る音の数 (展開後・演奏順)
+  noteTotal        Int // 教材の音の総数 (休符を除く・展開後)。密度 = count / noteTotal
+  scoreNoteVersion String // この写しを作ったときの並びの版。PracticeItem.scoreNoteVersion と違えば写しが古い
+  bundleVersion    Int // 束の定義の版。いまは 1。定義を変えたら上げて全件作り直す
+  updatedAt        DateTime @default(now()) @updatedAt
+
+  @@id([targetId, bundleKey])
+  @@index([bundleKey, count])
+  @@index([kind, toValue])
+}

@@ -12,7 +12,7 @@
 import "dotenv/config"
 import { prisma } from "../app/_libs/prisma"
 import { buildPersonalReco, MIN_TARGET, TAB_CATEGORIES } from "../app/_libs/personalReco"
-import { prismaSource, aggregate, pickWeakest, type TabKey } from "../app/_libs/noteStore"
+import { prismaSource, aggregate, pickWeakest, countBundleInMaterial, type TabKey } from "../app/_libs/noteStore"
 import { RECO_TAB_LABELS } from "../app/_libs/personalRecoTypes"
 
 async function main() {
@@ -45,20 +45,14 @@ async function main() {
         continue
       }
       const m = t.materials[0]
-      const hit = await prismaSource.findMaterial(pick.weakest!.key, 99, TAB_CATEGORIES[t.key])
       const again = await prisma.$queryRaw<{ c: number }[]>`
-        SELECT count(*)::int AS c FROM "ScoreNote" sn
-        JOIN "NoteProfile" cur ON cur.id = sn."profileId"
-        LEFT JOIN "NoteProfile" prev ON prev.id = sn."prevProfileId"
-        WHERE sn."targetType" = 'practice' AND sn."targetId" = ${m.id}`
+        SELECT count(*)::int AS c FROM "ScoreNote" sn WHERE sn."targetType" = 'practice' AND sn."targetId" = ${m.id}`
       const total = again[0]?.c ?? 0
-      const ok = (hit?.itemId === m.id ? hit.count : 0) > 0 || true
-      // 束がその教材に本当にあるか: findMaterial を★無制限で引き直し、同じ教材が候補にあれば回数を得る
-      const cnt = hit && hit.itemId === m.id ? hit.count : null
-      if (cnt === null || cnt <= 0) bad++
+      // 束がその教材に本当にあるか: その教材の並びを同じ述語で数える
+      const cnt = await countBundleInMaterial(pick.weakest!.key, m.id)
+      if (cnt <= 0) bad++
       else filled++
-      console.log(`   ${label.padEnd(8)} ${t.focus.name} 成功率${t.focus.successPct}%  → ★${m.star} [${m.category}] ${m.title.slice(0, 26)}  出現${cnt ?? "?"}回/全${total}音${cnt === null ? "  ← 束がこの教材に無い" : ""}${t.basics ? " ・基礎の案内" : ""}`)
-      void ok
+      console.log(`   ${label.padEnd(8)} ${t.focus.name} 成功率${t.focus.successPct}%  → ★${m.star} [${m.category}] ${m.title.slice(0, 26)}  出現${cnt}回/全${total}音${cnt <= 0 ? "  ← 束がこの教材に無い" : ""}${t.basics ? " ・基礎の案内" : ""}`)
     }
     console.log()
   }

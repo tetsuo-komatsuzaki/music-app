@@ -296,25 +296,33 @@ export const prismaSource: NoteStoreSource = {
     return out
   },
   async findMaterial(key, star, shelves) {
-    const pred = materialPredicate(key)
-    // 前の音の秒 (prev_dur) はフィンガリングだけが使う。他のタブは窓関数を通さない
-    const source = parseKey(key).tab === "fingering"
-      ? Prisma.sql`SELECT sn.*, LAG(sn."durationSec") OVER (PARTITION BY sn."targetId" ORDER BY sn."noteIndex") AS prev_dur
-                   FROM "ScoreNote" sn WHERE sn."targetType" = 'practice'::"ScoreNoteTarget"`
-      : Prisma.sql`SELECT sn.*, NULL::double precision AS prev_dur FROM "ScoreNote" sn WHERE sn."targetType" = 'practice'::"ScoreNoteTarget"`
+    // 2026-09-05 Tetsuo: 教材側は毎回数えない。写し MaterialBundleCount を読む。
+    // 写しは教材の解析時に ScoreNote と一緒に書き直される。並びとの一致は
+    // music-analyzer/scripts/rebuild_material_bundle_counts.py --check で守る
     const rows = await prisma.$queryRaw<{ id: string; c: number }[]>(Prisma.sql`
-      WITH s AS (${source})
-      SELECT s."targetId" AS id, count(*)::int AS c
-      FROM s
-      JOIN "PracticeItem" pi ON pi.id = s."targetId"
-      JOIN "NoteProfile" cur ON cur.id = s."profileId"
-      LEFT JOIN "NoteProfile" prev ON prev.id = s."prevProfileId"
-      WHERE pi."isPublished" = true AND pi.category::text = ANY(${shelves}) AND pi.star IS NOT NULL AND pi.star <= ${star}
-        AND ${pred}
-      GROUP BY s."targetId"
-      ORDER BY c DESC, s."targetId"
+      SELECT mb."targetId" AS id, mb.count::int AS c
+      FROM "MaterialBundleCount" mb
+      JOIN "PracticeItem" pi ON pi.id = mb."targetId"
+      WHERE mb."bundleKey" = ${key}
+        AND pi."isPublished" = true AND pi.category::text = ANY(${shelves}) AND pi.star IS NOT NULL AND pi.star <= ${star}
+      ORDER BY mb.count DESC, mb."targetId"
       LIMIT 1`)
     if (rows.length === 0) return null
     return { itemId: rows[0].id, count: Number(rows[0].c) }
   },
+}
+
+/** 検査用: その教材に、その束に合う音が何個あるか。写し (MaterialBundleCount) ではなく並び (ScoreNote) を数える ・ 独立した確認 */
+export async function countBundleInMaterial(key: GroupKey, itemId: string): Promise<number> {
+  const pred = materialPredicate(key)
+  const rows = await prisma.$queryRaw<{ c: number }[]>(Prisma.sql`
+    WITH s AS (
+      SELECT sn.*, LAG(sn."durationSec") OVER (PARTITION BY sn."targetId" ORDER BY sn."noteIndex") AS prev_dur
+      FROM "ScoreNote" sn WHERE sn."targetType" = 'practice'::"ScoreNoteTarget" AND sn."targetId" = ${itemId}
+    )
+    SELECT count(*)::int AS c FROM s
+    JOIN "NoteProfile" cur ON cur.id = s."profileId"
+    LEFT JOIN "NoteProfile" prev ON prev.id = s."prevProfileId"
+    WHERE ${pred}`)
+  return Number(rows[0]?.c ?? 0)
 }

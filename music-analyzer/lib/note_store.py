@@ -529,3 +529,97 @@ def save_performance_notes(cur, kind: str, performance_id: str, rows: List[Dict[
 
 def delete_performance_notes(cur, kind: str, performance_id: str) -> None:
     cur.execute('DELETE FROM "PerformanceNote" WHERE "performanceKind" = %s::"PerformanceKind" AND "performanceId" = %s', (kind, performance_id))
+
+
+# ───────────────────────── 教材側の束の出現回数 (派生表) ─────────────────────────
+# 2026-09-05 Tetsuo: 「毎回計算するのはナンセンス。表に持ち、楽譜が変わったときだけ書き直す」。
+# 正は ScoreNote。ここは読み手 (app/_libs/noteStore.ts の groupKeysOf) と同じ束の定義で数えた写し。
+# 束の定義を変えるときは両方を同時に変え、rebuild_material_bundle_counts.py で全件作り直す。
+
+FAST_SWITCH_SEC = 0.3
+BUNDLE_VERSION = 1
+TECH_BUNDLE = {t: TECH_COLUMNS[t] for t in TECHS}
+_LETTERS = "CDEFGAB"
+
+
+def _diatonic(pitch: str) -> Optional[int]:
+    """"F#4" → 全音階上の位置 (度数計算用)。unknown/none は None"""
+    if pitch in (UNKNOWN, NONE) or not pitch:
+        return None
+    step = pitch[0]
+    i = 1
+    while i < len(pitch) and pitch[i] in "#b":
+        i += 1
+    try:
+        return _LETTERS.index(step) + 7 * int(pitch[i:])
+    except (ValueError, IndexError):
+        return None
+
+
+def chord_interval_label(p_low: str, p_high: str) -> str:
+    """隣り合う構成音の度数 → 3度 4度 5度 6度 オクターブ その他 (piece_summary と同じ名前)"""
+    a, b = _diatonic(p_low), _diatonic(p_high)
+    if a is None or b is None:
+        return "その他"
+    deg = abs(b - a) + 1
+    return {3: "3度", 4: "4度", 5: "5度", 6: "6度", 8: "オクターブ"}.get(deg, "その他")
+
+
+def bundle_keys(cur: Dict[str, Any], prev: Optional[Dict[str, Any]], prev_duration_sec: Optional[float]) -> List[str]:
+    """1音がどの束に入るか。cur/prev はかたち (profile dict)。prev_duration_sec は前の音の秒 (教材の想定テンポ)。
+    読み手 app/_libs/noteStore.ts の groupKeysOf と同じ定義。増やすときは BUNDLE_VERSION を上げる。"""
+    keys: List[str] = []
+    if cur["pitch1"] != UNKNOWN:
+        keys.append(f"note|{cur['pitch1']}")
+    if prev is not None and prev["pitch1"] != UNKNOWN and cur["pitch1"] != UNKNOWN:
+        keys.append(f"pitch|{prev['pitch1']}|{cur['pitch1']}")
+        if (prev["finger1"] > 0 and cur["finger1"] > 0 and prev["pitch1"] != cur["pitch1"]
+                and cur["restBefore"] == 0 and prev_duration_sec is not None and prev_duration_sec < FAST_SWITCH_SEC):
+            keys.append(f"fingering|{prev['pitch1']}|{cur['pitch1']}")
+    if prev is not None and prev["position"] != POS_UNKNOWN and cur["position"] != POS_UNKNOWN and prev["position"] != cur["position"]:
+        keys.append(f"position|{prev['position']}|{cur['position']}")
+    for t, col in TECH_BUNDLE.items():
+        if cur.get(col):
+            keys.append(f"technique|{t}")
+    n = int(cur.get("noteCount") or 1)
+    if n > 1:
+        pitches = [cur.get(f"pitch{i}") for i in range(1, n + 1)]
+        for lo, hi in zip(pitches, pitches[1:]):
+            keys.append(f"chord|{chord_interval_label(lo, hi)}")
+    return keys
+
+
+def split_bundle_key(key: str) -> Tuple[str, str, str]:
+    """"pitch|G4|C5" → (kind, from, to)。2要素のキーは from = "" """
+    parts = key.split("|")
+    if len(parts) == 3:
+        return parts[0], parts[1], parts[2]
+    return parts[0], "", parts[1] if len(parts) > 1 else ""
+
+
+def material_bundle_counts(rows: List[Dict[str, Any]], profiles: Dict[str, Dict[str, Any]]) -> Dict[str, int]:
+    """build_score_notes の rows/profiles から束ごとの回数を数える。
+    前の音の秒は、並びで直前の行 (休符は行にならないので直前の音) の durationSec。"""
+    counts: Dict[str, int] = {}
+    prev_dur: Optional[float] = None
+    for r in rows:
+        cur = profiles[r["profileKey"]]
+        prev = profiles.get(r["prevProfileKey"]) if r.get("prevProfileKey") else None
+        for k in bundle_keys(cur, prev, prev_dur):
+            counts[k] = counts.get(k, 0) + 1
+        prev_dur = r.get("durationSec")
+    return counts
+
+
+def save_material_bundle_counts(cur, target_id: str, counts: Dict[str, int], note_total: int, score_note_version: str) -> None:
+    """教材の束の回数を消して書き直す。写しを作った時点の並びの版も書く。"""
+    cur.execute('DELETE FROM "MaterialBundleCount" WHERE "targetId" = %s', (target_id,))
+    for key in sorted(counts):
+        kind, frm, to = split_bundle_key(key)
+        cur.execute('INSERT INTO "MaterialBundleCount" ("targetId", "bundleKey", kind, "fromValue", "toValue", count, "noteTotal", "scoreNoteVersion", "bundleVersion", "updatedAt") '
+                    'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())',
+                    (target_id, key, kind, frm, to, counts[key], note_total, score_note_version, BUNDLE_VERSION))
+
+
+def clear_material_bundle_counts(cur, target_id: str) -> None:
+    cur.execute('DELETE FROM "MaterialBundleCount" WHERE "targetId" = %s', (target_id,))

@@ -93,7 +93,7 @@ def profile_to_karte(cur_p: dict, prev_p: dict | None) -> dict:
 def load_score_notes(dcur, target_type: str, target_id: str):
     # 位置で切るので、辞書カーソルではなく素のカーソルを使う
     cur = dcur.connection.cursor()
-    cur.execute('''SELECT sn."noteIndex", sn."profileId", sn."prevProfileId", sn."pass",
+    cur.execute('''SELECT sn."noteIndex", sn."profileId", sn."prevProfileId", sn."pass", sn."writtenNoteIndex",
                           p.*, q.*
                    FROM "ScoreNote" sn
                    JOIN "NoteProfile" p ON p.id = sn."profileId"
@@ -104,14 +104,23 @@ def load_score_notes(dcur, target_type: str, target_id: str):
     out = {}
     for row in cur.fetchall():
         # p.* と q.* の列名が重複するので位置で切る
-        n_fixed = 4
+        n_fixed = 5
         n_p = (len(cols) - n_fixed) // 2
         pcols = cols[n_fixed:n_fixed + n_p]
         cur_p = dict(zip(pcols, row[n_fixed:n_fixed + n_p]))
         prev_p = dict(zip(pcols, row[n_fixed + n_p:])) if row[2] is not None else None
-        out[row[0]] = {"cur": cur_p, "prev": prev_p, "chordCont": cur_p["chordCont"]}
+        out[row[0]] = {"cur": cur_p, "prev": prev_p, "chordCont": cur_p["chordCont"], "pass": row[3], "written": row[4]}
     cur.close()
     return out
+
+
+def piece_facts(notes):
+    """並びから: 繰り返しの境目の数 (記譜番号が戻る回数)、不明ポジションの音数、行数、重音の数"""
+    seq = [notes[k] for k in sorted(notes)]
+    boundaries = sum(1 for a, b in zip(seq, seq[1:]) if b["written"] < a["written"])
+    unknown_pos = sum(1 for n in seq if n["cur"]["position"] == POS_UNKNOWN)
+    chords = sum(1 for n in seq if (n["cur"].get("noteCount") or 1) > 1)
+    return boundaries, unknown_pos, len(seq), chords
 
 
 def recompute_per_subtask(notes_by_idx, perf_rows, active):
@@ -178,22 +187,33 @@ def main():
         if not diff:
             tot["A_match"] += 1
         else:
-            # 理由づけ: 旧に無く新にある奏法 → 旧が古い (v121以前) / posshift だけの差 → 旧が古い (ポジション再推定) / 繰り返し境目 (interval/posshift 少数) / それ以外
+            # 理由づけ:
+            #   旧に無く新にある奏法            → 旧が古い (v121以前の診断)
+            #   繰り返しのある曲で、差が境目の数以内 → 繰り返し境目 (新は演奏順で前の音を決める)
+            #   それ以外の posshift/interval の差  → 要調査
+            boundaries, unknown_pos, _, chords = piece_facts(notes)
             kinds = set()
             for k, (o, n) in diff.items():
                 if "_tech_" in k and o is None:
                     kinds.add("旧が古い・奏法")
-                elif "_posshift_" in k:
-                    kinds.add("ポジション差")
-                elif "_interval_" in k or "_double_" in k:
-                    kinds.add("移動・重音差")
+                    continue
+                dt = abs((n or {}).get("target", 0) - (o or {}).get("target", 0))
+                if boundaries > 0 and dt <= boundaries and ("_posshift_" in k or "_interval_" in k or "_double_" in k):
+                    kinds.add("繰り返し境目")
+                elif unknown_pos > 0 and ("_posshift_" in k or "_interval_" in k):
+                    # 低信頼のポジションを持つ曲: 新は不明として外す (F16)。旧はその位置を使っていた
+                    kinds.add("F16 低信頼ポジション")
+                elif chords > 0 and ("_posshift_" in k or "_interval_" in k or "_double_" in k):
+                    # 旧は重音を遷移の連鎖から外し position_from/to を持たせなかった。新は重音にも手のポジションがある
+                    kinds.add("重音の扱い")
                 else:
-                    kinds.add("その他")
+                    kinds.add("その他・要調査")
             label = "+".join(sorted(kinds))
             reasons[label] += 1
             tot["A_diff"] += 1
-            if len(examples) < 12:
-                examples.append((p["title"], p["id"][:8], label, dict(list(diff.items())[:3])))
+            if any("要調査" in k for k in kinds) and len(examples) < 12:
+                ex = {k: v for k, v in diff.items() if not ("_tech_" in k and v[0] is None)}
+                examples.append((p["title"], p["id"][:8], label, dict(list(ex.items())[:4])))
         old_tr = (p["analysisSummary"].get("noteStats") or {}).get("transitions") or {}
         tks = set(old_tr) | set(trans)
         tdiff = sum(1 for k in tks if (old_tr.get(k) or {}).get("target") != (trans.get(k) or {}).get("target") or (old_tr.get(k) or {}).get("miss") != (trans.get(k) or {}).get("miss"))
@@ -205,14 +225,15 @@ def main():
         print("  ", e)
 
     # ── C: 教材の出現回数 ──
-    cur.execute('SELECT "practiceItemId", "subtaskId", count FROM "PracticeItemSubtaskCount"')
-    old_counts = collections.defaultdict(dict)
+    cur.execute('SELECT "practiceItemId", "subtaskId", count, "noteTotal" FROM "PracticeItemSubtaskCount"')
+    old_counts = collections.defaultdict(dict); old_totals = {}
     for r in cur.fetchall():
         old_counts[r["practiceItemId"]][r["subtaskId"]] = r["count"]
+        old_totals[r["practiceItemId"]] = r["noteTotal"]
     items = list(old_counts.keys())
     if LIMIT:
         items = items[:LIMIT]
-    ctot = collections.Counter(); cex = []
+    ctot = collections.Counter(); cex = []; creasons = collections.Counter(); c_other = []
     for iid in items:
         notes = load_score_notes(cur, "practice", iid)
         if not notes:
@@ -235,10 +256,40 @@ def main():
             ctot["C_match"] += 1
         else:
             ctot["C_diff"] += 1
-            if len(cex) < 8:
-                cex.append((iid[:8], dict(list(diff.items())[:3])))
+            # 理由づけ:
+            #   posshift だけの差   → F16: 旧は低信頼のポジションを手の位置として使っていた。新は不明扱い
+            #   tuplet の差         → 新は連符の実比を持つ (旧は三連符に既定されていた)
+            #   繰り返しのある教材  → 境目の前の音が演奏順になった
+            #   それ以外            → 要調査
+            boundaries, unknown_pos, nrows, chords = piece_facts(notes)
+            note_total = old_totals.get(iid)
+            dropped = (note_total is not None and boundaries == 0 and nrows < note_total)
+            kinds = set()
+            for k, (o, n) in diff.items():
+                if "_tuplet_" in k:
+                    kinds.add("連符の実比")
+                elif dropped:
+                    kinds.add("対応づけで落ちた音")
+                elif boundaries > 0:
+                    kinds.add("繰り返し境目")
+                elif unknown_pos > 0 and ("_posshift_" in k or "_interval_" in k):
+                    kinds.add("F16 低信頼ポジション")
+                elif chords > 0 and ("_posshift_" in k or "_interval_" in k or "_double_" in k or "_entry_" in k):
+                    # 旧は重音を遷移の連鎖から外し、休符の連続も重音で切っていた。新は重音にも手のポジションと直前の休符がある
+                    kinds.add("重音の扱い")
+                else:
+                    kinds.add("その他・要調査")
+            label = "+".join(sorted(kinds))
+            creasons[label] += 1
+            if "その他・要調査" in kinds:
+                c_other.append(iid)
+                if len(cex) < 10:
+                    unexplained = {k: v for k, v in diff.items() if not ("_tuplet_" in k or "_posshift_" in k or "_interval_" in k or "_double_" in k)}
+                    cex.append((iid[:8], f"境目{boundaries} 不明pos{unknown_pos} 重音{chords} 行{nrows}/旧{note_total}", dict(list(unexplained.items())[:4])))
     print("=== C 教材の出現回数")
     print(dict(ctot))
+    print("C の差の理由:", dict(creasons))
+    io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_tmp_proto", "c_other.txt"), "w").write(chr(10).join(c_other))
     for e in cex:
         print("  ", e)
 
