@@ -9,7 +9,7 @@ import { Prisma, type PracticeCategory } from "@/app/generated/prisma"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAdminAction } from "@/app/_libs/requireAuth"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
-import { noteQl, RHYTHM_ARTICULATIONS, type RhythmNote } from "@/app/_libs/rhythmRecipe"
+import { noteQl, notePitchNos, RHYTHM_ARTICULATIONS, type RhythmNote } from "@/app/_libs/rhythmRecipe"
 import { ARTICULATIONS as AXIS_ARTICULATIONS } from "@/app/_libs/materialVariant"
 
 const ARTS = new Set<string>(RHYTHM_ARTICULATIONS as readonly string[])
@@ -111,7 +111,13 @@ export async function createRhythmVariant(input: {
     return { ok: false, error: "奏法の指定が不正です" }
   }
   const unitMeasures = Number.isInteger(input.unitMeasures) && input.unitMeasures >= 1 ? input.unitMeasures : 1
-  const notes = (input.notes ?? []).filter((n) => noteQl(n) != null && Number.isInteger(n.pitchNo) && n.pitchNo >= 1 && ARTS.has(n.articulation ?? ""))
+  // 重音 (2026-09-05): pitchNos は 2〜4 個に整え、先頭を pitchNo に揃える。1個以下なら単音
+  const notes: RhythmNote[] = (input.notes ?? [])
+    .filter((n) => noteQl(n) != null && Number.isInteger(n.pitchNo) && n.pitchNo >= 1 && ARTS.has(n.articulation ?? ""))
+    .map((n) => {
+      const nos = notePitchNos(n)
+      return nos.length >= 2 ? { ...n, pitchNo: nos[0], pitchNos: nos } : { ...n, pitchNo: n.pitchNo, pitchNos: undefined }
+    })
   if (notes.length === 0) return { ok: false, error: "音符がありません" }
 
   const source = await prisma.practiceItem.findUnique({

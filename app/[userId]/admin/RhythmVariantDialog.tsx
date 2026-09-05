@@ -1,10 +1,11 @@
 "use client"
 // リズムパターン変種の作成ダイアログ (2026-08-24 要件確定 ・ admin)。
 // ①くり返し単位 → ②元の音符に番号 → ③長さ+高さ+弾き方で1音ずつ足す → ④五線譜で確認して作成。
+// 2026-09-05 Tetsuo: ③の高さは複数選べる (2〜4個) = 重音。例: ①→②→①と②の重音。
 // 拍の合計が単位の長さと一致するまで作成できない (サーバ側でも再検証)。
 import { useEffect, useMemo, useState } from "react"
 import { createRhythmVariant, getRhythmContext } from "@/app/actions/createRhythmVariant"
-import { noteQl, type RhythmNote } from "@/app/_libs/rhythmRecipe"
+import { noteQl, notePitchNos, MAX_CHORD_NOTES, type RhythmNote } from "@/app/_libs/rhythmRecipe"
 import StaffPreview from "./StaffPreview"
 import { ARTICULATIONS as AXIS_ARTICULATIONS } from "@/app/_libs/materialVariant"
 
@@ -25,7 +26,8 @@ type Ctx = Awaited<ReturnType<typeof getRhythmContext>>
 export default function RhythmVariantDialog({ itemId, onClose }: { itemId: string; onClose: () => void }) {
   const [ctx, setCtx] = useState<Ctx | null>(null)
   const [unit, setUnit] = useState(1)
-  const [pick, setPick] = useState<{ base: string | null; pitchNo: number | null; art: string }>({ base: null, pitchNo: null, art: "" })
+  // pitchNos: 選んだ高さの番号 (1個=単音 / 2〜4個=重音)
+  const [pick, setPick] = useState<{ base: string | null; pitchNos: number[]; art: string }>({ base: null, pitchNos: [], art: "" })
   const [dot, setDot] = useState(false)
   const [tri, setTri] = useState(false)
   const [notes, setNotes] = useState<RhythmNote[]>([])
@@ -63,9 +65,18 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
   const r3 = (x: number) => Math.round(x * 1000) / 1000
   const fit = Math.abs(total - beatsNeeded) < 1e-6 && notes.length > 0
 
+  const togglePitch = (no: number) => setPick((prev) => {
+    const has = prev.pitchNos.includes(no)
+    const next = has ? prev.pitchNos.filter((x) => x !== no) : [...prev.pitchNos, no].sort((a, b) => a - b)
+    return { ...prev, pitchNos: next.slice(0, MAX_CHORD_NOTES) }
+  })
   const add = () => {
-    if (!pick.base || !pick.pitchNo) return
-    const n: RhythmNote = { base: pick.base, dot, triplet: tri, pitchNo: pick.pitchNo, articulation: pick.art, slurId: editing !== null ? notes[editing].slurId ?? null : null }
+    if (!pick.base || pick.pitchNos.length === 0) return
+    const nos = [...pick.pitchNos].sort((a, b) => a - b)
+    const n: RhythmNote = {
+      base: pick.base, dot, triplet: tri, pitchNo: nos[0], pitchNos: nos.length >= 2 ? nos : undefined,
+      articulation: pick.art, slurId: editing !== null ? notes[editing].slurId ?? null : null,
+    }
     if (editing === null) setNotes([...notes, n])
     else { const c = [...notes]; c[editing] = n; setNotes(c); setEditing(null) }
   }
@@ -82,7 +93,7 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
     if (editing === i) { setEditing(null); return }
     setEditing(i)
     const n = notes[i]
-    setPick({ base: n.base, pitchNo: n.pitchNo, art: n.articulation ?? "" })
+    setPick({ base: n.base, pitchNos: notePitchNos(n), art: n.articulation ?? "" })
     setDot(!!n.dot); setTri(!!n.triplet)
   }
   const submit = async () => {
@@ -186,18 +197,23 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
                 <button type="button" style={btn(dot)} onClick={() => setDot(!dot)}>付点 ・ 1.5倍</button>
                 <button type="button" style={btn(tri)} onClick={() => setTri(!tri)}>3連 ・ ⅔倍</button>
               </div>
-              <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 700, margin: "10px 0 5px" }}>高さ ・ 元の何番目の音か</div>
+              <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 700, margin: "10px 0 5px" }}>高さ ・ 元の何番目の音か ・ 2つ以上選ぶと重音</div>
               <div style={S.row}>
-                {srcNames.map((nm, i) => <button key={i} type="button" style={btn(pick.pitchNo === i + 1)} onClick={() => setPick({ ...pick, pitchNo: i + 1 })}>{i + 1} {nm}</button>)}
+                {srcNames.map((nm, i) => <button key={i} type="button" style={btn(pick.pitchNos.includes(i + 1))} onClick={() => togglePitch(i + 1)}>{i + 1} {nm}</button>)}
               </div>
+              {pick.pitchNos.length >= 2 && (
+                <div style={{ fontSize: "var(--fs-caption)", color: "#D9A93C", fontWeight: 700, marginTop: 5 }}>
+                  重音 ・ {pick.pitchNos.join("と")} を同時に鳴らす{pick.pitchNos.length >= MAX_CHORD_NOTES ? ` (最大${MAX_CHORD_NOTES}音)` : ""}
+                </div>
+              )}
               <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 700, margin: "10px 0 5px" }}>弾き方 ・ 任意</div>
               <div style={S.row}>
                 {ARTS.map((a) => <button key={a.id} type="button" style={btn(pick.art === a.id)} onClick={() => setPick({ ...pick, art: a.id })}>{a.label}</button>)}
               </div>
               <div style={{ ...S.row, marginTop: 12 }}>
-                <button type="button" disabled={!pick.base || !pick.pitchNo} onClick={add}
+                <button type="button" disabled={!pick.base || pick.pitchNos.length === 0} onClick={add}
                   style={{ padding: "8px 18px", borderRadius: 999, fontWeight: 800, border: "none", cursor: "pointer",
-                    background: !pick.base || !pick.pitchNo ? "rgba(150,175,225,.2)" : "#2b5bc4", color: !pick.base || !pick.pitchNo ? "var(--text-sub)" : "#fff" }}>
+                    background: !pick.base || pick.pitchNos.length === 0 ? "rgba(150,175,225,.2)" : "#2b5bc4", color: !pick.base || pick.pitchNos.length === 0 ? "var(--text-sub)" : "#fff" }}>
                   {editing === null ? "この音を足す" : "この音を直す"}
                 </button>
               </div>
@@ -221,7 +237,7 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
                   <button type="button" onClick={(e) => { e.stopPropagation(); setNotes(notes.filter((_, k) => k !== i)); setEditing(null) }}
                     style={{ position: "absolute", top: -7, right: -7, width: 19, height: 19, borderRadius: "50%", background: "#2A3550", color: "#E7B7B7", border: "1px solid rgba(196,68,68,.5)", fontSize: 11, cursor: "pointer" }}>×</button>
                   <div style={{ fontSize: 14, fontWeight: 800, color: "#FFE9B8" }}>{(n.triplet ? "3" : "") + (BASE.find((b) => b.id === n.base)?.label ?? "") + (n.dot ? "." : "")}</div>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: "#D9A93C" }}>{n.pitchNo}: {srcNames[n.pitchNo - 1] ?? ""}</div>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#D9A93C" }}>{notePitchNos(n).join("+")}: {notePitchNos(n).map((k) => srcNames[k - 1] ?? "").join("・")}</div>
                   <div style={{ fontSize: 10, color: "#9DB8E8" }}>{ARTS.find((a) => a.id === (n.articulation ?? ""))?.label}</div>
                 </div>
               ))}
@@ -234,7 +250,7 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
             </div>
 
             <div style={S.label}>④ 五線譜で確認</div>
-            <StaffPreview notes={notes.map((n) => ({ ql: noteQl(n) ?? 0, name: srcNames[n.pitchNo - 1] ?? "", art: n.articulation ?? "", slurId: n.slurId ?? null, dot: !!n.dot, triplet: !!n.triplet }))} beats={beatsNeeded} />
+            <StaffPreview notes={notes.map((n) => ({ ql: noteQl(n) ?? 0, name: srcNames[n.pitchNo - 1] ?? "", names: notePitchNos(n).map((k) => srcNames[k - 1] ?? ""), art: n.articulation ?? "", slurId: n.slurId ?? null, dot: !!n.dot, triplet: !!n.triplet }))} beats={beatsNeeded} />
 
             <div style={S.label}>⑤ 奏法をえらぶ (練習前シートのどの奏法の下に置くか)</div>
             <div style={S.row}>

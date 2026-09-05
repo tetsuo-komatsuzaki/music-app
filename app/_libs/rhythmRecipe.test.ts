@@ -1,7 +1,7 @@
 // リズムパターン変種の計算ロジック (2026-08-24)。
 // UI とサーバ双方がこの計算で「拍の帳尻」を判定するため、境界を固定しておく。
 import { describe, it, expect } from "vitest"
-import { noteQl, totalQl, BASE_QL, RHYTHM_ARTICULATIONS, type RhythmNote } from "./rhythmRecipe"
+import { noteQl, totalQl, BASE_QL, RHYTHM_ARTICULATIONS, notePitchNos, type RhythmNote } from "./rhythmRecipe"
 
 const n = (base: string, extra: Partial<RhythmNote> = {}): RhythmNote => ({ base, pitchNo: 1, ...extra })
 
@@ -62,5 +62,15 @@ describe("定義の整合", () => {
     expect(RHYTHM_ARTICULATIONS).toEqual([
       "", "legato", "staccato", "spiccato", "martele", "portato", "tenuto", "accent", "tremolo", "bow_staccato",
     ])
+  })
+})
+
+describe("notePitchNos ・ 重音 (2026-09-05)", () => {
+  it("単音は pitchNo だけ、重音は昇順・重複なし・最大4", () => {
+    expect(notePitchNos({ base: "q", pitchNo: 2 })).toEqual([2])
+    expect(notePitchNos({ base: "q", pitchNo: 1, pitchNos: [2, 1] })).toEqual([1, 2])
+    expect(notePitchNos({ base: "q", pitchNo: 1, pitchNos: [3, 1, 2, 1] })).toEqual([1, 2, 3])
+    expect(notePitchNos({ base: "q", pitchNo: 1, pitchNos: [1] })).toEqual([1]) // 1個だけなら単音
+    expect(notePitchNos({ base: "q", pitchNo: 1, pitchNos: [1, 2, 3, 4, 5] })).toEqual([1, 2, 3, 4])
   })
 })

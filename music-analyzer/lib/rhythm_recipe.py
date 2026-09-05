@@ -21,6 +21,8 @@ Tetsuo確定仕様:
   }
   base: w=全 h=2分 q=4分 e=8分 s=16分 t=32分 (dot=1.5倍 / triplet=2/3倍)
   pitchNo: その単位内の元音符の通し番号 (1始まり)。範囲外は循環させる。
+  pitchNos: 重音 (2026-09-05 Tetsuo)。同時に鳴らす元音符の番号 2〜4個 (pitchNo を含む)。
+            あれば1つの和音 (music21 Chord) として書く。例: ①→②→①と②の重音。
 
 対象外の指定 (2026-08-24 Tetsuo追加):
   スコアには冒頭・終わり・途中だけ形が違う小節がある。レシピの
@@ -34,9 +36,11 @@ from __future__ import annotations
 
 import logging
 from copy import deepcopy
-from typing import Any, Optional
+from typing import Any
 
-from music21 import articulations, expressions, note as m21note, spanner, stream
+from music21 import articulations, expressions, spanner, stream
+from music21 import chord as m21chord
+from music21 import note as m21note
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +58,7 @@ ART_CLS = {
 }
 
 
-def note_quarter_length(spec: dict[str, Any]) -> Optional[float]:
+def note_quarter_length(spec: dict[str, Any]) -> float | None:
     """1音のレシピから quarterLength を求める。base が不正なら None。"""
     ql = BASE_QL.get(str(spec.get("base", "")))
     if ql is None:
@@ -76,7 +80,7 @@ def recipe_total_ql(recipe: dict[str, Any]) -> float:
     return total
 
 
-def apply_rhythm_recipe(score: stream.Score, recipe: Optional[dict[str, Any]]) -> stream.Score:
+def apply_rhythm_recipe(score: stream.Score, recipe: dict[str, Any] | None) -> stream.Score:
     """rhythmRecipe を適用した Score を返す。対象外ならそのまま返す。
 
     単位 (unitMeasures 小節) ごとに、その単位内の音符の高さを番号で引き継ぎつつ、
@@ -172,9 +176,14 @@ def _rewrite_block(block: list[stream.Measure], src_pitches: list, specs: list[d
                 break
             offset = 0.0
             cap = _capacity(block[mi])
-        n = m21note.Note()
-        idx = (int(spec.get("pitchNo", 1)) - 1) % len(src_pitches)
-        n.pitch = deepcopy(src_pitches[idx])
+        nos = _chord_indexes(spec, len(src_pitches))
+        if nos:
+            # 重音: 番号の音を同時に鳴らす (低い方から)
+            n = m21chord.Chord([deepcopy(src_pitches[i]) for i in nos])
+        else:
+            n = m21note.Note()
+            idx = (int(spec.get("pitchNo", 1)) - 1) % len(src_pitches)
+            n.pitch = deepcopy(src_pitches[idx])
         n.duration.quarterLength = ql
         art_id = str(spec.get("articulation") or "")
         if art_id == "tremolo":
@@ -196,6 +205,15 @@ def _rewrite_block(block: list[stream.Measure], src_pitches: list, specs: list[d
     for notes in slur_groups.values():
         if len(notes) >= 2:
             block[0].insert(0, spanner.Slur(notes))
+
+
+def _chord_indexes(spec: dict[str, Any], n_src: int) -> list[int]:
+    """pitchNos (2〜4個) を元音符の添字 (0始まり・循環・重複なし・昇順) に。単音なら []"""
+    raw = spec.get("pitchNos")
+    if not isinstance(raw, list):
+        return []
+    idxs = sorted({(_as_int(x, 0) - 1) % n_src for x in raw if _as_int(x, 0) >= 1})
+    return idxs[:4] if len(idxs) >= 2 else []
 
 
 def _capacity(meas: stream.Measure) -> float:

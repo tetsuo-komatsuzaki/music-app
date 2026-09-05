@@ -8,6 +8,8 @@ const STEP_OF: Record<string, number> = { C: 0, D: 1, E: 2, F: 3, G: 4, A: 5, B:
 export type StaffNote = {
   ql: number          // quarterLength
   name: string        // "A4" / "C#5" などの音名 (解析データの note_name)
+  /** 重音 (2026-09-05): 同時に鳴らす音名 (name を含む)。無ければ単音 */
+  names?: string[]
   art: string
   slurId: number | null
   dot: boolean
@@ -49,7 +51,15 @@ export default function StaffPreview({ notes, beats }: { notes: StaffNote[]; bea
     for (let ly = lineY(4) + GAP; ly < y + 3; ly += GAP) els.push(<line key={`lb${i}${ly}`} x1={cx - 9} y1={ly} x2={cx + 9} y2={ly} stroke="#B9A88C" strokeWidth={1} />)
     if (/#/.test(n.name)) els.push(<text key={`ac${i}`} x={cx - 17} y={y + 4.5} fontSize={14} fill="#16294F" fontFamily="serif">&#9839;</text>)
     els.push(<ellipse key={`h${i}`} cx={cx} cy={y} rx={5.4} ry={4.1} fill={filled ? "#16294F" : "none"} stroke="#16294F" strokeWidth={1.4} transform={`rotate(-18 ${cx} ${y})`} />)
-    if (n.ql < 4) els.push(<line key={`st${i}`} x1={sx} y1={y} x2={sx} y2={sy} stroke="#16294F" strokeWidth={1.5} />)
+    // 重音: 残りの構成音も同じ x に符頭を置き、符幹は全部の符頭にかかる長さにする
+    const extraYs = (n.names ?? []).filter((nm) => nm && nm !== n.name).map((nm) => yOf(nm))
+    extraYs.forEach((ey, k) => {
+      const nm = (n.names ?? []).filter((x) => x && x !== n.name)[k]
+      if (/#/.test(nm)) els.push(<text key={`acx${i}_${k}`} x={cx - 17} y={ey + 4.5} fontSize={14} fill="#16294F" fontFamily="serif">&#9839;</text>)
+      els.push(<ellipse key={`hx${i}_${k}`} cx={cx} cy={ey} rx={5.4} ry={4.1} fill={filled ? "#16294F" : "none"} stroke="#16294F" strokeWidth={1.4} transform={`rotate(-18 ${cx} ${ey})`} />)
+    })
+    const stemFrom = extraYs.length ? (up ? Math.max(y, ...extraYs) : Math.min(y, ...extraYs)) : y
+    if (n.ql < 4) els.push(<line key={`st${i}`} x1={sx} y1={stemFrom} x2={sx} y2={sy} stroke="#16294F" strokeWidth={1.5} />)
     const flags = n.ql <= 0.125 ? 3 : n.ql <= 0.25 ? 2 : n.ql <= 0.5 ? 1 : 0
     for (let f = 0; f < flags; f++) {
       const fy = sy + (up ? f * 6 : -f * 6)

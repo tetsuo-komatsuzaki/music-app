@@ -1,5 +1,5 @@
 """rhythm_recipe のテスト (2026-08-24 リズムパターン変種)。"""
-from music21 import articulations, meter, note, spanner, stream
+from music21 import articulations, chord, meter, note, spanner, stream
 
 from lib.rhythm_recipe import apply_rhythm_recipe, note_quarter_length, recipe_total_ql
 
@@ -119,3 +119,33 @@ def test_skip_head_tail_and_pinpoint():
     counts = [len(list(m.notes)) for m in out.parts[0].getElementsByClass(stream.Measure)]
     # 1小節目=先頭除外 / 4小節目=ピンポイント除外 / 6小節目=末尾除外 → 元の8音のまま
     assert counts == [8, 16, 16, 8, 16, 8]
+
+
+def test_chord_recipe_plays_numbered_notes_together():
+    """重音 (2026-09-05 Tetsuo): ①→②→①と②の重音。pitchNos の音が1つの和音になる"""
+    recipe = {"unitMeasures": 1, "notes": [
+        {"base": "q", "pitchNo": 1}, {"base": "q", "pitchNo": 2},
+        {"base": "h", "pitchNo": 1, "pitchNos": [2, 1], "articulation": "staccato"},
+    ]}
+    out = apply_rhythm_recipe(_src(measures=1), recipe)
+    ns = _notes(out)
+    assert len(ns) == 3
+    assert isinstance(ns[0], note.Note) and isinstance(ns[1], note.Note)
+    ch = ns[2]
+    assert isinstance(ch, chord.Chord)
+    assert [p.nameWithOctave for p in ch.pitches] == ["A4", "B4"]   # ①=A4 ②=B4 を同時に
+    assert ch.duration.quarterLength == 2.0
+    assert any(isinstance(a, articulations.Staccato) for a in ch.articulations)
+
+
+def test_chord_recipe_three_notes_and_single_when_one_number():
+    recipe = {"unitMeasures": 1, "notes": [
+        {"base": "q", "pitchNo": 1}, {"base": "q", "pitchNo": 2}, {"base": "q", "pitchNo": 3},
+        {"base": "q", "pitchNo": 1, "pitchNos": [1, 2, 3]},
+    ]}
+    ns = _notes(apply_rhythm_recipe(_src(measures=1), recipe))
+    assert isinstance(ns[3], chord.Chord) and [p.nameWithOctave for p in ns[3].pitches] == ["A4", "B4", "C#5"]
+    # pitchNos が1個なら単音のまま
+    one = {"unitMeasures": 1, "notes": [{"base": "w", "pitchNo": 2, "pitchNos": [2]}]}
+    ns1 = _notes(apply_rhythm_recipe(_src(measures=1), one))
+    assert isinstance(ns1[0], note.Note) and ns1[0].pitch.nameWithOctave == "B4"

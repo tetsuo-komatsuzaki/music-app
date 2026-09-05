@@ -14,6 +14,8 @@ export type RhythmNote = {
   dot?: boolean           // 1.5倍
   triplet?: boolean       // 2/3倍
   pitchNo: number         // 単位内の元音符の通し番号 (1始まり)。高さはこの番号で引き継ぐ
+  /** 重音 (2026-09-05 Tetsuo): 同時に鳴らす元音符の番号 2〜4個 (pitchNo を含む)。無ければ単音 */
+  pitchNos?: number[]
   articulation?: string
   slurId?: number | null  // 同じ値の連続音を1本のスラーで結ぶ
 }
@@ -28,4 +30,13 @@ export function noteQl(n: RhythmNote): number | null {
 /** レシピ1単位ぶんの合計 quarterLength。 */
 export function totalQl(notes: RhythmNote[]): number {
   return notes.reduce((a, n) => a + (noteQl(n) ?? 0), 0)
+}
+
+/** 重音の最大構成音数 */
+export const MAX_CHORD_NOTES = 4
+
+/** その音が鳴らす元音符の番号 (昇順・重複なし)。単音なら [pitchNo]、重音なら 2〜4 個 */
+export function notePitchNos(n: RhythmNote): number[] {
+  const src = n.pitchNos && n.pitchNos.length >= 2 ? n.pitchNos : [n.pitchNo]
+  return [...new Set(src.filter((x) => Number.isInteger(x) && x >= 1))].sort((a, b) => a - b).slice(0, MAX_CHORD_NOTES)
 }
