@@ -9,6 +9,7 @@ import { encodeSignedUrl } from "./encodeSignedUrl"
 import { formatKey } from "./musicNotation"
 import { categoryLabel } from "./practiceConstants"
 import { derivedSummariesByPerformance, derivedSummariesFromRows, withDerived } from "./noteStoreSummary"
+import { normalizeNoteName } from "./noteName"
 import { prismaSource, aggregate, aggregateChords, findMaterialsForKey, findMaterialsForTechnique, type GroupKey, type Tech } from "./noteStore"
 import { featureSubtaskRegex, FEATURE_ID_LABELS, SKILL_ID_LABELS } from "./skillCatalog"
 import { resolveObsTag } from "./observationCatalog"
@@ -219,7 +220,7 @@ export interface KarteV2 {
 // ── カルテv2 ヘルパー ──────────────────────────────────────────────
 /** "F#4" → ファ♯ (カナ音名) */
 export function kanaNote(name: string): string {
-  const m = /^([A-G])(#{1,2}|b{1,2})?(\d)?$/.exec(name)
+  const m = /^([A-G])(#{1,2}|b{1,2})?(\d)?$/.exec(normalizeNoteName(name))
   if (!m) return name
   const KANA: Record<string, string> = { C: "ド", D: "レ", E: "ミ", F: "ファ", G: "ソ", A: "ラ", B: "シ" }
   const acc = m[2]?.startsWith("#") ? "♯" : m[2]?.startsWith("b") ? "♭" : ""

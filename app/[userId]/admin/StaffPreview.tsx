@@ -17,9 +17,16 @@ export type StaffNote = {
 }
 
 function diatonic(name: string): number {
-  const m = name.match(/^([A-G])([#b]?)(-?\d)$/)
+  // "Bb3" / "B-3" / "C#5" のどれでも読む。臨時記号は高さに影響しない (五線上の段は幹音で決まる)
+  const m = name.match(/^([A-G])(-+|b+|♭+|#+|♯+)?(-?\d+)$/)
   if (!m) return 0
   return (Number(m[3]) - 4) * 7 + (STEP_OF[m[1]] ?? 0)
+}
+function accidentalGlyph(name: string): string | null {
+  const m = name.match(/^[A-G](-+|b+|♭+|#+|♯+)?-?\d+$/)
+  const acc = m?.[1] ?? ""
+  if (!acc) return null
+  return /[#♯]/.test(acc) ? "♯" : "♭"
 }
 
 export default function StaffPreview({ notes, beats }: { notes: StaffNote[]; beats: number }) {
@@ -49,13 +56,15 @@ export default function StaffPreview({ notes, beats }: { notes: StaffNote[]; bea
     const sy = up ? y - 26 : y + 26
     for (let ly = lineY(0) - GAP; ly > y - 3; ly -= GAP) els.push(<line key={`la${i}${ly}`} x1={cx - 9} y1={ly} x2={cx + 9} y2={ly} stroke="#B9A88C" strokeWidth={1} />)
     for (let ly = lineY(4) + GAP; ly < y + 3; ly += GAP) els.push(<line key={`lb${i}${ly}`} x1={cx - 9} y1={ly} x2={cx + 9} y2={ly} stroke="#B9A88C" strokeWidth={1} />)
-    if (/#/.test(n.name)) els.push(<text key={`ac${i}`} x={cx - 17} y={y + 4.5} fontSize={14} fill="#16294F" fontFamily="serif">&#9839;</text>)
+    const g0 = accidentalGlyph(n.name)
+    if (g0) els.push(<text key={`ac${i}`} x={cx - 17} y={y + 4.5} fontSize={14} fill="#16294F" fontFamily="serif">{g0}</text>)
     els.push(<ellipse key={`h${i}`} cx={cx} cy={y} rx={5.4} ry={4.1} fill={filled ? "#16294F" : "none"} stroke="#16294F" strokeWidth={1.4} transform={`rotate(-18 ${cx} ${y})`} />)
     // 重音: 残りの構成音も同じ x に符頭を置き、符幹は全部の符頭にかかる長さにする
     const extraYs = (n.names ?? []).filter((nm) => nm && nm !== n.name).map((nm) => yOf(nm))
     extraYs.forEach((ey, k) => {
       const nm = (n.names ?? []).filter((x) => x && x !== n.name)[k]
-      if (/#/.test(nm)) els.push(<text key={`acx${i}_${k}`} x={cx - 17} y={ey + 4.5} fontSize={14} fill="#16294F" fontFamily="serif">&#9839;</text>)
+      const gk = accidentalGlyph(nm)
+      if (gk) els.push(<text key={`acx${i}_${k}`} x={cx - 17} y={ey + 4.5} fontSize={14} fill="#16294F" fontFamily="serif">{gk}</text>)
       els.push(<ellipse key={`hx${i}_${k}`} cx={cx} cy={ey} rx={5.4} ry={4.1} fill={filled ? "#16294F" : "none"} stroke="#16294F" strokeWidth={1.4} transform={`rotate(-18 ${cx} ${ey})`} />)
     })
     const stemFrom = extraYs.length ? (up ? Math.max(y, ...extraYs) : Math.min(y, ...extraYs)) : y

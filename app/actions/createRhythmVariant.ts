@@ -10,6 +10,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { requireAdminAction } from "@/app/_libs/requireAuth"
 import { invokeAnalysis } from "@/app/_libs/pythonRunner"
 import { noteQl, notePitchNos, RHYTHM_ARTICULATIONS, type RhythmNote } from "@/app/_libs/rhythmRecipe"
+import { normalizeNoteName } from "@/app/_libs/noteName"
 import { ARTICULATIONS as AXIS_ARTICULATIONS } from "@/app/_libs/materialVariant"
 
 const ARTS = new Set<string>(RHYTHM_ARTICULATIONS as readonly string[])
@@ -50,7 +51,7 @@ export async function getRhythmContext(itemId: string, kind: "practice" | "score
       if (n.type !== "note" || typeof n.measure_number !== "number") continue
       const m = byMeasure.get(n.measure_number) ?? { count: 0, names: [], durs: [] }
       m.count += 1
-      if (n.note_name) m.names.push(n.note_name)
+      if (n.note_name) m.names.push(normalizeNoteName(n.note_name)) // music21 の "B-3" (シ♭) を "Bb3" に (2026-09-05 Tetsuo指摘)
       if (typeof n.start_time_sec === "number" && typeof n.end_time_sec === "number") {
         m.durs.push(Math.round((n.end_time_sec - n.start_time_sec) * 1000) / 1000)
       }

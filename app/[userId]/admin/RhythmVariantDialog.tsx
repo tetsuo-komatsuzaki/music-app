@@ -6,6 +6,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { createRhythmVariant, getRhythmContext } from "@/app/actions/createRhythmVariant"
 import { noteQl, notePitchNos, MAX_CHORD_NOTES, type RhythmNote } from "@/app/_libs/rhythmRecipe"
+import { displayNoteName } from "@/app/_libs/noteName"
 import StaffPreview from "./StaffPreview"
 import { ARTICULATIONS as AXIS_ARTICULATIONS } from "@/app/_libs/materialVariant"
 
@@ -183,7 +184,7 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
             <div style={S.label}>② 元の音符 (高さの番号)</div>
             <div style={S.row}>
               {srcNames.map((nm, i) => (
-                <span key={i} style={{ ...btn(false), cursor: "default" }}>{i + 1} {nm}</span>
+                <span key={i} style={{ ...btn(false), cursor: "default" }}>{i + 1} {displayNoteName(nm)}</span>
               ))}
             </div>
 
@@ -199,7 +200,7 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
               </div>
               <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 700, margin: "10px 0 5px" }}>高さ ・ 元の何番目の音か ・ 2つ以上選ぶと重音</div>
               <div style={S.row}>
-                {srcNames.map((nm, i) => <button key={i} type="button" style={btn(pick.pitchNos.includes(i + 1))} onClick={() => togglePitch(i + 1)}>{i + 1} {nm}</button>)}
+                {srcNames.map((nm, i) => <button key={i} type="button" style={btn(pick.pitchNos.includes(i + 1))} onClick={() => togglePitch(i + 1)}>{i + 1} {displayNoteName(nm)}</button>)}
               </div>
               {pick.pitchNos.length >= 2 && (
                 <div style={{ fontSize: "var(--fs-caption)", color: "#D9A93C", fontWeight: 700, marginTop: 5 }}>
@@ -237,7 +238,7 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
                   <button type="button" onClick={(e) => { e.stopPropagation(); setNotes(notes.filter((_, k) => k !== i)); setEditing(null) }}
                     style={{ position: "absolute", top: -7, right: -7, width: 19, height: 19, borderRadius: "50%", background: "#2A3550", color: "#E7B7B7", border: "1px solid rgba(196,68,68,.5)", fontSize: 11, cursor: "pointer" }}>×</button>
                   <div style={{ fontSize: 14, fontWeight: 800, color: "#FFE9B8" }}>{(n.triplet ? "3" : "") + (BASE.find((b) => b.id === n.base)?.label ?? "") + (n.dot ? "." : "")}</div>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: "#D9A93C" }}>{notePitchNos(n).join("+")}: {notePitchNos(n).map((k) => srcNames[k - 1] ?? "").join("・")}</div>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#D9A93C" }}>{notePitchNos(n).join("+")}: {notePitchNos(n).map((k) => displayNoteName(srcNames[k - 1] ?? "")).join("・")}</div>
                   <div style={{ fontSize: 10, color: "#9DB8E8" }}>{ARTS.find((a) => a.id === (n.articulation ?? ""))?.label}</div>
                 </div>
               ))}

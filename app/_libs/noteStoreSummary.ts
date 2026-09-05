@@ -16,6 +16,7 @@ import {
   TECHS, TECH_COLUMNS, prismaSource,
   type DetailRow, type ProfileRow, type Unit, type NoteStoreSource,
 } from "./noteStore"
+import { normalizeNoteName } from "./noteName"
 
 const UNKNOWN = "unknown"
 const NONE = "none"
@@ -173,7 +174,9 @@ export function noteStatsOf(rows: DetailRow[]): DerivedNoteStats {
   let prevName: string | null = null
   for (const r of rows) {
     if (r.performanceId !== lastPerf) { prevName = null; lastPerf = r.performanceId }
-    const name = r.noteName ?? (r.cur.pitch1 !== UNKNOWN ? r.cur.pitch1 : null)
+    // comparison の音名は music21 表記 ("B-4" = シ♭)。かたちと同じ "Bb4" にそろえる
+    const raw = r.noteName ?? (r.cur.pitch1 !== UNKNOWN ? r.cur.pitch1 : null)
+    const name = raw ? normalizeNoteName(raw) : null
     if (!name) { prevName = null; continue }
     if (EVALUATED_STATUSES.has(r.evaluationStatus)) {
       const pm = r.pitchOk === false, tm = r.startOk === false
