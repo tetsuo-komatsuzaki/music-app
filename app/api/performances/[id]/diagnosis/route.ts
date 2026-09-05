@@ -15,7 +15,6 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
 import { buildDiagnosisView } from "@/app/_libs/diagnosisPresentation"
-import type { DiagnosisJson } from "@/app/_libs/weaknessRecommendation"
 
 export async function GET(
   _request: NextRequest,
@@ -32,6 +31,7 @@ export async function GET(
     select: {
       id: true,
       userId: true,
+      scoreId: true,
       analysisStatus: true,
       analysisSummary: true,
       score: {
@@ -50,13 +50,15 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
 
-  const summary = perf.analysisSummary as { diagnosis?: DiagnosisJson } | null
-  const view = await buildDiagnosisView(summary?.diagnosis, {
+  // ノート属性ストア版 (2026-09-05): その演奏の明細から束ねる。崩壊判定だけ analysisSummary から受け取る
+  const summary = perf.analysisSummary as { diagnosis?: { collapse?: { collapsed?: unknown[]; is_clean?: boolean } } } | null
+  const view = await buildDiagnosisView({
+    kind: "score",
+    performanceId: perf.id,
+    userId: perf.userId,
+    targetId: perf.scoreId,
     star: perf.score.star,
-    keyTonic: perf.score.keyTonic,
-    keyMode: perf.score.keyMode,
-    tempo: perf.score.defaultTempo,
-    positions: perf.score.positions,
+    collapse: summary?.diagnosis?.collapse ?? null,
   })
 
   return NextResponse.json({

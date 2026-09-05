@@ -8,18 +8,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
 import { buildDiagnosisView } from "@/app/_libs/diagnosisPresentation"
-import type { DiagnosisJson } from "@/app/_libs/weaknessRecommendation"
 
 /** "1st"/"3rd" 形式 → ポジション番号 */
-function parsePositions(positions: string[]): number[] {
-  return positions
-    .map((p) => {
-      const m = /^(\d+)/.exec(p)
-      return m ? parseInt(m[1], 10) : null
-    })
-    .filter((n): n is number => n !== null)
-}
-
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ performanceId: string }> },
@@ -35,6 +25,7 @@ export async function GET(
     select: {
       id: true,
       userId: true,
+      practiceItemId: true,
       analysisStatus: true,
       analysisSummary: true,
       practiceItem: {
@@ -55,13 +46,15 @@ export async function GET(
   }
 
   const item = perf.practiceItem
-  const summary = perf.analysisSummary as { diagnosis?: DiagnosisJson } | null
-  const view = await buildDiagnosisView(summary?.diagnosis, {
+  // ノート属性ストア版 (2026-09-05): その演奏の明細から束ねる。崩壊判定だけ analysisSummary から受け取る
+  const summary = perf.analysisSummary as { diagnosis?: { collapse?: { collapsed?: unknown[]; is_clean?: boolean } } } | null
+  const view = await buildDiagnosisView({
+    kind: "practice",
+    performanceId: perf.id,
+    userId: perf.userId,
+    targetId: perf.practiceItemId,
     star: item.star,
-    keyTonic: item.keyTonic,
-    keyMode: item.keyMode,
-    tempo: item.tempoMin ?? item.tempoMax,
-    positions: parsePositions(item.positions),
+    collapse: summary?.diagnosis?.collapse ?? null,
   })
 
   return NextResponse.json({
