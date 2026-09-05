@@ -388,7 +388,11 @@ def upsert_profiles(cur, profiles: Dict[str, Dict[str, Any]]) -> Dict[str, int]:
     cols = ", ".join(f'"{c}"' for c in _PROFILE_DB_COLUMNS)
     placeholders = ", ".join(["%s"] * len(_PROFILE_DB_COLUMNS))
     sql = f'INSERT INTO "NoteProfile" ({cols}) VALUES ({placeholders}) ON CONFLICT ("key") DO NOTHING'
-    for p in profiles.values():
+    # F17: 並走する解析が同じかたちを別の順で INSERT すると、一意索引の行ロックを互いに待ち合って
+    # デッドロックになる (2026-09-05 教材1,014件の再解析で12並列中4件が失敗)。key の順に入れて
+    # ロックの取得順を揃える。これで待ちはあっても行き止まりにはならない。
+    for key in sorted(profiles):
+        p = profiles[key]
         cur.execute(sql, [p[c] for c in _PROFILE_DB_COLUMNS])
     keys = list(profiles.keys())
     cur.execute('SELECT "key", id FROM "NoteProfile" WHERE "key" = ANY(%s)', (keys,))
