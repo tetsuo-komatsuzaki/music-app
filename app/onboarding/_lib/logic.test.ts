@@ -36,9 +36,9 @@ describe("judge (登録star帯・★確定)", () => {
     expect(r.star).toBe(3)
     expect(r.tags).toContain("トリル")
     expect(r.tags).toContain("プラルトリラーとモルデント")
-    // 帯2一括: ポルタート・連続スタッカートも含む
+    // 帯2一括: ポルタート・連続スピッカートも含む
     expect(r.tags).toContain("ポルタート")
-    expect(r.tags).toContain("連続スタッカート")
+    expect(r.tags).toContain("連続スピッカート")
     expect(r.doubleStops).toEqual(["6度"])
   })
 

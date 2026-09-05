@@ -47,7 +47,7 @@ describe("奏法 (ArticulationId)", () => {
       // 2026-09-01: tenuto を追加 (教材8件が選択肢に出ていなかった)
       "tenuto",
       "tremolo",
-      // 2026-09-05: 連続スタッカート (サルタート) を追加 (スラー + スタッカート点。Tetsuo確定)
+      // 2026-09-05: 連続スピッカート (サルタート) を追加 (スラー + スタッカート点。Tetsuo確定)
       "bow_staccato",
     ])
     expect(new Set(ids).size).toBe(ids.length)

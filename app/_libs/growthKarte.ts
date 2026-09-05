@@ -114,7 +114,7 @@ const SKILL_DEFS: Array<{
   { id: "slur", label: "スラー", lane: "bow", star: 1, tagType: "technique", tagKeys: ["スラー"], subIds: ["pitch_tech_slur", "rhythm_tech_slur"], practiceCat: "bowing", obsTagIds: ["bow_elbow_lag", "bow_distribution"] },
   { id: "staccato", label: "スタッカート", lane: "bow", star: 2, tagType: "technique", tagKeys: ["スタッカート"], subIds: ["pitch_tech_staccato", "rhythm_tech_staccato"], practiceCat: "bowing", obsTagIds: ["bow_pressure_heavy"] },
   { id: "portato", label: "ポルタート", lane: "bow", star: 2, tagType: "technique", tagKeys: ["ポルタート"], subIds: ["pitch_tech_portato", "rhythm_tech_portato"], practiceCat: "bowing", obsTagIds: [] },
-  { id: "bow_staccato", label: "連続スタッカート", lane: "bow", star: 2, tagType: "technique", tagKeys: ["連続スタッカート", "ボウ・スタッカート"], subIds: ["pitch_tech_bow_staccato", "rhythm_tech_bow_staccato"], practiceCat: "bowing", obsTagIds: [] },
+  { id: "bow_staccato", label: "連続スピッカート", lane: "bow", star: 2, tagType: "technique", tagKeys: ["連続スピッカート", "連続スタッカート", "ボウ・スタッカート"], subIds: ["pitch_tech_bow_staccato", "rhythm_tech_bow_staccato"], practiceCat: "bowing", obsTagIds: [] },
   { id: "tremolo", label: "トレモロ", lane: "bow", star: 2, tagType: "technique", tagKeys: ["トレモロ"], subIds: ["pitch_tech_tremolo", "rhythm_tech_tremolo"], practiceCat: "bowing", obsTagIds: ["bow_wrist_stiff"] },
   { id: "pizzicato", label: "ピチカート", lane: "bow", star: 2, tagType: "technique", tagKeys: ["ピチカート"], subIds: ["pitch_tech_pizzicato", "rhythm_tech_pizzicato"], practiceCat: null, obsTagIds: [] },
   { id: "spiccato", label: "スピッカート", lane: "bow", star: 3, tagType: "technique", tagKeys: ["スピッカート"], subIds: ["pitch_tech_spiccato", "rhythm_tech_spiccato"], practiceCat: "bowing", obsTagIds: ["bow_wrist_stiff"] },

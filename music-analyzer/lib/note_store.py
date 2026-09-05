@@ -51,7 +51,8 @@ TECH_COLUMNS = {
 # カルテの奏法名 (日本語) → 列の接尾辞。diagnosis._TECH_SUFFIX と同じ表。
 TECH_NAME_TO_SUFFIX = {
     "スラー": "slur", "ポルタート": "portato", "スタッカート": "staccato",
-    "連続スタッカート": "bow_staccato", "スピッカート": "spiccato",
+    "連続スピッカート": "bow_staccato", "連続スタッカート": "bow_staccato",  # 旧名 (2026-09-05 改名) も受ける
+    "スピッカート": "spiccato",
     "リコシェ": "ricochet", "ピチカート": "pizzicato", "トレモロ": "tremolo",
     "ビブラート": "vibrato", "トリル": "trill", "プラルトリラーとモルデント": "mordent",
     "グリッサンド": "glissando", "ナチュラル・ハーモニクス": "harmonic",

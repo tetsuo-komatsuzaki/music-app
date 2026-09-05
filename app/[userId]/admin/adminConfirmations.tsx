@@ -1,9 +1,9 @@
 "use client"
 
 // 工程G (2026-07-11) — 奏法確認キューのクライアントUI。
-// 曲/教材ごとに一律4択 (スタッカート/スピッカート/連続スタッカート/ポルタート)
+// 曲/教材ごとに一律4択 (スタッカート/スピッカート/連続スピッカート/ポルタート)
 // から選んで一括確定。確定済みは折りたたみに移動し、選び直しも可能。
-// 2026-07-14 用語改定: ボウ・スタッカート→連続スタッカート
+// 2026-07-14 用語改定: ボウ・スタッカート→連続スピッカート
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
@@ -21,7 +21,7 @@ export type ConfirmationGroup = {
   patterns: Array<{ pattern: string; noteCount: number; measures: number[] }>
 }
 
-const TAG_CHOICES = ["スタッカート", "スピッカート", "連続スタッカート", "ポルタート"]
+const TAG_CHOICES = ["スタッカート", "スピッカート", "連続スピッカート", "ポルタート"]
 
 const PATTERN_LABELS: Record<string, string> = {
   staccato_inside_slur: "スラー内の点",

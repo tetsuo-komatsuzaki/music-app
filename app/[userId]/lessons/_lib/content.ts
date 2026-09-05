@@ -46,7 +46,7 @@ const ds = (key: string): LessonTag => ({ tagType: "double_stop", tagKey: key })
 /** レッスンid → 習得タグ (2026-07-14 用語改定済みの正本) */
 const TAG_MAP: Record<string, LessonTag> = {
   staccato: tech("スタッカート"),
-  bow_staccato: tech("連続スタッカート"), // 旧称ボウ・スタッカート
+  bow_staccato: tech("連続スピッカート"), // 旧称ボウ・スタッカート
   spiccato: tech("スピッカート"),
   ricochet: tech("リコシェ"),
   tremolo: tech("トレモロ"),

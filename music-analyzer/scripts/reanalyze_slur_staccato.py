@@ -1,4 +1,4 @@
-"""スラーの中にスタッカート点を持つ 教材・曲 だけを再解析する (2026-09-05 Tetsuo確定: その点は「連続スタッカート」)。
+"""スラーの中にスタッカート点を持つ 教材・曲 だけを再解析する (2026-09-05 Tetsuo確定: その点は「連続スピッカート」)。
 
 対象は並び (ScoreNote → NoteProfile) で techSlur かつ techStaccato の音を持つもの。再解析で
 技術タグ・かたち (techBowStaccato)・教材側の写し (MaterialBundleCount) が新しい規則に揃う。

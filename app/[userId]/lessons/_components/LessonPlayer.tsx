@@ -354,7 +354,7 @@ export default function LessonPlayer({
     spiccato: "staccato", // 間違い=弦に乗ってしまう(スタッカート)
     ricochet: "staccato", // 間違い=1音ずつ返してしまう(スタッカート)
     portato: "staccato", // 間違い=切りすぎる(スタッカート)
-    slur: "bow_staccato", // 間違い=1音ずつ切ってしまう(連続スタッカート)
+    slur: "bow_staccato", // 間違い=1音ずつ切ってしまう(連続スピッカート)
   }
   // S3(間違い)で見せる「その技法自身のミスモーション」(横から)。指定レッスンのみ (2026-07-14 Tetsuo指示)
   //   別技法に倒れるのではなく、同じ技法の崩れた運弓を見せる (トレモロ=弓の位置が定まらない)

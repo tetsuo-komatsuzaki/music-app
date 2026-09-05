@@ -11,7 +11,7 @@ export const TECH_LABELS: Record<string, string> = {
   slur: "スラー",
   portato: "ポルタート",
   staccato: "スタッカート",
-  bow_staccato: "連続スタッカート",
+  bow_staccato: "連続スピッカート",
   spiccato: "スピッカート",
   ricochet: "リコシェ",
   pizzicato: "ピチカート",

@@ -40,7 +40,7 @@ export type DailyLesson = {
   // href はクライアント側で `/${urlUserId}/practice/${category}/${itemId}` を組む
 }
 
-const TECH_SUFFIX_LABEL: Record<string, string> = { slur: "スラー", staccato: "スタッカート", portato: "ポルタート", bow_staccato: "連続スタッカート", tremolo: "トレモロ", pizzicato: "ピチカート", spiccato: "スピッカート", ricochet: "リコシェ", trill: "トリル", mordent: "モルデント", vibrato: "ビブラート", glissando: "グリッサンド", harmonic: "ハーモニクス" }
+const TECH_SUFFIX_LABEL: Record<string, string> = { slur: "スラー", staccato: "スタッカート", portato: "ポルタート", bow_staccato: "連続スピッカート", tremolo: "トレモロ", pizzicato: "ピチカート", spiccato: "スピッカート", ricochet: "リコシェ", trill: "トリル", mordent: "モルデント", vibrato: "ビブラート", glissando: "グリッサンド", harmonic: "ハーモニクス" }
 const posBucket = (n: number): string => (n <= 2 ? "2" : n === 3 ? "3" : "4plus")
 
 /** タグ比較用に整形した教材候補 */

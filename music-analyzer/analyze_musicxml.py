@@ -167,7 +167,7 @@ def transpose_variant(score, metadata, target_tonic_db, target_mode):
 #   レガート=Tenuto / スタッカート=Staccato / スピッカート=Spiccato /
 #   マルテレ=StrongAccent(マルカート) / ポルタート=DetachedLegato(スラー下点) /
 #   トレモロ=expressions.Tremolo(斜線2本) /
-#   連続スタッカート (サルタート)=Staccato + 連続する音をスラーでつなぐ (2026-09-05 Tetsuo。スラーは apply_articulation_variant で付ける)。
+#   連続スピッカート (サルタート)=Staccato + 連続する音をスラーでつなぐ (2026-09-05 Tetsuo。スラーは apply_articulation_variant で付ける)。
 #   スピッカートは <spiccato/> で書き出す。譜面表示 (build_score) では点で描くが、解析側はスタッカートと別に持つ。
 _ART_CLS = {
     "legato": articulations.Tenuto,
@@ -178,12 +178,12 @@ _ART_CLS = {
     # 2026-08-24 アップロード改修: 音符ごとの奏法レシピで追加 (テヌート/アクセント)
     "tenuto": articulations.Tenuto,
     "accent": articulations.Accent,
-    "bow_staccato": articulations.Staccato,  # 連続スタッカート (サルタート): 点 + スラー
+    "bow_staccato": articulations.Staccato,  # 連続スピッカート (サルタート): 点 + スラー
 }
 
 
 def _slur_bow_staccato_runs(part, runs):
-    """連続スタッカートの音の並び (連続する2音以上) を1本のスラーでつなぐ。runs = [[note, note, ...], ...]"""
+    """連続スピッカートの音の並び (連続する2音以上) を1本のスラーでつなぐ。runs = [[note, note, ...], ...]"""
     n_slurs = 0
     for run in runs:
         if len(run) >= 2:
@@ -336,7 +336,7 @@ def apply_articulation_variant(score, metadata):
                         break
                     match_n += 1
                 idx = 0
-                run: list = []      # 連続スタッカートが続く音の並び (単位の中で連続するものを1本のスラーに)
+                run: list = []      # 連続スピッカートが続く音の並び (単位の中で連続するものを1本のスラーに)
                 runs: list = []
                 for meas in measures[u_start:u_start + unit]:
                     for n in meas.notes:
@@ -364,7 +364,8 @@ def apply_articulation_variant(score, metadata):
 # 手動で設定済み (skillSubTaskTags が空でない) 教材は上書きしない。
 _TT_TO_SUBTASK = {
     "スタッカート": "bowing_technique_staccato",
-    "連続スタッカート": "bowing_technique_staccato_continuous",
+    "連続スピッカート": "bowing_technique_staccato_continuous",
+    "連続スタッカート": "bowing_technique_staccato_continuous",  # 旧名 (2026-09-05 改名)
     "スピッカート": "bowing_technique_spiccato",
     "ピチカート": "bowing_technique_pizzicato",
     "トレモロ": "bowing_technique_tremolo",
@@ -387,7 +388,7 @@ _TT_TO_SUBTASK = {
 _TAG_STAR = {
     # ── 技術タグ ──
     "スラー": 1,
-    "スタッカート": 2, "ピチカート": 2, "トレモロ": 2, "ポルタート": 2, "連続スタッカート": 2, "マルテレ": 2,
+    "スタッカート": 2, "ピチカート": 2, "トレモロ": 2, "ポルタート": 2, "連続スピッカート": 2, "マルテレ": 2,
     "スピッカート": 3, "トリル": 3, "プラルトリラーとモルデント": 3,
     "ビブラート": 4, "リコシェ": 4,
     "グリッサンド": 5, "ナチュラル・ハーモニクス": 5,
@@ -1420,7 +1421,7 @@ try:
             # technique_tags / position から算出して Score/PracticeItem に保存。
             #  - primaryBowing: スラー除外 → 技術★最大 → 同★は最頻 → id
             #  - primaryPosition: 非1stの最頻 → 同数は高い方
-            _BOW_STAR = {"スラー": 1, "スタッカート": 2, "ポルタート": 2, "連続スタッカート": 2,
+            _BOW_STAR = {"スラー": 1, "スタッカート": 2, "ポルタート": 2, "連続スピッカート": 2,
                          "トレモロ": 2, "ピチカート": 2, "スピッカート": 3, "リコシェ": 4}
             _bow_freq: dict = {}
             _pos_freq: dict = {}
@@ -1552,7 +1553,8 @@ try:
                 _ART_TAG_TO_ID = {
                     "スラー": "slur",
                     "スタッカート": "staccato",
-                    "連続スタッカート": "bow_staccato",
+                    "連続スピッカート": "bow_staccato",
+                    "連続スタッカート": "bow_staccato",  # 旧名
                     "スピッカート": "spiccato",
                     "マルテレ": "martele",
                     "ポルタート": "portato",

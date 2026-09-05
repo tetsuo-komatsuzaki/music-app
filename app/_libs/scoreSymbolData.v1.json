@@ -264,7 +264,7 @@
    "id": "bow_staccato",
    "cat": "bow",
    "glyph": "staccato",
-   "label": "連続スタッカート",
+   "label": "連続スピッカート",
    "supply": "tag",
    "lessonId": "bow_staccato",
    "match": {

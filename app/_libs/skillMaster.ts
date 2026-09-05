@@ -3,10 +3,10 @@
 // 個別課題 v1 (2026-05-25) — マスターデータ定義。
 // 旧 9 サブタスクは完全廃止、新 57 項目 (MVP対象、将来検討 2 を加えて 59 定義) で
 // 置換 (Tetsuo 確定 2026-05-25)。中項目 ID は pitch / rhythm / bowing 維持 (① 確定)。
-// 2026-06-08: 連続スタッカート/スピッカート(弓系2項目)を追加し 61 項目に。検出は
+// 2026-06-08: 連続スピッカート/スピッカート(弓系2項目)を追加し 61 項目に。検出は
 // 均一性軸の作り直しで後日 ([[project_evenness_quality_axis_pending]])。現状スケルトン。
 // 2026-06-08: アルペジオ(rhythm/bowing)・ハウスタッカート(bowing)を削除し 58 項目に。
-// 2026-06-08: リコシェ(rhythm/bowing)も削除し 56 項目に。連続スタッカート/スピッカートは
+// 2026-06-08: リコシェ(rhythm/bowing)も削除し 56 項目に。連続スピッカート/スピッカートは
 // 跳ね系共通軸 dur_ratio<=0.5 で実装(均一性は別軸で後日)。
 // 2026-06-08: マルテレ(rhythm)も削除し 55 項目に。
 //
@@ -169,7 +169,7 @@ export const SUB_TASK_NAMES: Record<SubTaskId, string> = {
   bowing_technique_trill: "トリルの音色",
   bowing_technique_glissando: "グリッサンドの音色",
   bowing_technique_harmonic: "ハーモニクスの音色",
-  bowing_technique_staccato_continuous: "連続スタッカートの音色",
+  bowing_technique_staccato_continuous: "連続スピッカートの音色",
   bowing_technique_spiccato_continuous: "連続スピッカートの音色",
   bowing_string_g: "G線・4弦の音色",
   bowing_string_d: "D線・3弦の音色",

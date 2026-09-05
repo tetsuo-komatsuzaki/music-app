@@ -42,7 +42,7 @@ const skillMap: SkillMapData = {
     { id: "slur", label: "スラー", lane: "bow", star: 1, state: "stable", provisional: false, pct: 86, miss: 12, target: 88 },
     { id: "staccato", label: "スタッカート", lane: "bow", star: 2, state: "wobble", provisional: false, pct: 61, miss: 39, target: 100 },
     { id: "portato", label: "ポルタート", lane: "bow", star: 2, state: "acquired_nodata", provisional: true, pct: null, miss: 0, target: 0 },
-    { id: "bow_staccato", label: "連続スタッカート", lane: "bow", star: 2, state: "ready", provisional: false, pct: null, miss: 0, target: 0 },
+    { id: "bow_staccato", label: "連続スピッカート", lane: "bow", star: 2, state: "ready", provisional: false, pct: null, miss: 0, target: 0 },
     { id: "tremolo", label: "トレモロ", lane: "bow", star: 3, state: "locked", provisional: false, pct: null, miss: 0, target: 0 },
     { id: "spiccato", label: "スピッカート", lane: "bow", star: 3, state: "locked", provisional: false, pct: null, miss: 0, target: 0 },
     { id: "ricochet", label: "リコシェ", lane: "bow", star: 5, state: "locked", provisional: false, pct: null, miss: 0, target: 0 },

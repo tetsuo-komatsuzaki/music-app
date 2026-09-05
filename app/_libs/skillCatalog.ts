@@ -89,7 +89,7 @@ export const SKILL_ID_LABELS: SkillIdLabel[] = [
   { id: "slur", label: "スラー", lane: "bow" },
   { id: "staccato", label: "スタッカート", lane: "bow" },
   { id: "portato", label: "ポルタート", lane: "bow" },
-  { id: "bow_staccato", label: "連続スタッカート", lane: "bow" },
+  { id: "bow_staccato", label: "連続スピッカート", lane: "bow" },
   { id: "tremolo", label: "トレモロ", lane: "bow" },
   { id: "pizzicato", label: "ピチカート", lane: "bow" },
   { id: "spiccato", label: "スピッカート", lane: "bow" },

@@ -54,7 +54,7 @@ BOWING_SUB_TASK_IDS: list[str] = [
     "bowing_technique_portato", "bowing_technique_trill",
     "bowing_technique_glissando",
     "bowing_technique_harmonic",
-    # 連続スタッカート/スピッカート。粒の均一性は別軸で後日
+    # 連続スピッカート/スピッカート。粒の均一性は別軸で後日
     # ([[project_evenness_quality_axis_pending]])。
     "bowing_technique_staccato_continuous", "bowing_technique_spiccato_continuous",
     "bowing_string_g", "bowing_string_d", "bowing_string_a", "bowing_string_e",
@@ -394,7 +394,7 @@ def _run_technique_judges(data: IntegratedScoreData) -> dict[str, SubTaskResult]
         bid = f"bowing_technique_{tech}"
         results[bid] = _judge_technique(data, bid, detector, quality)
 
-    # 連続スタッカート/スピッカート: 連続する塊を対象に、跳ね系共通軸
+    # 連続スピッカート/スピッカート: 連続する塊を対象に、跳ね系共通軸
     # dur_ratio<=0.5 (短く切れている) で判定。
     for tech in ("staccato", "spiccato"):
         bid = f"bowing_technique_{tech}_continuous"

@@ -80,7 +80,7 @@ export const BOWING_TECHNIQUES: BowingTechnique[] = [
 
   {
     /**
-     * 連続スタッカート(旧称: ボウ・スタッカート)【2026-07-12改訂・教材データJSON準拠】:
+     * 連続スピッカート(旧称: ボウ・スタッカート)【2026-07-12改訂・教材データJSON準拠】:
      * ダウン4音→弓を返してアップ4音の往復周期。
      *   ・各弓区間内では h 単調(=一弓の中では返さない)
      *   ・lift は常に 0(接弦のまま)
@@ -88,7 +88,7 @@ export const BOWING_TECHNIQUES: BowingTechnique[] = [
      * id は互換維持のため旧名のまま変更しない(図解アセット仕様書v1.2 §9-6)。
      */
     id: "bow-staccato",
-    name: "連続スタッカート",
+    name: "連続スピッカート",
     desc: "一弓で4音刻んで弓を返し、逆方向でも4音刻む",
     duration: 4.4,
     alternate: false,
