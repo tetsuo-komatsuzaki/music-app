@@ -383,11 +383,13 @@ export async function findMaterialsForTechnique(tech: Tech, star: number, shelve
  * 音の移動・速い指の切り替えは音そのものが条件なので二段階目は無い (null)。
  */
 function coarseWhere(key: GroupKey): Prisma.Sql | null {
-  const { tab, a, b, c } = parseKey(key)
+  const { tab, a, b } = parseKey(key)
+  // 音の無い旧形式のキー ("technique|slur" / "position|1|3" / "chord|5度"・音を足す前のピンに残る) も
+  // 二段階目の条件で引けるようにする (音を問わない条件そのものなので同じ where で足りる)
   switch (tab as string) {
-    case "technique": return b ? Prisma.sql`mb.kind = 'technique' AND mb."fromValue" = ${a}` : null
-    case "position": return c ? Prisma.sql`mb.kind = 'position' AND mb."fromValue" = ${a} AND mb."toValue" = ${b}` : null
-    case "chord": return b ? Prisma.sql`mb.kind = 'chord' AND mb."fromValue" = ${a}` : null
+    case "technique": return Prisma.sql`mb.kind = 'technique' AND mb."fromValue" = ${a}`
+    case "position": return b ? Prisma.sql`mb.kind = 'position' AND mb."fromValue" = ${a} AND mb."toValue" = ${b}` : null
+    case "chord": return Prisma.sql`mb.kind = 'chord' AND mb."fromValue" = ${a}`
     default: return null
   }
 }
