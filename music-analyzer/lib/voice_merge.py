@@ -16,11 +16,14 @@
 from __future__ import annotations
 
 import copy
+import logging
 from fractions import Fraction
 from typing import Any
 
 from music21 import chord, note, stream, tie
 from music21.common.numberTools import opFrac
+
+logger = logging.getLogger(__name__)
 
 
 def _frac(x) -> Fraction:
@@ -70,8 +73,8 @@ def _replace_spanners(old, new) -> None:
     for sp in old.getSpannerSites():
         try:
             sp.replaceSpannedElement(old, new)
-        except Exception:  # noqa: BLE001 — 参照の無いスパナーは無視 (音は落とさない)
-            pass
+        except Exception as e:  # noqa: BLE001 — 参照の差し替えに失敗しても音は落とさない
+            logger.warning("voice_merge: spanner の差し替えに失敗 (%s)", e)
 
 
 def _build_segment(sounding: list[_Ev], t0: Fraction, t1: Fraction):
