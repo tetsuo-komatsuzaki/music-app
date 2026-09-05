@@ -214,7 +214,10 @@ export function derivedSummaryOf(rows: DetailRow[]): DerivedSummary {
 
 /** 単位 (ユーザー・期間・曲…) の明細を演奏ごとに分け、演奏ID → 派生サマリ を返す */
 export async function derivedSummariesByPerformance(unit: Unit, source: NoteStoreSource = prismaSource): Promise<Map<string, DerivedSummary>> {
-  return derivedSummariesFromRows(await source.fetchDetail(unit))
+  // 表が無い・読めない環境でも呼び手 (カルテ等) を落とさない: 明細なし = 空
+  let rows: DetailRow[]
+  try { rows = await source.fetchDetail(unit) } catch (e) { console.error("[noteStoreSummary] fetchDetail failed:", e); rows = [] }
+  return derivedSummariesFromRows(rows)
 }
 
 /** 既に引いた明細から 演奏ID → 派生サマリ (同じ明細を別の集計にも使う読み手向け) */

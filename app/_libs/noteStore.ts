@@ -336,6 +336,23 @@ export const prismaSource: NoteStoreSource = {
 }
 
 /** 検査用: その教材に、その束に合う音が何個あるか。写し (MaterialBundleCount) ではなく並び (ScoreNote) を数える ・ 独立した確認 */
+/**
+ * 削除の後始末 (F13)。ScoreNote / PerformanceNote / MaterialBundleCount は本体 (Score / PracticeItem /
+ * Performance / PracticePerformance) と外部キーで結ばれていない (複合主キー・種別列) ので、本体を消す側が呼ぶ。
+ * 読み手は本体を通して絞るので残骸が画面に出ることはないが、増え続けないように消す。
+ */
+export async function deleteNoteStoreForPerformance(kind: "score" | "practice", performanceId: string): Promise<number> {
+  const r = await prisma.performanceNote.deleteMany({ where: { performanceKind: kind, performanceId } })
+  return r.count
+}
+export async function deleteNoteStoreForTarget(kind: "score" | "practice", targetId: string): Promise<{ scoreNotes: number; bundles: number }> {
+  const [a, b] = await prisma.$transaction([
+    prisma.scoreNote.deleteMany({ where: { targetType: kind, targetId } }),
+    kind === "practice" ? prisma.materialBundleCount.deleteMany({ where: { targetId } }) : prisma.materialBundleCount.deleteMany({ where: { targetId: "__none__" } }),
+  ])
+  return { scoreNotes: a.count, bundles: b.count }
+}
+
 /** 束を最も多く含む ★以下の教材を上位 limit 件 (写し MaterialBundleCount)。findMaterial の複数件版 */
 export async function findMaterialsForKey(key: GroupKey, star: number, shelves: string[], limit: number): Promise<MaterialHit[]> {
   const rows = await prisma.$queryRaw<{ id: string; c: number }[]>(Prisma.sql`

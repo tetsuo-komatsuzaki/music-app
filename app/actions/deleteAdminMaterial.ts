@@ -48,6 +48,9 @@ export async function deleteAdminMaterial(
       return { error: "ユーザー所有の教材は削除できません" }
     }
     try {
+      // 楽譜の並びと束の写し (ScoreNote / MaterialBundleCount) は FK が無いので先に消す (F13・2026-09-05)
+      const { deleteNoteStoreForTarget } = await import("@/app/_libs/noteStore")
+      await deleteNoteStoreForTarget("practice", id)
       await prisma.$transaction([
         // FK が Cascade でない PracticeItemTechnique を先に削除
         prisma.practiceItemTechnique.deleteMany({ where: { practiceItemId: id } }),

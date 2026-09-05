@@ -1609,7 +1609,7 @@ export async function buildSkillDetail(
         .filter(([, v]) => v.target >= REC_MIN_TARGET && v.miss > 0)
         .sort((a, b) => (b[1].miss / b[1].target) - (a[1].miss / a[1].target) || b[1].target - a[1].target || a[0].localeCompare(b[0]))
       const frequent = [...agg.entries()].filter(([, v]) => v.target >= REC_MIN_TARGET).sort((a, b) => b[1].target - a[1].target || a[0].localeCompare(b[0]))
-      return [...new Set([...weak, ...frequent].map(([k]) => k))].slice(0, 4)
+      return [...new Set([...weak, ...frequent].map(([k]) => k))] // 在庫に無い束が続くこともあるので切らずに順に探す
     }
     let keys: GroupKey[]
     let shelves: string[]

@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
+import { deleteNoteStoreForPerformance } from "@/app/_libs/noteStore"
 
 export async function DELETE(
   _request: NextRequest,
@@ -35,7 +36,9 @@ export async function DELETE(
     )
   }
 
-  // PerformanceSkillFeedback は CASCADE で連動削除 (schema.prisma)
+  // PerformanceSkillFeedback は CASCADE で連動削除 (schema.prisma)。
+  // 演奏の明細 (PerformanceNote) は外部キーで結ばれていないので先に消す (F13・2026-09-05)
+  try { await deleteNoteStoreForPerformance("practice", performanceId) } catch (e) { console.error("[practice-performance delete] PerformanceNote cleanup failed:", e) }
   await prisma.practicePerformance.delete({ where: { id: performanceId } })
 
   return NextResponse.json({ deleted: true, performanceId })
