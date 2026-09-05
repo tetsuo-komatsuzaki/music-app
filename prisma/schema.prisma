@@ -133,6 +133,8 @@ model SkillMasterySong {
 }
 
 model Score {
+  /// ノート属性ストア (2026-09-05): いまの並び ScoreNote の版 (指紋)。並びが組めていなければ null
+  scoreNoteVersion String?
   id               String         @id @default(cuid())
   createdById      String
   title            String
@@ -397,6 +399,8 @@ model MaterialGroup {
 }
 
 model PracticeItem {
+  /// ノート属性ストア (2026-09-05): いまの並び ScoreNote の版 (指紋)。並びが組めていなければ null
+  scoreNoteVersion String?
   id               String           @id @default(cuid())
   category         PracticeCategory
   title            String

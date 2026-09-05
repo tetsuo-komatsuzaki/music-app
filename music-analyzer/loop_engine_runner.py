@@ -61,6 +61,21 @@ def _require(name: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+def _write_performance_notes(conn, kind: str, performance_id: str, comparison_path: str,
+                             target_type: str, target_id: str) -> None:
+    """ノート属性ストア: comparison_result.json の全行を PerformanceNote に写し、
+    採点したときの並びの版を演奏に書く。独立した小さなトランザクションで確定する。"""
+    from lib.note_store import build_performance_notes, save_performance_notes
+    with open(comparison_path, encoding="utf-8") as f:
+        comp = json.load(f)
+    results = comp if isinstance(comp, list) else (comp.get("results") or comp.get("evaluatedNotes") or [])
+    rows = build_performance_notes(results)
+    with conn.cursor() as cur:
+        version = save_performance_notes(cur, kind, performance_id, rows, target_type, target_id)
+    conn.commit()
+    print(f"[note_store] PerformanceNote {len(rows)}行 ・ 並びの版={version}")
+
+
 def _download(
     supabase_url: str, sr_key: str, bucket: str, path: str, dst: str
 ) -> str:
@@ -449,6 +464,10 @@ def run_score_mode() -> None:
         score_key_tonic: Optional[str] = row[4]
         score_key_mode: Optional[str] = row[5]
         user_internal_id: str = row[6]
+        # ノート属性ストア (2026-09-05): 演奏の1音ごとの結果を PerformanceNote に写す。
+        # 旧の集計 (diagnosis/UserSkillSubScore) も今までどおり書く (二重書き期間)。
+        # 失敗は握りつぶさず例外で止める (仕様 §11-9)。
+        _write_performance_notes(conn, "score", performance_id, comparison_path, "score", score_id)
 
         # M5 = B 確定: ownerScope != "admin" の Score 演奏はループエンジン対象外
         if owner_scope != "admin":
@@ -652,6 +671,7 @@ def main() -> None:
             )
         difficulty: Optional[int] = row[0]  # local 変数は domain 概念で維持 (旧名互換)
         sub_task_tags_raw = row[1]
+        _write_performance_notes(conn, "practice", performance_id, comparison_path, "practice", practice_item_id)
 
         if difficulty is None:
             # 致命1: star backfill 未完の行はスキップ (Commit 1.5 で全件埋まっている想定)

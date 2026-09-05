@@ -99,6 +99,11 @@ class SkillInfoNote:
     is_chord: bool = False           # 重音グループの代表音符
     chord_midis: Optional[list] = None      # 重音の全構成音 (MIDI)
     chord_intervals: Optional[list] = None  # 隣接ペア分解後の音程種別 ["3度",...]
+    # R5 (2026-09-05 ノート属性ストア): 重音の構成音ごとの値。代表音 (1音目) も含む。
+    # [{midi, step, alter, octave, string_id, finger, note_type, is_dotted, duration_beats}]
+    # 弦と指は楽譜の書き込み (<string>/<fingering>) だけを読む。無ければ None (= 不明)。
+    # 2音目以降の音価は MusicXML では別々に書けるので構成音ごとに持つ。
+    chord_members: Optional[list] = None
     is_slur_start: bool = False
     is_slur_end: bool = False
 
@@ -304,6 +309,9 @@ def extract_note_karte(musicxml_path: str) -> tuple[List[SkillInfoNote], dict]:
                             letters.append(so)
                             rep._chord_letters = letters  # type: ignore[attr-defined]
                             rep.chord_intervals = _chord_intervals_from_letters(letters)
+                        # R5: 構成音ごとの値。代表音の分は代表音を作るときに入れてある
+                        if rep.chord_members is not None:
+                            rep.chord_members.append(_chord_member_of(note_elem, m, so, divisions, beat_type))
                 continue
 
             # ── ここから index を消費する音符（単音代表 or 休符）──
@@ -364,6 +372,9 @@ def extract_note_karte(musicxml_path: str) -> tuple[List[SkillInfoNote], dict]:
             )
             # 重音の音程計算用に音名も一時保持 (JSON には出さない)
             skill_note._chord_letters = [ (step, octv) ] if step is not None else []  # type: ignore[attr-defined]
+            # R5: 構成音の列。1音目 = 代表音そのもの。2音目以降はメンバー収集時に足す
+            if not is_rest and midi is not None:
+                skill_note.chord_members = [_chord_member_of(note_elem, midi, (step, octv), divisions, beat_type)]
             # 工程A-3: アーティキュレーション記号を一時保持 (技術タグ判定用・非serialize)
             skill_note._artic = {  # type: ignore[attr-defined]
                 "staccato": note_elem.find("notations/articulations/staccato") is not None,
@@ -390,6 +401,7 @@ def extract_note_karte(musicxml_path: str) -> tuple[List[SkillInfoNote], dict]:
     for n in notes:
         if not n.is_chord:
             n.chord_midis = None
+            n.chord_members = None
         if hasattr(n, "_chord_letters"):
             del n._chord_letters
 
@@ -473,6 +485,38 @@ def _string_index_distance(a: str, b: str) -> int:
 
 # 隣接ペア分解 (§25): ソートした構成音の隣接2音ずつの度数 → 種別ラベル
 _INTERVAL_LABEL = {3: "3度", 4: "4度", 5: "5度", 6: "6度", 8: "オクターブ", 10: "10度"}
+
+
+def _chord_member_of(note_elem: ET.Element, midi: Optional[int], step_oct: tuple,
+                     divisions: int, beat_type: int) -> dict:
+    """R5: 重音の構成音1つぶんの値を <note> から読む。弦と指は書き込みだけ (推定しない)。"""
+    string_id = None
+    finger = None
+    se = note_elem.find("notations/technical/string")
+    if se is not None and se.text and se.text.strip():
+        string_id = string_num_to_id(se.text.strip())
+    fe = note_elem.find("notations/technical/fingering")
+    if fe is not None and fe.text and fe.text.strip().isdigit():
+        finger = int(fe.text.strip())
+    dur_div = 0
+    de = note_elem.find("duration")
+    if de is not None and de.text:
+        try:
+            dur_div = int(de.text.strip())
+        except ValueError:
+            dur_div = 0
+    te = note_elem.find("type")
+    return {
+        "midi": midi,
+        "step": step_oct[0],
+        "alter": _extract_alter(note_elem),
+        "octave": step_oct[1],
+        "string_id": string_id,
+        "finger": finger,
+        "note_type": te.text.strip() if te is not None and te.text else None,
+        "is_dotted": note_elem.find("dot") is not None,
+        "duration_beats": round(dur_div * beat_type / (divisions * 4), 4) if divisions else None,
+    }
 
 
 def _chord_intervals_from_letters(letters: list) -> list:

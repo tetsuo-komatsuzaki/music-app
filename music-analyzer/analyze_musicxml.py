@@ -1263,6 +1263,63 @@ try:
         except OSError:
             pass
 
+
+    # =========================
+    # ノート属性ストア (2026-09-05 Tetsuo確定): 展開後の並び ScoreNote を書く
+    # =========================
+    # R1: 演奏順 (performance_part) と記譜 (カルテ) の対応は、上のスラー射影で作った
+    #     expanded_to_orig (derivation ベース) を使う。小節番号の突き合わせは使わない。
+    # 並びが組めないときは「並びなし」として旧い並びを消し、版を無しにする (演奏はこの曲で集計されない)。
+    # 書き込みの失敗は握りつぶさず例外にする (仕様 §11-9)。旧の集計はこれまでどおり別に書く (二重書き)。
+    _ns_target_type = "practice" if IS_PRACTICE_ITEM else "score"
+    _ns_target_id = PRACTICE_ITEM_ID if IS_PRACTICE_ITEM else SCORE_ID
+    from lib.note_store import build_score_notes, save_score_notes, clear_score_notes
+    if karte_payload is None:
+        clear_score_notes(cur, _ns_target_type, _ns_target_id, "カルテ生成に失敗")
+    else:
+        _ns_expanded = []
+        for _m in performance_part.getElementsByClass("Measure"):
+            for _el in _m.notesAndRests:
+                if float(_el.duration.quarterLength) == 0:
+                    continue
+                _is_rest = isinstance(_el, note.Rest)
+                _pl = [] if _is_rest else list(getattr(_el, "pitches", []))
+                _ta = _tn = None
+                try:
+                    _tups = _el.duration.tuplets
+                    if _tups:
+                        _ta = int(_tups[0].numberNotesActual)
+                        _tn = int(_tups[0].numberNotesNormal)
+                except Exception:
+                    _ta = _tn = None
+                _ns_expanded.append({
+                    "is_rest": _is_rest,
+                    "is_chord": (not _is_rest) and len(_pl) > 1,
+                    "midis": [int(_p.midi) for _p in _pl],
+                    "names": [_p.nameWithOctave for _p in _pl],
+                    "quarter_length": float(_el.duration.quarterLength),
+                    "tuplet_actual": _ta,
+                    "tuplet_normal": _tn,
+                })
+        # 記譜側 (展開前 part) の要素列。カルテとの対応づけに使う (装飾音・多声部・段の差を吸収)
+        _ns_written = []
+        for _m in part.getElementsByClass("Measure"):
+            for _el in _m.notesAndRests:
+                if float(_el.duration.quarterLength) == 0:
+                    continue
+                _is_rest = isinstance(_el, note.Rest)
+                _ns_written.append({"is_rest": _is_rest,
+                                    "midis": [] if _is_rest else [int(_p.midi) for _p in getattr(_el, "pitches", [])]})
+        _ns_rows, _ns_profiles, _ns_status = build_score_notes(
+            _ns_expanded, expanded_to_orig, len(orig_ordinal),
+            karte_payload["notes"], SECONDS_PER_QUARTER, written=_ns_written,
+        )
+        if not _ns_status.startswith("ok"):
+            clear_score_notes(cur, _ns_target_type, _ns_target_id, _ns_status)
+        else:
+            _ns_version = save_score_notes(cur, _ns_target_type, _ns_target_id, _ns_rows, _ns_profiles)
+            print(f"[note_store] ScoreNote {len(_ns_rows)}行 ・ かたち {len(_ns_profiles)}種 ・ 版={_ns_version} ・ {_ns_status}")
+
     # ステータス更新（done）
     if IS_PRACTICE_ITEM:
         cur.execute("""
