@@ -11,9 +11,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import psycopg2  # noqa: E402
-from dotenv import load_dotenv  # noqa: E402
-from reanalyze_voice2 import targets  # noqa: E402
+import psycopg2
+from dotenv import load_dotenv
+from reanalyze_voice2 import targets
 
 ANALYZER = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv(os.path.join(ANALYZER, ".env"))
