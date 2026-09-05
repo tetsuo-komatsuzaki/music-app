@@ -76,7 +76,7 @@ export type Unit = {
 }
 
 export type TabKey = "pitch" | "position" | "technique" | "fingering"
-/** 束のキー。"pitch|G4|C5" / "position|1|3" / "technique|slur" / "fingering|G4|A4" */
+/** グループのキー。"pitch|G4|C5" / "position|1|3" / "technique|slur|G4" (わざ+音の高さ・2026-09-05 Tetsuo) / "fingering|G4|A4" */
 export type GroupKey = string
 export type Agg = Map<GroupKey, { target: number; miss: number }>
 
@@ -129,7 +129,9 @@ export function groupKeysOf(tab: TabKey, r: DetailRow, gapSec: number | null): G
       if (prev.position === cur.position) return []
       return [`position|${prev.position}|${cur.position}`]
     case "technique":
-      return TECHS.filter((t) => (cur as unknown as Record<string, boolean>)[TECH_COLUMNS[t]]).map((t) => `technique|${t}`)
+      // わざは音の高さと組にする (2026-09-05 Tetsuo: 「スラー」だけでは教材が選べない)。音名不明の音は入らない
+      if (cur.pitch1 === UNKNOWN) return []
+      return TECHS.filter((t) => (cur as unknown as Record<string, boolean>)[TECH_COLUMNS[t]]).map((t) => `technique|${t}|${cur.pitch1}`)
   }
 }
 
@@ -351,6 +353,23 @@ export async function deleteNoteStoreForTarget(kind: "score" | "practice", targe
     kind === "practice" ? prisma.materialBundleCount.deleteMany({ where: { targetId } }) : prisma.materialBundleCount.deleteMany({ where: { targetId: "__none__" } }),
   ])
   return { scoreNotes: a.count, bundles: b.count }
+}
+
+/**
+ * ある奏法の音 (音の高さを問わず) を最も多く含む ★以下の教材を上位 limit 件。
+ * わざ詳細ページ用: グループは "technique|slur|G4" と音ごとに分かれているので、奏法で合算して探す。
+ */
+export async function findMaterialsForTechnique(tech: Tech, star: number, shelves: string[], limit: number): Promise<MaterialHit[]> {
+  const rows = await prisma.$queryRaw<{ id: string; c: number }[]>(Prisma.sql`
+    SELECT mb."targetId" AS id, sum(mb.count)::int AS c
+    FROM "MaterialBundleCount" mb
+    JOIN "PracticeItem" pi ON pi.id = mb."targetId"
+    WHERE mb.kind = 'technique' AND mb."fromValue" = ${tech}
+      AND pi."isPublished" = true AND pi.category::text = ANY(${shelves}) AND pi.star IS NOT NULL AND pi.star <= ${star}
+    GROUP BY mb."targetId"
+    ORDER BY sum(mb.count) DESC, mb."targetId"
+    LIMIT ${limit}`)
+  return rows.map((r) => ({ itemId: r.id, count: Number(r.c) }))
 }
 
 /** 束を最も多く含む ★以下の教材を上位 limit 件 (写し MaterialBundleCount)。findMaterial の複数件版 */

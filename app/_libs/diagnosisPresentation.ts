@@ -29,7 +29,7 @@ export function bundleName(key: GroupKey): string {
     case "pitch": return movementLabel(a, b)
     case "fingering": return fastSwitchLabel(a, b)
     case "position": return positionMoveLabel(parseInt(a, 10), parseInt(b, 10))
-    case "technique": return techniqueLabel(a)
+    case "technique": return techniqueLabel(a, b || undefined)
   }
 }
 

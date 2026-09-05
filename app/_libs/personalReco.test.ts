@@ -91,12 +91,14 @@ describe("束ね方 ・ groupKeysOf / aggregate", () => {
     const rows = perf("p", [E4, P("unknown"), Gs4])
     expect([...aggregate("pitch", rows).keys()]).toEqual([])
   })
-  it("わざタブは奏法ごと。奏法の無い音は入らない。2つ付けば両方に数える", () => {
+  it("わざタブは 奏法+音の高さ ごと。奏法の無い音は入らない。2つ付けば両方に数える", () => {
     const s = P("E4", { techSlur: true }), ss = P("F#4", { techSlur: true, techStaccato: true })
-    const agg = aggregate("technique", perf("p", [E4, s, ss], [2]))
-    expect(agg.get("technique|slur")).toEqual({ target: 2, miss: 1 })
-    expect(agg.get("technique|staccato")).toEqual({ target: 1, miss: 1 })
-    expect(agg.has("technique|tremolo")).toBe(false)
+    const agg = aggregate("technique", perf("p", [E4, s, ss, P("E4", { techSlur: true })], [2]))
+    expect(agg.get("technique|slur|E4")).toEqual({ target: 2, miss: 0 })
+    expect(agg.get("technique|slur|F#4")).toEqual({ target: 1, miss: 1 })
+    expect(agg.get("technique|staccato|F#4")).toEqual({ target: 1, miss: 1 })
+    expect([...agg.keys()].some((k) => k.startsWith("technique|tremolo"))).toBe(false)
+    expect(aggregate("technique", perf("p", [P("unknown", { techSlur: true })])).size).toBe(0)
   })
   it("ポジション移動タブは移動した音だけ。同じポジションと不明は入らない", () => {
     const rows = perf("p", [P("E4", { position: 1 }), P("B4", { position: 3 }), P("E5", { position: 3 }), P("A4", { position: -1 }), P("E4", { position: 1 })])
@@ -167,7 +169,7 @@ describe("選び方 ・ pickWeakest", () => {
   })
   it("キーの分解", () => {
     expect(parseKey("pitch|G4|C5")).toEqual({ tab: "pitch", a: "G4", b: "C5" })
-    expect(parseKey("technique|slur")).toEqual({ tab: "technique", a: "slur", b: "" })
+    expect(parseKey("technique|slur|G4")).toEqual({ tab: "technique", a: "slur", b: "G4" })
   })
 })
 
@@ -182,7 +184,7 @@ describe("見出し ・ focusName", () => {
   it("ポジション・わざ・フィンガリング", () => {
     expect(focusName("position|1|3")).toBe("左手を第1から第3ポジションへ移す")
     expect(focusName("position|5|1")).toBe("左手を第5以上から第1ポジションへ移す")
-    expect(focusName("technique|slur")).toBe("スラーのところ")
+    expect(focusName("technique|slur|G4")).toBe("スラーのソ")
     expect(focusName("fingering|G4|A4")).toBe("ソ→ラ の速い切り替え")
   })
 })
@@ -226,7 +228,7 @@ describe("buildPersonalReco", () => {
   })
   it("わざタブに奏法の束が立つ", async () => {
     const reco = await buildPersonalReco("u", deps(fakeSource(repeatPerfs(10, [P("E4", { techSlur: true }), P("F#4", { techSlur: true })], [1], "s"))))
-    expect(reco!.tabs.find((t) => t.key === "technique")!.focus?.name).toBe("スラーのところ")
+    expect(reco!.tabs.find((t) => t.key === "technique")!.focus?.name).toBe("スラーのファ♯") // わざ+音の高さ (2026-09-05)
   })
   it("全部低いタブは basics=true", async () => {
     const reco = await buildPersonalReco("u", deps(fakeSource(repeatPerfs(10, SCALE, [1, 2, 3, 4, 5]))))

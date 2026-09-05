@@ -9,7 +9,7 @@ import { encodeSignedUrl } from "./encodeSignedUrl"
 import { formatKey } from "./musicNotation"
 import { categoryLabel } from "./practiceConstants"
 import { derivedSummariesByPerformance, derivedSummariesFromRows, withDerived } from "./noteStoreSummary"
-import { prismaSource, aggregate, aggregateChords, findMaterialsForKey, type GroupKey } from "./noteStore"
+import { prismaSource, aggregate, aggregateChords, findMaterialsForKey, findMaterialsForTechnique, type GroupKey, type Tech } from "./noteStore"
 import { featureSubtaskRegex, FEATURE_ID_LABELS, SKILL_ID_LABELS } from "./skillCatalog"
 import { resolveObsTag } from "./observationCatalog"
 import { expressionLabel } from "./expressionCatalog"
@@ -1599,7 +1599,7 @@ export async function buildSkillDetail(
     }))
 
   // おすすめ練習 (2026-08-11 Tetsuo確定 → 2026-09-05 ノート属性ストア): この技術の束を最も多く含む ★以下の教材を上位2件。
-  //  わざ = technique|<id> / ポジション移動 = 累計で成功率が低い position|a|b / 重音 = 累計で成功率が低い chord|度数 (足切り3音・診断と同じ)
+  //  わざ = 奏法で合算 (technique|<id>|<音>) / ポジション移動 = 累計で成功率が低い position|a|b / 重音 = 累計で成功率が低い chord|度数 (足切り3音)
   //  教材側は写し MaterialBundleCount。データ不足時は空 (=UIは教材一覧リンクにフォールバック)
   let recommended: SkillDetailData["recommended"] = []
   try {
@@ -1614,11 +1614,15 @@ export async function buildSkillDetail(
     }
     let keys: GroupKey[]
     let shelves: string[]
-    if (def.tagType === "technique") { keys = [`technique|${def.id}`]; shelves = ["etude", "bowing"] }
+    if (def.tagType === "technique") { keys = []; shelves = ["etude", "bowing"] }
     else if (def.id === "position") { keys = weakestKeys(aggregate("position", rowsAll, "pitch")); shelves = ["position_shift", "fingering", "etude"] }
     else { keys = weakestKeys(aggregateChords(rowsAll)); shelves = ["double_stop", "etude"] }
     const seen = new Set<string>()
     const hits: string[] = []
+    // わざは音の高さを問わず奏法で合算して探す (グループは technique|slur|G4 と音ごと)
+    if (def.tagType === "technique") {
+      for (const h of await findMaterialsForTechnique(def.id as Tech, currentStar, shelves, 2)) { seen.add(h.itemId); hits.push(h.itemId) }
+    }
     for (const key of keys) {
       for (const h of await findMaterialsForKey(key, currentStar, shelves, 2)) {
         if (seen.has(h.itemId)) continue

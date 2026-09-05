@@ -59,9 +59,10 @@ export function positionMoveLabel(from: number, to: number): string {
   return `左手を${f}から${t}ポジションへ移す`
 }
 
-/** わざタブ ・ 「スラーのところ」 ・ いまの文言のまま */
-export function techniqueLabel(tech: string): string {
-  return `${TECH_LABELS[tech] ?? tech}のところ`
+/** わざタブ ・ 音の高さつきなら「スラーのソ」(2026-09-05 Tetsuo: わざ+音の高さ)、無ければ「スラーのところ」 */
+export function techniqueLabel(tech: string, pitch?: string): string {
+  const name = TECH_LABELS[tech] ?? tech
+  return pitch ? `${name}の${kanaNote(pitch)}` : `${name}のところ`
 }
 
 // ── 条件の名前 (成長1行・成長カルテが読む派生サマリのID) → 表示名 ──

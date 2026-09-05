@@ -223,7 +223,7 @@ function weakBundles(rows: DetailRow[]): { key: GroupKey; successPct: number; ta
 /** 束の見出し (④ のピンの理由に使う名前) */
 export function bundleName(key: GroupKey): string {
   const { tab, a, b } = parseKey(key)
-  if (tab === "technique") return techniqueLabel(a)
+  if (tab === "technique") return techniqueLabel(a, b || undefined)
   if ((tab as string) === "position") return positionMoveLabel(parseInt(a, 10), parseInt(b, 10))
   if ((tab as string) === "fingering") return fastSwitchLabel(a, b)
   return movementLabel(a, b)

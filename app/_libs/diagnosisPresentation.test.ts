@@ -44,7 +44,7 @@ describe("weakestBundles", () => {
   })
   it("束の見出し", () => {
     expect(bundleName("pitch|E4|F#4")).toBe("ミ→ファ♯ の移動")
-    expect(bundleName("technique|slur")).toBe("スラーのところ")
+    expect(bundleName("technique|slur|G4")).toBe("スラーのソ")
     expect(bundleName("position|1|3")).toBe("左手を第1から第3ポジションへ移す")
     expect(bundleName("fingering|E4|F#4")).toBe("ミ→ファ♯ の速い切り替え")
   })

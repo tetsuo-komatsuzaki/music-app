@@ -537,7 +537,7 @@ def delete_performance_notes(cur, kind: str, performance_id: str) -> None:
 # 束の定義を変えるときは両方を同時に変え、rebuild_material_bundle_counts.py で全件作り直す。
 
 FAST_SWITCH_SEC = 0.3
-BUNDLE_VERSION = 1
+BUNDLE_VERSION = 2  # 2: わざを 奏法+音の高さ (technique|slur|G4) にした (2026-09-05 Tetsuo)
 TECH_BUNDLE = {t: TECH_COLUMNS[t] for t in TECHS}
 _LETTERS = "CDEFGAB"
 
@@ -578,9 +578,11 @@ def bundle_keys(cur: Dict[str, Any], prev: Optional[Dict[str, Any]], prev_durati
             keys.append(f"fingering|{prev['pitch1']}|{cur['pitch1']}")
     if prev is not None and prev["position"] != POS_UNKNOWN and cur["position"] != POS_UNKNOWN and prev["position"] != cur["position"]:
         keys.append(f"position|{prev['position']}|{cur['position']}")
-    for t, col in TECH_BUNDLE.items():
-        if cur.get(col):
-            keys.append(f"technique|{t}")
+    # わざは音の高さと組にする (2026-09-05 Tetsuo: 「スラー」だけでは教材が選べない)。音名不明の音は入らない
+    if cur["pitch1"] != UNKNOWN:
+        for t, col in TECH_BUNDLE.items():
+            if cur.get(col):
+                keys.append(f"technique|{t}|{cur['pitch1']}")
     n = int(cur.get("noteCount") or 1)
     if n > 1:
         pitches = [cur.get(f"pitch{i}") for i in range(1, n + 1)]
