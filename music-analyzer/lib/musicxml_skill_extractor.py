@@ -36,6 +36,7 @@ from dataclasses import asdict, dataclass
 from io import BytesIO
 from typing import List, Optional
 
+from .measure_number import parse_measure_number_attr
 from .violin_position import (
     derive_position,
     diatonic_index,
@@ -229,13 +230,14 @@ def extract_note_karte(musicxml_path: str) -> tuple[List[SkillInfoNote], dict]:
     has_multiple_voices = False
     key_fifths_changes: list = []  # 調号の出現列 (先頭=主調、以降=副次調候補)
 
+    _prev_measure_number: int | None = None
     for measure_idx, measure in enumerate(part.findall("measure")):
         cursor = 0  # 小節内カーソル (divisions 単位)
         # 楽譜上の小節番号 (弱起="0" もあり得る)。数値化できなければ連番+1
-        try:
-            measure_number = int(str(measure.get("number", "")).strip())
-        except ValueError:
-            measure_number = measure_idx + 1
+        # "66.1" (割られた小節の続き) は直前の小節の番号を引き継ぐ (lib/measure_number.py と同じ規則)
+        _mn = parse_measure_number_attr(measure.get("number"), _prev_measure_number)
+        measure_number = _mn if _mn is not None else measure_idx + 1
+        _prev_measure_number = measure_number
 
         for elem in list(measure):
             tag = elem.tag

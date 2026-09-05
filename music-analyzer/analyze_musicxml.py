@@ -31,6 +31,7 @@ from music21 import (
 )
 # 運指・弦の推定 (音名算術, v64)。運指表示 (1stポジ以外のみ・弦は既定と異なる時のみ) に使用。
 from lib.difficulty_variant import apply_variant_recipe
+from lib.measure_number import normalize_measure_numbers
 from lib.rhythm_recipe import apply_rhythm_recipe
 from lib.position_pass import resolve_sequence
 from lib.violin_position import (
@@ -518,6 +519,12 @@ try:
         tmp.write(xml_bytes)
 
     score = converter.parse(tmp_path)
+    # 2026-09-05 (カイザーNo.6「総小節数661」Tetsuo報告): number="66.1" のような割られた小節を
+    # music21 は 661 と読む。以降の全処理 (解析の measure_number・パート切り出し・奏法/リズム変種)
+    # が同じ番号を見るよう、読み込み直後に「直前の小節の続き」として番号をそろえる。
+    _fixed_measures = normalize_measure_numbers(score)
+    if _fixed_measures:
+        print(f"[measure-number] normalized {_fixed_measures} split/suffixed measure(s)")
     # v3.2 Commit D: tmp_path は musicxml_skill_extractor で後ほど再利用するため、
     # ここでは削除しない (analysis.json upload 後に削除する)
 
