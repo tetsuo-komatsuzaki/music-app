@@ -5,12 +5,9 @@
 // 表記は「項目名=カテゴリ名」のみ。ホームの曲カードと曲詳細ふりかえりで共通利用。
 import { prisma } from "./prisma"
 import { formatKey } from "@/app/_libs/musicNotation"
-import {
-  recommendForPerformance,
-  type DiagnosisJson,
-  type RecommendContext,
-} from "./weaknessRecommendation"
-import { SUBTASK_BY_ID } from "./subtaskCatalog.generated"
+import { type RecommendContext } from "./weaknessRecommendation"
+import { prismaSource, aggregate, bundleHitsByItem, parseKey, type TabKey, type GroupKey, type DetailRow } from "./noteStore"
+import { movementLabel, positionMoveLabel, techniqueLabel } from "./conditionName"
 
 const MASTER_RECENT = 5
 const MASTER_AVG = 90
@@ -56,8 +53,6 @@ type TaggedItem = {
   primaryPosition: number | null
   keyTonic: string | null
   keyMode: string | null
-  /** 教材に含まれる音の移動 ("C4>D4" 形式・metadata.transitionKeys。backfill_transition_keys.ts が生成) */
-  transitionKeys: string[]
 }
 
 /** 選定に必要な曲情報 (achievement-status route が渡す) */
@@ -125,7 +120,6 @@ async function fetchTagged(where: Record<string, unknown>): Promise<TaggedItem[]
       keyMode: true,
       primaryBowing: true,
       primaryPosition: true,
-      metadata: true,
       techniques: { select: { techniqueTag: { select: { name: true } } } },
       featureTags: { select: { featureTag: { select: { category: true, name: true, isAcquisition: true } } } },
     },
@@ -138,7 +132,6 @@ async function fetchTagged(where: Record<string, unknown>): Promise<TaggedItem[]
     keyMode: r.keyMode,
     primaryBowing: r.primaryBowing,
     primaryPosition: r.primaryPosition,
-    transitionKeys: transitionKeysOf(r.metadata),
     techNames: r.techniques.map((t) => t.techniqueTag.name),
     acqFeatureKeys: r.featureTags
       .filter((f) => f.featureTag.isAcquisition)
@@ -146,58 +139,29 @@ async function fetchTagged(where: Record<string, unknown>): Promise<TaggedItem[]
   }))
 }
 
-/** metadata.transitionKeys を安全に取り出す */
-function transitionKeysOf(metadata: unknown): string[] {
-  const keys = (metadata as { transitionKeys?: unknown } | null)?.transitionKeys
-  return Array.isArray(keys) ? keys.filter((k): k is string => typeof k === "string") : []
+// ── 苦手な音の移動 (2026-08-11 Tetsuo確定: 音名ペア完全一致 → 2026-09-05 ノート属性ストア版) ──
+// この曲の直近3回の通し演奏の明細を、前の音名→今の音名 で束ね、ミス率降順の上位を返す。
+// ミスは音程または入り (旧 noteStats と同じ)。束のキーは "pitch|C4|D4" (読み手・教材の写しと共通)。
+export type WeakTransition = { key: GroupKey; missRate: number }
+const WEAK_MIN_TARGET = 2 // R4: 基礎練の足切り 2音
+
+async function recentRows(userId: string, scoreId: string): Promise<DetailRow[]> {
+  return prismaSource.fetchDetail({ userId, target: { type: "score", id: scoreId }, lastN: AGG_RECENT, wholeOnly: true })
 }
 
-// ── 苦手な音の移動 (2026-08-11 Tetsuo確定: 音名ペア完全一致=a案) ──────────
-// この曲の直近3回の通し演奏の noteStats.transitions を合算し、ミス率降順の上位を返す。
-export type WeakTransition = { key: string; missRate: number }
-async function getWeakTransitions(userId: string, scoreId: string): Promise<WeakTransition[]> {
-  const perfs = await prisma.performance.findMany({
-    where: { userId, scoreId, rangeFromNote: null },
-    orderBy: { uploadedAt: "desc" },
-    take: AGG_RECENT,
-    select: { analysisSummary: true },
-  })
-  const agg: Record<string, { target: number; miss: number }> = {}
-  for (const p of perfs) {
-    const tr = (p.analysisSummary as { noteStats?: { transitions?: Record<string, { target: number; miss: number }> } } | null)?.noteStats?.transitions
-    if (!tr) continue
-    for (const [k, v] of Object.entries(tr)) {
-      const c = agg[k] ?? { target: 0, miss: 0 }
-      c.target += v?.target ?? 0
-      c.miss += v?.miss ?? 0
-      agg[k] = c
-    }
-  }
-  return Object.entries(agg)
-    .filter(([, v]) => v.target >= 2 && v.miss > 0)
+function weakTransitionsOf(rows: DetailRow[]): WeakTransition[] {
+  const agg = aggregate("pitch", rows, "any")
+  return [...agg.entries()]
+    .filter(([, v]) => v.target >= WEAK_MIN_TARGET && v.miss > 0)
     .map(([key, v]) => ({ key, missRate: v.miss / v.target }))
     .sort((a, b) => b.missRate - a.missRate || a.key.localeCompare(b.key))
     .slice(0, 10)
 }
 
-/** 教材が苦手移動をいくつ含むか (完全一致) */
-function transHits(item: TaggedItem, weak: WeakTransition[]): number {
-  if (!weak.length || !item.transitionKeys.length) return 0
-  const set = new Set(item.transitionKeys)
-  return weak.reduce((n, w) => n + (set.has(w.key) ? 1 : 0), 0)
-}
-
-/** "F#4>G4" → 「ファ♯→ソ」 (吹き出し用)。フラットは music21 形式 "-" (例 "B-3") */
-function kanaTransition(key: string): string {
-  const KANA: Record<string, string> = { C: "ド", D: "レ", E: "ミ", F: "ファ", G: "ソ", A: "ラ", B: "シ" }
-  const kana = (name: string) => {
-    const m = /^([A-G])(#{1,2}|-{1,2}|b{1,2})?(\d)?$/.exec(name)
-    if (!m) return name
-    const acc = m[2]?.startsWith("#") ? "♯" : m[2] ? "♭" : ""
-    return `${KANA[m[1]]}${acc}`
-  }
-  const [from, to] = key.split(">")
-  return `${kana(from)}→${kana(to)}`
+/** "pitch|F#4|G4" → 「ファ♯→ソ」 (吹き出し用) */
+function kanaTransition(key: GroupKey): string {
+  const { a, b } = parseKey(key)
+  return movementLabel(a, b).replace(" の移動", "")
 }
 
 /** その教材が「クリア」= 直近5回の演奏スコア平均90点以上か */
@@ -221,6 +185,15 @@ const AGG_MIN_TARGET = 3 // 合算 target がこの値未満の小課題は選�
  *  ピン解決・再計算の両方で使う (旧④の出し分けと同一ロジック)。 */
 function subtaskToReason(sid: string, category: string): { reason: string; detail: string | null } {
   if (category === "double_stop") return { reason: "rec_double", detail: null }
+  // ノート属性ストア版の束のキー ("technique|slur" / "position|1|3" / "pitch|G4|C5" / "chord|5度")
+  if (sid.includes("|")) {
+    const { tab, a } = parseKey(sid)
+    if (tab === "technique") return { reason: "rec_tech", detail: TECH_SUFFIX_LABEL[a] ?? "その奏法" }
+    if ((tab as string) === "position") return { reason: "rec_posshift", detail: null }
+    if ((tab as string) === "pitch" || (tab as string) === "fingering") return { reason: "rec_interval", detail: null }
+    if ((tab as string) === "chord") return { reason: "rec_double", detail: null }
+    return { reason: "rec_etude", detail: null }
+  }
   if (sid.includes("_tech_")) {
     return { reason: "rec_tech", detail: TECH_SUFFIX_LABEL[sid.replace(/^(pitch|rhythm)_tech_/, "")] ?? "その奏法" }
   }
@@ -232,48 +205,25 @@ function subtaskToReason(sid: string, category: string): { reason: string; detai
   return { reason: "rec_etude", detail: null }
 }
 
-/** 直近3回の通し演奏(rangeFromNote=null)の per_subtask を合算し、
- *  各tree(pitch/rhythm)のミス率上位2件(diagnosable かつ 合算target>=3)で合成 DiagnosisJson を作る。
- *  両treeとも空なら null (=④を出さない)。 */
-async function buildAggregatedDiag(userId: string, scoreId: string): Promise<DiagnosisJson | null> {
-  const perfs = await prisma.performance.findMany({
-    where: { userId, scoreId, rangeFromNote: null },
-    orderBy: { uploadedAt: "desc" },
-    take: AGG_RECENT,
-    select: { analysisSummary: true },
-  })
-  const agg: Record<string, { miss: number; target: number }> = {}
-  for (const p of perfs) {
-    const summary = p.analysisSummary as { diagnosis?: DiagnosisJson } | null
-    const per = summary?.diagnosis?.per_subtask
-    if (!per) continue
-    for (const [sid, v] of Object.entries(per)) {
-      if (!v) continue
-      const cur = agg[sid] ?? { miss: 0, target: 0 }
-      cur.miss += v.miss ?? 0
-      cur.target += v.target ?? 0
-      agg[sid] = cur
+/** 直近3回の通し演奏の明細を 音程・ポジション移動・わざ で束ね、成功率の低い束を上から並べる (合算 target>=3)。
+ *  ④ の候補選びに使う。空なら null (=④を出さない)。 */
+function weakBundles(rows: DetailRow[]): { key: GroupKey; successPct: number; target: number }[] {
+  const out: { key: GroupKey; successPct: number; target: number }[] = []
+  for (const tab of ["pitch", "position", "technique"] as TabKey[]) {
+    for (const [key, v] of aggregate(tab, rows).entries()) {
+      if (v.target < AGG_MIN_TARGET || v.miss === 0) continue
+      out.push({ key, successPct: Math.round((1 - v.miss / v.target) * 100), target: v.target })
     }
   }
-  const byTree: Record<"pitch" | "rhythm", string[]> = { pitch: [], rhythm: [] }
-  for (const tree of ["pitch", "rhythm"] as const) {
-    byTree[tree] = Object.entries(agg)
-      .filter(([sid, v]) => {
-        const def = SUBTASK_BY_ID[sid]
-        return def?.diagnosable === true && def.tree === tree && v.target >= AGG_MIN_TARGET
-      })
-      .map(([sid, v]) => ({ sid, rate: v.miss / v.target }))
-      .sort((a, b) => b.rate - a.rate || a.sid.localeCompare(b.sid))
-      .slice(0, 2)
-      .map((c) => c.sid)
-  }
-  if (byTree.pitch.length === 0 && byTree.rhythm.length === 0) return null
-  return {
-    version: 1,
-    map_available: true,
-    per_subtask: agg,
-    diagnosis: { pitch: byTree.pitch, rhythm: byTree.rhythm },
-  }
+  return out.sort((a, b) => a.successPct - b.successPct || b.target - a.target || a.key.localeCompare(b.key))
+}
+
+/** 束の見出し (④ のピンの理由に使う名前) */
+export function bundleName(key: GroupKey): string {
+  const { tab, a, b } = parseKey(key)
+  if (tab === "technique") return techniqueLabel(a)
+  if ((tab as string) === "position") return positionMoveLabel(parseInt(a, 10), parseInt(b, 10))
+  return movementLabel(a, b)
 }
 
 /** ② フィンガリング: 曲の主ポジション駆動 (2026-08-10)。
@@ -285,6 +235,12 @@ async function pickFingering(score: ScoreForDaily, userStar: number, weakTrans: 
   if (!pool.length) return null
   const target = score.star ?? userStar
   const wp = score.primaryPosition
+  // 苦手移動の含有は教材の写し (MaterialBundleCount) から。教材の楽譜が変わったときだけ変わる
+  const hits = await bundleHitsByItem(pool.map((p) => p.id), weakTrans.map((w) => w.key))
+  const transHits = (item: TaggedItem, weak: WeakTransition[]): number => {
+    const set = hits.get(item.id)
+    return set ? weak.reduce((n, w) => n + (set.has(w.key) ? 1 : 0), 0) : 0
+  }
   const posMatch = (p: TaggedItem) =>
     wp != null ? (p.primaryPosition === wp ? 0 : 1) : (p.primaryPosition == null ? 0 : 1)
   const item = pool.slice().sort((a, b) =>
@@ -297,7 +253,8 @@ async function pickFingering(score: ScoreForDaily, userStar: number, weakTrans: 
   )[0]
   // 苦手移動が決め手になったら理由も移動ベースに (ミス率最上位の一致キーを吹き出しへ)
   if (transHits(item, weakTrans) > 0) {
-    const hit = weakTrans.find((w) => item.transitionKeys.includes(w.key))
+    const set = hits.get(item.id)!
+    const hit = weakTrans.find((w) => set.has(w.key))
     if (hit) return { item, reason: "fing_transition", detail: kanaTransition(hit.key) }
   }
   if (wp != null && item.primaryPosition === wp) return { item, reason: "fing_exact", detail: posBucket(wp) }
@@ -377,7 +334,8 @@ export async function selectDailyLessons(opts: {
 
   // ② フィンガリング (曲の主ポジション駆動・2026-08-10)
   // 苦手な音の移動 (この曲の直近3回から)。②の優先順位と④の候補選びに効かせる (2026-08-11)
-  const weakTrans = await getWeakTransitions(userId, scoreId)
+  const recent = await recentRows(userId, scoreId)
+  const weakTrans = weakTransitionsOf(recent)
 
   const f = await pickFingering(score, userStar, weakTrans)
   if (f) push("fingering", f.item, f.reason, f.detail)
@@ -424,36 +382,34 @@ export async function selectDailyLessons(opts: {
       }
     }
 
-    // (2) 再計算: 直近3回集計→合成diag→推薦→最初の未クリア etude/double_stop をピン保存
+    // (2) 再計算 (ノート属性ストア版): 直近3回の明細を束ね、成功率の低い束から順に、
+    //     その束を最も多く含む未クリアの エチュード/重音 を候補に集め (最大6件)、
+    //     苦手移動の含有数で並べ替えて1つ選ぶ (2026-08-11 の規則を写し MaterialBundleCount で)。
     if (!pinned) {
-      const aggDiag = await buildAggregatedDiag(userId, scoreId)
-      if (aggDiag) {
-        const slots = await recommendForPerformance(aggDiag, ctx)
-        // 候補を推薦順に集め (最大6件)、苦手移動の含有数で並べ替えて1つ選ぶ (2026-08-11)。
-        // 同数なら元の推薦順を維持 (安定ソート)。
-        type Cand = { m: (typeof slots)[number]["materials"][number]; subtaskId: string }
+      const bundles = weakBundles(recent)
+      if (bundles.length > 0) {
+        type Cand = { m: { id: string; category: string; star: number | null; keyTonic: string; keyMode: string }; subtaskId: string }
         const cands: Cand[] = []
-        for (const slot of slots) {
+        const star = ctx.star ?? userStar
+        for (const bnd of bundles) {
           if (cands.length >= 6) break
-          for (const m of slot.materials) {
-            if (cands.length >= 6) break
-            if (m.category !== "etude" && m.category !== "double_stop") continue
-            if (usedIds.has(m.id)) continue
-            if (cands.some((c) => c.m.id === m.id)) continue
-            if (await isMaterialCleared(userId, m.id)) continue
-            cands.push({ m, subtaskId: slot.subtaskId })
-          }
+          const hit = await prismaSource.findMaterial(bnd.key, star, ["etude", "double_stop"])
+          if (!hit) continue
+          if (usedIds.has(hit.itemId) || cands.some((c) => c.m.id === hit.itemId)) continue
+          if (await isMaterialCleared(userId, hit.itemId)) continue
+          const m = await prisma.practiceItem.findUnique({
+            where: { id: hit.itemId },
+            select: { id: true, category: true, star: true, keyTonic: true, keyMode: true, isPublished: true, ownerUserId: true, analysisStatus: true },
+          })
+          if (!m || !m.isPublished || m.ownerUserId !== null || m.analysisStatus !== "done") continue
+          cands.push({ m: { id: m.id, category: m.category, star: m.star, keyTonic: m.keyTonic, keyMode: m.keyMode }, subtaskId: bnd.key })
         }
         let best: Cand | null = null
         if (cands.length > 0) {
           if (weakTrans.length > 0) {
-            const metas = await prisma.practiceItem.findMany({
-              where: { id: { in: cands.map((c) => c.m.id) } },
-              select: { id: true, metadata: true },
-            })
-            const keyMap = new Map(metas.map((r) => [r.id, new Set(transitionKeysOf(r.metadata))]))
+            const hits = await bundleHitsByItem(cands.map((c) => c.m.id), weakTrans.map((w) => w.key))
             const hitsOf = (c: Cand) => {
-              const keys = keyMap.get(c.m.id)
+              const keys = hits.get(c.m.id)
               return keys ? weakTrans.reduce((n, w) => n + (keys.has(w.key) ? 1 : 0), 0) : 0
             }
             best = cands

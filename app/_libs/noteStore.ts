@@ -67,6 +67,8 @@ export type Unit = {
   target?: { type: "score" | "practice"; id: string }
   lastN?: number
   performanceId?: string
+  /** 通し演奏だけ (部分録音 rangeFromNote あり を除く)。基礎練②④が使う */
+  wholeOnly?: boolean
 }
 
 export type TabKey = "pitch" | "position" | "technique" | "fingering"
@@ -79,8 +81,11 @@ export const FAST_SWITCH_SEC = 0.3
 
 // ───────────────────────── 束ねる (純粋) ─────────────────────────
 
-function isMiss(r: DetailRow, kind: "pitch" | "timing"): boolean {
+export type MissKind = "pitch" | "timing" | "any"
+
+function isMiss(r: DetailRow, kind: MissKind): boolean {
   if (r.evaluationStatus === "not_detected") return true
+  if (kind === "any") return r.pitchOk === false || r.startOk === false
   return kind === "pitch" ? r.pitchOk === false : r.startOk === false
 }
 
@@ -118,7 +123,7 @@ export function groupKeysOf(tab: TabKey, r: DetailRow, gapSec: number | null): G
  * 明細を束ねる (§5-2)。rows は演奏ごとに noteIndex 順であること。
  * フィンガリングの実時間は、同じ演奏の直前の行との expectedStartSec の差 (fastSwitch と同じ定義)。
  */
-export function aggregate(tab: TabKey, rows: DetailRow[], missKind: "pitch" | "timing" = "pitch"): Agg {
+export function aggregate(tab: TabKey, rows: DetailRow[], missKind: MissKind = "pitch"): Agg {
   const agg: Agg = new Map()
   let lastPerf: string | null = null
   let lastStart: number | null = null
@@ -188,7 +193,8 @@ async function selectPerformances(unit: Unit): Promise<{ kind: "score" | "practi
   const out: { kind: "score" | "practice"; id: string; targetId: string; createdAt: Date }[] = []
   const range = unit.since || unit.until ? { ...(unit.since ? { gte: unit.since } : {}), ...(unit.until ? { lt: unit.until } : {}) } : null
   const idWhere = unit.performanceId ? { id: unit.performanceId } : {}
-  const timeWhere = { ...(range ? { createdAt: range } : {}), ...idWhere }
+  const wholeWhere = unit.wholeOnly ? { rangeFromNote: null } : {}
+  const timeWhere = { ...(range ? { createdAt: range } : {}), ...idWhere, ...wholeWhere }
   const timeWherePractice = { ...(range ? { uploadedAt: range } : {}), ...idWhere }
   if (!unit.target || unit.target.type === "score") {
     const ps = await prisma.performance.findMany({
@@ -325,4 +331,19 @@ export async function countBundleInMaterial(key: GroupKey, itemId: string): Prom
     LEFT JOIN "NoteProfile" prev ON prev.id = s."prevProfileId"
     WHERE ${pred}`)
   return Number(rows[0]?.c ?? 0)
+}
+
+/** 教材ごとに、与えた束のキーのうちどれを含むか (写し MaterialBundleCount から)。基礎練②④の「苦手移動の含有数」用 */
+export async function bundleHitsByItem(itemIds: string[], keys: GroupKey[]): Promise<Map<string, Set<GroupKey>>> {
+  const out = new Map<string, Set<GroupKey>>()
+  if (itemIds.length === 0 || keys.length === 0) return out
+  const rows = await prisma.materialBundleCount.findMany({
+    where: { targetId: { in: itemIds }, bundleKey: { in: keys }, count: { gt: 0 } },
+    select: { targetId: true, bundleKey: true },
+  })
+  for (const r of rows) {
+    if (!out.has(r.targetId)) out.set(r.targetId, new Set())
+    out.get(r.targetId)!.add(r.bundleKey)
+  }
+  return out
 }
