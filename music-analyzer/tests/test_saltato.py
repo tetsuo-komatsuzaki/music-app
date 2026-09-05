@@ -1,4 +1,4 @@
-"""サルタート (2026-09-05 Tetsuo): 選んだ音符はすべてスラーでつながり、スタッカートの点が付く。"""
+"""連続スタッカート (サルタート・2026-09-05 Tetsuo): 選んだ音符はすべてスラーでつながり、スタッカートの点が付く。"""
 import os
 import sys
 
@@ -32,7 +32,7 @@ def _staccato_notes(sc):
 
 def test_uniform_saltato_slurs_each_measure_and_dots_every_note():
     apply = _load_apply_articulation()
-    sc = apply(_score(3), {"articulationPattern": {"type": "uniform", "articulation": "saltato"}})
+    sc = apply(_score(3), {"articulationPattern": {"type": "uniform", "articulation": "bow_staccato"}})
     assert len(_staccato_notes(sc)) == 12                       # 全音に点
     slurs = _slurs(sc)
     assert len(slurs) == 3                                       # 小節ごとに1本
@@ -43,9 +43,9 @@ def test_per_note_saltato_connects_consecutive_assigned_notes_only():
     apply = _load_apply_articulation()
     # 単位2小節 (8音): 0〜2 サルタート, 3 スタッカート, 4〜5 サルタート, 6〜7 なし
     pat = {"articulationPattern": {"type": "per_note", "unitMeasures": 2, "assignments": [
-        {"noteIndex": 0, "articulation": "saltato"}, {"noteIndex": 1, "articulation": "saltato"}, {"noteIndex": 2, "articulation": "saltato"},
+        {"noteIndex": 0, "articulation": "bow_staccato"}, {"noteIndex": 1, "articulation": "bow_staccato"}, {"noteIndex": 2, "articulation": "bow_staccato"},
         {"noteIndex": 3, "articulation": "staccato"},
-        {"noteIndex": 4, "articulation": "saltato"}, {"noteIndex": 5, "articulation": "saltato"},
+        {"noteIndex": 4, "articulation": "bow_staccato"}, {"noteIndex": 5, "articulation": "bow_staccato"},
     ]}}
     sc = apply(_score(4), pat)
     slurs = _slurs(sc)
@@ -55,7 +55,7 @@ def test_per_note_saltato_connects_consecutive_assigned_notes_only():
 
 def test_single_saltato_note_gets_dot_but_no_slur():
     apply = _load_apply_articulation()
-    pat = {"articulationPattern": {"type": "per_note", "unitMeasures": 1, "assignments": [{"noteIndex": 1, "articulation": "saltato"}]}}
+    pat = {"articulationPattern": {"type": "per_note", "unitMeasures": 1, "assignments": [{"noteIndex": 1, "articulation": "bow_staccato"}]}}
     sc = apply(_score(2), pat)
     assert len(_staccato_notes(sc)) == 2
     assert _slurs(sc) == []

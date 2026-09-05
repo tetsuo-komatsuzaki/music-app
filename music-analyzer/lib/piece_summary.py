@@ -13,6 +13,8 @@ piece_summary.py — 音符カルテ(note_karte)から「曲の要約」を集�
   - 特徴タグ名は FeatureTag マスタ(工程Fシード)と同一文字列。
   - 技術タグ名は正本13(TechniqueTag マスタ)と同一文字列。
   - スタッカート点は曖昧記号(§18-2) → 「スタッカート」を仮付与 + needs_confirmation に記録。
+    ただし スラーの中のスタッカート点 は「連続スタッカート」として確定で付ける (2026-09-05 Tetsuo確定。
+    サルタート = スラー + 点 の記譜と同じ扱い。要確認には入れない)。
   - タグ付与は閾値なし(1回の出現で付与 §17)。
 """
 from __future__ import annotations
@@ -182,16 +184,20 @@ def build_piece_summary(
         if "StrongAccent" in (a.get("articulations") or []):
             tags.add("マルテレ")  # マルカート(^) = マルテレ (2026-07-20)
         if artic.get("staccato") or "Staccato" in (a.get("articulations") or []):
-            # 曖昧記号: スタッカート点 → 仮付与 + 要確認 (§18-2, 決定#4)
-            tags.add("スタッカート")
-            ambiguous = True
-            pattern = "staccato_inside_slur" if n.is_in_slur else "staccato_outside_slur"
-            entry = needs_confirmation.setdefault(
-                pattern, {"pattern": pattern, "measure_indexes": [], "note_indexes": []}
-            )
-            if n.measure_index not in entry["measure_indexes"]:
-                entry["measure_indexes"].append(n.measure_index)
-            entry["note_indexes"].append(n.note_index)
+            if n.is_in_slur:
+                # スラーの中のスタッカート点 = 連続スタッカート (2026-09-05 Tetsuo確定)。確定タグ・要確認なし
+                tags.add("連続スタッカート")
+            else:
+                # 曖昧記号: スラー外のスタッカート点 → 仮付与 + 要確認 (§18-2, 決定#4)
+                tags.add("スタッカート")
+                ambiguous = True
+                pattern = "staccato_outside_slur"
+                entry = needs_confirmation.setdefault(
+                    pattern, {"pattern": pattern, "measure_indexes": [], "note_indexes": []}
+                )
+                if n.measure_index not in entry["measure_indexes"]:
+                    entry["measure_indexes"].append(n.measure_index)
+                entry["note_indexes"].append(n.note_index)
         if a.get("is_tremolo"):
             tags.add("トレモロ")
         if a.get("is_trill"):

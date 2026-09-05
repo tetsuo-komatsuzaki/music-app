@@ -19,7 +19,7 @@ const ARTS = new Set([
 ])
 
 const ARTICULATIONS = new Set([
-  "legato", "staccato", "spiccato", "martele", "portato", "tenuto", "tremolo", "accent", "saltato",
+  "legato", "staccato", "spiccato", "martele", "portato", "tenuto", "tremolo", "accent", "bow_staccato",
 ])
 
 export type PerNoteAssignment = { noteIndex: number; articulation: string }

@@ -6,7 +6,7 @@
 export const BASE_QL: Record<string, number> = { w: 4, h: 2, q: 1, e: 0.5, s: 0.25, t: 0.125 }
 
 export const RHYTHM_ARTICULATIONS = [
-  "", "legato", "staccato", "spiccato", "martele", "portato", "tenuto", "accent", "tremolo",
+  "", "legato", "staccato", "spiccato", "martele", "portato", "tenuto", "accent", "tremolo", "bow_staccato",
 ] as const
 
 export type RhythmNote = {

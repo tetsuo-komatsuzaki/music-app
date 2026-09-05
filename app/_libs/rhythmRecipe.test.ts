@@ -60,7 +60,7 @@ describe("定義の整合", () => {
   })
   it("奏法は「なし」+8種 (アプリの奏法バリエーションと同じ並び)", () => {
     expect(RHYTHM_ARTICULATIONS).toEqual([
-      "", "legato", "staccato", "spiccato", "martele", "portato", "tenuto", "accent", "tremolo",
+      "", "legato", "staccato", "spiccato", "martele", "portato", "tenuto", "accent", "tremolo", "bow_staccato",
     ])
   })
 })

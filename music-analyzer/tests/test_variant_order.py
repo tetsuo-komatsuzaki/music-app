@@ -28,11 +28,11 @@ def _load_apply_articulation():
     必要な関数と定数だけを取り出して評価する。"""
     src = io.open(os.path.join(_ROOT, "analyze_musicxml.py"), encoding="utf-8").read()
     ns: dict = {}
-    exec("from music21 import articulations, expressions, stream", ns)
+    exec("from music21 import articulations, expressions, spanner, stream", ns)
     for node in ast.parse(src).body:
         if isinstance(node, ast.Assign) and any(getattr(t, "id", "") == "_ART_CLS" for t in node.targets):
             exec(compile(ast.Module([node], []), "<x>", "exec"), ns)
-        if isinstance(node, ast.FunctionDef) and node.name in {"_apply_art_to_note", "_slur_saltato_runs", "apply_articulation_variant"}:
+        if isinstance(node, ast.FunctionDef) and node.name in {"_apply_art_to_note", "_slur_bow_staccato_runs", "apply_articulation_variant"}:
             exec(compile(ast.Module([node], []), "<x>", "exec"), ns)
     return ns["apply_articulation_variant"]
 

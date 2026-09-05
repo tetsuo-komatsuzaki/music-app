@@ -217,3 +217,20 @@ def test_build_piece_summary_writes_tags_onto_real_note():
     dumped = [dataclasses.asdict(n) for n in notes]
     assert dumped[0]["technique_tags"] == ["スラー"]
     assert dumped[2]["technique_tags"] is None
+
+
+def test_staccato_inside_slur_is_bow_staccato_and_not_ambiguous():
+    """2026-09-05 Tetsuo確定: スラーの中のスタッカート点 = 連続スタッカート (要確認に入れない)。スラー外は従来どおり"""
+    notes = [
+        _kn(0, midi=62, step="D", octave=4, is_in_slur=True, artic={"staccato": True}),
+        _kn(1, midi=64, step="E", octave=4, is_in_slur=True, artic={"staccato": True}),
+        _kn(2, midi=66, step="F", octave=4, is_in_slur=False, artic={"staccato": True}),
+        _kn(3, midi=67, step="G", octave=4),
+    ]
+    out = build_piece_summary(notes, {}, None)
+    assert "連続スタッカート" in out["technique_tags"]
+    assert "スタッカート" in out["technique_tags"]  # スラー外の点は従来どおり
+    assert notes[0].technique_tags == ["スラー", "連続スタッカート"] and notes[0].technique_ambiguous is False
+    assert "スタッカート" in notes[2].technique_tags and notes[2].technique_ambiguous is True
+    patterns = {e["pattern"] for e in out["needs_confirmation"]} if isinstance(out.get("needs_confirmation"), list) else set(out.get("needs_confirmation") or {})
+    assert "staccato_inside_slur" not in patterns and "staccato_outside_slur" in patterns

@@ -1,11 +1,11 @@
 // 通常技法パターン (Phase 1, 2026-07-20): 全音符に一律適用する6奏法。
 // music21 記譜マッピングは analyze_musicxml.py 側 (レガート=Tenuto, マルテレ=Marcato/StrongAccent,
-// トレモロ=expressions.Tremolo(marks=2), ポルタート=DetachedLegato, サルタート=Staccato+Slur)。
+// トレモロ=expressions.Tremolo(marks=2), ポルタート=DetachedLegato, 連続スタッカート=Staccato+Slur)。
 // スピッカートは music21 Spiccato → MusicXML <spiccato/> で書き出し、譜面表示 (build_score) では
 // スタッカートと同じ点で描く。解析側の技術タグ・かたち (techSpiccato) はスタッカートと別に持つ。
 // 対象カテゴリ: 音階/アルペジオ/ボーイング/フィンガリング/ポジション移動。
 
-export type ArticulationId = "legato" | "staccato" | "spiccato" | "martele" | "portato" | "tremolo" | "saltato"
+export type ArticulationId = "legato" | "staccato" | "spiccato" | "martele" | "portato" | "tremolo" | "bow_staccato"
 
 export const STANDARD_ARTICULATIONS: { id: ArticulationId; label: string }[] = [
   { id: "legato", label: "レガート" },
@@ -14,8 +14,8 @@ export const STANDARD_ARTICULATIONS: { id: ArticulationId; label: string }[] = [
   { id: "martele", label: "マルテレ" },
   { id: "portato", label: "ポルタート" },
   { id: "tremolo", label: "トレモロ" },
-  // 2026-09-05 Tetsuo: サルタート = スラーでつなぎ + スタッカート点 (Python 側で Staccato + Slur を付ける)
-  { id: "saltato", label: "サルタート" },
+  // 2026-09-05 Tetsuo確定: 連続スタッカート (サルタート) = スラーでつなぎ + スタッカート点 (Python 側で Staccato + Slur を付ける)
+  { id: "bow_staccato", label: "連続スタッカート" },
 ]
 
 /** 通常技法パターンの対象カテゴリ */
@@ -31,6 +31,5 @@ export const ARTICULATION_SUBTASK: Partial<Record<ArticulationId, string>> = {
   spiccato: "bowing_technique_spiccato",
   tremolo: "bowing_technique_tremolo",
   portato: "bowing_technique_portato",
-  // サルタート (スラー内の連続スタッカート) は 連続スタッカート の弓課題に対応させる
-  saltato: "bowing_technique_staccato_continuous",
+  bow_staccato: "bowing_technique_staccato_continuous",
 }
