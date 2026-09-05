@@ -7,6 +7,8 @@ import { useEffect, useMemo, useState } from "react"
 import { createRhythmVariant, getRhythmContext } from "@/app/actions/createRhythmVariant"
 import { noteQl, notePitchNos, MAX_CHORD_NOTES, type RhythmNote } from "@/app/_libs/rhythmRecipe"
 import { displayNoteName } from "@/app/_libs/noteName"
+import { BASE_QL } from "@/app/_libs/rhythmRecipe"
+const BASE_QL_OF = (b: string) => BASE_QL[b] ?? 0
 import StaffPreview from "./StaffPreview"
 import { ARTICULATIONS as AXIS_ARTICULATIONS } from "@/app/_libs/materialVariant"
 
@@ -196,8 +198,19 @@ export default function RhythmVariantDialog({ itemId, onClose }: { itemId: strin
               </div>
               <div style={{ ...S.row, marginTop: 6 }}>
                 <button type="button" style={btn(dot)} onClick={() => setDot(!dot)}>付点 ・ 1.5倍</button>
-                <button type="button" style={btn(tri)} onClick={() => setTri(!tri)}>3連 ・ ⅔倍</button>
+                <button type="button" style={btn(tri)} onClick={() => setTri(!tri)}>3連 ・ 3つで元の2つ分</button>
               </div>
+              {/* 2026-09-05 Tetsuo指摘「3連は 1/3 では?」: 3連は「その音価3つで元の音価2つ分」= 1音は元の ⅔。
+                  拍で見せると迷わない (8分3連 = 1/3拍、4分3連 = 2/3拍) */}
+              {pick.base && (
+                <div style={{ fontSize: "var(--fs-caption)", color: "#D9A93C", fontWeight: 700, marginTop: 6 }}>
+                  {(() => {
+                    const ql = noteQl({ base: pick.base, dot, triplet: tri, pitchNo: 1 }) ?? 0
+                    const frac = tri ? (dot ? `${ql}` : ({ 4: "8/3", 2: "4/3", 1: "2/3", 0.5: "1/3", 0.25: "1/6", 0.125: "1/12" } as Record<number, string>)[BASE_QL_OF(pick.base)] ?? `${ql}`) : `${Math.round(ql * 1000) / 1000}`
+                    return `この音の長さ: ${frac}拍${tri ? ` (${BASE.find((b) => b.id === pick.base)?.sub}3連: 3つで${BASE_QL_OF(pick.base) * 2}拍)` : ""}`
+                  })()}
+                </div>
+              )}
               <div style={{ fontSize: "var(--fs-caption)", color: "var(--text-sub)", fontWeight: 700, margin: "10px 0 5px" }}>高さ ・ 元の何番目の音か ・ 2つ以上選ぶと重音</div>
               <div style={S.row}>
                 {srcNames.map((nm, i) => <button key={i} type="button" style={btn(pick.pitchNos.includes(i + 1))} onClick={() => togglePitch(i + 1)}>{i + 1} {displayNoteName(nm)}</button>)}

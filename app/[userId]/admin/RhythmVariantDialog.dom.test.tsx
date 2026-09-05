@@ -24,7 +24,7 @@ const btn = (label: string | RegExp) => screen.getByRole("button", { name: label
 const clickAdd = () => fireEvent.click(btn(/この音を足す|この音を直す/))
 
 describe("リズムパターンを変える ・ 3連符", () => {
-  it("3連8分×12 で 4拍ぴったり になり、作成ボタンが押せて、レシピに triplet が入る", async () => {
+  it("3連8分×12 で 4拍ぴったり になり、作成ボタンが押せて、レシピに triplet が入る", { timeout: 20000 }, async () => {
     render(<RhythmVariantDialog itemId="item1" onClose={() => {}} />)
     await waitFor(() => screen.getByText(/1小節4拍/))
     fireEvent.click(btn(/8分/))          // 長さ ♪

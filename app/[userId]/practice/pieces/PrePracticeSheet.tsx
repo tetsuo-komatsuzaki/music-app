@@ -96,7 +96,11 @@ export default function PrePracticeSheet({
     ? ARTICULATIONS.filter((a) => generatable.has(a.id) || byKey.has(a.id))
         .map((a) => ({ id: a.id, label: a.label }))
     : DIFFICULTIES.map((d) => ({ id: d.id, label: d.label }))
-  const firstAvail = options.find((o) => byKey.has(o.id))?.id ?? options[0].id
+  // 2026-09-05 Tetsuo指摘 (連続スピッカートのパターンが出ない): 奏法の通し変種が無くても、その奏法に
+  // 置いたリズム変種があれば奏法は選べる (選ぶとパターン欄にそのリズム変種が出る)
+  const rhythmArts = new Set(soloVariants.filter((v) => isRhythm(v) && v.patternName).map((v) => v.articulation ?? ""))
+  const artAvailable = (id: string) => byKey.has(id) || rhythmArts.has(id)
+  const firstAvail = options.find((o) => artAvailable(o.id))?.id ?? options[0].id
   // 「まだ何も選んでいない」状態の値。通しがあれば "" (そのまま弾く)
   const neutral = baseVariant ? "" : firstAvail
 
@@ -121,8 +125,11 @@ export default function PrePracticeSheet({
         ?? (byKey.size === 0 ? soloVariants[0] : undefined))
   const variant = (patternId ? patterns.find((v) => v.id === patternId) : base) ?? base
   // 排他: 片方を選んだらもう片方の欄は消す (2026-09-01 Tetsuo確定)
-  const showArtSelect = patternId === ""
-  const showPatternSelect = patterns.length > 0 && (patternId !== "" || diff === neutral)
+  // 排他 (2026-09-01) は「奏法を持たないパターン」だけに効かせる。奏法を継いだリズム変種は
+  // 奏法欄とパターン欄を両方出す (奏法 → その奏法のパターン、の2段で選ぶ)
+  const selectedPattern = patternId ? patterns.find((v) => v.id === patternId) : undefined
+  const showArtSelect = patternId === "" || !!selectedPattern?.articulation
+  const showPatternSelect = patterns.length > 0
 
   // パート: 実体化されたパート教材 (2026-08-25 案B) があればそれを選ぶ。
   // 選ぶと譜面・録音・採点・カルテのすべてがその範囲だけの教材に切り替わる。
@@ -233,9 +240,9 @@ export default function PrePracticeSheet({
             const v = byKey.get(d.id)
             const suffix = v
               ? `${v.star != null ? ` ・ ☆${v.star}` : ""}${v.bestScore != null ? ` ・ ベスト ${v.bestScore}` : ""}`
-              : " ・ 準備中"
+              : rhythmArts.has(d.id) ? " ・ パターンのみ" : " ・ 準備中"
             return (
-              <option key={d.id} value={d.id} disabled={!v}>
+              <option key={d.id} value={d.id} disabled={!artAvailable(d.id)}>
                 {d.label}{suffix}
               </option>
             )
@@ -314,7 +321,7 @@ export default function PrePracticeSheet({
         <button className={styles.cta} onClick={start} disabled={!variant}
           style={!variant ? { opacity: .5, cursor: "not-allowed" } : undefined}
           data-onboarding="prePractice.start">
-          {variant ? "練習をはじめる" : "この奏法はまだ準備中"}
+          {variant ? "練習をはじめる" : patterns.length > 0 ? "パターンを選んでください" : "この奏法はまだ準備中"}
         </button>
 
         {/* シート自体が開いたときに出るガイド (z-index: シート1000 < マーク1901) */}

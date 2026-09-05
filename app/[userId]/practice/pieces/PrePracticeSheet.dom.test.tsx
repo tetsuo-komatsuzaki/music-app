@@ -123,3 +123,33 @@ describe("練習前シート (通しが奏法を持つエチュード ・ カイ
     expect(optionTexts(part).filter((t) => t.startsWith("Part")).length).toBe(4)
   })
 })
+
+// 2026-09-05 Tetsuo指摘: 「連続スピッカート」はリズムパターンとして作り、⑤で奏法=連続スピッカートに置いた。
+// その奏法の通し変種が無いため奏法欄で「準備中」になり、パターンが一切出なかった。
+describe("練習前シート (奏法の通しが無く、リズム変種だけがその奏法に置かれている)", () => {
+  const BS = v({ id: "bs1", articulation: "bow_staccato", patternName: "連続スピッカート", rhythmPattern: true })
+  const g = {
+    title: "カイザー 練習曲 Op.20 No.1", composer: "カイザー", genre: null, coverImagePath: null,
+    variants: [TOSHI, SLUR, R16, BS, ...parts("toshi", null, null), ...parts("bs1", "bow_staccato", "連続スピッカート")],
+  }
+  const openG = () => render(
+    <PrePracticeSheet userId="u1" group={g} onClose={() => {}} basePath="/practice/etude" primaryAxis="articulation" />,
+  )
+  it("奏法欄で 連続スピッカート が「パターンのみ」として選べ、選ぶとパターン欄にリズム変種が出る", () => {
+    openG()
+    const art = selects()[0]
+    const opt = Array.from(art.options).find((o) => o.value === "bow_staccato")!
+    expect(opt.disabled).toBe(false)
+    expect(opt.textContent).toContain("パターンのみ")
+    fireEvent.change(art, { target: { value: "bow_staccato" } })
+    expect(screen.getByText("パターンを選ぶ")).toBeTruthy()
+    expect(screen.getByText("パターンを選んでください")).toBeTruthy()   // 通しが無いのでパターンを選ぶまで始められない
+    const pat = selects()[1]
+    expect(optionTexts(pat).some((t) => t.includes("連続スピッカート"))).toBe(true)
+    fireEvent.change(pat, { target: { value: "bs1" } })
+    expect(screen.getByText("練習をはじめる")).toBeTruthy()
+    expect(screen.getByText("奏法を選ぶ")).toBeTruthy()                  // 奏法を継いだパターンなら奏法欄は残る
+    const part = selects().at(-1)!
+    expect(optionTexts(part).filter((t) => t.startsWith("Part")).length).toBe(4)
+  })
+})
