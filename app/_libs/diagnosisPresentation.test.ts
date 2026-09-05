@@ -4,7 +4,7 @@
  */
 import { describe, it, expect } from "vitest"
 import type { DetailRow, ProfileRow, NoteStoreSource } from "./noteStore"
-import { buildDiagnosisView, buildBreakdown, weakestBundles, weakSlotsFromRows, weakSlotsByPerformance, DIAG_MIN_TARGET, DIAG_SHELVES } from "./diagnosisPresentation"
+import { buildDiagnosisView, buildBreakdown, weakestBundles, weakSlotsFromRows, weakSlotsByPerformance, coarseKeysOf, coarseName, DIAG_MIN_TARGET, DIAG_SHELVES, OVERALL_MISS_RATE_MIN } from "./diagnosisPresentation"
 
 let nextId = 1
 function P(pitch: string, o: Partial<ProfileRow> = {}): ProfileRow {
@@ -47,10 +47,48 @@ describe("演奏直後の診断", () => {
     const v = await buildDiagnosisView({ ...input, collapse: { collapsed: [], is_clean: true } }, deps(src(perf(PIECE))))
     expect(v.verdict).toBe("perfect"); expect(v.totals).toEqual({ played: 12, pitchMiss: 0, rhythmMiss: 0 })
   })
-  it("弱点は無いがミスが散発なら no_specific ・ 足切り3音未満の束はスロットにならない", async () => {
+  it("細かい束が足切りに届かない短い曲は、粗い束 (移動の種類・弦) で診断する ・ F21 案B", async () => {
+    // 11音の上行音階: 同じ移動は1回ずつ (細かい束は全部 1/1) だが「同じ弦で上へ進む移動」は 10回
     const rows = perf([E4, F4, G4, P("A4"), P("B4"), P("C5"), P("D5"), P("E5"), P("F5"), P("G5"), P("A5")], [1, 3, 5])
+    const basic = { id: "sc1", title: "音階", category: "scale", star: 1, keyTonic: "D", keyMode: "major" }
+    const v = await buildDiagnosisView(input, { ...deps(src(rows)), basicMaterials: async () => [basic] })
+    expect(v.verdict).toBe("weakness")
+    const pitch = v.slots.filter((s) => s.tree === "pitch")
+    expect(pitch[0]).toMatchObject({ subtaskId: "coarse|move|same_up", subtaskName: "同じ弦で上の音へ進む移動", coarse: true, miss: 3, target: 10 })
+    expect(pitch[0].materials).toEqual([basic])
+    expect(v.slots.some((s) => s.tree === "rhythm")).toBe(false)
+    // 粗い束はミス1回では出ない (COARSE_MIN_MISS=2)
+    const one = await buildDiagnosisView(input, { ...deps(src(perf([E4, F4, G4, P("A4"), P("B4"), P("C5"), P("D5"), P("E5"), P("F5"), P("G5"), P("A5")], [3]))), basicMaterials: async () => [basic] })
+    expect(one.verdict).toBe("perfect")
+  })
+  it("粗い束も無く散発なら no_specific ・ 粗い束の教材が無ければ noStock", async () => {
+    // 弦が不明の4音でミス1 (25%): 細かい束も粗い束も作れず、半分未満なので no_specific
+    const rows = perf([P("E4", { string1: "unknown" }), P("F#4", { string1: "unknown" }), P("G#4", { string1: "unknown" }), P("A4", { string1: "unknown" })], [1])
     const v = await buildDiagnosisView(input, deps(src(rows)))
     expect(v.verdict).toBe("no_specific"); expect(v.slots).toEqual([])
+    const rows2 = perf([E4, F4, G4, P("A4"), P("B4"), P("C5"), P("D5"), P("E5"), P("F5"), P("G5"), P("A5")], [1, 3, 5])
+    const v2 = await buildDiagnosisView(input, deps(src(rows2)))
+    expect(v2.slots[0].noStock).toBe(true)
+  })
+  it("束が無く半分以上外れていれば overall ・ ★と調の基礎練を2件 ・ F21 案A", async () => {
+    // 4音 (粗い束も足切り3に届かない) で 3音ミス
+    const rows = perf([E4, F4, G4, P("A4")], [0, 1, 2])
+    const calls: unknown[] = []
+    const basics = [{ id: "sc", title: "音階", category: "scale", star: 2, keyTonic: "E", keyMode: "major" }, { id: "ar", title: "アルペジオ", category: "arpeggio", star: 2, keyTonic: "E", keyMode: "major" }]
+    const v = await buildDiagnosisView({ ...input, key: { tonic: "E", mode: "major" } }, {
+      ...deps(src(rows)), userStarOf: async () => 2, basicMaterials: async (key, star, limit) => { calls.push([key, star, limit]); return basics },
+    })
+    expect(v.verdict).toBe("overall")
+    expect(v.overall?.materials).toEqual(basics)
+    expect(calls).toEqual([[{ tonic: "E", mode: "major" }, 2, 2]]) // その人の★2 (曲の★3 ではない) と曲の調
+    expect(v.totals).toEqual({ played: 4, pitchMiss: 3, rhythmMiss: 0 })
+    expect(OVERALL_MISS_RATE_MIN).toBe(0.5)
+  })
+  it("その人の★が無ければ曲の★で基礎練を探す", async () => {
+    const rows = perf([E4, F4, G4, P("A4")], [0, 1, 2])
+    const calls: unknown[] = []
+    await buildDiagnosisView(input, { ...deps(src(rows)), basicMaterials: async (_k, star) => { calls.push(star); return [] } })
+    expect(calls).toEqual([3])
   })
   it("崩壊があれば perfect にならない", async () => {
     const v = await buildDiagnosisView({ ...input, collapse: { collapsed: [{ measure: 3 }], is_clean: false } }, deps(src(perf(PIECE))))
@@ -134,5 +172,20 @@ describe("先生画面の弱点行 ・ weakSlotsFromRows / weakSlotsByPerformanc
     expect(m.get("b")).toEqual([])
     const bad: NoteStoreSource = { fetchDetail: async () => { throw new Error("x") }, findMaterial: async () => null }
     expect((await weakSlotsByPerformance("u", {}, 3, bad)).size).toBe(0)
+  })
+})
+
+describe("粗い束 ・ coarseKeysOf", () => {
+  it("弦の関係 × 上下、同じ音の移弦、弦ごと", () => {
+    const d = P("D4", { string1: "D" }), a = P("A4", { string1: "A" }), a2 = P("A4", { string1: "D" }), f = P("F#4", { string1: "D" })
+    const row = (cur: ProfileRow, prev: ProfileRow | null): DetailRow => ({ performanceId: "p", noteIndex: 0, pitchOk: true, startOk: true, evaluationStatus: "evaluated", expectedStartSec: 0, cur, prev })
+    expect(coarseKeysOf(row(f, d))).toEqual(["coarse|string|D", "coarse|move|same_up"])
+    expect(coarseKeysOf(row(a, d))).toEqual(["coarse|string|A", "coarse|move|adj_up"])
+    expect(coarseKeysOf(row(d, a))).toEqual(["coarse|string|D", "coarse|move|adj_down"])
+    expect(coarseKeysOf(row(a2, a))).toEqual(["coarse|string|D", "coarse|move|unison_cross"])
+    expect(coarseKeysOf(row(P("E5", { string1: "E" }), P("G3", { string1: "G" })))).toEqual(["coarse|string|E", "coarse|move|skip_up"])
+    expect(coarseKeysOf(row(P("A4", { string1: "unknown" }), d))).toEqual([])
+    expect(coarseName("coarse|move|adj_down")).toBe("隣の弦へ下がる移動")
+    expect(coarseName("coarse|string|G")).toBe("G線の音")
   })
 })

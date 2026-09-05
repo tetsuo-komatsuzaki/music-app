@@ -5,7 +5,7 @@
 // （URLを分けるのはデプロイ中の新旧JS混在とロールバックを安全にするため）。
 //
 // レスポンス: DiagnosisView
-//   verdict: "perfect" | "no_specific" | "weakness" | "unavailable"
+//   verdict: "perfect" | "no_specific" | "weakness" | "overall" | "unavailable"
 //   slots[]: 弱点最大4（音程2+リズム2）× 推薦教材 + 内訳文
 //   collapse: 崩壊小節
 //
@@ -58,6 +58,7 @@ export async function GET(
     userId: perf.userId,
     targetId: perf.scoreId,
     star: perf.score.star,
+    key: { tonic: perf.score.keyTonic, mode: perf.score.keyMode },
     collapse: summary?.diagnosis?.collapse ?? null,
   })
 

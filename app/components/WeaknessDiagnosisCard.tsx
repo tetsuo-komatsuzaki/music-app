@@ -6,6 +6,8 @@
 // 表示ルール（Tetsuo確定）:
 //   - verdict=perfect     → 「完璧な演奏です！」と褒める（診断空+崩壊ゼロ+総ミス率10%以下）
 //   - verdict=no_specific → 「特定の弱点は見つかりませんでした」（診断空だがミス散発）
+//   - verdict=overall     → 「全体的に外れている」+ 総数 + ★と調に合う基礎練 (F21 案A・2026-09-05)
+//   - 粗い束 (slot.coarse) → 見出しは「同じ弦で上の音へ進む移動」のような移動の種類・弦 (F21 案B)
 //   - verdict=unavailable → 診断データなし（v65以前の演奏・対応表なしの曲）
 //   - 弱点スロット: 見出し＋ミス率＋内訳一言、教材はタイトル＋★・調＋[練習する →]
 //   - 在庫ゼロ → 「教材準備中です」
@@ -43,8 +45,10 @@ export type WeaknessSlot = {
 }
 
 export type DiagnosisApiResponse = {
-  verdict: "perfect" | "no_specific" | "weakness" | "unavailable"
+  verdict: "perfect" | "no_specific" | "weakness" | "overall" | "unavailable"
   slots: WeaknessSlot[]
+  totals?: { played: number; pitchMiss: number; rhythmMiss: number } | null
+  overall?: { materials: WeaknessMaterial[] } | null
   /** C-6b: 旧skill-detail後継 (シェルの解析中表示・ポーリング判定用) */
   analysisStatus?: "processing" | "done" | "error" | "queued" | "retrying"
 }
@@ -83,6 +87,22 @@ export function DiagnosisBody({
   }
   if (data.verdict === "unavailable") {
     return null
+  }
+  if (data.verdict === "overall") {
+    const t = data.totals
+    const mats = data.overall?.materials ?? []
+    return (
+      <section>
+        {!hideHeading && <h3 className={styles.heading}>{hideMaterials ? "のびしろポイント" : "のびしろポイントと練習メニュー"}</h3>}
+        <div className={styles.slotList}>
+          <div className={styles.slot}>
+            <div className={styles.slotTitle}>全体的に外れている</div>
+            {t && <div className={styles.breakdown}>音程 {t.played - t.pitchMiss}/{t.played} ・ 入り {t.played - t.rhythmMiss}/{t.played} が合っていた。1か所ではなく全体なので、まず調と★に合う基礎練から</div>}
+            {hideMaterials ? null : <MaterialRows materials={mats} userId={userId} fromScoreId={fromScoreId} />}
+          </div>
+        </div>
+      </section>
+    )
   }
   return (
     <section>
@@ -153,39 +173,40 @@ export function WeaknessSlotList({
                 </div>
                 {slot.breakdown && <div className={styles.breakdown}>{slot.breakdown}</div>}
 
-                    {hideMaterials ? null : slot.noStock ? (
-                      <div className={styles.noStock}>ぴったりの教材はいま準備中。まずは曲の中で、この部分だけゆっくり弾いてみよう</div>
-                    ) : (
-                      <div className={styles.materials}>
-                        <div className={styles.materialsLabel}>おすすめ教材</div>
-                        {slot.materials.map((m) => (
-                          <div key={m.id} className={styles.materialRow}>
-                            <div className={styles.materialInfo}>
-                              <span className={styles.materialTitle}>{m.title}</span>
-                              <span className={styles.materialMeta}>
-                                {m.star !== null ? `★${m.star}・` : ""}
-                                {formatKey(m.keyTonic, m.keyMode)}
-                              </span>
-                            </div>
-                            {userId ? (
-                              <Link
-                                href={`/${userId}/practice/${m.category}/${m.id}${fromScoreId ? `?from=${fromScoreId}` : ""}`}
-                                className={styles.practiceLink}
-                              >
-                                練習する →
-                              </Link>
-                            ) : (
-                              <span className={styles.practiceLinkDisabled}>
-                                {categoryLabel(m.category)}
-                              </span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {hideMaterials ? null : <MaterialRows materials={slot.materials} userId={userId} fromScoreId={fromScoreId} />}
               </div>
             )
           })}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/** おすすめ教材の行。空なら「準備中」 */
+function MaterialRows({ materials, userId, fromScoreId }: { materials: WeaknessMaterial[]; userId?: string; fromScoreId?: string | null }) {
+  if (materials.length === 0) {
+    return <div className={styles.noStock}>ぴったりの教材はいま準備中。まずは曲の中で、この部分だけゆっくり弾いてみよう</div>
+  }
+  return (
+    <div className={styles.materials}>
+      <div className={styles.materialsLabel}>おすすめ教材</div>
+      {materials.map((m) => (
+        <div key={m.id} className={styles.materialRow}>
+          <div className={styles.materialInfo}>
+            <span className={styles.materialTitle}>{m.title}</span>
+            <span className={styles.materialMeta}>
+              {m.star !== null ? `★${m.star}・` : ""}
+              {formatKey(m.keyTonic, m.keyMode)}
+            </span>
+          </div>
+          {userId ? (
+            <Link href={`/${userId}/practice/${m.category}/${m.id}${fromScoreId ? `?from=${fromScoreId}` : ""}`} className={styles.practiceLink}>
+              練習する →
+            </Link>
+          ) : (
+            <span className={styles.practiceLinkDisabled}>{categoryLabel(m.category)}</span>
+          )}
         </div>
       ))}
     </div>

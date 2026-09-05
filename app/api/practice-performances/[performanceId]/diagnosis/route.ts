@@ -54,6 +54,7 @@ export async function GET(
     userId: perf.userId,
     targetId: perf.practiceItemId,
     star: item.star,
+    key: { tonic: item.keyTonic, mode: item.keyMode },
     collapse: summary?.diagnosis?.collapse ?? null,
   })
 
