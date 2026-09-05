@@ -59,7 +59,8 @@ export default function StaffPreview({ notes, beats }: { notes: StaffNote[]; bea
     if (n.triplet) els.push(<text key={`tr${i}`} x={cx - 3} y={up ? sy - 4 : sy + 12} fontSize={10} fill="#5B5033" fontFamily="serif">3</text>)
     const ay = up ? y + 13 : y - 13
     const a = n.art
-    if (a === "staccato") els.push(<circle key={`a${i}`} cx={cx} cy={ay} r={2} fill="#16294F" />)
+    // サルタートは点で描く (スラーは生成時に連続する音へ自動で付く。プレビューでは slurId を付けたときだけ弧が出る)
+    if (a === "staccato" || a === "saltato") els.push(<circle key={`a${i}`} cx={cx} cy={ay} r={2} fill="#16294F" />)
     else if (a === "tenuto" || a === "legato") els.push(<line key={`a${i}`} x1={cx - 6} y1={ay} x2={cx + 6} y2={ay} stroke="#16294F" strokeWidth={1.5} />)
     else if (a === "accent") els.push(<path key={`a${i}`} d={`M${cx - 6} ${ay - 4} L${cx + 6} ${ay} L${cx - 6} ${ay + 4}`} stroke="#16294F" strokeWidth={1.4} fill="none" />)
     else if (a === "martele") els.push(<path key={`a${i}`} d={`M${cx - 5} ${ay + 5} L${cx} ${ay - 5} L${cx + 5} ${ay + 5}`} stroke="#16294F" strokeWidth={1.4} fill="none" />)

@@ -18,6 +18,7 @@ const ARTS = [
   { id: "spiccato", label: "スピッカート" }, { id: "martele", label: "マルテレ" },
   { id: "portato", label: "ポルタート" }, { id: "tenuto", label: "テヌート" },
   { id: "accent", label: "アクセント" }, { id: "tremolo", label: "トレモロ" },
+  { id: "saltato", label: "サルタート" }, // スラー + スタッカート点 (スラーは生成側で連続する音に自動で付く)
 ]
 type Ctx = Awaited<ReturnType<typeof getRhythmContext>>
 

@@ -28,6 +28,9 @@ export const ARTICULATIONS = [
   // 元から存在し、音階72件・アルペジオ24件が実在していたのに、選択用のこのリストに無いため
   // 練習前シートに選択肢が出ず、96件が到達不能になっていた。
   { id: "tremolo", label: "トレモロ" },
+  // 2026-09-05 Tetsuo: サルタート = 選んだ音符をすべてスラーでつなぎ、スタッカートの点を付ける (スラーの下に点)。
+  // 記譜は「スラー + スタッカート」だが奏法としては別物。生成側 (_ART_CLS "saltato") と揃える
+  { id: "saltato", label: "サルタート" },
 ] as const
 
 export type ArticulationId = (typeof ARTICULATIONS)[number]["id"]

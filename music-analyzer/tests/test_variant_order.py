@@ -32,7 +32,7 @@ def _load_apply_articulation():
     for node in ast.parse(src).body:
         if isinstance(node, ast.Assign) and any(getattr(t, "id", "") == "_ART_CLS" for t in node.targets):
             exec(compile(ast.Module([node], []), "<x>", "exec"), ns)
-        if isinstance(node, ast.FunctionDef) and node.name in {"_apply_art_to_note", "apply_articulation_variant"}:
+        if isinstance(node, ast.FunctionDef) and node.name in {"_apply_art_to_note", "_slur_saltato_runs", "apply_articulation_variant"}:
             exec(compile(ast.Module([node], []), "<x>", "exec"), ns)
     return ns["apply_articulation_variant"]
 

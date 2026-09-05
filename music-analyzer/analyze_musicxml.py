@@ -166,7 +166,9 @@ def transpose_variant(score, metadata, target_tonic_db, target_mode):
 # 通常技法パターン: 奏法→music21記譜 (2026-07-20)。
 #   レガート=Tenuto / スタッカート=Staccato / スピッカート=Spiccato /
 #   マルテレ=StrongAccent(マルカート) / ポルタート=DetachedLegato(スラー下点) /
-#   トレモロ=expressions.Tremolo(斜線2本)。
+#   トレモロ=expressions.Tremolo(斜線2本) /
+#   サルタート=Staccato + 連続する音をスラーでつなぐ (2026-09-05 Tetsuo。スラーは apply_articulation_variant で付ける)。
+#   スピッカートは <spiccato/> で書き出す。譜面表示 (build_score) では点で描くが、解析側はスタッカートと別に持つ。
 _ART_CLS = {
     "legato": articulations.Tenuto,
     "staccato": articulations.Staccato,
@@ -176,7 +178,19 @@ _ART_CLS = {
     # 2026-08-24 アップロード改修: 音符ごとの奏法レシピで追加 (テヌート/アクセント)
     "tenuto": articulations.Tenuto,
     "accent": articulations.Accent,
+    "saltato": articulations.Staccato,
 }
+
+
+def _slur_saltato_runs(part, runs):
+    """サルタートの音の並び (連続する2音以上) を1本のスラーでつなぐ。runs = [[note, note, ...], ...]"""
+    from music21 import spanner
+    n_slurs = 0
+    for run in runs:
+        if len(run) >= 2:
+            part.insert(0, spanner.Slur(*run))
+            n_slurs += 1
+    return n_slurs
 
 
 # =========================
@@ -272,6 +286,10 @@ def apply_articulation_variant(score, metadata):
         art_id = pat.get("articulation")
         for n in score.recurse().notes:
             _apply_art_to_note(n, art_id)
+        if art_id == "saltato":
+            # 小節ごとに、その小節の音をまとめて1本のスラーでつなぐ
+            for part in score.parts:
+                _slur_saltato_runs(part, [list(m.notes) for m in part.getElementsByClass(stream.Measure)])
         return score
 
     if pat.get("type") == "per_note":
@@ -310,12 +328,22 @@ def apply_articulation_variant(score, metadata):
                 if any(n in skip_set for n in nums):
                     continue
                 idx = 0
+                run: list = []      # サルタートが続く音の並び (単位の中で連続するものを1本のスラーに)
+                runs: list = []
                 for meas in measures[u_start:u_start + unit]:
                     for n in meas.notes:
                         art_id = assigns.get(idx)
                         if art_id:
                             _apply_art_to_note(n, art_id)
+                        if art_id == "saltato":
+                            run.append(n)
+                        elif run:
+                            runs.append(run)
+                            run = []
                         idx += 1
+                if run:
+                    runs.append(run)
+                _slur_saltato_runs(part, runs)
         return score
 
     return None

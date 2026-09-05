@@ -33,7 +33,7 @@ describe("難易度 (DifficultyId)", () => {
 })
 
 describe("奏法 (ArticulationId)", () => {
-  it("8奏法を定義順で持ち、id は重複しない", () => {
+  it("9奏法を定義順で持ち、id は重複しない", () => {
     const ids = ARTICULATIONS.map((a) => a.id)
     // 2026-08-25: tremolo を追加 (生成側には元からあり、選択用のこのリストにだけ無く、
     // 音階72件・アルペジオ24件が練習前シートから選べなくなっていた)
@@ -47,6 +47,8 @@ describe("奏法 (ArticulationId)", () => {
       // 2026-09-01: tenuto を追加 (教材8件が選択肢に出ていなかった)
       "tenuto",
       "tremolo",
+      // 2026-09-05: saltato を追加 (スラー + スタッカート点。Tetsuo指示)
+      "saltato",
     ])
     expect(new Set(ids).size).toBe(ids.length)
   })
