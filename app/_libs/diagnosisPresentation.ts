@@ -242,11 +242,16 @@ async function basicMaterials(key: DiagnosisInput["key"], star: number, limit: n
     select: { id: true, title: true, category: true, star: true, keyTonic: true, keyMode: true, articulation: true },
     take: 400,
   })
-  const sameKey = (m: { keyTonic: string; keyMode: string }) => !!key?.tonic && m.keyTonic === key.tonic && (!key.mode || m.keyMode === key.mode)
+  // 調の近さ: 主音も長短も同じ 2 > 主音だけ同じ (曲の長短が不明なら長調を優先) 1 > それ以外 0
+  const keyScore = (m: { keyTonic: string; keyMode: string }) => {
+    if (!key?.tonic || m.keyTonic !== key.tonic) return 0
+    if (key.mode ? m.keyMode === key.mode : m.keyMode === "major") return 2
+    return 1
+  }
   // 全体が外れている人に出す基礎練は素の弾き方 (レガート) を先に。奏法の変種 (スピッカート等) は後
   const plain = (m: { articulation: string | null }) => m.articulation == null || m.articulation === "legato"
   rows.sort((a, b) =>
-    Number(sameKey(b)) - Number(sameKey(a))
+    keyScore(b) - keyScore(a)
     || Number(plain(b)) - Number(plain(a))
     || (b.star ?? 0) - (a.star ?? 0)
     || a.title.localeCompare(b.title))
