@@ -27,6 +27,7 @@ import { buildScrollPlan, locateInPlan, type ScrollPlan } from "@/app/_libs/scor
 import PerformanceSkeleton from "@/app/components/PerformanceSkeleton"
 import PerformanceDeleteModal from "@/app/components/PerformanceDeleteModal"
 import PressMenu from "@/app/components/ui/PressMenu"
+import PressButton from "@/app/components/ui/PressButton"
 import { useLongPress, type LongPressPos } from "@/app/_hooks/useLongPress"
 import { getSignedUploadUrl } from "@/app/actions/getSignedUploadUrl"
 import { renamePerformance } from "@/app/actions/renamePerformance"
@@ -3830,20 +3831,20 @@ function ScoreDetailInner({
               <img src="/Icon.png" alt="" aria-hidden width={20} height={20} style={{ borderRadius: 5 }} /> もう一度演奏してみよう！
             </div>
             <div style={{ fontSize: "var(--fs-body)", color: "var(--text-body)", marginBottom: 14 }}>この演奏をふまえて、もう一度チャレンジ</div>
-            <button type="button" onClick={() => selectPerformanceById(null)} style={{ background: "var(--accent)", color: "var(--text-on-accent)", border: "none", borderRadius: 10, padding: "11px 28px", fontSize: "var(--fs-subhead)", fontWeight: 700, cursor: "pointer" }}>演奏する</button>
+            <PressButton onPress={() => selectPerformanceById(null)} style={{ background: "var(--accent)", color: "var(--text-on-accent)", border: "none", borderRadius: 10, padding: "11px 28px", fontSize: "var(--fs-subhead)", fontWeight: 700, cursor: "pointer" }}>演奏する</PressButton>
           </div>
         ) : onboardingRecordStep ? (
           // オンボの録音ステップだけ、実録音せず「ふりかえり(見本)へ進むだけ」のボタンに差し替える。
           // 通常ユーザーの録音ボタン(下の Recorder)は元のまま。
           <div data-onboarding="scoreDetail.recordButton">
-            <button
-              type="button"
-              onClick={() => handleTabChange("review")}
+            <PressButton
+             
+              onPress={() => handleTabChange("review")}
               style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", padding: "14px 16px", background: "linear-gradient(100deg,#e5392b,#f0603a)", color: "var(--text-on-accent)", border: "none", borderRadius: 12, fontSize: "var(--fs-subhead)", fontWeight: 800, cursor: "pointer" }}
             >
               <span aria-hidden style={{ width: 10, height: 10, borderRadius: "50%", background: "#fff", display: "inline-block" }} />
               録音して採点
-            </button>
+            </PressButton>
           </div>
         ) : (
         <div data-onboarding="scoreDetail.recordButton">
@@ -3853,34 +3854,34 @@ function ScoreDetailInner({
               {recordMenuOpen && (
                 <div className={styles.recordMenuBackdrop} onClick={() => setRecordMenuOpen(false)} />
               )}
-              <button
-                type="button"
+              <PressButton
+               
                 className={`${styles.recordEntryBtn} recBreathe`}
-                onClick={() => setRecordMenuOpen((v) => !v)}
+                onPress={() => setRecordMenuOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={recordMenuOpen}
               >
                 <span className={styles.recordEntryDot} />
                 <span>録音して採点</span>
                 <svg className={`${styles.recordEntryChev} ${recordMenuOpen ? styles.recordEntryChevOpen : ""}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M6 9l6 6 6-6" /></svg>
-              </button>
+              </PressButton>
               {recordMenuOpen && (
                 <div className={styles.recordMenu} role="menu">
-                  <button type="button" role="menuitem" className={styles.recordMenuItem} onClick={recordFull}>
+                  <PressButton role="menuitem" className={styles.recordMenuItem} onPress={recordFull}>
                     <span className={`${styles.recordMenuIcon} ${styles.recordMenuIconAll}`} aria-hidden>●</span>
                     <span className={styles.recordMenuText}>
                       <span className={styles.recordMenuTitle}>通しで録音</span>
                       <span className={styles.recordMenuDesc}>はじめから終わりまで</span>
                     </span>
-                  </button>
-                  <button type="button" role="menuitem" className={styles.recordMenuItem} onClick={enterRangeFlow}>
+                  </PressButton>
+                  <PressButton role="menuitem" className={styles.recordMenuItem} onPress={enterRangeFlow}>
                     <span className={`${styles.recordMenuIcon} ${styles.recordMenuIconRange}`} aria-hidden>⌒</span>
                     <span className={styles.recordMenuText}>
                       <span className={styles.recordMenuTitle}>区間を選ぶ</span>
                       <span className={styles.recordMenuDesc}>気になるところだけ練習する</span>
                     </span>
-                  </button>
-                  <button type="button" className={styles.recordMenuCancel} onClick={() => setRecordMenuOpen(false)}>キャンセル</button>
+                  </PressButton>
+                  <PressButton className={styles.recordMenuCancel} onPress={() => setRecordMenuOpen(false)}>キャンセル</PressButton>
                 </div>
               )}
             </div>
@@ -3893,14 +3894,14 @@ function ScoreDetailInner({
               <div className={styles.rangeSheetHead}>
                 <span className={styles.rangeSheetTitle}><span className={styles.rangeSheetArc} aria-hidden>⌒</span>区間を選ぶ</span>
                 {hardestRange && (
-                  <button
-                    type="button"
+                  <PressButton
+                   
                     className={`${styles.rangePresetBtn} ${styles.rangePresetHard}`}
-                    onClick={() => { if (isRangeLooping) stopPlayback(); awaitingEndTapRef.current = false; setRangeStart(hardestRange.from); setRangeEnd(hardestRange.to) }}
+                    onPress={() => { if (isRangeLooping) stopPlayback(); awaitingEndTapRef.current = false; setRangeStart(hardestRange.from); setRangeEnd(hardestRange.to) }}
                     title="直近の採点で崩れた箇所"
                   >
                     難所
-                  </button>
+                  </PressButton>
                 )}
               </div>
               {rangeStart === null && (
@@ -3915,22 +3916,22 @@ function ScoreDetailInner({
               <div className={styles.rangeSheetActions}>
                 {/* 曲は採点が目的なのでループ練習ボタンは出さない。基礎練は採点非対応のためループを残す */}
                 {!isScoreMode && (!isRangeLooping ? (
-                  <button type="button" className={styles.sheetLoopBtn} disabled={rangeStart === null || rangeEnd === null} onClick={startRangeLoop}>
+                  <PressButton className={styles.sheetLoopBtn} disabled={rangeStart === null || rangeEnd === null} onPress={startRangeLoop}>
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M8 5v14l11-7z" /></svg>
                     ループ練習
-                  </button>
+                  </PressButton>
                 ) : (
-                  <button type="button" className={styles.sheetLoopStopBtn} onClick={stopPlayback}>
+                  <PressButton className={styles.sheetLoopStopBtn} onPress={stopPlayback}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden><rect x="6" y="6" width="12" height="12" rx="1.5" /></svg>
                     ループ停止
-                  </button>
+                  </PressButton>
                 ))}
                 {isScoreMode && (
-                  <button type="button" className={styles.sheetScoreBtn} disabled={recordingState !== "idle" || rangeStart === null || rangeEnd === null} onClick={recordSelectedRange}>
+                  <PressButton className={styles.sheetScoreBtn} disabled={recordingState !== "idle" || rangeStart === null || rangeEnd === null} onPress={recordSelectedRange}>
                     区間録音
-                  </button>
+                  </PressButton>
                 )}
-                <button type="button" className={styles.sheetCancelBtn} onClick={exitRangeFlow}>取消</button>
+                <PressButton className={styles.sheetCancelBtn} onPress={exitRangeFlow}>取消</PressButton>
               </div>
               {rangeSummary && <p className={styles.rangeSheetNote}>{rangeSummary}</p>}
             </div>
