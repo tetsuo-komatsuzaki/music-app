@@ -12,31 +12,40 @@
  *  2. それでも打ち切られた (touchcancel) ときは、指が動いていなければ「押して離した」とみなして動かす。
  *  - 指が 12px 以上動いたら取り消し (スクロールのつもり)
  *  - タッチで動かした直後の click は二重発火しないよう無視する
+ *  - 同じボタンを 250ms 以内に2度動かさない (連打・二重タップの誤爆を防ぐ)
  *  - マウス・キーボード・支援技術・テストの element.click() は onClick 経路でそのまま動く
+ *
+ * ref はコールバック ref。ボタンが後から現れる (録音後に出る採点ボタンなど) 場合でも、
+ * その DOM が付いた瞬間にリスナーを付ける。useEffect 1回きりでは付け損ねる (2026-09-05 の欠陥)。
  */
 import { useCallback, useEffect, useRef } from "react"
 import type { MouseEvent as ReactMouseEvent } from "react"
 
 const MOVE_TOLERANCE_PX = 12
 const CLICK_SUPPRESS_MS = 700
+const REPEAT_GUARD_MS = 250
 
 export function usePress<T extends HTMLElement = HTMLButtonElement>(onPress: () => void) {
-  const ref = useRef<T | null>(null)
   const onPressRef = useRef(onPress)
   useEffect(() => { onPressRef.current = onPress }, [onPress])
   const firedAt = useRef(0)
+  const detach = useRef<(() => void) | null>(null)
 
-  useEffect(() => {
-    const el = ref.current
+  const fire = useCallback((el: HTMLElement) => {
+    if ((el as unknown as { disabled?: boolean }).disabled) return
+    const now = Date.now()
+    if (now - firedAt.current < REPEAT_GUARD_MS) return
+    firedAt.current = now
+    onPressRef.current()
+  }, [])
+
+  const ref = useCallback((el: T | null) => {
+    detach.current?.()
+    detach.current = null
     if (!el) return
     let start: { x: number; y: number } | null = null
     let moved = false
 
-    const fire = () => {
-      if ((el as unknown as { disabled?: boolean }).disabled) return
-      firedAt.current = Date.now()
-      onPressRef.current()
-    }
     const onTouchStart = (e: TouchEvent) => {
       const t = e.touches[0]
       if (!t) return
@@ -56,13 +65,13 @@ export function usePress<T extends HTMLElement = HTMLButtonElement>(onPress: () 
       if (t && Math.hypot(t.clientX - start.x, t.clientY - start.y) > MOVE_TOLERANCE_PX) moved = true
       start = null
       if (e.cancelable) e.preventDefault()
-      if (!moved) fire()
+      if (!moved) fire(el)
     }
     const onTouchCancel = () => {
       // OS がタッチ列を打ち切った。動いていなければ「押して離した」とみなす (長押しでも動く)。
       if (!start) return
       start = null
-      if (!moved) fire()
+      if (!moved) fire(el)
     }
     const onContextMenu = (e: Event) => e.preventDefault()
 
@@ -71,19 +80,19 @@ export function usePress<T extends HTMLElement = HTMLButtonElement>(onPress: () 
     el.addEventListener("touchend", onTouchEnd, { passive: false })
     el.addEventListener("touchcancel", onTouchCancel)
     el.addEventListener("contextmenu", onContextMenu)
-    return () => {
+    detach.current = () => {
       el.removeEventListener("touchstart", onTouchStart)
       el.removeEventListener("touchmove", onTouchMove)
       el.removeEventListener("touchend", onTouchEnd)
       el.removeEventListener("touchcancel", onTouchCancel)
       el.removeEventListener("contextmenu", onContextMenu)
     }
-  }, [])
+  }, [fire])
 
   const onClick = useCallback((e: ReactMouseEvent<T>) => {
     if (Date.now() - firedAt.current < CLICK_SUPPRESS_MS) { e.preventDefault(); return }
-    onPressRef.current()
-  }, [])
+    fire(e.currentTarget)
+  }, [fire])
 
   return { ref, onClick }
 }

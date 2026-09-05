@@ -7,8 +7,17 @@ function Btn({ onPress, disabled }: { onPress: () => void; disabled?: boolean })
   const p = usePress(onPress)
   return <button {...p} disabled={disabled}>採点</button>
 }
+/** 親にフックがあり、ボタンは後から現れる (Recorder の採点ボタンと同じ形) */
+function LateBtn({ onPress, show }: { onPress: () => void; show: boolean }) {
+  const p = usePress(onPress)
+  return <div>{show && <button {...p}>採点</button>}</div>
+}
 afterEach(cleanup)
 const touch = (x: number, y: number) => ({ clientX: x, clientY: y, identifier: 0 })
+const tap = (b: Element, x = 10, y = 10) => {
+  fireEvent.touchStart(b, { touches: [touch(x, y)] })
+  fireEvent.touchEnd(b, { changedTouches: [touch(x, y)], touches: [] })
+}
 
 describe("usePress ・ 長く押しても離せば動く", () => {
   it("touchstart → (長く待って) touchend で1回動き、直後の click は二重に動かない", () => {
@@ -56,19 +65,51 @@ describe("usePress ・ 長く押しても離せば動く", () => {
   it("disabled なら touchend でも動かない", () => {
     const fn = vi.fn()
     const { getByText } = render(<Btn onPress={fn} disabled />)
-    const b = getByText("採点")
-    fireEvent.touchStart(b, { touches: [touch(0, 0)] })
-    fireEvent.touchEnd(b, { changedTouches: [touch(0, 0)], touches: [] })
+    tap(getByText("採点"), 0, 0)
     expect(fn).not.toHaveBeenCalled()
   })
   it("最新の onPress が呼ばれる (再レンダー後も古い関数に固定されない)", () => {
     const a = vi.fn(), b2 = vi.fn()
     const { getByText, rerender } = render(<Btn onPress={a} />)
     rerender(<Btn onPress={b2} />)
-    const b = getByText("採点")
-    fireEvent.touchStart(b, { touches: [touch(0, 0)] })
-    fireEvent.touchEnd(b, { changedTouches: [touch(0, 0)], touches: [] })
+    tap(getByText("採点"), 0, 0)
     expect(a).not.toHaveBeenCalled()
     expect(b2).toHaveBeenCalledTimes(1)
+  })
+  it("後から現れるボタンにもタッチの処理が付く (録音後に出る採点ボタン)", () => {
+    const fn = vi.fn()
+    const { getByText, rerender } = render(<LateBtn onPress={fn} show={false} />)
+    rerender(<LateBtn onPress={fn} show />)
+    const b = getByText("採点")
+    const ev = new TouchEvent("touchstart", { cancelable: true, touches: [touch(10, 10) as unknown as Touch] } as TouchEventInit)
+    b.dispatchEvent(ev)
+    expect(ev.defaultPrevented).toBe(true)
+    fireEvent.touchCancel(b, { touches: [], changedTouches: [] })
+    expect(fn).toHaveBeenCalledTimes(1)
+    // 消えて、また現れても付く
+    rerender(<LateBtn onPress={fn} show={false} />)
+    rerender(<LateBtn onPress={fn} show />)
+    vi.useFakeTimers(); vi.setSystemTime(Date.now() + 1000)
+    tap(getByText("採点"))
+    vi.useRealTimers()
+    expect(fn).toHaveBeenCalledTimes(2)
+  })
+  it("同じボタンの連打は 250ms 以内なら1回だけ。間が空けば動く", () => {
+    vi.useFakeTimers()
+    const fn = vi.fn()
+    const { getByText } = render(<Btn onPress={fn} />)
+    const b = getByText("採点")
+    tap(b); tap(b); tap(b)
+    expect(fn).toHaveBeenCalledTimes(1)
+    vi.advanceTimersByTime(300)
+    tap(b)
+    expect(fn).toHaveBeenCalledTimes(2)
+    vi.advanceTimersByTime(300)
+    fireEvent.click(b)   // タッチ後 700ms 以内の click は無視
+    expect(fn).toHaveBeenCalledTimes(2)
+    vi.advanceTimersByTime(800)
+    fireEvent.click(b)
+    expect(fn).toHaveBeenCalledTimes(3)
+    vi.useRealTimers()
   })
 })
