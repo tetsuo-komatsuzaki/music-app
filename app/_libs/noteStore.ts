@@ -225,25 +225,28 @@ async function selectPerformances(unit: Unit): Promise<{ kind: "score" | "practi
 
 type RawDetail = {
   performanceId: string; noteIndex: number; pitchOk: boolean | null; startOk: boolean | null
-  evaluationStatus: string; expectedStartSec: number | null; cur: ProfileRow; prev: ProfileRow | null
+  evaluationStatus: string; expectedStartSec: number | null; profileId: number; prevProfileId: number | null
 }
 
+/** 明細 → 並び (かたちの番号だけ)。かたちの中身は別に1回で引く (行ごとの副問い合わせは重い) */
 async function fetchDetailFor(kind: "score" | "practice", perfs: { id: string; targetId: string }[]): Promise<RawDetail[]> {
   if (perfs.length === 0) return []
   const ids = perfs.map((p) => p.id)
   const perfTable = kind === "score" ? Prisma.raw('"Performance"') : Prisma.raw('"PracticePerformance"')
   const targetCol = kind === "score" ? Prisma.raw('"scoreId"') : Prisma.raw('"practiceItemId"')
-  const timeCol = kind === "score" ? Prisma.raw('"createdAt"') : Prisma.raw('"uploadedAt"')
-  const rows = await prisma.$queryRaw<RawDetail[]>(Prisma.sql`
+  return prisma.$queryRaw<RawDetail[]>(Prisma.sql`
     SELECT pn."performanceId", pn."noteIndex", pn."pitchOk", pn."startOk", pn."evaluationStatus", pn."expectedStartSec",
-           (SELECT row_to_json(c) FROM (SELECT ${Prisma.raw(PROFILE_SELECT)} FROM "NoteProfile" WHERE id = sn."profileId") c) AS cur,
-           (SELECT row_to_json(q) FROM (SELECT ${Prisma.raw(PROFILE_SELECT)} FROM "NoteProfile" WHERE id = sn."prevProfileId") q) AS prev
+           sn."profileId", sn."prevProfileId"
     FROM "PerformanceNote" pn
     JOIN ${perfTable} x ON x.id = pn."performanceId"
     JOIN "ScoreNote" sn ON sn."targetType" = ${kind}::"ScoreNoteTarget" AND sn."targetId" = x.${targetCol} AND sn."noteIndex" = pn."noteIndex"
-    WHERE pn."performanceKind" = ${kind}::"PerformanceKind" AND pn."performanceId" = ANY(${ids})
-    ORDER BY x.${timeCol}, pn."performanceId", pn."noteIndex"`)
-  return rows
+    WHERE pn."performanceKind" = ${kind}::"PerformanceKind" AND pn."performanceId" = ANY(${ids})`)
+}
+
+async function fetchProfiles(ids: number[]): Promise<Map<number, ProfileRow>> {
+  if (ids.length === 0) return new Map()
+  const rows = await prisma.$queryRaw<ProfileRow[]>(Prisma.sql`SELECT ${Prisma.raw(PROFILE_SELECT)} FROM "NoteProfile" WHERE id = ANY(${ids})`)
+  return new Map(rows.map((r) => [r.id, r]))
 }
 
 /** 教材側の述語。束のキーごとに SQL の条件を組む */
@@ -273,18 +276,34 @@ export const prismaSource: NoteStoreSource = {
       fetchDetailFor("score", perfs.filter((p) => p.kind === "score")),
       fetchDetailFor("practice", perfs.filter((p) => p.kind === "practice")),
     ])
+    const raw = [...a, ...b]
+    const idSet = new Set<number>()
+    for (const r of raw) { idSet.add(r.profileId); if (r.prevProfileId !== null) idSet.add(r.prevProfileId) }
+    const profiles = await fetchProfiles([...idSet])
     // 演奏の時系列順に並べ直す (aggregate は演奏内の順序だけを見るので、演奏の並びは createdAt 順で十分)
     const order = new Map(perfs.map((p, i) => [p.id, i]))
-    return [...a, ...b].sort((x, y) => (order.get(x.performanceId)! - order.get(y.performanceId)!) || (x.noteIndex - y.noteIndex))
+    raw.sort((x, y) => (order.get(x.performanceId)! - order.get(y.performanceId)!) || (x.noteIndex - y.noteIndex))
+    const out: DetailRow[] = []
+    for (const r of raw) {
+      const cur = profiles.get(r.profileId)
+      if (!cur) continue
+      out.push({
+        performanceId: r.performanceId, noteIndex: r.noteIndex, pitchOk: r.pitchOk, startOk: r.startOk,
+        evaluationStatus: r.evaluationStatus, expectedStartSec: r.expectedStartSec,
+        cur, prev: r.prevProfileId !== null ? profiles.get(r.prevProfileId) ?? null : null,
+      })
+    }
+    return out
   },
   async findMaterial(key, star, shelves) {
     const pred = materialPredicate(key)
+    // 前の音の秒 (prev_dur) はフィンガリングだけが使う。他のタブは窓関数を通さない
+    const source = parseKey(key).tab === "fingering"
+      ? Prisma.sql`SELECT sn.*, LAG(sn."durationSec") OVER (PARTITION BY sn."targetId" ORDER BY sn."noteIndex") AS prev_dur
+                   FROM "ScoreNote" sn WHERE sn."targetType" = 'practice'::"ScoreNoteTarget"`
+      : Prisma.sql`SELECT sn.*, NULL::double precision AS prev_dur FROM "ScoreNote" sn WHERE sn."targetType" = 'practice'::"ScoreNoteTarget"`
     const rows = await prisma.$queryRaw<{ id: string; c: number }[]>(Prisma.sql`
-      WITH s AS (
-        SELECT sn.*, LAG(sn."durationSec") OVER (PARTITION BY sn."targetId" ORDER BY sn."noteIndex") AS prev_dur
-        FROM "ScoreNote" sn
-        WHERE sn."targetType" = 'practice'::"ScoreNoteTarget"
-      )
+      WITH s AS (${source})
       SELECT s."targetId" AS id, count(*)::int AS c
       FROM s
       JOIN "PracticeItem" pi ON pi.id = s."targetId"
