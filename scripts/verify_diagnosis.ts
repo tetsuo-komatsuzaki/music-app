@@ -12,8 +12,8 @@ import { prisma } from "../app/_libs/prisma"
 import { buildDiagnosisView } from "../app/_libs/diagnosisPresentation"
 
 async function main() {
-  const perfs = await prisma.$queryRaw<{ id: string; userId: string; scoreId: string; title: string; star: number | null; analysisSummary: unknown }[]>`
-    SELECT p.id, p."userId", p."scoreId", s.title, s.star, p."analysisSummary"
+  const perfs = await prisma.$queryRaw<{ id: string; userId: string; scoreId: string; title: string; star: number | null; keyTonic: string | null; keyMode: string | null; analysisSummary: unknown }[]>`
+    SELECT p.id, p."userId", p."scoreId", s.title, s.star, s."keyTonic", s."keyMode", p."analysisSummary"
     FROM "Performance" p JOIN "Score" s ON s.id = p."scoreId"
     WHERE EXISTS (SELECT 1 FROM "PerformanceNote" pn WHERE pn."performanceKind" = 'score' AND pn."performanceId" = p.id)
     ORDER BY p."createdAt"`
@@ -26,7 +26,7 @@ async function main() {
     const oldD = summary?.diagnosis
     const oldVerdict = !oldD || !oldD.map_available ? "unavailable" : ((oldD.diagnosis?.pitch.length ?? 0) + (oldD.diagnosis?.rhythm.length ?? 0)) > 0 ? "weakness" : "none"
     const s = performance.now()
-    const v = await buildDiagnosisView({ kind: "score", performanceId: p.id, userId: p.userId, targetId: p.scoreId, star: p.star, collapse: oldD?.collapse ?? null })
+    const v = await buildDiagnosisView({ kind: "score", performanceId: p.id, userId: p.userId, targetId: p.scoreId, star: p.star, key: { tonic: p.keyTonic, mode: p.keyMode }, collapse: oldD?.collapse ?? null })
     times.push(performance.now() - s)
     const k = `${oldVerdict}→${v.verdict}`
     pair[k] = (pair[k] ?? 0) + 1
