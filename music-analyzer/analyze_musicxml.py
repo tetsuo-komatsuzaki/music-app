@@ -1637,24 +1637,8 @@ try:
             conn.rollback()
             print(f"WARNING: piece summary DB persist failed: {persist_err}")
 
-    # =========================
-    # おすすめエンジン (2026-09-04): 教材の課題出現回数を書く。
-    # ホームの「あなた専用のおすすめ練習」が「その課題がいちばん多く出てくる教材」を
-    # 引くために使う。ここで書くので、新しく追加された教材は自動で反映される。
-    # 曲(Score)は教材として推薦しないので教材経路のみ。
-    # 失敗は警告のみ。解析そのものは既に完了している。
-    # =========================
-    if IS_PRACTICE_ITEM and piece_summary is not None and karte_payload is not None:
-        try:
-            from lib.material_counts import compute_counts, save_counts
-
-            _n_notes, _counts = compute_counts(karte_payload["notes"])
-            _rows = save_counts(cur, PRACTICE_ITEM_ID, _n_notes, _counts)
-            conn.commit()
-            print(f"[analyze_musicxml] 課題出現回数を保存: {_rows}項目 / 全{_n_notes}音")
-        except Exception as _cnt_err:
-            conn.rollback()
-            print(f"WARNING: subtask count persist failed: {_cnt_err}")
+    # 教材の課題出現回数 (PracticeItemSubtaskCount) は段5 (2026-09-05) で廃止。
+    # 教材側の回数は束の写し MaterialBundleCount (lib/note_store.save_material_bundle_counts) が正。
 
     print("Analysis complete")
 

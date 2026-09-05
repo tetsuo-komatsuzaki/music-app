@@ -63,3 +63,42 @@ export function positionMoveLabel(from: number, to: number): string {
 export function techniqueLabel(tech: string): string {
   return `${TECH_LABELS[tech] ?? tech}のところ`
 }
+
+// ── 条件の名前 (成長1行・成長カルテが読む派生サマリのID) → 表示名 ──
+// 旧 課題カタログの名前をそのまま引き継ぐ。箱としては保存しない (段5・2026-09-05)。
+// null = 表示しない条件: 同じポジションの中 (変化なし)、2026-09-04 に削除した 順次/弦とばし/全2分4分音符
+const INTERVAL_LABELS: Record<string, string> = {
+  same_up_leap: "同じ弦で高い音へ大きく跳ぶ", same_down_leap: "同じ弦で低い音へ大きく跳ぶ",
+  adj_up_leap: "となりの弦に移って高い音へ大きく跳ぶ", adj_down_leap: "となりの弦に移って低い音へ大きく跳ぶ",
+  unison_crossing: "弦を移っても同じ高さの音を弾く",
+}
+const VALUE_LABELS: Record<string, string> = {
+  eighth: "8分音符のリズム", "16th": "16分音符のリズム", "32nd_plus": "32分音符以上のリズム", dotted: "付点音符のリズム",
+}
+const TUPLET_LABELS: Record<string, string> = { "3": "三連符のリズム", "5": "五連符のリズム", "6": "六連符のリズム", "7plus": "七連符以上のリズム" }
+const REST_LEN: Record<string, string> = { short: "短い", mid: "中くらいの", long: "長い" }
+const BEAT: Record<string, string> = { onbeat: "拍の頭から入る", offbeat: "拍の裏から入る" }
+const DOUBLE_KIND: Record<string, string> = { third: "3度", fourth: "4度", fifth: "5度", sixth: "6度", octave: "オクターブ", other: "その他" }
+
+export function conditionLabel(id: string): string | null {
+  const m = /^(pitch|rhythm)_(.+)$/.exec(id)
+  if (!m) return null
+  const body = m[2]
+  let mm: RegExpExecArray | null
+  if ((mm = /^posshift_([0-9]+|5plus)_([0-9]+|5plus)$/.exec(body))) {
+    if (mm[1] === mm[2]) return null
+    const n = (t: string) => (t === "5plus" ? 5 : parseInt(t, 10))
+    return positionMoveLabel(n(mm[1]), n(mm[2]))
+  }
+  if ((mm = /^tech_(.+)$/.exec(body))) return techniqueLabel(mm[1])
+  if ((mm = /^interval_(.+)$/.exec(body))) return INTERVAL_LABELS[mm[1]] ?? null
+  if ((mm = /^value_(.+)$/.exec(body))) return VALUE_LABELS[mm[1]] ?? null
+  if ((mm = /^tuplet_(.+)$/.exec(body))) return TUPLET_LABELS[mm[1]] ?? null
+  if ((mm = /^entry_(short|mid|long)_(onbeat|offbeat)$/.exec(body))) return `${REST_LEN[mm[1]]}休みのあと、${BEAT[mm[2]]}`
+  if ((mm = /^double_([a-z]+)_(single|cont)$/.exec(body))) {
+    const k = DOUBLE_KIND[mm[1]]
+    if (!k) return null
+    return mm[2] === "cont" ? `${k}の重音を続けて弾く` : `${k}の重音を弾く`
+  }
+  return null
+}

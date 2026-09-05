@@ -2,7 +2,7 @@
 music-analyzer ライブラリパッケージ。
 
 構成（2026-07-11 C-6b 再編後）:
-  - 診断系（217小課題体系）: diagnosis.py / diagnosis_store.py / subtask_catalog.py /
+  - 診断の保存: diagnosis_store.py (collapse と milestone) ・ 明細: note_store.py (ノート属性ストア) /
     collapse_detector.py — 弱点分析・崩壊小節（達成判定の材料）
   - 判定系: achievement.py — 達成/マスター/Star/学びレッスン
   - 弓採点系: subtask_judges.py（弓23項目のみ）+ 呼び手 bowing_score.py —

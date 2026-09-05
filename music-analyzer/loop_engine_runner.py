@@ -198,21 +198,18 @@ def _run_diagnosis_v217(
     skill_info_path: str,
     analysis_path: str,
 ) -> None:
-    """工程C-4 (2026-07-11): 217小課題診断を実行し保存する（案3ハイブリッド）。
+    """演奏ごとの診断のうち、1音の足し算では作れないもの ・ 崩壊小節 ・ だけを analysisSummary.diagnosis に保存する。
 
-    - 窓①: analysisSummary に診断JSONをマージ保存（旧 skillSubScores 列は不変）
-    - 窓②: UserSkillSubScore に per_subtask を足し込み（217 ID・旧55行と共存）
-    - skill_info ファイルは A-4 で note_karte と同一 payload の二重書きのため
-      expanded_index_map を含む (v3)。旧 v1/v2 ファイルは map 無し →
-      diagnose が map_available=False で安全に縮退する。
-    - 失敗は警告のみ（SAVEPOINT で隔離し、既存パイプラインの commit を汚さない）。
+    段5 (2026-09-05 ノート属性ストア): 課題ごとの per_subtask / miss_patterns / 診断リスト と
+    UserSkillSubScore の足し込みは廃止。読み手は明細 (PerformanceNote → ScoreNote → NoteProfile) から
+    その場で束ねる。collapse は achievement.py (マスター判定) と体の地図が読むので残す。
+    skill_info_path / analysis_path は旧 API 互換のため受け取るだけ。
+    失敗は警告のみ（SAVEPOINT で隔離し、既存パイプラインの commit を汚さない）。
     """
+    del skill_info_path, analysis_path
     try:
-        from lib.diagnosis import diagnose
-        from lib.diagnosis_store import (
-            bump_user_subtask_counters,
-            save_performance_diagnosis,
-        )
+        from lib.collapse_detector import detect_collapsed_measures
+        from lib.diagnosis_store import save_performance_diagnosis
 
         with open(comparison_path, encoding="utf-8") as f:
             comp = json.load(f)
@@ -221,41 +218,38 @@ def _run_diagnosis_v217(
             comp_results = comp
         else:
             comp_results = comp.get("results") or comp.get("evaluatedNotes") or []
-        with open(skill_info_path, encoding="utf-8") as f:
-            karte = json.load(f)
-        analysis_notes = None
-        try:
-            with open(analysis_path, encoding="utf-8") as f:
-                analysis_notes = json.load(f).get("notes")
-        except Exception:
-            pass
-        diag = diagnose(comp_results, karte, analysis_notes)
+        undetected = [r for r in comp_results if r.get("evaluation_status") == "not_detected"]
+        diag = {
+            "version": 3,
+            "collapse": detect_collapsed_measures(comp_results),
+            "totals": {
+                "played": len(comp_results),
+                "pitch_miss": sum(1 for r in comp_results if r.get("pitch_ok") is False) + len(undetected),
+                "rhythm_miss": sum(1 for r in comp_results if r.get("start_ok") is False) + len(undetected),
+            },
+        }
     except Exception as e:  # 計算段階の失敗 → 何も書かない
-        print(f"[loop_engine_runner] WARNING: diagnosis_v217 compute failed: {e}")
+        print(f"[loop_engine_runner] WARNING: collapse compute failed: {e}")
         return
 
     try:
         with conn.cursor() as cur:
-            cur.execute("SAVEPOINT diag_v217")
+            cur.execute("SAVEPOINT diag_collapse")
             save_performance_diagnosis(
                 cur, performance_id, diag, is_practice=is_practice
             )
-            bump_user_subtask_counters(
-                cur, user_internal_id, diag.get("per_subtask") or {}
-            )
-            cur.execute("RELEASE SAVEPOINT diag_v217")
+            cur.execute("RELEASE SAVEPOINT diag_collapse")
         print(
-            f"[loop_engine_runner] diagnosis_v217 saved: "
-            f"map={diag.get('map_available')} "
-            f"pitch={diag['diagnosis']['pitch']} rhythm={diag['diagnosis']['rhythm']}"
+            f"[loop_engine_runner] collapse saved: "
+            f"collapsed={len(diag['collapse'].get('collapsed') or [])} is_clean={diag['collapse'].get('is_clean')}"
         )
     except Exception as e:  # 保存段階の失敗 → SAVEPOINT まで巻き戻して続行
         try:
             with conn.cursor() as cur:
-                cur.execute("ROLLBACK TO SAVEPOINT diag_v217")
+                cur.execute("ROLLBACK TO SAVEPOINT diag_collapse")
         except Exception:
             pass
-        print(f"[loop_engine_runner] WARNING: diagnosis_v217 store failed: {e}")
+        print(f"[loop_engine_runner] WARNING: collapse store failed: {e}")
 
 
 def _run_achievement_v2(
@@ -465,7 +459,7 @@ def run_score_mode() -> None:
         score_key_mode: Optional[str] = row[5]
         user_internal_id: str = row[6]
         # ノート属性ストア (2026-09-05): 演奏の1音ごとの結果を PerformanceNote に写す。
-        # 旧の集計 (diagnosis/UserSkillSubScore) も今までどおり書く (二重書き期間)。
+        # 旧の集計 (per_subtask / UserSkillSubScore) は段5 (2026-09-05) で書くのをやめた。
         # 失敗は握りつぶさず例外で止める (仕様 §11-9)。
         _write_performance_notes(conn, "score", performance_id, comparison_path, "score", score_id)
 

@@ -3,6 +3,8 @@
 // ([[project_growth_woven_experience]] 承認済4案の1つ目・着手順3)
 // prisma 非依存の純関数 (テスト対象)。わざ定義は呼び手が渡す (growthKarte の SKILL_SUB_DEFS)。
 
+import { conditionLabel } from "./conditionName"
+
 export type SubMap = Map<string, { miss: number; target: number }>
 /** priority: 同着のとき大きい方を採用 (わざ系=1 > 基礎系=0。技術マップと同語彙を優先) */
 export type SkillSubDef = { label: string; subIds: string[]; priority?: number }
@@ -23,6 +25,21 @@ export function buildSubMap(summaries: unknown[]): SubMap {
     }
   }
   return map
+}
+
+/**
+ * 基礎系の候補 (2026-09-05 段5): 課題カタログを読まず、渡された合算マップに実際に出ている条件の名前から作る。
+ * 表示名の無い条件 (同じポジションの中・削除済みの順次/弦とばし/全2分4分音符) は候補にしない。priority 0。
+ */
+export function basicGrowthDefs(maps: SubMap[]): SkillSubDef[] {
+  const ids = new Set<string>()
+  for (const m of maps) for (const id of m.keys()) ids.add(id)
+  const out: SkillSubDef[] = []
+  for (const id of [...ids].sort()) {
+    const label = conditionLabel(id)
+    if (label) out.push({ label, subIds: [id], priority: 0 })
+  }
+  return out
 }
 
 const pctOf = (m: SubMap, subIds: string[], minTarget: number): number | null => {

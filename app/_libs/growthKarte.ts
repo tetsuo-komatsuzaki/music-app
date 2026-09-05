@@ -14,7 +14,8 @@ import { featureSubtaskRegex, FEATURE_ID_LABELS, SKILL_ID_LABELS } from "./skill
 import { resolveObsTag } from "./observationCatalog"
 import { expressionLabel } from "./expressionCatalog"
 import { moodTagPhrase } from "./moodTags"
-import type { DiagnosisJson } from "./weaknessRecommendation"
+/** 派生サマリの diagnosis 部 (noteStoreSummary.DerivedSummary と同形) */
+type DiagnosisJson = { map_available?: boolean; per_subtask?: Record<string, { miss: number; target: number }> }
 
 export type KartePeriod = "7d" | "14d" | "30d" | "all"
 

@@ -5,7 +5,8 @@
 // 表記は「項目名=カテゴリ名」のみ。ホームの曲カードと曲詳細ふりかえりで共通利用。
 import { prisma } from "./prisma"
 import { formatKey } from "@/app/_libs/musicNotation"
-import { type RecommendContext } from "./weaknessRecommendation"
+/** 曲の文脈 (④のピン再計算で★を引くのに使う)。旧 weaknessRecommendation.RecommendContext を取り込み (段5) */
+type RecommendContext = { star: number | null; keyTonic: string | null; keyMode: string | null; tempo: number | null; positions: number[] | null }
 import { prismaSource, aggregate, bundleHitsByItem, parseKey, type TabKey, type GroupKey, type DetailRow } from "./noteStore"
 import { movementLabel, positionMoveLabel, techniqueLabel } from "./conditionName"
 

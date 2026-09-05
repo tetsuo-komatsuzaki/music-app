@@ -16,9 +16,8 @@ import "dotenv/config"
 import { prisma } from "../app/_libs/prisma"
 import { derivedSummariesByPerformance, type DerivedSummary } from "../app/_libs/noteStoreSummary"
 import { buildKarteData, buildNumbersRoom, buildRemarkTracking, buildSkillDetail, SKILL_SUB_DEFS } from "../app/_libs/growthKarte"
-import { buildSubMap, computeGrowthLine, growthWindows, type SkillSubDef } from "../app/_libs/growthLine"
+import { buildSubMap, basicGrowthDefs, computeGrowthLine, growthWindows, type SkillSubDef } from "../app/_libs/growthLine"
 import { selectPraise } from "../app/_libs/praiseFeedback"
-import { SUBTASK_CATALOG } from "../app/_libs/subtaskCatalog.generated"
 
 type Stored = {
   diagnosis?: { version?: unknown; map_available?: boolean; per_subtask?: Record<string, { miss: number; target: number }> }
@@ -168,9 +167,9 @@ async function partB() {
 
 async function partC() {
   console.log("\n── C 成長1行・ほめ文言 ・ 直近20演奏 旧サマリ入力 vs 派生サマリ入力 ──")
-  const GROWTH_DEFS: SkillSubDef[] = [
+  const growthDefs = (maps: Map<string, { miss: number; target: number }>[]): SkillSubDef[] => [
     ...SKILL_SUB_DEFS.map((d) => ({ ...d, priority: 1 })),
-    ...SUBTASK_CATALOG.filter((s) => s.v1Active && s.diagnosable).map((s) => ({ label: s.name, subIds: [s.id], priority: 0 })),
+    ...basicGrowthDefs(maps),
   ]
   const perfs = await prisma.performance.findMany({
     where: { scoreNoteVersion: { not: null } }, orderBy: { uploadedAt: "desc" }, take: 20,
@@ -195,8 +194,9 @@ async function partC() {
     const pick = (rows: { id: string }[]): (DerivedSummary | null)[] => rows.map((r) => derived.get(r.id) ?? null)
     const newNow = pick([...nowP, ...nowQ]), newBase = pick([...baseP, ...baseQ])
     const star = (await prisma.userStarProgress.findUnique({ where: { userId: perf.userId }, select: { currentStar: true } }))?.currentStar ?? 1
-    const oldLine = computeGrowthLine(buildSubMap(oldNow), buildSubMap(oldBase), GROWTH_DEFS)
-    const newLine = computeGrowthLine(buildSubMap(newNow), buildSubMap(newBase), GROWTH_DEFS)
+    const oM = [buildSubMap(oldNow), buildSubMap(oldBase)], nM = [buildSubMap(newNow), buildSubMap(newBase)]
+    const oldLine = computeGrowthLine(oM[0], oM[1], growthDefs(oM))
+    const newLine = computeGrowthLine(nM[0], nM[1], growthDefs(nM))
     const oldPraise = selectPraise(oldNow, oldBase, star), newPraise = selectPraise(newNow, newBase, star)
     const l = (x: typeof oldLine) => (x ? `${x.label} ${x.from}→${x.to}` : "なし")
     const p = (x: typeof oldPraise) => (x ? `${x.situation}/${x.item}/${x.value}` : "なし")

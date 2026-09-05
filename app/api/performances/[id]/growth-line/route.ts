@@ -12,17 +12,15 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/app/_libs/prisma"
 import { requireAuthApi } from "@/app/_libs/requireAuth"
 import { SKILL_SUB_DEFS } from "@/app/_libs/growthKarte"
-import { SUBTASK_CATALOG } from "@/app/_libs/subtaskCatalog.generated"
-import { buildSubMap, computeGrowthLine, growthWindows, type SkillSubDef } from "@/app/_libs/growthLine"
+import { buildSubMap, basicGrowthDefs, computeGrowthLine, growthWindows, type SkillSubDef } from "@/app/_libs/growthLine"
 import { selectPraise } from "@/app/_libs/praiseFeedback"
 import { derivedSummariesByPerformance } from "@/app/_libs/noteStoreSummary"
 
-// 成長1行の候補: わざ系 (技術マップと同語彙・優先) + 基礎系 (診断カタログの diagnosable のみ。
-// 「変化なし箱」(diagnosable=false) は診断と同じく文脈扱いで出さない)
-const GROWTH_DEFS: SkillSubDef[] = [
+// 成長1行の候補: わざ系 (技術マップと同語彙・優先) + 基礎系 (派生サマリに出ている条件の名前・表示名のあるものだけ。
+// 「同じポジションの中」は文脈扱いで出さない・段5で課題カタログ廃止)
+const growthDefs = (maps: Map<string, { miss: number; target: number }>[]): SkillSubDef[] => [
   ...SKILL_SUB_DEFS.map((d) => ({ ...d, priority: 1 })),
-  ...SUBTASK_CATALOG.filter((s) => s.v1Active && s.diagnosable)
-    .map((s) => ({ label: s.name, subIds: [s.id], priority: 0 })),
+  ...basicGrowthDefs(maps),
 ]
 
 export async function GET(
@@ -87,7 +85,7 @@ export async function GET(
   const baseSummaries = pick([...basePerfs, ...basePracs])
   const now = buildSubMap(nowSummaries)
   const base = buildSubMap(baseSummaries)
-  const line = computeGrowthLine(now, base, GROWTH_DEFS)
+  const line = computeGrowthLine(now, base, growthDefs([now, base]))
 
   // ほめフィードバック (2026-08-10): 成長1行を置き換える「今日よくできたこと」1件。
   // 苦手突破→伸び→最高 の順で1つ。ランク差はユーザー★で出し分け。

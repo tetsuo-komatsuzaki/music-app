@@ -53,7 +53,6 @@ model User {
 
   // ▼ v3.2.2 上達ループエンジン (Commit 1)
   userSkillScores           UserSkillScore[]
-  userSkillSubScores        UserSkillSubScore[]
   userSkillTaskCards        UserSkillTaskCard[]
   userGrade                 UserGrade?
   performanceSkillFeedbacks PerformanceSkillFeedback[]
@@ -495,7 +494,6 @@ model PracticeItem {
   practiceKartes       PracticeKarte[] // 練習後カルテ (教材にぶら下がる・2026-08-11)
 
   // ▼ おすすめエンジン (2026-09-04): 課題ごとの出現回数
-  subtaskCounts PracticeItemSubtaskCount[]
 
   @@index([category, keyTonic, keyMode])
   @@index([category, isPublished, sortOrder])
@@ -709,22 +707,6 @@ model UserSkillScore {
 
 // 小項目スコア累積 (9 sub task 各 1 行 / user)
 // C1: matchedCount/totalCount/matchRate/averageScore/lastMatchedAt 5 列
-model UserSkillSubScore {
-  id             String    @id @default(cuid())
-  userId         String
-  skillSubTaskId String // 9 sub task の ID (例: "pitch_overall", "string_change_volume")
-  matchedCount   Int       @default(0) // 現行C-5: ミス音数の累計 (旧: matched=true回数)。diagnosis_store.py:8 と一致
-  totalCount     Int       @default(0) // この sub task が判定対象になった回数 (Q5: target_count > 0 のみ)
-  matchRate      Float     @default(0) // ミス率 = matchedCount(=ミス数) / totalCount (課題ランキング・レコメンド用)
-  averageScore   Float? // 該当時のスコア平均
-  lastMatchedAt  DateTime?
-  lastUpdatedAt  DateTime  @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, skillSubTaskId])
-  @@index([userId, matchRate]) // 課題ランキング用
-}
 
 // カード方式の課題管理
 // C3: skillTaskId / skillSubTaskId 別カラム + improvedAt
@@ -1647,21 +1629,6 @@ model UserActionCount {
 /// 不可能なので事前に数えて置く。数え方は lib/diagnosis.py の _context_suffixes を
 /// そのまま使う (ユーザーの演奏を判定するのと同じ関数)。
 /// 投入: music-analyzer/scripts/build_material_subtask_counts.py
-model PracticeItemSubtaskCount {
-  id             String   @id @default(cuid())
-  practiceItemId String
-  subtaskId      String
-  /// この課題が教材の中に出てくる回数
-  count          Int
-  /// 教材の全音符数 (休符を除く)。密度を出したいときに使う
-  noteTotal      Int
-  updatedAt      DateTime @default(now()) @updatedAt
-
-  practiceItem PracticeItem @relation(fields: [practiceItemId], references: [id], onDelete: Cascade)
-
-  @@unique([practiceItemId, subtaskId])
-  @@index([subtaskId, count])
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ノート属性ストア (2026-09-05 Tetsuo確定 ・ 仕様: claude.ai/code/artifact/7a7d2c1f-57b0-4b40-926a-cd88c1d8513a)
