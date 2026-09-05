@@ -8,7 +8,7 @@ import { formatKey } from "@/app/_libs/musicNotation"
 /** 曲の文脈 (④のピン再計算で★を引くのに使う)。旧 weaknessRecommendation.RecommendContext を取り込み (段5) */
 type RecommendContext = { star: number | null; keyTonic: string | null; keyMode: string | null; tempo: number | null; positions: number[] | null }
 import { prismaSource, aggregate, bundleHitsByItem, parseKey, type TabKey, type GroupKey, type DetailRow } from "./noteStore"
-import { movementLabel, positionMoveLabel, techniqueLabel } from "./conditionName"
+import { movementLabel, positionMoveLabel, techniqueLabel, fastSwitchLabel } from "./conditionName"
 
 const MASTER_RECENT = 5
 const MASTER_AVG = 90
@@ -206,11 +206,12 @@ function subtaskToReason(sid: string, category: string): { reason: string; detai
   return { reason: "rec_etude", detail: null }
 }
 
-/** 直近3回の通し演奏の明細を 音程・ポジション移動・わざ で束ね、成功率の低い束を上から並べる (合算 target>=3)。
- *  ④ の候補選びに使う。空なら null (=④を出さない)。 */
+/** 直近3回の通し演奏の明細を 音の移動・ポジション移動・わざ・速い指の切り替え でグループにし、成功率の低い順に並べる (合算 target>=3)。
+ *  種類による優先は無く、成功率だけで並ぶ。④ の候補選びに使う。空なら ④ を出さない。
+ *  (2026-09-05 Tetsuo: 速い指の切り替えを追加) */
 function weakBundles(rows: DetailRow[]): { key: GroupKey; successPct: number; target: number }[] {
   const out: { key: GroupKey; successPct: number; target: number }[] = []
-  for (const tab of ["pitch", "position", "technique"] as TabKey[]) {
+  for (const tab of ["pitch", "position", "technique", "fingering"] as TabKey[]) {
     for (const [key, v] of aggregate(tab, rows).entries()) {
       if (v.target < AGG_MIN_TARGET || v.miss === 0) continue
       out.push({ key, successPct: Math.round((1 - v.miss / v.target) * 100), target: v.target })
@@ -224,6 +225,7 @@ export function bundleName(key: GroupKey): string {
   const { tab, a, b } = parseKey(key)
   if (tab === "technique") return techniqueLabel(a)
   if ((tab as string) === "position") return positionMoveLabel(parseInt(a, 10), parseInt(b, 10))
+  if ((tab as string) === "fingering") return fastSwitchLabel(a, b)
   return movementLabel(a, b)
 }
 
