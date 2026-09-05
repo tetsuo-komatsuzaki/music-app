@@ -1,10 +1,11 @@
 "use client"
 
-// 基礎練の練習前シート (Phase C-basics / 2026-07-18更新): 調・奏法を常時フル表示。
-// グレー(選択不可)の理由を出し分ける (2026-07-20):
-//   - 上位★でのみ存在する奏法 (例: ⭐1音階のスタッカート=⭐2) → 「選択不可(⭐N)」
-//   - そもそも教材が無い → 「準備中」(教材が増えれば自動で有効化)
-import { useState } from "react"
+// 基礎練の練習前シート (Phase C-basics / 2026-07-18更新)。
+// 選択肢の出し分け (2026-09-05 Tetsuo確定: 準備中は非表示):
+//   - 上位★でのみ存在する奏法/調 (例: ⭐1音階のスタッカート=⭐2) → グレーで「⭐Nで解放」
+//   - そもそも教材が無い (準備中) → 出さない。教材が増えれば自動で現れる
+//   ※ 曲の練習前シート (pieces/PrePracticeSheet) は別: これから作る奏法を「準備中」で見せる方針のまま
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import styles from "../pieces/prePractice.module.css"
 import { ARTICULATIONS } from "@/app/_libs/materialVariant"
@@ -130,6 +131,20 @@ export default function BasicsPreSheet({
       (axes ?? []).every((_, k) => k === i || axVal(v, k) === (axisSel[k] ?? "")),
     )
   const startAxis = () => { if (axisVariant) router.push(`/${userId}/practice/${category}/${axisVariant.id}`) }
+  // 他の軸を変えて、いま選んでいる値の組み合わせが無くなったら、実在する最初の値へ寄せる (準備中を隠したぶんの補い)
+  useEffect(() => {
+    if (!axes) return
+    setAxisSel((prev) => {
+      let next = prev
+      for (let i = 0; i < axes.length; i++) {
+        if (axisHas(i, next[i] ?? "")) continue
+        const first = axes[i].values.find((val) => axisHas(i, val))
+        if (first) next = next.map((v, k) => (k === i ? first : v))
+      }
+      return next === prev ? prev : next
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [axisSel.join(" ")])
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -173,9 +188,10 @@ export default function BasicsPreSheet({
                   value={axisSel[i] ?? ""}
                   onChange={(e) => setAxisSel((prev) => prev.map((v, k) => (k === i ? e.target.value : v)))}
                 >
-                  {ax.values.map((val) => (
+                  {/* 準備中 (この組み合わせの教材が無い) は出さない。いま選んでいる値だけは残す (空欄にしない) */}
+                  {ax.values.filter((val) => axisHas(i, val) || val === axisSel[i]).map((val) => (
                     <option key={val} value={val} disabled={!axisHas(i, val)}>
-                      {val}{axisHas(i, val) ? "" : " ・ 準備中"}
+                      {val}
                     </option>
                   ))}
                 </select>
@@ -199,9 +215,10 @@ export default function BasicsPreSheet({
             const avail = availKeys.has(cek)
             const v = selVariants.find((x) => vkey(x) === cek)
             const lock = avail ? null : lockKeyStar(tonic, mode)
+            if (!avail && lock == null) return null // 準備中 (教材そのものが無い) は出さない
             const suffix = avail
               ? (v?.bestScore != null ? ` ・ ベスト ${v.bestScore}` : "")
-              : lock != null ? ` ・ ⭐${lock}で解放` : " ・ 準備中"
+              : ` ・ ⭐${lock}で解放`
             return (
               <option key={cek} value={cek} disabled={!avail}>
                 {keyLabel(tonic, mode)}{suffix}
@@ -220,7 +237,8 @@ export default function BasicsPreSheet({
           {ART_LADDER.map((a) => {
             const avail = availArts.has(a.id)
             const lock = avail ? null : lockStar(a.id)
-            const suffix = avail ? "" : lock != null ? ` ・ ⭐${lock}で解放` : " ・ 準備中"
+            if (!avail && lock == null) return null // 準備中 (教材そのものが無い) は出さない
+            const suffix = avail ? "" : ` ・ ⭐${lock}で解放`
             return (
               <option key={a.id} value={a.id} disabled={!avail}>
                 {a.label}{suffix}
