@@ -3,7 +3,8 @@
 // Score 詳細「上達ループ」タブの中身 (C-6b 2026-07-11 全面新体系化)。
 // GET /api/scores/[scoreId]/achievement-status 一本で:
 //   1. 達成/マスター進捗トラッカー (レッスン/エチュード/通し3回/平均90)
-//   2. 「取り組む課題」= 最新演奏の217診断 + 弱点練習の推薦 (WeaknessDiagnosisCard)
+//   2. 「学びのポイント」= 毎日の基礎練 (DailyLessons)。演奏直後の診断カードは 2026-09-03 に削除、
+//      2026-09-05 Tetsuo 決定で復活させず API とカードも撤去 (生徒向けは基礎練④に一本化)
 // 旧 loop-detail API (SkillTaskCard/旧SongMastery) 依存は撤去 (git 7520842 以前参照)。
 
 "use client"
@@ -11,7 +12,6 @@
 import { useEffect, useState } from "react"
 import styles from "./ScoreLoopDetail.module.css"
 import ds from "./ds.module.css"
-import WeaknessDiagnosisCard from "./WeaknessDiagnosisCard"
 import { type AchievementStatus } from "./GoalTracker"
 import DailyLessons from "./DailyLessons"
 

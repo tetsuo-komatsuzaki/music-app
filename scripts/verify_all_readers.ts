@@ -10,7 +10,7 @@ import { writeFileSync } from "node:fs"
 import { prisma } from "../app/_libs/prisma"
 import { buildPersonalReco } from "../app/_libs/personalReco"
 import { getDailyLessonsForUserScore } from "../app/_libs/dailyLessons"
-import { buildDiagnosisView, weakSlotsByPerformance } from "../app/_libs/diagnosisPresentation"
+import { weakSlotsByPerformance } from "../app/_libs/diagnosisPresentation"
 import { derivedSummariesByPerformance } from "../app/_libs/noteStoreSummary"
 import { buildSubMap, computeGrowthLine, growthWindows } from "../app/_libs/growthLine"
 import { selectPraise } from "../app/_libs/praiseFeedback"
@@ -45,7 +45,6 @@ async function main() {
     const user = await prisma.user.findUnique({ where: { id: userId }, select: { supabaseUserId: true } })
     const sb = user?.supabaseUserId ?? ""
     const latestScore = await prisma.performance.findFirst({ where: { userId, scoreNoteVersion: { not: null } }, orderBy: { uploadedAt: "desc" }, select: { id: true, scoreId: true, uploadedAt: true, score: { select: { star: true, title: true } } } })
-    const latestPrac = await prisma.practicePerformance.findFirst({ where: { userId, scoreNoteVersion: { not: null } }, orderBy: { uploadedAt: "desc" }, select: { id: true, practiceItemId: true, practiceItem: { select: { star: true, title: true } } } })
 
     await run(short, "ホーム4タブ", async () => {
       const r = await buildPersonalReco(userId)
@@ -55,16 +54,6 @@ async function main() {
       if (!latestScore) return "曲の演奏なし"
       const l = await getDailyLessonsForUserScore(userId, latestScore.scoreId)
       return `${latestScore.score.title.slice(0, 10)}: ${l.map((x) => `${x.slot}=${x.reason}`).join(" ")}`
-    })
-    await run(short, "演奏直後の診断 (曲)", async () => {
-      if (!latestScore) return "曲の演奏なし"
-      const v = await buildDiagnosisView({ kind: "score", performanceId: latestScore.id, userId, targetId: latestScore.scoreId, star: latestScore.score.star })
-      return `${v.verdict} ・ スロット${v.slots.length} ${v.slots.map((s) => s.subtaskName).join("/")}`
-    })
-    await run(short, "演奏直後の診断 (教材)", async () => {
-      if (!latestPrac) return "教材の演奏なし"
-      const v = await buildDiagnosisView({ kind: "practice", performanceId: latestPrac.id, userId, targetId: latestPrac.practiceItemId, star: latestPrac.practiceItem.star })
-      return `${v.verdict} ・ スロット${v.slots.length}`
     })
     await run(short, "成長1行 ・ ほめる文言", async () => {
       if (!latestScore) return "曲の演奏なし"
