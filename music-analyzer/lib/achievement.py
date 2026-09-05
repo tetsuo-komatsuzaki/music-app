@@ -556,3 +556,64 @@ def recompute_practice_mastery(
         ),
     )
     return newly
+
+
+# ───────────────── 教材グループのコンプリート (2026-09-05 Tetsuo確定) ─────────────────
+# 調ごとのグループ (音階・エチュード) で、公開されている 奏法バリエーション を全部クリアしたら
+# kind="articulation"、リズムバリエーション を全部クリアしたら kind="rhythm" の1行を
+# UserPracticeGroupComplete に入れる。取り消さない (原則2)。ギャラリーのコインとクエストの材料。
+# バリエーションが1つしか無いグループは「全部」の意味が薄いので対象外 (GROUP_COMPLETE_MIN_VARIANTS・仮値)。
+GROUP_COMPLETE_MIN_VARIANTS = 2
+
+
+def group_complete_kinds(variants: List[dict], mastered_ids: set) -> List[dict]:
+    """純粋な判定。variants = [{id, articulation, has_rhythm}] (公開・通し・パートなし)。
+    戻り値 = [{kind, count}] (コンプリートしている種類)。"""
+    art = [v for v in variants if not v.get("has_rhythm") and v.get("articulation")]
+    rhy = [v for v in variants if v.get("has_rhythm")]
+    out: List[dict] = []
+    for kind, vs in (("articulation", art), ("rhythm", rhy)):
+        if len(vs) >= GROUP_COMPLETE_MIN_VARIANTS and all(v["id"] in mastered_ids for v in vs):
+            out.append({"kind": kind, "count": len(vs)})
+    return out
+
+
+def award_group_completion(cur, user_id: str, practice_item_id: str) -> List[dict]:
+    """その教材のグループについてコンプリートを判定し、新たに到達した種類を保存して返す。
+    Returns: [{kind, groupId, count}] 今回新規に入ったもの (既に入っていれば空)。"""
+    cur.execute('SELECT "groupId" FROM "PracticeItem" WHERE id = %s', (practice_item_id,))
+    row = cur.fetchone()
+    if not row or not row[0]:
+        return []
+    group_id = row[0]
+    cur.execute(
+        '''
+        SELECT id, articulation, ("rhythmRecipe" IS NOT NULL) FROM "PracticeItem"
+        WHERE "groupId" = %s AND "isPublished" = true AND "ownerUserId" IS NULL
+          AND "partId" IS NULL AND "analysisStatus" = 'done'
+        ''',
+        (group_id,),
+    )
+    variants = [{"id": r[0], "articulation": r[1], "has_rhythm": bool(r[2])} for r in cur.fetchall()]
+    if not variants:
+        return []
+    cur.execute(
+        'SELECT "practiceItemId" FROM "UserPracticeMastery" WHERE "userId" = %s AND "isPerformanceMastered" = true '
+        'AND "practiceItemId" = ANY(%s)',
+        (user_id, [v["id"] for v in variants]),
+    )
+    mastered = {r[0] for r in cur.fetchall()}
+    newly: List[dict] = []
+    for c in group_complete_kinds(variants, mastered):
+        cur.execute(
+            '''
+            INSERT INTO "UserPracticeGroupComplete" (id, "userId", "groupId", kind, "variantCount", "completedAt")
+            VALUES (%s, %s, %s, %s, %s, NOW())
+            ON CONFLICT ("userId", "groupId", kind) DO NOTHING
+            RETURNING id
+            ''',
+            (str(uuid.uuid4()), user_id, group_id, c["kind"], c["count"]),
+        )
+        if cur.fetchone():
+            newly.append({"kind": c["kind"], "groupId": group_id, "count": c["count"]})
+    return newly

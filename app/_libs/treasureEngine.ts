@@ -342,6 +342,13 @@ async function collectMetrics(userId: string, needed: Set<CounterMetric>, needed
       m.etude_distinct = new Set(rows.filter((r) => r.practiceItem.category === "etude").map((r) => r.practiceItemId)).size
     }))
   }
+  if (needed.has("art_complete") || needed.has("rhythm_complete")) {
+    jobs.push(prisma.userPracticeGroupComplete.groupBy({ by: ["kind"], where: { userId }, _count: { _all: true } })
+      .then((rows) => {
+        m.art_complete = rows.find((r) => r.kind === "articulation")?._count._all ?? 0
+        m.rhythm_complete = rows.find((r) => r.kind === "rhythm")?._count._all ?? 0
+      }))
+  }
   if (neededActions.size > 0) {
     jobs.push(prisma.userActionCount.findMany({
       where: { userId, action: { in: [...neededActions] } },
@@ -533,11 +540,12 @@ export async function getTreasureQueue(userId: string): Promise<TreasureQueueRow
 
 /** ギャラリー3棚の表示データ (2026-08-31 本結線)。lit時のみホームで呼ぶ */
 export type GalleryData = {
-  coins: { scoreId: string; title: string; star: number; mastered: boolean }[]
+  /** 達成コイン。曲 (kind=song) と、教材グループのコンプリート (kind=articulation / rhythm・2026-09-05 Tetsuo確定) */
+  coins: { scoreId: string; title: string; star: number; mastered: boolean; kind?: "song" | "articulation" | "rhythm" }[]
   treasures: { kind: string; sourceId: string; catalogNo: number | null; earnedAt: string; label?: string }[]
 }
 export async function getGalleryData(userId: string): Promise<GalleryData> {
-  const [achievements, treasures] = await Promise.all([
+  const [achievements, treasures, groupCompletes] = await Promise.all([
     prisma.userScoreAchievement.findMany({
       where: { userId },
       orderBy: { achievedAt: "asc" },
@@ -548,17 +556,33 @@ export async function getGalleryData(userId: string): Promise<GalleryData> {
       orderBy: { earnedAt: "asc" },
       select: { kind: true, sourceType: true, sourceId: true, catalogNo: true, earnedAt: true },
     }),
+    prisma.userPracticeGroupComplete.findMany({
+      where: { userId },
+      orderBy: { completedAt: "asc" },
+      select: { groupId: true, kind: true, completedAt: true, group: { select: { title: true, practiceItems: { where: { isPublished: true }, select: { star: true } } } } },
+    }),
   ])
 
   // マスター証明書 (sourceId=scoreId) の券面に曲名を引く
   const titleByScore = new Map(achievements.map((a) => [a.scoreId, a.score.title]))
   return {
-    coins: achievements.map((a) => ({
-      scoreId: a.scoreId,
-      title: a.score.title,
-      star: a.starAtAchievement,
-      mastered: a.masteredAt != null,
-    })),
+    coins: [
+      ...achievements.map((a) => ({
+        scoreId: a.scoreId,
+        title: a.score.title,
+        star: a.starAtAchievement,
+        mastered: a.masteredAt != null,
+        kind: "song" as const,
+      })),
+      // 教材グループのコンプリート: 曲の達成コインと同じ棚に、グループ名 + 奏法/リズム コンプリート として並ぶ
+      ...groupCompletes.map((g) => ({
+        scoreId: `${g.groupId}:${g.kind}`,
+        title: `${g.group.title} ・ ${g.kind === "rhythm" ? "リズム" : "奏法"}コンプリート`,
+        star: Math.max(1, ...g.group.practiceItems.map((i) => i.star ?? 1)),
+        mastered: false,
+        kind: g.kind as "articulation" | "rhythm",
+      })),
+    ],
     treasures: treasures.map((t) => {
       let label: string | undefined
       if (t.kind === "cert" && t.sourceType === "master") label = titleByScore.get(t.sourceId)

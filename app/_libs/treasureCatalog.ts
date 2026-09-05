@@ -61,6 +61,8 @@ export type CounterMetric =
   | "nintei_count"      // 認定証の枚数 (kind cert + sourceType quest)
   | "cards_all"         // カード全制覇 (閾値は動的=カード格クエスト数-1・自分の分を除く)
   | "action"            // UserActionCount の action 累計 (payload.action)
+  | "art_complete"      // 教材グループの奏法コンプリート数 (2026-09-05 Tetsuo確定・調ごと・奏法バリエーション全クリア)
+  | "rhythm_complete"   // 教材グループのリズムコンプリート数 (リズムバリエーション全クリア)
 
 export type QuestDef = {
   /** カタログ固定番号 (全体通し・再利用禁止) */
@@ -139,6 +141,11 @@ export const QUESTS: QuestDef[] = [
   { no: 106, questId: "basics_250", title: "基礎練250回", sub: "鋼の土台", category: "つみかさねの道", type: "counter", grade: "cert", counter: { metric: "practice_runs", threshold: 250 } },
   { no: 107, questId: "lessons_15", title: "学びのレッスン15", sub: "わざの図鑑ができていく", category: "つみかさねの道", type: "counter", counter: { metric: "lessons_cleared", threshold: 15 } },
   { no: 108, questId: "scale_10", title: "音階を10回", sub: "音づくりの習慣", category: "つみかさねの道", type: "counter", counter: { metric: "scale_runs", threshold: 10 } },
+  // 教材グループのコンプリート (2026-09-05 Tetsuo確定): 調ごとに 奏法 / リズム のバリエーションを全部クリア
+  { no: 150, questId: "art_complete_1", title: "奏法コンプリート", sub: "ひとつの教材で全奏法クリア", category: "つみかさねの道", type: "counter", counter: { metric: "art_complete", threshold: 1 } },
+  { no: 151, questId: "art_complete_5", title: "奏法コンプリート5", sub: "5つの教材で全奏法クリア", category: "つみかさねの道", type: "counter", counter: { metric: "art_complete", threshold: 5 } },
+  { no: 152, questId: "rhythm_complete_1", title: "リズムコンプリート", sub: "ひとつの教材で全リズム", category: "つみかさねの道", type: "counter", counter: { metric: "rhythm_complete", threshold: 1 } },
+  { no: 153, questId: "rhythm_complete_5", title: "リズムコンプリート5", sub: "5つの教材で全リズム", category: "つみかさねの道", type: "counter", counter: { metric: "rhythm_complete", threshold: 5 } },
   { no: 109, questId: "arpeggio_10", title: "アルペジオを10回", sub: "和音の足腰", category: "つみかさねの道", type: "counter", counter: { metric: "arpeggio_runs", threshold: 10 } },
   { no: 110, questId: "etude_10", title: "エチュードを10回", sub: "磨きの積み重ね", category: "つみかさねの道", type: "counter", counter: { metric: "etude_runs", threshold: 10 } },
   { no: 111, questId: "day_rec5", title: "1日に5回録音", sub: "集中練習の日", category: "つみかさねの道", type: "counter", counter: { metric: "day_rec5", threshold: 1 } },

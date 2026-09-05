@@ -99,6 +99,7 @@ model User {
   observationsAsStudent   TeacherObservation[]  @relation("obsStudent")
   materialNotesAsTeacher  TeacherMaterialNote[] @relation("matNoteTeacher")
   materialNotesAsStudent  TeacherMaterialNote[] @relation("matNoteStudent")
+  practiceGroupCompletes  UserPracticeGroupComplete[]
   practiceKartesAsTeacher PracticeKarte[]       @relation("pkTeacher")
   practiceKartesAsStudent PracticeKarte[]       @relation("pkStudent")
   markedCellsAsTeacher    TeacherMarkedCell[]   @relation("mcTeacher")
@@ -391,10 +392,29 @@ model MaterialGroup {
   axes           Json?
   scores         Score[]
   practiceItems  PracticeItem[]
+  completes      UserPracticeGroupComplete[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
   @@index([kind, category])
+}
+
+/// 教材グループの「コンプリート」(2026-09-05 Tetsuo確定)。調ごとのグループ (音階・エチュード) で、
+/// 公開されている 奏法バリエーション (kind=articulation) または リズムバリエーション (kind=rhythm) を
+/// 全部クリア (直近5回平均90) したときに1行。取り消さない (原則2)。ギャラリーのコインとクエストの材料。
+model UserPracticeGroupComplete {
+  id           String   @id @default(cuid())
+  userId       String
+  groupId      String
+  kind         String // "articulation" | "rhythm"
+  variantCount Int // 達成時点の対象バリエーション数
+  completedAt  DateTime @default(now())
+
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group MaterialGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId, kind])
+  @@index([userId, completedAt])
 }
 
 model PracticeItem {

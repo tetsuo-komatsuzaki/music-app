@@ -22,7 +22,7 @@ import { ScrollFace, TreasureFaceStyles } from "./TreasureFaces"
 import RankEmblem from "@/app/components/RankEmblem"
 import { rankName } from "@/app/_libs/rankCard"
 
-export type GalleryCoin = { scoreId: string; title: string; star: number; mastered: boolean }
+export type GalleryCoin = { scoreId: string; title: string; star: number; mastered: boolean; kind?: "song" | "articulation" | "rhythm" }
 export type GalleryTreasure = {
   kind: string // card / medal / cert / title / master_card
   sourceId: string

@@ -315,6 +315,7 @@ def _run_celebration_v2(
     """
     try:
         from lib.achievement import (
+            award_group_completion,
             derive_score_milestone_events,
             recompute_practice_mastery,
         )
@@ -338,6 +339,21 @@ def _run_celebration_v2(
                     "type": "material_clear", "tier": "medium",
                     "subject": {"kind": "material", "id": practice_item_id},
                 })
+            # 教材グループのコンプリート (2026-09-05 Tetsuo確定): 奏法 / リズム のバリエーション全クリア
+            try:
+                with conn.cursor() as cur:
+                    cur.execute("SAVEPOINT group_complete")
+                    done_kinds = award_group_completion(cur, user_id, practice_item_id)
+                    cur.execute("RELEASE SAVEPOINT group_complete")
+                if done_kinds:
+                    print(f"[loop_engine_runner] group complete: {done_kinds}")
+            except Exception as e:
+                try:
+                    with conn.cursor() as cur:
+                        cur.execute("ROLLBACK TO SAVEPOINT group_complete")
+                except Exception:
+                    pass
+                print(f"[loop_engine_runner] WARNING: group_complete failed: perf={performance_id} {e}")
         except Exception as e:
             try:
                 with conn.cursor() as cur:
