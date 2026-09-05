@@ -55,6 +55,10 @@ export type DetailRow = {
   startOk: boolean | null
   evaluationStatus: string
   expectedStartSec: number | null
+  /** comparison の音名 (旧 noteStats と同じ表記) ・ 音程のずれ ・ 期待周波数。成長カルテの派生サマリが使う */
+  noteName?: string | null
+  pitchCentsError?: number | null
+  expectedPitchHz?: number | null
   cur: ProfileRow
   prev: ProfileRow | null
 }
@@ -232,6 +236,7 @@ async function selectPerformances(unit: Unit): Promise<{ kind: "score" | "practi
 type RawDetail = {
   performanceId: string; noteIndex: number; pitchOk: boolean | null; startOk: boolean | null
   evaluationStatus: string; expectedStartSec: number | null; profileId: number; prevProfileId: number | null
+  noteName: string | null; pitchCentsError: number | null; expectedPitchHz: number | null
 }
 
 /** 明細 → 並び (かたちの番号だけ)。かたちの中身は別に1回で引く (行ごとの副問い合わせは重い) */
@@ -242,6 +247,7 @@ async function fetchDetailFor(kind: "score" | "practice", perfs: { id: string; t
   const targetCol = kind === "score" ? Prisma.raw('"scoreId"') : Prisma.raw('"practiceItemId"')
   return prisma.$queryRaw<RawDetail[]>(Prisma.sql`
     SELECT pn."performanceId", pn."noteIndex", pn."pitchOk", pn."startOk", pn."evaluationStatus", pn."expectedStartSec",
+           pn."noteName", pn."pitchCentsError", pn."expectedPitchHz",
            sn."profileId", sn."prevProfileId"
     FROM "PerformanceNote" pn
     JOIN ${perfTable} x ON x.id = pn."performanceId"
@@ -296,6 +302,7 @@ export const prismaSource: NoteStoreSource = {
       out.push({
         performanceId: r.performanceId, noteIndex: r.noteIndex, pitchOk: r.pitchOk, startOk: r.startOk,
         evaluationStatus: r.evaluationStatus, expectedStartSec: r.expectedStartSec,
+        noteName: r.noteName, pitchCentsError: r.pitchCentsError, expectedPitchHz: r.expectedPitchHz,
         cur, prev: r.prevProfileId !== null ? profiles.get(r.prevProfileId) ?? null : null,
       })
     }

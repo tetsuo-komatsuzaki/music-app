@@ -1,13 +1,14 @@
 // 成長カルテの集計 (MVP・2026-08-02)。
 // 演奏記録を「意味のある知見」に変換する: 実態(量と内訳) / 安定マップ / 所見(相関) / 物語。
-// すべて既存データ (Performance/PracticePerformance の analysisSummary.diagnosis
-// per_subtask {miss,target}・達成/提出/添削/所見) から生成。新テーブル不要。
+// 2026-09-05 ノート属性ストア段4-3: per_subtask / noteStats は保存された集計ではなく、演奏の明細
+// (PerformanceNote → ScoreNote → NoteProfile) からその場で作った派生サマリ (noteStoreSummary) を読む。
+// 読み手の規則 (合算・足切り・表示) は変えていない。
 import { prisma } from "./prisma"
 import { storageAdmin } from "./storageAdmin"
 import { encodeSignedUrl } from "./encodeSignedUrl"
 import { formatKey } from "./musicNotation"
 import { categoryLabel } from "./practiceConstants"
-import { SUBTASK_BY_ID } from "./subtaskCatalog.generated"
+import { derivedSummariesByPerformance, withDerived } from "./noteStoreSummary"
 import { featureSubtaskRegex, FEATURE_ID_LABELS, SKILL_ID_LABELS } from "./skillCatalog"
 import { resolveObsTag } from "./observationCatalog"
 import { expressionLabel } from "./expressionCatalog"
@@ -290,12 +291,12 @@ function periodSince(period: KartePeriod): Date {
 export async function buildKarteData(userId: string, supabaseUserId: string, period: KartePeriod): Promise<KarteData> {
   const since = periodSince(period)
 
-  const [perfs, pracs, allPerfDates, allPracDates, achievements] = await Promise.all([
+  const [perfsRaw, pracsRaw, allPerfDates, allPracDates, achievements] = await Promise.all([
     prisma.performance.findMany({
       where: { userId, uploadedAt: { gte: since } },
       orderBy: { uploadedAt: "asc" },
       select: {
-        uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, analysisSummary: true,
+        id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true,
         score: { select: { keyTonic: true, keyMode: true } },
       },
     }),
@@ -303,7 +304,7 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
       where: { userId, uploadedAt: { gte: since } },
       orderBy: { uploadedAt: "asc" },
       select: {
-        uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, analysisSummary: true,
+        id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true,
         practiceItem: { select: { category: true, keyTonic: true, keyMode: true } },
       },
     }),
@@ -323,18 +324,22 @@ export async function buildKarteData(userId: string, supabaseUserId: string, per
   const [recent14perf, recent14prac, basicsWeekRows] = await Promise.all([
     prisma.performance.findMany({
       where: { userId, uploadedAt: { gte: twoWeeksAgo } },
-      select: { uploadedAt: true, analysisSummary: true },
+      select: { id: true, uploadedAt: true },
     }),
     prisma.practicePerformance.findMany({
       where: { userId, uploadedAt: { gte: twoWeeksAgo } },
-      select: { uploadedAt: true, analysisSummary: true },
+      select: { id: true, uploadedAt: true },
     }),
     prisma.userPracticeAchievement.findMany({
       where: { userId, achievedAt: { gte: weekAgo } },
       select: { achievedAt: true },
     }),
   ])
-  const recent14 = [...recent14perf, ...recent14prac]
+  // 派生サマリ (明細から)。期間の行と直近14日の行を一度に引く (Performance の絞りは createdAt なので1日の余裕)
+  const derived = await derivedSummariesByPerformance({ userId, since: new Date(Math.min(since.getTime(), twoWeeksAgo.getTime()) - 864e5) })
+  const perfs = withDerived(perfsRaw, derived)
+  const pracs = withDerived(pracsRaw, derived)
+  const recent14 = [...withDerived(recent14perf, derived), ...withDerived(recent14prac, derived)]
   const week0Rows = recent14.filter((r) => r.uploadedAt >= weekAgo)
   const week1Rows = recent14.filter((r) => r.uploadedAt < weekAgo)
   const subWeek0 = subMapOf(week0Rows)
@@ -1084,22 +1089,25 @@ export async function buildNumbersRoom(
   userId: string, period: KartePeriod,
 ): Promise<NumbersRoomData> {
   const since = periodSince(period)
-  const [perfs, pracs] = await Promise.all([
+  const [perfsRaw, pracsRaw] = await Promise.all([
     prisma.performance.findMany({
       where: { userId, uploadedAt: { gte: since } },
       select: {
-        uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, analysisSummary: true,
+        id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true,
         score: { select: { keyTonic: true, keyMode: true, defaultTempo: true } },
       },
     }),
     prisma.practicePerformance.findMany({
       where: { userId, uploadedAt: { gte: since } },
       select: {
-        uploadedAt: true, pitchAccuracy: true, timingAccuracy: true, analysisSummary: true,
+        id: true, uploadedAt: true, pitchAccuracy: true, timingAccuracy: true,
         practiceItem: { select: { keyTonic: true, keyMode: true, articulation: true } },
       },
     }),
   ])
+  const derivedNr = await derivedSummariesByPerformance({ userId, since: new Date(since.getTime() - 864e5) })
+  const perfs = withDerived(perfsRaw, derivedNr)
+  const pracs = withDerived(pracsRaw, derivedNr)
   const rows = [...perfs.map((p) => ({ ...p, key: p.score, tempo: p.score?.defaultTempo ?? null })),
     ...pracs.map((p) => ({ ...p, key: p.practiceItem, tempo: null as number | null }))]
 
@@ -1356,11 +1364,12 @@ export async function buildRemarkTracking(userId: string): Promise<RemarkTrack[]
   })
   if (obs.length === 0) return []
   const since = new Date(Date.now() - 60 * 864e5)
-  const [perfs, pracs] = await Promise.all([
-    prisma.performance.findMany({ where: { userId, uploadedAt: { gte: since } }, select: { uploadedAt: true, analysisSummary: true } }),
-    prisma.practicePerformance.findMany({ where: { userId, uploadedAt: { gte: since } }, select: { uploadedAt: true, analysisSummary: true } }),
+  const [perfs, pracs, derived] = await Promise.all([
+    prisma.performance.findMany({ where: { userId, uploadedAt: { gte: since } }, select: { id: true, uploadedAt: true } }),
+    prisma.practicePerformance.findMany({ where: { userId, uploadedAt: { gte: since } }, select: { id: true, uploadedAt: true } }),
+    derivedSummariesByPerformance({ userId, since: new Date(since.getTime() - 864e5) }),
   ])
-  const allPerfs = [...perfs, ...pracs]
+  const allPerfs = [...withDerived(perfs, derived), ...withDerived(pracs, derived)]
   const successIn = (subIds: Set<string>, from: Date, to: Date): { pct: number | null; target: number } => {
     let miss = 0, target = 0
     for (const p of allPerfs) {
@@ -1376,7 +1385,8 @@ export async function buildRemarkTracking(userId: string): Promise<RemarkTrack[]
   const out: RemarkTrack[] = []
   // 2026-08-11 Tetsuo確定: 自動マッピング廃止。先生が明示した skillIds のみトラッキング
   // feat系 (曲の特徴・細目) と position/double 全般は正規表現→全サブタスクID照合で解決 (2026-08-11)
-  const allSubIds = Object.keys(SUBTASK_BY_ID)
+  // feat系の正規表現は、この生徒の明細に実際に出た条件の名前に当てる (課題カタログは読まない)
+  const allSubIds = [...new Set(allPerfs.flatMap((p) => Object.keys(p.analysisSummary?.diagnosis.per_subtask ?? {})))]
   const subIdsFor = (skillId: string): { subIds: Set<string>; label: string; practiceLabel: string | null } | null => {
     const skill = SKILL_DEFS.find((d) => d.id === skillId)
     if (skill && skill.subIds.length > 0) return { subIds: new Set(skill.subIds), label: skill.label, practiceLabel: skill.label }
@@ -1428,16 +1438,16 @@ export async function buildSkillDetail(
     select: { teacherId: true },
   })
 
-  const [perfs, pracs, clears, acqs, starRow, obsRows] = await Promise.all([
+  const [perfsRaw, pracsRaw, clears, acqs, starRow, obsRows, derivedAll] = await Promise.all([
     prisma.performance.findMany({
       where: { userId },
       orderBy: { uploadedAt: "asc" },
-      select: { uploadedAt: true, analysisSummary: true, audioPath: true, score: { select: { title: true } } },
+      select: { id: true, uploadedAt: true, audioPath: true, score: { select: { title: true } } },
     }),
     prisma.practicePerformance.findMany({
       where: { userId },
       orderBy: { uploadedAt: "asc" },
-      select: { uploadedAt: true, analysisSummary: true, audioPath: true, practiceItem: { select: { title: true } } },
+      select: { id: true, uploadedAt: true, audioPath: true, practiceItem: { select: { title: true } } },
     }),
     prisma.userLessonClear.findMany({ where: { userId }, select: { tagType: true, tagKey: true, clearedAt: true } }),
     prisma.userTagAcquisition.findMany({ where: { userId, state: { not: "REVOKED" } }, select: { tagType: true, tagKey: true } }),
@@ -1448,8 +1458,11 @@ export async function buildSkillDetail(
       take: 50,
       select: { createdAt: true, tagIds: true, skillIds: true, severity: true, comment: true },
     }) : Promise.resolve([] as { createdAt: Date; tagIds: string[]; skillIds: string[]; severity: string | null; comment: string | null }[]),
+    derivedSummariesByPerformance({ userId }),
   ])
 
+  const perfs = withDerived(perfsRaw, derivedAll)
+  const pracs = withDerived(pracsRaw, derivedAll)
   // この技術の per_subtask 集計対象か
   const posRe = /^(?:pitch|rhythm)_posshift_([0-9a-z]+)_([0-9a-z]+)$/
   const inScope = (sid: string): boolean => {

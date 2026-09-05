@@ -15,6 +15,7 @@ import { SKILL_SUB_DEFS } from "@/app/_libs/growthKarte"
 import { SUBTASK_CATALOG } from "@/app/_libs/subtaskCatalog.generated"
 import { buildSubMap, computeGrowthLine, growthWindows, type SkillSubDef } from "@/app/_libs/growthLine"
 import { selectPraise } from "@/app/_libs/praiseFeedback"
+import { derivedSummariesByPerformance } from "@/app/_libs/noteStoreSummary"
 
 // 成長1行の候補: わざ系 (技術マップと同語彙・優先) + 基礎系 (診断カタログの diagnosable のみ。
 // 「変化なし箱」(diagnosable=false) は診断と同じく文脈扱いで出さない)
@@ -36,7 +37,7 @@ export async function GET(
 
   const perf = await prisma.performance.findUnique({
     where: { id: performanceId },
-    select: { id: true, userId: true, uploadedAt: true, analysisSummary: true },
+    select: { id: true, userId: true, uploadedAt: true },
   })
   if (!perf || perf.userId !== dbUserId) {
     return NextResponse.json({ error: "Not found" }, { status: 404 })
@@ -59,26 +60,31 @@ export async function GET(
   const [nowPerfs, nowPracs, basePerfs, basePracs] = await Promise.all([
     prisma.performance.findMany({
       where: { userId: dbUserId, uploadedAt: { gte: nowFrom, lte: perf.uploadedAt } },
-      select: { analysisSummary: true },
+      select: { id: true },
     }),
     prisma.practicePerformance.findMany({
       where: { userId: dbUserId, uploadedAt: { gte: nowFrom, lte: perf.uploadedAt } },
-      select: { analysisSummary: true },
+      select: { id: true },
     }),
     prisma.performance.findMany({
       where: { userId: dbUserId, uploadedAt: { gte: baseFrom, lt: baseTo } },
-      select: { analysisSummary: true },
+      select: { id: true },
     }),
     prisma.practicePerformance.findMany({
       where: { userId: dbUserId, uploadedAt: { gte: baseFrom, lt: baseTo } },
-      select: { analysisSummary: true },
+      select: { id: true },
     }),
   ])
 
-  const nowSummaries = single
-    ? [perf.analysisSummary]
-    : [...nowPerfs, ...nowPracs].map((r) => r.analysisSummary)
-  const baseSummaries = [...basePerfs, ...basePracs].map((r) => r.analysisSummary)
+  // 2026-09-05 ノート属性ストア: 保存された集計ではなく、明細から作った派生サマリを窓ごとに集める
+  const derived = await derivedSummariesByPerformance({
+    userId: dbUserId,
+    since: new Date(Math.min(nowFrom.getTime(), baseFrom.getTime()) - 864e5),
+    until: new Date(perf.uploadedAt.getTime() + 864e5),
+  })
+  const pick = (rows: { id: string }[]) => rows.map((r) => derived.get(r.id) ?? null)
+  const nowSummaries = single ? [derived.get(perf.id) ?? null] : pick([...nowPerfs, ...nowPracs])
+  const baseSummaries = pick([...basePerfs, ...basePracs])
   const now = buildSubMap(nowSummaries)
   const base = buildSubMap(baseSummaries)
   const line = computeGrowthLine(now, base, GROWTH_DEFS)
