@@ -32,6 +32,7 @@ from music21 import (
 # 運指・弦の推定 (音名算術, v64)。運指表示 (1stポジ以外のみ・弦は既定と異なる時のみ) に使用。
 from lib.difficulty_variant import apply_variant_recipe
 from lib.measure_number import normalize_measure_numbers
+from lib.voice_merge import merge_voices
 from lib.rhythm_recipe import apply_rhythm_recipe
 from lib.position_pass import resolve_sequence
 from lib.violin_position import (
@@ -525,6 +526,16 @@ try:
     _fixed_measures = normalize_measure_numbers(score)
     if _fixed_measures:
         print(f"[measure-number] normalized {_fixed_measures} split/suffixed measure(s)")
+    # 2026-09-05 (Tetsuo確定): 同じ五線の声部2 を 1 本にまとめる。声部が複数ある小節は notesAndRests が
+    # 空になり丸ごと落ちていた (教材6件・曲3件・45小節)。後段 (skill_extractor・譜面生成) も同じ形を
+    # 見るよう、まとめたときは tmp_path も書き換える。
+    _merged_voices = merge_voices(score)
+    if _merged_voices:
+        _tv = tempfile.NamedTemporaryFile(suffix=".musicxml", delete=False)
+        _tv.close()
+        score.write("musicxml", fp=_tv.name)
+        tmp_path = _tv.name
+        print(f"[voice-merge] merged voices in {_merged_voices} measure(s)")
     # v3.2 Commit D: tmp_path は musicxml_skill_extractor で後ほど再利用するため、
     # ここでは削除しない (analysis.json upload 後に削除する)
 
