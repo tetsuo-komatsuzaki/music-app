@@ -97,6 +97,16 @@ function fingerPressed(f: number): boolean {
   return f > 0 // 0 = 開放弦、-1 = 不明、-2 = 無し
 }
 
+/** かたちの音名 ("F#4" / "Bb4" / "C##5") → MIDI。不明・なし・読めない形は null */
+export function pitchToMidi(pitch: string): number | null {
+  const m = /^([A-G])([#b]*)(-?\d+)$/.exec(pitch)
+  if (!m) return null
+  const base: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }
+  let alter = 0
+  for (const ch of m[2]) alter += ch === "#" ? 1 : -1
+  return 12 * (parseInt(m[3], 10) + 1) + base[m[1]] + alter
+}
+
 /**
  * 1行がどの束に入るか。gapSec は前の音の鳴り始めからの実時間 (フィンガリング用)。
  * ミスは「その音への移動」に帰属する (R3) ので、束は 前のかたち→今のかたち で作る。
