@@ -241,6 +241,9 @@ model Performance {
   performanceDuration  Float?
   recordingBpm         Float? // 録音時のテンポガイドbpm (2026-08-03 カルテv2: テンポ帯分析用。旧録音はnull)
   guideOffsetSec       Float? // 1拍目(楽譜の起点)が録音の何秒目か (2026-08-27)。
+  /// ノート属性ストア (2026-09-05): 採点したときの曲の並びの版 (ScoreNote の指紋)。
+  /// 曲の再解析で並びが変わると版が変わり、この演奏は再解析まで集計から除かれる。旧録音は null
+  scoreNoteVersion     String?
   // リズム判定の基準。アプリ版のみ・Web版と旧録音はnull
   performanceDate      DateTime?
   uploadedAt           DateTime          @default(now())
@@ -539,6 +542,9 @@ model PracticePerformance {
   performanceDuration  Float?
   recordingBpm         Float? // 録音時のテンポガイドbpm (2026-08-03 カルテv2: テンポ帯分析用。旧録音はnull)
   guideOffsetSec       Float? // 1拍目(楽譜の起点)が録音の何秒目か (2026-08-27)。
+  /// ノート属性ストア (2026-09-05): 採点したときの曲の並びの版 (ScoreNote の指紋)。
+  /// 曲の再解析で並びが変わると版が変わり、この演奏は再解析まで集計から除かれる。旧録音は null
+  scoreNoteVersion     String?
   // リズム判定の基準。アプリ版のみ・Web版と旧録音はnull
   uploadedAt           DateTime @default(now())
 
@@ -1651,4 +1657,192 @@ model PracticeItemSubtaskCount {
 
   @@unique([practiceItemId, subtaskId])
   @@index([subtaskId, count])
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ノート属性ストア (2026-09-05 Tetsuo確定 ・ 仕様: claude.ai/code/artifact/7a7d2c1f-57b0-4b40-926a-cd88c1d8513a)
+// 課題カタログの箱をやめ、1音ごとの属性で数える。正となる表は3つ。
+//   NoteProfile      音のかたち ・ 属性の組 = 1行 (全列で一意)。曲や教材とは無関係の辞書
+//   ScoreNote        音の並び   ・ 曲と教材の1音 = 1行。繰り返しを展開した演奏順
+//   PerformanceNote  演奏の明細 ・ 演奏の1音 = 1行。comparison_result.json の全項目
+// 集計 (課題ごとのミス数・遷移・累計・教材の出現回数) は保存しない。読むときに明細から作る。
+// 属性の集合は版で凍結する (NOTE_PROFILE_VERSION = 1)。列を足す = 次の版 = 全件再構築。
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// 1行 = 「同時に鳴り始める音のまとまり」のかたち。単音なら構成音1つ、重音なら2〜4つ。
+/// 存在しない構成音は "none"、分からない値は "unknown" / -1 で持つ。NULL は入れない
+/// (NULL 同士は等しいと見なされず一意制約が効かないため)。
+/// 一意性は全属性から作る指紋 key で保証する (Postgres の索引は32列までなので全列索引は不可)。
+model NoteProfile {
+  id        Int    @id @default(autoincrement())
+  version   Int // 属性集合の版。いまは 1
+  key       String @unique // 全属性を決まった順に並べた sha1 (先頭40桁)。同時解析でも同じ組は同じ行になる
+  noteCount Int // 構成音の数。1 なら単音
+
+  // ── 構成音ごと ・ 低い方から 1〜4 ──
+  pitch1         String // 音名+オクターブ "E5"。無い構成音は "none"
+  pitch2         String
+  pitch3         String
+  pitch4         String
+  string1        String // 弦 G/D/A/E。推定できなければ "unknown"、無い構成音は "none"
+  string2        String
+  string3        String
+  string4        String
+  finger1        Int // 指 0〜4。推定できなければ -1、無い構成音は -2
+  finger2        Int
+  finger3        Int
+  finger4        Int
+  noteType1      String // 音価の種類 whole/half/quarter/eighth/16th/32nd/64th…。無い構成音は "none"
+  noteType2      String
+  noteType3      String
+  noteType4      String
+  dotted1        Boolean
+  dotted2        Boolean
+  dotted3        Boolean
+  dotted4        Boolean
+  durationBeats1 Float // 拍単位の長さ (付点・連符を反映した実値)。無い構成音は -1
+  durationBeats2 Float
+  durationBeats3 Float
+  durationBeats4 Float
+
+  // ── 音全体 ──
+  position        Int // 手のポジション。開放弦は直前の手のポジションを引き継ぐ。低信頼は -1
+  techSlur        Boolean
+  techPortato     Boolean
+  techStaccato    Boolean
+  techBowStaccato Boolean
+  techSpiccato    Boolean
+  techRicochet    Boolean
+  techPizzicato   Boolean
+  techTremolo     Boolean
+  techVibrato     Boolean
+  techTrill       Boolean
+  techMordent     Boolean
+  techGlissando   Boolean
+  techHarmonic    Boolean
+  tupletActual    Int // 連符の比 actual:normal。連符でなければ 0:0
+  tupletNormal    Int
+  onBeat          Boolean
+  chordCont       Boolean // 前後も重音か (連続重音)
+  restBefore      Float // 直前の休符の長さ (拍)。無ければ 0
+
+  scoreNotes     ScoreNote[] @relation("cur")
+  prevScoreNotes ScoreNote[] @relation("prev")
+
+  @@index([pitch1])
+  @@index([position])
+}
+
+enum ScoreNoteTarget {
+  score
+  practice
+}
+
+/// 曲と教材の1音 = 1行。繰り返しを展開した演奏順で持つ。休符は noteIndex を消費し行は作らない。
+/// 前の音 (prevProfileId) は演奏順で決める: 休符は透過、重音は相手にしない、曲頭は null。
+/// 再解析はその曲の行を全部消して書き直す。並びの指紋を Performance.scoreNoteVersion と比べる。
+model ScoreNote {
+  targetType       ScoreNoteTarget
+  targetId         String // Score.id または PracticeItem.id
+  noteIndex        Int // 演奏順の通し番号 (comparison_result の note_index と同じ番号体系)
+  writtenNoteIndex Int // 記譜上の音符番号。繰り返しの2回目は同じ記譜の音を指す
+  measure          Int // 記譜上の小節番号
+  pass             Int // 何回目に鳴る音か。繰り返しが無ければ 1
+  profileId        Int
+  prevProfileId    Int?
+  durationSec      Float? // 秒単位の長さ。想定テンポで換算。テンポが無ければ null
+  beatOffset       Float // 小節内の位置 (拍)
+
+  profile     NoteProfile  @relation("cur", fields: [profileId], references: [id])
+  prevProfile NoteProfile? @relation("prev", fields: [prevProfileId], references: [id])
+
+  @@id([targetType, targetId, noteIndex])
+  @@index([targetType, targetId])
+  @@index([profileId])
+  @@index([prevProfileId, profileId])
+}
+
+enum PerformanceKind {
+  score
+  practice
+}
+
+/// 演奏の1音 = 1行。comparison_result.json の全項目を落とさず写す。
+/// ユーザー・日時・曲は Performance / PracticePerformance が持つ。並びとの対応は
+/// (Performance.scoreId, noteIndex) で ScoreNote へ。対応表は要らない。
+model PerformanceNote {
+  performanceKind PerformanceKind
+  performanceId   String // Performance.id または PracticePerformance.id
+  noteIndex       Int
+
+  // comparison の場所情報 (正は ScoreNote だが、ファイルにあるので写す)
+  measureNumber Int?
+  noteName      String?
+
+  // 合否
+  pitchOk          Boolean?
+  startOk          Boolean?
+  evaluationStatus String // ok / pitch_miss / timing_miss / not_detected / pitch_only / double_stop_* / harmonic_*
+
+  // ずれ
+  pitchCentsError Float?
+  startDiffSec    Float?
+
+  // 期待 (録音テンポで換算済)
+  expectedStartSec Float?
+  expectedEndSec   Float?
+  expectedPitchHz  Float?
+
+  // 検出
+  detectedStartSec   Float?
+  detectedEndSec     Float?
+  detectedPitchHz    Float?
+  timingFromStartSec Float?
+
+  // 信頼
+  matchConfidence Float?
+  validFrames     Int?
+  globalShiftSec  Float?
+  currentShiftSec Float?
+
+  // 奏法の特徴 (品質判定の測定値。判定そのものは別系統)
+  onsetCountInNote    Int?
+  onsetRatePerSec     Float?
+  pitchAltCount       Int?
+  pitchAltSemitones   Float?
+  ampStrokeCount      Int?
+  attackPeakFrac      Float?
+  decayRatio          Float?
+  glissRangeSemitones Float?
+  glissMonotonicFrac  Float?
+  glissDirection      String?
+
+  // 構成音ごと (comparison.pitches[]) ・ 単音は 1 だけ
+  expectedHz1 Float?
+  expectedHz2 Float?
+  expectedHz3 Float?
+  expectedHz4 Float?
+  detectedHz1 Float?
+  detectedHz2 Float?
+  detectedHz3 Float?
+  detectedHz4 Float?
+  cents1      Float?
+  cents2      Float?
+  cents3      Float?
+  cents4      Float?
+  pitchOk1    Boolean?
+  pitchOk2    Boolean?
+  pitchOk3    Boolean?
+  pitchOk4    Boolean?
+  presenceOk1 Boolean?
+  presenceOk2 Boolean?
+  presenceOk3 Boolean?
+  presenceOk4 Boolean?
+
+  // 足すもの (ファイルには無いが作れる。読むたびに引かずに列に置く)
+  playedSec Float? // detected_end - detected_start
+  durRatio  Float? // playedSec / 期待の長さ
+
+  @@id([performanceKind, performanceId, noteIndex])
+  @@index([performanceId])
 }
