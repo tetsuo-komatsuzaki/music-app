@@ -317,13 +317,18 @@ def build_score_notes(
         if el.get("is_rest"):
             rest_accum += float(k.get("duration_beats") or 0.0)
             continue
-        # 手のポジション (R2)
+        # 手のポジション (R2 / F16)
+        #   低信頼の音        → 不明 (-1)。手のポジションも分からなくなるので引き継ぎを切る
+        #   開放弦 (position None, 低信頼でない) → 直前の手のポジションを引き継ぐ
+        #   それ以外          → その音のポジションが新しい手のポジション
         kpos = k.get("position")
         if k.get("position_confidence") == "low":
-            kpos = None
-        if kpos is not None:
-            hand_position = int(kpos)
-        position = hand_position if hand_position is not None else POS_UNKNOWN
+            hand_position = None
+            position = POS_UNKNOWN
+        else:
+            if kpos is not None:
+                hand_position = int(kpos)
+            position = hand_position if hand_position is not None else POS_UNKNOWN
         # 連続重音: 前後の非休符が重音か
         p = pos_in_list[i]
         neighbor_chord = False
